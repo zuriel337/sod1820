@@ -37,13 +37,16 @@ if sys.argv[2]=='index':
     assert a in t; open(q,'w').write(t.replace(a, a.replace('**2029 ACTIVE**','**2029 ACTIVE** (v2.1, 12.11.2026)')))
 PY
 }
-snap_next() { py "$1" <<'PY'
+snap_next() { py "$1" "${2:-20261113}" <<'PY'
 import sys; d=sys.argv[1]+'/audits/g1-agent-entry/'; s=open(d+'G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt').read().split('\n'); mode=sys.argv[2]
 if mode=='activate':
     s=[l for l in s if not l.startswith('R|ai_quota_law|')]; s.append('L|ai_quota_law|4|platform_tiers_law|ai|0123456789aa')
 elif mode=='owner': s=[('L|platform_tiers_law|5|reality_graph_law|'+'|'.join(l.split('|')[4:]) if l.startswith('L|platform_tiers_law|') else l) for l in s]
 elif mode=='body': s=[('|'.join(l.split('|')[:5])+'|eeeeeeeeeeee' if l.startswith('L|number_page_law|') else l) for l in s]
-open(d+'G1_LAWS_ACTIVE_SNAPSHOT_20261113.txt','w').write('\n'.join(s))
+elif mode in ('bump-bad-owner','bump-codex-owner','bump-ok'):
+    owner={'bump-bad-owner':'never_existed_law','bump-codex-owner':'project_codex.invented_item','bump-ok':'platform_tiers_law'}[mode]
+    s=[('L|platform_tiers_law|6|'+owner+'|'+l.split('|')[4]+'|abcdefabcdef' if l.startswith('L|platform_tiers_law|') else l) for l in s]
+open(d+'G1_LAWS_ACTIVE_SNAPSHOT_'+sys.argv[3]+'.txt','w').write('\n'.join(s))
 PY
 }
 reset; expect S0 PASS '' "no change"
@@ -69,5 +72,29 @@ d['steps'].append({'step':'99','file':'supabase/proposed/29991231000000_proof_ne
 open(sys.argv[1]+'/supabase/proposed/29991231000000_proof_new_store.sql','w').write('create unlogged table public.proof_new_store (id int);\n')
 PY
 commit s15; expect S15 FAIL 'proof_new_store has no "-- OWNER-CHECK:"' "apply package gains a new store without OWNER-CHECK"
+# ── Round 2 (Codex on c45dd3740): the same real G1 run, on a real base and head, for each new case and its allowed counterpart ──
+codex_next() { py "$1" <<'PY'
+import sys; d=sys.argv[1]+'/audits/g1-agent-entry/'; s=open(d+'G1_PROJECT_CODEX_SLUGS_20261112.txt').read().rstrip('\n')
+open(d+'G1_PROJECT_CODEX_SLUGS_20261113.txt','w').write(s+'\nC|39|'+sys.argv[2]+'\n')
+PY
+}
+new_doc() { printf '# Indexing duty contract\n\n%s\n' "$1" > "$WT/docs/indexing-duty-contract-v1.md"; }
+APPR='work_log:a3d65374-a73a-4131-a00f-d3a050851064'
+reset; snap_next bump-bad-owner; commit r1; expect R1 FAIL 'platform_tiers_law: owner never_existed_law does not resolve' "newer snapshot: version bump that points to an owner that does not exist"
+reset; snap_next bump-ok; commit r1b; expect R1b PASS '' "newer snapshot: a proper version bump"
+reset; snap_next bump-codex-owner; commit r2; expect R2 FAIL 'owner project_codex.invented_item does not resolve' "newer snapshot: owner is a project_codex item that does not exist"
+reset; add_oi '| some duty | `project_codex.invented_item` |'; commit r3; expect R3 FAIL 'project_codex.invented_item, which is not a proven codex item' "Owner Index row routes to a codex item that does not exist"
+reset; codex_next brand_new_codex_item; commit r3b; expect R3b FAIL 'project_codex.brand_new_codex_item: new codex item without a recorded approval' "newer codex record adds an item without approval"
+reset; codex_next brand_new_codex_item; printf 'C|brand_new_codex_item|%s|2026-11-13\n' "$APPR" >> "$WT/audits/g1-agent-entry/G1_LAW_APPROVALS.txt"; commit r3c; expect R3c PASS '' "same, with a well-formed approval line (authenticity: human gate)"
+reset; new_doc 'OWNER-ROUTING: GENUINELY_NEW_DOMAIN'; commit r4; expect R4 FAIL 'GENUINELY_NEW_DOMAIN is a declaration, not an approval' "new contract declares a new domain without an approval"
+reset; new_doc "OWNER-ROUTING: GENUINELY_NEW_DOMAIN APPROVAL:$APPR"; commit r4b; expect R4b PASS '' "same, with APPROVAL:work_log:<uuid> (authenticity: human gate)"
+reset; new_doc 'Rules.'; add_oi '| indexing duty | `docs/indexing-duty-contract-v1.md` |'; commit r5; expect R5 FAIL 'self-routing' "new contract adds its own Owner Index line"
+reset; new_doc 'OWNER-ROUTING: EXTEND_EXISTING experience_governance_foundation_v1_law'; add_oi '| indexing duty | `docs/indexing-duty-contract-v1.md` (EXTEND_EXISTING `experience_governance_foundation_v1_law`) |'; commit r5b; expect R5b PASS '' "same, declared as an extension of an active owner"
+reset; add_oi '| Legacy WordPress compatibility adapter | `ai_quota_law` |'; commit r6; expect R6 FAIL 'ai_quota_law, which is a retired law' "a Legacy-labelled Owner Index row routes to a retired owner"
+reset; add_oi '| paid AI quota (history) | `ai_quota_law` — RETIRED, successor `platform_tiers_law` |'; commit r6b; expect R6b PASS '' "explicit RETIRED status in the owner cell"
+reset; printf "SELECT '--'; CREATE TABLE public.g1_probe (id int);\n" > "$WT/supabase/migrations/29991231000001_g1_probe.sql"; commit r7; expect R7 FAIL 'new table public.g1_probe has no "-- OWNER-CHECK:"' "a table hidden after a '--' inside a string"
+reset; printf -- "-- OWNER-CHECK: EXTEND_EXISTING traffic_intelligence_law OPERATIONAL_RUNTIME\ncreate table public.g1_store (id int);\n" > "$WT/supabase/migrations/29991231000002_g1_store.sql"; commit r8; expect R8 FAIL 'permission to create a new store is separate' "new store under an existing owner without a store permission"
+reset; printf -- "-- OWNER-CHECK: EXTEND_EXISTING traffic_intelligence_law OPERATIONAL_RUNTIME APPROVAL:%s\ncreate table public.g1_store (id int);\n" "$APPR" > "$WT/supabase/migrations/29991231000002_g1_store.sql"; commit r8b; expect R8b PASS '' "same, with owner, classification and store permission"
+reset; snap_next bump-ok 20261101; commit r9; expect R9 FAIL 'must be dated after G1_LAWS_ACTIVE_SNAPSHOT_20261112' "a back-dated snapshot is added"
 [ $MISMATCH -eq 0 ] && echo "RESULT: every scenario behaved as expected" || echo "RESULT: UNEXPECTED OUTCOME(S) — see MISMATCH lines"
 exit $MISMATCH

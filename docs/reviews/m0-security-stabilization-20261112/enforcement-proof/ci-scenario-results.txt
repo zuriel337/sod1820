@@ -1,3 +1,5 @@
+# run-ci-scenarios.sh output (34 scenarios: S0-S15 + R1-R9). Ran locally on the G1 round-2 working state BEFORE the CL-16 apply files were added;
+# not re-run on the final pushed head. Exit 0.
 ok S0 PASS — no change
 ok S1 FAIL — new contract file without routing
 ok S2 PASS — new file declared EXTEND_EXISTING of an active owner
@@ -16,4 +18,20 @@ ok S12b FAIL — same, with an invented approval text
 ok S13 FAIL — new snapshot changes an owner at the same version
 ok S14 FAIL — new snapshot edits a body without a new version
 ok S15 FAIL — apply package gains a new store without OWNER-CHECK
+ok R1 FAIL — newer snapshot: version bump that points to an owner that does not exist
+ok R1b PASS — newer snapshot: a proper version bump
+ok R2 FAIL — newer snapshot: owner is a project_codex item that does not exist
+ok R3 FAIL — Owner Index row routes to a codex item that does not exist
+ok R3b FAIL — newer codex record adds an item without approval
+ok R3c PASS — same, with a well-formed approval line (authenticity: human gate)
+ok R4 FAIL — new contract declares a new domain without an approval
+ok R4b PASS — same, with APPROVAL:work_log:<uuid> (authenticity: human gate)
+ok R5 FAIL — new contract adds its own Owner Index line
+ok R5b PASS — same, declared as an extension of an active owner
+ok R6 FAIL — a Legacy-labelled Owner Index row routes to a retired owner
+ok R6b PASS — explicit RETIRED status in the owner cell
+ok R7 FAIL — a table hidden after a '--' inside a string
+ok R8 FAIL — new store under an existing owner without a store permission
+ok R8b PASS — same, with owner, classification and store permission
+ok R9 FAIL — a back-dated snapshot is added
 RESULT: every scenario behaved as expected

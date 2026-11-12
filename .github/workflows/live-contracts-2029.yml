@@ -343,6 +343,10 @@ jobs:
         run: bash scripts/run-m0a-db-permissions-sql-test.sh
       - name: M0-B ai_quota_check refuses a missing identity (exact live body, rollback restores it)
         run: bash scripts/run-m0b-ai-quota-sql-test.sh
+      - name: G1 rule guard (CL-16) proposal lifecycle (missing function and drift stop both files, exact apply, no-op re-apply, exact rollback; M0 files do not touch it)
+        run: bash scripts/run-g1-rule-guard-sql-test.sh
+      - name: G1 rule guard (CL-16) case matrix, live vs applied (40 cases, each with an expected outcome and refusal reason)
+        run: bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh
       - name: M0-D contributor research view admits public candidates (one token, status kept, private and person-only excluded, exact rollback)
         run: bash scripts/run-m0d-contributor-view-sql-test.sh
       - name: «הגילוי היומי» = «תורת הרמז» intake proposal (only admin_only changes; a second run and every changed live state refuse; the rollback restores the exact row)

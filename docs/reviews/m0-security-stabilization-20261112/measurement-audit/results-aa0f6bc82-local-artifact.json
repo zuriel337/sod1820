@@ -1,0 +1,1356 @@
+{
+ "captured_at": "2026-11-12T19:52:12.622Z",
+ "artifact_root": "/tmp/claude-0/-home-user-sod1820/23bf1f6f-eef5-53d9-a80b-4b755829d0b9/scratchpad/wt-live",
+ "scripts_served_locally": [
+  "https://www.googletagmanager.com/gtag/js?id=G-V3H3E20FLY",
+  "https://connect.facebook.net/en_US/fbevents.js",
+  "https://connect.facebook.net/signals/config/992562036849823"
+ ],
+ "other_third_party_requests_answered_locally": [],
+ "summary": [
+  {
+   "family": "post (switch between two posts)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/post/sod-1820-audit-a",
+     "document_title": "הפוסט לא נמצא · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/sod-1820-audit-a"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\""
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"8931cd9e-0920-4aab-9b70-b6580cf86baa\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"8931cd9e-0920-4aab-9b70-b6580cf86baa\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 274
+    },
+    {
+     "step": "in-site navigation",
+     "href": "https://sod1820.co.il/post/sod-1820-audit-b",
+     "document_title": "הפוסט לא נמצא · SOD1820",
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/post/:item",
+        "page_location": "https://sod1820.co.il/post/:item",
+        "page_title": "SOD1820",
+        "page_referrer": ""
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/sod-1820-audit-b",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/post/sod-1820-audit-a",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/sod-1820-audit-b"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":8000,\"engaged_ms\":8000,\"max_scroll_pct\":0,\"flush_reason\":\"route_cha"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"8931cd9e-0920-4aab-9b70-b6580cf86baa\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 0
+    },
+    {
+     "step": "back",
+     "href": "https://sod1820.co.il/post/sod-1820-audit-a",
+     "document_title": "הפוסט לא נמצא · SOD1820",
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/post/:item",
+        "page_location": "https://sod1820.co.il/post/:item",
+        "page_title": "SOD1820",
+        "page_referrer": ""
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/sod-1820-audit-a",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/post/sod-1820-audit-b",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/sod-1820-audit-a"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":7000,\"engaged_ms\":7000,\"max_scroll_pct\":0,\"flush_reason\":\"route_cha"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"8931cd9e-0920-4aab-9b70-b6580cf86baa\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 0
+    },
+    {
+     "step": "refresh",
+     "href": "https://sod1820.co.il/post/sod-1820-audit-a",
+     "document_title": "הפוסט לא נמצא · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/sod-1820-audit-a"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":7000,\"engaged_ms\":7000,\"max_scroll_pct\":0,\"flush_reason\":\"pagehide\""
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"performance\",\"p_event_type\":\"web_vital\",\"p_path\":\"/post/:item\",\"p_app_context\":\"chrome\",\"p_session_id\":null,\"p_is_bot\":false,\"p_props\":{\"vitals_version\":1,\"cls\":0,\"lcp_ms\":232,\"inp_ms\":null,\"fcp_ms\":100,\"ttfb_m"
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\""
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"8931cd9e-0920-4aab-9b70-b6580cf86baa\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"8931cd9e-0920-4aab-9b70-b6580cf86baa\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 134
+    }
+   ]
+  },
+  {
+   "family": "number (switch between two numbers)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/number/1820",
+     "document_title": "1820 · דף המספר · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/1820"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"72c9088c-8067-4bd8-8903-f37dbefa574c\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"72c9088c-8067-4bd8-8903-f37dbefa574c\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/is_number_indexable",
+       "body": "{\"p_value\":1820}"
+      },
+      {
+       "path": "/rest/v1/rpc/posts_by_number_strict",
+       "body": "{\"num\":1820,\"lim\":3}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_lookup",
+       "body": "{\"p_value\":1820,\"p_limit\":500,\"p_after_bid_id\":null}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_zero_scale",
+       "body": "{\"p_value\":1820}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_journey",
+       "body": "{\"p_value\":1820}"
+      },
+      {
+       "path": "/rest/v1/rpc/number_neighbors",
+       "body": "{\"p_value\":1820,\"p_limit\":12}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_dossier",
+       "body": "{\"p_value\":1820}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_verses_by_gematria",
+       "body": "{\"p_value\":1820,\"p_limit\":6}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 933
+    },
+    {
+     "step": "in-site navigation",
+     "href": "https://sod1820.co.il/number/26",
+     "document_title": "26 · דף המספר · SOD1820",
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/number/:value",
+        "page_location": "https://sod1820.co.il/number/:value",
+        "page_title": "SOD1820",
+        "page_referrer": ""
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/26",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/number/1820",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/26"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/posts_by_number_strict",
+       "body": "{\"num\":26,\"lim\":3}"
+      },
+      {
+       "path": "/rest/v1/rpc/is_number_indexable",
+       "body": "{\"p_value\":26}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_lookup",
+       "body": "{\"p_value\":26,\"p_limit\":500,\"p_after_bid_id\":null}"
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":8000,\"engaged_ms\":8000,\"max_scroll_pct\":0,\"flush_reason\":\"route_"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_zero_scale",
+       "body": "{\"p_value\":26}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"72c9088c-8067-4bd8-8903-f37dbefa574c\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_dossier",
+       "body": "{\"p_value\":26}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_journey",
+       "body": "{\"p_value\":26}"
+      },
+      {
+       "path": "/rest/v1/rpc/number_neighbors",
+       "body": "{\"p_value\":26,\"p_limit\":12}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_verses_by_gematria",
+       "body": "{\"p_value\":26,\"p_limit\":6}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 0
+    },
+    {
+     "step": "back",
+     "href": "https://sod1820.co.il/number/1820",
+     "document_title": "1820 · דף המספר · SOD1820",
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/number/:value",
+        "page_location": "https://sod1820.co.il/number/:value",
+        "page_title": "SOD1820",
+        "page_referrer": ""
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/1820",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/number/26",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/1820"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":7000,\"engaged_ms\":7000,\"max_scroll_pct\":0,\"flush_reason\":\"route_"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"72c9088c-8067-4bd8-8903-f37dbefa574c\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 0
+    },
+    {
+     "step": "refresh",
+     "href": "https://sod1820.co.il/number/1820",
+     "document_title": "1820 · דף המספר · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/1820"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":7000,\"engaged_ms\":7000,\"max_scroll_pct\":0,\"flush_reason\":\"pagehi"
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"performance\",\"p_event_type\":\"web_vital\",\"p_path\":\"/number/:value\",\"p_app_context\":\"chrome\",\"p_session_id\":null,\"p_is_bot\":false,\"p_props\":{\"vitals_version\":1,\"cls\":0.0128,\"lcp_ms\":988,\"inp_ms\":null,\"fcp_ms\":80,"
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"72c9088c-8067-4bd8-8903-f37dbefa574c\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"72c9088c-8067-4bd8-8903-f37dbefa574c\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/posts_by_number_strict",
+       "body": "{\"num\":1820,\"lim\":3}"
+      },
+      {
+       "path": "/rest/v1/rpc/is_number_indexable",
+       "body": "{\"p_value\":1820}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_zero_scale",
+       "body": "{\"p_value\":1820}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_lookup",
+       "body": "{\"p_value\":1820,\"p_limit\":500,\"p_after_bid_id\":null}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_dossier",
+       "body": "{\"p_value\":1820}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_number_journey",
+       "body": "{\"p_value\":1820}"
+      },
+      {
+       "path": "/rest/v1/rpc/number_neighbors",
+       "body": "{\"p_value\":1820,\"p_limit\":12}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_verses_by_gematria",
+       "body": "{\"p_value\":1820,\"p_limit\":6}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 159
+    }
+   ]
+  },
+  {
+   "family": "number expression (personal-looking phrase)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/number/%D7%99%D7%95%D7%A1%D7%99%20%D7%9B%D7%94%D7%9F",
+     "document_title": "דף המספר והביטוי · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/%D7%99%D7%95%D7%A1%D7%99%20%D7%9B%D7%94%D7%9F"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"86026bdb-ac08-4b63-bc94-980e5056d01d\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"86026bdb-ac08-4b63-bc94-980e5056d01d\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/fn_method_profile",
+       "body": "{\"p_phrase\":\"יוסי כהן\",\"p_depth\":\"value\"}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 233
+    }
+   ]
+  },
+  {
+   "family": "home -> world (real link click)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/",
+     "document_title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+     "app_gtag_calls": [],
+     "ga_events": [],
+     "ga_page_views": 0,
+     "app_fbq_calls": [],
+     "pixel": [],
+     "capi": [],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/\",\"p_referrer\":null,\"p_visitor\":\"8481722c-1a2f-4cdc-b993-48375d89e3c6\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/\",\"p_referrer\":null,\"p_visitor\":\"8481722c-1a2f-4cdc-b993-48375d89e3c6\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": null
+    },
+    {
+     "step": "in-site link click",
+     "href": "https://sod1820.co.il/world",
+     "document_title": "העולם · SOD1820 · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/world"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":9000,\"engaged_ms\":9000,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"enga"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":24,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 302
+    },
+    {
+     "step": "back",
+     "href": "https://sod1820.co.il/",
+     "document_title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/world",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [],
+     "pixel": [],
+     "capi": [],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/world\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":6000,\"engaged_ms\":6000,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\","
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/\",\"p_referrer\":null,\"p_visitor\":\"8481722c-1a2f-4cdc-b993-48375d89e3c6\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 0
+    }
+   ]
+  },
+  {
+   "family": "post list",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/post",
+     "document_title": "הפוסטים · SOD1820 2029 · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engage"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post\",\"p_referrer\":null,\"p_visitor\":\"d24af6e1-63a6-44b2-a88c-5ef9e5398a56\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post\",\"p_referrer\":null,\"p_visitor\":\"d24af6e1-63a6-44b2-a88c-5ef9e5398a56\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engage"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post\",\"p_referrer\":null,\"p_visitor\":\"d24af6e1-63a6-44b2-a88c-5ef9e5398a56\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 125
+    }
+   ]
+  },
+  {
+   "family": "writer",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/researcher/audit-writer",
+     "document_title": "קורפוס חוקר · SOD1820 · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/researcher/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/researcher/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/researcher/audit-writer"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/researcher/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_cha"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/researcher/:item\",\"p_referrer\":null,\"p_visitor\":\"1d153f50-d68d-4b9b-bed0-cacbb307dd5e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/researcher/:item\",\"p_referrer\":null,\"p_visitor\":\"1d153f50-d68d-4b9b-bed0-cacbb307dd5e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 153
+    }
+   ]
+  },
+  {
+   "family": "book",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/book/audit-book",
+     "document_title": "הפריט אינו זמין לציבור · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/book/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/book/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/book/audit-book"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/book/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\""
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/book/:item\",\"p_referrer\":null,\"p_visitor\":\"f536e09c-5634-49a5-84e0-57845249f3c1\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/book/:item\",\"p_referrer\":null,\"p_visitor\":\"f536e09c-5634-49a5-84e0-57845249f3c1\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 206
+    }
+   ]
+  },
+  {
+   "family": "video",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/video/audit-video",
+     "document_title": "הסרטון לא נמצא · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/video/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/video/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/video/audit-video"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/video/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\","
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/video/:item\",\"p_referrer\":null,\"p_visitor\":\"87da0366-6f19-4d94-a962-e5a3148f6c05\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/video/:item\",\"p_referrer\":null,\"p_visitor\":\"87da0366-6f19-4d94-a962-e5a3148f6c05\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 188
+    }
+   ]
+  },
+  {
+   "family": "topic",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/topic/audit-topic",
+     "document_title": "סוד 1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/topic/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/topic/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/topic/audit-topic"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/topic/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\","
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/topic/:item\",\"p_referrer\":null,\"p_visitor\":\"b0936778-eb8c-4f56-ae2d-1cae6daf1cd7\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/topic/:item\",\"p_referrer\":null,\"p_visitor\":\"b0936778-eb8c-4f56-ae2d-1cae6daf1cd7\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 171
+    }
+   ]
+  },
+  {
+   "family": "unknown path (404)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/no-such-page-audit",
+     "document_title": "הפוסט לא נמצא · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/no-such-page-audit",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/no-such-page-audit",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/no-such-page-audit"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/no-such-page-audit\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_c"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/no-such-page-audit\",\"p_referrer\":null,\"p_visitor\":\"5dc90424-ddf4-49f5-b88a-560393a0e82d\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/no-such-page-audit\",\"p_referrer\":null,\"p_visitor\":\"5dc90424-ddf4-49f5-b88a-560393a0e82d\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 235
+    }
+   ]
+  },
+  {
+   "family": "old WordPress root permalink",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/old-root-slug-audit",
+     "document_title": "הפוסט לא נמצא · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/old-root-slug-audit",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/old-root-slug-audit",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/old-root-slug-audit"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/old-root-slug-audit\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/old-root-slug-audit\",\"p_referrer\":null,\"p_visitor\":\"1faf9967-6816-4917-871e-f8fd90f2fa96\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/old-root-slug-audit\",\"p_referrer\":null,\"p_visitor\":\"1faf9967-6816-4917-871e-f8fd90f2fa96\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 162
+    }
+   ]
+  },
+  {
+   "family": "arrival with campaign and click ids",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/post/sod-1820-audit-a?utm_source=whatsapp&utm_medium=share&utm_campaign=audit&fbclid=AUDITFB&gclid=AUDITG&q=secret-term",
+     "document_title": "הפוסט לא נמצא · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "view_search_results",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "ep.search_term": "secret-term"
+       }
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/sod-1820-audit-a?utm_source=whatsapp&utm_medium=share&utm_campaign=audit&fbclid=AUDITFB&gclid=AUDITG&q=secret-term"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\""
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"83113e09-673a-4c5c-8c2c-5d12a1da16a5\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"83113e09-673a-4c5c-8c2c-5d12a1da16a5\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 230
+    }
+   ]
+  },
+  {
+   "family": "site search parameter on a page",
+   "steps": [
+    {
+     "step": "direct entry",
+     "href": "https://sod1820.co.il/world?q=%D7%A1%D7%95%D7%93%20%D7%90%D7%99%D7%A9%D7%99",
+     "document_title": "העולם · SOD1820 · SOD1820",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "view_search_results",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "ep.search_term": "סוד אישי"
+       }
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/world?q=%D7%A1%D7%95%D7%93%20%D7%90%D7%99%D7%A9%D7%99"
+      }
+     ],
+     "first_party": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/world\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engag"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/world\",\"p_referrer\":null,\"p_visitor\":\"ce97bd19-c3c7-4075-9dfc-31c85931a50c\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "body": "{\"p_path\":\"/world\",\"p_referrer\":null,\"p_visitor\":\"ce97bd19-c3c7-4075-9dfc-31c85931a50c\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":40,\"p_before\":null}"
+      },
+      {
+       "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+       "body": "{\"p_limit\":24,\"p_before\":null}"
+      }
+     ],
+     "other_third_party": [],
+     "first_ga_hit_after_ms": 206
+    }
+   ]
+  }
+ ]
+}

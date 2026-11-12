@@ -268,3 +268,119 @@
   - שינוי ישיר במסד שלא עובר ב־Git.
   - הערכים הצפויים של CL-13: בידי הבעלים.
   - ‏GA4 ו־GSC.
+
+## 5. מסירה לסשן הבא (12.11.2026, ערב): נעצר בנקודה בטוחה
+
+**הוראת ZURIEL:** העבודה עוברת לסשן Claude חדש, בתיאום וביקורת של Codex. לא נפתח סבב תיקונים נוסף. אין כאן אישור למיזוג, לפריסה, להחלת SQL, לשינוי הרשאות או למחיקה. סעיפים 1–4 למעלה מתארים את מצב `c45dd3740`. השינויים מאז מרוכזים כאן.
+
+### 5.1 מצב Git
+
+| פריט | ערך |
+|---|---|
+| ענף / PR | `claude/sod1820-system-audit-roadmap-3793us` · ‏#1321 (טיוטה, לא למיזוג) |
+| בסיס | `origin/main` = Production = `aa0f6bc82b8c94286374b1f51208037502994eab` (0 מאחור) |
+| הראש האחרון שנבדק | `c45dd3740e4db5c5a6d83d4c15728e95078e1ff7`. ‏CI ירוק (15/15) וביקורת Codex |
+| קומיט המסירה | ההורה: `c45dd3740`. ה־SHA המלא נמצא ברשומת היומן ובדוח השיחה. ‏CI על הראש הזה: ראו שם |
+| חומר מקומי בלבד (לא נדחף) | (1) ענף `claude/guest-ai-trial-20261112` @ `f9bb91a68` (בסיס `a41b149d8`, ניסיון AI לאורח). דחיפה דורשת אישור; בלעדיה הוא יאבד עם המכולה. (2) worktree ‏`wt-live` בתיקיית ה־scratchpad (‏`aa0f6bc82` במצב detached, עם התוצר המקומי). (3) `gtag.js`, ‏`fbevents.js` ותצורת הפיקסל שהורדו: קוד צד שלישי, לא נשמר במאגר. (4) הפלט הגולמי של קוראי `wf_48e2be42-1d4` (‏`audit/*.json`): המסקנות כבר ברשימה הזו. (2) ו־(3) נוצרים מחדש לפי `measurement-audit/README.md` |
+
+### 5.2 ארבע קבוצות הממצאים של Codex (סבב 2, על `c45dd3740`)
+
+| קבוצה | מצב | מה מומש / נבדק | מה פתוח |
+|---|---|---|---|
+| **1. ‏G1** | **IMPLEMENTED, BRANCH-ONLY** | **מומש:** <br>• התצלום החדש ביותר הוא המצב הנוכחי (fixtures נשענים על התצלום המתוארך 12.11); תצלום חדש נבדק גם מול הקודם וגם לעצמו. <br>• `project_codex.<slug>` נבדק מול רשומה מתוארכת `G1_PROJECT_CODEX_SLUGS_20261112.txt` (35, קריאה בלבד). פריט חדש צריך `C|slug|work_log:<uuid>|date`. <br>• `GENUINELY_NEW_DOMAIN` ו־`SUPERSEDE_EXISTING` אינם אישור, וצריכים `APPROVAL:work_log:<uuid>`. <br>• ניתוב עצמי של מסמך חדש מזוהה (האינדקס נקרא כפי שהיה בבסיס). <br>• "Legacy" בתווית אינו היסטוריה; רק סטטוס מפורש בתא הבעלים. <br>• lexer ‏SQL מבחין מחרוזת מהערה; מקרה הרגרסיה `SELECT '--'; CREATE TABLE public.g1_probe` מכוסה. <br>• טבלה חדשה: קיום בעלים והיתר מאגר הן בדיקות נפרדות. <br>**נבדק:** <br>• smoke ‏44/44, מקומית ובמצב CI מול בסיס אמיתי. <br>• החבילה הקשורה 139/139. <br>• `run-ci-scenarios.sh` ‏34/34 כמצופה (‏S0–S15 ו־R1–R9). רץ לפני קובצי CL-16, ולא רץ שוב על הראש הסופי | • **אישור סשן החוזים לכלל היתר המאגר.** המימוש הנוכחי: Intake v13 §10 (סיווג) ועוד `APPROVAL:work_log:<uuid>`. <br>• שתי fixtures של סשן החוזים (ok1/ok2) מסורבות עכשיו, וזה מתועד במבחן. <br>• ‏CI של GitHub על הראש הזה |
+| **2. שער המסד (CL-16)** | **PROPOSAL. לא הוחל** | **הקבצים:** ‏`supabase/proposed/20261112200000_g1_rule_guard_cl16.sql`, ‏`ROLLBACK_…`, ‏`docs/reviews/g1-rule-guard-cl16-20261112/apply-plan.json` (מסלול G′, אחרי SQL של M0). <br>**החי, בקריאה בלבד:** md5 ‏`56b90b0a…`, טקסט ה־trigger, PG 17.6, בעלים postgres. <br>**AFTER:** md5 ‏`8a75cb63…`. <br>**נבדק מקומית:** <br>• מחזור חיים (`scripts/run-g1-rule-guard-sql-test.sh`): חסר ⇒ עצירה, סטייה ⇒ עצירה בשני הקבצים, החלה מדויקת, no-op חוזר, rollback מדויק, החלה מחדש. <br>• מטריצה של 40 מקרים × 2 (חי מול מוחל), עם **סיבת סירוב** צפויה; בדיקה עצמית מחזירה exit 1. <br>• אף קובץ M0 לא נוגע ב־`nodes` או בשער (23 קבצים) | • שני השלבים חוברו ל־`security-sql-contracts`, ועדיין **לא רצו ב־GitHub**. <br>• אחרי החלה, חותמות `rule_guard` נשארות גם אחרי rollback; זה מתועד. <br>• החלה חיה: אחרי M0, באישור נפרד |
+| **3. מדידה** | **ביקורת חלקית. אין תיקון** | לכידה מקומית של תוצר `aa0f6bc82` עם הגדרות ה־GA החיות: ממצאים M1–M11 ב־`measurement-audit/README.md` (בהם page_view כפול עם URL אמיתי, `search_term` גולמי, ו־CAPI עם URL מלא) | • דוחות GA4 ו־GSC (אין גישה; רשימת הייצוא ב־5.5). <br>• שידור הפיקסל לא דטרמיניסטי. <br>• דף הבית עם נתונים אמיתיים. <br>• הסיבה לכפילות `track_visit` |
+| **4. רציפות כתובות** | **התחיל בלבד** | • נמצא המלאי הקיים מ־3.11: ‏`docs/reviews/url-continuity-plan-20261103/` (33,667 מחרוזות, 36 שורות מעבר, 376 לא מסווגות) ו־`public-url-exceptions-20261103/residual205/`. <br>• **195 הכשלים** (193 אודיו ושני פוסטים) **נדחו בידי ZURIEL** ברשומה `776d2d04-19ec-43f2-aee2-f85e06a5894f` (3.11, ‏`DEFERRED_AFTER_LAUNCH_BY_ZURIEL_NO_ACTIVE_WRITER`); מצבם הנוכחי לא נבדק. <br>• ‏GSC במסד: 17.6–10.11.2026, ‏15,563 דפים, 21,795 קליקים, 379,398 חשיפות; המלאי של 3.11 לא קרא GSC. <br>• חי: ‏robots ו־sitemap ‏200, ‏HTML ‏403 ל־curl (לא נעקף). <br>• ה־middleware בלי הפניות: slug חסר ⇒ 404 ‏noindex | כל העבודה לכל כתובת: ‏GSC מול המלאי, יעד ושרשרת, canonical, אינדוקס, מדיה וקישורים, מפות ישנות מול חדשות, פורום, מעבר מהשורש ל־`/post/` |
+
+**סעיף 3 בהוראה (חלוקת אחריות):**
+- **מטריצת CL-13 לא התקבלה עדיין** מסשן החוזים. הבקשה רשומה ביומן; הפירוק הטכני ב־5.3.
+- **Required checks:** הצעה ב־5.4. ה־ruleset לא שונה.
+
+### 5.3 ‏CL-13: פירוק טכני לפי מסלול כתיבה (קוד #1321, זהה לפרוס)
+
+| כתיבה | DM מקושר | DM לא מקושר | קבוצה, מקושר | קבוצה, לא מקושר |
+|---|---|---|---|---|
+| `remember` ← `fn_raziel_remember`: ‏conversation, עד 3,000 תווים, ‏scope personal, ‏private (`wa-raziel/index.ts:249–251`) | כל הודעה של 2 תווים ומעלה, ב־3 השעות האחרונות (`handleAllDMs`, ‏922–940) | אותו דבר, תחת `wa:<phone>` (938) | טקסט שאינו תמונה (796) | לא נכתב |
+| `savePersonalData` ← `fn_raziel_fact`: תאריכים וימי הולדת, ‏private (197–215) | כשנמצאת עובדה (939) | אותו דבר, תחת `wa:<phone>` | לא נקרא | לא נקרא |
+| בדיקת הסכמה או הרשאת שמירה לפני הכתיבה | אין | אין | אין | — |
+
+- **ממלא הערכים הצפויים:** סשן החוזים, לכל כתיבה בנפרד, לפי `raziel_whatsapp_access_adapter_law` (פריטים 3 ו־5) ו־`raziel_group_privacy_law`. הערכים: זהות, הרשאת שמירה, הסכמה ונראות.
+- **ZURIEL** רק בבחירה מוצרית שאין לה הכרעה קיימת.
+- **A4b** (‏`wa-raziel`) נשאר חסום.
+
+### 5.4 הצעת Required checks (‏B6). לא בוצעה
+
+**המצב:** ה־ruleset ‏`protect-main` (id ‏19635630) נקרא ב־12.11 בידי קורא הממשל, ולא נקרא שוב:
+- כללים: deletion, ‏non_fast_forward, ‏required_linear_history, ‏pull_request עם 0 אישורים;
+- bypass ‏`always` ל־RepositoryRole 5 (admin);
+- אין required_status_checks.
+
+**ההצעה:** להוסיף `required_status_checks` (‏integration: GitHub Actions; ‏strict=false) עם הבדיקות שרצות **תמיד** ב־PR ל־main:
+- `legacy-production-lock`;
+- `live-contracts-2029`, ‏`security-sql-contracts`, ‏`release-contracts-2029`, ‏`perf-contracts-2029`, ‏`marketing-browser-2029`, ‏`auth-browser-acceptance-2029`;
+- `route-seo-decision-2029`;
+- `Mobile + Accessibility Acceptance`.
+
+**מה לא לדרוש:**
+- `Production Canary Gate`: תלוי במצב פריסת Production החי, ולכן החלטה.
+- `gate` של Observability: השם מתנגש עם `gate` של media-release. צריך לשנות שם קודם.
+- כל בדיקה עם סינון נתיבים (`hard-isolation`, ‏`public-core`, ‏`els-core-compatibility`, ‏`isolated-postgres17-auth-rls` ועוד). בדיקה נדרשת שלא רצה משאירה PR תקוע ב־"Expected — Waiting".
+
+**עקיפת מנהל:** כל עוד היא `always`, מיזוג בזהות admin (כולל סוכן שפועל בחשבון של ZURIEL) עוקף הכול. האפשרויות:
+- להשאיר כך;
+- להסיר, עם נוהל חירום: השבתה זמנית של ה־ruleset, מתועדת.
+
+**חזרה:** הסרת הכלל מ־`protect-main`. לשמור את ה־JSON של ה־ruleset לפני השינוי. הכול באישור ZURIEL (הגדרות אבטחה).
+
+### 5.5 רשימת ייצוא קצרה ל־ZURIEL (‏GA4 ו־GSC)
+
+- **GA4:**
+  - Admin ← Data streams ← Enhanced measurement: צילום של ההגדרות.
+  - Explore, ‏28 יום: ‏`page_location`, ‏`page_title`, ‏`event_name` (‏page_view, ‏view_search_results), ‏`session_source/medium`, ‏hostname.
+  - DebugView: ניווט פוסט ← פוסט אחד.
+- **GSC:**
+  - דוח Pages (מאונדקס / לא מאונדקס, לפי סיבה) — ייצוא.
+  - דוח Sitemaps.
+  - URL Inspection על כ־10 כתובות: פוסט, מספר, תגית, slug ישן בשורש, ‏`/2029/posts`, קובץ אודיו, ‏www.
+
+### 5.6 אישורים ופעולות פעילות
+
+- **אושר בסבב:** רשומת יומן פסיבית **אחת**, ‏CLAUDE ← ZURIEL, בלי dispatch. מזהה הרשומה בדוח השיחה.
+- **עדיין דורש אישור מפורש** (לכל פעולה ולקומיט מדויקים):
+  - SQL של M0, צעדים 1–12;
+  - פריסות Edge;
+  - secrets;
+  - מיזוג #1321 ופריסת האתר;
+  - החלת CL-16;
+  - שינוי ה־ruleset;
+  - דחיפת ענף האורח;
+  - שינויים ב־GA4;
+  - שחרור כל תיקון מדידה.
+- **פעיל:**
+  - אין תהליך רקע;
+  - אין מנוי ל־PR;
+  - אין משימה מתוזמנת שהסשן הזה יצר. שלוש משימות מתוזמנות קיימות בחשבון קודמות לו ואינן חלק מהעבודה;
+  - ה־worktree ‏`wt-live` רשום במאגר המקומי בלבד.
+
+### 5.7 קישורים נעוצים
+
+- **‏`c45dd3740` (הראש שנבדק):**
+  - [רשימת הסגירה](https://github.com/zuriel337/sod1820/blob/c45dd3740e4db5c5a6d83d4c15728e95078e1ff7/docs/reviews/m0-security-stabilization-20261112/foundation-closure-list.md)
+  - [הוכחת האכיפה](https://github.com/zuriel337/sod1820/blob/c45dd3740e4db5c5a6d83d4c15728e95078e1ff7/docs/reviews/m0-security-stabilization-20261112/enforcement-proof/README.md)
+  - [חבילת ההחלה של M0](https://github.com/zuriel337/sod1820/blob/c45dd3740e4db5c5a6d83d4c15728e95078e1ff7/docs/reviews/m0-security-stabilization-20261112/apply-plan.json)
+  - [סדר rollback ובקשת השחרור](https://github.com/zuriel337/sod1820/blob/c45dd3740e4db5c5a6d83d4c15728e95078e1ff7/docs/reviews/m0-security-stabilization-20261112/release-request.md)
+- **מסירת סשן החוזים:** רשומה `a3d65374-a73a-4131-a00f-d3a050851064` · [README בראש `0a5882774`](https://github.com/zuriel337/sod1820/blob/0a5882774cf5dfbb37dd3162de27fb72c63f5457/docs/reviews/contract-governance-audit-20261110/laws-alignment-20261112/README.md)
+- **מלאי הכתובות הקיים:** [`url-continuity-plan-20261103` ב־`aa0f6bc82`](https://github.com/zuriel337/sod1820/tree/aa0f6bc82b8c94286374b1f51208037502994eab/docs/reviews/url-continuity-plan-20261103)
+- **קובצי הסבב** (בקומיט המסירה; הקישורים ב־SHA נמצאים ברשומת היומן):
+  - `scripts/lib/g1LawsSnapshotRules.mjs`, ‏`scripts/test-g1-agent-routing-smoke.mjs`
+  - `supabase/proposed/20261112200000_g1_rule_guard_cl16.sql` ו־`ROLLBACK_20261112200000_g1_rule_guard_cl16.sql`
+  - `tests/sql/g1_rule_guard_cl16_v1.sql`, ‏`scripts/run-g1-rule-guard-sql-test.sh`
+  - `measurement-audit/`
+
+### 5.8 הצעד הבא המומלץ (לסשן החדש, אחרי ביקורת המסירה)
+
+1. ‏CI על ראש המסירה.
+2. ביקורת Codex על G1 סבב 2 ועל קובצי CL-16.
+3. סשן החוזים: כלל היתר המאגר ומטריצת CL-13.
+4. הכרעות מדידה: C1, ‏C2a, ‏C2b, ‏M1 ו־M2. הגדרות EM ב־GA4 הן בידי ZURIEL.
+5. רציפות כתובות, לפי קבוצה 4 בטבלה.

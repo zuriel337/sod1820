@@ -24,9 +24,25 @@ D13d VALID file owner (not checkable in the DB; the CI snapshot check resolves i
 D14 DELETE of a rule row => ALLOWED
 D15 TRUNCATE of nodes => ALLOWED
 D16 VALID retirement (is_active=false, body unchanged) => ALLOWED
-psql:test.sql:90: NOTICE:  ALL 24 CASES AS EXPECTED for live
+D17 type change of a rule row => ALLOWED
+D17b type change, then DELETE of the same row => ALLOWED
+D18 id reset of a rule row => ALLOWED
+D19 version changed in place (history row) => ALLOWED
+D19b rule_id changed in place (active row) => ALLOWED
+D20 retired family re-activated at v2 without a decision => ALLOWED
+D20b retired family revived by a new v3 without a decision => ALLOWED
+D20c VALID revival at v2 with a verdict and a resolving approval => ALLOWED
+D20d revival at v2 with a verdict but no approval => ALLOWED
+D21 forged guard stamp, then a new version => ALLOWED
+D21b no-op re-retirement of a retired row, then a new version => ALLOWED
+D22 VALID documented retirement with successor metadata => ALLOWED
+D22b VALID first successor record on a retired row that had no owner => ALLOWED
+D22c owner rewritten on a retired row that had one => ALLOWED
+D23 VALID row that is not a rule: type, label, description, identity_key and DELETE => ALLOWED
+D24 a row that is not a rule promoted to an active rule without a verdict => ALLOWED
+psql:test.sql:155: NOTICE:  ALL 40 CASES AS EXPECTED for live
 ======== proposed guard
-GUARD md5 1c22aa55ee691d331cf691d226551fe0
+GUARD md5 8a75cb63eecfbc61e70d85deb6a1fe51
 D01 second active version, no lineage => REFUSED (rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=<NULL>))
 D02 VALID new version, same owner => ALLOWED
 D03 new family duplicating an owner, no verdict => REFUSED (new rule family owner_a_copy_law requires an owner-creation verdict (owner_routing.resolution))
@@ -51,5 +67,21 @@ D13d VALID file owner (not checkable in the DB; the CI snapshot check resolves i
 D14 DELETE of a rule row => REFUSED (DELETE of rule hist_law v1 is refused (retire it with is_active=false instead))
 D15 TRUNCATE of nodes => REFUSED (TRUNCATE of public.nodes is refused (rule history must not be erased))
 D16 VALID retirement (is_active=false, body unchanged) => ALLOWED
-psql:test.sql:90: NOTICE:  ALL 24 CASES AS EXPECTED for proposed
+D17 type change of a rule row => REFUSED (rule body_law v1 cannot change its type (retire it with is_active=false instead))
+D17b type change, then DELETE of the same row => REFUSED (rule hist_law v1 cannot change its type (retire it with is_active=false instead))
+D18 id reset of a rule row => REFUSED (rule body_law v1 cannot change its id)
+D19 version changed in place (history row) => REFUSED (rule hist_law v1 cannot change its identity or version in place (a new version is a new row))
+D19b rule_id changed in place (active row) => REFUSED (rule body_law v1 cannot change its identity or version in place (a new version is a new row))
+D20 retired family re-activated at v2 without a decision => REFUSED (retired rule revived_law v2 re-activated without an owner-creation verdict (owner_routing.resolution))
+D20b retired family revived by a new v3 without a decision => REFUSED (retired rule revived_law v3 re-activated without an owner-creation verdict (owner_routing.resolution))
+D20c VALID revival at v2 with a verdict and a resolving approval => ALLOWED
+D20d revival at v2 with a verdict but no approval => REFUSED (retired rule revived_law v2 re-activated without owner_routing.human_gate)
+D21 forged guard stamp, then a new version => REFUSED (rule revived_law v2: metadata.rule_guard is written by the rule guard only)
+D21b no-op re-retirement of a retired row, then a new version => REFUSED (retired rule revived_law v3 re-activated without an owner-creation verdict (owner_routing.resolution))
+D22 VALID documented retirement with successor metadata => ALLOWED
+D22b VALID first successor record on a retired row that had no owner => ALLOWED
+D22c owner rewritten on a retired row that had one => REFUSED (rule hist_law v1 owner changed without a new version)
+D23 VALID row that is not a rule: type, label, description, identity_key and DELETE => ALLOWED
+D24 a row that is not a rule promoted to an active rule without a verdict => REFUSED (new rule family promoted_law requires an owner-creation verdict (owner_routing.resolution))
+psql:test.sql:155: NOTICE:  ALL 40 CASES AS EXPECTED for proposed
 RESULT: every case behaved as expected

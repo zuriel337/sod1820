@@ -1,0 +1,26 @@
+{
+ "purpose": "Track G' (foundation-closure-list.md section 2): the rule guard extension for CL-16 / B4. A proposal; nothing here applies SQL. It runs only AFTER the M0 SQL steps and only with ZURIEL's explicit approval of this exact file. Nothing in M0 depends on it.",
+ "depends_on_tracks": [
+  "M0 SQL steps 1-10 applied (docs/reviews/m0-security-stabilization-20261112/apply-plan.json)"
+ ],
+ "test": "bash scripts/run-g1-rule-guard-sql-test.sh (lifecycle) and bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh (40 cases, live vs applied)",
+ "steps": [
+  {
+   "step": "G1",
+   "file": "supabase/proposed/20261112200000_g1_rule_guard_cl16.sql",
+   "sha256": "0a7bd2daa4a9f2e2beceab60d410f9b0a55f7d8d2c34651be6a35eb14875b3f5",
+   "rollback": "supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql",
+   "rollback_sha256": "28d38a5e270979f9e136240e3d540f48acb8d55a249f3e1a985b042517d7c816",
+   "status": "proposed",
+   "depends_on": [
+    "M0 SQL steps 1-10"
+   ],
+   "verify": "function md5 8a75cb63eecfbc61e70d85deb6a1fe51; the two trigger texts in the file header; owner, privileges, search_path, volatility unchanged (all checked inside the file)",
+   "what": "Extend the live rule guard (same function, same trigger, plus a TRUNCATE trigger): rule identity immutable, body and owner immutable within a version, revival of a retired family needs a verdict and an approval reference, DELETE/TRUNCATE refused, owner and approval references resolve. Rows that are not rules are not blocked."
+  }
+ ],
+ "rollback_order": [
+  "1. ROLLBACK file of step G1 (restores the live 12.11.2026 function body and trigger exactly; drops the TRUNCATE trigger)"
+ ],
+ "not_undone_by_rollback": "metadata.rule_guard stamps written on retirements while the extension was applied (audit metadata; the live guard ignores the key)"
+}
