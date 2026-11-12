@@ -17,9 +17,11 @@ chmod -R a+rX "$W"
 check() {
   cat > "$W/out.txt"
   local pass fail skipped
-  pass=$(grep -E '^# pass ' "$W/out.txt" | awk '{print $3}'); fail=$(grep -E '^# fail ' "$W/out.txt" | awk '{print $3}'); skipped=$(grep -E '^# skipped ' "$W/out.txt" | awk '{print $3}')
-  grep -E '^(not ok|ok) ' "$W/out.txt" | sed -E 's/ # duration.*//' || true
-  if [ "${fail:-1}" != 0 ] || [ "${skipped:-1}" != 0 ] || [ "${pass:-0}" != "$EXPECTED_TESTS" ]; then
+  # a missing summary line must not end the script silently (pipefail): the counts default to "?" and the output is shown
+  pass=$(awk '/^# pass /{print $3}' "$W/out.txt"); fail=$(awk '/^# fail /{print $3}' "$W/out.txt"); skipped=$(awk '/^# skipped /{print $3}' "$W/out.txt")
+  { grep -E '^(not ok|ok) ' "$W/out.txt" | sed -E 's/ # duration.*//'; } || true
+  if [ "${fail:-?}" != 0 ] || [ "${skipped:-?}" != 0 ] || [ "${pass:-?}" != "$EXPECTED_TESTS" ]; then
+    if [ -z "$pass" ]; then echo "--- the test runner printed no summary; its output:" >&2; tail -60 "$W/out.txt" >&2; fi
     { grep -E -A14 '^not ok ' "$W/out.txt" | head -60; } || true
     echo "FAIL: CL-13 handler tests: pass=${pass:-?} fail=${fail:-?} skipped=${skipped:-?}, expected $EXPECTED_TESTS passed, 0 failed, 0 skipped" >&2; exit 1
   fi
@@ -36,7 +38,7 @@ if [ -z "${G1_PG_BIN:-}" ] && ! compgen -G '/usr/lib/postgresql/*/bin' >/dev/nul
   done
   docker exec -w /w "$CONTAINER" psql -X -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -q -f tests/sql/cl13_handlers_base.sql
   CL13_ROOT="$W" CL13_PSQL_CMD="[\"docker\",\"exec\",\"-i\",\"-w\",\"/w\",\"$CONTAINER\",\"psql\",\"-h\",\"127.0.0.1\",\"-U\",\"postgres\"]" \
-    node --test --test-concurrency=1 "$ROOT/test/cl13-personal-memory-pg.test.mjs" 2>&1 | check
+    node --test --test-reporter=tap --test-concurrency=1 "$ROOT/test/cl13-personal-memory-pg.test.mjs" 2>&1 | check
   exit
 fi
 
@@ -51,4 +53,4 @@ PGUSER_NAME=$([ "$(id -u)" = 0 ] && echo postgres || id -un)
 run "$BIN/createdb -h $D -p 55446 t"
 (cd "$W" && "$BIN/psql" -X -h "$D" -p 55446 -U "$PGUSER_NAME" -d t -v ON_ERROR_STOP=1 -q -f tests/sql/cl13_handlers_base.sql)
 CL13_ROOT="$W" CL13_PSQL_CMD="[\"$BIN/psql\",\"-h\",\"$D\",\"-p\",\"55446\",\"-U\",\"$PGUSER_NAME\",\"-d\",\"t\"]" \
-  node --test --test-concurrency=1 "$ROOT/test/cl13-personal-memory-pg.test.mjs" 2>&1 | check
+  node --test --test-reporter=tap --test-concurrency=1 "$ROOT/test/cl13-personal-memory-pg.test.mjs" 2>&1 | check
