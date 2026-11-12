@@ -151,3 +151,15 @@
 @media (max-width: 1099px) and (min-width: 981px) {
   .sod29-companion-source-quick.is-expanded { padding-inline: 8px; }
 }
+
+/* Unit context (preview): the active unit above the existing context rail. */
+.sod29-unit-context{display:block;margin:0 0 12px;padding:12px;border-radius:14px;border:1px solid var(--s29-line-strong,var(--s29-line));background:color-mix(in srgb,var(--s29-panel-soft,var(--s29-panel)) 70%,transparent);font-size:.9rem;line-height:1.5}
+.sod29-unit-context small{display:block;color:var(--s29-muted)}
+.sod29-unit-context strong{display:block;color:var(--s29-ink);font-size:1rem}
+.sod29-unit-context-meta{display:flex;flex-direction:column;gap:2px;margin:6px 0;color:var(--s29-muted)}
+.sod29-unit-context-numbers{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.sod29-unit-context-numbers button{min-height:44px;min-width:44px;padding:0 12px;border-radius:999px;border:1px solid var(--s29-line-strong,var(--s29-line));background:transparent;color:var(--s29-accent-text,var(--s29-accent));font:inherit;cursor:pointer}
+.sod29-unit-context-occ{list-style:none;margin:6px 0;padding:0;display:grid;gap:8px}
+.sod29-unit-context-occ li{display:flex;flex-direction:column;gap:2px;padding:8px;border-radius:10px;border:1px dashed var(--s29-line)}
+.sod29-unit-context-occ a,.sod29-unit-context-refs a{min-height:44px;display:inline-flex;align-items:center;color:var(--s29-accent-text,var(--s29-accent))}
+.sod29-unit-context-refs{display:flex;flex-direction:column}

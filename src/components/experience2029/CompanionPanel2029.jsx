@@ -5,8 +5,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import OrGeulaStoryColumn from "./OrGeulaSourceShortcut2029.jsx";
-import StoryViewerOnDemand2029 from "./StoryViewerOnDemand2029.jsx";
+// The Or HaGeula story shortcut column depended on a Legacy core module (OrGeulaStoryColumnCore.jsx) that was removed with Legacy
+// (5.11.2026). Legacy is not restored: this slot renders nothing until a 2029 story column exists. The public source links below stay.
+const OrGeulaStoryColumn = () => null;
+// Same reason: StoryViewer.jsx (Legacy) is gone, and with the story column empty no story is ever opened from here.
+const StoryViewerOnDemand2029 = () => null;
 import "./companionPanel2029.css";
 
 export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, razielView = "quiet", onRazielView, razielHint = "מה שמולך עכשיו", hoverProps, timeMode = "bilingual" }) {

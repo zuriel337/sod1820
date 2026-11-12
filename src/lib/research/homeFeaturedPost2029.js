@@ -1,6 +1,8 @@
 // The Home featured post (ZURIEL 8.11.2026): ONE existing public Post shown first on Home, linked to its own address (never copied),
 // with the "reality tree" note beneath it and the numbers that appear on screen in its video, labelled as what they are.
 // Nothing here creates, classifies or changes a Post; a missing, hidden or suppressed Post renders nothing.
+import { resolveUnitMessage } from "./postSemanticDesign2029.js";
+import { realityMapPreviewEnabled } from "./realityMap2029.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { publicPostOnlyFilter, hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
 import { publicPostHref } from "../publicPostUrls.js";
@@ -121,9 +123,11 @@ export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATUR
   const at = new Date(config.at).toISOString();
   const pin = featuredPinState(config, now);
   const groups = (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] }));
-  const central = config.central && groups.length ? { ...config.central, groups, statement: config.statement || null, postTitle: projectHomeFeaturedPost(row, config)?.postTitle || "" } : null;
+  // The unit's MAIN MESSAGE (ZURIEL 12.11.2026) replaces the lead line of the pinned central message — one canonical unit record, no copy.
+  const mainMessage = realityMapPreviewEnabled() && config.central?.anchor ? resolveUnitMessage(config.id, config.central.anchor) : null;
+  const central = config.central && groups.length ? { ...config.central, postId: config.id, ...(mainMessage ? { lead: mainMessage, leadSub: "" } : {}), groups, statement: config.statement || null, postTitle: projectHomeFeaturedPost(row, config)?.postTitle || "" } : null;
   // While pinned, the short central message is THE summary of this item, so every projection of the shared feed (Home, "עכשיו", World) shows the same words.
-  const shortMessage = pin.active && config.central?.lead ? [config.central.lead, config.central.leadSub].filter(Boolean).join(". ") : null;
+  const shortMessage = pin.active && (mainMessage || config.central?.lead) ? (mainMessage || [config.central.lead, config.central.leadSub].filter(Boolean).join(". ")) : null;
   return { ...base, label: config.headline || base.label, summary: shortMessage || config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: pin.active, pinUntil: pin.active ? pin.until : null, central, liveDot: pin.active ? "עדכון חדש בפוסט" : null, band: config.band ? { ...config.band, groups: (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] })), statement: config.statement || null } : null };
 }
 

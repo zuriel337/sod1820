@@ -26,9 +26,12 @@ import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel } from "../lib/research/postSourceUpdates2029.js";
 import { postVoiceFor } from "../lib/postVoice2029.js";
-import { annotatePostSource } from "../lib/research/postSemanticDesign2029.js";
+import { annotatePostSource, resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
+import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
 import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import PostUnitEditors2029 from "../components/experience2029/PostUnitEditors2029.jsx";
+import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
+import { setPostUnits, setActivePostUnit, clearPostUnits, unitContextStrings } from "../lib/research/postUnitStore2029.js";
 const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/experience2029/PostExternalSourcesPreview2029.jsx"));
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
@@ -101,6 +104,13 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const postVoice = postVoiceFor(state.projection?.post).voice;
+  // The flagship series experience (ZURIEL 12.11.2026): exact series tag, or the preview-only acceptance exception for 5107 / 5112.
+  const realityMap = realityMapExperienceFor(state.projection?.post);
+  // Preview-only demonstration of the admin editor where no admin can sign in: it grants nothing (no write path exists; the choice stays in
+  // this browser, and Raziel keeps its own admin lock). Production builds never set the preview flag.
+  const editorEnabled = realityMap.active && (isAdmin === true || (realityMapPreviewEnabled() && protoMode === "admin"));
+  const [prefsTick, setPrefsTick] = useState(0);
+  useEffect(() => subscribeUnitChoices(() => setPrefsTick((n) => n + 1)), []);
   const passiveSourceHtml = useMemo(() => {
     const hardened = hardenPassiveMediaHtml(postReadingHtml2029(state.projection?.post?.content || ""));
     return protoOn ? annotatePostSource(hardened, { postId: state.projection?.post?.id, voice: postVoice }) : hardened;
@@ -267,6 +277,44 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   useEffect(() => {
     setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
   }, [state.projection]);
+
+  // Series Posts publish their units (identity + references) for the left panel and, as plain strings, on the existing research context.
+  useEffect(() => {
+    const root = sourceRef.current, projection = state.projection;
+    if (!protoOn || !realityMap.active || !root || !projection) { clearPostUnits(); return undefined; }
+    const post = projection.post;
+    const units = buildPostUnitModels(root, { post, postHref: publicPostHref(post) });
+    setPostUnits(post.id, units);
+    const strings = unitContextStrings(units);
+    const dims = research.context?.dimensions || {};
+    if (dims.postUnitSeries !== "reality-map" || JSON.stringify(dims.postUnitRefs) !== JSON.stringify(strings.postUnitRefs)
+      || JSON.stringify(dims.postUnitLinkRefs) !== JSON.stringify(strings.postUnitLinkRefs)) {
+      research.updateResearchContext?.({ dimensions: { ...dims, postUnitSeries: "reality-map", ...strings } });
+    }
+    return undefined;
+  }, [state.projection, passiveSourceHtml, prefsTick, realityMap.active, protoOn]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => clearPostUnits(), []);
+  // The ACTIVE unit follows the reading position (the unit holding the line at 38% of the viewport; the first one above it otherwise).
+  useEffect(() => {
+    const root = sourceRef.current;
+    if (!protoOn || !realityMap.active || !root) return undefined;
+    let frame = 0;
+    const pick = () => {
+      frame = 0;
+      const line = window.innerHeight * 0.38;
+      let best = null;
+      for (const unit of root.querySelectorAll("[data-sod-unit]")) {
+        const box = unit.getBoundingClientRect();
+        if (box.top <= line && box.bottom >= line) { best = unit; break; }
+        if (box.top <= line) best = unit;
+      }
+      if (best) setActivePostUnit(best.getAttribute("data-sod-unit"));
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(pick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    pick();
+    return () => { window.removeEventListener("scroll", onScroll); if (frame) cancelAnimationFrame(frame); };
+  }, [state.projection, passiveSourceHtml, realityMap.active, protoOn]);
 
   const jumpToSourceUpdate = (entry) => {
     const target = sourceRef.current?.querySelector(`[id="${entry.targetId}"]`);
@@ -1021,6 +1069,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     data-post-slug={post.slug}
     data-post-character={character}
     data-post-voice={protoOn ? postVoice : undefined}
+    data-reality-map={protoOn && realityMap.active ? realityMap.basis : undefined}
+    data-prefs-tick={prefsTick}
     data-post-background={background.key}
     style={{
       "--post-background-desktop": `url("${background.desktop}")`,
@@ -1091,7 +1141,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
       <span className="sod29-update-strip-kicker">עודכן</span>
       <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
-        <strong>{sourceUpdates[0].label}</strong>
+        <strong data-update-caption={resolveUnitMessage(post.id, sourceUpdates[0].targetId) ? "main-message" : "label"}>{(realityMap.active && resolveUnitMessage(post.id, sourceUpdates[0].targetId)) || sourceUpdates[0].label}</strong>
         <small>{sourceUpdates[0].attribution} · {addedDateLabel(sourceUpdates[0]) ? <time dateTime={sourceUpdates[0].updatedAt}>{addedDateLabel(sourceUpdates[0])}</time> : "תאריך ההוספה אינו מוכח"}</small>
       </button>
       {sourceUpdates.length > 1 ? <details className="sod29-update-strip-more">
@@ -1152,7 +1202,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         }}
         dangerouslySetInnerHTML={{ __html: passiveSourceHtml }}
       />
-      {protoOn && isAdmin ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} htmlKey={passiveSourceHtml.length} /> : null}
+      {protoOn && realityMap.active ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} postHref={publicPostHref(post)} htmlKey={passiveSourceHtml.length} editable={editorEnabled} /> : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
 
 

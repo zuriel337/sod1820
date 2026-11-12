@@ -3,6 +3,8 @@
 // One publication is ONE row: identity comes from feed row ids / sourceRefs (see mergeSystemFeedItems);
 // the same row model feeds the compact Now list, its filters and its detail. Similar wording never merges rows.
 // Series, source/channel, content family and media type stay SEPARATE dimensions (CONTENT-AUDIENCES-HYBRID-NOW).
+import { resolveUnitMessage } from "./research/postSemanticDesign2029.js";
+import { realityMapPreviewEnabled } from "./research/realityMap2029.js";
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
 import { publicStorageMedia } from "./mediaEgressGuard.js";
@@ -144,8 +146,11 @@ export function nowRowModel(row) {
   if (seriesKey === "messages-from-righteous" || hasAny(categories, MESSAGE_CATEGORIES) || (isChannel && MESSAGE_CHANNELS.includes(item.channel))) lenses.add("messages");
   if (isGallery || (isChannel && HINT_CHANNELS.includes(item.channel))) lenses.add("reality");
   if (hasAny(categories, HINT_CATEGORIES) || (isChannel && HINT_CHANNELS.includes(item.channel))) lenses.add("hints");
-  const fullText = cleanNowText(item.fullText);
-  const summary = cleanNowText(item.summary);
+  // The unit's MAIN MESSAGE (ZURIEL 12.11.2026, section 4) is the central caption of its update here: the same canonical unit record the
+  // Post reads, never a copy. Preview-only today (the choice is browser-local and there is no canonical store yet).
+  const mainMessage = realityMapPreviewEnabled() && item.sourceUpdate ? resolveUnitMessage(String(item.sourceUpdate.sourceRef || "").replace(/^posts:/, ""), item.sourceUpdate.targetId) : null;
+  const fullText = cleanNowText(mainMessage || item.fullText);
+  const summary = cleanNowText(mainMessage || item.summary);
   const title = shortNowTitle(row?.title || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
   const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
   // Two pin kinds, one order (ZURIEL 11.11.2026): the owner's own pin (the Home featured item) leads; a writer pin follows it; then everything
@@ -156,7 +161,7 @@ export function nowRowModel(row) {
     && Number.isFinite(Date.parse(item.pinUntil)) && groupWriterPinListed(item.sourceGroup?.key, item.creatorSlug);
   const pinKind = writerPin ? "writer" : item.pinned === true && !isGroup && item.pinKind !== "writer" ? "owner" : null;
   return {
-    id: row?.id, row, item, title, byline, typeLabel, unverified,
+    id: row?.id, row, item, title, byline, typeLabel, unverified, mainMessage,
     tone: toneOf(lenses, unverified),
     // Pinned by the owner (the Home featured item): stays first in "עכשיו" whatever its time; how pinning is governed is to be set in the contracts.
     // A writer pin (pinKind "writer") stays at the top too, under the owner's pin, until its pinUntil. It keeps the row's source status
@@ -167,7 +172,10 @@ export function nowRowModel(row) {
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
     pinUntil: pinKind && typeof item.pinUntil === "string" ? item.pinUntil : null,
-    central: pinKind === "owner" && item.central && Array.isArray(item.central.groups) ? item.central : null,
+    central: pinKind === "owner" && item.central && Array.isArray(item.central.groups)
+      // Re-read at model time: a main message saved after the feed was built still reaches the pinned card (same canonical unit record).
+      ? (() => { const text = realityMapPreviewEnabled() && item.central.anchor ? resolveUnitMessage(item.central.postId, item.central.anchor) : null; return text ? { ...item.central, lead: text, leadSub: "" } : item.central; })()
+      : null,
     media: video ? "video" : audio ? "audio" : image ? "image" : "text", video, audio, image,
     thumb: [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,

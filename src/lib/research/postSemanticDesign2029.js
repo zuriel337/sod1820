@@ -93,9 +93,22 @@ function annotateBlocks(root, { voice }) {
   return peaks;
 }
 
+// A unit key: the section's own id; else the first existing reading-region id inside it (source-region-…, built by the reading
+// projection); else its first authored data marker (data-fz1073-… on Post 5112). Never a new id: the displayed anchors are untouched.
+export function unitKeyOf(section, index = 0) {
+  if (section.id) return section.id;
+  const region = section.querySelector('[id^="source-region-"]');
+  if (region) return region.id;
+  for (const attr of section.attributes) if (/^data-/.test(attr.name) && !/^data-sod-/.test(attr.name)) return attr.name.slice(5);
+  // Last resort: the section's position among the Post's sections. It identifies the unit for this reading only (not an anchor id).
+  return section.querySelector("h1,h2,h3,h4,video,[data-gem]") ? `section-${index + 1}` : "";
+}
 function markUnits(root, voice) {
-  for (const unit of root.querySelectorAll("section[id]")) {
-    unit.setAttribute("data-sod-unit", unit.id);
+  let index = 0;
+  for (const unit of root.querySelectorAll("section")) {
+    const key = unitKeyOf(unit, index++);
+    if (!key) continue;
+    unit.setAttribute("data-sod-unit", key);
     // One to three display numbers make a peak moment; a unit that is a grid of many number tiles is a table of values, not a peak.
     const peaks = unit.querySelectorAll('[data-sod-role="peak"]').length;
     if (peaks >= 1 && peaks <= 3) unit.setAttribute("data-sod-peak", "auto");
@@ -162,7 +175,7 @@ export function annotatePostSource(html, { postId = null, voice = "unspecified",
   annotateBlocks(root, { voice });
   markUnits(root, voice);
   if (placeUpdates) placeProvenUpdatesFirst(root, postId, document);
-  if (unitChoices) for (const [id, choice] of Object.entries(unitChoices)) applyUnitChoice(root.querySelector(`[id="${CSS.escape(id)}"]`), choice);
+  if (unitChoices) for (const [id, choice] of Object.entries(unitChoices)) applyUnitChoice(root.querySelector(`[data-sod-unit="${CSS.escape(id)}"]`), choice);
   return template.innerHTML;
 }
 
@@ -170,18 +183,36 @@ export function annotatePostSource(html, { postId = null, voice = "unspecified",
 // There is NO authorized persistence path for a per-unit presentation preference today (no column, no table, and a new one needs
 // a ZURIEL decision), so a choice is kept in this browser only and is shown to nobody else.
 const PREF_KEY = (postId) => `sod2029:post-unit-prefs-preview:${Number(postId)}`;
+const listeners = new Set();
+export const subscribeUnitChoices = (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
+const notify = (postId) => { for (const fn of listeners) { try { fn(Number(postId)); } catch { /* a listener never breaks a save */ } } };
 export function readLocalUnitChoices(postId) {
   try {
     const parsed = JSON.parse(globalThis.localStorage?.getItem(PREF_KEY(postId)) || "{}");
     return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
   } catch { return {}; }
 }
+// A choice may carry design fields (align / peak / accent), a free MESSAGE with its "main message" flag, and canonical REFERENCES
+// ({kind, ref, href, mode}). It is ONE record per (post, unit): the main message is part of the canonical unit, never a second copy
+// kept for "עכשיו". Preview-local: this is not a saved publication and no one else sees it.
 export function writeLocalUnitChoice(postId, unitId, choice) {
   try {
     const all = readLocalUnitChoices(postId);
-    const clean = Object.fromEntries(Object.entries(choice || {}).filter(([, value]) => value && value !== "auto"));
+    const clean = {};
+    for (const [key, value] of Object.entries(choice || {})) {
+      if (value == null || value === "auto" || value === false || value === "") continue;
+      if (Array.isArray(value) && !value.length) continue;
+      clean[key] = value;
+    }
+    if (clean.primary && !clean.message) delete clean.primary; // a main message needs words
     if (Object.keys(clean).length) all[unitId] = clean; else delete all[unitId];
     globalThis.localStorage?.setItem(PREF_KEY(postId), JSON.stringify(all));
+    notify(postId);
     return all;
   } catch { return readLocalUnitChoices(postId); }
+}
+// The unit's MAIN MESSAGE (the words Zuriel chose as the update's central caption), only when flagged primary.
+export function resolveUnitMessage(postId, unitId) {
+  const choice = readLocalUnitChoices(postId)[unitId];
+  return choice?.primary === true && typeof choice.message === "string" && choice.message.trim() ? choice.message : null;
 }

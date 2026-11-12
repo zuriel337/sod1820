@@ -46,6 +46,12 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
+import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
+import UnitContextPanel2029 from "./UnitContextPanel2029.jsx";
+import { useCompanionPreview2029 } from "../../lib/research/useCompanionPreview2029.js";
+import { realityMapPreviewEnabled } from "../../lib/research/realityMap2029.js";
+// Preview-only (ZURIEL 12.11.2026): the left Companion returns on a series Post of the protected preview build. Elsewhere it stays unmounted.
+import CompanionPreviewMount2029 from "./CompanionPreviewMount2029.jsx";
 import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
@@ -2070,6 +2076,12 @@ function SystemFrame2029Body({
   const showContextRail = surface !== "home" && surface !== "control" && surface !== "els" && surface !== "community"
     && Boolean(activeTarget || pageContext?.subject);
   // The context rail is independent of the temporarily hidden Companion.
+  // PREVIEW ONLY: on a "מפת המציאות" Post the Companion REPLACES the rail (never both) and opens on "הקשר".
+  const companionOnSeriesPost = realityMapPreviewEnabled() && surface === "post" && pageContext?.dimensions?.postUnitSeries === "reality-map";
+  const companionPreview = useCompanionPreview2029({
+    enabled: companionOnSeriesPost, surface, hasContext: showContextRail, hasSequence: hasEventSequence(pageContext, surface), hasFeed: feed.rows.length > 0,
+  });
+  const companionActive = companionPreview.active;
   const shareHref = framePublicShareHref(location, typeof document === "undefined" ? null : document.querySelector('link[rel="canonical"]')?.href);
   const followContextConnection = (event, finding) => {
     if (!finding?.href?.startsWith("/") || finding.href.startsWith("//") || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -2168,8 +2180,8 @@ function SystemFrame2029Body({
     <SystemFeedContext2029.Provider value={feed}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
-        data-companion-visibility="temporarily-hidden"
+        className={`sod29-root closed-shell native-frame surface-${surface}${companionActive ? ` has-companion companion-${companionPreview.mode}` : ""}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
+        data-companion-visibility={companionActive ? "preview-series-post" : "temporarily-hidden"}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -2273,7 +2285,7 @@ function SystemFrame2029Body({
           })() : null}
 
           <AccountLinkOffer2029 />
-          <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
+          <div className={`sod29-main-stage${showContextRail && !companionActive ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
                 <section className={`sod29-page-intro${resolvedIntroVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={resolvedIntroVariant}>
@@ -2288,7 +2300,7 @@ function SystemFrame2029Body({
               ) : null}
               {children}
             </main>
-            {showContextRail ? <SurfaceContextRail2029
+            {showContextRail && !companionActive ? <SurfaceContextRail2029
               surface={surface}
               context={pageContext}
               onFollowConnection={followContextConnection}
@@ -2301,6 +2313,22 @@ function SystemFrame2029Body({
               suppressLearn={Boolean(transientKind)}
             /> : null}
           </div>
+          {companionActive ? <CompanionPreviewMount2029
+            feed={feed} mode={companionPreview.mode} tab={companionPreview.tab} onTab={companionPreview.chooseTab} onOpenPanel={companionPreview.openPanel}
+            pinned={companionPreview.pinned} onTogglePin={companionPreview.togglePin}
+            hasContext={showContextRail} hasSequence={hasEventSequence(pageContext, surface)}
+            sequenceNode={hasEventSequence(pageContext, surface) ? <EventSequencePanel2029 context={pageContext} surface={surface} /> : null}
+            contextNode={<><UnitContextPanel2029 /><SurfaceContextRail2029
+              surface={surface} context={pageContext} onFollowConnection={followContextConnection} focus={surfaceFocus || activeTarget}
+              onOpenNumber={(target) => openNumber(target || activeTarget)}
+              onAskRaziel={razielLocked ? null : () => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+              onOpenContext={() => openInspect(surfaceFocus || activeTarget)} onOpenSheet={() => openTransient(TRANSIENT.CONTEXT)}
+              onNeedHelp={openIssueReport} suppressLearn
+            /></>}
+            onOpenHref={(href) => go(href)} timeMode={recordTimeMode}
+            razielNode={null} razielView="quiet" onRazielView={() => {}} razielHint=""
+            hoverProps={companionPreview.hoverProps}
+          /> : null}
           <Footer2029 />
         </div>
 

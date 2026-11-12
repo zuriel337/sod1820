@@ -12,23 +12,41 @@ const exactInt = (value) => {
   return Number.isSafeInteger(n) && n >= 0 ? n : null;
 };
 
+const norm = (v) => String(v ?? "").replace(/["״'׳”“]/g, "").replace(/\s+/g, " ").trim();
+// The method the SOURCE named. No text = the regular method (a bare "= 1111" is read in the engine's default). A text that is exactly one
+// engine method (key or label) selects that method. Anything else (a free description such as "ריבוע [מספר] משולש מילה") is NOT a
+// method the engine can run as written, so it stays unchecked with that reason: no guess.
+export function resolveMethodRow(rows, methodText) {
+  const list = Array.isArray(rows) ? rows : [];
+  const text = norm(methodText);
+  if (!text) return { row: regularMethodProfile(list), reason: null };
+  const row = list.find((r) => norm(r?.methodKey) === text || norm(r?.displayLabel) === text) || null;
+  return row ? { row, reason: null } : { row: null, reason: "method_not_a_single_engine_method" };
+}
+
 // Pure: rows are projected method-profile rows { methodKey, displayLabel, computedValue, definitionVersion }.
-export function hintStateFromProfile(stated, rows) {
+export function hintStateFromProfile(stated, rows, { methodText = null } = {}) {
   const claimed = exactInt(stated);
-  const regular = regularMethodProfile(Array.isArray(rows) ? rows : []);
+  const list = Array.isArray(rows) ? rows : [];
+  const { row: regular, reason } = resolveMethodRow(rows, methodText);
   const value = exactInt(regular?.computedValue);
-  if (claimed == null || value == null) return { state: HINT_STATES.unchecked, claimed, value: null, method: null };
+  if (claimed == null || value == null) return { state: HINT_STATES.unchecked, claimed, value: null, method: null, reason: reason || null, methodText: methodText || null };
   const method = { key: regular.methodKey || null, label: regular.displayLabel || regular.methodKey || null, version: regular.definitionVersion ?? null };
-  return { state: value === claimed ? HINT_STATES.verified : HINT_STATES.mismatch, claimed, value, method };
+  const state = value === claimed ? HINT_STATES.verified : HINT_STATES.mismatch;
+  // No method was named and the regular method differs: say in WHICH other engine methods the stated number does come out, as information
+  // for the editor. It is not a verification (the method was never stated) and it never changes the state.
+  const otherMethods = state === HINT_STATES.mismatch && !methodText
+    ? list.filter((r) => exactInt(r?.computedValue) === claimed).map((r) => r.displayLabel || r.methodKey).filter(Boolean) : [];
+  return { state, claimed, value, method, methodText: methodText || null, otherMethods };
 }
 
 // `readProfile` is injectable (tests / a caller that already holds the rows); the default is the canonical reader.
-export async function checkSourceHint({ expression, stated, readProfile = null } = {}) {
+export async function checkSourceHint({ expression, stated, methodText = null, readProfile = null } = {}) {
   const phrase = String(expression || "").trim();
   if (!phrase || exactInt(stated) == null) return { state: HINT_STATES.unchecked, claimed: exactInt(stated), value: null, method: null };
   try {
     const read = readProfile || (await import("./numberCoreProjection.js")).fetchNumberMethodProfile;
-    return hintStateFromProfile(stated, await read(phrase));
+    return hintStateFromProfile(stated, await read(phrase), { methodText });
   } catch {
     // A failed read is "not checked", never a verdict.
     return { state: HINT_STATES.unchecked, claimed: exactInt(stated), value: null, method: null };
