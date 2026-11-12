@@ -26,6 +26,15 @@ test("ai-analyze number path: guest -> 401 sign_in_required before limiter, gate
   assert.equal(run.calls.some((c) => c.url.startsWith("https://api.anthropic.com")), false);
 });
 
+test("ai-analyze guide: a guest gets 401 sign_in_required before quota, trace or model (paid AI only for signed-in users)", async () => {
+  const run = await runAiAnalyze({ allowed: true, genericProviderText: "x", body: { kind: "guide", engine: "claude", subject: "איפה המחשבון", visitor_id: "rotating-2" } });
+  assert.equal(run.status, 401);
+  assert.equal(run.result.error, "sign_in_required");
+  assert.equal(run.result.surface, "guide");
+  for (const name of ["ai_quota_check", "op_trace_begin_v1"]) assert.equal(names(run).includes(name), false, name);
+  assert.equal(run.calls.some((c) => c.url.startsWith("https://api.anthropic.com")), false);
+});
+
 test("ai-analyze number path: verified user passes account+global buckets, daily cap and the lock_number gate", async () => {
   const run = await runAiAnalyze({ allowed: true, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "המספר שנבדק הוא 776.", body: numberBody });
   assert.equal(run.status, 200);

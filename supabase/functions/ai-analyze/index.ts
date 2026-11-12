@@ -2623,6 +2623,10 @@ Deno.serve(async (req: Request) => {
       const ask = String(body?.subject || body?.facts || "").slice(0, 400).trim();
       if (!ask) return json({ analysis: null, error: "empty" });
       const { identity, tier } = await resolveIdentity(req, body);
+      // M0 (ZURIEL 12.11.2026, "paid AI only for a signed-in user"): the guide is a paid model call, so a guest is refused before it.
+      if (tier === "anon" && !isInternalServiceRequest(req)) {
+        return json({ analysis: null, error: SIGN_IN_REQUIRED, message: SIGN_IN_REQUIRED_MESSAGE, surface: "guide" }, 401);
+      }
       if (tier === "anon" || tier === "user") {   // אנטי-לולאה בלבד, נדיב
         const q = await checkQuota(identity ? `${identity}:g` : "", tier, tier === "anon" ? 40 : 300);
         if (!q.allowed) return json({ analysis: null, error: q.unavailable ? "quota_unavailable" : "quota", surface: "guide", tier: q.tier, used: q.used, limit: q.limit,
