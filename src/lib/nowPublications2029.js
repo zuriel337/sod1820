@@ -174,7 +174,7 @@ export function nowRowModel(row) {
     pinUntil: pinKind && typeof item.pinUntil === "string" ? item.pinUntil : null,
     central: pinKind === "owner" && item.central && Array.isArray(item.central.groups)
       // Re-read at model time: a main message saved after the feed was built still reaches the pinned card (same canonical unit record).
-      ? (() => { const text = realityMapPreviewEnabled() && item.central.anchor ? resolveUnitMessage(item.central.postId, item.central.anchor) : null; return text ? { ...item.central, lead: text, leadSub: "" } : item.central; })()
+      ? (() => { const text = realityMapPreviewEnabled() && item.central.anchor ? resolveUnitMessage(item.central.postId, item.central.anchor) : null; return text ? { ...item.central, lead: text, leadSub: "", fromMainMessage: true } : item.central; })()
       : null,
     media: video ? "video" : audio ? "audio" : image ? "image" : "text", video, audio, image,
     thumb: [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,

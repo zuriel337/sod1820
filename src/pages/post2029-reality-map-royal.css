@@ -1,0 +1,210 @@
+/* "מפת המציאות" — royal finish (ZURIEL 12.11.2026, design round 2). SCOPE: only a Post that carries data-reality-map (the flagship series, or the
+   preview acceptance exception) and the preview-only Companion. No other Post, page or surface changes.
+   NO new palette: every colour is a role of the canonical 2029 palette (--s29-*) reached through the shared Royal layer (royal2029.css, .r29):
+   gold ← brand-gold · sapphire ← brand-sapphire · violet depth ← accent-secondary · azure ← accent-text. Day / Parchment / Night come from the
+   frame itself (the .r29 intensity per preset). Gold and sapphire are decoration and hierarchy, never a rating, a verification or an importance. */
+
+.sod29-reading-post[data-reality-map],.sod29-companion.r29{--rm-floor:var(--r29-sapphire)}
+/* Parchment is warm: its royal floor is bronze, not blue, so the page never reads grey. */
+:is([data-theme-2029="parchment"]) :is(.sod29-reading-post[data-reality-map],.sod29-companion.r29){--rm-floor:var(--r29-amber)}
+.sod29-reading-post[data-reality-map]{
+  --rm-gold:var(--r29-gold);--rm-gold-ink:var(--r29-gold-ink);--rm-sapphire:var(--r29-sapphire);--rm-azure:var(--r29-azure);--rm-violet:var(--r29-violet-deep);
+  --sv-accent:var(--r29-gold);--sv-accent2:var(--r29-sapphire);
+  --rm-hall:
+    radial-gradient(90% 55% at 50% -10%,color-mix(in srgb,var(--r29-gold) var(--r29-glow),transparent),transparent 70%),
+    radial-gradient(70% 70% at 100% 8%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
+    radial-gradient(80% 60% at 0% 112%,color-mix(in srgb,var(--r29-sapphire) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+  --rm-frame:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),var(--s29-line));
+  --rm-double:inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-gold) var(--r29-hair),transparent);
+  --rm-display:var(--s29-font-display,var(--s29-font-ui,inherit));
+}
+
+/* ───────────── Hero: a royal hall with a presence title ───────────── */
+.sod29-reading-post[data-reality-map] .sod29-reading-hero{
+  position:relative;isolation:isolate;border-radius:var(--r29-radius);padding:clamp(22px,3.4vw,40px) clamp(16px,3vw,44px);
+  border:var(--rm-frame);background:var(--rm-hall);box-shadow:var(--r29-shadow),var(--rm-double);
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-hero::before{
+  content:"";position:absolute;z-index:-1;inset-inline:16%;inset-block-start:-1px;block-size:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 92%,var(--r29-shine)),transparent);
+}
+.sod29-reading-post[data-reality-map]:not([data-post-character="plain"]) .sod29-reading-hero h1,
+.sod29-reading-post[data-reality-map] .sod29-reading-hero h1{
+  font-family:var(--rm-display);font-size:clamp(28px,3.2vw,46px);line-height:1.18;font-weight:800;letter-spacing:-.012em;max-width:24ch;text-wrap:balance;
+  color:var(--rm-gold-ink);text-shadow:0 0 36px color-mix(in srgb,var(--r29-gold) 24%,transparent);padding-bottom:.5em;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 70%,transparent) 50%,transparent) bottom/62% 1px no-repeat;
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-hero h1{text-shadow:none}
+
+/* ───────────── The story column: layered royal light instead of a flat panel ───────────── */
+.sod29-reading-post[data-reality-map] .sod29-reading-source{
+  border:var(--rm-frame)!important;background:var(--rm-hall)!important;box-shadow:var(--r29-shadow),var(--rm-double)!important;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source::before{background:linear-gradient(90deg,transparent,var(--r29-gold),transparent);height:1px}
+
+/* ───────────── "מה התחדש בפוסט": the featured hall of the update layer ───────────── */
+.sod29-reading-post[data-reality-map] .sod29-update-strip{
+  border-radius:var(--r29-radius-sm);border:var(--rm-frame);padding:.5rem 1rem;box-shadow:var(--r29-shadow);
+  background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
+    linear-gradient(180deg,color-mix(in srgb,var(--r29-gold) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+}
+.sod29-reading-post[data-reality-map] .sod29-update-strip-kicker{
+  opacity:1;padding:2px 12px;border-radius:999px;font:800 13px/1.5 var(--s29-font-ui,inherit);color:var(--s29-page);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 88%,white),var(--r29-gold));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 40%,transparent);
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-update-strip-kicker{color:#fff;background:color-mix(in oklab,var(--r29-gold) 80%,var(--s29-ink))}
+.sod29-reading-post[data-reality-map] .sod29-update-strip-link strong{font:800 1.12rem/1.35 var(--rm-display);color:var(--rm-gold-ink);white-space:normal}
+.sod29-reading-post[data-reality-map] .sod29-update-strip-link small{opacity:.9;color:var(--s29-muted)}
+.sod29-reading-post[data-reality-map] .sod29-update-strip-more summary{color:var(--rm-azure);font-weight:700}
+
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-update-stack{
+  border:var(--rm-frame);border-radius:var(--r29-radius);box-shadow:var(--r29-shadow),var(--rm-double);
+  background:
+    radial-gradient(90% 40% at 50% -8%,color-mix(in srgb,var(--r29-gold) calc(var(--r29-glow) * 1.1),transparent),transparent 70%),
+    radial-gradient(60% 60% at 100% 0%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) calc(var(--r29-wash) * 1.6),var(--s29-panel)),var(--s29-panel));
+}
+.sod29-reading-post[data-reality-map] .sod29-update-stack-head strong{font:850 1.35rem/1.2 var(--rm-display);color:var(--rm-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-update-stack-head span{color:var(--s29-muted)}
+/* time axes: the proven ADDED date is a struck gold badge; event and source days are quiet sapphire marks */
+.sod29-reading-post[data-reality-map] .sod29-update-added{
+  padding:3px 12px;border-radius:999px;font-weight:800;color:var(--s29-page);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 88%,white),var(--r29-gold));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 40%,transparent);
+}
+.sod29-reading-post[data-reality-map] .sod29-update-added i{color:inherit}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-update-added{color:#fff;background:color-mix(in oklab,var(--r29-gold) 78%,var(--s29-ink))}
+.sod29-reading-post[data-reality-map] :is(.sod29-update-event,.sod29-update-source){
+  padding:3px 11px;border-radius:999px;color:color-mix(in srgb,var(--r29-azure) 85%,var(--s29-ink));
+  border:1px solid color-mix(in srgb,var(--r29-sapphire) 55%,transparent);background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));
+}
+.sod29-reading-post[data-reality-map] .sod29-update-meta i{color:var(--r29-gold)}
+.sod29-reading-post[data-reality-map] .sod29-story-divider{color:var(--rm-gold-ink)!important;font:750 .95rem/1 var(--rm-display);letter-spacing:.04em}
+.sod29-reading-post[data-reality-map] .sod29-story-divider span::before,.sod29-reading-post[data-reality-map] .sod29-story-divider span::after{content:"◆";margin-inline:10px;font-size:9px;color:var(--r29-gold)}
+
+/* ───────────── Units: identity, hierarchy, the peak moment ───────────── */
+.sod29-reading-post[data-reality-map] [data-sod-unit]{--u-accent:var(--r29-gold);--u-accent2:var(--r29-sapphire)}
+.sod29-reading-post[data-reality-map] [data-sod-unit] h2[data-sod-role="title"]{
+  position:relative;padding-top:22px;font-family:var(--rm-display);font-size:clamp(23px,2.5vw,34px)!important;line-height:1.25;font-weight:850;color:var(--rm-gold-ink)!important;
+}
+.sod29-reading-post[data-reality-map] [data-sod-unit] h2[data-sod-role="title"]::before{
+  content:"◆";position:absolute;inset-inline:0;inset-block-start:0;text-align:center;font-size:10px;line-height:12px;color:var(--r29-gold);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 70%,transparent) 50%,transparent) center/68% 1px no-repeat;
+}
+.sod29-reading-post[data-reality-map] [data-sod-unit]:is([data-sod-peak="auto"]:not([data-sod-peak-choice="off"]),[data-sod-peak-choice="on"]){
+  border:var(--rm-frame);border-radius:var(--r29-radius);box-shadow:var(--r29-shadow),var(--rm-double);
+  background:
+    radial-gradient(80% 50% at 50% 0%,color-mix(in srgb,var(--u-accent) var(--r29-glow),transparent),transparent 72%),
+    radial-gradient(70% 60% at 0% 100%,color-mix(in srgb,var(--u-accent2) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--u-accent2) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+}
+/* central numbers: struck in gold, with a soft royal light */
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"]{
+  font-family:var(--s29-font-numeric,var(--rm-display));font-weight:900;
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 62%,white) 0%,var(--r29-gold) 52%,color-mix(in oklab,var(--r29-gold) 66%,var(--r29-sapphire)) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none;
+  filter:drop-shadow(0 0 22px color-mix(in srgb,var(--r29-gold) 34%,transparent));
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"]{filter:none;
+  background-image:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 90%,var(--s29-ink)),color-mix(in oklab,var(--r29-gold) 70%,var(--r29-sapphire)))}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"] [data-gem]{color:inherit!important;-webkit-text-fill-color:transparent}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="number"]{font-family:var(--rm-display);font-weight:850;color:var(--rm-gold-ink)!important}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="verse"]{
+  border-block:1px solid color-mix(in srgb,var(--r29-gold) 38%,transparent);color:var(--s29-ink);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-sapphire) 12%,transparent),transparent);
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="source"]{border-inline-start-color:color-mix(in srgb,var(--r29-sapphire) 70%,transparent)}
+
+/* the MAIN MESSAGE: a festive focal point */
+.sod29-reading-post[data-reality-map] .sod29-unit-message{
+  position:relative;isolation:isolate;gap:12px;padding:16px 22px;border-radius:var(--r29-radius);border:var(--rm-frame);box-shadow:var(--r29-shadow),var(--rm-double);
+  font:850 clamp(21px,2.2vw,30px)/1.4 var(--rm-display)!important;color:var(--rm-gold-ink)!important;
+  background:
+    radial-gradient(90% 90% at 50% -20%,color-mix(in srgb,var(--r29-gold) calc(var(--r29-glow) * 1.3),transparent),transparent 70%),
+    radial-gradient(70% 80% at 100% 100%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) calc(var(--r29-wash) * 1.5),var(--s29-panel)),var(--s29-panel));
+}
+.sod29-reading-post[data-reality-map] .sod29-unit-message i{
+  display:inline-grid;place-items:center;flex:none;inline-size:34px;block-size:34px;border-radius:50%;font-size:17px;color:var(--r29-gold);
+  background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--r29-gold) 30%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel)) 72%);
+  box-shadow:0 0 0 1.5px color-mix(in srgb,var(--r29-gold) 70%,transparent),0 0 0 3.5px color-mix(in srgb,var(--s29-panel) 80%,transparent),0 6px 14px -6px color-mix(in srgb,var(--r29-gold) 60%,transparent);
+}
+/* chosen references: gold coins */
+.sod29-reading-post[data-reality-map] .sod29-unit-ref{
+  color:var(--rm-gold-ink)!important;font-weight:700;border:1px solid color-mix(in srgb,var(--r29-gold) 62%,transparent);
+  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 24%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 8%,var(--s29-panel)) 70%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 18%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 60%,transparent);
+}
+.sod29-reading-post[data-reality-map] .sod29-unit-ref small{color:color-mix(in srgb,var(--r29-gold) 60%,var(--s29-muted))}
+.sod29-reading-post[data-reality-map] .sod29-semantic-legend dl{border-color:color-mix(in srgb,var(--r29-gold) 30%,var(--s29-line))}
+.sod29-reading-post[data-reality-map] .sod29-semantic-legend dt{color:var(--rm-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-source-unit{border:var(--rm-frame);border-inline-start:3px solid var(--r29-sapphire);box-shadow:var(--r29-shadow);background:var(--rm-hall)}
+.sod29-reading-post[data-reality-map] .sod29-source-unit header strong{font-family:var(--rm-display);color:var(--rm-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-source-unit .sod29-source-unit-hint b{color:var(--rm-gold-ink)}
+
+/* ───────────── Companion (preview only): a royal flagship panel ───────────── */
+@media (min-width:981px){
+  .sod29-root.has-companion .sod29-companion.r29{
+    border:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),var(--s29-line));
+    background:
+      radial-gradient(90% 40% at 50% -6%,color-mix(in srgb,var(--r29-gold) var(--r29-glow),transparent),transparent 70%),
+      radial-gradient(70% 50% at 100% 12%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
+      radial-gradient(80% 50% at 0% 108%,color-mix(in srgb,var(--r29-sapphire) var(--r29-glow),transparent),transparent 70%),
+      linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+    box-shadow:var(--r29-shadow),inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-gold) var(--r29-hair),transparent);
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+  }
+}
+.sod29-companion.r29 .sod29-companion-top b{font:850 17px/1.2 var(--s29-font-display,var(--s29-font-ui));color:var(--r29-gold-ink)}
+.sod29-companion.r29 .sod29-companion-pin{border-color:color-mix(in srgb,var(--r29-gold) 40%,var(--s29-line));color:var(--s29-ink)}
+.sod29-companion.r29 .sod29-companion-ico{border-color:color-mix(in srgb,var(--r29-gold) 40%,var(--s29-line-strong));color:var(--r29-gold-ink)}
+.sod29-companion.r29 .sod29-companion-ico.is-on{border-color:var(--r29-gold);background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--r29-gold) 34%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 14%,var(--s29-panel)));box-shadow:0 0 14px -4px color-mix(in srgb,var(--r29-gold) 70%,transparent)}
+.sod29-companion.r29 .sod29-companion-tabs{gap:6px}
+.sod29-companion.r29 .sod29-companion-tabs button{
+  color:var(--s29-ink);border-color:color-mix(in srgb,var(--r29-gold) 30%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 10%,var(--s29-panel));font-weight:600;
+}
+.sod29-companion.r29 .sod29-companion-tabs button[aria-pressed="true"]{
+  color:var(--s29-ink);font-weight:800;border-color:var(--r29-gold);
+  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 42%,var(--s29-panel)),color-mix(in srgb,var(--r29-violet-deep) 26%,var(--s29-panel)));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 45%,transparent),0 6px 18px -8px color-mix(in srgb,var(--r29-gold) 85%,transparent),inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent);
+}
+.sod29-companion.r29 .sod29-companion-tabs em{color:var(--r29-gold-ink)}
+.sod29-companion.r29 .sod29-companion-tabs button[aria-pressed="true"] em{color:var(--r29-gold-ink)}
+.sod29-companion.r29 .sod29-companion-row{border-color:color-mix(in srgb,var(--r29-gold) 24%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 7%,var(--s29-panel))}
+.sod29-companion.r29 .sod29-companion-ty{border-color:color-mix(in srgb,var(--r29-sapphire) 60%,transparent);color:var(--r29-azure)}
+
+/* the ACTIVE unit: the living focus of the panel */
+.sod29-companion.r29 .sod29-unit-context{
+  position:relative;padding:14px 14px 12px;border-radius:var(--r29-radius-sm);border:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),var(--s29-line));
+  background:radial-gradient(100% 70% at 50% -10%,color-mix(in srgb,var(--r29-gold) calc(var(--r29-glow) * 1.2),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) calc(var(--r29-wash) * 1.5),var(--s29-panel)),var(--s29-panel));
+  box-shadow:var(--r29-shadow),inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-gold) var(--r29-hair),transparent);
+}
+.sod29-companion.r29 .sod29-unit-context>small{color:var(--r29-gold-ink);font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+.sod29-companion.r29 .sod29-unit-context>small::before{content:"◆";font-size:10px;color:var(--r29-gold);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--r29-gold) 70%,transparent))}
+.sod29-companion.r29 .sod29-unit-context strong{font:850 1.15rem/1.35 var(--s29-font-display,var(--s29-font-ui));color:var(--r29-gold-ink);margin-top:4px}
+.sod29-companion.r29 .sod29-unit-context-meta{color:var(--s29-ink)}
+.sod29-companion.r29 .sod29-unit-context-numbers button{
+  color:var(--r29-gold-ink);font:800 1.05rem/1 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;border:1px solid color-mix(in srgb,var(--r29-gold) 70%,transparent);
+  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 30%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 10%,var(--s29-panel)) 70%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 22%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 70%,transparent);
+}
+.sod29-companion.r29 .sod29-unit-context-occ li{position:relative;border:1px solid color-mix(in srgb,var(--r29-sapphire) 40%,var(--s29-line));border-style:solid;background:color-mix(in srgb,var(--r29-sapphire) 10%,var(--s29-panel));padding-inline-start:14px}
+.sod29-companion.r29 .sod29-unit-context-occ li::before{content:"";position:absolute;inset-block:8px;inset-inline-start:-1px;inline-size:3px;border-radius:3px;background:var(--r29-sapphire);box-shadow:0 0 10px color-mix(in srgb,var(--r29-sapphire) 70%,transparent)}
+.sod29-companion.r29 .sod29-unit-context-occ b{color:var(--r29-gold-ink);font-family:var(--s29-font-numeric,var(--s29-font-ui));font-size:1.1rem}
+.sod29-companion.r29 :is(.sod29-unit-context-occ a,.sod29-unit-context-refs a){color:var(--r29-azure)}
+
+@media (forced-colors:active){
+  .sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"]{background:none;-webkit-text-fill-color:CanvasText;color:CanvasText!important;filter:none}
+}
+
+/* Authored dark translucent section backgrounds (Post 5112 wrote them for a night page) turn grey on a light or parchment page. In a series Post
+   they take the royal warm floor instead; the authored text, numbers and structure are untouched. */
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source section[data-sod-unit][style*="background"]{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) 8%,var(--s29-panel)),var(--s29-panel))!important;
+  border-color:color-mix(in srgb,var(--r29-gold) 42%,var(--s29-line))!important;
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source section[data-sod-unit] :is(div,details)[style*="background"]{
+  background:color-mix(in srgb,var(--r29-gold) 7%,var(--s29-panel))!important;
+  border-color:color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line))!important;
+}

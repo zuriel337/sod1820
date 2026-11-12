@@ -35,7 +35,7 @@ export function NowPinnedMessage2029({ pinned, onOpen }) {
     <section className="rc29-update" aria-label="עדכון חדש בפוסט" data-now-pinned-update="true" data-r29-kind="update">
       <p className="rc29-update-head"><span aria-hidden="true">🔔</span> <b>{central.kicker || "עדכון חדש בפוסט"}</b>{central.date ? <> · <time>{central.date}</time></> : null}</p>
       {open ? <div className="rc29-full" id={bodyId} data-now-pinned-full="true">
-        {central.lead ? <div className="rc29-lead" data-now-pinned-lead="true"><strong className="rc29-lead-text">{central.lead}</strong>{central.leadSub ? <p>{central.leadSub}</p> : null}</div> : null}
+        {central.lead ? <div className="rc29-lead" data-now-pinned-lead="true" data-main-message={central.fromMainMessage ? "true" : undefined}><strong className="rc29-lead-text">{central.lead}</strong>{central.leadSub ? <p>{central.leadSub}</p> : null}</div> : null}
         {central.fullTitle ? <strong className="rc29-full-title">{central.fullTitle}</strong> : null}
         {groups.map(group => {
           const numberHref = numberLink(group.value);
@@ -50,7 +50,7 @@ export function NowPinnedMessage2029({ pinned, onOpen }) {
         {central.statement ? <p className="rc29-statement" data-now-pinned-statement="true">{central.statement}</p> : null}
         <p className="rc29-owner">המסר בנוסח הבעלים. המערכת לא מנסחת אותו מחדש.</p>
       </div> : <>
-        <p className="rc29-sum" data-now-pinned-summary="true">{summary}</p>
+        <p className="rc29-sum" data-now-pinned-summary="true" data-main-message={central.fromMainMessage ? "true" : undefined}>{central.fromMainMessage ? <i className="rc29-star" aria-hidden="true">✦</i> : null}{summary}</p>
         {groups.length ? <div className="rc29-nums is-mini" aria-label="המספרים בעדכון">{groups.map(group => {
           const numberHref = numberLink(group.value);
           return numberHref ? <a key={group.value} className="rc29-num r29-coin" href={numberHref} onClick={go(numberHref)} aria-label={`פתח את המספר ${group.value}`}><b>{group.value}</b></a>

@@ -1061,7 +1061,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   };
 
   return <article
-    className={postReadingClassName(experience.wireframe ? "is-architecture-wireframe" : "")}
+    className={postReadingClassName([experience.wireframe ? "is-architecture-wireframe" : "", protoOn && realityMap.active ? "r29" : ""].filter(Boolean).join(" "))}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"
     data-experience-capability="post-master-reading-stage"

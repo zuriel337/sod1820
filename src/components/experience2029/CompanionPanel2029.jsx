@@ -19,7 +19,7 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
   const closeSourceStory = React.useCallback(() => setSourceStory(null), []);
   const open = mode !== "slim";
   const badge = feed.newCount > 9 ? "9+" : String(feed.newCount);
-  return <aside className={`sod29-companion is-${mode}`} aria-label="עדכונים, הקשר ורצף האירועים" data-companion-mode={mode} {...hoverProps}>
+  return <aside className={`sod29-companion r29 is-${mode}`} aria-label="עדכונים, הקשר ורצף האירועים" data-companion-mode={mode} {...hoverProps}>
     {!open ? <div className="sod29-companion-slim">
       <button type="button" className={`sod29-companion-ico${tab === "feed" ? " is-on" : ""}`} onClick={() => onOpenPanel("feed")} aria-label={feed.newCount ? `עדכונים: ${feed.newCount} חדשים` : "עדכונים"}>
         <i aria-hidden="true" />{feed.newCount ? <span className="sod29-companion-badge" aria-hidden="true">{badge}</span> : null}
