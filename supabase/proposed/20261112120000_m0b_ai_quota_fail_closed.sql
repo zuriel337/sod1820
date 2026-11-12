@@ -10,17 +10,32 @@
 -- the atomic insert-on-conflict counter, the Asia/Jerusalem day, the ai_usage table, RLS or any grant
 -- (grants are cluster M0-A). fn_capability_execution_gate_v1 already refuses an empty identity before calling this
 -- function ("missing_identity"), and after M0-B no Edge caller sends one, so no legitimate caller changes behavior.
+--
+-- Full-match guards (round 5, after the Codex review: a text fragment alone was not enough before replacing the whole function):
+--   BEFORE = md5(pg_get_functiondef) of the live body read on 12.11.2026 = 7981f2a5ba9e2b64c2a4b54d82b96bad
+--            (re-read live, read-only, on 12.11.2026; the ROLLBACK file reproduces it byte for byte on a throwaway PostgreSQL);
+--   AFTER  = md5 of the body below as PostgreSQL prints it = 17e71b6f6661f07aca809242c112ad13.
+--   The live body must be exactly BEFORE (then it is replaced) or exactly AFTER (already applied: the same body is re-created, a
+--   no-op). ANY other body - a change in any other clause, even with the old empty-identity text still present - stops the file
+--   before anything is replaced. After the replace the body must be exactly AFTER, and SECURITY DEFINER, search_path, owner,
+--   volatility and the privileges (ACL) must equal what they were before this file ran.
 begin;
 set local lock_timeout = '5s';
 set local statement_timeout = '30s';
 
+create temp table m0b_before on commit drop as
+  select md5(pg_get_functiondef(p.oid)) as def_md5, p.proowner, p.proacl::text as acl, p.prosecdef, p.proconfig, p.provolatile
+    from pg_proc p where p.oid = to_regprocedure('public.ai_quota_check(text,text,integer)');
+
 do $$
-declare v_def text;
+declare v_md5 text;
 begin
-  select pg_get_functiondef('public.ai_quota_check(text,text,integer)'::regprocedure) into v_def;
-  if v_def is null then raise exception 'M0B precondition: public.ai_quota_check(text,text,integer) not found'; end if;
-  if position($q$return jsonb_build_object('allowed', true, 'used', 0, 'limit', null, 'tier', 'unknown');$q$ in v_def) = 0 then
-    raise exception 'M0B precondition: live ai_quota_check drifted from the body read on 12.11.2026 (empty-identity branch not found)';
+  select def_md5 into v_md5 from m0b_before;
+  if v_md5 is null then raise exception 'M0B precondition: public.ai_quota_check(text,text,integer) not found'; end if;
+  if v_md5 = '17e71b6f6661f07aca809242c112ad13' then
+    raise notice 'M0B: ai_quota_check already has the reviewed fail-closed body; re-creating the same body (no-op)';
+  elsif v_md5 <> '7981f2a5ba9e2b64c2a4b54d82b96bad' then
+    raise exception 'M0B drift: live ai_quota_check is neither the body reviewed on 12.11.2026 nor the M0-B body (md5 %); stop', v_md5;
   end if;
 end $$;
 
@@ -73,12 +88,18 @@ end;
 $function$;
 
 do $$
-declare v_def text;
+declare b m0b_before; a record;
 begin
-  select pg_get_functiondef('public.ai_quota_check(text,text,integer)'::regprocedure) into v_def;
-  if position($q$'reason', 'missing_identity'$q$ in v_def) = 0 then raise exception 'M0B postcondition: fail-closed branch missing'; end if;
-  if (select prosecdef from pg_proc where oid = 'public.ai_quota_check(text,text,integer)'::regprocedure) is not true then
-    raise exception 'M0B postcondition: SECURITY DEFINER lost';
+  select * into b from m0b_before;
+  select md5(pg_get_functiondef(p.oid)) as def_md5, p.proowner, p.proacl::text as acl, p.prosecdef, p.proconfig, p.provolatile into a
+    from pg_proc p where p.oid = 'public.ai_quota_check(text,text,integer)'::regprocedure;
+  if a.def_md5 <> '17e71b6f6661f07aca809242c112ad13' then
+    raise exception 'M0B postcondition: ai_quota_check re-created with an unexpected body (md5 %)', a.def_md5;
+  end if;
+  if a.prosecdef is not true then raise exception 'M0B postcondition: SECURITY DEFINER lost'; end if;
+  if a.proconfig is distinct from array['search_path=public'] then raise exception 'M0B postcondition: search_path changed'; end if;
+  if a.proowner <> b.proowner or a.acl is distinct from b.acl or a.provolatile <> b.provolatile or a.proconfig is distinct from b.proconfig then
+    raise exception 'M0B postcondition: owner, privileges, volatility or settings changed';
   end if;
 end $$;
 

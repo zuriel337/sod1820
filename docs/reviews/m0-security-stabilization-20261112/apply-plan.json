@@ -27,9 +27,9 @@
   {
    "step": "3",
    "file": "supabase/proposed/20261112120000_m0b_ai_quota_fail_closed.sql",
-   "sha256": "1a382f6e1cf5322d093296ec81605dcf6c63f5b6156724a0e56ce9fb002112aa",
+   "sha256": "63921d3a0691b14e85ee047399ba5a9f9746c97bd6a736faf8afb1503c577c18",
    "rollback": "supabase/proposed/ROLLBACK_20261112120000_m0b_ai_quota_fail_closed.sql",
-   "rollback_sha256": "11117fdf3129854cfef6c6389b54eee3fa1e72afbbe0ab01602e0fa79b15722f",
+   "rollback_sha256": "f1c29fc2872b9e7fb68ca7b45e7e9951b5e7386a0f062e03bb06a77d1c2afbe0",
    "status": "mandatory",
    "depends_on": [],
    "verify": "B",

@@ -13,7 +13,7 @@
 | AI בתשלום רק למחובר (ניתוח דף המספר ב-`ai-analyze`, `number-researcher`, `lab-teacher`, `journey-message`) | **IMPLEMENTED + COMMITTED (ענף בלבד)** | `_shared/edgeCallerLimits.js`, `_shared/materialGate.js`, ארבע הפונקציות, בדיקות | אישור פריסה (§8) |
 | זהות מכסה שאינה טענת דפדפן (שורש הבעיה) | **IMPLEMENTED** | `materialGate.resolveCaller`, `ai-analyze resolveIdentity` | אותה פריסה |
 | מכסה נכשלת סגור ל-AI בתשלום | **IMPLEMENTED** | `ai-analyze checkQuota` (חוץ מערוץ WhatsApp המהימן), `field-router` | אותה פריסה |
-| `ai_quota_check` מסרב לזהות ריקה | **PROPOSAL, NOT APPLIED** | `supabase/proposed/20261112120000_m0b_ai_quota_fail_closed.sql` + ROLLBACK + `tests/sql/m0b_ai_quota_fail_closed_v1.sql` (עבר מקומית) | אישור החלה (§8) |
+| `ai_quota_check` מסרב לזהות ריקה | **PROPOSAL, NOT APPLIED** | `supabase/proposed/20261112120000_m0b_ai_quota_fail_closed.sql` + ROLLBACK + `tests/sql/m0b_ai_quota_fail_closed_v1.sql` (עבר מקומית). **סבב 5 (ביקורת Codex):** השומר בודק עכשיו התאמה מלאה של הגוף (md5 של `pg_get_functiondef`): לפני = `7981f2a5…` (נקרא מהחי ב־12.11, וקובץ ה־ROLLBACK משחזר אותו בית בבית), אחרי = `17e71b6f…`. שינוי בכל סעיף אחר עוצר את ההחלה ואת ה־rollback בלי לדרוס. נבדקו גם הרצה כפולה (no-op) ושמירת בעלים והרשאות | אישור החלה (§8) |
 | מגבלות קצב למחשוב ציבורי (`els-search-bridge`, `research-run`) | **IMPLEMENTED**, נכשל פתוח בתקלת מגביל | שתי הפונקציות + בדיקות | אישור פריסה |
 | מידע אישי בקוד Edge (`wa-raziel`, הערות ב-`ai-analyze`) | **IMPLEMENTED** | מספרים ומזהי קבוצות עברו למשתני סביבה | הגדרת secrets (§8, לא חוסם) |
 | מלאי כתיבות-אורח (§3.3 במפת ההרשאות) | **INVENTORY ONLY** | §7 | הכרעה M0/M1 |

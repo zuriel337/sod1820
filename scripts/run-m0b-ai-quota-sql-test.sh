@@ -9,7 +9,10 @@ FILES=(tests/sql/m0b_ai_quota_fail_closed_v1.sql supabase/proposed/2026111212000
   supabase/proposed/ROLLBACK_20261112120000_m0b_ai_quota_fail_closed.sql)
 for f in "${FILES[@]}"; do mkdir -p "$W/$(dirname "$f")"; cp "$ROOT/$f" "$W/$f"; done
 chmod -R a+rX "$W"
-check() { tee "$W/out.txt"; grep -q 'm0b_ai_quota_fail_closed_v1: PASS' "$W/out.txt" || { echo "FAIL: M0-B regression did not PASS" >&2; exit 1; }; }
+# Round 5: the negative cases must stop on the full-match guards themselves (not on some other error).
+check() { tee "$W/out.txt"; grep -q 'm0b_ai_quota_fail_closed_v1: PASS' "$W/out.txt" || { echo "FAIL: M0-B regression did not PASS" >&2; exit 1; }
+  grep -q 'M0B drift: live ai_quota_check is neither the body reviewed' "$W/out.txt" || { echo "FAIL: the proposal did not stop on its full-match guard" >&2; exit 1; }
+  [ "$(grep -c 'M0B rollback drift: ai_quota_check is neither the M0-B body nor the original' "$W/out.txt")" -ge 2 ] || { echo "FAIL: the rollback did not stop on its full-match guard (twice)" >&2; exit 1; }; }
 
 if ! compgen -G '/usr/lib/postgresql/*/bin' >/dev/null; then
   CONTAINER="sod-m0b-quota-$$"
