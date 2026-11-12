@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import ExternalVideoFacade2029 from "../experience2029/ExternalVideoFacade2029.jsx";
+import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
 import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import {
@@ -121,6 +122,9 @@ export default function WorldPublicUpdates2029({
               ? `${state.dateLabel} · ${bilingualDateLabel(state.at)}`
               : "אין נתון"}</time>
           </div>
+          {/* Design Contract V2 §8.3: the source's own image is visible in the card before entry. */}
+          {item.thumbUrl ? <CanonicalMediaImage2029 src={item.thumbUrl} alt={item.label || ""} thumbnail
+            className="sod29-world-update-thumb" /> : null}
           <h3>{item.label}</h3>
           {item.creator ? <p className="sod29-world-update-creator">{item.creator}</p> : null}
           {item.summary ? <p>{item.summary}</p> : null}
