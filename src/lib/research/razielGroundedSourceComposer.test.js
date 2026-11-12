@@ -108,7 +108,7 @@ test("emits only canonical number navigation and never fabricates a source URL",
     { subject: { type: "expression", value: "משיח" }, projection: projection([sourceClaim]) },
   ]);
 
-  assert.deepEqual(out.navigation, [{ kind: "number", label: "פתח את דף המספר 1820", href: "/2029/number/1820" }]);
+  assert.deepEqual(out.navigation, [{ kind: "number", label: "פתח את דף המספר 1820", href: "/number/1820" }]);
   assert.deepEqual(out.sources, [
     { original_name: "מאגר הגימטריה המאומת", source_ref: "gematria_words:one", lang: "he" },
     { original_name: "ספר יצירה", source_ref: "book:sefer-yetzirah#p1", lang: "he" },
@@ -738,8 +738,8 @@ test("calculator analysis starts from the full method profile and exposes bounde
   assert.match(out.fallback, /קבוצות ערך מנורמלות.*73 ← רגיל, גדול/);
   assert.match(out.fallback, /שקילות מותנית מן המרשם: רגיל \+ גדול; זהויות אפקטיביות: 1/);
   assert.deepEqual(out.navigation, [
-    { kind: "number", label: "פתח את דף המספר 73", href: "/2029/number/73" },
-    { kind: "number", label: "פתח את דף המספר 365", href: "/2029/number/365" },
+    { kind: "number", label: "פתח את דף המספר 73", href: "/number/73" },
+    { kind: "number", label: "פתח את דף המספר 365", href: "/number/365" },
   ]);
   assert.equal(prompt.presentation_contract.calculation_profile_is_complete_bounded_method_map, true);
   assert.equal(prompt.presentation_contract.method_value_groups_are_normalized_presentation_not_new_calculation, true);

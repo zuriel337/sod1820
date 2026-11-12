@@ -248,7 +248,7 @@ test("a saved pending navigation clarification resumes through the existing dete
   const prepared = prepareRazielSessionSubmission({ question: "337", state: restored, researchContext: null,
     startedAt: "2026-10-26T12:01:00Z", createTurnId: () => "navigation-follow-up" });
   assert.equal(prepared.request, null);
-  assert.equal(prepared.navigation.href, "/2029/number/337");
+  assert.equal(prepared.navigation.href, "/number/337");   // N14: a new link is the public address
   assert.equal(prepared.navigation.model_calls, 0);
   assert.equal(restored.thread.length, 2);
 });
@@ -267,6 +267,9 @@ test("restored navigation is a bounded exact projection and rejects forged versi
     { ...valid, href: "https://evil.invalid/2029/number/73" }, { ...valid, href: "/2029/number/0", number: 0 },
     { ...valid, href: "/2029/number/073" }, { ...valid, href: "/2029/number/73?source=private" },
     { ...valid, href: "/2029/number/1000000", number: 1000000 }, { ...valid, number: 337 },
+    { ...valid, href: "https://evil.invalid/number/73" }, { ...valid, href: "/number/0", number: 0 },
+    { ...valid, href: "/number/073" }, { ...valid, href: "/number/73?source=private" },
+    { ...valid, href: "/number/1000000", number: 1000000 },
     { ...valid, number: "73" }, { ...valid, href: "/world", number: null },
     { ...valid, intent: "world" }, { ...valid, intent: "world", href: "/world", number: 73 },
     { ...valid, intent: "world", href: "/world?private=1", number: null },

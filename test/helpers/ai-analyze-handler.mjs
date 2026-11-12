@@ -8,6 +8,7 @@ import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../s
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../src/lib/research/razielGroundedSourceComposer.js";
+import { publicNumberPageHref } from "../../src/lib/research/numberPageAddress.js";
 import {
   RAZIEL_SEMANTIC_INTENT_VERSION,
   isRazielCurrentSurfaceQuestion,
@@ -167,7 +168,7 @@ export async function runAiAnalyze({
     ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 14, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 15, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
@@ -188,6 +189,8 @@ export async function runAiAnalyze({
   assert.ok(imports[11].includes('readElsRazielReadingContext'));
   assert.equal(imports[12], 'import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";');
   assert.equal(imports[13], 'import { enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE } from "../_shared/edgeCallerLimits.js";');
+  // N14: the public number address (pure; no network, no env). Reviewed: it only builds /number/<address>.
+  assert.equal(imports[14], 'import { publicNumberPageHref } from "../../../src/lib/research/numberPageAddress.js";');
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -200,6 +203,7 @@ export async function runAiAnalyze({
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
     razielMethodLayerNumbers,
+    publicNumberPageHref,
     RAZIEL_SEMANTIC_INTENT_VERSION,
     isRazielCurrentSurfaceQuestion,
     resolveRazielCanonicalRequest,

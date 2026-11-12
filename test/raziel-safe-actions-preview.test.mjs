@@ -57,7 +57,7 @@ test("mocked transport never calls a model or backend, including malicious sugge
   assert.equal(response.headers.get("X-Raziel-Preview-Transport"), "mock-only");
   const data = await response.json();
   assert.doesNotMatch(JSON.stringify(data), /evil|delete_everything/);
-  assert.equal(data.raziel.suggested_paths[1].href, "/2029/number/358");
+  assert.equal(data.raziel.suggested_paths[1].href, "/number/358");
   assert.equal(normalizeRazielResponse(data.raziel).suggestedActions.length, 2);
 });
 

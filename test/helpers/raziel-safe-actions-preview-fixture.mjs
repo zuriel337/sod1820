@@ -4,15 +4,17 @@
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { runInNewContext } from "node:vm";
+import { publicNumberPageHref } from "../../src/lib/research/numberPageAddress.js";
 
 export function buildRazielSafeActionsPreviewFixture() {
   const source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8");
   const start = source.indexOf("function razielSafeSuggestedPaths(");
   const end = source.indexOf("const svcHeaders", start);
   if (start < 0 || end < start) throw new Error("canonical_suggestion_registry_not_found");
-  const registry = runInNewContext(stripTypeScriptTypes(source.slice(start, end)) + "\nrazielSafeSuggestedPaths;", {}, { timeout: 1000 });
+  // The registry's only dependency is the public number address (N14); it is the real function, not a copy.
+  const registry = runInNewContext(stripTypeScriptTypes(source.slice(start, end)) + "\nrazielSafeSuggestedPaths;", { publicNumberPageHref }, { timeout: 1000 });
   const expression = "משיח";
-  const navigation = [{ href: "/2029/number/358" }];
+  const navigation = [{ href: "/number/358" }];   // the composer emits the public address (N14)
   const response = (kind) => ({
     deterministic: true,
     intelligence_level: "fast",

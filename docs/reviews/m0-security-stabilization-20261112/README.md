@@ -76,7 +76,7 @@
 
 ### שלב 3 — Edge (לכל אחת: שער הסטייה ← פריסה ← בדיקה בלי קריאת AI בתשלום)
 `els-search-bridge` (v5) · `research-run` (v9) · `ai-analyze` (v91) · `number-researcher` (v12) · `lab-teacher` (v3) · `journey-message` (v13) · `field-router` (v10) · `wa-raziel` (v21) · `contact-notify` (v1) — ☐.
-**השינויים שאינם M0** בחמש הפונקציות שמפגרות אחרי `main` (N1–N13 ב־`non-m0-edge-deltas.md`) **אינם חלק מאישור M0**. כל אחד דורש החלטה בשלב 3 של `release-request.md`.
+**השינויים שאינם M0** בחמש הפונקציות שמפגרות אחרי `main` (N1–N13 ב־`non-m0-edge-deltas.md`, ו־N14: קישורים ציבוריים `/number/<n>` ב־`ai-analyze` וב־`wa-raziel`) **אינם חלק מאישור M0**. כל אחד דורש החלטה בשלב 3 של `release-request.md`.
 `verify_jwt` ללא שינוי. עם כל אחת נשלחים `_shared/edgeCallerLimits.js`, ומי שמייבאת גם `_shared/materialGate.js`. **Rollback:** מהמקור הפרוס בפועל, דרך `node scripts/m0-edge-rollback-assemble.mjs <slug> <dir>`: בדיקת SHA-256 לכל קובץ, אותו entrypoint ואותו `verify_jwt`. הסקריפט לא פורס. בחמש פונקציות, פריסה מהענף מעלה גם קוד מ־`main` שעוד לא נפרס (`edge-drift-and-rollback.md` §1).
 
 ### שלב 4 — קוד האתר (מיזוג ל־`main` ופריסה של ה־SHA המדויק בנוהל המתועד)

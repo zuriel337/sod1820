@@ -91,7 +91,7 @@ test("the web adapter's live route state agrees with every registry entry", () =
 });
 
 test("existing grammar is untouched and \"where\" never becomes a number-page or world request", () => {
-  assert.equal(ask("פתח את דף המספר 73").href, "/2029/number/73");
+  assert.equal(ask("פתח את דף המספר 73").href, "/number/73");   // N14: a new link is the public address
   assert.equal(ask("פתח את העולם").href, "/world");
   assert.equal(ask("תן לי לינק לדף המספר").type, "clarify");
   assert.equal(parseRazielNavigationRequest("איפה העולם"), null);

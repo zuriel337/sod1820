@@ -122,6 +122,10 @@ jobs:
         run: |
           node --test test/number-typography-v2-2029.test.mjs test/number-address-canonical-2029.test.mjs test/seo-robots-follow-2029.test.mjs test/gematria-focus-foundation-2029.test.mjs test/public-canonical-parity-repair.test.mjs
           node scripts/test-2029-number-links-public-flag.mjs
+          # N14 (ZURIEL 12.11.2026): new links from ai-analyze, the shared Raziel resolver and wa-raziel are the public /number/<n>;
+          # every reader accepts /number/<n> and /2029/number/<n> with the same bounds; stored links are not rewritten. The navigation
+          # suite was not wired before (its route-table test failed on main); it passes after N14 and is wired here.
+          node --test test/n14-public-number-links.test.mjs test/raziel-canonical-navigation-actions.test.mjs test/raziel-wa-navigation-handler.test.mjs
       # P0-A/B/C consumer contracts (PG2): source identity, occurrence and independence across Post, Topic, World and Number.
       # All seven were green on main but ran in no workflow; they read only repository files (no network, no browser, no git history). About 5 s together.
       # Proven on Node 24 on ci-verify/pg2-workflow-20261107 (71/71). world-corpus-continuation-2029 is bound to a committed snapshot (checksum): remove it from

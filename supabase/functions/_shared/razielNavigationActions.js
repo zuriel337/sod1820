@@ -7,7 +7,9 @@
 //
 // It never calls a model, a database or the network, and it never reads a URL from model output:
 // an href exists only as the result of `razielNumberPageHref` / the closed route table below,
-// whose shapes are pinned to the 2029 router (`/2029/number/:value`, `/world`) by a parity test.
+// whose shapes are pinned to the router (`/number/:value`, `/world`) and to `publicNumberPageHref` by a parity test.
+// N14 (ZURIEL 12.11.2026): new links use the public address /number/<n>; links Raziel sent earlier as
+// /2029/number/<n> (WhatsApp history, saved site turns) are still read as the same number. Nothing stored is rewritten.
 // Transport adapters supply a *verified* conversation focus; this module revalidates its shape and
 // range but does not decide what is verified. A missing or ambiguous number is never guessed.
 //
@@ -33,14 +35,17 @@ export const RAZIEL_NAVIGATION_NUMBER_MAX = 999999;
 
 export const RAZIEL_NAVIGATION_ASK_NUMBER = "לאיזה מספר תרצה שאפתח דף?";
 
-// Closed route table. Mirrors App2029 `<Route path="/2029/number/:value">` and `<Route path="/world">`
-// (and `numberExpressionFocusHref(root)` without query); pinned by test/raziel-canonical-navigation-actions.test.mjs.
+// Closed route table. Mirrors App2029 `<Route path="/number/:value">` (public address) and `<Route path="/world">`,
+// and equals `publicNumberPageHref(value)` (src/lib/research/numberPageAddress.js), which this dependency-free module cannot
+// import; pinned by test/raziel-canonical-navigation-actions.test.mjs and test/n14-public-number-links.test.mjs.
 export const RAZIEL_NAVIGATION_ROUTES = Object.freeze({
-  number: (value) => `/2029/number/${value}`,
+  number: (value) => `/number/${value}`,
   world: () => "/world",
 });
 
-const NUMBER_HREF = /^\/2029\/number\/([1-9]\d{0,5})$/;
+// Read side: the public address and the older /2029/number spelling are the same page. Same bounds for both:
+// 1..999999, no leading zero, no query, no fragment, no extra path.
+const NUMBER_HREF = /^\/(?:2029\/)?number\/([1-9]\d{0,5})$/;
 const WORLD_HREF = "/world";
 
 export function isValidRazielNavigationNumber(value) {

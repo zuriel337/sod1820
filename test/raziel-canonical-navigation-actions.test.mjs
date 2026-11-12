@@ -31,6 +31,7 @@ import {
 import { createInitialRazielSessionState, razielSessionReducer } from "../src/lib/research/razielSession2029.js";
 import { razielNavigationButton } from "../src/components/experience2029/razielSessionSeam2029.js";
 import { numberExpressionFocusHref } from "../src/lib/research/numberExpressionFocus.js";
+import { numberPageRouteHref, publicNumberPageHref } from "../src/lib/research/numberPageAddress.js";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const SITE = "https://sod1820.co.il";
@@ -39,24 +40,24 @@ const focus = (number, source = "conversation") => ({ number, source });
 // ── 1. Phrase matrix (every required wording) ───────────────────────────────────────────────────────────────────────
 const MATRIX = [
   // [utterance, focus, expected intent, expected href]
-  ["תן לי את דף המספר 73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/73"],
-  ["פתח את המספר 337 באתר", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/337"],
-  ["לינק לדף המספר 73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/73"],
-  ["תן לי לינק לדף המספר באתר", focus(73), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/73"],
-  ["פתח לי את דף המספר", focus(337), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/337"],
+  ["תן לי את דף המספר 73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/73"],
+  ["פתח את המספר 337 באתר", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/337"],
+  ["לינק לדף המספר 73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/73"],
+  ["תן לי לינק לדף המספר באתר", focus(73), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/73"],
+  ["פתח לי את דף המספר", focus(337), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/337"],
   ["פתח את העולם", null, RAZIEL_NAVIGATION_INTENT.WORLD, "/world"],
   ["קח אותי לעולם", null, RAZIEL_NAVIGATION_INTENT.WORLD, "/world"],
-  ["פתח את מפת המחקר", focus(73), RAZIEL_NAVIGATION_INTENT.RESEARCH_MAP, "/2029/number/73"],
-  ["קח אותי לביטויים של המספר הזה", focus(73), RAZIEL_NAVIGATION_INTENT.NUMBER_EXPRESSIONS, "/2029/number/73"],
+  ["פתח את מפת המחקר", focus(73), RAZIEL_NAVIGATION_INTENT.RESEARCH_MAP, "/number/73"],
+  ["קח אותי לביטויים של המספר הזה", focus(73), RAZIEL_NAVIGATION_INTENT.NUMBER_EXPRESSIONS, "/number/73"],
   // natural variants
-  ["רזיאל, תן לי בבקשה את דף המספר 1820", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/1820"],
-  ["אפשר לקבל קישור לדף המספר 73?", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/73"],
-  ["אני רוצה לראות את דף המספר 718", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/718"],
-  ["קחי אותי לדף המספר", focus(26), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/26"],
-  ["תפתח את המספר הזה", focus(26), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/26"],
-  ["קח אותי לביטויים של 73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_EXPRESSIONS, "/2029/number/73"],
-  ["פתח את מפת המחקר של 337", null, RAZIEL_NAVIGATION_INTENT.RESEARCH_MAP, "/2029/number/337"],
-  ["לינק ל־73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/73"],
+  ["רזיאל, תן לי בבקשה את דף המספר 1820", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/1820"],
+  ["אפשר לקבל קישור לדף המספר 73?", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/73"],
+  ["אני רוצה לראות את דף המספר 718", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/718"],
+  ["קחי אותי לדף המספר", focus(26), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/26"],
+  ["תפתח את המספר הזה", focus(26), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/26"],
+  ["קח אותי לביטויים של 73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_EXPRESSIONS, "/number/73"],
+  ["פתח את מפת המחקר של 337", null, RAZIEL_NAVIGATION_INTENT.RESEARCH_MAP, "/number/337"],
+  ["לינק ל־73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/number/73"],
 ];
 
 test("every required wording resolves deterministically to a canonical href", () => {
@@ -109,37 +110,50 @@ test("an explicit number outside 1..999999 or with a leading zero never opens a 
     assert.match(action.message, /לאיזה מספר תרצה שאפתח דף\?$/u);
   }
   // explicit wins over any focus; an ambiguous focus asks
-  assert.equal(resolveRazielNavigationAction({ text: "פתח את דף המספר 5", focus: focus(73) }).href, "/2029/number/5");
+  assert.equal(resolveRazielNavigationAction({ text: "פתח את דף המספר 5", focus: focus(73) }).href, "/number/5");
   assert.equal(resolveRazielNavigationAction({ text: "פתח לי את דף המספר", focus: { ambiguous: true } }).reason, "ambiguous_number");
 });
 
 test("clarification follow-up: a bare numeral answers the question, nothing else does", () => {
   assert.equal(razielNavigationIsClarification(RAZIEL_NAVIGATION_ASK_NUMBER), true);
   assert.equal(razielNavigationIsClarification("בשמחה — הנה דף המספר 73."), false);
-  assert.equal(resolveRazielNavigationFollowUp({ text: "73" }).href, "/2029/number/73");
-  assert.equal(resolveRazielNavigationFollowUp({ text: "המספר 337?" }).href, "/2029/number/337");
+  assert.equal(resolveRazielNavigationFollowUp({ text: "73" }).href, "/number/73");
+  assert.equal(resolveRazielNavigationFollowUp({ text: "המספר 337?" }).href, "/number/337");
   assert.equal(resolveRazielNavigationFollowUp({ text: "0" }).type, "clarify");
   assert.equal(resolveRazielNavigationFollowUp({ text: "מה זה 73" }), null);
   assert.equal(resolveRazielNavigationFollowUp({ text: "73 ו 74" }), null);
 });
 
-// ── 2. Canonical routes: the table is pinned to the real router and to the existing builders ───────────────────────
-test("hrefs come only from the closed table, which mirrors App2029 and the existing number href builder", () => {
+// ── 2. Canonical routes: the table is pinned to the real router and to the public number address ─────────────────
+// N14 (ZURIEL 12.11.2026): a new link is the public address /number/<n> — publicNumberPageHref, the same in the browser and in
+// server code without Vite flags. The older /2029/number/<n> stays readable (saved turns, WhatsApp history) with the same bounds.
+test("hrefs come only from the closed table, which mirrors the public router and the public number address", () => {
   const app = read("src/App2029.jsx");
-  assert.match(app, /<Route path="\/2029\/number\/:value"/);
+  assert.match(app, /<Route path="\/number\/:value"/);
+  assert.match(app, /<Route path="\/2029\/number\/:value"/, "the compatibility route stays");
   assert.match(app, /<Route path="\/world"/);
   for (const value of [1, 73, 337, 1820, 999999]) {
-    assert.equal(RAZIEL_NAVIGATION_ROUTES.number(value), `/2029/number/${value}`);
-    assert.equal(razielNumberPageHref(value), numberExpressionFocusHref(value));
+    assert.equal(RAZIEL_NAVIGATION_ROUTES.number(value), `/number/${value}`);
+    assert.equal(razielNumberPageHref(value), publicNumberPageHref(value));
+    // rendered in this build, the link is the page the existing builder opens
+    assert.equal(numberPageRouteHref(razielNumberPageHref(value)), numberExpressionFocusHref(value));
   }
   assert.equal(razielNumberPageHref(0), null);
   assert.equal(razielNumberPageHref(1000000), null);
   assert.equal(razielNumberPageHref("7x"), null);
-  for (const bad of ["/2029/number/0", "/2029/number/073", "/2029/number/1000000", "/2029/number/7?x=1", "/number/7", "//evil.example", "https://evil.example/2029/number/7", "/world/x", "javascript:alert(1)", "", null, 7]) {
+  for (const good of ["/number/7", "/number/999999", "/2029/number/7", "/2029/number/999999", "/world"]) {
+    assert.equal(isCanonicalRazielNavigationHref(good), true, good);
+  }
+  for (const bad of [
+    "/2029/number/0", "/2029/number/073", "/2029/number/1000000", "/2029/number/7?x=1", "/2029/number/7#x", "/2029/number/7/extra",
+    "/number/0", "/number/073", "/number/1000000", "/number/7?x=1", "/number/7#x", "/number/7/extra", "/number/", "/number/abc",
+    "/numbers/7", "/x/number/7", "/2030/number/7", "//evil.example", "https://evil.example/2029/number/7", "https://evil.example/number/7",
+    "//evil.example/number/7", "/world/x", "javascript:alert(1)", "", null, 7,
+  ]) {
     assert.equal(isCanonicalRazielNavigationHref(bad), false, String(bad));
   }
-  // the lazy submit adapter's pre-existing "open_number" shape is the same shape
-  assert.match(read("src/lib/research/razielSessionRequest2029.js"), /\^\\\/2029\\\/number\\\/\(\[1-9\]\\d\{0,5\}\)\$/);
+  // the lazy submit adapter's pre-existing "open_number" reader accepts the same two spellings, same bounds
+  assert.match(read("src/lib/research/razielSessionRequest2029.js"), /\^\\\/\(\?:2029\\\/\)\?number\\\/\(\[1-9\]\\d\{0,5\}\)\$/);
 });
 
 test("no hardcoded URL, no model/network/db call and no Preview origin inside the shared resolver", () => {
@@ -169,13 +183,13 @@ const evidence = (...calculations) => ({ calculations, findings: [] });
 test("after a conversation about 73 the page of the number is 73; after שאול=337 it is 337", () => {
   const about73 = [userTurn("מה זה 73", [numberId(73)]), razielTurn()];
   assert.deepEqual(selectRazielVerifiedNumberFocus({ thread: about73 }), { number: 73, source: "conversation" });
-  assert.equal(resolveRazielNavigationTurn({ question: "תן לי לינק לדף המספר באתר", state: { thread: about73 } }).href, "/2029/number/73");
+  assert.equal(resolveRazielNavigationTurn({ question: "תן לי לינק לדף המספר באתר", state: { thread: about73 } }).href, "/number/73");
 
   const aboutSaul = [
     userTurn("מה זה שאול", [{ type: "phrase", label: "שאול", identity_key: "phrase:שאול" }]),
     razielTurn({ evidenceSummary: evidence(calc("שאול", "רגיל", 337)) }),
   ];
-  assert.equal(resolveRazielNavigationTurn({ question: "פתח לי את דף המספר", state: { thread: aboutSaul } }).href, "/2029/number/337");
+  assert.equal(resolveRazielNavigationTurn({ question: "פתח לי את דף המספר", state: { thread: aboutSaul } }).href, "/number/337");
 
   // all-methods evidence: the regular-method value is the focus
   const allMethods = [razielTurn({ evidenceSummary: evidence(calc("שאול", "רגיל", 337), calc("שאול", "גדול", 337), calc("שאול", "מספר קטן", 4)) })];
@@ -219,9 +233,9 @@ test("no verified number means a question: ambiguity, unverified phrases and sta
 
 test("the surface number subject is the fallback only when the thread has no subject of its own", () => {
   const contextSnapshot = { surface: "number", subject: { type: "number", id: "718", label: "718" }, focus: {} };
-  assert.equal(resolveRazielNavigationTurn({ question: "פתח לי את דף המספר", state: { thread: [] }, contextSnapshot }).href, "/2029/number/718");
+  assert.equal(resolveRazielNavigationTurn({ question: "פתח לי את דף המספר", state: { thread: [] }, contextSnapshot }).href, "/number/718");
   const conversation = [userTurn("73", [numberId(73)]), razielTurn()];
-  assert.equal(resolveRazielNavigationTurn({ question: "פתח לי את דף המספר", state: { thread: conversation }, contextSnapshot }).href, "/2029/number/73");
+  assert.equal(resolveRazielNavigationTurn({ question: "פתח לי את דף המספר", state: { thread: conversation }, contextSnapshot }).href, "/number/73");
   const nonNumberSurface = { surface: "post", subject: { type: "post", id: "post-1", label: "פוסט" }, focus: {} };
   assert.equal(resolveRazielNavigationTurn({ question: "פתח לי את דף המספר", state: { thread: [] }, contextSnapshot: nonNumberSurface }).type, "clarify");
 });
@@ -232,7 +246,7 @@ test("a clarification answered with a bare numeral opens that page on the next s
   assert.equal(clarify.type, "clarify");
   state = razielSessionReducer(state, createRazielNavigationTurnSucceededAction({ state, navigation: clarify, completedAt: "t" }));
   assert.equal(razielNavigationButton(state.thread.at(-1)), null);
-  assert.equal(resolveRazielNavigationTurn({ question: "73", state }).href, "/2029/number/73");
+  assert.equal(resolveRazielNavigationTurn({ question: "73", state }).href, "/number/73");
   // an ordinary number message with no pending question stays an ordinary Raziel turn
   assert.equal(resolveRazielNavigationTurn({ question: "73", state: { thread: [] } }), null);
 });
@@ -253,7 +267,8 @@ test("the site button and the WhatsApp link are two renderings of one resolved a
     assert.equal(message.text, action.message);
     const wa = razielNavigationWhatsappText(action, SITE);
     assert.equal(wa, `${action.message}\n${SITE}${button.href}`, text);
-    assert.match(wa, /^[^\n]+\nhttps:\/\/sod1820\.co\.il\/(?:2029\/number\/[1-9]\d{0,5}|world)$/u, text);
+    // a new WhatsApp link is the public address (N14)
+    assert.match(wa, /^[^\n]+\nhttps:\/\/sod1820\.co\.il\/(?:number\/[1-9]\d{0,5}|world)$/u, text);
   }
 });
 
@@ -266,13 +281,20 @@ test("WhatsApp never carries a Preview, http, relative or non-canonical link", (
   assert.equal(razielNavigationUrl("https://evil.example/x", SITE), "");
   assert.equal(razielNavigationUrl("/2029/number/73?x=1", SITE), "");
   assert.equal(razielNavigationUrl("/2029/number/73", SITE), `${SITE}/2029/number/73`);
+  assert.equal(razielNavigationUrl("/number/73?x=1", SITE), "");
+  assert.equal(razielNavigationUrl("/number/73", SITE), `${SITE}/number/73`);
+  assert.equal(razielNavigationUrl(action.href, SITE), `${SITE}/number/73`, "a new link is public");
   assert.match(read("supabase/functions/wa-raziel/index.ts"), /const SITE = "https:\/\/sod1820\.co\.il"/);
 });
 
 test("a stored or spoofed message can only render a button for a canonical href", () => {
   const good = { role: "raziel", navigationAction: { href: "/2029/number/73", label: "פתח את דף המספר 73", intent: "number_page" } };
   assert.deepEqual(razielNavigationButton(good), { href: "/2029/number/73", label: "פתח את דף המספר 73", intent: "number_page" });
-  for (const href of ["https://evil.example", "//evil.example", "/2029/number/0", "/admin", "javascript:alert(1)", "/2029/number/73/extra"]) {
+  // a stored /2029 link (historical) still renders, unchanged; a new public link renders too
+  const fresh = { role: "raziel", navigationAction: { href: "/number/73", label: "פתח את דף המספר 73", intent: "number_page" } };
+  assert.deepEqual(razielNavigationButton(fresh), { href: "/number/73", label: "פתח את דף המספר 73", intent: "number_page" });
+  for (const href of ["https://evil.example", "//evil.example", "/2029/number/0", "/admin", "javascript:alert(1)", "/2029/number/73/extra",
+    "/number/0", "/number/073", "/number/1000000", "/number/73/extra", "/number/73?x=1", "https://evil.example/number/73", "//evil.example/number/73"]) {
     assert.equal(razielNavigationButton({ ...good, navigationAction: { ...good.navigationAction, href } }), null, href);
   }
   assert.equal(razielNavigationButton({ ...good, role: "user" }), null);
@@ -357,6 +379,10 @@ test("WhatsApp focus comes from typed numerals, short gematria questions or a ca
   assert.equal(razielFocusNumberFromCanonicalLink("https://evil.example/2029/number/73", SITE), null);
   assert.equal(razielFocusNumberFromCanonicalLink(`${SITE}/2029/number/0`, SITE), null);
   assert.equal(razielFocusNumberFromCanonicalLink(`${SITE}/2029/number/73`, "http://sod1820.co.il"), null);
+  // N14: a public link Raziel sends from now on is the same verified focus
+  assert.equal(razielFocusNumberFromCanonicalLink(`בשמחה — הנה דף המספר 73. 🌳\n${SITE}/number/73`, SITE), 73);
+  assert.equal(razielFocusNumberFromCanonicalLink("https://evil.example/number/73", SITE), null);
+  assert.equal(razielFocusNumberFromCanonicalLink(`${SITE}/number/0`, SITE), null);
   assert.equal(razielNavigationNeedsFocus(parseRazielNavigationRequest("פתח את דף המספר 73")), false);
   assert.equal(razielNavigationNeedsFocus(parseRazielNavigationRequest("פתח לי את דף המספר")), true);
 });
@@ -367,7 +393,10 @@ test("WhatsApp focus rejects nested foreign URLs and non-canonical number paths"
     `${SITE}.evil.invalid/2029/number/73`,
     `https://evil.invalid/redirect?next=${SITE}/2029/number/73`,
     `${SITE}/2029/number/073`, `${SITE}/2029/number/1000000`,
+    `${SITE}/number/73/extra`, `${SITE}.evil.invalid/number/73`, `https://evil.invalid/redirect?next=${SITE}/number/73`,
+    `${SITE}/number/073`, `${SITE}/number/1000000`,
   ]) assert.equal(razielFocusNumberFromCanonicalLink(text, SITE), null, text);
+  assert.equal(razielFocusNumberFromCanonicalLink(`${SITE}/number/337?source=chat#result`, SITE), 337);
   assert.equal(razielFocusNumberFromCanonicalLink(`${SITE}/2029/number/337?source=chat#result`, SITE), 337);
 });
 
@@ -413,7 +442,7 @@ import {
 
 test("owner decision: 'מפת המחקר' never resolves to /world; only an explicit request for the world does", () => {
   const withNumber = resolveRazielNavigationAction({ text: "פתח את מפת המחקר", focus: focus(73) });
-  assert.equal(withNumber.href, "/2029/number/73");
+  assert.equal(withNumber.href, "/number/73");
   const without = resolveRazielNavigationAction({ text: "פתח את מפת המחקר", focus: null });
   assert.equal(without.type, "clarify");
   assert.equal(without.message, RAZIEL_NAVIGATION_ASK_NUMBER);
@@ -449,7 +478,7 @@ test("precedence: the personal-area companion action and every continuation are 
   }
   // only an ordinary explicit request is routed
   const ordinary = prepareRazielSessionSubmission({ ...base, question: "פתח את דף המספר 73" });
-  assert.equal(ordinary.navigation.href, "/2029/number/73");
+  assert.equal(ordinary.navigation.href, "/number/73");
   assert.equal(ordinary.request, null);
   // the provider keeps one transport boundary, the abort controller, and the companion entry
   const provider = read("src/lib/research/RazielSessionProvider2029.jsx");
@@ -480,6 +509,7 @@ test("WhatsApp focus is pure: continuous topic only (shared by the handler)", ()
   assert.equal(razielWhatsappVerifiedFocus([turn(false, "ספר לי על הפרשה"), turn(false, "מה זה 73")], SITE), null);
   assert.equal(razielWhatsappVerifiedFocus([turn(false, "מה שלומך היום"), turn(true, `${SITE}/2029/number/9`)], SITE), null);
   assert.deepEqual(razielWhatsappVerifiedFocus([turn(false, "תודה"), turn(true, `${SITE}/2029/number/9`)], SITE), { kind: "number", value: 9 });
+  assert.deepEqual(razielWhatsappVerifiedFocus([turn(false, "תודה"), turn(true, `${SITE}/number/9`)], SITE), { kind: "number", value: 9 });
   assert.deepEqual(razielWhatsappVerifiedFocus([turn(false, "מה הגימטריה של שאול"), turn(true, "337")], SITE), { kind: "expression", label: "שאול" });
   assert.equal(razielWhatsappVerifiedFocus([turn(false, "ספר לי על שאול"), turn(true, "337")], SITE), null, "a generic 'tell me about' is not a gematria subject");
   assert.equal(razielWhatsappVerifiedFocus([], SITE), null);

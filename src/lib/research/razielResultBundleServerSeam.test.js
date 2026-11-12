@@ -504,7 +504,7 @@ test("2029 expression crossing joins its canonical regular-value neighborhood wi
       label: "פתח את המספר 358",
       icon: "number",
       hint: "עבור לדף המספר הקנוני והמשך משם.",
-      href: "/2029/number/358",
+      href: "/number/358",   // N14: generated as the public address
     },
   ]);
   assert.doesNotMatch(JSON.stringify(run.result.raziel.suggested_paths), /delete_everything|evil|מחק הכול|999999|מודל שינה/);
@@ -1194,10 +1194,10 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.doesNotMatch(run.models[0].user, /trace_ref/);
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.deepEqual(run.result.raziel.sources, [{ original_name: "Sefer Yetzirah", source_ref: "number-source:776", lang: "he" }]);
-  assert.deepEqual(run.result.raziel.navigation, [{ kind: "number", label: "פתח את דף המספר 776", href: "/2029/number/776" }]);
+  assert.deepEqual(run.result.raziel.navigation, [{ kind: "number", label: "פתח את דף המספר 776", href: "/number/776" }]);
   assert.equal(run.result.raziel.evidence_summary.title, "הממצאים האמיתיים שמאחורי הפרשנות");
   assert.deepEqual(run.result.raziel.evidence_summary.findings.map(({ label, lane, value, href }) => ({ label, lane, value, href })), [
-    { label: "776", lane: "verified_calculation", value: 776, href: "/2029/number/776" },
+    { label: "776", lane: "verified_calculation", value: 776, href: "/number/776" },
   ]);
   assert.deepEqual(run.result.evidence_summary, run.result.raziel.evidence_summary, "the authoritative server envelope carries the same deterministic projection");
   assert.doesNotMatch(JSON.stringify(run.result.raziel.evidence_summary), /מקור מומצא/, "model-authored provenance never enters visible evidence");
@@ -1366,7 +1366,7 @@ test("canonical opt-in strips model-authored provenance and navigation even when
 
   assert.deepEqual(run.result.raziel.sources, []);
   assert.deepEqual(run.result.raziel.navigation, [
-    { kind: "number", label: "פתח את דף המספר 776", href: "/2029/number/776" },
+    { kind: "number", label: "פתח את דף המספר 776", href: "/number/776" },
   ]);
   assert.doesNotMatch(JSON.stringify(run.result), /example\.invalid|מקור שהמודל המציא|private:guess/);
 });

@@ -7,7 +7,10 @@ import { runWaRaziel, WA_SITE } from "./helpers/wa-raziel-handler.mjs";
 const ASK = "לאיזה מספר תרצה שאפתח דף?";
 const u = (text, ageSec) => ({ outgoing: false, text, ageSec });
 const r = (text, ageSec) => ({ outgoing: true, text, ageSec });
-const link = (n) => `${WA_SITE}/2029/number/${n}`;
+// N14 (ZURIEL 12.11.2026): a new link is the public address /number/<n>; a link Raziel sent before is /2029/number/<n> and is
+// still read as the same number. History is never rewritten.
+const link = (n) => `${WA_SITE}/number/${n}`;
+const oldLink = (n) => `${WA_SITE}/2029/number/${n}`;
 const only = (run) => { assert.equal(run.sent.length, 1, JSON.stringify(run.sent)); return run.sent[0].message; };
 
 test("explicit navigation wordings: one warm sentence plus one https link, zero model calls", async () => {
@@ -47,6 +50,10 @@ test("continuation: the last continuous topic supplies the number (typed numeral
   // Raziel's own earlier page link is a verified focus; thanks/greetings do not end the topic
   run = await runWaRaziel({ incoming: { id: "in", text: "קח אותי לביטויים של המספר הזה" }, history: [r(`בשמחה — הנה דף המספר 26. 🌳\n${link(26)}`, 400), u("תודה", 100)] });
   assert.equal(only(run).split("\n").at(-1), link(26));
+  // an old WhatsApp link (sent before N14) still identifies the same number, and the new answer carries the public address
+  run = await runWaRaziel({ incoming: { id: "in", text: "קח אותי לביטויים של המספר הזה" }, history: [r(`בשמחה — הנה דף המספר 26. 🌳\n${oldLink(26)}`, 400), u("תודה", 100)] });
+  assert.equal(only(run).split("\n").at(-1), link(26));
+  assert.equal(run.aiCalls.length, 0);
 });
 
 test("an unrelated conversation ends the topic: no old number is reused, Raziel asks", async () => {
@@ -54,6 +61,7 @@ test("an unrelated conversation ends the topic: no old number is reused, Raziel 
     [u("מה זה 73", 900), r("תשובה על 73", 890), u("ספר לי על הפרשה של השבוע", 300), r("זו פרשה יפה", 290)],
     [u("73", 900), r("תשובה", 890), u("מה שלומך היום ומה אתה עושה", 200)],
     [r(`${link(73)}`, 900), u("איך מכינים עוגת שוקולד טובה", 100)],
+    [r(`${oldLink(73)}`, 900), u("איך מכינים עוגת שוקולד טובה", 100)],
     [u("מה זה 73", 900), r("תשובה על 73", 890), u("", 100)],
   ]) {
     const run = await runWaRaziel({ incoming: { id: "in", text: "פתח לי את דף המספר" }, history });
@@ -116,6 +124,7 @@ test("numeral-only entry gate: \"73\" without a clarification right before it ne
     "another Raziel message": [r("שלום, אני רזיאל", 110)],
     "clarification older than the window": [r(ASK, 8 * 3600)],
     "the page link itself": [r(`בשמחה — הנה דף המספר 5. 🌳\n${link(5)}`, 110)],
+    "an old page link": [r(`בשמחה — הנה דף המספר 5. 🌳\n${oldLink(5)}`, 110)],
     "other Raziel message after the clarification": [r(ASK, 200), r("עוד משהו מרזיאל", 100)],
   };
   for (const [label, history] of Object.entries(cases)) silent(await runWaRaziel({ incoming: { id: "q", text: "73" }, history }), label);

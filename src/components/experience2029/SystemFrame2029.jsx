@@ -27,7 +27,7 @@ import FeatureClosedNotice2029 from "./FeatureClosedNotice2029.jsx";
 import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
-import { NUMBER_PAGE_BASE, isNumberPagePath } from "../../lib/research/numberPageAddress.js";
+import { NUMBER_PAGE_BASE, isNumberPagePath, numberPageRouteHref } from "../../lib/research/numberPageAddress.js";
 const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
@@ -862,7 +862,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
             {m.viewMode === "landscape" && m.viewModeApplied ? <details open><summary>התמונה המלאה</summary><span dir="auto">{m.text}</span></details> : <span dir="auto">{m.text}</span>}
             {razielNavigationButton(m) ? <div className="sod29-raziel-nav-action">{razielNavigationButton(m).external
               ? <a className="sod29-action primary" href={razielNavigationButton(m).href} target="_blank" rel="noopener noreferrer" data-raziel-navigation-action={razielNavigationButton(m).intent}>{razielNavigationButton(m).label}</a>
-              : <Link className="sod29-action primary" to={razielNavigationButton(m).href} data-raziel-navigation-action={razielNavigationButton(m).intent}>{razielNavigationButton(m).label}</Link>}</div> : null}
+              : <Link className="sod29-action primary" to={numberPageRouteHref(razielNavigationButton(m).href)} data-raziel-navigation-action={razielNavigationButton(m).intent}>{razielNavigationButton(m).label}</Link>}</div> : null}
             {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
               <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
               {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `${razielViewModeLabel(m.viewMode)} · ניסוי` : `${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}

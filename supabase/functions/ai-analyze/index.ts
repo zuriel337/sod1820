@@ -12,6 +12,7 @@ import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurr
 import { readElsRazielReadingContext, elsRazielReadingText } from "../_shared/elsRazielReadingContext.js";
 import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";
 import { enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE } from "../_shared/edgeCallerLimits.js";
+import { publicNumberPageHref } from "../../../src/lib/research/numberPageAddress.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -786,7 +787,9 @@ function razielSafeSuggestedPaths({
     const href = entry && typeof entry === "object" && typeof (entry as any).href === "string"
       ? (entry as any).href.trim()
       : "";
-    const match = href.match(/^\/2029\/number\/([1-9]\d{0,5})$/);
+    // N14: read both spellings (the composer now emits /number/<n>; older bundles and stored turns carry /2029/number/<n>);
+    // emit only the public address. Same bounds as before: 1..999999, no leading zero, no query, no other path.
+    const match = href.match(/^\/(?:2029\/)?number\/([1-9]\d{0,5})$/);
     const value = match ? Number(match[1]) : 0;
     if (!Number.isSafeInteger(value) || value < 1 || value > 999999) continue;
     actions.push({
@@ -794,7 +797,7 @@ function razielSafeSuggestedPaths({
       label: `פתח את המספר ${value}`,
       icon: "number",
       hint: "עבור לדף המספר הקנוני והמשך משם.",
-      href: `/2029/number/${value}`,
+      href: publicNumberPageHref(value),
     });
     break;
   }

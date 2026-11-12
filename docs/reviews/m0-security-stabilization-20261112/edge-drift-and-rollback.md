@@ -12,9 +12,9 @@
 | `journey-message` | v13 · false · `ef48bb94…` | **זהה** (index ו־materialGate בבתים — `1f602000…`) | git ‏`949c24ad5` | — |
 | `field-router` | v10 · false · `bb3c913b…` | **זהה** (index ו־materialGate בבתים — `1f602000…`) | git ‏`949c24ad5` | — |
 | `number-researcher` | v12 · false · `c94555c1…` | **ישן מהבסיס**: ‏= `065aa022` (#856, 30.9); materialGate בבתים = `1f602000…` | git ‏`065aa022` | N1–N5 ב־`non-m0-edge-deltas.md` (ראיון מנהל, סדר היסטוריה, `persisted`) |
-| `wa-raziel` | v21 · false · `61677665…` | **ישן מהבסיס**: ‏index = ‏`b4d5ec47` (6.10); ‏`waGreen` ו־`waRazielRender` = הבסיס | git ‏`b4d5ec47` + ‏`949c24ad5` | N6 (ניווט קנוני בוואטסאפ, בלי מודל) |
+| `wa-raziel` | v21 · false · `61677665…` | **ישן מהבסיס**: ‏index = ‏`b4d5ec47` (6.10); ‏`waGreen` ו־`waRazielRender` = הבסיס | git ‏`b4d5ec47` + ‏`949c24ad5` | N6 (ניווט קנוני בוואטסאפ, בלי מודל) + N14b (הקישור הוא `/number/<n>`) |
 | `els-search-bridge` | v5 · true · `0343aef4…` | **ישן מהבסיס**: ‏= `cf16b8cf` (11.10) | git ‏`cf16b8cf` | N7 (`bearerMayIdentifyUser`; תוצאה זהה) |
-| `ai-analyze` | v91 · true · `2c810072…` (bundle) | **לא ניתן לשחזור מההיסטוריה**; ישן מהבסיס. השוואת bundles: פרוס→בסיס 87 שורות, בסיס→הצעה 163 | artifact ‏`ai-analyze.v91.index.ts.gz` (שתי הערות הוסתרו) | N8–N10: **אין שינוי התנהגות** מעבר ל־M0 (הקישור נשאר `/2029/number` בזמן ריצה; קבועים שווים) + `edgeCallerLimits.js` |
+| `ai-analyze` | v91 · true · `2c810072…` (bundle) | **לא ניתן לשחזור מההיסטוריה**; ישן מהבסיס. השוואת bundles: פרוס→בסיס 87 שורות, בסיס→הצעה 163 | artifact ‏`ai-analyze.v91.index.ts.gz` (שתי הערות הוסתרו) | N8–N10: **אין שינוי התנהגות** מעבר ל־M0 (קבועים שווים) + `edgeCallerLimits.js`. **N14a:** קישורי המספר בתשובה הם `/number/<n>` (החלטה נפרדת) |
 | `research-run` | v9 · true · `6118384a…` (bundle) | **לא ניתן לשחזור** (נבדקו 20 מועמדים; הפרש של 2,537–2,779 שורות) | artifact ‏`research-run.v9.index.ts.gz` (**הבתים המדויקים**) | N11–N13: שער כוונה מורחב לרזיאל, הצלבה ציבורית בלי נרמול קשרים, `theme.js` יצא; ועוד `edgeCallerLimits` |
 | `contact-notify` | v1 · false · `3e0e293b…` | **אין מקור במאגר** | artifact שווה־ערך ‏`contact-notify.v1-equivalent.index.ts.gz` | הפונקציה כולה (M0-E) |
 

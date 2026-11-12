@@ -29,3 +29,16 @@ export const canonicalNumberAddress = (address) => /^\d+$/.test(String(address ?
 
 // An internal link to a number or an expression, in this build's base.
 export const numberPageHref = (address) => `${NUMBER_PAGE_BASE}/${encodeURIComponent(canonicalNumberAddress(address))}`;
+
+// N14 (ZURIEL 12.11.2026): the public address of a number or an expression, whatever the build. Used by every producer whose
+// link leaves the browser build: the Edge functions (ai-analyze, wa-raziel) have no Vite flags, so the build base above would be
+// the compatibility prefix there. Same normalisation and encoding as numberPageHref; only the base is fixed.
+export const publicNumberPageHref = (address) => `${NUMBER_PAGE_PUBLIC_BASE}/${encodeURIComponent(canonicalNumberAddress(address))}`;
+
+// The in-app route for a number-page href written in either spelling: the same address (and query/fragment) in this build's base.
+// Renders a stored or newly produced link without rewriting it: /number/<a> and /2029/number/<a> lead to the same page in every
+// build. Anything that is not a number-page path is returned unchanged.
+export function numberPageRouteHref(href) {
+  const match = /^\/(?:2029\/)?number\/([^/?#]+)([?#].*)?$/.exec(String(href ?? ""));
+  return match ? `${NUMBER_PAGE_BASE}/${match[1]}${match[2] || ""}` : href;
+}
