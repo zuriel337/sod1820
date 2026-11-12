@@ -1,0 +1,338 @@
+{
+ "purpose": "Exact rollback sources for the nine Edge Functions M0 would redeploy, read-only from the deployed versions on 12.11.2026. No secrets; personal data only redacted in comments.",
+ "read_at": "2026-11-12",
+ "project": "linswmnnkjxvweumprav",
+ "base": "949c24ad549ae9e95ced528a4ee8159670b52678",
+ "how_to_use": "node scripts/m0-edge-rollback-assemble.mjs <slug> <out-dir>  (needs git history back to 2026-09-20: git fetch --shallow-since=2026-09-20 origin main). The script rebuilds the deployed file layout and checks every SHA-256; it never deploys.",
+ "functions": {
+  "lab-teacher": {
+   "version": 3,
+   "verify_jwt": false,
+   "entrypoint": "supabase/functions/lab-teacher/index.ts",
+   "import_map": false,
+   "class": "deployed == base 949c24ad5",
+   "files": [
+    {
+     "deploy_path": "supabase/functions/lab-teacher/index.ts",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/lab-teacher/index.ts"
+     },
+     "rollback_sha256": "efe64d7301ee628fd68ba12aae7aaacde69098dd5d7a4ffead22f01121adfe3e",
+     "verified": "byte",
+     "deployed_sha256": "efe64d7301ee628fd68ba12aae7aaacde69098dd5d7a4ffead22f01121adfe3e"
+    },
+    {
+     "deploy_path": "supabase/functions/_shared/materialGate.js",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/_shared/materialGate.js"
+     },
+     "rollback_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "verified": "byte",
+     "deployed_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb"
+    }
+   ],
+   "deployed_ezbr_sha256": null,
+   "deployed_updated_at_ms": null,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "CHAT_MODEL",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": []
+  },
+  "journey-message": {
+   "version": 13,
+   "verify_jwt": false,
+   "entrypoint": "journey-message/index.ts",
+   "import_map": false,
+   "class": "deployed == base 949c24ad5",
+   "files": [
+    {
+     "deploy_path": "journey-message/index.ts",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/journey-message/index.ts"
+     },
+     "rollback_sha256": "7b9e831c26dcdcf2a8822008943353a0248aa30e379ee3bc3289172150ef6baf",
+     "verified": "byte",
+     "deployed_sha256": "7b9e831c26dcdcf2a8822008943353a0248aa30e379ee3bc3289172150ef6baf"
+    },
+    {
+     "deploy_path": "_shared/materialGate.js",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/_shared/materialGate.js"
+     },
+     "rollback_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "verified": "inspection (same text as the byte-verified lab-teacher copy)"
+    }
+   ],
+   "deployed_ezbr_sha256": null,
+   "deployed_updated_at_ms": null,
+   "env_names_read": [
+    "ANTHROPIC_API_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": []
+  },
+  "field-router": {
+   "version": 10,
+   "verify_jwt": false,
+   "entrypoint": "supabase/functions/field-router/index.ts",
+   "import_map": false,
+   "class": "deployed == base 949c24ad5",
+   "files": [
+    {
+     "deploy_path": "supabase/functions/field-router/index.ts",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/field-router/index.ts"
+     },
+     "rollback_sha256": "c06c7db20ee6fe57d4b6733e2a757eb69e0a190bf9d32bb5c6b26bef75f24534",
+     "verified": "byte",
+     "deployed_sha256": "c06c7db20ee6fe57d4b6733e2a757eb69e0a190bf9d32bb5c6b26bef75f24534"
+    },
+    {
+     "deploy_path": "supabase/functions/_shared/materialGate.js",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/_shared/materialGate.js"
+     },
+     "rollback_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "verified": "inspection (same text as the byte-verified lab-teacher copy)"
+    }
+   ],
+   "deployed_ezbr_sha256": null,
+   "deployed_updated_at_ms": null,
+   "env_names_read": [
+    "ANTHROPIC_API_KEY",
+    "ROUTER_DAILY_CAP",
+    "ROUTER_MODEL",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": []
+  },
+  "number-researcher": {
+   "version": 12,
+   "verify_jwt": false,
+   "entrypoint": "supabase/functions/number-researcher/index.ts",
+   "import_map": false,
+   "class": "deployed OLDER than base (main ahead: interview op, razielInterview.js, ordering and persistence fixes)",
+   "files": [
+    {
+     "deploy_path": "supabase/functions/number-researcher/index.ts",
+     "source": {
+      "git": "065aa022b9ecf1152c14aaf1be3460c7c8136e6c",
+      "path": "supabase/functions/number-researcher/index.ts"
+     },
+     "rollback_sha256": "0e347365a07d9b365927bfdf6a3fd003d5659d52d85f7829e8f2c875a47f5f6b",
+     "verified": "byte",
+     "deployed_sha256": "0e347365a07d9b365927bfdf6a3fd003d5659d52d85f7829e8f2c875a47f5f6b"
+    },
+    {
+     "deploy_path": "supabase/functions/_shared/materialGate.js",
+     "source": {
+      "git": "065aa022b9ecf1152c14aaf1be3460c7c8136e6c",
+      "path": "supabase/functions/_shared/materialGate.js"
+     },
+     "rollback_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "verified": "inspection (same text as the byte-verified lab-teacher copy)"
+    }
+   ],
+   "deployed_ezbr_sha256": null,
+   "deployed_updated_at_ms": null,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": []
+  },
+  "wa-raziel": {
+   "version": 21,
+   "verify_jwt": false,
+   "entrypoint": "functions/wa-raziel/index.ts",
+   "import_map": false,
+   "class": "deployed OLDER than base (main ahead: canonical navigation actions)",
+   "files": [
+    {
+     "deploy_path": "functions/wa-raziel/index.ts",
+     "source": {
+      "git": "b4d5ec47132ed8003b822cc70de9e1b82447cb7c",
+      "path": "supabase/functions/wa-raziel/index.ts"
+     },
+     "rollback_sha256": "fdd7050c989afb67ab8106996f28f1c859be31a256e89123e0e21188aed3bd72",
+     "verified": "byte",
+     "deployed_sha256": "fdd7050c989afb67ab8106996f28f1c859be31a256e89123e0e21188aed3bd72"
+    },
+    {
+     "deploy_path": "functions/_shared/waGreen.ts",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/_shared/waGreen.ts"
+     },
+     "rollback_sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "verified": "byte",
+     "deployed_sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4"
+    },
+    {
+     "deploy_path": "functions/_shared/waRazielRender.ts",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/_shared/waRazielRender.ts"
+     },
+     "rollback_sha256": "b20bcffcd1c36a8e82a3cc57a3000dce93f0740c8b308628b7a9d07c121fa284",
+     "verified": "byte",
+     "deployed_sha256": "b20bcffcd1c36a8e82a3cc57a3000dce93f0740c8b308628b7a9d07c121fa284"
+    }
+   ],
+   "deployed_ezbr_sha256": "6167766567cca19de23f2b10756227a9e1d4cc0cab9cd9fa4cd76ed36d221e1b",
+   "deployed_updated_at_ms": 1793027180347,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "FB_ADMIN_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL",
+    "ZURIEL_WA"
+   ],
+   "proposal_env_names_added": [
+    "WA_RAZIEL_AMIT_GROUP",
+    "WA_RAZIEL_CHRISTINA_PHONE",
+    "WA_RAZIEL_GILUI_GROUP",
+    "WA_RAZIEL_OPEN_GROUPS"
+   ]
+  },
+  "els-search-bridge": {
+   "version": 5,
+   "verify_jwt": true,
+   "entrypoint": "index.ts",
+   "import_map": false,
+   "class": "deployed OLDER than base (main ahead: bearer pre-check before Auth)",
+   "files": [
+    {
+     "deploy_path": "index.ts",
+     "source": {
+      "git": "cf16b8cf9c54c7f5aa426d21ddd34a95852d2b1e",
+      "path": "supabase/functions/els-search-bridge/index.ts"
+     },
+     "rollback_sha256": "ea27aaa54482b9016ad697b03aa1292be38b13d69c1c103def2eee6073f77cd2",
+     "verified": "byte",
+     "deployed_sha256": "ea27aaa54482b9016ad697b03aa1292be38b13d69c1c103def2eee6073f77cd2"
+    }
+   ],
+   "deployed_ezbr_sha256": null,
+   "deployed_updated_at_ms": null,
+   "env_names_read": [
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": []
+  },
+  "ai-analyze": {
+   "version": 91,
+   "verify_jwt": true,
+   "entrypoint": "index.ts",
+   "import_map": false,
+   "class": "deployed bundle not reproducible from main history (packaged before the 4.11 reconciliation); OLDER than base (87 changed lines)",
+   "files": [
+    {
+     "deploy_path": "index.ts",
+     "source": {
+      "artifact": "ai-analyze.v91.index.ts.gz"
+     },
+     "rollback_sha256": "b6713b4e1a74d8fc6f92aed7af71cdef070b317836ad18c854b698891f682475",
+     "verified": "equivalent",
+     "deployed_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f",
+     "note": "behaviour-identical: only two comment lines differ (a personal e-mail in each replaced by <redacted personal address>)"
+    }
+   ],
+   "deployed_ezbr_sha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb",
+   "deployed_updated_at_ms": 1793489387407,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "CHAT_MODEL",
+    "ELS_MATRIX_READING_ENABLED",
+    "ELS_MATRIX_READING_FX_ILS_PER_USD",
+    "ELS_MATRIX_READING_JOB_SECRET",
+    "ELS_MATRIX_READING_MODEL",
+    "GEMINI_API_KEY",
+    "GEMINI_MODEL",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": []
+  },
+  "research-run": {
+   "version": 9,
+   "verify_jwt": true,
+   "entrypoint": "index.ts",
+   "import_map": false,
+   "class": "deployed bundle not reproducible from main history; OLDER than base (573 changed lines)",
+   "files": [
+    {
+     "deploy_path": "index.ts",
+     "source": {
+      "artifact": "research-run.v9.index.ts.gz"
+     },
+     "rollback_sha256": "ec719bd9709c9aa843c7685f784aa15f48b9eb09c75101d3f014ccca1b61de5d",
+     "verified": "byte",
+     "deployed_sha256": "ec719bd9709c9aa843c7685f784aa15f48b9eb09c75101d3f014ccca1b61de5d"
+    }
+   ],
+   "deployed_ezbr_sha256": "6118384ad165b82d1e830be0549e5edecd4433f1f6bd853a36d418e4413be6d9",
+   "deployed_updated_at_ms": 1792889571059,
+   "env_names_read": [
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": []
+  },
+  "contact-notify": {
+   "version": 1,
+   "verify_jwt": false,
+   "entrypoint": "index.ts",
+   "import_map": false,
+   "class": "no repository source before M0; deployed v1 hard-codes a personal recipient",
+   "files": [
+    {
+     "deploy_path": "index.ts",
+     "source": {
+      "artifact": "contact-notify.v1-equivalent.index.ts.gz"
+     },
+     "rollback_sha256": "16182533d95ee3963f9265283b61aab09b068d4a89788952f1599eb676aac64e",
+     "verified": "equivalent",
+     "note": "functional equivalent of v1: identical except the recipient is read from CONTACT_NOTIFY_TO (the same address must be set); v1 bytes are not stored because they contain that address"
+    }
+   ],
+   "deployed_ezbr_sha256": null,
+   "deployed_updated_at_ms": null,
+   "env_names_read": [
+    "CONTACT_NOTIFY_TO",
+    "NEWSLETTER_FROM",
+    "NOTIFY_FROM",
+    "RESEND_API_KEY"
+   ],
+   "proposal_env_names_added": [
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ]
+  }
+ },
+ "settings_note": "Values are never stored. env_names_read = secrets/env the deployed version reads; proposal_env_names_added = names the M0 entry file reads in addition (shared modules may add none)."
+}
