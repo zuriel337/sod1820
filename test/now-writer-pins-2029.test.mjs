@@ -182,3 +182,16 @@ test("Now: the 10.11 picture row is pinned at the top while the extension is ahe
   const later = nowModels(feedRows([other, item], { now: after, limit: 160, caps: { group: 40 } }), after);
   assert.ok(later.every((model) => !model.pinned), "no pin after its end");
 });
+
+test("order (ZURIEL 12.11.2026): whatever was pinned last is on top, whoever pinned it; a standing owner pin without an end stays first", () => {
+  const post1 = { id: "post:1", kind: "source", sourceKind: "post", label: "פוסט", at: hours(-2) };
+  const shortOwner = { ...owner, pinUntil: hours(5) }; // owner pin that ends sooner than a fresh writer pin
+  let all = models([shortOwner, arrival(1, "shachar-kandro"), post1]);
+  assert.deepEqual(all.map(m => m.pinKind), ["writer", "owner", null], "the later pin (ends later) leads even over the owner's pin");
+  const standing = { ...owner };
+  delete standing.pinUntil; standing.central = undefined;
+  all = models([standing, arrival(1, "shachar-kandro"), post1]);
+  assert.equal(all[0].id, "post:5107", "a standing owner pin has no end and stays first");
+  all = models([arrival(9, "shachar-kandro"), arrival(2, "yaniv-levi")]);
+  assert.deepEqual(all.map(m => m.id), [`group:${uuid(2)}`, `group:${uuid(9)}`], "two writer pins: the newer pin first");
+});
