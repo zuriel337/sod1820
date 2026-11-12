@@ -31,7 +31,7 @@ export function assertMainReleaseContract() {
   assertPublicationConfig(readPublicationConfig());
   assert.equal(PRODUCTION_REVIEW_BRANCH,"main","retired cutover branches cannot create new production candidates");
   assert.equal(REVIEW_BRANCH,"gpt/2029-main-live-state-reconcile-20261104","only the explicitly current integration branch is admitted for review");
-  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111"],"review branches are an exact, recorded allowlist (ZURIEL 11.11.2026), never a pattern");
+  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111","ccr-b8e8ab12-9hoamu"],"review branches are an exact, recorded allowlist (ZURIEL 11.11.2026), never a pattern");
   assert.deepEqual(PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,{state:"dormant",approvedSourceSha:null,approvedDeploymentId:null,approvedAt:null});
   assert.equal(publicMiddleware,canonicalMiddleware);assert.deepEqual(publicConfig,canonicalConfig);
   return true;

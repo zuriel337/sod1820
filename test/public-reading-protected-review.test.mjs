@@ -289,8 +289,8 @@ test('stable Auth alias needs the exact generated Preview platform proof; canoni
 
 test("an additional review branch is an exact, Preview-only allowlist entry; nothing else is admitted", () => {
   const extra = ADDITIONAL_REVIEW_BRANCHES[0];
-  assert.deepEqual([...ADDITIONAL_REVIEW_BRANCHES], ["claude/number-typography-v2-20261111"]);
-  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, extra]);
+  assert.deepEqual([...ADDITIONAL_REVIEW_BRANCHES], ["claude/number-typography-v2-20261111", "ccr-b8e8ab12-9hoamu"]);
+  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, extra, "ccr-b8e8ab12-9hoamu"]);
   assert.ok(Object.isFrozen(REVIEW_BRANCHES) && Object.isFrozen(ADDITIONAL_REVIEW_BRANCHES));
   const env = { ...fixtureEnv, VERCEL_GIT_COMMIT_REF: extra };
   const identity = protectedReviewBuildIdentity({ env, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });
