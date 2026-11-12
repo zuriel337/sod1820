@@ -22,7 +22,7 @@ import CommunityMessageTime2029 from "./CommunityMessageTime2029.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
 import CommunityTreeHints2029 from "./CommunityTreeHints2029.jsx";
-import { COMMUNITY_PRESENCE_PING_MS, fetchCommunityPresenceOnline, pingCommunityPresence } from "../../lib/community/communityPresence.js";
+import { COMMUNITY_PRESENCE_PING_MS, fetchCommunityPresenceOnline, fetchCommunityStaffIds, pingCommunityPresence } from "../../lib/community/communityPresence.js";
 import CommunityGuestReviewPanel2029 from "./CommunityGuestReviewPanel2029.jsx";
 import { fetchTreeHints, parseTreeHintNumbers, setTreeHint } from "../../lib/community/communityTreeHints.js";
 import { useCommunityDraft2029 } from "./useCommunityDraft2029.js";
@@ -78,17 +78,19 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   // An account without a display name shows the reviewed name of its historical person (not its login name).
   const name = account?.display_name || (accountId ? VERIFIED_ARCHIVE_PROFILES[`user:${accountId}`]?.name : null) || account?.username || row.authorName;
   const isOnline = Boolean(accountId) && onlinePresenceHolder.current.has(accountId);
+  const isStaff = Boolean(accountId) && staffIdsHolder.current.has(accountId);
   const badge = <UserBadge colorfulFallback online={isOnline} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
     <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
   </UserBadge>;
+  const staffChip = isStaff ? <span className="sod29-community-staff-chip" title="חבר צוות הצ׳אט — מנהל או מודרטור">צוות</span> : null;
   // ZURIEL, 8.11.2026: the "history united" seal stays inside the profile card (opened by
   // clicking the author) — it no longer shows next to a message out in the general feed.
-  if (!row.authorKey || !linkAuthor) return <div className="sod29-community-author-identity"><span className="sod29-community-author-link">{badge}</span></div>;
+  if (!row.authorKey || !linkAuthor) return <div className="sod29-community-author-identity"><span className="sod29-community-author-link">{badge}</span>{staffChip}</div>;
   const target = new URLSearchParams(currentParams);
   target.set("memberCard", canonicalCommunityAuthorKey(row.authorKey)); target.delete("member");
   return <div className="sod29-community-author-identity"><Link className="sod29-community-author-link" to={communityChatHref(target, location.hash)} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
     {badge}
-  </Link></div>;
+  </Link>{staffChip}</div>;
 }
 
 function LiveLike({ row }) {
@@ -117,6 +119,8 @@ const treeHintHolder = { current: NO_TREE_HINTS };
 // at the top. Set by the page on every render, read wherever an author's badge shows.
 const NO_ONLINE = new Set();
 const onlinePresenceHolder = { current: NO_ONLINE };
+// «צוות» chip: ids of moderators/admins, loaded once by the page.
+const staffIdsHolder = { current: NO_ONLINE };
 
 function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions, sharePath }) {
   const actionsLocked = communityActionsLocked(useAuth().isAdmin);
@@ -450,6 +454,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   // (members and guests) reads the short public list and sees the dot wherever that
   // person's avatar appears in the chat.
   const [onlineIds, setOnlineIds] = useState(() => new Set());
+  const [staffIds, setStaffIds] = useState(() => NO_ONLINE);
+  useEffect(() => { let alive = true; fetchCommunityStaffIds().then(ids => { if (alive && ids.length) setStaffIds(new Set(ids)); }).catch(() => {}); return () => { alive = false; }; }, []);
   useEffect(() => {
     if (!user) return undefined;
     const ping = () => { if (!document.hidden) pingCommunityPresence().catch(() => {}); };
@@ -895,6 +901,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   guestReviewHolder.current = guestReview;
   treeHintHolder.current = treeHintControl;
   onlinePresenceHolder.current = onlineIds;
+  staffIdsHolder.current = staffIds;
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
