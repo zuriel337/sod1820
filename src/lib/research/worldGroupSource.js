@@ -32,10 +32,15 @@ export const GROUP_WRITER_PINS_2029 = Object.freeze({ "gilui-yomi": Object.freez
 export const GROUP_WRITER_PIN_HOURS_2029 = 24;
 export const groupWriterPinListed = (channel, slug) => Object.hasOwn(GROUP_WRITER_PINS_2029, clean(channel))
   && GROUP_WRITER_PINS_2029[clean(channel)].includes(clean(slug)) && APPROVED_GROUP_WRITERS.includes(clean(slug));
-export function groupWriterPin({ channel, slug, arrivalAt } = {}) {
+// An editorial extension of ONE arrival (ZURIEL 12.11.2026: the picture of Kandro of 10.11 is pinned for 24 hours from his approval): the row
+// is already a server-proved arrival of a listed writer; this only moves the END of its pin window later. Never earlier, never for another row.
+export const GROUP_ROW_PINS_2029 = Object.freeze({ "8d30aba8-e510-443b-9de0-456df8875a22": "2026-11-13T06:00:00.000Z" });
+export function groupWriterPin({ channel, slug, arrivalAt, id } = {}) {
   const at = Date.parse(clean(arrivalAt));
   if (!groupWriterPinListed(channel, slug) || !Number.isFinite(at)) return null;
-  return { pinned: true, pinKind: "writer", pinUntil: new Date(at + GROUP_WRITER_PIN_HOURS_2029 * 3600000).toISOString() };
+  const natural = at + GROUP_WRITER_PIN_HOURS_2029 * 3600000;
+  const extended = Object.hasOwn(GROUP_ROW_PINS_2029, clean(id)) ? Date.parse(GROUP_ROW_PINS_2029[clean(id)]) : NaN;
+  return { pinned: true, pinKind: "writer", pinUntil: new Date(Number.isFinite(extended) ? Math.max(natural, extended) : natural).toISOString() };
 }
 
 // Canonical member page of a contributor: only for a contributor the server already proved for this row
@@ -129,7 +134,7 @@ export function groupRowToWorldUpdate(row) {
   const at = Date.parse(clean(row.created_at));
   const arrivalAt = Number.isFinite(at) ? new Date(at).toISOString() : null;
   // Only a row that already passed every gate above can carry a writer pin; the pin window is checked again when Now renders.
-  const pin = groupWriterPin({ channel, slug, arrivalAt });
+  const pin = groupWriterPin({ channel, slug, arrivalAt, id: row.id });
   return {
     ...(pin || {}),
     id: `group:${row.id}`,

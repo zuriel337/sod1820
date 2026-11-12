@@ -263,6 +263,7 @@ jobs:
           test/home-featured-post-2029.test.mjs
           test/companion-2029-one-feed-and-projector-rail.test.mjs
           test/group-youtube-card-2029.test.mjs
+          test/group-message-numbers-2029.test.mjs
       - name: Group images and videos on the Zvi path (proposal; the ingest routes only plain images/videos of public groups, the public copy is written only after the server's publishable answer, Edge and SQL derive the same path, the client shows a media row with the existing projection)
         run: node --test test/group-source-media-2029.test.mjs
       - name: Connected golden theme contract (script runner)
