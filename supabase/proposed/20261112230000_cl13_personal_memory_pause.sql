@@ -1,0 +1,456 @@
+-- CL13_PERSONAL_MEMORY_PAUSE - PROPOSAL, NOT APPLIED. Runs only with ZURIEL's explicit approval for this exact file (CLAUDE.md 0.4).
+-- Rollback: supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql
+-- Test (throwaway local PostgreSQL only): bash scripts/run-cl13-personal-memory-sql-test.sh
+-- Spec: the contracts handoff 53bb72e13, alignment README section 14 (decisions D-CL13-1..3, matrix R1-R10, tests M-1..M-15);
+--       docs/reviews/cl13-personal-memory-20261112/README.md (what is implemented, what is not, and the open decisions).
+--
+-- WHAT IT DOES (decisions of ZURIEL, 12.11.2026; nothing here deletes or changes an existing row):
+--   1. ONE owner of the decision: public.fn_personal_memory_policy_v1(user_ref). v1 = the pause: no new personal memory between
+--      conversations, and an old one is read only with a verified consent of the same person; no consent record exists yet.
+--   2. WRITERS return a real status and write nothing: fn_raziel_remember (W1) and fn_raziel_fact (W2) return NULL = not saved;
+--      fn_raziel_upsert_summary (W3, returns void) raises; fn_mem_add returns NULL for personal rows (W4a) and for an unknown
+--      memory type (it is no longer stored as 'research_note'), and keeps writing the research output of the research bots (W4b).
+--   3. THE TABLE refuses every other writer: a BEFORE INSERT OR UPDATE trigger on public.agent_user_memory RAISES for a personal
+--      row (a direct write with the service key, the site thread of number-researcher and raziel-attention (W5), any future
+--      writer). It raises, so a caller that checks the result reports "not saved" and never a silent "saved". DELETE is not touched.
+--   4. THE READER public.fn_raziel_context returns an empty personal context unless the policy allows this person, and never in a
+--      group; research output is not personal context; the account<->phone identity bridge is removed (no implied merge).
+--      The shape of the returned object is unchanged, with privacy.personal_memory_allowed = false and a reason.
+--   5. CONTROL: export and erasure of memory WITHOUT deleting the account: export_my_personal_memory(), erase_my_personal_memory()
+--      for an account holder; fn_personal_memory_export(sender), fn_personal_memory_erase(sender) (server only) for a WhatsApp
+--      sender without an account.
+-- "Research" is not a way around the pause: only rows of the two research bots with a research type are research output; the
+-- same type for any other agent is personal memory, an UPDATE cannot turn a personal row into research output, and research
+-- output is never returned as personal context.
+-- NOT IN THIS FILE (stated, not hidden): a consent record store and the consent wording (a new store needs its own approval);
+-- a retention period; the WhatsApp commands that call the export and erasure functions; the readers that read the table
+-- directly with the service key (number-researcher, raziel-attention, wa-hatishbi, wa-uriel: changed in the Edge code of this
+-- branch, deployed separately); admin_person_facts (an administrator still reads stored profile facts: an open decision).
+-- Order: this file BEFORE the Edge functions of the same branch are deployed is safe (the deployed code treats a refused save as
+-- a failed save; number-researcher then reports persisted=false, raziel-attention still reports persisted=true until its new
+-- code is deployed - see the README). The Edge code of this branch BEFORE this file is also safe (it asks the policy function
+-- and fails closed when it is missing).
+--
+-- Full-match guards, FAIL-CLOSED: the state is read into one non-null text ('(missing)' for an absent function or trigger, the
+-- enabled flag next to the trigger text) and the file continues ONLY when the state is exactly BEFORE (the five live bodies read
+-- on 12.11.2026, nothing else present, no trigger on the table) or exactly AFTER (already applied; re-created, a no-op).
+begin;
+set local lock_timeout = '5s';
+set local statement_timeout = '30s';
+
+create temp table cl13_before on commit drop as
+  select p.proname, p.proowner, p.proacl::text as acl, p.prosecdef, p.proconfig, p.provolatile
+    from pg_proc p where p.oid in (to_regprocedure('public.fn_raziel_remember(text,text,text,text,text,text,text)'), to_regprocedure('public.fn_raziel_fact(text,text,text,text,jsonb,text,smallint)'), to_regprocedure('public.fn_raziel_upsert_summary(text,text,text,text)'), to_regprocedure('public.fn_mem_add(text,text,text,text,text,text,text,text,smallint,text,jsonb)'), to_regprocedure('public.fn_raziel_context(text,text)'));
+
+do $$
+declare v_state text;
+  c_before constant text := 'fn_personal_memory_policy_v1=(missing) | fn_personal_memory_is_research_output_v1=(missing) | fn_personal_memory_write_guard_v1=(missing) | fn_raziel_remember=5598acf902200444827efe54305466e1 | fn_raziel_fact=ebd32bd78f3d6e6af11132c9533a2834 | fn_raziel_upsert_summary=85f60b9a552c5c03d01955dec113156a | fn_mem_add=6a26f9e5d1a05fd6c3fc25b8179951b7 | fn_raziel_context=56ffd0cfc5e29945e56044439a01f81e | fn_personal_memory_refs_v1=(missing) | fn_personal_memory_sender_refs_v1=(missing) | export_my_personal_memory=(missing) | erase_my_personal_memory=(missing) | fn_personal_memory_export=(missing) | fn_personal_memory_erase=(missing) | trigger=(missing) | other_triggers=0';
+  c_after constant text := 'fn_personal_memory_policy_v1=91e25de7b04a5bf1e843a493d5f406df | fn_personal_memory_is_research_output_v1=07be6e8f5bd24db2a2fa79862a6c4d30 | fn_personal_memory_write_guard_v1=d8495012268d00346741382459a3de2c | fn_raziel_remember=5376c5c1d3253578db401be5ad67f4f1 | fn_raziel_fact=5c10015acf922a4ae0f01ffc3e9ca372 | fn_raziel_upsert_summary=0179dfe9830d631e782001dad63ef15e | fn_mem_add=33dba62a07a1fbee3e2dceaf7cde74f1 | fn_raziel_context=6b92c8daafb6619269f021f49101497b | fn_personal_memory_refs_v1=8ef502be78cdd85ee3300eb6e484a28e | fn_personal_memory_sender_refs_v1=e61a31defa02ff6e716c413c9d54e21a | export_my_personal_memory=ce0be8394a059e093b77250a5c47e3af | erase_my_personal_memory=c161d38374a5faeb68e17284f275847b | fn_personal_memory_export=0a676c24ff3fc2f7630a897a7a9e45d5 | fn_personal_memory_erase=38c8ca85ab562a780e256337b05132b7 | trigger=CREATE TRIGGER trg_personal_memory_pause_v1 BEFORE INSERT OR UPDATE ON public.agent_user_memory FOR EACH ROW EXECUTE FUNCTION fn_personal_memory_write_guard_v1() [enabled=O] | other_triggers=0';
+begin
+  if to_regclass('public.agent_user_memory') is null then raise exception 'CL13 precondition: public.agent_user_memory not found; stop, nothing changed'; end if;
+  v_state := 'fn_personal_memory_policy_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_policy_v1(text)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_is_research_output_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_is_research_output_v1(text,text)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_write_guard_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_write_guard_v1()')), '(missing)')
+    || ' | ' || 'fn_raziel_remember=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_raziel_remember(text,text,text,text,text,text,text)')), '(missing)')
+    || ' | ' || 'fn_raziel_fact=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_raziel_fact(text,text,text,text,jsonb,text,smallint)')), '(missing)')
+    || ' | ' || 'fn_raziel_upsert_summary=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_raziel_upsert_summary(text,text,text,text)')), '(missing)')
+    || ' | ' || 'fn_mem_add=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_mem_add(text,text,text,text,text,text,text,text,smallint,text,jsonb)')), '(missing)')
+    || ' | ' || 'fn_raziel_context=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_raziel_context(text,text)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_refs_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_refs_v1(uuid)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_sender_refs_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_sender_refs_v1(text)')), '(missing)')
+    || ' | ' || 'export_my_personal_memory=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.export_my_personal_memory()')), '(missing)')
+    || ' | ' || 'erase_my_personal_memory=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.erase_my_personal_memory(boolean)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_export=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_export(text)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_erase=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_erase(text,boolean)')), '(missing)')
+    || ' | trigger=' || coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t
+         where t.tgrelid = 'public.agent_user_memory'::regclass and t.tgname = 'trg_personal_memory_pause_v1' and not t.tgisinternal), '(missing)')
+    || ' | other_triggers=' || (select count(*) from pg_trigger t where t.tgrelid = 'public.agent_user_memory'::regclass and not t.tgisinternal and t.tgname <> 'trg_personal_memory_pause_v1');
+  if v_state = c_after then
+    raise notice 'CL13: already applied; re-creating the same objects (no-op)';
+  elsif v_state = c_before then
+    null; -- exactly the live 12.11.2026 state: continue
+  else
+    raise exception 'CL13 drift: the state is neither the live state read on 12.11.2026 nor the applied state; stop, nothing changed. State: %', v_state;
+  end if;
+end $$;
+
+CREATE OR REPLACE FUNCTION public.fn_personal_memory_policy_v1(p_user_ref text)
+ RETURNS jsonb
+ LANGUAGE sql
+ STABLE
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  -- CL-13, the ONE owner of the decision "may personal memory be written or read for this person now".
+  -- v1 = the pause decided by ZURIEL on 12.11.2026 (D-CL13-1): no new personal memory between conversations, and an old one is
+  -- read only with a verified consent of the same person. No consent record exists yet, so nobody is readable. p_user_ref is the
+  -- seam for the consent lookup of a later version; it changes nothing here. Research output of the research bots is not personal
+  -- memory and continues to be written, but it is NOT thereby allowed as personal context.
+  select jsonb_build_object(
+    'policy', 'cl13_pause_v1',
+    'write_personal', false,
+    'read_personal', false,
+    'research_output_write', true,
+    'research_output_as_personal_context', false,
+    'consent', null,
+    'reason', 'personal memory between conversations is paused until consent, retention, export and erasure controls are ready; an old memory is read only with a verified consent of the same person, and no consent record exists yet')
+$function$;
+
+CREATE OR REPLACE FUNCTION public.fn_personal_memory_is_research_output_v1(p_agent text, p_memory_type text)
+ RETURNS boolean
+ LANGUAGE sql
+ IMMUTABLE
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  -- W4b only: the findings the two research bots produce. The memory type alone never makes a row "research": the same types
+  -- written for any other agent (the assistant included) are personal memory, so "research" cannot be used as a way around the pause.
+  select coalesce(p_agent in ('hatishbi', 'uriel') and p_memory_type in ('research_note', 'method_discovery'), false)
+$function$;
+
+CREATE OR REPLACE FUNCTION public.fn_personal_memory_write_guard_v1()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+begin
+  -- The stop for every writer of public.agent_user_memory, including a direct write with the service key. It RAISES: a writer
+  -- that is refused gets an error, never a silent "saved". DELETE is not touched (erasure stays possible).
+  -- Research output of the research bots continues; an UPDATE may not turn a personal row into one.
+  if public.fn_personal_memory_is_research_output_v1(new.agent, new.memory_type)
+     and (tg_op = 'INSERT' or public.fn_personal_memory_is_research_output_v1(old.agent, old.memory_type)) then
+    return new;
+  end if;
+  if coalesce((public.fn_personal_memory_policy_v1(new.user_ref) ->> 'write_personal')::boolean, false) then return new; end if;
+  raise exception 'personal memory is paused (CL-13): % of a % row for agent % is refused; nothing was saved',
+    tg_op, coalesce(new.memory_type, '(null)'), coalesce(new.agent, '(null)')
+    using errcode = 'P0001', hint = 'No new personal memory until consent, retention, export and erasure controls are ready.';
+end
+$function$;
+
+CREATE OR REPLACE FUNCTION public.fn_raziel_remember(p_user_ref text, p_channel text, p_content text, p_memory_type text DEFAULT 'conversation'::text, p_scope text DEFAULT 'personal'::text, p_topic text DEFAULT NULL::text, p_visibility text DEFAULT 'private'::text)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare v_id uuid;
+begin
+  if coalesce(p_user_ref,'')='' or coalesce(p_content,'')='' then return null; end if;
+  -- CL-13 (W1): the conversation-memory writer of the assistant. While personal memory is paused nothing is written and NULL
+  -- (= not saved) is returned, whatever memory type the caller names.
+  if not coalesce((public.fn_personal_memory_policy_v1(p_user_ref) ->> 'write_personal')::boolean, false) then return null; end if;
+  insert into agent_user_memory (user_ref,channel,agent,memory_type,memory_scope,topic,content,visibility,source,status)
+  values (p_user_ref,p_channel,'raziel',p_memory_type,p_scope,p_topic,left(p_content,4000),p_visibility,'wa','private')
+  returning id into v_id;
+  return v_id;
+end $function$;
+
+CREATE OR REPLACE FUNCTION public.fn_raziel_fact(p_user_ref text, p_channel text, p_kind text, p_value text, p_data jsonb DEFAULT '{}'::jsonb, p_visibility text DEFAULT 'private'::text, p_confidence smallint DEFAULT 3)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare v_id uuid; v_merged jsonb;
+begin
+  if coalesce(p_user_ref,'')='' or coalesce(p_kind,'')='' or coalesce(p_value,'')='' then return null; end if;
+  -- CL-13 (W2): profile facts. While personal memory is paused no fact is written or updated and NULL (= not saved) is returned.
+  if not coalesce((public.fn_personal_memory_policy_v1(p_user_ref) ->> 'write_personal')::boolean, false) then return null; end if;
+  if p_visibility not in ('private','team','public') then p_visibility := 'private'; end if;
+  v_merged := coalesce(p_data,'{}'::jsonb) || jsonb_build_object('kind',p_kind,'value',p_value);
+  update agent_user_memory
+     set content=left(p_value,4000), data=v_merged, visibility=p_visibility,
+         confidence=p_confidence, updated_at=now()
+   where user_ref=p_user_ref and agent='raziel' and memory_type='personal_context'
+     and source='profile' and topic=p_kind
+   returning id into v_id;
+  if v_id is not null then return v_id; end if;
+  insert into agent_user_memory
+    (user_ref,channel,agent,memory_type,memory_scope,topic,content,data,visibility,source,status,confidence)
+  values
+    (p_user_ref,p_channel,'raziel','personal_context','personal',p_kind,left(p_value,4000),
+     v_merged,p_visibility,'profile','private',p_confidence)
+  returning id into v_id;
+  return v_id;
+end $function$;
+
+CREATE OR REPLACE FUNCTION public.fn_raziel_upsert_summary(p_user_ref text, p_channel text, p_scope text, p_summary text)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+begin
+  -- CL-13 (W3): a summary about a person or a channel. It returns nothing, so "not saved" can only be said by an error.
+  if not coalesce((public.fn_personal_memory_policy_v1(p_user_ref) ->> 'write_personal')::boolean, false) then
+    raise exception 'personal memory is paused (CL-13): fn_raziel_upsert_summary writes nothing'
+      using errcode = 'P0001', hint = 'No new personal memory until consent, retention, export and erasure controls are ready.';
+  end if;
+  if p_scope='channel' then
+    update agent_user_memory set content=left(p_summary,4000), updated_at=now()
+      where agent='raziel' and memory_type='summary' and memory_scope='channel' and channel=p_channel;
+    if not found then
+      insert into agent_user_memory (user_ref,channel,agent,memory_type,memory_scope,content,visibility,source,status)
+      values (coalesce(p_user_ref,'channel:'||p_channel),p_channel,'raziel','summary','channel',left(p_summary,4000),'private','ai','private');
+    end if;
+  else
+    update agent_user_memory set content=left(p_summary,4000), updated_at=now()
+      where agent='raziel' and memory_type='summary' and memory_scope='personal' and user_ref=p_user_ref;
+    if not found then
+      insert into agent_user_memory (user_ref,channel,agent,memory_type,memory_scope,content,visibility,source,status)
+      values (p_user_ref,p_channel,'raziel','summary','personal',left(p_summary,4000),'private','ai','private');
+    end if;
+  end if;
+end $function$;
+
+CREATE OR REPLACE FUNCTION public.fn_mem_add(p_user text, p_agent text, p_memory_type text, p_content text DEFAULT NULL::text, p_topic text DEFAULT NULL::text, p_visibility text DEFAULT 'private'::text, p_status text DEFAULT 'private'::text, p_source text DEFAULT 'wa'::text, p_confidence smallint DEFAULT NULL::smallint, p_channel text DEFAULT 'wa'::text, p_data jsonb DEFAULT '{}'::jsonb)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare v uuid;
+begin
+  -- CL-13 (W4): an unknown memory type is NOT stored as 'research_note' any more ("research" is not a default), and nothing is
+  -- saved for it. Research output of the research bots (W4b) continues; every other row is personal memory (W4a) and, while
+  -- personal memory is paused, is not written: NULL (= not saved) is returned.
+  if p_memory_type is null or p_memory_type not in ('conversation','personal_context','research_note','method_discovery','preference') then return null; end if;
+  if not public.fn_personal_memory_is_research_output_v1(p_agent, p_memory_type)
+     and not coalesce((public.fn_personal_memory_policy_v1(p_user) ->> 'write_personal')::boolean, false) then return null; end if;
+  insert into public.agent_user_memory(user_ref,channel,agent,memory_type,topic,content,data,source,confidence,visibility,status)
+  values (p_user, coalesce(p_channel,'wa'), p_agent, p_memory_type,
+    p_topic, p_content, coalesce(p_data,'{}'::jsonb), coalesce(p_source,'wa'), p_confidence,
+    case when p_visibility in ('private','team','public') then p_visibility else 'private' end,
+    case when p_status in ('private','candidate','review','approved','canonical') then p_status else 'private' end)
+  returning id into v; return v;
+end $function$;
+
+CREATE OR REPLACE FUNCTION public.fn_raziel_context(p_user_ref text, p_channel text DEFAULT NULL::text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_is_group boolean := coalesce(p_channel,'') like '%@g.us';
+  v_user jsonb; v_chan jsonb;
+  v_policy jsonb := public.fn_personal_memory_policy_v1(p_user_ref);
+  v_subject boolean := not v_is_group and p_user_ref is not null;
+  -- CL-13: an old personal memory is read only when the policy allows it for THIS person (a verified consent). Never in a group.
+  v_read boolean := v_subject and coalesce((v_policy ->> 'read_personal')::boolean, false);
+  v_write boolean := v_subject and coalesce((v_policy ->> 'write_personal')::boolean, false);
+  -- research output is not personal context unless the policy says so explicitly (a separate decision)
+  v_research boolean := v_read and coalesce((v_policy ->> 'research_output_as_personal_context')::boolean, false);
+  v_recent text;
+  v_real_summary text;
+begin
+  if not v_read then
+    v_user := jsonb_build_object('approved_preferences','[]'::jsonb,'research_threads','[]'::jsonb,'summary',null,'profile','[]'::jsonb,'recent_conversation','[]'::jsonb);
+  else
+    -- The SAME person only: rows recorded under exactly this reference. The earlier identity bridge (account id <-> phone through
+    -- wa_account_links) is removed: a verified link gives access to the account, it does not merge memories recorded under
+    -- another reference (D-CL13-2: no implied merge).
+    select string_agg(content, ' · ') into v_recent from (
+      select content from agent_user_memory
+      where user_ref = p_user_ref and agent='raziel'
+        and memory_type='conversation' and memory_scope='personal'
+      order by created_at desc limit 10) t;
+
+    v_real_summary := (select content from agent_user_memory where user_ref = p_user_ref and agent='raziel'
+        and memory_type='conversation' and memory_scope='personal' and source='summary' order by updated_at desc limit 1);
+
+    v_user := jsonb_build_object(
+      'approved_preferences', coalesce((select jsonb_agg(content order by updated_at desc) from agent_user_memory
+         where user_ref = p_user_ref and agent='raziel' and memory_type='preference'
+           and visibility in ('team','public')),'[]'::jsonb),
+      'research_threads', case when v_research then coalesce((select jsonb_agg(content) from (
+         select content from agent_user_memory where user_ref = p_user_ref and agent='raziel'
+           and memory_type in ('research_note','method_discovery') order by updated_at desc limit 8) t),'[]'::jsonb) else '[]'::jsonb end,
+      'summary', coalesce(v_real_summary,
+         case when v_recent is not null then 'שיחות אחרונות (אתר+וואטסאפ): ' || v_recent else null end),
+      'recent_conversation', coalesce((select jsonb_agg(content) from (
+         select content from agent_user_memory where user_ref = p_user_ref and agent='raziel'
+           and memory_type='conversation' and memory_scope='personal' order by created_at desc limit 10) t),'[]'::jsonb),
+      'profile', coalesce((select jsonb_agg(jsonb_build_object('kind',topic,'value',content) order by updated_at desc)
+           from agent_user_memory where user_ref = p_user_ref and agent='raziel'
+             and memory_type='personal_context' and source='profile'),'[]'::jsonb));
+  end if;
+  v_chan := jsonb_build_object(
+    'topic_summary', null,
+    'recent_group_topics', coalesce((select jsonb_agg(topic) from (
+         select distinct topic from agent_user_memory where channel=p_channel and agent='raziel'
+           and memory_scope='channel' and topic is not null limit 10) t),'[]'::jsonb));
+  return jsonb_build_object('user_context',v_user,'channel_context',v_chan,
+    'privacy', jsonb_build_object(
+      'personal_memory_allowed', v_read,
+      'personal_memory_write_allowed', v_write,
+      'policy', v_policy ->> 'policy',
+      'reason', case when v_is_group then 'group' when p_user_ref is null then 'no_person'
+                     when not v_read then coalesce(v_policy ->> 'reason', 'not allowed') else null end));
+end $function$;
+
+CREATE OR REPLACE FUNCTION public.fn_personal_memory_refs_v1(p_user_id uuid)
+ RETURNS text[]
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  -- Every reference under which memory of THIS account holder may have been recorded: the account id, and each phone the holder
+  -- VERIFIED (wa_account_links.verified_at), in the three stored forms. Used for the holder's own export and erasure only; it is
+  -- never used to build a conversation context.
+  select array[p_user_id::text] || coalesce((
+    select array_agg(r) from (
+      select unnest(array['wa:' || l.phone, l.phone, l.phone || '@c.us']) as r
+        from public.wa_account_links l where l.user_id = p_user_id and l.verified_at is not null and coalesce(l.phone, '') <> '') x), '{}'::text[])
+$function$;
+
+CREATE OR REPLACE FUNCTION public.fn_personal_memory_sender_refs_v1(p_sender text)
+ RETURNS text[]
+ LANGUAGE sql
+ IMMUTABLE
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  -- The references of ONE WhatsApp sender without an account: the phone in its three stored forms and nothing else (no account id:
+  -- account data needs a verified link). An empty or non-numeric sender has no reference.
+  select case when regexp_replace(coalesce(p_sender, ''), '[^0-9]', '', 'g') ~ '^[0-9]{6,20}$'
+    then array['wa:' || regexp_replace(p_sender, '[^0-9]', '', 'g'), regexp_replace(p_sender, '[^0-9]', '', 'g'), regexp_replace(p_sender, '[^0-9]', '', 'g') || '@c.us']
+    else '{}'::text[] end
+$function$;
+
+CREATE OR REPLACE FUNCTION public.export_my_personal_memory()
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_uid uuid := auth.uid(); v_out jsonb;
+begin
+  -- CL-13 (M-5): the account holder reads everything recorded about them, in one call, without deleting anything.
+  if v_uid is null then return jsonb_build_object('ok', false, 'error', 'not_authenticated'); end if;
+  select jsonb_build_object('ok', true, 'generated_at', now(), 'rows', coalesce(jsonb_agg(jsonb_build_object(
+      'id', m.id, 'agent', m.agent, 'memory_type', m.memory_type,
+      'kind', case when public.fn_personal_memory_is_research_output_v1(m.agent, m.memory_type) then 'research_output' else 'personal_memory' end,
+      'recorded_as', case when m.user_ref like 'wa:%' or m.user_ref ~ '^[0-9]' then 'whatsapp' else 'account' end,
+      'channel', case when m.channel like '%@g.us' then 'group' when m.channel = 'site' then 'site' else 'private chat' end,
+      'topic', m.topic, 'content', m.content, 'data', m.data, 'created_at', m.created_at, 'updated_at', m.updated_at)
+      order by m.created_at, m.id), '[]'::jsonb))
+    into v_out from public.agent_user_memory m where m.user_ref = any(public.fn_personal_memory_refs_v1(v_uid));
+  return v_out;
+end $function$;
+
+CREATE OR REPLACE FUNCTION public.erase_my_personal_memory(p_include_research_output boolean DEFAULT false)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_refs text[] := public.fn_personal_memory_refs_v1(auth.uid()); v_personal int := 0; v_research int := 0; v_kept int := 0;
+begin
+  -- CL-13 (M-5): the account holder erases their memory WITHOUT deleting the account (delete_my_account deletes everything).
+  if auth.uid() is null then return jsonb_build_object('ok', false, 'error', 'not_authenticated'); end if;
+  delete from public.agent_user_memory m where m.user_ref = any(v_refs)
+     and not public.fn_personal_memory_is_research_output_v1(m.agent, m.memory_type);
+  get diagnostics v_personal = row_count;
+  if coalesce(p_include_research_output, false) then
+    delete from public.agent_user_memory m where m.user_ref = any(v_refs)
+       and public.fn_personal_memory_is_research_output_v1(m.agent, m.memory_type);
+    get diagnostics v_research = row_count;
+  else
+    select count(*) into v_kept from public.agent_user_memory m where m.user_ref = any(v_refs);
+  end if;
+  return jsonb_build_object('ok', true, 'deleted_personal_memory', v_personal, 'deleted_research_output', v_research,
+    'kept_research_output', v_kept, 'account_deleted', false);
+end $function$;
+
+CREATE OR REPLACE FUNCTION public.fn_personal_memory_export(p_sender text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_refs text[] := public.fn_personal_memory_sender_refs_v1(p_sender); v_out jsonb;
+begin
+  -- CL-13 (M-5), the WhatsApp route for a sender WITHOUT an account. Server only: the caller must have verified the sender (the
+  -- private-chat id read from the provider), which this function cannot check.
+  if coalesce(array_length(v_refs, 1), 0) = 0 then return jsonb_build_object('ok', false, 'error', 'no_sender'); end if;
+  select jsonb_build_object('ok', true, 'generated_at', now(), 'rows', coalesce(jsonb_agg(jsonb_build_object(
+      'id', m.id, 'agent', m.agent, 'memory_type', m.memory_type,
+      'kind', case when public.fn_personal_memory_is_research_output_v1(m.agent, m.memory_type) then 'research_output' else 'personal_memory' end,
+      'recorded_as', case when m.user_ref like 'wa:%' or m.user_ref ~ '^[0-9]' then 'whatsapp' else 'account' end,
+      'channel', case when m.channel like '%@g.us' then 'group' when m.channel = 'site' then 'site' else 'private chat' end,
+      'topic', m.topic, 'content', m.content, 'data', m.data, 'created_at', m.created_at, 'updated_at', m.updated_at)
+      order by m.created_at, m.id), '[]'::jsonb))
+    into v_out from public.agent_user_memory m where m.user_ref = any(v_refs);
+  return v_out;
+end $function$;
+
+CREATE OR REPLACE FUNCTION public.fn_personal_memory_erase(p_sender text, p_include_research_output boolean DEFAULT false)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_refs text[] := public.fn_personal_memory_sender_refs_v1(p_sender); v_personal int := 0; v_research int := 0; v_kept int := 0;
+begin
+  -- CL-13 (M-5), the WhatsApp route for a sender WITHOUT an account. Server only; the caller verified the sender.
+  if coalesce(array_length(v_refs, 1), 0) = 0 then return jsonb_build_object('ok', false, 'error', 'no_sender'); end if;
+  delete from public.agent_user_memory m where m.user_ref = any(v_refs)
+     and not public.fn_personal_memory_is_research_output_v1(m.agent, m.memory_type);
+  get diagnostics v_personal = row_count;
+  if coalesce(p_include_research_output, false) then
+    delete from public.agent_user_memory m where m.user_ref = any(v_refs)
+       and public.fn_personal_memory_is_research_output_v1(m.agent, m.memory_type);
+    get diagnostics v_research = row_count;
+  else
+    select count(*) into v_kept from public.agent_user_memory m where m.user_ref = any(v_refs);
+  end if;
+  return jsonb_build_object('ok', true, 'deleted_personal_memory', v_personal, 'deleted_research_output', v_research,
+    'kept_research_output', v_kept, 'account_deleted', false);
+end $function$;
+
+CREATE OR REPLACE TRIGGER trg_personal_memory_pause_v1 BEFORE INSERT OR UPDATE ON public.agent_user_memory FOR EACH ROW EXECUTE FUNCTION fn_personal_memory_write_guard_v1();
+
+-- privileges of the NEW functions (the five replaced functions keep theirs: CREATE OR REPLACE does not change owner or privileges)
+revoke all on function public.fn_personal_memory_policy_v1(text), public.fn_personal_memory_is_research_output_v1(text,text),
+  public.fn_personal_memory_write_guard_v1(), public.fn_personal_memory_refs_v1(uuid), public.fn_personal_memory_sender_refs_v1(text),
+  public.export_my_personal_memory(), public.erase_my_personal_memory(boolean), public.fn_personal_memory_export(text),
+  public.fn_personal_memory_erase(text,boolean) from public, anon, authenticated;
+grant execute on function public.fn_personal_memory_policy_v1(text), public.fn_personal_memory_is_research_output_v1(text,text),
+  public.fn_personal_memory_write_guard_v1(), public.fn_personal_memory_refs_v1(uuid), public.fn_personal_memory_sender_refs_v1(text),
+  public.fn_personal_memory_export(text), public.fn_personal_memory_erase(text,boolean) to service_role;
+grant execute on function public.export_my_personal_memory(), public.erase_my_personal_memory(boolean) to authenticated, service_role;
+
+do $$
+declare v_state text;
+  c_after constant text := 'fn_personal_memory_policy_v1=91e25de7b04a5bf1e843a493d5f406df | fn_personal_memory_is_research_output_v1=07be6e8f5bd24db2a2fa79862a6c4d30 | fn_personal_memory_write_guard_v1=d8495012268d00346741382459a3de2c | fn_raziel_remember=5376c5c1d3253578db401be5ad67f4f1 | fn_raziel_fact=5c10015acf922a4ae0f01ffc3e9ca372 | fn_raziel_upsert_summary=0179dfe9830d631e782001dad63ef15e | fn_mem_add=33dba62a07a1fbee3e2dceaf7cde74f1 | fn_raziel_context=6b92c8daafb6619269f021f49101497b | fn_personal_memory_refs_v1=8ef502be78cdd85ee3300eb6e484a28e | fn_personal_memory_sender_refs_v1=e61a31defa02ff6e716c413c9d54e21a | export_my_personal_memory=ce0be8394a059e093b77250a5c47e3af | erase_my_personal_memory=c161d38374a5faeb68e17284f275847b | fn_personal_memory_export=0a676c24ff3fc2f7630a897a7a9e45d5 | fn_personal_memory_erase=38c8ca85ab562a780e256337b05132b7 | trigger=CREATE TRIGGER trg_personal_memory_pause_v1 BEFORE INSERT OR UPDATE ON public.agent_user_memory FOR EACH ROW EXECUTE FUNCTION fn_personal_memory_write_guard_v1() [enabled=O] | other_triggers=0';
+begin
+  v_state := 'fn_personal_memory_policy_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_policy_v1(text)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_is_research_output_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_is_research_output_v1(text,text)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_write_guard_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_write_guard_v1()')), '(missing)')
+    || ' | ' || 'fn_raziel_remember=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_raziel_remember(text,text,text,text,text,text,text)')), '(missing)')
+    || ' | ' || 'fn_raziel_fact=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_raziel_fact(text,text,text,text,jsonb,text,smallint)')), '(missing)')
+    || ' | ' || 'fn_raziel_upsert_summary=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_raziel_upsert_summary(text,text,text,text)')), '(missing)')
+    || ' | ' || 'fn_mem_add=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_mem_add(text,text,text,text,text,text,text,text,smallint,text,jsonb)')), '(missing)')
+    || ' | ' || 'fn_raziel_context=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_raziel_context(text,text)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_refs_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_refs_v1(uuid)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_sender_refs_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_sender_refs_v1(text)')), '(missing)')
+    || ' | ' || 'export_my_personal_memory=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.export_my_personal_memory()')), '(missing)')
+    || ' | ' || 'erase_my_personal_memory=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.erase_my_personal_memory(boolean)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_export=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_export(text)')), '(missing)')
+    || ' | ' || 'fn_personal_memory_erase=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_erase(text,boolean)')), '(missing)')
+    || ' | trigger=' || coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t
+         where t.tgrelid = 'public.agent_user_memory'::regclass and t.tgname = 'trg_personal_memory_pause_v1' and not t.tgisinternal), '(missing)')
+    || ' | other_triggers=' || (select count(*) from pg_trigger t where t.tgrelid = 'public.agent_user_memory'::regclass and not t.tgisinternal and t.tgname <> 'trg_personal_memory_pause_v1');
+  if v_state is distinct from c_after then raise exception 'CL13 postcondition: the state is not exactly the reviewed one: %', v_state; end if;
+  if exists (select 1 from cl13_before b join pg_proc p on p.proname = b.proname and p.pronamespace = 'public'::regnamespace
+              where p.proowner <> b.proowner or p.proacl::text is distinct from b.acl or p.prosecdef <> b.prosecdef
+                 or p.proconfig is distinct from b.proconfig or p.provolatile <> b.provolatile) then
+    raise exception 'CL13 postcondition: owner, privileges, SECURITY DEFINER, search_path or volatility of a replaced function changed';
+  end if;
+  if has_function_privilege('anon', 'public.export_my_personal_memory()', 'EXECUTE') or has_function_privilege('anon', 'public.erase_my_personal_memory(boolean)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.fn_personal_memory_erase(text,boolean)', 'EXECUTE') or has_function_privilege('authenticated', 'public.fn_personal_memory_export(text)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.fn_personal_memory_policy_v1(text)', 'EXECUTE') then
+    raise exception 'CL13 postcondition: a client role may execute a server-only function';
+  end if;
+end $$;
+
+commit;
