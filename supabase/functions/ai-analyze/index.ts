@@ -1061,6 +1061,9 @@ async function checkQuota(identity: string, tier: string, limitOverride: number 
 }
 // M0-B paid limits for the generic path (observed 60d peak: 98/day, 44/hour, all identities together).
 const GENERIC_PAID_LIMITS = { accountPerHour: 30, globalPerHour: 120, globalPerDay: 600 };
+// M0 (ZURIEL 12.11.2026): the guide (Haiku navigation companion) is paid AI too - same shared limiter, its own counters.
+// 60-day usage: 3 calls, peak 2/hour (op_trace_roots, 12.11.2026). Request limits, not a spend cap (see the M0 AI coverage table).
+const GUIDE_PAID_LIMITS = { accountPerHour: 20, globalPerHour: 60, globalPerDay: 300 };
 const QUOTA_UNAVAILABLE_MESSAGE = "בדיקת המכסה אינה זמינה כרגע. נסו שוב בעוד רגע.";
 
 // ===== 🌳 מטטרון (שלב 1b) — המוח-המשותף: חוקים+עובדות דרך metatron_context =====
@@ -2623,9 +2626,28 @@ Deno.serve(async (req: Request) => {
       const ask = String(body?.subject || body?.facts || "").slice(0, 400).trim();
       if (!ask) return json({ analysis: null, error: "empty" });
       const { identity, tier } = await resolveIdentity(req, body);
-      // M0 (ZURIEL 12.11.2026, "paid AI only for a signed-in user"): the guide is a paid model call, so a guest is refused before it.
-      if (tier === "anon" && !isInternalServiceRequest(req)) {
-        return json({ analysis: null, error: SIGN_IN_REQUIRED, message: SIGN_IN_REQUIRED_MESSAGE, surface: "guide" }, 401);
+      // M0 (ZURIEL 12.11.2026, "paid AI only for a signed-in user"): the guide is a paid model call. A guest is refused, and a
+      // signed-in caller passes the shared paid-AI limits (account hour, global hour, global day; fail CLOSED) before the
+      // existing per-account daily anti-loop quota and before any provider call. Internal service calls keep their path.
+      if (!isInternalServiceRequest(req)) {
+        const verifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
+        const paid = await enforcePaidAiLimits({
+          serviceRpc: traceRpc, secret: SB_SVC, scope: "ai-analyze:guide",
+          caller: { verified: !!verifiedRef, userRef: verifiedRef, tier },
+          accountLimit: GUIDE_PAID_LIMITS.accountPerHour, globalLimit: GUIDE_PAID_LIMITS.globalPerHour,
+          globalDailyCap: GUIDE_PAID_LIMITS.globalPerDay,
+        });
+        if (paid.state === "refused") {
+          return json({ analysis: null, error: SIGN_IN_REQUIRED, message: SIGN_IN_REQUIRED_MESSAGE, surface: "guide" }, 401);
+        }
+        if (paid.state === "unavailable") {
+          return json({ analysis: null, error: "rate_limit_unavailable", message: QUOTA_UNAVAILABLE_MESSAGE, surface: "guide" }, 503);
+        }
+        if (paid.state === "denied") {
+          return new Response(JSON.stringify({ analysis: null, error: paid.bucket === "global_daily" ? "daily_cap_reached" : "rate_limited", surface: "guide",
+            retry_after_seconds: paid.retryAfter, message: "הגעת למגבלת המלווה כרגע. נסו שוב מאוחר יותר." }),
+            { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(paid.retryAfter), ...CORS } });
+        }
       }
       if (tier === "anon" || tier === "user") {   // אנטי-לולאה בלבד, נדיב
         const q = await checkQuota(identity ? `${identity}:g` : "", tier, tier === "anon" ? 40 : 300);

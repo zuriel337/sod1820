@@ -243,3 +243,72 @@ test("wa-raziel: no phone number or group id literal remains in source; identifi
   assert.match(s, /const GROUPS_ENABLED = false;/, "group handling stays disabled");
   assert.doesNotMatch(src("ai-analyze"), /\/\/ \S+@\S+\.\w+/, "no personal address in ai-analyze comments");
 });
+
+// ── ai-analyze guide: the shared paid-AI limits (M0 round 2, 12.11.2026) ─────────────────────────────────────────────
+// The provider (api.anthropic.com) must not be called when ANY limit denies or is unavailable.
+const guideBody = { kind: "guide", engine: "claude", subject: "איפה המחשבון", visitor_id: "rotating-3" };
+const provider = (run) => run.calls.filter((c) => c.url.startsWith("https://api.anthropic.com")).length;
+const rpcRoute = (decide) => async ({ url, payload }) => {
+  if (url.origin !== "https://fixture.invalid" || !url.pathname.startsWith("/rest/v1/rpc/")) return null;
+  const out = decide(url.pathname.split("/").at(-1), payload);
+  return out === undefined ? null : new Response(JSON.stringify(out.body ?? out), { status: out.status ?? 200 });
+};
+function counted(denyIndex) {
+  let n = 0;
+  return rpcRoute((name, payload) => {
+    if (name !== "edge_rate_limit_check") return undefined;
+    n += 1;
+    return { allowed: n !== denyIndex, count: 1, limit: payload.p_limit, window_seconds: payload.p_window_seconds };
+  });
+}
+
+test("ai-analyze guide: verified user passes account hour, global hour, global day and the per-account anti-loop quota, then calls the provider once", async () => {
+  const run = await runAiAnalyze({ allowed: true, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "{\"say\":\"ok\"}", body: guideBody });
+  const order = names(run).filter((n) => ["edge_rate_limit_check", "ai_quota_check"].includes(n));
+  assert.deepEqual(order, ["edge_rate_limit_check", "edge_rate_limit_check", "ai_quota_check", "ai_quota_check"]);
+  const quotas = run.calls.filter((c) => c.name === "ai_quota_check").map((c) => c.payload);
+  assert.equal(quotas[0].p_tier, "global_cap");
+  assert.match(quotas[0].p_identity, /^g:[0-9a-f]{64}$/);
+  assert.equal(quotas[1].p_identity, `u:${UID}:g`);
+  assert.equal(provider(run), 1);
+});
+
+test("ai-analyze guide: the account hour bucket denies -> 429, no provider call", async () => {
+  const run = await runAiAnalyze({ allowed: true, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "x", body: guideBody, extraRoute: counted(1) });
+  assert.equal(run.status, 429); assert.equal(run.result.error, "rate_limited"); assert.equal(provider(run), 0);
+  assert.equal(names(run).includes("ai_quota_check"), false);
+});
+
+test("ai-analyze guide: the global hour bucket denies -> 429, no provider call", async () => {
+  const run = await runAiAnalyze({ allowed: true, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "x", body: guideBody, extraRoute: counted(2) });
+  assert.equal(run.status, 429); assert.equal(run.result.error, "rate_limited"); assert.equal(provider(run), 0);
+});
+
+test("ai-analyze guide: the global daily cap denies -> 429 daily_cap_reached, no provider call", async () => {
+  const run = await runAiAnalyze({ allowed: true, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "x", body: guideBody,
+    extraRoute: rpcRoute((name, p) => name === "ai_quota_check" && p.p_tier === "global_cap" ? { allowed: false, used: 300, limit: 300 } : undefined) });
+  assert.equal(run.status, 429); assert.equal(run.result.error, "daily_cap_reached"); assert.equal(provider(run), 0);
+});
+
+test("ai-analyze guide: limiter unavailable (hour buckets or the daily cap counter) -> 503, no provider call", async () => {
+  const hour = await runAiAnalyze({ allowed: true, traceFailure: { rpc: "edge_rate_limit_check", mode: "http" }, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "x", body: guideBody });
+  const thrown = await runAiAnalyze({ allowed: true, traceFailure: { rpc: "edge_rate_limit_check", mode: "throw" }, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "x", body: guideBody });
+  const day = await runAiAnalyze({ allowed: true, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "x", body: guideBody,
+    extraRoute: rpcRoute((name, p) => name === "ai_quota_check" && p.p_tier === "global_cap" ? { status: 503, body: { error: "down" } } : undefined) });
+  for (const run of [hour, thrown, day]) {
+    assert.equal(run.status, 503); assert.equal(run.result.error, "rate_limit_unavailable"); assert.equal(provider(run), 0);
+  }
+});
+
+test("ai-analyze guide: the existing per-account anti-loop quota still refuses before the provider", async () => {
+  const run = await runAiAnalyze({ allowed: true, bearer: USER_JWT, verifiedUid: UID, genericProviderText: "x", body: guideBody,
+    extraRoute: rpcRoute((name, p) => name === "ai_quota_check" && p.p_tier === "user" ? { allowed: false, used: 300, limit: 300, tier: "user" } : undefined) });
+  assert.equal(run.result.error, "quota"); assert.equal(provider(run), 0);
+});
+
+test("ai-analyze guide: admin passes the hour buckets, is not counted against the daily cap, and reaches the provider", async () => {
+  const run = await runAiAnalyze({ allowed: true, role: "admin", bearer: USER_JWT, verifiedUid: UID, genericProviderText: "{\"say\":\"ok\"}", body: guideBody });
+  assert.equal(names(run).filter((n) => n === "edge_rate_limit_check").length, 2);
+  assert.equal(run.calls.some((c) => c.name === "ai_quota_check" && c.payload.p_tier === "global_cap"), false);
+  assert.equal(provider(run), 1);
+});
