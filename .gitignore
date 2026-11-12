@@ -22,3 +22,6 @@ supabase/.temp/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# a node_modules symlink (not a directory) is not matched by "node_modules/"
+node_modules
