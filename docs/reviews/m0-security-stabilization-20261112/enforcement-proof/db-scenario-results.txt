@@ -1,0 +1,24 @@
+======== live guard
+GUARD md5 56b90b0ae0f9c5915b730314d13ca7a0
+D1 second active version of owner_a_law => REFUSED: rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=
+D2 VALID new version v2 (v1 retired first, same owner) => ALLOWED
+D3 new family duplicating owner_a_law, no verdict => ALLOWED
+D4 VALID new scoped child extending active owner_a_law => ALLOWED
+D5 new child routed to RETIRED retired_r_law => ALLOWED
+D6 contract change v2 silently moves the owner => ALLOWED
+D7 VALID contract change v2 moves owner via SUPERSEDE_EXISTING + human_gate => ALLOWED
+D8 VALID metadata touch on an existing active row (legacy verdict) => ALLOWED
+D9a GENUINELY_NEW_DOMAIN without human_gate => ALLOWED
+D9b VALID GENUINELY_NEW_DOMAIN with human_gate => ALLOWED
+======== proposed guard
+GUARD md5 9b92691263c37e501c94fc930e92a1f3
+D1 second active version of owner_a_law => REFUSED: rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=
+D2 VALID new version v2 (v1 retired first, same owner) => ALLOWED
+D3 new family duplicating owner_a_law, no verdict => REFUSED: new rule family owner_a_copy_law requires an owner-creation verdict (owner_routing.resolut
+D4 VALID new scoped child extending active owner_a_law => ALLOWED
+D5 new child routed to RETIRED retired_r_law => REFUSED: rule retired_child_law routes to retired owner retired_r_law
+D6 contract change v2 silently moves the owner => REFUSED: rule legacy_child_law v2 changes its canonical owner without SUPERSEDE_EXISTING + human_ga
+D7 VALID contract change v2 moves owner via SUPERSEDE_EXISTING + human_gate => ALLOWED
+D8 VALID metadata touch on an existing active row (legacy verdict) => ALLOWED
+D9a GENUINELY_NEW_DOMAIN without human_gate => REFUSED: new rule family new_domain_law (GENUINELY_NEW_DOMAIN) requires owner_routing.human_gate
+D9b VALID GENUINELY_NEW_DOMAIN with human_gate => ALLOWED

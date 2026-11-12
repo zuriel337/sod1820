@@ -1,0 +1,31 @@
+== S0 no change (baseline)
+RESULT: ALLOWED (0 new; 18 frozen in the baseline)
+exit=0
+== S1 FORBIDDEN new contract file, no routing
+FAIL R1 docs/search-indexing-contract-v1.md: unrouted contract-like file (not in Owner Index, no OWNER-ROUTING header)
+RESULT: REFUSED (1 new violation(s); 18 frozen in the baseline)
+exit=1
+== S2 VALID new file declared EXTEND_EXISTING of an active owner
+RESULT: ALLOWED (0 new; 18 frozen in the baseline)
+exit=0
+== S3 FORBIDDEN new file extends a RETIRED owner
+FAIL R1 docs/search-indexing-contract-v1.md: EXTEND_EXISTING names an owner that is not active / not routed: research_engine_law
+RESULT: REFUSED (1 new violation(s); 18 frozen in the baseline)
+exit=1
+== S4 FORBIDDEN Owner Index row routes to a RETIRED owner
+FAIL R2 SOD1820_MASTER_OWNER_INDEX.md: row routes to retired owner ai_quota_law: | paid AI daily quota | `ai_quota_law` |
+RESULT: REFUSED (1 new violation(s); 18 frozen in the baseline)
+exit=1
+== S5 VALID Owner Index row extends an ACTIVE owner
+RESULT: ALLOWED (0 new; 18 frozen in the baseline)
+exit=0
+== S6 FORBIDDEN silent change to a registered contract
+FAIL R3 SOD1820_DESIGN_CONTRACT_V2.md: registered contract changed without a dated change record or an Owner Index update
+RESULT: REFUSED (1 new violation(s); 18 frozen in the baseline)
+exit=1
+== S7 VALID change to a registered contract with a dated change record
+RESULT: ALLOWED (0 new; 18 frozen in the baseline)
+exit=0
+== S8 VALID change to a registered contract together with its Owner Index row
+RESULT: ALLOWED (0 new; 18 frozen in the baseline)
+exit=0
