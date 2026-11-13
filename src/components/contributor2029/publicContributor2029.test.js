@@ -71,9 +71,10 @@ test("loader resolves exact code/slug, reuses canonical reader with PUBLIC_VIEW 
 });
 
 test("writer card and page share the linked public portrait and use original publication dates", async () => {
-  const linkedIdentity = { ...identity, avatar_url: null, user_id: "account" };
   const avatar = "https://example.org/avatar.png";
-  const client = fakeClient({ contributors: [linkedIdentity], users: [{ id: "account", avatar_url: avatar }] }, []);
+  const linkedIdentity = { ...identity, avatar_url: null, user_id: "account", linked_profile: { avatar_url: avatar } };
+  const calls = [];
+  const client = fakeClient({ contributors: [linkedIdentity] }, calls);
   const publicationReader = async () => ({
     posts: { complete: true, availability: "ok", rows: [
       { id: 1, slug: "old", date: "2014-11-24", created_at: "2026-11-13", modified: "2026-11-13" },
@@ -91,6 +92,7 @@ test("writer card and page share the linked public portrait and use original pub
   const page = await loadPublicContributor2029(identity.slug, {
     publicClient: () => client, publicationReader, projectionReader: async () => fixtureProjection(),
   });
+  assert.ok(calls.every(call => call.table === "contributors" && call.fields.includes("linked_profile:users!contributors_user_id_fkey(avatar_url)")));
   assert.equal(card.avatar, avatar);
   assert.equal(page.profile.avatar, avatar);
   assert.equal(card.firstPublicationAt, "2014-11-24");
@@ -102,11 +104,8 @@ test("writer card and page share the linked public portrait and use original pub
 
 test("a writer's explicit avatar choice prevents using the account fallback", async () => {
   for (const public_avatar of [{ enabled: false }, { enabled: true, url: "https://example.org/writer.png" }]) {
-    const client = fakeClient({ contributors: [{ ...identity, user_id: "account", public_avatar }] }, []);
-    const card = await loadPublicContributorCard2029(identity.slug, {
-      client, publicationReader: async () => ({}),
-      linkedAvatarReader: () => assert.fail("explicit choice must not request account portrait"),
-    });
+    const client = fakeClient({ contributors: [{ ...identity, public_avatar, linked_profile: { avatar_url: "https://example.org/account.png" } }] }, []);
+    const card = await loadPublicContributorCard2029(identity.slug, { client, publicationReader: async () => ({}) });
     assert.equal(card.avatar, public_avatar.url || null);
   }
 });
