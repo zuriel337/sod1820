@@ -93,9 +93,13 @@ for (const [profile, options] of Object.entries(PROFILES)) for (const identity o
       await step('route that is not measured (/login)', () => inSite(page, '/login'), null);
       await step('a measured route after an unmeasured one', () => inSite(page, '/gallery'), '/gallery');
       // 12. the service worker is already active and controls the browser: a second tab is one page view
+      // The second tab stays open for the whole observation window of the step: the visit is written ~150 ms plus a lazy chunk after the
+      // page is ready, and closing the tab earlier cancels it (a run under load lost the visit that way).
+      let secondTab;
       await step('second tab with the worker already active', async () => {
-        const second = await context.newPage(); await second.goto(fixture.origin + '/map', { waitUntil: 'domcontentloaded' }); await ready(second); await second.waitForTimeout(500); await second.close();
+        secondTab = await context.newPage(); await secondTab.goto(fixture.origin + '/map', { waitUntil: 'domcontentloaded' }); await ready(secondTab);
       }, '/map');
+      await secondTab.close();
       const report = JSON.stringify(steps, null, 1);
       for (const s of steps) {
         assert.deepEqual(s.reached, s.expected, `${s.name}: exactly the expected visits reach the database\n${report}`);
