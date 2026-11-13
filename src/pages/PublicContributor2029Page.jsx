@@ -126,7 +126,12 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
               {item.mediaUrl ? /\.(mp4|webm|mov|m4v)([?#]|$)/i.test(item.mediaUrl)
                 ? <video src={item.mediaUrl} controls preload="none" aria-label="סרטון מתוך המקור" />
                 : <a href={item.mediaUrl}><img src={item.mediaUrl} loading="lazy" alt={item.title} /></a> : null}
-              {item.href ? <a className="pc-open" href={item.href}>{item.linkLabel || "פתיחת הפרסום המקורי"} ↗</a> : <p className="pc-reason">קישור מדויק לפרסום המקורי אינו זמין במידע שנטען.</p>}
+              {item.passageLinks ? <>
+                <p className="pc-reason">{item.passageSourceLabel}</p>
+                <ul>{item.passageLinks.map((passage, index) => <li key={passage.href}>
+                  <a className="pc-open" href={passage.href}>{item.passageLinks.length === 1 ? "פתיחת הקטע במקור" : `פתיחת הודעה ${index + 1} במקור`} ↗</a>
+                </li>)}</ul>
+              </> : item.href ? <a className="pc-open" href={item.href}>{item.linkLabel || "פתיחת הפרסום המקורי"} ↗</a> : <p className="pc-reason">קישור מדויק לפרסום המקורי אינו זמין במידע שנטען.</p>}
               {item.sourceHref ? <a className="pc-open" href={item.sourceHref}>פתיחת המקור ↗</a> : null}
             </div> : null}
           </article>;

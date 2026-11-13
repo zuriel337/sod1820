@@ -1,6 +1,6 @@
 import { contributorHref } from "../../lib/supabase.js";
 import { CONTRIBUTOR_LOAD_PROFILE, fetchContributorFindingsProjection } from "../../lib/research/contributorFindingsProjection.js";
-import { fetchContributorPublicationCatalog } from "../../lib/research/contributorPublicationCatalog.js";
+import { CONTRIBUTOR_PUBLICATION_FAMILIES, fetchContributorPublicationCatalog } from "../../lib/research/contributorPublicationCatalog.js";
 import { getPublicResearchClient, PROJECTOR_MODE } from "../../lib/research/researchViewMode.js";
 import { appendContributorPublicationCatalog, buildPublicContributorView } from "./publicContributor2029Model.js";
 import { fetchContributorSourceCatalogProjection } from "../../lib/research/contributorSourceCatalogProjection.js";
@@ -50,7 +50,7 @@ export async function loadPublicContributor2029(slug, {
     // The existing Topic reader imports the session client and has no anonymous-client seam.
     // Fail closed until its owner adds one. Never duplicate that reader in a visual session.
     topicsReader: async () => { throw new Error("anonymous_topic_reader_unavailable"); },
-  }), publicationReader(identity, { client })]);
+  }), publicationReader(identity, { client, families: [...CONTRIBUTOR_PUBLICATION_FAMILIES, "signedPassages"] })]);
   if (!projection) return null;
   return withPublicContributorPerson2029(appendContributorPublicationCatalog({ ...buildPublicContributorView(projection, identity),
     canonicalHref: contributorHref(identity), communityAuthorKey: identity.id }, publications, identity), { kind: identity.kind });

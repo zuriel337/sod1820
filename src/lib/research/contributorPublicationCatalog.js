@@ -1,5 +1,7 @@
 // Existing public source identities; metadata only, anonymous client, no per-card queries.
 import { fetchContributorAuthorAttribution } from "./contributorAuthorAttribution.js";
+import { fetchContributorSourcePassages } from "./contributorSourcePassages.js";
+export const CONTRIBUTOR_PUBLICATION_FAMILIES = Object.freeze(["posts", "ciphers", "insights", "events", "topics", "contributions"]);
 const PAGE_SIZE = 100;
 const MAX_PAGES = 100;
 const quoted = (value) => JSON.stringify(String(value));
@@ -41,13 +43,14 @@ async function pages(read) {
 }
 
 export async function fetchContributorPublicationCatalog(identity, { client, attributionReader = fetchContributorAuthorAttribution,
-  families = ["posts", "ciphers", "insights", "events", "topics", "contributions"] } = {}) {
+  families = CONTRIBUTOR_PUBLICATION_FAMILIES } = {}) {
   if (!client || !identity?.id) throw new Error("anonymous_catalogue_identity_required");
   // One shared, bounded inventory resolves registered aliases and collisions for
   // every name-based family, including callers from World that only carry an ID.
   let attributionPromise;
   const attribution = () => attributionPromise ||= attributionReader(identity, { client });
   const requests = {
+    signedPassages: () => fetchContributorSourcePassages(identity, { client }),
     posts: async () => {
       const { names } = await attribution();
       if (!names.length) throw new Error("public_author_credit_unresolved");
