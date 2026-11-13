@@ -5,6 +5,8 @@ import { buildResearchPlanV2, buildAccessDescriptor, normalizeAccessDescriptor }
 import { composeResearchResultBundle, CAPABILITY_STATUS, EVIDENCE_RELATION, findingAccessDecision, ACCESS_CLASS } from './researchResultBundle.js';
 import { createCanonicalW2Executors, NUMERIC_SYSTEM_METHOD_RULE_IDS } from './researchW2Executors.js';
 import { boundNumberLookupRows, numberLookupRowsToUniversalFindings, numericLensMap } from './numericResearch.js';
+import { createCanonicalNumberW2Executors, GRAPH_CAPABILITY_OWNER } from './researchW2ExecutorsBase.js';
+import { readFileSync, readdirSync } from 'node:fs';
 
 // W2.2b · FOUNDATION HARDENING + NUMBER -> UNIVERSAL FINDING — golden regression.
 // Covers: 358 + 377 · privacy negatives · auth snapshot mutation · high-cardinality fan-out ·
@@ -554,8 +556,57 @@ test('graph executes through the canonical adapter once the node identity is han
   });
   assert.equal(asked, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
   assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
-  assert.equal(out.owner, 'unified_graph_law');
+  assert.equal(out.owner, 'reality_graph_law');
   assert.equal(out.findings.length, 1);
+});
+
+// CL-07 · the graph capability carried the label of a law that has retired (unified_graph_law). A label is a reader of the rule
+// tree: it must name the ACTIVE owner. Owner of the rule: reality_graph_law (the recorded successor in the dated laws snapshot).
+function newestLawsSnapshot() {
+  const dir = new URL('../../../audits/g1-agent-entry/', import.meta.url);
+  const name = readdirSync(dir).filter(n => /^G1_LAWS_ACTIVE_SNAPSHOT_\d{8}\.txt$/.test(n)).sort().pop();
+  const rows = readFileSync(new URL(name, dir), 'utf8').split('\n').filter(l => /^[LR]\|/.test(l)).map(l => l.split('|'));
+  return {
+    active: new Set(rows.filter(r => r[0] === 'L').map(r => r[1])),
+    retired: new Map(rows.filter(r => r[0] === 'R').map(r => [r[1], r[3]])),
+  };
+}
+// Every literal or constant-backed owner label in a source text that names a retired law.
+function retiredOwnerLabels(source, retired) {
+  const constants = new Map([...source.matchAll(/const ([A-Z][A-Z0-9_]*) = '([a-z0-9_]+)';/g)].map(m => [m[1], m[2]]));
+  const labels = [...source.matchAll(/\bowner:\s*(?:'([a-z0-9_.]+)'|([A-Z][A-Z0-9_]*))\s*,/g)].map(m => m[1] ?? constants.get(m[2]) ?? m[2]);
+  return [...new Set(labels.filter(label => retired.has(label)))];
+}
+
+test('CL-07 · a graph outcome never carries the label of a retired law; every outcome names the active owner', async () => {
+  const snapshot = newestLawsSnapshot();
+  assert.equal(snapshot.active.has('reality_graph_law'), true, 'the label names a law that is active in the newest dated snapshot');
+  assert.equal(snapshot.retired.get('unified_graph_law'), 'reality_graph_law', 'the old label is a retired law whose recorded successor is the new label');
+  assert.equal(GRAPH_CAPABILITY_OWNER, 'reality_graph_law');
+
+  // REFUSED: a source that emits a retired law as an owner label, as a literal or through a constant (the state before this change)
+  assert.deepEqual(retiredOwnerLabels("return {\n  owner: 'unified_graph_law',\n  status: 1 };", snapshot.retired), ['unified_graph_law']);
+  assert.deepEqual(retiredOwnerLabels("const GRAPH_OWNER = 'unified_graph_law';\nreturn { owner: GRAPH_OWNER, status: 1 };", snapshot.retired), ['unified_graph_law']);
+  // ALLOWED: an active owner label, and the real file (which keeps the retired id in one history comment only, never as a label)
+  assert.deepEqual(retiredOwnerLabels("return { owner: 'reality_graph_law', status: 1 };", snapshot.retired), []);
+  const source = readFileSync(new URL('./researchW2ExecutorsBase.js', import.meta.url), 'utf8');
+  assert.deepEqual(retiredOwnerLabels(source, snapshot.retired), []);
+  assert.equal((source.match(/\bowner: GRAPH_CAPABILITY_OWNER,/g) || []).length, 4, 'the four graph outcomes share the one label');
+
+  // The four real outcomes of the graph capability
+  const identity = { identities: [{ type: 'number', value: 358, ref: 'node:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }] };
+  const outcomes = [
+    [CAPABILITY_STATUS.MISSING_ADAPTER, createCanonicalNumberW2Executors({ supabase: lookupSupabase(() => []) }), identity],
+    [CAPABILITY_STATUS.CONTEXT_REQUIRED, createCanonicalNumberW2Executors({ supabase: lookupSupabase(() => []), graph: { fetchEntityFindings: async () => [] } }), { identities: numberIdentity(358) }],
+    [CAPABILITY_STATUS.EXECUTED, createCanonicalNumberW2Executors({ supabase: lookupSupabase(() => []), graph: { fetchEntityFindings: async () => [] } }), identity],
+    [CAPABILITY_STATUS.FAILED, createCanonicalNumberW2Executors({ supabase: lookupSupabase(() => []), graph: { fetchEntityFindings: async () => { throw new Error('adapter down'); } } }), identity],
+  ];
+  for (const [status, executors, identityResolution] of outcomes) {
+    const out = await executors.graph({ identityResolution });
+    assert.equal(out.status, status);
+    assert.equal(out.owner, 'reality_graph_law', 'outcome ' + status);
+    assert.equal(snapshot.retired.has(out.owner), false);
+  }
 });
 
 // ── 9. PLAN SHAPE ─────────────────────────────────────────────────────────────────────────
