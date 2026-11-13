@@ -3,7 +3,10 @@
 # the REAL apply file supabase/proposed/20261112200000_g1_rule_guard_cl16.sql, each on a throwaway PostgreSQL (local binaries, or a
 # network-less postgres:17 container when none are installed). Every case has an expected outcome and, for a refusal, an expected reason
 # per variant; any unexpected outcome (or a changed md5) exits 1. Never connects to a live project. Runs in CI (live-contracts-2029.yml).
+# Moved 13.11.2026 from the M0 directory of PR #1321 (docs/reviews/contracts-enforcement-20261113/enforcement-proof/). Added there: the number of cases is pinned
+# (EXPECTED_DB_CASES), so a case removed from db-gate-test.sql, or one that did not run, fails the runner like any other unexpected outcome.
 set -u
+EXPECTED_DB_CASES=72
 P=$(cd "$(dirname "$0")" && pwd); ROOT=$(git -C "$P" rev-parse --show-toplevel); FAIL=0
 BIN=${G1_PG_BIN:-$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | tail -1)}; [ -n "$BIN" ] && echo "PostgreSQL: $("$BIN/postgres" --version)"
 run() { if [ "$(id -u)" = 0 ]; then su postgres -c "$*"; else bash -c "$*"; fi; }
@@ -23,6 +26,7 @@ for which in live proposed; do
   fi
   grep -E 'GUARD md5|=>|AS EXPECTED|UNEXPECTED|ERROR' <<<"$out"
   grep -q 'PSQL_EXIT=0' <<<"$out" || FAIL=1
+  if ! grep -q "ALL $EXPECTED_DB_CASES CASES AS EXPECTED for $which" <<<"$out"; then echo "MISMATCH: the $which run did not report ALL $EXPECTED_DB_CASES CASES AS EXPECTED (a case is missing, or one did not run)"; FAIL=1; fi
   if [ "$which" = live ] && ! grep -q 'GUARD md5 56b90b0ae0f9c5915b730314d13ca7a0' <<<"$out"; then echo "MISMATCH: the live copy no longer matches the live md5"; FAIL=1; fi
   if [ "$which" = proposed ] && ! grep -q 'GUARD md5 90b5917b1412be02f66d1f805241018c' <<<"$out"; then echo "MISMATCH: the applied body is not the reviewed AFTER md5"; FAIL=1; fi
 done
