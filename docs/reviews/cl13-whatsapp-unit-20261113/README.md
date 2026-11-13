@@ -3,6 +3,7 @@
 > **State: BRANCH-ONLY, for review.** Nothing here is applied, deployed or merged, and nothing here is an approval. Every Production step needs the explicit approval of ZURIEL for the exact function, the exact SHA-256 of the bundle and the exact drift state (CLAUDE.md 0.4).
 > Branch `claude/cl13-whatsapp-unit-20261113`, from `origin/main` = Production = `aa0f6bc82b8c94286374b1f51208037502994eab` (`dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ`, read 13.11).
 > Machine-readable statement of everything below: [`unit.json`](unit.json). It is checked by `test/cl13-whatsapp-unit-pins.test.mjs`.
+> **The release request is [`release-request.md`](release-request.md)** — one request, two steps (`wa-raziel` A and its verification, then `ai-analyze` A and its verification), with the SHA-256 stamps of artifact A. **Codex recommended A for both functions (13.11). The files of this branch are candidate B, not A: they must not be deployed.**
 
 ## 1. What this unit is, and what it is not
 
@@ -76,18 +77,19 @@ Assemble any of them: `node scripts/cl13-whatsapp-unit.mjs assemble <wa-raziel|a
 
 `bash scripts/run-cl13-whatsapp-unit-test.sh` — counts are pinned (a skipped or missing test fails the runner):
 
-* `test/cl13-whatsapp-unit.test.mjs` — **13 tests, both functions together, every candidate** (wa-raziel: tree + A; ai-analyze: tree source + the **A bundle itself** run as the deployable file): BEFORE (Edge first) → PAUSED (database proposal from `c960600af`) → CONSENT (simulated) → ROLLBACK. Every refusal has its allowed counterpart.
-* `test/cl13-whatsapp-unit-states.test.mjs` — **9 tests** on the **deployed** code (v21, v91) and the mixed states of §5.
-* `test/cl13-whatsapp-unit-pins.test.mjs` — **9 pin tests**: SHA-256 of every candidate and rollback file, A = deployed + CL-13, B = A + the committed accompanying diff, no M0/N14 in A, the CL-13 lines equal #1321's, the drift gate.
+* `test/cl13-whatsapp-unit.test.mjs` — **16 tests, both functions together, every candidate** (wa-raziel: tree + A; ai-analyze: tree source + the **A bundle itself** run as the deployable file): BEFORE (Edge first) → PAUSED (database proposal from `c960600af`) → CONSENT (simulated) → ROLLBACK. Every refusal has its allowed counterpart.
+* **The link, on real code (new, 13.11):** the request that leaves `wa-raziel` is handed to a **real `ai-analyze` handler** on the same database, and its answer comes back and is what WhatsApp gets — not the canned AI answer of the old harness. The scenario runs for the four pairings {tree, A} × {tree source, A bundle} in BEFORE, PAUSED, CONSENT and ROLLBACK (`BEFORE 4`, `PAUSED 5`, `CONSENT 0`, and inside `ROLLBACK`), and on the deployed code and the mixed states in the states file (`TODAY 3`, `MIXED 1c`, `DB-FIRST 3`, `MIXED 3b`). It asserts the request (path, service key, `persona: raziel`, `surface: whatsapp`, the trusted WhatsApp channel and sender), that `ai-analyze` answered with its own model call, that its answer is the text sent to WhatsApp, and what each side stored or read in that state. Two mutations of this seam (no trusted channel in the request; the answer not taken from `ai-analyze`) are caught.
+* `test/cl13-whatsapp-unit-states.test.mjs` — **13 tests** on the **deployed** code (v21, v91) and the mixed states of §5, including the link.
+* `test/cl13-whatsapp-unit-pins.test.mjs` — **12 pin tests**: SHA-256 of every candidate and rollback file, A = deployed + CL-13, B = A + the committed accompanying diff, no M0/N14 in A, the CL-13 lines equal #1321's, the drift gate, and that `release-request.md` selects A for both functions, carries every stamp and states the baseline and the meaning of the rollback.
 * The existing suites that use the two shared harness files (20 files) were re-run: all pass except `raziel-canonical-navigation-actions` test 6, which also fails on `main` (already recorded; not in CI).
-* **Mutation checks** (a single edit to the code under test must fail the runner): 9 of 10 caught — write gate of `wa-raziel`, profile-fact gate, read gate, `[facts-captured]` for unsaved details, write gate of `ai-analyze`, read gate, fail-open policy module, and the same write gates edited **inside the A diffs**. One survivor is an equivalent mutant: `razielContextText` reading `=== true` vs `!== false`, because `gatePersonalContext` already makes the flag a boolean (defence in depth, not a behaviour).
-* PostgreSQL 16.15 and 17.12 locally. CI result on the submitted head: see the PR / journal record (filled in after the run).
+* **Mutation checks** (a single edit to the code under test must fail the runner): 11 of 12 caught — write gate of `wa-raziel`, profile-fact gate, read gate, `[facts-captured]` for unsaved details, write gate of `ai-analyze`, read gate, fail-open policy module, and the same write gates edited **inside the A diffs**. One survivor is an equivalent mutant: `razielContextText` reading `=== true` vs `!== false`, because `gatePersonalContext` already makes the flag a boolean (defence in depth, not a behaviour).
+* PostgreSQL 16.15 and 17.12 locally. CI result on the submitted head: in the PR and the journal record.
 
 ## 7. Overlap with M0 and #1321 (so nothing is reconciled silently)
 
-Both M0 and this unit change `wa-raziel/index.ts` and `ai-analyze/index.ts`. #1321 carries the CL-13 hunks **and** the M0/N14 hunks of the same files, so after this unit is deployed, the M0 deploy of those two functions is a *different* diff on top of it (the CL-13 hunks are already live). Textual conflicts if #1321 is ever rebased on this branch: the two entry files, `test/helpers/ai-analyze-handler.mjs`, and the workflow step list in `live-contracts-2029.yml`. Identical in both (no conflict): `personalMemoryPolicy.js`, `wa-raziel-handler.mjs`, `cl13-pg-bridge.mjs`, `personal-memory-policy-fixture.mjs`, `tests/sql/cl13_handlers_base.sql`. The reconciliation is mine to do when ZURIEL decides the order; #1321 stays frozen at `4a406fed2` and is not maintained.
+Both M0 and this unit change `wa-raziel/index.ts` and `ai-analyze/index.ts`. #1321 carries the CL-13 hunks **and** the M0/N14 hunks of the same files, so after this unit is deployed, the M0 deploy of those two functions is a *different* diff on top of it (the CL-13 hunks are already live). Textual conflicts if #1321 is ever rebased on this branch: the two entry files, `test/helpers/ai-analyze-handler.mjs`, `test/helpers/wa-raziel-handler.mjs` (it gained the `aiHandler` option for the link test) and the workflow step list in `live-contracts-2029.yml`. Identical in both (no conflict): `personalMemoryPolicy.js`, `cl13-pg-bridge.mjs`, `personal-memory-policy-fixture.mjs`, `tests/sql/cl13_handlers_base.sql`. The reconciliation is mine to do when ZURIEL decides the order; #1321 stays frozen at `4a406fed2` and is not maintained.
 
-## 8. Minimal conditions for each step (a request, not an approval)
+## 8. Minimal conditions for each step (a request, not an approval; the full text is `release-request.md`)
 
 1. The explicit approval of ZURIEL for **that function, the candidate, the SHA-256 of its entry file and the deployment** (not an approval of the other function, of M0, or of the database step).
 2. **Drift gate**, read immediately before the deploy: `list_edge_functions` shows `wa-raziel` v21 `6167766567cc…` / `ai-analyze` v91 `2c8100726a5c…` (read again 13.11: matched). Any difference: stop and report.
@@ -98,8 +100,8 @@ Both M0 and this unit change `wa-raziel/index.ts` and `ai-analyze/index.ts`. #13
 ## 9. Verification after each deploy (read-only), and what cannot be verified
 
 * `list_edge_functions`: a new version, `verify_jwt` as before; `get_edge_function`: every file equals the SHA-256 in `unit.json`.
-* Read-only SQL on `public.agent_user_memory`: the row count and the newest `created_at` of `agent = 'raziel'` are exactly what they were read immediately before the deploy (the baseline of the earlier read was 1,086 rows, newest 12.11 22:50 UTC; it must be read again immediately before the deploy — no live SQL was run for this unit), and the full-content stamp of the existing rows is unchanged. No new `wa_bot_log` row with `[facts-captured]` after the deploy time.
-* The person is still answered: one inbound message handled after the deploy has its `raziel_dm` row in `wa_bot_log`.
+* Read-only SQL on `public.agent_user_memory`, **with the same filters before and after** (exact queries in `release-request.md` §3). The independent read of Codex on 13.11 was **1,086 rows, of which 471 with `agent = 'raziel'`**; these are not pass/fail values (legitimate traffic moves them), so they are **read again immediately before each step and the result after the step is compared with that fresh read**: the WhatsApp part of `raziel` (F1) must be unchanged after step 1, the site thread (F2) after step 2. No live SQL was run for this unit.
+* The person is still answered: one inbound message handled after the deploy has its `raziel_dm` row in `wa_bot_log` and an outbound reply (the navigation probe of the earlier request does not apply to A: navigation is N6).
 * `ai-analyze` (step 2): a signed-in request produces no new `raziel` row with `channel = 'site'`.
 * **Not verifiable from here:** `track_functions = none`, so RPC calls cannot be counted — "no writer was called" is shown by the absence of new rows and of the captured record, not by a call counter. No behaviour probe is run on a real sender.
 * Not proven by this unit: that the database refuses other writers (the database step), that old rows are unreachable (the four direct readers are U1–U3), and anything about the 383 research-typed rows.
@@ -107,6 +109,6 @@ Both M0 and this unit change `wa-raziel/index.ts` and `ai-analyze/index.ts`. #13
 ## 10. Open points (not hidden)
 
 * The database step has an open Codex finding about content that the verification ignores; it stays in the database-step branch. This unit's handler tests ran against `c960600af` as it is; they do not depend on the research rule, but they must be re-run if the pin moves.
-* There is no CI on the focused branches until a PR is opened; the result for this head is reported separately.
+* The gates of the pull request run on the submitted head (draft PR, not for merge); their result is in the PR and in the journal record. The database-step branch has no PR of its own and no CI.
 * Candidate A of both functions differs from the deployed bytes in the CL-13 hunks only — and, for `ai-analyze`, in the two redacted comment lines (the rollback artifact is the source, the deployed file is not readable byte-exact from the repository).
 * `wa-raziel` v21's literal contact and group identifiers stay (M0-B removes them; it is deliberately not in this unit).

@@ -6,7 +6,7 @@
 // the DEPLOYED code (the rollback manifest).
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { runAiAnalyze } from "./ai-analyze-handler.mjs";
+import { runAiAnalyze, SERVICE_KEY } from "./ai-analyze-handler.mjs";
 import { runWaRaziel } from "./wa-raziel-handler.mjs";
 
 export const UA = "11111111-1111-4111-8111-111111111111";          // an account holder with a stored thread and a verified phone
@@ -53,4 +53,30 @@ export async function waRazielGroupOnPg(pg, { text, senderLinked = true, source 
     envOverrides: { ANTHROPIC_API_KEY: "synthetic-model-key" },
     tableRows: { wa_vip_senders: [{ raziel_access: true }] },
   });
+}
+
+// ── THE LINK: the request that leaves wa-raziel for ai-analyze is handed to a REAL ai-analyze handler (same database), and its answer
+// goes back to wa-raziel, which renders it and sends it to WhatsApp. Nothing between the two is canned except the model provider.
+// `wa` / `ai` are the helper options of each side (`{ source }`, `{ source, bundled }`); `answer` is the text the model of ai-analyze returns.
+// Returns the WhatsApp run plus `bridge`: what wa-raziel sent and what ai-analyze answered, for assertions.
+export async function waRazielThroughAiAnalyze(pg, { text, linked = true, wa = {}, ai = {}, answer }) {
+  const bridge = [];
+  const run = await waRazielOnPg(pg, {
+    text, linked, ...wa,
+    // the same service key on both sides: ai-analyze honours the trusted channel only when the caller IS the service role
+    envOverrides: { SUPABASE_SERVICE_ROLE_KEY: SERVICE_KEY },
+    aiHandler: async ({ url, init, body }) => {
+      const authorization = new Headers(init.headers).get("Authorization") || "";
+      const bearer = authorization.replace(/^Bearer /, "");
+      const result = await aiAnalyzeOnPg(pg, {
+        bearer, trustedUid: linked ? UA : null, body,
+        answer: { enabled: false },   // the ordinary Raziel path: no routed tool; the model of ai-analyze answers
+        modelResult: { text: JSON.stringify({ v: 1, agent: "raziel", answer, facts: [], suggested_paths: [] }), usage: { input_tokens: 11, output_tokens: 7 }, attempts: 1, degraded: false },
+        ...ai,
+      });
+      bridge.push({ path: url.pathname, authorization, body, status: result.status, result: result.result, models: result.models });
+      return new Response(JSON.stringify(result.result), { status: result.status });
+    },
+  });
+  return { ...run, bridge };
 }

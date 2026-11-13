@@ -32,6 +32,8 @@ export async function runWaRaziel({
                                   // product by a constant; a test that passes this also passes a `source` with that constant switched on)
   envOverrides = {},              // extra environment names for the handler (e.g. the group it serves)
   tableRows = {},                 // rows of other tables (e.g. wa_vip_senders)
+  aiHandler = null,               // CL-13 link test: async ({ url, init, body }) => Response. The request that leaves wa-raziel for ai-analyze is handed to a REAL ai-analyze
+                                  // handler and its answer comes back; without it the harness answers with the canned `aiText`
   source = readFileSync(new URL("../../supabase/functions/wa-raziel/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const sent = [], aiCalls = [], rpcCalls = [], otherFetches = [], modelCalls = [];
@@ -99,7 +101,9 @@ export async function runWaRaziel({
   const fetch = async (input, init = {}) => {
     const url = new URL(String(input));
     if (url.pathname.endsWith("/functions/v1/ai-analyze")) {
-      aiCalls.push(JSON.parse(init.body));
+      const aiBody = JSON.parse(init.body);
+      aiCalls.push(aiBody);
+      if (aiHandler) return await aiHandler({ url, init, body: aiBody });
       return new Response(JSON.stringify({ analysis: aiText, intelligence_level: "fast" }), { status: 200 });
     }
     if (url.origin === "https://api.anthropic.com") {   // the direct model call of the group path: recorded, so its prompt can be read

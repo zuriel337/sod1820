@@ -12,7 +12,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { pgBridge } from "./helpers/cl13-pg-bridge.mjs";
-import { aiAnalyzeOnPg, waRazielOnPg, treeSource, UA } from "./helpers/cl13-wa-edge-handlers.mjs";
+import { aiAnalyzeOnPg, waRazielOnPg, waRazielThroughAiAnalyze, treeSource, UA } from "./helpers/cl13-wa-edge-handlers.mjs";
 import { USER_JWT, SERVICE_KEY } from "./helpers/ai-analyze-handler.mjs";
 import { candidate, deployedBytes } from "../scripts/cl13-whatsapp-unit.mjs";
 
@@ -20,7 +20,19 @@ const pg = pgBridge();
 const APPLY = "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql";
 const haveHistory = (() => { try { for (const c of ["949c24ad549ae9e95ced528a4ee8159670b52678", "b4d5ec47132ed8003b822cc70de9e1b82447cb7c"]) execFileSync("git", ["cat-file", "-e", `${c}^{commit}`], { stdio: "ignore" }); return true; } catch { return false; } })();
 const PROFILE_TEXT = "שמי דוד כהן. מה הגימטריה של אור?";
+const LINK_TEXT = "שמי דוד כהן. נעים להכיר, מה שלומך?";   // not a number question: the numeric truth guard of ai-analyze would (rightly) degrade a gematria answer without a verified value
+let linkSeq = 0;
 const modelText = (run) => JSON.stringify(run.models.map((m) => [m.system, m.user]));
+// THE LINK on any pair of code: wa-raziel's request goes to a REAL ai-analyze handler on the same database and its answer is what WhatsApp gets.
+async function link(waVariant, aiVariant, label) {
+  const answer = `ANSWER-FROM-AI-ANALYZE-STATE-${String.fromCharCode(65 + linkSeq++)}`;   // letters only (the numeric truth guard refuses an unverified digit)
+  const before = pg.stamp(); pg.statements.length = 0;
+  const run = await waRazielThroughAiAnalyze(pg, { text: LINK_TEXT, linked: true, wa: waVariant, ai: aiVariant, answer });
+  assert.equal(run.bridge.length, 1, `${label}: one request from wa-raziel to ai-analyze`);
+  assert.equal(run.bridge[0].status, 200, `${label}: ai-analyze answered`);
+  assert.match(run.sent.map((m) => m.message).join("\n"), new RegExp(answer), `${label}: the answer of ai-analyze is what WhatsApp gets`);
+  return { run, prompt: modelText(run.bridge[0]), before, after: pg.stamp() };
+}
 const waWrites = () => [...new Set(pg.statements.filter((s) => s.kind === "rpc").map((s) => s.name))].sort();
 
 test("the deployed wa-raziel and ai-analyze reach the memory only through database functions, and so do the candidates (so the database step alone closes the reach of the deployed code)", { skip: haveHistory ? false : "clone too shallow (fetch the commits of the rollback manifest)" }, () => {
@@ -67,6 +79,12 @@ if (!pg) {
     assert.ok(rowsOf(`user_ref = '${UA}' and channel = 'site' and content like '%PRIVATE-PAYLOAD-SENTINEL%'`) >= 1, "the site question was remembered");
   });
 
+  test("TODAY 3 (link): the deployed pair - the stored memory of the sender goes into the answer that WhatsApp gets, and the message is remembered", async () => {
+    const { prompt, before, after } = await link(DEPLOYED_WA, DEPLOYED_AI, "TODAY");
+    assert.match(prompt, /OLD-SITE-THREAD-A3|OLD-DM-A|OLD-FACT-A/, "the stored memory reaches ai-analyze through wa-raziel's request");
+    assert.ok(after.rows > before.rows, "and the deployed adapter stores the message and the profile detail");
+  });
+
   // ───────────── MIXED 1: wa-raziel candidate deployed first, ai-analyze still v91, the database not applied ─────────────
   test("MIXED 1a: with the wa-raziel candidate the collector is closed (nothing stored, no stored context) while ai-analyze v91 is still deployed", async () => {
     for (const [name, variant] of CAND_WA) {
@@ -85,6 +103,14 @@ if (!pg) {
     const site = await aiAnalyzeOnPg(pg, { bearer: USER_JWT, verifiedUid: UA, ...DEPLOYED_AI });
     assert.match(modelText(site), /OLD-SITE-THREAD-A3|OLD-DM-A|OLD-FACT-A/);
     assert.equal(pg.stamp().rows, before.rows + 1, "and the site question is remembered (the WhatsApp channel does not remember: the adapter does)");
+  });
+
+  test("MIXED 1c (link): wa-raziel candidate -> the DEPLOYED ai-analyze -> WhatsApp: the answer arrives, wa-raziel stores nothing, the stored memory still reaches the answer", async () => {
+    for (const [name, variant] of CAND_WA) {
+      const { prompt, before, after } = await link(variant, DEPLOYED_AI, `MIXED 1c ${name}`);
+      assert.equal(after.rows, before.rows, `${name}: nothing stored by either side`); assert.equal(after.original, before.original);
+      assert.match(prompt, /OLD-SITE-THREAD-A3|OLD-DM-A|OLD-FACT-A/, `${name}: the part that step 1 does not close - ai-analyze v91 still reads the stored memory`);
+    }
   });
 
   // ───────────── DB-FIRST: the proposal applied under the deployed code ─────────────
@@ -109,6 +135,12 @@ if (!pg) {
     const after = pg.stamp(); assert.equal(after.rows, before.rows); assert.equal(after.original, before.original);
   });
 
+  test("DB-FIRST 3 (link): the deployed pair on the database with the proposal - the answer arrives, no stored memory reaches it, nothing is stored", async () => {
+    const { prompt, before, after } = await link(DEPLOYED_WA, DEPLOYED_AI, "DB-FIRST");
+    assert.doesNotMatch(prompt, /OLD-|PRE-LINK|BARE-PHONE/, "closed by the database functions");
+    assert.equal(after.rows, before.rows); assert.equal(after.original, before.original);
+  });
+
   // ───────────── MIXED 3: wa-raziel candidate deployed, ai-analyze v91, database applied ─────────────
   test("MIXED 3: with the proposal applied the wa-raziel candidates are closed and record no 'captured' detail; the deployed ai-analyze stays closed by the database", async () => {
     for (const [name, variant] of CAND_WA) {
@@ -120,5 +152,12 @@ if (!pg) {
     }
     const site = await aiAnalyzeOnPg(pg, { bearer: USER_JWT, verifiedUid: UA, ...DEPLOYED_AI });
     assert.doesNotMatch(modelText(site), /OLD-|PRE-LINK|BARE-PHONE/);
+  });
+  test("MIXED 3b (link): wa-raziel candidate -> the DEPLOYED ai-analyze -> WhatsApp with the proposal applied: the answer arrives and everything stays closed", async () => {
+    for (const [name, variant] of CAND_WA) {
+      const { prompt, before, after } = await link(variant, DEPLOYED_AI, `MIXED 3b ${name}`);
+      assert.doesNotMatch(prompt, /OLD-|PRE-LINK|BARE-PHONE/, `${name}: closed`);
+      assert.equal(after.rows, before.rows); assert.equal(after.original, before.original);
+    }
   });
 }

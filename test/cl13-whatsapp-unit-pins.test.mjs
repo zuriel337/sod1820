@@ -113,3 +113,47 @@ test("the CL-13 lines of the tree are exactly the CL-13 lines of the Edge code i
     for (const l of [...only(here, there), ...only(there, here)]) assert.doesNotMatch(l, CL13_LINE, `${path}: a line that differs from #1321 is not CL-13: ${l.slice(0, 80)}`);
   }
 });
+
+// ── the release request: one request, two steps, artifact A, with the stamps of A ──
+const doc = (name) => text(readFileSync(new URL(`../docs/reviews/cl13-whatsapp-unit-20261113/${name}`, import.meta.url)));
+test("the release request chooses artifact A for both functions, in two steps, carries every stamp of A, and says that the branch files are B", () => {
+  const rr = doc("release-request.md");
+  assert.match(rr, /^# Release request — the active WhatsApp path, CL-13 only: `wa-raziel` A, verify, then `ai-analyze` A, verify/);
+  assert.match(rr, /This is a request, not an approval/); assert.match(rr, /No SQL is attached/);
+  assert.match(rr, /\*\*The request is for artifact A of both functions, and only A\.\*\*/);
+  assert.match(rr, /The files of the branch itself[^\n]*represent candidate B, not A/);
+  assert.match(rr, /Deploying from the branch files[^\n]*is not what this request asks for/);
+  // the order: step 1 wa-raziel, verification, step 2 ai-analyze, verification
+  const pos = (re) => rr.search(re);
+  assert.ok(pos(/### Step 1 — `wa-raziel` A/) < pos(/### Step 1 — deploy `wa-raziel` A, then verify/) && pos(/### Step 1 — deploy `wa-raziel` A, then verify/) < pos(/### Step 2 — only after step 1 is verified: deploy `ai-analyze` A, then verify/));
+  assert.match(rr, /step 2 is rolled back before step 1/);
+  // every stamp of A (all files of both functions), the drift gates, and nothing from B
+  for (const f of UNIT.functions) {
+    for (const file of f.candidates.A.files) assert.ok(rr.includes(`\`${file.sha256}\``) && rr.includes(`\`${file.deploy_path}\``), `${f.slug}/${file.deploy_path}: path and SHA-256 are in the request`);
+    assert.ok(rr.includes(UNIT.drift_gate[f.slug].ezbr_sha256), `${f.slug}: the drift gate is in the request`);
+    for (const file of f.candidates.B.files) if (!f.candidates.A.files.some((a) => a.sha256 === file.sha256)) assert.ok(!rr.includes(file.sha256), `${f.slug}/${file.deploy_path}: a stamp of B is not in the request`);
+  }
+  assert.match(rr, /navigation probe of the earlier request does not apply/);
+  assert.doesNotMatch(rr, /```sql\n(?:(?!```)[\s\S])*\b(insert|update|delete|alter|create|drop|truncate|grant)\b/i, "the only SQL in the request is read-only");
+});
+
+test("the baseline is the independent read of Codex (1,086 rows, 471 of raziel), to be read again with the same filters; the rollback is stated as the old memory behaviour", () => {
+  const rr = doc("release-request.md"), readme = doc("README.md");
+  for (const d of [rr, readme]) { assert.match(d, /1,086 rows, of which 471 with `agent = 'raziel'`/); assert.match(d, /read(?:s)? (?:them )?again immediately before/); }
+  assert.doesNotMatch(readme, /baseline of the earlier read was 1,086 rows, newest/, "the older baseline wording is gone");
+  assert.match(rr, /same filters?/);
+  assert.match(rr, /It restores the OLD memory behaviour: every message is saved again, profile details are extracted and saved again, and the stored context is read again, without consent/);
+  assert.match(rr, /restores reading the stored memory into the answer and remembering every site question/);
+  assert.match(rr, /U1 \(`wa-hatishbi`, `wa-uriel`\) is not part of this request and does not close the active collection/);
+  assert.match(rr, /D-RESEARCH-APPROVAL, D-ERASE, D-ADMIN stay where they are/);
+});
+
+test("the documents state the same test counts as the runner pins", () => {
+  const runner = text(readFileSync(new URL("../scripts/run-cl13-whatsapp-unit-test.sh", import.meta.url)));
+  const n = (name) => Number(runner.match(new RegExp(`${name}=\\$\\{[A-Z0-9_]+:-(\\d+)\\}`))[1]);
+  const [unit, states, pins] = [n("EXPECTED_UNIT"), n("EXPECTED_STATES"), n("EXPECTED_PINS")];
+  const readme = doc("README.md");
+  assert.ok(readme.includes(`**${unit} tests, both functions together`) && readme.includes(`**${states} tests** on the **deployed** code`) && readme.includes(`**${pins} pin tests**`), "README counts = runner counts");
+  const workflow = text(readFileSync(new URL("../.github/workflows/live-contracts-2029.yml", import.meta.url)));
+  assert.ok(workflow.includes(`CL-13 WhatsApp unit (${unit} tests of both functions`) && workflow.includes(`${states} of the deployed code`) && workflow.includes(`${pins} pins`), "workflow step name = runner counts");
+});

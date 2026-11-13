@@ -16,7 +16,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { pgBridge } from "./helpers/cl13-pg-bridge.mjs";
-import { aiAnalyzeOnPg, waRazielOnPg, waRazielGroupOnPg, treeSource, UA, UB, GROUP } from "./helpers/cl13-wa-edge-handlers.mjs";
+import { aiAnalyzeOnPg, waRazielOnPg, waRazielGroupOnPg, waRazielThroughAiAnalyze, treeSource, UA, UB, GROUP } from "./helpers/cl13-wa-edge-handlers.mjs";
 import { USER_JWT, SERVICE_KEY } from "./helpers/ai-analyze-handler.mjs";
 import { PAUSED_POLICY } from "./helpers/personal-memory-policy-fixture.mjs";
 import { candidate } from "../scripts/cl13-whatsapp-unit.mjs";
@@ -26,6 +26,8 @@ const APPLY = "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql";
 const ROLLBACK = "supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql";
 const STORED = /OLD-|PRE-LINK|BARE-PHONE/;            // any text of a stored memory row
 const PROFILE_TEXT = "שמי דוד כהן. מה הגימטריה של אור?";
+// the link scenario asks something that is not a number question (a gematria question without a verified engine value is, correctly, degraded by the numeric truth guard of ai-analyze)
+const LINK_TEXT = "שמי דוד כהן. נעים להכיר, מה שלומך?";
 const haveHistory = (() => { try { for (const c of ["949c24ad549ae9e95ced528a4ee8159670b52678", "b4d5ec47132ed8003b822cc70de9e1b82447cb7c"]) execFileSync("git", ["cat-file", "-e", `${c}^{commit}`], { stdio: "ignore" }); return true; } catch { return false; } })();
 
 // the code under test: [label, options for the helper]
@@ -88,6 +90,41 @@ async function waRazielGroupClosed(label, variant) {
 const eachWa = async (label, fn) => { assert.ok(WA.length === 2, "both wa-raziel candidates run (the commits of the rollback manifest are needed)"); for (const [name, v] of WA) await fn(`${label} wa-raziel ${name}`, v); };
 const eachAi = async (label, fn) => { for (const [name, v] of AI) await fn(`${label} ai-analyze ${name}`, v); };
 
+// THE LINK (Codex 13.11): the request that leaves wa-raziel goes to the REAL ai-analyze handler on the same database, and its answer
+// comes back and is sent to WhatsApp - not the canned AI answer of the harness. Four pairings: {tree, A} x {tree source, A bundle}.
+// `expect` says what the pair does with the memory in this state: "closed" (nothing stored read or written) or "consent" (the linked
+// sender's stored memory reaches ai-analyze's prompt, and the adapter remembers the message).
+let linkSeq = 0;
+async function linkScenario(label, expect) {
+  assert.ok(WA.length === 2, "both wa-raziel candidates run");
+  for (const [waName, wa] of WA) for (const [aiName, ai] of AI) {
+    for (const linked of expect === "closed" ? [true, false] : [true]) {
+      const who = `${label} link wa-raziel ${waName} -> ai-analyze ${aiName}${linked ? "" : " (sender without an account)"}`;
+      const answer = `ANSWER-FROM-AI-ANALYZE-${String.fromCharCode(65 + (linkSeq++ % 26))}${String.fromCharCode(65 + Math.floor(linkSeq / 26))}`;   // letters only: the numeric truth guard of ai-analyze refuses a digit it cannot verify
+      const before = begin();
+      const run = await waRazielThroughAiAnalyze(pg, { text: LINK_TEXT, linked, wa, ai, answer });
+      assert.equal(run.bridge.length, 1, `${who}: wa-raziel made exactly one request to ai-analyze`);
+      const [b] = run.bridge;
+      assert.ok(b.path.endsWith("/functions/v1/ai-analyze"), `${who}: the request goes to the ai-analyze function`);
+      assert.equal(b.authorization, "Bearer synthetic-service-key", `${who}: with the service key (ai-analyze honours the trusted channel only for it)`);
+      assert.deepEqual([b.body.persona, b.body.surface, b.body.trusted_channel?.channel, b.body.trusted_channel?.sender], ["raziel", "whatsapp", "whatsapp", "972500000001"], `${who}: the request carries the trusted WhatsApp channel of the sender`);
+      assert.equal(b.status, 200); assert.ok(b.models.length >= 1, `${who}: ai-analyze answered with its own model call(s)`);
+      assert.match(modelText(b), /נעים להכיר/, `${who}: the question reached the model of ai-analyze`);
+      assert.match(run.sent.map((m) => m.message).join("\n"), new RegExp(answer), `${who}: the answer of ai-analyze is what WhatsApp gets`);
+      if (expect === "closed") {
+        assert.doesNotMatch(modelText(b), STORED, `${who}: no stored memory reaches the model of ai-analyze`);
+        assert.deepEqual(memoryWrites(), [], `${who}: nothing is written by either side`);
+        nothingStored(before, who);
+      } else {
+        assert.match(modelText(b), /OLD-SITE-THREAD-A3|OLD-DM-A/, `${who}: with the consent the stored memory of the sender reaches ai-analyze`);
+        assert.doesNotMatch(modelText(b), /PRE-LINK-MEMORY-OF-A|BARE-PHONE-MEMORY-OF-A/, `${who}: but not the memory recorded under the phone`);
+        assert.deepEqual(memoryWrites().map((s) => s.name), ["fn_raziel_remember"], `${who}: only the adapter remembers the message (ai-analyze does not, on the trusted channel)`);
+        assert.equal(pg.stamp().rows, before.rows + 1); assert.equal(pg.stamp().original, before.stamp.original);
+      }
+    }
+  }
+}
+
 // a later policy version, simulated inside the throwaway database only (the SQL test of the database step does the same)
 const simulate = ({ persons, profileFacts = false, research = true }) => pg.run(`
   create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $f$
@@ -109,6 +146,7 @@ if (!pg) {
   test("BEFORE 1 (M-1, M-8, M-9): wa-raziel answers a linked sender and a sender without an account; nothing is stored or extracted", () => eachWa("BEFORE", waRazielClosed));
   test("BEFORE 2 (M-11, M-12): ai-analyze answers without stored memory and stores nothing, on the site path and on the WhatsApp channel", () => eachAi("BEFORE", aiAnalyzeClosed));
   test("BEFORE 3 (M-7, M-10): in a group nothing personal is read, exposed, remembered or extracted", () => eachWa("BEFORE", waRazielGroupClosed));
+  test("BEFORE 4 (link): wa-raziel -> the real ai-analyze -> WhatsApp, Edge first: the answer arrives and nothing is stored or read", () => linkScenario("BEFORE", "closed"));
 
   // ───────────────────────── PAUSED: the proposal applied ─────────────────────────
   test("PAUSED 0: the proposal applies on the state the Edge-first run left, and its policy is the one the handler tests assume", () => {
@@ -120,6 +158,7 @@ if (!pg) {
   test("PAUSED 1 (M-1, M-8, M-9): wa-raziel answers a linked sender and a sender without an account; nothing is stored or extracted", () => eachWa("PAUSED", waRazielClosed));
   test("PAUSED 2 (M-11, M-12): ai-analyze answers without stored memory and stores nothing, on the site path and on the WhatsApp channel", () => eachAi("PAUSED", aiAnalyzeClosed));
   test("PAUSED 3 (M-7, M-10): in a group nothing personal is read, exposed, remembered or extracted", () => eachWa("PAUSED", waRazielGroupClosed));
+  test("PAUSED 5 (link): wa-raziel -> the real ai-analyze -> WhatsApp, database applied: the answer arrives and nothing is stored or read", () => linkScenario("PAUSED", "closed"));
   test("PAUSED 4: a writer that ignores the policy is refused by the database with an error, and the status is still honest", () => {
     const before = begin();
     const refused = pg.rest("https://fixture.invalid/rest/v1/agent_user_memory?select=id", { method: "POST", headers: { Prefer: "return=representation" },
@@ -132,8 +171,12 @@ if (!pg) {
   });
 
   // ───────────────────────── CONSENT: a simulated later policy version (person A only) ─────────────────────────
-  test("CONSENT 1 (M-4, M-6): ai-analyze reads the person's own memory (the assistant's research-typed rows included), without the phone memory; the turn is remembered", async () => {
+  test("CONSENT 0 (link): with a consent the stored memory of the sender goes through wa-raziel's request into ai-analyze, and the answer comes back to WhatsApp", async () => {
     pg.run("create table public.cl13_reviewed_policy as select pg_get_functiondef('public.fn_personal_memory_policy_v1(text)'::regprocedure) as def;");
+    simulate({ persons: [UA] });
+    await linkScenario("CONSENT", "consent");
+  });
+  test("CONSENT 1 (M-4, M-6): ai-analyze reads the person's own memory (the assistant's research-typed rows included), without the phone memory; the turn is remembered", async () => {
     simulate({ persons: [UA] });
     for (const [name, variant] of AI) {
       const before = begin();
@@ -202,5 +245,6 @@ if (!pg) {
     assert.ok(live.privacy.personal_memory_allowed === true && !("policy" in live.privacy), "the database is the live one again: it reads memory without consent");
     await eachWa("ROLLBACK", waRazielClosed);
     await eachAi("ROLLBACK", aiAnalyzeClosed);
+    await linkScenario("ROLLBACK", "closed");   // the link also works, and stays closed, on the database that was rolled back
   });
 }
