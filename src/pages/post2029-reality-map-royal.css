@@ -267,7 +267,13 @@
 .sod29-pu [data-gem][role="button"]:focus-visible{outline:2px solid var(--s29-focus-ring,var(--r29-gold));outline-offset:3px}
 .sod29-pu-body{display:grid;gap:.85rem;padding-top:1rem;max-width:62ch;margin-inline:auto}
 .sod29-pu-body p{margin:0;line-height:1.8;font-size:max(1.125rem,18px)} /* reading body ≥18px (Design V2); calm weight, gold only on headings/peaks */
-.sod29-pu-body [data-sod-align="center"]{text-align:center}
+/* Content alignment (ZURIEL 13.11.2026): CENTRE only ceremonial/short content (titles, short sub-headings, verses/quotes, equations, the four numbers,
+   peaks and the primary message); long explanatory paragraphs, author/source text and credits are RTL and RIGHT-aligned (start). The semantic
+   attribute is data-sod-align; the selector carries the Post root so the reader's own paragraph rule cannot undo it. Words are never touched. */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu :is(h2,h3,p,blockquote,table)[data-sod-align="center"]{text-align:center!important} /* !important: the reader forces headings/paragraphs to start */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu p[data-sod-align="start"],
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu .sod29-pu-group-label,
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu :is(.sod29-pu-sources,.sod29-pu-images,.sod29-pu-engine) :is(p,small,blockquote,li){text-align:start}
 .sod29-pu-rule{border:0;block-size:1px;inline-size:60%;margin:.4rem auto;background:linear-gradient(90deg,transparent,var(--r29-gold),transparent)}
 .sod29-pu-h3{margin:.4rem 0 0;text-align:center;font:800 clamp(1.2rem,2.3vw,1.6rem)/1.3 var(--rm-display);color:var(--rm-gold-ink);text-wrap:balance}
 .sod29-pu-verse{margin:.2rem auto;padding:.75rem 1.1rem;max-width:44ch;text-align:center;font:700 1.15rem/1.8 var(--rm-display);color:var(--s29-ink);
@@ -327,3 +333,38 @@
 @media(max-width:360px){
   .sod29-reading-post[data-reality-map]>.sod29-surface-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
+
+/* Progressive disclosure of a claim's canonical method trace (reuses TraceFamilyStage2029 / TraceBreakdown2029): Royal frame, sapphire core, calm. */
+.sod29-pu-trace{margin-top:.4rem}
+.sod29-pu-trace-btn,.sod29-pu-trace-links button,.sod29-pu-trace-links a{min-block-size:44px;padding:0 14px;border-radius:14px;cursor:pointer;font:700 1rem/1.3 var(--s29-font-ui,inherit);text-decoration:none;display:inline-flex;align-items:center;
+  color:var(--s29-ink);background:color-mix(in srgb,var(--r29-sapphire) 24%,var(--s29-panel));border:1px solid color-mix(in srgb,var(--r29-sapphire) 55%,var(--s29-line))}
+.sod29-pu-trace-body{margin-top:.6rem;padding:14px;border-radius:18px;border:1px solid color-mix(in srgb,var(--r29-gold) 50%,transparent);display:grid;gap:.7rem;min-inline-size:0;
+  background:color-mix(in srgb,var(--r29-sapphire) 20%,var(--s29-panel))}
+.sod29-pu-trace-body>header{display:grid;gap:.2rem;justify-items:center;text-align:center}
+.sod29-pu-trace-method{font:700 .95rem/1.3 var(--s29-font-ui,inherit);color:var(--r29-azure)}
+.sod29-pu-trace-result{font:850 clamp(2rem,9vw,2.8rem)/1.05 var(--s29-font-numeric,var(--s29-font-ui,inherit));color:color-mix(in srgb,var(--r29-gold) 78%,var(--s29-ink));font-variant-numeric:tabular-nums}
+.sod29-pu-trace-eq{margin:0;text-align:center;font:800 1.25rem/1.4 var(--s29-font-numeric,var(--s29-font-ui,inherit));color:var(--s29-ink)}
+.sod29-pu-trace-body :is(.sod29-spatial-method-stage,.sod29-method-trace-groups){min-inline-size:0;max-inline-size:100%}
+.sod29-pu-trace-body .sod29-method-step-list{display:flex;flex-wrap:wrap;gap:6px}
+.sod29-pu-trace-body .sod29-method-step-list button{min-block-size:44px}
+.sod29-pu-trace-links{display:flex;flex-wrap:wrap;gap:.5rem;margin:0;justify-content:center}
+.sod29-pu-trace-full summary{cursor:pointer;min-block-size:44px;display:flex;align-items:center;font-weight:700;color:var(--r29-azure)}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-pu-trace-eq{text-align:center!important;margin-inline:auto}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body :is(.sod29-method-step-list button,.sod29-method-step-focus button){
+  min-block-size:44px;padding:4px 12px;border-radius:14px;cursor:pointer;font:600 1rem/1.3 var(--s29-font-ui,inherit);color:var(--s29-ink);display:inline-flex;gap:6px;align-items:baseline;
+  background:color-mix(in srgb,var(--r29-sapphire) 26%,var(--s29-panel));border:1px solid color-mix(in srgb,var(--r29-sapphire) 55%,var(--s29-line))}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-method-step-list button b{font-family:var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--r29-gold) 78%,var(--s29-ink))}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-method-step-list button small{font-size:.85rem;color:var(--s29-muted)}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-method-step-list button.is-focus{box-shadow:inset 0 0 0 2px var(--r29-gold)}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-method-step-focus>div{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-method-step-focus button:disabled{opacity:.5;cursor:default}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-method-step-focus p{margin:.4rem 0;text-align:center}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-spatial-method-stage__head{display:grid;gap:.3rem}
+.sod29-reading-post[data-reality-map] .sod29-pu-trace-body .sod29-spatial-method-stage__head>div:first-child{text-align:start}
+/* The engine-state controls inside the unit's own engine panel follow the same look the source units give them (those rules are scoped to .sod29-source-unit). */
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-source-unit-hint{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:6px 0}
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-source-unit-hint b{font-family:var(--s29-font-numeric,inherit);font-size:1.5rem;color:color-mix(in srgb,var(--r29-gold) 78%,var(--s29-ink))}
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-engine{display:inline-flex;align-items:center;gap:6px;min-block-size:44px;padding:0 12px;border-radius:14px;cursor:pointer;font:inherit;color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-sapphire) 55%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 18%,var(--s29-panel))}
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-engine[data-engine="mismatch"]{border-style:dashed}
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-engine-detail{margin:4px 0 0;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));font-size:.95rem;color:var(--s29-muted)}

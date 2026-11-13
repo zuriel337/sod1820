@@ -8,9 +8,14 @@
 // Preview only: it mounts only when the unit element exists, and that exists only in the protected Preview build.
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ShareActions from "../ShareActions.jsx";
 import PostExternalSourceUnit2029, { ClaimRow } from "./PostExternalSourceUnit2029.jsx";
+import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
+import { projectGematriaTrace } from "../../lib/research/gematriaTracePresentation.js";
+import { checkSourceHint } from "../../lib/research/postSourceHintCheck2029.js";
+import { TraceBreakdown2029, TraceFamilyStage2029 } from "../gematria2029/MethodTraceExplanation2029.jsx";
+import { use2029Shell } from "./Sod2029Shell.jsx";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { detectNumbersAndExpressions } from "../../lib/research/unitTextSuggestions2029.js";
 import { publicPostHref } from "../../lib/publicPostUrls.js";
@@ -86,6 +91,50 @@ function Sources() {
   </section>;
 }
 
+// Progressive disclosure of the CANONICAL method trace of one claim (the same projection and visual family the Beit Midrash and the Number page use).
+// Nothing is fetched until the reader asks; the method comes from the engine's own resolution of the SOURCE's method text (never inferred from the
+// target number); on any missing/failed/unsupported/mismatched trace the panel says so and invents no step.
+function ClaimTrace({ claim }) {
+  const shell = use2029Shell();
+  const [open, setOpen] = useState(false);
+  const [state, setState] = useState({ phase: "idle" });
+  const toggle = async () => {
+    const next = !open;
+    setOpen(next);
+    if (!next || state.phase === "ready" || state.phase === "loading") return;
+    setState({ phase: "loading" });
+    try {
+      const check = await checkSourceHint({ expression: claim.phrase, stated: claim.number, methodText: claim.methodText });
+      const methodKey = check?.method?.key;
+      if (!methodKey) return setState({ phase: "unavailable" });
+      const finding = await fetchGematriaMethodTrace(methodKey, claim.phrase);
+      const trace = finding?.projection?.dimensions?.trace || null;
+      const model = projectGematriaTrace(trace, { expression: claim.phrase, methodKey, expectedValue: check.value });
+      setState(model.state === "ready" ? { phase: "ready", model, check } : { phase: "unavailable" });
+    } catch { setState({ phase: "unavailable" }); }
+  };
+  const model = state.model;
+  // The equation only restates the engine's own subtotals, and only when they add up to the engine's result.
+  const subtotals = model?.groups?.map((g) => g.subtotal);
+  const equation = subtotals && subtotals.length > 1 && subtotals.every((v) => Number.isFinite(Number(v))) && subtotals.reduce((a, v) => a + Number(v), 0) === Number(model.result)
+    ? `${subtotals.join(" + ")} = ${model.result}` : null;
+  return <div className="sod29-pu-trace" data-trace-state={state.phase}>
+    <button type="button" className="sod29-pu-trace-btn" aria-expanded={open} onClick={toggle}>{open ? "הסתר את החישוב" : "איך הגענו למספר?"}</button>
+    {open && state.phase === "loading" ? <p role="status" className="sod29-pu-sources-note">פותח את צעדי החישוב…</p> : null}
+    {open && state.phase === "unavailable" ? <p role="status" className="sod29-pu-sources-note">פירוט החישוב אינו זמין כרגע. לא הומצאו צעדים חלופיים.</p> : null}
+    {open && state.phase === "ready" ? <div className="sod29-pu-trace-body">
+      <header><span className="sod29-pu-trace-method">{model.methodLabel}</span><strong>{claim.phrase}</strong><b className="sod29-pu-trace-result">{model.result}</b></header>
+      {equation ? <p className="sod29-pu-trace-eq" dir="ltr">{equation}</p> : null}
+      <TraceFamilyStage2029 model={model} />
+      <details className="sod29-pu-trace-full"><summary>כל הצעדים</summary><TraceBreakdown2029 model={model} /></details>
+      <p className="sod29-pu-trace-links">
+        <button type="button" onClick={() => shell?.openNumber?.({ type: "number", id: String(model.result) })}>פתח בדף המספר</button>
+        <Link to="/beit-midrash">פתח את השיטה בבית המדרש</Link>
+      </p>
+    </div> : null}
+  </div>;
+}
+
 function Engine() {
   return <details className="sod29-pu-engine">
     <summary>בדיקת המנוע לטענות ביחידה</summary>
@@ -93,6 +142,7 @@ function Engine() {
     {YAMIN_SMOL_CLAIMS.map((claim) => <div key={claim.id} className="sod29-pu-engine-row" data-claim={claim.id}>
       {claim.by ? <small>בדברי {IDENTITY_LABEL[claim.by]}</small> : <small>בנוסח העריכה</small>}
       <ClaimRow claim={claim} />
+      <ClaimTrace claim={claim} />
     </div>)}
   </details>;
 }
