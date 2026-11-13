@@ -11,8 +11,10 @@ function el(doc, tag, attrs = {}, text) {
   if (text != null) node.textContent = text;
   return node;
 }
-function gem(doc, value) {
-  const span = el(doc, "span", { "data-gem": String(value), role: "button", tabindex: "0", "aria-label": `בדוק את המספר ${value}` }, String(value));
+function gem(doc, value, extraClass = "") {
+  const attrs = { "data-gem": String(value), role: "button", tabindex: "0", "aria-label": `בדוק את המספר ${value}` };
+  if (extraClass) attrs.class = extraClass;
+  const span = el(doc, "span", attrs, String(value));
   return span;
 }
 // text with its numbers made clickable (the surrounding words are untouched)
@@ -39,8 +41,8 @@ export function buildPreviewUnitElement(doc, unit) {
     if (block.kind === "title") { head.append(el(doc, "h2", { id: `${unit.id}-title`, "data-sod-role": "title", "data-sod-align": "center" }, block.text)); continue; }
     if (block.kind === "subtitle") { head.append(el(doc, "p", { class: "sod29-pu-subtitle", "data-sod-role": "title", "data-sod-align": "center" }, block.text)); continue; }
     if (block.kind === "numbers") {
-      const p = el(doc, "p", { class: "sod29-pu-numbers", "data-sod-role": "number", "data-sod-align": "center", "aria-label": "המספרים של היחידה" });
-      block.numbers.forEach((n, i) => { if (i) p.append(el(doc, "i", { "aria-hidden": "true" }, "·")); p.append(gem(doc, n)); });
+      const p = el(doc, "p", { class: "sod29-pu-numbers", "data-sod-role": "unit-numbers", "data-sod-align": "center", "aria-label": "המספרים של היחידה" });
+      block.numbers.forEach((n, i) => { if (i) p.append(el(doc, "i", { "aria-hidden": "true" }, "·")); p.append(gem(doc, n, "r29-coin")); }); // the existing Royal coin primitive; the "·" separators stay in the text and are hidden by CSS
       head.append(p); continue;
     }
     if (block.kind === "kicker") { head.append(el(doc, "p", { class: "sod29-pu-kicker", "data-sod-align": "center" }, block.text)); continue; }
