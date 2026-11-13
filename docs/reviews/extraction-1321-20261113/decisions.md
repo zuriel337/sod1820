@@ -2,6 +2,15 @@
 
 Nothing below was decided by the extraction. Each line is a question for ZURIEL; the package that raised it has the detail. Releases (merge, SQL apply, deployment, ruleset change) are separate approvals for exact commits; none was done.
 
+## 0. Already approved by ZURIEL — pending implementation (not an open question)
+
+| # | Decision (approved) | Status in the extracted packages | What implementation still needs |
+|---|---|---|---|
+| A-1 | **Visitor identification**: measure pages and arrival sources; a **browser identifier for guests**, an **account identifier for signed-in members**, detail visible to the administrator. The older "anonymous by default" position is not restored. | **Pending implementation.** Pages: implemented (P4, PR #1337). Browser id: only on visits (`track_visit`), not on engagement / actions / content views / arrival. Account id: **not implemented anywhere**. Administrator detail: partly (the `site_visits` readers are more correct after P4; the new terminal's reader does not see the public build's visits). | Design, not a new approval of the decision: which browser id the events carry (`sod_vid` or `sod_id`); a database function that records the signed-in user on the server and the worker forwarding the member's token for that one call (a client-supplied account id is only a claim; today the worker answers every measurement request with the anonymous key); the validators and worker tests that state "no identity" are changed in the same change; the new terminal's reader (`page/view` events) or `site_visits` declared canonical. Detail: `docs/reviews/measurement-20261113/identity-gap.md` (PR #1337). |
+
+The open design questions that belong to A-1 are in section B, items 7a–7c. They do not reopen the decision.
+
+
 ## A. Product / content
 
 1. **Upload size, gallery (P1, D-1).** Today a visitor can upload a file of any size to the gallery. The security change (who may upload where, and which file types) does not depend on the answer. May the gallery refuse files above **120 MiB**? (Marked in the SQL file as not confirmed.)
@@ -13,7 +22,10 @@ Nothing below was decided by the extraction. Each line is a question for ZURIEL;
 ## B. Measurement (P4)
 
 6. **Visit counts change at the release date** (the double rows disappear, the missing in-app page views appear; unique visitors unchanged; old periods are not comparable). Where should the marker be recorded (admin note on the history table, a day-context field, the law text), and do you want a de-duplicated historical series (D1, D7)?
-7. **Identity.** Browser id for guests exists on visits only; **account id for signed-in users does not exist anywhere** and cannot be sent safely from the browser (the worker answers every measurement request with the anonymous key). What should be built, and with which id (D2, D3)? Should the new admin terminal read `page/view` events with identity, or should `site_visits` be declared canonical (D4)? Adapt the arrival / share / join / hot-posts readers to `events` (D5)? Wider arrival detail (utm, click ids, GA4/Meta) (D6)? Are the budgets right (120 visits, 240 engagement, 60 actions per window per 10 minutes) (D8)?
+7. **Visitor identification — the approved decision (A-1) is pending implementation; these are design questions for it, not a new decision.**
+   * 7a. **Which id and where.** Should engagement, actions, content views and arrival carry the browser id, and which one (the visit's `sod_vid` or the identity spine's `sod_id`; the database very probably then creates a person for every public browser) (D2)?
+   * 7b. **Account id.** The worker must forward the member's token for these calls and a database function must record the user on the server; the browser alone cannot do it safely (D3). Approve building both (a database step and a worker change)?
+   * 7c. **Reading it.** Should the new terminal read `page/view` events with identity, or should `site_visits` be declared canonical (D4)? Adapt the arrival / share / join / hot-posts readers to `events` (D5)? Wider arrival detail (utm, click ids, GA4/Meta) (D6)? Are the budgets right (120 visits, 240 engagement, 60 actions per window per 10 minutes) (D8)?
 
 ## C. Enforcement and release (P2)
 
