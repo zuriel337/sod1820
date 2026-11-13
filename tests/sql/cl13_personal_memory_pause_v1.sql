@@ -34,7 +34,7 @@ create function pg_temp.state() returns text language sql as $$
       || ' || ' || coalesce((select string_agg(pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']', ' ; ' order by t.tgname)
                               from pg_trigger t where to_regclass('public.agent_user_memory') is not null and t.tgrelid = to_regclass('public.agent_user_memory') and not t.tgisinternal), 'no trigger')
     from pg_proc p where p.pronamespace = 'public'::regnamespace
-     and (p.proname like 'fn\_raziel\_%' escape '\' or p.proname like '%personal\_memory%' escape '\' or p.proname = 'fn_mem_add') $$;
+     and (p.proname like 'fn\_raziel\_%' escape '\' or p.proname like '%personal\_memory%' escape '\' or p.proname like 'fn\_research\_output%' escape '\' or p.proname = 'fn_mem_add') $$;
 create temp table probe(s text);
 create function pg_temp.mark() returns void language sql as $$ delete from probe; insert into probe select pg_temp.state() $$;
 create function pg_temp.unchanged(c text) returns void language plpgsql as $$
@@ -94,6 +94,7 @@ insert into public.agent_user_memory(user_ref, channel, agent, memory_type, memo
  (:'UA', 'site', 'raziel', 'conversation', 'personal', 'site', 'old question 2', 'OLD-SITE-THREAD-A2', '{"reply":"OLD-REPLY-A2"}'),
  (:'UA', '972500000001@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'OLD-DM-A', '{}'),
  (:'UA', '972500000001@c.us', 'raziel', 'personal_context', 'personal', 'profile', 'birthday_hebrew', 'OLD-FACT-A', '{"kind":"birthday_hebrew"}'),
+ (:'UA', 'site', 'raziel', 'research_note', 'personal', 'site', null, 'OLD-RESEARCH-TYPED-ROW-OF-A', '{}'),
  ('wa:972500000001', '972500000001@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'PRE-LINK-MEMORY-OF-A', '{}'),
  ('972500000001', '972500000001@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'BARE-PHONE-MEMORY-OF-A', '{}'),
  ('wa:972500000009', '972500000009@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'OLD-DM-UNLINKED', '{}'),
@@ -104,6 +105,7 @@ insert into public.agent_user_memory(user_ref, channel, agent, memory_type, memo
  ('wa:972500000002', '972500000002@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'UNVERIFIED-PHONE-OF-B', '{}'),
  ('972511111111@c.us', 'wa', 'hatishbi', 'conversation', 'personal', 'wa', null, 'BOT-QUESTION-1', '{}'),
  ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'finding', 'BOT-FINDING-1', '{}'),
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'family note', 'BOT-FINDING-PERSONAL: בעלה חולה, טלפון 050-1234567', '{}'),
  ('972522222222@c.us', 'wa', 'uriel', 'conversation', 'personal', 'wa', null, 'BOT-QUESTION-2', '{}'),
  ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'rule', 'BOT-FINDING-2', '{}');
 create temp table original_ids as select id from public.agent_user_memory;
@@ -240,6 +242,53 @@ select pg_temp.ok('M3 the full content of every existing row is unchanged', pg_t
 select pg_temp.ok('M9 no profile detail of a sender without an account in any store', not exists (select 1 from public.agent_user_memory where content like 'NEW-FACT%')
   and not exists (select 1 from public.wa_bot_log where text_in like '%NEW-FACT%'));
 
+-- RESEARCH (decision of ZURIEL after the Codex review of abb2f3907): authorised research may be USED during the pause; personal
+-- information inside research stays subject to consent; the label "research" opens nothing personal.
+create temp table rq as
+  select 'bot' as k, public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi') as c union all
+  select 'other-person', public.fn_research_output_context_v1('972522222222@c.us', 'hatishbi') union all
+  select 'assistant-rows', public.fn_research_output_context_v1(:'UA', 'raziel') union all
+  select 'nobody', public.fn_research_output_context_v1('', 'hatishbi');
+select pg_temp.ok('Q1 allowed research is available during the pause: the bot reads its findings, old and new',
+  (select c ->> 'allowed' = 'true' and c::text like '%BOT-FINDING-1%' and c::text like '%NEW-BOT-FINDING-1%' and c::text like '%NEW-BOT-FINDING-DIRECT (edited)%'
+     and (c ->> 'policy') = 'cl13_pause_v1' from rq where k = 'bot'), (select c::text from rq where k = 'bot'));
+select pg_temp.ok('Q2 a research row that carries a personal detail is withheld without consent, and counted',
+  (select c::text not like '%BOT-FINDING-PERSONAL%' and c::text not like '%050-1234567%' and (c ->> 'withheld_personal')::int = 1 from rq where k = 'bot'));
+select pg_temp.ok('Q3 the questions (personal memory) are never research context', (select c::text not like '%BOT-QUESTION%' from rq where k = 'bot'));
+select pg_temp.ok('Q4 one person and one bot only: another person, and rows of the assistant typed as research, return nothing',
+  (select c -> 'rows' = '[]'::jsonb from rq where k = 'other-person') and (select c -> 'rows' = '[]'::jsonb and c::text not like '%OLD-RESEARCH-TYPED%' from rq where k = 'assistant-rows')
+  and (select c ->> 'allowed' = 'false' from rq where k = 'nobody'));
+-- the detector: every kind it knows, and research-like texts that must NOT be taken for a personal detail
+create temp table det(t text, want text);
+insert into det values
+ ('כתבה אליי mail: someone@example.org', 'email'), ('הטלפון 050-123-4567', 'phone'), ('+972 52 1234567', 'phone'), ('מספר 123456789', 'long_number'),
+ ('ת.ז. שלה', 'identity_number'), ('תעודת זהות', 'identity_number'), ('שמי רחל', 'name'), ('קוראים לי דוד', 'name'),
+ ('אני גרה בחיפה', 'address'), ('כתובתה ברחוב הרצל', 'address'), ('מיקוד 1234567', 'postal'), ('נולדתי בכסלו', 'birth'), ('תאריך הלידה שלה', 'birth'),
+ ('בעלה אמר', 'family'), ('האבא שלה', null), ('אבא שלה היה שם', 'family'), ('היא חולה', 'health'), ('עברה ניתוח', 'health'),
+ ('אור = 207, רז = 207', null), ('משיח 358 נחש 358', null), ('התגלות בשנת 1820', null), ('בראשית א א: בראשית ברא', null), ('אתגר בלימוד האותיות', null),
+ ('הערך 123456 במילוי', null), ('אות א = אלף, פירוק: א-ל-ף', null), ('{"subtype":"letter_rule"}', null), ('', null), (null, null);
+select pg_temp.ok('Q5 the detector names every kind it knows and leaves research text alone',
+  not exists (select 1 from det where public.fn_personal_memory_personal_detail_v1(t) is distinct from want),
+  (select string_agg(coalesce(t, '(null)') || ' -> ' || coalesce(public.fn_personal_memory_personal_detail_v1(t), 'NULL') || ' (want ' || coalesce(want, 'NULL') || ')', ' ; ') from det where public.fn_personal_memory_personal_detail_v1(t) is distinct from want));
+-- the label "research" does not carry a personal detail in: not through the writer function, not directly, not by an edit
+select pg_temp.ok('Q6 the writer function saves no research row that carries a personal detail (NULL = not saved), in any field',
+  public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'RESEARCH-WITH-PHONE 050-7654321', 'topic') is null
+  and public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'clean text', 'RESEARCH-TOPIC someone@example.org') is null
+  and public.fn_mem_add('972522222222@c.us', 'uriel', 'method_discovery', 'clean text', 'word', 'private', 'private', 'wa', null, 'wa', '{"interpretation":"RESEARCH-DATA: היא חולה"}'::jsonb) is null
+  and public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'RESEARCH: נולדתי בכסלו', 'topic') is null);
+create temp table rw as
+  select 'insert' as k, public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, content) values ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'RESEARCH-DIRECT 050-7654321') returning '{}'::jsonb$q$) as j union all
+  select 'edit', public.as_user('service_role', null, $q$update public.agent_user_memory set content = content || ' someone@example.org' where content = 'NEW-BOT-FINDING-1' returning '{}'::jsonb$q$) union all
+  select 'clean-edit', public.as_user('service_role', null, $q$update public.agent_user_memory set topic = 'finding (re-titled)' where content = 'NEW-BOT-FINDING-1' returning '{"saved":true}'::jsonb$q$);
+select pg_temp.ok('Q7 a direct write of a research row with a personal detail is refused with its reason, and an edit cannot add one',
+  (select j ->> 'error' from rw where k = 'insert') = 'a research row that carries a personal detail (phone) is personal memory, and personal memory is paused (CL-13): INSERT of a research_note row for agent hatishbi is refused; nothing was saved'
+  and (select j ->> 'error' from rw where k = 'edit') like 'a research row that carries a personal detail (email) is personal memory%UPDATE of a research_note row for agent hatishbi%'
+  and (select j from rw where k = 'clean-edit') = '{"saved":true}'::jsonb
+  and not exists (select 1 from public.agent_user_memory where content like 'RESEARCH-%' or content like '%someone@example.org%'), (select string_agg(k || '=' || j::text, ' ') from rw));
+select pg_temp.ok('Q8 a client may not call the research reader', (public.as_user('authenticated', '11111111-1111-4111-8111-111111111111', $q$select public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi')$q$) ->> 'error') like 'permission denied%');
+select pg_temp.ok('Q9 nothing personal was added by the research section, and the old rows are unchanged', (select count(*) from public.agent_user_memory m where m.id not in (select id from original_ids)) = 3
+  and pg_temp.stamp() = (select s from stamp0));
+
 -- READER (M-4, M-7, R10): no old memory in the context that is built, with the same shape as before
 create temp table ctx as
   select 'A-site' as k, public.fn_raziel_context(:'UA', 'site') as c union all
@@ -266,7 +315,7 @@ select pg_temp.ok('R5 without a person the reason says so', (select c #>> '{priv
 create table sim_saved as select pg_get_functiondef('public.fn_personal_memory_policy_v1(text)'::regprocedure) as def;
 create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $$
   select jsonb_build_object('policy', 'SIMULATED_CONSENT', 'write_personal', p_user_ref = '11111111-1111-4111-8111-111111111111',
-    'read_personal', p_user_ref = '11111111-1111-4111-8111-111111111111', 'research_output_write', true, 'research_output_as_personal_context', false, 'reason', 'no consent') $$;
+    'read_personal', p_user_ref = '11111111-1111-4111-8111-111111111111', 'research_output_write', true, 'research_output_read', true, 'reason', 'no consent') $$;
 select pg_temp.ok('S1 with consent the person''s own rows are read', (public.fn_raziel_context(:'UA', 'site') #>> '{user_context,summary}') like '%OLD-SITE-THREAD-A1%'
   and (public.fn_raziel_context(:'UA', 'site') #>> '{privacy,personal_memory_allowed}') = 'true');
 select pg_temp.ok('S2 no implied merge: memory recorded under the phone before the link is NOT read for the account (M-6)',
@@ -275,7 +324,11 @@ select pg_temp.ok('S3 the consent of one person opens nobody else', public.fn_ra
   and public.fn_raziel_context('wa:972500000009', '972500000009@c.us')::text not like '%OLD-%');
 select pg_temp.ok('S4 even with consent nothing personal is returned in a group (M-7)',
   (public.fn_raziel_context(:'UA', '120363000000000001@g.us') -> 'user_context') = '{"approved_preferences":[],"research_threads":[],"summary":null,"profile":[],"recent_conversation":[]}'::jsonb);
-select pg_temp.ok('S5 research output is not personal context without its own decision', (public.fn_raziel_context(:'UA', 'site') #> '{user_context,research_threads}') = '[]'::jsonb);
+select pg_temp.ok('S5 a row of the assistant typed as research is personal memory: read with the consent of that person, and never research output',
+  (public.fn_raziel_context(:'UA', 'site') #> '{user_context,research_threads}') = '["OLD-RESEARCH-TYPED-ROW-OF-A"]'::jsonb
+  and (public.fn_research_output_context_v1(:'UA', 'raziel') -> 'rows') = '[]'::jsonb);
+select pg_temp.ok('S5b the consent of A does not release the personal detail inside the research of another person',
+  (public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi') ->> 'withheld_personal')::int = 1);
 do $$ declare v uuid; begin
   v := public.fn_raziel_remember('11111111-1111-4111-8111-111111111111', 'site', 'SAVED-WITH-CONSENT');
   perform pg_temp.ok('S6 with the pause lifted for a person a row is saved and the status says so', v is not null and exists (select 1 from public.agent_user_memory where id = v));
@@ -296,7 +349,7 @@ select pg_temp.ok('S9 with a consent to memory only, no writer saves a profile f
 create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $$
   select jsonb_build_object('policy', 'SIMULATED_CONSENT_AND_FACT_APPROVAL', 'write_personal', p_user_ref = '11111111-1111-4111-8111-111111111111',
     'write_profile_facts', p_user_ref = '11111111-1111-4111-8111-111111111111',
-    'read_personal', p_user_ref = '11111111-1111-4111-8111-111111111111', 'research_output_write', true, 'research_output_as_personal_context', false, 'reason', 'no consent') $$;
+    'read_personal', p_user_ref = '11111111-1111-4111-8111-111111111111', 'research_output_write', true, 'research_output_read', true, 'reason', 'no consent') $$;
 do $$ declare v uuid; begin
   v := public.fn_raziel_fact('11111111-1111-4111-8111-111111111111', '972500000001@c.us', 'city', 'FACT-APPROVED');
   perform pg_temp.ok('S10 with the explicit grant for profile facts the fact is saved, for that person only', v is not null
@@ -304,6 +357,15 @@ do $$ declare v uuid; begin
     and public.fn_raziel_fact('wa:972500000009', '972500000009@c.us', 'city', 'FACT-OF-A-SENDER-WITHOUT-AN-ACCOUNT') is null);
   delete from public.agent_user_memory where id = v;
 end $$;
+create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $$
+  select jsonb_build_object('policy', 'SIMULATED_CONSENT_OF_THE_BOT_PERSON', 'write_personal', p_user_ref = '972511111111@c.us', 'write_profile_facts', false,
+    'read_personal', p_user_ref = '972511111111@c.us', 'research_output_write', true, 'research_output_read', true, 'reason', 'no consent') $$;
+select pg_temp.ok('S11 with the consent of the person the personal information inside the research is read',
+  (select (c ->> 'withheld_personal')::int = 0 and c::text like '%BOT-FINDING-PERSONAL%' and c::text like '%BOT-FINDING-1%' from (select public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi') as c) x));
+create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $$
+  select jsonb_build_object('policy', 'SIMULATED_NO_RESEARCH_GRANT', 'write_personal', false, 'write_profile_facts', false, 'read_personal', false, 'research_output_write', true, 'reason', 'no grant') $$;
+select pg_temp.ok('S12 a policy that does not grant reading research closes the research reader (only an explicit grant opens it)',
+  (select c ->> 'allowed' = 'false' and c -> 'rows' = '[]'::jsonb from (select public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi') as c) x));
 do $$ begin execute (select def from sim_saved); end $$;
 select pg_temp.ok('S8 the reviewed policy is back', pg_temp.state() = (select s from applied_state));
 
@@ -320,7 +382,15 @@ create temp table ex as
   select 'no-sender', public.as_user('service_role', null, $q$select public.fn_personal_memory_export('')$q$);
 select pg_temp.ok('E1 the account holder exports the account rows AND the rows recorded under the phone they verified',
   (select j::text like '%OLD-SITE-THREAD-A1%' and j::text like '%OLD-FACT-A%' and j::text like '%PRE-LINK-MEMORY-OF-A%' and j::text like '%BARE-PHONE-MEMORY-OF-A%' and j::text like '%OLD-FROM-GROUP-A%'
-      and jsonb_array_length(j -> 'rows') = 7 and j::text not like '%OLD-SITE-THREAD-B%' and j::text not like '%UNLINKED%' from ex where k = 'A'), (select j::text from ex where k = 'A'));
+      and jsonb_array_length(j -> 'rows') = 8 and j::text not like '%OLD-SITE-THREAD-B%' and j::text not like '%UNLINKED%' from ex where k = 'A'), (select j::text from ex where k = 'A'));
+select pg_temp.ok('E1b the export says how each row was recorded by the exact form of the reference (an account id may begin with a digit)',
+  (select bool_and((r ->> 'recorded_as') = case when (r ->> 'content') in ('PRE-LINK-MEMORY-OF-A', 'BARE-PHONE-MEMORY-OF-A') then 'whatsapp' else 'account' end)
+     and count(*) filter (where (r ->> 'recorded_as') = 'whatsapp') = 2 and count(*) filter (where (r ->> 'recorded_as') = 'account') = 6
+     from ex, jsonb_array_elements(j -> 'rows') r where k = 'A')
+  and (select bool_and((r ->> 'recorded_as') = 'whatsapp') from ex, jsonb_array_elements(j -> 'rows') r where k = 'sender'),
+  (select string_agg((r ->> 'content') || '=' || (r ->> 'recorded_as'), ' ; ') from ex, jsonb_array_elements(j -> 'rows') r where k = 'A'));
+select pg_temp.ok('E1c the export names a row of the assistant typed as research as personal memory, not as research output',
+  (select bool_and((r ->> 'kind') = 'personal_memory') from ex, jsonb_array_elements(j -> 'rows') r where k = 'A'));
 select pg_temp.ok('E2 a phone that was not verified is not part of the holder''s export', (select jsonb_array_length(j -> 'rows') = 1 and j::text not like '%UNVERIFIED-PHONE-OF-B%' from ex where k = 'B'));
 select pg_temp.ok('E3 nobody signed in gets nothing', (select j = '{"ok":false,"error":"not_authenticated"}'::jsonb from ex where k = 'nobody'));
 select pg_temp.ok('E4 a guest may not call it', (select j ->> 'error' like 'permission denied%' from ex where k = 'anon'));
@@ -339,12 +409,14 @@ create temp table er2 as
   select 'bot-person-default', public.as_user('service_role', null, $q$select public.fn_personal_memory_erase('972511111111')$q$);
 select pg_temp.ok('X2 the sender without an account erased their two rows', (select j = '{"ok":true,"deleted_personal_memory":2,"deleted_research_output":0,"kept_research_output":0,"account_deleted":false}'::jsonb from er2 where k = 'sender'));
 select pg_temp.ok('X3 the account holder erased their memory and the account is untouched',
-  (select (j ->> 'deleted_personal_memory')::int = 7 and (j ->> 'account_deleted') = 'false' from er2 where k = 'A')
+  (select (j ->> 'deleted_personal_memory')::int = 8 and (j ->> 'account_deleted') = 'false' from er2 where k = 'A')
   and not exists (select 1 from public.agent_user_memory where user_ref in ('11111111-1111-4111-8111-111111111111', 'wa:972500000001', '972500000001', '972500000001@c.us'))
   and exists (select 1 from public.wa_account_links where user_id = '11111111-1111-4111-8111-111111111111'));
 select pg_temp.ok('X4 an erasure touches nobody else', exists (select 1 from public.agent_user_memory where content = 'OLD-SITE-THREAD-B') and exists (select 1 from public.agent_user_memory where content = 'UNVERIFIED-PHONE-OF-B'));
-select pg_temp.ok('X5 research output is kept unless the person asks for it too', (select (j ->> 'deleted_personal_memory')::int = 1 and (j ->> 'kept_research_output')::int = 3 from er2 where k = 'bot-person-default')
-  and exists (select 1 from public.agent_user_memory where content = 'BOT-FINDING-1'));
+select pg_temp.ok('X5 research output is kept unless the person asks for it too; a research row that carries a personal detail is erased as personal memory',
+  (select (j ->> 'deleted_personal_memory')::int = 2 and (j ->> 'kept_research_output')::int = 3 from er2 where k = 'bot-person-default')
+  and exists (select 1 from public.agent_user_memory where content = 'BOT-FINDING-1')
+  and not exists (select 1 from public.agent_user_memory where content like 'BOT-FINDING-PERSONAL%'));
 -- (the call and the check are separate statements: a statement does not see the rows its own function call deleted)
 create temp table er3 as select public.as_user('service_role', null, $q$select public.fn_personal_memory_erase('972511111111', true)$q$) as j;
 select pg_temp.ok('X6 with the explicit option the research output is erased too',

@@ -7,6 +7,8 @@
 //   PAUSED   the proposal applied                                     = the reviewed target of this phase;
 //   CONSENT  a SIMULATION of a later policy version for one person    = no consent store exists yet (a separate approval).
 // Every refusal has an allowed counterpart: what is not written or read while paused IS written and read with the permission.
+// RESEARCH (decision of ZURIEL after the Codex review of abb2f3907): authorised research is available during the pause, and a
+// personal detail inside a "research" row stays under consent. PAUSED 4 proves both on the real handlers of the two research bots.
 // "Unchanged" is the md5 of the full content of every row that existed before, not a count (M-1, M-3).
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -22,7 +24,7 @@ const STORED = /OLD-|PRE-LINK|BARE-PHONE/;            // any text of a stored me
 const TURNS = ["אני חוקר את המספר 787", "ומה הקשר שלו למה שאמרתי קודם?", "תרחיב על הנקודה השנייה שציינת", "סכם את שלוש התשובות האחרונות"];
 const researchOutput = (r) => (r.agent === "hatishbi" || r.agent === "uriel") && ["research_note", "method_discovery"].includes(r.memory_type);
 const personalRows = () => pg.newRows().filter((r) => !researchOutput(r));
-const memoryReads = () => pg.statements.filter((s) => s.kind === "select" || (s.kind === "rpc" && s.name === "fn_raziel_context"));
+const memoryReads = () => pg.statements.filter((s) => s.kind === "select" || (s.kind === "rpc" && ["fn_raziel_context", "fn_research_output_context_v1"].includes(s.name)));
 const memoryWrites = () => pg.statements.filter((s) => s.kind === "insert" || (s.kind === "rpc" && ["fn_raziel_remember", "fn_raziel_fact", "fn_mem_add"].includes(s.name)));
 const begin = () => { pg.statements.length = 0; return { stamp: pg.stamp(), personal: personalRows().length }; };
 // nothing personal was stored and no existing row changed (full content)
@@ -121,32 +123,73 @@ async function waRazielGroupClosed(label) {
   nothingStored(before, `${label} group`);
 }
 
+// What the model of a research bot returns: one clean finding, one "finding" that carries a personal detail (a synthetic phone
+// for one bot, a name for the other), and the question it asked. Every text carries the tag of the run.
+const BOTS = ["wa-hatishbi", "wa-uriel"];
+const letterOf = (name) => (name === "wa-hatishbi" ? "H" : "U");
+const researchType = (name) => (name === "wa-hatishbi" ? "research_note" : "method_discovery");
 const botReply = (name, tag) => name === "wa-hatishbi"
-  ? `שמעתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך.\n— התשבי · סוד 1820\n###למידות###\n{"learnings":[{"topic":"NEW-TOPIC-H-${tag}","claim":"NEW-FINDING-H-${tag}","interpretation":"i"}],"question_asked":"NEW-QUESTION-H-${tag}"}`
-  : `קיבלתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך הלימוד.\n— אוריאל · סוד 1820\n###למידות###\n{"learnings":[{"word":"NEW-WORD-U-${tag}","decomposed_form":"x","interpretation":"NEW-FINDING-U-${tag}"}],"question_asked":"NEW-QUESTION-U-${tag}"}`;
+  ? `שמעתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך.\n— התשבי · סוד 1820\n###למידות###\n{"learnings":[{"topic":"NEW-TOPIC-H-${tag}","claim":"NEW-FINDING-H-${tag}","interpretation":"i"},{"topic":"NEW-TOPIC-PERSONAL-H-${tag}","claim":"NEW-PERSONAL-H-${tag}: הטלפון שלה 050-0000002","interpretation":"i"}],"question_asked":"NEW-QUESTION-H-${tag}"}`
+  : `קיבלתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך הלימוד.\n— אוריאל · סוד 1820\n###למידות###\n{"learnings":[{"word":"NEW-WORD-U-${tag}","decomposed_form":"x","interpretation":"NEW-FINDING-U-${tag}"},{"word":"NEW-WORD-PERSONAL-U-${tag}","decomposed_form":"y","interpretation":"NEW-PERSONAL-U-${tag}: שמי רחל"}],"question_asked":"NEW-QUESTION-U-${tag}"}`;
+const freshOf = (name, tag) => pg.newRows().filter((r) => r.user_ref === BOT_PERSON[name] && JSON.stringify([r.topic, r.content]).includes(tag)).map((r) => [r.memory_type, r.content.replace(/:.*$/, "")]).sort();
+const promptOf = (run) => run.models.map((m) => m.user).join("\n");
+
+// No policy function in the database (the Edge code before the proposal, or after its rollback): the bot answers, and its
+// research memory is closed with everything else - nothing is read and nothing is stored. Research needs the database to
+// decide row by row what is personal, so without the database nothing is taken on trust.
 async function botsClosed(label, tag) {
-  for (const name of ["wa-hatishbi", "wa-uriel"]) {
+  for (const name of BOTS) {
     const before = begin();
     const run = await runResearchBot(name, pg, { incomingText: "הודעה חדשה מהאדם על השיטה", modelText: botReply(name, tag) });
     assert.equal(run.body.replies, 1, `${label} ${name}: ${JSON.stringify(run.body)}`);
     assert.equal(run.sent.length, 1, `${label} ${name}: the person gets an answer`);
-    assert.doesNotMatch(run.models.map((m) => m.user).join("\n"), STORED, `${label} ${name}: neither the stored questions nor the stored findings join the prompt`);
-    assert.deepEqual(memoryReads(), [], `${label} ${name}: the stored rows are not read`);
-    // M-13: the question (W4a) is not written; the finding (W4b, research output) IS, in the same store
-    const fresh = pg.newRows().filter((r) => r.user_ref === BOT_PERSON[name] && String(r.content).endsWith(`-${tag}`));
-    assert.deepEqual(fresh.map((r) => [r.memory_type, r.content]), [[name === "wa-hatishbi" ? "research_note" : "method_discovery", `NEW-FINDING-${name === "wa-hatishbi" ? "H" : "U"}-${tag}`]], `${label} ${name}: only the research output was stored`);
+    assert.doesNotMatch(promptOf(run), STORED, `${label} ${name}: neither the stored questions nor the stored findings join the prompt`);
+    assert.deepEqual(memoryReads(), [], `${label} ${name}: the stored rows are not read, directly or through the reader`);
+    assert.deepEqual(memoryWrites(), [], `${label} ${name}: nothing is sent to a writer`);
+    assert.deepEqual(freshOf(name, tag), [], `${label} ${name}: nothing was stored`);
+    assert.ok(run.inserts.some((x) => x.table === "wa_bot_log") && run.inserts.some((x) => x.table === "ai_token_log"), `${label} ${name}: operational logs are still written (M-2)`);
+    nothingStored(before, `${label} ${name}`);
+  }
+}
+
+// The reviewed pause. Authorised research IS available: the stored findings join the prompt and the new finding is stored.
+// A personal detail does not pass under the label "research": the stored "finding" that carries one is withheld, the new one
+// is not stored, and the questions (personal memory) are neither read nor written.
+async function botsPaused(label, tag) {
+  for (const name of BOTS) {
+    const before = begin(), person = BOT_PERSON[name], letter = letterOf(name);
+    const withheld = pg.rpc("fn_research_output_context_v1", { p_user_ref: person, p_agent: name.slice(3) }).data;
+    pg.statements.length = 0;
+    const run = await runResearchBot(name, pg, { incomingText: "הודעה חדשה מהאדם על השיטה", modelText: botReply(name, tag) });
+    assert.equal(run.body.replies, 1, `${label} ${name}: ${JSON.stringify(run.body)}`);
+    assert.equal(run.sent.length, 1, `${label} ${name}: the person gets an answer`);
+    const prompt = promptOf(run);
+    // allowed: the research without a personal detail is in the prompt
+    assert.match(prompt, new RegExp(`OLD-BOT-FINDING-${letter}`), `${label} ${name}: the stored research is available during the pause`);
+    if (name === "wa-uriel") assert.match(prompt, /OLD-BOT-RULE-U/, `${label} ${name}: the stored letter rules are available during the pause`);
+    // refused: a personal detail inside a research row, and the questions
+    assert.doesNotMatch(prompt, /OLD-BOT-PERSONAL/, `${label} ${name}: a "research" row with a personal detail does not join the prompt`);
+    assert.doesNotMatch(prompt, /OLD-BOT-QUESTION/, `${label} ${name}: the stored questions (personal memory) do not join the prompt`);
+    assert.doesNotMatch(prompt, /050-0000001|r@example\.invalid|נולדתי/, `${label} ${name}: none of the stored personal details reaches the model`);
+    assert.equal(withheld.allowed, true); assert.equal(withheld.withheld_personal, name === "wa-hatishbi" ? 1 : 2, `${label} ${name}: the reader says how many rows it withheld`);
+    // the table is never read directly: research comes from the one reader, for this person and this bot only
+    assert.deepEqual(pg.statements.filter((s) => s.kind === "select"), [], `${label} ${name}: no direct read of the memory table`);
+    assert.deepEqual(memoryReads().map((s) => [s.name, s.args]), [["fn_research_output_context_v1", { p_user_ref: person, p_agent: name.slice(3) }]]);
+    // written: the clean finding only. The writer was asked for both findings and stored one; the question was not sent at all.
+    assert.deepEqual(memoryWrites().map((s) => [s.name, s.args.p_memory_type]), [["fn_mem_add", researchType(name)], ["fn_mem_add", researchType(name)]]);
+    assert.deepEqual(freshOf(name, tag), [[researchType(name), `NEW-FINDING-${letter}-${tag}`]], `${label} ${name}: the research output is stored; the "finding" with a personal detail and the question are not`);
     assert.ok(run.inserts.some((x) => x.table === "wa_bot_log") && run.inserts.some((x) => x.table === "ai_token_log"), `${label} ${name}: operational logs are still written (M-2)`);
     nothingStored(before, `${label} ${name}`);
   }
 }
 
 // a later policy version, simulated inside the throwaway database only (the SQL test does the same)
-const simulate = ({ persons, profileFacts = false, researchAsContext = false }) => pg.run(`
+const simulate = ({ persons, profileFacts = false, research = true }) => pg.run(`
   create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $f$
     select jsonb_build_object('policy', 'SIMULATED_CONSENT', 'write_personal', p_user_ref = any(array[${persons.map((p) => `'${p}'`).join(",")}]),
       'write_profile_facts', ${profileFacts} and p_user_ref = any(array[${persons.map((p) => `'${p}'`).join(",")}]),
       'read_personal', p_user_ref = any(array[${persons.map((p) => `'${p}'`).join(",")}]),
-      'research_output_write', true, 'research_output_as_personal_context', ${researchAsContext}, 'consent', null, 'reason', 'no consent of this person') $f$;`);
+      'research_output_write', ${research}, 'research_output_read', ${research}, 'consent', null, 'reason', 'no consent of this person') $f$;`);
 
 if (!pg) {
   test("CL-13 handler tests need the throwaway PostgreSQL of scripts/run-cl13-personal-memory-handlers-test.sh", { skip: "start them with the runner script" }, () => {});
@@ -161,7 +204,7 @@ if (!pg) {
   test("BEFORE 1 (M-14, M-15): the two site threads use the NEW turns, read no stored thread, store nothing, and say so", () => siteThreadsClosed("BEFORE", "policy_unavailable"));
   test("BEFORE 2 (M-11, M-12): ai-analyze answers without stored memory and stores nothing", () => aiAnalyzeClosed("BEFORE"));
   test("BEFORE 3 (M-1, M-8, M-9): wa-raziel answers a linked sender and a sender without an account; nothing is stored or extracted", () => waRazielClosed("BEFORE"));
-  test("BEFORE 4 (M-2, M-13): the research bots keep their research output and store no question", () => botsClosed("BEFORE", "B"));
+  test("BEFORE 4 (M-2, M-13): without the policy function the research bots answer, read nothing and store nothing", () => botsClosed("BEFORE", "RUN-BEFORE"));
   test("BEFORE 5 (M-7, M-10): in a group nothing personal is read, exposed, remembered or extracted", () => waRazielGroupClosed("BEFORE"));
 
   // ───────────────────────── PAUSED: the proposal applied ─────────────────────────
@@ -174,7 +217,7 @@ if (!pg) {
   test("PAUSED 1 (M-14, M-15): the two site threads use the NEW turns, read no stored thread, store nothing, and say so", () => siteThreadsClosed("PAUSED", PAUSED_POLICY.reason));
   test("PAUSED 2 (M-11, M-12): ai-analyze answers without stored memory and stores nothing", () => aiAnalyzeClosed("PAUSED"));
   test("PAUSED 3 (M-1, M-8, M-9): wa-raziel answers a linked sender and a sender without an account; nothing is stored or extracted", () => waRazielClosed("PAUSED"));
-  test("PAUSED 4 (M-2, M-13): the research bots keep their research output and store no question", () => botsClosed("PAUSED", "P"));
+  test("PAUSED 4 (M-2, M-13, research rule): authorised research is read and stored during the pause; a personal detail inside research, and the questions, are not", () => botsPaused("PAUSED", "RUN-PAUSED"));
   test("PAUSED 6 (M-7, M-10): in a group nothing personal is read, exposed, remembered or extracted", () => waRazielGroupClosed("PAUSED"));
   test("PAUSED 5: a writer that ignores the policy is refused by the database with an error, and the status is still honest", async () => {
     // the direct write of the site thread, as the Edge code of origin/main sends it (no policy check): the trigger answers
@@ -219,14 +262,14 @@ if (!pg) {
     assert.doesNotMatch(other.models.map((m) => m.user).join("\n"), STORED);
     assert.deepEqual(memoryReads(), []); nothingStored(before, "CONSENT other person");
   });
-  test("CONSENT 2 (M-4, M-6): ai-analyze reads the person's own memory, without the phone memory and without research-typed rows", async () => {
+  test("CONSENT 2 (M-4, M-6): ai-analyze reads the person's own memory (the assistant's research-typed rows included), without the phone memory", async () => {
     const before = begin();
     const site = await aiAnalyzeOnPg(pg, { bearer: USER_JWT, verifiedUid: UA });
     const prompt = JSON.stringify(site.models.map((m) => [m.system, m.user]));
     // the stored context is the ten most recent rows of the person: by now those are the turns stored in CONSENT 1
     assert.ok(prompt.includes(TURNS.at(-1)), "the stored memory of the consenting person joins the prompt");
     assert.doesNotMatch(prompt, /PRE-LINK-MEMORY-OF-A|BARE-PHONE-MEMORY-OF-A/, "no implied merge of a memory recorded under the phone (M-6)");
-    assert.doesNotMatch(prompt, /OLD-RESEARCH-TYPED-ROW-OF-A/, "a research-typed row is not personal context without its own decision");
+    assert.match(prompt, /OLD-RESEARCH-TYPED-ROW-OF-A/, "a research-typed row of the assistant is the person's own memory: read with the same consent (and never without it: PAUSED 2)");
     assert.equal(personalRows().length, before.personal + 1, "this turn was remembered (one row)");
     assert.equal(pg.stamp().original, before.stamp.original);
     // another person: still nothing
@@ -256,19 +299,30 @@ if (!pg) {
     assert.equal(pg.stamp().original, before.stamp.original);
     simulate({ persons: [UA] });
   });
-  test("CONSENT 4 (M-13): with a consent a research bot reads and stores its questions; its findings join the prompt only with their own grant", async () => {
-    for (const name of ["wa-hatishbi", "wa-uriel"]) {
-      const person = BOT_PERSON[name], letter = name === "wa-hatishbi" ? "H" : "U";
+  test("CONSENT 4 (M-13, research rule): with the person's consent the questions and the research that carries a personal detail are read and stored too; without the research grant no research is", async () => {
+    for (const name of BOTS) {
+      const person = BOT_PERSON[name], letter = letterOf(name);
+      // the consent of ANOTHER person opens nothing personal for this one: still exactly the paused behaviour
+      simulate({ persons: [UA] });
+      let run = await runResearchBot(name, pg, { incomingText: "הודעה נוספת", modelText: botReply(name, "RUN-OTHER") });
+      assert.match(promptOf(run), new RegExp(`OLD-BOT-FINDING-${letter}`)); assert.doesNotMatch(promptOf(run), /OLD-BOT-PERSONAL|OLD-BOT-QUESTION/, `${name}: somebody else's consent opens nothing personal`);
+      assert.deepEqual(freshOf(name, "RUN-OTHER"), [[researchType(name), `NEW-FINDING-${letter}-RUN-OTHER`]]);
+      // the consent of this person (the allowed counterpart of every refusal of PAUSED 4)
       simulate({ persons: [person] });
-      let run = await runResearchBot(name, pg, { incomingText: "הודעה נוספת", modelText: botReply(name, "C") });
-      let prompt = run.models.map((m) => m.user).join("\n");
+      run = await runResearchBot(name, pg, { incomingText: "הודעה שלישית", modelText: botReply(name, "RUN-CONSENT") });
+      let prompt = promptOf(run);
       assert.match(prompt, new RegExp(`OLD-BOT-QUESTION-${letter}`), `${name}: the stored questions are read with the consent`);
-      assert.doesNotMatch(prompt, /OLD-BOT-FINDING|OLD-BOT-RULE/, `${name}: research output is not personal context without its own grant`);
-      assert.ok(pg.newRows().some((r) => r.user_ref === person && r.memory_type === "conversation" && r.content === `NEW-QUESTION-${letter}-C`), `${name}: the question is stored`);
-      simulate({ persons: [person], researchAsContext: true });
-      run = await runResearchBot(name, pg, { incomingText: "הודעה שלישית", modelText: botReply(name, "D") });
-      prompt = run.models.map((m) => m.user).join("\n");
-      assert.match(prompt, new RegExp(`OLD-BOT-FINDING-${letter}`), `${name}: with the explicit grant the findings join the prompt`);
+      assert.match(prompt, new RegExp(`OLD-BOT-FINDING-${letter}`), `${name}: the research is read`);
+      assert.match(prompt, new RegExp(`OLD-BOT-PERSONAL-${letter}`), `${name}: with the consent the research that carries a personal detail is read too`);
+      assert.deepEqual(freshOf(name, "RUN-CONSENT"), [["conversation", `NEW-QUESTION-${letter}-RUN-CONSENT`], [researchType(name), `NEW-FINDING-${letter}-RUN-CONSENT`], [researchType(name), `NEW-PERSONAL-${letter}-RUN-CONSENT`]].sort(), `${name}: the question, the finding and the finding with a personal detail are stored`);
+      // a policy that does not grant research (the closed counterpart of the research grant): personal memory as consented, no research
+      simulate({ persons: [person], research: false });
+      pg.statements.length = 0;
+      run = await runResearchBot(name, pg, { incomingText: "הודעה רביעית", modelText: botReply(name, "RUN-NORESEARCH") });
+      prompt = promptOf(run);
+      assert.match(prompt, new RegExp(`OLD-BOT-QUESTION-${letter}`)); assert.doesNotMatch(prompt, /OLD-BOT-FINDING|OLD-BOT-RULE|OLD-BOT-PERSONAL|NEW-FINDING/, `${name}: without the research grant no research joins the prompt`);
+      assert.equal(pg.statements.some((s) => s.name === "fn_research_output_context_v1"), false, `${name}: the reader is not asked`);
+      assert.deepEqual(freshOf(name, "RUN-NORESEARCH"), [["conversation", `NEW-QUESTION-${letter}-RUN-NORESEARCH`]], `${name}: no research is stored without the research grant`);
     }
   });
 
@@ -298,5 +352,6 @@ if (!pg) {
     assert.ok(live.privacy.personal_memory_allowed === true && live.user_context.summary.includes(TURNS.at(-1)) && !("policy" in live.privacy), "the database is the live one again: it reads memory without consent");
     await siteThreadsClosed("ROLLBACK", "policy_unavailable");
     await waRazielClosed("ROLLBACK");
+    await botsClosed("ROLLBACK", "RUN-ROLLBACK");
   });
 }

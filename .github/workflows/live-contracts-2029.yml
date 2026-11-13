@@ -191,10 +191,15 @@ jobs:
       # CL-13 (12.11.2026): personal memory between conversations is paused (decision of ZURIEL). The Edge code asks the database
       # policy and is closed on every unclear answer; the real handlers run with mocked providers. The three existing files below
       # cover the handlers this change touches and did not run in any workflow before; they are wired here with it.
-      - name: CL-13 personal memory, Edge half (the policy module fails closed on every unclear answer; ai-analyze, wa-raziel and number-researcher neither read, write nor claim "saved" without a clear grant)
+      # 13.11.2026: test/cl13-intermediate-states.test.mjs is added here for its two tests that need no database (every one of the
+      # six Edge functions has a rollback source; the plan deploys every direct reader of the table before the database step; the
+      # deployed wa-raziel and ai-analyze reach the memory only through database functions). Its other tests run in
+      # security-sql-contracts, on the throwaway database.
+      - name: CL-13 personal memory, Edge half (the policy module fails closed on every unclear answer; ai-analyze, wa-raziel and number-researcher neither read, write nor claim "saved" without a clear grant; rollback sources and release order)
         run: >
           node --test
           test/cl13-personal-memory-policy.test.mjs
+          test/cl13-intermediate-states.test.mjs
           test/raziel-interview-pilot.test.mjs
           src/lib/research/razielResultBundleServerSeam.test.js
           src/lib/research/razielPhaseHRealityNumberContext.test.js
@@ -383,12 +388,17 @@ jobs:
       # behaviour), then the REAL Edge handlers against the same throwaway database in three states: before the proposal (the Edge
       # code deployed first), with it, and with a simulated consent. Providers are mocks; the functions, the trigger and the rows are
       # real. Counts are pinned in the runners: a case or a test that did not run fails.
-      - name: CL-13 personal memory, database proposal (15 lifecycle cases and 71 behaviour checks; writers return a real status, the trigger refuses every other writer, the reader is consent-gated, export and erasure without deleting the account; exact rollback)
+      - name: CL-13 personal memory, database proposal (15 lifecycle cases and 85 behaviour checks; writers return a real status, the trigger refuses every other writer, the reader is consent-gated, authorised research is readable and a personal detail inside research is not, export and erasure without deleting the account; exact rollback)
         run: bash scripts/run-cl13-personal-memory-sql-test.sh
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-      - name: CL-13 personal memory, the real Edge handlers on the throwaway database (19 tests, M-1..M-15; before the proposal, paused, simulated consent, after rollback; full-content stamp of every existing row)
+      # 13.11.2026: the second half of the runner executes the DEPLOYED Edge code (the exact sources of the two rollback manifests)
+      # on a second throwaway database, to show the intermediate states of the release in practice. The checkout is depth 1, so
+      # the three commits those sources come from are fetched by SHA; without them the runner FAILS (a skip is not a pass).
+      - name: Fetch the three commits the deployed Edge sources come from
+        run: git fetch --no-tags --depth=1 origin 065aa022b9ecf1152c14aaf1be3460c7c8136e6c aa0f6bc82b8c94286374b1f51208037502994eab b4d5ec47132ed8003b822cc70de9e1b82447cb7c
+      - name: CL-13 personal memory, the real Edge handlers on the throwaway database (19 tests of this branch, M-1..M-15 and the research rule - before the proposal, paused, simulated consent, after rollback, full-content stamp of every existing row - and 9 tests of the deployed code in the intermediate states)
         run: bash scripts/run-cl13-personal-memory-handlers-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real

@@ -61,9 +61,13 @@ insert into public.agent_user_memory(user_ref, channel, agent, memory_type, memo
  ('22222222-2222-4222-8222-222222222222', 'site', 'raziel', 'conversation', 'personal', 'site', 'b', 'OLD-SITE-THREAD-B', '{"reply":"OLD-REPLY-B"}', now() - interval '12 days'),
  ('972511111111@c.us', 'wa', 'hatishbi', 'conversation', 'personal', 'wa', null, 'OLD-BOT-QUESTION-H', '{}', now() - interval '100 days'),
  ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'old finding', 'OLD-BOT-FINDING-H', '{}', now() - interval '100 days'),
+ -- a stored "research" row that carries a personal detail (a synthetic phone and a family/health remark): personal memory
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'old personal finding', 'OLD-BOT-PERSONAL-H: בעלה חולה, טלפון 050-0000001', '{}', now() - interval '99 days'),
  ('972522222222@c.us', 'wa', 'uriel', 'conversation', 'personal', 'wa', null, 'OLD-BOT-QUESTION-U', '{}', now() - interval '80 days'),
  ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'א', 'OLD-BOT-RULE-U', '{"subtype":"letter_rule"}', now() - interval '80 days'),
- ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'אור', 'OLD-BOT-FINDING-U', '{"subtype":"word_decomposition","decomposed_form":"א-ו-ר"}', now() - interval '80 days');
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'אור', 'OLD-BOT-FINDING-U', '{"subtype":"word_decomposition","decomposed_form":"א-ו-ר"}', now() - interval '80 days'),
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'בית', 'OLD-BOT-PERSONAL-U: שמי רחל, כתובת המייל שלי r@example.invalid', '{"subtype":"word_decomposition","decomposed_form":"ב-י-ת"}', now() - interval '79 days'),
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'ב', 'OLD-BOT-PERSONAL-RULE-U: נולדתי בחודש ניסן', '{"subtype":"letter_rule"}', now() - interval '79 days');
 create table public.cl13_original_ids as select id from public.agent_user_memory;
 -- the full-content stamp of the rows that existed before (M-1, M-3: a count or max(created_at) would not see an UPDATE)
 create function public.cl13_stamp() returns text language sql as $$

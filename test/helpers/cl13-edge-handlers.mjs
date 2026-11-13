@@ -8,7 +8,7 @@ import { runInNewContext } from "node:vm";
 import { webcrypto } from "node:crypto";
 import { createMaterialGate, conversationalLimit } from "../../supabase/functions/_shared/materialGate.js";
 import { createRazielInterview } from "../../supabase/functions/_shared/razielInterview.js";
-import { readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus } from "../../supabase/functions/_shared/personalMemoryPolicy.js";
+import { readPersonalMemoryPolicy, readResearchContext, gatePersonalContext, personalMemorySaveStatus } from "../../supabase/functions/_shared/personalMemoryPolicy.js";
 import { runAiAnalyze } from "./ai-analyze-handler.mjs";
 import { runWaRaziel } from "./wa-raziel-handler.mjs";
 
@@ -23,9 +23,14 @@ const imports = (text) => [...text.matchAll(/^import .*;$/gm)].map(([line]) => l
 
 // ── the two site endpoints that keep the conversation thread (number-researcher, raziel-attention) ──
 // Returns { call(body, token), models, calls }: `models` are the requests that reached the model (the built context).
-export function siteThreadHandler(name, pg) {
-  const text = source(name);
-  assert.deepEqual(imports(text), name === "number-researcher" ? [
+// `deployed` = { text, materialGate }: run the DEPLOYED source (read from git by the caller) with the deployed gate module
+// instead of the source of this branch - for the intermediate states (test/cl13-intermediate-states.test.mjs).
+export function siteThreadHandler(name, pg, { deployed = null } = {}) {
+  const text = deployed ? deployed.text : source(name);
+  const gate = deployed ? deployed.materialGate : { createMaterialGate, conversationalLimit };
+  assert.deepEqual(imports(text), deployed ? [
+    name === "number-researcher" ? 'import { createMaterialGate, conversationalLimit } from "../_shared/materialGate.js";' : 'import { createMaterialGate } from "../_shared/materialGate.js";',
+  ] : name === "number-researcher" ? [
     'import { createMaterialGate, conversationalLimit } from "../_shared/materialGate.js";',
     'import { createRazielInterview } from "../_shared/razielInterview.js";',
     'import { readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus } from "../_shared/personalMemoryPolicy.js";',
@@ -69,7 +74,7 @@ export function siteThreadHandler(name, pg) {
   const env = { SUPABASE_URL: "https://fixture.invalid", SUPABASE_SERVICE_ROLE_KEY: SERVICE, SUPABASE_ANON_KEY: ANON, ANTHROPIC_API_KEY: "synthetic-model-key" };
   runInNewContext(stripTypeScriptTypes(text.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (k) => env[k] }, serve: (f) => { fn = f; } },
-    createMaterialGate: (opts) => createMaterialGate({ ...opts, fetchImpl }), conversationalLimit,
+    createMaterialGate: (opts) => gate.createMaterialGate({ ...opts, fetchImpl }), conversationalLimit: gate.conversationalLimit,
     createRazielInterview: (opts) => createRazielInterview({ ...opts, fetchImpl }),
     readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus,
     fetch: fetchImpl, Request, Response, Headers, URL, AbortController, AbortSignal, TextEncoder, TextDecoder, crypto: webcrypto, setTimeout, clearTimeout,
@@ -124,12 +129,13 @@ export async function waRazielGroupOnPg(pg, { text, senderLinked = true }) {
 
 // ── the two research bots (wa-hatishbi, wa-uriel) ──
 // The handler carries the phone of a real person as a constant; it is replaced by a synthetic one before the handler runs.
-export async function runResearchBot(name, pg, { incomingText, modelText }) {
-  let text = source(name);
+// `deployedText` = the DEPLOYED source (read from git by the caller) instead of the source of this branch.
+export async function runResearchBot(name, pg, { incomingText, modelText, deployedText = null }) {
+  let text = deployedText ?? source(name);
   assert.deepEqual(imports(text), [
     name === "wa-hatishbi" ? "import { createClient } from 'jsr:@supabase/supabase-js@2';" : 'import { createClient } from "jsr:@supabase/supabase-js@2";',
     'import { waAdmin as waGreen } from "../_shared/waGreen.ts";',
-    'import { readPersonalMemoryPolicy } from "../_shared/personalMemoryPolicy.js";',
+    ...(deployedText ? [] : ['import { readPersonalMemoryPolicy, readResearchContext } from "../_shared/personalMemoryPolicy.js";']),
   ], "new handler dependencies require explicit review");
   const person = BOT_PERSON[name];
   const constant = name === "wa-hatishbi" ? /const YISKA = '[^']+';/ : /const CHRISTINA = "[^"]+";/;
@@ -166,7 +172,7 @@ export async function runResearchBot(name, pg, { incomingText, modelText }) {
   let handler;
   runInNewContext(stripTypeScriptTypes(text.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (k) => env[k] }, serve: (f) => { handler = f; } },
-    createClient: () => sb, waGreen, readPersonalMemoryPolicy,
+    createClient: () => sb, waGreen, readPersonalMemoryPolicy, readResearchContext,
     fetch, Request, Response, Headers, URL, AbortSignal, TextEncoder, TextDecoder, console, crypto: webcrypto, setTimeout, clearTimeout,
   }, { filename: `${name}/index.ts`, timeout: 5000 });
   const response = await handler(new Request(`https://fixture.invalid/functions/v1/${name}?debug=1`, { headers: { "x-fb-admin-key": "admin-key" } }));

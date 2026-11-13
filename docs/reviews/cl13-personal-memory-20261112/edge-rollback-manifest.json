@@ -1,0 +1,154 @@
+{
+ "purpose": "Exact rollback sources for the three Edge Functions that carry the CL-13 Edge half and are NOT in the M0 Edge package (raziel-attention, wa-hatishbi, wa-uriel), read-only from the deployed versions on 12.11.2026. The other three CL-13 functions (wa-raziel, ai-analyze, number-researcher) are in docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json. No secrets and no personal data are stored here: every file comes from git history.",
+ "read_at": "2026-11-12",
+ "project": "linswmnnkjxvweumprav",
+ "how_to_use": "node scripts/m0-edge-rollback-assemble.mjs --manifest docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json <slug|all> <out-dir>  (needs the two source commits: git fetch --no-tags --depth=1 origin 065aa022b9ecf1152c14aaf1be3460c7c8136e6c aa0f6bc82b8c94286374b1f51208037502994eab). The script rebuilds the deployed file layout and checks every SHA-256; it never deploys.",
+ "functions": {
+  "raziel-attention": {
+   "version": 4,
+   "verify_jwt": true,
+   "entrypoint": "supabase/functions/raziel-attention/index.ts",
+   "import_map": false,
+   "class": "deployed OLDER than origin/main (main changed the order of the stored thread on 10.10.2026: two lines) and than this branch",
+   "files": [
+    {
+     "deploy_path": "supabase/functions/raziel-attention/index.ts",
+     "source": {
+      "git": "065aa022b9ecf1152c14aaf1be3460c7c8136e6c",
+      "path": "supabase/functions/raziel-attention/index.ts"
+     },
+     "rollback_sha256": "fffd2bf76f1ec414fd24297b4b4f508990bb8f0bd32c2a7b9e3193ec78b0d73e",
+     "verified": "byte",
+     "deployed_sha256": "fffd2bf76f1ec414fd24297b4b4f508990bb8f0bd32c2a7b9e3193ec78b0d73e",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: the deployed file was decoded from the tool answer and hashed; the hash equals this git blob (re-computed from git when this manifest was written)"
+    },
+    {
+     "deploy_path": "supabase/functions/_shared/materialGate.js",
+     "source": {
+      "git": "065aa022b9ecf1152c14aaf1be3460c7c8136e6c",
+      "path": "supabase/functions/_shared/materialGate.js"
+     },
+     "rollback_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "verified": "byte",
+     "deployed_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: the deployed file was decoded from the tool answer and hashed; the hash equals this git blob (re-computed from git when this manifest was written)"
+    }
+   ],
+   "deployed_ezbr_sha256": "931386e340e527f71738fb3f8908c0cdcccefa64710324bc8ba2e1098d1cf45b",
+   "deployed_updated_at_ms": 1790756206135,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": [],
+   "memory_access_of_the_deployed_code": [
+    "reads public.agent_user_memory directly (the stored site thread, service key)",
+    "writes public.agent_user_memory directly (POST, return=minimal; the answer is not checked)",
+    "fn_raziel_context"
+   ],
+   "rollback_kind": "exact_source"
+  },
+  "wa-hatishbi": {
+   "version": 8,
+   "verify_jwt": false,
+   "entrypoint": "supabase/functions/wa-hatishbi/index.ts",
+   "import_map": false,
+   "class": "deployed == origin/main (aa0f6bc82); this branch changes index.ts only",
+   "files": [
+    {
+     "deploy_path": "supabase/functions/wa-hatishbi/index.ts",
+     "source": {
+      "git": "aa0f6bc82b8c94286374b1f51208037502994eab",
+      "path": "supabase/functions/wa-hatishbi/index.ts"
+     },
+     "rollback_sha256": "acdc8d52da001e7e53de688d7b5791ad00a1bb1ae82b1e2dd86bd46b8353e1aa",
+     "verified": "byte",
+     "deployed_sha256": "acdc8d52da001e7e53de688d7b5791ad00a1bb1ae82b1e2dd86bd46b8353e1aa",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: the deployed file was decoded from the tool answer and hashed; the hash equals this git blob (re-computed from git when this manifest was written)"
+    },
+    {
+     "deploy_path": "supabase/functions/_shared/waGreen.ts",
+     "source": {
+      "git": "aa0f6bc82b8c94286374b1f51208037502994eab",
+      "path": "supabase/functions/_shared/waGreen.ts"
+     },
+     "rollback_sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "verified": "byte",
+     "deployed_sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: the deployed file was decoded from the tool answer and hashed; the hash equals this git blob (re-computed from git when this manifest was written)"
+    }
+   ],
+   "deployed_ezbr_sha256": "d027d9231c273ee2f351c2c1ea615e6fed3fbbbf9733e0aff253ffe55d6692c5",
+   "deployed_updated_at_ms": 1790840172248,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "FB_ADMIN_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL",
+    "ZURIEL_WA"
+   ],
+   "proposal_env_names_added": [],
+   "memory_access_of_the_deployed_code": [
+    "reads public.agent_user_memory directly (the findings and the earlier questions, service key)",
+    "writes through fn_mem_add (findings and questions)"
+   ],
+   "rollback_kind": "exact_source"
+  },
+  "wa-uriel": {
+   "version": 18,
+   "verify_jwt": false,
+   "entrypoint": "supabase/functions/wa-uriel/index.ts",
+   "import_map": false,
+   "class": "deployed == origin/main (aa0f6bc82); this branch changes index.ts only",
+   "files": [
+    {
+     "deploy_path": "supabase/functions/wa-uriel/index.ts",
+     "source": {
+      "git": "aa0f6bc82b8c94286374b1f51208037502994eab",
+      "path": "supabase/functions/wa-uriel/index.ts"
+     },
+     "rollback_sha256": "2343fe4be584e5cd762fcecb078f2bdec69385b352192687d8a7aea683bdefc1",
+     "verified": "byte",
+     "deployed_sha256": "2343fe4be584e5cd762fcecb078f2bdec69385b352192687d8a7aea683bdefc1",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: the deployed file was decoded from the tool answer and hashed; the hash equals this git blob (re-computed from git when this manifest was written)"
+    },
+    {
+     "deploy_path": "supabase/functions/_shared/waGreen.ts",
+     "source": {
+      "git": "aa0f6bc82b8c94286374b1f51208037502994eab",
+      "path": "supabase/functions/_shared/waGreen.ts"
+     },
+     "rollback_sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "verified": "byte",
+     "deployed_sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: the deployed file was decoded from the tool answer and hashed; the hash equals this git blob (re-computed from git when this manifest was written)"
+    }
+   ],
+   "deployed_ezbr_sha256": "832270a385dec748180e3088ad66578f482f206867655bfade46ed494ac89851",
+   "deployed_updated_at_ms": 1790840211607,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "FB_ADMIN_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL",
+    "ZURIEL_WA"
+   ],
+   "proposal_env_names_added": [],
+   "memory_access_of_the_deployed_code": [
+    "reads public.agent_user_memory directly (the discoveries and the earlier questions, service key)",
+    "writes through fn_mem_add (discoveries and questions)"
+   ],
+   "rollback_kind": "exact_source"
+  }
+ },
+ "settings_note": "Values are never stored. env_names_read = the names the deployed version reads; the CL-13 change adds none. verify_jwt and the entrypoint do not change.",
+ "drift_gate": "Before any deploy of these three: list_edge_functions must show the same version and the same ezbr_sha256 as here (read 12.11.2026). Any difference = stop and report; the rollback source here would no longer be the deployed one.",
+ "rollback_kinds": {
+  "exact_source": "every file rebuilds the deployed bytes (SHA-256 of the deployed file == rollback file)"
+ }
+}

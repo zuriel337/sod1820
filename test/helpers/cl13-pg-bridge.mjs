@@ -8,7 +8,7 @@
 // CL13_PSQL_CMD (a local binary, or `docker exec` into the throwaway container).
 import { spawnSync } from "node:child_process";
 
-export const MEMORY_RPCS = Object.freeze(["fn_personal_memory_policy_v1", "fn_raziel_context", "fn_raziel_remember", "fn_raziel_fact", "fn_mem_add"]);
+export const MEMORY_RPCS = Object.freeze(["fn_personal_memory_policy_v1", "fn_raziel_context", "fn_raziel_remember", "fn_raziel_fact", "fn_mem_add", "fn_research_output_context_v1"]);
 const MEMORY_COLUMNS = new Set(["id", "user_ref", "channel", "agent", "topic", "content", "data", "status", "source_table", "created_at", "updated_at", "memory_type", "source", "confidence", "visibility", "memory_scope"]);
 const ident = (name) => { if (!/^[a-z_][a-z0-9_]*$/.test(name)) throw new Error(`unsafe identifier: ${name}`); return name; };
 const column = (name) => { if (!MEMORY_COLUMNS.has(name)) throw new Error(`unknown column of agent_user_memory: ${name}`); return name; };

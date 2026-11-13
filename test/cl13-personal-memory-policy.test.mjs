@@ -6,8 +6,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  PERSONAL_MEMORY_POLICY_RPC, PERSONAL_MEMORY_CLOSED, normalizePersonalMemoryPolicy, readPersonalMemoryPolicy,
-  gatePersonalContext, personalMemorySaveStatus, emptyUserContext,
+  PERSONAL_MEMORY_POLICY_RPC, RESEARCH_OUTPUT_CONTEXT_RPC, PERSONAL_MEMORY_CLOSED, normalizePersonalMemoryPolicy, readPersonalMemoryPolicy,
+  readResearchContext, gatePersonalContext, personalMemorySaveStatus, emptyUserContext,
 } from "../supabase/functions/_shared/personalMemoryPolicy.js";
 import { PAUSED_POLICY, CONSENT_POLICY, POLICY_FUNCTION_MISSING } from "./helpers/personal-memory-policy-fixture.mjs";
 import { runAiAnalyze, UID, USER_JWT } from "./helpers/ai-analyze-handler.mjs";
@@ -16,8 +16,8 @@ import { numberResearcherHandler } from "./helpers/number-researcher-handler.mjs
 import { fixture } from "./fixtures/raziel-interview-787.mjs";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const GRANTS = ["write_personal", "write_profile_facts", "read_personal", "research_output_as_personal_context"];
-const OPEN = { policy: "p", write_personal: true, write_profile_facts: true, read_personal: true, research_output_as_personal_context: true };
+const GRANTS = ["write_personal", "write_profile_facts", "read_personal", "research_output_write", "research_output_read"];
+const OPEN = { policy: "p", write_personal: true, write_profile_facts: true, read_personal: true, research_output_write: true, research_output_read: true };
 const PERMISSIVE_CONTEXT = { user_context: { summary: "OLD-SUMMARY", recent_conversation: ["OLD-TOPIC"], research_threads: ["OLD-RESEARCH"], approved_preferences: ["OLD-PREF"], profile: [{ kind: "name", value: "OLD-NAME" }] },
   channel_context: { topic_summary: "GROUP-TOPIC" }, privacy: { personal_memory_allowed: true, personal_memory_write_allowed: true } };
 
@@ -37,22 +37,59 @@ test("only a literal true grants; every other answer is closed", () => {
     assert.equal(p.source, "closed");
   }
   for (const value of ["true", 1, "yes", {}, [], null, undefined, "t"]) {
-    const p = normalizePersonalMemoryPolicy({ policy: "p", write_personal: value, write_profile_facts: value, read_personal: value, research_output_as_personal_context: value });
+    const p = normalizePersonalMemoryPolicy({ policy: "p", write_personal: value, write_profile_facts: value, read_personal: value, research_output_write: value, research_output_read: value });
     for (const g of GRANTS) assert.equal(p[g], false, `${JSON.stringify(value)} is not a grant of ${g}`);
   }
-  assert.deepEqual(GRANTS.map((g) => normalizePersonalMemoryPolicy(OPEN)[g]), [true, true, true, true], "the allowed counterpart: literal true grants");
+  assert.deepEqual(GRANTS.map((g) => normalizePersonalMemoryPolicy(OPEN)[g]), [true, true, true, true, true], "the allowed counterpart: literal true grants");
 });
 
-test("the grants are separate: memory does not open profile facts, reading does not open research output", () => {
+test("the grants are separate: memory does not open profile facts; research and personal memory do not open each other", () => {
   assert.equal(normalizePersonalMemoryPolicy({ ...OPEN, write_profile_facts: false }).write_profile_facts, false);
   assert.equal(normalizePersonalMemoryPolicy({ ...OPEN, write_personal: false }).write_profile_facts, false, "a profile fact is also a personal-memory row");
-  assert.equal(normalizePersonalMemoryPolicy({ ...OPEN, research_output_as_personal_context: false }).research_output_as_personal_context, false);
-  assert.equal(normalizePersonalMemoryPolicy({ ...OPEN, read_personal: false }).research_output_as_personal_context, false, "research output joins a personal context only where personal context is allowed");
+  // research is its own pair of grants: closing it leaves personal memory as it was, and granting it opens nothing personal
+  const noResearch = normalizePersonalMemoryPolicy({ ...OPEN, research_output_write: false, research_output_read: false });
+  assert.deepEqual(GRANTS.map((g) => noResearch[g]), [true, true, true, false, false]);
+  const researchOnly = normalizePersonalMemoryPolicy({ policy: "p", research_output_write: true, research_output_read: true });
+  assert.deepEqual(GRANTS.map((g) => researchOnly[g]), [false, false, false, true, true], "a grant of research opens no personal memory");
+  assert.equal(normalizePersonalMemoryPolicy({ ...OPEN, research_output_read: false }).research_output_write, true, "reading research and writing it are separate");
+  assert.equal(normalizePersonalMemoryPolicy({ ...OPEN, research_output_write: false }).research_output_read, true);
   const paused = normalizePersonalMemoryPolicy(PAUSED_POLICY);
-  assert.deepEqual(GRANTS.map((g) => paused[g]), [false, false, false, false]);
+  assert.deepEqual(GRANTS.map((g) => paused[g]), [false, false, false, true, true], "the pause: no personal memory; authorised research continues");
   assert.equal(paused.policy, "cl13_pause_v1"); assert.equal(paused.reason, PAUSED_POLICY.reason);
   const consent = normalizePersonalMemoryPolicy(CONSENT_POLICY);
-  assert.deepEqual(GRANTS.map((g) => consent[g]), [true, false, true, false], "a consent to memory: write and read only");
+  assert.deepEqual(GRANTS.map((g) => consent[g]), [true, false, true, true, true], "a consent to memory: write and read, not profile facts");
+});
+
+test("research context comes from the one database reader, is closed on every unclear answer, and a personal grant is not a research grant", async () => {
+  const paused = normalizePersonalMemoryPolicy(PAUSED_POLICY);
+  const rows = [{ memory_type: "research_note", topic: "t", content: "FINDING" }];
+  const seen = [];
+  const ok = await readResearchContext(async (name, args) => { seen.push([name, args]); return { allowed: true, rows, withheld_personal: 2, policy: "cl13_pause_v1", reason: null }; }, paused, " person-1 ", "hatishbi");
+  assert.deepEqual(ok, { allowed: true, rows, withheld_personal: 2, reason: null }, "the allowed counterpart: during the pause the research rows the database returns are used");
+  assert.deepEqual(seen, [["fn_research_output_context_v1", { p_user_ref: "person-1", p_agent: "hatishbi" }]]);
+  assert.equal(RESEARCH_OUTPUT_CONTEXT_RPC, "fn_research_output_context_v1");
+  // no grant of research in the policy: the reader is not even asked
+  let calls = 0;
+  const ask = async () => { calls += 1; return { allowed: true, rows }; };
+  const personalOnly = normalizePersonalMemoryPolicy({ policy: "p", write_personal: true, read_personal: true });
+  for (const policy of [PERSONAL_MEMORY_CLOSED, null, undefined, {}, personalOnly, normalizePersonalMemoryPolicy({ ...OPEN, research_output_read: false }), { research_output_read: true }]) {
+    const r = await readResearchContext(ask, policy, "person-1", "hatishbi");
+    assert.deepEqual([r.allowed, r.rows, r.withheld_personal], [false, [], 0], JSON.stringify(policy));
+  }
+  for (const [ref, agent] of [["", "hatishbi"], [null, "hatishbi"], ["   ", "hatishbi"], ["person-1", ""], ["person-1", null], [7, "hatishbi"]]) {
+    assert.equal((await readResearchContext(ask, paused, ref, agent)).reason, "no_person_or_agent");
+  }
+  assert.equal(calls, 0, "without a research grant, a person and an agent the database is not asked");
+  // the reader is missing (the Edge code before the database proposal), fails, or answers something that is not a clear "allowed"
+  for (const answer of [null, undefined, "x", [], {}, { allowed: "true", rows }, { allowed: 1, rows }, { allowed: true }, { allowed: true, rows: "x" }, { allowed: false, rows }]) {
+    const r = await readResearchContext(async () => answer, paused, "person-1", "hatishbi");
+    assert.deepEqual([r.allowed, r.rows, r.withheld_personal], [false, [], 0], JSON.stringify(answer));
+  }
+  assert.equal((await readResearchContext(async () => { throw new Error("404"); }, paused, "person-1", "hatishbi")).reason, "reader_unavailable");
+  assert.equal((await readResearchContext(async () => ({ allowed: false, rows: [], reason: "closed by the database" }), paused, "person-1", "hatishbi")).reason, "closed by the database");
+  // rows that are not objects are dropped; a missing count is 0
+  const odd = await readResearchContext(async () => ({ allowed: true, rows: [null, "x", rows[0]] }), paused, "person-1", "hatishbi");
+  assert.deepEqual([odd.rows, odd.withheld_personal], [rows, 0]);
 });
 
 test("reading the policy fails closed: no person, an error, a missing function", async () => {
@@ -69,7 +106,7 @@ test("reading the policy fails closed: no person, an error, a missing function",
 });
 
 test("a stored context is used only when the policy AND the context itself allow it", () => {
-  const open = normalizePersonalMemoryPolicy(OPEN), noResearch = normalizePersonalMemoryPolicy(CONSENT_POLICY), paused = normalizePersonalMemoryPolicy(PAUSED_POLICY);
+  const open = normalizePersonalMemoryPolicy(OPEN), consent = normalizePersonalMemoryPolicy(CONSENT_POLICY), paused = normalizePersonalMemoryPolicy(PAUSED_POLICY);
   // closed policy, permissive context (the database before the proposal): nothing personal survives; the channel part does
   for (const policy of [paused, PERSONAL_MEMORY_CLOSED, null, undefined, {}]) {
     const g = gatePersonalContext(PERMISSIVE_CONTEXT, policy);
@@ -85,9 +122,11 @@ test("a stored context is used only when the policy AND the context itself allow
   assert.equal(gatePersonalContext({ ...PERMISSIVE_CONTEXT, privacy: { personal_memory_allowed: false, reason: "group" } }, open).privacy.reason, "group");
   // no context at all: an empty one in the shape the callers read
   for (const ctx of [null, undefined, "x", []]) assert.deepEqual(gatePersonalContext(ctx, open).user_context, emptyUserContext());
-  // the allowed counterpart; research threads need their own grant
-  const consented = gatePersonalContext(PERMISSIVE_CONTEXT, noResearch);
-  assert.equal(consented.user_context.summary, "OLD-SUMMARY"); assert.deepEqual(consented.user_context.research_threads, []); assert.equal(consented.privacy.personal_memory_allowed, true); assert.equal(consented.privacy.reason, null);
+  // the allowed counterpart. research_threads are rows of the assistant with a research type = the person's own memory:
+  // they come with the same consent, and (above) the research grant of the paused policy alone does not bring them
+  const consented = gatePersonalContext(PERMISSIVE_CONTEXT, consent);
+  assert.equal(consented.user_context.summary, "OLD-SUMMARY"); assert.deepEqual(consented.user_context.research_threads, ["OLD-RESEARCH"]); assert.equal(consented.privacy.personal_memory_allowed, true); assert.equal(consented.privacy.reason, null);
+  assert.deepEqual(gatePersonalContext(PERMISSIVE_CONTEXT, normalizePersonalMemoryPolicy({ policy: "p", research_output_write: true, research_output_read: true })).user_context, emptyUserContext(), "a research grant alone opens no personal context");
   assert.deepEqual(gatePersonalContext(PERMISSIVE_CONTEXT, open).user_context.research_threads, ["OLD-RESEARCH"]);
   assert.deepEqual(PERMISSIVE_CONTEXT.user_context.research_threads, ["OLD-RESEARCH"], "the input is not mutated");
   // list fields are arrays for the callers, whatever the database returned
@@ -107,7 +146,8 @@ test("'saved' is said only for a stored row", () => {
 });
 
 // ── the handlers, when the database answers something that is not a clear grant ──
-const NOT_A_GRANT = [POLICY_FUNCTION_MISSING, null, { policy: "x", write_personal: "true", write_profile_facts: 1, read_personal: "true", research_output_as_personal_context: "yes" }, { write_personal: true, read_personal: true }];
+const NOT_A_GRANT = [POLICY_FUNCTION_MISSING, null, { policy: "x", write_personal: "true", write_profile_facts: 1, read_personal: "true", research_output_write: "yes", research_output_read: "yes" }, { write_personal: true, read_personal: true },
+  PAUSED_POLICY];   // the reviewed pause itself: its research grant opens nothing in these handlers
 const STORED = { user_context: { summary: "OLD-SUMMARY-SENTINEL", recent_conversation: ["OLD-TOPIC"], research_threads: ["OLD-RESEARCH-THREAD"], approved_preferences: ["OLD-PREF"] }, privacy: { personal_memory_allowed: true, personal_memory_write_allowed: true } };
 
 test("ai-analyze: an unclear policy answer means no stored context and no remembered turn; a clear grant means both", async () => {
@@ -123,7 +163,7 @@ test("ai-analyze: an unclear policy answer means no stored context and no rememb
   const names = granted.calls.map((c) => c.name);
   assert.ok(names.includes("fn_raziel_context") && names.includes("fn_raziel_remember"));
   const prompt = JSON.stringify(granted.models.map((m) => [m.system, m.user]));
-  assert.match(prompt, /OLD-SUMMARY-SENTINEL/); assert.doesNotMatch(prompt, /OLD-RESEARCH-THREAD/, "research output needs its own grant");
+  assert.match(prompt, /OLD-SUMMARY-SENTINEL/); assert.match(prompt, /OLD-RESEARCH-THREAD/, "the research-typed rows of the assistant are the person's own memory: read with the same consent");
   // with a grant from the policy, a context that itself says "not allowed" (a group, nobody) still contributes nothing
   const refused = await runAiAnalyze({ allowed: true, bearer: USER_JWT, verifiedUid: UID, legacyContext: { ...STORED, privacy: { personal_memory_allowed: false, reason: "group" } }, memoryPolicy: CONSENT_POLICY });
   assert.doesNotMatch(JSON.stringify(refused.models.map((m) => [m.system, m.user])), /OLD-/);

@@ -3,38 +3,61 @@
  "depends_on_tracks": [
   "none (it touches only the memory functions and public.agent_user_memory; no M0 file touches them)"
  ],
- "test": "bash scripts/run-cl13-personal-memory-sql-test.sh (the proposal alone: 15 lifecycle cases, 71 behaviour checks); bash scripts/run-cl13-personal-memory-handlers-test.sh (the real Edge handlers on the throwaway database: 19 tests, M-1..M-15, before the proposal / paused / simulated consent / after rollback); node --test test/cl13-personal-memory-policy.test.mjs (the Edge policy module and unclear database answers: 12 tests)",
+ "test": "bash scripts/run-cl13-personal-memory-sql-test.sh (the proposal alone: 15 lifecycle cases, 85 behaviour checks); bash scripts/run-cl13-personal-memory-handlers-test.sh (the real Edge handlers on a throwaway database: 19 tests of this branch's code - before the proposal / paused / simulated consent / after rollback - and 9 tests of the DEPLOYED code in the intermediate states); node --test test/cl13-personal-memory-policy.test.mjs (the Edge policy module and unclear database answers: 13 tests)",
  "steps": [
   {
    "step": "CL13-1",
    "file": "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql",
-   "sha256": "f7c47ac010777f425edea9d77396012486a3064a865a8f84d2e063dd834eab23",
+   "sha256": "c6b03d0fa3069d67dba2718a403871bd29a83da97e38834b4ce21281232235ca",
    "rollback": "supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql",
-   "rollback_sha256": "1d905b0b98a2089174ae57d996dba624b7573be329a181c388fe7eb0b3edf2bf",
+   "rollback_sha256": "fe236496c12b1960646c72d5ce41451ad13b542e73585df3e486f9998f7d5639",
    "status": "proposed",
    "depends_on": [
-    "EDGE-CL13 (the Edge code of this branch for wa-raziel, ai-analyze and number-researcher is deployed first; see required_order)"
+    "EDGE-CL13 (all six Edge functions of this branch are deployed first; see required_order and readers)"
    ],
-   "verify": "the state text pinned in the file (the md5 of each of the 14 function definitions and the trigger text, enabled); owner, privileges, SECURITY DEFINER, search_path and volatility of the five replaced functions unchanged; no client role may execute a server-only function (all checked inside the file)",
-   "what": "One policy owner (fn_personal_memory_policy_v1 = the pause); the writers return a real status and write nothing; a trigger on public.agent_user_memory refuses every other writer with an error; fn_raziel_context returns an empty personal context without a verified consent and never in a group; export and erasure of memory without deleting the account. Research output of the two research bots continues and is never personal context. Profile facts have their own policy key (write_profile_facts): a consent to memory does not open them (D-CL13-3).",
+   "verify": "the state text pinned in the file (the md5 of each of the 17 function definitions and the trigger text, enabled); owner, privileges, SECURITY DEFINER, search_path and volatility of the five replaced functions unchanged; no client role may execute a server-only function (all checked inside the file)",
+   "what": "One policy owner (fn_personal_memory_policy_v1 = the pause); the writers return a real status and write nothing; a trigger on public.agent_user_memory refuses every other writer with an error; fn_raziel_context returns an empty personal context without a verified consent and never in a group; export and erasure of memory without deleting the account. Research (decision of ZURIEL after the Codex review of abb2f3907): authorised research is written and may be read during the pause through one reader (fn_research_output_context_v1); a research row that carries a personal detail is personal memory - refused on write while paused and withheld on read without the person's consent. Profile facts have their own policy key (write_profile_facts): a consent to memory does not open them (D-CL13-3).",
    "preflight": "Fail-closed: the file continues only when the state is exactly the live 12.11.2026 state or exactly the applied state."
   }
  ],
  "rollback_order": [
-  "1. ROLLBACK file of step CL13-1 (restores the five live bodies exactly, drops the trigger and the nine new functions). It brings back writing by every writer that ignores the policy and reading without consent in the database: decide that before running it.",
-  "2. The Edge code may stay: without the policy function it is closed (no write, no read), which is tested after the rollback. Rolling the Edge functions back to the deployed sources restores writing on every message and reading without consent: decide that too."
+  "1. ROLLBACK file of step CL13-1 (restores the five live bodies exactly, drops the trigger and the twelve new functions). It brings back writing by every writer that ignores the policy and reading without consent in the database: decide that before running it.",
+  "2. The Edge code may stay: without the policy function it is closed (no write, no read; the research bots stop reading and storing research), which is tested after the rollback. Rolling the Edge functions back to the deployed sources (the two rollback manifests) restores writing on every message and reading without consent: decide that too."
  ],
  "not_in_this_step": [
   "a consent record store and the consent wording (a new store needs its own approval)",
   "a retention period",
   "the WhatsApp commands that call the export and erasure functions",
-  "the Edge functions that read the table directly (changed in the Edge code of this branch; deployed separately)",
-  "admin_person_facts (an administrator still reads stored profile facts: an open decision)"
+  "admin_person_facts (an administrator still reads stored profile facts: an open decision of ZURIEL)",
+  "a database-level refusal of direct READS (the trigger covers writes only; PostgreSQL has no read trigger). The direct readers are closed by their own code and pinned by tests; revoking SELECT on the table from the service role and moving every read into a policy-aware function is a possible later hardening, not proposed here"
  ],
  "required_order": [
-  "1. EDGE-CL13: deploy the Edge code of this branch for the functions that are live writers or readers of personal memory. wa-raziel, ai-analyze and number-researcher are three of the nine functions of the M0 Edge deployment (docs/reviews/m0-security-stabilization-20261112): deploying M0 from this head carries the pause for them. The Edge code asks public.fn_personal_memory_policy_v1 and is closed when it does not exist, so it is safe before step 2 (tests BEFORE 0-5).",
-  "2. CL13-1: the database proposal. It must NOT run before step 1: with the Edge code of origin/main the stored site thread still wins over the new turns and raziel-attention reports persisted=true without a row (README section 4, local evidence).",
-  "3. raziel-attention, wa-hatishbi and wa-uriel also carry the Edge half but are NOT in the M0 Edge package: no rollback source was prepared from their deployed code. They are not deployed until one is (README section 4, item 3)."
+  {
+   "step": "EDGE-CL13",
+   "what": "Deploy the Edge code of this branch for ALL SIX functions that read or write personal memory. Each asks public.fn_personal_memory_policy_v1 and is closed while that function does not exist, so the step is safe before the database step (tests BEFORE 0-5).",
+   "functions": [
+    "wa-raziel",
+    "ai-analyze",
+    "number-researcher",
+    "raziel-attention",
+    "wa-hatishbi",
+    "wa-uriel"
+   ],
+   "in_m0_edge_package": [
+    "wa-raziel",
+    "ai-analyze",
+    "number-researcher"
+   ],
+   "state_after_this_step": "No stored memory is read and nothing is stored by any of the six (the policy function is missing = closed). The two research bots answer but neither read nor store research until the database step: research needs the database to decide, row by row, what is personal. The stored rows are untouched.",
+   "way_back": "Redeploy the deployed sources: docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json (wa-raziel, ai-analyze, number-researcher) and docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json (raziel-attention, wa-hatishbi, wa-uriel). That restores writing on every message and reading without consent."
+  },
+  {
+   "step": "CL13-1",
+   "what": "The database proposal (steps[0]). AFTER EDGE-CL13, never before it.",
+   "state_after_this_step": "The pause holds in the database as well: every writer that ignores the policy is refused, fn_raziel_context is closed, and authorised research is written and read through the one reader.",
+   "why_not_first": "With the deployed Edge code and the proposal applied, the four direct readers still read the table (nothing in the database stops a direct reader with the service key): the two site threads keep reading the stored thread and prefer it to the new turns, BOTH report persisted=true although the database refused the write (the deployed number-researcher v12 is older than the code on origin/main that checks the answer), and the two research bots still send the stored questions and a personal detail inside a research row to the model. The deployed wa-raziel is closed by the database functions but still records 'facts-captured' for a fact that was not stored (test/cl13-intermediate-states.test.mjs, DB-FIRST 1-3).",
+   "way_back": "The ROLLBACK file of steps[0]. The Edge code may stay: without the policy function it is closed (test ROLLBACK)."
+  }
  ],
  "edge_functions": [
   {
@@ -42,21 +65,24 @@
    "deployed_version": 21,
    "deployed_ezbr_sha256": "6167766567cca19de23f2b10756227a9e1d4cc0cab9cd9fa4cd76ed36d221e1b",
    "in_m0_edge_package": true,
-   "scheduled": "cron every 2 minutes (active on 12.11.2026)"
+   "scheduled": "cron every 2 minutes (active on 12.11.2026)",
+   "rollback_source": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json"
   },
   {
    "slug": "ai-analyze",
    "deployed_version": 91,
    "deployed_ezbr_sha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb",
    "in_m0_edge_package": true,
-   "scheduled": "on request"
+   "scheduled": "on request",
+   "rollback_source": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json"
   },
   {
    "slug": "number-researcher",
    "deployed_version": 12,
    "deployed_ezbr_sha256": "c94555c1a7be5081d06eb00dfe9bc8ed597de66c4c5bfb4da7e61fab844e7175",
    "in_m0_edge_package": true,
-   "scheduled": "on request (no caller in the 2029 interface)"
+   "scheduled": "on request (no caller in the 2029 interface)",
+   "rollback_source": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json"
   },
   {
    "slug": "raziel-attention",
@@ -64,7 +90,7 @@
    "deployed_ezbr_sha256": "931386e340e527f71738fb3f8908c0cdcccefa64710324bc8ba2e1098d1cf45b",
    "in_m0_edge_package": false,
    "scheduled": "on request, administrator only (no caller in the 2029 interface)",
-   "rollback_source": "NOT PREPARED"
+   "rollback_source": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json"
   },
   {
    "slug": "wa-hatishbi",
@@ -72,7 +98,7 @@
    "deployed_ezbr_sha256": "d027d9231c273ee2f351c2c1ea615e6fed3fbbbf9733e0aff253ffe55d6692c5",
    "in_m0_edge_package": false,
    "scheduled": "no cron (last write 19.7.2026)",
-   "rollback_source": "NOT PREPARED"
+   "rollback_source": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json"
   },
   {
    "slug": "wa-uriel",
@@ -80,8 +106,174 @@
    "deployed_ezbr_sha256": "832270a385dec748180e3088ad66578f482f206867655bfade46ed494ac89851",
    "in_m0_edge_package": false,
    "scheduled": "no cron (last write 25.8.2026)",
-   "rollback_source": "NOT PREPARED"
+   "rollback_source": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json"
   }
  ],
- "edge_drift_gate": "Before any Edge deployment: list_edge_functions must show, for each function above, the same version and ezbr_sha256 (read on 12.11.2026). Any difference: stop and report. Every one of the six bundles must include supabase/functions/_shared/personalMemoryPolicy.js."
+ "edge_drift_gate": "Before any Edge deployment: list_edge_functions must show, for each of the six functions, the same version and ezbr_sha256 as here and as in its rollback manifest (read on 12.11.2026). Any difference: stop and report. Every one of the six bundles must include supabase/functions/_shared/personalMemoryPolicy.js.",
+ "readers": [
+  {
+   "reader": "number-researcher",
+   "kind": "Edge function",
+   "reads": "table, directly",
+   "what": "the stored site thread of the signed-in person (content)",
+   "audience": "the assistant's prompt; the person on reload",
+   "deployed_today": "reads without consent; the stored thread replaces the turns the client sends; reports persisted=true without checking the write",
+   "closed_by": "EDGE-CL13",
+   "test": "BEFORE 1, PAUSED 1, CONSENT 1; deployed code: TODAY, DB-FIRST 1"
+  },
+  {
+   "reader": "raziel-attention",
+   "kind": "Edge function",
+   "reads": "table, directly",
+   "what": "the same stored site thread (administrator surface)",
+   "audience": "the assistant's prompt; the administrator on reload",
+   "deployed_today": "reads without consent; reports persisted=true without checking the write",
+   "closed_by": "EDGE-CL13",
+   "test": "BEFORE 1, PAUSED 1, CONSENT 1; deployed code: TODAY, DB-FIRST 1"
+  },
+  {
+   "reader": "wa-hatishbi",
+   "kind": "Edge function",
+   "reads": "table, directly",
+   "what": "the earlier questions (personal) and the findings (research) of one person",
+   "audience": "the bot's prompt",
+   "deployed_today": "reads both directly, a personal detail inside a finding included",
+   "closed_by": "EDGE-CL13",
+   "test": "BEFORE 4, PAUSED 4, CONSENT 4; deployed code: TODAY, DB-FIRST 2",
+   "after_both_steps": "research through fn_research_output_context_v1 only; questions only with read_personal"
+  },
+  {
+   "reader": "wa-uriel",
+   "kind": "Edge function",
+   "reads": "table, directly",
+   "what": "the earlier questions (personal) and the discoveries (research) of one person",
+   "audience": "the bot's prompt",
+   "deployed_today": "reads both directly, a personal detail inside a discovery included",
+   "closed_by": "EDGE-CL13",
+   "test": "BEFORE 4, PAUSED 4, CONSENT 4; deployed code: TODAY, DB-FIRST 2",
+   "after_both_steps": "research through fn_research_output_context_v1 only; questions only with read_personal"
+  },
+  {
+   "reader": "wa-raziel",
+   "kind": "Edge function",
+   "reads": "through fn_raziel_context",
+   "what": "the personal context of the sender",
+   "audience": "the assistant's prompt",
+   "deployed_today": "reads without consent",
+   "closed_by": "EDGE-CL13",
+   "also_closed_by": "CL13-1 (the function itself)",
+   "test": "BEFORE 3, 5; PAUSED 3, 6; CONSENT 3, 5; deployed code: TODAY, DB-FIRST 3"
+  },
+  {
+   "reader": "ai-analyze",
+   "kind": "Edge function",
+   "reads": "through fn_raziel_context",
+   "what": "the personal context of the identified caller",
+   "audience": "the assistant's prompt",
+   "deployed_today": "reads without consent",
+   "closed_by": "EDGE-CL13",
+   "also_closed_by": "CL13-1 (the function itself)",
+   "test": "BEFORE 2, PAUSED 2, CONSENT 2; deployed code: static check of the v91 source (memory only through the two functions)"
+  },
+  {
+   "reader": "public.fn_raziel_context",
+   "kind": "database function (server only)",
+   "reads": "table",
+   "what": "the personal context (content)",
+   "audience": "the four assistant functions above",
+   "deployed_today": "returns memory without consent, merged through the phone link",
+   "closed_by": "CL13-1",
+   "test": "SQL checks R*, B*; PAUSED 0"
+  },
+  {
+   "reader": "public.fn_research_output_context_v1",
+   "kind": "database function (server only, NEW)",
+   "reads": "table",
+   "what": "research rows of one research bot about one person",
+   "audience": "the two research bots",
+   "deployed_today": "does not exist",
+   "closed_by": "CL13-1",
+   "test": "SQL checks Q1-Q9; PAUSED 4, CONSENT 4",
+   "note": "the one reader of research as context; a row with a personal detail is returned only with read_personal"
+  },
+  {
+   "reader": "public.get_my_wa_memory",
+   "kind": "database function (signed-in person)",
+   "reads": "table",
+   "what": "the person's own rows recorded under a phone they verified",
+   "audience": "the person themselves",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader",
+   "note": "the person's own data, not the assistant's context; not changed by this step (it does not return rows recorded under the account id; the new export does)"
+  },
+  {
+   "reader": "public.export_my_personal_memory / fn_personal_memory_export",
+   "kind": "database function (NEW)",
+   "reads": "table",
+   "what": "the person's own rows",
+   "audience": "the person themselves",
+   "deployed_today": "does not exist",
+   "closed_by": "not a context reader",
+   "test": "SQL checks E*"
+  },
+  {
+   "reader": "public.admin_person_facts",
+   "kind": "database function (administrator, checked inside)",
+   "reads": "table",
+   "what": "stored profile facts of a person (content)",
+   "audience": "an administrator",
+   "deployed_today": "unchanged",
+   "closed_by": "open decision",
+   "note": "waits for ZURIEL: may an administrator view stored profile facts during the pause"
+  },
+  {
+   "reader": "public.admin_wa_candidates",
+   "kind": "database function (administrator, checked inside)",
+   "reads": "table",
+   "what": "only the reference and the time of rows whose reference starts with a digit (to list phones for account linking); no content",
+   "audience": "an administrator",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader"
+  },
+  {
+   "reader": "public.fn_raziel_research_intel_scoped",
+   "kind": "database function",
+   "reads": "table",
+   "what": "a COUNT of the caller's own memory rows (own_memory_items); no content. An anonymous caller gets no private scope",
+   "audience": "the caller",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader",
+   "note": "it counts through the account-phone link (bare phone); a count is not memory content"
+  },
+  {
+   "reader": "public.fn_metatron_weekly",
+   "kind": "database function (no client role may execute)",
+   "reads": "table",
+   "what": "aggregate counts per agent and status; no content, no person",
+   "audience": "the weekly system digest",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader"
+  },
+  {
+   "reader": "public.delete_my_account",
+   "kind": "database function (signed-in person)",
+   "reads": "table",
+   "what": "deletes the person's rows when the account is deleted",
+   "audience": "the person themselves",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader",
+   "note": "the pause trigger is BEFORE INSERT OR UPDATE, so erasure is never refused"
+  },
+  {
+   "reader": "RLS policy agent_user_memory_own_read",
+   "kind": "row policy for the authenticated role",
+   "reads": "table",
+   "what": "own rows",
+   "audience": "nobody in practice",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader",
+   "note": "the authenticated role has no SELECT privilege on the table (only postgres and service_role hold table privileges), so the policy grants nothing"
+  }
+ ],
+ "readers_read_at": "live catalog read 13.11.2026 (pg_proc bodies that name the table, views, policies, table privileges, triggers, cron): 11 functions, 0 views, 1 policy, table privileges for postgres and service_role only, 0 triggers, cron only for wa-raziel. Repository: the six Edge functions are the only code that names the table or the memory functions."
 }

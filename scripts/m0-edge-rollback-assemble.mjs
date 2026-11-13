@@ -3,6 +3,8 @@
 // Read-only and local: it never deploys, never reads a secret, never calls Supabase. Every file is checked against the SHA-256 in
 // the manifest; any mismatch stops with a non-zero exit. Output: the files under <out-dir> in the deployed layout and a JSON summary
 // (entrypoint, verify_jwt, import_map, files) for the deploy step that ZURIEL approves separately.
+// A second manifest with the same shape (git-sourced files only) can be given with --manifest <path>: the three CL-13 functions
+// outside the M0 package are in docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json.
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -22,8 +24,8 @@ export function rollbackFile(entry) {
   return gunzipSync(readFileSync(join(DIR, entry.source.artifact)));
 }
 
-export function assemble(slug, outDir = null) {
-  const fn = manifest.functions[slug];
+export function assemble(slug, outDir = null, from = manifest) {
+  const fn = from.functions[slug];
   if (!fn) throw new Error(`unknown function ${slug}`);
   const files = fn.files.map((entry) => {
     const bytes = rollbackFile(entry);
@@ -36,9 +38,12 @@ export function assemble(slug, outDir = null) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname)) {
-  const [slug, out] = process.argv.slice(2);
-  if (!slug) { console.error("usage: node scripts/m0-edge-rollback-assemble.mjs <slug|all> [out-dir]"); process.exit(2); }
-  const slugs = slug === "all" ? Object.keys(manifest.functions) : [slug];
-  try { for (const s of slugs) console.log(JSON.stringify(assemble(s, out ? join(out, s) : null))); }
+  const args = process.argv.slice(2);
+  const other = args[0] === "--manifest" ? JSON.parse(readFileSync(resolve(args[1]), "utf8")) : null;
+  const [slug, out] = other ? args.slice(2) : args;
+  if (!slug) { console.error("usage: node scripts/m0-edge-rollback-assemble.mjs [--manifest <path>] <slug|all> [out-dir]"); process.exit(2); }
+  const from = other || manifest;
+  const slugs = slug === "all" ? Object.keys(from.functions) : [slug];
+  try { for (const s of slugs) console.log(JSON.stringify(assemble(s, out ? join(out, s) : null, from))); }
   catch (error) { console.error(String(error.message || error)); process.exit(1); }
 }

@@ -8,7 +8,7 @@
 // G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
-import { readPersonalMemoryPolicy } from "../_shared/personalMemoryPolicy.js";
+import { readPersonalMemoryPolicy, readResearchContext } from "../_shared/personalMemoryPolicy.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA = "972507555102@c.us";
@@ -142,21 +142,21 @@ const URIEL_SYSTEM =
   '{"learnings":[{"word":"מילה","decomposed_form":"הצורה","interpretation":"מה למדנו"}],"question_asked":"השאלה"}';
 
 // CL-13 — the database owns the personal-memory decision (fn_personal_memory_policy_v1); fail-closed when it cannot be read.
-async function memoryPolicy(userRef: string) {
-  return readPersonalMemoryPolicy(async (name: string, args: unknown) => { const { data, error } = await sb.rpc(name, args); if (error) throw error; return data; }, userRef);
-}
+const memoryRpc = async (name: string, args: unknown) => { const { data, error } = await sb.rpc(name, args); if (error) throw error; return data; };
+async function memoryPolicy(userRef: string) { return readPersonalMemoryPolicy(memoryRpc, userRef); }
 
-// What is stored about the person joins the prompt only with a permission: the earlier questions are personal memory
-// (read_personal), and the stored discoveries are research output, which is NOT personal context unless the policy grants
-// that explicitly (their exemption from the pause is about writing them). Without a permission the bot answers from the
-// provider's own chat history (recentThread) only.
+// What is stored about the person joins the prompt only with a permission.
+// - The discoveries are research output: authorised research may be used during the pause (decision of ZURIEL), so they are
+//   read back through the ONE database reader, which withholds a discovery that carries a personal detail unless the person
+//   consented.
+// - The earlier questions are personal memory: read only with read_personal.
+// Without a permission the bot answers from the provider's own chat history (recentThread) only.
 async function buildContext(text: string): Promise<string> {
   const parts: string[] = [];
   const policy = await memoryPolicy(CHRISTINA);
-  if (policy.research_output_as_personal_context) {
-    const { data: md } = await sb.from("agent_user_memory").select("topic,content,data,created_at")
-      .eq("agent", "uriel").eq("user_ref", CHRISTINA).eq("memory_type", "method_discovery");
-    const rows = md || [];
+  {
+    const research = await readResearchContext(memoryRpc, policy, CHRISTINA, "uriel");
+    const rows = research.rows.filter((r: any) => r.memory_type === "method_discovery");
     const rules = rows.filter((r: any) => r.data?.subtype === "letter_rule").sort((a: any, b: any) => String(a.topic).localeCompare(String(b.topic)));
     if (rules.length) parts.push("מפתח האותיות שלה:\n" + rules.map((r: any) => `${r.topic}=${(r.content || "").slice(0, 60)}`).join(" | "));
     const combos = rows.filter((r: any) => r.data?.subtype === "word_decomposition").sort((a: any, b: any) => (a.created_at < b.created_at ? 1 : -1)).slice(0, 8);
@@ -219,14 +219,16 @@ async function urielReply(text: string, thread: string): Promise<{ reply: string
   } catch (e) { trace.push({ step: "throw", e: String(e) }); return null; }
 }
 async function saveLearnings(learnings: any[], question: string | null) {
-  for (const l of learnings.slice(0, 5)) {
+  const policy = await memoryPolicy(CHRISTINA);
+  // CL-13 (W4b): research output is stored only with the grant of the policy. The database decides per row: a discovery that
+  // carries a personal detail is personal memory and is not stored while personal memory is paused.
+  if (policy.research_output_write) for (const l of learnings.slice(0, 5)) {
     if (!l?.word) continue;
     try { await sb.rpc("fn_mem_add", { p_user: CHRISTINA, p_agent: "uriel", p_memory_type: "method_discovery", p_content: String(l.interpretation||"").slice(0,800), p_topic: String(l.word).slice(0,100), p_visibility: "private", p_source: "wa", p_data: { decomposed_form: String(l.decomposed_form||"").slice(0,300), subtype: "word_decomposition" } }); } catch { /* noop */ }
   }
   // CL-13 (W4a): the question that was asked is personal memory between conversations; it is written only with a permission.
   // The discoveries above (W4b) are research output and continue.
   if (question) {
-    const policy = await memoryPolicy(CHRISTINA);
     if (policy.write_personal) { try { await sb.rpc("fn_mem_add", { p_user: CHRISTINA, p_agent: "uriel", p_memory_type: "conversation", p_content: question.slice(0,500), p_visibility: "private", p_source: "wa" }); } catch { /* noop */ } }
   }
 }

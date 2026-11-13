@@ -9,7 +9,7 @@
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 EXPECTED_CASES=15
-EXPECTED_CHECKS=71
+EXPECTED_CHECKS=85
 # The apply plan names the two files by sha256: a plan whose checksums are not the files is a stale request and fails here.
 node -e '
 const fs = require("fs"); const crypto = require("crypto"); const root = process.argv[1]; const plan = require(root + "/docs/reviews/cl13-personal-memory-20261112/apply-plan.json");
@@ -64,7 +64,7 @@ D=$(mktemp -d)
 run() { if [ "$(id -u)" = 0 ]; then su postgres -c "$*"; else bash -c "$*"; fi; }
 if [ "$(id -u)" = 0 ]; then chown postgres "$D"; fi
 run "$BIN/initdb -D $D/data -A trust >/dev/null"
-run "$BIN/pg_ctl -D $D/data -o '-p 55445 -k $D' -l $D/log -w start >/dev/null"
+run "$BIN/pg_ctl -D $D/data -o '-p 55445 -k $D -c listen_addresses=' -l $D/log -w start >/dev/null"
 trap 'run "$BIN/pg_ctl -D '"$D"'/data -m immediate stop >/dev/null" || true; rm -rf "$D" "$W"' EXIT
 run "$BIN/createdb -h $D -p 55445 t"
 run "cd $W && $BIN/psql -X -h $D -p 55445 -d t -v ON_ERROR_STOP=1 -q -f tests/sql/cl13_personal_memory_pause_v1.sql" 2>&1 | check
