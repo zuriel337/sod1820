@@ -82,7 +82,7 @@ function installPublicReadingWorker(policy) {
     const client = await self.clients.get(event.clientId);
     return Boolean(client && client.type === "window" && new URL(client.url).origin === self.location.origin);
   };
-  const visitWindows = new Map();
+  const visitWindows = new Map(), engagementWindows = new Map();
   const withinWindowBudget = (windows, clientId, limit) => {
     const now = Date.now();
     for (const [key, value] of windows) if (now - value.at > 600000) windows.delete(key);
@@ -311,7 +311,9 @@ function installPublicReadingWorker(policy) {
         if (url.pathname.endsWith("/ingest_event") && body.p_surface === "page") {
           // Page engagement is flushed on route change (the window has already moved on) or at pagehide,
           // so it is bound to a public-site window rather than to that window's current route.
-          return policy.anonKey && readingEngagementBody(body) && await measurementWindow(event) ? anonymous() : denied();
+          // At most 240 per window per 10 minutes: one flush per page view (at most 120 are admitted) plus the pagehide flush, with room to spare.
+          return policy.anonKey && readingEngagementBody(body) && await measurementWindow(event)
+            && withinWindowBudget(engagementWindows, event.clientId, 240) ? anonymous() : denied();
         }
         // Product actions and public content views (ZURIEL 12.11.2026): the exact bounded family from a window of the public
         // site, anonymous key only, at most 60 per window per 10 minutes.
