@@ -192,7 +192,8 @@ async function og(row, { channel = "public" } = {}) {
 
 test("share card: a clean public candidate gets the labelled noindex card; private, person_only and excluded rows get the neutral card", async () => {
   const base = { id: uuid(1), statement: "ממצא ציבורי לבדיקה", kind: "observation", source: "whatsapp", source_ref: `channel_updates:${SOURCE}`,
-    contributor: "חוקר", status: "candidate", privacy_scope: "public", meta: {} };
+    // CR-X2 (13.11.2026): the card needs the research role of a candidate, like the finding pages
+    contributor: "חוקר", status: "candidate", privacy_scope: "public", meta: ROLE };
   const ok = await og(base);
   assert.match(ok, /טרם אומת/);
   assert.match(ok, /noindex, nofollow/);
@@ -204,6 +205,7 @@ test("share card: a clean public candidate gets the labelled noindex card; priva
     ["excluded contributor", { ...base, contributor: "אור הגאולה" }, {}],
     ["excluded channel", base, { channel: "or-geula" }],
     ["rejected", { ...base, status: "rejected" }, {}],
+    ["no research role (as on the finding pages)", { ...base, meta: {} }, {}],
     ["missing", null, {}],
   ]) {
     const html = await og(row, options);

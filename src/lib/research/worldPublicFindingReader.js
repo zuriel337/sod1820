@@ -1,7 +1,7 @@
 import { CONTRIBUTOR_RESEARCH_VIEW_FALLBACK, readContributorResearchView } from "./contributorResearchView.js";
 import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
-import { publicResearchPresentationEligible, projectPublicResearchFinding,
+import { publicResearchPresentationEligible, projectPublicResearchFinding, researchRowDisplayPolicyOk,
   ZVI_SOURCE_CONTRIBUTOR_ID } from "./worldZviApprovedFindings2029.js";
 import { contributorSourceLocator } from "./worldContributorSourceLocator.js";
 import { worldPreviewMaterialExclusion } from "./worldPreviewMaterialScope.js";
@@ -133,8 +133,11 @@ async function readWorldPublicFindingById(id, publicClient) {
     .maybeSingle();
   if (error) throw error;
   if (!researchObject || clean(researchObject.id) !== wanted) return null;
-  // Extraction fix (13.11.2026): a candidate has not passed the Human Gate, so it opens by id only when it would also be listed
-  // (research role, no contact details, no owner mention, no excluded material), exactly the admission of the finding pages.
+  // Extraction fix (13.11.2026): the exact finding follows the same display policy as the list and the share card, over the fields it
+  // shows (the stored Hebrew presentation as well as the statement; review finding CR-X2) - for every status.
+  if (!researchRowDisplayPolicyOk(researchObject)) return null;
+  // A candidate has not passed the Human Gate, so it opens by id only when it would also be listed (research role, no excluded
+  // material), exactly the admission of the finding pages.
   if (clean(researchObject.status).toLowerCase() === "candidate" && !await publicResearchPresentationEligible(researchObject)) return null;
 
   const [source, topics] = await Promise.all([

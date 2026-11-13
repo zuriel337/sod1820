@@ -31,7 +31,8 @@ Legend for the decision column: **taken** = same content as #1321 · **taken on 
 | `src/components/experience2029/sod2029.css` | `b83e890d3` | taken (4 lines: `.sod29-research-status`) |
 | `src/pages/World2029Page.jsx` | `b83e890d3` | taken |
 | `src/pages/worldComposition2029.css` | `1ebee2627` | taken (2 lines: fixed 16:9 thumbnail box) |
-| `api/og.js` | `b83e890d3` | taken (candidate accepted by the query and the status check; label; `noindex, nofollow`) |
+| `api/og.js` | `b83e890d3` | taken + adjusted (CR-X2): the share card uses the shared display policy and, for a candidate, the admission of the finding pages; `src/lib/research/worldZviApprovedFindings2029.js` and `worldPublicFindingReader.js` carry the same policy |
+| `api/og.js` (original line) | `b83e890d3` | taken (candidate accepted by the query and the status check; label; `noindex, nofollow`) |
 | `src/components/contributor2029/publicContributor2029Model.js` | `5ded5b7e1` | **taken on main** (see B) |
 | `src/pages/PublicContributor2029Page.jsx` | `5ded5b7e1` | **taken on main** (see B) |
 | `src/components/contributor2029/publicContributor2029.test.js` | `6e1068b23` | taken (mock answers the table `v2`) |
@@ -46,6 +47,7 @@ Legend for the decision column: **taken** = same content as #1321 · **taken on 
 | `test/world-public-finding-reader-2029.test.mjs` | `b83e890d3` | taken. **Changed expectation:** the status filter includes `candidate`; the mock table is `topic_cards_public` |
 | `test/world-public-reader-contract-2029.test.mjs` | `b83e890d3` | taken. **Changed expectation:** a public candidate is now in the DTO after the verified rows (status `candidate`, label «טרם אومت», not verified, no `terms` leaked) and opens as an exact finding; the old assertion that it was `null` is replaced; `duplicateProjection` counts follow (raw research rows 2 to 3, clustered 1 to 2); `topic_cards_public` mock table |
 | `test/public-content-privacy-2029.test.mjs` | none | **added**: one test per privacy claim (status kept, private / person_only / dossier hidden, contact details, owner mention, excluded material, non-live source, no contributor id, share card) |
+| `test/public-content-display-policy-20261113.test.mjs` | none | **added** (CR-X2): the real share handler, the real exact reader and the list admission on the same synthetic rows: contact details and owner mentions in the statement and in the stored Hebrew presentation, for a candidate and an approved row; the allowed cases |
 | `test/m0d-world-candidate-visible.browser.mjs` | none | **added**: new site vs pre-change site on the exact finding, in Chromium |
 | `test/topic-public-findings-via-number-2029.browser.test.mjs` | none (existing file of main) | **added edit**: manual path runs without `IntersectionObserver`; new test for the automatic path |
 | `test/public-content-package-scope-20261113.test.mjs` | none | **added**: pins this file list, the SQL bytes, the `v2` readers and contract section 8.3 |

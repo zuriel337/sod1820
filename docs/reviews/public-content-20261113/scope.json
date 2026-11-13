@@ -38,6 +38,7 @@
     "test/m0d-contributor-stale-client.browser.mjs",
     "test/m0d-contributor-view-v2.test.mjs",
     "test/m0d-world-candidate-visible.browser.mjs",
+    "test/public-content-display-policy-20261113.test.mjs",
     "test/public-content-package-scope-20261113.test.mjs",
     "test/public-content-privacy-2029.test.mjs",
     "test/public-research-candidates-visible-2029.test.mjs",

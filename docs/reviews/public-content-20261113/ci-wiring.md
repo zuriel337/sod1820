@@ -22,6 +22,7 @@ Anchor: insert after the step named *"Analytics measurement contracts (public GA
           node --test
           test/public-research-candidates-visible-2029.test.mjs
           test/public-content-privacy-2029.test.mjs
+          test/public-content-display-policy-20261113.test.mjs
           test/m0d-contributor-view-v2.test.mjs
           test/public-content-package-scope-20261113.test.mjs
           test/world-all-source-findings-2029.test.mjs
@@ -33,7 +34,7 @@ Anchor: insert after the step named *"Analytics measurement contracts (public GA
           src/components/contributor2029/publicSourceCatalog2029.test.js
 ```
 
-Result on this branch: 12 + 11 + 10 + 4 + 10 + 8 + 4 + 4 + 19 + 12 + 9 = 103 tests, all pass, none skipped (with the four commits fetched).
+Result on this branch: 12 + 11 + 17 + 10 + 4 + 10 + 8 + 4 + 4 + 19 + 12 + 9 = 120 tests, all pass, none skipped (with the four commits fetched).
 Why: it is the code half of the package. The four world tests and the three `src/` tests were changed by this package (they were wired nowhere before, or inside other steps of #1321); wiring them keeps their changed expectations from drifting.
 If the repository later removes the fetch for `9be0c29fc`, drop that SHA from the list in `test/m0d-contributor-view-v2.test.mjs` (`LIVE_COMMITS`) in the same change.
 

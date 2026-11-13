@@ -193,7 +193,9 @@ test("share card and OG card carry the label; candidates stay noindex", async ()
   assert.equal(worldFindingPublicShare({ ...base, status: "candidate", access: "private" }), null);
 
   const row = { id: id(1), statement: "ממצא", kind: "observation", source: "posts", source_ref: "posts:5123",
-    contributor: "חוקר", status: "candidate", privacy_scope: "public", meta: {} };
+    contributor: "חוקר", status: "candidate", privacy_scope: "public",
+    // CR-X2 (13.11.2026): the card follows the admission of the finding pages, which needs the research role of a candidate.
+    meta: { ext: { presentation: { statement_role: "research_statement" } } } };
   const oldFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
     const url = String(input);

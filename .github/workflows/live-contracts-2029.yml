@@ -159,6 +159,7 @@ jobs:
           node --test
           test/public-research-candidates-visible-2029.test.mjs
           test/public-content-privacy-2029.test.mjs
+          test/public-content-display-policy-20261113.test.mjs
           test/m0d-contributor-view-v2.test.mjs
           test/public-content-package-scope-20261113.test.mjs
           test/world-all-source-findings-2029.test.mjs

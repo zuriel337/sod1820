@@ -16,6 +16,7 @@ import { createVideoAssetReader, createVideoAssetSource, VIDEO_ASSET_MV } from "
 import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
 import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
 import { worldPreviewMaterialExclusion } from '../src/lib/research/worldPreviewMaterialScope.js';
+import { publicResearchPresentationEligible, researchRowDisplayPolicyOk } from '../src/lib/research/worldZviApprovedFindings2029.js';
 // רובוטים של פייסבוק/וואטסאפ/טלגרם לא מריצים JS, ולכן הם מנותבים לכאן (לפי User-Agent
 // ב-vercel.json) ומקבלים HTML עם הכותרת/התיאור/התמונה הנכונים של אותו פוסט. משתמשים
 // רגילים (וגוגל, שמריץ JS) ממשיכים לקבל את ה-SPA כרגיל.
@@ -815,8 +816,13 @@ export default async function handler(req, res) {
         if (!response.ok) throw new Error('public_finding_lookup_failed');
         const rows = await response.json();
         const row = Array.isArray(rows) ? rows[0] : null;
+        // CR-X2 (13.11.2026): the card follows the same display policy as the exact finding and the list - over the fields it shows
+        // (statement, contributor, the stored Hebrew presentation) - for every status, and a candidate also needs the admission of the
+        // finding pages (research role). The card can therefore not show a contact detail the page refuses.
         const excluded = row && (worldPreviewMaterialExclusion(row, 'research_object')
-          || row.meta?.ext?.personal_scope?.scope === 'person_only');
+          || row.meta?.ext?.personal_scope?.scope === 'person_only'
+          || !researchRowDisplayPolicyOk(row)
+          || (row.status === 'candidate' && !await publicResearchPresentationEligible(row)));
         let exactSourceAllowed = true;
         const channelRef = /^channel_updates:([^#]+)(?:#.*)?$/i.exec(String(row?.source_ref || ''));
         if (row && !excluded && channelRef) {
