@@ -259,6 +259,9 @@ jobs:
           node --test
           test/now-publications-2029.test.mjs
           test/now-writer-pins-2029.test.mjs
+          test/gilui-yomi-now-discussion-2029.test.mjs
+          test/system-feed-public-sources-2029.test.mjs
+          src/lib/community/communityArchive.test.js
           test/now-media-centred-2029.test.mjs
           test/home-live-updates-2029.test.mjs
           test/home-featured-post-2029.test.mjs

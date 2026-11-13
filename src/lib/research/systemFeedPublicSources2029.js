@@ -7,6 +7,14 @@ import { gallerySourceHref2029 } from "./topicSourceContext.js";
 import { CONTENT_SERIES_2029 } from "./contentSeries2029Identity.js";
 import { fetchApprovedContentSeriesSources2029, fetchContentSeriesCatalog2029 } from "./contentSeries2029Projection.js";
 
+const GILUI_YOMI_CARD_ID = "ad270354-41ab-4d4d-8bf5-030e0452406d";
+const GILUI_YOMI_ROOT_ID = "2c22eafe-5847-4c31-a510-2abfd1fa3291";
+const GILUI_YOMI_SOURCE_REFS = Object.freeze([
+  "60ee7dd1-f2c2-42b0-8a36-89a4fa9190e4", "8c30a12a-57da-49a8-a454-748c674fc6b0",
+  "8594a16e-b68d-4d5c-a7ed-491a76097eb7", "9ae687a5-69f6-4196-8884-35395c0b1b1a",
+  "82ff208e-20b5-47b4-a572-d62db931b234", "ac57bf9c-d19e-421d-83f8-15351664189c",
+].map(id => `channel_updates:${id}`));
+
 export const NOW_PUBLIC_CHANNELS_2029 = Object.freeze({
   "gilui-yomi": "הגילוי היומי", "site-news": "עדכוני האתר", "reality-code": "קוד המציאות",
   "sod-hachashmal": "סוד החשמל", "or-geula": "אור הגאולה",
@@ -57,6 +65,26 @@ export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
     // The owner's own mark (channel_updates.priority above the default 50): the one update of a second-tier channel that stands on its own.
     ownerFeatured: Number.isFinite(Number(row.priority)) && Number(row.priority) > 50 };
 }
+async function giluiYomiThreadItem(row, { api, now, signal }) {
+  if (row.id !== GILUI_YOMI_CARD_ID) return publicChannelToSystemItem(row, { now });
+  if (row.channel !== "gilui-yomi" || row.link_url !== `/community/chat?thread=${GILUI_YOMI_ROOT_ID}`) return null;
+  const update = publicChannelToSystemItem(row, { now });
+  if (!update) return null;
+  const { fetchCommunityThread } = await import("../community/communityArchive.js");
+  const root = await fetchCommunityThread(GILUI_YOMI_ROOT_ID, { client: api, signal });
+  if (!root || root.origin !== "community_2029" || root.isDeleted || !root.body?.trim()) return null;
+  const title = text(root?.title);
+  if (!title) return null;
+  return {
+    ...update, id: `community:${root.id}`, sourceKind: "community_thread",
+    sourceGroupLabel: NOW_PUBLIC_CHANNELS_2029["gilui-yomi"],
+    sourceGroup: { key: "gilui-yomi", label: NOW_PUBLIC_CHANNELS_2029["gilui-yomi"] },
+    sourceRefs: [update.sourceRef, ...GILUI_YOMI_SOURCE_REFS],
+    label: title, fullText: "", summary: update.fullText, href: row.link_url,
+    publicState: "published_community_thread", ownerFeatured: false,
+  };
+}
+
 export function publicGalleryToSystemItem(row) {
   if (!UUID.test(row?.id || "") || row.source !== "update" || row.min_tier == null || Number(row.min_tier) !== 0 || Number(row.published) !== 1 || row.curator_hidden === true) return null;
   const label = text(row.name || row.description), at = date(row.stream_at) || date(row.created_at);
@@ -121,7 +149,15 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
   const seriesStates = seriesResults.map((r, i) => ({ source: `series:${seriesSpecs[i].key}`,
     status: r.status === "rejected" ? "failed" : r.value.sourceStates.some(state => state.state === "access_filtered") ? "access_filtered"
       : r.value.sourceStates.some(state => state.state !== "measured") ? "failed" : r.value.items.length ? "read" : "measured_empty" }));
-  const channelItems = results.flatMap((r, i) => r.status === "fulfilled" ? r.value.map(row => i < keys.length ? publicChannelToSystemItem(row, { now }) : publicGalleryToSystemItem(row)).filter(Boolean) : []);
+  const channelItems = (await Promise.all(results.map(async (result, i) => {
+    if (result.status !== "fulfilled") return [];
+    if (i >= keys.length) return result.value.map(publicGalleryToSystemItem);
+    return Promise.all(result.value.map(row => giluiYomiThreadItem(row, { api, now, signal }).catch(() => {
+      if (!signal?.aborted) sourceStates[i] = { source: keys[i], status: "failed" };
+      return null;
+    })));
+  }))).flat().filter(Boolean);
+  if (signal?.aborted) throw new DOMException("Now source read canceled", "AbortError");
   // Series-approved occurrences go first: the same channel id keeps ONE row, enriched with its exact video/series.
   const ids = new Set(seriesItems.map(item => item.id));
   const catalogItems = catalogResult.catalog ? seriesCatalogToSystemItems(catalogResult.catalog) : [];

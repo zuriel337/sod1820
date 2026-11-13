@@ -12,6 +12,7 @@ export function feedKindLabel(item) {
   if (item?.kind === "convergence") return "התכנסות";
   if (item?.kind === "finding") return "ממצא";
   if (item?.kind === "source") return item.sourceKind === "group_message" ? "מקור · טרם נבדק"
+    : item.sourceKind === "community_thread" ? "דיון בקהילה"
     : item.sourceKind === "channel_update" ? "עדכון ערוץ" : item.sourceKind === "gallery_update" ? "תמונה בזרם המציאות" : "פוסט";
   return "עדכון";
 }
@@ -48,7 +49,7 @@ export function feedRows(items = [], { now = Date.now(), seen = {}, strongIds = 
   }));
   // One kind must not drown the others (source-group messages arrive in bursts): cap each bucket by newest first.
   // An item with an approved series identity is bucketed by series, so a series is represented even when the shared recent window is full.
-  const bucket = (row) => row.item?.seriesKey ? `series:${row.item.seriesKey}` : (row.kind === "source" ? (row.item.sourceKind === "group_message" ? "group" : row.item.sourceKind === "channel_update" ? `channel:${row.item.channel}` : row.item.sourceKind === "gallery_update" ? "gallery" : "post") : row.kind);
+  const bucket = (row) => row.item?.seriesKey ? `series:${row.item.seriesKey}` : (row.kind === "source" ? (row.item.sourceKind === "group_message" ? "group" : ["channel_update", "community_thread"].includes(row.item.sourceKind) ? `channel:${row.item.channel}` : row.item.sourceKind === "gallery_update" ? "gallery" : "post") : row.kind);
   // A pinned item (the owner's pin, or a writer pin while its pinUntil is ahead) is never dropped by a bucket cap or the limit:
   // it takes its place first and the other rows fill what is left. The output order stays chronological.
   // A writer holds ONE pin at a time — his newest arrival in the pin window. His older arrivals stay regular rows (under the same caps)
@@ -90,4 +91,24 @@ export function mergeSystemFeedItems(items = [], additional = []) {
     out.push(item);ids.add(item.id);refs.forEach(ref => seen.add(ref));
   }
   return out;
+}
+
+/** A published discussion replaces its imported occurrences in Now. */
+export function mergeNowDiscussionItems(streamItems, detailItems) {
+  const discussions = detailItems.filter(item => item.sourceKind === "community_thread");
+  if (!discussions.length) return mergeSystemFeedItems(streamItems, detailItems);
+
+  const groups = new Set(discussions.map(item => item.sourceGroup.key));
+  const imported = new Set(discussions.flatMap(item => item.sourceRefs));
+  const publicStream = streamItems.flatMap(item => {
+    const refs = item.sourceRefs?.length ? item.sourceRefs : [item.sourceRef];
+    if (refs.every(ref => imported.has(ref))) return [];
+    // Grouped arrivals can also contain a message that was never imported.
+    if (item.sourceKind !== "group_message" || !groups.has(item.sourceGroup?.key)) return [item];
+    return [{ ...item, pinned: false, pinKind: null, pinUntil: null }];
+  });
+  const otherDetails = detailItems.filter(item => item.sourceKind !== "community_thread" && !imported.has(item.sourceRef));
+  // Apply the normal merge to unrelated items first. A multi-occurrence group
+  // keeps its unimported content even when it shares one source with the discussion.
+  return [...discussions, ...mergeSystemFeedItems(publicStream, otherDetails)];
 }

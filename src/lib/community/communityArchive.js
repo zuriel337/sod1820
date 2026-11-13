@@ -36,9 +36,11 @@ const COMMUNITY_ORIGINS = ["openweb", "community_2029"];
 // columns; this consumer requests only public message credit, never private
 // Contributor account/avatar fields.
 const COMMUNITY_RPC_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
-async function readCommunityRpc(name, args, client = communityReadClient()) {
+async function readCommunityRpc(name, args, client = communityReadClient(), signal) {
   if (typeof client?.rpc !== "function") return null;
-  const { data, error } = await client.rpc(name, args).select(COMMUNITY_RPC_FIELDS);
+  let query = client.rpc(name, args).select(COMMUNITY_RPC_FIELDS);
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error?.code === "PGRST202" || error?.code === "42883") return null;
   if (error) throw error;
   if (!Array.isArray(data)) throw new Error("invalid public community response");
@@ -240,14 +242,14 @@ export async function fetchCommunityMessagePath(messageId, { client = communityR
 // Exact public root reader for links from the private "Replies to me" inbox.
 // It does not search by text/name and never widens visibility: only an approved
 // root from one of the two public community origins can be returned.
-export async function fetchCommunityThread(threadId, { client = communityReadClient() } = {}) {
+export async function fetchCommunityThread(threadId, { client = communityReadClient(), signal } = {}) {
   if (!UUID_PATTERN.test(threadId || "")) throw new Error("invalid thread id");
-  const projected = await readCommunityRpc("community_message_context", { p_id: threadId }, client);
+  const projected = await readCommunityRpc("community_message_context", { p_id: threadId }, client, signal);
   if (projected) {
     const root = projected.find(row => row.id === threadId && row.parent_id == null && COMMUNITY_ORIGINS.includes(row.origin));
     return root ? normalizeCommunityRow(root) : null;
   }
-  const { data, error } = await client
+  let query = client
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)")
     .eq("id", threadId)
@@ -255,6 +257,8 @@ export async function fetchCommunityThread(threadId, { client = communityReadCli
     .in("origin", COMMUNITY_ORIGINS)
     .is("parent_id", null)
     .maybeSingle();
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error) throw error;
   return data ? normalizeCommunityRow(data) : null;
 }
