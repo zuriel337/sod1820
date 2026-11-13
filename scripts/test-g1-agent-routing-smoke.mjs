@@ -79,7 +79,8 @@ import { parseLawsSnapshot, validateLawsSnapshot, compareLawsSnapshots, migratio
   parseLawApprovals, validateLawApprovals, unroutedContractFiles, ownerIndexOwnerViolations, registeredContractChangeViolations,
   structuresCreated, applyPlanSqlPaths, isContractFile, parseCodexSlugs, newestDated, checkSnapshotTransition, codexAdditionViolations,
   lexSql, registeredDocumentOwners, newDocumentOwnerViolations, selectIntoTables, RUNTIME_CODE_DIRS, isRuntimeCodeFile,
-  retiredLawReferences, parseRetiredReferences, retiredReferenceViolations, retiredReferenceRecordViolations } from './lib/g1LawsSnapshotRules.mjs';
+  retiredLawReferences, parseRetiredReferences, retiredReferenceViolations, retiredReferenceRecordViolations,
+  CODEX_MASTER_CATEGORIES, isCodexMasterSlug, CONTRACT_FILE } from './lib/g1LawsSnapshotRules.mjs';
 
 test('captured main Codex/Claude/Design blobs remain exact historical evidence; current adapters retain safety gates', () => {
   // Oct9 hashes seal the Oct9 source, not every later authorized adapter update.
@@ -574,6 +575,38 @@ test('ROUND 2 · project_codex.<slug> resolves only for a proven codex item; the
   assert.match(codexAdditionViolations(codexSlugs, next, parseLawApprovals('C|brand_new_codex_item|ZURIEL said yes|2026-11-13')).join('\n'), /without a recorded approval/);
   assert.deepEqual(codexAdditionViolations(codexSlugs, next, parseLawApprovals('C|brand_new_codex_item|' + REF + '|2026-11-13')), []);
   assert.deepEqual(validateLawApprovals(parseLawApprovals('C|brand_new_codex_item|' + REF + '|2026-11-13'), lawsSnapshot).violations, []);
+});
+
+// B5 (13.11.2026) · project_codex: a new master-type item is refused. Owner: project_codex._index (owner-first: extend an existing item).
+test('B5 · a new master-type project_codex slug is refused, an ordinary approval does not admit it; ordinary and existing items are allowed', () => {
+  // the category words are the summary categories of the contract-file list, plus the two names the standing rule lists beside them
+  for (const c of ['master', 'registry', 'final']) assert.match('docs/X_' + c.toUpperCase() + '.md', CONTRACT_FILE, c + ' is a contract-file category too');
+  assert.deepEqual([...CODEX_MASTER_CATEGORIES], ['master', 'registry', 'final', 'system_map', 'owner_map']);
+  for (const slug of ['sod1820_master_v4', 'sod1820-master-plan', 'analytics_FINAL', 'engine_registry_v2', 'system_map', 'new-owner-map_v1'])
+    assert.equal(isCodexMasterSlug(slug), true, slug);
+  for (const slug of ['brand_new_codex_item', 'remastered_audio_notes', 'finalists_2026', 'session_2026_11_13', 'traffic_privacy_addendum_law', 'owner_notes', 'map_of_sources'])
+    assert.equal(isCodexMasterSlug(slug), false, slug);
+  // REFUSED: a new master-type slug, with no approval, with a malformed one, and with a well-formed ORDINARY approval (kind C)
+  const next = new Set([...codexSlugs, 'sod1820_master_v4']);
+  const refused = /project_codex\.sod1820_master_v4: new master-type codex item is refused/;
+  assert.match(codexAdditionViolations(codexSlugs, next, []).join('\n'), refused);
+  assert.match(codexAdditionViolations(codexSlugs, next, parseLawApprovals('C|sod1820_master_v4|' + REF + '|2026-11-13')).join('\n'), refused, 'an ordinary codex approval is not enough');
+  assert.match(codexAdditionViolations(codexSlugs, next, parseLawApprovals('CM|sod1820_master_v4|ZURIEL said yes|2026-11-13')).join('\n'), refused, 'the reference must be a journal record');
+  assert.match(codexAdditionViolations(codexSlugs, next, parseLawApprovals('CM|another_master_item|' + REF + '|2026-11-13')).join('\n'), refused, 'the approval must name this slug');
+  assert.match(validateLawApprovals(parseLawApprovals('CM|sod1820_master_v4|ZURIEL said yes|2026-11-13'), lawsSnapshot).violations.join('\n'), /approval reference is not work_log:<uuid>/);
+  // ALLOWED: (1) the master-type items that already exist are not new; (2) an ordinary new item with its ordinary approval;
+  // (3) a master-type item with its own recorded approval line (the decision itself stays a human gate and is listed as one)
+  const existingMasters = [...codexSlugs].filter(isCodexMasterSlug).sort();
+  assert.deepEqual(existingMasters, ['sod1820-master-architecture-draft', 'sod1820_motion_identity_master_v1', 'sod1820_reality_stream_os_master_v3_20261016_draft']);
+  assert.deepEqual(codexAdditionViolations(codexSlugs, new Set(codexSlugs), []), [], 'existing master-type items are never re-judged');
+  assert.deepEqual(codexAdditionViolations(new Set(), currentCodex, parseLawApprovals([...currentCodex].filter(x => !isCodexMasterSlug(x)).map(x => 'C|' + x + '|' + REF + '|2026-11-13').join('\n'))).map(x => x.split(':')[0]).sort(),
+    existingMasters.map(x => 'project_codex.' + x), 'against an empty base only the master-type items stay refused');
+  assert.deepEqual(codexAdditionViolations(codexSlugs, new Set([...codexSlugs, 'brand_new_codex_item']), parseLawApprovals('C|brand_new_codex_item|' + REF + '|2026-11-13')), []);
+  const cm = parseLawApprovals('CM|sod1820_master_v4|' + REF + '|2026-11-13');
+  assert.deepEqual(codexAdditionViolations(codexSlugs, next, cm), []);
+  const checked = validateLawApprovals(cm, lawsSnapshot);
+  assert.deepEqual(checked.violations, []);
+  assert.match(checked.humanGate.join('\n'), /project_codex\.sod1820_master_v4 <- work_log:[0-9a-f-]{36} \(a NEW MASTER-TYPE codex item/);
 });
 
 test('ROUND 2 · OWNER-ROUTING: GENUINELY_NEW_DOMAIN and SUPERSEDE_EXISTING are declarations, not approvals', () => {

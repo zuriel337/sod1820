@@ -166,10 +166,10 @@ export function validateLawApprovals(entries, next) {
   const violations = []; const humanGate = []; const seen = new Set();
   const active = new Set(next.active.map((x) => x.rule_id));
   for (const e of entries) {
-    if (e.kind === 'C') { // a codex item approval (codexAdditionViolations decides whether it is needed); only its form is checked here
+    if (e.kind === 'C' || e.kind === 'CM') { // a codex item approval (codexAdditionViolations decides whether it is needed); only its form is checked here
       if (!e.rule_id || !/^\d{4}-\d{2}-\d{2}$/.test(e.date || '')) violations.push('approval line malformed: ' + e.line);
       else if (!APPROVAL_REF.test(e.ref || '')) violations.push('project_codex.' + e.rule_id + ': approval reference is not work_log:<uuid> (' + e.ref + ')');
-      else humanGate.push('project_codex.' + e.rule_id + ' <- ' + e.ref + ' (authenticity: human gate)');
+      else humanGate.push('project_codex.' + e.rule_id + ' <- ' + e.ref + (e.kind === 'CM' ? ' (a NEW MASTER-TYPE codex item; authenticity and the owner-first decision: human gate)' : ' (authenticity: human gate)'));
       continue;
     }
     if (e.kind === 'D') { // a new document owner approval (newDocumentOwnerViolations decides whether it is needed); form only
@@ -205,9 +205,29 @@ export function checkSnapshotTransition(prev, next, ctx) {
 // structure in the codex store) and needs a recorded approval line 'C|<slug>|work_log:<uuid>|YYYY-MM-DD' in the approvals record.
 // The form is technical; that the record really is ZURIEL's approval and that the dated list really came from a read-only query of
 // the live table are human gates.
+//
+// B5 (13.11.2026) · a new MASTER-TYPE codex item. The owner router of the codex is project_codex._index, and the standing rule is
+// owner-first: extend an existing item, never add a new master / final / registry / system map / owner map to summarise old ones.
+// The category words are the summary categories of CONTRACT_FILE (MASTER, REGISTRY, FINAL), extended by the two names that rule lists
+// beside them. CONTRACT and LAW are not here: a codex pointer to a law or a contract stays an ordinary item (kind C).
+// A new slug of this type is refused, and an ordinary C approval does not admit it. The only way in is its own approval line
+// 'CM|<slug>|work_log:<uuid>|YYYY-MM-DD' (form: technical; that the record is ZURIEL's decision to supersede or to open a genuinely
+// new domain: human gate). Items already listed in the base record are not new and are never re-judged.
+export const CODEX_MASTER_CATEGORIES = Object.freeze(['master', 'registry', 'final', 'system_map', 'owner_map']);
+export function isCodexMasterSlug(slug) {
+  const s = '_' + String(slug || '').toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_'; // whole words only: 'remastered' is not 'master'
+  return CODEX_MASTER_CATEGORIES.some((c) => s.includes('_' + c + '_'));
+}
 export function codexAdditionViolations(prevSlugs, nextSlugs, entries) {
-  const v = []; const approved = new Set(entries.filter((e) => e.kind === 'C' && APPROVAL_REF.test(e.ref || '') && /^\d{4}-\d{2}-\d{2}$/.test(e.date || '')).map((e) => e.rule_id));
-  for (const s of nextSlugs) if (!prevSlugs.has(s) && !approved.has(s)) v.push('project_codex.' + s + ': new codex item without a recorded approval (C|' + s + '|work_log:<uuid>|date)');
+  const formed = (e) => APPROVAL_REF.test(e.ref || '') && /^\d{4}-\d{2}-\d{2}$/.test(e.date || '');
+  const v = []; const approved = new Set(entries.filter((e) => e.kind === 'C' && formed(e)).map((e) => e.rule_id));
+  const masterApproved = new Set(entries.filter((e) => e.kind === 'CM' && formed(e)).map((e) => e.rule_id));
+  for (const s of nextSlugs) {
+    if (prevSlugs.has(s)) continue;
+    if (isCodexMasterSlug(s)) {
+      if (!masterApproved.has(s)) v.push('project_codex.' + s + ': new master-type codex item is refused (extend an existing item; a superseding or genuinely new one needs CM|' + s + '|work_log:<uuid>|date)');
+    } else if (!approved.has(s)) v.push('project_codex.' + s + ': new codex item without a recorded approval (C|' + s + '|work_log:<uuid>|date)');
+  }
   return v;
 }
 
