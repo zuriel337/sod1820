@@ -4,9 +4,20 @@
  "state": "BRANCH-ONLY. Not applied, not deployed, not merged. This file is a statement of what each candidate contains; it is not an approval.",
  "branch": "claude/cl13-whatsapp-unit-20261113",
  "base": {
-  "origin_main": "aa0f6bc82b8c94286374b1f51208037502994eab",
-  "production_deployment": "dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ",
-  "read_at": "2026-11-13"
+  "historical_base_of_the_package": {
+   "commit": "aa0f6bc82b8c94286374b1f51208037502994eab",
+   "production_deployment_then": "dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ",
+   "note": "the commit the branch was cut from; kept as the base of the package; the branch is not rebased"
+  },
+  "current_state": {
+   "origin_main": "9be0c29fc52337069192b057ef1a9882c7026009",
+   "production_alias": "sod1820.co.il",
+   "production_deployment": "dpl_9paqBrZzi7D1GXow7LV8eWCjkpEF",
+   "production_source_commit": "9be0c29fc52337069192b057ef1a9882c7026009",
+   "read_at": "2026-11-13",
+   "edge_functions_changed_since_historical_base": [],
+   "note": "no file under supabase/functions changed between the historical base and the current main; artifact A is built on the deployed Edge bytes, not on main"
+  }
  },
  "source_references": {
   "edge_code_origin": {
@@ -78,10 +89,11 @@
    "closes": [
     "saving of the message of a linked sender and of a sender without an account (remember)",
     "extraction and saving of profile details (savePersonalData) and the '[facts-captured]' record for details that were not saved",
-    "reading the stored context into the answer (getContext)",
+    "the memory read of wa-raziel itself (its own getContext: the stored context it reads for the returning-user greeting of the private chat and for the group answers)",
     "the account-link message no longer says that everything is saved"
    ],
    "does_not_close": [
+    "the read through ai-analyze: the stored memory of a linked sender entering the WhatsApp answer stays open until step 2 (ai-analyze)",
     "the legacy site path of ai-analyze (function 2)",
     "the database level (the database step)",
     "rows that already exist"
@@ -208,7 +220,7 @@
    },
    "live_use": "On request. Reaches the memory only through fn_raziel_context and fn_raziel_remember. Two callers use that memory: a signed-in site request without the 2029 research contract, and the trusted WhatsApp channel of a linked sender.",
    "closes": [
-    "the stored context of a linked sender entering the WhatsApp answer and the site answer (read_personal)",
+    "the read through ai-analyze: the stored context of a linked sender entering the WhatsApp and the site answer (read_personal)",
     "remembering the subject of a site question (write_personal)",
     "context_sources.personal is true only when personal text really entered the prompt"
    ],

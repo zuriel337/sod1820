@@ -320,7 +320,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-      - name: CL-13 WhatsApp unit (16 tests of both functions on each deploy candidate, including the real wa-raziel to ai-analyze link, 13 of the deployed code in the intermediate states, 12 pins of the candidates, the rollbacks, the CL-13 lines and the release request; nothing is applied or deployed)
+      - name: CL-13 WhatsApp unit (16 tests of both functions on each deploy candidate, including the real wa-raziel to ai-analyze link, 13 of the deployed code in the intermediate states, 13 pins of the candidates, the rollbacks, the CL-13 lines and the release request; nothing is applied or deployed)
         run: bash scripts/run-cl13-whatsapp-unit-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real

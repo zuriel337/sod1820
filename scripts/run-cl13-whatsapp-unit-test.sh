@@ -13,7 +13,7 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 EXPECTED_UNIT=${CL13_WA_EXPECTED_UNIT:-16}
 EXPECTED_STATES=${CL13_WA_EXPECTED_STATES:-13}
-EXPECTED_PINS=${CL13_WA_EXPECTED_PINS:-12}
+EXPECTED_PINS=${CL13_WA_EXPECTED_PINS:-13}
 W=$(mktemp -d)
 DB_SHA=$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).source_references.database_step.sha)' "$ROOT/docs/reviews/cl13-whatsapp-unit-20261113/unit.json")
 DB_FILES=$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).source_references.database_step.files.join("\n"))' "$ROOT/docs/reviews/cl13-whatsapp-unit-20261113/unit.json")

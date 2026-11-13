@@ -157,3 +157,32 @@ test("the documents state the same test counts as the runner pins", () => {
   const workflow = text(readFileSync(new URL("../.github/workflows/live-contracts-2029.yml", import.meta.url)));
   assert.ok(workflow.includes(`CL-13 WhatsApp unit (${unit} tests of both functions`) && workflow.includes(`${states} of the deployed code`) && workflow.includes(`${pins} pins`), "workflow step name = runner counts");
 });
+
+test("the hand-over states the current main, keeps aa0f6bc82 as the historical base, separates the two memory reads, and counts new rows in the verification", () => {
+  const rr = doc("release-request.md"), readme = doc("README.md");
+  // 1. the current state and the historical base
+  assert.equal(UNIT.base.historical_base_of_the_package.commit, "aa0f6bc82b8c94286374b1f51208037502994eab");
+  assert.equal(UNIT.base.current_state.origin_main, "9be0c29fc52337069192b057ef1a9882c7026009");
+  assert.equal(UNIT.base.current_state.production_source_commit, UNIT.base.current_state.origin_main);
+  assert.deepEqual(UNIT.base.current_state.edge_functions_changed_since_historical_base, []);
+  for (const d of [rr, readme]) { assert.match(d, /9be0c29fc/); assert.match(d, /aa0f6bc82/); assert.match(d, /dpl_9paqBrZzi7D1GXow7LV8eWCjkpEF/); }
+  assert.match(rr, /Historical base of this package: `aa0f6bc82`/); assert.match(rr, /\*\*Now:\*\* `main` and the live site are at \*\*`9be0c29fc`\*\*/);
+  // 2. step 1 closes the read of wa-raziel itself; the read through ai-analyze is closed in step 2
+  assert.match(rr, /the memory read of `wa-raziel` itself\*\*/); assert.match(rr, /What step 1 does not close: the read through `ai-analyze`/);
+  assert.match(rr, /closed in step 2\*\*/); assert.match(rr, /Closes: \*\*the read through `ai-analyze`\*\*/);
+  const wa = UNIT.functions.find((f) => f.slug === "wa-raziel"), ai = UNIT.functions.find((f) => f.slug === "ai-analyze");
+  assert.ok(wa.closes.some((c) => /memory read of wa-raziel itself/.test(c))); assert.ok(wa.does_not_close.some((c) => /read through ai-analyze/.test(c) && /step 2/.test(c)));
+  assert.ok(ai.closes.some((c) => /^the read through ai-analyze/.test(c)));
+  assert.doesNotMatch(wa.closes.join(" "), /into the answer/, "wa-raziel's closes no longer claim the answer");
+  // 3. the verification counts new rows; the date restriction is only for the stamp of the earlier rows
+  assert.match(rr, /`n` and `newest` are compared as they are, over all rows including new ones/);
+  assert.match(rr, /The date restriction is used for nothing else than the `stamp_of_earlier_rows` comparison/);
+  assert.match(rr, /No new row means that \*\*no save was observed\*\*\. It does not prove that a write function was not called/);
+  const sql = rr.match(/```sql\n([\s\S]*?)```/)[1];
+  assert.match(sql, /count\(\*\) as n, max\(created_at\) as newest,/, "n and newest carry no date filter");
+  for (const line of sql.split("\n").filter((l) => /count\(\*\)/.test(l))) assert.doesNotMatch(line, /<=/, "the count/newest line has no date restriction");
+  assert.equal([...sql.matchAll(/filter \(where t\.created_at <= :'B[012]'::timestamptz\)/g)].length, 3, "the date restriction is only in the three stamp expressions");
+  assert.doesNotMatch(rr, /restrict the after-read to `created_at <= before\.newest` for the stamp/, "the old wording is gone");
+  assert.match(readme, /The count and the newest date are over all rows, new ones included/);
+  assert.match(readme, /does not prove that a write function was not called/);
+});
