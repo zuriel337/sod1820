@@ -100,7 +100,8 @@ test("OG exact finding preview uses anonymous approved/public row, real title, c
   assert.equal(headers["cache-control"], "no-store");
   const query = called.find(x => x.includes("/rest/v1/research_objects?"));
   assert.match(query, /privacy_scope=eq.public/);
-  assert.match(query, /status=in\.\(approved,canonical\)/);
+  // ZURIEL 12.11.2026: a public candidate is readable for its labelled, noindex card.
+  assert.match(query, /status=in\.\(approved,canonical,candidate\)/);
   assert.doesNotMatch(html, /מקור הפנימי אינו כותרת/);
 });
 
@@ -155,7 +156,7 @@ test("public reader ignores numeric/namespaced entity targets in UUID Topic filt
   const byTable = {
     research_objects: { data: research, error: null },
     posts: { data: { id: 5123, slug: "public-source-fixture", title: "מקור ציבורי", tags: [], source: "ai" }, error: null },
-    topic_cards: { data: [{ id: "a238cb3e-ff78-4f68-ad00-4bd2f3640083", slug: "india-axis",
+    topic_cards_public: { data: [{ id: "a238cb3e-ff78-4f68-ad00-4bd2f3640083", slug: "india-axis",
       title: "הודו", status: "approved", node_id: uuidTarget }], error: null },
   };
   const fakeClient = {

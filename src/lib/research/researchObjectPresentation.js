@@ -58,6 +58,41 @@ const OCCURRENCE_LABELS = Object.freeze({
   family_relation: "קשר משפחתי",
 });
 
+// Governance axis (truth_axes_foundation_law, AXIS 3: research_objects.status) as a public
+// reader may present it. ZURIEL 12.11.2026: every privacy_scope='public' finding is viewable
+// without individual approval; a candidate keeps its stored status and is shown as "טרם אומת".
+// This only labels a value the row already owns; it never promotes, writes or infers a state.
+export const RESEARCH_VERIFIED_PUBLIC_STATUSES = Object.freeze(["approved", "canonical"]);
+export const RESEARCH_PUBLIC_VISIBLE_STATUSES = Object.freeze(["approved", "canonical", "candidate"]);
+const RESEARCH_PUBLIC_STATUS_PRESENTATION = Object.freeze({
+  canonical: Object.freeze({ status: "canonical", label: "קנוני", verified: true, tier: 0, tone: "canonical",
+    detail: "הממצא עבר את השער האנושי וקודם לידע הקנוני." }),
+  approved: Object.freeze({ status: "approved", label: "מאושר", verified: true, tier: 0, tone: "approved",
+    detail: "הממצא עבר את השער האנושי." }),
+  candidate: Object.freeze({ status: "candidate", label: "טרם אומת", verified: false, tier: 1, tone: "unverified",
+    detail: "ממצא ציבורי שטרם עבר את השער האנושי. מוצג כפי שנקלט, בלי קידום אוטומטי." }),
+});
+
+/** Public label for a stored research status, or null when the status is not publicly viewable. */
+export function researchPublicStatusPresentation(status) {
+  return RESEARCH_PUBLIC_STATUS_PRESENTATION[clean(status)?.toLowerCase()] || null;
+}
+
+export function isResearchPublicVisibleStatus(status) {
+  return Boolean(researchPublicStatusPresentation(status));
+}
+
+/**
+ * Stable governance partition for public lists: Human-Gate verified rows keep their existing
+ * order and come first; public candidates follow in their own existing order. Ranking is never
+ * changed inside a tier, so a flood of candidates cannot displace a verified row.
+ */
+export function orderResearchByPublicStatusTier(rows = [], statusOf = (row) => row?.status) {
+  const list = Array.isArray(rows) ? rows : [];
+  const tier = (row) => researchPublicStatusPresentation(statusOf(row))?.tier ?? 0;
+  return [...list.filter((row) => tier(row) === 0), ...list.filter((row) => tier(row) !== 0)];
+}
+
 export function normalizeResearchPresentationLocale(locale = "he") {
   const value = clean(locale)?.toLowerCase().replace(/_/g, "-") || "he";
   return value;
