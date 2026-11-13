@@ -1,0 +1,126 @@
+{
+ "purpose": "CL-13 database package, FOCUSED BRANCH (extracted from #1321 for review only). The only place where this package continues: nothing is maintained in parallel in #1321. A proposal; nothing here applies SQL. It runs only with ZURIEL's explicit approval of this exact file, after the Edge code.",
+ "source": {
+  "repo": "zuriel337/sod1820",
+  "pull_request": 1321,
+  "source_branch": "claude/sod1820-system-audit-roadmap-3793us",
+  "review_point_of_package_1": "0e928e34b4a26ca694dd49b4698ed8431cc68020",
+  "verified_by_codex_with_ci_15_of_15": "4a406fed273b9b381577c5b2a03d91c58de46451",
+  "this_branch_base": "aa0f6bc82b8c94286374b1f51208037502994eab (origin/main = Production source)",
+  "extracted_files": [
+   "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql",
+   "supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql",
+   "tests/sql/cl13_personal_memory_pause_v1.sql",
+   "tests/sql/fixtures/cl13_memory_live_base_20261112/ (5 files)",
+   "scripts/run-cl13-personal-memory-sql-test.sh",
+   "docs/reviews/cl13-personal-memory-20261112/apply-plan.json (trimmed to this step)"
+  ],
+  "stays_in_1321_frozen_at_4a406fed2": "The Edge code of the six functions, the rollback manifests, the release units with bundle hashes, the handler and intermediate-state tests, the M0 package. The copies of the proposal and its tests that remain there are SUPERSEDED by this branch and are not maintained.",
+  "the_two_findings_of_codex_fixed_here": [
+   "a canonical title over a personal body was saved and returned without consent (permission to use research must rest on a verified source or an approval of the record AND its content)",
+   "the default erasure deleted neutral research that had no approval (the permission to use is not the classification for deletion)"
+  ]
+ },
+ "test": "bash scripts/run-cl13-personal-memory-sql-test.sh (this branch alone: 16 lifecycle cases, 110 behaviour checks, PostgreSQL 16.15 and 17.12). The handler tests and the intermediate-state tests of the Edge half run in #1321 and are NOT in this branch.",
+ "steps": [
+  {
+   "step": "CL13-1",
+   "file": "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql",
+   "sha256": "ec3dfbb080fd2d0fddd007befd588d9d901c357a5b4c023580a146a04538a336",
+   "rollback": "supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql",
+   "rollback_sha256": "2a224a4ae1875817d67f5be9c30ae3f632538f6686f6ac4da4d07a162d39b7ce",
+   "status": "proposed (round 9)",
+   "depends_on": [
+    "EDGE-CL13: the Edge code of the six functions is deployed first (apply-plan.json of #1321, required_order). This branch does not change that order.",
+    "public.tanach_verses exists (live: 23,204 verses); the file stops without it"
+   ],
+   "verify": "the state text pinned in the file (the md5 of each of the 22 function definitions and the trigger text, enabled); owner, privileges, SECURITY DEFINER, search_path and volatility of the five replaced functions unchanged; no client role may execute a server-only function (all checked inside the file)",
+   "what": "One policy owner (fn_personal_memory_policy_v1 = the pause); the writers return a real status and write nothing; a trigger on public.agent_user_memory refuses every other writer with an error; fn_raziel_context returns an empty personal context without a verified consent and never in a group; export and erasure of memory without deleting the account. Research (round 9): research is written and may be read during the pause only when the RECORD AND ITS CONTENT are positively attested - an approval of an existing row, bound by a fingerprint to the content that was approved, or a record that is wholly canonical Tanakh text - and carry no personal detail (a veto). A matching title, a source string a writer declares, and the absence of a match to the personal-detail filter prove nothing. research_output_write is enforced by the writer function and the trigger, direct writes included. Erasure (round 9): the permission to use research is not the classification for deletion. The default erasure removes personal memory only; a neutral research-typed row stays, approved or not, unless the person asks for research too. Profile facts have their own key (write_profile_facts): a consent to memory does not open them (D-CL13-3).",
+   "preflight": "Fail-closed: the file continues only when the state is exactly the live 12.11.2026 state or exactly the applied state. Also stops when public.tanach_verses (the canonical text that attests a quotation) is missing."
+  }
+ ],
+ "required_order": [
+  "1. EDGE-CL13: the Edge code of all six functions first (apply-plan.json of #1321). Unchanged by this extraction.",
+  "2. CL13-1: this file, after them. D-ORDER (database first, alone) remains an open decision and is not taken here."
+ ],
+ "rollback_order": [
+  "1. ROLLBACK file of step CL13-1 (restores the five live bodies exactly, drops the trigger and the seventeen new functions). It brings back writing by every writer that ignores the policy and reading without consent in the database: decide that before running it.",
+  "2. The Edge code may stay: without the policy function it is closed."
+ ],
+ "dependencies": [
+  "public.tanach_verses (canonical text).",
+  "The Edge half deployed and verified (unless D-ORDER is decided otherwise).",
+  "The live state equal, at apply time, to the state pinned in the file (five function md5s, no trigger on the table): the file stops by itself otherwise.",
+  "Explicit approval of ZURIEL for the exact file and its SHA-256; the review of Codex."
+ ],
+ "missing_decisions": [
+  {
+   "id": "D-ORDER",
+   "who": "ZURIEL / Codex",
+   "what": "Edge first for all six functions (kept) or the database step first, alone."
+  },
+  {
+   "id": "D-RESEARCH-APPROVAL",
+   "who": "ZURIEL / Codex",
+   "what": "How research becomes usable during the pause: an approval act on an existing row, which binds its content (the trigger supports it; no administrative function performs it yet), or a record that is wholly canonical text. Until rows are approved NOTHING is research: the reader returns no research without the person's consent. Approving the existing 72 rows that come from imported method documents would be a separate data change with its own approval; it is not in this file."
+  },
+  {
+   "id": "D-ERASE",
+   "who": "ZURIEL",
+   "what": "Whether the default erasure should also remove research-typed rows that carry no pattern-detectable personal detail. Today it does not (round 9); a personal statement that no pattern sees, inside a research-typed row, is removed only when the person asks for research too."
+  },
+  {
+   "id": "D-ADMIN",
+   "who": "ZURIEL",
+   "what": "May an administrator view stored profile facts during the pause. Blocks closing CL-13, not this step."
+  }
+ ],
+ "research_eligibility": {
+  "rule": "A research-typed row of a research bot (hatishbi: research_note, uriel: method_discovery) is research output only if (1) its record AND content are attested by ONE of: approval (status approved / canonical, set by an UPDATE of an existing row; the trigger writes a binding = the fingerprint of the title, the content and data at that moment; any later change of that content voids it; an INSERT can never claim it) or verse (the title, the content and every string inside data are each a quotation of at least 8 letters from one verse of public.tanach_verses, and at least one is non-empty; the technical key subtype is ignored) AND (2) title, content and data carry no personal detail (a veto, never a proof).",
+  "not_a_proof": [
+   "the absence of a match to the personal-detail filter",
+   "a title that matches the canonical text over an arbitrary body",
+   "a source string a writer declares (p_source / source)"
+  ],
+  "codex_cases": {
+   "verse_analysis": "A1: the record that is wholly the verse and its analysis title is stored and returned.",
+   "title_over_personal_body": "A3c, A5a: 'analysis of the verse ...' over 'I was fired yesterday and cannot pay the rent' is refused in the content and in data, by the writer function and by a direct write; the detector sees nothing in that body (Q5).",
+   "source_string": "A3d.",
+   "depression_sentence": "A2, A5b.",
+   "approval_bound_to_content": "A6, A6c, A6d."
+  },
+  "research_output_write": "Enforced in fn_mem_add and in the trigger, direct writes and edits included (A7-A7d). Without the grant and without the consent of that person the row is refused; with the consent it is stored as that person's own memory.",
+  "effect_on_live_rows": "Read-only 13.11.2026: 383 research-typed rows (hatishbi 159, uriel 224). None is approved and none carries a binding, so none is research after this file: the reader withholds all of them without the person's consent. The default erasure would remove the 11 that a pattern marks as personal (birth 5, family 2, health 4) and keep the other 372.",
+  "effect_on_the_bots": "During the pause a bot stores a finding only if the whole record is canonical text. A finding with an interpretation, or extracted from a conversation, is not stored. Both bots are dormant (no cron).",
+  "limits": [
+   "Free analysis text is never attested by the canonical-text route; it needs an approval.",
+   "No approval act exists yet: nothing sets status approved except a direct SQL change that is separately approved.",
+   "An approval or an edit made by a writer who holds the service key is not distinguishable from an act of ZURIEL: the Human Gate is procedural, not cryptographic.",
+   "The detector is a pattern list and sees only what it lists."
+  ]
+ },
+ "erase_semantics": {
+  "permission_to_use_vs_classification_for_deletion": "The first is fn_personal_memory_row_is_research_v1 (attested and free of a personal detail). The second is only: not a research type of a research bot, or a personal detail in it. The lack of an approval to read research is not a decision to delete it.",
+  "default_erasure_removes": [
+   "every row that is not a research type of a research bot (conversations, questions, preferences, profile facts, and research-typed rows of the assistant)",
+   "a research-typed row that carries a personal detail by the patterns"
+  ],
+  "default_erasure_keeps": [
+   "research-typed rows of research bots without a pattern-detectable personal detail, approved or not (counted as kept_research_output)"
+  ],
+  "explicit_option": "p_include_research_output = true removes every research-typed row as well.",
+  "export": "kind = research_output (attested, no detail) / research_unapproved (research type, no detail, not attested: may not be used during the pause) / personal_memory (everything else)."
+ },
+ "blocks_apply": {
+  "database_step_CL13-1": [
+   "Explicit approval of ZURIEL for the exact file and its SHA-256.",
+   "The release order: the Edge half first, unless D-ORDER is decided otherwise.",
+   "The live state equal to the pinned state at that moment.",
+   "The review of Codex of this branch."
+  ],
+  "not_blocking": [
+   "A consent store (absent on purpose: nobody is readable during the pause).",
+   "Retention; the WhatsApp export and erase commands; D-ADMIN; D-ERASE; D-RESEARCH-APPROVAL (they limit what the pause can offer, they do not block the step)."
+  ]
+ }
+}
