@@ -32,8 +32,9 @@ BIN=$(ls -d /usr/lib/postgresql/*/bin | tail -1)
 D=$(mktemp -d)
 run() { if [ "$(id -u)" = 0 ]; then su postgres -c "$*"; else bash -c "$*"; fi; }
 if [ "$(id -u)" = 0 ]; then chown postgres "$D"; fi
-run "$BIN/initdb -D $D/data -A trust >/dev/null"
+# The superuser is named postgres whoever runs the script (as on Supabase): DEF-005 checks that the reviewed functions are owned by postgres.
+run "$BIN/initdb -D $D/data -A trust -U postgres >/dev/null"
 run "$BIN/pg_ctl -D $D/data -o '-p 55440 -k $D' -l $D/log -w start >/dev/null"
 trap 'run "$BIN/pg_ctl -D '"$D"'/data -m immediate stop >/dev/null" || true; rm -rf "$D" "$W"' EXIT
-run "$BIN/createdb -h $D -p 55440 t"
-run "cd $W && $BIN/psql -X -h $D -p 55440 -d t -v ON_ERROR_STOP=1 -q -f tests/sql/m0a_db_permissions_v1.sql" 2>&1 | check
+run "$BIN/createdb -h $D -p 55440 -U postgres t"
+run "cd $W && $BIN/psql -X -h $D -p 55440 -U postgres -d t -v ON_ERROR_STOP=1 -q -f tests/sql/m0a_db_permissions_v1.sql" 2>&1 | check

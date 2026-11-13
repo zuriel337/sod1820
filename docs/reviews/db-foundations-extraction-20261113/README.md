@@ -68,6 +68,8 @@ evidence documents (`docs/reviews/m0-security-stabilization-20261112/cluster-A-d
 | `tests/sql/def001_…`, `def001b_…` (steps 1 and 9, already in CI) | PASS on PG16 and PG17 |
 | `node --test test/ci-workflow-references-exist.test.mjs` | 8 / 8 |
 
+**Found by CI on the first push, fixed:** the M0-A and DEF-004 runners start a throwaway cluster as the CI user; the new DEF-005 baseline check (owner must be `postgres`, as on Supabase) failed because the cluster superuser was named after the OS user. Both runners now create the cluster with superuser `postgres` (`initdb -U postgres`). Re-verified as a non-root user (the CI condition): M0-A ALL PASS, DEF-004 PASS with negative mode and control; the old runner reproduces the CI failure under the same conditions.
+
 CI wiring (applied in this branch, `live-contracts-2029.yml`): one node step "DB foundations contracts" in `release-contracts-2029`, two steps in `security-sql-contracts` (M0-A regression, DEF-004 negative modes). No threshold or existing test was changed or removed.
 
 ## 6. Live state read on 13.11.2026 (read-only; nothing written)
