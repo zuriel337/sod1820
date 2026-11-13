@@ -185,4 +185,6 @@ test("the hand-over states the current main, keeps aa0f6bc82 as the historical b
   assert.doesNotMatch(rr, /restrict the after-read to `created_at <= before\.newest` for the stamp/, "the old wording is gone");
   assert.match(readme, /The count and the newest date are over all rows, new ones included/);
   assert.match(readme, /does not prove that a write function was not called/);
+  assert.doesNotMatch(readme, /"no writer was called" is shown by the absence of new rows/, "the old sentence of README section 9 is gone");
+  assert.doesNotMatch(rr, /"no writer was called" is shown by the absence of new rows/);
 });
