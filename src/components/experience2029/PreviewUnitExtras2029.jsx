@@ -41,14 +41,15 @@ function Bar({ unit, post, postPath }) {
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "instant" }));
   };
   const backToUnit = () => { writeLast(post.id, null); setLast(null); navigate(`${postPath}?unit=${encodeURIComponent(unit.id)}#${encodeURIComponent(unit.id)}`); };
-  if (direct) return <p className="sod29-pu-bar" data-pu-bar="direct" role="note">
-    <span>קישור ישיר ליחידה בתוך פוסט הבחירות · סדרת מפת המציאות</span>
-    <button type="button" onClick={toWholePost}>המשך לכל פוסט הבחירות ←</button>
-    <button type="button" onClick={() => navigate(-1)} disabled={typeof window !== "undefined" && window.history.length <= 1}>חזרה למקום האחרון</button>
-  </p>;
-  return last && last.unit === unit.id ? <p className="sod29-pu-bar" data-pu-bar="resume" role="note">
-    <span>קראת את היחידה הזאת</span><button type="button" onClick={backToUnit}>חזרה ליחידה ↺</button>
-  </p> : null;
+  // ONE compact secondary breadcrumb inside the unit (never a second page-wide tab bar): whole Post ‹ this unit. The Post-level tabs above stay the
+  // only segmented control. "Back to the last place" appears only for a direct link; "back to the unit" only after leaving it for the whole Post.
+  const canGoBack = direct && typeof window !== "undefined" && window.history.length > 1;
+  return <nav className="sod29-pu-bar" data-pu-bar={direct ? "direct" : last && last.unit === unit.id ? "resume" : "crumb"} aria-label="מיקום היחידה בפוסט">
+    <button type="button" onClick={toWholePost}>← כל הפוסט</button>
+    <span className="sod29-pu-crumb" aria-current="location">יחידה · {unit.title}</span>
+    {canGoBack ? <button type="button" onClick={() => navigate(-1)}>חזרה למקום האחרון</button> : null}
+    {!direct && last && last.unit === unit.id ? <button type="button" onClick={backToUnit}>חזרה ליחידה ↺</button> : null}
+  </nav>;
 }
 
 function Images() {

@@ -1,0 +1,276 @@
+[
+ {
+  "k": "390-dark-landing",
+  "v": {
+   "url": "ections-redemption-hints-draft?unit=yamin-",
+   "y": 1235,
+   "unitTop": 84,
+   "bar": "direct",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "390-dark-wholePost",
+  "v": {
+   "url": "ections-redemption-hints-draft",
+   "y": 0,
+   "unitTop": 1319,
+   "bar": "resume",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "390-dark-returned",
+  "v": {
+   "url": "ections-redemption-hints-draft?unit=yamin-",
+   "y": 1235,
+   "unitTop": 84,
+   "bar": "direct",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "1440-dark-landing",
+  "v": {
+   "url": "ections-redemption-hints-draft?unit=yamin-",
+   "y": 1235,
+   "unitTop": 84,
+   "bar": "direct",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": -15
+  }
+ },
+ {
+  "k": "1440-dark-wholePost",
+  "v": {
+   "url": "ections-redemption-hints-draft",
+   "y": 0,
+   "unitTop": 1319,
+   "bar": "resume",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": -15
+  }
+ },
+ {
+  "k": "1440-dark-returned",
+  "v": {
+   "url": "ections-redemption-hints-draft?unit=yamin-",
+   "y": 1235,
+   "unitTop": 84,
+   "bar": "direct",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": -15
+  }
+ },
+ {
+  "k": "390-light-landing",
+  "v": {
+   "url": "ections-redemption-hints-draft?unit=yamin-",
+   "y": 1235,
+   "unitTop": 84,
+   "bar": "direct",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "390-light-wholePost",
+  "v": {
+   "url": "ections-redemption-hints-draft",
+   "y": 0,
+   "unitTop": 1319,
+   "bar": "resume",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "390-light-returned",
+  "v": {
+   "url": "ections-redemption-hints-draft?unit=yamin-",
+   "y": 1235,
+   "unitTop": 84,
+   "bar": "direct",
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "dupIds": 0,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "92-390-dark",
+  "v": {
+   "rm": "series_tag",
+   "previewUnits": 0,
+   "stack": false,
+   "units": 0,
+   "unitBars": 0,
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "emptyTargets": 4,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "92-1440-light",
+  "v": {
+   "rm": "series_tag",
+   "previewUnits": 0,
+   "stack": false,
+   "units": 0,
+   "unitBars": 0,
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "emptyTargets": 4,
+   "ovX": -15
+  }
+ },
+ {
+  "k": "5112-390-dark",
+  "v": {
+   "rm": "preview_acceptance_exception",
+   "previewUnits": 0,
+   "stack": false,
+   "units": 6,
+   "unitBars": 0,
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "emptyTargets": 4,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "5112-1440-light",
+  "v": {
+   "rm": "preview_acceptance_exception",
+   "previewUnits": 0,
+   "stack": false,
+   "units": 6,
+   "unitBars": 0,
+   "tabs": [
+    "מסר",
+    "הקשר",
+    "חיבורים",
+    "מקורות"
+   ],
+   "tabBars": 1,
+   "emptyTargets": 4,
+   "ovX": -15
+  }
+ },
+ {
+  "k": "ordinary5134-390-dark",
+  "v": {
+   "rm": null,
+   "previewUnits": 0,
+   "stack": false,
+   "units": 0,
+   "unitBars": 0,
+   "tabs": [
+    "הסיפור",
+    "מקורות",
+    "המשך"
+   ],
+   "tabBars": 1,
+   "emptyTargets": 3,
+   "ovX": 0
+  }
+ },
+ {
+  "k": "ordinary5134-1440-light",
+  "v": {
+   "rm": null,
+   "previewUnits": 0,
+   "stack": false,
+   "units": 0,
+   "unitBars": 0,
+   "tabs": [
+    "הסיפור",
+    "מקורות",
+    "המשך"
+   ],
+   "tabBars": 1,
+   "emptyTargets": 3,
+   "ovX": -15
+  }
+ }
+]
