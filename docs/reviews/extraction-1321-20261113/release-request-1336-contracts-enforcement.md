@@ -67,9 +67,9 @@
 
 **Not enforced by this step (stated):** retiring an owner that active rules still route to; that the referenced `work_log` row really is ZURIEL's approval (human gate); anything done by a role that can disable triggers or write with `session_replication_role = replica`.
 
-## C. Not requested here: the ruleset (required checks)
+## C. The ruleset (required checks) — a separate request, not part of A or B
 
-The exact definition is in `docs/reviews/contracts-enforcement-20261113/required-checks.md` and `required-checks.json` (derived from the workflows and pinned by a test). It names nine checks that are triggered on every pull request and have unique names: `live-contracts-2029`, `perf-contracts-2029`, `release-contracts-2029`, `security-sql-contracts`, `marketing-browser-2029`, `auth-browser-acceptance-2029`, `route-seo-decision-2029`, `legacy-production-lock`, `Mobile + Accessibility Acceptance`. Decisions O-3..O-6 (names, admin bypass, `Production Canary Gate`, renaming the two `gate` jobs and the aggregator for the path-filtered gates) come first; the change itself is a security-settings change and gets its own request.
+The exact change, its effects and risks, the verification and the rollback are in **`release-request-1336-required-checks.md`** (RC-1: nine contexts, no workflow change; RC-2..RC-4 later). It is not requested by this document and is not implied by A or B; A and B do not depend on it.
 
 ## Known gaps (not hidden)
 * The wired CI steps were run by CI on this head, not on Node 24 locally; PostgreSQL 18 was not run by this package (the #1321 CI ran 18.6 at its own checkpoint).
