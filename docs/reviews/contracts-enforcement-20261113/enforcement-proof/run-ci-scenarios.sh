@@ -13,7 +13,7 @@ set -u
 P=$(cd "$(dirname "$0")" && pwd); ROOT=$(git -C "$P" rev-parse --show-toplevel); BASE=$(git -C "$ROOT" rev-parse "${1:-HEAD}")
 WT=$(mktemp -d)/wt; git -C "$ROOT" worktree add -q --detach "$WT" "$BASE"
 trap 'git -C "$ROOT" worktree remove --force "$WT" >/dev/null 2>&1' EXIT
-MISMATCH=0; COUNT=0; EXPECTED_SCENARIOS=51
+MISMATCH=0; COUNT=0; EXPECTED_SCENARIOS=53
 reset() { git -C "$WT" reset -q --hard "$BASE" && git -C "$WT" clean -qfd; }
 commit() { git -C "$WT" add -A && git -C "$WT" -c user.email=proof@local -c user.name=proof commit -q -m "$1"; }
 py() { python3 - "$WT" "$@"; }
@@ -112,6 +112,9 @@ reset; snap_next bump-codex-owner; commit r2; expect R2 FAIL 'owner project_code
 reset; add_oi '| some duty | `project_codex.invented_item` |'; commit r3; expect R3 FAIL 'project_codex.invented_item, which is not a proven codex item' "Owner Index row routes to a codex item that does not exist"
 reset; codex_next brand_new_codex_item; commit r3b; expect R3b FAIL 'project_codex.brand_new_codex_item: new codex item without a recorded approval' "newer codex record adds an item without approval"
 reset; codex_next brand_new_codex_item; printf 'C|brand_new_codex_item|%s|2026-11-13\n' "$APPR" >> "$WT/audits/g1-agent-entry/G1_LAW_APPROVALS.txt"; commit r3c; expect R3c PASS '' "same, with a well-formed approval line (authenticity: human gate)"
+# B5 (13.11.2026, preserved commit 514fc58d9): a NEW master-type project_codex slug is refused; an ordinary C approval does not admit it; only its own CM line does
+reset; codex_next sod1820_master_v4; printf 'C|sod1820_master_v4|%s|2026-11-13\n' "$APPR" >> "$WT/audits/g1-agent-entry/G1_LAW_APPROVALS.txt"; commit r3d; expect R3d FAIL 'project_codex.sod1820_master_v4: new master-type codex item is refused' "newer codex record adds a master-type item with an ordinary C approval"
+reset; codex_next sod1820_master_v4; printf 'CM|sod1820_master_v4|%s|2026-11-13\n' "$APPR" >> "$WT/audits/g1-agent-entry/G1_LAW_APPROVALS.txt"; commit r3e; expect R3e PASS '' "same, with its own CM approval line (the owner-first decision stays a human gate)"
 reset; new_doc 'OWNER-ROUTING: GENUINELY_NEW_DOMAIN'; commit r4; expect R4 FAIL 'GENUINELY_NEW_DOMAIN is a declaration, not an approval' "new contract declares a new domain without an approval"
 reset; new_doc "OWNER-ROUTING: GENUINELY_NEW_DOMAIN APPROVAL:$APPR"; commit r4b; expect R4b PASS '' "same, with APPROVAL:work_log:<uuid> (authenticity: human gate)"
 reset; new_doc 'Rules.'; add_oi '| indexing duty | `docs/indexing-duty-contract-v1.md` |'; commit r5; expect R5 FAIL 'self-routing' "new contract adds its own Owner Index line"
