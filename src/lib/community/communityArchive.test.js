@@ -273,7 +273,7 @@ test("public activity reuses the bounded likes scan, counts Israel posting days 
   const calls = [], rows = [{ id: "one", created_at: "2026-10-26T19:00:00Z", reactions: { likes: 2 } },
     { id: "two", created_at: "2026-10-26T22:30:00Z", reactions: { likes: 3 } }];
   const client = { from(table) { assert.equal(table, "research_contributions"); const b = {};
-    for (const method of ["select", "eq", "in", "not", "neq", "or", "order"]) b[method] = (...args) => { calls.push([method, ...args]); return b; };
+    for (const method of ["select", "eq", "in", "is", "not", "neq", "or", "order"]) b[method] = (...args) => { calls.push([method, ...args]); return b; };
     b.limit = async () => ({ data: rows.slice(0, 1), error: null });
     b.range = async () => { calls.push(["range"]); return { data: rows, error: null }; }; return b; } };
   const result = await fetchCommunityAuthorSummary("4cd9c034-0464-4600-a35d-7156f0584d9b", { client });
@@ -283,13 +283,15 @@ test("public activity reuses the bounded likes scan, counts Israel posting days 
   assert.equal(calls.filter(c => c[0] === "range").length, 1, "no extra activity query or per-message request");
   assert.ok(calls.some(c => c[0] === "eq" && c[1] === "status" && c[2] === "approved"));
   assert.ok(calls.some(c => c[0] === "not" && c[1] === "body"));
+  assert.ok(calls.some(c => c[0] === "is" && c[1] === "deleted_at" && c[2] === null));
+  assert.ok(calls.some(c => c[0] === "is" && c[1] === "thread_hidden_at" && c[2] === null));
   assert.ok(calls.some(c => c[0] === "in" && c[1] === "origin" && c[2].includes("openweb")));
 });
 
 test("empty public history is measured zero; invalid or truncated activity never manufactures a complete total", async () => {
   for (const kind of ["empty", "invalid", "truncated"]) {
     let pages = 0;
-    const client = { from() { const b = {}; for (const method of ["select", "eq", "in", "not", "neq", "or", "order"]) b[method] = () => b;
+    const client = { from() { const b = {}; for (const method of ["select", "eq", "in", "is", "not", "neq", "or", "order"]) b[method] = () => b;
       b.limit = async () => ({ data: [], error: null });
       b.range = async () => { pages++; return { data: kind === "empty" ? [] : kind === "invalid" ? [{ created_at: "bad", reactions: {} }]
         : Array.from({ length: 500 }, () => ({ created_at: "2026-10-26T19:00:00Z", reactions: {} })), error: null }; }; return b; } };
