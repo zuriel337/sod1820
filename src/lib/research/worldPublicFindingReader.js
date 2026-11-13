@@ -133,6 +133,9 @@ async function readWorldPublicFindingById(id, publicClient) {
     .maybeSingle();
   if (error) throw error;
   if (!researchObject || clean(researchObject.id) !== wanted) return null;
+  // Extraction fix (13.11.2026): a candidate has not passed the Human Gate, so it opens by id only when it would also be listed
+  // (research role, no contact details, no owner mention, no excluded material), exactly the admission of the finding pages.
+  if (clean(researchObject.status).toLowerCase() === "candidate" && !await publicResearchPresentationEligible(researchObject)) return null;
 
   const [source, topics] = await Promise.all([
     readExactSource(client, researchObject.source_ref),
@@ -227,6 +230,25 @@ async function publicDiscoverySources(client, rows) {
     }
   }
   return admitted;
+}
+
+/**
+ * Admission of UNREVIEWED public candidates for a surface that lists them outside a finding page (the World feed).
+ * Extraction fix (13.11.2026): a candidate has not passed the Human Gate, so before it is listed it must pass the SAME
+ * admission as a row on a finding page: research role, no contact details, no owner mention, no excluded material
+ * (publicResearchPresentationEligible), the same text rules for its evidence line, and an exact, LIVE, allowed source
+ * (publicDiscoverySources). Anything unclear is dropped; a failing source read throws and the caller lists nothing.
+ */
+export async function admitPublicCandidateRows(client, rows) {
+  const eligible = (await Promise.all((Array.isArray(rows) ? rows : []).map(async (row) => {
+    if (!await publicResearchPresentationEligible(row)) return null;
+    // The feed card also shows the evidence line: it must pass the same text rules as the statement.
+    if (clean(row.evidence) && !await publicResearchPresentationEligible({ ...row, statement: row.evidence })) return null;
+    return row;
+  }))).filter(Boolean);
+  if (!eligible.length) return [];
+  const sources = await publicDiscoverySources(client, eligible);
+  return eligible.filter((row) => sources.has(exactPublicSource(row.source_ref)?.ref));
 }
 
 /** One paginated discovery lens over existing finding/source identities.

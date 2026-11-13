@@ -252,6 +252,26 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
   };
 }
 
+// The bounded, separate read of PUBLIC candidates for the World feed (ZURIEL 12.11.2026). A candidate has not passed the Human Gate,
+// so (extraction fix, 13.11.2026) the rows are admitted by the same rules as a finding page (research role, no contact details, no
+// owner mention, no excluded material, an exact LIVE source) before they are listed. Any failure lists no candidate and never
+// hides verified findings or sources. The client is injected so the read is testable without a network.
+export async function readUnverifiedPublicResearch(client, { requested = 18 } = {}) {
+  try {
+    const result = await client.from("research_objects")
+      .select("id,created_at,kind,statement,evidence,value,source,source_ref,contributor,status,privacy_scope,meta")
+      .eq("status", "candidate").eq("privacy_scope", "public")
+      .or("meta->ext->personal_scope->>scope.is.null,meta->ext->personal_scope->>scope.neq.person_only")
+      .order("created_at", { ascending: false })
+      .limit(Math.min(40, Math.max(requested, 12)));
+    if (result.error || !Array.isArray(result.data)) return [];
+    const { admitPublicCandidateRows } = await import("./worldPublicFindingReader.js");
+    return await admitPublicCandidateRows(client, result.data);
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [], includeResearch = false } = {}) {
   const requested = Math.max(1, Math.min(Number(limit) || 18, 40));
   const topicPromise = fetchTopicCardList({
@@ -267,18 +287,13 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
             .in("status", RESEARCH_VERIFIED_PUBLIC_STATUSES)
             .order("created_at", { ascending: false })
             .limit(Math.min(80, Math.max(requested * 2, 40))),
-          // Separate bounded read: only privacy_scope='public' candidates, person_only excluded.
-          supabase.from("research_objects").select(fields)
-            .eq("status", "candidate").eq("privacy_scope", "public")
-            .or("meta->ext->personal_scope->>scope.is.null,meta->ext->personal_scope->>scope.neq.person_only")
-            .order("created_at", { ascending: false })
-            .limit(Math.min(40, Math.max(requested, 12))),
+          readUnverifiedPublicResearch(supabase, { requested }),
         ]);
         if (verified.error) throw verified.error;
         return [
           ...(Array.isArray(verified.data) ? verified.data : []),
-          // A failed candidate read never hides verified findings or sources.
-          ...(!unverified.error && Array.isArray(unverified.data) ? unverified.data : []),
+          // A failed or unadmitted candidate read never hides verified findings or sources.
+          ...unverified,
         ];
       })
     : Promise.resolve([]);
