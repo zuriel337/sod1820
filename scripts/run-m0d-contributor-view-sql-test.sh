@@ -11,7 +11,9 @@ for f in "${FILES[@]}"; do mkdir -p "$W/$(dirname "$f")"; cp "$ROOT/$f" "$W/$f";
 chmod -R a+rX "$W"
 check() { tee "$W/out.txt"; grep -q 'M0-D contributor research view regression: PASS' "$W/out.txt" || { echo "FAIL: M0-D regression did not PASS" >&2; exit 1; }; }
 
-if ! compgen -G '/usr/lib/postgresql/*/bin' >/dev/null; then
+# G1_PG_BIN (optional, same convention as the other runners of the foundation work) selects a specific local PostgreSQL bin directory,
+# e.g. /usr/lib/postgresql/16/bin, so the same test can be run on every supported major version.
+if [ -z "${G1_PG_BIN:-}" ] && ! compgen -G '/usr/lib/postgresql/*/bin' >/dev/null; then
   CONTAINER="sod-m0d-view-$$"
   docker run --rm -d --network none --name "$CONTAINER" -e POSTGRES_HOST_AUTH_METHOD=trust -v "$W:/w:ro" -w /w postgres:17-alpine >/dev/null
   trap 'docker rm -f "$CONTAINER" >/dev/null 2>&1 || true; rm -rf "$W"' EXIT
@@ -23,7 +25,7 @@ if ! compgen -G '/usr/lib/postgresql/*/bin' >/dev/null; then
   exit
 fi
 
-BIN=$(ls -d /usr/lib/postgresql/*/bin | tail -1)
+BIN=${G1_PG_BIN:-$(ls -d /usr/lib/postgresql/*/bin | tail -1)}; echo "PostgreSQL: $("$BIN/postgres" --version)"
 D=$(mktemp -d)
 run() { if [ "$(id -u)" = 0 ]; then su postgres -c "$*"; else bash -c "$*"; fi; }
 if [ "$(id -u)" = 0 ]; then chown postgres "$D"; fi

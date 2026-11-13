@@ -69,13 +69,27 @@ do $$ begin
   if not exists (select 1 from pg_class where oid = 'public.world_contributor_research_v2'::regclass
      and reloptions @> array['security_invoker=true', 'security_barrier=true']) then raise exception 'AFTER: v2 options missing'; end if;
 end $$;
--- Re-run is a no-op; a foreign v2 makes the proposal stop.
+-- Re-run is a no-op (extraction check: the same view object, definition, options and privileges as before the re-run);
+-- a foreign v2 makes the proposal stop (negative controls below).
+create table public.m0d_applied as select c.oid::int8 as oid, pg_get_viewdef(c.oid, true) as d, c.relacl::text as acl, c.reloptions::text as opts
+  from pg_class c where c.oid = 'public.world_contributor_research_v2'::regclass;
 \i supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql
+do $$ begin
+  if (select count(*) from public.m0d_applied a join pg_class c on c.oid = a.oid
+        where c.oid = 'public.world_contributor_research_v2'::regclass and pg_get_viewdef(c.oid, true) = a.d
+          and c.relacl::text = a.acl and c.reloptions::text = a.opts) <> 1 then
+    raise exception 'RE-RUN: the second run changed or replaced v2'; end if;
+  if pg_temp.anon_rows('public.world_contributor_research_v2') is distinct from 'approved public | candidate public' then raise exception 'RE-RUN: v2 rows changed'; end if;
+  if pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) <> (select d from public.m0d_before) then raise exception 'RE-RUN: v1 changed'; end if;
+end $$;
 \i supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql
 do $$ begin
   if to_regclass('public.world_contributor_research_v2') is not null then raise exception 'ROLLBACK: v2 still present'; end if;
   if pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) <> (select d from public.m0d_before) then raise exception 'ROLLBACK: v1 changed'; end if;
   if pg_temp.anon_rows('public.world_contributor_research_v1') is distinct from 'approved public' then raise exception 'ROLLBACK: v1 rows differ'; end if;
+  if (select relacl::text from pg_class where oid = 'public.world_contributor_research_v1'::regclass) <> (select acl from public.m0d_before) then raise exception 'ROLLBACK: v1 privileges changed'; end if;
+  if (select count(*) from public.research_objects) <> 6 or (select status from public.research_objects where statement = 'candidate public') <> 'candidate' then
+    raise exception 'ROLLBACK: a row or a status changed'; end if;
 end $$;
 \i supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql
 -- Negative control: a foreign world_contributor_research_v2 must make the proposal stop without replacing it.
