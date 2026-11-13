@@ -7,8 +7,10 @@
 //   PAUSED   the proposal applied                                     = the reviewed target of this phase;
 //   CONSENT  a SIMULATION of a later policy version for one person    = no consent store exists yet (a separate approval).
 // Every refusal has an allowed counterpart: what is not written or read while paused IS written and read with the permission.
-// RESEARCH (decision of ZURIEL after the Codex review of abb2f3907): authorised research is available during the pause, and a
-// personal detail inside a "research" row stays under consent. PAUSED 4 proves both on the real handlers of the two research bots.
+// RESEARCH (decision of ZURIEL after the Codex review of abb2f3907, and round 8): authorised research is available during the pause.
+// "Authorised" is a POSITIVE attestation by a trusted source or an approval (a quotation from the canonical text, a curated import
+// source, an approval) - never the absence of a match to a personal-detail filter - and a personal detail inside a research row
+// stays under consent. PAUSED 4 proves all of it on the real handlers of the two research bots.
 // "Unchanged" is the md5 of the full content of every row that existed before, not a count (M-1, M-3).
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -128,9 +130,11 @@ async function waRazielGroupClosed(label) {
 const BOTS = ["wa-hatishbi", "wa-uriel"];
 const letterOf = (name) => (name === "wa-hatishbi" ? "H" : "U");
 const researchType = (name) => (name === "wa-hatishbi" ? "research_note" : "method_discovery");
+// Three learnings per run: (1) a verse analysis - its subject is a quotation from the canonical text: ATTESTED; (2) a personal statement
+// that carries a detail (a phone / a name); (3) a sentence that matches NO personal-detail pattern and that nothing attests.
 const botReply = (name, tag) => name === "wa-hatishbi"
-  ? `שמעתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך.\n— התשבי · סוד 1820\n###למידות###\n{"learnings":[{"topic":"NEW-TOPIC-H-${tag}","claim":"NEW-FINDING-H-${tag}","interpretation":"i"},{"topic":"NEW-TOPIC-PERSONAL-H-${tag}","claim":"NEW-PERSONAL-H-${tag}: הטלפון שלה 050-0000002","interpretation":"i"}],"question_asked":"NEW-QUESTION-H-${tag}"}`
-  : `קיבלתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך הלימוד.\n— אוריאל · סוד 1820\n###למידות###\n{"learnings":[{"word":"NEW-WORD-U-${tag}","decomposed_form":"x","interpretation":"NEW-FINDING-U-${tag}"},{"word":"NEW-WORD-PERSONAL-U-${tag}","decomposed_form":"y","interpretation":"NEW-PERSONAL-U-${tag}: שמי רחל"}],"question_asked":"NEW-QUESTION-U-${tag}"}`;
+  ? `שמעתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך.\n— התשבי · סוד 1820\n###למידות###\n{"learnings":[{"topic":"ניתוח הפסוק בראשית ברא אלוהים","claim":"NEW-FINDING-H-${tag}: ניתוח הפסוק בראשית ברא אלוהים","interpretation":"i"},{"topic":"NEW-TOPIC-PERSONAL-H-${tag}","claim":"NEW-PERSONAL-H-${tag}: אני מתמודד עם דיכאון כבר שנה, הטלפון שלה 050-0000002","interpretation":"i"},{"topic":"NEW-TOPIC-UNATTESTED-H-${tag}","claim":"NEW-UNATTESTED-H-${tag}: המסע הזה קשה לי מאוד כבר שנה","interpretation":"i"}],"question_asked":"NEW-QUESTION-H-${tag}"}`
+  : `קיבלתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך הלימוד.\n— אוריאל · סוד 1820\n###למידות###\n{"learnings":[{"word":"בראשית ברא אלוהים","decomposed_form":"x","interpretation":"NEW-FINDING-U-${tag}: ניתוח הפסוק"},{"word":"NEW-WORD-PERSONAL-U-${tag}","decomposed_form":"y","interpretation":"NEW-PERSONAL-U-${tag}: שמי רחל"},{"word":"NEW-WORD-UNATTESTED-U-${tag}","decomposed_form":"z","interpretation":"NEW-UNATTESTED-U-${tag}: המסע הזה קשה לי מאוד כבר שנה"}],"question_asked":"NEW-QUESTION-U-${tag}"}`;
 const freshOf = (name, tag) => pg.newRows().filter((r) => r.user_ref === BOT_PERSON[name] && JSON.stringify([r.topic, r.content]).includes(tag)).map((r) => [r.memory_type, r.content.replace(/:.*$/, "")]).sort();
 const promptOf = (run) => run.models.map((m) => m.user).join("\n");
 
@@ -169,15 +173,16 @@ async function botsPaused(label, tag) {
     if (name === "wa-uriel") assert.match(prompt, /OLD-BOT-RULE-U/, `${label} ${name}: the stored letter rules are available during the pause`);
     // refused: a personal detail inside a research row, and the questions
     assert.doesNotMatch(prompt, /OLD-BOT-PERSONAL/, `${label} ${name}: a "research" row with a personal detail does not join the prompt`);
+    assert.doesNotMatch(prompt, /OLD-BOT-UNATTESTED|דיכאון|המסע הזה קשה/, `${label} ${name}: a research-typed row that nothing attests does not join the prompt, whatever it says`);
     assert.doesNotMatch(prompt, /OLD-BOT-QUESTION/, `${label} ${name}: the stored questions (personal memory) do not join the prompt`);
     assert.doesNotMatch(prompt, /050-0000001|r@example\.invalid|נולדתי/, `${label} ${name}: none of the stored personal details reaches the model`);
-    assert.equal(withheld.allowed, true); assert.equal(withheld.withheld_personal, name === "wa-hatishbi" ? 1 : 2, `${label} ${name}: the reader says how many rows it withheld`);
+    assert.equal(withheld.allowed, true); assert.equal(withheld.withheld_personal, name === "wa-hatishbi" ? 2 : 3, `${label} ${name}: the reader says how many rows it withheld`);
     // the table is never read directly: research comes from the one reader, for this person and this bot only
     assert.deepEqual(pg.statements.filter((s) => s.kind === "select"), [], `${label} ${name}: no direct read of the memory table`);
     assert.deepEqual(memoryReads().map((s) => [s.name, s.args]), [["fn_research_output_context_v1", { p_user_ref: person, p_agent: name.slice(3) }]]);
-    // written: the clean finding only. The writer was asked for both findings and stored one; the question was not sent at all.
-    assert.deepEqual(memoryWrites().map((s) => [s.name, s.args.p_memory_type]), [["fn_mem_add", researchType(name)], ["fn_mem_add", researchType(name)]]);
-    assert.deepEqual(freshOf(name, tag), [[researchType(name), `NEW-FINDING-${letter}-${tag}`]], `${label} ${name}: the research output is stored; the "finding" with a personal detail and the question are not`);
+    // written: the attested finding only. The writer was asked for all three findings and stored one; the question was not sent at all.
+    assert.deepEqual(memoryWrites().map((s) => [s.name, s.args.p_memory_type]), [["fn_mem_add", researchType(name)], ["fn_mem_add", researchType(name)], ["fn_mem_add", researchType(name)]]);
+    assert.deepEqual(freshOf(name, tag), [[researchType(name), `NEW-FINDING-${letter}-${tag}`]], `${label} ${name}: the attested verse analysis is stored; the personal statement, the sentence nothing attests, and the question are not`);
     assert.ok(run.inserts.some((x) => x.table === "wa_bot_log") && run.inserts.some((x) => x.table === "ai_token_log"), `${label} ${name}: operational logs are still written (M-2)`);
     nothingStored(before, `${label} ${name}`);
   }
@@ -306,7 +311,7 @@ if (!pg) {
       simulate({ persons: [UA] });
       let run = await runResearchBot(name, pg, { incomingText: "הודעה נוספת", modelText: botReply(name, "RUN-OTHER") });
       assert.match(promptOf(run), new RegExp(`OLD-BOT-FINDING-${letter}`)); assert.doesNotMatch(promptOf(run), /OLD-BOT-PERSONAL|OLD-BOT-QUESTION/, `${name}: somebody else's consent opens nothing personal`);
-      assert.deepEqual(freshOf(name, "RUN-OTHER"), [[researchType(name), `NEW-FINDING-${letter}-RUN-OTHER`]]);
+      assert.deepEqual(freshOf(name, "RUN-OTHER"), [[researchType(name), `NEW-FINDING-${letter}-RUN-OTHER`]], `${name}: somebody else's consent changes nothing: only the attested finding is stored`);
       // the consent of this person (the allowed counterpart of every refusal of PAUSED 4)
       simulate({ persons: [person] });
       run = await runResearchBot(name, pg, { incomingText: "הודעה שלישית", modelText: botReply(name, "RUN-CONSENT") });
@@ -314,7 +319,8 @@ if (!pg) {
       assert.match(prompt, new RegExp(`OLD-BOT-QUESTION-${letter}`), `${name}: the stored questions are read with the consent`);
       assert.match(prompt, new RegExp(`OLD-BOT-FINDING-${letter}`), `${name}: the research is read`);
       assert.match(prompt, new RegExp(`OLD-BOT-PERSONAL-${letter}`), `${name}: with the consent the research that carries a personal detail is read too`);
-      assert.deepEqual(freshOf(name, "RUN-CONSENT"), [["conversation", `NEW-QUESTION-${letter}-RUN-CONSENT`], [researchType(name), `NEW-FINDING-${letter}-RUN-CONSENT`], [researchType(name), `NEW-PERSONAL-${letter}-RUN-CONSENT`]].sort(), `${name}: the question, the finding and the finding with a personal detail are stored`);
+      assert.match(prompt, new RegExp(`OLD-BOT-UNATTESTED-${letter}`), `${name}: and so is the research-typed row that nothing attests`);
+      assert.deepEqual(freshOf(name, "RUN-CONSENT"), [["conversation", `NEW-QUESTION-${letter}-RUN-CONSENT`], [researchType(name), `NEW-FINDING-${letter}-RUN-CONSENT`], [researchType(name), `NEW-PERSONAL-${letter}-RUN-CONSENT`], [researchType(name), `NEW-UNATTESTED-${letter}-RUN-CONSENT`]].sort(), `${name}: the question, the attested finding, and (as the person's own memory) the personal and the unattested findings are stored`);
       // a policy that does not grant research (the closed counterpart of the research grant): personal memory as consented, no research
       simulate({ persons: [person], research: false });
       pg.statements.length = 0;

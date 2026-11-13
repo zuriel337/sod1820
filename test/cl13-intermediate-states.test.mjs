@@ -41,8 +41,8 @@ const APPLY = "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql";
 const promptOf = (run) => run.models.map((m) => m.user).join("\n");
 const rowsOf = (where) => pg.scalar(`(select count(*) from public.agent_user_memory where ${where})`);
 const BOT_REPLY = {
-  "wa-hatishbi": (tag) => `שמעתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך.\n— התשבי · סוד 1820\n###למידות###\n{"learnings":[{"topic":"T-${tag}","claim":"NEW-FINDING-${tag}","interpretation":"i"},{"topic":"TP-${tag}","claim":"NEW-PERSONAL-${tag}: הטלפון שלה 050-0000002","interpretation":"i"}],"question_asked":"NEW-QUESTION-${tag}"}`,
-  "wa-uriel": (tag) => `קיבלתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך הלימוד.\n— אוריאל · סוד 1820\n###למידות###\n{"learnings":[{"word":"W-${tag}","decomposed_form":"x","interpretation":"NEW-FINDING-${tag}"},{"word":"WP-${tag}","decomposed_form":"y","interpretation":"NEW-PERSONAL-${tag}: שמי רחל"}],"question_asked":"NEW-QUESTION-${tag}"}`,
+  "wa-hatishbi": (tag) => `שמעתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך.\n— התשבי · סוד 1820\n###למידות###\n{"learnings":[{"topic":"בראשית ברא אלוהים","claim":"NEW-FINDING-${tag}","interpretation":"i"},{"topic":"TP-${tag}","claim":"NEW-PERSONAL-${tag}: הטלפון שלה 050-0000002","interpretation":"i"}],"question_asked":"NEW-QUESTION-${tag}"}`,
+  "wa-uriel": (tag) => `קיבלתי את מה שהבאת ואני משקף אותו במילים שלי, עם שאלה אחת להמשך הלימוד.\n— אוריאל · סוד 1820\n###למידות###\n{"learnings":[{"word":"בראשית ברא אלוהים","decomposed_form":"x","interpretation":"NEW-FINDING-${tag}"},{"word":"WP-${tag}","decomposed_form":"y","interpretation":"NEW-PERSONAL-${tag}: שמי רחל"}],"question_asked":"NEW-QUESTION-${tag}"}`,
 };
 const stored = (tag) => pg.rows(`select memory_type, split_part(content, ':', 1) as content from public.agent_user_memory where content like '%${tag}%' order by 1, 2`).map((r) => [r.memory_type, r.content]);
 
@@ -252,4 +252,17 @@ test("negative control: a bundle file that changes without the plan being update
   const files = bundleFiles("supabase/functions/wa-hatishbi/index.ts");
   const changed = Buffer.concat([files.get("supabase/functions/wa-hatishbi/index.ts"), Buffer.from("\n// edited\n")]);
   assert.notEqual(sha(changed), unit.bundle_at_review_point.find((f) => f.path.endsWith("wa-hatishbi/index.ts")).sha256);
+});
+
+test("round 8: the plan states the research rule with the two cases of Codex, the enforcement of research_output_write, and the minimal release of wa-raziel", () => {
+  const r = PLAN.research_eligibility;
+  assert.match(r.rule, /POSITIVELY|attested by ONE of/); assert.match(r.rule, /approval/); assert.match(r.rule, /curated_source/); assert.match(r.rule, /verse/);
+  assert.deepEqual(Object.keys(r.codex_cases).sort(), ["a_sentence_no_pattern_sees", "depression_sentence", "verse_analysis"]);
+  assert.match(r.research_output_write, /writer function and in the trigger/); assert.match(r.effect_on_live_rows, /383/); assert.match(r.effect_on_live_rows, /72/); assert.match(r.effect_on_live_rows, /311/);
+  assert.ok(PLAN.missing_decisions.some((d) => d.id === "D-RESEARCH-SOURCES") && PLAN.missing_decisions.some((d) => d.id === "D-RESEARCH-APPROVAL"));
+  const w = PLAN.wa_raziel_minimal_release;
+  assert.ok(w.minimal_conditions.length >= 7); assert.ok(w.minimal_conditions.some((c) => /ZURIEL_WA/.test(c)) && w.minimal_conditions.some((c) => /D-CARRY/.test(c)) && w.minimal_conditions.some((c) => /drift gate/.test(c)));
+  assert.ok(w.what_it_does_not_prove.some((c) => /U1 does not close the active collection/.test(c)));
+  assert.match(PLAN.edge_before_database, /all six Edge functions before the database step/);
+  assert.equal(PLAN.release_sequence.find((s) => s.unit === "U1").closes_live_collection, false, "U1 is not the closing of the active collection");
 });

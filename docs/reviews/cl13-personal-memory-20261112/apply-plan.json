@@ -12,25 +12,25 @@
   "full_release": "NOT independent of M0. The complete CL-13 release is the Edge half of six functions plus the database proposal. Three of the six functions (wa-raziel, ai-analyze, number-researcher) are functions of the M0 Edge package: no build without CL-13 and no CL-13-only build of them exists, so deploying them from this branch ships CL-13 together with M0 and N-deltas, and needs their M0 prerequisites (release_units[].needs_before). A fourth function (raziel-attention) ships the M0-B shared module as a rider. Only wa-hatishbi and wa-uriel carry CL-13 and nothing else.",
   "consequence": "The order rule (all six Edge functions before the database step) couples the database step to the M0 Edge approvals, unless the order is decided otherwise (missing_decisions, D-ORDER)."
  },
- "test": "bash scripts/run-cl13-personal-memory-sql-test.sh (the proposal alone: 15 lifecycle cases, 85 behaviour checks); bash scripts/run-cl13-personal-memory-handlers-test.sh (the real Edge handlers on a throwaway database: 19 tests of this branch's code - before the proposal / paused / simulated consent / after rollback - and 9 tests of the DEPLOYED code in the intermediate states); node --test test/cl13-personal-memory-policy.test.mjs (the Edge policy module and unclear database answers: 13 tests)",
+ "test": "bash scripts/run-cl13-personal-memory-sql-test.sh (the proposal alone: 16 lifecycle cases, 105 behaviour checks); bash scripts/run-cl13-personal-memory-handlers-test.sh (the real Edge handlers on a throwaway database: 19 tests of this branch's code - before the proposal / paused / simulated consent / after rollback - and 9 tests of the DEPLOYED code in the intermediate states); node --test test/cl13-personal-memory-policy.test.mjs (the Edge policy module and unclear database answers: 13 tests)",
  "steps": [
   {
    "step": "CL13-1",
    "file": "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql",
-   "sha256": "c6b03d0fa3069d67dba2718a403871bd29a83da97e38834b4ce21281232235ca",
+   "sha256": "7239df2ca87aba0700595ff6c590323fd8d6330c61fbfc051612a6693f2baeb7",
    "rollback": "supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql",
-   "rollback_sha256": "fe236496c12b1960646c72d5ce41451ad13b542e73585df3e486f9998f7d5639",
+   "rollback_sha256": "7eb2d138bca688cdc4951ba3b193a90474c22dd102438494d180c5cba470712d",
    "status": "proposed",
    "depends_on": [
     "EDGE-CL13 (all six Edge functions of this branch are deployed first; see required_order and readers)"
    ],
-   "verify": "the state text pinned in the file (the md5 of each of the 17 function definitions and the trigger text, enabled); owner, privileges, SECURITY DEFINER, search_path and volatility of the five replaced functions unchanged; no client role may execute a server-only function (all checked inside the file)",
-   "what": "One policy owner (fn_personal_memory_policy_v1 = the pause); the writers return a real status and write nothing; a trigger on public.agent_user_memory refuses every other writer with an error; fn_raziel_context returns an empty personal context without a verified consent and never in a group; export and erasure of memory without deleting the account. Research (decision of ZURIEL after the Codex review of abb2f3907): authorised research is written and may be read during the pause through one reader (fn_research_output_context_v1); a research row that carries a personal detail is personal memory - refused on write while paused and withheld on read without the person's consent. Profile facts have their own policy key (write_profile_facts): a consent to memory does not open them (D-CL13-3).",
-   "preflight": "Fail-closed: the file continues only when the state is exactly the live 12.11.2026 state or exactly the applied state."
+   "verify": "the state text pinned in the file (the md5 of each of the 20 function definitions and the trigger text, enabled); owner, privileges, SECURITY DEFINER, search_path and volatility of the five replaced functions unchanged; no client role may execute a server-only function (all checked inside the file)",
+   "what": "One policy owner (fn_personal_memory_policy_v1 = the pause); the writers return a real status and write nothing; a trigger on public.agent_user_memory refuses every other writer with an error; fn_raziel_context returns an empty personal context without a verified consent and never in a group; export and erasure of memory without deleting the account. Research (decision of ZURIEL after the Codex review of abb2f3907, and round 8): authorised research is written and may be read during the pause. A row is research only when it is POSITIVELY attested - an approval of an existing row, a closed list of curated import sources, or a quotation from the canonical Tanakh text - and carries no personal detail (a veto); the absence of a match to the personal-detail filter is never the proof. Any other research-typed row is personal memory: refused on write while paused and withheld on read without the person's consent. research_output_write is enforced by the writer function and by the trigger, direct writes included. Profile facts have their own policy key (write_profile_facts): a consent to memory does not open them (D-CL13-3).",
+   "preflight": "Fail-closed: the file continues only when the state is exactly the live 12.11.2026 state or exactly the applied state. Also stops when public.tanach_verses (the canonical text that attests a quotation) is missing."
   }
  ],
  "rollback_order": [
-  "1. ROLLBACK file of step CL13-1 (restores the five live bodies exactly, drops the trigger and the twelve new functions). It brings back writing by every writer that ignores the policy and reading without consent in the database: decide that before running it.",
+  "1. ROLLBACK file of step CL13-1 (restores the five live bodies exactly, drops the trigger and the fifteen new functions). It brings back writing by every writer that ignores the policy and reading without consent in the database: decide that before running it.",
   "2. The Edge code may stay: without the policy function it is closed (no write, no read; the research bots stop reading and storing research), which is tested after the rollback. Rolling the Edge functions back to the deployed sources (the two rollback manifests) restores writing on every message and reading without consent: decide that too."
  ],
  "not_in_this_step": [
@@ -877,6 +877,18 @@
    "who": "Codex / ZURIEL",
    "what": "Accept the M0-B materialGate.js as a rider of raziel-attention.",
    "blocks": "U2"
+  },
+  {
+   "id": "D-RESEARCH-SOURCES",
+   "who": "ZURIEL",
+   "what": "Confirm that the three curated import sources (yiska_method_notes, christina_decomposition_rules, christina_letter_combinations; 72 rows live) are authorised research. They are the only provenance in the table that is not a chat extraction. Removing a source makes its rows personal memory (withheld without consent).",
+   "blocks": "the database step only as a choice of the list inside the file; not a blocker of the other units"
+  },
+  {
+   "id": "D-RESEARCH-APPROVAL",
+   "who": "ZURIEL / Codex",
+   "what": "How a chat-extracted finding becomes authorised research: an approval act on an existing row (no such act exists today) or a canonical source other than the Tanakh text. Until then new findings from a conversation are not stored during the pause.",
+   "blocks": "nothing now; limits what the bots can store during the pause"
   }
  ],
  "blocks_apply": {
@@ -901,5 +913,62 @@
    "speed and experience (LCP/TTFB causes, operation indicators)",
    "contracts and enforcement (restriction sources, G1 rows B5, B13, B14, CL-07)"
   ]
- }
+ },
+ "research_eligibility": {
+  "decision": "ZURIEL, round 7 item 5: authorised research may be used during the pause; personal information inside research stays subject to consent. Codex, round 8: the verse analysis \"In the beginning God created\" was blocked, and \"I have been coping with depression for a year\" was stored and returned without consent; research eligibility must come from a trusted source or an approval, and the absence of a match to the filter is not proof.",
+  "rule": "A research-typed row of a research bot (hatishbi: research_note, uriel: method_discovery) is research output only if (1) it is attested by ONE of: approval (status approved / canonical, a later act on an existing row - an INSERT can never claim it), curated_source (a closed list of import sources), verse (the subject, with the introducing method words removed, is at least 8 letters and a contiguous run inside one verse of public.tanach_verses; spelling variants vav/yod, final letters and points are ignored) AND (2) its topic, content and data carry no personal detail (e-mail, phone, long number, identity number, introduction by name, address, postal code, first-person statement, birth, family, health incl. depression). Everything else is personal memory.",
+  "where_enforced": [
+   "fn_mem_add (returns NULL = not saved)",
+   "trigger trg_personal_memory_pause_v1 (raises, direct writes and edits included; strips an incoming attestation marker and writes its own)",
+   "fn_research_output_context_v1 (the one reader)",
+   "export (kind) and erasure (a research-typed row that is not research is erased as personal memory)"
+  ],
+  "research_output_write": "Enforced in the writer function and in the trigger: without the grant, and without the consent of that person (write_personal), a research row is refused (NULL / an error naming the grant). With the consent it is stored as that person's own memory. Tests A7, A7b, A7c, A7d.",
+  "codex_cases": {
+   "verse_analysis": "A1 (and W4b, the handlers PAUSED 4): stored, marked as attested by the canonical text, returned by the reader during the pause.",
+   "depression_sentence": "A2, A2b, A5b (and the handlers): not saved by the writer function, refused by the trigger, not returned; with a canonical subject it is still refused (the veto).",
+   "a_sentence_no_pattern_sees": "A3, A5: refused as unattested although the detector finds nothing in it."
+  },
+  "effect_on_live_rows": "Read-only on 13.11.2026: 383 research-typed rows. 72 come from the three curated import sources and carry no personal detail by the new patterns: they stay research and stay readable during the pause. 311 were extracted from chats (source wa): 11 carry a detail by the patterns, 300 do not; none is attested, so all 311 are withheld without the person's consent (and erased as personal memory by the default erasure).",
+  "effect_on_the_bots": "During the pause a research bot stores a new finding only if it is attested: in practice a quotation from the canonical text, or a row from a curated source. A finding extracted from a conversation about the person is not stored. Both bots are dormant (no cron).",
+  "limits": [
+   "Attestation of the subject, not of the free text: a personal remark attached to a canonical subject is stopped only by the veto patterns, which are a pattern list.",
+   "A legacy quotation row written before the proposal has no marker and is not re-checked against the corpus by the reader (the scan takes about 0.4 s); it counts only through a curated source or an approval, or after a separate backfill that is not proposed.",
+   "The curated source list is a decision: removing a name is one line.",
+   "No approval act exists yet: nothing sets status approved except a direct, separately approved SQL change.",
+   "The proposal now needs public.tanach_verses (it exists live) and stops without it."
+  ],
+  "new_missing_decisions": [
+   "D-RESEARCH-SOURCES",
+   "D-RESEARCH-APPROVAL"
+  ]
+ },
+ "wa_raziel_minimal_release": {
+  "why_this_block": "wa-raziel (cron every 2 minutes) is the only active collector of personal memory today. U1 (the two dormant bots) does not close it. There is no build of wa-raziel without CL-13 or with CL-13 only: the unit ships CL-13 together with M0 and N6 / N14b.",
+  "minimal_conditions": [
+   "1. The explicit approval of ZURIEL for the function wa-raziel and the exact SHA (CLAUDE.md 0.4). Not an approval of the other eight functions of M0.",
+   "2. D-CARRY decided: N15b may ride in the M0 Edge deploy of wa-raziel (questionnaire answer 2 = A pre-dates N15).",
+   "3. The secret ZURIEL_WA exists (name only; A3) before the deploy. The WA_RAZIEL_* names are not blocking: the group paths are off by a constant.",
+   "4. The live redirect check of N14 by ZURIEL from a browser (decision 8), because the unit ships N14b, unless ZURIEL waives it.",
+   "5. The drift gate for this function: list_edge_functions shows v21 and ezbr_sha256 6167766567cc... exactly as in the manifest, read immediately before.",
+   "6. The review of Codex on this package (gate A4b: M-1..M-4 and M-7..M-10 are green locally and in CI).",
+   "7. The rollback accepted as a decision: redeploying the manifest source (b4d5ec47 + 949c24ad5) restores writing on every message and reading without consent.",
+   "No M0 SQL step is a prerequisite: every database function the unit calls exists live (39 names + 6 read on 12.11; release-request.md), except fn_personal_memory_policy_v1, which is absent on purpose until U4 (the Edge code treats its absence as closed). The database step CL13-1 is NOT required for the Edge level to stop collecting (the Edge code is closed while the policy function is missing)."
+  ],
+  "what_we_can_verify_after": [
+   "a. list_edge_functions: a new version of wa-raziel, verify_jwt false; get_edge_function: every file of the bundle equals the sha256 in release_units (6 files).",
+   "b. The collector is closed at the Edge level: with one inbound message handled after the deploy (wa_bot_log has its raziel_dm row, written by the unchanged operational log), the count and the newest created_at of public.agent_user_memory rows with agent raziel are exactly what they were read immediately before the deploy, and the full-content stamp of the existing rows is unchanged (read-only SELECT).",
+   "c. No new \"[facts-captured]\" row in wa_bot_log after the deploy time, and no new row with memory_type personal_context.",
+   "d. The person is still answered: the navigation probe from the phone of ZURIEL (\"give me the page of number 73\") returns one sentence and https://sod1820.co.il/number/73, trace model_calls 0 (release-request.md, row 8).",
+   "e. The account-link message no longer says that everything is saved."
+  ],
+  "what_it_does_not_prove": [
+   "That the database refuses any other writer or reader: that is U4 (CL13-1).",
+   "That ai-analyze is closed on the WhatsApp trusted channel: it is a separate member of U3 with its own check.",
+   "That the old rows are unreachable: the four direct readers, number-researcher and ai-analyze each need their own deploy.",
+   "U1 does not close the active collection; neither does anything before U3 or U4."
+  ],
+  "result_expected": "After this unit alone: no new personal-memory row is created by a WhatsApp conversation, and the live conversation still works. After U4 as well: no writer of any kind can create one without a consent."
+ },
+ "edge_before_database": "Unchanged and confirmed by ZURIEL/Codex 13.11: all six Edge functions before the database step (D-ORDER stays an open alternative, not a change)."
 }

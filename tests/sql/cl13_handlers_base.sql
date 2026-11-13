@@ -20,6 +20,12 @@ create table public.agent_user_memory (id uuid primary key default gen_random_uu
 alter table public.agent_user_memory enable row level security;
 create policy agent_user_memory_own_read on public.agent_user_memory for select using (user_ref = (auth.uid())::text);
 grant all on public.agent_user_memory to service_role;
+-- the canonical text that attests a quotation (live: public.tanach_verses, 23,204 verses)
+create table public.tanach_verses (book_idx smallint, book text, chapter smallint, verse smallint, text text, words text[]);
+grant select on public.tanach_verses to service_role;
+insert into public.tanach_verses(book_idx, book, chapter, verse, text) values
+ (0, 'בראשית', 1, 1, 'בראשית ברא אלהים את השמים ואת הארץ'),
+ (4, 'דברים', 6, 4, 'שמע ישראל יהוה אלהינו יהוה אחד');
 create table public.wa_account_links (id bigserial primary key, user_id uuid, phone text, verified_at timestamptz, created_at timestamptz default now(), credited_msgs integer, welcomed_at timestamptz);
 
 \i tests/sql/fixtures/cl13_memory_live_base_20261112/fn_raziel_remember.sql
@@ -60,14 +66,18 @@ insert into public.agent_user_memory(user_ref, channel, agent, memory_type, memo
  ('11111111-1111-4111-8111-111111111111', '120363000000000001@g.us', 'raziel', 'conversation', 'personal', 'wa', null, 'OLD-FROM-GROUP-A', '{}', now() - interval '15 days'),
  ('22222222-2222-4222-8222-222222222222', 'site', 'raziel', 'conversation', 'personal', 'site', 'b', 'OLD-SITE-THREAD-B', '{"reply":"OLD-REPLY-B"}', now() - interval '12 days'),
  ('972511111111@c.us', 'wa', 'hatishbi', 'conversation', 'personal', 'wa', null, 'OLD-BOT-QUESTION-H', '{}', now() - interval '100 days'),
- ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'old finding', 'OLD-BOT-FINDING-H', '{}', now() - interval '100 days'),
- -- a stored "research" row that carries a personal detail (a synthetic phone and a family/health remark): personal memory
- ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'old personal finding', 'OLD-BOT-PERSONAL-H: בעלה חולה, טלפון 050-0000001', '{}', now() - interval '99 days'),
+ -- research rows. ATTESTED: they come from a curated import source (the live bulk imports). Not attested: rows extracted from a chat
+ -- (source 'wa'), whatever they say - one is a personal statement no pattern would see as a detail in some wordings, one carries a
+ -- phone. A curated row that carries a personal detail is personal too (the veto).
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'yiska_method_notes', 'old finding', 'OLD-BOT-FINDING-H', '{}', now() - interval '100 days'),
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'yiska_method_notes', 'old personal finding', 'OLD-BOT-PERSONAL-H: בעלה חולה, טלפון 050-0000001', '{}', now() - interval '99 days'),
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'a statement', 'OLD-BOT-UNATTESTED-H: אני מתמודד עם דיכאון כבר שנה', '{}', now() - interval '98 days'),
  ('972522222222@c.us', 'wa', 'uriel', 'conversation', 'personal', 'wa', null, 'OLD-BOT-QUESTION-U', '{}', now() - interval '80 days'),
- ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'א', 'OLD-BOT-RULE-U', '{"subtype":"letter_rule"}', now() - interval '80 days'),
- ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'אור', 'OLD-BOT-FINDING-U', '{"subtype":"word_decomposition","decomposed_form":"א-ו-ר"}', now() - interval '80 days'),
- ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'בית', 'OLD-BOT-PERSONAL-U: שמי רחל, כתובת המייל שלי r@example.invalid', '{"subtype":"word_decomposition","decomposed_form":"ב-י-ת"}', now() - interval '79 days'),
- ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'ב', 'OLD-BOT-PERSONAL-RULE-U: נולדתי בחודש ניסן', '{"subtype":"letter_rule"}', now() - interval '79 days');
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'christina_decomposition_rules', 'א', 'OLD-BOT-RULE-U', '{"subtype":"letter_rule"}', now() - interval '80 days'),
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'christina_letter_combinations', 'אור', 'OLD-BOT-FINDING-U', '{"subtype":"word_decomposition","decomposed_form":"א-ו-ר"}', now() - interval '80 days'),
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'christina_letter_combinations', 'בית', 'OLD-BOT-PERSONAL-U: שמי רחל, כתובת המייל שלי r@example.invalid', '{"subtype":"word_decomposition","decomposed_form":"ב-י-ת"}', now() - interval '79 days'),
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'christina_decomposition_rules', 'ב', 'OLD-BOT-PERSONAL-RULE-U: נולדתי בחודש ניסן', '{"subtype":"letter_rule"}', now() - interval '79 days'),
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'גג', 'OLD-BOT-UNATTESTED-U: המסע הזה קשה לי מאוד כבר שנה', '{"subtype":"word_decomposition","decomposed_form":"ג-ג"}', now() - interval '78 days');
 create table public.cl13_original_ids as select id from public.agent_user_memory;
 -- the full-content stamp of the rows that existed before (M-1, M-3: a count or max(created_at) would not see an UPDATE)
 create function public.cl13_stamp() returns text language sql as $$

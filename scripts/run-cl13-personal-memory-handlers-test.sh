@@ -12,7 +12,7 @@
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 EXPECTED_TESTS=19
-EXPECTED_INTERMEDIATE=13
+EXPECTED_INTERMEDIATE=14
 W=$(mktemp -d)
 FILES=(tests/sql/cl13_handlers_base.sql supabase/proposed/20261112230000_cl13_personal_memory_pause.sql
   supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql)

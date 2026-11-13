@@ -34,7 +34,7 @@ create function pg_temp.state() returns text language sql as $$
       || ' || ' || coalesce((select string_agg(pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']', ' ; ' order by t.tgname)
                               from pg_trigger t where to_regclass('public.agent_user_memory') is not null and t.tgrelid = to_regclass('public.agent_user_memory') and not t.tgisinternal), 'no trigger')
     from pg_proc p where p.pronamespace = 'public'::regnamespace
-     and (p.proname like 'fn\_raziel\_%' escape '\' or p.proname like '%personal\_memory%' escape '\' or p.proname like 'fn\_research\_output%' escape '\' or p.proname = 'fn_mem_add') $$;
+     and (p.proname like 'fn\_raziel\_%' escape '\' or p.proname like '%personal\_memory%' escape '\' or p.proname like 'fn\_research\_%' escape '\' or p.proname = 'fn_mem_add') $$;
 create temp table probe(s text);
 create function pg_temp.mark() returns void language sql as $$ delete from probe; insert into probe select pg_temp.state() $$;
 create function pg_temp.unchanged(c text) returns void language plpgsql as $$
@@ -63,6 +63,13 @@ alter table public.agent_user_memory enable row level security;
 create policy agent_user_memory_own_read on public.agent_user_memory for select using (user_ref = (auth.uid())::text);
 grant all on public.agent_user_memory to service_role;
 create table public.wa_account_links (id bigserial primary key, user_id uuid, phone text, verified_at timestamptz, created_at timestamptz default now(), credited_msgs integer, welcomed_at timestamptz);
+-- the canonical text (live: public.tanach_verses, 23,204 verses; points removed, plain spelling as in live)
+create table public.tanach_verses (book_idx smallint, book text, chapter smallint, verse smallint, text text, words text[]);
+grant select on public.tanach_verses to service_role;
+insert into public.tanach_verses(book_idx, book, chapter, verse, text) values
+ (0, 'בראשית', 1, 1, 'בראשית ברא אלהים את השמים ואת הארץ'),
+ (2, 'ויקרא', 19, 2, 'דבר אל כל עדת בני ישראל ואמרת אלהם קדשים תהיו כי קדוש אני יהוה אלהיכם'),
+ (4, 'דברים', 6, 4, 'שמע ישראל יהוה אלהינו יהוה אחד');
 create table public.wa_bot_log (id bigserial primary key, action text, text_in text, created_at timestamptz default now());
 grant all on public.wa_bot_log to service_role; grant usage on sequence public.wa_bot_log_id_seq to service_role;
 
@@ -104,10 +111,16 @@ insert into public.agent_user_memory(user_ref, channel, agent, memory_type, memo
  (:'UB', 'site', 'raziel', 'conversation', 'personal', 'site', 'b', 'OLD-SITE-THREAD-B', '{"reply":"OLD-REPLY-B"}'),
  ('wa:972500000002', '972500000002@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'UNVERIFIED-PHONE-OF-B', '{}'),
  ('972511111111@c.us', 'wa', 'hatishbi', 'conversation', 'personal', 'wa', null, 'BOT-QUESTION-1', '{}'),
- ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'finding', 'BOT-FINDING-1', '{}'),
- ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'family note', 'BOT-FINDING-PERSONAL: בעלה חולה, טלפון 050-1234567', '{}'),
+ -- research rows: a curated import source (attested), the same source carrying a personal detail, and two rows extracted from a chat
+ -- (source 'wa'): a depression statement and a clean-looking sentence. Nothing attests the last two.
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'yiska_method_notes', 'finding', 'BOT-FINDING-1', '{}'),
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'yiska_method_notes', 'family note', 'BOT-FINDING-PERSONAL: בעלה חולה, טלפון 050-1234567', '{}'),
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'a statement', 'BOT-FINDING-DEPRESSION: אני מתמודד עם דיכאון כבר שנה', '{}'),
+ ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'a sentence', 'BOT-FINDING-UNATTESTED-CLEAN: המסע הזה קשה לי מאוד כבר שנה', '{}'),
+ ('972533333333@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'to approve', 'BOT-FINDING-TO-APPROVE: clean sentence from a chat', '{}'),
+ ('972533333333@c.us', 'wa', 'hatishbi', 'research_note', 'personal', 'wa', 'to approve 2', 'BOT-FINDING-DEPRESSION-TO-APPROVE: אני מתמודד עם דיכאון', '{}'),
  ('972522222222@c.us', 'wa', 'uriel', 'conversation', 'personal', 'wa', null, 'BOT-QUESTION-2', '{}'),
- ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'wa', 'rule', 'BOT-FINDING-2', '{}');
+ ('972522222222@c.us', 'wa', 'uriel', 'method_discovery', 'personal', 'christina_letter_combinations', 'rule', 'BOT-FINDING-2', '{}');
 create temp table original_ids as select id from public.agent_user_memory;
 -- the full-content stamp of the rows that existed before (M-1, M-3: a count or max(created_at) would not see an UPDATE)
 create function pg_temp.stamp() returns text language sql as $$
@@ -164,6 +177,17 @@ select pg_temp.unchanged('L2 foreign policy');
 drop function public.fn_personal_memory_policy_v1(text);
 select pg_temp.ok('L2 restored to the live state', pg_temp.state() = (select s from live_state));
 
+-- L2b the canonical text is missing: the proposal stops (a quotation could not be attested) and changes nothing
+alter table public.tanach_verses rename to tanach_verses_away;
+select pg_temp.mark();
+\set ON_ERROR_STOP off
+\warn @@CASE L2b-apply-no-canonical-text REFUSE CL13 precondition: public.tanach_verses (the canonical text that attests a quotation) not found; stop, nothing changed
+\i supabase/proposed/20261112230000_cl13_personal_memory_pause.sql
+\warn @@END
+\set ON_ERROR_STOP on
+select pg_temp.unchanged('L2b no canonical text');
+alter table public.tanach_verses_away rename to tanach_verses;
+
 -- L3 apply on the exact live state
 \set ON_ERROR_STOP off
 \warn @@CASE L3-apply-exact-live-state OK
@@ -210,10 +234,12 @@ select pg_temp.ok('W4a-3 an unknown type is no longer stored as research_note', 
 select pg_temp.ok('W4a-4 a research type for an agent that is not a research bot is personal memory', public.fn_mem_add(:'UA', 'raziel', 'research_note', 'PERSONAL-AS-RESEARCH-2') is null);
 -- W4b the research output of the two research bots CONTINUES, in the same store (M-2, M-13)
 do $$ declare a uuid; b uuid; begin
-  a := public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'NEW-BOT-FINDING-1', 'finding');
-  b := public.fn_mem_add('972522222222@c.us', 'uriel', 'method_discovery', 'NEW-BOT-FINDING-2', 'rule');
-  perform pg_temp.ok('W4b research output is still written', a is not null and b is not null
-    and (select count(*) from public.agent_user_memory where id in (a, b) and memory_type in ('research_note','method_discovery')) = 2);
+  -- a verse analysis (the subject is a quotation from the canonical text) and a row from a curated import source
+  a := public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'ניתוח הפסוק בראשית ברא אלוהים', 'בראשית ברא אלוהים');
+  b := public.fn_mem_add('972522222222@c.us', 'uriel', 'method_discovery', 'NEW-BOT-FINDING-2', 'rule', 'private', 'private', 'christina_letter_combinations');
+  perform pg_temp.ok('W4b attested research output is still written', a is not null and b is not null
+    and (select count(*) from public.agent_user_memory where id in (a, b) and memory_type in ('research_note','method_discovery')) = 2
+    and (select data ->> 'research_attestation' from public.agent_user_memory where id = a) = 'verse');
 end $$;
 -- W5 every other writer: a direct write with the service key (the site thread, or anything else) is REFUSED with an error.
 -- as_user runs one statement as another role and returns its result, or {"error": <message>} when it raised.
@@ -223,13 +249,13 @@ create temp table w5 as
   select 'c', public.as_user('service_role', null, $q$update public.agent_user_memory set content = 'REWRITTEN' where content = 'OLD-DM-A' returning '{}'::jsonb$q$) union all
   select 'd', public.as_user('service_role', null, $q$update public.agent_user_memory set agent = 'hatishbi', memory_type = 'research_note' where content = 'OLD-DM-UNLINKED' returning '{}'::jsonb$q$) union all
   select 'e', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, content) values ('wa:972500000009', 'wa', 'raziel', 'NO-TYPE') returning '{}'::jsonb$q$) union all
-  select 'f1', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, content) values ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'NEW-BOT-FINDING-DIRECT') returning '{"saved":true}'::jsonb$q$) union all
+  select 'f1', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, topic, content) values ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'ברא אלהים את השמים', 'NEW-BOT-FINDING-DIRECT') returning '{"saved":true}'::jsonb$q$) union all
   select 'f2', public.as_user('service_role', null, $q$update public.agent_user_memory set content = 'NEW-BOT-FINDING-DIRECT (edited)' where content = 'NEW-BOT-FINDING-DIRECT' returning '{"saved":true}'::jsonb$q$) union all
   select 'f3', public.as_user('service_role', null, $q$insert into public.wa_bot_log(action, text_in) values ('raziel_dm', 'an operational log row') returning '{"saved":true}'::jsonb$q$);
 select pg_temp.ok('W5a a direct insert of a site thread row is refused', (select j ->> 'error' from w5 where k = 'a') = 'personal memory is paused (CL-13): INSERT of a conversation row for agent raziel is refused; nothing was saved', (select j::text from w5 where k = 'a'));
 select pg_temp.ok('W5b a direct insert of a research type for the assistant is refused', (select j ->> 'error' from w5 where k = 'b') like 'personal memory is paused (CL-13): INSERT of a research_note row for agent raziel is refused%');
 select pg_temp.ok('W5c an update of an existing personal row is refused', (select j ->> 'error' from w5 where k = 'c') like 'personal memory is paused (CL-13): UPDATE of a conversation row%');
-select pg_temp.ok('W5d an update cannot turn a personal row into research output', (select j ->> 'error' from w5 where k = 'd') like 'personal memory is paused (CL-13): UPDATE of a research_note row for agent hatishbi%');
+select pg_temp.ok('W5d an update cannot turn a personal row into research output', (select j ->> 'error' from w5 where k = 'd') = 'a research-typed row without an attestation is personal memory, and personal memory is paused (CL-13): UPDATE of a research_note row for agent hatishbi is refused; nothing was saved');
 select pg_temp.ok('W5e a row without a memory type is personal memory', (select j ->> 'error' from w5 where k = 'e') like '%INSERT of a (null) row for agent raziel is refused%');
 select pg_temp.ok('W5f research output may be written and edited directly, and a store that is not paused is written (M-2)',
   (select bool_and(j = '{"saved":true}'::jsonb) from w5 where k in ('f1', 'f2', 'f3'))
@@ -250,10 +276,11 @@ create temp table rq as
   select 'assistant-rows', public.fn_research_output_context_v1(:'UA', 'raziel') union all
   select 'nobody', public.fn_research_output_context_v1('', 'hatishbi');
 select pg_temp.ok('Q1 allowed research is available during the pause: the bot reads its findings, old and new',
-  (select c ->> 'allowed' = 'true' and c::text like '%BOT-FINDING-1%' and c::text like '%NEW-BOT-FINDING-1%' and c::text like '%NEW-BOT-FINDING-DIRECT (edited)%'
+  (select c ->> 'allowed' = 'true' and c::text like '%BOT-FINDING-1%' and c::text like '%ניתוח הפסוק בראשית ברא אלוהים%' and c::text like '%NEW-BOT-FINDING-DIRECT (edited)%'
      and (c ->> 'policy') = 'cl13_pause_v1' from rq where k = 'bot'), (select c::text from rq where k = 'bot'));
-select pg_temp.ok('Q2 a research row that carries a personal detail is withheld without consent, and counted',
-  (select c::text not like '%BOT-FINDING-PERSONAL%' and c::text not like '%050-1234567%' and (c ->> 'withheld_personal')::int = 1 from rq where k = 'bot'));
+select pg_temp.ok('Q2 a research-typed row that is not attested, or that carries a personal detail, is withheld without consent, and counted',
+  (select c::text not like '%BOT-FINDING-PERSONAL%' and c::text not like '%050-1234567%' and c::text not like '%דיכאון%' and c::text not like '%BOT-FINDING-UNATTESTED-CLEAN%'
+     and (c ->> 'withheld_personal')::int = 3 from rq where k = 'bot'), (select c::text from rq where k = 'bot'));
 select pg_temp.ok('Q3 the questions (personal memory) are never research context', (select c::text not like '%BOT-QUESTION%' from rq where k = 'bot'));
 select pg_temp.ok('Q4 one person and one bot only: another person, and rows of the assistant typed as research, return nothing',
   (select c -> 'rows' = '[]'::jsonb from rq where k = 'other-person') and (select c -> 'rows' = '[]'::jsonb and c::text not like '%OLD-RESEARCH-TYPED%' from rq where k = 'assistant-rows')
@@ -265,6 +292,7 @@ insert into det values
  ('ת.ז. שלה', 'identity_number'), ('תעודת זהות', 'identity_number'), ('שמי רחל', 'name'), ('קוראים לי דוד', 'name'),
  ('אני גרה בחיפה', 'address'), ('כתובתה ברחוב הרצל', 'address'), ('מיקוד 1234567', 'postal'), ('נולדתי בכסלו', 'birth'), ('תאריך הלידה שלה', 'birth'),
  ('בעלה אמר', 'family'), ('האבא שלה', null), ('אבא שלה היה שם', 'family'), ('היא חולה', 'health'), ('עברה ניתוח', 'health'),
+ ('ניתוח הפסוק בראשית ברא אלוהים', null), ('קדוש אני יהוה אלהיכם', null), ('אני מתמודד עם דיכאון כבר שנה', 'first_person'), ('דיכאון', 'health'), ('הוא עבר ניתוח בברך', 'health'),
  ('אור = 207, רז = 207', null), ('משיח 358 נחש 358', null), ('התגלות בשנת 1820', null), ('בראשית א א: בראשית ברא', null), ('אתגר בלימוד האותיות', null),
  ('הערך 123456 במילוי', null), ('אות א = אלף, פירוק: א-ל-ף', null), ('{"subtype":"letter_rule"}', null), ('', null), (null, null);
 select pg_temp.ok('Q5 the detector names every kind it knows and leaves research text alone',
@@ -272,14 +300,15 @@ select pg_temp.ok('Q5 the detector names every kind it knows and leaves research
   (select string_agg(coalesce(t, '(null)') || ' -> ' || coalesce(public.fn_personal_memory_personal_detail_v1(t), 'NULL') || ' (want ' || coalesce(want, 'NULL') || ')', ' ; ') from det where public.fn_personal_memory_personal_detail_v1(t) is distinct from want));
 -- the label "research" does not carry a personal detail in: not through the writer function, not directly, not by an edit
 select pg_temp.ok('Q6 the writer function saves no research row that carries a personal detail (NULL = not saved), in any field',
-  public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'RESEARCH-WITH-PHONE 050-7654321', 'topic') is null
+  public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'RESEARCH-WITH-PHONE 050-7654321', 'בראשית ברא אלוהים') is null
   and public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'clean text', 'RESEARCH-TOPIC someone@example.org') is null
-  and public.fn_mem_add('972522222222@c.us', 'uriel', 'method_discovery', 'clean text', 'word', 'private', 'private', 'wa', null, 'wa', '{"interpretation":"RESEARCH-DATA: היא חולה"}'::jsonb) is null
-  and public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'RESEARCH: נולדתי בכסלו', 'topic') is null);
+  and public.fn_mem_add('972522222222@c.us', 'uriel', 'method_discovery', 'clean text', 'word', 'private', 'private', 'christina_letter_combinations', null, 'wa', '{"interpretation":"RESEARCH-DATA: היא חולה"}'::jsonb) is null
+  and public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'RESEARCH: נולדתי בכסלו', 'בראשית ברא אלוהים') is null
+  and public.fn_mem_add('972511111111@c.us', 'hatishbi', 'research_note', 'אני מתמודד עם דיכאון כבר שנה', 'בראשית ברא אלוהים') is null);
 create temp table rw as
   select 'insert' as k, public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, content) values ('972511111111@c.us', 'wa', 'hatishbi', 'research_note', 'RESEARCH-DIRECT 050-7654321') returning '{}'::jsonb$q$) as j union all
-  select 'edit', public.as_user('service_role', null, $q$update public.agent_user_memory set content = content || ' someone@example.org' where content = 'NEW-BOT-FINDING-1' returning '{}'::jsonb$q$) union all
-  select 'clean-edit', public.as_user('service_role', null, $q$update public.agent_user_memory set topic = 'finding (re-titled)' where content = 'NEW-BOT-FINDING-1' returning '{"saved":true}'::jsonb$q$);
+  select 'edit', public.as_user('service_role', null, $q$update public.agent_user_memory set content = content || ' someone@example.org' where content = 'BOT-FINDING-1' returning '{}'::jsonb$q$) union all
+  select 'clean-edit', public.as_user('service_role', null, $q$update public.agent_user_memory set topic = 'finding (re-titled)' where content = 'NEW-BOT-FINDING-2' returning '{"saved":true}'::jsonb$q$);
 select pg_temp.ok('Q7 a direct write of a research row with a personal detail is refused with its reason, and an edit cannot add one',
   (select j ->> 'error' from rw where k = 'insert') = 'a research row that carries a personal detail (phone) is personal memory, and personal memory is paused (CL-13): INSERT of a research_note row for agent hatishbi is refused; nothing was saved'
   and (select j ->> 'error' from rw where k = 'edit') like 'a research row that carries a personal detail (email) is personal memory%UPDATE of a research_note row for agent hatishbi%'
@@ -288,6 +317,96 @@ select pg_temp.ok('Q7 a direct write of a research row with a personal detail is
 select pg_temp.ok('Q8 a client may not call the research reader', (public.as_user('authenticated', '11111111-1111-4111-8111-111111111111', $q$select public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi')$q$) ->> 'error') like 'permission denied%');
 select pg_temp.ok('Q9 nothing personal was added by the research section, and the old rows are unchanged', (select count(*) from public.agent_user_memory m where m.id not in (select id from original_ids)) = 3
   and pg_temp.stamp() = (select s from stamp0));
+
+
+-- ELIGIBILITY (round 8, Codex): research is attested POSITIVELY - by a trusted source or an approval - and never by the absence of a
+-- match to the personal-detail filter. The two cases that Codex named, and their allowed counterparts:
+create temp table el as
+  select 'verse-analysis' as k, public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'ניתוח הפסוק בראשית ברא אלוהים', 'ניתוח הפסוק בראשית ברא אלוהים') as id union all
+  select 'verse-with-i', public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'ניתוח הפסוק', 'קדוש אני יהוה אלהיכם') union all
+  select 'depression', public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'אני מתמודד עם דיכאון כבר שנה', 'אני מתמודד עם דיכאון כבר שנה') union all
+  select 'depression-under-a-canonical-subject', public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'אני מתמודד עם דיכאון כבר שנה', 'בראשית ברא אלוהים') union all
+  select 'no-pattern-no-source', public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'המסע הזה קשה לי מאוד כבר שנה', 'המסע הזה קשה לי מאוד כבר שנה') union all
+  select 'short-quote', public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'ניתוח', 'ברא אלהים') union all
+  select 'self-approval-on-insert', public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'a clean sentence from a chat', 'a subject', 'private', 'approved', 'wa');
+select pg_temp.ok('A1 CODEX CASE 1: "analysis of the verse In the beginning God created" is research: stored, and marked as attested by the canonical text',
+  (select id from el where k = 'verse-analysis') is not null
+  and (select data ->> 'research_attestation' from public.agent_user_memory where id = (select id from el where k = 'verse-analysis')) = 'verse');
+select pg_temp.ok('A1b a verse that contains the word "I" is research (a quotation is not a personal statement)', (select id from el where k = 'verse-with-i') is not null);
+select pg_temp.ok('A2 CODEX CASE 2: "I have been coping with depression for a year" is NOT saved as research (no source attests it, and it is a personal detail)',
+  (select id from el where k = 'depression') is null);
+select pg_temp.ok('A2b the same sentence under a canonical subject is NOT saved either: the personal detail is a veto on top of the attestation',
+  (select id from el where k = 'depression-under-a-canonical-subject') is null);
+select pg_temp.ok('A3 a sentence that matches NO pattern is not research either: the absence of a match proves nothing',
+  (select id from el where k = 'no-pattern-no-source') is null and public.fn_personal_memory_personal_detail_v1('המסע הזה קשה לי מאוד כבר שנה') is null);
+select pg_temp.ok('A3b a short quotation is no proof (it is in some verse anyway)', (select id from el where k = 'short-quote') is null);
+select pg_temp.ok('A4 a row cannot approve itself by being inserted as approved', (select id from el where k = 'self-approval-on-insert') is null);
+create temp table el2 as
+  select 'direct-unattested' as k, public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, topic, content) values ('972544444444@c.us', 'wa', 'hatishbi', 'research_note', 'המסע הזה קשה לי מאוד', 'המסע הזה קשה לי מאוד כבר שנה') returning '{}'::jsonb$q$) as j union all
+  select 'direct-depression', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, topic, content) values ('972544444444@c.us', 'wa', 'hatishbi', 'research_note', 'אני מתמודד עם דיכאון כבר שנה', 'אני מתמודד עם דיכאון כבר שנה') returning '{}'::jsonb$q$) union all
+  select 'direct-approved-on-insert', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, topic, content, status) values ('972544444444@c.us', 'wa', 'hatishbi', 'research_note', 'a subject', 'a clean sentence from a chat', 'approved') returning '{}'::jsonb$q$) union all
+  select 'direct-forged-marker', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, topic, content, data) values ('972544444444@c.us', 'wa', 'hatishbi', 'research_note', 'a subject', 'a clean sentence', '{"research_attestation":"verse"}'::jsonb) returning '{}'::jsonb$q$) union all
+  select 'direct-canonical-with-forged-value', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, topic, content, data) values ('972544444444@c.us', 'wa', 'hatishbi', 'research_note', 'שמע ישראל יהוה אלהינו', 'a clean analysis', '{"research_attestation":"anything"}'::jsonb) returning '{"saved":true}'::jsonb$q$) union all
+  select 'turn-a-personal-row-into-research', public.as_user('service_role', null, $q$update public.agent_user_memory set agent = 'hatishbi', memory_type = 'research_note', topic = 'בראשית ברא אלוהים' where content = 'OLD-DM-UNLINKED' returning '{}'::jsonb$q$);
+select pg_temp.ok('A5 a direct write is judged like the writer function: an unattested sentence is refused with its reason',
+  (select j ->> 'error' from el2 where k = 'direct-unattested') = 'a research-typed row without an attestation is personal memory, and personal memory is paused (CL-13): INSERT of a research_note row for agent hatishbi is refused; nothing was saved');
+select pg_temp.ok('A5b a direct write of the depression sentence is refused as a personal detail',
+  (select j ->> 'error' from el2 where k = 'direct-depression') like 'a research row that carries a personal detail (first_person) is personal memory%');
+select pg_temp.ok('A5c a direct write claiming status approved is refused (an approval is a later act on an existing row)',
+  (select j ->> 'error' from el2 where k = 'direct-approved-on-insert') like 'a research-typed row without an attestation%');
+select pg_temp.ok('A5d a forged attestation marker is ignored: the row is judged again, and an incoming value is replaced by the one the trigger computes',
+  (select j ->> 'error' from el2 where k = 'direct-forged-marker') like 'a research-typed row without an attestation%'
+  and (select j from el2 where k = 'direct-canonical-with-forged-value') = '{"saved":true}'::jsonb
+  and (select data ->> 'research_attestation' from public.agent_user_memory where content = 'a clean analysis') = 'verse');
+select pg_temp.ok('A5e an attested subject does not turn a personal row of another agent into research output',
+  (select j ->> 'error' from el2 where k = 'turn-a-personal-row-into-research') = 'personal memory is paused (CL-13): UPDATE of a research_note row for agent hatishbi is refused; nothing was saved');
+-- the approval route: a human act on an existing row. Before: the person's two chat-extracted rows are withheld. After approving
+-- the clean one it is research; the one that carries a personal detail stays personal even when approved.
+create temp table ap1 as select public.fn_research_output_context_v1('972533333333@c.us', 'hatishbi') as c;
+create temp table ap2 as
+  select 'clean' as k, public.as_user('service_role', null, $q$update public.agent_user_memory set status = 'approved' where content like 'BOT-FINDING-TO-APPROVE:%' returning '{"saved":true}'::jsonb$q$) as j union all
+  select 'personal', public.as_user('service_role', null, $q$update public.agent_user_memory set status = 'approved' where content like 'BOT-FINDING-DEPRESSION-TO-APPROVE:%' returning '{"saved":true}'::jsonb$q$);
+create temp table ap3 as select public.fn_research_output_context_v1('972533333333@c.us', 'hatishbi') as c;
+select pg_temp.ok('A6 an approval makes a row research; the personal detail stays personal even when approved',
+  (select c -> 'rows' = '[]'::jsonb and (c ->> 'withheld_personal')::int = 2 from ap1)
+  and (select j = '{"saved":true}'::jsonb from ap2 where k = 'clean')
+  and (select j ->> 'error' from ap2 where k = 'personal') like 'a research row that carries a personal detail (first_person) is personal memory%'
+  and (select c::text like '%BOT-FINDING-TO-APPROVE%' and c::text not like '%דיכאון%' and (c ->> 'withheld_personal')::int = 1 from ap3), (select c::text from ap3));
+select pg_temp.ok('A6a a client may not call the eligibility helpers (the sources, the canonical-text check, the route, the row test, the detector)',
+  (select bool_and(public.as_user('authenticated', '11111111-1111-4111-8111-111111111111', q) ->> 'error' like 'permission denied%')
+     from unnest(array[$q$select public.fn_personal_memory_research_sources_v1()$q$, $q$select public.fn_research_subject_in_corpus_v1('בראשית ברא אלוהים')$q$,
+       $q$select public.fn_personal_memory_research_route_v1('hatishbi','research_note','private','wa','x','{}'::jsonb,false)$q$,
+       $q$select public.fn_personal_memory_row_is_research_v1('hatishbi','research_note','private','wa','x','x','{}'::jsonb,false)$q$,
+       $q$select public.fn_personal_memory_personal_detail_v1('x')$q$]) q));
+-- the approval used above is undone (outside the trigger) so that the original rows stay byte-identical for the checks that follow
+set session_replication_role = replica;
+update public.agent_user_memory set status = 'private' where content like 'BOT-FINDING-TO-APPROVE:%';
+reset session_replication_role;
+select pg_temp.ok('A6b the seed rows are back to their original content', pg_temp.stamp() = (select s from stamp0), pg_temp.stamp());
+-- research_output_write is enforced in the writer function AND in the trigger, direct writes included
+create temp table sim_saved0 as select pg_get_functiondef('public.fn_personal_memory_policy_v1(text)'::regprocedure) as def;
+create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $$
+  select jsonb_build_object('policy', 'SIMULATED_NO_RESEARCH_WRITE', 'write_personal', p_user_ref = '972566666666@c.us', 'write_profile_facts', false, 'read_personal', false,
+    'research_output_write', false, 'research_output_read', true, 'reason', 'research writes closed') $$;
+create temp table rwp as
+  select 'writer-attested' as k, to_jsonb(public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'ניתוח הפסוק שמע ישראל', 'שמע ישראל יהוה אלהינו')) as j union all
+  select 'writer-curated', to_jsonb(public.fn_mem_add('972522222222@c.us', 'uriel', 'method_discovery', 'RWP-CURATED', 'rule', 'private', 'private', 'christina_letter_combinations')) union all
+  select 'direct-attested', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, topic, content) values ('972544444444@c.us', 'wa', 'hatishbi', 'research_note', 'שמע ישראל יהוה אלהינו', 'RWP-DIRECT') returning '{}'::jsonb$q$) union all
+  select 'direct-edit', public.as_user('service_role', null, $q$update public.agent_user_memory set topic = 'finding (edited under a closed grant)' where content = 'BOT-FINDING-1' returning '{}'::jsonb$q$) union all
+  select 'writer-with-consent', to_jsonb(public.fn_mem_add('972566666666@c.us', 'hatishbi', 'research_note', 'ניתוח הפסוק שמע ישראל', 'שמע ישראל יהוה אלהינו'));
+select pg_temp.ok('A7 without research_output_write (and without a consent) the writer function saves no research, attested or not',
+  (select j is null from rwp where k = 'writer-attested') and (select j is null from rwp where k = 'writer-curated'));
+select pg_temp.ok('A7b without research_output_write the trigger refuses a direct insert and an edit of research output, with its reason',
+  (select j ->> 'error' from rwp where k = 'direct-attested') = 'research output is not allowed for this person by the policy (research_output_write is not granted) (CL-13): INSERT of a research_note row for agent hatishbi is refused; nothing was saved'
+  and (select j ->> 'error' from rwp where k = 'direct-edit') like 'research output is not allowed for this person by the policy%UPDATE of a research_note row%');
+select pg_temp.ok('A7c the consent of the person (write_personal) is the other way in: the same attested row is saved as personal memory of that person',
+  (select j is not null from rwp where k = 'writer-with-consent'));
+delete from public.agent_user_memory where user_ref in ('972544444444@c.us', '972566666666@c.us') or content = 'RWP-CURATED';
+do $$ begin execute (select def from sim_saved0); end $$;
+-- the allowed counterpart of A7, under the reviewed policy (research_output_write = true)
+select pg_temp.ok('A7d under the reviewed policy the attested research is written again',
+  public.fn_mem_add('972544444444@c.us', 'hatishbi', 'research_note', 'ניתוח הפסוק שמע ישראל', 'שמע ישראל יהוה אלהינו') is not null);
+delete from public.agent_user_memory where user_ref = '972544444444@c.us';
 
 -- READER (M-4, M-7, R10): no old memory in the context that is built, with the same shape as before
 create temp table ctx as
@@ -327,8 +446,8 @@ select pg_temp.ok('S4 even with consent nothing personal is returned in a group 
 select pg_temp.ok('S5 a row of the assistant typed as research is personal memory: read with the consent of that person, and never research output',
   (public.fn_raziel_context(:'UA', 'site') #> '{user_context,research_threads}') = '["OLD-RESEARCH-TYPED-ROW-OF-A"]'::jsonb
   and (public.fn_research_output_context_v1(:'UA', 'raziel') -> 'rows') = '[]'::jsonb);
-select pg_temp.ok('S5b the consent of A does not release the personal detail inside the research of another person',
-  (public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi') ->> 'withheld_personal')::int = 1);
+select pg_temp.ok('S5b the consent of A does not release the personal detail, or the unattested rows, inside the research of another person',
+  (public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi') ->> 'withheld_personal')::int = 3);
 do $$ declare v uuid; begin
   v := public.fn_raziel_remember('11111111-1111-4111-8111-111111111111', 'site', 'SAVED-WITH-CONSENT');
   perform pg_temp.ok('S6 with the pause lifted for a person a row is saved and the status says so', v is not null and exists (select 1 from public.agent_user_memory where id = v));
@@ -360,8 +479,8 @@ end $$;
 create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $$
   select jsonb_build_object('policy', 'SIMULATED_CONSENT_OF_THE_BOT_PERSON', 'write_personal', p_user_ref = '972511111111@c.us', 'write_profile_facts', false,
     'read_personal', p_user_ref = '972511111111@c.us', 'research_output_write', true, 'research_output_read', true, 'reason', 'no consent') $$;
-select pg_temp.ok('S11 with the consent of the person the personal information inside the research is read',
-  (select (c ->> 'withheld_personal')::int = 0 and c::text like '%BOT-FINDING-PERSONAL%' and c::text like '%BOT-FINDING-1%' from (select public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi') as c) x));
+select pg_temp.ok('S11 with the consent of the person the research-typed rows that are personal or unattested are read too',
+  (select (c ->> 'withheld_personal')::int = 0 and c::text like '%BOT-FINDING-PERSONAL%' and c::text like '%BOT-FINDING-1%' and c::text like '%דיכאון%' and c::text like '%BOT-FINDING-UNATTESTED-CLEAN%' from (select public.fn_research_output_context_v1('972511111111@c.us', 'hatishbi') as c) x));
 create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $$
   select jsonb_build_object('policy', 'SIMULATED_NO_RESEARCH_GRANT', 'write_personal', false, 'write_profile_facts', false, 'read_personal', false, 'research_output_write', true, 'reason', 'no grant') $$;
 select pg_temp.ok('S12 a policy that does not grant reading research closes the research reader (only an explicit grant opens it)',
@@ -413,10 +532,10 @@ select pg_temp.ok('X3 the account holder erased their memory and the account is 
   and not exists (select 1 from public.agent_user_memory where user_ref in ('11111111-1111-4111-8111-111111111111', 'wa:972500000001', '972500000001', '972500000001@c.us'))
   and exists (select 1 from public.wa_account_links where user_id = '11111111-1111-4111-8111-111111111111'));
 select pg_temp.ok('X4 an erasure touches nobody else', exists (select 1 from public.agent_user_memory where content = 'OLD-SITE-THREAD-B') and exists (select 1 from public.agent_user_memory where content = 'UNVERIFIED-PHONE-OF-B'));
-select pg_temp.ok('X5 research output is kept unless the person asks for it too; a research row that carries a personal detail is erased as personal memory',
-  (select (j ->> 'deleted_personal_memory')::int = 2 and (j ->> 'kept_research_output')::int = 3 from er2 where k = 'bot-person-default')
+select pg_temp.ok('X5 attested research output is kept unless the person asks for it too; a research-typed row that is unattested or carries a personal detail is erased as personal memory',
+  (select (j ->> 'deleted_personal_memory')::int = 4 and (j ->> 'kept_research_output')::int = 3 from er2 where k = 'bot-person-default')
   and exists (select 1 from public.agent_user_memory where content = 'BOT-FINDING-1')
-  and not exists (select 1 from public.agent_user_memory where content like 'BOT-FINDING-PERSONAL%'));
+  and not exists (select 1 from public.agent_user_memory where content like 'BOT-FINDING-PERSONAL%' or content like 'BOT-FINDING-DEPRESSION:%' or content like 'BOT-FINDING-UNATTESTED%'), (select j::text from er2 where k = 'bot-person-default'));
 -- (the call and the check are separate statements: a statement does not see the rows its own function call deleted)
 create temp table er3 as select public.as_user('service_role', null, $q$select public.fn_personal_memory_erase('972511111111', true)$q$) as j;
 select pg_temp.ok('X6 with the explicit option the research output is erased too',
