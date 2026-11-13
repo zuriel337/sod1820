@@ -14,7 +14,8 @@ import PostExternalSourceUnit2029, { ClaimRow } from "./PostExternalSourceUnit20
 import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
 import { projectGematriaTrace } from "../../lib/research/gematriaTracePresentation.js";
 import { checkSourceHint } from "../../lib/research/postSourceHintCheck2029.js";
-import { TraceBreakdown2029, TraceFamilyStage2029 } from "../gematria2029/MethodTraceExplanation2029.jsx";
+import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
+import GematriaShowcase2029 from "./GematriaShowcase2029.jsx";
 import { use2029Shell } from "./Sod2029Shell.jsx";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { detectNumbersAndExpressions } from "../../lib/research/unitTextSuggestions2029.js";
@@ -110,23 +111,18 @@ function ClaimTrace({ claim }) {
       const finding = await fetchGematriaMethodTrace(methodKey, claim.phrase);
       const trace = finding?.projection?.dimensions?.trace || null;
       const model = projectGematriaTrace(trace, { expression: claim.phrase, methodKey, expectedValue: check.value });
-      setState(model.state === "ready" ? { phase: "ready", model, check } : { phase: "unavailable" });
+      setState(model.state === "ready" ? { phase: "ready", model, check, trace, methodKey } : { phase: "unavailable" });
     } catch { setState({ phase: "unavailable" }); }
   };
   const model = state.model;
-  // The equation only restates the engine's own subtotals, and only when they add up to the engine's result.
-  const subtotals = model?.groups?.map((g) => g.subtotal);
-  const equation = subtotals && subtotals.length > 1 && subtotals.every((v) => Number.isFinite(Number(v))) && subtotals.reduce((a, v) => a + Number(v), 0) === Number(model.result)
-    ? `${subtotals.join(" + ")} = ${model.result}` : null;
   return <div className="sod29-pu-trace" data-trace-state={state.phase}>
     <button type="button" className="sod29-pu-trace-btn" aria-expanded={open} onClick={toggle}>{open ? "הסתר את החישוב" : "איך הגענו למספר?"}</button>
     {open && state.phase === "loading" ? <p role="status" className="sod29-pu-sources-note">פותח את צעדי החישוב…</p> : null}
     {open && state.phase === "unavailable" ? <p role="status" className="sod29-pu-sources-note">פירוט החישוב אינו זמין כרגע. לא הומצאו צעדים חלופיים.</p> : null}
     {open && state.phase === "ready" ? <div className="sod29-pu-trace-body">
-      <header><span className="sod29-pu-trace-method">{model.methodLabel}</span><strong>{claim.phrase}</strong><b className="sod29-pu-trace-result">{model.result}</b></header>
-      {equation ? <p className="sod29-pu-trace-eq" dir="ltr">{equation}</p> : null}
-      <TraceFamilyStage2029 model={model} />
-      <details className="sod29-pu-trace-full"><summary>כל הצעדים</summary><TraceBreakdown2029 model={model} /></details>
+      {model.components?.length
+        ? <SpatialMethodStage2029 expression={claim.phrase} methodKey={state.methodKey} trace={state.trace} expectedValue={state.check?.value ?? null} depth="S2" />
+        : <GematriaShowcase2029 model={model} expression={claim.phrase} />}
       <p className="sod29-pu-trace-links">
         <button type="button" onClick={() => shell?.openNumber?.({ type: "number", id: String(model.result) })}>פתח בדף המספר</button>
         <Link to="/beit-midrash">פתח את השיטה בבית המדרש</Link>
