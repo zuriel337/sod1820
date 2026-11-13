@@ -1,4 +1,4 @@
--- One reviewed import. Run after the reader is deployed and verified.
+-- One reviewed import. Run after the writer profiles are created and the reader is deployed and verified.
 -- Body text is selected inside the database from the exact reviewed sources.
 BEGIN;
 
@@ -8,13 +8,12 @@ DECLARE
   owner_contributor constant uuid := 'fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf';
   zion_contributor constant uuid := '9594ec7d-159d-4148-ad6d-0371ffca8282';
   yaniv_contributor constant uuid := 'd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86';
-  -- Set only after identifying an existing public writer page and confirming its link to the sender.
-  lior_contributor constant uuid := NULL;
+  lior_contributor constant uuid := 'abca2ad1-7033-4f13-9f05-d616501c6dc6';
   root_id constant uuid := '2c22eafe-5847-4c31-a510-2abfd1fa3291';
   card_id constant uuid := 'ad270354-41ab-4d4d-8bf5-030e0452406d';
   receipt_id constant uuid := 'ea7af789-75dc-4292-a2f1-040948eef581';
   thread_title constant text := 'ימין ושמאל תפרוצי · 1237, 1158 ותשפ״ז';
-  thread_excerpt constant text := 'ציון סיבוני, ליאור שיטרית ויניב לוי בדיון של הגילוי היומי על 1237, 1158 ותשפ״ז.';
+  thread_excerpt constant text := 'ציון סיבוני, ליאור שטרית ויניב לוי בדיון של הגילוי היומי על 1237, 1158 ותשפ״ז.';
   now_at constant timestamptz := now();
   source_start constant timestamptz := '2026-11-12 00:00 Asia/Jerusalem';
   source_end constant timestamptz := '2026-11-13 00:00 Asia/Jerusalem';
@@ -40,11 +39,13 @@ BEGIN
     RAISE EXCEPTION 'Approved community publisher has changed';
   END IF;
 
-  IF lior_contributor IS NULL THEN
-    RAISE EXCEPTION 'The reviewed contributor ID for Lior is required';
-  END IF;
-  IF lior_contributor IN (owner_contributor, zion_contributor, yaniv_contributor) THEN
-    RAISE EXCEPTION 'The reviewed contributors must have distinct identities';
+  IF NOT EXISTS (
+    SELECT 1 FROM public.contributors c
+    WHERE c.id = lior_contributor AND c.slug = 'lior-shitrit'
+      AND c.display_name = 'ליאור שטרית' AND c.kind = 'author'
+      AND c.email IS NULL AND c.user_id IS NULL AND c.phone IS NULL
+  ) THEN
+    RAISE EXCEPTION 'The reviewed writer page for Lior is required';
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_trigger
@@ -83,7 +84,11 @@ BEGIN
       SELECT m.body_text, m.received_at INTO source_body, source_at
       FROM public.inbound_emails m
       WHERE m.id = item.inbox_id
-        AND lower(btrim(m.from_email)) = lower(btrim(writer.email))
+        -- Lior's editorial page carries no account or contact binding. Match only
+        -- the single reviewed mail receipt, not later mail from the same address.
+        AND CASE WHEN writer.id = lior_contributor THEN
+          md5(m.message_id) = '99ed8a741cb232cfeef7c098172d1371'
+        ELSE lower(btrim(m.from_email)) = lower(btrim(writer.email)) END
         AND m.meta->>'provider' = 'resend' AND m.meta->>'verified_webhook' = 'true';
     ELSE
       SELECT c.text, c.created_at INTO source_body, source_at
