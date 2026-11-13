@@ -96,10 +96,10 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL, 8.11.2026: reviewed Esther26 contributor ↔ Esther Gem account.
   "99bcfb38-85be-4f38-89f0-7886f2f179e6": {
-    name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
+    name: "Esther26", accountUserId: REVIEWED_ESTHER_LINK.accountId, preferredPublicName: true,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   [`user:${REVIEWED_ESTHER_LINK.accountId}`]: {
-    name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
+    name: "Esther26", accountUserId: REVIEWED_ESTHER_LINK.accountId, preferredPublicName: true,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL, 11.11.2026: his name exactly as it always was in the community (unchanged), and the account that owns the history (photo comes from that account).
   [REVIEWED_AVI_ZOHAR_LINK.contributorId]: { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"],
@@ -170,7 +170,8 @@ export function normalizeCommunityRow(row) {
   };
   const contributor = Array.isArray(row?.contributor) ? row.contributor[0] : row?.contributor;
   const contributorId = contributor?.id || row.author_contributor_id || null;
-  const authorName = String(VERIFIED_ARCHIVE_PROFILES[contributorId]?.name || row?.author_name || contributor?.display_name || "חבר הקהילה").trim();
+  const accountProfile = VERIFIED_ARCHIVE_PROFILES[`user:${row.author_user_id}`];
+  const authorName = String((accountProfile?.preferredPublicName && accountProfile.name) || VERIFIED_ARCHIVE_PROFILES[contributorId]?.name || row?.author_name || contributor?.display_name || "חבר הקהילה").trim();
   return {
     id: row.id,
     parentId: row.parent_id || null,

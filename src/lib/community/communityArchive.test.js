@@ -381,7 +381,7 @@ test("a search hit opens its thread only through a fully public root-to-reply pa
   assert.equal(await fetchCommunityMessagePath("not-a-uuid", { client: rpcClient(() => { throw new Error("must not call"); }) }), null);
 });
 
-test("Esther26 legacy posts and Esther Gem current posts resolve to one reviewed owner", () => {
+test("Esther26 is the public name for old and new posts under one reviewed owner", () => {
   const contributor = "99bcfb38-85be-4f38-89f0-7886f2f179e6", account = "9196e2b4-6473-4d44-9bad-913a4e4c4865";
   const old = normalizeCommunityRow({ id: "esther-legacy", origin: "openweb", author_name: "Esther26",
     author_contributor_id: contributor, body: "הודעה ישנה" });
@@ -389,11 +389,12 @@ test("Esther26 legacy posts and Esther Gem current posts resolve to one reviewed
     author_user_id: account, body: "הודעה חדשה" });
   assert.equal(old.authorKey, `user:${account}`);
   assert.equal(current.authorKey, old.authorKey);
-  assert.equal(old.authorName, "Esther Gem");
+  assert.equal(old.authorName, "Esther26");
+  assert.equal(current.authorName, "Esther26");
   assert.equal(old.linkedUserId, account);
   assert.deepEqual(communityAuthorIdentity(old.authorKey).contributorIds, [contributor]);
   assert.deepEqual(communityAuthorIdentity(contributor).accountIds, [account]);
   assert.equal(communityAuthorIdentity(contributor).verifiedOwner, true);
   assert.equal(VERIFIED_ARCHIVE_PROFILES[contributor].accountUserId, account);
-  assert.equal(VERIFIED_ARCHIVE_PROFILES[`user:${account}`].name, "Esther Gem");
+  assert.equal(VERIFIED_ARCHIVE_PROFILES[`user:${account}`].name, "Esther26");
 });

@@ -76,7 +76,8 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const accountId = row.authorUserId || row.linkedUserId || VERIFIED_ARCHIVE_PROFILES[row.authorKey]?.accountUserId;
   const account = accountId ? accountProfiles[accountId] : null;
   // An account without a display name shows the reviewed name of its historical person (not its login name).
-  const name = account?.display_name || (accountId ? VERIFIED_ARCHIVE_PROFILES[`user:${accountId}`]?.name : null) || account?.username || row.authorName;
+  const archiveProfile = accountId ? VERIFIED_ARCHIVE_PROFILES[`user:${accountId}`] : null;
+  const name = (archiveProfile?.preferredPublicName && archiveProfile.name) || account?.display_name || archiveProfile?.name || account?.username || row.authorName;
   const isOnline = Boolean(accountId) && onlinePresenceHolder.current.has(accountId);
   const isStaff = Boolean(accountId) && staffIdsHolder.current.has(accountId);
   const badge = <UserBadge colorfulFallback online={isOnline} nameSuffix={isStaff ? <span className="sod29-community-staff-chip" title="חבר צוות הצ׳אט — מנהל או מודרטור">צוות</span> : null} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
@@ -826,7 +827,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     [publicWriterCard.contributions, "תרומות"],
     [publicWriterCard.signedPassages, "פרסומים עם קטע חתום"],
   ].filter(([count]) => count > 0).map(([count, label]) => `${countLabel(count)} ${label}`).join(" · ") : "";
-  const memberName = publicWriterCard?.name || linkedAccount?.display_name || baseline?.name || linkedAccount?.username || profileRows[0]?.authorName || "חבר הקהילה";
+  const memberName = (baseline?.preferredPublicName && baseline.name) || publicWriterCard?.name || linkedAccount?.display_name || baseline?.name || linkedAccount?.username || profileRows[0]?.authorName || "חבר הקהילה";
   const isOwner = Boolean(user?.id && (linkedAccountId === user.id || selectedAuthorId === `user:${user.id}`));
 
   const closeProfile = () => setParams((current) => {
