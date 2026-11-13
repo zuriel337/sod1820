@@ -8,6 +8,7 @@
 // Saving: there is NO authorized persistence path for any of this today (no column, no table, no approved store), so "שמירה" keeps it in
 // THIS browser only and says so. A main message is part of the one canonical unit record (never a second copy for "עכשיו").
 import { previewUnitDefinition } from "../../lib/research/postPreviewUnits2029.js";
+import UnitBodyEditor2029 from "./UnitBodyEditor2029.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { use2029Shell } from "./Sod2029Shell.jsx";
@@ -185,9 +186,10 @@ function UnitEditorDialog({ unit, postId, postHref, onClose, shell }) {
   useEffect(() => { ref.current?.querySelector("button,textarea,input")?.focus(); }, []);
   const revert = () => { applyUnitChoice(unit, saved); onClose(); };
   const goConnections = (q) => { setPendingQuery(q); setTab("connections"); };
-  const tabs = [["message", "מסר"], ["connections", "חיבורים"], ["design", "עיצוב"]];
+  const unitDef = unit.hasAttribute("data-preview-unit") ? previewUnitDefinition(postId, unitId) : null;
+  const tabs = [["message", "מסר"], ...(unitDef ? [["body", "גוף היחידה"]] : []), ["connections", "חיבורים"], ["design", "עיצוב"]];
   return createPortal(<div className="sod29-unit-editor-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) revert(); }}>
-    <div ref={ref} className="sod29-unit-editor" role="dialog" aria-modal="true" aria-label={`עריכת יחידה: ${unitTitle}`} data-unit-editor={unitId}
+    <div ref={ref} className="sod29-unit-editor" role="dialog" aria-modal="true" aria-label={`עריכת יחידה: ${unitTitle}`} data-unit-editor={unitId} data-tab={tab}
       onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); revert(); } }}>
       <header><strong>{unitTitle}</strong><small>{unitId}</small></header>
       <div role="tablist" aria-label="חלקי העורך" className="sod29-unit-editor-tabs">
@@ -195,6 +197,7 @@ function UnitEditorDialog({ unit, postId, postHref, onClose, shell }) {
       </div>
       <div role="tabpanel" className="sod29-unit-editor-body">
         {tab === "message" ? <MessageTab draft={draft} set={set} unitTitle={unitTitle} postId={postId} shell={shell} goConnections={goConnections} /> : null}
+        {tab === "body" && unitDef ? <UnitBodyEditor2029 unit={unit} unitDef={unitDef} postId={postId} onPickMessage={(text) => { set({ message: text.slice(0, 400) }); setTab("message"); }} /> : null}
         {tab === "connections" ? <ConnectionsTab draft={draft} set={set} postId={postId} postHref={postHref} initialQuery={pendingQuery} unitNumbers={unitNumbers} /> : null}
         {tab === "design" ? <DesignTab draft={draft} set={set} /> : null}
       </div>

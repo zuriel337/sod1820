@@ -167,6 +167,8 @@ function Share({ unit, post, postPath }) {
 
 export default function PreviewUnitExtras2029({ rootRef, post, htmlKey }) {
   const [mounts, setMounts] = useState([]);
+  const [version, setVersion] = useState(0);
+  useEffect(() => { const bump = () => setVersion((v) => v + 1); document.addEventListener("sod29:preview-unit-rebuilt", bump); return () => document.removeEventListener("sod29:preview-unit-rebuilt", bump); }, []);
   const postPath = publicPostHref(post) || `/post/${post.slug}`;
   useEffect(() => {
     const root = rootRef.current;
@@ -180,7 +182,7 @@ export default function PreviewUnitExtras2029({ rootRef, post, htmlKey }) {
     }
     setMounts(found);
     return () => setMounts([]);
-  }, [rootRef, post.id, htmlKey]);
+  }, [rootRef, post.id, htmlKey, version]);
   return <>{mounts.map(({ unit, hosts, traces }) => <React.Fragment key={unit.id}>
     {hosts.bar ? createPortal(<Bar unit={unit} post={post} postPath={postPath} />, hosts.bar) : null}
     {hosts.images ? createPortal(<Images />, hosts.images) : null}

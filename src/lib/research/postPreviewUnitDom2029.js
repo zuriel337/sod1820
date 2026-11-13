@@ -2,6 +2,7 @@
 // words are set with textContent, so nothing in the approved text can become markup, and no word is changed. Numbers (3–5 digits) become the
 // same clickable [data-gem] controls the rest of the Post uses, so a click opens the existing Number window and returns to this exact unit.
 import { parseYaminSmolText, previewUnitsFor, ATTRIBUTION_GROUPS } from "./postPreviewUnits2029.js";
+import { resolveUnitBlocks } from "./postUnitBody2029.js";
 
 const NUMBER = /(?<![\d.])\d{3,5}(?![\d.])/g;
 
@@ -32,8 +33,8 @@ function withNumbers(doc, node, text) {
 // number of a peak -> id of its (single) engine claim in YAMIN_SMOL_CLAIMS
 const PEAK_TRACE_CLAIMS = Object.freeze({ 2026: "c2026", 5787: "c5787" });
 
-export function buildPreviewUnitElement(doc, unit) {
-  const blocks = parseYaminSmolText();
+export function buildPreviewUnitElement(doc, unit, blocks = null) {
+  blocks = blocks || resolveUnitBlocks(unit.postId, unit.id); // the approved body, or this browser's valid local draft of it
   const section = el(doc, "section", { id: unit.id, class: "sod29-pu", "data-sod-unit": unit.id, "data-preview-unit": "true", "data-sod-peak": "auto", "aria-labelledby": `${unit.id}-title`, "data-series": unit.seriesKey, "data-post-id": String(unit.postId) });
   const head = el(doc, "header", { class: "sod29-pu-head" });
   const body = el(doc, "div", { class: "sod29-pu-body" });
@@ -110,4 +111,25 @@ export function injectPreviewUnits(root, postId, doc = root.ownerDocument || doc
     placed += 1;
   }
   return placed;
+}
+
+// Rebuilds the head and the body of an already-placed preview unit from the current draft (the footer hosts and the bar stay mounted). Announces it so the
+// React parts that live inside the body (the focal-number traces) re-attach to the new nodes.
+export function rebuildPreviewUnitBody(section, unit, blocks = null) {
+  const doc = section.ownerDocument;
+  const fresh = buildPreviewUnitElement(doc, unit, blocks);
+  for (const part of ["header.sod29-pu-head", "div.sod29-pu-body"]) {
+    const next = fresh.querySelector(part), current = section.querySelector(part);
+    if (next && current) current.replaceWith(next);
+  }
+  doc.dispatchEvent(new CustomEvent("sod29:preview-unit-rebuilt", { detail: { unitId: unit.id } }));
+}
+
+// A static copy of a unit body for the editor's live preview: no ids, no hosts, nothing the Post's own scripts would pick up.
+export function buildPreviewUnitCopy(doc, unit, blocks) {
+  const copy = buildPreviewUnitElement(doc, unit, blocks);
+  copy.removeAttribute("id"); copy.removeAttribute("data-sod-unit"); copy.removeAttribute("data-preview-unit"); copy.removeAttribute("aria-labelledby");
+  for (const node of copy.querySelectorAll("[id]")) node.removeAttribute("id");
+  for (const node of copy.querySelectorAll("[data-pu-host],[data-pu-trace]")) node.remove();
+  return copy;
 }
