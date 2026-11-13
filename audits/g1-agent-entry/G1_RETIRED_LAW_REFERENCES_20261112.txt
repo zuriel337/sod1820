@@ -1,0 +1,36 @@
+# G1 dated record of RUNTIME CODE that still names a retired law - 2026-11-12 (round 4; read from the tree of PR #1321).
+# Why: recording a successor does not prove that anything uses it. These are the readers that still point at a law that has
+# retired; each line carries the successor that the newest laws snapshot recorded for that law on this date ('-' = none recorded).
+# Scope: supabase/functions, src, api, public-reading-deploy (.js .jsx .ts .tsx .mjs .cjs; test files excluded), whole-word match
+# of the 44 retired laws that the 12.11 laws snapshot lists. NOT in scope: database function bodies (tests/live/
+# g1_rule_reader_conformance.sql reads those), documents, and retired laws that no active law names (not in the snapshot).
+# Rules (scripts/test-g1-agent-routing-smoke.mjs): a reference that is not listed here is refused; the list may only SHRINK
+# (repoint the reader, then publish a NEW dated file without the line); the one addition allowed is for a law that retired in the
+# same change. Whether a remaining line is a deliberate historical citation or a live dependency is a human decision
+# (contracts ledger, CL-07 / CL-11 / CL-12). Never edit this file in place.
+# Format:   F|path|rule_id|successor_recorded_on_this_date
+F|src/components/HumanDateInput.jsx|human_date_input_law|truth_axes_foundation_law
+F|src/components/SubscribeGate.jsx|subscribe_gate_law|subscription_funnel_law
+F|src/components/research/TopicConvergenceContent.jsx|convergence_display_law|reality_graph_law
+F|src/components/research/TopicConvergenceContent.jsx|convergence_number_method_law|reality_graph_law
+F|src/lib/contributions.js|research_contribution_law|docs/research-studio-v1-contract.md
+F|src/lib/contributions.js|unified_graph_law|reality_graph_law
+F|src/lib/gematria.js|meshulash_kadmi_law|-
+F|src/lib/research/compositeMethods.js|gematria_methods_catalog|project_codex.gematria_engine
+F|src/lib/research/compositeMethods.js|meshulash_kadmi_law|-
+F|src/lib/research/entity.js|unified_graph_law|reality_graph_law
+F|src/lib/research/researchW2ExecutorsBase.js|rls_client_read_protocol|person_foundation_contract_law
+F|src/lib/research/researchW2ExecutorsBase.js|unified_graph_law|reality_graph_law
+F|src/lib/research/topicConvergence.js|convergence_display_law|reality_graph_law
+F|src/lib/supabase.js|ai_quota_law|platform_tiers_law
+F|src/lib/supabase.js|ai_style_learning_law|system_suggestions_law
+F|src/lib/supabase.js|post_publish_law|project_codex.publishing_conventions
+F|src/lib/supabase.js|rls_client_read_protocol|person_foundation_contract_law
+F|src/theme.js|convergence_display_law|reality_graph_law
+F|supabase/functions/_shared/materialGate.js|ai_quota_law|platform_tiers_law
+F|supabase/functions/ai-analyze/index.ts|ai_quota_law|platform_tiers_law
+F|supabase/functions/els-search-bridge/index.ts|ai_quota_law|platform_tiers_law
+F|supabase/functions/journey-message/index.ts|ai_quota_law|platform_tiers_law
+F|supabase/functions/research-run/index.ts|ai_quota_law|platform_tiers_law
+F|supabase/functions/wa-raziel/index.ts|messiah_frequency_in_every_person_law|truth_axes_foundation_law
+F|supabase/functions/wa-raziel/index.ts|never_silent_metatron_law|raziel_companion_layer_law
