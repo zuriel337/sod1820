@@ -141,7 +141,33 @@ case ids are the ones of the scenarios (`S`/`R` = `run-ci-scenarios.sh`, `D` = `
 * **O-7.** Restriction sources: which of the rows marked NO VERIFIED SOURCE / CONTRADICTED become decisions (the document's own section 3).
 * **O-8.** Whether an approval is required for every new store under an existing owner (the implementation requires it; the contracts text does not say so).
 
-## 10. Known gaps
+## 10. Tests run (on the code commit `5c906d42c9d295136fb9a29f3e337d14b9835709`; the commit after it adds only the result files and this section)
+
+Local, offline. Node v22.23.4 (CI uses `.nvmrc` 24.21.0; a second run used Node 24.22.1). PostgreSQL 16.15 and 17.12 (local binaries, throwaway data
+directory, unix socket; the CI runner used 18.6 at #1321 `0e928e34b`, not available here). Recorded outputs: `enforcement-proof/results-5c906d42c9d2/`.
+The PR #1321 results (51 scenarios, produced on commit `83005653617e`) stay in `enforcement-proof/results-pr1321-83005653/`.
+
+| Command | Result |
+|---|---|
+| `node --test scripts/test-g1-agent-routing-smoke.mjs` | 51 pass / 0 fail (Node 22 and Node 24.22.1) |
+| `GITHUB_ACTIONS=true G1_BASE_SHA=<origin/main> node --test scripts/test-g1-agent-routing-smoke.mjs` | 51 pass / 0 fail (Node 22 and 24.22.1) |
+| `bash docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-ci-scenarios.sh` | **53 scenarios, all as expected**, exit 0 (about 55 s). It creates and removes one temporary detached worktree, as designed |
+| `G1_PG_BIN=<16 and 17> bash .../enforcement-proof/run-db-scenarios.sh` | 72 cases x 2 variants (live / applied) as expected on both; outputs identical apart from the version line |
+| `G1_PG_BIN=<16 and 17> bash scripts/run-g1-rule-guard-sql-test.sh` | 25 lifecycle cases as expected on both; sha256 of the plan match; rule-tree scan: 36 SQL files, 4 reviewed hits. Self-check `G1_RG_FLIP=G3-apply-exact-live-state`: exit 1 |
+| `G1_PG_BIN=<16 and 17> bash scripts/run-g1-laws-snapshot-reader-test.sh` | 18 checks as expected on both. Self-check `G1_READER_FLIP=G-S1`: exit 1 |
+| `G1_PG_BIN=<16 and 17> bash .../cl16-order-evidence/run.sh` | 4 cases as expected on both |
+| `node --test test/contracts-enforcement-package-2029.test.mjs test/required-checks-definition-2029.test.mjs` | 13 pass / 0 fail (Node 22 and 24.22.1) |
+| `node scripts/test-legacy-retired.mjs` | PASS |
+| CL-07: `node --test src/lib/research/researchW2FoundationHardening.test.js` | 40 pass / 0 fail (39 before); the 10 test files that import the W2 executors: 130 pass / 0 fail; `node scripts/test-research-run-contract.mjs` PASS |
+| Cross-package check: the 28 files of the M0 and CL-13 apply plans from `4a406fed2` placed on this branch for one run (then removed) | smoke 51/51; CL-16 runner scan: 56 SQL files, only the 4 reviewed ones mention the rule tree |
+| Mutation checks | B5 branch disabled: exactly the B5 test fails; DB case count 71 instead of 72: runner exits 1; renamed job / added paths filter / changed timeout in temporary copies of the workflows: the required-checks pin fails |
+
+**Not run, and why:** the wired CI steps themselves (workflows are not edited here); PostgreSQL 18; anything against the live database or the
+repository ruleset (no live access). **Failures and findings of this work:** the end-to-end scenario R3e exposed a defect in the preserved B5
+test (it compared the newest codex record); fixed in its own commit (extraction-map.md section B). No test failed on plain main for a reason
+unrelated to this topic.
+
+## 11. Known gaps
 
 `gaps.md` (17 rows: B13, B14, B5 database side, direct table creation, who can bypass, owner retirement with live children, SQL detection
 limits, retired families the snapshot does not know, the database and Edge readers of retired laws, live-writer check after apply, approval
