@@ -1,6 +1,6 @@
 # Release request · required checks (ruleset) — a separate action, derived from #1336 (13.11.2026)
 
-> **This is a request, not an approval, and it is a different action from merging #1336 and from the CL-16 database step** (`release-request-1336-contracts-enforcement.md`, A and B). It changes a repository security setting (CLAUDE.md 0.4: "permissions, policies, secrets and security settings" need ZURIEL's explicit approval of the exact change). Nothing here was changed; the ruleset was **not read again** for this request (value read by the governance reader on 12.11.2026).
+> **This is a request, not an approval, and it is a different action from merging #1336 and from the CL-16 database step** (`release-request-1336-contracts-enforcement.md`, A and B). It changes a repository security setting (CLAUDE.md 0.4: "permissions, policies, secrets and security settings" need ZURIEL's explicit approval of the exact change). Nothing here was changed; the ruleset was **not read again** for this request (value read by the governance reader on 12.11.2026; **Codex read `protect-main` again on 13.11: no required status checks, `required_linear_history` active, bypass for the admin role** — the table below uses that reading).
 > **Who can apply it:** no tool in the agent session changes GitHub rulesets (the GitHub tools of the session read and write pull requests, not repository settings). The change is applied by ZURIEL in the repository settings, or with ZURIEL's own credential through the API call in section 3. An agent may not do it with an admin identity "on ZURIEL's behalf" without a separate explicit approval.
 
 | | |
@@ -41,6 +41,7 @@
 * **The admin bypass stays** (decision O-4). While it does, a merge under the admin identity — including an agent acting in ZURIEL's account — skips every required check. RC-1 does not change that.
 * The required-check names are not read by anything in the repository except the pin test; the ruleset itself is outside the repository, so after the change the names in it must be read back and compared with the nine above.
 * Required checks do not protect `main` from a direct push by an identity that bypasses the pull-request rule; they protect the pull-request path only.
+* **Linear history and the merge method.** `required_linear_history` stays on and is not changed by RC-1. With it, a pull request can be merged only by squash or rebase (a merge commit needs the bypass). The release requests of #1336 and #1337 therefore ask for a squash merge and state the alternatives; the required-checks rule and linear history do not conflict.
 
 ## 3. Exact change (for ZURIEL's UI or API; not executed by the agent)
 1. Save the current ruleset: `gh api repos/zuriel337/sod1820/rulesets/19635630 > ruleset-backup.json` (read-only).
@@ -67,7 +68,12 @@
 }
 ```
 
-3. **Verification (read-only plus two scratch pull requests):** read the ruleset back and compare the nine contexts with the table; open a deliberately red **draft** pull request (for example one test file that fails) — the merge must be blocked and the nine checks must show as required; open a green docs-only pull request — the merge must become possible after the nine pass. Close both without merging.
+3. **Verification — the enforcement must be shown on the path that does NOT bypass, not only on the path that does.** A red pull request tried under an identity that bypasses the ruleset proves nothing: the bypass skips the rule. In this order:
+   1. *Read-only, any identity:* read the ruleset back and compare the nine contexts with the table; `GET /repos/zuriel337/sod1820/rules/branches/main` lists `required_status_checks` with the nine contexts as active rules of the branch.
+   2. *Red pull request, read-only evidence:* a deliberately red **draft** pull request (one test file that fails). Its `mergeable_state` is `blocked` and the nine checks show as required. (`blocked` is shown also to an admin; it is evidence that the rule applies to the branch, not that it holds against the bypass.)
+   3. *The non-bypass path:* the same red pull request is tried with an identity **without** the admin role (a collaborator account with write access, or a test account): the merge is refused (the button is disabled / the API answers that required status checks are expected). **If no such identity is available, the enforcement is NOT proven and must be reported as "rule present, enforcement not exercised against a non-bypass identity" — not as proven.**
+   4. *Green path:* a green docs-only pull request becomes mergeable after the nine pass. Close both scratch pull requests without merging.
+   5. *The admin path is recorded, not tested:* an admin merge of a red pull request would succeed (that is the bypass, O-4); nobody should "test" it by merging. It is listed as the known open hole until O-4 is decided.
 4. **Rollback:** delete the `required_status_checks` rule, or `PUT` the saved `ruleset-backup.json` back. Takes effect immediately; no repository file changes.
 
 ## 4. Order relative to the packages

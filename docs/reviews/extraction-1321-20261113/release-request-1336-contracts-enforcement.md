@@ -1,6 +1,6 @@
 # Release request · #1336 — contracts and enforcement (13.11.2026)
 
-> **This is a request, not an approval.** Nothing in it is applied, merged or deployed. Each of the two requests below (A: merge of the code; B: the CL-16 database step) needs ZURIEL's explicit approval for the exact commit and, for B, the exact file hashes (CLAUDE.md rule 7 and 0.4). **They are independent**: A does not need B, B does not need A, and an approval of one is not an approval of the other. **The ruleset (required checks) is a third, separate approval and is not requested here.** Not read by this request: the Codex addendum on the journal record (the journal could not be reached when this was written); the request is built from the pull request and its documents and must be reconciled with that addendum.
+> **Updated 13.11.2026 after the Codex read of the ruleset `protect-main` (no required status checks, `required_linear_history` active, bypass for the admin role).** This is a request, not an approval. Nothing in it is applied, merged or deployed. Each of the two requests below (A: merge of the code; B: the CL-16 database step) needs ZURIEL's explicit approval for the exact commit and, for B, the exact file hashes (CLAUDE.md rule 7 and 0.4). **They are independent**: A does not need B, B does not need A, and an approval of one is not an approval of the other. **The ruleset (required checks) is a third, separate approval and is not requested here.** Not read by this request: the Codex addendum on the journal record (the journal could not be reached when this was written); the request is built from the pull request and its documents and must be reconciled with that addendum.
 
 | | |
 |---|---|
@@ -13,7 +13,12 @@
 
 ## A. Merge of the code half (no database, no site, no Edge)
 
-**Request:** merge #1336 at head `7d85bf70f190919ed5588033bfea56e4a982981f` into `main` (a merge commit, like the other merges of this repository).
+**Request:** merge #1336 at head `7d85bf70f190919ed5588033bfea56e4a982981f` into `main`, **by squash** (one commit on `main`).
+
+**Why not a merge commit — the ruleset has `required_linear_history`.** A rule of linear history forbids merge commits on `main` for every identity that does not bypass the ruleset. The merge commits that the history of `main` shows (for example "Merge pull request #1329") were therefore made under the admin bypass or before the rule. Three ways, to be chosen by ZURIEL; this request is written for the first and the others are listed so that nobody has to rediscover them:
+1. **Squash merge (requested).** Linear, no bypass needed. `main` gets one new commit `S`; the head `7d85bf70f…` is not on `main`, so the approval is for *the content of that head*: the tree of `S` must equal the tree of the head merged onto the base (checked after the merge, see below). The 15 commits of the branch stay on the branch and in the pull request. `git revert S` is the rollback.
+2. **Rebase merge.** Linear; replays the 15 commits with new SHAs; the exact commits that were approved do not reach `main` either; revert needs a range.
+3. **Merge commit under the admin bypass.** Keeps the exact head as the second parent, but it is done with the identity that skips every rule (including a future required-checks rule); it should not become the habit and, if chosen, is recorded as a bypass.
 
 **What changes after the merge**
 * The G1 agent-routing smoke grows from 18 to 51 tests and compares the pull request with its real base (dated records, contract changes, laws snapshots). `live-contracts-2029` gains: the "G1 base commit" step (mandatory with the smoke: without it the smoke fails in CI — reproduced), the 53 enforcement scenarios (run only when the enforcement code changes) and two package pins.
@@ -25,12 +30,12 @@
 
 **Conditions to re-check immediately before the merge (the request lapses if one fails)**
 1. The head is still `7d85bf70f…` and `origin/main` is still `9be0c29fc…`. If main moved: re-run `node --test scripts/test-g1-agent-routing-smoke.mjs`, the two pins and `docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-ci-scenarios.sh` on the updated branch and present the new head.
-2. All pull-request checks green on that exact head (the list above).
+2. All pull-request checks green on that exact head (the list above). **Note:** `protect-main` has no required status checks (read by Codex 13.11), so a green or red check does not stop a merge: this condition is checked by hand before the merge, and until the ruleset action (`release-request-1336-required-checks.md`) is done it is a convention, not an enforced rule.
 3. Merge order relative to #1334, #1335 and #1337 is free (trial integration of all four: no conflict; 51 smoke tests, 121 contract tests and 53 scenarios pass on the merged tree).
 
-**Verification after the merge (read-only):** read `origin/main` and confirm the merge commit has the head as its second parent; the push-triggered runs of `legacy-production-lock` and the gates on `main` are green; `node --test scripts/test-g1-agent-routing-smoke.mjs` on main passes. If any fails: stop and report; do not "fix forward" without a new request.
+**Verification after the merge (read-only):** read `origin/main`: it has exactly one new commit `S` on top of `9be0c29fc…`, and `git rev-parse S^{tree}` equals the tree of a local `git merge --no-ff` of `7d85bf70f…` onto `9be0c29fc…` (so the content approved is the content merged); the push-triggered runs of `legacy-production-lock` and the gates on `main` are green; `node --test scripts/test-g1-agent-routing-smoke.mjs` on main passes. If any fails: stop and report; do not "fix forward" without a new request.
 
-**Rollback:** `git revert -m 1 <merge commit>` through a normal pull request (CI-only, documents and proposals; no runtime, no data, no flag). Nothing outside the repository has to be undone.
+**Rollback:** `git revert S` through a normal pull request (squash) — or `git revert -m 1 <merge commit>` if option 3 was chosen — (CI-only, documents and proposals; no runtime, no data, no flag). Nothing outside the repository has to be undone.
 
 **Not covered by A:** any SQL; the ruleset; any deployment (a code merge is not a deployment; the next site deployment will carry the CL-07 label and needs its own approval for its exact commit).
 

@@ -1,6 +1,6 @@
 # Release request · #1337 — measurement: one visit per real page view (13.11.2026)
 
-> **This is a request, not an approval.** Nothing in it is merged or deployed. It has **two separate steps**: 1 = merge of the code to `main`; 2 = the deployment of the public site that makes it live. A merge is not a deployment (CLAUDE.md rule 7). Each step needs ZURIEL's explicit approval for the exact commit; an approval of step 1 is not an approval of step 2, and the commit of step 2 (the merge commit on `main`) does not exist yet — it will be read and presented before step 2 is approved. **No SQL, no Edge function, no flag, no secret, no ruleset change in either step.** Not read by this request: the Codex addendum on the journal record (the journal could not be reached when this was written); the request is built from the pull request and its documents and must be reconciled with that addendum.
+> **Updated 13.11.2026 after the Codex read of the ruleset `protect-main` (no required status checks, `required_linear_history` active, bypass for the admin role).** This is a request, not an approval. Nothing in it is merged or deployed. It has **two separate steps**: 1 = merge of the code to `main`; 2 = the deployment of the public site that makes it live. A merge is not a deployment (CLAUDE.md rule 7). Each step needs ZURIEL's explicit approval for the exact commit; an approval of step 1 is not an approval of step 2, and the commit of step 2 (the merge commit on `main`) does not exist yet — it will be read and presented before step 2 is approved. **No SQL, no Edge function, no flag, no secret, no ruleset change in either step.** Not read by this request: the Codex addendum on the journal record (the journal could not be reached when this was written); the request is built from the pull request and its documents and must be reconciled with that addendum.
 
 | | |
 |---|---|
@@ -19,7 +19,9 @@
 * Nothing is rewritten in the database; nothing is published to the public.
 
 ## Step 1 — merge of the code
-**Request:** merge #1337 at head `47ee61b27263f6a0772581b2d8f46eb6f7a2e4e5` into `main` (a merge commit).
+**Request:** merge #1337 at head `47ee61b27263f6a0772581b2d8f46eb6f7a2e4e5` into `main`, **by squash** (one commit `S` on `main`).
+
+**Why not a merge commit — the ruleset has `required_linear_history`:** merge commits on `main` are impossible for an identity that does not bypass the ruleset (the merge commits in the history of `main` were made under the admin bypass or before the rule). Squash is linear and needs no bypass; the approval is then for the **content** of the head (the tree of `S` equals the tree of the head merged onto the base, verified after the merge). Alternatives: a rebase merge (linear, six commits replayed with new SHAs) or a merge commit under the admin bypass (keeps the exact head as second parent, but uses the identity that skips every rule; if chosen it is recorded as a bypass). **Step 2 is unaffected:** it deploys the exact commit `S` of `main`, which is read and presented after step 1.
 
 **Scope (exact):** `public-reading-deploy/transport.js` (the page's worker admission: a visit, an engagement flush and an action are bound to a public-site window and to a per-window budget — 120 visits, 240 engagements, 60 actions per 10 minutes, at most 500 live windows per family, 10-minute age-out; the engagement budget is the only change in meaning against the two sources); `src/App2029.jsx` (the page-view effect mounted beside the research provider, so a re-mount is not a page view); `src/lib/{events,tracking,visits,publicReadingTelemetry2029,supabase}.js` and one line of `src/pages/Post2029Page.jsx`; one test helper hook (`test/helpers/authBrowserFixture.mjs`, 5 lines, the same bytes the public-content browser test needs); tests and documents; `.github/workflows/live-contracts-2029.yml` (four node tests joined to an existing step; two steps in the existing `marketing-browser-2029` job — **no new job**, so the set of pull-request checks is unchanged).
 
@@ -27,12 +29,12 @@
 
 **Conditions to re-check immediately before the merge (the request lapses if one fails)**
 1. Head is still `47ee61b27…`, `origin/main` is still `9be0c29fc…` (if main moved: re-run `node --test test/public-reading-action-measurement.test.mjs test/public-reading-analytics-worker.test.mjs test/public-reading-observability.test.mjs test/measurement-page-view-once-2029.test.mjs test/measurement-transport-hardening-2029.test.mjs test/measurement-package-scope-20261113.test.mjs` and `node --test test/measurement-visit-once-2029.browser.mjs` on the updated branch; `transport.js` is shared with other work — whoever merges second re-applies the one contiguous admission region on top).
-2. All pull-request checks green on that exact head.
+2. All pull-request checks green on that exact head. **Note:** `protect-main` has no required status checks (read by Codex 13.11): this is checked by hand before the merge until the ruleset action of #1336 is done.
 3. Order relative to #1334, #1335 and #1336 is free (trial integration of all four: no conflict).
 
-**Verification after the merge (read-only):** `origin/main` has the merge commit with the head as second parent; the same six node tests and the browser test pass on `main`; the push-triggered gates are green. Any failure: stop and report.
+**Verification after the merge (read-only):** `origin/main` has exactly one new commit `S` on top of `9be0c29fc…` and `git rev-parse S^{tree}` equals the tree of a local merge of the head onto the base; the same six node tests and the browser test pass on `main`; the push-triggered gates are green. Any failure: stop and report.
 
-**Rollback:** `git revert -m 1 <merge commit>` through a normal pull request (no schema, no data migration, no flag; rows written by the fixed build stay valid; reverting brings back the double rows and the refused in-app navigation).
+**Rollback:** `git revert S` through a normal pull request (or `git revert -m 1 <merge commit>` if a merge commit was chosen) (no schema, no data migration, no flag; rows written by the fixed build stay valid; reverting brings back the double rows and the refused in-app navigation).
 
 ## Step 2 — deployment of the public site (separate approval; the exact commit is not known yet)
 **Request (to be completed after step 1):** deploy the exact merge commit of step 1 to Production by the documented procedure (CLAUDE.md "נוהל פריסה ל־Production מסשן ענן"): `create_deployment` with `gitSource` at that SHA, `projectSettings` as in `docs/reviews/main-live-state-reconciliation-20261104/live-969-release/executed-production-request.json` with the SHA substituted, no PATCH to project settings; wait for READY (a cancelled deployment means the Ignored Build Step — stop, do not retry the same way); then `assign_alias` for `sod1820.co.il`, `www.sod1820.co.il` and `sod1820.vercel.app`.
