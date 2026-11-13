@@ -634,10 +634,10 @@ ZURIEL אישר עד ארבעה תתי־סוכנים. הסשן הזה נשאר �
 | מסלול | ממצאים מהרשימה | קבצים (כותב יחיד) | מצב |
 |---|---|---|---|
 | **משלב (הסשן הזה)** | CL-13 (A4b, ‏A4c, ‏H); שילוב כל המסלולים; מסירות | כל קובצי CL-13; `foundation-closure-list.md`, ‏`release-request.md`, ‏`non-m0-edge-deltas.md`, ‏`intermediate-states.md`, ‏`edge-drift-and-rollback.md`; ‏`.github/workflows/**`; ‏`package.json`; ‏`scripts/m0-edge-rollback-assemble.mjs` | חבילה 1 בענף (§10.2) |
-| **1 · יסודות והרשאות** | כיסוי כל קוראי וכותבי הזיכרון (ממצא Codex); בדיקה עוינת של הרשאות ההצעה | קבצים חדשים בלבד: מלאי הקוראים ומבחן שנועל אותו | מופעל אחרי קיבוע חבילה 1 |
-| **2 · חוזים ואכיפה** | מקור לכל הגבלה קיימת; B5, ‏B13, ‏B14, ‏CL-07 | `restriction-sources.md` (חדש); ‏`scripts/test-g1-agent-routing-smoke.mjs`, ‏`scripts/lib/g1LawsSnapshotRules.mjs`; קבצים מתוארכים חדשים ב־`audits/g1-agent-entry/`; ‏`test/wiring-*.test.mjs` (חדשים); ‏`researchW2ExecutorsBase.js` | רץ |
-| **3 · מדידה וכתובות** | C1–C4, ‏X1–X3, ‏T-1–T-6, ‏D4, ‏D5, ‏U-2, ‏U-5; ההכרעה ״מדידה מלאה״ | `src/App2029.jsx`; ‏`src/lib/analytics*.js`, ‏`marketing.js`, ‏`publicReadingTelemetry2029.js`, ‏`adsense.js`; ‏`public-reading-deploy/transport.js`; ‏`supabase/functions/meta-capi/index.ts`; ‏`api/og.js`, ‏`api/sitemap*.js`; הצעות מסד חדשות למדידה; `measurement-audit/**` | רץ |
-| **4 · מהירות וחוויית שימוש** | LCP/TTFB (§9.1); חוק נראות פעולה; דף כתובת לא מוכרת (T-4, ‏U-5) | `src/main2029.jsx`, ‏`2029.html`, סקריפט הבנייה, ‏`public-reading-deploy/**` (מלבד `transport.js`), רכיבים (שינוי נייטרלי לעיצוב בלבד); `speed-ux-audit/**` (חדש) | רץ |
+| **1 · יסודות והרשאות** | כיסוי כל קוראי וכותבי הזיכרון (ממצא Codex); בדיקה עוינת של הרשאות ההצעה | קבצים חדשים בלבד: מלאי הקוראים ומבחן שנועל אותו | נעצר ב־13.11 בהוראת ZURIEL, בלי תוצר. לא נפתח מחדש בלי הוראה |
+| **2 · חוזים ואכיפה** | מקור לכל הגבלה קיימת; B5, ‏B13, ‏B14, ‏CL-07 | `restriction-sources.md` (חדש); ‏`scripts/test-g1-agent-routing-smoke.mjs`, ‏`scripts/lib/g1LawsSnapshotRules.mjs`; קבצים מתוארכים חדשים ב־`audits/g1-agent-entry/`; ‏`test/wiring-*.test.mjs` (חדשים); ‏`researchW2ExecutorsBase.js` | נעצר ב־13.11. שלושה קומיטים מקומיים בעותק עבודה (`58a90eedf`), לא נבדקו ולא שולבו |
+| **3 · מדידה וכתובות** | C1–C4, ‏X1–X3, ‏T-1–T-6, ‏D4, ‏D5, ‏U-2, ‏U-5; ההכרעה ״מדידה מלאה״ | `src/App2029.jsx`; ‏`src/lib/analytics*.js`, ‏`marketing.js`, ‏`publicReadingTelemetry2029.js`, ‏`adsense.js`; ‏`public-reading-deploy/transport.js`; ‏`supabase/functions/meta-capi/index.ts`; ‏`api/og.js`, ‏`api/sitemap*.js`; הצעות מסד חדשות למדידה; `measurement-audit/**` | נעצר ב־13.11. קומיט מקומי אחד בעותק עבודה (`139f16214`), לא נבדק ולא שולב |
+| **4 · מהירות וחוויית שימוש** | LCP/TTFB (§9.1); חוק נראות פעולה; דף כתובת לא מוכרת (T-4, ‏U-5) | `src/main2029.jsx`, ‏`2029.html`, סקריפט הבנייה, ‏`public-reading-deploy/**` (מלבד `transport.js`), רכיבים (שינוי נייטרלי לעיצוב בלבד); `speed-ux-audit/**` (חדש) | נעצר ב־13.11. שבעה קבצים לא מוגשים בעותק עבודה; לא נבדק ולא שולב |
 
 **כללים משותפים לכל המסלולים:** קובץ שאינו ברשימה של המסלול — לא נערך; התיקון מוגש כהצעת patch למשלב. ענפים ו־PRs ישנים (למשל #1283, ‏#1259) אינם מקור. ספים קבועים אינם משתנים. אישורי החלה ופריסה נשארים בחבילת הביצוע המוגשת ל־ZURIEL.
 
@@ -657,7 +657,28 @@ ZURIEL אישר עד ארבעה תתי־סוכנים. הסשן הזה נשאר �
 | V-6 | **מדיניות השורות `agent_user_memory_own_read` אינה מעניקה דבר**: ל־`authenticated` אין הרשאת SELECT על הטבלה | — | — | — | חי, נקרא 13.11 | — | **חדש**, ללא השפעה |
 | V-7 | **מקור rollback לשלוש הפונקציות הנוספות** קיים וזהה בבתים לפרוס | — | — | מי שמחזיר לאחור | v4, ‏v8, ‏v18 | מבחן 1; הרכבה מחדש עם בדיקת SHA-256 | סגירת פער מסבב 6 |
 | V-8 | **`recorded_as` בייצוא** סיווג כל מזהה שאינו `wa:` כחשבון | — | פונקציות הייצוא | האדם | לא קיים בחי | E1b, ‏E1c במסד | ממצא Codex; תוקן |
+| V-9 | **הצהרת העצמאות שגויה**: ״אין תלות ב־M0״ נכון רק להצעת המסד. השחרור המלא מצמיד שלוש פונקציות M0 | CL-13; חבילת M0 | — | מי שמאשר פריסה | `release_units` ב־`apply-plan.json` | מבחני 4–6 של `cl13-intermediate-states`; מוטציות: שינוי קובץ ב־bundle, אזכור זיכרון בקובץ SQL אחר | ממצא Codex; תוקן |
+| V-10 | **`materialGate.js` בחבילת M0 הוא גרסת M0-B ולא ״ללא שינוי״**, ו־`raziel-attention` (מחוץ ל־M0) מקבלת אותו כרוכב | חבילת M0 | `release-request.md` | שש פונקציות מייבאות אותו | פרוס: הגרסה הישנה | מבחן 5 (SHA-256 של כל קובץ ב־bundle) | **חדש**; הנוסח השגוי תוקן |
 
 **מצב ביניים ודרך חזרה** רשומים לכל שלב ב־`apply-plan.json` (`required_order`).
+
+### 10.3 מה נפרס יחד, ההמלצה לקבוצה הראשונה, והיחידות הנפרדות
+
+הפירוט: README של CL-13 §4.4; הנתונים הנבדקים: `apply-plan.json` → `release_units`, ‏`release_sequence`, ‏`missing_decisions`, ‏`blocks_apply`. **נקודת הביקורת של חבילה 1: `0e928e34b4a26ca694dd49b4698ed8431cc68020`.**
+
+| יחידה | פונקציות | תוכן | מצמידה ל־M0? | עוצרת איסוף חי? |
+|---|---|---|---|---|
+| **U1 (מומלצת ראשונה)** | `wa-hatishbi`, ‏`wa-uriel` | CL-13 בלבד | לא | לא (רדומות) |
+| U2 | `raziel-attention` | CL-13 + `materialGate.js` של M0-B (בלי שינוי התנהגות) + סדר שרשור | רק דרך המודול המשותף | לא |
+| U3 | `number-researcher`, ‏`ai-analyze`, ‏`wa-raziel` | CL-13 בתוך פריסות ה־Edge של M0 (שלב 3, שורות 5, 7, 8) | **כן** | `wa-raziel` (cron) ונתיב הוואטסאפ של `ai-analyze`, ברמת ה־Edge |
+| U4 | — | שלב המסד `CL13-1` | לא | כל כותב, ברמת המסד |
+
+- **הצהרת העצמאות:** הצעת המסד עצמאית; השחרור המלא אינו עצמאי (README §4.4).
+- **חלופה שדורשת הכרעה:** D-ORDER — המסד ראשון ולבדו. הכלל נשאר ״Edge קודם״ עד הכרעה.
+- **יחידות נפרדות, לא בחבילה 1 ולא ב־PR:** (1) מדידה: ביקור אחד לכל צפייה, מדידה מלאה, מטריצת צד שלישי; (2) מהירות וחוויית שימוש; (3) חוזים ואכיפה: מקורות ההגבלות, ‏B5, ‏B13, ‏B14, ‏CL-07. אין להן עדיין תוצר שנבדק: קומיטים מקומיים בעותקי עבודה (**לא נדחפו, ואובדים אם הסביבה נמחקת**).
+
+### 10.4 CI לפי SHA — נקודת הביקורת `0e928e34b`
+
+15 מתוך 15 בדיקות הצליחו: `els-core-compatibility` (**הסתיים ב־04:19:17 UTC, 19 דקות; run 43362638954**), ‏`perf-contracts-2029`, ‏`live-contracts-2029`, ‏`route-seo-decision-2029`, ‏`auth-browser-acceptance-2029`, ‏`marketing-browser-2029`, ‏`release-contracts-2029`, ‏`gate`, ‏`legacy-production-lock`, ‏`Mobile + Accessibility Acceptance`, ‏`Production Canary Gate`, ‏`security-sql-contracts` (PostgreSQL 18.6: ‏19 + 9 תרחישי handlers), ‏`hard-isolation`, ‏`public-core`, ‏`isolated-postgres17-auth-rls`. **זו ראיה ל־SHA הזה בלבד.** אין בה סגירת בסיס, והיא לא חלה על קומיט מסמכים שאחריו.
 
 **מה לא נסגר בחבילה הזו:** שתי ההכרעות שממתינות ל־ZURIEL (צפיית מנהל בעובדות פרופיל; מחיקת ממצאי מחקר); מאגר הסכמות; פקודות הוואטסאפ לייצוא ולמחיקה; בדיקה בלתי תלויה של כל הפונקציות הפרוסות (מסלול 1). **CL-13 אינו סגור** עד החלה, פריסה ואימות חי.

@@ -175,3 +175,81 @@ if (!pg) {
     assert.ok(run.inserts.some((x) => /facts-captured/.test(String(x.row?.reply_out))), "the deployed code writes the 'captured' record without checking the writer's answer (fixed in the Edge code of this branch)");
   });
 }
+
+// ───────────── the release units (13.11.2026): what each of the six functions ships, as a checkable statement ─────────────
+// apply-plan.json → release_units lists, per function, the exact bundle at the review point (every file the entry imports,
+// transitively), its SHA-256 and its state against the deployed bundle. This turns "what is deployed together" from a sentence
+// into something that fails when a file of a bundle changes without the plan being updated.
+import { existsSync, readdirSync } from "node:fs";
+import { resolve, dirname, relative } from "node:path";
+const ROOT = new URL("../", import.meta.url).pathname;
+function bundleFiles(entry) {
+  const files = new Map(), stack = [entry];
+  while (stack.length) {
+    const f = stack.pop(); if (files.has(f)) continue;
+    const bytes = readFileSync(`${ROOT}${f}`); files.set(f, bytes);
+    const text = bytes.toString("utf8");
+    const specs = [...text.matchAll(/^(?:import|export)\s[^;]*?from\s+["']([^"']+)["']/gms)].map((m) => m[1]).concat([...text.matchAll(/import\(\s*["'](\.[^"']+)["']\s*\)/g)].map((m) => m[1]));
+    for (const spec of specs) if (spec.startsWith(".")) { const p = relative(ROOT, resolve(ROOT, dirname(f), spec)); if (existsSync(`${ROOT}${p}`)) stack.push(p); }
+  }
+  return files;
+}
+const deployedEntry = (slug, path) => (entryOf(slug).files.find((f) => `supabase/${f.deploy_path}`.replace("supabase/supabase/", "supabase/") === path || f.deploy_path === path.replace(/^supabase\//, "")));
+
+test("independence: the database proposal is alone in naming the memory; the full release is stated as NOT independent of M0", () => {
+  const files = readdirSync(`${ROOT}supabase/proposed`).filter((n) => n.endsWith(".sql") || n.endsWith(".json"));
+  const names = /agent_user_memory|fn_raziel_context|fn_raziel_remember|fn_raziel_fact|fn_raziel_upsert_summary|fn_mem_add|fn_personal_memory|fn_research_output/;
+  const naming = files.filter((n) => names.test(readFileSync(`${ROOT}supabase/proposed/${n}`, "utf8"))).sort();
+  assert.deepEqual(naming, ["20261112230000_cl13_personal_memory_pause.sql", "ROLLBACK_20261112230000_cl13_personal_memory_pause.sql"], "no other proposed SQL file touches the memory");
+  assert.match(PLAN.independence.database_proposal, /^INDEPENDENT of M0/);
+  assert.match(PLAN.independence.full_release, /^NOT independent of M0/);
+  assert.match(PLAN.independence.full_release, /wa-raziel, ai-analyze, number-researcher/);
+  assert.equal(PLAN.depends_on_tracks, undefined, "the old one-line statement (\"none\") is gone");
+  assert.equal(PLAN.review_point.sha, "0e928e34b4a26ca694dd49b4698ed8431cc68020");
+});
+
+test("release units: each function's bundle at the review point is exactly the listed files, with their SHA-256 and their state against the deployed bundle", () => {
+  assert.deepEqual(PLAN.release_units.map((u) => u.slug).sort(), [...SIX].sort());
+  for (const unit of PLAN.release_units) {
+    const files = bundleFiles(`supabase/functions/${unit.slug}/index.ts`);
+    assert.deepEqual(unit.bundle_at_review_point.map((f) => f.path).sort(), [...files.keys()].sort(), `${unit.slug}: the bundle is exactly these files`);
+    assert.equal(unit.in_m0_edge_package, Boolean(M0.functions[unit.slug]), `${unit.slug}: M0 membership matches the M0 manifest`);
+    for (const f of unit.bundle_at_review_point) {
+      assert.equal(f.sha256, sha(files.get(f.path)), `${unit.slug}/${f.path}: sha256`);
+      const dep = unit.deployed_as_single_bundle ? null : deployedEntry(unit.slug, f.path);
+      const expected = unit.deployed_as_single_bundle ? "deployed as one bundled file (v91)" : !dep ? "new in the bundle" : dep.deployed_sha256 === f.sha256 ? "identical to deployed" : "changed";
+      assert.equal(f.vs_deployed, expected, `${unit.slug}/${f.path}: state against the deployed file`);
+    }
+    for (const key of ["cl13", "m0", "other"]) assert.ok(Array.isArray(unit.ships_together[key]), `${unit.slug}: ships_together.${key}`);
+    assert.ok(unit.ships_together.cl13.length > 0, `${unit.slug}: every function ships CL-13`);
+    assert.ok(unit.verification_after_deploy.length >= 3 && unit.rollback.manifest && unit.decisions_missing.length >= 1, `${unit.slug}: verification, rollback and missing decisions are stated`);
+    assert.equal(unit.deployed.version, entryOf(unit.slug).version); assert.equal(unit.deployed.ezbr_sha256, entryOf(unit.slug).deployed_ezbr_sha256);
+  }
+});
+
+test("the first group is CL-13 and nothing else: its bundles differ from the deployed ones only in index.ts and the policy module", () => {
+  const first = PLAN.recommended_first_group;
+  assert.deepEqual(first.functions, ["wa-hatishbi", "wa-uriel"]);
+  for (const slug of first.functions) {
+    const unit = PLAN.release_units.find((u) => u.slug === slug);
+    assert.equal(unit.unit, "U1"); assert.deepEqual(unit.ships_together.m0, []); assert.deepEqual(unit.ships_together.other, []); assert.deepEqual(unit.needs_before, []); assert.deepEqual(unit.secrets_and_settings, []);
+    const touched = unit.bundle_at_review_point.filter((f) => f.vs_deployed !== "identical to deployed").map((f) => f.path).sort();
+    assert.deepEqual(touched, [`supabase/functions/${slug}/index.ts`, "supabase/functions/_shared/personalMemoryPolicy.js"].sort(), `${slug}: nothing else changes`);
+  }
+  // the units that are NOT CL-13 only are the ones that carry other changes, and they say so
+  for (const slug of ["raziel-attention", "number-researcher", "ai-analyze", "wa-raziel"]) {
+    const unit = PLAN.release_units.find((u) => u.slug === slug);
+    assert.ok(unit.ships_together.m0.length + unit.ships_together.other.length > 0, `${slug}: carries more than CL-13 and says what`);
+  }
+  assert.deepEqual(PLAN.release_sequence.map((s) => s.unit), ["U1", "U2", "U3", "U4"]);
+  assert.deepEqual(PLAN.release_sequence.find((s) => s.unit === "U3").functions.sort(), ["ai-analyze", "number-researcher", "wa-raziel"]);
+  assert.equal(PLAN.alternative_requiring_a_decision.id, "D-ORDER"); assert.ok(PLAN.missing_decisions.some((d) => d.id === "D-ORDER" && /Codex/.test(d.who)));
+  assert.match(first.not_an_approval, /not an approval/);
+});
+
+test("negative control: a bundle file that changes without the plan being updated is detected", () => {
+  const unit = PLAN.release_units.find((u) => u.slug === "wa-hatishbi");
+  const files = bundleFiles("supabase/functions/wa-hatishbi/index.ts");
+  const changed = Buffer.concat([files.get("supabase/functions/wa-hatishbi/index.ts"), Buffer.from("\n// edited\n")]);
+  assert.notEqual(sha(changed), unit.bundle_at_review_point.find((f) => f.path.endsWith("wa-hatishbi/index.ts")).sha256);
+});
