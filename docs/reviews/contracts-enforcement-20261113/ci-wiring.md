@@ -1,3 +1,5 @@
+> **Applied by the integrator (13.11.2026) on this branch, exactly as written below** (the anchors are the ones in this file: `live-contracts-2029` around the G1 smoke, and the end of `security-sql-contracts`; the other extraction branches use other anchors in the same workflow, so the four can merge in any order).
+
 # CI wiring for the contracts-and-enforcement package (for the integrator; no workflow was edited)
 
 Only `.github/workflows/live-contracts-2029.yml` needs edits, in **two jobs**. Re-based on `origin/main` `9be0c29fc` (main added three test
