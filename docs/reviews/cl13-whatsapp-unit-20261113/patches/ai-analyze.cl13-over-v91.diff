@@ -1,0 +1,118 @@
+--- a/ai-analyze.js
++++ b/ai-analyze.js
+@@ -3343,2 +3343,54 @@
+ 
++// supabase/functions/_shared/personalMemoryPolicy.js
++var PERSONAL_MEMORY_POLICY_RPC = "fn_personal_memory_policy_v1";
++var closed = (reason) => Object.freeze({
++  write_personal: !1,
++  write_profile_facts: !1,
++  read_personal: !1,
++  research_output_write: !1,
++  research_output_read: !1,
++  policy: null,
++  source: "closed",
++  reason
++}), PERSONAL_MEMORY_CLOSED = closed("policy_unavailable");
++function normalizePersonalMemoryPolicy(raw) {
++  return !raw || typeof raw != "object" || Array.isArray(raw) ? closed("policy_unavailable") : typeof raw.policy != "string" || !raw.policy ? closed("policy_malformed") : Object.freeze({
++    write_personal: raw.write_personal === !0,
++    // a profile fact is also a personal-memory row: both grants are required
++    write_profile_facts: raw.write_personal === !0 && raw.write_profile_facts === !0,
++    read_personal: raw.read_personal === !0,
++    research_output_write: raw.research_output_write === !0,
++    research_output_read: raw.research_output_read === !0,
++    policy: raw.policy,
++    source: "database",
++    reason: typeof raw.reason == "string" && raw.reason ? raw.reason : null
++  });
++}
++async function readPersonalMemoryPolicy(callRpc, userRef) {
++  let ref = typeof userRef == "string" ? userRef.trim() : "";
++  if (!ref) return closed("no_person");
++  try {
++    return normalizePersonalMemoryPolicy(await callRpc(PERSONAL_MEMORY_POLICY_RPC, { p_user_ref: ref }));
++  } catch {
++    return closed("policy_unavailable");
++  }
++}
++var emptyUserContext = () => ({ approved_preferences: [], research_threads: [], summary: null, profile: [], recent_conversation: [] });
++function gatePersonalContext(ctx, policy) {
++  let p = policy && policy.source ? policy : PERSONAL_MEMORY_CLOSED, base = ctx && typeof ctx == "object" && !Array.isArray(ctx) ? ctx : {}, allowed = p.read_personal === !0 && base.privacy?.personal_memory_allowed === !0, user = allowed && base.user_context && typeof base.user_context == "object" ? { ...emptyUserContext(), ...base.user_context } : emptyUserContext();
++  for (let key of ["approved_preferences", "research_threads", "profile", "recent_conversation"]) Array.isArray(user[key]) || (user[key] = []);
++  return {
++    ...base,
++    user_context: user,
++    channel_context: base.channel_context && typeof base.channel_context == "object" ? base.channel_context : {},
++    privacy: {
++      ...base.privacy && typeof base.privacy == "object" ? base.privacy : {},
++      personal_memory_allowed: allowed,
++      personal_memory_write_allowed: p.write_personal === !0 && base.privacy?.personal_memory_write_allowed === !0,
++      policy: p.policy,
++      reason: allowed ? null : base.privacy?.reason || p.reason || "not_allowed"
++    }
++  };
++}
++
+ // supabase/functions/ai-analyze/index.ts
+@@ -3848,12 +3900,23 @@
+ }
++async function razielMemoryPolicy(userRef) {
++  return readPersonalMemoryPolicy(async (fn, args) => {
++    let r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: "POST", headers: svcHeaders(), body: JSON.stringify(args) });
++    if (!r.ok) throw new Error(`policy_${r.status}`);
++    return await r.json();
++  }, userRef);
++}
+ async function razielRemember(userRef, channel, content, topic = null) {
+-  if (!(!userRef || !content || content.trim().length < 2))
+-    try {
+-      await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_remember`, {
+-        method: "POST",
+-        headers: svcHeaders(),
+-        body: JSON.stringify({ p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3e3), p_memory_type: "conversation", p_scope: "personal", p_topic: topic, p_visibility: "private" })
+-      });
+-    } catch {
+-    }
++  if (!userRef || !content || content.trim().length < 2) return null;
++  try {
++    let r = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_remember`, {
++      method: "POST",
++      headers: svcHeaders(),
++      body: JSON.stringify({ p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3e3), p_memory_type: "conversation", p_scope: "personal", p_topic: topic, p_visibility: "private" })
++    });
++    if (!r.ok) return null;
++    let id = await r.json().catch(() => null);
++    return typeof id == "string" && id ? id : null;
++  } catch {
++    return null;
++  }
+ }
+@@ -3862,3 +3925,3 @@
+   let parts = [], u = ctx.user_context || {};
+-  return ctx.privacy?.personal_memory_allowed !== !1 && (u.summary && parts.push(`\u05DE\u05D4 \u05E9\u05D0\u05EA\u05D4 \u05D9\u05D5\u05D3\u05E2 \u05E2\u05DC \u05D4\u05DE\u05E9\u05EA\u05DE\u05E9: ${u.summary}`), Array.isArray(u.research_threads) && u.research_threads.length && parts.push(`\u05E0\u05D5\u05E9\u05D0\u05D9\u05DD \u05E9\u05D7\u05E7\u05E8 \u05DC\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4: ${u.research_threads.slice(0, 5).join(" \xB7 ")}`), Array.isArray(u.approved_preferences) && u.approved_preferences.length && parts.push(`\u05D4\u05E2\u05D3\u05E4\u05D5\u05EA \u05DE\u05D0\u05D5\u05E9\u05E8\u05D5\u05EA: ${u.approved_preferences.join(" \xB7 ")}`)), parts.length ? `
++  return ctx.privacy?.personal_memory_allowed === !0 && (u.summary && parts.push(`\u05DE\u05D4 \u05E9\u05D0\u05EA\u05D4 \u05D9\u05D5\u05D3\u05E2 \u05E2\u05DC \u05D4\u05DE\u05E9\u05EA\u05DE\u05E9: ${u.summary}`), Array.isArray(u.research_threads) && u.research_threads.length && parts.push(`\u05E0\u05D5\u05E9\u05D0\u05D9\u05DD \u05E9\u05D7\u05E7\u05E8 \u05DC\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4: ${u.research_threads.slice(0, 5).join(" \xB7 ")}`), Array.isArray(u.approved_preferences) && u.approved_preferences.length && parts.push(`\u05D4\u05E2\u05D3\u05E4\u05D5\u05EA \u05DE\u05D0\u05D5\u05E9\u05E8\u05D5\u05EA: ${u.approved_preferences.join(" \xB7 ")}`)), parts.length ? `
+ 
+@@ -6186,6 +6249,9 @@
+           rPlanMeta = { ...rPlanMeta || {}, current_content_read: { kind: null, ok: !1, outcome: "identity_unavailable" } }, rCcPack = "UNAVAILABLE";
+-      let [persona, ctx] = await Promise.all([
++      let [persona, rMemoryPolicy] = await Promise.all([
+         fetchRazielPersona(rTrusted ? "wa" : "site"),
+-        userRef && rLegacyPersistentMemoryAllowed ? fetchRazielContext(userRef, rTrusted ? "wa" : "site") : Promise.resolve(null)
+-      ]), ctxText = rTrusted?.media && !rTrusted.continuity ? "" : razielContextText(ctx), rzSys = persona + RAZIEL_SHARED_WARM_ACCURACY_LAYER;
++        userRef && rLegacyPersistentMemoryAllowed ? razielMemoryPolicy(userRef) : Promise.resolve(PERSONAL_MEMORY_CLOSED)
++      ]), ctx = gatePersonalContext(
++        rMemoryPolicy.read_personal ? await fetchRazielContext(userRef, rTrusted ? "wa" : "site") : null,
++        rMemoryPolicy
++      ), ctxText = rTrusted?.media && !rTrusted.continuity ? "" : razielContextText(ctx), rzSys = persona + RAZIEL_SHARED_WARM_ACCURACY_LAYER;
+       rMatrix && (rzSys += `
+@@ -6428,3 +6494,3 @@
+         finalRel.degraded ? finalRel.reason || "degraded" : personalAreaContractRejected ? "personal_area_companion_output_contract_rejected" : "numeric_truth_guard_untrusted_literal"
+-      ), userRef && rSubject && !rTrusted && rLegacyPersistentMemoryAllowed)
++      ), userRef && rSubject && !rTrusted && rLegacyPersistentMemoryAllowed && rMemoryPolicy.write_personal)
+         try {
+@@ -6449,3 +6515,3 @@
+         ...interpretiveNumericRepairUsed ? { repair: "numeric_sentence_drop" } : {}
+-      } }), rPlanMeta && (contract.plan_meta = rPlanMeta), contract.continue_wa == null && (contract.continue_wa = !0), rMode && (contract.plan = rPlan, contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText }), responseDegraded || await finishOperationalTrace(activeTrace, "success"), rzJson({ raziel: contract, ...elsOccurrenceReceipt, ...rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}, evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || void 0, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null })) : (responseDegraded || await finishOperationalTrace(activeTrace, "success"), rzJson({ analysis: rMatrix ? `${matrixAxisText}
++      } }), rPlanMeta && (contract.plan_meta = rPlanMeta), contract.continue_wa == null && (contract.continue_wa = !0), rMode && (contract.plan = rPlan, contract.context_sources = { canonical: !!rzMtxVersion, personal: !!ctxText, surface: !!surfaceText }), responseDegraded || await finishOperationalTrace(activeTrace, "success"), rzJson({ raziel: contract, ...elsOccurrenceReceipt, ...rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}, evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || void 0, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null })) : (responseDegraded || await finishOperationalTrace(activeTrace, "success"), rzJson({ analysis: rMatrix ? `${matrixAxisText}
+ 

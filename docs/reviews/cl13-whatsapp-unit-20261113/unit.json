@@ -1,0 +1,269 @@
+{
+ "unit": "WA-1",
+ "name": "The active WhatsApp path, CL-13 only: wa-raziel first, ai-analyze after it",
+ "state": "BRANCH-ONLY. Not applied, not deployed, not merged. This file is a statement of what each candidate contains; it is not an approval.",
+ "branch": "claude/cl13-whatsapp-unit-20261113",
+ "base": {
+  "origin_main": "aa0f6bc82b8c94286374b1f51208037502994eab",
+  "production_deployment": "dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ",
+  "read_at": "2026-11-13"
+ },
+ "source_references": {
+  "edge_code_origin": {
+   "pr": 1321,
+   "sha": "4a406fed273b9b381577c5b2a03d91c58de46451",
+   "review_point_of_package_1": "0e928e34b4a26ca694dd49b4698ed8431cc68020",
+   "what": "The CL-13 hunks of wa-raziel, ai-analyze and the shared module were taken from this commit and re-applied to origin/main WITHOUT the M0 and N14 hunks (scripts reproduce them; see README, section 'How the separation was done'). #1321 stays frozen at this head and is not the continuation place of this unit."
+  },
+  "database_step": {
+   "branch": "claude/cl13-db-step-20261113",
+   "sha": "c960600af86f854efaaa481403ba8cc435e3019b",
+   "role": "The ONLY continuation place of the database package. The tests of this unit read the proposal, its rollback and the five live-function fixtures from that commit by SHA; nothing of it is copied here.",
+   "files": [
+    "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql",
+    "supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql",
+    "tests/sql/fixtures/cl13_memory_live_base_20261112/fn_raziel_remember.sql",
+    "tests/sql/fixtures/cl13_memory_live_base_20261112/fn_raziel_fact.sql",
+    "tests/sql/fixtures/cl13_memory_live_base_20261112/fn_raziel_upsert_summary.sql",
+    "tests/sql/fixtures/cl13_memory_live_base_20261112/fn_mem_add.sql",
+    "tests/sql/fixtures/cl13_memory_live_base_20261112/fn_raziel_context.sql"
+   ]
+  },
+  "request_document": "docs/reviews/cl13-personal-memory-20261112/whatsapp-release-request.md on the database-step branch (c960600af) is the earlier request; this unit's README supersedes it for the Edge part."
+ },
+ "order": {
+  "edge_before_database": true,
+  "steps": [
+   "1. wa-raziel (this unit, function 1)",
+   "2. ai-analyze (this unit, function 2)",
+   "3. database step CL13-1 (separate package, separate approval)"
+  ],
+  "why": "Both functions reach the memory only through database functions, so the Edge level closes them by itself (the policy function does not exist, so the code treats it as closed). The database step is not required for the Edge level to stop collecting; it is the second layer.",
+  "not_part_of_this_unit": [
+   "wa-hatishbi, wa-uriel (U1: dormant, CL-13 only; does NOT close the active collection)",
+   "raziel-attention (U2)",
+   "number-researcher (U3, M0-coupled)",
+   "the database step (U4)"
+  ]
+ },
+ "independence": {
+  "from_M0": "Candidate A of both functions changes nothing that M0 changes: it does not include edgeCallerLimits.js, the M0-B identity/quota code, the contact/group identifiers moved to environment names, or the N14 number-link base. No secret is needed. M0 and this unit change the same two files, so whichever is deployed second must be built on top of the first (see README, 'Overlap with M0 and #1321').",
+  "not_independent_of": "the deployed bytes: candidate A is a diff against the deployed v21 / v91; if either function is redeployed by anything else first, the drift gate stops this unit."
+ },
+ "drift_gate": {
+  "read_at": "2026-11-13",
+  "rule": "list_edge_functions must show exactly these versions and ezbr_sha256 immediately before each deploy; any difference: stop and report.",
+  "wa-raziel": {
+   "version": 21,
+   "verify_jwt": false,
+   "ezbr_sha256": "6167766567cca19de23f2b10756227a9e1d4cc0cab9cd9fa4cd76ed36d221e1b"
+  },
+  "ai-analyze": {
+   "version": 91,
+   "verify_jwt": true,
+   "ezbr_sha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb"
+  }
+ },
+ "functions": [
+  {
+   "slug": "wa-raziel",
+   "position": 1,
+   "deployed": {
+    "version": 21,
+    "verify_jwt": false,
+    "entrypoint": "functions/wa-raziel/index.ts",
+    "import_map": false
+   },
+   "live_use": "Cron every 2 minutes. The only active collector of personal memory (a private message of every sender, and profile details).",
+   "closes": [
+    "saving of the message of a linked sender and of a sender without an account (remember)",
+    "extraction and saving of profile details (savePersonalData) and the '[facts-captured]' record for details that were not saved",
+    "reading the stored context into the answer (getContext)",
+    "the account-link message no longer says that everything is saved"
+   ],
+   "does_not_close": [
+    "the legacy site path of ai-analyze (function 2)",
+    "the database level (the database step)",
+    "rows that already exist"
+   ],
+   "recommended_candidate": "A",
+   "candidates": {
+    "A": {
+     "label": "deployed v21 + CL-13 only",
+     "accompanying": [],
+     "files": [
+      {
+       "deploy_path": "functions/wa-raziel/index.ts",
+       "sha256": "3b51d4f5db1154930685c0470fe1929e627da70a5df9a1c6da3286f9b0a5df63",
+       "vs_deployed": "changed (CL-13 only)",
+       "source": {
+        "kind": "deployed+diff",
+        "diff": "docs/reviews/cl13-whatsapp-unit-20261113/patches/wa-raziel.cl13-over-v21.diff"
+       }
+      },
+      {
+       "deploy_path": "functions/_shared/waGreen.ts",
+       "sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+       "vs_deployed": "identical to deployed",
+       "source": {
+        "kind": "deployed"
+       }
+      },
+      {
+       "deploy_path": "functions/_shared/waRazielRender.ts",
+       "sha256": "b20bcffcd1c36a8e82a3cc57a3000dce93f0740c8b308628b7a9d07c121fa284",
+       "vs_deployed": "identical to deployed",
+       "source": {
+        "kind": "deployed"
+       }
+      },
+      {
+       "deploy_path": "functions/_shared/personalMemoryPolicy.js",
+       "sha256": "858a4882361652618707f59f9d183c3b255979820edff14febb3b147ce2f2e03",
+       "vs_deployed": "new in the bundle",
+       "source": {
+        "kind": "tree",
+        "path": "supabase/functions/_shared/personalMemoryPolicy.js"
+       }
+      }
+     ]
+    },
+    "B": {
+     "label": "the files of the branch tree (origin/main + CL-13)",
+     "accompanying_diff": "docs/reviews/cl13-whatsapp-unit-20261113/patches/wa-raziel.accompanying-n6-navigation.diff",
+     "accompanying": [
+      "N6: explicit navigation requests in a private chat ('give me the page of number 73', 'open the world') are answered without a model, with a link from a closed route table; a numeral-only message that answers Raziel's own clarification question is now admitted instead of dropped; a failed navigation send is queued in bot_outbox. This is code that is on main and was never deployed (v21 has no navigation). It changes what a sender receives on the active path, and it needs its own decision."
+     ],
+     "files": [
+      {
+       "deploy_path": "functions/wa-raziel/index.ts",
+       "sha256": "922e150a52fe68591a09ce6360f51b615fb2003c9288b2c257f180b892ac48af",
+       "vs_deployed": "changed (CL-13 + N6)",
+       "source": {
+        "kind": "tree",
+        "path": "supabase/functions/wa-raziel/index.ts"
+       }
+      },
+      {
+       "deploy_path": "functions/_shared/waGreen.ts",
+       "sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+       "vs_deployed": "identical to deployed",
+       "source": {
+        "kind": "deployed"
+       }
+      },
+      {
+       "deploy_path": "functions/_shared/waRazielRender.ts",
+       "sha256": "b20bcffcd1c36a8e82a3cc57a3000dce93f0740c8b308628b7a9d07c121fa284",
+       "vs_deployed": "identical to deployed",
+       "source": {
+        "kind": "deployed"
+       }
+      },
+      {
+       "deploy_path": "functions/_shared/personalMemoryPolicy.js",
+       "sha256": "858a4882361652618707f59f9d183c3b255979820edff14febb3b147ce2f2e03",
+       "vs_deployed": "new in the bundle",
+       "source": {
+        "kind": "tree",
+        "path": "supabase/functions/_shared/personalMemoryPolicy.js"
+       }
+      },
+      {
+       "deploy_path": "functions/_shared/razielNavigationActions.js",
+       "sha256": "220269bbdf83f19e00631f441731b40acb0a3cc2791826d28cadc6a36251ebb3",
+       "vs_deployed": "new in the bundle (N6)",
+       "source": {
+        "kind": "tree",
+        "path": "supabase/functions/_shared/razielNavigationActions.js"
+       }
+      },
+      {
+       "deploy_path": "functions/_shared/siteLinkRegistry.js",
+       "sha256": "a57b86c033a60dae63cdd5d2c68804e41b6afdea8833ace2cd02589f4da00dbf",
+       "vs_deployed": "new in the bundle (N6)",
+       "source": {
+        "kind": "tree",
+        "path": "supabase/functions/_shared/siteLinkRegistry.js"
+       }
+      }
+     ]
+    }
+   },
+   "rollback": {
+    "manifest": "docs/reviews/cl13-whatsapp-unit-20261113/edge-rollback-manifest.json",
+    "kind": "exact_source",
+    "restores": "v21 byte for byte; restores writing on every message and reading without consent (a decision, not a technical step)"
+   }
+  },
+  {
+   "slug": "ai-analyze",
+   "position": 2,
+   "deployed": {
+    "version": 91,
+    "verify_jwt": true,
+    "entrypoint": "index.ts",
+    "import_map": false,
+    "single_bundled_file": true
+   },
+   "live_use": "On request. Reaches the memory only through fn_raziel_context and fn_raziel_remember. Two callers use that memory: a signed-in site request without the 2029 research contract, and the trusted WhatsApp channel of a linked sender.",
+   "closes": [
+    "the stored context of a linked sender entering the WhatsApp answer and the site answer (read_personal)",
+    "remembering the subject of a site question (write_personal)",
+    "context_sources.personal is true only when personal text really entered the prompt"
+   ],
+   "does_not_close": [
+    "the database level (the database step)",
+    "rows that already exist"
+   ],
+   "recommended_candidate": "A",
+   "candidates": {
+    "A": {
+     "label": "deployed v91 bundle + CL-13 only",
+     "accompanying": [],
+     "files": [
+      {
+       "deploy_path": "index.ts",
+       "sha256": "9ad6ff905912ec6c3148bc9ff8269b69bac5a5f4c74f66eebe20e298d569687b",
+       "vs_deployed": "changed (CL-13 only; the two comment lines that held personal addresses stay redacted, as in the rollback artifact)",
+       "source": {
+        "kind": "deployed+diff",
+        "diff": "docs/reviews/cl13-whatsapp-unit-20261113/patches/ai-analyze.cl13-over-v91.diff"
+       }
+      }
+     ]
+    },
+    "B": {
+     "label": "scripts/package-ai-analyze.mjs on the branch tree, with the two comment lines that hold personal addresses redacted exactly as in the rollback artifact",
+     "accompanying_diff": "docs/reviews/cl13-whatsapp-unit-20261113/patches/ai-analyze.accompanying-n8-n10.diff",
+     "accompanying": [
+      "N8: ten constants of the grounded-source composer are named (MAX_*), and the number-page base is read from NUMBER_PAGE_BASE. Neither changes a value: the base evaluates to '/2029/number' in Deno (no import.meta.env), the literal that is deployed.",
+      "N9: two modules enter the bundle (publicReadingRelease2029.js, numberPageAddress.js) only as dependencies of the composer; nothing from the first is used by the Edge code.",
+      "N10: one esbuild rename (MAX_FINDINGS -> MAX_FINDINGS2), a name collision, not code.",
+      "Two comment lines in the source hold personal addresses (main has them, and v91 as deployed has them). Both candidates are redacted like the rollback artifact, so neither deploy carries them; the tree is not changed by this unit."
+     ],
+     "files": [
+      {
+       "deploy_path": "index.ts",
+       "sha256": "f05cbb885a2cd873b93b4c603a93f139e7131c9690d8d4f765dd6ef0e551d771",
+       "vs_deployed": "changed (CL-13 + N8-N10; the two address comments redacted)",
+       "source": {
+        "kind": "package"
+       }
+      }
+     ]
+    }
+   },
+   "rollback": {
+    "manifest": "docs/reviews/cl13-whatsapp-unit-20261113/edge-rollback-manifest.json",
+    "kind": "source_with_comment_redaction",
+    "restores": "v91 except two comment lines that held personal addresses; restores reading without consent and remembering every site question"
+   }
+  }
+ ],
+ "tests": {
+  "runner": "scripts/run-cl13-whatsapp-unit-test.sh",
+  "handlers_and_intermediate_states": "test/cl13-whatsapp-unit.test.mjs",
+  "pins_and_overlap": "test/cl13-whatsapp-unit-pins.test.mjs"
+ }
+}

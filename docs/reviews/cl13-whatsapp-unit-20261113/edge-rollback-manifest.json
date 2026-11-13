@@ -1,0 +1,104 @@
+{
+ "purpose": "Exact rollback sources for the two Edge Functions of the CL-13 WhatsApp unit (wa-raziel, ai-analyze), copied from the deployed versions read on 12.11.2026 and re-checked against list_edge_functions on 13.11.2026 (same version, same ezbr_sha256). No secrets; personal data only redacted in two comment lines of ai-analyze.",
+ "read_at": "2026-11-12",
+ "rechecked_at": "2026-11-13",
+ "project": "linswmnnkjxvweumprav",
+ "base": "949c24ad549ae9e95ced528a4ee8159670b52678",
+ "how_to_use": "node scripts/cl13-whatsapp-unit.mjs rollback <slug> <out-dir>  (needs the commits b4d5ec47 and 949c24ad5: git fetch origin <sha>). It rebuilds the deployed file layout and checks every SHA-256; it never deploys.",
+ "functions": {
+  "wa-raziel": {
+   "version": 21,
+   "verify_jwt": false,
+   "entrypoint": "functions/wa-raziel/index.ts",
+   "import_map": false,
+   "class": "deployed OLDER than base (main ahead: canonical navigation actions)",
+   "files": [
+    {
+     "deploy_path": "functions/wa-raziel/index.ts",
+     "source": {
+      "git": "b4d5ec47132ed8003b822cc70de9e1b82447cb7c",
+      "path": "supabase/functions/wa-raziel/index.ts"
+     },
+     "rollback_sha256": "fdd7050c989afb67ab8106996f28f1c859be31a256e89123e0e21188aed3bd72",
+     "verified": "byte",
+     "deployed_sha256": "fdd7050c989afb67ab8106996f28f1c859be31a256e89123e0e21188aed3bd72"
+    },
+    {
+     "deploy_path": "functions/_shared/waGreen.ts",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/_shared/waGreen.ts"
+     },
+     "rollback_sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "verified": "byte",
+     "deployed_sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4"
+    },
+    {
+     "deploy_path": "functions/_shared/waRazielRender.ts",
+     "source": {
+      "git": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "path": "supabase/functions/_shared/waRazielRender.ts"
+     },
+     "rollback_sha256": "b20bcffcd1c36a8e82a3cc57a3000dce93f0740c8b308628b7a9d07c121fa284",
+     "verified": "byte",
+     "deployed_sha256": "b20bcffcd1c36a8e82a3cc57a3000dce93f0740c8b308628b7a9d07c121fa284"
+    }
+   ],
+   "deployed_ezbr_sha256": "6167766567cca19de23f2b10756227a9e1d4cc0cab9cd9fa4cd76ed36d221e1b",
+   "deployed_updated_at_ms": 1793027180347,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "FB_ADMIN_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL",
+    "ZURIEL_WA"
+   ],
+   "proposal_env_names_added": [
+    "WA_RAZIEL_AMIT_GROUP",
+    "WA_RAZIEL_CHRISTINA_PHONE",
+    "WA_RAZIEL_GILUI_GROUP",
+    "WA_RAZIEL_OPEN_GROUPS"
+   ],
+   "rollback_kind": "exact_source"
+  },
+  "ai-analyze": {
+   "version": 91,
+   "verify_jwt": true,
+   "entrypoint": "index.ts",
+   "import_map": false,
+   "class": "deployed bundle not reproducible from main history (packaged before the 4.11 reconciliation); OLDER than base (87 changed lines)",
+   "files": [
+    {
+     "deploy_path": "index.ts",
+     "source": {
+      "artifact": "ai-analyze.v91.index.ts.gz"
+     },
+     "rollback_sha256": "b6713b4e1a74d8fc6f92aed7af71cdef070b317836ad18c854b698891f682475",
+     "verified": "equivalent",
+     "deployed_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f",
+     "note": "behaviour-identical: only two comment lines differ (a personal e-mail in each replaced by <redacted personal address>)"
+    }
+   ],
+   "deployed_ezbr_sha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb",
+   "deployed_updated_at_ms": 1793489387407,
+   "env_names_read": [
+    "ANALYZE_MODEL",
+    "ANTHROPIC_API_KEY",
+    "CHAT_MODEL",
+    "ELS_MATRIX_READING_ENABLED",
+    "ELS_MATRIX_READING_FX_ILS_PER_USD",
+    "ELS_MATRIX_READING_JOB_SECRET",
+    "ELS_MATRIX_READING_MODEL",
+    "GEMINI_API_KEY",
+    "GEMINI_MODEL",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL"
+   ],
+   "proposal_env_names_added": [],
+   "rollback_kind": "source_with_comment_redaction"
+  }
+ }
+}

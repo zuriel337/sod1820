@@ -10,6 +10,9 @@ import {
   razielNavigationWhatsappText, razielNavigationIsClarification, razielWhatsappVerifiedFocus,
 } from "../../supabase/functions/_shared/razielNavigationActions.js";
 
+import { readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus } from "../../supabase/functions/_shared/personalMemoryPolicy.js";
+import { PAUSED_POLICY, POLICY_FUNCTION_MISSING } from "./personal-memory-policy-fixture.mjs";
+
 export const WA_SITE = "https://sod1820.co.il";
 export const nowSec = () => Math.floor(Date.now() / 1000);
 
@@ -21,9 +24,17 @@ export async function runWaRaziel({
   history = [],             // chat history oldest..newest: { id, outgoing, text, ageSec }
   methods = {},             // fn_all_methods fixtures: { "שאול": { "רגיל": 337 } }
   aiText = "תשובת מודל רגילה",
+  memoryPolicy = PAUSED_POLICY,   // CL-13: the answer of fn_personal_memory_policy_v1 (default: the pause of the reviewed proposal)
+  identity = { linked: true, user_ref: "user:1", user_id: "11111111-2222-4333-8444-555555555555" },
+  rpcOverrides = {},              // name -> the data of that database function, or (args) => ({ data, error })
+  dmPolicy = {},                  // fields of the raziel_dm_policy row to override (e.g. go_live_at, so a sender without an account is answered)
+  group = null,                   // { chatId, senderId, senderName?, text, id? }: one incoming GROUP message (the group path is disabled in the
+                                  // product by a constant; a test that passes this also passes a `source` with that constant switched on)
+  envOverrides = {},              // extra environment names for the handler (e.g. the group it serves)
+  tableRows = {},                 // rows of other tables (e.g. wa_vip_senders)
   source = readFileSync(new URL("../../supabase/functions/wa-raziel/index.ts", import.meta.url), "utf8"),
 } = {}) {
-  const sent = [], aiCalls = [], rpcCalls = [], otherFetches = [];
+  const sent = [], aiCalls = [], rpcCalls = [], otherFetches = [], modelCalls = [];
   const phone = "972500000001";
   const chatId = `${phone}@c.us`;
   const now = nowSec();
@@ -37,7 +48,7 @@ export async function runWaRaziel({
   ];
   const rpcResults = {
     wa_green_config: { id: "1", token: "t", base: "https://green.invalid" },
-    fn_raziel_identity: { linked: true, user_ref: "user:1", user_id: "11111111-2222-4333-8444-555555555555" },
+    fn_raziel_identity: identity,
     fn_raziel_claim: true,
     fn_all_methods: undefined,
   };
@@ -52,12 +63,27 @@ export async function runWaRaziel({
     };
     return builder;
   };
-  const tables = { raziel_dm_policy: [{ answer_everyone: true, free_per_day_anon: 99, after_gate: "unlimited", scope: "smart", teach_mode: true, en_to_gabriel: false, go_live_at: null }] };
+  const groupMsg = group ? { idMessage: group.id || "g1", chatId: group.chatId, senderId: group.senderId, senderName: group.senderName || "", type: "incoming",
+    timestamp: now - 5, typeMessage: "textMessage", textMessage: group.text } : null;
+  const tables = { ...tableRows, raziel_dm_policy: [{ answer_everyone: true, free_per_day_anon: 99, after_gate: "unlimited", scope: "smart", teach_mode: true, en_to_gabriel: false, go_live_at: null, ...dmPolicy }] };
+  const inserts = [];
   const fakeSb = {
-    from: (table) => chain(table, tables[table] || []),
+    from: (table) => {
+      const builder = chain(table, tables[table] || []);
+      const insert = builder.insert;
+      builder.insert = (row) => { inserts.push({ table, row }); return insert(row); };
+      return builder;
+    },
     rpc: async (name, args) => {
       rpcCalls.push({ name, args });
       if (name === "fn_all_methods") return { data: methods[args?.p_word] ?? null, error: null };
+      // an override that is a function answers the call itself with { data, error } (e.g. a real database behind the bridge)
+      if (name in rpcOverrides) { const v = rpcOverrides[name]; return typeof v === "function" ? await v(args) : { data: v, error: null }; }
+      if (name === "fn_personal_memory_policy_v1") {
+        return memoryPolicy === POLICY_FUNCTION_MISSING
+          ? { data: null, error: { code: "PGRST202", message: "Could not find the function public.fn_personal_memory_policy_v1(p_user_ref) in the schema cache" } }
+          : { data: memoryPolicy, error: null };
+      }
       return { data: rpcResults[name] ?? null, error: null };
     },
   };
@@ -65,7 +91,7 @@ export async function runWaRaziel({
   const waGreen = async (_sb, method, payload) => {
     switch (method) {
       case "lastIncomingMessages": return { http_status: 200, result: [incomingMsg] };
-      case "getChatHistory": return { http_status: 200, result: chatHistory };
+      case "getChatHistory": return { http_status: 200, result: groupMsg && payload?.chatId === groupMsg.chatId ? [groupMsg] : chatHistory };
       case "sendMessage": sent.push(payload); idCounter += 1; return { http_status: 200, result: { idMessage: `out-${idCounter}` } };
       default: otherFetches.push(`green:${method}`); return { http_status: 200, result: {} };
     }
@@ -76,10 +102,14 @@ export async function runWaRaziel({
       aiCalls.push(JSON.parse(init.body));
       return new Response(JSON.stringify({ analysis: aiText, intelligence_level: "fast" }), { status: 200 });
     }
+    if (url.origin === "https://api.anthropic.com") {   // the direct model call of the group path: recorded, so its prompt can be read
+      const body = JSON.parse(init.body); modelCalls.push({ system: body.system, user: body.messages?.[0]?.content });
+      return new Response(JSON.stringify({ content: [{ type: "text", text: aiText }], usage: { input_tokens: 5, output_tokens: 5 }, stop_reason: "end_turn" }), { status: 200 });
+    }
     otherFetches.push(url.href);
     return new Response("{}", { status: 200 });
   };
-  const env = { FB_ADMIN_KEY: "admin-key", SUPABASE_URL: "https://fixture.invalid", SUPABASE_SERVICE_ROLE_KEY: "svc", ANTHROPIC_API_KEY: "", ZURIEL_WA: "972556651237@c.us" };
+  const env = { FB_ADMIN_KEY: "admin-key", SUPABASE_URL: "https://fixture.invalid", SUPABASE_SERVICE_ROLE_KEY: "svc", ANTHROPIC_API_KEY: "", ZURIEL_WA: "972556651237@c.us", ...envOverrides };
   let handler;
   const code = stripTypeScriptTypes(source.replace(/^import[\s\S]*?from\s+"[^"]+";\n/gm, ""));
   runInNewContext(code, {
@@ -89,9 +119,10 @@ export async function runWaRaziel({
     renderWhatsappReply, whatsappContinuationLink, hasContinuityCue, hasDepthCue, SOURCE_ACK_TEXT, SOURCE_ACK_TEXT_DOC,
     parseRazielNavigationRequest, resolveRazielNavigationAction, resolveRazielNavigationFollowUp, razielNavigationNeedsFocus,
     razielNavigationWhatsappText, razielNavigationIsClarification, razielWhatsappVerifiedFocus,
+    readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus,
   }, { filename: "wa-raziel/index.ts", timeout: 5000 });
   if (typeof handler !== "function") throw new Error("wa-raziel did not register a handler");
   const response = await handler(new Request("https://fixture.invalid/functions/v1/wa-raziel?debug=1", { headers: { "x-fb-admin-key": "admin-key" } }));
   const body = await response.json();
-  return { status: response.status, body, sent, aiCalls, rpcCalls, otherFetches, methodLookups: rpcCalls.filter((c) => c.name === "fn_all_methods").map((c) => c.args.p_word) };
+  return { status: response.status, body, sent, aiCalls, rpcCalls, inserts, otherFetches, modelCalls, methodLookups: rpcCalls.filter((c) => c.name === "fn_all_methods").map((c) => c.args.p_word) };
 }

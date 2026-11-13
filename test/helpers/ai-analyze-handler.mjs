@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
-import { randomUUID } from "node:crypto";
+import { randomUUID, webcrypto } from "node:crypto";
 import { runInNewContext } from "node:vm";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/functions/_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
@@ -29,6 +29,8 @@ import { normalizeElsMatrixReadingAction } from "../../supabase/functions/_share
 import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../../supabase/functions/_shared/elsRazielOccurrenceContext.js";
 import { readElsRazielReadingContext, elsRazielReadingText } from "../../supabase/functions/_shared/elsRazielReadingContext.js";
 import { verifyFunctionalPreviewIdentity } from "../../supabase/functions/_shared/functionalPreviewIdentity.js";
+import { readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED } from "../../supabase/functions/_shared/personalMemoryPolicy.js";
+import { PAUSED_POLICY, POLICY_FUNCTION_MISSING } from "./personal-memory-policy-fixture.mjs";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -70,6 +72,10 @@ export async function runAiAnalyze({
   researchBundleByExpression = {},
   elsVerifyStatus = null,
   researchRunFailure = null, legacyContext = null, genericProviderText = null,
+  memoryPolicy = PAUSED_POLICY,   // CL-13: the answer of fn_personal_memory_policy_v1 (default: the pause of the reviewed proposal)
+  rememberResult = null,          // what fn_raziel_remember returns (the id of the stored row, or null = not saved)
+  bundled = false,                // CL-13 unit: `source` is a packaged single-file bundle (the deployable artifact, or the deployed one): nothing is
+                                  // imported, and the model call is a real fetch to api.anthropic.com that is recorded in `models` as { system, user }
   role = "user", extraRoute = null, envOverrides = {}, previewIdentity = null, previewVerifier = verifyFunctionalPreviewIdentity,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
@@ -82,6 +88,13 @@ export async function runAiAnalyze({
     const call = { name, url: url.href, method: init.method || "GET", headers: Object.fromEntries(new Headers(init.headers)), payload };
     calls.push(call);
     if (extraRoute) { const extra = await extraRoute({ url, init, payload }); if (extra) return extra; }
+    if (bundled && url.origin === "https://api.anthropic.com" && genericProviderText == null) {
+      models.push({ system: payload.system, user: payload.messages?.[0]?.content, model: payload.model });
+      const sequence = Array.isArray(modelResults) ? modelResults : null;
+      const planned = sequence?.length ? sequence[Math.min(models.length - 1, sequence.length - 1)] : modelResult;
+      const text = planned?.text ?? JSON.stringify({ v: 1, agent: "raziel", answer: "Mock synthesis", facts: [], suggested_paths: [] });
+      return response({ content: [{ type: "text", text }], usage: { input_tokens: 11, output_tokens: 7 }, stop_reason: "end_turn" });
+    }
     if (url.origin === "https://api.anthropic.com" && genericProviderText != null) {
       return response({
         content: [{ type: "text", text: String(genericProviderText) }],
@@ -144,8 +157,11 @@ export async function runAiAnalyze({
           case "op_trace_record_span_v1":
           case "op_trace_finish_v1":
           case "op_trace_link_ai_cost_v1": return response({ ok: true });
+          case "fn_personal_memory_policy_v1":
+            assert.equal(call.headers.authorization, `Bearer ${SERVICE_KEY}`, "the policy is read with the service key only");
+            return memoryPolicy === POLICY_FUNCTION_MISSING ? response({ code: "PGRST202", message: "function not found" }, 404) : response(memoryPolicy);
+          case "fn_raziel_remember": return response(rememberResult);
           case "fn_raziel_persona":
-          case "fn_raziel_remember":
           case "metatron_context": return response(null);
           case "fn_raziel_context": return response(legacyContext);
         }
@@ -160,27 +176,40 @@ export async function runAiAnalyze({
     ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 13, "review any new handler dependency before mocking it");
-  assert.ok(imports[0].includes('import { callClaudeReliable }'));
-  assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
-  assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
-  assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
-  assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
-  assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers }'));
-  assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
-  assert.ok(imports[6].includes('isRazielCurrentSurfaceQuestion'));
-  assert.ok(imports[6].includes('resolveRazielCanonicalRequest'));
-  assert.ok(imports[6].includes('resolveRazielConversationalAct'));
-  assert.ok(imports[6].includes('resolveRazielDeterministicGuidance'));
-  assert.ok(imports[6].includes('validateRazielSemanticIntent'));
-  assert.ok(imports[7].includes('ELS_RAZIEL_PLANNING_ACTION'));
-  assert.ok(imports[7].includes('normalizeElsRazielSearchPlan'));
-  assert.ok(imports[8].includes('runElsMatrixReadingOperation') && imports[8].includes('PROVIDER_LIVE'));
-  assert.ok(imports[9].includes('normalizeElsMatrixReadingAction'));
-  assert.ok(imports[10].includes('normalizeElsRazielOccurrence'));
-  assert.ok(imports[11].includes('readElsRazielReadingContext'));
-  assert.equal(imports[12], 'import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";');
+  if (bundled) assert.deepEqual(imports, [], "a packaged bundle has no import left");
+  else assert.equal(imports.length, 14, "review any new handler dependency before mocking it");
+  if (!bundled) {
+    assert.ok(imports[0].includes('import { callClaudeReliable }'));
+    assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
+    assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
+    assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
+    assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
+    assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers }'));
+    assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
+    assert.ok(imports[6].includes('isRazielCurrentSurfaceQuestion'));
+    assert.ok(imports[6].includes('resolveRazielCanonicalRequest'));
+    assert.ok(imports[6].includes('resolveRazielConversationalAct'));
+    assert.ok(imports[6].includes('resolveRazielDeterministicGuidance'));
+    assert.ok(imports[6].includes('validateRazielSemanticIntent'));
+    assert.ok(imports[7].includes('ELS_RAZIEL_PLANNING_ACTION'));
+    assert.ok(imports[7].includes('normalizeElsRazielSearchPlan'));
+    assert.ok(imports[8].includes('runElsMatrixReadingOperation') && imports[8].includes('PROVIDER_LIVE'));
+    assert.ok(imports[9].includes('normalizeElsMatrixReadingAction'));
+    assert.ok(imports[10].includes('normalizeElsRazielOccurrence'));
+    assert.ok(imports[11].includes('readElsRazielReadingContext'));
+    assert.equal(imports[12], 'import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";');
+    // CL-13: the Edge half of the personal-memory policy (pure; its only I/O is the RPC the handler passes in). The real module runs.
+    assert.equal(imports[13], 'import { readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED } from "../_shared/personalMemoryPolicy.js";');
+  }
   let handler;
+  if (bundled) {
+    // the bundle is plain JavaScript; only import.meta.env (absent in Deno) is replaced by undefined, as it evaluates there
+    runInNewContext(source.replace(/import\.meta\.env/g, "undefined"), {
+      Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
+      fetch, Request, Response, Headers, URL, AbortSignal, AbortController, TextEncoder, TextDecoder, console, setTimeout, clearTimeout,
+      crypto: webcrypto, btoa, atob,
+    }, { filename: "ai-analyze/bundle.js", timeout: 5000 });
+  } else
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
     fetch, Request, Response, Headers, URL, AbortSignal, TextEncoder, TextDecoder,
@@ -188,6 +217,7 @@ export async function runAiAnalyze({
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
     verifyFunctionalPreviewIdentity: previewVerifier,
+    readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED,
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
     razielMethodLayerNumbers,
