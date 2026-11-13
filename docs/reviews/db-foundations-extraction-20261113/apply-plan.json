@@ -1,0 +1,194 @@
+{
+ "purpose": "Package P1 (DB foundations) apply list. Every file is a proposal; nothing here applies SQL. Each step needs ZURIEL's explicit approval for the exact commit; run tests/live/m0_post_apply_verification.sql after each step.",
+ "source": "PR #1321 frozen at 4a406fed273b9b381577c5b2a03d91c58de46451 (merge base aa0f6bc82)",
+ "base": "origin/main 9be0c29fc52337069192b057ef1a9882c7026009",
+ "verification_query": "tests/live/m0_post_apply_verification.sql",
+ "steps": [
+  {
+   "step": "1",
+   "file": "supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
+   "origin": "already in main, byte-identical to #1321",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/def001b_visitor_id_exposure_v1.sql (scripts/run-def001-sql-test.sh, already in CI)"
+   ],
+   "verify": "P push RPCs exist; P feedback admin-only; P els_records visitor_id hidden",
+   "live_state_13_11": "NOT applied (push_subscription_upsert_v1 does not exist; anon still has table access to push_subscriptions)",
+   "what": "DEF-001b step 1: feedback admin-only read, els_records.visitor_id hidden, two push RPCs (the live frontend already calls them and falls back to a direct write)",
+   "sha256": "6d4afa5e8cb38e02d2ece0e7c3d37c7963304a518f3c8fe5ae38abf5494cac07",
+   "rollback_sha256": "6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0",
+   "status": "mandatory"
+  },
+  {
+   "step": "2",
+   "file": "supabase/proposed/20261106131000_def005_revoke_internal_rpcs_from_clients.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261106131000_def005.sql",
+   "origin": "changed in this package (exact reviewed signatures, review findings F1/F2)",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/def005_public_rpc_guards_v1.sql",
+    "tests/sql/m0a_db_permissions_v1.sql",
+    "test/def005-rpc-grants-contract.test.mjs"
+   ],
+   "verify": "A1 (12 rows), A1b (no unreviewed overload)",
+   "live_state_13_11": "reviewed baseline matches: 12 signatures exist, SECURITY DEFINER, owner postgres, anon/authenticated/service_role can execute, no same-name overload",
+   "what": "the twelve system functions become server-only (anon and authenticated lose EXECUTE, service_role gets it explicitly); selected by exact signature; stops before any change on a missing signature, an unreviewed same-name overload or a drifted function",
+   "sha256": "65ed780e9010a1a77d256a21579d29353bf6b5dc9f2f24af063dee062f00c741",
+   "rollback_sha256": "fdcf029d823512e394edc13f918aa36d8a09883b80a426d6a046a2ac74eca272",
+   "status": "mandatory"
+  },
+  {
+   "step": "4",
+   "file": "supabase/proposed/20261112130000_m0a_admin_and_account_guards.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112130000_m0a_admin_and_account_guards.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql",
+    "test/m0a-db-permissions-contract.test.mjs"
+   ],
+   "verify": "A2, A3, A4 and wa_msg_count in A1",
+   "live_state_13_11": "the four function bodies read by step 4 and step 7 match the reviewed 'before' md5; gematria_wall policy not yet changed",
+   "what": "admin guard on admin_resolve_translit and admin_ai_cost, wa_msg_count server-only, link_visitor_identity no longer re-links another account's visitor id, private gematria_wall rows hidden",
+   "sha256": "ad34d69e55c8414c892b19de219727c3176e91e49880d8c77f4ea636cc1b8b9f",
+   "rollback_sha256": "2cdecea692457a30533bd1be01262cadbbba7152ab574e695c84d7227e1c35b5",
+   "status": "mandatory"
+  },
+  {
+   "step": "5",
+   "file": "supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql",
+    "test/m0a-db-permissions-contract.test.mjs"
+   ],
+   "verify": "A5",
+   "live_state_13_11": "all seven Legacy tables still carry a client write grant",
+   "what": "seven Legacy tables closed to client writes; lab_* readable by admin only; no row deleted",
+   "sha256": "818c350110b12b1a0b22066aa73c6fb950a3532c4c086c1e208a272fe30e28c1",
+   "rollback_sha256": "51190d4d20605682448acee7c4bee58eb90a71c924feaa0f358ad142da22b38a",
+   "status": "mandatory"
+  },
+  {
+   "step": "6",
+   "file": "supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql"
+   ],
+   "verify": "A6",
+   "live_state_13_11": "all seven dormant ALL policies are not yet admin-only",
+   "what": "seven dormant 'any signed-in user may write' policies become admin-only under the same names",
+   "sha256": "0ed383b016bf9a3f63351a8fe327143112b163ded91c58a87a6b72158921bf4a",
+   "rollback_sha256": "015de4c2836b8eca81e713ca0d1596704a97d29b2e3d340f747a73063e355dff",
+   "status": "mandatory"
+  },
+  {
+   "step": "7",
+   "file": "supabase/proposed/20261112133000_m0a_add_contribution_client_address.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112133000_m0a_add_contribution_client_address.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql"
+   ],
+   "verify": "A8",
+   "live_state_13_11": "add_contribution body matches the reviewed 'before' md5",
+   "what": "add_contribution guest limit (5 per hour) keyed by the platform client address (cf-connecting-ip) instead of the caller-controlled first X-Forwarded-For hop",
+   "sha256": "a8da6c8572b1a0eb5741dd54052d5b085a432cb4fc9c620195037f2118dc7d11",
+   "rollback_sha256": "bdf305917ca92fe70a2bd44b77c4402b0186dd30f33d03a5dd4429e8c16ba850",
+   "status": "mandatory"
+  },
+  {
+   "step": "8",
+   "file": "supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql",
+   "origin": "changed on main since 06.11 (draft) and re-based onto it; revision M0 from #1321 plus the product-decision marking of this package",
+   "depends_on": [],
+   "decision_gates": [
+    "D-1: the 120 MiB upload ceiling is a product decision that is not confirmed for this release (marked in the file header and in section 5)"
+   ],
+   "tests": [
+    "tests/sql/def004_gallery_storage_upload_policies_v1.sql",
+    "test/m0c-gallery-upload-contract.test.mjs"
+   ],
+   "verify": "C (3 rows)",
+   "live_state_13_11": "old policies community_anon_upload and public_upload still present; bucket gallery public, no size limit, no MIME list; largest object 114,883,491 bytes (below 120 MiB)",
+   "what": "gallery uploads by role, path and extension (anonymous: flat community image only; signed-in: own community attachment, own avatar, cipher card; admin: any path); plus the 120 MiB ceiling (D-1)",
+   "sha256": "12377685a3426c2aa7dcd5bc3ea5ed713741a912d3eb0724574c39c6007ad40d",
+   "rollback_sha256": "44b81f03249be344c5145501578ffd6ef5e359e30c9223ea62b62f25d514bff9",
+   "status": "mandatory"
+  },
+  {
+   "step": "9",
+   "file": "supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
+   "origin": "already in main, byte-identical to #1321",
+   "depends_on": [
+    "step 1 applied",
+    "the frontend that calls push_subscription_*_v1 is live (true since 949c24ad5)"
+   ],
+   "rollback_note": "the rollback file undoes step 9 (first block) and, if step 1 was applied, step 1 as well; to undo step 9 alone run only its first block",
+   "tests": [
+    "tests/sql/def001b_visitor_id_exposure_v1.sql (already in CI)"
+   ],
+   "verify": "P push_subscriptions anon table access removed",
+   "live_state_13_11": "NOT applied (anon still has table access to push_subscriptions); must follow step 1",
+   "what": "DEF-001b step 2: anonymous table access to push_subscriptions removed",
+   "sha256": "e299af193952d796ec2002381f2d5ac5b7c9444344b28a485cfaf825fb132667",
+   "rollback_sha256": "6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0",
+   "status": "mandatory"
+  },
+  {
+   "step": "10",
+   "file": "supabase/proposed/20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql"
+   ],
+   "verify": "A7",
+   "live_state_13_11": "the four reviewed inactive jobs (6, 7, 22, 24) are present and carry a query secret; no other job does",
+   "what": "four inactive cron jobs that carry a URL secret are removed (the rollback re-creates them inactive and WITHOUT the secret, by design)",
+   "sha256": "cd7e57e604103c8c759f49c59ef09ad67d4c9dbf0034d4a7039ba62ab345b1b2",
+   "rollback_sha256": "2cc82bc32a2553dbc1196bafdaefe6dde01a93ce9c658249604b9df255479a8a",
+   "status": "mandatory"
+  }
+ ],
+ "not_in_this_package": [
+  {
+   "step": "3",
+   "item": "M0-B AI quota fail-closed (ai_quota_check body)",
+   "why": "out of scope by instruction; the Edge side already runs v92 with the CL-13 pause"
+  },
+  {
+   "step": "11",
+   "item": "M0-D world_contributor_research_v2",
+   "why": "package P3 (public content)"
+  },
+  {
+   "step": "12",
+   "item": "DEF-005b optional uncalled helpers",
+   "why": "out of scope by instruction; its file and rollback are not part of this branch"
+  }
+ ],
+ "apply_order": "1, 2, 4, 5, 6, 7, 8, 9, 10 (the numbers of the #1321 plan are kept so that every cross-reference stays valid). Only step 9 depends on another step (1). Each step is its own transaction-sized apply with its own rollback.",
+ "rollback_order": [
+  "10",
+  "9",
+  "8",
+  "7",
+  "6",
+  "5",
+  "4",
+  "2",
+  "1"
+ ],
+ "rollback_order_reason": "reverse of the apply order; step 9 before step 1 (the push RPCs must exist while anonymous table access is closed)"
+}
