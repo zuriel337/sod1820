@@ -1,0 +1,512 @@
+[
+ {
+  "name": "5107-1440-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-1440-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-1440-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-320-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 65,
+  "maxW": 65,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-320-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 65,
+  "maxW": 65,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-320-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 65,
+  "maxW": 65,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-390-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-390-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-390-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-768-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 171,
+  "maxW": 171,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-768-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 171,
+  "maxW": 171,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5107-768-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 171,
+  "maxW": 171,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-1440-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-1440-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-1440-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-320-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 65,
+  "maxW": 65,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-320-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 65,
+  "maxW": 65,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-320-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 65,
+  "maxW": 65,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-390-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-390-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-390-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-768-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 171,
+  "maxW": 171,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-768-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 171,
+  "maxW": 171,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "5112-768-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 171,
+  "maxW": 171,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "preview_acceptance_exception"
+ },
+ {
+  "name": "92-1440-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "series_tag"
+ },
+ {
+  "name": "92-1440-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "series_tag"
+ },
+ {
+  "name": "92-1440-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 192,
+  "maxW": 192,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": -15,
+  "rm": "series_tag"
+ },
+ {
+  "name": "92-390-dark",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "series_tag"
+ },
+ {
+  "name": "92-390-light",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "series_tag"
+ },
+ {
+  "name": "92-390-parchment",
+  "labels": [
+   "מסר",
+   "הקשר",
+   "חיבורים",
+   "מקורות"
+  ],
+  "rows": 1,
+  "minW": 83,
+  "maxW": 83,
+  "minH": 44,
+  "clipped": false,
+  "navScrollOverflow": false,
+  "ovX": 0,
+  "rm": "series_tag"
+ }
+]

@@ -30,6 +30,7 @@ import { annotatePostSource, resolveUnitMessage, subscribeUnitChoices } from "..
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
 import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import PostUnitEditors2029 from "../components/experience2029/PostUnitEditors2029.jsx";
+import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
 import PreviewUnitExtras2029 from "../components/experience2029/PreviewUnitExtras2029.jsx";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
 import { setPostUnits, setActivePostUnit, clearPostUnits, unitContextStrings } from "../lib/research/postUnitStore2029.js";
@@ -196,7 +197,16 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   );
   const activeRegionFocus = activeFocus;
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
-  const sectionItems = useMemo(() => [
+  // Flagship "מפת המציאות" experience: exactly FOUR semantic entries that fit one line (message · context · connections · sources), each mapped to
+  // real content of this Post. Every other Post keeps the existing list unchanged.
+  const flagshipNav = protoOn && realityMap.active;
+  const [activeNavId, setActiveNavId] = useState(null);
+  const sectionItems = useMemo(() => flagshipNav ? [
+    { id: "nav-message", label: "מסר", targetId: "post-story", targetIds: [...previewUnitIdsFor(state.projection?.post?.id), "post-story"] },
+    { id: "nav-context", label: "הקשר", targetId: "post-research", targetIds: ["post-research", "post-measures", "post-story"] },
+    { id: "nav-connections", label: "חיבורים", targetId: state.projection?.experience?.connections?.some((item) => item.href) ? "post-connections" : "post-classification", targetIds: ["post-connections", "post-classification", "post-measures"] },
+    { id: "nav-sources", label: "מקורות", targetId: "post-sources", targetIds: ["post-sources"] },
+  ] : [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
     ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
     ...(state.projection?.experience?.connections?.some((item) => item.href)
@@ -204,7 +214,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     { id: "post-sources", label: "מקורות", targetId: "post-sources" },
     ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
     { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions, state.projection, commentArchiveId]);
+  ], [regions, state.projection, commentArchiveId, flagshipNav]);
 
   useEffect(() => {
     const root = sourceRef.current;
@@ -1176,7 +1186,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
     </figure> : null}
 
-    <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />
+    <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" activeId={flagshipNav ? activeNavId : null} onSelect={flagshipNav ? (item) => setActiveNavId(item.id) : null} />
 
     <PostEvidenceMedia2029 media={experience.media} />
     {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}

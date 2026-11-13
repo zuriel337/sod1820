@@ -306,3 +306,24 @@
 @media (max-width:560px){.sod29-pu-body{gap:.65rem}.sod29-pu-head h2{font-size:clamp(1.55rem,7.4vw,1.9rem)}.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu[data-sod-unit]{padding-inline:12px;padding-block:16px}.sod29-pu-table th,.sod29-pu-table td{padding:.35rem .4rem;font-size:.92rem}}
 
 .sod29-pu-foot>*{min-width:0;max-width:100%}.sod29-pu-foot .sod29-source-unit blockquote{overflow-wrap:anywhere;white-space:pre-wrap}
+
+/* ───────────── Inner navigation of the flagship Post: מסר · הקשר · חיבורים · מקורות — ALWAYS one line ─────────────
+   Four equal cells in a grid (no wrap, no horizontal scroll) from 320px up; ≥44px tall; 16px labels; the selected tab is a sapphire fill + gold
+   hairline + a bar under the label (never colour alone). Royal frame (gold hairline), sapphire core, roles from the existing tokens. */
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex-wrap:nowrap;overflow:visible;gap:4px;
+  inline-size:min(790px,100%);margin:0 auto 22px;padding:5px;border-radius:18px;
+  border:1px solid color-mix(in srgb,var(--r29-gold) 55%,transparent);
+  background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));box-shadow:var(--r29-shadow)}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button{
+  position:relative;min-inline-size:0;min-block-size:44px;padding:0 2px;border-radius:14px;white-space:nowrap;overflow:hidden;text-overflow:clip;
+  font:700 16px/1.2 var(--s29-font-ui,inherit);letter-spacing:0;color:var(--s29-ink);background:transparent}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button:hover{background:color-mix(in srgb,var(--r29-sapphire) 24%,var(--s29-panel))}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button.is-active{
+  background:color-mix(in srgb,var(--r29-sapphire) 46%,var(--s29-panel));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--r29-gold) 55%,transparent);font-weight:800}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button.is-active::after{
+  content:"";position:absolute;inset-inline:22%;inset-block-end:5px;block-size:2px;border-radius:2px;background:var(--r29-gold)}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button:focus-visible{outline:2px solid var(--s29-focus-ring,var(--r29-gold));outline-offset:-2px}
+@media(max-width:360px){
+  .sod29-reading-post[data-reality-map]>.sod29-surface-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
