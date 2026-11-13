@@ -7,7 +7,6 @@ import { gallerySourceHref2029 } from "./topicSourceContext.js";
 import { CONTENT_SERIES_2029 } from "./contentSeries2029Identity.js";
 import { fetchApprovedContentSeriesSources2029, fetchContentSeriesCatalog2029 } from "./contentSeries2029Projection.js";
 
-const COMMUNITY_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 const GILUI_YOMI_CARD_ID = "ad270354-41ab-4d4d-8bf5-030e0452406d";
 const GILUI_YOMI_ROOT_ID = "2c22eafe-5847-4c31-a510-2abfd1fa3291";
 const GILUI_YOMI_SOURCE_REFS = Object.freeze([
@@ -66,14 +65,14 @@ export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
     // The owner's own mark (channel_updates.priority above the default 50): the one update of a second-tier channel that stands on its own.
     ownerFeatured: Number.isFinite(Number(row.priority)) && Number(row.priority) > 50 };
 }
-async function giluiYomiThreadItem(row, { api, now, read }) {
+async function giluiYomiThreadItem(row, { api, now, signal }) {
   if (row.id !== GILUI_YOMI_CARD_ID) return publicChannelToSystemItem(row, { now });
   if (row.channel !== "gilui-yomi" || row.link_url !== `/community/chat?thread=${GILUI_YOMI_ROOT_ID}`) return null;
   const update = publicChannelToSystemItem(row, { now });
   if (!update) return null;
-  const context = await read(api.rpc("community_message_context", { p_id: GILUI_YOMI_ROOT_ID }).select(COMMUNITY_FIELDS));
-  const root = context.find(message => message.id === GILUI_YOMI_ROOT_ID && message.parent_id == null
-    && message.origin === "community_2029" && message.is_deleted === false && message.body?.trim());
+  const { fetchCommunityThread } = await import("../community/communityArchive.js");
+  const root = await fetchCommunityThread(GILUI_YOMI_ROOT_ID, { client: api, signal });
+  if (!root || root.origin !== "community_2029" || root.isDeleted || !root.body?.trim()) return null;
   const title = text(root?.title);
   if (!title) return null;
   return {
@@ -153,7 +152,7 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
   const channelItems = (await Promise.all(results.map(async (result, i) => {
     if (result.status !== "fulfilled") return [];
     if (i >= keys.length) return result.value.map(publicGalleryToSystemItem);
-    return Promise.all(result.value.map(row => giluiYomiThreadItem(row, { api, now, read }).catch(() => {
+    return Promise.all(result.value.map(row => giluiYomiThreadItem(row, { api, now, signal }).catch(() => {
       if (!signal?.aborted) sourceStates[i] = { source: keys[i], status: "failed" };
       return null;
     })));
