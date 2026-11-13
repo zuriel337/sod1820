@@ -4,7 +4,10 @@
    gold ← brand-gold · sapphire ← brand-sapphire · violet depth ← accent-secondary · azure ← accent-text. Day / Parchment / Night come from the
    frame itself (the .r29 intensity per preset). Gold and sapphire are decoration and hierarchy, never a rating, a verification or an importance. */
 
+/* Royal OUTER frame is warm (black-brown + gold); sapphire is the INNER content core (ZURIEL 13.11.2026): the Post hall floor is amber, the Companion keeps sapphire. */
 .sod29-reading-post[data-reality-map],.sod29-companion.r29{--rm-floor:var(--r29-sapphire)}
+.sod29-reading-post[data-reality-map]{--rm-glow-a:var(--r29-violet-deep);--rm-glow-b:var(--r29-sapphire)}
+[data-theme-2029="dark"] .sod29-reading-post[data-reality-map]{--rm-floor:var(--r29-amber);--rm-glow-a:var(--r29-amber);--rm-glow-b:var(--r29-amber);--rm-glow-k:.65}
 /* Parchment is warm: its royal floor is bronze, not blue, so the page never reads grey. */
 :is([data-theme-2029="parchment"]) :is(.sod29-reading-post[data-reality-map],.sod29-companion.r29){--rm-floor:var(--r29-amber)}
 .sod29-reading-post[data-reality-map]{
@@ -12,8 +15,8 @@
   --sv-accent:var(--r29-gold);--sv-accent2:var(--r29-sapphire);
   --rm-hall:
     radial-gradient(90% 55% at 50% -10%,color-mix(in srgb,var(--r29-gold) var(--r29-glow),transparent),transparent 70%),
-    radial-gradient(70% 70% at 100% 8%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
-    radial-gradient(80% 60% at 0% 112%,color-mix(in srgb,var(--r29-sapphire) var(--r29-glow),transparent),transparent 70%),
+    radial-gradient(70% 70% at 100% 8%,color-mix(in srgb,var(--rm-glow-a) calc(var(--r29-glow) * var(--rm-glow-k,1)),transparent),transparent 65%),
+    radial-gradient(80% 60% at 0% 112%,color-mix(in srgb,var(--rm-glow-b) calc(var(--r29-glow) * var(--rm-glow-k,1)),transparent),transparent 70%),
     linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
   --rm-frame:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),var(--s29-line));
   --rm-double:inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-gold) var(--r29-hair),transparent);
@@ -232,17 +235,17 @@
    Each source identity gets its own quiet edge so no writer is read as the author of another voice. */
 .sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu[data-sod-unit]{
   --pu-navy:color-mix(in srgb,var(--r29-sapphire) 30%,var(--s29-page));--pu-tile:color-mix(in srgb,var(--r29-sapphire) 52%,var(--s29-panel));
-  --pu-gold-line:color-mix(in srgb,var(--r29-gold) 62%,transparent);
+  --pu-gold-line:color-mix(in srgb,var(--r29-azure) 38%,transparent); /* inner card = sapphire hairline; the gold hairlines belong to the outer Royal frames */
   position:relative;margin-block:.5rem 1.2rem;padding:clamp(16px,3vw,34px) clamp(14px,3vw,40px);border-radius:24px;
   border:1px solid var(--pu-gold-line);color:var(--s29-ink);scroll-margin-block-start:84px;
   background:radial-gradient(90% 40% at 50% 0%,color-mix(in srgb,var(--r29-sapphire) 40%,transparent),transparent 70%),linear-gradient(180deg,var(--pu-navy),color-mix(in srgb,var(--r29-sapphire) 18%,var(--s29-page)));
-  box-shadow:var(--r29-shadow);
+  box-shadow:none;
 }
 :is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu[data-sod-unit]{
   --pu-navy:color-mix(in srgb,var(--r29-sapphire) 9%,var(--s29-panel));--pu-tile:color-mix(in srgb,var(--r29-sapphire) 16%,var(--s29-panel));
   background:linear-gradient(180deg,var(--pu-navy),var(--s29-panel))}
-.sod29-pu:focus{outline:none}
-.sod29-pu:focus-visible{outline:2px solid var(--r29-gold);outline-offset:3px}
+/* the unit is a landmark focused by the deep link, not a control: no ring around the whole card (its buttons keep their own focus rings) */
+.sod29-reading-post[data-reality-map] .sod29-pu:is(:focus,:focus-visible){outline:none}
 .sod29-pu-badge{display:inline-block}
 .sod29-pu-head{text-align:center;display:grid;gap:.45rem;justify-items:center;padding-bottom:.9rem;border-bottom:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),transparent)}
 .sod29-pu-head h2{margin:0;font:850 clamp(1.7rem,3.6vw,2.7rem)/1.15 var(--rm-display);letter-spacing:-.01em;text-wrap:balance;color:var(--rm-gold-ink);text-shadow:0 0 34px color-mix(in srgb,var(--r29-gold) 26%,transparent)}
