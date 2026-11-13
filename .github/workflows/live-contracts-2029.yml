@@ -44,8 +44,27 @@ jobs:
       # so it is fetched first. The SHA is read from G1's own captured baseline, so the fixture stays the single source.
       - name: G1 captured main commit (the one commit the G1 smoke reads with git show; depth 1, no tags)
         run: git fetch --no-tags --depth=1 origin "$(node -p "require('./audits/g1-agent-entry/G1_ROUTING_LIVE_BASELINE_20261009.json').main_sha")"
+      # 12.11.2026: the G1 base-vs-head checks compare the PR head with its REAL base (dated records, contract changes, laws snapshots).
+      # The base is the PR base commit; on a manual dispatch it is the tip of main. Depth 1, no tags. Without it the test FAILS in CI.
+      - name: G1 base commit (the PR base, or main on a manual dispatch; depth 1, no tags)
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          BASE="${PR_BASE_SHA:-$(git ls-remote origin refs/heads/main | cut -f1)}"
+          git fetch --no-tags --depth=1 origin "$BASE"
+          echo "G1_BASE_SHA=$BASE" >> "$GITHUB_ENV"
       - name: G1 agent-routing smoke (the owner index and the adapters route to live owners, keep their safety literals, and the captured adapter blobs stay exact)
         run: node --test scripts/test-g1-agent-routing-smoke.mjs
+      # 12.11.2026 (round 3): when a change touches the G1 enforcement code, its end-to-end proof runs on that exact head. Each scenario
+      # is the real G1 smoke on a real base and head in a temporary worktree (local commits only, nothing is pushed); every scenario has
+      # an expected outcome and a refusal must be for its reason. Any unexpected outcome, or a scenario that did not run, fails.
+      - name: G1 enforcement scenarios (only when the enforcement code changes; 51 scenarios on this exact head, each must refuse or allow as recorded)
+        run: |
+          if git diff --name-only "$G1_BASE_SHA" HEAD -- scripts/lib/g1LawsSnapshotRules.mjs scripts/test-g1-agent-routing-smoke.mjs docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-ci-scenarios.sh | grep -q .; then
+            bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-ci-scenarios.sh
+          else
+            echo "The G1 enforcement code is unchanged against $G1_BASE_SHA: the scenarios are not needed for this change."
+          fi
 
   perf-contracts-2029:
     name: perf-contracts-2029
@@ -122,6 +141,10 @@ jobs:
         run: |
           node --test test/number-typography-v2-2029.test.mjs test/number-address-canonical-2029.test.mjs test/seo-robots-follow-2029.test.mjs test/gematria-focus-foundation-2029.test.mjs test/public-canonical-parity-repair.test.mjs
           node scripts/test-2029-number-links-public-flag.mjs
+          # N14 (ZURIEL 12.11.2026): new links from ai-analyze, the shared Raziel resolver and wa-raziel are the public /number/<n>;
+          # every reader accepts /number/<n> and /2029/number/<n> with the same bounds; stored links are not rewritten. The navigation
+          # suite was not wired before (its route-table test failed on main); it passes after N14 and is wired here.
+          node --test test/n14-public-number-links.test.mjs test/raziel-canonical-navigation-actions.test.mjs test/raziel-wa-navigation-handler.test.mjs
       # P0-A/B/C consumer contracts (PG2): source identity, occurrence and independence across Post, Topic, World and Number.
       # All seven were green on main but ran in no workflow; they read only repository files (no network, no browser, no git history). About 5 s together.
       # Proven on Node 24 on ci-verify/pg2-workflow-20261107 (71/71). world-corpus-continuation-2029 is bound to a committed snapshot (checksum): remove it from
@@ -146,6 +169,40 @@ jobs:
           test/public-reading-real-gtag-shape.test.mjs
           test/public-reading-observability.test.mjs
           test/public-reading-analytics-worker.test.mjs
+          test/public-reading-action-measurement.test.mjs
+      # M0 security and stabilization (12.11.2026): code-side contracts of the proposed SQL (no shipped caller depends on what M0-A closes),
+      # paid AI only for verified users with server-derived identity and fail-closed limits, contact-notify limits. Repository files only.
+      - name: M0 security contracts (M0-A closed surfaces have no shipped caller, paid AI identity and limits, public compute fails open, contact-notify limits)
+        run: >
+          node --test
+          test/m0a-db-permissions-contract.test.mjs
+          test/m0b-caller-limits.test.mjs
+          test/m0b-paid-ai-handlers.test.mjs
+          test/m0e-contact-notify.test.mjs
+          test/m0c-gallery-upload-contract.test.mjs
+          test/public-research-candidates-visible-2029.test.mjs
+      # The rollback package and the intermediate-state checks read seven exact commits (Production aa0f6bc82, before it ed30dc05b and 146f2f0e7, base 949c24ad5 and the deployed sources of
+      # number-researcher, wa-raziel, els-search-bridge). The checkout is depth 1, so fetch just those commits; without them the git-sourced
+      # checks report SKIPPED, never passed.
+      - name: Fetch the pre-M0 commits the Edge rollback sources come from
+        run: git fetch --no-tags --depth=1 origin aa0f6bc82b8c94286374b1f51208037502994eab ed30dc05bab6f079b771669de6206a99413dd5de 146f2f0e7e5e6dcd17f49af33e70808e7549ea1f 949c24ad549ae9e95ced528a4ee8159670b52678 065aa022b9ecf1152c14aaf1be3460c7c8136e6c b4d5ec47132ed8003b822cc70de9e1b82447cb7c cf16b8cf9c54c7f5aa426d21ddd34a95852d2b1e
+      - name: M0 Edge rollback package, intermediate states (SQL / Edge / site in any order) and the contributor view v2 (old tabs keep v1)
+        run: node --test test/m0-edge-rollback-manifest.test.mjs test/m0-intermediate-states.test.mjs test/m0d-contributor-view-v2.test.mjs
+      # CL-13 (12.11.2026): personal memory between conversations is paused (decision of ZURIEL). The Edge code asks the database
+      # policy and is closed on every unclear answer; the real handlers run with mocked providers. The three existing files below
+      # cover the handlers this change touches and did not run in any workflow before; they are wired here with it.
+      # 13.11.2026: test/cl13-intermediate-states.test.mjs is added here for its two tests that need no database (every one of the
+      # six Edge functions has a rollback source; the plan deploys every direct reader of the table before the database step; the
+      # deployed wa-raziel and ai-analyze reach the memory only through database functions). Its other tests run in
+      # security-sql-contracts, on the throwaway database.
+      - name: CL-13 personal memory, Edge half (the policy module fails closed on every unclear answer; ai-analyze, wa-raziel and number-researcher neither read, write nor claim "saved" without a clear grant; rollback sources and release order)
+        run: >
+          node --test
+          test/cl13-personal-memory-policy.test.mjs
+          test/cl13-intermediate-states.test.mjs
+          test/raziel-interview-pilot.test.mjs
+          src/lib/research/razielResultBundleServerSeam.test.js
+          src/lib/research/razielPhaseHRealityNumberContext.test.js
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
       # Content series and post classification (11.11.2026). All five were green on main but ran in no workflow. They read repository files and
@@ -307,12 +364,42 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: DEF-001, DEF-001b, DEF-004 and DEF-005 SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids; proposed Storage policies and RPC grants behave as specified)
         run: bash scripts/run-def001-sql-test.sh
+      - name: M0-A permissions regression (12 system functions server-only, admin guards, account data, Legacy writes closed, dormant policies, cron; idempotent, drift stop, exact rollback)
+        run: bash scripts/run-m0a-db-permissions-sql-test.sh
+      - name: M0-B ai_quota_check refuses a missing identity (exact live body, rollback restores it)
+        run: bash scripts/run-m0b-ai-quota-sql-test.sh
+      - name: G1 rule guard (CL-16) proposal lifecycle (25 cases; a missing function, drift, a MISSING or DISABLED trigger stop both files; exact apply, no-op re-apply, exact rollback; M0 files do not touch it)
+        run: bash scripts/run-g1-rule-guard-sql-test.sh
+      - name: G1 rule guard (CL-16) case matrix, live vs applied (72 cases, each with an expected outcome and refusal reason)
+        run: bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh
+      # 12.11.2026 (round 4): recording a successor does not prove that the system uses it. Database rows are written through the
+      # proposed guard, read by the ONE snapshot reader (scripts/sql/g1_laws_snapshot.sql) and checked by the real G1 rules.
+      - name: G1 successor of a retired rule, end to end (database row, guard, snapshot reader, G1; 18 checks with expected outcomes)
+        run: bash scripts/run-g1-laws-snapshot-reader-test.sh
+      - name: M0-D contributor research view admits public candidates (one token, status kept, private and person-only excluded, exact rollback)
+        run: bash scripts/run-m0d-contributor-view-sql-test.sh
       - name: «הגילוי היומי» = «תורת הרמז» intake proposal (only admin_only changes; a second run and every changed live state refuse; the rollback restores the exact row)
         run: bash scripts/run-gilui-yomi-zvi-parity-sql-test.sh
       - name: Kandro in «הגילוי היומי» (the number binding refuses unless one admin sender signed קנדרו and the number is no one else's; old proofs stand; the source rows of the group stay without the 24-hour expiry; both roll back exactly; live functions byte for byte)
         run: bash scripts/run-gilui-yomi-kandro-sql-test.sh
       - name: Group images and videos (proposal; text arrivals byte-identical; only a verified, approved, unheld writer's image or video with a recorded public copy at the exact path and of the same type and size; every gate refuses; hold and takedown; grants; the 10.11 backfill; both roll back exactly; live functions byte for byte)
         run: bash scripts/run-group-source-media-sql-test.sh
+      # CL-13 (12.11.2026): the pause of personal memory between conversations. First the database proposal alone (lifecycle and
+      # behaviour), then the REAL Edge handlers against the same throwaway database in three states: before the proposal (the Edge
+      # code deployed first), with it, and with a simulated consent. Providers are mocks; the functions, the trigger and the rows are
+      # real. Counts are pinned in the runners: a case or a test that did not run fails.
+      - name: CL-13 personal memory, database proposal (16 lifecycle cases and 105 behaviour checks; writers return a real status, the trigger refuses every other writer, the reader is consent-gated, research needs a positive attestation by a trusted source or an approval and the absence of a filter match proves nothing, research_output_write is enforced in the writer and the trigger, export and erasure without deleting the account; exact rollback)
+        run: bash scripts/run-cl13-personal-memory-sql-test.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      # 13.11.2026: the second half of the runner executes the DEPLOYED Edge code (the exact sources of the two rollback manifests)
+      # on a second throwaway database, to show the intermediate states of the release in practice. The checkout is depth 1, so
+      # the three commits those sources come from are fetched by SHA; without them the runner FAILS (a skip is not a pass).
+      - name: Fetch the three commits the deployed Edge sources come from
+        run: git fetch --no-tags --depth=1 origin 065aa022b9ecf1152c14aaf1be3460c7c8136e6c aa0f6bc82b8c94286374b1f51208037502994eab b4d5ec47132ed8003b822cc70de9e1b82447cb7c
+      - name: CL-13 personal memory, the real Edge handlers on the throwaway database (19 tests of this branch, M-1..M-15 and the research rule - before the proposal, paused, simulated consent, after rollback, full-content stamp of every existing row - and 14 tests of the deployed code in the intermediate states and of the release plan)
+        run: bash scripts/run-cl13-personal-memory-handlers-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).
@@ -372,6 +459,9 @@ jobs:
           AUTH_EVIDENCE_DIR: ${{ runner.temp }}/auth-evidence
       - name: Google Analytics 4 is not blocked (real CSP header + real worker)
         run: node --test test/ga-measurement-browser-2029.browser.mjs
+      # ZURIEL 12.11.2026 (round 4): two separate Raziel checks on the built artifact. Nothing is opened to guests to pass them.
+      - name: Raziel access (an admin opens Raziel and a navigation turn is a /number button with no model call; a member and a guest stay locked; a guest's paid-AI request is refused by the worker)
+        run: node --test test/raziel-access-2029.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)

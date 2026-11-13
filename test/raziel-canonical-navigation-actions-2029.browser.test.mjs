@@ -46,6 +46,19 @@ function serve() {
   return new Promise((resolve) => server.listen(0, "127.0.0.1", () => resolve(server)));
 }
 
+// A synthetic, test-only admin session (no real account, never sent anywhere: all traffic is answered above).
+const ADMIN = (() => {
+  const id = "00000000-0000-4000-8000-0000000000ad";
+  const user = { id, email: "admin@example.invalid", aud: "authenticated", role: "authenticated", app_metadata: { provider: "email" }, user_metadata: {} };
+  const jwt = [{ alg: "HS256", typ: "JWT" }, { sub: id, role: "authenticated", exp: 2200000000 }, "test-only"].map((x, i) => i === 2 ? x : Buffer.from(JSON.stringify(x)).toString("base64url")).join(".");
+  return { user, row: { id, role: "admin", display_name: "מנהל בדיקה", username: null, avatar_url: null },
+    token: { access_token: jwt, refresh_token: "test-only", expires_at: 2200000000, expires_in: 3600, token_type: "bearer", user } };
+})();
+
+async function signInAsAdmin(context) {
+  await context.addInitScript((token) => { localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token", JSON.stringify(token)); }, ADMIN.token);
+}
+
 async function wire(page, counters) {
   await page.route("**/*", async (route) => {
     const request = route.request();
@@ -59,6 +72,10 @@ async function wire(page, counters) {
       return route.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify({ analysis: "תשובה רגילה מרזיאל.", intelligence_level: "fast" }) });
     }
     if (request.method() !== "GET" && request.method() !== "HEAD") return route.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: "{}" });
+    // Raziel is admin-only (SystemFrame2029: isAdmin + feature state); this flow runs as an admin account. The guest and
+    // non-admin states are checked on the public build by test/raziel-access-2029.browser.mjs.
+    if (url.pathname === "/auth/v1/user") return route.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify(ADMIN.user) });
+    if (url.pathname === "/rest/v1/users") return route.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify(String(request.headers().accept || "").includes("vnd.pgrst.object") ? ADMIN.row : [ADMIN.row]) });
     if (url.pathname.endsWith("/rest/v1/site_flags")) {
       const keys = ["lock_world", "lock_heichal", "lock_raziel_site", "lock_life_journey", "lock_books", "lock_number"];
       return route.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify(keys.map((key) => ({ key, enabled: false, message: "", mode: "all" }))) });
@@ -69,10 +86,11 @@ async function wire(page, counters) {
 
 async function openChat(page, width) {
   if (await page.locator(".sod29-frame-backdrop").count()) await page.keyboard.press("Escape");
+  await page.waitForFunction(() => { const orb = document.querySelector(".sod29-command-island .sod29-raziel-orb"); return orb && !orb.disabled; }, null, { timeout: 20000 });
   await page.locator(".sod29-command-island .sod29-raziel-orb").click();
-  const chat = width >= 1000
-    ? page.locator('[data-raziel-companion-view="open"] [data-raziel-native-chat="true"]')
-    : page.locator('.sod29-frame-panel [data-raziel-native-chat="true"]');
+  // The chat opens in the panel on a phone and wherever the frame places it on a wide screen; exactly one is visible.
+  void width;
+  const chat = page.locator('[data-raziel-native-chat="true"]').filter({ visible: true }).first();
   await chat.waitFor();
   return chat;
 }
@@ -90,6 +108,7 @@ test("built 2029 app: navigation turns are deterministic buttons with zero model
   try {
     for (const width of [320, 1440]) {
       const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: "reduce" });
+      await signInAsAdmin(context);
       const page = await context.newPage();
       page.on("pageerror", (error) => errors.push(String(error)));
       const counters = { ai: 0, requests: [] };

@@ -1,0 +1,974 @@
+{
+ "purpose": "CL-13 (track M', foundation-closure-list.md): the pause of personal memory between conversations, decided by ZURIEL on 12.11.2026 (D-CL13-1..3). A proposal; nothing here applies SQL. It runs only with ZURIEL's explicit approval of this exact file.",
+ "review_point": {
+  "package": 1,
+  "sha": "0e928e34b4a26ca694dd49b4698ed8431cc68020",
+  "parent": "abb2f3907b5be8fec49a515f611be6d6997db1f6",
+  "base": "aa0f6bc82b8c94286374b1f51208037502994eab",
+  "note": "The code, the SQL, the Edge sources and the tests of package 1 are fixed at this commit. Later commits of the branch change documents, one test file (test/cl13-intermediate-states.test.mjs) and the count pinned for it in scripts/run-cl13-personal-memory-handlers-test.sh only (release units, independence statement, CI record); a diff against this SHA that touches anything else changes the review point and must be called out."
+ },
+ "independence": {
+  "database_proposal": "INDEPENDENT of M0 and of every other proposed SQL file. It touches only public.agent_user_memory and the memory functions; no other file under supabase/proposed names them (checked by test/cl13-intermediate-states.test.mjs). It has its own state guard and its own exact rollback and can be reviewed, tested and applied as one file.",
+  "full_release": "NOT independent of M0. The complete CL-13 release is the Edge half of six functions plus the database proposal. Three of the six functions (wa-raziel, ai-analyze, number-researcher) are functions of the M0 Edge package: no build without CL-13 and no CL-13-only build of them exists, so deploying them from this branch ships CL-13 together with M0 and N-deltas, and needs their M0 prerequisites (release_units[].needs_before). A fourth function (raziel-attention) ships the M0-B shared module as a rider. Only wa-hatishbi and wa-uriel carry CL-13 and nothing else.",
+  "consequence": "The order rule (all six Edge functions before the database step) couples the database step to the M0 Edge approvals, unless the order is decided otherwise (missing_decisions, D-ORDER)."
+ },
+ "test": "bash scripts/run-cl13-personal-memory-sql-test.sh (the proposal alone: 16 lifecycle cases, 105 behaviour checks); bash scripts/run-cl13-personal-memory-handlers-test.sh (the real Edge handlers on a throwaway database: 19 tests of this branch's code - before the proposal / paused / simulated consent / after rollback - and 9 tests of the DEPLOYED code in the intermediate states); node --test test/cl13-personal-memory-policy.test.mjs (the Edge policy module and unclear database answers: 13 tests)",
+ "steps": [
+  {
+   "step": "CL13-1",
+   "file": "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql",
+   "sha256": "7239df2ca87aba0700595ff6c590323fd8d6330c61fbfc051612a6693f2baeb7",
+   "rollback": "supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql",
+   "rollback_sha256": "7eb2d138bca688cdc4951ba3b193a90474c22dd102438494d180c5cba470712d",
+   "status": "proposed",
+   "depends_on": [
+    "EDGE-CL13 (all six Edge functions of this branch are deployed first; see required_order and readers)"
+   ],
+   "verify": "the state text pinned in the file (the md5 of each of the 20 function definitions and the trigger text, enabled); owner, privileges, SECURITY DEFINER, search_path and volatility of the five replaced functions unchanged; no client role may execute a server-only function (all checked inside the file)",
+   "what": "One policy owner (fn_personal_memory_policy_v1 = the pause); the writers return a real status and write nothing; a trigger on public.agent_user_memory refuses every other writer with an error; fn_raziel_context returns an empty personal context without a verified consent and never in a group; export and erasure of memory without deleting the account. Research (decision of ZURIEL after the Codex review of abb2f3907, and round 8): authorised research is written and may be read during the pause. A row is research only when it is POSITIVELY attested - an approval of an existing row, a closed list of curated import sources, or a quotation from the canonical Tanakh text - and carries no personal detail (a veto); the absence of a match to the personal-detail filter is never the proof. Any other research-typed row is personal memory: refused on write while paused and withheld on read without the person's consent. research_output_write is enforced by the writer function and by the trigger, direct writes included. Profile facts have their own policy key (write_profile_facts): a consent to memory does not open them (D-CL13-3).",
+   "preflight": "Fail-closed: the file continues only when the state is exactly the live 12.11.2026 state or exactly the applied state. Also stops when public.tanach_verses (the canonical text that attests a quotation) is missing."
+  }
+ ],
+ "rollback_order": [
+  "1. ROLLBACK file of step CL13-1 (restores the five live bodies exactly, drops the trigger and the fifteen new functions). It brings back writing by every writer that ignores the policy and reading without consent in the database: decide that before running it.",
+  "2. The Edge code may stay: without the policy function it is closed (no write, no read; the research bots stop reading and storing research), which is tested after the rollback. Rolling the Edge functions back to the deployed sources (the two rollback manifests) restores writing on every message and reading without consent: decide that too."
+ ],
+ "not_in_this_step": [
+  "a consent record store and the consent wording (a new store needs its own approval)",
+  "a retention period",
+  "the WhatsApp commands that call the export and erasure functions",
+  "admin_person_facts (an administrator still reads stored profile facts: an open decision of ZURIEL)",
+  "a database-level refusal of direct READS (the trigger covers writes only; PostgreSQL has no read trigger). The direct readers are closed by their own code and pinned by tests; revoking SELECT on the table from the service role and moving every read into a policy-aware function is a possible later hardening, not proposed here"
+ ],
+ "required_order": [
+  {
+   "step": "EDGE-CL13",
+   "what": "Deploy the Edge code of this branch for ALL SIX functions that read or write personal memory. Each asks public.fn_personal_memory_policy_v1 and is closed while that function does not exist, so the step is safe before the database step (tests BEFORE 0-5).",
+   "functions": [
+    "wa-raziel",
+    "ai-analyze",
+    "number-researcher",
+    "raziel-attention",
+    "wa-hatishbi",
+    "wa-uriel"
+   ],
+   "in_m0_edge_package": [
+    "wa-raziel",
+    "ai-analyze",
+    "number-researcher"
+   ],
+   "state_after_this_step": "No stored memory is read and nothing is stored by any of the six (the policy function is missing = closed). The two research bots answer but neither read nor store research until the database step: research needs the database to decide, row by row, what is personal. The stored rows are untouched.",
+   "way_back": "Redeploy the deployed sources: docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json (wa-raziel, ai-analyze, number-researcher) and docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json (raziel-attention, wa-hatishbi, wa-uriel). That restores writing on every message and reading without consent."
+  },
+  {
+   "step": "CL13-1",
+   "what": "The database proposal (steps[0]). AFTER EDGE-CL13, never before it.",
+   "state_after_this_step": "The pause holds in the database as well: every writer that ignores the policy is refused, fn_raziel_context is closed, and authorised research is written and read through the one reader.",
+   "why_not_first": "With the deployed Edge code and the proposal applied, the four direct readers still read the table (nothing in the database stops a direct reader with the service key): the two site threads keep reading the stored thread and prefer it to the new turns, BOTH report persisted=true although the database refused the write (the deployed number-researcher v12 is older than the code on origin/main that checks the answer), and the two research bots still send the stored questions and a personal detail inside a research row to the model. The deployed wa-raziel is closed by the database functions but still records 'facts-captured' for a fact that was not stored (test/cl13-intermediate-states.test.mjs, DB-FIRST 1-3).",
+   "way_back": "The ROLLBACK file of steps[0]. The Edge code may stay: without the policy function it is closed (test ROLLBACK)."
+  }
+ ],
+ "edge_functions": [
+  {
+   "slug": "wa-raziel",
+   "deployed_version": 21,
+   "deployed_ezbr_sha256": "6167766567cca19de23f2b10756227a9e1d4cc0cab9cd9fa4cd76ed36d221e1b",
+   "in_m0_edge_package": true,
+   "scheduled": "cron every 2 minutes (active on 12.11.2026)",
+   "rollback_source": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json"
+  },
+  {
+   "slug": "ai-analyze",
+   "deployed_version": 91,
+   "deployed_ezbr_sha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb",
+   "in_m0_edge_package": true,
+   "scheduled": "on request",
+   "rollback_source": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json"
+  },
+  {
+   "slug": "number-researcher",
+   "deployed_version": 12,
+   "deployed_ezbr_sha256": "c94555c1a7be5081d06eb00dfe9bc8ed597de66c4c5bfb4da7e61fab844e7175",
+   "in_m0_edge_package": true,
+   "scheduled": "on request (no caller in the 2029 interface)",
+   "rollback_source": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json"
+  },
+  {
+   "slug": "raziel-attention",
+   "deployed_version": 4,
+   "deployed_ezbr_sha256": "931386e340e527f71738fb3f8908c0cdcccefa64710324bc8ba2e1098d1cf45b",
+   "in_m0_edge_package": false,
+   "scheduled": "on request, administrator only (no caller in the 2029 interface)",
+   "rollback_source": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json"
+  },
+  {
+   "slug": "wa-hatishbi",
+   "deployed_version": 8,
+   "deployed_ezbr_sha256": "d027d9231c273ee2f351c2c1ea615e6fed3fbbbf9733e0aff253ffe55d6692c5",
+   "in_m0_edge_package": false,
+   "scheduled": "no cron (last write 19.7.2026)",
+   "rollback_source": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json"
+  },
+  {
+   "slug": "wa-uriel",
+   "deployed_version": 18,
+   "deployed_ezbr_sha256": "832270a385dec748180e3088ad66578f482f206867655bfade46ed494ac89851",
+   "in_m0_edge_package": false,
+   "scheduled": "no cron (last write 25.8.2026)",
+   "rollback_source": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json"
+  }
+ ],
+ "edge_drift_gate": "Before any Edge deployment: list_edge_functions must show, for each of the six functions, the same version and ezbr_sha256 as here and as in its rollback manifest (read on 12.11.2026). Any difference: stop and report. Every one of the six bundles must include supabase/functions/_shared/personalMemoryPolicy.js.",
+ "readers": [
+  {
+   "reader": "number-researcher",
+   "kind": "Edge function",
+   "reads": "table, directly",
+   "what": "the stored site thread of the signed-in person (content)",
+   "audience": "the assistant's prompt; the person on reload",
+   "deployed_today": "reads without consent; the stored thread replaces the turns the client sends; reports persisted=true without checking the write",
+   "closed_by": "EDGE-CL13",
+   "test": "BEFORE 1, PAUSED 1, CONSENT 1; deployed code: TODAY, DB-FIRST 1"
+  },
+  {
+   "reader": "raziel-attention",
+   "kind": "Edge function",
+   "reads": "table, directly",
+   "what": "the same stored site thread (administrator surface)",
+   "audience": "the assistant's prompt; the administrator on reload",
+   "deployed_today": "reads without consent; reports persisted=true without checking the write",
+   "closed_by": "EDGE-CL13",
+   "test": "BEFORE 1, PAUSED 1, CONSENT 1; deployed code: TODAY, DB-FIRST 1"
+  },
+  {
+   "reader": "wa-hatishbi",
+   "kind": "Edge function",
+   "reads": "table, directly",
+   "what": "the earlier questions (personal) and the findings (research) of one person",
+   "audience": "the bot's prompt",
+   "deployed_today": "reads both directly, a personal detail inside a finding included",
+   "closed_by": "EDGE-CL13",
+   "test": "BEFORE 4, PAUSED 4, CONSENT 4; deployed code: TODAY, DB-FIRST 2",
+   "after_both_steps": "research through fn_research_output_context_v1 only; questions only with read_personal"
+  },
+  {
+   "reader": "wa-uriel",
+   "kind": "Edge function",
+   "reads": "table, directly",
+   "what": "the earlier questions (personal) and the discoveries (research) of one person",
+   "audience": "the bot's prompt",
+   "deployed_today": "reads both directly, a personal detail inside a discovery included",
+   "closed_by": "EDGE-CL13",
+   "test": "BEFORE 4, PAUSED 4, CONSENT 4; deployed code: TODAY, DB-FIRST 2",
+   "after_both_steps": "research through fn_research_output_context_v1 only; questions only with read_personal"
+  },
+  {
+   "reader": "wa-raziel",
+   "kind": "Edge function",
+   "reads": "through fn_raziel_context",
+   "what": "the personal context of the sender",
+   "audience": "the assistant's prompt",
+   "deployed_today": "reads without consent",
+   "closed_by": "EDGE-CL13",
+   "also_closed_by": "CL13-1 (the function itself)",
+   "test": "BEFORE 3, 5; PAUSED 3, 6; CONSENT 3, 5; deployed code: TODAY, DB-FIRST 3"
+  },
+  {
+   "reader": "ai-analyze",
+   "kind": "Edge function",
+   "reads": "through fn_raziel_context",
+   "what": "the personal context of the identified caller",
+   "audience": "the assistant's prompt",
+   "deployed_today": "reads without consent",
+   "closed_by": "EDGE-CL13",
+   "also_closed_by": "CL13-1 (the function itself)",
+   "test": "BEFORE 2, PAUSED 2, CONSENT 2; deployed code: static check of the v91 source (memory only through the two functions)"
+  },
+  {
+   "reader": "public.fn_raziel_context",
+   "kind": "database function (server only)",
+   "reads": "table",
+   "what": "the personal context (content)",
+   "audience": "the four assistant functions above",
+   "deployed_today": "returns memory without consent, merged through the phone link",
+   "closed_by": "CL13-1",
+   "test": "SQL checks R*, B*; PAUSED 0"
+  },
+  {
+   "reader": "public.fn_research_output_context_v1",
+   "kind": "database function (server only, NEW)",
+   "reads": "table",
+   "what": "research rows of one research bot about one person",
+   "audience": "the two research bots",
+   "deployed_today": "does not exist",
+   "closed_by": "CL13-1",
+   "test": "SQL checks Q1-Q9; PAUSED 4, CONSENT 4",
+   "note": "the one reader of research as context; a row with a personal detail is returned only with read_personal"
+  },
+  {
+   "reader": "public.get_my_wa_memory",
+   "kind": "database function (signed-in person)",
+   "reads": "table",
+   "what": "the person's own rows recorded under a phone they verified",
+   "audience": "the person themselves",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader",
+   "note": "the person's own data, not the assistant's context; not changed by this step (it does not return rows recorded under the account id; the new export does)"
+  },
+  {
+   "reader": "public.export_my_personal_memory / fn_personal_memory_export",
+   "kind": "database function (NEW)",
+   "reads": "table",
+   "what": "the person's own rows",
+   "audience": "the person themselves",
+   "deployed_today": "does not exist",
+   "closed_by": "not a context reader",
+   "test": "SQL checks E*"
+  },
+  {
+   "reader": "public.admin_person_facts",
+   "kind": "database function (administrator, checked inside)",
+   "reads": "table",
+   "what": "stored profile facts of a person (content)",
+   "audience": "an administrator",
+   "deployed_today": "unchanged",
+   "closed_by": "open decision",
+   "note": "waits for ZURIEL: may an administrator view stored profile facts during the pause"
+  },
+  {
+   "reader": "public.admin_wa_candidates",
+   "kind": "database function (administrator, checked inside)",
+   "reads": "table",
+   "what": "only the reference and the time of rows whose reference starts with a digit (to list phones for account linking); no content",
+   "audience": "an administrator",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader"
+  },
+  {
+   "reader": "public.fn_raziel_research_intel_scoped",
+   "kind": "database function",
+   "reads": "table",
+   "what": "a COUNT of the caller's own memory rows (own_memory_items); no content. An anonymous caller gets no private scope",
+   "audience": "the caller",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader",
+   "note": "it counts through the account-phone link (bare phone); a count is not memory content"
+  },
+  {
+   "reader": "public.fn_metatron_weekly",
+   "kind": "database function (no client role may execute)",
+   "reads": "table",
+   "what": "aggregate counts per agent and status; no content, no person",
+   "audience": "the weekly system digest",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader"
+  },
+  {
+   "reader": "public.delete_my_account",
+   "kind": "database function (signed-in person)",
+   "reads": "table",
+   "what": "deletes the person's rows when the account is deleted",
+   "audience": "the person themselves",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader",
+   "note": "the pause trigger is BEFORE INSERT OR UPDATE, so erasure is never refused"
+  },
+  {
+   "reader": "RLS policy agent_user_memory_own_read",
+   "kind": "row policy for the authenticated role",
+   "reads": "table",
+   "what": "own rows",
+   "audience": "nobody in practice",
+   "deployed_today": "unchanged",
+   "closed_by": "not a context reader",
+   "note": "the authenticated role has no SELECT privilege on the table (only postgres and service_role hold table privileges), so the policy grants nothing"
+  }
+ ],
+ "readers_read_at": "live catalog read 13.11.2026 (pg_proc bodies that name the table, views, policies, table privileges, triggers, cron): 11 functions, 0 views, 1 policy, table privileges for postgres and service_role only, 0 triggers, cron only for wa-raziel. Repository: the six Edge functions are the only code that names the table or the memory functions.",
+ "release_units": [
+  {
+   "slug": "wa-hatishbi",
+   "unit": "U1",
+   "in_m0_edge_package": false,
+   "deployed": {
+    "version": 8,
+    "ezbr_sha256": "d027d9231c273ee2f351c2c1ea615e6fed3fbbbf9733e0aff253ffe55d6692c5"
+   },
+   "live_use": "No cron; last write 19.7.2026. A bot that messages one real person (a chat id constant in the source).",
+   "ships_together": {
+    "cl13": [
+     "Questions (W4a) are read and written only with read_personal / write_personal.",
+     "Findings (W4b) are written only with research_output_write and read only through fn_research_output_context_v1."
+    ],
+    "m0": [],
+    "other": []
+   },
+   "note": "Only CL-13: every difference from the deployed source is the memory policy (checked: the bundle differs from the deployed one only in index.ts and the new _shared/personalMemoryPolicy.js; waGreen.ts is byte-identical).",
+   "needs_before": [],
+   "secrets_and_settings": [],
+   "decisions_missing": [
+    "Explicit ZURIEL approval of this function and the exact SHA (CLAUDE.md 0.4)."
+   ],
+   "state_after_deploy_before_database_step": "Answers as before. Reads and writes no stored question and no research (the policy function does not exist, so it is closed). Nothing stored is changed.",
+   "verification_after_deploy": [
+    "list_edge_functions: a new version above 8, verify_jwt false, the drift gate matched before the deploy.",
+    "get_edge_function: every file equals the sha256 listed in bundle_at_review_point.",
+    "Read-only SQL: row count and per-agent stamp of public.agent_user_memory unchanged.",
+    "Do NOT invoke the handler: it messages a real person. No behaviour probe is safe; the bytes are the verification."
+   ],
+   "rollback": {
+    "manifest": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json",
+    "kind": "exact_source",
+    "restores": "v8 byte for byte (git aa0f6bc82)"
+   },
+   "bundle_at_review_point": [
+    {
+     "path": "supabase/functions/_shared/personalMemoryPolicy.js",
+     "sha256": "858a4882361652618707f59f9d183c3b255979820edff14febb3b147ce2f2e03",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/_shared/waGreen.ts",
+     "sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "vs_deployed": "identical to deployed"
+    },
+    {
+     "path": "supabase/functions/wa-hatishbi/index.ts",
+     "sha256": "e4246201e3ad212c293c899d9427e1124a04c03b98433b3adaa06b7d7e9f2357",
+     "vs_deployed": "changed"
+    }
+   ]
+  },
+  {
+   "slug": "wa-uriel",
+   "unit": "U1",
+   "in_m0_edge_package": false,
+   "deployed": {
+    "version": 18,
+    "ezbr_sha256": "832270a385dec748180e3088ad66578f482f206867655bfade46ed494ac89851"
+   },
+   "live_use": "No cron; last write 25.8.2026. A bot that messages one real person (a chat id constant in the source).",
+   "ships_together": {
+    "cl13": [
+     "Questions (W4a) are read and written only with read_personal / write_personal.",
+     "Discoveries (W4b) are written only with research_output_write and read only through fn_research_output_context_v1."
+    ],
+    "m0": [],
+    "other": []
+   },
+   "note": "Only CL-13: every difference from the deployed source is the memory policy (checked: the bundle differs from the deployed one only in index.ts and the new _shared/personalMemoryPolicy.js; waGreen.ts is byte-identical).",
+   "needs_before": [],
+   "secrets_and_settings": [],
+   "decisions_missing": [
+    "Explicit ZURIEL approval of this function and the exact SHA (CLAUDE.md 0.4)."
+   ],
+   "state_after_deploy_before_database_step": "Answers as before. Reads and writes no stored question and no research. Nothing stored is changed.",
+   "verification_after_deploy": [
+    "list_edge_functions: a new version above 18, verify_jwt false, the drift gate matched before the deploy.",
+    "get_edge_function: every file equals the sha256 listed in bundle_at_review_point.",
+    "Read-only SQL: row count and per-agent stamp of public.agent_user_memory unchanged.",
+    "Do NOT invoke the handler: it messages a real person."
+   ],
+   "rollback": {
+    "manifest": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json",
+    "kind": "exact_source",
+    "restores": "v18 byte for byte (git aa0f6bc82)"
+   },
+   "bundle_at_review_point": [
+    {
+     "path": "supabase/functions/_shared/personalMemoryPolicy.js",
+     "sha256": "858a4882361652618707f59f9d183c3b255979820edff14febb3b147ce2f2e03",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/_shared/waGreen.ts",
+     "sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "vs_deployed": "identical to deployed"
+    },
+    {
+     "path": "supabase/functions/wa-uriel/index.ts",
+     "sha256": "f92cfd9817e15c1cfe93eb2551046e52976ca7a42607124d3ce568c5baacd50d",
+     "vs_deployed": "changed"
+    }
+   ]
+  },
+  {
+   "slug": "raziel-attention",
+   "unit": "U2",
+   "in_m0_edge_package": false,
+   "deployed": {
+    "version": 4,
+    "ezbr_sha256": "931386e340e527f71738fb3f8908c0cdcccefa64710324bc8ba2e1098d1cf45b"
+   },
+   "live_use": "On request, administrator only (admin gate in the code); no caller in the 2029 interface. 38 stored rows, one person, last write 29.8.2026.",
+   "ships_together": {
+    "cl13": [
+     "The stored site thread is read only with read_personal and written only with write_personal; persisted is true only for a row the database returned; new field memory."
+    ],
+    "m0": [
+     "_shared/materialGate.js in the M0-B version (guest identity from the platform address, paidAiLimits) and the new _shared/edgeCallerLimits.js enter the bundle. No behaviour change here: the function calls only beginTrace / providerSpan / finishTrace (no resolveCaller, paidAiLimits or runGate; checked by grep). cluster-B-ai-limits.md already states that raziel-attention needs no deploy for M0-B."
+    ],
+    "other": [
+     "Thread order: the last 12/40 messages instead of the first (origin/main, commit 533ee1346 of 10.10.2026; two lines). Not observable while the pause holds, because the stored thread is not read."
+    ]
+   },
+   "needs_before": [],
+   "secrets_and_settings": [],
+   "decisions_missing": [
+    "Explicit ZURIEL approval of this function and the exact SHA.",
+    "Whether the rider \"materialGate.js in its M0-B version\" is accepted for a function that is not in the M0 package (the other importers: field-router, journey-message, lab-teacher, number-researcher in M0; gallery-ocr is not deployed and keeps the old version)."
+   ],
+   "state_after_deploy_before_database_step": "Admin requests are answered from the turns the client sends. Nothing stored is read or written; memory.reason is policy_unavailable.",
+   "verification_after_deploy": [
+    "list_edge_functions: a new version above 4, verify_jwt true, the drift gate matched before the deploy.",
+    "get_edge_function: every file equals the sha256 listed in bundle_at_review_point.",
+    "As an administrator: op \"history\" returns history [] and memory.read_allowed false; no new row in public.agent_user_memory.",
+    "A non-administrator still gets 403 admin_only for profile ZURIEL_RESEARCH."
+   ],
+   "rollback": {
+    "manifest": "docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json",
+    "kind": "exact_source",
+    "restores": "v4 byte for byte (git 065aa022); note that the deployed v4 is older than origin/main by the two ordering lines"
+   },
+   "bundle_at_review_point": [
+    {
+     "path": "supabase/functions/_shared/edgeCallerLimits.js",
+     "sha256": "2c1d4d39c2fc2db5686d11e69a874addba392c137d4937347084b027828494f7",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/_shared/materialGate.js",
+     "sha256": "572e45aa78aab9ff70c8e25cb63084b7198e8dabf5fa307eac3e4ca3567ff31e",
+     "vs_deployed": "changed"
+    },
+    {
+     "path": "supabase/functions/_shared/personalMemoryPolicy.js",
+     "sha256": "858a4882361652618707f59f9d183c3b255979820edff14febb3b147ce2f2e03",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/raziel-attention/index.ts",
+     "sha256": "4b8eb43330cddced94ebc78cce019c6366b8f95768fa6bc31e10b2c95342137f",
+     "vs_deployed": "changed"
+    }
+   ]
+  },
+  {
+   "slug": "number-researcher",
+   "unit": "U3",
+   "in_m0_edge_package": true,
+   "deployed": {
+    "version": 12,
+    "ezbr_sha256": "c94555c1a7be5081d06eb00dfe9bc8ed597de66c4c5bfb4da7e61fab844e7175"
+   },
+   "live_use": "On request; no caller in the 2029 interface (any signed-in person can call it directly).",
+   "ships_together": {
+    "cl13": [
+     "N15c: the stored thread is read and written only with the policy; persisted is true only for a returned row; new field memory."
+    ],
+    "m0": [
+     "M0-B: paid AI only for verified accounts, guest identity from the platform address, fail-closed quota (materialGate.js M0-B version, new edgeCallerLimits.js)."
+    ],
+    "other": [
+     "N1, N2: admin-only interview operation and razielInterview.js (can write research artifacts with the administrator JWT).",
+     "N3: thread order (last 40 messages).",
+     "N4: persisted reflects the write (superseded by N15c).",
+     "N5: the API-key check moved after the interview operation."
+    ]
+   },
+   "needs_before": [
+    "M0 stage 0 (drift gate for all nine, live guards) and the M0 approval of this function (release-request.md stage 3, row 5; questionnaire answer ש1 = A).",
+    "M0 SQL stage 1 per release-request.md (SQL before Edge is the tested safe order)."
+   ],
+   "secrets_and_settings": [],
+   "decisions_missing": [
+    "D-CARRY: ש1 was answered (A) before N15 existed; N15c is not in the questionnaire. No build without CL-13 and no CL-13-only build was prepared.",
+    "Explicit ZURIEL approval of this function and the exact SHA."
+   ],
+   "state_after_deploy_before_database_step": "Answers from the turns the client sends; nothing stored is read or written; memory.reason is policy_unavailable.",
+   "verification_after_deploy": [
+    "list_edge_functions: a new version above 12, verify_jwt false, the drift gate matched before the deploy.",
+    "get_edge_function: every file equals the sha256 listed in bundle_at_review_point.",
+    "op \"interview\" without a session: 401. op \"history\" as a user: history [] and memory.read_allowed false (release-request.md row 5).",
+    "No new row in public.agent_user_memory."
+   ],
+   "rollback": {
+    "manifest": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json",
+    "kind": "exact_source",
+    "restores": "v12 byte for byte (git 065aa022)"
+   },
+   "bundle_at_review_point": [
+    {
+     "path": "supabase/functions/_shared/edgeCallerLimits.js",
+     "sha256": "2c1d4d39c2fc2db5686d11e69a874addba392c137d4937347084b027828494f7",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/_shared/materialGate.js",
+     "sha256": "572e45aa78aab9ff70c8e25cb63084b7198e8dabf5fa307eac3e4ca3567ff31e",
+     "vs_deployed": "changed"
+    },
+    {
+     "path": "supabase/functions/_shared/personalMemoryPolicy.js",
+     "sha256": "858a4882361652618707f59f9d183c3b255979820edff14febb3b147ce2f2e03",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/_shared/razielInterview.js",
+     "sha256": "a31d7e3f9ade2d5316a5f042a266252aee2422e5c253f87a91b234534fcafb04",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/number-researcher/index.ts",
+     "sha256": "c5397300c21bc1ad0eaf1719ec6eeb064cb1a1babfe67b800e84d2f1a203a457",
+     "vs_deployed": "changed"
+    }
+   ]
+  },
+  {
+   "slug": "ai-analyze",
+   "unit": "U3",
+   "in_m0_edge_package": true,
+   "deployed": {
+    "version": 91,
+    "ezbr_sha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb"
+   },
+   "live_use": "On request; reaches the memory only through fn_raziel_context and fn_raziel_remember (checked on the deployed source). Its WhatsApp trusted channel reads the sender context.",
+   "ships_together": {
+    "cl13": [
+     "N15a: one policy read in parallel with the persona; the stored context is read and the turn is remembered only with the policy; context_sources.personal is true only when personal text really entered."
+    ],
+    "m0": [
+     "M0-B: paid AI only for verified accounts, platform-derived guest identity, quotas, personal identifiers to env."
+    ],
+    "other": [
+     "N8, N9, N10: constants named, two extra modules in the bundle, one esbuild rename (no behaviour change).",
+     "N14a: number-page links in answers are /number/<n>."
+    ]
+   },
+   "deployed_as_single_bundle": true,
+   "needs_before": [
+    "M0 stage 0 and the M0 approval of this function (release-request.md stage 3, row 7; questionnaire answer ש4 = A).",
+    "The live redirect check of N14 by ZURIEL (decision ש8) before N14a ships."
+   ],
+   "secrets_and_settings": [],
+   "decisions_missing": [
+    "D-CARRY: ש4 was answered (A) before N15 existed; N15a is not in the questionnaire. No CL-13-only or M0-only build exists.",
+    "ש8: the check of the live redirect from a browser, by ZURIEL (HTTP-level evidence exists, round 6).",
+    "Explicit ZURIEL approval of this function and the exact SHA."
+   ],
+   "state_after_deploy_before_database_step": "No stored context is read and no turn is remembered (the policy function does not exist).",
+   "verification_after_deploy": [
+    "list_edge_functions: a new version above 91, verify_jwt true, the drift gate matched before the deploy.",
+    "get_edge_function: readPersonalMemoryPolicy is present, NUMBER_PAGE_PUBLIC_BASE is \"/number\", and the bundle files equal the sha256 listed in bundle_at_review_point.",
+    "A guest: 401 sign_in_required.",
+    "No new row in public.agent_user_memory after a signed-in request."
+   ],
+   "rollback": {
+    "manifest": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json",
+    "kind": "source_with_comment_redaction",
+    "restores": "v91 except two comment lines that held personal addresses"
+   },
+   "bundle_at_review_point": [
+    {
+     "path": "src/lib/publicReadingRelease2029.js",
+     "sha256": "2e1906950743b6c820ef8c97ca9f9bf512be1a4cc992040aab54b0c4c8019742",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "src/lib/research/elsRazielPlanning.js",
+     "sha256": "af23c9cc3621f979c32b49702848cd327cab13c7bfd5fb072dd1b2963cfffb22",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "src/lib/research/numberPageAddress.js",
+     "sha256": "25627aa491480b89f9a6dc69bde76f3ffbefee01334734ee4171e9a8ff432bf8",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "src/lib/research/razielGroundedSourceComposer.js",
+     "sha256": "65a917a5d6170b82a1d424dcf96efd68e91979f4d3b07e55bff908b7890c86c1",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "src/lib/research/razielResultBundleConsumer.js",
+     "sha256": "1c22edf852db83ef6ff05e4ee54247af0bc794eae4e0eed1574e7f57d5280103",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "src/lib/research/razielSemanticIntentGate.js",
+     "sha256": "d0ff8b2f30017932782ed4ff301b3ced67557b886d41a9efd6b9b68a9bb213fc",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "src/lib/research/researchIdentityResolver.js",
+     "sha256": "1a40962d8718a3dadfe9db3cfc09f99a9538bc8d7d49afa1e5b7cf2b995be839",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/edgeCallerLimits.js",
+     "sha256": "2c1d4d39c2fc2db5686d11e69a874addba392c137d4937347084b027828494f7",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/elsMatrixReading.js",
+     "sha256": "c31512f54dd4ac984aadc294be13b44da81487071255b17c4a32256af9af02b0",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/elsMatrixReadingAction.js",
+     "sha256": "b4da88823f951f82c19938ed165768d3cc50d088277187333493db69995312fc",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/elsMatrixReadingJobs.js",
+     "sha256": "ae4fd829d167c146d2dcdc10e1f169319780e05fe0453df40ef0df5b01aca6c4",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/elsRazielOccurrenceContext.js",
+     "sha256": "5669dc3ffa1dc6c8fb5e4b24d802579d145c3aba7218b36587797126b5b1757f",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/elsRazielReadingContext.js",
+     "sha256": "4e0cca761cb427b53bb2540ade7362672126f2b9f1e3a8b046944633dbf29ce0",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/functionalPreviewIdentity.js",
+     "sha256": "37adaa0ea537412fb432e2cfae35cda793ebda9249c82e065fff1d13f0d21651",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/personalMemoryPolicy.js",
+     "sha256": "858a4882361652618707f59f9d183c3b255979820edff14febb3b147ce2f2e03",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/raziel-reliability.ts",
+     "sha256": "e8959c2dfdb540b9a2e1bbe51d52117523dab8dd58d26378f4c5df81fac28417",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/razielIntelligence.js",
+     "sha256": "ecc258a492e49f086b5eef7b75b98e2fe359f62b0933b638fa6e3d06e08101aa",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/supabaseServiceHeaders.js",
+     "sha256": "949e10ce815310ade2cd17da5d68c93557fc421a2bf30e4f1b375743925f6f38",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/_shared/waRazielRender.ts",
+     "sha256": "b20bcffcd1c36a8e82a3cc57a3000dce93f0740c8b308628b7a9d07c121fa284",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    },
+    {
+     "path": "supabase/functions/ai-analyze/index.ts",
+     "sha256": "d001cd9edd0d003597599a073fa07213cd099d790939ee27c31ad65d6d4c362b",
+     "vs_deployed": "deployed as one bundled file (v91)"
+    }
+   ]
+  },
+  {
+   "slug": "wa-raziel",
+   "unit": "U3",
+   "in_m0_edge_package": true,
+   "deployed": {
+    "version": 21,
+    "ezbr_sha256": "6167766567cca19de23f2b10756227a9e1d4cc0cab9cd9fa4cd76ed36d221e1b"
+   },
+   "live_use": "Cron every 2 minutes (active on 12.11.2026). The only active writer of personal memory today.",
+   "ships_together": {
+    "cl13": [
+     "N15b: remember, savePersonalData and getContext ask the policy (one read per incoming message); [facts-captured] only for a stored fact; the account-link message no longer says that everything is saved."
+    ],
+    "m0": [
+     "M0-B/E: personal identifiers and groups read from the environment (ZURIEL_WA, WA_RAZIEL_CHRISTINA_PHONE, WA_RAZIEL_AMIT_GROUP, WA_RAZIEL_GILUI_GROUP, WA_RAZIEL_OPEN_GROUPS)."
+    ],
+    "other": [
+     "N6: explicit navigation requests are answered without a model, by a closed route table (razielNavigationActions.js, siteLinkRegistry.js).",
+     "N14b: the link is https://sod1820.co.il/number/<n>."
+    ]
+   },
+   "needs_before": [
+    "M0 stage 0 and stage 2: the secret ZURIEL_WA must exist (name only is checked), before this deploy.",
+    "The live redirect check of N14 by ZURIEL (ש8).",
+    "The CL-13 review of Codex on this package (gate A4b: M-1..M-4 and M-7..M-10 are green locally)."
+   ],
+   "secrets_and_settings": [
+    "ZURIEL_WA (required before the deploy)",
+    "WA_RAZIEL_CHRISTINA_PHONE, WA_RAZIEL_AMIT_GROUP, WA_RAZIEL_GILUI_GROUP, WA_RAZIEL_OPEN_GROUPS (not blocking: the group paths are off by a constant)"
+   ],
+   "decisions_missing": [
+    "D-CARRY: ש2 was answered (A) before N15 existed; N15b is not in the questionnaire. No CL-13-only or M0-only build exists.",
+    "A3: ZURIEL confirms that the secret ZURIEL_WA exists.",
+    "ש8: the check of the live redirect from a browser, by ZURIEL.",
+    "Explicit ZURIEL approval of this function and the exact SHA."
+   ],
+   "state_after_deploy_before_database_step": "Answers as before (and navigation without a model). Remembers nothing, extracts no profile detail, sends no stored context to the model; the person is still answered.",
+   "verification_after_deploy": [
+    "list_edge_functions: a new version above 21, verify_jwt false, the drift gate matched before the deploy.",
+    "get_edge_function: every file equals the sha256 listed in bundle_at_review_point.",
+    "A message from the phone of ZURIEL: \"give me the page of number 73\" gets one sentence and https://sod1820.co.il/number/73, model_calls 0 in the trace (release-request.md row 8).",
+    "Read-only SQL afterwards: 0 new memory rows for that sender; public.agent_user_memory row count unchanged."
+   ],
+   "rollback": {
+    "manifest": "docs/reviews/m0-security-stabilization-20261112/edge-rollback/manifest.json",
+    "kind": "exact_source",
+    "restores": "v21 byte for byte (git b4d5ec47 + 949c24ad5); restores writing on every message"
+   },
+   "bundle_at_review_point": [
+    {
+     "path": "supabase/functions/_shared/personalMemoryPolicy.js",
+     "sha256": "858a4882361652618707f59f9d183c3b255979820edff14febb3b147ce2f2e03",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/_shared/razielNavigationActions.js",
+     "sha256": "9c80d4fc074404e9766405bd901862f34dce1a720a53d3194b6255f713b5244c",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/_shared/siteLinkRegistry.js",
+     "sha256": "a57b86c033a60dae63cdd5d2c68804e41b6afdea8833ace2cd02589f4da00dbf",
+     "vs_deployed": "new in the bundle"
+    },
+    {
+     "path": "supabase/functions/_shared/waGreen.ts",
+     "sha256": "099e9bbbe14438d8db0914a8b9e329b16b9906aa8b30dd738da53f6edf5f3ca4",
+     "vs_deployed": "identical to deployed"
+    },
+    {
+     "path": "supabase/functions/_shared/waRazielRender.ts",
+     "sha256": "b20bcffcd1c36a8e82a3cc57a3000dce93f0740c8b308628b7a9d07c121fa284",
+     "vs_deployed": "identical to deployed"
+    },
+    {
+     "path": "supabase/functions/wa-raziel/index.ts",
+     "sha256": "f08a26be9d69c2481b8923b3a066344420e6012ca20a5c7e439060eaa02d6b92",
+     "vs_deployed": "changed"
+    }
+   ]
+  }
+ ],
+ "release_sequence": [
+  {
+   "unit": "U1",
+   "functions": [
+    "wa-hatishbi",
+    "wa-uriel"
+   ],
+   "content": "CL-13 only",
+   "coupled_to_m0": false,
+   "closes_live_collection": false,
+   "recommended": "FIRST"
+  },
+  {
+   "unit": "U2",
+   "functions": [
+    "raziel-attention"
+   ],
+   "content": "CL-13 + M0-B shared module (no behaviour change) + thread-order rider",
+   "coupled_to_m0": "only through the shared module",
+   "closes_live_collection": false
+  },
+  {
+   "unit": "U3",
+   "functions": [
+    "number-researcher",
+    "ai-analyze",
+    "wa-raziel"
+   ],
+   "content": "CL-13 inside the M0 Edge deploys (stage 3 rows 5, 7, 8)",
+   "coupled_to_m0": true,
+   "closes_live_collection": "wa-raziel (cron) and the WhatsApp path of ai-analyze, at the Edge level"
+  },
+  {
+   "unit": "U4",
+   "functions": [],
+   "content": "Database step CL13-1",
+   "coupled_to_m0": false,
+   "closes_live_collection": "the database level, for every writer; after U1-U3 under the current order",
+   "applies_after": [
+    "U1",
+    "U2",
+    "U3"
+   ]
+  }
+ ],
+ "recommended_first_group": {
+  "unit": "U1",
+  "functions": [
+   "wa-hatishbi",
+   "wa-uriel"
+  ],
+  "why": [
+   "The only functions whose release is CL-13 and nothing else: the bundle differs from the deployed one only in index.ts and the new policy module (waGreen.ts byte-identical), tested.",
+   "No M0 prerequisite, no secret, no decision of the questionnaire; the rollback is exact and trivial (the deployed source is the source on origin/main).",
+   "It follows the existing order (it is the first part of EDGE-CL13) and needs no decision on the order.",
+   "It exercises, on the least risky functions, the whole release path: drift gate, deploy with the new shared file in the bundle, byte verification of the deployed files, rollback assembly."
+  ],
+  "what_it_does_not_do": "It does not stop any live collection: both bots are dormant (no cron, last writes 19.7 and 25.8). The live collector (wa-raziel, cron every 2 minutes) and ai-analyze are closed only by U3 or by the database step.",
+  "actions": [
+   "0. Read-only: git fetch; origin/main; get_alias of the three domains; list_edge_functions matches the drift gate for both bots; row count and per-agent stamp of public.agent_user_memory.",
+   "1. ZURIEL approves the exact SHA and function: deploy wa-hatishbi (the bundle includes _shared/personalMemoryPolicy.js).",
+   "2. Verify (release_units[].verification_after_deploy). Stop on any difference.",
+   "3. Same for wa-uriel."
+  ],
+  "rollback": "node scripts/m0-edge-rollback-assemble.mjs --manifest docs/reviews/cl13-personal-memory-20261112/edge-rollback-manifest.json <slug> <dir>, then redeploy the assembled files (a separate approval).",
+  "not_an_approval": "This is a recommendation. It is not an approval to apply or to deploy."
+ },
+ "alternative_requiring_a_decision": {
+  "id": "D-ORDER",
+  "what": "The database step alone, first.",
+  "for": [
+   "It closes the live collector at once: the deployed wa-raziel and the deployed ai-analyze reach the memory only through the memory functions, and the proposal closes those (tests DB-FIRST 3 on the deployed wa-raziel; for ai-analyze the evidence is static: the deployed source calls only fn_raziel_context and fn_raziel_remember).",
+   "It is independent of M0 (independence.database_proposal) and has an exact rollback and a fail-closed state guard."
+  ],
+  "against": [
+   "The four direct readers stay as deployed (no regression against today): number-researcher and raziel-attention keep reading the stored thread and prefer it to the new turns and BOTH report persisted=true without a row; the bots keep sending stored questions and a personal detail inside a research row to the model (DB-FIRST 1-2).",
+   "The deployed wa-raziel still records [facts-captured] for a fact that was not stored, and still tells a person who links an account that everything is saved.",
+   "ai-analyze was not executed in this state (its deployed source is one bundled file the harness cannot run)."
+  ],
+  "why_this_is_a_decision": "The rule \"Edge first\" was reviewed on evidence that this round corrected (the deployed number-researcher reports persisted=true, not false). The residuals of database-first are now known and are all on functions with no caller in the 2029 interface or with no cron. Whether to accept them in exchange for stopping the live collector earlier is a decision of ZURIEL; until it is made, the rule stays Edge first."
+ },
+ "missing_decisions": [
+  {
+   "id": "D-CARRY",
+   "who": "ZURIEL",
+   "what": "Carry N15a-c with the M0 Edge deploys of wa-raziel, ai-analyze and number-researcher. The questionnaire answers ש1, ש2, ש4 (A) pre-date N15 and do not mention it; there is no build of these functions without CL-13 or with CL-13 only.",
+   "blocks": "U3"
+  },
+  {
+   "id": "D-ORDER",
+   "who": "ZURIEL / Codex",
+   "what": "Keep \"all six Edge functions before the database step\", or allow the database step first (alternative_requiring_a_decision).",
+   "blocks": "U4 (and what the first group should be)"
+  },
+  {
+   "id": "A3",
+   "who": "ZURIEL",
+   "what": "The secret ZURIEL_WA exists (name only).",
+   "blocks": "wa-raziel"
+  },
+  {
+   "id": "ש8",
+   "who": "ZURIEL",
+   "what": "Browser check of the live redirect of N14 (HTTP-level evidence exists since round 6).",
+   "blocks": "ai-analyze (N14a) and wa-raziel (N14b)"
+  },
+  {
+   "id": "D-ADMIN",
+   "who": "ZURIEL",
+   "what": "May an administrator view stored profile facts during the pause (admin_person_facts)?",
+   "blocks": "closing CL-13; not the database step"
+  },
+  {
+   "id": "D-ERASE",
+   "who": "ZURIEL",
+   "what": "Does erasing a person's memory also erase clean research findings about them (a finding that carries a personal detail is already erased as personal memory)?",
+   "blocks": "the WhatsApp erase command and closing CL-13; not the database step"
+  },
+  {
+   "id": "D-RIDER",
+   "who": "Codex / ZURIEL",
+   "what": "Accept the M0-B materialGate.js as a rider of raziel-attention.",
+   "blocks": "U2"
+  },
+  {
+   "id": "D-RESEARCH-SOURCES",
+   "who": "ZURIEL",
+   "what": "Confirm that the three curated import sources (yiska_method_notes, christina_decomposition_rules, christina_letter_combinations; 72 rows live) are authorised research. They are the only provenance in the table that is not a chat extraction. Removing a source makes its rows personal memory (withheld without consent).",
+   "blocks": "the database step only as a choice of the list inside the file; not a blocker of the other units"
+  },
+  {
+   "id": "D-RESEARCH-APPROVAL",
+   "who": "ZURIEL / Codex",
+   "what": "How a chat-extracted finding becomes authorised research: an approval act on an existing row (no such act exists today) or a canonical source other than the Tanakh text. Until then new findings from a conversation are not stored during the pause.",
+   "blocks": "nothing now; limits what the bots can store during the pause"
+  }
+ ],
+ "blocks_apply": {
+  "database_step_CL13-1": [
+   "Explicit approval of ZURIEL for the exact file and its SHA-256 (apply_migration; CLAUDE.md 0.4).",
+   "The release order: U1, U2 and U3 deployed and verified, unless D-ORDER is decided otherwise.",
+   "The live state equal, at that moment, to the state pinned in the file (five function md5s, no trigger); the file stops by itself otherwise.",
+   "The review of Codex on the reviewed head."
+  ],
+  "not_blocking_the_database_step": [
+   "A consent store (absent on purpose: the pause means nobody is readable).",
+   "Retention; the WhatsApp export and erase commands; D-ADMIN; D-ERASE (they block closing CL-13)."
+  ],
+  "blocks_closing_cl13": [
+   "Application, deployment and live verification; D-ADMIN; D-ERASE; consent store and wording; the WhatsApp commands."
+  ]
+ },
+ "units_outside_package_1": {
+  "rule": "Measurement and performance fixes are separate units with their own head. They are not in package 1 and not in this PR until they are integrated and tested one by one.",
+  "units": [
+   "measurement (one visit per page view, full measurement, third-party matrix)",
+   "speed and experience (LCP/TTFB causes, operation indicators)",
+   "contracts and enforcement (restriction sources, G1 rows B5, B13, B14, CL-07)"
+  ]
+ },
+ "research_eligibility": {
+  "decision": "ZURIEL, round 7 item 5: authorised research may be used during the pause; personal information inside research stays subject to consent. Codex, round 8: the verse analysis \"In the beginning God created\" was blocked, and \"I have been coping with depression for a year\" was stored and returned without consent; research eligibility must come from a trusted source or an approval, and the absence of a match to the filter is not proof.",
+  "rule": "A research-typed row of a research bot (hatishbi: research_note, uriel: method_discovery) is research output only if (1) it is attested by ONE of: approval (status approved / canonical, a later act on an existing row - an INSERT can never claim it), curated_source (a closed list of import sources), verse (the subject, with the introducing method words removed, is at least 8 letters and a contiguous run inside one verse of public.tanach_verses; spelling variants vav/yod, final letters and points are ignored) AND (2) its topic, content and data carry no personal detail (e-mail, phone, long number, identity number, introduction by name, address, postal code, first-person statement, birth, family, health incl. depression). Everything else is personal memory.",
+  "where_enforced": [
+   "fn_mem_add (returns NULL = not saved)",
+   "trigger trg_personal_memory_pause_v1 (raises, direct writes and edits included; strips an incoming attestation marker and writes its own)",
+   "fn_research_output_context_v1 (the one reader)",
+   "export (kind) and erasure (a research-typed row that is not research is erased as personal memory)"
+  ],
+  "research_output_write": "Enforced in the writer function and in the trigger: without the grant, and without the consent of that person (write_personal), a research row is refused (NULL / an error naming the grant). With the consent it is stored as that person's own memory. Tests A7, A7b, A7c, A7d.",
+  "codex_cases": {
+   "verse_analysis": "A1 (and W4b, the handlers PAUSED 4): stored, marked as attested by the canonical text, returned by the reader during the pause.",
+   "depression_sentence": "A2, A2b, A5b (and the handlers): not saved by the writer function, refused by the trigger, not returned; with a canonical subject it is still refused (the veto).",
+   "a_sentence_no_pattern_sees": "A3, A5: refused as unattested although the detector finds nothing in it."
+  },
+  "effect_on_live_rows": "Read-only on 13.11.2026: 383 research-typed rows. 72 come from the three curated import sources and carry no personal detail by the new patterns: they stay research and stay readable during the pause. 311 were extracted from chats (source wa): 11 carry a detail by the patterns, 300 do not; none is attested, so all 311 are withheld without the person's consent (and erased as personal memory by the default erasure).",
+  "effect_on_the_bots": "During the pause a research bot stores a new finding only if it is attested: in practice a quotation from the canonical text, or a row from a curated source. A finding extracted from a conversation about the person is not stored. Both bots are dormant (no cron).",
+  "limits": [
+   "Attestation of the subject, not of the free text: a personal remark attached to a canonical subject is stopped only by the veto patterns, which are a pattern list.",
+   "A legacy quotation row written before the proposal has no marker and is not re-checked against the corpus by the reader (the scan takes about 0.4 s); it counts only through a curated source or an approval, or after a separate backfill that is not proposed.",
+   "The curated source list is a decision: removing a name is one line.",
+   "No approval act exists yet: nothing sets status approved except a direct, separately approved SQL change.",
+   "The proposal now needs public.tanach_verses (it exists live) and stops without it."
+  ],
+  "new_missing_decisions": [
+   "D-RESEARCH-SOURCES",
+   "D-RESEARCH-APPROVAL"
+  ]
+ },
+ "wa_raziel_minimal_release": {
+  "why_this_block": "wa-raziel (cron every 2 minutes) is the only active collector of personal memory today. U1 (the two dormant bots) does not close it. There is no build of wa-raziel without CL-13 or with CL-13 only: the unit ships CL-13 together with M0 and N6 / N14b.",
+  "minimal_conditions": [
+   "1. The explicit approval of ZURIEL for the function wa-raziel and the exact SHA (CLAUDE.md 0.4). Not an approval of the other eight functions of M0.",
+   "2. D-CARRY decided: N15b may ride in the M0 Edge deploy of wa-raziel (questionnaire answer 2 = A pre-dates N15).",
+   "3. The secret ZURIEL_WA exists (name only; A3) before the deploy. The WA_RAZIEL_* names are not blocking: the group paths are off by a constant.",
+   "4. The live redirect check of N14 by ZURIEL from a browser (decision 8), because the unit ships N14b, unless ZURIEL waives it.",
+   "5. The drift gate for this function: list_edge_functions shows v21 and ezbr_sha256 6167766567cc... exactly as in the manifest, read immediately before.",
+   "6. The review of Codex on this package (gate A4b: M-1..M-4 and M-7..M-10 are green locally and in CI).",
+   "7. The rollback accepted as a decision: redeploying the manifest source (b4d5ec47 + 949c24ad5) restores writing on every message and reading without consent.",
+   "No M0 SQL step is a prerequisite: every database function the unit calls exists live (39 names + 6 read on 12.11; release-request.md), except fn_personal_memory_policy_v1, which is absent on purpose until U4 (the Edge code treats its absence as closed). The database step CL13-1 is NOT required for the Edge level to stop collecting (the Edge code is closed while the policy function is missing)."
+  ],
+  "what_we_can_verify_after": [
+   "a. list_edge_functions: a new version of wa-raziel, verify_jwt false; get_edge_function: every file of the bundle equals the sha256 in release_units (6 files).",
+   "b. The collector is closed at the Edge level: with one inbound message handled after the deploy (wa_bot_log has its raziel_dm row, written by the unchanged operational log), the count and the newest created_at of public.agent_user_memory rows with agent raziel are exactly what they were read immediately before the deploy, and the full-content stamp of the existing rows is unchanged (read-only SELECT).",
+   "c. No new \"[facts-captured]\" row in wa_bot_log after the deploy time, and no new row with memory_type personal_context.",
+   "d. The person is still answered: the navigation probe from the phone of ZURIEL (\"give me the page of number 73\") returns one sentence and https://sod1820.co.il/number/73, trace model_calls 0 (release-request.md, row 8).",
+   "e. The account-link message no longer says that everything is saved."
+  ],
+  "what_it_does_not_prove": [
+   "That the database refuses any other writer or reader: that is U4 (CL13-1).",
+   "That ai-analyze is closed on the WhatsApp trusted channel: it is a separate member of U3 with its own check.",
+   "That the old rows are unreachable: the four direct readers, number-researcher and ai-analyze each need their own deploy.",
+   "U1 does not close the active collection; neither does anything before U3 or U4."
+  ],
+  "result_expected": "After this unit alone: no new personal-memory row is created by a WhatsApp conversation, and the live conversation still works. After U4 as well: no writer of any kind can create one without a consent."
+ },
+ "edge_before_database": "Unchanged and confirmed by ZURIEL/Codex 13.11: all six Edge functions before the database step (D-ORDER stays an open alternative, not a change)."
+}

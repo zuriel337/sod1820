@@ -12,6 +12,8 @@
 //     entitled to), except that a trace that could not begin simply yields no spans;
 //   - only bounded refs / counts / ids are logged — never prompts, user text, images or model output.
 
+import { enforcePaidAiLimits, limiterKey, platformClientIp } from "./edgeCallerLimits.js";
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const GATE_OWNER_REF = "site_flags_lock_law v3 + platform_tiers_law v4 + ai_quota_law v3";
 
@@ -48,7 +50,9 @@ export function createMaterialGate({
   }
 
   // Caller identity. A real (non-anon-key) bearer is verified against Supabase Auth; admin is read from
-  // public.users.role exactly as ai-analyze does. Guests fall back to visitor_id, then client IP.
+  // public.users.role exactly as ai-analyze does. M0-B (ZURIEL 12.11.2026): a guest identity is never a
+  // browser claim — body.visitor_id is ignored; it is a salted hash of the platform client address
+  // (edgeCallerLimits.platformClientIp), or "" when the platform supplied none.
   async function resolveCaller(req, body = {}) {
     const token = String(req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
     if (token && token !== anon && token !== key && url) {
@@ -71,10 +75,15 @@ export function createMaterialGate({
         }
       } catch { /* fall through to guest */ }
     }
-    const vid = String(body?.visitor_id || "").slice(0, 60);
-    if (vid) return { userRef: null, visitor: vid, identity: `v:${vid}`, tier: "anon", verified: false };
-    const ip = String(req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-    return { userRef: null, visitor: null, identity: ip ? `ip:${ip}` : "", tier: "anon", verified: false };
+    void body;
+    const ip = platformClientIp(req);
+    const hashed = ip ? await limiterKey(key, "guest-identity", ip) : null;
+    return { userRef: null, visitor: null, identity: hashed ? `ip:${hashed}` : "", tier: "anon", verified: false };
+  }
+
+  // Paid AI: verified account + global hourly + global daily (fails CLOSED). Guests are refused.
+  function paidAiLimits(caller, options = {}) {
+    return enforcePaidAiLimits({ serviceRpc, secret: key, caller, ...options });
   }
 
   async function beginTrace({ capability, surface, ownerRef, identityClass, rootName, interactionId = null, subjectRef = null }) {
@@ -269,7 +278,7 @@ export function createMaterialGate({
     return out;
   }
 
-  return { serviceRpc, resolveCaller, beginTrace, recordSpan, finishTrace, runGate, logTokens, providerSpan };
+  return { serviceRpc, resolveCaller, paidAiLimits, beginTrace, recordSpan, finishTrace, runGate, logTokens, providerSpan };
 }
 
 // Quota policy reuse: ai-analyze's existing *conversational anti-loop* numbers ("guide" surface).

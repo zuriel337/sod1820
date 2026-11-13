@@ -1,0 +1,1859 @@
+{
+ "captured_at": "2026-11-12T23:18:57.639Z",
+ "origin": "https://sod1820.co.il",
+ "mode": "reads allowed for 13 verified read-only RPC names",
+ "scripts_fetched_once_as_files": [
+  "https://connect.facebook.net/en_US/fbevents.js",
+  "https://connect.facebook.net/signals/config/992562036849823",
+  "https://www.googletagmanager.com/gtag/js?id=G-V3H3E20FLY"
+ ],
+ "first_party_non_get_paths_not_delivered": [
+  "/functions/v1/meta-capi",
+  "rpc:gematria_method_trace",
+  "rpc:ingest_event",
+  "rpc:is_phrase_indexable",
+  "rpc:track_visit"
+ ],
+ "read_rpcs_delivered": [
+  "convergence_meter",
+  "fn_method_profile",
+  "fn_number_dossier",
+  "fn_number_journey",
+  "fn_number_lookup",
+  "fn_verses_by_gematria",
+  "fn_zero_scale",
+  "gematria_api",
+  "is_number_indexable",
+  "lang_links_list",
+  "number_neighbors",
+  "posts_by_number_strict",
+  "world_group_source_arrivals_v2"
+ ],
+ "summary": [
+  {
+   "family": "post (direct, then another post)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+     "document_title": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות · SOD1820",
+     "h1": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות",
+     "canonical": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 2183,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"476077bf-7b85-4d35-9b5e-a081ff58335e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"476077bf-7b85-4d35-9b5e-a081ff58335e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": [
+      "GET https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+     ]
+    },
+    {
+     "step": "in-site navigation",
+     "http_status": null,
+     "href": "https://sod1820.co.il/post",
+     "document_title": "הפוסטים · SOD1820 2029 · SOD1820",
+     "h1": "פוסטים",
+     "canonical": "https://sod1820.co.il/post",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/post",
+        "page_location": "https://sod1820.co.il/post",
+        "page_title": "SOD1820"
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "first_ga_hit_after_ms": 1022,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/post",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":11000,\"engaged_ms\":11000,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_v"
+      }
+     ],
+     "read_rpcs_allowed": [],
+     "other_third_party": []
+    },
+    {
+     "step": "back",
+     "http_status": null,
+     "href": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+     "document_title": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות · SOD1820",
+     "h1": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות",
+     "canonical": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/post/:item",
+        "page_location": "https://sod1820.co.il/post/:item",
+        "page_title": "SOD1820"
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/post",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "first_ga_hit_after_ms": 1068,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":7000,\"engaged_ms\":7000,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"476077bf-7b85-4d35-9b5e-a081ff58335e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [],
+     "other_third_party": []
+    },
+    {
+     "step": "refresh",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+     "document_title": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות · SOD1820",
+     "h1": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות",
+     "canonical": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1530,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"performance\",\"p_event_type\":\"web_vital\",\"p_path\":\"/post/:item\",\"p_app_context\":\"chrome\",\"p_session_id\":null,\"p_is_bot\":false,\"p_props\":{\"vitals_version\":1,\"cls\":0.0062,\"lcp_ms\":3324,\"inp_ms\":null,\"fcp_ms\":928,\"ttfb_ms\":649.4,\"inte"
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":8000,\"engaged_ms\":8000,\"max_scroll_pct\":40,\"flush_reason\":\"pagehide\",\"engagement_versio"
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"476077bf-7b85-4d35-9b5e-a081ff58335e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"476077bf-7b85-4d35-9b5e-a081ff58335e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": [
+      "GET https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "number (switch between two numbers)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/number/1820",
+     "document_title": "1820 · דף המספר · SOD1820",
+     "h1": "אין סוף אין קץ אין תכלית אין מספר",
+     "canonical": "https://sod1820.co.il/number/1820",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1790,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/number/1820",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/1820",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_versio"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"83f0ba9d-b513-4b39-80be-705365d08d67\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"83f0ba9d-b513-4b39-80be-705365d08d67\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/gematria_method_trace",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אין סוף אין קץ אין תכלית אין מספר\"}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "posts_by_number_strict",
+      "is_number_indexable",
+      "fn_number_lookup",
+      "fn_zero_scale",
+      "world_group_source_arrivals_v2",
+      "fn_number_dossier",
+      "fn_number_journey",
+      "number_neighbors",
+      "lang_links_list",
+      "fn_method_profile",
+      "fn_verses_by_gematria"
+     ],
+     "other_third_party": []
+    },
+    {
+     "step": "in-site navigation",
+     "http_status": null,
+     "href": "https://sod1820.co.il/number/26",
+     "document_title": "26 · דף המספר · SOD1820",
+     "h1": "הויה",
+     "canonical": "https://sod1820.co.il/number/26",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/number/:value",
+        "page_location": "https://sod1820.co.il/number/:value",
+        "page_title": "SOD1820"
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/26",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/number/1820",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "first_ga_hit_after_ms": 1019,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/number/26",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/26",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":11000,\"engaged_ms\":11000,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagemen"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"83f0ba9d-b513-4b39-80be-705365d08d67\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/gematria_method_trace",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"הויה\"}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "posts_by_number_strict",
+      "is_number_indexable",
+      "fn_number_lookup",
+      "fn_zero_scale",
+      "fn_number_dossier",
+      "fn_number_journey",
+      "number_neighbors",
+      "fn_method_profile",
+      "fn_verses_by_gematria"
+     ],
+     "other_third_party": []
+    },
+    {
+     "step": "back",
+     "http_status": null,
+     "href": "https://sod1820.co.il/number/1820",
+     "document_title": "1820 · דף המספר · SOD1820",
+     "h1": "אין סוף אין קץ אין תכלית אין מספר",
+     "canonical": "https://sod1820.co.il/number/1820",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/number/:value",
+        "page_location": "https://sod1820.co.il/number/:value",
+        "page_title": "SOD1820"
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/1820",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/number/26",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "first_ga_hit_after_ms": 1059,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/number/1820",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/1820",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":8000,\"engaged_ms\":8000,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_"
+      },
+      {
+       "path": "/rest/v1/rpc/gematria_method_trace",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אין סוף אין קץ אין תכלית אין מספר\"}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"83f0ba9d-b513-4b39-80be-705365d08d67\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [],
+     "other_third_party": []
+    },
+    {
+     "step": "refresh",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/number/1820",
+     "document_title": "1820 · דף המספר · SOD1820",
+     "h1": "אין סוף אין קץ אין תכלית אין מספר",
+     "canonical": "https://sod1820.co.il/number/1820",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 2013,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/number/1820",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/1820",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":9000,\"engaged_ms\":9000,\"max_scroll_pct\":0,\"flush_reason\":\"pagehide\",\"engagement_vers"
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"performance\",\"p_event_type\":\"web_vital\",\"p_path\":\"/number/:value\",\"p_app_context\":\"chrome\",\"p_session_id\":null,\"p_is_bot\":false,\"p_props\":{\"vitals_version\":1,\"cls\":0.0341,\"lcp_ms\":3172,\"inp_ms\":null,\"fcp_ms\":1004,\"ttfb_ms\":727.9,\""
+      },
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_versio"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"83f0ba9d-b513-4b39-80be-705365d08d67\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"83f0ba9d-b513-4b39-80be-705365d08d67\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/gematria_method_trace",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אין סוף אין קץ אין תכלית אין מספר\"}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "posts_by_number_strict",
+      "is_number_indexable",
+      "fn_number_lookup",
+      "fn_zero_scale",
+      "world_group_source_arrivals_v2",
+      "fn_number_dossier",
+      "fn_number_journey",
+      "number_neighbors",
+      "lang_links_list",
+      "fn_method_profile",
+      "fn_verses_by_gematria"
+     ],
+     "other_third_party": []
+    }
+   ]
+  },
+  {
+   "family": "number expression (personal-looking phrase)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/number/%D7%99%D7%95%D7%A1%D7%99%20%D7%9B%D7%94%D7%9F",
+     "document_title": "יוסי כהן · דף המספר · SOD1820",
+     "h1": "יוסי כהן",
+     "canonical": "https://sod1820.co.il/number/%D7%99%D7%95%D7%A1%D7%99%20%D7%9B%D7%94%D7%9F",
+     "robots": "noindex, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/number/:value",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1477,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/number/%D7%99%D7%95%D7%A1%D7%99%20%D7%9B%D7%94%D7%9F",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/number/%D7%99%D7%95%D7%A1%D7%99%20%D7%9B%D7%94%D7%9F",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/number/:value\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_versio"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"72a87ee0-4c96-4c7b-ac2f-aad63eee1b16\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/number/:value\",\"p_referrer\":null,\"p_visitor\":\"72a87ee0-4c96-4c7b-ac2f-aad63eee1b16\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/is_phrase_indexable",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_phrase\":\"יוסי כהן\"}"
+      },
+      {
+       "path": "/rest/v1/rpc/gematria_method_trace",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"יוסי כהן\"}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "fn_method_profile",
+      "world_group_source_arrivals_v2",
+      "posts_by_number_strict",
+      "fn_number_lookup",
+      "fn_zero_scale",
+      "lang_links_list",
+      "fn_number_dossier",
+      "fn_number_journey",
+      "number_neighbors",
+      "fn_verses_by_gematria"
+     ],
+     "other_third_party": [
+      "GET https://www.googletagmanager.com/td"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "home -> world (real link click)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/",
+     "document_title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+     "h1": "אוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים",
+     "canonical": "https://sod1820.co.il/",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": "ready",
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 2766,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":1,\"idle_th"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/\",\"p_referrer\":null,\"p_visitor\":\"9e10b8a1-8acf-4523-99df-cc89a2dd870e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/\",\"p_referrer\":null,\"p_visitor\":\"9e10b8a1-8acf-4523-99df-cc89a2dd870e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2",
+      "convergence_meter"
+     ],
+     "other_third_party": []
+    },
+    {
+     "step": "in-site link click",
+     "http_status": null,
+     "href": "https://sod1820.co.il/world",
+     "document_title": "העולם · SOD1820 · SOD1820",
+     "h1": "העולם",
+     "canonical": "https://sod1820.co.il/world",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/world",
+        "page_location": "https://sod1820.co.il/world",
+        "page_title": "SOD1820"
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "first_ga_hit_after_ms": 1105,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/world",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/world",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":12000,\"engaged_ms\":12000,\"max_scroll_pct\":13,\"flush_reason\":\"route_change\",\"engagement_version\":1"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": []
+    },
+    {
+     "step": "back",
+     "http_status": null,
+     "href": "https://sod1820.co.il/",
+     "document_title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+     "h1": "אוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים",
+     "canonical": "https://sod1820.co.il/",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": "ready",
+     "app_gtag_calls": [
+      [
+       "event",
+       "page_view",
+       {
+        "page_path": "/",
+        "page_location": "https://sod1820.co.il/",
+        "page_title": "SOD1820"
+       }
+      ]
+     ],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/",
+       "dt": "SOD1820",
+       "dr": "https://sod1820.co.il/world",
+       "ep": {}
+      }
+     ],
+     "ga_page_views": 2,
+     "first_ga_hit_after_ms": 1067,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/world\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":7000,\"engaged_ms\":7000,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\""
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/\",\"p_referrer\":null,\"p_visitor\":\"9e10b8a1-8acf-4523-99df-cc89a2dd870e\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [],
+     "other_third_party": []
+    }
+   ]
+  },
+  {
+   "family": "post list",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/post",
+     "document_title": "הפוסטים · SOD1820 2029 · SOD1820",
+     "h1": "פוסטים",
+     "canonical": "https://sod1820.co.il/post",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/post",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1213,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/post",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":1,\"idl"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post\",\"p_referrer\":null,\"p_visitor\":\"20dded96-090c-484b-a1c5-ec24662a16d5\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post\",\"p_referrer\":null,\"p_visitor\":\"20dded96-090c-484b-a1c5-ec24662a16d5\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": [
+      "GET https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "topic",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/topic/358-mashiach",
+     "document_title": "358 — משיח · התכנסות · SOD1820",
+     "h1": "טופיק",
+     "canonical": "https://sod1820.co.il/topic/358-mashiach",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/topic/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/topic/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1542,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/topic/358-mashiach",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/topic/358-mashiach",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/topic/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\""
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/topic/:item\",\"p_referrer\":null,\"p_visitor\":\"ae06535d-9253-4dc0-b48f-87b9cb46806b\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/topic/:item\",\"p_referrer\":null,\"p_visitor\":\"ae06535d-9253-4dc0-b48f-87b9cb46806b\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2",
+      "convergence_meter",
+      "gematria_api"
+     ],
+     "other_third_party": []
+    }
+   ]
+  },
+  {
+   "family": "video",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/video/e8f5c7aa18a6532fe17ff14dc8713626",
+     "document_title": "קריאה להרים עיניים יומיום בשעה 16:00 לבקש גאולה · SOD1820",
+     "h1": "וידאו · SOD1820",
+     "canonical": "https://sod1820.co.il/video/e8f5c7aa18a6532fe17ff14dc8713626",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/video/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/video/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 3101,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/video/e8f5c7aa18a6532fe17ff14dc8713626",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/video/e8f5c7aa18a6532fe17ff14dc8713626",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/video/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\""
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/video/:item\",\"p_referrer\":null,\"p_visitor\":\"befe5bed-e3c2-49dd-addb-72ae180269f6\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/video/:item\",\"p_referrer\":null,\"p_visitor\":\"befe5bed-e3c2-49dd-addb-72ae180269f6\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": []
+    }
+   ]
+  },
+  {
+   "family": "tag",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/tag/%D7%90%D7%9C%D7%95%D7%9F-%D7%9C%D7%95%D7%99",
+     "document_title": "תגית: אלון לוי · SOD1820 2029 · SOD1820",
+     "h1": "אלון לוי",
+     "canonical": "https://sod1820.co.il/tag/%D7%90%D7%9C%D7%95%D7%9F-%D7%9C%D7%95%D7%99",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/tag/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/tag/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1641,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/tag/%D7%90%D7%9C%D7%95%D7%9F-%D7%9C%D7%95%D7%99",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/tag/%D7%90%D7%9C%D7%95%D7%9F-%D7%9C%D7%95%D7%99",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/tag/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":1"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/tag/:item\",\"p_referrer\":null,\"p_visitor\":\"d39bb85b-3dff-474a-b40e-ed5131850784\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/tag/:item\",\"p_referrer\":null,\"p_visitor\":\"d39bb85b-3dff-474a-b40e-ed5131850784\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": [
+      "GET https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "community researchers",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/community/researchers",
+     "document_title": "הכתבים והחוקרים · SOD1820",
+     "h1": "הכתבים והחוקרים",
+     "canonical": "https://sod1820.co.il/community/researchers",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/community/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/community/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1076,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/community/researchers",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/community/researchers",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/community/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_vers"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/community/:item\",\"p_referrer\":null,\"p_visitor\":\"7bc3b25f-ccdf-4c53-8aa3-5ec9ada0a33b\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/community/:item\",\"p_referrer\":null,\"p_visitor\":\"7bc3b25f-ccdf-4c53-8aa3-5ec9ada0a33b\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": []
+    }
+   ]
+  },
+  {
+   "family": "books",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/books",
+     "document_title": "ספרים ומקורות · SOD1820",
+     "h1": "ספרים ומקורות",
+     "canonical": "https://sod1820.co.il/books",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/books",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/books",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1377,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/books",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/books",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/books\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":1,\"id"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/books\",\"p_referrer\":null,\"p_visitor\":\"55a620c3-19a7-423a-b23f-cada4d3b25ce\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/books\",\"p_referrer\":null,\"p_visitor\":\"55a620c3-19a7-423a-b23f-cada4d3b25ce\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": []
+    }
+   ]
+  },
+  {
+   "family": "unknown path (404)",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 404,
+     "href": "https://sod1820.co.il/no-such-page-audit-20261112",
+     "document_title": "העמוד לא נמצא · SOD1820",
+     "h1": "העמוד לא נמצא",
+     "canonical": null,
+     "robots": "noindex,follow",
+     "bot_verdict_cookie": null,
+     "service_worker_controls_page": false,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [],
+     "ga_page_views": 0,
+     "first_ga_hit_after_ms": null,
+     "app_fbq_calls": [],
+     "pixel": [],
+     "capi": [],
+     "first_party_writes_not_delivered": [],
+     "read_rpcs_allowed": [],
+     "other_third_party": []
+    }
+   ]
+  },
+  {
+   "family": "old root permalink that is in the sitemap",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/%D7%94%D7%92%D7%9C-%D7%94%D7%A8%D7%90%D7%A9%D7%95%D7%9F-%D7%A9%D7%9C-%D7%94%D7%99%D7%93%D7%99%D7%A2%D7%94",
+     "document_title": "הגל הראשון של העליה מתקרב · SOD1820",
+     "h1": "הגל הראשון של העליה מתקרב",
+     "canonical": "https://sod1820.co.il/%d7%94%d7%92%d7%9c-%d7%94%d7%a8%d7%90%d7%a9%d7%95%d7%9f-%d7%a9%d7%9c-%d7%94%d7%99%d7%93%d7%99%d7%a2%d7%94/",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/הגל-הראשון-של-הידיעה",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/הגל-הראשון-של-הידיעה",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1961,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/%D7%94%D7%92%D7%9C-%D7%94%D7%A8%D7%90%D7%A9%D7%95%D7%9F-%D7%A9%D7%9C-%D7%94%D7%99%D7%93%D7%99%D7%A2%D7%94",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/%D7%94%D7%92%D7%9C-%D7%94%D7%A8%D7%90%D7%A9%D7%95%D7%9F-%D7%A9%D7%9C-%D7%94%D7%99%D7%93%D7%99%D7%A2%D7%94",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/הגל-הראשון-של-הידיעה\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/הגל-הראשון-של-הידיעה\",\"p_referrer\":null,\"p_visitor\":\"056b7a00-0b15-4ef0-869e-72b56195d6ae\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/הגל-הראשון-של-הידיעה\",\"p_referrer\":null,\"p_visitor\":\"056b7a00-0b15-4ef0-869e-72b56195d6ae\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": [
+      "GET https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "arrival with campaign and click ids",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028?utm_source=whatsapp&utm_medium=share&utm_campaign=audit&fbclid=AUDITFB&gclid=AUDITG&q=secret-term",
+     "document_title": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות · SOD1820",
+     "h1": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות",
+     "canonical": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "view_search_results",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "ep.search_term": "secret-term"
+       }
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1782,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028?utm_source=whatsapp&utm_medium=share&utm_campaign=audit&fbclid=AUDITFB&gclid=AUDITG&q=secret-term",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028?utm_source=whatsapp&utm_medium=share&utm_campaign=audit&fbclid=AUDITFB&gclid=AUDITG&q=secret-term",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"90545f15-1dec-49af-95d0-00557ebb6cd4\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"90545f15-1dec-49af-95d0-00557ebb6cd4\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": [
+      "GET https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "site search parameter on a page",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/world?q=%D7%A1%D7%95%D7%93%20%D7%90%D7%99%D7%A9%D7%99",
+     "document_title": "העולם · SOD1820 · SOD1820",
+     "h1": "העולם",
+     "canonical": "https://sod1820.co.il/world",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "view_search_results",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "ep.search_term": "סוד אישי"
+       }
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {}
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/world",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       }
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 1212,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/world?q=%D7%A1%D7%95%D7%93%20%D7%90%D7%99%D7%A9%D7%99",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/world?q=%D7%A1%D7%95%D7%93%20%D7%90%D7%99%D7%A9%D7%99",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/world\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":1,\"id"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/world\",\"p_referrer\":null,\"p_visitor\":\"57266766-3257-4c46-971e-c7d70c256ed3\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/world\",\"p_referrer\":null,\"p_visitor\":\"57266766-3257-4c46-971e-c7d70c256ed3\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2",
+      "convergence_meter"
+     ],
+     "other_third_party": []
+    }
+   ]
+  }
+ ]
+}

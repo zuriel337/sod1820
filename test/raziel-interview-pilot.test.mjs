@@ -7,6 +7,7 @@ import { randomUUID } from "node:crypto";
 import { createRazielInterview, interviewContext } from "../supabase/functions/_shared/razielInterview.js";
 import { numberResearcherHandler as handler } from "./helpers/number-researcher-handler.mjs";
 import { fixture, UID, OTHER_UID, TOKEN, SERVICE, ANON, SOURCE, Q1, Q2, OLD, CORRECTED, correction } from "./fixtures/raziel-interview-787.mjs";
+import { PAUSED_POLICY, CONSENT_POLICY } from "./helpers/personal-memory-policy-fixture.mjs";
 
 const req = (token = TOKEN) => new Request("https://fixture.invalid/number-researcher", { headers: token ? { Authorization: `Bearer ${token}` } : {} });
 const api = f => createRazielInterview({ supabaseUrl: "https://fixture.invalid", serviceKey: SERVICE, anonKey: ANON, fetchImpl: f.fetchImpl });
@@ -234,10 +235,21 @@ test("existing provider quota denial makes zero model/personal calls",async()=>{
   assert.equal(result.body.error,"quota");assert.equal(f.models.length,0);assert.equal(privateReads(f).length,0);
 });
 test("failed conversation persistence does not erase answer or claim saved",async()=>{
-  const f=fixture(),state=await initial(f);f.failOnce("agent_user_memory",(_,c)=>c.method==="POST",{},503);
+  // CL-13: with a permission to write (a simulated consent), a failed write is still reported as not saved.
+  const f=fixture(),state=await initial(f);f.memoryPolicy=CONSENT_POLICY;f.failOnce("agent_user_memory",(_,c)=>c.method==="POST",{},503);
   const result=await handler(f)({values:[787],message:"answer",interview_path_id:state.path_id});
   assert.equal(result.body.degraded,false);assert.equal(result.body.persisted,false);assert.ok(result.body.answer);
+  assert.equal(result.body.memory.saved,false);assert.equal(result.body.memory.reason,"write_failed");
+  assert.equal(f.calls.filter(c=>c.name==="agent_user_memory"&&c.method==="POST").length,1,"the write was attempted");
   assert.equal(f.paths.get(state.path_id).latest.revision_no,state.revision_no);
+});
+test("while personal memory is paused the conversation is neither stored nor read, and the answer says so",async()=>{
+  const f=fixture(),state=await initial(f);
+  const result=await handler(f)({values:[787],message:"answer",interview_path_id:state.path_id});
+  assert.equal(result.body.degraded,false);assert.ok(result.body.answer);
+  assert.equal(result.body.persisted,false);assert.deepEqual(result.body.memory,{saved:false,read_allowed:false,reason:PAUSED_POLICY.reason,policy:"cl13_pause_v1"});
+  assert.equal(privateReads(f).filter(c=>c.name!=="research_objects").length,0,"no stored thread, no stored context, no write attempt");
+  assert.equal(f.memory.length,0);
 });
 for(const name of ["number-researcher","raziel-attention"]) {
   test(`${name}: last 40 exchanges and last 12 prompt exchanges keep latest correction`,async()=>{
@@ -247,7 +259,12 @@ for(const name of ["number-researcher","raziel-attention"]) {
       rest:async path=>(await f.fetchImpl(`https://fixture.invalid/rest/v1/${path}`,{headers:{Authorization:`Bearer ${SERVICE}`}})).json(),humanize:s=>s,
     });
     const empty=await fn("");assert.equal(empty.history.length,0);assert.equal(f.calls.length,0);
-    const full=await fn(UID);assert.equal(full.history[0].text,"user-5");assert.equal(full.history.at(-1).text,"reply-44");assert.equal(full.snapshot.sequence,44);
-    const prompt=await fn(UID,12);assert.equal(prompt.history[0].text,"user-33");assert.equal(prompt.snapshot.sequence,44);
+    // CL-13: the stored thread is read only with a permission to read for this person; without it there is no read at all.
+    for(const policy of [undefined,null,{},PAUSED_POLICY,{read_personal:"true"}]){
+      const closed=await fn(UID,40,policy);assert.equal(closed.history.length,0);assert.equal(closed.snapshot,null);assert.equal(f.calls.length,0,"no read without a permission");
+    }
+    const allowed={read_personal:true};
+    const full=await fn(UID,40,allowed);assert.equal(full.history[0].text,"user-5");assert.equal(full.history.at(-1).text,"reply-44");assert.equal(full.snapshot.sequence,44);
+    const prompt=await fn(UID,12,allowed);assert.equal(prompt.history[0].text,"user-33");assert.equal(prompt.snapshot.sequence,44);
   });
 }

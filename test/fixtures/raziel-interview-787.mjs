@@ -2,6 +2,7 @@
 // No real source row, number calculation, personal transcript or credential is copied.
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { PAUSED_POLICY, POLICY_FUNCTION_MISSING, pausedWriteError } from "../helpers/personal-memory-policy-fixture.mjs";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -34,6 +35,11 @@ export function fixture() {
   const principals = { [TOKEN]: { id: UID, admin: true }, "synthetic-other-admin-token": { id: OTHER_UID, admin: true },
     "synthetic-user-token": { id: USER_UID, admin: false }, "synthetic-anonymous-token": { id: USER_UID, admin: false, is_anonymous: true } };
   let gateAllowed = true, beforeReview = null;
+  // CL-13: the answer of fn_personal_memory_policy_v1 (default: the pause of the reviewed proposal), and whether the trigger of
+  // the proposal is installed on agent_user_memory (default: yes). A test sets them to model another database state.
+  let memoryPolicy = PAUSED_POLICY, memoryTrigger = true;
+  // the stored context is returned as the PERMISSIVE pre-proposal function returned it, so that the Edge gate itself is tested
+  let storedContext = { user_context: { summary: "Older conversation summary, never interpretation authority", recent_conversation: ["OLD-STORED-TOPIC"] }, privacy: { personal_memory_allowed: true } };
   const failOnce = (name, predicate = () => true, body = { ok: false, error: "synthetic_owner_failure" }, status = 200) => faults.push({ name, predicate, body, status });
   const fetchImpl = async (input, init = {}) => {
     const url = new URL(input), name = url.pathname.split("/").at(-1), headers = new Headers(init.headers);
@@ -72,7 +78,12 @@ export function fixture() {
       return reply([{ role: Object.values(principals).find(p => p.id === uid)?.admin ? "admin" : "user" }]);
     }
     if (url.pathname === "/rest/v1/agent_user_memory") {
-      if (init.method === "POST") { memory.push({ ...copy(body), id: randomUUID(), created_at: memory.length }); return reply(null); }
+      if (init.method === "POST") {
+        // the trigger of the proposal refuses a personal row with an error; nothing is stored
+        if (memoryTrigger && memoryPolicy?.write_personal !== true) return reply(pausedWriteError("INSERT", body.memory_type, body.agent), 400);
+        const row = { ...copy(body), id: randomUUID(), created_at: memory.length }; memory.push(row);
+        return reply(headers.get("Prefer") === "return=representation" ? [{ id: row.id }] : null, 201);
+      }
       const uid = url.searchParams.get("user_ref")?.slice(3);
       const selected = memory.filter(r => r.user_ref === uid).sort((a,b) => url.searchParams.get("order")?.includes("desc") ? b.created_at-a.created_at : a.created_at-b.created_at);
       return reply(selected.slice(0, Number(url.searchParams.get("limit")) || 40));
@@ -132,11 +143,19 @@ export function fixture() {
           return reply({ ok: true, status: row.status });
         }
       }
+      // M0-B paid-AI containment for verified callers: server-keyed account/global buckets + global daily cap.
+      if (name === "edge_rate_limit_check") { assert.equal(token, SERVICE); assert.match(body.p_key_hash, /^[0-9a-f]{64}$/); return reply({ allowed: true, count: 1, limit: body.p_limit, window_seconds: body.p_window_seconds }); }
+      if (name === "ai_quota_check") { assert.equal(token, SERVICE); assert.match(body.p_identity, /^g:[0-9a-f]{64}$/); return reply({ allowed: true, used: 1, limit: body.p_limit_override, tier: body.p_tier }); }
       if (name === "fn_capability_execution_gate_v1") return reply({ allowed: gateAllowed, availability: { allowed: true }, entitlement: { allowed: true }, budget: { allowed: gateAllowed } });
       if (name === "op_trace_begin_v1") return reply({ trace_id: body.p_trace_id, root_span_id: body.p_root_span_id });
       if (["op_trace_record_span_v1", "op_trace_finish_v1", "op_trace_link_ai_cost_v1"].includes(name)) return reply({ ok: true });
       if (name === "fn_raziel_persona") return reply("SYNTHETIC_RAZIEL_PERSONA");
-      if (name === "fn_raziel_context") return reply({ user_context: { summary: "Older conversation summary, never interpretation authority" } });
+      if (name === "fn_personal_memory_policy_v1") {
+        assert.equal(token, SERVICE, "the policy is read with the service key only");
+        assert.equal(typeof body.p_user_ref, "string");
+        return memoryPolicy === POLICY_FUNCTION_MISSING ? reply({ code: "PGRST202", message: "Could not find the function public.fn_personal_memory_policy_v1(p_user_ref) in the schema cache" }, 404) : reply(memoryPolicy);
+      }
+      if (name === "fn_raziel_context") return reply(storedContext);
       if (name === "metatron_context") return reply({ canonical: {}, context_version: "fixture" });
       if (name === "fn_number_dossier") return reply({ facts: {}, decisions: [], preferences: [] });
       if (["fn_rules_snapshot", "fn_engine_snapshot"].includes(name)) return reply([]);
@@ -144,5 +163,6 @@ export function fixture() {
     unexpected.push(call); throw new Error(`Unexpected mocked endpoint: ${url.pathname}`);
   };
   return { fetchImpl, objects, paths, savedKeys, calls, models, unexpected, memory, failOnce,
-    set gateAllowed(value) { gateAllowed = value; }, set beforeReview(fn) { beforeReview = fn; } };
+    set gateAllowed(value) { gateAllowed = value; }, set beforeReview(fn) { beforeReview = fn; },
+    set memoryPolicy(value) { memoryPolicy = value; }, set memoryTrigger(value) { memoryTrigger = value; }, set storedContext(value) { storedContext = value; } };
 }

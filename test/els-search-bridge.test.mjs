@@ -14,7 +14,9 @@ test('ELS server bridge delegates occurrence truth to canonical RPCs only', () =
 });
 
 test('ELS server bridge reuses canonical abuse protection and Operational Trace', () => {
-  assert.match(src, /serviceRpc\("edge_rate_limit_check"/);
+  // M0-B: the bucket call moved into the shared decision module, still over the same atomic limiter.
+  assert.match(src, /enforcePublicComputeLimits\(\{\s*serviceRpc, secret: SERVICE_KEY/);
+  assert.match(readFileSync(new URL('../supabase/functions/_shared/edgeCallerLimits.js', import.meta.url), 'utf8'), /serviceRpc\("edge_rate_limit_check"/);
   assert.match(src, /serviceRpc\("op_trace_begin_v1"/);
   assert.match(src, /serviceRpc\("op_trace_record_span_v1"/);
   assert.match(src, /serviceRpc\("op_trace_finish_v1"/);

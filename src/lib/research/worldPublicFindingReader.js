@@ -1,3 +1,4 @@
+import { CONTRIBUTOR_RESEARCH_VIEW_FALLBACK, readContributorResearchView } from "./contributorResearchView.js";
 import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { publicResearchPresentationEligible, projectPublicResearchFinding,
@@ -9,7 +10,11 @@ import {
   findWorldPublicResearchFinding,
 } from "./worldAllResearchProjection.js";
 
-const PUBLIC_RESEARCH_STATUSES = Object.freeze(["approved", "canonical"]);
+import { RESEARCH_PUBLIC_VISIBLE_STATUSES, RESEARCH_VERIFIED_PUBLIC_STATUSES } from "./researchObjectPresentation.js";
+
+// ZURIEL 12.11.2026: an exact public finding is viewable whatever its stored status;
+// candidates keep that status and are presented as "טרם אומת" (never promoted here).
+const PUBLIC_RESEARCH_STATUSES = RESEARCH_PUBLIC_VISIBLE_STATUSES;
 const MAX_TOPIC_TARGETS = 24;
 // topic_cards.id/node_id are UUID columns, while documented number/entity tree
 // keys can also be numeric or namespaced (e.g. 476, gw:...). Never put those
@@ -106,7 +111,8 @@ async function readExactSource(client, sourceRef) {
 async function readDocumentedTopics(client, row) {
   const filter = topicTargetFilter(documentedTopicTargets(row));
   if (!filter) return [];
-  const { data, error } = await client.from("topic_cards")
+  // Published Topic view only: a do-not-publish card would link to a Topic that cannot open.
+  const { data, error } = await client.from("topic_cards_public")
     .select("id,created_at,approved_at,slug,title,subtitle,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by,node_id")
     .eq("status", "approved")
     .or(filter)
@@ -170,6 +176,8 @@ export function clearWorldPublicFindingCache() {
 }
 
 const DISCOVERY_FIELDS = "id,created_at,kind,statement,contributor,source,source_ref,source_contributor_id,status,privacy_scope,meta,engine_verified,engine_detail,promoted_node_id,value";
+// research_objects has no source join; the contributor is resolved only from the admitted live source.
+const DISCOVERY_TABLE_FIELDS = DISCOVERY_FIELDS.replace(",source_contributor_id", "");
 const TIME = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}(?::?\d{2})?)$/;
 function exactPublicSource(ref) {
   const value = clean(ref);
@@ -186,12 +194,13 @@ async function publicDiscoverySources(client, rows) {
   const admitted = new Map();
   const channels = [...sources.values()].filter((source) => source.family === "channel_updates");
   if (channels.length) {
-    const result = await client.from("channel_updates").select("id,status,channel")
+    const result = await client.from("channel_updates").select("id,status,channel,contributor_id")
       .in("id", channels.map((source) => source.id)).eq("status", "live");
     if (result.error || !Array.isArray(result.data)) throw result.error || new Error("public_sources_unavailable");
     for (const row of result.data) {
       const ref = `channel_updates:${row.id}`;
-      if (sources.has(ref) && row.status === "live" && !worldPreviewMaterialExclusion(row, "source_message")) admitted.set(ref, { sourceRef: ref, sourceHref: null });
+      // contributorId is an internal provenance join (the view's source_contributor_id); never output.
+      if (sources.has(ref) && row.status === "live" && !worldPreviewMaterialExclusion(row, "source_message")) admitted.set(ref, { sourceRef: ref, sourceHref: null, contributorId: clean(row.contributor_id) || null });
     }
   }
   const media = [...sources.values()].filter((source) => source.family === "gallery_images");
@@ -223,6 +232,9 @@ async function publicDiscoverySources(client, rows) {
 /** One paginated discovery lens over existing finding/source identities.
  * Number/text/source/contributor are filters, never graph relations or verification.
  * No contributor filter is imposed unless explicitly requested by a source home.
+ * Two stable tiers (ZURIEL 12.11.2026): Human-Gate verified findings in their existing
+ * newest-first order, then public candidates ("טרם אומת") in the same order. A candidate
+ * page never precedes the end of the verified tier, so candidates cannot displace it.
  */
 export async function fetchWorldPublicFindingsPage({ client = getPublicResearchClient(),
   value = null, query = "", sourceRef = null, contributorId = null, cursor = null, pageSize = 25,
@@ -231,25 +243,69 @@ export async function fetchWorldPublicFindingsPage({ client = getPublicResearchC
   const q = clean(query).replace(/\s+/g, " ");
   const source = sourceRef == null ? null : exactPublicSource(sourceRef);
   const scope = JSON.stringify([value, q, source?.ref || null, contributorId]);
+  const phase = cursor?.phase == null ? "verified" : cursor.phase;
+  const tierStart = cursor?.start === true;
   if (!client || !Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 50
     || (value != null && (!Number.isSafeInteger(value) || value < 0))
     || q.length > 160 || /[\u0000-\u001f]/.test(q)
     || (sourceRef != null && (!source || source.ref !== sourceRef))
     || (contributorId != null && !UUID.test(contributorId))
-    || (cursor && (!UUID.test(cursor.id) || !TIME.test(cursor.createdAt) || cursor.scope !== scope))) {
+    || !["verified", "candidate"].includes(phase)
+    || (cursor && cursor.scope !== scope)
+    || (cursor && tierStart && phase !== "candidate")
+    || (cursor && !tierStart && (!UUID.test(cursor.id) || !TIME.test(cursor.createdAt)))) {
     throw new Error("invalid_public_discovery_page");
   }
-  let request = client.from("world_contributor_research_v1").select(DISCOVERY_FIELDS)
-    .eq("privacy_scope", "public").in("status", PUBLIC_RESEARCH_STATUSES);
-  if (value != null) request = request.eq("value", value);
-  if (contributorId) request = request.eq("source_contributor_id", contributorId);
-  // User text is a literal substring, never an interpolated PostgREST .or().
-  if (q) request = request.ilike("statement", `%${q.replace(/[\\%_*]/g, "\\$&")}%`);
-  if (source) request = request.or(`source_ref.eq.${source.ref},source_ref.like.${source.ref}#%`);
-  if (cursor) request = request.or(`created_at.lt."${cursor.createdAt}",and(created_at.eq."${cursor.createdAt}",id.lt.${cursor.id})`);
-  const result = await request.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(pageSize + 1);
-  if (result.error || !Array.isArray(result.data)) throw result.error || new Error("public_discovery_unavailable");
-  const page = result.data.slice(0, pageSize);
+  // Verified tier: the existing contributor view, unchanged. Candidate tier: the same view when a
+  // contributor scope needs its source join; otherwise research_objects under the same public RLS
+  // (privacy_scope='public', person_only excluded by ro_public_read and again by the filter below).
+  const readTier = async (tier, tierCursor, limit) => {
+    const fromView = tier === "verified" || Boolean(contributorId);
+    // Verified tier: v1, unchanged. Candidate tier inside a contributor scope: v2 (v1 + public candidates), falling back to v1
+    // while v2 does not exist yet - v1 has no public candidates, so the tier is then simply empty.
+    const run = (table) => {
+      let request = client.from(table)
+        .select(fromView ? DISCOVERY_FIELDS : DISCOVERY_TABLE_FIELDS).eq("privacy_scope", "public");
+      request = tier === "verified" ? request.in("status", RESEARCH_VERIFIED_PUBLIC_STATUSES) : request.eq("status", "candidate");
+      if (!fromView) request = request.or("meta->ext->personal_scope->>scope.is.null,meta->ext->personal_scope->>scope.neq.person_only");
+      if (value != null) request = request.eq("value", value);
+      if (contributorId) request = request.eq("source_contributor_id", contributorId);
+      // User text is a literal substring, never an interpolated PostgREST .or().
+      if (q) request = request.ilike("statement", `%${q.replace(/[\\%_*]/g, "\\$&")}%`);
+      if (source) request = request.or(`source_ref.eq.${source.ref},source_ref.like.${source.ref}#%`);
+      if (tierCursor) request = request.or(`created_at.lt."${tierCursor.createdAt}",and(created_at.eq."${tierCursor.createdAt}",id.lt.${tierCursor.id})`);
+      return request.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(limit + 1);
+    };
+    const result = !fromView ? await run("research_objects")
+      : tier === "verified" ? await run(CONTRIBUTOR_RESEARCH_VIEW_FALLBACK)
+      : await readContributorResearchView(run);
+    if (result.error || !Array.isArray(result.data)) throw result.error || new Error("public_discovery_unavailable");
+    return result.data.filter((row) => (tier === "verified"
+      ? RESEARCH_VERIFIED_PUBLIC_STATUSES.includes(clean(row?.status).toLowerCase())
+      : clean(row?.status).toLowerCase() === "candidate"));
+  };
+  const tierCursor = (rows) => {
+    const last = rows.at(-1);
+    if (!UUID.test(clean(last?.id)) || !TIME.test(clean(last?.created_at))) throw new Error("public_discovery_cursor_unavailable");
+    return { id: last.id, createdAt: last.created_at };
+  };
+  let page = [];
+  let nextCursor = null;
+  if (phase === "verified") {
+    const verified = await readTier("verified", cursor, pageSize);
+    page = verified.slice(0, pageSize);
+    if (verified.length > pageSize) nextCursor = { ...tierCursor(page), scope, phase: "verified" };
+  }
+  if (!nextCursor && page.length <= pageSize) {
+    const remaining = pageSize - page.length;
+    const startCursor = phase === "candidate" && !tierStart ? cursor : null;
+    const candidates = await readTier("candidate", startCursor, remaining);
+    const taken = candidates.slice(0, remaining);
+    page = [...page, ...taken];
+    if (candidates.length > remaining) {
+      nextCursor = taken.length ? { ...tierCursor(taken), scope, phase: "candidate" } : { scope, phase: "candidate", start: true };
+    }
+  }
   const checked = (await Promise.all(page.map(async (row) => {
     if (contributorId && row.source_contributor_id !== contributorId) return null;
     if (value != null && (row.value == null || !["number", "string"].includes(typeof row.value)
@@ -265,9 +321,10 @@ export async function fetchWorldPublicFindingsPage({ client = getPublicResearchC
   for (const row of checked) {
     const source = sources.get(exactPublicSource(row.source_ref)?.ref);
     if (!source) { omittedUnavailable = true; continue; }
-    const sourceHref = source.sourceHref || (row.source_contributor_id === ZVI_SOURCE_CONTRIBUTOR_ID
+    const sourceContributorId = row.source_contributor_id ?? source.contributorId ?? null;
+    const sourceHref = source.sourceHref || (sourceContributorId === ZVI_SOURCE_CONTRIBUTOR_ID
       && source.sourceRef.startsWith("channel_updates:") ? contributorSourceLocator(source.sourceRef, { slug: "tzvi-opoc" }).href : null);
-    const finding = projectPublicResearchFinding(row, { ...source, sourceHref });
+    const finding = projectPublicResearchFinding(row, { sourceRef: source.sourceRef, sourceHref });
     if (!finding || seen.has(finding.id)) continue;
     seen.add(finding.id);
     const exactTextFingerprint = groupByExactText ? await exactDisplayedTextFingerprint(row.statement) : null;
@@ -279,11 +336,8 @@ export async function fetchWorldPublicFindingsPage({ client = getPublicResearchC
           : sourceHref ? "exact_channel_occurrence" : "finding_details_only",
       discoveryPath: value == null ? "source-or-text-match" : "via-stored-number-not-direct-topic-edge" }));
   }
-  const hasMore = result.data.length > pageSize;
-  const last = page.at(-1);
-  if (hasMore && (!UUID.test(clean(last?.id)) || !TIME.test(clean(last?.created_at)))) throw new Error("public_discovery_cursor_unavailable");
-  return Object.freeze({ rows, hasMore,
-    nextCursor: hasMore ? { id: last.id, createdAt: last.created_at, scope } : null,
+  const hasMore = Boolean(nextCursor);
+  return Object.freeze({ rows, hasMore, nextCursor,
     omittedForReview: checked.length < page.length, omittedUnavailable,
     coverage: { scope: "existing-public-finding-view", sourceFamilies: ["channel_updates", "gallery_images", "posts"],
       exhaustiveCorpus: false, examined: page.length, returned: rows.length, partial: hasMore || omittedUnavailable || checked.length < page.length },

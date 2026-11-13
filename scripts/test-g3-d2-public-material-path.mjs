@@ -29,8 +29,13 @@ const names = (calls) => calls.map((c) => c.url.split("/").pop().split("?")[0]);
 // 1. allowed: gate is recorded and precedes the provider run; provider span + cost link follow.
 {
   const { mg, calls } = harness();
+  // M0-B (ZURIEL 12.11.2026): a guest identity is the server-salted platform address, never body.visitor_id.
   const caller = await mg.resolveCaller(req({ "x-forwarded-for": "1.2.3.4" }), { visitor_id: "vis1" });
-  assert.deepEqual([caller.identity, caller.tier], ["v:vis1", "anon"]);
+  assert.match(caller.identity, /^ip:[0-9a-f]{64}$/);
+  assert.equal(caller.tier, "anon");
+  assert.equal(caller.visitor, null);
+  const rotated = await mg.resolveCaller(req({ "x-forwarded-for": "1.2.3.4" }), { visitor_id: "vis2" });
+  assert.equal(rotated.identity, caller.identity, "changing visitor_id never yields a fresh identity");
   const trace = await mg.beginTrace({ capability: "c", surface: "s", ownerRef: "o", identityClass: "anon", rootName: "r" });
   const g = await mg.runGate(trace, { capability: "c", caller, budgetKind: "ai_quota", budgetTier: "anon", budgetLimitOverride: conversationalLimit("anon"), budgetIdentity: "v:vis1:lt" });
   assert.equal(g.state, "allowed");
@@ -42,7 +47,7 @@ const names = (calls) => calls.map((c) => c.url.split("/").pop().split("?")[0]);
   assert.ok(order.includes("op_trace_link_ai_cost_v1"), "exact cost linked to the model span");
   const gateCall = calls.find((c) => c.url.includes("fn_capability_execution_gate_v1")).body;
   assert.equal(gateCall.p_budget_limit_override, 40);
-  assert.equal(gateCall.p_visitor, "vis1");
+  assert.equal(gateCall.p_visitor, null);
   const tokenRow = calls.find((c) => c.url.includes("ai_token_log")).body;
   assert.ok(tokenRow.trace_id && tokenRow.span_id && tokenRow.input_tokens === 3, "token log carries trace/span correlation");
 }

@@ -10,6 +10,8 @@ const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY") || "";
 // G3 D2: public material path → canonical server capability gate + Operational Trace (service role only).
 const mg = createMaterialGate({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
 const CAPABILITY = "lab-teacher:chat";
+// M0-B (ZURIEL 12.11.2026): paid AI — verified signed-in users only; per-account + global limits fail CLOSED.
+const PAID_LIMITS = { scope: "lab-teacher", accountLimit: 30, globalLimit: 60, globalDailyCap: 300 };
 const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 const MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
 const FAST_MODEL = (Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5").trim();
@@ -67,9 +69,13 @@ Deno.serve(async (req: Request) => {
     const fast = !!body?.fast;
     const model = fast ? FAST_MODEL : MODEL;
 
-    // G3 D2 — gate BEFORE provider spend; fails closed. Public contract preserved: guests still allowed
-    // (entitlement "public"); metering reuses ai_quota (anti-loop numbers of the ai-analyze guide surface).
+    // M0-B — a guest is refused before any limiter/trace/provider I/O; a verified user passes the per-account
+    // + global limits (fail CLOSED), then the canonical G3 D2 gate (per-account ai_quota) below.
     const caller = await mg.resolveCaller(req, body);
+    const limits = await mg.paidAiLimits(caller, PAID_LIMITS);
+    if (limits.state === "refused") return json({ reply: null, error: "sign_in_required", message: limits.message }, 401);
+    if (limits.state === "unavailable") return json({ reply: null, error: "rate_limit_unavailable" }, 503);
+    if (limits.state === "denied") return new Response(JSON.stringify({ reply: null, error: limits.bucket === "global_daily" ? "daily_cap_reached" : "rate_limited", retry_after_seconds: limits.retryAfter }), { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(limits.retryAfter), ...CORS } });
     const trace = await mg.beginTrace({
       capability: CAPABILITY, surface: "meaning-lab", ownerRef: OWNER_REF,
       identityClass: caller.tier, rootName: "lab-teacher",

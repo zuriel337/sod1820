@@ -1,0 +1,162 @@
+{
+ "purpose": "Unified M0 SQL apply list. Every file is a proposal; nothing here applies SQL. Each step needs ZURIEL's explicit approval; run tests/live/m0_post_apply_verification.sql after each step.",
+ "verification_query": "tests/live/m0_post_apply_verification.sql",
+ "steps": [
+  {
+   "step": "1",
+   "file": "supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql",
+   "sha256": "6d4afa5e8cb38e02d2ece0e7c3d37c7963304a518f3c8fe5ae38abf5494cac07",
+   "rollback": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
+   "rollback_sha256": "6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "P push RPCs exist; P feedback admin-only; P els_records visitor_id hidden",
+   "what": "DEF-001b step 1: feedback admin-only, els_records visitor_id column grant, push RPCs (frontend already calls them with a fallback)"
+  },
+  {
+   "step": "2",
+   "file": "supabase/proposed/20261106131000_def005_revoke_internal_rpcs_from_clients.sql",
+   "sha256": "d87e236981a5e44166003eab04d154a1e6ceab088552bf2df90c91b61e9681d2",
+   "rollback": "supabase/proposed/ROLLBACK_20261106131000_def005.sql",
+   "rollback_sha256": "205b76f706f2abbbff0a425e4c5b6f744b69c7fd8478040b2e8cd94341667566",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "A1 (12 rows + wa_msg_count)",
+   "what": "the twelve system functions server-only (old and new Edge call them with the service role)"
+  },
+  {
+   "step": "3",
+   "file": "supabase/proposed/20261112120000_m0b_ai_quota_fail_closed.sql",
+   "sha256": "63921d3a0691b14e85ee047399ba5a9f9746c97bd6a736faf8afb1503c577c18",
+   "rollback": "supabase/proposed/ROLLBACK_20261112120000_m0b_ai_quota_fail_closed.sql",
+   "rollback_sha256": "edc4eea349e79c3047869aeabfc76c7b70a379b0ef9387f0e599dffc8b8480e6",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "B",
+   "what": "ai_quota_check refuses an empty identity (with the OLD Edge this only refuses unidentified guests, i.e. it is stricter, never looser)"
+  },
+  {
+   "step": "4",
+   "file": "supabase/proposed/20261112130000_m0a_admin_and_account_guards.sql",
+   "sha256": "ad34d69e55c8414c892b19de219727c3176e91e49880d8c77f4ea636cc1b8b9f",
+   "rollback": "supabase/proposed/ROLLBACK_20261112130000_m0a_admin_and_account_guards.sql",
+   "rollback_sha256": "2cdecea692457a30533bd1be01262cadbbba7152ab574e695c84d7227e1c35b5",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "A2, A3, A4",
+   "what": "admin guards, wa_msg_count, link_visitor_identity, gematria_wall private rows"
+  },
+  {
+   "step": "5",
+   "file": "supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql",
+   "sha256": "818c350110b12b1a0b22066aa73c6fb950a3532c4c086c1e208a272fe30e28c1",
+   "rollback": "supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql",
+   "rollback_sha256": "51190d4d20605682448acee7c4bee58eb90a71c924feaa0f358ad142da22b38a",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "A5",
+   "what": "seven Legacy tables closed to client writes, lab_* admin read"
+  },
+  {
+   "step": "6",
+   "file": "supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql",
+   "sha256": "0ed383b016bf9a3f63351a8fe327143112b163ded91c58a87a6b72158921bf4a",
+   "rollback": "supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql",
+   "rollback_sha256": "015de4c2836b8eca81e713ca0d1596704a97d29b2e3d340f747a73063e355dff",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "A6",
+   "what": "seven dormant ALL policies admin-only"
+  },
+  {
+   "step": "7",
+   "file": "supabase/proposed/20261112133000_m0a_add_contribution_client_address.sql",
+   "sha256": "a8da6c8572b1a0eb5741dd54052d5b085a432cb4fc9c620195037f2118dc7d11",
+   "rollback": "supabase/proposed/ROLLBACK_20261112133000_m0a_add_contribution_client_address.sql",
+   "rollback_sha256": "bdf305917ca92fe70a2bd44b77c4402b0186dd30f33d03a5dd4429e8c16ba850",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "A8",
+   "what": "add_contribution guest limit keyed by cf-connecting-ip"
+  },
+  {
+   "step": "8",
+   "file": "supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql",
+   "sha256": "15d2eb42433ceaf43fdddfec6760979365f10611eca4437966127c12c0a76b89",
+   "rollback": "supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql",
+   "rollback_sha256": "44b81f03249be344c5145501578ffd6ef5e359e30c9223ea62b62f25d514bff9",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "C (3 rows)",
+   "what": "gallery uploads by role/path/extension + 120 MiB ceiling; existing objects and public read untouched"
+  },
+  {
+   "step": "9",
+   "file": "supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql",
+   "sha256": "e299af193952d796ec2002381f2d5ac5b7c9444344b28a485cfaf825fb132667",
+   "rollback": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
+   "rollback_sha256": "6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0",
+   "status": "mandatory",
+   "depends_on": [
+    "1",
+    "frontend that calls push_subscription_*_v1 is live (true since 949c24ad5)"
+   ],
+   "verify": "P push_subscriptions anon table access removed",
+   "what": "DEF-001b step 2: anonymous table access to push_subscriptions removed"
+  },
+  {
+   "step": "10",
+   "file": "supabase/proposed/20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql",
+   "sha256": "cd7e57e604103c8c759f49c59ef09ad67d4c9dbf0034d4a7039ba62ab345b1b2",
+   "rollback": "supabase/proposed/ROLLBACK_20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql",
+   "rollback_sha256": "2cc82bc32a2553dbc1196bafdaefe6dde01a93ce9c658249604b9df255479a8a",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "A7",
+   "what": "four inactive cron jobs carrying a URL secret removed (rollback re-creates them inactive, without the secret)"
+  },
+  {
+   "step": "11",
+   "file": "supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql",
+   "sha256": "242511115878f3ff0f8e6ebdf7a68cb2c8052df571e00a5a62f399c7bbf2bfce",
+   "rollback": "supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql",
+   "rollback_sha256": "77ccd15cfb0c2d136ee93ad89b511f1c1a9bd5f73857df747d2e1c99e1c1100f",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "D (v2 exists, admits public candidates, same ACL/options as v1; v1 definition md5 unchanged)",
+   "what": "creates world_contributor_research_v2 = v1 + PUBLIC candidates (status kept); v1 is not changed. The new site reads v2 and falls back to v1 while v2 is missing; a tab still running older code reads v1 only, so apply order relative to the site deploy does not matter (round 3: an in-place change of v1 would have exposed candidates without «טרם אומת» to open old tabs)"
+  },
+  {
+   "step": "12",
+   "file": "supabase/proposed/20261112132000_def005b_revoke_uncalled_client_rpcs_OPTIONAL.sql",
+   "sha256": "265c8ab92f5252408b3094e57fa923ac5d0f96985b0b738ffa45823fbd8ed80b",
+   "rollback": "supabase/proposed/ROLLBACK_20261112132000_def005b.sql",
+   "rollback_sha256": "dbafeabfea62486f47b6d09af527e61a6989c6e23a5789160476100e581e1889",
+   "status": "optional",
+   "depends_on": [],
+   "verify": "(def005b: has_function_privilege for the fifteen names)",
+   "what": "fifteen uncalled helpers server-only; needs its own tick"
+  }
+ ],
+ "deferred_not_in_m0": [
+  {
+   "item": "site Raziel guest sign-in",
+   "why": "lock_raziel_site keeps it closed to all but the admin; changing it rewrites 12 quota/trace tests; decide with the flag opening"
+  },
+  {
+   "item": "admin dashboards reading the new public events",
+   "why": "M1 reader change (visitor_events/page_views -> events)"
+  },
+  {
+   "item": "per-route upload size caps below 120 MiB",
+   "why": "Storage RLS cannot see size; needs client uploads through media-upload-intent (M1)"
+  }
+ ],
+ "rollback_order": [
+  "1. SQL step 11 rollback: drop world_contributor_research_v2 (v1 untouched) - ALWAYS before rolling the site back",
+  "2. Site: re-alias Production to the previous 2029 deployment (read it from get_alias before the forward move)",
+  "3. Edge: redeploy each function from edge-rollback/ (node scripts/m0-edge-rollback-assemble.mjs <slug>), same entrypoint and verify_jwt",
+  "4. Remaining SQL steps in reverse order of the apply list, each with its ROLLBACK file"
+ ],
+ "rollback_order_reason": "The fixed order keeps the public site from ever running code older than the data it reads. With v2 the reverse order is also safe (an old site reads v1 only), but the plan keeps one order so that no rollback depends on that reasoning being re-checked."
+}

@@ -11,6 +11,9 @@ import { normalizeElsMatrixReadingAction } from "../_shared/elsMatrixReadingActi
 import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../_shared/elsRazielOccurrenceContext.js";
 import { readElsRazielReadingContext, elsRazielReadingText } from "../_shared/elsRazielReadingContext.js";
 import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";
+import { enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE } from "../_shared/edgeCallerLimits.js";
+import { publicNumberPageHref } from "../../../src/lib/research/numberPageAddress.js";
+import { readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED } from "../_shared/personalMemoryPolicy.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -785,7 +788,9 @@ function razielSafeSuggestedPaths({
     const href = entry && typeof entry === "object" && typeof (entry as any).href === "string"
       ? (entry as any).href.trim()
       : "";
-    const match = href.match(/^\/2029\/number\/([1-9]\d{0,5})$/);
+    // N14: read both spellings (the composer now emits /number/<n>; older bundles and stored turns carry /2029/number/<n>);
+    // emit only the public address. Same bounds as before: 1..999999, no leading zero, no query, no other path.
+    const match = href.match(/^\/(?:2029\/)?number\/([1-9]\d{0,5})$/);
     const value = match ? Number(match[1]) : 0;
     if (!Number.isSafeInteger(value) || value < 1 || value > 999999) continue;
     actions.push({
@@ -793,7 +798,7 @@ function razielSafeSuggestedPaths({
       label: `פתח את המספר ${value}`,
       icon: "number",
       hint: "עבור לדף המספר הקנוני והמשך משם.",
-      href: `/2029/number/${value}`,
+      href: publicNumberPageHref(value),
     });
     break;
   }
@@ -831,21 +836,35 @@ async function fetchRazielContext(userRef: string, channel: string): Promise<any
   } catch { /* noop */ }
   return null;
 }
-async function razielRemember(userRef: string, channel: string, content: string, topic: string | null = null) {
-  if (!userRef || !content || content.trim().length < 2) return;
+// CL-13 — the database owns the personal-memory decision (fn_personal_memory_policy_v1). Fail-closed: an error, a missing
+// function or a malformed answer all mean "no write, no read".
+async function razielMemoryPolicy(userRef: string | null) {
+  return readPersonalMemoryPolicy(async (fn: string, args: unknown) => {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: "POST", headers: svcHeaders(), body: JSON.stringify(args) });
+    if (!r.ok) throw new Error(`policy_${r.status}`);
+    return await r.json();
+  }, userRef);
+}
+// Returns the id of the stored row, or null (= not saved). The caller decides from the policy whether to call it at all.
+async function razielRemember(userRef: string, channel: string, content: string, topic: string | null = null): Promise<string | null> {
+  if (!userRef || !content || content.trim().length < 2) return null;
   try {
-    await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_remember`, {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_remember`, {
       method: "POST", headers: svcHeaders(),
       body: JSON.stringify({ p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3000), p_memory_type: "conversation", p_scope: "personal", p_topic: topic, p_visibility: "private" }),
     });
-  } catch { /* לא חוסם */ }
+    if (!r.ok) return null;
+    const id = await r.json().catch(() => null);
+    return typeof id === "string" && id ? id : null;
+  } catch { return null; /* לא חוסם */ }
 }
 // זיכרון → טקסט-רקע לפרומפט (רק ב-DM/אתר-מזוהה; פרטי בלבד).
+// CL-13: only a context that passed gatePersonalContext with an explicit permission contributes text (never by default).
 function razielContextText(ctx: any): string {
   if (!ctx) return "";
   const parts: string[] = [];
   const u = ctx.user_context || {};
-  if (ctx.privacy?.personal_memory_allowed !== false) {
+  if (ctx.privacy?.personal_memory_allowed === true) {
     if (u.summary) parts.push(`מה שאתה יודע על המשתמש: ${u.summary}`);
     if (Array.isArray(u.research_threads) && u.research_threads.length) parts.push(`נושאים שחקר לאחרונה: ${u.research_threads.slice(0, 5).join(" · ")}`);
     if (Array.isArray(u.approved_preferences) && u.approved_preferences.length) parts.push(`העדפות מאושרות: ${u.approved_preferences.join(" · ")}`);
@@ -931,10 +950,19 @@ async function resolveIdentity(req: Request, body: any): Promise<{ identity: str
       }
     } catch { /* נופל לאורח */ }
   }
-  const vid = String(body?.visitor_id || "").slice(0, 60);
-  if (vid) return { identity: `v:${vid}`, tier: "anon" };
-  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-  return { identity: ip ? `ip:${ip}` : "", tier: "anon" };
+  // M0-B (ZURIEL 12.11.2026): a public guest is never identified by a browser claim (body.visitor_id,
+  // user-agent or the client-controlled first X-Forwarded-For hop). The guest identity is a salted hash of
+  // the platform client address, so changing visitor_id never resets a quota. Only an internal
+  // service-role caller (a trusted server-to-server path) keeps the historical fallback unchanged.
+  if (isInternalServiceRequest(req)) {
+    const vid = String(body?.visitor_id || "").slice(0, 60);
+    if (vid) return { identity: `v:${vid}`, tier: "anon" };
+    const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+    return { identity: ip ? `ip:${ip}` : "", tier: "anon" };
+  }
+  const clientIp = platformClientIp(req);
+  const hashed = clientIp ? await limiterKey(SB_SVC, "guest-identity", clientIp) : null;
+  return { identity: hashed ? `ip:${hashed}` : "", tier: "anon" };
 }
 
 // ===== Trusted internal channel (WhatsApp transport adapter) — RAZIEL_WHATSAPP_2029_NATIVE_CUTOVER_V2 =====
@@ -1029,18 +1057,32 @@ async function razielSourceStage(uid: string, media: { contribution_id: string; 
   } catch { return fail("source_stage_error"); }
 }
 
-async function checkQuota(identity: string, tier: string, limitOverride: number | null = null): Promise<{ allowed: boolean; used: number; limit: number | null; tier: string }> {
-  // fail-open: אם בדיקת-המכסה נכשלת (DB), לא חוסמים את הפיצ׳ר — אבל הלוג עדיין נספר בהמשך.
+async function checkQuota(identity: string, tier: string, limitOverride: number | null = null, opts: { failOpen?: boolean } = {}): Promise<{ allowed: boolean; used: number; limit: number | null; tier: string; unavailable?: boolean }> {
+  // M0-B: paid AI fails CLOSED — an empty identity, an unreachable or unparsable quota check refuses the
+  // model call. Only the verified trusted WhatsApp channel keeps its historical fail-open (unchanged).
+  const failOpen = opts.failOpen === true;
+  const unavailable = () => failOpen
+    ? { allowed: true, used: 0, limit: null, tier }
+    : { allowed: false, used: 0, limit: null, tier, unavailable: true };
+  if (!failOpen && !String(identity || "").trim()) return unavailable();
   try {
     const r = await fetch(`${SB_URL}/rest/v1/rpc/ai_quota_check`, {
       method: "POST",
       headers: svcHeaders(),
       body: JSON.stringify({ p_identity: identity, p_tier: tier, p_limit_override: limitOverride }),
     });
-    if (!r.ok) return { allowed: true, used: 0, limit: null, tier };
-    return await r.json();
-  } catch { return { allowed: true, used: 0, limit: null, tier }; }
+    if (!r.ok) return unavailable();
+    const q = await r.json();
+    if (failOpen) return q;
+    return q && typeof q.allowed === "boolean" ? q : unavailable();
+  } catch { return unavailable(); }
 }
+// M0-B paid limits for the generic path (observed 60d peak: 98/day, 44/hour, all identities together).
+const GENERIC_PAID_LIMITS = { accountPerHour: 30, globalPerHour: 120, globalPerDay: 600 };
+// M0 (ZURIEL 12.11.2026): the guide (Haiku navigation companion) is paid AI too - same shared limiter, its own counters.
+// 60-day usage: 3 calls, peak 2/hour (op_trace_roots, 12.11.2026). Request limits, not a spend cap (see the M0 AI coverage table).
+const GUIDE_PAID_LIMITS = { accountPerHour: 20, globalPerHour: 60, globalPerDay: 300 };
+const QUOTA_UNAVAILABLE_MESSAGE = "בדיקת המכסה אינה זמינה כרגע. נסו שוב בעוד רגע.";
 
 // ===== 🌳 מטטרון (שלב 1b) — המוח-המשותף: חוקים+עובדות דרך metatron_context =====
 // נתיב-הגימטריה הגנרי (number/compare/verse...) שולף את חוקי-המערכת החיים (ctx.rules) ואת
@@ -1113,8 +1155,8 @@ const RAZIEL_PLAN_FALLBACK = { strategy: "number", anchors_needed: [], tools_nee
 // gets a polite "under construction" contract instead of an actual Claude call — no quota/cost spent on them.
 // Regular (non-advanced) persona="raziel" is completely unaffected — this only gates rMode===true.
 const RAZIEL_ADVANCED_ALLOWLIST = new Set([
-  "02a0d207-0136-4beb-a34d-8ff57d10cd85", // zyz997@gmail.com
-  "b6ce542a-2b07-4749-8aba-532c886f6de7", // yosiviner7@gmail.com
+  "02a0d207-0136-4beb-a34d-8ff57d10cd85", // closed-beta account 1 (owner decision 31.8.2026)
+  "b6ce542a-2b07-4749-8aba-532c886f6de7", // closed-beta account 2 (owner decision 31.8.2026)
 ]);
 const RAZIEL_ADVANCED_GATED_RESPONSE = {
   raziel: { v: 1, agent: "raziel", context: null, greeting: null,
@@ -2602,10 +2644,33 @@ Deno.serve(async (req: Request) => {
       const ask = String(body?.subject || body?.facts || "").slice(0, 400).trim();
       if (!ask) return json({ analysis: null, error: "empty" });
       const { identity, tier } = await resolveIdentity(req, body);
+      // M0 (ZURIEL 12.11.2026, "paid AI only for a signed-in user"): the guide is a paid model call. A guest is refused, and a
+      // signed-in caller passes the shared paid-AI limits (account hour, global hour, global day; fail CLOSED) before the
+      // existing per-account daily anti-loop quota and before any provider call. Internal service calls keep their path.
+      if (!isInternalServiceRequest(req)) {
+        const verifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
+        const paid = await enforcePaidAiLimits({
+          serviceRpc: traceRpc, secret: SB_SVC, scope: "ai-analyze:guide",
+          caller: { verified: !!verifiedRef, userRef: verifiedRef, tier },
+          accountLimit: GUIDE_PAID_LIMITS.accountPerHour, globalLimit: GUIDE_PAID_LIMITS.globalPerHour,
+          globalDailyCap: GUIDE_PAID_LIMITS.globalPerDay,
+        });
+        if (paid.state === "refused") {
+          return json({ analysis: null, error: SIGN_IN_REQUIRED, message: SIGN_IN_REQUIRED_MESSAGE, surface: "guide" }, 401);
+        }
+        if (paid.state === "unavailable") {
+          return json({ analysis: null, error: "rate_limit_unavailable", message: QUOTA_UNAVAILABLE_MESSAGE, surface: "guide" }, 503);
+        }
+        if (paid.state === "denied") {
+          return new Response(JSON.stringify({ analysis: null, error: paid.bucket === "global_daily" ? "daily_cap_reached" : "rate_limited", surface: "guide",
+            retry_after_seconds: paid.retryAfter, message: "הגעת למגבלת המלווה כרגע. נסו שוב מאוחר יותר." }),
+            { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(paid.retryAfter), ...CORS } });
+        }
+      }
       if (tier === "anon" || tier === "user") {   // אנטי-לולאה בלבד, נדיב
-        const q = await checkQuota(`${identity}:g`, tier, tier === "anon" ? 40 : 300);
-        if (!q.allowed) return json({ analysis: null, error: "quota", surface: "guide", tier: q.tier, used: q.used, limit: q.limit,
-          message: "עברת את מכסת המלווה היומית — אבל כל הכלים פתוחים לך למטה." });
+        const q = await checkQuota(identity ? `${identity}:g` : "", tier, tier === "anon" ? 40 : 300);
+        if (!q.allowed) return json({ analysis: null, error: q.unavailable ? "quota_unavailable" : "quota", surface: "guide", tier: q.tier, used: q.used, limit: q.limit,
+          message: q.unavailable ? QUOTA_UNAVAILABLE_MESSAGE : "עברת את מכסת המלווה היומית — אבל כל הכלים פתוחים לך למטה." });
       }
       activeTrace = await beginOperationalTrace({
         body,
@@ -2883,19 +2948,19 @@ Deno.serve(async (req: Request) => {
         const plannerFast = rElsPlanningAction.locked_phrases.length > 0 && rElsPlanningAction.story.length <= 240;
         const plannerLevel = plannerFast ? "fast" : "deep";
         const plannerModel = plannerFast ? FAST_MODEL : MODEL;
-        const budgetIdentity = plannerFast && (tier === "anon" || tier === "user") ? `${identity}:f` : identity;
+        const budgetIdentity = plannerFast && (tier === "anon" || tier === "user") && identity ? `${identity}:f` : identity;
         const limitOverride = plannerFast ? (tier === "anon" ? 30 : tier === "user" ? 200 : null) : null;
         const quota = await checkQuota(budgetIdentity, tier, limitOverride);
         if (!quota.allowed) {
           return rzJson({
             analysis: null,
-            error: "quota",
+            error: quota.unavailable ? "quota_unavailable" : "quota",
             surface: "raziel",
             intelligence_level: plannerLevel,
             tier: quota.tier,
             used: quota.used,
             limit: quota.limit,
-            message: plannerFast
+            message: quota.unavailable ? QUOTA_UNAVAILABLE_MESSAGE : plannerFast
               ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר."
               : "הגעת למכסת שיחות־רזיאל המעמיקות להיום. המכסה מתחדשת מחר.",
           });
@@ -3201,9 +3266,10 @@ Deno.serve(async (req: Request) => {
         ...(rToolRes ? { selected_level: RAZIEL_LEVELS.L3, semantic_level: RAZIEL_TOOL_LEVEL, synthesis_intelligence: RAZIEL_LEVELS.L3, escalation_reason: "tool_research_synthesis" } : {}) };
       // מכסת-AI (ai_quota_law v3) — מהיר: אותו דפוס-מכסה מהיר הקיים (זהות :f · אנונימי 30 · מחובר 200 · אדמין ∞);
       //    עמוק: מסלול המכסה הרגיל/עמוק הקיים (3/15/100/אדמין ∞ לפי ai_quota_check).
-      const rBudgetIdentity = rFast && (tier === "anon" || tier === "user") ? `${identity}:f` : identity;
+      const rBudgetIdentity = rFast && (tier === "anon" || tier === "user") && identity ? `${identity}:f` : identity;
       const rLimitOverride = rFast ? (tier === "anon" ? 30 : tier === "user" ? 200 : null) : null;
-      const q = await checkQuota(rBudgetIdentity, tier, rLimitOverride);
+      // M0-B: fails CLOSED for every site caller; the verified trusted WhatsApp channel is unchanged.
+      const q = await checkQuota(rBudgetIdentity, tier, rLimitOverride, { failOpen: !!rTrusted });
       const userRef = rVerifiedRef;  // זיכרון = למשתמש מזוהה בלבד
 
       // 🚧 סגור לבדיקות (closed beta) — רק mode="advanced", רק לשני החשבונות באלוולט. שאר הבקשות
@@ -3719,8 +3785,8 @@ Deno.serve(async (req: Request) => {
       // AI token; all other denied requests retain the existing quota response unchanged.
       if (!q.allowed) {
         await finishOperationalTrace(activeTrace, "failed_with_reason", "quota");
-        return json({ analysis: null, error: "quota", surface: "raziel", intelligence_level: rLevel, trace_id: activeTrace?.traceId || null, tier: q.tier, used: q.used, limit: q.limit,
-          message: rFast ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר." : "הגעת למכסת שיחות-רזיאל המעמיקות להיום. המכסה מתחדשת מחר." });
+        return json({ analysis: null, error: q.unavailable ? "quota_unavailable" : "quota", surface: "raziel", intelligence_level: rLevel, trace_id: activeTrace?.traceId || null, tier: q.tier, used: q.used, limit: q.limit,
+          message: q.unavailable ? QUOTA_UNAVAILABLE_MESSAGE : rFast ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר." : "הגעת למכסת שיחות-רזיאל המעמיקות להיום. המכסה מתחדשת מחר." });
       }
       const canonicalBundleReady = !!rCanonicalBundlePack;
       if (rNcPairDesc && !canonicalBundleReady) {
@@ -3771,12 +3837,18 @@ Deno.serve(async (req: Request) => {
         }
       }
 
-      const [persona, ctx] = await Promise.all([
+      // CL-13: one policy read (in parallel with the persona, so the paused path costs no extra round trip). It decides
+      // whether an old personal memory joins the prompt and whether this turn is remembered. The stored context is fetched
+      // only with a permission to read, and its personal part survives only when the context itself also allows it.
+      const [persona, rMemoryPolicy] = await Promise.all([
         fetchRazielPersona(rTrusted ? "wa" : "site"),
         userRef && rLegacyPersistentMemoryAllowed
-          ? fetchRazielContext(userRef, rTrusted ? "wa" : "site")
-          : Promise.resolve(null),
+          ? razielMemoryPolicy(userRef)
+          : Promise.resolve(PERSONAL_MEMORY_CLOSED),
       ]);
+      const ctx = gatePersonalContext(
+        rMemoryPolicy.read_personal ? await fetchRazielContext(userRef as string, rTrusted ? "wa" : "site") : null,
+        rMemoryPolicy);
       // Source focus: an attached source is answered from the source + current ask only; personal memory joins only on an explicit continuity cue.
       const ctxText = rTrusted?.media && !rTrusted.continuity ? "" : razielContextText(ctx);
 
@@ -4058,7 +4130,8 @@ Deno.serve(async (req: Request) => {
             ? "personal_area_companion_output_contract_rejected"
             : "numeric_truth_guard_untrusted_literal");
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
-      if (userRef && rSubject && !rTrusted && rLegacyPersistentMemoryAllowed) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
+      // CL-13: nothing is sent to the writer unless the policy allows a new personal-memory row for this person.
+      if (userRef && rSubject && !rTrusted && rLegacyPersistentMemoryAllowed && rMemoryPolicy.write_personal) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
 
       let contract = parseContract(out.text || "");
       const elsOccurrenceReceipt = rElsGroundingRequested && !responseDegraded
@@ -4106,7 +4179,7 @@ Deno.serve(async (req: Request) => {
         // truth law still holds — plan/context_sources describe HOW the answer was built, not facts.
         if (rMode) {
           contract.plan = rPlan;
-          contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
+          contract.context_sources = { canonical: !!rzMtxVersion, personal: !!ctxText, surface: !!surfaceText };
         }
         if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
         return rzJson({ raziel: contract, ...elsOccurrenceReceipt, ...(rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}), evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
@@ -4129,6 +4202,29 @@ Deno.serve(async (req: Request) => {
     if (kind === "contact_triage" && tier !== "admin") {
       return json({ analysis: null, engine, error: "forbidden" }, 403);
     }
+    // M0-B (ZURIEL 12.11.2026): the generic analysis (number page AI and the other generic kinds) is paid AI.
+    // It runs only for a verified signed-in user (JWT verified above; a body claim is never identity), behind
+    // per-account + global hourly buckets and a global daily cap, all failing CLOSED. A trusted internal
+    // service-role server call keeps its existing path unchanged.
+    if (!isInternalServiceRequest(req)) {
+      const verifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
+      const paid = await enforcePaidAiLimits({
+        serviceRpc: traceRpc, secret: SB_SVC, scope: "ai-analyze:generic",
+        caller: { verified: !!verifiedRef, userRef: verifiedRef, tier },
+        accountLimit: GENERIC_PAID_LIMITS.accountPerHour, globalLimit: GENERIC_PAID_LIMITS.globalPerHour,
+        globalDailyCap: GENERIC_PAID_LIMITS.globalPerDay,
+      });
+      if (paid.state === "refused") {
+        return json({ analysis: null, engine, error: SIGN_IN_REQUIRED, message: SIGN_IN_REQUIRED_MESSAGE }, 401);
+      }
+      if (paid.state === "unavailable") {
+        return json({ analysis: null, engine, error: "rate_limit_unavailable", message: QUOTA_UNAVAILABLE_MESSAGE }, 503);
+      }
+      if (paid.state === "denied") {
+        return new Response(JSON.stringify({ analysis: null, engine, error: paid.bucket === "global_daily" ? "daily_cap_reached" : "rate_limited", retry_after_seconds: paid.retryAfter,
+          message: "הגעת למגבלת הניתוחים כרגע. נסו שוב מאוחר יותר." }), { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(paid.retryAfter), ...CORS } });
+      }
+    }
     activeTrace = await beginOperationalTrace({
       body,
       identityClass: tier,
@@ -4149,7 +4245,8 @@ Deno.serve(async (req: Request) => {
     const budgetLimitOverride = isDeep ? null : tier === "anon" ? 30 : tier === "user" ? 200 : null;
     const gate = await traceRpc("fn_capability_execution_gate_v1", {
       p_capability: `ai-analyze:${kind || "analyze"}`,
-      p_flag_key: null,
+      // M0-B: the number-page analysis follows the number page's own server availability flag.
+      p_flag_key: kind === "number" ? "lock_number" : null,
       p_required_entitlement: "public",
       p_user_ref: verifiedUserRef,
       p_visitor: verifiedVisitor,

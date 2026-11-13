@@ -5,19 +5,24 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { renderWhatsappReply, whatsappContinuationLink, hasContinuityCue, hasDepthCue, SOURCE_ACK_TEXT, SOURCE_ACK_TEXT_DOC } from "../_shared/waRazielRender.ts";
+import { readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus } from "../_shared/personalMemoryPolicy.js";
 import {
   parseRazielNavigationRequest, resolveRazielNavigationAction, resolveRazielNavigationFollowUp, razielNavigationNeedsFocus,
   razielNavigationWhatsappText, razielNavigationIsClarification, razielWhatsappVerifiedFocus,
 } from "../_shared/razielNavigationActions.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
-const CHRISTINA_PHONE = "972507555102";
-const AMIT_GROUP = "120363411357326507@g.us";
-const GILUI_GROUP = "120363397037220315@g.us";
-const OPEN_GROUPS = ["120363428363475524@g.us", "120363407205030411@g.us", GILUI_GROUP];
+// M0-B: contact and group identifiers are runtime configuration (Edge secrets), never source literals.
+// Unset → the dependent branch matches nothing (no phone/group is ever guessed). Group handling is also
+// behind GROUPS_ENABLED=false below, so with the secrets set the live behavior is byte-for-byte the same.
+const envText = (name) => (Deno.env.get(name) || "").trim();
+const CHRISTINA_PHONE = envText("WA_RAZIEL_CHRISTINA_PHONE").replace(/[^0-9]/g, "");
+const AMIT_GROUP = envText("WA_RAZIEL_AMIT_GROUP");
+const GILUI_GROUP = envText("WA_RAZIEL_GILUI_GROUP");
+const OPEN_GROUPS = [...envText("WA_RAZIEL_OPEN_GROUPS").split(",").map((g) => g.trim()).filter(Boolean), GILUI_GROUP].filter(Boolean);
 const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
-const ZURIEL = Deno.env.get("ZURIEL_WA") || "972556651237@c.us";
+const ZURIEL = envText("ZURIEL_WA");
 const SITE = "https://sod1820.co.il";
 const MAX_PER_RUN = 2;
 const MAX_DM_CHATS_PER_RUN = 8;
@@ -190,13 +195,27 @@ function extractProfileFacts(text) {
   return out;
 }
 
-async function savePersonalData(userRef, chatId, text) {
-  if (!userRef || clean(text).length < 2) return;
+// CL-13 — the database owns the personal-memory decision (fn_personal_memory_policy_v1); this adapter only asks it.
+// Fail-closed: when the policy cannot be read, nothing personal is written and nothing personal is read.
+async function memoryPolicy(userRef) {
+  return readPersonalMemoryPolicy(async (name, args) => { const { data, error } = await sb.rpc(name, args); if (error) throw error; return data; }, userRef);
+}
+
+// Profile details (D-CL13-3): nothing is extracted, stored or logged unless the policy grants profile facts for THIS person
+// explicitly (a consent to memory is not enough). No "pending candidate" in another store: the [facts-captured] log row is
+// written only for facts that were really saved, and names only those. Returns the kinds that were saved.
+async function savePersonalData(userRef, chatId, text, knownPolicy = null) {
+  if (!userRef || clean(text).length < 2) return [];
+  const policy = knownPolicy ?? await memoryPolicy(userRef);   // the caller may pass the policy it already read for this person
+  if (!policy.write_profile_facts) return [];
   const facts = extractProfileFacts(text);
-  if (!facts.length) return;
+  if (!facts.length) return [];
+  const saved = [];
   for (const f of facts) {
     try {
-      await sb.rpc("fn_raziel_fact", { p_user_ref: userRef, p_channel: chatId, p_kind: f.kind, p_value: f.value.slice(0, 200), p_data: f.data ?? {}, p_visibility: "private" });
+      const { data: factId } = await sb.rpc("fn_raziel_fact", { p_user_ref: userRef, p_channel: chatId, p_kind: f.kind, p_value: f.value.slice(0, 200), p_data: f.data ?? {}, p_visibility: "private" });
+      if (!factId) continue;
+      saved.push(f.kind);
       if (f.kind === "birthday_hebrew" || f.kind === "date_hebrew") {
         const greg = await hebrewToGregorian(f.value);
         if (greg?.he) {
@@ -209,9 +228,11 @@ async function savePersonalData(userRef, chatId, text) {
       }
     } catch { /* noop */ }
   }
+  if (!saved.length) return saved;
   try {
-    await logBot({ group_id: chatId, msg_id: "facts:" + chatId.replace("@c.us", "") + ":" + Date.now(), sender: chatId.replace("@c.us", ""), sender_name: "DM", text_in: text.slice(0, 200), reply_out: "[facts-captured] " + facts.map(f => f.kind).join(","), action: "raziel_facts" });
+    await logBot({ group_id: chatId, msg_id: "facts:" + chatId.replace("@c.us", "") + ":" + Date.now(), sender: chatId.replace("@c.us", ""), sender_name: "DM", text_in: text.slice(0, 200), reply_out: "[facts-captured] " + saved.join(","), action: "raziel_facts" });
   } catch { /* noop */ }
+  return saved;
 }
 
 // Raziel-activity notice: NO direct WhatsApp send. Opt-in admin:raziel_activity preference (default OFF) creates a
@@ -238,13 +259,24 @@ async function hasRazielAccess(sender) {
 async function resolveIdentity(sender) {
   try { const { data } = await sb.rpc("fn_raziel_identity", { p_sender: sender }); return data; } catch { return null; }
 }
+// CL-13 — an old personal memory is read only when the policy allows it for THIS person AND the context says so itself
+// (never in a group). Without that the personal part is empty; the active conversation continues on the provider's own chat
+// history (recentDialogue), which is not stored by us.
 async function getContext(userRef, channel) {
   if (!userRef) return null;
-  try { const { data } = await sb.rpc("fn_raziel_context", { p_user_ref: userRef, p_channel: channel }); return data; } catch { return null; }
+  const policy = await memoryPolicy(userRef);
+  if (!policy.read_personal) return gatePersonalContext(null, policy);
+  try { const { data } = await sb.rpc("fn_raziel_context", { p_user_ref: userRef, p_channel: channel }); return gatePersonalContext(data, policy); } catch { return gatePersonalContext(null, policy); }
 }
-async function remember(userRef, channel, content, memory_type = "conversation", scope = "personal", topic = null) {
-  if (!userRef || !content || content.trim().length < 2) return;
-  try { await sb.rpc("fn_raziel_remember", { p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3000), p_memory_type: memory_type, p_scope: scope, p_topic: topic, p_visibility: "private" }); } catch { /* noop */ }
+// CL-13 — returns the real save status ({ saved, reason }); `saved` is true only when the writer returned the id of a row.
+async function remember(userRef, channel, content, memory_type = "conversation", scope = "personal", topic = null, knownPolicy = null) {
+  if (!userRef || !content || content.trim().length < 2) return personalMemorySaveStatus(null, null);
+  const policy = knownPolicy ?? await memoryPolicy(userRef);
+  if (!policy.write_personal) return personalMemorySaveStatus(policy, null);
+  try {
+    const { data, error } = await sb.rpc("fn_raziel_remember", { p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3000), p_memory_type: memory_type, p_scope: scope, p_topic: topic, p_visibility: "private" });
+    return personalMemorySaveStatus(policy, error ? null : data, error ? "write_failed" : "writer_returned_nothing");
+  } catch { return personalMemorySaveStatus(policy, null); }
 }
 function contextToText(ctx) {
   if (!ctx) return "";
@@ -776,7 +808,7 @@ async function initiativeBudget(chatId) {
 }
 
 async function handleGroup(chatId, nowSec) {
-  const isAmitGroup = chatId === AMIT_GROUP;
+  const isAmitGroup = !!AMIT_GROUP && chatId === AMIT_GROUP;
   let hist; try { hist=await waAdmin("getChatHistory",{chatId,count:20}); } catch { return 0; }
   const msgs = pick(hist).filter((m)=>{
     const typ=m.typeMessage||""; const ok=["textMessage","extendedTextMessage","quotedMessage","imageMessage"].includes(typ);
@@ -788,7 +820,7 @@ async function handleGroup(chatId, nowSec) {
     const snd=m.senderId||chatId; const sname=m.senderName||"";
     const sphone=String(snd).replace(/[^0-9]/g,"");
     const text=m.textMessage||m.extendedTextMessage?.text||m.caption||""; const isImg=m.typeMessage==="imageMessage";
-    const isChristina=String(snd).includes(CHRISTINA_PHONE);
+    const isChristina=!!CHRISTINA_PHONE && String(snd).includes(CHRISTINA_PHONE);
     if (!isImg && clean(text).length>=2) { const id = await resolveIdentity(snd); await remember(id?.user_ref ?? null, chatId, text, "conversation", "personal"); }
     if (isAmitGroup) {
       const triggering = RAZIEL_TRIGGER.test(text);
@@ -814,7 +846,7 @@ async function handleGroup(chatId, nowSec) {
       if (!allowed) { await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:"[no raziel_access]",action:"christina_auto"}); continue; }
     }
     if (isImg&&!clean(text)) {
-      try { await waAdmin("sendMessage",{chatId:ZURIEL,message:`🔔 ${sname||snd} שלח/ה תמונה.`}); } catch { /* noop */ }
+      if (ZURIEL) { try { await waAdmin("sendMessage",{chatId:ZURIEL,message:`🔔 ${sname||snd} שלח/ה תמונה.`}); } catch { /* noop */ } }
       await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,action:"christina_auto",text_in:"[image]",reply_out:"[notified zuriel]"}); n++; continue;
     }
     if (clean(text).length<2) continue;
@@ -932,8 +964,9 @@ async function handleAllDMs(nowSec, policy) {
     if (gotIngest === false) continue;
     const iidn = await resolveIdentity(im.chatId);
     const iref = iidn?.user_ref || ("wa:" + iphone);
-    try { await savePersonalData(iref, im.chatId, itext); } catch { /* noop */ }
-    await remember(iref, im.chatId, itext, "conversation", "personal");
+    const ipolicy = await memoryPolicy(iref);   // CL-13: one policy read for this sender covers both writers below
+    try { await savePersonalData(iref, im.chatId, itext, ipolicy); } catch { /* noop */ }
+    await remember(iref, im.chatId, itext, "conversation", "personal", null, ipolicy);
   }
   const byChat = {};
   for (const m of dms) { const c=m.chatId; if (!byChat[c] || Number(m.timestamp) > Number(byChat[c].timestamp)) byChat[c]=m; }
@@ -999,7 +1032,7 @@ async function handleAllDMs(nowSec, policy) {
           if (res.ok) {
             await clearLinkFlow(phone);
             const nl = res.subscribed ? "\nוצירפתי אותך גם לעדכוני המייל של סוד 1820." : "";
-            msg = `מחובר! מעכשיו אתה מזוהה — בלי הגבלה, וכל המחקר נשמר.${nl}\nאז ספר לי: איזה מספר, שם או רמז מסקרן אותך?\n— רזיאל · סוד 1820`;
+            msg = `מחובר! מעכשיו אתה מזוהה — בלי הגבלה.${nl}\nאז ספר לי: איזה מספר, שם או רמז מסקרן אותך?\n— רזיאל · סוד 1820`;
             outcome = "[link-ok]";
           } else {
             const att = (flow.attempts || 0) + 1;
@@ -1130,7 +1163,7 @@ Deno.serve(async(req)=>{
   try { n+=await handleAllDMs(nowSec, pol); } catch(e){ trace.push({src:"dm",e:String(e)}); }
   if (GROUPS_ENABLED) {
     for (const g of OPEN_GROUPS) { try { n+=await handleGroup(g,nowSec); } catch(e){ trace.push({group:g,e:String(e)}); } }
-    try { n+=await handleGroup(AMIT_GROUP,nowSec); } catch(e){ trace.push({group:"amit",e:String(e)}); }
+    if (AMIT_GROUP) { try { n+=await handleGroup(AMIT_GROUP,nowSec); } catch(e){ trace.push({group:"amit",e:String(e)}); } }
   }
   return new Response(JSON.stringify({replied:n,trace:u.searchParams.get("debug")==="1"?trace:undefined}),{headers:{"Content-Type":"application/json"}});
 });

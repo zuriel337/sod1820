@@ -20,7 +20,7 @@ test("ordinary stage anchors reject missing/duplicated quota and model boundarie
   const stages = ordinaryRazielStages(route);
   assert.ok(stages.deterministic < stages.selector && stages.selector < stages.quota);
   assert.ok(stages.quota < stages.trace && stages.trace < stages.model);
-  const quota = "const q = await checkQuota(rBudgetIdentity, tier, rLimitOverride);";
+  const quota = "const q = await checkQuota(rBudgetIdentity, tier, rLimitOverride, { failOpen: !!rTrusted });";
   assert.throws(() => ordinaryRazielStages(route.replace(quota, "")), /boundary missing/);
   assert.throws(() => ordinaryRazielStages(route + quota), /ambiguous boundary/);
   const model = "const rel = await callClaudeReliable({\n        apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user,";

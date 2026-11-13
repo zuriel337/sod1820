@@ -10,6 +10,7 @@
 // מהיר יותר, וסיכון נמוך יותר לטקסט-ריק.
 import { createMaterialGate, conversationalLimit } from "../_shared/materialGate.js";
 import { createRazielInterview } from "../_shared/razielInterview.js";
+import { readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus } from "../_shared/personalMemoryPolicy.js";
 
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
@@ -20,6 +21,8 @@ const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY") || SB_SVC;
 const mg = createMaterialGate({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
 const interview = createRazielInterview({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
 const CAPABILITY = "number-researcher:chat";
+// M0-B (ZURIEL 12.11.2026): paid AI — verified signed-in users only; per-account + global limits fail CLOSED.
+const PAID_LIMITS = { scope: "number-researcher", accountLimit: 20, globalLimit: 60, globalDailyCap: 300 };
 const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 const H = { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" };
 const CORS = {
@@ -70,8 +73,19 @@ async function uidFromToken(auth: string): Promise<string> {
   } catch { return ""; }
 }
 
-async function loadThreadFull(uid: string, limit = 40): Promise<{ history: { role: string; text: string }[]; snapshot: unknown }> {
-  if (!uid) return { history: [], snapshot: null };
+// CL-13 — the database owns the personal-memory decision (fn_personal_memory_policy_v1). Fail-closed: an error, a missing
+// function or a malformed answer all mean "no write, no read" (readPersonalMemoryPolicy turns a rejection into "closed").
+async function memoryPolicy(uid: string) {
+  return readPersonalMemoryPolicy(async (fn: string, args: unknown) => {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: "POST", headers: H, body: JSON.stringify(args) });
+    if (!r.ok) throw new Error(`policy_${r.status}`);
+    return await r.json();
+  }, uid);
+}
+
+// The stored site thread is personal memory between conversations: it is read only when the policy allows it for this person.
+async function loadThreadFull(uid: string, limit = 40, policy: any = null): Promise<{ history: { role: string; text: string }[]; snapshot: unknown }> {
+  if (!uid || policy?.read_personal !== true) return { history: [], snapshot: null };
   const rows = await rest(`agent_user_memory?user_ref=eq.${encodeURIComponent(uid)}&channel=eq.site&agent=eq.raziel&memory_type=eq.conversation&source=eq.site&select=content,data,created_at&order=created_at.desc,id.desc&limit=${limit}`);
   const history: { role: string; text: string }[] = []; let snapshot: unknown = null;
   if (Array.isArray(rows)) for (const r of [...rows].reverse()) {
@@ -82,11 +96,13 @@ async function loadThreadFull(uid: string, limit = 40): Promise<{ history: { rol
   return { history, snapshot };
 }
 
-async function saveExchange(uid: string, userMsg: string, reply: string, values: number[], snapshot: unknown) {
-  if (!uid || !reply) return false;
+// Returns the id of the stored row, or null. "Saved" is said only for a row the database returned: an HTTP success without a
+// row (a writer that skips silently) is NOT saved. Nothing is sent when the policy does not allow writing.
+async function saveExchange(uid: string, userMsg: string, reply: string, values: number[], snapshot: unknown, policy: any = null): Promise<string | null> {
+  if (!uid || !reply || policy?.write_personal !== true) return null;
   try {
-    const response = await fetch(`${SB_URL}/rest/v1/agent_user_memory`, {
-      method: "POST", headers: { ...H, Prefer: "return=minimal" },
+    const response = await fetch(`${SB_URL}/rest/v1/agent_user_memory?select=id`, {
+      method: "POST", headers: { ...H, Prefer: "return=representation" },
       body: JSON.stringify({
         user_ref: uid, channel: "site", agent: "raziel",
         memory_type: "conversation", memory_scope: "personal", visibility: "private", source: "site",
@@ -95,8 +111,10 @@ async function saveExchange(uid: string, userMsg: string, reply: string, values:
         data: { reply, context_snapshot: snapshot, values },
       }),
     });
-    return response.ok;
-  } catch { return false; /* לא שובר את התשובה */ }
+    if (!response.ok) return null;
+    const rows = await response.json().catch(() => null);
+    return Array.isArray(rows) && rows.length === 1 && typeof rows[0]?.id === "string" ? rows[0].id : null;
+  } catch { return null; /* לא שובר את התשובה */ }
 }
 
 const CORE_RULE_IDS = ["misratar_multi","ribua_definition","method_hierarchy_ragil_foundation","method_priority","messiah_frequency_law","intent_before_compute_law","gematria_engine_law","shitat_haechad_alef_law"];
@@ -221,16 +239,25 @@ Deno.serve(async (req: Request) => {
     if (!ANTHROPIC_KEY) return json({ answer: null, error: "not_configured" });
     const uid = await uidFromToken(req.headers.get("Authorization") || "");
 
-    if (body?.op === "history") { const t = await loadThreadFull(uid); return json({ history: t.history, snapshot: t.snapshot, uid_present: !!uid }); }
+    // CL-13: the stored thread is returned only when the policy allows reading for this person; the caller is told why not.
+    if (body?.op === "history") {
+      const memory = await memoryPolicy(uid);
+      const t = await loadThreadFull(uid, 40, memory);
+      return json({ history: t.history, snapshot: t.snapshot, uid_present: !!uid, memory: { read_allowed: memory.read_personal, reason: memory.read_personal ? null : memory.reason, policy: memory.policy } });
+    }
 
     const values: number[] = (Array.isArray(body?.values) ? body.values : [body?.value])
       .map((x: unknown) => parseInt(String(x), 10)).filter((x: number) => Number.isFinite(x)).slice(0, 3);
     const message = String(body?.message || "").slice(0, 2000);
     if (!values.length && !message) return json({ answer: null, error: "no_value" });
 
-    // G3 D2 — canonical gate BEFORE any context load / provider spend; fails closed. Public contract preserved:
-    // guests may still chat (entitlement "public"); metering reuses ai_quota (ai-analyze guide anti-loop numbers).
+    // M0-B — a guest is refused before any limiter/trace/context/provider I/O; a verified user passes the
+    // per-account + global limits (fail CLOSED), then the canonical G3 D2 gate (per-account ai_quota) below.
     const caller = await mg.resolveCaller(req, body);
+    const limits = await mg.paidAiLimits(caller, PAID_LIMITS);
+    if (limits.state === "refused") return json({ answer: null, error: "sign_in_required", message: limits.message }, 401);
+    if (limits.state === "unavailable") return json({ answer: null, error: "rate_limit_unavailable" }, 503);
+    if (limits.state === "denied") return new Response(JSON.stringify({ answer: null, error: limits.bucket === "global_daily" ? "daily_cap_reached" : "rate_limited", retry_after_seconds: limits.retryAfter }), { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(limits.retryAfter), ...CORS } });
     const trace = await mg.beginTrace({
       capability: CAPABILITY, surface: "raziel-room", ownerRef: OWNER_REF,
       identityClass: caller.tier, rootName: "number-researcher",
@@ -254,12 +281,15 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    const [personaRaw, rctx, knowledge, brainRows] = await Promise.all([
+    // CL-13: one policy read per request (after the gates, in parallel with the persona: no extra round trip while paused).
+    // It decides the stored thread, the personal context and the save. The stored context is fetched only with a permission.
+    const [personaRaw, memory, knowledge, brainRows] = await Promise.all([
       rpc("fn_raziel_persona", { p_channel: "site" }),
-      uid ? rpc("fn_raziel_context", { p_user_ref: uid, p_channel: "site" }) : Promise.resolve(null),
+      memoryPolicy(uid),
       rpc("metatron_context", { p_request: { ask: message, channel: "site", user: { ref: uid }, values } }),
       rest("raziel_brain?id=eq.1&select=voice_version,updated_at"),
     ]);
+    const rctx = uid && memory.read_personal ? await rpc("fn_raziel_context", { p_user_ref: uid, p_channel: "site" }) : null;
     const persona = (typeof personaRaw === "string" && personaRaw.trim()) ? personaRaw.trim() : FALLBACK_PERSONA;
     const brain = Array.isArray(brainRows) && brainRows[0] ? brainRows[0] : {};
 
@@ -276,10 +306,13 @@ Deno.serve(async (req: Request) => {
     const dossierBlock = values.length
       ? values.map((v, i) => fmtDossier(v, dossiers[i])).join("\n\n")
       : "(לא צוין מספר ספציפי)";
-    const memBlock = fmtMemory(rctx);
+    // The personal part of the context survives only with the policy AND the context's own privacy flag (never by default).
+    const pctx = gatePersonalContext(rctx, memory);
+    const memBlock = fmtMemory(pctx);
     const knowBlock = fmtKnowledge(knowledge);
 
-    const dbt = await loadThreadFull(uid, 12);
+    // Without a permission to read the stored thread, the conversation is the turns the client sends (the active conversation).
+    const dbt = await loadThreadFull(uid, 12, memory);
     const clientHist: { role: string; text: string }[] = Array.isArray(body?.history) ? body.history.slice(-8) : [];
     const history = dbt.history.length ? dbt.history.slice(-8) : clientHist;
     const convo = history.map(h => `${h.role === "assistant" ? "רזיאל" : "צוריאל"}: ${h.text}`).join("\n");
@@ -304,7 +337,8 @@ Deno.serve(async (req: Request) => {
 
     const snapshot = {
       persona: { source: "raziel_brain#1", voice_version: brain.voice_version ?? null, updated_at: brain.updated_at ?? null },
-      memory_context: { recent_conversation_n: Array.isArray(rctx?.user_context?.recent_conversation) ? rctx.user_context.recent_conversation.length : 0, summary_present: !!(rctx?.user_context?.summary), refs: uid ? [uid] : [] },
+      memory_context: { recent_conversation_n: pctx.user_context.recent_conversation.length, summary_present: !!pctx.user_context.summary, refs: uid ? [uid] : [],
+        personal_memory_allowed: pctx.privacy.personal_memory_allowed, policy: memory.policy },
       knowledge_context_version: knowledge?.context_version ?? null,
       rules_snapshot: rulesSnap ?? [], engine_snapshot: engineSnap ?? [],
       decisions: Array.isArray(decisions) ? decisions : [],
@@ -314,14 +348,16 @@ Deno.serve(async (req: Request) => {
         basis: "ATTRIBUTED_HUMAN_INTERPRETATION" } } : {}),
     };
 
-    const persisted = uid && text ? await saveExchange(uid, message, text, values, snapshot) : false;
+    const savedId = uid && text ? await saveExchange(uid, message, text, values, snapshot, memory) : null;
+    const saveStatus = personalMemorySaveStatus(memory, savedId);
+    const persisted = saveStatus.saved;
 
     // 🛟 fallback חינני — לעולם לא null לצ׳אט. הדוסייה כבר בידי ה-UI, אז רזיאל מכוון את צוריאל להמשיך.
     const answer = text || (values.length
       ? `רגע — נתקעתי בניתוח של ${values.join(" · ")} (${aiError === "timeout" ? "לקח יותר מדי זמן" : "עומס רגעי"}). הנתונים כבר לפניך בכרטיס. נסה לשלוח שוב, או שאל אותי משהו ממוקד — למשל «מה ההתכנסות הכי חזקה של ${values[0]}?» או «למה זה מעניין?» 🌳`
       : `לא תפסתי מספר לחקור. כתוב לי מספר (למשל 312) ואחקור אותו לעומק — או שאל על מספר שכבר על השולחן. 🌳`);
 
-    return json({ answer, dossiers, values, context_version: ctxVer, model: MODEL, context_snapshot: snapshot, remembered: snapshot.memory_context.recent_conversation_n, persisted, degraded: !text, ai_error: text ? null : aiError });
+    return json({ answer, dossiers, values, context_version: ctxVer, model: MODEL, context_snapshot: snapshot, remembered: snapshot.memory_context.recent_conversation_n, persisted, memory: { saved: saveStatus.saved, read_allowed: memory.read_personal, reason: saveStatus.reason, policy: memory.policy }, degraded: !text, ai_error: text ? null : aiError });
   } catch (e) {
     return json({ answer: "אירעה תקלה רגעית אצלי — נסה שוב בעוד רגע. 🌳", error: String(e).slice(0, 200), degraded: true }, 200);
   }

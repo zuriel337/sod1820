@@ -73,8 +73,11 @@ test("E: real handler supplies completed tool evidence to synthesis once, with q
   for (const name of ["fn_raziel_answer", "ai_quota_check", "fn_raziel_persona", "metatron_context"]) {
     assert.equal(r.calls.filter((c) => c.name === name).length, 1, name);
   }
-  assert.deepEqual(r.calls.find((c) => c.name === "ai_quota_check").payload,
-    { p_identity: "v:fixture-visitor", p_tier: "anon", p_limit_override: null });
+  // M0-B (ZURIEL 12.11.2026): the guest quota identity is the server-salted platform address, never body.visitor_id.
+  const quotaPayload = r.calls.find((c) => c.name === "ai_quota_check").payload;
+  assert.match(quotaPayload.p_identity, /^ip:[0-9a-f]{64}$/);
+  assert.deepEqual({ ...quotaPayload, p_identity: "<server-derived>" },
+    { p_identity: "<server-derived>", p_tier: "anon", p_limit_override: null });
   assert.deepEqual(r.spans.map((s) => [s.p_name, s.p_kind, s.p_outcome, s.p_detail.output_use]), [
     ["ai-analyze:raziel:tool:gematria", "db_rpc", "success", "used"],
     ["ai-analyze:raziel:tool:els", "db_rpc", "success", "used"],

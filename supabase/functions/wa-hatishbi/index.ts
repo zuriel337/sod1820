@@ -10,6 +10,7 @@
 // G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
+import { readPersonalMemoryPolicy, readResearchContext } from "../_shared/personalMemoryPolicy.js";
 
 const ADMIN_KEY = (Deno.env.get('FB_ADMIN_KEY') || '').trim();
 const YISKA = '972508861881@c.us';
@@ -67,10 +68,24 @@ async function optGematria(text: string): Promise<string> {
   return lines.length?`גימטריה (להתייחס במילים אם רלוונטי):\n`+lines.join('\n'):'';
 }
 
+// CL-13 — the database owns the personal-memory decision (fn_personal_memory_policy_v1); fail-closed when it cannot be read.
+const memoryRpc = async (name: string, args: unknown) => { const { data, error } = await sb.rpc(name, args); if (error) throw error; return data; };
+async function memoryPolicy(userRef: string) { return readPersonalMemoryPolicy(memoryRpc, userRef); }
+
+// What is stored about the person joins the prompt only with a permission.
+// - The findings are research output: authorised research may be used during the pause (decision of ZURIEL), so they are read
+//   back through the ONE database reader, which withholds a finding that carries a personal detail unless the person consented.
+// - The earlier questions are personal memory: read only with read_personal.
+// Without a permission the bot answers from the provider's own chat history (thread) only.
 async function yiskaContext(): Promise<string> {
   const p: string[]=[];
-  try { const {data}=await sb.from('agent_user_memory').select('topic,content').eq('agent','hatishbi').eq('user_ref',YISKA).eq('memory_type','research_note').order('created_at',{ascending:false}).limit(6); if(data?.length) p.push('מה שכבר ידוע על יסכה:\n'+data.map((r:any)=>`• ${r.topic}: ${(r.content||'').slice(0,80)}`).join('\n')); } catch {}
-  try { const {data}=await sb.from('agent_user_memory').select('content').eq('agent','hatishbi').eq('user_ref',YISKA).eq('memory_type','conversation').order('created_at',{ascending:false}).limit(4); if(data?.length) p.push('שאלות פתוחות (אל תחזור):\n'+data.map((r:any)=>`• ${r.content}`).join('\n')); } catch {}
+  const policy = await memoryPolicy(YISKA);
+  const research = await readResearchContext(memoryRpc, policy, YISKA, 'hatishbi');
+  const notes = research.rows.filter((r:any)=>r.memory_type==='research_note').slice(0,6);
+  if (notes.length) p.push('מה שכבר ידוע על יסכה:\n'+notes.map((r:any)=>`• ${r.topic}: ${(r.content||'').slice(0,80)}`).join('\n'));
+  if (policy.read_personal) {
+    try { const {data}=await sb.from('agent_user_memory').select('content').eq('agent','hatishbi').eq('user_ref',YISKA).eq('memory_type','conversation').order('created_at',{ascending:false}).limit(4); if(data?.length) p.push('שאלות פתוחות (אל תחזור):\n'+data.map((r:any)=>`• ${r.content}`).join('\n')); } catch {}
+  }
   return p.join('\n\n');
 }
 
@@ -114,8 +129,13 @@ function extractParts(raw: string): {reply:string;learnings:any[];question:strin
 }
 
 async function saveLearnings(learnings:any[],question:string|null) {
-  for(const l of learnings.slice(0,4)){if(!l?.topic)continue;try{await sb.rpc('fn_mem_add',{p_user:YISKA,p_agent:'hatishbi',p_memory_type:'research_note',p_content:String(l.claim||'').slice(0,500),p_topic:String(l.topic).slice(0,100),p_visibility:'private',p_source:'wa',p_data:{interpretation:String(l.interpretation||'').slice(0,800)}});}catch{}}
-  if(question){try{await sb.rpc('fn_mem_add',{p_user:YISKA,p_agent:'hatishbi',p_memory_type:'conversation',p_content:question.slice(0,500),p_visibility:'private',p_source:'wa'});}catch{}}
+  const policy=await memoryPolicy(YISKA);
+  // CL-13 (W4b): research output is stored only with the grant of the policy. The database decides per row: a finding that
+  // carries a personal detail is personal memory and is not stored while personal memory is paused.
+  if(policy.research_output_write) for(const l of learnings.slice(0,4)){if(!l?.topic)continue;try{await sb.rpc('fn_mem_add',{p_user:YISKA,p_agent:'hatishbi',p_memory_type:'research_note',p_content:String(l.claim||'').slice(0,500),p_topic:String(l.topic).slice(0,100),p_visibility:'private',p_source:'wa',p_data:{interpretation:String(l.interpretation||'').slice(0,800)}});}catch{}}
+  // CL-13 (W4a): the question that was asked is personal memory between conversations; it is written only with a permission.
+  // The findings above (W4b) are research output and continue.
+  if(question){if(policy.write_personal){try{await sb.rpc('fn_mem_add',{p_user:YISKA,p_agent:'hatishbi',p_memory_type:'conversation',p_content:question.slice(0,500),p_visibility:'private',p_source:'wa'});}catch{}}}
 }
 
 function thread(msgs:any[],uptoTs:number):string{

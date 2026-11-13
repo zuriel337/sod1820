@@ -139,7 +139,9 @@ test("H: ai-analyze wiring — extends the existing seam, no second router, no r
   assert.doesNotMatch(code, /number_(map|dossier_json)[^\n]*(SB_SVC|svcHeaders)/);
   // the deterministic short-circuit sits AFTER the Phase E span block and BEFORE persona/model work (dependency order gematria → reality)
   assert.ok(edge.indexOf("ai-analyze:raziel:tool:${t.capability}") < edge.indexOf("const rNcDesc"));
-  assert.ok(edge.indexOf("const rNcDesc") < edge.indexOf("const [persona, ctx] = await Promise.all"));
+  // (CL-13: the persona is now fetched together with the personal-memory policy; the anchor is that line, and it must exist)
+  assert.ok(edge.indexOf("const [persona, rMemoryPolicy] = await Promise.all") > 0);
+  assert.ok(edge.indexOf("const rNcDesc") < edge.indexOf("const [persona, rMemoryPolicy] = await Promise.all"));
   // A–G tool_research contract untouched
   assert.match(edge, /RAZIEL_TOOL_LEVEL = "L4_TOOL_RESEARCH"/);
   assert.match(edge, /for \(const t of rToolRes\.tools\)/);

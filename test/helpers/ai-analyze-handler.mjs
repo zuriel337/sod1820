@@ -8,6 +8,7 @@ import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../s
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../src/lib/research/razielGroundedSourceComposer.js";
+import { publicNumberPageHref } from "../../src/lib/research/numberPageAddress.js";
 import {
   RAZIEL_SEMANTIC_INTENT_VERSION,
   isRazielCurrentSurfaceQuestion,
@@ -29,12 +30,17 @@ import { normalizeElsMatrixReadingAction } from "../../supabase/functions/_share
 import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../../supabase/functions/_shared/elsRazielOccurrenceContext.js";
 import { readElsRazielReadingContext, elsRazielReadingText } from "../../supabase/functions/_shared/elsRazielReadingContext.js";
 import { verifyFunctionalPreviewIdentity } from "../../supabase/functions/_shared/functionalPreviewIdentity.js";
+import { enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE } from "../../supabase/functions/_shared/edgeCallerLimits.js";
+import { readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED } from "../../supabase/functions/_shared/personalMemoryPolicy.js";
+import { PAUSED_POLICY, POLICY_FUNCTION_MISSING } from "./personal-memory-policy-fixture.mjs";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 export const USER_JWT = "synthetic-user-jwt";
 export const SERVICE_KEY = "synthetic-service-key";
 export const PRIVATE = "PRIVATE-PAYLOAD-SENTINEL";
+// M0-B: guests are identified by the platform client address (salted hash), never by body.visitor_id.
+export const CLIENT_IP = "192.0.2.10";
 
 export const toolAnswer = () => ({
   enabled: true, mode: "tool_research", needs_synthesis: true,
@@ -70,7 +76,10 @@ export async function runAiAnalyze({
   researchBundleByExpression = {},
   elsVerifyStatus = null,
   researchRunFailure = null, legacyContext = null, genericProviderText = null,
+  memoryPolicy = PAUSED_POLICY,   // CL-13: the answer of fn_personal_memory_policy_v1 (default: the pause of the reviewed proposal)
+  rememberResult = null,          // what fn_raziel_remember returns (the id of the stored row, or null = not saved)
   role = "user", extraRoute = null, envOverrides = {}, previewIdentity = null, previewVerifier = verifyFunctionalPreviewIdentity,
+  clientIp = CLIENT_IP, edgeLimitAllowed = true,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -112,6 +121,9 @@ export async function runAiAnalyze({
           return response({ error: "synthetic trace outage" }, 503);
         }
         switch (name) {
+          case "edge_rate_limit_check":
+            assert.match(payload.p_key_hash, /^[0-9a-f]{64}$/);
+            return response({ allowed: edgeLimitAllowed, count: 1, limit: payload.p_limit, window_seconds: payload.p_window_seconds });
           case "fn_capability_execution_gate_v1":
             if (payload.p_capability === "ai-analyze:raziel:site") {
               assert.equal(payload.p_flag_key, previewIdentity?.verified ? null : "lock_raziel_site");
@@ -122,7 +134,7 @@ export async function runAiAnalyze({
                 message: siteAllowed ? "" : "Synthetic site availability closure",
               } });
             }
-            assert.equal(payload.p_flag_key, null);
+            assert.equal(payload.p_flag_key, payload.p_capability === "ai-analyze:number" ? "lock_number" : null);
             assert.equal(payload.p_required_entitlement, "public");
             assert.equal(payload.p_budget_kind, "ai_quota");
             return response({
@@ -144,8 +156,11 @@ export async function runAiAnalyze({
           case "op_trace_record_span_v1":
           case "op_trace_finish_v1":
           case "op_trace_link_ai_cost_v1": return response({ ok: true });
+          case "fn_personal_memory_policy_v1":
+            assert.equal(call.headers.authorization, `Bearer ${SERVICE_KEY}`, "the policy is read with the service key only");
+            return memoryPolicy === POLICY_FUNCTION_MISSING ? response({ code: "PGRST202", message: "function not found" }, 404) : response(memoryPolicy);
+          case "fn_raziel_remember": return response(rememberResult);
           case "fn_raziel_persona":
-          case "fn_raziel_remember":
           case "metatron_context": return response(null);
           case "fn_raziel_context": return response(legacyContext);
         }
@@ -160,7 +175,7 @@ export async function runAiAnalyze({
     ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 13, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 16, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
@@ -180,6 +195,11 @@ export async function runAiAnalyze({
   assert.ok(imports[10].includes('normalizeElsRazielOccurrence'));
   assert.ok(imports[11].includes('readElsRazielReadingContext'));
   assert.equal(imports[12], 'import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";');
+  assert.equal(imports[13], 'import { enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE } from "../_shared/edgeCallerLimits.js";');
+  // N14: the public number address (pure; no network, no env). Reviewed: it only builds /number/<address>.
+  assert.equal(imports[14], 'import { publicNumberPageHref } from "../../../src/lib/research/numberPageAddress.js";');
+  // CL-13: the Edge half of the personal-memory policy (pure; its only I/O is the RPC the handler passes in). The real module runs.
+  assert.equal(imports[15], 'import { readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED } from "../_shared/personalMemoryPolicy.js";');
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -188,9 +208,12 @@ export async function runAiAnalyze({
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
     verifyFunctionalPreviewIdentity: previewVerifier,
+    enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE,
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
     razielMethodLayerNumbers,
+    publicNumberPageHref,
+    readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED,
     RAZIEL_SEMANTIC_INTENT_VERSION,
     isRazielCurrentSurfaceQuestion,
     resolveRazielCanonicalRequest,
@@ -216,7 +239,7 @@ export async function runAiAnalyze({
   }, { filename: "ai-analyze/index.ts", timeout: 5000 });
   assert.equal(typeof handler, "function");
   const res = await handler(new Request("https://fixture.invalid/functions/v1/ai-analyze", {
-    method: "POST", headers: { "Content-Type": "application/json", ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}), ...(previewIdentity?.token ? {'x-sod-preview-identity':previewIdentity.token} : {}) },
+    method: "POST", headers: { "Content-Type": "application/json", ...(clientIp ? { "cf-connecting-ip": clientIp } : {}), ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}), ...(previewIdentity?.token ? {'x-sod-preview-identity':previewIdentity.token} : {}) },
     body: JSON.stringify({ persona: "raziel", subject: PRIVATE, visitor_id: "fixture-visitor", ...body }),
   }));
   const result = await res.json();

@@ -61,6 +61,15 @@ async function loadEdgeHandler(entry) {
   };
 }
 
+// M0-B (ZURIEL 12.11.2026): journey-message is paid AI and runs only for a verified signed-in user.
+const VERIFIED = { authorization: "Bearer verified-user-token" };
+const VERIFIED_UID = "11111111-1111-4111-8111-111111111111";
+function verifiedIdentityRoute(url) {
+  if (url.endsWith("/auth/v1/user")) return Response.json({ id: VERIFIED_UID });
+  if (url.includes("/rest/v1/users?")) return Response.json([{ role: "user" }]);
+  return null;
+}
+
 function journeyRequest(body, headers = {}) {
   return new Request("https://fixture.test/journey-message", {
     method: "POST",
@@ -180,14 +189,15 @@ test("journey fails closed when the server limiter is unavailable", async (t) =>
   });
   globalThis.fetch = async (input) => {
     calls.push(String(input));
-    return new Response("backend unavailable", { status: 503 });
+    return verifiedIdentityRoute(String(input)) || new Response("backend unavailable", { status: 503 });
   };
 
-  const response = await runtime.handler(journeyRequest({ value: 1820, path: ["א", "ב"] }));
+  const response = await runtime.handler(journeyRequest({ value: 1820, path: ["א", "ב"] }, VERIFIED));
   assert.equal(response.status, 503);
   assert.equal((await response.json()).error, "rate_limit_unavailable");
-  assert.equal(calls.length, 1);
-  assert.match(calls[0], /\/rpc\/edge_rate_limit_check$/);
+  const rpcCalls = calls.filter((url) => url.includes("/rest/v1/rpc/"));
+  assert.equal(rpcCalls.length, 1);
+  assert.match(rpcCalls[0], /\/rpc\/edge_rate_limit_check$/);
 });
 
 test("journey returns 429 + Retry-After without reaching trace, gate or provider", async (t) => {
@@ -199,14 +209,16 @@ test("journey returns 429 + Retry-After without reaching trace, gate or provider
     globalThis.fetch = originalFetch;
   });
   globalThis.fetch = async (input, init = {}) => {
+    const routed = verifiedIdentityRoute(String(input));
+    if (routed) return routed;
     calls.push({ url: String(input), init });
-    return new Response(JSON.stringify({ allowed: false, count: 13, limit: 12, window_seconds: 3600 }), {
+    return new Response(JSON.stringify({ allowed: false, count: 41, limit: 40, window_seconds: 3600 }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
   };
 
-  const response = await runtime.handler(journeyRequest({ value: 1820, path: ["א", "ב"] }));
+  const response = await runtime.handler(journeyRequest({ value: 1820, path: ["א", "ב"] }, VERIFIED));
   assert.equal(response.status, 429);
   assert.ok(Number(response.headers.get("retry-after")) > 0);
   const body = await response.json();
@@ -217,38 +229,34 @@ test("journey returns 429 + Retry-After without reaching trace, gate or provider
   const rpcBody = JSON.parse(calls[0].init.body);
   assert.match(rpcBody.p_key_hash, /^[0-9a-f]{64}$/);
   assert.equal(rpcBody.p_window_seconds, 3600);
-  assert.equal(rpcBody.p_limit, 12);
+  assert.equal(rpcBody.p_limit, 40);
   assert.ok(!calls[0].init.body.includes("203.0.113.9"));
+  assert.ok(!calls[0].init.body.includes(VERIFIED_UID), "the bucket key never carries the raw user id");
 });
 
-test("anonymous limiter key cannot be rotated with user-agent or a spoofed first XFF hop", async (t) => {
+test("a guest is refused with sign_in_required before any limiter, whatever it rotates", async (t) => {
+  // M0-B (ZURIEL 12.11.2026) replaces the former anonymous 12/hour bucket: guests never reach paid AI.
   const originalFetch = globalThis.fetch;
-  const keys = [];
+  const calls = [];
   const runtime = await loadEdgeHandler(journeyEntry);
   t.after(() => {
     runtime.restore();
     globalThis.fetch = originalFetch;
   });
-  globalThis.fetch = async (_input, init = {}) => {
-    keys.push(JSON.parse(init.body).p_key_hash);
-    return Response.json({ allowed: false, count: 13, limit: 12, window_seconds: "invalid" });
+  globalThis.fetch = async (input) => {
+    calls.push(String(input));
+    throw new Error("unexpected fetch");
   };
 
-  const first = await runtime.handler(journeyRequest(
-    { value: 1820, path: ["א", "ב"] },
+  for (const headers of [
     { "x-forwarded-for": "198.51.100.1, 192.0.2.20", "user-agent": "rotating-a" },
-  ));
-  const second = await runtime.handler(journeyRequest(
-    { value: 1820, path: ["א", "ב"] },
     { "x-forwarded-for": "198.51.100.99, 192.0.2.20", "user-agent": "rotating-b" },
-  ));
-
-  assert.equal(first.status, 429);
-  assert.equal(second.status, 429);
-  assert.equal(keys.length, 2);
-  assert.equal(keys[0], keys[1]);
-  assert.match(first.headers.get("retry-after"), /^\d+$/);
-  assert.ok(Number(first.headers.get("retry-after")) >= 1);
+  ]) {
+    const response = await runtime.handler(journeyRequest({ value: 1820, path: ["א", "ב"], visitor_id: headers["user-agent"] }, headers));
+    assert.equal(response.status, 401);
+    assert.equal((await response.json()).error, "sign_in_required");
+  }
+  assert.equal(calls.length, 0, "no limiter, trace, gate or provider I/O for a guest");
 });
 
 test("verified caller receives 40/hour and global denial uses a separate 120/hour bucket", async (t) => {
@@ -307,7 +315,14 @@ test("journey limiter precedes the public/no-budget gate and provider", async (t
 
   globalThis.fetch = async (input, init = {}) => {
     const url = String(input);
+    const routed = verifiedIdentityRoute(url);
+    if (routed) return routed;
     calls.push(url);
+    if (url.endsWith("/rpc/ai_quota_check")) {
+      const quotaBody = JSON.parse(init.body);
+      assert.match(quotaBody.p_identity, /^g:[0-9a-f]{64}$/, "global daily cap uses an opaque server-keyed identity");
+      return Response.json({ allowed: true, used: 1, limit: quotaBody.p_limit_override, tier: quotaBody.p_tier });
+    }
     if (url.endsWith("/rpc/edge_rate_limit_check")) {
       limiterCalls += 1;
       const requestBody = JSON.parse(init.body);
@@ -338,7 +353,7 @@ test("journey limiter precedes the public/no-budget gate and provider", async (t
     throw new Error(`unexpected URL ${url}`);
   };
 
-  const response = await runtime.handler(journeyRequest({ value: 1820, path: ["א", "ב"] }));
+  const response = await runtime.handler(journeyRequest({ value: 1820, path: ["א", "ב"] }, VERIFIED));
   assert.equal(response.status, 200);
   assert.equal((await response.json()).message, "מסר בדיקה");
   assert.equal(limiterCalls, 2, "identity and global buckets must both pass");
@@ -347,17 +362,22 @@ test("journey limiter precedes the public/no-budget gate and provider", async (t
   assert.equal(gateBody.p_budget_kind, "none");
   assert.ok(calls[0].endsWith("/rpc/edge_rate_limit_check"));
   assert.ok(calls[1].endsWith("/rpc/edge_rate_limit_check"));
-  assert.ok(calls.indexOf("https://api.anthropic.com/v1/messages") > 1);
+  assert.ok(calls[2].endsWith("/rpc/ai_quota_check"), "global daily cap follows the hourly buckets");
+  assert.ok(calls.indexOf("https://api.anthropic.com/v1/messages") > 2);
 });
 
-test("journey source keeps free-public semantics while adding atomic containment", () => {
-  assert.match(journeySource, /serviceRpc\("edge_rate_limit_check"/);
+test("journey source keeps its gate semantics while adding signed-in-only atomic containment", () => {
+  // M0-B (ZURIEL 12.11.2026): signed-in only; buckets via the shared decision module over the same limiter.
+  const limitsSource = readFileSync(new URL("../supabase/functions/_shared/edgeCallerLimits.js", import.meta.url), "utf8");
+  assert.match(journeySource, /mg\.paidAiLimits\(caller/);
+  assert.match(limitsSource, /serviceRpc\("edge_rate_limit_check"/);
+  assert.match(journeySource, /if \(!caller\.verified\) return json\(\{ message: null, error: "sign_in_required" \}, 401\)/);
   assert.match(journeySource, /requiredEntitlement:\s*"public",\s*budgetKind:\s*"none"/);
   assert.match(journeySource, /MAX_REQUEST_BYTES = 16 \* 1024/);
-  assert.match(journeySource, /RATE_LIMIT_ANON = 12/);
+  assert.doesNotMatch(journeySource, /RATE_LIMIT_ANON/);
   assert.match(journeySource, /RATE_LIMIT_VERIFIED = 40/);
   assert.match(journeySource, /RATE_LIMIT_GLOBAL = 120/);
-  assert.match(journeySource, /forwarded\.at\(-1\)/);
+  assert.match(limitsSource, /hops\.at\(-1\)/);
   assert.doesNotMatch(journeySource, /anon:\$\{ip\}:\$\{ua\}/);
-  assert.doesNotMatch(journeySource, /captcha|upstash|redis/i);
+  assert.doesNotMatch(journeySource + limitsSource, /captcha|upstash|redis|user-agent"\)/i);
 });

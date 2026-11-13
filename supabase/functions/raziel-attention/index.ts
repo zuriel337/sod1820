@@ -15,6 +15,7 @@
 // תור-חי, לא 3 stores. fmtDigest למטה מנסח את ה-scope בפירוש כדי שרזיאל לא יטעה "כל התור" כש-
 // המדובר בבחירה-ידנית מצומצמת (או להפך).
 import { createMaterialGate } from "../_shared/materialGate.js";
+import { readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus } from "../_shared/personalMemoryPolicy.js";
 
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 let MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
@@ -55,8 +56,19 @@ async function uidFromToken(auth: string): Promise<string> {
 
 // 🧵 אותה שיחה בדיוק כמו number-researcher (agent_user_memory, channel='site', agent='raziel',
 // memory_type='conversation') — "ONE SYSTEM. ONE RAZIEL." לא שיחה נפרדת/מקבילה.
-async function loadThreadFull(uid: string, limit = 40): Promise<{ history: { role: string; text: string }[]; snapshot: unknown }> {
-  if (!uid) return { history: [], snapshot: null };
+// CL-13 — the database owns the personal-memory decision (fn_personal_memory_policy_v1). Fail-closed: an error, a missing
+// function or a malformed answer all mean "no write, no read" (readPersonalMemoryPolicy turns a rejection into "closed").
+async function memoryPolicy(uid: string) {
+  return readPersonalMemoryPolicy(async (fn: string, args: unknown) => {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: "POST", headers: H, body: JSON.stringify(args) });
+    if (!r.ok) throw new Error(`policy_${r.status}`);
+    return await r.json();
+  }, uid);
+}
+
+// The stored site thread is personal memory between conversations: it is read only when the policy allows it for this person.
+async function loadThreadFull(uid: string, limit = 40, policy: any = null): Promise<{ history: { role: string; text: string }[]; snapshot: unknown }> {
+  if (!uid || policy?.read_personal !== true) return { history: [], snapshot: null };
   const rows = await rest(`agent_user_memory?user_ref=eq.${encodeURIComponent(uid)}&channel=eq.site&agent=eq.raziel&memory_type=eq.conversation&source=eq.site&select=content,data,created_at&order=created_at.desc,id.desc&limit=${limit}`);
   const history: { role: string; text: string }[] = []; let snapshot: unknown = null;
   if (Array.isArray(rows)) for (const r of [...rows].reverse()) {
@@ -66,11 +78,13 @@ async function loadThreadFull(uid: string, limit = 40): Promise<{ history: { rol
   }
   return { history, snapshot };
 }
-async function saveExchange(uid: string, userMsg: string, reply: string, snapshot: unknown) {
-  if (!uid || !reply) return;
+// Returns the id of the stored row, or null. "Saved" is said only for a row the database returned; nothing is sent when the
+// policy does not allow writing.
+async function saveExchange(uid: string, userMsg: string, reply: string, snapshot: unknown, policy: any = null): Promise<string | null> {
+  if (!uid || !reply || policy?.write_personal !== true) return null;
   try {
-    await fetch(`${SB_URL}/rest/v1/agent_user_memory`, {
-      method: "POST", headers: { ...H, Prefer: "return=minimal" },
+    const response = await fetch(`${SB_URL}/rest/v1/agent_user_memory?select=id`, {
+      method: "POST", headers: { ...H, Prefer: "return=representation" },
       body: JSON.stringify({
         user_ref: uid, channel: "site", agent: "raziel",
         memory_type: "conversation", memory_scope: "personal", visibility: "private", source: "site",
@@ -79,7 +93,10 @@ async function saveExchange(uid: string, userMsg: string, reply: string, snapsho
         data: { reply, context_snapshot: snapshot, mode: "attention" },
       }),
     });
-  } catch { /* לא שובר את התשובה */ }
+    if (!response.ok) return null;
+    const rows = await response.json().catch(() => null);
+    return Array.isArray(rows) && rows.length === 1 && typeof rows[0]?.id === "string" ? rows[0].id : null;
+  } catch { return null; /* לא שובר את התשובה */ }
 }
 
 const FALLBACK_PERSONA = "אתה רזיאל — עוזר-המחקר וה-Human-Gate של סוד1820.";
@@ -203,7 +220,12 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     const uid = await uidFromToken(req.headers.get("Authorization") || "");
 
-    if (body?.op === "history") { const t = await loadThreadFull(uid); return json({ history: t.history, snapshot: t.snapshot, uid_present: !!uid }); }
+    // CL-13: the stored thread is returned only when the policy allows reading for this person; the caller is told why not.
+    if (body?.op === "history") {
+      const memory = await memoryPolicy(uid);
+      const t = await loadThreadFull(uid, 40, memory);
+      return json({ history: t.history, snapshot: t.snapshot, uid_present: !!uid, memory: { read_allowed: memory.read_personal, reason: memory.read_personal ? null : memory.reason, policy: memory.policy } });
+    }
 
     // 🔐 Admin-gate: מצב-קשב חושף תור-אדמין (WarRoom) — אסור-דליפה לנתיב-הציבורי של AskRaziel.
     // מראה (mirror) בדיוק את דפוס-הזיהוי הקיים ב-number-researcher (users?select=role).
@@ -218,18 +240,23 @@ Deno.serve(async (req: Request) => {
     const digest = body?.digest && typeof body.digest === "object" ? body.digest : null;
 
     const domains = detectDomains(message);
-    const [personaRaw, rctx, relevantRules] = await Promise.all([
+    // CL-13: one policy read per request (after the admin gate, in parallel with the persona: no extra round trip while paused).
+    // It decides the stored thread, the personal context and the save. The stored context is fetched only with a permission.
+    const [personaRaw, memory, relevantRules] = await Promise.all([
       rpc("fn_raziel_persona", { p_channel: "site" }),
-      uid ? rpc("fn_raziel_context", { p_user_ref: uid, p_channel: "site" }) : Promise.resolve(null),
+      memoryPolicy(uid),
       rpc("fn_raziel_relevant_rules", { p_query: message, p_domains: domains, p_limit: 8 }),
     ]);
+    const rctx = uid && memory.read_personal ? await rpc("fn_raziel_context", { p_user_ref: uid, p_channel: "site" }) : null;
     const persona = (typeof personaRaw === "string" && personaRaw.trim()) ? personaRaw.trim() : FALLBACK_PERSONA;
 
-    const memBlock = fmtMemory(rctx);
+    // The personal part of the context survives only with the policy AND the context's own privacy flag (never by default).
+    const memBlock = fmtMemory(gatePersonalContext(rctx, memory));
     const rulesBlock = fmtRules(relevantRules);
     const digestBlock = fmtDigest(digest);
 
-    const dbt = await loadThreadFull(uid, 12);
+    // Without a permission to read the stored thread, the conversation is the turns the client sends (the active conversation).
+    const dbt = await loadThreadFull(uid, 12, memory);
     const clientHist: { role: string; text: string }[] = Array.isArray(body?.history) ? body.history.slice(-8) : [];
     const history = dbt.history.length ? dbt.history.slice(-8) : clientHist;
     const convo = history.map(h => `${h.role === "assistant" ? "רזיאל" : "צוריאל"}: ${h.text}`).join("\n");
@@ -263,11 +290,12 @@ Deno.serve(async (req: Request) => {
       model: MODEL,
     };
 
-    if (uid && rawText) await saveExchange(uid, message, rawText, snapshot);
+    const savedId = uid && rawText ? await saveExchange(uid, message, rawText, snapshot, memory) : null;
+    const saveStatus = personalMemorySaveStatus(memory, savedId);
 
     const answer = rawText || `רגע — נתקעתי לרגע בעיבוד התור (${aiError === "timeout" ? "לקח יותר מדי זמן" : "עומס רגעי"}). נסה שוב, או שאל אותי משהו ממוקד יותר על התור. 🌳`;
 
-    return json({ answer, context_snapshot: snapshot, model: MODEL, persisted: !!(uid && rawText), degraded: !rawText, ai_error: rawText ? null : aiError });
+    return json({ answer, context_snapshot: snapshot, model: MODEL, persisted: saveStatus.saved, memory: { saved: saveStatus.saved, read_allowed: memory.read_personal, reason: saveStatus.reason, policy: memory.policy }, degraded: !rawText, ai_error: rawText ? null : aiError });
   } catch (e) {
     return json({ answer: "אירעה תקלה רגעית אצלי — נסה שוב בעוד רגע. 🌳", error: String(e).slice(0, 200), degraded: true }, 200);
   }
