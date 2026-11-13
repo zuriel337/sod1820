@@ -6,7 +6,7 @@
 //   engine   the unit's claims, each with the engine's own state (the approved words are not touched);
 //   share    the EXISTING ShareActions, with the unit's own link and its royal card (the existing /api/card, variant "unit").
 // Preview only: it mounts only when the unit element exists, and that exists only in the protected Preview build.
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ShareActions from "../ShareActions.jsx";
@@ -92,18 +92,17 @@ function Sources() {
   </section>;
 }
 
-// Progressive disclosure of the CANONICAL method trace of one claim (the same projection and visual family the Beit Midrash and the Number page use).
-// Nothing is fetched until the reader asks; the method comes from the engine's own resolution of the SOURCE's method text (never inferred from the
-// target number); on any missing/failed/unsupported/mismatched trace the panel says so and invents no step.
-function ClaimTrace({ claim }) {
+// The CANONICAL method trace of one claim (the same projection and visual family the Beit Midrash and the Number page use).
+// `auto` (the focal numbers in the unit body): the breakdown is OPEN in front of the reader and is fetched only when it scrolls near the screen.
+// Otherwise (the engine panel): it opens on request. The method comes from the engine's own resolution of the SOURCE's method text (never inferred
+// from the target number); on any missing/failed/unsupported/mismatched trace the panel says so and invents no step.
+function ClaimTrace({ claim, auto = false }) {
   const shell = use2029Shell();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(auto);
   const [state, setState] = useState({ phase: "idle" });
-  const toggle = async () => {
-    const next = !open;
-    setOpen(next);
-    if (!next || state.phase === "ready" || state.phase === "loading") return;
-    setState({ phase: "loading" });
+  const hostRef = useRef(null);
+  const load = async () => {
+    setState((current) => (current.phase === "idle" ? { phase: "loading" } : current));
     try {
       const check = await checkSourceHint({ expression: claim.phrase, stated: claim.number, methodText: claim.methodText });
       const methodKey = check?.method?.key;
@@ -114,9 +113,18 @@ function ClaimTrace({ claim }) {
       setState(model.state === "ready" ? { phase: "ready", model, check, trace, methodKey } : { phase: "unavailable" });
     } catch { setState({ phase: "unavailable" }); }
   };
+  useEffect(() => {
+    if (!auto || state.phase !== "idle") return undefined;
+    const node = hostRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") { load(); return undefined; }
+    const observer = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { observer.disconnect(); load(); } }, { rootMargin: "300px 0px" });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [auto, state.phase, claim.id]);
+  const toggle = () => { const next = !open; setOpen(next); if (next && state.phase === "idle") load(); };
   const model = state.model;
-  return <div className="sod29-pu-trace" data-trace-state={state.phase}>
-    <button type="button" className="sod29-pu-trace-btn" aria-expanded={open} onClick={toggle}>{open ? "הסתר את החישוב" : "איך הגענו למספר?"}</button>
+  return <div className="sod29-pu-trace" data-trace-state={state.phase} data-trace-auto={auto ? "true" : undefined} ref={hostRef}>
+    {!auto ? <button type="button" className="sod29-pu-trace-btn" aria-expanded={open} onClick={toggle}>{open ? "הסתר את החישוב" : "איך הגענו למספר?"}</button> : null}
     {open && state.phase === "loading" ? <p role="status" className="sod29-pu-sources-note">פותח את צעדי החישוב…</p> : null}
     {open && state.phase === "unavailable" ? <p role="status" className="sod29-pu-sources-note">פירוט החישוב אינו זמין כרגע. לא הומצאו צעדים חלופיים.</p> : null}
     {open && state.phase === "ready" ? <div className="sod29-pu-trace-body">
@@ -177,7 +185,7 @@ export default function PreviewUnitExtras2029({ rootRef, post, htmlKey }) {
     {hosts.images ? createPortal(<Images />, hosts.images) : null}
     {hosts.sources ? createPortal(<Sources />, hosts.sources) : null}
     {hosts.engine ? createPortal(<Engine />, hosts.engine) : null}
-    {traces.map(({ node, claim }) => createPortal(<ClaimTrace claim={claim} />, node))}
+    {traces.map(({ node, claim }) => createPortal(<ClaimTrace claim={claim} auto />, node))}
     {hosts.share ? createPortal(<Share unit={unit} post={post} postPath={postPath} />, hosts.share) : null}
   </React.Fragment>)}</>;
 }
