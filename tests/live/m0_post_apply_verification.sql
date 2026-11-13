@@ -18,6 +18,11 @@ union all select 'A1b no unreviewed overload carries one of the twelve reviewed 
       ('snapshot_seo_wave(integer,integer)'), ('fn_detect_patterns(integer,text)'), ('fn_detect_pattern_contradictions()'), ('fn_scan_reeval(text,text)'),
       ('fn_outbox_bump(text)'), ('fn_raziel_claim(text)'), ('fn_raziel_claims_gc()'), ('ai_quota_check(text,text,integer)'), ('router_rate_check(uuid,integer)')) v(s)
       where to_regprocedure('public.' || s) is not null)
+union all select 'A1c apply record intact (the definition is the one the apply recorded): ' || s.sig,
+  substring(obj_description(to_regprocedure(s.sig), 'pg_proc') from '^DEF-005 applied; def_md5=([0-9a-f]{32}); orig_b64=') = md5(pg_get_functiondef(to_regprocedure(s.sig)))
+  from (values ('public.fn_edge_grant_audit()'), ('public.fn_rls_grant_audit()'), ('public.check_security_spike()'), ('public.snapshot_seo_wave(integer,integer)'),
+    ('public.fn_detect_patterns(integer,text)'), ('public.fn_detect_pattern_contradictions()'), ('public.fn_scan_reeval(text,text)'), ('public.fn_outbox_bump(text)'),
+    ('public.fn_raziel_claim(text)'), ('public.fn_raziel_claims_gc()'), ('public.ai_quota_check(text,text,integer)'), ('public.router_rate_check(uuid,integer)')) s(sig)
 union all select 'A2 admin guard admin_resolve_translit', md5(pg_get_functiondef('public.admin_resolve_translit(text,text,boolean)'::regprocedure)) = '29151b32c06ed3c36fab0211f243403b'
 union all select 'A2 admin guard admin_ai_cost', md5(pg_get_functiondef('public.admin_ai_cost(integer)'::regprocedure)) = 'd33b0bfbaf9d1f39177333bef3024b9f'
 union all select 'A3 link_visitor_identity no overwrite', md5(pg_get_functiondef('public.link_visitor_identity(text)'::regprocedure)) = '310dde303e978757604318a3f82a652a'

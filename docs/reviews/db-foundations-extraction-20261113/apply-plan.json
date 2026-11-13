@@ -29,14 +29,16 @@
    "tests": [
     "tests/sql/def005_public_rpc_guards_v1.sql",
     "tests/sql/m0a_db_permissions_v1.sql",
-    "test/def005-rpc-grants-contract.test.mjs"
+    "test/def005-rpc-grants-contract.test.mjs",
+    "tests/live/def005_pre_apply_definitions.sql"
    ],
-   "verify": "A1 (12 rows), A1b (no unreviewed overload)",
+   "verify": "A1 (12 rows), A1b (no unreviewed overload), A1c (apply record intact); before the apply: tests/live/def005_pre_apply_definitions.sql",
    "live_state_13_11": "reviewed baseline matches: 12 signatures exist, SECURITY DEFINER, owner postgres, anon/authenticated/service_role can execute, no same-name overload",
-   "what": "the twelve system functions become server-only (anon and authenticated lose EXECUTE, service_role gets it explicitly); selected by exact signature; stops before any change on a missing signature, an unreviewed same-name overload or a drifted function",
-   "sha256": "65ed780e9010a1a77d256a21579d29353bf6b5dc9f2f24af063dee062f00c741",
-   "rollback_sha256": "fdcf029d823512e394edc13f918aa36d8a09883b80a426d6a046a2ac74eca272",
-   "status": "mandatory"
+   "what": "the twelve system functions become server-only (anon and authenticated lose EXECUTE, service_role gets it explicitly); selected by exact signature; stops before any change on a missing signature, an unreviewed same-name overload, a drifted function (kind, security mode, owner, ACL) or a mixed state; records the md5 of each definition and the original comment in a COMMENT on the function; the rollback refuses (before any change) any function whose owner, security mode or definition is not the recorded one",
+   "sha256": "2ef8971de82bf5d94ff3dfea60be7487a7eccab05b9b72e1003c9696d077024a",
+   "rollback_sha256": "77a63b8bdba1f3a5b9fa3d8d5dca185e3edd461ac5a5ccbbd2a8c22fe2251f88",
+   "status": "mandatory",
+   "limit": "the file holds no reviewed text of the twelve bodies: a body replaced BEFORE the apply is not detected by the apply; the operator compares the md5 values printed by the pre-apply query with the reviewed ones"
   },
   {
    "step": "4",

@@ -33,14 +33,15 @@ evidence documents (`docs/reviews/m0-security-stabilization-20261112/cluster-A-d
 **Not in this package, on purpose:** step 3 (M0-B AI quotas), step 12 (DEF-005b, the fifteen optional helpers; its file and rollback are not on the branch), step 11
 (M0-D view → package P3), the CL-13 database proposal, every Edge bundle (live `wa-raziel` v22 and `ai-analyze` v92 must not be replaced), the G1/CL-16 files (package P2).
 
-## 2. The DEF-005 fix (Codex review findings F1/F2)
+## 2. The DEF-005 fix (Codex findings F1/F2 and CR-X1)
 
 * **Apply** selects by `to_regprocedure('public.fn(args)')`, never by `proname`. It stops **before any change** when (1) a reviewed signature is missing,
   (2) *any other* function in `public` carries one of the twelve names (an unreviewed overload such as `fn_outbox_bump(integer)` is outside the approval),
   or (3) a reviewed function is not a plain `SECURITY DEFINER` function owned by `postgres` whose effective permissions are exactly the live "before"
-  state (anon, authenticated and service_role can execute) or the "after" state. Then it changes exactly the twelve oids and checks the result. A second run is a no-op.
-* **Rollback** is limited to the same twelve signatures; it refuses a missing signature or a drifted state and proves that the ACL text of every other
-  function that shares a reviewed name is unchanged — so it cannot open a function that was created after the review (the old name-based rollback gave `PUBLIC` execute to such a function).
+  state (anon, authenticated and service_role can execute) or the "after" state, or the twelve are not all in one of those two states. Then it changes exactly the twelve oids and checks the result.
+* **What the apply does not check (stated, review finding CR-X1):** the file holds no reviewed text of the twelve **bodies**, so a body replaced *before* the apply (same signature, owner, security mode) is accepted. The operator reads the md5 of the twelve definitions with `tests/live/def005_pre_apply_definitions.sql` immediately before the apply and compares them with the reviewed values.
+* **What the apply records instead:** a `COMMENT` on each of the twelve functions — `DEF-005 applied; def_md5=<md5 of the definition it found>; orig_b64=<the original comment, base64, or ->`. This is metadata of the same twelve objects (no definition, owner or privilege changes); it is part of what this approval covers and is removed by the rollback. A re-run of the apply accepts the applied state only if every definition still has its recorded md5.
+* **Rollback** is limited to the same twelve signatures and **refuses before any change** unless every function is exactly what the apply recorded: kind, `SECURITY DEFINER`, owner `postgres`, definition md5 (a body replaced with `CREATE OR REPLACE` is refused), the apply record present (a function dropped and re-created is refused), and the twelve in one state (a mixed state is refused). Then it restores the privileges **and the original comment**, so the state is exactly the original; it proves that the ACL text of every other function that shares a reviewed name is unchanged (a later service-only overload stays service-only). If all twelve are open without a record it does nothing, so a second run is safe.
 * The 12.11 ACLs were `NULL` for ten functions and `{=X/postgres,postgres=X/postgres}` for two; `GRANT` cannot recreate `NULL`, so the tests compare **effective** permissions.
 
 ## 3. Dependencies, apply order, rollback
@@ -61,8 +62,8 @@ evidence documents (`docs/reviews/m0-security-stabilization-20261112/cluster-A-d
 
 | Command | Result |
 |---|---|
-| `node --test test/p1-db-foundations-package.test.mjs test/def005-rpc-grants-contract.test.mjs test/m0a-db-permissions-contract.test.mjs test/m0c-gallery-upload-contract.test.mjs` | 24 tests (7 + 4 + 5 + 8), all pass |
-| `tests/sql/def005_public_rpc_guards_v1.sql` (before / apply / re-run / guards G1–G6 / rollback R1–R4 / exact-12 changed set / kept-public functions still callable) | PASS on PG16 and PG17; **fails loudly** when the apply file's overload check is disabled (mutation run) |
+| `node --test test/p1-db-foundations-package.test.mjs test/def005-rpc-grants-contract.test.mjs test/m0a-db-permissions-contract.test.mjs test/m0c-gallery-upload-contract.test.mjs` | 25 tests (8 + 4 + 5 + 8), all pass |
+| `tests/sql/def005_public_rpc_guards_v1.sql` (before / apply / re-run / guards G1–G6 and GA1–GA4 / rollback R1–R10 / apply record / exact-12 changed set / kept-public functions still callable / original comment restored) | PASS on PG16 and PG17; **fails loudly** when the overload check, the definition check, the owner/security-mode check or the mixed-state check is disabled (four mutation runs) |
 | `bash scripts/run-m0a-db-permissions-sql-test.sh` (steps 2, 4, 5, 6, 7, 10: apply, re-run, drift stop, exact rollback, public reads kept) | ALL PASS on PG16 and PG17 |
 | `bash scripts/run-def004-gallery-sql-test.sh` (27 route cases before, 108 after for image / video / file × every route × every actor, 27 after rollback; negative mode: an object above 120 MiB stops the proposal; negative control) | PASS (PG17) |
 | `tests/sql/def001_…`, `def001b_…` (steps 1 and 9, already in CI) | PASS on PG16 and PG17 |
@@ -87,6 +88,8 @@ CI wiring (applied in this branch, `live-contracts-2029.yml`): one node step "DB
 * **D-3 — approval grouping.** Steps 1+9 and 2+4+5+6+7+10 are code-wise independent of the site; step 8 waits for D-1. ZURIEL decides the ticks.
 
 ## 8. Known gaps (stated, not hidden)
+
+* **Bodies before the apply (CR-X1):** not verifiable by the file (no reference text); the pre-apply query and the operator's comparison close it. Bodies **after** the apply are protected by the record.
 
 * The SQL tests run on a throwaway PostgreSQL with fixtures for `storage`, `cron` and the Supabase roles; they are not a run against Supabase itself. The live read-only checks in §6 cover the preconditions the files re-check at apply time.
 * `test/def005-rpc-grants-contract.test.mjs` and `test/m0a-db-permissions-contract.test.mjs` are text scans of shipped code: a function name built dynamically at run time cannot be excluded by a scan.

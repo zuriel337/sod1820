@@ -68,15 +68,31 @@ test("the live verification query covers this package only and checks signatures
 
 test("DEF-005 apply and rollback are read-only until every check passed (all refusals come before the first revoke/grant)", () => {
   const apply = read("supabase/proposed/20261106131000_def005_revoke_internal_rpcs_from_clients.sql");
-  const firstChange = apply.search(/execute format\('revoke all/);
+  const firstChange = apply.search(/execute format\('comment on function/);
   for (const marker of ["reviewed signature(s) missing", "unreviewed function(s) with a reviewed name", "drifted from the reviewed baseline"]) {
     const at = apply.indexOf(marker);
     assert.ok(at > 0 && at < firstChange, `${marker} is raised before the first change`);
   }
   const rb = read("supabase/proposed/ROLLBACK_20261106131000_def005.sql");
   const firstRb = rb.search(/execute format\('grant execute/);
-  for (const marker of ["reviewed signature(s) missing", "neither the applied nor the original state"]) {
+  for (const marker of ["reviewed signature(s) missing", "not in the state the apply recorded"]) {
     const at = rb.indexOf(marker);
     assert.ok(at > 0 && at < firstRb, `${marker} is raised before the first change`);
   }
+});
+
+test("CR-X1: the apply records the definition md5 and the rollback refuses a state the apply did not record, before any change", () => {
+  const apply = read("supabase/proposed/20261106131000_def005_revoke_internal_rpcs_from_clients.sql");
+  const rb = read("supabase/proposed/ROLLBACK_20261106131000_def005.sql");
+  for (const text of [apply, rb]) assert.match(text, /DEF-005 applied; def_md5=/, "both files use the same record prefix");
+  // everything the rollback checks is checked before the first privilege or comment change
+  const firstRb = rb.search(/execute format\('grant execute/);
+  for (const marker of ["changed since the apply: kind", "definition changed since the apply", "without the apply record", "mixed state"]) {
+    const at = rb.indexOf(marker);
+    assert.ok(at > 0 && at < firstRb, `${marker} is raised before the first change`);
+  }
+  // the apply does not promise a body check it cannot make
+  assert.match(apply, /holds no reviewed text of the twelve BODIES/);
+  assert.match(read("tests/live/m0_post_apply_verification.sql"), /A1c apply record intact/);
+  assert.ok(fs.existsSync(path.join(root, "tests/live/def005_pre_apply_definitions.sql")), "the operator's pre-apply query exists");
 });
