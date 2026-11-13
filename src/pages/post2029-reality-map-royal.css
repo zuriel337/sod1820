@@ -352,22 +352,26 @@
 .sod29-gx-word{display:grid;gap:.35rem;justify-items:center;inline-size:100%}
 .sod29-gx-word-label{margin:0;font:700 1rem/1.4 var(--s29-font-ui,inherit);color:var(--s29-muted)}
 .sod29-gx-word-label b{font-family:var(--s29-font-numeric,var(--s29-font-ui));color:var(--r29-gold-ink)}
-.sod29-gx-letters{list-style:none;margin:0 auto;padding:0;display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,56px));gap:6px;justify-content:center;inline-size:100%;max-inline-size:380px;perspective:520px}
-.sod29-gx-letters li{display:flex;flex-direction:column;align-items:center;min-inline-size:0;padding:8px 4px;border-radius:14px;line-height:1.1;
+/* FIXED RULE: a row of letters (and the equation row) is ALWAYS one line; where the screen is narrower it scrolls sideways (never wraps). Centred as a tower. */
+.sod29-gx-letters{list-style:none;margin:0 auto;padding:6px 4px 10px;display:flex;flex-wrap:nowrap;gap:8px;justify-content:safe center;inline-size:100%;overflow-x:auto;overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;perspective:520px;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--r29-gold) 45%,transparent) transparent}
+.sod29-gx-letters:focus-visible{outline:2px solid var(--s29-focus-ring,var(--r29-gold));outline-offset:2px;border-radius:12px}
+.sod29-gx-letters li{flex:0 0 auto;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;min-inline-size:52px;padding:8px 8px;border-radius:14px;line-height:1.1;
   color:var(--r29-gold-ink);background:linear-gradient(180deg,color-mix(in srgb,var(--r29-gold) 16%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 7%,var(--s29-panel)));
   border:1px solid color-mix(in srgb,var(--r29-gold) 50%,transparent);box-shadow:0 8px 14px -8px color-mix(in srgb,var(--r29-gold) 60%,transparent),inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent);
   transform-origin:50% 100%;animation:sod29-gx-rise .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 70ms)}
 .sod29-gx-letters li i{font-style:normal;font:800 clamp(1.4rem,5.8vw,1.9rem)/1.1 var(--s29-font-display,var(--s29-font-ui,inherit))}
 .sod29-gx-letters li small{margin-top:3px;font:700 max(.8rem,13px)/1.2 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;color:var(--s29-muted)}
 @keyframes sod29-gx-rise{from{opacity:0;transform:rotateX(-62deg) translateY(10px) scale(.92)}to{opacity:1;transform:none}}
-.sod29-gx-eq{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-top:.2rem}
+.sod29-gx-eq{display:flex;flex-wrap:nowrap;gap:8px;justify-content:safe center;align-items:center;margin-top:.2rem;inline-size:100%;overflow-x:auto;padding:4px}
+.sod29-gx-eq>*{flex:0 0 auto}
 .sod29-gx-tile{display:inline-flex;align-items:center;justify-content:center;min-block-size:44px;padding:6px 14px;border-radius:12px;font:800 clamp(1.1rem,4.6vw,1.45rem)/1.1 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;
   color:var(--r29-azure);background:color-mix(in srgb,var(--r29-sapphire) 14%,transparent);border:1px solid color-mix(in srgb,var(--r29-azure) 45%,transparent)}
 .sod29-gx-plus{font:800 1.25rem/1 var(--s29-font-ui);color:var(--s29-muted)}
 .sod29-gx-big{display:inline-block;font:850 clamp(2.6rem,12vw,3.8rem)/1.05 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;color:var(--r29-gold);
   text-shadow:0 0 28px color-mix(in srgb,var(--r29-gold) 55%,transparent)}
 :is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-gx-big{text-shadow:none;color:var(--r29-gold-ink)}
-.sod29-gx-cap{margin:0;max-inline-size:34rem;font-size:max(1rem,15px);line-height:1.8;color:var(--s29-ink)}
+.sod29-gx-cap{margin:0;max-inline-size:34rem;font-size:max(1rem,15px);line-height:1.8;color:var(--s29-ink);text-align:center}
 @media (prefers-reduced-motion:reduce){.sod29-gx-letters li{animation:none}}
 /* The engine-state controls inside the unit's own engine panel follow the same look the source units give them (those rules are scoped to .sod29-source-unit). */
 .sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-source-unit-hint{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:6px 0}
