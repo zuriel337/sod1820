@@ -1,0 +1,38 @@
+{
+ "purpose": "Track G' (CL-16 / B4): the rule guard extension, a SEPARATE database step with its own apply plan and its own rollback. A proposal; nothing here applies SQL. It runs only with ZURIEL's explicit approval of this exact file (CLAUDE.md 0.4). Nothing in M0 depends on it and it depends on nothing in M0 (docs/reviews/contracts-enforcement-20261113/cl16-database-step.md).",
+ "depends_on_tracks": [],
+ "sequencing": {
+  "relative_to_M0": "free. The earlier rule 'apply after M0 SQL steps 1-10' is an ordering preference, not a dependency: no M0 SQL file reads or writes public.nodes, public.work_log or public.project_codex, and CL-16 changes no grant, policy, table or function other than the guard and the triggers of public.nodes (checked by scripts/run-g1-rule-guard-sql-test.sh against docs/reviews/contracts-enforcement-20261113/cl16-rule-tree-writers.json).",
+  "must_precede_cl16": [
+   "supabase/proposed/20261111120100_system_suggestions_law_v7_decision_record_only.sql (already applied live: system_suggestions_law v7 is active in the 12.11.2026 laws snapshot)"
+  ],
+  "runs_only_before_cl16_or_after_its_rollback": [
+   "supabase/proposed/ROLLBACK_20261111120100_system_suggestions_law_v7.sql (reactivates v6; refused by CL-16 as a revival)"
+  ],
+  "code_side": "none: the CI checks (scripts/test-g1-agent-routing-smoke.mjs, docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-ci-scenarios.sh) read dated repository records and the proposal file, never the live guard. The code package can be merged before, after or without this step."
+ },
+ "test": "bash scripts/run-g1-rule-guard-sql-test.sh (lifecycle: 25 cases, each run of the two files with an expected outcome; also checks that the sha256 values in this plan are the files and that no other SQL file touches the rule tree unreviewed) and bash docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-db-scenarios.sh (72 cases, live vs applied, with refusal reasons); bash scripts/run-g1-laws-snapshot-reader-test.sh (database row -> guard -> snapshot reader -> G1, 18 checks); bash docs/reviews/contracts-enforcement-20261113/cl16-order-evidence/run.sh (the two interactions with the law v7 supersession and its rollback)",
+ "steps": [
+  {
+   "step": "G1",
+   "file": "supabase/proposed/20261112200000_g1_rule_guard_cl16.sql",
+   "sha256": "0d7725919540cb98ed344f9e9dd9f3d2ba217c4de30d9cf86a702156f66eff63",
+   "rollback": "supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql",
+   "rollback_sha256": "60aa076c22461b80c97f8d91ff28f9e8a2b5c98268ff8d6a0a6e8b8c1611a2c5",
+   "status": "proposed",
+   "depends_on": [],
+   "verify": "function md5 90b5917b1412be02f66d1f805241018c; the two trigger texts in the file header, both enabled; owner, privileges, search_path, volatility unchanged (all checked inside the file). The md5 is identical on throwaway PostgreSQL 16.15 and 17.12; live is 17.6 (not run there). If the live server printed the new body differently, the file would stop on its own postcondition and change nothing.",
+   "what": "Extend the live rule guard (same function, same trigger, plus a TRUNCATE trigger): rule identity immutable; body and owner immutable within a version (no exception); revival of a retired family needs a verdict and an approval reference; DELETE/TRUNCATE refused; the owner resolves and its chain ends at a valid root (no retired or missing link at any depth, no cycle); a document owner is registered (already named by an active rule) or authorized (approval reference); the successor of a retired rule is recorded in metadata.retired_routing_v1 only, with a resolving approval. A rule row without a rule_id cannot be created or be active. Rows that are not rules are not blocked.",
+   "preflight": "Fail-closed: the file continues only when the state is exactly BEFORE or exactly AFTER. A missing function, a changed body, a changed trigger text, a MISSING trigger and a DISABLED trigger (also replica-only) all stop it before anything changes; the same holds for the rollback."
+  }
+ ],
+ "rollback_order": [
+  "1. ROLLBACK file of step G1 (restores the live 12.11.2026 function body and trigger exactly; drops the TRUNCATE trigger)"
+ ],
+ "not_undone_by_rollback": "metadata.rule_guard stamps written on retirements and metadata.retired_routing_v1 records written while the extension was applied (audit metadata; the live guard ignores both keys)",
+ "not_enforced_by_this_step": [
+  "Retiring an owner that active rules still route to is not refused by the row trigger (it cannot tell a retirement from the first half of a supersession); the CI snapshot check refuses the resulting tree and the next write to such a child is refused.",
+  "That the referenced work_log row really is ZURIEL's approval (human gate).",
+  "Anything done by a role that can DISABLE TRIGGER, replace the function or write with session_replication_role = replica. Read-only on 12.11.2026: public.nodes and the function are owned by postgres (the role of the SQL editor and of the MCP execute_sql / apply_migration tools), which can do the first two; service_role is not the owner and cannot; only a superuser can set session_replication_role (no parameter grant exists)."
+ ]
+}

@@ -44,8 +44,29 @@ jobs:
       # so it is fetched first. The SHA is read from G1's own captured baseline, so the fixture stays the single source.
       - name: G1 captured main commit (the one commit the G1 smoke reads with git show; depth 1, no tags)
         run: git fetch --no-tags --depth=1 origin "$(node -p "require('./audits/g1-agent-entry/G1_ROUTING_LIVE_BASELINE_20261009.json').main_sha")"
+      # 12.11.2026: the G1 base-vs-head checks compare the PR head with its REAL base (dated records, contract changes, laws snapshots).
+      # The base is the PR base commit; on a manual dispatch it is the tip of main. Depth 1, no tags. Without it the test FAILS in CI.
+      - name: G1 base commit (the PR base, or main on a manual dispatch; depth 1, no tags)
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          BASE="${PR_BASE_SHA:-$(git ls-remote origin refs/heads/main | cut -f1)}"
+          git fetch --no-tags --depth=1 origin "$BASE"
+          echo "G1_BASE_SHA=$BASE" >> "$GITHUB_ENV"
       - name: G1 agent-routing smoke (the owner index and the adapters route to live owners, keep their safety literals, and the captured adapter blobs stay exact)
         run: node --test scripts/test-g1-agent-routing-smoke.mjs
+      # The G1 enforcement code changed: its end-to-end proof runs on that exact head. Each scenario is the real G1 smoke on a real base and head
+      # in a temporary worktree (local commits only, nothing is pushed); each has an expected outcome and a refusal must be for its reason.
+      # Any unexpected outcome, or a scenario that did not run, fails. Needs bash, git (worktree), python3, node: all on ubuntu-latest.
+      - name: G1 enforcement scenarios (only when the enforcement code changes; 53 scenarios on this exact head, each must refuse or allow as recorded)
+        run: |
+          if git diff --name-only "$G1_BASE_SHA" HEAD -- scripts/lib/g1LawsSnapshotRules.mjs scripts/test-g1-agent-routing-smoke.mjs docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-ci-scenarios.sh | grep -q .; then
+            bash docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-ci-scenarios.sh
+          else
+            echo "The G1 enforcement code is unchanged against $G1_BASE_SHA: the scenarios are not needed for this change."
+          fi
+      - name: Contracts and enforcement package pins (package scope and counts, CL-16 independence, required-checks definition)
+        run: node --test test/contracts-enforcement-package-2029.test.mjs test/required-checks-definition-2029.test.mjs
 
   perf-contracts-2029:
     name: perf-contracts-2029
@@ -316,6 +337,14 @@ jobs:
         run: bash scripts/run-gilui-yomi-kandro-sql-test.sh
       - name: Group images and videos (proposal; text arrivals byte-identical; only a verified, approved, unheld writer's image or video with a recorded public copy at the exact path and of the same type and size; every gate refuses; hold and takedown; grants; the 10.11 backfill; both roll back exactly; live functions byte for byte)
         run: bash scripts/run-group-source-media-sql-test.sh
+      - name: G1 rule guard (CL-16) proposal lifecycle (25 cases; a missing function, drift, a MISSING or DISABLED trigger stop both files; exact apply, no-op re-apply, exact rollback; the apply plan sha256 values are the files; no other SQL file touches the rule tree unreviewed)
+        run: bash scripts/run-g1-rule-guard-sql-test.sh
+      - name: G1 rule guard (CL-16) case matrix, live vs applied (72 cases x 2 variants, each with an expected outcome and refusal reason)
+        run: bash docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-db-scenarios.sh
+      - name: G1 successor of a retired rule, end to end (database row, guard, snapshot reader, G1; 18 checks with expected outcomes)
+        run: bash scripts/run-g1-laws-snapshot-reader-test.sh
+      - name: CL-16 order evidence (the guard against the law v7 supersession and its rollback; 4 cases)
+        run: bash docs/reviews/contracts-enforcement-20261113/cl16-order-evidence/run.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).
