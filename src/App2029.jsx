@@ -164,9 +164,18 @@ function RouteErrorBoundary2029({ children }) {
   return <ErrorBoundary2029 resetKey={pathname}>{children}</ErrorBoundary2029>;
 }
 
+// One first-party page view per history entry. The effect below runs again whenever this component is mounted again, and a mount is
+// not a page view: until 13.11.2026 the component sat inside ResearchProvider, whose keyed child is replaced when the account
+// state resolves ("auth:pending" -> guest/account), so every direct entry and refresh wrote two visits. It is now mounted beside
+// that subtree, and this record keeps a second mount (or a development double effect) from counting the same entry twice.
+let measuredEntry2029 = null;
+// A redirect hop (an alias address that is replaced at once) is not a page view either: the visit is written only if the address
+// is still the same after this delay.
+const PAGE_VIEW_SETTLE_MS = 150;
+
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
-  const { pathname } = useLocation();
+  const { pathname, key: entryKey } = useLocation();
   const auth = useAuth();
   const measurementAuth = React.useRef(auth);
   measurementAuth.current = auth;
@@ -194,8 +203,12 @@ function RouteEffects2029() {
       // First-party visit + engagement on the privacy-normalized route label only (no raw slug,
       // query or identity). visits.js stays out of the opening graph; engagement carries no
       // visitor/session identity, matching the worker's exact admission.
-      void import("./lib/visits.js").then(({ trackVisit }) => trackVisit(telemetryPath)).catch(() => {});
-      startPageEngagement(telemetryPath, { getSodIdFn: () => null, sessionIdFn: () => null });
+      const entry = `${entryKey}\n${pathname}`;
+      const settle = measuredEntry2029 === entry ? null : setTimeout(() => {
+        measuredEntry2029 = entry;
+        void import("./lib/visits.js").then(({ trackVisit }) => trackVisit(telemetryPath)).catch(() => {});
+        startPageEngagement(telemetryPath, { getSodIdFn: () => null, sessionIdFn: () => null });
+      }, PAGE_VIEW_SETTLE_MS);
       // Keep the public home's primary content ahead of the optional Google
       // script. A canceled navigation cannot initialize a stale page view.
       let stopped = false, timer, observer, idle;
@@ -216,7 +229,7 @@ function RouteEffects2029() {
         observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
         observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
       } else schedule();
-      return () => { stopped = true; observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
+      return () => { stopped = true; clearTimeout(settle); observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
     }
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
@@ -328,8 +341,9 @@ export default function App2029() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        {/* Measurement stays outside ResearchProvider: its keyed subtree is replaced when the account state resolves. */}
+        <RouteEffects2029 />
         <ResearchProvider>
-          <RouteEffects2029 />
           <InstallSuggestionMount2029 />
           <Awakening2029 />
           {/* One temporary in-memory Raziel session is projected by both desktop and mobile chrome. */}

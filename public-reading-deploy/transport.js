@@ -73,6 +73,27 @@ function installPublicReadingWorker(policy) {
     const source = new URL(client.url);
     return source.origin === self.location.origin ? readingTelemetryPath(source.pathname) : null;
   };
+  // A window of the public site, whatever address it was opened on. Client.url is the address the document was CREATED with;
+  // it does not follow in-app navigation (history.pushState). Requiring a visit's or an action's route to equal it refused
+  // every page view and action after an in-app move to another page family (found 13.11.2026), so those are bound to the
+  // window and to a per-window budget instead. Hard-load Web Vitals keep measurementClient: their route IS the creation address.
+  const measurementWindow = async event => {
+    if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return false;
+    const client = await self.clients.get(event.clientId);
+    return Boolean(client && client.type === "window" && new URL(client.url).origin === self.location.origin);
+  };
+  const visitWindows = new Map();
+  const withinWindowBudget = (windows, clientId, limit) => {
+    const now = Date.now();
+    for (const [key, value] of windows) if (now - value.at > 600000) windows.delete(key);
+    let record = windows.get(clientId);
+    if (!record) {
+      if (windows.size >= 500) return false;
+      record = { at: now, count: 0 };
+      windows.set(clientId, record);
+    }
+    return ++record.count <= limit;
+  };
   // Existing Community contracts restored from the accepted working weekly
   // Preview. This admits only explicit authenticated Community operations;
   // the canonical RPCs retain authorship, moderation and ownership authority.
@@ -282,29 +303,21 @@ function installPublicReadingWorker(policy) {
         const body = url.pathname.endsWith("/contact_messages") && Array.isArray(parsed) && parsed.length === 1 ? parsed[0] : parsed;
         if (!plainObject(body)) return denied();
         const anonymous = () => readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
-        // First-party visit counter: exact track_visit shape, bound to the sending window's normalized route.
+        // First-party visit counter: exact track_visit shape from a window of the public site, at most 120 per window per 10 minutes.
         if (url.pathname.endsWith("/track_visit"))
-          return policy.anonKey && readingVisitBody(body) && await measurementClient(event) === body.p_path ? anonymous() : denied();
+          return policy.anonKey && readingVisitBody(body) && await measurementWindow(event)
+            && withinWindowBudget(visitWindows, event.clientId, 120) ? anonymous() : denied();
         if (beaconKey && body.p_surface !== "page") return denied();
         if (url.pathname.endsWith("/ingest_event") && body.p_surface === "page") {
           // Page engagement is flushed on route change (the window has already moved on) or at pagehide,
-          // so it is bound to an admitted public-site window rather than to that window's current route.
-          return policy.anonKey && readingEngagementBody(body) && await measurementClient(event) !== null ? anonymous() : denied();
+          // so it is bound to a public-site window rather than to that window's current route.
+          return policy.anonKey && readingEngagementBody(body) && await measurementWindow(event) ? anonymous() : denied();
         }
-        // Product actions and public content views (ZURIEL 12.11.2026): the exact bounded family, bound to the sending window's
-        // normalized route, anonymous key only, at most 60 per window per 10 minutes.
+        // Product actions and public content views (ZURIEL 12.11.2026): the exact bounded family from a window of the public
+        // site, anonymous key only, at most 60 per window per 10 minutes.
         if (url.pathname.endsWith("/ingest_event") && readingActionBody(body)) {
-          if (!policy.anonKey || await measurementClient(event) !== body.p_path) return denied();
-          const now = Date.now();
-          for (const [key, value] of actionWindows) if (now - value.at > 600000) actionWindows.delete(key);
-          let windowRecord = actionWindows.get(event.clientId);
-          if (!windowRecord) {
-            if (actionWindows.size >= 500) return denied();
-            windowRecord = { at: now, count: 0 };
-            actionWindows.set(event.clientId, windowRecord);
-          }
-          if (++windowRecord.count > 60) return denied();
-          return anonymous();
+          if (!policy.anonKey || !await measurementWindow(event)) return denied();
+          return withinWindowBudget(actionWindows, event.clientId, 60) ? anonymous() : denied();
         }
         if (url.pathname.endsWith("/ingest_event")) {
           if (body.p_surface === "performance") {

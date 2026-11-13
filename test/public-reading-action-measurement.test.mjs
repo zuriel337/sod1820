@@ -66,7 +66,7 @@ test("the validator accepts exactly the projected shapes and refuses identity, r
   assert.ok(!Object.keys(readingActionSpec()).some(s => ["page", "performance", "issue_report"].includes(s)));
 });
 
-test("the worker forwards an action once with only the anon key, bound to the sending window's normalized route", async () => {
+test("the worker forwards an action once with only the anon key, from a window of the public site", async () => {
   const h = harness();
   const body = action("calculator_2029", "first_compute", { surface: "classic", method: "ragil" });
   const response = await h.post("/rest/v1/rpc/ingest_event", body, { headers: { authorization: "Bearer account-jwt", apikey: "account-key" } });
@@ -78,9 +78,18 @@ test("the worker forwards an action once with only the anon key, bound to the se
   assert.deepEqual(JSON.parse(await forwarded.text()), body);
 });
 
-test("the worker refuses a mismatched window, a non-public origin, the beacon address and free fields", async () => {
+// An action after an in-app navigation: the window was created on a post and the visitor moved to the calculator in the app.
+// Client.url still says the post, so binding the action to it refused every such action (found 13.11.2026).
+test("the worker forwards an action from a window that was opened on another route", async () => {
   const body = action("calculator_2029", "first_compute", { surface: "classic" });
-  assert.equal((await harness({ clientUrl: SITE + "/post/some-slug" }).post("/rest/v1/rpc/ingest_event", body)).status, 403);
+  const h = harness({ clientUrl: SITE + "/post/some-slug" });
+  assert.equal((await h.post("/rest/v1/rpc/ingest_event", body)).status, 200);
+  assert.equal(h.calls.length, 1);
+});
+
+test("the worker refuses a window of another origin, a non-public origin, the beacon address and free fields", async () => {
+  const body = action("calculator_2029", "first_compute", { surface: "classic" });
+  assert.equal((await harness({ clientUrl: "https://other-site.invalid/gematria" }).post("/rest/v1/rpc/ingest_event", body)).status, 403);
   assert.equal((await harness({ origin: "https://sod1820-abc-sod1820-s-projects.vercel.app" }).post("/rest/v1/rpc/ingest_event", body)).status, 403);
   const h = harness();
   assert.equal((await h.post("/rest/v1/rpc/ingest_event?apikey=" + ANON, body)).status, 403);

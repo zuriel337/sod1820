@@ -11,10 +11,10 @@ const API = "https://linswmnnkjxvweumprav.supabase.co";
 const ANON = "synthetic-public-anon-key";
 const sha = "a".repeat(40);
 
-function harness({ origin = SITE, anonKey = ANON, clientUrl = SITE + "/post/some-slug" } = {}) {
+function harness({ origin = SITE, anonKey = ANON, clientUrl = SITE + "/post/some-slug", clientType = "window" } = {}) {
   const listeners = {}, calls = [];
   vm.runInNewContext(buildPublicReadingWorker(sha, { anonKey }), { self: { location: { origin }, skipWaiting() {},
-    clients: { claim: () => Promise.resolve(), get: async id => id === "window" ? { type: "window", url: clientUrl } : undefined },
+    clients: { claim: () => Promise.resolve(), get: async id => id.startsWith("window") ? { type: clientType, url: clientUrl } : undefined },
     addEventListener: (name, handler) => { listeners[name] = handler; } },
     URL, Response, Request, Set, Map, JSON, fetch: async (...args) => { calls.push(args); return new Response("{}", { status: 200 }); } });
   return { calls, async post(path, body, { clientId = "window", headers = {} } = {}) {
@@ -38,7 +38,7 @@ test("validators accept exactly the emitted shapes", () => {
   assert.equal(readingEngagementBody({ ...engagement, p_props: { ...engagement.p_props, flush_reason: "pagehide" } }), true);
 });
 
-test("visit is forwarded once with only the public anon key, bound to the sending window's normalized route", async () => {
+test("visit is forwarded once with only the public anon key, from a window of the public site", async () => {
   const h = harness();
   const response = await h.post("/rest/v1/rpc/track_visit", visit, { headers: { apikey: ANON, Authorization: "Bearer member-session-token" } });
   assert.equal(response.status, 200);
@@ -50,7 +50,33 @@ test("visit is forwarded once with only the public anon key, bound to the sendin
   assert.deepEqual(JSON.parse(await forwarded.text()), visit);
 });
 
-test("visit rejects raw slugs, extra fields, identity-like values, a query, a mismatched window or a non-public origin", async () => {
+// Client.url is the address the document was created with and does not follow in-app navigation (history.pushState): a visit sent
+// after moving in the app from /gallery to a post must be counted. Until 13.11.2026 the worker required the visit's route to equal
+// the creation address and refused it (measured in a real browser: test/measurement-visit-once-2029.browser.mjs).
+test("visit after an in-app navigation is forwarded: the window was opened on another route, or on a route that is not measured", async () => {
+  for (const clientUrl of [SITE + "/gallery", SITE + "/", SITE + "/login"]) {
+    const h = harness({ clientUrl });
+    assert.equal((await h.post("/rest/v1/rpc/track_visit", visit)).status, 200, clientUrl);
+    assert.equal(h.calls.length, 1, clientUrl);
+    assert.equal(h.calls[0][0].headers.get("authorization"), "Bearer " + ANON);
+  }
+});
+
+test("visit is refused from a window of another origin and from a client that is not a window; the same visit from a site window passes", async () => {
+  assert.equal((await harness({ clientUrl: "https://other-site.invalid/post/some-slug" }).post("/rest/v1/rpc/track_visit", visit)).status, 403);
+  assert.equal((await harness({ clientType: "worker" }).post("/rest/v1/rpc/track_visit", visit)).status, 403);
+  assert.equal((await harness().post("/rest/v1/rpc/track_visit", visit)).status, 200);
+});
+
+test("visits are capped at 120 per window per 10 minutes; another window has its own budget", async () => {
+  const h = harness();
+  let accepted = 0;
+  for (let i = 0; i < 130; i++) if ((await h.post("/rest/v1/rpc/track_visit", visit)).status === 200) accepted++;
+  assert.equal(accepted, 120);
+  assert.equal((await h.post("/rest/v1/rpc/track_visit", visit, { clientId: "window-2" })).status, 200);
+});
+
+test("visit rejects raw slugs, extra fields, identity-like values, a query, a missing window or a non-public origin", async () => {
   const invalid = [{ ...visit, p_path: "/post/some-slug" }, { ...visit, p_path: "/post/:item?x=1" }, { ...visit, extra: 1 },
     { ...visit, p_visitor: "person@example.invalid" }, { ...visit, p_referrer: "https://evil.invalid/path" }, { ...visit, p_device: "tv" },
     { ...visit, p_is_bot: "false" }, { ...visit, p_path: "/me" }];
@@ -59,7 +85,6 @@ test("visit rejects raw slugs, extra fields, identity-like values, a query, a mi
   for (const body of invalid) assert.equal((await h.post("/rest/v1/rpc/track_visit", body)).status, 403, JSON.stringify(body));
   assert.equal((await h.post("/rest/v1/rpc/track_visit?select=*", visit)).status, 403);
   assert.equal((await h.post("/rest/v1/rpc/track_visit", visit, { clientId: "" })).status, 403);
-  assert.equal((await harness({ clientUrl: SITE + "/gallery" }).post("/rest/v1/rpc/track_visit", visit)).status, 403);
   assert.equal((await harness({ origin: "https://sod1820-abc-sod1820-s-projects.vercel.app" }).post("/rest/v1/rpc/track_visit", visit)).status, 403);
   assert.equal((await harness({ anonKey: "" }).post("/rest/v1/rpc/track_visit", visit)).status, 403);
   assert.equal(h.calls.length, 0);

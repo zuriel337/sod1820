@@ -131,18 +131,24 @@ test("actual route effects restore first-party visits/engagement on the normaliz
   // The function ends at the first closing brace in column 0 after its start. (The previous end marker was a comment that no longer exists, so the slice ran to the end of
   // the file, pulled in `export default` and failed with "module is not defined": the proof of the route effects had silently stopped running.)
   const start=app.indexOf("function RouteEffects2029()"),end=app.indexOf("\n}\n",start);assert.ok(start>=0&&end>start,"RouteEffects2029 must be found");const source=app.slice(start,end+3);
-  const code=(await transform(source,{loader:"jsx",format:"cjs"})).code;const calls=[],effects=[];let mutation,ready=false,idle;
-  const context={PUBLIC_READING_RELEASE:true,integratedPreviewEnabled:false,kingdomPreviewEnabled:false,useLocation:()=>({pathname:"/"}),useEffect:fn=>effects.push(fn),
+  const code=(await transform(source,{loader:"jsx",format:"cjs"})).code;const calls=[],effects=[],timers=[];let mutation,ready=false,idle;
+  const context={PUBLIC_READING_RELEASE:true,integratedPreviewEnabled:false,kingdomPreviewEnabled:false,useLocation:()=>({pathname:"/",key:"default"}),useEffect:fn=>effects.push(fn),
     useAuth:()=>({loading:false,isAdmin:false}),React:{useRef:value=>({current:value})},
     window:{location:{hostname:"sod1820.co.il"},requestIdleCallback:fn=>{idle=fn;return 1;},cancelIdleCallback:()=>{}},
     document:{querySelector:()=>ready?{}:null,getElementById:()=>({}),body:{}},MutationObserver:class{constructor(fn){mutation=fn;}observe(){}disconnect(){}},
     readingTelemetryPath,startWebVitals2029:opts=>{calls.push(["RUM",opts]);return ()=>{};},initGA:opts=>calls.push(["GA",opts]),trackPageview:(...args)=>calls.push(["page",...args]),
     initMarketing:()=>calls.push(["marketing"]),trackMarketingPageview:()=>calls.push(["marketing-page"]),ensureIdentity:()=>assert.fail("identity bridge"),
-    startPageEngagement:(path,deps)=>{calls.push(["engagement",path,deps.getSodIdFn(),deps.sessionIdFn()]);return {};},setTimeout,clearTimeout};
+    startPageEngagement:(path,deps)=>{calls.push(["engagement",path,deps.getSodIdFn(),deps.sessionIdFn()]);return {};},
+    // The first-party page view is written only after the address has settled (a redirect hop is not a page view): the timer is run by hand.
+    setTimeout:(fn,ms)=>{timers.push({fn,ms});return timers.length;},clearTimeout:id=>{if(timers[id-1])timers[id-1].cleared=true;}};
   // visits.js is loaded lazily (kept out of the opening graph); its import is asserted on the source below.
   assert.match(source,/import\("\.\/lib\/visits\.js"\)\.then\(\(\{ trackVisit \}\) => trackVisit\(telemetryPath\)\)/);
   assert.doesNotMatch(app,/^import \{ trackVisit \}/m);
-  vm.runInNewContext(code+";RouteEffects2029();",context);const cleanup=effects.map(fn=>fn());assert.equal(calls.length,2);assert.equal(calls[0][0],"RUM");assert.equal(calls[0][1].publicReading,true);
+  vm.runInNewContext("let measuredEntry2029 = null; const PAGE_VIEW_SETTLE_MS = 150;"+code+";RouteEffects2029();",context);const cleanup=effects.map(fn=>fn());
+  assert.equal(calls.length,1,"nothing first-party is written before the address settles");assert.equal(calls[0][0],"RUM");assert.equal(calls[0][1].publicReading,true);
+  assert.deepEqual(timers.map(t=>t.ms),[150]);timers[0].fn();assert.equal(calls.length,2);
   assert.deepEqual(calls[1],["engagement","/",null,null]);
   ready=true;mutation();assert.equal(calls.length,2);idle();assert.deepEqual(calls.map(x=>x[0]),["RUM","engagement","GA","page","marketing","marketing-page"]);assert.equal(calls[2][1].path,"/");assert.equal(calls[3][1],"/");cleanup.forEach(fn=>fn?.());
+  // A second mount on the same history entry (the account state resolving replaces a keyed subtree) is not a second page view.
+  const again=effects.slice(-1)[0]();assert.equal(timers.filter(t=>t.ms===150).length,1,"the same entry is not measured twice");again?.();
 });
