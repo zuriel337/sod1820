@@ -599,7 +599,9 @@ test('B5 · a new master-type project_codex slug is refused, an ordinary approva
   const existingMasters = [...codexSlugs].filter(isCodexMasterSlug).sort();
   assert.deepEqual(existingMasters, ['sod1820-master-architecture-draft', 'sod1820_motion_identity_master_v1', 'sod1820_reality_stream_os_master_v3_20261016_draft']);
   assert.deepEqual(codexAdditionViolations(codexSlugs, new Set(codexSlugs), []), [], 'existing master-type items are never re-judged');
-  assert.deepEqual(codexAdditionViolations(new Set(), currentCodex, parseLawApprovals([...currentCodex].filter(x => !isCodexMasterSlug(x)).map(x => 'C|' + x + '|' + REF + '|2026-11-13').join('\n'))).map(x => x.split(':')[0]).sort(),
+  // pinned to the 12.11 record (codexSlugs), never to the NEWEST record: a later dated codex record that adds a master-type item WITH its CM line
+  // (the allowed way in, scenario R3e of run-ci-scenarios.sh) must not break this test
+  assert.deepEqual(codexAdditionViolations(new Set(), codexSlugs, parseLawApprovals([...codexSlugs].filter(x => !isCodexMasterSlug(x)).map(x => 'C|' + x + '|' + REF + '|2026-11-13').join('\n'))).map(x => x.split(':')[0]).sort(),
     existingMasters.map(x => 'project_codex.' + x), 'against an empty base only the master-type items stay refused');
   assert.deepEqual(codexAdditionViolations(codexSlugs, new Set([...codexSlugs, 'brand_new_codex_item']), parseLawApprovals('C|brand_new_codex_item|' + REF + '|2026-11-13')), []);
   const cm = parseLawApprovals('CM|sod1820_master_v4|' + REF + '|2026-11-13');
