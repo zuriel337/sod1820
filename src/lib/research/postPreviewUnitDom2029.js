@@ -29,6 +29,9 @@ function withNumbers(doc, node, text) {
   return node;
 }
 
+// number of a peak -> id of its (single) engine claim in YAMIN_SMOL_CLAIMS
+const PEAK_TRACE_CLAIMS = Object.freeze({ 2026: "c2026", 5787: "c5787" });
+
 export function buildPreviewUnitElement(doc, unit) {
   const blocks = parseYaminSmolText();
   const section = el(doc, "section", { id: unit.id, class: "sod29-pu", "data-sod-unit": unit.id, "data-preview-unit": "true", "data-sod-peak": "auto", "aria-labelledby": `${unit.id}-title`, "data-series": unit.seriesKey, "data-post-id": String(unit.postId) });
@@ -65,7 +68,11 @@ export function buildPreviewUnitElement(doc, unit) {
     if (block.kind === "heading") { host.append(el(doc, "h3", { "data-sod-role": "title", "data-sod-align": "center", class: "sod29-pu-h3" }, block.text)); continue; }
     if (block.kind === "closing") { host.append(el(doc, "p", { class: "sod29-pu-closing", "data-sod-role": "peak-text", "data-sod-align": "center" }, block.text)); continue; }
     if (block.kind === "verse") { host.append(el(doc, "blockquote", { class: "sod29-pu-verse", "data-sod-role": "verse", "data-sod-align": "center", "data-quote-identity": block.identity }, block.text)); continue; }
-    if (block.kind === "peak") { const p = el(doc, "p", { "data-sod-role": "peak", "data-sod-align": "center" }); p.append(gem(doc, block.number)); host.append(p); continue; }
+    if (block.kind === "peak") { const p = el(doc, "p", { "data-sod-role": "peak", "data-sod-align": "center" }); p.append(gem(doc, block.number)); host.append(p);
+      // The canonical method trace of a focal number opens right under it (a React host, filled by PreviewUnitExtras2029; empty until the reader asks).
+      const traceClaim = PEAK_TRACE_CLAIMS[block.number];
+      if (traceClaim) host.append(el(doc, "div", { "data-pu-trace": traceClaim, class: "sod29-pu-host sod29-pu-trace-host" }));
+      continue; }
     if (block.kind === "claim") { host.append(withNumbers(doc, el(doc, "p", { class: "sod29-pu-claim", "data-sod-role": "short", "data-sod-align": "center" }), block.text)); continue; }
     const p = el(doc, "p", { "data-sod-role": "prose", "data-sod-align": "start" });
     host.append(withNumbers(doc, p, block.text));

@@ -380,3 +380,7 @@
   border:1px solid color-mix(in srgb,var(--r29-sapphire) 55%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 18%,var(--s29-panel))}
 .sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-engine[data-engine="mismatch"]{border-style:dashed}
 .sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-engine-detail{margin:4px 0 0;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));font-size:.95rem;color:var(--s29-muted)}
+
+.sod29-pu-trace-host:not(:empty){margin-block:.2rem .6rem;display:grid;justify-items:center}
+.sod29-pu-trace-host .sod29-pu-trace{inline-size:100%}
+.sod29-pu-trace-host .sod29-pu-trace-btn{margin-inline:auto}

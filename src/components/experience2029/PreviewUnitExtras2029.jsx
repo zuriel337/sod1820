@@ -167,16 +167,17 @@ export default function PreviewUnitExtras2029({ rootRef, post, htmlKey }) {
       const section = root.querySelector(`[id="${unit.id}"]`);
       if (!section) continue;
       const host = (name) => section.querySelector(`[data-pu-host="${name}"]`);
-      found.push({ unit, hosts: { bar: host("bar"), images: host("images"), sources: host("sources"), engine: host("engine"), share: host("share") } });
+      found.push({ unit, traces: [...section.querySelectorAll("[data-pu-trace]")].map((node) => ({ node, claim: YAMIN_SMOL_CLAIMS.find((c) => c.id === node.getAttribute("data-pu-trace")) })).filter((t) => t.claim), hosts: { bar: host("bar"), images: host("images"), sources: host("sources"), engine: host("engine"), share: host("share") } });
     }
     setMounts(found);
     return () => setMounts([]);
   }, [rootRef, post.id, htmlKey]);
-  return <>{mounts.map(({ unit, hosts }) => <React.Fragment key={unit.id}>
+  return <>{mounts.map(({ unit, hosts, traces }) => <React.Fragment key={unit.id}>
     {hosts.bar ? createPortal(<Bar unit={unit} post={post} postPath={postPath} />, hosts.bar) : null}
     {hosts.images ? createPortal(<Images />, hosts.images) : null}
     {hosts.sources ? createPortal(<Sources />, hosts.sources) : null}
     {hosts.engine ? createPortal(<Engine />, hosts.engine) : null}
+    {traces.map(({ node, claim }) => createPortal(<ClaimTrace claim={claim} />, node))}
     {hosts.share ? createPortal(<Share unit={unit} post={post} postPath={postPath} />, hosts.share) : null}
   </React.Fragment>)}</>;
 }
