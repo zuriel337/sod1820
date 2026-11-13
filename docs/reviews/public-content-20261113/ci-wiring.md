@@ -1,3 +1,5 @@
+> **Applied by the integrator (13.11.2026) on this branch, with different anchors** so that the four extraction branches can be merged in any order without touching the same lines of `live-contracts-2029.yml`: step 1 (fetch + node contracts) sits after the step "Navigation symbols … and icon treatment"; step 2 (SQL) after the "«הגילוי היומי» = «תורת הרמז» intake proposal" step; step 3 (two builds + the two browser proofs) after "Public storage media through the real worker", before "Keep the evidence". The commands are exactly the ones below.
+
 # CI wiring for the "public content" package (the integrator applies it; the workflow is not edited here)
 
 File: `.github/workflows/live-contracts-2029.yml` (workflow name `2029 Live Contracts`), anchored on origin/main `9be0c29fc`. Every command below was run on this branch (Node 22.23.4; the workflow uses `.nvmrc` = 24.21.0, not run on 24 here).
