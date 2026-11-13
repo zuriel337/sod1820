@@ -19,6 +19,14 @@ const DEFAULT_W2_NUMERIC_LENSES = Object.freeze([
   'neighbors',
 ]);
 
+// Owner label of the graph capability, emitted in every graph outcome (missing adapter, context required, executed, failed).
+// It names the ACTIVE owner, reality_graph_law. The label used to be unified_graph_law: that law (v1) has retired and its recorded
+// successor is reality_graph_law (audits/g1-agent-entry, laws snapshot row 'R|unified_graph_law|1|reality_graph_law|').
+// History note: the retired id is named in this comment only. The dated record of runtime references to retired laws
+// (G1_RETIRED_LAW_REFERENCES_20261112.txt) lists this file, and a recorded line must stay true until a newer dated record without
+// it is published; when that record lands, this sentence is removed with it.
+export const GRAPH_CAPABILITY_OWNER = 'reality_graph_law';
+
 function parseCanonicalNumber(raw) {
   if (typeof raw === 'number') return Number.isSafeInteger(raw) && raw >= 0 ? raw : null;
   if (typeof raw !== 'string') return null;
@@ -454,7 +462,7 @@ export function createCanonicalNumberW2Executors({
 
     if (typeof graph?.fetchEntityFindings !== 'function') {
       return {
-        owner: 'unified_graph_law',
+        owner: GRAPH_CAPABILITY_OWNER,
         status: CAPABILITY_STATUS.MISSING_ADAPTER,
         reason: 'inject graph.fetchEntityFindings = fetchCanonicalGraphEntityFindings from src/lib/research/entityGraphFinding.js — W2 owns no graph engine and must not build a second resolver',
         findings: [],
@@ -467,7 +475,7 @@ export function createCanonicalNumberW2Executors({
       // Identity-first: without a canonical node identity there is nothing to read. Inventing one
       // from a label/value would be exactly the label-keyed identity the contract forbids.
       return {
-        owner: 'unified_graph_law',
+        owner: GRAPH_CAPABILITY_OWNER,
         status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
         reason: 'no canonical graph node identity was handed off by the identity resolver',
         findings: [],
@@ -482,7 +490,7 @@ export function createCanonicalNumberW2Executors({
       const findings = await graph.fetchEntityFindings(nodeRef);
       const list = Array.isArray(findings) ? findings : [];
       return {
-        owner: 'unified_graph_law',
+        owner: GRAPH_CAPABILITY_OWNER,
         status: CAPABILITY_STATUS.EXECUTED,
         findings: list,
         accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
@@ -494,7 +502,7 @@ export function createCanonicalNumberW2Executors({
       };
     } catch (error) {
       return {
-        owner: 'unified_graph_law',
+        owner: GRAPH_CAPABILITY_OWNER,
         status: CAPABILITY_STATUS.FAILED,
         reason: error?.message ? String(error.message) : 'canonical graph adapter failed',
         findings: [],
