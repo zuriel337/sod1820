@@ -2,7 +2,7 @@
 // נתוני האתר החדש, נאספים ישירות לבסיס הנתונים שלנו — ללא תלות בגוגל.
 // פרטיות: בלי IP / בלי PII. מזהה-גולש = מחרוזת אקראית ב-localStorage (לספירת ייחודיים בלבד).
 import { supabase } from "./supabase.js";
-import { emit, isBot } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
+import { emit, isBot, emitPublicArrivalOnce } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
 import { getDayContext, annotateTrafficRows, attachTrafficDayContext, annotateTrafficPayloadDaily } from "./dayContext.js";
 // IDENTITY_UNIFICATION_V1: מפסיקים ליצור מזהה-מבקר נפרד ("sod_visitor") — זה היה
 // שכפול-בטעות של שכבת ה-Browser Visitor, ש-visitorId.js כבר "בעלים יחיד" שלה לפי
@@ -42,6 +42,8 @@ export async function trackVisit(path) {
   if (path.startsWith("/admin")) return;   // לא סופרים את עמוד הניהול עצמו
   const bot = isBot();                       // 🤖 פסק-קצה סמכותי → שני מונים: כולל-בוטים + אנשים
   const referrer = firstHit ? externalReferrer() : null;
+  // Public 2029 build: arrival attribution once per session through the bounded public family (no-op elsewhere).
+  if (firstHit) { try { emitPublicArrivalOnce(); } catch { /* ignore */ } }
   firstHit = false;
   try {
     await supabase.rpc("track_visit", {
