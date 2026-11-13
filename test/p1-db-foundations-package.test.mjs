@@ -23,11 +23,11 @@ test("the apply plan lists exactly the steps 1, 2, 4, 5, 6, 7, 8, 9, 10 and ever
   }
 });
 
-test("steps 3, 11 and 12 are not part of this package: no file of them is on the branch", () => {
+test("steps 3, 11 and 12 are not part of this package: the files of steps 3 and 12 are on no branch of the extraction", () => {
   assert.deepEqual(plan.not_in_this_package.map((s) => s.step), ["3", "11", "12"]);
+  // Step 11 (M0-D) is package P3: its files are legitimately present once P3 is merged, so only steps 3 and 12 are pinned absent here.
   for (const f of [
     "supabase/proposed/20261112120000_m0b_ai_quota_fail_closed.sql", "supabase/proposed/ROLLBACK_20261112120000_m0b_ai_quota_fail_closed.sql",
-    "supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql", "supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql",
     "supabase/proposed/20261112132000_def005b_revoke_uncalled_client_rpcs_OPTIONAL.sql", "supabase/proposed/ROLLBACK_20261112132000_def005b.sql",
   ]) assert.equal(fs.existsSync(path.join(root, f)), false, `${f} must not be part of package P1`);
   assert.doesNotMatch(read("scripts/run-m0a-db-permissions-sql-test.sh"), /def005b/, "the M0-A runner does not load DEF-005b");
