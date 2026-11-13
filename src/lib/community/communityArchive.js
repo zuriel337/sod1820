@@ -31,6 +31,23 @@ export async function fetchCommunityThreadUpdates(cursors, { client = communityR
   }
   return output;
 }
+
+// The existing bounded public traversal counts replies after a cursor. A
+// cursor before the archive gives the complete visible reply count instead.
+export async function fetchCommunityThreadTotals(rows, options) {
+  const ids = [...new Set(rows.filter(row => !row.parentId && !row.isDeleted && row.body?.trim())
+    .map(row => row.id).filter(id => UUID_PATTERN.test(id || "")))];
+  const counts = {};
+  for (let offset = 0; offset < ids.length; offset += COMMUNITY_PAGE_SIZE) {
+    const cursors = ids.slice(offset, offset + COMMUNITY_PAGE_SIZE).map(id => ({
+      root_id: id, message_id: id, created_at: "0001-01-01T00:00:00Z",
+    }));
+    const updates = await fetchCommunityThreadUpdates(cursors, options);
+    for (const id of Object.keys(updates)) counts[id] = updates[id].count + 1;
+  }
+  return counts;
+}
+
 const COMMUNITY_ORIGINS = ["openweb", "community_2029"];
 // Project at the API boundary. Older Community RPCs also expose joined dossier
 // columns; this consumer requests only public message credit, never private
@@ -373,7 +390,8 @@ export async function fetchCommunityAuthorSummary(authorKey, { client = communit
   const base = () => filterByAuthor(client.from("research_contributions")
     .select("id,created_at,reactions")
     .eq("status", "approved")
-    .in("origin", COMMUNITY_ORIGINS).not("body", "is", null).neq("body", ""), identity);
+    .in("origin", COMMUNITY_ORIGINS).is("deleted_at", null).is("thread_hidden_at", null)
+    .not("body", "is", null).neq("body", ""), identity);
   const { data: first, error: firstError } = await base().order("created_at", { ascending: true }).limit(1);
   if (firstError) throw firstError;
   if (!identity.verifiedOwner) return { firstAt: first?.[0]?.created_at || null, archiveLikes: null };

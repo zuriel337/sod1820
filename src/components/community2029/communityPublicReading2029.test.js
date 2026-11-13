@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import { transformWithOxc } from "vite";
-import { normalizeCommunityThreadFocus, legacyLikeCount } from "../../lib/community/communityArchive.js";
+import { fetchCommunityThreadTotals, normalizeCommunityThreadFocus, legacyLikeCount } from "../../lib/community/communityArchive.js";
 import { communityAccountReturnHref, communityChatHref, communityPersonReturnHref, communityReadingReturnHref } from "../../lib/community/communityPersonNavigation.js";
+import { plainMessageText } from "../../lib/community/messageFormatting.js";
 import { readGuestName } from "../../lib/community/communityGuestApi.js";
 import { reviewedCommunityAccountId } from "../../lib/community/communityCanonicalIdentity2029.js";
 
@@ -65,7 +66,8 @@ async function harness(file, names, overrides = {}) {
     pingCommunityPresence: async () => {}, fetchCommunityPresenceOnline: async () => [], fetchCommunityStaffIds: async () => [], COMMUNITY_PRESENCE_PING_MS: 45000,
     fetchCommunityArchivePage: async () => ({ rows: [], nextOffset: 0, count: 0 }),
     fetchLinkedAccountProfiles: async () => ({}), fetchCommunityReplyCounts: async () => ({}),
-    startCommunityRefresh: () => () => {}, applySeo() {}, restoreCommunityScrollAnchor() {},
+    fetchCommunityThreadTotals: async () => ({}),
+    startCommunityRefresh: () => () => {}, applySeo() {}, restoreCommunityScrollAnchor() {}, focusCommunityReplyToggle() {},
     ...overrides,
   };
   const source = await readFile(new URL(file, import.meta.url), "utf8");
@@ -214,6 +216,36 @@ test("public contributor reading does not save, mark history or expose personal 
   }
 });
 
+test("the thread total counts the public root and all descendants returned by the existing reader", async () => {
+  const reply = "22222222-2222-4222-8222-222222222222";
+  const nested = "33333333-3333-4333-8333-333333333333";
+  const client = { rpc(name, { p_cursors }) {
+    assert.equal(name, "community_thread_updates");
+    assert.deepEqual(p_cursors, [{ root_id: row.id, message_id: row.id, created_at: "0001-01-01T00:00:00Z" }]);
+    return { select: async () => ({ data: [{ root_id: row.id, new_count: 5, first_reply_id: nested, first_path: [row.id, reply, nested] }] }) };
+  } };
+  assert.deepEqual(await fetchCommunityThreadTotals([row, { id: reply, parentId: row.id }, { id: nested, isDeleted: true }], { client }), { [row.id]: 6 });
+});
+
+test("a long message expands in place and a direct message link opens its full text", async () => {
+  const h = await harness("./CommunityLive2029.jsx", ["LiveMessage"], { plainMessageText, communityMessageShareUrl: () => null });
+  const longRow = { ...row, body: "משפט ארוך. ".repeat(120) };
+  const render = focused => elements(h.render(h.LiveMessage, { row: longRow, focused }));
+  const toggle = nodes => nodes.find(node => node.props?.["aria-controls"] === "unit-id" && node.type === "button");
+  let nodes = render(false);
+  assert.equal(toggle(nodes).props["aria-expanded"], false);
+  assert.ok(nodes.find(node => node.props?.className === "sod29-community-body").props.children[0].endsWith("…"));
+  assert.equal(nodes.some(node => node.type === "CommunityMessageContent"), false);
+  toggle(nodes).props.onClick();
+  nodes = render(false);
+  assert.equal(toggle(nodes).props["aria-expanded"], true);
+  assert.equal(nodes.find(node => node.type === "CommunityMessageContent").props.text, longRow.body);
+  toggle(nodes).props.onClick();
+  nodes = render(true);
+  assert.equal(toggle(nodes), undefined);
+  assert.equal(nodes.find(node => node.type === "CommunityMessageContent").props.text, longRow.body);
+});
+
 test("all default community reads use the anonymous client in the read profile and retain ordinary-build behavior", async () => {
   for (const readOnly of [true, false]) {
     const calls = [];
@@ -228,7 +260,7 @@ test("all default community reads use the anonymous client in the read profile a
       from(table) {
         calls.push([label, table]);
         const query = {};
-        for (const method of ["select", "eq", "in", "not", "neq", "or", "order", "limit", "range"]) query[method] = () => query;
+        for (const method of ["select", "eq", "in", "is", "not", "neq", "or", "order", "limit", "range"]) query[method] = () => query;
         query.then = (resolve, reject) => Promise.resolve({ data: [], error: null, count: 0 }).then(resolve, reject);
         return query;
       },
@@ -295,10 +327,12 @@ test('partial replies offer exactly remaining messages; a complete branch offers
   const children=['22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333','44444444-4444-4444-8444-444444444444'].map(id=>({...row,id}));
   const {mergeCommunityRefreshRows}=await import('../../lib/community/communityRefresh.js');
   const h=await harness('./CommunityLive2029.jsx',['LiveThread'],{captureCommunityScrollAnchor:()=>null,mergeCommunityRefreshRows,fetchCommunityReplies:async(_id,args)=>{reads++;const items=args.offset?children.slice(2):children.slice(0,2);return{rows:items,count:3,nextOffset:args.offset+items.length}}});
-  const props={row,accountProfiles:{},replyCounts:{},onRepliesLoaded(){},refreshToken:0};
+  const props={row,accountProfiles:{},replyCounts:{},onRepliesLoaded(){},refreshToken:0,threadTotal:6};
   h.render(h.LiveThread,props);await h.flush();let tree=elements(h.render(h.LiveThread,props));let more=tree.find(n=>n.props?.className==='sod29-community-more-replies');assert.ok(more);assert.ok(more.props.children.includes('תגובה נוספת אחת'));
   await more.props.onClick();await h.flush();tree=elements(h.render(h.LiveThread,props));assert.equal(tree.filter(n=>n.props?.className==='sod29-community-more-replies').length,0);
-  const close=tree.find(n=>n.props?.className==='sod29-community-replies-toggle');assert.ok(close.props.children.includes('סגירת תגובות'));close.props.onClick();tree=elements(h.render(h.LiveThread,props));const open=tree.find(n=>n.props?.className==='sod29-community-replies-toggle');assert.equal(open.props['aria-expanded'],'false');open.props.onClick();await h.flush();assert.equal(reads,2,'reopen uses the already completed public page');
+  const totalId=`community-replies-${row.id}-total`;
+  assert.equal(tree.find(n=>n.props?.id===totalId).props.children[0],'6 הודעות בשרשור');
+  const close=tree.find(n=>n.props?.className==='sod29-community-replies-toggle');assert.ok(close.props.children.includes('סגירת תגובות'));close.props.onClick();tree=elements(h.render(h.LiveThread,props));const open=tree.find(n=>n.props?.className==='sod29-community-replies-toggle');assert.equal(open.props['aria-expanded'],false);assert.equal(open.props['aria-describedby'],totalId);assert.equal(tree.find(n=>n.props?.id===totalId).props.children[0],'6 הודעות בשרשור');open.props.onClick();await h.flush();assert.equal(reads,2,'reopen uses the already completed public page');
 });
 
 test('canonical UserBadge keeps opt-in fallbacks colorful while real images and ordinary callers retain priority',async()=>{
