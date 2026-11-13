@@ -1,7 +1,7 @@
 # Measurement package: extraction map
 
 Sources: PR #1321 frozen at `4a406fed273b9b381577c5b2a03d91c58de46451` (merge base `aa0f6bc82`), and the preserved commit `139f16214d5ab3da3da903af02cc45e5d023e04b` (branch `claude/preserve-measurement-visit-once-20261113`, one commit on top of `abb2f3907`, an ancestor of `4a406fed2`).
-Base of this branch: `origin/main` `9be0c29fc`. Commits of this branch: **C1** `ff87b461e` (the #1321 family), **C2** `697a31050` (the preserved commit), **C3** `df3b97ce9` (engagement budget and tests), **C4** documentation and the scope pin (the commit that adds this directory).
+Base of this branch: `origin/main` `9be0c29fc`. Commits of this branch: **C1** `ff87b461e` (the #1321 family), **C2** `697a31050` (the preserved commit), **C3** `df3b97ce9` (engagement budget and tests), **C4** `2f54add5c` documentation and the scope pin (the commit that adds this directory), **C5** a test-only fix to `test/measurement-visit-once-2029.browser.mjs` (the second tab stays open until its visit is written), **C6** the test results recorded in the README.
 
 How "byte-identical" was checked: `git diff <source> <destination>` is empty for the file at the source commit named in the row.
 For every file below, `origin/main` is unchanged since the common base `aa0f6bc82` (`git diff aa0f6bc82 9be0c29fc -- <file>` is empty), except `src/pages/Post2029Page.jsx`, which main changed and which therefore received only the one #1321 hunk.
@@ -21,7 +21,7 @@ For every file below, `origin/main` is unchanged since the common base `aa0f6bc8
 | `test/public-reading-action-measurement.test.mjs` | new, 124 lines, 6 tests | +15 -3 (admits a window opened on another route) | C1, then C2 | taken, byte-identical to `139f16214` |
 | `test/public-reading-analytics-worker.test.mjs` | not changed | +30 -5 | C2 | taken, byte-identical. Changed expectations, with the reason: "refuses a mismatched window" became "accepts a window opened on another route" (that is the fault fixed); a window of another origin and a non-window client are still refused |
 | `test/public-reading-observability.test.mjs` | not changed | +10 -4 | C2 | taken, byte-identical. Changed expectation: the route-effects proof runs the 150 ms settle timer by hand |
-| `test/measurement-visit-once-2029.browser.mjs` | not in #1321 | new, 85 lines | C2, extended in C3 | taken; **extended** in C3 with steps 7-13 (steps 1-6 and their assertions unchanged) |
+| `test/measurement-visit-once-2029.browser.mjs` | not in #1321 | new, 85 lines | C2, extended in C3, fixed in C5 | taken; **extended** in C3 with steps 7-13 (steps 1-6 and their assertions unchanged); C5 only keeps the step-12 tab open longer |
 | `test/helpers/authBrowserFixture.mjs` | +5 -1 (the optional `supabase` answer hook) | not changed | C2 | taken, byte-identical to `4a406fed2`; the hook is what lets the browser test count what reaches the Supabase origin. The same hunk is needed by the contributor browser test of the M0-D package, so the bytes are identical there. |
 | `test/measurement-transport-hardening-2029.test.mjs` | – | – | C3 | **new** in this package (11 tests) |
 | `test/measurement-page-view-once-2029.test.mjs` | – | – | C3 | **new** in this package (8 tests) |
