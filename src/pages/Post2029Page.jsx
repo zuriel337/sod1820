@@ -299,6 +299,63 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   }, [state.projection, location.hash]);
 
   useEffect(() => {
+    const id = new URLSearchParams(location.search).get("passage");
+    const post = state.projection?.sourcePost;
+    const root = sourceRef.current;
+    if (!id || !post || !root) return undefined;
+    let active = true;
+    let target;
+    let previousId;
+    let previousTabIndex;
+    let observer;
+    let frame;
+    let released = false;
+    const release = () => {
+      released = true;
+      observer?.disconnect();
+      if (frame != null) cancelAnimationFrame(frame);
+    };
+    const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+    Promise.all([
+      import("../lib/research/contributorSourcePassages.js"),
+      import("../lib/research/researchViewMode.js"),
+    ]).then(async ([passages, { getPublicResearchClient }]) => {
+      const anchor = passages.signedPassageAnchor(id);
+      if (!active || !anchor || location.hash !== `#${anchor}`) return;
+      const passage = await passages.fetchSignedSourcePassage(getPublicResearchClient(), id, "posts");
+      if (!active || !passage || String(post.id) !== passage.ref.sourceId || post.content !== passage.source.content) return;
+      const match = await passages.findSignedPostByline(root, passage.ref.locator);
+      if (!active || !match || document.getElementById(anchor)) return;
+      target = match.node;
+      previousId = target.getAttribute("id");
+      previousTabIndex = target.getAttribute("tabindex");
+      if (!previousId) target.id = anchor;
+      revealReadingAnchor(target);
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+      const land = () => { if (!released) target.scrollIntoView({ behavior: "instant", block: "center" }); };
+      land();
+      if (typeof ResizeObserver !== "undefined") {
+        observer = new ResizeObserver(() => {
+          if (frame != null) cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(land);
+        });
+        observer.observe(root);
+        for (const name of events) window.addEventListener(name, release, { passive: true, once: true });
+      }
+    }).catch(() => { /* The original article remains readable if the reference is unavailable. */ });
+    return () => {
+      active = false;
+      release();
+      for (const name of events) window.removeEventListener(name, release);
+      if (!target) return;
+      if (!previousId) target.removeAttribute("id");
+      if (previousTabIndex == null) target.removeAttribute("tabindex");
+      else target.setAttribute("tabindex", previousTabIndex);
+    };
+  }, [state.projection, location.search, location.hash]);
+
+  useEffect(() => {
     // The hero owns the page h1. An authored h1 inside the source stays in the
     // DOM and text is untouched; it is exposed as a level-2 heading, and when it
     // only repeats the hero title it is visually collapsed (still readable by AT).
@@ -595,7 +652,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     // Legacy locators are admitted only after mapping to the unchanged source.
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
-    if (!id || !state.projection || !sourceRef.current) return;
+    if (!id || id.startsWith("signed-passage-") || !state.projection || !sourceRef.current) return;
     const target = id === "post-measures" || id === "post-classification" ? document.getElementById(id)
       : [...sourceRef.current.querySelectorAll("[id]")].find(node => node.id === id);
     if (!target) return;

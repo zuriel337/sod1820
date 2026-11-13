@@ -186,6 +186,21 @@ export function appendContributorPublicationCatalog(view, catalogue, identity) {
       href: safePublicUrl(`/${row.slug}`), media: Boolean(mediaUrl), mediaUrl,
       reason: row.author === identity.display_name ? "מאמר שהמערכת מייחסת לכותב." : "מאמר בהשתתפות הכותב." });
   }
+  for (const row of catalogue.signedPassages?.rows || []) {
+    const post = row.table === "posts";
+    const id = post ? `post:${row.sourceId}` : row.sourceRef;
+    const existing = items.get(id);
+    const links = row.links.filter((link) => safePublicUrl(link.href));
+    if (!links.length) continue;
+    const credits = [...new Set(links.map((link) => link.credit))].join(" · ");
+    put({ id, sourceRef: row.sourceRef, type: post ? "writings" : "sources",
+      label: post ? "קטע חתום" : "הודעות חתומות",
+      title: humanContentTitle(row.title, { max: 0 }) || "פרסום מקור", date: row.date, dateKind: "published",
+      href: links[0].href, reason: credits,
+      ...existing,
+      passageLinks: links, passageSourceLabel: post ? "פוסט באתר" : "עדכון ציבורי",
+    });
+  }
   for (const row of catalogue.ciphers?.rows || []) {
     if (row.status !== "published" || row.visibility !== "public" || !row.slug) continue;
     const mediaUrl = safePublicUrl(row.image_url);
