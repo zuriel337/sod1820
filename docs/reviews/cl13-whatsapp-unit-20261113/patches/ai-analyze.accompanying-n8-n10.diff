@@ -1,0 +1,151 @@
+--- a/ai-analyze.js
++++ b/ai-analyze.js
+@@ -769,4 +769,47 @@
+ 
++// src/lib/publicReadingRelease2029.js
++var PUBLIC_READING_PROFILE_ID = "public-reading-20261101", PUBLIC_READING_RELEASE = typeof __SOD_2029_BUILD__ < "u" && __SOD_2029_BUILD__ && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READING_PROFILE_ID, PUBLIC_READING_PRODUCTION_ARTIFACT = PUBLIC_READING_RELEASE && typeof __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__ < "u" && __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__ === !0, PUBLIC_HISTORICAL_LECTURE_PATHS = Object.freeze([
++  "/\u05DE\u05E9\u05D9\u05D7-\u05D1\u05E9\u05E0\u05EA-\u05D4\u05EA\u05E9\u05E2\u05D5",
++  "/\u05DE\u05E9\u05D9\u05D7-\u05D1\u05E9\u05E0\u05EA-\u05D4\u05EA\u05E9\u05E2\u05D5/\u05DE\u05EA\u05D9-\u05E9\u05E0\u05EA-\u05D4\u05D2\u05D0\u05D5\u05DC\u05D4",
++  "/\u05D4\u05D5\u05DB\u05D7\u05D5\u05EA-\u05DC\u05D0\u05DE\u05D9\u05EA\u05D5\u05EA-\u05D4\u05EA\u05D5\u05E8\u05D4-\u05DE\u05E9\u05DE\u05D9\u05DD"
++]);
++var LEGACY_TAXONOMY_ALIASES = Object.freeze({
++  "/category/\u05E1\u05E8\u05D8": "/category/\u05D5\u05D9\u05D3\u05D0\u05D5",
++  "/category/\u05E1\u05D5\u05D3-\u05D4\u05D0\u05D5\u05EA\u05D9\u05D5\u05EA": "/category/\u05E1\u05D5\u05D3-\u05D4\u05D0\u05D5\u05EA\u05D9\u05D5\u05EA-\u05D5\u05D4\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD",
++  "/tag/\u05D0\u05E8\u05D9-\u05E0\u05D5\u05D5\u05D4": "/tag/\u05D0\u05E8\u05D9\u05E7-\u05E0\u05D5\u05D5\u05D4",
++  "/tag/\u05D4\u05E8\u05D1-\u05E6\u05D9\u05D5\u05DF-\u05D1\u05E8\u05DB\u05D4-\u05D6\u05E6\u05DC": "/tag/\u05D4\u05E8\u05D1-\u05E6\u05D9\u05D5\u05DF-\u05D1\u05E8\u05DB\u05D4-\u05D6\u05E6%22\u05DC"
++});
++var externalSources = Object.freeze({
++  "/464378687028017/videos/vb.464378687028017/727568620709021": "https://www.facebook.com/464378687028017/videos/727568620709021/",
++  "/sod1820/videos/vb.617996338259568/1042960175763180": "https://www.facebook.com/sod1820/videos/1042960175763180/",
++  // Same saved XFBML block binds relative video/cite paths to the explicit
++  // facebook.com author profile and immutable video ID. Never infer a host
++  // from a title or apply this conversion to arbitrary relative links.
++  "/86AND26/videos/vb.103870716369907/801439149946390": "https://www.facebook.com/86AND26/videos/801439149946390/",
++  "/k1820/videos/839307259461807": "https://www.facebook.com/k1820/videos/839307259461807/",
++  "/k1820/videos/vb.617996338259568/839307259461807": "https://www.facebook.com/k1820/videos/839307259461807/"
++}), registeredExternalSources = new Set(Object.values(externalSources));
++var PUBLIC_TEMPORARILY_CLOSED_PATHS = Object.freeze([
++  "/research",
++  "/heichal",
++  "/\u05D4\u05D9\u05DB\u05DC",
++  "/name",
++  "/name-lab",
++  "/spatial-gematria",
++  "/verse-gematria",
++  "/languages",
++  "/cross",
++  "/archive",
++  "/reality",
++  "/timeline",
++  "/numbers",
++  "/broadcasts"
++]);
++var PUBLIC_READING_OPEN_ROUTES = Object.freeze(["/", "/world", "/post", "/number", "/gematria", "/gallery", "/map", "/privacy"]);
++
++// src/lib/research/numberPageAddress.js
++var PUBLIC_RELEASE = import.meta.env?.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101", NUMBER_PAGE_PUBLIC_BASE = "/number", NUMBER_PAGE_COMPATIBILITY_BASE = "/2029/number", NUMBER_PAGE_BASE = PUBLIC_RELEASE ? NUMBER_PAGE_PUBLIC_BASE : NUMBER_PAGE_COMPATIBILITY_BASE;
++
+ // src/lib/research/razielGroundedSourceComposer.js
+-var list2 = (value) => Array.isArray(value) ? value : [];
++var RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 15, MAX_READS = 2, MAX_FINDINGS = 12, MAX_SOURCES = 12, MAX_NAVIGATION = 10, MAX_FALLBACK_FINDINGS = 6, MAX_SOURCE_TERMS = 48, MAX_SURPRISE_CANDIDATES = 3, MAX_CONSTELLATION_TERMS = 12, MAX_VISIBLE_CALCULATIONS = 6, MAX_VISIBLE_FINDINGS = 8, list2 = (value) => Array.isArray(value) ? value : [];
+ function cleanText2(value, max = 160) {
+@@ -813,3 +856,3 @@
+     label: `\u05E4\u05EA\u05D7 \u05D0\u05EA \u05D3\u05E3 \u05D4\u05DE\u05E1\u05E4\u05E8 ${value}`,
+-    href: `/2029/number/${value}`
++    href: `${NUMBER_PAGE_BASE}/${value}`
+   };
+@@ -841,3 +884,3 @@
+   let term = cleanText2(value, 160);
+-  !term || term.length < 2 || seen.has(term) || target.length >= 48 || (seen.add(term), target.push(term));
++  !term || term.length < 2 || seen.has(term) || target.length >= MAX_SOURCE_TERMS || (seen.add(term), target.push(term));
+ }
+@@ -928,3 +971,3 @@
+ function fallbackSection(entry) {
+-  let label = subjectLabel(entry.subject), findings = list2(entry.projection?.model_input?.findings).slice(0, 6), methodProfile = list2(entry.projection?.model_input?.calculation_profile), methodValueGroups = list2(entry.projection?.model_input?.method_value_groups), methodLine = methodProfile.length ? `\u05DE\u05E4\u05EA \u05D4\u05D7\u05D9\u05E9\u05D5\u05D1 \u05D4\u05E7\u05E0\u05D5\u05E0\u05D9\u05EA: ${methodProfile.map((item) => `${cleanText2(item?.method_label || item?.method_key, 60)}=${cleanText2(item?.value, 40)}`).filter(Boolean).join(" \xB7 ")}` : null, normalizedGroupsLine = methodValueGroups.some((group) => Number(group?.method_count) > 1) ? `\u05E7\u05D1\u05D5\u05E6\u05D5\u05EA \u05E2\u05E8\u05DA \u05DE\u05E0\u05D5\u05E8\u05DE\u05DC\u05D5\u05EA (\u05DC\u05DC\u05D0 \u05D8\u05E2\u05E0\u05EA \u05E2\u05E6\u05DE\u05D0\u05D5\u05EA): ${methodValueGroups.filter((group) => Number(group?.method_count) > 1).map((group) => {
++  let label = subjectLabel(entry.subject), findings = list2(entry.projection?.model_input?.findings).slice(0, MAX_FALLBACK_FINDINGS), methodProfile = list2(entry.projection?.model_input?.calculation_profile), methodValueGroups = list2(entry.projection?.model_input?.method_value_groups), methodLine = methodProfile.length ? `\u05DE\u05E4\u05EA \u05D4\u05D7\u05D9\u05E9\u05D5\u05D1 \u05D4\u05E7\u05E0\u05D5\u05E0\u05D9\u05EA: ${methodProfile.map((item) => `${cleanText2(item?.method_label || item?.method_key, 60)}=${cleanText2(item?.value, 40)}`).filter(Boolean).join(" \xB7 ")}` : null, normalizedGroupsLine = methodValueGroups.some((group) => Number(group?.method_count) > 1) ? `\u05E7\u05D1\u05D5\u05E6\u05D5\u05EA \u05E2\u05E8\u05DA \u05DE\u05E0\u05D5\u05E8\u05DE\u05DC\u05D5\u05EA (\u05DC\u05DC\u05D0 \u05D8\u05E2\u05E0\u05EA \u05E2\u05E6\u05DE\u05D0\u05D5\u05EA): ${methodValueGroups.filter((group) => Number(group?.method_count) > 1).map((group) => {
+     let methods = list2(group?.methods).map((method) => cleanText2(method?.method_label || method?.method_key, 60)).filter(Boolean).join(", "), equivalences = list2(group?.proven_equivalence_sets).map((set) => list2(set?.methods).map((method) => cleanText2(method, 60)).filter(Boolean).join(" + ")).filter(Boolean), effectiveCount = Number.isSafeInteger(Number(group?.effective_distinct_method_count)) ? Number(group.effective_distinct_method_count) : null, dependency = equivalences.length ? `; \u05E9\u05E7\u05D9\u05DC\u05D5\u05EA \u05DE\u05D5\u05EA\u05E0\u05D9\u05EA \u05DE\u05DF \u05D4\u05DE\u05E8\u05E9\u05DD: ${equivalences.join(", ")}${effectiveCount != null ? `; \u05D6\u05D4\u05D5\u05D9\u05D5\u05EA \u05D0\u05E4\u05E7\u05D8\u05D9\u05D1\u05D9\u05D5\u05EA: ${effectiveCount}` : ""}` : "";
+@@ -955,3 +998,3 @@
+       let originalName = cleanText2(card?.source_name, 120), sourceRef = cleanText2(card?.source_ref, 200), lang = cleanText2(card?.source_lang, 20), key = `${originalName || ""}|${sourceRef || ""}|${lang || ""}`;
+-      if (!(!originalName || seen.has(key)) && (seen.add(key), sources.push({ original_name: originalName, source_ref: sourceRef || null, lang: lang || null }), sources.length >= 12))
++      if (!(!originalName || seen.has(key)) && (seen.add(key), sources.push({ original_name: originalName, source_ref: sourceRef || null, lang: lang || null }), sources.length >= MAX_SOURCES))
+         return sources;
+@@ -964,3 +1007,3 @@
+     let item = subjectNavigation(entry.subject);
+-    if (!(!item || seen.has(item.href)) && (seen.add(item.href), navigation.push(item), navigation.length >= 10))
++    if (!(!item || seen.has(item.href)) && (seen.add(item.href), navigation.push(item), navigation.length >= MAX_NAVIGATION))
+       return navigation;
+@@ -971,4 +1014,4 @@
+       if (value == null) continue;
+-      let href = `/2029/number/${value}`;
+-      if (!seen.has(href) && (seen.add(href), navigation.push({ kind: "number", label: `\u05E4\u05EA\u05D7 \u05D0\u05EA \u05D3\u05E3 \u05D4\u05DE\u05E1\u05E4\u05E8 ${value}`, href }), navigation.length >= 10))
++      let href = `${NUMBER_PAGE_BASE}/${value}`;
++      if (!seen.has(href) && (seen.add(href), navigation.push({ kind: "number", label: `\u05E4\u05EA\u05D7 \u05D0\u05EA \u05D3\u05E3 \u05D4\u05DE\u05E1\u05E4\u05E8 ${value}`, href }), navigation.length >= MAX_NAVIGATION))
+         return navigation;
+@@ -980,3 +1023,3 @@
+   if (!subject || !projection || projection?.guards?.existing_result_bundle_is_authority !== !0) return null;
+-  let findings = list2(projection?.model_input?.findings).slice(0, 12);
++  let findings = list2(projection?.model_input?.findings).slice(0, MAX_FINDINGS);
+   return { subject, projection, findings };
+@@ -994,5 +1037,5 @@
+       for (let row of list2(entry.projection?.model_input?.calculation_profile)) {
+-        if (calculations.length >= 6) break;
++        if (calculations.length >= MAX_VISIBLE_CALCULATIONS) break;
+         let method = cleanText2(row?.method_label || row?.method_key, 60), value = safeNumber(row?.value), key = `${expression}|${method}|${value}`;
+-        !method || value == null || calculationKeys.has(key) || (calculationKeys.add(key), calculations.push({ expression, method, value, href: `/2029/number/${value}` }));
++        !method || value == null || calculationKeys.has(key) || (calculationKeys.add(key), calculations.push({ expression, method, value, href: `${NUMBER_PAGE_BASE}/${value}` }));
+       }
+@@ -1002,3 +1045,3 @@
+     return ["verified_calculation", "engine_finding"].includes(lane) && method && !method.startsWith("fn_") && !regularMethod(method);
+-  }) || null, initialFindingLimit = reservedMethodFinding ? 7 : 8, addFinding = (finding, limit = 8) => {
++  }) || null, initialFindingLimit = reservedMethodFinding ? MAX_VISIBLE_FINDINGS - 1 : MAX_VISIBLE_FINDINGS, addFinding = (finding, limit = MAX_VISIBLE_FINDINGS) => {
+     if (findings.length >= limit) return;
+@@ -1016,3 +1059,3 @@
+       ...method ? { method } : {},
+-      ...value != null ? { value, href: `/2029/number/${value}` } : {},
++      ...value != null ? { value, href: `${NUMBER_PAGE_BASE}/${value}` } : {},
+       ...methods.length ? { methods } : {},
+@@ -1034,3 +1077,3 @@
+     }
+-  if (reservedMethodFinding && addFinding(reservedMethodFinding), findings.length < 8)
++  if (reservedMethodFinding && addFinding(reservedMethodFinding), findings.length < MAX_VISIBLE_FINDINGS)
+     for (let finding of allEntryFindings) addFinding(finding);
+@@ -1066,3 +1109,3 @@
+ function razielSurpriseCandidates(input = []) {
+-  let entries = list2(input).slice(0, 2).map(admittedEntry).filter(Boolean), candidates = [], sourceOrder = 0, push = (candidate) => {
++  let entries = list2(input).slice(0, MAX_READS).map(admittedEntry).filter(Boolean), candidates = [], sourceOrder = 0, push = (candidate) => {
+     let terms = list2(candidate.terms).filter(Boolean);
+@@ -1094,3 +1137,3 @@
+       return !label || !key || seen2.has(key) || value !== primaryAnchor.value || !regularMethod(method) || !["verified_calculation", "engine_finding"].includes(lane) ? [] : (seen2.add(key), [{ label, method: method || "\u05E8\u05D2\u05D9\u05DC" }]);
+-    }).slice(0, 12);
++    }).slice(0, MAX_CONSTELLATION_TERMS);
+     phrases.length >= 3 && push({
+@@ -1173,3 +1216,3 @@
+     return seen.has(key) ? !1 : (seen.add(key), !0);
+-  }), constellation = ranked.find((candidate) => candidate.kind === "canonical_value_constellation"), selected = constellation ? [constellation, ...ranked.filter((candidate) => candidate !== constellation).slice(0, 2)] : ranked.slice(0, 3);
++  }), constellation = ranked.find((candidate) => candidate.kind === "canonical_value_constellation"), selected = constellation ? [constellation, ...ranked.filter((candidate) => candidate !== constellation).slice(0, MAX_SURPRISE_CANDIDATES - 1)] : ranked.slice(0, MAX_SURPRISE_CANDIDATES);
+   return deepFreeze2(selected.map(({ source_order, strength, ...candidate }) => candidate));
+@@ -1439,3 +1482,3 @@
+ function buildRazielGroundedSourceComposer(input = [], { layerReads = [] } = {}) {
+-  let entries = list2(input).slice(0, 2).map(admittedEntry).filter(Boolean), layerEntries = list2(layerReads).slice(0, MAX_LAYER_READS).map(admittedEntry).filter(Boolean), bundles = entries.map((entry) => ({
++  let entries = list2(input).slice(0, MAX_READS).map(admittedEntry).filter(Boolean), layerEntries = list2(layerReads).slice(0, MAX_LAYER_READS).map(admittedEntry).filter(Boolean), bundles = entries.map((entry) => ({
+     subject: entry.subject,
+@@ -1448,3 +1491,3 @@
+     contract: "raziel-canonical-result-bundle-input-v1",
+-    composer_contract: "raziel-grounded-source-composer-v15",
++    composer_contract: `raziel-grounded-source-composer-v${RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION}`,
+     response_mode: mode,
+@@ -1488,3 +1531,3 @@
+ `).slice(0, 3600), result = {
+-    contract_version: 15,
++    contract_version: RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION,
+     prompt: bundles.length ? JSON.stringify(promptObject) : "",
+@@ -2303,3 +2346,3 @@
+ // supabase/functions/_shared/elsMatrixReading.js
+-var MAX_FINDINGS = 60, FOLD = { \u05DA: "\u05DB", \u05DD: "\u05DE", \u05DF: "\u05E0", \u05E3: "\u05E4", \u05E5: "\u05E6" }, foldFinals = (text) => text.replace(/[ךםןףץ]/g, (c) => FOLD[c]), pad = (n, width = 2) => String(n).padStart(width, "0"), KINDS = Object.freeze({
++var MAX_FINDINGS2 = 60, FOLD = { \u05DA: "\u05DB", \u05DD: "\u05DE", \u05DF: "\u05E0", \u05E3: "\u05E4", \u05E5: "\u05E6" }, foldFinals = (text) => text.replace(/[ךםןףץ]/g, (c) => FOLD[c]), pad = (n, width = 2) => String(n).padStart(width, "0"), KINDS = Object.freeze({
+   R: { name: "row", label: "\u05E9\u05D5\u05E8\u05D4", dr: 0, dc: 1, step: () => 1 },
+@@ -2458,3 +2501,3 @@
+ var INSTRUCTION_NO_STORY = "general_v2_axis_marked_unnamed", INSTRUCTION_WITH_STORY = "general_v2_axis_marked_unnamed+user_story_unmeasured";
+-function buildReadingPrompt({ region, lines, cap = MAX_FINDINGS, story = "" }) {
++function buildReadingPrompt({ region, lines, cap = MAX_FINDINGS2, story = "" }) {
+   if (!region.axisCells.length) throw new Error("this region has no selected occurrence to mark");
