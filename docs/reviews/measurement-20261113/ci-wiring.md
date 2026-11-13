@@ -1,3 +1,5 @@
+> **Applied by the integrator (13.11.2026) on this branch, with one change from the recommendation below:** no new job. The browser proof is two steps of the existing job `marketing-browser-2029` (after its own proof; the artifact is rebuilt without the test marketing ids first), because a new pull-request job would change the set of pull-request checks that the required-checks definition of the contracts package pins (a change to the definition and, later, to the ruleset). The job has a 15-minute limit and ran in about 80 seconds before this step; the proof adds about 3 minutes. If the first CI run shows it is too slow or flaky there, the recommended separate job is the fallback and then needs the one-line entry in `required-checks.json` (role: advisory). The node-test additions are exactly as written in section 1.
+
 # Measurement package: CI wiring for the integrator
 
 This package edits no file under `.github/workflows/`. Two additions are needed, both in `.github/workflows/live-contracts-2029.yml`.
