@@ -15,6 +15,7 @@ if [ -n "${SOD_SQL_TEST_SOCKET_DIR:-}" ]; then
     "${P[@]}" -d "$DB" -v ON_ERROR_STOP=1 -q -f "$SQL" 2>&1 | grep -E "PASS|ERROR" || { "${P[@]}" -d postgres -q -c "drop database if exists $DB"; exit 1; }
     "${P[@]}" -d postgres -q -c "drop database if exists $DB"
   done
+  node scripts/test-def001b-release-packet.mjs --socket "$SOD_SQL_TEST_SOCKET_DIR" "${SOD_SQL_TEST_PORT:-5432}"
   exit 0
 fi
 C="def001-sql-$$"
@@ -28,3 +29,5 @@ for SQL in "${SQLS[@]}"; do
   local_docker exec -w /repo "$C" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 -q -c "create database t$i"
   local_docker exec -w /repo "$C" psql -X -U postgres -d "t$i" -v ON_ERROR_STOP=1 -q -f "$SQL" | grep -E "PASS"
 done
+
+node scripts/test-def001b-release-packet.mjs --container "$C"

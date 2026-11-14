@@ -1,0 +1,24 @@
+{
+  "schema": "def001b-review-packet-v1",
+  "base": "9c4cad1372200759e9afe6e9c38709209d4ee02a",
+  "project": "linswmnnkjxvweumprav",
+  "state": "NOT_APPLIED",
+  "phases": {
+    "before": "cbfc8e604f7811199890789364e36651",
+    "prepared": "b102b6ce02aa10f0e805766f02fda434",
+    "locked": "cfd6f768976982e51158bf89b4468b64"
+  },
+  "inputs": {
+    "supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql": "6d4afa5e8cb38e02d2ece0e7c3d37c7963304a518f3c8fe5ae38abf5494cac07",
+    "supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql": "e299af193952d796ec2002381f2d5ac5b7c9444344b28a485cfaf825fb132667",
+    "supabase/proposed/ROLLBACK_20261106121000_def001b.sql": "6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0"
+  },
+  "before_sha256": "082c4929cdeccbb125af2c90fee6ee086ac34ef7638ad53dd5b43e190f7d9db9",
+  "catalogue_sha256": "32fbad4431b06b1218e0ae4a95f4d290ef17833fc9a31dad3852bf3363022756",
+  "files": {
+    "01-prepare.sql": "471eaecb8998959706fefd35da73edfb4fe2e90a3433299ef37456ba49107a6a",
+    "02-lockdown.sql": "cc1d0d8d20508aa1980bf54b4ad24d4ba558f5557a79ab59bb2bfa947bfe2cca",
+    "rollback.sql": "8f326232bef83de1a269a779451d45f465f52141e6070a11c1b37d7ab42a909e",
+    "verify.sql": "470e30fa8548a85b2e6ff89130c06c905e92b56744c4e4cd0ff003db32f56b07"
+  }
+}
