@@ -37,7 +37,7 @@
 -- the rollback and with any policy change made by another session (that session either finishes first and is seen by the checks below, or is still running and
 -- this file fails with a lock timeout and changes nothing). SHARE UPDATE EXCLUSIVE blocks neither reads nor the import's writes. The ALTER POLICY itself then takes
 -- ACCESS EXCLUSIVE until the end of this short transaction: it waits for reads that are already running and, while it waits, new reads queue behind it, for at
--- most lock_timeout (3s); if a long read keeps the table longer the file fails closed and changes nothing, and is simply sent again later. Readers do not stall
+-- most lock_timeout (3s); if a long read keeps the table longer the file fails closed and changes nothing: STOP and inspect (pg_locks, pg_stat_activity), do not resend automatically. Readers do not stall
 -- otherwise: the reads of this table are millisecond-scale, so the usual wait is milliseconds. GRANT and REVOKE take no table lock.
 -- search_path is fixed below because the text of policy expressions that the guard compares (and md5s) depends on it.
 begin;
