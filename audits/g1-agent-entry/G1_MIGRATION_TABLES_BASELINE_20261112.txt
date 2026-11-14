@@ -1,0 +1,45 @@
+# G1 baseline of tables created by supabase/migrations/*.sql at origin/main aa0f6bc82 (12.11.2026). One schema.table per line.
+# A migration that creates a table NOT listed here must carry a "-- OWNER-CHECK:" justification (Intake contract section 10).
+# New dated file; refresh by writing a new dated baseline, never by editing this one. It lists migration-created tables only:
+# the live database has 305 public tables, so tables created outside migrations (dashboard / direct DDL) are NOT covered by this CI check.
+public.account_link_events
+public.account_link_offers
+public.agent_upload_tickets
+public.anchor_families
+public.api_customers
+public.api_keys
+public.api_usage_log
+public.bot_outbox
+public.channel_update_group_proof
+public.community_guest_posts
+public.community_guest_settings
+public.community_tree_hints
+public.credit_action_prices
+public.credit_reservation_allocations
+public.credit_reservations
+public.decision_ledger
+public.els_matrix_reading_jobs
+public.if
+public.membership_credit_cycles
+public.membership_plans
+public.method_semantics
+public.name_protocol_agents
+public.name_protocol_allowed_fns
+public.name_research_log
+public.name_variants
+public.notification_events
+public.op_trace_roots
+public.op_trace_spans
+public.raziel_config
+public.raziel_config_snapshot
+public.relation_evidence
+public.research_items
+public.research_object_revisions
+public.research_objects
+public.research_path_revisions
+public.research_paths
+public.researcher_definitions
+public.subscribe_events
+public.tanakh_stream
+public.torah_stream
+public.video_transcripts
