@@ -17,6 +17,7 @@ import ContributorActionsController2029 from "../components/contributor2029/Cont
 import { useContributorReading2029 } from "../components/contributor2029/ContributorReadingController2029.jsx";
 import QuickProfileAvatar2029 from "../components/contributor2029/QuickProfileAvatar2029.jsx";
 import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
+import { researchPublicStatusPresentation } from "../lib/research/researchObjectPresentation.js";
 
 const TYPE_LABELS = { sources: "מקור", findings: "ממצא", writings: "כתב", topics: "נושא" };
 const VERIFICATION = { match: "טענה אומתה מול המנוע", mismatch: "טענה נסתרה במנוע", not_tested: "לא נבדקה טענה מול המנוע", method_unknown: "השיטה לא זוהתה" };
@@ -74,6 +75,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           <CommunityHistorySeal2029 authorKey={view.communityAuthorKey} />
           {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
           {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
+          {view.firstPublicationAt ? <p className="pc-role">פרסום מתועד באתר מאז <time dateTime={view.firstPublicationAt}>{bilingualDateLabel(view.firstPublicationAt)}</time></p> : null}
           <p className="pc-boundary">{person?.boundary || "מה שהאדם כתב והעלה בקהילה ובמקורות. שיוך לאדם אינו אימות של תוכן."}</p>
         </div>
         <ContributorPersonMedallion2029 person={person} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
@@ -112,6 +114,8 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
             {item.sourceOnly ? <p className="pc-source-state">מקור ללא ממצאים משויכים.</p> : null}
             {item.findingsUnavailable ? <p className="pc-source-state">המקור זמין לקריאה; המידע על ממצאים אינו זמין כרגע.</p> : null}
             {item.type === "findings" ? <div className="pc-metrics">
+              {researchPublicStatusPresentation(item.publicStatus) ? <span className={`sod29-research-status${researchPublicStatusPresentation(item.publicStatus).verified ? "" : " is-unverified"}`}
+                data-public-research-status={item.publicStatus} title={researchPublicStatusPresentation(item.publicStatus).detail}>{researchPublicStatusPresentation(item.publicStatus).label}</span> : null}
               <span>חוזק: {item.strength ?? "לא דורג"}</span><span>איכות: {item.quality ?? "לא דורג"}</span>
               <span>{VERIFICATION[item.verification] || "לא הוצהר אימות"}</span>
               {item.value !== null ? <Link to={`${NUMBER_PAGE_BASE}/${item.value}`}>מספר <bdi className="pc-number">{item.value}</bdi></Link> : null}

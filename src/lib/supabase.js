@@ -1446,7 +1446,7 @@ export async function getPopularPosts({ limit = 10 } = {}) {
 }
 
 // 👁 מעקב צפיות חי — שורה לכל צפייה (פעם אחת לכל ref בכל session, כדי לא לנפח).
-export async function logView(kind, ref) {
+export async function logView(kind, ref, publicItemId = null) {
   if (!supabase || !kind || ref == null || ref === "") return;
   // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — ל-page_views אין עמודת is_bot, ולכן אי-אפשר *לסמן* כאן
   // בוט כמו ש-site_visits/events עושים; האפשרות הישרה היחידה היא לא לכתוב. הבוט עדיין קורא
@@ -1454,6 +1454,14 @@ export async function logView(kind, ref) {
   if (!sideEffectAllowed("page_views")) return;
   // DEF-012: the public-reading build's request worker (public-reading-deploy/transport.js) denies every write except an explicit allow-list, and
   // page_views is not on it. Sending the insert only produced a 403 + console error on every post view, so the public build does not attempt it.
+  // ZURIEL 12.11.2026 "fix measurement": the public build counts the view once per session through the bounded public family
+  // instead (events surface=content, the public numeric item id only - never the slug). Dynamic import: events.js imports this module.
+  if (PUBLIC_READING_RELEASE && Number.isSafeInteger(Number(publicItemId)) && Number(publicItemId) > 0) {
+    const key = `pv29-${kind}-${Number(publicItemId)}`;
+    let fresh = true;
+    try { fresh = !sessionStorage.getItem(key); if (fresh) sessionStorage.setItem(key, "1"); } catch { /* count anyway */ }
+    if (fresh) void import("./events.js").then(m => m.emit("content", "view", { props: { kind, item_id: Number(publicItemId) } })).catch(() => {});
+  }
   if (PUBLIC_READING_RELEASE) return;
   const key = `pv-${kind}-${ref}`;
   try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch { /* ignore */ }

@@ -1,0 +1,22 @@
+# scripts/run-g1-laws-snapshot-reader-test.sh: database row -> proposed guard -> snapshot reader -> G1 (18 checks).
+# Ran on code commit 5c906d42c9d295136fb9a29f3e337d14b9835709, on a throwaway PostgreSQL 17.12; the same run on 16.15 gave identical output apart from the version line. Exit 0. Self-check: G1_READER_FLIP=G-S1 makes it exit 1.
+PostgreSQL: postgres (PostgreSQL) 17.12 (Ubuntu 17.12-1.pgdg24.04+1)
+ok READER S1-base (7 lines)
+ok READER S2-known-gap-routed (7 lines)
+ok READER S3-unnamed-family-routed (8 lines)
+ok READER S4-later-mapping-wins (8 lines)
+ok READER S5-silent-rewrite-with-the-guard-bypassed (8 lines)
+ok READER S7-successor-retired-later (8 lines)
+ok READER S8-rerouted-to-an-active-successor (8 lines)
+ok READER S9-family-revived (8 lines)
+ok G-S1 the base record is valid (the one known gap is named) => ALLOWED
+ok G-S2 a known gap routed through retired_routing_v1 => ALLOWED
+ok G-S3 an unnamed retired family listed once it carries a record => ALLOWED
+ok G-S4 a later mapping replaces the owner recorded at retirement => ALLOWED
+ok G-S5 a silent rewrite of the retired owner (guard bypassed) => REFUSED (gone_dep_law: recorded successor changed (other_root_law -> root_law) without a retired_routing_v1 record (the owner recorded at retirement is history and is not rewritten))
+ok G-S7 the successor retired later => REFUSED (gone_dep_law: recorded successor other_root_law is itself retired ; gone_owned_law: recorded successor other_root_law is itself retired ; gone_unnamed_routed_law: recorded successor other_root_law is )
+ok G-S7b a retired self-owned root is not its own successor => REFUSED (gone_dep_law: recorded successor other_root_law is itself retired ; gone_owned_law: recorded successor other_root_law is itself retired ; gone_unnamed_routed_law: recorded successor other_root_law is )
+ok G-S8 new approved routings to an active successor => ALLOWED
+ok G-S9 a revived family without a recorded approval => REFUSED (gone_unnamed_routed_law: a retired law was activated again without a recorded approval)
+ok G-S9b the same revival with a recorded approval; the old record is not read => ALLOWED
+RESULT: the reader and G1 behaved as expected in all 18 checks

@@ -1,0 +1,22 @@
+# G1 dated baseline of contract-like files that are NOT routed in the Owner Index and carry no OWNER-ROUTING header — 2026-11-12.
+# Frozen on the baseline date (origin/main aa0f6bc82 + PR #1321). The check refuses any NEW such file; this list may only SHRINK
+# (each entry is routed, marked HISTORICAL or carries an OWNER-ROUTING header; the contracts session owns that mapping). A new dated
+# file replaces this one; never add a path to it. One repository path per line.
+SOD1820_CONTENT_FOUNDATION_CONTRACT.md
+SOD1820_DESIGN_CONTRACT_V1.md
+docs/2029-books-hebrew-presentation-contract-v1.md
+docs/2029-cost-consumption-full-project-contract-v1-1.md
+docs/MASTER_ROADMAP_V5_5_RECONCILIATION_INPUTS.md
+docs/MASTER_STATE_STRATEGIC_ADDENDA.md
+docs/biblical-cipher-research-contract-v1.md
+docs/corpus-admission-foundation-v1-contract.md
+docs/els-matrix-projection-contract-v1.md
+docs/g3-community-core-pr636-final-blockers-branch-notes.md
+docs/g3-gematria-presentation-contract-v1.md
+docs/m1-truth-contract-implementation.md
+docs/research-universal-finding-contract.md
+docs/shared-expression-extraction-v1-contract.md
+docs/sod1820-system-frame-contract-v2-addendum.md
+docs/spatial-gematria-v2-contract.md
+docs/w0-2027-final-reconciliation-v1.md
+docs/w0-2027-master-state-supersession-delta-v1.md
