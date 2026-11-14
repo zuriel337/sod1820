@@ -1,8 +1,10 @@
 // M0-D (round 4): a tab left open during the site deploy, and the mandatory rollback order, in a real browser.
 // Two BUILT sites run side by side against one mocked Supabase origin (nothing leaves the machine):
-//   OLD_DIST = the site that is live now (a build of the live commit, e.g. `git worktree add <dir> aa0f6bc82 && npm run build`;
-//              round 4 ran it with 146f2f0e7, whose contributor readers are identical)
-//   NEW_DIST = this branch (default: ./dist from `npm run build`)
+//   OLD_DIST = the HISTORICAL site: a build of 9c4cad1372200759e9afe6e9c38709209d4ee02a, the code a tab left open runs after the change is
+//              deployed (the site that was live before #1333 and #1335). It is a fixed commit, never the PR base and never moved by later
+//              deployments: it stands for the behaviour BEFORE the change, and a newer commit makes both sides equal and fails these proofs.
+//              Locally: `git worktree add <dir> 9c4cad1372200759e9afe6e9c38709209d4ee02a && (cd <dir> && SOD_BUILD_TARGET=2029 npx vite build)`.
+//   NEW_DIST = the tested commit (default: ./dist from `SOD_BUILD_TARGET=2029 npx vite build`)
 // The mock answers world_contributor_research_v1 with a verified (canonical, promoted) finding only, and world_contributor_research_v2
 // (when it "exists") with the same finding plus a public candidate. Round 5 (independent review): the mock now APPLIES the PostgREST
 // filters the page sends (eq / is / not.is / like / in), exactly as the database would, and fails the test on any filter it does not
@@ -15,8 +17,9 @@
 //   D. A permission error on v2 is NOT a missing view: no silent fallback to v1.
 // Candidates DO appear, labelled «טרם אומת», on the World source reader (worldPublicFindingReader, candidate tier); that surface is
 // covered by test/m0d-contributor-view-v2.test.mjs and the component tests, not here.
-// Skips (never passes) when either build or the browser is missing.
+// Skips locally (never passes) when either build or the browser is missing; with PUBLIC_CONTENT_PROOF_REQUIRED=1 (CI) a missing prerequisite FAILS.
 import test from 'node:test';
+import { proofMissing, proofSkip, assertProofCanRun } from './helpers/publicContentProofGate.mjs';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
@@ -30,8 +33,8 @@ const NEW_DIST = resolve(process.env.NEW_DIST || join(root, 'dist'));
 const req = createRequire(import.meta.url);
 let pw = null; try { pw = req('playwright'); } catch { /* optional local browser tooling */ }
 const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || (pw && existsSync(pw.chromium.executablePath()) ? pw.chromium.executablePath() : undefined);
-const canRun = Boolean(pw && OLD_DIST && existsSync(join(OLD_DIST, '2029.html')) && existsSync(join(NEW_DIST, '2029.html')));
-const SKIP = !canRun && 'needs Playwright, OLD_DIST (build of the live commit) and NEW_DIST (this branch)';
+const MISSING = proofMissing({ pw, OLD_DIST, NEW_DIST, executablePath });
+const SKIP = proofSkip(MISSING, 'needs Playwright, a Chromium, OLD_DIST (the historical site) and NEW_DIST (the tested commit)');
 
 const SUPABASE_HOST = 'linswmnnkjxvweumprav.supabase.co';
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-expose-headers': '*' };
@@ -123,6 +126,7 @@ async function visit(browser, base, state) {
 }
 
 test('stale tab and rollback order: old code reads v1 only; new code reads v2, falls back only when v2 is missing', { skip: SKIP }, async () => {
+  assertProofCanRun(MISSING);
   const [oldServer, newServer] = await Promise.all([serve(OLD_DIST), serve(NEW_DIST)]);
   const oldBase = `http://127.0.0.1:${oldServer.address().port}`, newBase = `http://127.0.0.1:${newServer.address().port}`;
   const browser = await pw.chromium.launch({ executablePath, headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'] });

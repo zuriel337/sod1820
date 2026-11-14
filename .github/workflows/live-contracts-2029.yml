@@ -187,6 +187,7 @@ jobs:
           test/public-content-display-policy-20261113.test.mjs
           test/m0d-contributor-view-v2.test.mjs
           test/public-content-package-scope-20261113.test.mjs
+          test/public-content-browser-gate-20261114.test.mjs
           test/world-all-source-findings-2029.test.mjs
           test/world-finding-share-og-2029.test.mjs
           test/world-public-finding-reader-2029.test.mjs
@@ -448,24 +449,44 @@ jobs:
         run: |
           if command -v google-chrome >/dev/null 2>&1; then export CHROMIUM_PATH="$(command -v google-chrome)" PUBLIC_MEDIA_REQUIRE_VIDEO_DECODE=1; fi
           node --test test/public-media-transport-2029.browser.mjs
-      # Public content, old tab against the new database view and the new site against an unverified finding: two builds (the PR base and this
-      # head), one real Chromium. Both tests SKIP (never pass) when a build or the browser is missing, so a broken wiring cannot look green.
-      - name: Build the site and the pre-change site (the PR base) for the old-client comparison
+      # Public content, old tab against the new database view and the new site against an unverified finding: two builds, one real Chromium.
+      # THE OLD SIDE IS A FIXED HISTORICAL COMMIT, NOT THE PR BASE (ZURIEL 14.11.2026). It stands for the site as it was before #1333 and #1335
+      # (the code a tab left open runs after the change is deployed). The PR base of every pull request opened after #1335 was merged already
+      # contains the change, so building the old side from it made both sides equal and failed both proofs in every such pull request.
+      # DO NOT move this pin after a deployment or a merge: replacing it with a newer commit brings back exactly that failure. The G1 base
+      # commit (PR_BASE_SHA in the G1 step above) is a different thing and is not touched. The NEW side is the checked-out tested commit.
+      # Both proofs must RUN and PASS here: a missing historical build or browser fails the step (PUBLIC_CONTENT_PROOF_REQUIRED), and the
+      # TAP summary must be exactly 2 tests, 2 pass, 0 fail, 0 skipped, 0 todo, 0 cancelled.
+      - name: Build the tested site and the pinned historical site for the old-client comparison
         env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HISTORICAL_SITE_SHA: 9c4cad1372200759e9afe6e9c38709209d4ee02a
         run: |
+          set -euo pipefail
+          TESTED="$(git rev-parse HEAD)"
+          echo "tested commit:   $TESTED"
+          echo "historical site: $HISTORICAL_SITE_SHA"
+          if [ "$TESTED" = "$HISTORICAL_SITE_SHA" ]; then echo "::error::the tested commit is the historical commit: the comparison would prove nothing"; exit 1; fi
           SOD_BUILD_TARGET=2029 npx vite build
-          BASE="${PR_BASE_SHA:-$(git ls-remote origin refs/heads/main | cut -f1)}"
-          git fetch --no-tags --depth=1 origin "$BASE"
+          git fetch --no-tags --depth=1 origin "$HISTORICAL_SITE_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$HISTORICAL_SITE_SHA"
           mkdir -p "$RUNNER_TEMP/old-site"
-          git archive "$BASE" | tar -x -C "$RUNNER_TEMP/old-site"
+          git archive "$HISTORICAL_SITE_SHA" | tar -x -C "$RUNNER_TEMP/old-site"
           ln -s "$PWD/node_modules" "$RUNNER_TEMP/old-site/node_modules"
           (cd "$RUNNER_TEMP/old-site" && SOD_BUILD_TARGET=2029 npx vite build)
+          test -s "$PWD/dist/2029.html"
+          test -s "$RUNNER_TEMP/old-site/dist/2029.html"
+          mkdir -p "$RUNNER_TEMP/auth-evidence"
+          printf 'tested=%s\nhistorical=%s\n' "$TESTED" "$HISTORICAL_SITE_SHA" > "$RUNNER_TEMP/auth-evidence/public-content-proof-commits.txt"
       - name: Public content in a real browser (old tab against the new database view keeps working; the new site shows «טרם אומת» and nothing private; v2 missing falls back to v1)
-        run: node --test test/m0d-contributor-stale-client.browser.mjs test/m0d-world-candidate-visible.browser.mjs
         env:
           OLD_DIST: ${{ runner.temp }}/old-site/dist
           NEW_DIST: ${{ github.workspace }}/dist
+          PUBLIC_CONTENT_PROOF_REQUIRED: "1"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/auth-evidence"
+          node --test --test-reporter=tap test/m0d-contributor-stale-client.browser.mjs test/m0d-world-candidate-visible.browser.mjs | tee "$RUNNER_TEMP/auth-evidence/public-content-proof.tap"
+          node scripts/assert-tap-summary.mjs --tests 2 --pass 2 --fail 0 --skipped 0 --todo 0 --cancelled 0 < "$RUNNER_TEMP/auth-evidence/public-content-proof.tap"
       - name: Keep the evidence
         if: always()
         uses: actions/upload-artifact@v4
