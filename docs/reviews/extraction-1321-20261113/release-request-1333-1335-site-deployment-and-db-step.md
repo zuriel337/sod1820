@@ -47,7 +47,7 @@ Browser proofs of the community features on real public data (read only; desktop
 **Request:** deploy `main` at `4c9630db48958417796948b32031f06eb22ed3f1` by the documented procedure (CLAUDE.md «נוהל פריסה ל־Production מסשן ענן»): `create_deployment` with `gitSource` at that SHA, `projectSettings` as in `docs/reviews/main-live-state-reconciliation-20261104/live-969-release/executed-production-request.json` with the SHA substituted (build `--public-production-candidate --review-source=<SHA>`, `commandForIgnoringBuildStep` allowing only that SHA), no PATCH of project settings; check `get_deployment` after about 40 s (`CANCELED` = the ignored build step, stop); then `assign_alias` of `sod1820.co.il`, `www.sod1820.co.il`, `sod1820.vercel.app` (a READY deployment alone moves no domain).
 
 **Re-check immediately before the approval is used (the request lapses if one fails):**
-1. `origin/main` is still `4c9630db4…`; the alias is still `dpl_89Men3j…` (`get_alias`, read again, because a parallel session may deploy).
+1. `origin/main` is still `4c9630db4…` **or has moved only by the merges R1–R5 of the foundation package** (then `git diff --name-only 4c9630db4 origin/main` must show no path under `src/`, `api/`, `public*`, `supabase/functions`, `package*.json`; the deployment request names the exact SHA `4c9630db4` in either case); the alias is still `dpl_89Men3j…` (`get_alias`, read again, because a parallel session may deploy).
 2. The push gate of `main` is green and the canary state is read.
 3. The previous deployment id (the rollback target) is written down: `dpl_89Men3jqSi3pAJ5jGMpp75iZqDzx`.
 
