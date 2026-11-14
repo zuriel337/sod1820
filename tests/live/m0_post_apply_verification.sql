@@ -58,7 +58,7 @@ checks(step, kind, name, ok) as (
     and has_column_privilege('anon', 'public.els_records', 'title', 'SELECT')
   union all select '9', 'change', 'P push_subscriptions anon table access removed (DEF-001b step 2)', not has_table_privilege('anon', 'public.push_subscriptions', 'SELECT')
     and not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'push_subscriptions' and policyname like 'ps_anon_%')
-  union all select '8', 'change', 'C gallery 120 MiB ceiling (PRODUCT DECISION D-1, not confirmed), no bucket MIME list, still public', exists (select 1 from storage.buckets where id = 'gallery' and file_size_limit = 125829120 and allowed_mime_types is null and public)
+  union all select '8', 'change', 'C gallery 120 MiB per-new-file ceiling (PRODUCT DECISION D-1, adopted 14.11.2026), no bucket MIME list, still public', exists (select 1 from storage.buckets where id = 'gallery' and file_size_limit = 125829120 and allowed_mime_types is null and public)
   union all select '8', 'change', 'C gallery client policies replaced (old public_upload / community_anon_upload gone)', not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname in ('public_upload', 'community_anon_upload'))
     and (select count(*) from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname in ('gallery_flat_image_upload_v1', 'gallery_client_upload_scoped_v1', 'gallery_admin_upload_v1')) = 3
   union all select '8', 'preserve', 'C gallery public read unchanged', exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname = 'public_read' and cmd = 'SELECT')
