@@ -27,7 +27,9 @@ Before the patch: 3 passed, 2 failed (request budget and discovery overlap). Aft
 
 ## Release status and coordination
 
-Base is `main` `4c9630db48958417796948b32031f06eb22ed3f1`; work is on `codex/sitemap-source-reuse-20261114`. Codex owns this narrow implementation scope, recorded in the existing passive journal `d558163b-900a-4a06-9ad5-0d13dbac09ea`. Foundation #1342 remains unchanged. The workflow line shared with #1342 must be preserved when integrating both patches.
+The target main is `4c9630db48958417796948b32031f06eb22ed3f1`; work is on `codex/sitemap-source-reuse-20261114`. The initial local `origin/main` reference was stale at `9c4cad1372200759e9afe6e9c38709209d4ee02a` despite fetching main; this was caught when checking the integration ancestry. It did not change the sitemap source itself. The branch now includes the exact reviewed foundation head `88423034869c921e1ebb0ea8dcfa6cd0d9f6fc2e`, which includes the actual main. The difference against that foundation head is exactly these four sitemap-fix files, with no conflict; all 24 authorized SQL/rollback/verifier hashes remain identical. This is a stacked review on #1342, not a second implementation of its changes. Foundation #1342 itself remains untouched.
+
+Codex owns this narrow implementation scope, recorded in the existing passive journal `d558163b-900a-4a06-9ad5-0d13dbac09ea`. The shared workflow retains both the foundation fixes and the added sitemap tests. Integration and local tests must be checked on this combined head before release.
 
 There are two existing release-evidence issues to distinguish from this patch's tests:
 
