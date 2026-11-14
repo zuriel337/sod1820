@@ -4,6 +4,11 @@
 // from the authenticated Resend Webhooks API using the already-existing RESEND_API_KEY.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+// MAIL_INTAKE_ZION_20261105: held-only intake of approved senders. OFF unless this Edge secret is exactly "true".
+// With the flag off nothing below runs and no new module is even loaded (dynamic imports live inside admitHeldMail).
+// Whatever happens here, the private inbox store below is never blocked or rolled back.
+const MAIL_INTAKE_ENABLED = (Deno.env.get("MAIL_INTAKE_ZION_ENABLED") || "").trim() === "true";
+
 const RESEND_KEY = (Deno.env.get("RESEND_READ_KEY") || Deno.env.get("RESEND_API_KEY") || "").trim();
 const WEBHOOK_ID = "d31ce68e-5f2f-481e-af12-6ac0256005c9"; // resource id, not a secret
 const EXPLICIT_WEBHOOK_SECRET = (Deno.env.get("RESEND_WEBHOOK_SECRET") || "").trim();
@@ -75,6 +80,32 @@ async function verifyWebhook(rawBody: string, req: Request): Promise<boolean> {
   } catch { return false; }
 }
 
+// Returns a short status token; never the mail content. The RPC is the authoritative dedupe + held-shape check.
+async function admitHeldMail(inboxId: number, emailId: string, receipt: any): Promise<string> {
+  const { planMailIntake } = await import("../_shared/mailIntake.mjs");
+  const { exactMailbox } = await import("../_shared/sourceEmail.mjs");
+  const mailbox = exactMailbox(receipt?.from);
+  if (!mailbox) return "skip:sender_unparseable";
+  const { data: rows, error: apErr } = await sb.from("mail_source_approvals")
+    .select("mailbox_lc, author_key, author_display, contributor_id, active").eq("mailbox_lc", mailbox).eq("active", true);
+  if (apErr) throw new Error("approvals_read_failed");
+  if (!rows?.length) return "skip:sender_not_approved"; // unknown senders never reach the contributor lookup
+  const approvals = rows.map((r: any) => ({ email: r.mailbox_lc, active: r.active, author_key: r.author_key, author_display: r.author_display, contributor_id: r.contributor_id }));
+  const esc = mailbox.replace(/[\\%_]/g, "\\$&");
+  const { data: matches, error: cErr } = await sb.from("contributors").select("id").ilike("email", esc);
+  if (cErr) throw new Error("contributors_read_failed");
+  const plan = await planMailIntake({
+    email: receipt, providerContext: { provider: "resend", providerId: emailId },
+    receivedAt: new Date().toISOString(), approvals, contributorMatches: matches || [],
+  });
+  if (plan.action !== "hold") return `skip:${plan.reason}`;
+  const { data: res, error: rpcErr } = await sb.rpc("admit_mail_source_held_v1", {
+    p_inbound_email_id: inboxId, p_update: plan.update, p_proof: plan.mail_proof,
+  });
+  if (rpcErr) throw new Error("admit_rpc_failed");
+  return res?.ok === true ? (res.dup ? "held:dup" : "held") : `skip:${res?.error || "rpc_refused"}`;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return j({ ok: false, error: "method_not_allowed" }, 405);
   if (!RESEND_KEY || !SUPABASE_URL || !SERVICE_ROLE_KEY) return j({ ok: false, error: "not_configured" }, 503);
@@ -91,10 +122,12 @@ Deno.serve(async (req: Request) => {
 
   let from = String(data.from || ""), to = Array.isArray(data.to) ? data.to.join(", ") : String(data.to || "");
   let subject = String(data.subject || ""), text = "", html = "", msgId = String(data.message_id || emailId), inReplyTo = "";
+  let receipt: any = null; // authenticated GET result, used only by the flag-gated held intake
   try {
     const rr = await fetch(`https://api.resend.com/emails/receiving/${emailId}`, { headers: { Authorization: `Bearer ${RESEND_KEY}` } });
     if (rr.ok) {
       const f = await rr.json();
+      receipt = f;
       from = f.from || from;
       to = Array.isArray(f.to) ? f.to.join(", ") : (f.to || to);
       subject = f.subject || subject;
@@ -126,5 +159,12 @@ Deno.serve(async (req: Request) => {
     meta: { raw_from: from, raw_to: to, provider: "resend", verified_webhook: true },
   }).select("id").maybeSingle();
   if (error) return j({ ok: false, error: "store_failed" }, 500);
-  return j({ ok: true, id: row?.id });
+
+  // Held-only intake (OFF by default). Any failure is logged without content and never affects the stored inbox row.
+  let intake: string | undefined;
+  if (MAIL_INTAKE_ENABLED && row?.id && receipt) {
+    try { intake = await admitHeldMail(row.id, emailId, receipt); }
+    catch { intake = "mail_intake_failed"; console.error("mail_intake_failed"); }
+  }
+  return j(intake ? { ok: true, id: row?.id, intake } : { ok: true, id: row?.id });
 });
