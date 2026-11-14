@@ -11,7 +11,7 @@ Files of #1321 that are not listed here belong to another topic; the integrator'
 | `supabase/proposed/ROLLBACK_20261106131000_def005.sql` | **changed** | rewritten: same twelve signatures, other same-name functions proven untouched (F2); state guard against the apply record (CR-X1) |
 | `tests/sql/def005_public_rpc_guards_v1.sql` | **changed** | rewritten around exact signatures; guards G1–G6, rollback R1–R4; failed expectation is fatal |
 | `test/def005-rpc-grants-contract.test.mjs` | **changed** | DEF-005b parts removed; pins the twelve signatures of apply and rollback |
-| `supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql` | **changed** | revision M0 taken on main's 06.11 draft; header block that marks the 120 MiB ceiling as an unconfirmed product decision (D-1) added; no logic change |
+| `supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql` | **changed** | revision M0 taken on main's 06.11 draft; header block that records the 120 MiB ceiling as product decision D-1 added (13.11: unconfirmed; 14.11: adopted by ZURIEL, per new file); no logic change |
 | `supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql` | taken | |
 | `tests/sql/def004_gallery_storage_upload_policies_v1.sql` | taken | on main's 06.11 version |
 | `scripts/run-def004-gallery-sql-test.sh` | taken | |

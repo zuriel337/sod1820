@@ -46,7 +46,7 @@ All seven present and not admin-only (`insights."authenticated write"`, `word_al
 ### Step 7 — `add_contribution` guest limit by platform address
 Body md5 `a2110027d793b61e461bb62954a4be69` = the reviewed "before".
 
-### Step 8 — gallery Storage uploads (DEF-004), product decision D-1 open
+### Step 8 — gallery Storage uploads (DEF-004), product decision D-1 adopted (120 MiB per new file)
 Bucket `gallery`: public, `file_size_limit` NULL, `allowed_mime_types` NULL; 1,386 objects, the largest 114,883,491 bytes (below 120 MiB = 125,829,120). Policies on `storage.objects` (8): `community_anon_upload`, `community_authenticated_media_paths_v1` (RESTRICTIVE), `magar_authorized_delete/insert/update`, `magar_public_read`, `public_read`, `public_upload`. Fingerprint `fc57c5ec4289358741cd622b02d39556` (unchanged by the second-generation text). `storage.objects` is owned by `supabase_storage_admin` and `postgres` is not a member of that role; policy DDL on `storage.objects` was nevertheless applied by the migration channel before (`20261013074630_p0_f02_remove_exact_temporary_storage_write_policies`, `community_authenticated_media_paths_v1`): if the platform refused it now, the transaction aborts and nothing changes.
 
 ### Step 10 — four inactive cron jobs with a URL secret

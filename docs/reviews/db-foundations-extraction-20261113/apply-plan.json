@@ -69,8 +69,8 @@
    "verify": "A2, A3, A4 and wa_msg_count in A1",
    "live_state_13_11": "the four function bodies read by step 4 and step 7 match the reviewed 'before' md5; gematria_wall policy not yet changed",
    "what": "admin guard on admin_resolve_translit and admin_ai_cost, wa_msg_count server-only, link_visitor_identity no longer re-links another account's visitor id, private gematria_wall rows hidden",
-   "sha256": "f6eeeeefb74258a8f1ead1e84ec8b6901a6c83f579859979178ed6400a218e79",
-   "rollback_sha256": "671023e512cf3856aa1d76cba9a18a2dd3bbd538cf25723145ae0238696a55ee",
+   "sha256": "b55ba32ed1033f1c210a51d4cb183f2acdfa05006307fb7d088d4dbccd601935",
+   "rollback_sha256": "cd8bb7e1a621c13ec50d541ebbc19e8cb4076b8ac230adba82dbdbc96156d319",
    "status": "mandatory",
    "state": "not_applied",
    "guard": {
@@ -104,8 +104,8 @@
    "verify": "A5",
    "live_state_13_11": "all seven Legacy tables still carry a client write grant",
    "what": "seven Legacy tables closed to client writes; lab_* readable by admin only; no row deleted",
-   "sha256": "c0576ca983ee67df824ad607f17e0cd1b239ef91c6ad1dd29ef35c666285f96c",
-   "rollback_sha256": "45df71c45550b5f3949bf6a86d1ab0d440fd2adadfb9169d752cbd710703dfab",
+   "sha256": "04debcc491fd953ee1d745aca50fe7ece22993afc79f7d2dd5e26471329b299e",
+   "rollback_sha256": "023fd369901a6464f217c6c1d686b55b07d236e1e09ebc3846b10ac5d5dafece",
    "status": "mandatory",
    "state": "not_applied",
    "guard": {
@@ -144,8 +144,8 @@
    "verify": "A6",
    "live_state_13_11": "all seven dormant ALL policies are not yet admin-only",
    "what": "seven dormant 'any signed-in user may write' policies become admin-only under the same names",
-   "sha256": "7f3ead4a752b8bbb499f9897b1ab910ac3b037dd53fd5db7e3a8a45bb2268cd8",
-   "rollback_sha256": "8524db8dc1fbc6abd36fc17b44f9dd5c63da51fa3dba793cf4433d0eb584a414",
+   "sha256": "9268397db0dc0b3519261a32e419be0adcfbd059b6f9f364f82172454d23cd60",
+   "rollback_sha256": "c47504368c274e64e2025958be06c84e3ebe4b8483a3cbbfb43853b51c471fda",
    "status": "mandatory",
    "state": "not_applied",
    "guard": {
@@ -198,9 +198,6 @@
    "rollback": "supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql",
    "origin": "changed on main since 06.11 (draft) and re-based onto it; revision M0 from #1321 plus the product-decision marking of this package",
    "depends_on": [],
-   "decision_gates": [
-    "D-1: the 120 MiB upload ceiling is a product decision that is not confirmed for this release (marked in the file header and in section 5)"
-   ],
    "tests": [
     "scripts/run-def004-gallery-sql-test.sh (27 route cases before, 108 after, 27 after rollback; negative mode; negative control; drift refusal)",
     "tests/sql/def004_gallery_storage_upload_policies_v1.sql",
@@ -209,9 +206,9 @@
    ],
    "verify": "C (3 rows)",
    "live_state_13_11": "old policies community_anon_upload and public_upload still present; bucket gallery public, no size limit, no MIME list; largest object 114,883,491 bytes (below 120 MiB)",
-   "what": "gallery uploads by role, path and extension (anonymous: flat community image only; signed-in: own community attachment, own avatar, cipher card; admin: any path); plus the 120 MiB ceiling (D-1)",
-   "sha256": "d911fb74c5a5578a7a2d1dc92e643e1ed7183909b64e2ca15e520df2e290f8da",
-   "rollback_sha256": "b4e6d599a875a6440d0ca3d1975de4be885bc8abed62472da7455d2ceef03d81",
+   "what": "gallery uploads by role, path and extension (anonymous: flat community image only; signed-in: own community attachment, own avatar, cipher card; admin: any path); plus the 120 MiB per-new-file ceiling (D-1, adopted)",
+   "sha256": "37038b4a56b1c0038cbc2e305336fb5ac6a12ea23f35e347a3930576e9be9d49",
+   "rollback_sha256": "302407f3a104913a78fe215f334a7a14abca4108a742ad24e5c4f90a270b0412",
    "status": "mandatory",
    "state": "not_applied",
    "guard": {
@@ -228,7 +225,10 @@
     "fingerprint_after_fixture": "9fbf59431d86a0c4453d1e31302b0c66",
     "query": "tests/live/m0_pre_apply_fingerprints.sql (row step 8)"
    },
-   "live_state_14_11": "read 14.11.2026: gallery bucket public, no size limit, no MIME list; largest object 114,883,491 bytes (1,386 objects); policies community_anon_upload and public_upload present; fingerprint fc57c5ec4289358741cd622b02d39556 (unchanged by the extension of the fingerprint text)"
+   "live_state_14_11": "read 14.11.2026: gallery bucket public, no size limit, no MIME list; largest object 114,883,491 bytes (1,386 objects); policies community_anon_upload and public_upload present; fingerprint fc57c5ec4289358741cd622b02d39556 (unchanged by the extension of the fingerprint text)",
+   "decision_record": [
+    "D-1 ADOPTED by ZURIEL on 14.11.2026 (journal d558163b, 'ZURIEL POLICY CHOICES'): a limit of 120 MiB per NEW gallery file (not a total bucket capacity), existing files retained; marked in the file header and in section 5. A policy choice, NOT an approval to apply this file."
+   ]
   },
   {
    "step": "9",
@@ -332,7 +332,7 @@
   "verifier_run_utc": "2026-11-14T18:35"
  },
  "execution_form": {
-  "steps_4_5_6_8": "the file is ONE transaction: begin; set local lock_timeout (2s; 1s for step 8, the hot gallery table); set local statement_timeout = '60s'; set local search_path = public, pg_catalog; lock table <the tables the step changes> in share update exclusive mode; THEN the catalogue fingerprint guard (so a policy change by another session is either finished and seen, or the lock wait fails and nothing changes); the changes; a postcondition on the exact fingerprint; commit. The guard accepts only the live state read on 14.11.2026 (or, idempotently, the file's own result) and refuses before any change otherwise; the rollback accepts only the state its apply produced and its postcondition requires the exact state before the apply (so a rollback that is not exact fails instead of passing). Lock facts measured on PostgreSQL 16 and 17: CREATE/ALTER/DROP POLICY take ACCESS EXCLUSIVE on the table (running readers delay them, new readers queue behind them, for at most the lock timeout); GRANT/REVOKE take no table lock, so a grant made by another session between the guard and the commit is not excluded by the lock (the postcondition sees a grant committed before it)",
+  "steps_4_5_6_8": "the file is ONE transaction: begin; set local lock_timeout (2s; 1s for step 8, the hot gallery table); set local statement_timeout = '60s'; set local search_path = public, pg_catalog; lock table <the tables the step changes> in share update exclusive mode; THEN the catalogue fingerprint guard (so a policy change by another session is either finished and seen, or the lock wait fails and nothing changes); the changes; a postcondition on the exact fingerprint; commit. The guard accepts only the live state read on 14.11.2026 (or, idempotently, the file's own result) and refuses before any change otherwise; the rollback accepts only the state its apply produced and its postcondition requires the exact state before the apply (so a rollback that is not exact fails instead of passing). On a lock timeout nothing has changed: STOP and inspect (pg_locks, pg_stat_activity) and do not resend automatically (ZURIEL's adopted rule, 14.11.2026). Lock facts measured on PostgreSQL 16 and 17: CREATE/ALTER/DROP POLICY take ACCESS EXCLUSIVE on the table (running readers delay them, new readers queue behind them, for at most the lock timeout); GRANT/REVOKE take no table lock, so a grant made by another session between the guard and the commit is not excluded by the lock (the postcondition sees a grant committed before it)",
   "steps_2_7_10": "each change is one statement (a DO block, or one md5-guarded patch call): atomic by construction; the files are unchanged since the reviews (CR-X1 for step 2)",
   "send_as": "one complete call per file, without edits",
   "before_each_step": "read the fingerprints/preconditions of that step again (this file, fields live_precondition and guard) - the files also check them themselves"
