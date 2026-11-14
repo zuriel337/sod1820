@@ -86,3 +86,62 @@ export function readingWebVitalBody(body) {
   return p.ratings && !Array.isArray(p.ratings) && Object.keys(p.ratings).sort().join(",") === "cls,fcp,inp,lcp,ttfb"
     && Object.values(p.ratings).every(v => v === null || ["good", "needs_improvement", "poor"].includes(v));
 }
+
+// Product actions and public content views (ingest_event, the existing events pipeline) - ZURIEL 12.11.2026 "fix measurement".
+// Same doctrine as visits/engagement/RUM: no visitor/session identity, the normalized route label only, and per family a fixed
+// event list and a fixed set of bounded fields (tokens, booleans, small integers). Free text the visitor typed (expressions,
+// phrases, queries, values, share ids) never leaves the browser: unknown fields are dropped by the projection and refused by
+// the validator. Self-contained (serialized into the public request worker together with readingTelemetryPath).
+export function readingActionSpec() {
+  const T = "token", B = "bool", I = "int";
+  return {
+    calculator_2029: { events: ["calculator_view", "result_selected", "first_compute", "new_compute_from_share", "raziel_opened", "method_opened",
+      "share_created", "classic_tile_opened", "words_bar_pick", "equals_preview_phrase_opened", "shared_result_opened", "ai_analysis_requested"],
+      fields: { surface: T, method: T, entry: T, kind: T, channel: T, reason: T, from_share: B, has_discovery: B, count: I, expression_length: I } },
+    entry_2029: { events: "token", fields: { entry_surface: T, arrival: T, concept_key: T, layer: T, action_id: T, target_surface: T, availability: T,
+      mode: T, guided_id: T, ms_bucket: T, manifest_version: I, step_index: I } },
+    journey_2029: { events: "token", fields: { journey_kind: T, journey_mode: T, source_surface: T, root_type: T, has_path: B } },
+    share: { events: ["share"], fields: { platform: T } },
+    join: { events: ["click"], fields: { surface: T } },
+    arrival: { events: ["source"], fields: { source: T, tag: T, tagged: B } },
+    content: { events: ["view"], fields: { kind: T, item_id: I } },
+  };
+}
+
+// Client-side projection of an existing emit() call onto the public family. Returns null when the action is not measured.
+export function readingActionProps(surface, eventType, props) {
+  const spec = readingActionSpec()[surface];
+  if (!spec || typeof eventType !== "string") return null;
+  if (Array.isArray(spec.events) ? !spec.events.includes(eventType) : !/^[a-z][a-z0-9_]{0,47}$/.test(eventType)) return null;
+  const out = { action_version: 1 };
+  const source = props && typeof props === "object" && !Array.isArray(props) ? props : {};
+  for (const [key, kind] of Object.entries(spec.fields)) {
+    const value = source[key];
+    if (value === undefined || value === null) continue;
+    if (kind === "token" && typeof value === "string" && /^[a-z0-9][a-z0-9_:.-]{0,47}$/i.test(value)) out[key] = value.toLowerCase();
+    else if (kind === "bool" && typeof value === "boolean") out[key] = value;
+    else if (kind === "int" && Number.isSafeInteger(Number(value)) && Number(value) >= 0 && Number(value) <= 1000000000000 && String(value).trim() !== "") out[key] = Number(value);
+  }
+  return out;
+}
+
+export function readingActionBody(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)
+    || Object.keys(body).sort().join(",") !== "p_app_context,p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"
+    || body.p_sod_id !== null || body.p_session_id !== null || body.p_is_bot !== false
+    || typeof body.p_path !== "string" || readingTelemetryPath(body.p_path) !== body.p_path
+    || !["facebook", "instagram", "whatsapp", "telegram", "line", "chrome-ios", "edge", "opera", "firefox", "android-webview", "chrome", "safari", "other"].includes(body.p_app_context)) return false;
+  const spec = readingActionSpec()[body.p_surface];
+  if (!spec || typeof body.p_event_type !== "string"
+    || (Array.isArray(spec.events) ? !spec.events.includes(body.p_event_type) : !/^[a-z][a-z0-9_]{0,47}$/.test(body.p_event_type))) return false;
+  const p = body.p_props;
+  if (!p || typeof p !== "object" || Array.isArray(p) || p.action_version !== 1 || JSON.stringify(p).length > 800) return false;
+  for (const [key, value] of Object.entries(p)) {
+    if (key === "action_version") continue;
+    const kind = spec.fields[key];
+    if (kind === "token" ? !(typeof value === "string" && /^[a-z0-9][a-z0-9_:.-]{0,47}$/.test(value))
+      : kind === "bool" ? typeof value !== "boolean"
+      : kind === "int" ? !(Number.isSafeInteger(value) && value >= 0 && value <= 1000000000000) : true) return false;
+  }
+  return true;
+}

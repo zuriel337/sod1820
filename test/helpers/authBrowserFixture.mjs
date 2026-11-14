@@ -49,7 +49,9 @@ function sendStorage(req, res, file, log) {
   return res.end(file.bytes.subarray(start, end + 1));
 }
 
-export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0) } = {}) {
+// `supabase` (optional): a test's own answers for the Supabase origin (REST rows, an Edge function), consulted after Auth and after
+// the function log, before the default answers. It returns null to fall through. Auth itself always stays the in-memory model.
+export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0), supabase = null } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'auth-fixture-'));
   execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '2', '-subj', '/CN=sod1820.co.il',
     '-addext', `subjectAltName=DNS:sod1820.co.il,DNS:www.sod1820.co.il,DNS:${SUPABASE_HOST}`, '-keyout', join(dir, 'k.pem'), '-out', join(dir, 'c.pem')], { stdio: 'ignore' });
@@ -88,6 +90,8 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
         }
         // Edge-function calls that really reach the Supabase origin (the worker's denials never get here); answered as before (404).
         if (url.pathname.startsWith('/functions/v1/')) state.functions.push({ method: req.method, path: url.pathname, search: url.search, apikey: req.headers.apikey || null, authorization: req.headers.authorization || null, cookie: req.headers.cookie || null, body: body.toString('utf8') });
+        const custom = supabase ? await supabase({ url, method: req.method, headers: req.headers, body }) : null;
+        if (custom) return send(custom.status ?? 200, custom.type ?? 'application/json', typeof custom.body === 'string' ? custom.body : JSON.stringify(custom.body ?? null), cors);
         const storage = /^\/storage\/v1\/(?:object\/(?:public|sign)|render\/image\/public)\/(?:media|gallery)\/fixture\/([a-z0-9.]+)$/.exec(url.pathname);
         if (storage && req.method === 'GET' && fixtureStorageFile(storage[1])) {
           const log = { path: url.pathname, search: url.search, range: req.headers.range || null };
