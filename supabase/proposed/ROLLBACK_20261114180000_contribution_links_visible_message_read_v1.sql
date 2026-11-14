@@ -6,7 +6,7 @@
 --   * it takes the same table lock as the proposal (SHARE UPDATE EXCLUSIVE, which conflicts with the ACCESS EXCLUSIVE that every CREATE/ALTER/DROP POLICY
 --     takes; corrected 14.11.2026, measured on PostgreSQL 16 and 17), with lock_timeout 3s: a policy change running in another session makes the rollback
 --     fail closed (lock timeout) instead of overwriting it. Its own ALTER POLICY then takes ACCESS EXCLUSIVE for the rest of this short transaction and waits
---     for running reads for at most 3s (new reads queue behind it meanwhile); on a timeout nothing changes and the file is sent again later;
+--     for running reads for at most 3s (new reads queue behind it meanwhile); on a timeout nothing changes: STOP and inspect (pg_locks, pg_stat_activity), do not resend automatically;
 --   * once it holds the lock it reads the committed state and refuses unless (a) the policy comment is the apply record of this proposal,
 --     (b) the md5 of the current expression equals the md5 recorded at apply, (c) cl_public_read is still the only policy on the table and still
 --     SELECT, permissive, TO PUBLIC, with no WITH CHECK. Any later change (an edit, an added or dropped policy, a removed record) refuses and
