@@ -304,8 +304,22 @@ drop policy cl_public_read on public.contribution_links;
 \set ON_ERROR_STOP 1
 select expect(not exists(select 1 from pg_policy where polrelid = 'public.contribution_links'::regclass), 'apply refuses when the policy is missing (nothing is created)');
 create policy cl_public_read on public.contribution_links for select using (true);
+-- drift 7: anon lost SELECT on research_contributions (the policy expression reads it with the caller's privileges: every read of contribution_links would fail)
+revoke select on public.research_contributions from anon;
+\set ON_ERROR_STOP 0
+\ir ../../supabase/proposed/20261114180000_contribution_links_visible_message_read_v1_PROPOSAL.sql
+\set ON_ERROR_STOP 1
+select expect(cl_policy_qual() = 'true' and cl_policy_comment() is null, 'apply refuses when anon cannot read research_contributions');
+grant select on public.research_contributions to anon;
+-- drift 8: the policy carries a comment that is not an apply record (the apply would overwrite it and the rollback would clear it)
+comment on policy cl_public_read on public.contribution_links is 'somebody else''s note';
+\set ON_ERROR_STOP 0
+\ir ../../supabase/proposed/20261114180000_contribution_links_visible_message_read_v1_PROPOSAL.sql
+\set ON_ERROR_STOP 1
+select expect(cl_policy_qual() = 'true' and cl_policy_comment() = 'somebody else''s note', 'apply refuses over a foreign comment and leaves it untouched');
+comment on policy cl_public_read on public.contribution_links is null;
 select expect(snapshot() = (select v from snap where label = 'live'), 'the live state is restored exactly after the drift cases');
-select 'PASS 6 a second apply and a second rollback refuse; apply refuses (changing nothing) when the policy was edited, an extra policy exists, research_contributions has no row security or a different read policy, anon holds INSERT, or the policy is missing' as result;
+select 'PASS 6 a second apply and a second rollback refuse; apply refuses (changing nothing) when the policy was edited, an extra policy exists, research_contributions has no row security or a different read policy, anon holds INSERT, anon cannot read research_contributions, the policy carries a foreign comment, or the policy is missing' as result;
 
 -- 7. Rollback is exact, and refused after any later change --------------------------------------------------------------------------------------
 \ir ../../supabase/proposed/20261114180000_contribution_links_visible_message_read_v1_PROPOSAL.sql
@@ -339,10 +353,16 @@ alter policy cl_public_read on public.contribution_links to authenticated;
 \set ON_ERROR_STOP 1
 select expect(cl_policy_qual() like '%research_contributions%' and exists(select 1 from pg_policy where polname = 'cl_public_read' and polroles = array[(select oid from pg_roles where rolname = 'authenticated')]), 'rollback refuses when the policy roles changed');
 select restore_applied();
--- (e) the unchanged applied state rolls back exactly, and the apply after it works again
+-- (e) the unchanged applied state rolls back exactly, and the apply after it works again. The session search_path is deliberately different from the one
+--     the policy was applied under: the files fix their own search_path, so the md5 they record and compare does not depend on the executor's session.
+set search_path = pg_catalog;
 \ir ../../supabase/proposed/ROLLBACK_20261114180000_contribution_links_visible_message_read_v1.sql
-select expect(snapshot() = (select v from snap where label = 'live'), 'rollback from the unchanged applied state restores the live state exactly');
+reset search_path;
+select expect(snapshot() = (select v from snap where label = 'live'), 'rollback from the unchanged applied state restores the live state exactly (also from a session with another search_path)');
+set search_path = pg_catalog;
 \ir ../../supabase/proposed/20261114180000_contribution_links_visible_message_read_v1_PROPOSAL.sql
+reset search_path;
+select expect(cl_policy_comment() like 'CONTRIBUTION_LINKS_VISIBLE_MESSAGE_READ_V1 applied %; qual_md5=' || md5(cl_policy_qual()) || '; before=USING (true)', 'applied from a session with another search_path: the record still matches the expression as the default session prints it');
 select as_role('anon', '');
 select expect(links_seen() = 7, 'after the second apply a guest sees only the links of public messages (4 old + 2 imported + 1 edge added by a signed-in user)');
 reset role;

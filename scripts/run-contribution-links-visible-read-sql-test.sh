@@ -13,7 +13,7 @@ for f in $T tests/sql/fixtures/contribution_links_live_base_20261114/g3_openweb_
 done
 chmod -R a+rX "$W"
 EXPECTED_MAIN=9
-EXPECTED_CONCURRENCY=4
+EXPECTED_CONCURRENCY=5
 
 # --- engine: a local PostgreSQL when installed (CI), else a container ---------------------------------------------------------------------------
 if ! compgen -G '/usr/lib/postgresql/*/bin' >/dev/null; then
@@ -79,7 +79,7 @@ echo "PASS C3 the apply waits for a concurrent policy change, then refuses on th
 sql "drop policy cl_race on public.contribution_links;" >/dev/null
 psql_file "$W/$APPLY" >/dev/null || fail "the apply from the restored live state failed"
 
-# C4: the table lock blocks neither a guest's read nor the import's writes (service_role) while a policy change holds it.
+# C4: SHARE UPDATE EXCLUSIVE (the lock the files take FIRST) blocks neither a guest's read nor the import's writes (service_role). It does not exercise the ALTER POLICY itself: see C5.
 sql_bg "begin; lock table public.contribution_links in share update exclusive mode; select pg_sleep(5); rollback;"
 A=$(cat "$W/last.pid"); sleep 1
 GUEST=$(sql_val "set statement_timeout = 2000; set role anon; select count(*) from public.contribution_links;") || fail "C4: a guest read was blocked"
@@ -87,5 +87,25 @@ test "$GUEST" = "7" || fail "C4: a guest should see 7 links, saw $GUEST"
 sql "set statement_timeout = 2000; set role service_role; insert into public.contribution_links(from_contribution_id, target_type, target_id, relation_type) values ('10000000-0000-4000-8000-000000000001', 'openweb_message', 'sp_C4_probe', 'derived_from'); delete from public.contribution_links where target_id = 'sp_C4_probe';" >/dev/null || fail "C4: an import-style write was blocked"
 wait "$A" || true
 echo "PASS C4 while a policy change holds its lock a guest still reads and service_role still writes (no blocking of readers or of the import)"
+
+# C5: the REAL policy DDL takes ACCESS EXCLUSIVE (measured; CREATE / ALTER / DROP POLICY), unlike the explicit lock of C4. A reader that is already running
+# makes the apply wait at its ALTER POLICY; the apply fails closed after lock_timeout (3s) and changes nothing; a guest read that arrives while the apply
+# waits queues behind it, is delayed by at most the lock timeout, and then succeeds (it is not lost and not blocked for ever).
+sql "alter policy cl_public_read on public.contribution_links using (true); comment on policy cl_public_read on public.contribution_links is null;" >/dev/null
+sql_bg "begin; select count(*) from public.contribution_links; select pg_sleep(7); commit;"
+A=$(cat "$W/last.pid"); sleep 0.7
+psql_file "$W/$APPLY" > "$W/c5.apply.out" 2>&1 & APPLYPID=$!
+sleep 1.0
+T0=$(date +%s.%N)
+GUEST=$(sql_val "set role anon; select count(*) from public.contribution_links;") || fail "C5: the guest read failed"
+T1=$(date +%s.%N)
+wait "$APPLYPID" && fail "C5: the apply succeeded although a reader held the table"
+grep -qi "lock timeout" "$W/c5.apply.out" || fail "C5: expected a lock timeout of the apply, got: $(cat "$W/c5.apply.out")"
+test "$(sql_val "select pg_get_expr(polqual, polrelid) || '/' || coalesce(obj_description(oid, 'pg_policy'), 'NULL') from pg_policy where polname = 'cl_public_read' and polrelid = 'public.contribution_links'::regclass;")" = "true/NULL" || fail "C5: the policy changed"
+test "$GUEST" -gt 0 || fail "C5: the guest read returned no rows"
+WAITED=$(python3 -c "print(round($T1 - $T0, 1))")
+python3 -c "import sys; sys.exit(0 if 1.0 <= $T1 - $T0 <= 5.5 else 1)" || fail "C5: the guest read waited $WAITED s (expected about the 3 s lock timeout, never more than 5.5 s)"
+wait "$A" || true
+echo "PASS C5 a reader that is already running makes the apply wait at its ALTER POLICY and it fails closed after the lock timeout (nothing changed); a guest read that arrived meanwhile queued behind it for $WAITED s and then succeeded"
 
 echo "ALL: $EXPECTED_MAIN SQL cases + $EXPECTED_CONCURRENCY concurrency cases passed"

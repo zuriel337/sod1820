@@ -31,12 +31,19 @@
 -- SAFETY: the proposal refuses and changes nothing unless the live state is exactly the one read on 14.11.2026 (one policy, the exact old
 -- definition, no write grants for anon or authenticated, RLS on both tables, and the two research_contributions read policies this rule inherits).
 -- It records itself in the policy comment (with the md5 of the applied expression) so the rollback can prove that nothing changed in between.
--- A second run refuses. The table lock is SHARE UPDATE EXCLUSIVE: it serialises with any other policy change on the table (that DDL takes the same
--- mode) and with a second run of this file or of the rollback, and it blocks neither reads nor the import's writes; lock_timeout 3s, so a running
--- change elsewhere makes this fail closed instead of queueing.
+-- A second run refuses.
+-- LOCKS (measured on PostgreSQL 16 and 17, corrected 14.11.2026 after an independent review): the file first takes SHARE UPDATE EXCLUSIVE on the table. That mode
+-- conflicts with itself and with ACCESS EXCLUSIVE, which is what CREATE / ALTER / DROP POLICY take, so it serialises this file with a second run of the file or of
+-- the rollback and with any policy change made by another session (that session either finishes first and is seen by the checks below, or is still running and
+-- this file fails with a lock timeout and changes nothing). SHARE UPDATE EXCLUSIVE blocks neither reads nor the import's writes. The ALTER POLICY itself then takes
+-- ACCESS EXCLUSIVE until the end of this short transaction: it waits for reads that are already running and, while it waits, new reads queue behind it, for at
+-- most lock_timeout (3s); if a long read keeps the table longer the file fails closed and changes nothing, and is simply sent again later. Readers do not stall
+-- otherwise: the reads of this table are millisecond-scale, so the usual wait is milliseconds. GRANT and REVOKE take no table lock.
+-- search_path is fixed below because the text of policy expressions that the guard compares (and md5s) depends on it.
 begin;
 set local lock_timeout = '3s';
 set local statement_timeout = '60s';
+set local search_path = public, pg_catalog;
 lock table public.contribution_links in share update exclusive mode;
 
 do $$
@@ -61,6 +68,10 @@ begin
   if v_comment like 'CONTRIBUTION_LINKS_VISIBLE_MESSAGE_READ_V1 applied%' then
     raise exception 'CL_VISIBLE_READ: already applied (see the policy comment); nothing changed';
   end if;
+  if v_comment is not null then
+    -- the apply record replaces the comment and the rollback clears it: a comment that belongs to somebody else would be lost, so it is drift
+    raise exception 'CL_VISIBLE_READ precondition: cl_public_read already carries a comment that is not an apply record (read on 14.11.2026: none); nothing changed';
+  end if;
   if v_pol.polcmd <> 'r' or v_pol.polpermissive is not true or v_pol.polroles <> array[0::oid] or v_pol.polwithcheck is not null
      or pg_get_expr(v_pol.polqual, v_pol.polrelid) <> 'true' then
     raise exception 'CL_VISIBLE_READ precondition: cl_public_read is not SELECT, permissive, TO PUBLIC, USING (true) as read on 14.11.2026; nothing changed';
@@ -72,6 +83,10 @@ begin
   end if;
   if not has_table_privilege('anon', 'public.contribution_links', 'select') or not has_table_privilege('authenticated', 'public.contribution_links', 'select') then
     raise exception 'CL_VISIBLE_READ precondition: anon or authenticated has lost SELECT on contribution_links; nothing changed';
+  end if;
+  -- The policy expression reads research_contributions with the privileges of the caller: without SELECT there every read of contribution_links would fail.
+  if not has_table_privilege('anon', 'public.research_contributions', 'select') or not has_table_privilege('authenticated', 'public.research_contributions', 'select') then
+    raise exception 'CL_VISIBLE_READ precondition: anon or authenticated has no SELECT on research_contributions (reads of contribution_links would fail); nothing changed';
   end if;
   -- The new rule inherits research_contributions visibility, so that protection must be exactly the live one.
   if not (select relrowsecurity from pg_class where oid = 'public.research_contributions'::regclass) then
