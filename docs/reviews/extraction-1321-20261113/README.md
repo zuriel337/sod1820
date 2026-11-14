@@ -21,12 +21,12 @@ This directory holds what belongs to no single package:
 
 ## Update 14.11.2026 — the foundation package (read this first)
 
-State: #1333 and #1335 (community, public content) and #1336 and #1337 (contracts, measurement) are **merged**; DEF-001b (steps 1 and 9 of #1334) is **applied live** (Codex packet, PR #1339). What is left is one package, prepared for one review:
+State: #1333 and #1335 (community, public content) and #1336 and #1337 (contracts, measurement) are **merged**; DEF-001b (steps 1 and 9 of #1334) is **applied live** (Codex packet, PR #1339). What is left is one package, prepared for one review; **its second round (14.11.2026, evening) closed Codex's CR-F1 (the CL-16 lock-first fix, #1343) and CR-F2 (the `contribution_links` runner's Docker branch), and incorporated ZURIEL's adopted choices**:
 
-* [`foundation-package-20261114.md`](foundation-package-20261114.md) — the integrated handoff: final heads, test results, findings, the **ordered execution list with stamps (SHA-256, live preconditions), verification and rollback for every action**, and the single table of product decisions.
+* [`foundation-package-20261114.md`](foundation-package-20261114.md) — the integrated handoff: final heads, test results, findings, the **one bounded execution request** (ordered list with stamps (SHA-256, live preconditions), dependency order, failure boundaries, verification and rollback for every action — nothing approved), the choices adopted by ZURIEL and the few that are still open.
 * [`contracts-enforcement-state-20261114.md`](contracts-enforcement-state-20261114.md) — G1, CL-16, required checks and the contracts-session handoff, item by item (read-only live checks of 14.11).
 * [`release-request-1333-1335-site-deployment-and-db-step.md`](release-request-1333-1335-site-deployment-and-db-step.md) — the Production deployment and the view `world_contributor_research_v2` of the merged code (A and B), updated.
-* The pull requests: #1341 (CI fix), #1340 (`contribution_links`), #1334 (remaining DB foundations, steps 2, 4, 5, 6, 7, 8, 10), #1339 (Codex's record), and **#1342, the integrated tree** (draft; proves that they work together on current `main`). The older release requests below (#1336, #1337) describe merges that already happened; their database and ruleset parts are lines D10 and K1 of the new list.
+* The pull requests: #1341 (CI fix), #1340 (`contribution_links`), #1334 (remaining DB foundations, steps 2, 4, 5, 6, 7, 8, 10), #1339 (Codex's record), **#1343** (CL-16: the apply and the rollback lock `public.nodes` before they read the trigger state), and **#1342, the integrated tree** (draft; proves that they work together on current `main`). The older release requests below (#1336, #1337) describe merges that already happened; their database and ruleset parts are lines D10 and K1 of the new list.
 
 ## Update 13.11.2026 (after the Codex review of the five pull requests)
 

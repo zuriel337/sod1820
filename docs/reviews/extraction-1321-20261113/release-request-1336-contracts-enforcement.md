@@ -2,6 +2,8 @@
 
 > **Updated 13.11.2026 after the Codex read of the ruleset `protect-main` (no required status checks, `required_linear_history` active, bypass for the admin role).** This is a request, not an approval. Nothing in it is applied, merged or deployed. Each of the two requests below (A: merge of the code; B: the CL-16 database step) needs ZURIEL's explicit approval for the exact commit and, for B, the exact file hashes (CLAUDE.md rule 7 and 0.4). **They are independent**: A does not need B, B does not need A, and an approval of one is not an approval of the other. **The ruleset (required checks) is a third, separate approval and is not requested here.** Not read by this request: the Codex addendum on the journal record (the journal could not be reached when this was written); the request is built from the pull request and its documents and must be reconciled with that addendum.
 
+> **SUPERSEDED for section B, and for the execution order, on 14.11.2026 (Codex review CR-F1; second consolidated round).** The two CL-16 files named in the table below were **replaced** by a fix: the apply and the rollback now take `LOCK TABLE public.nodes IN SHARE ROW EXCLUSIVE MODE` before they read any state (pull request #1343). **Do not send the pair `0d77259…` / `60aa076…`**; it overwrites a trigger change committed by another session. The current pair is `a66d98d4cbd2…` (apply) and `367ccb01384f…` (rollback); the full values, the verification and the rollback of each step are in section 5 and the stamps appendix of [`foundation-package-20261114.md`](foundation-package-20261114.md), which is the one bounded execution request. On a lock timeout the executor stops and inspects (no automatic resend). The rest of this document is kept as the history of the 13.11 request.
+
 | | |
 |---|---|
 | Pull request | [#1336](https://github.com/zuriel337/sod1820/pull/1336) (draft) |
@@ -45,8 +47,8 @@
 
 | File | sha256 |
 |---|---|
-| `supabase/proposed/20261112200000_g1_rule_guard_cl16.sql` | `0d7725919540cb98ed344f9e9dd9f3d2ba217c4de30d9cf86a702156f66eff63` |
-| rollback `supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql` | `60aa076c22461b80c97f8d91ff28f9e8a2b5c98268ff8d6a0a6e8b8c1611a2c5` |
+| `supabase/proposed/20261112200000_g1_rule_guard_cl16.sql` | ~~`0d7725919540cb98ed344f9e9dd9f3d2ba217c4de30d9cf86a702156f66eff63`~~ **replaced 14.11.2026 — do not send; current: `a66d98d4cbd28f503d58c5b31406d384f2e66dcad80fbc4a0a91b3d568b8b4bd`** |
+| rollback `supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql` | ~~`60aa076c22461b80c97f8d91ff28f9e8a2b5c98268ff8d6a0a6e8b8c1611a2c5`~~ **replaced 14.11.2026 — do not send; current: `367ccb01384f8594c5c8f973bc47a84df0348e314b9c5d7d737c68b21364c51c`** |
 
 (The apply plan with the same values: `docs/reviews/g1-rule-guard-cl16-20261112/apply-plan.json`; the runner checks that these hashes are the files.)
 
