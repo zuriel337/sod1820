@@ -74,6 +74,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           <CommunityHistorySeal2029 authorKey={view.communityAuthorKey} />
           {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
           {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
+          {view.firstPublicationAt ? <p className="pc-role">פרסום מתועד באתר מאז <time dateTime={view.firstPublicationAt}>{bilingualDateLabel(view.firstPublicationAt)}</time></p> : null}
           <p className="pc-boundary">{person?.boundary || "מה שהאדם כתב והעלה בקהילה ובמקורות. שיוך לאדם אינו אימות של תוכן."}</p>
         </div>
         <ContributorPersonMedallion2029 person={person} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}

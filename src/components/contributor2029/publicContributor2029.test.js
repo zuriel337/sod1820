@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { buildPublicContributorView, approvedReturnHref, isExactlyAttributed, readContributorLocation, safePublicUrl, selectContributorItems } from "./publicContributor2029Model.js";
-import { loadPublicContributor2029 } from "./loadPublicContributor2029.js";
+import { loadPublicContributor2029, loadPublicContributorCard2029 } from "./loadPublicContributor2029.js";
 import { contributorNavigation2029 } from "./contributorNavigation2029.js";
 import { fixtureIdentity as identity, fixtureFinding, fixtureProjection, fixtureView } from "./publicContributor2029Fixtures.js";
 import { fetchContributorFindingsProjection } from "../../lib/research/contributorFindingsProjection.js";
@@ -68,6 +68,46 @@ test("loader resolves exact code/slug, reuses canonical reader with PUBLIC_VIEW 
     && c.nots.some(([key, op, value]) => key === "promoted_node_id" && op === "is" && value === null)),
   "initial catalogue defers full research: every research read is canonical and promoted only");
   assert.ok(calls.filter((c)=>c.table==="contributors").every((c)=>!c.fields.includes(",dossier_settings")));
+});
+
+test("writer card and page share the linked public portrait and use original publication dates", async () => {
+  const avatar = "https://example.org/avatar.png";
+  const linkedIdentity = { ...identity, avatar_url: null, user_id: "account", linked_profile: { avatar_url: avatar } };
+  const calls = [];
+  const client = fakeClient({ contributors: [linkedIdentity] }, calls);
+  const publicationReader = async () => ({
+    posts: { complete: true, availability: "ok", rows: [
+      { id: 1, slug: "old", date: "2014-11-24", created_at: "2026-11-13", modified: "2026-11-13" },
+      { id: 2, slug: "undated", created_at: "2001-01-01" },
+    ] },
+    ciphers: { complete: false, availability: "ok", rows: [
+      { slug: "cipher", status: "published", visibility: "public", created_at: "2000-01-01" },
+    ] },
+    contributions: { complete: true, availability: "ok", rows: [
+      { status: "approved", origin: "community_2029", created_at: "2010-01-01" },
+      { id: "public-source", status: "published", origin: "auto-post", created_at: "2020-01-01" },
+    ] },
+  });
+  const card = await loadPublicContributorCard2029(identity.slug, { client, publicationReader });
+  const page = await loadPublicContributor2029(identity.slug, {
+    publicClient: () => client, publicationReader, projectionReader: async () => fixtureProjection(),
+  });
+  assert.ok(calls.every(call => call.table === "contributors" && call.fields.includes("linked_profile:users!contributors_user_id_fkey(avatar_url)")));
+  assert.equal(card.avatar, avatar);
+  assert.equal(page.profile.avatar, avatar);
+  assert.equal(card.firstPublicationAt, "2014-11-24");
+  assert.equal(page.firstPublicationAt, card.firstPublicationAt);
+  assert.equal(card.posts, 2);
+  assert.equal(card.contributions, 1);
+  assert.equal(card.ciphers, null);
+});
+
+test("a writer's explicit avatar choice prevents using the account fallback", async () => {
+  for (const public_avatar of [{ enabled: false }, { enabled: true, url: "https://example.org/writer.png" }]) {
+    const client = fakeClient({ contributors: [{ ...identity, public_avatar, linked_profile: { avatar_url: "https://example.org/account.png" } }] }, []);
+    const card = await loadPublicContributorCard2029(identity.slug, { client, publicationReader: async () => ({}) });
+    assert.equal(card.avatar, public_avatar.url || null);
+  }
 });
 
 test("unknown, inactive and me do not become a public profile; invalid input never reaches DB", async () => {
