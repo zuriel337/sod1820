@@ -206,6 +206,14 @@ jobs:
           test/post-backgrounds-2029.test.mjs
           test/post-classification-2029.test.mjs
           test/posts-follow-targets-2029.test.mjs
+      # DB foundations (package P1, 13.11.2026): the code-side contracts of the proposed SQL. Repository files only (no database, no network):
+      # the package scope and hashes, no shipped caller depends on what M0-A closes, the gallery routes and the 120 MiB ceiling stay marked.
+      - name: DB foundations contracts (package scope and hashes, M0-A closed surfaces have no shipped caller, gallery upload routes, DEF-005 exact signatures)
+        run: >
+          node --test
+          test/p1-db-foundations-package.test.mjs
+          test/m0a-db-permissions-contract.test.mjs
+          test/m0c-gallery-upload-contract.test.mjs
       - name: Top bar (the crown at the centre, dark glass, the rounded arc; one final design, one stylesheet, and the traps it hit stay handled)
         run: node --test test/topbar-crown-2029.test.mjs
       - name: Bottom command bar is one row (nothing lifts the Raziel orb off the centre line of the other four controls)
@@ -359,6 +367,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: DEF-001, DEF-001b, DEF-004 and DEF-005 SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids; proposed Storage policies and RPC grants behave as specified)
         run: bash scripts/run-def001-sql-test.sh
+      - name: M0-A permissions regression (12 system functions server-only by exact signature, admin guards, account data, Legacy writes closed, dormant policies, cron; idempotent, drift stop, exact rollback)
+        run: bash scripts/run-m0a-db-permissions-sql-test.sh
+      - name: DEF-004 negative modes (an existing gallery object above 120 MiB stops the proposal; without the proposal the after-assertions fail)
+        run: bash scripts/run-def004-gallery-sql-test.sh
       - name: «הגילוי היומי» = «תורת הרמז» intake proposal (only admin_only changes; a second run and every changed live state refuse; the rollback restores the exact row)
         run: bash scripts/run-gilui-yomi-zvi-parity-sql-test.sh
       - name: M0-D contributor research view admits public candidates (one token, status kept, private and person-only excluded, idempotent re-run, drift and foreign-v2 stops, exact rollback; v1 byte for byte)

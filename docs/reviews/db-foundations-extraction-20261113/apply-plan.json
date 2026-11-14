@@ -1,0 +1,291 @@
+{
+ "purpose": "Package P1 (DB foundations) apply list. Every file is a proposal; nothing here applies SQL. Each step needs ZURIEL's explicit approval for the exact commit; run tests/live/m0_post_apply_verification.sql after each step (phase-aware: edit its `applied` line).",
+ "source": "PR #1321 frozen at 4a406fed273b9b381577c5b2a03d91c58de46451 (merge base aa0f6bc82)",
+ "base": "origin/main 4c9630db48958417796948b32031f06eb22ed3f1 (14.11.2026; the package was written on 9be0c29fc and synchronised)",
+ "verification_query": "tests/live/m0_post_apply_verification.sql (read-only, phase-aware since 14.11.2026: every row belongs to one step; the one `applied` line lists the steps applied so far; the last answer is one VERDICT row)",
+ "steps": [
+  {
+   "step": "1",
+   "file": "supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
+   "origin": "already in main, byte-identical to #1321",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/def001b_visitor_id_exposure_v1.sql (scripts/run-def001-sql-test.sh, already in CI)"
+   ],
+   "verify": "P push RPCs exist; P feedback admin-only; P els_records visitor_id hidden",
+   "live_state_13_11": "NOT applied (push_subscription_upsert_v1 does not exist; anon still has table access to push_subscriptions)",
+   "what": "DEF-001b step 1: feedback admin-only read, els_records.visitor_id hidden, two push RPCs (the live frontend already calls them and falls back to a direct write)",
+   "sha256": "6d4afa5e8cb38e02d2ece0e7c3d37c7963304a518f3c8fe5ae38abf5494cac07",
+   "rollback_sha256": "6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0",
+   "status": "mandatory",
+   "state": "applied_live_do_not_reapply",
+   "applied": {
+    "at_utc": "2026-11-14T16:41",
+    "packet": "PR #1339 head 50b72a7e3fef98b2c86a57f325d486bc9b8eea27",
+    "by": "Codex, with ZURIEL's approval",
+    "source_file_unchanged": true
+   },
+   "live_state_14_11": "APPLIED (14.11.2026 16:41 UTC); verified by the phase-aware query: step 1 rows true"
+  },
+  {
+   "step": "2",
+   "file": "supabase/proposed/20261106131000_def005_revoke_internal_rpcs_from_clients.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261106131000_def005.sql",
+   "origin": "changed in this package (exact reviewed signatures, review findings F1/F2)",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/def005_public_rpc_guards_v1.sql",
+    "tests/sql/m0a_db_permissions_v1.sql",
+    "test/def005-rpc-grants-contract.test.mjs",
+    "tests/live/def005_pre_apply_definitions.sql"
+   ],
+   "verify": "A1 (12 rows), A1b (no unreviewed overload), A1c (apply record intact); before the apply: tests/live/def005_pre_apply_definitions.sql",
+   "live_state_13_11": "reviewed baseline matches: 12 signatures exist, SECURITY DEFINER, owner postgres, anon/authenticated/service_role can execute, no same-name overload",
+   "what": "the twelve system functions become server-only (anon and authenticated lose EXECUTE, service_role gets it explicitly); selected by exact signature; stops before any change on a missing signature, an unreviewed same-name overload, a drifted function (kind, security mode, owner, ACL) or a mixed state; records the md5 of each definition and the original comment in a COMMENT on the function; the rollback refuses (before any change) any function whose owner, security mode or definition is not the recorded one",
+   "sha256": "2ef8971de82bf5d94ff3dfea60be7487a7eccab05b9b72e1003c9696d077024a",
+   "rollback_sha256": "77a63b8bdba1f3a5b9fa3d8d5dca185e3edd461ac5a5ccbbd2a8c22fe2251f88",
+   "status": "mandatory",
+   "limit": "the file holds no reviewed text of the twelve bodies: a body replaced BEFORE the apply is not detected by the apply; the operator compares the md5 values printed by the pre-apply query with the reviewed ones",
+   "state": "not_applied",
+   "guard": {
+    "kind": "embedded checks, single atomic statement",
+    "scope": "DEF-005: reviewed signatures, no unreviewed overload, owner/security mode/ACL baseline, apply record with the definition md5; step 7: md5 of the function body; step 10: job id, name, inactive, carries the query secret"
+   },
+   "live_state_14_11": "read 14.11.2026 18:30 UTC: all 12 signatures exist, SECURITY DEFINER, owner postgres, anon/authenticated/service_role can execute, no apply comment, no same-name overload; definition md5 values listed in docs/reviews/db-foundations-extraction-20261113/live-state-20261114.md"
+  },
+  {
+   "step": "4",
+   "file": "supabase/proposed/20261112130000_m0a_admin_and_account_guards.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112130000_m0a_admin_and_account_guards.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql",
+    "test/m0a-db-permissions-contract.test.mjs"
+   ],
+   "verify": "A2, A3, A4 and wa_msg_count in A1",
+   "live_state_13_11": "the four function bodies read by step 4 and step 7 match the reviewed 'before' md5; gematria_wall policy not yet changed",
+   "what": "admin guard on admin_resolve_translit and admin_ai_cost, wa_msg_count server-only, link_visitor_identity no longer re-links another account's visitor id, private gematria_wall rows hidden",
+   "sha256": "45d64f91fa5ff2233d0be60f185f2ecc3254c93424205d2c0dbb00a1344071e7",
+   "rollback_sha256": "422c44a25c3c1ec1b3dfe859a28b46e040dcab6ce59800f84e42b14a1e9fe4d8",
+   "status": "mandatory",
+   "state": "not_applied",
+   "guard": {
+    "kind": "catalogue fingerprint (md5 over a canonical rendering), transaction, lock and statement timeouts",
+    "scope": "wa_msg_count privileges and the gematria_wall policy (the three function bodies are guarded by md5)",
+    "fingerprint_before_live_14_11": "0eb07c1da74babeaf438250b700054fc",
+    "fingerprint_after_fixture": "00a5e44d3412c197b2f76983523a4e01",
+    "query": "tests/live/m0_pre_apply_fingerprints.sql (row S4T)"
+   },
+   "live_state_14_11": "read 14.11.2026: admin_resolve_translit 2aab330c..., admin_ai_cost 0487c48c..., link_visitor_identity 4622faa3... equal the reviewed 'before' md5; wa_msg_count executable by anon and authenticated; gematria_wall policy 'wall public read' is USING (true); tail fingerprint 0eb07c1da74babeaf438250b700054fc"
+  },
+  {
+   "step": "5",
+   "file": "supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql",
+    "test/m0a-db-permissions-contract.test.mjs"
+   ],
+   "verify": "A5",
+   "live_state_13_11": "all seven Legacy tables still carry a client write grant",
+   "what": "seven Legacy tables closed to client writes; lab_* readable by admin only; no row deleted",
+   "sha256": "9a2d76ecde291bb89f4d911734107b5d6760a79a610a6648bd48d4343d79c3bd",
+   "rollback_sha256": "91c4f5fa8dbd5475766ba41c243dc2950b789aa3836c08091f34aa9e22b7a856",
+   "status": "mandatory",
+   "state": "not_applied",
+   "guard": {
+    "kind": "catalogue fingerprint (md5 over a canonical rendering), transaction, lock and statement timeouts",
+    "scope": "client grants, row level security and all policies of the seven Legacy tables",
+    "fingerprint_before_live_14_11": "3200137f4b3fe33aa59f0d8436e27dee",
+    "fingerprint_after_fixture": "4990e840290b609119a46c31041ed18e",
+    "query": "tests/live/m0_pre_apply_fingerprints.sql (row S5)"
+   },
+   "live_state_14_11": "read 14.11.2026: all seven Legacy tables still carry the client write grants (33 effective grants), the reviewed policies exist verbatim; fingerprint 3200137f4b3fe33aa59f0d8436e27dee"
+  },
+  {
+   "step": "6",
+   "file": "supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql"
+   ],
+   "verify": "A6",
+   "live_state_13_11": "all seven dormant ALL policies are not yet admin-only",
+   "what": "seven dormant 'any signed-in user may write' policies become admin-only under the same names",
+   "sha256": "fd5d68a1d01e48e0e7964430178bfebe831a68d800b851f1150fb9a1f49cbba8",
+   "rollback_sha256": "b0968b50bfbcfd47b7553667bf4be882f0024261848cd49a9b6d230b3b47fd03",
+   "status": "mandatory",
+   "state": "not_applied",
+   "guard": {
+    "kind": "catalogue fingerprint (md5 over a canonical rendering), transaction, lock and statement timeouts",
+    "scope": "row level security and all policies of the seven dormant-policy tables",
+    "fingerprint_before_live_14_11": "4408d4349d306b19e2b6dade0e273e78",
+    "fingerprint_after_fixture": "80bd7ea3853d215d069542f1a252a318",
+    "query": "tests/live/m0_pre_apply_fingerprints.sql (row S6)"
+   },
+   "live_state_14_11": "read 14.11.2026: the seven dormant policies are not yet admin-only; fingerprint 4408d4349d306b19e2b6dade0e273e78 (includes the RESTRICTIVE insights_private_space_read, which the step leaves untouched)"
+  },
+  {
+   "step": "7",
+   "file": "supabase/proposed/20261112133000_m0a_add_contribution_client_address.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112133000_m0a_add_contribution_client_address.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql"
+   ],
+   "verify": "A8",
+   "live_state_13_11": "add_contribution body matches the reviewed 'before' md5",
+   "what": "add_contribution guest limit (5 per hour) keyed by the platform client address (cf-connecting-ip) instead of the caller-controlled first X-Forwarded-For hop",
+   "sha256": "a8da6c8572b1a0eb5741dd54052d5b085a432cb4fc9c620195037f2118dc7d11",
+   "rollback_sha256": "bdf305917ca92fe70a2bd44b77c4402b0186dd30f33d03a5dd4429e8c16ba850",
+   "status": "mandatory",
+   "state": "not_applied",
+   "guard": {
+    "kind": "embedded checks, single atomic statement",
+    "scope": "DEF-005: reviewed signatures, no unreviewed overload, owner/security mode/ACL baseline, apply record with the definition md5; step 7: md5 of the function body; step 10: job id, name, inactive, carries the query secret"
+   },
+   "live_state_14_11": "read 14.11.2026: add_contribution body md5 a2110027d793b61e461bb62954a4be69 = the reviewed 'before'"
+  },
+  {
+   "step": "8",
+   "file": "supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql",
+   "origin": "changed on main since 06.11 (draft) and re-based onto it; revision M0 from #1321 plus the product-decision marking of this package",
+   "depends_on": [],
+   "decision_gates": [
+    "D-1: the 120 MiB upload ceiling is a product decision that is not confirmed for this release (marked in the file header and in section 5)"
+   ],
+   "tests": [
+    "tests/sql/def004_gallery_storage_upload_policies_v1.sql",
+    "test/m0c-gallery-upload-contract.test.mjs"
+   ],
+   "verify": "C (3 rows)",
+   "live_state_13_11": "old policies community_anon_upload and public_upload still present; bucket gallery public, no size limit, no MIME list; largest object 114,883,491 bytes (below 120 MiB)",
+   "what": "gallery uploads by role, path and extension (anonymous: flat community image only; signed-in: own community attachment, own avatar, cipher card; admin: any path); plus the 120 MiB ceiling (D-1)",
+   "sha256": "6d263ad78cbc459e4352d506f5fded092222517a8125261318e66f38db6a9c15",
+   "rollback_sha256": "43603eb4263b4625c90e801c3bf1b12a1cc0f4d595a10966ce25baf97b68034d",
+   "status": "mandatory",
+   "state": "not_applied",
+   "guard": {
+    "kind": "catalogue fingerprint (md5 over a canonical rendering), transaction, lock and statement timeouts",
+    "scope": "all policies on storage.objects and the settings of the bucket gallery",
+    "fingerprint_before_live_14_11": "fc57c5ec4289358741cd622b02d39556",
+    "fingerprint_after_fixture": "9fbf59431d86a0c4453d1e31302b0c66",
+    "query": "tests/live/m0_pre_apply_fingerprints.sql (row S8)"
+   },
+   "live_state_14_11": "read 14.11.2026: gallery bucket public, no size limit, no MIME list; largest object 114,883,491 bytes (1,386 objects); policies community_anon_upload and public_upload present; fingerprint fc57c5ec4289358741cd622b02d39556"
+  },
+  {
+   "step": "9",
+   "file": "supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
+   "origin": "already in main, byte-identical to #1321",
+   "depends_on": [
+    "step 1 applied (satisfied 14.11.2026 16:41 UTC)",
+    "the frontend that calls push_subscription_*_v1 is live (true since 949c24ad5)"
+   ],
+   "rollback_note": "the rollback file undoes step 9 (first block) and, if step 1 was applied, step 1 as well; to undo step 9 alone run only its first block",
+   "tests": [
+    "tests/sql/def001b_visitor_id_exposure_v1.sql (already in CI)"
+   ],
+   "verify": "P push_subscriptions anon table access removed",
+   "live_state_13_11": "NOT applied (anon still has table access to push_subscriptions); must follow step 1",
+   "what": "DEF-001b step 2: anonymous table access to push_subscriptions removed",
+   "sha256": "e299af193952d796ec2002381f2d5ac5b7c9444344b28a485cfaf825fb132667",
+   "rollback_sha256": "6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0",
+   "status": "mandatory",
+   "state": "applied_live_do_not_reapply",
+   "applied": {
+    "at_utc": "2026-11-14T16:41",
+    "packet": "PR #1339 head 50b72a7e3fef98b2c86a57f325d486bc9b8eea27",
+    "by": "Codex, with ZURIEL's approval",
+    "source_file_unchanged": true
+   },
+   "live_state_14_11": "APPLIED (14.11.2026 16:41 UTC); verified by the phase-aware query: step 9 rows true"
+  },
+  {
+   "step": "10",
+   "file": "supabase/proposed/20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql",
+   "rollback": "supabase/proposed/ROLLBACK_20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql",
+   "origin": "from #1321 unchanged",
+   "depends_on": [],
+   "tests": [
+    "tests/sql/m0a_db_permissions_v1.sql"
+   ],
+   "verify": "A7",
+   "live_state_13_11": "the four reviewed inactive jobs (6, 7, 22, 24) are present and carry a query secret; no other job does",
+   "what": "four inactive cron jobs that carry a URL secret are removed (the rollback re-creates them inactive and WITHOUT the secret, by design)",
+   "sha256": "cd7e57e604103c8c759f49c59ef09ad67d4c9dbf0034d4a7039ba62ab345b1b2",
+   "rollback_sha256": "2cc82bc32a2553dbc1196bafdaefe6dde01a93ce9c658249604b9df255479a8a",
+   "status": "mandatory",
+   "state": "not_applied",
+   "guard": {
+    "kind": "embedded checks, single atomic statement",
+    "scope": "DEF-005: reviewed signatures, no unreviewed overload, owner/security mode/ACL baseline, apply record with the definition md5; step 7: md5 of the function body; step 10: job id, name, inactive, carries the query secret"
+   },
+   "live_state_14_11": "read 14.11.2026: jobs 6 wa-deep-process, 7 wa-poll, 22 wa-michael, 24 wa-gabriel exist, all inactive and carry a query secret; no other job carries one"
+  }
+ ],
+ "not_in_this_package": [
+  {
+   "step": "3",
+   "item": "M0-B AI quota fail-closed (ai_quota_check body)",
+   "why": "out of scope by instruction; the Edge side already runs v92 with the CL-13 pause"
+  },
+  {
+   "step": "11",
+   "item": "M0-D world_contributor_research_v2",
+   "why": "package P3 (public content)"
+  },
+  {
+   "step": "12",
+   "item": "DEF-005b optional uncalled helpers",
+   "why": "out of scope by instruction; its file and rollback are not part of this branch"
+  }
+ ],
+ "apply_order": "REMAINING: 2, 4, 5, 6, 7, 8, 10 (steps 1 and 9 are applied). The numbers of the #1321 plan are kept so that every cross-reference stays valid. No remaining step depends on another remaining step; each is its own approval, its own transaction and its own rollback.",
+ "rollback_order": [
+  "10",
+  "9",
+  "8",
+  "7",
+  "6",
+  "5",
+  "4",
+  "2",
+  "1"
+ ],
+ "rollback_order_reason": "reverse of the apply order; step 9 before step 1 (the push RPCs must exist while anonymous table access is closed). Only 10, 8, 7, 6, 5, 4, 2 are relevant for the remaining steps.",
+ "live_state": {
+  "read_at_utc": "2026-11-14T18:55",
+  "read_with": "tests/live/m0_post_apply_verification.sql with applied = (1, 9): 56 rows, all as expected, VERDICT true; plus the fingerprint queries of steps 4-tail, 5, 6 and 8",
+  "applied": [
+   "1",
+   "9"
+  ],
+  "applied_by": "Codex release path, ZURIEL approval 14.11.2026 for the exact two-step packet of PR #1339 head 50b72a7e3fef98b2c86a57f325d486bc9b8eea27 (01-prepare.sql sha256 471eaecb8998959706fefd35da73edfb4fe2e90a3433299ef37456ba49107a6a, 02-lockdown.sql sha256 cc1d0d8d20508aa1980bf54b4ad24d4ba558f5557a79ab59bb2bfa947bfe2cca), applied 14.11.2026 16:41 UTC, catalogue LOCKED cfd6f768976982e51158bf89b4468b64, public smoke 11/11",
+  "remaining": [
+   "2",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "10"
+  ],
+  "do_not_reapply": "steps 1 and 9 are in force; their source files stay byte-identical to main and stay in this plan for the rollback order and for provenance only"
+ },
+ "execution_form": {
+  "steps_4_5_6_8": "the file is ONE transaction (begin; set local lock_timeout = '5s'; set local statement_timeout = '60s'; ... commit;) and carries a catalogue fingerprint guard: it accepts only the live state read on 14.11.2026 (or, idempotently, its own result), refuses before any change otherwise, and its postcondition requires the exact fingerprint proven on the isolated fixture; the rollback accepts only the state the apply produced and its postcondition requires the exact state before the apply (so a rollback that is not exact fails instead of passing)",
+  "steps_2_7_10": "each change is one statement (a DO block, or one md5-guarded patch call): atomic by construction; the files are unchanged since the reviews (CR-X1 for step 2)",
+  "send_as": "one complete call per file, without edits",
+  "before_each_step": "read the fingerprints/preconditions of that step again (this file, fields live_precondition and guard) - the files also check them themselves"
+ }
+}
