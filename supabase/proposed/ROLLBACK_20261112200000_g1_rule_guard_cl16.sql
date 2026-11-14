@@ -8,10 +8,17 @@
 -- Not undone: metadata.rule_guard stamps written on retirements and metadata.retired_routing_v1 records written while the extension
 -- was applied stay as audit metadata (the live guard ignores both keys); removing them would be a separate data change that needs
 -- its own approval.
--- Lock: DROP TRIGGER of the TRUNCATE trigger takes a brief exclusive lock on public.nodes (lock_timeout 5s).
+-- Locks (CR-F1, Codex review 14.11.2026; measured by the concurrency cases of scripts/run-g1-rule-guard-sql-test.sh): the file first takes LOCK TABLE public.nodes
+-- IN SHARE ROW EXCLUSIVE MODE, before it reads anything, so another change of the triggers is either committed (and refused here as drift) or waited for; writers wait
+-- behind it, readers do not. DROP TRIGGER of the TRUNCATE trigger then needs ACCESS EXCLUSIVE on public.nodes: it waits for running readers (at most lock_timeout 5s;
+-- new readers queue behind it meanwhile) and, on a timeout, the whole file fails and EVERYTHING it did is rolled back. STOP and inspect (pg_locks, pg_stat_activity);
+-- do NOT resend automatically.
 begin;
 set local lock_timeout = '5s';
 set local statement_timeout = '30s';
+
+-- CR-F1: serialise against every other change of the triggers of public.nodes BEFORE the state is read (see the header).
+lock table public.nodes in share row exclusive mode;
 
 create temp table g1rg_before on commit drop as
   select md5(pg_get_functiondef(p.oid)) as def_md5, p.proowner, p.proacl::text as acl, p.prosecdef, p.proconfig, p.provolatile

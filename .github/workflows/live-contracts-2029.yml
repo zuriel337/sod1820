@@ -366,7 +366,7 @@ jobs:
         run: bash scripts/run-gilui-yomi-kandro-sql-test.sh
       - name: Group images and videos (proposal; text arrivals byte-identical; only a verified, approved, unheld writer's image or video with a recorded public copy at the exact path and of the same type and size; every gate refuses; hold and takedown; grants; the 10.11 backfill; both roll back exactly; live functions byte for byte)
         run: bash scripts/run-group-source-media-sql-test.sh
-      - name: G1 rule guard (CL-16) proposal lifecycle (25 cases; a missing function, drift, a MISSING or DISABLED trigger stop both files; exact apply, no-op re-apply, exact rollback; the apply plan sha256 values are the files; no other SQL file touches the rule tree unreviewed)
+      - name: G1 rule guard (CL-16) proposal lifecycle (25 cases; a missing function, drift, a MISSING or DISABLED trigger stop both files; exact apply, no-op re-apply, exact rollback; the apply plan sha256 values are the files; no other SQL file touches the rule tree unreviewed) and 9 concurrency cases (a trigger change committed by another session is never overwritten, by the apply or by the rollback; clean runs after waiting; atomic lock timeouts)
         run: bash scripts/run-g1-rule-guard-sql-test.sh
       - name: G1 rule guard (CL-16) case matrix, live vs applied (72 cases x 2 variants, each with an expected outcome and refusal reason)
         run: bash docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-db-scenarios.sh

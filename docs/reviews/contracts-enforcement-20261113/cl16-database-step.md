@@ -37,7 +37,7 @@ successor of a retired rule in `metadata.retired_routing_v1` only. Rows that are
 | `public.project_codex` | **read** (`slug`) to check a codex owner or successor | `:212`, `:330` |
 | catalog (`pg_proc`, `pg_trigger`) | read by the preflight, fail-closed | `:66-91` |
 | roles | none changed. The guard is not SECURITY DEFINER: it runs as the **writing** role, which needs SELECT on `work_log` and `project_codex`; a writer without it is refused (fail-closed, not silently allowed) | `...cl16.sql:52` (header), live ACLs **not re-read here** |
-| locks | `lock_timeout 5s`, `statement_timeout 30s`; CREATE OR REPLACE TRIGGER takes a brief SHARE ROW EXCLUSIVE lock on `public.nodes`; readers are not blocked | `:63-64`, `:51` |
+| locks | `lock_timeout 5s`, `statement_timeout 30s`, and (CR-F1, Codex review 14.11.2026) `LOCK TABLE public.nodes IN SHARE ROW EXCLUSIVE MODE` **before any state is read** — the mode `CREATE [OR REPLACE] TRIGGER` and `ALTER TABLE ... DISABLE TRIGGER` take themselves, so another session's trigger change is either committed first (the checks see it and refuse on drift) or still open (the file waits, then fails with nothing changed). Measured by the nine concurrency cases (PostgreSQL 16 and 17): readers are never blocked by the apply; writers queue behind the lock request for at most the lock timeout; in the rollback `DROP TRIGGER` needs ACCESS EXCLUSIVE, so there new readers queue for at most the lock timeout, and a timeout rolls back everything the file did. On a timeout: stop and inspect, do not resend automatically | `:66-73` (apply), `:16-21` (rollback) |
 | preconditions | continues only on the exact live state (md5 `56b90b0a...`, the old trigger, no TRUNCATE trigger) or the exact applied state; every other state, including a **missing or disabled trigger**, stops it before anything changes | `:68-92`; 25 lifecycle cases |
 
 ## 3. Dependency table: M0, main and CI
@@ -105,7 +105,7 @@ it writes a rule row; the live ACLs of those two tables were not re-read here.
 ## 6. Tests (local, throwaway PostgreSQL only)
 
 ```
-G1_PG_BIN=/usr/lib/postgresql/16/bin bash scripts/run-g1-rule-guard-sql-test.sh                                      # 25 lifecycle cases + sha256 + rule-tree scan
+G1_PG_BIN=/usr/lib/postgresql/16/bin bash scripts/run-g1-rule-guard-sql-test.sh                                      # 25 lifecycle cases + sha256 + rule-tree scan + 9 concurrency cases (CR-F1)
 G1_PG_BIN=/usr/lib/postgresql/17/bin bash docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-db-scenarios.sh   # 72 cases x 2 variants
 G1_PG_BIN=/usr/lib/postgresql/17/bin bash scripts/run-g1-laws-snapshot-reader-test.sh                                 # 18 end-to-end checks
 G1_PG_BIN=/usr/lib/postgresql/17/bin bash docs/reviews/contracts-enforcement-20261113/cl16-order-evidence/run.sh      # 4 order cases
