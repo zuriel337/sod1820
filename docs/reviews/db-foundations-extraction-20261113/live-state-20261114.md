@@ -1,6 +1,6 @@
 # Package P1: live state read on 14.11.2026 (read-only) — the "stamps" of the remaining steps
 
-All values below were read from the canonical project `linswmnnkjxvweumprav` (PostgreSQL 17.6) on 14.11.2026 between 18:20 and 19:05 UTC with catalogue SELECTs only (`execute_sql`, role `postgres`, nothing written, no function executed). They are the preconditions of the apply files, and each apply file re-checks the ones it can (see `apply-plan.json`, field `guard`). **Before each approved step the operator reads them again** (`tests/live/m0_pre_apply_fingerprints.sql`, `tests/live/def005_pre_apply_definitions.sql`) and stops on any difference.
+All values below were read from the canonical project `linswmnnkjxvweumprav` (PostgreSQL 17.6) on 14.11.2026 between 18:15 and 18:50 UTC with catalogue SELECTs only (`execute_sql`, role `postgres`, nothing written, no function executed). They are the preconditions of the apply files, and each apply file re-checks the ones it can (see `apply-plan.json`, field `guard`). **Before each approved step the operator reads them again** (`tests/live/m0_pre_apply_fingerprints.sql`, `tests/live/def005_pre_apply_definitions.sql`) and stops on any difference.
 
 ## 1. What is already applied — do not apply again
 
@@ -12,7 +12,7 @@ The source files of steps 1 and 9 (`supabase/proposed/20261106121000_def001b_vis
 
 ## 2. Phase-aware verification of the whole package
 
-`tests/live/m0_post_apply_verification.sql` with `applied = (1, 9)`: **56 rows, 56 as expected, VERDICT true** (14.11.2026 ~19:00 UTC). That is: the steps 1 and 9 rows are in force, every row of the remaining steps still shows the "before" state, every preservation row (public reads, `research_level_of`, cron job `security_spike_hourly`, public gallery read, public research read, no overload carrying a DEF-005 name) is true. The earlier form of the query required every row true after every step, which cannot hold while later steps are unapplied (Codex finding 1).
+`tests/live/m0_post_apply_verification.sql` with `applied = (1, 9)`: **56 rows, 56 as expected, VERDICT true** (14.11.2026 ~18:35 UTC). That is: the steps 1 and 9 rows are in force, every row of the remaining steps still shows the "before" state, every preservation row (public reads, `research_level_of`, cron job `security_spike_hourly`, public gallery read, public research read, no overload carrying a DEF-005 name) is true. The earlier form of the query required every row true after every step, which cannot hold while later steps are unapplied (Codex finding 1).
 
 ## 3. Preconditions per remaining step
 
