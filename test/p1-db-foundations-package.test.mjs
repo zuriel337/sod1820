@@ -140,12 +140,28 @@ test("every SQL runner the plan relies on loads the files of this package and no
   assert.match(read("scripts/run-def001-sql-test.sh"), /def005_public_rpc_guards_v1\.sql/);
 });
 
-test("the 120 MiB upload ceiling stays marked as an unconfirmed product decision (D-1) in the file and in the plan", () => {
+test("the 120 MiB upload ceiling is recorded as the product decision D-1 ADOPTED by ZURIEL (per NEW file, existing files retained) in the file and in the plan, and as a policy choice, not as an approval to apply", () => {
   const step8 = plan.steps.find((s) => s.step === "8");
-  assert.ok(step8.decision_gates.some((g) => g.startsWith("D-1")));
+  assert.equal(step8.decision_gates, undefined, "no open decision gate is left on step 8");
+  assert.ok(step8.decision_record.some((g) => g.startsWith("D-1 ADOPTED by ZURIEL on 14.11.2026") && /120 MiB per NEW gallery file/.test(g) && /NOT an approval to apply/.test(g)));
   const sql = read(step8.file);
-  assert.match(sql, /PRODUCT DECISION NOT CONFIRMED FOR THIS EXTRACTION/);
+  assert.match(sql, /PRODUCT DECISION D-1: ADOPTED BY ZURIEL \(14\.11\.2026\), 120 MiB PER NEW FILE/);
+  assert.match(sql, /NOT an\n-- approval to apply this file/);
+  assert.doesNotMatch(sql, /NOT CONFIRMED/);
   assert.match(sql, /update storage\.buckets set file_size_limit = 125829120 where id = 'gallery';/);
+});
+
+test("a file that fails on its lock timeout changed nothing and the instruction is STOP and inspect, never to resend automatically (adopted rule O-7), in every guarded file and in the plan", () => {
+  for (const k of ["4", "5", "6", "8"]) {
+    const s = plan.steps.find((x) => x.step === k);
+    for (const f of [s.file, s.rollback]) {
+      const sql = read(f);
+      assert.match(sql, /STOP and inspect \(pg_locks, pg_stat_activity\), do not resend automatically/, `${f} says stop and inspect`);
+      assert.doesNotMatch(sql, /sent again|send again|resend it|retry/i, `${f} does not tell anyone to send it again`);
+    }
+  }
+  assert.match(plan.execution_form.steps_4_5_6_8, /STOP and inspect \(pg_locks, pg_stat_activity\) and do not resend automatically/);
+  assert.doesNotMatch(read("docs/reviews/db-foundations-extraction-20261113/README.md"), /simply sent again|is sent again/);
 });
 
 test("the live verification query is phase-aware: one `applied` line, change/preserve rows, fingerprints and a VERDICT row", () => {

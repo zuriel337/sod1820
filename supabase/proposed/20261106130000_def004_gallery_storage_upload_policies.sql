@@ -20,13 +20,13 @@
 --     media-upload-intent into the private submission-inbox bucket (2 GiB, MIME allow-list), which this file does not touch.
 -- Route map and evidence: docs/reviews/m0-security-stabilization-20261112/cluster-C-gallery.md.
 --
--- ===== PRODUCT DECISION NOT CONFIRMED FOR THIS EXTRACTION (13.11.2026) =====
--- The 120 MiB upload ceiling (section 5, its three preconditions and its postcondition) is a PRODUCT decision about how large a file a
--- visitor may upload. The 12.11 text above records it as "owner decision, Option 1", but the 13.11 extraction instruction asks that every
--- product decision that is not approved for this release be marked, and no approval record for this exact figure is part of the package.
--- Until ZURIEL confirms it for this release, treat the ceiling as OPEN (decision D-1 in docs/reviews/db-foundations-extraction-20261113/README.md):
--- the path/extension policies (sections 1-4) are the security change, the ceiling (section 5) is the product change; both are in this file so
--- that the tested apply and rollback stay one step, and the confirmation is a yes/no on the figure, not a new design.
+-- ===== PRODUCT DECISION D-1: ADOPTED BY ZURIEL (14.11.2026), 120 MiB PER NEW FILE =====
+-- The 120 MiB upload ceiling (section 5, its three preconditions and its postcondition) is a PRODUCT decision about how large a file a visitor may
+-- upload. It was marked "not confirmed" on 13.11.2026. ZURIEL adopted it on 14.11.2026 (journal d558163b, "ZURIEL POLICY CHOICES"): a limit of 120 MiB
+-- per NEW gallery file (not a total bucket capacity); existing files are retained (this file never touches an object). That is a policy choice, NOT an
+-- approval to apply this file: applying it still needs ZURIEL's explicit approval for this exact file (CLAUDE.md 0.4).
+-- The path/extension policies (sections 1-4) are the security change, the ceiling (section 5) is the product change; both are in this file so
+-- that the tested apply and rollback stay one step.
 --
 -- What this revision changes compared with the 06.11 draft:
 --   1. Admin is its own policy (gallery_admin_upload_v1): any path in `gallery`, any extension (admin screens and the public-reading worker's admin
@@ -57,7 +57,7 @@
 -- (the text of policy expressions that the guard compares depends on it); it takes SHARE UPDATE EXCLUSIVE on the tables it changes BEFORE it reads the catalogue, so a
 -- policy change made by another session (CREATE / ALTER / DROP POLICY take ACCESS EXCLUSIVE, which conflicts with it) is either finished and seen by the guard or still
 -- running (the file then fails on the lock timeout and changes nothing); and it carries a catalogue fingerprint guard. Locks: the policy DDL of this file waits for
--- running reads for at most the lock timeout (1s) and new reads queue behind it meanwhile; on a timeout nothing changes and the file is sent again later.
+-- running reads for at most the lock timeout (1s) and new reads queue behind it meanwhile; on a timeout nothing changes: STOP and inspect (pg_locks, pg_stat_activity), do not resend automatically.
 begin;
 set local lock_timeout = '1s';
 set local statement_timeout = '60s';
@@ -135,7 +135,7 @@ create policy gallery_admin_upload_v1 on storage.objects for insert to authentic
   );
 
 -- 5. 120 MiB ceiling on new uploads into gallery (existing objects are not touched by a bucket setting).
---    PRODUCT DECISION NOT CONFIRMED FOR THIS EXTRACTION - see the marked block in the header (D-1).
+--    PRODUCT DECISION D-1 ADOPTED (120 MiB per new file) - see the marked block in the header.
 update storage.buckets set file_size_limit = 125829120 where id = 'gallery';
 
 -- 6. Postconditions.

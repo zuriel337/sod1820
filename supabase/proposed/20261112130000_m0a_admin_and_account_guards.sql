@@ -23,7 +23,7 @@
 -- (the text of policy expressions that the guard compares depends on it); it takes SHARE UPDATE EXCLUSIVE on the tables it changes BEFORE it reads the catalogue, so a
 -- policy change made by another session (CREATE / ALTER / DROP POLICY take ACCESS EXCLUSIVE, which conflicts with it) is either finished and seen by the guard or still
 -- running (the file then fails on the lock timeout and changes nothing); and it carries a catalogue fingerprint guard. Locks: the policy DDL of this file waits for
--- running reads for at most the lock timeout (2s) and new reads queue behind it meanwhile; on a timeout nothing changes and the file is sent again later.
+-- running reads for at most the lock timeout (2s) and new reads queue behind it meanwhile; on a timeout nothing changes: STOP and inspect (pg_locks, pg_stat_activity), do not resend automatically.
 begin;
 set local lock_timeout = '2s';
 set local statement_timeout = '60s';
