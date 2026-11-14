@@ -4,6 +4,9 @@ import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/mess
 import { parseMessageFormatting } from "../../lib/community/messageFormatting.js";
 import { use2029Palette } from "../../lib/palette2029.js";
 import { fetchLinkPreview } from "../../lib/community/linkPreviewClient.js";
+import { splitMessageNumbers } from "../../lib/community/messageNumbers.js";
+import { numberPageHref } from "../../lib/research/numberPageAddress.js";
+import { use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 
 // Generic external link: the plain card (host + address) is always there; Open Graph title/description/image replace it only
 // when the preview service answered. No request happens while the feature flag is off.
@@ -39,6 +42,23 @@ function LinkPreview({ link, draft = false }) {
   return <ExternalVideoFacade2029 link={link} className="sod29-community-video-card" />;
 }
 
+// A number written in the message opens the existing Number capability in place (the same opener the Post page uses), so the reader
+// keeps their place in the thread. Without that opener, or with a modified click, the plain /number/<n> address works as a link.
+export function MessageNumber({ value, children }) {
+  const shell = use2029Shell();
+  const href = numberPageHref(value);
+  return <a className="sod29-community-number" href={href} data-community-number={value} onClick={event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || typeof shell?.openNumber !== "function") return;
+    event.preventDefault();
+    shell.openNumber({ id: String(value), type: "number", label: String(value), href });
+  }}>{children}</a>;
+}
+
+// The collapsed preview of a long message is plain text; its numbers are links too, so a long gematria post is readable before it is opened.
+export function MessageNumbersText({ text }) {
+  return <>{splitMessageNumbers(text).map((piece, index) => piece.number == null ? <React.Fragment key={index}>{piece.text}</React.Fragment> : <MessageNumber key={index} value={piece.number}>{piece.text}</MessageNumber>)}</>;
+}
+
 export default function CommunityMessageContent({ text, previewsOnly = false, bodyRef }) {
   const palette = use2029Palette();
   const nodes = parseMessageFormatting(text);
@@ -62,8 +82,12 @@ export default function CommunityMessageContent({ text, previewsOnly = false, bo
       return pieces;
     };
     return parts.map((part, index) => {
+      // Each piece consumes its own slice of the styled runs, so bold/colour/underline stay exactly where the writer put them.
+      if (!part.link) return <React.Fragment key={`${key}:${index}`}>{(previewsOnly ? [{ text: part.text }] : splitMessageNumbers(part.text)).map((piece, pieceIndex) => {
+        const pieceContent = take(piece.text.length);
+        return piece.number == null ? <React.Fragment key={pieceIndex}>{pieceContent}</React.Fragment> : <MessageNumber key={pieceIndex} value={piece.number}>{pieceContent}</MessageNumber>;
+      })}</React.Fragment>;
       const content = take(part.text.length);
-      if (!part.link) return <React.Fragment key={`${key}:${index}`}>{content}</React.Fragment>;
       const label = { image: "פתיחת התמונה המצורפת", video: "פתיחת הסרטון המצורף", file: `פתיחת קובץ ${part.link.extension}` }[part.link.kind];
       return <a key={`${key}:${index}`} dir={label ? "auto" : "ltr"} href={part.link.href} target="_blank" rel="noopener noreferrer">{label || content}</a>;
     });

@@ -291,6 +291,8 @@
 .sod29-root.surface-world .sod29-world-update-state.is-updated { color: var(--s29-brand-gold); }
 .sod29-root.surface-world .sod29-world-update-state.is-approved { color: var(--s29-discovery); }
 .sod29-root.surface-world .sod29-world-update-state.is-finding { color: var(--s29-accent-text); }
+/* §8.3 content visible before entry: a fixed-ratio box so the lazy image never shifts layout (CLS). */
+.sod29-root.surface-world .sod29-world-update-grid .sod29-world-update-thumb { aspect-ratio: 16 / 9; height: auto; border-radius: 10px; }
 .sod29-root.surface-world .sod29-world-update-grid h3 { margin: 0; font: 650 16px/1.4 var(--s29-font-ui); }
 .sod29-root.surface-world .sod29-world-update-grid p { margin: 0; color: var(--s29-ink-soft); font: 400 14px/1.55 var(--s29-font-body); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .sod29-root.surface-world .sod29-world-update-grid .sod29-world-update-creator { font: 550 13px/1.45 var(--s29-font-ui); }

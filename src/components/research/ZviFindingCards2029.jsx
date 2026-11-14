@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
+import { researchPublicStatusPresentation } from "../../lib/research/researchObjectPresentation.js";
 import "./WorldZviApprovedFindings2029.css";
 
 // The same public finding presentation serves the source, World and number
@@ -10,7 +11,10 @@ function groupPublicFindingWording(rows = []) {
   for (const row of Array.isArray(rows) ? rows : []) {
     if (!row?.id || seen.has(row.id)) continue;
     seen.add(row.id);
-    const key = row.exactTextFingerprint || `finding:${row.id}`;
+    // Same wording groups only within one governance tier: a "טרם אומת" occurrence is never
+    // shown under a verified headline (or the reverse).
+    const tier = researchPublicStatusPresentation(row.publicationState ?? row.status)?.tier ?? 0;
+    const key = row.exactTextFingerprint ? `${row.exactTextFingerprint}:${tier}` : `finding:${row.id}`;
     const members = groups.get(key) || [];
     members.push(row);
     groups.set(key, members);
@@ -36,7 +40,8 @@ export default function ZviFindingCards2029({
     return <li className="zvi-research__card" key={row.id}>
       <div className="zvi-research__card-labels">
         <span>{row.kindLabel || "ממצא מחקר"}</span>
-        {publication === "canonical" ? <span>קנוני</span> : publication === "approved" ? <span>מאושר</span> : null}
+        {researchPublicStatusPresentation(publication) ? <span className={`sod29-research-status${researchPublicStatusPresentation(publication).verified ? "" : " is-unverified"}`}
+          data-public-research-status={publication}>{researchPublicStatusPresentation(publication).label}</span> : null}
         {claimedNumber != null ? <span>מספר המופיע בממצא: {claimedNumber}</span> : null}
       </div>
       <span className="zvi-research__excerpt-label">תקציר הממצא · לחצו לקריאה</span>
@@ -54,7 +59,7 @@ export default function ZviFindingCards2029({
             <Link to={occurrence.findingHref} state={{ returnTo }}>פריט {index + 1}</Link>
             {occurrence.contributor ? <> · <bdi>{occurrence.contributor}</bdi></> : null}
             {occurrence.createdAt ? <> · {bilingualDateLabel(occurrence.createdAt)}</> : null}
-            {occurrence.publicationState ? <> · {occurrence.publicationState === "canonical" ? "קנוני" : "מאושר"}</> : null}
+            {researchPublicStatusPresentation(occurrence.publicationState) ? <> · {researchPublicStatusPresentation(occurrence.publicationState).label}</> : null}
             {allowed ? <> · <Link to={occurrence.sourceHref}>פתיחת המקור</Link></> : null}
           </li>;
         })}</ul>

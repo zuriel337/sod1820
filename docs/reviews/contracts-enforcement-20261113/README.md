@@ -153,7 +153,7 @@ The PR #1321 results (51 scenarios, produced on commit `83005653617e`) stay in `
 | `GITHUB_ACTIONS=true G1_BASE_SHA=<origin/main> node --test scripts/test-g1-agent-routing-smoke.mjs` | 51 pass / 0 fail (Node 22 and 24.22.1) |
 | `bash docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-ci-scenarios.sh` | **53 scenarios, all as expected**, exit 0 (about 55 s). It creates and removes one temporary detached worktree, as designed |
 | `G1_PG_BIN=<16 and 17> bash .../enforcement-proof/run-db-scenarios.sh` | 72 cases x 2 variants (live / applied) as expected on both; outputs identical apart from the version line |
-| `G1_PG_BIN=<16 and 17> bash scripts/run-g1-rule-guard-sql-test.sh` | 25 lifecycle cases as expected on both; sha256 of the plan match; rule-tree scan: 36 SQL files, 4 reviewed hits. Self-check `G1_RG_FLIP=G3-apply-exact-live-state`: exit 1 |
+| `G1_PG_BIN=<16 and 17> bash scripts/run-g1-rule-guard-sql-test.sh` | 25 lifecycle cases as expected on both; sha256 of the plan match; rule-tree scan: 36 SQL files, 4 reviewed hits. Self-check `G1_RG_FLIP=G3-apply-exact-live-state`: exit 1. **Then 9 concurrency cases (CR-F1, 14.11.2026)** with a synchronisation barrier, as root and as an unprivileged user on both versions; self-check: `G1_RG_CC_APPLY` / `G1_RG_CC_ROLLBACK` pointed at the files before CR-F1 make cases A1 and R1 fail (exit 1) |
 | `G1_PG_BIN=<16 and 17> bash scripts/run-g1-laws-snapshot-reader-test.sh` | 18 checks as expected on both. Self-check `G1_READER_FLIP=G-S1`: exit 1 |
 | `G1_PG_BIN=<16 and 17> bash .../cl16-order-evidence/run.sh` | 4 cases as expected on both |
 | `node --test test/contracts-enforcement-package-2029.test.mjs test/required-checks-definition-2029.test.mjs` | 13 pass / 0 fail (Node 22 and 24.22.1) |

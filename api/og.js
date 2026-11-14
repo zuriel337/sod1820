@@ -16,6 +16,7 @@ import { createVideoAssetReader, createVideoAssetSource, VIDEO_ASSET_MV } from "
 import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
 import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
 import { worldPreviewMaterialExclusion } from '../src/lib/research/worldPreviewMaterialScope.js';
+import { publicResearchPresentationEligible, researchRowDisplayPolicyOk } from '../src/lib/research/worldZviApprovedFindings2029.js';
 // רובוטים של פייסבוק/וואטסאפ/טלגרם לא מריצים JS, ולכן הם מנותבים לכאן (לפי User-Agent
 // ב-vercel.json) ומקבלים HTML עם הכותרת/התיאור/התמונה הנכונים של אותו פוסט. משתמשים
 // רגילים (וגוגל, שמריץ JS) ממשיכים לקבל את ה-SPA כרגיל.
@@ -808,13 +809,20 @@ export default async function handler(req, res) {
     canonical = SITE + '/world';
     if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestedFindingId)) {
       try {
-        const apiUrl = `${SUPABASE_URL}/rest/v1/research_objects?id=eq.${encodeURIComponent(requestedFindingId)}&privacy_scope=eq.public&status=in.(approved,canonical)&select=id,created_at,statement,kind,source,source_ref,contributor,meta,status,privacy_scope&limit=1`;
+        // ZURIEL 12.11.2026: a public candidate is viewable and shareable with its "טרם אומת" label;
+        // only approved/canonical findings are indexable (the SEO decision is unchanged).
+        const apiUrl = `${SUPABASE_URL}/rest/v1/research_objects?id=eq.${encodeURIComponent(requestedFindingId)}&privacy_scope=eq.public&status=in.(approved,canonical,candidate)&select=id,created_at,statement,kind,source,source_ref,contributor,meta,status,privacy_scope&limit=1`;
         const response = await fetch(apiUrl, { headers: ogHeaders, signal: AbortSignal.timeout(5000) });
         if (!response.ok) throw new Error('public_finding_lookup_failed');
         const rows = await response.json();
         const row = Array.isArray(rows) ? rows[0] : null;
+        // CR-X2 (13.11.2026): the card follows the same display policy as the exact finding and the list - over the fields it shows
+        // (statement, contributor, the stored Hebrew presentation) - for every status, and a candidate also needs the admission of the
+        // finding pages (research role). The card can therefore not show a contact detail the page refuses.
         const excluded = row && (worldPreviewMaterialExclusion(row, 'research_object')
-          || row.meta?.ext?.personal_scope?.scope === 'person_only');
+          || row.meta?.ext?.personal_scope?.scope === 'person_only'
+          || !researchRowDisplayPolicyOk(row)
+          || (row.status === 'candidate' && !await publicResearchPresentationEligible(row)));
         let exactSourceAllowed = true;
         const channelRef = /^channel_updates:([^#]+)(?:#.*)?$/i.exec(String(row?.source_ref || ''));
         if (row && !excluded && channelRef) {
@@ -826,17 +834,20 @@ export default async function handler(req, res) {
             && String(sourceRows[0]?.channel || '').toLowerCase() !== 'or-geula';
         }
         if (row?.id === requestedFindingId && row.privacy_scope === 'public'
-            && ['approved', 'canonical'].includes(row.status) && !excluded && exactSourceAllowed) {
+            && ['approved', 'canonical', 'candidate'].includes(row.status) && !excluded && exactSourceAllowed) {
+          const unverified = row.status === 'candidate';
           const presented = resolveResearchObjectPresentation(row, { locale: 'he' });
           const preview = worldFindingShareCard({ title: presented.title,
             typeLabel: presented.typeLabel, sourceLabel: presented.sourceLabel,
-            attributionLabel: presented.attributionLabel, summary: presented.summary });
+            attributionLabel: presented.attributionLabel, summary: presented.summary,
+            statusLabel: unverified ? 'טרם אומת' : null });
           if (preview) {
-            title = preview.title + ' · ' + SITE_NAME;
+            title = preview.title + (unverified ? ' · טרם אומת' : '') + ' · ' + SITE_NAME;
             desc = preview.description;
             image = preview.image; // existing 1200x630 branded /api/card; no unreviewed source image
             canonical = `${SITE}/world?finding=${encodeURIComponent(row.id)}#finding-${encodeURIComponent(row.id)}`;
-            robots = 'index, follow';
+            // Not-yet-verified findings stay out of the index, exactly as before.
+            robots = unverified ? 'noindex, nofollow' : 'index, follow';
           }
         }
       } catch { /* Fail closed; never substitute admin data or expose the requested id. */ }

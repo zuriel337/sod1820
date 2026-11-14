@@ -7,6 +7,7 @@ import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { galThumb } from "../../lib/img.js";
 import { sourceOccurrenceElementId } from "../../lib/research/worldContributorSourceLocator.js";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
+import { orderResearchByPublicStatusTier } from "../../lib/research/researchObjectPresentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const genericSourceLabel = (text) => ["📷 עדכון", "🎬 עדכון וידאו", "עדכון"].includes(clean(text));
@@ -84,7 +85,8 @@ function makeStyles(P) {
 
 function SourceGroup({ group, P, S, researchUnavailable, timeMode, showDuplicateAudit = false, focusSourceRef = null }) {
   const [expanded, setExpanded] = useState(false);
-  const findings = group.universalFindings || [];
+  // M0-D: Human-Gate verified findings keep their order and come first; public candidates ("טרם אומת") follow in theirs.
+  const findings = orderResearchByPublicStatusTier(group.universalFindings || [], (finding) => finding?.status);
   const shown = expanded ? findings : findings.slice(0, 6);
   const mediaSource = group.mediaSource || group.source;
   const duplicateClusters = Array.isArray(group.duplicateFindingClusters) ? group.duplicateFindingClusters : [];

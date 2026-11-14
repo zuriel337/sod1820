@@ -1,5 +1,6 @@
 // Page-local presentation over the canonical readers. No persistence or attribution inference.
 import { normalizeWorldAllResearchRow } from "../../lib/research/worldAllResearchProjection.js";
+import { orderResearchByPublicStatusTier, researchPublicStatusPresentation } from "../../lib/research/researchObjectPresentation.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import { safePublicUrl, approvedReturnHref } from "./contributorLinkPolicy2029.js";
 import {
@@ -107,6 +108,8 @@ export function buildPublicContributorView(projection, identity) {
         // Nor does it carry a canonical per-Finding destination. Do not invent any of them.
         strength: null, quality: null,
         verification: row?.engine_detail?.verification_state || null,
+        // M0-D: the stored public status only (approved / canonical / candidate), labelled by the page; never inferred.
+        publicStatus: researchPublicStatusPresentation(row.status)?.status || null,
         reason: "ממצא עם שיוך מפורש לכותב; השיוך אינו אימות של תוכנו." });
     }
   }
@@ -155,7 +158,8 @@ export function selectContributorItems(view, section, requestedSort) {
     if (av === null || bv === null) return av === bv ? a.id.localeCompare(b.id) : av === null ? 1 : -1;
     return (sort === "oldest" ? av - bv : bv - av) || a.id.localeCompare(b.id);
   });
-  return { rows, sort, canDiscuss, canStrength };
+  // M0-D: Human-Gate verified rows keep their order and come first; public candidates ("טרם אומת") follow in theirs.
+  return { rows: orderResearchByPublicStatusTier(rows, (item) => item.publicStatus), sort, canDiscuss, canStrength };
 }
 
 // Preserve each source-native identity. A projected Insight is a reference on its

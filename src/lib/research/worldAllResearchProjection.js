@@ -4,7 +4,14 @@ import {
   normalizeWorldNumber,
   resolveExplicitVerificationState,
 } from "./worldContextualProminence.js";
-import { resolveResearchObjectPresentation, humanizeResearchSource } from "./researchObjectPresentation.js";
+import {
+  resolveResearchObjectPresentation,
+  humanizeResearchSource,
+  RESEARCH_VERIFIED_PUBLIC_STATUSES,
+  isResearchPublicVisibleStatus,
+  orderResearchByPublicStatusTier,
+  researchPublicStatusPresentation,
+} from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
 import { clusterWorldResearchRows } from "./worldFindingClusters.js";
 import { scopeWorldPreviewMaterial } from "./worldPreviewMaterialScope.js";
@@ -13,7 +20,10 @@ import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
 const MAX_ROWS_PER_SOURCE = 20000;
-const PUBLIC_RESEARCH_STATUSES = Object.freeze(["approved", "canonical"]);
+// Bulk transport for the Beit Midrash learning sections stays verified-only (see fetch below).
+// ZURIEL 12.11.2026: public candidates are viewable with their stored status ("טרם אומת");
+// the public DTO boundary (isWorldPublicProjectionRow) admits them through the shared helper.
+const PUBLIC_RESEARCH_STATUSES = RESEARCH_VERIFIED_PUBLIC_STATUSES;
 
 const finite = normalizeWorldNumber;
 
@@ -702,7 +712,7 @@ function isWorldPublicProjectionRow(row) {
   const status = clean(row?.status).toLowerCase();
   if (row?.family === "research_object") {
     return clean(row?.access).toLowerCase() === "public"
-      && PUBLIC_RESEARCH_STATUSES.includes(status);
+      && isResearchPublicVisibleStatus(status);
   }
   if (row?.family === "contribution" || row?.family === "topic") return status === "approved";
   if (row?.family === "source_message") return status === "live";
@@ -724,8 +734,9 @@ export function worldPublicResearchDto(projection = {}) {
     ...publicProjection
   } = projection || {};
 
-  const rows = (Array.isArray(projection?.rows) ? projection.rows : [])
-    .filter(isWorldPublicProjectionRow)
+  // Verified rows keep their existing order first; public candidates follow (stable tiers).
+  const rows = orderResearchByPublicStatusTier((Array.isArray(projection?.rows) ? projection.rows : [])
+    .filter(isWorldPublicProjectionRow), (row) => row?.family === "research_object" ? row.status : null)
     .map((row) => {
       // A shared projection may also have been assembled for an admin. Topic
       // links in a public finding must never carry an unpublished topic along.
@@ -766,7 +777,9 @@ export function worldPublicResearchDto(projection = {}) {
         } : {}),
         sourceHref: verifiedWebUrl(publicRow.sourceHref),
         ...(publicRow.family === "research_object"
-          ? { canonicalFindingHref: publicFindingHref(publicRow.sourceId) }
+          ? { canonicalFindingHref: publicFindingHref(publicRow.sourceId),
+            statusLabel: researchPublicStatusPresentation(publicRow.status)?.label || null,
+            humanGateVerified: researchPublicStatusPresentation(publicRow.status)?.verified === true }
           : {}),
         ...(Array.isArray(publicRow.occurrences)
           ? { occurrences: publicRow.occurrences.map(publicOccurrenceDto) }
@@ -849,6 +862,9 @@ export async function fetchWorldAllResearchProjection() {
     fetchAllRows(
       "research_objects",
       "id,created_at,kind,statement,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,meta",
+      // Only Beit Midrash consumes this bulk reader, and its guided learning sections are a
+      // deliberate Human-Gate selection (beitMidrashWorldSections PUBLIC_GOVERNANCE). Public
+      // candidates are read where they are shown: the exact finding, World stream and finding lists.
       (query) => query.eq("privacy_scope", "public").in("status", PUBLIC_RESEARCH_STATUSES),
     ),
     fetchAllRows(
@@ -861,8 +877,9 @@ export async function fetchWorldAllResearchProjection() {
       "id,created_at,text,image_url,source,status,credit,channel,link_url,speaker",
       (query) => query.eq("status", "live").or("channel.is.null,channel.neq.or-geula"),
     ),
+    // The published Topic view: an approved card marked do-not-publish would be a dead /topic link.
     fetchAllRows(
-      "topic_cards",
+      "topic_cards_public",
       "id,created_at,approved_at,slug,title,subtitle,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by,node_id",
       (query) => query.eq("status", "approved"),
     ),

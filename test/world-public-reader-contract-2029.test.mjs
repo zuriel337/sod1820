@@ -93,8 +93,15 @@ test("guest DTO removes private, candidate, triage and search carriers without l
     ],
   });
 
-  assert.deepEqual(dto.rows.map((row) => row.id), ["research:public-approved", "topic:approved"]);
+  // ZURIEL 12.11.2026: a public candidate is visible after the verified tier, labelled and unpromoted.
+  assert.deepEqual(dto.rows.map((row) => row.id), ["research:public-approved", "topic:approved", "research:public-candidate"]);
+  const candidate = dto.rows[2];
+  assert.equal(candidate.status, "candidate");
+  assert.equal(candidate.statusLabel, "טרם אומת");
+  assert.equal(candidate.humanGateVerified, false);
+  assert.equal("terms" in candidate, false);
   const finding = dto.rows[0];
+  assert.equal(finding.statusLabel, "מאושר");
   assert.equal(finding.canonicalFindingHref, "/world?finding=public-approved#finding-public-approved");
   assert.equal(finding.canonicalFindingHref.includes("admin=1"), false);
   assert.equal(finding.sourceHref, "https://example.com/source");
@@ -109,9 +116,10 @@ test("guest DTO removes private, candidate, triage and search carriers without l
   assert.equal("excludedMaterial" in dto, false);
   assert.equal(dto.duplicateProjection.groups, 1);
   assert.equal(dto.duplicateProjection.occurrencesCombined, 1);
-  assert.equal(dto.duplicateProjection.rawResearchRows, 2);
-  assert.equal(dto.duplicateProjection.clusteredResearchRows, 1);
+  assert.equal(dto.duplicateProjection.rawResearchRows, 3);
+  assert.equal(dto.duplicateProjection.clusteredResearchRows, 2);
   assert.equal(JSON.stringify(dto).includes("private search term"), false);
+  assert.equal(JSON.stringify(dto).includes("must never leave"), false);
   assert.equal(JSON.stringify(dto).includes("secret-candidate"), false);
 });
 
@@ -169,7 +177,10 @@ test("public focused finding lookup is exact and fails closed", () => {
   assert.equal(publicFinding?.statement, "ממצא ציבורי");
   assert.equal("triage" in publicFinding, false);
   assert.equal(findWorldPublicResearchFinding(projection, "public"), null, "no fuzzy fallback");
-  assert.equal(findWorldPublicResearchFinding(projection, "public-candidate"), null);
+  // A public candidate opens with its stored status and the "טרם אומת" label (ZURIEL 12.11.2026).
+  const candidate = findWorldPublicResearchFinding(projection, "public-candidate");
+  assert.equal(candidate?.status, "candidate");
+  assert.equal(candidate?.statusLabel, "טרם אומת");
   assert.equal(findWorldPublicResearchFinding(projection, "private-approved"), null);
   assert.equal(findWorldPublicResearchFinding(projection, "missing"), null);
 });

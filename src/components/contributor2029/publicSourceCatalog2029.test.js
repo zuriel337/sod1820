@@ -71,15 +71,15 @@ test("Tzvi loader calls the canonical SOURCE_LIBRARY wrapper; entry reads only a
     calls.push(table);
     // The only research relation the source library may touch is the canonical per-contributor view, and only as the
     // promoted tree slice (4157ffc78). The raw research_objects table and every other research relation stay closed.
-    if(table.includes("research")&&!["research_contributions","world_contributor_research_v1"].includes(table))throw new Error("full_research_was_requested");
+    if(table.includes("research")&&!["research_contributions","world_contributor_research_v2"].includes(table))throw new Error("full_research_was_requested");
     const read={table,filters:[]};
-    if(table==="world_contributor_research_v1")researchReads.push(read);
+    if(table==="world_contributor_research_v2")researchReads.push(read);
     let filters=[];
     const b={select:()=>b,eq:(k,v)=>{read.filters.push(["eq",k,v]);filters.push(r=>String(r[k])===String(v));return b;},
       in:(k,v)=>{read.filters.push(["in",k]);filters.push(r=>v.includes(r[k]));return b;},is:(k,v)=>{read.filters.push(["is",k,v]);filters.push(r=>r[k]==null&&v===null);return b;},
       or:(v)=>{read.filters.push(["or",v]);return b;},not:(k,op,v)=>{read.filters.push(["not",k,op,v]);return b;},like:(k,v)=>{read.filters.push(["like",k,v]);return b;},order:()=>b,
       maybeSingle:()=>Promise.resolve({data:identity}),
-      range:()=>{const data=table==="channel_updates"?sources.filter(r=>filters.every(f=>f(r))):table==="world_contributor_research_v1"?[promoted]:[];return Promise.resolve({data,count:data.length});}};
+      range:()=>{const data=table==="channel_updates"?sources.filter(r=>filters.every(f=>f(r))):table==="world_contributor_research_v2"?[promoted]:[];return Promise.resolve({data,count:data.length});}};
     return b;
   },rpc(name){calls.push(`rpc:${name}`);throw new Error("lexical_lookup_was_requested");}};
   const view=await loadPublicContributor2029("tzvi-opoc",{publicClient:()=>client});

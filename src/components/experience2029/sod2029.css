@@ -182,6 +182,10 @@ a.sod29-card:hover,button.sod29-card:hover{transform:translateY(-3px);border-col
    .sod29-action-row; the gap belongs to the primitive, never to whitespace or to a one-off margin. */
 :root{--s29-action-gap:12px}
 .sod29-action-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px var(--s29-action-gap);min-width:0}
+/* Research governance label (Design Contract V2 §8.3): the text carries the meaning ("טרם אומת",
+   "מאושר", "קנוני"); the dashed edge only repeats it, so status is never decoration-only (§12.5). */
+.sod29-research-status{display:inline-flex;align-items:center;min-height:24px;padding:2px 9px;border:1px solid var(--s29-line-strong,currentColor);border-radius:999px;font-size:14px;line-height:1.3;color:var(--s29-ink,inherit);white-space:nowrap}
+.sod29-research-status.is-unverified{border-style:dashed}
 .sod29-action-row>:is(a,button,.sod29-action){min-height:var(--s29-control-min,44px)}
 .sod29-action-row>a:not(.sod29-action){display:inline-flex;align-items:center}
 /* Safety net for legacy markup: a bare button directly followed by a link/button still gets the primitive gap. */

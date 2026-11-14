@@ -273,7 +273,7 @@ test("public activity reuses the bounded likes scan, counts Israel posting days 
   const calls = [], rows = [{ id: "one", created_at: "2026-10-26T19:00:00Z", reactions: { likes: 2 } },
     { id: "two", created_at: "2026-10-26T22:30:00Z", reactions: { likes: 3 } }];
   const client = { from(table) { assert.equal(table, "research_contributions"); const b = {};
-    for (const method of ["select", "eq", "in", "not", "neq", "or", "order"]) b[method] = (...args) => { calls.push([method, ...args]); return b; };
+    for (const method of ["select", "eq", "in", "is", "not", "neq", "or", "order"]) b[method] = (...args) => { calls.push([method, ...args]); return b; };
     b.limit = async () => ({ data: rows.slice(0, 1), error: null });
     b.range = async () => { calls.push(["range"]); return { data: rows, error: null }; }; return b; } };
   const result = await fetchCommunityAuthorSummary("4cd9c034-0464-4600-a35d-7156f0584d9b", { client });
@@ -283,13 +283,15 @@ test("public activity reuses the bounded likes scan, counts Israel posting days 
   assert.equal(calls.filter(c => c[0] === "range").length, 1, "no extra activity query or per-message request");
   assert.ok(calls.some(c => c[0] === "eq" && c[1] === "status" && c[2] === "approved"));
   assert.ok(calls.some(c => c[0] === "not" && c[1] === "body"));
+  assert.ok(calls.some(c => c[0] === "is" && c[1] === "deleted_at" && c[2] === null));
+  assert.ok(calls.some(c => c[0] === "is" && c[1] === "thread_hidden_at" && c[2] === null));
   assert.ok(calls.some(c => c[0] === "in" && c[1] === "origin" && c[2].includes("openweb")));
 });
 
 test("empty public history is measured zero; invalid or truncated activity never manufactures a complete total", async () => {
   for (const kind of ["empty", "invalid", "truncated"]) {
     let pages = 0;
-    const client = { from() { const b = {}; for (const method of ["select", "eq", "in", "not", "neq", "or", "order"]) b[method] = () => b;
+    const client = { from() { const b = {}; for (const method of ["select", "eq", "in", "is", "not", "neq", "or", "order"]) b[method] = () => b;
       b.limit = async () => ({ data: [], error: null });
       b.range = async () => { pages++; return { data: kind === "empty" ? [] : kind === "invalid" ? [{ created_at: "bad", reactions: {} }]
         : Array.from({ length: 500 }, () => ({ created_at: "2026-10-26T19:00:00Z", reactions: {} })), error: null }; }; return b; } };
@@ -379,7 +381,7 @@ test("a search hit opens its thread only through a fully public root-to-reply pa
   assert.equal(await fetchCommunityMessagePath("not-a-uuid", { client: rpcClient(() => { throw new Error("must not call"); }) }), null);
 });
 
-test("Esther26 legacy posts and Esther Gem current posts resolve to one reviewed owner", () => {
+test("Esther26 is the public name for old and new posts under one reviewed owner", () => {
   const contributor = "99bcfb38-85be-4f38-89f0-7886f2f179e6", account = "9196e2b4-6473-4d44-9bad-913a4e4c4865";
   const old = normalizeCommunityRow({ id: "esther-legacy", origin: "openweb", author_name: "Esther26",
     author_contributor_id: contributor, body: "הודעה ישנה" });
@@ -387,11 +389,12 @@ test("Esther26 legacy posts and Esther Gem current posts resolve to one reviewed
     author_user_id: account, body: "הודעה חדשה" });
   assert.equal(old.authorKey, `user:${account}`);
   assert.equal(current.authorKey, old.authorKey);
-  assert.equal(old.authorName, "Esther Gem");
+  assert.equal(old.authorName, "Esther26");
+  assert.equal(current.authorName, "Esther26");
   assert.equal(old.linkedUserId, account);
   assert.deepEqual(communityAuthorIdentity(old.authorKey).contributorIds, [contributor]);
   assert.deepEqual(communityAuthorIdentity(contributor).accountIds, [account]);
   assert.equal(communityAuthorIdentity(contributor).verifiedOwner, true);
   assert.equal(VERIFIED_ARCHIVE_PROFILES[contributor].accountUserId, account);
-  assert.equal(VERIFIED_ARCHIVE_PROFILES[`user:${account}`].name, "Esther Gem");
+  assert.equal(VERIFIED_ARCHIVE_PROFILES[`user:${account}`].name, "Esther26");
 });

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { isUniversalFinding } from "../../lib/research/universalFinding.js";
+import { researchPublicStatusPresentation } from "../../lib/research/researchObjectPresentation.js";
 
 // Renderer-neutral projection of a Universal Finding.
 //
@@ -57,6 +58,9 @@ export default function FindingSurface({ finding, compact = false, projector = f
   const stage = finding.stage ?? null;                                    // EPISTEMIC TYPE
   const verification = finding.verification?.verification_state ?? null;  // VERIFICATION
   const governance = finding.status ?? null;                              // GOVERNANCE
+  // M0-D (ZURIEL 12.11.2026): a public research status is shown as its public label — a candidate as "טרם אומת", never
+  // promoted and never hidden. Only the stored value is labelled; nothing is inferred. Other governance values show no label here.
+  const publicStatus = researchPublicStatusPresentation(governance);
   const accessTier = finding.access?.tier ?? null;                        // PUBLICATION/ACCESS
   const sourceIdentity = finding.identity?.sourceIdentity;
   const createdBy = finding.provenance?.createdBy ?? null;
@@ -75,6 +79,8 @@ export default function FindingSurface({ finding, compact = false, projector = f
             <span style={{ ...badge, fontWeight: 900 }} title="אימות מנוע (VERIFICATION)">
               {verification ? (TXT[verification] || verification) : UNKNOWN}
             </span>
+            {publicStatus ? <span className={`sod29-research-status${publicStatus.verified ? "" : " is-unverified"}`}
+              data-public-research-status={publicStatus.status} title={publicStatus.detail}>{publicStatus.label}</span> : null}
           </div>
           <div style={{ fontSize: projector ? 18 : compact ? 13 : 14, fontWeight: 850, overflowWrap: "anywhere" }}>
             {href ? <Link to={href} style={{ color: "inherit", textDecoration: "none" }}>{label}</Link> : label}
