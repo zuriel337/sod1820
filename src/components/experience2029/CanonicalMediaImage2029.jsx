@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./canonicalMediaImage2029.css";
 
 /**
@@ -21,7 +21,10 @@ export default function CanonicalMediaImage2029({
       ? (item?.imageUrl || item?.thumbUrl || null)
       : (item?.thumbUrl || item?.imageUrl || null)
   );
-  if (!resolvedSrc) return null;
+  // Design Contract V2 §8.3: a listed image never stays a broken square. A failed load removes the
+  // image (the card keeps its title/text) instead of showing the browser's broken-image glyph.
+  const [failedSrc, setFailedSrc] = useState(null);
+  if (!resolvedSrc || failedSrc === resolvedSrc) return null;
   // Lazy (below-the-fold) media decodes off the critical path; an eager/priority image keeps the browser default.
   const resolvedDecoding = decoding ?? (loading === "lazy" ? "async" : undefined);
   const resolvedAlt = alt || item?.label || "תמונה";
@@ -39,5 +42,6 @@ export default function CanonicalMediaImage2029({
       className,
     ].filter(Boolean).join(" ")}
     data-media-fit="preserve-whole-image"
+    onError={() => setFailedSrc(resolvedSrc)}
   />;
 }

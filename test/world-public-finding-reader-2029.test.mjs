@@ -45,7 +45,7 @@ test("exact public finding reader uses one row and at most two bounded enrichmen
   const { client, calls } = clientFor({
     research_objects: { data: finding(), error: null },
     channel_updates: { data: { id: "source-1", channel: "tzvi", status: "live", link_url: "https://example.com/exact" }, error: null },
-    topic_cards: { data: [{ id: "topic-1", slug: "documented-topic", title: "יעד מתועד", status: "approved", meter_score: 82 }], error: null },
+    topic_cards_public: { data: [{ id: "topic-1", slug: "documented-topic", title: "יעד מתועד", status: "approved", meter_score: 82 }], error: null },
   });
   const row = await fetchWorldPublicFindingById("finding-1", { publicClient: () => client, cache: false });
   assert.equal(row?.sourceId, "finding-1");
@@ -55,11 +55,12 @@ test("exact public finding reader uses one row and at most two bounded enrichmen
   assert.equal(row?.linkedTopicRating?.connectionState, "candidate", "topic lookup is navigation, not evidence of a tree edge");
   assert.equal(row?.documentedTreeConnected, false);
   assert.equal(row?.linkedTopicRating?.href, "/topic/documented-topic", "candidate navigation remains available");
-  assert.deepEqual(calls.map((call) => call.table), ["research_objects", "channel_updates", "topic_cards"]);
+  assert.deepEqual(calls.map((call) => call.table), ["research_objects", "channel_updates", "topic_cards_public"]);
   assert.deepEqual(calls[0].filters, [
     ["eq", "id", "finding-1"],
     ["eq", "privacy_scope", "public"],
-    ["in", "status", ["approved", "canonical"]],
+    // ZURIEL 12.11.2026: the exact public finding also opens a public candidate ("טרם אומת").
+    ["in", "status", ["approved", "canonical", "candidate"]],
   ]);
   assert.equal(calls[2].limit, 24);
   assert.match(calls[2].filters.find(([kind]) => kind === "or")[1], /slug\.in\.\("documented-topic"\)/);
@@ -84,7 +85,7 @@ test("candidate and recorded attachment remain separately navigable in strength 
     research_objects: { data: record, error: null },
     channel_updates: { data: { id: "source-1", channel: "tzvi", status: "live" }, error: null },
     // Include a nonpublic topic in the fake response to exercise the public DTO boundary independently.
-    topic_cards: { data: [
+    topic_cards_public: { data: [
       { id: "private", slug: "private-topic", title: "לא לפרסום", status: "candidate", meter_score: 100 },
       { id: "strong", slug: "strong-candidate", title: "נושא מועמד", status: "approved", meter_score: 90 },
       { id: "attached", slug: "attached-topic", title: "נושא בהצמדה", status: "approved", meter_score: 30, node_id: nodeId },

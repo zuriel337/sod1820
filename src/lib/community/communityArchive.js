@@ -31,6 +31,23 @@ export async function fetchCommunityThreadUpdates(cursors, { client = communityR
   }
   return output;
 }
+
+// The existing bounded public traversal counts replies after a cursor. A
+// cursor before the archive gives the complete visible reply count instead.
+export async function fetchCommunityThreadTotals(rows, options) {
+  const ids = [...new Set(rows.filter(row => !row.parentId && !row.isDeleted && row.body?.trim())
+    .map(row => row.id).filter(id => UUID_PATTERN.test(id || "")))];
+  const counts = {};
+  for (let offset = 0; offset < ids.length; offset += COMMUNITY_PAGE_SIZE) {
+    const cursors = ids.slice(offset, offset + COMMUNITY_PAGE_SIZE).map(id => ({
+      root_id: id, message_id: id, created_at: "0001-01-01T00:00:00Z",
+    }));
+    const updates = await fetchCommunityThreadUpdates(cursors, options);
+    for (const id of Object.keys(updates)) counts[id] = updates[id].count + 1;
+  }
+  return counts;
+}
+
 const COMMUNITY_ORIGINS = ["openweb", "community_2029"];
 // Project at the API boundary. Older Community RPCs also expose joined dossier
 // columns; this consumer requests only public message credit, never private
@@ -79,10 +96,10 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL, 8.11.2026: reviewed Esther26 contributor ↔ Esther Gem account.
   "99bcfb38-85be-4f38-89f0-7886f2f179e6": {
-    name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
+    name: "Esther26", accountUserId: REVIEWED_ESTHER_LINK.accountId, preferredPublicName: true,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   [`user:${REVIEWED_ESTHER_LINK.accountId}`]: {
-    name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
+    name: "Esther26", accountUserId: REVIEWED_ESTHER_LINK.accountId, preferredPublicName: true,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL, 11.11.2026: his name exactly as it always was in the community (unchanged), and the account that owns the history (photo comes from that account).
   [REVIEWED_AVI_ZOHAR_LINK.contributorId]: { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"],
@@ -153,7 +170,8 @@ export function normalizeCommunityRow(row) {
   };
   const contributor = Array.isArray(row?.contributor) ? row.contributor[0] : row?.contributor;
   const contributorId = contributor?.id || row.author_contributor_id || null;
-  const authorName = String(VERIFIED_ARCHIVE_PROFILES[contributorId]?.name || row?.author_name || contributor?.display_name || "חבר הקהילה").trim();
+  const accountProfile = VERIFIED_ARCHIVE_PROFILES[`user:${row.author_user_id}`];
+  const authorName = String((accountProfile?.preferredPublicName && accountProfile.name) || VERIFIED_ARCHIVE_PROFILES[contributorId]?.name || row?.author_name || contributor?.display_name || "חבר הקהילה").trim();
   return {
     id: row.id,
     parentId: row.parent_id || null,
@@ -373,7 +391,8 @@ export async function fetchCommunityAuthorSummary(authorKey, { client = communit
   const base = () => filterByAuthor(client.from("research_contributions")
     .select("id,created_at,reactions")
     .eq("status", "approved")
-    .in("origin", COMMUNITY_ORIGINS).not("body", "is", null).neq("body", ""), identity);
+    .in("origin", COMMUNITY_ORIGINS).is("deleted_at", null).is("thread_hidden_at", null)
+    .not("body", "is", null).neq("body", ""), identity);
   const { data: first, error: firstError } = await base().order("created_at", { ascending: true }).limit(1);
   if (firstError) throw firstError;
   if (!identity.verifiedOwner) return { firstAt: first?.[0]?.created_at || null, archiveLikes: null };

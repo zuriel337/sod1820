@@ -1,0 +1,78 @@
+{
+  "package": "public-content-20261113",
+  "source": {
+    "pr": 1321,
+    "frozen_commit": "4a406fed273b9b381577c5b2a03d91c58de46451"
+  },
+  "base": "9be0c29fc52337069192b057ef1a9882c7026009",
+  "files": [
+    "SOD1820_DESIGN_CONTRACT_V2.md",
+    "api/og.js",
+    "scripts/run-m0d-contributor-view-sql-test.sh",
+    "scripts/test-content-visible-before-entry-e2e.mjs",
+    "src/components/contributor2029/publicContributor2029.test.js",
+    "src/components/contributor2029/publicContributor2029Model.js",
+    "src/components/contributor2029/publicSourceCatalog2029.test.js",
+    "src/components/experience2029/CanonicalMediaImage2029.jsx",
+    "src/components/experience2029/sod2029.css",
+    "src/components/number2029/NumberZviPublicResearch2029.jsx",
+    "src/components/research/ContributorFindingsLens.jsx",
+    "src/components/research/FindingSurface.jsx",
+    "src/components/research/WorldPublicUpdates2029.jsx",
+    "src/components/research/ZviFindingCards2029.jsx",
+    "src/lib/research/contributorFindingsProjection.js",
+    "src/lib/research/contributorFindingsProjection.test.js",
+    "src/lib/research/contributorResearchView.js",
+    "src/lib/research/numberSourceCards.js",
+    "src/lib/research/researchObjectPresentation.js",
+    "src/lib/research/worldAllResearchProjection.js",
+    "src/lib/research/worldDiscoveryStream.js",
+    "src/lib/research/worldFindingShare.js",
+    "src/lib/research/worldPublicFindingReader.js",
+    "src/lib/research/worldZviApprovedFindings2029.js",
+    "src/pages/PublicContributor2029Page.jsx",
+    "src/pages/World2029Page.jsx",
+    "src/pages/worldComposition2029.css",
+    "supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql",
+    "supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql",
+    "test/m0d-contributor-stale-client.browser.mjs",
+    "test/m0d-contributor-view-v2.test.mjs",
+    "test/m0d-world-candidate-visible.browser.mjs",
+    "test/public-content-display-policy-20261113.test.mjs",
+    "test/public-content-package-scope-20261113.test.mjs",
+    "test/public-content-privacy-2029.test.mjs",
+    "test/public-research-candidates-visible-2029.test.mjs",
+    "test/topic-public-findings-via-number-2029.browser.test.mjs",
+    "test/world-all-source-findings-2029.test.mjs",
+    "test/world-finding-share-og-2029.test.mjs",
+    "test/world-public-finding-reader-2029.test.mjs",
+    "test/world-public-reader-contract-2029.test.mjs",
+    "tests/sql/m0d_world_contributor_research_candidates_v1.sql"
+  ],
+  "docs": [
+    "docs/reviews/public-content-20261113/README.md",
+    "docs/reviews/public-content-20261113/extraction-map.md",
+    "docs/reviews/public-content-20261113/ci-wiring.md",
+    "docs/reviews/public-content-20261113/post-apply-checks.sql",
+    "docs/reviews/public-content-20261113/scope.json"
+  ],
+  "pinnedSha256": {
+    "supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql": "242511115878f3ff0f8e6ebdf7a68cb2c8052df571e00a5a62f399c7bbf2bfce",
+    "supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql": "77ccd15cfb0c2d136ee93ad89b511f1c1a9bd5f73857df747d2e1c99e1c1100f"
+  },
+  "v2ViewNameInCode": [
+    "src/lib/research/contributorResearchView.js"
+  ],
+  "v2ReaderUsers": [
+    "src/lib/research/contributorFindingsProjection.js",
+    "src/lib/research/worldPublicFindingReader.js"
+  ],
+  "notTakenOnPurpose": {
+    "src/pages/Post2029Page.jsx": "#1321's hunk there is the measurement change (logView third argument), not this topic",
+    "test/helpers/authBrowserFixture.mjs": "the supabase option is used only by test/raziel-access-2029.browser.mjs (Raziel); nothing in this package uses it",
+    "src/components/experience2029/SystemFrame2029.jsx": "N14 (public number links), not this topic",
+    "src/lib/research/numberPageAddress.js": "N14 (public number links), not this topic",
+    ".github/workflows/live-contracts-2029.yml": "CI wiring is written in ci-wiring.md; the integrator applies it"
+  },
+  "codeHead": "f2cc4dae037d028420f78e0bfc1def8527f93a70"
+}

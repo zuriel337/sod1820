@@ -1,0 +1,5 @@
+# G1 approvals record for NEW or RE-ACTIVATED laws in a dated laws snapshot (12.11.2026). Empty today: no new law is pending.
+# Format, one per line:   A|rule_id|work_log:<uuid>|YYYY-MM-DD
+# Checked in CI (technical): the line is well formed, the reference has the work_log:<uuid> form, the rule is in the newest snapshot,
+# no rule is approved twice. NOT checkable in CI (human gate): that the referenced work_log row is ZURIEL's approval of exactly this
+# change. A reviewer (Codex) checks that against the live work_log; the database proposal (enforcement-proof) checks the row exists.

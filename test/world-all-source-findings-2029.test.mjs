@@ -122,7 +122,10 @@ test("untrusted upstream cannot bypass privacy, review, exact value or contact g
     finding(6, { statement: "צרו קשר hello@example.test" }), finding(7, { value: 9 }), finding(8, { value: null }),
     finding(9, { statement: "צוריאל בבית" }), finding(10, { source: "openweb_legacy" })];
   const page = await fetchWorldPublicFindingsPage({ client: backend(rows, { faulty: true }).client, value: 1118 });
-  assert.deepEqual(page.rows.map((row) => row.id), [id(1)]);
+  // ZURIEL 12.11.2026: the public candidate follows the verified tier with its stored status.
+  assert.deepEqual(page.rows.map((row) => row.id), [id(1), id(3)]);
+  assert.equal(page.rows[1].publicationState, "candidate");
+  assert.equal(page.rows[1].statusLabel, "טרם אומת");
   assert.equal(page.omittedForReview, true);
   assert.ok(!("engineVerified" in page.rows[0]));
 });
