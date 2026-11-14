@@ -10,14 +10,14 @@ Base: `origin/main` `4c9630db48958417796948b32031f06eb22ed3f1`, tree `a15c385c8a
 |---|---|---|---|---|
 | CI fix: historical site pinned for the public-content proofs | [#1341](https://github.com/zuriel337/sod1820/pull/1341) | `claude/ci-historical-site-pin-20261114` | `6f11353c85d4f17ba5ca6b6fe7b0c916918111bc` | 12 of 12 green; both browser proofs ran 2/2, 0 skipped (job 132536402930) |
 | `contribution_links` read policy (proposal) | [#1340](https://github.com/zuriel337/sod1820/pull/1340) | `claude/contribution-links-visible-read-20261114` | `5294726117b3c69c67a2de375823741ecf44d8c1` | 10 of 11 green; the red one is `auth-browser-acceptance-2029` for the inherited reason (below) |
-| DB foundations, remaining steps | [#1334](https://github.com/zuriel337/sod1820/pull/1334) | `claude/extract-db-foundations-20261113` | `ae513e0b8f11e18c6509bf4cb08efea075c9d1ca` | 11 of 12 green; same single inherited red check |
+| DB foundations, remaining steps | [#1334](https://github.com/zuriel337/sod1820/pull/1334) | `claude/extract-db-foundations-20261113` | `1b4559a29bc87c9357d8cfec2240547c8cf15b47` | 11 of 12 green at `ae513e0b8` (the later commit only corrects time stamps in documents); same single inherited red check |
 | DEF-001b packet record (Codex, untouched) | [#1339](https://github.com/zuriel337/sod1820/pull/1339) | `codex/def001b-release-packet-20261114` | `50b72a7e3fef98b2c86a57f325d486bc9b8eea27` | its own CI (not re-run by me) |
-| **Integrated tree** (throwaway, draft) | [#1342](https://github.com/zuriel337/sod1820/pull/1342) | `claude/foundation-package-20261114` | `a2b837c5a9af607caf2221919ceaa36ce7783e2a`, tree `10c833a3ee476be3032facd5f846779c32642462` | see section 3 |
+| **Integrated tree** (throwaway, draft) | [#1342](https://github.com/zuriel337/sod1820/pull/1342) | `claude/foundation-package-20261114` | code = the four branches above merged onto `4c9630db4`; **code tree after four squash merges `4ff2554f41475795985b8759d3488f5cc22270fc`**; the branch adds only the documents of #1338 on top (head: see the pull request) | section 3 |
 | This document, the release requests, the extraction table | [#1338](https://github.com/zuriel337/sod1820/pull/1338) | `claude/extract-table-20261113` | (the head of that pull request; docs only) | docs only |
 
 **The inherited red check.** On every pull request opened after #1335, the old site of the two public-content browser proofs was built from the pull request's base, which by then contains the change: old equals new and both proofs fail (`old code reads v1`, `the pre-change site never shows the candidate`). #1341 pins the old side to the historical commit `9c4cad1372200759e9afe6e9c38709209d4ee02a`. #1340 and #1334 do not contain that fix, so their `auth-browser-acceptance-2029` is red until #1341 is merged and they are synchronised; **on the integrated tree it is green** (section 3). The evidence file of #1341's run was read: `tested=2a6ead5f34cf2f478b176c633d0224f68df65da3` is GitHub's test-merge commit ("Merge 6f11353c8 into 4c9630db4", verified through the API) and `historical=9c4cad1372200759e9afe6e9c38709209d4ee02a` is the pin.
 
-**The merge sequence was proved, not assumed.** Squash-merging, in this order, #1341 → #1334 → #1340 → #1339 onto `4c9630db4` gives a tree **identical** to the tested integration tree (`10c833a3e…`, compared in a throwaway worktree; no conflict in any of the four). No site code changes in the package: of the 61 files none is under `src/`, `api/`, `public*`, `supabase/functions` or `package*.json`; the only workflow edit is `live-contracts-2029.yml` (job names and timeouts unchanged).
+**The merge sequence was proved, not assumed.** Squash-merging, in this order, #1341 → #1334 → #1340 → #1339 onto `4c9630db4` gives the tree `4ff2554f41475795985b8759d3488f5cc22270fc` (no conflict in any of the four); the integration branch is exactly that tree plus the documents of #1338 (a difference of ten files under `docs/reviews/extraction-1321-20261113/`, checked with `git diff --stat`). No site code changes in the package: of the 61 files none is under `src/`, `api/`, `public*`, `supabase/functions` or `package*.json`; the only workflow edit is `live-contracts-2029.yml` (job names and timeouts unchanged).
 
 ## 2. What changed since the last report
 
@@ -87,12 +87,12 @@ Conventions: **Stamp** = the exact object (commit, file SHA-256) and the live pr
 | ID | Action | Stamp | Verify | Rollback |
 |---|---|---|---|---|
 | R1 | Squash-merge **#1341** | head `6f11353c85d4f17ba5ca6b6fe7b0c916918111bc`; main `4c9630db4`; 12/12 green | tree of the new `main` commit equals the tree of that head merged onto `4c9630db4`; push gate (`legacy-production-lock`) green; the next pull request's `auth-browser-acceptance-2029` runs both proofs 2/2 | `git revert` through a pull request (CI only) |
-| R2 | Squash-merge **#1334** after merging `main` into its branch | head `ae513e0b8f11e18c6509bf4cb08efea075c9d1ca` + the sync commit; all checks green | as R1; `node --test test/p1-db-foundations-package.test.mjs` 12/12 on `main` | revert |
+| R2 | Squash-merge **#1334** after merging `main` into its branch | head `1b4559a29bc87c9357d8cfec2240547c8cf15b47` + the sync commit; all checks green | as R1; `node --test test/p1-db-foundations-package.test.mjs` 12/12 on `main` | revert |
 | R3 | Squash-merge **#1340** after the same sync | head `5294726117b3c69c67a2de375823741ecf44d8c1` + sync; all checks green | as R1; `run-contribution-links-visible-read-sql-test.sh` 9 + 4 | revert |
 | R4 | Squash-merge **#1339** (Codex's record of the applied DEF-001b unit; the files must stay byte-identical) | head `50b72a7e3fef98b2c86a57f325d486bc9b8eea27` | as R1; `run-def001-sql-test.sh` 23/23 | revert (the applied SQL is not undone by it) |
 | R5 | Merge **#1338** (docs only) | its head at that time | as R1 | revert |
 
-After R1–R4 the tree of `main` must equal `10c833a3ee476be3032facd5f846779c32642462` (R5 adds only documents). Alternative: one squash of #1342 gives the same tree; the four pull requests would then be closed as merged by content. Merging is not applying SQL and is not a deployment.
+After R1–R4 the tree of `main` must equal `4ff2554f41475795985b8759d3488f5cc22270fc` (R5 adds only documents). Alternative: one squash of #1342 gives that tree plus the documents; the four pull requests would then be closed as merged by content. Merging is not applying SQL and is not a deployment.
 
 ### S — site
 
@@ -121,7 +121,7 @@ Phase verifier for the P1 steps: `tests/live/m0_post_apply_verification.sql` wit
 
 The table shows the first 12 characters; the full values are in the stamps table below, in `docs/reviews/db-foundations-extraction-20261113/apply-plan.json` (P1) and in the CL-16 apply plan (`docs/reviews/g1-rule-guard-cl16-20261112/apply-plan.json`); the pin tests compare them with the files. A single approval may cover a group (for example D3 + D4 + D6 + D8, or D5 + D7), each still verified and rolled back on its own.
 
-### Stamps — full SHA-256 of every file the execution list names (computed on the integrated tree `10c833a3e…`)
+### Stamps — full SHA-256 of every file the execution list names (computed on the integrated tree, code tree `4ff2554f4…`)
 
 | Action | Role | File | SHA-256 |
 |---|---|---|---|
@@ -146,7 +146,7 @@ The table shows the first 12 characters; the full values are in the stamps table
 | D9 | rollback | `supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql` | `43603eb4263b4625c90e801c3bf1b12a1cc0f4d595a10966ce25baf97b68034d` |
 | D10 | apply | `supabase/proposed/20261112200000_g1_rule_guard_cl16.sql` | `0d7725919540cb98ed344f9e9dd9f3d2ba217c4de30d9cf86a702156f66eff63` |
 | D10 | rollback | `supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql` | `60aa076c22461b80c97f8d91ff28f9e8a2b5c98268ff8d6a0a6e8b8c1611a2c5` |
-| verify | verifier | `tests/live/m0_post_apply_verification.sql` | `2b8b5fabc6751bf610adf204735885936082ae128edf29c869083d8db246253c` |
+| verify | verifier | `tests/live/m0_post_apply_verification.sql` | `d1a1ae4036ef11948e3bc18a8ed8f01ee026fc65b83e0e696bbde1dcba33c85e` |
 | verify | pre-apply fingerprints | `tests/live/m0_pre_apply_fingerprints.sql` | `6dcce0629c54d9d2692559835e0dbfc043167ae5b180e5193bbfc11742590019` |
 | verify | DEF-005 pre-apply definitions | `tests/live/def005_pre_apply_definitions.sql` | `02d07b585af84cb12878df0d559012525f966966c0c3c6020789baa64e26ab02` |
 
