@@ -167,6 +167,10 @@ jobs:
           test/public-reading-real-gtag-shape.test.mjs
           test/public-reading-observability.test.mjs
           test/public-reading-analytics-worker.test.mjs
+          test/public-reading-action-measurement.test.mjs
+          test/measurement-page-view-once-2029.test.mjs
+          test/measurement-transport-hardening-2029.test.mjs
+          test/measurement-package-scope-20261113.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
       # Content series and post classification (11.11.2026). All five were green on main but ran in no workflow. They read repository files and
@@ -377,6 +381,14 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Meta Pixel and AdSense (real CSP header + real worker), bots excluded
         run: node --test test/marketing-browser-2029.browser.mjs
+      # Measurement (ZURIEL 12.11.2026, "fix measurement"): one first-party visit per real page view, in-app navigation counted, no duplicates from
+      # refresh / StrictMode / tab lifecycle. Same job as the marketing proof because it needs only a browser and the built artifact, takes about
+      # three minutes, and adding a job would change the set of pull-request checks. The artifact is rebuilt WITHOUT the test marketing ids so the
+      # proof runs on the artifact that ships. The test SKIPS (never passes) when the build or the browser is missing.
+      - name: Rebuild the public-reading artifact without the test marketing ids
+        run: node scripts/build-public-reading-production.mjs
+      - name: One first-party visit per real page view (real Chromium, the built artifact and its real worker; guest and member, desktop and phone)
+        run: node --test test/measurement-visit-once-2029.browser.mjs
 
   auth-browser-acceptance-2029:
     name: auth-browser-acceptance-2029

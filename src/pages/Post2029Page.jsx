@@ -144,7 +144,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     if (!post?.slug || projection.draft || projection.privateStage || projection.previewSnapshot) return;
     // Reuse the legacy sinks so 2029 readings count toward the same hot-post
     // view meter and signed-in reading history. logView deduplicates per session.
-    void logView("post", post.slug);
+    void logView("post", post.slug, post.id);
     void logActivity("post", post.slug, post.title);
     // Preserve the old view/history sinks. One additional route-open carries
     // public series context through the same telemetry owner, without a new
