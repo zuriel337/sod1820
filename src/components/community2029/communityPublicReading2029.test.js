@@ -5,7 +5,10 @@ import vm from "node:vm";
 import { transformWithOxc } from "vite";
 import { fetchCommunityThreadTotals, normalizeCommunityThreadFocus, legacyLikeCount } from "../../lib/community/communityArchive.js";
 import { communityAccountReturnHref, communityChatHref, communityPersonReturnHref, communityReadingReturnHref } from "../../lib/community/communityPersonNavigation.js";
-import { plainMessageText } from "../../lib/community/messageFormatting.js";
+import { plainMessageText, parseMessageFormatting, encodeMessageFormatting } from "../../lib/community/messageFormatting.js";
+import { splitMessageLinks, messageLinkPreviews } from "../../lib/community/messageLinks.js";
+import { splitMessageNumbers } from "../../lib/community/messageNumbers.js";
+import { numberPageHref } from "../../lib/research/numberPageAddress.js";
 import { readGuestName } from "../../lib/community/communityGuestApi.js";
 import { reviewedCommunityAccountId } from "../../lib/community/communityCanonicalIdentity2029.js";
 
@@ -234,7 +237,9 @@ test("a long message expands in place and a direct message link opens its full t
   const toggle = nodes => nodes.find(node => node.props?.["aria-controls"] === "unit-id" && node.type === "button");
   let nodes = render(false);
   assert.equal(toggle(nodes).props["aria-expanded"], false);
-  assert.ok(nodes.find(node => node.props?.className === "sod29-community-body").props.children[0].endsWith("…"));
+  const previewText = nodes.find(node => node.props?.className === "sod29-community-body").props.children[0];
+  assert.equal(previewText.type, "MessageNumbersText", "the collapsed preview keeps its numbers clickable");
+  assert.ok(previewText.props.text.endsWith("…"));
   assert.equal(nodes.some(node => node.type === "CommunityMessageContent"), false);
   toggle(nodes).props.onClick();
   nodes = render(false);
@@ -244,6 +249,43 @@ test("a long message expands in place and a direct message link opens its full t
   nodes = render(true);
   assert.equal(toggle(nodes), undefined);
   assert.equal(nodes.find(node => node.type === "CommunityMessageContent").props.text, longRow.body);
+});
+
+test("a number written in a message opens the existing Number capability in place; dates stay text and styled runs stay styled", async () => {
+  const opened = [];
+  const h = await harness("./CommunityMessageContent.jsx", ["CommunityMessageContent", "MessageNumber", "MessageNumbersText"], {
+    parseMessageFormatting, splitMessageLinks, messageLinkPreviews, splitMessageNumbers, numberPageHref,
+    use2029Shell: () => ({ openNumber: target => opened.push(target) }), use2029Palette: () => ({ warmAccent: "#aa8800", accentText: "#0044aa" }),
+  });
+  const textOf = node => elements(node).filter(item => typeof item === "string");
+  const tree = elements(h.render(h.CommunityMessageContent, { text: "השמאל גנבו הבחירות מיד הימין = 1237 ב-10.11.2026 בשעה 14:33" }));
+  const numbers = tree.filter(node => node.type === h.MessageNumber);
+  assert.equal(JSON.stringify(numbers.map(node => node.props.value)), "[1237]", "only the integer is a number: the date and the time stay text");
+  const styled = encodeMessageFormatting([{ type: "text", text: "סכום " }, { type: "bold", children: [{ type: "text", text: "1,158" }] }, { type: "text", text: " ושישים" }]);
+  const styledNumber = elements(h.render(h.CommunityMessageContent, { text: styled })).find(node => node.type === h.MessageNumber);
+  assert.equal(styledNumber.props.value, 1158);
+  assert.ok(elements(styledNumber.props.children).some(node => node.type === "strong"), "the bold run is kept inside the number link");
+  assert.equal(elements(h.render(h.CommunityMessageContent, { text: styled, previewsOnly: true })).some(node => node.type === h.MessageNumber), false, "a draft preview links nothing");
+
+  const collapsed = elements(h.render(h.MessageNumbersText, { text: "תעל=812 בנימין=812 ב-10.11.2026…" }));
+  assert.equal(JSON.stringify(collapsed.filter(node => node.type === h.MessageNumber).map(node => node.props.value)), "[812,812]", "a collapsed preview links its numbers and never its dates");
+  const link = elements(h.render(h.MessageNumber, { value: 1237, children: "1237" })).find(node => node.type === "a");
+  assert.equal(link.props.href, numberPageHref(1237));
+  assert.equal(link.props["data-community-number"], 1237);
+  let prevented = 0;
+  const click = extra => link.props.onClick({ button: 0, preventDefault() { prevented++; }, ...extra });
+  click();
+  assert.equal(prevented, 1);
+  // The component runs in its own VM realm, so compare the plain data rather than object identity.
+  assert.equal(JSON.stringify(opened), JSON.stringify([{ id: "1237", type: "number", label: "1237", href: numberPageHref(1237) }]));
+  for (const extra of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }, { defaultPrevented: true }]) click(extra);
+  assert.equal(prevented, 1, "a modified or non-primary click keeps the ordinary link");
+  assert.equal(opened.length, 1);
+  const plain = await harness("./CommunityMessageContent.jsx", ["MessageNumber"], { numberPageHref, use2029Shell: () => ({}) });
+  const fallback = elements(plain.render(plain.MessageNumber, { value: 848, children: "848" })).find(node => node.type === "a");
+  let fallbackPrevented = false; fallback.props.onClick({ button: 0, preventDefault() { fallbackPrevented = true; } });
+  assert.equal(fallbackPrevented, false, "without the in-place opener the address itself is followed");
+  assert.equal(fallback.props.href, numberPageHref(848));
 });
 
 test("all default community reads use the anonymous client in the read profile and retain ordinary-build behavior", async () => {

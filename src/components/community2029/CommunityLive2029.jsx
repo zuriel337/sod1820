@@ -17,7 +17,7 @@ import { use2029Palette } from "../../lib/palette2029.js";
 import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, COMMUNITY_SEARCH_MAX_LENGTH, COMMUNITY_SEARCH_MIN_LENGTH, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchCommunityThreadTotals, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage, searchCommunityMessages } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, focusCommunityReplyToggle, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
-import CommunityMessageContent from "./CommunityMessageContent.jsx";
+import CommunityMessageContent, { MessageNumbersText } from "./CommunityMessageContent.jsx";
 import CommunityMessageTime2029 from "./CommunityMessageTime2029.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
@@ -181,7 +181,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
     {showSource && row.title && row.title !== row.body ? <h4 className="sod29-community-activity-title" dir="auto">{row.title}</h4> : null}
     {mode === "edit" ? <MessageEditor key={`${actor}:${row.id}`} row={row} actions={messageActions} onCancel={close} onSaved={close} />
       : row.body ? <><div id={messageContentId}>{preview && !fullBody
-        ? <div ref={messageBodyRef} className="sod29-community-body" dir="auto">{preview}</div>
+        ? <div ref={messageBodyRef} className="sod29-community-body" dir="auto"><MessageNumbersText text={preview} /></div>
         : <CommunityMessageContent text={row.body} bodyRef={messageBodyRef} />}</div>
         {preview && !focused ? <button ref={messageToggleRef} type="button" className="sod29-community-replies-toggle" aria-expanded={fullBody} aria-controls={messageContentId} onClick={() => { restoreMessageToggle.current = fullBody; setShowFullBody(!fullBody); }}>{fullBody ? "צמצום ההודעה" : "קריאת ההודעה המלאה"}</button> : null}</> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
     <div className="sod29-community-thread-actions">
