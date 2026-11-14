@@ -52,7 +52,7 @@
     "kind": "embedded checks, single atomic statement",
     "scope": "DEF-005: reviewed signatures, no unreviewed overload, owner/security mode/ACL baseline, apply record with the definition md5; step 7: md5 of the function body; step 10: job id, name, inactive, carries the query secret"
    },
-   "live_state_14_11": "read 14.11.2026 18:30 UTC: all 12 signatures exist, SECURITY DEFINER, owner postgres, anon/authenticated/service_role can execute, no apply comment, no same-name overload; definition md5 values listed in docs/reviews/db-foundations-extraction-20261113/live-state-20261114.md"
+   "live_state_14_11": "read 14.11.2026 (18:15-18:35 UTC): all 12 signatures exist, SECURITY DEFINER, owner postgres, anon/authenticated/service_role can execute, no apply comment, no same-name overload; definition md5 values listed in docs/reviews/db-foundations-extraction-20261113/live-state-20261114.md"
   },
   {
    "step": "4",
@@ -264,8 +264,7 @@
  ],
  "rollback_order_reason": "reverse of the apply order; step 9 before step 1 (the push RPCs must exist while anonymous table access is closed). Only 10, 8, 7, 6, 5, 4, 2 are relevant for the remaining steps.",
  "live_state": {
-  "read_at_utc": "2026-11-14T18:55",
-  "read_with": "tests/live/m0_post_apply_verification.sql with applied = (1, 9): 56 rows, all as expected, VERDICT true; plus the fingerprint queries of steps 4-tail, 5, 6 and 8",
+  "read_with": "tests/live/m0_post_apply_verification.sql with applied = (1, 9): 56 rows, all as expected, VERDICT true; plus the fingerprint queries (18:25-18:35) of steps 4-tail, 5, 6 and 8",
   "applied": [
    "1",
    "9"
@@ -280,7 +279,9 @@
    "8",
    "10"
   ],
-  "do_not_reapply": "steps 1 and 9 are in force; their source files stay byte-identical to main and stay in this plan for the rollback order and for provenance only"
+  "do_not_reapply": "steps 1 and 9 are in force; their source files stay byte-identical to main and stay in this plan for the rollback order and for provenance only",
+  "read_window_utc": "2026-11-14T18:15/18:50",
+  "verifier_run_utc": "2026-11-14T18:35"
  },
  "execution_form": {
   "steps_4_5_6_8": "the file is ONE transaction (begin; set local lock_timeout = '5s'; set local statement_timeout = '60s'; ... commit;) and carries a catalogue fingerprint guard: it accepts only the live state read on 14.11.2026 (or, idempotently, its own result), refuses before any change otherwise, and its postcondition requires the exact fingerprint proven on the isolated fixture; the rollback accepts only the state the apply produced and its postcondition requires the exact state before the apply (so a rollback that is not exact fails instead of passing)",

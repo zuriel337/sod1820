@@ -4,7 +4,7 @@
 --   change   : true exactly when that step has been applied (and must stay false while it has not);
 --   preserve : must be true in every phase (nothing a step does may break it).
 -- Run on the canonical project (execute_sql) right after each apply step. Before running, edit the ONE line marked <== in the CTE `applied` so that it lists
--- the steps applied so far. The state read on 14.11.2026 18:30 UTC is: '1' and '9' applied (DEF-001b, Codex packet of PR #1339), all others not applied.
+-- the steps applied so far. The state read on 14.11.2026 (18:35 UTC) is: '1' and '9' applied (DEF-001b, Codex packet of PR #1339), all others not applied.
 -- The query answers per row as_expected = true/false and ends with one VERDICT row: every row as_expected = true means the catalogue is exactly
 -- "the applied steps are in force, the rest has not moved, nothing preserved was damaged". An applied step that shows false, or a step not listed
 -- as applied that shows true (an accidental early or partial apply), makes the verdict false.
