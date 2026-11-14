@@ -18,13 +18,16 @@ EXPECTED_CONCURRENCY=5
 # --- engine: a local PostgreSQL when installed (CI), else a container ---------------------------------------------------------------------------
 if ! compgen -G '/usr/lib/postgresql/*/bin' >/dev/null; then
   CONTAINER="sod-cl-visible-read-$$"
-  docker run --rm -d --network none --name "$CONTAINER" -e POSTGRES_HOST_AUTH_METHOD=trust -v "$W:/w:ro" -w /w postgres:17-alpine >/dev/null
+  # CR-F2 (Codex review 14.11.2026): the folder is mounted at the SAME path inside the container. Every psql call below passes HOST paths ($W/..., also the SQL
+  # files this script generates for the foreground and background sessions); a mount at another path (the old /w) made the very first call fail with "No such file".
+  docker run --rm -d --network none --name "$CONTAINER" -e POSTGRES_HOST_AUTH_METHOD=trust -v "$W:$W:ro" -w "$W" postgres:17-alpine >/dev/null
   trap 'docker rm -f "$CONTAINER" >/dev/null 2>&1 || true; rm -rf "$W"' EXIT
   for i in $(seq 1 30); do
     if docker exec "$CONTAINER" pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1; then break; fi
     sleep 1
   done
-  psql_file() { docker exec -w /w "$CONTAINER" psql -X -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -q -t -f "$1" 2>&1; }
+  docker exec "$CONTAINER" test -r "$W/$T" || { echo "FAIL: $W/$T is not visible inside the container at the same path" >&2; exit 1; }
+  psql_file() { docker exec -w "$W" "$CONTAINER" psql -X -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -q -t -f "$1" 2>&1; }
 else
   BIN=${PG_BIN:-$(ls -d /usr/lib/postgresql/*/bin | tail -1)}
   D=$(mktemp -d)
