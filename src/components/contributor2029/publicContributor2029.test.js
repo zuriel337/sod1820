@@ -30,7 +30,7 @@ function fakeClient(tables, calls) {
     };
     function result(single = false) {
       if (tables[table]?.error) return tables[table];
-      const rows = (tables[table] || (table === "world_contributor_research_v1" ? tables.research_objects : null) || []).filter((row) => filters.every((filter) => filter(row)));
+      const rows = (tables[table] || (table === "world_contributor_research_v2" ? tables.research_objects : null) || []).filter((row) => filters.every((filter) => filter(row)));
       return { data: single ? rows[0] || null : rows, count: rows.length };
     }
     return b;
@@ -62,7 +62,7 @@ test("loader resolves exact code/slug, reuses canonical reader with PUBLIC_VIEW 
   // The source library reads the contributor's research only as the bounded promoted slice (documented tree placement):
   // status = canonical AND promoted_node_id IS NOT NULL. It never reads the full or candidate corpus (see
   // fetchContributorFindingsProjection `promotedOnly`, #1191); the candidate fixtureFinding therefore stays out of the view.
-  const researchReads = calls.filter((c) => c.table === "world_contributor_research_v1");
+  const researchReads = calls.filter((c) => c.table === "world_contributor_research_v2");
   assert.ok(researchReads.length > 0, "the initial catalogue reads the promoted slice for tree placement");
   assert.ok(researchReads.every((c) => c.filters.some(([key, value]) => key === "status" && value === "canonical")
     && c.nots.some(([key, op, value]) => key === "promoted_node_id" && op === "is" && value === null)),

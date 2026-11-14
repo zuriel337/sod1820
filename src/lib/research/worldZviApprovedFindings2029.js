@@ -2,6 +2,7 @@ import { channelUpdateOccurrenceId, contributorSourceLocator } from "./worldCont
 import { worldPreviewMaterialExclusion } from "./worldPreviewMaterialScope.js";
 import { ZVI_REVIEWED_FINDINGS } from "./zviReviewedFindings2029.js";
 import { universalFindingId } from "./universalFinding.js";
+import { researchPublicStatusPresentation, resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
 
 // This reader is bounded to the existing public contributor view. The source
 // contributor is provenance, not a claim that the source owner authored a row.
@@ -20,6 +21,26 @@ const hasContactDetails = (value) => {
     || /(?:^|[^\d])(?:\+972[\s().\-\u2010-\u2015]*|0)(?:5\d|[23489])(?:[\s().\-\u2010-\u2015]*\d){7}(?!\d)/.test(valueText)
     || /(?:^|[^\d])\+[1-9]\d{0,2}(?:[\s().\-\u2010-\u2015]*\d){7,14}(?!\d)/.test(valueText);
 };
+// ONE display policy for a research row (review finding CR-X2, 13.11.2026), used by the list (project below), the exact finding
+// (worldPublicFindingReader) and the share card (api/og.js). It runs over the fields those surfaces actually show, not only the
+// stored statement: the stored Hebrew presentation (title, summary, source label, context line) and what the shared presenter derives
+// from it. A row with a contact detail in any of them, or an owner mention in its statement, contributor or human-written Hebrew
+// texts, is kept out of every surface. Nothing is stored or rewritten. (The derived fallback title is not checked for the owner
+// name: the presenter itself writes it for "Zuriel research thread" statements, which stay as they are.)
+function storedHebrewVariant(row) {
+  const variants = row?.meta?.ext?.presentation?.variants;
+  const he = variants && typeof variants === "object" ? variants.he : null;
+  return he && typeof he === "object" ? he : {};
+}
+export function researchRowDisplayPolicyOk(row) {
+  let derived;
+  try { derived = resolveResearchObjectPresentation(row, { locale: "he" }) || {}; } catch { return false; }
+  const he = storedHebrewVariant(row);
+  const contactTexts = [row?.statement, row?.contributor, derived.title, derived.summary, derived.sourceLabel, derived.contextLine,
+    he.title, he.summary, he.source_label, he.context_line];
+  const ownerTexts = [row?.statement, row?.contributor, he.title, he.summary, derived.summary];
+  return !contactTexts.some(hasContactDetails) && !ownerTexts.some(mentionsOwner);
+}
 const RESEARCH_ROLES = Object.freeze(["research_statement", "research_analysis", "extraction_observation"]);
 const KIND_LABELS = Object.freeze({
   question: "שאלת מחקר", hypothesis: "השערה", observation: "תצפית",
@@ -42,13 +63,16 @@ function personalOnly(meta) {
 }
 
 function project(row, { reviewed = false, contributorId = ZVI_SOURCE_CONTRIBUTOR_ID,
-  admittedSourceRef = null, admittedSourceHref = null } = {}) {
+  admittedSourceRef = null, admittedSourceHref = null, allowUnverified = false } = {}) {
+  const governance = researchPublicStatusPresentation(text(row?.status));
   if (!UUID.test(text(row?.id)) || (contributorId && text(row?.source_contributor_id) !== contributorId)
     || text(row?.privacy_scope).toLowerCase() !== "public"
-    || !["approved", "canonical"].includes(text(row?.status).toLowerCase()) || personalOnly(row?.meta)
+    // The Zvi lists below are Human-Gate verified lists and stay fail-closed to a candidate. The
+    // shared public discovery projection (allowUnverified) also admits a public candidate with its
+    // stored status and the "טרם אומת" label (ZURIEL 12.11.2026).
+    || !governance || (!governance.verified && !allowUnverified) || personalOnly(row?.meta)
     || (!reviewed && !acceptedResearch(row))
-    || mentionsOwner(row?.statement) || mentionsOwner(row?.contributor)
-    || hasContactDetails(row?.statement) || hasContactDetails(row?.contributor)) return null;
+    || !researchRowDisplayPolicyOk(row)) return null;
   const source = contributorSourceLocator(row.source_ref, { slug: "tzvi-opoc" });
   const sourceId = channelUpdateOccurrenceId(row.source_ref);
   const ocrFlags = [row?.meta?.ext?.wa_channel_intake?.ocr_used, row?.meta?.ext?.presentation?.ocr_used,
@@ -67,12 +91,14 @@ function project(row, { reviewed = false, contributorId = ZVI_SOURCE_CONTRIBUTOR
     publicationState: text(row.status).toLowerCase(),
     // This DTO does not carry enough scoped truth evidence to certify a state.
     verificationState: null,
-    title: chars.slice(0, 240).join("") || "ממצא ציבורי מאושר",
+    title: chars.slice(0, 240).join("") || (governance.verified ? "ממצא ציבורי מאושר" : "ממצא ציבורי"),
     summaryTruncated: chars.length > 240,
     contributor: text(row.contributor) || null,
     kindLabel: KIND_LABELS[text(row.kind).toLowerCase()] || "ממצא מחקר",
     roleLabel: ROLE_LABELS[researchRole(row)] || null,
     status: text(row.status).toLowerCase(),
+    statusLabel: governance.label,
+    humanGateVerified: governance.verified,
     createdAt: TIMESTAMP.test(text(row.created_at)) ? text(row.created_at) : null,
     ocrNeedsReview: /ocr/i.test(text(row.statement))
       || ocrFlags.some((flag) => flag === true || text(flag).toLowerCase() === "true"),
@@ -84,7 +110,7 @@ function project(row, { reviewed = false, contributorId = ZVI_SOURCE_CONTRIBUTOR
 // Shared admission/presentation seam, not another contributor-specific corpus.
 // Public discovery must keep these guards instead of admitting every approved row.
 export async function publicResearchPresentationEligible(row, { subtle = globalThis.crypto?.subtle } = {}) {
-  if (!project(row, { reviewed: true, contributorId: null })
+  if (!project(row, { reviewed: true, contributorId: null, allowUnverified: true })
     || worldPreviewMaterialExclusion(row, "research_object")) return false;
   if (acceptedResearch(row)) return true;
   // This historical manifest reviews exact Zvi identities only. It cannot certify
@@ -96,7 +122,7 @@ export async function publicResearchPresentationEligible(row, { subtle = globalT
 
 export function projectPublicResearchFinding(row, { sourceRef, sourceHref = null } = {}) {
   if (!sourceRef) return null;
-  return project(row, { reviewed: true, contributorId: null,
+  return project(row, { reviewed: true, contributorId: null, allowUnverified: true,
     admittedSourceRef: sourceRef, admittedSourceHref: sourceHref });
 }
 

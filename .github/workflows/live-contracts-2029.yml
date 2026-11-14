@@ -173,6 +173,27 @@ jobs:
           test/measurement-package-scope-20261113.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
+      # Public content (Design Contract V2 8.3, ZURIEL 12.11.2026): content visible before entry; a public research finding that has
+      # not passed the Human Gate is shown as «טרם אומת», keeps its stored status, and publishes no personal information.
+      # The old-client proofs in test/m0d-contributor-view-v2.test.mjs read earlier commits with git, so those commits are fetched first
+      # (depth 1, by SHA, no tags). Without them four of its tests report SKIPPED, never passed.
+      - name: Fetch the commits the old-client proofs read (the three earlier Production commits and the base of the public content package)
+        run: git fetch --no-tags --depth=1 origin 146f2f0e7e5e6dcd17f49af33e70808e7549ea1f ed30dc05bab6f079b771669de6206a99413dd5de aa0f6bc82b8c94286374b1f51208037502994eab 9be0c29fc52337069192b057ef1a9882c7026009
+      - name: Public content contracts (unverified public findings are labelled and never promoted; private, person-only and dossier rows stay hidden; no contact detail or contributor id is output; the contributor reader asks view v2 and falls back to v1 only while v2 is missing; old clients read v1 only; the documented scope and the reviewed SQL bytes)
+        run: >
+          node --test
+          test/public-research-candidates-visible-2029.test.mjs
+          test/public-content-privacy-2029.test.mjs
+          test/public-content-display-policy-20261113.test.mjs
+          test/m0d-contributor-view-v2.test.mjs
+          test/public-content-package-scope-20261113.test.mjs
+          test/world-all-source-findings-2029.test.mjs
+          test/world-finding-share-og-2029.test.mjs
+          test/world-public-finding-reader-2029.test.mjs
+          test/world-public-reader-contract-2029.test.mjs
+          src/lib/research/contributorFindingsProjection.test.js
+          src/components/contributor2029/publicContributor2029.test.js
+          src/components/contributor2029/publicSourceCatalog2029.test.js
       # Content series and post classification (11.11.2026). All five were green on main but ran in no workflow. They read repository files and
       # in-memory fixtures only (no network, no browser); they need the installed dependencies because the series modules import the Supabase client.
       # Series admission is declared per series (by category, or by a declared author) and the same filter feeds the reader query and the row check.
@@ -339,6 +360,8 @@ jobs:
         run: bash scripts/run-def001-sql-test.sh
       - name: «הגילוי היומי» = «תורת הרמז» intake proposal (only admin_only changes; a second run and every changed live state refuse; the rollback restores the exact row)
         run: bash scripts/run-gilui-yomi-zvi-parity-sql-test.sh
+      - name: M0-D contributor research view admits public candidates (one token, status kept, private and person-only excluded, idempotent re-run, drift and foreign-v2 stops, exact rollback; v1 byte for byte)
+        run: bash scripts/run-m0d-contributor-view-sql-test.sh
       - name: Kandro in «הגילוי היומי» (the number binding refuses unless one admin sender signed קנדרו and the number is no one else's; old proofs stand; the source rows of the group stay without the 24-hour expiry; both roll back exactly; live functions byte for byte)
         run: bash scripts/run-gilui-yomi-kandro-sql-test.sh
       - name: Group images and videos (proposal; text arrivals byte-identical; only a verified, approved, unheld writer's image or video with a recorded public copy at the exact path and of the same type and size; every gate refuses; hold and takedown; grants; the 10.11 backfill; both roll back exactly; live functions byte for byte)
@@ -425,6 +448,24 @@ jobs:
         run: |
           if command -v google-chrome >/dev/null 2>&1; then export CHROMIUM_PATH="$(command -v google-chrome)" PUBLIC_MEDIA_REQUIRE_VIDEO_DECODE=1; fi
           node --test test/public-media-transport-2029.browser.mjs
+      # Public content, old tab against the new database view and the new site against an unverified finding: two builds (the PR base and this
+      # head), one real Chromium. Both tests SKIP (never pass) when a build or the browser is missing, so a broken wiring cannot look green.
+      - name: Build the site and the pre-change site (the PR base) for the old-client comparison
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          SOD_BUILD_TARGET=2029 npx vite build
+          BASE="${PR_BASE_SHA:-$(git ls-remote origin refs/heads/main | cut -f1)}"
+          git fetch --no-tags --depth=1 origin "$BASE"
+          mkdir -p "$RUNNER_TEMP/old-site"
+          git archive "$BASE" | tar -x -C "$RUNNER_TEMP/old-site"
+          ln -s "$PWD/node_modules" "$RUNNER_TEMP/old-site/node_modules"
+          (cd "$RUNNER_TEMP/old-site" && SOD_BUILD_TARGET=2029 npx vite build)
+      - name: Public content in a real browser (old tab against the new database view keeps working; the new site shows «טרם אומת» and nothing private; v2 missing falls back to v1)
+        run: node --test test/m0d-contributor-stale-client.browser.mjs test/m0d-world-candidate-visible.browser.mjs
+        env:
+          OLD_DIST: ${{ runner.temp }}/old-site/dist
+          NEW_DIST: ${{ github.workspace }}/dist
       - name: Keep the evidence
         if: always()
         uses: actions/upload-artifact@v4
