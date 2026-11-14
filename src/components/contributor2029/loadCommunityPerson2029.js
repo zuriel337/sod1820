@@ -40,15 +40,14 @@ export async function loadCommunityPerson2029(rawAuthorKey, { client = getPublic
   }
   if (writer) {
     const key = decodeURIComponent(writer.href.split("/").at(-1));
-    const [view, page, summary, accountAvatar] = await Promise.all([
+    const [view, page, summary] = await Promise.all([
       contributorReader(key, { publicClient: () => client }),
       activityReader(authorKey, { client, filter: "chat", limit: 20 }).catch(() => null),
       summaryReader(authorKey, { client }).catch(() => null),
-      reviewedAvatar(),
     ]);
     if (!view) return null;
     const community = page ? publicCommunity(authorKey, page, summary) : null;
-    return withPublicContributorPerson2029({ ...view, profile: { ...view.profile, avatar: view.profile?.avatar || accountAvatar }, communityAuthorKey: authorKey, community,
+    return withPublicContributorPerson2029({ ...view, communityAuthorKey: authorKey, community,
       communityFilter: "chat", entrySection: "community" }, { kind: writer.kind, entryContext: "community", community });
   }
   const [page, summary, accountAvatar] = await Promise.all([

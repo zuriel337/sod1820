@@ -1,6 +1,6 @@
 # SOD1820 DESIGN CONTRACT V2
 
-**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; shared icon color resolution and state precedence approved 25.10.2026; balanced RTL composition approved 26.10.2026
+**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; shared icon color resolution and state precedence approved 25.10.2026; balanced RTL composition approved 26.10.2026; content visible before entry and public research findings labelled «טרם אומת» approved 12.11.2026
 **Owner:** experience_governance_foundation_v1_law (active version; v9 when written) → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
@@ -183,7 +183,7 @@ Global Chrome placement and mobile projection are locked in §11. Desktop Adapti
 - Keep the author's original material in its natural reading order. The presentation may distinguish meaningful **living sections** (e.g. Elections → Netanyahu 77, Sharshar and source video, Bennett 631; FZ1073 → Oct 7), using genuine source-native locators and separately governed links; do not auto-create entities, Topics, claims, publication status or research scores from typography.
 - At the start of a source, prefer **option A, one slim actionable anchored update strip**: newest real, authorized section revision in one line, with a bounded "+N" disclosure for other updates and a full historical list downstream under existing source/connections depth. On activation, focus/jump to exactly the changed section, briefly outline it without flashing and preserve Research Context / Exact Return after reload. Option B (updates hidden behind a single "what changed" button) is not the selected default.
 - The source section itself is compact authored prose and media, **not a stack of oversized standalone cards**. Depth is progressive and context-aware: source/claim, proven calculation and method, Finding, Topic link, video/image and provenance remain visibly distinct. Gold/Diamond, quality, strength and contextual relevance are separate axes. Show directly relevant source connections even when their strength score is lower; never label unmeasured zero as measured weak or a candidate as verified.
-- An update is visible as "new" only when the canonical source/segment identity, meaningful change and allowed revision/version are supported by the proper owner and access rules. posts.modified alone, a cover derivative or a heading ID alone never certifies **which** unit changed. Seen state must distinguish later revisions of the same section. Missing history → honest fallback, not fabricated news. A second projection on Home, World, Topic or Number links to the **same** authorized source fragment, not a duplicate research object; never expose restricted/candidate research through a public preview.
+- An update is visible as "new" only when the canonical source/segment identity, meaningful change and allowed revision/version are supported by the proper owner and access rules. posts.modified alone, a cover derivative or a heading ID alone never certifies **which** unit changed. Seen state must distinguish later revisions of the same section. Missing history → honest fallback, not fabricated news. A second projection on Home, World, Topic or Number links to the **same** authorized source fragment, not a duplicate research object; never expose restricted/candidate research through a public preview. *(Superseded in part 12.11.2026 by §8.3: a candidate whose `privacy_scope` is `public` is shown, labelled «טרם אומת»; restricted research — private, `public_candidate` outside its dossier policy, `person_only` — stays hidden.)*
 - On mobile and desktop use concise semantic headings, thin borders, readable text and controls ≥44×44px. A subtle ≤2s focus outline after an explicit jump may be used; reduced-motion removes nonessential movement. Do not append updated units mechanically to the bottom of the source and do not displace the reader's active position.
 
 **Owner routing:** project_codex.publishing_conventions for authored Post/source, Research Intake + research_object_identity_invariant_law for occurrence/fragment provenance, reality_graph_law for relations, and Experience/System Frame for these **presentation projections**. Tests/rollout under the existing G4 Posts-first + cross-surface Golden, not a new Golden or independent editor.
@@ -202,6 +202,23 @@ RTL controls reading direction, logical order and the start edge of Hebrew copy.
 This is a composition rule, not a command to center every Hebrew sentence. Page centering and text alignment are separate decisions and must be tested separately.
 
 **Posts alignment · Human Gate ZURIEL · 31.10.2026:** approved for the existing Post surface: the primary Post title is centered; article subsection headings and ordinary explanatory paragraphs align to logical start (right in Hebrew). Short gematria-box headings and separated equations are centered. A short standalone quotation or emphasis may center deliberately; a poem or intentionally short-line composition may retain its authored alignment. The bounded reading plane and its section navigation stay centered with balanced gutters. This presentation rule does not rewrite authored wording, source locators or calculation semantics, and does not authorize changes to shared chrome or other surfaces. Apply it through the existing Post styles after checking explicit semantic exceptions, rather than rewriting stored article HTML.
+
+### 8.3 תוכן גלוי לפני כניסה · Human Gate ZURIEL · 12.11.2026
+
+**כלל ברזל.** כל מחקר, תמונה, מוצר, פוסט, סרטון או פריט תוכן ציבורי ניתן לצפייה ישירות במקום שבו הוא מופיע, עוד לפני הכניסה לדף הפריט. לחיצה מרחיבה, מגדילה או פותחת לעומק — היא אינה תנאי בסיסי לצפייה בתוכן. הכלל חל על העולם, «עכשיו», פוסטים, גלריות, מחקרים, מוצרים, דף המספר וכל תצוגה ציבורית רלוונטית, במחשב ובנייד.
+
+- **תמונה:** תצוגה מקדימה אמיתית של התמונה עצמה (הקובץ או נגזרת שלו), לא אייקון, שם קובץ או כותרת בלבד. תמונה שאינה נטענת מוסתרת או מוחלפת במצב כן; היא אינה נשארת ריבוע שבור.
+- **מחקר / ממצא:** הכרטיס או התצוגה המקדימה מציגים תוכן משמעותי — נוסח הממצא או תקציר אמיתי שלו, המקור והמדיה הזמינה — בלי שהקורא נדרש ללחוץ «הצג» כדי לראות שיש בכלל תוכן. רשימת ממצאים נטענת מעצמה כשהיא נראית.
+- **מוצר / ספר:** תמונה, שם ומידע מרכזי (מה הוא, מי, מצב זמינות) לפני הכניסה.
+- **סרטון:** תמונה ממוזערת אמיתית ותצוגה מקדימה זמינה (נגן שנפתח במקום, או poster של הקובץ). מסגרת ריקה או קישור טקסט בלבד אינם תצוגה מקדימה.
+- **כל פריט:** פריט שמופיע ברשימה חייב להיפתח — אין קישור מת, יעד שמחזיר «לא נמצא», כרטיס ריק או תמונה שבורה. פריט שאינו זמין לציבור אינו מופיע ברשימה הציבורית מלכתחילה.
+- **הדרגתיות** (§8) חלה על **העומק** — מקורות נוספים, חישובים, היסטוריה — לא על המבט הראשון בתוכן עצמו.
+
+**ממצאי מחקר ציבוריים · «טרם אומת».** כל ממצא ש־`privacy_scope` שלו `public` פתוח לצפייה בעולם בלי אישור פרטני. הוא נשאר במעמדו המחקרי המקורי: ממצא שלא עבר את השער האנושי (מעמד `candidate`) מוצג עם התווית «טרם אומת»; ממצא מאושר או קנוני שומר על תוויתו. התצוגה אינה מקדמת מעמד ואינה כותבת אותו; משמעות צירי האמת (סוג, אימות מנוע, ממשל, פרסום/גישה) נשארת בבעלות `truth_axes_foundation_law` ואינה מועתקת לכאן. סדר: ממצאים מאומתים קודמים, וממצאים «טרם אומת» באים אחריהם לפי אותו סדר קיים — ריבוי מועמדים אינו דוחק ממצא מאומת. מסכים שהם בחירה מאושרת במכוון (Golden/קנוני, חותם «אומת», `humanApproved` בעדשת ההתכנסות, דוגמאות הלימוד של בית המדרש, מפת הקשרים) שומרים על השער שלהם. כרטיס שיתוף של ממצא «טרם אומת» נושא את התווית ואינו נכנס לאינדקס.
+
+**פרטיות.** הכלל אינו חושף מידע אישי: `private` ו־`person_only` נשארים מוסתרים, `public_candidate` נשאר בכפוף למדיניות התיק הקיימת, ואין מזהים או פרטי קשר של תורמים בפלט הציבורי.
+
+**בעלות ויישום.** הכלל נאכף ב־primitives הקיימים (כרטיסי העדכונים בעולם, כרטיסי הממצאים המשותפים, כרטיס הסרטון המשותף, כרטיסי הגלריה והפוסטים) ובעוזר התווית הקיים `researchPublicStatusPresentation` (`src/lib/research/researchObjectPresentation.js`). אין חוזה תצוגה נוסף, מאגר או פיד חדש. בדיקת הקבלה: `scripts/test-content-visible-before-entry-e2e.mjs`.
 
 ## 9. Migration
 - 2029 migrates through shared tokens/components first.
@@ -373,6 +390,7 @@ A 2029 visual-foundation change must prove:
 7. no new palette/theme store or page-local color owner.
 8. the primary content plane is centered with balanced inline gutters; RTL text alignment has not pinned the whole composition to the right;
 9. Personal Area, My Page, Messages and My Research are checked as a shared visual family at 320px, 390px, 768px and 1440px, with screenshots or browser geometry proving no unexplained opposite-side dead field or narrow right-hand column.
+10. content is visible before entry (§8.3): on every public surface it touches, at desktop and phone width, an image shows its real loaded preview, a video shows a thumbnail/poster, a research card shows its text and source without a click, every listed item opens, and a public research finding that has not passed the Human Gate shows «טרם אומת» — proven by `scripts/test-content-visible-before-entry-e2e.mjs` (and its unit companions), never by inspection alone.
 
 ## 13. Action adjacency — a control and the text beside it · Human Gate ZURIEL · 5.11.2026
 

@@ -1,7 +1,7 @@
 // Refresh the existing public projection while keeping the reader's place.
 export const COMMUNITY_REFRESH_INTERVAL_MS = 30000;
 
-export function mergeCommunityRefreshRows(current, fresh, sort = "newest", { complete = false } = {}) {
+export function mergeCommunityRefreshRows(current, fresh, sort = "newest", { complete = false, preserveFeedOrder = false } = {}) {
   if (!fresh.length) return [];
   const direction = sort === "oldest" ? 1 : -1;
   const compare = (a, b) => direction * (String(a.createdAt).localeCompare(String(b.createdAt)) || String(a.id).localeCompare(String(b.id)));
@@ -10,7 +10,8 @@ export function mergeCommunityRefreshRows(current, fresh, sort = "newest", { com
   // The fresh page proves current visibility only through its final row.
   // Keep already-loaded history beyond that boundary and deduplicate it.
   const tail = complete ? [] : current.filter((row) => !ids.has(row.id) && compare(row, boundary) > 0);
-  const merged = [...fresh, ...tail].sort(compare);
+  const merged = [...fresh, ...tail];
+  if (!preserveFeedOrder) merged.sort(compare);
   return JSON.stringify(merged) === JSON.stringify(current) ? current : merged;
 }
 
@@ -28,6 +29,16 @@ export function restoreCommunityScrollAnchor(anchor, doc = globalThis.document, 
   if (!element || !win) return;
   const delta = element.getBoundingClientRect().top - anchor.top;
   if (Math.abs(delta) > 1) win.scrollBy({ top: delta, behavior: "instant" });
+}
+
+export function focusCommunityReplyToggle(toggle, win = globalThis.window) {
+  if (!toggle || !win) return;
+  toggle.focus({ preventScroll: true });
+  const { top, bottom } = toggle.getBoundingClientRect();
+  const margin = Math.min(120, win.innerHeight / 4);
+  if (top < margin || bottom > win.innerHeight - margin) {
+    toggle.scrollIntoView({ block: "center", behavior: "instant" });
+  }
 }
 
 export function startCommunityRefresh({

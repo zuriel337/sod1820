@@ -126,6 +126,10 @@ test("Topic number lens preserves public gates, pagination, new findings and exa
     browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
     for (const width of [320, 1440]) {
       const context = await browser.newContext({ viewport: { width, height: 900 } });
+      // Design Contract V2 §8.3 (12.11.2026): with IntersectionObserver the findings open by themselves (covered by the next test).
+      // This test keeps checking, unchanged, the manual path that remains when the browser has no IntersectionObserver
+      // (the "הצגת ממצאים למספר" button): gates, pagination, new findings, exact return.
+      await context.addInitScript(() => { window.IntersectionObserver = undefined; });
       const page = await context.newPage(); page.setDefaultTimeout(10000);
       const errors = [], external = [];
       page.on("pageerror", error => errors.push(error.message));
@@ -206,6 +210,46 @@ test("Topic number lens preserves public gates, pagination, new findings and exa
       await page.getByRole("heading", { name: "טופיק בדיקה", exact: true }).waitFor();
       assert.equal(await page.getByRole("region", { name: "ממצאים דרך המספר", exact: true }).count(), 0);
       assert.equal(await page.evaluate(() => window.__reads.length), 0);
+      assert.deepEqual(external, []); assert.deepEqual(errors, []);
+      await context.close();
+    }
+  } finally {
+    await browser?.close(); await server.close(); rmSync(cacheDir, { recursive: true, force: true });
+  }
+});
+
+test("Topic number lens opens its findings by itself when the panel is read (content visible before entry), without a request before that", { skip: !available, timeout: 120000 }, async () => {
+  const cacheDir = mkdtempSync(join(tmpdir(), "topic-public-findings-auto-"));
+  const server = await vite.createServer({ root, configFile: false, cacheDir, plugins: [fixturePlugin(), reactPlugin()],
+    server: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
+  let browser;
+  try {
+    await server.listen();
+    const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+    browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+    for (const width of [320, 1440]) {
+      const context = await browser.newContext({ viewport: { width, height: 900 } });
+      const page = await context.newPage(); page.setDefaultTimeout(10000);
+      const errors = [], external = [];
+      page.on("pageerror", error => errors.push(error.message));
+      await page.route("**/*", route => {
+        if (route.request().url().startsWith(origin + "/")) return route.continue();
+        external.push(route.request().url()); return route.abort();
+      });
+      await page.goto(origin + "/topic/pilot");
+      const section = page.getByRole("region", { name: "ממצאים דרך המספר", exact: true });
+      await section.waitFor();
+      assert.equal(await page.evaluate(() => window.__reads.length), 0, "the first render makes no request");
+      await section.getByRole("button", { name: "עוד מספרים בטופיק (2)", exact: true }).click();
+      const panel = page.locator("#topic-number-research-1118");
+      await panel.locator("summary").click();
+      // No click on "הצגת ממצאים למספר": the findings are on the page because the panel is being read.
+      await panel.getByRole("link", { name: "ממצא בדיקה 0", exact: true }).waitFor();
+      const text = await panel.innerText();
+      for (const marker of ["PRIVATE_MARKER", "UNAVAILABLE_SOURCE_MARKER", "UNREVIEWED_MARKER", "WRONG_VALUE_MARKER", "ABSENT_VALUE_MARKER", "PERSON_ONLY_MARKER"]) assert.equal(text.includes(marker), false, marker);
+      const reads = await page.evaluate(() => window.__reads);
+      assert.ok(reads.length > 0 && reads.every(read => read.role === "anon"), "public reads only");
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
       assert.deepEqual(external, []); assert.deepEqual(errors, []);
       await context.close();
     }

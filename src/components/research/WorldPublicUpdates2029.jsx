@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import ExternalVideoFacade2029 from "../experience2029/ExternalVideoFacade2029.jsx";
+import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
 import { GroupMessageText } from "./GroupSourceMeta2029.jsx";
 import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
@@ -57,6 +58,9 @@ function mergeActivity({ items, arrivals, people }) {
     item,
     activity: canonicalPublicActivityPresentation(item),
   })).sort((left, right) => {
+    // Public "טרם אומת" findings keep their own tier after verified activity (never displacing it).
+    const tier = (Number(left.item.publicTier) || 0) - (Number(right.item.publicTier) || 0);
+    if (tier) return tier;
     const a = left.activity.at ? Date.parse(left.activity.at) : 0;
     const b = right.activity.at ? Date.parse(right.activity.at) : 0;
     return b - a || String(left.item.id).localeCompare(String(right.item.id), "he");
@@ -111,10 +115,17 @@ export default function WorldPublicUpdates2029({
         {visible.map(({ item, activity: state }) => <article key={item.id}>
           <div className="sod29-world-update-meta">
             <span className={`sod29-world-update-state is-${state.tone}`}>{state.label}</span>
+            {item.kind === "finding" && item.statusLabel
+              ? <span className={`sod29-research-status${item.humanGateVerified ? "" : " is-unverified"}`}
+                data-public-research-status={item.status}>{item.statusLabel}</span>
+              : null}
             <time dateTime={state.at || undefined}>{state.at
               ? `${state.dateLabel} · ${bilingualDateLabel(state.at)}`
               : "אין נתון"}</time>
           </div>
+          {/* Design Contract V2 §8.3: the source's own image is visible in the card before entry. */}
+          {item.thumbUrl ? <CanonicalMediaImage2029 src={item.thumbUrl} alt={item.label || ""} thumbnail
+            className="sod29-world-update-thumb" /> : null}
           <h3>{item.label}</h3>
           {item.creator ? <p className="sod29-world-update-creator">{item.creator}</p> : null}
           {item.summary ? <p>{item.summary}</p> : null}
