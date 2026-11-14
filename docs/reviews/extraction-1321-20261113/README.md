@@ -19,6 +19,15 @@ This directory holds what belongs to no single package:
 * [`release-request-1336-contracts-enforcement.md`](release-request-1336-contracts-enforcement.md) and [`release-request-1337-measurement.md`](release-request-1337-measurement.md) — exact, separate release requests for #1336 (A: merge of the code, B: the CL-16 database step, each its own approval) plus [`release-request-1336-required-checks.md`](release-request-1336-required-checks.md) (the ruleset / required checks, a third and separate action) and #1337 (step 1: merge, step 2: deployment of the public site, the commit of which does not exist yet). Requests only; nothing approved. #1334 and #1335 get theirs after the Codex corrections CR-X1 and CR-X2.
 * [`decisions.md`](decisions.md) — section 0: decisions already approved by ZURIEL and **pending implementation** (visitor identification: browser id for guests, account id for signed-in members, administrator detail); then the questions that are still open, in one place.
 
+## Update 14.11.2026 — the foundation package (read this first)
+
+State: #1333 and #1335 (community, public content) and #1336 and #1337 (contracts, measurement) are **merged**; DEF-001b (steps 1 and 9 of #1334) is **applied live** (Codex packet, PR #1339). What is left is one package, prepared for one review:
+
+* [`foundation-package-20261114.md`](foundation-package-20261114.md) — the integrated handoff: final heads, test results, findings, the **ordered execution list with stamps (SHA-256, live preconditions), verification and rollback for every action**, and the single table of product decisions.
+* [`contracts-enforcement-state-20261114.md`](contracts-enforcement-state-20261114.md) — G1, CL-16, required checks and the contracts-session handoff, item by item (read-only live checks of 14.11).
+* [`release-request-1333-1335-site-deployment-and-db-step.md`](release-request-1333-1335-site-deployment-and-db-step.md) — the Production deployment and the view `world_contributor_research_v2` of the merged code (A and B), updated.
+* The pull requests: #1341 (CI fix), #1340 (`contribution_links`), #1334 (remaining DB foundations, steps 2, 4, 5, 6, 7, 8, 10), #1339 (Codex's record), and **#1342, the integrated tree** (draft; proves that they work together on current `main`). The older release requests below (#1336, #1337) describe merges that already happened; their database and ruleset parts are lines D10 and K1 of the new list.
+
 ## Update 13.11.2026 (after the Codex review of the five pull requests)
 
 * **CR-X1 (#1334)** fixed at head `e88afdb2e6cd38546eb5acf0f3697377c4d4721e`: the DEF-005 rollback refuses a state the apply did not record (owner, security mode, definition, a function dropped and re-created, a mixed state) before it changes any privilege; the apply records the definition md5 and the original comment and states what it cannot check (a body replaced before the apply).

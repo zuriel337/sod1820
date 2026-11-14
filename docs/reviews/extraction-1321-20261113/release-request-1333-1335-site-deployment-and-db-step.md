@@ -2,6 +2,13 @@
 
 > **This is a request, not an approval.** Nothing in it is deployed or applied. The two code merges are **done** (authorised by ZURIEL, performed by Codex's release path); what remains is **two separate actions**, each needing its own explicit approval for the exact commit or file: **A** = the Production deployment of `main`, **B** = the database step of #1335 (`world_contributor_research_v2`). A merge is not a deployment (CLAUDE.md 0.4). Evidence and findings: work_log record `d558163b-900a-4a06-9ad5-0d13dbac09ea`.
 
+## 0. Update 14.11.2026, 18:50 UTC (foundation package) — what changed for this request
+
+* **State re-read, unchanged:** `origin/main` is still `4c9630db48958417796948b32031f06eb22ed3f1`; the three aliases (`sod1820.co.il`, `www.sod1820.co.il`, `sod1820.vercel.app`) are still `dpl_89Men3jqSi3pAJ5jGMpp75iZqDzx` (alias update times 15:38 UTC, i.e. the deployment of `9c4cad137`); `world_contributor_research_v2` is still absent and `v1` still has the reviewed definition md5 `81581396c9167206a67a117bdd406f70` (owner `postgres`, options `security_invoker`, `security_barrier`).
+* **A and B are unchanged and independent of everything else.** The foundation package (CI fix #1341, the `contribution_links` policy #1340, the remaining DB foundations #1334, Codex's record #1339) contains **no site code** (none of its 61 files is under `src/`, `api/`, `public*`, `supabase/functions`), so the exact commit `4c9630db4` named in A stays the right one whether or not those pull requests are merged first. B (the view) is database step **D1** of the execution list; A is **S1**.
+* **Order and preconditions are now one list:** [`foundation-package-20261114.md`](foundation-package-20261114.md) section 5 (R = repository merges, S = site, D = database steps with SHA-256 stamps, preconditions read on 14.11, verification and rollback, K = required checks). Rule of that list: **required checks (K1) only after #1341 is merged (R1)**, because `auth-browser-acceptance-2029` is red on every pull request opened after #1335 until then.
+* **Do not mix the two clocks:** A and B are the *already merged* community and content code (#1333, #1335). The package pull requests are *not* merged.
+
 ## 1. State read on 14.11.2026 (17:35 UTC)
 
 | | |
@@ -55,10 +62,10 @@ Browser proofs of the community features on real public data (read only; desktop
 `supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql` (a new view `world_contributor_research_v2`; `v1` is untouched), rollback `supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql`, read-only checks `docs/reviews/public-content-20261113/post-apply-checks.sql`. The exact file and its commit are presented when approval is asked. **Order is free:** before B the new site falls back to `v1` (contributor lists show no candidates; the World feed and the exact finding already show labelled ones); after B it reads `v2`; an old tab reads `v1` only. Rollback: drop `v2`; the site falls back by itself. Behaviour table: `docs/reviews/public-content-20261113/README.md` section 7.
 
 ## 6. Not part of this release (stated so it is not assumed)
-* **PR #1340** — the `contribution_links` read policy (a SQL proposal with its own rollback and tests). A separate database approval; nothing here depends on it.
-* **#1334** — database foundations, with Codex.
+* **PR #1340** — the `contribution_links` read policy (a SQL proposal with its own rollback and tests; since 14.11 it also covers links that point at another message). A separate database approval (**D2**); nothing here depends on it.
+* **#1334** — the remaining database foundations: steps 1 and 9 are applied (DEF-001b, 14.11.2026 16:41 UTC); steps 2, 4, 5, 6, 7, 8, 10 are prepared (**D3–D9**); CL-16 is **D10**. Each is a separate approval; none depends on A or B.
 * Showing a message's source on the site, and the link from the personal area to the community history: separate follow-ups. For the source, the existing mechanisms are `contribution_links` (old chat) and the `decision_ledger` row `community_source_import`; no new column or table is proposed.
 
-## 7. Open decisions that do not block A or B
+## 7. Open decisions that do not block A or B (the full table of the package is section 6 of [`foundation-package-20261114.md`](foundation-package-20261114.md))
 * **Clickable numbers:** ZURIEL approved «from 1 upward, a year that stands by itself included; dates, times, telephone numbers and decimals stay text». Cases not decided and left as numbers: a day written with a month name (`12 בנובמבר 2026`), dashes with spaces around them (`812 - 848`), card-like groups of four digits. One constant (`MESSAGE_NUMBER_MIN_VALUE`) holds the threshold.
 * **`cl_public_read` exposure** (PR #1340): the table is readable for the provenance of non-public messages today, independent of this release.
