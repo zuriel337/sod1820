@@ -230,7 +230,15 @@ begin
     execute format('drop policy %I on public.contribution_links', q);
   end loop;
   alter policy cl_public_read on public.contribution_links to public
-    using (exists (select 1 from public.research_contributions rc where rc.id = contribution_links.from_contribution_id));
+    using (
+      exists (select 1 from public.research_contributions rc where rc.id = contribution_links.from_contribution_id)
+      and (
+        contribution_links.target_type <> 'contribution'
+        or exists (select 1 from public.research_contributions tc
+                   where tc.id = (case when contribution_links.target_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+                                       then contribution_links.target_id::uuid end))
+      )
+    );
   execute format('comment on policy cl_public_read on public.contribution_links is %L',
     'CONTRIBUTION_LINKS_VISIBLE_MESSAGE_READ_V1 applied restored-by-test; qual_md5=' || md5(cl_policy_qual()) || '; before=USING (true)');
 end $f$;
@@ -339,3 +347,40 @@ select as_role('anon', '');
 select expect(links_seen() = 7, 'after the second apply a guest sees only the links of public messages (4 old + 2 imported + 1 edge added by a signed-in user)');
 reset role;
 select 'PASS 7 rollback restores the live state exactly (policy, record, behaviour) and refuses, changing nothing, after any later change: edited expression, extra policy, removed record, changed roles; apply works again after a rollback' as result;
+
+-- 8. Links that point at another message (target_type 'contribution'): the other direction ----------------------------------------------------
+-- (state here: applied. The rows added below are removed at the end, so the concurrency cases of the runner see the state this test ended in.)
+-- Live on 14.11.2026: 7 such rows, all from hidden messages to approved ones; none from a public message to a non-public one.
+insert into public.contribution_links(id, from_contribution_id, target_type, target_id, relation_type, note) values
+  ('20000000-0000-4000-8000-000000000001', (select id from m where name = 'ok1'),    'contribution', (select id::text from m where name = 'ok2'),        'derived_from', 'public -> public'),
+  ('20000000-0000-4000-8000-000000000002', (select id from m where name = 'ok1'),    'contribution', (select id::text from m where name = 'hidden'),     'derived_from', 'public -> hidden'),
+  ('20000000-0000-4000-8000-000000000003', (select id from m where name = 'ok1'),    'contribution', (select id::text from m where name = 'pendA'),      'derived_from', 'public -> pending of A'),
+  ('20000000-0000-4000-8000-000000000004', (select id from m where name = 'ok1'),    'contribution', 'not-a-uuid',                                        'derived_from', 'public -> malformed target id'),
+  ('20000000-0000-4000-8000-000000000005', (select id from m where name = 'hidden'), 'contribution', (select id::text from m where name = 'ok2'),        'derived_from', 'hidden -> public'),
+  ('20000000-0000-4000-8000-000000000006', (select id from m where name = 'ok1'),    'contribution', '10000000-0000-4000-8000-0000000000ff',             'derived_from', 'public -> a uuid that is no message'),
+  ('20000000-0000-4000-8000-000000000007', (select id from m where name = 'ok1'),    'contribution', upper((select id::text from m where name = 'ok2')), 'derived_from', 'public -> public, upper-case uuid');
+create function contribution_targets_seen() returns text language sql stable as $f$
+  select coalesce(string_agg(right(id::text, 1), ',' order by id), '-') from public.contribution_links where target_type = 'contribution' and id::text like '20000000-%' $f$;
+select as_role('anon', '');
+select expect(contribution_targets_seen() = '1,7', 'guest: a link to another message is visible only when both messages are public (1 and 7); a hidden target, a pending target, a malformed or unknown target id and a hidden source stay invisible');
+reset role;
+select as_role('authenticated', 'A');
+select expect(contribution_targets_seen() = '1,3,7', 'author A: also the link to A''s own pending message (3), not the hidden target (2)');
+reset role;
+select as_role('authenticated', 'B');
+select expect(contribution_targets_seen() = '1,7', 'author B: what a guest sees (A''s pending message is not B''s)');
+reset role;
+select as_role('authenticated', 'OTHER');
+select expect(contribution_targets_seen() = '1,7', 'another signed-in user: what a guest sees');
+reset role;
+select as_role('authenticated', 'ADMIN');
+select expect(contribution_targets_seen() = '1,2,3,5,7', 'administrator: every link whose two messages exist (1, 2, 3, 5, 7); a malformed target id (4) and an unknown uuid (6) stay invisible even to the administrator (fail closed)');
+reset role;
+select as_role('service_role', '');
+select expect(contribution_targets_seen() = '1,2,3,4,5,6,7', 'service_role (RLS bypass) still reads every row');
+reset role;
+delete from public.contribution_links where id::text like '20000000-%';
+select as_role('anon', '');
+select expect(links_seen() = 7, 'the rows of this section are removed: the state is the one the previous section ended in');
+reset role;
+select 'PASS 8 links that point at another message: visible to a caller only when the source and the target message are both readable by that caller; a malformed or unknown target id fails closed (even for the administrator); service_role unchanged' as result;

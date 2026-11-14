@@ -12,7 +12,7 @@ for f in $T tests/sql/fixtures/contribution_links_live_base_20261114/g3_openweb_
   cp "$ROOT/$f" "$W/$f"
 done
 chmod -R a+rX "$W"
-EXPECTED_MAIN=8
+EXPECTED_MAIN=9
 EXPECTED_CONCURRENCY=4
 
 # --- engine: a local PostgreSQL when installed (CI), else a container ---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 
 # --- 1. the functional test (ends in the applied state) ----------------------------------------------------------------------------------------
 psql_file "$W/$T" | tee "$W/out.txt"
-test "$(grep -c '^ *PASS [0-7] ' "$W/out.txt")" = "$EXPECTED_MAIN" || fail "expected $EXPECTED_MAIN PASS lines from the SQL test"
+test "$(grep -c '^ *PASS [0-8] ' "$W/out.txt")" = "$EXPECTED_MAIN" || fail "expected $EXPECTED_MAIN PASS lines from the SQL test"
 APPLIED_MD5=$(sql_val "select substring(obj_description(oid, 'pg_policy') from 'qual_md5=([0-9a-f]{32})') from pg_policy where polname = 'cl_public_read' and polrelid = 'public.contribution_links'::regclass;")
 test -n "$APPLIED_MD5" || fail "the applied record is missing at the end of the SQL test"
 

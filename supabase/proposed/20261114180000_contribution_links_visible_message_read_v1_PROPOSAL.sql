@@ -12,10 +12,15 @@
 --
 -- WHAT THIS CHANGES: exactly one thing. The USING expression of the existing policy cl_public_read becomes
 --     exists (select 1 from public.research_contributions rc where rc.id = contribution_links.from_contribution_id)
--- i.e. a link is readable exactly when its message is readable by the same caller under the EXISTING research_contributions policies:
--- a guest sees the links of approved messages only, an author also sees the links of their own messages, an administrator sees all. The rule is
--- inherited, not copied: if the message policy changes later, the links follow it. The policy keeps its name and is altered in place (ALTER POLICY),
--- so there is no moment without a policy.
+--     and (target_type <> 'contribution' or exists (select 1 from public.research_contributions tc where tc.id = <the target id as a uuid>))
+-- i.e. a link is readable exactly when its message is readable by the same caller under the EXISTING research_contributions policies, and, for the
+-- one link kind that points at another message (target_type 'contribution'), when that target message is readable by the same caller too (a public
+-- message must not reveal the id of a hidden one; a target id that is not a uuid is not readable: fail closed). A guest sees the links of approved
+-- messages only, an author also sees the links of their own messages, an administrator sees all. The rule is inherited, not copied: if the message
+-- policy changes later, the links follow it. The policy keeps its name and is altered in place (ALTER POLICY), so there is no moment without a policy.
+-- Live today (read 14.11.2026): 7 links have target_type 'contribution', all from hidden messages to approved ones (the first condition already hides
+-- them from guests); 0 links point from a public message to a non-public one, so the second condition changes nothing today and closes the other direction
+-- for later rows (Codex review note, 14.11.2026: "audit both directions").
 -- WHAT THIS DOES NOT CHANGE: no table, column, index, grant, function, trigger or row; no other policy. The writers are untouched: the import
 -- (g3_openweb_import_batch / g3_openweb_import_message run by service_role, which bypasses RLS), link_contribution and
 -- project_contribution_to_graph (SECURITY DEFINER, owner postgres) and the three definer readers that touch the table
@@ -90,7 +95,15 @@ begin
 end $$;
 
 alter policy cl_public_read on public.contribution_links
-  using (exists (select 1 from public.research_contributions rc where rc.id = contribution_links.from_contribution_id));
+  using (
+    exists (select 1 from public.research_contributions rc where rc.id = contribution_links.from_contribution_id)
+    and (
+      contribution_links.target_type <> 'contribution'
+      or exists (select 1 from public.research_contributions tc
+                 where tc.id = (case when contribution_links.target_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+                                     then contribution_links.target_id::uuid end))
+    )
+  );
 
 do $$
 declare
@@ -98,7 +111,8 @@ declare
 begin
   select * into v_pol from pg_policy where polrelid = 'public.contribution_links'::regclass and polname = 'cl_public_read';
   v_qual := pg_get_expr(v_pol.polqual, v_pol.polrelid);
-  if v_qual is null or v_qual = 'true' or v_qual not like '%research_contributions%' or v_qual not like '%from_contribution_id%' then
+  if v_qual is null or v_qual = 'true' or v_qual not like '%research_contributions%' or v_qual not like '%from_contribution_id%'
+     or v_qual not like '%target_type%' or v_qual not like '%target_id%' then
     raise exception 'CL_VISIBLE_READ postcondition: the policy expression is not the new one: %', v_qual;
   end if;
   if v_pol.polcmd <> 'r' or v_pol.polpermissive is not true or v_pol.polroles <> array[0::oid] or v_pol.polwithcheck is not null then
