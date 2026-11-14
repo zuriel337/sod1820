@@ -53,18 +53,26 @@
 --   supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql
 
 -- 0. Preconditions (read-only; fail closed if production drifted from what the owner decision was based on).
--- Revision 14.11.2026 (foundation package): the file runs as ONE transaction with lock and statement timeouts (it either applies completely or not at all) and, where the objects are policies or grants, with a catalogue fingerprint guard
+-- Revision 14.11.2026 (foundation package, after an independent review): the file runs as ONE transaction with a lock timeout, a statement timeout and its OWN search_path
+-- (the text of policy expressions that the guard compares depends on it); it takes SHARE UPDATE EXCLUSIVE on the tables it changes BEFORE it reads the catalogue, so a
+-- policy change made by another session (CREATE / ALTER / DROP POLICY take ACCESS EXCLUSIVE, which conflicts with it) is either finished and seen by the guard or still
+-- running (the file then fails on the lock timeout and changes nothing); and it carries a catalogue fingerprint guard. Locks: the policy DDL of this file waits for
+-- running reads for at most the lock timeout (1s) and new reads queue behind it meanwhile; on a timeout nothing changes and the file is sent again later.
 begin;
-set local lock_timeout = '5s';
+set local lock_timeout = '1s';
 set local statement_timeout = '60s';
+set local search_path = public, pg_catalog;
+lock table storage.objects in share update exclusive mode;
 
--- Catalogue guard: every policy on storage.objects and the settings of the bucket gallery must be exactly the live "before" state read on 14.11.2026 (fingerprint fc57c5ec4289358741cd622b02d39556),
+-- Catalogue guard: every policy on storage.objects (with comments), its column grants and the settings of the bucket gallery must be exactly the live "before" state read on 14.11.2026 (fingerprint fc57c5ec4289358741cd622b02d39556),
 -- or already the "after" state of this file (fingerprint 9fbf59431d86a0c4453d1e31302b0c66: a re-run is then a no-op). Anything else stops the file before any change.
 create or replace function pg_temp.def004_fp_s8() returns text language sql stable as $f$
   select md5(string_agg(x, E'\n' order by x collate "C")) from (
-    select 'p|'||policyname||'|'||cmd||'|'||permissive||'|'||(select string_agg(r, ',' order by r) from unnest(roles) r)||'|'||coalesce(qual,'-')||'|'||coalesce(with_check,'-') as x from pg_policies where schemaname='storage' and tablename='objects'
+    select 'p|'||policyname||'|'||cmd||'|'||permissive||'|'||(select string_agg(r, ',' order by r collate "C") from unnest(roles) r)||'|'||coalesce(qual,'-')||'|'||coalesce(with_check,'-') as x from pg_policies where schemaname='storage' and tablename='objects'
     union all select 'b|'||id||'|'||public::text||'|'||coalesce(file_size_limit::text,'-')||'|'||coalesce(allowed_mime_types::text,'-') from storage.buckets where id='gallery'
     union all select 'rls|objects|'||relrowsecurity::text from pg_class where oid='storage.objects'::regclass
+    union all select 'cacl|'||c.relname||'.'||a.attname||'|'||a.attacl::text from pg_attribute a join pg_class c on c.oid = a.attrelid where a.attacl is not null and not a.attisdropped and c.oid = any(array['storage.objects'::regclass])
+    union all select 'cm|'||c.relname||'|'||p.polname||'|'||obj_description(p.oid, 'pg_policy') from pg_policy p join pg_class c on c.oid = p.polrelid where obj_description(p.oid, 'pg_policy') is not null and c.oid = any(array['storage.objects'::regclass])
   ) q
 $f$;
 do $$
