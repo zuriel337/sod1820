@@ -288,6 +288,19 @@ test("a number written in a message opens the existing Number capability in plac
   assert.equal(fallback.props.href, numberPageHref(848));
 });
 
+test("the collapsed preview never turns a number inside a web address, a date or a telephone number into a Number link", async () => {
+  const message = await harness("./CommunityLive2029.jsx", ["LiveMessage"], { plainMessageText, communityMessageShareUrl: () => null });
+  const content = await harness("./CommunityMessageContent.jsx", ["MessageNumbersText", "MessageNumber"], { splitMessageNumbers, numberPageHref, use2029Shell: () => ({}) });
+  const body = "ראו https://example.com/p?id=1237 וגם www.example.com/a?x=55 וגם example.com?id=77 ובתאריך 12–11–2026 ובטלפון 050 123 4567 ובמספר 848 ובשנת 2026. "
+    + "משפט ארוך. ".repeat(120);
+  const nodes = elements(message.render(message.LiveMessage, { row: { ...row, body }, focused: false }));
+  const previewText = nodes.find(node => node.props?.className === "sod29-community-body").props.children[0];
+  assert.equal(previewText.type, "MessageNumbersText");
+  for (const kept of ["id=1237", "x=55", "id=77", "12–11–2026", "050 123 4567"]) assert.ok(previewText.props.text.includes(kept), `the preview still shows ${kept}`);
+  const linked = elements(content.render(content.MessageNumbersText, { text: previewText.props.text })).filter(node => node.type === content.MessageNumber).map(node => node.props.value);
+  assert.equal(JSON.stringify(linked), "[848,2026]", "only the two plain numbers are links");
+});
+
 test("all default community reads use the anonymous client in the read profile and retain ordinary-build behavior", async () => {
   for (const readOnly of [true, false]) {
     const calls = [];
