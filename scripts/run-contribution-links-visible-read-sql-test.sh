@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs tests/sql/contribution_links_visible_message_read_v1.sql, then four two-session concurrency cases, on a throwaway local PostgreSQL
+# Runs tests/sql/contribution_links_visible_message_read_v1.sql, then five two-session concurrency cases, on a throwaway local PostgreSQL
 # (never a live project). The files are copied to a temporary folder first, so the database user only needs to read that folder.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -86,7 +86,7 @@ GUEST=$(sql_val "set statement_timeout = 2000; set role anon; select count(*) fr
 test "$GUEST" = "7" || fail "C4: a guest should see 7 links, saw $GUEST"
 sql "set statement_timeout = 2000; set role service_role; insert into public.contribution_links(from_contribution_id, target_type, target_id, relation_type) values ('10000000-0000-4000-8000-000000000001', 'openweb_message', 'sp_C4_probe', 'derived_from'); delete from public.contribution_links where target_id = 'sp_C4_probe';" >/dev/null || fail "C4: an import-style write was blocked"
 wait "$A" || true
-echo "PASS C4 while a policy change holds its lock a guest still reads and service_role still writes (no blocking of readers or of the import)"
+echo "PASS C4 while the SHARE UPDATE EXCLUSIVE lock the files take first is held, a guest still reads and service_role still writes (the explicit lock blocks neither readers nor the import; the policy DDL itself is C5)"
 
 # C5: the REAL policy DDL takes ACCESS EXCLUSIVE (measured; CREATE / ALTER / DROP POLICY), unlike the explicit lock of C4. A reader that is already running
 # makes the apply wait at its ALTER POLICY; the apply fails closed after lock_timeout (3s) and changes nothing; a guest read that arrives while the apply

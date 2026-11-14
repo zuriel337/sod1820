@@ -7,7 +7,7 @@ Status: **PROPOSAL for review. No SQL was applied.** Applying it needs ZURIEL's 
 | `supabase/proposed/20261114180000_contribution_links_visible_message_read_v1_PROPOSAL.sql` | the change (one `ALTER POLICY`), with state guards and an apply record |
 | `supabase/proposed/ROLLBACK_20261114180000_contribution_links_visible_message_read_v1.sql` | exact rollback, protected against a change in between |
 | `tests/sql/contribution_links_visible_message_read_v1.sql` + `tests/sql/fixtures/contribution_links_live_base_20261114/` | 9 cases on a throwaway PostgreSQL (guest, owner, other user, administrator, import, drift, rollback, links that point at another message) |
-| `scripts/run-contribution-links-visible-read-sql-test.sh` | runs the SQL test, then 4 two-session concurrency cases; wired into the `security-sql-contracts` job |
+| `scripts/run-contribution-links-visible-read-sql-test.sh` | runs the SQL test, then 5 two-session concurrency cases; wired into the `security-sql-contracts` job |
 
 ## 1. The finding (read live on 14.11.2026, project `linswmnnkjxvweumprav`)
 
