@@ -49,30 +49,47 @@ Anchor: insert after the step named *"Group images and videos (proposal; text ar
 
 Result: PASS on PostgreSQL 16.15 and 17.12 locally (`G1_PG_BIN=/usr/lib/postgresql/{16,17}/bin`). In CI the runner uses the PostgreSQL binaries found under `/usr/lib/postgresql/*/bin` (the last one), or a network-less `postgres:17-alpine` container when none exists, exactly like the other `run-*-sql-test.sh` steps.
 
-## Step 3 (optional, recommended) · job `auth-browser-acceptance-2029` (ubuntu-24.04, pinned Playwright 1.55 browser)
+## Step 3 · job `auth-browser-acceptance-2029` (ubuntu-24.04, pinned Playwright browser) — CORRECTED 14.11.2026
 
-Not wired by #1321. The two browser proofs compare the site **before** the change with the site **after** it, so they need two builds. Anchor: after the step *"Install the pinned browser"* and before *"Sign-in acceptance in a real browser"*. The job's checkout is depth 1, so the PR base is fetched by SHA.
+> **Correction.** This section first wired the old side of the comparison to the **PR base** and said that once the package was merged "the comparison then proves nothing about the change and the step can be dropped (or `OLD_DIST` pinned to `9be0c29fc`)". That was wrong. After #1335 was merged, the PR base of every later pull request already contains the change, so the old and the new site are the same code and **both proofs fail** (not "prove nothing"): the first pull request after the merge (#1340) was red on `auth-browser-acceptance-2029` with `old code reads v1` and `the pre-change site never shows the candidate`. The case "old side equals new side" had not been run before the merge. It is reproduced locally and now covered by a test (below).
+
+The two proofs compare the site **before** the change (a tab left open, the previous deployment) with the tested site. They need two builds:
+
+* **The old side is a fixed historical commit: `9c4cad1372200759e9afe6e9c38709209d4ee02a`** (the code that was live before #1333 and #1335). It is a literal in the step (`HISTORICAL_SITE_SHA`), fetched by SHA (depth 1, no tags) and verified (`git rev-parse FETCH_HEAD`), then built with `SOD_BUILD_TARGET=2029 npx vite build`. **It is not the PR base, not main, not a deployment and not an alias, and it is not updated after a deployment.** It represents the behaviour *before* the change; replacing it with a newer commit makes both sides equal and brings back exactly the failure above. Any future change of the readers that needs a new old-client comparison starts a new pin with its own review, never an automatic move.
+* **The new side is the checked-out tested commit** (`SOD_BUILD_TARGET=2029 npx vite build` in the workspace; `NEW_DIST=${{ github.workspace }}/dist`). The step writes both commits to the evidence (`public-content-proof-commits.txt`) and fails if the tested commit is the historical commit.
+* **The G1 base commit is a different thing and is untouched**: the step *"G1 base commit"* keeps `PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}`.
 
 ```yaml
-      - name: Build the site and the pre-change site (the PR base) for the old-client comparison
+      - name: Build the tested site and the pinned historical site for the old-client comparison
         env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HISTORICAL_SITE_SHA: 9c4cad1372200759e9afe6e9c38709209d4ee02a
         run: |
+          set -euo pipefail
+          TESTED="$(git rev-parse HEAD)"
+          # fails when the tested commit is the historical commit
           SOD_BUILD_TARGET=2029 npx vite build
-          BASE="${PR_BASE_SHA:-$(git ls-remote origin refs/heads/main | cut -f1)}"
-          git fetch --no-tags --depth=1 origin "$BASE"
+          git fetch --no-tags --depth=1 origin "$HISTORICAL_SITE_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$HISTORICAL_SITE_SHA"
           mkdir -p "$RUNNER_TEMP/old-site"
-          git archive "$BASE" | tar -x -C "$RUNNER_TEMP/old-site"
+          git archive "$HISTORICAL_SITE_SHA" | tar -x -C "$RUNNER_TEMP/old-site"
           ln -s "$PWD/node_modules" "$RUNNER_TEMP/old-site/node_modules"
           (cd "$RUNNER_TEMP/old-site" && SOD_BUILD_TARGET=2029 npx vite build)
-      - name: Public content in a real browser (old tab against the new database view keeps working; the new site shows «טרם אומת» and nothing private; v2 missing falls back to v1)
-        run: node --test test/m0d-contributor-stale-client.browser.mjs test/m0d-world-candidate-visible.browser.mjs
+      - name: Public content in a real browser (...)
         env:
           OLD_DIST: ${{ runner.temp }}/old-site/dist
           NEW_DIST: ${{ github.workspace }}/dist
+          PUBLIC_CONTENT_PROOF_REQUIRED: "1"
+        run: |
+          set -euo pipefail
+          node --test --test-reporter=tap test/m0d-contributor-stale-client.browser.mjs test/m0d-world-candidate-visible.browser.mjs | tee "$RUNNER_TEMP/auth-evidence/public-content-proof.tap"
+          node scripts/assert-tap-summary.mjs --tests 2 --pass 2 --fail 0 --skipped 0 --todo 0 --cancelled 0 < "$RUNNER_TEMP/auth-evidence/public-content-proof.tap"
 ```
 
-Result locally (Chromium 1243, Playwright 1.63.0): 1/1 and 1/1. Both tests **skip, never pass**, when a build or the browser is missing, so a broken wiring cannot look green. Once this package is merged, the PR base of later PRs already contains the change; the comparison then proves nothing about the change and the step can be dropped (or `OLD_DIST` pinned to `9be0c29fc`).
+**Both proofs must run and pass in CI — no skip.** With `PUBLIC_CONTENT_PROOF_REQUIRED=1` a missing historical build, a missing tested build, a missing browser or Playwright, or one directory on both sides is a **failure** that names what is missing (`test/helpers/publicContentProofGate.mjs`); without the flag (a developer's machine) the proofs still skip, never pass. The step then checks the TAP summary: exactly `tests 2, pass 2, fail 0, skipped 0, todo 0, cancelled 0` (`scripts/assert-tap-summary.mjs`), because the exit code of `node --test` does not fail on a skip. Both tests and every assertion in them are unchanged.
+
+**Pinned by tests** (`test/public-content-browser-gate-20261114.test.mjs`, in the *Public content contracts* step): the literal pin and the absence of any other commit, PR base, branch, deployment or alias in the build step; the G1 step still reads the PR base; the flag, both files and the exact summary in the run step; the gate (skip locally, fail when required, for each missing prerequisite and for the same directory on both sides); the summary checker (refuses a skip, todo, failure, cancelled test, missing test and an empty report); both proofs keep their assertions and are not skipped.
+
+Local proof (the CI commands, default build profile): old = build of `9c4cad137`, new = a tree whose base already contains #1335 → 2 of 2, nothing skipped; old = a build of that same tree (the earlier wiring) → both fail; missing historical build, missing browser, one directory on both sides → both fail, no skip. The pull request that carries this correction is itself such a tree (its base contains #1335), so its own `auth-browser-acceptance-2029` is the CI proof.
 
 ## Not wired on purpose
 

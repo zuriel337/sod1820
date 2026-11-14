@@ -1,6 +1,7 @@
 // Added by the extraction (13.11.2026), same harness style as test/m0d-contributor-stale-client.browser.mjs.
 // "Content visible before entry" on the World finding reader, in a real browser, against a mocked Supabase origin (nothing leaves the machine):
-//   OLD_DIST = a build of the code BEFORE this change (origin/main 9be0c29fc), NEW_DIST = a build of this branch.
+//   OLD_DIST = the HISTORICAL site, a build of 9c4cad1372200759e9afe6e9c38709209d4ee02a (the code before #1333 and #1335; a fixed commit, never
+//   the PR base and never moved by later deployments: it stands for the behaviour before the change), NEW_DIST = a build of the tested commit.
 //   A. NEW site, a public candidate: the exact finding opens, shows its text and the label «טרם אומת»; its stored status stays `candidate`
 //      (the page only reads: the mock records every non-GET; no table is written and the only RPCs are the site's own visit telemetry
 //      and the read-only group-arrivals reader).
@@ -10,8 +11,9 @@
 //      shows an unlabelled candidate.
 //   D. NEW site, view v2 missing: the exact finding still opens (it reads the table, not the view) - nothing breaks.
 //   E. NEW site, a candidate whose text carries a contact detail: the page does not print it.
-// Skips (never passes) when the browser or either build is missing.
+// Skips locally (never passes) when the browser or either build is missing; with PUBLIC_CONTENT_PROOF_REQUIRED=1 (CI) a missing prerequisite FAILS.
 import test from 'node:test';
+import { proofMissing, proofSkip, assertProofCanRun } from './helpers/publicContentProofGate.mjs';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
@@ -25,8 +27,8 @@ const NEW_DIST = resolve(process.env.NEW_DIST || join(root, 'dist'));
 const req = createRequire(import.meta.url);
 let pw = null; try { pw = req('playwright'); } catch { /* optional local browser tooling */ }
 const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || (pw && existsSync(pw.chromium.executablePath()) ? pw.chromium.executablePath() : undefined);
-const canRun = Boolean(pw && OLD_DIST && existsSync(join(OLD_DIST, '2029.html')) && existsSync(join(NEW_DIST, '2029.html')));
-const SKIP = !canRun && 'needs Playwright, OLD_DIST (build of the code before the change) and NEW_DIST (this branch)';
+const MISSING = proofMissing({ pw, OLD_DIST, NEW_DIST, executablePath });
+const SKIP = proofSkip(MISSING, 'needs Playwright, a Chromium, OLD_DIST (the historical site) and NEW_DIST (the tested commit)');
 
 const SUPABASE_HOST = 'linswmnnkjxvweumprav.supabase.co';
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-expose-headers': '*' };
@@ -103,6 +105,7 @@ async function open(browser, base, n, options) {
 }
 
 test('World finding: the new site shows a public candidate labelled «טרם אומת»; the pre-change site does not; private rows never show', { skip: SKIP }, async () => {
+  assertProofCanRun(MISSING);
   const [oldServer, newServer] = await Promise.all([serve(OLD_DIST), serve(NEW_DIST)]);
   const oldBase = `http://127.0.0.1:${oldServer.address().port}`, newBase = `http://127.0.0.1:${newServer.address().port}`;
   const browser = await pw.chromium.launch({ executablePath, headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'] });

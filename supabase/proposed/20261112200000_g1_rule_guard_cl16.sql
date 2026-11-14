@@ -48,7 +48,11 @@
 --     Read-only on 12.11.2026: public.nodes and this function are owned by postgres (the role of the SQL editor and of the MCP
 --     execute_sql / apply_migration tools), so postgres can do the first two; service_role is not the owner and cannot; only a
 --     superuser can set session_replication_role (no parameter grant exists).
--- Effect on reading: the trigger is replaced with CREATE OR REPLACE TRIGGER (no DROP), so readers of public.nodes are not blocked.
+-- Effect on reading and writing (CR-F1, Codex review 14.11.2026; measured by the concurrency cases of scripts/run-g1-rule-guard-sql-test.sh): the file first
+-- takes LOCK TABLE public.nodes IN SHARE ROW EXCLUSIVE MODE, the mode that CREATE [OR REPLACE] TRIGGER and ALTER TABLE ... DISABLE TRIGGER take themselves.
+-- Readers of public.nodes (ACCESS SHARE) are never blocked: the trigger is replaced with CREATE OR REPLACE TRIGGER (no DROP). Writers (INSERT / UPDATE /
+-- DELETE) wait behind the lock request and then behind the transaction (milliseconds). If the lock is not granted within lock_timeout (5s) the file fails with
+-- nothing changed: STOP and inspect (pg_locks, pg_stat_activity: who holds public.nodes); do NOT resend automatically.
 -- The guard reads public.work_log and public.project_codex as the writing role; a writer without SELECT on them is refused (fail-closed).
 --
 -- Full-match guards (same pattern as M0-B), FAIL-CLOSED (round 3): the state is read into non-null values ('(missing)' for an absent
@@ -62,6 +66,11 @@
 begin;
 set local lock_timeout = '5s';
 set local statement_timeout = '30s';
+
+-- CR-F1: serialise against every other change of the triggers of public.nodes BEFORE the state is read. The first version read the trigger, then waited for the
+-- table inside CREATE OR REPLACE TRIGGER, and so overwrote a trigger change that another session had committed in between (for example an ALTER TABLE ... DISABLE
+-- TRIGGER): such a change is now either committed before this file holds the lock (the checks below SEE it and refuse) or still open (this file waits, then fails).
+lock table public.nodes in share row exclusive mode;
 
 create temp table g1rg_before on commit drop as
   select md5(pg_get_functiondef(p.oid)) as def_md5, p.proowner, p.proacl::text as acl, p.prosecdef, p.proconfig, p.provolatile

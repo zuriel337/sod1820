@@ -63,10 +63,10 @@ watch the first run: if the job approaches the limit, raise the timeout (that is
 Anchor: the last step `Group images and videos ...` (lines 317-318), after which the job ends. Append four steps. They use the runner's own
 PostgreSQL binaries (`/usr/lib/postgresql/*/bin`, a throwaway data directory and a unix socket; a network-less `postgres:17-alpine` container
 when no binaries exist), never a live database. Timed locally on 17.12: lifecycle 1.2 s, case matrix 2.5 s, reader 1.0 s, order evidence 1.5 s
-(initdb included in each).
+(initdb included in each). Since CR-F1 the lifecycle runner also runs nine concurrency cases (two lock timeouts of 5 s each): about 20 s more.
 
 ```yaml
-      - name: G1 rule guard (CL-16) proposal lifecycle (25 cases; a missing function, drift, a MISSING or DISABLED trigger stop both files; exact apply, no-op re-apply, exact rollback; the apply plan sha256 values are the files; no other SQL file touches the rule tree unreviewed)
+      - name: G1 rule guard (CL-16) proposal lifecycle (25 cases; a missing function, drift, a MISSING or DISABLED trigger stop both files; exact apply, no-op re-apply, exact rollback; the apply plan sha256 values are the files; no other SQL file touches the rule tree unreviewed) and 9 concurrency cases (a trigger change committed by another session is never overwritten, by the apply or by the rollback; clean runs after waiting; atomic lock timeouts)
         run: bash scripts/run-g1-rule-guard-sql-test.sh
       - name: G1 rule guard (CL-16) case matrix, live vs applied (72 cases x 2 variants, each with an expected outcome and refusal reason)
         run: bash docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-db-scenarios.sh
