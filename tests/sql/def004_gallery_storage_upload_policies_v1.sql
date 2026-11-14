@@ -349,6 +349,29 @@ select pg_temp.run_cases('before') as n \gset before_
 \echo DEF-004 before: :before_n route cases match production behaviour
 select pg_temp.expect(pg_temp.anon_can_read_all(), true, 'BEFORE public read of gallery and magar');
 
+\if :{?def004_drift}
+  -- Drift mode (foundation package, 14.11.2026): the catalogue fingerprint guard. A policy the proposal drops was edited: the apply refuses and
+  -- changes nothing; with the drift reverted the same file applies; a later change after the apply makes the exact rollback refuse.
+  alter policy public_upload on storage.objects with check (((bucket_id = 'gallery'::text) AND true));
+  \set ON_ERROR_STOP off
+  \i supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql
+  \set ON_ERROR_STOP on
+  select pg_temp.expect(exists (select 1 from pg_policy where polrelid = 'storage.objects'::regclass and polname = 'community_anon_upload')
+    and not exists (select 1 from pg_policy where polrelid = 'storage.objects'::regclass and polname = 'gallery_admin_upload_v1')
+    and (select file_size_limit from storage.buckets where id = 'gallery') is null, true, 'DRIFT: the apply refused and changed nothing');
+  alter policy public_upload on storage.objects with check ((bucket_id = 'gallery'::text));
+  \i supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql
+  select pg_temp.expect(exists (select 1 from pg_policy where polrelid = 'storage.objects'::regclass and polname = 'gallery_admin_upload_v1')
+    and (select file_size_limit from storage.buckets where id = 'gallery') = 125829120, true, 'DRIFT: with the drift reverted the same file applies');
+  alter policy gallery_flat_image_upload_v1 on storage.objects with check ((bucket_id = 'gallery'::text));
+  \set ON_ERROR_STOP off
+  \i supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql
+  \set ON_ERROR_STOP on
+  select pg_temp.expect(exists (select 1 from pg_policy where polrelid = 'storage.objects'::regclass and polname = 'gallery_admin_upload_v1')
+    and not exists (select 1 from pg_policy where polrelid = 'storage.objects'::regclass and polname = 'public_upload'), true, 'DRIFT: the rollback refused after a later change and changed nothing');
+  \echo DEF-004 drift: the apply and the rollback refuse on a drifted catalogue and change nothing
+  \q
+\endif
 \if :{?def004_negative}
   -- Negative mode: a gallery object above 120 MiB must stop the proposal before any change.
   insert into storage.objects (bucket_id, name, metadata) values ('gallery', 'sod1820/videos/oversized.mp4', '{"size":136314880,"mimetype":"video/mp4"}');

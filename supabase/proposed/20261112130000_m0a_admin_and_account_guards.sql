@@ -19,6 +19,28 @@
 -- patched at one exact anchor and re-created (CREATE OR REPLACE keeps owner and grants). Any drift stops the whole file.
 -- Re-running is a no-op (an already-patched body is recognised by its md5).
 -- Rollback: supabase/proposed/ROLLBACK_20261112130000_m0a_admin_and_account_guards.sql. Test: tests/sql/m0a_db_permissions_v1.sql.
+-- Revision 14.11.2026 (foundation package): the file runs as ONE transaction with lock and statement timeouts (it either applies completely or not at all) and, where the objects are policies or grants, with a catalogue fingerprint guard
+begin;
+set local lock_timeout = '5s';
+set local statement_timeout = '60s';
+
+-- Catalogue guard: wa_msg_count privileges and the gematria_wall policy (the three function bodies of this step are guarded by md5 below) must be exactly the live "before" state read on 14.11.2026 (fingerprint 0eb07c1da74babeaf438250b700054fc),
+-- or already the "after" state of this file (fingerprint 00a5e44d3412c197b2f76983523a4e01: a re-run is then a no-op). Anything else stops the file before any change.
+create or replace function pg_temp.m0a_fp_s4_tail() returns text language sql stable as $f$
+  select md5(string_agg(x, E'\n' order by x collate "C")) from (
+    select 'x|wa_msg_count|'||r||'|'||has_function_privilege(r, 'public.wa_msg_count(uuid)'::regprocedure, 'EXECUTE')::text as x from unnest(array['anon','authenticated','service_role']) r
+    union all select 'pub|wa_msg_count|'||exists (select 1 from aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a where a.grantee = 0 and a.privilege_type = 'EXECUTE')::text from pg_proc p where p.oid = 'public.wa_msg_count(uuid)'::regprocedure
+    union all select 'p|gematria_wall|'||policyname||'|'||cmd||'|'||permissive||'|'||(select string_agg(r, ',' order by r) from unnest(roles) r)||'|'||coalesce(qual,'-')||'|'||coalesce(with_check,'-') from pg_policies where schemaname='public' and tablename='gematria_wall'
+    union all select 'rls|gematria_wall|'||relrowsecurity::text||'|'||relforcerowsecurity::text from pg_class where oid='public.gematria_wall'::regclass
+  ) q
+$f$;
+do $$
+declare v text := pg_temp.m0a_fp_s4_tail();
+begin
+  if v not in ('0eb07c1da74babeaf438250b700054fc', '00a5e44d3412c197b2f76983523a4e01') then
+    raise exception 'M0-A step 4: the catalogue is not the reviewed one (fingerprint %, expected 0eb07c1da74babeaf438250b700054fc before or 00a5e44d3412c197b2f76983523a4e01 after); nothing changed', v;
+  end if;
+end $$;
 
 create or replace function pg_temp.m0a_patch(p_sig text, p_md5_before text, p_md5_after text, p_anchor text, p_replacement text)
 returns text language plpgsql as $f$
@@ -60,3 +82,14 @@ grant execute on function public.wa_msg_count(uuid) to service_role;
 drop policy if exists "wall public read" on public.gematria_wall;
 create policy "wall public read" on public.gematria_wall for select to public
   using (coalesce(private, false) = false or (select public.rd_is_admin()));
+
+-- Postcondition: the catalogue is exactly the "after" state proven on the isolated fixture.
+do $$
+declare v text := pg_temp.m0a_fp_s4_tail();
+begin
+  if v <> '00a5e44d3412c197b2f76983523a4e01' then
+    raise exception 'M0-A step 4: the catalogue after the change is not the reviewed one (fingerprint %, expected 00a5e44d3412c197b2f76983523a4e01)', v;
+  end if;
+end $$;
+
+commit;

@@ -2,7 +2,8 @@
 # Runs tests/sql/def004_gallery_storage_upload_policies_v1.sql on a throwaway local Postgres (never a live project; port 55441, unix socket only).
 # 1) main run: must print "DEF-004 SQL regression: PASS";
 # 2) negative mode: an existing gallery object above 120 MiB must stop the proposal at its precondition;
-# 3) negative control: without the proposal the "after" assertions must fail.
+# 3) negative control: without the proposal the "after" assertions must fail;
+# 4) drift mode: the catalogue fingerprint guard refuses an apply on a drifted catalogue and a rollback after a later change.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 BIN=$(ls -d /usr/lib/postgresql/*/bin | tail -1)
@@ -30,3 +31,8 @@ run "$BIN/createdb -h $D -p $PORT -U postgres def004_control"
 if OUT=$(psql_db def004_control "-v def004_skip_apply=1"); then echo "$OUT"; echo "negative control unexpectedly passed" >&2; exit 1; fi
 echo "$OUT" | grep -q "ASSERTION" || { echo "$OUT"; echo "negative control failed for another reason" >&2; exit 1; }
 echo "DEF-004 negative control: without the proposal the after assertions fail (expected failure observed)"
+
+run "$BIN/createdb -h $D -p $PORT -U postgres def004_drift"
+OUT=$(psql_db def004_drift "-v def004_drift=1") || { echo "$OUT"; echo "drift mode FAILED" >&2; exit 1; }
+echo "$OUT" | grep -q "DEF-004 drift:" || { echo "$OUT"; echo "drift mode did not reach its end" >&2; exit 1; }
+echo "$OUT" | grep -E "^DEF-004 drift"

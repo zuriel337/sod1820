@@ -303,6 +303,9 @@ do $$ declare t text; begin
 end $$;
 create policy "authenticated write" on public.insights for all to authenticated using (true) with check (true);
 create policy "public read" on public.insights for select to anon, authenticated using (true);
+-- live (read 14.11.2026): a RESTRICTIVE read policy the M0-A step leaves untouched; present so that the catalogue fingerprint of the fixture equals the live one
+create policy insights_private_space_read on public.insights as restrictive for select to anon, authenticated
+  using ((coalesce(space, 'core'::text) <> 'private'::text) or (select rd_is_admin()) or ((panel_data ->> 'privacy_owner_user_id'::text) = ((select auth.uid()))::text));
 create policy word_aliases_auth_write on public.word_aliases for all to authenticated using (true) with check (true);
 create policy word_aliases_public_read on public.word_aliases for select to public using (true);
 create policy admin_all on public.hint_sets for all to authenticated using (true) with check (true);
@@ -612,6 +615,77 @@ begin
 end $$;
 select public.m0a_assert((select bool_and(not active) from cron.job where jobname in ('wa-deep-process', 'wa-poll', 'wa-michael', 'wa-gabriel')), 'rollback: re-created jobs are inactive');
 select public.m0a_assert((select count(*) from cron.job where command like '%FAKEFAKE%') = 0, 'rollback: the old secret is not restored (by design)');
+
+-- ===== catalogue guards (foundation package, 14.11.2026): on a drifted catalogue the apply and the rollback REFUSE and change nothing =====
+-- The state here is the exact "before" state. Steps 4, 5 and 6 carry a fingerprint guard; each refusal below leaves the catalogue as it was,
+-- and with the drift reverted the same file applies, so the refusal was caused by the drift and by nothing else.
+\set ON_ERROR_STOP off
+-- step 5: a policy the step drops was edited
+alter policy chat_public_insert on public.chat_messages with check (true);
+\i supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert(has_table_privilege('anon', 'public.words', 'INSERT') and has_table_privilege('anon', 'public.lab_notes', 'DELETE')
+  and exists (select 1 from pg_policies where tablename = 'lab_notes' and policyname = 'lab_notes_read'), 'guard step 5: an edited policy makes the apply refuse; grants and policies unchanged');
+alter policy chat_public_insert on public.chat_messages with check (((length(content) >= 1) AND (length(content) <= 1000) AND ((length(author) >= 1) AND (length(author) <= 60))));
+-- step 6: an extra policy appeared on one of the seven tables
+create policy drift_extra on public.page_content for select to anon using (true);
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert((select qual from pg_policies where tablename = 'page_content' and policyname = 'auth_write') = '(auth.role() = ''authenticated''::text)',
+  'guard step 6: an extra policy makes the apply refuse; the dormant policy is unchanged');
+drop policy drift_extra on public.page_content;
+-- step 4: the gematria_wall policy was edited
+alter policy "wall public read" on public.gematria_wall using (true and true);
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112130000_m0a_admin_and_account_guards.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert(md5(pg_get_functiondef('public.admin_ai_cost(integer)'::regprocedure)) = '0487c48ca5e930f132c3b30cceb69ca9'
+  and has_function_privilege('anon', 'public.wa_msg_count(uuid)', 'EXECUTE'), 'guard step 4: an edited wall policy makes the apply refuse before any function is patched');
+alter policy "wall public read" on public.gematria_wall using (true);
+-- with every drift reverted the three files apply
+\i supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql
+\i supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql
+\i supabase/proposed/20261112130000_m0a_admin_and_account_guards.sql
+select public.m0a_assert(not has_table_privilege('anon', 'public.words', 'INSERT') and not has_function_privilege('anon', 'public.wa_msg_count(uuid)', 'EXECUTE')
+  and (select qual from pg_policies where tablename = 'page_content' and policyname = 'auth_write') like '%rd_is_admin%', 'guard: with the drift reverted the same files apply');
+-- a later change after the apply: the rollbacks refuse (and change nothing)
+grant select on public.lab_notes to anon;
+\set ON_ERROR_STOP off
+\i supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert(exists (select 1 from pg_policies where tablename = 'lab_notes' and policyname = 'lab_notes_admin_read') and not has_table_privilege('anon', 'public.words', 'INSERT'),
+  'guard step 5 rollback: a later grant makes the rollback refuse; the applied state stays');
+revoke select on public.lab_notes from anon;
+alter policy admin_all on public.trails using (true) with check (true);
+\set ON_ERROR_STOP off
+\i supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert((select qual from pg_policies where tablename = 'page_content' and policyname = 'auth_write') like '%rd_is_admin%',
+  'guard step 6 rollback: a later policy edit makes the rollback refuse; the applied state stays');
+alter policy admin_all on public.trails using ((select public.rd_is_admin())) with check ((select public.rd_is_admin()));
+create temp table wall_saved as select pg_get_expr(polqual, polrelid) as q from pg_policy where polrelid = 'public.gematria_wall'::regclass and polname = 'wall public read';
+alter policy "wall public read" on public.gematria_wall using (true and true);
+\set ON_ERROR_STOP off
+\i supabase/proposed/ROLLBACK_20261112130000_m0a_admin_and_account_guards.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert(md5(pg_get_functiondef('public.admin_ai_cost(integer)'::regprocedure)) = 'd33b0bfbaf9d1f39177333bef3024b9f',
+  'guard step 4 rollback: a later wall-policy edit makes the rollback refuse; the patched function stays');
+do $$ declare v text; begin select w.q into v from wall_saved w; execute format('alter policy "wall public read" on public.gematria_wall using (%s)', v); end $$;
+-- the unchanged applied state rolls back exactly (reverse order), and the catalogue equals the starting snapshot
+\i supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql
+\i supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql
+\i supabase/proposed/ROLLBACK_20261112130000_m0a_admin_and_account_guards.sql
+select public.m0a_snapshot('guards_end');
+do $$
+declare diff text;
+begin
+  select string_agg(coalesce(b.k, a.k) || ' before=' || coalesce(b.v, '∅') || ' after=' || coalesce(a.v, '∅'), E'\n') into diff
+  from (select * from public.m0a_snap where tag = 'before') b
+  full join (select * from public.m0a_snap where tag = 'guards_end') a on a.k = b.k
+  where b.v is distinct from a.v;
+  if diff is not null then raise exception E'M0-A TEST FAILED: after the guard cases the rollbacks are not exact:\n%', diff; end if;
+end $$;
 
 \o
 \echo 'M0-A permissions regression: ALL PASS'

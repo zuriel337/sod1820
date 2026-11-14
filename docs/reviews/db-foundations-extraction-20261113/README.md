@@ -1,7 +1,8 @@
 # Package P1 · DB foundations (extraction of PR #1321 onto current main)
 
-> **Status: prepared for review and release. Nothing was applied, merged or deployed.** The only live access in this work was read-only
-> (catalogue reads and the public read smoke, 13.11.2026). Every SQL step below needs ZURIEL's explicit approval for the exact commit
+> **Status 14.11.2026: steps 1 and 9 (DEF-001b) are APPLIED LIVE (14.11.2026 16:41 UTC, by the release path, from the guarded packet of PR #1339); do not apply them again.
+> The remaining steps 2, 4, 5, 6, 7, 8 and 10 are prepared for review and are NOT applied.** The only live access in this work was read-only (catalogue reads,
+> 13.11 and 14.11.2026; see [`live-state-20261114.md`](live-state-20261114.md)). Every SQL step needs ZURIEL's explicit approval for the exact commit and file
 > (CLAUDE.md §0.4); merging code is not applying SQL.
 
 | | |
@@ -10,6 +11,14 @@
 | Base | `origin/main` [`9be0c29fc`](https://github.com/zuriel337/sod1820/commit/9be0c29fc52337069192b057ef1a9882c7026009) |
 | Branch | `claude/extract-db-foundations-20261113`. Commits: `a01dc339b` (DEF-005), `442169496` (steps 4–8, 10, tests, runners), then the CI wiring and this documentation. HEAD = the head of the draft PR. |
 | Machine-readable plan | [`apply-plan.json`](apply-plan.json) (file, rollback, SHA-256, dependencies, verification row, live state, per step) |
+
+## 0. Update 14.11.2026 (foundation package; read this first)
+
+* **State.** Steps 1 and 9 are in force (Codex packet, PR #1339 head `50b72a7e3fef98b2c86a57f325d486bc9b8eea27`). The plan, the verifier and the tests below treat them as applied; their source files stay in the plan for provenance and for the rollback order only. **Remaining: 2, 4, 5, 6, 7, 8, 10.** Live preconditions of every remaining step were read again: [`live-state-20261114.md`](live-state-20261114.md) (the phase-aware verifier answered 56 of 56 as expected).
+* **Verifier fixed (Codex finding 1).** `tests/live/m0_post_apply_verification.sql` no longer requires every row true after every step: each row belongs to one step and is `change` or `preserve`; one line (`applied`) lists the steps applied so far; the answer ends with one VERDICT row. It also compares the catalogue fingerprints below.
+* **The remaining multi-statement steps are one transaction with a catalogue guard.** Steps 4, 5, 6 and 8 (apply and rollback) start `begin; set local lock_timeout = '5s'; set local statement_timeout = '60s';`, end with `commit;`, accept only the live "before" fingerprint read on 14.11.2026 (or, idempotently, their own result) and end with a postcondition on the exact "after" fingerprint; each rollback accepts only the state its apply produced and ends with a postcondition on the exact "before" fingerprint, so an inexact rollback fails instead of passing (Codex finding 2 was exactly that class: the plain rollback of DEF-001b step 9 dropped the anonymous `MAINTAIN` privilege). Steps 2, 7 and 10 are single atomic statements with their own guards and are unchanged.
+* **Tests extended** (all green, see §5): drift cases for the three new guards and for DEF-004 (`def004_drift`), the rollback exactness after the drift cases; the fixture of step 6 now carries the live RESTRICTIVE policy `insights_private_space_read` so that its fingerprint equals the live one.
+* **Not changed:** D-1 (120 MiB) stays open and step 8 stays one file; DEF-005 files (CR-X1) are byte-identical to the reviewed ones.
 
 ## 1. Scope — nine steps, the numbering of the #1321 plan is kept
 
@@ -46,8 +55,8 @@ evidence documents (`docs/reviews/m0-security-stabilization-20261112/cluster-A-d
 
 ## 3. Dependencies, apply order, rollback
 
-* Order: **1, 2, 4, 5, 6, 7, 8, 9, 10** — each step is its own approval and its own tick; run `tests/live/m0_post_apply_verification.sql` after each and require every row `ok = true`.
-* Dependencies: only **step 9 needs step 1** (and the frontend that calls `push_subscription_*_v1`, live since `949c24ad5`). Applying 9 before 1 breaks anonymous Web Push subscribe. Every other step is independent.
+* Order of the remaining steps: **2, 4, 5, 6, 7, 8, 10** (1 and 9 are applied) — each step is its own approval and its own tick; after each run `tests/live/m0_post_apply_verification.sql` with the step added to its `applied` line and require the VERDICT row true.
+* Dependencies: none between the remaining steps (the only dependency, step 9 on step 1, is satisfied). Every remaining step is independent of the others and of every other package.
 * Site/Edge: nothing in this package needs a site deploy or an Edge deploy; the live Edge functions use the service role for everything step 2 closes to clients, and cron and `postgres`-owned callers are unaffected (reviewed 12.11, re-read by Codex 13.11; see the header of the DEF-005 file).
 * Packages: independent of P2 (CL-16 is a separate DB step in P2), P3 (M0-D) and P4. The result of the trial integration of all four branches is recorded in the journal handover, not here.
 * **Rollback order:** 10, 9, 8, 7, 6, 5, 4, 2, 1. The step-9 rollback is the first block of `ROLLBACK_20261106121000_def001b.sql` (the file also undoes step 1; run only the first block to undo step 9 alone). Rollback restores permissions and policies, never rows or objects (no step deletes any).
@@ -68,18 +77,21 @@ evidence documents (`docs/reviews/m0-security-stabilization-20261112/cluster-A-d
 | `bash scripts/run-def004-gallery-sql-test.sh` (27 route cases before, 108 after for image / video / file × every route × every actor, 27 after rollback; negative mode: an object above 120 MiB stops the proposal; negative control) | PASS (PG17) |
 | `tests/sql/def001_…`, `def001b_…` (steps 1 and 9, already in CI) | PASS on PG16 and PG17 |
 | `node --test test/ci-workflow-references-exist.test.mjs` | 8 / 8 |
+| **14.11.2026** `bash scripts/run-m0a-db-permissions-sql-test.sh` with the guards: apply, re-run, drift refusals for steps 4, 5 and 6 (an edited policy, an extra policy, an edited wall policy: each refuses before any change and the same file applies once the drift is reverted), the three rollbacks refuse after a later change, exact rollback of the unchanged applied state | ALL PASS on PG16 and PG17 |
+| **14.11.2026** `bash scripts/run-def004-gallery-sql-test.sh` with `def004_drift` (an edited `public_upload` makes the apply refuse; the reverted catalogue applies; a later edit makes the rollback refuse) | PASS (PG17), plus the three earlier modes |
+| **14.11.2026** `tests/sql/def005_public_rpc_guards_v1.sql` (unchanged files) | PASS on PG16 and PG17 |
 
 **Found by CI on the first push, fixed:** the M0-A and DEF-004 runners start a throwaway cluster as the CI user; the new DEF-005 baseline check (owner must be `postgres`, as on Supabase) failed because the cluster superuser was named after the OS user. Both runners now create the cluster with superuser `postgres` (`initdb -U postgres`). Re-verified as a non-root user (the CI condition): M0-A ALL PASS, DEF-004 PASS with negative mode and control; the old runner reproduces the CI failure under the same conditions.
 
 CI wiring (applied in this branch, `live-contracts-2029.yml`): one node step "DB foundations contracts" in `release-contracts-2029`, two steps in `security-sql-contracts` (M0-A regression, DEF-004 negative modes). No threshold or existing test was changed or removed.
 
-## 6. Live state read on 13.11.2026 (read-only; nothing written)
+## 6. Live state read on 13.11.2026 (read-only; nothing written) — superseded by [`live-state-20261114.md`](live-state-20261114.md) (14.11.2026)
 
 * Public read smoke (`node scripts/m0-public-readonly-smoke.mjs`): **ALL OK** (11/11) — the baseline to compare after every step.
 * Step 2: all 12 signatures exist, `SECURITY DEFINER`, owner `postgres`, every client role can execute, **no** same-name overload — the apply would pass its own checks.
 * Steps 4 and 7: the live bodies of `admin_resolve_translit`, `admin_ai_cost`, `link_visitor_identity`, `add_contribution` equal the reviewed "before" md5 — the apply would patch them (and stops on any drift).
 * Steps 5, 6, 10, 8: all seven Legacy tables still carry client write grants; all seven dormant policies are not yet admin-only; the four reviewed cron jobs (6, 7, 22, 24) are inactive and carry a query secret and no other job does; the gallery still has `community_anon_upload` and `public_upload`, the bucket has no size limit and no MIME list, the largest object is 114,883,491 bytes (below 120 MiB).
-* Steps 1 and 9 are in main **but not applied in the database** (`push_subscription_upsert_v1` does not exist; anon still has table access to `push_subscriptions`). In the #1321 sequence they belong to the same approval.
+* Steps 1 and 9: **applied on 14.11.2026 16:41 UTC** (this line described the 13.11 state: not applied).
 
 ## 7. Open decisions (plain language)
 

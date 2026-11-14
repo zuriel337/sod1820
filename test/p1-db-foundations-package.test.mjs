@@ -23,6 +23,51 @@ test("the apply plan lists exactly the steps 1, 2, 4, 5, 6, 7, 8, 9, 10 and ever
   }
 });
 
+test("14.11.2026: steps 1 and 9 are recorded as applied live and are not in the remaining list; their source files are the ones that were applied", () => {
+  assert.deepEqual(plan.live_state.applied, ["1", "9"]);
+  assert.deepEqual(plan.live_state.remaining, ["2", "4", "5", "6", "7", "8", "10"]);
+  assert.deepEqual(plan.steps.filter((s) => s.state === "not_applied").map((s) => s.step), plan.live_state.remaining);
+  for (const k of ["1", "9"]) {
+    const s = plan.steps.find((x) => x.step === k);
+    assert.equal(s.state, "applied_live_do_not_reapply");
+    assert.match(s.applied.packet, /PR #1339 head 50b72a7e3fef98b2c86a57f325d486bc9b8eea27/);
+    assert.equal(s.applied.source_file_unchanged, true);
+  }
+  assert.match(plan.live_state.do_not_reapply, /steps 1 and 9 are in force/);
+  assert.match(read("docs/reviews/db-foundations-extraction-20261113/README.md"), /steps 1 and 9 \(DEF-001b\) are APPLIED LIVE/);
+});
+
+test("steps 4, 5, 6 and 8 run as one transaction behind a catalogue fingerprint guard whose values are the ones in the plan, the verifier and the pre-apply query", () => {
+  const pre = read("tests/live/m0_pre_apply_fingerprints.sql");
+  const ver = read("tests/live/m0_post_apply_verification.sql");
+  for (const k of ["4", "5", "6", "8"]) {
+    const s = plan.steps.find((x) => x.step === k);
+    const before = s.guard.fingerprint_before_live_14_11, after = s.guard.fingerprint_after_fixture;
+    assert.match(before, /^[0-9a-f]{32}$/); assert.match(after, /^[0-9a-f]{32}$/);
+    for (const f of [s.file, s.rollback]) {
+      const sql = read(f);
+      assert.match(sql, /^begin;$/m, `${f} starts a transaction`);
+      assert.match(sql, /^set local lock_timeout = '5s';$/m, `${f} sets a lock timeout`);
+      assert.match(sql, /^set local statement_timeout = '60s';$/m, `${f} sets a statement timeout`);
+      assert.match(sql, /^commit;$/m, `${f} ends with commit`);
+      assert.ok(sql.includes(before) && sql.includes(after), `${f} carries both fingerprints`);
+      assert.ok(sql.indexOf("begin;") < sql.search(/raise exception/), `${f}: the transaction opens before the first check`);
+    }
+    const apply = read(s.file), rollback = read(s.rollback);
+    assert.match(apply, /nothing changed/); assert.match(apply, /Postcondition: the catalogue is exactly the "after" state/);
+    assert.match(rollback, /already the state before the apply; nothing to roll back/); assert.match(rollback, /Postcondition: the exact state before the apply/);
+    assert.ok(pre.includes(before) && pre.includes(after), `step ${k}: the pre-apply query holds the same fingerprints`);
+    assert.ok(ver.includes(before) && ver.includes(after), `step ${k}: the verifier holds the same fingerprints`);
+  }
+});
+
+test("steps 2, 7 and 10 stay single atomic statements: no top-level transaction (the DEF-005 test executes the file text), files unchanged since their reviews", () => {
+  for (const k of ["2", "7", "10"]) {
+    const s = plan.steps.find((x) => x.step === k);
+    for (const f of [s.file, s.rollback]) assert.doesNotMatch(read(f), /^(begin|commit);$/m, `${f} has no top-level transaction control`);
+  }
+});
+
 test("steps 3, 11 and 12 are not part of this package: the files of steps 3 and 12 are on no branch of the extraction", () => {
   assert.deepEqual(plan.not_in_this_package.map((s) => s.step), ["3", "11", "12"]);
   // Step 11 (M0-D) is package P3: its files are legitimately present once P3 is merged, so only steps 3 and 12 are pinned absent here.
@@ -57,6 +102,14 @@ test("the 120 MiB upload ceiling stays marked as an unconfirmed product decision
   const sql = read(step8.file);
   assert.match(sql, /PRODUCT DECISION NOT CONFIRMED FOR THIS EXTRACTION/);
   assert.match(sql, /update storage\.buckets set file_size_limit = 125829120 where id = 'gallery';/);
+});
+
+test("the live verification query is phase-aware: one `applied` line, change/preserve rows, fingerprints and a VERDICT row", () => {
+  const v = read("tests/live/m0_post_apply_verification.sql");
+  assert.match(v, /with applied\(step\) as \(values \('1'\), \('9'\)\)/, "the committed default lists exactly the two applied steps");
+  assert.match(v, /'VERDICT' as step/); assert.match(v, /'change'/); assert.match(v, /'preserve'/);
+  assert.match(v, /as_expected/);
+  assert.match(v, /FP step 8/);
 });
 
 test("the live verification query covers this package only and checks signatures, not names", () => {

@@ -53,6 +53,28 @@
 --   supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql
 
 -- 0. Preconditions (read-only; fail closed if production drifted from what the owner decision was based on).
+-- Revision 14.11.2026 (foundation package): the file runs as ONE transaction with lock and statement timeouts (it either applies completely or not at all) and, where the objects are policies or grants, with a catalogue fingerprint guard
+begin;
+set local lock_timeout = '5s';
+set local statement_timeout = '60s';
+
+-- Catalogue guard: every policy on storage.objects and the settings of the bucket gallery must be exactly the live "before" state read on 14.11.2026 (fingerprint fc57c5ec4289358741cd622b02d39556),
+-- or already the "after" state of this file (fingerprint 9fbf59431d86a0c4453d1e31302b0c66: a re-run is then a no-op). Anything else stops the file before any change.
+create or replace function pg_temp.def004_fp_s8() returns text language sql stable as $f$
+  select md5(string_agg(x, E'\n' order by x collate "C")) from (
+    select 'p|'||policyname||'|'||cmd||'|'||permissive||'|'||(select string_agg(r, ',' order by r) from unnest(roles) r)||'|'||coalesce(qual,'-')||'|'||coalesce(with_check,'-') as x from pg_policies where schemaname='storage' and tablename='objects'
+    union all select 'b|'||id||'|'||public::text||'|'||coalesce(file_size_limit::text,'-')||'|'||coalesce(allowed_mime_types::text,'-') from storage.buckets where id='gallery'
+    union all select 'rls|objects|'||relrowsecurity::text from pg_class where oid='storage.objects'::regclass
+  ) q
+$f$;
+do $$
+declare v text := pg_temp.def004_fp_s8();
+begin
+  if v not in ('fc57c5ec4289358741cd622b02d39556', '9fbf59431d86a0c4453d1e31302b0c66') then
+    raise exception 'DEF-004: the catalogue is not the reviewed one (fingerprint %, expected fc57c5ec4289358741cd622b02d39556 before or 9fbf59431d86a0c4453d1e31302b0c66 after); nothing changed', v;
+  end if;
+end $$;
+
 do $$
 declare v_bucket storage.buckets%rowtype;
 begin
@@ -124,3 +146,14 @@ begin
     raise exception 'DEF-004: an UPDATE/DELETE/ALL policy exists for gallery; existing files must stay unchangeable by clients';
   end if;
 end $$;
+
+-- Postcondition: the catalogue is exactly the "after" state proven on the isolated fixture.
+do $$
+declare v text := pg_temp.def004_fp_s8();
+begin
+  if v <> '9fbf59431d86a0c4453d1e31302b0c66' then
+    raise exception 'DEF-004: the catalogue after the change is not the reviewed one (fingerprint %, expected 9fbf59431d86a0c4453d1e31302b0c66)', v;
+  end if;
+end $$;
+
+commit;
