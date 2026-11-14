@@ -19,26 +19,35 @@
 -- patched at one exact anchor and re-created (CREATE OR REPLACE keeps owner and grants). Any drift stops the whole file.
 -- Re-running is a no-op (an already-patched body is recognised by its md5).
 -- Rollback: supabase/proposed/ROLLBACK_20261112130000_m0a_admin_and_account_guards.sql. Test: tests/sql/m0a_db_permissions_v1.sql.
--- Revision 14.11.2026 (foundation package): the file runs as ONE transaction with lock and statement timeouts (it either applies completely or not at all) and, where the objects are policies or grants, with a catalogue fingerprint guard
+-- Revision 14.11.2026 (foundation package, after an independent review): the file runs as ONE transaction with a lock timeout, a statement timeout and its OWN search_path
+-- (the text of policy expressions that the guard compares depends on it); it takes SHARE UPDATE EXCLUSIVE on the tables it changes BEFORE it reads the catalogue, so a
+-- policy change made by another session (CREATE / ALTER / DROP POLICY take ACCESS EXCLUSIVE, which conflicts with it) is either finished and seen by the guard or still
+-- running (the file then fails on the lock timeout and changes nothing); and it carries a catalogue fingerprint guard. Locks: the policy DDL of this file waits for
+-- running reads for at most the lock timeout (2s) and new reads queue behind it meanwhile; on a timeout nothing changes and the file is sent again later.
 begin;
-set local lock_timeout = '5s';
+set local lock_timeout = '2s';
 set local statement_timeout = '60s';
+set local search_path = public, pg_catalog;
+lock table public.gematria_wall in share update exclusive mode;
 
--- Catalogue guard: wa_msg_count privileges and the gematria_wall policy (the three function bodies of this step are guarded by md5 below) must be exactly the live "before" state read on 14.11.2026 (fingerprint 0eb07c1da74babeaf438250b700054fc),
--- or already the "after" state of this file (fingerprint 00a5e44d3412c197b2f76983523a4e01: a re-run is then a no-op). Anything else stops the file before any change.
+-- Catalogue guard: wa_msg_count privileges (effective list and the PUBLIC entry), the gematria_wall policy, its column grants and comments (the three function bodies of this step are guarded by md5 below) must be exactly the live "before" state read on 14.11.2026 (fingerprint a824022fbfbc6aeedf0d351be430e485),
+-- or already the "after" state of this file (fingerprint 192223d65171d46c109ce53b16efce93: a re-run is then a no-op). Anything else stops the file before any change.
 create or replace function pg_temp.m0a_fp_s4_tail() returns text language sql stable as $f$
   select md5(string_agg(x, E'\n' order by x collate "C")) from (
     select 'x|wa_msg_count|'||r||'|'||has_function_privilege(r, 'public.wa_msg_count(uuid)'::regprocedure, 'EXECUTE')::text as x from unnest(array['anon','authenticated','service_role']) r
     union all select 'pub|wa_msg_count|'||exists (select 1 from aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a where a.grantee = 0 and a.privilege_type = 'EXECUTE')::text from pg_proc p where p.oid = 'public.wa_msg_count(uuid)'::regprocedure
-    union all select 'p|gematria_wall|'||policyname||'|'||cmd||'|'||permissive||'|'||(select string_agg(r, ',' order by r) from unnest(roles) r)||'|'||coalesce(qual,'-')||'|'||coalesce(with_check,'-') from pg_policies where schemaname='public' and tablename='gematria_wall'
+    union all select 'acl|wa_msg_count|'||coalesce((select string_agg(case when a.grantee = 0 then 'PUBLIC' else a.grantee::regrole::text end||':'||a.privilege_type||':'||a.is_grantable::text, ',' order by (case when a.grantee = 0 then 'PUBLIC' else a.grantee::regrole::text end) collate "C") from aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a), '-') from pg_proc p where p.oid = 'public.wa_msg_count(uuid)'::regprocedure
+    union all select 'p|'||tablename||'|'||policyname||'|'||cmd||'|'||permissive||'|'||(select string_agg(r, ',' order by r collate "C") from unnest(roles) r)||'|'||coalesce(qual,'-')||'|'||coalesce(with_check,'-') from pg_policies where schemaname='public' and tablename in ('gematria_wall')
     union all select 'rls|gematria_wall|'||relrowsecurity::text||'|'||relforcerowsecurity::text from pg_class where oid='public.gematria_wall'::regclass
+    union all select 'cacl|'||c.relname||'.'||a.attname||'|'||a.attacl::text from pg_attribute a join pg_class c on c.oid = a.attrelid where a.attacl is not null and not a.attisdropped and c.oid = any(array['public.gematria_wall'::regclass])
+    union all select 'cm|'||c.relname||'|'||p.polname||'|'||obj_description(p.oid, 'pg_policy') from pg_policy p join pg_class c on c.oid = p.polrelid where obj_description(p.oid, 'pg_policy') is not null and c.oid = any(array['public.gematria_wall'::regclass])
   ) q
 $f$;
 do $$
 declare v text := pg_temp.m0a_fp_s4_tail();
 begin
-  if v not in ('0eb07c1da74babeaf438250b700054fc', '00a5e44d3412c197b2f76983523a4e01') then
-    raise exception 'M0-A step 4: the catalogue is not the reviewed one (fingerprint %, expected 0eb07c1da74babeaf438250b700054fc before or 00a5e44d3412c197b2f76983523a4e01 after); nothing changed', v;
+  if v not in ('a824022fbfbc6aeedf0d351be430e485', '192223d65171d46c109ce53b16efce93') then
+    raise exception 'M0-A step 4: the catalogue is not the reviewed one (fingerprint %, expected a824022fbfbc6aeedf0d351be430e485 before or 192223d65171d46c109ce53b16efce93 after); nothing changed', v;
   end if;
 end $$;
 
@@ -87,8 +96,8 @@ create policy "wall public read" on public.gematria_wall for select to public
 do $$
 declare v text := pg_temp.m0a_fp_s4_tail();
 begin
-  if v <> '00a5e44d3412c197b2f76983523a4e01' then
-    raise exception 'M0-A step 4: the catalogue after the change is not the reviewed one (fingerprint %, expected 00a5e44d3412c197b2f76983523a4e01)', v;
+  if v <> '192223d65171d46c109ce53b16efce93' then
+    raise exception 'M0-A step 4: the catalogue after the change is not the reviewed one (fingerprint %, expected 192223d65171d46c109ce53b16efce93)', v;
   end if;
 end $$;
 

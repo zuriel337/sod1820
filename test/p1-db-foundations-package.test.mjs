@@ -37,28 +37,72 @@ test("14.11.2026: steps 1 and 9 are recorded as applied live and are not in the 
   assert.match(read("docs/reviews/db-foundations-extraction-20261113/README.md"), /steps 1 and 9 \(DEF-001b\) are APPLIED LIVE/);
 });
 
-test("steps 4, 5, 6 and 8 run as one transaction behind a catalogue fingerprint guard whose values are the ones in the plan, the verifier and the pre-apply query", () => {
+// The text the fingerprint function of an apply / rollback file carries (between `as $f$` and `$f$;`).
+const fingerprintBody = (sql, f) => {
+  const m = sql.match(/language sql stable as \$f\$\n  ([\s\S]*?)\n\$f\$;/);
+  assert.ok(m, `${f}: fingerprint function found`);
+  return m[1];
+};
+
+test("steps 4, 5, 6 and 8 run as one transaction: own timeouts and search_path, the table locks come BEFORE the catalogue guard reads anything, and the fingerprints are the ones in the plan, the verifier and the pre-apply query", () => {
   const pre = read("tests/live/m0_pre_apply_fingerprints.sql");
   const ver = read("tests/live/m0_post_apply_verification.sql");
   for (const k of ["4", "5", "6", "8"]) {
     const s = plan.steps.find((x) => x.step === k);
-    const before = s.guard.fingerprint_before_live_14_11, after = s.guard.fingerprint_after_fixture;
-    assert.match(before, /^[0-9a-f]{32}$/); assert.match(after, /^[0-9a-f]{32}$/);
+    const g = s.guard;
+    const before = g.fingerprint_before_live_14_11, after = g.fingerprint_after_fixture;
+    assert.match(before, /^[0-9a-f]{32}$/); assert.match(after, /^[0-9a-f]{32}$/); assert.notEqual(before, after);
+    assert.match(g.lock_timeout, /^[12]s$/, "a hot table is never held for more than 2 s (the first-generation files used 5 s)");
+    assert.equal(g.statement_timeout, "60s"); assert.equal(g.search_path, "public, pg_catalog");
+    assert.ok(g.lock_tables.length >= 1);
+    const bodies = [];
     for (const f of [s.file, s.rollback]) {
       const sql = read(f);
-      assert.match(sql, /^begin;$/m, `${f} starts a transaction`);
-      assert.match(sql, /^set local lock_timeout = '5s';$/m, `${f} sets a lock timeout`);
-      assert.match(sql, /^set local statement_timeout = '60s';$/m, `${f} sets a statement timeout`);
+      assert.ok(sql.includes(`\nset local lock_timeout = '${g.lock_timeout}';\n`), `${f} sets the lock timeout of the plan (${g.lock_timeout})`);
+      assert.doesNotMatch(sql, /lock_timeout = '5s'/, `${f}: no 5 s lock timeout`);
+      assert.ok(sql.includes(`\nlock table ${g.lock_tables.join(", ")} in share update exclusive mode;\n`), `${f} locks exactly the tables of the plan`);
       assert.match(sql, /^commit;$/m, `${f} ends with commit`);
       assert.ok(sql.includes(before) && sql.includes(after), `${f} carries both fingerprints`);
-      assert.ok(sql.indexOf("begin;") < sql.search(/raise exception/), `${f}: the transaction opens before the first check`);
+      // order: transaction, timeouts, search_path, LOCK, fingerprint function, first refusal, commit. The lock must precede every catalogue read.
+      let prev = -1;
+      for (const re of [/^begin;$/m, /^set local lock_timeout = /m, /^set local statement_timeout = '60s';$/m, /^set local search_path = public, pg_catalog;$/m,
+        /^lock table /m, /create or replace function pg_temp\./, /raise exception/, /^commit;$/m]) {
+        const i = sql.search(re);
+        assert.ok(i > prev, `${f}: ${re} missing or out of order (begin, timeouts, search_path, lock table, fingerprint function, checks, commit)`);
+        prev = i;
+      }
+      bodies.push(fingerprintBody(sql, f));
     }
+    assert.equal(bodies[0], bodies[1], `step ${k}: apply and rollback compute the fingerprint from the same text`);
+    // what the fingerprint covers (independent review D2/D6/D9/D10): column grants and policy comments for all four, client grants for step 6, the PUBLIC entry and ACL of wa_msg_count for step 4
+    assert.match(bodies[0], /order by x collate "C"/, `step ${k}: the order of the rendering does not depend on the server collation`);
+    assert.match(bodies[0], /'cacl\|'/); assert.match(bodies[0], /'cm\|'/);
+    if (k === "4") { assert.match(bodies[0], /'pub\|wa_msg_count\|'/); assert.match(bodies[0], /'acl\|wa_msg_count\|'/); }
+    if (k === "6") assert.match(bodies[0], /'g\|'\|\|c\.relname/, "step 6: the premise that clients hold SELECT only is part of the fingerprint");
     const apply = read(s.file), rollback = read(s.rollback);
     assert.match(apply, /nothing changed/); assert.match(apply, /Postcondition: the catalogue is exactly the "after" state/);
     assert.match(rollback, /already the state before the apply; nothing to roll back/); assert.match(rollback, /Postcondition: the exact state before the apply/);
-    assert.ok(pre.includes(before) && pre.includes(after), `step ${k}: the pre-apply query holds the same fingerprints`);
-    assert.ok(ver.includes(before) && ver.includes(after), `step ${k}: the verifier holds the same fingerprints`);
+    for (const [name, text] of [["pre-apply query", pre], ["verifier", ver]]) {
+      assert.ok(text.includes(before) && text.includes(after), `step ${k}: the ${name} holds the same fingerprints`);
+      assert.ok(text.includes(bodies[0]), `step ${k}: the ${name} computes the fingerprint from the same text as the apply file`);
+    }
   }
+});
+
+test("step 5 can be re-run (the guard accepts its own result, so the file must be idempotent): the admin read policies are dropped before they are created", () => {
+  const sql = read(plan.steps.find((x) => x.step === "5").file);
+  for (const [name, table] of [["lab_notes_admin_read", "lab_notes"], ["lab_messages_admin_read", "lab_messages"]]) {
+    const drop = sql.indexOf(`drop policy if exists ${name} on public.${table};`), create = sql.indexOf(`create policy ${name} on public.${table}`);
+    assert.ok(drop > 0 && create > drop, `${name}: drop policy if exists before create policy`);
+  }
+});
+
+test("the M0-A runner carries the concurrency cases K1 (apply), K2 (rollback) and K3 (a reader longer than the lock timeout) next to the drift cases", () => {
+  const runner = read("scripts/run-m0a-db-permissions-sql-test.sh");
+  for (const c of ["K1", "K2", "K3"]) assert.match(runner, new RegExp(`PASS ${c} `), `${c} is part of the runner`);
+  assert.match(runner, /lock timeout/i);
+  const sqlTest = read("tests/sql/m0a_db_permissions_v1.sql");
+  assert.match(sqlTest, /re-run/i, "the SQL test re-runs steps 5 and 6 on their own result");
 });
 
 test("steps 2, 7 and 10 stay single atomic statements: no top-level transaction (the DEF-005 test executes the file text), files unchanged since their reviews", () => {

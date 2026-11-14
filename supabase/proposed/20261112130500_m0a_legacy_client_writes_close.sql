@@ -14,19 +14,26 @@
 --   lab_messages            anon/auth INSERT/UPDATE/DELETE grants, public SELECT    all client writes closed; SELECT admin only
 -- The admin-checked UPDATE/DELETE policies on lab_* are kept as they are (admin-only, inert without a client grant).
 -- Rollback: supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql. Test: tests/sql/m0a_db_permissions_v1.sql.
--- Revision 14.11.2026 (foundation package): the file runs as ONE transaction with lock and statement timeouts (it either applies completely or not at all) and, where the objects are policies or grants, with a catalogue fingerprint guard
+-- Revision 14.11.2026 (foundation package, after an independent review): the file runs as ONE transaction with a lock timeout, a statement timeout and its OWN search_path
+-- (the text of policy expressions that the guard compares depends on it); it takes SHARE UPDATE EXCLUSIVE on the tables it changes BEFORE it reads the catalogue, so a
+-- policy change made by another session (CREATE / ALTER / DROP POLICY take ACCESS EXCLUSIVE, which conflicts with it) is either finished and seen by the guard or still
+-- running (the file then fails on the lock timeout and changes nothing); and it carries a catalogue fingerprint guard. Locks: the policy DDL of this file waits for
+-- running reads for at most the lock timeout (2s) and new reads queue behind it meanwhile; on a timeout nothing changes and the file is sent again later.
 begin;
-set local lock_timeout = '5s';
+set local lock_timeout = '2s';
 set local statement_timeout = '60s';
+set local search_path = public, pg_catalog;
+lock table public.words, public.syncs, public.chat_messages, public.chiddush_submissions, public.metatron_beta_feedback, public.lab_notes, public.lab_messages in share update exclusive mode;
 
--- Catalogue guard: client grants, row level security and every policy of the seven Legacy tables must be exactly the live "before" state read on 14.11.2026 (fingerprint 3200137f4b3fe33aa59f0d8436e27dee),
+-- Catalogue guard: client grants, column grants, row level security, every policy and every policy comment of the seven Legacy tables must be exactly the live "before" state read on 14.11.2026 (fingerprint 3200137f4b3fe33aa59f0d8436e27dee),
 -- or already the "after" state of this file (fingerprint 4990e840290b609119a46c31041ed18e: a re-run is then a no-op). Anything else stops the file before any change.
 create or replace function pg_temp.m0a_fp_s5() returns text language sql stable as $f$
   select md5(string_agg(x, E'\n' order by x collate "C")) from (
-    select 'g|'||c.relname||'|'||r.rolname||'|'||p.priv as x from pg_class c cross join (values ('anon'),('authenticated')) r(rolname) cross join (values ('SELECT'),('INSERT'),('UPDATE'),('DELETE')) p(priv)
-      where c.oid = any(array['public.words'::regclass,'public.syncs'::regclass,'public.chat_messages'::regclass,'public.chiddush_submissions'::regclass,'public.metatron_beta_feedback'::regclass,'public.lab_notes'::regclass,'public.lab_messages'::regclass]) and has_table_privilege(r.rolname, c.oid, p.priv)
+    select 'g|'||c.relname||'|'||r.rolname||'|'||p.priv as x from pg_class c cross join (values ('anon'),('authenticated')) r(rolname) cross join (values ('SELECT'),('INSERT'),('UPDATE'),('DELETE')) p(priv) where c.oid = any(array['public.words'::regclass,'public.syncs'::regclass,'public.chat_messages'::regclass,'public.chiddush_submissions'::regclass,'public.metatron_beta_feedback'::regclass,'public.lab_notes'::regclass,'public.lab_messages'::regclass]) and has_table_privilege(r.rolname, c.oid, p.priv)
     union all select 'rls|'||relname||'|'||relrowsecurity::text||'|'||relforcerowsecurity::text from pg_class where oid = any(array['public.words'::regclass,'public.syncs'::regclass,'public.chat_messages'::regclass,'public.chiddush_submissions'::regclass,'public.metatron_beta_feedback'::regclass,'public.lab_notes'::regclass,'public.lab_messages'::regclass])
-    union all select 'p|'||tablename||'|'||policyname||'|'||cmd||'|'||permissive||'|'||(select string_agg(r, ',' order by r) from unnest(roles) r)||'|'||coalesce(qual,'-')||'|'||coalesce(with_check,'-') from pg_policies where schemaname='public' and tablename in ('words','syncs','chat_messages','chiddush_submissions','metatron_beta_feedback','lab_notes','lab_messages')
+    union all select 'p|'||tablename||'|'||policyname||'|'||cmd||'|'||permissive||'|'||(select string_agg(r, ',' order by r collate "C") from unnest(roles) r)||'|'||coalesce(qual,'-')||'|'||coalesce(with_check,'-') from pg_policies where schemaname='public' and tablename in ('words','syncs','chat_messages','chiddush_submissions','metatron_beta_feedback','lab_notes','lab_messages')
+    union all select 'cacl|'||c.relname||'.'||a.attname||'|'||a.attacl::text from pg_attribute a join pg_class c on c.oid = a.attrelid where a.attacl is not null and not a.attisdropped and c.oid = any(array['public.words'::regclass,'public.syncs'::regclass,'public.chat_messages'::regclass,'public.chiddush_submissions'::regclass,'public.metatron_beta_feedback'::regclass,'public.lab_notes'::regclass,'public.lab_messages'::regclass])
+    union all select 'cm|'||c.relname||'|'||p.polname||'|'||obj_description(p.oid, 'pg_policy') from pg_policy p join pg_class c on c.oid = p.polrelid where obj_description(p.oid, 'pg_policy') is not null and c.oid = any(array['public.words'::regclass,'public.syncs'::regclass,'public.chat_messages'::regclass,'public.chiddush_submissions'::regclass,'public.metatron_beta_feedback'::regclass,'public.lab_notes'::regclass,'public.lab_messages'::regclass])
   ) q
 $f$;
 do $$
@@ -51,7 +58,9 @@ drop policy if exists lab_messages_insert on public.lab_messages;
 -- lab_* reads: administrators only.
 drop policy if exists lab_notes_read on public.lab_notes;
 drop policy if exists lab_messages_read on public.lab_messages;
+drop policy if exists lab_notes_admin_read on public.lab_notes;
 create policy lab_notes_admin_read on public.lab_notes for select to authenticated using ((select public.rd_is_admin()));
+drop policy if exists lab_messages_admin_read on public.lab_messages;
 create policy lab_messages_admin_read on public.lab_messages for select to authenticated using ((select public.rd_is_admin()));
 revoke select on public.lab_notes, public.lab_messages from anon;
 

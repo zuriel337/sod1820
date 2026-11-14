@@ -586,6 +586,11 @@ select public.m0a_assert((select count(*) from cron.job where command ~ '[?&]s='
 \i supabase/proposed/20261106131000_def005_revoke_internal_rpcs_from_clients.sql
 \i supabase/proposed/20261112130000_m0a_admin_and_account_guards.sql
 \i supabase/proposed/20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql
+-- steps 4, 5 and 6 accept their own "after" state: the second run is a no-op (the guards compare the whole catalogue of what they change)
+\i supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql
+\i supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql
+select public.m0a_assert(not has_table_privilege('anon', 'public.words', 'INSERT') and (select count(*) from pg_policies where tablename = 'lab_notes' and policyname = 'lab_notes_admin_read') = 1
+  and (select qual from pg_policies where tablename = 'page_content' and policyname = 'auth_write') like '%rd_is_admin%', 'steps 5 and 6: the second run is a no-op (one admin read policy, no duplicate)');
 do $$
 begin
   begin
@@ -643,6 +648,27 @@ alter policy "wall public read" on public.gematria_wall using (true and true);
 select public.m0a_assert(md5(pg_get_functiondef('public.admin_ai_cost(integer)'::regprocedure)) = '0487c48ca5e930f132c3b30cceb69ca9'
   and has_function_privilege('anon', 'public.wa_msg_count(uuid)', 'EXECUTE'), 'guard step 4: an edited wall policy makes the apply refuse before any function is patched');
 alter policy "wall public read" on public.gematria_wall using (true);
+-- step 6: a client holds a write privilege on a dormant table (the premise "clients hold only SELECT, the write half is inert" is broken): the apply refuses, nothing changes
+grant insert on public.insights to authenticated;
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert((select qual from pg_policies where tablename = 'insights' and policyname = 'authenticated write') = 'true', 'guard step 6: a client write grant makes the apply refuse; the dormant policy is unchanged');
+revoke insert on public.insights from authenticated;
+-- step 5: a column-level grant (invisible to a table-level check, silently removed by the table-level REVOKE) makes the apply refuse
+grant insert (w) on public.words to anon;
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert(has_column_privilege('anon', 'public.words', 'w', 'INSERT') and exists (select 1 from pg_policies where tablename = 'lab_notes' and policyname = 'lab_notes_read'), 'guard step 5: a column grant makes the apply refuse; nothing changed');
+revoke insert (w) on public.words from anon;
+-- step 5: a comment on a policy the step drops (it would be lost and not restored) makes the apply refuse
+comment on policy lab_notes_read on public.lab_notes is 'someone''s note';
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert(has_table_privilege('anon', 'public.words', 'INSERT') and exists (select 1 from pg_policies pp join pg_policy po on po.polname = pp.policyname and po.polrelid = 'public.lab_notes'::regclass where pp.tablename = 'lab_notes' and pp.policyname = 'lab_notes_read' and obj_description(po.oid, 'pg_policy') = 'someone''s note'), 'guard step 5: a policy comment makes the apply refuse; nothing changed');
+comment on policy lab_notes_read on public.lab_notes is null;
 -- with every drift reverted the three files apply
 \i supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql
 \i supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql
@@ -672,6 +698,14 @@ alter policy "wall public read" on public.gematria_wall using (true and true);
 select public.m0a_assert(md5(pg_get_functiondef('public.admin_ai_cost(integer)'::regprocedure)) = 'd33b0bfbaf9d1f39177333bef3024b9f',
   'guard step 4 rollback: a later wall-policy edit makes the rollback refuse; the patched function stays');
 do $$ declare v text; begin select w.q into v from wall_saved w; execute format('alter policy "wall public read" on public.gematria_wall using (%s)', v); end $$;
+-- step 6 rollback after a later client write grant: it would turn the dormant policy back into "any signed-in user may write" while the grant makes the write half live
+grant insert, update, delete on public.insights to authenticated;
+\set ON_ERROR_STOP off
+\i supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql
+\set ON_ERROR_STOP on
+select public.m0a_assert((select qual from pg_policies where tablename = 'insights' and policyname = 'authenticated write') like '%rd_is_admin%'
+  and public.m0a_try('authenticated', '00000000-0000-4000-8000-00000000000b', 'insert into public.insights (space) values (''x'')') = '42501', 'guard step 6 rollback: a later client write grant makes the rollback refuse; the policy stays admin-only and a non-admin insert is still refused');
+revoke insert, update, delete on public.insights from authenticated;
 -- the unchanged applied state rolls back exactly (reverse order), and the catalogue equals the starting snapshot
 \i supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql
 \i supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql
