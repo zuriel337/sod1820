@@ -349,6 +349,8 @@ jobs:
         run: bash scripts/run-g1-laws-snapshot-reader-test.sh
       - name: CL-16 order evidence (the guard against the law v7 supersession and its rollback; 4 cases)
         run: bash docs/reviews/contracts-enforcement-20261113/cl16-order-evidence/run.sh
+      - name: contribution_links read policy proposal (a link is readable exactly when its message is; guest, owner, other user, administrator, the live import function; drift and every later change refuse; exact rollback; 4 two-session concurrency cases)
+        run: bash scripts/run-contribution-links-visible-read-sql-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).
