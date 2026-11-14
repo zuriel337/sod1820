@@ -28,7 +28,10 @@
 - **`homeFeaturedPost2029.js` keeps hand-copied unit content** (see DEDUP_MATRIX D-2/D-3) — a second owner of unit text, which contradicts “reuse, never duplicate”.
 - **`posts.modified` vs revision 266** (DEDUP_MATRIX R-1): the “certified version” gate used by the proven-update projection relies on `modified`, which did not move when revision 266 changed the body.
 
-## Smallest implementation inside the existing owners (proposal — not applied)
+## UPDATE 2026-11-14 — what is now implemented on the branch (branch-only, not merged/deployed)
+Items 1, 2, 3 (published units), 4 (preview honesty) and 5 below are implemented; no route, DB, permission or Production change. `publicPostUnitHref` (`publicPostUrls.js`) is the only builder (used by `unitShareUrl` and the proven-update `targetHref`); `?unit=` lands on every registered unit and ignores unknown ids; `api/og.js` serves unit meta only for registered published units (`noindex, follow`, canonical = parent); `publicPageShareUrl` strips `proto`. Tests: `publicPostUnitHref.test.js`, `postUnitAmendments2029.test.js`, updated href expectations. **Not verified here:** the bot-UA OG fetch against a live Preview (the Preview edge is SSO-protected; `api/og.js` passes `node --check` only), and the Preview unit never gets a public card.
+
+## Smallest implementation inside the existing owners (proposal — now applied on the branch, see UPDATE above)
 1. **One helper** in `publicPostUrls.js`: `publicPostUnitHref(post, unitId, { origin })` → `<post address>?unit=<id>#<id>` (the existing `publicPostHref` already accepts `search` and `hash`). `unitShareUrl` and `provenSourceUpdates.targetHref` call it; no other concatenation anywhere.
 2. **`?unit=` honoured for every registered unit** of the Post (proven ids and preview ids), landing + focus + breadcrumb, **unknown ids ignored silently** (page opens at the top; no error, no 404).
 3. **OG** (`api/og.js`): for `?unit=<id>` where `<id>` is a *published* unit of that Post → unit title (+ numbers when the registry has them) via the existing `/api/card?v=unit`; otherwise the Post’s own meta. Canonical stays the parent; add `noindex, follow` to unit variants. The preview-unit path keeps its branch/`VERCEL_ENV` gate until the unit is published.

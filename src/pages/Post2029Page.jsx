@@ -24,7 +24,7 @@ import { track } from "../lib/tracking.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel } from "../lib/research/postSourceUpdates2029.js";
+import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel, registeredUnitIds } from "../lib/research/postSourceUpdates2029.js";
 import { postVoiceFor } from "../lib/postVoice2029.js";
 import { annotatePostSource, resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
@@ -662,10 +662,12 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   }, [state.projection?.post?.id, location.pathname, location.search, location.hash]);
 
   useEffect(() => {
-    // A unit link (?unit=<id>) lands on that exact unit even if the fragment was dropped by a messenger. Preview units only.
+    // A unit link (?unit=<id>) lands on that exact unit even if the fragment was dropped by a messenger (every registered unit).
     const wanted = new URLSearchParams(location.search).get("unit");
     if (!wanted || location.hash || !state.projection || !sourceRef.current) return undefined;
-    const target = [...sourceRef.current.querySelectorAll("[data-preview-unit][id]")].find((node) => node.id === wanted);
+    // `?unit=<id>` names a REGISTERED unit of this Post (a proven live unit or the preview unit); any other id is ignored and the Post opens normally.
+    if (![...registeredUnitIds(state.projection.post?.id), ...previewUnitIdsFor(state.projection.post?.id)].includes(wanted)) return undefined;
+    const target = [...sourceRef.current.querySelectorAll("[id]")].find((node) => node.id === wanted);
     if (!target) return undefined;
     const frame = requestAnimationFrame(() => {
       target.scrollIntoView({ block: "start", behavior: "instant" });

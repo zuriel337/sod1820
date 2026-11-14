@@ -12,7 +12,7 @@ test("Home uses the same exact fragment revision and seen key as the shared feed
   const update = realUpdate(row(), NOW);
   assert.equal(update.kind, "source_fragment_revision");
   assert.equal(update.key, "feed:posts:5107#netanyahu-77-mazal@revision:184");
-  assert.equal(update.targetHref, "/post/sharshar-elections-redemption-hints-draft#netanyahu-77-mazal");
+  assert.equal(update.targetHref, "/post/sharshar-elections-redemption-hints-draft?unit=netanyahu-77-mazal#netanyahu-77-mazal");
 });
 test("cover-only saves, unknown sources, hidden posts, future and old events produce no Home news", () => {
   assert.equal(realUpdate(row({ modified: "2026-10-11T10:00:00Z" }), NOW), null);

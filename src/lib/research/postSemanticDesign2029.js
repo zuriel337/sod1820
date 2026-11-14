@@ -135,6 +135,8 @@ export function placeProvenUpdatesFirst(root, postId, doc = root.ownerDocument |
   const stack = el(doc, "div", { class: "sod29-update-stack", "data-sod-update-stack": "true", role: "region", "aria-label": "מה התחדש בפוסט" }, [
     el(doc, "p", { class: "sod29-update-stack-head" }, [el(doc, "strong", {}, "מה התחדש בפוסט"), el(doc, "span", {}, `${entries.length} יחידות · מהחדשה לישנה`)]),
   ]);
+  // Units proven by ONE revision pair share ONE instant (e.g. the three שרשר units, 205→206): the date is truthful for the SAVE, not three separate additions.
+  const batchSize = (entry) => entries.filter((other) => other.updatedAt === entry.updatedAt && other.afterRevision === entry.afterRevision).length;
   for (const entry of entries) {
     const unit = root.querySelector(`[id="${entry.targetId}"]`);
     if (!unit || stack.contains(unit)) continue;
@@ -146,7 +148,9 @@ export function placeProvenUpdatesFirst(root, postId, doc = root.ownerDocument |
     ]));
     if (eventDay) meta.append(el(doc, "span", { class: "sod29-update-event", title: "זמן האירוע" }, [el(doc, "i", { "aria-hidden": "true" }, symbolFor("event")), el(doc, "span", { class: "sod29-sr" }, "זמן האירוע: "), eventDay]));
     if (sourceDay) meta.append(el(doc, "span", { class: "sod29-update-source", title: "זמן פרסום המקור" }, [el(doc, "i", { "aria-hidden": "true" }, symbolFor("source")), el(doc, "span", { class: "sod29-sr" }, "זמן פרסום המקור: "), sourceDay]));
-    const holder = el(doc, "div", { class: "sod29-update-unit", "data-update-unit": entry.targetId });
+    const batch = batchSize(entry);
+    if (batch > 1) meta.append(el(doc, "span", { class: "sod29-update-batch", title: "נוספו באותה שמירה — התאריך הוא של השמירה" }, `${batch} תוספות בשמירה אחת`));
+    const holder = el(doc, "div", { class: "sod29-update-unit", "data-update-unit": entry.targetId, ...(batch > 1 ? { "data-update-batch": String(batch) } : {}) });
     holder.append(meta);
     unit.parentNode.replaceChild(doc.createComment(`moved:${entry.targetId}`), unit);
     holder.append(unit);
@@ -168,6 +172,24 @@ export function applyUnitChoice(unit, choice = {}) {
   setOrClear("data-sod-accent", UNIT_ACCENTS.includes(choice.accent) ? choice.accent : null);
 }
 
+// D-6: the standard "connections are a reading, judge for yourself" sentence is pasted per section. Every stored word stays; the paragraphs are only MARKED so
+// the page can show them as one quiet, shared note. Claim-specific caveats (different words) are never marked.
+const SHARED_NOTES = Object.freeze([
+  "החיבורים והרמזים הם התבוננות במספרים ובאירועים — וכל אחד מוזמן להתבונן ולשפוט בעצמו.",
+  "המספרים והחישובים מוצגים כפי שהם. החיבורים והרמזים הם קריאה במספרים, בתאריכים ובאירועים — וכל אחד מוזמן להתבונן ולשפוט בעצמו.",
+]);
+export function markSharedNotes(root) {
+  const seen = new Map();
+  for (const p of root.querySelectorAll("p")) {
+    const text = String(p.textContent || "").replace(/\s+/g, " ").trim();
+    const hit = SHARED_NOTES.find((note) => text === note || text.endsWith(note));
+    if (!hit) continue;
+    p.setAttribute("data-sod-shared-note", "true");
+    const count = (seen.get(hit) || 0) + 1; seen.set(hit, count);
+    if (count > 1) p.setAttribute("data-sod-shared-note-repeat", "true");
+  }
+}
+
 // string → string. Outside a browser (no DOM) the stored HTML passes through unchanged.
 export function annotatePostSource(html, { postId = null, voice = "unspecified", placeUpdates = true, unitChoices = null } = {}) {
   if (!globalThis.document?.createElement) return String(html || "");
@@ -176,6 +198,7 @@ export function annotatePostSource(html, { postId = null, voice = "unspecified",
   const root = template.content;
   annotateBlocks(root, { voice });
   markUnits(root, voice);
+  markSharedNotes(root);
   if (placeUpdates) placeProvenUpdatesFirst(root, postId, document);
   // Preview-only units of the flagship series (flag-gated inside; nothing is injected in any other build).
   if (placeUpdates) injectPreviewUnits(root, postId, document);

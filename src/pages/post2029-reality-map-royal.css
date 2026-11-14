@@ -446,3 +446,9 @@
 .sod29-ube-preview .sod29-reading-source{max-block-size:70dvh;overflow:auto;border-radius:12px}
 .sod29-ube-actions{display:flex;flex-wrap:wrap;gap:.5rem}
 .sod29-ube-export{inline-size:100%;box-sizing:border-box;font:500 .85rem/1.5 ui-monospace,monospace;color:var(--s29-ink);background:var(--s29-page);border:1px solid var(--s29-line);border-radius:10px;padding:.5rem}
+
+/* D-6 / D-5 (ZURIEL 15.11.2026) — presentation only: the repeated standard sentence is shown quietly (stored words untouched, nothing hidden); units added by one
+   save carry a small shared-save chip (anchors, provenance and the truthful date of the save unchanged). */
+.sod29-reading-post[data-reality-map] .sod29-reading-source p[data-sod-shared-note]{font-size:.85rem!important;opacity:.62!important;margin-block:14px 0!important;color:var(--s29-muted)!important}
+.sod29-reading-post[data-reality-map] .sod29-reading-source p[data-sod-shared-note-repeat]{opacity:.5!important}
+.sod29-reading-post[data-reality-map] .sod29-update-batch{padding:2px 10px;border-radius:999px;font-size:.85rem;font-weight:700;color:var(--s29-ink);border:1px dashed color-mix(in srgb,var(--r29-sapphire) 60%,transparent)}

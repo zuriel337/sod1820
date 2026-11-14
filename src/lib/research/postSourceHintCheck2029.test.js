@@ -49,3 +49,12 @@ test("an expression the engine cannot read (value 0) stays unchecked and is not 
   const r = hintStateFromProfile(1237, [{ methodKey: "מסתתר", displayLabel: "מסתתר", computedValue: 0 }], { methodText: "מסתתר" });
   assert.deepEqual([r.state, r.reason], [HINT_STATES.unchecked, "expression_not_readable_by_engine"]);
 });
+
+import { collapseSpacedLetters } from "./postSourceHintCheck2029.js";
+test("spread-out letters are joined ONLY for the engine check (double space = word break); ordinary phrases are untouched", () => {
+  assert.deepEqual(collapseSpacedLetters("ה ת ח ל ה  ח ד ש ה"), { text: "התחלה חדשה", changed: true });
+  assert.deepEqual(collapseSpacedLetters("התחלה חדשה"), { text: "התחלה חדשה", changed: false });
+  assert.deepEqual(collapseSpacedLetters("גדעון איזנקוט ראש הממשלה"), { text: "גדעון איזנקוט ראש הממשלה", changed: false });
+  assert.deepEqual(collapseSpacedLetters("א ב"), { text: "אב", changed: true });
+  assert.deepEqual(collapseSpacedLetters(""), { text: "", changed: false });
+});

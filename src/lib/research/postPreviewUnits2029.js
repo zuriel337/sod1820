@@ -7,6 +7,7 @@
 // write and needs ZURIEL's separate approval, so this unit is shown ONLY in a build that sets VITE_REALITY_MAP_PREVIEW (the protected
 // Preview) and nowhere else. The identity below never changes when the text is edited: it is the key, not a hash of the content.
 import { realityMapPreviewEnabled } from "./realityMap2029.js";
+import { publicPostUnitHref } from "../publicPostUrls.js";
 
 export const YAMIN_SMOL_UNIT_ID = "yamin-smol-2026-5787-1237-1158";
 
@@ -299,8 +300,7 @@ export const previewUnitDefinition = (postId, unitId) => (PREVIEW_UNITS_2029[Num
 // ---- share address, card and Open Graph (pure) ---------------------------------------------------------------------------
 // A unit link carries the unit as a QUERY parameter as well as the fragment: a fragment never reaches a server or a crawler, a query does.
 export function unitShareUrl(origin, postPath, unitId) {
-  const base = `${String(origin || "").replace(/\/$/, "")}${postPath}`;
-  return `${base}?unit=${encodeURIComponent(unitId)}#${encodeURIComponent(unitId)}`;
+  return publicPostUnitHref(postPath, unitId, { origin });
 }
 // Card address on the EXISTING /api/card, variant "unit": title + the four numbers.
 export function unitCardUrl(origin, unit) {

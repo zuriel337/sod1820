@@ -55,6 +55,17 @@ export function publicPostHref(post, { search = "", hash = "" } = {}) {
     + (hash ? (hash.startsWith("#") ? hash : "#" + hash) : "") : null;
 }
 
+// THE ONE builder of a unit's permalink (ZURIEL 14–15.11.2026): `<post address>?unit=<stableId>#<stableId>`. `?unit` reaches server OG/share lookup (a fragment never does),
+// `#` scrolls/focuses in the browser. `post` is a post row OR an already-resolved post path ("/post/<slug>"); `origin` is optional (a share URL passes the site origin).
+// A unit is never a post and never has a route of its own. An id that is not a plain anchor token yields null (callers then fall back to the post address).
+export function publicPostUnitHref(post, unitId, { origin = "" } = {}) {
+  const id = String(unitId ?? "").trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,120}$/.test(id)) return null;
+  const base = typeof post === "string" ? (post.startsWith("/") ? post.replace(/[?#].*$/, "") : null) : publicPostHref(post);
+  if (!base) return null;
+  return String(origin || "").replace(/\/$/, "") + base + "?unit=" + encodeURIComponent(id) + "#" + encodeURIComponent(id);
+}
+
 export function publicPostUrl(post) {
   const path = publicPostHref(post);
   return path ? SITE + path : null;
@@ -103,7 +114,7 @@ export function publicPageShareUrl(location = {}, canonicalUrl) {
     canonical = url.origin + url.pathname;
   } catch { return null; }
   const params = new URLSearchParams(location.search || "");
-  for (const key of [...params.keys()]) if (/^(?:_vercel_share|_?vercel_protection_bypass|x-vercel-protection-bypass|x-vercel-set-bypass-cookie|access_token|refresh_token|id_token|token|secret|password|authorization)$/i.test(key)) params.delete(key);
+  for (const key of [...params.keys()]) if (/^(?:proto|_vercel_share|_?vercel_protection_bypass|x-vercel-protection-bypass|x-vercel-set-bypass-cookie|access_token|refresh_token|id_token|token|secret|password|authorization)$/i.test(key)) params.delete(key);
   const search = params.toString();
   const hash = /(?:^#|[?&])(?:access_token|refresh_token|id_token|token)=/i.test(location.hash || "") ? "" : location.hash || "";
   return canonical + (search ? "?" + search : "") + hash;

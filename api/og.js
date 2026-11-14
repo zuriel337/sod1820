@@ -10,6 +10,7 @@ import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks2029.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { previewUnitOgMeta } from "../src/lib/research/postPreviewUnits2029.js";
+import { PROVEN_POST_SOURCE_UPDATES } from "../src/lib/research/postSourceUpdates2029.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
 import { fetchPublicVideo2029 } from "../src/lib/research/publicVideo2029Reading.js";
 import { createVideoAssetReader, createVideoAssetSource, VIDEO_ASSET_MV } from "../src/lib/research/publicVideoAssetReader2029.js";
@@ -360,6 +361,18 @@ export default async function handler(req, res) {
           // of the protected Preview (VERCEL_ENV=preview + that branch ref); anywhere else it returns null and nothing changes.
           const unitMeta = req.query?.unit ? previewUnitOgMeta({ postId: post.id, unitId: String(req.query.unit), env: process.env, origin: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : SITE }) : null;
           if (unitMeta) { title = unitMeta.title + ' · ' + SITE_NAME; desc = unitMeta.description; image = unitMeta.image; robots = unitMeta.robots; }
+          // A PUBLISHED unit (a registered proven unit whose anchor is really in this Post's public source): its own title in the existing card. Canonical stays the parent
+          // Post and the unit variant is noindex (no independent indexable page). Anything else — unknown id, an id not present in the source — gets the Post's own meta.
+          else if (req.query?.unit) {
+            const wanted = String(req.query.unit);
+            const registered = (PROVEN_POST_SOURCE_UPDATES[Number(post.id)] || []).find((entry) => entry.targetId === wanted);
+            if (registered && typeof post.content === 'string' && post.content.includes(`id="${wanted}"`)) {
+              title = registered.label + ' · ' + SITE_NAME;
+              desc = 'יחידה בפוסט «' + stripHtml(post.title) + '» · ' + SITE_NAME;
+              image = cardUrl({ w: registered.label.length > 46 ? registered.label.slice(0, 46) : registered.label, sub: stripHtml(post.title).slice(0, 60), cap: 'לקריאת היחידה ←' });
+              robots = 'noindex, follow';
+            }
+          }
           break;
         }
       } catch { postLookupFailed = true; /* try next variant */ }

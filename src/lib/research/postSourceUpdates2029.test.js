@@ -25,7 +25,7 @@ test("only the owner-certified BEFORE→AFTER 5107 section is a public source-up
   assert.equal(event.eventKey, "posts:5107#netanyahu-77-mazal@revision:184");
   assert.equal(event.at, "2026-10-10T23:19:35.974Z");
   assert.equal(event.label, "נתניהו בן 77 — מזל ופרשת בראשית");
-  assert.equal(event.targetHref, "/post/sharshar-elections-redemption-hints-draft#netanyahu-77-mazal");
+  assert.equal(event.targetHref, "/post/sharshar-elections-redemption-hints-draft?unit=netanyahu-77-mazal#netanyahu-77-mazal");
 });
 
 test("no event for cover-only edits, changed content version, or unknown section identity", () => {
@@ -68,7 +68,7 @@ test("the three 205->206 source units are listed newest-first with the real addi
   assert.equal(formatUpdateDate(ordered[2].updatedAt), "12.10.2026");
   const event = publicProvenPostSourceUpdate(reviewedPost({ modified: "2026-10-12T13:52:58.270789Z" }));
   assert.equal(event.revision, 206);
-  assert.equal(event.targetHref, "/post/sharshar-elections-redemption-hints-draft#sharshar-shoes-66");
+  assert.equal(event.targetHref, "/post/sharshar-elections-redemption-hints-draft?unit=sharshar-shoes-66#sharshar-shoes-66");
 });
 
 test("native hash resolves only to a proven unit of the same post", () => {

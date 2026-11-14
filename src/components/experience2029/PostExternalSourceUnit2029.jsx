@@ -4,7 +4,7 @@
 //   verified  → ✓ only after the method and the result were really checked;  mismatch → both values, clearly distinct.
 // `source.demo` marks sample data (used while the intake session has not published a source): it is labelled as a demonstration.
 import React, { useEffect, useState } from "react";
-import { checkSourceHint, HINT_STATES } from "../../lib/research/postSourceHintCheck2029.js";
+import { checkSourceHint, HINT_STATES, collapseSpacedLetters } from "../../lib/research/postSourceHintCheck2029.js";
 import { SEMANTIC_LEGEND } from "../../lib/research/postSemanticDesign2029.js";
 
 const symbol = (key) => SEMANTIC_LEGEND.find((item) => item.key === key)?.symbol || "";
@@ -19,10 +19,11 @@ export function ClaimRow({ claim, skipEngine, readProfile }) {
   useEffect(() => {
     let live = true;
     if (skipEngine) { setCheck({ state: HINT_STATES.unchecked }); return undefined; }
-    checkSourceHint({ expression: claim.phrase, stated: claim.number, methodText: claim.methodText, readProfile }).then((result) => { if (live) setCheck(result); });
+    checkSourceHint({ expression: collapseSpacedLetters(claim.phrase).text, stated: claim.number, methodText: claim.methodText, readProfile }).then((result) => { if (live) setCheck(result); });
     return () => { live = false; };
   }, [claim.phrase, claim.number, claim.methodText, skipEngine, readProfile]);
   const state = check.state;
+  const joined = collapseSpacedLetters(claim.phrase);
   const stateLabel = SEMANTIC_LEGEND.find((item) => item.key === state)?.label;
   return <div className="sod29-source-unit-hint" data-engine-state={state}>
     <span>{claim.phrase}</span>
@@ -32,6 +33,7 @@ export function ClaimRow({ claim, skipEngine, readProfile }) {
       <span aria-hidden="true">{symbol(state)}</span><span>{stateLabel}</span>
     </button>
     {open ? <p className="sod29-engine-detail" role="note">
+      {joined.changed ? <>הציטוט נשאר כפי שנכתב; לבדיקה במנוע אוחדו האותיות המרווחות ל״{joined.text}״. </> : null}
       {state === HINT_STATES.verified ? `נבדק במנוע בשיטת ${check.method?.label || "רגילה"}: ${check.value}. אימות חישוב אינו אימות פרשנות.` : null}
       {state === HINT_STATES.mismatch ? `במקור נכתב ${check.claimed}; המנוע (שיטת ${check.method?.label || "רגילה"}) נותן ${check.value}. שני הערכים נשמרים.${check.otherMethods?.length ? ` המספר הנטען יוצא בשיטות: ${check.otherMethods.join(", ")} — השיטה לא צוינה במקור.` : ""}` : null}
       {state === HINT_STATES.unchecked && check.reason === "method_not_a_single_engine_method" ? `השיטה שנכתבה במקור (״${check.methodText}״) אינה שיטה בודדת במנוע, ולכן לא נבדקה. המספר מוצג כפי שנכתב.` : null}

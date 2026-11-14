@@ -158,7 +158,7 @@ function Share({ unit, post, postPath }) {
   const title = `${unit.title} — ${unit.subtitle}`;
   return <section className="sod29-pu-share" aria-label="שיתוף היחידה" data-pu-share-url={url}>
     <h4>שיתוף היחידה</h4>
-    <p className="sod29-pu-sources-note">הקישור פותח את היחידה עצמה בתוך פוסט הבחירות, עם דרך להמשיך לכל הפוסט. שיתוף הפוסט הראשי נשאר כרגיל.</p>
+    <p className="sod29-pu-sources-note" data-pu-share-scope="preview-only"><b>קישור פריוויו מוגן (SSO) — אינו ציבורי.</b> היחידה אינה שמורה בפוסט הציבורי; לכן זהו קישור בדיקה בלבד, ללא כרטיס/תצוגה מקדימה לציבור ולבוטים, עד שהיחידה תפורסם באישור נפרד. הקישור פותח את היחידה בתוך פוסט הבחירות, עם דרך להמשיך לכל הפוסט.</p>
     <ShareActions type="post" entityId={`posts:${post.id}#${unit.id}`} sourceSurface="post_2029_unit" subtype="share" url={url} title={title}
       image={unitCardUrl(origin, unit)} force exactState={{ unit: unit.id, series: unit.seriesKey }} />
     <a className="sod29-pu-link" href={url} data-pu-direct-link="true">{url.replace(/^https?:\/\//, "")}</a>

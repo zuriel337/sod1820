@@ -210,9 +210,9 @@ test("exact reviewed public section update projects once from a source, retainin
   assert.equal(item.sourceUpdate.kind, "source_fragment_revision");
   assert.equal(item.sourceUpdate.targetId, "netanyahu-77-mazal");
   assert.equal(item.sourceUpdate.revision, 184);
-  assert.equal(item.href, "/post/sharshar-elections-redemption-hints-draft#netanyahu-77-mazal", "a certified update enters the exact source unit");
+  assert.equal(item.href, "/post/sharshar-elections-redemption-hints-draft?unit=netanyahu-77-mazal#netanyahu-77-mazal", "a certified update enters the exact source unit");
   assert.equal(item.sourceUpdate.targetHref,
-    "/post/sharshar-elections-redemption-hints-draft#netanyahu-77-mazal");
+    "/post/sharshar-elections-redemption-hints-draft?unit=netanyahu-77-mazal#netanyahu-77-mazal");
 
   const feed = buildWorldDiscoveryStream({
     posts: [elections, makePost({ id: 5116, slug: "ordinary", date: "2026-10-05T00:00:00Z", modified: "2026-10-05T00:00:00Z" })]

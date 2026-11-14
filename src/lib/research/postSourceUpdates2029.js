@@ -1,4 +1,4 @@
-import { publicPostHref } from "../publicPostUrls.js";
+import { publicPostHref, publicPostUnitHref } from "../publicPostUrls.js";
 // Proven source-level updates, keyed by post id. An entry exists only when the
 // live post_revisions pair and the authored fragment were verified; cover-only
 // or other snapshots are never listed. Posts without an entry show no strip.
@@ -106,6 +106,20 @@ export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
       beforeRevision: 263,
       afterRevision: 264,
       attribution: "תוספת לפוסט",
+      // AMENDMENTS = later, separately PROVEN changes INSIDE an already-registered unit. They never create a new "added" date or a new Now event: the unit keeps
+      // its own addedAt. Derived from the version history (R-1, audit 2026-11-14/15): post_revisions rows are PRE-write snapshots (trigger
+      // trg_snapshot_post_revision, BEFORE UPDATE, stores OLD, one per 10 minutes). Revision 265 (OLD at the update stamped 16:56:00.412935Z) lacks the two lines,
+      // revision 266 (OLD at the next update, 2026-11-11T06:46:17Z) has them, and posts.modified = 16:56:00.412935Z is the last update — so the lines were added
+      // by that update. (The 06:46:17Z update was a later session edit that was reverted exactly: md5 a10ea4de…, modified restored.)
+      amendments: Object.freeze([Object.freeze({
+        id: "knesset-sworn-1437-triangular",
+        addedText: "1437 · משיח י-הוה — משולש = 1437",
+        at: "2026-11-10T16:56:00.412935Z",
+        timeBasis: "last_update_stamp_pre_write_snapshots",
+        beforeRevision: 265,
+        afterRevision: 266,
+        emitsNowEvent: false,
+      })]),
     }),
   ]),
 });
@@ -183,7 +197,7 @@ export function publicProvenPostSourceUpdates(row) {
       label: entry.label,
       at: new Date(Date.parse(entry.updatedAt)).toISOString(),
       targetId: entry.targetId,
-      targetHref: publicPostHref(row, { hash: encodeURIComponent(entry.targetId) }),
+      targetHref: publicPostUnitHref(row, entry.targetId) || publicPostHref(row, { hash: encodeURIComponent(entry.targetId) }),
       attribution: entry.attribution,
     });
   }
@@ -224,3 +238,8 @@ export function plainDayLabel(day) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(day || ""));
   return match ? `${match[3]}.${match[2]}.${match[1]}` : "";
 }
+
+// Ids of the registered (proven) units of a post: the only ids `?unit=` may name for a live Post. Unknown ids are ignored by every consumer.
+export const registeredUnitIds = (postId) => (PROVEN_POST_SOURCE_UPDATES[Number(postId)] || []).map((entry) => entry.targetId);
+// Amendments recorded for a registered unit (data only).
+export const unitAmendments = (postId, unitId) => (PROVEN_POST_SOURCE_UPDATES[Number(postId)] || []).find((entry) => entry.targetId === unitId)?.amendments || [];

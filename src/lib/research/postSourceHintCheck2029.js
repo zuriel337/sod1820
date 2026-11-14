@@ -6,6 +6,16 @@
 // (fn_method_profile via numberCoreProjection.js) — never from memory, from the source's own claim, or from a general model.
 import { regularMethodProfile } from "./numberExpressionFocus.js";
 
+// A source may write a phrase with its letters spread out ("ה ת ח ל ה  ח ד ש ה" — a double space between words). The engine cannot read that as written, so
+// the CHECK runs on the joined phrase while the quotation itself is never changed; the caller shows both. Returns { text, changed }.
+export function collapseSpacedLetters(phrase) {
+  const raw = String(phrase ?? "").trim();
+  const LETTER = "[\\u05d0-\\u05ea]";
+  if (!new RegExp(`^${LETTER}(?:\\s+${LETTER})+$`).test(raw.replace(/\s{2,}/g, " ")) || !/(?:^|\s)[\u05d0-\u05ea]\s+[\u05d0-\u05ea](?:\s|$)/.test(raw)) return { text: raw, changed: false };
+  const words = raw.split(/\s{2,}/).map((word) => word.replace(/\s+/g, ""));
+  return { text: words.join(" "), changed: true };
+}
+
 export const HINT_STATES = Object.freeze({ unchecked: "unchecked", verified: "verified", mismatch: "mismatch" });
 const exactInt = (value) => {
   const n = typeof value === "string" && /^\d+$/.test(value.trim()) ? Number(value.trim()) : value;
