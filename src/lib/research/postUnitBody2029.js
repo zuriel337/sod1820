@@ -44,10 +44,12 @@ export function resolveBodyBlocks(entries, base) {
     if (!original || seen.has(entry.ref)) return base;
     seen.add(entry.ref);
     if (original.locked) { out.push(original); continue; }              // locked blocks always keep the approved text, whatever the draft says
-    if (typeof entry.text === "string" && EDITABLE_KINDS.includes(original.kind)) {
-      const text = cleanBodyText(entry.text);
+    if (EDITABLE_KINDS.includes(original.kind) && (typeof entry.text === "string" || typeof entry.kind === "string")) {
+      const text = typeof entry.text === "string" ? cleanBodyText(entry.text) : original.text;
       if (!text) return base;
-      out.push({ ...original, text });
+      // an editorial block may be retyped (paragraph ⇄ heading ⇄ …); the title stays the title and no other block becomes one
+      const kind = typeof entry.kind === "string" && EDITABLE_KINDS.includes(entry.kind) && (entry.kind === "title") === (original.kind === "title") ? entry.kind : original.kind;
+      out.push({ ...original, text, kind });
     } else out.push(original);
   }
   if (!base.every((block) => !block.locked || seen.has(block.id))) return base;
@@ -60,7 +62,9 @@ export const entriesFromBlocks = (blocks, base) => {
   return blocks.map((block) => {
     if (block.added) return { add: true, kind: block.kind, text: block.text };
     const original = baseById.get(block.id);
-    return original && !original.locked && block.text !== original.text ? { ref: block.id, text: block.text } : { ref: block.id };
+    if (!original || original.locked) return { ref: block.id };
+    const retyped = block.kind !== original.kind && EDITABLE_KINDS.includes(block.kind);
+    return block.text !== original.text || retyped ? { ref: block.id, ...(block.text !== original.text ? { text: block.text } : {}), ...(retyped ? { kind: block.kind } : {}) } : { ref: block.id };
   });
 };
 
@@ -74,6 +78,7 @@ export function diffBody(base, blocks) {
     if (block.added) { ops.push({ op: "added", kind: block.kind, text: block.text, atIndex: blocks.indexOf(block) }); continue; }
     const original = base.find((b) => b.id === block.id);
     if (original && original.text !== block.text) ops.push({ op: "edited", id: block.id, kind: original.kind, before: original.text, after: block.text });
+    if (original && original.kind !== block.kind) ops.push({ op: "retyped", id: block.id, from: original.kind, to: block.kind });
   }
   for (const original of base) if (!blocks.some((block) => block.id === original.id)) ops.push({ op: "removed", id: original.id, kind: original.kind, text: original.text });
   return { changed: ops.length > 0, count: ops.length, ops };
@@ -87,7 +92,17 @@ export function readBodyDraft(postId, unitId, storage = globalThis.localStorage)
 export function writeBodyDraft(postId, unitId, entries, storage = globalThis.localStorage) {
   try { storage?.setItem(bodyDraftKey(postId, unitId), JSON.stringify(entries)); return true; } catch { return false; }
 }
-export function clearBodyDraft(postId, unitId, storage = globalThis.localStorage) { try { storage?.removeItem(bodyDraftKey(postId, unitId)); } catch { /* optional */ } }
+export function clearBodyDraft(postId, unitId, storage = globalThis.localStorage) { try { storage?.removeItem(bodyDraftKey(postId, unitId)); storage?.removeItem(bodyDraftMetaKey(postId, unitId)); } catch { /* optional */ } }
+// What the local draft is: when it was saved and which approved text it was written against (a fingerprint, never the text). It makes the draft
+// recognisable as a LOCAL draft; it is not a revision and it never leaves this browser.
+export const bodyDraftMetaKey = (postId, unitId) => `${bodyDraftKey(postId, unitId)}:meta`;
+export const textFingerprint = (text) => { let h1 = 0x811c9dc5, h2 = 0x01000193; for (let i = 0; i < text.length; i += 1) { h1 = Math.imul(h1 ^ text.charCodeAt(i), 0x01000193) >>> 0; h2 = (Math.imul(h2 ^ text.charCodeAt(i), 0x85ebca6b) + i) >>> 0; } return `${h1.toString(16).padStart(8, "0")}${h2.toString(16).padStart(8, "0")}`; };
+export function writeBodyDraftMeta(postId, unitId, meta, storage = globalThis.localStorage) {
+  try { storage?.setItem(bodyDraftMetaKey(postId, unitId), JSON.stringify({ scope: "local-browser-draft", ...meta })); return true; } catch { return false; }
+}
+export function readBodyDraftMeta(postId, unitId, storage = globalThis.localStorage) {
+  try { const raw = storage?.getItem(bodyDraftMetaKey(postId, unitId)); const parsed = raw ? JSON.parse(raw) : null; return parsed && typeof parsed === "object" ? parsed : null; } catch { return null; }
+}
 
 // the blocks the Post shows right now: the local draft if it is valid, otherwise the approved body
 export function resolveUnitBlocks(postId, unitId, text, storage = globalThis.localStorage) {

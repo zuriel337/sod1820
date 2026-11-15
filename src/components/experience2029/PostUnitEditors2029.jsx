@@ -8,8 +8,7 @@
 // Saving: there is NO authorized persistence path for any of this today (no column, no table, no approved store), so "שמירה" keeps it in
 // THIS browser only and says so. A main message is part of the one canonical unit record (never a second copy for "עכשיו").
 import { previewUnitDefinition } from "../../lib/research/postPreviewUnits2029.js";
-import UnitBodyEditor2029 from "./UnitBodyEditor2029.jsx";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { use2029Shell } from "./Sod2029Shell.jsx";
 import {
@@ -21,6 +20,8 @@ import { checkSourceHint, HINT_STATES } from "../../lib/research/postSourceHintC
 import { nowRowModel } from "../../lib/nowPublications2029.js";
 import { SEMANTIC_LEGEND } from "../../lib/research/postSemanticDesign2029.js";
 
+// the whole-unit editor (and its Raziel review) is loaded only when its tab is opened: nothing of it ships in the Post chunk
+const UnitDocumentEditor2029 = lazy(() => import("./UnitDocumentEditor2029.jsx"));
 const ACCENT_LABELS = { auto: "אוטומטי", royal: "מלכותי", sapphire: "ספיר", gold: "זהב", calm: "רגוע" };
 const symbolFor = (key) => SEMANTIC_LEGEND.find((item) => item.key === key)?.symbol || "";
 const unitTitleOf = (unit) => (unit.querySelector("h1,h2,h3,h4")?.textContent || "").replace(/\s+/g, " ").trim().slice(0, 120);
@@ -197,7 +198,7 @@ function UnitEditorDialog({ unit, postId, postHref, onClose, shell }) {
       </div>
       <div role="tabpanel" className="sod29-unit-editor-body">
         {tab === "message" ? <MessageTab draft={draft} set={set} unitTitle={unitTitle} postId={postId} shell={shell} goConnections={goConnections} /> : null}
-        {tab === "body" && unitDef ? <UnitBodyEditor2029 unit={unit} unitDef={unitDef} postId={postId} onPickMessage={(text) => { set({ message: text.slice(0, 400) }); setTab("message"); }} /> : null}
+        {tab === "body" && unitDef ? <Suspense fallback={<p role="status">טוען את עורך היחידה…</p>}><UnitDocumentEditor2029 unit={unit} unitDef={unitDef} postId={postId} onPickMessage={(text) => { set({ message: text.slice(0, 400) }); setTab("message"); }} /></Suspense> : null}
         {tab === "connections" ? <ConnectionsTab draft={draft} set={set} postId={postId} postHref={postHref} initialQuery={pendingQuery} unitNumbers={unitNumbers} /> : null}
         {tab === "design" ? <DesignTab draft={draft} set={set} /> : null}
       </div>

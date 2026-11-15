@@ -2,7 +2,7 @@
 // words are set with textContent, so nothing in the approved text can become markup, and no word is changed. Numbers (3–5 digits) become the
 // same clickable [data-gem] controls the rest of the Post uses, so a click opens the existing Number window and returns to this exact unit.
 import { parseYaminSmolText, previewUnitsFor, ATTRIBUTION_GROUPS } from "./postPreviewUnits2029.js";
-import { resolveUnitBlocks } from "./postUnitBody2029.js";
+import { resolveUnitBlocks, readBodyDraftMeta } from "./postUnitBody2029.js";
 
 const NUMBER = /(?<![\d.])\d{3,5}(?![\d.])/g;
 
@@ -85,6 +85,17 @@ export function buildPreviewUnitElement(doc, unit, blocks = null) {
   return section;
 }
 
+// A unit shown from a browser-local draft says so, on the unit itself: the draft is this device's, never a published version.
+export function setLocalDraftBadge(node, on) {
+  const holder = node.closest ? (node.closest("[data-preview-holder]") || node) : node;
+  const meta = holder.querySelector(".sod29-update-meta");
+  const existing = holder.querySelector(".sod29-pu-draft");
+  if (!on) { existing?.remove(); holder.removeAttribute("data-local-draft"); return; }
+  holder.setAttribute("data-local-draft", "true");
+  if (existing || !meta) return;
+  meta.append(el(holder.ownerDocument, "span", { class: "sod29-update-added sod29-pu-badge sod29-pu-draft", role: "status" }, "טיוטה מקומית · רק בדפדפן הזה · לא פורסם"));
+}
+
 // Places each preview unit of the Post as the NEWEST unit: first in the update stack (or first in the source when no stack exists).
 export function injectPreviewUnits(root, postId, doc = root.ownerDocument || document) {
   const units = previewUnitsFor(postId);
@@ -97,6 +108,7 @@ export function injectPreviewUnits(root, postId, doc = root.ownerDocument || doc
     const meta = el(doc, "p", { class: "sod29-update-meta" });
     meta.append(el(doc, "span", { class: "sod29-update-added sod29-pu-badge" }, "יחידה חדשה · הדגמה בפריוויו"));
     holder.append(meta, element);
+    setLocalDraftBadge(holder, Boolean(readBodyDraftMeta(postId, unit.id)));
     const stack = root.querySelector("[data-sod-update-stack]");
     if (stack) {
       const head = stack.querySelector(".sod29-update-stack-head");
@@ -115,8 +127,9 @@ export function injectPreviewUnits(root, postId, doc = root.ownerDocument || doc
 
 // Rebuilds the head and the body of an already-placed preview unit from the current draft (the footer hosts and the bar stay mounted). Announces it so the
 // React parts that live inside the body (the focal-number traces) re-attach to the new nodes.
-export function rebuildPreviewUnitBody(section, unit, blocks = null) {
+export function rebuildPreviewUnitBody(section, unit, blocks = null, { draft = null } = {}) {
   const doc = section.ownerDocument;
+  if (draft !== null) setLocalDraftBadge(section, draft);
   const fresh = buildPreviewUnitElement(doc, unit, blocks);
   for (const part of ["header.sod29-pu-head", "div.sod29-pu-body"]) {
     const next = fresh.querySelector(part), current = section.querySelector(part);
