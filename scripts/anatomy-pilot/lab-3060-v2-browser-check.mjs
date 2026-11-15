@@ -14,8 +14,8 @@ const browser = await chromium.launch({ args: ["--no-sandbox", "--use-gl=angle",
 const RPCS = new Set(["gematria_method_trace", "fn_method_profile", "fn_method_value", "gematria_api", "world_group_source_arrivals_v2", "fn_zero_scale", "fn_verses_by_gematria"]);
 const PARTS = ["cube", "outer", "inner", "triangles", "relation"];
 
-async function session({ width, height, reducedMotion = "no-preference", throttle = 1, name, noWebgl = false }) {
-  const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, reducedMotion, ignoreHTTPSErrors: !!process.env.HTTPS_PROXY });
+async function session({ width, height, reducedMotion = process.env.REDUCED ? "reduce" : "no-preference", throttle = 1, name, noWebgl = false, dsf = 2 }) {
+  const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: dsf, reducedMotion, ignoreHTTPSErrors: !!process.env.HTTPS_PROXY });
   const page = await ctx.newPage();
   page.setDefaultTimeout(60000);
   page.on("pageerror", (e) => receipt.errors.push(`${name}: ${e.message}`));
@@ -57,11 +57,12 @@ const action = (stage, name) => stage.locator(`[data-lab-action="${name}"]`);
 async function hideChrome(page) { await page.evaluate(() => { for (const el of document.querySelectorAll("body *")) { const p = getComputedStyle(el).position; if ((p === "fixed" || p === "sticky") && !el.querySelector(".is-convergence")) el.style.visibility = "hidden"; } }); }
 async function shot(stage, page, name) {
   await stage.scrollIntoViewIfNeeded(); await hideChrome(page);
-  // A software GL renderer cannot service a continuously drifting scene AND a screenshot: pause the drift for the capture (reduced-motion media), then restore
-  await page.emulateMedia({ reducedMotion: "reduce" }); await page.waitForTimeout(500);
-  try { await stage.screenshot({ path: `${out}/${name}.png`, timeout: 20000 }); }
+  // A software GL renderer cannot service a continuously animating scene AND a screenshot at 2x: pause motion for the capture (reduced-motion media), then restore.
+  // REDUCED=1 runs the whole context with reduced motion instead (static captures of the rich tier).
+  if (!process.env.REDUCED) { await page.emulateMedia({ reducedMotion: "reduce" }); await page.waitForTimeout(600); }
+  try { await stage.screenshot({ path: `${out}/${name}.png`, timeout: 25000 }); }
   catch { const box = await stage.boundingBox(); await page.screenshot({ path: `${out}/${name}.png`, clip: { x: box.x, y: Math.max(0, box.y), width: box.width, height: Math.min(box.height, 8000) }, fullPage: true, timeout: 60000 }); }
-  await page.emulateMedia({ reducedMotion: process.env.REDUCED ? "reduce" : "no-preference" });
+  if (!process.env.REDUCED) await page.emulateMedia({ reducedMotion: "no-preference" });
 }
 const selectedPart = async (stage) => host(stage).getAttribute("data-selected-part");
 async function frameGaps(page, ms) { return page.evaluate((span) => new Promise((resolve) => { const gaps = []; let last = performance.now(); const end = last + span; const tick = (t) => { gaps.push(t - last); last = t; if (t < end) requestAnimationFrame(tick); else resolve(gaps); }; requestAnimationFrame(tick); }), ms); }
@@ -203,6 +204,18 @@ try {
     const after = await heap(page);
     (receipt.directions[dir] ||= {}).gpuRelease = { cycles: 5, liveContexts: live, heapBeforeMB: before, heapAfterMB: after };
     assert.equal(live, 0, `no live WebGL context after closing (${dir})`);
+    await ctx.close();
+  }
+
+  // ===== museum drift (motion ON, 1x, no screenshots): how a continuously drifting software-GL scene behaves =====
+  if (FULL) {
+    const { ctx, page } = await session({ width: 1280, height: 900, name: "drift-perf", dsf: 1, reducedMotion: "no-preference" });
+    const stage = await openStage(page, "museum");
+    await stage.locator('[data-s4-action="deepen"]').click(); const h = host(stage); await h.locator("canvas").waitFor(); await page.waitForTimeout(5000);
+    await h.scrollIntoViewIfNeeded();
+    assert.equal(await h.getAttribute("data-spin"), "true");
+    const gaps = await frameGaps(page, 4000); const sorted = [...gaps].sort((x, y) => x - y);
+    (receipt.directions.museum ||= {}).driftSoftwareGL = { dsf: 1, frames: gaps.length, medianGapMs: Math.round(sorted[Math.floor(sorted.length / 2)]), p95GapMs: Math.round(sorted[Math.floor(sorted.length * 0.95)]), note: "continuous rendering while drifting (software GL, no GPU)" };
     await ctx.close();
   }
 
