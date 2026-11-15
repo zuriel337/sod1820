@@ -7,7 +7,8 @@ import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Sh
 import NotFoundPage from "./NotFound2029Page.jsx";
 
 // The original WordPress address is a document identity, not a redirect to /post.
-export default function PublicPostAddress2029Page({ home = null }) {
+// `sourceReader` is the route-owned early read of a `/<slug>` address (App2029 PublicPostAddressEntry2029); the `?p=` address resolves its own slug first.
+export default function PublicPostAddress2029Page({ home = null, sourceReader = null }) {
   const { slug } = useParams();
   const location = useLocation();
   const wp = !slug ? new URLSearchParams(location.search).get("p") : null;
@@ -22,7 +23,7 @@ export default function PublicPostAddress2029Page({ home = null }) {
       .catch(() => { if (live) setState({ key: wp, loading: false, error: true }); });
     return () => { live = false; };
   }, [wp, slug, attempt]);
-  if (slug) return <Post2029Page resolvedSlug={slug} />;
+  if (slug) return <Post2029Page resolvedSlug={slug} sourceReader={sourceReader} />;
   if (!wp) return home;
   if (!/^\d+$/.test(wp)) return <Sod2029Shell surface="post" introVariant="none"><NotFoundPage /></Sod2029Shell>;
   if (state.key === wp && state.slug && !state.error) return <Post2029Page resolvedSlug={state.slug} />;

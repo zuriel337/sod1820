@@ -115,6 +115,27 @@ function PostEntry2029() {
   if (loading || source?.slug !== slug || source.identity !== identity) return <Loading2029 />;
   return <Post2029Page sourceReader={source.read} />;
 }
+// An imported WordPress post is served at its original address `/<slug>`, the address search engines serve and visitors open. Its source read
+// used to begin only after the page code had arrived and mounted, one whole read after the code; it now begins together with that code, exactly as
+// PostEntry2029 does for `/post/:slug` (the same route-owned read, cancelled on a change of address or identity, with no shared data cache). The code
+// is requested in the first render, as React.lazy does for the element this entry replaces, without waiting for the account to resolve (a signed-in
+// visitor's read does wait, as on `/post/:slug`). Builds without the public release (protected previews) keep the plain page.
+function PublicPostAddressEntry2029() {
+  const { slug } = useParams();
+  const { user, loading } = useAuth();
+  const identity = user?.id || "guest";
+  const [source, setSource] = useState(null);
+  void loadPublicPostAddress().catch(() => {});
+  useEffect(() => {
+    if (!PUBLIC_READING_RELEASE || loading) return undefined;
+    const request = beginPostReadingSource(slug);
+    setSource({ slug, identity, read: request.read });
+    return () => request.cancel();
+  }, [slug, identity, loading]);
+  if (!PUBLIC_READING_RELEASE) return <PublicPostAddress2029Page />;
+  if (loading || source?.slug !== slug || source.identity !== identity) return <Loading2029 />;
+  return <PublicPostAddress2029Page sourceReader={source.read} />;
+}
 const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
 
 // Branch-only prototype. Production builds do not register or import this surface
@@ -394,7 +415,7 @@ export default function App2029() {
                 <Route path="/codes" element={<PublicLibraryContinuity2029Page kind="codes" />} />
                 <Route path="/codes/:slug" element={<PublicLibraryContinuity2029Page kind="codes" />} />
                 {["privacy", "unsubscribe", "updates", "map"].map(kind => <Route key={kind} path={`/${kind}`} element={<PublicServices2029Page kind={kind} />} />)}
-                <Route path="/:slug" element={<PublicPostAddress2029Page />} />
+                <Route path="/:slug" element={<PublicPostAddressEntry2029 />} />
               </>}
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               {followCenterPreviewEnabled && <Route path="/2029/preview/follow-center" element={<PublicContributorFrame2029 surface="community" title="מרכז עדכונים" introVariant="none"><FollowCenterPreview2029Page /></PublicContributorFrame2029>} />}
