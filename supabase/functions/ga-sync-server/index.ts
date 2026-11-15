@@ -122,7 +122,14 @@ Deno.serve(async (req) => {
   if (!saRaw) return json({ ok: false, error: "google service account missing" }, 500);
 
   let body: Record<string, any> = {};
-  try { body = await req.json(); } catch { /* empty body allowed */ }
+  try {
+    const raw = await req.text();
+    if (raw.trim()) body = JSON.parse(raw);
+  } catch { return json({ ok: false, error: "invalid JSON body" }, 400); }
+  if (!body || typeof body !== "object" || Array.isArray(body)
+    || (body.dry_run !== undefined && typeof body.dry_run !== "boolean")) {
+    return json({ ok: false, error: "body must be an object; dry_run must be a boolean" }, 400);
+  }
   const days = Math.min(Math.max(Number(body.days) || 7, 1), 1200);
 
   let sa: any;
@@ -139,6 +146,14 @@ Deno.serve(async (req) => {
     ]);
     const totalRows = normalizeRows(totalRaw);
     const ilRows = normalizeRows(ilRaw);
+
+    // Same authenticated GA reports and normalization, without invoking either
+    // canonical writer. Empty/default scheduled bodies keep their old behavior.
+    if (body.dry_run === true) return json({
+      ok: true, dry_run: true, source: "GA4_MEASURED", from: startDate,
+      total_rows: totalRows.length, il_rows: ilRows.length,
+      total_preview: totalRows, il_preview: ilRows,
+    });
 
     const { data: totalWritten, error: totalError } = await sb.rpc("ingest_ga_daily", { p_rows: totalRows });
     if (totalError) throw new Error(`ingest_ga_daily: ${totalError.message}`);

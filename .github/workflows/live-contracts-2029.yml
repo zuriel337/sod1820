@@ -168,6 +168,7 @@ jobs:
           test/public-reading-observability.test.mjs
           test/public-page-analytics-20261115.test.mjs
           test/post-background-preload-20261115.test.mjs
+          test/ga-sync-preview-20261115.test.mjs
           test/public-reading-analytics-worker.test.mjs
           test/public-reading-action-measurement.test.mjs
           test/measurement-page-view-once-2029.test.mjs
