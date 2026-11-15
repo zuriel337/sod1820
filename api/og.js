@@ -328,14 +328,25 @@ export default async function handler(req, res) {
     const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
     if (encLower !== slug) variants.push(encLower);
     const SEL = 'select=id,slug,source,link,wp_id,title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
-    for (const v of variants) {
+    const readVariant = async v => {
+      const identityFilter = wpId ? `wp_id=eq.${wpId}` : `slug=eq.${encodeURIComponent(v)}`;
+      const url = `${SUPABASE_URL}/rest/v1/posts?${identityFilter}&${SEL}`;
+      const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
+      if (!r.ok) throw new Error('post-source-unavailable');
+      const rows = await r.json();
+      if (productionReading && !Array.isArray(rows)) throw new Error('post-source-invalid');
+      return rows;
+    };
+    // The spellings of one address are alternatives, not dependent steps. Every imported WordPress post is stored percent-encoded in lower case,
+    // so its record used to wait for a complete round trip (iad1 -> Tokyo) that could only miss on the decoded spelling. Request them together and
+    // read the outcomes in the original order: the first spelling still wins and a failed request still falls through to the next one.
+    // A `?p=` address names its record by id (the spellings would repeat one request), so that path keeps its single, sequential read.
+    const started = wpId ? null : variants.map(readVariant);
+    // An earlier hit ends the loop before the later outcomes are read; mark them observed so a late failure is never an unhandled rejection.
+    started?.forEach(lookup => lookup.catch(() => {}));
+    for (const [index, v] of variants.entries()) {
       try {
-        const identityFilter = wpId ? `wp_id=eq.${wpId}` : `slug=eq.${encodeURIComponent(v)}`;
-        const url = `${SUPABASE_URL}/rest/v1/posts?${identityFilter}&${SEL}`;
-        const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
-        if (!r.ok) throw new Error('post-source-unavailable');
-        const rows = await r.json();
-        if (productionReading && !Array.isArray(rows)) throw new Error('post-source-invalid');
+        const rows = await (started ? started[index] : readVariant(v));
         if (Array.isArray(rows) && rows[0]) {
           if (hasSuppressedPublicPostTag(rows[0]) || !publicPostUrl(rows[0])) break;
           post = rows[0];
