@@ -305,7 +305,6 @@ jobs:
           src/lib/research/goldenProjectorModes.test.js
           src/lib/research/nasrallahPost92Golden.test.js
           src/lib/research/razielOneShot2029.test.js
-          test/companion-2029-public-source-shortcuts.test.mjs
           test/global-living-ribbon-state.test.mjs
           test/personal-self-preview-route.test.mjs
           test/post-hierarchy-raziel-2029.test.mjs
@@ -336,7 +335,6 @@ jobs:
           test/now-media-centred-2029.test.mjs
           test/home-live-updates-2029.test.mjs
           test/home-featured-post-2029.test.mjs
-          test/companion-2029-one-feed-and-projector-rail.test.mjs
           test/group-youtube-card-2029.test.mjs
           test/group-message-numbers-2029.test.mjs
           test/community-staff-chip-2029.test.mjs

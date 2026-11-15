@@ -116,7 +116,9 @@ assert.match(rail, /ההסבר רק מתאר את המוקד הפעיל; הוא 
 assert.match(rail, /surfaceMapLabel/);
 assert.doesNotMatch(rail, /GematriaReveal2029/);
 assert.match(rail, /interactive/);
-assert.match(postPage, /surfaceSections: regions\.map/);
+assert.match(postPage, /surfaceSections: useOutline \? postOutline\.map/);
+// the hand-written regions (flight, golden) still feed the tree when no derived outline applies
+assert.match(postPage, /\.\.\.regions\.map\(\(region\) => \(\{\s*id: region\.id,\s*label: region\.label,\s*targetId: `source-region-\$\{region\.id\}`/);
 assert.match(postPage, /surfaceMapLabel: "בתוך הפוסט"/);
 // Explicit expression intent now goes through the source/version checker before
 // opening the same Number window. Passive reading still does not fetch traces.

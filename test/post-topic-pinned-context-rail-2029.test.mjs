@@ -66,7 +66,10 @@ test("REST -> FOCUS -> exact return semantics", () => {
 
 test("rail points to in-body depth but does not duplicate it", () => {
   assert.match(rail, /sod29-surface-context-depth-pointer/);
-  assert.match(rail, /scrollIntoView/);
+  // the jump is ONE shared helper (SurfaceProgressSpine2029.revealAndScrollTo): it opens a closed <details> ancestor, then calls scrollIntoView
+  assert.match(rail, /revealAndScrollTo\(/);
+  assert.match(read("src/components/experience2029/SurfaceProgressSpine2029.jsx"), /export function revealAndScrollTo[\s\S]*scrollIntoView/);
+  assert.doesNotMatch(rail, /getElementById\([^)]*\)\??\.scrollIntoView/);
   assert.doesNotMatch(rail, /tier[123]|Tier[123]|dangerouslySetInnerHTML/);
   assert.doesNotMatch(rail, /getElementById\([^)]*\)\??\.(innerHTML|textContent|cloneNode)/);
 });
