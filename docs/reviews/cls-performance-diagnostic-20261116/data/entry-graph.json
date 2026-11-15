@@ -1,0 +1,24 @@
+{
+  "source": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+  "entryStaticChunks": 17,
+  "gzipBytes": 224863,
+  "realtime": [
+    {
+      "inEntry": false,
+      "file": "assets/module-Dut4nRCB.js"
+    }
+  ],
+  "researchChunks": [
+    {
+      "key": "_researchPlanV2-Bz_gI_Ah.js",
+      "file": "assets/researchPlanV2-Bz_gI_Ah.js",
+      "inEntry": false
+    },
+    {
+      "key": "src/lib/research/razielSessionRequest2029.js",
+      "file": "assets/razielSessionRequest2029-BPLNIyia.js",
+      "inEntry": false
+    }
+  ],
+  "note": "Full entry cost, not attributed exclusively to ResearchProvider; local build, not a production artifact identity claim."
+}

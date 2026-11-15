@@ -1,0 +1,37 @@
+{
+  "source": "ddba9037207163ad9c98469ba95494259d0e44dd",
+  "rows": [
+    {
+      "reset": false,
+      "width": 390,
+      "priorY": 4000,
+      "forwardY": 236,
+      "backAfterLateContentY": 4000,
+      "restored": true
+    },
+    {
+      "reset": false,
+      "width": 1440,
+      "priorY": 4000,
+      "forwardY": 236,
+      "backAfterLateContentY": 4000,
+      "restored": true
+    },
+    {
+      "reset": true,
+      "width": 390,
+      "priorY": 4000,
+      "forwardY": 0,
+      "backAfterLateContentY": 236,
+      "restored": false
+    },
+    {
+      "reset": true,
+      "width": 1440,
+      "priorY": 4000,
+      "forwardY": 0,
+      "backAfterLateContentY": 236,
+      "restored": false
+    }
+  ]
+}

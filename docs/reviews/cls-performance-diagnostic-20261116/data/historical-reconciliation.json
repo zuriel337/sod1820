@@ -1,0 +1,135 @@
+{
+  "historical_handoff": "f19f7cfcb5530d9632c99d345c22c8b0124b6292",
+  "historical_product_base": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+  "historical_scope": {
+    "method": "git rev-parse and git merge-base --is-ancestor for every listed inclusion commit",
+    "allListedCommitsPresent": true,
+    "semanticAcceptance": "Scope-specific evidence; ancestry is not a global correctness proof",
+    "fixGroups": 34,
+    "integrationCommits": 55,
+    "relativeEvidenceLinksVerified": 23
+  },
+  "historical_release_state": "WORK_BASE_AND_PREVIEW_ONLY_NO_PRODUCTION_GO",
+  "review_20261031_baseline": "d2dd882f960a329394f4a23d7b6e4a7d4c4c6fd5",
+  "historical_review_selected_groups": [
+    {
+      "id": "F02",
+      "historical_title": "מתגי הביצועים הקיימים ותיקון לוח הבקרה",
+      "verdict": "SUPERSEDED_PARTIAL",
+      "finding": "Current capability flags and current public composition supersede old runtime-switch paths; historical switches are absent and must not silently be reactivated.",
+      "current_witness": "MaintenanceLock.jsx; App2029.jsx; SystemFrame2029.jsx",
+      "next_step": "Reconcile only a measured cost boundary; no historical default-on or policy change."
+    },
+    {
+      "id": "F03",
+      "historical_title": "שחזור גלילה F2 והמתנה לתוכן שמגיע מאוחר",
+      "verdict": "OPEN",
+      "finding": "Historical scrollRestore2029 helper is absent. Later exact-return tests cover selected routes, not full delayed-content scroll parity.",
+      "current_witness": "central-unified-end-to-end-preview-20261031.md",
+      "next_step": "Test cold/deep-link/back with late images in current routes before restoring a global handler."
+    },
+    {
+      "id": "F07",
+      "historical_title": "תיקון שעון המדידה, איסוף הבקשות ומדידת תוכן שמיש",
+      "verdict": "REPLACED_LAB_ONLY",
+      "finding": "Current lab uses exact built artifacts, paired cold contexts, interleaving, explicit primary content and request/byte observers. It does not claim historic runner carry or field p75.",
+      "current_witness": "test/unified-performance-2029.browser.mjs",
+      "next_step": "Extend profiles to current real Post/World paths; do not call lab LCP a field result."
+    },
+    {
+      "id": "F08",
+      "historical_title": "בידוד CI משירותים חיים, מלכודות UDP וקורפוס ציבורי מאושר",
+      "verdict": "PARTIAL",
+      "finding": "Current browser fixtures block all external APIs; real SDK transport tests use loopback. This is not proof of the historical full approved corpus or remote CI.",
+      "current_witness": "test/unified-performance-2029.browser.mjs; realtime-entry-split-browser-loopback-2029.test.mjs",
+      "next_step": "Remote CI and full historical runner corpus still require independent checks."
+    },
+    {
+      "id": "F18",
+      "historical_title": "snapshot משותף של site_flags לכל ניווט 2029 עם רענון לפי הקשר",
+      "verdict": "RESTORED_PENDING_ONLY",
+      "finding": "2029 capability consumers coalesce only in-flight public policy per navigation/principal. Settled results are discarded, so no stale policy TTL/snapshot. Legacy default calls remain independent.",
+      "current_witness": "MaintenanceLock.jsx; supabase.js getSiteFlags; unified-performance-read-policy-2029.test.mjs",
+      "next_step": "This deliberately does not claim restoration of the old navigation-long snapshot or push-live synchronization."
+    },
+    {
+      "id": "F19",
+      "historical_title": "תשתית RUM v2 קיימת בקוד; הפעלה ומיגרציה חיות דורשות אימות נפרד",
+      "verdict": "METRICS_PARTIAL_V2_OPEN",
+      "finding": "Current WebVitals collector/admin projection is v1-style hard-document-navigation data. Live October contains 207 document samples, none with build SHA or usable-content measurement. Historic RUMv2 cannot be declared applied/carried.",
+      "current_witness": "webVitals2029.js; webVitalsCore.js; live admin_2029_analytics metadata",
+      "next_step": "Use the existing events/TI owner for a later bounded extension; no new analytics store or live SQL apply here."
+    },
+    {
+      "id": "F20",
+      "historical_title": "Realtime/Phoenix נטען בעת שימוש במקום בכניסה הציבורית",
+      "verdict": "RESTORED_EXACT_IMPLEMENTATION",
+      "finding": "Restored the reviewed 417-line adapter from 5de4d577. SDK remains 2.116.0, one Supabase/Auth client, same token callback. Exact 2029-only alias removes Phoenix from eager entry; Legacy resolution unchanged.",
+      "current_witness": "realtimeLazy2029.js; vite.config.js; realtime-entry-split tests",
+      "next_step": "14 adapter and two real installed-SDK/Chromium loopback tests; mechanical consumer subset guard remains."
+    },
+    {
+      "id": "F21",
+      "historical_title": "כרטיס סיפור בעולם מצומצם; ציר הזמן וההקרנה המלאה בעת פתיחה והתאוששות",
+      "verdict": "OPEN",
+      "finding": "WorldFlightStory still awaits fetchPost2029ReadingProjection even for its initial card. Historical compact-card/full-timeline separation is not carried.",
+      "current_witness": "WorldFlightStory2029.jsx lines32-40",
+      "next_step": "Split exact compact public identity from explicit full source/timeline and retain retry/return."
+    },
+    {
+      "id": "F23",
+      "historical_title": "דחיית מדיה בגוף פוסט, שמירת מקום וכוונת wheel/touch לפני טעינה",
+      "verdict": "PARTIAL",
+      "finding": "Current source projection marks images lazy/async and iframes lazy. The old approach/intent admission helper and exact reserved-dimension evidence are absent.",
+      "current_witness": "post2029ReadingProjection.js; Post2029Page.jsx",
+      "next_step": "Inspect heavy body originals, dimensions and source-preserving fallback before porting FZ-specific hints."
+    },
+    {
+      "id": "F24",
+      "historical_title": "טעינת payload תצוגת פסוקים ב-ELS לפי צורך והקשחת פרסום הארטיפקט",
+      "verdict": "OPEN_LARGE_PAYLOAD",
+      "finding": "Current canonical generator still embeds gz64(vtext) inline. Historic deferred content-addressed payload/offline publication hardening is not carried.",
+      "current_witness": "tools/els/build.py; tools/els/els-code.template.html; public/tzofen.html",
+      "next_step": "Separate scoped port must preserve current ELS chain, corpus hash, offline/standalone parity and Legacy shared artifact. No old HTML replacement."
+    }
+  ],
+  "warning": "Historical verdicts are dated 31 October, not current acceptance. Current witnesses below are separately read at the pinned baseline.",
+  "current_baseline": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+  "current_witnesses": [
+    {
+      "path": "src/lib/runtimeSwitches2029.js",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "src/lib/scrollRestore2029.js",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "src/lib/realtimeLazy2029.js",
+      "exists": true,
+      "sha256": "620e9a50bf2744989dc9166ab7d495a59f34743e442afbfa8eb01a334d0768d9"
+    },
+    {
+      "path": "src/lib/supabase.js",
+      "exists": true,
+      "sha256": "ea93ec0c1e1529732cd986fe33a5c9a8a10525e1df6fc106a349d7febfa59637"
+    },
+    {
+      "path": "src/components/research/WorldFlightStory2029.jsx",
+      "exists": true,
+      "sha256": "f3a1fe63f2d602caac0de5ab42cdc240e0655b9583407161aada9bc5910bf7ec"
+    },
+    {
+      "path": "src/lib/research/ResearchProvider.jsx",
+      "exists": true,
+      "sha256": "f937b665823323e02d7ccc829f7ae28002bd3fef360f18ee71f2c7d828627368"
+    },
+    {
+      "path": "src/lib/webVitals2029.js",
+      "exists": true,
+      "sha256": "00396a76baf5f86558626d44b6813f970f0a4ffe679167f87bc36552e0f13857"
+    }
+  ]
+}

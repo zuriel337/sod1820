@@ -1,0 +1,40 @@
+[
+  {
+    "path": "/sitemap.xml",
+    "status": 200,
+    "bytes": 4222900,
+    "url": "https://sod1820.co.il/sitemap.xml",
+    "robots": null,
+    "total": 16796,
+    "calculator": [
+      "https://sod1820.co.il/community/calculator"
+    ],
+    "duplicates": 0
+  },
+  {
+    "path": "/robots.txt",
+    "status": 200,
+    "bytes": 105,
+    "url": "https://sod1820.co.il/robots.txt",
+    "robots": null,
+    "text": "User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /unsubscribe\nSitemap: https://sod1820.co.il/sitemap.xml\n"
+  },
+  {
+    "path": "/community/calculator",
+    "status": 200,
+    "bytes": 11935,
+    "url": "https://sod1820.co.il/community/calculator",
+    "robots": "index, follow"
+  },
+  {
+    "path": "/community/calculator?name=abc",
+    "status": 200,
+    "robots": "noindex, follow",
+    "canonical": [
+      "https://sod1820.co.il/community/calculator"
+    ],
+    "metaRobots": [
+      "noindex, follow"
+    ]
+  }
+]

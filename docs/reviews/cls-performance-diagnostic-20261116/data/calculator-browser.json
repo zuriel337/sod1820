@@ -1,0 +1,255 @@
+{
+  "source": "f854a7ca783ab960d446e1ea1c6aa2d0fdbd4f84",
+  "rows": [
+    {
+      "width": 390,
+      "steps": [
+        {
+          "name": "bare",
+          "url": "/community/calculator",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "index, follow",
+          "values": [],
+          "resultLinks": [],
+          "width": 390,
+          "documentWidth": 375
+        },
+        {
+          "name": "typed",
+          "url": "/community/calculator?w=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C&result=207",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [
+            "207"
+          ],
+          "resultLinks": [
+            "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C"
+          ],
+          "width": 390,
+          "documentWidth": 375
+        },
+        {
+          "name": "compare",
+          "url": "/community/calculator?w=%D7%90%D7%95%D7%A8&w2=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C&result=207&mode=compare&compare=1",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [
+            "207",
+            "207"
+          ],
+          "resultLinks": [
+            "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C",
+            "/number/207?focus=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C"
+          ],
+          "width": 390,
+          "documentWidth": 375
+        },
+        {
+          "name": "reload",
+          "url": "/community/calculator?w=%D7%90%D7%95%D7%A8&w2=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C&result=207&mode=compare&compare=1",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [
+            "207",
+            "207"
+          ],
+          "resultLinks": [
+            "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C",
+            "/number/207?focus=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C"
+          ],
+          "width": 390,
+          "documentWidth": 375
+        },
+        {
+          "name": "number-link",
+          "url": "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C",
+          "title": "207 · דף המספר · SOD1820",
+          "canonical": "https://sod1820.co.il/number/207",
+          "robots": "noindex, follow",
+          "values": [],
+          "resultLinks": [],
+          "width": 390,
+          "documentWidth": 375
+        },
+        {
+          "name": "back",
+          "url": "/community/calculator?w=%D7%90%D7%95%D7%A8&w2=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C&result=207&mode=compare&compare=1",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [
+            "207",
+            "207"
+          ],
+          "resultLinks": [
+            "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C",
+            "/number/207?focus=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C"
+          ],
+          "width": 390,
+          "documentWidth": 375
+        },
+        {
+          "name": "date",
+          "url": "/community/calculator?mode=date&date=2024-04-22&afterSunset=1",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [],
+          "resultLinks": [],
+          "width": 390,
+          "documentWidth": 375
+        },
+        {
+          "name": "baby",
+          "url": "/community/calculator?mode=baby&babyName=%D7%90%D7%95%D7%A8&babyName=%D7%A9%D7%9C%D7%95%D7%9D&family=%D7%9C%D7%95%D7%99&birthDate=2024-04-22",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [],
+          "resultLinks": [],
+          "width": 390,
+          "documentWidth": 375
+        }
+      ],
+      "errors": [],
+      "failures": []
+    },
+    {
+      "width": 1440,
+      "steps": [
+        {
+          "name": "bare",
+          "url": "/community/calculator",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "index, follow",
+          "values": [],
+          "resultLinks": [],
+          "width": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "name": "typed",
+          "url": "/community/calculator?w=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C&result=207",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [
+            "207"
+          ],
+          "resultLinks": [
+            "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C"
+          ],
+          "width": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "name": "compare",
+          "url": "/community/calculator?w=%D7%90%D7%95%D7%A8&w2=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C&result=207&mode=compare&compare=1",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [
+            "207",
+            "207"
+          ],
+          "resultLinks": [
+            "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C",
+            "/number/207?focus=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C"
+          ],
+          "width": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "name": "reload",
+          "url": "/community/calculator?w=%D7%90%D7%95%D7%A8&w2=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C&result=207&mode=compare&compare=1",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [
+            "207",
+            "207"
+          ],
+          "resultLinks": [
+            "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C",
+            "/number/207?focus=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C"
+          ],
+          "width": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "name": "number-link",
+          "url": "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C",
+          "title": "207 · דף המספר · SOD1820",
+          "canonical": "https://sod1820.co.il/number/207",
+          "robots": "noindex, follow",
+          "values": [],
+          "resultLinks": [],
+          "width": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "name": "back",
+          "url": "/community/calculator?w=%D7%90%D7%95%D7%A8&w2=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C&result=207&mode=compare&compare=1",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [
+            "207",
+            "207"
+          ],
+          "resultLinks": [
+            "/number/207?focus=%D7%90%D7%95%D7%A8&method=%D7%A8%D7%92%D7%99%D7%9C",
+            "/number/207?focus=%D7%A8%D7%96&method=%D7%A8%D7%92%D7%99%D7%9C"
+          ],
+          "width": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "name": "date",
+          "url": "/community/calculator?mode=date&date=2024-04-22&afterSunset=1",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [],
+          "resultLinks": [],
+          "width": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "name": "baby",
+          "url": "/community/calculator?mode=baby&babyName=%D7%90%D7%95%D7%A8&babyName=%D7%A9%D7%9C%D7%95%D7%9D&family=%D7%9C%D7%95%D7%99&birthDate=2024-04-22",
+          "title": "מחשבון הקהילה — גימטריה, שמות ותאריך עברי · SOD1820",
+          "canonical": "https://sod1820.co.il/community/calculator",
+          "robots": "noindex, follow",
+          "values": [],
+          "resultLinks": [],
+          "width": 1440,
+          "documentWidth": 1425
+        }
+      ],
+      "errors": [],
+      "failures": []
+    }
+  ],
+  "cacheMissCount": 0,
+  "locally_suppressed": [
+    "/rest/v1/rpc/fn_number_dossier",
+    "/rest/v1/rpc/fn_number_journey",
+    "/rest/v1/rpc/fn_number_lookup",
+    "/rest/v1/rpc/fn_verses_by_gematria",
+    "/rest/v1/rpc/fn_zero_scale",
+    "/rest/v1/rpc/gematria_method_trace",
+    "/rest/v1/rpc/ingest_event",
+    "/rest/v1/rpc/is_number_indexable",
+    "/rest/v1/rpc/lang_links_list",
+    "/rest/v1/rpc/number_neighbors",
+    "/rest/v1/rpc/posts_by_number_strict",
+    "/rest/v1/rpc/track_visit",
+    "/rest/v1/rpc/world_group_source_arrivals_v2"
+  ]
+}

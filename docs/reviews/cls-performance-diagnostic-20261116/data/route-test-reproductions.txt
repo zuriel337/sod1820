@@ -1,0 +1,125 @@
+
+=== route-late-before.txt ===
+▶ forward navigation resets; browser history, anchors and same-page edits retain their owners
+  ✖ 390px (4616.139096ms)
+  ✖ 1440px (4352.980989ms)
+✖ forward navigation resets; browser history, anchors and same-page edits retain their owners (9321.956372ms)
+✔ the reset is mounted once outside the account-keyed research subtree (0.661426ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 1
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9951.767186
+
+✖ failing tests:
+
+test at test/route-scroll-reset-2029.browser.test.mjs:34:13
+✖ 390px (4616.139096ms)
+  AssertionError [ERR_ASSERTION]: POP restores after destination content arrives late
+  
+  1454 !== 4000
+  
+      at TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:69:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:34:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1454,
+    expected: 4000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/route-scroll-reset-2029.browser.test.mjs:34:13
+✖ 1440px (4352.980989ms)
+  AssertionError [ERR_ASSERTION]: POP restores after destination content arrives late
+  
+  1454 !== 4000
+  
+      at TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:69:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:34:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1454,
+    expected: 4000,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+=== route-late-after.txt ===
+▶ forward navigation resets; browser history, anchors and same-page edits retain their owners
+  ✔ 390px (8463.969524ms)
+  ✔ 1440px (8220.082253ms)
+✔ forward navigation resets; browser history, anchors and same-page edits retain their owners (17077.798706ms)
+✔ the reset is mounted once outside the account-keyed research subtree (0.986693ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17794.890794
+
+=== route-cancel-mutation.txt ===
+▶ forward navigation resets; browser history, anchors and same-page edits retain their owners
+  ✖ 390px (6501.640423ms)
+  ✖ 1440px (6241.045524ms)
+✖ forward navigation resets; browser history, anchors and same-page edits retain their owners (13125.30184ms)
+✔ the reset is mounted once outside the account-keyed research subtree (0.780495ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 1
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13812.71761
+
+✖ failing tests:
+
+test at test/route-scroll-reset-2029.browser.test.mjs:34:13
+✖ 390px (6501.640423ms)
+  AssertionError [ERR_ASSERTION]: user scroll cancels pending restoration
+  
+  4000 !== 1454
+  
+      at TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:75:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:34:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4000,
+    expected: 1454,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/route-scroll-reset-2029.browser.test.mjs:34:13
+✖ 1440px (6241.045524ms)
+  AssertionError [ERR_ASSERTION]: user scroll cancels pending restoration
+  
+  4000 !== 1454
+  
+      at TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:75:14)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:34:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4000,
+    expected: 1454,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

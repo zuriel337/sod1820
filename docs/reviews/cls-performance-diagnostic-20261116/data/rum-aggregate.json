@@ -1,0 +1,189 @@
+{
+  "last": "2026-11-15T22:32:36.902221+00:00",
+  "note": "Deduplicated by sample_id; final preferred. Affected nodes, not causal proof. All-device; no build attribution.",
+  "first": "2026-11-01T06:50:02.613768+00:00",
+  "families": [
+    {
+      "p75": 0.0641,
+      "poor": 135,
+      "family": "community",
+      "samples": 1371,
+      "with_device": 0,
+      "final_samples": 975
+    },
+    {
+      "p75": 0.0377,
+      "poor": 94,
+      "family": "home",
+      "samples": 812,
+      "with_device": 0,
+      "final_samples": 508
+    },
+    {
+      "p75": 0.0069,
+      "poor": 1,
+      "family": "other",
+      "samples": 188,
+      "with_device": 0,
+      "final_samples": 133
+    },
+    {
+      "p75": 0.0082,
+      "poor": 35,
+      "family": "post",
+      "samples": 408,
+      "with_device": 0,
+      "final_samples": 323
+    },
+    {
+      "p75": 0.0059,
+      "poor": 17,
+      "family": "root-address-or-single-route",
+      "samples": 955,
+      "with_device": 0,
+      "final_samples": 714
+    },
+    {
+      "p75": 0,
+      "poor": 0,
+      "family": "tag",
+      "samples": 33,
+      "with_device": 0,
+      "final_samples": 23
+    }
+  ],
+  "poor_shift_sources": [
+    {
+      "family": "community",
+      "source": "div.sod29-community-thread-group",
+      "samples": 70,
+      "mean_poor_cls": 0.7088
+    },
+    {
+      "family": "community",
+      "source": "article.sod29-community-thread",
+      "samples": 57,
+      "mean_poor_cls": 0.7679
+    },
+    {
+      "family": "home",
+      "source": "ul.h29-live-list.rc29-list",
+      "samples": 53,
+      "mean_poor_cls": 0.2846
+    },
+    {
+      "family": "home",
+      "source": "div.rc29-src.r29",
+      "samples": 43,
+      "mean_poor_cls": 0.2822
+    },
+    {
+      "family": "community",
+      "source": "div.sod29-community-replies",
+      "samples": 38,
+      "mean_poor_cls": 0.7272
+    },
+    {
+      "family": "community",
+      "source": "footer.f29",
+      "samples": 30,
+      "mean_poor_cls": 0.9644
+    },
+    {
+      "family": "post",
+      "source": "footer.f29",
+      "samples": 22,
+      "mean_poor_cls": 0.9424
+    },
+    {
+      "family": "community",
+      "source": "button.sod29-community-replies-toggle",
+      "samples": 22,
+      "mean_poor_cls": 0.5924
+    },
+    {
+      "family": "post",
+      "source": "i",
+      "samples": 20,
+      "mean_poor_cls": 0.9375
+    },
+    {
+      "family": "home",
+      "source": "button.rc29-btn.r29-btn.is-gold",
+      "samples": 17,
+      "mean_poor_cls": 0.2813
+    },
+    {
+      "family": "post",
+      "source": "div.sod29-main-stage.has-context-rail",
+      "samples": 16,
+      "mean_poor_cls": 1.1467
+    },
+    {
+      "family": "home",
+      "source": "section.h29-sec.k29-reveal",
+      "samples": 12,
+      "mean_poor_cls": 0.7695
+    },
+    {
+      "family": "post",
+      "source": "aside.sod29-frame-panel",
+      "samples": 12,
+      "mean_poor_cls": 0.7481
+    },
+    {
+      "family": "community",
+      "source": "aside.sod29-frame-panel",
+      "samples": 11,
+      "mean_poor_cls": 0.4246
+    },
+    {
+      "family": "home",
+      "source": "i.sod29-header-rail",
+      "samples": 11,
+      "mean_poor_cls": 0.3377
+    },
+    {
+      "family": "community",
+      "source": "div.sod29-community-thread-actions",
+      "samples": 10,
+      "mean_poor_cls": 1.1222
+    },
+    {
+      "family": "home",
+      "source": "footer.f29",
+      "samples": 9,
+      "mean_poor_cls": 0.9263
+    },
+    {
+      "family": "home",
+      "source": "div.rc29-src",
+      "samples": 9,
+      "mean_poor_cls": 0.2704
+    },
+    {
+      "family": "community",
+      "source": "li.f29-closed",
+      "samples": 8,
+      "mean_poor_cls": 0.829
+    },
+    {
+      "family": "home",
+      "source": "div.k29-reveal.k29-rv-self",
+      "samples": 8,
+      "mean_poor_cls": 0.6951
+    },
+    {
+      "family": "home",
+      "source": "aside.sod29-frame-panel",
+      "samples": 8,
+      "mean_poor_cls": 0.5557
+    },
+    {
+      "family": "home",
+      "source": "i",
+      "samples": 8,
+      "mean_poor_cls": 0.6676
+    }
+  ]
+}

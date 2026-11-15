@@ -1,0 +1,18 @@
+{
+  "source": "a1a955f388e720ee353c47e8d95f446a29b363f2",
+  "scenario": "tag-footer-forward",
+  "fixtureMisses": 0,
+  "errors": [],
+  "navigation": {
+    "expected": "/contact",
+    "found": 1,
+    "path": "/contact",
+    "after": {
+      "y": 0,
+      "height": 2190,
+      "viewport": 844,
+      "footerY": 1024,
+      "headingY": 202.390625
+    }
+  }
+}

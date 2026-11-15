@@ -1,0 +1,186 @@
+{
+  "observedAtUtc": "2026-11-15 23:26:18 UTC",
+  "route": {
+    "pr": 1367,
+    "head": "a1a955f388e720ee353c47e8d95f446a29b363f2",
+    "jobs": [
+      {
+        "id": 132996721256,
+        "name": "hard-isolation",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721321,
+        "name": "Production Canary Gate",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721485,
+        "name": "Mobile + Accessibility Acceptance",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721394,
+        "name": "release-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721702,
+        "name": "perf-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721715,
+        "name": "live-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721720,
+        "name": "marketing-browser-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721758,
+        "name": "security-sql-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721824,
+        "name": "auth-browser-acceptance-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721188,
+        "name": "public-core",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996720864,
+        "name": "route-seo-decision-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996720858,
+        "name": "gate",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996721220,
+        "name": "legacy-production-lock",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132996720546,
+        "name": "route-navigation-2029",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "calculator": {
+    "pr": 1368,
+    "head": "f854a7ca783ab960d446e1ea1c6aa2d0fdbd4f84",
+    "jobs": [
+      {
+        "id": 132994715681,
+        "name": "legacy-production-lock",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994715934,
+        "name": "gate",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994715756,
+        "name": "route-seo-decision-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994716375,
+        "name": "Mobile + Accessibility Acceptance",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994716600,
+        "name": "Production Canary Gate",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994715802,
+        "name": "hard-isolation",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994716193,
+        "name": "marketing-browser-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994716444,
+        "name": "perf-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994716446,
+        "name": "release-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994716466,
+        "name": "live-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994716487,
+        "name": "security-sql-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132994716554,
+        "name": "auth-browser-acceptance-2029",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "aliases": [
+    {
+      "alias": "sod1820.co.il",
+      "deploymentId": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU"
+    },
+    {
+      "alias": "www.sod1820.co.il",
+      "deploymentId": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU"
+    },
+    {
+      "alias": "sod1820.vercel.app",
+      "deploymentId": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU"
+    }
+  ],
+  "main": "d1f1e3252100afe14719a4eeb96c791dd29b7d51"
+}
