@@ -179,6 +179,31 @@ function RouteEffects2029() {
   const auth = useAuth();
   const measurementAuth = React.useRef(auth);
   measurementAuth.current = auth;
+  const measurementEntry = React.useRef({ pathname, key: entryKey });
+  // Query/hash-only history changes do not create a view, including when
+  // authentication resolves afterwards. Leaving for an unmeasured route does.
+  if (measurementEntry.current.pathname !== pathname) measurementEntry.current = { pathname, key: entryKey };
+
+  useEffect(() => {
+    if (!PUBLIC_READING_RELEASE || auth.loading
+      || !["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)
+      || /^\/books\/[^/]+\/?$/.test(pathname)) return undefined;
+    const telemetryPath = readingTelemetryPath(pathname);
+    if (!telemetryPath) return undefined;
+    const entry = `${measurementEntry.current.key}\n${pathname}`;
+    let stopped = false, stopEngagement;
+    const settle = setTimeout(() => {
+      void import("./lib/visits.js").then(({ trackVisit, startPublicPageEngagement }) => {
+        if (stopped) return;
+        if (measuredEntry2029 !== entry) {
+          measuredEntry2029 = entry;
+          trackVisit(telemetryPath, { measurementPath: pathname });
+        }
+        stopEngagement = startPublicPageEngagement(pathname);
+      }).catch(() => {});
+    }, PAGE_VIEW_SETTLE_MS);
+    return () => { stopped = true; clearTimeout(settle); stopEngagement?.(); };
+  }, [pathname, auth.loading, auth.user?.id]);
 
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) {
@@ -203,15 +228,6 @@ function RouteEffects2029() {
       if (/^\/books\/[^/]+\/?$/.test(pathname)) return undefined;
       const telemetryPath = readingTelemetryPath(pathname);
       if (!telemetryPath) return undefined;
-      // First-party visit + engagement on the privacy-normalized route label only (no raw slug,
-      // query or identity). visits.js stays out of the opening graph; engagement carries no
-      // visitor/session identity, matching the worker's exact admission.
-      const entry = `${entryKey}\n${pathname}`;
-      const settle = measuredEntry2029 === entry ? null : setTimeout(() => {
-        measuredEntry2029 = entry;
-        void import("./lib/visits.js").then(({ trackVisit }) => trackVisit(telemetryPath)).catch(() => {});
-        startPageEngagement(telemetryPath, { getSodIdFn: () => null, sessionIdFn: () => null });
-      }, PAGE_VIEW_SETTLE_MS);
       // Keep the public home's primary content ahead of the optional Google
       // script. A canceled navigation cannot initialize a stale page view.
       let stopped = false, timer, observer, idle, stopPageview;
@@ -232,7 +248,7 @@ function RouteEffects2029() {
         observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
         observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
       } else schedule();
-      return () => { stopped = true; stopPageview?.(); clearTimeout(settle); observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
+      return () => { stopped = true; stopPageview?.(); observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
     }
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.

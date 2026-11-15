@@ -71,10 +71,11 @@ async function mountAuth({profileReader=async id=>({id,role:'admin'}),verify=asy
  const compiled=(await transform(source,{loader:'jsx',format:'cjs'})).code;
  const context={React,...React,supabase,PUBLIC_READING_RELEASE:true,verifyReadingSession,fetchProfile:profileReader,
   logActivity:(...args)=>calls.push(args),stitchLogin:(...args)=>calls.push(args),claimResearchLead:(...args)=>calls.push(args),getVisitorId:()=>{calls.push('visitor');return 'visitor';},doSignOut:async()=>({}),getPasswordRecovery,subscribePasswordRecovery,localStorage:{getItem:()=>{calls.push('localStorage');return null;},setItem:()=>calls.push('storageWrite')},Date,console};
- vm.createContext(context);vm.runInContext(compiled+';globalThis.AuthProvider=AuthProvider;',context);
+ const measurementSource=read('src/lib/measurementAuth2029.js').replace(/^export /gm,'');
+ vm.createContext(context);vm.runInContext(measurementSource+'\n'+compiled+';globalThis.AuthProvider=AuthProvider;',context);
  const render=()=>{si=0;ri=0;effects=[];const initial=first;const result=context.AuthProvider({children:null});first=false;if(!initial)effects.slice(1).forEach(fn=>fn());return result;};
  render();const cleanup=effects.map(fn=>fn());await flush();
- return {emit:session=>callback('SIGNED_IN',session),render,calls,dispose:()=>cleanup.forEach(fn=>fn?.())};
+ return {emit:session=>callback('SIGNED_IN',session),render,calls,measurement:()=>context.measurementAuth(),dispose:()=>cleanup.forEach(fn=>fn?.())};
 }
 
 test('real AuthProvider reading mode verifies admin role without credits, marketing, visitor, avatar or referral side effects',async()=>{
@@ -88,16 +89,16 @@ test('account switch revokes old admin immediately; stale profile cannot grant r
  let release;
  const app=await mountAuth({profileReader:id=>id==='a'?new Promise(resolve=>{release=resolve;}):Promise.resolve({id,role:'member'})});
  app.emit({access_token:'a',user:{id:'a'}});await flush();
- app.emit({access_token:'b',user:{id:'b'}});assert.equal(app.render().user,null);assert.equal(app.render().isAdmin,false);
+ app.emit({access_token:'b',user:{id:'b'}});assert.equal(app.measurement().ready,false,'new account is not measured before verification');assert.equal(app.render().user,null);assert.equal(app.render().isAdmin,false);
  await flush();release({id:'a',role:'admin'});await flush();
- assert.equal(app.render().user.id,'b');assert.equal(app.render().isAdmin,false);assert.equal(app.render().profile.id,'b');assert.deepEqual(app.calls,[]);app.dispose();
+ assert.equal(app.render().user.id,'b');assert.equal(app.render().isAdmin,false);assert.equal(app.render().profile.id,'b');assert.equal(app.measurement().userId,'b');assert.equal(app.measurement().ready,true);assert.deepEqual(app.calls,[]);app.dispose();
 });
 
 test('token verification failure clears prior admin and prevents profile fetch',async()=>{
  let count=0;
  const app=await mountAuth({verify:async token=>token==='a'?{data:{user:{id:'a'}}}:{error:Error('JWT rejected')},profileReader:async id=>{count++;return {id,role:'admin'};}});
  app.emit({access_token:'a',user:{id:'a'}});await flush();assert.equal(app.render().isAdmin,true);
- app.emit({access_token:'bad',user:{id:'a'}});await flush();assert.equal(app.render().user,null);assert.equal(app.render().isAdmin,false);assert.equal(count,1);app.dispose();
+ app.emit({access_token:'bad',user:{id:'a'}});await flush();assert.equal(app.render().user,null);assert.equal(app.render().isAdmin,false);assert.equal(count,1);assert.equal(app.measurement().userId,null);assert.equal(app.measurement().token,null);app.dispose();
 });
 
 test('same-principal token refresh preserves local navigation identity but revokes admin until server revalidation',async()=>{

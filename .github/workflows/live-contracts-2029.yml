@@ -173,6 +173,7 @@ jobs:
           test/public-reading-analytics-worker.test.mjs
           test/public-reading-action-measurement.test.mjs
           test/measurement-page-view-once-2029.test.mjs
+          test/measurement-identity-20261115.test.mjs
           test/measurement-transport-hardening-2029.test.mjs
           test/measurement-package-scope-20261113.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
@@ -373,6 +374,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: DEF-001, DEF-001b, DEF-004 and DEF-005 SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids; proposed Storage policies and RPC grants behave as specified)
         run: bash scripts/run-def001-sql-test.sh
+      - name: Measurement identity (server account attribution, shared-browser boundaries, report and exact rollback; isolated DB)
+        run: bash scripts/run-measurement-identity-sql-test.sh
       - name: M0-A permissions regression (12 system functions server-only by exact signature, admin guards, account data, Legacy writes closed, dormant policies, cron; idempotent, drift stop, exact rollback)
         run: bash scripts/run-m0a-db-permissions-sql-test.sh
       - name: DEF-004 negative modes (an existing gallery object above 120 MiB stops the proposal; without the proposal the after-assertions fail)

@@ -53,6 +53,30 @@ function OperationalMetricsBody({ principal }) {
           <p className="sod29-muted">מדידת פתיחת מסמך אמיתית מהמערכת הקיימת; אינה CrUX ואינה מדידת מעבר פנימי. סף CLS נשאר 0.1.</p>
         </>;
       }}</MetricsCard>
+      <MetricsCard title="פעילות באתר · 24 שעות" state={states.rum||{loading:true}}>{d=>{
+        const t=d.identified_traffic;
+        if (!t) return <p>חיבור הביקורים והחשבונות טרם הופעל במסד.</p>;
+        return <>
+          <p>צפיות: {number(t.summary?.views)} · ביקורים: {number(t.summary?.sessions)} · דפדפנים: {number(t.summary?.browsers)} · חשבונות: {number(t.summary?.accounts)} · פעולות: {number(t.summary?.actions)}</p>
+          <p className="sod29-muted">הדוח כולל את האירועים החדשים מאז הפעלת החיבור. דפדפן אינו אדם מזוהה; שיוך לחשבון נקבע בזמן הפעולה. אין חיבור בדיעבד של פעילות אורח לחשבון. שעות לפי ישראל.</p>
+          {!t.first_event && <p>עדיין אין אירועים בחיבור החדש בטווח הזה.</p>}
+          {t.summary?.unidentified_events>0 && <p>אירועים ללא מזהה דפדפן או חשבון: {number(t.summary.unidentified_events)}. הם אינם נספרים כדפדפנים.</p>}
+          <details><summary>דפים שנצפו</summary>{t.pages?.map(p=><p key={p.page_path}><bdi>{p.page_path}</bdi> · {number(p.views)} צפיות</p>)}</details>
+          <details><summary>מקורות הגעה ופעולות</summary>
+            {t.arrivals?.map(a=><p key={a.source}><bdi>{a.source}</bdi> · {number(a.sessions)} ביקורים</p>)}
+            {t.actions?.map(a=><p key={`${a.surface}/${a.event_type}`}><bdi>{a.surface} / {a.event_type}</bdi> · {number(a.count)}</p>)}
+          </details>
+          <details><summary>פירוט פעילות למנהל</summary>
+            <p className="sod29-muted">עד 100 רשומות פעילות אחרונות. חשבונות ודפדפני אורחים מוצגים בנפרד, ולכן אין לחבר אותם למספר אנשים.</p>
+            {t.visitors?.map(v=><div className="sod29-row" key={v.audience}><div>
+              <strong>{v.account_id ? v.account_name || 'חשבון מחובר' : 'דפדפן אורח'}</strong>
+              <small><bdi>{v.audience}</bdi></small>
+              <p>{number(v.views)} צפיות · {number(v.actions)} פעולות · {number(v.sessions)} ביקורים · {number(Math.round(v.engaged_ms/1000))} שניות פעילות</p>
+              {v.pages?.map(p=><small key={p.page_path}><bdi>{p.page_path}</bdi> · {number(p.views)}</small>)}
+            </div></div>)}
+          </details>
+        </>;
+      }}</MetricsCard>
       <MetricsCard title="Google Search Console · 90 ימים" state={states.gsc||{loading:true}}>{d=><>
         <p>ימים עם נתונים: {number(d.timeline?.length)}</p>
         <p className="sod29-muted">הופעה בדוח חיפוש או במפת האתר אינה הוכחה לכיסוי כל הכתובות.</p>

@@ -64,3 +64,7 @@ It takes about **3 to 3.5 minutes** (191 s for the four profiles on the machine 
 - **If the job is added, the required-checks list (branch protection) is an integrator decision;** nothing here changes it.
 - **Pinned versions:** the test was run here with Playwright 1.63.0 and its bundled Chromium 1243 (see README). The workflow pins `@playwright/test@1.55.0`; `pw.devices['Pixel 7']` exists in both. The test has not run on 1.55.0.
 - **Skipped, not failed, when the browser or the artifact is missing:** the test carries `skip` for that case, so a job that forgets the build step would pass silently. The step order above (build before test) is therefore part of the wiring.
+
+## 15 November extension
+
+`test/measurement-identity-20261115.test.mjs` runs in the same Analytics measurement contracts step. `scripts/run-measurement-identity-sql-test.sh` runs in the existing `security-sql-contracts` job against a disposable local PostgreSQL. No required-check name or timeout changes.

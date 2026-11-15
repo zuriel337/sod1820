@@ -47,6 +47,7 @@ Commits here: `ff87b461e` C1 (#1321 family, byte-identical files + one hunk of `
     "docs/reviews/measurement-20261113/transport-review.md"
   ],
   "tests": [
+    "test/measurement-identity-20261115.test.mjs",
     "test/measurement-package-scope-20261113.test.mjs",
     "test/measurement-page-view-once-2029.test.mjs",
     "test/measurement-transport-hardening-2029.test.mjs",
@@ -137,3 +138,7 @@ Node `v22.23.4`. Browser: Playwright `1.63.0`, Chromium `1243` (Chrome for Testi
 - The referrer host is sent on the first visit of every page load, and a browser keeps `document.referrer` on refresh, so a refresh repeats the original source (existing behaviour of `site_visits.referrer`).
 - The admission cannot bind a visit to the visitor's live route (it only sees the address the document was created with): residual risk, pinned.
 - Nothing was verified on the live site; the live capture of 12.11 is the "before".
+
+## 15 November extension (branch proposal)
+
+The identity/report extension is documented in `../measurement-identity-20261115/README.md`. The original anonymous collector remains compatible; the new version opts into browser/session identifiers and server-stamped account attribution. Its test is listed in the inventory above; its SQL and release order belong to the extension, not to the historical package.

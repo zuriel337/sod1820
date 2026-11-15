@@ -20,28 +20,29 @@ const compiled = (await transform(source, { loader: "jsx", format: "cjs" })).cod
 // One browser document: the module-level state of App2029.jsx (measuredEntry2029) lives as long as the document.
 function document_({ hostname = "sod1820.co.il" } = {}) {
   const log = { visits: [], engagement: [] }, timers = [];
+  let auth = {loading:false,isAdmin:false};
   let location = { pathname: "/world", key: "default" }, keyCounter = 0;
   const context = { PUBLIC_READING_RELEASE: true, integratedPreviewEnabled: false, kingdomPreviewEnabled: false,
-    useLocation: () => location, useAuth: () => ({ loading: false, isAdmin: false }), React: { useRef: value => ({ current: value }) },
+    useLocation: () => location, useAuth: () => auth, React: { useRef: value => ({ current: value }) },
     window: { location: { hostname }, requestIdleCallback: () => 1, cancelIdleCallback() {} },
     document: { querySelector: () => ({}), getElementById: () => ({}), body: {} }, MutationObserver: class { observe() {} disconnect() {} },
     readingTelemetryPath, startWebVitals2029: () => () => {}, initGA() {}, trackPageview() {}, initMarketing() {}, trackMarketingPageview() {},
     ensureIdentity: () => assert.fail("identity bridge"),
     startPageEngagement: (path, deps) => { assert.equal(deps.getSodIdFn(), null); assert.equal(deps.sessionIdFn(), null); log.engagement.push(path); return {}; },
-    visitsModule: () => Promise.resolve({ trackVisit: path => { log.visits.push(path); } }),
+    visitsModule: () => Promise.resolve({ trackVisit: path => { log.visits.push(path); }, startPublicPageEngagement: path => { log.engagement.push(readingTelemetryPath(path)); return () => {}; } }),
     setTimeout: (fn, ms) => { timers.push({ fn, ms, live: true }); return timers.length; }, clearTimeout: id => { if (timers[id - 1]) timers[id - 1].live = false; } };
   vm.createContext(context);
   vm.runInContext("let measuredEntry2029 = null; const PAGE_VIEW_SETTLE_MS = 150;" + compiled + ";globalThis.RouteEffects2029 = RouteEffects2029;", context);
 
   // A mounted instance of the component: a hook list with the dependency comparison React performs.
   function mount() {
-    const hooks = []; let cursor = 0, mounted = true;
+    const hooks = [], refs=[]; let cursor = 0, refCursor=0, mounted = true;
     const useEffect = (fn, deps) => {
       const i = cursor++, previous = hooks[i];
       if (previous && deps && previous.deps.length === deps.length && deps.every((d, k) => Object.is(d, previous.deps[k]))) return;
       hooks[i] = { deps, fn, cleanup: previous?.cleanup, pending: true };
     };
-    const component = () => { cursor = 0; context.useEffect = useEffect; return vm.runInContext("RouteEffects2029()", context); };
+    const component = () => { cursor = 0; refCursor=0; context.React.useRef=value=>{const i=refCursor++;return refs[i] ||= {current:value};}; context.useEffect = useEffect; return vm.runInContext("RouteEffects2029()", context); };
     const commit = () => { for (const hook of hooks) if (hook.pending) { hook.pending = false; try { hook.cleanup?.(); } catch { /* none */ } hook.cleanup = hook.fn(); } };
     const instance = {
       render() { assert.ok(mounted); component(); commit(); },
@@ -53,6 +54,7 @@ function document_({ hostname = "sod1820.co.il" } = {}) {
     return instance;
   }
   return { log, mount,
+    auth(value) { auth=value; },
     go(pathname) { location = { pathname, key: "k" + ++keyCounter }; },                 // push or replace: a new history entry
     goBackTo(entry) { location = entry; },                                                // traverse to an entry that was visited before
     get location() { return location; },
@@ -85,7 +87,7 @@ test("the account state resolving replaces the keyed subtree: a second mount of 
   await early.settle(); assert.deepEqual(early.log.visits, ["/world"]);
   const late = document_(); const a = late.mount();
   await late.settle(); a.unmount(); late.mount();       // replaced after the visit was written: the record of the measured entry holds
-  await late.settle(); assert.deepEqual(late.log.visits, ["/world"]); assert.deepEqual(late.log.engagement, ["/world"]);
+  await late.settle(); assert.deepEqual(late.log.visits, ["/world"]); assert.deepEqual(late.log.engagement, ["/world", "/world"], "remount closes the earlier span and starts a fresh one without another view");
 });
 
 test("in-app navigation counts every real page change: another page family, another post, and back/forward; query and hash changes do not", async () => {
@@ -149,4 +151,15 @@ test("source pins: the measurement component is mounted outside the keyed subtre
   // without running it again, and a tab that is hidden and shown again is the same page view).
   for (const event of ["pageshow", "visibilitychange", "popstate", "focus", "online"]) assert.equal(source.includes(event), false, event);
   assert.match(source, /clearTimeout\(settle\)/, "the cleanup cancels a visit that has not settled");
+});
+
+
+test("account switch after a query-only change never adds a page view; returning from login does", async()=>{
+  const d=document_(),view=d.mount();await d.settle();
+  d.go('/world');view.render();await d.settle();
+  d.auth({loading:false,user:{id:'account-a'}});view.render();await d.settle();
+  assert.deepEqual(d.log.visits,['/world']);
+  d.go('/login');view.render();await d.settle();
+  d.go('/world');view.render();await d.settle();
+  assert.deepEqual(d.log.visits,['/world','/world']);
 });

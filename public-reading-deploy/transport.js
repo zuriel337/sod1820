@@ -4,7 +4,7 @@ import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.j
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
 import { publicStorageMedia } from "../src/lib/mediaEgressGuard.js";
-import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody, readingActionSpec, readingActionBody } from "../src/lib/publicReadingTelemetry2029.js";
+import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody, readingActionSpec, readingActionBody, readingMeasurementPath, readingMeasurementBody } from "../src/lib/publicReadingTelemetry2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -307,6 +307,19 @@ function installPublicReadingWorker(policy) {
         if (url.pathname.endsWith("/track_visit"))
           return policy.anonKey && readingVisitBody(body) && await measurementWindow(event)
             && withinWindowBudget(visitWindows, event.clientId, 120) ? anonymous() : denied();
+        // Identity-enabled events retain the occurrence-time Authorization header.
+        // PostgREST verifies it; ingest_event derives auth.uid(), never a client ID.
+        // Old anonymous events/RUM still use the unchanged paths below.
+        if (url.pathname.endsWith("/ingest_event") && body.p_props?.measurement) {
+          if (beaconKey || !policy.anonKey || !readingMeasurementBody(body) || !await measurementWindow(event)) return denied();
+          const auth = req.headers.get("Authorization") || `Bearer ${policy.anonKey}`;
+          if (!/^Bearer [A-Za-z0-9_.-]{1,8192}$/.test(auth)) return denied();
+          const page = body.p_surface === 'page';
+          // Separate existing counter budget: events and site_visits are distinct writes for the same view.
+          const budget = page ? engagementWindows : actionWindows;
+          if (!withinWindowBudget(budget, event.clientId, page ? 240 : 60)) return denied();
+          return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: auth, "Content-Type": "application/json" } }));
+        }
         if (beaconKey && body.p_surface !== "page") return denied();
         if (url.pathname.endsWith("/ingest_event") && body.p_surface === "page") {
           // Page engagement is flushed on route change (the window has already moved on) or at pagehide,
@@ -550,7 +563,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
