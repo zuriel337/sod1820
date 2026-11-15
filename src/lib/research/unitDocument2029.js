@@ -154,7 +154,8 @@ export const clearEditable = (blocks) => blocks.filter((block) => block.locked);
 const chipToken = (item) => { const first = item.refs[0], last = item.refs[item.refs.length - 1]; return `[[מקור ${first}${last !== first ? `–${last}` : ""} · ${item.label}]]`; };
 const gxToken = (item) => { const g = item.item; return `[[גימטריה | ${g.phrase.replace(/\|/g, " ")} | ${g.methodKey} | ${g.display} | ${g.stated ?? ""} | ${g.by ?? ""}]]`; };
 const alignPrefix = (align) => (ALIGNS.includes(align) ? `{${ALIGN_WORD[align]}} ` : "");
-export function blocksToDoc(blocks, { withSources = true } = {}) {
+// `base` (optional): sources the person removed from the unit are written as explicit [[הסרת מקור …]] lines, so a copied / saved document pastes back as valid.
+export function blocksToDoc(blocks, { withSources = true, base = null } = {}) {
   const lines = [];
   for (const item of docItems(blocks)) {
     const prefix = alignPrefix(item.align);
@@ -162,6 +163,10 @@ export function blocksToDoc(blocks, { withSources = true } = {}) {
     else if (item.t === "gx") lines.push(prefix + gxToken(item));
     else if (item.t === "rule") lines.push("---");
     else { const mark = (MARKERS.find(([kind]) => kind === item.kind) || [null, ""])[1]; lines.push(`${prefix}${mark}${item.text}`); }
+  }
+  if (base && withSources) {
+    const present = new Set(blocks.map((b) => b.id));
+    for (const g of missingGroups(lockedIds(base).filter((id) => !present.has(id)), base)) lines.push(`[[הסרת מקור ${g.ids[0]}${g.ids.length > 1 ? `–${g.ids[g.ids.length - 1]}` : ""}]]`);
   }
   return lines.join("\n\n");
 }

@@ -93,7 +93,7 @@ export default function UnitDocumentEditor2029({ unit, unitDef, postId, onPickMe
   const restoreApproved = () => commit(base, "הנוסח המאושר הוחזר לעורך (עדיין לא נשמר כטיוטה)");
   const clearAll = () => { if (window.confirm("לנקות את כל טקסט העריכה והנתונים? המקורות החיצוניים נשארים. אפשר לבטל.")) commit(clearEditable(blocksRef.current), "הטקסט והנתונים נוקו — המקורות החיצוניים נשארו"); };
   const restoreSources = () => commit(restoreMissingSources(blocksRef.current, base, removedRef.current), "המקורות שהוסרו הוחזרו למקומם בנוסח המאושר", removedRef.current);
-  const copyDoc = async () => { try { await navigator.clipboard.writeText(blocksToDoc(blocksRef.current)); setNote("כל המסמך הועתק (המקורות כסימונים [[מקור …]])"); } catch { setNote("ההעתקה נכשלה — פתחו ״החלפת התוכן״ כדי לראות את המסמך כטקסט"); } };
+  const copyDoc = async () => { try { await navigator.clipboard.writeText(blocksToDoc(blocksRef.current, { base })); setNote("כל המסמך הועתק (המקורות כסימונים [[מקור …]])"); } catch { setNote("ההעתקה נכשלה — פתחו ״החלפת התוכן״ כדי לראות את המסמך כטקסט"); } };
   const saveDraft = () => {
     if (invalid) { setNote("אי אפשר לשמור: יש שגיאות באימות המקורות (ראו למעלה). לא נשמר דבר."); return; }
     const entries = entriesFromBlocks(blocksRef.current, base);
@@ -226,7 +226,23 @@ export default function UnitDocumentEditor2029({ unit, unitDef, postId, onPickMe
     return () => { window.setTimeout(() => roots.forEach((root) => root.unmount()), 0); };
   }, [panel, blocks, unitDef]);
   const parsedReplace = useMemo(() => (panel === "replace" ? replaceFromText(replaceText, base) : null), [panel, replaceText, base]);
-  const openReplace = () => { setReplaceText(blocksToDoc(blocksRef.current)); setPanel("replace"); };
+  const openReplace = () => { setReplaceText(blocksToDoc(blocksRef.current, { base })); setPanel("replace"); };
+  // a backup that survives clearing the browser, a private window, or a new Preview address (every deployment has its own address, so its own empty local storage)
+  const downloadBackup = () => {
+    try {
+      const d = new Date(); const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}-${String(d.getHours()).padStart(2, "0")}${String(d.getMinutes()).padStart(2, "0")}`;
+      const blob = new Blob([blocksToDoc(blocksRef.current, { base })], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob); const a = document.createElement("a");
+      a.href = url; a.download = `unit-${unitDef.id}-backup-${stamp}.txt`; document.body.append(a); a.click(); a.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setNote("הגיבוי ירד כקובץ. לשחזור: ״החלפת התוכן״ ← ״טען מקובץ גיבוי״.");
+    } catch { setNote("הורדת הגיבוי נכשלה — השתמשו ב״העתק מסמך״."); }
+  };
+  const loadBackupFile = async (event) => {
+    const file = event.target.files?.[0]; event.target.value = "";
+    if (!file) return;
+    if (file.size > 300000) { setNote("הקובץ גדול מדי לגיבוי יחידה."); return; }
+    try { setReplaceText(await file.text()); setNote(`נטען הקובץ ${file.name.slice(0, 60)} — בדקו את האימות ואז ״החל את המסמך״.`); } catch { setNote("קריאת הקובץ נכשלה."); }
+  };
 
   // ---- ✦ Raziel (the existing single session) ----
   const session = useOptionalRazielSession2029();
@@ -301,6 +317,7 @@ export default function UnitDocumentEditor2029({ unit, unitDef, postId, onPickMe
       <button type="button" onClick={() => setPanel(panel === "preview" ? null : "preview")} aria-expanded={panel === "preview"}>תצוגה מלאה</button>
       <button type="button" onClick={() => setPanel(panel === "diff" ? null : "diff")} aria-expanded={panel === "diff"} disabled={!diff.changed}>לפני / אחרי</button>
       <button type="button" onClick={copyDoc}>העתק מסמך</button>
+      <button type="button" data-ude-backup onClick={downloadBackup}>הורד גיבוי (קובץ)</button>
     </div>
     <div className="sod29-ude-kinds" role="toolbar" aria-label="סוג הפסקה בסמן">
       <span>הפסקה בסמן:</span>
@@ -330,6 +347,7 @@ export default function UnitDocumentEditor2029({ unit, unitDef, postId, onPickMe
     {panel === "replace" && parsedReplace ? <section className="sod29-ude-panel" aria-label="החלפת התוכן" data-ude-panel="replace">
       <h4>החלפת התוכן — הדביקו מסמך שלם</h4>
       <p className="sod29-ude-hint">שורה = פסקה. סימונים: <code># </code>כותרת ראשית · <code>## </code>מקטע · <code>#- </code>משנה · <code>#^ </code>פתיחה · <code>#! </code>סיום · <code>#N </code>ארבעת המספרים · <code>#P </code>מספר בולט · <code>#C </code>משוואה · <code>#R </code>שורת טבלה · <code>---</code> מפריד · יישור: <code>{"{מרכז}"}</code> <code>{"{שמאל}"}</code> <code>{"{ימין}"}</code> בתחילת שורה · גימטריה: <code>{"[[גימטריה | ביטוי | שיטה | תצוגה | טענה | של]]"}</code> · מקור חיצוני: <code>{"[[מקור b24–b26 · …]]"}</code> (נוסחו נשמר) · הסרת מקור מהיחידה באישור: <code>{"[[הסרת מקור b33]]"}</code>.</p>
+      <label>טען מקובץ גיבוי<input type="file" accept=".txt,text/plain" data-ude-backup-file onChange={loadBackupFile} /></label>
       <textarea dir="rtl" rows={12} value={replaceText} onChange={(e) => setReplaceText(e.target.value)} aria-label="המסמך כטקסט" data-ude-replace-text />
       {parsedReplace.errors.map((e, i) => <p key={i} className="is-bad" data-ude-replace-error={e.code}>{e.message}</p>)}
       {parsedReplace.notices.map((n, i) => <p key={i} className="sod29-ude-hint">{n}</p>)}

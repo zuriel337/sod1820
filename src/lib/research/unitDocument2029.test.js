@@ -191,3 +191,15 @@ test("word diff marks exactly what changed", () => {
   assert.ok(d.some((x) => x.t === "add" && x.s.includes("ביותר")));
   assert.deepEqual(wordDiff("אבג", "אבג"), [{ t: "same", s: "אבג" }]);
 });
+
+test("a saved / copied document round-trips even after a source was removed from the unit (explicit removal lines)", () => {
+  const without = itemsToBlocks(docItems(base).filter((x) => !(x.t === "chip" && x.label.includes("שחר"))), base, { removed: new Set(["b33", "b37"]) });
+  assert.equal(without.ok, true);
+  const text = blocksToDoc(without.blocks, { base });
+  assert.ok(/\[\[הסרת מקור b33\]\]/.test(text) && /\[\[הסרת מקור b37\]\]/.test(text));
+  const back = replaceFromText(text, base);
+  assert.equal(back.ok, true, JSON.stringify(back.errors));
+  assert.deepEqual([...back.removed].sort(), ["b33", "b37"]);
+  assert.equal(diffBody(base, back.blocks).count, diffBody(base, without.blocks).count);
+  assert.equal(replaceFromText(blocksToDoc(without.blocks), base).ok, false, "without the base the removal is not written (so the editor always passes it)");
+});
