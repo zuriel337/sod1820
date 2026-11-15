@@ -515,3 +515,10 @@
 @media (min-width: 981px) and (max-width: 1180px) {
   .sod29-root.closed-shell.native-frame:is(.surface-post, .surface-topic) .sod29-surface-context-rail { width: 248px; }
 }
+
+/* The top bar names the ACTIVE unit inside the Post (one identity: post > unit); the small link returns to the Post's own scope. It is a segment of the existing orientation line, never a second bar. */
+.sod29-orientation .sod29-orientation-unit { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.sod29-orientation .sod29-orientation-unit-name { color: var(--s29-brand-gold); max-inline-size: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.sod29-orientation .sod29-orientation-back { background: none; border: 0; padding: 0 4px; font: inherit; font-size: 12px; color: var(--s29-accent-text); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.sod29-orientation .sod29-orientation-back:focus-visible { outline: 2px solid var(--s29-focus, currentColor); outline-offset: 2px; border-radius: 4px; }
+@media (max-width: 720px) { .sod29-orientation .sod29-orientation-unit { display: none; } }

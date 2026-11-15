@@ -1539,6 +1539,19 @@ function SystemFrame2029Body({
   const context = research.context || null;
   const currentHref = `${location.pathname}${location.search || ""}${location.hash || ""}`;
   const pageContext = useMemo(() => surfaceContextForRoute2029(context, { surface, pathname: location.pathname, search: location.search, intent: location.state?.sodResearchIntent }), [context, surface, location.pathname, location.search, location.state?.sodResearchIntent]);
+  // The scope the top bar names: the Post, and the ACTIVE unit inside it when the Post holds units (one identity: post > unit > item). It exists only for the route of that Post;
+  // a unit left over from another Post is never shown. "כל הפוסט" returns to the Post's own scope from its top (no unit parameter).
+  const activeUnitScope = useMemo(() => {
+    const dims = context?.dimensions || {};
+    const contextPath = typeof dims.surfaceContextHref === "string" ? dims.surfaceContextHref.split(/[?#]/)[0] : "";
+    if (context?.subject?.type !== "post" || !contextPath || contextPath !== location.pathname || !dims.activeUnitRef || !dims.activeUnitLabel) return null;
+    return { id: String(dims.activeUnitRef), label: String(dims.activeUnitLabel), href: contextPath };
+  }, [context, location.pathname]);
+  const backToPostScope = () => {
+    if (!activeUnitScope) return;
+    navigate(activeUnitScope.href, { state: { puWhole: true } });
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  };
   const currentLabel = title || context?.subject?.label || "SOD1820";
   const locale = context?.locale || "he";
   const direction = directionForLocale(locale);
@@ -2229,6 +2242,8 @@ function SystemFrame2029Body({
               <div className="sod29-orientation" aria-label="איפה אני" title={title || BRAND_LOCKUP_2029.alt}>
                 <span>SOD1820</span><i>/</i><b>{title || BRAND_LOCKUP_2029.alt}</b>
                 {pageContext?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(pageContext) || "ההקשר הנוכחי"}</span></span> : null}
+                {activeUnitScope ? <span className="sod29-orientation-unit" data-active-unit={activeUnitScope.id}><i>/</i><span className="sod29-orientation-unit-name">{activeUnitScope.label}</span>
+                  <button type="button" className="sod29-orientation-back" onClick={backToPostScope} aria-label="חזרה להיקף הפוסט כולו">← כל הפוסט</button></span> : null}
               </div>
               <i className="sod29-header-rail" aria-hidden="true" />
             </div>

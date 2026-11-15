@@ -38,3 +38,22 @@ test("the two side capsules are one pair: same band tokens, same edge gap and ra
   // the footer sits between the capsules
   assert.match(bar, /:has\(\.sod29-main-stage\.has-context-rail\) :is\(\.sod29-living-ribbon, footer\.f29\)/);
 });
+
+test("one active-unit identity: written by ONE effect into the Research Context, held by an opening intent until a manual scroll, named once in the top bar with a way back to the Post", () => {
+  assert.match(page, /activeUnitRef: id, activeUnitLabel: unit \? labelOf\(unit\) : ""/);
+  assert.equal((page.match(/activeUnitRef: id/g) || []).length, 1, "a single writer of the active unit");
+  // the tree/section writer never carries a stale copy of it back
+  assert.match(page, /const \{ activeUnitRef: _unitRef, activeUnitLabel: _unitLabel, \.\.\.currentDimensions \}/);
+  // an opening intent (?unit=) and a tree-row press hold the unit; wheel / touch / keys release it
+  assert.match(page, /let held = wanted \|\| null;/);
+  assert.match(page, /window\.addEventListener\("wheel", release/);
+  assert.match(page, /window\.addEventListener\("touchmove", release/);
+  assert.match(page, /document\.addEventListener\("click", onRowPress, true\)/);
+  // leaving a Post clears it
+  assert.match(page, /postUnitSeries: "", postUnitRefs: \[\], postUnitLinkRefs: \[\], activeUnitRef: "", activeUnitLabel: ""/);
+  // the top bar: one segment of the existing orientation line (never a second bar), only on the route of that Post, with the way back
+  assert.match(frame, /className="sod29-orientation-unit"/);
+  assert.match(frame, /contextPath !== location\.pathname/);
+  assert.match(frame, /className="sod29-orientation-back"/);
+  assert.match(frame, /navigate\(activeUnitScope\.href, \{ state: \{ puWhole: true \} \}\)/);
+});

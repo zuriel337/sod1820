@@ -82,6 +82,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const location = useLocation();
   const shell = use2029Shell();
   const research = useResearch();
+  const latestResearchRef = useRef(research); latestResearchRef.current = research;   // the latest context for effects that must not write from a stale render
   const { user, isAdmin } = useAuth();
   // Prototype layers (semantic design, updates first, voice finish). ?proto=0 shows the page exactly as before; ?proto=sources adds sample source units.
   const protoMode = new URLSearchParams(location.search).get("proto");
@@ -303,7 +304,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       clearPostUnits();
       // leaving a series Post must not leave its unit references in the shared Research Context (a stale selection from the previous Post)
       const staleDims = research.context?.dimensions || {};
-      if (staleDims.postUnitSeries) research.updateResearchContext?.({ dimensions: { ...staleDims, postUnitSeries: "", postUnitRefs: [], postUnitLinkRefs: [] } });
+      if (staleDims.postUnitSeries || staleDims.activeUnitRef) research.updateResearchContext?.({ dimensions: { postUnitSeries: "", postUnitRefs: [], postUnitLinkRefs: [], activeUnitRef: "", activeUnitLabel: "" } });
       return undefined;
     }
     const post = projection.post;
@@ -313,18 +314,35 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const dims = research.context?.dimensions || {};
     if (dims.postUnitSeries !== "reality-map" || JSON.stringify(dims.postUnitRefs) !== JSON.stringify(strings.postUnitRefs)
       || JSON.stringify(dims.postUnitLinkRefs) !== JSON.stringify(strings.postUnitLinkRefs)) {
-      research.updateResearchContext?.({ dimensions: { ...dims, postUnitSeries: "reality-map", ...strings } });
+      research.updateResearchContext?.({ dimensions: { postUnitSeries: "reality-map", ...strings } });   // a partial write: the context merges it, so the active unit and the tree are not overwritten
     }
     return undefined;
   }, [state.projection, passiveSourceHtml, prefsTick, realityMap.active, protoOn]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => clearPostUnits(), []);
-  // The ACTIVE unit follows the reading position (the unit holding the line at 38% of the viewport; the first one above it otherwise).
+  // The ACTIVE unit of the Post (one identity: post > unit > item). It is written into the shared Research Context (`activeUnitRef`, `activeUnitLabel`) so the top bar,
+  // the tree, the sheets and the projector read ONE selection.
+  //   · reading position: the unit holding the line at 38% of the viewport (the first one above it otherwise);
+  //   · a unit LINK (?unit=<id>) or a tree row the person pressed is an OPENING INTENT: it holds the active unit until the person scrolls by hand (wheel / touch / keys),
+  //     so the reading line never fights the jump and the jump never overwrites a deliberate choice; after the first manual scroll the reading position takes over again.
+  // The URL is the opening intent and the history entry, not a rule that the unit is always taken from it.
   useEffect(() => {
     const root = sourceRef.current;
     if (!protoOn || !realityMap.active || !root) return undefined;
-    let frame = 0;
+    let frame = 0, last = null;
+    const unitById = (id) => (id ? [...root.querySelectorAll("[data-sod-unit]")].find((unit) => unit.getAttribute("data-sod-unit") === id) || null : null);
+    const wanted = new URLSearchParams(location.search).get("unit");
+    let held = wanted || null;      // the unit link is an intent even before its unit is in the page (Preview units are injected after the first render)
+    const labelOf = (unit) => (unit.querySelector("[data-sod-role='title'], h2, h3")?.textContent || unit.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim().slice(0, 80);
+    const publish = (unit) => {
+      const id = unit ? unit.getAttribute("data-sod-unit") : "";
+      if (id === last) return;
+      last = id;
+      if (id) setActivePostUnit(id);
+      latestResearchRef.current.updateResearchContext?.({ dimensions: { activeUnitRef: id, activeUnitLabel: unit ? labelOf(unit) : "" } });
+    };
     const pick = () => {
       frame = 0;
+      if (held) { const heldUnit = unitById(held); if (heldUnit) publish(heldUnit); return; }   // a held unit that is not in the page yet: wait for it, do not guess another
       const line = window.innerHeight * 0.38;
       let best = null;
       for (const unit of root.querySelectorAll("[data-sod-unit]")) {
@@ -332,13 +350,38 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         if (box.top <= line && box.bottom >= line) { best = unit; break; }
         if (box.top <= line) best = unit;
       }
-      if (best) setActivePostUnit(best.getAttribute("data-sod-unit"));
+      publish(best);
     };
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(pick); };
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(pick); };
+    const release = () => { if (held) { held = null; schedule(); } };
+    const onKey = (event) => { if (["PageDown", "PageUp", "ArrowDown", "ArrowUp", "Home", "End", " "].includes(event.key)) release(); };
+    // a press on a tree row that points at a unit selects that unit
+    const onRowPress = (event) => {
+      const row = event.target?.closest?.("[data-context-map-item]");
+      if (!row) return;
+      const target = document.getElementById(row.getAttribute("data-context-map-item"));
+      const unit = target?.matches?.("[data-sod-unit]") ? target : target?.closest?.("[data-sod-unit]");
+      if (unit && root.contains(unit)) { held = unit.getAttribute("data-sod-unit"); schedule(); }
+      else if (held) { held = null; schedule(); }   // a row for another part of the Post: the person chose something else
+    };
+    // a unit that appears later (injected / hydrated) is picked up without a scroll
+    const watcher = typeof MutationObserver === "function" ? new MutationObserver((mutations) => {
+      if (mutations.some((m) => [...m.addedNodes].some((n) => n.nodeType === 1 && (n.matches?.("[data-sod-unit]") || n.querySelector?.("[data-sod-unit]"))))) schedule();
+    }) : null;
+    watcher?.observe(root, { childList: true, subtree: true });
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchmove", release, { passive: true });
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("click", onRowPress, true);
     pick();
-    return () => { window.removeEventListener("scroll", onScroll); if (frame) cancelAnimationFrame(frame); };
-  }, [state.projection, passiveSourceHtml, realityMap.active, protoOn]);
+    return () => {
+      window.removeEventListener("scroll", schedule); window.removeEventListener("wheel", release); window.removeEventListener("touchmove", release);
+      window.removeEventListener("keydown", onKey); document.removeEventListener("click", onRowPress, true);
+      watcher?.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [state.projection, passiveSourceHtml, realityMap.active, protoOn, location.search]);
 
   const jumpToSourceUpdate = (entry) => {
     const target = sourceRef.current?.querySelector(`[id="${entry.targetId}"]`);
@@ -565,7 +608,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const post = state.projection.post;
     const currentContext = research.context || null;
     const currentSelection = currentContext?.selection || null;
-    const currentDimensions = currentContext?.dimensions || {};
+    // the active unit is written only by its own effect; this writer must not carry a stale copy of it back (the context merges dimensions, so leaving the keys out keeps the latest)
+    const { activeUnitRef: _unitRef, activeUnitLabel: _unitLabel, ...currentDimensions } = currentContext?.dimensions || {};
     const explicitFocus = explicitGematriaFocusRef.current;
     const samePost = currentContext?.subject?.type === "post"
       && String(currentContext.subject.id) === String(post.id);
