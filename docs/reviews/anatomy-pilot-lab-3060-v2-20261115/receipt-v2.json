@@ -2,7 +2,7 @@
   "directions": {
     "museum": {
       "desktop": {
-        "canvasMs": 10793,
+        "canvasMs": 12071,
         "drawCalls": 128,
         "geometries": 55,
         "textures": 14,
@@ -30,5 +30,7 @@
     }
   },
   "cases": [],
-  "errors": []
+  "errors": [
+    "AssertionError [ERR_ASSERTION]: nothing is revealed before a choice\n\n1 !== 0\n\n    at file:///home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:122:14"
+  ]
 }

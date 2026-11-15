@@ -67,7 +67,9 @@ async function drag(page, box) { const cx = box.x + box.width / 2, cy = box.y + 
 
 
 const DIRS = (process.env.ONLY || "museum,discovery,lab,v1").split(","); // ONLY=museum for a quick run
-const FULL = !process.env.ONLY;
+const FULL = Boolean(process.env.EXTRAS); // GPU-release cycles, glyph-failure fallback and reduced-motion cases
+const DESKTOP = !process.env.MOBILE_ONLY && !process.env.EXTRAS;
+const WIDTHS = process.env.EXTRAS ? [] : (process.env.WIDTHS ? process.env.WIDTHS.split(",").map(Number) : process.env.SKIP_MOBILE ? [] : [390, 320]);
 const hall = (stage) => stage.locator(".sod29-spatial-lab-hall");
 const stats = async (h) => ({ drawCalls: Number(await h.getAttribute("data-draw-calls")), geometries: Number(await h.getAttribute("data-gpu-geometries")), textures: Number(await h.getAttribute("data-gpu-textures")),
   shadows: await h.getAttribute("data-shadows"), look: await h.getAttribute("data-look"), quality: await h.getAttribute("data-quality"), glyph: await h.getAttribute("data-glyph-status") });
@@ -84,7 +86,7 @@ const heap = (page) => page.evaluate(() => Math.round((performance.memory?.usedJ
 
 try {
   // ===== desktop: every direction =====
-  for (const dir of DIRS) {
+  for (const dir of DESKTOP ? DIRS : []) {
     const { ctx, page, seen } = await session({ width: 1280, height: 900, name: `desktop-${dir}` });
     const stage = await openStage(page, dir);
     assert.equal(seen.length, 0, "no 3D module before the explicit action");
@@ -105,6 +107,7 @@ try {
       assert.deepEqual(await stage.locator(".sod29-lab-primary > button.r29-chip").allInnerTexts(), ["חקור", "פרק שכבות", "מסלולים"]);
       assert.equal(await stage.locator(".sod29-lab-more").first().getAttribute("open"), null, "secondary tools start closed");
     }
+    if (dir === "discovery") assert.equal(await stage.locator(".sod29-discovery__steps li").count(), 0, "nothing is revealed before a choice");
     rec.canvasPickedParts = await pickByCanvas(page, stage);
     assert.ok(rec.canvasPickedParts.length >= 3, `direct selection in the structure (${rec.canvasPickedParts.join(",")})`);
     await stage.locator('[data-lab-action="reset"], [data-lab-action="scene-structure"]').first().scrollIntoViewIfNeeded();
@@ -119,7 +122,8 @@ try {
       assert.equal(await h.getAttribute("data-spin"), "true", "museum drifts gently by default");
     }
     if (dir === "discovery") {
-      assert.equal(await stage.locator(".sod29-discovery__steps li").count(), 0, "nothing is revealed before a choice");
+      await stage.locator('[data-discover-action="restart"]').click(); // the canvas picks above started the reveal; start again from the beginning
+      assert.equal(await stage.locator(".sod29-discovery__steps li").count(), 0);
       await stage.locator("button.sod29-lab-medal[data-path-index='2']").click(); await page.waitForTimeout(1800);
       assert.equal(await h.getAttribute("data-view"), "focus", "discovery moves in on the chosen shape");
       assert.equal(await h.getAttribute("data-explode"), "true", "discovery opens the layers");
@@ -168,7 +172,7 @@ try {
   }
 
   // ===== mobile: every direction at 390 (CPU x4) and 320 =====
-  for (const width of process.env.SKIP_MOBILE ? [] : [390, 320]) for (const dir of DIRS) {
+  for (const width of WIDTHS) for (const dir of DIRS) {
     const { ctx, page } = await session({ width, height: 844, name: `mobile-${width}-${dir}`, throttle: width === 390 ? 4 : 1 });
     const stage = await openStage(page, dir);
     await stage.locator('[data-s4-action="deepen"]').click();
@@ -195,7 +199,7 @@ try {
     for (let i = 0; i < 5; i += 1) { await stage.locator('[data-s4-action="deepen"]').click(); await host(stage).locator("canvas").waitFor(); await page.waitForTimeout(2200); await stage.locator('[data-s4-action="return"]').click(); await page.waitForTimeout(500); }
     const live = await page.evaluate(() => (window.__ctxs || []).filter((c) => { try { return !c.isContextLost(); } catch { return false; } }).length);
     const after = await heap(page);
-    receipt.directions[dir].gpuRelease = { cycles: 5, liveContexts: live, heapBeforeMB: before, heapAfterMB: after };
+    (receipt.directions[dir] ||= {}).gpuRelease = { cycles: 5, liveContexts: live, heapBeforeMB: before, heapAfterMB: after };
     assert.equal(live, 0, `no live WebGL context after closing (${dir})`);
     await ctx.close();
   }
@@ -206,7 +210,7 @@ try {
     await page.route(/heglyph-/, (route) => route.abort());
     const stage = await openStage(page, dir);
     await stage.locator('[data-s4-action="deepen"]').click(); const h = host(stage); await h.locator("canvas").waitFor(); await page.waitForTimeout(5000);
-    receipt.directions[dir].glyphFallback = { status: await h.getAttribute("data-glyph-status") };
+    (receipt.directions[dir] ||= {}).glyphFallback = { status: await h.getAttribute("data-glyph-status") };
     assert.equal(receipt.directions[dir].glyphFallback.status, "failed");
     assert.equal((await page.locator("[data-glyph-fallback]").count()) >= 0, true);
     await shot(stage, page, `v2-${dir}-glyph-fallback-390`);
@@ -222,6 +226,6 @@ try {
     assert.deepEqual(a, b, "no drift with reduced motion"); assert.equal(receipt.reducedMotion.reduced, "true");
     await ctx.close(); }
 } catch (error) { receipt.errors.push(String(error?.stack || error).slice(0, 1200)); }
-finally { await browser.close(); fs.writeFileSync(`${out}/receipt-v2.json`, JSON.stringify(receipt, null, 2)); }
+finally { await browser.close(); fs.writeFileSync(`${out}/receipt-v2-${[process.env.ONLY, process.env.MOBILE_ONLY && "m" + (process.env.WIDTHS || ""), process.env.EXTRAS && "extras"].filter(Boolean).join("-").replace(/,/g, "_") || "all"}.json`, JSON.stringify(receipt, null, 2)); }
 console.log(receipt.errors.length ? "FAIL" : "PASS", JSON.stringify(Object.keys(receipt.directions)), "errors:", receipt.errors.length);
 if (receipt.errors.length) { console.log(receipt.errors.join("\n")); process.exitCode = 1; }
