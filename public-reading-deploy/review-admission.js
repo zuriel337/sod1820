@@ -11,7 +11,8 @@ export const PRODUCTION_REVIEW_BRANCH = "main";
 // Exact names only, Preview target only: a Production target never admits them, no pattern or prefix match, and each further branch
 // needs its own recorded approval. The receipt still pins the exact source SHA, deployment id and host, and the runtime still
 // requires every platform field to match, so a branch name alone never authorizes anything.
-export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111"]);
+// ZURIEL approved this exact branch on 15.11.2026, Preview only (Anatomy pilot: ריבוע 5787 view inside SpatialMethodStage2029; no Production, alias or DB).
+export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111", "claude/anatomy-pilot-spatial-8ueak4"]);
 export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.

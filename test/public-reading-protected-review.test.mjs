@@ -289,8 +289,8 @@ test('stable Auth alias needs the exact generated Preview platform proof; canoni
 
 test("an additional review branch is an exact, Preview-only allowlist entry; nothing else is admitted", () => {
   const extra = ADDITIONAL_REVIEW_BRANCHES[0];
-  assert.deepEqual([...ADDITIONAL_REVIEW_BRANCHES], ["claude/number-typography-v2-20261111"]);
-  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, extra]);
+  assert.deepEqual([...ADDITIONAL_REVIEW_BRANCHES], ["claude/number-typography-v2-20261111", "claude/anatomy-pilot-spatial-8ueak4"]);
+  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES]);
   assert.ok(Object.isFrozen(REVIEW_BRANCHES) && Object.isFrozen(ADDITIONAL_REVIEW_BRANCHES));
   const env = { ...fixtureEnv, VERCEL_GIT_COMMIT_REF: extra };
   const identity = protectedReviewBuildIdentity({ env, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });
@@ -319,4 +319,20 @@ test("the stable auth callback host stays with the original review branch only",
   const withHost = (ref) => ({ ...fixtureEnv, VERCEL_GIT_COMMIT_REF: ref, VERCEL_BRANCH_URL: REVIEW_AUTH_HOST });
   assert.equal(protectedReviewBuildIdentity({ env: withHost(REVIEW_BRANCH), sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }).authHost, REVIEW_AUTH_HOST);
   assert.equal(protectedReviewBuildIdentity({ env: withHost(extra), sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }).authHost, undefined);
+});
+
+test("the Anatomy pilot branch (ZURIEL 15.11.2026) is admitted exactly, Preview only, without the stable auth host", () => {
+  const branch = "claude/anatomy-pilot-spatial-8ueak4";
+  const env = { ...fixtureEnv, VERCEL_GIT_COMMIT_REF: branch, VERCEL_BRANCH_URL: REVIEW_AUTH_HOST };
+  const identity = protectedReviewBuildIdentity({ env, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });
+  assert.equal(identity.branch, branch);
+  assert.equal(identity.target, "preview");
+  assert.equal(identity.authHost, undefined);
+  assert.equal(identity.productionAuthorized, false);
+  assert.equal(identity.indexingAuthorized, false);
+  for (const ref of [branch + "/x", branch + " ", branch.toUpperCase(), "claude/anatomy-pilot-spatial", "claude/anatomy-pilot-spatial-8ueak5", "refs/heads/" + branch]) {
+    assert.throws(() => protectedReviewBuildIdentity({ env: { ...fixtureEnv, VERCEL_GIT_COMMIT_REF: ref }, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/, ref);
+  }
+  assert.throws(() => protectedReviewBuildIdentity({ env: { ...fixtureEnv, VERCEL_ENV: "production", VERCEL_TARGET_ENV: "production", VERCEL_GIT_COMMIT_REF: branch },
+    sourceSha: sha, sourceDirty: false, requestedSourceSha: sha, reviewTarget: "production" }), /identity_rejected/);
 });
