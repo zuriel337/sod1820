@@ -467,6 +467,8 @@ jobs:
         run: node --test test/ga-measurement-browser-2029.browser.mjs
       - name: Public Post background starts during calculation; GA uses the current public page identity
         run: node --test test/post-speed-page-analytics.browser.mjs
+      - name: Public Post at its original address reads its source while the page code downloads (real worker, request order)
+        run: node --test test/post-root-address-early-read-20261115.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)
