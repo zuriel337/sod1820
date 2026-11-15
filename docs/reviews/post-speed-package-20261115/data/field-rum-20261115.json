@@ -1,0 +1,12 @@
+{
+  "source": "public.events surface='performance' event_type='web_vital' (RUM, hard document loads only), queried read-only 2026-11-15 ~14:50 UTC",
+  "window": "last 14 days (from 2026-11-01 first rows); one row per sample_id preferring phase=final",
+  "excluded": ["2026-11-15 01:00-04:30 UTC (synthetic browser audit, journal d9bdd7fe)", "2026-11-15 from 13:20 UTC (this task's own lab/live runs and verification browsers)"],
+  "limits": "device class is NOT recorded (events.device is NULL), so no mobile p75 exists; all devices, humans only by client-side bot filtering; Hebrew-slug classification is by path regex (root-level WordPress permalinks).",
+  "rows": [
+    {"kind": "post at /post/:slug", "n": 400, "ttfb_p50": 927, "ttfb_p75": 1857, "fcp_p50": 2295, "fcp_p75": 3172, "lcp_p50": 4356, "lcp_p75": 5818, "cls_p75": 0.008, "inp_p75": 186},
+    {"kind": "post at original address (Hebrew slug)", "n": 568, "ttfb_p50": 1265, "ttfb_p75": 2371, "fcp_p50": 2554, "fcp_p75": 3488, "lcp_p50": 4220, "lcp_p75": 6269, "cls_p75": 0.001, "inp_p75": 230},
+    {"kind": "other pages", "n": 2569, "ttfb_p50": 697, "ttfb_p75": 1304, "fcp_p50": 1212, "fcp_p75": 1964, "lcp_p50": 2292, "lcp_p75": 3700, "cls_p75": 0.051, "inp_p75": 248},
+    {"kind": "post library index (/post)", "n": 73, "ttfb_p50": 410, "ttfb_p75": 739, "fcp_p50": 660, "fcp_p75": 1088, "lcp_p50": 1128, "lcp_p75": 1796, "cls_p75": 0.0, "inp_p75": 170}
+  ]
+}

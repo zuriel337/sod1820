@@ -1,0 +1,164 @@
+{
+ "label": "live-il-cold",
+ "mode": "live (production, read-only GET, all beacons/writes refused)",
+ "profile": "Pixel 7, Slow 4G + 4x CPU slowdown, Asia/Jerusalem time zone, third-party scripts allowed (beacons refused)",
+ "source": "sandbox egress (not Israel)",
+ "sequential": true,
+ "runs_per_post": 3,
+ "taken_utc": "2026-11-15 19:30-19:34",
+ "live_deployment": "dpl_J2wg6mqptCp8vFkfDbxz31dtHzoH (source c2acc064b)",
+ "posts": {
+  "O1": {
+   "ttfb": {
+    "median": 1834,
+    "min": 1458,
+    "max": 2452,
+    "n": 3
+   },
+   "fcp": {
+    "median": 2196,
+    "min": 1892,
+    "max": 2780,
+    "n": 3
+   },
+   "content": {
+    "median": 10283,
+    "min": 8623,
+    "max": 10478,
+    "n": 3
+   },
+   "lcp": {
+    "median": 12232,
+    "min": 10516,
+    "max": 12716,
+    "n": 3
+   },
+   "tbt": {
+    "median": 959,
+    "min": 897,
+    "max": 1441,
+    "n": 3
+   },
+   "kb_before_content": {
+    "median": 1185,
+    "min": 1088,
+    "max": 1207,
+    "n": 3
+   }
+  },
+  "O3": {
+   "ttfb": {
+    "median": 829,
+    "min": 740,
+    "max": 1310,
+    "n": 3
+   },
+   "fcp": {
+    "median": 1240,
+    "min": 1124,
+    "max": 1772,
+    "n": 3
+   },
+   "content": {
+    "median": 8499,
+    "min": 7772,
+    "max": 9337,
+    "n": 3
+   },
+   "lcp": {
+    "median": 10016,
+    "min": 9564,
+    "max": 10360,
+    "n": 3
+   },
+   "tbt": {
+    "median": 1008,
+    "min": 888,
+    "max": 1225,
+    "n": 3
+   },
+   "kb_before_content": {
+    "median": 1207,
+    "min": 1032,
+    "max": 1207,
+    "n": 3
+   }
+  },
+  "N3": {
+   "ttfb": {
+    "median": 1195,
+    "min": 800,
+    "max": 1249,
+    "n": 3
+   },
+   "fcp": {
+    "median": 1532,
+    "min": 1180,
+    "max": 1656,
+    "n": 3
+   },
+   "content": {
+    "median": 8357,
+    "min": 7792,
+    "max": 8359,
+    "n": 3
+   },
+   "lcp": {
+    "median": 9192,
+    "min": 8716,
+    "max": 9320,
+    "n": 3
+   },
+   "tbt": {
+    "median": 1177,
+    "min": 1051,
+    "max": 1318,
+    "n": 3
+   },
+   "kb_before_content": {
+    "median": 1028,
+    "min": 1028,
+    "max": 1028,
+    "n": 3
+   }
+  },
+  "N5": {
+   "ttfb": {
+    "median": 1439,
+    "min": 1273,
+    "max": 1846,
+    "n": 3
+   },
+   "fcp": {
+    "median": 1848,
+    "min": 1640,
+    "max": 2276,
+    "n": 3
+   },
+   "content": {
+    "median": 8385,
+    "min": 8205,
+    "max": 9885,
+    "n": 3
+   },
+   "lcp": {
+    "median": 12248,
+    "min": 12152,
+    "max": 13284,
+    "n": 3
+   },
+   "tbt": {
+    "median": 1048,
+    "min": 970,
+    "max": 1107,
+    "n": 3
+   },
+   "kb_before_content": {
+    "median": 1028,
+    "min": 1028,
+    "max": 1211,
+    "n": 3
+   }
+  }
+ }
+}

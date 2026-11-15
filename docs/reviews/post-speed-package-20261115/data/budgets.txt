@@ -1,0 +1,70 @@
+=== wt-main c2acc064b 
+Post2029Page: 60 static chunks, 1371400 bytes raw
+Number2029Page: 64 static chunks, 1562688 bytes raw
+World2029Page: 76 static chunks, 1665900 bytes raw
+2029 built dependency graph: PASS
+reachable manifest records: 270
+eager manifest records: 17
+eager JS gzip: 222891 bytes (235851 recovered)
+Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-D0bzEofJ.js)
+Raziel Research Plan: lazy (assets/researchPlanV2-Bz_gI_Ah.js)
+=== wt-a 1782b9f78 
+Post2029Page: 60 static chunks, 1371400 bytes raw
+Number2029Page: 64 static chunks, 1562688 bytes raw
+World2029Page: 76 static chunks, 1665900 bytes raw
+2029 built dependency graph: PASS
+reachable manifest records: 270
+eager manifest records: 17
+eager JS gzip: 222891 bytes (235851 recovered)
+Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-D0bzEofJ.js)
+Raziel Research Plan: lazy (assets/researchPlanV2-Bz_gI_Ah.js)
+=== wt-b 0dea8b199 
+Post2029Page: 60 static chunks, 1371571 bytes raw
+Number2029Page: 64 static chunks, 1562859 bytes raw
+World2029Page: 76 static chunks, 1666071 bytes raw
+2029 built dependency graph: PASS
+reachable manifest records: 270
+eager manifest records: 17
+eager JS gzip: 222914 bytes (235828 recovered)
+Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-Cvv7jDDb.js)
+Raziel Research Plan: lazy (assets/researchPlanV2-Bz_gI_Ah.js)
+=== wt-c 2557c661e 
+Post2029Page: 60 static chunks, 1371532 bytes raw
+Number2029Page: 64 static chunks, 1562820 bytes raw
+World2029Page: 76 static chunks, 1666032 bytes raw
+2029 built dependency graph: PASS
+reachable manifest records: 270
+eager manifest records: 17
+eager JS gzip: 222942 bytes (235800 recovered)
+Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-CUdtyUHV.js)
+Raziel Research Plan: lazy (assets/researchPlanV2-Bz_gI_Ah.js)
+=== wt-d 15f14f2d7 
+Post2029Page: 60 static chunks, 1371400 bytes raw
+Number2029Page: 64 static chunks, 1562688 bytes raw
+World2029Page: 76 static chunks, 1665900 bytes raw
+2029 built dependency graph: PASS
+reachable manifest records: 270
+eager manifest records: 17
+eager JS gzip: 222891 bytes (235851 recovered)
+Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-D0bzEofJ.js)
+Raziel Research Plan: lazy (assets/researchPlanV2-Bz_gI_Ah.js)
+=== wt-fin 1cefda9b2 
+Post2029Page: 60 static chunks, 1371703 bytes raw
+Number2029Page: 64 static chunks, 1562991 bytes raw
+World2029Page: 76 static chunks, 1666203 bytes raw
+2029 built dependency graph: PASS
+reachable manifest records: 270
+eager manifest records: 17
+eager JS gzip: 222962 bytes (235780 recovered)
+Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-C1UanvMx.js)
+Raziel Research Plan: lazy (assets/researchPlanV2-Bz_gI_Ah.js)
+=== wt-c2 3fd3634e1 
+Post2029Page: 60 static chunks, 1371675 bytes raw
+Number2029Page: 64 static chunks, 1562688 bytes raw
+World2029Page: 76 static chunks, 1665900 bytes raw
+2029 built dependency graph: PASS
+reachable manifest records: 270
+eager manifest records: 17
+eager JS gzip: 222895 bytes (235847 recovered)
+Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-vVAlDYDX.js)
+Raziel Research Plan: lazy (assets/researchPlanV2-Bz_gI_Ah.js)

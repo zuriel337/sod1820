@@ -1,0 +1,72 @@
+{
+ "label": "x0-base",
+ "mode": "fixture",
+ "origin": "https://sod1820.co.il",
+ "device": "mobile",
+ "thirdParty": "scripts-only",
+ "scenarios": [
+  "cold"
+ ],
+ "runs": 5,
+ "gapMs": 1200,
+ "cpuProfile": true,
+ "readRpc": [
+  "world_group_source_arrivals_v2",
+  "convergence_meter"
+ ],
+ "fixture": {
+  "root": "/tmp/claude-0/-home-user-sod1820/110674db-474e-508e-82dd-23165024ac9c/scratchpad/perf/wt-main",
+  "cacheDir": "/tmp/claude-0/-home-user-sod1820/110674db-474e-508e-82dd-23165024ac9c/scratchpad/perf/cache/supabase",
+  "docDelayMs": {
+   "old": 1300,
+   "new": 900,
+   "home": 700
+  },
+  "supabaseExtraMs": 250,
+  "record": true,
+  "staticCacheControl": null,
+  "inject": {}
+ },
+ "posts": [
+  {
+   "key": "O1",
+   "kind": "old",
+   "id": 31,
+   "path": "/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%9C%D7%A8%D7%A4%D7%95%D7%90%D7%94-%D7%A9%D7%9C-%D7%A8%D7%91%D7%99-%D7%A9%D7%9C%D7%9E%D7%94-%D7%99%D7%94%D7%95%D7%93%D7%94-%D7%94%D7%99%D7%A0%D7%95%D7%A7%D7%90",
+   "len": 4489,
+   "expect_title": "תפילה לרפואה של רבי",
+   "expect_snippet": "",
+   "note": "image-first (1 large webp, loading=lazy); top GSC page (355 clicks/28d)"
+  },
+  {
+   "key": "O3",
+   "kind": "old",
+   "id": 192,
+   "path": "/%D7%A1%D7%93%D7%A8-%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%9C%D7%A8%D7%A4%D7%95%D7%90%D7%94-%D7%A9%D7%9C%D7%9E%D7%94-%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%A9%D7%9C-%D7%94%D7%A6%D7%94%D7%A7-%D7%A8%D7%91",
+   "len": 7935,
+   "expect_title": "סדר תפילה ל",
+   "expect_snippet": "סדר לימוד קריאה ותפילה לפני",
+   "note": "medium text; 105 clicks/28d"
+  },
+  {
+   "key": "N3",
+   "kind": "new",
+   "id": 5119,
+   "path": "/post/mah-kore-goliath-benjamin-gath-david",
+   "len": 7142,
+   "expect_title": "מה קורה הבורא — גוליית",
+   "expect_snippet": "שלוש כותרות הופיעו בתוך ימים",
+   "note": "medium; video + transcript"
+  },
+  {
+   "key": "N5",
+   "kind": "new",
+   "id": 5110,
+   "path": "/post/remzei-geula-ai-sod-hashir",
+   "len": 40601,
+   "expect_title": "רמזי הגאולה, הבינה המלאכותית",
+   "expect_snippet": "רמזים על גאולה בשנת",
+   "note": "long source document; Codex #1345 reference post"
+  }
+ ]
+}
