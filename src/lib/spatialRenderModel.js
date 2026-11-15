@@ -15,9 +15,12 @@ export function regionFor(regions, role) {
 
 // A ring's panel-count is a geometric property of THAT region (sides), never assumed from its role
 // name or its arithmetic quantity (which can be any number). Falls back to quantity only if the model
-// omitted `sides` entirely (defensive, not a guess at content).
+// omitted `sides` entirely it returns 0 (nothing is drawn) — never the quantity.
 export function sidesOf(region) {
-  return region?.sides ?? region?.quantity ?? 0;
+  // Hardened (Royal V2): a shape's side count comes ONLY from the model's own `sides` field and must be a real polygon (integer 3..12).
+  // A missing `sides` is NOT replaced by the arithmetic `quantity` (180 units is not a 180-gon); the part is then simply not drawn.
+  const sides = region?.sides;
+  return Number.isInteger(sides) && sides >= 3 && sides <= 12 ? sides : 0;
 }
 
 // cube_faces is read from spatial.structuralProperties (model metadata) — 6 is used only as the last-
@@ -70,7 +73,9 @@ export function deriveConvergencePaths({ value, operations = [], gematria = [], 
     if (!match) return { ...base, parsed: false, phrase: null, resultMatches: false };
     const operand = Number(match[1]);
     const quantity = Number(match[2]);
-    const property = quantities.find((item) => Number(item?.value) === quantity) || null;
+    // exact attribution: a quantity is attributed to a declared property only when ONE property carries that value (no guessing between two)
+    const candidates = quantities.filter((item) => Number(item?.value) === quantity);
+    const property = candidates.length === 1 ? candidates[0] : null;
     return {
       ...base, parsed: true, operand, quantity,
       phrase: phraseByValue.get(operand) || null,
@@ -78,6 +83,7 @@ export function deriveConvergencePaths({ value, operations = [], gematria = [], 
       resultMatches: operand * quantity === base.result && base.result === Number(value),
       quantityKey: property?.key || null,
       quantityProvenance: property?.provenance || null,
+      quantityAmbiguous: candidates.length > 1,
     };
   });
 }
@@ -108,14 +114,21 @@ export function compoundStructureSpec(spatial, cube = {}) {
   const outer = regionFor(spatial.regions, "outer_pentagon");
   const inner = regionFor(spatial.regions, "inner_pentagon");
   const tri = regionFor(spatial.regions, "nested_triangles");
-  const ring = (region) => (region ? { assignment: String(region.assignment), quantity: Number(region.quantity), panels: sidesOf(region) } : null);
+  // a ring is drawn only when the model gives its side count; a part with no model-declared geometry is NOT drawn (its path becomes a relation layer)
+  const ring = (region) => {
+    const panels = sidesOf(region);
+    return region && panels ? { assignment: String(region.assignment), quantity: Number(region.quantity), panels } : null;
+  };
+  // the triangle count is the model's own source-diagram property (`inner_triangles`), never inferred from the region's arithmetic quantity
+  const triangleCount = (spatial.structuralProperties || []).find((item) => item?.key === "inner_triangles")?.value;
   return {
     family: "compound_pentagon",
     // a cube has exactly 6 faces; a model that says otherwise is not drawn as a cube
     cube: cube?.faceWord && cubeFacesOf(spatial) === 6 ? { word: String(cube.faceWord), faces: 6 } : null,
     outer: ring(outer),
     inner: ring(inner),
-    triangles: tri ? { assignment: String(tri.assignment), quantity: Number(tri.quantity), count: Number(tri.quantity) } : null,
+    triangles: tri && Number.isInteger(triangleCount) && triangleCount >= 1 && triangleCount <= 12
+      ? { assignment: String(tri.assignment), quantity: Number(tri.quantity), count: triangleCount } : null,
   };
 }
 
@@ -152,4 +165,18 @@ export function describeStructurePart(path, spec) {
   }
   if (part === "triangles") return { part, label: STRUCTURE_PART_LABEL.triangles, facts: [{ key: "משולשים בצורה", value: spec.triangles.count, origin: "שרטוט המקור במודל" }, quantity], note: null };
   return { part: "relation", label: STRUCTURE_PART_LABEL.relation, facts: [quantity], note: "אין מבנה גאומטרי מאושר למסלול הזה. הוא מוצג כשכבת קשר נפרדת ולא כצורה." };
+}
+
+// Exact source attribution for ONE path, split by what each fact really comes from (never a blended "source" claim):
+//  - the phrase value  -> the canonical engine (only when the path is verified);
+//  - the quantity      -> the model's own declared property for that quantity (key + provenance), or NOT stated / ambiguous;
+//  - the document      -> card-level locators only: the model does not tie an appearance to one region, and this says so.
+export function describePathSource(path, locators = []) {
+  const quantity = { value: path?.quantity ?? null, key: path?.quantityKey || null, origin: path?.quantityProvenance || null,
+    state: path?.quantityProvenance ? "declared" : path?.quantityAmbiguous ? "ambiguous" : "not_stated" };
+  const phrase = path?.phrase ? { text: path.phrase, origin: path.status === "verified" ? "gematria_method_trace" : null, verified: path.status === "verified" } : null;
+  return {
+    quantity, phrase,
+    document: { scope: "card", locators: locators.slice(0, 4), note: "מקור כללי של הכרטיס; המודל אינו מצמיד הופעה לאזור מסוים במבנה." },
+  };
 }

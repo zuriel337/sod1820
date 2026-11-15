@@ -39,7 +39,7 @@ async function session({ width, height, reducedMotion = "no-preference", throttl
   return { ctx, page, seen };
 }
 async function openStage(page) {
-  await page.goto(`${base}/world?view=explore&kind=spatial#spatial-yesharim-cube-3060`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${base}/world?view=explore&kind=spatial&lab=v1#spatial-yesharim-cube-3060`, { waitUntil: "domcontentloaded" }); // lab=v1: the previous (rollback) look and controls
   const open = page.locator('[data-convergence-card="yesharim-cube-3060"] button', { hasText: "פתח המחשת התכנסות" });
   await open.scrollIntoViewIfNeeded(); await open.click();
   const stage = page.locator('[data-convergence-card="yesharim-cube-3060"] .is-convergence');

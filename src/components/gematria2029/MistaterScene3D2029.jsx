@@ -36,7 +36,8 @@ export function resolveTokenColors(host) {
       probe.style.color = `var(${token})`;
       if (!probe.style.color) continue; // token undefined in this subtree → keep the Design Contract fallback
       const resolved = getComputedStyle(probe).color;
-      if (resolved && /^rgb/.test(resolved) && resolved !== "rgba(0, 0, 0, 0)") out[key] = resolved;
+      // a token with alpha (rgba) is used as its opaque color: three ignores alpha on Color and warns, so drop it here
+      if (resolved && /^rgb/.test(resolved) && resolved !== "rgba(0, 0, 0, 0)") out[key] = resolved.replace(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)$/, "rgb($1, $2, $3)");
     }
   } finally { host.removeChild(probe); }
   return out;
@@ -69,38 +70,62 @@ export function useTextTexture(lines, { width = 128, height = 160, fonts = [] } 
 const shade = (css, k) => new Color(css).multiplyScalar(k);
 
 // Room-style environment for PBR reflections (gold is a metal: without an environment it renders as flat yellow). Generated once per canvas,
-// disposed with it. three's own addon — no @react-three/drei.
-export function RoyalEnvironment({ intensity = 0.85 }) {
+// disposed with it. three's own addon — no @react-three/drei. `tint` (a brand-token color) warms the environment's light panels, so gold reflects
+// warm museum light instead of white room light.
+export function RoyalEnvironment({ intensity = 0.85, tint = null }) {
   const { gl, scene, invalidate } = useThree();
   useEffect(() => {
     const room = new RoomEnvironment();
+    if (tint) {
+      const warm = new Color(tint);
+      room.traverse((object) => { const color = object.material?.color; if (color && color.r > 1) color.multiply(warm); });
+    }
     const pmrem = new PMREMGenerator(gl);
     const target = pmrem.fromScene(room, 0.04);
     scene.environment = target.texture;
     scene.environmentIntensity = intensity;
     invalidate();
     return () => { scene.environment = null; target.dispose(); pmrem.dispose(); room.dispose?.(); };
-  }, [gl, scene, intensity, invalidate]);
+  }, [gl, scene, intensity, tint, invalidate]);
   return null;
 }
 
-// state: base (verified, not selected) · on (selected) · off (unverified: shown, dimmed, not counted)
-export function useRoyalMaterials(colors) {
+// A darker / richer shade of a brand-token color (same hue family; lightness scaled, saturation nudged). Never a new literal.
+const rich = (css, lightness, saturation = 0) => { const c = new Color(css), hsl = {}; c.getHSL(hsl); return c.setHSL(hsl.h, Math.max(0, Math.min(1, hsl.s + saturation)), Math.min(1, hsl.l * lightness)); };
+
+// state: base (verified, not selected) · on (selected) · hover · off (unverified: shown, dimmed, not counted) · offOn (unverified + selected)
+// style "v1": the previous sapphire/gold look (kept for rollback). style "royal": deeper sapphire (gem-like: clearcoat, sheen, ior 1.77) and antique gold.
+export function useRoyalMaterials(colors, style = "v1") {
   const mats = useMemo(() => {
+    const sap = colors.sapphire, gold = colors.gold;
+    if (style === "royal") {
+      const body = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 0.12, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.06, ior: 1.77, sheen: 0.6, sheenRoughness: 0.5,
+        sheenColor: rich(sap, 1.1, -0.1), envMapIntensity: 0.85, ...extra });
+      const trim = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 1, roughness: 0.32, envMapIntensity: 1.1, side: DoubleSide, emissive: rich(gold, 0.62), emissiveIntensity: 0.13, ...extra });
+      const deepSap = rich(sap, 0.42, -0.06), litSap = rich(sap, 0.66, -0.03), antique = rich(gold, 0.74, -0.05);
+      return {
+        body: { base: body(deepSap), hover: body(rich(sap, 0.54, -0.05), { emissive: new Color(sap), emissiveIntensity: 0.08 }), on: body(litSap, { emissive: new Color(sap), emissiveIntensity: 0.14 }),
+          off: body(rich(sap, 0.3, -0.1), { transparent: true, opacity: 0.5 }), offOn: body(rich(sap, 0.5, -0.08), { emissive: new Color(sap), emissiveIntensity: 0.1, transparent: true, opacity: 0.72 }) },
+        trim: { base: trim(antique), hover: trim(rich(gold, 0.88, -0.04), { emissiveIntensity: 0.16 }), on: trim(rich(gold, 0.95, 0), { emissiveIntensity: 0.26 }),
+          off: trim(rich(gold, 0.42, -0.1), { transparent: true, opacity: 0.55 }), offOn: trim(rich(gold, 0.62, -0.06), { emissiveIntensity: 0.12, transparent: true, opacity: 0.78 }) },
+        plinth: new MeshPhysicalMaterial({ color: rich(sap, 0.28, -0.1), metalness: 0, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.03, ior: 1.5, envMapIntensity: 1.7, transparent: true, opacity: 0.62 }),
+      };
+    }
     const body = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 0.3, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.1, ...extra });
     const trim = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 0.9, roughness: 0.34, envMapIntensity: 1.15, side: DoubleSide, emissive: new Color(gold), emissiveIntensity: 0.24, ...extra });
-    const sap = colors.sapphire, gold = colors.gold;
-    return {
+    const v1 = {
       body: { base: body(shade(sap, 0.55)), on: body(shade(sap, 0.85), { emissive: new Color(sap), emissiveIntensity: 0.2 }), off: body(shade(sap, 0.4), { transparent: true, opacity: 0.5 }),
         offOn: body(shade(sap, 0.7), { emissive: new Color(sap), emissiveIntensity: 0.22, transparent: true, opacity: 0.72 }) },
       trim: { base: trim(new Color(gold)), on: trim(shade(gold, 1.05), { emissiveIntensity: 0.4 }), off: trim(shade(gold, 0.5), { transparent: true, opacity: 0.55 }),
         offOn: trim(shade(gold, 0.75), { emissive: new Color(gold), emissiveIntensity: 0.14, transparent: true, opacity: 0.78 }) },
       plinth: body(shade(sap, 0.1), { metalness: 0.6, roughness: 0.5, clearcoat: 0, envMapIntensity: 0.22 }),
     };
-  }, [colors.sapphire, colors.gold]);
+    v1.body.hover = v1.body.base; v1.trim.hover = v1.trim.base; // v1 has no hover state (same material object; disposed once below)
+    return v1;
+  }, [colors.sapphire, colors.gold, style]);
   useEffect(() => () => {
-    for (const group of [mats.body, mats.trim]) Object.values(group).forEach((m) => m.dispose());
-    mats.plinth.dispose();
+    const all = new Set([...Object.values(mats.body), ...Object.values(mats.trim), mats.plinth]);
+    all.forEach((m) => m.dispose());
   }, [mats]);
   return mats;
 }

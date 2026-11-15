@@ -10,12 +10,14 @@ export const STRUCTURE_3D = Object.freeze({
   outerR: 190, innerR: 105,
   petal: Object.freeze({ outer: 68, inner: 54, depth: 6 }),
   tri: Object.freeze({ r: 56, size: 40, depth: 8, y: 14 }),
-  cube: Object.freeze({ y: -235, size: 112 }),
-  apex: Object.freeze({ x: 0, y: 250, z: 0, radius: 26 }),
-  relation: Object.freeze({ x: 345, y: 90, z: 0, w: 170, h: 96 }),
+  cube: Object.freeze({ y: -190, size: 112 }),
+  apex: Object.freeze({ x: 0, y: 215, z: 0, radius: 26 }),
+  // The relation layer (a path with NO approved geometry) hovers as a separate plaque above the rings, beside the apex, INSIDE the main
+  // structure's frame — so the camera frames the finding, not the plaque (Royal V2: it no longer widens the shot).
+  relation: Object.freeze({ x: 150, y: 195, z: -40, w: 150, h: 64 }),
   // vertical spread (and a sideways nudge for the relation layer) at explode = 1
-  explode: Object.freeze({ cube: -160, outer: 0, inner: 70, triangles: 140, relation: 0 }),
-  relationShiftX: 70,
+  explode: Object.freeze({ cube: -130, outer: 0, inner: 70, triangles: 140, relation: 0 }),
+  relationShiftX: 40,
 });
 
 const PARTS = ["cube", "outer", "inner", "triangles", "relation"];
@@ -59,12 +61,15 @@ export function connectorPoints(part, explode = 0) {
   return [a, { x: a.x, y: a.y + 150, z: a.z }, { x: to.x + a.x * 0.35, y: to.y - 70, z: to.z }, to];
 }
 
-// Extent of the structure at an explode level (0 = assembled, 1 = fully exploded): the overview fits what is actually on screen.
+// Extent of the MAIN structure (cube, rings, triangles, apex, and the relation plaque where it sits) at an explode level
+// (0 = assembled, 1 = fully exploded): the overview fits what is actually on screen.
 export function structureExtent(explode = 1) {
   const c = STRUCTURE_3D, e = c.explode, k = Math.max(0, Math.min(1, explode));
+  const relationRight = c.relation.x + c.relationShiftX * k + c.relation.w / 2;
   return {
-    minX: -(c.outerR + c.petal.outer),
-    maxX: c.relation.x + c.relationShiftX * k + c.relation.w / 2 + 26,
+    // the ring's "× quantity" tag sits just outside the petals, so the frame is padded by its width on both sides
+    minX: -(c.outerR + c.petal.outer + 30),
+    maxX: Math.max(c.outerR + c.petal.outer + 30, relationRight + 14),
     minY: c.cube.y + e.cube * k - c.cube.size / 2 - 40,
     maxY: Math.max(c.apex.y + c.apex.radius * 1.5 + 80, c.tri.y + e.triangles * k + c.tri.size + 40),
   };
@@ -73,17 +78,17 @@ export function structureExtent(explode = 1) {
 // Camera poses. overview fits the whole structure at the current explode level and any aspect, from an elevated angle (so the rings read
 // as rings, not edge-on lines); focus frames one part.
 const OVERVIEW_ELEVATION = Math.PI / 6.4; // ≈ 28°
-export function overviewPose(aspect, explode = 0) {
+export function overviewPose(aspect, explode = 0, { elevation = OVERVIEW_ELEVATION, padding = 1.06 } = {}) {
   const ext = structureExtent(explode);
   const target = { x: (ext.minX + ext.maxX) / 2, y: (ext.minY + ext.maxY) / 2, z: 0 };
-  const d = fitCameraDistance(ext, STRUCTURE_3D.fovDeg, aspect, 1.06);
-  return { target, position: { x: target.x, y: target.y + d * Math.sin(OVERVIEW_ELEVATION), z: d * Math.cos(OVERVIEW_ELEVATION) } };
+  const d = fitCameraDistance(ext, STRUCTURE_3D.fovDeg, aspect, padding);
+  return { target, position: { x: target.x, y: target.y + d * Math.sin(elevation), z: d * Math.cos(elevation) } };
 }
 
-export function focusPose(part, aspect, explode = 0) {
+export function focusPose(part, aspect, explode = 0, { padding = 1.25 } = {}) {
   const c = STRUCTURE_3D, center = partCenter(part, explode);
   const half = { cube: c.cube.size * 0.9, outer: c.outerR + c.petal.outer, inner: c.innerR + c.petal.inner, triangles: c.tri.r + c.tri.size * 1.4, relation: c.relation.w }[part];
   const ext = { minX: -half, maxX: half, minY: -half * 0.7, maxY: half * 0.7 };
-  const d = fitCameraDistance(ext, c.fovDeg, aspect, 1.25);
+  const d = fitCameraDistance(ext, c.fovDeg, aspect, padding);
   return { target: center, position: { x: center.x, y: center.y + d * 0.42, z: center.z + d * 0.92 } };
 }

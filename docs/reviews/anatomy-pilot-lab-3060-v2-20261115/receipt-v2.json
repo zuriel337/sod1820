@@ -1,0 +1,34 @@
+{
+  "directions": {
+    "museum": {
+      "desktop": {
+        "canvasMs": 10793,
+        "drawCalls": 128,
+        "geometries": 55,
+        "textures": 14,
+        "shadows": "true",
+        "look": "royal",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "outer",
+          "inner"
+        ],
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": [
+            "◆:10px",
+            "עוד כלים:12px",
+            "מקור ופירוט:12px",
+            "מספר הצלעות (5) הו:13px",
+            "שאלות לדוגמה:12px"
+          ]
+        }
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}

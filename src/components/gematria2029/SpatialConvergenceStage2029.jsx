@@ -8,6 +8,9 @@ import { evaluateS4Capability } from "../../lib/spatial/gpuCapability.js";
 import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
 import { useStepPlayer } from "./useStepPlayer.js";
 import { LabControls, LabPartInfo } from "./SpatialLabPanel2029.jsx";
+import { DirectionSwitcher, DiscoveryPanel, LabMoreMenu, LabPrimaryBar, MuseumPanel, ResearchPanel } from "./SpatialLabDirections2029.jsx";
+import { buildLabRows } from "../../lib/spatial/labRows.js";
+import { ROYAL_LAB_DIRECTIONS, pickLabQuality, resolveRoyalLabDirection } from "../../lib/spatial/royalLabDirections.js";
 import "../experience2029/royal2029.css";
 import "./spatialMethodStage2029.css";
 
@@ -91,20 +94,41 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   // Compound structure (cube + pentagons + triangles): only models whose spatial contract declares it get the structure view.
   const spec = useMemo(() => compoundStructureSpec({ shapeIdentity: card?.structure?.shapeIdentity, regions: card?.structure?.regions, structuralProperties: card?.quantities }, { faceWord: card?.structure?.cubeFaceWord }), [card]);
   const scenePaths = useMemo(() => bindPathsToStructure(paths, spec).map((path) => ({ ...path, label: STATUS_LABEL[path.status], partLabel: STRUCTURE_PART_LABEL[path.part] })), [paths, spec]);
+  // Royal V2 experiment: ONE engine / model / dataset, several presentation directions (A Museum · B Discovery · C Lab · V1 = previous look).
+  // The initial direction may be chosen with ?lab=museum|discovery|lab|v1 (or a/b/c) so the directions can be compared by link; it is a display choice only.
+  const [directionId, setDirectionId] = useState(() => resolveRoyalLabDirection(typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("lab")).id);
+  const direction = ROYAL_LAB_DIRECTIONS[directionId];
+  const quality = useMemo(() => pickLabQuality({ width: typeof window === "undefined" ? 1024 : window.innerWidth, cores: typeof navigator === "undefined" ? 8 : navigator.hardwareConcurrency, saveData: typeof navigator !== "undefined" && Boolean(navigator.connection?.saveData) }), []);
+  const freshLab = (dir, resetToken = 0) => ({ view: "overview", explode: false, spin: Boolean(dir.look.drift), layers: {}, resetToken });
   const [sceneView, setSceneView] = useState(spec ? "structure" : "paths");
-  const [lab, setLab] = useState({ view: "overview", explode: false, spin: false, layers: {}, resetToken: 0 });
-  useEffect(() => { setSceneView(spec ? "structure" : "paths"); setLab({ view: "overview", explode: false, spin: false, layers: {}, resetToken: 0 }); }, [card?.slug, Boolean(spec)]);
-  const resetLab = () => { setLab((prev) => ({ view: "overview", explode: false, spin: false, layers: {}, resetToken: prev.resetToken + 1 })); player.reset(); };
+  const [lab, setLab] = useState(() => freshLab(ROYAL_LAB_DIRECTIONS[directionId]));
+  const [discover, setDiscover] = useState(-1);
+  useEffect(() => { setSceneView(spec ? "structure" : "paths"); setLab(freshLab(direction)); setDiscover(-1); }, [card?.slug, Boolean(spec)]);
+  const resetLab = () => { setLab((prev) => freshLab(direction, prev.resetToken + 1)); setDiscover(-1); player.reset(); };
+  const changeDirection = (id) => { const next = ROYAL_LAB_DIRECTIONS[id]; setDirectionId(id); setLab((prev) => freshLab(next, prev.resetToken + 1)); setDiscover(-1); setSceneView(spec ? "structure" : "paths"); };
   const askRaziel = () => {
     const selected = scenePaths[Math.min(index, last)];
     const focus = buildRazielPathFocus({ card, path: selected, partInfo: spec ? describeStructurePart(selected, spec) : null, statusLabel: STATUS_LABEL[selected?.status] });
     if (focus) onRazielAction?.("explain_spatial_path", focus);
   };
 
+  const rows = useMemo(() => buildLabRows({ paths: scenePaths, spec, locators: card?.source?.locators || [], statusLabels: STATUS_LABEL }), [scenePaths, spec, card]);
+  // Picking a part/path (in the scene, a medal or the table). Discovery also moves in (focus), opens the layers and starts the reveal.
+  const pick = (i) => {
+    goTo(i);
+    if (direction.progressive) setDiscover(0);
+    if (direction.autoFocus || direction.autoExplode) setLab((p) => ({ ...p, view: direction.autoFocus ? "focus" : p.view, explode: direction.autoExplode ? true : p.explode }));
+  };
   if (!card || !Number.isFinite(Number(card.value)) || paths.length < 2) return null;
   const value = Number(card.value);
   const focus = paths[Math.min(index, last)];
   const pending = paths.some((path) => path.status === "pending");
+  // a model that is not the compound pentagon family has no structure to direct: it keeps the previous (V1) chrome
+  const dir = spec ? direction : ROYAL_LAB_DIRECTIONS.v1;
+  const ledgerNode = focus.status === "verified" ? <details className="sod29-spatial-convergence__ledger">
+    <summary>איך הגענו ל־{focus.operand}?</summary>
+    <SpatialMethodStage2029 expression={focus.phrase} methodKey="רגיל" trace={focus.trace} expectedValue={focus.operand} depth="S2" />
+  </details> : null;
   // RTL: ArrowLeft goes to the next path (reading order right→left), ArrowRight back.
   const onKeyDown = (event) => {
     const from = Number(event.target?.closest?.("[data-path-index]")?.dataset?.pathIndex ?? index);
@@ -133,24 +157,35 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         : <button type="button" data-s4-action="deepen" onClick={promoteS4}>תלת־ממד</button>}
       {s4Note ? <small role="status">{s4Note}</small> : null}
     </div>
-    {s4 ? <div className="r29 r29-hall sod29-spatial-lab-hall" data-royal="true">
+    {s4 ? <div className="r29 r29-hall sod29-spatial-lab-hall" data-royal="true" data-direction={dir.id} data-quality={quality}>
       <div className="sod29-spatial-lab__title"><b>מעבדת גימטריה מרחבית</b><span className="r29-rule" aria-hidden="true">◆</span></div>
-      <LabControls sceneView={sceneView} onSceneView={setSceneView} canStructure={Boolean(spec)} view={lab.view} onView={(view) => setLab((p) => ({ ...p, view }))}
-        explode={lab.explode} onExplode={(explode) => setLab((p) => ({ ...p, explode }))} spin={lab.spin} onSpin={(spin) => setLab((p) => ({ ...p, spin }))} reduced={reduced}
-        layers={lab.layers} onLayer={(part) => setLab((p) => ({ ...p, layers: { ...p.layers, [part]: p.layers[part] === false } }))}
-        parts={[...new Set(scenePaths.map((p) => p.part))]} onReset={resetLab} />
+      {spec ? <DirectionSwitcher direction={dir.id} onChange={changeDirection} /> : null}
+      {dir.chrome === "v1"
+        ? <LabControls sceneView={sceneView} onSceneView={setSceneView} canStructure={Boolean(spec)} view={lab.view} onView={(view) => setLab((p) => ({ ...p, view }))}
+            explode={lab.explode} onExplode={(explode) => setLab((p) => ({ ...p, explode }))} spin={lab.spin} onSpin={(spin) => setLab((p) => ({ ...p, spin }))} reduced={reduced}
+            layers={lab.layers} onLayer={(part) => setLab((p) => ({ ...p, layers: { ...p.layers, [part]: p.layers[part] === false } }))}
+            parts={[...new Set(scenePaths.map((p) => p.part))]} onReset={resetLab} />
+        : <LabPrimaryBar sceneView={sceneView} onSceneView={setSceneView} explode={lab.explode} onExplode={(explode) => setLab((p) => ({ ...p, explode }))} canStructure={Boolean(spec)}>
+            <LabMoreMenu sceneView={sceneView} view={lab.view} onView={(view) => setLab((p) => ({ ...p, view }))} spin={lab.spin} onSpin={(spin) => setLab((p) => ({ ...p, spin }))} reduced={reduced}
+              layers={lab.layers} onLayer={(part) => setLab((p) => ({ ...p, layers: { ...p.layers, [part]: p.layers[part] === false } }))} parts={[...new Set(scenePaths.map((p) => p.part))]} onReset={resetLab} />
+          </LabPrimaryBar>}
       <S4ErrorBoundary onFallback={fallbackToS2}>
         <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
           {sceneView === "structure" && spec
-            ? <StructureScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo}
-                view={lab.view} explode={lab.explode} spin={lab.spin} layers={lab.layers} resetToken={lab.resetToken} onFallback={fallbackToS2} />
+            ? <StructureScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={discover < 0 && dir.progressive ? -1 : index} onSelect={pick}
+                view={lab.view} explode={lab.explode} spin={lab.spin} layers={lab.layers} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} />
             : <ConvergenceScene3D value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo} onFallback={fallbackToS2} />}
         </Suspense>
       </S4ErrorBoundary>
-      <div className="sod29-spatial-convergence__funnel is-lab" style={{ "--sc-rows": paths.length }} role="group" aria-label="בחירת מסלול" onKeyDown={onKeyDown}>
-        <PathList paths={paths} index={index} goTo={goTo} reached={total} />
-      </div>
-      {spec ? <LabPartInfo card={card} path={scenePaths[Math.min(index, last)]} spec={spec} onAskRaziel={onRazielAction ? askRaziel : null} /> : null}
+      {dir.chrome === "museum" ? <MuseumPanel rows={rows} index={Math.min(index, last)} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} /> : null}
+      {dir.chrome === "discovery" ? <DiscoveryPanel rows={rows} index={Math.min(index, last)} discover={discover} onDiscover={setDiscover} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} ledger={ledgerNode} /> : null}
+      {dir.chrome === "lab" ? <ResearchPanel rows={rows} index={Math.min(index, last)} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} ledger={ledgerNode} /> : null}
+      {dir.chrome === "v1" ? <>
+        <div className="sod29-spatial-convergence__funnel is-lab" style={{ "--sc-rows": paths.length }} role="group" aria-label="בחירת מסלול" onKeyDown={onKeyDown}>
+          <PathList paths={paths} index={index} goTo={goTo} reached={total} />
+        </div>
+        {spec ? <LabPartInfo card={card} path={scenePaths[Math.min(index, last)]} spec={spec} onAskRaziel={onRazielAction ? askRaziel : null} /> : null}
+      </> : null}
     </div> : <div className="sod29-spatial-convergence__funnel" style={{ "--sc-rows": paths.length }} role="group" aria-label="מסלולי ההתכנסות" onKeyDown={onKeyDown}>
       <PathList paths={paths} index={index} goTo={goTo} reached={reached} />
       <svg className="sod29-spatial-convergence__lines" viewBox={`0 0 100 ${paths.length * 100}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -159,7 +194,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
       </svg>
       <div className="sod29-spatial-convergence__value" aria-hidden="true"><strong>{value}</strong><small>{verifiedCount}/{total}</small></div>
     </div>}
-    <div className="sod29-spatial-convergence__focus" aria-live="polite">
+    {s4 && dir.chrome !== "v1" ? null : <div className="sod29-spatial-convergence__focus" aria-live="polite">
       <p>
         <span>{focus.phrase ? `${focus.phrase} = ${focus.operand} (מנוע)` : `${focus.operand} — ללא ביטוי מאומת`}</span>
         <strong><bdi dir="ltr">{focus.operand} × {focus.quantity} = {focus.result}</bdi></strong>
@@ -175,7 +210,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         <summary>איך הגענו ל־{focus.operand}?</summary>
         <SpatialMethodStage2029 expression={focus.phrase} methodKey="רגיל" trace={focus.trace} expectedValue={focus.operand} depth="S2" />
       </details> : focus.status === "pending" ? <div className="sod29-spatial-convergence__ledger is-reserved" role="status">בודק את הביטוי מול המנוע…</div> : null}
-    </div>
+    </div>}
     <p className="sod29-spatial-method-stage__boundary">ערכי הביטויים מגיעים מהמנוע הקנוני (gematria_method_trace). הכמויות מקורן בחומר המקור ומסומנות כך. פרשנות אינה חלק מהתצוגה.</p>
   </section>;
 }

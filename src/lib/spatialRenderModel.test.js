@@ -58,9 +58,14 @@ test("sidesOf reads the region's own `sides` field, not a fixed constant", () =>
   assert.equal(sidesOf(inner), 6);
 });
 
-test("sidesOf falls back to quantity only when `sides` is genuinely absent (defensive, not a guess)", () => {
-  assert.equal(sidesOf({ quantity: 41 }), 41);
+test("sidesOf is hardened (Royal V2): sides only from the model's own `sides`, never from the arithmetic quantity", () => {
+  assert.equal(sidesOf({ quantity: 41 }), 0, "a missing `sides` is NOT replaced by the quantity (no 41-gon)");
+  assert.equal(sidesOf({ quantity: 180 }), 0);
   assert.equal(sidesOf({}), 0);
+  assert.equal(sidesOf({ sides: 5, quantity: 180 }), 5);
+  assert.equal(sidesOf({ sides: 2 }), 0, "fewer than 3 sides is not a polygon");
+  assert.equal(sidesOf({ sides: 13 }), 0, "implausible side counts are not drawn");
+  assert.equal(sidesOf({ sides: "5" }), 0, "no coercion of a non-integer declaration");
 });
 
 test("cubeFacesOf reads spatial.structuralProperties, not a literal 6", () => {
