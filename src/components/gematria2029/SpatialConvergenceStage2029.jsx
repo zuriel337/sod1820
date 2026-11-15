@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { fetchGematriaMethodTraceRaw } from "../../lib/research/gematriaTrace.js";
 import { isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import { deriveConvergencePaths, evaluateConvergencePaths } from "../../lib/spatialRenderModel.js";
-import SpatialMethodStage2029 from "./SpatialMethodStage2029.jsx";
+import SpatialMethodStage2029, { S4ErrorBoundary, S4_FALLBACK_NOTE } from "./SpatialMethodStage2029.jsx";
+import { evaluateS4Capability } from "../../lib/spatial/gpuCapability.js";
 import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
 import { useStepPlayer } from "./useStepPlayer.js";
 import "./spatialMethodStage2029.css";
@@ -20,6 +21,10 @@ const STATUS_LABEL = Object.freeze({
   inconsistent: "הפעולה המוצהרת אינה עקבית",
 });
 const PLAY_MS = 1100;
+
+// S4 (GPU) is route-scoped: three / @react-three/fiber live only in this lazily-loaded chunk, requested after the explicit "תלת־ממד" action.
+// The default S2 view never imports or mounts it; any failure falls back to S2 with a truthful note.
+const ConvergenceScene3D = lazy(() => import("./ConvergenceScene3D2029.jsx"));
 
 function useTraces(phrases, injected) {
   const key = phrases.join("|");
@@ -47,6 +52,17 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   const player = useStepPlayer(rootRef, paths.length, PLAY_MS);
   const { index, goTo, toggle, playing, running, reduced, last } = player;
   useEffect(() => { player.reset(); }, [card?.slug, player.reset]);
+  const [s4, setS4] = useState(false);
+  const [s4Note, setS4Note] = useState(null);
+  useEffect(() => { setS4(false); setS4Note(null); }, [card?.slug]);
+  const promoteS4 = () => {
+    const cap = evaluateS4Capability();
+    if (!cap.ok) { setS4Note(S4_FALLBACK_NOTE[cap.reason]); return; }
+    setS4Note(null);
+    setS4(true);
+  };
+  const fallbackToS2 = (reason) => { setS4(false); setS4Note(S4_FALLBACK_NOTE[reason] || S4_FALLBACK_NOTE.render_error); };
+  const scenePaths = useMemo(() => paths.map((path) => ({ ...path, label: STATUS_LABEL[path.status] })), [paths]);
 
   if (!card || !Number.isFinite(Number(card.value)) || paths.length < 2) return null;
   const value = Number(card.value);
@@ -64,7 +80,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   };
   const reached = running ? index + 1 : total; // while playing, the funnel fills path by path
   return <section ref={rootRef} className="sod29-spatial-method-stage is-convergence" dir="rtl" data-experience-capability="spatial-method-stage"
-    data-method-visual="multi-path-convergence" data-depth={depth} data-playing={running ? "true" : "false"} data-motion={reduced ? "reduced" : "allowed"}
+    data-method-visual="multi-path-convergence" data-depth={s4 ? "S4" : depth} data-playing={running ? "true" : "false"} data-motion={reduced ? "reduced" : "allowed"}
     data-verified-paths={verifiedCount} data-total-paths={total} data-state={pending ? "loading" : "ready"} aria-label={`התכנסות למספר ${value}`}>
     <div className="sod29-spatial-method-stage__head">
       <div>
@@ -74,7 +90,17 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
       </div>
       <div className="sod29-spatial-method-stage__result"><small>מתכנסים אל</small><b>{value}</b></div>
     </div>
-    <div className="sod29-spatial-convergence__funnel" style={{ "--sc-rows": paths.length }} role="group" aria-label="מסלולי ההתכנסות" onKeyDown={onKeyDown}>
+    <div className="sod29-spatial-method-stage__depth-controls">
+      {s4
+        ? <button type="button" data-s4-action="return" onClick={() => { setS4(false); setS4Note(null); }}>חזרה לתצוגה דו־ממדית</button>
+        : <button type="button" data-s4-action="deepen" onClick={promoteS4}>תלת־ממד</button>}
+      {s4Note ? <small role="status">{s4Note}</small> : null}
+    </div>
+    {s4 ? <S4ErrorBoundary onFallback={fallbackToS2}>
+      <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
+        <ConvergenceScene3D value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo} onFallback={fallbackToS2} />
+      </Suspense>
+    </S4ErrorBoundary> : <div className="sod29-spatial-convergence__funnel" style={{ "--sc-rows": paths.length }} role="group" aria-label="מסלולי ההתכנסות" onKeyDown={onKeyDown}>
       <ol className="sod29-spatial-convergence__paths">
         {paths.map((path, i) => {
           const active = i === index;
@@ -99,7 +125,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
           vectorEffect="non-scaling-stroke" data-status={path.status} data-lit={i < reached ? "true" : "false"} />)}
       </svg>
       <div className="sod29-spatial-convergence__value" aria-hidden="true"><strong>{value}</strong><small>{verifiedCount}/{total}</small></div>
-    </div>
+    </div>}
     <div className="sod29-spatial-convergence__focus" aria-live="polite">
       <p>
         <span>{focus.phrase ? `${focus.phrase} = ${focus.operand} (מנוע)` : `${focus.operand} — ללא ביטוי מאומת`}</span>

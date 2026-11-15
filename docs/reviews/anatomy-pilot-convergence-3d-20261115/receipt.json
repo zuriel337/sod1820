@@ -1,0 +1,58 @@
+{
+  "cases": [
+    {
+      "name": "desktop-lazy-scene-select-controls-return",
+      "ok": true
+    },
+    {
+      "name": "reduced-motion-s4",
+      "ok": true
+    },
+    {
+      "name": "no-webgl-fallback",
+      "ok": true
+    },
+    {
+      "name": "context-loss-fallback",
+      "ok": true
+    },
+    {
+      "name": "mobile-320-s4-cpu4x-swiftshader",
+      "sceneReadyMsAfterClick": 689,
+      "docWidth": 305,
+      "innerWidth": 320,
+      "canvases": 1,
+      "smallControls": 0,
+      "heapMB": 18,
+      "dragFrames": 88,
+      "frameGapP95Ms": 67,
+      "droppedOver100ms": 0
+    },
+    {
+      "name": "mobile-390-s4-cpu4x-swiftshader",
+      "sceneReadyMsAfterClick": 2357,
+      "docWidth": 375,
+      "innerWidth": 390,
+      "canvases": 1,
+      "smallControls": 0,
+      "heapMB": 18,
+      "dragFrames": 70,
+      "frameGapP95Ms": 83,
+      "droppedOver100ms": 2
+    }
+  ],
+  "errors": [],
+  "requests3d": {
+    "afterClick": [
+      "ConvergenceScene3D2029-54FpSdlj.js",
+      "MistaterScene3D2029-CYbamWmF.js"
+    ]
+  },
+  "canvasClickFocusTexts": [
+    "1020 × 3 = 3060",
+    "765 × 4 = 3060",
+    "17 × 180 = 3060",
+    "612 × 5 = 3060",
+    "510 × 6 = 3060"
+  ]
+}

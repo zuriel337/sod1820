@@ -148,6 +148,7 @@ const THREE_LAZY_MODULES = [
   "components/books2029/yetzirahModels/YetzirahModelCanvas.jsx",
   "components/experience2029/BirthMapScene3D2029.jsx",
   "components/experience2029/GlyphVolume2029.jsx",
+  "components/gematria2029/ConvergenceScene3D2029.jsx",
   "components/gematria2029/MistaterScene3D2029.jsx",
 ];
 
@@ -167,7 +168,9 @@ test("lazy boundary: three/@react-three only imported by the closed set of S4/3D
     const staticEdge = new RegExp(`(?:^|\\n)\\s*(?:import|export)\\b[^;'"]*?\\bfrom\\s*${spec}|(?:^|\\n)\\s*import\\s*${spec}`);
     const lazyEdge = new RegExp(`\\blazy\\(\\s*\\(\\s*\\)\\s*=>\\s*import\\(\\s*${spec}\\s*\\)`);
     const anyRef = new RegExp(spec);
-    const others = sources.filter(({ rel }) => rel !== mod);
+    // 3D modules in the closed set may import each other's helpers (they all live in the lazy 3D chunk graph); every NON-3D file must still
+    // reach a 3D module only through React.lazy.
+    const others = sources.filter(({ rel }) => rel !== mod && !THREE_LAZY_MODULES.includes(rel));
     assert.deepEqual(others.filter(({ text }) => staticEdge.test(text)).map(({ rel }) => rel), [], `${mod} must not be statically imported`);
     const refs = others.filter(({ text }) => anyRef.test(text)).map(({ rel }) => rel);
     const lazyRefs = others.filter(({ text }) => lazyEdge.test(text)).map(({ rel }) => rel);

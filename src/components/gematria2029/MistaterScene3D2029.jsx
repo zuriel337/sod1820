@@ -17,10 +17,10 @@ import { glyphPlacement, resolveGlyphAssetRef } from "../../lib/spatial/hebrewGl
 import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { resolveSceneConnectorCurve, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
 
-const FALLBACK_COLORS = Object.freeze({ ink: "#e8ecf4", hero: "#f4f1e8", accent: "#d4af37", panel: "#1b2233", line: "#4a5570" });
+export const FALLBACK_COLORS = Object.freeze({ ink: "#e8ecf4", hero: "#f4f1e8", accent: "#d4af37", panel: "#1b2233", line: "#4a5570" });
 
 // Design Contract tokens → colors, resolved through a probe element so var() fallbacks/currentColor resolve to rgb().
-function resolveTokenColors(host) {
+export function resolveTokenColors(host) {
   const out = { ...FALLBACK_COLORS };
   if (!host || typeof getComputedStyle !== "function") return out;
   const probe = document.createElement("i");
@@ -39,7 +39,7 @@ function resolveTokenColors(host) {
   return out;
 }
 
-function useTextTexture(lines, { width = 128, height = 160, fonts = [] } = {}) {
+export function useTextTexture(lines, { width = 128, height = 160, fonts = [] } = {}) {
   const key = JSON.stringify(lines);
   const texture = useMemo(() => {
     const canvas = document.createElement("canvas");
@@ -77,7 +77,7 @@ async function buildGlyphGeometry(glyph, bounds) {
   return geo;
 }
 
-function useGlyphGeometry(assetRef, bounds) {
+export function useGlyphGeometry(assetRef, bounds) {
   const glyph = useMemo(() => resolveGlyphAssetRef(assetRef), [assetRef]);
   const [geometry, setGeometry] = useState(null);
   useEffect(() => {
@@ -159,7 +159,7 @@ function Connector({ scene, connector, colors }) {
   </group>;
 }
 
-function Controls({ target, reducedMotion }) {
+export function Controls({ target, reducedMotion }) {
   const { camera, gl, invalidate } = useThree();
   const controlRef = useRef(null);
   useFrame(() => { if (controlRef.current?.enableDamping) controlRef.current.update(); });

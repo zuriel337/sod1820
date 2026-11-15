@@ -399,3 +399,5 @@
 
 .sod29-spatial-method-stage.is-convergence .sod29-spatial-method-stage__head small{display:block;min-height:3em}
 .sod29-spatial-convergence__ledger.is-reserved{min-height:54px;display:flex;align-items:center;font-size:14px;color:var(--sms-muted)}
+/* S4 convergence canvas: near-square on phones so the aspect-fitted fan is not surrounded by empty space. */
+.sod29-spatial-method-stage__s4[data-scene="convergence"]{height:clamp(260px,72vw,420px)}

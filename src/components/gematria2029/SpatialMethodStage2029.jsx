@@ -15,14 +15,14 @@ const RIBUA_PLAY_MS = 900;
 // explicit "תלת־ממד" action. Default S0–S2 never imports or mounts it.
 const MistaterScene3D = lazy(() => import("./MistaterScene3D2029.jsx"));
 
-class S4ErrorBoundary extends React.Component {
+export class S4ErrorBoundary extends React.Component {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
   componentDidCatch() { this.props.onFallback?.("render_error"); }
   render() { return this.state.failed ? null : this.props.children; }
 }
 
-const S4_FALLBACK_NOTE = Object.freeze({
+export const S4_FALLBACK_NOTE = Object.freeze({
   low_power: "מצב חיסכון באנרגיה פעיל — התצוגה נשארת בתצוגה הדו־ממדית.",
   no_webgl: "WebGL אינו זמין במכשיר — התצוגה נשארת בתצוגה הדו־ממדית.",
   context_lost: "הקשר הגרפי אבד — חזרנו לתצוגה הדו־ממדית.",
