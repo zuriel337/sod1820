@@ -2,16 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {publicPostAddress,publicPostHref,publicPostUrl,postAddressSlug,exactPostReadingHref,publicPostShareUrl} from '../src/lib/publicPostUrls.js';
 
-test('imported WordPress keeps its exact original path, encoding and trailing slash',()=>{
+test('imported WordPress keeps its original path, in the served form: no trailing slash, standard percent-encoding',()=>{
  const post={id:92,source:'wordpress',slug:'%d7%a1%d7%95%d7%93',link:'https://sod1820.co.il/%d7%a1%d7%95%d7%93/'};
- assert.equal(publicPostHref(post),'/%d7%a1%d7%95%d7%93/');
+ assert.equal(publicPostHref(post),'/%D7%A1%D7%95%D7%93');
  assert.equal(publicPostAddress(post).kind,'legacy');
- assert.equal(publicPostHref(post,{search:'?p=92&utm_source=source',hash:'#source-region-7'}),'/%d7%a1%d7%95%d7%93/?p=92&utm_source=source#source-region-7');
+ assert.equal(publicPostHref(post,{search:'?p=92&utm_source=source',hash:'#source-region-7'}),'/%D7%A1%D7%95%D7%93?p=92&utm_source=source#source-region-7');
  assert.equal(postAddressSlug(publicPostHref(post)),'סוד');
 });
 test('AI revision of an old WordPress record preserves the address despite its source flag',()=>{
  const post={id:1342,wp_id:4756,source:'ai',date:'2015-05-28',created_at:'2026-06-07',slug:'old',link:'https://sod1820.co.il/old/'};
- assert.equal(publicPostHref(post),'/old/');
+ assert.equal(publicPostHref(post),'/old');
  assert.equal(publicPostHref({...post,date:'2090-01-01',link:null}),'/old');
 });
 test('native AI and SOD1820 posts use /post without relying on a rolling date',()=>{
@@ -30,7 +30,7 @@ test('reviewed modern records keep root aliases readable while preferring native
 });
 test('unresolved provenance preserves existing addresses; a link is not indexation evidence',()=>{
  assert.equal(publicPostHref({source:'unknown_migration',slug:'source'}),'/source');
- assert.equal(publicPostHref({source:'ai',slug:'unknown',link:'/unknown/'}),'/unknown/');
+ assert.equal(publicPostHref({source:'ai',slug:'unknown',link:'/unknown/'}),'/unknown');
  assert.equal(publicPostAddress({slug:'legacy'}).basis,'conservative_existing_address');
 });
 test('public Post copy keeps reading context while discarding access grants and credentials',()=>{

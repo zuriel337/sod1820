@@ -130,6 +130,9 @@ function PostIndexCard({ post, index, seriesItem = null, publicationOrder = fals
 
 export default function Posts2029Page({ taxonomyScope = null, onSearchParams = null, verifiedOnly = false } = {}) {
   const location = useLocation();
+  // Match the server taxonomy document and sitemap. Keep the visited route,
+  // query and anchor for navigation; only the canonical metadata uses hyphens.
+  const taxonomyCanonicalPath = taxonomyScope ? location.pathname.replace(/%20| /gi, "-") : null;
   const navigationType = useNavigationType();
   const currentHref = `${location.pathname}${location.search}${location.hash}`;
   const arrivedAtSavedViewport = useMemo(() =>
@@ -182,7 +185,7 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
     applySeo({
       title: `${scope.label} · SOD1820 2029`,
       description: "אינדקס הפוסטים של SOD1820.",
-      path: verifiedOnly || taxonomyScope ? location.pathname : allPostsHref,
+      path: taxonomyCanonicalPath || (verifiedOnly ? location.pathname : allPostsHref),
       noindex: !publicCatalog || !(scope.kind === "all" || PUBLIC_READING_RELEASE && scope.kind === "verified") || Boolean(search) || page > 1,
     });
 
@@ -218,7 +221,7 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
     applySeo({
       title: `${scope.kind === "invalid" ? title : `${taxonomyLabel}: ${title}`} · SOD1820 2029`,
       description: `פוסטים ב${taxonomyLabel} ${title} באתר SOD1820.`,
-      path: taxonomyScope ? location.pathname : `${allPostsHref}?${scope.kind}=${encodeURIComponent(scope.key)}`,
+      path: taxonomyCanonicalPath || `${allPostsHref}?${scope.kind}=${encodeURIComponent(scope.key)}`,
       noindex: !publicCatalog || !verified || Boolean(search) || page > 1,
     });
   }, [isTaxonomy, taxonomyScope, location.pathname, scopeKey, page, state]);

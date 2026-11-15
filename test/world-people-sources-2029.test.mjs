@@ -39,7 +39,7 @@ test("World writer material keeps old Post addresses and uses the shared native 
       {id:2,slug:'new',title:'New',source:'sod1820',wp_id:40000,link:'https://sod1820.co.il/new'},
     ],complete:true,availability:'ok'}},
   });
-  assert.equal(result.items.find(row=>row.sourceRef==='posts:1').href,'/old/');
+  assert.equal(result.items.find(row=>row.sourceRef==='posts:1').href,'/old');
   assert.equal(result.items.find(row=>row.sourceRef==='posts:2').href,'/post/new');
 });
 test("public people index follows the writer-page contract and includes non-trusted people", () => {

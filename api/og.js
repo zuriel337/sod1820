@@ -434,7 +434,9 @@ export default async function handler(req, res) {
     desc = `הפרסומים הציבוריים המשויכים ל${taxonomy.label}, עם התוכן, המדיה והמקורות שלהם.`;
     const canonicalParams = new URLSearchParams();
     if (catalogTaxonomy && selection) canonicalParams.set(selection.kind, selection.key);
-    canonical = SITE + key + (canonicalParams.size ? `?${canonicalParams}` : '');
+    // One address per label: the route convention maps hyphens to spaces (postsTaxonomyRoute2029), so the spaced address and the hyphen address are the same
+    // page. The sitemap lists the hyphen form; declare it as the canonical of both (the spaced form kept 31 Search Console clicks as a duplicate).
+    canonical = SITE + key.replace(/%20| /gi, '-') + (canonicalParams.size ? `?${canonicalParams}` : '');
     if (!selection || page === null) { documentStatus = 404; robots = 'noindex, follow'; }
     else if (term.length > 120 || /[\u0000-\u001f\u007f]/.test(term)) { documentStatus = 400; robots = 'noindex, follow'; }
     else try {
