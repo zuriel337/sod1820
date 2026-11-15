@@ -154,6 +154,14 @@ function CalculatorExperience({ model, initialState, location }) {
     try { window.history.replaceState(window.history.state, "", returnHref); } catch { /* State still travels in share/return links. */ }
   }, [signature, returnHref]);
 
+  useEffect(() => {
+    // Form edits replace native history without changing useLocation().search.
+    // Follow the effective address, with the same public policy as api/og.js.
+    applySeo({ title: "מחשבון הקהילה — גימטריה, שמות ותאריך עברי",
+      description: "מחשבון הגימטריה הקהילתי של SOD1820: השוואת שמות, בדיקת שמות לתינוק, שם משפחה ותאריך עברי, עם קישור לחזרה ולשיתוף.",
+      path: "/community/calculator", noindex: new URL(returnHref, "https://sod1820.co.il").search !== "", follow: true });
+  }, [returnHref]);
+
   function chooseMode(next) {
     model.setBabyMode(next === "baby");
     model.setDateMode(next === "date");
@@ -260,11 +268,6 @@ export default function CommunityCalculator2029Page() {
   const location = useLocation();
   const initialState = useMemo(() => parseCommunityCalculatorState(location.search), [location.search]);
   const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
-  useEffect(() => {
-    applySeo({ title: "מחשבון הקהילה — גימטריה, שמות ותאריך עברי",
-      description: "מחשבון הגימטריה הקהילתי של SOD1820: השוואת שמות, בדיקת שמות לתינוק, שם משפחה ותאריך עברי, עם קישור לחזרה ולשיתוף.",
-      path: "/community/calculator", noindex: location.search !== "" });
-  }, [location.search]);
   return <Sod2029Shell surface="community" title="מחשבון הקהילה" introVariant="none">
     <CommunityCalculatorPage key={location.key} initialState={initialState} passive actionsLocked={actionsLocked}
       renderCalculator={model => <CalculatorExperience model={model} initialState={initialState} location={location} />}
