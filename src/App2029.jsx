@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState, useSyncExternalStore } from "react";
+import React, { Suspense, lazy, useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "./lib/AuthContext.jsx";
 import { beginPostReadingSource, beginHomeReadingSource } from "./lib/supabase.js";
@@ -173,6 +173,20 @@ let measuredEntry2029 = null;
 // is still the same after this delay.
 const PAGE_VIEW_SETTLE_MS = 150;
 
+// A Post address (`/post/<slug>`, or an original address `/<slug>`) is marked on <html> for as long as it is open. The mark is set in a layout
+// effect, in the commit of the navigation itself, so RouteEffects2029 (whose passive effect runs in the same commit) can tell that an article is
+// coming and keep the optional third-party scripts from competing with the page code for the connection until it is on screen.
+function PostAddressMarker2029() {
+  const { pathname } = useLocation();
+  const postAddress = PUBLIC_READING_RELEASE && (/^\/post\/[^/]+\/?$/.test(pathname) || publicReadingPath(pathname) === "post-lookup");
+  useLayoutEffect(() => {
+    if (!postAddress) return undefined;
+    document.documentElement.setAttribute("data-post-address", "");
+    return () => document.documentElement.removeAttribute("data-post-address");
+  }, [postAddress]);
+  return null;
+}
+
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
   const { pathname, key: entryKey } = useLocation();
@@ -214,7 +228,7 @@ function RouteEffects2029() {
       }, PAGE_VIEW_SETTLE_MS);
       // Keep the public home's primary content ahead of the optional Google
       // script. A canceled navigation cannot initialize a stale page view.
-      let stopped = false, timer, observer, idle, stopPageview;
+      let stopped = false, timer, observer, idle, stopPageview, capTimer;
       const run = () => {
         if (stopped) return;
         initGA({ publicReading: true, path: telemetryPath });
@@ -225,14 +239,23 @@ function RouteEffects2029() {
       };
       const schedule = () => {
         observer?.disconnect();
+        clearTimeout(capTimer);
         if (window.requestIdleCallback) idle = window.requestIdleCallback(run, { timeout: 3000 });
         else timer = setTimeout(run, 350);
       };
+      // A Post gets the same courtesy as the home: its optional third-party scripts start once its article is on screen (the element only Post2029Page
+      // renders, when its source has been read and admitted), not while the page code is still downloading, where they compete with it for the same
+      // connection. The wait is bounded: an error, or an address that is not a post, never reaches an article and starts them after 10 seconds.
+      const postPending = pathname !== "/" && document.querySelector("[data-post-address]") && !document.querySelector('[data-experience-surface="post-reading"]');
       if (pathname === "/" && !document.querySelector('[data-home-primary="ready"]')) {
         observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
         observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
+      } else if (postPending) {
+        observer = new MutationObserver(() => { if (document.querySelector('[data-experience-surface="post-reading"]')) schedule(); });
+        observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true });
+        capTimer = setTimeout(schedule, 10000);
       } else schedule();
-      return () => { stopped = true; stopPageview?.(); clearTimeout(settle); observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
+      return () => { stopped = true; stopPageview?.(); clearTimeout(settle); observer?.disconnect(); clearTimeout(timer); clearTimeout(capTimer); if (idle != null) window.cancelIdleCallback?.(idle); };
     }
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
@@ -345,6 +368,7 @@ export default function App2029() {
     <AuthProvider>
       <BrowserRouter>
         {/* Measurement stays outside ResearchProvider: its keyed subtree is replaced when the account state resolves. */}
+        <PostAddressMarker2029 />
         <RouteEffects2029 />
         <ResearchProvider>
           <InstallSuggestionMount2029 />

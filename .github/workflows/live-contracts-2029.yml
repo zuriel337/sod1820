@@ -465,6 +465,8 @@ jobs:
           AUTH_EVIDENCE_DIR: ${{ runner.temp }}/auth-evidence
       - name: Google Analytics 4 is not blocked (real CSP header + real worker)
         run: node --test test/ga-measurement-browser-2029.browser.mjs
+      - name: Public Post third-party scripts start after the article is on screen (bounded wait; other pages unchanged)
+        run: node --test test/post-third-party-after-article-20261115.browser.mjs
       - name: Public Post background starts during calculation; GA uses the current public page identity
         run: node --test test/post-speed-page-analytics.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
