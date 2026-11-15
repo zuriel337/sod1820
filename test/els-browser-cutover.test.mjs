@@ -1145,7 +1145,18 @@ test('browser: native finding can show three verified occurrences then hide exac
     const shown=current.findings[0].shown;
     assert.equal(shown.length,3);
     await nativeSend(page,{type:'native-finding-control',term:'אל',action:'toggle-hit',hitId:shown[1]});
-    await page.waitForFunction(()=>window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0]?.shown?.length===2);
+    try {
+      await page.waitForFunction(()=>window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0]?.shown?.length===2);
+    } catch (error) {
+      const snapshot = await page.evaluate(expected => ({ expected, oraclePending: window.__oraclePending,
+        states: window.__log.filter(m => m.type === 'state').slice(-4).map(m => ({status:m.status,axis:m.axis,
+          findings:m.findings?.map(w => ({t:w.t,shown:w.shown,revision:w.revision,
+            hits:w.hits?.filter(h => h.shown || expected.includes(h.hitId))}))})),
+        operations: window.__log.filter(m => m.type === 'operation').slice(-4),
+      }), shown);
+      error.message += '\nHide-occurrence failure state: ' + JSON.stringify(snapshot);
+      throw error;
+    }
     const hidden=await latestState(page);
     assert.deepEqual(hidden.findings[0].shown,[shown[0],shown[2]],'only selected occurrence hidden');
     for (const count of [1, 4, 2]) {
