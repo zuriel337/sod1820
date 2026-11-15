@@ -118,19 +118,21 @@ function PostEntry2029() {
 // An imported WordPress post is served at its original address `/<slug>`, the address search engines serve and visitors open. Its source read
 // used to begin only after the page code had arrived and mounted, one whole read after the code; it now begins together with that code, exactly as
 // PostEntry2029 does for `/post/:slug` (the same route-owned read, cancelled on a change of address or identity, with no shared data cache). The code
-// request does not wait for the account to resolve (a signed-in visitor's read does, as on `/post/:slug`).
+// is requested in the first render, as React.lazy does for the element this entry replaces, without waiting for the account to resolve (a signed-in
+// visitor's read does wait, as on `/post/:slug`). Builds without the public release (protected previews) keep the plain page.
 function PublicPostAddressEntry2029() {
   const { slug } = useParams();
   const { user, loading } = useAuth();
   const identity = user?.id || "guest";
   const [source, setSource] = useState(null);
-  useEffect(() => { void loadPublicPostAddress().catch(() => {}); }, []);
+  void loadPublicPostAddress().catch(() => {});
   useEffect(() => {
     if (!PUBLIC_READING_RELEASE || loading) return undefined;
     const request = beginPostReadingSource(slug);
     setSource({ slug, identity, read: request.read });
     return () => request.cancel();
   }, [slug, identity, loading]);
+  if (!PUBLIC_READING_RELEASE) return <PublicPostAddress2029Page />;
   if (loading || source?.slug !== slug || source.identity !== identity) return <Loading2029 />;
   return <PublicPostAddress2029Page sourceReader={source.read} />;
 }

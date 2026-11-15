@@ -253,6 +253,8 @@ jobs:
         run: node --test test/public-wp-post-canonical-20261115.test.mjs test/public-sitemap-researcher-identity-20261115.test.mjs test/public-taxonomy-canonical-20261115.test.mjs test/public-redirect-single-hop-20261115.test.mjs test/posts-taxonomy-ui-2029.test.mjs
       - name: Reading-mode research and continuity contracts (verified-principal research provider, exact historical pages, root vercel.json content pin; previously unwired, drifted from approved changes and repaired; the research provider test mounts the real provider and needs react-test-renderer from the step above)
         run: node --test test/doc37-research-reading-access.test.mjs test/public-continuity-closure-2029.test.mjs test/doc37-mixed-page-readiness.test.mjs
+      - name: Post at its original address starts its source read with the page code (the real entry function against stubbed hooks; the build without the public release keeps the plain page)
+        run: node --test test/post-root-address-entry-20261115.test.mjs
       - name: Preview worker admission policy (Preview-only write allow-list, 28 cases; repaired fixture, no product change)
         run: node --test scripts/test-integrated-preview-auth-guard.mjs
       # test/public-frame-access-2029.test.mjs is deliberately not here: one of its tests runs `git show 4987d7a1…` on a commit of a retired preview branch,
