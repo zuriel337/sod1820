@@ -89,17 +89,18 @@ footer.status strong{color:var(--ink);font-weight:500}
     <p class="lead">אותו חישוב, פעמיים: פעם כפי שהמערכת מציגה אותו היום, ופעם עם ההמחשה. כל התמונות הן צילומי מסך אמיתיים עם נתוני מנוע חיים מ־15.11.2026. המספרים זהים בשני הצדדים. ההבדל הוא כמה קל לראות מאיפה הם הגיעו ומה חלש בהם.</p>
     <div class="legend"><span class="badge without">בלי ההמחשה</span><span>מימין</span><span class="badge with">עם ההמחשה</span><span>משמאל</span></div>
     <nav class="jump" aria-label="מעבר לדוגמה">
-      <a href="#mistater">מסתתר</a><a href="#ribua">ריבוע</a><a href="#milui">מילוי</a><a href="#zvi">צבי · 3060</a><a href="#without">מה קורה בלי</a><a href="#limits">גבולות</a>
+      <a href="#mistater">מסתתר</a><a href="#ribua">ריבוע</a><a href="#milui">מילוי</a><a href="#golden">1237 · שלושה נתיבים</a><a href="#zvi">צבי · 3060</a><a href="#without">מה קורה בלי</a><a href="#limits">גבולות</a>
     </nav>
   </header>
 
-  <div class="tablewrap" role="region" aria-label="סיכום ארבע הדוגמאות" tabindex="0">
+  <div class="tablewrap" role="region" aria-label="סיכום חמש הדוגמאות" tabindex="0">
     <table>
       <thead><tr><th>דוגמה</th><th>בלי ההמחשה</th><th>עם ההמחשה</th><th>מה נוסף</th><th>מצב</th></tr></thead>
       <tbody>
         <tr><td>מסתתר · התגלות <span class="num">1237</span></td><td>5 שורות הפרש</td><td>קשת לכל זוג אותיות סמוכות, וגם תצוגה תלת־ממדית</td><td>רואים איזה זוג נושא את הסכום</td><td><span class="tag exists">קיים ב־<span class="num">main</span></span></td></tr>
         <tr><td>ריבוע · תפרצי בתשפז <span class="num">5787</span></td><td>רשימה שטוחה של 14 שורות</td><td>אות, תוספת, קידומת, סכום לכל מילה ומשוואה</td><td>מבנה לפי מילה במבט אחד</td><td><span class="tag new">חדש · ענף בלבד</span></td></tr>
         <tr><td>מילוי · אופק אדנק <span class="num">1237</span></td><td>10 שורות: אות, ערך, סכום</td><td>אות ← שם האות ← ערך ← סכום</td><td>שם מלא לכל אות</td><td><span class="tag exists">קיים ב־<span class="num">main</span></span></td></tr>
+        <tr><td><span class="num">1237</span> · שלושה נתיבים</td><td>שלוש תוצאות נפרדות, שורה לכל חישוב</td><td>שלושה ביטויים בשלוש שיטות, מתכנסים לצומת אחד</td><td>רואים שוויון בין שיטות כתמונה אחת</td><td><span class="tag exists">קיים ב־<span class="num">main</span> · עמוד תצוגה</span></td></tr>
         <tr><td>צבי · <span class="num">3060</span></td><td>כרטיס טקסט: "5 מסלולי חישוב"</td><td>4 מתוך 5 מסלולים מאומתים במנוע; <span class="num">765</span> מסומן ולא נספר</td><td>חושף מסלול שאין לו אימות</td><td><span class="tag new">חדש · ענף בלבד</span></td></tr>
       </tbody>
     </table>
@@ -142,6 +143,19 @@ footer.status strong{color:var(--ink);font-weight:500}
     </div>
   </section>
 
+  <section class="ex" id="golden" aria-labelledby="h-golden">
+    <div class="ex-head"><span class="kicker">שלוש שיטות שונות · קיים ב־<span class="num">main</span> כעמוד תצוגה</span><h2 id="h-golden"><span class="num">1237</span> · שלושה נתיבים לאותו מספר</h2><p>שלושה ביטויים שונים, בשלוש שיטות שונות, שנותנים את אותו ערך: אופק אדנק (מילוי), התגלות (מסתתר), וראית את אחרי (רגיל).</p></div>
+    <div class="pair">
+      <figure><span class="badge without">בלי ההמחשה</span><ol class="lines"><li class="row">אופק אדנק · מילוי: 1237</li><li class="row">התגלות · מסתתר: 1237</li><li class="row">וראית את אחרי · רגיל: 1237</li></ol><p class="small note">שלושה חישובים נפרדים, שורה לכל אחד. הערכים הם ערכי המנוע הקנוני.</p><figcaption>כל תוצאה עומדת לבד. כדי לראות שהן שוות צריך לשים לב לכך בעצמך.</figcaption></figure>
+      <figure><span class="badge with">עם ההמחשה</span><div class="shot"><img src="{{golden-1237-convergence}}" width="1100" height="977" alt="שלושה כרטיסים: מילוי אופק אדנק 1237, מסתתר התגלות 1237, רגיל וראית את אחרי 1237. מהם יוצאים קווים אל עיגול אחד: נקודת מפגש 1237" ></div><figcaption>שלושת הנתיבים כקלפים, וקו מכל אחד אל נקודת מפגש אחת. כפתור "הפעל גילוי" חושף אותם אחד אחרי השני.</figcaption></figure>
+    </div>
+    <div class="read">
+      <p class="gives"><span class="k">מה רואים:</span>ששלוש שיטות שונות מגיעות לאותו מספר, בלי לחפש. הרכיב בודק כל נתיב מול המנוע לפני שהוא מציג אותו, ומסרב להציג התכנסות אם נתיב אחד אינו מאומת.</p>
+      <p class="not"><span class="k">מה זה לא נותן:</span>הרכיב עצמו כותב שההתכנסות אינה ציון אמת ואינה הופכת פרשנות לעובדה. שוויון בין שלושה ביטויים אינו הוכחה לקשר.</p>
+      <p class="not"><span class="k">שאלה פתוחה:</span>הרכיב קורא לזה "התכנסות", אבל לפי חוק <span class="num">cross_vs_convergence</span> התכנסות מאושרת דורשת לפחות 5 שכבות עצמאיות, וכאן יש שלוש. במסמך התוכנית הוצע לקרוא לצומת כזה "קבוצת שוויונות", וההחלטה בידיים שלך.</p>
+    </div>
+  </section>
+
   <section class="ex" id="zvi" aria-labelledby="h-zvi">
     <div class="ex-head"><span class="kicker">חומרי צבי · חדש בפיילוט</span><h2 id="h-zvi"><span class="num">3060</span> · קוביית ישר והתכנסות המחומש</h2><p>הדוגמה המובילה בחומרי צבי: חמישה מסלולי כפל שמגיעים לאותו מספר. ישר × 6, ברית × 5, טוב × 180, <span class="num eq">765 × 4</span>, השגחה פרטית × 3.</p></div>
     <div class="pair">
@@ -164,11 +178,12 @@ footer.status strong{color:var(--ink);font-weight:500}
           <tr><td>מסתתר</td><td>קוראים חמש שורות ומנחשים איזה הפרש חשוב.</td><td>זמן קריאה</td></tr>
           <tr><td>ריבוע</td><td>מחברים ידנית את שני סכומי המילים כדי לראות איך מגיעים ל־<span class="num">5787</span>. קל לפספס שהחישוב מתחיל מחדש בכל מילה.</td><td>זמן והבנה</td></tr>
           <tr><td>מילוי</td><td>רואים ערך לכל אות ולא את שמה.</td><td>הבנה</td></tr>
+          <tr><td><span class="num">1237</span> · שלושה נתיבים</td><td>שלוש תוצאות נפרדות. אם לא שמים לב ששלושתן שוות, אין שום דבר שמחבר ביניהן.</td><td>זמן ותשומת לב</td></tr>
           <tr><td>צבי · <span class="num">3060</span></td><td>הכרטיס מציג 5 מסלולים. אחד מהם, <span class="num eq">765 × 4</span>, אין לו ביטוי שהמנוע יכול לאמת, ושום דבר בכרטיס לא מסמן את זה.</td><td><strong>אמון</strong>: מספר מסלולים שמוצג בלי שנבדק</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="callout">בשלוש הדוגמאות הראשונות המחיר הוא זמן והבנה. בדוגמה של צבי הוא משנה מה הקורא מאמין שנבדק. זה ההבדל המרכזי שהמחשה כזאת יכולה לעשות, ולא היופי של התצוגה.</p>
+    <p class="callout">בארבע הדוגמאות הראשונות המחיר הוא זמן, הבנה ותשומת לב. בדוגמה של צבי הוא משנה מה הקורא מאמין שנבדק. זה ההבדל המרכזי שהמחשה כזאת יכולה לעשות, ולא היופי של התצוגה.</p>
   </section>
 
   <section class="cost" id="limits" aria-labelledby="h-limits">
