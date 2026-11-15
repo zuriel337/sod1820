@@ -470,6 +470,8 @@ jobs:
         run: node --test test/ga-measurement-browser-2029.browser.mjs
       - name: Public Post background starts during calculation; GA uses the current public page identity
         run: node --test test/post-speed-page-analytics.browser.mjs
+      - name: Accepted Community behavior survives release (real artifact, worker and reader; guest/member/admin on mobile/desktop)
+        run: node --test test/community-behavior-continuity-2029.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)

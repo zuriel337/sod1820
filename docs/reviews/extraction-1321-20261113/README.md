@@ -1,5 +1,63 @@
 # Extraction of PR #1321 onto current main — integrator overview (13.11.2026)
 
+## 15.11.2026 — preservation of accepted behavior
+
+This section extends the existing closure/maintenance acceptance under
+`foundation_closure_protocol_law`; it is not another registry, gate or owner.
+The dated extraction/release snapshots below are historical, not evidence of
+today's deployment. A commit being preserved does not prove its behavior survives.
+
+**User decision:** keep Emily without the «צוות» label. Preserve her name,
+reviewed account/history link, biography and privileges. This is an intentional
+display choice, not a consequence of a failed staff RPC and not removal of staff
+labels for everyone else.
+
+**Reproduction:** on main `c2acc064be31df93a229637bc32305a951c8006b`, the real built
+site and service worker show the label on both historical and new Emily messages
+when the staff read succeeds for an admin. The new browser test fails there
+(`2 !== 0`); the existing two source-wiring tests still pass. A public/member
+transport denial can hide the label, so its absence alone is not acceptance.
+The reporter's exact original account/session was not established.
+
+| Accepted behavior | Executable regression evidence | Release state of this change |
+|---|---|---|
+| Emily has no staff chip, including successful reads; another staff member keeps theirs | `test/community-behavior-continuity-2029.browser.mjs`: admin success, empty result and server failure; guest/member; 390/1280px | Branch only; not yet verified on the live domain |
+| Emily's old and new messages keep her name and the same reviewed account link | Same real-browser test, checking both visible names and navigation destinations | Regression coverage added; existing live behavior not re-certified by fixtures |
+| Esther26 remains the public name on old/new messages and both open the reviewed account | Same real-browser test with a different account display name in the fixture | Regression coverage added |
+| Single-digit number links work while phone/date fragments remain text | Same real-browser test plus existing `messageNumbers.test.js` | Regression coverage added |
+| Deleted/hidden threads stay excluded from author summaries | Existing `writerCommunityReuse.test.js`, already in the Community CI suite | Existing reader-level coverage; not a claim of full browser/data coverage |
+
+The new browser suite runs in the existing required
+`auth-browser-acceptance-2029` job on every PR. It uses the complete public artifact,
+real worker and real SDK, with only remote servers replaced locally. The positive
+staff control must render before Emily's absence is accepted. Missing build,
+browser, feed, or staff request fails; no skip is counted as success. No live test
+traffic, messages or analytics rows are produced.
+
+Local validation on this change: six browser cases passed with zero skips
+(three viewer roles × two viewports; admin also repeats empty/error responses),
+55 focused Community/identity/number/workflow tests passed, and the public build
+passed. The before-change admin browser case failed on the exact accepted outcome.
+CI evidence belongs to the final PR head; a local pass is not a CI or live pass.
+The existing staff RPC admission issue for other public readers is not changed
+or claimed resolved by this display decision.
+
+For subsequent closure entries, retain the accepted outcome and its test with
+the original decision, then record **prepared / merged / deployed / verified-live**
+separately, with exact source SHA and deployment evidence. Re-run the relevant
+acceptance on the integrated release artifact; if a reader/permission dependency
+fails, report a failure or an explicitly degraded state, not “feature removed”.
+Live verification remains a separate release step. Do not close an item from a
+green source-pattern test or from absence of data alone. This bounded addition
+does not claim every existing feature now has end-to-end coverage.
+
+Release: normal reviewed website merge/deployment; no SQL, roles, worker access
+list or other user's display policy changes. Rollback is the code revert through
+the existing release process; it would restore the old possible Emily chip and
+must therefore be reported as reverting this user decision too.
+
+## Historical extraction snapshot (13.11.2026)
+
 PR #1321 (frozen at [`4a406fed2`](https://github.com/zuriel337/sod1820/commit/4a406fed273b9b381577c5b2a03d91c58de46451), merge base `aa0f6bc82`) mixed 209 files of several topics. Its work was extracted, without merging it wholesale, onto current `origin/main` [`9be0c29fc`](https://github.com/zuriel337/sod1820/commit/9be0c29fc52337069192b057ef1a9882c7026009) in four packages. **Everything below is draft: nothing was applied to a database, merged or deployed, the repository ruleset was not changed.**
 
 | Package | Pull request (draft) | Branch | What it carries | Database step |
