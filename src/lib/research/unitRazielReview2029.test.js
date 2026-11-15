@@ -1,11 +1,12 @@
 import test from "node:test";
+import { YAMIN_SMOL_TEXT_20261112 } from "./fixtures/yaminSmolText20261112.js";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { baseBodyBlocks } from "./postUnitBody2029.js";
 import { segmentUnit, buildSegmentQuestion, parseRazielAnswer, mergeProposals, applyProposals, segmentReport, RAZIEL_REQUEST_LIMITS, REVIEW_TASKS, FREE_TASK_MAX } from "./unitRazielReview2029.js";
 import { validateBlocks } from "./unitDocument2029.js";
 
-const base = baseBodyBlocks();
+const base = baseBodyBlocks(YAMIN_SMOL_TEXT_20261112);
 
 test("COMPAT GATE: the limits this module plans against are the live ones in the Raziel session request builder", () => {
   const src = readFileSync(new URL("./razielSessionRequest2029.js", import.meta.url), "utf8");

@@ -219,6 +219,8 @@
   border:1px solid color-mix(in srgb,var(--r29-gold) 38%,transparent);background:var(--pu-tile);border-radius:18px}
 .sod29-pu-verse[data-quote-identity="baal-hasulam"]{border-color:color-mix(in srgb,var(--rm-azure) 60%,transparent);font-style:normal}
 .sod29-pu-claim{font-weight:800;color:var(--s29-ink)}
+.sod29-pu-field{font-weight:700}
+.sod29-pu-field .sod29-pu-field-label{font-weight:600;opacity:.72;margin-inline-end:.15em}
 .sod29-pu-closing{padding:.8rem 1rem;font:850 clamp(1.25rem,2.6vw,1.8rem)/1.5 var(--rm-display);color:var(--rm-gold-ink);text-wrap:balance;
   border-block:1px solid color-mix(in srgb,var(--r29-gold) 55%,transparent)}
 .sod29-pu-body [data-sod-role="peak"]{font:900 clamp(2.3rem,9vw,4.2rem)/1.05 var(--rm-display);margin-block:-.15rem}

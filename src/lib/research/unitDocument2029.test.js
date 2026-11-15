@@ -1,9 +1,10 @@
 import test from "node:test";
+import { YAMIN_SMOL_TEXT_20261112 } from "./fixtures/yaminSmolText20261112.js";
 import assert from "node:assert/strict";
 import { baseBodyBlocks, resolveBodyBlocks, entriesFromBlocks, diffBody, cleanGematriaItem, writeBodyDraft, resolveUnitBlocks } from "./postUnitBody2029.js";
 import { docItems, itemsToBlocks, validateBlocks, restoreMissingSources, clearEditable, blocksToDoc, replaceFromText, findRepeats, wordDiff } from "./unitDocument2029.js";
 
-const base = baseBodyBlocks();
+const base = baseBodyBlocks(YAMIN_SMOL_TEXT_20261112);
 const roundTrip = (blocks, opts) => itemsToBlocks(docItems(blocks), base, opts);
 const memory = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
 const GX = { phrase: "השמאל גנבו הבחירות מיד הימין", methodKey: "regular", display: "full", stated: 1237, by: "yaniv-levi" };
@@ -125,7 +126,7 @@ test("gematria items are REFERENCES only: no value, letters, HTML or CSS is ever
   assert.equal(back.find((b) => b.kind === "gematria").align, "center");
   assert.deepEqual(back.filter((b) => b.kind === "gematria").map((b) => b.item.display), ["full", "compact", "peak"]);
   const mem = memory(); writeBodyDraft(5107, "u", entries, mem);
-  assert.equal(resolveUnitBlocks(5107, "u", undefined, mem).filter((b) => b.kind === "gematria").length, 3, "a local draft restores the items");
+  assert.equal(resolveUnitBlocks(5107, "u", YAMIN_SMOL_TEXT_20261112, mem).filter((b) => b.kind === "gematria").length, 3, "a local draft restores the items");
   assert.equal(itemsToBlocks([{ t: "gx", item: { phrase: "x" } }], base).errors.some((e) => e.code === "bad_gematria"), true);
 });
 

@@ -1,7 +1,7 @@
 // Builds the DISPLAY element of a preview unit (postPreviewUnits2029.js) and places it as the newest update of its Post. Browser only; the
 // words are set with textContent, so nothing in the approved text can become markup, and no word is changed. Numbers (3–5 digits) become the
 // same clickable [data-gem] controls the rest of the Post uses, so a click opens the existing Number window and returns to this exact unit.
-import { parseYaminSmolText, previewUnitsFor, ATTRIBUTION_GROUPS } from "./postPreviewUnits2029.js";
+import { parseYaminSmolText, parseFieldLine, previewUnitsFor, ATTRIBUTION_GROUPS } from "./postPreviewUnits2029.js";
 import { resolveUnitBlocks, readBodyDraftMeta } from "./postUnitBody2029.js";
 
 const NUMBER = /(?<![\d.])\d{3,5}(?![\d.])/g;
@@ -79,6 +79,17 @@ export function buildPreviewUnitElement(doc, unit, blocks = null) {
       // The canonical method trace of a focal number opens right under it (a React host, filled by PreviewUnitExtras2029; empty until the reader asks).
       const traceClaim = PEAK_TRACE_CLAIMS[block.number];
       if (traceClaim) host.append(el(doc, "div", { "data-pu-trace": traceClaim, class: "sod29-pu-host sod29-pu-trace-host" }));
+      continue; }
+    if (block.kind === "claim" && parseFieldLine(block.text)) {
+      // a labelled line of a connection ("הביטוי: …", "השיטה: …", "התוצאה: …"): the label is read from the text, the value keeps its clickable numbers
+      const field = parseFieldLine(block.text);
+      const p = el(doc, "p", { class: "sod29-pu-claim sod29-pu-field", "data-sod-role": "short", "data-sod-align": al("center"), "data-pu-field": field.label });
+      p.append(el(doc, "b", { class: "sod29-pu-field-label" }, `${field.label}:`), doc.createTextNode(" "));
+      withNumbers(doc, p, field.value);
+      host.append(p);
+      // the canonical method trace opens right under the RESULT of a connection (a React host, filled by PreviewUnitExtras2029)
+      const fieldTrace = field.label === "התוצאה" ? PEAK_TRACE_CLAIMS[field.number] : null;
+      if (fieldTrace) host.append(el(doc, "div", { "data-pu-trace": fieldTrace, class: "sod29-pu-host sod29-pu-trace-host" }));
       continue; }
     if (block.kind === "claim") { host.append(withNumbers(doc, el(doc, "p", { class: "sod29-pu-claim", "data-sod-role": "short", "data-sod-align": al("center") }), block.text)); continue; }
     const p = el(doc, "p", { "data-sod-role": "prose", "data-sod-align": al("start") });

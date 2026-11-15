@@ -10,7 +10,7 @@ import { baseBodyBlocks, resolveBodyBlocks, entriesFromBlocks, diffBody, readBod
 import { itemsToBlocks, validateBlocks, restoreMissingSources, clearEditable, blocksToDoc, replaceFromText, findRepeats, wordDiff, DOC_KIND_LABEL } from "../../lib/research/unitDocument2029.js";
 import { segmentUnit, buildSegmentQuestion, parseRazielAnswer, mergeProposals, applyProposals, proposalCounts, segmentReport, REVIEW_TASKS, FREE_TASK_MAX, REJECT_LABEL, OP_LABEL } from "../../lib/research/unitRazielReview2029.js";
 import { buildPreviewUnitCopy, rebuildPreviewUnitBody } from "../../lib/research/postPreviewUnitDom2029.js";
-import { YAMIN_SMOL_APPROVED_TEXT, YAMIN_SMOL_CLAIMS } from "../../lib/research/postPreviewUnits2029.js";
+import { YAMIN_SMOL_APPROVED_TEXT, YAMIN_SMOL_CLAIMS, parseFieldLine } from "../../lib/research/postPreviewUnits2029.js";
 import { checkSourceHint, HINT_STATES, collapseSpacedLetters } from "../../lib/research/postSourceHintCheck2029.js";
 import { useOptionalRazielSession2029 } from "../../lib/research/RazielSessionProvider2029.jsx";
 import { renderDoc, readDoc, paragraphAt, rangeTouchesChip, insertPlainText, gxNode } from "./unitDocumentDom2029.js";
@@ -185,7 +185,8 @@ export default function UnitDocumentEditor2029({ unit, unitDef, postId, onPickMe
   const candidates = useMemo(() => {
     const out = [];
     for (const b of blocks) {
-      const text = b.kind === "claim" ? b.text.split(/\s=\s/)[0] : b.kind === "verse" ? b.text : null;
+      const field = b.kind === "claim" ? parseFieldLine(b.text) : null;
+      const text = field ? (field.label === "הביטוי" ? field.value : null) : b.kind === "claim" ? b.text.split(/\s=\s/)[0] : b.kind === "verse" ? b.text : null;
       const clean = text && text.replace(/[«»״"]/g, "").replace(/\s+/g, " ").trim();
       if (clean && clean.length >= 2 && !out.includes(clean)) out.push(clean);
     }

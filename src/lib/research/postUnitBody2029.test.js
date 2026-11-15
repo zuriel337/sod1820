@@ -1,9 +1,10 @@
 import test from "node:test";
+import { YAMIN_SMOL_TEXT_20261112 } from "./fixtures/yaminSmolText20261112.js";
 import assert from "node:assert/strict";
 import { baseBodyBlocks, resolveBodyBlocks, entriesFromBlocks, diffBody, resolveUnitBlocks, writeBodyDraft, readBodyDraft, clearBodyDraft, cleanBodyText } from "./postUnitBody2029.js";
 
 const memory = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
-const base = baseBodyBlocks();
+const base = baseBodyBlocks(YAMIN_SMOL_TEXT_20261112);
 const firstProse = base.find((b) => b.kind === "p" && !b.locked);
 
 test("the approved body is split into identified blocks; ONLY external sources are protected — numbers, equations and tables are research data", () => {
@@ -57,12 +58,12 @@ test("text is plain: control characters are dropped and length is capped; nothin
 
 test("the browser-local draft round-trips, is per post+unit, and clears back to the approved body", () => {
   const storage = memory();
-  assert.equal(resolveUnitBlocks(5107, "u", undefined, storage).length, base.length);
+  assert.equal(resolveUnitBlocks(5107, "u", YAMIN_SMOL_TEXT_20261112, storage).length, base.length);
   const entries = entriesFromBlocks(base, base).map((e) => (e.ref === firstProse.id ? { ref: e.ref, text: "נערך" } : e));
   assert.equal(writeBodyDraft(5107, "u", entries, storage), true);
-  assert.equal(resolveUnitBlocks(5107, "u", undefined, storage).find((b) => b.id === firstProse.id).text, "נערך");
-  assert.equal(resolveUnitBlocks(5112, "u", undefined, storage).find((b) => b.id === firstProse.id).text, firstProse.text, "another post is unaffected");
+  assert.equal(resolveUnitBlocks(5107, "u", YAMIN_SMOL_TEXT_20261112, storage).find((b) => b.id === firstProse.id).text, "נערך");
+  assert.equal(resolveUnitBlocks(5112, "u", YAMIN_SMOL_TEXT_20261112, storage).find((b) => b.id === firstProse.id).text, firstProse.text, "another post is unaffected");
   clearBodyDraft(5107, "u", storage);
   assert.equal(readBodyDraft(5107, "u", storage), null);
-  assert.equal(resolveUnitBlocks(5107, "u", undefined, storage).find((b) => b.id === firstProse.id).text, firstProse.text);
+  assert.equal(resolveUnitBlocks(5107, "u", YAMIN_SMOL_TEXT_20261112, storage).find((b) => b.id === firstProse.id).text, firstProse.text);
 });

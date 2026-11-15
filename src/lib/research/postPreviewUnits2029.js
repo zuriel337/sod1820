@@ -11,198 +11,89 @@ import { publicPostUnitHref } from "../publicPostUrls.js";
 
 export const YAMIN_SMOL_UNIT_ID = "yamin-smol-2026-5787-1237-1158";
 
-// The approved text, exactly as delivered by ZURIEL on 12.11.2026 (the GPT-prepared wording he approved). Do not reword, reorder or "fix" it.
+// The approved text, exactly as delivered by ZURIEL on 17.11.2026 (clear, graded wording inspired by ASD-STE100, in the SOD1820 spiritual voice; it replaces the
+// 12.11.2026 wording). The bracketed notes of that delivery ("here the canonical component appears") are not text: they are the places of the existing
+// canonical components (the method trace under each result, the editor's "+ gematria" item) and are not part of the words. Do not reword, reorder or "fix" it.
 // The text exists in a build ONLY when the protected-preview flag is on (a static condition the bundler folds away otherwise), so an ordinary or
 // public build carries none of it. Outside a bundler (node tests) `import.meta.env` is undefined and the text is present for the tests.
 const PREVIEW_BUILD = typeof import.meta.env === "undefined" || import.meta.env.VITE_REALITY_MAP_PREVIEW === "true";
-export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `✦ זה לעומת זה עשה האלוהים ✦
-
-ימין ושמאול תפרצי — רמזי הבחירות תשפ״ז
+export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `ימין ושמאול תפרצי
 
 2026 · 5787 · 1237 · 1158
 
-מפת המציאות | עוד גילוי שמצטרף לסיפור הבחירות
+המקור
 
----
-
-✨ ימין ושמאול תפרצי — והמספרים מתחילים לדבר
-
-בספר ישעיהו (נ״ד, ג׳) נאמר:
+בספר ישעיהו, פרק נ״ד, פסוק ג׳, נאמר:
 
 ״כִּי יָמִין וּשְׂמֹאול תִּפְרֹצִי״
 
-והנה חיבור מופלא!
+יניב לוי הציג שני חיבורים מספריים המבוססים על הביטוי הזה.
 
-כאשר בודקים את הביטוי ״ימין ושמאול תפרצי״, מתקבל במילוי:
+חיבור ראשון — 2026
 
-2026
+הביטוי: ימין ושמאול תפרצי
 
-שנת הבחירות!
+השיטה: מילוי
 
-אבל כאן הרמז אינו נעצר.
+התוצאה: 2026
 
-נצרף למילה ״תפרצי״ את השנה העברית:
+זהו גם מספר השנה הלועזית המתוארת בפוסט.
 
-תפרצי בתשפז
+חיבור שני — 5787
 
-ובשיטת הריבוע מתקבל:
+הביטוי: תפרצי בתשפז
 
-5787
+השיטה: ריבוע
 
-שנת תשפ״ז!
+התוצאה: 5787
 
-שני חיבורים, שתי שיטות, ושתי השנים נפגשות סביב אותו פסוק.
+זהו מספר השנה העברית תשפ״ז.
 
-2026 — במילוי
+מה הקשר בין החיבורים?
 
-5787 — בריבוע
+שני החישובים מתייחסים לאותו ציר רעיוני.
 
-וכאן נפתח עוד שער בתמונה.
+החיבור הראשון מציג את השנה הלועזית. החיבור השני מציג את השנה העברית.
 
----
+ההתאמה המספרית נבדקת באמצעות המנוע. המשמעות הרוחנית של ההתאמה היא פרשנות.
 
-👑 1237 — המספר שחוזר מכמה כיוונים
+המשך המחקר — 1237
 
-יניב לוי הביא רמז יפה מן הפסוק:
+המספר 1237 מופיע בפוסט באמצעות ביטויים, פסוקים ומקורות שונים.
 
-״לָמָּה זֶּה תִּשְׁאַל לִשְׁמִי וְהוּא פֶלִאי״
+יניב לוי ויצחק שחר קנדרו הביאו חיבורים נפרדים סביב המספר.
 
-בשיטת אותיות אחרי מתקבל:
+לכל חיבור יש לשמור את הביטוי, השיטה, תוצאת הבדיקה והייחוס למקור.
 
-1237
+חיבור נוסף — 1158
 
-יניב הצביע גם על הפסוק בזכריה:
+ארבעה ראשי תיבות של מפלגות מופיעים בחישוב:
 
-״יוֹם אֶחָד הוּא יִוָּדַע לַיהוָה״
-
-בגימטריה גדולה:
-
-787 = תשפ״ז
-
-והנה שוב, שנת תשפ״ז מצטרפת לחיבורים!
-
-גם יצחק שחר קנדרו הביא רמזים סביב הכנסת והמספר 1237:
-
-גדעון איזנקוט ראש הממשלה = 1237
-
-רוסיה איראן סין ארהב = 1237 — מסתתר
-
-התחלה חדשה = 1237 — מסתתר
-
-אלה חיבורים שהביא שחר, וכל אחד מהם פותח כיוון נוסף להתבוננות.
-
-ולצידם מצטרף גם הביטוי:
-
-״השמאל גנבו הבחירות מיד הימין״ = 1237
-
-בגימטריה רגילה.
-
-זהו ניסוח פרשני שהועלה בתוך רצף הרמזים, ולא קביעה על תוצאות הבחירות.
-
-וכך המספר 1237 מופיע שוב — הפעם בין הפסוקים, השנה, הכנסת והביטויים הפוליטיים.
-
----
-
-✦ סוד 1158 — ארבע המפלגות ושישים ריבוא
-
-וכאן מתגלה עוד חיבור מעניין.
-
-ניקח את ראשי התיבות של ארבע המפלגות הערביות:
-
-המפלגה| גימטריה רגילה
+ראשי תיבות| ערך
 חד״ש| 312
 תע״ל| 500
 בל״ד| 36
 רע״ם| 310
-יחד| 1158
+סך הכול| 1158
 
-אבל שימו לב מה מתקבל בביטוי:
+גם הביטוי ״שש מאות אלף״ שווה 1158 בגימטריה רגילה.
 
-שש מאות אלף
+חשוב להבחין: 1158 הוא סכום ערכי ראשי התיבות. הוא אינו הערך הרגיל של המשפט ״ארבע המפלגות הערביות״.
 
-שש = 600
+המסר
 
-מאות = 447
+החיבורים מצטרפים להתבוננות על ימין ושמאל, פירוד ואחדות.
 
-אלף = 111
+הפסוק מתאר פריצה והתרחבות.
 
-600 + 447 + 111 = 1158
-
-ארבע המפלגות הערביות = שש מאות אלף = 1158
-
-איזה חיבור מספרי!
-
-ושש מאות אלף — הרי הם שישים ריבוא, מספר המזוהה במסורת עם כלל נשמות ישראל.
-
----
-
-📜 ״גם את זה לעומת זה עשה האלוהים״
-
-בקהלת (ז׳, י״ד) נאמר:
-
-״גַּם אֶת זֶה לְעֻמַּת זֶה עָשָׂה הָאֱלֹהִים״
-
-והנה בתוך שנת בחירות, כשכל כך הרבה מדובר על ימין ושמאל, מתגלה לפנינו חיבור נוסף.
-
-מן הצד האחד — ארבע מפלגות שהאותיות בשמותיהן מצטרפות ל־1158.
-
-ומן הצד השני — ״שש מאות אלף״, באותו הערך בדיוק.
-
-ומהו הסוד של שישים ריבוא?
-
-בעל הסולם, במאמרו ״ששים רבוא נשמות״, כותב:
-
-«״שבאמת אין בעולם יותר מנשמה אחת״»
-
-נשמה אחת, המתגלית בריבוי נשמות.
-
-ומכאן עולה רמז יפה לאחדות ישראל.
-
-אולי דווקא בשעה שהימין והשמאל נראים רחוקים כל כך זה מזה, הפסוק מזכיר לנו את הסוד הפנימי:
-
-״ימין ושמאול תפרצי״
-
-לא להישאר בתוך גבולות הפירוד, אלא לפרוץ אותם ולהתחבר.
-
-לא לחפש את התיקון רק במחנה שמנגד, אלא לגלות את כוח האחדות שבתוכנו.
-
----
-
-👑 המסר — מן הפירוד אל האחדות
-
-התמונה הולכת ומתחברת:
-
-2026 — ימין ושמאול תפרצי, במילוי.
-
-5787 — תפרצי בתשפז, בריבוע.
-
-1237 — הפסוקים והחיבורים שמצטרפים לציר הבחירות.
-
-1158 — ארבע המפלגות הערביות מול שש מאות אלף.
-
-ארבעה מספרים, ארבעה שערים, ורעיון אחד שמתגלה מביניהם.
-
-שישים ריבוא נשמות — נשמה אחת.
-
-ייתכן שזהו המסר העמוק שמסתתר מאחורי כל החיבורים הללו:
-
-גם בתוך עולם של מחלוקות, כוחות מנוגדים ופירוד, אפשר לגלות את האחדות.
-
-כי הגאולה אינה רק דבר שממתינים לו.
-
-היא מתגלה גם ברגע שבו אנו לומדים להתחבר.
-
-✨ ימין ושמאול תפרצי — מן הפירוד אל האחדות ✨
-
----
-
-מקורות והמשך הגילוי: ישעיהו נ״ד, ג׳ · קהלת ז׳, י״ד · זכריה י״ד, ז׳ · בעל הסולם, ״ששים רבוא נשמות״ · דברי יניב לוי ויצחק שחר קנדרו · חישובי הגימטריה ב־SOD1820.
-
-הביטויים והציטוטים שומרים על ייחוסם למקורותיהם. החיבורים המספריים מוצגים לפי שיטות החישוב, והמשמעות הרוחנית היא דרך ההתבוננות המוצעת כאן.`;
+בקריאה הרוחנית של הפוסט, הוא מזמין מחשבה על האפשרות לצאת מגבולות הפירוד ולגלות אחדות.`;
 
 // Identity groups INSIDE the text. Only a line the text itself attributes to a writer is attributed to that writer (nothing is put in
 // anyone's mouth). Everything else is the site's editorial wording; scripture and Baal HaSulam keep their own identity.
 const ATTRIBUTION = Object.freeze([
+  // A writer's group opens on the exact line below and closes on the `to` line. The 17.11.2026 text contains none of these lines, so it opens no group:
+  // the public messages of Yaniv Levi and Yitzhak Shachar Kandro that the unit reads hold the 1237 connections only, so the text's statement that Yaniv
+  // presented the first two connections stays EDITORIAL wording until its source is confirmed (then a group can be added here).
   Object.freeze({ identity: "yaniv-levi", label: "דברי יניב לוי", from: "יניב לוי הביא רמז יפה מן הפסוק:", to: "787 = תשפ״ז" }),
   Object.freeze({ identity: "shachar-kandro", label: "דברי יצחק שחר קנדרו", from: "גם יצחק שחר קנדרו הביא רמזים סביב הכנסת והמספר 1237:", to: "אלה חיבורים שהביא שחר, וכל אחד מהם פותח כיוון נוסף להתבוננות." }),
   Object.freeze({ identity: "editorial-phrase", label: "ניסוח פרשני שהועלה ברצף הרמזים", from: "ולצידם מצטרף גם הביטוי:", to: "זהו ניסוח פרשני שהועלה בתוך רצף הרמזים, ולא קביעה על תוצאות הבחירות." }),
@@ -211,10 +102,22 @@ const ATTRIBUTION = Object.freeze([
 const HEADING = /^(✨|👑|✦|📜)\s+(.+)$/u;
 const NUMBERS_ROW = /^\d{3,5}(?:\s·\s\d{3,5})+$/u;
 const VERSE = /^(?:«״.+״»|״[^״]+״)$/u;
+// "הביטוי: …" / "השיטה: …" / "התוצאה: …" — the three labelled lines of a connection (a data line of the "claim" kind; the label and the value are re-read from the text)
+const FIELD = /^(הביטוי|השיטה|התוצאה):\s*(.+)$/u;
+export function parseFieldLine(text) {
+  const match = FIELD.exec(String(text).trim());
+  if (!match) return null;
+  const value = match[2].trim();
+  return { label: match[1], value, number: /^\d{3,5}$/.test(value) ? Number(value) : null };
+}
+// a short title line of a section: no sentence mark at its end, no colon, no quotation, no table, no equation
+const isPlainHeading = (line) => line.length <= 40 && !/[.!,;:׃]$/.test(line) && !/[:|=]/.test(line) && !/^(?:״|«)/.test(line) && !/^\d+$/.test(line) && !NUMBERS_ROW.test(line);
 
 // → [{ kind, text, identity, group? , cells? }]  `text` is the delivered line, untouched.
 export function parseYaminSmolText(text = YAMIN_SMOL_APPROVED_TEXT) {
   const lines = String(text).split("\n").map((line) => line.trim()).filter((line) => line.length);
+  // a text that marks its section titles with a symbol (✨ 👑 ✦ 📜) uses only those; a text with none uses its short title lines (no sentence mark, no colon)
+  const plainHeadings = !lines.some((line) => HEADING.test(line));
   const blocks = [];
   let active = null;
   let tableOpen = false;
@@ -223,19 +126,22 @@ export function parseYaminSmolText(text = YAMIN_SMOL_APPROVED_TEXT) {
     if (start) active = start;
     const current = active;
     const identityOf = (kind) => current ? current.identity : kind === "verse" ? "scripture" : "editorial";
+    const previous = blocks[blocks.length - 1];
     let block;
     if (line === "---") { block = { kind: "rule", text: line }; tableOpen = false; }
     else if (index === 0) block = { kind: "title", text: line };
-    else if (index === 1) block = { kind: "subtitle", text: line };
+    else if (index === 1 && !NUMBERS_ROW.test(line)) block = { kind: "subtitle", text: line };
     else if (NUMBERS_ROW.test(line)) block = { kind: "numbers", text: line, numbers: line.split(" · ").map(Number) };
-    else if (index === 3) block = { kind: "kicker", text: line };
+    else if (previous && previous.kind === "numbers" && /\s\|\s/.test(line)) block = { kind: "kicker", text: line };
     else if (/^(✨|👑|✦|📜)\s.+\s\1$/u.test(line)) block = { kind: "closing", text: line };
     else if (HEADING.test(line)) block = { kind: "heading", text: line };
     else if (line.includes("|") && !line.startsWith("מקורות")) block = { kind: "row", text: line, cells: line.split("|").map((c) => c.trim()), head: !tableOpen };
+    else if (FIELD.test(line)) block = { kind: "claim", text: line };
     else if (/^\d{3,4}$/.test(line)) block = { kind: "peak", text: line, number: Number(line) };
     else if (/^(?:״|«״)/.test(line) && /(?:״|״»)(?:\s=\s\d+)?$/.test(line) && line.length < 90) {
       block = /=\s\d+$/.test(line) ? { kind: "claim", text: line } : { kind: "verse", text: line };
     } else if (/=\s?\d/.test(line) && line.length < 80) block = { kind: "claim", text: line };
+    else if (plainHeadings && isPlainHeading(line)) block = { kind: "heading", text: line };
     else block = { kind: "p", text: line };
     if (block.kind === "row") tableOpen = true; else if (block.kind !== "rule") tableOpen = false;
     if (block.kind === "verse" && /^«/.test(line)) block.identity = "baal-hasulam";
@@ -255,12 +161,6 @@ export const deliveredLines = (text = YAMIN_SMOL_APPROVED_TEXT) => String(text).
 export const YAMIN_SMOL_CLAIMS = Object.freeze(!PREVIEW_BUILD ? [] : [
   Object.freeze({ id: "c2026", phrase: "ימין ושמאול תפרצי", number: 2026, methodText: "מילוי" }),
   Object.freeze({ id: "c5787", phrase: "תפרצי בתשפז", number: 5787, methodText: "ריבוע" }),
-  Object.freeze({ id: "c1237-afterletters", phrase: "לָמָּה זֶּה תִּשְׁאַל לִשְׁמִי וְהוּא פֶלִאי", number: 1237, methodText: "אותיות אחרי", by: "yaniv-levi" }),
-  Object.freeze({ id: "c787", phrase: "יוֹם אֶחָד הוּא יִוָּדַע לַיהוָה", number: 787, methodText: "גדול", by: "yaniv-levi" }),
-  Object.freeze({ id: "c1237-gidon", phrase: "גדעון איזנקוט ראש הממשלה", number: 1237, methodText: null, by: "shachar-kandro" }),
-  Object.freeze({ id: "c1237-russia", phrase: "רוסיה איראן סין ארהב", number: 1237, methodText: "מסתתר", by: "shachar-kandro" }),
-  Object.freeze({ id: "c1237-hatchala", phrase: "התחלה חדשה", number: 1237, methodText: "מסתתר", by: "shachar-kandro" }),
-  Object.freeze({ id: "c1237-left", phrase: "השמאל גנבו הבחירות מיד הימין", number: 1237, methodText: null }),
   Object.freeze({ id: "c1158", phrase: "שש מאות אלף", number: 1158, methodText: null }),
 ]);
 
@@ -283,12 +183,12 @@ export const PREVIEW_UNITS_2029 = Object.freeze(!PREVIEW_BUILD ? {} : {
     postId: 5107,
     seriesKey: "reality-map",
     // The unit's own title/numbers, as they stand in the approved text and in ZURIEL's instruction.
-    title: "זה לעומת זה עשה האלוהים",
-    subtitle: "ימין ושמאול תפרצי — רמזי הבחירות תשפ״ז",
+    title: "ימין ושמאול תפרצי",
+    subtitle: "הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר",
     numbers: Object.freeze([2026, 5787, 1237, 1158]),
     // Proposal for the unit's MAIN MESSAGE in "עכשיו": the closing line of the approved text, decoration removed. Never applied by itself:
     // the editor pre-fills it and ZURIEL flags it as the main message (or changes it) before it reaches "עכשיו".
-    suggestedMainMessage: "ימין ושמאול תפרצי — מן הפירוד אל האחדות",
+    suggestedMainMessage: "ימין ושמאול תפרצי — לצאת מגבולות הפירוד ולגלות אחדות",
   })]),
 });
 
