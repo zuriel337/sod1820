@@ -226,6 +226,12 @@
     background: var(--s29-rail-royal-fill) !important;
     box-shadow: var(--s29-rail-royal-shadow) !important;
   }
+  /* The verse band and the footer sit BETWEEN the two capsules (ZURIEL 17.11.2026): the left rail now runs to the bottom of the viewport, so a full-width band or footer
+     would run under it (the footer's left column was cut off). They take the same reserved width the page content already reserves for that rail. */
+  .sod29-root.closed-shell.native-frame:has(.sod29-main-stage.has-context-rail) :is(.sod29-living-ribbon, footer.f29) {
+    margin-inline-start: 8px;   /* the right capsule leaves 2px; 8px more gives the same 10px gap on both sides */
+    margin-inline-end: calc(var(--s29-context-rail-width, 286px) + 18px);   /* the left capsule's edge gap (8px) + its width + a 10px gap */
+  }
   .sod29-root.closed-shell.native-frame .sod29-surface-context-rail .sod29-context-inspector-kicker { color: color-mix(in srgb, var(--s29-brand-gold) 78%, var(--s29-ink)); }
   .sod29-root.closed-shell.native-frame .sod29-surface-context-rail :is(.sod29-surface-context-depth-pointer, .sod29-surface-context-deepen) {
     border-color: color-mix(in srgb, var(--s29-brand-sapphire) 45%, var(--s29-line)); background: color-mix(in srgb, var(--s29-brand-sapphire) 12%, var(--s29-panel));
