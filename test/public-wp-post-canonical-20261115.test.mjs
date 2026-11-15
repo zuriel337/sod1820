@@ -30,7 +30,8 @@ async function ask(path, row) {
   const previous = globalThis.fetch;
   globalThis.fetch = async (url) => {
     const u = String(url);
-    const hit = /\/rest\/v1\/posts\?/.test(u) && row && (decodeURIComponent(u).includes('slug=eq.' + decodeURIComponent(row.slug)) || u.includes('slug=eq.' + row.slug));
+    // An address with two spellings (the decoded and the stored, percent-encoded one) is asked for in one request, `slug=in.(a,b)`; one spelling, `slug=eq.a`.
+    const hit = /\/rest\/v1\/posts\?/.test(u) && row && (/slug=(?:eq\.|in\.\()/.test(decodeURIComponent(u)) && decodeURIComponent(u).includes(decodeURIComponent(row.slug)) || u.includes('slug=eq.' + row.slug));
     return { ok: true, status: 200, headers: new Headers({ 'content-range': '*/0' }), json: async () => (hit ? [row] : []), text: async () => '[]' };
   };
   const res = { h: new Map(), code: 200, body: '', setHeader(k, v) { this.h.set(String(k).toLowerCase(), v); }, status(c) { this.code = c; return this; }, send(b) { this.body = String(b); return this; } };
