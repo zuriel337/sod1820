@@ -49,6 +49,14 @@ export function publicPageviewFields(path, { doc = globalThis.document, loc = gl
     page_title: pageTitle, page_referrer: referrer, ...campaign } };
 }
 
+function setPublicPageContext(fields) {
+  // These defaults also serve automatic events. Campaign attribution belongs
+  // to the arrival event and must not stick to subsequent page contexts.
+  window.gtag("set", {
+    page_location: fields.page_location, page_path: fields.page_path,
+    page_title: fields.page_title, page_referrer: fields.page_referrer });
+}
+
 export function initGA({ publicReading = false, path = "/" } = {}) {
   if (publicReading && !readingTelemetryPath(path)) return;
   if (inited || !GA_ID || typeof window === "undefined") return;
@@ -60,7 +68,7 @@ export function initGA({ publicReading = false, path = "/" } = {}) {
   window.dataLayer = window.dataLayer || [];
   window.gtag = function () { window.dataLayer.push(arguments); };
   window.gtag("js", new Date());
-  if (publicReading) window.gtag("set", {
+  if (publicReading) setPublicPageContext({
     page_location: window.location.origin + (readingTelemetryPath(path) || "/"),
     page_path: readingTelemetryPath(path) || "/", page_title: "SOD1820", page_referrer: "",
   });
@@ -74,6 +82,10 @@ export function trackPageview(path, { publicReading = false } = {}) {
   if (!GA_ID || typeof window === "undefined" || !window.gtag) return;
   if (publicReading) {
     if (!readingTelemetryPath(path)) return;
+    // A slow next page must not inherit the previous article's identity.
+    // Until its SEO projection is ready, use the same safe family fallback.
+    const initial = publicPageviewFields(path);
+    if (initial) setPublicPageContext(initial.fields);
     let observer, timer, finished = false;
     const stop = () => { finished = true; observer?.disconnect(); if (timer != null) clearTimeout(timer); };
     const send = (fallback = false) => {
@@ -84,9 +96,7 @@ export function trackPageview(path, { publicReading = false } = {}) {
       // Automatic events (scroll/download/etc.) inherit the destination's
       // context, not parameters of our explicit page_view event. Refresh only
       // the already-filtered page identity, without emitting another view.
-      window.gtag("set", {
-        page_location: page.fields.page_location, page_path: page.fields.page_path,
-        page_title: page.fields.page_title, page_referrer: page.fields.page_referrer });
+      setPublicPageContext(page.fields);
       window.gtag("event", "page_view", { ...page.fields, send_to: GA_ID });
     };
     // SEO may arrive after the lazy page/source. Observe only the document head,

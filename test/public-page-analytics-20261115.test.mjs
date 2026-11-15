@@ -55,8 +55,9 @@ test('default event context follows the resolved page without another automatic 
 });
 
 test('default context observes cancellation and uses the safe fallback for unresolved or expression pages',()=>{
-  const cancelled=fixture();const initial=cancelled.defaults();
+  const cancelled=fixture();
   const stop=cancelled.api.trackPageview('/post/current',{publicReading:true});
+  const initial=cancelled.defaults();
   const callbacks=[...cancelled.timers.values()];stop();cancelled.ready();callbacks.forEach(fn=>fn());
   assert.deepEqual(cancelled.defaults(),initial);
   for(const path of ['/post/current','/number/private-name']) {
@@ -66,6 +67,15 @@ test('default context observes cancellation and uses the safe fallback for unres
     assert.equal(f.effective().page_location,f.views()[0].page_location);
     assert.ok(!JSON.stringify(f.defaults()).includes('private-name'));
   }
+});
+test('automatic events while the next route loads cannot inherit the previous article identity',()=>{
+  const f=fixture();f.ready();f.api.trackPageview('/post/current',{publicReading:true});
+  f.context.window.location=new URL('https://sod1820.co.il/post/slow-next');
+  const stop=f.api.trackPageview('/post/slow-next',{publicReading:true});
+  assert.equal(f.effective().page_title,'SOD1820');
+  assert.equal(f.effective().page_location,'https://sod1820.co.il/post/:item');
+  assert.equal(f.views().length,1,'default context is not another page_view');
+  stop();
 });
 test('external source and explicit campaign fields survive without the raw query or referrer search',()=>{
   const f=fixture();f.ready();f.api.trackPageview('/post/current',{publicReading:true});

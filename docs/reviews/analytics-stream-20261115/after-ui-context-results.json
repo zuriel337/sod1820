@@ -143,9 +143,9 @@
     }
   },
   "candidate": {
-    "measuredAt": "2026-11-15T12:25:47.848Z",
-    "appSha": "c752b0014a1ba288e314be9fad66a6af6f52e2cc",
-    "analyticsSourceSha256": "1677edaf485f89f6e4ee499c0939e590d3075a60786850a923a0f71525d80a26",
+    "measuredAt": "2026-11-15T12:29:59.529Z",
+    "appSha": "8474062b09d05ce2b8246d07982bc4e9d14e322d",
+    "analyticsSourceSha256": "6eb4ff2c886fc5f383b140811b74b9159ec8982864dd9f9e8a3360778937a05e",
     "sdkSha256": "e5566377d7ef5513bc3669ac41d1c8fbe735ad19c7f119c493d8ae4c6fcc2c93",
     "sdkBytes": 534832,
     "measurementId": "G-V3H3E20FLY",
