@@ -3140,7 +3140,7 @@
       ]
     },
     {
-      "source": "/fonts/(.*)",
+      "source": "/fonts/(NotoSansHebrew-Regular.ttf|NotoSansHebrew-Bold.ttf|Rubik-Hebrew.woff2|Rubik-Latin.woff2)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -3149,7 +3149,7 @@
       ]
     },
     {
-      "source": "/brand/(.*)",
+      "source": "/brand/2029/(app-icon-3f8a2a2fdc0a.png|apple-touch-icon-180-3f8a2a2fdc0a.png|canonical-lockup-128.webp|canonical-lockup-384.webp|favicon-3f8a2a2fdc0a.ico|icon-48-3f8a2a2fdc0a.png)",
       "headers": [
         {
           "key": "Cache-Control",
