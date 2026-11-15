@@ -6,7 +6,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { startFixture } from './helpers/authBrowserFixture.mjs';
-import { REVIEWED_EMILY_LINK, REVIEWED_ESTHER_LINK } from '../src/lib/community/communityCanonicalIdentity2029.js';
+
+// Accepted account links are fixture inputs, not imported from the implementation:
+// changing the production mapping must not silently change the expected outcome.
+// Public reviewed links: Emily / Esther, ZURIEL 8.11; display decision 15.11.
+const REVIEWED_EMILY_LINK = {
+  accountId: '5516d596-46d3-486d-a9c7-a35b36bc3755',
+  contributorId: 'e7581ab5-8c15-4832-b602-f361e41ff373',
+};
+const REVIEWED_ESTHER_LINK = {
+  accountId: '9196e2b4-6473-4d44-9bad-913a4e4c4865',
+  contributorId: '99bcfb38-85be-4f38-89f0-7886f2f179e6',
+};
 
 const require = createRequire(import.meta.url);
 let pw;
@@ -113,6 +124,8 @@ for (const width of [390, 1280]) for (const viewer of ['guest', 'member', 'admin
           'date pieces must not become gematria links');
       }
       assert.ok(feedReads > 0, 'the actual public reader supplied the visible messages');
+      if (viewer !== 'guest') assert.ok(fixture.auth.log.some(entry => entry.path === '/user' && entry.status === 200),
+        'member/admin cases must verify a real fixture session, not silently run as guests');
       assert.deepEqual(errors, [], 'no uncaught application errors');
       await context.close();
     } finally { await browser.close(); await fixture.close(); }
