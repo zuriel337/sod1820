@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { commitReactionMutation, isReactionBoostMap } from "./reactionMutation.js";
+import { commitReactionMutation, isReactionBoostMap, isReactionMap } from "./reactionMutation.js";
 
 const previous = { likes: 648, "👍": ["other"], "💡": ["mine"], "🔥": [], "🙏": [], "✨": [] };
 const optimistic = { ...previous, "👍": ["other", "mine"] };
@@ -63,4 +63,20 @@ test('historical dislikes are preserved by a confirmed like and a failed retry',
  assert.equal(value.dislikes,3);assert.equal(value.likes,7);
  assert.equal(await commitReactionMutation({previous:next,optimistic:previous,request:async()=>({data:null,error:{code:'42501'}}),apply:result=>{value=result;}}),false);
  assert.deepEqual(value,next);
+});
+
+test('additive dislikes preserve both imported baselines and accept only confirmed counters', async () => {
+  const before = { likes: 27, dislikes: 8, community_likes: 3, community_dislikes: 4 };
+  const after = { ...before, community_dislikes: 5 };
+  let current;
+  assert.equal(await commitReactionMutation({ previous: before, optimistic: after,
+    request: async () => ({ data: after, error: null }), apply: value => { current = value; } }), true);
+  assert.deepEqual(current, after);
+  for (const value of [-1, '5', null, 1.5, Infinity]) {
+    const malformed = { ...after, community_dislikes: value };
+    assert.equal(isReactionMap(malformed), false);
+    assert.equal(await commitReactionMutation({ previous: after, optimistic: { ...after, community_dislikes: 6 },
+      request: async () => ({ data: malformed, error: null }), apply: value => { current = value; } }), false);
+    assert.deepEqual(current, after);
+  }
 });

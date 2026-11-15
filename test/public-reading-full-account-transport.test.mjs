@@ -313,6 +313,31 @@ test('guest repeatable mode cannot broaden emoji, body shape or nonpublic target
  assert.equal(w.calls.filter(r=>r.url.endsWith('/toggle_contribution_reaction')).length,0);
 });
 
+test('public additive dislikes follow the same public context gate without inheriting account authority', async () => {
+ let count=0;
+ const w=worker({role:'user',authError:true,anonKey:'public-synthetic',fetchAction:req=>req.url.includes('/community_message_context?')?json([{id:b}]):json({likes:7,dislikes:2,community_dislikes:++count})});
+ for(let i=1;i<=3;i++){
+  const r=await w.request('/rest/v1/rpc/toggle_contribution_reaction',{jwt:token(a,'anon'),body:{p_id:b,p_emoji:'👎',p_visitor:'community-repeatable-dislike'}});
+  assert.equal(r.status,200);const rx=await r.json();assert.equal(rx.community_dislikes,i);assert.equal(rx.likes,7);assert.equal(rx.dislikes,2);
+ }
+ assert.equal(w.calls.filter(r=>r.url.endsWith('/auth/v1/user')).length,0);
+ assert.ok(w.calls.filter(r=>r.url.endsWith('/toggle_contribution_reaction')).every(r=>r.headers.get('authorization')==='Bearer public-synthetic'));
+});
+
+test('dislikes reject nonpublic targets, mismatched markers and extra fields before any mutation', async () => {
+ for (const publicTarget of [true,false]) {
+  const w=worker({authError:true,anonKey:'public-synthetic',fetchAction:req=>json(publicTarget?[{id:b}]:[])});
+  const bodies=[{p_id:b,p_emoji:'👎',p_visitor:'community-repeatable-like'},
+   {p_id:b,p_emoji:'👍',p_visitor:'community-repeatable-dislike'},
+   {p_id:b,p_emoji:'🔥',p_visitor:'community-repeatable-dislike'},
+   {p_id:b,p_emoji:'👎',p_visitor:null},
+   {p_id:b,p_emoji:'👎',p_visitor:'community-repeatable-dislike',user_id:a}];
+  if(!publicTarget)bodies.push({p_id:b,p_emoji:'👎',p_visitor:'community-repeatable-dislike'});
+  for(const body of bodies)assert.equal((await w.request('/rest/v1/rpc/toggle_contribution_reaction',{jwt:token(a,'anon'),body})).status,403);
+  assert.equal(w.calls.filter(r=>r.url.endsWith('/toggle_contribution_reaction')).length,0);
+ }
+});
+
 test('explicit verified-account Community thread follow preserves the existing private and channel ceiling',async()=>{
  const body={p_topic:'thread:'+b,p_source:'community_thread',p_on:true,p_visitor:null};
  for(const on of [true,false]){

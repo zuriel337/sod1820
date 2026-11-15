@@ -4,7 +4,7 @@ import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.j
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
 import { publicStorageMedia } from "../src/lib/mediaEgressGuard.js";
-import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody, readingActionSpec, readingActionBody } from "../src/lib/publicReadingTelemetry2029.js";
+import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody, readingActionSpec, readingActionBody, readingMeasurementPath, readingMeasurementBody } from "../src/lib/publicReadingTelemetry2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -110,11 +110,12 @@ function installPublicReadingWorker(policy) {
     if (url.origin !== authOrigin || !names.has(rpc) && !upload && !sso) return null;
     if (req.method !== "POST" || url.search || req.signal.aborted) return denied();
     const parsed = names.has(rpc) ? await jsonBody(req) : null;
-    const repeatableLike = rpc === "toggle_contribution_reaction" && Object.keys(parsed).sort().join(",") === "p_emoji,p_id,p_visitor"
-      && parsed.p_visitor === "community-repeatable-like" && parsed.p_emoji === "👍" && uuid(parsed.p_id);
+    const repeatableCommunityReaction = rpc === "toggle_contribution_reaction" && Object.keys(parsed).sort().join(",") === "p_emoji,p_id,p_visitor"
+      && ((parsed.p_visitor === "community-repeatable-like" && parsed.p_emoji === "👍")
+        || (parsed.p_visitor === "community-repeatable-dislike" && parsed.p_emoji === "👎")) && uuid(parsed.p_id);
     const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
-    const uid = repeatableLike ? null : await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
-    if ((!repeatableLike && !uid) || req.signal.aborted) return denied();
+    const uid = repeatableCommunityReaction ? null : await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+    if ((!repeatableCommunityReaction && !uid) || req.signal.aborted) return denied();
     if (upload) {
       const path = /^\/storage\/v1\/object\/gallery\/community\/([0-9a-f-]{36})\/([0-9a-f-]{36})\.([a-z0-9]+)$/i.exec(url.pathname);
       if (!path || path[1] !== uid || !uuid(path[2]) || req.headers.get("x-upsert") !== "false"
@@ -144,8 +145,8 @@ function installPublicReadingWorker(policy) {
       && ["approve", "hide"].includes(body.p_action) ? readFetch(req) : denied();
     let publicTarget = null;
     if (rpc === "toggle_contribution_reaction") {
-      if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null && !repeatableLike
-        || !["👍", "💡", "🔥", "🙏", "✨"].includes(body.p_emoji)) return denied();
+      if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null && !repeatableCommunityReaction
+        || (!repeatableCommunityReaction && !["👍", "💡", "🔥", "🙏", "✨"].includes(body.p_emoji))) return denied();
       publicTarget = body.p_id;
     } else {
       if (keys !== "p_author_name,p_body,p_gematria_claim,p_image_url,p_intent,p_origin,p_parent_id,p_target_id,p_target_type,p_title"
@@ -167,7 +168,7 @@ function installPublicReadingWorker(policy) {
       if (!Array.isArray(chain) || !chain.some(row => row.id === publicTarget)) return denied();
     }
     if (req.signal.aborted) return denied();
-    if (repeatableLike) {
+    if (repeatableCommunityReaction) {
       const key = policy.anonKey || req.headers.get("apikey") || "";
       return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
     }
@@ -307,6 +308,19 @@ function installPublicReadingWorker(policy) {
         if (url.pathname.endsWith("/track_visit"))
           return policy.anonKey && readingVisitBody(body) && await measurementWindow(event)
             && withinWindowBudget(visitWindows, event.clientId, 120) ? anonymous() : denied();
+        // Identity-enabled events retain the occurrence-time Authorization header.
+        // PostgREST verifies it; ingest_event derives auth.uid(), never a client ID.
+        // Old anonymous events/RUM still use the unchanged paths below.
+        if (url.pathname.endsWith("/ingest_event") && body.p_props?.measurement) {
+          if (beaconKey || !policy.anonKey || !readingMeasurementBody(body) || !await measurementWindow(event)) return denied();
+          const auth = req.headers.get("Authorization") || `Bearer ${policy.anonKey}`;
+          if (!/^Bearer [A-Za-z0-9_.-]{1,8192}$/.test(auth)) return denied();
+          const page = body.p_surface === 'page';
+          // Separate existing counter budget: events and site_visits are distinct writes for the same view.
+          const budget = page ? engagementWindows : actionWindows;
+          if (!withinWindowBudget(budget, event.clientId, page ? 240 : 60)) return denied();
+          return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: auth, "Content-Type": "application/json" } }));
+        }
         if (beaconKey && body.p_surface !== "page") return denied();
         if (url.pathname.endsWith("/ingest_event") && body.p_surface === "page") {
           // Page engagement is flushed on route change (the window has already moved on) or at pagehide,
@@ -550,7 +564,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 

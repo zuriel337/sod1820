@@ -79,7 +79,7 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const archiveProfile = accountId ? VERIFIED_ARCHIVE_PROFILES[`user:${accountId}`] : null;
   const name = (archiveProfile?.preferredPublicName && archiveProfile.name) || account?.display_name || archiveProfile?.name || account?.username || row.authorName;
   const isOnline = Boolean(accountId) && onlinePresenceHolder.current.has(accountId);
-  const isStaff = Boolean(accountId) && staffIdsHolder.current.has(accountId);
+  const isStaff = Boolean(accountId) && staffIdsHolder.current.has(accountId) && archiveProfile?.showStaffBadge !== false;
   const badge = <UserBadge colorfulFallback online={isOnline} nameSuffix={isStaff ? <span className="sod29-community-staff-chip" title="חבר צוות הצ׳אט — מנהל או מודרטור">צוות</span> : null} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
     <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
   </UserBadge>;
@@ -99,10 +99,12 @@ function LiveLike({ row }) {
   const repeatable = PUBLIC_READING_PRODUCTION_ARTIFACT && chatMessage;
   const actionsLocked = chatMessage ? communityActionsLocked(isAdmin) : publicLaunchActionsLocked(isAdmin);
   const reactions = row.reactions || {};
-  const dislikes = Number(reactions.dislikes) || 0;
+  const dislikes = Math.max(0, Number(reactions.dislikes) || 0)
+    + Math.max(0, Number(reactions.community_dislikes) || 0)
+    + (Array.isArray(reactions["👎"]) ? reactions["👎"].length : 0);
   return <div className="sod29-community-reactions">
-    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" rowAppearance="thread" allowBoost={false} repeatable={repeatable} requireAccount={!repeatable && (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true")} />}
-    {dislikes > 0 ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
+    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" rowAppearance="thread" allowBoost={false} allowDislike={chatMessage} repeatable={repeatable} requireAccount={!repeatable && (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true")} />}
+    {dislikes > 0 && (actionsLocked || !repeatable) ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
   </div>;
 }
 

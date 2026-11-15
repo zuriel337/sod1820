@@ -145,3 +145,37 @@ export function readingActionBody(body) {
   }
   return true;
 }
+
+// Existing public routes only. Queries/fragments are never collected. Public
+// article/taxonomy identities are retained; arbitrary input routes keep the
+// existing family projection. This value is a report label, never a new route.
+export function readingMeasurementPath(value) {
+  const family = readingTelemetryPath(value);
+  if (!family) return null;
+  let path;
+  try { path = decodeURIComponent(value.split(/[?#]/, 1)[0]).replace(/\/+$/, '') || '/'; } catch { return null; }
+  if (/^\/(?:post|tag|category|book|video)\/[\p{L}\p{N}_-]{1,256}$/u.test(path)
+    || /^\/number\/[0-9]{1,12}$/.test(path)) return path;
+  return family;
+}
+
+// Opt-in versioned extension of the existing ingest_event RPC. Old anonymous
+// actions/RUM remain valid through their own unchanged validators. No client
+// account ID/name/email is admitted; the database stamps the verified account.
+export function readingMeasurementBody(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)
+    || Object.keys(body).sort().join(',') !== 'p_app_context,p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface'
+    || body.p_is_bot !== false || readingTelemetryPath(body.p_path) !== body.p_path
+    || !['facebook','instagram','whatsapp','telegram','line','chrome-ios','edge','opera','firefox','android-webview','chrome','safari','other'].includes(body.p_app_context)) return false;
+  const id = value => value === null || typeof value === 'string' && /^[a-z0-9-]{8,64}$/i.test(value);
+  if (!id(body.p_sod_id) || !id(body.p_session_id)) return false;
+  const p = body.p_props, m = p?.measurement;
+  if (!p || Array.isArray(p) || !m || Array.isArray(m)
+    || Object.keys(m).sort().join(',') !== 'page_path,version,visitor_id' || m.version !== 2
+    || !id(m.visitor_id) || typeof m.page_path !== 'string' || m.page_path.length > 512
+    || readingMeasurementPath(m.page_path) !== m.page_path || readingTelemetryPath(m.page_path) !== body.p_path) return false;
+  const props = { ...p }; delete props.measurement;
+  const anonymous = { ...body, p_sod_id: null, p_session_id: null, p_props: props };
+  if (body.p_surface === 'page' && body.p_event_type === 'view') return Object.keys(props).length === 0;
+  return readingEngagementBody(anonymous) || readingActionBody(anonymous);
+}

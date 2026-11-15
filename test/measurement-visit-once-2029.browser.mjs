@@ -118,6 +118,35 @@ for (const [profile, options] of Object.entries(PROFILES)) for (const identity o
         assert.match(String(visit.body.p_visitor), /^[0-9a-z-]{8,64}$/i, 'the first-party browser id is sent');
       }
       assert.equal(new Set(visits().map(v => v.body.p_visitor)).size, 1, 'one browser id across navigation, back and refresh');
+      const measuredViews = () => reached.filter(r => r.rpc === 'ingest_event' && r.body?.p_surface === 'page' && r.body?.p_event_type === 'view');
+      const principal = row => { try { return JSON.parse(Buffer.from(row.authorization.split('.')[1], 'base64url').toString()).sub || null; } catch { return null; } };
+      assert.equal(measuredViews().length, visits().length, 'one canonical event for each legacy counter row, not two summed views');
+      for (const row of measuredViews()) {
+        assert.equal(row.body.p_props.measurement.version, 2);
+        assert.equal(row.body.p_props.measurement.visitor_id, visits()[0].body.p_visitor);
+        assert.ok(row.body.p_session_id && row.body.p_sod_id);
+        assert.equal(principal(row), member?.id || null, 'account credential reaches the server, including after refresh');
+      }
+      assert.ok(measuredViews().some(r => r.body.p_props.measurement.page_path === '/post/measurement-fixture-a'), 'individual public post identity reaches the server');
+      if (profile === 'desktop' && member) {
+        const firstSession = measuredViews()[0].body.p_session_id;
+        await page.goto(fixture.origin + '/login', {waitUntil:'domcontentloaded'});
+        await page.locator('[data-auth-state="signed-in"]').waitFor({timeout:20000});
+        await page.getByRole('button',{name:'כניסה עם חשבון אחר'}).click();
+        await page.locator('[data-auth-state="guest"]').waitFor({timeout:20000});
+        await inSite(page,'/world'); await page.waitForTimeout(2000);
+        const loggedOut = measuredViews().at(-1);
+        assert.equal(principal(loggedOut),null,'logout does not retain prior account attribution');
+        assert.notEqual(loggedOut.body.p_session_id,firstSession);
+        const second = fixture.auth.newUser('second.measured@example.invalid',true);
+        await signInWithCode(page,fixture,second.email);
+        await inSite(page,'/post/measurement-fixture-b'); await page.waitForTimeout(2000);
+        const switched = measuredViews().at(-1);
+        assert.equal(principal(switched),second.id,'new account on the same browser has its own credential');
+        assert.equal(switched.body.p_props.measurement.visitor_id,loggedOut.body.p_props.measurement.visitor_id);
+        assert.notEqual(switched.body.p_session_id,loggedOut.body.p_session_id);
+      }
+
     } finally { await browser.close(); await fixture.close(); }
   });
 }

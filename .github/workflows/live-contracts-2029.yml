@@ -173,6 +173,7 @@ jobs:
           test/public-reading-analytics-worker.test.mjs
           test/public-reading-action-measurement.test.mjs
           test/measurement-page-view-once-2029.test.mjs
+          test/measurement-identity-20261115.test.mjs
           test/measurement-transport-hardening-2029.test.mjs
           test/measurement-package-scope-20261113.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
@@ -249,10 +250,16 @@ jobs:
         run: |
           npm install --no-save --package-lock=false react-test-renderer@19.3.0
           node --test test/calculator-equals-preview-lifecycle.test.mjs test/community-calculator-runtime-2029.test.mjs test/community-calculator-continuity-2029.test.mjs
+      - name: Static file lifetimes in the DEPLOYED config (fonts, brand images, twelve versioned Post backgrounds; documents stay no-store)
+        run: node --test test/public-static-asset-cache-20261115.test.mjs
       - name: Historical URL release (Post canonical, researcher identity, taxonomy hydration and one-hop redirects; uses the pinned renderer from the calculator step)
         run: node --test test/public-wp-post-canonical-20261115.test.mjs test/public-sitemap-researcher-identity-20261115.test.mjs test/public-taxonomy-canonical-20261115.test.mjs test/public-redirect-single-hop-20261115.test.mjs test/posts-taxonomy-ui-2029.test.mjs
+      - name: Post document speed (the spellings of one post address are requested together; first-spelling preference, failure fall-through, 503/404 answers and single-request cases unchanged)
+        run: node --test test/post-document-slug-variants-20261115.test.mjs
       - name: Reading-mode research and continuity contracts (verified-principal research provider, exact historical pages, root vercel.json content pin; previously unwired, drifted from approved changes and repaired; the research provider test mounts the real provider and needs react-test-renderer from the step above)
         run: node --test test/doc37-research-reading-access.test.mjs test/public-continuity-closure-2029.test.mjs test/doc37-mixed-page-readiness.test.mjs
+      - name: Post at its original address starts its source read with the page code (the real entry function against stubbed hooks; the build without the public release keeps the plain page)
+        run: node --test test/post-root-address-entry-20261115.test.mjs
       - name: Preview worker admission policy (Preview-only write allow-list, 28 cases; repaired fixture, no product change)
         run: node --test scripts/test-integrated-preview-auth-guard.mjs
       # test/public-frame-access-2029.test.mjs is deliberately not here: one of its tests runs `git show 4987d7a1…` on a commit of a retired preview branch,
@@ -292,6 +299,7 @@ jobs:
           src/lib/community/messageLinks.test.js
           src/lib/community/messageNumbers.test.js
           src/lib/community/writerCommunityReuse.test.js
+          src/lib/reactionMutation.test.js
           src/lib/research/eventObservationCompiler.test.js
           src/lib/research/eventSystemMethodRuntime.test.js
           src/lib/research/goldenProjectorModes.test.js
@@ -373,6 +381,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: DEF-001, DEF-001b, DEF-004 and DEF-005 SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids; proposed Storage policies and RPC grants behave as specified)
         run: bash scripts/run-def001-sql-test.sh
+      - name: Public repeatable Community dislikes (exact SQL, guards, rollback and concurrent increments; isolated DB)
+        run: bash scripts/run-community-dislike-sql-test.sh
+      - name: Measurement identity (server account attribution, shared-browser boundaries, report and exact rollback; isolated DB)
+        run: bash scripts/run-measurement-identity-sql-test.sh
       - name: M0-A permissions regression (12 system functions server-only by exact signature, admin guards, account data, Legacy writes closed, dormant policies, cron; idempotent, drift stop, exact rollback)
         run: bash scripts/run-m0a-db-permissions-sql-test.sh
       - name: DEF-004 negative modes (an existing gallery object above 120 MiB stops the proposal; without the proposal the after-assertions fail)
@@ -467,6 +479,14 @@ jobs:
         run: node --test test/ga-measurement-browser-2029.browser.mjs
       - name: Public Post background starts during calculation; GA uses the current public page identity
         run: node --test test/post-speed-page-analytics.browser.mjs
+      - name: Accepted Community behavior survives release (real artifact, worker and reader; guest/member/admin on mobile/desktop)
+        run: node --test test/community-behavior-continuity-2029.browser.mjs
+      - name: Public Post at its original address reads its source while the page code downloads (real worker, request order)
+        run: node --test test/post-root-address-early-read-20261115.browser.mjs
+      - name: Community dislikes beside likes (guest and member, mobile and desktop; real artifact and worker)
+        run: node --test test/community-dislike-20261115.browser.mjs
+      - name: Guest updates invitation on public pages and original Post addresses (real artifact; no subscriptions)
+        run: node --test test/guest-newsletter-restoration-20261115.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)
