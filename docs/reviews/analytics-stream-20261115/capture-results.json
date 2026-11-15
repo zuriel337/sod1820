@@ -1,0 +1,287 @@
+{
+  "measuredAt": "2026-11-15T01:20:00.348Z",
+  "appSha": "3843af126f21ae58cf033fe808eaa2821b7a3362",
+  "sdkSha256": "3848b6b0a64ac85cbd2cb460ad9fe5ae742eeb7dc48f684bf545d4f0bd3b833b",
+  "sdkBytes": 541912,
+  "measurementId": "G-V3H3E20FLY",
+  "scope": "Actual analytics module and downloaded public stream SDK; synthetic local HTML/history transitions; all network requests fulfilled locally; not GA4 ingestion or a full-site browser test",
+  "simulatedChange": "Only vtp_enableHistoryEvents true -> false in a local copy; Google settings unchanged",
+  "results": [
+    {
+      "mode": "current-public-stream",
+      "events": [
+        {
+          "stage": "first-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-alpha",
+            "dt": "Audit alpha",
+            "dr": "",
+            "cs": "fixture",
+            "cm": "email",
+            "cn": "synthetic",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "first-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/:item",
+            "dt": "SOD1820",
+            "dr": "",
+            "en": "scroll"
+          }
+        },
+        {
+          "stage": "second-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-beta",
+            "dt": "Audit beta",
+            "dr": "",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-beta",
+            "dt": "SOD1820",
+            "dr": "https://sod1820.co.il/post/audit-alpha?utm_source=fixture&utm_medium=email&utm_campaign=synthetic",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/search",
+            "dt": "Audit search",
+            "dr": "",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/search?q=synthetic-audit-query",
+            "dt": "SOD1820",
+            "dr": "https://sod1820.co.il/post/audit-beta",
+            "en": "page_view"
+          }
+        }
+      ],
+      "requests": [
+        {
+          "host": "sod1820.co.il",
+          "path": "/post/audit-alpha",
+          "stage": "first-page"
+        },
+        {
+          "host": "www.googletagmanager.com",
+          "path": "/gtag/js",
+          "stage": "first-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "first-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "first-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "second-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "search-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "search-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "search-page"
+        }
+      ],
+      "errors": [],
+      "manualCommands": [
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/post/audit-alpha",
+            "page_location": "https://sod1820.co.il/post/audit-alpha",
+            "page_title": "Audit alpha",
+            "page_referrer": "",
+            "campaign_source": "fixture",
+            "campaign_medium": "email",
+            "campaign_name": "synthetic",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/post/audit-beta",
+            "page_location": "https://sod1820.co.il/post/audit-beta",
+            "page_title": "Audit beta",
+            "page_referrer": "",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/search",
+            "page_location": "https://sod1820.co.il/search",
+            "page_title": "Audit search",
+            "page_referrer": "",
+            "send_to": "G-V3H3E20FLY"
+          }
+        }
+      ],
+      "pageViewCount": 5,
+      "searchEvents": []
+    },
+    {
+      "mode": "simulated-history-off",
+      "events": [
+        {
+          "stage": "first-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-alpha",
+            "dt": "Audit alpha",
+            "dr": "",
+            "cs": "fixture",
+            "cm": "email",
+            "cn": "synthetic",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "first-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/:item",
+            "dt": "SOD1820",
+            "dr": "",
+            "en": "scroll"
+          }
+        },
+        {
+          "stage": "second-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-beta",
+            "dt": "Audit beta",
+            "dr": "",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/search",
+            "dt": "Audit search",
+            "dr": "",
+            "en": "page_view"
+          }
+        }
+      ],
+      "requests": [
+        {
+          "host": "sod1820.co.il",
+          "path": "/post/audit-alpha",
+          "stage": "first-page"
+        },
+        {
+          "host": "www.googletagmanager.com",
+          "path": "/gtag/js",
+          "stage": "first-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "first-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "first-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "second-page"
+        },
+        {
+          "host": "www.google-analytics.com",
+          "path": "/g/collect",
+          "stage": "search-page"
+        }
+      ],
+      "errors": [],
+      "manualCommands": [
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/post/audit-alpha",
+            "page_location": "https://sod1820.co.il/post/audit-alpha",
+            "page_title": "Audit alpha",
+            "page_referrer": "",
+            "campaign_source": "fixture",
+            "campaign_medium": "email",
+            "campaign_name": "synthetic",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/post/audit-beta",
+            "page_location": "https://sod1820.co.il/post/audit-beta",
+            "page_title": "Audit beta",
+            "page_referrer": "",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/search",
+            "page_location": "https://sod1820.co.il/search",
+            "page_title": "Audit search",
+            "page_referrer": "",
+            "send_to": "G-V3H3E20FLY"
+          }
+        }
+      ],
+      "pageViewCount": 3,
+      "searchEvents": []
+    }
+  ]
+}
