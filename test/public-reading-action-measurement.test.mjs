@@ -116,8 +116,8 @@ test("client wiring: emit, track, share, join, arrival and post views use the pu
   const post = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
   assert.match(events, /if \(PUBLIC_READING_RELEASE\) \{ emitPublicReadingAction\(surface, eventType, opts\); return; \}/);
   const publicEmitter = events.slice(events.indexOf("function emitPublicReadingAction"), events.indexOf("const ARRIVAL_SOURCES"));
-  assert.match(publicEmitter, /p_sod_id: null/); assert.match(publicEmitter, /p_session_id: null/);
-  assert.match(publicEmitter, /readingActionBody\(body\)/); assert.match(publicEmitter, /isBot\(\)/);
+  assert.match(publicEmitter, /captureMeasurement/); assert.match(publicEmitter, /measurementBody/);
+  assert.match(publicEmitter, /sendMeasurement\(context, body\)/); assert.match(publicEmitter, /isBot\(\)/);
   assert.doesNotMatch(publicEmitter, /getSodId|sessionId\(\)|utm\(\)|refHost\(\)/);
   const trackBody = tracking.slice(tracking.indexOf("export function track("), tracking.indexOf("// שיתוף"));
   assert.match(trackBody, /return trackPublicReading\(section, eventType, meta\);/);
@@ -125,7 +125,7 @@ test("client wiring: emit, track, share, join, arrival and post views use the pu
   assert.ok(trackBody.indexOf('from("visitor_events")') > trackBody.indexOf("if (PUBLIC_READING_RELEASE)"), "visitor_events stays after the public branch");
   assert.match(tracking, /if \(PUBLIC_READING_RELEASE\) return track\("share", null, "share", \{ platform \}\);/);
   assert.match(tracking, /if \(PUBLIC_READING_RELEASE\) return track\("join", null, "click", \{ surface: surface \|\| null \}\);/);
-  assert.match(visits, /if \(firstHit\) \{ try \{ emitPublicArrivalOnce\(\); \}/);
+  assert.match(visits, /emitPublicArrivalOnce\(context\)/);
   assert.match(post, /logView\("post", post\.slug, post\.id\)/);
   const logView = supabase.slice(supabase.indexOf("export async function logView"), supabase.indexOf("// 🔎 ספירת חיפושים כוללת"));
   assert.match(logView, /m\.emit\("content", "view", \{ props: \{ kind, item_id: Number\(publicItemId\) \} \}\)/);

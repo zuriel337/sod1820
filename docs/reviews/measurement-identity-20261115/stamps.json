@@ -1,0 +1,8 @@
+{
+  "base": "c2acc064be31df93a229637bc32305a951c8006b",
+  "owner": "traffic_intelligence_law v11",
+  "files": {
+    "supabase/proposed/20261115180000_measurement_identity_PROPOSAL.sql": "bb0fa9d62a0caa8e2d748cfc57b2ed2c6db48432d483309a38893c777a04ff9c",
+    "supabase/proposed/ROLLBACK_20261115180000_measurement_identity.sql": "97b624b85fa976e3ab39b1e31818269216aeb41f5b9cba8523e9e0529267df38"
+  }
+}
