@@ -1,0 +1,66 @@
+{
+  "release": "POST_FOUNDATION_1366",
+  "approvedHead": "b075601714bf9e1c626ba89951126a9883c9b2f7",
+  "merge": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+  "tree": "b4d6fed3f93c7dee396b698e75d66c67c0ea8361",
+  "oldMain": "c2acc064be31df93a229637bc32305a951c8006b",
+  "deployment": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU",
+  "previousDeployment": "dpl_J2wg6mqptCp8vFkfDbxz31dtHzoH",
+  "aliases": [
+    "sod1820.co.il",
+    "www.sod1820.co.il",
+    "sod1820.vercel.app"
+  ],
+  "ci": {
+    "candidatePassed": 15,
+    "candidateTotal": 15,
+    "elsRun": 43764090802,
+    "elsTests": 107,
+    "elsRootCause": "Earlier inconsistent failures remain unexplained; no engine/predicate/timeout was altered."
+  },
+  "canary": {
+    "run": 43766889314,
+    "job": 132973928189,
+    "result": "success",
+    "budgetMs": 15000
+  },
+  "database": [
+    {
+      "name": "measurement_identity",
+      "applySha256": "bb0fa9d62a0caa8e2d748cfc57b2ed2c6db48432d483309a38893c777a04ff9c",
+      "rollbackSha256": "97b624b85fa976e3ab39b1e31818269216aeb41f5b9cba8523e9e0529267df38",
+      "verifiedAfter": {
+        "ingest_event": "60c470f64cb170ef7b9616f53f263578",
+        "admin_2029_analytics": "c57a1005a8f3195f422ac4b8cee437eb"
+      }
+    },
+    {
+      "name": "community_dislike",
+      "applySha256": "3da8594de72582525343861a378324f37b6e510999767c74ebd07b6d0e5c3615",
+      "rollbackSha256": "1ce18cebc22cff595f78947a3d3aad245e84b68f57bdb946e07b2ae9967074c2",
+      "verifiedAfter": {
+        "toggle_contribution_reaction": "60857d34a181a774886bfd43240c2506"
+      }
+    }
+  ],
+  "organicMeasurementObservation": {
+    "at": "2026-11-15T22:06:13Z",
+    "verifiedEvents": 12,
+    "withAccount": 4,
+    "pageViews": 5,
+    "scope": "aggregate read only; not proof of account switching or exact one-event-per-action"
+  },
+  "limits": [
+    "No real reaction clicked or newsletter subscription submitted.",
+    "Live headless browser was rejected with 403 and stopped. Existing middleware classifies headless/curl/python-urllib as bots; unchanged in this release. No policy bypass or firewall change.",
+    "Live assets prove published code, not a full live UI/account acceptance.",
+    "No Google URL Inspection result for /community/calculator.",
+    "No claim of a 10-13% speedup for this A+B+D tree; source experiment also contained excluded C.",
+    "No device/build attribution in existing RUM; no equivalence with Google mobile CrUX population."
+  ],
+  "excluded": [
+    "#1358",
+    "#1363 delayed GA/Pixel",
+    "#1364 delayed ads"
+  ]
+}

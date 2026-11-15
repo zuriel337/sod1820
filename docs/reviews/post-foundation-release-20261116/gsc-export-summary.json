@@ -1,0 +1,370 @@
+{
+  "filename": "sod1820.co.il-core-web-vitals-Issue-2026-11-16.xlsx",
+  "sha256": "f88febf9d20cf0c34d5947a43f62587481adc7221481d7ef97772112585efa6a",
+  "issue": "בעיית CLS: יותר מ-0.25 (נייד)",
+  "groups": [
+    {
+      "url": "https://sod1820.co.il/tag/אריק-נווה",
+      "urls": 553,
+      "cls": 0.58
+    },
+    {
+      "url": "https://sod1820.co.il/תפילה-לרפואה-של-רבי-שלמה-יהודה-הינוקא",
+      "urls": 405,
+      "cls": 0.83
+    },
+    {
+      "url": "https://sod1820.co.il/community/chat",
+      "urls": 284,
+      "cls": 0.43
+    },
+    {
+      "url": "https://sod1820.co.il/",
+      "urls": 7,
+      "cls": 0.63
+    }
+  ],
+  "chart": [
+    {
+      "date": "2026-08-17",
+      "affected_urls": 611
+    },
+    {
+      "date": "2026-08-18",
+      "affected_urls": 656
+    },
+    {
+      "date": "2026-08-19",
+      "affected_urls": 782
+    },
+    {
+      "date": "2026-08-20",
+      "affected_urls": 1034
+    },
+    {
+      "date": "2026-08-21",
+      "affected_urls": 2532
+    },
+    {
+      "date": "2026-08-22",
+      "affected_urls": 2146
+    },
+    {
+      "date": "2026-08-23",
+      "affected_urls": 1955
+    },
+    {
+      "date": "2026-08-24",
+      "affected_urls": 1955
+    },
+    {
+      "date": "2026-08-25",
+      "affected_urls": 1955
+    },
+    {
+      "date": "2026-08-26",
+      "affected_urls": 1846
+    },
+    {
+      "date": "2026-08-27",
+      "affected_urls": 1733
+    },
+    {
+      "date": "2026-08-28",
+      "affected_urls": 1342
+    },
+    {
+      "date": "2026-08-29",
+      "affected_urls": 1284
+    },
+    {
+      "date": "2026-08-30",
+      "affected_urls": 1215
+    },
+    {
+      "date": "2026-08-31",
+      "affected_urls": 1145
+    },
+    {
+      "date": "2026-09-01",
+      "affected_urls": 989
+    },
+    {
+      "date": "2026-09-02",
+      "affected_urls": 963
+    },
+    {
+      "date": "2026-09-03",
+      "affected_urls": 884
+    },
+    {
+      "date": "2026-09-04",
+      "affected_urls": 842
+    },
+    {
+      "date": "2026-09-05",
+      "affected_urls": 845
+    },
+    {
+      "date": "2026-09-06",
+      "affected_urls": 831
+    },
+    {
+      "date": "2026-09-07",
+      "affected_urls": 861
+    },
+    {
+      "date": "2026-09-08",
+      "affected_urls": 846
+    },
+    {
+      "date": "2026-09-09",
+      "affected_urls": 838
+    },
+    {
+      "date": "2026-09-10",
+      "affected_urls": 954
+    },
+    {
+      "date": "2026-09-11",
+      "affected_urls": 946
+    },
+    {
+      "date": "2026-09-12",
+      "affected_urls": 899
+    },
+    {
+      "date": "2026-09-13",
+      "affected_urls": 856
+    },
+    {
+      "date": "2026-09-14",
+      "affected_urls": 806
+    },
+    {
+      "date": "2026-09-15",
+      "affected_urls": 776
+    },
+    {
+      "date": "2026-09-16",
+      "affected_urls": 813
+    },
+    {
+      "date": "2026-09-17",
+      "affected_urls": 829
+    },
+    {
+      "date": "2026-09-18",
+      "affected_urls": 889
+    },
+    {
+      "date": "2026-09-19",
+      "affected_urls": 877
+    },
+    {
+      "date": "2026-09-20",
+      "affected_urls": 817
+    },
+    {
+      "date": "2026-09-21",
+      "affected_urls": 796
+    },
+    {
+      "date": "2026-09-22",
+      "affected_urls": 717
+    },
+    {
+      "date": "2026-09-23",
+      "affected_urls": 686
+    },
+    {
+      "date": "2026-09-24",
+      "affected_urls": 602
+    },
+    {
+      "date": "2026-09-25",
+      "affected_urls": 602
+    },
+    {
+      "date": "2026-09-26",
+      "affected_urls": 572
+    },
+    {
+      "date": "2026-09-27",
+      "affected_urls": 510
+    },
+    {
+      "date": "2026-09-28",
+      "affected_urls": 483
+    },
+    {
+      "date": "2026-09-29",
+      "affected_urls": 538
+    },
+    {
+      "date": "2026-09-30",
+      "affected_urls": 568
+    },
+    {
+      "date": "2026-10-01",
+      "affected_urls": 586
+    },
+    {
+      "date": "2026-10-02",
+      "affected_urls": 557
+    },
+    {
+      "date": "2026-10-03",
+      "affected_urls": 545
+    },
+    {
+      "date": "2026-10-04",
+      "affected_urls": 565
+    },
+    {
+      "date": "2026-10-05",
+      "affected_urls": 644
+    },
+    {
+      "date": "2026-10-06",
+      "affected_urls": 703
+    },
+    {
+      "date": "2026-10-07",
+      "affected_urls": 752
+    },
+    {
+      "date": "2026-10-08",
+      "affected_urls": 747
+    },
+    {
+      "date": "2026-10-09",
+      "affected_urls": 736
+    },
+    {
+      "date": "2026-10-10",
+      "affected_urls": 754
+    },
+    {
+      "date": "2026-10-11",
+      "affected_urls": 779
+    },
+    {
+      "date": "2026-10-12",
+      "affected_urls": 1017
+    },
+    {
+      "date": "2026-10-13",
+      "affected_urls": 1233
+    },
+    {
+      "date": "2026-10-14",
+      "affected_urls": 1351
+    },
+    {
+      "date": "2026-10-15",
+      "affected_urls": 1379
+    },
+    {
+      "date": "2026-10-16",
+      "affected_urls": 1360
+    },
+    {
+      "date": "2026-10-17",
+      "affected_urls": 1265
+    },
+    {
+      "date": "2026-10-18",
+      "affected_urls": 1130
+    },
+    {
+      "date": "2026-10-19",
+      "affected_urls": 980
+    },
+    {
+      "date": "2026-10-20",
+      "affected_urls": 806
+    },
+    {
+      "date": "2026-10-21",
+      "affected_urls": 718
+    },
+    {
+      "date": "2026-10-22",
+      "affected_urls": 670
+    },
+    {
+      "date": "2026-10-23",
+      "affected_urls": 670
+    },
+    {
+      "date": "2026-10-24",
+      "affected_urls": 670
+    },
+    {
+      "date": "2026-10-25",
+      "affected_urls": 670
+    },
+    {
+      "date": "2026-10-26",
+      "affected_urls": 697
+    },
+    {
+      "date": "2026-10-27",
+      "affected_urls": 656
+    },
+    {
+      "date": "2026-10-28",
+      "affected_urls": 668
+    },
+    {
+      "date": "2026-10-29",
+      "affected_urls": 668
+    },
+    {
+      "date": "2026-10-30",
+      "affected_urls": 703
+    },
+    {
+      "date": "2026-10-31",
+      "affected_urls": 675
+    },
+    {
+      "date": "2026-11-01",
+      "affected_urls": 618
+    },
+    {
+      "date": "2026-11-02",
+      "affected_urls": 631
+    },
+    {
+      "date": "2026-11-03",
+      "affected_urls": 686
+    },
+    {
+      "date": "2026-11-04",
+      "affected_urls": 704
+    },
+    {
+      "date": "2026-11-05",
+      "affected_urls": 1320
+    },
+    {
+      "date": "2026-11-06",
+      "affected_urls": 1346
+    },
+    {
+      "date": "2026-11-07",
+      "affected_urls": 1386
+    },
+    {
+      "date": "2026-11-08",
+      "affected_urls": 1397
+    },
+    {
+      "date": "2026-11-09",
+      "affected_urls": 1249
+    }
+  ],
+  "note": "User-supplied GSC export; groups are not proof every URL was individually measured. Chart ends 2026-11-09, before current release."
+}

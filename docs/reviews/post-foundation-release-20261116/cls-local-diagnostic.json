@@ -1,0 +1,286 @@
+{
+  "mode": "local same-code built artifact, public read-only data replay; no third-party ads/scripts; no production document fetches; not mobile field proof",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "cpuSlowdown": 4,
+  "thirdPartyAds": false,
+  "realDevice": false,
+  "recording": "local fixture, read-only public API replay; no live documents or mutations",
+  "rows": [
+    {
+      "path": "/tag/%D7%90%D7%A8%D7%99%D7%A7-%D7%A0%D7%95%D7%95%D7%94",
+      "title": "תגית: אריק נווה · SOD1820 2029 · SOD1820",
+      "cls": 3.526171512118453e-06,
+      "article": false,
+      "dislikes": 0,
+      "shifts": [
+        {
+          "at": 2104.7000000029802,
+          "value": 2.3397198325883664e-07,
+          "sources": [
+            {
+              "tag": "I",
+              "cls": "",
+              "before": {
+                "x": 350.03125,
+                "y": 805.6875,
+                "width": 0.96875,
+                "height": 5,
+                "top": 805.6875,
+                "right": 351,
+                "bottom": 810.6875,
+                "left": 350.03125
+              },
+              "after": {
+                "x": 346.78125,
+                "y": 805.6875,
+                "width": 4.21875,
+                "height": 5,
+                "top": 805.6875,
+                "right": 351,
+                "bottom": 810.6875,
+                "left": 346.78125
+              }
+            }
+          ]
+        },
+        {
+          "at": 2142.2000000029802,
+          "value": 5.601829214562532e-07,
+          "sources": [
+            {
+              "tag": "I",
+              "cls": "",
+              "before": {
+                "x": 346.78125,
+                "y": 805.6875,
+                "width": 4.21875,
+                "height": 5,
+                "top": 805.6875,
+                "right": 351,
+                "bottom": 810.6875,
+                "left": 346.78125
+              },
+              "after": {
+                "x": 342.890625,
+                "y": 805.6875,
+                "width": 8.109375,
+                "height": 5,
+                "top": 805.6875,
+                "right": 351,
+                "bottom": 810.6875,
+                "left": 342.890625
+              }
+            }
+          ]
+        },
+        {
+          "at": 2159.1000000089407,
+          "value": 1.0565297369031843e-06,
+          "sources": [
+            {
+              "tag": "I",
+              "cls": "",
+              "before": {
+                "x": 342.890625,
+                "y": 805.6875,
+                "width": 8.109375,
+                "height": 5,
+                "top": 805.6875,
+                "right": 351,
+                "bottom": 810.6875,
+                "left": 342.890625
+              },
+              "after": {
+                "x": 338.375,
+                "y": 805.6875,
+                "width": 12.625,
+                "height": 5,
+                "top": 805.6875,
+                "right": 351,
+                "bottom": 810.6875,
+                "left": 338.375
+              }
+            }
+          ]
+        },
+        {
+          "at": 2185.4000000059605,
+          "value": 1.675486870500179e-06,
+          "sources": [
+            {
+              "before": {
+                "x": 338.375,
+                "y": 805.6875,
+                "width": 12.625,
+                "height": 5,
+                "top": 805.6875,
+                "right": 351,
+                "bottom": 810.6875,
+                "left": 338.375
+              },
+              "after": {
+                "x": 333.203125,
+                "y": 805.6875,
+                "width": 17.796875,
+                "height": 5,
+                "top": 805.6875,
+                "right": 351,
+                "bottom": 810.6875,
+                "left": 333.203125
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%9C%D7%A8%D7%A4%D7%95%D7%90%D7%94-%D7%A9%D7%9C-%D7%A8%D7%91%D7%99-%D7%A9%D7%9C%D7%9E%D7%94-%D7%99%D7%94%D7%95%D7%93%D7%94-%D7%94%D7%99%D7%A0%D7%95%D7%A7%D7%90",
+      "title": "תפילה לרפואה של רבי שלמה יהודה &#8211; הינוקא · SOD1820",
+      "cls": 0,
+      "article": true,
+      "dislikes": 0,
+      "shifts": []
+    },
+    {
+      "path": "/community/chat",
+      "title": "הצ'אט החי — קוד המציאות בזמן אמת · SOD1820",
+      "cls": 0.03627089837754468,
+      "article": false,
+      "dislikes": 39,
+      "shifts": [
+        {
+          "at": 2273.2000000029802,
+          "value": 0.03627089837754468,
+          "sources": [
+            {
+              "tag": "DIV",
+              "cls": "sod29-community-feed",
+              "before": {
+                "x": 26,
+                "y": 554.984375,
+                "width": 338,
+                "height": 289.015625,
+                "top": 554.984375,
+                "right": 364,
+                "bottom": 844,
+                "left": 26
+              },
+              "after": {
+                "x": 26,
+                "y": 612.984375,
+                "width": 338,
+                "height": 231.015625,
+                "top": 612.984375,
+                "right": 364,
+                "bottom": 844,
+                "left": 26
+              }
+            },
+            {
+              "tag": "DIV",
+              "cls": "sod29-community-stream-tools",
+              "before": {
+                "x": 26,
+                "y": 430.984375,
+                "width": 338,
+                "height": 108,
+                "top": 430.984375,
+                "right": 364,
+                "bottom": 538.984375,
+                "left": 26
+              },
+              "after": {
+                "x": 26,
+                "y": 488.984375,
+                "width": 338,
+                "height": 108,
+                "top": 488.984375,
+                "right": 364,
+                "bottom": 596.984375,
+                "left": 26
+              }
+            },
+            {
+              "tag": "SECTION",
+              "cls": "sod29-community-composer",
+              "before": {
+                "x": 26,
+                "y": 329.578125,
+                "width": 338,
+                "height": 77.40625,
+                "top": 329.578125,
+                "right": 364,
+                "bottom": 406.984375,
+                "left": 26
+              },
+              "after": {
+                "x": 26,
+                "y": 387.578125,
+                "width": 338,
+                "height": 77.40625,
+                "top": 387.578125,
+                "right": 364,
+                "bottom": 464.984375,
+                "left": 26
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/",
+      "title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+      "cls": 0.0019381807144885244,
+      "article": false,
+      "dislikes": 0,
+      "shifts": [
+        {
+          "at": 6719.199999988079,
+          "value": 0.0019381807144885244,
+          "sources": [
+            {
+              "tag": "BUTTON",
+              "cls": "rc29-btn r29-btn is-gold rc29-more",
+              "before": {
+                "x": 66.953125,
+                "y": 761.21875,
+                "width": 256.09375,
+                "height": 44,
+                "top": 761.21875,
+                "right": 323.046875,
+                "bottom": 805.21875,
+                "left": 66.953125
+              },
+              "after": {
+                "x": 66.953125,
+                "y": 790.03125,
+                "width": 256.09375,
+                "height": 44,
+                "top": 790.03125,
+                "right": 323.046875,
+                "bottom": 834.03125,
+                "left": 66.953125
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "rpcRequests": 78,
+  "rejectedLocally": {
+    "/rest/v1/rpc/track_visit": 4,
+    "/realtime/v1/websocket": 5
+  },
+  "limits": [
+    "One diagnostic run per example; not field percentiles.",
+    "Scroll and one reply-opening attempt included; no ad fill, long session, or SPA journey.",
+    "Preliminary run omitted three read RPCs; this final run explicitly allows those verified STABLE/IMMUTABLE readers.",
+    "Shift sources are affected nodes, not necessarily the cause."
+  ]
+}
