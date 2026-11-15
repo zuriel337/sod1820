@@ -10,15 +10,20 @@ page with an 844px viewport. The tag case replayed complete public-read fixtures
 reproductions, not instrumented live-user sessions.
 
 `RouteScrollReset2029` starts a different page at the top for PUSH/REPLACE.
-It leaves initial entry, POP/Back/Forward, fragment destinations and same-path
-query changes to their existing owners. Mounting outside ResearchProvider keeps
+It leaves initial entry, fragment destinations and same-path query changes to
+their existing owners. Back/Forward restores an in-memory position for the
+history entry, waiting up to four seconds for late content. User input or another
+navigation cancels it. The map is capped at60 entries and is not persisted. Mounting outside ResearchProvider keeps
 account changes from resetting reading. No research state, source anchors,
 Post/SystemFrame files, permissions or measurement semantics change.
 
 The real component runs with React/BrowserRouter in Chromium at 390px and 1440px.
 The browser test covers the short-page footer regression, Back position,
 path-changing replacement, a page-owned anchor, query edits and a keyed child
-remount. Removing the reset reproduces the PUSH failure at both widths.
+remount, delayed-content Back/Forward, input cancellation and navigation
+cancellation. Removing the reset reproduces the PUSH failure at both widths.
+The first forward-only implementation also failed delayed-content Back at both
+widths; that regression was caught before merge and is fixed in this head.
 The separate route-navigation workflow avoids editing Claude's active workflow.
 
 Local verification: browser 4/4 (zero skips), related URL/context/entry/journey
@@ -31,9 +36,10 @@ job itself passed. The definition is updated without changing any required check
 threshold or ruleset. Final CI is attached to the PR head.
 
 Historical cross-check: the 19.10 package F03 and the 31.10 reconciliation already
-documented the absent global restorer. This patch addresses forward navigation.
-Delayed-content POP restoration remains a separate test boundary; the historical
-restorer is not copied over current source-identity/anchor owners.
+documented the absent global restorer. The original
+forward-only patch failed the historical delayed-content scenario. This version
+adds a bounded restoration and its browser tests. The historical restorer is not
+copied over current source-identity/anchor owners.
 
 Coordination: fresh PR #1358 file list and passive journal checked before writing.
 Claude owns Post/SystemFrame/researchContext changes. This branch adds only the

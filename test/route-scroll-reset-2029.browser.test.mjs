@@ -8,15 +8,15 @@ const { chromium } = createRequire(import.meta.url)("playwright");
 
 // Real React/BrowserRouter and the production reset component. Static long and
 // short pages isolate history behaviour from data, ads and personal research.
-const app = `import React,{useState,useLayoutEffect} from 'react';
+const app = `import React,{useState,useEffect,useLayoutEffect} from 'react';
 import {createRoot} from 'react-dom/client';
 import {BrowserRouter,useLocation,useNavigate} from 'react-router-dom';
 import Reset from './src/components/experience2029/RouteScrollReset2029.jsx';
+function Content({path}){const[ready,setReady]=useState(!path.startsWith('/late'));useEffect(()=>{const t=setTimeout(()=>setReady(true),900);return()=>clearTimeout(t)},[]);return <div style={{height:path==='/short'||!ready?600:5000}}><div id="anchor" style={{position:'relative',top:2200}}>Exact source anchor</div></div>}
 function Pages(){const loc=useLocation(),nav=useNavigate(),[account,setAccount]=useState(0);
  window.fixture={nav,remount:()=>setAccount(x=>x+1)};
  useLayoutEffect(()=>{if(loc.hash)document.getElementById(loc.hash.slice(1))?.scrollIntoView();},[loc.pathname,loc.hash]);
- return <div key={account}><h1>{loc.pathname}</h1><div style={{height:loc.pathname==='/short'?600:5000}}>
- <div id="anchor" style={{position:'relative',top:2200}}>Exact source anchor</div></div><footer style={{height:400}}>Footer</footer></div>;}
+ return <div key={account}><h1>{loc.pathname}</h1><Content key={loc.pathname} path={loc.pathname}/><footer style={{height:400}}>Footer</footer></div>;}
 createRoot(document.getElementById('root')).render(<BrowserRouter><Reset/><Pages/></BrowserRouter>);`;
 const compiled = await build({ stdin: { contents: app, resolveDir: process.cwd(), loader: "jsx" }, bundle: true, write: false,
   format: "iife", define: { "process.env.NODE_ENV": '"production"' } });
@@ -63,6 +63,20 @@ test("forward navigation resets; browser history, anchors and same-page edits re
       await page.evaluate(() => fixture.remount());
       await page.waitForTimeout(100);
       assert.equal(await y(), 900, 'account-keyed child remount is not navigation');
+      await nav('/late-long'); await page.waitForTimeout(1100); await scroll(4000);
+      await nav('/short'); assert.equal(await y(), 0);
+      await page.goBack(); await page.waitForTimeout(1500);
+      assert.equal(await y(), 4000, 'POP restores after destination content arrives late');
+      await page.goForward(); await page.waitForTimeout(200);
+      assert.equal(await y(), 0, 'Forward history restores the short page position');
+      await page.goBack(); await page.waitForTimeout(150);
+      await page.mouse.wheel(0, 100); await page.waitForTimeout(100);
+      const userPosition = await y(); await page.waitForTimeout(1400);
+      assert.equal(await y(), userPosition, 'user scroll cancels pending restoration');
+      await scroll(4000); await nav('/short'); await page.goBack();
+      await page.waitForTimeout(100); await nav('/other'); await page.waitForTimeout(1500);
+      assert.equal(await y(), 0, 'another navigation cancels pending restoration');
+
     });
   }
 });
