@@ -1,0 +1,188 @@
+<title>דוגמאות המחשה מרחבית</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column; each example is a without → with pair (RTL: "without" sits on the right, where reading starts). */
+:root{
+  --bg:#0d0a1b; --surface:#16122a; --surface-2:#1e1938; --ink:#f2eee6; --muted:#aaa4be; --line:#2f294b;
+  --gold:#e6c85c; --gold-soft:rgba(230,200,92,.14); --ok:#6fd4b0; --warn:#f0a95a; --frame:#0a0814;
+  --font-ui:"Rubik","Segoe UI",system-ui,-apple-system,sans-serif; --font-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f6f4fa; --surface:#ffffff; --surface-2:#efecf7; --ink:#1b1630; --muted:#5b5573; --line:#d8d3ea;
+  --gold:#7a5c00; --gold-soft:rgba(122,92,0,.10); --ok:#0b7459; --warn:#9a4f08; --frame:#0d0a1b; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f6f4fa; --surface:#ffffff; --surface-2:#efecf7; --ink:#1b1630; --muted:#5b5573; --line:#d8d3ea;
+  --gold:#7a5c00; --gold-soft:rgba(122,92,0,.10); --ok:#0b7459; --warn:#9a4f08; --frame:#0d0a1b; color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:17px;line-height:1.7;
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:0}
+.wrap{max-width:1040px;margin-inline:auto;padding-block:36px 72px;display:grid;gap:56px}
+header.top{display:grid;gap:14px}
+.eyebrow{font-size:14px;letter-spacing:.06em;color:var(--gold);font-weight:500}
+h1{margin:0;font-size:clamp(30px,5.2vw,48px);line-height:1.15;font-weight:700;text-wrap:balance}
+h2{margin:0;font-size:clamp(22px,3.4vw,30px);line-height:1.25;font-weight:700;text-wrap:balance}
+h3{margin:0;font-size:18px;font-weight:700}
+p{margin:0}
+.lead{font-size:19px;max-width:66ch;color:var(--ink)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:15px}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.eq{white-space:nowrap}
+footer.status .num{overflow-wrap:anywhere}
+nav.jump{display:flex;gap:8px;flex-wrap:wrap}
+nav.jump a{color:var(--ink);text-decoration:none;border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:999px;font-size:15px;min-height:40px;display:inline-flex;align-items:center}
+nav.jump a:hover,nav.jump a:focus-visible{border-color:var(--gold);outline:none}
+a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:15.5px}
+th,td{padding:12px 14px;text-align:start;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-size:13.5px;letter-spacing:.04em;color:var(--muted);font-weight:500;background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:500;white-space:nowrap}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13.5px;border:1px solid var(--line);white-space:nowrap}
+.tag.exists{color:var(--ok);border-color:var(--ok)}
+.tag.new{color:var(--gold);border-color:var(--gold)}
+section.ex{display:grid;gap:18px;scroll-margin-top:16px}
+.ex-head{display:grid;gap:6px}
+.ex-head .kicker{font-size:14px;color:var(--muted)}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+figure{margin:0;display:grid;gap:10px;min-width:0}
+.badge{justify-self:start;font-size:13.5px;font-weight:500;padding:3px 12px;border-radius:999px;letter-spacing:.04em}
+.badge.without{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.badge.with{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold)}
+.shot{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--frame)}
+.shot img{display:block;width:100%;height:auto}
+figcaption{font-size:15px;color:var(--muted);max-width:60ch}
+.threed{max-width:640px}
+.read{display:grid;gap:10px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.read p{max-width:68ch}
+.read .k{font-weight:700;margin-inline-end:6px}
+.read .gives .k{color:var(--ok)}
+.read .not .k{color:var(--warn)}
+.small{font-size:14px;color:var(--muted)}
+.cost{display:grid;gap:14px}
+.cost .tablewrap table{min-width:640px}
+.callout{padding:18px 20px;border:1px solid var(--gold);background:var(--gold-soft);border-radius:14px;max-width:70ch}
+ul.plain{margin:0;padding-inline-start:20px;display:grid;gap:8px;max-width:70ch}
+footer.status{display:grid;gap:10px;padding-top:24px;border-top:1px solid var(--line);font-size:15.5px;color:var(--muted)}
+footer.status strong{color:var(--ink);font-weight:500}
+
+.lines{list-style:none;margin:0;padding:0;display:grid;gap:6px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px}
+.lines .row{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);font-size:16px;line-height:1.5}
+.lines .row.head{font-weight:700;background:transparent;border-color:transparent;padding-block:6px 0;color:var(--gold)}
+.lines .row.total{font-weight:500;border-color:var(--gold)}
+.note{margin-top:-2px}
+@media (max-width:760px){
+  .pair{grid-template-columns:1fr}
+  .lead{font-size:18px}
+  td:first-child{white-space:normal}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+
+<div class="wrap" dir="rtl" lang="he">
+  <header class="top">
+    <span class="eyebrow">המחשה מרחבית · פיילוט 15.11.2026</span>
+    <h1>דוגמאות המחשה מרחבית</h1>
+    <p class="lead">אותו חישוב, פעמיים: פעם כפי שהמערכת מציגה אותו היום, ופעם עם ההמחשה. כל התמונות הן צילומי מסך אמיתיים עם נתוני מנוע חיים מ־15.11.2026. המספרים זהים בשני הצדדים. ההבדל הוא כמה קל לראות מאיפה הם הגיעו ומה חלש בהם.</p>
+    <div class="legend"><span class="badge without">בלי ההמחשה</span><span>מימין</span><span class="badge with">עם ההמחשה</span><span>משמאל</span></div>
+    <nav class="jump" aria-label="מעבר לדוגמה">
+      <a href="#mistater">מסתתר</a><a href="#ribua">ריבוע</a><a href="#milui">מילוי</a><a href="#zvi">צבי · 3060</a><a href="#without">מה קורה בלי</a><a href="#limits">גבולות</a>
+    </nav>
+  </header>
+
+  <div class="tablewrap" role="region" aria-label="סיכום ארבע הדוגמאות" tabindex="0">
+    <table>
+      <thead><tr><th>דוגמה</th><th>בלי ההמחשה</th><th>עם ההמחשה</th><th>מה נוסף</th><th>מצב</th></tr></thead>
+      <tbody>
+        <tr><td>מסתתר · התגלות <span class="num">1237</span></td><td>5 שורות הפרש</td><td>קשת לכל זוג אותיות סמוכות, וגם תצוגה תלת־ממדית</td><td>רואים איזה זוג נושא את הסכום</td><td><span class="tag exists">קיים ב־<span class="num">main</span></span></td></tr>
+        <tr><td>ריבוע · תפרצי בתשפז <span class="num">5787</span></td><td>רשימה שטוחה של 14 שורות</td><td>אות, תוספת, קידומת, סכום לכל מילה ומשוואה</td><td>מבנה לפי מילה במבט אחד</td><td><span class="tag new">חדש · ענף בלבד</span></td></tr>
+        <tr><td>מילוי · אופק אדנק <span class="num">1237</span></td><td>10 שורות: אות, ערך, סכום</td><td>אות ← שם האות ← ערך ← סכום</td><td>שם מלא לכל אות</td><td><span class="tag exists">קיים ב־<span class="num">main</span></span></td></tr>
+        <tr><td>צבי · <span class="num">3060</span></td><td>כרטיס טקסט: "5 מסלולי חישוב"</td><td>4 מתוך 5 מסלולים מאומתים במנוע; <span class="num">765</span> מסומן ולא נספר</td><td>חושף מסלול שאין לו אימות</td><td><span class="tag new">חדש · ענף בלבד</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="ex" id="mistater" aria-labelledby="h-mistater">
+    <div class="ex-head"><span class="kicker">שיטת מסתתר · קיים ב־<span class="num">main</span></span><h2 id="h-mistater">התגלות = <span class="num">1237</span></h2><p>מסתתר מחברת את ההפרשים בין אותיות סמוכות באותה מילה.</p></div>
+    <div class="pair">
+      <figure><span class="badge without">בלי ההמחשה</span><ol class="lines"><li class="row head">התגלות</li><li class="row">ה (5) ↔ ת (400): הפרש 395</li><li class="row">ת (400) ↔ ג (3): הפרש 397</li><li class="row">ג (3) ↔ ל (30): הפרש 27</li><li class="row">ל (30) ↔ ו (6): הפרש 24</li><li class="row">ו (6) ↔ ת (400): הפרש 394</li><li class="row total">סכום המילה: 1237</li><li class="row total">תוצאה: 1237</li></ol><p class="small note">הטקסט זהה לזה שמוצג באתר תחת "איך מחשבים?".</p><figcaption>חמש שורות טקסט. הסכום מופיע בסוף.</figcaption></figure>
+      <figure><span class="badge with">עם ההמחשה</span><div class="shot"><img src="{{mistater-1237-with-stage}}" width="1100" height="847" alt="האותיות ה, ת, ג, ל, ו, ת בשורה, עם קשת בין כל שתי אותיות סמוכות ועליה ההפרש: 395, 397, 27, 24, 394"></div><figcaption>כל הפרש יושב על הקשת בין שתי האותיות שיצרו אותו.</figcaption></figure>
+    </div>
+    <figure class="threed"><span class="badge with">עם ההמחשה · תלת־ממד</span><div class="shot"><img src="{{mistater-1237-with-3d}}" width="1100" height="668" alt="אותו מבנה במרחב: אותיות מחוצבות עם עומק וקשתות ההפרש ביניהן, ומעליהן 1237"></div><figcaption>בלחיצה על "תלת־ממד": אותו מבנה, עם אותיות מחוצבות. נטען רק לפי בקשה.</figcaption></figure>
+    <div class="read">
+      <p class="gives"><span class="k">מה רואים:</span>שלוש הקשתות הגדולות (<span class="num">395, 397, 394</span>) נוגעות כולן באות ת, שערכה <span class="num">400</span>. יחד הן <span class="num">1,186</span> מתוך <span class="num">1,237</span>. זה כתוב גם ברשימה, אבל בקשתות רואים את זה מיד. <span class="small">(הסכום הוא חיבור של הערכים שבתמונה, לא ערך מהמנוע.)</span></p>
+      <p class="not"><span class="k">מה זה לא נותן:</span>אותם חמישה הפרשים ואותו סכום. אין כאן שיטה או ערך חדשים.</p>
+    </div>
+  </section>
+
+  <section class="ex" id="ribua" aria-labelledby="h-ribua">
+    <div class="ex-head"><span class="kicker">שיטת ריבוע · חדש בפיילוט</span><h2 id="h-ribua">תפרצי בתשפז = <span class="num">5787</span></h2><p>בכל מילה מוסיפים אות לקידומת ומחברים את ערכי הקידומות. בתחילת מילה מתחילים מחדש.</p></div>
+    <div class="pair">
+      <figure><span class="badge without">בלי ההמחשה</span><ol class="lines"><li class="row head">תפרצי</li><li class="row">ת: 400</li><li class="row">תפ: 480</li><li class="row">תפר: 680</li><li class="row">תפרצ: 770</li><li class="row">תפרצי: 780</li><li class="row total">סכום המילה: 3110</li><li class="row head">בתשפז</li><li class="row">ב: 2</li><li class="row">בת: 402</li><li class="row">בתש: 702</li><li class="row">בתשפ: 782</li><li class="row">בתשפז: 789</li><li class="row total">סכום המילה: 2677</li><li class="row total">תוצאה: 5787</li></ol><p class="small note">הטקסט זהה לזה שמוצג באתר תחת "איך מחשבים?".</p><figcaption>רשימה שטוחה של 14 שורות (מוצגות כאן הראשונות). היא מסתיימת בסכום המילה השנייה, ואין בה משוואה שמחברת את שני הסכומים.</figcaption></figure>
+      <figure><span class="badge with">עם ההמחשה</span><div class="shot"><img src="{{ribua-5787-with-stage}}" width="1100" height="1228" alt="שתי שורות, אחת לכל מילה. מעל כל אות התוספת שלה ומתחתיה ערך הקידומת. הסכומים 3110 ו־2677, והמשוואה 3110 + 2677 = 5787"></div><figcaption>כל מילה בשורה משלה: האות, התוספת שלה (+80) וערך הקידומת. בסוף <span class="num eq">3110 + 2677 = 5787</span>.</figcaption></figure>
+    </div>
+    <div class="read">
+      <p class="gives"><span class="k">מה רואים:</span>שהחישוב מתחיל מחדש בכל מילה, ואיזו אות מוסיפה כמה לקידומת. את <span class="num">5787</span> רואים כחיבור של שני סכומים, ולא כמספר שמופיע בלי הקשר.</p>
+      <p class="not"><span class="k">מה זה לא נותן:</span>המספרים זהים לרשימה. ההמחשה לא מחשבת דבר: כל ערך בה מגיע מ־<span class="num">gematria_method_trace</span>, והיא נעצרת אם הערכים אינם עקביים.</p>
+    </div>
+  </section>
+
+  <section class="ex" id="milui" aria-labelledby="h-milui">
+    <div class="ex-head"><span class="kicker">שיטת מילוי · קיים ב־<span class="num">main</span></span><h2 id="h-milui">אופק אדנק = <span class="num">1237</span></h2><p>במילוי כל אות מוחלפת בשמה המלא, ומחברים את ערכי השמות.</p></div>
+    <div class="pair">
+      <figure><span class="badge without">בלי ההמחשה</span><ol class="lines"><li class="row head">אופק</li><li class="row">א: 111 · סכום עד כאן: 111</li><li class="row">ו: 22 · סכום עד כאן: 133</li><li class="row">פ: 81 · סכום עד כאן: 214</li><li class="row">ק: 186 · סכום עד כאן: 400</li><li class="row head">אדנק</li><li class="row">א: 111 · סכום עד כאן: 511</li><li class="row">ד: 434 · סכום עד כאן: 945</li><li class="row">נ: 106 · סכום עד כאן: 1051</li><li class="row">ק: 186 · סכום עד כאן: 1237</li><li class="row total">תוצאה: 1237</li></ol><p class="small note">הטקסט זהה לזה שמוצג באתר תחת "איך מחשבים?".</p><figcaption>שורה לכל אות: הערך והסכום עד כאן. שם האות אינו מופיע.</figcaption></figure>
+      <figure><span class="badge with">עם ההמחשה</span><div class="shot"><img src="{{milui-1237-with-stage}}" width="1100" height="977" alt="כרטיס לכל אות: האות, שמה המלא, ערכה והסכום המצטבר. האות הראשונה א, אלף, 111"></div><figcaption>האות, שמה המלא, ערכה והסכום המצטבר. לחיצה על אות מראה את הפירוט שלה.</figcaption></figure>
+    </div>
+    <div class="read">
+      <p class="gives"><span class="k">מה רואים:</span>מאיפה בא כל ערך: <span class="num">א ← אלף ← 111</span>, ולא רק מספר.</p>
+      <p class="not"><span class="k">גבול ידוע:</span>שמות האותיות מוצגים להמחשה. המנוע עדיין אינו מספק את פירוט האיות, וזה כתוב גם בתמונה.</p>
+    </div>
+  </section>
+
+  <section class="ex" id="zvi" aria-labelledby="h-zvi">
+    <div class="ex-head"><span class="kicker">חומרי צבי · חדש בפיילוט</span><h2 id="h-zvi"><span class="num">3060</span> · קוביית ישר והתכנסות המחומש</h2><p>הדוגמה המובילה בחומרי צבי: חמישה מסלולי כפל שמגיעים לאותו מספר. ישר × 6, ברית × 5, טוב × 180, <span class="num eq">765 × 4</span>, השגחה פרטית × 3.</p></div>
+    <div class="pair">
+      <figure><span class="badge without">בלי ההמחשה</span><div class="shot"><img src="{{zvi-3060-without-card}}" width="1098" height="980" alt="כרטיס טקסט בעולם. בכותרת: קובייה + מחומש, 5 מסלולי חישוב. ברשימת הגימטריה ארבעה ביטויים: ישר 510, ברית 612, טוב 17, השגחה פרטית 1020"></div><figcaption>כרטיס טקסט. בכותרת כתוב "5 מסלולי חישוב", וברשימת הגימטריה יש 4 ביטויים. אין סימן לכך שמסלול אחד חסר ביטוי.</figcaption></figure>
+      <figure><span class="badge with">עם ההמחשה</span><div class="shot"><img src="{{zvi-3060-with-2d}}" width="1042" height="1984" alt="חמש שורות מתכנסות אל 3060. ארבע שורות מסומנות כמאומתות במנוע. השורה של 765 × 4 מקווקוות, בלי ביטוי, ועליה כתוב שהיא אינה נספרת. הכותרת: 4 מתוך 5 מסלולים אומתו במנוע"></div><figcaption>ארבעה מסלולים אומתו במנוע. המסלול <span class="num eq">765 × 4</span> מוצג בקו מקווקו, עם הסבר, ואינו נספר.</figcaption></figure>
+    </div>
+    <figure class="threed"><span class="badge with">עם ההמחשה · תלת־ממד</span><div class="shot"><img src="{{zvi-3060-with-3d}}" width="982" height="842" alt="חמישה משטחים עם אותיות מחוצבות, ארבעה בהירים ואחד עמום, וצינורות שמתכנסים לכדור אחד: 3060, 4/5"></div><figcaption>אותו נתון במרחב: חמישה משטחים, צינורות שמתכנסים לצומת אחד. המסלול הלא מאומת עמום.</figcaption></figure>
+    <div class="read">
+      <p class="gives"><span class="k">מה רואים:</span>את מה שהרשימה לא אומרת: <strong>4 מתוך 5</strong>. לפי בדיקת היומן מ־15.11, שני פסוקים מתוך ארבעה שנכתבו כ־<span class="num">765</span> אינם שווים <span class="num">765</span> במנוע כפי שנכתבו (<span class="num">777</span> ו־<span class="num">771</span>). זו שאלה פתוחה לצבי.</p>
+      <p class="not"><span class="k">מה זה לא נותן:</span>ההמחשה לא קובעת שהקשר בין המסלולים אמיתי או משמעותי. היא מראה רק מה אומת ומה לא.</p>
+    </div>
+  </section>
+
+  <section class="cost" id="without" aria-labelledby="h-without">
+    <h2 id="h-without">מה קורה אם לא משתמשים בזה</h2>
+    <div class="tablewrap" role="region" aria-label="מחיר היעדר ההמחשה" tabindex="0">
+      <table>
+        <thead><tr><th>דוגמה</th><th>מה קורה בלי</th><th>מה המחיר</th></tr></thead>
+        <tbody>
+          <tr><td>מסתתר</td><td>קוראים חמש שורות ומנחשים איזה הפרש חשוב.</td><td>זמן קריאה</td></tr>
+          <tr><td>ריבוע</td><td>מחברים ידנית את שני סכומי המילים כדי לראות איך מגיעים ל־<span class="num">5787</span>. קל לפספס שהחישוב מתחיל מחדש בכל מילה.</td><td>זמן והבנה</td></tr>
+          <tr><td>מילוי</td><td>רואים ערך לכל אות ולא את שמה.</td><td>הבנה</td></tr>
+          <tr><td>צבי · <span class="num">3060</span></td><td>הכרטיס מציג 5 מסלולים. אחד מהם, <span class="num eq">765 × 4</span>, אין לו ביטוי שהמנוע יכול לאמת, ושום דבר בכרטיס לא מסמן את זה.</td><td><strong>אמון</strong>: מספר מסלולים שמוצג בלי שנבדק</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="callout">בשלוש הדוגמאות הראשונות המחיר הוא זמן והבנה. בדוגמה של צבי הוא משנה מה הקורא מאמין שנבדק. זה ההבדל המרכזי שהמחשה כזאת יכולה לעשות, ולא היופי של התצוגה.</p>
+  </section>
+
+  <section class="cost" id="limits" aria-labelledby="h-limits">
+    <h2 id="h-limits">מה זה לא עושה</h2>
+    <ul class="plain">
+      <li>לא מוסיף חישוב, שיטה או ערך. כל מספר בהמחשה מגיע מהמנוע. בריבוע, אם הערכים אינם עקביים, התצוגה עוברת לתצוגה הרגילה. במסלולי צבי, מסלול שלא אומת מוצג אך אינו נספר.</li>
+      <li>לא מפרש. התצוגה אינה אומרת מה המספרים אומרים, והפרשנות נשארת שכבה נפרדת.</li>
+      <li>התלת־ממד הוא מצב תצוגה בלבד: הוא לא מעלה אימות, קנוניות או פרסום. כך נקבע גם בנספח Spatial v3 שהופעל היום בחוק הקליטה.</li>
+      <li>ביצועי התלת־ממד נמדדו על WebGL תוכנתי עם האטת מעבד, לא על טלפון אמיתי. בדיקה על מכשיר אמיתי עדיין פתוחה.</li>
+    </ul>
+  </section>
+
+  <footer class="status">
+    <p><strong>היכן זה נמצא.</strong> מסתתר ומילוי קיימים בקוד של <span class="num">main</span>. ריבוע ו־3060 (דו־ממדי ותלת־ממדי) נמצאים בענף <span class="num">claude/anatomy-pilot-spatial-8ueak4</span> (קומיט <span class="num">e2c8ae6c8</span> ואילך), לא ב־<span class="num">main</span> ולא ב־<span class="num">Production</span>.</p>
+    <p><strong>מה נבדק.</strong> בדפדפן, בקריאה בלבד, מול המנוע החי. הצילומים הם מהבנייה המקומית של הענף. פרוביו Vercel קיים לקומיט <span class="num">8cd67492f</span> (בלי התלת־ממד).</p>
+  </footer>
+</div>
