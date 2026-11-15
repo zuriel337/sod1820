@@ -112,3 +112,10 @@ export async function fetchGematriaMethodTrace(methodKey, text) {
   if (error) throw error;
   return gematriaTraceToFinding(data, { inputText });
 }
+
+// Raw canonical trace (the same RPC the Number page and Beit Midrash read), for stages that verify it with isVerifiedMethodTrace.
+export async function fetchGematriaMethodTraceRaw(methodKey, text) {
+  const { data, error } = await supabase.rpc("gematria_method_trace", { p_method_key: String(methodKey || "").trim(), p_phrase: String(text || "").trim() });
+  if (error) throw error;
+  return data;
+}

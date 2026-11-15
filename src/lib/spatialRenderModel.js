@@ -52,3 +52,47 @@ export function isCompoundPentagonModel(spatial) {
     && /triangle/.test(spatial.shapeIdentity || "")
     && (spatial.regions || []).length > 0;
 }
+
+
+// ---- Multi-path convergence (Spatial v2 contract: path_i = inputs + quantities + operations -> V) ----
+// Pure and renderer-independent. Reads only what the model declares: operations[{expression "a × b", result}], the phrases listed in
+// gematria[[phrase, value]] and structuralProperties[{key, value, provenance}] (quantity provenance). It never calculates gematria:
+// the operand's phrase value must be confirmed by the canonical engine trace (see evaluateConvergencePaths).
+export function deriveConvergencePaths({ value, operations = [], gematria = [], quantities = [] } = {}) {
+  const phraseByValue = new Map();
+  for (const entry of gematria) {
+    const [phrase, phraseValue] = Array.isArray(entry) ? entry : [];
+    if (phrase && Number.isFinite(Number(phraseValue)) && !phraseByValue.has(Number(phraseValue))) phraseByValue.set(Number(phraseValue), String(phrase));
+  }
+  return operations.map((operation, index) => {
+    const match = /^\s*(\d+)\s*[×x*]\s*(\d+)\s*$/.exec(String(operation?.expression || ""));
+    const base = { id: `path:${index}`, index, expression: String(operation?.expression || ""), result: Number(operation?.result) };
+    if (!match) return { ...base, parsed: false, phrase: null, resultMatches: false };
+    const operand = Number(match[1]);
+    const quantity = Number(match[2]);
+    const property = quantities.find((item) => Number(item?.value) === quantity) || null;
+    return {
+      ...base, parsed: true, operand, quantity,
+      phrase: phraseByValue.get(operand) || null,
+      // Declared-operation consistency only (the model states the result; this guards against a mismatching declaration).
+      resultMatches: operand * quantity === base.result && base.result === Number(value),
+      quantityKey: property?.key || null,
+      quantityProvenance: property?.provenance || null,
+    };
+  });
+}
+
+// status per path: "verified" (engine-confirmed phrase value + consistent declared operation), "no_phrase" (no phrase is declared for the
+// operand), "pending" (trace not loaded yet), "unavailable" (trace missing/failed/mismatched), "inconsistent" (declared result disagrees).
+// Only "verified" paths are counted; nothing is ever promoted from an unverified path.
+export function evaluateConvergencePaths(paths, traces, isVerified) {
+  const evaluated = paths.map((path) => {
+    if (!path.parsed || !path.resultMatches) return { ...path, status: "inconsistent" };
+    if (!path.phrase) return { ...path, status: "no_phrase" };
+    const entry = traces?.[path.phrase];
+    if (!entry || entry.state === "loading") return { ...path, status: "pending" };
+    const verified = entry.state === "ready" && isVerified(entry.trace, { expression: path.phrase, methodKey: "רגיל", expectedValue: path.operand });
+    return { ...path, status: verified ? "verified" : "unavailable", trace: verified ? entry.trace : null };
+  });
+  return { paths: evaluated, verifiedCount: evaluated.filter((path) => path.status === "verified").length, total: evaluated.length };
+}

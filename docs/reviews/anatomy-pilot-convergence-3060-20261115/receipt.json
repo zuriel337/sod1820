@@ -1,0 +1,121 @@
+{
+  "cases": [
+    {
+      "name": "desktop-content-honesty-keyboard-ledger-play-offscreen",
+      "ok": true
+    },
+    {
+      "name": "reduced-motion",
+      "ok": true
+    },
+    {
+      "name": "mobile-320-cpu4x",
+      "readyMsAfterClick": 3357,
+      "offenders": [],
+      "docWidth": 305,
+      "innerWidth": 320,
+      "nodes": 134,
+      "smallControls": 0,
+      "minFont": 14,
+      "rowOverflow": 0,
+      "heapMB": 12,
+      "playFrames": 210,
+      "frameGapP95Ms": 17,
+      "droppedOver50ms": 0,
+      "clsInsideStage": 0,
+      "clsOpeningPush": 0.0362,
+      "clsPage": 0.0833,
+      "shifts": [
+        {
+          "v": 0.0377,
+          "n": [
+            "sod29-world-overview sod29-world-entry",
+            "sod29-section sod29-world-state-section",
+            "sod29-hero-symbol"
+          ]
+        },
+        {
+          "v": 0.0071,
+          "n": [
+            "#text",
+            "#text",
+            "#text",
+            "#text"
+          ]
+        },
+        {
+          "v": 0.0362,
+          "n": [
+            "sod29-actions",
+            "sod29-spatial-method-stage__actions",
+            "sod29-spatial-method-stage__boundary",
+            "sod29-world-spatial-card",
+            "#text"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "mobile-390-cpu4x",
+      "readyMsAfterClick": 3321,
+      "offenders": [],
+      "docWidth": 375,
+      "innerWidth": 390,
+      "nodes": 134,
+      "smallControls": 0,
+      "minFont": 14,
+      "rowOverflow": 0,
+      "heapMB": 11,
+      "playFrames": 202,
+      "frameGapP95Ms": 17,
+      "droppedOver50ms": 1,
+      "clsInsideStage": 0,
+      "clsOpeningPush": 0.0344,
+      "clsPage": 0.0822,
+      "shifts": [
+        {
+          "v": 0.039,
+          "n": [
+            "sod29-world-overview sod29-world-entry",
+            "sod29-section sod29-world-state-section",
+            "sod29-hero-symbol"
+          ]
+        },
+        {
+          "v": 0.0062,
+          "n": [
+            "#text",
+            "#text",
+            "#text",
+            "#text"
+          ]
+        },
+        {
+          "v": 0.0344,
+          "n": [
+            "sod29-world-spatial-card",
+            "sod29-actions",
+            "sod29-spatial-method-stage__actions",
+            "sod29-spatial-method-stage__boundary",
+            "#text"
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "blocked": [
+    "POST /rest/v1/rpc/link_identity",
+    "POST /rest/v1/rpc/track_visit",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/link_identity",
+    "POST /rest/v1/rpc/track_visit",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/link_identity",
+    "POST /rest/v1/rpc/track_visit",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/link_identity",
+    "POST /rest/v1/rpc/track_visit",
+    "POST /rest/v1/rpc/ingest_event"
+  ]
+}

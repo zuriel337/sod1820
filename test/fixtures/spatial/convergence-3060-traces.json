@@ -1,0 +1,331 @@
+{
+ "_provenance": "Verbatim gematria_method_trace('רגיל', phrase) output for the 3060 specimen phrases, read from canonical Supabase linswmnnkjxvweumprav on 2026-11-15 (read-only). Test witness only.",
+ "traces": {
+  "טוב": {
+   "input": "טוב",
+   "steps": [
+    {
+     "index": 1,
+     "scope": "letter",
+     "token": "ט",
+     "position": 1,
+     "transform": "identity",
+     "base_value": 9,
+     "contribution": 9,
+     "running_subtotal": 9
+    },
+    {
+     "index": 2,
+     "scope": "letter",
+     "token": "ו",
+     "position": 2,
+     "transform": "identity",
+     "base_value": 6,
+     "contribution": 6,
+     "running_subtotal": 15
+    },
+    {
+     "index": 3,
+     "scope": "letter",
+     "token": "ב",
+     "position": 3,
+     "transform": "identity",
+     "base_value": 2,
+     "contribution": 2,
+     "running_subtotal": 17
+    }
+   ],
+   "result": 17,
+   "semantics": {
+    "per_word_reset": null,
+    "order_sensitive": false,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": false,
+    "full_phrase_continuation": null
+   },
+   "method_key": "רגיל",
+   "provenance": {
+    "engine": "gematria",
+    "function": "fn_ragil",
+    "method_version": 1
+   },
+   "trace_kind": "LETTER_LEDGER",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 17,
+    "canonical_value": 17
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "base_additive"
+  },
+  "ישר": {
+   "input": "ישר",
+   "steps": [
+    {
+     "index": 1,
+     "scope": "letter",
+     "token": "י",
+     "position": 1,
+     "transform": "identity",
+     "base_value": 10,
+     "contribution": 10,
+     "running_subtotal": 10
+    },
+    {
+     "index": 2,
+     "scope": "letter",
+     "token": "ש",
+     "position": 2,
+     "transform": "identity",
+     "base_value": 300,
+     "contribution": 300,
+     "running_subtotal": 310
+    },
+    {
+     "index": 3,
+     "scope": "letter",
+     "token": "ר",
+     "position": 3,
+     "transform": "identity",
+     "base_value": 200,
+     "contribution": 200,
+     "running_subtotal": 510
+    }
+   ],
+   "result": 510,
+   "semantics": {
+    "per_word_reset": null,
+    "order_sensitive": false,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": false,
+    "full_phrase_continuation": null
+   },
+   "method_key": "רגיל",
+   "provenance": {
+    "engine": "gematria",
+    "function": "fn_ragil",
+    "method_version": 1
+   },
+   "trace_kind": "LETTER_LEDGER",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 510,
+    "canonical_value": 510
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "base_additive"
+  },
+  "ברית": {
+   "input": "ברית",
+   "steps": [
+    {
+     "index": 1,
+     "scope": "letter",
+     "token": "ב",
+     "position": 1,
+     "transform": "identity",
+     "base_value": 2,
+     "contribution": 2,
+     "running_subtotal": 2
+    },
+    {
+     "index": 2,
+     "scope": "letter",
+     "token": "ר",
+     "position": 2,
+     "transform": "identity",
+     "base_value": 200,
+     "contribution": 200,
+     "running_subtotal": 202
+    },
+    {
+     "index": 3,
+     "scope": "letter",
+     "token": "י",
+     "position": 3,
+     "transform": "identity",
+     "base_value": 10,
+     "contribution": 10,
+     "running_subtotal": 212
+    },
+    {
+     "index": 4,
+     "scope": "letter",
+     "token": "ת",
+     "position": 4,
+     "transform": "identity",
+     "base_value": 400,
+     "contribution": 400,
+     "running_subtotal": 612
+    }
+   ],
+   "result": 612,
+   "semantics": {
+    "per_word_reset": null,
+    "order_sensitive": false,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": false,
+    "full_phrase_continuation": null
+   },
+   "method_key": "רגיל",
+   "provenance": {
+    "engine": "gematria",
+    "function": "fn_ragil",
+    "method_version": 1
+   },
+   "trace_kind": "LETTER_LEDGER",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 612,
+    "canonical_value": 612
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "base_additive"
+  },
+  "השגחה פרטית": {
+   "input": "השגחה פרטית",
+   "steps": [
+    {
+     "index": 1,
+     "scope": "letter",
+     "token": "ה",
+     "position": 1,
+     "transform": "identity",
+     "base_value": 5,
+     "contribution": 5,
+     "running_subtotal": 5
+    },
+    {
+     "index": 2,
+     "scope": "letter",
+     "token": "ש",
+     "position": 2,
+     "transform": "identity",
+     "base_value": 300,
+     "contribution": 300,
+     "running_subtotal": 305
+    },
+    {
+     "index": 3,
+     "scope": "letter",
+     "token": "ג",
+     "position": 3,
+     "transform": "identity",
+     "base_value": 3,
+     "contribution": 3,
+     "running_subtotal": 308
+    },
+    {
+     "index": 4,
+     "scope": "letter",
+     "token": "ח",
+     "position": 4,
+     "transform": "identity",
+     "base_value": 8,
+     "contribution": 8,
+     "running_subtotal": 316
+    },
+    {
+     "index": 5,
+     "scope": "letter",
+     "token": "ה",
+     "position": 5,
+     "transform": "identity",
+     "base_value": 5,
+     "contribution": 5,
+     "running_subtotal": 321
+    },
+    {
+     "index": 6,
+     "scope": "letter",
+     "token": " ",
+     "position": 6,
+     "transform": "identity",
+     "base_value": 0,
+     "contribution": 0,
+     "running_subtotal": 321
+    },
+    {
+     "index": 7,
+     "scope": "letter",
+     "token": "פ",
+     "position": 7,
+     "transform": "identity",
+     "base_value": 80,
+     "contribution": 80,
+     "running_subtotal": 401
+    },
+    {
+     "index": 8,
+     "scope": "letter",
+     "token": "ר",
+     "position": 8,
+     "transform": "identity",
+     "base_value": 200,
+     "contribution": 200,
+     "running_subtotal": 601
+    },
+    {
+     "index": 9,
+     "scope": "letter",
+     "token": "ט",
+     "position": 9,
+     "transform": "identity",
+     "base_value": 9,
+     "contribution": 9,
+     "running_subtotal": 610
+    },
+    {
+     "index": 10,
+     "scope": "letter",
+     "token": "י",
+     "position": 10,
+     "transform": "identity",
+     "base_value": 10,
+     "contribution": 10,
+     "running_subtotal": 620
+    },
+    {
+     "index": 11,
+     "scope": "letter",
+     "token": "ת",
+     "position": 11,
+     "transform": "identity",
+     "base_value": 400,
+     "contribution": 400,
+     "running_subtotal": 1020
+    }
+   ],
+   "result": 1020,
+   "semantics": {
+    "per_word_reset": null,
+    "order_sensitive": false,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": false,
+    "full_phrase_continuation": null
+   },
+   "method_key": "רגיל",
+   "provenance": {
+    "engine": "gematria",
+    "function": "fn_ragil",
+    "method_version": 1
+   },
+   "trace_kind": "LETTER_LEDGER",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 1020,
+    "canonical_value": 1020
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "base_additive"
+  }
+ }
+}

@@ -91,6 +91,7 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
       gematria: Array.isArray(model.gematria) ? model.gematria : [],
       structure: Array.isArray(model.structure) ? model.structure : [],
       operations: Array.isArray(model.spatial?.operations) ? model.spatial.operations : [],
+      quantities: Array.isArray(model.spatial?.structuralProperties) ? model.spatial.structuralProperties : [],
       pathCount,
       interpretation: model.midrash || null,
       source: {

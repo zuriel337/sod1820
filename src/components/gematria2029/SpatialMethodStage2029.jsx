@@ -6,7 +6,10 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "rea
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
 import { compileMistaterSceneV1, resolveSceneSocketWorld, resolveSceneWorldPosition, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
 import { evaluateS4Capability } from "../../lib/spatial/gpuCapability.js";
+import { useStepPlayer } from "./useStepPlayer.js";
 import "./spatialMethodStage2029.css";
+
+const RIBUA_PLAY_MS = 900;
 
 // S4 (GPU) is route-scoped: three / @react-three/fiber live only in this lazily-loaded chunk, requested after the
 // explicit "תלת־ממד" action. Default S0–S2 never imports or mounts it.
@@ -433,54 +436,19 @@ function TriangleWordStage({ expression, trace, depth, onRazielAction, onOpenHei
   </section>;
 }
 
-const RIBUA_PLAY_MS = 900;
-
-function useReducedMotion(rootRef) {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const media = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
-    const sync = () => setReduced(Boolean(media?.matches || rootRef.current?.closest('[data-frame-reduced-motion="true"]')));
-    sync();
-    media?.addEventListener?.("change", sync);
-    const observer = typeof MutationObserver === "function" ? new MutationObserver(sync) : null;
-    observer?.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["data-frame-reduced-motion"] });
-    return () => { media?.removeEventListener?.("change", sync); observer?.disconnect(); };
-  }, [rootRef]);
-  return reduced;
-}
-
 // Per-word cumulative prefixes, one step at a time. Default state is fully static (every step visible). The optional "play" only moves the
 // focus, only on explicit user action, never under reduced motion, and pauses whenever the stage leaves the viewport or the tab is hidden.
 function RibuaStage({ expression, trace, model, depth, onRazielAction, onOpenHeichal }) {
   const rootRef = useRef(null);
-  const [focusIndex, setFocusIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const reduced = useReducedMotion(rootRef);
-  const last = model.cells.length - 1;
-  useEffect(() => { setFocusIndex(0); setPlaying(false); }, [expression, trace?.result]);
-  useEffect(() => {
-    if (typeof IntersectionObserver !== "function" || !rootRef.current) return undefined;
-    const observer = new IntersectionObserver(([entry]) => setVisible(Boolean(entry?.isIntersecting)));
-    observer.observe(rootRef.current);
-    return () => observer.disconnect();
-  }, []);
-  const running = playing && visible && !reduced;
-  useEffect(() => {
-    if (!running) return undefined;
-    const timer = setInterval(() => setFocusIndex((index) => {
-      if (index >= last) { setPlaying(false); return index; }
-      return index + 1;
-    }), RIBUA_PLAY_MS);
-    const onHide = () => { if (document.hidden) setPlaying(false); };
-    document.addEventListener("visibilitychange", onHide);
-    return () => { clearInterval(timer); document.removeEventListener("visibilitychange", onHide); };
-  }, [running, last]);
+  const player = useStepPlayer(rootRef, model.cells.length, RIBUA_PLAY_MS);
+  const { index: focusIndex, goTo, reset, toggle, playing, running, reduced, last } = player;
+  useEffect(() => { reset(); }, [expression, trace?.result, reset]);
   const focus = model.cells[Math.min(focusIndex, last)];
-  const move = (next) => { setPlaying(false); setFocusIndex(Math.max(0, Math.min(last, next))); };
+  const move = goTo;
   // RTL: reading order runs right→left, so ArrowLeft advances and ArrowRight goes back.
   const onKeyDown = (event) => {
-    const keys = { ArrowLeft: focusIndex + 1, ArrowDown: focusIndex + 1, ArrowRight: focusIndex - 1, ArrowUp: focusIndex - 1, Home: 0, End: last };
+    const from = Number(event.target?.closest?.("[data-ribua-flat]")?.dataset?.ribuaFlat ?? focusIndex);
+    const keys = { ArrowLeft: from + 1, ArrowDown: from + 1, ArrowRight: from - 1, ArrowUp: from - 1, Home: 0, End: last };
     if (!(event.key in keys)) return;
     event.preventDefault();
     const next = Math.max(0, Math.min(last, keys[event.key]));
@@ -528,7 +496,7 @@ function RibuaStage({ expression, trace, model, depth, onRazielAction, onOpenHei
       <div className="sod29-spatial-method-stage__actions">
         <button type="button" disabled={focusIndex === 0} onClick={() => move(focusIndex - 1)}>הצעד הקודם</button>
         <button type="button" disabled={focusIndex >= last} onClick={() => move(focusIndex + 1)}>הצעד הבא</button>
-        {reduced ? null : <button type="button" onClick={() => { if (!playing && focusIndex >= last) setFocusIndex(0); setPlaying(!playing); }}>{playing ? "עצירה" : "הפעלה"}</button>}
+        {reduced ? null : <button type="button" onClick={toggle}>{playing ? "עצירה" : "הפעלה"}</button>}
         {onRazielAction ? <button type="button" onClick={() => onRazielAction("explain_method_projection", payload)}><NavigationIcon2029 name="spark" /> רזיאל</button> : null}
         {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal(payload)}><NavigationIcon2029 name="heichal" /> פתח בהיכל</button> : null}
       </div>

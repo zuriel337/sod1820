@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
@@ -166,6 +166,32 @@ function ZviMultiValueShelf({ projection }) {
   </section>;
 }
 
+// Explicit-action opening of the multi-path convergence view (the shelf itself stays light; the chunk loads only on this click).
+const loadConvergenceStage = () => import("../gematria2029/SpatialConvergenceStage2029.jsx");
+const SpatialConvergenceStage = lazy(loadConvergenceStage);
+class ConvergenceBoundary extends React.Component {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? <p role="status" className="sod29-muted">ההמחשה אינה זמינה כרגע. הכרטיס והמסלולים נשארים פתוחים.</p> : this.props.children; }
+}
+function ConvergenceOpen({ card }) {
+  const [open, setOpen] = useState(false);
+  const buttonRef = React.useRef(null);
+  const eligible = card.operations?.length > 1 && card.gematria?.length;
+  // Prefetch the (small) chunk only when the button nears the viewport, so the panel opens in the same moment as the click (no late layout shift).
+  useEffect(() => {
+    if (!eligible || typeof IntersectionObserver !== "function" || !buttonRef.current) return undefined;
+    const observer = new IntersectionObserver(([entry]) => { if (entry?.isIntersecting) { loadConvergenceStage().catch(() => {}); observer.disconnect(); } }, { rootMargin: "400px" });
+    observer.observe(buttonRef.current);
+    return () => observer.disconnect();
+  }, [eligible]);
+  if (!eligible) return null;
+  return <div className="sod29-world-spatial-convergence" data-convergence-card={card.slug}>
+    <button ref={buttonRef} type="button" className="sod29-action" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? "סגור את ההמחשה" : "פתח המחשת התכנסות"}</button>
+    {open ? <ConvergenceBoundary><Suspense fallback={<p role="status" className="sod29-muted">טוען את ההמחשה…</p>}><SpatialConvergenceStage card={card} /></Suspense></ConvergenceBoundary> : null}
+  </div>;
+}
+
 function SpatialShelf({ projection }) {
   return <section className="sod29-world-kind-section sod29-world-spatial-shelf" aria-label="הגימטריה המרחבית של צבי">
     <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div><span>{projection.counts.models} מבנים מאוצרים · {projection.counts.sourceOccurrences} הופעות מקור · לא מקורות עצמאיים</span></header>
@@ -190,6 +216,7 @@ function SpatialShelf({ projection }) {
         </ol>
         {card.interpretation ? <details><summary>הפרשנות של המקור</summary><p>{card.interpretation}</p></details> : null}
         <details><summary>הופעות מקור מדויקות · {card.source.occurrenceCount}</summary><ul>{card.source.locators.map((item) => <li key={item.ref}><Link to={item.href}>{item.exact ? "פתח את ההופעה בספריית צבי" : "פתח את ספריית צבי"}</Link> · <code dir="ltr">{item.ref}</code></li>)}</ul></details>
+        <ConvergenceOpen card={card} />
         <div className="sod29-actions"><Link className="sod29-action primary" to={`${NUMBER_PAGE_BASE}/${card.value}`}>לערך {card.value}</Link><Link className="sod29-action" to={card.source.href}>לספריית צבי בעולם</Link></div>
       </div>
     </article>)}</div>

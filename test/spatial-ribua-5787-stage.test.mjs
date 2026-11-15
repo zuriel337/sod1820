@@ -66,15 +66,17 @@ test("the illustration is the shared component: every consumer imports it, so a 
   assert.doesNotMatch(ribua, /5787|תפרצי|fetch|rpc\(|supabase|Math\.(random|sqrt)/, "no hardcoded witness, no fetch, no calculator");
 });
 
-test("motion safety: static default, user-initiated play, reduced-motion and off-screen pause, single timer", () => {
-  const source = read("../src/components/gematria2029/SpatialMethodStage2029.jsx");
-  const ribua = source.slice(source.indexOf("const RIBUA_PLAY_MS"), source.indexOf("export default function SpatialMethodStage2029"));
-  assert.match(ribua, /useState\(false\);\s*\n\s*const \[visible/, "playing starts false");
-  assert.match(ribua, /prefers-reduced-motion: reduce/);
-  assert.match(ribua, /data-frame-reduced-motion/);
-  assert.match(ribua, /IntersectionObserver/);
-  assert.match(ribua, /visibilitychange/);
-  assert.equal((ribua.match(/setInterval\(/g) || []).length, 1);
-  assert.equal((ribua.match(/clearInterval\(/g) || []).length, 1);
+test("motion safety (shared hook): static default, user-initiated play, reduced-motion and off-screen pause, single timer", () => {
+  const hook = read("../src/components/gematria2029/useStepPlayer.js");
+  assert.match(hook, /useState\(false\);\s*\n\s*const \[visible/, "playing starts false");
+  assert.match(hook, /prefers-reduced-motion: reduce/);
+  assert.match(hook, /data-frame-reduced-motion/);
+  assert.match(hook, /IntersectionObserver/);
+  assert.match(hook, /visibilitychange/);
+  assert.equal((hook.match(/setInterval\(/g) || []).length, 1);
+  assert.equal((hook.match(/clearInterval\(/g) || []).length, 1);
+  const stage = read("../src/components/gematria2029/SpatialMethodStage2029.jsx");
+  assert.match(stage, /useStepPlayer\(rootRef, model\.cells\.length/);
+  assert.equal((stage.match(/setInterval\(/g) || []).length, 0, "the stage owns no timer of its own");
   assert.doesNotMatch(read("../src/components/gematria2029/spatialMethodStage2029.css").split("per-word prefix accumulation")[1] || "", /@keyframes/, "no CSS animation loop");
 });
