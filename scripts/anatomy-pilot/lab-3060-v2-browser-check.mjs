@@ -57,9 +57,11 @@ const action = (stage, name) => stage.locator(`[data-lab-action="${name}"]`);
 async function hideChrome(page) { await page.evaluate(() => { for (const el of document.querySelectorAll("body *")) { const p = getComputedStyle(el).position; if ((p === "fixed" || p === "sticky") && !el.querySelector(".is-convergence")) el.style.visibility = "hidden"; } }); }
 async function shot(stage, page, name) {
   await stage.scrollIntoViewIfNeeded(); await hideChrome(page);
-  // SwiftShader can starve rAF, so Playwright's "stable" wait may time out; fall back to a plain clipped page capture of the same box
-  try { await stage.screenshot({ path: `${out}/${name}.png`, timeout: 15000 }); }
-  catch { const box = await stage.boundingBox(); await page.screenshot({ path: `${out}/${name}.png`, clip: { x: box.x, y: Math.max(0, box.y), width: box.width, height: Math.min(box.height, 8000) }, fullPage: true }); }
+  // A software GL renderer cannot service a continuously drifting scene AND a screenshot: pause the drift for the capture (reduced-motion media), then restore
+  await page.emulateMedia({ reducedMotion: "reduce" }); await page.waitForTimeout(500);
+  try { await stage.screenshot({ path: `${out}/${name}.png`, timeout: 20000 }); }
+  catch { const box = await stage.boundingBox(); await page.screenshot({ path: `${out}/${name}.png`, clip: { x: box.x, y: Math.max(0, box.y), width: box.width, height: Math.min(box.height, 8000) }, fullPage: true, timeout: 60000 }); }
+  await page.emulateMedia({ reducedMotion: process.env.REDUCED ? "reduce" : "no-preference" });
 }
 const selectedPart = async (stage) => host(stage).getAttribute("data-selected-part");
 async function frameGaps(page, ms) { return page.evaluate((span) => new Promise((resolve) => { const gaps = []; let last = performance.now(); const end = last + span; const tick = (t) => { gaps.push(t - last); last = t; if (t < end) requestAnimationFrame(tick); else resolve(gaps); }; requestAnimationFrame(tick); }), ms); }

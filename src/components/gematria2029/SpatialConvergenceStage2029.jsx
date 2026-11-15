@@ -99,7 +99,8 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   const [directionId, setDirectionId] = useState(() => resolveRoyalLabDirection(typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("lab")).id);
   const direction = ROYAL_LAB_DIRECTIONS[directionId];
   const quality = useMemo(() => pickLabQuality({ width: typeof window === "undefined" ? 1024 : window.innerWidth, cores: typeof navigator === "undefined" ? 8 : navigator.hardwareConcurrency, saveData: typeof navigator !== "undefined" && Boolean(navigator.connection?.saveData) }), []);
-  const freshLab = (dir, resetToken = 0) => ({ view: "overview", explode: false, spin: Boolean(dir.look.drift), layers: {}, resetToken });
+  // the museum's gentle camera drift needs continuous frames: only on the rich tier (never on phones / data-saver), and the person can switch it off
+  const freshLab = (dir, resetToken = 0) => ({ view: "overview", explode: false, spin: Boolean(dir.look.drift) && quality === "rich", layers: {}, resetToken });
   const [sceneView, setSceneView] = useState(spec ? "structure" : "paths");
   const [lab, setLab] = useState(() => freshLab(ROYAL_LAB_DIRECTIONS[directionId]));
   const [discover, setDiscover] = useState(-1);

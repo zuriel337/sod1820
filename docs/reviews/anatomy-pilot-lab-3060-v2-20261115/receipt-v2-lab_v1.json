@@ -1,0 +1,68 @@
+{
+  "directions": {
+    "lab": {
+      "desktop": {
+        "canvasMs": 11052,
+        "drawCalls": 109,
+        "geometries": 55,
+        "textures": 12,
+        "shadows": "false",
+        "look": "royal",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "outer",
+          "inner",
+          "triangles"
+        ],
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": [
+            "◆:10px",
+            "עוד כלים:12px",
+            "איך הגענו ל־17?:12px",
+            "רגיל · הערך יושב ע:14px",
+            "טוב:14px",
+            "כל אות תורמת את ער:14px",
+            "שאלות לדוגמה:12px"
+          ]
+        }
+      }
+    },
+    "v1": {
+      "desktop": {
+        "canvasMs": 7511,
+        "drawCalls": 105,
+        "geometries": 51,
+        "textures": 12,
+        "shadows": "false",
+        "look": "v1",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "inner",
+          "triangles",
+          "outer"
+        ],
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": [
+            "◆:10px",
+            "אומת במנוע:14px",
+            "אומת במנוע:14px",
+            "אומת במנוע:14px",
+            "אין ביטוי מאומת למ:14px",
+            "אומת במנוע:14px",
+            "שאלות לדוגמה:12px"
+          ]
+        }
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}
