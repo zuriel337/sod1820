@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { visibleOutlineRows } from "../../lib/research/postOutline2029.js";
 
 export default function SurfaceProgressSpine2029({
   items = [],
@@ -39,13 +40,16 @@ export default function SurfaceProgressSpine2029({
 
   if (!rows.length) return null;
   const currentId = observedId || activeId || rows[0]?.id;
+  // two levels: a section's children (units, sub-headings) are drawn only while that section is the active parent
+  const drawn = visibleOutlineRows(rows, currentId);
 
   return <nav className="sod29-surface-progress-spine" aria-label={ariaLabel} data-experience-capability="surface-progress-spine">
     <span className="sod29-surface-progress-line" aria-hidden="true" />
-    {rows.map((item) => interactive ? <button
+    {drawn.map((item) => interactive ? <button
       key={item.id}
       type="button"
-      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}`}
+      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}${item.level === 2 ? " is-child" : ""}`}
+      data-outline-level={item.level === 2 ? 2 : 1}
       aria-label={item.label}
       aria-current={item.id === currentId ? "step" : undefined}
       title={item.label}
@@ -57,7 +61,7 @@ export default function SurfaceProgressSpine2029({
       }}
     ><span /><small>{item.label}</small></button> : <div
       key={item.id}
-      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}`}
+      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}${item.level === 2 ? " is-child" : ""}`}
       aria-current={item.id === currentId ? "step" : undefined}
     ><span /><small>{item.label}</small></div>)}
   </nav>;

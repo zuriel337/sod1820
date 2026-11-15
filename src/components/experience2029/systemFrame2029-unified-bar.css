@@ -296,7 +296,6 @@
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-header.closed-orientation,
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-sidebar,
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame.sidebar-collapsed .sod29-logo-toggle,
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion,
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) {
     background: var(--s29-glass-bg); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
     border-color: var(--s29-glass-edge);
@@ -331,9 +330,6 @@
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-theme-presets button.is-active {
     background: var(--s29-glass-lift); border-color: var(--s29-glass-edge); color: var(--s29-ink); box-shadow: inset 0 1px 0 var(--s29-glass-shine);
   }
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion-pin[aria-pressed="true"] { border-color: color-mix(in srgb, var(--s29-ink) 30%, transparent); }
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion-ico.is-on { border-color: color-mix(in srgb, var(--s29-ink) 30%, transparent); background: var(--s29-glass-lift); }
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion.is-peek { box-shadow: inset 0 1px 0 var(--s29-glass-shine), 0 20px 60px color-mix(in srgb, var(--s29-page) 65%, transparent); }
 }
 
 .sod29-theme-options { display: contents; }

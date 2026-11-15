@@ -76,9 +76,8 @@ test("ordinary answer copy says what Raziel found; depth copy may explain source
   assert.doesNotMatch(expanded, /מנוע|engine|evidence|provenance|Result Bundle/i);
 });
 
-test("temporarily hidden Companion preserves three local preferences; desktop and mobile use the single existing sheet", () => {
+test("the left Companion panel is gone; Raziel keeps three local preferences and desktop and mobile use the single existing sheet", () => {
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
-  const companion = read("src/components/experience2029/CompanionPanel2029.jsx");
   const chooser = read("src/lib/research/razielCompanionPreference2029.js");
 
   assert.doesNotMatch(frame, /<CompanionPanel2029|readRazielCompanionView|writeRazielCompanionView/);
@@ -86,13 +85,6 @@ test("temporarily hidden Companion preserves three local preferences; desktop an
   assert.match(chooser, /function writeRazielCompanionView/);
   assert.match(chooser, /storage\?\.setItem\?/);
   assert.doesNotMatch(chooser, /submit|askRaziel|fetch|invoke|transport|model/i);
-  assert.match(companion, /razielView !== "quiet"/);
-  assert.match(companion, /data-raziel-companion-quiet="true"/);
-  assert.match(companion, /data-raziel-hint="deterministic"/);
-  assert.match(companion, /onRazielView\?\.\("hints"\)/);
-  assert.match(companion, /onRazielView\?\.\("open"\)/);
-  assert.match(companion, /onRazielView\?\.\("quiet"\)/);
-  assert.doesNotMatch(companion, /useOptionalRazielSession2029|RazielSessionProvider|ResearchProvider|askRaziel|submit\(/);
 
   assert.equal((frame.match(/<RazielOrb compact active=\{!razielLocked && transientKind === TRANSIENT\.RAZIEL\} onClick=\{openRaziel\}/g) || []).length, 2,
     "global and tool docks both use the same existing sheet and feature gate");

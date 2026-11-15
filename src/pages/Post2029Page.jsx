@@ -29,6 +29,7 @@ import { postVoiceFor } from "../lib/postVoice2029.js";
 import { annotatePostSource, resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
 import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
+import { usePostOutline2029 } from "../lib/research/postOutlineDom2029.js";
 import PostUnitEditors2029 from "../components/experience2029/PostUnitEditors2029.jsx";
 import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
 import PreviewUnitExtras2029 from "../components/experience2029/PreviewUnitExtras2029.jsx";
@@ -196,6 +197,12 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     [regions, activeRegionId],
   );
   const activeRegionFocus = activeFocus;
+  // ONE two-level outline of the Post (sections → units / sub-headings) read from the rendered Post; a hand-written reading-region list (the flight Post, the golden Post) still wins
+  const { outline: postOutline, activeId: activeOutlineId } = usePostOutline2029(sourceRef, `${state.projection?.post?.id || ""}|${passiveSourceHtml.length}`);
+  const useOutline = postOutline.length > 0 && regions.length <= 1;
+  // a Post with hand-written reading regions AND a stack of proven updates keeps its regions and gets "מה התחדש" (with its units) in front of them
+  const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
+  const mergedUpdates = !useOutline && regions.length > 1 && outlineUpdates.length > 1;
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
   // Flagship "מפת המציאות" experience: exactly FOUR semantic entries that fit one line (message · context · connections · sources), each mapped to
   // real content of this Post. Every other Post keeps the existing list unchanged.
@@ -529,7 +536,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const passiveSurfaceFocus = {
       id: activeFocus.id,
       type: activeFocus.number ? "number" : "post_region",
-      sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
+      sectionLabel: activeFocus.number ? "גימטריות" : (useOutline ? (postOutline.find((item) => item.id === activeOutlineId) || postOutline[0]).label : "הסיפור"),
       label: activeFocus.primary || activeFocus.label,
       primary: activeFocus.primary,
       signals: activeFocus.signals || [],
@@ -554,12 +561,15 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         bottomTrail: preserveExplicitGematriaFocus && Array.isArray(protectedBottomTrail)
           ? protectedBottomTrail
           : passiveTrail,
-        surfaceSections: regions.map((region) => ({
-          id: region.id,
-          label: region.label,
-          targetId: `source-region-${region.id}`,
-        })),
-        activeSectionId: activeFocus.id,
+        surfaceSections: useOutline ? postOutline.map(({ id, label, targetId, level, parentId }) => ({ id, label, targetId, level, parentId })) : [
+          ...(mergedUpdates ? outlineUpdates.map(({ id, label, targetId, level, parentId }) => ({ id, label, targetId, level, parentId })) : []),
+          ...regions.map((region) => ({
+            id: region.id,
+            label: region.label,
+            targetId: `source-region-${region.id}`,
+          })),
+        ],
+        activeSectionId: useOutline ? (activeOutlineId || postOutline[0].id) : (mergedUpdates && outlineUpdates.some((item) => item.id === activeOutlineId) ? activeOutlineId : activeFocus.id),
         surfaceMapLabel: "בתוך הפוסט",
         surfaceFindings: state.projection.draft || state.projection.privateStage || state.projection.previewSnapshot ? [] : post.slug === "bennett-melach-631-78"
           ? (state.projection.experience?.connections || [])
@@ -599,7 +609,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         },
       },
     });
-  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack), location.pathname, location.search]);
+  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack), location.pathname, location.search, useOutline, mergedUpdates, postOutline, activeOutlineId]);
 
   useEffect(() => {
     if (research.context?.subject?.type === "post" && research.context?.selection?.entityType === "post_occurrence") {

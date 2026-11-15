@@ -189,8 +189,10 @@ export default function SurfaceContextRail2029({
     });
   };
 
-  const stations = sections.filter((item) => item?.id && item?.label);
-  const stationIndex = stations.findIndex((item) => item.id === activeSectionId);
+  // the prev / next stations walk the SECTIONS (level 1); an active child counts as its parent
+  const stations = sections.filter((item) => item?.id && item?.label && item.level !== 2);
+  const activeStationId = activeSection?.level === 2 ? activeSection.parentId : activeSectionId;
+  const stationIndex = stations.findIndex((item) => item.id === activeStationId);
   const useLocator = !sheet && stations.length > 1 && stationIndex >= 0;
   const goStation = (offset) => {
     const next = stations[stationIndex + offset];

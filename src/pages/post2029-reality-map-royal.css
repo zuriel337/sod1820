@@ -5,11 +5,11 @@
    frame itself (the .r29 intensity per preset). Gold and sapphire are decoration and hierarchy, never a rating, a verification or an importance. */
 
 /* Royal OUTER frame is warm (black-brown + gold); sapphire is the INNER content core (ZURIEL 13.11.2026): the Post hall floor is amber, the Companion keeps sapphire. */
-.sod29-reading-post[data-reality-map],.sod29-companion.r29{--rm-floor:var(--r29-sapphire)}
+:is([data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map]{--rm-floor:var(--r29-amber)}
+.sod29-reading-post[data-reality-map]{--rm-floor:var(--r29-sapphire)}
 .sod29-reading-post[data-reality-map]{--rm-glow-a:var(--r29-violet-deep);--rm-glow-b:var(--r29-sapphire)}
 [data-theme-2029="dark"] .sod29-reading-post[data-reality-map]{--rm-floor:var(--r29-amber);--rm-glow-a:var(--r29-amber);--rm-glow-b:var(--r29-amber);--rm-glow-k:.3;--rm-gold-k:.35}
 /* Parchment is warm: its royal floor is bronze, not blue, so the page never reads grey. */
-:is([data-theme-2029="parchment"]) :is(.sod29-reading-post[data-reality-map],.sod29-companion.r29){--rm-floor:var(--r29-amber)}
 .sod29-reading-post[data-reality-map]{
   --rm-gold:var(--r29-gold);--rm-gold-ink:var(--r29-gold-ink);--rm-sapphire:var(--r29-sapphire);--rm-azure:var(--r29-azure);--rm-violet:var(--r29-violet-deep);
   --sv-accent:var(--r29-gold);--sv-accent2:var(--r29-sapphire);
@@ -146,57 +146,8 @@
 .sod29-reading-post[data-reality-map] .sod29-source-unit .sod29-source-unit-hint b{color:var(--rm-gold-ink)}
 
 /* ───────────── Companion (preview only): a royal flagship panel ───────────── */
-@media (min-width:981px){
-  .sod29-root.has-companion .sod29-companion.r29{
-    border:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),var(--s29-line));
-    background:
-      radial-gradient(90% 40% at 50% -6%,color-mix(in srgb,var(--r29-gold) var(--r29-glow),transparent),transparent 70%),
-      radial-gradient(70% 50% at 100% 12%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
-      radial-gradient(80% 50% at 0% 108%,color-mix(in srgb,var(--r29-sapphire) var(--r29-glow),transparent),transparent 70%),
-      linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
-    box-shadow:var(--r29-shadow),inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-gold) var(--r29-hair),transparent);
-    -webkit-backdrop-filter:none;backdrop-filter:none;
-  }
-}
-.sod29-companion.r29 .sod29-companion-top b{font:850 17px/1.2 var(--s29-font-display,var(--s29-font-ui));color:var(--r29-gold-ink)}
-.sod29-companion.r29 .sod29-companion-pin{border-color:color-mix(in srgb,var(--r29-gold) 40%,var(--s29-line));color:var(--s29-ink)}
-.sod29-companion.r29 .sod29-companion-ico{border-color:color-mix(in srgb,var(--r29-gold) 40%,var(--s29-line-strong));color:var(--r29-gold-ink)}
-.sod29-companion.r29 .sod29-companion-ico.is-on{border-color:var(--r29-gold);background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--r29-gold) 34%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 14%,var(--s29-panel)));box-shadow:0 0 14px -4px color-mix(in srgb,var(--r29-gold) 70%,transparent)}
-.sod29-companion.r29 .sod29-companion-tabs{gap:6px}
-.sod29-companion.r29 .sod29-companion-tabs button{
-  color:var(--s29-ink);border-color:color-mix(in srgb,var(--r29-gold) 30%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 10%,var(--s29-panel));font-weight:600;
-}
-.sod29-companion.r29 .sod29-companion-tabs button[aria-pressed="true"]{
-  color:var(--s29-ink);font-weight:800;border-color:var(--r29-gold);
-  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 42%,var(--s29-panel)),color-mix(in srgb,var(--r29-violet-deep) 26%,var(--s29-panel)));
-  box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 45%,transparent),0 6px 18px -8px color-mix(in srgb,var(--r29-gold) 85%,transparent),inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent);
-}
-.sod29-companion.r29 .sod29-companion-tabs em{color:var(--r29-gold-ink)}
-.sod29-companion.r29 .sod29-companion-tabs button[aria-pressed="true"] em{color:var(--r29-gold-ink)}
-.sod29-companion.r29 .sod29-companion-row{border-radius:14px;border-color:color-mix(in srgb,var(--r29-sapphire) 45%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel))}
-.sod29-companion.r29 .sod29-companion-ty{border-color:color-mix(in srgb,var(--r29-sapphire) 60%,transparent);color:var(--r29-azure)}
 
 /* the ACTIVE unit: the living focus of the panel */
-.sod29-companion.r29 .sod29-unit-context{
-  --pu-tile:color-mix(in srgb,var(--r29-sapphire) 52%,var(--s29-panel));
-  position:relative;padding:14px 14px 12px;border-radius:20px;border:1px solid color-mix(in srgb,var(--r29-gold) 58%,transparent);
-  background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb,var(--r29-sapphire) 38%,transparent),transparent 70%),linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 28%,var(--s29-page)),color-mix(in srgb,var(--r29-sapphire) 16%,var(--s29-page)));
-  box-shadow:var(--r29-shadow);
-}
-:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-companion.r29 .sod29-unit-context{--pu-tile:color-mix(in srgb,var(--r29-sapphire) 16%,var(--s29-panel));
-  background:linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 9%,var(--s29-panel)),var(--s29-panel))}
-.sod29-companion.r29 .sod29-unit-context>small{color:var(--r29-gold-ink);font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
-.sod29-companion.r29 .sod29-unit-context>small::before{content:"◆";font-size:10px;color:var(--r29-gold);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--r29-gold) 70%,transparent))}
-.sod29-companion.r29 .sod29-unit-context strong{font:850 1.15rem/1.35 var(--s29-font-display,var(--s29-font-ui));color:var(--r29-gold-ink);margin-top:4px}
-.sod29-companion.r29 .sod29-unit-context-meta{color:var(--s29-ink)}
-.sod29-companion.r29 .sod29-unit-context-numbers button{
-  min-block-size:44px;border-radius:14px;color:color-mix(in srgb,var(--r29-gold) 78%,var(--s29-ink));font:800 1.1rem/1 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;
-  border:1px solid color-mix(in srgb,var(--r29-gold) 22%,transparent);background:var(--pu-tile);box-shadow:none;
-}
-.sod29-companion.r29 .sod29-unit-context-occ li{position:relative;border:1px solid color-mix(in srgb,var(--r29-sapphire) 40%,var(--s29-line));border-style:solid;background:color-mix(in srgb,var(--r29-sapphire) 10%,var(--s29-panel));padding-inline-start:14px}
-.sod29-companion.r29 .sod29-unit-context-occ li::before{content:"";position:absolute;inset-block:8px;inset-inline-start:-1px;inline-size:3px;border-radius:3px;background:var(--r29-sapphire);box-shadow:0 0 10px color-mix(in srgb,var(--r29-sapphire) 70%,transparent)}
-.sod29-companion.r29 .sod29-unit-context-occ b{color:var(--r29-gold-ink);font-family:var(--s29-font-numeric,var(--s29-font-ui));font-size:1.1rem}
-.sod29-companion.r29 :is(.sod29-unit-context-occ a,.sod29-unit-context-refs a){color:var(--r29-azure)}
 
 @media (forced-colors:active){
   .sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"]{background:none;-webkit-text-fill-color:CanvasText;color:CanvasText!important;filter:none}
@@ -214,21 +165,6 @@
 }
 
 /* Companion content by Post character: the live-timeline Post leads with its update timeline, the numeric-research Post with its number map. */
-.sod29-companion.r29 :is(.sod29-companion-timeline,.sod29-companion-numbermap){margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid color-mix(in srgb,var(--r29-gold) 26%,var(--s29-line))}
-.sod29-companion.r29 :is(.sod29-companion-timeline,.sod29-companion-numbermap)>small{display:flex;align-items:center;gap:8px;color:var(--r29-gold-ink);font-weight:800;letter-spacing:.02em}
-.sod29-companion.r29 :is(.sod29-companion-timeline,.sod29-companion-numbermap)>small::before{content:"◆";font-size:10px;color:var(--r29-gold)}
-.sod29-companion.r29 .sod29-companion-timeline ol{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;position:relative}
-.sod29-companion.r29 .sod29-companion-timeline li a{display:flex;flex-direction:column;gap:2px;min-height:44px;justify-content:center;padding:6px 12px;border-radius:12px;text-decoration:none;color:var(--s29-ink);
-  border:1px solid color-mix(in srgb,var(--r29-sapphire) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 9%,var(--s29-panel));border-inline-start:3px solid var(--r29-sapphire)}
-.sod29-companion.r29 .sod29-companion-timeline li a b{font:750 .94rem/1.35 var(--s29-font-ui)}
-.sod29-companion.r29 .sod29-companion-timeline li a span{color:var(--s29-muted);font-size:.84rem}
-.sod29-companion.r29 .sod29-companion-timeline li.is-active a{border-color:var(--r29-gold);border-inline-start-color:var(--r29-gold);
-  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 26%,var(--s29-panel)),color-mix(in srgb,var(--r29-violet-deep) 14%,var(--s29-panel)));box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 40%,transparent),0 6px 16px -8px color-mix(in srgb,var(--r29-gold) 70%,transparent)}
-.sod29-companion.r29 .sod29-companion-numbermap p{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
-.sod29-companion.r29 .sod29-companion-numbermap button{min-height:44px;min-width:44px;padding:0 12px;border-radius:999px;cursor:pointer;color:var(--r29-gold-ink);font:800 1rem/1 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;
-  border:1px solid color-mix(in srgb,var(--r29-gold) 66%,transparent);background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 28%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 9%,var(--s29-panel)) 70%);
-  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 20%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 65%,transparent)}
-.sod29-companion.r29 .sod29-companion-numbermap sup{font-size:.62em;margin-inline-start:3px;color:var(--r29-azure)}
 
 /* ───────────── The preview unit "זה לעומת זה עשה האלוהים — ימין ושמאול תפרצי" (ZURIEL 12.11.2026) ─────────────
    Royal blue + gold, centred headings, clickable number coins. Only canonical roles (--r29-*, --s29-*); no new palette.
