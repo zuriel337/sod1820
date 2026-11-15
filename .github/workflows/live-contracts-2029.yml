@@ -176,8 +176,8 @@ jobs:
           test/measurement-identity-20261115.test.mjs
           test/measurement-transport-hardening-2029.test.mjs
           test/measurement-package-scope-20261113.test.mjs
-      - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
-        run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
+      - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid), icon treatment, and the community calculator's menu entry
+        run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs test/community-calculator-menu-entry-20261116.test.mjs
       # Public content (Design Contract V2 8.3, ZURIEL 12.11.2026): content visible before entry; a public research finding that has
       # not passed the Human Gate is shown as «טרם אומת», keeps its stored status, and publishes no personal information.
       # The old-client proofs in test/m0d-contributor-view-v2.test.mjs read earlier commits with git, so those commits are fetched first
@@ -485,6 +485,8 @@ jobs:
         run: node --test test/post-root-address-early-read-20261115.browser.mjs
       - name: Community dislikes beside likes (guest and member, mobile and desktop; real artifact and worker)
         run: node --test test/community-dislike-20261115.browser.mjs
+      - name: Community calculator is in the menu beside the professional calculator, opens and calculates (phone menu and desktop rail; real artifact and worker)
+        run: node --test test/community-calculator-menu-entry-20261116.browser.mjs
       - name: Guest updates invitation on public pages and original Post addresses (real artifact; no subscriptions)
         run: node --test test/guest-newsletter-restoration-20261115.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and

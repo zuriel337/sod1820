@@ -177,6 +177,9 @@ const HOME_NAV = [
 
 const DIRECT_NAV = [
   { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  // The community calculator was a direct menu item beside the professional one in the Legacy menu (ZURIEL 22.7.2026). Its page, route,
+  // sitemap entry and canonical survived the 2029 cutover; the menu entry did not, so nothing in the site led to it (16.11.2026).
+  { to: "/community/calculator", label: "מחשבון הקהילה", symbol: "communityCalculator" },
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },

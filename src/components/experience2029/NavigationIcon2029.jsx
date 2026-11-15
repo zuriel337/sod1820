@@ -38,6 +38,9 @@ const SHAPES = {
   // Destinations that used to share a picture with another one (calculator = number, Beit Midrash = books, site map = world,
   // updates/privacy = the tools fallback). Same 24×24 grid, round 1.8px strokes, currentColor only.
   calculator: <><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="6" width="8" height="3.5" rx="1"/><path d="M8.5 13.5h.01M12 13.5h.01M15.5 13.5h.01M8.5 17.5h.01M12 17.5h.01M15.5 17.5h.01"/></>,
+  // The community calculator (names, baby names, Hebrew date) next to the professional one: a calculator body with a person beside it,
+  // so the two calculators never share a picture (test/navigation-symbols-distinct-2029.test.mjs).
+  communityCalculator: <><rect x="3" y="2.5" width="12" height="19" rx="2.5"/><rect x="5.5" y="5.5" width="7" height="3.2" rx="1"/><path d="M6 12.5h.01M9 12.5h.01M12 12.5h.01M6 16.5h.01M9 16.5h.01M12 16.5h.01"/><circle cx="19.2" cy="12" r="2.2"/><path d="M16.6 21v-1.6a2.8 2.8 0 0 1 5.6 0V21"/></>,
   study: <><path d="M5 5.5v13M19 5.5v13M8.5 8h7M8.5 12h7M8.5 16h4"/><circle cx="5" cy="3.6" r="1.4"/><circle cx="5" cy="20.4" r="1.4"/><circle cx="19" cy="3.6" r="1.4"/><circle cx="19" cy="20.4" r="1.4"/></>,
   map: <><path d="m3 6.5 6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5Z"/><path d="M9 4v13.5M15 6.5V20"/></>,
   mail: <><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7.5 8.5 6.5 8.5-6.5"/></>,
@@ -83,6 +86,7 @@ export const ICON_CATALOG = Object.freeze([
   ["number","דף המספר","ניווט","ערכים ושיטות חישוב"],
   ["books","ספרים","ניווט","ספרים ומקורות"],
   ["calculator","מחשבון","ניווט","חישוב גימטריה והשוואת ביטויים"],
+  ["communityCalculator","מחשבון הקהילה","ניווט","גימטריה, שמות ותאריך עברי"],
   ["study","בית המדרש","ניווט","לימוד שיטות ומקורות"],
   ["map","מפת האתר","ניווט","כל הדפים במקום אחד"],
   ["mail","דואר","ניווט","עדכונים במייל"],
