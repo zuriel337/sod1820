@@ -26,6 +26,7 @@ export function postsTaxonomyScope2029(kind, value) {
       : series ? "זהו הסיווג השמור בפוסטים. רשימת הסדרה מציגה רק פריטים ששיוכם לסדרה הוגדר." : null,
     seriesLink: series ? { href: `/2029/posts?series=${encodeURIComponent(series.key)}`, label: `לסדרת ${series.label}` } : null,
     sourceLink: legacyVideo ? { href: "/or-geula", label: "לסרטוני אור הגאולה במקור" } : null,
+    mediaLinks: legacyVideo ? [{ href: "/2029/posts?media=video", label: "לפוסטים עם וידאו" }, { href: "/2029/posts?media=video&view=videos", label: "לכל הסרטונים" }] : null,
   };
 }
 

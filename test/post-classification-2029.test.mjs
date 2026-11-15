@@ -48,7 +48,13 @@ test("historical video and series URLs preserve their original result sets and d
     const scope = postsCatalogScope2029("category=" + encodeURIComponent(category));
     assert.equal(scope.kind, "category");
     assert.ok(scope.compatibilityNote);
-    assert.match(scope.label, /סיווג/);
+    // ZURIEL 16.11.2026: the legacy video category keeps its entrance and its exact result set, with reader wording (no maintenance wording) and without claiming to be "all videos"
+    if (category === "וידאו") {
+      assert.equal(scope.label, "וידאו");
+      assert.doesNotMatch(scope.compatibilityNote, /סיווג ישן|תחזוקה/);
+      assert.doesNotMatch(scope.compatibilityNote, /כל הסרטונים/);
+      assert.deepEqual(scope.mediaLinks.map(link => link.href), ["/2029/posts?media=video", "/2029/posts?media=video&view=videos"], "the way to the real media views");
+    } else assert.match(scope.label, /סיווג/);
     const calls = [];
     const query = { then: yes => Promise.resolve({ data: [], error: null, count: 0 }).then(yes) };
     for (const method of ["select", "or", "overlaps", "eq", "order", "range"]) query[method] = (...args) => { calls.push([method, ...args]); return query; };
@@ -57,4 +63,16 @@ test("historical video and series URLs preserve their original result sets and d
     assert.ok(!calls.some(call => call[0] === "eq"), "old category results are not silently restricted by a publisher");
     assert.ok(!calls[0][1].includes("content"), "no full-body scan to invent a media dimension on index load");
   }
+});
+
+test("the media type is read from the media itself: a post with a playable video gets the media chip whether or not it carries the legacy category", () => {
+  const withVideo = { id: 1, slug: "a", title: "a", tags: [], categories: [], content: '<p>x</p><iframe src="https://www.youtube.com/embed/abcdefghijk"></iframe>' };
+  const selfHosted = { ...withVideo, content: '<video src="https://cdn.example.com/a/b.mp4?x=1"></video>' };
+  const none = { ...withVideo, content: "<p>no media</p>" };
+  const legacyOnly = { ...none, categories: ["וידאו"] };
+  assert.deepEqual(postClassification2029(withVideo).media, [{ role: "media-type", name: "וידאו", prefix: "מדיה", href: "/2029/posts?media=video" }]);
+  assert.equal(postClassification2029(selfHosted).media.length, 1);
+  assert.equal(postClassification2029(none).media.length, 0);
+  assert.equal(postClassification2029(legacyOnly).media.length, 0, "the legacy category alone is not a media type");
+  assert.equal(postClassification2029({ ...withVideo, tags: ["טיוטה"] }).media, undefined, "a suppressed post classifies nothing");
 });

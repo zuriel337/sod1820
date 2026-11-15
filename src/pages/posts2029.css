@@ -81,3 +81,11 @@
   .sod29-posts-library.is-taxonomy .sod29-posts-search{margin-block:24px}
 }
 @media(prefers-reduced-motion:reduce){.sod29-posts-series-card,.sod29-library-post-card{transition:none}}
+
+/* the real media classification: two named scopes and the way to the sources that live elsewhere */
+.sod29-posts-media-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-block: 12px; }
+.sod29-posts-media-switch > span { color: var(--s29-muted); font-size: 14px; }
+.sod29-posts-media-switch a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid color-mix(in srgb, var(--s29-brand-sapphire) 38%, var(--s29-line)); border-radius: 999px; color: var(--s29-ink); text-decoration: none; background: color-mix(in srgb, var(--s29-brand-sapphire) 8%, transparent); }
+.sod29-posts-media-switch a[aria-current="page"] { border-color: var(--s29-brand-gold); background: color-mix(in srgb, var(--s29-brand-gold) 14%, transparent); font-weight: 700; }
+.sod29-posts-media-switch a:focus-visible { outline: 2px solid var(--s29-focus, currentColor); outline-offset: 2px; }
+.sod29-posts-media-scope { color: var(--s29-muted); font-size: 14px; margin: 0; }

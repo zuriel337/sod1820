@@ -17,6 +17,7 @@ import { publicPostHref } from "../lib/publicPostUrls.js";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { capturePostsCatalogDeparture2029, readPostsCatalogViewport2029, rememberPostsCatalogViewport2029, startPostsCatalogViewportRestore2029, trackPostsCatalogViewport2029 } from "../lib/research/postsCatalogViewport2029.js";
 import { postsTaxonomyPage2029 } from "../lib/research/postsTaxonomy2029Route.js";
+import { postsMediaScope2029, postsMediaHref, fetchPostsWithVideoPage2029, fetchVideoLibraryPage2029, fetchVideoPublicIds2029, VIDEO_PAGE_SIZE } from "../lib/research/postsVideoLibrary2029.js";
 import "./posts2029.css";
 
 import AdSlot from "../components/AdSlot.jsx";
@@ -128,7 +129,113 @@ function PostIndexCard({ post, index, seriesItem = null, publicationOrder = fals
   </article>;
 }
 
-export default function Posts2029Page({ taxonomyScope = null, onSearchParams = null, verifiedOnly = false } = {}) {
+// The REAL media classification (PLAN37 §32.2): two scopes, named to the reader, on the existing media views — "posts that contain video" and "all videos" (from public posts).
+// It never depends on the legacy "וידאו" category. noindex: it is a filtered view, not a canonical page.
+function PostsMediaLibrary2029({ media }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedPage = Number(searchParams.get("page") || 1);
+  const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState({ key: "", loading: true, posts: [], items: [], total: null, error: null });
+  const view = media.view;
+  const key = `${view}:${page}:${attempt}`;
+  useEffect(() => {
+    applySeo({ title: `${view === "videos" ? "כל הסרטונים" : "פוסטים עם וידאו"} · SOD1820 2029`, description: "פוסטים וסרטונים לפי סוג המדיה.", path: postsMediaHref(view), noindex: true });
+    let live = true;
+    const controller = new AbortController();
+    setState({ key, loading: true, posts: [], items: [], total: null, error: null });
+    const read = view === "videos" ? fetchVideoLibraryPage2029({ page, signal: controller.signal }) : fetchPostsWithVideoPage2029({ page, signal: controller.signal });
+    read.then((result) => { if (live) setState({ key, loading: false, posts: result.posts || [], items: result.items || [], total: result.total, error: null }); })
+      .catch((error) => { if (live && error?.name !== "AbortError") setState({ key, loading: false, posts: [], items: [], total: null, error: error?.message || "הרשימה אינה זמינה כרגע." }); });
+    return () => { live = false; controller.abort(); };
+  }, [view, page, attempt]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the identity pages of the videos on screen arrive after the list (best effort; the cards link to their first post until then)
+  const [publicIds, setPublicIds] = useState(() => new Map());
+  useEffect(() => {
+    if (view !== "videos" || state.loading || !state.items.length) return undefined;
+    const controller = new AbortController();
+    fetchVideoPublicIds2029({ keys: state.items.map((item) => item.assetKey), signal: controller.signal }).then((ids) => setPublicIds(ids)).catch(() => {});
+    return () => controller.abort();
+  }, [view, state.loading, state.items]);
+  const pages = Math.max(1, Math.ceil((state.total || 0) / VIDEO_PAGE_SIZE));
+  const goToPage = (next) => {
+    const params = new URLSearchParams(searchParams);
+    if (next === 1) params.delete("page"); else params.set("page", String(next));
+    setSearchParams(params);
+    document.getElementById("posts-catalog")?.scrollIntoView({ block: "start", behavior: "instant" });
+  };
+  const hasItems = view === "videos" ? state.items.length > 0 : state.posts.length > 0;
+  return <Sod2029Shell surface="post" title={view === "videos" ? "כל הסרטונים" : "פוסטים עם וידאו"} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
+    <main className="sod29-posts-library" data-experience-surface="posts-index" data-posts-media={view}>
+      <header className="sod29-posts-library-hero">
+        <Link className="sod29-posts-library-back" to="/2029/posts">לכל הפוסטים <span aria-hidden="true">←</span></Link>
+        <h1>{view === "videos" ? "כל הסרטונים" : "פוסטים עם וידאו"}</h1>
+        <p className="sod29-posts-library-intro">{view === "videos"
+          ? "סרטונים שמופיעים בפוסטים, כל סרטון פעם אחת, עם הפוסטים שבהם הוא מופיע."
+          : "הפוסטים שמכילים סרטון, לפי הסרטון עצמו ולא לפי תגית."}</p>
+        <nav className="sod29-posts-media-switch" aria-label="היקף הרשימה">
+          <Link to={postsMediaHref("posts")} aria-current={view === "posts" ? "page" : undefined}>פוסטים עם וידאו</Link>
+          <Link to={postsMediaHref("videos")} aria-current={view === "videos" ? "page" : undefined}>כל הסרטונים</Link>
+          <Link to="/or-geula">סרטוני אור הגאולה במקור</Link>
+        </nav>
+        {view === "videos" ? <p className="sod29-posts-media-scope">הרשימה כוללת סרטונים מהפוסטים. סרטונים שמופיעים רק בערוצים נפתחים במקורם.</p> : null}
+      </header>
+      {state.loading ? <FrameState kind="loading" title="פותח את הרשימה">קורא את הסרטונים והפוסטים הציבוריים.</FrameState> : null}
+      {state.error ? <FrameState kind="error" title="לא הצלחתי לפתוח את הרשימה"><p>{state.error}</p><button type="button" onClick={() => setAttempt((v) => v + 1)}>ניסיון טעינה נוסף</button></FrameState> : null}
+      {!state.loading && !state.error && !hasItems ? <FrameState kind="empty" title="אין כרגע פריטים להצגה">{page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לתחילת הרשימה</button> : "הרשימה ריקה כרגע."}</FrameState> : null}
+      {hasItems ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label={view === "videos" ? "סרטונים" : "פוסטים"} data-posts-page={page}>
+        <div className="sod29-posts-library-stage-head">
+          <h2>{view === "videos" ? "סרטונים" : "פוסטים"}</h2>
+          <span><bdi className="sod29-posts-numeric">{state.total}</bdi> {view === "videos" ? "סרטונים" : "פוסטים"} · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
+        </div>
+        <div className="sod29-posts-library-grid">
+          {view === "videos"
+            ? state.items.map((item, index) => <VideoAssetCard key={item.assetKey} item={{ ...item, publicId: publicIds.get(item.assetKey) || item.publicId }} index={index} />)
+            : state.posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
+        </div>
+      </section> : null}
+      {!state.loading && !state.error && hasItems ? <nav className="sod29-posts-pagination" aria-label="עמודי הרשימה">
+        <button type="button" disabled={page <= 1} onClick={() => goToPage(page - 1)}>הקודמים</button>
+        <span aria-live="polite">עמוד {page} מתוך {pages}</span>
+        <button type="button" disabled={page >= pages} onClick={() => goToPage(page + 1)}>הבאים</button>
+      </nav> : null}
+    </main>
+  </Sod2029Shell>;
+}
+
+// ONE card per video asset: its identity page (when it has one) and every public post it appears in.
+function VideoAssetCard({ item, index }) {
+  const first = item.appearances[0];
+  const title = humanContentTitle(first?.title, { max: 0 });
+  const kind = item.kind === "youtube" ? "YouTube" : item.kind === "vimeo" ? "Vimeo" : "סרטון באתר";
+  const image = first?.thumb_url || first?.image_url || null;
+  return <article className="sod29-library-post-card" data-experience-capability="video-asset-card" data-video-asset={item.publicId || undefined} style={{ "--post-order": index }}>
+    <Link className="sod29-library-post-card-link" to={item.publicId ? `/video/${item.publicId}` : publicPostHref(first)}>
+      <div className={"sod29-library-post-visual" + (image ? " has-image" : "")} aria-hidden="true">
+        <span className="sod29-library-post-cover-fallback"><NavigationIcon2029 name="posts" size={40} /></span>
+        {image ? <img className="sod29-library-post-cover" src={image} alt="" loading="lazy" decoding="async" width="640" height="400" onError={(event) => { event.currentTarget.hidden = true; }} /> : null}
+      </div>
+      <div className="sod29-library-post-copy">
+        <h2>{title || "סרטון"}</h2>
+        <div className="sod29-library-post-meta"><span>{kind}</span><span>מופיע ב־{item.appearances.length} {item.appearances.length === 1 ? "פוסט" : "פוסטים"}</span></div>
+        <span className="sod29-library-post-open">{item.publicId ? "לדף הסרטון" : "לפוסט"} <b aria-hidden="true">←</b></span>
+      </div>
+    </Link>
+    {item.appearances.length ? <div className="sod29-library-post-meta" aria-label="הפוסטים שבהם הסרטון מופיע">
+      {item.appearances.slice(0, 4).map((post) => <Link key={post.id} to={publicPostHref(post)}>{humanContentTitle(post.title, { max: 0 }).slice(0, 60)}</Link>)}
+    </div> : null}
+  </article>;
+}
+
+// The posts list, or — when the media classification is chosen (?media=video, no other selection) — the real-media views above.
+export default function Posts2029Page(props = {}) {
+  const [searchParams] = useSearchParams();
+  const media = postsMediaScope2029(searchParams);
+  const other = props.taxonomyScope || props.verifiedOnly || ["category", "tag", "series", "q"].some((name) => searchParams.has(name));
+  return media.active && !other ? <PostsMediaLibrary2029 media={media} /> : <PostsCatalogPage2029 {...props} />;
+}
+
+function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, verifiedOnly = false } = {}) {
   const location = useLocation();
   // Match the server taxonomy document and sitemap. Keep the visited route,
   // query and anchor for navigation; only the canonical metadata uses hyphens.
@@ -310,6 +417,7 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
             {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-library-intro">{scope.kind === "tag" ? "לקרוא ולגלות דרך הפוסטים עם התגית הזו" : "הפוסטים שנאספו תחת הסיווג הזה"}</p> : null}
             {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
             {scope.sourceLink ? <p><Link className="sod29-posts-library-back" to={scope.sourceLink.href}>{scope.sourceLink.label} ←</Link></p> : null}
+            {scope.mediaLinks ? <nav className="sod29-posts-media-switch" aria-label="סוג המדיה">{scope.mediaLinks.map(link => <Link key={link.href} to={link.href}>{link.label} ←</Link>)}</nav> : null}
             <details className="sod29-post-details sod29-library-post-about">
               <summary>על הפוסטים <span aria-hidden="true">⌄</span></summary>
               <p>אירועים · סיפורים · רמזים</p>
@@ -330,6 +438,8 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
         {search ? <button type="button" onClick={clearSearch}>ניקוי החיפוש</button> : null}
       </form>
 
+      {scope.kind === "all" && !search ? <nav className="sod29-posts-media-switch" aria-label="סוג המדיה"><span>סוג המדיה:</span>
+        <Link to={postsMediaHref("posts")}>פוסטים עם וידאו</Link><Link to={postsMediaHref("videos")}>כל הסרטונים</Link></nav> : null}
       {scope.kind === "all" || scope.kind === "series" ? <SeriesEntrances2029 activeKey={scope.kind === "series" ? scope.key : null} search={search} onRead={setSeriesReading} refreshKey={attempt} /> : null}
 
       {loading || awaitingPageAssignment ? <FrameState kind="loading" title={awaitingPageAssignment && !loading ? `פותח את עמוד ${page} בסדרה` : "פותח את הפוסטים"}>

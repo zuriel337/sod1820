@@ -306,6 +306,8 @@ jobs:
           src/lib/research/nasrallahPost92Golden.test.js
           src/lib/research/razielOneShot2029.test.js
           test/post-left-tree-rail-2029.test.mjs
+          test/posts-video-library-2029.test.mjs
+          src/lib/research/postsVideoLibrary2029.test.js
           test/global-living-ribbon-state.test.mjs
           test/personal-self-preview-route.test.mjs
           test/post-hierarchy-raziel-2029.test.mjs
