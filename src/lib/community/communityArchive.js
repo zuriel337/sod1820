@@ -92,7 +92,9 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   "e7581ab5-8c15-4832-b602-f361e41ff373": { sourceUserId: "u_r6fetXIK", name: "אמילי", ...PROFILE_BASELINES["אמילי"],
     accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755",
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
-  "user:5516d596-46d3-486d-a9c7-a35b36bc3755": { name: "אמילי", accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755",
+  // ZURIEL, 15.11.2026: no «צוות» beside Emily, including when staff reads
+  // succeed. Presentation only; her reviewed account/history and role stay intact.
+  "user:5516d596-46d3-486d-a9c7-a35b36bc3755": { name: "אמילי", accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755", showStaffBadge: false,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL, 8.11.2026: reviewed Esther26 contributor ↔ Esther Gem account.
   "99bcfb38-85be-4f38-89f0-7886f2f179e6": {

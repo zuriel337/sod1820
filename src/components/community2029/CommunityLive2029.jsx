@@ -79,7 +79,7 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const archiveProfile = accountId ? VERIFIED_ARCHIVE_PROFILES[`user:${accountId}`] : null;
   const name = (archiveProfile?.preferredPublicName && archiveProfile.name) || account?.display_name || archiveProfile?.name || account?.username || row.authorName;
   const isOnline = Boolean(accountId) && onlinePresenceHolder.current.has(accountId);
-  const isStaff = Boolean(accountId) && staffIdsHolder.current.has(accountId);
+  const isStaff = Boolean(accountId) && staffIdsHolder.current.has(accountId) && archiveProfile?.showStaffBadge !== false;
   const badge = <UserBadge colorfulFallback online={isOnline} nameSuffix={isStaff ? <span className="sod29-community-staff-chip" title="חבר צוות הצ׳אט — מנהל או מודרטור">צוות</span> : null} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
     <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
   </UserBadge>;
