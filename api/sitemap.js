@@ -228,9 +228,9 @@ export default async function handler(req, res) {
   let posts;
   try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${productionReading ? ',title,tags,categories' : ''}${POST_PUBLISHED_FILTER}&order=date.desc`); }
   catch { res.setHeader("Cache-Control", "no-store"); return res.status(503).send("sitemap source unavailable"); }
-  // DEF-002: the served canonical for a post is the address WITHOUT a trailing slash (the edge answers `/<slug>/` with a
-  // 308 to `/<slug>` and the page's canonical is slash-free), so the sitemap lists exactly that form. The stored WordPress
-  // link keeps its slash for the client-side address contract (publicPostHref), which stays untouched.
+  // DEF-002: the sitemap lists the post address WITHOUT a trailing slash - the form the edge serves (it answers `/<slug>/` with
+  // a 308 to `/<slug>`). The address itself is owned by the single adapter (src/lib/publicPostUrls.js); this only drops a
+  // trailing slash if the adapter ever returns one, so the sitemap can never list an address that redirects.
   const sitemapPostPath = href => (href && href !== '/' ? href.replace(/\/+$/, '') || '/' : href);
   const postBySlug = new Map(posts.filter(post => post.slug).map(post => [postAddressSlug(publicPostHref(post)), post]));
   // The same anonymous publication-filtered rows already admit the post URLs.
