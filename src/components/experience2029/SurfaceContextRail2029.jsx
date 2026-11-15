@@ -4,7 +4,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
-import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
+import SurfaceProgressSpine2029, { revealAndScrollTo } from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
@@ -145,8 +145,7 @@ export default function SurfaceContextRail2029({
   };
 
   const jumpToDepth = () => {
-    const node = activeSection ? document.getElementById(activeSection.targetId || activeSection.id) : null;
-    node?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    if (activeSection) revealAndScrollTo(activeSection.targetId || activeSection.id);
   };
 
   const tryLearn = () => {
@@ -198,7 +197,7 @@ export default function SurfaceContextRail2029({
     const next = stations[stationIndex + offset];
     if (!next) return;
     const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    document.getElementById(next.targetId || next.id)?.scrollIntoView?.({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    revealAndScrollTo(next.targetId || next.id, { behavior: reduce ? "auto" : "smooth", block: "start" });
   };
   const openSheet = onOpenSheet || onOpenContext;
   const prevStation = stations[stationIndex - 1] || null;

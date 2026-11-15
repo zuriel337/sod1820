@@ -28,7 +28,8 @@ export default function PostCategories2029({ categories, post, compact = false, 
   // categories and navigation; no shared source category semantics are rewritten.
   if (post) {
     const { items } = postClassification2029(post);
-    const visible = (compact ? items.filter(item => item.role !== "legacy-media-label") : items).slice(0, max);
+    // The legacy media label ("סיווג ישן: וידאו") is a maintenance classification, not audience wording: it is never shown on a Post (ZURIEL 16.11.2026). The record keeps it (postClassification2029 is unchanged).
+    const visible = items.filter(item => item.role !== "legacy-media-label").slice(0, max);
     if (!visible.length) return null;
     return <span className={`k29-cats k29-post-classification${className ? ` ${className}` : ""}`} aria-label="סדרה וסיווג הפוסט">
       {visible.map(item => <Chip key={`${item.role}:${item.name}`} name={item.name} item={item} nested={nested} />)}

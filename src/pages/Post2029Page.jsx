@@ -299,7 +299,13 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   // Series Posts publish their units (identity + references) for the left panel and, as plain strings, on the existing research context.
   useEffect(() => {
     const root = sourceRef.current, projection = state.projection;
-    if (!protoOn || !realityMap.active || !root || !projection) { clearPostUnits(); return undefined; }
+    if (!protoOn || !realityMap.active || !root || !projection) {
+      clearPostUnits();
+      // leaving a series Post must not leave its unit references in the shared Research Context (a stale selection from the previous Post)
+      const staleDims = research.context?.dimensions || {};
+      if (staleDims.postUnitSeries) research.updateResearchContext?.({ dimensions: { ...staleDims, postUnitSeries: "", postUnitRefs: [], postUnitLinkRefs: [] } });
+      return undefined;
+    }
     const post = projection.post;
     const units = buildPostUnitModels(root, { post, postHref: publicPostHref(post) });
     setPostUnits(post.id, units);
@@ -1194,7 +1200,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
             </summary>
             <div className="sod29-post-details-body">
               {classification.credit ? <p>{classification.credit.prefix}: {classification.credit.name}</p> : null}
-              <p className="sod29-reading-source-line">{projection.sourceLine}</p>
+              {projection.sourceLine && projection.sourceLine !== visibleSourceLabel && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
               {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
               <div className="sod29-reading-meta-line">
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
@@ -1204,7 +1210,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
                 title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"
               /> : null}
               {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
-              {classification.legacyMediaLabels.length ? <p>„וידאו” נשמר כסיווג ישן. סוג המדיה נקבע מהמדיה עצמה, ולא מהתווית.</p> : null}
 
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}

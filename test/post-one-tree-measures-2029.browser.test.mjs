@@ -515,7 +515,9 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       await series.focus();assert.equal(await series.evaluate(node=>document.activeElement===node),true);
       await page.locator('.sod29-post-details > summary').click();
       assert.ok(await page.getByText('מפרסם: בדרך לנצח',{exact:true}).isVisible());
-      assert.equal(await page.locator('.sod29-post-details-body [data-post-classification="legacy-media-label"]').getAttribute('href'),'/2029/posts?category='+encodeURIComponent('וידאו'));
+      // ZURIEL 16.11.2026: the legacy media label and its maintenance sentence are not audience wording
+      assert.equal(await page.locator('[data-post-classification="legacy-media-label"]').count(),0);
+      assert.equal(await page.getByText('נשמר כסיווג ישן',{exact:false}).count(),0);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
       if(width===390)await page.screenshot({path:join(artifacts,'classification-'+theme+'-mobile.png'),fullPage:true});
       await page.locator('#post-next').getByRole('link',{name:'עוד ממימד חמש',exact:false}).click();
