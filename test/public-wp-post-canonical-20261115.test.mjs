@@ -7,6 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ogHandler from '../api/og.js';
+import sitemapHandler from '../api/sitemap.js';
 import { PUBLIC_READING_PROFILE_ID } from '../src/lib/publicReadingRelease2029.js';
 import { publicPostHref, publicPostUrl, postAddressSlug } from '../src/lib/publicPostUrls.js';
 
@@ -75,4 +76,29 @@ test('native posts keep /post/<slug>; their canonical is unchanged', async () =>
 test('an address stored with a non-WordPress provenance keeps its root address, without the trailing slash', () => {
   assert.equal(publicPostHref({ source: 'ai', slug: 'unknown', link: '/unknown/' }), '/unknown');
   assert.equal(publicPostHref({ source: 'unknown_migration', slug: 'source' }), '/source');
+});
+
+// DEF-002 contract, both owners together: the sitemap must list exactly the address the page declares as canonical.
+async function sitemapLocs(row) {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (raw) => {
+    const url = new URL(raw);
+    if (url.pathname === '/rest/v1/posts') return new Response(JSON.stringify([row]), { headers: { 'content-range': '0-0/1' } });
+    return new Response('[]', { headers: { 'content-range': '*/0' } });
+  };
+  const res = { code: null, headers: {}, setHeader(k, v) { this.headers[String(k).toLowerCase()] = v; }, status(c) { this.code = c; return this; }, send(b) { this.body = b; return this; } };
+  try {
+    await sitemapHandler({ publicFoundationPreview: true, publicReadingRelease: PUBLIC_READING_PROFILE_ID, publicReadingProductionArtifact: true }, res);
+  } finally { globalThis.fetch = previous; }
+  assert.equal(res.code, 200);
+  return [...String(res.body).matchAll(/<loc>([^<]*)<\/loc>/g)].map(match => match[1]);
+}
+
+test('the sitemap lists exactly the canonical the page declares (server canonical == sitemap <loc>)', async () => {
+  const page = await ask('/' + SLUG_TEXT, wpRow);
+  const locs = await sitemapLocs(wpRow);
+  const postLocs = locs.filter(loc => loc.includes('%'));
+  assert.equal(postLocs.length, 1, 'the one imported WordPress post is listed once');
+  assert.equal(postLocs[0], page.canonical, 'sitemap <loc> and page canonical must be the same address');
+  assert.doesNotMatch(new URL(postLocs[0]).pathname, /\/$/);
 });
