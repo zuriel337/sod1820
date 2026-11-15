@@ -235,15 +235,15 @@
    Each source identity gets its own quiet edge so no writer is read as the author of another voice. */
 .sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu[data-sod-unit]{
   --pu-navy:color-mix(in srgb,var(--r29-sapphire) 30%,var(--s29-page));--pu-tile:color-mix(in srgb,var(--r29-sapphire) 52%,var(--s29-panel));
-  --pu-gold-line:color-mix(in srgb,var(--r29-azure) 38%,transparent); /* inner card = sapphire hairline; the gold hairlines belong to the outer Royal frames */
+  --pu-gold-line:color-mix(in srgb,var(--s29-line) 80%,transparent); /* the card's frame = the SAME warm brown hairline as the other units (ZURIEL 16.11.2026); the gematria structures inside keep their sapphire (--pu-tile, .sod29-gx*, .sod29-ugx*) */
   position:relative;margin-block:.5rem 1.2rem;padding:clamp(16px,3vw,34px) clamp(14px,3vw,40px);border-radius:24px;
   border:1px solid var(--pu-gold-line);color:var(--s29-ink);scroll-margin-block-start:84px;
-  background:radial-gradient(90% 40% at 50% 0%,color-mix(in srgb,var(--r29-sapphire) 40%,transparent),transparent 70%),linear-gradient(180deg,var(--pu-navy),color-mix(in srgb,var(--r29-sapphire) 18%,var(--s29-page)));
+  background:color-mix(in srgb,var(--r29-sapphire) 6%,var(--s29-panel)); /* the same warm-dark card as the other units: no light-blue glow behind the whole unit */
   box-shadow:none;
 }
 :is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu[data-sod-unit]{
   --pu-navy:color-mix(in srgb,var(--r29-sapphire) 9%,var(--s29-panel));--pu-tile:color-mix(in srgb,var(--r29-sapphire) 16%,var(--s29-panel));
-  background:linear-gradient(180deg,var(--pu-navy),var(--s29-panel))}
+  background:color-mix(in srgb,var(--r29-sapphire) 6%,var(--s29-panel))}
 /* the unit is a landmark focused by the deep link, not a control: no ring around the whole card (its buttons keep their own focus rings) */
 .sod29-reading-post[data-reality-map] .sod29-pu:is(:focus,:focus-visible){outline:none}
 .sod29-pu-badge{display:inline-block}
