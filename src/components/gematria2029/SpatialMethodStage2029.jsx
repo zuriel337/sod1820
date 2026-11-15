@@ -2,7 +2,7 @@ import { isVerifiedMethodTrace, projectGematriaTrace, traceNumber } from "../../
 import { TraceFamilyStage2029 } from "./MethodTraceExplanation2029.jsx";
 import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
-import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
 import { compileMistaterSceneV1, resolveSceneSocketWorld, resolveSceneWorldPosition, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
 import { evaluateS4Capability } from "../../lib/spatial/gpuCapability.js";
@@ -137,6 +137,34 @@ function buildTriangleWordRows(trace) {
     });
   }
   return rows.length ? rows : null;
+}
+
+// ריבוע (per-word cumulative prefixes): the shared projection (projectGematriaTrace, the same one the Learn/Beit Midrash views use) supplies the
+// words, prefixes, base values and word subtotals. This function only checks that the engine's own numbers are internally consistent and
+// lays them out; no displayed number is computed here. Any inconsistency → null → the generic trace-family stage renders instead.
+function buildRibuaWords(trace) {
+  const model = projectGematriaTrace(trace, { expression: trace?.input, methodKey: trace?.method_key });
+  if (model.state !== "ready" || model.kind !== "CUMULATIVE_PREFIX" || trace?.semantics?.per_word_reset !== true || !model.groups.length) return null;
+  const words = [];
+  let wordTotals = 0;
+  let flat = 0;
+  for (const group of model.groups) {
+    if (group.subtotal == null || !group.rows.length) return null;
+    let previous = 0;
+    let prefixTotals = 0;
+    const cells = [];
+    for (const row of group.rows) {
+      if (row.base == null || row.value !== previous + row.base) return null;
+      cells.push({ id: `ribua:${words.length}:${cells.length}`, flat, token: row.token, prefix: row.prefix, base: row.base, value: row.value, from: previous, index: cells.length + 1, step: row.source });
+      previous = row.value;
+      prefixTotals += row.value;
+      flat += 1;
+    }
+    if (prefixTotals !== group.subtotal || cells.map((cell) => cell.token).join("") !== group.label) return null;
+    wordTotals += group.subtotal;
+    words.push({ id: `ribua-word:${words.length}`, text: group.label, subtotal: group.subtotal, cells });
+  }
+  return wordTotals === model.result ? { words, result: model.result, cells: words.flatMap((word) => word.cells.map((cell) => ({ ...cell, word: word.text }))) } : null;
 }
 
 function MethodStageHead({ methodKey, expression, result, subtitle }) {
@@ -405,6 +433,110 @@ function TriangleWordStage({ expression, trace, depth, onRazielAction, onOpenHei
   </section>;
 }
 
+const RIBUA_PLAY_MS = 900;
+
+function useReducedMotion(rootRef) {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const media = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+    const sync = () => setReduced(Boolean(media?.matches || rootRef.current?.closest('[data-frame-reduced-motion="true"]')));
+    sync();
+    media?.addEventListener?.("change", sync);
+    const observer = typeof MutationObserver === "function" ? new MutationObserver(sync) : null;
+    observer?.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["data-frame-reduced-motion"] });
+    return () => { media?.removeEventListener?.("change", sync); observer?.disconnect(); };
+  }, [rootRef]);
+  return reduced;
+}
+
+// Per-word cumulative prefixes, one step at a time. Default state is fully static (every step visible). The optional "play" only moves the
+// focus, only on explicit user action, never under reduced motion, and pauses whenever the stage leaves the viewport or the tab is hidden.
+function RibuaStage({ expression, trace, model, depth, onRazielAction, onOpenHeichal }) {
+  const rootRef = useRef(null);
+  const [focusIndex, setFocusIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const reduced = useReducedMotion(rootRef);
+  const last = model.cells.length - 1;
+  useEffect(() => { setFocusIndex(0); setPlaying(false); }, [expression, trace?.result]);
+  useEffect(() => {
+    if (typeof IntersectionObserver !== "function" || !rootRef.current) return undefined;
+    const observer = new IntersectionObserver(([entry]) => setVisible(Boolean(entry?.isIntersecting)));
+    observer.observe(rootRef.current);
+    return () => observer.disconnect();
+  }, []);
+  const running = playing && visible && !reduced;
+  useEffect(() => {
+    if (!running) return undefined;
+    const timer = setInterval(() => setFocusIndex((index) => {
+      if (index >= last) { setPlaying(false); return index; }
+      return index + 1;
+    }), RIBUA_PLAY_MS);
+    const onHide = () => { if (document.hidden) setPlaying(false); };
+    document.addEventListener("visibilitychange", onHide);
+    return () => { clearInterval(timer); document.removeEventListener("visibilitychange", onHide); };
+  }, [running, last]);
+  const focus = model.cells[Math.min(focusIndex, last)];
+  const move = (next) => { setPlaying(false); setFocusIndex(Math.max(0, Math.min(last, next))); };
+  // RTL: reading order runs right→left, so ArrowLeft advances and ArrowRight goes back.
+  const onKeyDown = (event) => {
+    const keys = { ArrowLeft: focusIndex + 1, ArrowDown: focusIndex + 1, ArrowRight: focusIndex - 1, ArrowUp: focusIndex - 1, Home: 0, End: last };
+    if (!(event.key in keys)) return;
+    event.preventDefault();
+    const next = Math.max(0, Math.min(last, keys[event.key]));
+    move(next);
+    rootRef.current?.querySelector(`[data-ribua-flat="${next}"]`)?.focus();
+  };
+  const payload = { kind: "method_projection", methodKey: "ריבוע", expression, resultValue: model.result };
+  return <section ref={rootRef} className="sod29-spatial-method-stage is-ribua" dir="rtl" data-experience-capability="spatial-method-stage"
+    data-method-key="ריבוע" data-depth={depth} data-method-visual="per-word-prefix-accumulation" data-playing={running ? "true" : "false"}
+    data-motion={reduced ? "reduced" : "allowed"}>
+    <MethodStageHead methodKey="ריבוע" expression={expression} result={model.result} subtitle="הצטברות קידומות בכל מילה" />
+    <div className="sod29-spatial-method-stage__ribua-words" role="group" aria-label="צעדי החישוב לפי מילים" onKeyDown={onKeyDown}>
+      {model.words.map((word) => <div className="sod29-spatial-method-stage__ribua-word" key={word.id}>
+        <div className="sod29-spatial-method-stage__ribua-word-head">
+          <b><HebrewGlyph2029 text={word.text} /></b>
+          <span>סכום המילה <strong>{word.subtotal}</strong></span>
+        </div>
+        <ol className="sod29-spatial-method-stage__ribua-steps">
+          {word.cells.map((cell) => {
+            const active = cell.flat === focusIndex;
+            return <li key={cell.id}>
+              <button type="button" data-ribua-flat={cell.flat} tabIndex={active ? 0 : -1} aria-pressed={active}
+                className={active ? "is-focus" : undefined}
+                aria-label={`${cell.token}, תוספת ${cell.base}, קידומת ${cell.prefix} שווה ${cell.value}`}
+                onClick={() => move(cell.flat)} style={{ "--sms-fill": `${Math.max(6, Math.round((cell.value / word.cells.at(-1).value) * 100))}%` }}>
+                <span className="sod29-spatial-method-stage__ribua-letter"><HebrewGlyph2029 text={cell.token} /></span>
+                <small><bdi dir="ltr">+{cell.base}</bdi></small>
+                <b>{cell.value}</b>
+                <i aria-hidden="true" />
+              </button>
+            </li>;
+          })}
+        </ol>
+      </div>)}
+    </div>
+    <p className="sod29-spatial-method-stage__ribua-equation" aria-label={`סכום המילים ${model.words.map((w) => w.subtotal).join(" ועוד ")} שווה ${model.result}`}>
+      <span dir="ltr">{model.words.map((w) => w.subtotal).join(" + ")} = <strong>{model.result}</strong></span>
+    </p>
+    <div className="sod29-spatial-method-stage__ribua-focus" aria-live="polite">
+      <p>
+        <span>{focus.word} · אות {focus.index}</span>
+        <strong>{focus.prefix} = {focus.value}</strong>
+        <small><bdi dir="ltr">{focus.from} + {focus.base} → {focus.value}</bdi></small>
+      </p>
+      <div className="sod29-spatial-method-stage__actions">
+        <button type="button" disabled={focusIndex === 0} onClick={() => move(focusIndex - 1)}>הצעד הקודם</button>
+        <button type="button" disabled={focusIndex >= last} onClick={() => move(focusIndex + 1)}>הצעד הבא</button>
+        {reduced ? null : <button type="button" onClick={() => { if (!playing && focusIndex >= last) setFocusIndex(0); setPlaying(!playing); }}>{playing ? "עצירה" : "הפעלה"}</button>}
+        {onRazielAction ? <button type="button" onClick={() => onRazielAction("explain_method_projection", payload)}><NavigationIcon2029 name="spark" /> רזיאל</button> : null}
+        {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal(payload)}><NavigationIcon2029 name="heichal" /> פתח בהיכל</button> : null}
+      </div>
+    </div>
+    <p className="sod29-spatial-method-stage__boundary">כל המספרים מגיעים מהמנוע הקנוני (gematria_method_trace). בכל מילה מוסיפים אות לקידומת ומחברים את ערכי הקידומות; בתחילת מילה מתחילים מחדש.</p>
+  </section>;
+}
+
 export default function SpatialMethodStage2029({
   expression,
   methodKey,
@@ -445,6 +577,10 @@ export default function SpatialMethodStage2029({
   if (methodKey === "רגיל") return <RegularStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "מסתתר") return <MistaterStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "קדמי") return <KadmiStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
+  if (methodKey === "ריבוע") {
+    const ribua = buildRibuaWords(normalized);
+    if (ribua) return <RibuaStage expression={expression} trace={normalized} model={ribua} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
+  }
   if (methodKey === "משולש מילה") return <TriangleWordStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
 
   const model = projectGematriaTrace(normalized, { expression, methodKey, expectedValue });
@@ -458,4 +594,5 @@ export const spatialMethodStageInternals = {
   buildLedgerRows,
   buildMistaterScene,
   buildTriangleWordRows,
+  buildRibuaWords,
 };

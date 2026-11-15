@@ -61,7 +61,8 @@ function prefixRows(steps) {
     // in its original Hebrew reading order using the supplied source positions.
     const prefix = [...tokens].sort((a, b) => a.position - b.position).map((part) => part.token).join("");
     const value = required(step.prefix_subtotal);
-    return { id: `prefix:${index}`, token, prefix, value, position, source: step,
+    // `base` = the letter's own engine contribution to this prefix (absent when the engine omits it; never derived here).
+    return { id: `prefix:${index}`, token, prefix, value, base: traceNumber(step.base_value), position, source: step,
       text: `${prefix}: ${value}` };
   });
 }

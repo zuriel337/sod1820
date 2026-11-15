@@ -1,0 +1,168 @@
+{
+  "source": "live canonical gematria_method_trace via the Number page",
+  "cases": [
+    {
+      "name": "desktop-content-keyboard-play-offscreen",
+      "ok": true
+    },
+    {
+      "name": "reduced-motion",
+      "ok": true
+    },
+    {
+      "name": "mobile-320-cpu4x",
+      "readyMsFromNav": 3879,
+      "docWidth": 305,
+      "innerWidth": 320,
+      "nodes": 144,
+      "smallTargets": 0,
+      "minFont": 14,
+      "cls": 0.06597090395486396,
+      "longTasks": [
+        123,
+        61,
+        74,
+        50,
+        60,
+        140
+      ],
+      "heapMB": 14,
+      "playFrames": 170,
+      "frameGapP95Ms": 17,
+      "droppedOver50ms": 2,
+      "clsPageAfterPlay": 0.1385,
+      "clsAttributedToStage": 0,
+      "largestShifts": [
+        {
+          "v": 0.0649,
+          "t": 3920,
+          "n": [
+            "sod29-number-method-inspector",
+            "sod29-number-v10-calculation-card"
+          ]
+        },
+        {
+          "v": 0.0725,
+          "t": 4226,
+          "n": [
+            "sod29-number-method-inspector"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "mobile-390-cpu4x",
+      "readyMsFromNav": 3834,
+      "docWidth": 375,
+      "innerWidth": 390,
+      "nodes": 144,
+      "smallTargets": 0,
+      "minFont": 14,
+      "cls": 0.07453626112667616,
+      "longTasks": [
+        138,
+        56,
+        55,
+        145,
+        50,
+        81
+      ],
+      "heapMB": 14,
+      "playFrames": 173,
+      "frameGapP95Ms": 17,
+      "droppedOver50ms": 0,
+      "clsPageAfterPlay": 0.1942,
+      "clsAttributedToStage": 0,
+      "largestShifts": [
+        {
+          "v": 0.0147,
+          "t": 2043,
+          "n": [
+            "sod29-number-v10-method-switcher"
+          ]
+        },
+        {
+          "v": 0.0568,
+          "t": 3866,
+          "n": [
+            "sod29-number-method-inspector",
+            "sod29-number-v10-calculation-card"
+          ]
+        },
+        {
+          "v": 0.0187,
+          "t": 4133,
+          "n": [
+            "sod29-number-method-inspector"
+          ]
+        },
+        {
+          "v": 0.0995,
+          "t": 4181,
+          "n": [
+            "sod29-number-method-inspector"
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "blocked": [
+    "POST /rest/v1/rpc/link_identity",
+    "POST /rest/v1/rpc/track_visit",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/posts_by_number_strict",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/fn_number_lookup",
+    "POST /rest/v1/rpc/lang_links_list",
+    "POST /rest/v1/rpc/fn_number_lookup",
+    "POST /rest/v1/rpc/world_group_source_arrivals_v2",
+    "POST /rest/v1/rpc/fn_number_dossier",
+    "POST /rest/v1/rpc/fn_number_journey",
+    "POST /rest/v1/rpc/number_neighbors",
+    "POST /rest/v1/rpc/convergence_meter",
+    "POST /rest/v1/rpc/convergence_meter",
+    "POST /rest/v1/rpc/link_identity",
+    "POST /rest/v1/rpc/track_visit",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/posts_by_number_strict",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/fn_number_lookup",
+    "POST /rest/v1/rpc/lang_links_list",
+    "POST /rest/v1/rpc/fn_number_lookup",
+    "POST /rest/v1/rpc/world_group_source_arrivals_v2",
+    "POST /rest/v1/rpc/fn_number_dossier",
+    "POST /rest/v1/rpc/fn_number_journey",
+    "POST /rest/v1/rpc/number_neighbors",
+    "POST /rest/v1/rpc/convergence_meter",
+    "POST /rest/v1/rpc/convergence_meter",
+    "POST /rest/v1/rpc/link_identity",
+    "POST /rest/v1/rpc/track_visit",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/posts_by_number_strict",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/fn_number_lookup",
+    "POST /rest/v1/rpc/lang_links_list",
+    "POST /rest/v1/rpc/fn_number_lookup",
+    "POST /rest/v1/rpc/world_group_source_arrivals_v2",
+    "POST /rest/v1/rpc/fn_number_dossier",
+    "POST /rest/v1/rpc/fn_number_journey",
+    "POST /rest/v1/rpc/number_neighbors",
+    "POST /rest/v1/rpc/convergence_meter",
+    "POST /rest/v1/rpc/convergence_meter",
+    "POST /rest/v1/rpc/link_identity",
+    "POST /rest/v1/rpc/track_visit",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/posts_by_number_strict",
+    "POST /rest/v1/rpc/ingest_event",
+    "POST /rest/v1/rpc/fn_number_lookup",
+    "POST /rest/v1/rpc/lang_links_list",
+    "POST /rest/v1/rpc/fn_number_lookup",
+    "POST /rest/v1/rpc/world_group_source_arrivals_v2",
+    "POST /rest/v1/rpc/fn_number_dossier",
+    "POST /rest/v1/rpc/fn_number_journey",
+    "POST /rest/v1/rpc/number_neighbors",
+    "POST /rest/v1/rpc/convergence_meter",
+    "POST /rest/v1/rpc/convergence_meter"
+  ]
+}
