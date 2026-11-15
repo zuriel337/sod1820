@@ -1,0 +1,15 @@
+# cl16-order-evidence/run.sh: the CL-16 guard against the law v7 supersession and its rollback (synthetic rows).
+# Ran on code commit 5c906d42c9d295136fb9a29f3e337d14b9835709, on throwaway PostgreSQL 17.12 and 16.15 (both shown). Exit 0.
+PostgreSQL: postgres (PostgreSQL) 17.12 (Ubuntu 17.12-1.pgdg24.04+1)
+ok supersession under the LIVE guard runs and leaves the retired row identical (@@GUARD 56b90b0ae0f9c5915b730314d13ca7a0)
+ok supersession AFTER CL-16 fails the post-check: the guard stamps metadata.rule_guard on the retired row (@@GUARD 90b5917b1412be02f66d1f805241018c)
+ok rollback (reactivate the retired version) under the LIVE guard runs (@@GUARD 56b90b0ae0f9c5915b730314d13ca7a0)
+ok rollback AFTER CL-16 is refused as a revival (@@GUARD 90b5917b1412be02f66d1f805241018c)
+RESULT: all 4 order-evidence cases behaved as expected
+
+PostgreSQL: postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)
+ok supersession under the LIVE guard runs and leaves the retired row identical (@@GUARD 56b90b0ae0f9c5915b730314d13ca7a0)
+ok supersession AFTER CL-16 fails the post-check: the guard stamps metadata.rule_guard on the retired row (@@GUARD 90b5917b1412be02f66d1f805241018c)
+ok rollback (reactivate the retired version) under the LIVE guard runs (@@GUARD 56b90b0ae0f9c5915b730314d13ca7a0)
+ok rollback AFTER CL-16 is refused as a revival (@@GUARD 90b5917b1412be02f66d1f805241018c)
+RESULT: all 4 order-evidence cases behaved as expected

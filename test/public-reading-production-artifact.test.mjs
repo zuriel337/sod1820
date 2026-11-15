@@ -404,7 +404,8 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
   assert.ok(config.headers.some(rule => rule.source === "/assets/(.*)" && rule.headers.some(header => header.value === "public, max-age=31536000, immutable")));
   assert.ok(!JSON.stringify(config).includes("autoAssignCustomDomains"));
   const attachmentProofs=JSON.parse(read("docs/reviews/public-url-exceptions-20261103/evidence/attachment-bindings.json"));
-  const exactAttachmentRules=attachmentProofs.flatMap(proof=>["","/"].map(suffix=>({source:proof.sourcePath+suffix,destination:proof.postHref+"?sourceAttachment="+encodeURIComponent(proof.sourcePath),permanent:true})));
+  // One hop (15.11.2026): the evidence keeps the original WordPress post address with its trailing slash (`postHref`); the redirect points at the served form, because `/(.+)/ -> /$1` would otherwise redirect again.
+  const exactAttachmentRules=attachmentProofs.flatMap(proof=>["","/"].map(suffix=>({source:proof.sourcePath+suffix,destination:proof.postHref.replace(/\/$/,"")+"?sourceAttachment="+encodeURIComponent(proof.sourcePath),permanent:true})));
   const embedRules=config.redirects.slice(exactAttachmentRules.length,exactAttachmentRules.length+12);
   assert.equal(embedRules.length,12);
   for(const rule of embedRules){assert.match(rule.source,/\/embed\/?$/);assert.equal(decodeURIComponent(rule.destination).replace(/\/$/,""),rule.source.replace(/\/embed\/?$/,""));assert.equal(rule.permanent,true);}

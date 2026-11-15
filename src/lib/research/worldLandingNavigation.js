@@ -83,6 +83,7 @@ export function worldLandingViewLocation(view, currentSearch = "", { kind = null
     params.delete("source");
     params.delete("subjectSource");
     params.delete("sourceRef");
+    params.delete("passage");
   }
   if (![WORLD_LANDING_VIEW.ADMIN, WORLD_LANDING_VIEW.FINDING].includes(safeView)) params.delete("finding");
   if (safeView === WORLD_LANDING_VIEW.FINDING) params.delete("admin");

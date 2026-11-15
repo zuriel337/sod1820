@@ -1,5 +1,8 @@
 // Existing public source identities; metadata only, anonymous client, no per-card queries.
 import { fetchContributorAuthorAttribution } from "./contributorAuthorAttribution.js";
+import { fetchContributorSourcePassages } from "./contributorSourcePassages.js";
+import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
+export const CONTRIBUTOR_PUBLICATION_FAMILIES = Object.freeze(["posts", "ciphers", "insights", "events", "topics", "contributions"]);
 const PAGE_SIZE = 100;
 const MAX_PAGES = 100;
 const quoted = (value) => JSON.stringify(String(value));
@@ -41,22 +44,23 @@ async function pages(read) {
 }
 
 export async function fetchContributorPublicationCatalog(identity, { client, attributionReader = fetchContributorAuthorAttribution,
-  families = ["posts", "ciphers", "insights", "events", "topics", "contributions"] } = {}) {
+  families = CONTRIBUTOR_PUBLICATION_FAMILIES } = {}) {
   if (!client || !identity?.id) throw new Error("anonymous_catalogue_identity_required");
   // One shared, bounded inventory resolves registered aliases and collisions for
   // every name-based family, including callers from World that only carry an ID.
   let attributionPromise;
   const attribution = () => attributionPromise ||= attributionReader(identity, { client });
   const requests = {
+    signedPassages: () => fetchContributorSourcePassages(identity, { client }),
     posts: async () => {
       const { names } = await attribution();
       if (!names.length) throw new Error("public_author_credit_unresolved");
       const result = await pages((offset, size) => client.from("posts")
-      .select("id,slug,title,date,modified,created_at,image_url,thumb_url,author,authors,source,wp_id,link")
+      .select("id,slug,title,date,modified,created_at,image_url,thumb_url,author,authors,source,wp_id,link,tags")
       .or(names.flatMap((name) => [`author.eq.${quoted(name)}`, `authors.cs.{${quoted(name)}}`]).join(","))
       .order("date", { ascending: false }).order("id", { ascending: false })
       .range(offset, offset + size - 1));
-      return { ...result, rows: sortContributorPublicationRows(result.rows) };
+      return { ...result, rows: sortContributorPublicationRows(result.rows.filter(row => !hasSuppressedPublicPostTag(row))) };
     },
     ciphers: async () => {
       const { identity: canonical, names } = await attribution();

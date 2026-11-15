@@ -5,6 +5,7 @@ import { getVisitorId } from './tracking.js';
 import { stitchLogin } from './identity.js';
 import { PUBLIC_READING_RELEASE } from './publicReadingRelease2029.js';
 import { verifyReadingSession } from './publicReadingAuthSession.js';
+import { setMeasurementAuth } from './measurementAuth2029.js';
 import { getPasswordRecovery, subscribePasswordRecovery } from './passwordRecovery.js';
 
 const AuthContext = createContext({
@@ -55,6 +56,9 @@ export function AuthProvider({ children }) {
       // Revoke roles while revalidating. A refresh of the already verified
       // principal keeps local navigation/context; an account switch does not.
       if (PUBLIC_READING_RELEASE) {
+        // Close the old measurement span before awaiting verification of a new
+        // account. A token refresh of the same account keeps its span intact.
+        if (currentUser.current?.id !== session?.user?.id) setMeasurementAuth(session, false);
         setVerified(false);
         profileRequest.current++;
         const sameVerifiedPrincipal = !!session?.user?.id && currentUser.current?.id === session.user.id;
@@ -66,6 +70,7 @@ export function AuthProvider({ children }) {
       }
       const u = PUBLIC_READING_RELEASE ? await verifyReadingSession(session, supabase.auth) : session?.user ?? null;
       if (!alive || request !== sessionRequest) return;
+      if (PUBLIC_READING_RELEASE) setMeasurementAuth(u ? session : null);
       currentUser.current = u;
       setVerified(Boolean(u));
       setUser(u);

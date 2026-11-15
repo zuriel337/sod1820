@@ -1,0 +1,230 @@
+{
+ "purpose": "The files of the contracts-and-enforcement package, with kind and source. test/contracts-enforcement-package-2029.test.mjs fails when a file is listed but missing, when the package directories hold an unlisted file, or when extraction-map.md does not name a listed file. Recorded results of later runs (enforcement-proof/results-*/) are not part of the fixed scope.",
+ "files": [
+  {
+   "path": "scripts/lib/g1LawsSnapshotRules.mjs",
+   "kind": "code",
+   "source": "PR #1321 4a406fed2 + preserve 514fc58d9 (B5)"
+  },
+  {
+   "path": "scripts/test-g1-agent-routing-smoke.mjs",
+   "kind": "test",
+   "source": "PR #1321 4a406fed2 (one comment path edited) + preserve 514fc58d9 (B5)"
+  },
+  {
+   "path": "audits/g1-agent-entry/G1_CONTRACT_FILES_BASELINE_20261112.txt",
+   "kind": "record",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "audits/g1-agent-entry/G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt",
+   "kind": "record",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "audits/g1-agent-entry/G1_LAW_APPROVALS.txt",
+   "kind": "record",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "audits/g1-agent-entry/G1_MIGRATION_TABLES_BASELINE_20261112.txt",
+   "kind": "record",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "audits/g1-agent-entry/G1_PROJECT_CODEX_SLUGS_20261112.txt",
+   "kind": "record",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "audits/g1-agent-entry/G1_RETIRED_LAW_REFERENCES_20261112.txt",
+   "kind": "record",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "scripts/sql/g1_laws_snapshot.sql",
+   "kind": "sql-readonly",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "scripts/check-g1-laws-snapshot-reader.mjs",
+   "kind": "test",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "scripts/run-g1-laws-snapshot-reader-test.sh",
+   "kind": "runner",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "tests/sql/g1_laws_snapshot_reader_v1.sql",
+   "kind": "sql-test",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "tests/live/g1_rule_reader_conformance.sql",
+   "kind": "sql-readonly",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "supabase/proposed/20261112200000_g1_rule_guard_cl16.sql",
+   "kind": "sql-proposal",
+   "source": "PR #1321 4a406fed2, edited for the extraction (see extraction-map.md)"
+  },
+  {
+   "path": "supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql",
+   "kind": "sql-proposal",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "tests/sql/g1_rule_guard_cl16_v1.sql",
+   "kind": "sql-test",
+   "source": "PR #1321 4a406fed2, edited for the extraction (see extraction-map.md)"
+  },
+  {
+   "path": "tests/sql/fixtures/g1_rule_guard_live_base_20261112/fn_and_trigger.sql",
+   "kind": "sql-fixture",
+   "source": "PR #1321 4a406fed2, unchanged"
+  },
+  {
+   "path": "scripts/run-g1-rule-guard-sql-test.sh",
+   "kind": "runner",
+   "source": "PR #1321 4a406fed2, edited for the extraction (see extraction-map.md)"
+  },
+  {
+   "path": "docs/reviews/g1-rule-guard-cl16-20261112/apply-plan.json",
+   "kind": "plan",
+   "source": "PR #1321 4a406fed2, edited for the extraction (see extraction-map.md)"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/enforcement-proof/README.md",
+   "kind": "doc",
+   "source": "PR #1321 4a406fed2, moved (banner added)"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-ci-scenarios.sh",
+   "kind": "runner",
+   "source": "PR #1321 4a406fed2, moved and edited (path, 2 scenarios)"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/enforcement-proof/run-db-scenarios.sh",
+   "kind": "runner",
+   "source": "PR #1321 4a406fed2, moved and edited (case count pinned)"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/enforcement-proof/db-gate-test.sql",
+   "kind": "sql-test",
+   "source": "PR #1321 4a406fed2, moved, unchanged"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/enforcement-proof/results-pr1321-83005653/ci-scenario-results.txt",
+   "kind": "evidence",
+   "source": "PR #1321 4a406fed2 (ran on 83005653617e), moved, unchanged"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/enforcement-proof/results-pr1321-83005653/db-scenario-results.txt",
+   "kind": "evidence",
+   "source": "PR #1321 4a406fed2 (ran on 83005653617e), moved, unchanged"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/enforcement-proof/results-pr1321-83005653/lifecycle-results.txt",
+   "kind": "evidence",
+   "source": "PR #1321 4a406fed2 (ran on 83005653617e), moved, unchanged"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/enforcement-proof/results-pr1321-83005653/reader-results.txt",
+   "kind": "evidence",
+   "source": "PR #1321 4a406fed2 (ran on 83005653617e), moved, unchanged"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/restriction-sources.md",
+   "kind": "doc",
+   "source": "preserve b93a2968e, moved (status note added)"
+  },
+  {
+   "path": "src/lib/research/researchW2ExecutorsBase.js",
+   "kind": "code",
+   "source": "preserve 58a90eedf (CL-07)"
+  },
+  {
+   "path": "src/lib/research/researchW2FoundationHardening.test.js",
+   "kind": "test",
+   "source": "preserve 58a90eedf (CL-07)"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/README.md",
+   "kind": "doc",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/extraction-map.md",
+   "kind": "doc",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/ci-wiring.md",
+   "kind": "doc",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/cl16-database-step.md",
+   "kind": "doc",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/cl16-rule-tree-writers.json",
+   "kind": "data",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/cl16-order-evidence/law-v7-supersession.sql",
+   "kind": "sql-test",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/cl16-order-evidence/law-v7-rollback.sql",
+   "kind": "sql-test",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/cl16-order-evidence/run.sh",
+   "kind": "runner",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/required-checks.md",
+   "kind": "doc",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/required-checks.json",
+   "kind": "data",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/gaps.md",
+   "kind": "doc",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "docs/reviews/contracts-enforcement-20261113/package-files.json",
+   "kind": "data",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "scripts/derive-pr-check-names.mjs",
+   "kind": "code",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "test/required-checks-definition-2029.test.mjs",
+   "kind": "test",
+   "source": "new in this extraction"
+  },
+  {
+   "path": "test/contracts-enforcement-package-2029.test.mjs",
+   "kind": "test",
+   "source": "new in this extraction"
+  }
+ ]
+}

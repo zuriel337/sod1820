@@ -18,6 +18,7 @@ import { createVideoAssetReader, createVideoAssetSource, VIDEO_ASSET_MV } from "
 import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
 import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
 import { worldPreviewMaterialExclusion } from '../src/lib/research/worldPreviewMaterialScope.js';
+import { publicResearchPresentationEligible, researchRowDisplayPolicyOk } from '../src/lib/research/worldZviApprovedFindings2029.js';
 // רובוטים של פייסבוק/וואטסאפ/טלגרם לא מריצים JS, ולכן הם מנותבים לכאן (לפי User-Agent
 // ב-vercel.json) ומקבלים HTML עם הכותרת/התיאור/התמונה הנכונים של אותו פוסט. משתמשים
 // רגילים (וגוגל, שמריץ JS) ממשיכים לקבל את ה-SPA כרגיל.
@@ -329,14 +330,32 @@ export default async function handler(req, res) {
     const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
     if (encLower !== slug) variants.push(encLower);
     const SEL = 'select=id,slug,source,link,wp_id,title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
-    for (const v of variants) {
+    const readRows = async (identityFilter, limit = 1) => {
+      const url = `${SUPABASE_URL}/rest/v1/posts?${identityFilter}&${SEL.replace('limit=1', 'limit=' + limit)}`;
+      const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
+      if (!r.ok) throw new Error('post-source-unavailable');
+      const rows = await r.json();
+      if (productionReading && !Array.isArray(rows)) throw new Error('post-source-invalid');
+      return rows;
+    };
+    // The spellings of one address are alternatives, not dependent steps. Every imported WordPress post is stored percent-encoded in lower case, so its
+    // record used to wait for a complete round trip (iad1 -> Tokyo) that could only miss on the decoded spelling. Ask for all of them in ONE request
+    // (one connection, one round trip, whatever the state of the connection pool) and keep the old preference: the first spelling wins when both exist.
+    // If that request fails, fall back to the previous behaviour exactly: one request per spelling, one after the other, each with its own failure handling.
+    // A `?p=` address names its record by id and an ASCII address has one spelling: both keep their single request.
+    let outcomes = null;
+    if (!wpId && variants.length > 1) {
       try {
-        const identityFilter = wpId ? `wp_id=eq.${wpId}` : `slug=eq.${encodeURIComponent(v)}`;
-        const url = `${SUPABASE_URL}/rest/v1/posts?${identityFilter}&${SEL}`;
-        const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
-        if (!r.ok) throw new Error('post-source-unavailable');
-        const rows = await r.json();
-        if (productionReading && !Array.isArray(rows)) throw new Error('post-source-invalid');
+        const list = variants.map(v => (/[,()"\\]/.test(v) ? '"' + v.replace(/["\\]/g, '\\$&') + '"' : v)).join(',');
+        const rows = await readRows(`slug=${encodeURIComponent('in.(' + list + ')')}`, 2);
+        const first = Array.isArray(rows) ? variants.map(v => rows.find(row => row?.slug === v)).find(Boolean) ?? rows[0] : null;
+        outcomes = [first ? [first] : []];
+      } catch { /* per-spelling reads below */ }
+    }
+    const spellings = outcomes ? [variants[0]] : variants;   // after one combined answer there is one outcome to judge
+    for (const [index, v] of spellings.entries()) {
+      try {
+        const rows = outcomes ? outcomes[index] : await readRows(wpId ? `wp_id=eq.${wpId}` : `slug=eq.${encodeURIComponent(v)}`);
         if (Array.isArray(rows) && rows[0]) {
           if (hasSuppressedPublicPostTag(rows[0]) || !publicPostUrl(rows[0])) break;
           post = rows[0];
@@ -451,7 +470,9 @@ export default async function handler(req, res) {
     desc = `הפרסומים הציבוריים המשויכים ל${taxonomy.label}, עם התוכן, המדיה והמקורות שלהם.`;
     const canonicalParams = new URLSearchParams();
     if (catalogTaxonomy && selection) canonicalParams.set(selection.kind, selection.key);
-    canonical = SITE + key + (canonicalParams.size ? `?${canonicalParams}` : '');
+    // One address per label: the route convention maps hyphens to spaces (postsTaxonomyRoute2029), so the spaced address and the hyphen address are the same
+    // page. The sitemap lists the hyphen form; declare it as the canonical of both (the spaced form kept 31 Search Console clicks as a duplicate).
+    canonical = SITE + key.replace(/%20| /gi, '-') + (canonicalParams.size ? `?${canonicalParams}` : '');
     if (!selection || page === null) { documentStatus = 404; robots = 'noindex, follow'; }
     else if (term.length > 120 || /[\u0000-\u001f\u007f]/.test(term)) { documentStatus = 400; robots = 'noindex, follow'; }
     else try {
@@ -826,13 +847,20 @@ export default async function handler(req, res) {
     canonical = SITE + '/world';
     if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestedFindingId)) {
       try {
-        const apiUrl = `${SUPABASE_URL}/rest/v1/research_objects?id=eq.${encodeURIComponent(requestedFindingId)}&privacy_scope=eq.public&status=in.(approved,canonical)&select=id,created_at,statement,kind,source,source_ref,contributor,meta,status,privacy_scope&limit=1`;
+        // ZURIEL 12.11.2026: a public candidate is viewable and shareable with its "טרם אומת" label;
+        // only approved/canonical findings are indexable (the SEO decision is unchanged).
+        const apiUrl = `${SUPABASE_URL}/rest/v1/research_objects?id=eq.${encodeURIComponent(requestedFindingId)}&privacy_scope=eq.public&status=in.(approved,canonical,candidate)&select=id,created_at,statement,kind,source,source_ref,contributor,meta,status,privacy_scope&limit=1`;
         const response = await fetch(apiUrl, { headers: ogHeaders, signal: AbortSignal.timeout(5000) });
         if (!response.ok) throw new Error('public_finding_lookup_failed');
         const rows = await response.json();
         const row = Array.isArray(rows) ? rows[0] : null;
+        // CR-X2 (13.11.2026): the card follows the same display policy as the exact finding and the list - over the fields it shows
+        // (statement, contributor, the stored Hebrew presentation) - for every status, and a candidate also needs the admission of the
+        // finding pages (research role). The card can therefore not show a contact detail the page refuses.
         const excluded = row && (worldPreviewMaterialExclusion(row, 'research_object')
-          || row.meta?.ext?.personal_scope?.scope === 'person_only');
+          || row.meta?.ext?.personal_scope?.scope === 'person_only'
+          || !researchRowDisplayPolicyOk(row)
+          || (row.status === 'candidate' && !await publicResearchPresentationEligible(row)));
         let exactSourceAllowed = true;
         const channelRef = /^channel_updates:([^#]+)(?:#.*)?$/i.exec(String(row?.source_ref || ''));
         if (row && !excluded && channelRef) {
@@ -844,17 +872,20 @@ export default async function handler(req, res) {
             && String(sourceRows[0]?.channel || '').toLowerCase() !== 'or-geula';
         }
         if (row?.id === requestedFindingId && row.privacy_scope === 'public'
-            && ['approved', 'canonical'].includes(row.status) && !excluded && exactSourceAllowed) {
+            && ['approved', 'canonical', 'candidate'].includes(row.status) && !excluded && exactSourceAllowed) {
+          const unverified = row.status === 'candidate';
           const presented = resolveResearchObjectPresentation(row, { locale: 'he' });
           const preview = worldFindingShareCard({ title: presented.title,
             typeLabel: presented.typeLabel, sourceLabel: presented.sourceLabel,
-            attributionLabel: presented.attributionLabel, summary: presented.summary });
+            attributionLabel: presented.attributionLabel, summary: presented.summary,
+            statusLabel: unverified ? 'טרם אומת' : null });
           if (preview) {
-            title = preview.title + ' · ' + SITE_NAME;
+            title = preview.title + (unverified ? ' · טרם אומת' : '') + ' · ' + SITE_NAME;
             desc = preview.description;
             image = preview.image; // existing 1200x630 branded /api/card; no unreviewed source image
             canonical = `${SITE}/world?finding=${encodeURIComponent(row.id)}#finding-${encodeURIComponent(row.id)}`;
-            robots = 'index, follow';
+            // Not-yet-verified findings stay out of the index, exactly as before.
+            robots = unverified ? 'noindex, nofollow' : 'index, follow';
           }
         }
       } catch { /* Fail closed; never substitute admin data or expose the requested id. */ }

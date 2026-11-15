@@ -115,6 +115,27 @@ function PostEntry2029() {
   if (loading || source?.slug !== slug || source.identity !== identity) return <Loading2029 />;
   return <Post2029Page sourceReader={source.read} />;
 }
+// An imported WordPress post is served at its original address `/<slug>`, the address search engines serve and visitors open. Its source read
+// used to begin only after the page code had arrived and mounted, one whole read after the code; it now begins together with that code, exactly as
+// PostEntry2029 does for `/post/:slug` (the same route-owned read, cancelled on a change of address or identity, with no shared data cache). The code
+// is requested in the first render, as React.lazy does for the element this entry replaces, without waiting for the account to resolve (a signed-in
+// visitor's read does wait, as on `/post/:slug`). Builds without the public release (protected previews) keep the plain page.
+function PublicPostAddressEntry2029() {
+  const { slug } = useParams();
+  const { user, loading } = useAuth();
+  const identity = user?.id || "guest";
+  const [source, setSource] = useState(null);
+  void loadPublicPostAddress().catch(() => {});
+  useEffect(() => {
+    if (!PUBLIC_READING_RELEASE || loading) return undefined;
+    const request = beginPostReadingSource(slug);
+    setSource({ slug, identity, read: request.read });
+    return () => request.cancel();
+  }, [slug, identity, loading]);
+  if (!PUBLIC_READING_RELEASE) return <PublicPostAddress2029Page />;
+  if (loading || source?.slug !== slug || source.identity !== identity) return <Loading2029 />;
+  return <PublicPostAddress2029Page sourceReader={source.read} />;
+}
 const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
 
 // Branch-only prototype. Production builds do not register or import this surface
@@ -164,12 +185,46 @@ function RouteErrorBoundary2029({ children }) {
   return <ErrorBoundary2029 resetKey={pathname}>{children}</ErrorBoundary2029>;
 }
 
+// One first-party page view per history entry. The effect below runs again whenever this component is mounted again, and a mount is
+// not a page view: until 13.11.2026 the component sat inside ResearchProvider, whose keyed child is replaced when the account
+// state resolves ("auth:pending" -> guest/account), so every direct entry and refresh wrote two visits. It is now mounted beside
+// that subtree, and this record keeps a second mount (or a development double effect) from counting the same entry twice.
+let measuredEntry2029 = null;
+// A redirect hop (an alias address that is replaced at once) is not a page view either: the visit is written only if the address
+// is still the same after this delay.
+const PAGE_VIEW_SETTLE_MS = 150;
+
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
-  const { pathname } = useLocation();
+  const { pathname, key: entryKey } = useLocation();
   const auth = useAuth();
   const measurementAuth = React.useRef(auth);
   measurementAuth.current = auth;
+  const measurementEntry = React.useRef({ pathname, key: entryKey });
+  // Query/hash-only history changes do not create a view, including when
+  // authentication resolves afterwards. Leaving for an unmeasured route does.
+  if (measurementEntry.current.pathname !== pathname) measurementEntry.current = { pathname, key: entryKey };
+
+  useEffect(() => {
+    if (!PUBLIC_READING_RELEASE || auth.loading
+      || !["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)
+      || /^\/books\/[^/]+\/?$/.test(pathname)) return undefined;
+    const telemetryPath = readingTelemetryPath(pathname);
+    if (!telemetryPath) return undefined;
+    const entry = `${measurementEntry.current.key}\n${pathname}`;
+    let stopped = false, stopEngagement;
+    const settle = setTimeout(() => {
+      void import("./lib/visits.js").then(({ trackVisit, startPublicPageEngagement }) => {
+        if (stopped) return;
+        if (measuredEntry2029 !== entry) {
+          measuredEntry2029 = entry;
+          trackVisit(telemetryPath, { measurementPath: pathname });
+        }
+        stopEngagement = startPublicPageEngagement(pathname);
+      }).catch(() => {});
+    }, PAGE_VIEW_SETTLE_MS);
+    return () => { stopped = true; clearTimeout(settle); stopEngagement?.(); };
+  }, [pathname, auth.loading, auth.user?.id]);
 
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) {
@@ -189,20 +244,18 @@ function RouteEffects2029() {
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) {
       if (!["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)) return undefined;
+      // CanonicalBookAlias2029 always redirects this route. A slow render can
+      // outlive the settle timer; only /book/:slug is a real content page view.
+      if (/^\/books\/[^/]+\/?$/.test(pathname)) return undefined;
       const telemetryPath = readingTelemetryPath(pathname);
       if (!telemetryPath) return undefined;
-      // First-party visit + engagement on the privacy-normalized route label only (no raw slug,
-      // query or identity). visits.js stays out of the opening graph; engagement carries no
-      // visitor/session identity, matching the worker's exact admission.
-      void import("./lib/visits.js").then(({ trackVisit }) => trackVisit(telemetryPath)).catch(() => {});
-      startPageEngagement(telemetryPath, { getSodIdFn: () => null, sessionIdFn: () => null });
       // Keep the public home's primary content ahead of the optional Google
       // script. A canceled navigation cannot initialize a stale page view.
-      let stopped = false, timer, observer, idle;
+      let stopped = false, timer, observer, idle, stopPageview;
       const run = () => {
         if (stopped) return;
         initGA({ publicReading: true, path: telemetryPath });
-        trackPageview(telemetryPath, { publicReading: true });
+        stopPageview = trackPageview(pathname, { publicReading: true });
         // Meta Pixel (ZURIEL 11.11.2026): same admitted routes and idle timing as GA; bots are filtered inside marketing.js.
         initMarketing();
         trackMarketingPageview();
@@ -216,7 +269,7 @@ function RouteEffects2029() {
         observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
         observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
       } else schedule();
-      return () => { stopped = true; observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
+      return () => { stopped = true; stopPageview?.(); observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
     }
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
@@ -328,8 +381,9 @@ export default function App2029() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        {/* Measurement stays outside ResearchProvider: its keyed subtree is replaced when the account state resolves. */}
+        <RouteEffects2029 />
         <ResearchProvider>
-          <RouteEffects2029 />
           <InstallSuggestionMount2029 />
           <Awakening2029 />
           {/* One temporary in-memory Raziel session is projected by both desktop and mobile chrome. */}
@@ -361,7 +415,7 @@ export default function App2029() {
                 <Route path="/codes" element={<PublicLibraryContinuity2029Page kind="codes" />} />
                 <Route path="/codes/:slug" element={<PublicLibraryContinuity2029Page kind="codes" />} />
                 {["privacy", "unsubscribe", "updates", "map"].map(kind => <Route key={kind} path={`/${kind}`} element={<PublicServices2029Page kind={kind} />} />)}
-                <Route path="/:slug" element={<PublicPostAddress2029Page />} />
+                <Route path="/:slug" element={<PublicPostAddressEntry2029 />} />
               </>}
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               {followCenterPreviewEnabled && <Route path="/2029/preview/follow-center" element={<PublicContributorFrame2029 surface="community" title="מרכז עדכונים" introVariant="none"><FollowCenterPreview2029Page /></PublicContributorFrame2029>} />}

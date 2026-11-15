@@ -10,3 +10,5 @@
 @media(max-width:700px){.sod29-living-ribbon{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;padding:8px 12px}.sod29-living-ribbon .sod29-living-verse-text{font-size:var(--s29-type-body,18px);line-height:1.72}}
 /* clip prevents sideways overflow without making a second vertical scroll container. */
 .sod29-root:has(.sod29-living-ribbon){overflow-x:clip;overflow-y:visible}
+/* The ribbon is hidden (SystemFrame2029 LIVING_RIBBON_VISIBLE_2029); keep the root from scrolling sideways, as the rule above did while the ribbon was present. */
+.sod29-root{overflow-x:clip;overflow-y:visible}

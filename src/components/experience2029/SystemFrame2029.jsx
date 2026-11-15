@@ -49,6 +49,8 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 // Preview-only (ZURIEL 12.11.2026): the left Companion returns on a series Post of the protected preview build. Elsewhere it stays unmounted.
 import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
+// ZURIEL 12.11.2026: the header verse line («הנה אנכי שולח לכם את אליה הנביא…») is hidden on every page. One switch: set true to show it again.
+const LIVING_RIBBON_VISIBLE_2029 = false;
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
 const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));
@@ -100,7 +102,7 @@ import "./googleEntry2029.css";
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));
 const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));
-import { dismissGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
+import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -1733,7 +1735,15 @@ function SystemFrame2029Body({
     setNavOpen(false);
   }, [navOpen, completeSurfaceEntry, contextLocked]);
 
-  // ZURIEL 5.11: no automatic "join the updates" popup. Joining the updates lives in the footer only.
+  // ZURIEL 15.11: restore the existing guest invitation (22s or 450px scroll).
+  // Original WordPress addresses qualify only after their public Post has rendered.
+  useGuestNewsletterInvite2029({
+    eligible: !authLoading && !user && (guestNewsletterRoute2029(location.pathname) || surface === "post"),
+    blocked: Boolean(transient) || navOpen,
+    routeKey: location.pathname,
+    requireResolvedPost: surface === "post",
+    onOpen: () => openTransient(TRANSIENT.NEWSLETTER),
+  });
   useEffect(() => {
     if (authLoading || user) setTransient(current => current?.kind === TRANSIENT.NEWSLETTER ? null : current);
   }, [authLoading, user?.id]);
@@ -2252,7 +2262,7 @@ function SystemFrame2029Body({
             </div>
             </div>
           </header>
-          <GlobalLivingRibbon2029 />
+          {LIVING_RIBBON_VISIBLE_2029 ? <GlobalLivingRibbon2029 /> : null}
           </div>
 
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {

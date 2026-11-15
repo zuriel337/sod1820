@@ -1,5 +1,6 @@
 // Page-local presentation over the canonical readers. No persistence or attribution inference.
 import { normalizeWorldAllResearchRow } from "../../lib/research/worldAllResearchProjection.js";
+import { orderResearchByPublicStatusTier, researchPublicStatusPresentation } from "../../lib/research/researchObjectPresentation.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import { safePublicUrl, approvedReturnHref } from "./contributorLinkPolicy2029.js";
 import {
@@ -107,6 +108,8 @@ export function buildPublicContributorView(projection, identity) {
         // Nor does it carry a canonical per-Finding destination. Do not invent any of them.
         strength: null, quality: null,
         verification: row?.engine_detail?.verification_state || null,
+        // M0-D: the stored public status only (approved / canonical / candidate), labelled by the page; never inferred.
+        publicStatus: researchPublicStatusPresentation(row.status)?.status || null,
         reason: "ממצא עם שיוך מפורש לכותב; השיוך אינו אימות של תוכנו." });
     }
   }
@@ -155,7 +158,8 @@ export function selectContributorItems(view, section, requestedSort) {
     if (av === null || bv === null) return av === bv ? a.id.localeCompare(b.id) : av === null ? 1 : -1;
     return (sort === "oldest" ? av - bv : bv - av) || a.id.localeCompare(b.id);
   });
-  return { rows, sort, canDiscuss, canStrength };
+  // M0-D: Human-Gate verified rows keep their order and come first; public candidates ("טרם אומת") follow in theirs.
+  return { rows: orderResearchByPublicStatusTier(rows, (item) => item.publicStatus), sort, canDiscuss, canStrength };
 }
 
 // Preserve each source-native identity. A projected Insight is a reference on its
@@ -185,6 +189,21 @@ export function appendContributorPublicationCatalog(view, catalogue, identity) {
       date: contributorPublicationRecordTime(row), dateKind: contributorPublicationRecordTimeKind(row),
       href: safePublicUrl(`/${row.slug}`), media: Boolean(mediaUrl), mediaUrl,
       reason: row.author === identity.display_name ? "מאמר שהמערכת מייחסת לכותב." : "מאמר בהשתתפות הכותב." });
+  }
+  for (const row of catalogue.signedPassages?.rows || []) {
+    const post = row.table === "posts";
+    const id = post ? `post:${row.sourceId}` : row.sourceRef;
+    const existing = items.get(id);
+    const links = row.links.filter((link) => safePublicUrl(link.href));
+    if (!links.length) continue;
+    const credits = [...new Set(links.map((link) => link.credit))].join(" · ");
+    put({ id, sourceRef: row.sourceRef, type: post ? "writings" : "sources",
+      label: post ? "קטע חתום" : "הודעות חתומות",
+      title: humanContentTitle(row.title, { max: 0 }) || "פרסום מקור", date: row.date, dateKind: "published",
+      href: links[0].href, reason: credits,
+      ...existing,
+      passageLinks: links, passageSourceLabel: post ? "פוסט באתר" : "עדכון ציבורי",
+    });
   }
   for (const row of catalogue.ciphers?.rows || []) {
     if (row.status !== "published" || row.visibility !== "public" || !row.slug) continue;

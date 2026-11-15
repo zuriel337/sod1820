@@ -1,0 +1,155 @@
+# run-db-scenarios.sh output: 72 cases x 2 variants (the live guard fixture, and the same fixture after the real apply file).
+# Ran on commit 83005653617eb385103c0331c3be80c305e231e0, on a throwaway postgres (PostgreSQL) 17.12 (Ubuntu 17.12-1.pgdg24.04+1); the same run on PostgreSQL 16.15 gave the same outcomes and the same two md5 values. Exit 0.
+# Never run against a live project.
+PostgreSQL: postgres (PostgreSQL) 17.12 (Ubuntu 17.12-1.pgdg24.04+1)
+======== live guard
+GUARD md5 56b90b0ae0f9c5915b730314d13ca7a0
+D01 second active version, no lineage => REFUSED (rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=<NULL>))
+D02 VALID new version, same owner => ALLOWED
+D03 new family duplicating an owner, no verdict => ALLOWED
+D04 VALID scoped child of an active owner => ALLOWED
+D05 new child routed to a retired owner => ALLOWED
+D06 new version moves the owner silently => ALLOWED
+D07 VALID real owner swap A->B with SUPERSEDE_EXISTING and a resolving approval => ALLOWED
+D07b owner swap with an approval reference that does not exist => ALLOWED
+D07c owner swap with an invented approval text => ALLOWED
+D08 VALID metadata touch, no owner change => ALLOWED
+D09a new domain without an approval reference => ALLOWED
+D09b VALID new domain with a resolving approval reference => ALLOWED
+D10 a law inserted inactive is activated without a verdict => ALLOWED
+D10b VALID activation with a scoped-child verdict, same owner => ALLOWED
+D11 owner changed at the same version => ALLOWED
+D12 body edited without a new version (active) => ALLOWED
+D12b history row edited (inactive version) => ALLOWED
+D13 owner that does not exist => ALLOWED
+D13b codex owner that does not exist => ALLOWED
+D13c VALID codex owner that exists => ALLOWED
+D13d document owner that no active rule names, without an approval => ALLOWED
+D13e VALID document owner that an active rule already names (registered) => ALLOWED
+D13f VALID new document owner with a resolving approval (authorized) => ALLOWED
+D13g owner that is not a rule id, a codex item or a document path => ALLOWED
+D13h VALID new version keeps the document owner that only its previous version named => ALLOWED
+D14 DELETE of a rule row => ALLOWED
+D15 TRUNCATE of nodes => ALLOWED
+D16 VALID retirement (is_active=false, body unchanged) => ALLOWED
+D17 type change of a rule row => ALLOWED
+D17b type change, then DELETE of the same row => ALLOWED
+D18 id reset of a rule row => ALLOWED
+D19 version changed in place (history row) => ALLOWED
+D19b rule_id changed in place (active row) => ALLOWED
+D20 retired family re-activated at v2 without a decision => ALLOWED
+D20b retired family revived by a new v3 without a decision => ALLOWED
+D20c VALID revival at v2 with a verdict and a resolving approval => ALLOWED
+D20d revival at v2 with a verdict but no approval => ALLOWED
+D21 forged guard stamp, then a new version => ALLOWED
+D21b no-op re-retirement of a retired row, then a new version => ALLOWED
+D22 VALID documented retirement with successor metadata => ALLOWED
+D22b owner written onto a retired row that had none (a successor goes to retired_routing_v1) => ALLOWED
+D22c owner rewritten on a retired row that had one => ALLOWED
+D23 VALID row that is not a rule: type, label, description, identity_key and DELETE => ALLOWED
+D24 a row that is not a rule promoted to an active rule without a verdict => ALLOWED
+D25 VALID successor of a retired rule recorded in retired_routing_v1 with a resolving approval => ALLOWED
+D25b successor routing without an approval reference => ALLOWED
+D25c successor routing with an approval reference that does not exist => ALLOWED
+D25d successor routing to a rule that is itself retired => ALLOWED
+D25e successor routing written on an active rule => ALLOWED
+D25f removal of a recorded successor routing => ALLOWED
+D25g successor routing without a relation => ALLOWED
+D25h VALID replacement of a recorded successor routing by a new approved one => ALLOWED
+D25i VALID other metadata on a retired row that carries a successor routing => ALLOWED
+D25j revival of a retired rule that still carries its successor routing => ALLOWED
+D25k VALID revival with a verdict and an approval that drops the successor routing => ALLOWED
+D25l successor routing written on an older version of a retired family => ALLOWED
+D25m successor routing written on a retired version of a family that is still active => ALLOWED
+D25n VALID successor routing on the last version of a retired family that has two versions => ALLOWED
+D26 child of a child of a retired owner (chain, depth 2) => ALLOWED
+D26b VALID chain of depth 2 that ends at a self-owned active rule => ALLOWED
+D26c owner inside an ownership cycle (a -> b -> a, no root) => ALLOWED
+D26d new version that would close a cycle (an owner moves under its own child) => ALLOWED
+D26e chain that ends at a codex item which does not exist => ALLOWED
+D26f VALID chain that ends at an existing codex item => ALLOWED
+D26g chain through an active rule that records no owner => ALLOWED
+D26h VALID chain that ends at a registered document => ALLOWED
+D26i chain through an owner that does not exist (depth 2) => ALLOWED
+D27 a new rule row without a rule_id, active and marked for the assistant context => ALLOWED
+D27b a legacy rule row without a rule_id is activated => ALLOWED
+D27c VALID metadata note on a legacy rule row without a rule_id => ALLOWED
+D27d body of a legacy rule row without a rule_id is rewritten => ALLOWED
+D27e a row that is not a rule becomes a rule row without a rule_id => ALLOWED
+psql:test.sql:262: NOTICE:  ALL 72 CASES AS EXPECTED for live
+======== proposed guard
+GUARD md5 90b5917b1412be02f66d1f805241018c
+D01 second active version, no lineage => REFUSED (rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=<NULL>))
+D02 VALID new version, same owner => ALLOWED
+D03 new family duplicating an owner, no verdict => REFUSED (new rule family owner_a_copy_law requires an owner-creation verdict (owner_routing.resolution))
+D04 VALID scoped child of an active owner => ALLOWED
+D05 new child routed to a retired owner => REFUSED (rule retired_child_law routes to retired owner retired_r_law)
+D06 new version moves the owner silently => REFUSED (rule legacy_child_law v2 changes its canonical owner without SUPERSEDE_EXISTING + human_gate)
+D07 VALID real owner swap A->B with SUPERSEDE_EXISTING and a resolving approval => ALLOWED
+D07b owner swap with an approval reference that does not exist => REFUSED (rule legacy_child_law approval reference work_log:99999999-8888-4777-8666-555555555555 does not resolve to a work_log record naming the rule)
+D07c owner swap with an invented approval text => REFUSED (rule legacy_child_law approval reference ZURIEL said yes does not resolve to a work_log record naming the rule)
+D08 VALID metadata touch, no owner change => ALLOWED
+D09a new domain without an approval reference => REFUSED (new rule family new_domain_law (GENUINELY_NEW_DOMAIN) requires owner_routing.human_gate)
+D09b VALID new domain with a resolving approval reference => ALLOWED
+D10 a law inserted inactive is activated without a verdict => REFUSED (new rule family dormant_law requires an owner-creation verdict (owner_routing.resolution))
+D10b VALID activation with a scoped-child verdict, same owner => ALLOWED
+D11 owner changed at the same version => REFUSED (rule legacy_child_law v1 owner changed without a new version)
+D12 body edited without a new version (active) => REFUSED (rule body_law v1 body changed without a new version)
+D12b history row edited (inactive version) => REFUSED (rule hist_law v1 body changed without a new version)
+D13 owner that does not exist => REFUSED (rule ghost_child_law routes to owner never_existed_law which does not exist)
+D13b codex owner that does not exist => REFUSED (rule codex_child_law routes to codex entry project_codex.no_such_slug which does not exist)
+D13c VALID codex owner that exists => ALLOWED
+D13d document owner that no active rule names, without an approval => REFUSED (rule file_child_law routes to document SOD1820_DESIGN_CONTRACT_V2.md which no active rule names as its owner; a new document owner requires owner_routing.human_gate)
+D13e VALID document owner that an active rule already names (registered) => ALLOWED
+D13f VALID new document owner with a resolving approval (authorized) => ALLOWED
+D13g owner that is not a rule id, a codex item or a document path => REFUSED (rule odd_owner_law owner Some Owner Text is not a rule id, a project_codex.<slug> or a document path)
+D13h VALID new version keeps the document owner that only its previous version named => ALLOWED
+D14 DELETE of a rule row => REFUSED (DELETE of rule hist_law v1 is refused (retire it with is_active=false instead))
+D15 TRUNCATE of nodes => REFUSED (TRUNCATE of public.nodes is refused (rule history must not be erased))
+D16 VALID retirement (is_active=false, body unchanged) => ALLOWED
+D17 type change of a rule row => REFUSED (rule body_law v1 cannot change its type (retire it with is_active=false instead))
+D17b type change, then DELETE of the same row => REFUSED (rule hist_law v1 cannot change its type (retire it with is_active=false instead))
+D18 id reset of a rule row => REFUSED (rule body_law v1 cannot change its id)
+D19 version changed in place (history row) => REFUSED (rule hist_law v1 cannot change its identity or version in place (a new version is a new row))
+D19b rule_id changed in place (active row) => REFUSED (rule body_law v1 cannot change its identity or version in place (a new version is a new row))
+D20 retired family re-activated at v2 without a decision => REFUSED (retired rule revived_law v2 re-activated without an owner-creation verdict (owner_routing.resolution))
+D20b retired family revived by a new v3 without a decision => REFUSED (retired rule revived_law v3 re-activated without an owner-creation verdict (owner_routing.resolution))
+D20c VALID revival at v2 with a verdict and a resolving approval => ALLOWED
+D20d revival at v2 with a verdict but no approval => REFUSED (retired rule revived_law v2 re-activated without owner_routing.human_gate)
+D21 forged guard stamp, then a new version => REFUSED (rule revived_law v2: metadata.rule_guard is written by the rule guard only)
+D21b no-op re-retirement of a retired row, then a new version => REFUSED (retired rule revived_law v3 re-activated without an owner-creation verdict (owner_routing.resolution))
+D22 VALID documented retirement with successor metadata => ALLOWED
+D22b owner written onto a retired row that had none (a successor goes to retired_routing_v1) => REFUSED (rule ownerless_retired_law v1 owner changed without a new version)
+D22c owner rewritten on a retired row that had one => REFUSED (rule hist_law v1 owner changed without a new version)
+D23 VALID row that is not a rule: type, label, description, identity_key and DELETE => ALLOWED
+D24 a row that is not a rule promoted to an active rule without a verdict => REFUSED (new rule family promoted_law requires an owner-creation verdict (owner_routing.resolution))
+D25 VALID successor of a retired rule recorded in retired_routing_v1 with a resolving approval => ALLOWED
+D25b successor routing without an approval reference => REFUSED (rule ownerless_retired_law v1: retired_routing_v1 approval reference (none) does not resolve to a work_log record naming the rule)
+D25c successor routing with an approval reference that does not exist => REFUSED (rule ownerless_retired_law v1: retired_routing_v1 approval reference work_log:99999999-8888-4777-8666-555555555555 does not resolve to a work_log record naming the rule)
+D25d successor routing to a rule that is itself retired => REFUSED (rule ownerless_retired_law v1: retired_routing_v1 successor retired_r_law is not an active rule)
+D25e successor routing written on an active rule => REFUSED (rule legacy_child_law v1: retired_routing_v1 belongs to a retired row (an active rule cannot carry it))
+D25f removal of a recorded successor routing => REFUSED (rule routed_retired_law v1: retired_routing_v1 cannot be removed (record a new approved routing instead))
+D25g successor routing without a relation => REFUSED (rule ownerless_retired_law v1: retired_routing_v1 requires a relation (REPLACED, COMPLETED, ABSORBED or PARTIAL))
+D25h VALID replacement of a recorded successor routing by a new approved one => ALLOWED
+D25i VALID other metadata on a retired row that carries a successor routing => ALLOWED
+D25j revival of a retired rule that still carries its successor routing => REFUSED (rule routed_retired_law v1: retired_routing_v1 belongs to a retired row (an active rule cannot carry it))
+D25k VALID revival with a verdict and an approval that drops the successor routing => ALLOWED
+D25l successor routing written on an older version of a retired family => REFUSED (rule revived_law v1: retired_routing_v1 is recorded on the last version of the family only)
+D25m successor routing written on a retired version of a family that is still active => REFUSED (rule hist_law v1: retired_routing_v1 is recorded on a retired family only (the rule has an active version))
+D25n VALID successor routing on the last version of a retired family that has two versions => ALLOWED
+D26 child of a child of a retired owner (chain, depth 2) => REFUSED (rule grandchild_law ownership chain reaches retired owner retired_r_law (through mid_retired_law))
+D26b VALID chain of depth 2 that ends at a self-owned active rule => ALLOWED
+D26c owner inside an ownership cycle (a -> b -> a, no root) => REFUSED (rule grandchild_law ownership chain is a cycle (grandchild_law -> cyc_a_law -> cyc_b_law returns to cyc_a_law))
+D26d new version that would close a cycle (an owner moves under its own child) => REFUSED (rule owner_a_law ownership chain is a cycle (owner_a_law -> legacy_child_law returns to owner_a_law))
+D26e chain that ends at a codex item which does not exist => REFUSED (rule grandchild_law ownership chain reaches codex entry project_codex.no_such_slug which does not exist)
+D26f VALID chain that ends at an existing codex item => ALLOWED
+D26g chain through an active rule that records no owner => REFUSED (rule grandchild_law ownership chain reaches no_owner_mid_law which records no owner)
+D26h VALID chain that ends at a registered document => ALLOWED
+D26i chain through an owner that does not exist (depth 2) => REFUSED (rule grandchild_law ownership chain reaches owner never_existed_law which does not exist (through mid_ghost_law))
+D27 a new rule row without a rule_id, active and marked for the assistant context => REFUSED (a rule row requires a rule_id (a rule without an identity cannot be governed))
+D27b a legacy rule row without a rule_id is activated => REFUSED (a rule row without a rule_id cannot be active)
+D27c VALID metadata note on a legacy rule row without a rule_id => ALLOWED
+D27d body of a legacy rule row without a rule_id is rewritten => REFUSED (rule row without a rule_id: body changed (history is not rewritten))
+D27e a row that is not a rule becomes a rule row without a rule_id => REFUSED (a rule row requires a rule_id (a rule without an identity cannot be governed))
+psql:test.sql:262: NOTICE:  ALL 72 CASES AS EXPECTED for proposed
+RESULT: every case behaved as expected

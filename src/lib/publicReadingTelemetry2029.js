@@ -86,3 +86,96 @@ export function readingWebVitalBody(body) {
   return p.ratings && !Array.isArray(p.ratings) && Object.keys(p.ratings).sort().join(",") === "cls,fcp,inp,lcp,ttfb"
     && Object.values(p.ratings).every(v => v === null || ["good", "needs_improvement", "poor"].includes(v));
 }
+
+// Product actions and public content views (ingest_event, the existing events pipeline) - ZURIEL 12.11.2026 "fix measurement".
+// Same doctrine as visits/engagement/RUM: no visitor/session identity, the normalized route label only, and per family a fixed
+// event list and a fixed set of bounded fields (tokens, booleans, small integers). Free text the visitor typed (expressions,
+// phrases, queries, values, share ids) never leaves the browser: unknown fields are dropped by the projection and refused by
+// the validator. Self-contained (serialized into the public request worker together with readingTelemetryPath).
+export function readingActionSpec() {
+  const T = "token", B = "bool", I = "int";
+  return {
+    calculator_2029: { events: ["calculator_view", "result_selected", "first_compute", "new_compute_from_share", "raziel_opened", "method_opened",
+      "share_created", "classic_tile_opened", "words_bar_pick", "equals_preview_phrase_opened", "shared_result_opened", "ai_analysis_requested"],
+      fields: { surface: T, method: T, entry: T, kind: T, channel: T, reason: T, from_share: B, has_discovery: B, count: I, expression_length: I } },
+    entry_2029: { events: "token", fields: { entry_surface: T, arrival: T, concept_key: T, layer: T, action_id: T, target_surface: T, availability: T,
+      mode: T, guided_id: T, ms_bucket: T, manifest_version: I, step_index: I } },
+    journey_2029: { events: "token", fields: { journey_kind: T, journey_mode: T, source_surface: T, root_type: T, has_path: B } },
+    share: { events: ["share"], fields: { platform: T } },
+    join: { events: ["click"], fields: { surface: T } },
+    arrival: { events: ["source"], fields: { source: T, tag: T, tagged: B } },
+    content: { events: ["view"], fields: { kind: T, item_id: I } },
+  };
+}
+
+// Client-side projection of an existing emit() call onto the public family. Returns null when the action is not measured.
+export function readingActionProps(surface, eventType, props) {
+  const spec = readingActionSpec()[surface];
+  if (!spec || typeof eventType !== "string") return null;
+  if (Array.isArray(spec.events) ? !spec.events.includes(eventType) : !/^[a-z][a-z0-9_]{0,47}$/.test(eventType)) return null;
+  const out = { action_version: 1 };
+  const source = props && typeof props === "object" && !Array.isArray(props) ? props : {};
+  for (const [key, kind] of Object.entries(spec.fields)) {
+    const value = source[key];
+    if (value === undefined || value === null) continue;
+    if (kind === "token" && typeof value === "string" && /^[a-z0-9][a-z0-9_:.-]{0,47}$/i.test(value)) out[key] = value.toLowerCase();
+    else if (kind === "bool" && typeof value === "boolean") out[key] = value;
+    else if (kind === "int" && Number.isSafeInteger(Number(value)) && Number(value) >= 0 && Number(value) <= 1000000000000 && String(value).trim() !== "") out[key] = Number(value);
+  }
+  return out;
+}
+
+export function readingActionBody(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)
+    || Object.keys(body).sort().join(",") !== "p_app_context,p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"
+    || body.p_sod_id !== null || body.p_session_id !== null || body.p_is_bot !== false
+    || typeof body.p_path !== "string" || readingTelemetryPath(body.p_path) !== body.p_path
+    || !["facebook", "instagram", "whatsapp", "telegram", "line", "chrome-ios", "edge", "opera", "firefox", "android-webview", "chrome", "safari", "other"].includes(body.p_app_context)) return false;
+  const spec = readingActionSpec()[body.p_surface];
+  if (!spec || typeof body.p_event_type !== "string"
+    || (Array.isArray(spec.events) ? !spec.events.includes(body.p_event_type) : !/^[a-z][a-z0-9_]{0,47}$/.test(body.p_event_type))) return false;
+  const p = body.p_props;
+  if (!p || typeof p !== "object" || Array.isArray(p) || p.action_version !== 1 || JSON.stringify(p).length > 800) return false;
+  for (const [key, value] of Object.entries(p)) {
+    if (key === "action_version") continue;
+    const kind = spec.fields[key];
+    if (kind === "token" ? !(typeof value === "string" && /^[a-z0-9][a-z0-9_:.-]{0,47}$/.test(value))
+      : kind === "bool" ? typeof value !== "boolean"
+      : kind === "int" ? !(Number.isSafeInteger(value) && value >= 0 && value <= 1000000000000) : true) return false;
+  }
+  return true;
+}
+
+// Existing public routes only. Queries/fragments are never collected. Public
+// article/taxonomy identities are retained; arbitrary input routes keep the
+// existing family projection. This value is a report label, never a new route.
+export function readingMeasurementPath(value) {
+  const family = readingTelemetryPath(value);
+  if (!family) return null;
+  let path;
+  try { path = decodeURIComponent(value.split(/[?#]/, 1)[0]).replace(/\/+$/, '') || '/'; } catch { return null; }
+  if (/^\/(?:post|tag|category|book|video)\/[\p{L}\p{N}_-]{1,256}$/u.test(path)
+    || /^\/number\/[0-9]{1,12}$/.test(path)) return path;
+  return family;
+}
+
+// Opt-in versioned extension of the existing ingest_event RPC. Old anonymous
+// actions/RUM remain valid through their own unchanged validators. No client
+// account ID/name/email is admitted; the database stamps the verified account.
+export function readingMeasurementBody(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)
+    || Object.keys(body).sort().join(',') !== 'p_app_context,p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface'
+    || body.p_is_bot !== false || readingTelemetryPath(body.p_path) !== body.p_path
+    || !['facebook','instagram','whatsapp','telegram','line','chrome-ios','edge','opera','firefox','android-webview','chrome','safari','other'].includes(body.p_app_context)) return false;
+  const id = value => value === null || typeof value === 'string' && /^[a-z0-9-]{8,64}$/i.test(value);
+  if (!id(body.p_sod_id) || !id(body.p_session_id)) return false;
+  const p = body.p_props, m = p?.measurement;
+  if (!p || Array.isArray(p) || !m || Array.isArray(m)
+    || Object.keys(m).sort().join(',') !== 'page_path,version,visitor_id' || m.version !== 2
+    || !id(m.visitor_id) || typeof m.page_path !== 'string' || m.page_path.length > 512
+    || readingMeasurementPath(m.page_path) !== m.page_path || readingTelemetryPath(m.page_path) !== body.p_path) return false;
+  const props = { ...p }; delete props.measurement;
+  const anonymous = { ...body, p_sod_id: null, p_session_id: null, p_props: props };
+  if (body.p_surface === 'page' && body.p_event_type === 'view') return Object.keys(props).length === 0;
+  return readingEngagementBody(anonymous) || readingActionBody(anonymous);
+}

@@ -1,7 +1,7 @@
 // One watcher of the EXISTING world discovery stream for the whole frame (panel, phone chip). Visibility-bound polling
 // is owned by watchWorldDiscoveryStream. Tiers (Gold/Diamond) are read lazily for the first three convergences.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { feedRows, feedSeenKey, mergeSystemFeedItems } from "../../lib/systemFeed2029.js";
+import { feedRows, feedSeenKey, mergeNowDiscussionItems, mergeSystemFeedItems } from "../../lib/systemFeed2029.js";
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
@@ -105,7 +105,7 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip =
       .then(item => { if (live) setFeaturedItem(item); }).catch(() => { if (live) setFeaturedItem(null); });
     return () => { live = false; };
   }, [enabled]);
-  const items = useMemo(() => mergeSystemFeedItems(featuredItem ? [featuredItem] : [], mergeSystemFeedItems(state.items, nowSources.items)), [featuredItem, state.items, nowSources.items]);
+  const items = useMemo(() => mergeSystemFeedItems(featuredItem ? [featuredItem] : [], mergeNowDiscussionItems(state.items, nowSources.items)), [featuredItem, state.items, nowSources.items]);
   const rows = useMemo(() => feedRows(items, { seen, strongIds }), [items, seen, strongIds]);
   const expandedRows = useMemo(() => feedRows(items, { seen, strongIds, limit: 160,
     caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10,

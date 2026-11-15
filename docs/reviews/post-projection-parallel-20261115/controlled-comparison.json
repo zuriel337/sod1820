@@ -1,0 +1,475 @@
+{
+  "baseline": "3843af126f21ae58cf033fe808eaa2821b7a3362",
+  "method": "Three alternating pairs; 250ms per independent I/O; actual reader with stubbed I/O and pack compiler; no browser or production measurement",
+  "identicalProjectionAndQuerySet": true,
+  "results": [
+    {
+      "scenario": "Bennett",
+      "run": 1,
+      "version": "before",
+      "durationMs": 504.870354,
+      "calls": [
+        {
+          "name": "fn_method_value",
+          "phrase": "נפתלי בנט",
+          "startMs": 20.39665499999998
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "הבחירות",
+          "startMs": 20.67930099999998
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלך ישראל",
+          "startMs": 20.693572999999986
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלח",
+          "startMs": 271.831581
+        }
+      ]
+    },
+    {
+      "scenario": "Bennett",
+      "run": 1,
+      "version": "after",
+      "durationMs": 252.93053499999996,
+      "calls": [
+        {
+          "name": "fn_method_value",
+          "phrase": "נפתלי בנט",
+          "startMs": 7.270789000000036
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "הבחירות",
+          "startMs": 7.306712999999945
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלך ישראל",
+          "startMs": 7.336728999999991
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלח",
+          "startMs": 7.47988399999997
+        }
+      ]
+    },
+    {
+      "scenario": "Bennett",
+      "run": 2,
+      "version": "before",
+      "durationMs": 502.34851100000003,
+      "calls": [
+        {
+          "name": "fn_method_value",
+          "phrase": "נפתלי בנט",
+          "startMs": 2.896174999999971
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "הבחירות",
+          "startMs": 2.94423699999993
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלך ישראל",
+          "startMs": 2.9878330000000233
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלח",
+          "startMs": 253.92375400000003
+        }
+      ]
+    },
+    {
+      "scenario": "Bennett",
+      "run": 2,
+      "version": "after",
+      "durationMs": 251.36426200000005,
+      "calls": [
+        {
+          "name": "fn_method_value",
+          "phrase": "נפתלי בנט",
+          "startMs": 3.7407489999998234
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "הבחירות",
+          "startMs": 3.767709999999852
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלך ישראל",
+          "startMs": 3.784554999999955
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלח",
+          "startMs": 3.8207800000000134
+        }
+      ]
+    },
+    {
+      "scenario": "Bennett",
+      "run": 3,
+      "version": "before",
+      "durationMs": 502.4068790000001,
+      "calls": [
+        {
+          "name": "fn_method_value",
+          "phrase": "נפתלי בנט",
+          "startMs": 3.810414000000037
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "הבחירות",
+          "startMs": 3.8394080000000486
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלך ישראל",
+          "startMs": 3.8578359999999066
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלח",
+          "startMs": 253.956725
+        }
+      ]
+    },
+    {
+      "scenario": "Bennett",
+      "run": 3,
+      "version": "after",
+      "durationMs": 251.18152399999963,
+      "calls": [
+        {
+          "name": "fn_method_value",
+          "phrase": "נפתלי בנט",
+          "startMs": 3.473026000000118
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "הבחירות",
+          "startMs": 3.5252740000000813
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלך ישראל",
+          "startMs": 3.5293610000003355
+        },
+        {
+          "name": "fn_method_value",
+          "phrase": "מלח",
+          "startMs": 3.5564720000002126
+        }
+      ]
+    },
+    {
+      "scenario": "FZ1073",
+      "run": 1,
+      "version": "before",
+      "durationMs": 503.1180220000001,
+      "calls": [
+        {
+          "name": "topic",
+          "startMs": 3.3216969999998582
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "אשר בשמים ממעל",
+          "startMs": 255.2741759999999
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולמות לא נתנני",
+          "startMs": 255.30442200000016
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "משיח בן דוד",
+          "startMs": 255.30859800000007
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולדימיר פוטין",
+          "startMs": 255.31110200000012
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "שבעים וחמש",
+          "startMs": 255.31321500000013
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ביאת המשיח",
+          "startMs": 255.31520799999998
+        },
+        {
+          "name": "topic",
+          "startMs": 255.3268250000001
+        },
+        {
+          "name": "topic",
+          "startMs": 255.331052
+        }
+      ]
+    },
+    {
+      "scenario": "FZ1073",
+      "run": 1,
+      "version": "after",
+      "durationMs": 502.600825,
+      "calls": [
+        {
+          "name": "gematria_method_trace",
+          "phrase": "אשר בשמים ממעל",
+          "startMs": 2.802665000000161
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולמות לא נתנני",
+          "startMs": 2.8256099999998696
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "משיח בן דוד",
+          "startMs": 2.8293749999998
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולדימיר פוטין",
+          "startMs": 2.831898999999794
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "שבעים וחמש",
+          "startMs": 2.834002000000055
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ביאת המשיח",
+          "startMs": 2.836436000000049
+        },
+        {
+          "name": "topic",
+          "startMs": 2.919832000000042
+        },
+        {
+          "name": "topic",
+          "startMs": 254.56187599999976
+        },
+        {
+          "name": "topic",
+          "startMs": 254.5896469999998
+        }
+      ]
+    },
+    {
+      "scenario": "FZ1073",
+      "run": 2,
+      "version": "before",
+      "durationMs": 502.22795499999984,
+      "calls": [
+        {
+          "name": "topic",
+          "startMs": 3.5276269999999386
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "אשר בשמים ממעל",
+          "startMs": 254.67277400000012
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולמות לא נתנני",
+          "startMs": 254.71378600000025
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "משיח בן דוד",
+          "startMs": 254.71768199999997
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולדימיר פוטין",
+          "startMs": 254.73076100000026
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "שבעים וחמש",
+          "startMs": 254.73336500000005
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ביאת המשיח",
+          "startMs": 254.74602400000003
+        },
+        {
+          "name": "topic",
+          "startMs": 254.76737700000012
+        },
+        {
+          "name": "topic",
+          "startMs": 254.77073199999995
+        }
+      ]
+    },
+    {
+      "scenario": "FZ1073",
+      "run": 2,
+      "version": "after",
+      "durationMs": 501.6663090000002,
+      "calls": [
+        {
+          "name": "gematria_method_trace",
+          "phrase": "אשר בשמים ממעל",
+          "startMs": 3.645744999999806
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולמות לא נתנני",
+          "startMs": 3.6828009999999267
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "משיח בן דוד",
+          "startMs": 3.6872079999998277
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולדימיר פוטין",
+          "startMs": 3.689621999999872
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "שבעים וחמש",
+          "startMs": 3.7029319999996915
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ביאת המשיח",
+          "startMs": 3.7049950000000536
+        },
+        {
+          "name": "topic",
+          "startMs": 3.751293999999689
+        },
+        {
+          "name": "topic",
+          "startMs": 254.51617899999974
+        },
+        {
+          "name": "topic",
+          "startMs": 254.54152699999986
+        }
+      ]
+    },
+    {
+      "scenario": "FZ1073",
+      "run": 3,
+      "version": "before",
+      "durationMs": 502.11650400000053,
+      "calls": [
+        {
+          "name": "topic",
+          "startMs": 3.497631999999612
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "אשר בשמים ממעל",
+          "startMs": 254.52777699999933
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולמות לא נתנני",
+          "startMs": 254.55494799999997
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "משיח בן דוד",
+          "startMs": 254.57373599999937
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולדימיר פוטין",
+          "startMs": 254.57634999999937
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "שבעים וחמש",
+          "startMs": 254.5895499999997
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ביאת המשיח",
+          "startMs": 254.59168299999965
+        },
+        {
+          "name": "topic",
+          "startMs": 254.62562399999933
+        },
+        {
+          "name": "topic",
+          "startMs": 254.72796800000015
+        }
+      ]
+    },
+    {
+      "scenario": "FZ1073",
+      "run": 3,
+      "version": "after",
+      "durationMs": 501.71480599999995,
+      "calls": [
+        {
+          "name": "gematria_method_trace",
+          "phrase": "אשר בשמים ממעל",
+          "startMs": 3.3529429999998683
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולמות לא נתנני",
+          "startMs": 3.3891169999997146
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "משיח בן דוד",
+          "startMs": 3.393243999999868
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ולדימיר פוטין",
+          "startMs": 3.406253000000106
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "שבעים וחמש",
+          "startMs": 3.4086969999998473
+        },
+        {
+          "name": "gematria_method_trace",
+          "phrase": "ביאת המשיח",
+          "startMs": 3.41074000000026
+        },
+        {
+          "name": "topic",
+          "startMs": 3.461116000000402
+        },
+        {
+          "name": "topic",
+          "startMs": 254.08877699999994
+        },
+        {
+          "name": "topic",
+          "startMs": 254.11572799999976
+        }
+      ]
+    }
+  ]
+}

@@ -51,6 +51,16 @@ for (const route of (vercel.redirects || []).map(r => r.source).filter(p => /^\/
   assert.equal(isKnownSingleSegmentRoute(route), true, `known Vercel redirect missing: ${route}`);
 }
 
+// Every single-segment alias of the function-level continuation table (publicReadingContinuation) that the Edge middleware can SEE must also pass the
+// legitimacy check; otherwise the middleware answers a real 404 before the alias is ever redirected. Measured live 15.11.2026: the documented alias
+// `/WORLD` -> `/world` (3.11 reconciliation: exact_existing_route_alias) answered 404 because the allow-list is case-sensitive and did not know it.
+// Dotted aliases (/book.html, /tzofen.html) are outside the middleware matcher and never need registration.
+const releaseSource = read("src/lib/publicReadingRelease2029.js");
+const aliasTable = releaseSource.slice(releaseSource.indexOf("let target = ({"), releaseSource.indexOf("})[path];"));
+const aliasRoutes = [...aliasTable.matchAll(/"(\/[^"]*)"\s*:/g)].map(m => m[1]).filter(p => /^\/[^/]+$/.test(p) && middlewareSees(matcher, p));
+assert.ok(aliasRoutes.length >= 25 && aliasRoutes.includes("/home-new"), "the continuation alias table is parsed");
+for (const route of aliasRoutes) assert.equal(isKnownSingleSegmentRoute(route), true, `continuation alias missing from route legitimacy (the Edge would answer 404): ${route}`);
+
 assert.equal(isSingleSegmentRoute("/real-slug"), true);
 assert.equal(isSingleSegmentRoute("/codes/foo"), false);
 assert.equal(isKnownSingleSegmentRoute("/definitely-not-a-static-route"), false);

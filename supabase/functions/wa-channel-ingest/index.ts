@@ -10,10 +10,13 @@
 // 2029 media: every NEW public image, video and audio -> media/sod1820/2029/<kind>/YYYY/MM/<asset-id>/original.*, with a
 // stable asset id derived from the message (no overwrite, no second copy on a repeated run); legacy URLs are never moved.
 // Private media keeps submission-inbox semantics. Content type is taken from the bytes and must match the message kind.
+// Public source groups (ZURIEL 11.11.2026): an image or video lands privately like every research-first message; it gets a public copy only
+// after the server proved the sender and approved the writer (waGroupMedia.js; SQL group_source_media_v1).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
 import { WA_MEDIA_MAX_BYTES, waMessageMediaKind, waPublicMediaPath, waSniffMedia, waStableAssetId, waUploadAlreadyExists } from "../_shared/waMediaAsset.js";
+import { waGroupIntakePublic, waGroupMessageRoute, waIsPrivateMediaRef, waProveAndPublishGroupMedia } from "../_shared/waGroupMedia.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -85,8 +88,10 @@ function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {
   if (Array.isArray(v?.result)) return { ok: true, rows: v.result as T[] };
   return { ok: false, rows: [] };
 }
-// Public source groups. ki-la-hamelucha-gematria joins ONLY the proof/flag path (code); its intake scope (admin_only) is a separate gated config change.
-const WORLD_GROUP_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria"]);
+// Public source groups: the LIVE set (deployed wa-channel-ingest v33, read 11.11.2026), the same three channels the proof table and both
+// proof recorders admit. ki-la-hamelucha-gematria stood here on main only: never deployed, never admitted by the proof table; adding it
+// is a separate gated change (proof table check + recorders + this set + its intake scope).
+const WORLD_GROUP_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "blaze-888"]);
 function channelStatus(channel: string): "live" | "private" {
   return STORY_LIVE_CHANNELS.has(channel) ? "live" : "private";
 }
@@ -119,14 +124,10 @@ function normalizeProviderMediaUrl(raw: string): string {
     return "";
   }
 }
-async function rehost(
-  url: string,
-  msgId: string,
-  kind: "image" | "video" | "audio",
-  privateMedia: boolean,
-  sourceTs: number,
-  channel: string,
-): Promise<string | null> {
+type MediaBytes = { buf: Uint8Array; ct: string; ext: string };
+
+// Download + size limit + content type from the bytes (must match the message kind). No storage write.
+async function fetchMedia(url: string, msgId: string, kind: "image" | "video" | "audio"): Promise<MediaBytes | null> {
   try {
     const normalizedUrl = normalizeProviderMediaUrl(url);
     if (!normalizedUrl) {
@@ -139,7 +140,24 @@ async function rehost(
     if (buf.byteLength > MAX_MEDIA) { trace.push({ msgId, step: "toobig", bytes: buf.byteLength }); return null; }
     const sniffed = waSniffMedia(buf, kind);
     if (!sniffed) { trace.push({ msgId, step: "media-type-rejected", kind, header: String(res.headers.get("content-type") || "").slice(0, 60) }); return null; }
-    const ct = sniffed.contentType, ext = sniffed.ext;
+    return { buf, ct: sniffed.contentType, ext: sniffed.ext };
+  } catch (e) { trace.push({ msgId, step: "throw", error: String(e) }); return null; }
+}
+
+async function rehost(
+  url: string,
+  msgId: string,
+  kind: "image" | "video" | "audio",
+  privateMedia: boolean,
+  sourceTs: number,
+  channel: string,
+  keep?: { media?: MediaBytes },
+): Promise<string | null> {
+  try {
+    const media = await fetchMedia(url, msgId, kind);
+    if (!media) return null;
+    if (keep) keep.media = media; // a public source group's image/video: the same bytes may get a public copy after the proof
+    const { buf, ct, ext } = media;
 
     if (privateMedia) {
       const d = new Date(sourceTs * 1000);
@@ -271,8 +289,15 @@ async function ingestSource(
       continue;
     }
 
+    // A public source group's incoming message: text gets the text proof (unchanged); a plain image or video gets the media proof.
+    const route = waGroupMessageRoute({ worldGroup: WORLD_GROUP_CHANNELS.has(src.channel), outgoing, chatId, typeMessage: typ, mediaKind });
+    // Targeted recovery of an EXISTING private group image/video (opened for the media path by a reviewed backfill file): re-read the bytes
+    // only, the private original already exists. Without the opened intake marker the server refuses the proof and nothing changes.
+    const groupBackfill = !!dup && targeted && route.groupMedia && waIsPrivateMediaRef(dup.image_url);
+    const keep: { media?: MediaBytes } = {};
     let imageUrl: string | null = null;
-    if (isImg || isVid || isAud) {
+    // A targeted duplicate that already has its media is not downloaded or stored again (no second private copy), unless it is a backfill.
+    if ((isImg || isVid || isAud) && (!dup || !dup.image_url || groupBackfill)) {
       let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
       if (!dl) {
         try {
@@ -280,13 +305,17 @@ async function ingestSource(
           dl = d?.result?.downloadUrl || d?.downloadUrl || "";
         } catch { /* noop */ }
       }
-      if (dl) imageUrl = await rehost(
+      if (dl && groupBackfill) {
+        const media = await fetchMedia(dl, msgId, mediaKind as "image" | "video");
+        if (media) keep.media = media;
+      } else if (dl) imageUrl = await rehost(
         dl,
         msgId,
         mediaKind as "image" | "video" | "audio",
         channelStatus(src.channel) === "private",
         ts,
         src.channel,
+        route.groupMedia ? keep : undefined,
       );
     }
 
@@ -295,6 +324,10 @@ async function ingestSource(
         const { error: repairError } = await sb.from("channel_updates").update({ image_url: imageUrl }).eq("id", dup.id);
         if (repairError) trace.push({ msgId, step: "targeted-media-repair-fail", error: String(repairError.message || repairError) });
         else { n++; trace.push({ msgId, step: "targeted-media-repaired", channel: src.channel }); }
+      } else if (groupBackfill && keep.media && route.kind) {
+        const r = await waProveAndPublishGroupMedia({ sb, trace, bucket: MEDIA_2029_BUCKET, updateId: dup.id, source: src, msgId, chatId,
+          senderId, typeMessage: typ, kind: route.kind, sourceTs: ts, media: keep.media });
+        if (r.published) n++;
       } else {
         trace.push({ msgId, step: "targeted-duplicate-no-repair", channel: src.channel });
       }
@@ -321,7 +354,7 @@ async function ingestSource(
       source,
       credit,
       contributor_id: contributorId,
-      group_source_intake_public: WORLD_GROUP_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us"),
+      group_source_intake_public: waGroupIntakePublic(route, imageUrl),
       priority: src.priority ?? 50,
       status: channelStatus(src.channel),
       ext_msg_id: msgId,
@@ -332,12 +365,16 @@ async function ingestSource(
       n++;
       // Positive group provenance (private side table). Identity comes ONLY from senderId (JID) -> contributors.phone,
       // never from senderName/credit. Any failure leaves the row without proof => excluded from public World reads.
-      if (WORLD_GROUP_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us")) {
+      if (route.groupSource && !imageUrl) {
         const pr = await sb.rpc("record_channel_update_group_proof_v1", {
           p_update_id: ins.data?.id, p_source_id: src.id, p_ext_msg_id: msgId, p_group_chat_id: chatId,
           p_sender_jid: senderId, p_incoming: true, p_type_message: typ,
         });
         if (pr.error || pr.data?.ok !== true) trace.push({ msgId, step: "group-proof-skip", channel: src.channel, reason: String(pr.error?.message || pr.data?.error || "unknown") });
+      } else if (route.groupMedia && route.kind && waIsPrivateMediaRef(imageUrl) && keep.media) {
+        // Image / video: the same identity rule through the media proof; the public copy only if the server says publishable.
+        await waProveAndPublishGroupMedia({ sb, trace, bucket: MEDIA_2029_BUCKET, updateId: ins.data?.id, source: src, msgId, chatId,
+          senderId, typeMessage: typ, kind: route.kind, sourceTs: ts, media: keep.media });
       }
     }
   }

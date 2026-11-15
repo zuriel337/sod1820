@@ -8,7 +8,7 @@ test('historical connection reopens the actual existing Post identity, preservin
   const experience = { media: { original: true }, connections:[connection] };
   const result = await resolvePostExperienceConnections(experience, { readPost: async slug => { calls.push(slug); return { id:7,slug:'old%20slug',source:'wordpress',link:'https://sod1820.co.il/old%20slug/' }; } });
   assert.deepEqual(calls,['old%20slug']);
-  assert.deepEqual(result.connections[0], { ...connection, href:'/old%20slug/' });
+  assert.deepEqual(result.connections[0], { ...connection, href:'/old%20slug' });
   assert.equal(result.media,experience.media);
   assert.equal(experience.connections[0].href,'/old%20slug/');
 });

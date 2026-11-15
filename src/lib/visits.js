@@ -2,7 +2,9 @@
 // נתוני האתר החדש, נאספים ישירות לבסיס הנתונים שלנו — ללא תלות בגוגל.
 // פרטיות: בלי IP / בלי PII. מזהה-גולש = מחרוזת אקראית ב-localStorage (לספירת ייחודיים בלבד).
 import { supabase } from "./supabase.js";
-import { emit, isBot } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
+import { captureMeasurement } from "./measurement2029.js";
+export { startPublicPageEngagement } from "./measurement2029.js";
+import { emit, isBot, emitPublicArrivalOnce } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
 import { getDayContext, annotateTrafficRows, attachTrafficDayContext, annotateTrafficPayloadDaily } from "./dayContext.js";
 // IDENTITY_UNIFICATION_V1: מפסיקים ליצור מזהה-מבקר נפרד ("sod_visitor") — זה היה
 // שכפול-בטעות של שכבת ה-Browser Visitor, ש-visitorId.js כבר "בעלים יחיד" שלה לפי
@@ -37,11 +39,16 @@ let firstHit = true;
 // אחידים: «כולל בוטים» (הכל) ו«אנשים בלבד» (is_bot=false), בלי מדרגה.
 
 // רישום כניסה לדף. fire-and-forget — לעולם לא שובר גלישה.
-export async function trackVisit(path) {
+export async function trackVisit(path, { measurementPath } = {}) {
   if (!supabase || !path) return;
   if (path.startsWith("/admin")) return;   // לא סופרים את עמוד הניהול עצמו
   const bot = isBot();                       // 🤖 פסק-קצה סמכותי → שני מונים: כולל-בוטים + אנשים
   const referrer = firstHit ? externalReferrer() : null;
+  // Public 2029 build: arrival attribution once per session through the bounded public family (no-op elsewhere).
+  const context = captureMeasurement(measurementPath);
+  try { emitPublicArrivalOnce(context); } catch { /* ignore */ }
+  // Capture and send before awaiting the legacy counter: an account may change while it responds.
+  try { emit("page", "view", { path, measurementContext: context }); } catch { /* ignore */ }
   firstHit = false;
   try {
     await supabase.rpc("track_visit", {
@@ -52,8 +59,7 @@ export async function trackVisit(path) {
       p_is_bot: bot,
     });
   } catch { /* שקט — מד-הכניסות לא יפיל את האתר */ }
-  // dual-write: אותה כניסה נרשמת גם ב-pipeline החדש (events) לרמת-אדם. לא תלוי בהצלחת הישן.
-  try { emit("page", "view", { path }); } catch { /* ignore */ }
+  // The admin report uses events only; these two sources must never be summed.
 }
 
 // ── שני מונים אחידים (מנהל) ─────────────────────────────────────────────────

@@ -1,0 +1,55 @@
+# run-ci-scenarios.sh output: 51 scenarios (S0-S15, R1-R9 of rounds 1-2, R10-R14 of round 3, R15-R15d of round 4).
+# Ran on commit 83005653617eb385103c0331c3be80c305e231e0 (the round-4 code commit; base = that commit, scenarios are local commits on top of it in a temporary worktree). Exit 0.
+# The same script runs in CI (live-contracts-2029.yml) whenever the G1 enforcement code changes.
+ok S0 PASS — no change
+ok S1 FAIL — new contract file without routing
+ok S2 PASS — new file declared EXTEND_EXISTING of an active owner
+ok S3 FAIL — new file extends a retired owner
+ok S4 FAIL — Owner Index row routes to a retired owner
+ok S4b FAIL — Owner Index row routes to an owner that does not exist
+ok S5 PASS — Owner Index row extends an active owner
+ok S6 FAIL — silent change to a registered contract
+ok S7 PASS — registered contract change with a dated CHANGE-RECORD
+ok S8 PASS — registered contract change with its Owner Index line
+ok S9 FAIL — dated laws snapshot edited in place
+ok S10 FAIL — a new file hidden by adding it to the frozen baseline
+ok S11 FAIL — new snapshot activates a retired law without approval
+ok S12 PASS — same, with a well-formed approval (authenticity stays a human gate)
+ok S12b FAIL — same, with an invented approval text
+ok S13 FAIL — new snapshot changes an owner at the same version
+ok S14 FAIL — new snapshot edits a body without a new version
+ok S15 FAIL — apply package gains a new store without OWNER-CHECK
+ok R1 FAIL — newer snapshot: version bump that points to an owner that does not exist
+ok R1b PASS — newer snapshot: a proper version bump
+ok R2 FAIL — newer snapshot: owner is a project_codex item that does not exist
+ok R3 FAIL — Owner Index row routes to a codex item that does not exist
+ok R3b FAIL — newer codex record adds an item without approval
+ok R3c PASS — same, with a well-formed approval line (authenticity: human gate)
+ok R4 FAIL — new contract declares a new domain without an approval
+ok R4b PASS — same, with APPROVAL:work_log:<uuid> (authenticity: human gate)
+ok R5 FAIL — new contract adds its own Owner Index line
+ok R5b PASS — same, declared as an extension of an active owner
+ok R6 FAIL — a Legacy-labelled Owner Index row routes to a retired owner
+ok R6b PASS — explicit RETIRED status in the owner cell
+ok R7 FAIL — a table hidden after a '--' inside a string
+ok R8 FAIL — new store under an existing owner without a store permission
+ok R8b PASS — same, with owner, classification and store permission
+ok R9 FAIL — a back-dated snapshot is added
+ok R10 FAIL — newer snapshot: owner is an existing file that is not a registered owner
+ok R10b FAIL — newer snapshot: a registered document becomes an owner for the first time, no approval
+ok R10c PASS — same, with a well-formed approval line (authenticity: human gate)
+ok R11 FAIL — newer snapshot: a root moves under its own child (every link is an active law)
+ok R11b PASS — newer snapshot: a chain of depth 2 that ends at a self-owned root
+ok R11c FAIL — newer snapshot: a child of a child of a retired owner
+ok R12 FAIL — a table created by a top-level SELECT ... INTO
+ok R12b PASS — same, with owner, classification and store permission
+ok R12c PASS — SELECT ... INTO a PL/pgSQL variable is not a store
+ok R13 FAIL — newer snapshot: a successor appears on a retired row without a retired_routing_v1 record
+ok R13b PASS — same, recorded through retired_routing_v1 with an approval reference (authenticity: human gate)
+ok R14 FAIL — Owner Index row routes to a document that does not exist
+ok R14b PASS — Owner Index row routes to an existing registered document
+ok R15 FAIL — new runtime code names a retired law
+ok R15b PASS — the same code names the recorded successor
+ok R15c FAIL — the new reference is hidden by adding it to a newer record
+ok R15d PASS — an existing reader is repointed to the successor and a newer, smaller record is published
+RESULT: every scenario behaved as expected (51)

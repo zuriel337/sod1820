@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { numberHref, splitGroupMessageNumbers } from "../../lib/research/groupMessageNumbers2029.js";
 import "./groupSourceMeta2029.css";
 
 // Presentation pieces of one public group source (tracks: תורת הרמז, כי לה׳ המלוכה — גימטריות, ...).
@@ -30,4 +31,19 @@ export function GroupSourceCreator({ item, prefix = "" }) {
   return item?.creatorHref
     ? <Link className="sod29-group-creator" to={item.creatorHref} data-group-creator="verified">{prefix}{name}</Link>
     : <span className="sod29-group-creator" data-group-creator="unverified">{prefix}{name}</span>;
+}
+
+/** The text of one group message with each standalone number as a link to its Number page. `onNumber(href)` lets a surface without a Router
+ *  (the Now panel) navigate itself; a modified click (new tab) always keeps the plain link. */
+export function GroupMessageText({ text, onNumber = null }) {
+  const parts = splitGroupMessageNumbers(text);
+  return <>{parts.map((part, index) => {
+    if (part.number == null) return part.text;
+    const href = numberHref(part.number);
+    const label = `למספר ${part.number}`;
+    return onNumber
+      ? <a key={index} className="sod29-group-number" href={href} aria-label={label}
+          onClick={(event) => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button) return; event.preventDefault(); onNumber(href); }}>{part.text}</a>
+      : <Link key={index} className="sod29-group-number" to={href} aria-label={label}>{part.text}</Link>;
+  })}</>;
 }

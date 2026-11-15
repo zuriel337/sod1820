@@ -216,14 +216,26 @@ export default async function handler(req, res) {
   if (productionReading) urls.push({ loc: '/community/calculator', priority: '0.7', changefreq: 'weekly' });
   if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc,priority:'0.4',changefreq:'yearly'});
   let foundationSourceFailed = false;
+  const readingProfile = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
+  const videoAssetsPath = 'video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at'
+    + (readingProfile ? ',primary_source_type,primary_source_id' : '') + '&google_indexable=eq.true&order=last_seen_at.desc';
+  // Discovery is independent of the post census; admission still waits for it.
+  // Capture either outcome immediately, including when the post read fails first.
+  // This overlaps two sequential pagers, below the existing three-read bound.
+  const videoDiscovery = productionReading ? fetchAll(videoAssetsPath).then(
+    rows => ({ rows }), error => ({ error }),
+  ) : null;
   let posts;
-  try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${productionReading ? ',tags,categories' : ''}${POST_PUBLISHED_FILTER}&order=date.desc`); }
+  try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${productionReading ? ',title,tags,categories' : ''}${POST_PUBLISHED_FILTER}&order=date.desc`); }
   catch { res.setHeader("Cache-Control", "no-store"); return res.status(503).send("sitemap source unavailable"); }
-  // DEF-002: the served canonical for a post is the address WITHOUT a trailing slash (the edge answers `/<slug>/` with a
-  // 308 to `/<slug>` and the page's canonical is slash-free), so the sitemap lists exactly that form. The stored WordPress
-  // link keeps its slash for the client-side address contract (publicPostHref), which stays untouched.
+  // DEF-002: the sitemap lists the post address WITHOUT a trailing slash - the form the edge serves (it answers `/<slug>/` with
+  // a 308 to `/<slug>`). The address itself is owned by the single adapter (src/lib/publicPostUrls.js); this only drops a
+  // trailing slash if the adapter ever returns one, so the sitemap can never list an address that redirects.
   const sitemapPostPath = href => (href && href !== '/' ? href.replace(/\/+$/, '') || '/' : href);
   const postBySlug = new Map(posts.filter(post => post.slug).map(post => [postAddressSlug(publicPostHref(post)), post]));
+  // The same anonymous publication-filtered rows already admit the post URLs.
+  // Reuse them for this response only; later requests must re-read visibility.
+  const publicPostsById = productionReading ? new Map(posts.map(post => [String(post.id), post])) : null;
   const videoPage = raw => {
     try {
       const url = new URL(raw); if (url.origin !== SITE) return null;
@@ -240,10 +252,15 @@ export default async function handler(req, res) {
   const unifiedVideoPages = new Map();
   const videoPrimaryPaths = new Set();
   try {
-    const readingProfile = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
-    let assets = await fetchAll('video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at'
-      + (readingProfile ? ',primary_source_type,primary_source_id' : '') + '&google_indexable=eq.true&order=last_seen_at.desc');
+    const discovered = videoDiscovery ? await videoDiscovery : null;
+    if (discovered && 'error' in discovered) throw discovered.error;
+    let assets = discovered ? discovered.rows : await fetchAll(videoAssetsPath);
     if (readingProfile) assets = await publicVideoSitemapAssets2029(assets, { readRows: async (table, params) => {
+      if (publicPostsById && table === 'posts') {
+        const match = /^in\.\(([0-9,]+)\)$/.exec(params.id);
+        if (match) return match[1].split(',').flatMap(id => publicPostsById.has(id) ? [publicPostsById.get(id)] : []);
+        // Unrecognized query shapes retain the existing reader/error path.
+      }
       const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers: HEADERS });
       if (!response.ok) throw new Error('sitemap-source-unavailable');
       const rows = await response.json();
@@ -400,7 +417,10 @@ export default async function handler(req, res) {
       ? '&active=eq.true&locked=not.is.true&building=not.is.true&or=(dossier_settings->>visibility.is.null,dossier_settings->>visibility.eq.public)' : ''));
     const seen = new Set();
     for (const c of cons) {
-      const slug = c.code || c.slug;
+      // The person page resolves a numeric segment through `code` and every other segment through `slug` (api/og.js, production reading):
+      // list that identity. A text code that differs from the slug (e.g. code `panzer`, slug `israel-panzer`) is not an address (it answers 404).
+      const code = String(c.code ?? '').trim(), ownSlug = String(c.slug ?? '').trim();
+      const slug = /^\d+$/.test(code) ? code : (ownSlug || code);
       // דילוג על פרופילים אוטומטיים (r-<hash>) — לא דפי-כתב אצורים, לא לאינדקס
       if (!slug || seen.has(slug) || /^r-[0-9a-f]{16,}$/i.test(slug)) continue;
       seen.add(slug);

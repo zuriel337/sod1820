@@ -96,14 +96,23 @@ test("v2 migration contract: private proof table, service-only writer, hold, no 
   assert.ok(/wa_account_links/.test(code) && /w\.verified_at is not null/.test(code), "verified account links only");
   assert.ok(!/grant[^;]*wa_account_links/i.test(code), "no grant on wa_account_links");
 });
-test("ingest sends proof from senderId, never senderName", () => {
+test("ingest sends proof from senderId, never senderName", async () => {
   const ts = readFileSync(new URL("../../../supabase/functions/wa-channel-ingest/index.ts", import.meta.url), "utf8");
   const at = ts.indexOf('rpc("record_channel_update_group_proof_v1"');
   assert.ok(at > 0);
-  const guard = ts.slice(ts.lastIndexOf("if (WORLD_GROUP_CHANNELS", at), at);
+  // The text proof: a public group's incoming message (route.groupSource) without media (!imageUrl).
+  const guard = ts.slice(ts.lastIndexOf("if (route.groupSource", at), at);
   const call = ts.slice(at, at + 400);
-  assert.ok(guard.includes("!outgoing") && guard.includes("!imageUrl") && guard.includes("@g.us"));
+  assert.ok(guard.startsWith("if (route.groupSource && !imageUrl)"), guard);
+  assert.match(ts, /const route = waGroupMessageRoute\(\{ worldGroup: WORLD_GROUP_CHANNELS\.has\(src\.channel\), outgoing, chatId,/);
+  const { waGroupMessageRoute } = await import("../../../supabase/functions/_shared/waGroupMedia.js");
+  assert.equal(waGroupMessageRoute({ worldGroup: true, outgoing: false, chatId: "1@g.us" }).groupSource, true);
+  assert.equal(waGroupMessageRoute({ worldGroup: true, outgoing: true, chatId: "1@g.us" }).groupSource, false, "never outgoing");
+  assert.equal(waGroupMessageRoute({ worldGroup: true, outgoing: false, chatId: "1@c.us" }).groupSource, false, "only a group chat");
+  assert.equal(waGroupMessageRoute({ worldGroup: false, outgoing: false, chatId: "1@g.us" }).groupSource, false, "only a public source group");
   assert.ok(call.includes("p_sender_jid: senderId") && !call.includes("senderName"));
+  // The media proof receives the same sender id (never a name) through the shared write.
+  assert.match(ts, /senderId, typeMessage: typ, kind: route\.kind, sourceTs: ts, media: keep\.media \}\);/);
 });
 
 

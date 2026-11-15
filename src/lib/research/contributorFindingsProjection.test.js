@@ -18,7 +18,7 @@ function fakeClient(label, tables, calls) {
       const call = { label, table, filters: [] };
       calls.push(call);
       const result = tables[table]
-        ?? (table === "world_contributor_research_v1" ? tables.research_objects : null)
+        ?? (table === "world_contributor_research_v2" ? tables.research_objects : null)
         ?? { data: [] };
       const b = {
         select: () => b,
@@ -266,7 +266,7 @@ test("an exact public source link reads only that Zvi occurrence and its researc
   assert.equal(projection.sourceGroups[0].sourceRef, `channel_updates:${occurrenceId}`);
   assert.equal(calls.filter((call) => call.table === "channel_updates").length, 1);
   assert.ok(calls.find((call) => call.table === "channel_updates")?.filters.some((item) => item[0] === "eq" && item[1] === "id" && item[2] === occurrenceId));
-  assert.ok(calls.find((call) => call.table === "world_contributor_research_v1")?.filters.some((item) => item[0] === "like" && item[2] === `channel_updates:${occurrenceId}%`));
+  assert.ok(calls.find((call) => call.table === "world_contributor_research_v2")?.filters.some((item) => item[0] === "like" && item[2] === `channel_updates:${occurrenceId}%`));
   assert.equal(calls.some((call) => call.table === "research_contributions"), false);
 });
 
@@ -292,7 +292,7 @@ test("the public source library opens every readable source and only its promote
   assert.equal(projection.loadState.researchObjectsTotal, 1);
   assert.equal(projection.loadState.researchObjectsDeferred, false);
   assert.equal(projection.loadState.researchObjectsTreeOnly, true);
-  const researchCall = calls.find((call) => call.table === "world_contributor_research_v1");
+  const researchCall = calls.find((call) => call.table === "world_contributor_research_v2");
   assert.ok(researchCall?.filters.some((item) => item[0] === "eq" && item[1] === "status" && item[2] === "canonical"));
   assert.ok(researchCall?.filters.some((item) => item[0] === "not" && item[1] === "promoted_node_id" && item[2] === "is" && item[3] === null));
 });
@@ -380,7 +380,7 @@ test("an exact occurrence overrides source-first deferral and loads only its res
 
   assert.equal(projection.loadState.researchObjectsDeferred, false);
   assert.equal(projection.counts.researchObjects, 1);
-  assert.ok(calls.some((call) => call.table === "world_contributor_research_v1"));
+  assert.ok(calls.some((call) => call.table === "world_contributor_research_v2"));
 });
 
 test("source attribution uses stable contributor identity and only unbound registered aliases", async () => {
@@ -393,7 +393,7 @@ test("source attribution uses stable contributor identity and only unbound regis
     research_contributions: { data: [], count: 0 },
   }, calls);
   await fetchContributorFindingsProjection("yaniv", { publicClient: () => anon, topicsReader: noTopics });
-  const researchCalls = calls.filter((call) => call.table === "world_contributor_research_v1");
+  const researchCalls = calls.filter((call) => call.table === "world_contributor_research_v2");
   assert.equal(researchCalls.length, 1);
   assert.ok(researchCalls[0].filters.some(([op, value]) => op === "or" && value.includes("source_contributor_id.eq.c1")));
   const sourceCalls = calls.filter((call) => call.table === "channel_updates");

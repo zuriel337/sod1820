@@ -1,3 +1,5 @@
+> **עדכון M0 · 12.11.2026:** DEF-004 עודכן במקומו לנוסח M0 (נתיבים, סוגי קבצים, תקרת 120 MiB, החרגת מנהל). המקור הנוכחי: `docs/reviews/m0-security-stabilization-20261112/cluster-C-gallery.md`. מסמך זה מתאר את טיוטת 6.11 ונשמר כהיסטוריה.
+
 # DEF-004 (Storage) and DEF-005 (public RPCs) — approval sheet
 
 > **Not applied.** Files: `supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql`, `…131000_def005_revoke_internal_rpcs_from_clients.sql`. Tests: `tests/sql/def004_…`, `tests/sql/def005_…`, `test/def005-rpc-grants-contract.test.mjs` (CI job `security-sql-contracts` + `live-contracts-2029`).

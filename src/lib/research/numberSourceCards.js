@@ -1,5 +1,6 @@
 // Number's presentation of the existing anonymously admitted public finding
 // DTO. Visibility, source admission and calculation truth stay with its reader.
+import{isResearchPublicVisibleStatus,researchPublicStatusPresentation}from"./researchObjectPresentation.js";
 const clean=value=>value==null?'':String(value).trim();
 const UUID='[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}';
 const sourceRef=new RegExp(`^(?:channel_updates|gallery_images):${UUID}$|^posts:[1-9]\\d*$`,'i');
@@ -18,7 +19,7 @@ export function publicNumberSourceCards(findings=[]){
  const seen=new Set(),bySource=new Map();for(const row of findings){
   const id=clean(row?.id),title=clean(row?.title),ref=clean(row?.sourceRef);
   if(!new RegExp(`^${UUID}$`,'i').test(id)||seen.has(id)||!sourceRef.test(ref)||!title
-   ||!['approved','canonical'].includes(row.publicationState)||(row.privacy_scope&&row.privacy_scope!=='public')
+   ||!isResearchPublicVisibleStatus(row.publicationState)||(row.privacy_scope&&row.privacy_scope!=='public')
    ||clean(row.findingHref)!==`/world?finding=${id}`
    ||/^(?:הודעות? מקור|מקור מחקר|מקורות?)$/.test(title)&&!publicNumberSourceHref(row.sourceHref))continue;
   seen.add(id);
@@ -29,6 +30,7 @@ export function publicNumberSourceCards(findings=[]){
   // Every distinct finding and its exact public occurrence link remain intact.
   const finding={id,title,findingHref:card.findingHref,sourceHref:card.href,
    contributor:card.contributor,createdAt:card.createdAt,publicationState:row.publicationState,
+   statusLabel:researchPublicStatusPresentation(row.publicationState).label,
    kindLabel:clean(row.kindLabel),roleLabel:clean(row.roleLabel),
    summaryTruncated:row.summaryTruncated===true,ocrNeedsReview:row.ocrNeedsReview===true};
   const existing=bySource.get(ref);

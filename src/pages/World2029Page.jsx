@@ -611,9 +611,11 @@ export function PublicWorldFindingFocus({ finding, context, shell }) {
         <div><small>איכות הראיות</small><strong>{finding.evidenceQuality?.label || "אין נתון"}</strong></div>
         <div><small>מקורות עצמאיים</small><strong>{independentSources}</strong></div>
         <div><small>מצב בדיקה</small><strong>{axisLabel(RESEARCH_VERIFICATION_LABELS_HE, finding.verification, "מצב לא צוין")}</strong></div>
-        <div><small>מצב פרסום / ממשל</small><strong>{axisLabel(RESEARCH_GOVERNANCE_LABELS_HE, finding.status, "לא צוין")}</strong></div>
+        <div><small>מצב פרסום / ממשל</small><strong>{finding.statusLabel || axisLabel(RESEARCH_GOVERNANCE_LABELS_HE, finding.status, "לא צוין")}</strong></div>
       </div>
 
+      {finding.statusLabel ? <span className={`sod29-research-status${finding.humanGateVerified ? "" : " is-unverified"}`}
+        data-public-research-status={finding.status}>{finding.statusLabel}</span> : null}
       <strong>{finding.statement || "ממצא מחקר"}</strong>
       {finding.secondary && finding.secondary !== finding.statement
         ? <p className="sod29-world-all-research-secondary">{finding.secondary}</p>

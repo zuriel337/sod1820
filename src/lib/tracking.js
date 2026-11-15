@@ -23,8 +23,9 @@ export function track(section, slug = null, eventType = "view", meta = null) {
     if (section === "runtime_error") {
       try { console.warn("SOD1820 runtime incident", sanitizeRoute(slug), eventType,
         buildIncidentMeta(meta?.message, meta || {})); } catch { /* optional console */ }
+      return;
     }
-    return;
+    return trackPublicReading(section, eventType, meta);
   }
   if (!supabase) return;
   // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — כיור-העל של האנליטיקה הפנימית. ל-visitor_events אין
@@ -49,10 +50,16 @@ export function track(section, slug = null, eventType = "view", meta = null) {
   try { emit(section, eventType, { props: (slug || meta) ? { slug: slug ?? null, ...(meta || {}) } : null }); } catch { /* ignore */ }
 }
 
+// Public 2029 build (ZURIEL 12.11.2026 "fix measurement"): the same action is measured through the bounded public family
+// (events.js emit -> readingActionSpec). visitor_events stays closed in this build; the slug and free fields stay local.
+function trackPublicReading(section, eventType, meta) {
+  try { emit(section, eventType, { props: meta || null }); } catch { /* ignore */ }
+}
+
 // שיתוף — מתעד פנימית (visitor_events) עם פילוח מלא: פלטפורמה + מכשיר/OS + מקור,
 // וגם שולח המרת share ל-Meta (Pixel/CAPI). כל כפתור שיתוף באתר קורא לזה.
 export const trackShare = (platform, slug, extraMeta = null) => {
-  if (PUBLIC_READING_RELEASE) return;
+  if (PUBLIC_READING_RELEASE) return track("share", null, "share", { platform });
   const m = (() => { try { return appMeta(); } catch { return {}; } })();
   // extraMeta מאפשר לתעד *מה בדיוק* שותף (למשל image_url + הדף שממנו שותף) — כדי ששיתוף
   // תמונה יזוהה גם כשאין לה מזהה-מספרי (תיקון «gallery-» ריק).
@@ -113,7 +120,7 @@ export const trackWhatsapp = slug => trackShare("whatsapp", slug);
 // 🟢 לחיצה על CTA «הצטרפו לקבוצת וואטסאפ» — handler משותף אחד לכל ה-surfaces (Footer/Join/
 // UpdatesBox/פוסט). קליק=Conversion (event_type='click'), נפרד מ-view ומ-share. surface=מהיכן נלחץ.
 export const trackWhatsappJoin = (surface = null) => {
-  if (PUBLIC_READING_RELEASE) return;
+  if (PUBLIC_READING_RELEASE) return track("join", null, "click", { surface: surface || null });
   track("join", "whatsapp-group", "click", { surface: surface || null });
   try { trackConversion("whatsapp_join_click", { surface: surface || null }); } catch { /* noop */ }
 };

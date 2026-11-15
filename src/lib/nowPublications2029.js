@@ -113,6 +113,7 @@ export function nowRowModel(row) {
   const item = row?.item || {};
   const categories = list(item.categories), tags = list(item.tags);
   const isGroup = item.sourceKind === "group_message", isPost = item.sourceKind === "post";
+  const isDiscussion = item.sourceKind === "community_thread";
   const isGallery = item.sourceKind === "gallery_update", isChannel = item.sourceKind === "channel_update";
   const media = item.mediaHref || item.mediaUrl || item.media?.url || null;
   const href = row?.href || null;
@@ -124,8 +125,9 @@ export function nowRowModel(row) {
   const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ categories, tags, author: item.author })[0] || null : null);
   const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
   // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
-  const groupLabel = isGroup ? clean(item.sourceGroupLabel) : "";
-  const sourceName = isGroup ? (groupLabel || item.creator || "מקור ציבורי")
+  const hasGroupSource = isGroup || isDiscussion;
+  const groupLabel = hasGroupSource ? clean(item.sourceGroupLabel) : "";
+  const sourceName = hasGroupSource ? (groupLabel || item.creator || "מקור ציבורי")
     : isChannel ? (item.sourceLabel || item.creator || "")
     : isGallery ? (item.sourceLabel || "זרם המציאות")
     : isPost ? (item.sourceLabel === "פוסט מקור באתר" ? "" : item.sourceLabel || "") || item.creator || ""
@@ -134,10 +136,11 @@ export function nowRowModel(row) {
   // The SOURCE of the row by a stable key (ZURIEL 11.11.2026: one source picker is the primary control). A group is its group (Zvi stays the
   // writer, never the source); a channel is its channel; a series Post is its series; any other Post is "פרסומי האתר". Series, category,
   // source and Post identity stay separate: this key never reads a category.
-  const groupKey = isGroup ? clean(item.sourceGroup?.key) || "" : "";
-  const sourceKey = isGroup ? `group:${groupKey || "neutral"}` : isChannel && item.channel ? `channel:${item.channel}`
+  const groupKey = hasGroupSource ? clean(item.sourceGroup?.key) || "" : "";
+  const sourceKey = hasGroupSource ? `group:${groupKey || "neutral"}` : isChannel && item.channel ? `channel:${item.channel}`
     : isPost && seriesKey ? `series:${seriesKey}` : isPost ? "site:posts" : isGallery ? "site:reality" : row?.kind === "finding" || row?.kind === "convergence" ? "site:els" : "site:other";
   const typeLabel = unverified ? "מקור · טרם נבדק"
+    : isDiscussion ? "לדיון בקהילה"
     : row?.kind === "convergence" ? "התכנסות" : row?.kind === "finding" ? "ממצא"
     : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : audio ? "הקלטה" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
   const lenses = new Set(["all"]);
@@ -186,18 +189,25 @@ export function nowRowModel(row) {
     previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
     // Almost every row opens in place (ZURIEL 11.11.2026): its full text when the item carries it, otherwise the approved summary (a Post's excerpt),
     // otherwise its media. A row with nothing to show stays a plain link — never an empty panel, never an invented continuation.
-    canExpand: Boolean(fullText || summary || media),
+    canExpand: !isDiscussion && Boolean(fullText || summary || media),
     // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
     // A writer pin is not an update of the publication, so it never says "עודכן".
     updated: Boolean(item.sourceUpdate || pinKind === "owner"),
   };
 }
 
-const PIN_RANK = Object.freeze({ owner: 2, writer: 1 });
-const pinRank = model => model.pinned ? PIN_RANK[model.pinKind] || PIN_RANK.owner : 0;
+// ZURIEL 12.11.2026: whatever was pinned LAST is on top, whoever pinned it. Every pin is a fixed window ending at pinUntil, so the later end
+// is the later pin (a pin with no end, the owner's standing pin, stays first). Non-pinned rows follow by time. This replaces the 11.11
+// order "owner's pin always above writer pins".
+const pinEnd = model => !model.pinned ? null : model.pinUntil && Number.isFinite(Date.parse(model.pinUntil)) ? Date.parse(model.pinUntil) : Infinity;
+const byPinnedLast = (a, b) => {
+  const ea = pinEnd(a), eb = pinEnd(b);
+  if (ea === null || eb === null) return (eb === null ? 0 : 1) - (ea === null ? 0 : 1);
+  return ea === eb ? 0 : eb > ea ? 1 : -1;
+};
 export const nowModels = (rows, now = Date.now()) => list(rows).filter(row => row?.id && row.title)
   .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
-  .sort((a, b) => (pinRank(b) - pinRank(a)) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
+  .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 /** Primary lenses with at least one row; "all" is always available. */
 export function availableNowLenses(models) {

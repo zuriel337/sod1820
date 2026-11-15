@@ -8,6 +8,10 @@ const LAST_IMPORTED_WORDPRESS_ID = 36935;
 // Live provenance review: two AI and two document publications have an old
 // root-form link field. Keep those root URLs as readable aliases, prefer /post/.
 // Original imported WordPress records (including AI-revised4756) stay at root.
+// URL continuity 15.11.2026: a root address is the SERVED form, without a trailing slash and with the standard (upper-case) percent-encoding.
+// The edge answers `/<slug>/` with a permanent redirect to `/<slug>` (public-reading-deploy/vercel.json `/(.+)/ -> /$1`), the sitemap lists
+// `/<slug>`, and Google serves and clicks `/<slug>` (Search Console: 98% of the clicks of these posts). The stored WordPress `link` keeps its
+// slash and encoding as provenance (storedPostPath below still reads it); it is no longer the address the site declares as canonical.
 const REVIEWED_MODERN_ROOT_IDS = new Set(["2601", "5084", "5104", "5110"]);
 const clean = value => String(value ?? "").trim();
 
@@ -40,10 +44,10 @@ export function publicPostAddress(post) {
   const stored = storedPostPath(row), source = clean(row.source).toLowerCase();
   const wpId = Number(row.wp_id);
   const importedWordpress = Number.isSafeInteger(wpId) && wpId > 0 && wpId <= LAST_IMPORTED_WORDPRESS_ID;
-  if (source === "wordpress" || importedWordpress) return { path: stored && !stored.modern ? stored.path : `/${segment}`, kind: "legacy", basis: "wordpress_origin" };
+  if (source === "wordpress" || importedWordpress) return { path: `/${segment}`, kind: "legacy", basis: "wordpress_origin" };
   const nativeProvenance = ["sod1820", "source_document", "uploaded_file"].includes(source)
     || source === "ai" && (Number.isSafeInteger(wpId) && wpId > LAST_IMPORTED_WORDPRESS_ID || REVIEWED_MODERN_ROOT_IDS.has(String(row.id)));
-  if (stored && !stored.modern && !nativeProvenance) return { path: stored.path, kind: "legacy", basis: "preserved_original_address" };
+  if (stored && !stored.modern && !nativeProvenance) return { path: `/${segment}`, kind: "legacy", basis: "preserved_original_address" };
   if (["ai", "sod1820", "source_document", "uploaded_file"].includes(source) || stored?.modern) return { path: `/post/${segment}`, kind: "modern", basis: "native_publication_provenance" };
   // Missing/other provenance never authorizes moving an existing durable URL.
   return { path: `/${segment}`, kind: "legacy", basis: "conservative_existing_address" };

@@ -31,14 +31,33 @@ export async function fetchCommunityThreadUpdates(cursors, { client = communityR
   }
   return output;
 }
+
+// The existing bounded public traversal counts replies after a cursor. A
+// cursor before the archive gives the complete visible reply count instead.
+export async function fetchCommunityThreadTotals(rows, options) {
+  const ids = [...new Set(rows.filter(row => !row.parentId && !row.isDeleted && row.body?.trim())
+    .map(row => row.id).filter(id => UUID_PATTERN.test(id || "")))];
+  const counts = {};
+  for (let offset = 0; offset < ids.length; offset += COMMUNITY_PAGE_SIZE) {
+    const cursors = ids.slice(offset, offset + COMMUNITY_PAGE_SIZE).map(id => ({
+      root_id: id, message_id: id, created_at: "0001-01-01T00:00:00Z",
+    }));
+    const updates = await fetchCommunityThreadUpdates(cursors, options);
+    for (const id of Object.keys(updates)) counts[id] = updates[id].count + 1;
+  }
+  return counts;
+}
+
 const COMMUNITY_ORIGINS = ["openweb", "community_2029"];
 // Project at the API boundary. Older Community RPCs also expose joined dossier
 // columns; this consumer requests only public message credit, never private
 // Contributor account/avatar fields.
 const COMMUNITY_RPC_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
-async function readCommunityRpc(name, args, client = communityReadClient()) {
+async function readCommunityRpc(name, args, client = communityReadClient(), signal) {
   if (typeof client?.rpc !== "function") return null;
-  const { data, error } = await client.rpc(name, args).select(COMMUNITY_RPC_FIELDS);
+  let query = client.rpc(name, args).select(COMMUNITY_RPC_FIELDS);
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error?.code === "PGRST202" || error?.code === "42883") return null;
   if (error) throw error;
   if (!Array.isArray(data)) throw new Error("invalid public community response");
@@ -73,14 +92,16 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   "e7581ab5-8c15-4832-b602-f361e41ff373": { sourceUserId: "u_r6fetXIK", name: "אמילי", ...PROFILE_BASELINES["אמילי"],
     accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755",
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
-  "user:5516d596-46d3-486d-a9c7-a35b36bc3755": { name: "אמילי", accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755",
+  // ZURIEL, 15.11.2026: no «צוות» beside Emily, including when staff reads
+  // succeed. Presentation only; her reviewed account/history and role stay intact.
+  "user:5516d596-46d3-486d-a9c7-a35b36bc3755": { name: "אמילי", accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755", showStaffBadge: false,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL, 8.11.2026: reviewed Esther26 contributor ↔ Esther Gem account.
   "99bcfb38-85be-4f38-89f0-7886f2f179e6": {
-    name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
+    name: "Esther26", accountUserId: REVIEWED_ESTHER_LINK.accountId, preferredPublicName: true,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   [`user:${REVIEWED_ESTHER_LINK.accountId}`]: {
-    name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
+    name: "Esther26", accountUserId: REVIEWED_ESTHER_LINK.accountId, preferredPublicName: true,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL, 11.11.2026: his name exactly as it always was in the community (unchanged), and the account that owns the history (photo comes from that account).
   [REVIEWED_AVI_ZOHAR_LINK.contributorId]: { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"],
@@ -151,7 +172,8 @@ export function normalizeCommunityRow(row) {
   };
   const contributor = Array.isArray(row?.contributor) ? row.contributor[0] : row?.contributor;
   const contributorId = contributor?.id || row.author_contributor_id || null;
-  const authorName = String(VERIFIED_ARCHIVE_PROFILES[contributorId]?.name || row?.author_name || contributor?.display_name || "חבר הקהילה").trim();
+  const accountProfile = VERIFIED_ARCHIVE_PROFILES[`user:${row.author_user_id}`];
+  const authorName = String((accountProfile?.preferredPublicName && accountProfile.name) || VERIFIED_ARCHIVE_PROFILES[contributorId]?.name || row?.author_name || contributor?.display_name || "חבר הקהילה").trim();
   return {
     id: row.id,
     parentId: row.parent_id || null,
@@ -240,14 +262,14 @@ export async function fetchCommunityMessagePath(messageId, { client = communityR
 // Exact public root reader for links from the private "Replies to me" inbox.
 // It does not search by text/name and never widens visibility: only an approved
 // root from one of the two public community origins can be returned.
-export async function fetchCommunityThread(threadId, { client = communityReadClient() } = {}) {
+export async function fetchCommunityThread(threadId, { client = communityReadClient(), signal } = {}) {
   if (!UUID_PATTERN.test(threadId || "")) throw new Error("invalid thread id");
-  const projected = await readCommunityRpc("community_message_context", { p_id: threadId }, client);
+  const projected = await readCommunityRpc("community_message_context", { p_id: threadId }, client, signal);
   if (projected) {
     const root = projected.find(row => row.id === threadId && row.parent_id == null && COMMUNITY_ORIGINS.includes(row.origin));
     return root ? normalizeCommunityRow(root) : null;
   }
-  const { data, error } = await client
+  let query = client
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)")
     .eq("id", threadId)
@@ -255,6 +277,8 @@ export async function fetchCommunityThread(threadId, { client = communityReadCli
     .in("origin", COMMUNITY_ORIGINS)
     .is("parent_id", null)
     .maybeSingle();
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error) throw error;
   return data ? normalizeCommunityRow(data) : null;
 }
@@ -369,7 +393,8 @@ export async function fetchCommunityAuthorSummary(authorKey, { client = communit
   const base = () => filterByAuthor(client.from("research_contributions")
     .select("id,created_at,reactions")
     .eq("status", "approved")
-    .in("origin", COMMUNITY_ORIGINS).not("body", "is", null).neq("body", ""), identity);
+    .in("origin", COMMUNITY_ORIGINS).is("deleted_at", null).is("thread_hidden_at", null)
+    .not("body", "is", null).neq("body", ""), identity);
   const { data: first, error: firstError } = await base().order("created_at", { ascending: true }).limit(1);
   if (firstError) throw firstError;
   if (!identity.verifiedOwner) return { firstAt: first?.[0]?.created_at || null, archiveLikes: null };

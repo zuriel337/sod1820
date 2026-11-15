@@ -26,7 +26,7 @@ let _sodId = null;
 let _seeded = false;
 
 // המזהה היציב. סדר: cookie → localStorage → אימוץ מפתח-ישן (seed) → מטבע חדש.
-export function getSodId() {
+export function getSodId({ bridgeLegacy = true } = {}) {
   if (_sodId) return _sodId;
   let id = readCookie(COOKIE);
   if (!id) { try { id = localStorage.getItem(SOD_KEY); } catch { /* ignore */ } }
@@ -37,7 +37,7 @@ export function getSodId() {
   _sodId = id;
   try { localStorage.setItem(SOD_KEY, id); } catch { /* ignore */ }
   writeCookie(COOKIE, id);
-  seedLegacyOnce(id);
+  if (bridgeLegacy) seedLegacyOnce(id);
   return id;
 }
 
@@ -79,10 +79,17 @@ export function appContext() {
 
 // session_id — GA-style: מזהה חדש אחרי 30 דק' חוסר-פעילות
 const SID_KEY = "sod_sid", SIDT_KEY = "sod_sid_t", GAP = 30 * 60 * 1000;
-export function sessionId() {
+export function sessionId({ accountBoundary } = {}) {
   try {
     const now = Date.now();
     let sid = localStorage.getItem(SID_KEY);
+    // Split visits at login/logout/account switch; a refresh of the same
+    // account retains its session. This does not link or rewrite identities.
+    if (accountBoundary !== undefined) {
+      const previous = localStorage.getItem('sod_sid_account');
+      if (previous !== null && previous !== accountBoundary) sid = null;
+      localStorage.setItem('sod_sid_account', accountBoundary);
+    }
     const last = Number(localStorage.getItem(SIDT_KEY) || 0);
     if (!sid || now - last > GAP) sid = uuid();
     localStorage.setItem(SID_KEY, sid); localStorage.setItem(SIDT_KEY, String(now));

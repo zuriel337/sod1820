@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "./communityRefresh.js";
+import { captureCommunityScrollAnchor, focusCommunityReplyToggle, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "./communityRefresh.js";
 
 const row = (id, body = id) => ({ id, body, createdAt: `2026-10-13T00:00:0${id}Z`, reactions: {} });
 
@@ -20,6 +20,11 @@ test("refresh drops a now-hidden row inside the proven page and retains historic
   assert.equal(next[1].body, "edited");
   assert.deepEqual(mergeCommunityRefreshRows(next, []), []);
   assert.deepEqual(mergeCommunityRefreshRows([row("3"), row("1")], [row("3")], "newest", { complete: true }).map((item) => item.id), ["3"]);
+});
+
+test("a bumped root keeps its server position on feed refresh", () => {
+  const next = mergeCommunityRefreshRows([row("4"), row("3"), row("2"), row("1")], [row("2"), row("4"), row("3")], "newest", { preserveFeedOrder: true });
+  assert.deepEqual(next.map((item) => item.id), ["2", "4", "3", "1"]);
 });
 
 test("open-thread refresh keeps already-loaded later replies in chronological order", () => {
@@ -103,4 +108,20 @@ test("the visible message stays at the same viewport position after insertion ab
   top += 180;
   restoreCommunityScrollAnchor(anchor, doc, win);
   assert.equal(top, 12);
+});
+
+test("collapsing a reply branch only scrolls when its toggle is out of the readable viewport", () => {
+  const calls = [];
+  let top = 200;
+  const toggle = {
+    focus: (options) => calls.push(options),
+    scrollIntoView: (options) => calls.push(options),
+    getBoundingClientRect: () => ({ top, bottom: top + 44 }),
+  };
+  const win = { innerHeight: 650 };
+  focusCommunityReplyToggle(toggle, win);
+  assert.deepEqual(calls, [{ preventScroll: true }]);
+  top = -1200;
+  focusCommunityReplyToggle(toggle, win);
+  assert.deepEqual(calls.slice(1), [{ preventScroll: true }, { block: "center", behavior: "instant" }]);
 });

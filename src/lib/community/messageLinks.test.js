@@ -116,3 +116,20 @@ test("external video wiring: Community, Now, Or HaGeula, World and the projector
   assert.match(read("src/components/research/WorldPublicUpdates2029.jsx"), /context=\{groupSourceAnchor\(item\) \? `מקור · טרם נבדק/);
   assert.match(read("src/components/experience2029/ProjectorMediaCards2029.jsx"), /reading\.isPublicPostReadingSource\(post\)/);
 });
+
+test("the public copy of a source-group picture or video previews inline; every other path in that bucket stays a plain link", () => {
+  const origin = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media";
+  const id = "6e1c2d4a-5b7e-5a1f-9c3e-2029a5e7d1c0";
+  const image = `${origin}/sod1820/2029/image/2026/11/${id}/original.jpg`;
+  assert.equal(describeMessageLink(image).kind, "image");
+  assert.equal(describeMessageLink(`${origin}/sod1820/2029/video/2026/11/${id}/original.mp4`).kind, "video");
+  assert.equal(describeMessageLink(`${origin}/sod1820/2029/image/2026/11/${id}/original.mp4`).kind, "link", "a video file under the image folder is not previewed");
+  assert.equal(describeMessageLink(`${origin}/sod1820/2029/video/2026/11/${id}/original.jpg`).kind, "link", "a picture file under the video folder is not previewed");
+  assert.equal(describeMessageLink(`${origin}/sod1820/2029/image/2026/11/${id}/derivatives/poster.jpg`).kind, "link", "derivatives are not the public copy");
+  assert.equal(describeMessageLink(`${origin}/sod1820/2029/image/2026/11/${id}/original.svg`).kind, "link");
+  assert.equal(describeMessageLink(`${origin}/other/2029/image/2026/11/${id}/original.jpg`).kind, "link");
+  assert.equal(describeMessageLink(image.replace("linswmnnkjxvweumprav.supabase.co", "untrusted.example")).kind, "link");
+  assert.equal(describeMessageLink(image.replace("/media/", "/gallery/")).kind, "link");
+  const parts = splitMessageLinks(`📎 תמונה\n${image}`);
+  assert.deepEqual(messageLinkPreviews(parts).map((link) => link.kind), ["image"]);
+});

@@ -9,6 +9,7 @@ import { projectTopicCardContent } from "./topicConvergence.js";
 import { decodePublicEntities } from "../presentation/contentTitle.js";
 import { classifyCalculatorInput, CALCULATOR_INPUT_KIND } from "./calculator2029Input.js";
 import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
+import { preloadPostBackground2029 } from "./postBackground2029.js";
 
 export function isPostEnglishExpression(expression) {
   const info = classifyCalculatorInput(expression);
@@ -848,6 +849,8 @@ export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = 
   const publicPost = await readPost(slug, { throwOnError: true, signal });
   if (sourceInvitation && !publicPost) return null;
   if (publicPost && !isPublicPostReadingSource(publicPost)) return null;
+  if (signal?.aborted) throw new DOMException("Source read cancelled", "AbortError");
+  if (publicPost && !sourceInvitation) preloadPostBackground2029(publicPost);
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
   // The historical preview witness is needed only for this explicit fallback.
   // Ordinary public Posts must not download its75KB authored document before
@@ -862,11 +865,19 @@ export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = 
   const isFz1073Pilot = post.slug === FZ1073_SLUG;
   const isBennettSaltPilot = post.slug === BENNETT_SALT_SLUG;
   const isElectionsChain = post.slug === ELECTIONS_SLUG;
-  const electionsVerification = isElectionsChain ? await verifyElectionsEqualities() : null;
-  const yearVerification = isGolden ? await verifyTashpaz() : null;
-  const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
-  const bennettStoryClaims = isBennettSaltPilot ? await verifyBennettStoryClaims(post.content) : new Set();
-  const topic363 = isFz1073Pilot ? await fetchFz1073Topic363(signal) : null;
+  // The governed pack depends on the admitted source, not its presentation
+  // annotations. Observe an early rejection now, then propagate it at the join;
+  // another failed/cancelled read must not leave an unhandled pack promise.
+  const contextPackResult = Promise.allSettled([
+    sourceInvitation ? null : fetchGoldenContextPack(post),
+  ]);
+  const [electionsVerification, yearVerification, bennettSaltVerification, bennettStoryClaims, topic363] = await Promise.all([
+    isElectionsChain ? verifyElectionsEqualities() : null,
+    isGolden ? verifyTashpaz() : null,
+    isBennettSaltPilot ? verifyBennettSaltFocus() : null,
+    isBennettSaltPilot ? verifyBennettStoryClaims(post.content) : new Set(),
+    isFz1073Pilot ? fetchFz1073Topic363(signal) : null,
+  ]);
   if (signal?.aborted) throw new DOMException("Source read cancelled", "AbortError");
   const presentationPost = isFz1073Pilot
     ? {
@@ -917,14 +928,16 @@ export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = 
     && projectedExperience.trail.length === 0
       ? buildPost2029ArchitectureWireframe()
       : projectedExperience;
-  const [experience, contextPack] = await Promise.all([
+  const [experience, [packResult]] = await Promise.all([
     // Home/World's source invitation renders the source, media and fixed
     // directions only. Its unused full Post context must not run six traces
     // and reopen every related Post/Topic while the user opens another page.
     // Full Post readers keep their complete, access-revalidated enrichment.
     sourceInvitation ? Promise.resolve({ ...baseExperience, connections: [] }) : resolvePostExperienceConnections(baseExperience),
-    sourceInvitation ? Promise.resolve(null) : fetchGoldenContextPack(post),
+    contextPackResult,
   ]);
+  if (packResult.status === "rejected") throw packResult.reason;
+  const contextPack = packResult.value;
   const sourceRegions = regions.length ? regions : [{ id: "post-story", heading: post.title, label: "הסיפור", primary: post.title, signals: [] }];
   const readingRegions = experience.connections.some((connection) => connection.href)
     ? [...sourceRegions, { id: "post-connections", heading: "הסיפור ממשיך מכאן", label: "חיבורים מתוך הפוסט", primary: "הסיפור ממשיך מכאן", signals: [] }]

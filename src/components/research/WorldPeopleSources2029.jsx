@@ -20,9 +20,11 @@ import WorldZviSourceFindings2029 from "./WorldZviSourceFindings2029.jsx";
 import { channelUpdateOccurrenceId } from "../../lib/research/worldContributorSourceLocator.js";
 import { mergeZviFindingsIntoWorldProjection } from "../../lib/research/worldZviContentProjection2029.js";
 import { universalFindingId } from "../../lib/research/universalFinding.js";
+import { signedPassageAnchor } from "../../lib/research/contributorSourcePassages.js";
 
 const TREE_RELATION_CACHE = new Map();
 const WORLD_MAP_RELATION_OPENER = createCanonicalRelationOpener();
+const SignedChannelPassage2029 = React.lazy(() => import("./SignedChannelPassage2029.jsx"));
 
 function MaterialLink({ href, children }) {
   if (!href) return <span>{children}</span>;
@@ -77,6 +79,9 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   const location = useLocation();
   const navigate = useNavigate();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const requestedPassage = params.get("passage");
+  const passageAnchor = signedPassageAnchor(requestedPassage);
+  const passageId = passageAnchor && location.hash === `#${passageAnchor}` ? requestedPassage : null;
   const source = params.get("source") || "";
   const corpus = WORLD_SOURCE_CORPORA.find((entry) => entry.key === source) || null;
   const selected = index?.bySlug?.[source] || null;
@@ -98,6 +103,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
     if (slug) next.set("source", slug); else next.delete("source");
     next.delete("subjectSource");
     next.delete("sourceRef");
+    next.delete("passage");
     navigate(`${location.pathname}?${next.toString()}#world-source-selection`);
   };
 
@@ -242,6 +248,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   }, [source, focusedSourceRef, materialWindow.focusedItem]);
 
   return <div className="sod29-world-people-sources" id="world-source-selection">
+    {passageId ? <SignedChannelPassage2029 id={passageId} /> : null}
     <section className="sod29-world-source-homes" aria-label="כל האנשים הציבוריים בעולם">
       <header><div className="sod29-kicker">דפי כותבים שהתעדכנו לאחרונה</div><h2>העדכניים ביותר תחילה</h2>
         <p>מוצגים תחילה עד 20 דפים ציבוריים לפי מועד העדכון. רשומות פרטיות, נעולות או בבנייה אינן נכנסות לאינדקס.</p></header>

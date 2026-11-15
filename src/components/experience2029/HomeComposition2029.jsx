@@ -291,7 +291,7 @@ function useHomeUpdates(feed, { exclude, postsOnly, sourceKey = "" }) {
   const sources = useMemo(() => nowSourceChoices(pool), [pool]);
   const models = useMemo(() => {
     // Same grouping function as "עכשיו": every Or HaGeula "רב/הרב" update lives in ONE box that sits at its newest member (one entry here).
-    const picked = sourceKey ? filterNowBySource(pool, sourceKey) : pool.filter(model => !model.unverified);
+    const picked = sourceKey ? filterNowBySource(pool, sourceKey) : pool.filter(model => !model.unverified || model.pinned);
     return buildNowEntries(picked, { sourceRuns: false }).slice(0, HOME_UPDATES_LIMIT);
   }, [pool, sourceKey]);
   return { loading, models, pinned, sources, total: pool.length };
@@ -323,12 +323,13 @@ function HomeLiveUpdates({ updates, onOpenNow, sourceKey, onSource, onNavigateTo
           const model = entry.model;
           const body = <>
             <Media src={model.thumb} fallback="✦" className="h29-live-thumb" />
-            <span className="rc29-rt"><strong>{model.row?.isNew ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{model.title}</strong>
+            <span className="rc29-rt"><strong>{model.pinned ? <span className="r29-badge is-pinned rc29-new-badge" data-home-update-pinned="true">📌 נעוץ</span> : null}{model.row?.isNew ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{model.title}</strong>
               {model.excerpt && !model.unverified ? <span className="rc29-ex">{model.excerpt}</span> : null}
               <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>
           </>;
           return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-tone={model.tone} data-home-update-item={model.id} key={model.id}>
-            {model.href?.startsWith("/") ? <Link className="r29-card" to={model.href}>{body}</Link> : model.href ? <a className="r29-card" href={model.href}>{body}</a> : <div className="r29-card">{body}</div>}
+            {model.href?.startsWith("/") ? <Link className="r29-card" to={model.href}>{body}</Link> : model.href ? <a className="r29-card" href={model.href}>{body}</a>
+              : onOpenNow ? <button type="button" className="h29-live-open r29-card" onClick={onOpenNow} data-home-update-opens-now="true">{body}</button> : <div className="r29-card">{body}</div>}
           </li>;
         })}
     </ul>

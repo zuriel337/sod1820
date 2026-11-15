@@ -21,7 +21,7 @@ export function guestNewsletterRoute2029(pathname) {
     || /^\/2029\/(?:posts|post|number|phrase)(?:\/|$)/.test(path);
 }
 
-export function useGuestNewsletterInvite2029({ eligible, blocked, routeKey, onOpen }) {
+export function useGuestNewsletterInvite2029({ eligible, blocked, routeKey, onOpen, requireResolvedPost = false }) {
   const [due, setDue] = useState(null);
   const open = useRef(onOpen);
   open.current = onOpen;
@@ -43,14 +43,22 @@ export function useGuestNewsletterInvite2029({ eligible, blocked, routeKey, onOp
     if (due?.routeKey !== routeKey || due?.lease !== generation.current || !eligible || blocked || attempted.current || suppressed()) return;
     const reveal = () => {
       if (attempted.current || suppressed()) return;
+      // A Post shell also exists while loading or showing a missing/private post.
+      // Invite at original /<slug> addresses only once the public reader rendered it.
+      if (requireResolvedPost && !document.querySelector('article[data-experience-surface="post-reading"] [data-public-post-id]')) return;
       if (document.activeElement?.matches?.("input,textarea,select,[contenteditable=true]") || String(window.getSelection?.() || "").trim()) return;
       if (document.querySelector('[role=dialog],[aria-modal=true]')) return;
       attempted.current = true;
+      observer.disconnect();
       open.current();
     };
+    // A slow Post or an existing dialog may finish after the invitation is due.
+    // Observe only while waiting; never restart the timer or interrupt that dialog.
+    const observer = new MutationObserver(reveal);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['role', 'aria-modal', 'data-public-post-id'] });
     reveal();
     document.addEventListener("focusout", reveal);
     document.addEventListener("selectionchange", reveal);
-    return () => { document.removeEventListener("focusout", reveal); document.removeEventListener("selectionchange", reveal); };
-  }, [due, eligible, blocked, routeKey]);
+    return () => { observer.disconnect(); document.removeEventListener("focusout", reveal); document.removeEventListener("selectionchange", reveal); };
+  }, [due, eligible, blocked, routeKey, requireResolvedPost]);
 }

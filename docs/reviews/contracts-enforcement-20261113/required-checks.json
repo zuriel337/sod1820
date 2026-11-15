@@ -1,0 +1,423 @@
+{
+ "purpose": "The check-run names a pull request to main gets, derived from .github/workflows/*.yml by scripts/derive-pr-check-names.mjs, with the proposed role of each name in the branch ruleset. A proposal for ZURIEL: nothing here changes the ruleset. test/required-checks-definition-2029.test.mjs fails when a workflow gains, loses or renames a pull-request job, changes its trigger class or its timeout, or when a name proposed as required is path-filtered, duplicated or live-state dependent. Regenerate the derived fields with: node scripts/derive-pr-check-names.mjs --json",
+ "derived_from_commit": "9be0c29fc52337069192b057ef1a9882c7026009",
+ "tiers": {
+  "required-now": "always triggered on pull requests to main, unique job name, independent of live state: can be named in the ruleset without any workflow change",
+  "rename-first": "cannot be named before the job names are made unique",
+  "never-required-live-state": "depends on live state; a decision for ZURIEL",
+  "aggregator-candidate": "path-filtered, and guards something that matters; becomes enforceable only with the aggregator or complement-workflow change described in required-checks.md section 4",
+  "advisory-path-filtered": "path-filtered; stays advisory"
+ },
+ "checks": [
+  {
+   "check": "hard-isolation",
+   "workflow_file": "2029-isolation-gate.yml",
+   "job_id": "hard-isolation",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 20,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "aggregator-candidate",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  },
+  {
+   "check": "contract",
+   "workflow_file": "agent-dispatch-contract-gate.yml",
+   "job_id": "contract",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 8,
+   "cost_class": "light",
+   "duplicate_name": true,
+   "proposal": {
+    "tier": "rename-first",
+    "reason": "three path-filtered workflows use the job id contract (agent-dispatch, dependency-upgrade-radar-v2, system-self-maintenance): ambiguous, and path-filtered anyway"
+   }
+  },
+  {
+   "check": "approved-visibility",
+   "workflow_file": "community-reaction-visibility-gate.yml",
+   "job_id": "approved-visibility",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": null,
+   "cost_class": "light",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "advisory-path-filtered",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  },
+  {
+   "check": "contract",
+   "workflow_file": "dependency-upgrade-radar-v2-contract-gate.yml",
+   "job_id": "contract",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 8,
+   "cost_class": "install-or-build",
+   "duplicate_name": true,
+   "proposal": {
+    "tier": "rename-first",
+    "reason": "three path-filtered workflows use the job id contract (agent-dispatch, dependency-upgrade-radar-v2, system-self-maintenance): ambiguous, and path-filtered anyway"
+   }
+  },
+  {
+   "check": "els-core-compatibility",
+   "workflow_file": "els-core-compatibility-gate.yml",
+   "job_id": "els-core-compatibility",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": null,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "aggregator-candidate",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  },
+  {
+   "check": "isolated-postgres17-auth-rls",
+   "workflow_file": "follow-identity-isolated-db-gate.yml",
+   "job_id": "isolated-postgres17-auth-rls",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [],
+   "timeout_minutes": 25,
+   "cost_class": "install-or-build",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "aggregator-candidate",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  },
+  {
+   "check": "public-core",
+   "workflow_file": "g4-public-core-gate.yml",
+   "job_id": "public-core",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 10,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "aggregator-candidate",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  },
+  {
+   "check": "legacy-production-lock",
+   "workflow_file": "legacy-production-lock.yml",
+   "job_id": "legacy-production-lock",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "push",
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": null,
+   "cost_class": "install-or-build",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on every pull request to main (and on push to main); the required-check name of the Legacy-retired gate is kept on purpose (CLAUDE.md)"
+   }
+  },
+  {
+   "check": "live-contracts-2029",
+   "workflow_file": "live-contracts-2029.yml",
+   "job_id": "live-contracts-2029",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 5,
+   "cost_class": "light",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on every pull request to main; static contracts and the G1 smoke (the enforcement of this package lives here)"
+   }
+  },
+  {
+   "check": "perf-contracts-2029",
+   "workflow_file": "live-contracts-2029.yml",
+   "job_id": "perf-contracts-2029",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 15,
+   "cost_class": "install-or-build",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on every pull request to main; builds the app and checks speed contracts"
+   }
+  },
+  {
+   "check": "release-contracts-2029",
+   "workflow_file": "live-contracts-2029.yml",
+   "job_id": "release-contracts-2029",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 10,
+   "cost_class": "install-or-build",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on every pull request to main; release-path contracts"
+   }
+  },
+  {
+   "check": "security-sql-contracts",
+   "workflow_file": "live-contracts-2029.yml",
+   "job_id": "security-sql-contracts",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 10,
+   "cost_class": "light",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on every pull request to main; throwaway-PostgreSQL SQL contracts (the CL-16 runners belong here)"
+   }
+  },
+  {
+   "check": "marketing-browser-2029",
+   "workflow_file": "live-contracts-2029.yml",
+   "job_id": "marketing-browser-2029",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 15,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on every pull request to main; real-browser gate"
+   }
+  },
+  {
+   "check": "auth-browser-acceptance-2029",
+   "workflow_file": "live-contracts-2029.yml",
+   "job_id": "auth-browser-acceptance-2029",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 15,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on every pull request to main; real-browser gate"
+   }
+  },
+  {
+   "check": "gate",
+   "workflow_file": "media-release-batch-gate.yml",
+   "job_id": "gate",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [],
+   "timeout_minutes": 15,
+   "cost_class": "install-or-build",
+   "duplicate_name": true,
+   "proposal": {
+    "tier": "advisory-path-filtered",
+    "reason": "media-release-batch-gate.yml; path-filtered, and its name collides with observability-seo-gate.yml: rename the job first"
+   }
+  },
+  {
+   "check": "gate",
+   "workflow_file": "observability-seo-gate.yml",
+   "job_id": "gate",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": null,
+   "cost_class": "install-or-build",
+   "duplicate_name": true,
+   "proposal": {
+    "tier": "rename-first",
+    "reason": "two different workflows use the job name gate (observability-seo-gate.yml: always; media-release-batch-gate.yml: path-filtered): a required \"gate\" is ambiguous. Rename the job in both before any ruleset names it"
+   }
+  },
+  {
+   "check": "Production Canary Gate",
+   "workflow_file": "release-visual-gate.yml",
+   "job_id": "release-canary-gate",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 5,
+   "cost_class": "light",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "never-required-live-state",
+    "reason": "reads the GitHub Deployments of Production and fails the PR when the latest production canary is not a success: a failure of live state would block every pull request; a decision for ZURIEL, not a default"
+   }
+  },
+  {
+   "check": "Mobile + Accessibility Acceptance",
+   "workflow_file": "release-visual-gate.yml",
+   "job_id": "mobile-accessibility",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 15,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on pull requests to main (types opened/synchronize/reopened/ready_for_review); the name has spaces and a plus sign and must be copied exactly"
+   }
+  },
+  {
+   "check": "personal-sync",
+   "workflow_file": "research-sync-gate.yml",
+   "job_id": "personal-sync",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": null,
+   "cost_class": "install-or-build",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "advisory-path-filtered",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  },
+  {
+   "check": "journal-browser",
+   "workflow_file": "research-sync-gate.yml",
+   "job_id": "journal-browser",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 15,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "advisory-path-filtered",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  },
+  {
+   "check": "route-seo-decision-2029",
+   "workflow_file": "route-seo-decision-2029.yml",
+   "job_id": "route-seo-decision-2029",
+   "pr_trigger": "always",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 10,
+   "cost_class": "install-or-build",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "required-now",
+    "reason": "always runs on every pull request to main"
+   }
+  },
+  {
+   "check": "contract",
+   "workflow_file": "system-self-maintenance-contract-gate.yml",
+   "job_id": "contract",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 8,
+   "cost_class": "install-or-build",
+   "duplicate_name": true,
+   "proposal": {
+    "tier": "rename-first",
+    "reason": "three path-filtered workflows use the job id contract (agent-dispatch, dependency-upgrade-radar-v2, system-self-maintenance): ambiguous, and path-filtered anyway"
+   }
+  },
+  {
+   "check": "tiktok-source-resolver",
+   "workflow_file": "video-ingest-gate.yml",
+   "job_id": "tiktok-source-resolver",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 5,
+   "cost_class": "light",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "advisory-path-filtered",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  }
+ ]
+}

@@ -1,8 +1,10 @@
 import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
+import { readingActionProps } from "./publicReadingTelemetry2029.js";
 // ===== פליטת אירועים אחידה (events) — שלב 1 =====
 // כותב ל-events דרך RPC ingest_event, במקביל למערכת הישנה (dual-write). fire-and-forget.
 import { supabase } from "./supabase.js";
 import { getSodId, appContext, sessionId } from "./identity.js";
+import { captureMeasurement, measurementBody, sendMeasurement } from "./measurement2029.js";
 import { isBot } from "./botVerdict.js"; // מקור-אמת יחיד לפסק-הבוט (מיוצא-מחדש למטה)
 
 function param(name) { try { return new URLSearchParams(location.search).get(name); } catch { return null; } }
@@ -64,7 +66,7 @@ function expCtx() {
 
 // emit(surface, eventType, opts?) — opts: {path, via, journeyId, depth, props}
 export function emit(surface, eventType, opts = {}) {
-  if (PUBLIC_READING_RELEASE) return;
+  if (PUBLIC_READING_RELEASE) { emitPublicReadingAction(surface, eventType, opts); return; }
   if (!supabase) return;
   try {
     const country = vcCountry();
@@ -95,6 +97,37 @@ export function emit(surface, eventType, opts = {}) {
       p_is_bot: isBot(),
     }).then(() => {}).catch(() => {});
   } catch { /* לעולם לא שובר גלישה */ }
+}
+
+// Existing public action family plus canonical page views, with an occurrence-time
+// browser/session snapshot. The server alone adds account identity.
+function emitPublicReadingAction(surface, eventType, opts = {}) {
+  try {
+    if (!supabase || isBot()) return;
+    const context = opts.measurementContext || captureMeasurement();
+    const props = surface === 'page' && eventType === 'view' ? {} : readingActionProps(surface, eventType, opts?.props);
+    if (!context || !props) return;
+    const body = measurementBody(context, surface, eventType, props);
+    if (body) void sendMeasurement(context, body);
+  } catch { /* measurement never breaks reading */ }
+}
+
+// Arrival attribution once per canonical 30-minute/account-boundary session: the canonical via() source mapped onto a fixed vocabulary,
+// plus the site's own campaign tag (?src=...) when it is a short token. No referrer URL, no query string, no landing path.
+const ARRIVAL_SOURCES = ["direct", "google", "facebook", "instagram", "twitter", "whatsapp", "telegram", "youtube", "tiktok", "share", "newsletter", "referral"];
+export function emitPublicArrivalOnce(context = captureMeasurement()) {
+  if (!PUBLIC_READING_RELEASE || !context?.sessionId) return false;
+  try {
+    if (sessionStorage.getItem("sod_arrival_2029") === context.sessionId) return false;
+    sessionStorage.setItem("sod_arrival_2029", context.sessionId);
+  } catch { return false; }
+  const raw = String(via() || "direct").toLowerCase();
+  const source = ARRIVAL_SOURCES.includes(raw) ? raw
+    : /^(?:wa|whatsapp)/.test(raw) ? "whatsapp" : /^(?:fb|facebook)/.test(raw) ? "facebook" : /^(?:ig|insta)/.test(raw) ? "instagram"
+    : /^(?:nl|newsletter|mail)/.test(raw) ? "newsletter" : /^(?:yt|youtube)/.test(raw) ? "youtube" : /^(?:tg|telegram)/.test(raw) ? "telegram" : "referral";
+  const tag = param("src");
+  emit("arrival", "source", { measurementContext: context, props: { source, tag: tag && /^[a-z0-9][a-z0-9_-]{0,31}$/i.test(tag) ? tag : null, tagged: Boolean(tag || param("utm_source")) } });
+  return true;
 }
 
 export async function persistExplicitIssueReport(payload, client = supabase) {

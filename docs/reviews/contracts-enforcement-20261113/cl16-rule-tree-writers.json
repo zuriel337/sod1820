@@ -1,0 +1,30 @@
+{
+ "purpose": "The reviewed list of SQL files (supabase/proposed/*.sql and every file named by a docs/reviews/*/apply-plan.json, except the two CL-16 files) that mention public.nodes or the rule guard. scripts/run-g1-rule-guard-sql-test.sh fails when a file outside this list mentions them, so a new proposal that reads or writes the rule tree cannot appear without a review of its order against CL-16. Reviewed 13.11.2026 by reading each file; the M0 files (the 23 files of the M0 apply plan at PR #1321 commit 4a406fed2) and the CL-13 files do not mention the rule tree and are therefore not listed. Evidence for the two writers: cl16-order-evidence/.",
+ "pattern": "\\bnodes\\b|fn_rule_compaction|trg_rule_compaction",
+ "reviewed": [
+  {
+   "file": "supabase/proposed/20261111120000_admin_suggestion_decide_decision_record_only_v1.sql",
+   "access": "reads public.nodes (SELECT of the active owner laws, lines 95-104 and 166)",
+   "effect_of_cl16": "none: CL-16 changes nothing a SELECT depends on",
+   "order_against_cl16": "free"
+  },
+  {
+   "file": "supabase/proposed/ROLLBACK_20261111120000_admin_suggestion_decide.sql",
+   "access": "reads public.nodes (line 134: refuses while system_suggestions_law v7 is active)",
+   "effect_of_cl16": "none",
+   "order_against_cl16": "free"
+  },
+  {
+   "file": "supabase/proposed/20261111120100_system_suggestions_law_v7_decision_record_only.sql",
+   "access": "WRITES public.nodes: deactivates system_suggestions_law v6 and inserts v7 (lines 67-72); then requires v6 to be byte-identical (metadata md5, lines 79-81)",
+   "effect_of_cl16": "if this file ran AFTER CL-16 it would fail its own post-check (the guard stamps metadata.rule_guard on the deactivated row, so the v6 metadata md5 changes); the 12.11.2026 laws snapshot shows system_suggestions_law v7 already active (md5 prefix a594e1fe21d4 = this file's text), so the file has already run before CL-16",
+   "order_against_cl16": "must precede CL-16; already satisfied live"
+  },
+  {
+   "file": "supabase/proposed/ROLLBACK_20261111120100_system_suggestions_law_v7.sql",
+   "access": "WRITES public.nodes: deactivates v7 and reactivates v6 (lines 19-20)",
+   "effect_of_cl16": "after CL-16 the reactivation of the retired v6 is refused as a revival (needs owner_routing.resolution and an approval reference); this rollback no longer runs",
+   "order_against_cl16": "runs only before CL-16 (or after CL-16 has been rolled back); after CL-16 it needs a new, separately approved revival"
+  }
+ ]
+}

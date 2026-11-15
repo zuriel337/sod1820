@@ -102,6 +102,7 @@ html[data-theme-2029="parchment"] .sod29-community--artwork{--community-art-opac
 .sod29-community-body{margin:10px 0 6px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;font-size:18px}
 .sod29-community-missing-parent{margin:10px 0 6px;color:var(--s29-muted);font-size:16px;line-height:1.7}
 .sod29-community-body a{color:var(--s29-accent-text);text-underline-offset:3px}
+.sod29-community-body a.sod29-community-number{text-decoration:underline dotted;unicode-bidi:isolate}
 .sod29-community-activity-source{margin-top:9px;color:var(--s29-accent-text);font-size:14px}
 .sod29-community-activity-title{margin:10px 0 2px;font-family:var(--s29-font-ui);font-size:17px}
 .sod29-community-thread-actions{display:flex;align-items:center;gap:20px;color:var(--s29-muted);font-size:14px}
