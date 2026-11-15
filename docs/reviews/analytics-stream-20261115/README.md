@@ -1,7 +1,9 @@
 # GA4: duplicate navigation and remaining measurement work
 
-15 November 2026. Preparation only; no Google settings, product data, deployments or permissions changed.
-Owner read live: `traffic_intelligence_law` v11. Base application: merged #1345, `3843af126f21ae58cf033fe808eaa2821b7a3362`; that application has not yet been deployed. The earlier #1321 audit is provenance, not proof of the current state.
+15 November 2026. This document's SDK capture is offline evidence; no Google setting is changed by it.
+Owner re-read live: `traffic_intelligence_law` v11. Capture base application: #1345, `3843af126f21ae58cf033fe808eaa2821b7a3362`. That application is now live through #1355 at `fec22ca072ce48114beab161988620d47b7392b8`, with bounded live verification of current-title manual views and one view per internal navigation. This does not verify Google's ingestion or remove the stream's automatic duplicate events. The earlier #1321 audit remains provenance.
+
+Continuation: this evidence package is integrated into #1346 with #1348, retaining their separate operational boundaries. The Cloud environment advertises desktop capability, but no desktop/browser interaction tool is callable in this session; no signed-in GA page or setting has been read or changed. No credential workaround is attempted.
 
 ## Newly reproduced, not inferred
 

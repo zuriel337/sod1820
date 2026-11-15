@@ -1,6 +1,6 @@
 # Preview existing GA4 synchronization before importing
 
-Branch-only preparation, 15 November 2026. Owner: existing `traffic_intelligence_law` v11 and existing `ga-sync-server`/canonical ingestion RPCs. No new store, cron, identity model or law.
+Prepared 15 November 2026; now integrated for final review in #1346 on main `fec22ca072ce48114beab161988620d47b7392b8`. Owner: existing `traffic_intelligence_law` v11 (re-read in this continuation) and existing `ga-sync-server`/canonical ingestion RPCs. No new store, cron, identity model or law. A website deployment does not deploy this function. Actual operation results are recorded in #1346 and the existing passive journal.
 
 ## Why this is separate
 
