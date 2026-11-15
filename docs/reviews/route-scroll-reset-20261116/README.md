@@ -27,7 +27,7 @@ widths; that regression was caught before merge and is fixed in this head.
 The separate route-navigation workflow avoids editing Claude's active workflow.
 
 Local verification: browser 4/4 (zero skips), related URL/context/entry/journey
-suites 27/27, G1 51/51, and the reading build pass. On the full app, tag footer
+suites 23/23, G1 51/51, and the reading build pass. On the full app, tag footer
 → contact now ends at y=0 (heading y=202.39, footer y=1024), versus y=1346
 on main. Both use complete public-read fixtures, zero misses, width390/height844.
 
@@ -42,5 +42,6 @@ adds a bounded restoration and its browser tests. The historical restorer is not
 copied over current source-identity/anchor owners.
 
 Coordination: fresh PR #1358 file list and passive journal checked before writing.
-Claude owns Post/SystemFrame/researchContext changes. This branch adds only the
-navigation component, its App mount, tests/workflow and this evidence.
+Claude owns Post/SystemFrame/researchContext changes. The original navigation change adds the component, its App mount and tests/workflow.
+For the coordinated release this branch now also includes #1368, unchanged; see
+[RELEASE_REQUEST.md](RELEASE_REQUEST.md). No Post/SystemFrame file is edited.
