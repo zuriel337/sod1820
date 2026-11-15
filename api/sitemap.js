@@ -417,7 +417,10 @@ export default async function handler(req, res) {
       ? '&active=eq.true&locked=not.is.true&building=not.is.true&or=(dossier_settings->>visibility.is.null,dossier_settings->>visibility.eq.public)' : ''));
     const seen = new Set();
     for (const c of cons) {
-      const slug = c.code || c.slug;
+      // The person page resolves a numeric segment through `code` and every other segment through `slug` (api/og.js, production reading):
+      // list that identity. A text code that differs from the slug (e.g. code `panzer`, slug `israel-panzer`) is not an address (it answers 404).
+      const code = String(c.code ?? '').trim(), ownSlug = String(c.slug ?? '').trim();
+      const slug = /^\d+$/.test(code) ? code : (ownSlug || code);
       // דילוג על פרופילים אוטומטיים (r-<hash>) — לא דפי-כתב אצורים, לא לאינדקס
       if (!slug || seen.has(slug) || /^r-[0-9a-f]{16,}$/i.test(slug)) continue;
       seen.add(slug);
