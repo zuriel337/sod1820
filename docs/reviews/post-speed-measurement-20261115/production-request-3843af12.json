@@ -1,0 +1,30 @@
+{
+  "teamId": "team_vtfWHZfKvdbob8gvynQb5N89",
+  "requestBody": {
+    "name": "sod1820",
+    "project": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+    "target": "production",
+    "gitSource": {
+      "type": "github",
+      "org": "zuriel337",
+      "repo": "sod1820",
+      "ref": "main",
+      "sha": "3843af126f21ae58cf033fe808eaa2821b7a3362"
+    },
+    "projectSettings": {
+      "rootDirectory": "public-reading-deploy",
+      "sourceFilesOutsideRootDirectory": true,
+      "framework": null,
+      "installCommand": "npm ci --prefix .. --no-audit --no-fund",
+      "buildCommand": "cd .. && VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]' node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=3843af126f21ae58cf033fe808eaa2821b7a3362",
+      "outputDirectory": "dist",
+      "commandForIgnoringBuildStep": "if [ \"$VERCEL_ENV\" = \"production\" ] && [ \"$VERCEL_GIT_COMMIT_SHA\" = \"3843af126f21ae58cf033fe808eaa2821b7a3362\" ]; then exit 1; elif [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]; then exit 0; else exit 1; fi"
+    },
+    "meta": {
+      "task": "POST_SPEED_MEASUREMENT_20261115",
+      "sourceSha": "3843af126f21ae58cf033fe808eaa2821b7a3362",
+      "reviewedHead": "9c594d0c09fc20b52e64052c1ac48f5d365f0275",
+      "rollback2029": "dpl_C5DBLrWYhELPFDDUaVRJs5W1T6Wj"
+    }
+  }
+}
