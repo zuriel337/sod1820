@@ -26,7 +26,10 @@ const meta=()=>value(`select jsonb_build_object('hash',md5(pg_get_functiondef(p.
 const state=()=>value(`select md5(jsonb_agg(to_jsonb(r) order by id)::text) from public.research_contributions r`);
 const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const quote=s=>s===null?'null':`'${String(s).replaceAll("'","''")}'`;
-const call=(n,emoji,marker,role='anon')=>`set role ${role}; select public.toggle_contribution_reaction('${id(n)}',${quote(emoji)},${quote(marker)}); reset role;`;
+const memberId='99999999-9999-4999-8999-999999999999';
+// psql opens one connection per exec: set the verified fixture principal in that
+// same call, not in a previous session. PGlite also exercises the same path.
+const call=(n,emoji,marker,role='anon')=>`select set_config('request.jwt.claim.sub',${quote(role==='authenticated'?memberId:'')},false); set role ${role}; select public.toggle_contribution_reaction('${id(n)}',${quote(emoji)},${quote(marker)}); reset role;`;
 const reactions=n=>value(`select reactions from public.research_contributions where id='${id(n)}'`);
 let checks=0;
 function ok(label){checks++;console.log(`PASS ${checks}: ${label}`);}
@@ -40,11 +43,9 @@ try{
  await unchangedDenial(call(1,'👎','community-repeatable-dislike'),'negative control: baseline refuses dislike');
  await exec(proposal);assert.deepEqual(await meta(),{...original,hash:afterHash});ok('apply changes only body; owner, privileges, search_path and security retained');
  for(const role of ['anon','authenticated']){
-  await exec(role==='authenticated'?"select set_config('request.jwt.claim.sub','99999999-9999-4999-8999-999999999999',false);":"select set_config('request.jwt.claim.sub','',false);");
   for(let i=0;i<3;i++)await exec(call(1,'👎','community-repeatable-dislike',role));
  }
  let r=await reactions(1);assert.equal(r.community_dislikes,6);assert.equal(r.likes,27);assert.equal(r.dislikes,8);assert.deepEqual(r['👍'],['v:old']);assert.deepEqual(r['🔥'],['v:old']);ok('three clicks each by guest and member add six; historical counts unchanged');
- await exec("select set_config('request.jwt.claim.sub','',false);");
  for(let i=0;i<2;i++)await exec(call(1,'👍','community-repeatable-like'));
  r=await reactions(1);assert.equal(r.community_likes,2);assert.equal(r.community_dislikes,6);ok('likes still add independently');
  await exec("update public.research_contributions set origin='community_2029' where id='"+id(2)+"';");
@@ -52,13 +53,13 @@ try{
  assert.equal(await value(`select bool_and(last_activity_at > '2020-01-01') from public.research_contributions where id in ('${id(1)}','${id(2)}')`),true);ok('current Community reply adds dislike and updates ancestor activity');
  for(const [n,label]of [[3,'pending'],[4,'pending ancestor'],[5,'deleted'],[6,'hidden'],[7,'noncommunity'],[8,'hidden ancestor'],[9,'cycle'],[10,'missing ancestor'],[99,'missing target']])await unchangedDenial(call(n,'👎','community-repeatable-dislike'),label+' is refused');
  for(const [emoji,marker]of [['👎','community-repeatable-like'],['👍','community-repeatable-dislike'],['🔥','community-repeatable-dislike'],['👎','ordinary-visitor'],['👎',null],['👎',''],[null,'community-repeatable-dislike']])await unchangedDenial(call(1,emoji,marker),'invalid pair '+emoji+'/'+marker);
- await exec("select set_config('request.jwt.claim.sub','99999999-9999-4999-8999-999999999999',false);");
  await unchangedDenial(call(1,'👎',null,'authenticated'),'signed-in caller still needs repeatable dislike marker');
- await exec("select set_config('request.jwt.claim.sub','',false);");
  for(const emoji of ['👍','💡','🔥','🙏','✨']){
   const prior=await reactions(1);await exec(call(1,emoji,'fixture-visitor'));assert.ok((await reactions(1))[emoji].includes('v:fixture-visitor'));
   await exec(call(1,emoji,'fixture-visitor'));assert.deepEqual((await reactions(1))[emoji],prior[emoji]??[]);
  }ok('all five existing per-visitor toggles still add and remove');
+ await exec(call(2,'💡',null,'authenticated'));assert.deepEqual((await reactions(2))['💡'],[memberId]);
+ await exec(call(2,'💡',null,'authenticated'));assert.deepEqual((await reactions(2))['💡'],[]);ok('authenticated fixture uses auth.uid in the same DB session');
  await unchangedDenial(`set role anon;update public.research_contributions set reactions='{}';`,'direct public writes remain forbidden');
  if(parallel){
   const initial=await reactions(1);
