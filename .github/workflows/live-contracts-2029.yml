@@ -480,6 +480,8 @@ jobs:
         run: node --test test/community-behavior-continuity-2029.browser.mjs
       - name: Public Post at its original address reads its source while the page code downloads (real worker, request order)
         run: node --test test/post-root-address-early-read-20261115.browser.mjs
+      - name: Guest updates invitation on public pages and original Post addresses (real artifact; no subscriptions)
+        run: node --test test/guest-newsletter-restoration-20261115.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)

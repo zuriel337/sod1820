@@ -100,7 +100,7 @@ import "./googleEntry2029.css";
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));
 const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));
-import { dismissGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
+import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -1733,7 +1733,15 @@ function SystemFrame2029Body({
     setNavOpen(false);
   }, [navOpen, completeSurfaceEntry, contextLocked]);
 
-  // ZURIEL 5.11: no automatic "join the updates" popup. Joining the updates lives in the footer only.
+  // ZURIEL 15.11: restore the existing guest invitation (22s or 450px scroll).
+  // Original WordPress addresses qualify only after their public Post has rendered.
+  useGuestNewsletterInvite2029({
+    eligible: !authLoading && !user && (guestNewsletterRoute2029(location.pathname) || surface === "post"),
+    blocked: Boolean(transient) || navOpen,
+    routeKey: location.pathname,
+    requireResolvedPost: surface === "post",
+    onOpen: () => openTransient(TRANSIENT.NEWSLETTER),
+  });
   useEffect(() => {
     if (authLoading || user) setTransient(current => current?.kind === TRANSIENT.NEWSLETTER ? null : current);
   }, [authLoading, user?.id]);
