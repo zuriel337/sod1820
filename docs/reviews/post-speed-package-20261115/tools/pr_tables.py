@@ -6,7 +6,9 @@ import json, sys, os
 tables, name, arm, *metrics = sys.argv[1:]
 d = json.load(open(os.path.join(tables, name + '.json'), encoding='utf8'))
 LABEL = {'O1': 'O1 · ותיק, תמונה ראשונה', 'O3': 'O3 · ותיק, בינוני', 'N3': 'N3 · חדש, בינוני (וידאו)', 'N5': 'N5 · חדש, ארוך (פוסט הייחוס)'}
-head = '| פוסט | ' + ' | '.join(f'{m}: בסיס → {arm}' for m in metrics) + ' |'
+ARM_HE = {'proposed tree': 'העץ המוצע', 'D (static headers)': 'D', 'B': 'B'}
+METRIC_HE = {'content': 'הטקסט גלוי', 'fcp': 'FCP', 'lcp': 'LCP', 'tbt': 'חסימה', 'kb_before_content': 'KB לפני הטקסט'}
+head = '| פוסט | ' + ' | '.join(f"{METRIC_HE.get(m, m)}: בסיס → {ARM_HE.get(arm, arm)}" for m in metrics) + ' |'
 print(head); print('|' + '---|' * (1 + len(metrics)))
 for p in ['O1', 'O3', 'N3', 'N5']:
     if p not in d['posts']: continue
