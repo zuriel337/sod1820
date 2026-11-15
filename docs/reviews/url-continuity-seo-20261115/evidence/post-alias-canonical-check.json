@@ -1,0 +1,25 @@
+{
+ "purpose": "local, no network: canonical declared by api/og.js for the `/post/<slug>` alias of an imported WordPress post (fixture row; same shape as public.posts)",
+ "base_main_3843af126": {
+  "root": "mainwt",
+  "post_alias_lower": {
+   "status": 200,
+   "canonical": "https://sod1820.co.il/%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c-%d7%a8%d7%91%d7%99-%d7%a9%d7%9c%d7%9e%d7%94-%d7%99%d7%94%d7%95%d7%93%d7%94-%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90/"
+  },
+  "post_alias_upper": {
+   "status": 200,
+   "canonical": "https://sod1820.co.il/%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c-%d7%a8%d7%91%d7%99-%d7%a9%d7%9c%d7%9e%d7%94-%d7%99%d7%94%d7%95%d7%93%d7%94-%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90/"
+  }
+ },
+ "with_pr_1349_b7ab5a985": {
+  "root": "wt-canon",
+  "post_alias_lower": {
+   "status": 200,
+   "canonical": "https://sod1820.co.il/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%9C%D7%A8%D7%A4%D7%95%D7%90%D7%94-%D7%A9%D7%9C-%D7%A8%D7%91%D7%99-%D7%A9%D7%9C%D7%9E%D7%94-%D7%99%D7%94%D7%95%D7%93%D7%94-%D7%94%D7%99%D7%A0%D7%95%D7%A7%D7%90"
+  },
+  "post_alias_upper": {
+   "status": 200,
+   "canonical": "https://sod1820.co.il/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%9C%D7%A8%D7%A4%D7%95%D7%90%D7%94-%D7%A9%D7%9C-%D7%A8%D7%91%D7%99-%D7%A9%D7%9C%D7%9E%D7%94-%D7%99%D7%94%D7%95%D7%93%D7%94-%D7%94%D7%99%D7%A0%D7%95%D7%A7%D7%90"
+  }
+ }
+}

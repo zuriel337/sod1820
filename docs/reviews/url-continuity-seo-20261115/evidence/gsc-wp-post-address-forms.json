@@ -1,0 +1,29 @@
+{
+ "source": "public.gsc_metrics dimension=page, rows exported 15.11.2026 (last fetch 14.11.2026 05:17 UTC); WordPress root posts = GSC URLs whose first path segment equals a posts.slug (1,322 posts)",
+ "all_time": {
+  "slash_free": {
+   "urls": 1187,
+   "clicks": 7542,
+   "impressions": 136153
+  },
+  "trailing_slash": {
+   "urls": 399,
+   "clicks": 147,
+   "impressions": 2209
+  }
+ },
+ "last_28_days": {
+  "slash_free": {
+   "clicks": 1304,
+   "impressions": 31837
+  },
+  "trailing_slash": {
+   "clicks": 1,
+   "impressions": 24
+  }
+ },
+ "share_of_clicks_slash_free_all_time_pct": 98.1,
+ "share_of_impressions_slash_free_all_time_pct": 98.4,
+ "share_of_clicks_slash_free_28d_pct": 99.9,
+ "note": "performance data only; no Page indexing/Coverage data is available (DEF-006)"
+}

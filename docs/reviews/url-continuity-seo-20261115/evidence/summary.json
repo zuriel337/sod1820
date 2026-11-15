@@ -1,0 +1,460 @@
+{
+ "universe": 41827,
+ "sources": {
+  "audit611": 772,
+  "gsc": 15519,
+  "inv311": 32815,
+  "sitemap_now": 16790,
+  "traffic311": 10232,
+  "posts": 1322,
+  "recon311": 1818,
+  "redirect_map": 1293,
+  "sitemap311": 21911,
+  "posts_link": 1184,
+  "seo_backup": 1185,
+  "unresolved311": 369,
+  "posts_postroute": 1322,
+  "redirect_map_pid": 1293
+ },
+ "measured_total": 15052,
+ "unchecked_mitigated_or_error": 0,
+ "class": {
+  "OK": 12862,
+  "OK_REDIRECT": 1287,
+  "UNDECIDABLE": 751,
+  "TEMP_CLOSED": 38,
+  "INTENTIONAL": 112,
+  "BROKEN": 2
+ },
+ "ok_total": 14149,
+ "ok_clean": 12306,
+ "canonical_slash": 1836,
+ "canonical_other_page": 282,
+ "canonical_encoding_only": 6,
+ "canonical_missing": 1,
+ "canonical_query_dropped": 655,
+ "chain_ge2": 123,
+ "p_shortlink": 79,
+ "sitemap_checked": 6091,
+ "sitemap_ok_direct": 6090,
+ "sitemap_redirect": 0,
+ "sitemap_404": 1,
+ "sitemap_noindex": 1,
+ "sitemap_canonical_not_self": 1177,
+ "sitemap_canonical_slash": 1177,
+ "undecidable_by_shape": {
+  "wp-content-file": {
+   "n": 103,
+   "impr": 2178,
+   "clicks": 65,
+   "examples": [
+    "/wp-content/uploads/2014/06/מצגת-תמונות-התגלות-משיח.pdf",
+    "/wp-content/uploads/2020/12/בים-דרכך-חנוכה-כולל-גם-העבודה-של-נשמות-לאה-ורחל-תשפ-",
+    "/wp-content/uploads/2023/09/מגזין-מציאות-שני-חודש-תשרי_compressed.pdf",
+    "/wp-content/uploads/2023/08/מגזין-מציאות-01-אלול-תשפג.pdf"
+   ]
+  },
+  "category": {
+   "n": 27,
+   "impr": 894,
+   "clicks": 22,
+   "examples": [
+    "/category/שיעורי-שמע-סוד-החשמל",
+    "/category/שיעורי-שמע-סוד-החשמל/",
+    "/category/סוד-האותיות/גלריות-גימטריה/page/2/",
+    "/category/עלוני-צפנת-פענח"
+   ]
+  },
+  "root-slug": {
+   "n": 58,
+   "impr": 4949,
+   "clicks": 32,
+   "examples": [
+    "/בנימין-נתניהו-הוא-כצפוי-ראש-ממשלת-ישרא",
+    "/צאט-סגולות",
+    "/2701-2",
+    "/דף-ראשי-2"
+   ]
+  },
+  "other": {
+   "n": 82,
+   "impr": 836,
+   "clicks": 14,
+   "examples": [
+    "/דף-ראשי-2/",
+    "/ספרון-הכי-קטן-והכי-עוצמתי-בעולם-ספר-זוה/",
+    "/רמזים-חזקים-לגאולה-מפרסום-השמות-הנפוצ/",
+    "/קורס-הגימטריה/"
+   ]
+  },
+  "tag": {
+   "n": 213,
+   "impr": 2013,
+   "clicks": 29,
+   "examples": [
+    "/tag/sod1820-co-il/",
+    "/tag/sod1820-co-il",
+    "/tag/הרב-יהודה-פתיה-זצוקל",
+    "/tag/אהבת-הרשבי"
+   ]
+  },
+  "author": {
+   "n": 22,
+   "impr": 180,
+   "clicks": 3,
+   "examples": [
+    "/author/lior",
+    "/author/yosi-v/page/8",
+    "/author/yosi-v/page/16/",
+    "/author/sodtorah"
+   ]
+  },
+  "topic": {
+   "n": 4,
+   "impr": 191,
+   "clicks": 0,
+   "examples": [
+    "/topic/ezor-hayetzia-geula",
+    "/topic/cat-clocks",
+    "/topic/cat-car-plates",
+    "/topic/מפגש-הצירים-1010"
+   ]
+  },
+  "wp-pagination": {
+   "n": 43,
+   "impr": 216,
+   "clicks": 0,
+   "examples": [
+    "/פוסטים-אחרונים-2/page/5",
+    "/פוסטים-אחרונים-2/page/107/",
+    "/page/51/?cat=-46",
+    "/פוסטים-אחרונים-2/page/75/"
+   ]
+  },
+  "wp-feed": {
+   "n": 3,
+   "impr": 14,
+   "clicks": 0,
+   "examples": [
+    "/אוצר-תהילות-ישראל-עלון-הכנה-לגאולה/feed",
+    "/אוצר-תהילות-ישראל-עלון-הכנה-לגאולה/feed/",
+    "/מסר-חדש-העולם-בדרך-למלחמה/feed"
+   ]
+  },
+  "post-route": {
+   "n": 3,
+   "impr": 1,
+   "clicks": 0,
+   "examples": [
+    "/post/bennett-melach-631-78",
+    "/post/${BENNETT_SALT_SLUG}",
+    "/post/fixture-b"
+   ]
+  },
+  "audio-file": {
+   "n": 193,
+   "impr": 0,
+   "clicks": 0,
+   "examples": [
+    "/audio/246.wav",
+    "/audio/dynovisz/20160327_hebreugoel.mp3",
+    "/audio/dynovisz/20160519_hebreubehar.mp3",
+    "/audio/dynovisz/20160523_hebreuhod1.mp3"
+   ]
+  }
+ },
+ "intentional": {
+  "public_post_boundary_suppressed_tag": 7,
+  "recon311:exact_existing_restricted_draft_identity": 4,
+  "recon311:known_deferred_capability:closed_notice_200_noindex": 33,
+  "pagination_beyond_last_page_of_existing_collection": 49,
+  "automatic_profile_not_a_researcher_page": 1,
+  "recon311:private_role_gated_surface:closed_notice_200_noindex": 12,
+  "recon311_invalid:template_artifact_not_a_document": 1,
+  "recon311_invalid:device_private_cache_path": 1,
+  "recon311_invalid:disabled_search_tab_literal_not_a_public_link": 1,
+  "recon311:retired_gallery_plugin_dependency": 2,
+  "recon311:unsupported_wordpress_api": 1
+ },
+ "broken": [
+  [
+   "/community/researcher/panzer",
+   "sitemap_url_is_404",
+   404,
+   5,
+   0
+  ],
+  [
+   "/WORLD",
+   "recon_resolved_but_404",
+   404,
+   0,
+   0
+  ]
+ ],
+ "temp_closed": [
+  "/archive",
+  "/archive?q=786",
+  "/broadcasts",
+  "/broadcasts?tab=activity",
+  "/broadcasts?tab=forum",
+  "/cross",
+  "/cross?n=1820",
+  "/gematria-3d",
+  "/heichal",
+  "/languages",
+  "/name",
+  "/name-lab",
+  "/name-lab?w=Messiah",
+  "/name-lab?w=conversation",
+  "/name-lab?w=glory",
+  "/name-lab?w=good",
+  "/name-lab?w=priest",
+  "/name-lab?w=victory",
+  "/numbers",
+  "/numbers?n=15",
+  "/reality",
+  "/reality?utm_source=ig-squid",
+  "/research",
+  "/research?tool=journey",
+  "/research?tool=midrash&tab=calc&w=אני אור",
+  "/research?tool=midrash&tab=calc&w=גל רובין",
+  "/research?tool=midrash&tab=calc&w=רובין",
+  "/research?tool=midrash&tab=submit",
+  "/research?tool=verse",
+  "/spatial-gematria",
+  "/timeline",
+  "/verse-gematria",
+  "/גימטריה-מרחבית",
+  "/גימטריה-תלת-ממדית",
+  "/היכל",
+  "/הצלבה",
+  "/פסוקים",
+  "/קשרי-שפות"
+ ],
+ "sampled": {
+  "numbers_pool": 16427,
+  "numbers_sample": 600,
+  "forum_pool": 6618,
+  "forum_sample": 400,
+  "p3_pool": 2772,
+  "p3_sample": 700,
+  "p1_remaining": 1741,
+  "p2_remaining": 1443,
+  "pass3": {
+   "numbers_sample": 300,
+   "forum_sample": 200,
+   "p1_census_top_by_impressions": 400,
+   "p1_census_not_fetched": 1112,
+   "p2_census_not_fetched": 1443,
+   "p3_sample": 150
+  },
+  "pass4": {
+   "attachment_pool_unmeasured": 206,
+   "attachment_sample": 40,
+   "rows": 293
+  }
+ },
+ "top_non_ok_by_impressions": [
+  [
+   "/צאט-סגולות",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   2320,
+   6
+  ],
+  [
+   "/בנימין-נתניהו-הוא-כצפוי-ראש-ממשלת-ישרא",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   1269,
+   10
+  ],
+  [
+   "/name-lab?w=conversation",
+   "TEMP_CLOSED",
+   "documented_temporarily_closed_503",
+   503,
+   863,
+   0
+  ],
+  [
+   "/tag/sod1820-co-il",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   709,
+   3
+  ],
+  [
+   "/category/שיעורי-שמע-סוד-החשמל",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   540,
+   12
+  ],
+  [
+   "/wp-content/uploads/2018/11/אור-השמן.pdf",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   492,
+   3
+  ],
+  [
+   "/זוהר/",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   480,
+   0
+  ],
+  [
+   "/wp-content/uploads/2015/10/הרב-מבריסק.docx",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   412,
+   0
+  ],
+  [
+   "/broadcasts",
+   "TEMP_CLOSED",
+   "documented_temporarily_closed_503",
+   503,
+   382,
+   7
+  ],
+  [
+   "/cross",
+   "TEMP_CLOSED",
+   "documented_temporarily_closed_503",
+   503,
+   367,
+   4
+  ],
+  [
+   "/דף-ראשי-2",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   295,
+   2
+  ],
+  [
+   "/אנחנו-מגיעים-לסוף-מסר-2",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   283,
+   2
+  ],
+  [
+   "/2701-2",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   260,
+   5
+  ],
+  [
+   "/wp-content/uploads/2023/09/מגזין-מציאות-שני-חודש-תשרי_compressed.pdf",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   257,
+   6
+  ],
+  [
+   "/tag/sod1820-co-il/",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   235,
+   4
+  ],
+  [
+   "/elohim-hu-hakol",
+   "INTENTIONAL",
+   "public_post_boundary_suppressed_tag",
+   404,
+   186,
+   0
+  ],
+  [
+   "/archive",
+   "TEMP_CLOSED",
+   "documented_temporarily_closed_503",
+   503,
+   183,
+   0
+  ],
+  [
+   "/tag/מיטל-טולדנו",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   170,
+   0
+  ],
+  [
+   "/name",
+   "TEMP_CLOSED",
+   "documented_temporarily_closed_503",
+   503,
+   160,
+   1
+  ],
+  [
+   "/topic/ezor-hayetzia-geula",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   149,
+   0
+  ],
+  [
+   "/category/שיעורי-שמע-סוד-החשמל/",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   147,
+   7
+  ],
+  [
+   "/reality",
+   "TEMP_CLOSED",
+   "documented_temporarily_closed_503",
+   503,
+   147,
+   5
+  ],
+  [
+   "/wp-content/uploads/2014/06/מצגת-תמונות-התגלות-משיח.pdf",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   132,
+   16
+  ],
+  [
+   "/דף-ראשי-2/",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   126,
+   9
+  ],
+  [
+   "/my-account",
+   "UNDECIDABLE",
+   "no_identity_evidence",
+   404,
+   85,
+   0
+  ]
+ ]
+}

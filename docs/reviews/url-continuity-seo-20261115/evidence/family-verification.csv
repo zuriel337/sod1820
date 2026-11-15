@@ -1,0 +1,36 @@
+﻿family,urls_total,measured,OK,OK_REDIRECT,TEMP_CLOSED,INTENTIONAL,UNDECIDABLE,BROKEN,UNCHECKED,documented_old_address,documented_target
+F00,12,3,3,0,0,0,0,0,0,/; /2029; /world; /map,היעדים הקיימים
+F01,2001,1548,1464,84,0,0,0,0,0,/:slug; /post/:slug; /?p=<wp_id>,אותה כתובת לפי publicPostHref
+F02,8,1,1,0,0,0,0,0,0,/post; /posts; /פוסטים-אחרונים[-2]; /verified,/post; aliases → canonical existing catalog
+F03,8,7,2,5,0,0,0,0,0,/category/:slug,"/category/:slug — אותו קטלוג Posts, סינון מדויק"
+F04,9,6,1,4,0,0,1,0,0,/tag/:slug כולל כינויי צאט,/tag/:slug; כינויי צאט מדויקים → /community/chat
+F05,1,1,1,0,0,0,0,0,0,/category/וידאו,/category/וידאו — סיווג הפוסטים הקיים + קישור נפרד ל־/or-geula
+F06,1,1,1,0,0,0,0,0,0,/community,/community
+F07,4,3,1,2,0,0,0,0,0,/community/chat; /chat; /דף-צאט-ראשי,/community/chat
+F10,6632,215,1,214,0,0,0,0,0,/forum; /forum/:id; /community/comments,/forum והזהות הישנה המוכחת→/community/chat; /forum/:id רק לאחר approved אנונימי; /community/comments
+F11,1,1,1,0,0,0,0,0,0,/community/whatsapp,/community/whatsapp — מצב ייעודי קיים
+F12,2,1,1,0,0,0,0,0,0,/community/researchers; /members,/community/researchers; /members — אינדקס אנשים ציבורי קנוני
+F13,30,21,20,0,0,0,0,1,0,/community/researcher/:slug; /researcher/:slug; /888,/community/researcher/:slug; /888 → /community/researcher/888
+F14,6,1,1,0,0,0,0,0,0,/gematria; /גימטריה; /research?tool=gematria,/gematria דרך המתאם הקיים
+F15,2,1,1,0,0,0,0,0,0,/community/calculator?w=…,/community/calculator עם w/method/result ומצבי הכלי המקוריים
+F16,23047,7814,7787,27,0,0,0,0,0,/number/:phrase; /2029/number/:value; /topic/:slug,המסלולים הקיימים
+F17,113,8,7,0,1,0,0,0,0,/gallery?gallery=…; /archive; /gallery-updates,/gallery הזהה; /archive מצב ייעודי; /gallery-updates → /archive
+F18,2,1,1,0,0,0,0,0,0,/or-geula; /אור-הגאולה; /or-geula/video/:id,/or-geula?v=id; /or-geula/video/:id; כינוי עברי
+F19,128,40,39,0,0,0,1,0,0,/video/:assetId,היעד הקיים
+F20,115,93,93,0,0,0,0,0,0,/codes; /codes/מחקר; /codes/:slug,/codes; /codes/מחקר; /codes/:slug
+F21,6,1,1,0,0,0,0,0,0,/code; /els; /lab/els; /tzofen.html,/code; /els; הכינויים המדויקים
+F22,9,1,1,0,0,0,0,0,0,/books; /book/:slug; /books/:slug; /book.html,/books; /book/:slug; /books/:slug → /book/:slug
+F23,37,11,4,1,6,0,0,0,0,/heichal; /היכל; /journey; /raziel; /research; /beit-midrash,היכולות הקיימות ומצבי הבנייה הייעודיים
+F24,4,3,1,2,0,0,0,0,0,/contact; /צור-קשר; /about,/contact; /צור-קשר; /about → /contact
+F25,2,0,0,0,0,0,0,0,0,/profile; /me[?tab=<known>]; /2029/me; /community/researcher/me; /2029/me/:module,"/profile → /2029/me/profile; /me/<מודול ידוע> → /2029/me/<מודול>; שמורים,פנקס,פרופיל ותיבות קיימות"
+F26,7,1,1,0,0,0,0,0,0,/login; /auth/callback; /join; /welcome,מסכי Auth קיימים; adapters למשמעותשנשמרת
+F27,3,1,1,0,0,0,0,0,0,/privacy; /updates; /unsubscribe?e=…&t=…,/privacy; /updates; /unsubscribe; חלונית אורח במעטפת הקיימת — אותו מוצר עדכוני האתר
+F28,5,0,0,0,0,0,0,0,0,/early-access; /melech-hamisparim/718; /tiktok/melech; /whatsapp/kod-hametsiut,"דפי הקמפיין הקיימים, לפי ההפניות המקוריות"
+F29,2,0,0,0,0,0,0,0,0,/credits; /buy; payment=success/failed&ref=…,/credits; /buy — מצב שירות ייעודי
+F30,10,9,0,0,0,9,0,0,0,/admin; /edit…; /traffic; /reports; /2029/control,כניסה ויעדמקביל רק לפי הרשאה
+F31,7,4,0,0,4,0,0,0,0,/name; /שם; /name-lab; spatial/verse/language/cross aliases,הכלים והכינויים הידועים — דפי מצב מדויקים
+F32,211,198,1,0,0,4,193,0,0,/audio/*; /wp-content/*; uploads; /api/card; OG; XML; robots; RSS,המשאב/הנכס המדויק אם זמין
+F33,6,6,0,6,0,0,0,0,0,/<post>/embed/; /<post>/<attachment>; *.html; iframe,242 קישורי תמונה → אותו Post ציבורי ומדיה מדויקת; 6 embeds → אותו Post
+F34,15,12,1,0,6,5,0,0,0,/reality; /start; /whats-new; /broadcasts; /timeline; /numbers; /theme; /stream; /rooms…,"מוצע: רכיב קיים מדויק, רק לאחר בדיקת משמעות"
+UNRESOLVED,369,203,2,93,9,38,60,1,0,כתובותמהמלאישטרםנמצאהזהותחדמשמעית,ללא יעד מומצא; תור בירור פרטני
+(none),9012,4836,3423,849,12,56,496,0,0,,

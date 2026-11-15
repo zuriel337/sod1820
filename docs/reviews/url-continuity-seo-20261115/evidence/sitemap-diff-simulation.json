@@ -1,0 +1,9 @@
+{
+ "method": "live /sitemap.xml of 15.11.2026 (16,790 locs, pre-fix code) matched by decoded slug to public.posts rows (1,322); new adapter (wt claude/url-wp-canonical-slashfree-20261115 @ b7ab5a985) applied to each row; compared with the live loc path",
+ "root_single_segment_locs": 1190,
+ "unchanged_exact": 21,
+ "differ_only_in_percent_encoding_hex_case": 1156,
+ "differ_otherwise": 0,
+ "no_matching_post_row": 13,
+ "note": "the 13 are static roots (/books, /code, ...) or posts absent from the DB export; the simulation does not change the number of sitemap locs"
+}
