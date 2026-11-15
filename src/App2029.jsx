@@ -240,16 +240,28 @@ function RouteEffects2029() {
         initMarketing();
         trackMarketingPageview();
       };
+      const start = () => {
+        if (stopped) return;
+        if (window.requestIdleCallback) idle = window.requestIdleCallback(run, { timeout: 3000 });
+        else timer = setTimeout(run, 350);
+      };
+      const isPost = pathname !== "/" && document.querySelector("[data-post-address]");
       const schedule = () => {
         observer?.disconnect();
         clearTimeout(capTimer);
-        if (window.requestIdleCallback) idle = window.requestIdleCallback(run, { timeout: 3000 });
-        else timer = setTimeout(run, 350);
+        // The article's cover is what a reader waits for next, and a script that starts while it downloads competes with it for bytes and for the main
+        // thread. Hold for the page's own priority image only while it is still loading, once, and never longer than 4 seconds.
+        const cover = isPost ? document.querySelector('[data-experience-surface="post-reading"] img[fetchpriority="high"]') : null;
+        if (!cover || cover.complete !== false) { start(); return; }
+        const go = () => { cover.removeEventListener("load", go); cover.removeEventListener("error", go); clearTimeout(capTimer); start(); };
+        cover.addEventListener("load", go);
+        cover.addEventListener("error", go);
+        capTimer = setTimeout(go, 4000);
       };
       // A Post gets the same courtesy as the home: its optional third-party scripts start once its article is on screen (the element only Post2029Page
       // renders, when its source has been read and admitted), not while the page code is still downloading, where they compete with it for the same
       // connection. The wait is bounded: an error, or an address that is not a post, never reaches an article and starts them after 10 seconds.
-      const postPending = pathname !== "/" && document.querySelector("[data-post-address]") && !document.querySelector('[data-experience-surface="post-reading"]');
+      const postPending = isPost && !document.querySelector('[data-experience-surface="post-reading"]');
       if (pathname === "/" && !document.querySelector('[data-home-primary="ready"]')) {
         observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
         observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
