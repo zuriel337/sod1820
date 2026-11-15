@@ -84,3 +84,11 @@
 3. מסתתר — להעביר את אותה ערכת Royal ל־`MistaterScene3D2029` (סצנת Mistater עצמה לא שונתה; ייתכן שיש בה את תיקון ה"אובדן context" הכוזב שנעשה כאן).
 4. מדידה על מכשיר אמיתי לפני קידום מעבר ל־Preview.
 5. החלטת צוריאל: פתיחת רזיאל לאורחים/מילוי שאלה מראש.
+
+## 9. פריסה (Preview מוגן — לא Production)
+
+- קומיט שנפרס: `030f668335e6668683b71ecfe7f19356667497de` (ענף `claude/anatomy-pilot-spatial-8ueak4`); פריסה `dpl_FCS1T563Xv1ELyuQpL2zmQTpLDFz`, מצב **READY**; כתובת `sod1820-152vvyoio-sod1820-s-projects.vercel.app`.
+- נבנה במצב `--protected-review` (יומן הבנייה: "Protected Preview review artifact built. Production/cutover remain denied."); `target=null` (Preview), בלי alias ובלי נגיעה בדומיינים. ה־`sourceSha` בתוך ה־HTML הפרוס הוא הקומיט הנ"ל.
+- נתיב הבדיקה: `/world?view=explore&kind=spatial#spatial-yesharim-cube-3060` → "פתח המחשת התכנסות" → "תלת־ממד".
+- לא נבדק בדפדפן אוטומטי על הכתובת החיה: הדפדפן הבלתי־מזוהה של הסביבה קיבל "Access denied" (403) מהאתר. אימות מצב ה־Preview נעשה דרך Vercel (READY, יומן בנייה, `sourceSha`); אימות ההתנהגות — מול אותו קוד בבנייה מקומית (סעיף 5).
+- ההרצות המקומיות אינן CI; לא הורצה אצלי בדיקת CI ל־SHA זה.
