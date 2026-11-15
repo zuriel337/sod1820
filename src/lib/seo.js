@@ -82,6 +82,14 @@ export function applySeo(o = {}) {
   const type = o.type || "website";
 
   document.title = title;
+  // Measurement consumes this existing SEO projection after it belongs to the
+  // current route. An old SPA title must never label the next page's view.
+  const titleElement = document.head.querySelector("title");
+  if (titleElement) {
+    titleElement.dataset.analyticsRoute = window.location.pathname;
+    titleElement.dataset.analyticsPath = path;
+    titleElement.dataset.analyticsPublic = String(!o.noindex || o.follow === true);
+  }
   upsertMeta("name", "description", description);
   const protectedPreview = import.meta.env?.VITE_INTEGRATED_PREVIEW === "true";
   // The browser tag and the server tag (api/og.js) are one decision: a public page that is not admitted for indexing is

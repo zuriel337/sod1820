@@ -198,6 +198,9 @@ function RouteEffects2029() {
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) {
       if (!["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)) return undefined;
+      // CanonicalBookAlias2029 always redirects this route. A slow render can
+      // outlive the settle timer; only /book/:slug is a real content page view.
+      if (/^\/books\/[^/]+\/?$/.test(pathname)) return undefined;
       const telemetryPath = readingTelemetryPath(pathname);
       if (!telemetryPath) return undefined;
       // First-party visit + engagement on the privacy-normalized route label only (no raw slug,
@@ -211,11 +214,11 @@ function RouteEffects2029() {
       }, PAGE_VIEW_SETTLE_MS);
       // Keep the public home's primary content ahead of the optional Google
       // script. A canceled navigation cannot initialize a stale page view.
-      let stopped = false, timer, observer, idle;
+      let stopped = false, timer, observer, idle, stopPageview;
       const run = () => {
         if (stopped) return;
         initGA({ publicReading: true, path: telemetryPath });
-        trackPageview(telemetryPath, { publicReading: true });
+        stopPageview = trackPageview(pathname, { publicReading: true });
         // Meta Pixel (ZURIEL 11.11.2026): same admitted routes and idle timing as GA; bots are filtered inside marketing.js.
         initMarketing();
         trackMarketingPageview();
@@ -229,7 +232,7 @@ function RouteEffects2029() {
         observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
         observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
       } else schedule();
-      return () => { stopped = true; clearTimeout(settle); observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
+      return () => { stopped = true; stopPageview?.(); clearTimeout(settle); observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
     }
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
