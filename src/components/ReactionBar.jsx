@@ -10,11 +10,11 @@ import { commitReactionMutation, isReactionBoostMap } from "../lib/reactionMutat
 // toggle דרך RPC (per-user/visitor), עדכון אופטימי. פתוח גם לאורח (v:<visitor>). מקור-אמת אחד.
 // 👑 בוסט-אדמין: reaction_boosts jsonb { "👍": N } — מונה נוסף שרק אדמין מעלה (admin_boost_reaction).
 //    סך-התצוגה = אורך-המערך + הבוסט → «רק אני כמנהל יכול לתת יותר מלייק אחד». האכיפה בשרת (role=admin).
-// variant: undefined=בר מלא (5 אימוג'ים) · "compact"=סיכום קריא-בלבד · "row"=לייק-יחיד לחיץ לשורת-פיד.
+// variant: undefined=בר מלא (5 אימוג'ים) · "compact"=סיכום קריא-בלבד · "row"=לייק לשורת-פיד, ודיסלייק מצטבר בקהילה.
 const EMOJIS = ["👍", "💡", "🔥", "🙏", "✨"];
 
-function ThumbOutline() {
-  return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 10H3v11h4M7 10l5-7c1.5 0 2 1 1.6 2.6L13 9h6a2 2 0 0 1 2 2.5l-1.7 7.9A2 2 0 0 1 17.3 21H7V10Z" /></svg>;
+function ThumbOutline({ down = false }) {
+  return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={down ? { transform: "rotate(180deg)" } : undefined} aria-hidden="true"><path d="M7 10H3v11h4M7 10l5-7c1.5 0 2 1 1.6 2.6L13 9h6a2 2 0 0 1 2 2.5l-1.7 7.9A2 2 0 0 1 17.3 21H7V10Z" /></svg>;
 }
 
 // Controlled design preview: never mount live auth/visitor/RPC behavior for fixtures.
@@ -29,7 +29,7 @@ export default function ReactionBar(props) {
   return <LiveReactionBar {...props} />;
 }
 
-function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant, allowBoost = true, requireAccount = false, repeatable = false, rowAppearance }) {
+function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant, allowBoost = true, allowDislike = false, requireAccount = false, repeatable = false, rowAppearance }) {
   const P = use2029Palette();
   const { user, isAdmin } = useAuth();
   const myKey = repeatable ? "community-repeatable-like" : user?.id || ("v:" + getVisitorId());
@@ -53,7 +53,10 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   // additive Community counter without rewriting either older baseline.
   const historicalLikes = Number(rx?.likes) > 0 ? Number(rx.likes) : 0;
   const addedLikes = Math.max(0, Number(rx?.community_likes) || 0);
-  const count = (e) => (Array.isArray(rx[e]) ? rx[e].length : 0) + (e === "👍" ? historicalLikes + addedLikes : 0) + boostOf(e);
+  const historicalDislikes = Number(rx?.dislikes) > 0 ? Number(rx.dislikes) : 0;
+  const addedDislikes = Math.max(0, Number(rx?.community_dislikes) || 0);
+  const count = (e) => (Array.isArray(rx[e]) ? rx[e].length : 0)
+    + (e === "👍" ? historicalLikes + addedLikes : e === "👎" ? historicalDislikes + addedDislikes : 0) + boostOf(e);
   const mine = (e) => !repeatable && Array.isArray(rx[e]) && rx[e].includes(myKey);
 
   const toggle = async (e) => {
@@ -65,10 +68,13 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
     const arr = Array.isArray(rx[e]) ? [...rx[e]] : [];
     const i = arr.indexOf(myKey);
     if (i >= 0) arr.splice(i, 1); else arr.push(myKey);
+    const additive = repeatable && (e === "👍" || e === "👎");
+    const counter = e === "👎" ? "community_dislikes" : "community_likes";
+    const visitor = e === "👎" ? "community-repeatable-dislike" : "community-repeatable-like";
     const saved = await commitReactionMutation({
       previous: rx,
-      optimistic: repeatable && e === "👍" ? { ...rx, community_likes: addedLikes + 1 } : { ...rx, [e]: arr },
-      request: () => supabase.rpc("toggle_contribution_reaction", { p_id: id, p_emoji: e, p_visitor: repeatable && e === "👍" ? "community-repeatable-like" : user ? null : getVisitorId() }),
+      optimistic: additive ? { ...rx, [counter]: (e === "👎" ? addedDislikes : addedLikes) + 1 } : { ...rx, [e]: arr },
+      request: () => supabase.rpc("toggle_contribution_reaction", { p_id: id, p_emoji: e, p_visitor: additive ? visitor : user ? null : getVisitorId() }),
       apply: value => { if (current()) setRx(value); },
     });
     if (current()) { if (!saved) setError("לא נשמרה התגובה. נסו שוב."); setBusy(false); }
@@ -122,16 +128,20 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
     color: on ? P.accentText : P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 700, lineHeight: 1,
   });
 
-  // 🟨 variant="row" — לייק-יחיד (👍) לחיץ לשורת-הפיד, + בוסט-אדמין. קליל, לא פותח את השורה.
+  // Community may expose its explicit additive dislike beside the existing like.
+  // Other row consumers and the five-reaction research bar keep their behavior.
   if (variant === "row") {
-    const e = "👍", c = count(e), on = mine(e);
     return (
       <span style={{ display: "inline-flex", flexWrap: "wrap", maxWidth: "100%", alignItems: "center", gap: 4 }} onClick={(ev) => ev.stopPropagation()}>
-        <button className={rowAppearance === "thread" ? "sod29-community-like" : undefined} onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy || requireAccount && !user} aria-pressed={repeatable ? undefined : on} aria-describedby={error ? errorId : undefined} aria-label={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי"} title={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי"}
+        {(allowDislike && repeatable ? ["👍", "👎"] : ["👍"]).map(e => {
+          const c = count(e), on = mine(e);
+          const label = e === "👎" ? "הוסף דיסלייק" : requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי";
+          return <button key={e} className={rowAppearance === "thread" ? "sod29-community-like" : undefined} onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy || requireAccount && !user} aria-pressed={repeatable ? undefined : on} aria-describedby={error ? errorId : undefined} aria-label={label} title={label}
           style={{ ...(rowAppearance === "thread" ? {} : pill(e, on)), minWidth: 44, minHeight: 44 }}>
-          {rowAppearance === "thread" ? <ThumbOutline /> : <span style={{ fontSize: 14 }}>{e}</span>}{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
-        </button>
-        {adminBoost(e)}
+          {rowAppearance === "thread" ? <ThumbOutline down={e === "👎"} /> : <span style={{ fontSize: 14 }}>{e}</span>}{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
+        </button>;
+        })}
+        {adminBoost("👍")}
         {feedback}
       </span>
     );

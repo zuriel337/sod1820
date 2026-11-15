@@ -110,11 +110,12 @@ function installPublicReadingWorker(policy) {
     if (url.origin !== authOrigin || !names.has(rpc) && !upload && !sso) return null;
     if (req.method !== "POST" || url.search || req.signal.aborted) return denied();
     const parsed = names.has(rpc) ? await jsonBody(req) : null;
-    const repeatableLike = rpc === "toggle_contribution_reaction" && Object.keys(parsed).sort().join(",") === "p_emoji,p_id,p_visitor"
-      && parsed.p_visitor === "community-repeatable-like" && parsed.p_emoji === "👍" && uuid(parsed.p_id);
+    const repeatableCommunityReaction = rpc === "toggle_contribution_reaction" && Object.keys(parsed).sort().join(",") === "p_emoji,p_id,p_visitor"
+      && ((parsed.p_visitor === "community-repeatable-like" && parsed.p_emoji === "👍")
+        || (parsed.p_visitor === "community-repeatable-dislike" && parsed.p_emoji === "👎")) && uuid(parsed.p_id);
     const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
-    const uid = repeatableLike ? null : await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
-    if ((!repeatableLike && !uid) || req.signal.aborted) return denied();
+    const uid = repeatableCommunityReaction ? null : await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+    if ((!repeatableCommunityReaction && !uid) || req.signal.aborted) return denied();
     if (upload) {
       const path = /^\/storage\/v1\/object\/gallery\/community\/([0-9a-f-]{36})\/([0-9a-f-]{36})\.([a-z0-9]+)$/i.exec(url.pathname);
       if (!path || path[1] !== uid || !uuid(path[2]) || req.headers.get("x-upsert") !== "false"
@@ -144,8 +145,8 @@ function installPublicReadingWorker(policy) {
       && ["approve", "hide"].includes(body.p_action) ? readFetch(req) : denied();
     let publicTarget = null;
     if (rpc === "toggle_contribution_reaction") {
-      if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null && !repeatableLike
-        || !["👍", "💡", "🔥", "🙏", "✨"].includes(body.p_emoji)) return denied();
+      if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null && !repeatableCommunityReaction
+        || (!repeatableCommunityReaction && !["👍", "💡", "🔥", "🙏", "✨"].includes(body.p_emoji))) return denied();
       publicTarget = body.p_id;
     } else {
       if (keys !== "p_author_name,p_body,p_gematria_claim,p_image_url,p_intent,p_origin,p_parent_id,p_target_id,p_target_type,p_title"
@@ -167,7 +168,7 @@ function installPublicReadingWorker(policy) {
       if (!Array.isArray(chain) || !chain.some(row => row.id === publicTarget)) return denied();
     }
     if (req.signal.aborted) return denied();
-    if (repeatableLike) {
+    if (repeatableCommunityReaction) {
       const key = policy.anonKey || req.headers.get("apikey") || "";
       return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
     }

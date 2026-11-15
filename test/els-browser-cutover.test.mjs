@@ -1154,6 +1154,7 @@ test('browser: native finding can show three verified occurrences then hide exac
             hits:w.hits?.filter(h => h.shown || expected.includes(h.hitId))}))})),
         operations: window.__log.filter(m => m.type === 'operation').slice(-4),
       }), shown);
+      console.error('Hide-occurrence failure state:', JSON.stringify(snapshot));
       error.message += '\nHide-occurrence failure state: ' + JSON.stringify(snapshot);
       throw error;
     }

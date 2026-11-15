@@ -299,6 +299,7 @@ jobs:
           src/lib/community/messageLinks.test.js
           src/lib/community/messageNumbers.test.js
           src/lib/community/writerCommunityReuse.test.js
+          src/lib/reactionMutation.test.js
           src/lib/research/eventObservationCompiler.test.js
           src/lib/research/eventSystemMethodRuntime.test.js
           src/lib/research/goldenProjectorModes.test.js
@@ -380,6 +381,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: DEF-001, DEF-001b, DEF-004 and DEF-005 SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids; proposed Storage policies and RPC grants behave as specified)
         run: bash scripts/run-def001-sql-test.sh
+      - name: Public repeatable Community dislikes (exact SQL, guards, rollback and concurrent increments; isolated DB)
+        run: bash scripts/run-community-dislike-sql-test.sh
       - name: Measurement identity (server account attribution, shared-browser boundaries, report and exact rollback; isolated DB)
         run: bash scripts/run-measurement-identity-sql-test.sh
       - name: M0-A permissions regression (12 system functions server-only by exact signature, admin guards, account data, Legacy writes closed, dormant policies, cron; idempotent, drift stop, exact rollback)
@@ -480,6 +483,8 @@ jobs:
         run: node --test test/community-behavior-continuity-2029.browser.mjs
       - name: Public Post at its original address reads its source while the page code downloads (real worker, request order)
         run: node --test test/post-root-address-early-read-20261115.browser.mjs
+      - name: Community dislikes beside likes (guest and member, mobile and desktop; real artifact and worker)
+        run: node --test test/community-dislike-20261115.browser.mjs
       - name: Guest updates invitation on public pages and original Post addresses (real artifact; no subscriptions)
         run: node --test test/guest-newsletter-restoration-20261115.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and

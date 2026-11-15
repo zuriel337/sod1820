@@ -99,10 +99,12 @@ function LiveLike({ row }) {
   const repeatable = PUBLIC_READING_PRODUCTION_ARTIFACT && chatMessage;
   const actionsLocked = chatMessage ? communityActionsLocked(isAdmin) : publicLaunchActionsLocked(isAdmin);
   const reactions = row.reactions || {};
-  const dislikes = Number(reactions.dislikes) || 0;
+  const dislikes = Math.max(0, Number(reactions.dislikes) || 0)
+    + Math.max(0, Number(reactions.community_dislikes) || 0)
+    + (Array.isArray(reactions["👎"]) ? reactions["👎"].length : 0);
   return <div className="sod29-community-reactions">
-    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" rowAppearance="thread" allowBoost={false} repeatable={repeatable} requireAccount={!repeatable && (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true")} />}
-    {dislikes > 0 ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
+    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" rowAppearance="thread" allowBoost={false} allowDislike={chatMessage} repeatable={repeatable} requireAccount={!repeatable && (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true")} />}
+    {dislikes > 0 && (actionsLocked || !repeatable) ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
   </div>;
 }
 
