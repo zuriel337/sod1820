@@ -3,6 +3,33 @@
 15 November 2026. This document's SDK capture is offline evidence; no Google setting is changed by it.
 Owner re-read live: `traffic_intelligence_law` v11. Capture base application: #1345, `3843af126f21ae58cf033fe808eaa2821b7a3362`. That application is now live through #1355 at `fec22ca072ce48114beab161988620d47b7392b8`, with bounded live verification of current-title manual views and one view per internal navigation. This does not verify Google's ingestion or remove the stream's automatic duplicate events. The earlier #1321 audit remains provenance.
 
+## Follow-up after the Google setting change, 15 November
+
+The user supplied a browser-agent report: Cloud project `sod1820-gsc` / `605729730420` now has Analytics Data API enabled (~12:08 UTC); stream `G-V3H3E20FLY` / `15073034581` has only history-based Page changes disabled, saved and reopened at 12:10:25 UTC (14:10:25 Asia/Jerusalem). These UI actions are user-supplied evidence; Codex did not operate the Google UI.
+
+Independent evidence after that report:
+
+- Fresh main is `c752b0014a1ba288e314be9fad66a6af6f52e2cc`; the production alias is still `dpl_CLXTnXF5de1PN1STtajXghtnhyVU`.
+- The downloaded public SDK is 534,832 bytes, SHA-256 `e5566377d7ef5513bc3669ac41d1c8fbe735ad19c7f119c493d8ae4c6fcc2c93`. A fresh response at 12:19:53 UTC has the same hash. **It still contains `vtp_enableHistoryEvents:true`, but actual execution now produces three page views for three navigations.** The presence of that literal alone does not prove active history tracking. The old comparison harness correctly stopped at its old expectation of five views. It remains available as historical reproduction; the new `verify-current` mode tests actual current behavior without altering the SDK.
+- Two ordinary navigations on the live site emitted exactly two `page_view` requests, each with the current public title and full canonical path, matching the two posts in the user's report. Captured fields exclude visitor/session identifiers. This verifies requests leaving the browser, not GA ingestion or all page families. Realtime's seven generic-title views were not individually traced.
+- The current code and current SDK still reproduce an automatic `scroll` with `SOD1820` and `/post/:item`. The three manual page views are correctly labeled. A scroll is not an additional page view.
+
+### Prepared code correction (branch only)
+
+`analytics.js` now updates the existing Google tag's default page context with the **same admitted/sanitized identity** used by the manual view. `config` remains a one-time call with `send_page_view:false`; page defaults use the documented `gtag('set', ...)` command. Repeating `config` did not update actual SDK context, so that attempt was discarded after the browser control failed. Campaign fields remain per-event and are not retained as default context for later pages. Pending-route cancellation, the bounded unresolved-page fallback and expression redaction remain intact.
+
+The live dataLayer contained only the GA destination, no Google Ads destination. `set` is a shared-tag default, not a destination-specific override; any additional gtag destination configured later will inherit these safe page defaults unless it supplies its own override. No marketing configuration, conversion event or Google setting is changed by this patch.
+
+The current SDK ran unchanged with all browser requests fulfilled locally: exactly three manual commands / three transported views, correct inherited context on all three synthetic routes, and a correctly labeled automatic scroll. The unchanged main code fails these new context assertions. `after-ui-context-results.json` holds the before/after captures and the bounded live-browser evidence. The SDK itself stays outside Git. Fifty-eight focused tests pass; the two new cases are in the already-wired analytics test file. This is prepared code, **not a claim of a deployed scroll fix**.
+
+Reproduce current settings and default-context verification:
+
+```sh
+CHROMIUM_PATH=/usr/bin/chromium node docs/reviews/analytics-stream-20261115/capture.mjs /absolute/current-public-gtag.js /absolute/results.json verify-current
+```
+
+The earlier sections below describe the preparation before the user changed Google settings. For the sync attempt after enabling the API, see [the synchronization follow-up](../ga-sync-preview-20261115/README.md#operation-follow-up-15-november).
+
 Continuation: this evidence package is integrated into #1346 with #1348, retaining their separate operational boundaries. The Cloud environment advertises desktop capability, but no desktop/browser interaction tool is callable in this session; no signed-in GA page or setting has been read or changed. No credential workaround is attempted.
 
 ## Newly reproduced, not inferred

@@ -16,6 +16,9 @@ function fixture(path='/post/current?utm_source=newsletter&utm_medium=email&utm_
   context.exports=context.module.exports;vm.runInNewContext(compiled.outputFiles[0].text,context);
   const api=context.module.exports;api.initGA({publicReading:true,path:location.pathname});
   return {api,title,doc,scripts,context,timers,notify:()=>notify(),get disconnected(){return disconnected;},
+    configs:()=>context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='config').map(x=>JSON.parse(JSON.stringify(x[2]))),
+    defaults:()=>context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='set').map(x=>JSON.parse(JSON.stringify(x[1]))),
+    effective:()=>Object.assign({},...context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='set').map(x=>x[1]),...context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='config').map(x=>x[2])),
     views:()=>context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='event'&&x[1]==='page_view').map(x=>JSON.parse(JSON.stringify(x[2]))),
     ready:(canonical=location.pathname,label='Current public article · SOD1820',isPublic=true)=>{
       title.textContent=label;title.dataset={analyticsRoute:location.pathname,analyticsPath:canonical,analyticsPublic:String(isPublic)};notify();
@@ -28,6 +31,41 @@ test('a slow source cannot send the previous title; its resolved public identity
   assert.equal(f.views().length,1);assert.equal(f.views()[0].page_title,'Current public article · SOD1820');
   assert.equal(f.views()[0].page_path,'/post/current');assert.equal(f.views()[0].send_to,'G-TEST');
   assert.equal(f.timers.size,0);assert.ok(f.disconnected);
+});
+
+test('default event context follows the resolved page without another automatic view or retained campaign',()=>{
+  const f=fixture();f.ready();f.api.trackPageview('/post/current',{publicReading:true});
+  const config=f.effective();
+  assert.equal(config.page_title,f.views()[0].page_title);
+  assert.equal(config.page_location,f.views()[0].page_location);
+  assert.equal(config.page_referrer,'https://example.org/');
+  assert.equal(f.configs().length,1);
+  assert.equal(f.configs()[0].send_page_view,false);
+  assert.equal(f.configs()[0].page_title,undefined,'destination override would mask later defaults');
+  assert.ok(!JSON.stringify(config).includes('PRIVATE'));
+  assert.ok(!Object.keys(config).some(k=>k.startsWith('campaign_')),'campaign belongs to its arrival event');
+  f.context.window.location=new URL('https://sod1820.co.il/post/second');
+  f.title.textContent='Second article';
+  f.title.dataset={analyticsRoute:'/post/second',analyticsPath:'/post/second',analyticsPublic:'true'};
+  f.api.trackPageview('/post/second',{publicReading:true});
+  assert.equal(f.effective().page_location,'https://sod1820.co.il/post/second');
+  assert.equal(f.effective().page_title,'Second article');
+  assert.equal(f.configs().length,1);
+  assert.equal(f.views().length,2);
+});
+
+test('default context observes cancellation and uses the safe fallback for unresolved or expression pages',()=>{
+  const cancelled=fixture();const initial=cancelled.defaults();
+  const stop=cancelled.api.trackPageview('/post/current',{publicReading:true});
+  const callbacks=[...cancelled.timers.values()];stop();cancelled.ready();callbacks.forEach(fn=>fn());
+  assert.deepEqual(cancelled.defaults(),initial);
+  for(const path of ['/post/current','/number/private-name']) {
+    const f=fixture(path);f.api.trackPageview(path,{publicReading:true});
+    [...f.timers.values()].forEach(fn=>fn());
+    assert.equal(f.effective().page_title,'SOD1820');
+    assert.equal(f.effective().page_location,f.views()[0].page_location);
+    assert.ok(!JSON.stringify(f.defaults()).includes('private-name'));
+  }
 });
 test('external source and explicit campaign fields survive without the raw query or referrer search',()=>{
   const f=fixture();f.ready();f.api.trackPageview('/post/current',{publicReading:true});

@@ -1,0 +1,347 @@
+{
+  "before": {
+    "measuredAt": "2026-11-15T12:26:18.500Z",
+    "appSha": "c752b0014a1ba288e314be9fad66a6af6f52e2cc",
+    "analyticsSourceSha256": "0e98f21472ce707a38bfc599dcb2f101d5ccb69145b42932732eea6f3f542a5e",
+    "sdkSha256": "e5566377d7ef5513bc3669ac41d1c8fbe735ad19c7f119c493d8ae4c6fcc2c93",
+    "sdkBytes": 534832,
+    "measurementId": "G-V3H3E20FLY",
+    "scope": "Actual analytics module and downloaded public stream SDK; synthetic local HTML/history transitions; all network requests fulfilled locally; not GA4 ingestion or a full-site browser test",
+    "operation": "verify-current",
+    "appSha_note": "Checkout commit at capture; exact evaluated module bytes are identified by analyticsSourceSha256.",
+    "capture": {
+      "mode": "current-public-stream",
+      "events": [
+        {
+          "stage": "first-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-alpha",
+            "dt": "Audit alpha",
+            "dr": "",
+            "cs": "fixture",
+            "cm": "email",
+            "cn": "synthetic",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "first-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/:item",
+            "dt": "SOD1820",
+            "dr": "",
+            "en": "scroll"
+          }
+        },
+        {
+          "stage": "second-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/:item",
+            "dt": "SOD1820",
+            "dr": "",
+            "en": "context_probe"
+          }
+        },
+        {
+          "stage": "second-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-beta",
+            "dt": "Audit beta",
+            "dr": "",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/:item",
+            "dt": "SOD1820",
+            "dr": "",
+            "en": "context_probe"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/search",
+            "dt": "Audit search",
+            "dr": "",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/:item",
+            "dt": "SOD1820",
+            "dr": "",
+            "en": "context_probe"
+          }
+        }
+      ],
+      "manualCommands": [
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/post/audit-alpha",
+            "page_location": "https://sod1820.co.il/post/audit-alpha",
+            "page_title": "Audit alpha",
+            "page_referrer": "",
+            "campaign_source": "fixture",
+            "campaign_medium": "email",
+            "campaign_name": "synthetic",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "context_probe"
+        },
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/post/audit-beta",
+            "page_location": "https://sod1820.co.il/post/audit-beta",
+            "page_title": "Audit beta",
+            "page_referrer": "",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "context_probe"
+        },
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/search",
+            "page_location": "https://sod1820.co.il/search",
+            "page_title": "Audit search",
+            "page_referrer": "",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "context_probe"
+        }
+      ],
+      "pageViewCount": 3,
+      "searchEvents": [],
+      "errors": []
+    }
+  },
+  "candidate": {
+    "measuredAt": "2026-11-15T12:25:47.848Z",
+    "appSha": "c752b0014a1ba288e314be9fad66a6af6f52e2cc",
+    "analyticsSourceSha256": "1677edaf485f89f6e4ee499c0939e590d3075a60786850a923a0f71525d80a26",
+    "sdkSha256": "e5566377d7ef5513bc3669ac41d1c8fbe735ad19c7f119c493d8ae4c6fcc2c93",
+    "sdkBytes": 534832,
+    "measurementId": "G-V3H3E20FLY",
+    "scope": "Actual analytics module and downloaded public stream SDK; synthetic local HTML/history transitions; all network requests fulfilled locally; not GA4 ingestion or a full-site browser test",
+    "operation": "verify-current",
+    "appSha_note": "Checkout commit at capture; exact evaluated module bytes are identified by analyticsSourceSha256.",
+    "capture": {
+      "mode": "current-public-stream",
+      "events": [
+        {
+          "stage": "first-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-alpha",
+            "dt": "Audit alpha",
+            "dr": "",
+            "cs": "fixture",
+            "cm": "email",
+            "cn": "synthetic",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "first-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-alpha",
+            "dr": "",
+            "dt": "Audit alpha",
+            "en": "scroll"
+          }
+        },
+        {
+          "stage": "second-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-alpha",
+            "dr": "",
+            "dt": "Audit alpha",
+            "en": "context_probe"
+          }
+        },
+        {
+          "stage": "second-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-beta",
+            "dr": "",
+            "dt": "Audit beta",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/post/audit-beta",
+            "dr": "",
+            "dt": "Audit beta",
+            "en": "context_probe"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/search",
+            "dr": "",
+            "dt": "Audit search",
+            "en": "page_view"
+          }
+        },
+        {
+          "stage": "search-page",
+          "host": "www.google-analytics.com",
+          "fields": {
+            "tid": "G-V3H3E20FLY",
+            "dl": "https://sod1820.co.il/search",
+            "dr": "",
+            "dt": "Audit search",
+            "en": "context_probe"
+          }
+        }
+      ],
+      "manualCommands": [
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/post/audit-alpha",
+            "page_location": "https://sod1820.co.il/post/audit-alpha",
+            "page_title": "Audit alpha",
+            "page_referrer": "",
+            "campaign_source": "fixture",
+            "campaign_medium": "email",
+            "campaign_name": "synthetic",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "context_probe"
+        },
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/post/audit-beta",
+            "page_location": "https://sod1820.co.il/post/audit-beta",
+            "page_title": "Audit beta",
+            "page_referrer": "",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "context_probe"
+        },
+        {
+          "event": "page_view",
+          "fields": {
+            "page_path": "/search",
+            "page_location": "https://sod1820.co.il/search",
+            "page_title": "Audit search",
+            "page_referrer": "",
+            "send_to": "G-V3H3E20FLY"
+          }
+        },
+        {
+          "event": "context_probe"
+        }
+      ],
+      "pageViewCount": 3,
+      "searchEvents": [],
+      "errors": []
+    }
+  },
+  "liveCurrentMain": {
+    "pages": [
+      {
+        "path": "/post/us-ground-stop-new-orleans-nov-17-rumor-20261113",
+        "title": "עצירת הטיסות בארה״ב, ההתנגשות בניו אורלינס ושמועת ה־17 בנובמבר — מה באמת קרה ומה הוגזם · SOD1820",
+        "canonical": "https://sod1820.co.il/post/us-ground-stop-new-orleans-nov-17-rumor-20261113",
+        "configs": [
+          {
+            "id": "G-V3H3E20FLY",
+            "fields": {
+              "send_page_view": false,
+              "page_location": "https://sod1820.co.il/post/:item",
+              "page_path": "/post/:item",
+              "page_title": "SOD1820",
+              "page_referrer": "",
+              "allow_google_signals": false,
+              "allow_ad_personalization_signals": false
+            }
+          }
+        ]
+      },
+      {
+        "path": "/post/mah-kore-smell-messiah-rishon-emek-hefer-jericho",
+        "title": "מה קורה הבורא — סוד הריח והמשיח: ראשון לציון, עמק חפר ויריחו | אלון לוי · SOD1820",
+        "canonical": "https://sod1820.co.il/post/mah-kore-smell-messiah-rishon-emek-hefer-jericho",
+        "configs": [
+          {
+            "id": "G-V3H3E20FLY",
+            "fields": {
+              "send_page_view": false,
+              "page_location": "https://sod1820.co.il/post/:item",
+              "page_path": "/post/:item",
+              "page_title": "SOD1820",
+              "page_referrer": "",
+              "allow_google_signals": false,
+              "allow_ad_personalization_signals": false
+            }
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "tid": "G-V3H3E20FLY",
+        "dl": "https://sod1820.co.il/post/us-ground-stop-new-orleans-nov-17-rumor-20261113",
+        "dt": "עצירת הטיסות בארה״ב, ההתנגשות בניו אורלינס ושמועת ה־17 בנובמבר — מה באמת קרה ומה הוגזם · SOD1820",
+        "en": "page_view"
+      },
+      {
+        "tid": "G-V3H3E20FLY",
+        "dl": "https://sod1820.co.il/post/mah-kore-smell-messiah-rishon-emek-hefer-jericho",
+        "dt": "מה קורה הבורא — סוד הריח והמשיח: ראשון לציון, עמק חפר ויריחו | אלון לוי · SOD1820",
+        "en": "page_view"
+      }
+    ],
+    "scope": "Two ordinary public navigations; actual outbound requests, no request interception; identifiers excluded",
+    "capturedAt": "2026-11-15T12:25:18.367669+00:00",
+    "sha": "c752b0014a1ba288e314be9fad66a6af6f52e2cc"
+  }
+}

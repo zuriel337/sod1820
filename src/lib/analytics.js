@@ -60,10 +60,12 @@ export function initGA({ publicReading = false, path = "/" } = {}) {
   window.dataLayer = window.dataLayer || [];
   window.gtag = function () { window.dataLayer.push(arguments); };
   window.gtag("js", new Date());
-  // אנחנו שולחים page_view ידנית בכל מעבר route (SPA), אז מכבים את האוטומטי
-  window.gtag("config", GA_ID, { send_page_view: false, ...(publicReading ? {
+  if (publicReading) window.gtag("set", {
     page_location: window.location.origin + (readingTelemetryPath(path) || "/"),
     page_path: readingTelemetryPath(path) || "/", page_title: "SOD1820", page_referrer: "",
+  });
+  // אנחנו שולחים page_view ידנית בכל מעבר route (SPA), אז מכבים את האוטומטי
+  window.gtag("config", GA_ID, { send_page_view: false, ...(publicReading ? {
     allow_google_signals: false, allow_ad_personalization_signals: false,
   } : {}) });
 }
@@ -79,6 +81,12 @@ export function trackPageview(path, { publicReading = false } = {}) {
       const page = publicPageviewFields(path);
       if (!page || (!page.ready && !fallback)) return;
       stop();
+      // Automatic events (scroll/download/etc.) inherit the destination's
+      // context, not parameters of our explicit page_view event. Refresh only
+      // the already-filtered page identity, without emitting another view.
+      window.gtag("set", {
+        page_location: page.fields.page_location, page_path: page.fields.page_path,
+        page_title: page.fields.page_title, page_referrer: page.fields.page_referrer });
       window.gtag("event", "page_view", { ...page.fields, send_to: GA_ID });
     };
     // SEO may arrive after the lazy page/source. Observe only the document head,
