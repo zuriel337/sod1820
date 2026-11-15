@@ -177,8 +177,11 @@ const PAGE_VIEW_SETTLE_MS = 150;
 // effect, in the commit of the navigation itself, so RouteEffects2029 (whose passive effect runs in the same commit) can tell that an article is
 // coming and keep the optional third-party scripts from competing with the page code for the connection until it is on screen.
 function PostAddressMarker2029() {
-  const { pathname } = useLocation();
-  const postAddress = PUBLIC_READING_RELEASE && (/^\/post\/[^/]+\/?$/.test(pathname) || publicReadingPath(pathname) === "post-lookup");
+  const { pathname, search } = useLocation();
+  const { isAdmin, loading } = useAuth();
+  // The same classification the public boundary uses (an administrator's own single-segment pages are not post lookups).
+  const postAddress = PUBLIC_READING_RELEASE && (/^\/post\/[^/]+\/?$/.test(pathname)
+    || publicReadingPath(pathname, { isAdmin: !loading && isAdmin, search }) === "post-lookup");
   useLayoutEffect(() => {
     if (!postAddress) return undefined;
     document.documentElement.setAttribute("data-post-address", "");
