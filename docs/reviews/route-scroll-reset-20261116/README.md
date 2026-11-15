@@ -21,9 +21,19 @@ path-changing replacement, a page-owned anchor, query edits and a keyed child
 remount. Removing the reset reproduces the PUSH failure at both widths.
 The separate route-navigation workflow avoids editing Claude's active workflow.
 
-Local verification so far: browser 4/4; source/context/entry suites 14/14;
-G1 51/51. The public URL suite requires the generated reading build and will be
-rerun after that build. Full-app confirmation and CI results will be added below.
+Local verification: browser 4/4 (zero skips), related URL/context/entry/journey
+suites 27/27, G1 51/51, and the reading build pass. On the full app, tag footer
+→ contact now ends at y=0 (heading y=202.39, footer y=1024), versus y=1346
+on main. Both use complete public-read fixtures, zero misses, width390/height844.
+
+The initial PR CI caught my omitted advisory-job inventory entry; the new browser
+job itself passed. The definition is updated without changing any required check,
+threshold or ruleset. Final CI is attached to the PR head.
+
+Historical cross-check: the 19.10 package F03 and the 31.10 reconciliation already
+documented the absent global restorer. This patch addresses forward navigation.
+Delayed-content POP restoration remains a separate test boundary; the historical
+restorer is not copied over current source-identity/anchor owners.
 
 Coordination: fresh PR #1358 file list and passive journal checked before writing.
 Claude owns Post/SystemFrame/researchContext changes. This branch adds only the
