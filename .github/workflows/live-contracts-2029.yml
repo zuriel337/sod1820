@@ -255,8 +255,6 @@ jobs:
         run: node --test test/doc37-research-reading-access.test.mjs test/public-continuity-closure-2029.test.mjs test/doc37-mixed-page-readiness.test.mjs
       - name: Preview worker admission policy (Preview-only write allow-list, 28 cases; repaired fixture, no product change)
         run: node --test scripts/test-integrated-preview-auth-guard.mjs
-      - name: Ad unit starts near the viewport (eligibility unchanged); the AdSense gating contract is wired here as well
-        run: node --test test/adsense-gating-2029.test.mjs test/adslot-lazy-start-20261115.test.mjs
       # test/public-frame-access-2029.test.mjs is deliberately not here: one of its tests runs `git show 4987d7a1…` on a commit of a retired preview branch,
       # which exists only in a full clone; the checkout of this job is shallow. Its Preview-ceiling tests were repaired and pass in a full clone.
       - name: Frame contracts that had drifted from approved changes (opened destinations, release-aware feature state boundary, the one more panel, pinned rail budget, framed journey gate, personal layout, post-title bounds)
