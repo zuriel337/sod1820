@@ -328,14 +328,32 @@ export default async function handler(req, res) {
     const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
     if (encLower !== slug) variants.push(encLower);
     const SEL = 'select=id,slug,source,link,wp_id,title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
-    for (const v of variants) {
+    const readRows = async (identityFilter, limit = 1) => {
+      const url = `${SUPABASE_URL}/rest/v1/posts?${identityFilter}&${SEL.replace('limit=1', 'limit=' + limit)}`;
+      const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
+      if (!r.ok) throw new Error('post-source-unavailable');
+      const rows = await r.json();
+      if (productionReading && !Array.isArray(rows)) throw new Error('post-source-invalid');
+      return rows;
+    };
+    // The spellings of one address are alternatives, not dependent steps. Every imported WordPress post is stored percent-encoded in lower case, so its
+    // record used to wait for a complete round trip (iad1 -> Tokyo) that could only miss on the decoded spelling. Ask for all of them in ONE request
+    // (one connection, one round trip, whatever the state of the connection pool) and keep the old preference: the first spelling wins when both exist.
+    // If that request fails, fall back to the previous behaviour exactly: one request per spelling, one after the other, each with its own failure handling.
+    // A `?p=` address names its record by id and an ASCII address has one spelling: both keep their single request.
+    let outcomes = null;
+    if (!wpId && variants.length > 1) {
       try {
-        const identityFilter = wpId ? `wp_id=eq.${wpId}` : `slug=eq.${encodeURIComponent(v)}`;
-        const url = `${SUPABASE_URL}/rest/v1/posts?${identityFilter}&${SEL}`;
-        const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
-        if (!r.ok) throw new Error('post-source-unavailable');
-        const rows = await r.json();
-        if (productionReading && !Array.isArray(rows)) throw new Error('post-source-invalid');
+        const list = variants.map(v => (/[,()"\\]/.test(v) ? '"' + v.replace(/["\\]/g, '\\$&') + '"' : v)).join(',');
+        const rows = await readRows(`slug=${encodeURIComponent('in.(' + list + ')')}`, 2);
+        const first = Array.isArray(rows) ? variants.map(v => rows.find(row => row?.slug === v)).find(Boolean) ?? rows[0] : null;
+        outcomes = [first ? [first] : []];
+      } catch { /* per-spelling reads below */ }
+    }
+    const spellings = outcomes ? [variants[0]] : variants;   // after one combined answer there is one outcome to judge
+    for (const [index, v] of spellings.entries()) {
+      try {
+        const rows = outcomes ? outcomes[index] : await readRows(wpId ? `wp_id=eq.${wpId}` : `slug=eq.${encodeURIComponent(v)}`);
         if (Array.isArray(rows) && rows[0]) {
           if (hasSuppressedPublicPostTag(rows[0]) || !publicPostUrl(rows[0])) break;
           post = rows[0];
