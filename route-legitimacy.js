@@ -10,6 +10,12 @@
 // No fixes, no revival. "/archive" is NOT in this group: it is the new archive, closed temporarily while it is completed. "/heichal" stays closed until decided.
 export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/888",
+  // Documented continuation alias (3.11 reconciliation: exact_existing_route_alias): publicReadingContinuation redirects the upper-case /WORLD to /world.
+  // The allow-list is case-sensitive, so without this entry the Edge answered a real 404 before the redirect (measured live 15.11.2026; 39 observed visits in 3.11).
+  "/WORLD",
+  // Documented continuation alias (3.11: existing_forum_identity_user_approved_chat_continuation) -> /community/chat. It answers 308 today only because a post row with this slug exists;
+  // listing it here makes the redirect independent of that row (the continuation table is the owner of the target).
+  "/yuval-kogan-echad-hasichim-hamashiach",
   "/about",
   "/admin",
   "/archive",
