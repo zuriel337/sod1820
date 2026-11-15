@@ -6,13 +6,13 @@
 //  - placement comes from the pure lib/spatial/convergenceLayout3D.js; letters are the same path-only Hebrew glyph SVG assets as M3;
 //  - an unverified path stays visible but dimmed and is not part of the verified count (the status label is carried in the sr-only list).
 // Shared 3D helpers (token colors, text texture, glyph geometry, controls) come from MistaterScene3D2029 — one S4 toolkit, not a second one.
-import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { BackSide, Color, CubicBezierCurve3, DoubleSide, Vector3 } from "three";
+import { AdditiveBlending, BackSide, Color, CubicBezierCurve3, DoubleSide, MeshPhysicalMaterial, Vector3 } from "three";
 import { buildGlyphAssetRef } from "../../lib/spatial/hebrewGlyphAssets.js";
 import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { CONVERGENCE_3D, fitCameraDistance, layoutConvergence3D, layoutPhraseLetters } from "../../lib/spatial/convergenceLayout3D.js";
-import { Controls, FALLBACK_COLORS, resolveTokenColors, useGlyphGeometry, useTextTexture } from "./MistaterScene3D2029.jsx";
+import { Controls, FALLBACK_COLORS, RoyalEnvironment, resolveTokenColors, useBadgeTexture, useGlyphGeometry, useHaloTexture, useTextTexture } from "./MistaterScene3D2029.jsx";
 
 const dimmed = (path) => path.status !== "verified";
 
@@ -65,32 +65,42 @@ function PathNode({ node, path, colors, focused, onSelect }) {
   </group>;
 }
 
-function PathConnector({ connector, path, colors, focused }) {
+// Routes are gold wire (a brighter, thicker line for the selected route); an unverified route stays a faint line and is not part of the count.
+export function PathConnector({ connector, path, colors, focused }) {
   const curve = useMemo(() => new CubicBezierCurve3(...connector.points.map((p) => new Vector3(p.x, p.y, p.z))), [connector]);
   const off = dimmed(path);
-  const accent = useMemo(() => new Color(off ? colors.line : colors.accent), [colors.accent, colors.line, off]);
-  return <mesh name={connector.id}>
-    <tubeGeometry args={[curve, 40, off ? 1.2 : focused ? 3.4 : 2, 8, false]} />
-    <meshStandardMaterial color={accent} emissive={off ? "#000000" : accent} emissiveIntensity={off ? 0 : focused ? 0.6 : 0.3} roughness={0.4} transparent={off} opacity={off ? 0.45 : 1} />
+  const tint = useMemo(() => new Color(off ? colors.line : colors.gold), [colors.gold, colors.line, off]);
+  const material = useMemo(() => new MeshPhysicalMaterial({ color: tint, emissive: off ? new Color(colors.line).multiplyScalar(0) : tint, emissiveIntensity: off ? 0 : focused ? 0.75 : 0.28,
+    metalness: 0.9, roughness: 0.3, clearcoat: 0.6, transparent: off, opacity: off ? 0.45 : 1 }), [tint, off, focused, colors.line]);
+  useEffect(() => () => material.dispose(), [material]);
+  return <mesh name={connector.id} material={material}>
+    <tubeGeometry args={[curve, 40, off ? 1 : focused ? 2.8 : 1.5, 10, false]} />
   </mesh>;
 }
 
-function Apex({ apex, value, verifiedCount, total, colors }) {
-  const head = useTextTexture([{ text: String(value), size: 64, y: 40, color: colors.accent, weight: 700 }], { width: 256, height: 80 });
-  const sub = useTextTexture([{ text: `${verifiedCount}/${total}`, size: 40, y: 28, color: colors.ink, weight: 600 }], { width: 192, height: 56 });
-  const accent = useMemo(() => new Color(colors.accent), [colors.accent]);
+// The ONE apex: a faceted sapphire gem in a gold ring with a soft halo. It carries the converged value and the verified count; nothing else.
+export function Apex({ apex, value, verifiedCount, total, colors, labelSide = "below" }) {
+  const above = labelSide === "above";
+  const head = useTextTexture([{ text: String(value), size: 70, y: 42, color: colors.gold, weight: 700 }], { width: 256, height: 84 });
+  const sub = useBadgeTexture(`${verifiedCount}/${total}`, { color: colors.ink, border: colors.gold, fill: new Color(colors.sapphire).multiplyScalar(0.14).getStyle(), width: 192, height: 72, size: 40 });
+  const halo = useHaloTexture(colors.sapphire);
+  const gem = useMemo(() => new MeshPhysicalMaterial({ color: new Color(colors.sapphire), emissive: new Color(colors.sapphire), emissiveIntensity: 0.55, metalness: 0.15, roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.04, flatShading: true, envMapIntensity: 1.6 }), [colors.sapphire]);
+  const ring = useMemo(() => new MeshPhysicalMaterial({ color: new Color(colors.gold), metalness: 1, roughness: 0.25, envMapIntensity: 1.5 }), [colors.gold]);
+  useEffect(() => () => { gem.dispose(); ring.dispose(); }, [gem, ring]);
   return <group position={[apex.x, apex.y, apex.z]} name="apex">
-    <mesh>
-      <sphereGeometry args={[apex.radius, 24, 16]} />
-      <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.35} roughness={0.35} metalness={0.2} />
-    </mesh>
-    <mesh position={[0, -apex.radius - 24, 0]}><planeGeometry args={[96, 30]} /><meshBasicMaterial map={head} transparent side={DoubleSide} depthWrite={false} /></mesh>
-    <mesh position={[0, -apex.radius - 52, 0]}><planeGeometry args={[60, 18]} /><meshBasicMaterial map={sub} transparent side={DoubleSide} depthWrite={false} /></mesh>
+    <sprite scale={[apex.radius * 7, apex.radius * 7, 1]} renderOrder={-1}><spriteMaterial map={halo} transparent depthWrite={false} blending={AdditiveBlending} /></sprite>
+    <mesh material={gem} scale={[1, 1.4, 1]}><octahedronGeometry args={[apex.radius * 1.05, 0]} /></mesh>
+    <mesh material={ring} rotation={[Math.PI / 2.3, 0, 0]}><torusGeometry args={[apex.radius * 1.75, 1.1, 10, 72]} /></mesh>
+    <mesh position={[0, above ? apex.radius * 1.5 + 50 : -apex.radius - 26, 0]}><planeGeometry args={[104, 34]} /><meshBasicMaterial map={head} transparent side={DoubleSide} depthWrite={false} /></mesh>
+    <mesh position={[0, above ? apex.radius * 1.5 + 18 : -apex.radius - 58, 0]}><planeGeometry args={[58, 21.5]} /><meshBasicMaterial map={sub} transparent side={DoubleSide} depthWrite={false} /></mesh>
   </group>;
 }
 
 export default function ConvergenceScene3D2029({ value, paths, verifiedCount, total, focusIndex = 0, onSelect, reducedMotion = false, onFallback }) {
   const hostRef = useRef(null);
+  // R3F releases the GPU context when this scene unmounts; that deliberate release must not look like a lost context (false fallback note).
+  const closing = useRef(false);
+  useEffect(() => { closing.current = false; return () => { closing.current = true; }; }, []);
   const [colors, setColors] = useState(FALLBACK_COLORS);
   const [motionReduced, setMotionReduced] = useState(() => reducedMotion || prefersReducedMotion());
   // --sms-* tokens are scoped to the stage subtree: resolve against the mounted host (same approach as the Mistater S4 scene)
@@ -114,10 +124,11 @@ export default function ConvergenceScene3D2029({ value, paths, verifiedCount, to
       dpr={[1, 2]}
       camera={{ fov: 40, near: 1, far: 8000, position: [camera.position.x, camera.position.y, camera.position.z] }}
       gl={{ antialias: true, powerPreference: "low-power" }}
-      onCreated={({ gl }) => { gl.domElement.addEventListener("webglcontextlost", (event) => { event.preventDefault(); onFallback?.("context_lost"); }); }}
+      onCreated={({ gl }) => { gl.domElement.addEventListener("webglcontextlost", (event) => { event.preventDefault(); if (!closing.current) onFallback?.("context_lost"); }); }}
     >
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[120, 260, 320]} intensity={1.6} />
+      <RoyalEnvironment />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[120, 260, 320]} intensity={1.8} />
       {layout.nodes.map((node) => <PathNode key={node.id} node={node} path={paths[node.index]} colors={colors} focused={node.index === focusIndex} onSelect={onSelect} />)}
       {layout.connectors.map((connector, i) => <PathConnector key={connector.id} connector={connector} path={paths[i]} colors={colors} focused={i === focusIndex} />)}
       <Apex apex={layout.apex} value={value} verifiedCount={verifiedCount} total={total} colors={colors} />

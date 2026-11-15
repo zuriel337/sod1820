@@ -10,6 +10,8 @@
   --sms-panel:var(--s29-panel,var(--panel,transparent));
   --sms-panel-soft:var(--s29-panel-soft,var(--panel,transparent));
   --sms-glow:var(--s29-glow,var(--gold,transparent));
+  --sms-gold:var(--s29-brand-gold,var(--gold,currentColor));
+  --sms-sapphire:var(--s29-brand-sapphire,var(--accent,currentColor));
   position:relative;
   display:grid;
   gap:12px;
@@ -401,3 +403,73 @@
 .sod29-spatial-convergence__ledger.is-reserved{min-height:54px;display:flex;align-items:center;font-size:14px;color:var(--sms-muted)}
 /* S4 convergence canvas: near-square on phones so the aspect-fitted fan is not surrounded by empty space. */
 .sod29-spatial-method-stage__s4[data-scene="convergence"]{height:clamp(260px,72vw,420px)}
+
+/* S4 lab (3060): toolbar, layer chips and the selected-part panel. DOM controls on the stage's own tokens; no new theme, no literal colors. */
+.sod29-spatial-lab{display:grid;gap:8px}
+.sod29-spatial-lab__bar,.sod29-spatial-lab__layers{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sod29-spatial-lab button:not(.r29-chip):not(.r29-btn),.sod29-spatial-lab__part button:not(.r29-chip):not(.r29-btn){min-height:44px;padding:6px 14px;border:1px solid var(--sms-line-strong);border-radius:999px;background:var(--sms-panel-soft);color:var(--sms-ink);font:inherit;cursor:pointer}
+.sod29-spatial-lab button[aria-pressed="true"]{border-color:var(--sms-accent);box-shadow:0 0 0 1px var(--sms-accent) inset}
+.sod29-spatial-lab__layers button{min-height:44px;font-size:15px}
+.sod29-spatial-convergence__funnel.is-lab{grid-template-columns:minmax(0,1fr)}
+.sod29-spatial-convergence__funnel.is-lab .sod29-spatial-convergence__paths{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));grid-auto-rows:auto;gap:6px}
+.sod29-spatial-lab__part{display:grid;gap:8px;padding:12px 14px;border:1px solid var(--sms-line);border-radius:14px;background:var(--sms-panel-soft);min-height:11em;align-content:start}
+.sod29-spatial-lab__part h4{margin:0;font-size:18px}
+.sod29-spatial-lab__part dl{margin:0;display:grid;gap:4px}
+.sod29-spatial-lab__part dl div{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+.sod29-spatial-lab__part dt{color:var(--sms-muted);font-size:14px}
+.sod29-spatial-lab__part dd{margin:0;font-variant-numeric:tabular-nums}
+.sod29-spatial-lab__part small,.sod29-spatial-lab__note{font-size:14px;color:var(--sms-muted);margin:0}
+.sod29-spatial-lab__note{color:var(--sms-accent-text)}
+.sod29-spatial-lab__sources{margin:0;font-size:15px}
+.sod29-spatial-lab__sources a{color:var(--sms-accent-text)}
+.sod29-spatial-lab__raziel{display:grid;gap:8px}
+.sod29-spatial-lab__raziel details{font-size:15px}
+.sod29-spatial-lab__raziel summary{min-height:44px;display:list-item;align-content:center;cursor:pointer}
+.sod29-spatial-lab__raziel ul{margin:6px 0;padding-inline-start:18px;display:grid;gap:6px}
+.sod29-spatial-lab__raziel li button{min-height:44px;padding:4px 12px}
+.sod29-spatial-method-stage__s4[data-scene="structure"]{height:clamp(320px,64vw,520px)}
+
+.sod29-spatial-convergence__funnel.is-lab .sod29-spatial-convergence__paths{grid-template-columns:repeat(auto-fit,minmax(176px,1fr))}
+.sod29-spatial-convergence__funnel.is-lab .sod29-spatial-convergence__phrase b{font-size:19px}
+
+/* ROYAL mode of the 3D lab (ZURIEL 15.11: "רויאל, כחול מיוחד"). The frame, chips, buttons and rules are the SHARED Royal layer (experience2029/royal2029.css:
+   .r29 / .r29-hall / .r29-chip / .r29-btn / .r29-rule); the sapphire and gold are the canonical brand roles --s29-brand-sapphire / --s29-brand-gold.
+   The 3D stage is a dark "display case" in every theme preset (a sapphire-to-black ground), so gold and sapphire read the same in Day, Parchment and Night. */
+.sod29-spatial-lab-hall{--r29-hue:var(--r29-sapphire);display:grid;gap:12px;padding:14px;min-width:0}
+.sod29-spatial-lab-hall .sod29-spatial-lab__bar,.sod29-spatial-lab-hall .sod29-spatial-lab__layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(124px,1fr));gap:8px}
+.sod29-spatial-lab-hall .sod29-spatial-lab__bar :is(.r29-chip,.r29-btn),.sod29-spatial-lab-hall .sod29-spatial-lab__layers .r29-chip{--r29-hue:var(--r29-gold);padding:4px 10px;font-size:15px;justify-content:center;text-align:center;white-space:normal;line-height:1.2;min-width:0}
+.sod29-spatial-lab-hall .sod29-spatial-lab__bar .r29-chip[aria-pressed="true"]{color:var(--s29-ink);font-weight:800}
+.sod29-spatial-lab-hall .sod29-spatial-method-stage__s4{
+  border:1px solid color-mix(in srgb,var(--r29-gold) 52%,transparent);border-radius:var(--r29-radius-sm);
+  background:
+    radial-gradient(60% 46% at 50% 34%,color-mix(in oklab,var(--r29-sapphire) 46%,black),transparent 74%),
+    radial-gradient(90% 50% at 50% -8%,color-mix(in srgb,var(--r29-gold) 20%,transparent),transparent 62%),
+    radial-gradient(70% 40% at 50% 112%,color-mix(in oklab,var(--r29-sapphire) 40%,black),transparent 70%),
+    linear-gradient(180deg,color-mix(in oklab,var(--r29-sapphire) 20%,black),color-mix(in oklab,var(--r29-sapphire) 8%,black));
+  box-shadow:inset 0 0 0 3px color-mix(in oklab,var(--r29-sapphire) 10%,black),inset 0 0 0 4px color-mix(in srgb,var(--r29-gold) 30%,transparent),0 18px 44px -22px color-mix(in oklab,var(--r29-sapphire) 70%,black)}
+.sod29-spatial-lab-hall .sod29-spatial-method-stage__s4::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(120% 90% at 50% 50%,transparent 58%,color-mix(in oklab,var(--r29-sapphire) 10%,black) 100%)}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__funnel.is-lab{margin-top:2px}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__paths button{border-color:color-mix(in srgb,var(--r29-gold) 30%,var(--s29-line));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 11%,var(--s29-panel)),var(--s29-panel));
+  transition:border-color 180ms ease,box-shadow 180ms ease,background-color 180ms ease}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__paths button.is-focus{border-color:color-mix(in srgb,var(--r29-gold) 88%,transparent);
+  background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--r29-sapphire) 34%,var(--s29-panel)),color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel)));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 46%,transparent),0 8px 22px -10px color-mix(in srgb,var(--r29-sapphire) 90%,transparent)}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__quantity b,.sod29-spatial-lab-hall .sod29-spatial-convergence__phrase b{color:var(--r29-gold-ink);font-family:var(--s29-font-numeric,inherit)}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__phrase b{color:var(--s29-hero,var(--s29-ink))}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__phrase small{color:var(--s29-muted)}
+.sod29-spatial-lab-hall .sod29-spatial-lab__part{border-color:color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line));
+  background:radial-gradient(120% 70% at 100% 0%,color-mix(in srgb,var(--r29-sapphire) 22%,transparent),transparent 70%),linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 10%,var(--s29-panel)),var(--s29-panel));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 8%,transparent)}
+.sod29-spatial-lab-hall .sod29-spatial-lab__part h4{color:var(--r29-gold-ink);letter-spacing:.02em}
+.sod29-spatial-lab-hall .sod29-spatial-lab__raziel .r29-btn.is-primary{--r29-hue:var(--r29-sapphire);justify-self:start;padding:0 20px;
+  border-color:color-mix(in srgb,var(--r29-gold) 60%,transparent);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 70%,var(--s29-panel)),color-mix(in srgb,var(--r29-sapphire) 40%,var(--s29-panel)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent),0 8px 20px -8px color-mix(in srgb,var(--r29-sapphire) 90%,transparent)}
+.sod29-spatial-lab-hall .sod29-spatial-lab__raziel li button{background:transparent}
+.sod29-spatial-lab-hall .sod29-spatial-lab__title{display:grid;gap:6px;justify-items:center;text-align:center}
+.sod29-spatial-lab-hall .sod29-spatial-lab__title b{font-size:13px;letter-spacing:.14em;color:var(--r29-gold-ink);font-weight:800}
+.sod29-spatial-lab-hall .sod29-spatial-lab__title .r29-rule{inline-size:min(260px,70%)}
+@media (prefers-reduced-motion:reduce){.sod29-spatial-lab-hall .sod29-spatial-convergence__paths button{transition:none}}
+@media (forced-colors:active){.sod29-spatial-lab-hall .sod29-spatial-method-stage__s4{background:Canvas;border-color:CanvasText;box-shadow:none}.sod29-spatial-lab-hall .sod29-spatial-method-stage__s4::after{display:none}}

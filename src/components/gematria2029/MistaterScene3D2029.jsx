@@ -10,14 +10,17 @@
 //    manifest's path-only SVG vector (same lineage as Blender); otherwise the canvas text below remains the truthful fallback.
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { CanvasTexture, Color, CubicBezierCurve3, DoubleSide, ExtrudeGeometry, SRGBColorSpace, Vector3 } from "three";
+import { CanvasTexture, Color, CubicBezierCurve3, DoubleSide, ExtrudeGeometry, MeshPhysicalMaterial, PMREMGenerator, SRGBColorSpace, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
 import { glyphPlacement, resolveGlyphAssetRef } from "../../lib/spatial/hebrewGlyphAssets.js";
 import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { resolveSceneConnectorCurve, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
 
-export const FALLBACK_COLORS = Object.freeze({ ink: "#e8ecf4", hero: "#f4f1e8", accent: "#d4af37", panel: "#1b2233", line: "#4a5570" });
+// gold / sapphire are the canonical brand roles (--s29-brand-gold / --s29-brand-sapphire via --sms-gold / --sms-sapphire); the literals below are only
+// the Design Contract fallback used when a token cannot be resolved (same values as lib/paletteTokens2029.js Night).
+export const FALLBACK_COLORS = Object.freeze({ ink: "#e8ecf4", hero: "#f4f1e8", accent: "#d4af37", panel: "#1b2233", line: "#4a5570", gold: "#F9BA3F", sapphire: "#1957D9" });
 
 // Design Contract tokens → colors, resolved through a probe element so var() fallbacks/currentColor resolve to rgb().
 export function resolveTokenColors(host) {
@@ -27,7 +30,7 @@ export function resolveTokenColors(host) {
   probe.style.cssText = "position:absolute;visibility:hidden;pointer-events:none";
   host.appendChild(probe);
   try {
-    const tokens = { ink: "--sms-ink", hero: "--sms-hero", accent: "--sms-accent", panel: "--sms-panel-soft", line: "--sms-line-strong" };
+    const tokens = { ink: "--sms-ink", hero: "--sms-hero", accent: "--sms-accent", panel: "--sms-panel-soft", line: "--sms-line-strong", gold: "--sms-gold", sapphire: "--sms-sapphire" };
     for (const [key, token] of Object.entries(tokens)) {
       probe.style.color = "";
       probe.style.color = `var(${token})`;
@@ -61,10 +64,93 @@ export function useTextTexture(lines, { width = 128, height = 160, fonts = [] } 
   return texture;
 }
 
+// ---- ROYAL kit (shared by the lab scenes): sapphire + gold physical materials, image-based lighting, badge and halo textures ----
+// Every color is derived from the resolved brand tokens (a darker/brighter shade of the SAME token, never a new literal).
+const shade = (css, k) => new Color(css).multiplyScalar(k);
+
+// Room-style environment for PBR reflections (gold is a metal: without an environment it renders as flat yellow). Generated once per canvas,
+// disposed with it. three's own addon — no @react-three/drei.
+export function RoyalEnvironment({ intensity = 0.85 }) {
+  const { gl, scene, invalidate } = useThree();
+  useEffect(() => {
+    const room = new RoomEnvironment();
+    const pmrem = new PMREMGenerator(gl);
+    const target = pmrem.fromScene(room, 0.04);
+    scene.environment = target.texture;
+    scene.environmentIntensity = intensity;
+    invalidate();
+    return () => { scene.environment = null; target.dispose(); pmrem.dispose(); room.dispose?.(); };
+  }, [gl, scene, intensity, invalidate]);
+  return null;
+}
+
+// state: base (verified, not selected) · on (selected) · off (unverified: shown, dimmed, not counted)
+export function useRoyalMaterials(colors) {
+  const mats = useMemo(() => {
+    const body = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 0.3, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.1, ...extra });
+    const trim = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 0.9, roughness: 0.34, envMapIntensity: 1.15, side: DoubleSide, emissive: new Color(gold), emissiveIntensity: 0.24, ...extra });
+    const sap = colors.sapphire, gold = colors.gold;
+    return {
+      body: { base: body(shade(sap, 0.55)), on: body(shade(sap, 0.85), { emissive: new Color(sap), emissiveIntensity: 0.2 }), off: body(shade(sap, 0.4), { transparent: true, opacity: 0.5 }),
+        offOn: body(shade(sap, 0.7), { emissive: new Color(sap), emissiveIntensity: 0.22, transparent: true, opacity: 0.72 }) },
+      trim: { base: trim(new Color(gold)), on: trim(shade(gold, 1.05), { emissiveIntensity: 0.4 }), off: trim(shade(gold, 0.5), { transparent: true, opacity: 0.55 }),
+        offOn: trim(shade(gold, 0.75), { emissive: new Color(gold), emissiveIntensity: 0.14, transparent: true, opacity: 0.78 }) },
+      plinth: body(shade(sap, 0.1), { metalness: 0.6, roughness: 0.5, clearcoat: 0, envMapIntensity: 0.22 }),
+    };
+  }, [colors.sapphire, colors.gold]);
+  useEffect(() => () => {
+    for (const group of [mats.body, mats.trim]) Object.values(group).forEach((m) => m.dispose());
+    mats.plinth.dispose();
+  }, [mats]);
+  return mats;
+}
+
+// A pill-shaped badge (gold hairline on a deep sapphire ground) with centered text; used for "× quantity" tags.
+export function useBadgeTexture(text, { color, border, fill, width = 256, height = 96, size = 50 }) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, width, height);
+    const r = height / 2 - 4;
+    ctx.beginPath();
+    ctx.moveTo(4 + r, 4); ctx.lineTo(width - 4 - r, 4); ctx.arc(width - 4 - r, height / 2, r, -Math.PI / 2, Math.PI / 2);
+    ctx.lineTo(4 + r, height - 4); ctx.arc(4 + r, height / 2, r, Math.PI / 2, -Math.PI / 2); ctx.closePath();
+    ctx.fillStyle = fill; ctx.globalAlpha = 0.92; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.lineWidth = 3; ctx.strokeStyle = border; ctx.stroke();
+    ctx.fillStyle = color; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = `700 ${size}px serif`;
+    ctx.fillText(text, width / 2, height / 2 + 3);
+    const tex = new CanvasTexture(canvas);
+    tex.colorSpace = SRGBColorSpace;
+    return tex;
+  }, [text, color, border, fill, width, height, size]);
+  useEffect(() => () => texture.dispose(), [texture]);
+  return texture;
+}
+
+// Soft radial glow (alpha falloff built from stacked translucent discs, so no rgba literal is needed); additive sprite material.
+export function useHaloTexture(color, size = 128) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = color;
+    const steps = 36;
+    for (let i = steps; i > 0; i--) { ctx.globalAlpha = 0.045 * (1 - i / (steps + 1)) + 0.004; ctx.beginPath(); ctx.arc(size / 2, size / 2, (size / 2) * (i / steps), 0, Math.PI * 2); ctx.fill(); }
+    const tex = new CanvasTexture(canvas);
+    tex.colorSpace = SRGBColorSpace;
+    return tex;
+  }, [color, size]);
+  useEffect(() => () => texture.dispose(), [texture]);
+  return texture;
+}
+
 // Lazy raw SVG assets (path-only, canonical lineage). A missing/failed/mismatched asset resolves to null => fallback.
 const GLYPH_SVG_LOADERS = import.meta.glob("../../lib/spatial/hebrewGlyph/v1/*.svg", { query: "?raw", import: "default" });
 
-async function buildGlyphGeometry(glyph, bounds) {
+export async function buildGlyphGeometry(glyph, bounds) {
   const load = GLYPH_SVG_LOADERS[`../../lib/spatial/hebrewGlyph/v1/${glyph.vector_asset_ref.split("/").pop()}`];
   if (!load) return null;
   const data = new SVGLoader().parse(await load());
@@ -159,13 +245,14 @@ function Connector({ scene, connector, colors }) {
   </group>;
 }
 
-export function Controls({ target, reducedMotion }) {
+export function Controls({ target, reducedMotion, controlsRef: externalRef = null }) {
   const { camera, gl, invalidate } = useThree();
   const controlRef = useRef(null);
   useFrame(() => { if (controlRef.current?.enableDamping) controlRef.current.update(); });
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
     controlRef.current = controls;
+    if (externalRef) externalRef.current = controls; // lets a lab rig animate camera poses on the SAME controls instance
     controls.target.set(target.x, target.y, target.z);
     controls.enableDamping = !reducedMotion; // reduced-motion: no inertia/auto-motion, interaction remains
     controls.autoRotate = false;
@@ -174,8 +261,8 @@ export function Controls({ target, reducedMotion }) {
     controls.update();
     const onChange = () => invalidate();
     controls.addEventListener("change", onChange);
-    return () => { controlRef.current = null; controls.removeEventListener("change", onChange); controls.dispose(); };
-  }, [camera, gl, invalidate, target.x, target.y, target.z, reducedMotion]);
+    return () => { controlRef.current = null; if (externalRef) externalRef.current = null; controls.removeEventListener("change", onChange); controls.dispose(); };
+  }, [camera, gl, invalidate, target.x, target.y, target.z, reducedMotion, externalRef]);
   return null;
 }
 

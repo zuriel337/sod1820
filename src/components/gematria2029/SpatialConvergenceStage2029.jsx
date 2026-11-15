@@ -1,11 +1,14 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { fetchGematriaMethodTraceRaw } from "../../lib/research/gematriaTrace.js";
 import { isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
-import { deriveConvergencePaths, evaluateConvergencePaths } from "../../lib/spatialRenderModel.js";
+import { bindPathsToStructure, compoundStructureSpec, describeStructurePart, deriveConvergencePaths, evaluateConvergencePaths, STRUCTURE_PART_LABEL } from "../../lib/spatialRenderModel.js";
+import { buildRazielPathFocus } from "../../lib/spatial/spatialLabRaziel.js";
 import SpatialMethodStage2029, { S4ErrorBoundary, S4_FALLBACK_NOTE } from "./SpatialMethodStage2029.jsx";
 import { evaluateS4Capability } from "../../lib/spatial/gpuCapability.js";
 import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
 import { useStepPlayer } from "./useStepPlayer.js";
+import { LabControls, LabPartInfo } from "./SpatialLabPanel2029.jsx";
+import "../experience2029/royal2029.css";
 import "./spatialMethodStage2029.css";
 
 // Multi-path convergence (Spatial v2 contract): N independently reproducible paths  inputs + quantities + operation -> V.
@@ -25,6 +28,7 @@ const PLAY_MS = 1100;
 // S4 (GPU) is route-scoped: three / @react-three/fiber live only in this lazily-loaded chunk, requested after the explicit "תלת־ממד" action.
 // The default S2 view never imports or mounts it; any failure falls back to S2 with a truthful note.
 const ConvergenceScene3D = lazy(() => import("./ConvergenceScene3D2029.jsx"));
+const StructureScene3D = lazy(() => import("./StructureScene3D2029.jsx"));
 
 function useTraces(phrases, injected) {
   const key = phrases.join("|");
@@ -43,7 +47,29 @@ function useTraces(phrases, injected) {
   return traces;
 }
 
-export default function SpatialConvergenceStage2029({ card, traces: injectedTraces = null, depth = "S2" }) {
+function PathList({ paths, index, goTo, reached }) {
+  return <ol className="sod29-spatial-convergence__paths">
+    {paths.map((path, i) => {
+      const active = i === index;
+      const lit = i < reached;
+      return <li key={path.id} data-status={path.status} data-lit={lit ? "true" : "false"}>
+        <button type="button" data-path-index={i} tabIndex={active ? 0 : -1} aria-pressed={active} className={active ? "is-focus" : undefined}
+          aria-label={`${path.phrase || "ללא ביטוי"}, ${path.operand} כפול ${path.quantity} שווה ${path.result}. ${STATUS_LABEL[path.status]}`}
+          onClick={() => goTo(i)}>
+          <span className="sod29-spatial-convergence__phrase">
+            {path.phrase ? <b><HebrewGlyph2029 text={path.phrase} /></b> : <b className="is-missing">—</b>}
+            <small><bdi dir="ltr">{path.operand}</bdi></small>
+          </span>
+          <span className="sod29-spatial-convergence__times" aria-hidden="true">×</span>
+          <span className="sod29-spatial-convergence__quantity"><b>{path.quantity}</b></span>
+          <span className="sod29-spatial-convergence__status">{STATUS_LABEL[path.status]}</span>
+        </button>
+      </li>;
+    })}
+  </ol>;
+}
+
+export default function SpatialConvergenceStage2029({ card, traces: injectedTraces = null, depth = "S2", onRazielAction = null }) {
   const rootRef = useRef(null);
   const derived = useMemo(() => deriveConvergencePaths({ value: card?.value, operations: card?.operations, gematria: card?.gematria, quantities: card?.quantities }), [card]);
   const phrases = useMemo(() => [...new Set(derived.map((path) => path.phrase).filter(Boolean))], [derived]);
@@ -62,7 +88,18 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
     setS4(true);
   };
   const fallbackToS2 = (reason) => { setS4(false); setS4Note(S4_FALLBACK_NOTE[reason] || S4_FALLBACK_NOTE.render_error); };
-  const scenePaths = useMemo(() => paths.map((path) => ({ ...path, label: STATUS_LABEL[path.status] })), [paths]);
+  // Compound structure (cube + pentagons + triangles): only models whose spatial contract declares it get the structure view.
+  const spec = useMemo(() => compoundStructureSpec({ shapeIdentity: card?.structure?.shapeIdentity, regions: card?.structure?.regions, structuralProperties: card?.quantities }, { faceWord: card?.structure?.cubeFaceWord }), [card]);
+  const scenePaths = useMemo(() => bindPathsToStructure(paths, spec).map((path) => ({ ...path, label: STATUS_LABEL[path.status], partLabel: STRUCTURE_PART_LABEL[path.part] })), [paths, spec]);
+  const [sceneView, setSceneView] = useState(spec ? "structure" : "paths");
+  const [lab, setLab] = useState({ view: "overview", explode: false, spin: false, layers: {}, resetToken: 0 });
+  useEffect(() => { setSceneView(spec ? "structure" : "paths"); setLab({ view: "overview", explode: false, spin: false, layers: {}, resetToken: 0 }); }, [card?.slug, Boolean(spec)]);
+  const resetLab = () => { setLab((prev) => ({ view: "overview", explode: false, spin: false, layers: {}, resetToken: prev.resetToken + 1 })); player.reset(); };
+  const askRaziel = () => {
+    const selected = scenePaths[Math.min(index, last)];
+    const focus = buildRazielPathFocus({ card, path: selected, partInfo: spec ? describeStructurePart(selected, spec) : null, statusLabel: STATUS_LABEL[selected?.status] });
+    if (focus) onRazielAction?.("explain_spatial_path", focus);
+  };
 
   if (!card || !Number.isFinite(Number(card.value)) || paths.length < 2) return null;
   const value = Number(card.value);
@@ -96,30 +133,26 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         : <button type="button" data-s4-action="deepen" onClick={promoteS4}>תלת־ממד</button>}
       {s4Note ? <small role="status">{s4Note}</small> : null}
     </div>
-    {s4 ? <S4ErrorBoundary onFallback={fallbackToS2}>
-      <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
-        <ConvergenceScene3D value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo} onFallback={fallbackToS2} />
-      </Suspense>
-    </S4ErrorBoundary> : <div className="sod29-spatial-convergence__funnel" style={{ "--sc-rows": paths.length }} role="group" aria-label="מסלולי ההתכנסות" onKeyDown={onKeyDown}>
-      <ol className="sod29-spatial-convergence__paths">
-        {paths.map((path, i) => {
-          const active = i === index;
-          const lit = i < reached;
-          return <li key={path.id} data-status={path.status} data-lit={lit ? "true" : "false"}>
-            <button type="button" data-path-index={i} tabIndex={active ? 0 : -1} aria-pressed={active} className={active ? "is-focus" : undefined}
-              aria-label={`${path.phrase || "ללא ביטוי"}, ${path.operand} כפול ${path.quantity} שווה ${path.result}. ${STATUS_LABEL[path.status]}`}
-              onClick={() => goTo(i)}>
-              <span className="sod29-spatial-convergence__phrase">
-                {path.phrase ? <b><HebrewGlyph2029 text={path.phrase} /></b> : <b className="is-missing">—</b>}
-                <small><bdi dir="ltr">{path.operand}</bdi></small>
-              </span>
-              <span className="sod29-spatial-convergence__times" aria-hidden="true">×</span>
-              <span className="sod29-spatial-convergence__quantity"><b>{path.quantity}</b></span>
-              <span className="sod29-spatial-convergence__status">{STATUS_LABEL[path.status]}</span>
-            </button>
-          </li>;
-        })}
-      </ol>
+    {s4 ? <div className="r29 r29-hall sod29-spatial-lab-hall" data-royal="true">
+      <div className="sod29-spatial-lab__title"><b>מעבדת גימטריה מרחבית</b><span className="r29-rule" aria-hidden="true">◆</span></div>
+      <LabControls sceneView={sceneView} onSceneView={setSceneView} canStructure={Boolean(spec)} view={lab.view} onView={(view) => setLab((p) => ({ ...p, view }))}
+        explode={lab.explode} onExplode={(explode) => setLab((p) => ({ ...p, explode }))} spin={lab.spin} onSpin={(spin) => setLab((p) => ({ ...p, spin }))} reduced={reduced}
+        layers={lab.layers} onLayer={(part) => setLab((p) => ({ ...p, layers: { ...p.layers, [part]: p.layers[part] === false } }))}
+        parts={[...new Set(scenePaths.map((p) => p.part))]} onReset={resetLab} />
+      <S4ErrorBoundary onFallback={fallbackToS2}>
+        <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
+          {sceneView === "structure" && spec
+            ? <StructureScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo}
+                view={lab.view} explode={lab.explode} spin={lab.spin} layers={lab.layers} resetToken={lab.resetToken} onFallback={fallbackToS2} />
+            : <ConvergenceScene3D value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo} onFallback={fallbackToS2} />}
+        </Suspense>
+      </S4ErrorBoundary>
+      <div className="sod29-spatial-convergence__funnel is-lab" style={{ "--sc-rows": paths.length }} role="group" aria-label="בחירת מסלול" onKeyDown={onKeyDown}>
+        <PathList paths={paths} index={index} goTo={goTo} reached={total} />
+      </div>
+      {spec ? <LabPartInfo card={card} path={scenePaths[Math.min(index, last)]} spec={spec} onAskRaziel={onRazielAction ? askRaziel : null} /> : null}
+    </div> : <div className="sod29-spatial-convergence__funnel" style={{ "--sc-rows": paths.length }} role="group" aria-label="מסלולי ההתכנסות" onKeyDown={onKeyDown}>
+      <PathList paths={paths} index={index} goTo={goTo} reached={reached} />
       <svg className="sod29-spatial-convergence__lines" viewBox={`0 0 100 ${paths.length * 100}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
         {paths.map((path, i) => <path key={path.id} d={`M 0 ${i * 100 + 50} C 55 ${i * 100 + 50}, 45 ${paths.length * 50}, 100 ${paths.length * 50}`}
           vectorEffect="non-scaling-stroke" data-status={path.status} data-lit={i < reached ? "true" : "false"} />)}

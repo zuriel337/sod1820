@@ -1,0 +1,75 @@
+{
+  "cases": [
+    {
+      "name": "desktop-lab-flow",
+      "ok": true,
+      "contexts": 4
+    },
+    {
+      "name": "open-close-cycles-no-gpu-leak",
+      "ok": true
+    },
+    {
+      "name": "reduced-motion-lab",
+      "ok": true
+    },
+    {
+      "name": "no-webgl-and-context-loss-fall-back-to-2d",
+      "ok": true
+    },
+    {
+      "name": "mobile-320-lab-cpu4x-swiftshader",
+      "caseWallClockMs": 34257,
+      "docWidth": 305,
+      "innerWidth": 320,
+      "canvases": 1,
+      "heapMB": 22,
+      "dragFrames": 151,
+      "frameGapP95Ms": 17,
+      "droppedOver100ms": 0
+    },
+    {
+      "name": "mobile-390-lab-cpu4x-swiftshader",
+      "caseWallClockMs": 68496,
+      "docWidth": 375,
+      "innerWidth": 390,
+      "canvases": 1,
+      "heapMB": 25,
+      "dragFrames": 151,
+      "frameGapP95Ms": 17,
+      "droppedOver100ms": 0
+    }
+  ],
+  "errors": [],
+  "chunkRequests": {
+    "afterClick": [
+      "StructureScene3D2029-l2vcbaFi.js",
+      "MistaterScene3D2029-DpV7kWEU.js",
+      "ConvergenceScene3D2029-C7Sgnsgc.js"
+    ]
+  },
+  "gpuStats": {
+    "drawCalls": 105,
+    "geometries": 54,
+    "textures": 12
+  },
+  "canvasPickedParts": [
+    "inner",
+    "outer",
+    "relation",
+    "triangles",
+    "cube"
+  ],
+  "raziel": {
+    "opened": false,
+    "carriesPath": true,
+    "excerpt": "סוד 1820 · מה מתחבר? | העולם | רמזי גאולה מתוך סיפורים, תמונות ותיעוד, עם קשרים ומקורות מדויקים. | כאן · העולם | SOD1820 · עולם של חיבורים | מפת הידע של SOD1820 | מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים. | חיפוש מספר או ביטוי | התחלה | מעט מהעולם, במקום אחד | מה חדש | העדכונים האחרונים לפי זמן | נושאים וחיבורים | לראות מה נפגש סביב רעיון | אנשים ומקורות | לפתוח חומר לפי מי ו"
+  },
+  "leak": {
+    "cycles": 6,
+    "heapBeforeMB": 23,
+    "heapAfterMB": 23,
+    "contexts": 14,
+    "allLost": true
+  }
+}

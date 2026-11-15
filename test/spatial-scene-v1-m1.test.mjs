@@ -150,6 +150,7 @@ const THREE_LAZY_MODULES = [
   "components/experience2029/GlyphVolume2029.jsx",
   "components/gematria2029/ConvergenceScene3D2029.jsx",
   "components/gematria2029/MistaterScene3D2029.jsx",
+  "components/gematria2029/StructureScene3D2029.jsx",
 ];
 
 test("lazy boundary: three/@react-three only imported by the closed set of S4/3D modules, each reached only through React.lazy; default render is S2 and never touches WebGL", async () => {

@@ -11,6 +11,7 @@ import { buildPublicCipherContentProjection, buildPublicLanguageContentProjectio
 import { fetchWorldLanguageTriageProjection } from "../../lib/research/worldLanguageTriageProjection.js";
 import { fetchWorldPublicBookContent } from "../../lib/research/worldBookContentProjection.js";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
+import { use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 
 export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
   { key: WORLD_KNOWLEDGE_KIND.NUMBERS, label: "מספרים ומילים", description: "מספרים, מילים וביטויים" },
@@ -177,6 +178,11 @@ class ConvergenceBoundary extends React.Component {
 function ConvergenceOpen({ card }) {
   const [open, setOpen] = useState(false);
   const buttonRef = React.useRef(null);
+  // Raziel is the existing one: the selected path goes through the bounded reading-focus / number-focus channels the frame already accepts.
+  const shell = use2029Shell();
+  const onRazielAction = shell?.openRaziel
+    ? (_kind, focus) => shell.openRaziel({ razielMicroIntent: "explain_reading_focus", readingFocus: focus.readingFocus, numberCoreFocus: focus.numberCoreFocus })
+    : null;
   const eligible = card.operations?.length > 1 && card.gematria?.length;
   // Prefetch the (small) chunk only when the button nears the viewport, so the panel opens in the same moment as the click (no late layout shift).
   useEffect(() => {
@@ -188,7 +194,7 @@ function ConvergenceOpen({ card }) {
   if (!eligible) return null;
   return <div className="sod29-world-spatial-convergence" data-convergence-card={card.slug}>
     <button ref={buttonRef} type="button" className="sod29-action" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? "סגור את ההמחשה" : "פתח המחשת התכנסות"}</button>
-    {open ? <ConvergenceBoundary><Suspense fallback={<p role="status" className="sod29-muted">טוען את ההמחשה…</p>}><SpatialConvergenceStage card={card} /></Suspense></ConvergenceBoundary> : null}
+    {open ? <ConvergenceBoundary><Suspense fallback={<p role="status" className="sod29-muted">טוען את ההמחשה…</p>}><SpatialConvergenceStage card={card} onRazielAction={onRazielAction} /></Suspense></ConvergenceBoundary> : null}
   </div>;
 }
 

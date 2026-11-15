@@ -92,6 +92,8 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
       structure: Array.isArray(model.structure) ? model.structure : [],
       operations: Array.isArray(model.spatial?.operations) ? model.spatial.operations : [],
       quantities: Array.isArray(model.spatial?.structuralProperties) ? model.spatial.structuralProperties : [],
+      structure: { shapeIdentity: model.spatial?.shapeIdentity || null, dimension: model.spatial?.dimension || null,
+        regions: Array.isArray(model.spatial?.regions) ? model.spatial.regions : [], cubeFaceWord: model.cube?.faceWord || null },
       pathCount,
       interpretation: model.midrash || null,
       source: {

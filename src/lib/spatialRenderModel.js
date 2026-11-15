@@ -96,3 +96,60 @@ export function evaluateConvergencePaths(paths, traces, isVerified) {
   });
   return { paths: evaluated, verifiedCount: evaluated.filter((path) => path.status === "verified").length, total: evaluated.length };
 }
+
+
+// ---- Structure binding for the compound pentagon family (Spatial v2 contract: regions / quantity provenance) ----
+// Pure, renderer-independent. Turns model.spatial.regions + the cube leg into a render SPEC and binds each already-derived convergence path
+// to the part of the structure that carries it. It draws nothing and counts nothing; a path with no approved geometry binds to `null`
+// (a separate relation layer): geometry is never invented for it. `panels` (the shape's own side count) and `quantity` (the arithmetic
+// multiplier from the source) are different facts and stay different fields.
+export function compoundStructureSpec(spatial, cube = {}) {
+  if (!isCompoundPentagonModel(spatial)) return null;
+  const outer = regionFor(spatial.regions, "outer_pentagon");
+  const inner = regionFor(spatial.regions, "inner_pentagon");
+  const tri = regionFor(spatial.regions, "nested_triangles");
+  const ring = (region) => (region ? { assignment: String(region.assignment), quantity: Number(region.quantity), panels: sidesOf(region) } : null);
+  return {
+    family: "compound_pentagon",
+    // a cube has exactly 6 faces; a model that says otherwise is not drawn as a cube
+    cube: cube?.faceWord && cubeFacesOf(spatial) === 6 ? { word: String(cube.faceWord), faces: 6 } : null,
+    outer: ring(outer),
+    inner: ring(inner),
+    triangles: tri ? { assignment: String(tri.assignment), quantity: Number(tri.quantity), count: Number(tri.quantity) } : null,
+  };
+}
+
+export const STRUCTURE_PART_LABEL = Object.freeze({ cube: "קובייה", outer: "מחומש חיצוני", inner: "מחומש פנימי", triangles: "משולשים פנימיים", relation: "שכבת קשר" });
+
+export function bindPathsToStructure(paths, spec) {
+  const taken = new Set();
+  const claim = (part, matches) => {
+    if (taken.has(part) || !spec?.[part] || !matches) return null;
+    taken.add(part);
+    return part;
+  };
+  return paths.map((path) => {
+    const part = !spec ? null
+      : claim("cube", path.phrase && path.phrase === spec.cube?.word && path.quantity === spec.cube?.faces)
+      || claim("outer", path.phrase && path.phrase === spec.outer?.assignment && path.quantity === spec.outer?.quantity)
+      || claim("inner", path.phrase && path.phrase === spec.inner?.assignment && path.quantity === spec.inner?.quantity)
+      || claim("triangles", String(path.operand) === spec.triangles?.assignment && path.quantity === spec.triangles?.quantity)
+      || null;
+    return { ...path, part: part || "relation" , geometric: Boolean(part) };
+  });
+}
+
+// Facts shown for the selected part, each with its ORIGIN, so a shape count is never presented as the source quantity (e.g. 5 sides ≠ 180 units).
+export function describeStructurePart(path, spec) {
+  const origin = path.quantityProvenance || "מוצהר במודל";
+  const quantity = { key: "כמות במסלול", value: path.quantity, origin };
+  const part = path.part;
+  if (part === "cube") return { part, label: STRUCTURE_PART_LABEL.cube, facts: [{ key: "פאות בצורה", value: spec.cube.faces, origin: "גאומטריה של קובייה" }, quantity], note: null };
+  if (part === "outer" || part === "inner") {
+    const ring = spec[part];
+    return { part, label: STRUCTURE_PART_LABEL[part], facts: [{ key: "צלעות בצורה", value: ring.panels, origin: "מבנה הצורה במודל" }, quantity],
+      note: ring.panels !== ring.quantity ? `מספר הצלעות (${ring.panels}) הוא צורה; הכמות (${ring.quantity}) מקורה בנתוני המחקר. הם אינם אותו דבר.` : null };
+  }
+  if (part === "triangles") return { part, label: STRUCTURE_PART_LABEL.triangles, facts: [{ key: "משולשים בצורה", value: spec.triangles.count, origin: "שרטוט המקור במודל" }, quantity], note: null };
+  return { part: "relation", label: STRUCTURE_PART_LABEL.relation, facts: [quantity], note: "אין מבנה גאומטרי מאושר למסלול הזה. הוא מוצג כשכבת קשר נפרדת ולא כצורה." };
+}
