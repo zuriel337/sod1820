@@ -38,9 +38,9 @@ Visit https://react.dev/link/error-boundaries to learn more about error boundari
 test at test/community-calculator-runtime-2029.test.mjs:119:1
 ✖ calculator SEO follows the effective edited address without indexing inputs or changing its canonical (8.37419ms)
   AssertionError [ERR_ASSERTION]: typing creates a query URL and must update robots immediately
-  
+
   false !== true
-  
+
       at TestContext.<anonymous> (file://<calculator-worktree>/test/community-calculator-runtime-2029.test.mjs:126:10)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {

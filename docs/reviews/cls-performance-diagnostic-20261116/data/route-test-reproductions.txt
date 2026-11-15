@@ -19,9 +19,9 @@
 test at test/route-scroll-reset-2029.browser.test.mjs:34:13
 ✖ 390px (4616.139096ms)
   AssertionError [ERR_ASSERTION]: POP restores after destination content arrives late
-  
+
   1454 !== 4000
-  
+
       at TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:69:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:34:5)
@@ -38,9 +38,9 @@ test at test/route-scroll-reset-2029.browser.test.mjs:34:13
 test at test/route-scroll-reset-2029.browser.test.mjs:34:13
 ✖ 1440px (4352.980989ms)
   AssertionError [ERR_ASSERTION]: POP restores after destination content arrives late
-  
+
   1454 !== 4000
-  
+
       at TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:69:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:34:5)
@@ -89,9 +89,9 @@ test at test/route-scroll-reset-2029.browser.test.mjs:34:13
 test at test/route-scroll-reset-2029.browser.test.mjs:34:13
 ✖ 390px (6501.640423ms)
   AssertionError [ERR_ASSERTION]: user scroll cancels pending restoration
-  
+
   4000 !== 1454
-  
+
       at TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:75:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:34:5)
@@ -108,9 +108,9 @@ test at test/route-scroll-reset-2029.browser.test.mjs:34:13
 test at test/route-scroll-reset-2029.browser.test.mjs:34:13
 ✖ 1440px (6241.045524ms)
   AssertionError [ERR_ASSERTION]: user scroll cancels pending restoration
-  
+
   4000 !== 1454
-  
+
       at TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:75:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async TestContext.<anonymous> (file://<route-worktree>/test/route-scroll-reset-2029.browser.test.mjs:34:5)
