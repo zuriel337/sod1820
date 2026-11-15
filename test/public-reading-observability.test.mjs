@@ -104,7 +104,7 @@ test("emitted worker preserves bearer only for the three GET admin readers, neve
 });
 test("actual GA adapter groups public labels and never initializes on a private route; Legacy options stay separate",async()=>{
   const source=await build({entryPoints:["src/lib/analytics.js"],bundle:true,write:false,format:"cjs",platform:"node",define:{"import.meta.env.VITE_GA_ID":'"G-TEST12345"'}});
-  const scripts=[],layer=[];const context={exports:{},module:{exports:{}},window:{location:{origin:SITE,href:SITE+"/number/PRIVATE?token=SECRET"},dataLayer:layer},document:{title:"PRIVATE TITLE",createElement:()=>({}),head:{appendChild:s=>scripts.push(s)}}};
+  const scripts=[],layer=[];const context={exports:{},module:{exports:{}},URL,window:{location:{origin:SITE,href:SITE+"/number/PRIVATE?token=SECRET"},dataLayer:layer},document:{title:"PRIVATE TITLE",createElement:()=>({}),head:{appendChild:s=>scripts.push(s)}}};
   context.exports=context.module.exports;vm.runInNewContext(source.outputFiles[0].text,context);const a=context.module.exports;
   a.initGA({publicReading:true,path:"/login"});assert.equal(scripts.length,0);
   a.initGA({publicReading:true,path:"/number/PRIVATE"});a.trackPageview("/number/PRIVATE?token=SECRET",{publicReading:true});
@@ -136,7 +136,7 @@ test("actual route effects restore first-party visits/engagement on the normaliz
     useAuth:()=>({loading:false,isAdmin:false}),React:{useRef:value=>({current:value})},
     window:{location:{hostname:"sod1820.co.il"},requestIdleCallback:fn=>{idle=fn;return 1;},cancelIdleCallback:()=>{}},
     document:{querySelector:()=>ready?{}:null,getElementById:()=>({}),body:{}},MutationObserver:class{constructor(fn){mutation=fn;}observe(){}disconnect(){}},
-    readingTelemetryPath,startWebVitals2029:opts=>{calls.push(["RUM",opts]);return ()=>{};},initGA:opts=>calls.push(["GA",opts]),trackPageview:(...args)=>calls.push(["page",...args]),
+    readingTelemetryPath,startWebVitals2029:opts=>{calls.push(["RUM",opts]);return ()=>{};},initGA:opts=>calls.push(["GA",opts]),trackPageview:(...args)=>{calls.push(["page",...args]);},
     initMarketing:()=>calls.push(["marketing"]),trackMarketingPageview:()=>calls.push(["marketing-page"]),ensureIdentity:()=>assert.fail("identity bridge"),
     startPageEngagement:(path,deps)=>{calls.push(["engagement",path,deps.getSodIdFn(),deps.sessionIdFn()]);return {};},
     // The first-party page view is written only after the address has settled (a redirect hop is not a page view): the timer is run by hand.

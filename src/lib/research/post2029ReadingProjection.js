@@ -9,6 +9,7 @@ import { projectTopicCardContent } from "./topicConvergence.js";
 import { decodePublicEntities } from "../presentation/contentTitle.js";
 import { classifyCalculatorInput, CALCULATOR_INPUT_KIND } from "./calculator2029Input.js";
 import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
+import { preloadPostBackground2029 } from "./postBackground2029.js";
 
 export function isPostEnglishExpression(expression) {
   const info = classifyCalculatorInput(expression);
@@ -848,6 +849,8 @@ export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = 
   const publicPost = await readPost(slug, { throwOnError: true, signal });
   if (sourceInvitation && !publicPost) return null;
   if (publicPost && !isPublicPostReadingSource(publicPost)) return null;
+  if (signal?.aborted) throw new DOMException("Source read cancelled", "AbortError");
+  if (publicPost && !sourceInvitation) preloadPostBackground2029(publicPost);
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
   // The historical preview witness is needed only for this explicit fallback.
   // Ordinary public Posts must not download its75KB authored document before

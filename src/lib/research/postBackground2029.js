@@ -36,3 +36,22 @@ export function postBackground2029(post) {
     reason: suppressed ? "suppressed_source" : keys.length > 1 ? "ambiguous_series"
       : key === "general" ? "no_mapped_series" : "exact_series_membership" };
 }
+
+// Ask for the same CSS backdrop as soon as the existing reader admits the
+// public source, while its canonical calculations/connections are still loading.
+// This changes discovery time only: no new asset, source read or presentation.
+export function preloadPostBackground2029(post, { doc = globalThis.document, win = globalThis.window } = {}) {
+  try {
+    if (!doc || !win || doc.documentElement?.getAttribute("data-theme-2029") !== "dark") return;
+    const background = postBackground2029(post);
+    const href = win.matchMedia("(max-width:760px)").matches ? background.mobile : background.desktop;
+    if (doc.head.querySelector(`link[rel="preload"][href="${href}"]`)) return;
+    const link = doc.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.type = "image/webp";
+    link.fetchPriority = "high";
+    link.href = href;
+    doc.head.appendChild(link);
+  } catch { /* A missed hint keeps the existing CSS loading behavior. */ }
+}

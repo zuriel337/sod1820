@@ -114,6 +114,16 @@ test("a redirect hop is not a page view: only the address that settles is counte
   assert.deepEqual(d.log.visits.slice(2), ["/c"], "a quick chain of hops counts only its last address");
 });
 
+test("the books alias never becomes a visit even when its redirect takes longer than the settle delay", async () => {
+  const d = document_(); const view = d.mount(); await d.settle();
+  d.go("/books/fixture-book"); view.render(); await d.settle();
+  assert.deepEqual(d.log.visits, ["/world"], "an alias is not content even after 150 ms");
+  assert.deepEqual(d.log.engagement, ["/world"]);
+  d.go("/book/fixture-book"); view.render(); await d.settle();
+  d.go("/books"); view.render(); await d.settle();
+  assert.deepEqual(d.log.visits, ["/world", "/book/:item", "/books"], "the destination and the real list still count");
+});
+
 test("routes that are not measured (account, admin, login) write nothing, and the next measured route counts once", async () => {
   const d = document_(); const view = d.mount(); await d.settle();
   for (const path of ["/login", "/me", "/me/profile", "/admin", "/2029/control", "/community/whatsapp"]) {
