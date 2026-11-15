@@ -84,7 +84,7 @@ function Sources() {
   }, []);
   return <section className="sod29-pu-sources" aria-label="מקורות היחידה">
     <h4>המקורות — כל כותב בזהות נפרדת, בדבריו שלו</h4>
-    <p className="sod29-pu-sources-note">זהויות ביחידה: {ATTRIBUTION_GROUPS.map((g) => g.label).join(" · ")} · פסוקים · בעל הסולם · עריכת האתר. אין מייחסים לכותב אלא את מה שכתב.</p>
+    <p className="sod29-pu-sources-note">זהויות ביחידה: {ATTRIBUTION_GROUPS.filter((g) => YAMIN_SMOL_SOURCES.some((source) => source.slug === g.identity)).map((g) => g.label).join(" · ")} · פסוקים · בעל הסולם · עריכת האתר. אין מייחסים לכותב אלא את מה שכתב.</p>
     {units.length === 0 ? <p className="sod29-pu-sources-note" role="status">מקורות הכותבים נטענים מהקורא הציבורי…</p> : null}
     {units.map((source) => <PostExternalSourceUnit2029 key={source.id} source={source} />)}
   </section>;

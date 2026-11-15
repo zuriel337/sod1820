@@ -80,6 +80,18 @@ export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `ימין ושמא
 
 חשוב להבחין: 1158 הוא סכום ערכי ראשי התיבות. הוא אינו הערך הרגיל של המשפט ״ארבע המפלגות הערביות״.
 
+ושש מאות אלף — הרי הם שישים ריבוא, מספר המזוהה במסורת עם כלל נשמות ישראל.
+
+ומהו הסוד של שישים ריבוא?
+
+בעל הסולם, במאמרו ״ששים רבוא נשמות״, כותב:
+
+«״שבאמת אין בעולם יותר מנשמה אחת״»
+
+נשמה אחת, המתגלית בריבוי נשמות.
+
+ומכאן עולה רמז יפה לאחדות ישראל.
+
 המסר
 
 החיבורים מצטרפים להתבוננות על ימין ושמאל, פירוד ואחדות.
@@ -171,10 +183,9 @@ export const YAMIN_SMOL_IMAGES = Object.freeze(!PREVIEW_BUILD ? [] : [
   Object.freeze({ id: "img-2", ref: "channel_updates:9fd28f82-5619-4161-9840-c957842d99fd", state: "awaiting_publication_approval" }),
 ]);
 
-// Public group messages (read through the existing public reader), shown as SEPARATE identities with their own words.
+// Public group messages (read through the existing public reader), shown as SEPARATE identities with their own words. ZURIEL 17.11.2026: Yitzhak Shachar Kandro's words are removed from the unit.
 export const YAMIN_SMOL_SOURCES = Object.freeze(!PREVIEW_BUILD ? [] : [
   Object.freeze({ slug: "yaniv-levi", channel: "gilui-yomi", id: "channel_updates:6d40048f-b429-4208-bb34-ad36ff4ba907" }),
-  Object.freeze({ slug: "shachar-kandro", channel: "gilui-yomi", id: "channel_updates:8d30aba8-e510-443b-9de0-456df8875a22" }),
 ]);
 
 export const PREVIEW_UNITS_2029 = Object.freeze(!PREVIEW_BUILD ? {} : {
