@@ -152,7 +152,7 @@ export const clearEditable = (blocks) => blocks.filter((block) => block.locked);
 
 // ---- plain text (copy the whole document / replace the content) ----------------------------------------------------------
 const chipToken = (item) => { const first = item.refs[0], last = item.refs[item.refs.length - 1]; return `[[מקור ${first}${last !== first ? `–${last}` : ""} · ${item.label}]]`; };
-const gxToken = (item) => { const g = item.item; return `[[גימטריה | ${g.phrase.replace(/\|/g, " ")} | ${g.methodKey} | ${g.display} | ${g.stated ?? ""} | ${g.by ?? ""}]]`; };
+const gxToken = (item) => { const g = item.item; return `[[גימטריה | ${g.phrase.replace(/\|/g, " ")} | ${g.methodKey} | ${g.display} | ${g.stated ?? ""} | ${g.by ?? ""}${g.sourceRef ? ` | ${g.sourceRef}` : ""}]]`; };
 const alignPrefix = (align) => (ALIGNS.includes(align) ? `{${ALIGN_WORD[align]}} ` : "");
 // `base` (optional): sources the person removed from the unit are written as explicit [[הסרת מקור …]] lines, so a copied / saved document pastes back as valid.
 export function blocksToDoc(blocks, { withSources = true, base = null } = {}) {
@@ -195,8 +195,8 @@ export function docToItems(text, base) {
     }
     const gx = line.match(GX_TOKEN);
     if (gx) {
-      const [phrase, methodKey, display, stated, by] = gx[1].split("|").map((x) => x.trim());
-      raw.push({ t: "gx", ref: null, item: { phrase, methodKey, display, ...(stated ? { stated: Number(stated) } : {}), ...(by ? { by } : {}) }, align }); continue;
+      const [phrase, methodKey, display, stated, by, sourceRef] = gx[1].split("|").map((x) => x.trim());
+      raw.push({ t: "gx", ref: null, item: { phrase, methodKey, display, ...(stated ? { stated: Number(stated) } : {}), ...(by ? { by } : {}), ...(sourceRef ? { sourceRef } : {}) }, align }); continue;
     }
     if (RULE_LINE.test(line)) { raw.push({ t: "rule", ref: null }); continue; }
     const mark = MARKERS.find(([, m]) => line.startsWith(m));

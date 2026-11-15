@@ -204,3 +204,16 @@ test("a saved / copied document round-trips even after a source was removed from
   assert.equal(diffBody(base, back.blocks).count, diffBody(base, without.blocks).count);
   assert.equal(replaceFromText(blocksToDoc(without.blocks), base).ok, false, "without the base the removal is not written (so the editor always passes it)");
 });
+
+test("F1: a gematria item's exact source reference travels through copy → paste, and two same-phrase items from different sources stay two items", () => {
+  const items = docItems(base);
+  const a = { phrase: "השמאל גנבו הבחירות מיד הימין", methodKey: "regular", display: "full", stated: 1237, by: "yaniv-levi", sourceRef: "unit-block:b11" };
+  const b = { ...a, sourceRef: "unit-block:b29" };
+  items.splice(items.findIndex((x) => x.t === "text" && x.ref === "b42") + 1, 0, { t: "gx", item: a, align: null }, { t: "gx", item: b, align: null });
+  const text = blocksToDoc(itemsToBlocks(items, base).blocks);
+  assert.ok(text.includes("| yaniv-levi | unit-block:b11]]") && text.includes("| yaniv-levi | unit-block:b29]]"));
+  const back = replaceFromText(text, base);
+  assert.equal(back.ok, true, JSON.stringify(back.errors));
+  const gx = back.blocks.filter((x) => x.kind === "gematria").map((x) => x.item.sourceRef);
+  assert.deepEqual(gx, ["unit-block:b11", "unit-block:b29"]);
+});

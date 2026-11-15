@@ -1,7 +1,7 @@
 import test from "node:test";
 import { YAMIN_SMOL_TEXT_20261112 } from "./fixtures/yaminSmolText20261112.js";
 import assert from "node:assert/strict";
-import { baseBodyBlocks, resolveBodyBlocks, entriesFromBlocks, diffBody, resolveUnitBlocks, writeBodyDraft, readBodyDraft, clearBodyDraft, cleanBodyText } from "./postUnitBody2029.js";
+import { baseBodyBlocks, resolveBodyBlocks, entriesFromBlocks, diffBody, resolveUnitBlocks, writeBodyDraft, readBodyDraft, clearBodyDraft, cleanBodyText, cleanGematriaItem, refreshData } from "./postUnitBody2029.js";
 
 const memory = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
 const base = baseBodyBlocks(YAMIN_SMOL_TEXT_20261112);
@@ -66,4 +66,32 @@ test("the browser-local draft round-trips, is per post+unit, and clears back to 
   clearBodyDraft(5107, "u", storage);
   assert.equal(readBodyDraft(5107, "u", storage), null);
   assert.equal(resolveUnitBlocks(5107, "u", YAMIN_SMOL_TEXT_20261112, storage).find((b) => b.id === firstProse.id).text, firstProse.text);
+});
+
+test("F1: a gematria item keeps the exact source reference it was taken from; a malformed reference is refused; two sources with one phrase stay two items", () => {
+  const item = cleanGematriaItem({ phrase: "אב", methodKey: "רגיל", display: "full", by: "yaniv-levi", sourceRef: "channel_updates:6d40048f-b429-4208-bb34-ad36ff4ba907" });
+  assert.equal(item.sourceRef, "channel_updates:6d40048f-b429-4208-bb34-ad36ff4ba907");
+  assert.equal(cleanGematriaItem({ phrase: "אב", methodKey: "רגיל", display: "full", sourceRef: "unit-block:b12" }).sourceRef, "unit-block:b12");
+  assert.equal(cleanGematriaItem({ phrase: "אב", methodKey: "רגיל", display: "full" }).sourceRef, undefined);
+  for (const bad of ["javascript:alert(1)", "<b>x</b>", "a b", "x".repeat(200), "no-colon", ":id"]) assert.equal(cleanGematriaItem({ phrase: "אב", methodKey: "רגיל", display: "full", sourceRef: bad }), null, bad);
+  const a = cleanGematriaItem({ phrase: "אב", methodKey: "רגיל", display: "full", sourceRef: "unit-block:b3" }), b = cleanGematriaItem({ phrase: "אב", methodKey: "רגיל", display: "full", sourceRef: "unit-block:b9" });
+  assert.notDeepEqual(a, b);
+});
+
+test("F2: editing a writer's data line never keeps the writer's attribution; the original stays linked; editing back restores it", () => {
+  const original = { kind: "claim", id: "b7", text: "גדעון איזנקוט ראש הממשלה = 1237", identity: "shachar-kandro", group: "shachar-kandro" };
+  const edited = refreshData(original, "נוסח חדש = 999");
+  assert.equal(edited.text, "נוסח חדש = 999");
+  assert.equal(edited.identity, "editorial");
+  assert.equal(edited.group, undefined);
+  assert.deepEqual(edited.editedFrom, { identity: "shachar-kandro", group: "shachar-kandro", text: "גדעון איזנקוט ראש הממשלה = 1237" });
+  // a second edit keeps pointing at the ORIGINAL, not at the first edit
+  assert.equal(refreshData(edited, "עוד נוסח = 5").editedFrom.text, "גדעון איזנקוט ראש הממשלה = 1237");
+  // editing back to the exact original restores the writer's attribution
+  const back = refreshData(edited, "גדעון איזנקוט ראש הממשלה = 1237");
+  assert.equal(back.group, "shachar-kandro");
+  assert.equal(back.identity, "shachar-kandro");
+  assert.equal(back.editedFrom, undefined);
+  // an editorial line (no group) is just edited
+  assert.deepEqual(refreshData({ kind: "claim", id: "b1", text: "x = 1", identity: "editorial" }, "y = 2"), { kind: "claim", id: "b1", text: "y = 2", identity: "editorial" });
 });

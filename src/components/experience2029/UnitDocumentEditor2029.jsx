@@ -18,7 +18,7 @@ import UnitGematria2029 from "./UnitGematria2029.jsx";
 import { loadMethodChoices } from "../../lib/research/unitGematriaTrace2029.js";
 
 const KIND_BUTTONS = ["p", "heading", "subtitle", "kicker", "closing"];
-const EMPTY_GX = Object.freeze({ phrase: "", methodKey: "", display: "letters", stated: "", by: "", note: "", where: "after", editNode: null });
+const EMPTY_GX = Object.freeze({ phrase: "", methodKey: "", display: "letters", stated: "", by: "", sourceRef: "", note: "", where: "after", editNode: null });
 const IDENTITY_NAME = Object.freeze({ "yaniv-levi": "יניב לוי", "shachar-kandro": "יצחק שחר קנדרו", editorial: "בנוסח העריכה" });
 const sigOf = (blocks) => JSON.stringify(blocks.map((b) => [b.id, b.kind, b.text, b.align || "", b.item || ""]));
 const time = (ms) => new Date(ms).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
@@ -181,20 +181,21 @@ export default function UnitDocumentEditor2029({ unit, unitDef, postId, onPickMe
   // ---- + add / edit a gematria item (a REFERENCE: the shared component rebuilds it from the canonical engine) ----
   const [gx, setGx] = useState(EMPTY_GX);
   const [choices, setChoices] = useState({ loading: false, rows: [], asked: "" });
-  const gxItem = useMemo(() => cleanGematriaItem({ phrase: gx.phrase, methodKey: gx.methodKey, display: gx.display, stated: gx.stated, by: gx.by || undefined, note: gx.note }), [gx]);
+  const gxItem = useMemo(() => cleanGematriaItem({ phrase: gx.phrase, methodKey: gx.methodKey, display: gx.display, stated: gx.stated, by: gx.by || undefined, sourceRef: gx.sourceRef || undefined, note: gx.note }), [gx]);
+  // phrases of this document that can seed a gematria item. Each candidate carries the EXACT block it came from (`unit-block:<id>`): two blocks with the same phrase stay two sources.
   const candidates = useMemo(() => {
     const out = [];
     for (const b of blocks) {
       const field = b.kind === "claim" ? parseFieldLine(b.text) : null;
       const text = field ? (field.label === "הביטוי" ? field.value : null) : b.kind === "claim" ? b.text.split(/\s=\s/)[0] : b.kind === "verse" ? b.text : null;
       const clean = text && text.replace(/[«»״"]/g, "").replace(/\s+/g, " ").trim();
-      if (clean && clean.length >= 2 && !out.includes(clean)) out.push(clean);
+      if (clean && clean.length >= 2 && b.id) out.push({ ref: `unit-block:${b.id}`, text: clean });
     }
     return out.slice(0, 40);
   }, [blocks]);
   const openGx = (node = null) => {
     let g = null; try { g = node ? JSON.parse(node.getAttribute("data-gx")) : null; } catch { g = null; }
-    setGx(g ? { ...EMPTY_GX, phrase: g.phrase, methodKey: g.methodKey, display: g.display, stated: g.stated ?? "", by: g.by || "", note: g.note || "", editNode: node } : { ...EMPTY_GX });
+    setGx(g ? { ...EMPTY_GX, phrase: g.phrase, methodKey: g.methodKey, display: g.display, stated: g.stated ?? "", by: g.by || "", sourceRef: g.sourceRef || "", note: g.note || "", editNode: node } : { ...EMPTY_GX });
     setChoices({ loading: false, rows: [], asked: "" }); setPanel("gx");
   };
   const loadChoices = async () => {
@@ -345,8 +346,8 @@ export default function UnitDocumentEditor2029({ unit, unitDef, postId, onPickMe
     {panel === "gx" ? <section className="sod29-ude-panel" aria-label="הוספת גימטריה" data-ude-panel="gx">
       <h4>{gx.editNode ? "עריכת גימטריה" : "+ הוסף גימטריה"}</h4>
       <p className="sod29-ude-hint">כל גימטריה היא הפניה בלבד: ביטוי + שיטה + סוג תצוגה. הערך, הפירוק והעיצוב נקראים מהמנוע הקנוני ומהרכיב המשותף בכל הצגה — לא נשמרים ביחידה. אפשר להוסיף כמה ממצאים של אותו מספר, ממקורות ושיטות שונים; הם לא מתאחדים.</p>
-      <label>ביטוי או פסוק<input type="text" dir="rtl" value={gx.phrase} maxLength={200} data-ude-gx-phrase onChange={(e) => setGx({ ...gx, phrase: e.target.value, methodKey: "" })} onBlur={loadChoices} placeholder="הקלידו ביטוי…" /></label>
-      {candidates.length ? <label>או בחרו מתוך המסמך<select value="" onChange={(e) => { if (e.target.value) setGx({ ...gx, phrase: e.target.value, methodKey: "" }); }}><option value="">מתוך מקור קיים…</option>{candidates.map((c) => <option key={c} value={c}>{c.slice(0, 60)}</option>)}</select></label> : null}
+      <label>ביטוי או פסוק<input type="text" dir="rtl" value={gx.phrase} maxLength={200} data-ude-gx-phrase onChange={(e) => setGx({ ...gx, phrase: e.target.value, sourceRef: "", methodKey: "" })} onBlur={loadChoices} placeholder="הקלידו ביטוי…" /></label>
+      {candidates.length ? <label>או בחרו מתוך המסמך<select value="" onChange={(e) => { const hit = candidates.find((c) => c.ref === e.target.value); if (hit) setGx({ ...gx, phrase: hit.text, sourceRef: hit.ref, methodKey: "" }); }}><option value="">מתוך מקור קיים…</option>{candidates.map((c) => <option key={c.ref} value={c.ref}>{c.text.slice(0, 60)}</option>)}</select></label> : null}
       <div className="sod29-ude-actions"><button type="button" data-ude-gx-load disabled={!gx.phrase.trim() || choices.loading} onClick={loadChoices}>טען שיטות מהמנוע</button>{choices.loading ? <span role="status">קורא מהמנוע…</span> : null}</div>
       <label>שיטת גימטריה<select value={gx.methodKey} data-ude-gx-method onChange={(e) => setGx({ ...gx, methodKey: e.target.value })} disabled={!choices.rows.length && !gx.methodKey}>
         <option value="">{choices.rows.length ? "בחרו שיטה…" : choices.asked ? "המנוע לא החזיר שיטות לביטוי" : "טענו שיטות…"}</option>

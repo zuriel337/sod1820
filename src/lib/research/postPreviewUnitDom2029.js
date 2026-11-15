@@ -18,6 +18,12 @@ function gem(doc, value, extraClass = "") {
   const span = el(doc, "span", attrs, String(value));
   return span;
 }
+// An edited line that came from a writer's group is no longer that writer's wording: say so, and keep the original visible (before and after).
+function editedNote(doc, host, block, labelOf) {
+  if (!block.editedFrom) return;
+  const who = labelOf(block.editedFrom.group) || block.editedFrom.group;
+  host.append(el(doc, "small", { class: "sod29-pu-edited-from", "data-edited-from": block.editedFrom.group }, `נוסח ערוך. במקור (${who}): ${block.editedFrom.text}`));
+}
 // text with its numbers made clickable (the surrounding words are untouched)
 function withNumbers(doc, node, text) {
   let last = 0;
@@ -90,8 +96,9 @@ export function buildPreviewUnitElement(doc, unit, blocks = null) {
       // the canonical method trace opens right under the RESULT of a connection (a React host, filled by PreviewUnitExtras2029)
       const fieldTrace = field.label === "התוצאה" ? PEAK_TRACE_CLAIMS[field.number] : null;
       if (fieldTrace) host.append(el(doc, "div", { "data-pu-trace": fieldTrace, class: "sod29-pu-host sod29-pu-trace-host" }));
+      editedNote(doc, host, block, labelOf);
       continue; }
-    if (block.kind === "claim") { host.append(withNumbers(doc, el(doc, "p", { class: "sod29-pu-claim", "data-sod-role": "short", "data-sod-align": al("center") }), block.text)); continue; }
+    if (block.kind === "claim") { host.append(withNumbers(doc, el(doc, "p", { class: "sod29-pu-claim", "data-sod-role": "short", "data-sod-align": al("center") }), block.text)); editedNote(doc, host, block, labelOf); continue; }
     const p = el(doc, "p", { "data-sod-role": "prose", "data-sod-align": al("start") });
     host.append(withNumbers(doc, p, block.text));
   }

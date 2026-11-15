@@ -174,7 +174,7 @@ export default function PreviewUnitExtras2029({ rootRef, post, htmlKey }) {
     {hosts.sources ? createPortal(<Sources />, hosts.sources) : null}
     {hosts.engine ? createPortal(<Engine />, hosts.engine) : null}
     {traces.map(({ node, claim }) => createPortal(<ClaimTrace claim={claim} auto />, node))}
-    {gx.map(({ node, item, align }, index) => createPortal(<UnitGematria2029 key={`${index}|${item.phrase}|${item.methodKey}|${item.display}`} item={item} align={align} />, node))}
+    {gx.map(({ node, item, align }, index) => createPortal(<UnitGematria2029 key={`${index}|${item.sourceRef || ""}|${item.phrase}|${item.methodKey}|${item.display}`} item={item} align={align} />, node))}
     {hosts.share ? createPortal(<Share unit={unit} post={post} postPath={postPath} />, hosts.share) : null}
   </React.Fragment>)}</>;
 }

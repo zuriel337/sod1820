@@ -31,18 +31,39 @@ export const isLockedBlock = isSourceBlock;
 export const isDataBlock = (block) => DATA_KINDS.includes(block.kind) || block.kind === "gematria";
 export const cleanBodyText = (value) => String(value ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").replace(/\s+\n/g, "\n").trim().slice(0, MAX_TEXT);
 
+// A data line inside a writer's attribution group (e.g. "X = 1237" in Shachar's group) may be EDITED (ZURIEL 15.11: the data is editable), but an edited line is never
+// shown as that writer's words: it leaves the writer's group, becomes editorial wording, and keeps a link to the writer's untouched original (`editedFrom`) so the
+// before and after stay visible. Editing back to the original text restores the attribution (nothing is lost).
+function separatedFromSource(block, nextText) {
+  const original = block.editedFrom ? block.editedFrom.text : block.text;
+  const identity = block.editedFrom ? block.editedFrom.identity : block.identity;
+  const group = block.editedFrom ? block.editedFrom.group : block.group;
+  if (!group || !SOURCE_IDENTITIES.includes(group)) return null;     // not a writer's line: nothing to separate
+  if (nextText === original) return { restored: true, identity, group, original };
+  return { restored: false, identity, group, original };
+}
+function withAttribution(block, nextText, fields) {
+  const sep = separatedFromSource(block, nextText);
+  if (!sep) return { ...block, ...fields, text: nextText };
+  if (sep.restored) { const { editedFrom, ...rest } = block; return { ...rest, ...fields, text: nextText, identity: sep.identity, group: sep.group }; }
+  const { group, ...rest } = block;
+  return { ...rest, ...fields, text: nextText, identity: "editorial", editedFrom: { identity: sep.identity, group: sep.group, text: sep.original } };
+}
+
 // the text of a data block, validated and its structured fields re-derived (null = not a valid line of that kind)
 export function refreshData(block, text) {
   const clean = cleanBodyText(text);
   if (!clean) return null;
-  if (block.kind === "numbers") { const parts = clean.split(/\s*·\s*/); return parts.length && parts.every((p) => /^\d{1,6}$/.test(p)) ? { ...block, text: clean, numbers: parts.map(Number) } : null; }
-  if (block.kind === "peak") return /^\d{1,6}$/.test(clean) ? { ...block, text: clean, number: Number(clean) } : null;
-  if (block.kind === "row") return { ...block, text: clean, cells: clean.split("|").map((c) => c.trim()) };
-  if (block.kind === "claim") return { ...block, text: clean };
+  if (block.kind === "numbers") { const parts = clean.split(/\s*·\s*/); return parts.length && parts.every((p) => /^\d{1,6}$/.test(p)) ? withAttribution(block, clean, { numbers: parts.map(Number) }) : null; }
+  if (block.kind === "peak") return /^\d{1,6}$/.test(clean) ? withAttribution(block, clean, { number: Number(clean) }) : null;
+  if (block.kind === "row") return withAttribution(block, clean, { cells: clean.split("|").map((c) => c.trim()) });
+  if (block.kind === "claim") return withAttribution(block, clean, {});
   return null;
 }
 
 // the engine's own method keys are Hebrew names ("רגיל", "אותיות אחרי"): letters, digits, space, underscore, hyphen, geresh — never markup, quotes, brackets or "|"
+// "<kind>:<id>" — e.g. "channel_updates:6d40048f-…" (a published source message) or "unit-block:b12" (a block of the unit being edited)
+export const SOURCE_REF = /^[a-z][a-z0-9_-]{1,40}:[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/;
 const METHOD_KEY = /^[\p{L}\p{N}][\p{L}\p{N} _\-'׳]{0,59}$/u;
 // the reference to ONE gematria finding, cleaned (no computed value is ever stored)
 export function cleanGematriaItem(item) {
@@ -55,6 +76,8 @@ export function cleanGematriaItem(item) {
   const stated = item.stated == null || item.stated === "" ? null : Number(item.stated);
   if (stated != null) { if (!Number.isSafeInteger(stated) || stated < 0) return null; out.stated = stated; }
   if (item.by) { if (!GX_IDENTITIES.includes(item.by)) return null; out.by = item.by; }
+  // the exact place the phrase was taken from (a block of this unit or a published source): kept as a reference, never as content
+  if (item.sourceRef != null && item.sourceRef !== "") { const ref = String(item.sourceRef).trim(); if (!SOURCE_REF.test(ref)) return null; out.sourceRef = ref; }
   const note = cleanBodyText(item.note).slice(0, 120);
   if (note) out.note = note;
   return out;

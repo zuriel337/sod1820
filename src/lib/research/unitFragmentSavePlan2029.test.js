@@ -58,3 +58,18 @@ test("bad input and an unknown unit fail closed", async () => {
   assert.equal((await planUnitFragmentUpdate({ snapshot: { content: body }, latest: { content: body }, unitId: "../x", newFragmentHtml: "" })).code, "bad_input");
   assert.equal((await planUnitFragmentUpdate({ snapshot: { content: body }, latest: { content: body }, unitId: "nope", newFragmentHtml: located.html })).code, "unit_not_published");
 });
+
+test("F3: the validator reads what a browser reads — encoded, entity-split, percent-escaped, control-character and non-double-quoted schemes are refused; safe links still pass", async () => {
+  const mk = (inner) => `<section id="u1" data-sod-unit="u1"><p>${inner}</p></section>`;
+  const snap = { content: "<p>a</p>" + mk('<a href="/x">x</a>') + "<p>b</p>" };
+  const plan = (html) => planUnitFragmentUpdate({ snapshot: snap, latest: snap, unitId: "u1", newFragmentHtml: html });
+  for (const href of ["jav&#x61;script:alert(1)", "java&Tab;script:alert(1)", "%6Aavascript:alert(1)", "java\tscript:alert(1)", "javascript:alert(1)", "data:text/html,x", "vbscript:x"]) {
+    const result = await plan(mk(`<a href="${href}">x</a><a href="/x">x</a>`));
+    assert.equal(result.code, "unsafe_markup", href);
+  }
+  assert.equal((await plan(`<section id="u1" data-sod-unit="u1"><a href='jav&#97;script:1'>x</a><a href="/x">x</a></section>`)).code, "unsafe_markup", "single-quoted");
+  assert.equal((await plan(`<section id="u1" data-sod-unit="u1"><a href=jav&#97;script:1>x</a><a href="/x">x</a></section>`)).code, "unsafe_markup", "unquoted");
+  assert.equal((await plan(mk('<svg onload=alert(1)></svg><a href="/x">x</a>'))).code, "unsafe_markup", "svg");
+  assert.equal((await plan(`<section id="u1" data-sod-unit="u1"><p id="d">1</p><p id="d">2</p><a href="/x">x</a></section>`)).code, "duplicate_ids");
+  for (const href of ["/x", "https://example.com/a?b=1", "mailto:a@b.co", "#frag"]) assert.equal((await plan(mk(`<a href="${href}">x</a><a href="/x">x</a>`))).code === "unsafe_markup", false, href);
+});

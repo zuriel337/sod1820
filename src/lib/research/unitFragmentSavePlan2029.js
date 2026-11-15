@@ -45,14 +45,46 @@ export function locateUnitFragment(content, unitId) {
   return { ok: true, ...hits[0], html: content.slice(hits[0].start, hits[0].end), sections: found.sections };
 }
 
-const UNSAFE = [/<\s*script\b/i, /<\s*iframe\b/i, /<\s*object\b/i, /<\s*embed\b/i, /\son[a-z]+\s*=/i, /javascript\s*:/i, /expression\s*\(/i, /<\s*base\b/i, /<\s*form\b/i, /srcdoc\s*=/i];
-const attrValues = (html, attr) => [...html.matchAll(new RegExp(`\\s${attr}="([^"]*)"`, "gi"))].map((m) => m[1]);
+const UNSAFE = [/<\s*script\b/i, /<\s*iframe\b/i, /<\s*object\b/i, /<\s*embed\b/i, /<\s*svg\b/i, /<\s*math\b/i, /\son[a-z]+\s*=/i, /javascript\s*:/i, /vbscript\s*:/i, /expression\s*\(/i, /<\s*base\b/i, /<\s*form\b/i, /srcdoc\s*=/i];
+const NAMED = Object.freeze({ colon: ":", tab: "\t", newline: "\n", lt: "<", gt: ">", amp: "&", quot: '"', apos: "'", lpar: "(", rpar: ")", sol: "/", bsol: "\\", equals: "=", excl: "!", num: "#", percnt: "%" });
+// Decodes what a browser would decode BEFORE it reads a scheme: numeric and common named HTML entities (with or without the trailing ";"), then percent escapes
+// (when valid). The scan runs on the raw text AND on this decoded text, so "jav&#x61;script:" or "java&Tab;script:" or "%6Aavascript:" cannot hide a scheme.
+export function decodeForScan(text) {
+  let value = String(text ?? "");
+  for (let pass = 0; pass < 3; pass += 1) {
+    const before = value;
+    value = value
+      .replace(/&#x([0-9a-f]{1,6});?/gi, (_, hex) => { const n = parseInt(hex, 16); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : ""; })
+      .replace(/&#(\d{1,7});?/g, (_, dec) => { const n = Number(dec); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : ""; })
+      .replace(/&([a-z]{2,8});?/gi, (m, name) => NAMED[name.toLowerCase()] ?? m);
+    try { value = decodeURIComponent(value); } catch { /* not a valid percent escape sequence: keep as it is */ }
+    if (value === before) break;
+  }
+  return value;
+}
+// every attribute value: double-quoted, single-quoted or unquoted
+const attrValues = (html, attr) => [...String(html).matchAll(new RegExp(`\\s${attr}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'>=\`]+))`, "gi"))].map((m) => m[1] ?? m[2] ?? m[3] ?? "");
+const SCHEME = /^[\u0000-\u0020\u00a0\u200b-\u200f\u2028\u2029\ufeff]*([a-z][a-z0-9+.-]*)\s*:/i;
+const URL_ATTRS = ["href", "src", "poster", "action", "formaction", "xlink:href", "data", "srcset"];
+const SAFE_SCHEMES = new Set(["http", "https", "mailto", "tel"]);
+// a URL attribute is safe when, after decoding and removing control characters, it is relative or uses an allowed scheme
+export function urlAttributeIsSafe(raw) {
+  const decoded = decodeForScan(raw).replace(/[\u0000-\u0020\u00a0\u200b-\u200f\u2028\u2029\ufeff]/g, "");
+  const match = SCHEME.exec(decoded);
+  return !match || SAFE_SCHEMES.has(match[1].toLowerCase());
+}
 export function inspectFragment(html) {
+  const text = String(html ?? "");
+  const decoded = decodeForScan(text);
+  const unsafe = new Set([...UNSAFE.filter((re) => re.test(text) || re.test(decoded)).map((re) => re.source)]);
+  for (const attr of URL_ATTRS) for (const value of attrValues(text, attr)) if (!urlAttributeIsSafe(value)) unsafe.add(`${attr}-scheme`);
+  const idList = attrValues(text, "id");
   return {
-    ids: new Set(attrValues(html, "id")),
-    links: new Set(attrValues(html, "href")),
-    media: new Set([...attrValues(html, "src"), ...attrValues(html, "poster")]),
-    unsafe: UNSAFE.filter((re) => re.test(html)).map((re) => re.source),
+    ids: new Set(idList),
+    duplicateIds: [...new Set(idList.filter((id, i) => idList.indexOf(id) !== i))],
+    links: new Set(attrValues(text, "href")),
+    media: new Set([...attrValues(text, "src"), ...attrValues(text, "poster")]),
+    unsafe: [...unsafe],
   };
 }
 
@@ -70,6 +102,7 @@ export async function planUnitFragmentUpdate({ snapshot, latest, unitId, newFrag
   if (!own.ok || own.sections.length !== 1) return reject("fragment_not_one_section");
   const before = inspectFragment(located.html), after = inspectFragment(next);
   if (after.unsafe.length) return reject("unsafe_markup", { unsafe: after.unsafe });
+  if (after.duplicateIds.length) return reject("duplicate_ids", { duplicateIds: after.duplicateIds });
   const lost = (label, a, b) => [...a].filter((value) => !b.has(value)).map((value) => ({ label, value }));
   const dropped = [...lost("anchor", before.ids, after.ids), ...lost("link", before.links, after.links), ...lost("media", before.media, after.media)];
   if (dropped.length) return reject("dropped_identity", { dropped });
