@@ -17,11 +17,12 @@ export function postsTaxonomyScope2029(kind, value) {
   }
   const key = canonicalPostCategories([name])[0];
   const series = CONTENT_SERIES_2029.find(spec => spec.membership.some(member => member.field === "categories" && member.value === key));
+  // The entrance /category/וידאו and its results stay. The wording is for readers (no maintenance wording): it names the category and does not claim to be the list of all videos.
   const legacyVideo = key === "וידאו";
   return { kind, key,
-    label: legacyVideo ? "וידאו — סיווג ישן" : series ? `${key} — סיווג במקור` : key,
+    label: legacyVideo ? "וידאו" : series ? `${key} — סיווג במקור` : key,
     compatibilityNote: legacyVideo
-      ? "כאן מופיעים פוסטים שסווגו בעבר כווידאו. זו אינה ספריית כל הסרטונים; סוג המדיה נקבע מהמדיה עצמה."
+      ? "הפוסטים שבקטגוריה וידאו. סרטונים מופיעים גם בפוסטים אחרים."
       : series ? "זהו הסיווג השמור בפוסטים. רשימת הסדרה מציגה רק פריטים ששיוכם לסדרה הוגדר." : null,
     seriesLink: series ? { href: `/2029/posts?series=${encodeURIComponent(series.key)}`, label: `לסדרת ${series.label}` } : null,
     sourceLink: legacyVideo ? { href: "/or-geula", label: "לסרטוני אור הגאולה במקור" } : null,

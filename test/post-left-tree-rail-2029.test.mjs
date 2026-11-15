@@ -57,3 +57,11 @@ test("one active-unit identity: written by ONE effect into the Research Context,
   assert.match(frame, /className="sod29-orientation-back"/);
   assert.match(frame, /navigate\(activeUnitScope\.href, \{ state: \{ puWhole: true \} \}\)/);
 });
+
+test("an asset already playing inline in the Post is not started a second time by the context rail: the rail connects to the inline player", () => {
+  const layer = read("src/components/experience2029/ContextualVideoLayer2029.jsx");
+  assert.match(layer, /sameMediaAsset\(/);
+  assert.match(layer, /data-video-inline="true"/);
+  assert.match(layer, /inline\.currentTime = start/);
+  assert.doesNotMatch(layer, /inline\.play\(/, "the jump never starts playback");
+});

@@ -187,3 +187,11 @@ export function describeVideoMatch(item) {
   const ss = String(start % 60).padStart(2, "0");
   return `${labels || "קטע רלוונטי"} · ${mm}:${ss}`;
 }
+
+// Same media asset? Compares the media address WITHOUT its time fragment and as absolute addresses (a relative src and its absolute form are one asset). Used to avoid a second
+// player for an asset that is already playing inline in the Post body (one asset, one identity; the appearances connect, they do not duplicate the source).
+export function sameMediaAsset(a, b, base = "https://example.invalid/") {
+  const norm = (value) => { const raw = String(value ?? "").trim(); if (!raw) return ""; try { const url = new URL(raw, base); url.hash = ""; return url.href; } catch { return ""; } };
+  const x = norm(a), y = norm(b);
+  return Boolean(x) && x === y;
+}

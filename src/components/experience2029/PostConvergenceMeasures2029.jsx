@@ -80,7 +80,7 @@ export default function PostConvergenceMeasures2029({ sourcePost, sourceProjecti
       {page.status === "failed" ? <p role="alert">קריאת ההתכנסויות נכשלה. לא מוצגים מדדים קודמים.</p> : null}
       {page.status === "not_tested" && page.scope ? <p>{page.scope}</p> : null}
       <div className="k29-pcm-rows">
-        <div className="k29-pcm-reading"><h3>חוזק התכנסות</h3>
+        <div className="k29-pcm-reading"><h3>חוזק התכנסות <small data-meter-scope="selected-card">· של הכרטיס הנבחר</small></h3>
           {selected ? <><p>{selected.shared.map(n => `דרך המספר ${n}`).join(" · ")} — התכנסות {selected.label}</p>
             <p data-convergence-strength>{s.state === "known" ? `ציון הכרטיס: ${s.value} מתוך 100` : "אין נתון"}</p>
             <p className="k29-pcm-fine">הציון שייך לכרטיס הזה; הוא אינו אחוז ודאות או חוזק הפוסט. מקור: מד ההתכנסות השמור בכרטיס. הפירוק לרכיבים אינו זמין בקריאה הזאת.</p>
