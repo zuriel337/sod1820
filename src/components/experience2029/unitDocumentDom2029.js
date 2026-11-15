@@ -1,6 +1,7 @@
 // The browser half of the continuous unit editor: draws a document (docItems) into ONE contenteditable and reads it back into items. Text is only ever
 // set with textContent, pasted content is taken as plain text, and protected chips are atomic (contenteditable=false) and carry only references.
 import { docItems, DOC_KIND_LABEL } from "../../lib/research/unitDocument2029.js";
+import { GX_DISPLAYS } from "../../lib/research/postUnitBody2029.js";
 
 const el = (doc, tag, attrs = {}, text) => {
   const node = doc.createElement(tag);
@@ -9,17 +10,27 @@ const el = (doc, tag, attrs = {}, text) => {
   return node;
 };
 
+// a gematria item inside the document: an atomic node that carries ONLY the reference (the shared component renders it in the preview and in the unit)
+export function gxNode(doc, item) {
+  const g = item.item;
+  const node = el(doc, "div", { class: "sod29-ude-gx", contenteditable: "false", "data-gx": JSON.stringify(g), "data-align": item.align || "", tabindex: "0", role: "group", "aria-label": `גימטריה: ${g.phrase}` });
+  node.append(el(doc, "div", { class: "sod29-ude-chip-head" }, `🧮 גימטריה · ${GX_DISPLAYS[g.display]}${g.by ? ` · ${g.by === "editorial" ? "בנוסח העריכה" : g.by === "yaniv-levi" ? "בדברי יניב לוי" : "בדברי יצחק שחר קנדרו"}` : ""}`));
+  node.append(el(doc, "p", { class: "sod29-ude-line" }, `${g.phrase}${g.stated != null ? ` = ${g.stated} (טענת המקור)` : ""} · שיטה: ${g.methodKey}`));
+  return node;
+}
+
 export function renderDoc(root, blocks, doc = root.ownerDocument) {
   const byId = new Map(blocks.map((block) => [block.id, block]));
   const nodes = [];
   for (const item of docItems(blocks)) {
     if (item.t === "chip") {
-      const chip = el(doc, "div", { class: "sod29-ude-chip", contenteditable: "false", "data-refs": item.refs.join(","), "data-chip": item.cls, role: "group", "aria-label": `מקור מוגן: ${item.label}` });
-      chip.append(el(doc, "div", { class: "sod29-ude-chip-head" }, `🔒 מקור מוגן · ${item.label} — לא ניתן לעריכה`));
+      const chip = el(doc, "div", { class: "sod29-ude-chip", contenteditable: "false", "data-refs": item.refs.join(","), "data-chip": item.cls, "data-align": item.align || "", tabindex: "0", role: "group", "aria-label": `מקור חיצוני: ${item.label}` });
+      chip.append(el(doc, "div", { class: "sod29-ude-chip-head" }, `🔒 מקור חיצוני · ${item.label} — הנוסח נשמר; אפשר להזיז, ליישר או להסיר מהיחידה`));
       for (const ref of item.refs) { const b = byId.get(ref); chip.append(el(doc, "p", { class: "sod29-ude-line", "data-kind": b.kind }, b.kind === "row" ? b.text.replace("|", " · ") : b.text)); }
       nodes.push(chip);
-    } else if (item.t === "rule") nodes.push(el(doc, "hr", { class: "sod29-ude-rule", contenteditable: "false", "data-b": item.ref }));
-    else nodes.push(el(doc, "p", { class: "sod29-ude-p", "data-kind": item.kind, "data-b": item.ref || "", title: DOC_KIND_LABEL[item.kind] }, item.text));
+    } else if (item.t === "gx") nodes.push(gxNode(doc, item));
+    else if (item.t === "rule") nodes.push(el(doc, "hr", { class: "sod29-ude-rule", contenteditable: "false", "data-b": item.ref }));
+    else nodes.push(el(doc, "p", { class: "sod29-ude-p", "data-kind": item.kind, "data-b": item.ref || "", "data-align": item.align || "", title: DOC_KIND_LABEL[item.kind] }, item.text));
   }
   root.replaceChildren(...nodes);
 }
@@ -47,7 +58,9 @@ export function readDoc(root) {
   const seen = new Set();
   const visit = (parent) => {
     for (const child of parent.childNodes) {
-      if (child.nodeType === 1 && child.hasAttribute("data-refs")) { items.push({ t: "chip", refs: child.getAttribute("data-refs").split(",").filter(Boolean), cls: child.getAttribute("data-chip") }); continue; }
+      const alignOf = (node) => { const a = node.getAttribute("data-align"); return a === "start" || a === "center" || a === "end" ? a : null; };
+      if (child.nodeType === 1 && child.hasAttribute("data-refs")) { items.push({ t: "chip", refs: child.getAttribute("data-refs").split(",").filter(Boolean), cls: child.getAttribute("data-chip"), align: alignOf(child) }); continue; }
+      if (child.nodeType === 1 && child.hasAttribute("data-gx")) { let g = null; try { g = JSON.parse(child.getAttribute("data-gx")); } catch { g = null; } items.push({ t: "gx", item: g, align: alignOf(child) }); continue; }
       if (child.nodeType === 1 && child.nodeName === "HR") { items.push({ t: "rule", ref: child.getAttribute("data-b") || null }); continue; }
       if (child.nodeType === 1 && child.querySelector("[data-refs]")) { visit(child); continue; }
       const own = child.nodeType === 1 ? child : null;
@@ -57,7 +70,7 @@ export function readDoc(root) {
       if (ref) seen.add(ref);
       const text = child.nodeType === 3 ? child.nodeValue : textOf(child);
       if (child.nodeType === 3 && !text.trim()) continue;
-      items.push({ t: "text", ref, kind, text });
+      items.push({ t: "text", ref, kind, text, align: own ? alignOf(own) : null });
     }
   };
   visit(root);

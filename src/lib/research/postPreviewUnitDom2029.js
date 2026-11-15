@@ -42,14 +42,15 @@ export function buildPreviewUnitElement(doc, unit, blocks = null) {
   let group = null, table = null, groupId = null;
   const labelOf = (id) => (ATTRIBUTION_GROUPS.find((g) => g.identity === id) || {}).label;
   for (const block of blocks) {
-    if (block.kind === "title") { head.append(el(doc, "h2", { id: `${unit.id}-title`, "data-sod-role": "title", "data-sod-align": "center" }, block.text)); continue; }
-    if (block.kind === "subtitle") { head.append(el(doc, "p", { class: "sod29-pu-subtitle", "data-sod-role": "title", "data-sod-align": "center" }, block.text)); continue; }
+    const al = (fallback) => block.align || fallback;            // the person's alignment preference (a display preference stored by reference), else the default of that kind
+    if (block.kind === "title") { head.append(el(doc, "h2", { id: `${unit.id}-title`, "data-sod-role": "title", "data-sod-align": al("center") }, block.text)); continue; }
+    if (block.kind === "subtitle") { head.append(el(doc, "p", { class: "sod29-pu-subtitle", "data-sod-role": "title", "data-sod-align": al("center") }, block.text)); continue; }
     if (block.kind === "numbers") {
-      const p = el(doc, "p", { class: "sod29-pu-numbers", "data-sod-role": "unit-numbers", "data-sod-align": "center", "aria-label": "המספרים של היחידה" });
+      const p = el(doc, "p", { class: "sod29-pu-numbers", "data-sod-role": "unit-numbers", "data-sod-align": al("center"), "aria-label": "המספרים של היחידה" });
       block.numbers.forEach((n, i) => { if (i) p.append(el(doc, "i", { "aria-hidden": "true" }, "·")); p.append(gem(doc, n, "r29-coin")); }); // the existing Royal coin primitive; the "·" separators stay in the text and are hidden by CSS
       head.append(p); continue;
     }
-    if (block.kind === "kicker") { head.append(el(doc, "p", { class: "sod29-pu-kicker", "data-sod-align": "center" }, block.text)); continue; }
+    if (block.kind === "kicker") { head.append(el(doc, "p", { class: "sod29-pu-kicker", "data-sod-align": al("center") }, block.text)); continue; }
     if (block.kind === "rule") { group = null; groupId = null; table = null; body.append(el(doc, "hr", { class: "sod29-pu-rule", "aria-hidden": "true" })); continue; }
     // attribution groups wrap consecutive blocks of one identity (and name that identity once, at the start)
     if (block.group && block.group !== groupId) {
@@ -59,23 +60,28 @@ export function buildPreviewUnitElement(doc, unit, blocks = null) {
       body.append(group);
     } else if (!block.group) { group = null; groupId = null; }
     const host = group || body;
+    if (block.kind === "gematria") {
+      table = null;
+      host.append(el(doc, "div", { class: "sod29-pu-gx-host", "data-pu-gx": block.id, "data-gx-item": JSON.stringify(block.item), "data-gx-align": al("center"), "data-sod-align": al("center") }));
+      continue;
+    }
     if (block.kind === "row") {
-      if (!table) { table = el(doc, "table", { class: "sod29-pu-table" }); host.append(table); table.append(doc.createElement("tbody")); }
+      if (!table) { table = el(doc, "table", { class: "sod29-pu-table", ...(block.align ? { "data-sod-align": block.align } : {}) }); host.append(table); table.append(doc.createElement("tbody")); }
       const tr = doc.createElement("tr");
       block.cells.forEach((cell, i) => { const c = el(doc, block.head ? "th" : "td", { scope: block.head ? "col" : undefined, "data-sod-role": "short" }); withNumbers(doc, c, cell); tr.append(c); if (i === 0 && !block.head) c.setAttribute("scope", "row"); });
       table.firstChild.append(tr); continue;
     }
     table = null;
-    if (block.kind === "heading") { host.append(el(doc, "h3", { "data-sod-role": "title", "data-sod-align": "center", class: "sod29-pu-h3" }, block.text)); continue; }
-    if (block.kind === "closing") { host.append(el(doc, "p", { class: "sod29-pu-closing", "data-sod-role": "peak-text", "data-sod-align": "center" }, block.text)); continue; }
-    if (block.kind === "verse") { host.append(el(doc, "blockquote", { class: "sod29-pu-verse", "data-sod-role": "verse", "data-sod-align": "center", "data-quote-identity": block.identity }, block.text)); continue; }
-    if (block.kind === "peak") { const p = el(doc, "p", { "data-sod-role": "peak", "data-sod-align": "center" }); p.append(gem(doc, block.number)); host.append(p);
+    if (block.kind === "heading") { host.append(el(doc, "h3", { "data-sod-role": "title", "data-sod-align": al("center"), class: "sod29-pu-h3" }, block.text)); continue; }
+    if (block.kind === "closing") { host.append(el(doc, "p", { class: "sod29-pu-closing", "data-sod-role": "peak-text", "data-sod-align": al("center") }, block.text)); continue; }
+    if (block.kind === "verse") { host.append(el(doc, "blockquote", { class: "sod29-pu-verse", "data-sod-role": "verse", "data-sod-align": al("center"), "data-quote-identity": block.identity }, block.text)); continue; }
+    if (block.kind === "peak") { const p = el(doc, "p", { "data-sod-role": "peak", "data-sod-align": al("center") }); p.append(gem(doc, block.number)); host.append(p);
       // The canonical method trace of a focal number opens right under it (a React host, filled by PreviewUnitExtras2029; empty until the reader asks).
       const traceClaim = PEAK_TRACE_CLAIMS[block.number];
       if (traceClaim) host.append(el(doc, "div", { "data-pu-trace": traceClaim, class: "sod29-pu-host sod29-pu-trace-host" }));
       continue; }
-    if (block.kind === "claim") { host.append(withNumbers(doc, el(doc, "p", { class: "sod29-pu-claim", "data-sod-role": "short", "data-sod-align": "center" }), block.text)); continue; }
-    const p = el(doc, "p", { "data-sod-role": "prose", "data-sod-align": "start" });
+    if (block.kind === "claim") { host.append(withNumbers(doc, el(doc, "p", { class: "sod29-pu-claim", "data-sod-role": "short", "data-sod-align": al("center") }), block.text)); continue; }
+    const p = el(doc, "p", { "data-sod-role": "prose", "data-sod-align": al("start") });
     host.append(withNumbers(doc, p, block.text));
   }
   // hosts for the React parts (share, images, public sources, engine panel): created empty, filled by PreviewUnitExtras2029

@@ -6,15 +6,15 @@ const memory = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ?
 const base = baseBodyBlocks();
 const firstProse = base.find((b) => b.kind === "p" && !b.locked);
 
-test("the approved body is split into identified blocks; sources, quotes, numbers and equations are locked", () => {
+test("the approved body is split into identified blocks; ONLY external sources are protected — numbers, equations and tables are research data", () => {
   assert.ok(base.length > 60);
   assert.ok(base.every((b, i) => b.id === `b${i}`));
-  for (const b of base) {
-    if (b.group) assert.equal(b.locked, true, `${b.kind} inside ${b.group} must be locked`);
-    if (["verse", "numbers", "peak", "claim", "row"].includes(b.kind)) assert.equal(b.locked, true);
-  }
-  assert.ok(base.some((b) => b.kind === "p" && !b.locked), "there is editorial prose to edit");
-  assert.ok(base.filter((b) => b.group === "yaniv-levi").every((b) => b.locked));
+  const locked = base.filter((b) => b.locked);
+  assert.equal(locked.length, 13);
+  for (const b of locked) assert.ok(b.kind === "verse" || ["yaniv-levi", "shachar-kandro"].includes(b.group), `${b.id} ${b.kind}`);
+  for (const b of base.filter((x) => ["numbers", "peak", "claim", "row"].includes(x.kind))) assert.equal(b.locked, false, `${b.id} (${b.kind}) is data, not a source`);
+  assert.ok(base.filter((b) => b.group === "editorial-phrase").every((b) => !b.locked), "the site's own editorial phrase is editorial");
+  assert.ok(base.some((b) => b.kind === "claim" && b.group === "shachar-kandro" && !b.locked), "a claim inside a writer's group stays editable data");
 });
 
 test("no draft = the approved body; the text of every block is the approved text", () => {

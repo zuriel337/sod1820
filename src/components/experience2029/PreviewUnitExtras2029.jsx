@@ -11,12 +11,9 @@ import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ShareActions from "../ShareActions.jsx";
 import PostExternalSourceUnit2029, { ClaimRow } from "./PostExternalSourceUnit2029.jsx";
-import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
-import { projectGematriaTrace } from "../../lib/research/gematriaTracePresentation.js";
-import { checkSourceHint } from "../../lib/research/postSourceHintCheck2029.js";
-import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
-import GematriaShowcase2029 from "./GematriaShowcase2029.jsx";
-import { use2029Shell } from "./Sod2029Shell.jsx";
+import UnitGematria2029, { GematriaView2029 } from "./UnitGematria2029.jsx";
+import { cleanGematriaItem } from "../../lib/research/postUnitBody2029.js";
+import { loadUnitTrace } from "../../lib/research/unitGematriaTrace2029.js";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { detectNumbersAndExpressions } from "../../lib/research/unitTextSuggestions2029.js";
 import { publicPostHref } from "../../lib/publicPostUrls.js";
@@ -98,21 +95,13 @@ function Sources() {
 // Otherwise (the engine panel): it opens on request. The method comes from the engine's own resolution of the SOURCE's method text (never inferred
 // from the target number); on any missing/failed/unsupported/mismatched trace the panel says so and invents no step.
 function ClaimTrace({ claim, auto = false }) {
-  const shell = use2029Shell();
   const [open, setOpen] = useState(auto);
   const [state, setState] = useState({ phase: "idle" });
   const hostRef = useRef(null);
+  // the same pipeline every gematria of a unit uses (loadUnitTrace → the canonical readers → the shared display)
   const load = async () => {
     setState((current) => (current.phase === "idle" ? { phase: "loading" } : current));
-    try {
-      const check = await checkSourceHint({ expression: claim.phrase, stated: claim.number, methodText: claim.methodText });
-      const methodKey = check?.method?.key;
-      if (!methodKey) return setState({ phase: "unavailable" });
-      const finding = await fetchGematriaMethodTrace(methodKey, claim.phrase);
-      const trace = finding?.projection?.dimensions?.trace || null;
-      const model = projectGematriaTrace(trace, { expression: claim.phrase, methodKey, expectedValue: check.value });
-      setState(model.state === "ready" ? { phase: "ready", model, check, trace, methodKey } : { phase: "unavailable" });
-    } catch { setState({ phase: "unavailable" }); }
+    setState(await loadUnitTrace({ phrase: claim.phrase, stated: claim.number, methodText: claim.methodText }));
   };
   useEffect(() => {
     if (!auto || state.phase !== "idle") return undefined;
@@ -123,19 +112,13 @@ function ClaimTrace({ claim, auto = false }) {
     return () => observer.disconnect();
   }, [auto, state.phase, claim.id]);
   const toggle = () => { const next = !open; setOpen(next); if (next && state.phase === "idle") load(); };
-  const model = state.model;
   return <div className="sod29-pu-trace" data-trace-state={state.phase} data-trace-auto={auto ? "true" : undefined} ref={hostRef}>
     {!auto ? <button type="button" className="sod29-pu-trace-btn" aria-expanded={open} onClick={toggle}>{open ? "הסתר את החישוב" : "איך הגענו למספר?"}</button> : null}
     {open && state.phase === "loading" ? <p role="status" className="sod29-pu-sources-note">פותח את צעדי החישוב…</p> : null}
     {open && state.phase === "unavailable" ? <p role="status" className="sod29-pu-sources-note">פירוט החישוב אינו זמין כרגע. לא הומצאו צעדים חלופיים.</p> : null}
     {open && state.phase === "ready" ? <div className="sod29-pu-trace-body">
-      {model.components?.length
-        ? <SpatialMethodStage2029 expression={claim.phrase} methodKey={state.methodKey} trace={state.trace} expectedValue={state.check?.value ?? null} depth="S2" />
-        : <GematriaShowcase2029 model={model} expression={claim.phrase} />}
-      <p className="sod29-pu-trace-links">
-        <button type="button" onClick={() => shell?.openNumber?.({ type: "number", id: String(model.result) })}>פתח בדף המספר</button>
-        <Link to="/beit-midrash">פתח את השיטה בבית המדרש</Link>
-      </p>
+      <GematriaView2029 state={claim.by ? state : { ...state, gap: null }} phrase={claim.phrase} display="letters" />
+      <p className="sod29-pu-trace-links"><Link to="/beit-midrash">פתח את השיטה בבית המדרש</Link></p>
     </div> : null}
   </div>;
 }
@@ -178,17 +161,20 @@ export default function PreviewUnitExtras2029({ rootRef, post, htmlKey }) {
       const section = root.querySelector(`[id="${unit.id}"]`);
       if (!section) continue;
       const host = (name) => section.querySelector(`[data-pu-host="${name}"]`);
-      found.push({ unit, traces: [...section.querySelectorAll("[data-pu-trace]")].map((node) => ({ node, claim: YAMIN_SMOL_CLAIMS.find((c) => c.id === node.getAttribute("data-pu-trace")) })).filter((t) => t.claim), hosts: { bar: host("bar"), images: host("images"), sources: host("sources"), engine: host("engine"), share: host("share") } });
+      // gematria items the editor added: React hosts the unit builder left in the body (a reference only; the shared component rebuilds everything from the engine)
+      const gx = [...section.querySelectorAll("[data-pu-gx]")].map((node) => { let item = null; try { item = cleanGematriaItem(JSON.parse(node.getAttribute("data-gx-item") || "null")); } catch { item = null; } return { node, item, align: node.getAttribute("data-gx-align") || null }; }).filter((entry) => entry.item);
+      found.push({ unit, gx, traces: [...section.querySelectorAll("[data-pu-trace]")].map((node) => ({ node, claim: YAMIN_SMOL_CLAIMS.find((c) => c.id === node.getAttribute("data-pu-trace")) })).filter((t) => t.claim), hosts: { bar: host("bar"), images: host("images"), sources: host("sources"), engine: host("engine"), share: host("share") } });
     }
     setMounts(found);
     return () => setMounts([]);
   }, [rootRef, post.id, htmlKey, version]);
-  return <>{mounts.map(({ unit, hosts, traces }) => <React.Fragment key={unit.id}>
+  return <>{mounts.map(({ unit, hosts, traces, gx }) => <React.Fragment key={unit.id}>
     {hosts.bar ? createPortal(<Bar unit={unit} post={post} postPath={postPath} />, hosts.bar) : null}
     {hosts.images ? createPortal(<Images />, hosts.images) : null}
     {hosts.sources ? createPortal(<Sources />, hosts.sources) : null}
     {hosts.engine ? createPortal(<Engine />, hosts.engine) : null}
     {traces.map(({ node, claim }) => createPortal(<ClaimTrace claim={claim} auto />, node))}
+    {gx.map(({ node, item, align }, index) => createPortal(<UnitGematria2029 key={`${index}|${item.phrase}|${item.methodKey}|${item.display}`} item={item} align={align} />, node))}
     {hosts.share ? createPortal(<Share unit={unit} post={post} postPath={postPath} />, hosts.share) : null}
   </React.Fragment>)}</>;
 }
