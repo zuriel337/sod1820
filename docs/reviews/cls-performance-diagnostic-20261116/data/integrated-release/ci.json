@@ -1,0 +1,105 @@
+{
+  "head": "29fe07c472b167a641768e19f1ac7af11cde0b55",
+  "checked_at": "2026-11-15 23:57:37 UTC",
+  "jobs": [
+    {
+      "run_id": 43776973042,
+      "id": 133005351070,
+      "name": "public-core",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972887,
+      "id": 133005351185,
+      "name": "route-seo-decision-2029",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972866,
+      "id": 133005350595,
+      "name": "gate",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972908,
+      "id": 133005350533,
+      "name": "legacy-production-lock",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972880,
+      "id": 133005350605,
+      "name": "route-navigation-2029",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972885,
+      "id": 133005351161,
+      "name": "Mobile + Accessibility Acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972885,
+      "id": 133005351297,
+      "name": "Production Canary Gate",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972899,
+      "id": 133005350718,
+      "name": "hard-isolation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972864,
+      "id": 133005351153,
+      "name": "security-sql-contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972864,
+      "id": 133005351330,
+      "name": "auth-browser-acceptance-2029",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972864,
+      "id": 133005351346,
+      "name": "marketing-browser-2029",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972864,
+      "id": 133005351379,
+      "name": "release-contracts-2029",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972864,
+      "id": 133005351388,
+      "name": "live-contracts-2029",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 43776972864,
+      "id": 133005351476,
+      "name": "perf-contracts-2029",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "verdict": "14/14 successful on the integrated head; no deployment implied"
+}

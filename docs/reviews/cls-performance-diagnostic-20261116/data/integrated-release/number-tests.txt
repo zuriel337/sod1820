@@ -1,0 +1,25 @@
+✔ a matching anchor removes the repeated node read and leaves the findings identical (3.606096ms)
+✔ an anchor for a different node is ignored and the requested node is read as before (3.642802ms)
+✔ an unknown node still yields no findings, with or without an anchor argument (0.194563ms)
+✔ the Number page projection no longer reads its stored node a second time (10.097782ms)
+✔ the way back and the save action share one wrapper; the link, its label and the permanent-link contract are untouched (1.01492ms)
+✔ above the phone breakpoint the wrapper adds no box (desktop and tablet layout is exactly what it was) (0.19915ms)
+✔ on a phone the two controls form one row with their own margins removed (also the nested actions container) (0.462908ms)
+✔ Number-page rules leave the frame ribbon alone (it is the frame's business, and a rule keyed to the page mounting late would shift the layout) (0.255095ms)
+✔ the loading regular-phrases card reserves the height it has once loaded, per width (no over-reservation where the head is one line) (0.784142ms)
+✔ value reads start in parallel with the node lookup, not after it (10.76609ms)
+✔ without the Number-page option nothing starts before the node lookup (default scheduling boundary) (3.046392ms)
+✔ shared lookup leaves the families identical to the unbounded read for a complete answer (1.404147ms)
+✔ an answer that reached the window cap falls back to the original unbounded read, so counts stay whole (6.411235ms)
+✔ a failed paged read keeps both consumers working through their original fallbacks (0.900838ms)
+✔ a resolved node for a different number discards the speculative reads and projects the node's own number (1.791591ms)
+✔ a node whose identity key differs from its label still reads its identity term for the research rows (0.760717ms)
+✔ a rejected node read rejects the projection and leaves no unhandled rejection from the speculative reads (23.078561ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 407.72431

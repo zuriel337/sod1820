@@ -1,0 +1,42 @@
+✔ Legacy w and ordinary-calculator input aliases retain expression and explicit method/result (1.69788ms)
+✔ comparison round trip keeps both names, selected method, share/source parameters and fragment (1.97648ms)
+✔ baby names, empty comparison slots, family and date/sunset remain distinct on reload (1.023593ms)
+✔ date mode and afterSunset use the existing next-Hebrew-day semantics (1.97683ms)
+✔ switching tools retains hidden input without silently reopening comparison/date on refresh (0.335376ms)
+✔ invalid dates are not silently converted to another calendar day (0.213462ms)
+✔ every existing calculation row remains selectable; no fixed thirteen-method replacement (0.492412ms)
+✔ unknown method and conflicting result never become a Regular result (0.263988ms)
+✔ number and phrase navigation preserve focus, method and complete calculator return (1.229744ms)
+✔ sharing retains harmless parameters but excludes credentials through the existing sanitizer (0.322396ms)
+✔ a direct expression link on a first visit has no prior research context (0.240492ms)
+✔ presentation is opt-in; public mount guards existing wall, telemetry and AI entry points (0.69044ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ public calculator mount and typing calculate immediately without wall, AI, telemetry or deep search (39.201824ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ baby inputs retain family, three names and sunset conversion while editing (43.901453ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ date tool applies sunset exactly once and continues to all methods with date state retained (22.014176ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ calculator SEO follows the effective edited address without indexing inputs or changing its canonical (12.422385ms)
+✔ hosted document rewrite cannot inject its route into the visitor community path selector (9.807114ms)
+✔ exact aliases retain duplicate query bytes, encoded values and fragment with no chained fallback (0.662348ms)
+✔ public reading routes preserve engine/action gates and exact source identities (1.317215ms)
+✔ real HTTP aliases perform only a local 308, never query data or interpret return/identity parameters (0.853096ms)
+✔ community share metadata retains an admitted exact thread/reply, without requesting account or body fields (7.395829ms)
+✔ taxonomy HTTP uses the same membership, public admission, page order and encoded-slash label (2.355561ms)
+✔ missing/draft/conflicting/invalid taxonomy URLs are never invented as successful collections (6.471356ms)
+✔ an empty search needs an unfiltered public membership witness, and paging stays noindex/base canonical (3.089968ms)
+✔ named services remain truthful and do not make missing items, drafts or malformed people pages public (7.795161ms)
+✔ phrase metadata never truncates a phrase beginning with digits to an unrelated Number (0.96876ms)
+✔ known campaign content does not enable held signup or automatic acquisition (0.532563ms)
+✔ the bare calculator and chat are indexable; their query variants are not (1.880775ms)
+✔ explicit legacy taxonomy aliases, trackback and old paging continue to the existing addresses (0.337639ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 784.850074

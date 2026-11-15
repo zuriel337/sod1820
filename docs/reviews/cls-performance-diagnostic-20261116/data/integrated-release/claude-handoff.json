@@ -1,0 +1,22 @@
+{
+  "pr": 1358,
+  "head": "a141138b2c0b97230c1abd724620c92cfa372a5e",
+  "observed_failure": {
+    "run": 43774702491,
+    "job": 132998246668,
+    "name": "release-contracts-2029",
+    "error": "ReferenceError: postsMediaScope2029 is not defined",
+    "test": "test/posts-taxonomy-ui-2029.test.mjs"
+  },
+  "source_inspection": {
+    "product": "src/pages/Posts2029Page.jsx imports postsMediaScope2029 at line 20 and calls it at line 233",
+    "harness": "test/posts-taxonomy-ui-2029.test.mjs strips all product imports at line 13, then provides selected imports without postsMediaScope2029"
+  },
+  "conclusion": "The observed CI error is consistent with the transformed test harness missing the new dependency. It is not evidence that the production module lacks the import. No independent reproduction or fix performed in the Claude-owned branch.",
+  "owner": "Claude #1358",
+  "shared_cls_followup": [
+    "Posts taxonomy loading footer geometry: control reduced CLS .2588/.3083 to .00146",
+    "Newsletter lazy opening geometry: opening CLS .67891 to 0 with first-paint reserved height; other Home shifts remain"
+  ],
+  "boundary": "No source changes, message/dispatch or test weakening. User-visible post/unit navigation and shared frame acceptance remain with that package."
+}

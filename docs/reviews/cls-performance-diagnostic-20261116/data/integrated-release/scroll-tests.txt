@@ -1,0 +1,13 @@
+▶ forward navigation resets; browser history, anchors and same-page edits retain their owners
+  ✔ 390px (8371.171401ms)
+  ✔ 1440px (8426.468487ms)
+✔ forward navigation resets; browser history, anchors and same-page edits retain their owners (17291.841615ms)
+✔ the reset is mounted once outside the account-keyed research subtree (0.452836ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18605.604851
