@@ -1,0 +1,22 @@
+{
+  "fixtureOnly": true,
+  "liveWrites": 0,
+  "normal": {
+    "status": 204,
+    "body": ""
+  },
+  "withAuditAbort": {
+    "status": 403,
+    "body": "{\"error\":\"public_reading_operation_denied\"}"
+  },
+  "restored": {
+    "status": 204,
+    "body": ""
+  },
+  "aborted": 2,
+  "explanation": "Identical request and real built worker: audit abort becomes worker 403; removing abort restores delivery.",
+  "audit_source_head": "e49199bbd813f1b0e7f60faf4d98e90370d24903",
+  "worker_artifact_sha256": "0f0a62711d5eb9aca9beab5c978dac37064c3e17a2bf2bcd3db44444813ff8aa",
+  "transport_source_identical_to_main": true,
+  "limits": "Explains the audit failure mechanism; not an assertion about every real browser, gateway or live database delivery."
+}

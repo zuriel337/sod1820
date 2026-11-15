@@ -103,6 +103,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Server document metadata parity (crawler, AI and social documents for public routes, including the Beit Midrash learning area)
         run: node scripts/test-2029-server-seo-ai-parity.mjs
+      - name: Historical URL release (Post canonical, researcher identity, taxonomy hydration and one-hop redirects)
+        run: node --test test/public-wp-post-canonical-20261115.test.mjs test/public-sitemap-researcher-identity-20261115.test.mjs test/public-taxonomy-canonical-20261115.test.mjs test/public-redirect-single-hop-20261115.test.mjs test/posts-taxonomy-ui-2029.test.mjs
       - name: Beit Midrash strips move only themselves, never the page
         run: node --test test/beit-midrash-rail-no-page-scroll-2029.test.mjs
       - name: Production service worker contract (native public images and renditions; private reads and writes stay wrapped) and personal continuity with the installed-app metadata of the same artifact

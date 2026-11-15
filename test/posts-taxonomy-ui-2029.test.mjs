@@ -67,6 +67,25 @@ const button = (root, label) => root.root.findAllByType("button").find(node => t
 async function mount(entry) { let root; await act(async () => { root = Renderer.create(React.createElement(TaxonomyTestApp, { entry })); }); return root; }
 async function settle(f, packet) { await act(async () => { f.requests.at(-1).resolve(packet); }); }
 
+for (const kind of ["tag", "category"]) for (const separator of [" ", "%20"]) {
+  test(`${kind} ${separator} alias keeps the server's hyphen canonical during loading and after hydration`, async () => {
+    const path = `/${kind}/סוד${separator}החשמל`;
+    const f = fixture(), root = await mount(`${path}?page=2&q=בדיקה#posts-catalog`);
+    try {
+      assert.ok(f.seo.length > 0);
+      assert.ok(f.seo.every(value => value.path === `/${kind}/סוד-החשמל`), JSON.stringify(f.seo));
+      await settle(f, ready(43, 48));
+      assert.ok(f.seo.every(value => value.path === `/${kind}/סוד-החשמל`), JSON.stringify(f.seo));
+      assert.equal(f.seo.at(-1).noindex, true, "search/pagination keep their existing noindex policy");
+      assert.equal(f.requests.at(-1).options.scope.key, "סוד החשמל");
+      assert.equal(f.requests.at(-1).options.page, 2);
+      assert.equal(f.requests.at(-1).options.search, "בדיקה");
+      assert.equal(f.location.pathname, path, "canonical metadata does not redirect or replace the visited address");
+      assert.equal(f.location.hash, "#posts-catalog");
+    } finally { await act(async () => root.unmount()); }
+  });
+}
+
 test("tag entry reuses Posts cards, source credit and media; a pathname does not invent Follow", async () => {
   const f = fixture(), root = await mount("/tag/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C#posts-catalog");
   assert.equal(f.requests[0].options.scope.kind, "tag"); assert.equal(f.requests[0].options.scope.key, "סוד החשמל");
