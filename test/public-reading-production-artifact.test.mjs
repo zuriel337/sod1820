@@ -9,7 +9,7 @@ import { publicReadingDocumentHandler } from "../public-reading-deploy/api/publi
 import { publicReadingSitemapHandler } from "../public-reading-deploy/api/public-sitemap.js";
 import { publicReadingRobotsHandler } from "../public-reading-deploy/api/public-robots.js";
 import { publicReadingReadOnlyApi } from "../public-reading-deploy/read-only-api.js";
-import { buildPublicReadingWorker, startPublicReading, PUBLIC_READING_POLICY_ID, COMMUNITY_PUBLIC_FIELDS } from "../public-reading-deploy/transport.js";
+import { buildPublicReadingWorker, startPublicReading, PUBLIC_READING_POLICY_ID, COMMUNITY_PUBLIC_FIELDS, COMMUNITY_FEED_FIELDS } from "../public-reading-deploy/transport.js";
 import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION, deploymentAuthorized } from "../public-reading-deploy/authorization.js";
 
 const root = new URL("..", import.meta.url);
@@ -286,6 +286,21 @@ test("emitted worker retains public calculator/STABLE GET/community projection r
   assert.equal((await harness.request("/rest/v1/rpc/%63redit_reserve_v1", { method: "GET" })).status, 403);
   assert.equal(harness.calls.length, before);
   assert.ok(harness.calls.every(([request, options]) => request instanceof Request ? request.cache === "no-store" && request.credentials === "omit" : options.cache === "no-store"));
+});
+
+test("emitted worker admits the feed page's public reply count on the feed page only (ZURIEL 16.11.2026)", async () => {
+  const harness = workerHarness(), feed = "/rest/v1/rpc/community_feed_page?select=";
+  assert.equal(COMMUNITY_FEED_FIELDS, COMMUNITY_PUBLIC_FIELDS + ",reply_count");
+  assert.equal((await harness.request(feed + encodeURIComponent(COMMUNITY_FEED_FIELDS), { body: '{"p_offset":0,"p_limit":40,"p_sort":"newest"}' })).status, 200);
+  assert.equal(harness.calls.length, 1);
+  const before = harness.calls.length;
+  for (const path of [
+    feed + encodeURIComponent(COMMUNITY_FEED_FIELDS + ",contributor_user_id"), feed + encodeURIComponent("reply_count," + COMMUNITY_PUBLIC_FIELDS),
+    feed + encodeURIComponent(COMMUNITY_FEED_FIELDS) + "&select=" + encodeURIComponent(COMMUNITY_PUBLIC_FIELDS), feed + encodeURIComponent(COMMUNITY_FEED_FIELDS) + "&limit=1",
+    "/rest/v1/rpc/community_message_context?select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS), "/rest/v1/rpc/community_search?select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS),
+    "/rest/v1/rpc/community_replies_page?select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS), "/rest/v1/rpc/community_reply_counts",
+  ]) assert.equal((await harness.request(path, { body: '{"p_offset":0,"p_limit":40,"p_sort":"newest"}' })).status, 403, path);
+  assert.equal(harness.calls.length, before, "nothing wider reaches the database");
 });
 
 test("emitted worker admits the exact community_search request and nothing wider", async () => {

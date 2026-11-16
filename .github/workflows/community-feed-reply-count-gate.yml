@@ -1,0 +1,41 @@
+name: Community Feed Reply Count
+# The Community feed page carries each root's public reply count (speed series 2, step 2). Local Postgres only; nothing reaches a
+# shared database. Proves rows, order, permissions and counts, the rollback, and that both files refuse to run out of order.
+on:
+  pull_request:
+    paths:
+      - 'supabase/proposed/20261116210000_community_feed_reply_count_v1_PROPOSAL.sql'
+      - 'supabase/proposed/ROLLBACK_20261116210000_community_feed_reply_count_v1.sql'
+      - 'supabase/migrations/20261112100000_community_thread_bump_staff_v1.sql'
+      - 'tests/sql/community_feed_reply_count_v1.sql'
+      - '.github/workflows/community-feed-reply-count-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reply-count:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture_only
+          POSTGRES_DB: community_feed_fixture
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: fixture_only
+      PGHOST: localhost
+      PGUSER: postgres
+      PGDATABASE: community_feed_fixture
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply, compare with the 12.11.2026 pages, roll back and compare again
+        run: psql -v ON_ERROR_STOP=1 -f tests/sql/community_feed_reply_count_v1.sql
+      - name: Both files refuse to run out of order and leave the function in place
+        run: |
+          if psql -v ON_ERROR_STOP=1 -q -f supabase/proposed/ROLLBACK_20261116210000_community_feed_reply_count_v1.sql; then echo "rollback ran on the old version"; exit 1; fi
+          psql -v ON_ERROR_STOP=1 -q -f supabase/proposed/20261116210000_community_feed_reply_count_v1_PROPOSAL.sql
+          if psql -v ON_ERROR_STOP=1 -q -f supabase/proposed/20261116210000_community_feed_reply_count_v1_PROPOSAL.sql; then echo "proposal ran twice"; exit 1; fi
+          test "$(psql -Atc "select count(*) from public.community_feed_page(0, 10, 'newest')")" = 6
