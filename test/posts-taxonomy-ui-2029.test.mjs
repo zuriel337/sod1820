@@ -22,6 +22,10 @@ await build({ stdin: { contents: `
   import {postsTaxonomyLocation2029,postsTaxonomyRoute2029,postsTaxonomyPage2029} from './src/lib/research/postsTaxonomy2029Route.js';
   import {publicPostHref} from './src/lib/publicPostUrls.js';
   import {PUBLIC_READING_RELEASE} from './src/lib/publicReadingRelease2029.js';
+  import {postsMediaScope2029,postsMediaHref,VIDEO_PAGE_SIZE} from './src/lib/research/postsVideoLibrary2029.js';
+  const fetchPostsWithVideoPage2029=options=>globalThis.__taxonomyUi.readMedia('posts',options);
+  const fetchVideoLibraryPage2029=options=>globalThis.__taxonomyUi.readMedia('videos',options);
+  const fetchVideoPublicIds2029=async()=>new Map();
   const fetchPostsCatalog2029=options=>globalThis.__taxonomyUi.read(options);
   const fetchContentSeriesCatalog2029=()=>{throw Error('taxonomy must not request series sources')};
   const completeMixedSeriesPostsPage2029=()=>{throw Error('taxonomy must not join series sources')};
@@ -39,6 +43,7 @@ await build({ stdin: { contents: `
   function LocationProbe(){const location=useLocation();useEffect(()=>{globalThis.__taxonomyUi.location=location},[location]);return null}
   export function TaxonomyTestApp({entry}){return <MemoryRouter initialEntries={[entry]}><LocationProbe/><Routes>
     <Route path="/tag/:slug" element={<PostsTaxonomy2029Page/>}/><Route path="/category/:slug" element={<PostsTaxonomy2029Page/>}/>
+    <Route path="/2029/posts" element={<Posts2029Page/>}/>
     <Route path="*" element={<p>destination</p>}/></Routes></MemoryRouter>}
 `, loader: "jsx", resolveDir: process.cwd() }, bundle: true, platform: "node", format: "esm", outfile,
 external: ["react", "react-router-dom"], define: { "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"', "import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW": '"true"' } });
@@ -48,10 +53,14 @@ globalThis.document = { getElementById: () => ({ scrollIntoView() {} }) };
 after(async () => { await rm(outfile, { force: true }); delete globalThis.__taxonomyUi; globalThis.document = previousDocument; });
 
 function fixture() {
-  const f = { requests: [], seo: [], read(options) {
+  const f = { requests: [], seo: [], media: [], read(options) {
     let resolve, reject;
     const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
     f.requests.push({ options, resolve, reject }); return promise;
+  }, readMedia(view, options) {
+    let resolve, reject;
+    const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+    f.media.push({ view, options, resolve, reject }); return promise;
   } };
   globalThis.__taxonomyUi = f;
   return f;
@@ -181,4 +190,41 @@ test("malformed taxonomy pagination stays missing until an explicit return to th
   assert.equal(f.requests.length, 1); assert.equal(f.requests[0].options.page, 1);
   assert.equal(f.location.search, ""); assert.equal(f.location.hash, "#posts-catalog");
   await act(async () => { root.unmount(); });
+});
+
+// M2 (review of a141138b): a media view asked for together with another selection must not answer with a list that ignores part of the address.
+test("media view + another selection is an explicit state: no catalog read, no media read, intent kept with the two honest continuations", async () => {
+  const f = fixture(), root = await mount("/2029/posts?media=video&series=dimension-five&page=3");
+  try {
+    assert.equal(f.requests.length, 0, "the catalog is not read: its result would ignore the media selection");
+    assert.equal(f.media.length, 0, "the media library is not read: its result would ignore the series");
+    assert.equal(main(root).props["data-posts-media-state"], "unsupported-combination");
+    assert.equal(main(root).props["data-posts-media"], "posts");
+    const hrefs = root.root.findAllByType("a").map(a => decodeURI(a.props.href));
+    assert.ok(hrefs.includes("/2029/posts?media=video"), hrefs.join(" "));
+    assert.ok(hrefs.includes("/2029/posts?series=dimension-five"), "the same selection without the media view, page reset: " + hrefs.join(" "));
+    assert.equal(f.seo.at(-1).noindex, true);
+    assert.equal(f.location.pathname, "/2029/posts", "no redirect: the visited address stays");
+  } finally { await act(async () => root.unmount()); }
+});
+
+test("an empty q= is a cleared search, not a selection: the media view itself is read", async () => {
+  const f = fixture(), root = await mount("/2029/posts?media=video&q=&view=videos");
+  try {
+    assert.equal(f.requests.length, 0, "the catalog is not read");
+    assert.equal(f.media.length, 1); assert.equal(f.media[0].view, "videos"); assert.equal(f.media[0].options.page, 1);
+    assert.equal(main(root).props["data-posts-media"], "videos");
+    assert.equal(main(root).props["data-posts-media-state"], undefined);
+  } finally { await act(async () => root.unmount()); }
+});
+
+test("a taxonomy route with ?media=video is the same explicit state and offers the taxonomy without the media view", async () => {
+  const f = fixture(), root = await mount("/category/וידאו?media=video");
+  try {
+    assert.equal(f.requests.length, 0); assert.equal(f.media.length, 0);
+    assert.equal(main(root).props["data-posts-media-state"], "unsupported-combination");
+    const hrefs = root.root.findAllByType("a").map(a => decodeURI(a.props.href));
+    assert.ok(hrefs.includes("/category/וידאו"), hrefs.join(" "));
+    assert.ok(hrefs.includes("/2029/posts?media=video"));
+  } finally { await act(async () => root.unmount()); }
 });

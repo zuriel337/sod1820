@@ -22,7 +22,10 @@ test("the library reads the existing public media views and never the legacy cat
 
 test("the posts list offers the two named scopes and the media view is noindex and does not replace the catalog's own scopes", () => {
   assert.match(page, /postsMediaScope2029\(searchParams\)/);
-  assert.match(page, /\["category", "tag", "series", "q"\]\.some\(\(name\) => searchParams\.has\(name\)\)/);
+  assert.match(page, /\["category", "tag", "series"\]\.some\(\(name\) => searchParams\.has\(name\)\)/);
+  assert.match(page, /\(searchParams\.get\("q"\) \|\| ""\)\.trim\(\)/, "an empty q= is not a selection");
+  assert.match(page, /data-posts-media-state="unsupported-combination"/, "a media view combined with another selection is an explicit state, never a list that ignores part of the address");
+  assert.doesNotMatch(page, /media\.active && !other \?/, "the old silent fall-through to the catalog is gone");
   assert.match(page, /noindex: true/);
   assert.match(page, /פוסטים עם וידאו/);
   assert.match(page, /כל הסרטונים/);

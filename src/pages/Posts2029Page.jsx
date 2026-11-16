@@ -227,12 +227,45 @@ function VideoAssetCard({ item, index }) {
   </article>;
 }
 
-// The posts list, or — when the media classification is chosen (?media=video, no other selection) — the real-media views above.
+// The media view asked for TOGETHER with another selection (a taxonomy route, the verified view, a category/tag/series selector or a text query). The catalog cannot
+// filter by media yet and the media library cannot filter by those selectors, so neither result would honour the address: instead of answering with the wrong list,
+// the page says so and keeps the visitor's intent with the two honest continuations (the media view alone, or the same selection without the media view).
+function PostsMediaCombinationNotice2029({ media, searchParams, taxonomyScope = null, verifiedOnly = false }) {
+  const location = useLocation();
+  const view = media.view;
+  const viewLabel = view === "videos" ? "כל הסרטונים" : "פוסטים עם וידאו";
+  const selectionLabels = [];
+  if (taxonomyScope) selectionLabels.push(taxonomyScope.kind === "tag" ? `התגית ״${taxonomyScope.key}״` : `הקטגוריה ״${taxonomyScope.key}״`);
+  if (verifiedOnly) selectionLabels.push("פוסטים עם סימון אימות");
+  for (const [name, label] of [["category", "קטגוריה"], ["tag", "תגית"], ["series", "סדרה"]]) if (searchParams.has(name) && !taxonomyScope) selectionLabels.push(`${label} ״${searchParams.get(name)}״`);
+  if ((searchParams.get("q") || "").trim()) selectionLabels.push(`חיפוש ״${searchParams.get("q").trim()}״`);
+  const withoutMedia = new URLSearchParams(searchParams);
+  withoutMedia.delete("media"); withoutMedia.delete("view"); withoutMedia.delete("page");
+  const selectionHref = `${location.pathname}${withoutMedia.toString() ? `?${withoutMedia}` : ""}`;
+  useEffect(() => {
+    applySeo({ title: `${viewLabel} · SOD1820 2029`, description: "סוג המדיה עדיין אינו משתלב עם בחירה נוספת ברשימת הפוסטים.", path: location.pathname, noindex: true });
+  }, [viewLabel, location.pathname]);
+  return <Sod2029Shell surface="post" title={viewLabel} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
+    <main className="sod29-posts-library" data-experience-surface="posts-index" data-posts-media={view} data-posts-media-state="unsupported-combination">
+      <FrameState kind="empty" title="סוג המדיה עדיין אינו משתלב עם הבחירה הזו">
+        <p className="sod29-posts-media-scope">הכתובת מבקשת גם ״{viewLabel}״ וגם {selectionLabels.join(" ו")}. השילוב עדיין אינו נתמך, ולכן לא מוצגת רשימה שאינה מכבדת את שתי הבחירות.</p>
+        <nav className="sod29-posts-media-switch" aria-label="המשך הבחירה">
+          <Link to={postsMediaHref(view)}>{viewLabel} בלבד</Link>
+          <Link to={selectionHref}>{selectionLabels.length ? `${selectionLabels.join(" ו")} בלי סוג המדיה` : "הרשימה בלי סוג המדיה"}</Link>
+        </nav>
+      </FrameState>
+    </main>
+  </Sod2029Shell>;
+}
+
+// The posts list, or — when the media classification is chosen (?media=video) — the real-media views above; a media view combined with another selection is the explicit state above, never a list that ignores part of the address.
 export default function Posts2029Page(props = {}) {
   const [searchParams] = useSearchParams();
   const media = postsMediaScope2029(searchParams);
-  const other = props.taxonomyScope || props.verifiedOnly || ["category", "tag", "series", "q"].some((name) => searchParams.has(name));
-  return media.active && !other ? <PostsMediaLibrary2029 media={media} /> : <PostsCatalogPage2029 {...props} />;
+  // an empty q= is a cleared search, not a selection
+  const otherSelection = Boolean(props.taxonomyScope || props.verifiedOnly || ["category", "tag", "series"].some((name) => searchParams.has(name)) || (searchParams.get("q") || "").trim());
+  if (media.active && otherSelection) return <PostsMediaCombinationNotice2029 media={media} searchParams={searchParams} taxonomyScope={props.taxonomyScope || null} verifiedOnly={Boolean(props.verifiedOnly)} />;
+  return media.active ? <PostsMediaLibrary2029 media={media} /> : <PostsCatalogPage2029 {...props} />;
 }
 
 function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, verifiedOnly = false } = {}) {

@@ -72,8 +72,34 @@ async function readAllPostPlacements({ client, signal }) {
   return rows;
 }
 export const resetPostsVideoLibraryCache2029 = () => { placementCache = { at: 0, rows: null, client: null }; };
-async function placementRows({ client, signal, now }) {
-  if (!placementCache.rows || placementCache.client !== client || now - placementCache.at > TTL_MS) placementCache = { at: now, client, rows: await readAllPostPlacements({ client, signal }) };
+
+// The public gate applied to the WHOLE candidate set, before any count, page or asset card is derived from it: one light read (id + tags, chunked) per cache fill,
+// never one read per card. A placement whose post is not public now (draft, forum tag, unpublished since the placements were cached) is dropped here, so the total,
+// the number of pages and the fill of every page come from the same admitted set that the cards come from.
+const ADMISSION_CHUNK = 150;
+async function admitPostIds({ ids, client, signal }) {
+  const admitted = new Set();
+  for (let from = 0; from < ids.length; from += ADMISSION_CHUNK) {
+    const chunk = ids.slice(from, from + ADMISSION_CHUNK);
+    canceled(signal);
+    let query = client.from("posts").select("id,tags").or(publicPostOnlyFilter()).in("id", chunk);
+    if (signal) query = query.abortSignal(signal);
+    const { data, error } = await query;
+    canceled(signal);
+    if (error) throw error;
+    // fail closed, as the page read does: the server filter already excludes suppressed tags, so a returned row that carries one (or that was not asked for) means the boundary did not hold
+    if (!Array.isArray(data) || data.some((row) => hasSuppressedPublicPostTag(row) || !chunk.includes(numericId(row?.id)))) throw new Error("לא ניתן לאמת את שיוך התוכן.");
+    for (const row of data) admitted.add(numericId(row.id));
+  }
+  return admitted;
+}
+async function admittedPlacementRows({ client, signal, now }) {
+  if (!placementCache.rows || placementCache.client !== client || now - placementCache.at > TTL_MS) {
+    const rows = await readAllPostPlacements({ client, signal });
+    const candidates = [...new Set(rows.map((row) => numericId(row?.source_id)).filter(Boolean))];
+    const admitted = await admitPostIds({ ids: candidates, client, signal });
+    placementCache = { at: now, client, rows: rows.filter((row) => admitted.has(numericId(row?.source_id))) };
+  }
   return placementCache.rows;
 }
 
@@ -90,11 +116,11 @@ async function readPublicPosts({ ids, client, signal }) {
   return data;
 }
 
-// "Posts that contain video": exact count of distinct posts with a playable video, 24 per page, each re-admitted as a public post.
+// "Posts that contain video": exact count of distinct PUBLIC posts with a playable video (admitted before counting), 24 per page, each page re-read as public posts.
 export async function fetchPostsWithVideoPage2029({ page = 1, client = getPublicResearchClient(), signal, now = Date.now() } = {}) {
   if (!Number.isSafeInteger(page) || page < 1 || page > 10000) throw new Error("עמוד לא תקין.");
   if (!client) throw new Error("בחירת התוכן אינה זמינה.");
-  const ids = orderPostsWithVideo(await placementRows({ client, signal, now }));
+  const ids = orderPostsWithVideo(await admittedPlacementRows({ client, signal, now }));
   const pageIds = ids.slice((page - 1) * VIDEO_PAGE_SIZE, page * VIDEO_PAGE_SIZE);
   const rows = await readPublicPosts({ ids: pageIds, client, signal });
   const byId = new Map(rows.map((row) => [String(row.id), row]));
@@ -106,7 +132,7 @@ export async function fetchPostsWithVideoPage2029({ page = 1, client = getPublic
 export async function fetchVideoLibraryPage2029({ page = 1, client = getPublicResearchClient(), signal, now = Date.now() } = {}) {
   if (!Number.isSafeInteger(page) || page < 1 || page > 10000) throw new Error("עמוד לא תקין.");
   if (!client) throw new Error("בחירת התוכן אינה זמינה.");
-  const assets = groupVideoAssets(await placementRows({ client, signal, now }));
+  const assets = groupVideoAssets(await admittedPlacementRows({ client, signal, now }));   // only appearances in public posts: the count and the pages never include a withdrawn post
   const pageAssets = assets.slice((page - 1) * VIDEO_PAGE_SIZE, page * VIDEO_PAGE_SIZE);
   const ids = [...new Set(pageAssets.flatMap((a) => a.postIds))];
   const posts = await readPublicPosts({ ids, client, signal });

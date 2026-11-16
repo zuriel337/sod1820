@@ -79,7 +79,9 @@ test("fetchPostsWithVideoPage2029: exact total, 24 per page, every post re-admit
   const second = await fetchPostsWithVideoPage2029({ page: 2, client });
   assert.equal(second.posts.length, 6);
   const postCalls = client.calls.filter((c) => c.table === "posts");
-  assert.ok(postCalls.length === 2 && postCalls.every((c) => c.ops.some(([op, args]) => op === "or" && args[0] === publicPostOnlyFilter())), "re-admitted through the existing public filter");
+  assert.equal(postCalls.length, 3, "one admission read of the whole candidate set (id + tags) when the placements are cached, then one page read per page: no read per card");
+  assert.ok(postCalls.every((c) => c.ops.some(([op, args]) => op === "or" && args[0] === publicPostOnlyFilter())), "every posts read, the admission included, goes through the existing public filter");
+  assert.deepEqual(postCalls[0].ops.find(([op]) => op === "select")[1], ["id,tags"], "the admission read is light");
   assert.equal(client.calls.filter((c) => c.table === "video_media_placements_v1").length, 1, "the placements are read once and cached");
   await assert.rejects(() => fetchPostsWithVideoPage2029({ page: 0, client }), /עמוד לא תקין/);
 });
@@ -111,4 +113,45 @@ test("fetchVideoLibraryPage2029: one read of the placements, each appearance re-
   const broken = fakeClient({});
   broken.from = () => ({ select: () => ({ in: () => Promise.resolve({ data: null, error: { code: "57014" } }) }) });
   assert.equal((await fetchVideoPublicIds2029({ keys: ["k1"], client: broken })).size, 0);
+});
+
+// M3 (review of a141138b): the total and the pages are derived from the ADMITTED set, never from placements whose post is no longer public.
+test("fetchPostsWithVideoPage2029: a placement whose post is not public is not counted and does not leave a hole in the page", async () => {
+  resetPostsVideoLibraryCache2029();
+  const placements = [
+    { source_type: "post", source_id: "1", asset_key: "k1", video_kind: "youtube", updated_at: "2026-02-02" },
+    { source_type: "post", source_id: "2", asset_key: "k2", video_kind: "selfhost", updated_at: "2026-02-03" },   // post 2 is not public any more
+  ];
+  const client = fakeClient({ video_media_placements_v1: placements, posts: [{ id: 1, slug: "p1", title: "p1", tags: [], categories: [] }] });
+  const out = await fetchPostsWithVideoPage2029({ page: 1, client });
+  assert.equal(out.total, 1, "visible = total");
+  assert.deepEqual(out.posts.map((p) => p.id), [1]);
+});
+
+test("fetchVideoLibraryPage2029: an asset whose only appearance is not public is not counted; a shared asset keeps only its public appearances", async () => {
+  resetPostsVideoLibraryCache2029();
+  const placements = [
+    { source_type: "post", source_id: "1", asset_key: "k1", video_kind: "youtube", updated_at: "2026-02-02" },
+    { source_type: "post", source_id: "2", asset_key: "k1", video_kind: "youtube", updated_at: "2026-02-03" },
+    { source_type: "post", source_id: "3", asset_key: "k2", video_kind: "selfhost", updated_at: "2026-02-01" },
+  ];
+  const posts = [{ id: 1, slug: "p1", title: "p1", tags: [], categories: [] }];   // posts 2 and 3 are not public
+  const client = fakeClient({ video_media_placements_v1: placements, posts });
+  const out = await fetchVideoLibraryPage2029({ page: 1, client });
+  assert.equal(out.total, 1, "visible = total");
+  assert.deepEqual(out.items.map((i) => i.assetKey), ["k1"]);
+  assert.deepEqual(out.items[0].postIds, ["1"], "the withdrawn appearance is not listed as an appearance");
+  assert.deepEqual(out.items[0].appearances.map((p) => p.id), [1]);
+});
+
+test("the admission read is chunked and never one request per card", async () => {
+  resetPostsVideoLibraryCache2029();
+  const placements = Array.from({ length: 400 }, (_, i) => ({ source_type: "post", source_id: String(1000 + i), asset_key: `k${i}`, video_kind: "youtube", updated_at: "2026-02-01" }));
+  const posts = placements.map((p) => ({ id: Number(p.source_id), slug: `s${p.source_id}`, title: `t${p.source_id}`, tags: [], categories: [] }));
+  const client = fakeClient({ video_media_placements_v1: placements, posts });
+  const out = await fetchPostsWithVideoPage2029({ page: 1, client });
+  assert.equal(out.total, 400);
+  const admission = client.calls.filter((c) => c.table === "posts" && c.ops.some(([op, args]) => op === "select" && args[0] === "id,tags"));
+  assert.equal(admission.length, 3, "400 candidates in chunks of 150");
+  assert.equal(client.calls.filter((c) => c.table === "posts").length, 4, "3 admission chunks + 1 page read");
 });
