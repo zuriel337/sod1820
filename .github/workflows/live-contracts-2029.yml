@@ -87,6 +87,8 @@ jobs:
         run: node --test test/realtime-entry-split-2029.test.mjs
       - name: First-load graph guard (shell and always-loaded chunks must not statically import the heavy modules moved to their own lazy chunks; reads the production build above)
         run: node scripts/test-2029-first-load-graph.mjs
+      - name: Shell budget ratchet (the entry, the System Frame and its CSS may not grow and their always-loaded files may not gain a static import; a raise is a recorded ZURIEL decision; reads the production build above)
+        run: node --test test/shell-budget-2029.test.mjs && SHELL_BUDGET_ENFORCE=1 node scripts/test-2029-shell-budget.mjs
 
   release-contracts-2029:
     name: release-contracts-2029

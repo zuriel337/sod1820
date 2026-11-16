@@ -8,6 +8,7 @@
     "sync:route-legitimacy": "node scripts/sync-route-legitimacy.mjs --write",
     "prebuild": "node scripts/test-legacy-retired.mjs && npm run test:one-tree-content",
     "prebuild:2029": "npm run test:one-tree-content",
+    "postbuild": "node scripts/test-2029-shell-budget.mjs",
     "test:one-tree-content": "node scripts/test-one-tree-content-contract.mjs",
     "build": "SOD_BUILD_TARGET=2029 vite build",
     "build:2029": "SOD_BUILD_TARGET=2029 vite build",

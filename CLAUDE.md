@@ -214,6 +214,7 @@ git rev-list --left-right --count HEAD...origin/main
 - For a feature branch, verify the base at start and again before merge.
 - Never use destructive cleanup (`reset --hard`, `clean -f`, wholesale checkout) on an unknown/dirty tree.
 - Build verification: `npm run build` unless the active scope defines a narrower/stronger test.
+- **Shell budget (ZURIEL 16.11.2026):** every page pays for the entry graph and the System Frame before its own code. `npm run build` runs `scripts/test-2029-shell-budget.mjs` (also enforced in `perf-contracts-2029`): the entry and the frame (`Sod2029Shell`/`SystemFrame2029.jsx`, its CSS) may not grow and their always-loaded files may not gain a static import. A new frame capability goes behind a lazy slot, a signed-in-only import or a load on demand. After a reduction run `--lower` and commit the lower baseline. Raising the baseline is a ZURIEL decision recorded in `scripts/2029-shell-budget-baseline.json` history; never write `by: "ZURIEL"` without that decision in the session.
 - For DB-dependent claims, verify canonical Supabase `linswmnnkjxvweumprav` live.
 - Production/browser verification is required when the answer depends on actual UI/live behavior.
 
