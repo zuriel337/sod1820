@@ -143,7 +143,7 @@ test("the Home reader reads reality-map deeper in the same single read, newest f
   const limits = Object.fromEntries(CONTENT_SERIES_2029.map((item, index) => [item.key, opsOf(fake.calls[index], "limit")[0][1]]));
   assert.deepEqual(limits, { "reality-map": 20, "mah-kore-habora": 1, "dimension-five": 1, "sod-hashmal": 1, "messages-from-righteous": 1 });
   const rm = fake.calls[CONTENT_SERIES_2029.findIndex(item => item.key === "reality-map")];
-  assert.ok(opsOf(rm, "or").some(op => op[1] === 'tags.cs.{"מפת המציאות"},id.in.(5107)'), "membership is the exact tag, plus the first post (5107) by its exact id");
+  assert.ok(opsOf(rm, "or").some(op => op[1] === 'tags.cs.{"מפת המציאות"}'), "membership is the exact tag only (post 5107 carries the tag; no id admission)");
   assert.ok(opsOf(rm, "eq").some(op => op[1] === "home_hidden" && op[2] === false), "the current Home hiding rule is kept");
   assert.deepEqual(opsOf(rm, "order").map(op => [op[1], op[2]?.ascending]), [["date", false], ["id", true]], "newest first by the publication date");
   assert.equal(opsOf(rm, "eq").some(op => op[1] === "author"), false, "no author admission");
@@ -156,7 +156,7 @@ test("the Home reader reads reality-map deeper in the same single read, newest f
 test("the reader returns the members it finds in date order and nothing it was not asked to admit", async () => {
   const rows = [row(60, { tags: ["מפת המציאות"], date: "2026-11-04T00:00:00Z" }), row(61, { tags: ["מפת המציאות"], date: "2026-10-02T00:00:00Z" }),
     row(62, { tags: ["אחר"], categories: ["סוד 1820"], title: "מפת המציאות בכותרת", author: "SOD1820" })];
-  const fake = seriesClient(entry => (opsOf(entry, "or").some(op => op[1] === 'tags.cs.{"מפת המציאות"},id.in.(5107)') ? rows : []));
+  const fake = seriesClient(entry => (opsOf(entry, "or").some(op => op[1] === 'tags.cs.{"מפת המציאות"}') ? rows : []));
   const catalog = await fetchContentSeriesCatalog2029({ client: fake.client, limitPerSeries: 1, homeOnly: true, primaryLimit: 20 });
   const items = catalog.byKey["reality-map"].items;
   assert.deepEqual(items.map(item => item.id), ["60", "61"], "the title, author and category never admit post 62");

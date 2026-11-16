@@ -31,6 +31,8 @@ import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.
 import PostCategories2029 from "./PostCategories2029.jsx";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
+import SeriesLatestMark2029 from "./SeriesLatestMark2029.jsx";
+import OwnMarkBox2029 from "./OwnMark2029.jsx";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
@@ -283,11 +285,11 @@ function useHomeUpdates(feed, { exclude, postsOnly, sourceKey = "" }) {
   const loading = Boolean(feed?.loading || feed?.detailsPending);
   const all = useMemo(() => {
     const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
-    return nowModels(rows);
-  }, [feed?.expandedRows, feed?.rows]);
+    return nowModels(rows, Date.now(), feed?.seen);
+  }, [feed?.expandedRows, feed?.rows, feed?.seen]);
   const pinned = useMemo(() => nowPinnedMessage(all), [all]);
   const pool = useMemo(() => all.filter(model => model.id !== pinned?.model.id && (!postsOnly || model.item?.sourceKind === "post")
-    && !(model.href && exclude.has(model.href))), [all, pinned, postsOnly, exclude]);
+    && (model.seriesLatest || !(model.href && exclude.has(model.href)))), [all, pinned, postsOnly, exclude]);
   const sources = useMemo(() => nowSourceChoices(pool), [pool]);
   const models = useMemo(() => {
     // Same grouping function as "עכשיו": every Or HaGeula "רב/הרב" update lives in ONE box that sits at its newest member (one entry here).
@@ -314,7 +316,9 @@ function HomeLiveUpdates({ updates, onOpenNow, sourceKey, onSource, onNavigateTo
             const lead = entry.models[0];
             const body = <>
               <Media src={lead.logo?.src || lead.thumb} fallback="✦" className="h29-live-thumb" />
-              <span className="rc29-rt"><strong>{lead.title}</strong><small className="h29-live-meta"><b>{entry.label}</b> · {entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}{entry.latest ? <> · <time dateTime={entry.latest}>{relativeTimeLabel(entry.latest)}</time></> : null}</small></span>
+              <span className="rc29-rt"><strong>{entry.models.some(model => model.row?.isNew) ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{lead.title}</strong>
+              {lead.excerpt && !lead.unverified ? <span className="rc29-ex">{lead.excerpt}</span> : null}
+              <small className="h29-live-meta"><b>{entry.label}</b> · {entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}{entry.latest ? <> · <time dateTime={entry.latest}>{relativeTimeLabel(entry.latest)}</time></> : null}</small></span>
             </>;
             return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-tone="gold" data-home-update-item={entry.id} data-home-update-box="or-geula-rabbi" key={entry.id}>
               {onOpenNow ? <button type="button" className="h29-live-open r29-card" onClick={onOpenNow}>{body}</button> : <div className="r29-card">{body}</div>}
@@ -322,10 +326,10 @@ function HomeLiveUpdates({ updates, onOpenNow, sourceKey, onSource, onNavigateTo
           }
           const model = entry.model;
           const body = <>
-            <Media src={model.thumb} fallback="✦" className="h29-live-thumb" />
+            <OwnMarkBox2029 logo={model.thumb ? model.logo : null} size={56}><Media src={model.thumb} fallback="✦" className="h29-live-thumb" /></OwnMarkBox2029>
             <span className="rc29-rt"><strong>{model.pinned ? <span className="r29-badge is-pinned rc29-new-badge" data-home-update-pinned="true">📌 נעוץ</span> : null}{model.row?.isNew ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{model.title}</strong>
               {model.excerpt && !model.unverified ? <span className="rc29-ex">{model.excerpt}</span> : null}
-              <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>
+              <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.seriesLatest ? <> · <SeriesLatestMark2029 model={model} /></> : null}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>
           </>;
           return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-tone={model.tone} data-home-update-item={model.id} key={model.id}>
             {model.href?.startsWith("/") ? <Link className="r29-card" to={model.href}>{body}</Link> : model.href ? <a className="r29-card" href={model.href}>{body}</a>

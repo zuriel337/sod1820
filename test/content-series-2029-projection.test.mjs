@@ -82,8 +82,8 @@ test("Dimension Five admits exactly the approved Posts 5003 and 5004 besides the
 test("the server filter is the same admission as the row rule", () => {
   assert.equal(contentSeriesAdmissionFilter(byKey["mah-kore-habora"]), 'author.eq."אלון לוי"');
   assert.equal(contentSeriesAdmissionFilter(byKey["dimension-five"]), 'and(categories.cs.{"מימד חמש"},author.eq."בדרך לנצח"),id.in.(5003,5004)');
-  // ZURIEL 16.11.2026: the exact tag admits as before; post 5107 (the first post of the series) is admitted by its exact id, nothing else
-  assert.equal(contentSeriesAdmissionFilter(byKey["reality-map"]), `${contentSeriesMembershipFilter(byKey["reality-map"])},id.in.(5107)`);
+  // the flagship series is the exact tag only: post 5107 (the first post) is a member because it carries the tag; no id admission remains
+  assert.equal(contentSeriesAdmissionFilter(byKey["reality-map"]), contentSeriesMembershipFilter(byKey["reality-map"]));
   for (const key of ["sod-hashmal", "messages-from-righteous"]) {
     assert.equal(contentSeriesAdmissionFilter(byKey[key]), contentSeriesMembershipFilter(byKey[key]), key);
   }

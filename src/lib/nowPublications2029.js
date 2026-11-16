@@ -7,6 +7,7 @@ import { resolveUnitMessage, featuredCentralWithUnit } from "./research/postSema
 import { realityMapPreviewEnabled } from "./research/realityMap2029.js";
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
+import { PROVEN_POST_SOURCE_UPDATES } from "./research/postSourceUpdates2029.js";
 import { publicStorageMedia } from "./mediaEgressGuard.js";
 import { GROUP_SOURCE_CHANNELS, groupWriterPinListed } from "./research/worldGroupSource.js";
 
@@ -57,8 +58,10 @@ export const NOW_SOURCE_LOGOS = Object.freeze({
 });
 // OUR logos mark OUR material only (ZURIEL 6.11.2026): Or HaGeula channel, ELS findings, and posts whose public byline is the system
 // identity. A named human writer or a third-party series (e.g. מה קורה הבורא, מימד חמש, סוד החשמל) never gets a site logo: default is none.
-const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, author, seriesKey }) => {
+// 16.11.2026 (ZURIEL): the reality-map series and the reality stream ("זרם המציאות", the site's own gallery updates) are OURS too, so they carry our logo.
+const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, isGallery, author, seriesKey }) => {
   if (unverified) return null;
+  if (isGallery || (isPost && seriesKey === REALITY_MAP_LATEST_KEY)) return "site";
   if (isChannel && channel === "or-geula") return "or-geula";
   if (kind === "finding" || kind === "convergence") return "els";
   if (isPost && !seriesKey && publicAuthorName(author) === SYSTEM_BYLINE) return "site";
@@ -122,7 +125,9 @@ export function nowRowModel(row) {
     || (isPost && categories.includes(VIDEO_CATEGORY));
   const audio = !video && (groupMediaKind ? groupMediaKind === "audio" : Boolean(media && isPublicAudio(media)));
   const image = !video && !audio && (groupMediaKind ? groupMediaKind === "image" : Boolean(media || isGallery));
-  const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ categories, tags, author: item.author })[0] || null : null);
+  // the post id lets an explicit series admission (an approved Post id, e.g. the first reality-map post) count, exactly as it does in the catalog: the same rule, one source
+  const postId = isPost ? Number(/^post:(\d+)$/.exec(String(item.id || ""))?.[1]) || undefined : undefined;
+  const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ id: postId, categories, tags, author: item.author })[0] || null : null);
   const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
   // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
   const hasGroupSource = isGroup || isDiscussion;
@@ -172,7 +177,7 @@ export function nowRowModel(row) {
     pinned: Boolean(pinKind), pinKind,
     // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
     dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
-    logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
+    logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, isGallery, author: item.author, seriesKey })] || null,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
     pinUntil: pinKind && typeof item.pinUntil === "string" ? item.pinUntil : null,
     central: pinKind === "owner" && item.central && Array.isArray(item.central.groups)
@@ -210,16 +215,33 @@ const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.t
   .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 // ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
-// a blinking dot, until a newer reality-map publication replaces it. It is a presentation of the series, not a pin: nothing is stored, `pinned` is untouched.
+// a dot that BLINKS until THIS viewer enters the update (ZURIEL 16.11.2026) and then stays as a still dot marking the latest update, until a newer reality-map publication
+// replaces it. "Entered" is the existing per-browser seen state (the same one that clears "חדש"): no new store. It is a presentation of the series, not a pin: `pinned` is untouched.
 export const REALITY_MAP_LATEST_KEY = "reality-map";
-export const nowModels = (rows, now = Date.now()) => {
+const postIdOfRowId = id => { const n = Number(/^post:(\d+)$/.exec(String(id || ""))?.[1]); return Number.isSafeInteger(n) ? n : null; };
+// the newest REGISTERED update of the Post (a unit added to its body); 0 when it has none
+const newestRegisteredEntry = id => { const postId = postIdOfRowId(id); const entries = postId == null ? [] : (PROVEN_POST_SOURCE_UPDATES[postId] || []); return entries.reduce((best, entry) => ((Date.parse(entry.updatedAt || "") || 0) > (Date.parse(best?.updatedAt || "") || 0) ? entry : best), null); };
+const latestRegisteredUpdate = id => Date.parse(newestRegisteredEntry(id)?.updatedAt || "") || 0;
+// When the publication (or its latest proven update) happened: the later of the row's own time and the newest registered update of that Post.
+const seriesUpdateTime = model => Math.max(Date.parse(model?.at || "") || 0, latestRegisteredUpdate(model?.id));
+// The seen key of the series-latest mark: per Post and per registered update, so a NEW unit makes the dot blink again for everyone who saw the previous one.
+export const seriesLatestSeenKey = id => `series-latest:${id}:${latestRegisteredUpdate(id)}`;
+export const nowModels = (rows, now = Date.now(), seen = {}) => {
   const models = sortedNowModels(rows, now);
   const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned)
-    .sort((a, b) => (Date.parse(b.at || 0) || 0) - (Date.parse(a.at || 0) || 0) || String(a.id).localeCompare(String(b.id)))[0];
+    .sort((a, b) => seriesUpdateTime(b) - seriesUpdateTime(a) || String(a.id).localeCompare(String(b.id)))[0];
   if (!latest) return models;
   const rest = models.filter(model => model !== latest);
   const leading = rest.filter(model => model.pinned).length;
-  return [...rest.slice(0, leading), { ...latest, seriesLatest: true }, ...rest.slice(leading)];
+  const blinking = !(seen && seen[seriesLatestSeenKey(latest.id)]);
+  // When the newest thing is a REGISTERED UNIT of the Post (newer than the row's own time), the row is shown AS that update: its name, its time, a link straight to it, and the
+  // Post's own title as the context line. Same model for "עכשיו" and the Home strip (one projection, no copy).
+  const entry = newestRegisteredEntry(latest.id);
+  const asUpdate = entry && entry.label && (Date.parse(entry.updatedAt || "") || 0) > (Date.parse(latest.at || "") || 0)
+    ? { title: entry.label, postTitle: latest.title, excerpt: entry.summary || (latest.title ? `בפוסט: ${latest.title}` : ""), excerptIsLead: false, at: entry.updatedAt,
+        ...(entry.summary ? { fullText: entry.summary, summary: entry.summary } : {}),
+        href: latest.href && latest.href.startsWith("/") && !latest.href.includes("#") ? `${latest.href}#${entry.targetId}` : latest.href } : {};
+  return [...rest.slice(0, leading), { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
 };
 
 /** Primary lenses with at least one row; "all" is always available. */

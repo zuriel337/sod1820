@@ -10,6 +10,8 @@ import ShareActions from "../ShareActions.jsx";
 import { SHARE_SITE } from "../../lib/share.js";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
 import "./nowPublications2029.css";
+import SeriesLatestMark2029 from "./SeriesLatestMark2029.jsx";
+import OwnMarkBox2029 from "./OwnMark2029.jsx";
 
 // An Or HaGeula video shown in Now is shared to its own canonical item address (the same one its full page uses), through the ONE
 // ShareActions. Only a published Or HaGeula update has that address; other rows are unchanged.
@@ -30,7 +32,7 @@ const NOW_TIME_MODE = "relative";
 function Thumb({ model }) {
   if (!model.thumb && model.logo) return <img className="sod29-nowpub-thumb is-logo" src={model.logo.src} alt="" width="44" height="44" loading="lazy" decoding="async" title={model.logo.label} />;
   return model.thumb
-    ? <img className="sod29-nowpub-thumb" src={model.thumb} alt="" loading="lazy" decoding="async" />
+    ? <OwnMarkBox2029 logo={model.logo} size={44}><img className="sod29-nowpub-thumb" src={model.thumb} alt="" loading="lazy" decoding="async" /></OwnMarkBox2029>
     : <span className="sod29-nowpub-thumb is-glyph" aria-hidden="true">{model.video ? "▶" : model.unverified ? "✦" : "◈"}</span>;
 }
 
@@ -61,7 +63,7 @@ function RowHead({ model, timeMode }) {
         {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
         <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
         {model.pinned ? <span className="sod29-nowpub-pin" data-now-pinned="true">📌 נעוץ</span> : null}
-        {model.seriesLatest ? <span className="sod29-nowpub-latest" data-now-series-latest="reality-map"><i className="sod29-nowpub-blink" aria-hidden="true" />העדכון האחרון במפת המציאות</span> : null}
+        <SeriesLatestMark2029 model={model} />
         {/* Clear labels (ZURIEL 11.11.2026): "חדש" for an arrival the viewer has not seen, "עודכן" for a publication that received an update. */}
         {model.row?.isNew ? <span className="sod29-nowpub-label r29-badge is-new" data-now-label="new">חדש</span> : model.updated ? <span className="sod29-nowpub-label r29-badge is-updated" data-now-label="updated">עודכן</span> : null}
         <time dateTime={model.at || undefined}>{when}</time>
@@ -221,7 +223,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const [selectedId, setSelectedId] = useState(null), [playId, setPlayId] = useState(null);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
-  const allModels = useMemo(() => nowModels(rows), [rows]);
+  const allModels = useMemo(() => nowModels(rows, Date.now(), feed?.seen), [rows, feed?.seen]);
   // The pinned central message is shown ONCE, as the card above the list; the same publication is not repeated as a row.
   const pinned = useMemo(() => nowPinnedMessage(allModels), [allModels]);
   const models = useMemo(() => pinned ? allModels.filter(model => model.id !== pinned.model.id) : allModels, [allModels, pinned]);

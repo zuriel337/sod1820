@@ -29,6 +29,9 @@ import { resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSe
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
 import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import { usePostOutline2029 } from "../lib/research/postOutlineDom2029.js";
+import { markSeen } from "../lib/homeMotion2029.js";
+import { seriesLatestSeenKey } from "../lib/nowPublications2029.js";
+import { contentSeriesKeysForPost } from "../lib/research/contentSeries2029Identity.js";
 import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
 import PublishedUnitTraces2029 from "../components/experience2029/PublishedUnitTraces2029.jsx";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
@@ -370,6 +373,12 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     document.addEventListener("click", onMapClick, true);
     return () => document.removeEventListener("click", onMapClick, true);
   }, [sectionItems, location.hash, state.projection]);
+
+  // Entering a reality-map Post settles the "latest update" dot in "עכשיו" for this viewer (the existing per-browser seen state; a newer registered unit makes it blink again).
+  useEffect(() => {
+    const post = state.projection?.sourcePost || state.projection?.post;
+    if (post?.id && contentSeriesKeysForPost(post).includes("reality-map")) markSeen(seriesLatestSeenKey(`post:${post.id}`));
+  }, [state.projection?.sourcePost, state.projection?.post?.id]);
 
   useEffect(() => {
     setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
