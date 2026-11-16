@@ -61,7 +61,7 @@ async function shot(stage, page, name) {
   // REDUCED=1 runs the whole context with reduced motion instead (static captures of the rich tier).
   if (!process.env.REDUCED) { await page.emulateMedia({ reducedMotion: "reduce" }); await page.waitForTimeout(600); }
   try { await stage.screenshot({ path: `${out}/${name}.png`, timeout: 25000 }); }
-  catch { const box = await stage.boundingBox(); await page.screenshot({ path: `${out}/${name}.png`, clip: { x: box.x, y: Math.max(0, box.y), width: box.width, height: Math.min(box.height, 8000) }, fullPage: true, timeout: 60000 }); }
+  catch { const box = await stage.boundingBox(); const off = await page.evaluate(() => ({ x: scrollX, y: scrollY })); await page.screenshot({ path: `${out}/${name}.png`, clip: { x: box.x + off.x, y: Math.max(0, box.y + off.y), width: box.width, height: Math.min(box.height, 8000) }, fullPage: true, timeout: 60000 }); }
   if (!process.env.REDUCED) await page.emulateMedia({ reducedMotion: "no-preference" });
 }
 const selectedPart = async (stage) => host(stage).getAttribute("data-selected-part");
@@ -113,6 +113,13 @@ try {
     if (dir === "discovery") assert.equal(await stage.locator(".sod29-discovery__steps li").count(), 0, "nothing is revealed before a choice");
     rec.canvasPickedParts = await pickByCanvas(page, stage);
     assert.ok(rec.canvasPickedParts.length >= 3, `direct selection in the structure (${rec.canvasPickedParts.join(",")})`);
+    if (dir !== "v1") { // keyboard: the primary actions are real buttons, operable with Enter, and keep focus
+      const before = await h.getAttribute("data-explode"); const ex = action(stage, "explode"); await ex.focus();
+      await page.keyboard.press("Enter"); await page.waitForTimeout(300); assert.notEqual(await h.getAttribute("data-explode"), before, "Enter toggles explode");
+      await page.keyboard.press("Enter"); await page.waitForTimeout(300); assert.equal(await h.getAttribute("data-explode"), before);
+      rec.keyboard = { explodeToggledByEnter: true, focusKept: await ex.evaluate((el) => el === document.activeElement) };
+      assert.equal(rec.keyboard.focusKept, true);
+    }
     await stage.locator('[data-lab-action="reset"], [data-lab-action="scene-structure"]').first().scrollIntoViewIfNeeded();
     await shot(stage, page, `v2-${dir}-desktop-overview`);
 
@@ -165,18 +172,19 @@ try {
         const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join("");
         if (!own.trim()) continue; const cs = getComputedStyle(el);
         if (/[\u0590-\u05FF]/.test(own) && /numeric|mono/i.test(cs.fontFamily) && !/Noto|Rubik/i.test(cs.fontFamily.split(",")[0])) bad.push(own.trim().slice(0, 24));
-        if (parseFloat(cs.fontSize) < 15 && !el.closest(".sod29-spatial-method-stage__sr-only")) small.push(`${own.trim().slice(0, 18)}:${cs.fontSize}`);
+        if (parseFloat(cs.fontSize) < 15 && !el.closest(".sod29-spatial-method-stage__sr-only, [aria-hidden='true']")) small.push(`${own.trim().slice(0, 18)}:${cs.fontSize}`);
       }
       return { hebrewInNumericFace: bad, under15px: small };
     });
     assert.deepEqual(rec.typography.hebrewInNumericFace, [], "no Hebrew run in the numeric face");
+    assert.deepEqual(rec.typography.under15px, [], "no visible text below the Design V2 supporting-copy minimum (15px)");
     receipt.directions[dir] = { ...(receipt.directions[dir] || {}), desktop: rec };
     await ctx.close();
   }
 
   // ===== mobile: every direction at 390 (CPU x4) and 320 =====
   for (const width of WIDTHS) for (const dir of DIRS) {
-    const { ctx, page } = await session({ width, height: 844, name: `mobile-${width}-${dir}`, throttle: width === 390 ? 4 : 1 });
+    const { ctx, page } = await session({ width, height: 844, name: `mobile-${width}-${dir}`, throttle: Number(process.env.THROTTLE) || (width === 390 ? 4 : 1) });
     const stage = await openStage(page, dir);
     await stage.locator('[data-s4-action="deepen"]').click();
     const h = host(stage); await h.locator("canvas").waitFor(); await page.waitForTimeout(6000);
@@ -186,6 +194,9 @@ try {
     const box = await h.boundingBox();
     const rec = { width, ...(await stats(h)), canvas: { w: Math.round(box.width), h: Math.round(box.height) }, heapMB: await heap(page), doc: ov };
     // touch-size of every control inside the hall
+    // nothing inside the hall may be cut off by the page edge or spill out of the hall (overflow-x is clipped on the page, so check geometry, not scrollWidth)
+    rec.clipped = await page.evaluate(() => { const hallEl = document.querySelector(".sod29-spatial-lab-hall"), hr = hallEl.getBoundingClientRect(); return [...hallEl.querySelectorAll("*")].filter((el) => { const r = el.getBoundingClientRect(); const closed = el.closest("details:not([open])"); return r.width > 0 && !(closed && !el.closest("summary")) && !el.closest(".sod29-spatial-method-stage__sr-only, .sod29-research__scroll, canvas") && (r.left < hr.left - 1 || r.right > hr.right + 1 || r.left < -1 || r.right > window.innerWidth + 1); }).map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 30)}:${Math.round(el.getBoundingClientRect().left)}..${Math.round(el.getBoundingClientRect().right)}`).slice(0, 8); });
+    assert.deepEqual(rec.clipped, [], `nothing clipped at ${width} (${dir})`);
     rec.smallTargets = await page.evaluate(() => [...document.querySelectorAll(".sod29-spatial-lab-hall button, .sod29-spatial-lab-hall summary")].filter((b) => { const r = b.getBoundingClientRect(); return r.width > 0 && (r.height < 43.5 || r.width < 43.5); }).map((b) => `${b.textContent.trim().slice(0, 14)}:${Math.round(b.getBoundingClientRect().width)}x${Math.round(b.getBoundingClientRect().height)}`));
     const gapsP = frameGaps(page, 2500); await drag(page, await h.boundingBox()); const gaps = await gapsP; const sorted = [...gaps].sort((x, y) => x - y);
     rec.frameGapP95Ms = Math.round(sorted[Math.floor(sorted.length * 0.95)]); rec.droppedOver100ms = gaps.filter((g) => g > 100).length;

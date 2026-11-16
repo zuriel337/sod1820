@@ -90,17 +90,23 @@ export function RoyalEnvironment({ intensity = 0.85, tint = null }) {
   return null;
 }
 
+// Ornament and lettering are never pick targets: the lab raycasts only the part bodies (a Hebrew glyph extrusion has thousands of triangles, and
+// the pointer moves on every frame of a drag). Clicking a letter still selects its part, because the body behind it is hit.
+export const noRaycast = () => null;
+
 // A darker / richer shade of a brand-token color (same hue family; lightness scaled, saturation nudged). Never a new literal.
 const rich = (css, lightness, saturation = 0) => { const c = new Color(css), hsl = {}; c.getHSL(hsl); return c.setHSL(hsl.h, Math.max(0, Math.min(1, hsl.s + saturation)), Math.min(1, hsl.l * lightness)); };
 
 // state: base (verified, not selected) · on (selected) · hover · off (unverified: shown, dimmed, not counted) · offOn (unverified + selected)
 // style "v1": the previous sapphire/gold look (kept for rollback). style "royal": deeper sapphire (gem-like: clearcoat, sheen, ior 1.77) and antique gold.
-export function useRoyalMaterials(colors, style = "v1") {
+export function useRoyalMaterials(colors, style = "v1", quality = "rich") {
   const mats = useMemo(() => {
     const sap = colors.sapphire, gold = colors.gold;
     if (style === "royal") {
-      const body = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 0.12, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.06, ior: 1.77, sheen: 0.6, sheenRoughness: 0.5,
-        sheenColor: rich(sap, 1.1, -0.1), envMapIntensity: 0.85, ...extra });
+      // "lite" tier (phones): the same sapphire without the clearcoat and sheen layers — far cheaper per pixel on a mobile GPU
+      const lite = quality !== "rich";
+      const body = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 0.12, roughness: lite ? 0.3 : 0.18, clearcoat: lite ? 0 : 1, clearcoatRoughness: 0.06, ior: 1.77, sheen: lite ? 0 : 0.6, sheenRoughness: 0.5,
+        sheenColor: rich(sap, 1.1, -0.1), envMapIntensity: lite ? 1.0 : 0.85, ...extra });
       const trim = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 1, roughness: 0.32, envMapIntensity: 1.1, side: DoubleSide, emissive: rich(gold, 0.62), emissiveIntensity: 0.13, ...extra });
       const deepSap = rich(sap, 0.42, -0.06), litSap = rich(sap, 0.66, -0.03), antique = rich(gold, 0.74, -0.05);
       return {
@@ -108,7 +114,7 @@ export function useRoyalMaterials(colors, style = "v1") {
           off: body(rich(sap, 0.3, -0.1), { transparent: true, opacity: 0.5 }), offOn: body(rich(sap, 0.5, -0.08), { emissive: new Color(sap), emissiveIntensity: 0.1, transparent: true, opacity: 0.72 }) },
         trim: { base: trim(antique), hover: trim(rich(gold, 0.88, -0.04), { emissiveIntensity: 0.16 }), on: trim(rich(gold, 0.95, 0), { emissiveIntensity: 0.26 }),
           off: trim(rich(gold, 0.42, -0.1), { transparent: true, opacity: 0.55 }), offOn: trim(rich(gold, 0.62, -0.06), { emissiveIntensity: 0.12, transparent: true, opacity: 0.78 }) },
-        plinth: new MeshPhysicalMaterial({ color: rich(sap, 0.28, -0.1), metalness: 0, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.03, ior: 1.5, envMapIntensity: 1.7, transparent: true, opacity: 0.62 }),
+        plinth: new MeshPhysicalMaterial({ color: rich(sap, 0.28, -0.1), metalness: 0, roughness: 0.04, clearcoat: lite ? 0 : 1, clearcoatRoughness: 0.03, ior: 1.5, envMapIntensity: 1.7, transparent: true, opacity: 0.62 }),
       };
     }
     const body = (color, extra = {}) => new MeshPhysicalMaterial({ color, metalness: 0.3, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.1, ...extra });
@@ -122,7 +128,7 @@ export function useRoyalMaterials(colors, style = "v1") {
     };
     v1.body.hover = v1.body.base; v1.trim.hover = v1.trim.base; // v1 has no hover state (same material object; disposed once below)
     return v1;
-  }, [colors.sapphire, colors.gold, style]);
+  }, [colors.sapphire, colors.gold, style, quality]);
   useEffect(() => () => {
     const all = new Set([...Object.values(mats.body), ...Object.values(mats.trim), mats.plinth]);
     all.forEach((m) => m.dispose());

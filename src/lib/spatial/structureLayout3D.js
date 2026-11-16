@@ -7,20 +7,23 @@ import { fitCameraDistance } from "./convergenceLayout3D.js";
 
 export const STRUCTURE_3D = Object.freeze({
   fovDeg: 40,
-  outerR: 190, innerR: 105,
-  petal: Object.freeze({ outer: 68, inner: 54, depth: 6 }),
-  tri: Object.freeze({ r: 56, size: 40, depth: 8, y: 14 }),
-  cube: Object.freeze({ y: -190, size: 112 }),
+  // Compact, large-part layout (Royal V2): the rings are tighter and the parts bigger relative to the whole, so on a phone — where the shot is
+  // width-bound — the cube and the pentagons are large and readable. Shape counts are the model's; these are only sizes and radii.
+  outerR: 150, innerR: 84,
+  petal: Object.freeze({ outer: 82, inner: 62, depth: 6 }),
+  tri: Object.freeze({ r: 42, size: 32, depth: 8, y: 14 }),
+  cube: Object.freeze({ y: -190, size: 124 }),
   apex: Object.freeze({ x: 0, y: 215, z: 0, radius: 26 }),
   // The relation layer (a path with NO approved geometry) hovers as a separate plaque above the rings, beside the apex, INSIDE the main
   // structure's frame — so the camera frames the finding, not the plaque (Royal V2: it no longer widens the shot).
-  relation: Object.freeze({ x: 150, y: 195, z: -40, w: 150, h: 64 }),
+  relation: Object.freeze({ x: 128, y: 195, z: -40, w: 140, h: 62 }),
   // vertical spread (and a sideways nudge for the relation layer) at explode = 1
-  explode: Object.freeze({ cube: -130, outer: 0, inner: 70, triangles: 140, relation: 0 }),
-  relationShiftX: 40,
+  explode: Object.freeze({ cube: -130, outer: 0, inner: 70, triangles: 140, relation: 30 }),
+  relationShiftX: 16,
 });
 
 const PARTS = ["cube", "outer", "inner", "triangles", "relation"];
+const TAG_PAD = 40;
 
 export function partsPresent(spec, hasRelation) {
   return PARTS.filter((part) => (part === "relation" ? hasRelation : Boolean(spec?.[part])));
@@ -68,8 +71,8 @@ export function structureExtent(explode = 1) {
   const relationRight = c.relation.x + c.relationShiftX * k + c.relation.w / 2;
   return {
     // the ring's "× quantity" tag sits just outside the petals, so the frame is padded by its width on both sides
-    minX: -(c.outerR + c.petal.outer + 30),
-    maxX: Math.max(c.outerR + c.petal.outer + 30, relationRight + 14),
+    minX: -(c.outerR + c.petal.outer / 2 + TAG_PAD),
+    maxX: Math.max(c.outerR + c.petal.outer / 2 + TAG_PAD, relationRight + 14),
     minY: c.cube.y + e.cube * k - c.cube.size / 2 - 40,
     maxY: Math.max(c.apex.y + c.apex.radius * 1.5 + 80, c.tri.y + e.triangles * k + c.tri.size + 40),
   };

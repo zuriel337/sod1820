@@ -12,7 +12,7 @@ import { AdditiveBlending, BackSide, Color, CubicBezierCurve3, DoubleSide, MeshP
 import { buildGlyphAssetRef } from "../../lib/spatial/hebrewGlyphAssets.js";
 import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { CONVERGENCE_3D, fitCameraDistance, layoutConvergence3D, layoutPhraseLetters } from "../../lib/spatial/convergenceLayout3D.js";
-import { Controls, FALLBACK_COLORS, RoyalEnvironment, resolveTokenColors, useBadgeTexture, useGlyphGeometry, useHaloTexture, useTextTexture } from "./MistaterScene3D2029.jsx";
+import { Controls, FALLBACK_COLORS, RoyalEnvironment, noRaycast, resolveTokenColors, useBadgeTexture, useGlyphGeometry, useHaloTexture, useTextTexture } from "./MistaterScene3D2029.jsx";
 
 const dimmed = (path) => path.status !== "verified";
 
@@ -73,7 +73,7 @@ export function PathConnector({ connector, path, colors, focused }) {
   const material = useMemo(() => new MeshPhysicalMaterial({ color: tint, emissive: off ? new Color(colors.line).multiplyScalar(0) : tint, emissiveIntensity: off ? 0 : focused ? 0.75 : 0.28,
     metalness: 0.9, roughness: 0.3, clearcoat: 0.6, transparent: off, opacity: off ? 0.45 : 1 }), [tint, off, focused, colors.line]);
   useEffect(() => () => material.dispose(), [material]);
-  return <mesh name={connector.id} material={material}>
+  return <mesh name={connector.id} material={material} raycast={noRaycast}>
     <tubeGeometry args={[curve, 40, off ? 1 : focused ? 2.8 : 1.5, 10, false]} />
   </mesh>;
 }

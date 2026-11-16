@@ -17,7 +17,7 @@ import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { layoutPhraseLetters } from "../../lib/spatial/convergenceLayout3D.js";
 import { STRUCTURE_3D, connectorPoints, focusPose, overviewPose, partCenter, partsPresent, ringPetals, trianglePositions } from "../../lib/spatial/structureLayout3D.js";
 import { ROYAL_LAB_DIRECTIONS } from "../../lib/spatial/royalLabDirections.js";
-import { Controls, FALLBACK_COLORS, RoyalEnvironment, buildGlyphGeometry, resolveTokenColors, useBadgeTexture, useRoyalMaterials, useTextTexture } from "./MistaterScene3D2029.jsx";
+import { Controls, FALLBACK_COLORS, RoyalEnvironment, buildGlyphGeometry, noRaycast, resolveTokenColors, useBadgeTexture, useRoyalMaterials, useTextTexture } from "./MistaterScene3D2029.jsx";
 import { Apex, PathConnector } from "./ConvergenceScene3D2029.jsx";
 
 const GLYPH_DEPTH = 6;
@@ -86,7 +86,7 @@ function useWordTexture(word, color) {
 
 function TextWord({ word, width, height, color, z, y, opacity = 1 }) {
   const texture = useWordTexture(word, color);
-  return <mesh position={[0, y, z + GLYPH_DEPTH / 2 + 0.3]} data-glyph-fallback="true">
+  return <mesh position={[0, y, z + GLYPH_DEPTH / 2 + 0.3]} data-glyph-fallback="true" raycast={noRaycast}>
     <planeGeometry args={[width, height]} />
     <meshBasicMaterial map={texture} transparent opacity={opacity} depthWrite={false} />
   </mesh>;
@@ -100,7 +100,7 @@ function GlyphWord({ word, width, height, glyphs, material, z = 0, y = 0, textCo
   return <group position={[0, y, z]}>
     {letters.map((letter, i) => {
       const geometry = glyphs.map.get(key(letter.char, size));
-      return geometry ? <mesh key={`${i}:${letter.char}`} geometry={geometry} material={material} position={[letter.x, 0, GLYPH_DEPTH / 2]} dispose={null} /> : null;
+      return geometry ? <mesh key={`${i}:${letter.char}`} geometry={geometry} material={material} position={[letter.x, 0, GLYPH_DEPTH / 2]} dispose={null} raycast={noRaycast} /> : null;
     })}
   </group>;
 }
@@ -146,7 +146,7 @@ function CubeEdges({ size, material, cast }) {
     else if (axis === 1) { dummy.position.set(sa * h, 0, sb * h); dummy.scale.set(bar, size + bar, bar); }
     else { dummy.position.set(sa * h, sb * h, 0); dummy.scale.set(bar, bar, size + bar); }
   }, [size]);
-  return <instancedMesh ref={ref} args={[undefined, undefined, 12]} material={material} castShadow={cast}><boxGeometry args={[1, 1, 1]} /></instancedMesh>;
+  return <instancedMesh ref={ref} args={[undefined, undefined, 12]} material={material} castShadow={cast} raycast={noRaycast}><boxGeometry args={[1, 1, 1]} /></instancedMesh>;
 }
 
 function PetalBezels({ petals, size, depth, material, cast }) {
@@ -156,7 +156,7 @@ function PetalBezels({ petals, size, depth, material, cast }) {
     dummy.position.set(p.x + Math.sin(p.rotY) * back, 0, p.z + Math.cos(p.rotY) * back);
     dummy.rotation.y = p.rotY;
   }, [petals, depth]);
-  return <instancedMesh ref={ref} args={[geometry, undefined, petals.length]} material={material} castShadow={cast} />;
+  return <instancedMesh ref={ref} args={[geometry, undefined, petals.length]} material={material} castShadow={cast} raycast={noRaycast} />;
 }
 
 function useTriangleGeometry({ size, depth, bevel }) {
@@ -366,7 +366,7 @@ export default function StructureScene3D2029({
   const glyphs = useGlyphMap(requests);
   const royal = look.style === "royal";
   const rig = useMemo(() => ({ royal, bezel: Boolean(look.bezel), shadows: Boolean(look.shadows) && quality === "rich" }), [royal, look.bezel, look.shadows, quality]);
-  const mats = useRoyalMaterials(colors, royal ? "royal" : "v1");
+  const mats = useRoyalMaterials(colors, royal ? "royal" : "v1", quality);
   const [hover, setHover] = useState(null);
   const keyLight = useMemo(() => new Color(colors.hero).lerp(new Color(colors.gold), royal && look.rig !== "lab" ? 0.4 : 0), [colors.hero, colors.gold, royal, look.rig]);
   const pose = useMemo(() => ({ elevation: look.elevation, padding: look.padding }), [look.elevation, look.padding]);
@@ -408,7 +408,7 @@ export default function StructureScene3D2029({
         <directionalLight position={[200, 380, 280]} intensity={1.7} color={keyLight} castShadow={rig.shadows}
           shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-bias={-0.0006} shadow-camera-left={-460} shadow-camera-right={460} shadow-camera-top={460} shadow-camera-bottom={-460} shadow-camera-near={50} shadow-camera-far={1400} />
         <directionalLight position={[-320, 160, -280]} intensity={look.rig === "lab" ? 1.8 : 1.3} color={colors.sapphire} />
-        <pointLight position={[0, 360, 140]} intensity={look.rig === "museum" ? 52000 : 36000} distance={950} color={colors.gold} />
+        {quality === "rich" ? <pointLight position={[0, 360, 140]} intensity={look.rig === "museum" ? 52000 : 36000} distance={950} color={colors.gold} /> : <ambientLight intensity={0.2} color={colors.gold} />}
       </> : <>
         <ambientLight intensity={0.35} />
         <directionalLight position={[160, 320, 360]} intensity={2.2} color={colors.hero} />

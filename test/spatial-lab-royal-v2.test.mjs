@@ -85,13 +85,14 @@ test("the main structure is framed without being widened by the relation layer, 
     const ext = structureExtent(explode);
     const relation = partCenter("relation", explode);
     assert.ok(relation.x - c.relation.w / 2 >= ext.minX && relation.x + c.relation.w / 2 <= ext.maxX, `relation plaque inside the frame (explode ${explode})`);
-    assert.ok(ext.maxX - ext.minX <= (c.outerR + c.petal.outer + 30) * 2 + 1, "the frame is the main structure's width (+ tag padding), not a side-layer width");
+    assert.ok(ext.maxX - ext.minX <= (c.outerR + c.petal.outer / 2 + 40) * 2 + 1, "the frame is the main structure's width (+ tag padding), not a side-layer width");
     assert.ok(Math.abs((ext.maxX + ext.minX) / 2) < 25, "the structure is centred");
   }
   // compact enough that the whole finding is large on a phone: the assembled height is smaller than the previous 700
   const a = structureExtent(0); assert.ok(a.maxY - a.minY < 640);
-  const phone = overviewPose(0.82, 0), wide = overviewPose(1.6, 0);
-  assert.ok(phone.position.z > wide.position.z, "a narrower shot is simply further away; nothing is cropped");
+  const phone = overviewPose(0.5, 0), tall = overviewPose(0.74, 0), wide = overviewPose(1.6, 0);
+  assert.ok(phone.position.z > wide.position.z, "a much narrower shot is simply further away; nothing is cropped");
+  assert.ok(Math.abs(tall.position.z - wide.position.z) < 1, "at the structure's own aspect (~0.74) the shot is as tight as it gets");
 });
 
 test("directions: three experiments + the previous look, one engine, one dataset; presentation parameters only", () => {

@@ -1,0 +1,56 @@
+{
+  "directions": {
+    "museum": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 109,
+        "geometries": 55,
+        "textures": 12,
+        "shadows": "false",
+        "look": "royal",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 267,
+          "h": 499
+        },
+        "heapMB": 20,
+        "doc": {
+          "docWidth": 375,
+          "innerWidth": 390
+        },
+        "smallTargets": [],
+        "frameGapP95Ms": 3217,
+        "droppedOver100ms": 9
+      }
+    },
+    "discovery": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 109,
+        "geometries": 55,
+        "textures": 12,
+        "shadows": "false",
+        "look": "royal",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 267,
+          "h": 476
+        },
+        "heapMB": 21,
+        "doc": {
+          "docWidth": 375,
+          "innerWidth": 390
+        },
+        "smallTargets": [],
+        "frameGapP95Ms": 200,
+        "droppedOver100ms": 10
+      }
+    }
+  },
+  "cases": [],
+  "errors": [
+    "locator.waitFor: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-convergence-card=\"yesharim-cube-3060\"] .is-convergence').locator('[data-renderer=\"r3f\"][data-scene=\"structure\"]').locator('canvas') to be visible\u001b[22m\n\n    at /home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:182:54"
+  ]
+}

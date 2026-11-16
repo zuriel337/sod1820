@@ -469,13 +469,14 @@
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent),0 8px 20px -8px color-mix(in srgb,var(--r29-sapphire) 90%,transparent)}
 .sod29-spatial-lab-hall .sod29-spatial-lab__raziel li button{background:transparent}
 .sod29-spatial-lab-hall .sod29-spatial-lab__title{display:grid;gap:6px;justify-items:center;text-align:center}
-.sod29-spatial-lab-hall .sod29-spatial-lab__title b{font-size:var(--s29-type-title,20px);letter-spacing:.06em;color:var(--r29-gold-ink);font-weight:800;font-family:var(--s29-font-display,var(--s29-font-ui,inherit))}
+.sod29-spatial-lab-hall .sod29-spatial-lab__title b{font-size:var(--s29-type-title,20px);letter-spacing:0;text-wrap:balance;color:var(--r29-gold-ink);font-weight:800;font-family:var(--s29-font-display,var(--s29-font-ui,inherit))}
 .sod29-spatial-lab-hall .sod29-spatial-lab__title .r29-rule{inline-size:min(260px,70%)}
 @media (prefers-reduced-motion:reduce){.sod29-spatial-lab-hall .sod29-spatial-convergence__paths button{transition:none}}
 @media (forced-colors:active){.sod29-spatial-lab-hall .sod29-spatial-method-stage__s4{background:Canvas;border-color:CanvasText;box-shadow:none}.sod29-spatial-lab-hall .sod29-spatial-method-stage__s4::after{display:none}}
 
 /* ============ ROYAL V2 (directions A · B · C) — same engine, model and data; presentation only. Typography = Design V2 tokens; colors = shared Royal roles. ============ */
 .sod29-spatial-lab-hall{--lab-amber:var(--r29-amber);--lab-ink:var(--s29-ink)}
+.sod29-spatial-lab-hall>*,.sod29-museum>*,.sod29-discovery>*,.sod29-research>*{min-width:0}
 .sod29-spatial-lab-hall :is(small,dt,dd,li,summary,td,th,caption,figcaption,em,.sod29-lab-hint){font-size:var(--s29-type-small,15px);line-height:1.5}
 .sod29-spatial-lab-hall :is(button,summary){font-size:var(--s29-type-ui,16px)}
 .sod29-lab-num{font-family:var(--s29-font-numeric,inherit);font-variant-numeric:tabular-nums}
@@ -497,6 +498,8 @@
 .sod29-lab-directions__label{color:var(--s29-muted);font-size:var(--s29-type-small,15px);flex:0 0 100%;text-align:center}
 .sod29-lab-directions .r29-chip{--r29-hue:var(--r29-gold);padding:4px 14px;min-height:44px;font-size:var(--s29-type-ui,16px)}
 .sod29-lab-directions .r29-chip b{font-family:var(--s29-font-numeric,inherit);color:var(--r29-gold-ink);margin-inline-end:4px}
+.sod29-lab-directions__brief{flex:0 0 100%;margin:0;text-align:center;color:var(--s29-muted);font-size:var(--s29-type-small,15px)}
+@media (max-width:520px){.sod29-lab-directions__name{display:none}.sod29-lab-directions .r29-chip{min-width:58px;justify-content:center;padding:4px 12px}.sod29-lab-directions .r29-chip b{margin:0}}
 
 /* three primary actions + secondary control */
 .sod29-lab-primary{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
@@ -511,6 +514,7 @@
 .sod29-lab-primary .sod29-lab-more__body{position:absolute;z-index:3;inset-inline-start:0;margin-top:8px;min-width:min(320px,86vw);display:grid;gap:10px;padding:12px;border-radius:var(--r29-radius-sm);
   border:1px solid color-mix(in srgb,var(--r29-gold) 46%,var(--s29-line));background:linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel)),var(--s29-panel));box-shadow:var(--r29-shadow)}
 .sod29-lab-more__row{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:640px){.sod29-lab-primary .sod29-lab-more{flex:0 0 100%}.sod29-lab-primary .sod29-lab-more__body{position:static;min-width:0;margin-top:8px}.sod29-lab-primary .sod29-lab-more>summary{justify-content:center;width:100%}}
 .sod29-lab-more__row .r29-chip,.sod29-lab-more__row .r29-btn{--r29-hue:var(--r29-gold);min-height:44px;font-size:var(--s29-type-ui,16px)}
 .sod29-museum__details.sod29-lab-more>summary,.sod29-discovery .sod29-lab-more>summary{border-radius:var(--r29-radius-sm)}
 .sod29-museum__details[open],.sod29-discovery .sod29-lab-more[open],.sod29-research .sod29-lab-more[open]{display:grid;gap:10px}
@@ -531,13 +535,13 @@
 
 /* A · museum cartouche */
 .sod29-museum,.sod29-discovery,.sod29-research{display:grid;gap:12px;min-width:0}
-.sod29-museum__cartouche{margin:0;display:grid;justify-items:center;gap:4px;padding:16px 14px;text-align:center;border-radius:var(--r29-radius-sm);
+.sod29-museum__cartouche{margin:0;max-inline-size:100%;overflow:hidden;display:grid;justify-items:center;gap:4px;padding:16px 14px;text-align:center;border-radius:var(--r29-radius-sm);
   border:1px solid color-mix(in srgb,var(--r29-gold) 50%,transparent);
   background:radial-gradient(90% 90% at 50% 0%,color-mix(in srgb,var(--r29-sapphire) 24%,transparent),transparent 70%),linear-gradient(180deg,color-mix(in oklab,var(--r29-amber) 7%,var(--s29-panel)),var(--s29-panel));
   box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-gold) 24%,transparent)}
 .sod29-museum__cartouche figcaption{color:var(--r29-gold-ink);font-weight:800;letter-spacing:.04em}
 .sod29-museum__phrase{margin:0;font:800 var(--s29-type-title,26px)/1.15 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--s29-hero,var(--s29-ink))}
-.sod29-museum__equation{margin:0;font-size:calc(var(--s29-type-title,22px) * 1.25);font-weight:800;color:var(--r29-gold-ink)}
+.sod29-museum__equation{margin:0;max-inline-size:100%;font-size:clamp(18px,6.4vw,calc(var(--s29-type-title,22px) * 1.25));font-weight:800;color:var(--r29-gold-ink);white-space:nowrap}
 .sod29-museum__status{margin:0;color:var(--s29-muted);font-size:var(--s29-type-small,15px)}
 .sod29-museum__cartouche[data-status]:not([data-status="verified"]) .sod29-museum__equation{color:var(--s29-muted)}
 
@@ -554,7 +558,7 @@
 .sod29-discovery__steps strong{font-size:calc(var(--s29-type-title,20px) * 1.1);color:var(--s29-hero,var(--s29-ink))}
 .sod29-discovery__steps li[data-kind="unverified"] strong,.sod29-discovery__steps li[data-kind="declared"] strong,.sod29-discovery__steps li[data-kind="missing"] strong{color:var(--s29-muted)}
 .sod29-discovery__steps em{font-style:normal;color:var(--s29-muted)}
-.sod29-discovery__final{margin:0;font-size:calc(var(--s29-type-title,22px) * 1.2);font-weight:800;color:var(--r29-gold-ink)}
+.sod29-discovery__final{margin:0;font-size:clamp(18px,6vw,calc(var(--s29-type-title,22px) * 1.2));font-weight:800;color:var(--r29-gold-ink)}
 .sod29-discovery__final span{font-size:var(--s29-type-small,15px);color:var(--s29-muted);font-weight:600}
 .sod29-discovery__actions{display:flex;flex-wrap:wrap;gap:8px}
 .sod29-discovery__actions .r29-btn{min-height:46px;font-size:var(--s29-type-ui,16px)}
@@ -573,7 +577,7 @@
 .sod29-research__table tr[data-status]:not([data-status="verified"]) td{color:var(--s29-muted)}
 .sod29-research__pick{min-height:44px;padding:4px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line));background:transparent;color:var(--s29-ink);font:inherit;cursor:pointer;text-align:start}
 .sod29-research__pick[aria-pressed="true"]{border-color:var(--r29-gold);font-weight:800}
-.sod29-research__eq{margin:0;font-size:calc(var(--s29-type-title,22px) * 1.2);font-weight:800;color:var(--r29-gold-ink)}
+.sod29-research__eq{margin:0;font-size:clamp(18px,6vw,calc(var(--s29-type-title,22px) * 1.2));font-weight:800;color:var(--r29-gold-ink)}
 @media (max-width:640px){
   .sod29-research__table thead{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%)}
   .sod29-research__table,.sod29-research__table tbody,.sod29-research__table tr,.sod29-research__table th,.sod29-research__table td{display:block}
@@ -598,3 +602,18 @@
 .sod29-lab-raziel li .r29-btn{min-height:44px}
 @media (prefers-reduced-motion:reduce){.sod29-lab-medal{transition:none}}
 @media (forced-colors:active){.sod29-lab-medal,.sod29-museum__cartouche,.sod29-discovery__steps li,.sod29-research__panel{border:1px solid CanvasText;background:Canvas;box-shadow:none}}
+
+/* The World page styles details/summary/p inside its spatial body at 12–13px (a page-local scale below Design V2). Inside the lab the contract sizes win:
+   supporting copy >= --s29-type-small (15px), interactive labels >= --s29-type-ui (16px). Scoped to the lab hall only; the World page CSS is untouched. */
+.sod29-root.surface-world .sod29-world-spatial-body .sod29-spatial-lab-hall details p{font:400 var(--s29-type-small,15px)/1.55 var(--s29-font-ui);margin:3px 0 0}
+.sod29-root.surface-world .sod29-world-spatial-body .sod29-spatial-lab-hall summary{font:700 var(--s29-type-ui,16px)/1.4 var(--s29-font-ui)}
+.sod29-root.surface-world .sod29-world-spatial-body .sod29-spatial-lab-hall code{font-size:var(--s29-type-small,15px)}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__ledger :is(p,small,span,em,summary,figcaption,label,li){font-size:var(--s29-type-small,15px)}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__status,.sod29-spatial-lab-hall .sod29-spatial-convergence__phrase small{font-size:var(--s29-type-small,15px)}
+.sod29-spatial-lab-hall .sod29-spatial-lab__title .r29-rule{font-size:var(--s29-type-small,15px)}
+
+/* phones: the lab hall bleeds into the stage's padding and keeps a slim inner padding, so the 3D canvas gets as much of the narrow column as the page allows */
+@media (max-width:640px){
+  .sod29-spatial-lab-hall{margin-inline:-10px;padding:10px 8px}
+  .sod29-spatial-lab-hall .sod29-spatial-method-stage__s4{margin-inline:-2px}
+}

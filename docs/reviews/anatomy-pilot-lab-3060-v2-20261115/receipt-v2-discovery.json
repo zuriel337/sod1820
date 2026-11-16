@@ -1,7 +1,32 @@
 {
-  "directions": {},
+  "directions": {
+    "discovery": {
+      "desktop": {
+        "canvasMs": 7571,
+        "drawCalls": 128,
+        "geometries": 60,
+        "textures": 14,
+        "shadows": "true",
+        "look": "royal",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "relation",
+          "outer",
+          "cube"
+        ],
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": [
+            "◆:10px",
+            "עוד כלים:12px",
+            "מקור ופירוט:12px",
+            "שאלות לדוגמה:12px"
+          ]
+        }
+      }
+    }
+  },
   "cases": [],
-  "errors": [
-    "page.screenshot: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\n    at shot (/home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:63:61)\n    at async file:///home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:133:7"
-  ]
+  "errors": []
 }

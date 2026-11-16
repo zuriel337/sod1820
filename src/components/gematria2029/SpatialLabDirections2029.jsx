@@ -13,14 +13,16 @@ const PART_ORDER = ["cube", "outer", "inner", "triangles", "relation"];
 const Num = ({ children }) => <bdi dir="ltr" className="sod29-lab-num">{children}</bdi>;
 
 export function DirectionSwitcher({ direction, onChange }) {
+  const current = ROYAL_LAB_DIRECTIONS[direction];
   return <div className="sod29-lab-directions" role="group" aria-label="כיווני עיצוב לניסוי (תצוגה בלבד)" data-lab-directions="true">
-    <span className="sod29-lab-directions__label">כיוון עיצוב</span>
+    <span className="sod29-lab-directions__label">כיוון עיצוב (ניסוי)</span>
     {ROYAL_LAB_DIRECTION_ORDER.map((id) => {
       const item = ROYAL_LAB_DIRECTIONS[id];
-      return <button key={id} type="button" className="r29-chip" aria-pressed={direction === id} data-lab-direction={id} title={item.brief} onClick={() => onChange(id)}>
-        <b>{item.letter}</b> {item.label}
+      return <button key={id} type="button" className="r29-chip" aria-pressed={direction === id} aria-label={`${item.letter} · ${item.label} — ${item.brief}`} data-lab-direction={id} onClick={() => onChange(id)}>
+        <b>{item.letter}</b><span className="sod29-lab-directions__name"> {item.label}</span>
       </button>;
     })}
+    <p className="sod29-lab-directions__brief">{current.letter} · {current.label} — {current.brief}</p>
   </div>;
 }
 
