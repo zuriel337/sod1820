@@ -4,7 +4,7 @@ import { goldenContextPackClaims } from "./goldenPostPackClaims.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
-import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
+import { isPublicPostReadingSource } from "./publicPostBoundary.js";
 import { projectTopicCardContent } from "./topicConvergence.js";
 import { decodePublicEntities } from "../presentation/contentTitle.js";
 import { classifyCalculatorInput, CALCULATOR_INPUT_KIND } from "./calculator2029Input.js";
@@ -37,9 +37,14 @@ function postCssSelectors(selector) {
 
 // Presentation containment over the authored source, not an HTML sanitizer or
 // a source rewrite. Legacy plugin resources never become 2029 global styles.
-export function postReadingHtml2029(html) {
+export function postReadingHtml2029(html, { coverHref = null } = {}) {
   if (!globalThis.document?.createElement) return String(html || "");
   const template = document.createElement("template"); template.innerHTML = String(html || "");
+  // A WordPress body usually repeats the cover file at full width, and that copy is the largest paint. Its imported `loading="lazy"` would defer it
+  // until layout; the file is already being fetched for the cover (and, on an original address, hinted when the source arrived), so it loads eagerly.
+  if (coverHref) for (const image of template.content.querySelectorAll("img[src]")) {
+    if (image.getAttribute("src") === coverHref && image.getAttribute("loading") === "lazy") image.setAttribute("loading", "eager");
+  }
   for (const iframe of template.content.querySelectorAll("iframe[src]")) {
     try { const u=new URL(iframe.getAttribute("src"),"https://sod1820.co.il");
       if(["sod1820.co.il","www.sod1820.co.il","sod1820.vercel.app"].includes(u.hostname) && /^\/[^/]+\/embed\/?$/.test(u.pathname)) {
@@ -988,13 +993,8 @@ export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = 
 
 // Post measures compose the existing public Post, Topic and canonical method
 // readers. No cache, graph edge, score or publication decision is created here.
-export function isPublicPostReadingSource(post) {
-  // Home placement is distinct from publication/access. The existing public
-  // catalogue and XML include home-hidden posts; RLS and publication gates apply.
-  return Boolean(post?.id != null && clean(post.slug)
-    && !post._privateStage && !post._previewSnapshot && !hasSuppressedPublicPostTag(post)
-    && !["gpt-draft", "web"].includes(clean(post.source).toLowerCase()));
-}
+// The public reading admission lives in publicPostBoundary.js (one rule, also used by the early cover hint); re-exported here for existing callers.
+export { isPublicPostReadingSource };
 
 export function isPublicPostMeasureSource(post) {
   return isPublicPostReadingSource(post) && post.home_hidden !== true;

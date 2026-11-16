@@ -129,7 +129,10 @@ function PublicPostAddressEntry2029() {
   void loadPublicPostAddress().catch(() => {});
   useEffect(() => {
     if (!PUBLIC_READING_RELEASE || loading) return undefined;
-    const request = beginPostReadingSource(slug);
+    // The cover the page will render first starts downloading when the source arrives, not when the page code has mounted. The tiny hint module
+    // loads on demand next to the read (no static import in the entry: shell budget), and a missing module or a failed hint changes nothing.
+    const coverHint = import("./lib/research/postCoverHint2029.js").catch(() => null);
+    const request = beginPostReadingSource(slug, { onSource: post => { void coverHint.then(module => module?.hintPostCover2029(post)); } });
     setSource({ slug, identity, read: request.read });
     return () => request.cancel();
   }, [slug, identity, loading]);

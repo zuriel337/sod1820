@@ -294,11 +294,15 @@ export function beginHomeReadingSource({ readCards = getLatestPostCards } = {}) 
 
 // One route-owned read, started while the Post component code downloads. No
 // shared data cache: its caller cancels it on route/identity change or unmount.
-export function beginPostReadingSource(slug, { readPost = getPostBySlug } = {}) {
+export function beginPostReadingSource(slug, { readPost = getPostBySlug, onSource = null } = {}) {
   const controller = new AbortController();
   // Observe early rejection even while the lazy component has not mounted.
+  // onSource (optional) sees the row as soon as it arrives — a discovery hint only; it never changes the outcome the page reads.
   const result = Promise.resolve().then(() => readPost(slug, { throwOnError: true, signal: controller.signal }))
-    .then(data => ({ data }), error => ({ error }));
+    .then(data => {
+      if (data && onSource && !controller.signal.aborted) { try { onSource(data); } catch { /* a hint never fails the read */ } }
+      return { data };
+    }, error => ({ error }));
   return {
     async read(requestedSlug) {
       if (requestedSlug !== slug) throw new Error("post_source_identity_mismatch");

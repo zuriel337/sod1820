@@ -93,7 +93,7 @@ assert.equal(/preload="auto"/i.test(hardened), false);
 // Behavioral no-fetch and explicit-play coverage lives in the built browser test
 // home-loading-admission-2029.browser.mjs; this guard verifies the wiring too.
 assert.match(post2029, /import \{ hardenPassiveMediaHtml \} from "\.\.\/lib\/mediaEgressGuard\.js"/);
-assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => hardenPassiveMediaHtml\(postReadingHtml2029\(state\.projection\?\.post\?\.content \|\| ""\)\)/);
+assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => hardenPassiveMediaHtml\(postReadingHtml2029\(state\.projection\?\.post\?\.content \|\| "", \{ coverHref: postReadingCoverItem\(state\.projection\?\.post\)\?\.imageUrl \|\| null \}\)\)/);
 assert.match(post2029, /dangerouslySetInnerHTML=\{\{ __html: passiveSourceHtml \}\}/);
 
 
