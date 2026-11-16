@@ -464,3 +464,10 @@
 .sod29-ude-report{inline-size:100%;border-collapse:collapse;font-size:.88rem}
 .sod29-ude-report th,.sod29-ude-report td{padding:.25rem .4rem;border-bottom:1px solid var(--s29-line);text-align:start}
 .sod29-ude-report tr[data-segment-status="failed"] td,.sod29-ude-report tr[data-segment-status="not_sent"] td{color:var(--s29-warn,#e6c46a)}
+
+.sod29-pu-byline{font-weight:800;color:var(--s29-brand-gold);margin-block:1.2em .4em}
+
+/* the unit breadcrumb wraps inside the unit: a long title never runs past the edge */
+.sod29-reading-post[data-reality-map] .sod29-pu-bar>.sod29-pu-crumb{flex:1 1 12rem;min-inline-size:0;max-inline-size:100%;overflow-wrap:anywhere;text-wrap:balance}
+.sod29-pu-byline-link{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.sod29-pu-byline-link:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:3px}

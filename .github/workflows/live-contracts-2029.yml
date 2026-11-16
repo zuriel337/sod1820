@@ -312,6 +312,7 @@ jobs:
           src/lib/research/nasrallahPost92Golden.test.js
           src/lib/research/razielOneShot2029.test.js
           test/post-left-tree-rail-2029.test.mjs
+          test/guest-newsletter-dwell-2029.test.mjs
           test/posts-video-library-2029.test.mjs
           src/lib/research/postsVideoLibrary2029.test.js
           test/global-living-ribbon-state.test.mjs

@@ -1,7 +1,7 @@
 // Builds the DISPLAY element of a preview unit (postPreviewUnits2029.js) and places it as the newest update of its Post. Browser only; the
 // words are set with textContent, so nothing in the approved text can become markup, and no word is changed. Numbers (3–5 digits) become the
 // same clickable [data-gem] controls the rest of the Post uses, so a click opens the existing Number window and returns to this exact unit.
-import { parseYaminSmolText, parseFieldLine, previewUnitsFor, ATTRIBUTION_GROUPS } from "./postPreviewUnits2029.js";
+import { parseYaminSmolText, parseFieldLine, parseBylineLine, previewUnitsFor, ATTRIBUTION_GROUPS } from "./postPreviewUnits2029.js";
 import { resolveUnitBlocks, readBodyDraftMeta } from "./postUnitBody2029.js";
 
 const NUMBER = /(?<![\d.])\d{3,5}(?![\d.])/g;
@@ -99,6 +99,12 @@ export function buildPreviewUnitElement(doc, unit, blocks = null) {
       editedNote(doc, host, block, labelOf);
       continue; }
     if (block.kind === "claim") { host.append(withNumbers(doc, el(doc, "p", { class: "sod29-pu-claim", "data-sod-role": "short", "data-sod-align": al("center") }), block.text)); editedNote(doc, host, block, labelOf); continue; }
+    const byline = parseBylineLine(block.text);
+    if (byline) {
+      const p = el(doc, "p", { class: "sod29-pu-byline", "data-sod-role": "short", "data-sod-align": al("start") }, "מאת: ");
+      p.append(byline.href ? el(doc, "a", { href: byline.href, class: "sod29-pu-byline-link" }, byline.name) : doc.createTextNode(byline.name));
+      host.append(p); continue;
+    }   // the writer of the part that follows
     const p = el(doc, "p", { "data-sod-role": "prose", "data-sod-align": al("start") });
     host.append(withNumbers(doc, p, block.text));
   }
@@ -130,7 +136,7 @@ export function injectPreviewUnits(root, postId, doc = root.ownerDocument || doc
     const element = buildPreviewUnitElement(doc, unit);
     const holder = el(doc, "div", { class: "sod29-update-unit", "data-update-unit": unit.id, "data-preview-holder": "true" });
     const meta = el(doc, "p", { class: "sod29-update-meta" });
-    meta.append(el(doc, "span", { class: "sod29-update-added sod29-pu-badge" }, "יחידה חדשה · הדגמה בפריוויו"));
+    meta.append(el(doc, "span", { class: "sod29-update-added sod29-pu-badge" }, "יחידה חדשה"));
     holder.append(meta, element);
     setLocalDraftBadge(holder, Boolean(readBodyDraftMeta(postId, unit.id)));
     const stack = root.querySelector("[data-sod-update-stack]");
