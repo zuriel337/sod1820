@@ -277,3 +277,65 @@ for (const theme of ["dark", "light", "parchment"]) {
     });
   });
 }
+
+// Codex review (16.11.2026): reading without JavaScript, direction, headings and landmarks, keyboard. The document alone (no script runs) is a
+// readable article in the page's frame: one main landmark with one article whose first heading is the Post's title, right-to-left, links that
+// take the keyboard, nothing hidden behind the application's hold.
+test("[phone] without JavaScript: the document alone is the readable article, right-to-left, one main, the title first, links by keyboard", { timeout: 180000 }, async () => {
+  const fixture = await startFixture({
+    documentFor: ({ path, template }) => decodeURIComponent(path).toLowerCase() === decodeURIComponent(PATH).toLowerCase()
+      ? withArticleFirst2029(template, { path, search: "", status: 200, post: ROW, proven: { [String(ROW.id)]: postArticleProofKey2029(ROW) } }).html : null,
+    supabase: async () => ({ body: [ROW] }),
+  });
+  const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
+  try {
+    const context = await browser.newContext({ ...PROFILES.phone, ignoreHTTPSErrors: true, locale: "he-IL", javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "load" });
+    const state = await page.evaluate(() => {
+      const article = document.querySelector("#sod29-ssr-article article"), h1 = article?.querySelector("h1");
+      const visible = node => { const r = node.getBoundingClientRect(), cs = getComputedStyle(node); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none"; };
+      return { mains: document.querySelectorAll("main").length, articles: document.querySelectorAll("article").length,
+        firstHeading: document.querySelector("main h1, main h2, main h3")?.textContent || "", title: h1?.textContent || "", titleVisible: !!h1 && visible(h1),
+        direction: getComputedStyle(article.querySelector(".sod29-reading-source p")).direction, bodyText: article.querySelector(".sod29-reading-source").textContent.length,
+        paragraphsVisible: [...article.querySelectorAll(".sod29-reading-source p")].filter(visible).length, root: document.getElementById("root").getBoundingClientRect().height,
+        theme: document.documentElement.getAttribute("data-theme-2029"), panel: getComputedStyle(article.querySelector(".sod29-reading-source")).backgroundColor };
+    });
+    assert.equal(state.mains, 1, "one main landmark"); assert.equal(state.articles, 1, "one article");
+    assert.equal(state.firstHeading, state.title, "the first heading of the main landmark is the Post's title");
+    assert.ok(state.titleVisible && state.paragraphsVisible >= 12, JSON.stringify(state));
+    assert.equal(state.direction, "rtl");
+    assert.ok(state.root <= 132, "the application's hold leaves only the opening bar above the article");
+    assert.notEqual(state.panel, "rgba(0, 0, 0, 0)", "the reading surface has its own colour (the frame's default tokens)");
+    // the keyboard reaches the article's own links in reading order
+    let reached = false;
+    for (let step = 0; step < 40 && !reached; step += 1) { await page.keyboard.press("Tab"); reached = await page.evaluate(() => document.activeElement?.getAttribute("href") === "/2029/posts"); }
+    assert.ok(reached, "the article's link takes the keyboard");
+    await context.close();
+  } finally { await browser.close(); await fixture.close(); }
+});
+
+// Frame by frame (the lab showed one painted frame 48 px off when the correction was measured inside the adoption, before the System Frame had
+// finished its own update): no frame around adoption shows the title, or the paragraph being read, anywhere else.
+for (const scrolled of [false, true]) {
+  test(`[phone] no frame around adoption shows the reader's place moved (${scrolled ? "reading paragraph 5" : "at the title"})`, { timeout: 180000 }, async () => {
+    let release; const hold = new Promise(done => { release = done; });
+    await withPage("phone", { holdPostChunk: hold }, async ({ page }) => {
+      await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "load" });
+      await page.waitForSelector("#sod29-ssr-article h1"); await page.evaluate(FACES); await sleep(300);
+      await page.evaluate(scrolled => {
+        const pick = () => scrolled ? [...document.querySelectorAll(".sod29-reading-source p")].find(node => /^פסקה 5:/.test(node.textContent.trim())) : (document.querySelector("#sod29-ssr-article h1") || document.querySelector("article.sod29-reading-post h1"));
+        if (scrolled) window.scrollBy({ top: pick().getBoundingClientRect().top - 160, left: 0, behavior: "instant" });
+        window.__frames = []; const tick = () => { const node = pick(); window.__frames.push(node ? Math.round(node.getBoundingClientRect().top) : null); if (!window.__stopFrames) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+      }, scrolled);
+      await sleep(300);
+      release();
+      assert.equal((await adopted(page)).result, "adopted");
+      await sleep(800);
+      const frames = await page.evaluate(() => { window.__stopFrames = true; return window.__frames; });
+      const first = frames[0];
+      assert.ok(frames.length > 20, "frames were recorded");
+      assert.ok(frames.every(top => top !== null && Math.abs(top - first) <= 2), `every frame keeps the place (${[...new Set(frames)].join(", ")})`);
+    });
+  });
+}

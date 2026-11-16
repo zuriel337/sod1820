@@ -56,18 +56,20 @@ export function samePlaceInPage2029(place, pageArticle, pageBody) {
 }
 
 // The browser's own scroll anchoring would also react to the swap (it picks its own anchor and adjusts after layout), and the two corrections
-// add up. It is switched off for the swap and the next two frames, while this keeps the reader's place: once now, then any residue from the
-// frames after (late layout) is corrected, then the browser's anchoring is back.
+// add up. It is switched off for the swap and the next two frames, while this keeps the reader's place.
 export function suspendScrollAnchoring2029() {
   const targets = [document.documentElement, document.body].filter(Boolean);
   const saved = targets.map(node => node.style.overflowAnchor);
   targets.forEach(node => { node.style.overflowAnchor = "none"; });
   return () => targets.forEach((node, index) => { node.style.overflowAnchor = saved[index]; });
 }
-export function keepReaderInPlace2029(place, counterpart, { resume = () => {} } = {}) {
-  if (!place || !counterpart) { resume(); return 0; }
-  const correct = () => { const delta = counterpart.getBoundingClientRect().top - place.top; if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, left: 0, behavior: "instant" }); return delta; };
-  const first = correct();
-  requestAnimationFrame(() => { correct(); requestAnimationFrame(() => { correct(); resume(); }); });
-  return Math.round(first);
+// The correction is measured in the next frames, before they are painted, never in the adoption itself: in that instant the System Frame has not
+// yet finished its own update (it portals its orientation mark into the page's header in the same commit), so the page's article can sit
+// elsewhere for a moment; a correction measured then is undone by the frame and paints as a jump (measured in the lab: 48 px for one frame).
+// With the page's own frame and header in the first document, the settled difference is normally zero and nothing scrolls.
+export function keepReaderInPlace2029(place, counterpart, { resume = () => {}, settled = () => {} } = {}) {
+  if (!place || !counterpart) { resume(); settled(0); return; }
+  let total = 0;
+  const correct = () => { const delta = counterpart.getBoundingClientRect().top - place.top; if (Math.abs(delta) > 0.5) { window.scrollBy({ top: delta, left: 0, behavior: "instant" }); total += delta; } };
+  requestAnimationFrame(() => { correct(); requestAnimationFrame(() => { correct(); resume(); settled(Math.round(total)); }); });
 }

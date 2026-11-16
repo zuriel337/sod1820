@@ -173,9 +173,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     adoptionRef.current = { id: node.dataset.ssrPost, html: passiveSourceHtml, node };
     target.append(...node.querySelector('[data-ssr-body="true"]').childNodes);
     node.remove();   // the app root's height hold ends with it (CSS :has)
-    const moved = keepReaderInPlace2029(place, samePlaceInPage2029(place, target.closest("article"), target), { resume });
     target.dataset.articleFirst = "adopted";
-    window.__sodArticleFirst = { result: "adopted", at: Math.round(performance.now()), place: place?.kind || null, compensated: moved };
+    const report = window.__sodArticleFirst = { result: "adopted", at: Math.round(performance.now()), place: place?.kind || null, compensated: null };
+    keepReaderInPlace2029(place, samePlaceInPage2029(place, target.closest("article"), target), { resume, settled: moved => { report.compensated = moved; } });
   }, [documentArticle]);
   useLayoutEffect(() => {
     const leftover = document.getElementById(POST_ARTICLE_DOCUMENT_ID), target = sourceRef.current;
@@ -184,8 +184,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const result = leftover.dataset.ssrResult || "not-adopted";
     const resume = suspendScrollAnchoring2029();
     leftover.remove();
-    const moved = keepReaderInPlace2029(place, samePlaceInPage2029(place, target.closest("article"), target), { resume });
-    window.__sodArticleFirst = { result: "replaced", reason: result, at: Math.round(performance.now()), place: place?.kind || null, compensated: moved };
+    const report = window.__sodArticleFirst = { result: "replaced", reason: result, at: Math.round(performance.now()), place: place?.kind || null, compensated: null };
+    keepReaderInPlace2029(place, samePlaceInPage2029(place, target.closest("article"), target), { resume, settled: moved => { report.compensated = moved; } });
   });
   // The page cannot open the Post (its own read failed) although the server already gave the article: the reader keeps the article, and the
   // app root is released so the page's own state shows above it. A page that is left never keeps the document article.
