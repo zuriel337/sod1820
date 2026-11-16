@@ -207,6 +207,11 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   </article>;
 }
 
+// Server counts for the given roots, keeping the same object when nothing changed (no re-render).
+function mergeKnownReplyCounts(existing, counts) {
+  return Object.keys(counts).every((id) => existing[id] === counts[id]) ? existing : { ...existing, ...counts };
+}
+
 function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoaded, refreshToken, ancestors = [], focusPath = [], messageActions, newReplies = null, onReplyCountKnown, threadTotal = null, resurfaced = false }) {
   const focusIndex = focusPath.indexOf(row.id);
   const focusChildId = focusIndex >= 0 ? focusPath[focusIndex + 1] || null : null;
@@ -596,6 +601,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     try {
       const page = await read;
       if (request !== streamRequestRef.current) return;
+      // Counts that arrive with the page render with it: a thread's replies control is there at its first paint (no layout shift).
+      if (page.replyCounts) setReplyCounts((existing) => mergeKnownReplyCounts(existing, page.replyCounts));
       setRows((current) => replace ? page.rows : [...current, ...page.rows.filter((item) => !current.some((existing) => existing.id === item.id))]);
       setNextOffset(page.nextOffset);
       if (page.count != null) setTotal(page.count);
@@ -665,6 +672,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         const merged = mergeCommunityRefreshRows(previous, page.rows, fetchSort, { complete: page.count != null && page.nextOffset >= page.count, preserveFeedOrder: true });
         const positions = new Map(previous.map((item, index) => [item.id, index]));
         const raisedRoots = fetchSort === "newest" ? page.rows.filter((item, index) => positions.get(item.id) > index).map(item => item.id) : [];
+        if (page.replyCounts) setReplyCounts((existing) => mergeKnownReplyCounts(existing, page.replyCounts));
         if (merged !== feedStateRef.current.rows) {
           feedAnchorRef.current = captureCommunityScrollAnchor(document.getElementById("community-new-chat"));
           setRows(merged);
@@ -673,11 +681,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         if (page.count != null) setTotal(page.count);
         // Open threads refresh through the same approved-reply reader. Closed
         // threads need only one bounded count read for this public feed page.
+        // The feed page carries them when the database does (above); otherwise one bounded count read, as before.
         let counts = null;
-        try { counts = await fetchCommunityReplyCounts(page.rows.map((item) => item.id)); }
-        catch { /* An unavailable count is unknown; visible approved replies can still refresh. */ }
+        if (!page.replyCounts) {
+          try { counts = await fetchCommunityReplyCounts(page.rows.map((item) => item.id)); }
+          catch { /* An unavailable count is unknown; visible approved replies can still refresh. */ }
+        }
         if (!active || document.hidden || request !== streamRequestRef.current) return;
-        if (counts) setReplyCounts((existing) => Object.keys(counts).every((id) => existing[id] === counts[id]) ? existing : { ...existing, ...counts });
+        if (counts) setReplyCounts((existing) => mergeKnownReplyCounts(existing, counts));
         void loadThreadTotals(page.rows, () => active && !document.hidden && request === streamRequestRef.current, raisedRoots);
         setThreadRefresh((value) => value + 1);
       } finally { if (feedReadRef.current === read) feedReadRef.current = null; }

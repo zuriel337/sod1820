@@ -14,7 +14,7 @@ for(const width of [390,1280])for(const viewer of ['guest','member']){
   const received=[];let fail=false,viewerId;
   const fixture=await startFixture({supabase:({url,headers,body})=>{
    if(url.pathname==='/rest/v1/users'){const user=viewerId?{id:viewerId,role:'member',display_name:'בודק'}:null;return {body:headers.accept?.includes('application/vnd.pgrst.object+json')?user:user?[user]:[]};}
-   if(url.pathname==='/rest/v1/rpc/community_feed_page')return {body:rows};
+   if(url.pathname==='/rest/v1/rpc/community_feed_page'||url.pathname==='/rest/v1/rpc/community_feed_page_v2')return {body:rows};
    if(url.pathname==='/rest/v1/rpc/community_thread_updates')return {body:JSON.parse(body).p_cursors.map(c=>({root_id:c.root_id,new_count:0,first_reply_id:null,first_path:null}))};
    if(url.pathname==='/rest/v1/rpc/community_message_context')return {body:rows.filter(r=>r.id===JSON.parse(body).p_id)};
    if(url.pathname==='/rest/v1/rpc/toggle_contribution_reaction'){

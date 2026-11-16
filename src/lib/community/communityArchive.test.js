@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, compareCommunityLikedRows, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, searchCommunityMessages, fetchCommunityAuthorSummary, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, compareCommunityLikedRows, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, searchCommunityMessages, fetchCommunityAuthorSummary, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus, communityFeedReplyCounts, resetCommunityFeedFieldsForTest } from "./communityArchive.js";
 
 test("most-loved projection combines historical and current thumbs-up counts with stable ties", () => {
   const row = (id, day, reactions, isDeleted = false) => ({ id, createdAt: `2026-10-${day}T12:00:00Z`, reactions, isDeleted });
@@ -397,4 +397,51 @@ test("Esther26 is the public name for old and new posts under one reviewed owner
   assert.equal(communityAuthorIdentity(contributor).verifiedOwner, true);
   assert.equal(VERIFIED_ARCHIVE_PROFILES[contributor].accountUserId, account);
   assert.equal(VERIFIED_ARCHIVE_PROFILES[`user:${account}`].name, "Esther26");
+});
+
+// ZURIEL 16.11.2026 (Community layout shifts): the feed page carries each root's public reply count so the replies control is known
+// at the first paint. Before the database carries the column, or where a worker refuses the selection, the same page is read without it.
+const FEED_ROOT = id => ({ id, parent_id: null, author_name: "א", body: "שורש", origin: "community_2029", created_at: "2026-11-16T10:00:00Z", is_deleted: false, total_count: 2 });
+const feedClient = answer => {
+  const calls = [];
+  return { calls, rpc(name, args) { return { select: async fields => { calls.push({ name, args, fields }); return answer(fields, calls.length, name); } }; },
+    from() { throw new Error("the feed RPC answered; no table fallback"); } };
+};
+const ROOT_A = "00000000-0000-4000-8000-00000000a001", ROOT_B = "00000000-0000-4000-8000-00000000b002";
+test("the feed page asks for reply_count and returns the counts with the rows", async () => {
+  resetCommunityFeedFieldsForTest();
+  const client = feedClient(() => ({ data: [{ ...FEED_ROOT(ROOT_A), reply_count: 3 }, { ...FEED_ROOT(ROOT_B), reply_count: "0" }], error: null, status: 200 }));
+  const page = await fetchCommunityArchivePage({ client });
+  assert.equal(client.calls.length, 1);
+  assert.equal(client.calls[0].name, "community_feed_page_v2");
+  assert.ok(client.calls[0].fields.endsWith(",total_count,reply_count"), client.calls[0].fields);
+  assert.deepEqual(page.replyCounts, { [ROOT_A]: 3, [ROOT_B]: 0 });
+  assert.deepEqual(page.rows.map(row => row.id), [ROOT_A, ROOT_B]);
+  assert.equal(page.count, 2);
+});
+for (const [label, refusal] of [["the wrapper is not there yet (PGRST202)", { error: { code: "PGRST202", message: "Could not find the function public.community_feed_page_v2" }, status: 404 }],
+  ["a column the database does not have (42703)", { error: { code: "42703", message: "column community_feed_page_v2.reply_count does not exist" }, status: 400 }],
+  ["a worker that does not admit the selection (403)", { error: { error: "public_reading_denied" }, status: 403 }]]) {
+  test(`the feed page falls back once to the same read without counts: ${label}`, async () => {
+    resetCommunityFeedFieldsForTest();
+    const client = feedClient((fields, n, name) => name === "community_feed_page_v2" ? { data: null, ...refusal } : { data: [FEED_ROOT(ROOT_A)], error: null, status: 200 });
+    const first = await fetchCommunityArchivePage({ client });
+    assert.deepEqual(first.rows.map(row => row.id), [ROOT_A]);
+    assert.equal(first.replyCounts, null, "counts stay unknown, as before");
+    assert.deepEqual(client.calls.map(call => [call.name, call.fields.includes("reply_count")]), [["community_feed_page_v2", true], ["community_feed_page", false]]);
+    await fetchCommunityArchivePage({ client, offset: 40 });
+    assert.deepEqual(client.calls.map(call => call.name), ["community_feed_page_v2", "community_feed_page", "community_feed_page"], "asked once per page session");
+  });
+}
+test("any other feed failure is still a failure (no silent second read)", async () => {
+  resetCommunityFeedFieldsForTest();
+  const client = feedClient(() => ({ data: null, error: { code: "57014", message: "canceling statement due to statement timeout" }, status: 500 }));
+  await assert.rejects(fetchCommunityArchivePage({ client }), error => error.code === "57014");
+  assert.equal(client.calls.length, 1);
+  resetCommunityFeedFieldsForTest();
+});
+test("only valid counts of real roots are kept", () => {
+  assert.deepEqual(communityFeedReplyCounts([{ id: ROOT_A, reply_count: "2" }, { id: ROOT_B, reply_count: -1 }, { id: "not-a-uuid", reply_count: 4 }, { id: ROOT_B }]), { [ROOT_A]: 2 });
+  assert.equal(communityFeedReplyCounts([{ id: ROOT_A }]), null);
+  assert.equal(communityFeedReplyCounts([]), null);
 });
