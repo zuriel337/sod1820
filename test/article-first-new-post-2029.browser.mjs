@@ -32,7 +32,7 @@ async function withPage(profile, { row = ROW, expect = "served-new" } = {}, run)
     documentFor: ({ path, template }) => {
       if (decodeURIComponent(path) !== PATH) return null;
       // not on the proven list: the build's own guard decides
-      const out = withArticleFirst2029(template, { path, search: "", status: 200, post: row, proven: {} });
+      const out = withArticleFirst2029(template, { path, search: "", status: 200, post: row, proven: {}, warm: null });   // no request leaves the test
       assert.equal(out.state, expect, "the real server function");
       return out.html;
     },

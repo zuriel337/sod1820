@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
 import { publicReadingDocumentHandler } from "../public-reading-deploy/api/public-document.js";
-import { withArticleFirst2029, loadArticleFirstRenderer, _resetArticleFirstForTests } from "../public-reading-deploy/api/article-first.js";
+import { withArticleFirst2029, loadArticleFirstRenderer, _resetArticleFirstForTests, _resetWarmedForTests, postImageCopiesOf2029 } from "../public-reading-deploy/api/article-first.js";
 import { postArticleSourceHtmlFromRow2029, postArticleSourceKey2029, postArticleProofKey2029 } from "../src/lib/research/postArticlePipeline2029.js";
 import { postClassification2029 } from "../src/lib/research/postClassification2029.js";
 import { documentArticleBodyMatches } from "../src/lib/research/postArticleAdoption2029.js";
@@ -182,6 +182,29 @@ test("with the build's real guard, ordinary new Posts get their article and a gu
   const guarded = { ...post, content: post.content + "<p><del>1819</del> 1820</p>" };
   assert.ok(guard.tags.includes("del"), "the fixture relies on <del> being guarded in this build");
   assert.equal((await serve(path, { rows: [guarded], proven: {}, guard })).headers.get("x-sod-article-first"), "new-guarded");
+});
+
+test("a site Post's image copies are asked for once after the answer (ready for the next readers); never an imported Post's, never twice", async () => {
+  await loadArticleFirstRenderer(); _resetWarmedForTests();
+  const asked = [];
+  const warm = async (url, init) => { asked.push({ url, accept: init?.headers?.accept }); return new Response(new Uint8Array(4)); };
+  const post = sitePost();
+  const out = withArticleFirst2029(TEMPLATE, { path: "/post/native-post", status: 200, post, proven: {}, guard: {}, warm });
+  assert.equal(out.state, "served-new");
+  await new Promise(done => setTimeout(done, 20));
+  const copies = postImageCopiesOf2029(out.html);
+  assert.ok(copies.length >= 1 && copies.every(url => url.includes("/storage/v1/render/image/public/")), JSON.stringify(copies));
+  assert.deepEqual(asked.map(item => item.url).sort(), copies.slice(0, 16).sort(), "every copy the article offers, as a browser asks for it");
+  assert.ok(asked.every(item => /image\/avif,image\/webp/.test(item.accept)));
+  withArticleFirst2029(TEMPLATE, { path: "/post/native-post", status: 200, post, proven: {}, guard: {}, warm });
+  await new Promise(done => setTimeout(done, 20));
+  assert.equal(asked.length, copies.slice(0, 16).length, "once per instance");
+  const imported = withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post: row(), proven: provenFor(row()), warm: async () => { throw new Error("an imported Post is not warmed here"); } });
+  assert.equal(imported.state, "served");
+  _resetWarmedForTests();
+  const failing = withArticleFirst2029(TEMPLATE, { path: "/post/native-post", status: 200, post, proven: {}, guard: {}, warm: async () => { throw new Error("synthetic outage"); } });
+  assert.equal(failing.state, "served-new", "a failed warm-up never changes the answer");
+  await new Promise(done => setTimeout(done, 20));
 });
 
 test("a render failure or a server DOM that cannot load leaves today's document", async () => {

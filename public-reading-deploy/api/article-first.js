@@ -80,7 +80,29 @@ function keepAlive(promise) {
   try { globalThis[Symbol.for("@vercel/request-context")]?.get?.()?.waitUntil?.(promise); } catch { /* no request context: plain process */ }
   return promise;
 }
-function articleFirstDocument(html, { path, search = "", status, post, proven = PROVEN, facts = IMAGE_FACTS, load = loadArticleFirstRenderer, guard }) {
+// A site Post's image copies are made by the Storage render endpoint on their first request; a first reader of a new Post would wait for it
+// (0.9-1.9 s measured on a miss). After answering, the server asks once (per instance) for every copy its article offers, the way a browser
+// asks for them, so they are ready for the next readers. Nothing waits for it and nothing depends on it; the endpoint bills per original
+// image, which the readers would transform anyway.
+const WARMED = new Set(), WARM_LIMIT = 16, WARM_MEMORY = 4000;
+const WARM_ACCEPT = "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8";
+export function postImageCopiesOf2029(article) {
+  const urls = new Set();
+  for (const match of String(article).matchAll(/\ssrcset="([^"]+)"/g)) for (const candidate of match[1].replace(/&amp;/g, "&").split(", ")) {
+    const url = candidate.trim().split(/\s+/)[0];
+    if (/^https:\/\/linswmnnkjxvweumprav\.supabase\.co\/storage\/v1\/render\/image\/public\//.test(url)) urls.add(url);
+  }
+  return [...urls];
+}
+async function warmPostImageCopies(article, fetchImpl = globalThis.fetch) {
+  const fresh = postImageCopiesOf2029(article).filter(url => !WARMED.has(url)).slice(0, WARM_LIMIT);
+  if (!fresh.length || typeof fetchImpl !== "function") return;
+  if (WARMED.size > WARM_MEMORY) WARMED.clear();
+  for (const url of fresh) WARMED.add(url);
+  await Promise.all(fresh.map(url => fetchImpl(url, { headers: { accept: WARM_ACCEPT } }).then(response => response.arrayBuffer()).catch(() => null)));
+}
+export function _resetWarmedForTests() { WARMED.clear(); }
+function articleFirstDocument(html, { path, search = "", status, post, proven = PROVEN, facts = IMAGE_FACTS, load = loadArticleFirstRenderer, guard, warm }) {
   if (status !== 200 || !post || search || !ownOriginalAddress(post, path)) return { html, state: "not-eligible" };
   // No template: this build was made without a fresh proof (or without the article path); nothing is loaded.
   const template = TEMPLATE.exec(html);
@@ -110,5 +132,6 @@ function articleFirstDocument(html, { path, search = "", status, post, proven = 
   const full = links.map(link => link.replace(/^<link /, "<link data-sod-article-first-full ")).join("")
     + '<script data-sod-article-first-done>document.documentElement.classList.remove("sod-af-first")</script>';
   document = `${head}${critical}${document.slice(headEnd, document.search(/<\/body>/i))}${POST_ARTICLE_DOCUMENT_STYLE}${article}${full}${document.slice(document.search(/<\/body>/i))}`;
+  if (post.source !== "wordpress") keepAlive(warmPostImageCopies(article, warm)).catch(() => {});
   return { html: document, state: newPost ? "served-new" : "served" };
 }
