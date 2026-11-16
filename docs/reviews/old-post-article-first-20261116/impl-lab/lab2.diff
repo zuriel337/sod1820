@@ -1,0 +1,43 @@
+--- /dev/fd/63	2026-11-16 10:15:04.117132674 +0000
++++ lab2.mjs	2026-11-16 09:48:27.931133303 +0000
+@@ -117,7 +117,8 @@
+   const { page, cdp, net } = s;
+   const data = await page.evaluate(() => {
+     const nav = performance.getEntriesByType('navigation')[0]?.toJSON?.() || null;
+-    return { origin: performance.timeOrigin, now: performance.now(), nav, perf: window.__perf, ua: navigator.userAgent.slice(0, 80) };
++    return { origin: performance.timeOrigin, now: performance.now(), nav, perf: window.__perf, ua: navigator.userAgent.slice(0, 80), af: window.__sodArticleFirst || null,
++      toolsReady: document.querySelector('.sod29-reading-source[data-public-post-id]')?.childNodes.length ? true : false };
+   });
+   const base = t0Wall;  // epoch seconds of the measured navigation start
+   const rel = (t, tMono0) => t == null ? null : Math.round((t - tMono0) * 1000);
+@@ -128,7 +129,7 @@
+     tm: r.timing ? { con: Math.round(r.timing.connectEnd - r.timing.connectStart), ssl: r.timing.sslEnd > 0 ? Math.round(r.timing.sslEnd - r.timing.sslStart) : 0, ttfb: Math.round(r.timing.receiveHeadersEnd - r.timing.sendEnd) } : undefined }));
+   const res = await page.evaluate(() => performance.getEntriesByType('resource').map(e => ({ n: e.name.slice(0, 150), s: Math.round(e.startTime), re: Math.round(e.responseEnd), ts: e.transferSize, eb: e.encodedBodySize, db: e.decodedBodySize, it: e.initiatorType })));
+   return { ...extra, post: post.key, scenario, device: cfg.device, mode: cfg.mode, label: cfg.label, thirdParty: cfg.thirdParty, nav: data.nav && { rs: Math.round(data.nav.responseStart), re: Math.round(data.nav.responseEnd), fs: Math.round(data.nav.fetchStart), cs: Math.round(data.nav.connectStart), ce: Math.round(data.nav.connectEnd), rq: Math.round(data.nav.requestStart), dcl: Math.round(data.nav.domContentLoadedEventEnd), load: Math.round(data.nav.loadEventEnd), size: data.nav.encodedBodySize },
+-    perf: data.perf, now: Math.round(data.now), requests: reqs, resources: res, mitigated: [...net.values()].some(r => r.mitigated), };
++    perf: data.perf, af: data.af, now: Math.round(data.now), requests: reqs, resources: res, mitigated: [...net.values()].some(r => r.mitigated), };
+ }
+ 
+ const results = [];
+@@ -137,9 +138,19 @@
+   const { startLabServer } = await import('./labserver2.mjs');
+   const anon = /SUPABASE_ANON\s*=\s*'([^']+)'/.exec(readFileSync(cfg.fixture.root + '/src/lib/supabase.js', 'utf8'))[1];
+   const d = cfg.fixture.docDelayMs || {};
+-  lab = await startLabServer({ root: cfg.fixture.root, cacheDir: cfg.fixture.cacheDir, readRpc: cfg.readRpc || [], anon, supabaseExtraMs: cfg.fixture.supabaseExtraMs ?? 120,
++  // Article first (OLD_POST_ARTICLE_FIRST): the document of a sample old Post is built by the REAL server function of the tree under test.
++  let documentFor = null;
++  if (cfg.fixture.articleFirst) {
++    const af = await import(cfg.fixture.root + '/public-reading-deploy/api/article-first.js');
++    await af.loadArticleFirstRenderer();
++    const rows = JSON.parse(readFileSync(cfg.fixture.articleFirst.rows, 'utf8'));
++    const bySlug = new Map(rows.map(row => [decodeURIComponent(row.slug).toLowerCase(), row]));
++    documentFor = (path, template) => { const row = bySlug.get(decodeURIComponent(path.replace(/^\//, '')).toLowerCase()); if (!row) return null;
++      const out = af.withArticleFirst2029(template, { path, status: 200, post: row }); if (out.state !== 'served') throw new Error('article-first ' + out.state); return out.html; };
++  }
++  lab = await startLabServer({ documentFor, root: cfg.fixture.root, cacheDir: cfg.fixture.cacheDir, readRpc: cfg.readRpc || [], anon, supabaseExtraMs: cfg.fixture.supabaseExtraMs ?? 120,
+     docDelayFor: p => p === '/' ? (d.home ?? 500) : p.startsWith('/post/') ? (d.new ?? 600) : (d.old ?? 1000), record: cfg.fixture.record !== false,
+-    staticCacheControl: cfg.fixture.staticCacheControl || null, inject: cfg.fixture.inject || {}, docCacheControl: cfg.fixture.docCacheControl || null });
++    staticCacheControl: cfg.fixture.staticCacheControl || null, inject: cfg.fixture.inject || {}, injectBody: cfg.fixture.injectBodyFile ? JSON.parse(readFileSync(cfg.fixture.injectBodyFile, 'utf8')) : {}, docCacheControl: cfg.fixture.docCacheControl || null });
+   cfg.origin = lab.origin;
+ }
+ const browser = await chromium.launch({ proxy: cfg.mode === 'live' && process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY } : undefined,

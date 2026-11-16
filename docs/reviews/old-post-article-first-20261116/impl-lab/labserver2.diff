@@ -1,0 +1,24 @@
+--- /dev/fd/63	2026-11-16 10:15:04.121919061 +0000
++++ labserver2.mjs	2026-11-16 09:48:27.931499991 +0000
+@@ -25,7 +25,7 @@
+ const sha = s => createHash('sha1').update(s).digest('hex');
+ const FWD = ['accept', 'accept-profile', 'content-profile', 'content-type', 'prefer', 'range', 'range-unit', 'x-client-info'];
+ 
+-export async function startLabServer({ root, cacheDir, readRpc = [], docDelayFor = () => 800, supabaseExtraMs = 120, anon, port = 0, record = true, staticCacheControl = null, inject = {}, docCacheControl = null, trustCert = false } = {}) {
++export async function startLabServer({ root, cacheDir, readRpc = [], docDelayFor = () => 800, supabaseExtraMs = 120, anon, port = 0, record = true, staticCacheControl = null, inject = {}, injectBody = {}, documentFor = null, docCacheControl = null, trustCert = false } = {}) {
+   const dist = resolve(root, 'public-reading-deploy/dist');
+   const template = readFileSync(resolve(root, 'public-reading-deploy/.generated/2029.html'));
+   const cfg = JSON.parse(readFileSync(resolve(root, 'public-reading-deploy/vercel.json'), 'utf8'));
+@@ -128,7 +128,11 @@
+       state.documents++;
+       const delay = docDelayFor(decoded); if (delay > 0) await sleep(delay);
+       const extra = inject[decoded] || inject[url.pathname] || '';
+-      const html = extra ? Buffer.from(template.toString('utf8').replace('</head>', extra + '</head>')) : template;
++      const extraBody = injectBody[decoded] || injectBody[url.pathname] || '';
++      let html = template;
++      const own = documentFor ? documentFor(url.pathname, template.toString('utf8')) : null;
++      if (own) html = Buffer.from(own);
++      if (extra || extraBody) { let text = template.toString('utf8'); if (extra) text = text.replace('</head>', extra + '</head>'); if (extraBody) text = text.replace('</body>', extraBody + '</body>'); html = Buffer.from(text); }
+       const enc = encode(req, 'text/html; charset=utf-8', html, 2);
+       return send(res, 200, { ...baseHeaders, 'content-type': 'text/html; charset=utf-8', 'x-robots-tag': 'index, follow', ...(docCacheControl ? { 'cache-control': docCacheControl } : {}), ...(enc.enc ? { 'content-encoding': enc.enc } : {}) }, enc.buf);
+     } catch (e) { return send(res, 500, { 'content-type': 'application/json' }, JSON.stringify({ error: String(e.message || e).slice(0, 200) })); }

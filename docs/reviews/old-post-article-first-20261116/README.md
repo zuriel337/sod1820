@@ -1,6 +1,8 @@
 # Old Posts: the article first, the tools on request — dependency map, proposal and measured experiment (16 November 2026)
 
-**Status: proposal and experiment only.** Nothing here is implemented on a mergeable branch. The experiment is a patch against `main` `ea7257598` (`experiment/article-first-experiment.patch`), run only in a scratch worktree and the lab. No merge, deployment, Preview, database, flag or permission change. This stage is separate from #1358 and #1370 and does not extend either.
+> **Later the same day:** the implementation on the combined base (#1358 + #1370), with its lab, is in [`IMPLEMENTATION.md`](IMPLEMENTATION.md); this file stays as the record of the proposal and the experiment.
+
+**Status (when written): proposal and experiment only.** Nothing here is implemented on a mergeable branch. The experiment is a patch against `main` `ea7257598` (`experiment/article-first-experiment.patch`), run only in a scratch worktree and the lab. No merge, deployment, Preview, database, flag or permission change. This stage is separate from #1358 and #1370 and does not extend either.
 
 ## The requirement (ZURIEL, 16.11.2026)
 

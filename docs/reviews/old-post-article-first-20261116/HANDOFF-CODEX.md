@@ -1,37 +1,71 @@
 # Hand-off to Codex — old Posts, article first (16 November 2026)
 
-From CLAUDE, at ZURIEL's request, before any merge or release. This is a document for review, not an assignment: nothing was dispatched, and only ZURIEL activates another agent. Journal: `OLD_POST_ARTICLE_FIRST_20261116` (passive records to ZURIEL).
+From CLAUDE, at ZURIEL's request, before any merge or release. A document for review, not an assignment: nothing was dispatched, and only ZURIEL activates another agent. Journal: `OLD_POST_ARTICLE_FIRST_20261116` (proposal and experiment) and `OLD_POST_ARTICLE_FIRST_IMPL_20261116` (implementation); passive records to ZURIEL.
 
-## What changed
+## State
 
-- **No product branch changed.** This branch (`claude/old-post-article-first-20261116`, from `main` `ea7257598`) holds documents, the experiment patch and the lab tools only.
-- The experiment ran in a scratch worktree with `experiment/article-first-experiment.patch` applied to `main` `ea7257598`:
-  - `src/lib/research/postArticleCore2029.js` (new): the article transforms moved unchanged out of `post2029ReadingProjection.js` (which now imports and re-exports them), with three property writes turned into the equivalent attribute writes.
-  - `src/lib/research/postArticleDocument2029.js` (new): the document article (title, credit, date, cover box, body) from those functions, a source key, and the CSS that holds the app root at the opening bar's height.
-  - `src/pages/Post2029Page.jsx`: adoption of the document article's nodes (identity + source key + identical parsed output), otherwise an in-place replacement; the cover image is adopted into the page's cover box.
-  - The lab server gained a body injection (`lab/labserver2-injectBody.diff`, `lab/lab2-injectBody.diff`); the document article was produced offline with jsdom (`experiment/generate.mjs`) and served for the four sample Posts.
+- Branch `claude/old-post-article-first-20261116`. Base `origin/main` `ea7257598` + #1358 (`221c26bc4`) + #1370 (`2165ec326`), merged into this branch at ZURIEL's instruction; neither PR is in `main`. No PR for this branch, so **no CI run exists for it**; everything below is local unless marked otherwise.
+- The experiment (`README.md`, `experiment/`) came first; the implementation (`IMPLEMENTATION.md`) replaces its prototype patch with real code.
 
-## What is proven (local lab and scripts; no CI, no Preview, no Production)
+## What changed (implementation)
 
-- **Dependency map** (`main` `ea7257598`, production build, gzip): before an old Post can render its article the browser loads 453.6 KB of JS and 53.1 KB of CSS in 63 files; about 93 KB of the Post page's own 135 KB is tools and research contexts. The article transforms live in a module that imports the Supabase client.
-- **Same logic on the server is possible for most, not all, old Posts:** with the article transforms moved unchanged into a leaf module and three property writes turned into attribute writes, jsdom gives Chromium's exact article on 1,113 of 1,176 public imported Posts (94.6 %); happy-dom 1,063; linkedom leaves scripts in 181 outputs and is unfit. Method: `experiment/equivalence.mjs`, result `experiment/equivalence-summary.json`.
-- **Timing, four old Posts, n = 6 per post per arm, p = 0.002 everywhere:** text visible 4.7–5.0 s earlier on a slow phone (about 6.7 s → 1.9 s) and 0.8 s earlier on desktop; LCP 3.5–7.7 s earlier on the phone and 0.4–1.0 s on desktop; before the text the phone downloads 18–22 KB in 12–14 requests instead of 707–728 KB in 88–89. `results.md`, `runs.csv`.
-- **The cover is not solved by this:** it starts with the document but a 519 KB cover still finishes at 8.7 s on the phone; the LCP element is no longer the cover.
-- **Adoption without duplication** on all four Posts, phone and desktop; navigation and back render one article; a mismatch replaces in place.
-- **Open defects of the experiment itself:** the reader's paragraph moves −137 to +185 px at adoption; an anchor link loses its target on desktop; a long title's font swap gives CLS 0.050 on the phone.
+See `IMPLEMENTATION.md` "What was built". In short: one article pipeline shared by the page and the server; the server path in the document handler on the already admitted row, gated by a proven list keyed by the exact stored source and by a warm server DOM (jsdom 25.0.1, a new dependency); the page adopts the same nodes, keeps the reader's place, replaces on any mismatch, and loads the research tools on open or on approach.
+
+## What is proven (local)
+
+All local, on `e500acb82` (the code of the lab's B arm), on this machine:
+
+- **The server path.** `test/article-first-document-2029.test.mjs`, 3/3. It covers:
+  - a cold instance answers `warming` and serves today's document, then `served`;
+  - no article for a 404, a 503, a forum or hidden Post, a missing row, a query string, a `/post/` address, a Post that was not imported, a Post edited since the proof, or a Post that is not on the list;
+  - a renderer that throws still gives today's document with status 200, never a 503.
+- **The page.** `test/article-first-browser-2029.browser.mjs`, 5/5, in two separate runs. It covers:
+  - on phone and on desktop, the page adopts the same body nodes, and after scrolling into the body the paragraph being read stays within 2 px;
+  - the text is equal, and anchors and links are kept;
+  - a direct link to a named anchor stays on it after adoption;
+  - an output that differs is replaced once, with no duplicate;
+  - leaving before adoption (a frame link while the read is held) removes the document article, and going back shows exactly one article.
+- **The same article.** Chromium and jsdom were compared node-for-node on the full pipeline, including the semantic layer: 1,112 of 1,175 candidates are identical (`scripts/build-article-first-proofs.mjs`).
+- **The gates** on the same head:
+  - `test-legacy-retired`, `test-2029-control-plane` and the shell budget (enforced): the frame is unchanged.
+  - The release-contracts set of step 7: 52/52.
+  - `storage-lazy`: 7/7.
+  - The two #1370 browser tests: personal panel 4/4, first upload 4/4; together with the article-first browser test, 13/13 in one run at 10:21 UTC (`impl-lab/local-verification-e500acb82.txt`).
+- **The cold start** (IMPLEMENTATION.md): a cold instance never delays a document; a warm one adds about 15 ms.
+- **The lab**, n = 6 per Post per arm per device, every text difference p 0.002:
+  - text: about −3.5 s on the phone (to about 3.3 s) and −0.7 s on desktop;
+  - CLS: unchanged;
+  - the cover starts with the document;
+  - images and tools are reported separately in IMPLEMENTATION.md, including the two regressions below.
+- **Sizes.** The Post page graph went from 206.4 to 145.5 KB gzip JS (52 → 33 files) and from 32.0 to 25.5 KB CSS.
 
 ## What is not proven or still missing
 
-- A real server path: `public-document.js` receiving the admitted row from `api/og.js` and rendering the article; error handling (a jsdom failure must leave the document exactly as today).
-- The page hero rendered on the server with the same geometry (categories, details summary, background, matrix opening), so adoption moves nothing; in the experiment the page hero is 339–441 px taller on a phone and adoption compensates by scrolling.
-- `annotatePostSource` (#1358's semantic layer) in the server pipeline; the equivalence must be re-measured on the base where #1358 has landed.
-- The tools-on-request split of `Post2029Page` (bytes are mapped; runtime not measured).
-- The cover box for Posts with special characters (`data-post-character`, matrix opening), signed-in readers, the admin editor, Firefox and Safari, the field.
-- Browser acceptance and CI wiring for: no delete or duplicate, the reader kept in place, navigation, back, direct and anchor links, 200/404/503 and hidden content with the document article present.
+- **No CI run**: the branch has no PR. **No Vercel Preview, no Vercel cold start, and no function bundle size or memory measured with jsdom.**
+- **Regressions measured, not fixed:**
+  - On the phone, tools-ready is +0.44 to +1.94 s later, likely from link contention with the images that now start early. Not proven by a separate run.
+  - On the phone, all article images finish 0.1–1.2 s later.
+- **Not built:**
+  - The article's stylesheet rules for the first paint. The text waits for 62 KB gzip of render-blocking CSS; this is the main remaining lever.
+  - A metric-matched font fallback for long titles.
+  - Image priorities.
+- **Not measured:**
+  - The time from using a tool to that tool being ready.
+  - A screen reader.
+  - The effect on search engines.
+- **Not classified:** the causes behind the 63 unproven Posts. There is also no process for rebuilding the proof list.
+- **Decisions waiting for ZURIEL:**
+  - jsdom as a dependency;
+  - whether the phone's tools regression blocks a first release;
+  - the CSS direction;
+  - the font fallback (with the Visual Language owner);
+  - the order: #1358 and #1370 first.
 
-## What to review
+## What to review first
 
-1. The adoption rule (`Post2029Page` patch): is "identical parsed output" the right gate, and is the replacement path safe for the ~5 % of Posts that do not round-trip?
-2. The server DOM choice (jsdom vs none) and its failure mode.
-3. That the document article uses only the existing publication rules (the same admitted row as the metadata, the same suppression of drafts and forum Posts, 404/503 unchanged).
-4. The measurement method (`lab/`, `results.md`, `runs.csv`) and whether the sample of four old Posts is enough before a protected Preview.
+1. `public-reading-deploy/api/article-first.js` and the hook in `public-document.js`: eligibility (200, own original address, no query, proven source), failure isolation (it never throws; a cold instance serves today's document), and that nothing reaches a 404/503/hidden answer.
+2. `src/pages/Post2029Page.jsx`: the adoption memo and the two layout effects (adopt / replace), the clean-up on error and unmount, the tools on request.
+3. `scripts/build-article-first-proofs.mjs`: is node-for-node equality of the body the right gate (the header is not adopted; the page renders its own)?
+4. The CSS template in the generated document: the article waits for 62 KB gzip of the page's own stylesheets before its first paint; the main remaining lever (IMPLEMENTATION.md, lab section 1).
+6. The phone's later tools-ready (IMPLEMENTATION.md, lab section 3): is the contention explanation right, and what should the images' priority be?
+5. jsdom as a production dependency, and the 63 Posts that stay on the existing path.
