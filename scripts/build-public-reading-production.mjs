@@ -7,7 +7,7 @@ import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY
 import { SUPABASE_ANON } from "../src/lib/supabase.js";
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
-import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
+import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization, REALITY_MAP_PREVIEW_BRANCH } from "../public-reading-deploy/review-admission.js";
 import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029, BRAND_SITE_ICONS_2029 } from "../src/lib/brandAssets2029.js";
 import canonicalMiddleware, { config as canonicalMiddlewareConfig } from "../middleware.js";
 import publicMiddleware, { config as publicMiddlewareConfig } from "../public-reading-deploy/middleware.js";
@@ -80,7 +80,10 @@ const gaId = process.env.VITE_GA_ID || loadEnv("production", root, "VITE_GA_ID")
 const marketingKeys = ["VITE_META_PIXEL_ID", "VITE_ADSENSE_CLIENT", "VITE_ADSENSE_SLOT_POST", "VITE_ADSENSE_SLOT_LIST"];
 const marketingEnv = Object.fromEntries(marketingKeys.map(key => [key, process.env[key] || loadEnv("production", root, key)[key] || ""]));
 const previewFlags = ["VITE_PUBLIC_FRAME_PREVIEW", "VITE_PUBLIC_FOUNDATION_PREVIEW", "VITE_PUBLIC_LAUNCH_READ_ONLY_PREVIEW", "VITE_INTEGRATED_PREVIEW", "VITE_KINGDOM_PREVIEW", "VITE_BOOK_PUBLICATION_REVIEW_PREVIEW", "VITE_UNLOCKED_2029_PREVIEW", "VITE_FUNCTIONAL_UNIFIED_PREVIEW"];
+const realityMapPreview = previewReviewMode && reviewTarget === "preview" && Boolean(protectedReview)
+  && process.env.VERCEL_GIT_COMMIT_REF === REALITY_MAP_PREVIEW_BRANCH;
 await build({ root, define: {
+  "import.meta.env.VITE_REALITY_MAP_PREVIEW": JSON.stringify(realityMapPreview ? "true" : "false"),
   ...Object.fromEntries(previewFlags.map(key => ["import.meta.env." + key, JSON.stringify("false")])),
   "import.meta.env.VITE_PUBLIC_READING_RELEASE": JSON.stringify(PUBLIC_READING_PROFILE_ID),
   "import.meta.env.VITE_AUTH_VERIFIED_PREVIEW_ORIGINS": JSON.stringify(JSON.stringify(oauthOrigins)),

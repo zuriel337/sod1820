@@ -21,8 +21,10 @@ test("the same declared tree is shown from either post: Elections -> units + axi
 test("a child's addition marks every ancestor (axis and parent post) but not the unrelated branch", () => {
   const { root } = buildPostTree(5113, new Set(["bennett-israel-78"]));
   const axis = root.children.find((node) => node.kind === "axis");
-  assert.equal(root.changedAt, "2026-10-12T14:06:54.127Z");
+  // The axis follows Bennett's own addition (12.10). The root is marked by its newest proven unit: since 12.11.2026 that is
+  // the 10.11 "1234 / 1011" unit (snapshot-interval proof), which is newer than the child's 12.10 addition.
   assert.equal(axis.changedAt, "2026-10-12T14:06:54.127Z");
+  assert.equal(root.changedAt, "2026-11-10T15:39:37.816Z");
   const unit = find(root, (node) => node.id === "bennett-israel-78");
   assert.equal(unit.addedAt, "2026-10-12T14:06:54.127591Z");
 });

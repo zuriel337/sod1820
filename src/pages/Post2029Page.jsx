@@ -24,7 +24,18 @@ import { track } from "../lib/tracking.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from "../lib/research/postSourceUpdates2029.js";
+import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel, registeredUnitIds } from "../lib/research/postSourceUpdates2029.js";
+import { postVoiceFor } from "../lib/postVoice2029.js";
+import { annotatePostSource, resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
+import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
+import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
+import { usePostOutline2029 } from "../lib/research/postOutlineDom2029.js";
+import PostUnitEditors2029 from "../components/experience2029/PostUnitEditors2029.jsx";
+import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
+import PreviewUnitExtras2029 from "../components/experience2029/PreviewUnitExtras2029.jsx";
+import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
+import { setPostUnits, setActivePostUnit, clearPostUnits, unitContextStrings } from "../lib/research/postUnitStore2029.js";
+const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/experience2029/PostExternalSourcesPreview2029.jsx"));
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { postClassification2029, postHierarchyContext2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
@@ -71,7 +82,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const location = useLocation();
   const shell = use2029Shell();
   const research = useResearch();
-  const { user } = useAuth();
+  const latestResearchRef = useRef(research); latestResearchRef.current = research;   // the latest context for effects that must not write from a stale render
+  const { user, isAdmin } = useAuth();
+  // Prototype layers (semantic design, updates first, voice finish). ?proto=0 shows the page exactly as before; ?proto=sources adds sample source units.
+  const protoMode = new URLSearchParams(location.search).get("proto");
+  const protoOn = protoMode !== "0";
   const [sourceMediaOpen, setSourceMediaOpen] = useState(null);
   const [sourceMediaMissing, setSourceMediaMissing] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
@@ -92,8 +107,18 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   entryRef.current = { context: research.context, hash: location.hash };
   const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
-  const passiveSourceHtml = useMemo(() => hardenPassiveMediaHtml(postReadingHtml2029(state.projection?.post?.content || "")),
-    [state.projection?.post?.content]);
+  const postVoice = postVoiceFor(state.projection?.post).voice;
+  // The flagship series experience (ZURIEL 12.11.2026): exact series tag, or the preview-only acceptance exception for 5107 / 5112.
+  const realityMap = realityMapExperienceFor(state.projection?.post);
+  // Preview-only demonstration of the admin editor where no admin can sign in: it grants nothing (no write path exists; the choice stays in
+  // this browser, and Raziel keeps its own admin lock). Production builds never set the preview flag.
+  const editorEnabled = realityMap.active && (isAdmin === true || (realityMapPreviewEnabled() && protoMode === "admin"));
+  const [prefsTick, setPrefsTick] = useState(0);
+  useEffect(() => subscribeUnitChoices(() => setPrefsTick((n) => n + 1)), []);
+  const passiveSourceHtml = useMemo(() => {
+    const hardened = hardenPassiveMediaHtml(postReadingHtml2029(state.projection?.post?.content || ""));
+    return protoOn ? annotatePostSource(hardened, { postId: state.projection?.post?.id, voice: postVoice }) : hardened;
+  }, [state.projection?.post?.content, state.projection?.post?.id, postVoice, protoOn]);
   const [activeRegionId, setActiveRegionId] = useState(null);
   const [sourceUpdates, setSourceUpdates] = useState([]);
 
@@ -173,8 +198,23 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     [regions, activeRegionId],
   );
   const activeRegionFocus = activeFocus;
+  // ONE two-level outline of the Post (sections → units / sub-headings) read from the rendered Post; a hand-written reading-region list (the flight Post, the golden Post) still wins
+  const { outline: postOutline, activeId: activeOutlineId } = usePostOutline2029(sourceRef, `${state.projection?.post?.id || ""}|${passiveSourceHtml.length}`);
+  const useOutline = postOutline.length > 0 && regions.length <= 1;
+  // a Post with hand-written reading regions AND a stack of proven updates keeps its regions and gets "מה התחדש" (with its units) in front of them
+  const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
+  const mergedUpdates = !useOutline && regions.length > 1 && outlineUpdates.length > 1;
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
-  const sectionItems = useMemo(() => [
+  // Flagship "מפת המציאות" experience: exactly FOUR semantic entries that fit one line (message · context · connections · sources), each mapped to
+  // real content of this Post. Every other Post keeps the existing list unchanged.
+  const flagshipNav = protoOn && realityMap.active;
+  const [activeNavId, setActiveNavId] = useState(null);
+  const sectionItems = useMemo(() => flagshipNav ? [
+    { id: "nav-message", label: "מסר", targetId: "post-story", targetIds: [...previewUnitIdsFor(state.projection?.post?.id), "post-story"] },
+    { id: "nav-context", label: "הקשר", targetId: "post-research", targetIds: ["post-research", "post-measures", "post-story"] },
+    { id: "nav-connections", label: "חיבורים", targetId: state.projection?.experience?.connections?.some((item) => item.href) ? "post-connections" : "post-classification", targetIds: ["post-connections", "post-classification", "post-measures"] },
+    { id: "nav-sources", label: "מקורות", targetId: "post-sources", targetIds: ["post-sources"] },
+  ] : [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
     ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
     ...(state.projection?.experience?.connections?.some((item) => item.href)
@@ -182,7 +222,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     { id: "post-sources", label: "מקורות", targetId: "post-sources" },
     ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
     { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions, state.projection, commentArchiveId]);
+  ], [regions, state.projection, commentArchiveId, flagshipNav]);
 
   useEffect(() => {
     const root = sourceRef.current;
@@ -256,6 +296,92 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   useEffect(() => {
     setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
   }, [state.projection]);
+
+  // Series Posts publish their units (identity + references) for the left panel and, as plain strings, on the existing research context.
+  useEffect(() => {
+    const root = sourceRef.current, projection = state.projection;
+    if (!protoOn || !realityMap.active || !root || !projection) {
+      clearPostUnits();
+      // leaving a series Post must not leave its unit references in the shared Research Context (a stale selection from the previous Post)
+      const staleDims = research.context?.dimensions || {};
+      if (staleDims.postUnitSeries || staleDims.activeUnitRef) research.updateResearchContext?.({ dimensions: { postUnitSeries: "", postUnitRefs: [], postUnitLinkRefs: [], activeUnitRef: "", activeUnitLabel: "" } });
+      return undefined;
+    }
+    const post = projection.post;
+    const units = buildPostUnitModels(root, { post, postHref: publicPostHref(post) });
+    setPostUnits(post.id, units);
+    const strings = unitContextStrings(units);
+    const dims = research.context?.dimensions || {};
+    if (dims.postUnitSeries !== "reality-map" || JSON.stringify(dims.postUnitRefs) !== JSON.stringify(strings.postUnitRefs)
+      || JSON.stringify(dims.postUnitLinkRefs) !== JSON.stringify(strings.postUnitLinkRefs)) {
+      research.updateResearchContext?.({ dimensions: { postUnitSeries: "reality-map", ...strings } });   // a partial write: the context merges it, so the active unit and the tree are not overwritten
+    }
+    return undefined;
+  }, [state.projection, passiveSourceHtml, prefsTick, realityMap.active, protoOn]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => clearPostUnits(), []);
+  // The ACTIVE unit of the Post (one identity: post > unit > item). It is written into the shared Research Context (`activeUnitRef`, `activeUnitLabel`) so the top bar,
+  // the tree, the sheets and the projector read ONE selection.
+  //   · reading position: the unit holding the line at 38% of the viewport (the first one above it otherwise);
+  //   · a unit LINK (?unit=<id>) or a tree row the person pressed is an OPENING INTENT: it holds the active unit until the person scrolls by hand (wheel / touch / keys),
+  //     so the reading line never fights the jump and the jump never overwrites a deliberate choice; after the first manual scroll the reading position takes over again.
+  // The URL is the opening intent and the history entry, not a rule that the unit is always taken from it.
+  useEffect(() => {
+    const root = sourceRef.current;
+    if (!protoOn || !realityMap.active || !root) return undefined;
+    let frame = 0, last = null;
+    const unitById = (id) => (id ? [...root.querySelectorAll("[data-sod-unit]")].find((unit) => unit.getAttribute("data-sod-unit") === id) || null : null);
+    const wanted = new URLSearchParams(location.search).get("unit");
+    let held = wanted || null;      // the unit link is an intent even before its unit is in the page (Preview units are injected after the first render)
+    const labelOf = (unit) => (unit.querySelector("[data-sod-role='title'], h2, h3")?.textContent || unit.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim().slice(0, 80);
+    const publish = (unit) => {
+      const id = unit ? unit.getAttribute("data-sod-unit") : "";
+      if (id === last) return;
+      last = id;
+      if (id) setActivePostUnit(id);
+      latestResearchRef.current.updateResearchContext?.({ dimensions: { activeUnitRef: id, activeUnitLabel: unit ? labelOf(unit) : "" } });
+    };
+    const pick = () => {
+      frame = 0;
+      if (held) { const heldUnit = unitById(held); if (heldUnit) publish(heldUnit); return; }   // a held unit that is not in the page yet: wait for it, do not guess another
+      const line = window.innerHeight * 0.38;
+      let best = null;
+      for (const unit of root.querySelectorAll("[data-sod-unit]")) {
+        const box = unit.getBoundingClientRect();
+        if (box.top <= line && box.bottom >= line) { best = unit; break; }
+        if (box.top <= line) best = unit;
+      }
+      publish(best);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(pick); };
+    const release = () => { if (held) { held = null; schedule(); } };
+    const onKey = (event) => { if (["PageDown", "PageUp", "ArrowDown", "ArrowUp", "Home", "End", " "].includes(event.key)) release(); };
+    // a press on a tree row that points at a unit selects that unit
+    const onRowPress = (event) => {
+      const row = event.target?.closest?.("[data-context-map-item]");
+      if (!row) return;
+      const target = document.getElementById(row.getAttribute("data-context-map-item"));
+      const unit = target?.matches?.("[data-sod-unit]") ? target : target?.closest?.("[data-sod-unit]");
+      if (unit && root.contains(unit)) { held = unit.getAttribute("data-sod-unit"); schedule(); }
+      else if (held) { held = null; schedule(); }   // a row for another part of the Post: the person chose something else
+    };
+    // a unit that appears later (injected / hydrated) is picked up without a scroll
+    const watcher = typeof MutationObserver === "function" ? new MutationObserver((mutations) => {
+      if (mutations.some((m) => [...m.addedNodes].some((n) => n.nodeType === 1 && (n.matches?.("[data-sod-unit]") || n.querySelector?.("[data-sod-unit]"))))) schedule();
+    }) : null;
+    watcher?.observe(root, { childList: true, subtree: true });
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchmove", release, { passive: true });
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("click", onRowPress, true);
+    pick();
+    return () => {
+      window.removeEventListener("scroll", schedule); window.removeEventListener("wheel", release); window.removeEventListener("touchmove", release);
+      window.removeEventListener("keydown", onKey); document.removeEventListener("click", onRowPress, true);
+      watcher?.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [state.projection, passiveSourceHtml, realityMap.active, protoOn, location.search]);
 
   const jumpToSourceUpdate = (entry) => {
     const target = sourceRef.current?.querySelector(`[id="${entry.targetId}"]`);
@@ -417,8 +543,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     // An explicitly selected source image wins over the default story region.
     // Native author hashes still keep their existing exact-return precedence.
     const selectedSource = !location.hash && sourceRef.current.querySelector('[data-legacy-attachment-focus="true"]');
-    const requested = selectedSource ? null : resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
-    if(selectedSource)restoredRegionRef.current=null;
+    const unitLanding = location.state?.puWhole === true || (new URLSearchParams(location.search).has("unit") && Boolean(location.hash)); // a unit link or "continue to the whole post" names its own place
+    const requested = selectedSource || unitLanding ? null : resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
+    if(selectedSource||unitLanding)restoredRegionRef.current=null;
     const restored = mapped.find(({ region }) => region.id === requested);
     let frame = null;
     // Late source images/fonts can move an already-restored heading. Keep that
@@ -481,7 +608,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const post = state.projection.post;
     const currentContext = research.context || null;
     const currentSelection = currentContext?.selection || null;
-    const currentDimensions = currentContext?.dimensions || {};
+    // the active unit is written only by its own effect; this writer must not carry a stale copy of it back (the context merges dimensions, so leaving the keys out keeps the latest)
+    const { activeUnitRef: _unitRef, activeUnitLabel: _unitLabel, ...currentDimensions } = currentContext?.dimensions || {};
     const explicitFocus = explicitGematriaFocusRef.current;
     const samePost = currentContext?.subject?.type === "post"
       && String(currentContext.subject.id) === String(post.id);
@@ -515,7 +643,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const passiveSurfaceFocus = {
       id: activeFocus.id,
       type: activeFocus.number ? "number" : "post_region",
-      sectionLabel: activeFocus.number ? "גימטריות" : "הסיפור",
+      sectionLabel: activeFocus.number ? "גימטריות" : (useOutline ? (postOutline.find((item) => item.id === activeOutlineId) || postOutline[0]).label : "הסיפור"),
       label: activeFocus.primary || activeFocus.label,
       primary: activeFocus.primary,
       signals: activeFocus.signals || [],
@@ -540,12 +668,15 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         bottomTrail: preserveExplicitGematriaFocus && Array.isArray(protectedBottomTrail)
           ? protectedBottomTrail
           : passiveTrail,
-        surfaceSections: regions.map((region) => ({
-          id: region.id,
-          label: region.label,
-          targetId: `source-region-${region.id}`,
-        })),
-        activeSectionId: activeFocus.id,
+        surfaceSections: useOutline ? postOutline.map(({ id, label, targetId, level, parentId }) => ({ id, label, targetId, level, parentId })) : [
+          ...(mergedUpdates ? outlineUpdates.map(({ id, label, targetId, level, parentId }) => ({ id, label, targetId, level, parentId })) : []),
+          ...regions.map((region) => ({
+            id: region.id,
+            label: region.label,
+            targetId: `source-region-${region.id}`,
+          })),
+        ],
+        activeSectionId: useOutline ? (activeOutlineId || postOutline[0].id) : (mergedUpdates && outlineUpdates.some((item) => item.id === activeOutlineId) ? activeOutlineId : activeFocus.id),
         surfaceMapLabel: "בתוך הפוסט",
         surfaceFindings: state.projection.draft || state.projection.privateStage || state.projection.previewSnapshot ? [] : post.slug === "bennett-melach-631-78"
           ? (state.projection.experience?.connections || [])
@@ -585,7 +716,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         },
       },
     });
-  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack), location.pathname, location.search]);
+  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack), location.pathname, location.search, useOutline, mergedUpdates, postOutline, activeOutlineId]);
 
   useEffect(() => {
     if (research.context?.subject?.type === "post" && research.context?.selection?.entityType === "post_occurrence") {
@@ -646,6 +777,22 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       for (const name of events) window.removeEventListener(name, release);
     };
   }, [state.projection?.post?.id, location.pathname, location.search, location.hash]);
+
+  useEffect(() => {
+    // A unit link (?unit=<id>) lands on that exact unit even if the fragment was dropped by a messenger (every registered unit).
+    const wanted = new URLSearchParams(location.search).get("unit");
+    if (!wanted || location.hash || !state.projection || !sourceRef.current) return undefined;
+    // `?unit=<id>` names a REGISTERED unit of this Post (a proven live unit or the preview unit); any other id is ignored and the Post opens normally.
+    if (![...registeredUnitIds(state.projection.post?.id), ...previewUnitIdsFor(state.projection.post?.id)].includes(wanted)) return undefined;
+    const target = [...sourceRef.current.querySelectorAll("[id]")].find((node) => node.id === wanted);
+    if (!target) return undefined;
+    const frame = requestAnimationFrame(() => {
+      target.scrollIntoView({ block: "start", behavior: "instant" });
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [state.projection, location.search, location.hash]);
 
   useEffect(() => {
     // Native IDs and snapshot-bound presentation locators survive refresh/Back.
@@ -1059,13 +1206,16 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   };
 
   return <article
-    className={postReadingClassName(experience.wireframe ? "is-architecture-wireframe" : "")}
+    className={postReadingClassName([experience.wireframe ? "is-architecture-wireframe" : "", protoOn && realityMap.active ? "r29" : ""].filter(Boolean).join(" "))}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"
     data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
     data-post-slug={post.slug}
     data-post-character={character}
+    data-post-voice={protoOn ? postVoice : undefined}
+    data-reality-map={protoOn && realityMap.active ? realityMap.basis : undefined}
+    data-prefs-tick={prefsTick}
     data-post-background={background.key}
     style={{
       "--post-background-desktop": `url("${background.desktop}")`,
@@ -1094,7 +1244,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
             </summary>
             <div className="sod29-post-details-body">
               {classification.credit ? <p>{classification.credit.prefix}: {classification.credit.name}</p> : null}
-              <p className="sod29-reading-source-line">{projection.sourceLine}</p>
+              {projection.sourceLine && projection.sourceLine !== visibleSourceLabel && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
               {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
               <div className="sod29-reading-meta-line">
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
@@ -1104,7 +1254,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
                 title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"
               /> : null}
               {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
-              {classification.legacyMediaLabels.length ? <p>„וידאו” נשמר כסיווג ישן. סוג המדיה נקבע מהמדיה עצמה, ולא מהתווית.</p> : null}
 
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
@@ -1136,25 +1285,26 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
       <span className="sod29-update-strip-kicker">עודכן</span>
       <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
-        <strong>{sourceUpdates[0].label}</strong>
-        <small>{sourceUpdates[0].attribution} · <time dateTime={sourceUpdates[0].updatedAt}>{formatUpdateDate(sourceUpdates[0].updatedAt)}</time></small>
+        <strong data-update-caption={resolveUnitMessage(post.id, sourceUpdates[0].targetId) ? "main-message" : "label"}>{(realityMap.active && resolveUnitMessage(post.id, sourceUpdates[0].targetId)) || sourceUpdates[0].label}</strong>
+        <small>{sourceUpdates[0].attribution} · {addedDateLabel(sourceUpdates[0]) ? <time dateTime={sourceUpdates[0].updatedAt}>{addedDateLabel(sourceUpdates[0])}</time> : "תאריך ההוספה אינו מוכח"}</small>
       </button>
       {sourceUpdates.length > 1 ? <details className="sod29-update-strip-more">
         <summary>עוד {sourceUpdates.length - 1}</summary>
         <ul>
           {sourceUpdates.slice(1, 6).map((entry) => <li key={entry.id}>
             <button type="button" onClick={() => jumpToSourceUpdate(entry)}>
-              <span>{entry.label}</span><small><time dateTime={entry.updatedAt}>{formatUpdateDate(entry.updatedAt)}</time></small>
+              <span>{entry.label}</span><small>{addedDateLabel(entry) ? <time dateTime={entry.updatedAt}>{addedDateLabel(entry)}</time> : null}</small>
             </button>
           </li>)}
         </ul>
       </details> : null}
     </aside> : null}
+    {protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
     {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
       <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
     </figure> : null}
 
-    <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />
+    <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" activeId={flagshipNav ? activeNavId : null} onSelect={flagshipNav ? (item) => setActiveNavId(item.id) : null} />
 
     <PostEvidenceMedia2029 media={experience.media} />
     {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}
@@ -1196,6 +1346,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         }}
         dangerouslySetInnerHTML={{ __html: passiveSourceHtml }}
       />
+      {protoOn && realityMap.active ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} postHref={publicPostHref(post)} htmlKey={passiveSourceHtml.length} editable={editorEnabled} /> : null}
+      {protoOn && realityMap.active ? <PreviewUnitExtras2029 rootRef={sourceRef} post={post} htmlKey={passiveSourceHtml.length} /> : null}
+      {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
 
 
     </div>

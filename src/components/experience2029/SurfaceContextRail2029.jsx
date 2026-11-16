@@ -4,9 +4,11 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
-import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
+import SurfaceProgressSpine2029, { revealAndScrollTo } from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
-import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
+// The event sequence opens only inside the closed "רצף האירועים" section of the mobile sheet: it loads on that open, not with the frame on every page
+// (shell budget, ZURIEL 16.11.2026). It brings its own readers (source updates, lineage) with it.
+const EventSequencePanel2029 = lazy(() => import("./EventSequencePanel2029.jsx"));
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
@@ -145,8 +147,7 @@ export default function SurfaceContextRail2029({
   };
 
   const jumpToDepth = () => {
-    const node = activeSection ? document.getElementById(activeSection.targetId || activeSection.id) : null;
-    node?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    if (activeSection) revealAndScrollTo(activeSection.targetId || activeSection.id);
   };
 
   const tryLearn = () => {
@@ -189,14 +190,16 @@ export default function SurfaceContextRail2029({
     });
   };
 
-  const stations = sections.filter((item) => item?.id && item?.label);
-  const stationIndex = stations.findIndex((item) => item.id === activeSectionId);
+  // the prev / next stations walk the SECTIONS (level 1); an active child counts as its parent
+  const stations = sections.filter((item) => item?.id && item?.label && item.level !== 2);
+  const activeStationId = activeSection?.level === 2 ? activeSection.parentId : activeSectionId;
+  const stationIndex = stations.findIndex((item) => item.id === activeStationId);
   const useLocator = !sheet && stations.length > 1 && stationIndex >= 0;
   const goStation = (offset) => {
     const next = stations[stationIndex + offset];
     if (!next) return;
     const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    document.getElementById(next.targetId || next.id)?.scrollIntoView?.({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    revealAndScrollTo(next.targetId || next.id, { behavior: reduce ? "auto" : "smooth", block: "start" });
   };
   const openSheet = onOpenSheet || onOpenContext;
   const prevStation = stations[stationIndex - 1] || null;
@@ -260,7 +263,7 @@ export default function SurfaceContextRail2029({
           </button></li>)}</ul>
         </>}
       </div> : null}
-      {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></details> : null}
+      {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><Suspense fallback={null}><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></Suspense></details> : null}
       <ContextualVideoLayer2029 subject={subject} context={context} />
       {surface === "post" && !identityLoading && isAdmin ? <Suspense fallback={null}><GoldenProjectorModeLayer2029 context={context} surface={surface} /></Suspense> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}

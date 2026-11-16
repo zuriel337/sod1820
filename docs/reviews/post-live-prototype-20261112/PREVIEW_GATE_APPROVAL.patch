@@ -1,0 +1,68 @@
+diff --git a/public-reading-deploy/review-admission.js b/public-reading-deploy/review-admission.js
+index 3fc2044..84b1898 100644
+--- a/public-reading-deploy/review-admission.js
++++ b/public-reading-deploy/review-admission.js
+@@ -11,7 +11,10 @@ export const PRODUCTION_REVIEW_BRANCH = "main";
+ // Exact names only, Preview target only: a Production target never admits them, no pattern or prefix match, and each further branch
+ // needs its own recorded approval. The receipt still pins the exact source SHA, deployment id and host, and the runtime still
+ // requires every platform field to match, so a branch name alone never authorizes anything.
+-export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111"]);
++// Requested by ZURIEL on 12.11.2026: ONE protected Preview of the "מפת המציאות" prototype, exact branch below. Same rules as above: exact name,
++// Preview target only, no Production. Only on this branch's Preview does the build switch on VITE_REALITY_MAP_PREVIEW; elsewhere it is "false".
++export const REALITY_MAP_PREVIEW_BRANCH = "ccr-b8e8ab12-9hoamu";
++export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111", REALITY_MAP_PREVIEW_BRANCH]);
+ export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES]);
+ // Existing Git-branch alias in the same project, verified through Vercel.
+ // A stable callback avoids a different Auth allowlist entry for every commit.
+diff --git a/scripts/build-public-reading-production.mjs b/scripts/build-public-reading-production.mjs
+index 2d03ea8..735f14b 100644
+--- a/scripts/build-public-reading-production.mjs
++++ b/scripts/build-public-reading-production.mjs
+@@ -7,7 +7,7 @@ import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY
+ import { SUPABASE_ANON } from "../src/lib/supabase.js";
+ import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
+ import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
+-import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
++import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization, REALITY_MAP_PREVIEW_BRANCH } from "../public-reading-deploy/review-admission.js";
+ import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029, BRAND_SITE_ICONS_2029 } from "../src/lib/brandAssets2029.js";
+ import canonicalMiddleware, { config as canonicalMiddlewareConfig } from "../middleware.js";
+ import publicMiddleware, { config as publicMiddlewareConfig } from "../public-reading-deploy/middleware.js";
+@@ -80,7 +80,10 @@ const gaId = process.env.VITE_GA_ID || loadEnv("production", root, "VITE_GA_ID")
+ const marketingKeys = ["VITE_META_PIXEL_ID", "VITE_ADSENSE_CLIENT", "VITE_ADSENSE_SLOT_POST", "VITE_ADSENSE_SLOT_LIST"];
+ const marketingEnv = Object.fromEntries(marketingKeys.map(key => [key, process.env[key] || loadEnv("production", root, key)[key] || ""]));
+ const previewFlags = ["VITE_PUBLIC_FRAME_PREVIEW", "VITE_PUBLIC_FOUNDATION_PREVIEW", "VITE_PUBLIC_LAUNCH_READ_ONLY_PREVIEW", "VITE_INTEGRATED_PREVIEW", "VITE_KINGDOM_PREVIEW", "VITE_BOOK_PUBLICATION_REVIEW_PREVIEW", "VITE_UNLOCKED_2029_PREVIEW", "VITE_FUNCTIONAL_UNIFIED_PREVIEW"];
++const realityMapPreview = previewReviewMode && reviewTarget === "preview" && Boolean(protectedReview)
++  && process.env.VERCEL_GIT_COMMIT_REF === REALITY_MAP_PREVIEW_BRANCH;
+ await build({ root, define: {
++  "import.meta.env.VITE_REALITY_MAP_PREVIEW": JSON.stringify(realityMapPreview ? "true" : "false"),
+   ...Object.fromEntries(previewFlags.map(key => ["import.meta.env." + key, JSON.stringify("false")])),
+   "import.meta.env.VITE_PUBLIC_READING_RELEASE": JSON.stringify(PUBLIC_READING_PROFILE_ID),
+   "import.meta.env.VITE_AUTH_VERIFIED_PREVIEW_ORIGINS": JSON.stringify(JSON.stringify(oauthOrigins)),
+diff --git a/scripts/test-public-reading-main-release-contract.mjs b/scripts/test-public-reading-main-release-contract.mjs
+index 4f4d6af..ac0c229 100644
+--- a/scripts/test-public-reading-main-release-contract.mjs
++++ b/scripts/test-public-reading-main-release-contract.mjs
+@@ -31,7 +31,7 @@ export function assertMainReleaseContract() {
+   assertPublicationConfig(readPublicationConfig());
+   assert.equal(PRODUCTION_REVIEW_BRANCH,"main","retired cutover branches cannot create new production candidates");
+   assert.equal(REVIEW_BRANCH,"gpt/2029-main-live-state-reconcile-20261104","only the explicitly current integration branch is admitted for review");
+-  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111"],"review branches are an exact, recorded allowlist (ZURIEL 11.11.2026), never a pattern");
++  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111","ccr-b8e8ab12-9hoamu"],"review branches are an exact, recorded allowlist (ZURIEL 11.11.2026), never a pattern");
+   assert.deepEqual(PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,{state:"dormant",approvedSourceSha:null,approvedDeploymentId:null,approvedAt:null});
+   assert.equal(publicMiddleware,canonicalMiddleware);assert.deepEqual(publicConfig,canonicalConfig);
+   return true;
+diff --git a/test/public-reading-protected-review.test.mjs b/test/public-reading-protected-review.test.mjs
+index aef7145..f8b3239 100644
+--- a/test/public-reading-protected-review.test.mjs
++++ b/test/public-reading-protected-review.test.mjs
+@@ -289,8 +289,8 @@ test('stable Auth alias needs the exact generated Preview platform proof; canoni
+ 
+ test("an additional review branch is an exact, Preview-only allowlist entry; nothing else is admitted", () => {
+   const extra = ADDITIONAL_REVIEW_BRANCHES[0];
+-  assert.deepEqual([...ADDITIONAL_REVIEW_BRANCHES], ["claude/number-typography-v2-20261111"]);
+-  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, extra]);
++  assert.deepEqual([...ADDITIONAL_REVIEW_BRANCHES], ["claude/number-typography-v2-20261111", "ccr-b8e8ab12-9hoamu"]);
++  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, extra, "ccr-b8e8ab12-9hoamu"]);
+   assert.ok(Object.isFrozen(REVIEW_BRANCHES) && Object.isFrozen(ADDITIONAL_REVIEW_BRANCHES));
+   const env = { ...fixtureEnv, VERCEL_GIT_COMMIT_REF: extra };
+   const identity = protectedReviewBuildIdentity({ env, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });

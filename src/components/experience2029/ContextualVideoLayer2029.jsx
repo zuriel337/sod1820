@@ -3,6 +3,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import {
   contextualVideosFromResearchRows,
   describeVideoMatch,
+  sameMediaAsset,
   videoUrlForAnchor,
 } from "../../lib/research/videoSemanticMap.js";
 
@@ -52,10 +53,40 @@ function queryNodeFrom({ subject, context }) {
   };
 }
 
+// The same asset may already be playing inline in the Post body. Then the rail does NOT start a second player (no double playback, no second copy of the source):
+// it connects to the inline player and jumps it to the mapped moment without playing it. Otherwise it shows its own player as before.
+function inlinePlayerFor(src) {
+  if (typeof document === "undefined") return null;
+  const base = typeof location !== "undefined" ? location.href : undefined;
+  for (const video of document.querySelectorAll(".sod29-reading-source video, [data-sod-unit] video")) {
+    if (video.closest(".sod29-surface-context-rail, .sod29-context-videos")) continue;
+    const candidates = [video.getAttribute("src"), video.currentSrc, ...[...video.querySelectorAll("source")].map((node) => node.getAttribute("src"))];
+    if (candidates.some((value) => value && sameMediaAsset(value, src, base))) return video;
+  }
+  return null;
+}
+
 function ContextVideo({ item }) {
   const src = videoUrlForAnchor(item);
+  const [inline, setInline] = useState(null);
+  useEffect(() => { setInline(src ? inlinePlayerFor(src) : null); }, [src]);
   if (!src) return null;
   const match = describeVideoMatch(item);
+  const start = Number(item.anchor?.startSec);
+  if (inline) {
+    const jump = () => {
+      inline.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      if (Number.isFinite(start)) { try { inline.currentTime = start; } catch { /* metadata not loaded yet: the player stays where it is */ } }
+    };
+    return <article className="sod29-context-video is-inline-link" data-video-public-id={item.videoPublicId || undefined} data-video-inline="true">
+      <div className="sod29-context-video-head">
+        <b>וידאו בהקשר</b>
+        <span>{match}</span>
+      </div>
+      <button type="button" onClick={jump}>הסרטון מופיע בגוף הפוסט · {Number.isFinite(start) ? "קפיצה אל הרגע הממופה" : "מעבר אל הסרטון"}</button>
+      <small>{item.anchor?.note || "מפת מקור פנימית — עצם המיפוי אינו אימות של דברי הסרטון."}</small>
+    </article>;
+  }
   return <article className="sod29-context-video" data-video-public-id={item.videoPublicId || undefined}>
     <div className="sod29-context-video-head">
       <b>וידאו בהקשר</b>

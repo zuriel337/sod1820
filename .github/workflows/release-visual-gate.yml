@@ -508,7 +508,11 @@ jobs:
               expect(after.x).toBe(before.x);
               const dock = await page.locator('.sod29-command-island').boundingBox();
               expect(after.y).toBeGreaterThanOrEqual(76);
-              expect(after.y + after.height).toBeLessThanOrEqual(dock.y);
+              // ZURIEL 17.11.2026: both side capsules run to 10px above the bottom edge, beside the centred Command Island (it used to be "ends above the dock").
+              // The contract that remains is that the rail never overlaps the dock.
+              const separated = after.x + after.width <= dock.x || dock.x + dock.width <= after.x || after.y + after.height <= dock.y || dock.y + dock.height <= after.y;
+              expect(separated, `the context rail ${JSON.stringify(after)} must not overlap the dock ${JSON.stringify(dock)}`).toBe(true);
+              expect(after.y + after.height).toBeLessThanOrEqual(page.viewportSize().height);
             }
 
             const focusSource = post.locator('.sod29-reading-source');

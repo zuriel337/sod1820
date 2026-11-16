@@ -11,7 +11,10 @@ export const PRODUCTION_REVIEW_BRANCH = "main";
 // Exact names only, Preview target only: a Production target never admits them, no pattern or prefix match, and each further branch
 // needs its own recorded approval. The receipt still pins the exact source SHA, deployment id and host, and the runtime still
 // requires every platform field to match, so a branch name alone never authorizes anything.
-export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111"]);
+// Requested by ZURIEL on 12.11.2026: ONE protected Preview of the "מפת המציאות" prototype, exact branch below. Same rules as above: exact name,
+// Preview target only, no Production. Only on this branch's Preview does the build switch on VITE_REALITY_MAP_PREVIEW; elsewhere it is "false".
+export const REALITY_MAP_PREVIEW_BRANCH = "ccr-b8e8ab12-9hoamu";
+export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111", REALITY_MAP_PREVIEW_BRANCH]);
 export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.

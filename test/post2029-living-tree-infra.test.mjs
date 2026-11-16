@@ -107,14 +107,17 @@ test("Research Path and commands share one physical System Frame bottom surface"
   const css = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
 
   assert.match(page, /bottomTrail: \[/);
-  assert.match(page, /surfaceSections: regions\.map/);
+  assert.match(page, /surfaceSections: useOutline \? postOutline\.map/);
+  // the hand-written regions (flight, golden) still feed the tree when no derived outline applies
+  assert.match(page, /\.\.\.regions\.map\(\(region\) => \(\{\s*id: region\.id,\s*label: region\.label,\s*targetId: `source-region-\$\{region\.id\}`/);
   assert.match(page, /surfaceMapLabel: "בתוך הפוסט"/);
   assert.match(page, /preserveExplicitGematriaFocus/);
   assert.match(page, /explicitGematriaFocusRef/);
   assert.match(page, /subject: preserveExplicitGematriaFocus && protectedSubject \? protectedSubject/);
   assert.match(page, /selection: preserveExplicitGematriaFocus \? protectedSelection : passiveSelection/);
   assert.match(page, /lens: preserveExplicitGematriaFocus \? "gematria" : "reading"/);
-  assert.match(page, /activeSectionId: activeFocus\.id/);
+  assert.match(page, /activeSectionId: useOutline \?/);
+  assert.match(page, /: activeFocus\.id\)/);
   assert.match(page, /surfaceFocus:/);
   // Context history now lives in the existing "כאן" sheet; the global dock
   // remains one physical toolbar, rather than a second inline trail.
