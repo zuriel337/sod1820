@@ -90,12 +90,19 @@ async function readBack(t:Ticket, expected:{ size:number|null; sha256:string|nul
   } };
 }
 
+// A public file written once to its own path (a new Post's media and derivatives) may be kept by browsers and the CDN for an hour, the
+// same as the site's own public uploads (media-upload-intent: cacheControl 3600); without it Storage stores "no-cache" and every reader
+// asks again. A path that may be overwritten, or a private one, keeps Storage's default so a replaced file shows at once (ZURIEL 16.11.2026).
+export function uploadCacheControl(t:Pick<Ticket,"allow_overwrite"|"public_url">):Record<string,string> {
+  return !t.allow_overwrite && t.public_url ? { "cache-control":"max-age=3600" } : {};
+}
+
 // Storage write, then governed read-back. Success (verified:true + receipt + artifact_pointer) is
 // only returned when the read-back matches; a mismatch is a 502 with no receipt.
 async function putBytes(t:Ticket, body:BodyInit, meta?:{ sha256?:string; size?:number|(() => number) }) {
   const r = await fetch(`${SB_URL}/storage/v1/object/${t.bucket}/${t.path}`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${SR}`, apikey:SR, "Content-Type":t.mime, "x-upsert":t.allow_overwrite?"true":"false" },
+    headers:{ Authorization:`Bearer ${SR}`, apikey:SR, "Content-Type":t.mime, "x-upsert":t.allow_overwrite?"true":"false", ...uploadCacheControl(t) },
     body,
     // @ts-ignore
     duplex:"half",

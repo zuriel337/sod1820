@@ -47,6 +47,8 @@ jobs:
         run: node --experimental-strip-types supabase/functions/agent-upload/url-video-mode.test.mts
       - name: Agent TikTok link-only upload acceptance
         run: node --experimental-strip-types supabase/functions/agent-upload/tiktok-mode.test.mts
+      - name: Agent upload cache (a public file written once keeps an hour of cache; overwritable or private keeps the default)
+        run: node --experimental-strip-types supabase/functions/agent-upload/cache-control.test.mts
       - name: Post publishing 2029 chain (preflight, shared STT, service-only writer ACL)
         run: node test/post-publishing-2029-chain.test.mjs
       - name: Video semantic tree + contextual projector acceptance
