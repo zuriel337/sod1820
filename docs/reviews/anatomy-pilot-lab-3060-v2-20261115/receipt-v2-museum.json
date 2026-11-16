@@ -2,9 +2,9 @@
   "directions": {
     "museum": {
       "desktop": {
-        "canvasMs": 8540,
+        "canvasMs": 6874,
         "drawCalls": 128,
-        "geometries": 60,
+        "geometries": 55,
         "textures": 14,
         "shadows": "true",
         "look": "royal",
@@ -13,19 +13,16 @@
         "canvasPickedParts": [
           "cube",
           "relation",
-          "outer",
-          "triangles",
-          "inner"
+          "inner",
+          "outer"
         ],
+        "keyboard": {
+          "explodeToggledByEnter": true,
+          "focusKept": true
+        },
         "typography": {
           "hebrewInNumericFace": [],
-          "under15px": [
-            "◆:10px",
-            "עוד כלים:12px",
-            "מקור ופירוט:12px",
-            "מספר הצלעות (5) הו:13px",
-            "שאלות לדוגמה:12px"
-          ]
+          "under15px": []
         }
       }
     }

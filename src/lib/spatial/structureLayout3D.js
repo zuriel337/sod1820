@@ -95,3 +95,10 @@ export function focusPose(part, aspect, explode = 0, { padding = 1.25 } = {}) {
   const d = fitCameraDistance(ext, c.fovDeg, aspect, padding);
   return { target: center, position: { x: center.x, y: center.y + d * 0.42, z: center.z + d * 0.92 } };
 }
+
+// How a word on a face is drawn: "pending" while its 3D letters are still loading, "glyph" when every letter has its 3D geometry, "text" when any letter
+// could not be loaded (or the person/diagnostics asked for text) — the word is then a readable flat text plane, never an empty face.
+export function glyphWordMode(letterKeys = [], available = new Map(), status = "loading") {
+  if (status === "loading") return "pending";
+  return letterKeys.every((k) => available.has(k)) ? "glyph" : "text";
+}

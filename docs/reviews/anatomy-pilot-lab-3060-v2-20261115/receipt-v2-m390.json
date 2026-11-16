@@ -4,53 +4,103 @@
       "mobile390": {
         "width": 390,
         "drawCalls": 109,
-        "geometries": 55,
+        "geometries": 60,
         "textures": 12,
         "shadows": "false",
         "look": "royal",
         "quality": "lite",
         "glyph": "ready",
         "canvas": {
-          "w": 267,
+          "w": 299,
           "h": 499
         },
-        "heapMB": 20,
+        "heapMB": 25,
         "doc": {
           "docWidth": 375,
           "innerWidth": 390
         },
+        "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 3217,
-        "droppedOver100ms": 9
+        "frameGapP95Ms": 733,
+        "droppedOver100ms": 5
       }
     },
     "discovery": {
       "mobile390": {
         "width": 390,
         "drawCalls": 109,
-        "geometries": 55,
+        "geometries": 65,
         "textures": 12,
         "shadows": "false",
         "look": "royal",
         "quality": "lite",
         "glyph": "ready",
         "canvas": {
-          "w": 267,
+          "w": 299,
           "h": 476
         },
-        "heapMB": 21,
+        "heapMB": 25,
         "doc": {
           "docWidth": 375,
           "innerWidth": 390
         },
+        "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 200,
-        "droppedOver100ms": 10
+        "frameGapP95Ms": 450,
+        "droppedOver100ms": 8
+      }
+    },
+    "lab": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 109,
+        "geometries": 65,
+        "textures": 12,
+        "shadows": "false",
+        "look": "royal",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 25,
+        "doc": {
+          "docWidth": 375,
+          "innerWidth": 390
+        },
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 400,
+        "droppedOver100ms": 6
+      }
+    },
+    "v1": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 105,
+        "geometries": 61,
+        "textures": 12,
+        "shadows": "false",
+        "look": "v1",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 23,
+        "doc": {
+          "docWidth": 375,
+          "innerWidth": 390
+        },
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 367,
+        "droppedOver100ms": 8
       }
     }
   },
   "cases": [],
-  "errors": [
-    "locator.waitFor: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-convergence-card=\"yesharim-cube-3060\"] .is-convergence').locator('[data-renderer=\"r3f\"][data-scene=\"structure\"]').locator('canvas') to be visible\u001b[22m\n\n    at /home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:182:54"
-  ]
+  "errors": []
 }

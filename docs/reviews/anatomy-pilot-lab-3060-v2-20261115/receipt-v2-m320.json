@@ -11,17 +11,18 @@
         "quality": "lite",
         "glyph": "ready",
         "canvas": {
-          "w": 197,
+          "w": 229,
           "h": 430
         },
-        "heapMB": 21,
+        "heapMB": 28,
         "doc": {
           "docWidth": 305,
           "innerWidth": 320
         },
+        "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 483,
-        "droppedOver100ms": 4
+        "frameGapP95Ms": 317,
+        "droppedOver100ms": 10
       }
     },
     "discovery": {
@@ -35,22 +36,71 @@
         "quality": "lite",
         "glyph": "ready",
         "canvas": {
-          "w": 197,
+          "w": 229,
           "h": 400
         },
-        "heapMB": 22,
+        "heapMB": 25,
         "doc": {
           "docWidth": 305,
           "innerWidth": 320
         },
+        "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 650,
-        "droppedOver100ms": 10
+        "frameGapP95Ms": 250,
+        "droppedOver100ms": 11
+      }
+    },
+    "lab": {
+      "mobile320": {
+        "width": 320,
+        "drawCalls": 109,
+        "geometries": 60,
+        "textures": 12,
+        "shadows": "false",
+        "look": "royal",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 229,
+          "h": 400
+        },
+        "heapMB": 26,
+        "doc": {
+          "docWidth": 305,
+          "innerWidth": 320
+        },
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 317,
+        "droppedOver100ms": 9
+      }
+    },
+    "v1": {
+      "mobile320": {
+        "width": 320,
+        "drawCalls": 105,
+        "geometries": 51,
+        "textures": 12,
+        "shadows": "false",
+        "look": "v1",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 229,
+          "h": 400
+        },
+        "heapMB": 26,
+        "doc": {
+          "docWidth": 305,
+          "innerWidth": 320
+        },
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 183,
+        "droppedOver100ms": 7
       }
     }
   },
   "cases": [],
-  "errors": [
-    "locator.scrollIntoViewIfNeeded: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\n    at shot (/home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:59:15)\n    at /home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:192:11"
-  ]
+  "errors": []
 }

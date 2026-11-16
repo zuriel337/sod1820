@@ -98,6 +98,8 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   // The initial direction may be chosen with ?lab=museum|discovery|lab|v1 (or a/b/c) so the directions can be compared by link; it is a display choice only.
   const [directionId, setDirectionId] = useState(() => resolveRoyalLabDirection(typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("lab")).id);
   const direction = ROYAL_LAB_DIRECTIONS[directionId];
+  // ?glyphs=text previews the readable text fallback used when a 3D letter cannot load (diagnostics; display only)
+  const glyphs3D = useMemo(() => (typeof window === "undefined" ? true : new URLSearchParams(window.location.search).get("glyphs") !== "text"), []);
   const quality = useMemo(() => pickLabQuality({ width: typeof window === "undefined" ? 1024 : window.innerWidth, cores: typeof navigator === "undefined" ? 8 : navigator.hardwareConcurrency, saveData: typeof navigator !== "undefined" && Boolean(navigator.connection?.saveData) }), []);
   // the museum's gentle camera drift needs continuous frames: only on the rich tier (never on phones / data-saver), and the person can switch it off
   const freshLab = (dir, resetToken = 0) => ({ view: "overview", explode: false, spin: Boolean(dir.look.drift) && quality === "rich", layers: {}, resetToken });
@@ -174,7 +176,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
           {sceneView === "structure" && spec
             ? <StructureScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={discover < 0 && dir.progressive ? -1 : index} onSelect={pick}
-                view={lab.view} explode={lab.explode} spin={lab.spin} layers={lab.layers} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} />
+                view={lab.view} explode={lab.explode} spin={lab.spin} layers={lab.layers} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} glyphs3D={glyphs3D} />
             : <ConvergenceScene3D value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo} onFallback={fallbackToS2} />}
         </Suspense>
       </S4ErrorBoundary>

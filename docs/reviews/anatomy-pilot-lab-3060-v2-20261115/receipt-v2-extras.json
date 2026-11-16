@@ -1,0 +1,31 @@
+{
+  "directions": {
+    "museum": {
+      "gpuRelease": {
+        "cycles": 5,
+        "liveContexts": 0,
+        "heapBeforeMB": 13,
+        "heapAfterMB": 13
+      },
+      "driftSoftwareGL": {
+        "dsf": 1,
+        "frames": 24,
+        "medianGapMs": 133,
+        "p95GapMs": 583,
+        "note": "continuous rendering while drifting (software GL, no GPU)"
+      }
+    },
+    "discovery": {
+      "gpuRelease": {
+        "cycles": 5,
+        "liveContexts": 0,
+        "heapBeforeMB": 13,
+        "heapAfterMB": 13
+      }
+    }
+  },
+  "cases": [],
+  "errors": [
+    "locator.waitFor: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-convergence-card=\"yesharim-cube-3060\"] .is-convergence').locator('[data-renderer=\"r3f\"][data-scene=\"structure\"]').locator('canvas') to be visible\u001b[22m\n\n    at /home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:238:112"
+  ]
+}

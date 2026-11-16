@@ -15,7 +15,7 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import { buildGlyphAssetRef, resolveGlyphAssetRef } from "../../lib/spatial/hebrewGlyphAssets.js";
 import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { layoutPhraseLetters } from "../../lib/spatial/convergenceLayout3D.js";
-import { STRUCTURE_3D, connectorPoints, focusPose, overviewPose, partCenter, partsPresent, ringPetals, trianglePositions } from "../../lib/spatial/structureLayout3D.js";
+import { STRUCTURE_3D, connectorPoints, focusPose, glyphWordMode, overviewPose, partCenter, partsPresent, ringPetals, trianglePositions } from "../../lib/spatial/structureLayout3D.js";
 import { ROYAL_LAB_DIRECTIONS } from "../../lib/spatial/royalLabDirections.js";
 import { Controls, FALLBACK_COLORS, RoyalEnvironment, buildGlyphGeometry, noRaycast, resolveTokenColors, useBadgeTexture, useRoyalMaterials, useTextTexture } from "./MistaterScene3D2029.jsx";
 import { Apex, PathConnector } from "./ConvergenceScene3D2029.jsx";
@@ -27,10 +27,11 @@ const off = (path) => path.status !== "verified";
 // ---- glyph geometries shared by every instance of the same letter at the same size; disposed once, on unmount ----
 // status: "loading" until every requested letter settled; "ready" when all resolved; "failed" when any asset is missing/failed (the readable text
 // fallback below is then used for that word — a letter that cannot be drawn as 3D never becomes an invisible face).
-function useGlyphMap(requests) {
+function useGlyphMap(requests, enabled = true) {
   const signature = requests.map((r) => key(r.char, r.size)).sort().join("~");
   const [state, setState] = useState(() => ({ map: new Map(), status: "loading" }));
   useEffect(() => {
+    if (!enabled) { setState({ map: new Map(), status: "failed" }); return undefined; } // diagnostics / preview of the text fallback
     let live = true;
     const made = [];
     const unique = new Map(requests.map((r) => [key(r.char, r.size), r]));
@@ -50,7 +51,7 @@ function useGlyphMap(requests) {
     });
     return () => { live = false; made.forEach((g) => g.dispose()); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signature]);
+  }, [signature, enabled]);
   return state;
 }
 
@@ -95,8 +96,8 @@ function TextWord({ word, width, height, color, z, y, opacity = 1 }) {
 // letters of one word on a face, reading right-to-left; `size` is per letter. Falls back to a text plane when a letter's 3D glyph is unavailable.
 function GlyphWord({ word, width, height, glyphs, material, z = 0, y = 0, textColor, dim = false }) {
   const { letters, size } = useMemo(() => layoutPhraseLetters(word, { maxAdvance: width, maxHeight: height }), [word, width, height]);
-  const missing = glyphs.status !== "loading" && letters.some((letter) => !glyphs.map.get(key(letter.char, size)));
-  if (missing) return <TextWord word={word} width={width} height={Math.min(height, width / Math.max(2, letters.length * 0.62))} color={textColor} z={z - GLYPH_DEPTH / 2} y={y} opacity={dim ? 0.55 : 1} />;
+  const mode = glyphWordMode(letters.map((letter) => key(letter.char, size)), glyphs.map, glyphs.status);
+  if (mode === "text") return <TextWord word={word} width={width} height={Math.min(height, width / Math.max(2, letters.length * 0.62))} color={textColor} z={z - GLYPH_DEPTH / 2} y={y} opacity={dim ? 0.55 : 1} />;
   return <group position={[0, y, z]}>
     {letters.map((letter, i) => {
       const geometry = glyphs.map.get(key(letter.char, size));
@@ -335,7 +336,7 @@ function useInView(ref) {
 
 export default function StructureScene3D2029({
   spec, paths, value, verifiedCount, total, focusIndex = 0, onSelect, view = "overview", explode = false, spin = false,
-  layers = {}, resetToken = 0, reducedMotion = false, onFallback, look = ROYAL_LAB_DIRECTIONS.v1.look, quality = "rich",
+  layers = {}, resetToken = 0, reducedMotion = false, onFallback, look = ROYAL_LAB_DIRECTIONS.v1.look, quality = "rich", glyphs3D = true,
 }) {
   const hostRef = useRef(null);
   const controlsRef = useRef(null);
@@ -363,7 +364,7 @@ export default function StructureScene3D2029({
   const byPart = useMemo(() => new Map(paths.map((p, i) => [p.part, { path: p, index: i }])), [paths]);
   const present = useMemo(() => partsPresent(spec, byPart.has("relation")), [spec, byPart]);
   const requests = useMemo(() => wordRequests(spec, byPart.get("relation")?.path), [spec, byPart]);
-  const glyphs = useGlyphMap(requests);
+  const glyphs = useGlyphMap(requests, glyphs3D);
   const royal = look.style === "royal";
   const rig = useMemo(() => ({ royal, bezel: Boolean(look.bezel), shadows: Boolean(look.shadows) && quality === "rich" }), [royal, look.bezel, look.shadows, quality]);
   const mats = useRoyalMaterials(colors, royal ? "royal" : "v1", quality);

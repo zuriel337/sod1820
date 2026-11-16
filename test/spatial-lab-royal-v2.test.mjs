@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { SPATIAL_MODELS } from "../src/lib/spatialModels.js";
 import { buildZviSpatialWorldProjection } from "../src/lib/research/zviSpatialWorldProjection.js";
 import { bindPathsToStructure, compoundStructureSpec, deriveConvergencePaths, describePathSource, evaluateConvergencePaths, sidesOf } from "../src/lib/spatialRenderModel.js";
-import { STRUCTURE_3D, overviewPose, partCenter, structureExtent } from "../src/lib/spatial/structureLayout3D.js";
+import { STRUCTURE_3D, glyphWordMode, overviewPose, partCenter, structureExtent } from "../src/lib/spatial/structureLayout3D.js";
 import { DEFAULT_ROYAL_LAB_DIRECTION, LAB_PRIMARY_ACTIONS, ROYAL_LAB_DIRECTIONS, ROYAL_LAB_DIRECTION_ORDER, pickLabQuality, resolveRoyalLabDirection } from "../src/lib/spatial/royalLabDirections.js";
 import { buildLabRows, buildRevealSteps } from "../src/lib/spatial/labRows.js";
 
@@ -135,7 +135,7 @@ test("one engine: the directions are DOM chrome + look flags; no second scene, c
 test("durability: a glyph that cannot load as 3D falls back to a readable text plane; the lab never shows an empty face", () => {
   const scene = read("../src/components/gematria2029/StructureScene3D2029.jsx");
   assert.match(scene, /status: ok\.length === unique\.size \? "ready" : "failed"/);
-  assert.match(scene, /glyphs\.status !== "loading" && letters\.some\(\(letter\) => !glyphs\.map\.get\(key\(letter\.char, size\)\)\)/);
+  assert.match(scene, /const mode = glyphWordMode\(letters\.map\(\(letter\) => key\(letter\.char, size\)\), glyphs\.map, glyphs\.status\);\n\s*if \(mode === "text"\) return/);
   assert.match(scene, /data-glyph-fallback="true"/);
   assert.match(scene, /data-glyph-status=\{glyphs\.status\}/);
 });
@@ -151,4 +151,16 @@ test("typography (Design V2): Hebrew keeps the UI face; the numeric face is scop
   assert.doesNotMatch(v2, /#[0-9a-fA-F]{3,8}\b|rgba?\(/, "no color literals in the Royal V2 styles");
   const dom = read("../src/components/gematria2029/SpatialLabDirections2029.jsx");
   assert.doesNotMatch(dom, /font-?family|style=\{\{/, "the DOM chrome carries no inline typography");
+});
+
+test("glyph fallback decision: pending while loading, glyph when every letter loaded, text when any is missing (never an empty face)", () => {
+  const have = new Map([["a", 1], ["b", 2]]);
+  assert.equal(glyphWordMode(["a", "b"], have, "loading"), "pending");
+  assert.equal(glyphWordMode(["a", "b"], have, "ready"), "glyph");
+  assert.equal(glyphWordMode(["a", "c"], have, "ready"), "text");
+  assert.equal(glyphWordMode(["a", "b"], new Map(), "failed"), "text");
+  assert.equal(glyphWordMode([], new Map(), "ready"), "glyph", "a word with no letters has nothing to replace");
+  const scene = read("../src/components/gematria2029/StructureScene3D2029.jsx");
+  assert.match(scene, /glyphWordMode\(letters\.map/); assert.match(scene, /glyphs3D = true/);
+  assert.match(read("../src/components/gematria2029/SpatialConvergenceStage2029.jsx"), /get\("glyphs"\) !== "text"/);
 });

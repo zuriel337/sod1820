@@ -617,3 +617,5 @@
   .sod29-spatial-lab-hall{margin-inline:-10px;padding:10px 8px}
   .sod29-spatial-lab-hall .sod29-spatial-method-stage__s4{margin-inline:-2px}
 }
+.sod29-root.surface-world .sod29-world-spatial-body .is-convergence .sod29-spatial-lab-hall .sod29-spatial-convergence__ledger p{font-size:var(--s29-type-small,15px);line-height:1.5}
+.sod29-spatial-lab-hall .sod29-spatial-convergence__ledger :is(.sod29-spatial-method-stage__focus,.sod29-spatial-method-stage__boundary) :is(strong,span,p){font-size:var(--s29-type-small,15px)}
