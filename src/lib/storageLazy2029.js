@@ -13,8 +13,25 @@ export const LAZY_STORAGE_2029_CONTRACT = Object.freeze({
   bucketMethods: Object.freeze(["upload", "getPublicUrl"]),
 });
 
+const importRealStorage = () => import("@supabase/storage-js/dist/index.mjs");
+let importStorage = importRealStorage;
 let storageModule = null;
-const loadStorageModule = () => (storageModule ??= import("@supabase/storage-js/dist/index.mjs"));
+// A failed load is not kept: the next upload asks again (Chromium itself keeps a failed module address until the page reloads, which the
+// application's existing chunk recovery does once per build; other engines may fetch again).
+const loadStorageModule = () => (storageModule ??= importStorage().catch((error) => { storageModule = null; throw error; }));
+// Node tests only: replace the module load (to simulate a failed chunk) and forget what was loaded. Nothing in the application calls it.
+export function _setStorageImportForTests(loader = null) { importStorage = loader || importRealStorage; storageModule = null; }
+
+// What the real client returns for a request that never got an answer (StorageUnknownError): `{ data: null, error }`, never a rejection, so every
+// caller keeps its own failure path. The message is for the person; the original failure stays on `originalError`.
+export class StorageUnknownError extends Error {
+  constructor(message, originalError) {
+    super(message);
+    this.name = "StorageUnknownError";
+    this.originalError = originalError;
+  }
+}
+const LOAD_FAILED_MESSAGE = "רכיב ההעלאה לא נטען. רעננו את הדף ונסו שוב.";
 
 // supabase-js re-exports this name; nothing in the application imports it. Real Storage failures come from the real client after it loads.
 export class StorageApiError extends Error {
@@ -60,7 +77,9 @@ export class StorageClient {
         return { data: { publicUrl: encodeURI(`${client.url}/object/public/${finalPath}`) } };
       },
       async upload(...args) {
-        const real = await client.materialize();
+        let real;
+        try { real = await client.materialize(); }
+        catch (error) { return { data: null, error: new StorageUnknownError(LOAD_FAILED_MESSAGE, error) }; }
         return real.from(bucketId).upload(...args);
       },
     };

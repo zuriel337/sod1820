@@ -4,7 +4,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { StorageClient as RealStorageClient } from "@supabase/storage-js";
-import { StorageClient as LazyStorageClient, LAZY_STORAGE_2029_CONTRACT } from "../src/lib/storageLazy2029.js";
+import { StorageClient as LazyStorageClient, LAZY_STORAGE_2029_CONTRACT, _setStorageImportForTests } from "../src/lib/storageLazy2029.js";
 
 // The Storage boundary of the 2029 build (vite alias, shell budget 16.11.2026): the real @supabase/storage-js loads on the first upload.
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -32,6 +32,33 @@ test("upload builds the real client once from the same URL, headers and authenti
   assert.equal(calls.length, 2);
   assert.equal(calls[0].url, `${URL_BASE}/object/gallery/x.png`);
   assert.equal(calls[0].method, "POST");
+});
+
+test("a failed Storage load returns the real client's error shape, is not kept, and the next upload loads and succeeds", async () => {
+  const calls = [];
+  const fetch = async (url, init) => { calls.push(String(url)); return new Response(JSON.stringify({ Key: "gallery/x.png", Id: "1" }), { status: 200, headers: { "content-type": "application/json" } }); };
+  let attempts = 0;
+  _setStorageImportForTests(async () => {
+    attempts++;
+    if (attempts === 1) throw new TypeError("Failed to fetch dynamically imported module: https://sod1820.co.il/assets/dist-x.js");
+    return import("@supabase/storage-js");
+  });
+  try {
+    const lazy = new LazyStorageClient(URL_BASE, { apikey: "k" }, fetch);
+    const failed = await lazy.from("gallery").upload("x.png", new Blob(["png"]), { contentType: "image/png", upsert: false });
+    assert.equal(failed.data, null);
+    assert.equal(failed.error.name, "StorageUnknownError");
+    assert.match(failed.error.message, /רעננו את הדף/, "a sentence for the person, not the module address");
+    assert.doesNotMatch(failed.error.message, /assets|https?:/);
+    assert.match(String(failed.error.originalError), /dynamically imported module/, "the original failure is kept for diagnosis");
+    assert.equal(lazy.real, null, "nothing half-built after a failed load");
+    assert.equal(calls.length, 0, "no request leaves before the client exists");
+    const ok = await lazy.from("gallery").upload("x.png", new Blob(["png"]), { contentType: "image/png", upsert: false });
+    assert.equal(ok.error, null);
+    assert.equal(attempts, 2, "the failed load was not kept: the second upload asked again");
+    assert.ok(lazy.real instanceof RealStorageClient);
+    assert.deepEqual(calls, [`${URL_BASE}/object/gallery/x.png`]);
+  } finally { _setStorageImportForTests(null); }
 });
 
 test("anything outside the contract fails loudly instead of building a different address or doing nothing", () => {
