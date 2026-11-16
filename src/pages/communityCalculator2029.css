@@ -106,3 +106,71 @@
   .sod29-community-calc :is(.sod29-community-calc-method > a,.sod29-community-calc-chips > a):hover { background: var(--s29-panel-soft); border-color: var(--s29-accent); }
   .sod29-community-calc .sod29-community-calc-text-button:hover { text-decoration: underline; }
 }
+
+/* ROYAL 2029 adoption (ZURIEL 16.11.2026): the community calculator in the Royal design of the personal area — royal blue and gold.
+   Opt-in through .r29 on <main>. Every colour is a role of the canonical --s29-* palette, resolved per preset (Day / Parchment / Night) by
+   royal2029.css; nothing here is a second palette. The selectors are prefixed with .sod29-community-calc.r29 so they outrank both the base
+   rules above and the shared .r29-* rules whatever order the stylesheets are emitted in. */
+.sod29-community-calc.r29 { --r29-hue: var(--r29-sapphire); }
+.sod29-community-calc.r29 :is(.sod29-community-calc-hero,.sod29-community-calc-panel,.sod29-community-calc-result,.sod29-community-calc-about,.sod29-community-calc-empty) {
+  position: relative; isolation: isolate; border-radius: var(--r29-radius); color: var(--s29-ink);
+  border: 1px solid color-mix(in srgb, var(--r29-hue) var(--r29-frame), var(--s29-line));
+  background:
+    radial-gradient(90% 60% at 50% -12%, color-mix(in srgb, var(--r29-gold) var(--r29-glow), transparent), transparent 70%),
+    radial-gradient(70% 70% at 100% 10%, color-mix(in srgb, var(--r29-violet-deep) var(--r29-glow), transparent), transparent 65%),
+    radial-gradient(80% 60% at 0% 110%, color-mix(in srgb, var(--r29-sapphire) var(--r29-glow), transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--r29-hue) var(--r29-wash), var(--s29-panel)), var(--s29-panel));
+  box-shadow: var(--r29-shadow), inset 0 0 0 3px color-mix(in srgb, var(--s29-panel) 70%, transparent), inset 0 0 0 4px color-mix(in srgb, var(--r29-hue) var(--r29-hair), transparent);
+}
+.sod29-community-calc.r29 .sod29-community-calc-hero { padding: clamp(16px, 3.2vw, 28px) clamp(14px, 4vw, 32px); gap: 8px; max-width: 820px; }
+.sod29-community-calc.r29 .sod29-community-calc-eyebrow { color: var(--r29-gold-ink); letter-spacing: .04em; }
+.sod29-community-calc.r29 .sod29-community-calc-hero h1 { text-wrap: balance; }
+.sod29-community-calc.r29 p.sod29-community-calc-hook { color: var(--r29-gold-ink); font-weight: 650; font-size: var(--s29-type-lead); }
+.sod29-community-calc.r29 .sod29-community-calc-hero .r29-rule { max-width: 320px; width: 100%; margin-inline: auto; }
+/* the four tools: a royal capsule; the lit one carries the gold-ringed medallion */
+.sod29-community-calc.r29 .sod29-community-calc-modes { background: color-mix(in srgb, var(--r29-sapphire) 10%, var(--s29-panel-soft)); border-color: color-mix(in srgb, var(--r29-sapphire) 46%, var(--s29-line)); border-radius: 22px; }
+.sod29-community-calc.r29 .sod29-community-calc-modes button { gap: 10px; border-radius: 16px; color: var(--s29-ink); }
+.sod29-community-calc.r29 .sod29-community-calc-modes .r29-medal { --r29-medal: 32px; --r29-hue: var(--r29-sapphire); }
+.sod29-community-calc.r29 .sod29-community-calc-modes button[aria-pressed="true"] {
+  color: var(--s29-ink); border-color: color-mix(in srgb, var(--r29-gold) 70%, transparent);
+  background: radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--r29-sapphire) 36%, var(--s29-panel)), color-mix(in srgb, var(--r29-sapphire) 16%, var(--s29-panel)));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--r29-gold) 38%, transparent), 0 6px 18px -8px color-mix(in srgb, var(--r29-sapphire) 80%, transparent);
+}
+.sod29-community-calc.r29 input:not([type="checkbox"]) { border-color: color-mix(in srgb, var(--r29-sapphire) 55%, var(--s29-line-strong)); background: color-mix(in srgb, var(--r29-sapphire) 9%, var(--s29-panel-soft)); }
+.sod29-community-calc.r29 input:not([type="checkbox"]):focus-visible { outline-color: var(--r29-gold); }
+/* the result: the number is struck in gold */
+.sod29-community-calc.r29 .sod29-community-calc-result { gap: 0; background-color: transparent; }
+.sod29-community-calc.r29 .sod29-community-calc-result > div { background: transparent; }
+.sod29-community-calc.r29 .sod29-community-calc-result > div + div { border-inline-start: 1px solid color-mix(in srgb, var(--r29-gold) 34%, transparent); }
+.sod29-community-calc.r29 .sod29-community-calc-result-link strong { color: var(--r29-gold-ink); text-shadow: 0 0 28px color-mix(in srgb, var(--r29-gold) 38%, transparent); }
+.sod29-community-calc.r29 .sod29-community-calc-date-number strong { color: var(--r29-gold-ink); }
+/* the classic grid: every method flat, compact tiles, the number first */
+.sod29-community-calc.r29 .sod29-community-calc-method-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 8px; }
+.sod29-community-calc.r29 .sod29-community-calc-method { border-radius: 14px; border-color: color-mix(in srgb, var(--r29-sapphire) 38%, var(--s29-line)); background: color-mix(in srgb, var(--r29-sapphire) 8%, var(--s29-panel)); }
+.sod29-community-calc.r29 .sod29-community-calc-method > button { gap: 4px; padding: 12px 12px 8px; }
+.sod29-community-calc.r29 .sod29-community-calc-method > button > span:first-child { font-size: 13.5px; color: var(--s29-muted); }
+.sod29-community-calc.r29 .sod29-community-calc-method strong { font-size: clamp(20px, 4.6vw, 26px); line-height: 1.2; color: var(--r29-gold-ink); }
+.sod29-community-calc.r29 .sod29-community-calc-method small { font-size: 12px; line-height: 1.45; }
+.sod29-community-calc.r29 .sod29-community-calc-method > a { min-height: 40px; padding: 8px 12px; font-size: 13px; border-top-color: color-mix(in srgb, var(--r29-sapphire) 30%, var(--s29-line)); }
+.sod29-community-calc.r29 .sod29-community-calc-method.is-selected { border-color: color-mix(in srgb, var(--r29-gold) 78%, transparent);
+  background: radial-gradient(120% 70% at 100% 0%, color-mix(in srgb, var(--r29-sapphire) var(--r29-wash-open), transparent), transparent 70%), linear-gradient(180deg, color-mix(in srgb, var(--r29-sapphire) 16%, var(--s29-panel)), var(--s29-panel));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--r29-gold) 38%, transparent), 0 8px 22px -12px color-mix(in srgb, var(--r29-sapphire) 80%, transparent); }
+.sod29-community-calc.r29 .sod29-community-calc-chips > a { border-color: color-mix(in srgb, var(--r29-gold) 34%, var(--s29-line)); background: color-mix(in srgb, var(--r29-sapphire) 9%, var(--s29-panel-soft)); }
+.sod29-community-calc.r29 .sod29-community-calc-baby-core a { border-color: color-mix(in srgb, var(--r29-sapphire) 38%, var(--s29-line)); background: color-mix(in srgb, var(--r29-sapphire) 9%, var(--s29-panel-soft)); }
+.sod29-community-calc.r29 .sod29-community-calc-baby-core strong { color: var(--r29-gold-ink); }
+.sod29-community-calc.r29 .sod29-community-calc-compat { border-inline-start: 3px solid var(--r29-gold); }
+/* the explanation and the questions people ask (visible text, indexed with the page) */
+.sod29-community-calc-about { display: grid; gap: 14px; padding: clamp(18px, 3.5vw, 34px); }
+.sod29-community-calc-about h2 + p, .sod29-community-calc-about p + p { max-width: 78ch; }
+.sod29-community-calc-about h2:not(:first-child) { margin-top: 10px; }
+.sod29-community-calc-faq { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.sod29-community-calc-faq article { display: grid; gap: 6px; padding: 14px 16px; border-radius: 14px; border-inline-start: 3px solid var(--r29-gold, var(--s29-accent)); background: color-mix(in srgb, var(--r29-sapphire, var(--s29-accent)) 9%, var(--s29-panel-soft)); }
+.sod29-community-calc-faq h3 { font-size: var(--s29-type-lead); }
+.sod29-community-calc-faq p { font-size: var(--s29-type-small); line-height: 1.7; }
+@media (max-width: 640px) {
+  .sod29-community-calc.r29 .sod29-community-calc-method-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sod29-community-calc.r29 .sod29-community-calc-modes .r29-medal { --r29-medal: 28px; }
+}
+@media (forced-colors: active) {
+  .sod29-community-calc.r29 :is(.sod29-community-calc-hero,.sod29-community-calc-panel,.sod29-community-calc-result,.sod29-community-calc-about,.sod29-community-calc-empty,.sod29-community-calc-method) { border: 1px solid CanvasText; background: Canvas; box-shadow: none; }
+}
