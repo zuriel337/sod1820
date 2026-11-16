@@ -12,6 +12,8 @@ import { postClassification2029 } from "../src/lib/research/postClassification20
 
 const SITE = "https://sod1820.co.il";
 const TEMPLATE = readFileSync(new URL("../public-reading-deploy/.generated/2029.html", import.meta.url), "utf8");
+// what every document without the article answers: today's document, without the build's inert article-first template
+const PLAIN = TEMPLATE.replace(/<template id="sod29-article-first-css">[\s\S]*?<\/template>/, "");
 const row = (extra = {}) => ({ id: 31, wp_id: 36173, slug: "%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94", source: "wordpress", title: "תפילה לרפואה &#8211; הינוקא",
   excerpt: "", author: "מזכה הרבים", date: "2025-08-18T00:10:41+00:00", modified: "2025-08-18T00:12:03+00:00", tags: ["תפילה"], categories: ["רמזים מצדיקים"],
   image_url: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2025/08/c1a17b6b6ed632f2.webp",
@@ -78,8 +80,16 @@ test("a cold instance answers exactly as today and loads the server DOM in the b
   // the page's own stylesheets are real stylesheets in this document only
   const { document } = new JSDOM(warm.body).window;
   assert.ok(document.querySelector('link[rel="stylesheet"][href^="/assets/Post2029Page-"]'), "the Post page stylesheet is linked");
+  assert.equal(cold.body.includes("sod29-article-first-css"), false, "a document without the article does not carry the template");
   assert.equal(document.getElementById("sod29-article-first-css"), null, "the inert template was opened");
   assert.ok(document.head.querySelector("script[data-sod-article-first-theme]"), "the reader's theme is set before the first paint");
+  // the first paint waits for the first-paint stylesheet only: no stylesheet in the head blocks it; the full stylesheets come after the article
+  assert.ok(document.head.querySelector("style[data-sod-article-first-critical]"), "the first-paint stylesheet is in the head");
+  assert.equal(document.head.querySelectorAll('link[rel="stylesheet"][href^="/assets/"]').length, 0, "no render-blocking stylesheet in the head");
+  const full = [...document.querySelectorAll("link[data-sod-article-first-full]")];
+  assert.ok(full.length >= 3 && full.every(link => link.parentElement === document.body), "the full stylesheets are in the body");
+  assert.ok(full.every(link => link.compareDocumentPosition(document.getElementById("sod29-ssr-article")) & 2 /* the article precedes */), "after the article");
+  assert.ok(full.some(link => /\/assets\/2029-[^/]+\.css$/.test(link.getAttribute("href"))), "the entry stylesheet moved with them");
   // and the metadata is the same as today's
   for (const name of ["canonical", "robots"]) {
     const a = new JSDOM(cold.body).window.document, b = document;
@@ -115,10 +125,10 @@ test("a render failure or a server DOM that cannot load leaves today's document"
   await assert.rejects(loadArticleFirstRenderer({ importDom: async () => { throw new Error("synthetic: no jsdom"); } }));
   const post = row();
   const still = withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post, proven: provenFor(post), load: () => Promise.reject(new Error("synthetic")) });
-  assert.equal(still.state, "warming"); assert.equal(still.html, TEMPLATE);
+  assert.equal(still.state, "warming"); assert.equal(still.html, PLAIN);
   await loadArticleFirstRenderer();
   const broken = withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post: { ...post, get content() { throw new Error("synthetic render failure"); } }, proven: new Proxy({}, { get: () => undefined }) });
-  assert.equal(broken.html, TEMPLATE);
+  assert.equal(broken.html, PLAIN);
   const noTemplate = withArticleFirst2029(TEMPLATE.replace(/<template id="sod29-article-first-css">[\s\S]*?<\/template>/, ""), { path: PATH, status: 200, post, proven: provenFor(post) });
   assert.equal(noTemplate.state, "off", "a build without the template (a stale proof) serves no article and loads nothing");
   assert.equal(noTemplate.html, TEMPLATE.replace(/<template id="sod29-article-first-css">[\s\S]*?<\/template>/, ""));
@@ -132,7 +142,7 @@ test("a cold instance hands the load of the server DOM to the platform's waitUnt
   try {
     const post = row();
     const cold = withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post, proven: provenFor(post) });
-    assert.equal(cold.state, "warming"); assert.equal(cold.html, TEMPLATE);
+    assert.equal(cold.state, "warming"); assert.equal(cold.html, PLAIN);
     assert.equal(kept.length, 1, "the load was handed to waitUntil");
     await kept[0];
     assert.equal(withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post, proven: provenFor(post) }).state, "served", "the kept load finished");

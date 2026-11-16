@@ -40,10 +40,13 @@ function ownOriginalAddress(post, path) {
 }
 
 // → { html, state }: state is "served" | "not-eligible" | "off" | "not-proven" | "warming" | "failed" (the X-Sod-Article-First response header,
-// so the share of documents that really carry the article can be counted).
+// so the share of documents that really carry the article can be counted). Every document that does not carry the article loses the build's
+// inert template (it is useful only to an article-first document).
+const TEMPLATE = /<template id="sod29-article-first-css">([\s\S]*?)<\/template>/;
 export function withArticleFirst2029(html, options) {
+  const plain = typeof html === "string" ? html.replace(TEMPLATE, "") : html;
   // Never throws: whatever goes wrong here, the answer is today's document (the handler would otherwise turn an error into a 503).
-  try { return articleFirstDocument(html, options); } catch { return { html, state: "failed" }; }
+  try { const out = articleFirstDocument(html, options); return out.state === "served" ? out : { html: plain, state: out.state }; } catch { return { html: plain, state: "failed" }; }
 }
 // A cold instance loads the server DOM after it has answered. On Vercel a promise handed to the request context's waitUntil (the contract the
 // @vercel/functions helper reads) keeps the function alive until it settles; elsewhere the load simply continues in the process. Whether the
@@ -55,15 +58,24 @@ function keepAlive(promise) {
 function articleFirstDocument(html, { path, search = "", status, post, proven = PROVEN, load = loadArticleFirstRenderer }) {
   if (status !== 200 || !post || search || !ownOriginalAddress(post, path)) return { html, state: "not-eligible" };
   // No template: this build was made without a fresh proof (or without the article path); nothing is loaded.
-  if (!html.includes('<template id="sod29-article-first-css">')) return { html, state: "off" };
+  const template = TEMPLATE.exec(html);
+  if (!template) return { html, state: "off" };
   if (!postArticleFirstProven2029(post, proven)) return { html, state: "not-proven" };
   if (!renderer) { keepAlive(load().catch(() => {})); return { html, state: "warming" }; }
   let article;
   try { article = renderer.render(post, path); } catch { return { html, state: "failed" }; }
-  // The page's own stylesheets, listed by the build in an inert template, become real stylesheets for this document only.
-  const withStyles = html.replace(/<template id="sod29-article-first-css">([\s\S]*?)<\/template>/, "$1");
-  if (withStyles === html || !/<\/body>/i.test(withStyles)) return { html, state: "failed" };
-  // The reader's theme preset is set on <html> before the first paint (the frame around the article follows it), then the article.
-  const themed = withStyles.replace(/<head(\s[^>]*)?>/i, match => `${match}${POST_ARTICLE_THEME_SCRIPT}`);
-  return { html: themed.replace(/<\/body>/i, `${POST_ARTICLE_DOCUMENT_STYLE}${article}</body>`), state: "served" };
+  const critical = (/<style data-sod-article-first-critical>[\s\S]*?<\/style>/.exec(template[1]) || [""])[0];
+  const links = template[1].match(/<link rel="stylesheet" href="\/assets\/[^"]+\.css">/g) || [];
+  if (!critical || !links.length) return { html, state: "failed" };
+  let document = html.replace(TEMPLATE, "");
+  const headEnd = document.search(/<\/head>/i), bodyEnd = document.search(/<\/body>/i);
+  if (headEnd < 0 || bodyEnd < 0) return { html, state: "failed" };
+  // The head's render-blocking stylesheets (the build's entry stylesheet) are among the full stylesheets: they move after the article, and the
+  // first-paint stylesheet takes their place, in the same order relative to the head's own inline styles. The reader's theme preset is set on
+  // <html> first (the frame around the article follows it).
+  const head = document.slice(0, headEnd).replace(/<link rel="stylesheet"(?: crossorigin)? href="\/assets\/[^"]+\.css">/g, "")
+    .replace(/<head(\s[^>]*)?>/i, match => `${match}${POST_ARTICLE_THEME_SCRIPT}`);
+  const full = links.map(link => link.replace(/^<link /, "<link data-sod-article-first-full ")).join("");
+  document = `${head}${critical}${document.slice(headEnd, document.search(/<\/body>/i))}${POST_ARTICLE_DOCUMENT_STYLE}${article}${full}${document.slice(document.search(/<\/body>/i))}`;
+  return { html: document, state: "served" };
 }

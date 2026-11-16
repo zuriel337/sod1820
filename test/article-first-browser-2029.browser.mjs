@@ -34,9 +34,11 @@ const ROW = { id: 192, wp_id: 29289, slug: SLUG, source: "wordpress", link: `htt
 const PROVEN = { [String(ROW.id)]: postArticleProofKey2029(ROW) };
 const PROFILES = { phone: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 }, desktop: { viewport: { width: 1280, height: 900 } } };
 const sleep = ms => new Promise(done => setTimeout(done, ms));
+// The faces the article uses, loaded (document.fonts.ready waits for every pending stylesheet, so it cannot be used while they are held).
+const FACES = () => Promise.all(["400 16px 'Noto Sans Hebrew'", "700 16px 'Noto Sans Hebrew'", "400 16px Rubik", "700 16px Rubik"].map(font => document.fonts.load(font, "שלום 1820 Ab")));
 
 await loadArticleFirstRenderer();
-async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW } = {}, run) {
+async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW, holdCss = null } = {}, run) {
   const proven = { [String(row.id)]: postArticleProofKey2029(row) };
   const fixture = await startFixture({
     documentFor: ({ path, template }) => {
@@ -63,6 +65,8 @@ async function withPage(profile, { holdPostChunk = null, holdRead = null, initSc
       addEventListener("scroll", () => window.__scrollLog.push({ t: Math.round(performance.now()), name: "scroll-event", y0: Math.round(scrollY) }), { passive: true });
     });
     const page = await context.newPage();
+    // held in the browser before the request is sent (a request held by the server would occupy one of the browser's connections)
+    if (holdCss) await page.route(/\/assets\/[^/?]+\.css(?:\?|$)/, async route => { await holdCss; await route.continue(); });
     const errors = []; page.on("pageerror", error => errors.push(String(error.message)));
     await run({ page, fixture, errors });
     await context.close();
@@ -114,7 +118,7 @@ test("[phone] a direct link to a named anchor: the browser opens at it and adopt
   await withPage("phone", { holdPostChunk: hold }, async ({ page }) => {
     await page.goto("https://sod1820.co.il" + PATH + "#_Toc10337527", { waitUntil: "load" });
     await page.waitForSelector('#sod29-ssr-article a[name="_Toc10337527"]', { state: "attached", timeout: 20000 });
-    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(FACES);
     // the browser's jump to a fragment is smooth here (html { scroll-behavior: smooth }): wait until it has come to rest
     await page.waitForFunction(() => { const y = scrollY; window.__still = window.__still?.y === y ? { y, n: window.__still.n + 1 } : { y, n: 0 }; return window.__still.n >= 6 && y > 0; }, null, { polling: 50, timeout: 10000 });
     const before = await page.evaluate(() => { window.__anchor = document.getElementsByName("_Toc10337527")[0]; return Math.round(window.__anchor.getBoundingClientRect().top); });
@@ -196,14 +200,19 @@ for (const [profile, theme] of [["phone", "dark"], ["desktop", "dark"], ["phone"
   test(`[${profile} · ${theme}] before the application runs, the article has the page's geometry, fonts, colours and header`, { timeout: 180000 }, async () => {
     let release; const hold = new Promise(done => { release = done; });
     const initScript = `try{localStorage.setItem("sod2029:theme-preset","${theme}");localStorage.setItem("sod2029:theme-preset-seeded","1")}catch(e){}`;
-    await withPage(profile, { holdPostChunk: hold, initScript }, async ({ page, errors }) => {
-      await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "load" });
+    // the full stylesheets are held too: "before" is the article on the first-paint stylesheet alone, as a slow connection first shows it
+    await withPage(profile, { holdPostChunk: hold, holdCss: hold, initScript }, async ({ page, errors }) => {
+      await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "commit" });
+      await page.waitForFunction(() => document.readyState !== "loading" || document.querySelector("#sod29-ssr-article .sod29-reading-source p:last-of-type"), null, { timeout: 20000 });
+      assert.equal(await page.evaluate(() => [...document.styleSheets].some(sheet => /\/assets\/Sod2029Shell-/.test(sheet.href || ""))), false, "the full stylesheets are still on their way");
       await page.waitForSelector("#sod29-ssr-article h1");
-      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(FACES);
       await sleep(400);
       const frame = await page.evaluate(() => { const node = document.getElementById("sod29-ssr-article"); return { theme: document.documentElement.getAttribute("data-theme-2029"), preset: node.getAttribute("data-frame-theme-preset"), style: node.getAttribute("style") }; });
       assert.equal(frame.theme, theme, "the reader's theme before the first paint"); assert.equal(frame.preset, theme);
       const before = await page.evaluate(SNAPSHOT), chromeBefore = await page.evaluate(CHROME);
+      const appBefore = await page.evaluate(() => Boolean(document.querySelector(".sod29-root:not(#sod29-ssr-article)")));
+      assert.equal(appBefore, false, "the application waits for its stylesheets");
       release();
       const result = await adopted(page);
       assert.equal(result.result, "adopted", JSON.stringify(result));
@@ -250,9 +259,10 @@ for (const theme of ["dark", "light", "parchment"]) {
   test(`[phone · ${theme}] historical colours read before and after adoption, and keep their meaning`, { timeout: 180000 }, async () => {
     let release; const hold = new Promise(done => { release = done; });
     const initScript = `try{localStorage.setItem("sod2029:theme-preset","${theme}");localStorage.setItem("sod2029:theme-preset-seeded","1")}catch(e){}`;
-    await withPage("phone", { holdPostChunk: hold, initScript, row: COLOR_ROW }, async ({ page }) => {
-      await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "load" });
-      await page.waitForSelector("#sod29-ssr-article h2");
+    await withPage("phone", { holdPostChunk: hold, holdCss: hold, initScript, row: COLOR_ROW }, async ({ page }) => {
+      await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "commit" });
+      await page.waitForSelector("#sod29-ssr-article .sod29-reading-source p:last-of-type", { state: "attached" });
+      await page.evaluate(FACES);
       const before = await page.evaluate(COLOR_READOUT);
       release();
       assert.equal((await adopted(page)).result, "adopted");

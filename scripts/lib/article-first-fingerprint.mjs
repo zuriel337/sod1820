@@ -1,5 +1,5 @@
-// The identity of the article pipeline a proof was made with (OLD_POST_ARTICLE_FIRST; Codex review 16.11.2026): every source file the pipeline
-// imports (as esbuild resolves postArticlePipeline2029.js) and the version of the server DOM. The proof script records it in
+// The identity of the article pipeline a proof was made with (OLD_POST_ARTICLE_FIRST; Codex review 16.11.2026): every source file the first-document
+// article is built from (as esbuild resolves postArticleDocument2029.js: the pipeline, the frame, the header) and the version of the server DOM. The proof script records it in
 // public-reading-deploy/article-first-proven.json; the production build serves the first-document article only when the committed proof has
 // the fingerprint of the code being built, and test/article-first-proof-fresh.test.mjs fails until the proof is rebuilt
 // (`node scripts/build-article-first-proofs.mjs`). A stale proof never serves: the Posts keep the existing path.
@@ -10,7 +10,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
-export const ARTICLE_PIPELINE_ENTRY = "src/lib/research/postArticlePipeline2029.js";
+export const ARTICLE_PIPELINE_ENTRY = "src/lib/research/postArticleDocument2029.js";
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
 export async function articleFirstFingerprint(root = ROOT) {

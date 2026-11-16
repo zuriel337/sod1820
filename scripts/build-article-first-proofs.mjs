@@ -34,10 +34,17 @@ for (let from = 0; ; from += 200) {
 }
 const candidates = rows.filter(postArticleFirstCandidate2029);
 
-// Server: the same pipeline under jsdom.
+// Server: the same pipeline under jsdom; and the vocabulary of every first-document article (its frame, header and body), from which the build
+// keeps the first-paint rules (scripts/lib/article-first-critical-css.mjs).
+const { postArticleDocumentHtml2029 } = await import("../src/lib/research/postArticleDocument2029.js");
+const { emptyVocabulary, addToVocabulary, vocabularyToJson } = await import("./lib/article-first-critical-css.mjs");
 const { window } = new JSDOM("<!doctype html><html><body></body></html>", { url: "https://sod1820.co.il/" });
 globalThis.document = window.document; globalThis.CSSStyleSheet = window.CSSStyleSheet;
 const server = candidates.map(row => { try { return postArticleSourceHtmlFromRow2029(row); } catch { return null; } });
+const vocabulary = emptyVocabulary();
+for (const row of candidates) {
+  try { const template = window.document.createElement("template"); template.innerHTML = postArticleDocumentHtml2029(row, { document: window.document, path: "/x" }); addToVocabulary(vocabulary, template.content); } catch { /* not served */ }
+}
 delete globalThis.document; delete globalThis.CSSStyleSheet;
 
 // Browser: the same source bundled for Chromium.
@@ -76,4 +83,7 @@ const out = { generated: new Date().toISOString(), base, fingerprint: identity.f
   note: "Imported Posts whose exact stored source (and voice) was proven to give the browser's article on the server (scripts/build-article-first-proofs.mjs). Keyed by post id; the value is the proof key (postArticleProofKey2029). Valid only for the pipeline code and server DOM of `fingerprint` (scripts/lib/article-first-fingerprint.mjs).",
   counts: { imported: rows.length, candidates: candidates.length, proven: Object.keys(posts).length, differ: differ.length }, differ, posts };
 writeFileSync(new URL("../public-reading-deploy/article-first-proven.json", import.meta.url), JSON.stringify(out, null, 1) + "\n");
+writeFileSync(new URL("../public-reading-deploy/article-first-vocabulary.json", import.meta.url), JSON.stringify({ fingerprint: identity.fingerprint,
+  note: "Every tag, id, class, attribute and attribute value of the proven first-document articles (scripts/build-article-first-proofs.mjs); the build keeps the first-paint rules that may match them.",
+  ...vocabularyToJson(vocabulary) }) + "\n");
 console.log(JSON.stringify(out.counts));

@@ -114,11 +114,18 @@ document=document.replace('<link rel="icon" href="data:," />',`<link rel="icon" 
 // The first-document article of an imported Post (public-reading-deploy/api/article-first.js) is laid out by the page's own stylesheets: the
 // entry's, the System Frame's and the Post page's, in the order the app loads them. They sit here in an inert template; only a document that
 // carries the article turns them into stylesheets (the app's own loader then finds them already present and does not fetch them twice).
-// Served only when the committed proof was made for the article pipeline being built (scripts/lib/article-first-fingerprint.mjs): with a stale
-// proof the template is left out and every Post keeps the existing path (the document handler answers "off").
+// Served only when the committed proof (and its vocabulary) was made for the article being built (scripts/lib/article-first-fingerprint.mjs): with
+// a stale proof the template is left out and every Post keeps the existing path (the document handler answers "off").
+// The template holds what an article-first document needs and no other document carries (the handler removes it from them):
+//   - the first-paint stylesheet: the page's own stylesheets in their load order, without the rules that can never match the first document
+//     (scripts/lib/article-first-critical-css.mjs); it takes the place of the head's render-blocking stylesheets;
+//   - the full stylesheets (the entry's, the System Frame's and the Post page's), which the handler puts after the article: they no longer
+//     hold the article's first paint, they still hold the application's start (scripts wait for parser-inserted stylesheets), and the app's own
+//     loader finds them present and does not fetch them twice.
 const articleFirstProof = JSON.parse(await readFile(resolve(root, "public-reading-deploy/article-first-proven.json"), "utf8"));
+const articleFirstVocabulary = JSON.parse(await readFile(resolve(root, "public-reading-deploy/article-first-vocabulary.json"), "utf8"));
 const articleFirstIdentity = await articleFirstFingerprint(root);
-if (articleFirstProof.fingerprint !== articleFirstIdentity.fingerprint) {
+if (articleFirstProof.fingerprint !== articleFirstIdentity.fingerprint || articleFirstVocabulary.fingerprint !== articleFirstIdentity.fingerprint) {
   console.warn(`article-first: OFF in this build: the proof is for ${articleFirstProof.fingerprint || "no fingerprint"}, the pipeline is ${articleFirstIdentity.fingerprint}; run node scripts/build-article-first-proofs.mjs`);
 } else {
   const built = JSON.parse(await readFile(resolve(output, ".vite/manifest.json"), "utf8"));
@@ -130,7 +137,17 @@ if (articleFirstProof.fingerprint !== articleFirstIdentity.fingerprint) {
   const css = [];
   for (const keys of [[entryKey], [shellKey], pageKeys]) for (const key of closure(keys)) for (const file of built[key].css || []) if (!css.includes(file)) css.push(file);
   if (!css.length) throw new Error("article_first_css_missing");
-  document = document.replace("</head>", `<template id="sod29-article-first-css">${css.map(file => `<link rel="stylesheet" href="/${file}">`).join("")}</template></head>`);
+  // the vocabulary of the document itself (the head, the opening bar in #root) and of the article-first additions, with the proven articles'
+  const { JSDOM } = await import("jsdom");
+  const { vocabularyFromJson, emptyVocabulary, addToVocabulary, mergeVocabularies, articleFirstCriticalCss } = await import("./lib/article-first-critical-css.mjs");
+  const own = addToVocabulary(emptyVocabulary(), new JSDOM(document).window.document.documentElement);
+  own.attributes.set("data-theme-2029", new Set(["dark", "light", "parchment"])); own.attributes.set("data-ssr-standalone", new Set(["true"]));
+  const vocabulary = mergeVocabularies(own, vocabularyFromJson(articleFirstVocabulary));
+  const texts = await Promise.all(css.map(file => readFile(resolve(output, file), "utf8")));
+  const critical = articleFirstCriticalCss(texts, vocabulary);
+  if (!critical.css || critical.css.includes("</")) throw new Error("article_first_critical_css");
+  console.log(`article-first: first-paint stylesheet ${critical.css.length} B (${critical.kept} rules kept, ${critical.dropped} left out) from ${css.length} stylesheets`);
+  document = document.replace("</head>", `<template id="sod29-article-first-css"><style data-sod-article-first-critical>${critical.css}</style>${css.map(file => `<link rel="stylesheet" href="/${file}">`).join("")}</template></head>`);
 }
 // The raw build document must only be reachable through the status/metadata
 // adapter; / and /?p=... cannot be shadowed by an index.html filesystem match.
