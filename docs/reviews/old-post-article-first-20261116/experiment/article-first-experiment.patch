@@ -1,0 +1,334 @@
+diff --git a/src/lib/research/post2029ReadingProjection.js b/src/lib/research/post2029ReadingProjection.js
+index af97aa11b..fb0db0a26 100644
+--- a/src/lib/research/post2029ReadingProjection.js
++++ b/src/lib/research/post2029ReadingProjection.js
+@@ -17,84 +17,9 @@ export function isPostEnglishExpression(expression) {
+     && /^[A-Za-z\s'’.-]+$/.test(String(expression || ""));
+ }
+ 
+-const clean = (value) => value == null ? "" : String(value).trim();
+-
+-function postCssSelectors(selector) {
+-  const selectors = []; let start = 0, depth = 0, quote = null, escaped = false;
+-  for (let index = 0; index < selector.length; index += 1) {
+-    const char = selector[index];
+-    if (escaped) { escaped = false; continue; }
+-    if (char === "\\") { escaped = true; continue; }
+-    if (quote) { if (char === quote) quote = null; continue; }
+-    if (char === '"' || char === "'") { quote = char; continue; }
+-    if (char === "(" || char === "[") depth += 1;
+-    if (char === ")" || char === "]") depth -= 1;
+-    if (char === "," && !depth) { selectors.push(selector.slice(start, index)); start = index + 1; }
+-  }
+-  selectors.push(selector.slice(start));
+-  return selectors.map(value => value.trim()).filter(Boolean);
+-}
+-
+-// Presentation containment over the authored source, not an HTML sanitizer or
+-// a source rewrite. Legacy plugin resources never become 2029 global styles.
+-export function postReadingHtml2029(html) {
+-  if (!globalThis.document?.createElement) return String(html || "");
+-  const template = document.createElement("template"); template.innerHTML = String(html || "");
+-  for (const iframe of template.content.querySelectorAll("iframe[src]")) {
+-    try { const u=new URL(iframe.getAttribute("src"),"https://sod1820.co.il");
+-      if(["sod1820.co.il","www.sod1820.co.il","sod1820.vercel.app"].includes(u.hostname) && /^\/[^/]+\/embed\/?$/.test(u.pathname)) {
+-        const link=document.createElement("a");link.href=u.pathname.replace(/\/embed\/?$/,"/")+u.search+u.hash;
+-        link.textContent=iframe.getAttribute("title")||"לקריאת הפוסט המקושר במלואו ←";iframe.replaceWith(link);
+-      }
+-    } catch { /* malformed embeds do not supply identity */ }
+-  }
+-  for (const dependency of template.content.querySelectorAll('script,link[rel~="stylesheet"],link[rel="preload"][as="style"]')) dependency.remove();
+-  for (const icon of template.content.querySelectorAll('img[src*="/wp-content/plugins/gallery-images/"]')) {
+-    // WordPress plugin arrows/spinners are UI assets, not the authored gallery
+-    // images. Keep the raw source witness and all actual media URLs unchanged.
+-    const loader = icon.closest(".loading");
+-    if (loader && !clean(loader.textContent) && loader.querySelectorAll("img").length === 1) loader.remove();
+-    else icon.remove();
+-  }
+-  const scopedRules = rules => [...rules].flatMap(rule => {
+-    if (rule.type === 1 && rule.selectorText) {
+-      const selectors = postCssSelectors(rule.selectorText).map(selector => `.sod29-reading-source ${selector}`);
+-      return [`${selectors.join(",")} {${rule.style.cssText}}`];
+-    }
+-    if ((rule.type === 4 || rule.type === 12) && rule.cssRules) {
+-      const body = scopedRules(rule.cssRules).join("\n");
+-      return body ? [`${rule.cssText.slice(0, rule.cssText.indexOf("{"))}{${body}}`] : [];
+-    }
+-    // Imports, font faces and animations belong to the existing 2029 owners.
+-    return [];
+-  });
+-  for (const style of template.content.querySelectorAll("style")) {
+-    try {
+-      const sheet = new CSSStyleSheet(); sheet.replaceSync(style.textContent || "");
+-      style.textContent = scopedRules(sheet.cssRules).join("\n");
+-      style.dataset.postScopedStyle = "true";
+-    } catch { style.remove(); }
+-  }
+-  for (const frame of template.content.querySelectorAll("iframe")) {
+-    frame.loading = "lazy";
+-    if (!clean(frame.title)) frame.title = "מדיה מוטמעת מתוך הפוסט";
+-  }
+-  return template.innerHTML;
+-}
++import { clean, postCssSelectors, postReadingHtml2029, markLegacyEqualityLines } from "./postArticleCore2029.js";
++export { postReadingHtml2029 };
+ 
+-// Some WordPress Posts authored equalities as plain text with a colored value,
+-// before data-gem existed. Decorate only complete, explicit equality lines.
+-// Preserve their wording, colors and media; no association is engine-verified
+-// here. Each operand opens its own canonical Number calculation.
+-function markLegacyEqualityLines(content = "") {
+-  const operand = (text, numeric = false) => `<button type="button" class="${numeric ? "sod29-gematria-value" : "sod29-gematria-expression"}" data-post-equality-operand="true" data-gem="${text.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">${text.trim()}</button>`;
+-  const hebrew = '[א-ת][א-ת\\u0591-\\u05C7 ״׳"\\x27-]{0,70}';
+-  const forward = new RegExp('(^|>|\\n)(' + hebrew + ')\\s*=\\s*(<span\\b[^>]*>)?(\\d{1,9})(<\\/span>)?(?:\\s*=\\s*(' + hebrew + '))?(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
+-  const reverse = new RegExp('(^|>|\\n)(\\d{1,9})\\s*=\\s*(' + hebrew + ')(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
+-  return String(content).split(/(<(?:a|button|script|style|pre|code)\b[^>]*>[\s\S]*?<\/(?:a|button|script|style|pre|code)>)/gi).map((part, index) => index % 2 ? part : part
+-    .replace(forward, (match, start, phrase, span, number, endSpan, other) => `${start}${operand(phrase)} = ${span || ""}${operand(number, true)}${endSpan || ""}${other ? ` = ${operand(other)}` : ""}`)
+-    .replace(reverse, (match, start, number, phrase) => `${start}${operand(number, true)} = ${operand(phrase)}`)).join("");
+-}
+ const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
+ const BENNETT_CONTEXTUAL_NUMBER_FOCUS = Object.freeze({
+   expression: "נפתלי בנט",
+diff --git a/src/lib/research/postArticleCore2029.js b/src/lib/research/postArticleCore2029.js
+new file mode 100644
+index 000000000..9bc9b1482
+--- /dev/null
++++ b/src/lib/research/postArticleCore2029.js
+@@ -0,0 +1,81 @@
++// EXPERIMENT (OLD_POST_ARTICLE_FIRST_20261116): the article transforms of an imported Post, moved unchanged out of post2029ReadingProjection.js
++// so the server (first document) and a small client article chunk run the SAME code. No Supabase client, no research system here.
++
++export const clean = (value) => value == null ? "" : String(value).trim();
++
++export function postCssSelectors(selector) {
++  const selectors = []; let start = 0, depth = 0, quote = null, escaped = false;
++  for (let index = 0; index < selector.length; index += 1) {
++    const char = selector[index];
++    if (escaped) { escaped = false; continue; }
++    if (char === "\\") { escaped = true; continue; }
++    if (quote) { if (char === quote) quote = null; continue; }
++    if (char === '"' || char === "'") { quote = char; continue; }
++    if (char === "(" || char === "[") depth += 1;
++    if (char === ")" || char === "]") depth -= 1;
++    if (char === "," && !depth) { selectors.push(selector.slice(start, index)); start = index + 1; }
++  }
++  selectors.push(selector.slice(start));
++  return selectors.map(value => value.trim()).filter(Boolean);
++}
++
++// Presentation containment over the authored source, not an HTML sanitizer or
++// a source rewrite. Legacy plugin resources never become 2029 global styles.
++export function postReadingHtml2029(html) {
++  if (!globalThis.document?.createElement) return String(html || "");
++  const template = document.createElement("template"); template.innerHTML = String(html || "");
++  for (const iframe of template.content.querySelectorAll("iframe[src]")) {
++    try { const u=new URL(iframe.getAttribute("src"),"https://sod1820.co.il");
++      if(["sod1820.co.il","www.sod1820.co.il","sod1820.vercel.app"].includes(u.hostname) && /^\/[^/]+\/embed\/?$/.test(u.pathname)) {
++        const link=document.createElement("a");link.setAttribute("href",u.pathname.replace(/\/embed\/?$/,"/")+u.search+u.hash);
++        link.textContent=iframe.getAttribute("title")||"לקריאת הפוסט המקושר במלואו ←";iframe.replaceWith(link);
++      }
++    } catch { /* malformed embeds do not supply identity */ }
++  }
++  for (const dependency of template.content.querySelectorAll('script,link[rel~="stylesheet"],link[rel="preload"][as="style"]')) dependency.remove();
++  for (const icon of template.content.querySelectorAll('img[src*="/wp-content/plugins/gallery-images/"]')) {
++    // WordPress plugin arrows/spinners are UI assets, not the authored gallery
++    // images. Keep the raw source witness and all actual media URLs unchanged.
++    const loader = icon.closest(".loading");
++    if (loader && !clean(loader.textContent) && loader.querySelectorAll("img").length === 1) loader.remove();
++    else icon.remove();
++  }
++  const scopedRules = rules => [...rules].flatMap(rule => {
++    if (rule.type === 1 && rule.selectorText) {
++      const selectors = postCssSelectors(rule.selectorText).map(selector => `.sod29-reading-source ${selector}`);
++      return [`${selectors.join(",")} {${rule.style.cssText}}`];
++    }
++    if ((rule.type === 4 || rule.type === 12) && rule.cssRules) {
++      const body = scopedRules(rule.cssRules).join("\n");
++      return body ? [`${rule.cssText.slice(0, rule.cssText.indexOf("{"))}{${body}}`] : [];
++    }
++    // Imports, font faces and animations belong to the existing 2029 owners.
++    return [];
++  });
++  for (const style of template.content.querySelectorAll("style")) {
++    try {
++      const sheet = new CSSStyleSheet(); sheet.replaceSync(style.textContent || "");
++      style.textContent = scopedRules(sheet.cssRules).join("\n");
++      style.dataset.postScopedStyle = "true";
++    } catch { style.remove(); }
++  }
++  for (const frame of template.content.querySelectorAll("iframe")) {
++    frame.setAttribute("loading", "lazy");   // attribute writes (what the browser's reflected properties write), so a server DOM gives the same markup
++    if (!clean(frame.getAttribute("title"))) frame.setAttribute("title", "מדיה מוטמעת מתוך הפוסט");
++  }
++  return template.innerHTML;
++}
++
++// Some WordPress Posts authored equalities as plain text with a colored value,
++// before data-gem existed. Decorate only complete, explicit equality lines.
++// Preserve their wording, colors and media; no association is engine-verified
++// here. Each operand opens its own canonical Number calculation.
++export function markLegacyEqualityLines(content = "") {
++  const operand = (text, numeric = false) => `<button type="button" class="${numeric ? "sod29-gematria-value" : "sod29-gematria-expression"}" data-post-equality-operand="true" data-gem="${text.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">${text.trim()}</button>`;
++  const hebrew = '[א-ת][א-ת\\u0591-\\u05C7 ״׳"\\x27-]{0,70}';
++  const forward = new RegExp('(^|>|\\n)(' + hebrew + ')\\s*=\\s*(<span\\b[^>]*>)?(\\d{1,9})(<\\/span>)?(?:\\s*=\\s*(' + hebrew + '))?(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
++  const reverse = new RegExp('(^|>|\\n)(\\d{1,9})\\s*=\\s*(' + hebrew + ')(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
++  return String(content).split(/(<(?:a|button|script|style|pre|code)\b[^>]*>[\s\S]*?<\/(?:a|button|script|style|pre|code)>)/gi).map((part, index) => index % 2 ? part : part
++    .replace(forward, (match, start, phrase, span, number, endSpan, other) => `${start}${operand(phrase)} = ${span || ""}${operand(number, true)}${endSpan || ""}${other ? ` = ${operand(other)}` : ""}`)
++    .replace(reverse, (match, start, number, phrase) => `${start}${operand(number, true)} = ${operand(phrase)}`)).join("");
++}
+diff --git a/src/lib/research/postArticleDocument2029.js b/src/lib/research/postArticleDocument2029.js
+new file mode 100644
+index 000000000..375b7ba6f
+--- /dev/null
++++ b/src/lib/research/postArticleDocument2029.js
+@@ -0,0 +1,62 @@
++// EXPERIMENT (OLD_POST_ARTICLE_FIRST_20261116, scratch worktree only): the article of an imported Post for the FIRST document, built by the
++// client's own functions (postArticleCore2029.js + hardenPassiveMediaHtml + the title and date helpers). The page adopts these nodes instead of
++// rendering the article a second time (Post2029Page experiment patch). Needs a DOM: the browser's, or a server DOM passed in (lab: happy-dom).
++import { postReadingHtml2029, markLegacyEqualityLines } from "./postArticleCore2029.js";
++import { hardenPassiveMediaHtml } from "../mediaEgressGuard.js";
++import { humanContentTitle } from "../presentation/contentTitle.js";
++import { bilingualDateLabel } from "../relativeTime2029.js";
++
++export const POST_ARTICLE_DOCUMENT_ID = "sod29-ssr-article";
++
++// The identity of the source the article was built from: FNV-1a over the raw stored content, plus its length.
++export function postArticleSourceKey2029(content) {
++  let hash = 0x811c9dc5; const text = String(content || "");
++  for (let index = 0; index < text.length; index += 1) { hash ^= text.charCodeAt(index); hash = Math.imul(hash, 0x01000193) >>> 0; }
++  return `${hash.toString(16).padStart(8, "0")}:${text.length}`;
++}
++
++// Exactly the page's pipeline for an ordinary imported Post: projection (markLegacyEqualityLines) -> postReadingHtml2029 -> hardenPassiveMediaHtml.
++export function postArticleBodyHtml2029(content) {
++  return hardenPassiveMediaHtml(postReadingHtml2029(markLegacyEqualityLines(content)));
++}
++
++const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
++
++// The page's duplicate-cover rule (Post2029Page effect), applied to the same body.
++function markDuplicateCover(template, imageUrl) {
++  const cover = String(imageUrl || "").trim().split("?")[0];
++  if (!cover) return;
++  const first = template.content.querySelector("img");
++  if (!first || (first.getAttribute("src") || "").trim().split("?")[0] !== cover) return;
++  const parent = first.parentElement;
++  const wrap = parent && parent.children.length === 1 && !parent.textContent.trim() ? parent : first;
++  wrap.setAttribute("data-duplicate-cover", "true");
++}
++
++export function postArticleDocumentHtml2029(post, { document = globalThis.document } = {}) {
++  const template = document.createElement("template");
++  template.innerHTML = postArticleBodyHtml2029(post.content);
++  markDuplicateCover(template, post.image_url);
++  const title = humanContentTitle(post.title, { max: 0 });
++  const date = String(post.date || post.modified || "").slice(0, 10);
++  const author = String(post.author || "").trim();
++  const cover = typeof post.image_url === "string" ? post.image_url.trim() : "";
++  return `<article id="${POST_ARTICLE_DOCUMENT_ID}" class="sod29-ssr-article" dir="rtl" data-ssr-post="${escapeHtml(post.id)}" data-ssr-source="${postArticleSourceKey2029(post.content)}">`
++    + `<header class="sod29-ssr-head"><h1>${escapeHtml(title)}</h1>`
++    + `<p class="sod29-ssr-byline">${author ? `ייחוס במקור: ${escapeHtml(author)} · ` : ""}${date ? `<time datetime="${escapeHtml(date)}">${escapeHtml(bilingualDateLabel(date, date))}</time>` : ""}</p></header>`
++    + (cover ? `<figure class="sod29-ssr-cover"><img src="${escapeHtml(cover)}" alt="" fetchpriority="high" decoding="async"></figure>` : "")
++    + `<section class="sod29-ssr-source" aria-label="טקסט המקור">${template.innerHTML}</section>`
++    + `</article>`;
++}
++
++// What the first document needs so the app's own first frames never push the article down: the app root keeps the opening bar's
++// height while the document article is present (CSS only, :has), and a reading column close to the page's.
++export const POST_ARTICLE_DOCUMENT_STYLE = `<style>
++html:has(#${POST_ARTICLE_DOCUMENT_ID}) #root{height:var(--sod29-ssr-root,132px);overflow:hidden}
++.sod29-ssr-article{display:block;max-width:760px;margin:0 auto;padding:8px 16px 48px;color:#f5f0e8;font-family:'Noto Sans Hebrew','Rubik',Arial,sans-serif;line-height:1.85;font-size:17px}
++.sod29-ssr-head h1{font-size:clamp(24px,6vw,36px);line-height:1.3;margin:12px 0 6px;color:#fff3c4}
++.sod29-ssr-byline{margin:0 0 14px;color:#c9bfae;font-size:14px}
++.sod29-ssr-cover{margin:0 auto 20px;width:min(100%,560px);aspect-ratio:1586/992;max-height:min(46vh,360px)}.sod29-ssr-cover img{display:block;width:100%;height:100%;object-fit:contain;border-radius:14px}
++.sod29-ssr-source img{max-width:100%;height:auto}.sod29-ssr-source [data-duplicate-cover="true"]{display:none}
++.sod29-ssr-source iframe{max-width:100%}
++</style>`;
+diff --git a/src/pages/Post2029Page.jsx b/src/pages/Post2029Page.jsx
+index add783455..5b53133d6 100644
+--- a/src/pages/Post2029Page.jsx
++++ b/src/pages/Post2029Page.jsx
+@@ -1,4 +1,5 @@
+-import React, { useEffect, useMemo, useRef, useState } from "react";
++import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
++import { POST_ARTICLE_DOCUMENT_ID, postArticleSourceKey2029 } from "../lib/research/postArticleDocument2029.js";
+ import { createPortal } from "react-dom";
+ import { useLocation, useParams } from "react-router-dom";
+ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
+@@ -94,6 +95,57 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
+   const [state, setState] = useState({ loading: true, projection: null, error: null });
+   const passiveSourceHtml = useMemo(() => hardenPassiveMediaHtml(postReadingHtml2029(state.projection?.post?.content || "")),
+     [state.projection?.post?.content]);
++  // EXPERIMENT (OLD_POST_ARTICLE_FIRST_20261116): adopt the first document's article nodes instead of rendering the article a second time.
++  // Only when the document article is for this Post, from the same stored source, and parses to exactly the page's own HTML; else render as before.
++  const coverSlotRef = useRef(null);
++  const adoptionRef = useRef(null);   // { id, node } once adopted: this Post keeps its adopted nodes for the life of the page (React never writes them again)
++  const documentArticle = useMemo(() => {
++    const projection = state.projection;
++    if (adoptionRef.current && projection?.post && adoptionRef.current.id === String(projection.post.id)) return adoptionRef.current.node;
++    const node = typeof document === "undefined" ? null : document.getElementById(POST_ARTICLE_DOCUMENT_ID);
++    if (!node || !projection?.post || node.dataset.ssrPost !== String(projection.post.id)) return null;
++    if (node.dataset.ssrSource !== postArticleSourceKey2029(projection.sourcePost?.content)) { node.dataset.ssrResult = "source-differs"; return null; }
++    const theirs = node.querySelector(".sod29-ssr-source")?.cloneNode(true);
++    if (!theirs) return null;
++    theirs.querySelectorAll("[data-duplicate-cover]").forEach(el => el.removeAttribute("data-duplicate-cover"));
++    const mine = document.createElement("template"); mine.innerHTML = passiveSourceHtml;
++    const a = [...mine.content.childNodes], b = [...theirs.childNodes];
++    const same = a.length === b.length && a.every((child, index) => child.isEqualNode(b[index]));
++    if (!same) { node.dataset.ssrResult = "output-differs"; return null; }
++    return node;
++  }, [state.projection, passiveSourceHtml]);
++  useLayoutEffect(() => {
++    const node = documentArticle, target = sourceRef.current;
++    if (!node || !node.isConnected || !target || target.childNodes.length) return;
++    const source = node.querySelector(".sod29-ssr-source");
++    const anchor = [...source.children].find(el => el.getBoundingClientRect().bottom > 0) || source.firstElementChild || source;
++    const before = anchor.getBoundingClientRect().top;
++    adoptionRef.current = { id: node.dataset.ssrPost, node };
++    target.append(...source.childNodes);
++    const coverImage = node.querySelector(".sod29-ssr-cover img");
++    if (coverImage && coverSlotRef.current) coverSlotRef.current.append(coverImage);
++    node.remove();
++    const after = anchor.getBoundingClientRect().top;
++    if (Math.abs(after - before) > 0.5) window.scrollBy(0, after - before);
++    target.dataset.ssrAdopted = "true";
++    window.__sodSsrAdoption = { at: Math.round(performance.now()), moved: Math.round(after - before) };
++  }, [documentArticle]);
++  // Not adoptable (another Post, another source, or a different output): the page's own article replaces the document's, in place, once —
++  // never both. The reader keeps the same top-level block of the article at the same height.
++  useLayoutEffect(() => {
++    const leftover = typeof document === "undefined" ? null : document.getElementById(POST_ARTICLE_DOCUMENT_ID);
++    const target = sourceRef.current;
++    if (!leftover || documentArticle || !target || !target.childNodes.length) return;
++    const blocks = [...(leftover.querySelector(".sod29-ssr-source")?.children || [])];
++    const index = Math.max(0, blocks.findIndex(el => el.getBoundingClientRect().bottom > 0));
++    const before = blocks[index]?.getBoundingClientRect().top ?? 0;
++    const result = leftover.dataset.ssrResult || "not-adopted";
++    leftover.remove();
++    const counterpart = target.children[index];
++    const after = counterpart ? counterpart.getBoundingClientRect().top : before;
++    if (scrollY > 0 && Math.abs(after - before) > 0.5) window.scrollBy(0, after - before);
++    window.__sodSsrAdoption = { at: Math.round(performance.now()), replaced: result };
++  });
+   const [activeRegionId, setActiveRegionId] = useState(null);
+   const [sourceUpdates, setSourceUpdates] = useState([]);
+ 
+@@ -1150,7 +1202,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
+         </ul>
+       </details> : null}
+     </aside> : null}
+-    {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
++    {coverItem && documentArticle ? <figure ref={coverSlotRef} className="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="adopted" />
++      : coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
+       <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
+     </figure> : null}
+ 
+@@ -1194,7 +1247,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
+             handleSourceContextualFocus(event);
+           }
+         }}
+-        dangerouslySetInnerHTML={{ __html: passiveSourceHtml }}
++        {...(documentArticle ? {} : { dangerouslySetInnerHTML: { __html: passiveSourceHtml } })}
+       />
+ 
+ 

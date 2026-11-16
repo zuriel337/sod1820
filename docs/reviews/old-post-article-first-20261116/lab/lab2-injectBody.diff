@@ -1,0 +1,11 @@
+--- /dev/fd/63	2026-11-16 08:19:31.303049912 +0000
++++ /tmp/claude-0/-home-user-sod1820/c9b833e8-a63a-5dad-96a0-96133df72f23/scratchpad/lab/lab2.mjs	2026-11-16 07:57:54.992133944 +0000
+@@ -139,7 +139,7 @@
+   const d = cfg.fixture.docDelayMs || {};
+   lab = await startLabServer({ root: cfg.fixture.root, cacheDir: cfg.fixture.cacheDir, readRpc: cfg.readRpc || [], anon, supabaseExtraMs: cfg.fixture.supabaseExtraMs ?? 120,
+     docDelayFor: p => p === '/' ? (d.home ?? 500) : p.startsWith('/post/') ? (d.new ?? 600) : (d.old ?? 1000), record: cfg.fixture.record !== false,
+-    staticCacheControl: cfg.fixture.staticCacheControl || null, inject: cfg.fixture.inject || {}, docCacheControl: cfg.fixture.docCacheControl || null });
++    staticCacheControl: cfg.fixture.staticCacheControl || null, inject: cfg.fixture.inject || {}, injectBody: cfg.fixture.injectBodyFile ? JSON.parse(readFileSync(cfg.fixture.injectBodyFile, 'utf8')) : {}, docCacheControl: cfg.fixture.docCacheControl || null });
+   cfg.origin = lab.origin;
+ }
+ const browser = await chromium.launch({ proxy: cfg.mode === 'live' && process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY } : undefined,
