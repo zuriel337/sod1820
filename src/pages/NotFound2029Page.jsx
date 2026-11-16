@@ -18,7 +18,7 @@ export default function NotFound2029Page() {
     });
   }, [loc.pathname]);
 
-  return <main style={{ direction: "rtl", minHeight: "62vh", display: "grid", placeItems: "center", padding: "48px 18px" }}>
+  return <main data-experience-surface="not-found" style={{ direction: "rtl", minHeight: "62vh", display: "grid", placeItems: "center", padding: "48px 18px" }}>
     <section style={{ maxWidth: 680, textAlign: "center", color: P.ink }}>
       <div style={{ fontFamily: TYPEFACE.ui, fontSize: 12, letterSpacing: ".12em", color: P.accentDim }}>404 · SOD1820</div>
       <h1 style={{ fontFamily: TYPEFACE.display, fontSize: "clamp(30px,7vw,52px)", margin: "12px 0" }}>העמוד לא נמצא</h1>

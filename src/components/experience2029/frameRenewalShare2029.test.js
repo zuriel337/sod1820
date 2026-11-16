@@ -169,7 +169,8 @@ test("global dock opens ShareActions directly with all approved choices and keep
   assert.match(source, /const openShare = useCallback\(\(\) => openTransient\(TRANSIENT\.MORE, \{ shareOnly: true \}\)/);
   assert.match(source, /<GlobalLivingRibbon2029 \/>/);
   assert.match(source, /sourceHref: contactSourceHref\(location\)/);
-  assert.match(source, /const feed = useSystemFeed2029\(\{ enabled: surface !== "control", nowOpen: transient\?\.kind === TRANSIENT\.ATTENTION, homeStrip: surface === "home" \&\& !\(corePublicViewer \&\& worldLocked\) \}\)/);
+  // afterContent (ZURIEL 16.11.2026, readable content first): away from the Home the feed's background reads wait for the page's content.
+  assert.match(source, /const feed = useSystemFeed2029\(\{ enabled: surface !== "control", nowOpen: transient\?\.kind === TRANSIENT\.ATTENTION, homeStrip: surface === "home" \&\& !\(corePublicViewer \&\& worldLocked\), afterContent: surface !== "home" \}\)/);
   assert.match(source, /data-command-mode="tool"[\s\S]*activeToolDock\.actions\.slice\(0, 2\)[\s\S]*activeToolDock\.actions\.slice\(2, 4\)/);
   // #1214 replaced the share-only dock button with the one full "עוד" entry: sharing is a section of that panel (the branch exercised above, ShareActions
   // with every approved channel) and test/dock-more-2029.test.mjs pins the five-control dock. The dock entry must open that panel.

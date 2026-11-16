@@ -46,6 +46,18 @@ test("the existing RUM schema preserves missing metrics and permits only the ano
     const changed=structuredClone(b);mutation(changed);assert.equal(readingWebVitalBody(changed),false);
   }
 });
+test("field context (16.11.2026): build, device class, article-first outcome and the document's first-byte parts are admitted together, bounded, or not at all",()=>{
+  const ctx={build:"2029-BN6n_4z5",device_class:"mobile",article_first:"adopted",nav_timing:{redirect_ms:null,worker_ms:3,dns_ms:0,connect_ms:41,wait_ms:812,download_ms:96}};
+  const b=vital();Object.assign(b.p_props,ctx);assert.equal(readingWebVitalBody(b),true);
+  for(const value of ["none","served","adopted","replaced",null]){const c=structuredClone(b);c.p_props.article_first=value;assert.equal(readingWebVitalBody(c),true,String(value));}
+  const c0=structuredClone(b);c0.p_props.nav_timing=null;c0.p_props.build=null;c0.p_props.device_class=null;assert.equal(readingWebVitalBody(c0),true,"unknown parts are null");
+  for(const mutation of [b=>delete b.p_props.nav_timing,b=>b.p_props.build="/assets/x.js",b=>b.p_props.build="person@example.invalid",b=>b.p_props.device_class="iPhone 15",
+    b=>b.p_props.article_first="maybe",b=>b.p_props.nav_timing.wait_ms=-1,b=>b.p_props.nav_timing.wait_ms=1.5,b=>b.p_props.nav_timing.wait_ms=600001,
+    b=>b.p_props.nav_timing.extra=1,b=>delete b.p_props.nav_timing.dns_ms,b=>b.p_props.nav_timing=[],b=>b.p_props.ua="Mozilla/5.0"]){
+    const changed=structuredClone(b);mutation(changed);assert.equal(readingWebVitalBody(changed),false);
+  }
+  assert.equal(readingWebVitalBody(vital()),true,"a page still on the previous code (no context) is admitted");
+});
 test("emitted worker admits checkpoint/final only from the matching canonical window, strips account JWT and bounds duplicates",async()=>{
   const w=worker();const b=vital();
   assert.equal((await w.request(DB+"/rest/v1/rpc/ingest_event",b,{headers:{"Content-Type":"application/json",Authorization:"Bearer "+token}})).status,200);
@@ -119,10 +131,17 @@ test("the actual public RUM collector never creates/bridges identity and finaliz
   }}]});
   let checkpoint;const events={},calls=[],posts=[];const doc={visibilityState:"visible",addEventListener:(n,fn)=>events[n]=fn,removeEventListener(){}};
   const win={location:{pathname:"/number/PRIVATE"},addEventListener:(n,fn)=>events[n]=fn,removeEventListener(){}};
-  const context={module:{exports:{}},calls,console,URL,JSON,document:doc,location:win.location,performance:{getEntriesByType:()=>[]},fetch:async(url,opts)=>{posts.push({url,opts});return json({ok:true});}};context.exports=context.module.exports;
+  // field context (16.11.2026): a phone, a Post adopted article-first, and the parts of the document's first byte
+  const NAV={type:"navigate",startTime:0,redirectStart:0,redirectEnd:0,workerStart:5,fetchStart:9,domainLookupStart:10,domainLookupEnd:30,connectStart:30,connectEnd:80,requestStart:81,responseStart:700,responseEnd:760};
+  const context={module:{exports:{}},calls,console,URL,JSON,document:doc,location:win.location,performance:{getEntriesByType:t=>t==="navigation"?[NAV]:[]},
+    navigator:{userAgent:"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile/15E148"},window:{__sodArticleFirst:{result:"adopted"}},
+    fetch:async(url,opts)=>{posts.push({url,opts});return json({ok:true});}};context.exports=context.module.exports;
   vm.runInNewContext(code.outputFiles[0].text,context);
   const cleanup=context.module.exports.startWebVitals2029({win,doc,production:true,publicReading:true,bot:false,PerformanceObserverCtor:class{observe(){}disconnect(){}},sampleId:"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",setTimeoutFn:fn=>{checkpoint=fn;return 1;},clearTimeoutFn(){}});
   checkpoint();assert.equal(calls.length,1);assert.equal(calls[0][0],"ingest_event");assert.equal(readingWebVitalBody(calls[0][1]),true);assert.equal(calls[0][1].p_path,"/number/:value");
+  const sent=calls[0][1].p_props;
+  assert.deepEqual({build:sent.build,device_class:sent.device_class,article_first:sent.article_first,nav_timing:{...sent.nav_timing}},
+    {build:null,device_class:"mobile",article_first:"adopted",nav_timing:{redirect_ms:null,worker_ms:4,dns_ms:20,connect_ms:50,wait_ms:619,download_ms:60}},"build is null outside a built chunk");
   events.pagehide();assert.equal(posts.length,1);assert.equal(posts[0].url,DB+"/rest/v1/rpc/ingest_event");assert.equal(readingWebVitalBody(JSON.parse(posts[0].opts.body)),true);
   events.pagehide();assert.equal(posts.length,1);cleanup();
 });
@@ -131,12 +150,15 @@ test("actual route effects restore first-party visits/engagement on the normaliz
   // The function ends at the first closing brace in column 0 after its start. (The previous end marker was a comment that no longer exists, so the slice ran to the end of
   // the file, pulled in `export default` and failed with "module is not defined": the proof of the route effects had silently stopped running.)
   const start=app.indexOf("function RouteEffects2029()"),end=app.indexOf("\n}\n",start);assert.ok(start>=0&&end>start,"RouteEffects2029 must be found");const source=app.slice(start,end+3);
-  const code=(await transform(source,{loader:"jsx",format:"cjs"})).code.replaceAll('import("./lib/visits.js")',"visitsModule()");const calls=[],effects=[],timers=[];let mutation,ready=false,idle;
+  const code=(await transform(source,{loader:"jsx",format:"cjs"})).code.replaceAll('import("./lib/visits.js")',"visitsModule()");const calls=[],effects=[],timers=[],gates=[];let mutation,ready=false,idle;
   const context={PUBLIC_READING_RELEASE:true,integratedPreviewEnabled:false,kingdomPreviewEnabled:false,useLocation:()=>({pathname:"/",key:"default"}),useEffect:fn=>effects.push(fn),
     useAuth:()=>({loading:false,isAdmin:false}),React:{useRef:value=>({current:value})},
     window:{location:{hostname:"sod1820.co.il"},requestIdleCallback:fn=>{idle=fn;return 1;},cancelIdleCallback:()=>{}},
     document:{querySelector:()=>ready?{}:null,getElementById:()=>({}),body:{}},MutationObserver:class{constructor(fn){mutation=fn;}observe(){}disconnect(){}},
-    readingTelemetryPath,startWebVitals2029:opts=>{calls.push(["RUM",opts]);return ()=>{};},initGA:opts=>calls.push(["GA",opts]),trackPageview:(...args)=>{calls.push(["page",...args]);},
+    readingTelemetryPath,startWebVitals2029:opts=>{calls.push(["RUM",opts]);return ()=>{};},
+    initGA:opts=>calls.push(["GA",opts]),trackPageview:(...args)=>{calls.push(["page",...args]);},
+    // Readable content first (ZURIEL 16.11.2026): the content gate is driven by hand.
+    afterReadableContent2029:(path,fn,options={})=>{const gate={path,fn,options:{...options},live:true};gates.push(gate);return ()=>{gate.live=false;};},
     initMarketing:()=>calls.push(["marketing"]),trackMarketingPageview:()=>calls.push(["marketing-page"]),ensureIdentity:()=>assert.fail("identity bridge"),
     visitsModule:()=>Promise.resolve({trackVisit:()=>{},startPublicPageEngagement:path=>{calls.push(["engagement",path]);return ()=>{};}}),
     // The first-party page view is written only after the address has settled (a redirect hop is not a page view): the timer is run by hand.
@@ -147,9 +169,13 @@ test("actual route effects restore first-party visits/engagement on the normaliz
   assert.doesNotMatch(app,/^import \{ trackVisit \}/m);
   vm.runInNewContext("let measuredEntry2029 = null; const PAGE_VIEW_SETTLE_MS = 150;"+code+";RouteEffects2029();",context);const cleanup=effects.map(fn=>fn());
   assert.equal(calls.length,1,"nothing first-party is written before the address settles");assert.equal(calls[0][0],"RUM");assert.equal(calls[0][1].publicReading,true);
-  assert.deepEqual(timers.map(t=>t.ms),[150]);timers[0].fn();await Promise.resolve();await Promise.resolve();assert.equal(calls.length,2);
+  // Google and Meta wait on the content gate from the start (default: after the content, at an idle moment); nothing of theirs has started.
+  assert.equal(gates.length,1);assert.equal(gates[0].path,"/");assert.deepEqual(gates[0].options,{});
+  assert.deepEqual(timers.map(t=>t.ms),[150]);timers[0].fn();await Promise.resolve();await Promise.resolve();assert.equal(calls.length,1,"settled, content not on screen: no visit yet");
+  assert.equal(gates.length,2);assert.deepEqual(gates[1].options,{idle:false,onHidden:true});
+  gates[1].live=false;gates[1].fn();for(let i=0;i<4;i++)await Promise.resolve();assert.equal(calls.length,2);
   assert.deepEqual(calls[1],["engagement","/"]);
-  ready=true;mutation();assert.equal(calls.length,2);idle();assert.deepEqual(calls.map(x=>x[0]),["RUM","engagement","GA","page","marketing","marketing-page"]);assert.equal(calls[2][1].path,"/");assert.equal(calls[3][1],"/");cleanup.forEach(fn=>fn?.());
+  gates[0].live=false;gates[0].fn();for(let i=0;i<4;i++)await Promise.resolve();assert.deepEqual(calls.map(x=>x[0]),["RUM","engagement","GA","page","marketing","marketing-page"]);assert.equal(calls[2][1].path,"/");assert.equal(calls[3][1],"/");cleanup.forEach(fn=>fn?.());
   // A second mount on the same history entry (the account state resolving replaces a keyed subtree) is not a second page view.
   const again=effects.slice(-1)[0]();assert.equal(timers.filter(t=>t.ms===150).length,1,"the same entry is not measured twice");again?.();
 });

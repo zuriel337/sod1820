@@ -1,6 +1,8 @@
 // Real Chromium, the BUILT public-reading artifact (built WITH test marketing ids), its real service worker and the deployment's real CSP.
 // Meta Pixel and Google AdSense are enabled on the 2029 public site (ZURIEL, 11.11.2026): the app starts the Pixel on an admitted public route,
 // the Conversions API relay is allowed through the worker, and every AdSense/Meta transport host is admitted by the CSP and reaches the network.
+// AdSense is paused (ZURIEL, 16.11.2026: "לבטל את הפרסומות באתר אני לא רוצה כרגע"): the app shows no unit and loads no ad script, even with a
+// publisher id and slots in the build (third test); the CSP keeps admitting its hosts so a resume needs no other change.
 //   VITE_META_PIXEL_ID=1234567890123456 VITE_ADSENSE_CLIENT=ca-pub-0000000000000000 node scripts/build-public-reading-production.mjs
 //   node --test test/marketing-browser-2029.browser.mjs
 import test from 'node:test';
@@ -106,9 +108,38 @@ test('A bot visit loads no Pixel script and sends no PageView or CAPI event (bot
     const page = await context.newPage();
     await page.goto(fixture.origin + '/world', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => navigator.serviceWorker.controller && !window.__bootstrapFailure && document.querySelector('#root')?.children.length, null, { timeout: 30000 });
-    await page.waitForTimeout(4500);   // the app starts measurement on idle (at most 3 s)
+    // the app starts measurement after the page's content and the load event, at an idle moment (at most 3 s; ZURIEL 16.11.2026)
+    await page.waitForLoadState('load'); await page.waitForTimeout(4500);
     assert.deepEqual(reached.filter(host => /facebook/.test(host)), [], 'no Pixel script or beacon for a bot');
     assert.equal(await page.evaluate(() => window.__fbCalls), undefined);
     assert.deepEqual(fixture.state.functions.filter(call => call.path === '/functions/v1/meta-capi'), [], 'no CAPI event for a bot');
+  } finally { await browser.close(); await fixture.close(); }
+});
+
+test('Ads are paused (ZURIEL 16.11.2026): a Post and the Posts list, read in Israel by a human, show no ad unit and load no AdSense script although the build carries a publisher id and slots', { skip, timeout: 120000 }, async () => {
+  const row = { id: 90041, slug: 'ads-paused-post', title: 'מאמר בלי מודעות', content: '<p>קריאה בלי מודעות.</p>', source: 'sod1820', categories: [], tags: [] };
+  const fixture = await startFixture({ deploymentCsp: true, supabase: async ({ url }) => url.pathname === '/rest/v1/posts'
+    ? { body: (url.searchParams.get('slug') || '').includes(row.slug) ? [row] : [] } : null });
+  const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
+  try {
+    const context = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'he-IL', timezoneId: 'Asia/Jerusalem' });
+    const reached = [];
+    await context.route(HOSTS, route => {
+      const url = new URL(route.request().url()); reached.push(url.origin + url.pathname);
+      if (url.pathname === '/en_US/fbevents.js') return route.fulfill({ status: 200, contentType: 'application/javascript', body: FBEVENTS });
+      return route.fulfill({ status: 200, contentType: 'application/javascript', body: ADSBYGOOGLE });
+    });
+    await context.addCookies([{ name: 'vb', value: 'browser', domain: 'sod1820.co.il', path: '/', secure: true }]);
+    const page = await context.newPage();
+    await page.goto(fixture.origin + '/post/' + row.slug, { waitUntil: 'domcontentloaded' });
+    await page.locator('article', { hasText: 'קריאה בלי מודעות.' }).waitFor({ timeout: 40000 });
+    // The Pixel starting proves the page's optional work ran, so an ad unit would have had its chance.
+    await page.waitForFunction(() => Array.isArray(window.__fbCalls), null, { timeout: 30000 });
+    assert.equal(await page.locator('.sod29-ad-slot, ins.adsbygoogle').count(), 0, 'no ad unit on the Post');
+    await page.goto(fixture.origin + '/posts', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load'); await page.waitForTimeout(3000);
+    assert.equal(await page.locator('.sod29-ad-slot, ins.adsbygoogle').count(), 0, 'no ad unit on the Posts list');
+    assert.equal(await page.evaluate(() => window.__adsLoaded), undefined);
+    assert.deepEqual(reached.filter(url => /googlesyndication|doubleclick|adtrafficquality|fundingchoices/.test(url)), [], 'no AdSense request');
   } finally { await browser.close(); await fixture.close(); }
 });
