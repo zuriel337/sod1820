@@ -285,6 +285,8 @@ function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool
 export default function CommunityCalculatorPage({
   initialState, renderCalculator, renderBabyTool, actionsLocked = false,
   passive = false,
+  // The 2029 composition opens with every method in the classic grid (the regular calculator's classic view); the default stays the core three.
+  initialShowAll = false,
 } = {}) {
   const P = use2029Palette();
   const loc = useLocation();
@@ -298,7 +300,7 @@ export default function CommunityCalculatorPage({
   const [selectedMethod, setSelectedMethod] = useState(() => initialState?.method || "רגיל");
   const [copied, setCopied] = useState(false);
   const [phrases1, setPhrases1] = useState([]);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(initialShowAll === true);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [fromShare, setFromShare] = useState(false);
   const [aiText, setAiText] = useState("");

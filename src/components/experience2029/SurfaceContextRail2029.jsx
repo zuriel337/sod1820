@@ -6,7 +6,9 @@ import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029, { revealAndScrollTo } from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
-import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
+// The event sequence opens only inside the closed "רצף האירועים" section of the mobile sheet: it loads on that open, not with the frame on every page
+// (shell budget, ZURIEL 16.11.2026). It brings its own readers (source updates, lineage) with it.
+const EventSequencePanel2029 = lazy(() => import("./EventSequencePanel2029.jsx"));
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
@@ -261,7 +263,7 @@ export default function SurfaceContextRail2029({
           </button></li>)}</ul>
         </>}
       </div> : null}
-      {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></details> : null}
+      {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><Suspense fallback={null}><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></Suspense></details> : null}
       <ContextualVideoLayer2029 subject={subject} context={context} />
       {surface === "post" && !identityLoading && isAdmin ? <Suspense fallback={null}><GoldenProjectorModeLayer2029 context={context} surface={surface} /></Suspense> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}

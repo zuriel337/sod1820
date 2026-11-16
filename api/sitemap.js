@@ -4,6 +4,7 @@ import { postsTaxonomyRoute2029, postMatchesTaxonomy2029 } from "../src/lib/rese
 import { publicPostHref, publicPostUrl, postAddressSlug } from "../src/lib/publicPostUrls.js";
 import { publicPostOnlyFilter } from "../src/lib/research/publicPostBoundary.js";
 import { publicVideoSitemapAssets2029 } from "../src/lib/research/publicVideo2029Reading.js";
+import { COMMUNITY_CALCULATOR_LASTMOD } from "../src/lib/research/communityCalculatorSeo2029.js";
 // Vercel Serverless Function — sitemap.xml דינמי (מפת אתר חיה).
 // בונה את מפת האתר ישירות מהגרף ב-Supabase בכל בקשה, כך שכל פוסט/מספר/התכנסות
 // חדשים נכללים במפה; הימצאות במפה אינה הוכחה לאינדוקס — בלי להריץ סקריפט ובלי לדחוף קובץ.
@@ -213,7 +214,7 @@ export default async function handler(req, res) {
   // The community chat is the replacement of the retired forum and a popular search landing page: it belongs in the sitemap.
   if (productionReading) urls.push({ loc: '/community/chat', priority: '0.7', changefreq: 'daily' });
   // The calculator is a popular search landing page too (bare address only; query variants carry private inputs).
-  if (productionReading) urls.push({ loc: '/community/calculator', priority: '0.7', changefreq: 'weekly' });
+  if (productionReading) urls.push({ loc: '/community/calculator', lastmod: COMMUNITY_CALCULATOR_LASTMOD, priority: '0.7', changefreq: 'weekly' });
   if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc,priority:'0.4',changefreq:'yearly'});
   let foundationSourceFailed = false;
   const readingProfile = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;

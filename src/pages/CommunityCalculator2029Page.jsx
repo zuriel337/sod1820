@@ -15,6 +15,10 @@ import {
   parseCommunityCalculatorState, selectCommunityCalculatorResult,
   communityCalculatorHref, communityCalculatorNumberNavigation,
 } from "../lib/research/communityCalculatorContinuity2029.js";
+import {
+  COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ, COMMUNITY_CALCULATOR_PATH, COMMUNITY_CALCULATOR_SEO, communityCalculatorJsonLd,
+} from "../lib/research/communityCalculatorSeo2029.js";
+import "../components/experience2029/royal2029.css";
 import "./communityCalculator2029.css";
 
 const Continuation = createContext(null);
@@ -54,7 +58,7 @@ function MethodResults({ expression, result, selectedMethod, onSelect, showAll, 
   const rows = showAll ? result.all : result.all.filter(row => CORE_METHODS.includes(row.key) || row === selected);
   return <section className="sod29-community-calc-methods" aria-label={`שיטות החישוב של ${expression}`}>
     <header className="sod29-community-calc-section-heading">
-      <h2>אותו שם, עוד דרכי חישוב</h2>
+      <h2>כל שיטות הגימטריה</h2>
       <button type="button" className="sod29-community-calc-text-button" onClick={onShowAll} aria-expanded={showAll}>
         {showAll ? "שיטות הליבה" : `כל ${result.all.length} השיטות`}
       </button>
@@ -154,6 +158,13 @@ function CalculatorExperience({ model, initialState, location }) {
     try { window.history.replaceState(window.history.state, "", returnHref); } catch { /* State still travels in share/return links. */ }
   }, [signature, returnHref]);
 
+  useEffect(() => {
+    // Form edits replace native history without changing useLocation().search.
+    // Follow the effective address, with the same public policy as api/og.js.
+    applySeo({ title: COMMUNITY_CALCULATOR_SEO.title, description: COMMUNITY_CALCULATOR_SEO.description,
+      path: COMMUNITY_CALCULATOR_PATH, noindex: new URL(returnHref, "https://sod1820.co.il").search !== "", follow: true });
+  }, [returnHref]);
+
   function chooseMode(next) {
     model.setBabyMode(next === "baby");
     model.setDateMode(next === "date");
@@ -165,15 +176,16 @@ function CalculatorExperience({ model, initialState, location }) {
       : selected ? `${state.name1} · ${canonicalMethodPublicLabel(selected.key)} · ${selected.value}` : "מחשבון הקהילה";
 
   return <Continuation.Provider value={{ returnHref, research }}>
-    <main className="sod29-community-calc" dir="rtl">
+    <main className="sod29-community-calc r29" dir="rtl">
       <header className="sod29-community-calc-hero">
         <span className="sod29-community-calc-eyebrow">גימטריה · שמות · תאריכים</span>
-        <h1>מה מתחבר לשם שלכם?</h1>
-        <p>שם אחד, כמה דרכי חישוב. גלו את הערכים, השוו בין שמות והמשיכו אל הביטויים שמתחברים אליהם.</p>
+        <h1>{COMMUNITY_CALCULATOR_SEO.heading}</h1>
+        <p className="sod29-community-calc-hook">{COMMUNITY_CALCULATOR_SEO.hook}</p>
+        <div className="r29-rule" aria-hidden="true">◆</div>
       </header>
       <div className="sod29-community-calc-modes" role="group" aria-label="בחירת כלי במחשבון הקהילה">
         {MODES.map(([key, label, icon]) => <button type="button" key={key} aria-pressed={mode === key} onClick={() => chooseMode(key)}>
-          <NavigationIcon2029 name={icon} size={20} /><span>{label}</span>
+          <span className="r29-medal" aria-hidden="true"><NavigationIcon2029 name={icon} size={20} /></span><span>{label}</span>
         </button>)}
       </div>
 
@@ -240,6 +252,22 @@ function CalculatorExperience({ model, initialState, location }) {
         {!r1 && !state.dateMode && <div className="sod29-community-calc-empty"><NavigationIcon2029 name="number" size={32} /><h2>מתחילים בשם אחד</h2><p>רגיל, מילוי, מסתתר וכל שיטות החישוב של המחשבון מחכות כאן.</p></div>}
       </>}
 
+      {/* Structured data for the bare address only (a query string can carry a private name and is kept out of the index). It is rendered here,
+          not by the server: the route SEO gate keeps the server-merged document's structured data to the home identity, and Google reads
+          JSON-LD from the rendered page. The questions are the visible questions below (one list). */}
+      {new URL(returnHref, "https://sod1820.co.il").search === "" && <script type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(communityCalculatorJsonLd()).replace(/</g, "\\u003c") }} />}
+      <section className="sod29-community-calc-about" aria-labelledby="community-calculator-about">
+        <h2 id="community-calculator-about">{COMMUNITY_CALCULATOR_SEO.introHeading}</h2>
+        <p>{COMMUNITY_CALCULATOR_SEO.lead}</p>
+        <h2>{COMMUNITY_CALCULATOR_EXPLAINER.heading}</h2>
+        {COMMUNITY_CALCULATOR_EXPLAINER.paragraphs.map(text => <p key={text}>{text}</p>)}
+        <h2 id="community-calculator-faq">שאלות נפוצות על מחשבון הגימטריה</h2>
+        <div className="sod29-community-calc-faq">
+          {COMMUNITY_CALCULATOR_FAQ.map(({ q, a }) => <article key={q}><h3>{q}</h3><p>{a}</p></article>)}
+        </div>
+      </section>
+
       <footer className="sod29-community-calc-footer">
         <section aria-label="שיתוף המחשבון" className="sod29-community-calc-share">
           <div><h2>ממשיכים מאותה נקודה</h2><p>הקישור כולל את השמות, השיטה והתאריך שהזנתם.</p></div>
@@ -260,13 +288,8 @@ export default function CommunityCalculator2029Page() {
   const location = useLocation();
   const initialState = useMemo(() => parseCommunityCalculatorState(location.search), [location.search]);
   const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
-  useEffect(() => {
-    applySeo({ title: "מחשבון הקהילה — גימטריה, שמות ותאריך עברי",
-      description: "מחשבון הגימטריה הקהילתי של SOD1820: השוואת שמות, בדיקת שמות לתינוק, שם משפחה ותאריך עברי, עם קישור לחזרה ולשיתוף.",
-      path: "/community/calculator", noindex: location.search !== "" });
-  }, [location.search]);
   return <Sod2029Shell surface="community" title="מחשבון הקהילה" introVariant="none">
-    <CommunityCalculatorPage key={location.key} initialState={initialState} passive actionsLocked={actionsLocked}
+    <CommunityCalculatorPage key={location.key} initialState={initialState} passive actionsLocked={actionsLocked} initialShowAll
       renderCalculator={model => <CalculatorExperience model={model} initialState={initialState} location={location} />}
       renderBabyTool={model => <BabyNames model={model} />} />
   </Sod2029Shell>;

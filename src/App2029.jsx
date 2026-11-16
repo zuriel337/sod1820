@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "
 import { AuthProvider, useAuth } from "./lib/AuthContext.jsx";
 import { beginPostReadingSource, beginHomeReadingSource } from "./lib/supabase.js";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
+import RouteScrollReset2029 from "./components/experience2029/RouteScrollReset2029.jsx";
 import RazielSessionMount2029 from "./components/experience2029/RazielSessionMount2029.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
@@ -381,6 +382,7 @@ export default function App2029() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <RouteScrollReset2029 />
         {/* Measurement stays outside ResearchProvider: its keyed subtree is replaced when the account state resolves. */}
         <RouteEffects2029 />
         <ResearchProvider>

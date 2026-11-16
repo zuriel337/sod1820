@@ -367,6 +367,25 @@
    }
   },
   {
+   "check": "route-navigation-2029",
+   "workflow_file": "route-navigation-2029.yml",
+   "job_id": "route-navigation-2029",
+   "pr_trigger": "paths",
+   "pr_branches": [
+    "main"
+   ],
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": 5,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "advisory-path-filtered",
+    "reason": "Path-filtered browser regression for forward navigation; not a new required check."
+   }
+  },
+  {
    "check": "route-seo-decision-2029",
    "workflow_file": "route-seo-decision-2029.yml",
    "job_id": "route-seo-decision-2029",
