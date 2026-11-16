@@ -22,3 +22,10 @@ export function postArticleSourceKey2029(content) {
   for (let index = 0; index < text.length; index += 1) { hash ^= text.charCodeAt(index); hash = Math.imul(hash, 0x01000193) >>> 0; }
   return `${hash.toString(16).padStart(8, "0")}:${text.length}`;
 }
+
+// The proof key of a row: the identity of its stored source and of every other row input of the pipeline (the voice). The proven list
+// (public-reading-deploy/article-first-proven.json) is keyed by it, and is itself bound to the pipeline's code and the server DOM's version
+// (scripts/lib/article-first-fingerprint.mjs): a change to either leaves the old proof unused (Codex review, 16.11.2026).
+export function postArticleProofKey2029(row) {
+  return `${postArticleSourceKey2029(row?.content)}:${postVoiceFor(row).voice}`;
+}

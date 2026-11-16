@@ -8,7 +8,8 @@ const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 const libSource = read("src/lib/research/postsVideoLibrary2029.js");
 const lib = libSource.split("\n").filter((line) => !/^\s*\/\//.test(line)).join("\n");   // code only: the comments explain WHY the category is not used
 const page = read("src/pages/Posts2029Page.jsx");
-const classification = read("src/lib/research/postsCatalog2029Projection.js");
+// The classification moved unchanged into its own leaf module (OLD_POST_ARTICLE_FIRST, 16.11.2026); the catalog re-exports it.
+const classification = read("src/lib/research/postClassification2029.js") + read("src/lib/research/postsCatalog2029Projection.js");
 const taxonomy = read("src/lib/research/postsTaxonomy2029Route.js");
 
 test("the library reads the existing public media views and never the legacy category or a manual tag", () => {

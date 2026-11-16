@@ -13,6 +13,7 @@
 import { PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, addedDateLabel, plainDayLabel } from "./postSourceUpdates2029.js";
 import { previewUnitIdsFor, previewUnitDefinition } from "./postPreviewUnits2029.js";
 import { injectPreviewUnits } from "./postPreviewUnitDom2029.js";
+import { styleTextWithout } from "./postInlineStyle2029.js";
 
 export const SEMANTIC_ROLES = Object.freeze({
   title: "title", peak: "peak", number: "number", verse: "verse", source: "source", short: "short", prose: "prose", media: "media",
@@ -90,7 +91,8 @@ function annotateBlocks(root, { voice }) {
     el.setAttribute("data-sod-align", align);
     // Smart centering: long readable text starts at the reading edge even when the stored markup centered it.
     // This edits only the displayed copy's alignment; the stored source is untouched.
-    if (align === "start" && inlineCenter(el)) el.style.removeProperty("text-align");
+    // As text, not through the CSSOM: the same result in the browser and in a server DOM (postInlineStyle2029.js).
+    if (align === "start" && inlineCenter(el)) el.setAttribute("style", styleTextWithout(el.getAttribute("style"), "text-align"));
   }
   return peaks;
 }

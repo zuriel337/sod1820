@@ -17,7 +17,7 @@ export function isPostEnglishExpression(expression) {
     && /^[A-Za-z\s'’.-]+$/.test(String(expression || ""));
 }
 
-import { clean, postCssSelectors, postReadingHtml2029, markLegacyEqualityLines } from "./postArticleCore2029.js";
+import { clean, postCssSelectors, postReadingHtml2029, markLegacyEqualityLines, postPlainText2029 as stripTags } from "./postArticleCore2029.js";
 import { GOLDEN_SLUG, FZ1073_SLUG, BENNETT_SALT_SLUG, ELECTIONS_SLUG } from "./postSpecialReadings2029.js";
 export { postReadingHtml2029 };
 
@@ -616,19 +616,6 @@ async function verifyElectionsEqualities() {
     return { phrase, value, verified: !error && Number(data) === value };
   }));
   return { verified: rows.every((row) => row.verified), method: "רגיל", rows };
-}
-
-function stripTags(html = "") {
-  return String(html)
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&#x27;/gi, "'")
-    .replace(/&amp;/gi, "&")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 async function verifyTashpaz() {

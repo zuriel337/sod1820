@@ -10,6 +10,7 @@ import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deplo
 import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization, REALITY_MAP_PREVIEW_BRANCH } from "../public-reading-deploy/review-admission.js";
 import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029, BRAND_SITE_ICONS_2029 } from "../src/lib/brandAssets2029.js";
 import canonicalMiddleware, { config as canonicalMiddlewareConfig } from "../middleware.js";
+import { articleFirstFingerprint } from "./lib/article-first-fingerprint.mjs";
 import publicMiddleware, { config as publicMiddlewareConfig } from "../public-reading-deploy/middleware.js";
 
 // Default artifact stays dormant. A separate explicit deployment-scoped review
@@ -113,7 +114,13 @@ document=document.replace('<link rel="icon" href="data:," />',`<link rel="icon" 
 // The first-document article of an imported Post (public-reading-deploy/api/article-first.js) is laid out by the page's own stylesheets: the
 // entry's, the System Frame's and the Post page's, in the order the app loads them. They sit here in an inert template; only a document that
 // carries the article turns them into stylesheets (the app's own loader then finds them already present and does not fetch them twice).
-{
+// Served only when the committed proof was made for the article pipeline being built (scripts/lib/article-first-fingerprint.mjs): with a stale
+// proof the template is left out and every Post keeps the existing path (the document handler answers "off").
+const articleFirstProof = JSON.parse(await readFile(resolve(root, "public-reading-deploy/article-first-proven.json"), "utf8"));
+const articleFirstIdentity = await articleFirstFingerprint(root);
+if (articleFirstProof.fingerprint !== articleFirstIdentity.fingerprint) {
+  console.warn(`article-first: OFF in this build: the proof is for ${articleFirstProof.fingerprint || "no fingerprint"}, the pipeline is ${articleFirstIdentity.fingerprint}; run node scripts/build-article-first-proofs.mjs`);
+} else {
   const built = JSON.parse(await readFile(resolve(output, ".vite/manifest.json"), "utf8"));
   const closure = keys => { const seen = new Set(), queue = [...keys]; while (queue.length) { const key = queue.shift(); if (!key || seen.has(key) || !built[key]) continue; seen.add(key); queue.push(...(built[key].imports || [])); } return [...seen]; };
   const entryKey = Object.keys(built).find(key => built[key].isEntry);

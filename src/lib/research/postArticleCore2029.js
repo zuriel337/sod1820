@@ -4,6 +4,20 @@
 
 export const clean = (value) => value == null ? "" : String(value).trim();
 
+// The plain text of stored HTML (the reading projection's excerpt fallback), moved unchanged out of post2029ReadingProjection.js (stripTags).
+export function postPlainText2029(html = "") {
+  return String(html)
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&#x27;/gi, "'")
+    .replace(/&amp;/gi, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function postCssSelectors(selector) {
   const selectors = []; let start = 0, depth = 0, quote = null, escaped = false;
   for (let index = 0; index < selector.length; index += 1) {
@@ -20,6 +34,64 @@ export function postCssSelectors(selector) {
   return selectors.map(value => value.trim()).filter(Boolean);
 }
 
+// The scoping of an authored <style> block, as text: the same result in every DOM (no CSSOM). Style rules are scoped to the reading source;
+// @media and @supports keep their scoped rules; everything else (@import, @font-face, @keyframes, @page, @layer ...) belongs to the existing
+// 2029 owners and is dropped, as before. Nested rules inside a style rule are not kept.
+const STRING_OR_ESCAPE = (css, index, state) => {
+  const char = css[index];
+  if (state.quote) { if (char === "\\") return 2; if (char === state.quote) state.quote = null; return 1; }
+  if (char === '"' || char === "'") { state.quote = char; return 1; }
+  return 0;
+};
+function withoutNestedBlocks(body) {
+  let out = "", depth = 0; const state = { quote: null };
+  for (let index = 0; index < body.length; index += 1) {
+    const skip = STRING_OR_ESCAPE(body, index, state);
+    if (skip) { if (!depth) out += body.slice(index, index + skip); index += skip - 1; continue; }
+    const char = body[index];
+    if (char === "{") { if (!depth) out = out.slice(0, out.lastIndexOf(";") + 1); depth += 1; continue; }
+    if (char === "}") { depth = Math.max(0, depth - 1); continue; }
+    if (!depth) out += char;
+  }
+  return out;
+}
+function scopeCssBlock(css, scope) {
+  const out = []; let index = 0;
+  while (index < css.length) {
+    const state = { quote: null }; let end = index, paren = 0;
+    for (; end < css.length; end += 1) {
+      const skip = STRING_OR_ESCAPE(css, end, state); if (skip) { end += skip - 1; continue; }
+      const char = css[end];
+      if (char === "(") paren += 1; else if (char === ")") paren = Math.max(0, paren - 1);
+      else if (!paren && (char === "{" || char === ";" || char === "}")) break;
+    }
+    if (end >= css.length) break;
+    const prelude = css.slice(index, end).trim();
+    if (css[end] !== "{") { index = end + 1; continue; }            // a statement at-rule (@import ...;) or a stray brace
+    let close = end + 1, depth = 1; state.quote = null;
+    for (; close < css.length && depth; close += 1) {
+      const skip = STRING_OR_ESCAPE(css, close, state); if (skip) { close += skip - 1; continue; }
+      if (css[close] === "{") depth += 1; else if (css[close] === "}") depth -= 1;
+    }
+    const body = css.slice(end + 1, depth ? close : close - 1);
+    index = close;
+    if (!prelude) continue;
+    if (prelude[0] === "@") {
+      const name = (/^@([-\w]+)/.exec(prelude) || [])[1]?.toLowerCase();
+      if (name === "media" || name === "supports") { const inner = scopeCssBlock(body, scope); if (inner.length) out.push(`${prelude.replace(/\s+/g, " ")} {${inner.join("\n")}}`); }
+      continue;
+    }
+    const declarations = withoutNestedBlocks(body).trim();
+    const selectors = postCssSelectors(prelude).map(selector => `${scope} ${selector.replace(/\s+/g, " ")}`);
+    if (selectors.length && declarations) out.push(`${selectors.join(",")} {${declarations}}`);
+  }
+  return out;
+}
+export function scopePostStyleText2029(text, scope = ".sod29-reading-source") {
+  const css = String(text || "").replace(/\/\*[\s\S]*?(?:\*\/|$)/g, "").replace(/<!--|-->/g, "");
+  return scopeCssBlock(css, scope).join("\n");
+}
+
 // Presentation containment over the authored source, not an HTML sanitizer or
 // a source rewrite. Legacy plugin resources never become 2029 global styles.
 export function postReadingHtml2029(html) {
@@ -34,6 +106,13 @@ export function postReadingHtml2029(html) {
     } catch { /* malformed embeds do not supply identity */ }
   }
   for (const dependency of template.content.querySelectorAll('script,link[rel~="stylesheet"],link[rel="preload"][as="style"]')) dependency.remove();
+  // Comments and <noscript> fallbacks (old gallery plugins) are never shown to a reader of this page, whose scripting is on. They are
+  // dropped from the displayed copy, so that every DOM (the browser's, the server's) parses the copy the same way: comments that hold
+  // markup and noscript text are where HTML parsers differ. The stored source keeps them (OLD_POST_ARTICLE_FIRST, 16.11.2026).
+  for (const fallback of template.content.querySelectorAll("noscript")) fallback.remove();
+  const comments = []; const walker = document.createTreeWalker(template.content, 128 /* NodeFilter.SHOW_COMMENT */);
+  while (walker.nextNode()) comments.push(walker.currentNode);
+  comments.forEach(comment => comment.remove());
   for (const icon of template.content.querySelectorAll('img[src*="/wp-content/plugins/gallery-images/"]')) {
     // WordPress plugin arrows/spinners are UI assets, not the authored gallery
     // images. Keep the raw source witness and all actual media URLs unchanged.
@@ -41,24 +120,11 @@ export function postReadingHtml2029(html) {
     if (loader && !clean(loader.textContent) && loader.querySelectorAll("img").length === 1) loader.remove();
     else icon.remove();
   }
-  const scopedRules = rules => [...rules].flatMap(rule => {
-    if (rule.type === 1 && rule.selectorText) {
-      const selectors = postCssSelectors(rule.selectorText).map(selector => `.sod29-reading-source ${selector}`);
-      return [`${selectors.join(",")} {${rule.style.cssText}}`];
-    }
-    if ((rule.type === 4 || rule.type === 12) && rule.cssRules) {
-      const body = scopedRules(rule.cssRules).join("\n");
-      return body ? [`${rule.cssText.slice(0, rule.cssText.indexOf("{"))}{${body}}`] : [];
-    }
-    // Imports, font faces and animations belong to the existing 2029 owners.
-    return [];
-  });
+  // Authored <style> blocks keep their rules, scoped to the reading source, by a portable scoping of the text (below): the same text in every
+  // DOM. The browser's CSSOM parses and serializes differently from a server DOM, which removed these blocks on the server (16.11.2026).
   for (const style of template.content.querySelectorAll("style")) {
-    try {
-      const sheet = new CSSStyleSheet(); sheet.replaceSync(style.textContent || "");
-      style.textContent = scopedRules(sheet.cssRules).join("\n");
-      style.dataset.postScopedStyle = "true";
-    } catch { style.remove(); }
+    const scoped = scopePostStyleText2029(style.textContent || "");
+    if (scoped) { style.textContent = scoped; style.setAttribute("data-post-scoped-style", "true"); } else style.remove();
   }
   for (const frame of template.content.querySelectorAll("iframe")) {
     // Attribute writes: what the browser's reflected properties write, so a server DOM produces the same markup.

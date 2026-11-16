@@ -14,7 +14,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { startFixture, dist } from "./helpers/authBrowserFixture.mjs";
 import { withArticleFirst2029, loadArticleFirstRenderer } from "../public-reading-deploy/api/article-first.js";
-import { postArticleSourceKey2029 } from "../src/lib/research/postArticlePipeline2029.js";
+import { postArticleProofKey2029 } from "../src/lib/research/postArticlePipeline2029.js";
 
 const require = createRequire(import.meta.url);
 let pw; for (const name of ["playwright", "@playwright/test"]) { try { pw = require(name); break; } catch { /* optional tooling */ } }
@@ -31,7 +31,7 @@ const ROW = { id: 192, wp_id: 29289, slug: SLUG, source: "wordpress", link: `htt
   content: ['<p><img src="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/fixture/poster.png" width="750" height="500" alt=""></p>',
     ...[1, 2, 3, 4, 5, 6].map(PARAGRAPH), '<h3 style="text-align: center"><a name="_Toc10337527"></a><span style="color: #e8c840"><strong>תפילה של רבי פנחס מקוריץ</strong></span></h3>',
     ...[7, 8, 9, 10, 11, 12].map(PARAGRAPH), '<p><a href="/2029/posts">לכל הפוסטים</a></p>'].join("\n") };
-const PROVEN = { [String(ROW.id)]: postArticleSourceKey2029(ROW.content) };
+const PROVEN = { [String(ROW.id)]: postArticleProofKey2029(ROW) };
 const PROFILES = { phone: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 }, desktop: { viewport: { width: 1280, height: 900 } } };
 const sleep = ms => new Promise(done => setTimeout(done, ms));
 
@@ -162,3 +162,53 @@ test("[phone] leaving before the page adopted it removes the document article; i
     assert.deepEqual(await counts(page), { articles: 1, h1: 1, documentArticle: false, sources: 1 });
   });
 });
+
+// Codex review / ZURIEL 16.11.2026: the same design before and after adoption, no paragraph jump. The document article sits in the page's own
+// frame (postArticleFrame2029.js) with the page's own header, so every block has the page's geometry, fonts and colours BEFORE the application
+// runs, in every theme; and the frame's token style is the System Frame's own.
+const SNAPSHOT = () => {
+  const article = document.querySelector("#sod29-ssr-article article") || document.querySelector("article.sod29-reading-post");
+  const blocks = [...article.children].filter(node => !node.matches(".sod29-post-research,[data-tool-on-approach],.sod29-post-next"));
+  const pick = { h1: article.querySelector("h1"), byline: article.querySelector(".sod29-reading-byline"), chips: article.querySelector(".sod29-reading-hero-copy > .k29-cats"),
+    details: article.querySelector(".sod29-post-details"), source: article.querySelector(".sod29-reading-source"),
+    p5: [...article.querySelectorAll(".sod29-reading-source p")].find(node => /^פסקה 5:/.test(node.textContent.trim())), h3span: article.querySelector(".sod29-reading-source h3 span"),
+    link: article.querySelector('.sod29-reading-source a[href="/2029/posts"]') };
+  const box = node => { const r = node.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top + scrollY), Math.round(r.width), Math.round(r.height)].join(","); };
+  const style = node => { const cs = getComputedStyle(node); return [cs.fontFamily, cs.fontSize, cs.lineHeight, cs.fontWeight, cs.color, cs.backgroundColor, cs.borderTopColor, cs.padding].join("|"); };
+  return { blocks: blocks.map(node => `${node.tagName}.${node.className}@${box(node)}`), elements: Object.fromEntries(Object.entries(pick).map(([key, node]) => [key, node ? `${box(node)} ${style(node)}` : null])) };
+};
+const CHROME = () => {
+  const article = document.querySelector("#sod29-ssr-article article") || document.querySelector("article.sod29-reading-post");
+  const clone = article.cloneNode(true);
+  clone.querySelectorAll(".sod29-reading-layout,.sod29-post-research,[data-tool-on-approach],.sod29-post-next").forEach(node => node.remove());
+  clone.querySelectorAll("[aria-disabled],[aria-controls],[data-ssr-cover]").forEach(node => { node.removeAttribute("aria-disabled"); node.removeAttribute("aria-controls"); node.removeAttribute("data-ssr-cover"); });
+  clone.querySelectorAll(".sod29-post-details-body").forEach(node => node.replaceChildren());   // closed: its tools load when opened
+  return clone.innerHTML;
+};
+for (const [profile, theme] of [["phone", "dark"], ["desktop", "dark"], ["phone", "light"], ["desktop", "parchment"]]) {
+  test(`[${profile} · ${theme}] before the application runs, the article has the page's geometry, fonts, colours and header`, { timeout: 180000 }, async () => {
+    let release; const hold = new Promise(done => { release = done; });
+    const initScript = `try{localStorage.setItem("sod2029:theme-preset","${theme}");localStorage.setItem("sod2029:theme-preset-seeded","1")}catch(e){}`;
+    await withPage(profile, { holdPostChunk: hold, initScript }, async ({ page, errors }) => {
+      await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "load" });
+      await page.waitForSelector("#sod29-ssr-article h1");
+      await page.evaluate(() => document.fonts.ready);
+      await sleep(400);
+      const frame = await page.evaluate(() => { const node = document.getElementById("sod29-ssr-article"); return { theme: document.documentElement.getAttribute("data-theme-2029"), preset: node.getAttribute("data-frame-theme-preset"), style: node.getAttribute("style") }; });
+      assert.equal(frame.theme, theme, "the reader's theme before the first paint"); assert.equal(frame.preset, theme);
+      const before = await page.evaluate(SNAPSHOT), chromeBefore = await page.evaluate(CHROME);
+      release();
+      const result = await adopted(page);
+      assert.equal(result.result, "adopted", JSON.stringify(result));
+      await sleep(600);
+      const after = await page.evaluate(SNAPSHOT), chromeAfter = await page.evaluate(CHROME);
+      const root = await page.evaluate(() => document.querySelector(".sod29-root").getAttribute("style"));
+      const tokens = style => Object.fromEntries(String(style).split(";").map(part => part.trim()).filter(Boolean).map(part => [part.slice(0, part.indexOf(":")).trim(), part.slice(part.indexOf(":") + 1).trim().replace(/\s+/g, " ").replace(/["']/g, "").replace(/,\s*/g, ",")]));   // a family list is serialized with either quote
+      assert.deepEqual(tokens(frame.style), tokens(root), "the frame's token style is the System Frame's own");
+      assert.deepEqual(after.blocks, before.blocks, "every block of the article keeps its place and size");
+      assert.deepEqual(after.elements, before.elements, "title, credit, chips, details, body, paragraph, emphasis and link keep their geometry, fonts and colours");
+      assert.equal(chromeAfter, chromeBefore, "the page's header is the document's header (its controls become active)");
+      assert.deepEqual(errors, []);
+    });
+  });
+}
