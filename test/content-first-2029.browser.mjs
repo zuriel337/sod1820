@@ -103,9 +103,10 @@ test("the Google tag waits for the article's priority image while it downloads, 
   } });
 });
 
-test('an address that settles on the not-found page measures once that page is shown, without the bounded wait', { timeout: 60000 }, async () => {
+test('an address without a Post settles on its notice (not found or "could not open") and measures once it is shown, without the bounded wait', { timeout: 60000 }, async () => {
   await visit('/content-first-address-without-a-post', { rows: [], run: async page => {
-    await page.locator('[data-experience-surface="not-found"]').waitFor({ timeout: 40000 });
+    // The Post page answers a slug with no published Post with its own notice (.sod29-frame-state); the not-found page answers other addresses.
+    await page.locator('[data-experience-surface="not-found"], .sod29-frame-state').first().waitFor({ timeout: 40000 });
     const shownAt = await page.evaluate(() => performance.now());
     const seen = await waitFor(page, ['gtag', 'visit'], 15000);
     assert.equal(seen.articleAt, null, 'there is no article');
