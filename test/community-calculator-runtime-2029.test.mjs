@@ -21,7 +21,7 @@ const fixtures = {
   "gematriaMethodRegistry.js": "export const fetchGematriaMethodStates=async()=>null;export const indexGematriaMethodStates=()=>null;",
   "tracking.js": "export const track=(...args)=>globalThis.__communityCalc.effects.push(['track',...args]);",
   "numberMessage.js": "export const buildMessages=()=>[];",
-  "seo.js": "export const SITE_URL='https://sod1820.co.il';export const applySeo=()=>{};",
+  "seo.js": "export const SITE_URL='https://sod1820.co.il';export const applySeo=options=>globalThis.__communityCalc.seo.push(options);",
   "AuthContext.jsx": "export const useAuth=()=>({isAdmin:false});",
   "ResearchProvider.jsx": "export const useResearch=()=>({context:{},setResearchContext:context=>globalThis.__communityCalc.contexts.push(context)});",
   "Sod2029Shell.jsx": "import React from 'react';export default ({children})=>React.createElement('section',{},children);",
@@ -46,7 +46,7 @@ after(async () => { await rm(outfile, { force: true }); delete globalThis.__comm
 
 function fixture(search) {
   const browserSearch = new URL(`https://preview.example/community/calculator${search}`).search;
-  const value = { location: { pathname: "/community/calculator", search: browserSearch, hash: "#result", key: "arrival" }, effects: [], reads: [], contexts: [], replacements: [] };
+  const value = { location: { pathname: "/community/calculator", search: browserSearch, hash: "#result", key: "arrival" }, effects: [], reads: [], contexts: [], replacements: [], seo: [] };
   globalThis.__communityCalc = value;
   globalThis.window = { location: { origin: "https://preview.example" }, history: { state: { key: "arrival" }, replaceState: (_state, _title, url) => value.replacements.push(url) } };
   return value;
@@ -111,5 +111,26 @@ test("date tool applies sunset exactly once and continues to all methods with da
   assert.ok(updated.searchParams.get("w").length > 0);
   assert.equal(updated.searchParams.get("afterSunset"), null);
   assert.deepEqual(state.effects, []);
+  await act(async () => { root.unmount(); });
+});
+
+// Server metadata treats the bare address as indexable and every query variant
+// as noindex, follow. Typing updates native history without a Router transition.
+test("calculator SEO follows the effective edited address without indexing inputs or changing its canonical", async () => {
+  const state = fixture("");
+  let root;
+  await act(async () => { root = Renderer.create(React.createElement(Page)); });
+  assert.equal(state.seo.at(-1).noindex, false);
+  await act(async () => { root.root.findByProps({ id: "community-calculator-name" }).props.onChange({ target: { value: "אור" } }); });
+  assert.ok(state.replacements.at(-1).includes("?"));
+  assert.equal(state.seo.at(-1).noindex, true, "typing creates a query URL and must update robots immediately");
+  assert.equal(state.seo.at(-1).follow, true, "public calculator links remain crawlable as on the server");
+  assert.equal(state.seo.at(-1).path, "/community/calculator");
+  assert.ok(!state.seo.at(-1).title.includes("אור"));
+  await act(async () => { root.unmount(); });
+  const direct = fixture("?w=אור");
+  await act(async () => { root = Renderer.create(React.createElement(Page)); });
+  assert.equal(direct.seo.at(-1).noindex, true);
+  assert.equal(direct.seo.at(-1).follow, true);
   await act(async () => { root.unmount(); });
 });
