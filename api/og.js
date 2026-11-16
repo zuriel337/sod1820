@@ -7,6 +7,7 @@ import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
 import { fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
+import { COMMUNITY_CALCULATOR_SEO } from "../src/lib/research/communityCalculatorSeo2029.js";
 import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks2029.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
@@ -495,8 +496,10 @@ export default async function handler(req, res) {
     canonical = SITE + page.canonicalPath; type = 'article'; documentStatus = 200;
     image = cardUrl({w:page.title,sub:'הרצאות המקור · תיעוד היסטורי'});
   } else if (productionReading && decodedKey === '/community/calculator') {
-    title = 'מחשבון הקהילה — גימטריה, שמות ותאריך עברי · ' + SITE_NAME;
-    desc = 'המחשבון הקיים: שיטות גימטריה, השוואת ביטויים, שמות ותאריך עברי.';
+    // One wording for the server, the client and the visible page (src/lib/research/communityCalculatorSeo2029.js): the phrase searchers type,
+    // "מחשבון גימטריה", is in the title, the description and the heading.
+    title = COMMUNITY_CALCULATOR_SEO.title + ' · ' + SITE_NAME;
+    desc = COMMUNITY_CALCULATOR_SEO.description;
     // The bare calculator page brings search traffic (about 500 Google visits in 45 days) and stays indexable. Any query string can carry
     // names, dates or other private inputs, so those variants stay out of the index (and never reach the server metadata).
     robots = continuityParams.toString() ? 'noindex, follow' : 'index, follow';
