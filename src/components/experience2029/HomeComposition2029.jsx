@@ -32,6 +32,7 @@ import PostCategories2029 from "./PostCategories2029.jsx";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 import SeriesLatestMark2029 from "./SeriesLatestMark2029.jsx";
+import OwnMarkBox2029 from "./OwnMark2029.jsx";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
@@ -325,7 +326,7 @@ function HomeLiveUpdates({ updates, onOpenNow, sourceKey, onSource, onNavigateTo
           }
           const model = entry.model;
           const body = <>
-            <Media src={model.thumb} fallback="✦" className="h29-live-thumb" />
+            <OwnMarkBox2029 logo={model.thumb ? model.logo : null} size={56}><Media src={model.thumb} fallback="✦" className="h29-live-thumb" /></OwnMarkBox2029>
             <span className="rc29-rt"><strong>{model.pinned ? <span className="r29-badge is-pinned rc29-new-badge" data-home-update-pinned="true">📌 נעוץ</span> : null}{model.row?.isNew ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{model.title}</strong>
               {model.excerpt && !model.unverified ? <span className="rc29-ex">{model.excerpt}</span> : null}
               <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.seriesLatest ? <> · <SeriesLatestMark2029 model={model} /></> : null}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>

@@ -46,6 +46,8 @@ export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
       targetId: "yamin-smol-2026-5787-1237-1158",
       titleId: "yamin-smol-2026-5787-1237-1158-title",
       label: "ימין ושמאול תפרצי מדהים!!! רמזים חזקים ביותר",
+      // the update's own words for "עכשיו" and the Home strip (taken from the unit's published text, not from the Post's older headline)
+      summary: "ימין ושמאול תפרצי (מילוי) = 2026 · תפרצי בתשפז (ריבוע) = 5787. ✦ אנחנו רואים שהשנה הזאת בסימן של פריצה של השמאל ✦",
       date: "2026-11-16",
       beforeRevision: 270,
       attribution: "תוספת לפוסט",

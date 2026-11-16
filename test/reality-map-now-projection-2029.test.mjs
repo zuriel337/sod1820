@@ -140,10 +140,13 @@ test("post 5107 (carrying the exact tag) leads the series in 'עכשיו' and bl
   // the row is shown AS the update: its name, its time, a link straight to the unit, and the post title as the context line (the same model feeds "עכשיו" and the Home strip)
   assert.equal(unseen[0].title, "ימין ושמאול תפרצי מדהים!!! רמזים חזקים ביותר");
   assert.equal(unseen[0].postTitle, "הבחירות לכנסת ה־26");
-  assert.equal(unseen[0].excerpt, "בפוסט: הבחירות לכנסת ה־26");
+  assert.equal(unseen[0].excerpt, "ימין ושמאול תפרצי (מילוי) = 2026 · תפרצי בתשפז (ריבוע) = 5787. ✦ אנחנו רואים שהשנה הזאת בסימן של פריצה של השמאל ✦", "the update's own words (today's update), not the Post's older headline");
+  assert.equal(unseen[0].fullText, unseen[0].excerpt);
+  assert.equal(unseen[0].logo?.label, "כי לה׳ המלוכה", "an update of the reality-map series carries our logo");
   assert.equal(unseen[0].at, "2026-11-16T13:02:30.887336Z");
   assert.match(unseen[0].href, /#yamin-smol-2026-5787-1237-1158$/);
   assert.equal(unseen.find(model => model.title === "ברכת כהנים").title, "ברכת כהנים", "other rows keep their own title");
+  assert.equal(unseen.find(model => model.title === "ברכת כהנים").logo?.label, "כי לה׳ המלוכה", "every post of our series carries our logo");
   assert.equal(unseen.find(model => model.title === "ברכת כהנים").seriesLatest, undefined, "only one latest");
   const entered = nowFor([first, old], [], unitAt + 40 * 3600000, { [seriesLatestSeenKey("post:5107")]: 1 }).models;
   assert.equal(entered[0].postTitle, "הבחירות לכנסת ה־26");
@@ -159,4 +162,12 @@ test("post 5107 is the first post of the series by the exact tag it carries; no 
   assert.equal(spec.admission, undefined, "no id admission: membership is the tag only");
   assert.ok(contentSeriesKeysForPost({ id: 5107, tags: ["מפת המציאות"], categories: ["רמזי הגאולה", "בחירות"] }).includes("reality-map"));
   assert.equal(contentSeriesKeysForPost({ id: 5107, tags: [], categories: ["רמזי הגאולה", "בחירות", "רמזים חזקים"] }).includes("reality-map"), false, "the id alone and the categories never admit");
+});
+
+test("our logo marks OUR material only: the reality-map series and the reality stream carry it; a third-party series and an ordinary named writer do not", () => {
+  const ours = post(41, { tags: ["מפת המציאות"], title: "שלנו" });
+  const thirdParty = post(42, { tags: [], categories: ["מימד חמש"], author: "בדרך לנצח", title: "צד שלישי" });
+  const byTitle = title => nowFor([ours, thirdParty], [ours, thirdParty], Date.parse("2026-11-16T15:00:00Z"), {}).models.find(model => model.title === title);
+  assert.equal(byTitle("שלנו").logo?.label, "כי לה׳ המלוכה");
+  assert.equal(byTitle("צד שלישי")?.logo ?? null, null);
 });

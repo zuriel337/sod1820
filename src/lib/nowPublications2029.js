@@ -58,8 +58,10 @@ export const NOW_SOURCE_LOGOS = Object.freeze({
 });
 // OUR logos mark OUR material only (ZURIEL 6.11.2026): Or HaGeula channel, ELS findings, and posts whose public byline is the system
 // identity. A named human writer or a third-party series (e.g. מה קורה הבורא, מימד חמש, סוד החשמל) never gets a site logo: default is none.
-const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, author, seriesKey }) => {
+// 16.11.2026 (ZURIEL): the reality-map series and the reality stream ("זרם המציאות", the site's own gallery updates) are OURS too, so they carry our logo.
+const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, isGallery, author, seriesKey }) => {
   if (unverified) return null;
+  if (isGallery || (isPost && seriesKey === REALITY_MAP_LATEST_KEY)) return "site";
   if (isChannel && channel === "or-geula") return "or-geula";
   if (kind === "finding" || kind === "convergence") return "els";
   if (isPost && !seriesKey && publicAuthorName(author) === SYSTEM_BYLINE) return "site";
@@ -175,7 +177,7 @@ export function nowRowModel(row) {
     pinned: Boolean(pinKind), pinKind,
     // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
     dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
-    logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
+    logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, isGallery, author: item.author, seriesKey })] || null,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
     pinUntil: pinKind && typeof item.pinUntil === "string" ? item.pinUntil : null,
     central: pinKind === "owner" && item.central && Array.isArray(item.central.groups)
@@ -236,7 +238,8 @@ export const nowModels = (rows, now = Date.now(), seen = {}) => {
   // Post's own title as the context line. Same model for "עכשיו" and the Home strip (one projection, no copy).
   const entry = newestRegisteredEntry(latest.id);
   const asUpdate = entry && entry.label && (Date.parse(entry.updatedAt || "") || 0) > (Date.parse(latest.at || "") || 0)
-    ? { title: entry.label, postTitle: latest.title, excerpt: latest.title ? `בפוסט: ${latest.title}` : "", excerptIsLead: false, at: entry.updatedAt,
+    ? { title: entry.label, postTitle: latest.title, excerpt: entry.summary || (latest.title ? `בפוסט: ${latest.title}` : ""), excerptIsLead: false, at: entry.updatedAt,
+        ...(entry.summary ? { fullText: entry.summary, summary: entry.summary } : {}),
         href: latest.href && latest.href.startsWith("/") && !latest.href.includes("#") ? `${latest.href}#${entry.targetId}` : latest.href } : {};
   return [...rest.slice(0, leading), { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
 };

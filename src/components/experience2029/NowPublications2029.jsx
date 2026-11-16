@@ -11,6 +11,7 @@ import { SHARE_SITE } from "../../lib/share.js";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
 import "./nowPublications2029.css";
 import SeriesLatestMark2029 from "./SeriesLatestMark2029.jsx";
+import OwnMarkBox2029 from "./OwnMark2029.jsx";
 
 // An Or HaGeula video shown in Now is shared to its own canonical item address (the same one its full page uses), through the ONE
 // ShareActions. Only a published Or HaGeula update has that address; other rows are unchanged.
@@ -31,7 +32,7 @@ const NOW_TIME_MODE = "relative";
 function Thumb({ model }) {
   if (!model.thumb && model.logo) return <img className="sod29-nowpub-thumb is-logo" src={model.logo.src} alt="" width="44" height="44" loading="lazy" decoding="async" title={model.logo.label} />;
   return model.thumb
-    ? <img className="sod29-nowpub-thumb" src={model.thumb} alt="" loading="lazy" decoding="async" />
+    ? <OwnMarkBox2029 logo={model.logo} size={44}><img className="sod29-nowpub-thumb" src={model.thumb} alt="" loading="lazy" decoding="async" /></OwnMarkBox2029>
     : <span className="sod29-nowpub-thumb is-glyph" aria-hidden="true">{model.video ? "▶" : model.unverified ? "✦" : "◈"}</span>;
 }
 
