@@ -27,13 +27,17 @@ Every 2029 page downloads the entry graph and the System Frame before its own co
 
 Lab timings (Slow 4G, 4× CPU, cold, 8 interleaved runs per post per arm, `lab-results.md`): with all three changes the post's text appears 236–356 ms earlier and the LCP 270–314 ms earlier on two old and two `/post/` posts, against `main` code; CLS stays 0 and Total Blocking Time does not change. The font change alone is small and not significant on every post.
 
-## Tests (local; this branch has no PR, so no CI run exists for it)
+## Tests (local unless marked CI; the CI result belongs to the PR head)
 
 - Every node step of `live-contracts-2029` / `release-contracts-2029` (42): pass; the analytics browser tests pass when built like their CI job (`VITE_GA_ID=G-TEST`).
 - Shell budget unit tests 5/5; proof that one new static import plus 6 KB in the frame makes `npm run build` exit 1.
 - Storage boundary 6/6 (including: the real client is not in the built entry and is still emitted lazily); Realtime split 14/14; built-graph and first-load gates pass.
 - Contracts that pinned the moved panel now read the frame together with its module; the account-entry and account-marker pins point at the module that owns them.
-- Not exercised in a browser: opening the personal panel and an upload after the change (the CI browser jobs on a PR would).
+- **Browser (added 16.11.2026, review package; real Chromium, the built public-reading artifact, its real worker, all hosts mapped to the local fixture; wired into `auth-browser-acceptance-2029`):**
+  - `test/personal-panel-lazy-recovery-2029.browser.mjs` 4/4 (twice): the panel's code is not downloaded with the page; opening downloads it once and shows the live loading state while it arrives (phone and desktop); a failed download is recovered by the application's existing chunk recovery with exactly one automatic reload of the same address, after which the panel opens; a second failure in the same build shows the existing recovery screen ("הדף לא נטען", reload and home), never a blank page, and its reload recovers.
+  - `test/community-first-upload-lazy-storage-2029.browser.mjs` 4/4 (twice): a Community attachment, the only upload the production worker admits for a member. The Storage client is downloaded on the first send, once; the file reaches Storage under the member's own folder with the member's session; the message carries the public address the real client builds. A failed download sends neither the file nor the message; the one automatic reload keeps the text draft and asks for the file again; the next send succeeds. A second failure in the same build: no second reload, the composer says the send failed and keeps the draft and the file; a retry in the same page fails without a new request in Chromium 153 (it keeps a failed module address until the page reloads), and the person's reload recovers.
+- **Defect found by these tests and fixed** (`storageLazy2029.js`): a failed load of the Storage client was kept for the life of the page, and the upload threw a raw module address instead of returning the real client's `{ data: null, error }`. Now a failed load is not kept, and the upload returns a `StorageUnknownError` with a sentence for the person (the original failure on `originalError`). Unit test 7/7, including failure then success.
+- **Behaviour to know (unchanged, existing policy):** a lazy part of the frame whose download fails goes through the application's chunk recovery (one automatic reload per build, then the recovery screen), the same as search and the "more" panel. A failed panel or Storage download therefore reloads the page once; the Community text draft survives it, a chosen file must be attached again (the composer says so).
 
 ## Interaction with #1358
 

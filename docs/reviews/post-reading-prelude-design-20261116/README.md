@@ -6,7 +6,7 @@ Proposal only. Nothing here is implemented, merged or deployed. Owners it extend
 
 On an old WordPress address the visitor sees no article text until the browser has downloaded and run the entry (about 120 KB brotli), the System Frame and the Post page graph (about 330 KB gzip in 57 files). In the lab (emulated phone on Slow 4G with a 4x CPU slowdown) the text appears at about 7.4 s and the largest paint (the cover, or its full-width body copy) at about 10 s; the field p75 LCP for these addresses is about 6.1 s (all devices). The server already reads the post for its metadata, but the document keeps only the `<head>`: the body is the opening shell.
 
-Everything shipped or prepared so far shortens that chain (one read instead of two on the server, the source read with the code, the edge lookup removed for browsers, the cover hinted when the source arrives, a smaller frame). None removes it. Google's Core Web Vitals "good" LCP is 2.5 s at p75.
+Everything shipped or prepared so far shortens that chain (one read instead of two on the server, the source read with the code, the edge lookup removed for browsers, a smaller frame; the cover hint was measured and reverted). None removes it. Google's Core Web Vitals "good" LCP is 2.5 s at p75.
 
 ## What would change
 
@@ -20,7 +20,15 @@ The document for an admitted public Post at its original address carries a **rea
 
 ## Expected effect (to be measured, not promised)
 
-FCP is unchanged (about 1.8 s in the lab, the opening bar already paints then). Text visible moves from about 7.4 s to about the FCP plus the cover's layout, about 2 s in the lab, because the text no longer waits for any script. LCP becomes the cover in the prelude: its download starts with the document, so on Slow 4G the 150 KB cover finishes around 2.5–3.5 s instead of about 8.8–10 s. In the field, LCP for old addresses would be bounded by the document TTFB plus the cover download, not by the script chain.
+FCP is unchanged (about 1.8 s in the lab, the opening bar already paints then). Text visible moves from about 7.4 s toward the FCP, because the text no longer waits for any script.
+
+**The prelude does not by itself fix the late image** (corrected 16.11.2026; an earlier version of this section said it would bound LCP by the document plus the cover download, which the evidence does not support):
+
+- On a slow link the cover in the document still shares the bandwidth with the entry, the frame and the Post page code (about 700 KB before the text today). The cover hint measured exactly this competition (`docs/reviews/post-cover-hint-20261116`): the cover started 3 s earlier, and the text of every old post came 0.35–0.5 s later. With the text in the document the text no longer pays for it, but when the cover finishes is not known until it is measured.
+- On many old posts the largest paint is not the cover but a body image (O1, the top Search Console page: a wide banner cover, a larger body image). A text-only prelude carries no body images, so their LCP stays where the page code puts it, about 10 s in the lab.
+- The image itself is the full-size original: on 410 migrated posts every `srcset` candidate is the same file. Making it smaller is the separate image proposal (`docs/reviews/post-image-renditions-proposal-20261116`), not this one.
+
+So the expected, measurable gain of the prelude is the text (and what crawlers that do not run scripts receive). Any LCP gain is a hypothesis for the cover-only posts (about half of the WordPress posts have no body image) and must come from a measurement, not from this design.
 
 ## Costs and risks
 
