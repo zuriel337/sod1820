@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 // Reuse Legacy's dismissal hints only. Neither key proves consent to site-updates.
 const UNTIL = "sod_legacy_newsletter_invite_until";
 const JOINED = "sod_legacy_newsletter_invite_joined";
+export const GUEST_NEWSLETTER_DWELL_MS = 30000;
 const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
 const write = (key, value) => { try { localStorage.setItem(key, value); } catch { /* optional browser hint */ } };
 const suppressed = () => read(JOINED) === "yes" || Number(read(UNTIL) || 0) > Date.now();
@@ -34,10 +35,13 @@ export function useGuestNewsletterInvite2029({ eligible, blocked, routeKey, onOp
     if (!eligible || suppressed()) return;
     let triggered = false;
     const reveal = () => { if (!triggered) { triggered = true; setDue({ routeKey, lease }); } };
-    const onScroll = () => { if (window.scrollY > 450) reveal(); };
-    const timer = window.setTimeout(reveal, 22000);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { clearTimeout(timer); window.removeEventListener("scroll", onScroll); };
+    // ZURIEL 16.11.2026: the invitation comes only after the visitor has browsed the page for half a minute, whatever the scroll distance (no pixel trigger).
+    // The half minute is spent on a VISIBLE page: a hidden tab waits and the invitation can come once it is visible again.
+    let timer = 0;
+    const arm = () => { timer = window.setTimeout(() => { if (document.hidden) document.addEventListener("visibilitychange", onVisible); else reveal(); }, GUEST_NEWSLETTER_DWELL_MS); };
+    const onVisible = () => { if (!document.hidden) { document.removeEventListener("visibilitychange", onVisible); reveal(); } };
+    arm();
+    return () => { clearTimeout(timer); document.removeEventListener("visibilitychange", onVisible); };
   }, [eligible, routeKey]);
   useEffect(() => {
     if (due?.routeKey !== routeKey || due?.lease !== generation.current || !eligible || blocked || attempted.current || suppressed()) return;
