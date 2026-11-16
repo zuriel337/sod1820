@@ -213,27 +213,32 @@ const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.t
   .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 // ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
-// a dot that BLINKS for 36 hours from the moment it was published (ZURIEL 16.11.2026; System Frame v2 §10.8 allows only a finite pulse) and then stays as a still dot
-// marking the latest update, until a newer reality-map publication replaces it. It is a presentation of the series, not a pin: nothing is stored, `pinned` is untouched.
+// a dot that BLINKS until THIS viewer enters the update (ZURIEL 16.11.2026) and then stays as a still dot marking the latest update, until a newer reality-map publication
+// replaces it. "Entered" is the existing per-browser seen state (the same one that clears "חדש"): no new store. It is a presentation of the series, not a pin: `pinned` is untouched.
 export const REALITY_MAP_LATEST_KEY = "reality-map";
-export const REALITY_MAP_BLINK_MS = 36 * 3600000;
-// When the publication (or its latest proven update, e.g. a unit added to a post body) happened: the later of the row's own time and the newest registered update of that Post.
-const seriesUpdateTime = model => {
-  const own = Date.parse(model?.at || "") || 0;
-  const postId = Number(/^post:(\d+)$/.exec(String(model?.id || ""))?.[1]);
-  const updates = Number.isSafeInteger(postId) ? (PROVEN_POST_SOURCE_UPDATES[postId] || []).map(entry => Date.parse(entry.updatedAt || "") || 0) : [];
-  return Math.max(own, ...updates);
-};
-export const nowModels = (rows, now = Date.now()) => {
+const postIdOfRowId = id => { const n = Number(/^post:(\d+)$/.exec(String(id || ""))?.[1]); return Number.isSafeInteger(n) ? n : null; };
+// the newest REGISTERED update of the Post (a unit added to its body); 0 when it has none
+const newestRegisteredEntry = id => { const postId = postIdOfRowId(id); const entries = postId == null ? [] : (PROVEN_POST_SOURCE_UPDATES[postId] || []); return entries.reduce((best, entry) => ((Date.parse(entry.updatedAt || "") || 0) > (Date.parse(best?.updatedAt || "") || 0) ? entry : best), null); };
+const latestRegisteredUpdate = id => Date.parse(newestRegisteredEntry(id)?.updatedAt || "") || 0;
+// When the publication (or its latest proven update) happened: the later of the row's own time and the newest registered update of that Post.
+const seriesUpdateTime = model => Math.max(Date.parse(model?.at || "") || 0, latestRegisteredUpdate(model?.id));
+// The seen key of the series-latest mark: per Post and per registered update, so a NEW unit makes the dot blink again for everyone who saw the previous one.
+export const seriesLatestSeenKey = id => `series-latest:${id}:${latestRegisteredUpdate(id)}`;
+export const nowModels = (rows, now = Date.now(), seen = {}) => {
   const models = sortedNowModels(rows, now);
   const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned)
     .sort((a, b) => seriesUpdateTime(b) - seriesUpdateTime(a) || String(a.id).localeCompare(String(b.id)))[0];
   if (!latest) return models;
   const rest = models.filter(model => model !== latest);
   const leading = rest.filter(model => model.pinned).length;
-  const publishedAt = seriesUpdateTime(latest);
-  const blinking = Number.isFinite(publishedAt) && now >= publishedAt && now - publishedAt < REALITY_MAP_BLINK_MS;
-  return [...rest.slice(0, leading), { ...latest, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
+  const blinking = !(seen && seen[seriesLatestSeenKey(latest.id)]);
+  // When the newest thing is a REGISTERED UNIT of the Post (newer than the row's own time), the row is shown AS that update: its name, its time, a link straight to it, and the
+  // Post's own title as the context line. Same model for "עכשיו" and the Home strip (one projection, no copy).
+  const entry = newestRegisteredEntry(latest.id);
+  const asUpdate = entry && entry.label && (Date.parse(entry.updatedAt || "") || 0) > (Date.parse(latest.at || "") || 0)
+    ? { title: entry.label, postTitle: latest.title, excerpt: latest.title ? `בפוסט: ${latest.title}` : "", excerptIsLead: false, at: entry.updatedAt,
+        href: latest.href && latest.href.startsWith("/") && !latest.href.includes("#") ? `${latest.href}#${entry.targetId}` : latest.href } : {};
+  return [...rest.slice(0, leading), { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
 };
 
 /** Primary lenses with at least one row; "all" is always available. */

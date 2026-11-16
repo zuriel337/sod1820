@@ -2,6 +2,7 @@
 // is owned by watchWorldDiscoveryStream. Tiers (Gold/Diamond) are read lazily for the first three convergences.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { feedRows, feedSeenKey, mergeNowDiscussionItems, mergeSystemFeedItems } from "../../lib/systemFeed2029.js";
+import { seriesLatestSeenKey } from "../../lib/nowPublications2029.js";
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
@@ -113,8 +114,14 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip =
   }), [items, seen, strongIds, nowSources.items]);
   const newCount = rows.filter((row) => row.isNew).length;
   const newest = rows.filter((row) => row.isNew).map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
-  const see = useCallback((row) => setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current))), []);
+  const see = useCallback((row) => setSeen((current) => {
+    // entering the row also settles the series-latest dot (per Post and per registered update); the existing per-browser seen state, nothing new
+    const withLatest = !row?.id || current[seriesLatestSeenKey(row.id)] ? current : markSeen(seriesLatestSeenKey(row.id), current);
+    return withLatest[feedSeenKey(row.item)] ? withLatest : markSeen(feedSeenKey(row.item), withLatest);
+  }), []);
+  // the Post page marks the same key when it is entered directly (event below), and the hook re-reads the store when Now opens
+  useEffect(() => { if (nowOpen) setSeen(readSeen()); }, [nowOpen]);
   // The Home strip waits for the details read it asked for (settled = loaded or failed), so it never flashes empty between stages.
   const detailsPending = enabled && homeStrip && !nowOpen && (!nowSources.requested || nowSources.loading);
-  return { ...state, items, rows, expandedRows, nowSources, detailsPending, requestNowDetails, refreshNowDetails, newCount, newest, see };
+  return { ...state, items, rows, expandedRows, nowSources, detailsPending, requestNowDetails, refreshNowDetails, newCount, newest, see, seen };
 }

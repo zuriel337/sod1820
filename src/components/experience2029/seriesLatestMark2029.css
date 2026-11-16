@@ -1,0 +1,6 @@
+/* the newest reality-map publication: a dot that blinks until this viewer enters the update, then stays still as the latest-update mark until a newer one arrives (static under reduced motion). Shared by "עכשיו" and the Home strip. */
+.sod29-nowpub-latest { display: inline-flex; align-items: center; gap: 6px; color: var(--s29-brand-gold); font-weight: 700; }
+.sod29-nowpub-blink { inline-size: 9px; block-size: 9px; border-radius: 50%; background: var(--s29-brand-gold); box-shadow: 0 0 0 0 color-mix(in srgb, var(--s29-brand-gold) 70%, transparent); }
+.sod29-nowpub-blink.is-blinking { animation: sod29-nowpub-latest-blink 1.6s ease-in-out infinite; }
+@keyframes sod29-nowpub-latest-blink { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--s29-brand-gold) 60%, transparent); } 50% { opacity: .35; box-shadow: 0 0 0 6px transparent; } }
+@media (prefers-reduced-motion: reduce) { .sod29-nowpub-blink { animation: none; } }
