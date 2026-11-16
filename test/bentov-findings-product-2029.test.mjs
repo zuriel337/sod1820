@@ -6,7 +6,7 @@ const read = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8"
 const app = read("src/App2029.jsx");
 const page = read("src/pages/BentovFindingsProduct2029Page.jsx");
 const css = read("src/pages/bentovFindingsProduct2029.css");
-const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
 
 test("Bentov product is an unlinked Preview surface on the existing control document", () => {
   assert.match(app, /surface"\) === "bentov-findings-product"/);

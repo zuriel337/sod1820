@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("the canonical Workspace uses the shared centered workspace projection", () => {
-  const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+  const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
   const frameCss = read("src/components/experience2029/systemFrame2029.css");
   const workspaceCss = read("src/components/experience2029/myWorkspace2029.css");
   assert.match(frame, /PanelShell \{\.\.\.common\} panelKind="workspace"[^>]*title="האזור האישי שלי"/);

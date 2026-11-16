@@ -9,7 +9,7 @@ const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 
 const compat = read("src/components/experience2029/Sod2029Shell.jsx");
-const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
 const css = read("src/components/experience2029/systemFrame2029.css");
 const baseCss = read("src/components/experience2029/sod2029.css");
 const shellHtml = read("2029.html");

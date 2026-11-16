@@ -5,7 +5,7 @@ import { resolve2029Palette } from "../src/lib/paletteTokens2029.js";
 
 const read=(p)=>fs.readFileSync(p,"utf8");
 const app=read("src/App2029.jsx");
-const frame=read("src/components/experience2029/SystemFrame2029.jsx");
+const frame=read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
 const home=read("src/pages/Home2029Page.jsx");
 const post=read("src/pages/Post2029Page.jsx");
 // One shared rail: SystemFrame mounts SurfaceContextRail2029 for every surface and Post only adds section navigation

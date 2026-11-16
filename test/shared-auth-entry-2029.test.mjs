@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 test('2029 page, Community and account panel delegate authentication to the canonical entry',()=>{
-  const projections=['src/pages/Auth2029Page.jsx','src/components/community2029/CommunitySignIn.jsx','src/components/experience2029/SystemFrame2029.jsx'];
+  // The account panel moved from the frame file to its own lazy module (WorkspaceProjection2029.jsx, 16.11.2026); the frame itself still must not sign in on its own.
+  const frame=fs.readFileSync(new URL('../src/components/experience2029/SystemFrame2029.jsx',import.meta.url),'utf8');
+  assert.doesNotMatch(frame,/\b(?:requestEmailOtp|verifyEmailOtp|signInWithPassword|signInWithGoogle|signInWithFacebook)\s*\(/,'the frame must not reimplement authentication or choose providers');
+  const projections=['src/pages/Auth2029Page.jsx','src/components/community2029/CommunitySignIn.jsx','src/components/experience2029/WorkspaceProjection2029.jsx'];
   for(const path of projections){
     const source=fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
     assert.match(source,/<AccountEntry2029\b/,path);

@@ -5,7 +5,7 @@ import { use2029Palette } from "../lib/palette2029.js";
 import { personalActionsLocked } from "../lib/publicLaunch2029.js";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { ResearchStateSections } from "../components/experience2029/SystemFrame2029.jsx";
+import { ResearchStateSections } from "../components/experience2029/WorkspaceProjection2029.jsx";
 import PersonalNotes2029 from "../components/userCenter/PersonalNotes2029.jsx";
 import { applySeo } from "../lib/seo.js";
 import { WRITER_PERSONAL_MODULES, personalMessagesState, personalReturnHref, writerPersonalHref, writerSelfRequest } from "../lib/userCenter/writerPersonal2029.js";

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
 const center = read("src/components/experience2029/RazielCenter2029.jsx");
 const css = read("src/components/experience2029/razielCenter2029.css");
 const provider = read("src/lib/research/RazielSessionProvider2029.jsx");
