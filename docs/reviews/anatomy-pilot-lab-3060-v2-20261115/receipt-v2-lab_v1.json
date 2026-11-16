@@ -1,7 +1,55 @@
 {
-  "directions": {},
+  "directions": {
+    "lab": {
+      "desktop": {
+        "canvasMs": 5622,
+        "drawCalls": 109,
+        "geometries": 55,
+        "textures": 12,
+        "shadows": "false",
+        "look": "royal",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "inner",
+          "outer",
+          "triangles"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true,
+          "focusKept": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "v1": {
+      "desktop": {
+        "canvasMs": 3260,
+        "drawCalls": 105,
+        "geometries": 51,
+        "textures": 12,
+        "shadows": "false",
+        "look": "v1",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "inner",
+          "outer"
+        ],
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    }
+  },
   "cases": [],
-  "errors": [
-    "AssertionError [ERR_ASSERTION]: no visible text below the Design V2 supporting-copy minimum (15px)\n+ actual - expected\n\n+ [\n+   'טוב:14px',\n+   'כל אות תורמת את ער:14px'\n+ ]\n- []\n\n    at file:///home/user/sod1820/scripts/anatomy-pilot/lab-3060-v2-browser-check.mjs:180:12"
-  ]
+  "errors": []
 }

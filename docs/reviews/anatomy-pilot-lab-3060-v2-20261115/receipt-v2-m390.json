@@ -14,15 +14,15 @@
           "w": 299,
           "h": 499
         },
-        "heapMB": 25,
+        "heapMB": 26,
         "doc": {
           "docWidth": 375,
           "innerWidth": 390
         },
         "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 733,
-        "droppedOver100ms": 5
+        "frameGapP95Ms": 667,
+        "droppedOver100ms": 6
       }
     },
     "discovery": {
@@ -39,14 +39,14 @@
           "w": 299,
           "h": 476
         },
-        "heapMB": 25,
+        "heapMB": 23,
         "doc": {
           "docWidth": 375,
           "innerWidth": 390
         },
         "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 450,
+        "frameGapP95Ms": 400,
         "droppedOver100ms": 8
       }
     },
@@ -64,22 +64,22 @@
           "w": 299,
           "h": 476
         },
-        "heapMB": 25,
+        "heapMB": 21,
         "doc": {
           "docWidth": 375,
           "innerWidth": 390
         },
         "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 400,
-        "droppedOver100ms": 6
+        "frameGapP95Ms": 333,
+        "droppedOver100ms": 7
       }
     },
     "v1": {
       "mobile390": {
         "width": 390,
         "drawCalls": 105,
-        "geometries": 61,
+        "geometries": 56,
         "textures": 12,
         "shadows": "false",
         "look": "v1",
@@ -89,15 +89,15 @@
           "w": 299,
           "h": 476
         },
-        "heapMB": 23,
+        "heapMB": 26,
         "doc": {
           "docWidth": 375,
           "innerWidth": 390
         },
         "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 367,
-        "droppedOver100ms": 8
+        "frameGapP95Ms": 333,
+        "droppedOver100ms": 9
       }
     }
   },

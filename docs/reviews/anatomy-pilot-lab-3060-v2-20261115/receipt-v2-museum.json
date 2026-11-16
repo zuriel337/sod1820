@@ -2,7 +2,7 @@
   "directions": {
     "museum": {
       "desktop": {
-        "canvasMs": 6874,
+        "canvasMs": 6035,
         "drawCalls": 128,
         "geometries": 55,
         "textures": 14,

@@ -14,15 +14,15 @@
           "w": 229,
           "h": 430
         },
-        "heapMB": 28,
+        "heapMB": 22,
         "doc": {
           "docWidth": 305,
           "innerWidth": 320
         },
         "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 317,
-        "droppedOver100ms": 10
+        "frameGapP95Ms": 367,
+        "droppedOver100ms": 7
       }
     },
     "discovery": {
@@ -39,22 +39,22 @@
           "w": 229,
           "h": 400
         },
-        "heapMB": 25,
+        "heapMB": 21,
         "doc": {
           "docWidth": 305,
           "innerWidth": 320
         },
         "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 250,
-        "droppedOver100ms": 11
+        "frameGapP95Ms": 283,
+        "droppedOver100ms": 10
       }
     },
     "lab": {
       "mobile320": {
         "width": 320,
         "drawCalls": 109,
-        "geometries": 60,
+        "geometries": 55,
         "textures": 12,
         "shadows": "false",
         "look": "royal",
@@ -64,15 +64,15 @@
           "w": 229,
           "h": 400
         },
-        "heapMB": 26,
+        "heapMB": 21,
         "doc": {
           "docWidth": 305,
           "innerWidth": 320
         },
         "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 317,
-        "droppedOver100ms": 9
+        "frameGapP95Ms": 267,
+        "droppedOver100ms": 8
       }
     },
     "v1": {
@@ -89,14 +89,14 @@
           "w": 229,
           "h": 400
         },
-        "heapMB": 26,
+        "heapMB": 25,
         "doc": {
           "docWidth": 305,
           "innerWidth": 320
         },
         "clipped": [],
         "smallTargets": [],
-        "frameGapP95Ms": 183,
+        "frameGapP95Ms": 250,
         "droppedOver100ms": 7
       }
     }
