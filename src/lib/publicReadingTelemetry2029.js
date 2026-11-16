@@ -68,7 +68,12 @@ export function readingWebVitalBody(body) {
     || readingTelemetryPath(body.p_path) !== body.p_path
     || !["facebook", "instagram", "whatsapp", "telegram", "line", "chrome-ios", "edge", "opera", "firefox", "android-webview", "chrome", "safari", "other"].includes(body.p_app_context)) return false;
   const p = body.p_props;
-  const fields = ["vitals_version", "cls", "lcp_ms", "inp_ms", "fcp_ms", "ttfb_ms", "interaction_count", "cls_shift_sources", "ratings", "sample_id", "phase", "flush_reason", "initial_path", "current_path", "collector", "measurement_scope", "nav_type", "visibility_at_flush"];
+  // Field context (16.11.2026): the code build, the device class, the article-first outcome, the parts of the document's first byte. All four
+  // or none: a page still running the previous code during a release sends the earlier shape, which stays admitted.
+  const context = ["build", "device_class", "article_first", "nav_timing"];
+  const withContext = Boolean(p && typeof p === "object" && context.some(key => key in p));
+  const fields = ["vitals_version", "cls", "lcp_ms", "inp_ms", "fcp_ms", "ttfb_ms", "interaction_count", "cls_shift_sources", "ratings", "sample_id", "phase", "flush_reason", "initial_path", "current_path", "collector", "measurement_scope", "nav_type", "visibility_at_flush",
+    ...(withContext ? context : [])];
   if (!p || typeof p !== "object" || Array.isArray(p) || Object.keys(p).length !== fields.length || Object.keys(p).some(k => !fields.includes(k))
     || p.vitals_version !== 1 || p.initial_path !== body.p_path || p.current_path !== body.p_path
     || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(p.sample_id || "")
@@ -78,6 +83,12 @@ export function readingWebVitalBody(body) {
     || p.collector !== "performance_observer" || p.measurement_scope !== "document_navigation_hard_load_only"
     || ![null, "navigate", "reload", "back_forward", "prerender"].includes(p.nav_type)
     || !["visible", "hidden", "prerender"].includes(p.visibility_at_flush)) return false;
+  const timing = ["connect_ms", "dns_ms", "download_ms", "redirect_ms", "wait_ms", "worker_ms"];
+  if (withContext && (p.build !== null && (typeof p.build !== "string" || !/^[A-Za-z0-9_-]{4,64}$/.test(p.build))
+    || ![null, "mobile", "desktop"].includes(p.device_class) || ![null, "none", "served", "adopted", "replaced"].includes(p.article_first)
+    || p.nav_timing !== null && (!p.nav_timing || typeof p.nav_timing !== "object" || Array.isArray(p.nav_timing)
+      || Object.keys(p.nav_timing).sort().join(",") !== timing.join(",")
+      || timing.some(key => p.nav_timing[key] !== null && (!Number.isSafeInteger(p.nav_timing[key]) || p.nav_timing[key] < 0 || p.nav_timing[key] > 600000))))) return false;
   for (const key of ["cls", "lcp_ms", "inp_ms", "fcp_ms", "ttfb_ms"])
     if (p[key] !== null && (typeof p[key] !== "number" || !Number.isFinite(p[key]) || p[key] < 0 || p[key] > 86400000)) return false;
   if (!Number.isSafeInteger(p.interaction_count) || p.interaction_count < 0 || p.interaction_count > 1000000

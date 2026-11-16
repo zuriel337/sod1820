@@ -41,6 +41,7 @@ const cleanup = () => { for (const key of ["window", "document", "MutationObserv
 
 test("which content each page waits for: the Home's primary column, a Post's article; other pages only the load", () => {
   assert.equal(primaryContentSelector2029("/"), '[data-home-primary="ready"]');
+  assert.equal(primaryContentSelector2029("/2029"), '[data-home-primary="ready"]', "the Home's 2029 alias");
   assert.equal(primaryContentSelector2029("/post/some-slug"), '[data-experience-surface="post-reading"]');
   assert.equal(primaryContentSelector2029("/%D7%A1%D7%93%D7%A8-%D7%AA%D7%A4%D7%99%D7%9C%D7%94"), '[data-experience-surface="post-reading"]', "an original single-segment Post address");
   for (const path of ["/community", "/world", "/posts", "/gematria", "/number/26", "/privacy"]) assert.equal(primaryContentSelector2029(path), null, path);

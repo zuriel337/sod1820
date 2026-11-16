@@ -46,6 +46,18 @@ test("the existing RUM schema preserves missing metrics and permits only the ano
     const changed=structuredClone(b);mutation(changed);assert.equal(readingWebVitalBody(changed),false);
   }
 });
+test("field context (16.11.2026): build, device class, article-first outcome and the document's first-byte parts are admitted together, bounded, or not at all",()=>{
+  const ctx={build:"2029-BN6n_4z5",device_class:"mobile",article_first:"adopted",nav_timing:{redirect_ms:null,worker_ms:3,dns_ms:0,connect_ms:41,wait_ms:812,download_ms:96}};
+  const b=vital();Object.assign(b.p_props,ctx);assert.equal(readingWebVitalBody(b),true);
+  for(const value of ["none","served","adopted","replaced",null]){const c=structuredClone(b);c.p_props.article_first=value;assert.equal(readingWebVitalBody(c),true,String(value));}
+  const c0=structuredClone(b);c0.p_props.nav_timing=null;c0.p_props.build=null;c0.p_props.device_class=null;assert.equal(readingWebVitalBody(c0),true,"unknown parts are null");
+  for(const mutation of [b=>delete b.p_props.nav_timing,b=>b.p_props.build="/assets/x.js",b=>b.p_props.build="person@example.invalid",b=>b.p_props.device_class="iPhone 15",
+    b=>b.p_props.article_first="maybe",b=>b.p_props.nav_timing.wait_ms=-1,b=>b.p_props.nav_timing.wait_ms=1.5,b=>b.p_props.nav_timing.wait_ms=600001,
+    b=>b.p_props.nav_timing.extra=1,b=>delete b.p_props.nav_timing.dns_ms,b=>b.p_props.nav_timing=[],b=>b.p_props.ua="Mozilla/5.0"]){
+    const changed=structuredClone(b);mutation(changed);assert.equal(readingWebVitalBody(changed),false);
+  }
+  assert.equal(readingWebVitalBody(vital()),true,"a page still on the previous code (no context) is admitted");
+});
 test("emitted worker admits checkpoint/final only from the matching canonical window, strips account JWT and bounds duplicates",async()=>{
   const w=worker();const b=vital();
   assert.equal((await w.request(DB+"/rest/v1/rpc/ingest_event",b,{headers:{"Content-Type":"application/json",Authorization:"Bearer "+token}})).status,200);
@@ -119,10 +131,17 @@ test("the actual public RUM collector never creates/bridges identity and finaliz
   }}]});
   let checkpoint;const events={},calls=[],posts=[];const doc={visibilityState:"visible",addEventListener:(n,fn)=>events[n]=fn,removeEventListener(){}};
   const win={location:{pathname:"/number/PRIVATE"},addEventListener:(n,fn)=>events[n]=fn,removeEventListener(){}};
-  const context={module:{exports:{}},calls,console,URL,JSON,document:doc,location:win.location,performance:{getEntriesByType:()=>[]},fetch:async(url,opts)=>{posts.push({url,opts});return json({ok:true});}};context.exports=context.module.exports;
+  // field context (16.11.2026): a phone, a Post adopted article-first, and the parts of the document's first byte
+  const NAV={type:"navigate",startTime:0,redirectStart:0,redirectEnd:0,workerStart:5,fetchStart:9,domainLookupStart:10,domainLookupEnd:30,connectStart:30,connectEnd:80,requestStart:81,responseStart:700,responseEnd:760};
+  const context={module:{exports:{}},calls,console,URL,JSON,document:doc,location:win.location,performance:{getEntriesByType:t=>t==="navigation"?[NAV]:[]},
+    navigator:{userAgent:"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile/15E148"},window:{__sodArticleFirst:{result:"adopted"}},
+    fetch:async(url,opts)=>{posts.push({url,opts});return json({ok:true});}};context.exports=context.module.exports;
   vm.runInNewContext(code.outputFiles[0].text,context);
   const cleanup=context.module.exports.startWebVitals2029({win,doc,production:true,publicReading:true,bot:false,PerformanceObserverCtor:class{observe(){}disconnect(){}},sampleId:"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",setTimeoutFn:fn=>{checkpoint=fn;return 1;},clearTimeoutFn(){}});
   checkpoint();assert.equal(calls.length,1);assert.equal(calls[0][0],"ingest_event");assert.equal(readingWebVitalBody(calls[0][1]),true);assert.equal(calls[0][1].p_path,"/number/:value");
+  const sent=calls[0][1].p_props;
+  assert.deepEqual({build:sent.build,device_class:sent.device_class,article_first:sent.article_first,nav_timing:{...sent.nav_timing}},
+    {build:null,device_class:"mobile",article_first:"adopted",nav_timing:{redirect_ms:null,worker_ms:4,dns_ms:20,connect_ms:50,wait_ms:619,download_ms:60}},"build is null outside a built chunk");
   events.pagehide();assert.equal(posts.length,1);assert.equal(posts[0].url,DB+"/rest/v1/rpc/ingest_event");assert.equal(readingWebVitalBody(JSON.parse(posts[0].opts.body)),true);
   events.pagehide();assert.equal(posts.length,1);cleanup();
 });

@@ -248,7 +248,7 @@ export const PUBLIC_READING_OPEN_ROUTES = Object.freeze(["/", "/world", "/post",
 export const CONTENT_FIRST_CAP_MS = 10000;
 export function primaryContentSelector2029(pathname) {
   const path = addressPath(pathname);
-  if (path === "/") return '[data-home-primary="ready"]';
+  if (path === "/" || path === "/2029") return '[data-home-primary="ready"]';
   if (/^\/post\/[^/]+$/.test(path || "") || publicReadingPath(pathname) === "post-lookup") return '[data-experience-surface="post-reading"]';
   return null;
 }

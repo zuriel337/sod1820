@@ -42,6 +42,28 @@ function nodeLabel(node) {
   } catch { return null; }
 }
 
+// Field context for each sample (ZURIEL 16.11.2026, speed series 2, step 0): without it a field number cannot be tied to a release, a device
+// class or the article-first path. All four are coarse and anonymous: the entry chunk's content hash (the code build), the same mobile/desktop
+// class as the first-party visit counter, the article-first outcome of a Post, and the parts of the document's first byte (integer ms).
+const BUILD_TOKEN = /\/assets\/([A-Za-z0-9_-]{4,64})\.js(?:$|\?)/.exec(String(import.meta.url || ""))?.[1] || null;
+const navPart = (from, to) => (from > 0 && to >= from ? Math.min(600000, Math.round(to - from)) : null);
+function fieldContext() {
+  let nav = null, articleFirst = null, deviceClass = null;
+  try {
+    const n = performance.getEntriesByType("navigation")?.[0];
+    if (n) nav = { redirect_ms: navPart(n.redirectStart, n.redirectEnd), worker_ms: navPart(n.workerStart, n.fetchStart),
+      dns_ms: navPart(n.domainLookupStart, n.domainLookupEnd), connect_ms: navPart(n.connectStart, n.connectEnd),
+      wait_ms: navPart(n.requestStart, n.responseStart), download_ms: navPart(n.responseStart, n.responseEnd) };
+  } catch { nav = null; }
+  try {
+    const result = window.__sodArticleFirst?.result;
+    articleFirst = result === "adopted" || result === "replaced" ? result
+      : document.querySelector("script[data-sod-article-first-done]") ? "served" : "none";
+  } catch { articleFirst = null; }
+  try { deviceClass = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop"; } catch { deviceClass = null; }
+  return { build: BUILD_TOKEN, device_class: deviceClass, article_first: articleFirst, nav_timing: nav };
+}
+
 function navDiagnostics() {
   try {
     const nav = performance.getEntriesByType("navigation")?.[0] || null;
@@ -106,6 +128,7 @@ function makePayload({ id, initialPath, phase, reason, snapshot, navType, public
       measurement_scope: "document_navigation_hard_load_only",
       nav_type: navType,
       visibility_at_flush: typeof document !== "undefined" ? document.visibilityState : null,
+      ...(publicReading ? fieldContext() : {}),
     },
   };
 }
