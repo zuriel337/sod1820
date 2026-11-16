@@ -35,6 +35,21 @@ export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
     })),
   ]),
   5107: Object.freeze([
+    // 16.11.2026 — the NEWEST unit, written to posts.content by ZURIEL's explicit approval (one atomic statement with a backup row). post_revisions row 270 is the
+    // pre-write snapshot taken in that same statement (created_at below, the instant of the write); posts.modified was deliberately left unchanged (2026-11-10T16:56:00Z).
+    Object.freeze({
+      id: "yamin-smol-2026-5787-1237-1158",
+      sourceSlug: "sharshar-elections-redemption-hints-draft",
+      sourceModifiedAt: "2026-11-10T16:56:00.412935Z",
+      updatedAt: "2026-11-16T13:02:30.887336Z",
+      timeBasis: "write_with_backup_snapshot",
+      targetId: "yamin-smol-2026-5787-1237-1158",
+      titleId: "yamin-smol-2026-5787-1237-1158-title",
+      label: "ימין ושמאול תפרצי מדהים!!! רמזים חזקים ביותר",
+      date: "2026-11-16",
+      beforeRevision: 270,
+      attribution: "תוספת לפוסט",
+    }),
     ...[
       ["sharshar-shoes-66", "sharshar-shoes-title", "שרשר · נעליים · בן דוד = 66"],
       ["sharshar-knesset-source", "sharshar-knesset-title", "״הגעתי לכנסת ישראל לשרת את עם ישראל״"],

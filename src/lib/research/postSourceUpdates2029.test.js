@@ -61,11 +61,12 @@ test("event is a safe public label / location, never raw post_revisions or priva
 test("the three 205->206 source units are listed newest-first with the real addition time, Netanyahu keeps its own", () => {
   const ordered = orderedSourceUpdates([...PROVEN_POST_SOURCE_UPDATES[5107]]);
   // Since 12.11.2026 the 10.11 units (rev 261->262 and 263->264) sit before them, newest first.
-  assert.deepEqual(ordered.map((entry) => entry.id), ["knesset-sworn-1234-1011", "election-turnout-777-news-signal", "sharshar-shoes-66", "sharshar-knesset-source", "sharshar-monthly-help-requests", "netanyahu-77-mazal"]);
-  assert.equal(ordered[2].label, "שרשר · נעליים · בן דוד = 66");
-  assert.equal(ordered[2].updatedAt, "2026-10-12T13:52:58.270789Z");
-  assert.equal(ordered[5].updatedAt, "2026-10-10T23:19:35.974936Z");
-  assert.equal(formatUpdateDate(ordered[2].updatedAt), "12.10.2026");
+  // 16.11.2026: the newest unit (yamin-smol, written with a backup snapshot) leads
+  assert.deepEqual(ordered.map((entry) => entry.id), ["yamin-smol-2026-5787-1237-1158", "knesset-sworn-1234-1011", "election-turnout-777-news-signal", "sharshar-shoes-66", "sharshar-knesset-source", "sharshar-monthly-help-requests", "netanyahu-77-mazal"]);
+  assert.equal(ordered[3].label, "שרשר · נעליים · בן דוד = 66");
+  assert.equal(ordered[3].updatedAt, "2026-10-12T13:52:58.270789Z");
+  assert.equal(ordered[6].updatedAt, "2026-10-10T23:19:35.974936Z");
+  assert.equal(formatUpdateDate(ordered[3].updatedAt), "12.10.2026");
   const event = publicProvenPostSourceUpdate(reviewedPost({ modified: "2026-10-12T13:52:58.270789Z" }));
   assert.equal(event.revision, 206);
   assert.equal(event.targetHref, "/post/sharshar-elections-redemption-hints-draft?unit=sharshar-shoes-66#sharshar-shoes-66");

@@ -24,7 +24,8 @@ test("a child's addition marks every ancestor (axis and parent post) but not the
   // The axis follows Bennett's own addition (12.10). The root is marked by its newest proven unit: since 12.11.2026 that is
   // the 10.11 "1234 / 1011" unit (snapshot-interval proof), which is newer than the child's 12.10 addition.
   assert.equal(axis.changedAt, "2026-10-12T14:06:54.127Z");
-  assert.equal(root.changedAt, "2026-11-10T15:39:37.816Z");
+  // 16.11.2026: the newest unit of post 5107 is the "yamin-smol" unit (written with a backup snapshot at 13:02:30Z)
+  assert.equal(root.changedAt, "2026-11-16T13:02:30.887Z");
   const unit = find(root, (node) => node.id === "bennett-israel-78");
   assert.equal(unit.addedAt, "2026-10-12T14:06:54.127591Z");
 });
