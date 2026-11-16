@@ -205,9 +205,22 @@ const byPinnedLast = (a, b) => {
   if (ea === null || eb === null) return (eb === null ? 0 : 1) - (ea === null ? 0 : 1);
   return ea === eb ? 0 : eb > ea ? 1 : -1;
 };
-export const nowModels = (rows, now = Date.now()) => list(rows).filter(row => row?.id && row.title)
+const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.title)
   .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
   .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
+
+// ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
+// a blinking dot, until a newer reality-map publication replaces it. It is a presentation of the series, not a pin: nothing is stored, `pinned` is untouched.
+export const REALITY_MAP_LATEST_KEY = "reality-map";
+export const nowModels = (rows, now = Date.now()) => {
+  const models = sortedNowModels(rows, now);
+  const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned)
+    .sort((a, b) => (Date.parse(b.at || 0) || 0) - (Date.parse(a.at || 0) || 0) || String(a.id).localeCompare(String(b.id)))[0];
+  if (!latest) return models;
+  const rest = models.filter(model => model !== latest);
+  const leading = rest.filter(model => model.pinned).length;
+  return [...rest.slice(0, leading), { ...latest, seriesLatest: true }, ...rest.slice(leading)];
+};
 
 /** Primary lenses with at least one row; "all" is always available. */
 export function availableNowLenses(models) {

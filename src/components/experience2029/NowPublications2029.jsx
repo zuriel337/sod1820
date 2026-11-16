@@ -61,6 +61,7 @@ function RowHead({ model, timeMode }) {
         {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
         <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
         {model.pinned ? <span className="sod29-nowpub-pin" data-now-pinned="true">📌 נעוץ</span> : null}
+        {model.seriesLatest ? <span className="sod29-nowpub-latest" data-now-series-latest="reality-map"><i className="sod29-nowpub-blink" aria-hidden="true" />העדכון האחרון במפת המציאות</span> : null}
         {/* Clear labels (ZURIEL 11.11.2026): "חדש" for an arrival the viewer has not seen, "עודכן" for a publication that received an update. */}
         {model.row?.isNew ? <span className="sod29-nowpub-label r29-badge is-new" data-now-label="new">חדש</span> : model.updated ? <span className="sod29-nowpub-label r29-badge is-updated" data-now-label="updated">עודכן</span> : null}
         <time dateTime={model.at || undefined}>{when}</time>

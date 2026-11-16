@@ -26,6 +26,9 @@ export const CONTENT_SERIES_2029 = Object.freeze([
       Object.freeze({ field: "tags", value: "מפת המציאות" }),
     ]),
     exactAuthor: null,
+    // ZURIEL 16.11.2026: post 5107 (הבחירות לכנסת ה־26 — the elections post, divided into units) is the FIRST post of the series. Admitted by its exact post id (the existing
+    // explicit admission); no tag or DB row is written by this entry. The PLAN37 record of the decision is pending (a DB write that needs approval).
+    admission: Object.freeze({ approvedPostIds: Object.freeze([5107]), decisionRef: "ZURIEL/20261116/first-reality-map-post", plan37: "PENDING-PLAN37-RECORD" }),
     relationNote: "הסדרה הראשית: מחקרים, צפנים ותגליות. חברות רק מהתגית המדויקת; אינה חלונית רמזים, אינה גרף הקשרים ואינה זרם המציאות.",
     // Home entrances to the future content families (ZURIEL 6.11.2026). They are LINKS to the existing source-category pages
     // ("סיווג במקור"), nothing more: no membership, no selector, no field, no assignment. A family without a category is shown
