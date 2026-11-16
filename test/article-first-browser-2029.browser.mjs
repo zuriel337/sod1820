@@ -111,14 +111,18 @@ test("[phone] a direct link to a named anchor: the browser opens at it and adopt
     await page.goto("https://sod1820.co.il" + PATH + "#_Toc10337527", { waitUntil: "domcontentloaded" });
     await page.waitForSelector('#sod29-ssr-article a[name="_Toc10337527"]', { state: "attached", timeout: 20000 });
     await sleep(300);
-    const before = await page.evaluate(() => { window.__anchor = document.getElementsByName("_Toc10337527")[0]; return Math.round(window.__anchor.getBoundingClientRect().top); });
+    const before = await page.evaluate(() => { window.__anchor = document.getElementsByName("_Toc10337527")[0]; window.__fontsBefore = document.fonts.status + ":" + [...document.fonts].filter(f => f.status === "loaded").map(f => f.family + f.weight).join(","); return Math.round(window.__anchor.getBoundingClientRect().top); });
     assert.ok(before < 300, `the browser opened at the anchor (${before})`);
     const result = await adopted(page);
     assert.equal(result.result, "adopted"); assert.equal(result.place, "target");
-    await sleep(1200);
+    // the browser keeps its own fragment jump until the document has loaded; after adoption the anchor stays where it is
+    await sleep(250);
+    const first = await page.evaluate(() => Math.round(window.__anchor.getBoundingClientRect().top));
+    await sleep(1500);
     const after = await page.evaluate(() => ({ top: Math.round(window.__anchor.getBoundingClientRect().top), count: document.getElementsByName("_Toc10337527").length }));
     assert.equal(after.count, 1);
-    assert.ok(Math.abs(after.top - before) <= 2, `the anchor stayed (${before} -> ${after.top})`);
+    assert.ok(after.top >= -2 && after.top < 300, `the anchor is at the top of the screen (${after.top})`);
+    assert.ok(Math.abs(after.top - first) <= 2, `the anchor stayed after adoption (${first} -> ${after.top})`);
   });
 });
 

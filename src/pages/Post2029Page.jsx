@@ -4,8 +4,6 @@ import { useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
-import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import PostFollowBox from "../components/PostFollowBox.jsx";
 import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostPackClaims.js";
@@ -16,8 +14,6 @@ import { applySeo } from "../lib/seo.js";
 import { publicPostHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
 import { publicPostLinkedMedia, legacySourcePath } from "../lib/research/publicPostSourceLinks2029.js";
 import { publicPostShareUrl } from "../lib/publicPostUrls.js";
-import ShareActions from "../components/ShareActions.jsx";
-import PersonalSaveButton2029 from "../components/userCenter/PersonalSaveButton2029.jsx";
 import { entityFromPost } from "../lib/research/entity.js";
 import { logView, logActivity } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
@@ -32,19 +28,14 @@ import { resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSe
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
 import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import { usePostOutline2029 } from "../lib/research/postOutlineDom2029.js";
-import PostUnitEditors2029 from "../components/experience2029/PostUnitEditors2029.jsx";
 import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
-import PreviewUnitExtras2029 from "../components/experience2029/PreviewUnitExtras2029.jsx";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
 import { setPostUnits, setActivePostUnit, clearPostUnits, unitContextStrings } from "../lib/research/postUnitStore2029.js";
 const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/experience2029/PostExternalSourcesPreview2029.jsx"));
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { postClassification2029, postHierarchyContext2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
-import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
-import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
 import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
-import MatrixRain from "../components/MatrixRain.jsx";
 import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
 import { postReadingClassName } from "./postReadingStyles2029.js";
@@ -76,7 +67,43 @@ function revealReadingAnchor(node) {
   return node;
 }
 
+// Stays with the page: it shares its number signals with the System Frame, and splitting it would move them into the frame every page loads
+// (measured with the shell budget, 16.11.2026). It renders only once the research section is opened.
+import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 const SourceLightbox = React.lazy(() => import("../components/Lightbox.jsx"));
+
+// The tools around the article load when they are used (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026: "the article first, the tools on request";
+// hiding them is not enough). The article, its title, credit, date, cover, categories and section navigation stay in this page's code.
+// On open: the code loads when the tool is rendered (an opened research section, an opened details panel, the series-only editors).
+// On approach: below the article, the code loads when the reader comes within a screen and a half of it. Both show the live loading state.
+function toolOnOpen2029(load, title = null) {
+  const Tool = React.lazy(load);
+  return function ToolOnOpen(props) {
+    return <React.Suspense fallback={title ? <FrameState kind="loading" title={title} progress={{ compact: true }} /> : null}><Tool {...props} /></React.Suspense>;
+  };
+}
+function toolOnApproach2029(load, title) {
+  const Tool = toolOnOpen2029(load, title);
+  return function ToolOnApproach(props) {
+    const ref = useRef(null);
+    const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
+    useEffect(() => {
+      if (near || !ref.current) return undefined;
+      const observer = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { setNear(true); observer.disconnect(); } }, { rootMargin: "150% 0px" });
+      observer.observe(ref.current);
+      return () => observer.disconnect();
+    }, [near]);
+    return near ? <Tool {...props} /> : <div ref={ref} data-tool-on-approach="pending" aria-hidden="true" />;
+  };
+}
+const PostTimeline2029 = toolOnApproach2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
+const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
+const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
+const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
+const PersonalSaveButton2029 = toolOnOpen2029(() => import("../components/userCenter/PersonalSaveButton2029.jsx"));
+const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
+const PreviewUnitExtras2029 = toolOnOpen2029(() => import("../components/experience2029/PreviewUnitExtras2029.jsx"));
+const MatrixRain = toolOnOpen2029(() => import("../components/MatrixRain.jsx"));
 
 function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const { slug: routeSlug } = useParams();
@@ -124,6 +151,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second
   // time, only when they are exactly this page's article; the reader stays on the same place. Otherwise this page's article replaces it once.
+  const [detailsOpened, setDetailsOpened] = useState(false);   // share and save load when the details are opened
   const adoptionRef = useRef(null);   // { id, html, node } once adopted; the adopted nodes stay until the article itself changes
   const documentArticle = useMemo(() => {
     const projection = state.projection;
@@ -1284,7 +1312,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
           <PostCategories2029 post={projection.sourcePost} compact max={4} />
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
-          <details className="sod29-post-details">
+          <details className="sod29-post-details" onToggle={event => { if (event.currentTarget.open) setDetailsOpened(true); }}>
             <summary>
               <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>
               <span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span>
@@ -1296,11 +1324,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               <div className="sod29-reading-meta-line">
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
               </div>
-              {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <ShareActions
+              {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <ShareActions
                 type="post" url={publicPostShareUrl(post, location)}
                 title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"
               /> : null}
-              {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
+              {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
 
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
