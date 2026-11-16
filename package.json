@@ -76,6 +76,7 @@
     "@vercel/edge": "^1.2.1",
     "@vercel/og": "^0.11.1",
     "jose": "6.2.13",
+    "jsdom": "25.0.1",
     "natalengine": "1.6.0",
     "pdfjs-dist": "6.4.299",
     "react": "19.3.0",

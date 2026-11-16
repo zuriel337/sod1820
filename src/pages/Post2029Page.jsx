@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -6,7 +6,7 @@ import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNa
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
 import PostFollowBox from "../components/PostFollowBox.jsx";
-import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, postReadingHtml2029, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
+import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostPackClaims.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
@@ -21,12 +21,14 @@ import PersonalSaveButton2029 from "../components/userCenter/PersonalSaveButton2
 import { entityFromPost } from "../lib/research/entity.js";
 import { logView, logActivity } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
-import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel, registeredUnitIds } from "../lib/research/postSourceUpdates2029.js";
 import { postVoiceFor } from "../lib/postVoice2029.js";
-import { annotatePostSource, resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
+import { postArticleSourceHtml2029, postArticleSourceKey2029 } from "../lib/research/postArticlePipeline2029.js";
+import { postArticleByline2029 } from "../lib/research/postArticleDocument2029.js";
+import { POST_ARTICLE_DOCUMENT_ID, documentArticleFor, documentArticleBodyMatches, readingPlace2029, samePlaceInPage2029, keepReaderInPlace2029, suspendScrollAnchoring2029 } from "../lib/research/postArticleAdoption2029.js";
+import { resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
 import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import { usePostOutline2029 } from "../lib/research/postOutlineDom2029.js";
@@ -116,9 +118,53 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const [prefsTick, setPrefsTick] = useState(0);
   useEffect(() => subscribeUnitChoices(() => setPrefsTick((n) => n + 1)), []);
   const passiveSourceHtml = useMemo(() => {
-    const hardened = hardenPassiveMediaHtml(postReadingHtml2029(state.projection?.post?.content || ""));
-    return protoOn ? annotatePostSource(hardened, { postId: state.projection?.post?.id, voice: postVoice }) : hardened;
+    // The one article pipeline, shared with the first document (postArticlePipeline2029.js).
+    return postArticleSourceHtml2029(state.projection?.post?.content || "", { postId: state.projection?.post?.id, voice: postVoice, annotate: protoOn });
   }, [state.projection?.post?.content, state.projection?.post?.id, postVoice, protoOn]);
+
+  // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second
+  // time, only when they are exactly this page's article; the reader stays on the same place. Otherwise this page's article replaces it once.
+  const adoptionRef = useRef(null);   // { id, html, node } once adopted; the adopted nodes stay until the article itself changes
+  const documentArticle = useMemo(() => {
+    const projection = state.projection;
+    if (!projection?.post) return null;
+    const adopted = adoptionRef.current;
+    if (adopted) return adopted.id === String(projection.post.id) && adopted.html === passiveSourceHtml ? adopted.node : null;
+    const node = documentArticleFor(projection.post.id);
+    if (!node) return null;
+    if (node.dataset.ssrSource !== postArticleSourceKey2029(projection.sourcePost?.content)) { node.dataset.ssrResult = "source-differs"; return null; }
+    if (!documentArticleBodyMatches(node.querySelector('[data-ssr-body="true"]'), passiveSourceHtml)) { node.dataset.ssrResult = "output-differs"; return null; }
+    return node;
+  }, [state.projection, passiveSourceHtml]);
+  useLayoutEffect(() => {
+    const node = documentArticle, target = sourceRef.current;
+    if (!node || !node.isConnected || !target || target.childNodes.length) return;
+    const place = readingPlace2029(node, location.hash);
+    const resume = suspendScrollAnchoring2029();
+    adoptionRef.current = { id: node.dataset.ssrPost, html: passiveSourceHtml, node };
+    target.append(...node.querySelector('[data-ssr-body="true"]').childNodes);
+    node.remove();   // the app root's height hold ends with it (CSS :has)
+    const moved = keepReaderInPlace2029(place, samePlaceInPage2029(place, target.closest("article"), target), { resume });
+    target.dataset.articleFirst = "adopted";
+    window.__sodArticleFirst = { result: "adopted", at: Math.round(performance.now()), place: place?.kind || null, compensated: moved };
+  }, [documentArticle]);
+  useLayoutEffect(() => {
+    const leftover = document.getElementById(POST_ARTICLE_DOCUMENT_ID), target = sourceRef.current;
+    if (!leftover || documentArticle || !target || !target.childNodes.length) return;
+    const place = readingPlace2029(leftover, location.hash);
+    const result = leftover.dataset.ssrResult || "not-adopted";
+    const resume = suspendScrollAnchoring2029();
+    leftover.remove();
+    const moved = keepReaderInPlace2029(place, samePlaceInPage2029(place, target.closest("article"), target), { resume });
+    window.__sodArticleFirst = { result: "replaced", reason: result, at: Math.round(performance.now()), place: place?.kind || null, compensated: moved };
+  });
+  // The page cannot open the Post (its own read failed) although the server already gave the article: the reader keeps the article, and the
+  // app root is released so the page's own state shows above it. A page that is left never keeps the document article.
+  useEffect(() => {
+    const node = document.getElementById(POST_ARTICLE_DOCUMENT_ID);
+    if (node && !state.loading && (state.error || !state.projection)) node.dataset.ssrStandalone = "true";
+  }, [state.loading, state.error, state.projection]);
+  useEffect(() => () => { if (!adoptionRef.current) document.getElementById(POST_ARTICLE_DOCUMENT_ID)?.remove(); }, []);
   const [activeRegionId, setActiveRegionId] = useState(null);
   const [sourceUpdates, setSourceUpdates] = useState([]);
 
@@ -1235,6 +1281,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
+          {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
           <PostCategories2029 post={projection.sourcePost} compact max={4} />
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
           <details className="sod29-post-details">
@@ -1344,7 +1391,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
             handleSourceContextualFocus(event);
           }
         }}
-        dangerouslySetInnerHTML={{ __html: passiveSourceHtml }}
+        {...(documentArticle ? {} : { dangerouslySetInnerHTML: { __html: passiveSourceHtml } })}
       />
       {protoOn && realityMap.active ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} postHref={publicPostHref(post)} htmlKey={passiveSourceHtml.length} editable={editorEnabled} /> : null}
       {protoOn && realityMap.active ? <PreviewUnitExtras2029 rootRef={sourceRef} post={post} htmlKey={passiveSourceHtml.length} /> : null}

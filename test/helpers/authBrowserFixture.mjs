@@ -53,7 +53,9 @@ function sendStorage(req, res, file, log) {
 // the function log, before the default answers. It returns null to fall through. Auth itself always stays the in-memory model.
 // `asset` (optional): a test's own answer for a built file under /assets/ (for example a failed chunk), consulted before the file is served.
 // It returns null to serve the real file. Every /assets/ request is logged in state.assets either way.
-export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0), supabase = null, asset = null } = {}) {
+// `documentFor` (optional): a test's own document for an address (for example the first-document article built by the real server function),
+// given the generated template; it returns null to serve the template as it is.
+export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0), supabase = null, asset = null, documentFor = null } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'auth-fixture-'));
   execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '2', '-subj', '/CN=sod1820.co.il',
     '-addext', `subjectAltName=DNS:sod1820.co.il,DNS:www.sod1820.co.il,DNS:${SUPABASE_HOST}`, '-keyout', join(dir, 'k.pem'), '-out', join(dir, 'c.pem')], { stdio: 'ignore' });
@@ -120,7 +122,9 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
       state.documents++;
       // Opt-in: serve documents with the deployment's real Content-Security-Policy (public-reading-deploy/vercel.json), as production does.
       const cspHeader = deploymentCsp ? { 'content-security-policy': csp } : {};
-      return send(200, 'text/html; charset=utf-8', template.replace('loadEntry:entry=>import(entry)', 'loadEntry:entry=>import(entry),onFailure:error=>{window.__bootstrapFailure={name:error.name,message:error.message}}'), cspHeader);
+      const page = template.replace('loadEntry:entry=>import(entry)', 'loadEntry:entry=>import(entry),onFailure:error=>{window.__bootstrapFailure={name:error.name,message:error.message}}');
+      const custom = documentFor ? await documentFor({ url, path: url.pathname, template: page }) : null;
+      return send(200, 'text/html; charset=utf-8', custom ?? page, cspHeader);
     } catch (error) { return send(500, 'application/json', JSON.stringify({ error: String(error?.message || error) })); }
   });
   await new Promise(resolveListen => server.listen(wantedPort, '127.0.0.1', resolveListen));

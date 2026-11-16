@@ -12,6 +12,10 @@ export default function RouteScrollReset2029() {
   const positions = useRef(new Map());
 
   useLayoutEffect(() => {
+    // The application started on another address than the first-document article's (OLD_POST_ARTICLE_FIRST): that article is not this page's.
+    const documentArticle = document.getElementById("sod29-ssr-article");
+    const same = value => { try { return decodeURIComponent(value).toLowerCase(); } catch { return value; } };
+    if (documentArticle && same(documentArticle.dataset.ssrPath || "") !== same(window.location.pathname)) documentArticle.remove();
     const record = () => { last.current = position(); };
     record();
     window.addEventListener("scroll", record, { passive: true });
@@ -26,6 +30,10 @@ export default function RouteScrollReset2029() {
     }
     previous.current = { key, pathname };
     last.current = position();
+    // A first-document article belongs to the address it came with: leaving that address before the page adopted it removes it (and its hold
+    // on the app root), so another page never opens under it (OLD_POST_ARTICLE_FIRST).
+    const documentArticle = from.pathname !== pathname ? document.getElementById("sod29-ssr-article") : null;
+    if (documentArticle) { const same = value => { try { return decodeURIComponent(value).toLowerCase(); } catch { return value; } }; if (same(documentArticle.dataset.ssrPath || "") !== same(pathname)) documentArticle.remove(); }
     if (from.pathname === pathname || hash) return;
     if (navigationType !== "POP") {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });

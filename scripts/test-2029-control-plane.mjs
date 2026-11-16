@@ -92,10 +92,14 @@ assert.equal(/preload="auto"/i.test(hardened), false);
 // The contained authored projection is hardened before the actual HTML sink.
 // Behavioral no-fetch and explicit-play coverage lives in the built browser test
 // home-loading-admission-2029.browser.mjs; this guard verifies the wiring too.
-assert.match(post2029, /import \{ hardenPassiveMediaHtml \} from "\.\.\/lib\/mediaEgressGuard\.js"/);
+// The page and the first document share ONE article pipeline (postArticlePipeline2029.js, OLD_POST_ARTICLE_FIRST 16.11.2026).
+const articlePipeline = readFileSync(new URL("../src/lib/research/postArticlePipeline2029.js", import.meta.url), "utf8");
+assert.match(articlePipeline, /import \{ hardenPassiveMediaHtml \} from "\.\.\/mediaEgressGuard\.js"/);
 // the passive HTML is ALWAYS hardened first; the prototype layer only annotates the already hardened HTML
-assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => \{\s*const hardened = hardenPassiveMediaHtml\(postReadingHtml2029\(state\.projection\?\.post\?\.content \|\| ""\)\);\s*return protoOn \? annotatePostSource\(hardened,/);
-assert.match(post2029, /dangerouslySetInnerHTML=\{\{ __html: passiveSourceHtml \}\}/);
+assert.match(articlePipeline, /const hardened = hardenPassiveMediaHtml\(postReadingHtml2029\(projectedContent \|\| ""\)\);\s*return annotate \? annotatePostSource\(hardened,/);
+assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => \{[^}]*return postArticleSourceHtml2029\(state\.projection\?\.post\?\.content \|\| "", \{ postId: state\.projection\?\.post\?\.id, voice: postVoice, annotate: protoOn \}\);/);
+// the sink renders that HTML, except when it adopted the first document's nodes, which are exactly that HTML (documentArticleBodyMatches)
+assert.match(post2029, /\{\.\.\.\(documentArticle \? \{\} : \{ dangerouslySetInnerHTML: \{ __html: passiveSourceHtml \} \}\)\}/);
 
 
 

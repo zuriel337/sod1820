@@ -377,6 +377,8 @@ export default async function handler(req, res) {
             image = cardUrl({ w: heroTitle, sub: cat || "כי לה' המלוכה", cap: 'לקריאת הרמז המלא ←' });
           }
           type = 'article';
+          // The first-document article (public-document, OLD_POST_ARTICLE_FIRST) uses this same admitted row: no second read, the same suppression.
+          if (typeof req.publicReadingArticleSource === 'function') req.publicReadingArticleSource(post);
           // A preview unit link (?unit=<id>) shares the unit's own title and royal card. The helper itself is gated on the exact preview branch
           // of the protected Preview (VERCEL_ENV=preview + that branch ref); anywhere else it returns null and nothing changes.
           const unitMeta = req.query?.unit ? previewUnitOgMeta({ postId: post.id, unitId: String(req.query.unit), env: process.env, origin: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : SITE }) : null;

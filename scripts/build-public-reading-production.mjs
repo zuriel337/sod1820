@@ -110,6 +110,21 @@ const appManifest = {...previousManifest,id:previousManifest.id||previousManifes
 await writeFile(resolve(output,"site.webmanifest"),JSON.stringify(appManifest,null,2)+"\n");
 document=document.replace('<link rel="icon" href="data:," />',`<link rel="icon" href="${BRAND_LOCKUP_NAV_2029.src}" type="image/webp" />`)
   .replace("</head>",`<link rel="icon" href="${BRAND_SITE_ICONS_2029.png48.src}" type="image/png" sizes="48x48" /><link rel="shortcut icon" href="/favicon.ico" /><link rel="manifest" href="/site.webmanifest" /><link rel="apple-touch-icon" href="${BRAND_APP_ICON_2029.src}" /></head>`);
+// The first-document article of an imported Post (public-reading-deploy/api/article-first.js) is laid out by the page's own stylesheets: the
+// entry's, the System Frame's and the Post page's, in the order the app loads them. They sit here in an inert template; only a document that
+// carries the article turns them into stylesheets (the app's own loader then finds them already present and does not fetch them twice).
+{
+  const built = JSON.parse(await readFile(resolve(output, ".vite/manifest.json"), "utf8"));
+  const closure = keys => { const seen = new Set(), queue = [...keys]; while (queue.length) { const key = queue.shift(); if (!key || seen.has(key) || !built[key]) continue; seen.add(key); queue.push(...(built[key].imports || [])); } return [...seen]; };
+  const entryKey = Object.keys(built).find(key => built[key].isEntry);
+  const shellKey = Object.keys(built).find(key => built[key].name === "Sod2029Shell" && !built[key].isEntry);
+  const pageKeys = ["src/pages/PublicPostAddress2029Page.jsx", "src/pages/Post2029Page.jsx"].filter(key => built[key]);
+  if (!entryKey || !shellKey || pageKeys.length !== 2) throw new Error("article_first_css_manifest");
+  const css = [];
+  for (const keys of [[entryKey], [shellKey], pageKeys]) for (const key of closure(keys)) for (const file of built[key].css || []) if (!css.includes(file)) css.push(file);
+  if (!css.length) throw new Error("article_first_css_missing");
+  document = document.replace("</head>", `<template id="sod29-article-first-css">${css.map(file => `<link rel="stylesheet" href="/${file}">`).join("")}</template></head>`);
+}
 // The raw build document must only be reachable through the status/metadata
 // adapter; / and /?p=... cannot be shadowed by an index.html filesystem match.
 await mkdir(templates, { recursive: true });

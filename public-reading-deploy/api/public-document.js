@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } from "../../src/lib/publicReadingRelease2029.js";
+import { withArticleFirst2029 } from "./article-first.js";
 import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, publicCandidateOrigin, publicIndexingAllowed, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
@@ -51,7 +52,7 @@ function missingAssetFile(path) {
 // uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
   readDocument = () => readFile(new URL("../.generated/2029.html", import.meta.url), "utf8"),
-  metadataHandler = ogHandler } = {}) {
+  metadataHandler = ogHandler, articleFirst = withArticleFirst2029 } = {}) {
   return async (req, res) => {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
@@ -107,7 +108,9 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       const metadataPath = state === "account" ? "/login" : numberAlias ? `/number/${numberAlias[1]}`
         : ({ "/2029": "/", "/2029/posts": "/post", "/2029/gematria": "/gematria",
           "/2029/gematria/viral": "/gematria", "/2029/calculator": "/gematria" })[path] || path;
+      let admittedPost = null;
       await metadataHandler({ ...req,
+        publicReadingArticleSource: row => { admittedPost = row; },
         publicFoundationPreview: true,
         publicReadingRelease: PUBLIC_READING_PROFILE_ID,
         publicReadingProductionArtifact: true,
@@ -130,7 +133,10 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       // A feature area closed only until it reopens soon is answered 503 + Retry-After and keeps its indexable state.
       const temporarilyClosed = state === "closed" && publicTemporarilyClosed(path);
       const noindex = !originalDocument || !indexable(origin) || (closed && !temporarilyClosed) || state === "account" || status !== 200;
-      const html = mergeProductionDocumentMetadata(await readDocument(), metadata, { noindex });
+      // An imported Post on the proven list carries its article in this document (article-first.js); anything else is exactly as before.
+      const firstDocument = articleFirst(await readDocument(), { path, search, status: temporarilyClosed || closed || state === "account" ? 0 : status, post: admittedPost });
+      res.setHeader("X-Sod-Article-First", firstDocument.state);
+      const html = mergeProductionDocumentMetadata(firstDocument.html, metadata, { noindex });
       if (temporarilyClosed) { status = 503; res.setHeader("Retry-After", String(PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER)); }
       const robots = html.match(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']+)/i)?.[1];
       if (!robots) throw new Error("public_robots_unavailable");

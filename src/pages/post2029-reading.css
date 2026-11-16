@@ -84,6 +84,8 @@
   align-items:start;
   direction:ltr;
 }
+/* The credit and date of an imported Post, under its title, the same line in the first document and in the page (OLD_POST_ARTICLE_FIRST). */
+.sod29-reading-byline{margin:0 0 12px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:14px;line-height:1.5;color:var(--s29-ink-soft,var(--s29-muted,#c9bfae))}
 .sod29-reading-source{
   grid-area:source;
   direction:rtl;
