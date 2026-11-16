@@ -1,0 +1,30 @@
+{
+  "teamId": "team_vtfWHZfKvdbob8gvynQb5N89",
+  "requestBody": {
+    "name": "sod1820",
+    "project": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+    "target": "production",
+    "gitSource": {
+      "type": "github",
+      "org": "zuriel337",
+      "repo": "sod1820",
+      "ref": "main",
+      "sha": "ea7257598a5217b9a8de308cca1194ec4a027fbf"
+    },
+    "projectSettings": {
+      "rootDirectory": "public-reading-deploy",
+      "sourceFilesOutsideRootDirectory": true,
+      "framework": null,
+      "installCommand": "npm ci --prefix .. --no-audit --no-fund",
+      "buildCommand": "cd .. && VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]' node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=ea7257598a5217b9a8de308cca1194ec4a027fbf",
+      "outputDirectory": "dist",
+      "commandForIgnoringBuildStep": "if [ \"$VERCEL_ENV\" = \"production\" ] && [ \"$VERCEL_GIT_COMMIT_SHA\" = \"ea7257598a5217b9a8de308cca1194ec4a027fbf\" ]; then exit 1; elif [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]; then exit 0; else exit 1; fi"
+    },
+    "meta": {
+      "task": "COMMUNITY_CALCULATOR_AND_NAVIGATION_RELEASE_20261116",
+      "sourceSha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+      "reviewedHead": "577b90a4efced46b440c04d244df0ca498548366",
+      "rollback2029": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU"
+    }
+  }
+}

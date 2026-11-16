@@ -1,0 +1,54 @@
+{
+  "runId": 43784690426,
+  "attempt": 1,
+  "conclusion": "success",
+  "thresholdMs": 15000,
+  "result": {
+    "sha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+    "url": "https://sod1820.co.il",
+    "kind": "deploy",
+    "ok": true,
+    "checks": [
+      {
+        "name": "home_200",
+        "ok": true,
+        "detail": "status=200"
+      },
+      {
+        "name": "home_has_root",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "home_has_entry_bundle",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "entry_bundle_200",
+        "ok": true,
+        "detail": "status=200 bytes=363875"
+      },
+      {
+        "name": "robots_200",
+        "ok": true,
+        "detail": "status=200"
+      },
+      {
+        "name": "sitemap_200",
+        "ok": true,
+        "detail": "status=200"
+      },
+      {
+        "name": "health_watch_heartbeat",
+        "ok": true,
+        "detail": "age_minutes=11.2 max_age_minutes=45"
+      }
+    ],
+    "heartbeat": {
+      "healthy": true,
+      "age_minutes": 11.2,
+      "max_age_minutes": 45
+    }
+  }
+}

@@ -1,0 +1,102 @@
+[
+  {
+    "path": "/public-reading-artifact.json",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 82057,
+    "title": [],
+    "robots": [],
+    "canonical": [],
+    "entry": [],
+    "artifactSummary": {
+      "sourceSha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+      "applicationSourceDirty": false,
+      "protectedReview": {
+        "schema": 1,
+        "mode": "public-production-candidate",
+        "target": "production",
+        "sourceSha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+        "branch": "main",
+        "projectId": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+        "deploymentId": "dpl_4i7djNA8y61CN6iiskzdPDmHWFmP",
+        "host": "sod1820-5habui78g-sod1820-s-projects.vercel.app",
+        "canonicalServingPrepared": true,
+        "indexingPrepared": true,
+        "productionAuthorized": false,
+        "cutoverAuthorized": false,
+        "domainAssignmentAuthorized": false
+      },
+      "platformConfigMaterialization": {
+        "kind": "vercel-selected-nested-config-at-root",
+        "sourceSha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+        "committedPath": "public-reading-deploy/vercel.json",
+        "materializedPath": "vercel.json",
+        "trackedStatus": " M vercel.json",
+        "completeJsonEquivalent": true,
+        "arrayOrderPreserved": true,
+        "committedMode": "100644",
+        "materializedMode": "100644",
+        "gitRawDiff": ":100644 100644 2469556d85a22b6cd538ad1db6872fabee554554 0000000000000000000000000000000000000000 M\u0000vercel.json\u0000",
+        "committedConfigSha256": "0f5e8d797786bb636df1f3c0f67e4996cfe9dc2e1ec9a805d76980c386cc9e22",
+        "materializedConfigSha256": "017ae15e5911ab2868261554678efeca0e327c827b2cc22e7ce8e73354c71f85"
+      }
+    }
+  },
+  {
+    "path": "/code",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 12245,
+    "title": [
+      "הצופן התנ״כי — חיפוש דילוגי אותיות בתורה"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://sod1820.co.il/code\"/>"
+    ],
+    "entry": [
+      "/assets/2029-f6usCAwq.js",
+      "/assets/2029-f6usCAwq.js"
+    ]
+  },
+  {
+    "path": "/community/calculator",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 12403,
+    "title": [
+      "מחשבון גימטריה חינם — גלו את הסוד שבשם שלכם · SOD1820"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://sod1820.co.il/community/calculator\"/>"
+    ],
+    "entry": [
+      "/assets/2029-f6usCAwq.js",
+      "/assets/2029-f6usCAwq.js"
+    ]
+  },
+  {
+    "path": "/community/calculator?w=%D7%90%D7%95%D7%A8",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 12405,
+    "title": [
+      "מחשבון גימטריה חינם — גלו את הסוד שבשם שלכם · SOD1820"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"noindex, follow\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://sod1820.co.il/community/calculator\"/>"
+    ],
+    "entry": [
+      "/assets/2029-f6usCAwq.js",
+      "/assets/2029-f6usCAwq.js"
+    ]
+  }
+]

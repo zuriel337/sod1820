@@ -1,0 +1,58 @@
+{
+  "authorization": "ZURIEL: תעלה; reviewed #1369 and combined #1367 release",
+  "reviewedHead": "577b90a4efced46b440c04d244df0ca498548366",
+  "base": "21ce4c94d5388d006c0940a1da48360ff350cfc9",
+  "main": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+  "reviewedAndMergedTree": "db4f7b76449028499b911a626971fae180dbabe5",
+  "merge": {
+    "sha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+    "merged": true,
+    "message": "Pull Request successfully merged"
+  },
+  "deployment": {
+    "id": "dpl_4i7djNA8y61CN6iiskzdPDmHWFmP",
+    "readyState": "READY",
+    "sourceSha": "ea7257598a5217b9a8de308cca1194ec4a027fbf"
+  },
+  "aliases": [
+    {
+      "alias": "sod1820.co.il",
+      "deploymentId": "dpl_4i7djNA8y61CN6iiskzdPDmHWFmP"
+    },
+    {
+      "alias": "www.sod1820.co.il",
+      "deploymentId": "dpl_4i7djNA8y61CN6iiskzdPDmHWFmP"
+    },
+    {
+      "alias": "sod1820.vercel.app",
+      "deploymentId": "dpl_4i7djNA8y61CN6iiskzdPDmHWFmP"
+    }
+  ],
+  "rollback": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU",
+  "verification": {
+    "preMergeCi": "13/13 success",
+    "localTests": "36/36",
+    "localBrowser": "2/2 mobile390 and desktop1280; exact reviewed artifact",
+    "postMergeCi": "43784585600 success",
+    "canary": {
+      "run": 43784690426,
+      "attempt": 1,
+      "head": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+      "conclusion": "success",
+      "checks": 7,
+      "thresholdMs": 15000,
+      "override": false
+    },
+    "liveHttp": "200; bare index/follow, state URL noindex/follow, canonical bare; new SEO text",
+    "liveAssets": "entry and calculator fetched; SHA-256 equal live artifact manifest",
+    "sitemap": "200; calculator exactly once; lastmod 2026-11-16; total 16796",
+    "liveBrowser": "NOT completed: stock headless Chromium received document HTTP403 at both widths; no app rendered, no mutation requests sent; no access-control change or workaround"
+  },
+  "buildLog": [
+    "Running \"if [ \"$VERCEL_ENV\" = \"production\" ] && [ \"$VERCEL_GIT_COMMIT_SHA\" = \"ea7257598a5217b9a8de308cca1194ec4a027fbf\" ]; then exit 1; elif [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]; then exit 0; else exit 1; fi\"",
+    "Running \"vercel build\"",
+    "Running \"install\" command: `npm ci --prefix .. --no-audit --no-fund`...",
+    "Build Completed in /vercel/output [14s]",
+    "Deployment completed"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "sha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+  "startedAt": "2026-11-16T01:12:15.847Z",
+  "mode": "live public reads; service workers blocked to enforce write guard; third parties and newsletter suppressed; not a speed measurement",
+  "rows": [
+    {
+      "width": 390,
+      "steps": [],
+      "errors": [],
+      "blocked": [],
+      "badResponses": [
+        {
+          "status": 403,
+          "path": "/community/calculator"
+        }
+      ],
+      "failure": "locator.waitFor: Timeout 40000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#community-calculator-name') to be visible\u001b[22m\n\n    at /dev/shm/sod-cls-night-20261116/docs/reviews/cls-performance-diagnostic-20261116/tools/live-calculator-navigation-release.mjs:31:53"
+    },
+    {
+      "width": 1280,
+      "steps": [],
+      "errors": [],
+      "blocked": [],
+      "badResponses": [
+        {
+          "status": 403,
+          "path": "/community/calculator"
+        }
+      ],
+      "failure": "locator.waitFor: Timeout 40000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#community-calculator-name') to be visible\u001b[22m\n\n    at /dev/shm/sod-cls-night-20261116/docs/reviews/cls-performance-diagnostic-20261116/tools/live-calculator-navigation-release.mjs:31:53"
+    }
+  ],
+  "finishedAt": "2026-11-16T01:13:37.411Z"
+}

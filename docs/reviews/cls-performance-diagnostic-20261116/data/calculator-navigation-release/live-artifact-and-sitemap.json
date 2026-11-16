@@ -1,0 +1,33 @@
+{
+  "source": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+  "deploymentId": "dpl_4i7djNA8y61CN6iiskzdPDmHWFmP",
+  "publicCandidate": true,
+  "applicationSourceDirty": false,
+  "sourceDirtyIsMaterializedVercelConfig": true,
+  "assets": [
+    {
+      "path": "assets/2029-f6usCAwq.js",
+      "sha256": "1cb6b9b61b56e1a688199ba7550e5313632809a171992222c22d347626a05087",
+      "matchesArtifact": true,
+      "bytes": 367967,
+      "newSeoText": false
+    },
+    {
+      "path": "assets/CommunityCalculator2029Page-biJX4lXm.js",
+      "sha256": "781dacb6f46d8f9b14637a56751f50079d2d470819f65436fdd0ad2b8d79df9c",
+      "matchesArtifact": true,
+      "bytes": 112237,
+      "newSeoText": true
+    }
+  ],
+  "sitemap": {
+    "status": 200,
+    "urlCount": 16796,
+    "calculator": [
+      {
+        "loc": "https://sod1820.co.il/community/calculator",
+        "lastmod": "2026-11-16"
+      }
+    ]
+  }
+}
