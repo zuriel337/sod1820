@@ -38,3 +38,13 @@ Lab timings (Slow 4G, 4× CPU, cold, 8 interleaved runs per post per arm, `lab-r
 ## Interaction with #1358
 
 The two branches merge without a textual conflict. Whichever lands second must fit the budget recorded by the first; that is the ratchet working, not a defect.
+
+Measured on a local, uncommitted merge of this branch (`df7011ea3`) with #1358 (`221c26bc4`), `npm run build`:
+
+| | baseline | merged | limit |
+|---|---|---|---|
+| entry JS gzip / files | 219,624 / 18 | 219,884 / 18 | 220,648 / 18 |
+| frame JS gzip / files | 75,789 / 5 | 74,381 / 5 | 76,813 / 5 |
+| frame CSS gzip | 34,709 | 35,170 | 35,221 |
+
+The merged tree passes (#1358 makes its event-sequence panel lazy, so the frame JS goes down). The frame CSS uses 461 of its 512 B tolerance: the next stylesheet added to the frame will have to come with a reduction. The perf-contracts steps (Realtime split, Storage boundary, first-load graph, shell budget) pass on the merged build, as do the tests either branch changed, apart from failures that are the same on `main` code (see the handoff).
