@@ -5,7 +5,8 @@ import { buildContentSeriesCatalog2029 } from "../src/lib/research/contentSeries
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
 import { seriesCatalogToSystemItems } from "../src/lib/research/systemFeedPublicSources2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
-import { nowModels, nowSeriesHref } from "../src/lib/nowPublications2029.js";
+import { readFileSync } from "node:fs";
+import { nowModels, nowSeriesHref, REALITY_MAP_BLINK_MS } from "../src/lib/nowPublications2029.js";
 import { isHomeDocumentationPost, isHomeStandalonePost } from "../src/lib/research/homeLaunchPosts2029.js";
 
 // Projection of reality-map Posts into the unified "עכשיו" stream, through the EXISTING mechanism (the shared stream's Post
@@ -15,9 +16,9 @@ const post = (id, fields = {}) => ({ id, slug: `p-${id}`, title: `פוסט ${id}
 const stream = rows => rows.map(row => postRowToWorldUpdate(row)).filter(Boolean);
 const catalogItems = rows => seriesCatalogToSystemItems(buildContentSeriesCatalog2029(CONTENT_SERIES_2029.map(spec => ({ key: spec.key, rows, total: rows.length })), { homeOnly: true }));
 // The same composition useSystemFeed2029 performs: shared stream first, then the series catalog.
-const nowFor = (streamRows, catalogRows = streamRows) => {
+const nowFor = (streamRows, catalogRows = streamRows, now = undefined) => {
   const items = mergeSystemFeedItems(stream(streamRows), catalogItems(catalogRows));
-  return { items, models: nowModels(feedRows(items, { limit: 160, caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10 } })) };
+  return { items, models: nowModels(feedRows(items, { limit: 160, caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10 } }), now) };
 };
 
 test("a Post with the exact tag is recognised as מפת המציאות in Now, with its series link, and joins no other Now lens", () => {
@@ -107,6 +108,41 @@ test("the newest reality-map publication leads the stream with a blinking-dot ma
   assert.equal(next.find(model => model.title === "אחרון").seriesLatest, undefined);
   // none in the series: no marker
   assert.equal(nowFor([plainNewer]).models.some(model => model.seriesLatest), false);
+});
+
+test("the latest reality-map dot blinks for 36 hours from its publication, then stays as a still latest-update mark (never endless); a newer one replaces it", () => {
+  const at = "2026-11-16T13:00:00Z", t0 = Date.parse(at);
+  const unit = post(31, { tags: ["מפת המציאות"], title: "עדכון", modified: at, date: at, created_at: at });
+  const at36 = (ms) => nowFor([unit], [unit], t0 + ms).models.find(model => model.title === "עדכון");
+  assert.equal(at36(0).seriesLatestBlinking, true, "blinking at publication");
+  assert.equal(at36(35 * 3600000 + 59 * 60000).seriesLatestBlinking, true, "still blinking just before 36 hours");
+  assert.equal(at36(36 * 3600000).seriesLatestBlinking, false, "stops at exactly 36 hours");
+  assert.equal(at36(36 * 3600000).seriesLatest, true, "but it remains marked as the latest update");
+  assert.equal(at36(5 * 24 * 3600000).seriesLatestBlinking, false, "and stays still afterwards");
+  assert.equal(REALITY_MAP_BLINK_MS, 36 * 3600000);
+  const css = readFileSync(new URL("../src/components/experience2029/nowPublications2029.css", import.meta.url), "utf8");
+  assert.match(css, /\.sod29-nowpub-blink\.is-blinking\s*\{[^}]*animation:/, "the animation exists only on the time-bounded state");
+  assert.doesNotMatch(css, /\.sod29-nowpub-blink\s*\{[^}]*animation:(?!\s*none)/, "the base mark itself never animates");
+  assert.match(css, /prefers-reduced-motion[^}]*\.sod29-nowpub-blink[^}]*animation:\s*none/);
+});
+
+test("post 5107 reaches the series in 'עכשיו' even as a stream row without a tag (admitted by its id) and blinks 36 hours from its latest registered unit, not from its old date", () => {
+  const unitAt = Date.parse("2026-11-16T13:02:30.887336Z");
+  const first = post(5107, { title: "הבחירות לכנסת ה־26", tags: [], categories: ["רמזי הגאולה", "בחירות"], date: "2026-09-30T08:55:06Z", created_at: "2026-09-14T07:38:50Z", modified: "2026-11-10T16:56:00Z" });
+  const old = post(5084, { title: "ברכת כהנים", tags: ["מפת המציאות"], date: "2026-08-26T23:35:18Z", created_at: "2026-08-26T23:35:18Z", modified: "2026-08-27T15:33:13Z" });
+  const at = ms => nowFor([first, old], [], unitAt + ms).models;
+  const soon = at(3600000);
+  assert.equal(soon[0].title, "הבחירות לכנסת ה־26", "5107 is the newest reality-map publication and leads, not the August post");
+  assert.equal(soon[0].seriesKey, "reality-map");
+  assert.equal(soon[0].seriesLatestBlinking, true, "its latest unit was added an hour ago");
+  assert.equal(soon.find(model => model.title === "ברכת כהנים").seriesLatest, undefined, "only one latest");
+  const later = at(37 * 3600000);
+  assert.equal(later[0].title, "הבחירות לכנסת ה־26");
+  assert.equal(later[0].seriesLatest, true);
+  assert.equal(later[0].seriesLatestBlinking, false, "after 36 hours it stays marked but does not blink");
+  // a post that is neither tagged nor admitted is not pulled in by its categories
+  const other = post(9999, { title: "אחר", tags: [], categories: ["רמזי הגאולה", "בחירות"], date: "2026-11-16T10:00:00Z", modified: "2026-11-16T10:00:00Z", created_at: "2026-11-16T10:00:00Z" });
+  assert.equal(nowFor([other], [], unitAt).models[0].seriesKey, null);
 });
 
 test("post 5107 is the first post of the series by its exact id (no tag, no DB row); another post is not admitted by that entry", () => {

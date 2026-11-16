@@ -7,6 +7,7 @@ import { resolveUnitMessage, featuredCentralWithUnit } from "./research/postSema
 import { realityMapPreviewEnabled } from "./research/realityMap2029.js";
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
+import { PROVEN_POST_SOURCE_UPDATES } from "./research/postSourceUpdates2029.js";
 import { publicStorageMedia } from "./mediaEgressGuard.js";
 import { GROUP_SOURCE_CHANNELS, groupWriterPinListed } from "./research/worldGroupSource.js";
 
@@ -122,7 +123,9 @@ export function nowRowModel(row) {
     || (isPost && categories.includes(VIDEO_CATEGORY));
   const audio = !video && (groupMediaKind ? groupMediaKind === "audio" : Boolean(media && isPublicAudio(media)));
   const image = !video && !audio && (groupMediaKind ? groupMediaKind === "image" : Boolean(media || isGallery));
-  const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ categories, tags, author: item.author })[0] || null : null);
+  // the post id lets an explicit series admission (an approved Post id, e.g. the first reality-map post) count, exactly as it does in the catalog: the same rule, one source
+  const postId = isPost ? Number(/^post:(\d+)$/.exec(String(item.id || ""))?.[1]) || undefined : undefined;
+  const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ id: postId, categories, tags, author: item.author })[0] || null : null);
   const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
   // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
   const hasGroupSource = isGroup || isDiscussion;
@@ -210,16 +213,27 @@ const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.t
   .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 // ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
-// a blinking dot, until a newer reality-map publication replaces it. It is a presentation of the series, not a pin: nothing is stored, `pinned` is untouched.
+// a dot that BLINKS for 36 hours from the moment it was published (ZURIEL 16.11.2026; System Frame v2 §10.8 allows only a finite pulse) and then stays as a still dot
+// marking the latest update, until a newer reality-map publication replaces it. It is a presentation of the series, not a pin: nothing is stored, `pinned` is untouched.
 export const REALITY_MAP_LATEST_KEY = "reality-map";
+export const REALITY_MAP_BLINK_MS = 36 * 3600000;
+// When the publication (or its latest proven update, e.g. a unit added to a post body) happened: the later of the row's own time and the newest registered update of that Post.
+const seriesUpdateTime = model => {
+  const own = Date.parse(model?.at || "") || 0;
+  const postId = Number(/^post:(\d+)$/.exec(String(model?.id || ""))?.[1]);
+  const updates = Number.isSafeInteger(postId) ? (PROVEN_POST_SOURCE_UPDATES[postId] || []).map(entry => Date.parse(entry.updatedAt || "") || 0) : [];
+  return Math.max(own, ...updates);
+};
 export const nowModels = (rows, now = Date.now()) => {
   const models = sortedNowModels(rows, now);
   const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned)
-    .sort((a, b) => (Date.parse(b.at || 0) || 0) - (Date.parse(a.at || 0) || 0) || String(a.id).localeCompare(String(b.id)))[0];
+    .sort((a, b) => seriesUpdateTime(b) - seriesUpdateTime(a) || String(a.id).localeCompare(String(b.id)))[0];
   if (!latest) return models;
   const rest = models.filter(model => model !== latest);
   const leading = rest.filter(model => model.pinned).length;
-  return [...rest.slice(0, leading), { ...latest, seriesLatest: true }, ...rest.slice(leading)];
+  const publishedAt = seriesUpdateTime(latest);
+  const blinking = Number.isFinite(publishedAt) && now >= publishedAt && now - publishedAt < REALITY_MAP_BLINK_MS;
+  return [...rest.slice(0, leading), { ...latest, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
 };
 
 /** Primary lenses with at least one row; "all" is always available. */
