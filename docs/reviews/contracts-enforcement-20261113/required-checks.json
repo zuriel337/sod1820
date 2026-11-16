@@ -61,6 +61,23 @@
    }
   },
   {
+   "check": "reply-count",
+   "workflow_file": "community-feed-reply-count-gate.yml",
+   "job_id": "reply-count",
+   "pr_trigger": "paths",
+   "pr_branches": null,
+   "also_on": [
+    "workflow_dispatch"
+   ],
+   "timeout_minutes": null,
+   "cost_class": "light",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "advisory-path-filtered",
+    "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
+   }
+  },
+  {
    "check": "contract",
    "workflow_file": "dependency-upgrade-radar-v2-contract-gate.yml",
    "job_id": "contract",

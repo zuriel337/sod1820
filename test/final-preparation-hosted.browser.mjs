@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 const cfg=JSON.parse(await readFile(process.argv[2],'utf8')),out=process.argv[3];await mkdir(out,{recursive:true});
 const origin=new URL(cfg.url).origin,db='https://linswmnnkjxvweumprav.supabase.co';
 const inventory=JSON.parse(await readFile('docs/reviews/public-foundation-20261101/evidence/rpc-read-inventory.json','utf8'));
-const reads=inventory.functions.map(x=>x.proname).filter(x=>x!=='lang_links_list');reads.push('convergence_meter','is_number_indexable','is_phrase_indexable','community_feed_page','community_message_context','community_replies_page','community_reply_counts');
+const reads=inventory.functions.map(x=>x.proname).filter(x=>x!=='lang_links_list');reads.push('convergence_meter','is_number_indexable','is_phrase_indexable','community_feed_page','community_feed_page_v2','community_message_context','community_replies_page','community_reply_counts');
 const post=JSON.parse(await readFile('docs/reviews/public-url-exceptions-20261103/evidence/attachment-bindings.json','utf8'))[0].postHref;
 const report={sourceSha:cfg.sha,branch:cfg.branch,deploymentId:cfg.deploymentId,realPublicData:true,actualSW:true,modelCalls:0,liveWrites:0,testMail:0,accountAcceptance:'existing user-reported two-account receipt retained separately; no new account test',cases:[],errors:[],denied:[]};
 const safe=e=>String(e.message||e).replaceAll(cfg.shareUrl||'PRIVATE_NON_MATCH','[private grant]').replace(/_vercel_share=[^\s"'&]+/g,'_vercel_share=[redacted]').slice(0,1200);

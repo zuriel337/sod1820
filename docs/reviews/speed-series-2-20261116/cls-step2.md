@@ -53,6 +53,57 @@ Totals per load (3 runs): `/community/chat` 0.30–0.37 on main; `/community` 0.
 - **C. The "new replies" mark becomes part of the replies row** (an inline badge) instead of a 54 px block above the thread.
   - This is a small design change in the Community owner's scope.
 
+## Fix A, built (16.11.2026, after ZURIEL's "לתקן"): the feed page carries each root's reply count
+
+**What was found first (live site, read-only).**
+- The public release never calls `community_reply_counts`: the read-only profile returns no counts by design (the counts reader accepts arbitrary ids).
+- So a root's replies control appears only when the thread totals arrive (`community_thread_updates`, one read for the 40 roots → the controls appear in every thread at once).
+- Every root also starts its two-reply preview on approach. A root without replies shows "טוען תגובות…" and then collapses.
+- First page on 16.11.2026: 22 of 40 roots have replies and 18 have none (6 of the top 8). `reply_count > 0` agrees with "thread total > 1" for all 40.
+
+**The change.**
+- **Database (applied live 16.11.2026, ZURIEL's standing approval).** `supabase/migrations/20261116230000_community_feed_page_v2.sql`.
+  - The first version replaced `community_feed_page` (drop and create). The database tool asks its own confirmation for that, which could not be answered. It was rewritten as an addition only.
+  - `community_feed_page_v2` is a SECURITY INVOKER wrapper over the two existing public readers: `community_feed_page` for the page (unchanged) and `community_reply_counts` for the count (its own predicate). It adds no reach: a role that may not run those readers gets nothing.
+  - Nothing is dropped or revoked. The file refuses to run twice; the rollback (`supabase/proposed/ROLLBACK_20261116230000_community_feed_page_v2.sql`) removes only the wrapper.
+  - Live check after applying: the 40 rows are identical in order to `community_feed_page`; the 40 counts equal `community_reply_counts`; 19 roots have no reply; `community_feed_page`'s definition and rights are unchanged; anon reads it through the public API (200).
+- **Worker.** Admits `community_feed_page_v2` only with exactly `COMMUNITY_PUBLIC_FIELDS + ",reply_count"`. Every wider selection and every other RPC with it is refused before the network (tested). The integrated preview worker is unchanged (pinned to its approved baseline).
+- **Client.**
+  - Asks for the count, and the counts render in the same update as the rows.
+  - A root with 0 replies skips its preview (the existing `knownCount === 0` path). The refresh uses the page's counts instead of a second read.
+  - Without the wrapper (PGRST202 / 404) or where a worker refuses it (400 / 403), the same page is read from `community_feed_page`, once per page session, and counts stay unknown as today. Any other failure is still a failure.
+
+**Tests.**
+- Local Postgres (`tests/sql/community_feed_reply_count_v1.sql`, CI `community-feed-reply-count-gate`). It covers:
+  - old pages identical in both sorts and on a later page;
+  - counts equal the public reader's for every kind of child (public, empty, pending, deleted with or without a live descendant, hidden, other origin, grandchild);
+  - same owner, settings and execute list; PUBLIC cannot call it;
+  - the rollback restores the old rows;
+  - both files refuse to run out of order.
+- Unit tests: client fallback and worker admission.
+- Community browser tests pass on the fix.
+- Shell budget: no growth against main in the same environment.
+
+**Lab, main against the fix** (same method as above; the fix's feed response is the recorded page plus the live counts of those 40 roots; blocks A B B A, n = 4 each, Mann–Whitney):
+
+| page | CLS per load, main (median, range) | the fix | p |
+|---|---|---|---|
+| `/community/chat` | 0.280 (0.191–0.310) | **0.129** (0.076–0.188) | 0.029 |
+| `/community` | 0.197 (0.191–0.302) | **0.187** (0.168–0.188) | 0.029 |
+
+| cause (sum per load) | `/community/chat` main → fix | `/community` main → fix |
+|---|---|---|
+| "loading replies" line appears and collapses | 0.089 → **0** | 0.053 → **0** |
+| replies controls appear | 0.057 → 0.016 | 0.028 → 0.012 |
+| tree pins strip (+ unattributed) | 0.064 → 0.060 | 0.060 → 0.060 |
+| "new replies" line | 0.055 → 0.054 | 0.081 → 0.110 |
+
+- The two causes this fix targets are gone (the small remainder is nested replies, whose counts still come from their own read).
+- What remains is the two design items B and C.
+- In the lab the "new replies" line is partly an artifact: the recorded feed is hours old while the thread updates are read live.
+
+**Not done at the time of writing:** merge and deployment. B and C are design decisions in the Community owner's scope.
+
 ## Home
 
 - **Lab:**

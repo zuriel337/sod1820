@@ -64,6 +64,33 @@ async function readCommunityRpc(name, args, client = communityReadClient(), sign
   return data;
 }
 const knownCount = value => value != null && Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : null;
+// The feed page with each root's public reply count (ZURIEL 16.11.2026, Community layout shifts): community_feed_page_v2 returns the same page
+// as community_feed_page plus reply_count, so the replies control is known at the first paint and a root without replies needs no preview read.
+// When the wrapper is not there (PGRST202 / 404) or a worker does not admit it (400 / 403), the same page is read from community_feed_page,
+// once per page session; counts then stay unknown until the thread reads its replies, as before.
+const COMMUNITY_FEED_RPC_FIELDS = COMMUNITY_RPC_FIELDS + ",reply_count";
+let feedReplyCountsRefused = false;
+async function readCommunityFeedRpc(args, client) {
+  if (!feedReplyCountsRefused && typeof client?.rpc === "function") {
+    const { data, error, status } = await client.rpc("community_feed_page_v2", args).select(COMMUNITY_FEED_RPC_FIELDS);
+    if (!error) {
+      if (!Array.isArray(data)) throw new Error("invalid public community response");
+      return data;
+    }
+    if (!(["PGRST202", "42883", "42703"].includes(error.code) || [400, 403, 404].includes(status))) throw error;
+    feedReplyCountsRefused = true;
+  }
+  return readCommunityRpc("community_feed_page", args, client);
+}
+export function communityFeedReplyCounts(projected) {
+  const counts = {};
+  for (const row of projected || []) {
+    const count = row && "reply_count" in row ? knownCount(row.reply_count) : null;
+    if (count != null && UUID_PATTERN.test(row.id || "")) counts[row.id] = count;
+  }
+  return Object.keys(counts).length ? counts : null;
+}
+export function resetCommunityFeedFieldsForTest() { feedReplyCountsRefused = false; }
 
 export const PROFILE_BASELINES = Object.freeze({
   "תורה תמימה": { handle: "torahtamima", likes: 648, likesLabel: "648", isPrivate: true },
@@ -213,8 +240,8 @@ export function compareCommunityLikedRows(a, b) {
 export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_PAGE_SIZE, sort = "newest", client = communityReadClient() } = {}) {
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
-  const projected = await readCommunityRpc("community_feed_page", { p_offset: safeOffset, p_limit: safeLimit, p_sort: sort === "oldest" ? "oldest" : "newest" }, client);
-  if (projected) return { rows: projected.map(normalizeCommunityRow), count: safeOffset === 0 ? projected.length ? knownCount(projected[0].total_count) : 0 : null, nextOffset: safeOffset + projected.length };
+  const projected = await readCommunityFeedRpc({ p_offset: safeOffset, p_limit: safeLimit, p_sort: sort === "oldest" ? "oldest" : "newest" }, client);
+  if (projected) return { rows: projected.map(normalizeCommunityRow), count: safeOffset === 0 ? projected.length ? knownCount(projected[0].total_count) : 0 : null, nextOffset: safeOffset + projected.length, replyCounts: communityFeedReplyCounts(projected) };
   const { data, error, count } = await client
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: safeOffset === 0 ? "exact" : undefined })
