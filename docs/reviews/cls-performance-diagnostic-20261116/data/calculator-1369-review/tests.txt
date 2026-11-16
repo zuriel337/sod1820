@@ -1,0 +1,49 @@
+✔ Legacy w and ordinary-calculator input aliases retain expression and explicit method/result (1.77182ms)
+✔ comparison round trip keeps both names, selected method, share/source parameters and fragment (1.427781ms)
+✔ baby names, empty comparison slots, family and date/sunset remain distinct on reload (1.000798ms)
+✔ date mode and afterSunset use the existing next-Hebrew-day semantics (1.935777ms)
+✔ switching tools retains hidden input without silently reopening comparison/date on refresh (0.34515ms)
+✔ invalid dates are not silently converted to another calendar day (0.238089ms)
+✔ every existing calculation row remains selectable; no fixed thirteen-method replacement (0.483318ms)
+✔ unknown method and conflicting result never become a Regular result (0.340623ms)
+✔ number and phrase navigation preserve focus, method and complete calculator return (1.164294ms)
+✔ sharing retains harmless parameters but excludes credentials through the existing sanitizer (0.31865ms)
+✔ a direct expression link on a first visit has no prior research context (0.221845ms)
+✔ presentation is opt-in; public mount guards existing wall, telemetry and AI entry points (0.589728ms)
+✔ the wording says what searchers type and fits a search result (1.328421ms)
+✔ the bare address is served with the new title, description, canonical and robots (5.210681ms)
+✔ a query-bearing address stays out of the index and keeps the bare canonical (2.558184ms)
+✔ the structured data describes the page truthfully and matches the visible questions (0.827257ms)
+✔ the client page uses the same wording, shows the explanation and the questions, and opens with every method (8.005651ms)
+✔ the Royal layer is adopted on purpose: opt-in class, scoped selectors, no second palette (1.458397ms)
+✔ the production sitemap lists the calculator once, with a content date later than the last visit Google made while the page was noindex (7.497346ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ public calculator mount and typing calculate immediately without wall, AI, telemetry or deep search (66.503558ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ baby inputs retain family, three names and sunset conversion while editing (36.068192ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ date tool applies sunset exactly once and continues to all methods with date state retained (38.922623ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ calculator SEO follows the effective edited address without indexing inputs or changing its canonical (16.355082ms)
+✔ hosted document rewrite cannot inject its route into the visitor community path selector (9.839285ms)
+✔ exact aliases retain duplicate query bytes, encoded values and fragment with no chained fallback (0.560524ms)
+✔ public reading routes preserve engine/action gates and exact source identities (1.357636ms)
+✔ real HTTP aliases perform only a local 308, never query data or interpret return/identity parameters (1.057754ms)
+✔ community share metadata retains an admitted exact thread/reply, without requesting account or body fields (7.700612ms)
+✔ taxonomy HTTP uses the same membership, public admission, page order and encoded-slash label (2.17722ms)
+✔ missing/draft/conflicting/invalid taxonomy URLs are never invented as successful collections (5.762362ms)
+✔ an empty search needs an unfiltered public membership witness, and paging stays noindex/base canonical (2.626747ms)
+✔ named services remain truthful and do not make missing items, drafts or malformed people pages public (7.614502ms)
+✔ phrase metadata never truncates a phrase beginning with digits to an unrelated Number (1.038735ms)
+✔ known campaign content does not enable held signup or automatic acquisition (0.415075ms)
+✔ the bare calculator and chat are indexable; their query variants are not (1.55992ms)
+✔ explicit legacy taxonomy aliases, trackback and old paging continue to the existing addresses (0.292992ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 837.418324

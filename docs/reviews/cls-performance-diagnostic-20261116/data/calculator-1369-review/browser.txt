@@ -1,0 +1,10 @@
+✔ [390x844] the community calculator is a classic, Royal, searchable calculator page (1831.946897ms)
+✔ [1280x900] the community calculator is a classic, Royal, searchable calculator page (1742.491197ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3922.944442

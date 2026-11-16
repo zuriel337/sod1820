@@ -1,0 +1,142 @@
+{
+  "head": "577b90a4efced46b440c04d244df0ca498548366",
+  "base": "21ce4c94d5388d006c0940a1da48360ff350cfc9",
+  "local": {
+    "build": "dormant clean main-derived artifact, passed",
+    "unit": {
+      "tests": 36,
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0
+    },
+    "browser": {
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "widths": [
+        390,
+        1280
+      ]
+    },
+    "setup_note": "First unit invocation lacked .generated/protected-review-build.js. After the required local build, the same suite passed; not classified as a product regression."
+  },
+  "ci": {
+    "jobs": [
+      {
+        "run_id": 43782363846,
+        "id": 133022202544,
+        "name": "legacy-production-lock",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363849,
+        "id": 133022202518,
+        "name": "route-seo-decision-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363880,
+        "id": 133022202478,
+        "name": "gate",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363883,
+        "id": 133022202592,
+        "name": "public-core",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363848,
+        "id": 133022202844,
+        "name": "Mobile + Accessibility Acceptance",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363848,
+        "id": 133022203071,
+        "name": "Production Canary Gate",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363872,
+        "id": 133022202571,
+        "name": "marketing-browser-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363872,
+        "id": 133022202742,
+        "name": "security-sql-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363872,
+        "id": 133022202795,
+        "name": "auth-browser-acceptance-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363872,
+        "id": 133022202799,
+        "name": "perf-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363872,
+        "id": 133022202830,
+        "name": "live-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363872,
+        "id": 133022202889,
+        "name": "release-contracts-2029",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 43782363917,
+        "id": 133022202850,
+        "name": "hard-isolation",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "lab_claim_review": {
+    "source": "docs/reviews/community-calculator-google-20261116/speed/speed_ab2.mjs and speed_ab2.jsonl at reviewed head",
+    "base_brotli_KiB": 574.4,
+    "base_js_css_brotli_KiB": 443.1,
+    "branch_brotli_KiB": 578.6,
+    "branch_js_css_brotli_KiB": 447.3,
+    "classification": "Combined route resources, not isolated shared-shell size",
+    "limits": [
+      "Byte calibration collects responses until readiness plus 800ms, then reuses the calibration total in every run",
+      "Body sizes are recompressed offline; raw fixture bandwidth is rescaled by a global raw/compressed ratio per variant",
+      "Useful approximate A/B, not actual production wire waterfall or a proven decomposition of the bottleneck",
+      "Third-party scripts and guest invitation suppressed; short fixture CLS=0 is not site-wide field CLS clearance"
+    ]
+  },
+  "status": "Focused technical review passed; no source edits, merge or deployment. Existing design interpretation remains a user decision.",
+  "files_checked": [
+    "api/og.js",
+    "api/sitemap.js",
+    "src/pages/CommunityCalculator2029Page.jsx",
+    "src/pages/CommunityCalculatorPage.jsx",
+    "src/lib/research/communityCalculatorSeo2029.js",
+    ".github/workflows/live-contracts-2029.yml"
+  ]
+}
