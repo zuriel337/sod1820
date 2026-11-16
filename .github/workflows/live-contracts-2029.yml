@@ -85,6 +85,8 @@ jobs:
         run: npm run build
       - name: Realtime entry split (the deferred Realtime/Phoenix chunk is not in the 2029 entry; browser use of the SDK stays inside the checked subset)
         run: node --test test/realtime-entry-split-2029.test.mjs
+      - name: Storage boundary (the real Storage client is not in the 2029 entry and loads on the first upload; getPublicUrl gives the real client's address; the app stays inside the checked subset)
+        run: node --test test/storage-lazy-2029.test.mjs
       - name: First-load graph guard (shell and always-loaded chunks must not statically import the heavy modules moved to their own lazy chunks; reads the production build above)
         run: node scripts/test-2029-first-load-graph.mjs
       - name: Shell budget ratchet (the entry, the System Frame and its CSS may not grow and their always-loaded files may not gain a static import; a raise is a recorded ZURIEL decision; reads the production build above)
