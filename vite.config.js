@@ -13,7 +13,11 @@ export default defineConfig({
   // single; only its optional Realtime transport waits for a channel action.
   // (is2029 is constant true now; the conditional form is kept because the Realtime entry-split contract test asserts it.)
   resolve: is2029 ? {
-    alias: [{ find: /^@supabase\/realtime-js$/, replacement: resolve(rootDir, 'src/lib/realtimeLazy2029.js') }],
+    alias: [
+      { find: /^@supabase\/realtime-js$/, replacement: resolve(rootDir, 'src/lib/realtimeLazy2029.js') },
+      // Same boundary for Storage (shell budget, 16.11.2026): only from().upload/getPublicUrl are used; the real client loads on the first upload.
+      { find: /^@supabase\/storage-js$/, replacement: resolve(rootDir, 'src/lib/storageLazy2029.js') },
+    ],
   } : undefined,
   plugins: [react()],
   define: { __SOD_2029_BUILD__: JSON.stringify(is2029) },

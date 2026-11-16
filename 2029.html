@@ -8,10 +8,11 @@
     <meta name="theme-color" content="#0C0818" />
     <title>סוד 1820</title>
     <link rel="icon" href="data:," />
+    <!-- The two faces of the first paint (the opening shell's Hebrew text and the frame's Hebrew labels) are preloaded. The bold body face and
+         the Latin/digits face (34 KB) load on first use through the @font-face rules below, so they no longer compete with the entry script
+         for the first second of a slow connection (16.11.2026). -->
     <link rel="preload" href="/fonts/NotoSansHebrew-Regular.ttf" as="font" type="font/ttf" crossorigin />
-    <link rel="preload" href="/fonts/NotoSansHebrew-Bold.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="/fonts/Rubik-Hebrew.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/Rubik-Latin.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Supabase origin (REST, RPC, Storage): connected while the document is parsed; anonymous pool = fetch(). -->
     <link rel="preconnect" href="https://linswmnnkjxvweumprav.supabase.co" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -90,6 +90,15 @@ assert.match(middleware, /publicPostSlugExists\('\/' \+ post2029\[1\]\)/);
 assert.match(middleware, /const video2029 = path\.match\(\/\^\\\/video\\\/\(\[\^\/\]\+\)\\\/\?\$\//);
 assert.match(middleware, /!\/\^\[0-9a-f\]\{32\}\$\/i\.test\(video2029\[1\]\)/);
 
+// 16.11.2026: the edge lookup is for crawlers only (cheap cacheable 404 without a function invocation), bounded and fail-open. A browser's Post
+// document gets its 404/503 from the public document handler, which reads the same exact post (public-reading-production-artifact.test.mjs).
+assert.match(middleware, /export function edgePostLookupRequired\(kind\) \{\s*return kind === 'goodbot' \|\| kind === 'ai';\s*\}/);
+assert.match(middleware, /const postLookup = edgePostLookupRequired\(kind\);/);
+assert.match(middleware, /if \(postLookup && isSingleSegmentRoute\(path\) && !isKnownSingleSegmentRoute\(path\)\)/);
+assert.match(middleware, /if \(postLookup && post2029\)/);
+assert.match(middleware, /POST_ROUTE_LOOKUP_TIMEOUT_MS = 800;/);
+assert.match(middleware, /signal: AbortSignal\.timeout\(POST_ROUTE_LOOKUP_TIMEOUT_MS\)/);
+
 // Security/country policy must run before route legitimacy, so this slice changes routing only.
 const quarantinePos = middleware.indexOf("Smart Quarantine 2029");
 const routePos = middleware.indexOf("Route legitimacy runs only after security/quarantine decisions");
