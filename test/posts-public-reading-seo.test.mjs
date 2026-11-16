@@ -25,6 +25,10 @@ for (const [name, foundation, release] of [["public", "false", "public-reading-2
     import {postsCatalogScope2029,postClassification2029} from './src/lib/research/postsCatalog2029Projection.js';
     import {postsTaxonomyLocation2029,postsTaxonomyRoute2029,postsTaxonomyPage2029} from './src/lib/research/postsTaxonomy2029Route.js';
     import {publicPostHref} from './src/lib/publicPostUrls.js';
+    import {postsMediaScope2029,postsMediaHref,VIDEO_PAGE_SIZE} from './src/lib/research/postsVideoLibrary2029.js';
+    const fetchPostsWithVideoPage2029=()=>{throw Error('unexpected media-library read')};
+    const fetchVideoLibraryPage2029=()=>{throw Error('unexpected media-library read')};
+    const fetchVideoPublicIds2029=async()=>new Map();
     const fetchPostsCatalog2029=options=>globalThis.__postsSeo.read(options);
     const fetchContentSeriesCatalog2029=async()=>({series:[]});
     const completeMixedSeriesPostsPage2029=()=>{throw Error('unexpected mixed-series read')};
