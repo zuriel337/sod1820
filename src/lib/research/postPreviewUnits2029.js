@@ -96,6 +96,12 @@ const ATTRIBUTION = Object.freeze([
   Object.freeze({ identity: "editorial-phrase", label: "ניסוח פרשני שהועלה ברצף הרמזים", from: "ולצידם מצטרף גם הביטוי:", to: "זהו ניסוח פרשני שהועלה בתוך רצף הרמזים, ולא קביעה על תוצאות הבחירות." }),
 ]);
 
+// "מאת: <name>" — the writer's name is a link to the writer's own page (ZURIEL 16.11.2026: a link is enough, no "approved" marking). Only these two writers, by exact name.
+export const WRITER_PAGES = Object.freeze({ "יניב לוי": "/community/researcher/yaniv-levi", "יצחק שחר קנדרו": "/community/researcher/shachar-kandro" });
+export function parseBylineLine(text) {
+  const match = /^מאת:\s+(.+)$/u.exec(String(text).trim());
+  return match ? { name: match[1].trim(), href: WRITER_PAGES[match[1].trim()] || null } : null;
+}
 const HEADING = /^(✨|👑|✦|📜)\s+(.+)$/u;
 const CLOSING = /^(✨|👑|✦|📜)\s.+\s\1$/u;
 const NUMBERS_ROW = /^\d{3,5}(?:\s·\s\d{3,5})+$/u;

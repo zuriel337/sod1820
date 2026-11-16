@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { YAMIN_SMOL_TEXT_20261112 } from "./fixtures/yaminSmolText20261112.js";
-import { YAMIN_SMOL_APPROVED_TEXT, parseFieldLine, YAMIN_SMOL_UNIT_ID, parseYaminSmolText, deliveredLines, PREVIEW_UNITS_2029, previewUnitDefinition, unitShareUrl, unitCardUrl, previewUnitOgMeta, YAMIN_SMOL_CLAIMS, YAMIN_SMOL_SOURCES } from "./postPreviewUnits2029.js";
+import { YAMIN_SMOL_APPROVED_TEXT, parseFieldLine, YAMIN_SMOL_UNIT_ID, parseYaminSmolText, deliveredLines, PREVIEW_UNITS_2029, previewUnitDefinition, unitShareUrl, unitCardUrl, previewUnitOgMeta, YAMIN_SMOL_CLAIMS, YAMIN_SMOL_SOURCES, parseBylineLine, WRITER_PAGES } from "./postPreviewUnits2029.js";
 
 test("the unit has ONE stable identity and lives inside post 5107 of the series (not a new post)", () => {
   assert.equal(YAMIN_SMOL_UNIT_ID, "yamin-smol-2026-5787-1237-1158");
@@ -95,4 +95,13 @@ test("the claims for the engine panel use only phrases and numbers of the approv
   assert.deepEqual(YAMIN_SMOL_SOURCES.map((s) => s.slug), ["yaniv-levi"], "Shachar's words are not read or shown by the unit");
   assert.equal(YAMIN_SMOL_CLAIMS.find((c) => c.id === "c2026").methodText, "מילוי");
   assert.equal(YAMIN_SMOL_CLAIMS.find((c) => c.id === "c5787").methodText, "ריבוע");
+});
+
+test("the by-line names its writer as a link to the writer's own page; an unknown name is plain text (no link is invented)", () => {
+  assert.deepEqual(parseBylineLine("מאת: יניב לוי"), { name: "יניב לוי", href: "/community/researcher/yaniv-levi" });
+  assert.deepEqual(parseBylineLine("מאת: יצחק שחר קנדרו"), { name: "יצחק שחר קנדרו", href: "/community/researcher/shachar-kandro" });
+  assert.deepEqual(parseBylineLine("מאת: מישהו אחר"), { name: "מישהו אחר", href: null });
+  assert.equal(parseBylineLine("בספר ישעיהו"), null);
+  for (const line of deliveredLines().filter((l) => /^מאת:/.test(l))) assert.ok(parseBylineLine(line).href, line);
+  assert.equal(Object.keys(WRITER_PAGES).length, 2);
 });
