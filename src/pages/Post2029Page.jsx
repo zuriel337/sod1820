@@ -97,7 +97,8 @@ function toolOnApproach2029(load, title) {
     return near ? <Tool {...props} /> : <div ref={ref} data-tool-on-approach="pending" aria-hidden="true" />;
   };
 }
-const PostTimeline2029 = toolOnApproach2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
+// The timeline lives inside "מקורות וקשרים": it loads when that section is opened (as its measures do), or when the address points at it.
+const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
 const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
 const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
@@ -1484,7 +1485,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div>)}
     </section> : null}
 
-    <PostTimeline2029 items={visibleTimeline} currentHref={publicPostHref(post)} />
+    {researchStarted || /timeline/i.test(location.hash || "") ? <PostTimeline2029 items={visibleTimeline} currentHref={publicPostHref(post)} /> : null}
 
       {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <section id="post-classification" className="sod29-post-continuations">
         <header><h2>איך הפוסט משתלב?</h2>
