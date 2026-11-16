@@ -46,7 +46,6 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
-import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 // Preview-only (ZURIEL 12.11.2026): the left Companion returns on a series Post of the protected preview build. Elsewhere it stays unmounted.
 import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
 // ZURIEL 12.11.2026: the header verse line («הנה אנכי שולח לכם את אליה הנביא…») is hidden on every page. One switch: set true to show it again.
