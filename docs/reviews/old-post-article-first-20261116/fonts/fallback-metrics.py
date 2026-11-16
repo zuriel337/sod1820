@@ -1,8 +1,8 @@
 import sys
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
-HEB = "בראשית ברא אלהים את השמים ואת הארץ והארץ היתה תהו ובהו וחשך על פני תהום ורוח אלהים מרחפת על פני המים שלום רב לאוהבי תורתך ואין למו מכשול"
-LAT = "0123456789 1820 5786 SOD 2029 (12.11.2026) 26 271 2701 631 66 - , . : % Hello World"
+HEB = "בראשית ברא אלהים את השמים ואת הארץ והארץ היתה תהו ובהו וחשך על פני תהום ורוח אלהים מרחפת על פני המים שלום רב לאוהבי תורתך ואין למו מכשול".replace(" ", "")
+LAT = "0123456789 1820 5786 SOD 2029 (12.11.2026) 26 271 2701 631 66 - , . : % Hello World".replace(" ", "")
 W = sys.argv[1]; LIB = "/usr/share/fonts/truetype/liberation/LiberationSans-%s.ttf"
 lib = {"r": TTFont(LIB % "Regular"), "b": TTFont(LIB % "Bold")}
 def adv(font, text):

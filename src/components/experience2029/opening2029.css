@@ -11,7 +11,7 @@
   --o-gold:#F9BA3F;--o-glass:rgb(23 18 14 / .72);--o-gap:calc(var(--o-dip-w) - 6px);
   position:relative;min-height:100vh;direction:rtl;color:#F5F5F0;
   background-color:#0B0907;background-image:radial-gradient(at 92% 0,rgb(249 186 63 / .08),transparent 46%);
-  font-family:'Noto Sans Hebrew','Sod Hebrew Fallback',Rubik,'Sod Latin Fallback',Arial,sans-serif;
+  font-family:'Noto Sans Hebrew','Sod Hebrew Fallback',Rubik,'Sod Rubik Fallback',Arial,sans-serif;
 }
 /* light and parchment: the page is light, the bar keeps its dark glass (as in the real frame); the attribute is set by the theme store before React paints */
 html[data-theme-2029="light"] .sod29-opening{background-color:#F4F7FC;background-image:none;color:#172B46;--o-glass:rgb(16 11 28 / .90)}

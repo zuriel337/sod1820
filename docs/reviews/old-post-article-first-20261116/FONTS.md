@@ -10,10 +10,9 @@ ZURIEL 16.11.2026: "עברית וניקוד קריאים, בלי שינוי פר
   - Each sets `size-adjust` and the ascent, descent and line-gap overrides.
   - There is one face per target face, weight band and script:
     - **Sod Hebrew Fallback:** Noto Sans Hebrew 400 and 700, Hebrew range.
-    - **Sod Latin Fallback:** Rubik Latin, used for digits and Latin inside body text, 400 and 700.
-    - **Sod Rubik Fallback:** Rubik Hebrew and Rubik Latin, at weights 400, 700 and 850.
+    - **Sod Rubik Fallback:** Rubik, one face per weight 400–900 and per class (Hebrew letters; Latin letters and punctuation; digits; the space). It also stands in for digits and Latin inside body text. *(Afternoon follow-up below; the first version had "Sod Latin Fallback" for body text and Rubik bands at 400, 700 and 850.)*
 - **The font stacks** (`src/lib/designTokens.js`; the frame, the article and the first-document frame all read these tokens):
-  - body: `'Noto Sans Hebrew','Sod Hebrew Fallback','Rubik','Sod Latin Fallback',Arial,sans-serif`
+  - body: `'Noto Sans Hebrew','Sod Hebrew Fallback','Rubik','Sod Rubik Fallback',Arial,sans-serif`
   - display and UI: `'Rubik','Sod Rubik Fallback','Noto Sans Hebrew',Arial,sans-serif`
 - **Why that order:**
   - While Noto is on its way, Hebrew body text is drawn by its own metric-matched fallback, never by Rubik first. Rubik's Hebrew is 5% narrower, which would mean two swaps.
@@ -57,4 +56,31 @@ In this sample no line changed in either case; the margin before a line breaks d
 
 - Devices whose only fallback is not Arial-compatible were not measured. Android has no Arial, so a Rubik-matched face cannot load there and the browser's own Hebrew font, Noto on most phones, draws the text meanwhile.
 - No screenshots of the swap moment.
-- The digits still come from Rubik Latin (35 KB, not preloaded) once it arrives, with a matched fallback meanwhile.
+- ~~The digits still come from Rubik Latin (35 KB, not preloaded) once it arrives, with a matched fallback meanwhile.~~ Fixed in the follow-up below.
+
+## Follow-up (afternoon): one Rubik file for Hebrew text, stand-ins per weight
+
+**What the lab found.** On a phone, Post 192 ("סדר תפילה ל- רפואה שלמה") had two layout shifts of 0.069 each. The header grew by 52 px and then shrank back. The cause was a mixed state of Rubik:
+- Google's split puts Hebrew letters in `Rubik-Hebrew.woff2`, which is preloaded, and spaces, digits and punctuation in `Rubik-Latin.woff2` (35 KB), which loads on first use.
+- So for a while Hebrew words were drawn in Rubik and their spaces by the local stand-in. The stand-in's space was matched at weight 400 (0.245 em), but the header's chips are 500, where Rubik's space is 0.229 em.
+- Each chip has two spaces, so it grew by 0.5 px. Two chips that filled their row exactly (175.6 + 8 + 158.2 of 342 px) wrapped onto a second line, until the Latin file arrived.
+- Measured with the real Post 192 row, Chromium 412×839: the header is 288 px with every font and 340 px with only the Latin file held.
+
+**What changed** (`fonts/rubik-faces.py`; `test/fonts-2029-faces.test.mjs` pins the split):
+- **`Rubik-Hebrew-Common.woff2` (15.1 KB) replaces `Rubik-Hebrew.woff2` (9.3 KB) as the preloaded Rubik file.** It holds Hebrew, the vowel marks Rubik has, the space, no-break space, digits, and the punctuation of Hebrew prose and of the gematria pages: `! " % ' ( ) + , - . / : ; = ? [ ]` · « » × – — ‘ ’ ‚ “ ” „ • … −. It keeps the features that apply to them: proportional and tabular digits, kerning and vowel-mark positioning.
+  - It is cut from the same Rubik 2.3 variable source as Google's two files (`google/fonts`, `ofl/rubik/Rubik[wght].ttf`, sha256 `1b3a7437…4e88`).
+  - Against Google's files, outlines and advances show 0 differences in 1,530 glyph and weight pairs. The licence is OFL with no reserved font name.
+- **`Rubik-Latin.woff2` now answers only for Latin letters** and the rest of Google's Latin range. The two ranges do not overlap, and together they cover exactly what Google's split covered.
+  - A Hebrew page with no Latin letters no longer downloads the Latin file. Post 192 shows none in Rubik.
+- **The local stand-in matches each weight.** 'Sod Rubik Fallback' has one face per weight band (400, 500, 600, 700, 800, 900; Arial for 400–500, Arial Bold from 600) and per class:
+  - Hebrew letters;
+  - Latin letters and punctuation;
+  - digits (Rubik's are proportional and 3–22% wider than Arial's);
+  - the space (88.2% of Arial's at 400, 66.9% at 900).
+  - That is 24 faces instead of 11, about 1 KB more in the document head after gzip. The body stack uses the same stand-in; "Sod Latin Fallback" is gone.
+- **One visible difference once the fonts have loaded:** Rubik's own kerning between a Hebrew letter and punctuation now applies, because both come from one file, as in the full font. Examples are `ר:`, `ד?`, `ל-`, `ה"ק`, `ז ·`.
+  - In Chromium, 108 strings at weights 400–900, normal and tabular digits: 56 strings are 0.02–1.4 px narrower. With `font-kerning:none` all 108 are identical, so the glyphs and advances are unchanged.
+  - Strings of digits only, or of Latin, are identical either way.
+- `Rubik-Hebrew.woff2` stays in the repository, unused and without a cache rule. Removing it is a decision for ZURIEL.
+
+<!--FONTS2-->

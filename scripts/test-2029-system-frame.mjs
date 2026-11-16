@@ -200,9 +200,11 @@ assert.match(css, /position:fixed/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
 
 // Design V2 typography must be real at runtime, not token-only.
-assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Hebrew\.woff2'\)/);
+// the frame's Hebrew face carries its spaces, digits and punctuation (16.11.2026, docs/reviews/old-post-article-first-20261116/fonts/rubik-faces.py)
+assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Hebrew-Common\.woff2'\)/);
+assert.match(shellHtml, /<link rel="preload" href="\/fonts\/Rubik-Hebrew-Common\.woff2" as="font" type="font\/woff2" crossorigin \/>/);
 assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Latin\.woff2'\)/);
-assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Hebrew.woff2")), true);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Hebrew-Common.woff2")), true);
 assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Latin.woff2")), true);
 // the body face is served as WOFF2 with its TTF as the second source (16.11.2026), both kept
 assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Regular\.woff2'\) format\('woff2'\),url\('\/fonts\/NotoSansHebrew-Regular\.ttf'\)/);
