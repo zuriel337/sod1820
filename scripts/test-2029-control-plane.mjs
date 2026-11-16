@@ -96,8 +96,9 @@ assert.equal(/preload="auto"/i.test(hardened), false);
 const articlePipeline = readFileSync(new URL("../src/lib/research/postArticlePipeline2029.js", import.meta.url), "utf8");
 assert.match(articlePipeline, /import \{ hardenPassiveMediaHtml \} from "\.\.\/mediaEgressGuard\.js"/);
 // the passive HTML is ALWAYS hardened first; the prototype layer only annotates the already hardened HTML
-assert.match(articlePipeline, /const hardened = hardenPassiveMediaHtml\(postReadingHtml2029\(projectedContent \|\| ""\)\);\s*return annotate \? annotatePostSource\(hardened,/);
-assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => \{[^}]*return postArticleSourceHtml2029\(state\.projection\?\.post\?\.content \|\| "", \{ postId: state\.projection\?\.post\?\.id, voice: postVoice, annotate: protoOn \}\);/);
+// (the smaller-image step runs last, on the hardened and annotated HTML: it only adds srcset/sizes/loading to the Post's own images)
+assert.match(articlePipeline, /const hardened = hardenPassiveMediaHtml\(postReadingHtml2029\(projectedContent \|\| ""\)\);\s*return postArticleImages2029\(annotate \? annotatePostSource\(hardened, \{ postId, voice \}\) : hardened, \{ cover \}\);/);
+assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => \{[^}]*return postArticleSourceHtml2029\(state\.projection\?\.post\?\.content \|\| "", \{ postId: state\.projection\?\.post\?\.id, voice: postVoice, annotate: protoOn, cover: state\.projection\?\.post\?\.image_url \|\| "" \}\);/);
 // the sink renders that HTML, except when it adopted the first document's nodes, which are exactly that HTML (documentArticleBodyMatches)
 assert.match(post2029, /\{\.\.\.\(documentArticle \? \{\} : \{ dangerouslySetInnerHTML: \{ __html: passiveSourceHtml \} \}\)\}/);
 

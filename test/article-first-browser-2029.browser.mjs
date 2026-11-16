@@ -108,21 +108,27 @@ for (const profile of Object.keys(PROFILES)) {
 }
 
 test("[phone] a direct link to a named anchor: the browser opens at it and adoption keeps it there", { timeout: 180000 }, async () => {
-  await withPage("phone", {}, async ({ page }) => {
-    await page.goto("https://sod1820.co.il" + PATH + "#_Toc10337527", { waitUntil: "domcontentloaded" });
+  // The page's code is held until the document has loaded, so the browser's own jump to the fragment (which it repeats until load) is over
+  // before the page takes over; then adoption must keep the anchor where it is.
+  let release; const hold = new Promise(done => { release = done; });
+  await withPage("phone", { holdPostChunk: hold }, async ({ page }) => {
+    await page.goto("https://sod1820.co.il" + PATH + "#_Toc10337527", { waitUntil: "load" });
     await page.waitForSelector('#sod29-ssr-article a[name="_Toc10337527"]', { state: "attached", timeout: 20000 });
-    await sleep(300);
-    const before = await page.evaluate(() => { window.__anchor = document.getElementsByName("_Toc10337527")[0]; window.__fontsBefore = document.fonts.status + ":" + [...document.fonts].filter(f => f.status === "loaded").map(f => f.family + f.weight).join(","); return Math.round(window.__anchor.getBoundingClientRect().top); });
-    assert.ok(before < 300, `the browser opened at the anchor (${before})`);
+    await page.evaluate(() => document.fonts.ready);
+    // the browser's jump to a fragment is smooth here (html { scroll-behavior: smooth }): wait until it has come to rest
+    await page.waitForFunction(() => { const y = scrollY; window.__still = window.__still?.y === y ? { y, n: window.__still.n + 1 } : { y, n: 0 }; return window.__still.n >= 6 && y > 0; }, null, { polling: 50, timeout: 10000 });
+    const before = await page.evaluate(() => { window.__anchor = document.getElementsByName("_Toc10337527")[0]; return Math.round(window.__anchor.getBoundingClientRect().top); });
+    assert.ok(before >= -2 && before < 300, `the browser opened at the anchor (${before})`);
+    release();
     const result = await adopted(page);
     assert.equal(result.result, "adopted"); assert.equal(result.place, "target");
-    // the browser keeps its own fragment jump until the document has loaded; after adoption the anchor stays where it is
     await sleep(250);
     const first = await page.evaluate(() => Math.round(window.__anchor.getBoundingClientRect().top));
     await sleep(1500);
     const after = await page.evaluate(() => ({ top: Math.round(window.__anchor.getBoundingClientRect().top), count: document.getElementsByName("_Toc10337527").length }));
     assert.equal(after.count, 1);
-    assert.ok(after.top >= -2 && after.top < 300, `the anchor is at the top of the screen (${after.top})`);
+    if (process.env.AF_DEBUG) console.log("ANCHOR", JSON.stringify({ before, first, af: await page.evaluate(() => window.__sodArticleFirst), log: await page.evaluate(() => window.__scrollLog.filter(e => e.t > (window.__sodArticleFirst?.at || 0) - 400)) }));
+    assert.ok(Math.abs(first - before) <= 2, `adoption kept the anchor (${before} -> ${first})`);
     assert.ok(Math.abs(after.top - first) <= 2, `the anchor stayed after adoption (${first} -> ${after.top})`);
   });
 });

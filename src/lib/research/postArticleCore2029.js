@@ -3,6 +3,7 @@
 // the caller installs for the duration of a synchronous call). Three property writes became the equivalent attribute writes.
 
 import { annotateLegacyColors2029, legacyColorRules2029 } from "./postLegacyColor2029.js";
+import { thumb } from "../img.js";
 
 export const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -150,4 +151,40 @@ export function markLegacyEqualityLines(content = "") {
   return String(content).split(/(<(?:a|button|script|style|pre|code)\b[^>]*>[\s\S]*?<\/(?:a|button|script|style|pre|code)>)/gi).map((part, index) => index % 2 ? part : part
     .replace(forward, (match, start, phrase, span, number, endSpan, other) => `${start}${operand(phrase)} = ${span || ""}${operand(number, true)}${endSpan || ""}${other ? ` = ${operand(other)}` : ""}`)
     .replace(reverse, (match, start, number, phrase) => `${start}${operand(number, true)} = ${operand(phrase)}`)).join("");
+}
+
+// Smaller images for the article (ZURIEL 16.11.2026: "גרסאות קטנות ורספונסיביות, עם מקור שמור וטקסט ותרשימים שנשארים ברורים"). The stored
+// source is the original and stays the image's src (and what the image viewer opens); the browser is offered width-bounded copies of the SAME
+// image from the Storage render endpoint (resize=contain: never cropped, never enlarged past the original; img.js), and picks the one that
+// covers its displayed size at the screen's density, so letters and diagrams are as sharp as they are drawn. Only images whose size the markup
+// already reserves (width and height) get copies, so the choice of file never changes the layout; GIF and SVG keep the original.
+export const POST_IMAGE_RENDITION_WIDTHS = Object.freeze([480, 768, 1080, 1600]);
+export const POST_IMAGE_QUALITY = 80;
+export function postImageRenditionSet2029(src) {
+  const url = clean(src);
+  const first = thumb(url, POST_IMAGE_RENDITION_WIDTHS[0], POST_IMAGE_QUALITY);
+  if (!url || first === url || url.includes("?")) return "";
+  return POST_IMAGE_RENDITION_WIDTHS.map(width => `${thumb(url, width, POST_IMAGE_QUALITY)} ${width}w`).join(", ");
+}
+// The column the article's images are drawn in (post2029-reading.css: the reading source on a phone, the reading column on a wider screen).
+export const POST_COVER_IMAGE_SIZES = "(max-width: 760px) calc(100vw - 36px), 560px";
+const bodyImageSizes = width => `(max-width: 760px) min(calc(100vw - 68px), ${width}px), min(680px, ${width}px)`;
+
+// The article's own images: copies offered as above; images below the opening screen load when the reader approaches them (when the Post has
+// a cover, every body image is below it; without one, the first body image keeps its authored loading), off the main thread.
+export function postArticleImages2029(html, { cover = "" } = {}) {
+  if (!globalThis.document?.createElement) return String(html || "");
+  const template = document.createElement("template"); template.innerHTML = String(html || "");
+  const images = [...template.content.querySelectorAll("img[src]")];
+  images.forEach((image, index) => {
+    const width = Number(image.getAttribute("width")), height = Number(image.getAttribute("height"));
+    if (!(width > 0 && height > 0)) return;
+    const set = postImageRenditionSet2029(image.getAttribute("src"));
+    if (!set) return;
+    image.setAttribute("srcset", set);
+    image.setAttribute("sizes", bodyImageSizes(Math.round(width)));
+    image.setAttribute("decoding", "async");
+    if (clean(cover) || index > 0) image.setAttribute("loading", "lazy");
+  });
+  return template.innerHTML;
 }

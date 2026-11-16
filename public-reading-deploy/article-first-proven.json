@@ -1,9 +1,10 @@
 {
- "generated": "2026-11-16T11:12:26.053Z",
- "base": "23c70ddfdf47e4a35128b8a362516c8705ffba99",
- "fingerprint": "1df87cf30e31ab3e1353",
+ "generated": "2026-11-16T11:18:23.226Z",
+ "base": "14cb794dbe72fc1efda648b86be322a9bd233b20",
+ "fingerprint": "6c3c84c9490a6b60fc51",
  "jsdom": "25.0.1",
  "pipeline": [
+  "src/lib/img.js",
   "src/lib/mediaEgressGuard.js",
   "src/lib/paletteTokens2029.js",
   "src/lib/postVoice2029.js",

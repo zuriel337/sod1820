@@ -22,6 +22,7 @@ import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel, registeredUnitIds } from "../lib/research/postSourceUpdates2029.js";
 import { postVoiceFor } from "../lib/postVoice2029.js";
 import { postArticleSourceHtml2029, postArticleSourceKey2029 } from "../lib/research/postArticlePipeline2029.js";
+import { postImageRenditionSet2029, POST_COVER_IMAGE_SIZES } from "../lib/research/postArticleCore2029.js";
 import { postArticleByline2029 } from "../lib/research/postArticleDocument2029.js";
 import { POST_ARTICLE_DOCUMENT_ID, documentArticleFor, documentArticleBodyMatches, readingPlace2029, samePlaceInPage2029, keepReaderInPlace2029, suspendScrollAnchoring2029 } from "../lib/research/postArticleAdoption2029.js";
 import { resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
@@ -146,8 +147,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   useEffect(() => subscribeUnitChoices(() => setPrefsTick((n) => n + 1)), []);
   const passiveSourceHtml = useMemo(() => {
     // The one article pipeline, shared with the first document (postArticlePipeline2029.js).
-    return postArticleSourceHtml2029(state.projection?.post?.content || "", { postId: state.projection?.post?.id, voice: postVoice, annotate: protoOn });
-  }, [state.projection?.post?.content, state.projection?.post?.id, postVoice, protoOn]);
+    return postArticleSourceHtml2029(state.projection?.post?.content || "", { postId: state.projection?.post?.id, voice: postVoice, annotate: protoOn, cover: state.projection?.post?.image_url || "" });
+  }, [state.projection?.post?.content, state.projection?.post?.id, state.projection?.post?.image_url, postVoice, protoOn]);
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second
   // time, only when they are exactly this page's article; the reader stays on the same place. Otherwise this page's article replaces it once.
@@ -1376,7 +1377,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     </aside> : null}
     {protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
     {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
-      <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
+      <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" srcSet={postImageRenditionSet2029(coverItem.imageUrl) || undefined} sizes={POST_COVER_IMAGE_SIZES} alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
     </figure> : null}
 
     <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" activeId={flagshipNav ? activeNavId : null} onSelect={flagshipNav ? (item) => setActiveNavId(item.id) : null} />
