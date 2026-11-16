@@ -1495,3 +1495,43 @@ html[data-theme-2029="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-li
 /* Relation colours win over the neutral reading ink above. */
 .sod29-reading-post .sod29-reading-source [data-link-group="a"]{color:var(--post-link-a)!important;font-weight:850}
 .sod29-reading-post .sod29-reading-source [data-link-group="b"]{color:var(--post-link-b)!important;font-weight:850}
+
+/* Historical colours of imported Posts (ZURIEL 16.11.2026: yellow and white from the old site keep their meaning and read in light and dark,
+   including passages with their own black background). postLegacyColor2029.js marks only colours that measure below 4.5:1 on the reading
+   surface of a theme (data-legacy-low) and names their family (data-legacy-tone); each family has a tone per theme with measured contrast
+   (test/post-legacy-color-2029.test.mjs). Authored colours that read stay exactly as authored; the source keeps every colour. */
+.sod29-reading-post{
+  --sod-legacy-red:#B3261E;--sod-legacy-orange:#A84300;--sod-legacy-yellow:#6E5300;--sod-legacy-yellow-mark:rgb(255 214 0 / .42);--sod-legacy-green:#1E6B2E;
+  --sod-legacy-cyan:#00616D;--sod-legacy-blue:#1F4FBF;--sod-legacy-purple:#6A2CA0;--sod-legacy-magenta:#9C1C74;--sod-legacy-white:var(--s29-ink);
+  --sod-legacy-grey:#4A4A4A;--sod-legacy-black:var(--s29-ink);
+}
+html:not([data-theme-2029="light"]):not([data-theme-2029="parchment"]) .sod29-reading-post{
+  --sod-legacy-red:#FF6B6B;--sod-legacy-orange:#FFA04D;--sod-legacy-yellow:#FFE14D;--sod-legacy-green:#5FD47A;--sod-legacy-cyan:#4FD8E6;
+  --sod-legacy-blue:#8AB0FF;--sod-legacy-purple:#C49BFF;--sod-legacy-magenta:#FF7AD9;--sod-legacy-white:var(--s29-ink);--sod-legacy-grey:#B8B8B8;
+  --sod-legacy-black:var(--s29-ink);
+}
+.sod29-reading-source [data-legacy-tone="red"]{--sod-legacy-tone:var(--sod-legacy-red)}
+.sod29-reading-source [data-legacy-tone="orange"]{--sod-legacy-tone:var(--sod-legacy-orange)}
+.sod29-reading-source [data-legacy-tone="yellow"]{--sod-legacy-tone:var(--sod-legacy-yellow)}
+.sod29-reading-source [data-legacy-tone="green"]{--sod-legacy-tone:var(--sod-legacy-green)}
+.sod29-reading-source [data-legacy-tone="cyan"]{--sod-legacy-tone:var(--sod-legacy-cyan)}
+.sod29-reading-source [data-legacy-tone="blue"]{--sod-legacy-tone:var(--sod-legacy-blue)}
+.sod29-reading-source [data-legacy-tone="purple"]{--sod-legacy-tone:var(--sod-legacy-purple)}
+.sod29-reading-source [data-legacy-tone="magenta"]{--sod-legacy-tone:var(--sod-legacy-magenta)}
+.sod29-reading-source [data-legacy-tone="white"]{--sod-legacy-tone:var(--sod-legacy-white)}
+.sod29-reading-source [data-legacy-tone="grey"]{--sod-legacy-tone:var(--sod-legacy-grey)}
+.sod29-reading-source [data-legacy-tone="black"]{--sod-legacy-tone:var(--sod-legacy-black)}
+html[data-theme-2029="light"] .sod29-reading-source [data-legacy-low~="light"],
+html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parchment"],
+html:not([data-theme-2029="light"]):not([data-theme-2029="parchment"]) .sod29-reading-source [data-legacy-low~="dark"]{color:var(--sod-legacy-tone)!important}
+/* yellow keeps its highlighter meaning where its colour must change: a yellow marker under the darker amber */
+html[data-theme-2029="light"] .sod29-reading-source [data-legacy-low~="light"][data-legacy-tone="yellow"],
+html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parchment"][data-legacy-tone="yellow"]{
+  background-image:linear-gradient(transparent 56%,var(--sod-legacy-yellow-mark) 56%);-webkit-box-decoration-break:clone;box-decoration-break:clone;
+}
+/* a passage with its own background keeps its authored colours; text without its own colour reads on it in every theme */
+.sod29-reading-source [data-legacy-panel] :not([data-legacy-color]):not([data-legacy-panel]):not(a){color:inherit}
+.sod29-reading-source [data-legacy-panel="dark"]:not([data-legacy-color]){color:#F5F5F0}
+.sod29-reading-source [data-legacy-panel="light"]:not([data-legacy-color]){color:#172B46}
+.sod29-reading-source [data-legacy-panel="dark"] a:not([data-legacy-color]){color:#FFD27A}
+.sod29-reading-source [data-legacy-panel="light"] a:not([data-legacy-color]){color:#1F4FBF}

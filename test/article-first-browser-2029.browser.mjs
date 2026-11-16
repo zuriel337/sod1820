@@ -36,11 +36,12 @@ const PROFILES = { phone: { viewport: { width: 390, height: 844 }, isMobile: tru
 const sleep = ms => new Promise(done => setTimeout(done, ms));
 
 await loadArticleFirstRenderer();
-async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null } = {}, run) {
+async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW } = {}, run) {
+  const proven = { [String(row.id)]: postArticleProofKey2029(row) };
   const fixture = await startFixture({
     documentFor: ({ path, template }) => {
       if (decodeURIComponent(path).toLowerCase() !== decodeURIComponent(PATH).toLowerCase()) return null;
-      const out = withArticleFirst2029(template, { path, search: "", status: 200, post: ROW, proven: PROVEN });
+      const out = withArticleFirst2029(template, { path, search: "", status: 200, post: row, proven });
       assert.equal(out.state, "served", "the real server function serves the article");
       return out.html;
     },
@@ -48,7 +49,7 @@ async function withPage(profile, { holdPostChunk = null, holdRead = null, initSc
     supabase: async ({ url }) => {
       if (!(url.pathname === "/rest/v1/posts" && /slug|wp_id|id=/.test(url.search) && !/order=|limit=(?:[2-9]|\d\d)/.test(url.search))) return null;
       if (holdRead) await holdRead;
-      return { body: [ROW] };
+      return { body: [row] };
     },
   });
   const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
@@ -209,6 +210,54 @@ for (const [profile, theme] of [["phone", "dark"], ["desktop", "dark"], ["phone"
       assert.deepEqual(after.elements, before.elements, "title, credit, chips, details, body, paragraph, emphasis and link keep their geometry, fonts and colours");
       assert.equal(chromeAfter, chromeBefore, "the page's header is the document's header (its controls become active)");
       assert.deepEqual(errors, []);
+    });
+  });
+}
+
+// Historical colours (ZURIEL 16.11.2026): yellow and white from the old site, black panels, a yellow highlight, black text, a gold long heading,
+// an old <font> colour, Hebrew with vowel marks and digits. In dark, light and parchment, before the application runs and after adoption: every
+// authored colour reads on what is really behind it (4.5:1; 3:1 for large text), the colours are the same before and after, and yellow keeps a
+// visible highlighter where its colour had to change.
+const COLOR_ROW = { ...ROW, content: [
+  '<p><span style="color: #ffff00;"><strong>הדגשה צהובה עם ניקוד: בְּרֵאשִׁית בָּרָא 1820</strong></span></p>',
+  '<p><span style="color: #ffffff;">טקסט לבן מהאתר הישן</span> ו<a href="/2029/posts" style="color:#ffff00">קישור צהוב</a></p>',
+  '<div style="background-color:#000000;padding:12px"><p>פסקה על רקע שחור משלה <span style="color:#ffff00">צהוב בפאנל</span> <a href="/world">קישור בפאנל</a></p></div>',
+  '<p><span style="background-color:#ffff00">מרקר צהוב בלי צבע משלו</span></p>',
+  '<p style="color:#000000">טקסט שחור מהאתר הישן</p>',
+  '<h2 style="color:#e8c840">כותרת ארוכה מאוד בצבע זהב שעוברת שתי שורות לפחות בטלפון, עם המספר 5786</h2>',
+  '<p><font color="#0000ff">כחול ישן</font> <span style="color:#ff0000">אדום</span></p>',
+].join("\n") };
+const COLOR_READOUT = () => {
+  const canvas = document.createElement("canvas"); canvas.width = canvas.height = 1; const g = canvas.getContext("2d", { willReadFrequently: true });
+  const rgba = value => { g.clearRect(0, 0, 1, 1); g.fillStyle = "#000"; g.fillStyle = value; g.fillRect(0, 0, 1, 1); const [r, gg, b, a] = g.getImageData(0, 0, 1, 1).data; return { r, g: gg, b, a: a / 255 }; };
+  const over = (top, bottom) => ({ r: top.r * top.a + bottom.r * (1 - top.a), g: top.g * top.a + bottom.g * (1 - top.a), b: top.b * top.a + bottom.b * (1 - top.a), a: 1 });
+  const lum = ({ r, g, b }) => [r, g, b].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+  const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const behind = node => { const layers = []; for (let el = node; el; el = el.parentElement) layers.push(rgba(getComputedStyle(el).backgroundColor)); return layers.reverse().reduce((acc, layer) => over(layer, acc), { r: 255, g: 255, b: 255, a: 1 }); };
+  const body = document.querySelector('#sod29-ssr-article [data-ssr-body="true"]') || document.querySelector(".sod29-reading-source[data-public-post-id]");
+  const items = [...body.querySelectorAll("span,strong,a,p,h2,font")].filter(node => [...node.childNodes].some(child => child.nodeType === 3 && child.nodeValue.trim()));
+  return items.map(node => { const cs = getComputedStyle(node), size = parseFloat(cs.fontSize), large = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
+    return { text: [...node.childNodes].filter(child => child.nodeType === 3).map(child => child.nodeValue).join("").trim().slice(0, 24), color: cs.color, ratio: Math.round(ratio(rgba(cs.color), behind(node)) * 100) / 100,
+      need: large ? 3 : 4.5, marker: /gradient/.test(cs.backgroundImage), tone: node.getAttribute("data-legacy-tone") }; });
+};
+for (const theme of ["dark", "light", "parchment"]) {
+  test(`[phone · ${theme}] historical colours read before and after adoption, and keep their meaning`, { timeout: 180000 }, async () => {
+    let release; const hold = new Promise(done => { release = done; });
+    const initScript = `try{localStorage.setItem("sod2029:theme-preset","${theme}");localStorage.setItem("sod2029:theme-preset-seeded","1")}catch(e){}`;
+    await withPage("phone", { holdPostChunk: hold, initScript, row: COLOR_ROW }, async ({ page }) => {
+      await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "load" });
+      await page.waitForSelector("#sod29-ssr-article h2");
+      const before = await page.evaluate(COLOR_READOUT);
+      release();
+      assert.equal((await adopted(page)).result, "adopted");
+      await sleep(400);
+      const after = await page.evaluate(COLOR_READOUT);
+      assert.deepEqual(after.map(item => [item.text, item.color]), before.map(item => [item.text, item.color]), "the same colours before and after adoption");
+      if (process.env.AF_DEBUG) console.log(theme, JSON.stringify(after));
+      for (const item of after) assert.ok(item.ratio >= item.need, `${theme}: "${item.text}" ${item.color} reads ${item.ratio}:1 (needs ${item.need})`);
+      const yellow = after.find(item => item.text.startsWith("הדגשה צהובה")) || after.find(item => item.tone === "yellow");
+      if (theme !== "dark") assert.ok(after.some(item => item.tone === "yellow" && item.marker), "yellow keeps a visible highlighter where its colour changed");
+      else assert.ok(yellow, "the yellow emphasis is there");
     });
   });
 }

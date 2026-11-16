@@ -2,6 +2,8 @@
 // and the server document run the SAME code. A leaf module: no Supabase client, no research system. Needs a DOM (the browser's, or one
 // the caller installs for the duration of a synchronous call). Three property writes became the equivalent attribute writes.
 
+import { annotateLegacyColors2029, legacyColorRules2029 } from "./postLegacyColor2029.js";
+
 export const clean = (value) => value == null ? "" : String(value).trim();
 
 // The plain text of stored HTML (the reading projection's excerpt fallback), moved unchanged out of post2029ReadingProjection.js (stripTags).
@@ -83,7 +85,7 @@ function scopeCssBlock(css, scope) {
     }
     const declarations = withoutNestedBlocks(body).trim();
     const selectors = postCssSelectors(prelude).map(selector => `${scope} ${selector.replace(/\s+/g, " ")}`);
-    if (selectors.length && declarations) out.push(`${selectors.join(",")} {${declarations}}`);
+    if (selectors.length && declarations) out.push(`${selectors.join(",")} {${declarations}}`, ...legacyColorRules2029(selectors, declarations));
   }
   return out;
 }
@@ -126,6 +128,8 @@ export function postReadingHtml2029(html) {
     const scoped = scopePostStyleText2029(style.textContent || "");
     if (scoped) { style.textContent = scoped; style.setAttribute("data-post-scoped-style", "true"); } else style.remove();
   }
+  // Authored colours readable in every theme, the source untouched (postLegacyColor2029.js).
+  annotateLegacyColors2029(template.content);
   for (const frame of template.content.querySelectorAll("iframe")) {
     // Attribute writes: what the browser's reflected properties write, so a server DOM produces the same markup.
     frame.setAttribute("loading", "lazy");
