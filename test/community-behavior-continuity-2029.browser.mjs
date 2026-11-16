@@ -63,7 +63,7 @@ for (const width of [390, 1280]) for (const viewer of ['guest', 'member', 'admin
         if (staffMode === 'error') return {status: 503, body: {message: 'synthetic staff read unavailable'}};
         return {body: staffMode === 'empty' ? [] : [REVIEWED_EMILY_LINK.accountId, STAFF].map(user_id => ({user_id}))};
       }
-      if (path === '/rest/v1/rpc/community_feed_page') { feedReads++; return {body: rows}; }
+      if (path === '/rest/v1/rpc/community_feed_page' || path === '/rest/v1/rpc/community_feed_page_v2') { feedReads++; return {body: rows}; }
       if (path === '/rest/v1/rpc/community_thread_updates') {
         return {body: JSON.parse(body).p_cursors.map(cursor => ({root_id: cursor.root_id, new_count: 0, first_reply_id: null, first_path: null}))};
       }

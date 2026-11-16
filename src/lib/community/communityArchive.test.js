@@ -404,7 +404,7 @@ test("Esther26 is the public name for old and new posts under one reviewed owner
 const FEED_ROOT = id => ({ id, parent_id: null, author_name: "א", body: "שורש", origin: "community_2029", created_at: "2026-11-16T10:00:00Z", is_deleted: false, total_count: 2 });
 const feedClient = answer => {
   const calls = [];
-  return { calls, rpc(name, args) { return { select: async fields => { calls.push({ name, args, fields }); return answer(fields, calls.length); } }; },
+  return { calls, rpc(name, args) { return { select: async fields => { calls.push({ name, args, fields }); return answer(fields, calls.length, name); } }; },
     from() { throw new Error("the feed RPC answered; no table fallback"); } };
 };
 const ROOT_A = "00000000-0000-4000-8000-00000000a001", ROOT_B = "00000000-0000-4000-8000-00000000b002";
@@ -413,23 +413,24 @@ test("the feed page asks for reply_count and returns the counts with the rows", 
   const client = feedClient(() => ({ data: [{ ...FEED_ROOT(ROOT_A), reply_count: 3 }, { ...FEED_ROOT(ROOT_B), reply_count: "0" }], error: null, status: 200 }));
   const page = await fetchCommunityArchivePage({ client });
   assert.equal(client.calls.length, 1);
-  assert.equal(client.calls[0].name, "community_feed_page");
+  assert.equal(client.calls[0].name, "community_feed_page_v2");
   assert.ok(client.calls[0].fields.endsWith(",total_count,reply_count"), client.calls[0].fields);
   assert.deepEqual(page.replyCounts, { [ROOT_A]: 3, [ROOT_B]: 0 });
   assert.deepEqual(page.rows.map(row => row.id), [ROOT_A, ROOT_B]);
   assert.equal(page.count, 2);
 });
-for (const [label, refusal] of [["the database before its change (42703)", { error: { code: "42703", message: "column community_feed_page.reply_count does not exist" }, status: 400 }],
+for (const [label, refusal] of [["the wrapper is not there yet (PGRST202)", { error: { code: "PGRST202", message: "Could not find the function public.community_feed_page_v2" }, status: 404 }],
+  ["a column the database does not have (42703)", { error: { code: "42703", message: "column community_feed_page_v2.reply_count does not exist" }, status: 400 }],
   ["a worker that does not admit the selection (403)", { error: { error: "public_reading_denied" }, status: 403 }]]) {
   test(`the feed page falls back once to the same read without counts: ${label}`, async () => {
     resetCommunityFeedFieldsForTest();
-    const client = feedClient(fields => fields.includes("reply_count") ? { data: null, ...refusal } : { data: [FEED_ROOT(ROOT_A)], error: null, status: 200 });
+    const client = feedClient((fields, n, name) => name === "community_feed_page_v2" ? { data: null, ...refusal } : { data: [FEED_ROOT(ROOT_A)], error: null, status: 200 });
     const first = await fetchCommunityArchivePage({ client });
     assert.deepEqual(first.rows.map(row => row.id), [ROOT_A]);
     assert.equal(first.replyCounts, null, "counts stay unknown, as before");
-    assert.deepEqual(client.calls.map(call => call.fields.includes("reply_count")), [true, false]);
+    assert.deepEqual(client.calls.map(call => [call.name, call.fields.includes("reply_count")]), [["community_feed_page_v2", true], ["community_feed_page", false]]);
     await fetchCommunityArchivePage({ client, offset: 40 });
-    assert.deepEqual(client.calls.map(call => call.fields.includes("reply_count")), [true, false, false], "asked once per page session");
+    assert.deepEqual(client.calls.map(call => call.name), ["community_feed_page_v2", "community_feed_page", "community_feed_page"], "asked once per page session");
   });
 }
 test("any other feed failure is still a failure (no silent second read)", async () => {

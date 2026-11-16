@@ -64,21 +64,20 @@ async function readCommunityRpc(name, args, client = communityReadClient(), sign
   return data;
 }
 const knownCount = value => value != null && Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : null;
-// The feed page also carries each root's public reply count (ZURIEL 16.11.2026, Community layout shifts), so the replies control is
-// known at the first paint and a root without replies needs no preview read. Before the database carries the column (PostgREST 42703 /
-// 400) or where a worker does not admit the selection (403), the same page is read without it, once per page session; counts then stay
-// unknown until the thread reads its replies, as before.
+// The feed page with each root's public reply count (ZURIEL 16.11.2026, Community layout shifts): community_feed_page_v2 returns the same page
+// as community_feed_page plus reply_count, so the replies control is known at the first paint and a root without replies needs no preview read.
+// When the wrapper is not there (PGRST202 / 404) or a worker does not admit it (400 / 403), the same page is read from community_feed_page,
+// once per page session; counts then stay unknown until the thread reads its replies, as before.
 const COMMUNITY_FEED_RPC_FIELDS = COMMUNITY_RPC_FIELDS + ",reply_count";
 let feedReplyCountsRefused = false;
 async function readCommunityFeedRpc(args, client) {
   if (!feedReplyCountsRefused && typeof client?.rpc === "function") {
-    const { data, error, status } = await client.rpc("community_feed_page", args).select(COMMUNITY_FEED_RPC_FIELDS);
+    const { data, error, status } = await client.rpc("community_feed_page_v2", args).select(COMMUNITY_FEED_RPC_FIELDS);
     if (!error) {
       if (!Array.isArray(data)) throw new Error("invalid public community response");
       return data;
     }
-    if (error.code === "PGRST202" || error.code === "42883") return null;
-    if (!(error.code === "42703" || status === 400 || status === 403)) throw error;
+    if (!(["PGRST202", "42883", "42703"].includes(error.code) || [400, 403, 404].includes(status))) throw error;
     feedReplyCountsRefused = true;
   }
   return readCommunityRpc("community_feed_page", args, client);

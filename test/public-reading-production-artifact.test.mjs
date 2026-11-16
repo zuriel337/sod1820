@@ -288,18 +288,20 @@ test("emitted worker retains public calculator/STABLE GET/community projection r
   assert.ok(harness.calls.every(([request, options]) => request instanceof Request ? request.cache === "no-store" && request.credentials === "omit" : options.cache === "no-store"));
 });
 
-test("emitted worker admits the feed page's public reply count on the feed page only (ZURIEL 16.11.2026)", async () => {
-  const harness = workerHarness(), feed = "/rest/v1/rpc/community_feed_page?select=";
+test("emitted worker admits the feed page with reply counts (community_feed_page_v2) with exactly its fields, and nothing wider (ZURIEL 16.11.2026)", async () => {
+  const harness = workerHarness(), body = '{"p_offset":0,"p_limit":40,"p_sort":"newest"}';
   assert.equal(COMMUNITY_FEED_FIELDS, COMMUNITY_PUBLIC_FIELDS + ",reply_count");
-  assert.equal((await harness.request(feed + encodeURIComponent(COMMUNITY_FEED_FIELDS), { body: '{"p_offset":0,"p_limit":40,"p_sort":"newest"}' })).status, 200);
-  assert.equal(harness.calls.length, 1);
-  const before = harness.calls.length;
+  assert.equal((await harness.request("/rest/v1/rpc/community_feed_page_v2?select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS), { body })).status, 200);
+  assert.equal((await harness.request("/rest/v1/rpc/community_feed_page?select=" + encodeURIComponent(COMMUNITY_PUBLIC_FIELDS), { body })).status, 200, "the page it falls back to");
+  assert.equal(harness.calls.length, 2);
+  const before = harness.calls.length, v2 = "/rest/v1/rpc/community_feed_page_v2?select=";
   for (const path of [
-    feed + encodeURIComponent(COMMUNITY_FEED_FIELDS + ",contributor_user_id"), feed + encodeURIComponent("reply_count," + COMMUNITY_PUBLIC_FIELDS),
-    feed + encodeURIComponent(COMMUNITY_FEED_FIELDS) + "&select=" + encodeURIComponent(COMMUNITY_PUBLIC_FIELDS), feed + encodeURIComponent(COMMUNITY_FEED_FIELDS) + "&limit=1",
+    v2 + encodeURIComponent(COMMUNITY_PUBLIC_FIELDS), v2 + encodeURIComponent(COMMUNITY_FEED_FIELDS + ",contributor_user_id"), v2 + encodeURIComponent("reply_count," + COMMUNITY_PUBLIC_FIELDS),
+    v2 + encodeURIComponent(COMMUNITY_FEED_FIELDS) + "&select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS), v2 + encodeURIComponent(COMMUNITY_FEED_FIELDS) + "&limit=1", v2 + "*",
+    "/rest/v1/rpc/community_feed_page?select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS),
     "/rest/v1/rpc/community_message_context?select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS), "/rest/v1/rpc/community_search?select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS),
     "/rest/v1/rpc/community_replies_page?select=" + encodeURIComponent(COMMUNITY_FEED_FIELDS), "/rest/v1/rpc/community_reply_counts",
-  ]) assert.equal((await harness.request(path, { body: '{"p_offset":0,"p_limit":40,"p_sort":"newest"}' })).status, 403, path);
+  ]) assert.equal((await harness.request(path, { body })).status, 403, path);
   assert.equal(harness.calls.length, before, "nothing wider reaches the database");
 });
 

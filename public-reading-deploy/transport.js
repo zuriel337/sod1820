@@ -26,8 +26,8 @@ export const PUBLIC_READING_GET_RPCS = Object.freeze([
 ]);
 export const PUBLIC_READING_POLICY_ID = "public-reading-password-recovery-20261111";
 export const COMMUNITY_PUBLIC_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
-// The feed page also carries each root's public reply count (ZURIEL 16.11.2026, Community layout shifts): the database function counts
-// only public children of the public roots it returns, so this adds no new reach; only community_feed_page admits it.
+// The feed page with each root's public reply count (ZURIEL 16.11.2026, Community layout shifts): community_feed_page_v2 is an invoker wrapper
+// over community_feed_page and community_reply_counts, so it adds no new reach; it is admitted only with exactly these fields.
 export const COMMUNITY_FEED_FIELDS = COMMUNITY_PUBLIC_FIELDS + ",reply_count";
 
 // Kept as a function so Node VM tests execute precisely the emitted worker.
@@ -493,8 +493,8 @@ function installPublicReadingWorker(policy) {
           return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
         }
         const communitySelect = url.searchParams.get("select");
-        if (["community_feed_page", "community_message_context", "community_replies_page", "community_search"].includes(rpc)
-          && url.searchParams.size === 1 && (communitySelect === policy.communityFields || rpc === "community_feed_page" && communitySelect === policy.communityFeedFields)) {
+        if (["community_feed_page", "community_feed_page_v2", "community_message_context", "community_replies_page", "community_search"].includes(rpc)
+          && url.searchParams.size === 1 && (rpc === "community_feed_page_v2" ? communitySelect === policy.communityFeedFields : communitySelect === policy.communityFields)) {
           const body = await jsonBody(req);
           // Corpus-wide community search: read-only, exact body only. The database function owns visibility
           // (approved, not deleted, whole chain public); the worker bounds the query text and the page window.
