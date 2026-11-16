@@ -46,8 +46,9 @@ for (const width of [390, 1280]) {
       return page.evaluate(() => { const props = ["display", "position", "font-family", "font-size", "font-weight", "line-height", "color", "background-color", "margin-top", "margin-bottom", "padding-top", "padding-inline-start", "text-align", "width", "border-top-width"];
         return [...document.querySelectorAll("#sod29-ssr-article article *")].map(node => { const cs = getComputedStyle(node), r = node.getBoundingClientRect();
           return `${node.tagName}.${node.className}|${props.map(p => cs.getPropertyValue(p)).join("|")}|${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)},${Math.round(r.height)}`; }); }); };
+    // first-paint stylesheet alone (its class on <html>) vs the full stylesheets after the class is gone (the document's final state)
     const critical = await readout(out.html.replace(/<link data-sod-article-first-full [^>]*>/g, ""));
-    const full = await readout(out.html);
+    const full = await readout(out.html.replace(/<html class="sod-af-first"/, "<html"));
     const differ = critical.map((line, index) => line === full[index] ? null : { critical: line.slice(0, 260), full: (full[index] || "").slice(0, 260) }).filter(Boolean);
     const deepest = differ.filter(item => item.critical.split("|").slice(0, -1).join("|") !== item.full.split("|").slice(0, -1).join("|"));
     results.push({ id: row.id, width, elements: critical.length, differ: differ.length, styleDiffers: deepest.length, first: deepest[0] || differ[0] || null });

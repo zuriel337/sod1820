@@ -24,6 +24,14 @@ test("a selector may match when every compound may match the vocabulary", () => 
 test("rules keep their order, groups keep their rules, animations stay with the rules that use them", () => {
   const css = ".sod29-sidebar{a:1}p{b:2}@media (max-width:760px){.sod29-sidebar{c:3}h1{d:4}}@font-face{font-family:x}@keyframes spin{to{e:5}}@keyframes unused{to{f:6}}h1{animation:spin 1s}@supports (display:grid){.nope{g:7}}";
   const out = articleFirstCriticalCss([css], vocabulary);
-  assert.equal(out.css, "p{b:2}@media (max-width:760px){h1{d:4}}@font-face{font-family:x}h1{animation:spin 1s}@keyframes spin{to{e:5}}");
+  assert.equal(out.css, "html.sod-af-first p{b:2}@media (max-width:760px){html.sod-af-first h1{d:4}}@font-face{font-family:x}html.sod-af-first h1{animation:spin 1s}@keyframes spin{to{e:5}}");
   assert.equal(out.kept, 3); assert.equal(out.dropped, 3);
+});
+
+test("every first-paint rule applies under the temporary class, raised by exactly (0,1,1), so their own order holds", async () => {
+  const { articleFirstBoostSelector } = await import("../scripts/lib/article-first-critical-css.mjs");
+  assert.equal(articleFirstBoostSelector(".a p"), "html.sod-af-first .a p");
+  assert.equal(articleFirstBoostSelector("html[data-theme-2029=light] .x"), "html.sod-af-first:is(html)[data-theme-2029=light] .x");
+  assert.equal(articleFirstBoostSelector(":root"), ":root.sod-af-first:is(html)");
+  assert.equal(articleFirstBoostSelector("htmlx"), "html.sod-af-first htmlx");
 });

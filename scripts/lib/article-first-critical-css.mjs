@@ -151,10 +151,27 @@ function select(css, vocabulary, stats, keyframes) {
       out += `${prelude}{${body}}`;   // @font-face, @property, @counter-style, @page ...: kept
       continue;
     }
-    const keep = postCssSelectors(prelude).some(selector => selectorMayMatch(selector, vocabulary));
-    if (keep) { out += `${prelude}{${body}}`; stats.kept += 1; } else stats.dropped += 1;
+    const selectors = postCssSelectors(prelude);
+    const keep = selectors.some(selector => selectorMayMatch(selector, vocabulary));
+    if (keep) { out += `${selectors.map(articleFirstBoostSelector).join(",")}{${body}}`; stats.kept += 1; } else stats.dropped += 1;
   }
   return out;
+}
+
+// While the full stylesheets arrive, the parser applies them one by one, in order: with only the first of them applied, its rules would come after
+// the first-paint copies of the LATER files' rules and override them wherever a later file overrides an earlier one at equal specificity, a
+// state the page itself never shows (the browser acceptance holds the big stylesheets and checks that nothing changes meanwhile). So every
+// first-paint rule applies only under the document's temporary class, which also raises it above the same rule in a full stylesheet; the
+// handler puts the class on <html> and a script after the last full stylesheet removes it, once they have ALL arrived (an inline script runs
+// only after the stylesheets before it). Then the cascade is exactly the page's own. Without scripts the class stays: the first-paint rules
+// equal the full ones for everything they can match.
+export const ARTICLE_FIRST_CLASS = "sod-af-first";
+// Every selector is raised by exactly one class and one type, (0,1,1), so the first-paint rules keep their order among themselves.
+export function articleFirstBoostSelector(selector) {
+  const text = selector.trim();
+  if (/^html(?![-\w])/i.test(text)) return text.replace(/^html/i, `html.${ARTICLE_FIRST_CLASS}:is(html)`);
+  if (/^:root(?![-\w])/i.test(text)) return text.replace(/^:root/i, `:root.${ARTICLE_FIRST_CLASS}:is(html)`);
+  return `html.${ARTICLE_FIRST_CLASS} ${text}`;
 }
 
 // cssTexts: the stylesheets in the order the document loads them. → { css, kept, dropped }

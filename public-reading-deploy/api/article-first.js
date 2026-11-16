@@ -74,8 +74,11 @@ function articleFirstDocument(html, { path, search = "", status, post, proven = 
   // first-paint stylesheet takes their place, in the same order relative to the head's own inline styles. The reader's theme preset is set on
   // <html> first (the frame around the article follows it).
   const head = document.slice(0, headEnd).replace(/<link rel="stylesheet"(?: crossorigin)? href="\/assets\/[^"]+\.css">/g, "")
-    .replace(/<head(\s[^>]*)?>/i, match => `${match}${POST_ARTICLE_THEME_SCRIPT}`);
-  const full = links.map(link => link.replace(/^<link /, "<link data-sod-article-first-full ")).join("");
+    .replace(/<head(\s[^>]*)?>/i, match => `${match}${POST_ARTICLE_THEME_SCRIPT}`)
+    // the first-paint rules apply under this class until every full stylesheet has arrived (scripts/lib/article-first-critical-css.mjs)
+    .replace(/<html(\s[^>]*)?>/i, match => /\sclass="/i.test(match) ? match.replace(/\sclass="/i, ' class="sod-af-first ') : match.replace(/^<html/i, '<html class="sod-af-first"'));
+  const full = links.map(link => link.replace(/^<link /, "<link data-sod-article-first-full ")).join("")
+    + '<script data-sod-article-first-done>document.documentElement.classList.remove("sod-af-first")</script>';
   document = `${head}${critical}${document.slice(headEnd, document.search(/<\/body>/i))}${POST_ARTICLE_DOCUMENT_STYLE}${article}${full}${document.slice(document.search(/<\/body>/i))}`;
   return { html: document, state: "served" };
 }

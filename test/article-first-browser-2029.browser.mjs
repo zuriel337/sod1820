@@ -38,7 +38,7 @@ const sleep = ms => new Promise(done => setTimeout(done, ms));
 const FACES = () => Promise.all(["400 16px 'Noto Sans Hebrew'", "700 16px 'Noto Sans Hebrew'", "400 16px Rubik", "700 16px Rubik"].map(font => document.fonts.load(font, "שלום 1820 Ab")));
 
 await loadArticleFirstRenderer();
-async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW, holdCss = null } = {}, run) {
+async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW, holdCss = null, holdCssLate = null } = {}, run) {
   const proven = { [String(row.id)]: postArticleProofKey2029(row) };
   const fixture = await startFixture({
     documentFor: ({ path, template }) => {
@@ -66,7 +66,10 @@ async function withPage(profile, { holdPostChunk = null, holdRead = null, initSc
     });
     const page = await context.newPage();
     // held in the browser before the request is sent (a request held by the server would occupy one of the browser's connections)
-    if (holdCss) await page.route(/\/assets\/[^/?]+\.css(?:\?|$)/, async route => { await holdCss; await route.continue(); });
+    // the System Frame's and the Post page's big stylesheets can be held longer than the others (holdCssLate): the parser applies the full
+    // stylesheets one by one, so the document passes through states with only the first of them applied
+    if (holdCss) await page.route(/\/assets\/[^/?]+\.css(?:\?|$)/, async route => {
+      await (holdCssLate && /\/assets\/(?:Sod2029Shell|postReadingStyles2029)-/.test(route.request().url()) ? holdCssLate : holdCss); await route.continue(); });
     const errors = []; page.on("pageerror", error => errors.push(String(error.message)));
     await run({ page, fixture, errors });
     await context.close();
@@ -199,9 +202,11 @@ const CHROME = () => {
 for (const [profile, theme] of [["phone", "dark"], ["desktop", "dark"], ["phone", "light"], ["desktop", "parchment"]]) {
   test(`[${profile} · ${theme}] before the application runs, the article has the page's geometry, fonts, colours and header`, { timeout: 180000 }, async () => {
     let release; const hold = new Promise(done => { release = done; });
+    let releaseEarly; const holdEarly = new Promise(done => { releaseEarly = done; });
     const initScript = `try{localStorage.setItem("sod2029:theme-preset","${theme}");localStorage.setItem("sod2029:theme-preset-seeded","1")}catch(e){}`;
-    // the full stylesheets are held too: "before" is the article on the first-paint stylesheet alone, as a slow connection first shows it
-    await withPage(profile, { holdPostChunk: hold, holdCss: hold, initScript }, async ({ page, errors }) => {
+    // the full stylesheets are held too: "before" is the article on the first-paint stylesheet alone, as a slow connection first shows it; then
+    // the small ones arrive while the System Frame's and the page's are still on their way (a state the page itself never shows)
+    await withPage(profile, { holdPostChunk: hold, holdCss: holdEarly, holdCssLate: hold, initScript }, async ({ page, errors }) => {
       await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "commit" });
       await page.waitForFunction(() => document.readyState !== "loading" || document.querySelector("#sod29-ssr-article .sod29-reading-source p:last-of-type"), null, { timeout: 20000 });
       assert.equal(await page.evaluate(() => [...document.styleSheets].some(sheet => /\/assets\/Sod2029Shell-/.test(sheet.href || ""))), false, "the full stylesheets are still on their way");
@@ -213,11 +218,18 @@ for (const [profile, theme] of [["phone", "dark"], ["desktop", "dark"], ["phone"
       const before = await page.evaluate(SNAPSHOT), chromeBefore = await page.evaluate(CHROME);
       const appBefore = await page.evaluate(() => Boolean(document.querySelector(".sod29-root:not(#sod29-ssr-article)")));
       assert.equal(appBefore, false, "the application waits for its stylesheets");
+      releaseEarly();
+      await page.waitForFunction(() => [...document.styleSheets].some(sheet => /\/assets\/2029-[^/]+\.css$/.test(sheet.href || "")), null, { timeout: 15000 });
+      await sleep(300);
+      const partial = await page.evaluate(SNAPSHOT);
+      assert.deepEqual(partial, before, "nothing changes while only some of the full stylesheets have arrived");
+      assert.equal(await page.evaluate(() => document.documentElement.classList.contains("sod-af-first")), true, "the first-paint rules still lead");
       release();
       const result = await adopted(page);
       assert.equal(result.result, "adopted", JSON.stringify(result));
       await sleep(600);
       const after = await page.evaluate(SNAPSHOT), chromeAfter = await page.evaluate(CHROME);
+      assert.equal(await page.evaluate(() => document.documentElement.classList.contains("sod-af-first")), false, "after every full stylesheet, the page's own cascade alone");
       const root = await page.evaluate(() => document.querySelector(".sod29-root").getAttribute("style"));
       const tokens = style => Object.fromEntries(String(style).split(";").map(part => part.trim()).filter(Boolean).map(part => [part.slice(0, part.indexOf(":")).trim(), part.slice(part.indexOf(":") + 1).trim().replace(/\s+/g, " ").replace(/["']/g, "").replace(/,\s*/g, ",")]));   // a family list is serialized with either quote
       assert.deepEqual(tokens(frame.style), tokens(root), "the frame's token style is the System Frame's own");
