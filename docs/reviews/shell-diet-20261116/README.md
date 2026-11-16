@@ -25,7 +25,7 @@ Every 2029 page downloads the entry graph and the System Frame before its own co
 | frame CSS | 34,709 B | 34,709 B | 0 (the workspace stylesheet stays: the Raziel panel uses one class) |
 | font preloads in the document | 4 (67 KB brotli) | 2 (21 KB) | −46 KB competing with the entry in the first second |
 
-Lab timings: see `lab-results.md` (written when the interleaved series finishes).
+Lab timings (Slow 4G, 4× CPU, cold, 8 interleaved runs per post per arm, `lab-results.md`): with all three changes the post's text appears 236–356 ms earlier and the LCP 270–314 ms earlier on two old and two `/post/` posts, against `main` code; CLS stays 0 and Total Blocking Time does not change. The font change alone is small and not significant on every post.
 
 ## Tests (local; this branch has no PR, so no CI run exists for it)
 
