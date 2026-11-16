@@ -143,7 +143,7 @@ test("the Home reader reads reality-map deeper in the same single read, newest f
   const limits = Object.fromEntries(CONTENT_SERIES_2029.map((item, index) => [item.key, opsOf(fake.calls[index], "limit")[0][1]]));
   assert.deepEqual(limits, { "reality-map": 20, "mah-kore-habora": 1, "dimension-five": 1, "sod-hashmal": 1, "messages-from-righteous": 1 });
   const rm = fake.calls[CONTENT_SERIES_2029.findIndex(item => item.key === "reality-map")];
-  assert.ok(opsOf(rm, "or").some(op => op[1] === 'tags.cs.{"מפת המציאות"}'), "membership is the exact tag only");
+  assert.ok(opsOf(rm, "or").some(op => op[1] === 'tags.cs.{"מפת המציאות"}'), "membership is the exact tag only (post 5107 carries the tag; no id admission)");
   assert.ok(opsOf(rm, "eq").some(op => op[1] === "home_hidden" && op[2] === false), "the current Home hiding rule is kept");
   assert.deepEqual(opsOf(rm, "order").map(op => [op[1], op[2]?.ascending]), [["date", false], ["id", true]], "newest first by the publication date");
   assert.equal(opsOf(rm, "eq").some(op => op[1] === "author"), false, "no author admission");

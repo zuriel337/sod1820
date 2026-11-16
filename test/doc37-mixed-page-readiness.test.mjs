@@ -21,6 +21,10 @@ await build({ stdin: { contents: `
   import {PUBLIC_READING_RELEASE} from './src/lib/publicReadingRelease2029.js';
   import {postsTaxonomyPage2029} from './src/lib/research/postsTaxonomy2029Route.js';
   import * as viewport2029 from './src/lib/research/postsCatalogViewport2029.js';
+  import {postsMediaScope2029,postsMediaHref,VIDEO_PAGE_SIZE} from './src/lib/research/postsVideoLibrary2029.js';
+  const fetchPostsWithVideoPage2029=()=>{throw Error('unexpected media-library read')};
+  const fetchVideoLibraryPage2029=()=>{throw Error('unexpected media-library read')};
+  const fetchVideoPublicIds2029=async()=>new Map();
   const useLocation=()=>globalThis.__mixedPage.location;
   const useNavigationType=()=>globalThis.__mixedPage.navigationType;
   const useSearchParams=()=>[new URLSearchParams(globalThis.__mixedPage.location.search),()=>{}];

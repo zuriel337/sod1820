@@ -16,7 +16,7 @@ const cacheOf = rule => rule.headers.find(header => header.key.toLowerCase() ===
 const lastIndexOf = source => rules.findLastIndex(rule => rule.source === source);
 const catchAll = lastIndexOf('/(.*)');
 const backgrounds = [...new Set(Object.values(POST_BACKGROUND_ASSETS_2029).flatMap(item => [item.mobile, item.preview, item.desktop]))];
-const FONTS = ['NotoSansHebrew-Regular.ttf', 'NotoSansHebrew-Bold.ttf', 'Rubik-Hebrew.woff2', 'Rubik-Latin.woff2'];
+const FONTS = ['NotoSansHebrew-Regular.ttf', 'NotoSansHebrew-Bold.ttf', 'NotoSansHebrew-Regular.woff2', 'NotoSansHebrew-Bold.woff2', 'Rubik-Hebrew-Common.woff2', 'Rubik-Latin.woff2'];
 const BRAND = ['app-icon-3f8a2a2fdc0a.png', 'apple-touch-icon-180-3f8a2a2fdc0a.png', 'canonical-lockup-128.webp', 'canonical-lockup-384.webp', 'favicon-3f8a2a2fdc0a.ico', 'icon-48-3f8a2a2fdc0a.png'];
 const fontsSource = `/fonts/(${FONTS.join('|')})`, brandSource = `/brand/2029/(${BRAND.join('|')})`;
 

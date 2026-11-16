@@ -5,7 +5,8 @@ import { buildContentSeriesCatalog2029 } from "../src/lib/research/contentSeries
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
 import { seriesCatalogToSystemItems } from "../src/lib/research/systemFeedPublicSources2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
-import { nowModels, nowSeriesHref } from "../src/lib/nowPublications2029.js";
+import { readFileSync } from "node:fs";
+import { nowModels, nowSeriesHref, seriesLatestSeenKey } from "../src/lib/nowPublications2029.js";
 import { isHomeDocumentationPost, isHomeStandalonePost } from "../src/lib/research/homeLaunchPosts2029.js";
 
 // Projection of reality-map Posts into the unified "עכשיו" stream, through the EXISTING mechanism (the shared stream's Post
@@ -15,9 +16,9 @@ const post = (id, fields = {}) => ({ id, slug: `p-${id}`, title: `פוסט ${id}
 const stream = rows => rows.map(row => postRowToWorldUpdate(row)).filter(Boolean);
 const catalogItems = rows => seriesCatalogToSystemItems(buildContentSeriesCatalog2029(CONTENT_SERIES_2029.map(spec => ({ key: spec.key, rows, total: rows.length })), { homeOnly: true }));
 // The same composition useSystemFeed2029 performs: shared stream first, then the series catalog.
-const nowFor = (streamRows, catalogRows = streamRows) => {
+const nowFor = (streamRows, catalogRows = streamRows, now = undefined, seen = undefined) => {
   const items = mergeSystemFeedItems(stream(streamRows), catalogItems(catalogRows));
-  return { items, models: nowModels(feedRows(items, { limit: 160, caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10 } })) };
+  return { items, models: nowModels(feedRows(items, { limit: 160, caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10 } }), now, seen) };
 };
 
 test("a Post with the exact tag is recognised as מפת המציאות in Now, with its series link, and joins no other Now lens", () => {
@@ -73,7 +74,8 @@ test("removing the tag removes the affiliation in Now without removing the Post"
 test("Now order follows the stream's own rules (newest first), not the reality-map list order", () => {
   const rows = [post(20, { tags: ["מפת המציאות"], date: "2026-10-01T10:00:00Z" }), post(21, { date: "2026-11-03T10:00:00Z" }),
     post(22, { tags: ["מפת המציאות"], date: "2026-10-20T10:00:00Z" }), post(23, { date: "2026-10-10T10:00:00Z" })];
-  assert.deepEqual(nowFor(rows).models.map(model => model.id), ["post:21", "post:22", "post:23", "post:20"]);
+  // ZURIEL 16.11.2026: only the NEWEST reality-map publication (post:22) leads; every other row keeps the stream's own time order
+  assert.deepEqual(nowFor(rows).models.map(model => model.id), ["post:22", "post:21", "post:23", "post:20"]);
 });
 
 test("reality-map Posts stay out of the documentation pool and of the standalone area, so no Home source repeats them", () => {
@@ -87,4 +89,85 @@ test("reality-map Posts stay out of the documentation pool and of the standalone
   const strong = post(32, { categories: ["תיעוד אירועים", "רמזים חזקים"] });
   assert.equal(contentSeriesKeysForPost(strong).includes("reality-map"), false);
   assert.equal(isHomeDocumentationPost(strong), true);
+});
+
+test("the newest reality-map publication leads the stream with a blinking-dot marker and yields to a newer one; ordinary rows keep their time order", () => {
+  const older = post(21, { tags: ["מפת המציאות"], title: "ישן", modified: "2026-11-01T10:00:00Z", date: "2026-11-01T10:00:00Z", created_at: "2026-11-01T10:00:00Z" });
+  const newest = post(22, { tags: ["מפת המציאות"], title: "אחרון", modified: "2026-11-03T10:00:00Z", date: "2026-11-03T10:00:00Z", created_at: "2026-11-03T10:00:00Z" });
+  const plainNewer = post(23, { title: "רגיל חדש", modified: "2026-11-05T10:00:00Z", date: "2026-11-05T10:00:00Z", created_at: "2026-11-05T10:00:00Z" });
+  const { models } = nowFor([older, newest, plainNewer]);
+  assert.equal(models[0].title, "אחרון", "the newest reality-map publication leads, even above a newer ordinary post");
+  assert.equal(models[0].seriesLatest, true);
+  assert.equal(models.filter(model => model.seriesLatest).length, 1, "exactly one marked");
+  assert.equal(models.find(model => model.title === "ישן").seriesLatest, undefined);
+  assert.deepEqual(models.slice(1).map(model => model.title), ["רגיל חדש", "ישן"]);
+  // a newer one replaces it
+  const newer = post(24, { tags: ["מפת המציאות"], title: "חדש יותר", modified: "2026-11-06T10:00:00Z", date: "2026-11-06T10:00:00Z", created_at: "2026-11-06T10:00:00Z" });
+  const next = nowFor([older, newest, plainNewer, newer]).models;
+  assert.equal(next[0].title, "חדש יותר");
+  assert.equal(next.find(model => model.title === "אחרון").seriesLatest, undefined);
+  // none in the series: no marker
+  assert.equal(nowFor([plainNewer]).models.some(model => model.seriesLatest), false);
+});
+
+test("the latest reality-map dot blinks until THIS viewer enters the update, then stays as a still latest-update mark; a newer one replaces it", () => {
+  const at = "2026-11-16T13:00:00Z";
+  const unit = post(31, { tags: ["מפת המציאות"], title: "עדכון", modified: at, date: at, created_at: at });
+  const model = seen => nowFor([unit], [unit], Date.parse(at) + 3600000, seen).models.find(m => m.title === "עדכון");
+  assert.equal(model({}).seriesLatestBlinking, true, "blinks while the viewer has not entered it");
+  assert.equal(model({ [seriesLatestSeenKey("post:31")]: Date.now() }).seriesLatestBlinking, false, "stops once entered");
+  assert.equal(model({ [seriesLatestSeenKey("post:31")]: Date.now() }).seriesLatest, true, "and stays marked as the latest update");
+  assert.equal(nowFor([unit], [unit], Date.parse(at) + 30 * 24 * 3600000, {}).models.find(m => m.title === "עדכון").seriesLatestBlinking, true, "no clock ends it for a viewer who has not entered");
+  const css = readFileSync(new URL("../src/components/experience2029/seriesLatestMark2029.css", import.meta.url), "utf8");
+  assert.match(css, /\.sod29-nowpub-blink\.is-blinking\s*\{[^}]*animation:/, "the animation exists only on the blinking state");
+  assert.doesNotMatch(css, /\.sod29-nowpub-blink\s*\{[^}]*animation:(?!\s*none)/, "the base mark itself never animates");
+  assert.match(css, /prefers-reduced-motion[^}]*\.sod29-nowpub-blink[^}]*animation:\s*none/);
+});
+
+test("a newer registered unit of the same Post makes the dot blink again for a viewer who entered the previous one", () => {
+  assert.notEqual(seriesLatestSeenKey("post:5107"), "series-latest:post:5107:0", "5107 has a registered unit, so its key carries that update's time");
+  assert.equal(seriesLatestSeenKey("post:31"), "series-latest:post:31:0", "a post with no registered unit keeps a stable key");
+});
+
+test("post 5107 (carrying the exact tag) leads the series in 'עכשיו' and blinks until entered; a newer series post never takes over from it by an old date", () => {
+  const unitAt = Date.parse("2026-11-16T13:02:30.887336Z");
+  const first = post(5107, { title: "הבחירות לכנסת ה־26", tags: ["מפת המציאות"], categories: ["רמזי הגאולה", "בחירות"], date: "2026-09-30T08:55:06Z", created_at: "2026-09-14T07:38:50Z", modified: "2026-11-10T16:56:00Z" });
+  const old = post(5084, { title: "ברכת כהנים", tags: ["מפת המציאות"], date: "2026-08-26T23:35:18Z", created_at: "2026-08-26T23:35:18Z", modified: "2026-08-27T15:33:13Z" });
+  const unseen = nowFor([first, old], [], unitAt + 3600000, {}).models;
+  assert.equal(unseen[0].postTitle, "הבחירות לכנסת ה־26", "5107 is the newest reality-map publication and leads, not the August post");
+  assert.equal(unseen[0].seriesKey, "reality-map");
+  assert.equal(unseen[0].seriesLatestBlinking, true);
+  // the row is shown AS the update: its name, its time, a link straight to the unit, and the post title as the context line (the same model feeds "עכשיו" and the Home strip)
+  assert.equal(unseen[0].title, "ימין ושמאול תפרצי מדהים!!! רמזים חזקים ביותר");
+  assert.equal(unseen[0].postTitle, "הבחירות לכנסת ה־26");
+  assert.equal(unseen[0].excerpt, "ימין ושמאול תפרצי (מילוי) = 2026 · תפרצי בתשפז (ריבוע) = 5787. ✦ אנחנו רואים שהשנה הזאת בסימן של פריצה של השמאל ✦", "the update's own words (today's update), not the Post's older headline");
+  assert.equal(unseen[0].fullText, unseen[0].excerpt);
+  assert.equal(unseen[0].logo?.label, "כי לה׳ המלוכה", "an update of the reality-map series carries our logo");
+  assert.equal(unseen[0].at, "2026-11-16T13:02:30.887336Z");
+  assert.match(unseen[0].href, /#yamin-smol-2026-5787-1237-1158$/);
+  assert.equal(unseen.find(model => model.title === "ברכת כהנים").title, "ברכת כהנים", "other rows keep their own title");
+  assert.equal(unseen.find(model => model.title === "ברכת כהנים").logo?.label, "כי לה׳ המלוכה", "every post of our series carries our logo");
+  assert.equal(unseen.find(model => model.title === "ברכת כהנים").seriesLatest, undefined, "only one latest");
+  const entered = nowFor([first, old], [], unitAt + 40 * 3600000, { [seriesLatestSeenKey("post:5107")]: 1 }).models;
+  assert.equal(entered[0].postTitle, "הבחירות לכנסת ה־26");
+  assert.equal(entered[0].seriesLatest, true);
+  assert.equal(entered[0].seriesLatestBlinking, false, "once entered it stays marked but does not blink");
+  // a post that is neither tagged nor admitted is not pulled in by its categories
+  const other = post(9999, { title: "אחר", tags: [], categories: ["רמזי הגאולה", "בחירות"], date: "2026-11-16T10:00:00Z", modified: "2026-11-16T10:00:00Z", created_at: "2026-11-16T10:00:00Z" });
+  assert.equal(nowFor([other], [], unitAt).models[0].seriesKey, null);
+});
+
+test("post 5107 is the first post of the series by the exact tag it carries; no id admission and no category inference remain", () => {
+  const spec = CONTENT_SERIES_2029.find(item => item.key === "reality-map");
+  assert.equal(spec.admission, undefined, "no id admission: membership is the tag only");
+  assert.ok(contentSeriesKeysForPost({ id: 5107, tags: ["מפת המציאות"], categories: ["רמזי הגאולה", "בחירות"] }).includes("reality-map"));
+  assert.equal(contentSeriesKeysForPost({ id: 5107, tags: [], categories: ["רמזי הגאולה", "בחירות", "רמזים חזקים"] }).includes("reality-map"), false, "the id alone and the categories never admit");
+});
+
+test("our logo marks OUR material only: the reality-map series and the reality stream carry it; a third-party series and an ordinary named writer do not", () => {
+  const ours = post(41, { tags: ["מפת המציאות"], title: "שלנו" });
+  const thirdParty = post(42, { tags: [], categories: ["מימד חמש"], author: "בדרך לנצח", title: "צד שלישי" });
+  const byTitle = title => nowFor([ours, thirdParty], [ours, thirdParty], Date.parse("2026-11-16T15:00:00Z"), {}).models.find(model => model.title === title);
+  assert.equal(byTitle("שלנו").logo?.label, "כי לה׳ המלוכה");
+  assert.equal(byTitle("צד שלישי")?.logo ?? null, null);
 });

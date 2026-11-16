@@ -58,7 +58,7 @@ export function buildRazielSurfaceContext(context) {
     if (Object.keys(r).length) nav.returnTo = r;
   }
   if (Object.keys(nav).length) out.navigation = nav;
-  const sections = Array.isArray(dims.surfaceSections) ? dims.surfaceSections.map((s) => cap(s?.label, 40)).filter(Boolean).slice(0, 6) : [];
+  const sections = Array.isArray(dims.surfaceSections) ? dims.surfaceSections.filter((s) => s?.level !== 2).map((s) => cap(s?.label, 40)).filter(Boolean).slice(0, 6) : [];
   if (sections.length) out.sections = sections;
   const findings = Array.isArray(dims.surfaceFindings) ? dims.surfaceFindings.map((s) => cap(s?.label, 50)).filter(Boolean).slice(0, 4) : [];
   if (findings.length) out.findings = findings;

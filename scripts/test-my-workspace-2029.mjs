@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 // The personal area is the frame's projection (SystemFrame2029) over the pure card model and the Royal presentation (PersonalHome2029).
-const frame = ["src/components/experience2029/SystemFrame2029.jsx", "src/components/experience2029/PersonalHome2029.jsx", "src/lib/userCenter/personalArea2029.js"]
+const frame = ["src/components/experience2029/SystemFrame2029.jsx", "src/components/experience2029/WorkspaceProjection2029.jsx", "src/components/experience2029/PersonalHome2029.jsx", "src/lib/userCenter/personalArea2029.js"]
   .map(file => fs.readFileSync(file, "utf8")).join("\n");
 const css = fs.readFileSync("src/components/experience2029/myWorkspace2029.css", "utf8");
 

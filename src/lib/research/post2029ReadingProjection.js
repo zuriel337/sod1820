@@ -17,85 +17,10 @@ export function isPostEnglishExpression(expression) {
     && /^[A-Za-z\s'’.-]+$/.test(String(expression || ""));
 }
 
-const clean = (value) => value == null ? "" : String(value).trim();
+import { clean, postCssSelectors, postReadingHtml2029, markLegacyEqualityLines, postPlainText2029 as stripTags } from "./postArticleCore2029.js";
+import { GOLDEN_SLUG, FZ1073_SLUG, BENNETT_SALT_SLUG, ELECTIONS_SLUG } from "./postSpecialReadings2029.js";
+export { postReadingHtml2029 };
 
-function postCssSelectors(selector) {
-  const selectors = []; let start = 0, depth = 0, quote = null, escaped = false;
-  for (let index = 0; index < selector.length; index += 1) {
-    const char = selector[index];
-    if (escaped) { escaped = false; continue; }
-    if (char === "\\") { escaped = true; continue; }
-    if (quote) { if (char === quote) quote = null; continue; }
-    if (char === '"' || char === "'") { quote = char; continue; }
-    if (char === "(" || char === "[") depth += 1;
-    if (char === ")" || char === "]") depth -= 1;
-    if (char === "," && !depth) { selectors.push(selector.slice(start, index)); start = index + 1; }
-  }
-  selectors.push(selector.slice(start));
-  return selectors.map(value => value.trim()).filter(Boolean);
-}
-
-// Presentation containment over the authored source, not an HTML sanitizer or
-// a source rewrite. Legacy plugin resources never become 2029 global styles.
-export function postReadingHtml2029(html) {
-  if (!globalThis.document?.createElement) return String(html || "");
-  const template = document.createElement("template"); template.innerHTML = String(html || "");
-  for (const iframe of template.content.querySelectorAll("iframe[src]")) {
-    try { const u=new URL(iframe.getAttribute("src"),"https://sod1820.co.il");
-      if(["sod1820.co.il","www.sod1820.co.il","sod1820.vercel.app"].includes(u.hostname) && /^\/[^/]+\/embed\/?$/.test(u.pathname)) {
-        const link=document.createElement("a");link.href=u.pathname.replace(/\/embed\/?$/,"/")+u.search+u.hash;
-        link.textContent=iframe.getAttribute("title")||"לקריאת הפוסט המקושר במלואו ←";iframe.replaceWith(link);
-      }
-    } catch { /* malformed embeds do not supply identity */ }
-  }
-  for (const dependency of template.content.querySelectorAll('script,link[rel~="stylesheet"],link[rel="preload"][as="style"]')) dependency.remove();
-  for (const icon of template.content.querySelectorAll('img[src*="/wp-content/plugins/gallery-images/"]')) {
-    // WordPress plugin arrows/spinners are UI assets, not the authored gallery
-    // images. Keep the raw source witness and all actual media URLs unchanged.
-    const loader = icon.closest(".loading");
-    if (loader && !clean(loader.textContent) && loader.querySelectorAll("img").length === 1) loader.remove();
-    else icon.remove();
-  }
-  const scopedRules = rules => [...rules].flatMap(rule => {
-    if (rule.type === 1 && rule.selectorText) {
-      const selectors = postCssSelectors(rule.selectorText).map(selector => `.sod29-reading-source ${selector}`);
-      return [`${selectors.join(",")} {${rule.style.cssText}}`];
-    }
-    if ((rule.type === 4 || rule.type === 12) && rule.cssRules) {
-      const body = scopedRules(rule.cssRules).join("\n");
-      return body ? [`${rule.cssText.slice(0, rule.cssText.indexOf("{"))}{${body}}`] : [];
-    }
-    // Imports, font faces and animations belong to the existing 2029 owners.
-    return [];
-  });
-  for (const style of template.content.querySelectorAll("style")) {
-    try {
-      const sheet = new CSSStyleSheet(); sheet.replaceSync(style.textContent || "");
-      style.textContent = scopedRules(sheet.cssRules).join("\n");
-      style.dataset.postScopedStyle = "true";
-    } catch { style.remove(); }
-  }
-  for (const frame of template.content.querySelectorAll("iframe")) {
-    frame.loading = "lazy";
-    if (!clean(frame.title)) frame.title = "מדיה מוטמעת מתוך הפוסט";
-  }
-  return template.innerHTML;
-}
-
-// Some WordPress Posts authored equalities as plain text with a colored value,
-// before data-gem existed. Decorate only complete, explicit equality lines.
-// Preserve their wording, colors and media; no association is engine-verified
-// here. Each operand opens its own canonical Number calculation.
-function markLegacyEqualityLines(content = "") {
-  const operand = (text, numeric = false) => `<button type="button" class="${numeric ? "sod29-gematria-value" : "sod29-gematria-expression"}" data-post-equality-operand="true" data-gem="${text.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">${text.trim()}</button>`;
-  const hebrew = '[א-ת][א-ת\\u0591-\\u05C7 ״׳"\\x27-]{0,70}';
-  const forward = new RegExp('(^|>|\\n)(' + hebrew + ')\\s*=\\s*(<span\\b[^>]*>)?(\\d{1,9})(<\\/span>)?(?:\\s*=\\s*(' + hebrew + '))?(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
-  const reverse = new RegExp('(^|>|\\n)(\\d{1,9})\\s*=\\s*(' + hebrew + ')(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
-  return String(content).split(/(<(?:a|button|script|style|pre|code)\b[^>]*>[\s\S]*?<\/(?:a|button|script|style|pre|code)>)/gi).map((part, index) => index % 2 ? part : part
-    .replace(forward, (match, start, phrase, span, number, endSpan, other) => `${start}${operand(phrase)} = ${span || ""}${operand(number, true)}${endSpan || ""}${other ? ` = ${operand(other)}` : ""}`)
-    .replace(reverse, (match, start, number, phrase) => `${start}${operand(number, true)} = ${operand(phrase)}`)).join("");
-}
-const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
 const BENNETT_CONTEXTUAL_NUMBER_FOCUS = Object.freeze({
   expression: "נפתלי בנט",
   methodKey: "רגיל",
@@ -103,9 +28,7 @@ const BENNETT_CONTEXTUAL_NUMBER_FOCUS = Object.freeze({
   regionId: "bennett-631",
 });
 
-const FZ1073_SLUG = "flydubai-fz1073-363-14000-remzei-geula";
 const FZ1073_TOPIC_363_SLUG = "gapfill-363";
-const BENNETT_SALT_SLUG = "bennett-melach-631-78";
 
 // Golden calibration only. This is contextual presentation over the existing Post identity,
 // not a second source/knowledge store. Future intake may project equivalent reading-focus
@@ -591,7 +514,6 @@ function buildBennettSaltExperience(post) {
 // Presentation over the existing Post identity. The source HTML is preserved; we only
 // (a) tag the big-number paragraphs as reading regions, (b) turn engine-verified equalities
 // into Contextual Sidecar triggers, (c) add a link card exposing the 631 -> Bennett relation.
-const ELECTIONS_SLUG = "sharshar-elections-redemption-hints-draft";
 const ELECTIONS_EQUALITIES = Object.freeze([
   { phrase: "הבחירות", value: 631, regionId: "elections-631" },
   { phrase: "מלך ישראל", value: 631, regionId: "elections-631" },
@@ -694,19 +616,6 @@ async function verifyElectionsEqualities() {
     return { phrase, value, verified: !error && Number(data) === value };
   }));
   return { verified: rows.every((row) => row.verified), method: "רגיל", rows };
-}
-
-function stripTags(html = "") {
-  return String(html)
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&#x27;/gi, "'")
-    .replace(/&amp;/gi, "&")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 async function verifyTashpaz() {

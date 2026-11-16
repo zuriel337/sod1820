@@ -1,0 +1,623 @@
+{
+ "entry": {
+  "files": 18,
+  "jsGzip": 225571,
+  "cssGzip": 1531,
+  "topModules": [
+   {
+    "m": "node_modules/react-dom/cjs/react-dom-client.production.js",
+    "raw": 202957,
+    "gz": 67613
+   },
+   {
+    "m": "node_modules/@supabase/auth-js/dist/module/GoTrueClient.js",
+    "raw": 62522,
+    "gz": 16993
+   },
+   {
+    "m": "src/lib/supabase.js",
+    "raw": 62073,
+    "gz": 16870
+   },
+   {
+    "m": "node_modules/react-router/dist/development/chunk-6KYCQHYJ.mjs",
+    "raw": 38732,
+    "gz": 13884
+   },
+   {
+    "m": "src/App2029.jsx",
+    "raw": 18649,
+    "gz": 6213
+   },
+   {
+    "m": "node_modules/@supabase/storage-js/dist/index.mjs",
+    "raw": 22731,
+    "gz": 6178
+   },
+   {
+    "m": "src/lib/research/ResearchProvider.jsx",
+    "raw": 15495,
+    "gz": 5162
+   },
+   {
+    "m": "src/lib/publicReadingRelease2029.js",
+    "raw": 11729,
+    "gz": 5144
+   },
+   {
+    "m": "node_modules/@supabase/postgrest-js/dist/index.mjs",
+    "raw": 16752,
+    "gz": 4553
+   },
+   {
+    "m": "node_modules/react/cjs/react.production.js",
+    "raw": 7763,
+    "gz": 3021
+   },
+   {
+    "m": "src/lib/research/researchSyncRuntime.js",
+    "raw": 8737,
+    "gz": 2911
+   },
+   {
+    "m": "node_modules/@supabase/supabase-js/dist/index.mjs",
+    "raw": 10630,
+    "gz": 2889
+   },
+   {
+    "m": "src/lib/publicReadingTelemetry2029.js",
+    "raw": 6220,
+    "gz": 2401
+   },
+   {
+    "m": "src/lib/research/RazielSessionProvider2029.jsx",
+    "raw": 6949,
+    "gz": 2315
+   },
+   {
+    "m": "../../../supabase/functions/_shared/siteLinkRegistry.js",
+    "raw": 6736,
+    "gz": 2244
+   },
+   {
+    "m": "src/lib/authDiagnostics.js",
+    "raw": 4707,
+    "gz": 2122
+   },
+   {
+    "m": "node_modules/@supabase/auth-js/dist/module/lib/webauthn.js",
+    "raw": 7797,
+    "gz": 2119
+   },
+   {
+    "m": "node_modules/@supabase/auth-js/dist/module/GoTrueAdminApi.js",
+    "raw": 7349,
+    "gz": 1997
+   },
+   {
+    "m": "src/lib/auth.js",
+    "raw": 4389,
+    "gz": 1978
+   },
+   {
+    "m": "node_modules/@supabase/auth-js/dist/module/lib/helpers.js",
+    "raw": 7107,
+    "gz": 1932
+   },
+   {
+    "m": "src/lib/research/researchPathRuntime.js",
+    "raw": 5794,
+    "gz": 1930
+   },
+   {
+    "m": "src/components/experience2029/razielSessionSeam2029.js",
+    "raw": 5776,
+    "gz": 1924
+   },
+   {
+    "m": "src/lib/realtimeLazy2029.js",
+    "raw": 6820,
+    "gz": 1854
+   },
+   {
+    "m": "src/lib/research/researchContext.js",
+    "raw": 5472,
+    "gz": 1823
+   },
+   {
+    "m": "src/lib/seo.js",
+    "raw": 6381,
+    "gz": 1734
+   },
+   {
+    "m": "src/lib/research/numberExpressionFocus.js",
+    "raw": 2669,
+    "gz": 1552
+   },
+   {
+    "m": "src/lib/paletteTokens2029.js",
+    "raw": 4631,
+    "gz": 1543
+   },
+   {
+    "m": "../../../supabase/functions/_shared/elsMatrixReadingAction.js",
+    "raw": 4435,
+    "gz": 1477
+   },
+   {
+    "m": "node_modules/iceberg-js/dist/index.mjs",
+    "raw": 5372,
+    "gz": 1460
+   },
+   {
+    "m": "src/lib/research/razielSession2029.js",
+    "raw": 4355,
+    "gz": 1451
+   },
+   {
+    "m": "src/lib/webVitals2029.js",
+    "raw": 4139,
+    "gz": 1379
+   },
+   {
+    "m": "src/lib/publicPostUrls.js",
+    "raw": 2761,
+    "gz": 1328
+   },
+   {
+    "m": "src/components/MaintenanceLock.jsx",
+    "raw": 3650,
+    "gz": 1216
+   },
+   {
+    "m": "node_modules/react-dom/cjs/react-dom.production.js",
+    "raw": 3553,
+    "gz": 1184
+   },
+   {
+    "m": "node_modules/scheduler/cjs/scheduler.production.js",
+    "raw": 3476,
+    "gz": 1158
+   },
+   {
+    "m": "src/lib/installOffer2029.js",
+    "raw": 3422,
+    "gz": 1140
+   },
+   {
+    "m": "node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js",
+    "raw": 4072,
+    "gz": 1107
+   },
+   {
+    "m": "src/lib/runtimeErrorCapture.js",
+    "raw": 2005,
+    "gz": 1103
+   },
+   {
+    "m": "src/lib/AuthContext.jsx",
+    "raw": 1650,
+    "gz": 1097
+   },
+   {
+    "m": "src/components/experience2029/Awakening2029.jsx",
+    "raw": 3287,
+    "gz": 1095
+   }
+  ]
+ },
+ "frame": {
+  "files": 7,
+  "jsGzip": 93330,
+  "cssGzip": 34152,
+  "topModules": [
+   {
+    "m": "src/components/experience2029/SystemFrame2029.jsx",
+    "raw": 89905,
+    "gz": 30881
+   },
+   {
+    "m": "src/components/experience2029/NavigationIcon2029.jsx",
+    "raw": 13540,
+    "gz": 5358
+   },
+   {
+    "m": "src/lib/experienceContext.js",
+    "raw": 10053,
+    "gz": 3453
+   },
+   {
+    "m": "src/components/experience2029/SurfaceContextRail2029.jsx",
+    "raw": 9983,
+    "gz": 3429
+   },
+   {
+    "m": "src/lib/entryLearn2029.js",
+    "raw": 8978,
+    "gz": 3084
+   },
+   {
+    "m": "src/lib/research/contentSeries2029Identity.js",
+    "raw": 5285,
+    "gz": 2466
+   },
+   {
+    "m": "src/lib/userCenter/personalArea2029.js",
+    "raw": 5240,
+    "gz": 1800
+   },
+   {
+    "m": "src/components/CanonicalProgress.jsx",
+    "raw": 5063,
+    "gz": 1739
+   },
+   {
+    "m": "src/components/ShareActions.jsx",
+    "raw": 4962,
+    "gz": 1704
+   },
+   {
+    "m": "src/lib/userCenter/writerPersonal2029.js",
+    "raw": 4802,
+    "gz": 1649
+   },
+   {
+    "m": "src/lib/notifications.js",
+    "raw": 4677,
+    "gz": 1606
+   },
+   {
+    "m": "src/lib/share.js",
+    "raw": 4649,
+    "gz": 1597
+   },
+   {
+    "m": "src/components/experience2029/Footer2029.jsx",
+    "raw": 4266,
+    "gz": 1465
+   },
+   {
+    "m": "src/lib/research/researchRepresentations.js",
+    "raw": 4150,
+    "gz": 1425
+   },
+   {
+    "m": "src/lib/research/timeline2029.js",
+    "raw": 2368,
+    "gz": 1338
+   },
+   {
+    "m": "src/lib/research/postSourceUpdates2029.js",
+    "raw": 3360,
+    "gz": 1330
+   },
+   {
+    "m": "src/components/experience2029/AccountLinkOffer2029.jsx",
+    "raw": 3846,
+    "gz": 1321
+   },
+   {
+    "m": "src/lib/research/videoSemanticMap.js",
+    "raw": 3813,
+    "gz": 1310
+   },
+   {
+    "m": "src/lib/research/elsRazielContext.js",
+    "raw": 3788,
+    "gz": 1301
+   },
+   {
+    "m": "src/components/experience2029/useSystemFeed2029.js",
+    "raw": 3787,
+    "gz": 1301
+   },
+   {
+    "m": "src/components/StayUpdatedCTA.jsx",
+    "raw": 3489,
+    "gz": 1198
+   },
+   {
+    "m": "src/lib/research/elsRazielMatrixContext.js",
+    "raw": 2273,
+    "gz": 1116
+   },
+   {
+    "m": "src/components/experience2029/useGuestNewsletterInvite2029.js",
+    "raw": 1889,
+    "gz": 1085
+   },
+   {
+    "m": "src/lib/systemFeed2029.js",
+    "raw": 3083,
+    "gz": 1059
+   },
+   {
+    "m": "src/lib/research/researchViewMode.js",
+    "raw": 1189,
+    "gz": 1032
+   },
+   {
+    "m": "src/components/experience2029/EventSequencePanel2029.jsx",
+    "raw": 2627,
+    "gz": 902
+   },
+   {
+    "m": "src/components/experience2029/ContextualVideoLayer2029.jsx",
+    "raw": 2450,
+    "gz": 842
+   },
+   {
+    "m": "src/lib/presentation/contentTitle.js",
+    "raw": 1482,
+    "gz": 838
+   },
+   {
+    "m": "src/lib/community/messageFormatting.js",
+    "raw": 2290,
+    "gz": 787
+   },
+   {
+    "m": "src/lib/research/razielWorkspaceProjection2029.js",
+    "raw": 2268,
+    "gz": 779
+   },
+   {
+    "m": "src/lib/userCenter/followCenter2029.js",
+    "raw": 2243,
+    "gz": 770
+   },
+   {
+    "m": "src/components/experience2029/LearnMark2029.jsx",
+    "raw": 2225,
+    "gz": 764
+   },
+   {
+    "m": "src/components/experience2029/GlobalLivingRibbon2029.jsx",
+    "raw": 2196,
+    "gz": 754
+   },
+   {
+    "m": "src/lib/mediaEgressGuard.js",
+    "raw": 2077,
+    "gz": 713
+   },
+   {
+    "m": "src/lib/research/contextualCapabilities.js",
+    "raw": 1981,
+    "gz": 680
+   },
+   {
+    "m": "src/lib/share/shareObject.js",
+    "raw": 1890,
+    "gz": 649
+   },
+   {
+    "m": "src/components/experience2029/contactSource2029.js",
+    "raw": 1886,
+    "gz": 648
+   },
+   {
+    "m": "src/lib/commandCenter.js",
+    "raw": 1764,
+    "gz": 606
+   },
+   {
+    "m": "src/lib/research/elsMatrixReadingActivity.js",
+    "raw": 1728,
+    "gz": 594
+   },
+   {
+    "m": "src/components/experience2029/SurfaceProgressSpine2029.jsx",
+    "raw": 1710,
+    "gz": 587
+   }
+  ]
+ },
+ "postPage": {
+  "files": 38,
+  "jsGzip": 134682,
+  "cssGzip": 17441,
+  "topModules": [
+   {
+    "m": "src/lib/research/post2029ReadingProjection.js",
+    "raw": 49394,
+    "gz": 19995
+   },
+   {
+    "m": "src/pages/Post2029Page.jsx",
+    "raw": 37897,
+    "gz": 13874
+   },
+   {
+    "m": "src/lib/research/topicSourceContext.js",
+    "raw": 23942,
+    "gz": 8327
+   },
+   {
+    "m": "src/lib/research/worldContextualProminence.js",
+    "raw": 14735,
+    "gz": 5183
+   },
+   {
+    "m": "src/components/Lightbox.jsx",
+    "raw": 9873,
+    "gz": 5035
+   },
+   {
+    "m": "src/lib/research/topicConvergence.js",
+    "raw": 15805,
+    "gz": 4977
+   },
+   {
+    "m": "src/lib/research/contentSeries2029Projection.js",
+    "raw": 9855,
+    "gz": 4669
+   },
+   {
+    "m": "src/lib/research/goldenProjectorModes.js",
+    "raw": 9881,
+    "gz": 4489
+   },
+   {
+    "m": "src/lib/research/postsCatalog2029Projection.js",
+    "raw": 10166,
+    "gz": 4485
+   },
+   {
+    "m": "src/lib/research/systemFeedPublicSources2029.js",
+    "raw": 7440,
+    "gz": 4032
+   },
+   {
+    "m": "src/lib/research/researchObjectPresentation.js",
+    "raw": 7333,
+    "gz": 3798
+   },
+   {
+    "m": "src/components/experience2029/PostConvergenceMeasures2029.jsx",
+    "raw": 10222,
+    "gz": 3742
+   },
+   {
+    "m": "src/components/WatchButton.jsx",
+    "raw": 8681,
+    "gz": 3446
+   },
+   {
+    "m": "src/lib/gematria.js",
+    "raw": 6267,
+    "gz": 3212
+   },
+   {
+    "m": "src/lib/research/worldGroupSource.js",
+    "raw": 5816,
+    "gz": 3146
+   },
+   {
+    "m": "src/lib/research/researchObjectFinding.js",
+    "raw": 8005,
+    "gz": 3022
+   },
+   {
+    "m": "src/lib/research/sourceBundleProjection.js",
+    "raw": 7077,
+    "gz": 2932
+   },
+   {
+    "m": "src/lib/presentation/canonicalPresentation.js",
+    "raw": 6704,
+    "gz": 2919
+   },
+   {
+    "m": "src/lib/research/galleryMediaEnvelope.js",
+    "raw": 7730,
+    "gz": 2688
+   },
+   {
+    "m": "src/components/EmailVerify.jsx",
+    "raw": 4207,
+    "gz": 2167
+   },
+   {
+    "m": "src/components/PostFollowBox.jsx",
+    "raw": 3615,
+    "gz": 1966
+   },
+   {
+    "m": "src/lib/research/universalFinding.js",
+    "raw": 4865,
+    "gz": 1907
+   },
+   {
+    "m": "src/lib/research/topicCanonicalSlugAliases.js",
+    "raw": 5911,
+    "gz": 1861
+   },
+   {
+    "m": "src/lib/research/researchFacetProjection.js",
+    "raw": 3740,
+    "gz": 1676
+   },
+   {
+    "m": "src/lib/research/post2029ExperienceProjection.js",
+    "raw": 3830,
+    "gz": 1657
+   },
+   {
+    "m": "src/lib/research/worldFindingShare.js",
+    "raw": 2667,
+    "gz": 1495
+   },
+   {
+    "m": "src/lib/research/postsTaxonomy2029Route.js",
+    "raw": 2568,
+    "gz": 1133
+   },
+   {
+    "m": "src/lib/avatar.js",
+    "raw": 1777,
+    "gz": 1019
+   },
+   {
+    "m": "src/components/experience2029/PostCategories2029.jsx",
+    "raw": 1397,
+    "gz": 978
+   },
+   {
+    "m": "src/components/userCenter/PersonalSaveButton2029.jsx",
+    "raw": 1119,
+    "gz": 967
+   },
+   {
+    "m": "src/pages/PublicPostAddress2029Page.jsx",
+    "raw": 1102,
+    "gz": 905
+   },
+   {
+    "m": "src/components/followCenter2029/WatchControl2029.jsx",
+    "raw": 2241,
+    "gz": 890
+   },
+   {
+    "m": "src/components/experience2029/Timeline2029.jsx",
+    "raw": 1969,
+    "gz": 884
+   },
+   {
+    "m": "src/lib/research/postBackground2029.js",
+    "raw": 1496,
+    "gz": 878
+   },
+   {
+    "m": "src/components/experience2029/PostEvidenceMedia2029.jsx",
+    "raw": 2319,
+    "gz": 849
+   },
+   {
+    "m": "src/pages/NotFound2029Page.jsx",
+    "raw": 856,
+    "gz": 767
+   },
+   {
+    "m": "src/lib/publicIdentity.js",
+    "raw": 1183,
+    "gz": 762
+   },
+   {
+    "m": "src/lib/authors.js",
+    "raw": 1111,
+    "gz": 604
+   },
+   {
+    "m": "src/components/experience2029/PostComments2029.jsx",
+    "raw": 1546,
+    "gz": 566
+   },
+   {
+    "m": "src/lib/research/contextDepthProjection2029.js",
+    "raw": 1530,
+    "gz": 560
+   }
+  ]
+ }
+}

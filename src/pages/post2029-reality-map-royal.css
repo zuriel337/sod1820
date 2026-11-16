@@ -1,0 +1,473 @@
+/* "מפת המציאות" — royal finish (ZURIEL 12.11.2026, design round 2). SCOPE: only a Post that carries data-reality-map (the flagship series, or the
+   preview acceptance exception) and the preview-only Companion. No other Post, page or surface changes.
+   NO new palette: every colour is a role of the canonical 2029 palette (--s29-*) reached through the shared Royal layer (royal2029.css, .r29):
+   gold ← brand-gold · sapphire ← brand-sapphire · violet depth ← accent-secondary · azure ← accent-text. Day / Parchment / Night come from the
+   frame itself (the .r29 intensity per preset). Gold and sapphire are decoration and hierarchy, never a rating, a verification or an importance. */
+
+/* Royal OUTER frame is warm (black-brown + gold); sapphire is the INNER content core (ZURIEL 13.11.2026): the Post hall floor is amber, the Companion keeps sapphire. */
+:is([data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map]{--rm-floor:var(--r29-amber)}
+.sod29-reading-post[data-reality-map]{--rm-floor:var(--r29-sapphire)}
+.sod29-reading-post[data-reality-map]{--rm-glow-a:var(--r29-violet-deep);--rm-glow-b:var(--r29-sapphire)}
+[data-theme-2029="dark"] .sod29-reading-post[data-reality-map]{--rm-floor:var(--r29-amber);--rm-glow-a:var(--r29-amber);--rm-glow-b:var(--r29-amber);--rm-glow-k:.3;--rm-gold-k:.35}
+/* Parchment is warm: its royal floor is bronze, not blue, so the page never reads grey. */
+.sod29-reading-post[data-reality-map]{
+  --rm-gold:var(--r29-gold);--rm-gold-ink:var(--r29-gold-ink);--rm-sapphire:var(--r29-sapphire);--rm-azure:var(--r29-azure);--rm-violet:var(--r29-violet-deep);
+  --sv-accent:var(--r29-gold);--sv-accent2:var(--r29-sapphire);
+  --rm-hall:
+    radial-gradient(90% 55% at 50% -10%,color-mix(in srgb,var(--r29-gold) calc(var(--r29-glow) * var(--rm-gold-k,1)),transparent),transparent 70%),
+    radial-gradient(70% 70% at 100% 8%,color-mix(in srgb,var(--rm-glow-a) calc(var(--r29-glow) * var(--rm-glow-k,1)),transparent),transparent 65%),
+    radial-gradient(80% 60% at 0% 112%,color-mix(in srgb,var(--rm-glow-b) calc(var(--r29-glow) * var(--rm-glow-k,1)),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+  --rm-frame:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),var(--s29-line));
+  --rm-double:0 0 0 0 transparent;
+  --rm-display:var(--s29-font-display,var(--s29-font-ui,inherit));
+}
+
+/* ───────────── Hero: a royal hall with a presence title ───────────── */
+.sod29-reading-post[data-reality-map] .sod29-reading-hero{
+  position:relative;isolation:isolate;border-radius:var(--r29-radius);padding:clamp(22px,3.4vw,40px) clamp(16px,3vw,44px);
+  border:var(--rm-frame);background:var(--rm-hall);box-shadow:var(--r29-shadow),var(--rm-double);
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-hero::before{
+  content:"";position:absolute;z-index:-1;inset-inline:16%;inset-block-start:-1px;block-size:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 92%,var(--r29-shine)),transparent);
+}
+.sod29-reading-post[data-reality-map]:not([data-post-character="plain"]) .sod29-reading-hero h1,
+.sod29-reading-post[data-reality-map] .sod29-reading-hero h1{
+  font-family:var(--rm-display);font-size:clamp(28px,3.2vw,46px);line-height:1.18;font-weight:800;letter-spacing:-.012em;max-width:24ch;text-wrap:balance;
+  color:var(--rm-gold-ink);text-shadow:0 0 36px color-mix(in srgb,var(--r29-gold) 24%,transparent);padding-bottom:.5em;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 70%,transparent) 50%,transparent) bottom/62% 1px no-repeat;
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-hero h1{text-shadow:none}
+
+/* ───────────── The story column: layered royal light instead of a flat panel ───────────── */
+.sod29-reading-post[data-reality-map] .sod29-reading-source{
+  border:var(--rm-frame)!important;background:var(--rm-hall)!important;box-shadow:var(--r29-shadow),var(--rm-double)!important;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source::before{background:linear-gradient(90deg,transparent,var(--r29-gold),transparent);height:1px}
+
+/* ───────────── "מה התחדש בפוסט": the featured hall of the update layer ───────────── */
+.sod29-reading-post[data-reality-map] .sod29-update-strip{
+  border-radius:var(--r29-radius-sm);border:var(--rm-frame);padding:.5rem 1rem;box-shadow:var(--r29-shadow);
+  background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
+    linear-gradient(180deg,color-mix(in srgb,var(--r29-gold) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+}
+.sod29-reading-post[data-reality-map] .sod29-update-strip-kicker{
+  opacity:1;padding:2px 12px;border-radius:999px;font:800 13px/1.5 var(--s29-font-ui,inherit);color:var(--s29-page);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 88%,white),var(--r29-gold));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 40%,transparent);
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-update-strip-kicker{color:#fff;background:color-mix(in oklab,var(--r29-gold) 80%,var(--s29-ink))}
+.sod29-reading-post[data-reality-map] .sod29-update-strip-link strong{font:800 1.12rem/1.35 var(--rm-display);color:var(--rm-gold-ink);white-space:normal}
+.sod29-reading-post[data-reality-map] .sod29-update-strip-link small{opacity:.9;color:var(--s29-muted)}
+.sod29-reading-post[data-reality-map] .sod29-update-strip-more summary{color:var(--rm-azure);font-weight:700}
+
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-update-stack{
+  border:var(--rm-frame);border-radius:var(--r29-radius);box-shadow:var(--r29-shadow),var(--rm-double);
+  background:
+    radial-gradient(90% 40% at 50% -8%,color-mix(in srgb,var(--r29-gold) calc(var(--r29-glow) * 1.1),transparent),transparent 70%),
+    radial-gradient(60% 60% at 100% 0%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) calc(var(--r29-wash) * 1.6),var(--s29-panel)),var(--s29-panel));
+}
+.sod29-reading-post[data-reality-map] .sod29-update-stack-head strong{font:850 1.35rem/1.2 var(--rm-display);color:var(--rm-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-update-stack-head span{color:var(--s29-muted)}
+/* time axes: the proven ADDED date is a struck gold badge; event and source days are quiet sapphire marks */
+.sod29-reading-post[data-reality-map] .sod29-update-added{
+  padding:3px 12px;border-radius:999px;font-weight:800;color:var(--s29-page);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 88%,white),var(--r29-gold));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 40%,transparent);
+}
+.sod29-reading-post[data-reality-map] .sod29-update-added i{color:inherit}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-update-added{color:#fff;background:color-mix(in oklab,var(--r29-gold) 78%,var(--s29-ink))}
+.sod29-reading-post[data-reality-map] :is(.sod29-update-event,.sod29-update-source){
+  padding:3px 11px;border-radius:999px;color:color-mix(in srgb,var(--r29-azure) 85%,var(--s29-ink));
+  border:1px solid color-mix(in srgb,var(--r29-sapphire) 55%,transparent);background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));
+}
+.sod29-reading-post[data-reality-map] .sod29-update-meta i{color:var(--r29-gold)}
+.sod29-reading-post[data-reality-map] .sod29-story-divider{color:var(--rm-gold-ink)!important;font:750 .95rem/1 var(--rm-display);letter-spacing:.04em}
+.sod29-reading-post[data-reality-map] .sod29-story-divider span::before,.sod29-reading-post[data-reality-map] .sod29-story-divider span::after{content:"◆";margin-inline:10px;font-size:9px;color:var(--r29-gold)}
+
+/* ───────────── Units: identity, hierarchy, the peak moment ───────────── */
+.sod29-reading-post[data-reality-map] [data-sod-unit]{--u-accent:var(--r29-gold);--u-accent2:var(--r29-sapphire)}
+.sod29-reading-post[data-reality-map] [data-sod-unit] h2[data-sod-role="title"]{
+  position:relative;padding-top:22px;font-family:var(--rm-display);font-size:clamp(23px,2.5vw,34px)!important;line-height:1.25;font-weight:850;color:var(--rm-gold-ink)!important;
+}
+.sod29-reading-post[data-reality-map] [data-sod-unit] h2[data-sod-role="title"]::before{
+  content:"◆";position:absolute;inset-inline:0;inset-block-start:0;text-align:center;font-size:10px;line-height:12px;color:var(--r29-gold);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 70%,transparent) 50%,transparent) center/68% 1px no-repeat;
+}
+.sod29-reading-post[data-reality-map] [data-sod-unit]:is([data-sod-peak="auto"]:not([data-sod-peak-choice="off"]),[data-sod-peak-choice="on"]){
+  border:var(--rm-frame);border-radius:var(--r29-radius);box-shadow:var(--r29-shadow),var(--rm-double);
+  background:
+    radial-gradient(80% 50% at 50% 0%,color-mix(in srgb,var(--u-accent) var(--r29-glow),transparent),transparent 72%),
+    radial-gradient(70% 60% at 0% 100%,color-mix(in srgb,var(--u-accent2) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--u-accent2) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+}
+/* central numbers: struck in gold, with a soft royal light */
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"]{
+  font-family:var(--s29-font-numeric,var(--rm-display));font-weight:900;
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 62%,white) 0%,var(--r29-gold) 52%,color-mix(in oklab,var(--r29-gold) 66%,var(--r29-sapphire)) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none;
+  filter:drop-shadow(0 0 22px color-mix(in srgb,var(--r29-gold) 34%,transparent));
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"]{filter:none;
+  background-image:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 90%,var(--s29-ink)),color-mix(in oklab,var(--r29-gold) 70%,var(--r29-sapphire)))}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"] [data-gem]{color:inherit!important;-webkit-text-fill-color:transparent}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="number"]{font-family:var(--rm-display);font-weight:850;color:var(--rm-gold-ink)!important}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="verse"]{
+  border-block:1px solid color-mix(in srgb,var(--r29-gold) 38%,transparent);color:var(--s29-ink);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-sapphire) 12%,transparent),transparent);
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="source"]{border-inline-start-color:color-mix(in srgb,var(--r29-sapphire) 70%,transparent)}
+
+/* the MAIN MESSAGE: a festive focal point */
+.sod29-reading-post[data-reality-map] .sod29-unit-message{
+  position:relative;isolation:isolate;gap:12px;padding:16px 22px;border-radius:var(--r29-radius);border:var(--rm-frame);box-shadow:var(--r29-shadow),var(--rm-double);
+  font:850 clamp(21px,2.2vw,30px)/1.4 var(--rm-display)!important;color:var(--rm-gold-ink)!important;
+  background:
+    radial-gradient(90% 90% at 50% -20%,color-mix(in srgb,var(--r29-gold) calc(var(--r29-glow) * 1.3),transparent),transparent 70%),
+    radial-gradient(70% 80% at 100% 100%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) calc(var(--r29-wash) * 1.5),var(--s29-panel)),var(--s29-panel));
+}
+.sod29-reading-post[data-reality-map] .sod29-unit-message i{
+  display:inline-grid;place-items:center;flex:none;inline-size:34px;block-size:34px;border-radius:50%;font-size:17px;color:var(--r29-gold);
+  background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--r29-gold) 30%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel)) 72%);
+  box-shadow:0 0 0 1.5px color-mix(in srgb,var(--r29-gold) 70%,transparent),0 0 0 3.5px color-mix(in srgb,var(--s29-panel) 80%,transparent),0 6px 14px -6px color-mix(in srgb,var(--r29-gold) 60%,transparent);
+}
+/* chosen references: gold coins */
+.sod29-reading-post[data-reality-map] .sod29-unit-ref{
+  color:var(--rm-gold-ink)!important;font-weight:700;border:1px solid color-mix(in srgb,var(--r29-gold) 62%,transparent);
+  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 24%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 8%,var(--s29-panel)) 70%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 18%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 60%,transparent);
+}
+.sod29-reading-post[data-reality-map] .sod29-unit-ref small{color:color-mix(in srgb,var(--r29-gold) 60%,var(--s29-muted))}
+.sod29-reading-post[data-reality-map] .sod29-semantic-legend dl{border-color:color-mix(in srgb,var(--r29-gold) 30%,var(--s29-line))}
+.sod29-reading-post[data-reality-map] .sod29-semantic-legend dt{color:var(--rm-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-source-unit{border:var(--rm-frame);border-inline-start:3px solid var(--r29-sapphire);box-shadow:var(--r29-shadow);background:var(--rm-hall)}
+.sod29-reading-post[data-reality-map] .sod29-source-unit header strong{font-family:var(--rm-display);color:var(--rm-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-source-unit .sod29-source-unit-hint b{color:var(--rm-gold-ink)}
+
+/* ───────────── Companion (preview only): a royal flagship panel ───────────── */
+
+/* the ACTIVE unit: the living focus of the panel */
+
+@media (forced-colors:active){
+  .sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-role="peak"]{background:none;-webkit-text-fill-color:CanvasText;color:CanvasText!important;filter:none}
+}
+
+/* Authored dark translucent section backgrounds (Post 5112 wrote them for a night page) turn grey on a light or parchment page. In a series Post
+   they take the royal warm floor instead; the authored text, numbers and structure are untouched. */
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source section[data-sod-unit][style*="background"]{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) 8%,var(--s29-panel)),var(--s29-panel))!important;
+  border-color:color-mix(in srgb,var(--r29-gold) 42%,var(--s29-line))!important;
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source section[data-sod-unit] :is(div,details)[style*="background"]{
+  background:color-mix(in srgb,var(--r29-gold) 7%,var(--s29-panel))!important;
+  border-color:color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line))!important;
+}
+
+/* Companion content by Post character: the live-timeline Post leads with its update timeline, the numeric-research Post with its number map. */
+
+/* ───────────── The preview unit "זה לעומת זה עשה האלוהים — ימין ושמאול תפרצי" (ZURIEL 12.11.2026) ─────────────
+   Royal blue + gold, centred headings, clickable number coins. Only canonical roles (--r29-*, --s29-*); no new palette.
+   Each source identity gets its own quiet edge so no writer is read as the author of another voice. */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu[data-sod-unit]{
+  --pu-navy:color-mix(in srgb,var(--r29-sapphire) 30%,var(--s29-page));--pu-tile:color-mix(in srgb,var(--r29-sapphire) 52%,var(--s29-panel));
+  --pu-gold-line:color-mix(in srgb,var(--s29-line) 80%,transparent); /* the card's frame = the SAME warm brown hairline as the other units (ZURIEL 16.11.2026); the gematria structures inside keep their sapphire (--pu-tile, .sod29-gx*, .sod29-ugx*) */
+  position:relative;margin-block:.5rem 1.2rem;padding:clamp(16px,3vw,34px) clamp(14px,3vw,40px);border-radius:24px;
+  border:1px solid var(--pu-gold-line);color:var(--s29-ink);scroll-margin-block-start:84px;
+  background:color-mix(in srgb,var(--r29-sapphire) 6%,var(--s29-panel)); /* the same warm-dark card as the other units: no light-blue glow behind the whole unit */
+  box-shadow:none;
+}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu[data-sod-unit]{
+  --pu-navy:color-mix(in srgb,var(--r29-sapphire) 9%,var(--s29-panel));--pu-tile:color-mix(in srgb,var(--r29-sapphire) 16%,var(--s29-panel));
+  background:color-mix(in srgb,var(--r29-sapphire) 6%,var(--s29-panel))}
+/* the unit is a landmark focused by the deep link, not a control: no ring around the whole card (its buttons keep their own focus rings) */
+.sod29-reading-post[data-reality-map] .sod29-pu:is(:focus,:focus-visible){outline:none}
+.sod29-pu-badge{display:inline-block}
+.sod29-pu-head{text-align:center;display:grid;gap:.45rem;justify-items:center;padding-bottom:.9rem;border-bottom:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),transparent)}
+.sod29-pu-head h2{margin:0;font:850 clamp(1.7rem,3.6vw,2.7rem)/1.15 var(--rm-display);letter-spacing:-.01em;text-wrap:balance;color:var(--rm-gold-ink);text-shadow:0 0 34px color-mix(in srgb,var(--r29-gold) 26%,transparent)}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-pu-head h2{text-shadow:none}
+.sod29-pu-subtitle{margin:0;font:700 clamp(1.05rem,2vw,1.4rem)/1.4 var(--rm-display);color:var(--rm-azure);text-wrap:balance}
+.sod29-pu-kicker{margin:0;color:var(--s29-muted);font:600 1rem/1.6 var(--s29-font-ui,inherit);max-width:46ch}
+/* The four numbers: the existing Royal coin (.r29-coin) in a grid — four in one row where there is room, a balanced 2×2 on phones, no orphan.
+   Reading order follows RTL (2026 first, on the right); the "·" separators remain in the text and are hidden. The selector carries the Post root so
+   it outranks the reader's generic number rule (.sod29-reading-source :is([data-gem]…)). */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu-numbers{margin:.3rem auto 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;inline-size:min(100%,660px);direction:rtl}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu-numbers>i{display:none}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu-numbers .r29-coin[data-gem]{
+  inline-size:100%;min-inline-size:0;min-block-size:64px;justify-content:center;font:800 clamp(1.5rem,5.4vw,2rem)/1.1 var(--s29-font-numeric,var(--s29-font-ui,inherit));letter-spacing:.02em;
+  font-variant-numeric:tabular-nums;direction:ltr;padding:6px 10px;cursor:pointer;text-decoration:none;transition:transform .12s,background .12s;
+  /* the reader's generic number rule resets the coin surface: the tile is restated here from the same tokens (sapphire tile, gold-light numerals) */
+  border-radius:18px;border:1px solid color-mix(in srgb,var(--r29-gold) 22%,transparent);box-shadow:none;
+  color:color-mix(in srgb,var(--r29-gold) 78%,var(--s29-ink))!important;background:var(--pu-tile)!important} /* !important: the reader forces its own number ink/surface */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu-numbers .r29-coin[data-gem]:hover{background:color-mix(in srgb,var(--pu-tile) 82%,var(--r29-gold))!important}
+@media (prefers-reduced-motion:reduce){.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu-numbers .r29-coin[data-gem]{transition:none}}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu-numbers .r29-coin[data-gem]:hover{transform:translateY(-1px)}
+@media (max-width:560px){.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu-numbers{grid-template-columns:repeat(2,minmax(0,1fr));inline-size:min(100%,340px)}}
+.sod29-pu [data-gem][role="button"]:focus-visible{outline:2px solid var(--s29-focus-ring,var(--r29-gold));outline-offset:3px}
+.sod29-pu-body{display:grid;gap:.85rem;padding-top:1rem;max-width:62ch;margin-inline:auto}
+.sod29-pu-body p{margin:0;line-height:1.8;font-size:max(1.125rem,18px)} /* reading body ≥18px (Design V2); calm weight, gold only on headings/peaks */
+/* Content alignment (ZURIEL 13.11.2026): CENTRE only ceremonial/short content (titles, short sub-headings, verses/quotes, equations, the four numbers,
+   peaks and the primary message); long explanatory paragraphs, author/source text and credits are RTL and RIGHT-aligned (start). The semantic
+   attribute is data-sod-align; the selector carries the Post root so the reader's own paragraph rule cannot undo it. Words are never touched. */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu :is(h2,h3,p,blockquote,table)[data-sod-align="center"]{text-align:center!important} /* !important: the reader forces headings/paragraphs to start */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu p[data-sod-align="start"],
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu .sod29-pu-group-label,
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu :is(.sod29-pu-sources,.sod29-pu-images,.sod29-pu-engine) :is(p,small,blockquote,li){text-align:start}
+.sod29-pu-rule{border:0;block-size:1px;inline-size:60%;margin:.4rem auto;background:linear-gradient(90deg,transparent,var(--r29-gold),transparent)}
+.sod29-pu-h3{margin:.4rem 0 0;text-align:center;font:800 clamp(1.2rem,2.3vw,1.6rem)/1.3 var(--rm-display);color:var(--rm-gold-ink);text-wrap:balance}
+.sod29-pu-verse{margin:.2rem auto;padding:.75rem 1.1rem;max-width:44ch;text-align:center;font:700 1.15rem/1.8 var(--rm-display);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-gold) 38%,transparent);background:var(--pu-tile);border-radius:18px}
+.sod29-pu-verse[data-quote-identity="baal-hasulam"]{border-color:color-mix(in srgb,var(--rm-azure) 60%,transparent);font-style:normal}
+.sod29-pu-claim{font-weight:800;color:var(--s29-ink)}
+.sod29-pu-field{font-weight:700}
+.sod29-pu-field .sod29-pu-field-label{font-weight:600;opacity:.72;margin-inline-end:.15em}
+.sod29-pu-closing{padding:.8rem 1rem;font:850 clamp(1.25rem,2.6vw,1.8rem)/1.5 var(--rm-display);color:var(--rm-gold-ink);text-wrap:balance;
+  border-block:1px solid color-mix(in srgb,var(--r29-gold) 55%,transparent)}
+.sod29-pu-body [data-sod-role="peak"]{font:900 clamp(2.3rem,9vw,4.2rem)/1.05 var(--rm-display);margin-block:-.15rem}
+.sod29-pu-body [data-sod-role="peak"] [data-gem]{font-size:inherit;padding:.02em .5em;background-image:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 92%,white),var(--r29-gold));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-pu-body [data-sod-role="peak"] [data-gem]{background-image:linear-gradient(180deg,var(--r29-gold),var(--s29-ink));}
+.sod29-pu-group{padding:.9rem 1.05rem;border-radius:18px;border:1px solid color-mix(in srgb,var(--r29-sapphire) 40%,var(--s29-line));border-inline-start:3px solid var(--rm-azure);display:grid;gap:.8rem;background:var(--pu-tile)}
+.sod29-pu-group[data-source-identity="shachar-kandro"]{border-inline-start-color:var(--r29-violet-deep)}
+.sod29-pu-group[data-source-identity="editorial-phrase"]{border-inline-start-color:var(--s29-muted);border-style:dashed}
+.sod29-pu-group-label{font:800 .85rem/1.4 var(--s29-font-ui,inherit);color:var(--rm-azure);letter-spacing:.02em}
+.sod29-pu-group[data-source-identity="shachar-kandro"] .sod29-pu-group-label{color:var(--s29-ink)}
+.sod29-pu-table{border-collapse:collapse;margin:0 auto;font-size:1rem;max-width:100%}
+.sod29-pu-table th,.sod29-pu-table td{padding:.45rem .8rem;border:1px solid color-mix(in srgb,var(--r29-gold) 28%,var(--s29-line));text-align:center}
+.sod29-pu-table th{background:color-mix(in srgb,var(--r29-sapphire) 22%,var(--s29-panel));color:var(--s29-ink)}
+.sod29-pu-foot{margin-top:1.2rem;display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;padding-top:1rem;border-top:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),transparent)}
+.sod29-pu-host:empty{display:none}
+.sod29-pu-host h4{margin:0 0 .4rem;font:800 1.05rem/1.4 var(--rm-display);color:var(--rm-azure)}
+.sod29-pu-sources-note{margin:.2rem 0 .6rem;font-size:.9rem;color:var(--s29-muted);line-height:1.6}
+.sod29-pu-bar{display:flex;flex-wrap:wrap;gap:.5rem .6rem;align-items:center;justify-content:center;margin:0 0 .8rem;padding:.5rem .8rem;border-radius:var(--r29-radius-sm);text-wrap:balance;
+  border:1px solid color-mix(in srgb,var(--r29-gold) 40%,transparent);background:var(--pu-tile);font-size:.95rem}
+.sod29-pu-bar button,.sod29-pu-link{cursor:pointer;min-block-size:44px;font:700 1rem/1.4 var(--s29-font-ui,inherit);color:var(--rm-gold-ink);background:transparent;border:1px solid color-mix(in srgb,var(--r29-gold) 60%,transparent);border-radius:999px;padding:.25rem .85rem;text-decoration:none}
+.sod29-pu-bar button:disabled{opacity:.45;cursor:default}
+.sod29-pu-link{display:inline-block;margin-top:.5rem;direction:ltr;font-weight:600;overflow-wrap:anywhere;border:0;padding:0;color:var(--rm-azure);text-decoration:underline}
+.sod29-pu-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem}
+.sod29-pu-image{margin:0;display:grid;gap:.4rem;justify-items:center;text-align:center;padding:1rem;border-radius:18px;border:1px dashed color-mix(in srgb,var(--r29-gold) 55%,transparent);background:color-mix(in srgb,var(--rm-floor) 10%,transparent)}
+.sod29-pu-image div{font-size:2rem;opacity:.8}
+.sod29-pu-image span{display:block;color:var(--s29-muted);font-size:.88rem}
+.sod29-pu-engine summary{cursor:pointer;font-weight:800;color:var(--rm-azure)}
+.sod29-pu-engine-row{display:grid;gap:.15rem;margin-bottom:.5rem}
+.sod29-pu-engine-row>small{color:var(--s29-muted)}
+@media (max-width:560px){.sod29-pu-body{gap:.65rem}.sod29-pu-head h2{font-size:clamp(1.55rem,7.4vw,1.9rem)}.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu[data-sod-unit]{padding-inline:12px;padding-block:16px}.sod29-pu-table th,.sod29-pu-table td{padding:.35rem .4rem;font-size:.92rem}}
+
+.sod29-pu-foot>*{min-width:0;max-width:100%}.sod29-pu-foot .sod29-source-unit blockquote{overflow-wrap:anywhere;white-space:pre-wrap}
+
+/* ───────────── Inner navigation of the flagship Post: מסר · הקשר · חיבורים · מקורות — ALWAYS one line ─────────────
+   Four equal cells in a grid (no wrap, no horizontal scroll) from 320px up; ≥44px tall; 16px labels; the selected tab is a sapphire fill + gold
+   hairline + a bar under the label (never colour alone). Royal frame (gold hairline), sapphire core, roles from the existing tokens. */
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex-wrap:nowrap;overflow:visible;gap:4px;
+  inline-size:min(790px,100%);margin:0 auto 22px;padding:5px;border-radius:18px;
+  border:1px solid color-mix(in srgb,var(--r29-gold) 55%,transparent);
+  background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));box-shadow:var(--r29-shadow)}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button{
+  position:relative;min-inline-size:0;min-block-size:44px;padding:0 2px;border-radius:14px;white-space:nowrap;overflow:hidden;text-overflow:clip;
+  font:700 16px/1.2 var(--s29-font-ui,inherit);letter-spacing:0;color:var(--s29-ink);background:transparent}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button:hover{background:color-mix(in srgb,var(--r29-sapphire) 24%,var(--s29-panel))}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button.is-active{
+  background:color-mix(in srgb,var(--r29-sapphire) 46%,var(--s29-panel));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--r29-gold) 55%,transparent);font-weight:800}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button.is-active::after{
+  content:"";position:absolute;inset-inline:22%;inset-block-end:5px;block-size:2px;border-radius:2px;background:var(--r29-gold)}
+.sod29-reading-post[data-reality-map]>.sod29-surface-tabs>button:focus-visible{outline:2px solid var(--s29-focus-ring,var(--r29-gold));outline-offset:-2px}
+@media(max-width:360px){
+  .sod29-reading-post[data-reality-map]>.sod29-surface-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+/* Progressive disclosure of a claim's canonical method trace (reuses TraceFamilyStage2029 / TraceBreakdown2029): Royal frame, sapphire core, calm. */
+.sod29-pu-trace{margin-top:.4rem}
+.sod29-pu-trace-btn,.sod29-pu-trace-links button,.sod29-pu-trace-links a{min-block-size:44px;padding:0 14px;border-radius:14px;cursor:pointer;font:700 1rem/1.3 var(--s29-font-ui,inherit);text-decoration:none;display:inline-flex;align-items:center;
+  color:var(--s29-ink);background:color-mix(in srgb,var(--r29-sapphire) 24%,var(--s29-panel));border:1px solid color-mix(in srgb,var(--r29-sapphire) 55%,var(--s29-line))}
+.sod29-pu-trace-body{margin-top:.6rem;display:grid;gap:.7rem;min-inline-size:0}
+.sod29-pu-trace-links{display:flex;flex-wrap:wrap;gap:.5rem;margin:0;justify-content:center}
+.sod29-pu-trace-full summary{cursor:pointer;min-block-size:44px;display:flex;align-items:center;font-weight:700;color:var(--r29-azure)}
+/* ───────────── The fixed gematria showcase (GematriaShowcase2029): compact, open under a focal number — the look of the "שבילי שפה" panels, from the canonical tokens ───────────── */
+.sod29-reading-post[data-reality-map] .sod29-gx{display:grid;gap:.45rem;justify-items:center;text-align:center;padding:14px 12px 12px;border-radius:18px;overflow:hidden;min-inline-size:0;inline-size:100%;max-inline-size:420px;margin-inline:auto;
+  border:1px solid color-mix(in srgb,var(--r29-gold) 38%,transparent);
+  background:linear-gradient(170deg,color-mix(in srgb,var(--r29-sapphire) 18%,var(--s29-page)),color-mix(in srgb,var(--r29-sapphire) 9%,var(--s29-page)))}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-gx{background:linear-gradient(170deg,color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel)),var(--s29-panel))}
+.sod29-reading-post[data-reality-map] .sod29-gx-step{font:700 .85rem/1.4 var(--s29-font-ui,inherit);letter-spacing:.03em;color:var(--r29-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-gx-expr{margin:0;font:800 clamp(1.2rem,5vw,1.55rem)/1.3 var(--rm-display,var(--s29-font-display,inherit));color:var(--s29-ink)}
+.sod29-reading-post[data-reality-map] .sod29-gx-big{display:inline-block;font:850 clamp(1.8rem,8vw,2.3rem)/1.05 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;color:var(--r29-gold)}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-gx-big{color:var(--r29-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-gx-lead{margin:.1rem 0 0;padding-top:.45rem;inline-size:100%;border-top:1px solid color-mix(in srgb,var(--r29-gold) 30%,transparent);font:600 .95rem/1.4 var(--s29-font-ui,inherit);color:var(--s29-muted)}
+.sod29-reading-post[data-reality-map] .sod29-gx-word{display:grid;gap:.3rem;justify-items:center;inline-size:100%;min-inline-size:0;padding:9px 8px;border-radius:14px;
+  background:color-mix(in srgb,var(--r29-sapphire) 22%,var(--s29-panel));border:1px solid color-mix(in srgb,var(--r29-sapphire) 40%,transparent)}
+.sod29-reading-post[data-reality-map] .sod29-gx-word-label{margin:0;font:700 1rem/1.3 var(--s29-font-ui,inherit);color:var(--s29-ink)}
+/* FIXED RULE: a row of letters, a sum line and the equation are ALWAYS one line; narrower than the content they scroll sideways (never wrap). */
+.sod29-reading-post[data-reality-map] .sod29-gx-letters{list-style:none;margin:0 auto;padding:2px 2px 6px;display:flex;flex-wrap:nowrap;gap:5px;justify-content:safe center;inline-size:100%;overflow-x:auto;overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;perspective:520px;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--r29-gold) 45%,transparent) transparent}
+.sod29-reading-post[data-reality-map] .sod29-gx-letters:focus-visible{outline:2px solid var(--s29-focus-ring,var(--r29-gold));outline-offset:2px;border-radius:10px}
+.sod29-reading-post[data-reality-map] .sod29-gx-letters li{flex:0 0 auto;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;min-inline-size:40px;padding:4px 6px;border-radius:10px;line-height:1.05;
+  color:var(--r29-gold-ink);background:color-mix(in srgb,var(--r29-gold) 10%,var(--s29-panel));border:1px solid color-mix(in srgb,var(--r29-gold) 38%,transparent);
+  transform-origin:50% 100%;animation:sod29-gx-rise .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 45ms)}
+.sod29-reading-post[data-reality-map] .sod29-gx-letters li i{font-style:normal;font:800 1.2rem/1.1 var(--s29-font-display,var(--s29-font-ui,inherit))}
+.sod29-reading-post[data-reality-map] .sod29-gx-letters li em{font-style:normal;font:600 max(.8rem,13px)/1.1 var(--s29-font-ui,inherit);color:var(--s29-muted)}
+.sod29-reading-post[data-reality-map] .sod29-gx-letters li small{margin-top:2px;font:700 max(.8rem,13px)/1.1 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;color:var(--s29-muted)}
+@keyframes sod29-gx-rise{from{opacity:0;transform:rotateX(-55deg) translateY(6px) scale(.94)}to{opacity:1;transform:none}}
+.sod29-reading-post[data-reality-map] .sod29-gx-sum,.sod29-reading-post[data-reality-map] .sod29-gx-eq{margin:0;white-space:nowrap;max-inline-size:100%;overflow-x:auto;scrollbar-width:none;font:600 max(.95rem,15px)/1.4 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;color:var(--s29-ink)}
+.sod29-reading-post[data-reality-map] .sod29-gx-total{font:800 1.45rem/1.1 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;color:var(--r29-gold)}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-gx-total{color:var(--r29-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-gx-eq{font-weight:800;font-size:1.3rem;color:var(--r29-gold)}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-reality-map] .sod29-gx-eq{color:var(--r29-gold-ink)}
+.sod29-reading-post[data-reality-map] .sod29-gx-ok{margin:0;font:600 max(.85rem,14px)/1.4 var(--s29-font-ui,inherit);color:var(--s29-muted)}
+.sod29-reading-post[data-reality-map] .sod29-gx-ok span{color:var(--r29-teal)}
+@media (prefers-reduced-motion:reduce){.sod29-reading-post[data-reality-map] .sod29-gx-letters li{animation:none}}
+/* The engine-state controls inside the unit's own engine panel follow the same look the source units give them (those rules are scoped to .sod29-source-unit). */
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-source-unit-hint{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:6px 0}
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-source-unit-hint b{font-family:var(--s29-font-numeric,inherit);font-size:1.5rem;color:color-mix(in srgb,var(--r29-gold) 78%,var(--s29-ink))}
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-engine{display:inline-flex;align-items:center;gap:6px;min-block-size:44px;padding:0 12px;border-radius:14px;cursor:pointer;font:inherit;color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-sapphire) 55%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 18%,var(--s29-panel))}
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-engine[data-engine="mismatch"]{border-style:dashed}
+.sod29-reading-post[data-reality-map] .sod29-pu-engine-row .sod29-engine-detail{margin:4px 0 0;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));font-size:.95rem;color:var(--s29-muted)}
+
+.sod29-pu-trace-host:not(:empty){margin-block:.3rem .8rem;display:grid;justify-items:center}
+.sod29-pu-trace-host .sod29-pu-trace-links{margin:.35rem 0 0}
+.sod29-pu-trace-host .sod29-pu-trace{inline-size:100%}
+.sod29-pu-trace-host .sod29-pu-trace-btn{margin-inline:auto}
+.sod29-pu-trace-host .sod29-pu-trace-links :is(button,a){background:transparent;border:0;padding:0 8px;font-size:.95rem;font-weight:600;color:var(--r29-azure);text-decoration:underline;text-underline-offset:3px}
+.sod29-pu-trace-body{margin-top:.2rem}
+.sod29-reading-post[data-reality-map] .sod29-gx :is(.sod29-gx-sum,.sod29-gx-eq){display:flex;justify-content:safe center;white-space:nowrap;overflow-x:auto;max-inline-size:100%;inline-size:100%;font-size:max(.9rem,15px);padding-block:2px}
+.sod29-reading-post[data-reality-map] .sod29-gx .sod29-gx-eq{font-size:1.2rem}
+.sod29-reading-post[data-reality-map] .sod29-gx p{text-align:center!important}
+.sod29-reading-post[data-reality-map] .sod29-gx-sum .sod29-gx-total{margin-inline-start:.35em;font:800 1.25rem/1.1 var(--s29-font-numeric,var(--s29-font-ui))}
+.sod29-reading-post[data-reality-map] .sod29-gx-sum{gap:0;align-items:baseline}
+.sod29-reading-post[data-reality-map] .sod29-gx :is(.sod29-gx-sum,.sod29-gx-eq){flex-wrap:nowrap;gap:.4em;direction:ltr;scrollbar-width:thin}
+.sod29-reading-post[data-reality-map] .sod29-gx :is(.sod29-gx-sum,.sod29-gx-eq)>*{flex:0 0 auto}
+.sod29-reading-post[data-reality-map] .sod29-gx-op{color:var(--s29-muted);font-weight:700}
+/* narrow screens: the sum line keeps the word total in view (14px floor, tight gaps); wider than that it still scrolls, never wraps */
+@media (max-width:520px){
+  .sod29-reading-post[data-reality-map] .sod29-gx{padding-inline:6px}
+  .sod29-reading-post[data-reality-map] .sod29-gx-word{padding-inline:4px}
+  .sod29-reading-post[data-reality-map] .sod29-gx :is(.sod29-gx-sum,.sod29-gx-eq){font-size:14px;gap:.22em}
+  .sod29-reading-post[data-reality-map] .sod29-gx-sum .sod29-gx-total{font-size:1.1rem;margin-inline-start:.1em}
+}
+
+/* ───────────── Phase 1 (ZURIEL 13.11.2026): a clean start of the flagship Post — ONE outer gold hairline, no stacked frames, a rich sapphire core that breathes ───────────── */
+/* the update list is a plain container: its own frame/background/shadow are removed (the unit card inside carries its own sapphire hairline) */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-update-stack{border:0;box-shadow:none;background:none;padding-inline:0}
+.sod29-reading-post[data-reality-map] .sod29-update-strip{box-shadow:none;border-color:color-mix(in srgb,var(--r29-gold) 24%,transparent);background:color-mix(in srgb,var(--r29-gold) 5%,var(--s29-panel))}
+.sod29-reading-post[data-reality-map] .sod29-reading-hero,.sod29-reading-post[data-reality-map] .sod29-reading-source{box-shadow:none!important}
+/* inner scopes (older units, source cards): a faint line only where it separates a content scope — no gold frame, no shadow, no glow */
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-sod-unit]:not(.sod29-pu):is([data-sod-peak="auto"]:not([data-sod-peak-choice="off"]),[data-sod-peak-choice="on"]){
+  border:1px solid color-mix(in srgb,var(--s29-line) 80%,transparent);box-shadow:none;
+  background:color-mix(in srgb,var(--r29-sapphire) 6%,var(--s29-panel))}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-source-unit{border:1px solid color-mix(in srgb,var(--s29-line) 80%,transparent);border-inline-start:3px solid var(--r29-sapphire);box-shadow:none}
+.sod29-reading-post[data-reality-map] .sod29-pu-bar{justify-content:flex-start;border-radius:12px;padding:.25rem .6rem;gap:.5rem .9rem;margin:0 0 .6rem;font-size:.95rem;background:transparent;border:0;border-bottom:1px solid color-mix(in srgb,var(--s29-line) 80%,transparent)}
+.sod29-pu-crumb{color:var(--s29-muted);font-weight:600}
+.sod29-reading-post[data-reality-map] .sod29-pu-bar button{border:0;padding:0 6px;text-decoration:underline;text-underline-offset:3px;color:var(--r29-azure);background:transparent}
+.sod29-reading-post[data-reality-map] .sod29-pu-bar{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center}
+.sod29-reading-post[data-reality-map] .sod29-pu-bar>*{inline-size:auto;flex:0 0 auto}
+
+/* ───────────── "גוף היחידה" — the whole-unit body editor tab (the dialog is portalled to .sod29-root, so only --s29 tokens are used here) ───────────── */
+.sod29-ude{display:grid;gap:.75rem;min-inline-size:0}
+.sod29-ude-state{margin:0;font-size:.95rem;color:var(--s29-muted)}
+.sod29-ude-state b{color:var(--s29-accent-text,var(--s29-ink))}
+.sod29-ude-state b.is-bad,.sod29-ude .is-bad{color:var(--s29-danger,#e08a7a)}
+.sod29-ude .is-good{color:var(--s29-ok,#7fd0a0)}
+.sod29-ude .is-warn{color:var(--s29-warn,#e6c46a);font-style:normal}
+.sod29-ude-scope{margin:0;padding:.45rem .7rem;border-radius:12px;border:1px dashed var(--s29-brand-gold);font-size:.88rem;line-height:1.55;color:var(--s29-muted)}
+.sod29-ude-bar,.sod29-ude-kinds,.sod29-ude-actions{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+.sod29-ude-kinds span{font-size:.85rem;color:var(--s29-muted)}
+.sod29-ude button{min-block-size:44px;min-inline-size:44px;padding:0 12px;border-radius:12px;cursor:pointer;font:700 .92rem/1.3 var(--s29-font-ui,inherit);color:var(--s29-ink);border:1px solid var(--s29-line-strong,var(--s29-line));background:transparent}
+.sod29-ude button.is-primary,.sod29-ude button.is-raziel{background:color-mix(in srgb,var(--s29-brand-sapphire) 45%,var(--s29-panel));border-color:var(--s29-brand-gold)}
+.sod29-ude button[aria-pressed="true"],.sod29-ude button[aria-expanded="true"]{border-color:var(--s29-brand-gold);background:color-mix(in srgb,var(--s29-brand-sapphire) 30%,var(--s29-panel))}
+.sod29-ude button:disabled{opacity:.45;cursor:default}
+.sod29-ude-errors{display:grid;gap:.4rem;padding:.6rem .75rem;border-radius:14px;border:1px solid var(--s29-danger,#e08a7a);background:color-mix(in srgb,var(--s29-danger,#e08a7a) 10%,var(--s29-panel))}
+.sod29-ude-errors p,.sod29-ude-notices{margin:0;font-size:.92rem;line-height:1.55}
+/* THE document: one continuous surface, from the first line to the last */
+.sod29-ude-doc{box-sizing:border-box;min-block-size:min(60dvh,28rem);max-block-size:68dvh;overflow:auto;padding:.9rem 1rem;border-radius:16px;border:1px solid var(--s29-line-strong,var(--s29-line));background:color-mix(in srgb,var(--s29-brand-sapphire) 8%,var(--s29-page));color:var(--s29-ink);font:500 1.02rem/1.85 var(--s29-font-ui,inherit);outline:none;overflow-wrap:anywhere}
+.sod29-ude-doc:focus-visible{border-color:var(--s29-brand-gold);box-shadow:0 0 0 2px color-mix(in srgb,var(--s29-brand-gold) 40%,transparent)}
+.sod29-ude-doc>p{margin:0 0 .55rem;text-align:start}
+.sod29-ude-doc>p[data-kind="title"]{text-align:center;font-weight:900;font-size:1.25rem}
+.sod29-ude-doc>p[data-kind="subtitle"],.sod29-ude-doc>p[data-kind="kicker"],.sod29-ude-doc>p[data-kind="closing"]{text-align:center;font-weight:700}
+.sod29-ude-doc>p[data-kind="kicker"]{font-size:.9rem;color:var(--s29-muted)}
+.sod29-ude-doc>p[data-kind="heading"]{text-align:center;font-weight:800;font-size:1.12rem;margin-block-start:.9rem}
+.sod29-ude-doc>p[data-kind]::before{content:attr(title);float:inline-end;margin-inline-start:.6rem;font:600 .68rem/1.9 var(--s29-font-ui,inherit);color:var(--s29-muted);opacity:.7;user-select:none}
+.sod29-ude-doc>p[data-kind="p"]::before{content:none}
+.sod29-ude-rule{border:0;border-top:1px solid var(--s29-line);margin:.8rem auto;inline-size:60%;opacity:.7}
+/* a protected source: an atomic, identified, non-editable chip INSIDE the document */
+.sod29-ude-chip{margin:.35rem 0 .75rem;padding:.5rem .75rem;border-radius:14px;border:1px dashed color-mix(in srgb,var(--s29-brand-gold) 70%,transparent);background:color-mix(in srgb,var(--s29-brand-sapphire) 22%,var(--s29-panel));user-select:text;cursor:default}
+.sod29-ude-chip-head{font:700 .78rem/1.4 var(--s29-font-ui,inherit);color:var(--s29-brand-gold);margin-block-end:.25rem}
+.sod29-ude-line{margin:0;text-align:center;line-height:1.7;font-weight:600;white-space:pre-wrap}
+.sod29-ude-line[data-kind="peak"],.sod29-ude-line[data-kind="numbers"]{font-size:1.5rem;font-weight:900}
+.sod29-ude-line[data-kind="claim"],.sod29-ude-line[data-kind="row"]{white-space:nowrap;overflow-x:auto}
+.sod29-ude-panel{display:grid;gap:.6rem;padding:.7rem .8rem;border-radius:16px;border:1px solid var(--s29-line-strong,var(--s29-line));background:color-mix(in srgb,var(--s29-brand-sapphire) 10%,var(--s29-panel))}
+.sod29-ude-panel h4,.sod29-ude-panel h5{margin:0;font:800 1rem/1.3 var(--s29-font-ui,inherit)}
+.sod29-ude-hint{margin:0;font-size:.86rem;line-height:1.6;color:var(--s29-muted)}
+.sod29-ude-hint code{padding:0 .25rem;border-radius:6px;background:var(--s29-page)}
+.sod29-ude-panel textarea,.sod29-ude-panel input[type="text"]{inline-size:100%;box-sizing:border-box;padding:.5rem .6rem;border-radius:10px;border:1px solid var(--s29-line);background:var(--s29-page);color:var(--s29-ink);font:500 .95rem/1.65 var(--s29-font-ui,inherit)}
+.sod29-ude-tasks{display:flex;flex-wrap:wrap;gap:.4rem .9rem;align-items:center;border:0;padding:0;margin:0}
+.sod29-ude-tasks legend{font-weight:700;font-size:.9rem;padding:0;margin-block-end:.25rem}
+.sod29-ude-tasks label{display:inline-flex;gap:.3rem;align-items:center;min-block-size:44px}
+.sod29-ude-tasks input[type="text"]{flex:1 1 12rem;min-block-size:44px}
+.sod29-ude-diff,.sod29-ude-proposals{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
+.sod29-ude-diff li,.sod29-ude-proposals li{display:grid;gap:.25rem;padding:.5rem .65rem;border-radius:12px;border:1px solid var(--s29-line);background:var(--s29-page);font-size:.95rem;line-height:1.7}
+.sod29-ude-proposals li[data-proposal-status="rejected"]{opacity:.7;border-style:dashed}
+.sod29-ude-proposals label{display:flex;gap:.5rem;align-items:center;min-block-size:44px}
+.sod29-ude ins{text-decoration:none;background:color-mix(in srgb,#3fa56b 28%,transparent);border-radius:4px;padding:0 .1rem}
+.sod29-ude del{background:color-mix(in srgb,#d0584a 26%,transparent);border-radius:4px;padding:0 .1rem}
+.sod29-ude-engine{list-style:none;margin:0;padding:0;display:grid;gap:.25rem;font-size:.92rem}
+.sod29-ude-engine li[data-engine-state="mismatch"]{color:var(--s29-warn,#e6c46a)}
+.sod29-ude-engine li[data-engine-state="verified"]{color:var(--s29-ok,#7fd0a0)}
+.sod29-ude-panel .sod29-reading-source{max-block-size:70dvh;overflow:auto;border-radius:12px}
+/* the unit in the Post says when it is shown from this device's draft */
+.sod29-pu-draft{border-color:var(--s29-brand-gold)!important;font-weight:800}
+@media (max-width:520px){.sod29-ude-doc{padding:.75rem .7rem;max-block-size:60dvh}.sod29-ude-bar button{flex:1 1 calc(50% - .45rem)}}
+.sod29-unit-editor[data-tab="body"]{inline-size:min(880px,96vw);max-block-size:92dvh}
+
+/* D-6 / D-5 (ZURIEL 15.11.2026) — presentation only: the repeated standard sentence is shown quietly (stored words untouched, nothing hidden); units added by one
+   save carry a small shared-save chip (anchors, provenance and the truthful date of the save unchanged). */
+.sod29-reading-post[data-reality-map] .sod29-reading-source p[data-sod-shared-note]{font-size:.85rem!important;opacity:.62!important;margin-block:14px 0!important;color:var(--s29-muted)!important}
+.sod29-reading-post[data-reality-map] .sod29-reading-source p[data-sod-shared-note-repeat]{opacity:.5!important}
+.sod29-reading-post[data-reality-map] .sod29-update-batch{padding:2px 10px;border-radius:999px;font-size:.85rem;font-weight:700;color:var(--s29-ink);border:1px dashed color-mix(in srgb,var(--r29-sapphire) 60%,transparent)}
+
+/* ───────────── The unified editor, 16.11.2026: block bar, gematria items, alignment, and the ONE display of a gematria finding (tokens only) ───────────── */
+.sod29-ude-blockbar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;padding:.4rem .5rem;border-radius:12px;border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-brand-sapphire) 8%,var(--s29-panel))}
+.sod29-ude-blockbar>span{font-size:.85rem;color:var(--s29-muted);margin-inline-end:.4rem}
+.sod29-ude-doc>p[data-align="start"],.sod29-ude-chip[data-align="start"],.sod29-ude-gx[data-align="start"]{text-align:start}
+.sod29-ude-doc>p[data-align="center"],.sod29-ude-chip[data-align="center"],.sod29-ude-gx[data-align="center"]{text-align:center}
+.sod29-ude-doc>p[data-align="end"],.sod29-ude-chip[data-align="end"],.sod29-ude-gx[data-align="end"]{text-align:end}
+.sod29-ude-chip[data-align="start"] .sod29-ude-line,.sod29-ude-gx[data-align="start"] .sod29-ude-line{text-align:start}
+.sod29-ude-chip[data-align="end"] .sod29-ude-line,.sod29-ude-gx[data-align="end"] .sod29-ude-line{text-align:end}
+.sod29-ude-doc>p[data-kind="claim"],.sod29-ude-doc>p[data-kind="row"],.sod29-ude-doc>p[data-kind="numbers"],.sod29-ude-doc>p[data-kind="peak"]{font-variant-numeric:tabular-nums;background:color-mix(in srgb,var(--s29-brand-sapphire) 10%,transparent);border-radius:10px;padding:.15rem .5rem}
+.sod29-ude-doc>p[data-kind="peak"]{text-align:center;font-weight:900;font-size:1.3rem}
+.sod29-ude-doc>p[data-kind="numbers"]{text-align:center;font-weight:800}
+.sod29-ude-gx{margin:.35rem 0 .75rem;padding:.5rem .75rem;border-radius:14px;border:1px solid color-mix(in srgb,var(--s29-brand-sapphire) 70%,transparent);background:color-mix(in srgb,var(--s29-brand-sapphire) 30%,var(--s29-panel));cursor:pointer}
+.sod29-ude-chip.is-selected,.sod29-ude-gx.is-selected{outline:2px solid var(--s29-brand-gold);outline-offset:2px}
+.sod29-ude-panel label{display:grid;gap:.25rem;font-size:.9rem;font-weight:600}
+.sod29-ude-panel select{min-block-size:44px;border-radius:10px;border:1px solid var(--s29-line);background:var(--s29-page);color:var(--s29-ink);font:500 .95rem/1.4 var(--s29-font-ui,inherit);padding:0 .5rem}
+/* THE shared display of one gematria finding (UnitGematria2029 → GematriaView2029): change it here (or in the shared components it composes) and every gematria of every unit changes */
+.sod29-ugx{display:grid;gap:.4rem;justify-items:center;margin:1rem auto;max-inline-size:100%;min-inline-size:0}
+.sod29-ugx[data-align="start"]{justify-items:start}.sod29-ugx[data-align="end"]{justify-items:end}
+.sod29-ugx>*{max-inline-size:100%}
+.sod29-ugx-by{font:700 .8rem/1.4 var(--s29-font-ui,inherit);color:var(--s29-brand-gold)}
+.sod29-ugx-note{font-size:.85rem;color:var(--s29-muted)}
+.sod29-ugx-compact{margin:0;font:600 1.05rem/1.7 var(--s29-font-ui,inherit);text-align:center}
+.sod29-ugx-compact [data-gem]{font-weight:900;color:var(--s29-accent-text,var(--s29-brand-gold))}
+.sod29-ugx-peak{display:grid;gap:.25rem;justify-items:center;text-align:center}
+.sod29-ugx-peak small{color:var(--s29-muted)}
+.sod29-ugx-gap{margin:.2rem 0 0;padding:.3rem .6rem;border-radius:10px;border:1px dashed var(--s29-line-strong,var(--s29-line));font-size:.88rem;line-height:1.55;text-align:center}
+.sod29-ugx-gap[data-gap-state="mismatch"]{border-color:var(--s29-warn,#e6c46a)}
+.sod29-ugx-gap[data-gap-state="verified"]{border-color:var(--s29-ok,#7fd0a0)}
+.sod29-ugx-trace{display:grid;gap:.4rem;justify-items:center;inline-size:100%}
+/* alignment preference of a unit's blocks: "end" (left in RTL) joins the existing start / center */
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu :is(h2,h3,p,blockquote,table,div)[data-sod-align="end"]{text-align:end!important}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu :is(p,div)[data-sod-role="peak"][data-sod-align="end"]{justify-content:flex-end}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu :is(p,div)[data-sod-role="peak"][data-sod-align="start"]{justify-content:flex-start;text-align:start!important}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu :is(h2,h3,blockquote,p.sod29-pu-claim)[data-sod-align="start"]{text-align:start!important}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu .sod29-pu-gx-host[data-sod-align="start"] .sod29-ugx{justify-items:start}
+.sod29-reading-post[data-reality-map] .sod29-reading-source .sod29-pu .sod29-pu-gx-host[data-sod-align="end"] .sod29-ugx{justify-items:end}
+
+.sod29-ude-variants{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.sod29-ude-report{inline-size:100%;border-collapse:collapse;font-size:.88rem}
+.sod29-ude-report th,.sod29-ude-report td{padding:.25rem .4rem;border-bottom:1px solid var(--s29-line);text-align:start}
+.sod29-ude-report tr[data-segment-status="failed"] td,.sod29-ude-report tr[data-segment-status="not_sent"] td{color:var(--s29-warn,#e6c46a)}
+
+.sod29-pu-byline{font-weight:800;color:var(--s29-brand-gold);margin-block:1.2em .4em}
+
+/* the unit breadcrumb wraps inside the unit: a long title never runs past the edge */
+.sod29-reading-post[data-reality-map] .sod29-pu-bar>.sod29-pu-crumb{flex:1 1 12rem;min-inline-size:0;max-inline-size:100%;overflow-wrap:anywhere;text-wrap:balance}
+.sod29-pu-byline-link{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.sod29-pu-byline-link:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:3px}

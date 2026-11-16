@@ -92,9 +92,16 @@ assert.equal(/preload="auto"/i.test(hardened), false);
 // The contained authored projection is hardened before the actual HTML sink.
 // Behavioral no-fetch and explicit-play coverage lives in the built browser test
 // home-loading-admission-2029.browser.mjs; this guard verifies the wiring too.
-assert.match(post2029, /import \{ hardenPassiveMediaHtml \} from "\.\.\/lib\/mediaEgressGuard\.js"/);
-assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => hardenPassiveMediaHtml\(postReadingHtml2029\(state\.projection\?\.post\?\.content \|\| ""\)\)/);
-assert.match(post2029, /dangerouslySetInnerHTML=\{\{ __html: passiveSourceHtml \}\}/);
+// The page and the first document share ONE article pipeline (postArticlePipeline2029.js, OLD_POST_ARTICLE_FIRST 16.11.2026).
+const articlePipeline = readFileSync(new URL("../src/lib/research/postArticlePipeline2029.js", import.meta.url), "utf8");
+assert.match(articlePipeline, /import \{ hardenPassiveMediaHtml \} from "\.\.\/mediaEgressGuard\.js"/);
+// the passive HTML is ALWAYS hardened first; the prototype layer only annotates the already hardened HTML
+// (the smaller-image step runs last, on the hardened and annotated HTML: it only adds srcset/sizes/loading to the Post's own images)
+assert.match(articlePipeline, /const hardened = hardenPassiveMediaHtml\(postReadingHtml2029\(projectedContent \|\| ""\)\);\s*return postArticleImages2029\(annotate \? annotatePostSource\(hardened, \{ postId, voice \}\) : hardened, \{ cover, facts \}\);/);
+// facts: the real widths of the originals that the first document was built with (only copies smaller than the original; 16.11.2026)
+assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => \{[^}]*return postArticleSourceHtml2029\(state\.projection\?\.post\?\.content \|\| "", \{ postId: state\.projection\?\.post\?\.id, voice: postVoice, annotate: protoOn, cover: state\.projection\?\.post\?\.image_url \|\| "", facts: imageFacts \}\);/);
+// the sink renders that HTML, except when it adopted the first document's nodes, which are exactly that HTML (documentArticleBodyMatches)
+assert.match(post2029, /\{\.\.\.\(documentArticle \? \{\} : \{ dangerouslySetInnerHTML: \{ __html: passiveSourceHtml \} \}\)\}/);
 
 
 

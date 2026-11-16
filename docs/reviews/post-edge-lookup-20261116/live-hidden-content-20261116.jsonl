@@ -1,0 +1,6 @@
+{"at":"2026-11-16T07:42:04.612Z","case":"public old address (post 31)","status":200,"by":"document","robots":"index, follow","cache":"no-store","title_in_body":true,"ms":683}
+{"at":"2026-11-16T07:42:05.150Z","case":"missing old address","status":404,"by":"edge","robots":"noindex, follow","cache":"public, max-age=60, s-maxage=300","title_in_body":null,"ms":538}
+{"at":"2026-11-16T07:42:05.222Z","case":"missing /post/ address","status":404,"by":"edge","robots":"noindex, follow","cache":"public, max-age=60, s-maxage=300","title_in_body":null,"ms":72}
+{"at":"2026-11-16T07:42:05.281Z","case":"draft, old address (post 103, tag טיוטה)","status":404,"by":"edge","robots":"noindex, follow","cache":"public, max-age=60, s-maxage=300","title_in_body":false,"ms":59}
+{"at":"2026-11-16T07:42:05.598Z","case":"forum, old address (post 5027, tag פורום)","status":404,"by":"document","robots":"noindex, nofollow, noarchive","cache":"no-store","title_in_body":false,"ms":317}
+{"at":"2026-11-16T07:42:05.892Z","case":"forum, /post/ address (post 5027)","status":404,"by":"document","robots":"noindex, nofollow, noarchive","cache":"no-store","title_in_body":false,"ms":294}

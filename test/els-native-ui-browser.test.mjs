@@ -929,7 +929,7 @@ async function withNative(viewport, run, options = {}) {
       if (importer?.endsWith('/ElsAdvancedSearch2029.jsx') && id.endsWith('/supabase.js')) return '\0els-host-stub:../lib/supabase.js';
       if (fullFrame && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
       if (fullFrame && id.endsWith('/MaintenanceLock.jsx')) return '\0els-frame-open-flags';
-      if (fullFrame && importer?.endsWith('/SystemFrame2029.jsx') && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);
+      if (fullFrame && (importer?.endsWith('/SystemFrame2029.jsx') || importer?.endsWith('/WorkspaceProjection2029.jsx')) && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);   // the frame's personal panel moved to its own lazy module (16.11.2026): same isolation
       if (id.endsWith('/AuthContext.jsx')) return '\0els-host-stub:../lib/AuthContext.jsx';
       if (!realHost && id === '../TzofenEmbed.jsx' && importer?.endsWith('/ElsNativeClassic2029.jsx')) return '\0els-native-host';
       if (realHost && importer?.endsWith('/TzofenEmbed.jsx') && Object.hasOwn(realHostStubs, id)) return '\0els-host-stub:' + id;

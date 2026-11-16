@@ -1,0 +1,99 @@
+const { chromium, webkit, devices } = require('playwright');
+const fs = require('fs');
+const OUT = '/home/user/sod1820/docs/reviews/post-live-prototype-20261112/shots4/';
+fs.mkdirSync(OUT, { recursive: true });
+const BASE = process.env.BASE || 'http://127.0.0.1:5173';
+const SLUG = 'sharshar-elections-redemption-hints-draft';
+const UNIT = 'yamin-smol-2026-5787-1237-1158';
+const LINK = `${BASE}/post/${SLUG}?unit=${UNIT}#${UNIT}`;
+const jpg = (n) => ({ path: OUT + n + '.jpg', type: 'jpeg', quality: 72 });
+const results = [];
+const rec = (k, v) => { results.push({ k, v }); console.log(k, JSON.stringify(v)); };
+
+async function openCold(browser, label, ctxOpts, theme, link = LINK) {
+  const ctx = await browser.newContext({ locale: 'he-IL', ...ctxOpts });
+  const p = await ctx.newPage();
+  const errs = [];
+  p.on('pageerror', (e) => errs.push(e.message.slice(0, 140)));
+  await p.addInitScript((t) => { try { localStorage.setItem('sod2029:theme-preset', t); localStorage.setItem('sod2029:theme-preset-seeded', '1'); } catch (e) {} }, theme);
+  const t0 = Date.now();
+  await p.goto(link, { waitUntil: 'domcontentloaded', timeout: 90000 });
+  await p.waitForSelector(`[id="${UNIT}"]`, { timeout: 60000 });
+  await p.waitForLoadState('networkidle', { timeout: 40000 }).catch(() => {});
+  await p.waitForTimeout(2500);
+  const m = await p.evaluate((U) => {
+    const el = document.getElementById(U), r = el.getBoundingClientRect();
+    return {
+      ua: navigator.userAgent.slice(0, 60), localStorageKeysAtStart: Object.keys(localStorage).filter((k) => k.includes('unit-prefs')).length,
+      unitTopVisible: r.top > -5 && r.top < innerHeight * 0.5, top: Math.round(r.top),
+      h2: (el.querySelector('h2') || {}).textContent, coins: el.querySelectorAll('[data-gem]').length,
+      groups: [...el.querySelectorAll('.sod29-pu-group')].map((g) => g.dataset.sourceIdentity),
+      bar: (el.querySelector('[data-pu-bar]') || {}).dataset ? el.querySelector('[data-pu-bar]').dataset.puBar : null,
+      shareUrl: (el.querySelector('[data-pu-share-url]') || {}).dataset ? el.querySelector('[data-pu-share-url]').dataset.puShareUrl : null,
+      images: el.querySelectorAll('.sod29-pu-image').length, imagesImg: el.querySelectorAll('img').length,
+      sourceUnits: el.querySelectorAll('.sod29-source-unit').length,
+      ovX: document.documentElement.scrollWidth - innerWidth,
+      dupIds: (() => { const ids = [...document.querySelectorAll('[id]')].map((n) => n.id); return ids.filter((x, i) => ids.indexOf(x) !== i).length; })(),
+    };
+  }, UNIT);
+  rec(`${label}:${theme}`, { ...m, ms: Date.now() - t0, errs });
+  return { ctx, p };
+}
+
+(async () => {
+  const chrome = await chromium.launch();
+  // device A: desktop Chromium; device B: mobile emulation, different UA, separate context (no shared storage)
+  for (const theme of (process.env.ALL ? ['dark', 'light', 'parchment'] : [])) {
+    const A = await openCold(chrome, 'desktop', { viewport: { width: 1600, height: 900 } }, theme);
+    await A.p.screenshot(jpg(`unit-desktop-${theme}-1-landing`));
+    await A.p.evaluate((U) => document.getElementById(U).scrollIntoView({ block: 'start' }), UNIT);
+    const u = await A.p.$(`[id="${UNIT}"]`);
+    await u.screenshot(jpg(`unit-desktop-${theme}-2-full`));
+    await A.ctx.close();
+    const B = await openCold(chrome, 'mobile', { ...devices['Pixel 7'] }, theme);
+    await B.p.screenshot(jpg(`unit-mobile-${theme}-1-landing`));
+    await B.ctx.close();
+  }
+  // flow on desktop dark: number click -> window, continue to whole post, return to unit
+  const A = await openCold(chrome, 'flow', { viewport: { width: 1600, height: 900 } }, 'dark', `${BASE}/post/${SLUG}?proto=admin&unit=${UNIT}#${UNIT}`);
+  const p = A.p;
+  const continueBtn = await p.$('[data-pu-bar="direct"] button');
+  rec('continue-btn', !!continueBtn);
+  await continueBtn.click();
+  await p.waitForTimeout(1500);
+  rec('after-continue', await p.evaluate(() => ({ url: location.pathname + location.search + location.hash, scrollY: Math.round(scrollY), resume: !!document.querySelector('[data-pu-bar="resume"]') })));
+  const resume = await p.$('[data-pu-bar="resume"] button');
+  if (resume) { await resume.scrollIntoViewIfNeeded(); await p.screenshot(jpg('unit-desktop-dark-3-resume-chip')); await resume.click(); await p.waitForTimeout(1500);
+    rec('after-return', await p.evaluate((U) => ({ url: location.pathname + location.search + location.hash, top: Math.round(document.getElementById(U).getBoundingClientRect().top), direct: !!document.querySelector('[data-pu-bar="direct"]') }), UNIT)); }
+  // number click
+  const gem = await p.$(`[id="${UNIT}"] .sod29-pu-numbers [data-gem]`);
+  await gem.scrollIntoViewIfNeeded(); await gem.click(); await p.waitForTimeout(2500);
+  rec('number-click', await p.evaluate(() => ({ dialog: !!document.querySelector('[role="dialog"], .sod29-number-window, [data-number-window]'), url: location.pathname + location.search + location.hash })));
+  await p.screenshot(jpg('unit-desktop-dark-4-number-window'));
+  await p.keyboard.press('Escape'); await p.waitForTimeout(800);
+  // share block
+  const share = await p.$(`[id="${UNIT}"] .sod29-pu-share`);
+  await share.scrollIntoViewIfNeeded();
+  rec('share', await p.evaluate((U) => { const s = document.querySelector(`[id="${U}"] .sod29-pu-share`); return { links: [...s.querySelectorAll('a,button')].map((a) => (a.getAttribute('href') || a.textContent || '').slice(0, 90)), direct: s.querySelector('[data-pu-direct-link]').getAttribute('href') }; }, UNIT));
+  await share.screenshot(jpg('unit-desktop-dark-5-share'));
+  // editor: pre-filled draft, flag as main message, then the Now card
+  const tools = await p.$(`[id="${UNIT}"] .sod29-unit-tools-btn, [data-update-unit="${UNIT}"] .sod29-unit-tools-btn`);
+  rec('editor-btn', !!tools);
+  if (tools) {
+    await tools.scrollIntoViewIfNeeded(); await tools.click(); await p.waitForSelector('.sod29-unit-editor textarea', { timeout: 8000 });
+    rec('draft-prefill', await p.inputValue('.sod29-unit-editor textarea'));
+    await p.screenshot(jpg('unit-desktop-dark-6-editor-prefill'));
+    await p.check('.sod29-unit-editor input[type=checkbox]');
+    const save = await p.$('.sod29-unit-editor button.is-primary');
+    await save.click(); await p.waitForTimeout(800);
+    rec('prefs-key', await p.evaluate(() => Object.fromEntries(Object.entries(localStorage).filter(([k]) => k.includes('unit-prefs')))));
+    await p.keyboard.press('Escape');
+  }
+  await A.ctx.close();
+  // second device: no storage → no main message, same unit opens
+  const B = await openCold(chrome, 'second-device', { ...devices['iPhone 13'] }, 'dark');
+  rec('second-device-prefs', await B.p.evaluate(() => Object.keys(localStorage).filter((k) => k.includes('unit-prefs'))));
+  await B.ctx.close();
+  fs.writeFileSync(OUT + 'unit-accept.json', JSON.stringify(results, null, 1));
+  await chrome.close();
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

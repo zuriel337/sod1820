@@ -261,6 +261,16 @@ async function bigContentSet() {
 const POST_ROUTE_CACHE_MS = 10 * 60 * 1000;
 const POST_ROUTE_CACHE_MAX = 512;
 const POST_ROUTE_CACHE = new Map();
+// Upper bound on the crawler-path lookup (fail-open: the public document handler answers a genuine 404 by itself).
+const POST_ROUTE_LOOKUP_TIMEOUT_MS = 800;
+
+// Who still needs the edge lookup. A human browser's document request goes on to the public document handler, which reads the SAME exact post
+// (public boundary included) and answers 404 + noindex for a missing or suppressed post and 503 when the source is unavailable — so the edge lookup
+// only added one full Supabase round trip (measured 16.11.2026 at a US edge: median 154 ms per uncached lookup) to every Post document, old
+// addresses first. Crawlers keep the cheap, CDN-cacheable edge 404 (no function invocation per crawled miss), bounded by the timeout above.
+export function edgePostLookupRequired(kind) {
+  return kind === 'goodbot' || kind === 'ai';
+}
 
 async function publicPostSlugExists(path) {
   const now = Date.now();
@@ -273,6 +283,7 @@ async function publicPostSlugExists(path) {
       method: 'POST',
       headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_slug: decoded, p_encoded_slug: encodedLower }),
+      signal: AbortSignal.timeout(POST_ROUTE_LOOKUP_TIMEOUT_MS),
     });
     if (!r.ok) return null;
     const data = await r.json();
@@ -377,16 +388,18 @@ export default async function middleware(request, context) {
 
   // Route legitimacy runs only after security/quarantine decisions. It does not alter CN/SG semantics.
   if (request.method === 'GET' || request.method === 'HEAD') {
+    // Crawlers only (see edgePostLookupRequired): a browser's document gets its 404 from the public document handler, one read later, not two.
+    const postLookup = edgePostLookupRequired(kind);
     // Legacy single-segment containment remains for compatibility, but G3 targets /post/:slug.
-    if (isSingleSegmentRoute(path) && !isKnownSingleSegmentRoute(path)) {
+    if (postLookup && isSingleSegmentRoute(path) && !isKnownSingleSegmentRoute(path)) {
       const exists = await publicPostSlugExists(path);
       if (exists === false) return routeNotFoundResponse();
-      // null = Supabase unavailable/uncertain -> fail-open, preserving site availability.
+      // null = Supabase unavailable/uncertain/timed out -> fail-open, preserving site availability.
     }
 
     // 2029 Post uses the same exact indexed slug owner — no second route-validity system.
     const post2029 = path.match(/^\/post\/([^/]+)\/?$/);
-    if (post2029) {
+    if (postLookup && post2029) {
       const exists = await publicPostSlugExists('/' + post2029[1]);
       if (exists === false) return routeNotFoundResponse();
     }

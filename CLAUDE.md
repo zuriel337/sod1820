@@ -70,6 +70,33 @@
 
 **אין פעולה במערכת שלא רואים מה קורה בה בכל רגע.** כל פתיחה, חיפוש, אימות, סריקה, שמירה וטעינה חייבת חיווי חי שדבוק למסך (ריבוע/מד קבוע, לא מוסתר מאחורי גלילה או לשונית), עם השלב האמיתי שהמערכת יודעת עליו ושניות שחלפו. אסור אחוז מומצא: בלי נתון אמיתי מציגים מד לא־מוגדר ושלב חי (בהתאם ל־`CanonicalProgress`). מסך קפוא בלי חיווי הוא באג, לא שיפור עתידי. המימוש הראשון: `ElsOperationMeter2029` (פתיחת המטריצה והמנוע, חיפוש, אימות, סריקה, שמירה, טעינת מקור), עם `onEngineReady` ב־`TzofenEmbed`. פעולה חדשה שאין לה חיווי כזה לא נחשבת גמורה.
 
+## חוק מהירות (Speed Law — ZURIEL, 16.11.2026)
+
+**אף סשן לא מחמיר את מהירות האתר.** החוק חל על כל שינוי, בכל ענף ובכל סוכן. השערים שלמטה רצים ב־build וב־CI, וכשל שלהם נשאר כשל: לא עוקפים אותו, לא מחלישים בדיקה ולא מעלים סף כדי לעבור.
+
+1. **קוד שכל עמוד טוען.**
+   - הכניסה והמסגרת (`Sod2029Shell`, `SystemFrame2029.jsx`, ה־CSS שלה וכל מה שהן מייבאות סטטית) לא גדלות, ולא מקבלות ייבוא סטטי חדש.
+   - השער הוא `scripts/test-2029-shell-budget.mjs`, ב־postbuild וב־`perf-contracts-2029`. ראו גם §9.
+   - יכולת חדשה במסגרת נכנסת מאחורי טעינה עצלה: `React.lazy`, ‏`import()` ברגע הצורך, או טעינה למחובר בלבד.
+   - העלאת baseline היא החלטת ZURIEL בלבד, רשומה בהיסטוריה של `scripts/2029-shell-budget-baseline.json`.
+   - מקרה אמיתי מ־16.11: ייבוא אחד של מפתח ב־`useSystemFeed2029.js` הכניס 20KB gzip לכל עמוד.
+2. **לפני מסירה, מיזוג או שילוב בחבילה** מריצים `npm run build` על העץ הסופי, כי השער רץ ב־postbuild. בנייה ישנה לא מוכיחה כלום. ענף שאינו מבוסס על `main` העדכני ממזג אותו קודם, ורק אז מוסר.
+3. **דף פוסט.** כלי מחקר, שיתוף, תגובות, ציר זמן, עורכים ותוספות יחידה נטענים בפתיחה או בהתקרבות (`toolOnOpen2029` / `toolOnApproach2029` ב־`Post2029Page.jsx`), לא בייבוא סטטי.
+4. **"המאמר קודם"** (מאמר השרת בפוסט ותיק).
+   - שינוי בגרף הייבוא של `postArticleDocument2029.js`, או ב־jsdom, מחייב להריץ `node scripts/build-article-first-proofs.mjs`.
+   - עד שמריצים, ה־CI נכשל (`test/article-first-proof-fresh.test.mjs`) והבנייה לא מגישה מאמר.
+   - המאמר במסמך חייב להיות זהה לדף: מסגרת, כותרת, גופנים וצבעים. אין קפיצת פסקה או עוגן, ו־CLS נשאר 0.
+5. **גופנים.**
+   - יש שני preload בלבד: `NotoSansHebrew-Regular.woff2` ו־`Rubik-Hebrew-Common.woff2`.
+   - עברית ברוביק מגיעה מקובץ אחד, יחד עם הרווחים, הספרות והפיסוק שלה.
+   - גופן חדש נכנס רק עם חלופה מקומית ממודדת (`docs/reviews/old-post-article-first-20261116/fonts/`), וב־`test/fonts-2029-faces.test.mjs`.
+6. **תמונות פוסט.**
+   - תמונות פוסט עוברות דרך `postImageRenditionSet2029`, עם הרוחב האמיתי של המקור (`public-reading-deploy/article-image-facts.json`). עותק מוצע רק כשהוא קטן מהמקור.
+   - אחרי פוסטים ותמונות חדשים מריצים `scripts/scan-article-image-facts.mjs`.
+   - חימום העותקים (`scripts/warm-article-image-renditions.mjs`) הוא צעד שחרור. יש לו עלות, ולכן רק באישור.
+7. **מדידת מהירות** משווה רק בין בניות זהות: אותם משתני סביבה (גם מזהי אנליטיקס), זרועות משולבות, n ו־p. מדידה לא הוגנת מסומנת ככזו ואינה ראיה.
+8. **אנליטיקס** לא משתנים בלי החלטת ZURIEL, אבל ההשפעה שלהם על המהירות מדווחת.
+
 ## נוהל פריסה ל־Production מסשן ענן — בלי CLI, בלי טוקן (אומת 6.11.2026, `be9b173` / `dpl_HcoHSTtpq6uv6CYkAkrTda8R2H13`)
 
 מיזוג ל־`main` אינו יוצר פריסה. ב־Vercel (פרויקט `sod1820`) מוגדר Ignored Build Step ישן (`main → exit 0`) שמבטל כל בנייה של `main`: גם redeploy, גם `gitSource` רגיל וגם `forceNew` מתבטלים בתוך שניות (`errorLink: ignored-build-step`). מי שמכריז "פרוס" לפני שבדק `readyState` כמה שניות אחרי היצירה טועה. הנוהל המאושר, באישור מפורש של ZURIEL לקומיט ולפריסה מדויקים:
@@ -214,6 +241,7 @@ git rev-list --left-right --count HEAD...origin/main
 - For a feature branch, verify the base at start and again before merge.
 - Never use destructive cleanup (`reset --hard`, `clean -f`, wholesale checkout) on an unknown/dirty tree.
 - Build verification: `npm run build` unless the active scope defines a narrower/stronger test.
+- **Shell budget (ZURIEL 16.11.2026):** every page pays for the entry graph and the System Frame before its own code. `npm run build` runs `scripts/test-2029-shell-budget.mjs` (also enforced in `perf-contracts-2029`): the entry and the frame (`Sod2029Shell`/`SystemFrame2029.jsx`, its CSS) may not grow and their always-loaded files may not gain a static import. A new frame capability goes behind a lazy slot, a signed-in-only import or a load on demand. After a reduction run `--lower` and commit the lower baseline. Raising the baseline is a ZURIEL decision recorded in `scripts/2029-shell-budget-baseline.json` history; never write `by: "ZURIEL"` without that decision in the session.
 - For DB-dependent claims, verify canonical Supabase `linswmnnkjxvweumprav` live.
 - Production/browser verification is required when the answer depends on actual UI/live behavior.
 

@@ -1,0 +1,5 @@
+/* Our own logo in the corner of an update of OURS (the reality-map series, the reality stream, Or HaGeula, ELS, the system posts): it names where the update comes from and never claims verification. */
+.sod29-ownbox { position: relative; flex: 0 0 auto; display: inline-grid; inline-size: var(--own-size, 44px); block-size: var(--own-size, 44px); }
+.sod29-ownbox > :first-child { inline-size: 100%; block-size: 100%; }
+.sod29-ownmark { position: absolute; inset-block-end: -5px; inset-inline-start: -5px; inline-size: 20px; block-size: 20px; border-radius: 50%; object-fit: cover; pointer-events: none;
+  box-shadow: 0 0 0 1.5px rgb(255 255 255 / .8), 0 2px 6px rgb(0 0 0 / .5); background: #0b1020; }

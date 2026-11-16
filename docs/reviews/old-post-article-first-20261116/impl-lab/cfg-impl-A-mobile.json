@@ -1,0 +1,66 @@
+{
+ "label": "impl-A-mobile",
+ "mode": "fixture",
+ "origin": "https://sod1820.co.il",
+ "device": "mobile",
+ "thirdParty": "scripts-only",
+ "scenarios": [
+  "cold"
+ ],
+ "runs": 3,
+ "gapMs": 1200,
+ "cpuProfile": false,
+ "readRpc": [
+  "world_group_source_arrivals_v2",
+  "convergence_meter"
+ ],
+ "fixture": {
+  "root": "<worktree of the combined base 978662134>",
+  "cacheDir": "<scratchpad>/lab/cache/supabase",
+  "docDelayMs": {
+   "old": 1300,
+   "new": 900,
+   "home": 700
+  },
+  "supabaseExtraMs": 250,
+  "record": true,
+  "staticCacheControl": null,
+  "inject": {}
+ },
+ "posts": [
+  {
+   "key": "O1",
+   "kind": "old",
+   "id": 31,
+   "path": "/%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c-%d7%a8%d7%91%d7%99-%d7%a9%d7%9c%d7%9e%d7%94-%d7%99%d7%94%d7%95%d7%93%d7%94-%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90",
+   "expect_title": "\u05ea\u05e4\u05d9\u05dc\u05d4 \u05dc\u05e8\u05e4\u05d5\u05d0\u05d4 \u05e9\u05dc \u05e8\u05d1\u05d9",
+   "expect_snippet": ""
+  },
+  {
+   "key": "O3",
+   "kind": "old",
+   "id": 192,
+   "path": "/%d7%a1%d7%93%d7%a8-%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c%d7%9e%d7%94-%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%a9%d7%9c-%d7%94%d7%a6%d7%94%d7%a7-%d7%a8%d7%91",
+   "expect_title": "\u05e1\u05d3\u05e8 \u05ea\u05e4\u05d9\u05dc\u05d4 \u05dc",
+   "expect_snippet": "\u05e1\u05d3\u05e8 \u05dc\u05d9\u05de\u05d5\u05d3 \u05e7\u05e8\u05d9\u05d0\u05d4 \u05d5\u05ea\u05e4\u05d9\u05dc\u05d4 \u05dc\u05e4\u05e0\u05d9"
+  },
+  {
+   "key": "V1",
+   "kind": "old",
+   "id": 1,
+   "path": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%99%d7%95%d7%9d-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%90-%d7%94%d7%a4%d7%aa%d7%a2%d7%95%d7%aa-%d7%a8%d7%91",
+   "expect_title": "\u05e6\u05d5\u05e4\u05df \u05d4\u05ea\u05d5\u05e8\u05d4 \u05dc\u05e7\u05e8\u05d0\u05ea \u05d7\u05d2 \u05d4\u05e9\u05d1\u05d5\u05e2\u05d5\u05ea",
+   "expect_snippet": "\u05e6\u05d5\u05e4\u05df \u05de\u05e6\u05de\u05e8\u05e8 \u05d1\u05ea\u05d5\u05e8\u05d4 \u05d4\u05e7\u05d3\u05d5\u05e9\u05d4"
+  },
+  {
+   "key": "M1",
+   "kind": "old",
+   "id": 5,
+   "path": "/%d7%93%d7%91%d7%95%d7%a8%d7%99%d7%9d-%d7%91%d7%a0%d7%aa%d7%99%d7%91%d7%95%d7%aa-%d7%98%d7%a8%d7%90%d7%9e%d7%a4-%d7%9e%d7%a9%d7%97%d7%a7-%d7%a2%d7%9d-%d7%93%d7%91%d7%95%d7%a8%d7%94-%d7%a8%d7%9e",
+   "expect_title": "\u05d3\u05d1\u05d5\u05e8\u05d9\u05dd \u05d1\u05e0\u05ea\u05d9\u05d1\u05d5\u05ea",
+   "expect_snippet": "\u05e9\u05d9\u05de\u05d5 \u05dc\u05d1: \u05d1\u05e0\u05ea\u05d9\u05d1\u05d5\u05ea \u05d3\u05d1\u05d5\u05e8\u05d9\u05dd"
+  }
+ ],
+ "net": "slow4g",
+ "settleMs": 9000
+}

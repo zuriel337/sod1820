@@ -21,6 +21,7 @@ await build({ stdin: { contents: `
   import React, {useMemo} from 'react';
   import {nowModels, buildNowEntries, filterNowBySource, nowPinnedMessage, nowSourceChoices} from './src/lib/nowPublications2029.js';
   import NavigationIcon2029 from './src/components/experience2029/NavigationIcon2029.jsx';
+  import OwnMarkBox2029 from './src/components/experience2029/OwnMark2029.jsx';
   import {NowPinnedMessage2029, NowSourceEmpty2029, NowSourcePicker2029} from './src/components/experience2029/NowRoyalCenter2029.jsx';
   import {relativeTimeLabel} from './src/lib/relativeTime2029.js';
   const Link = ({to,...props}) => React.createElement('a', {...props,href:to});

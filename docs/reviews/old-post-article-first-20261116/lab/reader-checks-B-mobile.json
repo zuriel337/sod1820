@@ -1,0 +1,576 @@
+[
+ {
+  "post": "O1",
+  "scrollBeforeAdoption": {
+   "pre": {
+    "top": 520,
+    "scrollY": 0
+   },
+   "post": {
+    "top": 188,
+    "connected": true,
+    "inPageSource": true
+   }
+  },
+  "afterAdoption": {
+   "adoption": {
+    "at": 7486,
+    "moved": 375
+   },
+   "documentArticleLeft": false,
+   "ssrResult": null,
+   "adoptedAttr": "true",
+   "articles": 1,
+   "h1": 1,
+   "sources": 1,
+   "scrollY": 659,
+   "url": "/%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c-%d7%a8%d7%91%d7%99-%d7%a9%d7%9c%d7%9e%d7%94-%d7%99%d7%94%d7%95%d7%93%d7%94-%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90",
+   "shifts": [
+    {
+     "t": 8066,
+     "v": 0.317,
+     "src": [
+      {
+       "n": "ASIDE.sod29-frame-panel",
+       "dy": 217,
+       "h0": 839,
+       "h1": 478
+      }
+     ]
+    },
+    {
+     "t": 8186,
+     "v": 0.3552,
+     "src": [
+      {
+       "n": "ASIDE.sod29-frame-panel",
+       "dy": -217,
+       "h0": 478,
+       "h1": 839
+      }
+     ]
+    }
+   ]
+  },
+  "nav": {
+   "internal": "/2029/posts?series=messages-from-righteous",
+   "away": "/2029/posts",
+   "back": {
+    "adoption": {
+     "at": 7132,
+     "moved": 375
+    },
+    "documentArticleLeft": false,
+    "ssrResult": null,
+    "adoptedAttr": "true",
+    "articles": 1,
+    "h1": 1,
+    "sources": 1,
+    "scrollY": 828,
+    "url": "/%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c-%d7%a8%d7%91%d7%99-%d7%a9%d7%9c%d7%9e%d7%94-%d7%99%d7%94%d7%95%d7%93%d7%94-%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90",
+    "shifts": [
+     {
+      "t": 7213,
+      "v": 0.0572,
+      "src": [
+       {
+        "n": "DIV.sod29-main-stage.has-context-rail",
+        "dy": 0,
+        "h0": 181,
+        "h1": 839
+       }
+      ]
+     },
+     {
+      "t": 7540,
+      "v": 0.317,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": 217,
+        "h0": 839,
+        "h1": 478
+       }
+      ]
+     },
+     {
+      "t": 7716,
+      "v": 0.3552,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": -217,
+        "h0": 478,
+        "h1": 839
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "anchor": null,
+  "errors": []
+ },
+ {
+  "post": "O3",
+  "scrollBeforeAdoption": {
+   "pre": {
+    "top": 913,
+    "scrollY": 0
+   },
+   "post": {
+    "top": 133,
+    "connected": true,
+    "inPageSource": true
+   }
+  },
+  "afterAdoption": {
+   "adoption": {
+    "at": 7187,
+    "moved": 339
+   },
+   "documentArticleLeft": false,
+   "ssrResult": null,
+   "adoptedAttr": "true",
+   "articles": 1,
+   "h1": 1,
+   "sources": 1,
+   "scrollY": 1052,
+   "url": "/%d7%a1%d7%93%d7%a8-%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c%d7%9e%d7%94-%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%a9%d7%9c-%d7%94%d7%a6%d7%94%d7%a7-%d7%a8%d7%91",
+   "shifts": [
+    {
+     "t": 2999,
+     "v": 0.0054,
+     "src": [
+      {
+       "n": "##text",
+       "dy": 0,
+       "h0": 86,
+       "h1": 86
+      },
+      {
+       "n": "##text",
+       "dy": 0,
+       "h0": 45,
+       "h1": 45
+      }
+     ]
+    },
+    {
+     "t": 7830,
+     "v": 0.317,
+     "src": [
+      {
+       "n": "ASIDE.sod29-frame-panel",
+       "dy": 217,
+       "h0": 839,
+       "h1": 478
+      }
+     ]
+    },
+    {
+     "t": 7978,
+     "v": 0.3552,
+     "src": [
+      {
+       "n": "ASIDE.sod29-frame-panel",
+       "dy": -217,
+       "h0": 478,
+       "h1": 839
+      }
+     ]
+    }
+   ]
+  },
+  "nav": {
+   "internal": "/2029/posts?category=%D7%94%D7%AA%D7%97%D7%96%D7%A7%D7%95%D7%AA",
+   "away": "/2029/posts",
+   "back": {
+    "adoption": {
+     "at": 6675,
+     "moved": 346
+    },
+    "documentArticleLeft": false,
+    "ssrResult": null,
+    "adoptedAttr": "true",
+    "articles": 1,
+    "h1": 1,
+    "sources": 1,
+    "scrollY": 856,
+    "url": "/%d7%a1%d7%93%d7%a8-%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c%d7%9e%d7%94-%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%a9%d7%9c-%d7%94%d7%a6%d7%94%d7%a7-%d7%a8%d7%91",
+    "shifts": [
+     {
+      "t": 2427,
+      "v": 0.0658,
+      "src": [
+       {
+        "n": "SECTION.sod29-ssr-source",
+        "dy": 0,
+        "h0": 839,
+        "h1": 839
+       }
+      ]
+     },
+     {
+      "t": 2990,
+      "v": 0.0019,
+      "src": [
+       {
+        "n": "##text",
+        "dy": 0,
+        "h0": 45,
+        "h1": 45
+       }
+      ]
+     },
+     {
+      "t": 6720,
+      "v": 0.0572,
+      "src": [
+       {
+        "n": "DIV.sod29-main-stage.has-context-rail",
+        "dy": 0,
+        "h0": 153,
+        "h1": 839
+       }
+      ]
+     },
+     {
+      "t": 7078,
+      "v": 0.317,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": 217,
+        "h0": 839,
+        "h1": 478
+       }
+      ]
+     },
+     {
+      "t": 7203,
+      "v": 0.3552,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": -217,
+        "h0": 478,
+        "h1": 839
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "anchor": {
+   "name": "_Toc10337527",
+   "before": -13,
+   "after": {
+    "count": 1,
+    "top": -50
+   },
+   "state": {
+    "adoption": {
+     "at": 7320,
+     "moved": 340
+    },
+    "documentArticleLeft": false,
+    "ssrResult": null,
+    "adoptedAttr": "true",
+    "articles": 1,
+    "h1": 1,
+    "sources": 1,
+    "scrollY": 1419,
+    "url": "/%d7%a1%d7%93%d7%a8-%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%9c%d7%a8%d7%a4%d7%95%d7%90%d7%94-%d7%a9%d7%9c%d7%9e%d7%94-%d7%aa%d7%a4%d7%99%d7%9c%d7%94-%d7%a9%d7%9c-%d7%94%d7%a6%d7%94%d7%a7-%d7%a8%d7%91#_Toc10337527",
+    "shifts": [
+     {
+      "t": 3006,
+      "v": 0.0019,
+      "src": [
+       {
+        "n": "##text",
+        "dy": 0,
+        "h0": 45,
+        "h1": 45
+       }
+      ]
+     },
+     {
+      "t": 8155,
+      "v": 0.317,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": 217,
+        "h0": 839,
+        "h1": 478
+       }
+      ]
+     },
+     {
+      "t": 8314,
+      "v": 0.3552,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": -217,
+        "h0": 478,
+        "h1": 839
+       }
+      ]
+     }
+    ]
+   },
+   "errors": []
+  },
+  "errors": []
+ },
+ {
+  "post": "V1",
+  "scrollBeforeAdoption": {
+   "pre": {
+    "top": 584,
+    "scrollY": 0
+   },
+   "post": {
+    "top": 152,
+    "connected": true,
+    "inPageSource": true
+   }
+  },
+  "afterAdoption": {
+   "adoption": {
+    "at": 9541,
+    "moved": 391
+   },
+   "documentArticleLeft": false,
+   "ssrResult": null,
+   "adoptedAttr": "true",
+   "articles": 1,
+   "h1": 1,
+   "sources": 1,
+   "scrollY": 775,
+   "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%99%d7%95%d7%9d-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%90-%d7%94%d7%a4%d7%aa%d7%a2%d7%95%d7%aa-%d7%a8%d7%91",
+   "shifts": [
+    {
+     "t": 10332,
+     "v": 0.317,
+     "src": [
+      {
+       "n": "ASIDE.sod29-frame-panel",
+       "dy": 217,
+       "h0": 839,
+       "h1": 478
+      }
+     ]
+    },
+    {
+     "t": 10419,
+     "v": 0.3552,
+     "src": [
+      {
+       "n": "ASIDE.sod29-frame-panel",
+       "dy": -217,
+       "h0": 478,
+       "h1": 839
+      }
+     ]
+    }
+   ]
+  },
+  "nav": {
+   "internal": "/2029/posts?category=%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+   "away": "/2029/posts",
+   "back": {
+    "adoption": {
+     "at": 9049,
+     "moved": 446
+    },
+    "documentArticleLeft": false,
+    "ssrResult": null,
+    "adoptedAttr": "true",
+    "articles": 1,
+    "h1": 1,
+    "sources": 1,
+    "scrollY": 908,
+    "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%99%d7%95%d7%9d-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%90-%d7%94%d7%a4%d7%aa%d7%a2%d7%95%d7%aa-%d7%a8%d7%91",
+    "shifts": [
+     {
+      "t": 9089,
+      "v": 0.0572,
+      "src": [
+       {
+        "n": "DIV.sod29-main-stage.has-context-rail",
+        "dy": 0,
+        "h0": 101,
+        "h1": 839
+       }
+      ]
+     },
+     {
+      "t": 9521,
+      "v": 0.317,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": 217,
+        "h0": 839,
+        "h1": 478
+       }
+      ]
+     },
+     {
+      "t": 9634,
+      "v": 0.3552,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": -217,
+        "h0": 478,
+        "h1": 839
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "anchor": null,
+  "errors": []
+ },
+ {
+  "post": "M1",
+  "scrollBeforeAdoption": {
+   "pre": {
+    "top": 1408,
+    "scrollY": 0
+   },
+   "post": {
+    "top": 292,
+    "connected": true,
+    "inPageSource": true
+   }
+  },
+  "afterAdoption": {
+   "adoption": {
+    "at": 8986,
+    "moved": 441
+   },
+   "documentArticleLeft": false,
+   "ssrResult": null,
+   "adoptedAttr": "true",
+   "articles": 1,
+   "h1": 1,
+   "sources": 1,
+   "scrollY": 1365,
+   "url": "/%d7%93%d7%91%d7%95%d7%a8%d7%99%d7%9d-%d7%91%d7%a0%d7%aa%d7%99%d7%91%d7%95%d7%aa-%d7%98%d7%a8%d7%90%d7%9e%d7%a4-%d7%9e%d7%a9%d7%97%d7%a7-%d7%a2%d7%9d-%d7%93%d7%91%d7%95%d7%a8%d7%94-%d7%a8%d7%9e",
+   "shifts": [
+    {
+     "t": 2448,
+     "v": 0.0024,
+     "src": [
+      {
+       "n": "DIV.wp-block-media-text.is-stacked-on-mobile",
+       "dy": -3,
+       "h0": 458,
+       "h1": 463
+      }
+     ]
+    },
+    {
+     "t": 2513,
+     "v": 0.0006,
+     "src": [
+      {
+       "n": "FIGURE.wp-block-image.size-full",
+       "dy": -6,
+       "h0": 89,
+       "h1": 89
+      }
+     ]
+    },
+    {
+     "t": 9749,
+     "v": 0.317,
+     "src": [
+      {
+       "n": "ASIDE.sod29-frame-panel",
+       "dy": 217,
+       "h0": 839,
+       "h1": 478
+      }
+     ]
+    },
+    {
+     "t": 9947,
+     "v": 0.3552,
+     "src": [
+      {
+       "n": "ASIDE.sod29-frame-panel",
+       "dy": -217,
+       "h0": 478,
+       "h1": 839
+      }
+     ]
+    }
+   ]
+  },
+  "nav": {
+   "internal": "/2029/posts?category=%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+   "away": "/2029/posts",
+   "back": {
+    "adoption": {
+     "at": 8632,
+     "moved": 441
+    },
+    "documentArticleLeft": false,
+    "ssrResult": null,
+    "adoptedAttr": "true",
+    "articles": 1,
+    "h1": 1,
+    "sources": 1,
+    "scrollY": 908,
+    "url": "/%d7%93%d7%91%d7%95%d7%a8%d7%99%d7%9d-%d7%91%d7%a0%d7%aa%d7%99%d7%91%d7%95%d7%aa-%d7%98%d7%a8%d7%90%d7%9e%d7%a4-%d7%9e%d7%a9%d7%97%d7%a7-%d7%a2%d7%9d-%d7%93%d7%91%d7%95%d7%a8%d7%94-%d7%a8%d7%9e",
+    "shifts": [
+     {
+      "t": 8720,
+      "v": 0.0572,
+      "src": [
+       {
+        "n": "DIV.sod29-main-stage.has-context-rail",
+        "dy": 0,
+        "h0": 101,
+        "h1": 839
+       }
+      ]
+     },
+     {
+      "t": 8864,
+      "v": 0.317,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": 217,
+        "h0": 839,
+        "h1": 478
+       }
+      ]
+     },
+     {
+      "t": 8999,
+      "v": 0.3552,
+      "src": [
+       {
+        "n": "ASIDE.sod29-frame-panel",
+        "dy": -217,
+        "h0": 478,
+        "h1": 839
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "anchor": null,
+  "errors": []
+ }
+]

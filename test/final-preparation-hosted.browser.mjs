@@ -30,7 +30,7 @@ try{for(const width of [390,1440]){
   await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:60000});await page.locator('[data-home-primary="ready"]').waitFor();await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
   const artifact=await page.evaluate(async()=>await(await fetch('/public-reading-artifact.json',{cache:'no-store'})).json());assert.equal(artifact.sourceSha,cfg.sha);assert.equal(artifact.protectedReview?.branch,cfg.branch);assert.equal(artifact.protectedReview?.deploymentId,cfg.deploymentId);assert.equal(artifact.productionReady,false);assert.equal(artifact.applicationSourceDirty,false);
   if(artifact.sourceDirty){const m=artifact.platformConfigMaterialization;assert.equal(m?.kind,'vercel-selected-nested-config-at-root');assert.equal(m?.trackedStatus,' M vercel.json');assert.equal(m?.completeJsonEquivalent,true);assert.equal(m?.arrayOrderPreserved,true);assert.equal(m?.sourceSha,cfg.sha);assert.equal(m?.committedPath,'public-reading-deploy/vercel.json');assert.equal(m?.materializedPath,'vercel.json');}
-  await page.locator('[data-home-series]').first().waitFor();assert.equal(await page.locator('[data-companion-visibility="temporarily-hidden"]').count(),1);
+  await page.locator('[data-home-series]').first().waitFor();assert.equal(await page.locator('[data-companion-visibility]').count(),0);
   row.worker=await page.evaluate(()=>new URL(navigator.serviceWorker.controller.scriptURL).pathname);row.series=await page.locator('[data-home-series]').count();
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
  });

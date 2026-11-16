@@ -2,6 +2,12 @@
 // is owned by watchWorldDiscoveryStream. Tiers (Gold/Diamond) are read lazily for the first three convergences.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { feedRows, feedSeenKey, mergeNowDiscussionItems, mergeSystemFeedItems } from "../../lib/systemFeed2029.js";
+// The series-latest seen key lives with the publications model (nowPublications2029.js), which the publications window and the Home strip
+// already load. A static import here would put that whole model into the System Frame every page pays for (shell budget, 16.11.2026: +20 KB
+// gzip), so it is read when a row is entered.
+let seriesLatestSeenKeyOf = null;
+const loadSeriesLatestSeenKey = () => seriesLatestSeenKeyOf ? Promise.resolve(seriesLatestSeenKeyOf)
+  : import("../../lib/nowPublications2029.js").then((module) => (seriesLatestSeenKeyOf = module.seriesLatestSeenKey));
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
@@ -113,8 +119,14 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip =
   }), [items, seen, strongIds, nowSources.items]);
   const newCount = rows.filter((row) => row.isNew).length;
   const newest = rows.filter((row) => row.isNew).map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
-  const see = useCallback((row) => setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current))), []);
+  const see = useCallback((row) => {
+    setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current)));
+    // entering the row also settles the series-latest dot (per Post and per registered update); the existing per-browser seen state, nothing new
+    if (row?.id) loadSeriesLatestSeenKey().then((keyOf) => setSeen((current) => (current[keyOf(row.id)] ? current : markSeen(keyOf(row.id), current)))).catch(() => {});
+  }, []);
+  // the Post page marks the same key when it is entered directly (event below), and the hook re-reads the store when Now opens
+  useEffect(() => { if (nowOpen) setSeen(readSeen()); }, [nowOpen]);
   // The Home strip waits for the details read it asked for (settled = loaded or failed), so it never flashes empty between stages.
   const detailsPending = enabled && homeStrip && !nowOpen && (!nowSources.requested || nowSources.loading);
-  return { ...state, items, rows, expandedRows, nowSources, detailsPending, requestNowDetails, refreshNowDetails, newCount, newest, see };
+  return { ...state, items, rows, expandedRows, nowSources, detailsPending, requestNowDetails, refreshNowDetails, newCount, newest, see, seen };
 }

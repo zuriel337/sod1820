@@ -194,12 +194,47 @@
 /* Side rail as a floating capsule (desktop), same language as the dock. The home glyph above the nav duplicated the Home item and is hidden when the rail is slim. */
 @media (min-width: 981px) {
   /* both side capsules share the same top and bottom so they read as one pair */
-  .sod29-root.closed-shell.native-frame { --s29-capsule-top: calc(var(--sod-review-offset, 0px) + 78px); --s29-capsule-bottom: calc(var(--s29-bar-height, 0px) + 12px); }
+  .sod29-root.closed-shell.native-frame { --s29-capsule-top: calc(var(--sod-review-offset, 0px) + 78px); --s29-capsule-bottom: 10px; }  /* ZURIEL 17.11.2026: both side capsules run to 10px from the bottom edge — the Command Island is centred and never overlaps them (checked 981 to 1920px) */
   .sod29-root.closed-shell.native-frame .sod29-sidebar {
     inset-block-start: var(--s29-capsule-top) !important; inset-block-end: var(--s29-capsule-bottom) !important;
     inset-inline-start: 8px !important; border: 1px solid var(--s29-line-strong); border-radius: 28px;
     height: auto !important; max-height: none !important;
     box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
+  }
+  /* The left context rail (the tree of the Post) is the other half of the pair: same top, bottom, edge gap, radius, border and shadow as the right rail.
+     It is fixed like the right rail; its grid column stays reserved, so the content does not move. */
+  .sod29-root.closed-shell.native-frame:is(.surface-post, .surface-topic) .sod29-surface-context-rail {
+    position: fixed !important; inset-block-start: var(--s29-capsule-top) !important; inset-block-end: auto !important;
+    left: 8px !important; right: auto !important; width: 286px; margin: 0 !important;
+    /* an explicit height from the same two tokens: a grid container does not stretch between top and bottom by itself */
+    height: calc(100dvh - var(--s29-capsule-top) - var(--s29-capsule-bottom)) !important; max-height: none !important;
+    border: 1px solid var(--s29-line-strong); border-radius: 28px; z-index: 18;
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
+  }
+
+  /* ROYAL, SUBTLE (ZURIEL 17.11.2026): both side capsules take the personal area's own sapphire recipe (personalArea2029.css): a sapphire-tinted panel, a hairline sapphire
+     border, one faint gold hairline on the top edge and a soft sapphire shadow. Gold stays for the small things (the active dot, the kickers). The SAME three tokens feed
+     both rails in every theme, so the pair cannot drift apart. */
+  .sod29-root.closed-shell.native-frame {
+    --s29-rail-royal-border: color-mix(in srgb, var(--s29-brand-sapphire) 38%, var(--s29-line));
+    --s29-rail-royal-fill: linear-gradient(180deg, color-mix(in srgb, var(--s29-brand-sapphire) 12%, var(--s29-panel)), color-mix(in srgb, var(--s29-page) 40%, var(--s29-panel)));
+    --s29-rail-royal-shadow: inset 0 1px 0 color-mix(in srgb, var(--s29-brand-gold) 16%, transparent), 0 14px 40px -14px color-mix(in srgb, var(--s29-brand-sapphire) 60%, transparent);
+  }
+  .sod29-root.closed-shell.native-frame .sod29-sidebar,
+  .sod29-root.closed-shell.native-frame:is(.surface-post, .surface-topic) .sod29-surface-context-rail {
+    border: 1px solid var(--s29-rail-royal-border) !important;
+    background: var(--s29-rail-royal-fill) !important;
+    box-shadow: var(--s29-rail-royal-shadow) !important;
+  }
+  /* The verse band and the footer sit BETWEEN the two capsules (ZURIEL 17.11.2026): the left rail now runs to the bottom of the viewport, so a full-width band or footer
+     would run under it (the footer's left column was cut off). They take the same reserved width the page content already reserves for that rail. */
+  .sod29-root.closed-shell.native-frame:has(.sod29-main-stage.has-context-rail) :is(.sod29-living-ribbon, footer.f29) {
+    margin-inline-start: 8px;   /* the right capsule leaves 2px; 8px more gives the same 10px gap on both sides */
+    margin-inline-end: calc(var(--s29-context-rail-width, 286px) + 18px);   /* the left capsule's edge gap (8px) + its width + a 10px gap */
+  }
+  .sod29-root.closed-shell.native-frame .sod29-surface-context-rail .sod29-context-inspector-kicker { color: color-mix(in srgb, var(--s29-brand-gold) 78%, var(--s29-ink)); }
+  .sod29-root.closed-shell.native-frame .sod29-surface-context-rail :is(.sod29-surface-context-depth-pointer, .sod29-surface-context-deepen) {
+    border-color: color-mix(in srgb, var(--s29-brand-sapphire) 45%, var(--s29-line)); background: color-mix(in srgb, var(--s29-brand-sapphire) 12%, var(--s29-panel));
   }
     .sod29-root.closed-shell.native-frame .sod29-nav-link.active { box-shadow: inset -3px 0 0 var(--s29-brand-gold); }
 }
@@ -296,7 +331,6 @@
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-header.closed-orientation,
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-sidebar,
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame.sidebar-collapsed .sod29-logo-toggle,
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion,
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) {
     background: var(--s29-glass-bg); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
     border-color: var(--s29-glass-edge);
@@ -331,9 +365,6 @@
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-theme-presets button.is-active {
     background: var(--s29-glass-lift); border-color: var(--s29-glass-edge); color: var(--s29-ink); box-shadow: inset 0 1px 0 var(--s29-glass-shine);
   }
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion-pin[aria-pressed="true"] { border-color: color-mix(in srgb, var(--s29-ink) 30%, transparent); }
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion-ico.is-on { border-color: color-mix(in srgb, var(--s29-ink) 30%, transparent); background: var(--s29-glass-lift); }
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion.is-peek { box-shadow: inset 0 1px 0 var(--s29-glass-shine), 0 20px 60px color-mix(in srgb, var(--s29-page) 65%, transparent); }
 }
 
 .sod29-theme-options { display: contents; }
@@ -479,3 +510,15 @@
 @media(prefers-reduced-motion:reduce){
   .sod29-root.closed-shell.native-frame .sod29-header-search{transition:none}
 }
+
+/* the Post grid narrows its rail column to 248px up to 1180px: the fixed left rail follows the same width */
+@media (min-width: 981px) and (max-width: 1180px) {
+  .sod29-root.closed-shell.native-frame:is(.surface-post, .surface-topic) .sod29-surface-context-rail { width: 248px; }
+}
+
+/* The top bar names the ACTIVE unit inside the Post (one identity: post > unit); the small link returns to the Post's own scope. It is a segment of the existing orientation line, never a second bar. */
+.sod29-orientation .sod29-orientation-unit { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.sod29-orientation .sod29-orientation-unit-name { color: var(--s29-brand-gold); max-inline-size: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.sod29-orientation .sod29-orientation-back { background: none; border: 0; padding: 0 4px; font: inherit; font-size: 12px; color: var(--s29-accent-text); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.sod29-orientation .sod29-orientation-back:focus-visible { outline: 2px solid var(--s29-focus, currentColor); outline-offset: 2px; border-radius: 4px; }
+@media (max-width: 720px) { .sod29-orientation .sod29-orientation-unit { display: none; } }

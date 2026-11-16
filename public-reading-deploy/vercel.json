@@ -3140,7 +3140,7 @@
       ]
     },
     {
-      "source": "/fonts/(NotoSansHebrew-Regular.ttf|NotoSansHebrew-Bold.ttf|Rubik-Hebrew.woff2|Rubik-Latin.woff2)",
+      "source": "/fonts/(NotoSansHebrew-Regular.ttf|NotoSansHebrew-Bold.ttf|NotoSansHebrew-Regular.woff2|NotoSansHebrew-Bold.woff2|Rubik-Hebrew-Common.woff2|Rubik-Latin.woff2)",
       "headers": [
         {
           "key": "Cache-Control",

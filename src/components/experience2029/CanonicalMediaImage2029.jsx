@@ -14,6 +14,8 @@ export default function CanonicalMediaImage2029({
   loading = "lazy",
   decoding = undefined,
   fetchPriority = undefined,
+  srcSet = undefined,
+  sizes = undefined,
   className = "",
 }) {
   const resolvedSrc = src || (
@@ -35,6 +37,8 @@ export default function CanonicalMediaImage2029({
     loading={loading}
     decoding={resolvedDecoding}
     fetchPriority={fetchPriority}
+    srcSet={srcSet}
+    sizes={srcSet ? sizes : undefined}
     className={[
       "sod29-canonical-media-image",
       primary ? "is-primary" : "",

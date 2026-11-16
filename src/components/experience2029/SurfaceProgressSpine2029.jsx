@@ -1,4 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { visibleOutlineRows } from "../../lib/research/postOutline2029.js";
+
+// A tree row may point inside a collapsed <details> (the Post's "מקורות וקשרים"): open every closed ancestor first, so the jump lands on visible content (ZURIEL 16.11.2026 plan, item B).
+export function revealAndScrollTo(id, options = { behavior: "smooth", block: "start" }) {
+  if (typeof document === "undefined") return null;
+  const node = document.getElementById(id);
+  if (!node) return null;
+  let opened = false;
+  for (let host = node.closest?.("details"); host; host = host.parentElement?.closest?.("details")) if (!host.open) { host.open = true; opened = true; }
+  node.scrollIntoView?.(options);
+  // the opened content mounts its own parts (measures, connections) and grows after the first jump: settle once more on the same target
+  if (opened && typeof setTimeout === "function") setTimeout(() => node.scrollIntoView?.({ behavior: "auto", block: options.block || "start" }), 450);
+  return node;
+}
 
 export default function SurfaceProgressSpine2029({
   items = [],
@@ -39,13 +53,16 @@ export default function SurfaceProgressSpine2029({
 
   if (!rows.length) return null;
   const currentId = observedId || activeId || rows[0]?.id;
+  // two levels: a section's children (units, sub-headings) are drawn only while that section is the active parent
+  const drawn = visibleOutlineRows(rows, currentId);
 
   return <nav className="sod29-surface-progress-spine" aria-label={ariaLabel} data-experience-capability="surface-progress-spine">
     <span className="sod29-surface-progress-line" aria-hidden="true" />
-    {rows.map((item) => interactive ? <button
+    {drawn.map((item) => interactive ? <button
       key={item.id}
       type="button"
-      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}`}
+      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}${item.level === 2 ? " is-child" : ""}`}
+      data-outline-level={item.level === 2 ? 2 : 1}
       aria-label={item.label}
       aria-current={item.id === currentId ? "step" : undefined}
       title={item.label}
@@ -53,11 +70,11 @@ export default function SurfaceProgressSpine2029({
       onClick={() => {
         setObservedId(item.id);
         onSelect?.(item);
-        document.getElementById(item.targetId || item.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        revealAndScrollTo(item.targetId || item.id);
       }}
     ><span /><small>{item.label}</small></button> : <div
       key={item.id}
-      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}`}
+      className={`sod29-surface-progress-point${item.id === currentId ? " is-active" : ""}${item.level === 2 ? " is-child" : ""}`}
       aria-current={item.id === currentId ? "step" : undefined}
     ><span /><small>{item.label}</small></div>)}
   </nav>;

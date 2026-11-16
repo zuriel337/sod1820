@@ -12,7 +12,9 @@ export default function SurfaceSectionNav2029({ items = [], activeId = null, onS
       aria-current={item.id === activeId ? "page" : undefined}
       onClick={() => {
         onSelect?.(item);
-        document.getElementById(item.targetId || item.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        // `targetIds` (optional) is an ordered fallback list: the first element that exists in the page is the target.
+        const target = (item.targetIds || []).map((id) => document.getElementById(id)).find(Boolean) || document.getElementById(item.targetId || item.id);
+        target?.scrollIntoView({ behavior: "smooth", block: "start" });
       }}
     >{item.label}</button>)}
   </nav>;

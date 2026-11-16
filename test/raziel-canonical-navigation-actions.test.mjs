@@ -397,7 +397,7 @@ test("the actual WhatsApp history adapter selects the newest focus regardless of
   }
 });
 test("the thread renders the button from the validated seam helper and offers no research one-shots on a navigation answer", () => {
-  const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+  const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
   assert.match(frame, /razielNavigationButton\(m\)\.href/);
   const oneShots = read("src/components/experience2029/RazielOneShotActions2029.jsx");
   assert.match(oneShots, /if \(latestRaziel\?\.navigationAction \|\| latestRaziel\?\.navigationClarify\) return null;/);

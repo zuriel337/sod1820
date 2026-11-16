@@ -26,6 +26,8 @@ export const CONTENT_SERIES_2029 = Object.freeze([
       Object.freeze({ field: "tags", value: "מפת המציאות" }),
     ]),
     exactAuthor: null,
+    // ZURIEL 16.11.2026: post 5107 (הבחירות לכנסת ה־26 — the elections post, divided into units) is the FIRST post of the series. It is a member by the exact tag, like every
+    // other member (the tag was added to the post by ZURIEL's instruction, 16.11.2026); there is no id admission here and no membership memory. PLAN37 record: pending.
     relationNote: "הסדרה הראשית: מחקרים, צפנים ותגליות. חברות רק מהתגית המדויקת; אינה חלונית רמזים, אינה גרף הקשרים ואינה זרם המציאות.",
     // Home entrances to the future content families (ZURIEL 6.11.2026). They are LINKS to the existing source-category pages
     // ("סיווג במקור"), nothing more: no membership, no selector, no field, no assignment. A family without a category is shown

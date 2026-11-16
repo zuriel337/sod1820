@@ -156,15 +156,17 @@ function normalizeBottomTrail(value) {
 function normalizeSurfaceSections(value) {
   if (!Array.isArray(value)) return [];
   return value
-    .slice(0, 12)
+    .slice(0, 48)                                   // up to 12 sections and their children (postOutline2029)
     .map((item, index) => {
       if (!isObject(item)) return null;
       const label = cleanString(item.label);
       if (!label) return null;
+      const level = item.level === 2 && cleanString(item.parentId) ? 2 : null;
       return {
         id: cleanString(item.id) || `section-${index + 1}`,
         label,
         targetId: cleanString(item.targetId) || cleanString(item.id),
+        ...(level ? { level, parentId: cleanString(item.parentId) } : {}),
       };
     })
     .filter(Boolean);

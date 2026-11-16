@@ -68,7 +68,7 @@ test('guest home: timer opens the existing sheet; dismissal survives navigation 
   const f = await open();
   try {
     assert.equal(await sheet(f.page).count(), 0);
-    await f.page.clock.fastForward(23000);
+    await f.page.clock.fastForward(31000);
     await sheet(f.page).waitFor();
     const box = await sheet(f.page).boundingBox();
     assert.ok(box.x >= -1 && box.x + box.width <= 391, 'the actual mobile sheet fits the viewport');
@@ -77,18 +77,20 @@ test('guest home: timer opens the existing sheet; dismissal survives navigation 
     const remaining = await f.page.evaluate(() => Number(localStorage.getItem('sod_legacy_newsletter_invite_until')) - Date.now());
     assert.ok(remaining > 13.99 * 86400000 && remaining <= 14 * 86400000);
     await f.page.goto(f.fixture.origin + '/world');
-    await f.page.clock.fastForward(23000);
+    await f.page.clock.fastForward(31000);
     assert.equal(await sheet(f.page).count(), 0);
   } finally { await f.close(); }
 });
 
-test('desktop original Post address: scrolling over 450px opens the invitation before the timer', { timeout: 60000 }, async () => {
+test('desktop original Post address: scrolling does not open the invitation; half a minute on the page does, whatever the scroll', { timeout: 60000 }, async () => {
   const f = await open({ path: '/' + SLUG, width: 1280 });
   try {
     await f.page.locator('article [data-public-post-id]').waitFor();
     assert.equal(await sheet(f.page).count(), 0);
-    await f.page.evaluate(() => window.scrollTo({ top: 500, behavior: 'instant' }));
-    await f.page.waitForFunction(() => scrollY > 450);
+    await f.page.evaluate(() => window.scrollTo({ top: 2500, behavior: 'instant' }));
+    await f.page.clock.fastForward(20000);
+    assert.equal(await sheet(f.page).count(), 0, 'no pixel trigger: a deep scroll before half a minute opens nothing');
+    await f.page.clock.fastForward(11000);
     await sheet(f.page).waitFor();
   } finally { await f.close(); }
 });
@@ -96,12 +98,12 @@ test('desktop original Post address: scrolling over 450px opens the invitation b
 test('a slow original Post qualifies only after its public content resolves', { timeout: 60000 }, async () => {
   const f = await open({ path: '/' + SLUG, holdPost: true });
   try {
-    await f.page.clock.fastForward(23000);
+    await f.page.clock.fastForward(31000);
     assert.equal(await sheet(f.page).count(), 0, 'loading is not a public Post');
     f.releasePost();
     await f.page.locator('article [data-public-post-id]').waitFor();
     // The entry may mount the Post shell only after resolution, starting its timer then.
-    await f.page.clock.fastForward(23000);
+    await f.page.clock.fastForward(31000);
     await sheet(f.page).waitFor();
   } finally { await f.close(); }
 });

@@ -26,7 +26,7 @@ const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const migration = read("supabase/migrations/20260922205800_g3_research_path_resumability_runtime_v1.sql");
 const provider = read("src/lib/research/ResearchProvider.jsx");
-const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
 
 const context = normalizeResearchContext({
   subject: { id: "1820", type: "number", label: "1820", href: "/2029/number/1820" },
