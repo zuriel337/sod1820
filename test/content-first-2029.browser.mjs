@@ -23,11 +23,10 @@ async function visit(path, { rows = [row], delayReadMs = 0, width = 390, cover =
   const fixture = await startFixture({ supabase: async ({ url }) => {
     if (url.pathname === '/rest/v1/posts') {
       const slug = url.searchParams.get('slug') || '';
-      if (!slug) return { body: [] };                                         // the frame's featured Post read
+      if (!slug) return { body: [] };                                         // the frame's public stream and featured Post reads
       if (delayReadMs) await delay(delayReadMs);
       return { body: rows.filter(candidate => slug.includes(candidate.slug)) };
     }
-    if (url.pathname === '/rest/v1/research_objects') return { body: [] };   // the frame's public stream
     return null;
   } });
   const browser = await pw.chromium.launch({ executablePath, headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
@@ -59,7 +58,8 @@ const timings = page => page.evaluate(cover => {
   const image = entries.find(entry => entry.name.endsWith(cover));
   const nav = performance.getEntriesByType('navigation')[0];
   return { articleAt: window.__articleAt, loadAt: nav && nav.loadEventStart ? nav.loadEventStart : null,
-    gtag: first(/googletagmanager\.com\/gtag\/js/), visit: first(/\/rpc\/track_visit/), stream: first(/\/rest\/v1\/research_objects/),
+    // the frame's public stream reads the latest modified public posts (worldDiscoveryStream: order=modified)
+    gtag: first(/googletagmanager\.com\/gtag\/js/), visit: first(/\/rpc\/track_visit/), stream: first(/\/rest\/v1\/posts\?.*order=modified/),
     adsense: first(/googlesyndication\.com/), coverEnd: image && image.responseEnd ? image.responseEnd : null };
 }, COVER);
 async function waitFor(page, keys, ms) {
@@ -103,12 +103,23 @@ test("the Google tag waits for the article's priority image while it downloads, 
   } });
 });
 
-test('an address that never reaches an article still measures, after the bounded wait', { timeout: 60000 }, async () => {
+test('an address that settles on the not-found page measures once that page is shown, without the bounded wait', { timeout: 60000 }, async () => {
   await visit('/content-first-address-without-a-post', { rows: [], run: async page => {
-    const seen = await waitFor(page, ['gtag', 'visit'], 25000);
+    await page.locator('[data-experience-surface="not-found"]').waitFor({ timeout: 40000 });
+    const shownAt = await page.evaluate(() => performance.now());
+    const seen = await waitFor(page, ['gtag', 'visit'], 15000);
     assert.equal(seen.articleAt, null, 'there is no article');
-    assert.ok(seen.gtag != null && seen.visit != null, `measured after the cap: ${JSON.stringify(seen)}`);
-    assert.ok(seen.gtag >= 9000, `not before the bound (${Math.round(seen.gtag)} ms)`);
+    assert.ok(seen.gtag != null && seen.visit != null, `measured: ${JSON.stringify(seen)}`);
+    assert.ok(seen.gtag < 9000 && seen.gtag <= shownAt + 4000, `not held for the bound (${Math.round(seen.gtag)} ms)`);
+  } });
+});
+
+test('a Post still loading when the bound passes measures after the bound (delayed, never dropped)', { timeout: 60000 }, async () => {
+  await visit('/post/' + row.slug, { delayReadMs: 20000, run: async page => {
+    const seen = await waitFor(page, ['gtag', 'visit'], 18000);
+    assert.equal(seen.articleAt, null, 'the article has not arrived');
+    assert.ok(seen.gtag != null && seen.visit != null, `measured after the bound: ${JSON.stringify(seen)}`);
+    assert.ok(seen.gtag >= 9500 && seen.visit >= 9500, `not before the bound: ${JSON.stringify(seen)}`);
   } });
 });
 
