@@ -32,6 +32,25 @@ Same session, the already released packages (A one request for both spellings, D
 - `scripts/test-route-legitimacy-2029.mjs` PASS, with new pins for the crawler-only rule and the bound.
 - `test/public-reading-production-artifact.test.mjs` 25/25 (the document handler's 404/503 ownership), route SEO decisions, main release contract, edge country/quarantine/SG, DEF-001/005, M0a, RPC deploy order: all pass. CI result belongs to the PR head, not to these local runs.
 
+## End-to-end proof: 200 / 404 / 503 and hidden content (added 16.11.2026, review package)
+
+**Database facts, read live (read-only):** `public_post_slug_exists` is `SECURITY INVOKER` and only checks that a row exists; RLS `posts_anon_read` hides rows tagged `טיוטה` from the anonymous key. So for a draft the edge lookup itself says "no such post", while a row tagged `פורום` is readable: the lookup says "exists" and only the document handler hides it (`hasSuppressedPublicPostTag` in `api/og.js`). The hiding of a readable but suppressed post never depended on the edge lookup.
+
+**Test** `test/post-document-status-edge-2029.test.mjs` (12/12 locally; wired into `release-contracts-2029` after the production build it needs): the real edge middleware and the real document handler in sequence, for a browser and for Google, over a synthetic database that applies the same RLS rule. The crawler still runs the lookup, exactly as every request did before the change, so it is the "before" column.
+
+| address | browser after the change | Google (= before) |
+|---|---|---|
+| public old address, encoded Hebrew address, `/post/` | 200, `index`, read once at the document | 200 |
+| missing old address, missing `/post/` | 404 `noindex` from the document | 404 from the edge |
+| draft (RLS-hidden) | 404 from the document, nothing of it in the body | 404 from the edge |
+| forum post, old address and `/post/` | 404 from the document, nothing of it in the body | 404 from the document (the lookup let it through) |
+| source unavailable | 503 + `Retry-After: 60`, `noindex` | 503 (the lookup fails open) |
+| lookup failing or unanswered (Google only) | — | fails open within the 800 ms bound; the document gives 200 / 404 |
+
+HEAD gives the same status with no body. The browser makes no edge lookup in any case; its final status equals Google's in every case. Two mutations prove the test bites: removing the suppressed-tag check in `api/og.js` fails 5 cases, and making the edge look up browsers again fails 9.
+
+**Live, read-only** (`live-hidden-content-20261116.jsonl`, browser user agent, 16.11.2026 07:42 UTC; Production still runs `main` code, i.e. the "before" path for browsers): post 31 200 `index` from the document; missing old and `/post/` addresses 404 from the edge; draft post 103 404 from the edge; forum post 5027 at its old and `/post/` addresses 404 `noindex` **from the document**, its title absent. Only ids, statuses and a title-present flag are recorded.
+
 ## Costs and limits
 
 - A scanner that sends a browser user agent to random addresses now reaches the document function instead of the edge 404: one function invocation and the same single read per miss (before: one edge read). Real crawlers are unaffected.
