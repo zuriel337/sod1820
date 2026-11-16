@@ -126,9 +126,9 @@ test("the latest reality-map dot blinks for 36 hours from its publication, then 
   assert.match(css, /prefers-reduced-motion[^}]*\.sod29-nowpub-blink[^}]*animation:\s*none/);
 });
 
-test("post 5107 reaches the series in 'עכשיו' even as a stream row without a tag (admitted by its id) and blinks 36 hours from its latest registered unit, not from its old date", () => {
+test("post 5107 (carrying the exact tag) leads the series in 'עכשיו' and blinks 36 hours from its latest registered unit, not from its old date", () => {
   const unitAt = Date.parse("2026-11-16T13:02:30.887336Z");
-  const first = post(5107, { title: "הבחירות לכנסת ה־26", tags: [], categories: ["רמזי הגאולה", "בחירות"], date: "2026-09-30T08:55:06Z", created_at: "2026-09-14T07:38:50Z", modified: "2026-11-10T16:56:00Z" });
+  const first = post(5107, { title: "הבחירות לכנסת ה־26", tags: ["מפת המציאות"], categories: ["רמזי הגאולה", "בחירות"], date: "2026-09-30T08:55:06Z", created_at: "2026-09-14T07:38:50Z", modified: "2026-11-10T16:56:00Z" });
   const old = post(5084, { title: "ברכת כהנים", tags: ["מפת המציאות"], date: "2026-08-26T23:35:18Z", created_at: "2026-08-26T23:35:18Z", modified: "2026-08-27T15:33:13Z" });
   const at = ms => nowFor([first, old], [], unitAt + ms).models;
   const soon = at(3600000);
@@ -145,9 +145,9 @@ test("post 5107 reaches the series in 'עכשיו' even as a stream row without 
   assert.equal(nowFor([other], [], unitAt).models[0].seriesKey, null);
 });
 
-test("post 5107 is the first post of the series by its exact id (no tag, no DB row); another post is not admitted by that entry", () => {
+test("post 5107 is the first post of the series by the exact tag it carries; no id admission and no category inference remain", () => {
   const spec = CONTENT_SERIES_2029.find(item => item.key === "reality-map");
-  assert.deepEqual(spec.admission.approvedPostIds, [5107]);
-  assert.ok(contentSeriesKeysForPost({ id: 5107, tags: [], categories: [] }).includes("reality-map"));
-  assert.equal(contentSeriesKeysForPost({ id: 5108, tags: [], categories: [] }).includes("reality-map"), false);
+  assert.equal(spec.admission, undefined, "no id admission: membership is the tag only");
+  assert.ok(contentSeriesKeysForPost({ id: 5107, tags: ["מפת המציאות"], categories: ["רמזי הגאולה", "בחירות"] }).includes("reality-map"));
+  assert.equal(contentSeriesKeysForPost({ id: 5107, tags: [], categories: ["רמזי הגאולה", "בחירות", "רמזים חזקים"] }).includes("reality-map"), false, "the id alone and the categories never admit");
 });
