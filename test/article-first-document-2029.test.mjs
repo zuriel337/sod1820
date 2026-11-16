@@ -1,4 +1,5 @@
-// The first-document article of an imported Post (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026), server side: who gets it, what it contains, and
+// The first-document article of a Post (OLD_POST_ARTICLE_FIRST, and NEW_POST_ARTICLE_FIRST for Posts written on the site, ZURIEL 16.11.2026), server
+// side: who gets it, what it contains, and
 // that every other answer (and every failure) is exactly today's document. Runs the real document handler with the real metadata reader over a
 // stubbed public API. Needs the generated document: run `node scripts/build-public-reading-production.mjs` first (CI does, in the same step).
 import test from "node:test";
@@ -26,7 +27,7 @@ function response() {
   return { headers: new Map(), code: null, body: "", setHeader(k, v) { this.headers.set(k.toLowerCase(), String(v)); }, status(c) { this.code = c; return this; }, send(v) { this.body = String(v); return this; } };
 }
 const req = path => ({ method: "GET", headers: { host: "sod1820.co.il" }, url: path, query: { ...Object.fromEntries(new URL(path, SITE).searchParams), path: new URL(path, SITE).pathname } });
-async function serve(path, { rows, outage = false, proven }) {
+async function serve(path, { rows, outage = false, proven, guard }) {
   const original = globalThis.fetch;
   globalThis.fetch = async url => {
     if (outage) throw new TypeError("synthetic outage");
@@ -36,7 +37,7 @@ async function serve(path, { rows, outage = false, proven }) {
   try {
     const res = response();
     await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => TEMPLATE,
-      articleFirst: (html, options) => withArticleFirst2029(html, { ...options, proven }) })(req(path), res);
+      articleFirst: (html, options) => withArticleFirst2029(html, { ...options, proven, ...(guard !== undefined ? { guard } : {}) }) })(req(path), res);
     return res;
   } finally { globalThis.fetch = original; }
 }
@@ -109,7 +110,7 @@ test("not proven, edited, special, hidden, missing, unavailable, another address
     ["edited since the proof", PATH, { rows: [{ ...post, content: post.content + "<p>עוד</p>" }], proven: provenFor(post) }, 200, "not-proven"],
     ["a query string", PATH + "?proto=0", { rows: [post], proven: provenFor(post) }, 200, "not-eligible"],
     ["the /post/ address", "/post/" + post.slug, { rows: [post], proven: provenFor(post) }, 200, "not-eligible"],
-    ["not imported", "/post/native", { rows: [{ ...post, source: "sod1820", slug: "native" }], proven: provenFor(post) }, 200, "not-eligible"],
+    ["a site Post at another address than its own", "/native", { rows: [{ ...post, id: 5138, wp_id: null, source: "ai", slug: "native" }], proven: provenFor(post) }, 200, "not-eligible"],
     ["a forum post", PATH, { rows: [{ ...post, tags: ["פורום"] }], proven: provenFor(post) }, 404, "not-eligible"],
     ["missing", PATH, { rows: [], proven: provenFor(post) }, 404, "not-eligible"],
     ["source unavailable", PATH, { rows: [post], outage: true, proven: provenFor(post) }, 503, null],
@@ -120,6 +121,67 @@ test("not proven, edited, special, hidden, missing, unavailable, another address
     if (state) assert.equal(res.headers.get("x-sod-article-first"), state, label);
     assert.equal(articleOf(res.body || "<html></html>"), null, label);
   }
+});
+
+// NEW_POST_ARTICLE_FIRST (ZURIEL 16.11.2026): a Post written on the site, at its own /post/ address.
+const sitePost = () => ({ ...row(), id: 5138, wp_id: null, source: "ai", slug: "native-post" });
+test("a site Post at its own /post/ address: served when proven; without a proof only when no left-out first-paint rule could apply", async () => {
+  await loadArticleFirstRenderer();
+  const post = sitePost(), path = "/post/native-post";
+  const proven = await serve(path, { rows: [post], proven: provenFor(post) });
+  assert.equal(proven.headers.get("x-sod-article-first"), "served");
+  assert.equal(articleOf(proven.body).dataset.ssrPost, "5138");
+  // published after the proof: not on the list
+  const fresh = await serve(path, { rows: [post], proven: {}, guard: { tags: [], classes: [], ids: [], attributes: [], attributeValues: [] } });
+  assert.equal(fresh.code, 200);
+  assert.equal(fresh.headers.get("x-sod-article-first"), "served-new");
+  const article = articleOf(fresh.body);
+  assert.ok(article, "a new Post carries its article");
+  assert.equal(article.dataset.ssrPost, "5138");
+  // the page adopts it: its own pipeline, with the widths the document carries, gives exactly the same body
+  const { window } = new JSDOM("<!doctype html><body></body>", { url: SITE });
+  globalThis.document = window.document; globalThis.CSSStyleSheet = window.CSSStyleSheet;
+  try {
+    const facts = article.dataset.ssrImageFacts ? JSON.parse(article.dataset.ssrImageFacts) : null;
+    assert.ok(documentArticleBodyMatches(article.querySelector('[data-ssr-body="true"]'), postArticleSourceHtmlFromRow2029(post, { facts })), "exactly the page's own article");
+  } finally { delete globalThis.document; delete globalThis.CSSStyleSheet; }
+  // it names something a left-out rule depends on (a class, a tag, an attribute name or an attribute value): today's document
+  for (const guard of [{ classes: ["sod29-reading-byline"] }, { tags: ["h1"] }, { attributes: ["data-ssr-body"] }, { attributeValues: ["data-ssr-body=true"] }]) {
+    const guarded = await serve(path, { rows: [post], proven: {}, guard });
+    assert.equal(guarded.headers.get("x-sod-article-first"), "new-guarded", JSON.stringify(guard));
+    assert.equal(articleOf(guarded.body), null, JSON.stringify(guard));
+    assert.equal(guarded.body.includes('id="sod29-article-first-css"'), false, "and without the build's template");
+  }
+  // an instance without its guard file gives no new Post its article
+  const noGuard = await serve(path, { rows: [post], proven: {}, guard: null });
+  assert.equal(noGuard.headers.get("x-sod-article-first"), "not-proven");
+  assert.equal(articleOf(noGuard.body), null);
+  // an imported Post that is not on the list never takes the new-Post path
+  const imported = await serve(PATH, { rows: [row()], proven: {}, guard: { classes: [] } });
+  assert.equal(imported.headers.get("x-sod-article-first"), "not-proven");
+});
+
+test("the build's guard holds only names outside the proven vocabulary, and a guarded name keeps a new Post on today's path", () => {
+  const guard = JSON.parse(readFileSync(new URL("../public-reading-deploy/.generated/article-first-guard.json", import.meta.url), "utf8"));
+  const vocabulary = JSON.parse(readFileSync(new URL("../public-reading-deploy/article-first-vocabulary.json", import.meta.url), "utf8"));
+  assert.ok(guard.classes.length > 0 && Array.isArray(guard.tags) && Array.isArray(guard.attributeValues));
+  for (const name of guard.classes) assert.equal(vocabulary.classes.includes(name), false, name);
+  for (const name of guard.ids) assert.equal(vocabulary.ids.includes(name), false, name);
+  for (const name of guard.tags) assert.equal(vocabulary.tags.includes(name), false, name);
+  for (const pair of guard.attributeValues) {
+    const [name, ...rest] = pair.split("="); const values = vocabulary.attributes[name];
+    assert.ok(Array.isArray(values) && !values.includes(rest.join("=")), `${pair}: a value the vocabulary does not hold`);
+  }
+});
+
+test("with the build's real guard, ordinary new Posts get their article and a guarded name keeps today's document", async () => {
+  await loadArticleFirstRenderer();
+  const guard = JSON.parse(readFileSync(new URL("../public-reading-deploy/.generated/article-first-guard.json", import.meta.url), "utf8"));
+  const post = sitePost(), path = "/post/native-post";
+  assert.equal((await serve(path, { rows: [post], proven: {}, guard })).headers.get("x-sod-article-first"), "served-new");
+  const guarded = { ...post, content: post.content + "<p><del>1819</del> 1820</p>" };
+  assert.ok(guard.tags.includes("del"), "the fixture relies on <del> being guarded in this build");
+  assert.equal((await serve(path, { rows: [guarded], proven: {}, guard })).headers.get("x-sod-article-first"), "new-guarded");
 });
 
 test("a render failure or a server DOM that cannot load leaves today's document", async () => {
