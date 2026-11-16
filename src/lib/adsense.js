@@ -5,16 +5,17 @@
 // מדיניות מיקום (החלטת מוצר שנשמרת): מודעות *רק בדפי קריאה* (פוסט ורשימת פוסטים), לעולם לא בבית / בית־המדרש / חוויות / חשבון.
 // הסקריפט נטען עצלן מתוך AdSlot, כך שגם עם Auto-Ads בחשבון הוא חל רק על דפים שבהם הוצבה יחידה.
 //
-// החלטת ZURIEL 11.11.2026: AdSense מופעל גם ב־2029. מתג ההקפאה של 13.7.2026 (ADSENSE_KILL_SWITCH) הוסר ממצב ברירת־מחדל; כדי לכבות
-// שוב מסירים את VITE_ADSENSE_CLIENT מסביבת הבנייה (או מחזירים את המתג) ופורסים.
+// החלטת ZURIEL 11.11.2026: AdSense מופעל גם ב־2029.
+// החלטת ZURIEL 16.11.2026: "בנוסף גם לבטל את הפרסומות באתר אני לא רוצה כרגע" — המודעות מושהות בקוד (ADSENSE_PAUSED), בלי תלות במשתני
+// הבנייה: שום יחידה לא מוצגת והסקריפט לא נטען גם כש־VITE_ADSENSE_CLIENT מוגדר. חידוש = החלטת ZURIEL: ADSENSE_PAUSED=false, ופריסה.
 //
 // משתני בנייה (Vercel → Environment Variables, production): VITE_ADSENSE_CLIENT, VITE_ADSENSE_SLOT_POST, VITE_ADSENSE_SLOT_LIST.
 // (יחידות anchor/side של Legacy לא שוחזרו: הן קבועות/צדדיות ומשנות פריסה; נוספות רק בהחלטה נפרדת.)
 import { sideEffectAllowed } from "./botVerdict.js";
 
 export const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT || "";
-const ADSENSE_KILL_SWITCH = false;
-export const ADSENSE_ENABLED = !ADSENSE_KILL_SWITCH && /^ca-pub-\d{10,20}$/.test(ADSENSE_CLIENT);
+const ADSENSE_PAUSED = true;
+export const ADSENSE_ENABLED = !ADSENSE_PAUSED && /^ca-pub-\d{10,20}$/.test(ADSENSE_CLIENT);
 
 export const ADSENSE_SLOTS = {
   post: import.meta.env.VITE_ADSENSE_SLOT_POST || "",

@@ -235,3 +235,58 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
 }
 
 export const PUBLIC_READING_OPEN_ROUTES = Object.freeze(["/", "/world", "/post", "/number", "/gematria", "/gallery", "/map", "/privacy"]);
+
+// Readable content first (ZURIEL 16.11.2026: "התוכן הקריא ... יהיו במקום ראשון לפני כל פעולות המחקר רזיאל או כל פעולה שיש פעולות מדידה
+// גם לדחות את הכל"). The one point where a public page's optional work starts: measurement (the first-party visit, Google Analytics, the
+// Meta Pixel) and the frame's background reads. `start` runs once
+//   1. the document has loaded (the load event: the first document's article and cover, the fonts and the page code),
+//   2. the page's own primary content is on screen (the Home's primary column, a Post's article; other pages have no marker), and
+//   3. the page's priority image (fetchpriority="high"), if it is still downloading, has finished or failed,
+// then, with `idle`, at the first idle moment. It is bounded: CONTENT_FIRST_CAP_MS after the call the remaining waits are skipped, so a stalled
+// image or a page that never reaches its content delays the work and never drops it. With `onHidden`, a page that is hidden first (the
+// reader left or switched away) starts it at once. Returns a cancel function.
+export const CONTENT_FIRST_CAP_MS = 10000;
+export function primaryContentSelector2029(pathname) {
+  const path = addressPath(pathname);
+  if (path === "/") return '[data-home-primary="ready"]';
+  if (/^\/post\/[^/]+$/.test(path || "") || publicReadingPath(pathname) === "post-lookup") return '[data-experience-surface="post-reading"]';
+  return null;
+}
+export function afterReadableContent2029(pathname, start, { idle = true, onHidden = false, capMs = CONTENT_FIRST_CAP_MS } = {}) {
+  if (typeof window === "undefined" || typeof document === "undefined") return () => {};
+  const w = window, d = document, selector = primaryContentSelector2029(pathname);
+  const events = [[w, "load"], ...(onHidden ? [[d, "visibilitychange"], [w, "pagehide"]] : [])];
+  let done = false, waiting = false, capped = false, observer, image;
+  const cap = setTimeout(() => { capped = true; step(); }, capMs);
+  const stop = () => {
+    done = true; clearTimeout(cap); observer?.disconnect();
+    for (const [target, type] of events) target.removeEventListener(type, step);
+    image?.removeEventListener("load", step); image?.removeEventListener("error", step);
+  };
+  const fire = () => { if (done) return; stop(); try { start(); } catch { /* optional work never breaks the page */ } };
+  function step(event) {
+    if (done) return;
+    if (event?.type === "pagehide" || (event?.type === "visibilitychange" && d.visibilityState === "hidden")) return fire();
+    if (waiting) return;
+    if (!capped) {
+      if (d.readyState !== "complete") return;                                           // the load listener calls again
+      if (selector && !d.querySelector(selector)) {
+        if (!observer) (observer = new MutationObserver(step)).observe(d.getElementById("root") || d.body,
+          { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
+        return;
+      }
+      const priority = d.querySelector('img[fetchpriority="high"]');
+      if (priority && !priority.complete) {
+        if (image !== priority) { image?.removeEventListener("load", step); image?.removeEventListener("error", step); image = priority; priority.addEventListener("load", step); priority.addEventListener("error", step); }
+        return;
+      }
+    }
+    waiting = true; observer?.disconnect();
+    if (!idle) fire();
+    else if (w.requestIdleCallback) w.requestIdleCallback(fire, { timeout: 3000 });
+    else setTimeout(fire, 350);
+  }
+  for (const [target, type] of events) target.addEventListener(type, step);
+  step();
+  return stop;
+}

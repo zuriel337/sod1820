@@ -1175,7 +1175,7 @@ function SystemFrame2029Body({
   // Keep its component/preferences intact; no source-shortcut reader is imported.
   // This single feed still serves the Now sheet; the static header notice does not own it.
   const [transient, setTransient] = useState(null);
-  const feed = useSystemFeed2029({ enabled: surface !== "control", nowOpen: transient?.kind === TRANSIENT.ATTENTION, homeStrip: surface === "home" && !(corePublicViewer && worldLocked) });
+  const feed = useSystemFeed2029({ enabled: surface !== "control", nowOpen: transient?.kind === TRANSIENT.ATTENTION, homeStrip: surface === "home" && !(corePublicViewer && worldLocked), afterContent: surface !== "home" });
   // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
   const [toolDock, setToolDock] = useState(null);
   const [systemDockMode, setSystemDockMode] = useState(false);

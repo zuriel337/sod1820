@@ -1,13 +1,22 @@
 // AdSense on 2029 (ZURIEL, 11.11.2026): off without a publisher id, off for non-Israeli browsers and bots, only the two reading slots,
 // and the two reading pages (post, posts list) are the only places that render a slot.
+// Paused (ZURIEL, 16.11.2026: "בנוסף גם לבטל את הפרסומות באתר אני לא רוצה כרגע"): the shipped module shows nothing and loads no script even
+// with a publisher id in the build. The gating rules are still checked, on the same source with the pause lifted, so a resume keeps them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFileSync, readdirSync } from 'node:fs';
 import { build } from 'esbuild';
 
-async function load(env, { zone = 'Asia/Jerusalem', cookie = 'vb=browser', webdriver = false } = {}) {
-  const out = await build({ entryPoints: ['src/lib/adsense.js'], bundle: true, write: false, format: 'cjs', platform: 'neutral',
+const PAUSE = 'const ADSENSE_PAUSED = true;';
+const resumed = { name: 'resumed', setup(b) { b.onLoad({ filter: /src[\\/]lib[\\/]adsense\.js$/ }, () => {
+  const source = readFileSync('src/lib/adsense.js', 'utf8');
+  assert.ok(source.includes(PAUSE), 'the pause is a single literal');
+  return { contents: source.replace(PAUSE, 'const ADSENSE_PAUSED = false;'), loader: 'js', resolveDir: 'src/lib' };
+}); } };
+
+async function load(env, { zone = 'Asia/Jerusalem', cookie = 'vb=browser', webdriver = false, shipped = false } = {}) {
+  const out = await build({ entryPoints: ['src/lib/adsense.js'], bundle: true, write: false, format: 'cjs', platform: 'neutral', plugins: shipped ? [] : [resumed],
     define: Object.fromEntries(['VITE_ADSENSE_CLIENT', 'VITE_ADSENSE_SLOT_POST', 'VITE_ADSENSE_SLOT_LIST'].map(key => ['import.meta.env.' + key, JSON.stringify(env[key] || '')])) });
   const appended = [];
   const module = { exports: {} };
@@ -19,7 +28,16 @@ async function load(env, { zone = 'Asia/Jerusalem', cookie = 'vb=browser', webdr
 }
 const ids = { VITE_ADSENSE_CLIENT: 'ca-pub-9535875486398314', VITE_ADSENSE_SLOT_POST: '111', VITE_ADSENSE_SLOT_LIST: '222' };
 
-test('enabled only with a well-formed publisher id; slots come from the build', async () => {
+test('paused (ZURIEL 16.11.2026): the shipped module shows no ad and loads no script, even with a publisher id in the build', async () => {
+  assert.ok(readFileSync('src/lib/adsense.js', 'utf8').includes(PAUSE));
+  const shipped = await load(ids, { shipped: true });
+  assert.equal(shipped.ads.ADSENSE_ENABLED, false);
+  assert.equal(shipped.ads.adsAllowedHere(), false);
+  shipped.ads.ensureAdSenseScript();
+  assert.equal(shipped.appended.length, 0, 'no AdSense script');
+});
+
+test('when resumed: enabled only with a well-formed publisher id; slots come from the build', async () => {
   assert.equal((await load({})).ads.ADSENSE_ENABLED, false);
   assert.equal((await load({ VITE_ADSENSE_CLIENT: 'not-a-publisher' })).ads.ADSENSE_ENABLED, false);
   const { ads } = await load(ids);
@@ -27,7 +45,7 @@ test('enabled only with a well-formed publisher id; slots come from the build', 
   assert.deepEqual({ ...ads.ADSENSE_SLOTS }, { post: '111', list: '222' });
 });
 
-test('shown to Israeli human browsers only; the script is injected once and only when allowed', async () => {
+test('when resumed: shown to Israeli human browsers only; the script is injected once and only when allowed', async () => {
   const israeli = await load(ids);
   assert.equal(israeli.ads.adsAllowedHere(), true);
   israeli.ads.ensureAdSenseScript(); israeli.ads.ensureAdSenseScript();

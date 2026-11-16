@@ -17,10 +17,9 @@ import Opening2029 from "./components/experience2029/Opening2029.jsx";
 import Awakening2029 from "./components/experience2029/Awakening2029.jsx";
 import ErrorBoundary2029 from "./components/experience2029/ErrorBoundary2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
-import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/experience2029/FeatureClosedNotice2029.jsx";
-import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS } from "./lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
 
 // Admit Home's component code before preparing the first Post. The existing
 // Post preparation still starts before a click, without blocking Home's module
@@ -213,18 +212,22 @@ function RouteEffects2029() {
     const telemetryPath = readingTelemetryPath(pathname);
     if (!telemetryPath) return undefined;
     const entry = `${measurementEntry.current.key}\n${pathname}`;
-    let stopped = false, stopEngagement;
+    let stopped = false, stopEngagement, stopWaiting;
+    // Readable content first (ZURIEL 16.11.2026): once the address has settled, the visit is written when the page's content is on screen
+    // (afterReadableContent2029), or at once if the reader leaves or switches away first. Engagement time counts from that moment.
     const settle = setTimeout(() => {
-      void import("./lib/visits.js").then(({ trackVisit, startPublicPageEngagement }) => {
-        if (stopped) return;
-        if (measuredEntry2029 !== entry) {
-          measuredEntry2029 = entry;
-          trackVisit(telemetryPath, { measurementPath: pathname });
-        }
-        stopEngagement = startPublicPageEngagement(pathname);
-      }).catch(() => {});
+      stopWaiting = afterReadableContent2029(pathname, () => {
+        void import("./lib/visits.js").then(({ trackVisit, startPublicPageEngagement }) => {
+          if (stopped) return;
+          if (measuredEntry2029 !== entry) {
+            measuredEntry2029 = entry;
+            trackVisit(telemetryPath, { measurementPath: pathname });
+          }
+          stopEngagement = startPublicPageEngagement(pathname);
+        }).catch(() => {});
+      }, { idle: false, onHidden: true });
     }, PAGE_VIEW_SETTLE_MS);
-    return () => { stopped = true; clearTimeout(settle); stopEngagement?.(); };
+    return () => { stopped = true; clearTimeout(settle); stopWaiting?.(); stopEngagement?.(); };
   }, [pathname, auth.loading, auth.user?.id]);
 
   useEffect(() => {
@@ -250,27 +253,18 @@ function RouteEffects2029() {
       if (/^\/books\/[^/]+\/?$/.test(pathname)) return undefined;
       const telemetryPath = readingTelemetryPath(pathname);
       if (!telemetryPath) return undefined;
-      // Keep the public home's primary content ahead of the optional Google
-      // script. A canceled navigation cannot initialize a stale page view.
-      let stopped = false, timer, observer, idle, stopPageview;
-      const run = () => {
-        if (stopped) return;
+      // Readable content first (ZURIEL 16.11.2026): the optional Google and Meta scripts start only after every public page's readable
+      // content is on screen and the document has loaded, at the first idle moment (afterReadableContent2029, bounded). A canceled
+      // navigation cannot initialize a stale page view.
+      let stopPageview;
+      const stopWaiting = afterReadableContent2029(pathname, () => {
         initGA({ publicReading: true, path: telemetryPath });
         stopPageview = trackPageview(pathname, { publicReading: true });
-        // Meta Pixel (ZURIEL 11.11.2026): same admitted routes and idle timing as GA; bots are filtered inside marketing.js.
+        // Meta Pixel (ZURIEL 11.11.2026): same admitted routes and timing as GA; bots are filtered inside marketing.js.
         initMarketing();
         trackMarketingPageview();
-      };
-      const schedule = () => {
-        observer?.disconnect();
-        if (window.requestIdleCallback) idle = window.requestIdleCallback(run, { timeout: 3000 });
-        else timer = setTimeout(run, 350);
-      };
-      if (pathname === "/" && !document.querySelector('[data-home-primary="ready"]')) {
-        observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
-        observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
-      } else schedule();
-      return () => { stopped = true; stopPageview?.(); observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
+      });
+      return () => { stopWaiting(); stopPageview?.(); };
     }
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
@@ -308,13 +302,19 @@ function ElsAddressAlias2029() {
   return <Navigate replace to={`/code${location.search || ""}${location.hash || ""}`} />;
 }
 
-function GematriaEntry2029() {
-  const { search } = useLocation();
-  // Existing shared result links retain their original result presentation.
-  return parseCalculatorShareState(search).isShared
-    ? <Calculator2029Page />
-    : <CalculatorPro2029Page />;
-}
+// Existing shared result links retain their original result presentation. The share-link parser is read with the calculator, not in every
+// page's opening graph (ZURIEL 16.11.2026, readable content first); the Pro calculator, which most visits open, downloads alongside it.
+const GematriaEntry2029 = lazy(() => {
+  void import("./pages/CalculatorPro2029Page.jsx").catch(() => {});
+  return import("./lib/research/calculator2029Viral.js").then(({ parseCalculatorShareState }) => ({
+    default: function GematriaEntry2029() {
+      const { search } = useLocation();
+      return parseCalculatorShareState(search).isShared
+        ? <Calculator2029Page />
+        : <CalculatorPro2029Page />;
+    },
+  }));
+});
 
 function ControlEntry2029() {
   const { search } = useLocation();

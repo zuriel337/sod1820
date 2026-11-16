@@ -11,11 +11,22 @@ const loadSeriesLatestSeenKey = () => seriesLatestSeenKeyOf ? Promise.resolve(se
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
+import { afterReadableContent2029 } from "../../lib/publicReadingRelease2029.js";
 
 // `homeStrip`: the Home "עדכונים אחרונים" strip needs the same public details once (reality-stream images, channel updates, series
 // Posts). It loads them ONCE after mount; only an open Now panel keeps re-reading them on every poll.
 const DETAILS_FRESH_MS = 60 * 1000;
-export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip = false } = {}) {
+// `afterContent`: readable content first (ZURIEL 16.11.2026). Away from the Home, where the feed is not the page's content, the frame's two
+// background reads (the public stream and the featured Post) start once the page's readable content is on screen (afterReadableContent2029);
+// opening Now starts them at once. Once started they keep running across navigation, as before.
+export function useSystemFeed2029({ enabled: frameEnabled = true, nowOpen = false, homeStrip = false, afterContent = false } = {}) {
+  const [contentShown, setContentShown] = useState(false);
+  const waiting = frameEnabled && afterContent && !contentShown && !nowOpen;
+  useEffect(() => {
+    if (!waiting) return undefined;
+    return afterReadableContent2029(window.location.pathname, () => setContentShown(true));
+  }, [waiting]);
+  const enabled = frameEnabled && !waiting;
   const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
   const [strongIds, setStrongIds] = useState({});

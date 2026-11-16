@@ -487,6 +487,8 @@ jobs:
         run: node --test test/ga-measurement-browser-2029.browser.mjs
       - name: Public Post background starts during calculation; GA uses the current public page identity
         run: node --test test/post-speed-page-analytics.browser.mjs
+      - name: Readable content first — the Google tag, the visit and the frame's stream start after the article and the load (bounded; ads paused)
+        run: node --test test/content-first-2029.browser.mjs
       - name: Accepted Community behavior survives release (real artifact, worker and reader; guest/member/admin on mobile/desktop)
         run: node --test test/community-behavior-continuity-2029.browser.mjs
       - name: Public Post at its original address reads its source while the page code downloads (real worker, request order)

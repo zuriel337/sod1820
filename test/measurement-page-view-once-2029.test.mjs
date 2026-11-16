@@ -19,7 +19,7 @@ const compiled = (await transform(source, { loader: "jsx", format: "cjs" })).cod
 
 // One browser document: the module-level state of App2029.jsx (measuredEntry2029) lives as long as the document.
 function document_({ hostname = "sod1820.co.il" } = {}) {
-  const log = { visits: [], engagement: [] }, timers = [];
+  const log = { visits: [], engagement: [] }, timers = [], gates = [];
   let auth = {loading:false,isAdmin:false};
   let location = { pathname: "/world", key: "default" }, keyCounter = 0;
   const context = { PUBLIC_READING_RELEASE: true, integratedPreviewEnabled: false, kingdomPreviewEnabled: false,
@@ -27,6 +27,8 @@ function document_({ hostname = "sod1820.co.il" } = {}) {
     window: { location: { hostname }, requestIdleCallback: () => 1, cancelIdleCallback() {} },
     document: { querySelector: () => ({}), getElementById: () => ({}), body: {} }, MutationObserver: class { observe() {} disconnect() {} },
     readingTelemetryPath, startWebVitals2029: () => () => {}, initGA() {}, trackPageview() {}, initMarketing() {}, trackMarketingPageview() {},
+    // Readable content first (ZURIEL 16.11.2026): the page's content being on screen is driven by hand (`content()`), like the timers.
+    afterReadableContent2029: (path, fn, options = {}) => { const gate = { path, fn, options, live: true }; gates.push(gate); return () => { gate.live = false; }; },
     ensureIdentity: () => assert.fail("identity bridge"),
     startPageEngagement: (path, deps) => { assert.equal(deps.getSodIdFn(), null); assert.equal(deps.sessionIdFn(), null); log.engagement.push(path); return {}; },
     visitsModule: () => Promise.resolve({ trackVisit: path => { log.visits.push(path); }, startPublicPageEngagement: path => { log.engagement.push(readingTelemetryPath(path)); return () => {}; } }),
@@ -58,8 +60,12 @@ function document_({ hostname = "sod1820.co.il" } = {}) {
     go(pathname) { location = { pathname, key: "k" + ++keyCounter }; },                 // push or replace: a new history entry
     goBackTo(entry) { location = entry; },                                                // traverse to an entry that was visited before
     get location() { return location; },
-    // time passes: every live timer that was scheduled with the settle delay fires (the visit is written only after the address settled)
-    async settle() { for (const timer of timers) if (timer.live && timer.ms === 150) { timer.live = false; timer.fn(); } await Promise.resolve(); await Promise.resolve(); } };
+    gates,
+    // time passes: every live timer that was scheduled with the settle delay fires (the address settled) ...
+    async settleOnly() { for (const timer of timers) if (timer.live && timer.ms === 150) { timer.live = false; timer.fn(); } await Promise.resolve(); await Promise.resolve(); },
+    // ... and the page's readable content is on screen: every waiting gate starts its work
+    async content() { for (const gate of gates) if (gate.live) { gate.live = false; gate.fn(); } for (let i = 0; i < 4; i++) await Promise.resolve(); },
+    async settle() { await this.settleOnly(); await this.content(); } };
 }
 
 test("direct entry: one visit and one engagement tracker, only after the address has settled", async () => {
@@ -70,6 +76,23 @@ test("direct entry: one visit and one engagement tracker, only after the address
   await d.settle();
   assert.deepEqual(d.log.visits, ["/world"]); assert.deepEqual(d.log.engagement, ["/world"]);
   await d.settle(); assert.deepEqual(d.log.visits, ["/world"], "settling again writes nothing");
+  view.unmount();
+});
+
+test("readable content first (ZURIEL 16.11.2026): a settled address writes its visit only once the page's content is on screen, or when the reader leaves first", async () => {
+  const d = document_(); const view = d.mount();
+  await d.settleOnly();
+  assert.deepEqual(d.log.visits, [], "settled, content not yet on screen: nothing written");
+  const visitGate = d.gates.find(gate => gate.live && gate.options.onHidden);
+  assert.ok(visitGate, "the visit waits on the content gate");
+  assert.equal(visitGate.path, "/world");
+  assert.deepEqual({ ...visitGate.options }, { idle: false, onHidden: true }, "no idle wait for the visit; a reader who leaves first is still counted");
+  await d.content();
+  assert.deepEqual(d.log.visits, ["/world"]); assert.deepEqual(d.log.engagement, ["/world"]);
+  // navigating away before the next page's content is on screen cancels its wait: that address is not counted
+  d.go("/gallery"); view.render(); await d.settleOnly();
+  d.go("/privacy"); view.render(); await d.settleOnly(); await d.content();
+  assert.deepEqual(d.log.visits, ["/world", "/privacy"]);
   view.unmount();
 });
 
