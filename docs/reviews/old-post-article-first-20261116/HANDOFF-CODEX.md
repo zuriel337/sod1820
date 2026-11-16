@@ -69,3 +69,30 @@ All local, on `e500acb82` (the code of the lab's B arm), on this machine:
 4. The CSS template in the generated document: the article waits for 62 KB gzip of the page's own stylesheets before its first paint; the main remaining lever (IMPLEMENTATION.md, lab section 1).
 6. The phone's later tools-ready (IMPLEMENTATION.md, lab section 3): is the contention explanation right, and what should the images' priority be?
 5. jsdom as a production dependency, and the 63 Posts that stay on the existing path.
+
+## Follow-ups (16 November 2026, afternoon) — after Codex's review note `0bb87ae5e`
+
+What changed, what is proven and what is still open: [`FOLLOWUPS.md`](FOLLOWUPS.md). Fonts: [`FONTS.md`](FONTS.md). Review first:
+
+1. **Frame and header** (`src/lib/research/postArticleFrame2029.js`, `postArticleDocument2029.js`).
+   - The first-document article copies the System Frame's containers and token style, and the page's header markup.
+   - It is held to the page by the browser acceptance (geometry, fonts, colours, header markup and tokens equal before and after adoption, in three themes, with the full stylesheets held).
+   - Drift in `SystemFrame2029.jsx`'s `shellStyle` or the page's header fails that test.
+2. **The first-paint stylesheet** (`scripts/lib/article-first-critical-css.mjs`, the build, `public-reading-deploy/api/article-first.js`).
+   - It keeps every rule whose selectors may match the first document's vocabulary (`article-first-vocabulary.json`, written by the proof).
+   - `scripts/check-article-first-critical-css.mjs` compares the first-paint stylesheet alone with the full stylesheets on real Posts.
+3. **Proof binding** (`scripts/lib/article-first-fingerprint.mjs`, `test/article-first-proof-fresh.test.mjs`). Any change to a file of the document's import graph, or to jsdom, needs `node scripts/build-article-first-proofs.mjs`.
+4. **Colours** (`postLegacyColor2029.js`, the end of `post2029-reading.css`) and **images** (`postArticleImages2029` in `postArticleCore2029.js`).
+5. **Adoption timing** (`keepReaderInPlace2029`): corrections only in settled frames.
+6. **Fonts** (`2029.html`, `public/fonts/Rubik-Hebrew-Common.woff2`, `fonts/rubik-faces.py`, `test/fonts-2029-faces.test.mjs`):
+   - One Rubik file carries Hebrew text with its spaces, digits and punctuation. It is cut from the same Rubik 2.3 source as Google's files.
+   - The Latin file covers Latin letters only.
+   - The local stand-ins are matched per weight and per class.
+   - Effects: the header of Post 192 is identical in every font state, and the phone CLS goes from 0.139 to 0.000. Rubik's own Hebrew–punctuation kerning now applies.
+7. **Image copies know each original's real width.**
+   - The widths are measured by `scripts/scan-article-image-facts.mjs` and stored in `public-reading-deploy/article-image-facts.json`.
+   - `postImageRenditionSet2029` uses them: copies only below the original's width, and the original itself as the widest candidate.
+   - The first document carries the widths of its own images (`data-ssr-image-facts`), and the page reads them with `documentImageFactsFor`.
+   - The proof gives the server the whole list and the browser only the post's own widths, as at runtime. A browser acceptance case checks adoption and the cover copies with widths.
+8. **The first-paint rules lead until every full stylesheet has arrived** (the `sod-af-first` class, `scripts/lib/article-first-critical-css.mjs`, `public-reading-deploy/api/article-first.js`).
+9. **The cold start on Vercel** is NOT verified. `scripts/check-article-first-cold.mjs` is ready for a protected Preview of the exact commit, once ZURIEL approves that Preview.

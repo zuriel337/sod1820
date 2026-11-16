@@ -20,6 +20,9 @@ const { window } = new JSDOM("<!doctype html><html><body></body></html>");
 globalThis.document = window.document;
 const { postArticleSourceHtmlFromRow2029 } = await import("../src/lib/research/postArticlePipeline2029.js");
 const { postImageRenditionSet2029 } = await import("../src/lib/research/postArticleCore2029.js");
+// the copies the document handler really offers: with the originals' real widths (scripts/scan-article-image-facts.mjs), none that is the original
+const FACTS = JSON.parse(readFileSync(new URL("../public-reading-deploy/article-image-facts.json", import.meta.url), "utf8")).images || {};
+const isCopy = url => url.includes("/storage/v1/render/image/");
 
 const urls = new Set();
 for (let from = 0; from < ids.length; from += 100) {
@@ -27,11 +30,12 @@ for (let from = 0; from < ids.length; from += 100) {
   const response = await fetch(`${API}/rest/v1/posts?id=in.(${slice.join(",")})&select=id,slug,source,content,image_url,tags,categories,author,title`, { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
   if (!response.ok) throw new Error(`warm_renditions_read_${response.status}`);
   for (const row of await response.json()) {
-    for (const entry of postImageRenditionSet2029(row.image_url).split(", ").filter(Boolean)) urls.add(entry.replace(/ \d+w$/, ""));
-    const template = window.document.createElement("template"); template.innerHTML = postArticleSourceHtmlFromRow2029(row);
+    for (const entry of postImageRenditionSet2029(row.image_url, FACTS).split(", ").filter(Boolean)) urls.add(entry.replace(/ \d+w$/, ""));
+    const template = window.document.createElement("template"); template.innerHTML = postArticleSourceHtmlFromRow2029(row, { facts: FACTS });
     for (const image of template.content.querySelectorAll("img[srcset]")) for (const entry of image.getAttribute("srcset").split(", ")) urls.add(entry.replace(/ \d+w$/, ""));
   }
 }
+for (const url of [...urls]) if (!isCopy(url)) urls.delete(url);   // an original is not a copy to warm
 console.log(JSON.stringify({ posts: ids.length, copies: urls.size, dryRun: Boolean(option("dry-run")) }));
 if (option("dry-run")) process.exit(0);
 const queue = [...urls]; let done = 0, failed = 0; const started = Date.now();

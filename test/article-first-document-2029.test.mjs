@@ -9,6 +9,7 @@ import { publicReadingDocumentHandler } from "../public-reading-deploy/api/publi
 import { withArticleFirst2029, loadArticleFirstRenderer, _resetArticleFirstForTests } from "../public-reading-deploy/api/article-first.js";
 import { postArticleSourceHtmlFromRow2029, postArticleSourceKey2029, postArticleProofKey2029 } from "../src/lib/research/postArticlePipeline2029.js";
 import { postClassification2029 } from "../src/lib/research/postClassification2029.js";
+import { documentArticleBodyMatches } from "../src/lib/research/postArticleAdoption2029.js";
 
 const SITE = "https://sod1820.co.il";
 const TEMPLATE = readFileSync(new URL("../public-reading-deploy/.generated/2029.html", import.meta.url), "utf8");
@@ -69,10 +70,11 @@ test("a cold instance answers exactly as today and loads the server DOM in the b
   assert.ok([...article.querySelectorAll("button")].every(node => node.getAttribute("aria-disabled") === "true"), "its buttons are inactive until the page takes over");
   assert.ok(article.querySelector('a[href="/%d7%a2%d7%95%d7%93"]'), "internal links kept");
   assert.ok(article.querySelector('a[name="_Toc1"]'), "anchors kept");
-  // the body is exactly the page pipeline's output (the duplicate cover mark aside)
+  // the body is exactly the page pipeline's output (the duplicate cover mark aside), with the originals' widths the document carries
   const { window } = new JSDOM("<!doctype html><body></body>");
   globalThis.document = window.document; globalThis.CSSStyleSheet = window.CSSStyleSheet;
-  let expected; try { expected = postArticleSourceHtmlFromRow2029(post); } finally { delete globalThis.document; delete globalThis.CSSStyleSheet; }
+  const facts = article.dataset.ssrImageFacts ? JSON.parse(article.dataset.ssrImageFacts) : null;
+  let expected; try { expected = postArticleSourceHtmlFromRow2029(post, { facts }); } finally { delete globalThis.document; delete globalThis.CSSStyleSheet; }
   const body = article.querySelector('[data-ssr-body="true"]').cloneNode(true);
   body.querySelectorAll("[data-duplicate-cover]").forEach(node => node.removeAttribute("data-duplicate-cover"));
   const mine = window.document.createElement("template"); mine.innerHTML = expected;
@@ -155,4 +157,34 @@ test("the proof is bound to the post's voice as well as its source", async () =>
   const otherVoice = real.replace(/:[^:]+$/, real.endsWith(":original") ? ":unspecified" : ":original");
   assert.equal(withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post, proven: { [String(post.id)]: real } }).state, "served");
   assert.equal(withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post, proven: { [String(post.id)]: otherVoice } }).state, "not-proven");
+});
+
+// The real widths of the originals (16.11.2026): copies only where they are smaller than the original, the original the widest candidate; the
+// document carries exactly this Post's widths so the page offers the same copies (documentImageFactsFor).
+test("with the originals' real widths, the cover and the article offer only smaller copies and the document carries exactly their widths", async () => {
+  await loadArticleFirstRenderer();
+  const post = row(); const cover = post.image_url; const other = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/01/not-here.jpg";
+  const out = withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post, proven: provenFor(post), facts: { [cover]: [1070, 1506, 154000], [other]: [3000, 2000, 900000] } });
+  assert.equal(out.state, "served");
+  const { window } = new JSDOM(out.html); const doc = window.document;
+  const frame = doc.getElementById("sod29-ssr-article");
+  assert.deepEqual(JSON.parse(frame.dataset.ssrImageFacts), { [cover]: 1070 }, "only this Post's own originals, width only");
+  const widths = set => set.split(", ").map(entry => entry.split(" ")[1]);
+  const coverImage = doc.querySelector("[data-ssr-cover] img");
+  assert.deepEqual(widths(coverImage.getAttribute("srcset")), ["480w", "768w", "1070w"]);
+  assert.equal(coverImage.getAttribute("srcset").split(", ").at(-1), `${cover} 1070w`, "the widest candidate is the original itself");
+  const body = doc.querySelector('[data-ssr-body] img');
+  assert.deepEqual(widths(body.getAttribute("srcset")), ["480w", "768w", "1070w"]);
+  // the page adopts it: its own pipeline with the widths the document carries gives exactly the same article (and without them it would not)
+  globalThis.document = window.document;
+  try {
+    const pageFacts = JSON.parse(frame.dataset.ssrImageFacts);
+    assert.equal(documentArticleBodyMatches(doc.querySelector('[data-ssr-body]'), postArticleSourceHtmlFromRow2029(post, { facts: pageFacts })), true);
+    assert.equal(documentArticleBodyMatches(doc.querySelector('[data-ssr-body]'), postArticleSourceHtmlFromRow2029(post)), false);
+  } finally { delete globalThis.document; }
+  // without widths: as before (four copies), and no widths in the document
+  const plain = withArticleFirst2029(TEMPLATE, { path: PATH, status: 200, post, proven: provenFor(post), facts: {} });
+  const plainDoc = new JSDOM(plain.html).window.document;
+  assert.equal(plainDoc.getElementById("sod29-ssr-article").hasAttribute("data-ssr-image-facts"), false);
+  assert.deepEqual(widths(plainDoc.querySelector("[data-ssr-cover] img").getAttribute("srcset")), ["480w", "768w", "1080w", "1600w"]);
 });

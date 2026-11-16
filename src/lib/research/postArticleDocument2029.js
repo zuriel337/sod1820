@@ -9,7 +9,7 @@ import { postBackground2029 } from "./postBackground2029.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./contentSeries2029Identity.js";
 import { postClassification2029 } from "./postClassification2029.js";
 import { SEMANTIC_LEGEND } from "./postSemanticDesign2029.js";
-import { clean, postPlainText2029, postImageRenditionSet2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
+import { clean, postPlainText2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
 import { postVoiceFor } from "../postVoice2029.js";
 import { POST_ARTICLE_THEME_SCRIPT, POST_ARTICLE_FRAME_CLOSE, postArticleFrameOpen2029 } from "./postArticleFrame2029.js";
 
@@ -63,9 +63,12 @@ function sectionNavHtml(post) {
   return `<nav class="sod29-surface-tabs" aria-label="בתוך הפוסט" data-experience-capability="surface-section-nav">${labels.map(label => `<button type="button" class="" aria-disabled="true">${label}</button>`).join("")}</nav>`;
 }
 
-export function postArticleDocumentHtml2029(post, { document = globalThis.document, path = "" } = {}) {
+// facts: the real widths of the originals (public-reading-deploy/article-image-facts.json); the document carries exactly this Post's ones, so the page
+// offers exactly the same copies (documentImageFactsFor in postArticleAdoption2029.js).
+export function postArticleDocumentHtml2029(post, { document = globalThis.document, path = "", facts = null } = {}) {
   const template = document.createElement("template");
-  template.innerHTML = postArticleSourceHtmlFromRow2029(post);
+  template.innerHTML = postArticleSourceHtmlFromRow2029(post, { facts });
+  const imageFacts = facts ? postImageFactsFor2029(postArticleImageOriginals2029(template.innerHTML, post.image_url), facts) : {};
   markDuplicateCover(template.content, post.image_url);
   const title = humanContentTitle(post.title, { max: 0 });
   const byline = postArticleByline2029(post);
@@ -76,8 +79,9 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
   const sourceLabel = clean(post.author) || "מקור הפוסט";
   const excerpt = clean(post.excerpt) || postPlainText2029(post.content).slice(0, 220);
   const coverLabel = `פתח את תמונת הפוסט: ${title}`;
-  const coverSet = postImageRenditionSet2029(cover);   // the page's cover offers the same smaller copies (Post2029Page)
-  const frame = postArticleFrameOpen2029({ id: POST_ARTICLE_DOCUMENT_ID, "data-ssr-post": String(post.id), "data-ssr-source": postArticleSourceKey2029(post.content), "data-ssr-path": path });
+  const coverSet = postImageRenditionSet2029(cover, imageFacts);   // the page's cover offers the same smaller copies (Post2029Page)
+  const frame = postArticleFrameOpen2029({ id: POST_ARTICLE_DOCUMENT_ID, "data-ssr-post": String(post.id), "data-ssr-source": postArticleSourceKey2029(post.content), "data-ssr-path": path,
+    ...(Object.keys(imageFacts).length ? { "data-ssr-image-facts": JSON.stringify(imageFacts) } : {}) });
   return frame
     + `<article class="sod29-reading-post" data-golden="false" data-experience-surface="post-reading" data-experience-capability="post-master-reading-stage" data-post-slug="${escapeHtml(post.slug)}"`
     + ` data-post-character="plain" data-post-voice="${escapeHtml(voice)}" data-prefs-tick="0" data-post-background="${escapeHtml(background.key)}"`

@@ -1,0 +1,75 @@
+--- lab/lab2.before-tools.mjs	2026-11-16 12:20:12.901834738 +0000
++++ lab/lab2.mjs	2026-11-16 14:17:22.709327272 +0000
+@@ -29,7 +29,7 @@
+ const isThirdPartyHost = u => { try { const h = new URL(u).hostname; return !/(^|\.)sod1820\.co\.il$/.test(h) && !/\.supabase\.co$/.test(h) && !/^(fonts\.googleapis\.com|fonts\.gstatic\.com)$/.test(h) && h !== 'localhost' && h !== '127.0.0.1'; } catch { return false; } };
+ 
+ const INIT = () => {
+-  const m = window.__perf = { lcp: [], shifts: [], long: [], paints: [], content: null, expect: null, nav: null, errors: [] };
++  const m = window.__perf = { lcp: [], shifts: [], long: [], paints: [], content: null, expect: window.__presetExpect || null, nav: null, errors: [] };
+   const po = (type, fn) => { try { new PerformanceObserver(l => l.getEntries().forEach(fn)).observe({ type, buffered: true }); } catch { /* unsupported */ } };
+   po('largest-contentful-paint', e => m.lcp.push({ t: Math.round(e.startTime), size: e.size, url: e.url || null, id: e.id || null,
+     el: e.element ? (e.element.tagName + (e.element.id ? '#' + e.element.id : '') + (e.element.className && typeof e.element.className === 'string' ? '.' + e.element.className.trim().split(/\s+/).slice(0, 2).join('.') : '')) : null,
+@@ -40,6 +40,7 @@
+   window.addEventListener('error', e => m.errors.push(String(e.message).slice(0, 120)));
+   const norm = s => (s || '').replace(/\s+/g, ' ').trim();
+   const check = () => {
++    if (!m.expect && window.__presetExpect) m.expect = window.__presetExpect;   // the page's init script may run after this one
+     if (m.content || !m.expect) return;
+     const art = document.querySelector('article') || document.querySelector('main');
+     if (!art) return;
+@@ -146,7 +147,11 @@
+     const rows = JSON.parse(readFileSync(cfg.fixture.articleFirst.rows, 'utf8'));
+     const bySlug = new Map(rows.map(row => [decodeURIComponent(row.slug).toLowerCase(), row]));
+     documentFor = (path, template) => { const row = bySlug.get(decodeURIComponent(path.replace(/^\//, '')).toLowerCase()); if (!row) return null;
+-      const out = af.withArticleFirst2029(template, { path, status: 200, post: row }); if (out.state !== 'served') throw new Error('article-first ' + out.state); return out.html; };
++      const out = af.withArticleFirst2029(template, { path, status: 200, post: row }); if (out.state !== 'served') throw new Error('article-first ' + out.state);
++      // variant 'unboost': the same document without the first-paint guard (no class on <html>, no removal script, selectors as authored)
++      if (cfg.fixture.unboost) return out.html.replace(/<html class="sod-af-first"/, '<html').replace(/<script data-sod-article-first-done>[^<]*<\/script>/, '')
++        .replace(/html\.sod-af-first:is\(html\)/g, 'html').replace(/:root\.sod-af-first:is\(html\)/g, ':root').replace(/html\.sod-af-first /g, '');
++      return out.html; };
+   }
+   lab = await startLabServer({ documentFor, root: cfg.fixture.root, cacheDir: cfg.fixture.cacheDir, readRpc: cfg.readRpc || [], anon, supabaseExtraMs: cfg.fixture.supabaseExtraMs ?? 120,
+     docDelayFor: p => p === '/' ? (d.home ?? 500) : p.startsWith('/post/') ? (d.new ?? 600) : (d.old ?? 1000), record: cfg.fixture.record !== false,
+@@ -166,10 +171,15 @@
+         const url = cfg.origin + post.path;
+         const expect = { title: post.expect_title, snippet: post.expect_snippet };
+         let tNavMono0 = 0, wall0;
++        // the expected text is known to the probe from the document's first instant (an evaluate after 'commit' may run late)
++        await s.page.addInitScript(e => { window.__presetExpect = e; }, expect);
+         if (scenario === 'cold') {
+           wall0 = Date.now() / 1000;
+           if (cfg.cpuProfile) { await s.cdp.send('Profiler.enable'); await s.cdp.send('Profiler.setSamplingInterval', { interval: 1000 }); await s.cdp.send('Profiler.start'); }
+           await s.page.goto(url, { waitUntil: 'commit', timeout: 60000 });
++          if (process.env.LAB_SHOT) { for (const at of [2200, 3000]) { await sleep(at - (Date.now() / 1000 - wall0) * 1000); await s.page.screenshot({ path: `${process.env.LAB_SHOT}-${post.key}-${at}.png` }).catch(() => {});
++            const st = await s.page.evaluate(() => ({ h1: !!document.querySelector('#sod29-ssr-article h1'), parsedLinks: document.querySelectorAll('link[data-sod-article-first-full]').length, ready: document.readyState, art: document.querySelector('article')?.textContent.length || 0 })).catch(e => ({ err: String(e.message).slice(0, 80) }));
++            console.error('SHOT', post.key, at, JSON.stringify(st)); } }
+         } else if (scenario === 'warm') {
+           await s.page.goto(url, { waitUntil: 'load', timeout: 60000 }); await s.page.waitForFunction(() => window.__perf?.expect === null || true); await sleep(4500);  // prime HTTP cache + service worker
+           await s.page.goto('about:blank'); s.net.clear();
+@@ -182,7 +192,7 @@
+           if (cfg.cpuProfile) { await s.cdp.send('Profiler.enable'); await s.cdp.send('Profiler.setSamplingInterval', { interval: 1000 }); await s.cdp.send('Profiler.start'); }
+           wall0 = Date.now() / 1000;
+         }
+-        await s.page.evaluate(e => window.__setExpect(e), expect);
++        if (scenario === 'nav') await s.page.evaluate(e => window.__setExpect(e), expect);   // cold/warm: preset before the document (below)
+         if (scenario === 'nav') {
+           // programmatic SPA navigation (router listens to popstate); measured from this instant
+           await s.page.evaluate(path => { window.__perf.nav = performance.now(); window.__perf.content = null; window.history.pushState({}, '', path); window.dispatchEvent(new PopStateEvent('popstate')); }, post.path);
+@@ -192,6 +202,17 @@
+         let profile = null;
+         if (cfg.cpuProfile) { const { profile: p } = await s.cdp.send('Profiler.stop'); profile = p; }
+         rec = await collect(s, post, scenario, wall0, { run, contentSeen: ok });
++        // Tools on request: the time from the reader's action to a usable tool, measured after the settle window, under the same throttling.
++        //   share: open "פרטי הפוסט" -> its share buttons are there; comments: go to the end of the article -> the comment archive is there.
++        if (scenario === 'cold' && cfg.toolTimes !== false) rec.toolTimes = await s.page.evaluate(async () => {
++          const until = (fn, limit = 20000) => new Promise(done => { const t0 = performance.now(); const tick = () => { if (fn()) return done(Math.round(performance.now() - t0)); if (performance.now() - t0 > limit) return done(null); requestAnimationFrame(tick); }; tick(); });
++          const out = {};
++          const summary = document.querySelector('.sod29-post-details > summary');
++          if (summary) { summary.click(); out.share = await until(() => document.querySelector('.sod29-post-details[open] .sod-share-actions button')); }
++          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
++          out.comments = await until(() => document.querySelector('#post-comments'));
++          return out;
++        }).catch(error => ({ error: String(error.message || error).slice(0, 120) }));
+         if (profile) { const navStart = rec.perf?.nav ?? 0; rec.cpu = summariseProfile(profile, null); rec.cpuNote = 'self time (ms, throttled wall time) by script url over the whole run'; }
+         rec.blocked = s.blocked.length; rec.blockedList = [...new Set(s.blocked.map(b => b.u.replace(/\?.*$/, '').slice(0, 110)))].slice(0, 25);
+         rec.thirdPartyAttempts = [...new Set(s.tp.map(b => b.u.replace(/\?.*$/, '').slice(0, 110)))].slice(0, 25);

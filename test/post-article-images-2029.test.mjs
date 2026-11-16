@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
-import { postArticleImages2029, postImageRenditionSet2029, POST_IMAGE_RENDITION_WIDTHS } from "../src/lib/research/postArticleCore2029.js";
+import { postArticleImages2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, POST_IMAGE_RENDITION_WIDTHS } from "../src/lib/research/postArticleCore2029.js";
 
 const STORE = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2025/08/a.jpg";
 const run = (html, options) => { const { window } = new JSDOM("<!doctype html><body></body>"); globalThis.document = window.document;
@@ -35,4 +35,39 @@ test("without a cover the first body image keeps its authored loading; with a co
   const html = `<p><img src="${STORE}" width="10" height="10"></p><p><img src="${STORE.replace("a.jpg", "b.jpg")}" width="10" height="10"></p>`;
   assert.deepEqual([...run(html, {}).querySelectorAll("img")].map(node => node.getAttribute("loading")), [null, "lazy"]);
   assert.deepEqual([...run(html, { cover: STORE }).querySelectorAll("img")].map(node => node.getAttribute("loading")), ["lazy", "lazy"]);
+});
+
+// With the original's real width known (scripts/scan-article-image-facts.mjs; 16.11.2026: 85% of 120 sampled originals are 1,270 px wide or less,
+// so their "1080" and "1600" copies were the original re-encoded, sometimes heavier), copies are offered only where they are clearly smaller and
+// the original itself is the widest candidate at its real width.
+const widths = set => set.split(", ").map(entry => entry.split(" ")[1]);
+test("with the original's width known: copies only up to 85% of it, the original itself the widest candidate at its real width", () => {
+  assert.deepEqual(widths(postImageRenditionSet2029(STORE, { [STORE]: 1024 })), ["480w", "768w", "1024w"]);
+  assert.equal(postImageRenditionSet2029(STORE, { [STORE]: 1024 }).split(", ").at(-1), `${STORE} 1024w`, "the widest is the original, not a re-encoded copy");
+  assert.deepEqual(widths(postImageRenditionSet2029(STORE, { [STORE]: [2400, 1600, 512000] })), ["480w", "768w", "1080w", "1600w", "2400w"], "a [width, height, bytes] fact");
+  assert.deepEqual(widths(postImageRenditionSet2029(STORE, { [STORE]: 903 })), ["480w", "903w"], "768 is not clearly smaller than 903");
+  assert.equal(postImageRenditionSet2029(STORE, { [STORE]: 560 }), "", "too small for any copy: the original alone");
+  assert.deepEqual(widths(postImageRenditionSet2029(STORE, { "https://other": 500 })), POST_IMAGE_RENDITION_WIDTHS.map(width => `${width}w`), "no fact: as before");
+  assert.deepEqual(widths(postImageRenditionSet2029(STORE, { [STORE]: 0 })), POST_IMAGE_RENDITION_WIDTHS.map(width => `${width}w`), "an unreadable fact: as before");
+});
+
+test("in the article: a small original keeps no set (an authored one is dropped) but still waits for the reader; facts reach every image", () => {
+  const B = STORE.replace("a.jpg", "b.jpg");
+  const html = `<p><img src="${STORE}" width="750" height="500" srcset="${STORE} 750w" sizes="750px"></p><p><img src="${B}" width="400" height="300"></p>`;
+  const [a, b] = run(html, { cover: "https://c", facts: { [STORE]: 1200, [B]: 400 } }).querySelectorAll("img");
+  assert.deepEqual(widths(a.getAttribute("srcset")), ["480w", "768w", "1200w"]);
+  assert.equal(a.getAttribute("sizes"), "(max-width: 760px) min(calc(100vw - 68px), 750px), min(680px, 750px)");
+  assert.equal(b.hasAttribute("srcset"), false); assert.equal(b.hasAttribute("sizes"), false);
+  assert.equal(b.getAttribute("loading"), "lazy"); assert.equal(b.getAttribute("decoding"), "async"); assert.equal(b.getAttribute("src"), B);
+});
+
+test("the originals copies apply to (cover and reserved-size Storage images), and the facts of exactly those", () => {
+  const { window } = new JSDOM("<!doctype html><body></body>"); globalThis.document = window.document;
+  try {
+    const B = STORE.replace("a.jpg", "b.jpg"), C = STORE.replace("a.jpg", "c.jpg");
+    const html = `<img src="${B}" width="10" height="10"><img src="${STORE.replace(".jpg", ".gif")}" width="10" height="10"><img src="https://example.com/x.jpg" width="1" height="1"><img src="${C}">`;
+    assert.deepEqual(postArticleImageOriginals2029(html, STORE), [STORE, B]);
+    assert.deepEqual(postArticleImageOriginals2029(html, "https://example.com/cover.jpg"), [B]);
+  } finally { delete globalThis.document; }
+  assert.deepEqual(postImageFactsFor2029([STORE, "https://x"], { [STORE]: [1024, 683, 151000], "https://y": [10, 10, 1] }), { [STORE]: 1024 });
 });

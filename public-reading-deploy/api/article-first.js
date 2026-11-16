@@ -10,7 +10,10 @@ import { postArticleFirstProven2029 } from "../../src/lib/research/postArticleFi
 import { publicPostUrl } from "../../src/lib/publicPostUrls.js";
 
 import provenList from "../article-first-proven.json" with { type: "json" };
+import imageFacts from "../article-image-facts.json" with { type: "json" };
 const PROVEN = provenList.posts;
+// The real widths of the proven Posts' original images (scripts/scan-article-image-facts.mjs): copies only where they are smaller than the original.
+const IMAGE_FACTS = imageFacts.images || {};
 
 let loading = null, renderer = null;
 // One server DOM per instance. Rendering is synchronous, so installing its document as the global for one call cannot interleave.
@@ -20,10 +23,10 @@ export function loadArticleFirstRenderer({ importDom = () => import("jsdom") } =
     const { JSDOM } = await importDom();
     const { window } = new JSDOM("<!doctype html><html><body></body></html>", { url: "https://sod1820.co.il/" });
     renderer = {
-      render(post, path) {
+      render(post, path, facts = IMAGE_FACTS) {
         const saved = { document: globalThis.document, CSSStyleSheet: globalThis.CSSStyleSheet };
         globalThis.document = window.document; globalThis.CSSStyleSheet = window.CSSStyleSheet;
-        try { return postArticleDocumentHtml2029(post, { document: window.document, path }); }
+        try { return postArticleDocumentHtml2029(post, { document: window.document, path, facts }); }
         finally { globalThis.document = saved.document; globalThis.CSSStyleSheet = saved.CSSStyleSheet; }
       },
     };
@@ -55,7 +58,7 @@ function keepAlive(promise) {
   try { globalThis[Symbol.for("@vercel/request-context")]?.get?.()?.waitUntil?.(promise); } catch { /* no request context: plain process */ }
   return promise;
 }
-function articleFirstDocument(html, { path, search = "", status, post, proven = PROVEN, load = loadArticleFirstRenderer }) {
+function articleFirstDocument(html, { path, search = "", status, post, proven = PROVEN, facts = IMAGE_FACTS, load = loadArticleFirstRenderer }) {
   if (status !== 200 || !post || search || !ownOriginalAddress(post, path)) return { html, state: "not-eligible" };
   // No template: this build was made without a fresh proof (or without the article path); nothing is loaded.
   const template = TEMPLATE.exec(html);
@@ -63,7 +66,7 @@ function articleFirstDocument(html, { path, search = "", status, post, proven = 
   if (!postArticleFirstProven2029(post, proven)) return { html, state: "not-proven" };
   if (!renderer) { keepAlive(load().catch(() => {})); return { html, state: "warming" }; }
   let article;
-  try { article = renderer.render(post, path); } catch { return { html, state: "failed" }; }
+  try { article = renderer.render(post, path, facts); } catch { return { html, state: "failed" }; }
   const critical = (/<style data-sod-article-first-critical>[\s\S]*?<\/style>/.exec(template[1]) || [""])[0];
   const links = template[1].match(/<link rel="stylesheet" href="\/assets\/[^"]+\.css">/g) || [];
   if (!critical || !links.length) return { html, state: "failed" };

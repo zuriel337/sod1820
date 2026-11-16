@@ -1,0 +1,35 @@
+--- lab2.mjs	2026-11-16 12:32:12.241040370 +0000
++++ lab2-debug.mjs	2026-11-16 13:07:52.065939035 +0000
+@@ -34,7 +34,7 @@
+   po('largest-contentful-paint', e => m.lcp.push({ t: Math.round(e.startTime), size: e.size, url: e.url || null, id: e.id || null,
+     el: e.element ? (e.element.tagName + (e.element.id ? '#' + e.element.id : '') + (e.element.className && typeof e.element.className === 'string' ? '.' + e.element.className.trim().split(/\s+/).slice(0, 2).join('.') : '')) : null,
+     load: Math.round(e.loadTime), render: Math.round(e.renderTime) }));
+-  po('layout-shift', e => { if (!e.hadRecentInput) m.shifts.push({ t: Math.round(e.startTime), v: e.value }); });
++  po('layout-shift', e => { if (!e.hadRecentInput) m.shifts.push({ t: Math.round(e.startTime), v: e.value, sources: (e.sources || []).map(x => { const n = x.node; const d = n ? (n.nodeType === 1 ? n.tagName + '.' + String(n.className).slice(0, 40) + (n.textContent ? ' «' + n.textContent.trim().slice(0, 30) + '»' : '') : '#text «' + n.textContent.trim().slice(0, 30) + '»') : null; return { d, prev: [x.previousRect.y, x.previousRect.height].map(Math.round), cur: [x.currentRect.y, x.currentRect.height].map(Math.round) }; }), sheets: [...document.styleSheets].filter(s => s.href).length, fonts: [...document.fonts].filter(f => f.status === 'loaded' && !/Sod/.test(f.family)).map(f => f.family + f.weight).join(',') }); });
+   po('longtask', e => m.long.push({ t: Math.round(e.startTime), d: Math.round(e.duration) }));
+   po('paint', e => m.paints.push({ n: e.name, t: Math.round(e.startTime) }));
+   window.addEventListener('error', e => m.errors.push(String(e.message).slice(0, 120)));
+@@ -80,8 +80,9 @@
+   const blocked = [], tp = [], writes = [];
+   // Request interception disables Chromium's HTTP cache, so a repeat visit would be measured without it. In fixture mode every host is the local lab server, which
+   // already refuses everything that is not a read (writes get 204) and serves third-party scripts from its replay cache; `noRoute` therefore skips the interception.
+-  if (!(cfg.noRoute && cfg.mode === 'fixture')) await context.route('**/*', route => {
++  if (!(cfg.noRoute && cfg.mode === 'fixture')) await context.route('**/*', async route => {
+     const req = route.request(), url = req.url(), method = req.method();
++    if (process.env.LAB_DELAY) { const [pattern, ms] = process.env.LAB_DELAY.split('@'); if (new RegExp(pattern).test(url)) await new Promise(done => setTimeout(done, Number(ms))); }
+     if (ALWAYS_BLOCK.some(rx => rx.test(url))) { blocked.push({ m: method, u: url.slice(0, 150) }); return route.abort('blockedbyclient'); }
+     if (isThirdPartyHost(url)) {
+       tp.push({ m: method, u: url.slice(0, 150) });
+@@ -173,8 +174,10 @@
+           wall0 = Date.now() / 1000;
+           if (cfg.cpuProfile) { await s.cdp.send('Profiler.enable'); await s.cdp.send('Profiler.setSamplingInterval', { interval: 1000 }); await s.cdp.send('Profiler.start'); }
+           await s.page.goto(url, { waitUntil: 'commit', timeout: 60000 });
+-          if (process.env.LAB_SHOT) { for (const at of [2200, 3000]) { await sleep(at - (Date.now() / 1000 - wall0) * 1000); await s.page.screenshot({ path: `${process.env.LAB_SHOT}-${post.key}-${at}.png` }).catch(() => {});
+-            const st = await s.page.evaluate(() => ({ h1: !!document.querySelector('#sod29-ssr-article h1'), parsedLinks: document.querySelectorAll('link[data-sod-article-first-full]').length, ready: document.readyState, art: document.querySelector('article')?.textContent.length || 0 })).catch(e => ({ err: String(e.message).slice(0, 80) }));
++          if (process.env.LAB_SHOT) { for (const at of [2000, 3000, 4200]) { await sleep(at - (Date.now() / 1000 - wall0) * 1000); await s.page.screenshot({ path: `${process.env.LAB_SHOT}-${post.key}-${at}.png` }).catch(() => {});
++            const st = await s.page.evaluate(() => { const a = document.querySelector('#sod29-ssr-article article'); const m = a?.querySelector('.sod29-learn-mark'), slot = a?.querySelector('.sod29-entry-orientation-slot'), host = a?.querySelector('.sod29-orientation-host');
++              const r = n => n ? [Math.round(n.getBoundingClientRect().top), Math.round(n.getBoundingClientRect().width), Math.round(n.getBoundingClientRect().height), getComputedStyle(n).display, getComputedStyle(n).position].join(',') : '-';
++              return { cls: document.documentElement.className, sheets: [...document.styleSheets].map(x => (x.href || 'inline').split('/').pop().slice(0, 22)).join(' '), mark: r(m), slot: r(slot), host: r(host), details: r(a?.querySelector('.sod29-post-details')), byline: r(a?.querySelector('.sod29-reading-byline')), copyGrid: a ? getComputedStyle(a.querySelector('.sod29-reading-hero-copy')).gridTemplateColumns : '-', fonts: [...document.fonts].filter(f => f.status === 'loaded' && !/Sod/.test(f.family)).map(f => f.family.slice(0, 6) + f.unicodeRange.slice(2, 6)).join(' ') }; }).catch(e => ({ err: String(e.message).slice(0, 80) }));
+             console.error('SHOT', post.key, at, JSON.stringify(st)); } }
+         } else if (scenario === 'warm') {
+           await s.page.goto(url, { waitUntil: 'load', timeout: 60000 }); await s.page.waitForFunction(() => window.__perf?.expect === null || true); await sleep(4500);  // prime HTTP cache + service worker

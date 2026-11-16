@@ -83,4 +83,15 @@ In this sample no line changed in either case; the margin before a line breaks d
   - Strings of digits only, or of Latin, are identical either way.
 - `Rubik-Hebrew.woff2` stays in the repository, unused and without a cache rule. Removing it is a decision for ZURIEL.
 
-<!--FONTS2-->
+**Measured after the change** (Chromium, the built artifact, the real Post 192 row, the post page held before adoption):
+
+| fonts | phone 412×839: header | phone: chips | desktop 1280×900: header |
+|---|---|---|---|
+| all loaded | 288.14 px | 175.16 + 157.75 px | 272.19 px |
+| Latin file never arrives | 288.14 px | 175.16 + 157.75 px | 272.19 px |
+| Hebrew file never arrives | 288.14 px | 172.19 + 157.64 px | 272.19 px |
+| no web font arrives | 288.14 px | 172.19 + 157.64 px | 272.19 px |
+
+- In every state, the first 40 blocks of the article are in the same place and size, on the phone and on desktop.
+- The throttled phone lab (Slow 4G, 4× CPU) on Post 192: CLS 0.000 in one run, against 0.139 before. The confirmation series is in `FOLLOWUPS.md`.
+- **Not measured:** Android, which has no Arial (see "Not done or not measured").

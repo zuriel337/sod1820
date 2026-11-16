@@ -8,6 +8,21 @@ export function documentArticleFor(postId) {
   return node && node.dataset.ssrPost === String(postId) ? node : null;
 }
 
+// The real widths of the Post's original images that the first document was built with ({ url: width }; postImageRenditionSet2029), so the
+// page offers exactly the same copies. Kept per Post once read: the document article is removed when the page adopts it.
+const imageFactsByPost = new Map();
+export function documentImageFactsFor(postId) {
+  const key = postId == null ? "" : String(postId);
+  if (!key) return null;
+  if (imageFactsByPost.has(key)) return imageFactsByPost.get(key);
+  const node = documentArticleFor(key);
+  if (!node) return null;
+  let facts = null;
+  try { facts = node.dataset.ssrImageFacts ? JSON.parse(node.dataset.ssrImageFacts) : null; } catch { facts = null; }
+  imageFactsByPost.set(key, facts);
+  return facts;
+}
+
 // Exactly the page's own article? The document marks the duplicate cover itself; the page marks it after rendering, so that mark is not compared.
 export function documentArticleBodyMatches(body, html) {
   if (!body) return false;

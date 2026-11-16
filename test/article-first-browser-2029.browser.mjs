@@ -38,12 +38,12 @@ const sleep = ms => new Promise(done => setTimeout(done, ms));
 const FACES = () => Promise.all(["400 16px 'Noto Sans Hebrew'", "700 16px 'Noto Sans Hebrew'", "400 16px Rubik", "700 16px Rubik"].map(font => document.fonts.load(font, "שלום 1820 Ab")));
 
 await loadArticleFirstRenderer();
-async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW, holdCss = null, holdCssLate = null } = {}, run) {
+async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW, holdCss = null, holdCssLate = null, facts = undefined } = {}, run) {
   const proven = { [String(row.id)]: postArticleProofKey2029(row) };
   const fixture = await startFixture({
     documentFor: ({ path, template }) => {
       if (decodeURIComponent(path).toLowerCase() !== decodeURIComponent(PATH).toLowerCase()) return null;
-      const out = withArticleFirst2029(template, { path, search: "", status: 200, post: row, proven });
+      const out = withArticleFirst2029(template, { path, search: "", status: 200, post: row, proven, ...(facts ? { facts } : {}) });
       assert.equal(out.state, "served", "the real server function serves the article");
       return out.html;
     },
@@ -113,6 +113,30 @@ for (const profile of Object.keys(PROFILES)) {
     });
   });
 }
+
+// The originals' real widths (16.11.2026): the document carries this Post's widths, and the page reads them from it, so it computes exactly the
+// document's article (adopted, never replaced) and its cover offers exactly the same copies, none of them the original re-encoded.
+test("[phone] with the originals' real widths: the page reads them from the document, adopts the same article, and its cover offers the same copies", { timeout: 180000 }, async () => {
+  const POSTER = ROW.image_url;
+  await withPage("phone", { facts: { [POSTER]: [750, 500, 120000] } }, async ({ page, errors }) => {
+    await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "commit" });
+    await page.waitForSelector('#sod29-ssr-article h1', { timeout: 20000 });
+    const ssr = await page.evaluate(() => { const frame = document.getElementById("sod29-ssr-article");
+      return { facts: frame.dataset.ssrImageFacts, cover: frame.querySelector("[data-ssr-cover] img")?.getAttribute("srcset"), body: frame.querySelector("[data-ssr-body] img")?.getAttribute("srcset") }; });
+    assert.deepEqual(JSON.parse(ssr.facts), { [POSTER]: 750 }, "only this Post's originals, width only");
+    const widths = set => String(set).split(", ").map(entry => entry.split(" ")[1]);
+    assert.deepEqual(widths(ssr.cover), ["480w", "750w"], "one smaller copy, then the original itself");
+    assert.equal(ssr.cover.split(", ").at(-1), `${POSTER} 750w`);
+    assert.deepEqual(widths(ssr.body), ["480w", "750w"]);
+    const result = await adopted(page);
+    assert.equal(result.result, "adopted", JSON.stringify(result));
+    const after = await page.evaluate(() => ({ cover: document.querySelector(".sod29-reading-cover img")?.getAttribute("srcset"), body: document.querySelector(".sod29-reading-source img")?.getAttribute("srcset") }));
+    assert.equal(after.cover, ssr.cover, "the page's cover offers the document's copies");
+    assert.equal(after.body, ssr.body);
+    assert.deepEqual(await counts(page), { articles: 1, h1: 1, documentArticle: false, sources: 1 });
+    assert.deepEqual(errors, []);
+  });
+});
 
 test("[phone] a direct link to a named anchor: the browser opens at it and adoption keeps it there", { timeout: 180000 }, async () => {
   // The page's code is held until the document has loaded, so the browser's own jump to the fragment (which it repeats until load) is over

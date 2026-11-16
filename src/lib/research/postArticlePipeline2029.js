@@ -7,14 +7,14 @@ import { hardenPassiveMediaHtml } from "../mediaEgressGuard.js";
 import { annotatePostSource } from "./postSemanticDesign2029.js";
 import { postVoiceFor } from "../postVoice2029.js";
 
-export function postArticleSourceHtml2029(projectedContent, { postId = null, voice = "unspecified", annotate = true, cover = "" } = {}) {
+export function postArticleSourceHtml2029(projectedContent, { postId = null, voice = "unspecified", annotate = true, cover = "", facts = null } = {}) {
   const hardened = hardenPassiveMediaHtml(postReadingHtml2029(projectedContent || ""));
-  return postArticleImages2029(annotate ? annotatePostSource(hardened, { postId, voice }) : hardened, { cover });
+  return postArticleImages2029(annotate ? annotatePostSource(hardened, { postId, voice }) : hardened, { cover, facts });
 }
 
-// The same, from a stored row of an ordinary imported Post (what the projection would project).
-export function postArticleSourceHtmlFromRow2029(row) {
-  return postArticleSourceHtml2029(markLegacyEqualityLines(row?.content || ""), { postId: row?.id ?? null, voice: postVoiceFor(row).voice, cover: row?.image_url || "" });
+// The same, from a stored row of an ordinary imported Post (what the projection would project). facts: the real widths of its originals.
+export function postArticleSourceHtmlFromRow2029(row, { facts = null } = {}) {
+  return postArticleSourceHtml2029(markLegacyEqualityLines(row?.content || ""), { postId: row?.id ?? null, voice: postVoiceFor(row).voice, cover: row?.image_url || "", facts });
 }
 
 // The identity of the stored source an article was built from: FNV-1a over the raw content, plus its length.

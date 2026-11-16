@@ -40,10 +40,15 @@ const { postArticleDocumentHtml2029 } = await import("../src/lib/research/postAr
 const { emptyVocabulary, addToVocabulary, vocabularyToJson } = await import("./lib/article-first-critical-css.mjs");
 const { window } = new JSDOM("<!doctype html><html><body></body></html>", { url: "https://sod1820.co.il/" });
 globalThis.document = window.document; globalThis.CSSStyleSheet = window.CSSStyleSheet;
-const server = candidates.map(row => { try { return postArticleSourceHtmlFromRow2029(row); } catch { return null; } });
+// The real widths of the originals, as the document handler uses them (scripts/scan-article-image-facts.mjs): the server reads the whole list, the
+// page only the widths its first document carries; both are proven here exactly so.
+const FACTS = (() => { try { return JSON.parse(readFileSync(new URL("../public-reading-deploy/article-image-facts.json", import.meta.url), "utf8")).images || {}; } catch { return {}; } })();
+const { postArticleImageOriginals2029, postImageFactsFor2029 } = await import("../src/lib/research/postArticleCore2029.js");
+const server = candidates.map(row => { try { return postArticleSourceHtmlFromRow2029(row, { facts: FACTS }); } catch { return null; } });
+const pageFacts = candidates.map((row, index) => server[index] == null ? null : postImageFactsFor2029(postArticleImageOriginals2029(server[index], row.image_url), FACTS));
 const vocabulary = emptyVocabulary();
 for (const row of candidates) {
-  try { const template = window.document.createElement("template"); template.innerHTML = postArticleDocumentHtml2029(row, { document: window.document, path: "/x" }); addToVocabulary(vocabulary, template.content); } catch { /* not served */ }
+  try { const template = window.document.createElement("template"); template.innerHTML = postArticleDocumentHtml2029(row, { document: window.document, path: "/x", facts: FACTS }); addToVocabulary(vocabulary, template.content); } catch { /* not served */ }
 }
 delete globalThis.document; delete globalThis.CSSStyleSheet;
 
@@ -56,11 +61,11 @@ await page.setContent("<!doctype html><html><body></body></html>");
 await page.addScriptTag({ content: bundle.outputFiles[0].text });
 const posts = {}; const differ = [];
 for (let index = 0; index < candidates.length; index += 50) {
-  const slice = candidates.slice(index, index + 50).map((row, k) => ({ row, server: server[index + k] }));
-  const verdicts = await page.evaluate(items => items.map(({ row, server }) => {
+  const slice = candidates.slice(index, index + 50).map((row, k) => ({ row, server: server[index + k], facts: pageFacts[index + k] }));
+  const verdicts = await page.evaluate(items => items.map(({ row, server, facts }) => {
     if (server == null) return { same: false, kind: "server-throws" };
     const parse = html => { const t = document.createElement("template"); t.innerHTML = html; return t.content; };
-    const a = parse(window.__articleFirstPipeline.postArticleSourceHtmlFromRow2029(row)), b = parse(server);
+    const a = parse(window.__articleFirstPipeline.postArticleSourceHtmlFromRow2029(row, { facts: facts && Object.keys(facts).length ? facts : null })), b = parse(server);
     // Walk both trees together; the first difference is recorded, so an excluded Post says why.
     const wa = document.createTreeWalker(a, NodeFilter.SHOW_ALL), wb = document.createTreeWalker(b, NodeFilter.SHOW_ALL);
     for (let na = wa.nextNode(), nb = wb.nextNode(); na || nb; na = wa.nextNode(), nb = wb.nextNode()) {

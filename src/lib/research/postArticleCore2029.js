@@ -160,11 +160,21 @@ export function markLegacyEqualityLines(content = "") {
 // already reserves (width and height) get copies, so the choice of file never changes the layout; GIF and SVG keep the original.
 export const POST_IMAGE_RENDITION_WIDTHS = Object.freeze([480, 768, 1080, 1600]);
 export const POST_IMAGE_QUALITY = 80;
-export function postImageRenditionSet2029(src) {
+// With the original's real width known (facts: { [original url]: width }, read from the files by scripts/scan-article-image-facts.mjs and
+// carried to the page by the first document), a copy is offered only where it is clearly smaller (at most 85% of the original's width) and the
+// original itself is the widest candidate, at its real width: a copy is never the original re-encoded at its own size, which can be heavier
+// than the original (16.11.2026: a 1,024 px cover's "1080" copy was 157 KB against 151 KB). An original too small for any copy keeps no set.
+// Without facts: the four widths, as before.
+export const POST_IMAGE_COPY_SHARE = 0.85;
+const factWidth = (facts, url) => { const value = facts?.[url]; const width = Number(Array.isArray(value) ? value[0] : value); return Number.isFinite(width) && width > 0 ? Math.round(width) : 0; };
+export function postImageRenditionSet2029(src, facts = null) {
   const url = clean(src);
   const first = thumb(url, POST_IMAGE_RENDITION_WIDTHS[0], POST_IMAGE_QUALITY);
   if (!url || first === url || url.includes("?")) return "";
-  return POST_IMAGE_RENDITION_WIDTHS.map(width => `${thumb(url, width, POST_IMAGE_QUALITY)} ${width}w`).join(", ");
+  const original = factWidth(facts, url);
+  if (!original) return POST_IMAGE_RENDITION_WIDTHS.map(width => `${thumb(url, width, POST_IMAGE_QUALITY)} ${width}w`).join(", ");
+  const copies = POST_IMAGE_RENDITION_WIDTHS.filter(width => width <= original * POST_IMAGE_COPY_SHARE);
+  return copies.length ? [...copies.map(width => `${thumb(url, width, POST_IMAGE_QUALITY)} ${width}w`), `${url} ${original}w`].join(", ") : "";
 }
 // The column the article's images are drawn in (post2029-reading.css: the reading source on a phone, the reading column on a wider screen).
 export const POST_COVER_IMAGE_SIZES = "(max-width: 760px) calc(100vw - 36px), 560px";
@@ -172,19 +182,39 @@ const bodyImageSizes = width => `(max-width: 760px) min(calc(100vw - 68px), ${wi
 
 // The article's own images: copies offered as above; images below the opening screen load when the reader approaches them (when the Post has
 // a cover, every body image is below it; without one, the first body image keeps its authored loading), off the main thread.
-export function postArticleImages2029(html, { cover = "" } = {}) {
+export function postArticleImages2029(html, { cover = "", facts = null } = {}) {
   if (!globalThis.document?.createElement) return String(html || "");
   const template = document.createElement("template"); template.innerHTML = String(html || "");
   const images = [...template.content.querySelectorAll("img[src]")];
   images.forEach((image, index) => {
-    const width = Number(image.getAttribute("width")), height = Number(image.getAttribute("height"));
-    if (!(width > 0 && height > 0)) return;
-    const set = postImageRenditionSet2029(image.getAttribute("src"));
-    if (!set) return;
-    image.setAttribute("srcset", set);
-    image.setAttribute("sizes", bodyImageSizes(Math.round(width)));
+    if (!copiesApply(image)) return;
+    const set = postImageRenditionSet2029(image.getAttribute("src"), facts);
+    if (set) { image.setAttribute("srcset", set); image.setAttribute("sizes", bodyImageSizes(Math.round(Number(image.getAttribute("width"))))); }
+    else { image.removeAttribute("srcset"); image.removeAttribute("sizes"); }   // an original too small for copies: it alone, as authored
     image.setAttribute("decoding", "async");
     if (clean(cover) || index > 0) image.setAttribute("loading", "lazy");
   });
   return template.innerHTML;
+}
+// An image of the article that copies apply to: its size is reserved by the markup and its file is a Storage original.
+function copiesApply(image) {
+  const width = Number(image.getAttribute("width")), height = Number(image.getAttribute("height"));
+  return width > 0 && height > 0 && Boolean(postImageRenditionSet2029(image.getAttribute("src")));
+}
+// The originals that copies apply to in an article (its html, from the pipeline) and its cover: what scripts/scan-article-image-facts.mjs measures,
+// what the first document carries the facts of, and what the release warm-up asks copies of.
+export function postArticleImageOriginals2029(html, cover = "") {
+  const out = new Set();
+  if (postImageRenditionSet2029(cover)) out.add(clean(cover));
+  if (globalThis.document?.createElement) {
+    const template = document.createElement("template"); template.innerHTML = String(html || "");
+    for (const image of template.content.querySelectorAll("img[src]")) if (copiesApply(image)) out.add(clean(image.getAttribute("src")));
+  }
+  return [...out];
+}
+// The facts of exactly these originals (what a first document carries): { url: width }.
+export function postImageFactsFor2029(urls, facts) {
+  const out = {};
+  for (const url of urls) { const width = factWidth(facts, url); if (width) out[url] = width; }
+  return out;
 }
