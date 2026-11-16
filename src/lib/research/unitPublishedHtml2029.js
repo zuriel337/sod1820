@@ -2,7 +2,7 @@
 // PURE: it writes nothing. Text is escaped (nothing in the words can become markup), the markup is a closed set (section, hr, h2, h3, p, small, span[data-gem], a, blockquote,
 // table), and the insertion is checked before it is returned: the unit id is not in the body yet, every existing section survives unchanged and in order, nothing outside the
 // insertion point changes, and the fragment passes the same safety validator the save plan uses.
-import { parseYaminSmolText, parseFieldLine, parseBylineLine } from "./postPreviewUnits2029.js";
+import { parseYaminSmolText, parseFieldLine, parseBylineLine, YAMIN_SMOL_TRACE_CLAIMS } from "./postPreviewUnits2029.js";
 import { inspectFragment, allSections, contentSha256 } from "./unitFragmentSavePlan2029.js";
 
 const esc = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -36,7 +36,12 @@ export function unitToPublishedHtml(unit, text) {
       }
       case "claim": {
         const field = parseFieldLine(block.text);
-        if (field) { out.push(`<p ${LINE}><b>${esc(field.label)}:</b> ${withNumbers(field.value)}</p>`); if (field.label === "התוצאה" && field.number) out.push(`<p ${BIG}><span data-gem="${field.number}">${field.number}</span></p>`); }
+        if (field) { out.push(`<p ${LINE}><b>${esc(field.label)}:</b> ${withNumbers(field.value)}</p>`); if (field.label === "התוצאה" && field.number) {
+            out.push(`<p ${BIG}><span data-gem="${field.number}">${field.number}</span></p>`);
+            // the beautiful canonical breakdown (letters, values, sum) is hosted here: an empty host the page fills from the engine, exactly as in the Preview
+            const claim = YAMIN_SMOL_TRACE_CLAIMS.find((c) => c.number === field.number);
+            if (claim) out.push(`<div data-pu-trace="${claim.id}" data-pu-published="true" class="sod29-pu-host sod29-pu-trace-host"></div>`);
+          } }
         else out.push(`<p ${LINE}>${withNumbers(block.text)}</p>`);
         break;
       }

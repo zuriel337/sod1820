@@ -89,7 +89,7 @@ function Sources() {
 // `auto` (the focal numbers in the unit body): the breakdown is OPEN in front of the reader and is fetched only when it scrolls near the screen.
 // Otherwise (the engine panel): it opens on request. The method comes from the engine's own resolution of the SOURCE's method text (never inferred
 // from the target number); on any missing/failed/unsupported/mismatched trace the panel says so and invents no step.
-function ClaimTrace({ claim, auto = false }) {
+export function ClaimTrace({ claim, auto = false }) {
   const [open, setOpen] = useState(auto);
   const [state, setState] = useState({ phase: "idle" });
   const hostRef = useRef(null);
@@ -157,7 +157,7 @@ export default function PreviewUnitExtras2029({ rootRef, post, htmlKey }) {
       const host = (name) => section.querySelector(`[data-pu-host="${name}"]`);
       // gematria items the editor added: React hosts the unit builder left in the body (a reference only; the shared component rebuilds everything from the engine)
       const gx = [...section.querySelectorAll("[data-pu-gx]")].map((node) => { let item = null; try { item = cleanGematriaItem(JSON.parse(node.getAttribute("data-gx-item") || "null")); } catch { item = null; } return { node, item, align: node.getAttribute("data-gx-align") || null }; }).filter((entry) => entry.item);
-      found.push({ unit, gx, traces: [...section.querySelectorAll("[data-pu-trace]")].map((node) => ({ node, claim: YAMIN_SMOL_CLAIMS.find((c) => c.id === node.getAttribute("data-pu-trace")) })).filter((t) => t.claim), hosts: { bar: host("bar"), images: host("images"), sources: host("sources"), engine: host("engine"), share: host("share") } });
+      found.push({ unit, gx, traces: [...section.querySelectorAll("[data-pu-trace]:not([data-pu-published])")].map((node) => ({ node, claim: YAMIN_SMOL_CLAIMS.find((c) => c.id === node.getAttribute("data-pu-trace")) })).filter((t) => t.claim), hosts: { bar: host("bar"), images: host("images"), sources: host("sources"), engine: host("engine"), share: host("share") } });
     }
     setMounts(found);
     return () => setMounts([]);

@@ -36,6 +36,15 @@ test("the published form: one section with the unit id, escaped text, clickable 
   assert.throws(() => unitToPublishedHtml({ id: "x y" }, "a"), /bad_unit_id/);
 });
 
+test("the gematria breakdowns are kept in the published unit: an empty engine host after each big result number (2026 and 5787), safe markup, unique", () => {
+  const html = unitToPublishedHtml(unit, YAMIN_SMOL_APPROVED_TEXT);
+  assert.equal((html.match(/<div data-pu-trace="c2026" data-pu-published="true" class="sod29-pu-host sod29-pu-trace-host"><\/div>/g) || []).length, 1);
+  assert.equal((html.match(/<div data-pu-trace="c5787" data-pu-published="true" class="sod29-pu-host sod29-pu-trace-host"><\/div>/g) || []).length, 1);
+  assert.match(html, /<span data-gem="2026">2026<\/span><\/p>\n<div data-pu-trace="c2026"/);
+  assert.match(html, /<span data-gem="5787">5787<\/span><\/p>\n<div data-pu-trace="c5787"/);
+  assert.deepEqual(inspectFragment(html).unsafe, []);
+});
+
 test("dry run on the live body: the unit goes on top, the six units and everything outside the insertion point stay byte-identical", async () => {
   const html = unitToPublishedHtml(unit, YAMIN_SMOL_APPROVED_TEXT);
   const expected = await contentSha256(LIVE);

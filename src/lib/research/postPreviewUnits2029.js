@@ -162,11 +162,14 @@ export const ATTRIBUTION_GROUPS = ATTRIBUTION;
 export const deliveredLines = (text = YAMIN_SMOL_APPROVED_TEXT) => String(text).split("\n").map((l) => l.trim()).filter((l) => l.length);
 
 // Claims the unit makes, for the ENGINE panel (display only: the approved words stay as delivered; a claim's state comes only from the engine).
-export const YAMIN_SMOL_CLAIMS = Object.freeze(!PREVIEW_BUILD ? [] : [
+// The engine claims of the unit's gematria breakdowns. They are the unit's own public numbers and phrases, so they exist in EVERY build (the published unit in the post body hosts
+// its breakdowns from them); the Preview-only panels below still gate their own extras.
+export const YAMIN_SMOL_TRACE_CLAIMS = Object.freeze([
   Object.freeze({ id: "c2026", phrase: "ימין ושמאול תפרצי", number: 2026, methodText: "מילוי" }),
   Object.freeze({ id: "c5787", phrase: "תפרצי בתשפז", number: 5787, methodText: "ריבוע" }),
   Object.freeze({ id: "c1158", phrase: "שש מאות אלף", number: 1158, methodText: null }),
 ]);
+export const YAMIN_SMOL_CLAIMS = PREVIEW_BUILD ? YAMIN_SMOL_TRACE_CLAIMS : Object.freeze([]);
 
 // The unit's two gematria images: PRIVATE inbox uploads (bucket submission-inbox, not public). They are bound here only as canonical
 // references; nothing fetches or shows them until ZURIEL confirms they are the intended images and approves their publication.
