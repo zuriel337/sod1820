@@ -204,8 +204,11 @@ assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Hebrew\
 assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Latin\.woff2'\)/);
 assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Hebrew.woff2")), true);
 assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Latin.woff2")), true);
-assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Regular\.ttf'\)/);
-assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Bold\.ttf'\)/);
+// the body face is served as WOFF2 with its TTF as the second source (16.11.2026), both kept
+assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Regular\.woff2'\) format\('woff2'\),url\('\/fonts\/NotoSansHebrew-Regular\.ttf'\)/);
+assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Bold\.woff2'\) format\('woff2'\),url\('\/fonts\/NotoSansHebrew-Bold\.ttf'\)/);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Regular.woff2")), true);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Bold.woff2")), true);
 assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Regular.ttf")), true);
 assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Bold.ttf")), true);
 assert.match(shellHtml, /IBM\+Plex\+Mono/);

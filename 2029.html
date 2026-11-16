@@ -8,10 +8,11 @@
     <meta name="theme-color" content="#0C0818" />
     <title>סוד 1820</title>
     <link rel="icon" href="data:," />
-    <!-- The two faces of the first paint (the opening shell's Hebrew text and the frame's Hebrew labels) are preloaded. The bold body face and
+    <!-- The two faces of the first paint (the opening shell's Hebrew text and the frame's Hebrew labels) are preloaded (the body face as WOFF2,
+         11 KB instead of 27 KB, the TTF kept as its second source; 16.11.2026). The bold body face and
          the Latin/digits face (34 KB) load on first use through the @font-face rules below, so they no longer compete with the entry script
          for the first second of a slow connection (16.11.2026). -->
-    <link rel="preload" href="/fonts/NotoSansHebrew-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/NotoSansHebrew-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/Rubik-Hebrew.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Supabase origin (REST, RPC, Storage): connected while the document is parsed; anonymous pool = fetch(). -->
     <link rel="preconnect" href="https://linswmnnkjxvweumprav.supabase.co" crossorigin />
@@ -24,16 +25,30 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
     <link rel="stylesheet" href="/src/components/experience2029/opening2029.css" />
     <style>
-      @font-face { font-family:'Noto Sans Hebrew'; src:url('/fonts/NotoSansHebrew-Regular.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
-      @font-face { font-family:'Noto Sans Hebrew'; src:url('/fonts/NotoSansHebrew-Bold.ttf') format('truetype'); font-style:normal; font-weight:700; font-display:swap; }
+      @font-face { font-family:'Noto Sans Hebrew'; src:url('/fonts/NotoSansHebrew-Regular.woff2') format('woff2'),url('/fonts/NotoSansHebrew-Regular.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
+      @font-face { font-family:'Noto Sans Hebrew'; src:url('/fonts/NotoSansHebrew-Bold.woff2') format('woff2'),url('/fonts/NotoSansHebrew-Bold.ttf') format('truetype'); font-style:normal; font-weight:700; font-display:swap; }
       @font-face { font-family:'Rubik'; src:url('/fonts/Rubik-Hebrew.woff2') format('woff2'); font-style:normal; font-weight:400 900; font-display:swap; unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; }
       @font-face { font-family:'Rubik'; src:url('/fonts/Rubik-Latin.woff2') format('woff2'); font-style:normal; font-weight:400 900; font-display:swap; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      /* Local faces with the metrics of the web faces (widths of a Hebrew sample, ascent, descent), per weight and script, measured against
+         Arial-compatible fonts with fontTools (docs/reviews/old-post-article-first-20261116/FONTS.md): while a web face is on its way, or if
+         it never arrives, text keeps the widths and line heights it will have, so nothing moves when it lands. Vowel marks and digits are
+         drawn by the local font meanwhile (ZURIEL 16.11.2026). */
+      @font-face { font-family:'Sod Hebrew Fallback'; src:local('Arial'),local('ArialMT'),local('Liberation Sans'),local('LiberationSans'),local('Arimo'),local('Arimo-Regular'); font-weight:1 500; unicode-range:U+0020,U+002D,U+00A0,U+0591-05C7,U+05D0-05EA,U+05F0-05F4,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; size-adjust:100.6%; ascent-override:106.2%; descent-override:29.0%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Hebrew Fallback'; src:local('Arial Bold'),local('Arial-BoldMT'),local('Liberation Sans Bold'),local('LiberationSans-Bold'),local('Arimo Bold'),local('Arimo-Bold'); font-weight:501 1000; unicode-range:U+0020,U+002D,U+00A0,U+0591-05C7,U+05D0-05EA,U+05F0-05F4,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; size-adjust:99.1%; ascent-override:107.7%; descent-override:29.5%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Latin Fallback'; src:local('Arial'),local('ArialMT'),local('Liberation Sans'),local('LiberationSans'),local('Arimo'),local('Arimo-Regular'); font-weight:1 500; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; size-adjust:98.9%; ascent-override:94.5%; descent-override:25.3%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Latin Fallback'; src:local('Arial Bold'),local('Arial-BoldMT'),local('Liberation Sans Bold'),local('LiberationSans-Bold'),local('Arimo Bold'),local('Arimo-Bold'); font-weight:501 1000; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; size-adjust:104.7%; ascent-override:89.3%; descent-override:23.9%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Rubik Fallback'; src:local('Arial'),local('ArialMT'),local('Liberation Sans'),local('LiberationSans'),local('Arimo'),local('Arimo-Regular'); font-weight:1 549; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; size-adjust:98.9%; ascent-override:94.5%; descent-override:25.3%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Rubik Fallback'; src:local('Arial Bold'),local('Arial-BoldMT'),local('Liberation Sans Bold'),local('LiberationSans-Bold'),local('Arimo Bold'),local('Arimo-Bold'); font-weight:550 749; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; size-adjust:104.7%; ascent-override:89.3%; descent-override:23.9%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Rubik Fallback'; src:local('Arial Bold'),local('Arial-BoldMT'),local('Liberation Sans Bold'),local('LiberationSans-Bold'),local('Arimo Bold'),local('Arimo-Bold'); font-weight:750 1000; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; size-adjust:109.2%; ascent-override:85.7%; descent-override:22.9%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Rubik Fallback'; src:local('Arial'),local('ArialMT'),local('Liberation Sans'),local('LiberationSans'),local('Arimo'),local('Arimo-Regular'); font-weight:1 549; unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; size-adjust:94.8%; ascent-override:98.6%; descent-override:26.4%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Rubik Fallback'; src:local('Arial Bold'),local('Arial-BoldMT'),local('Liberation Sans Bold'),local('LiberationSans-Bold'),local('Arimo Bold'),local('Arimo-Bold'); font-weight:550 749; unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; size-adjust:92.5%; ascent-override:101.1%; descent-override:27.0%; line-gap-override:0%; }
+      @font-face { font-family:'Sod Rubik Fallback'; src:local('Arial Bold'),local('Arial-BoldMT'),local('Liberation Sans Bold'),local('LiberationSans-Bold'),local('Arimo Bold'),local('Arimo-Bold'); font-weight:750 1000; unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; size-adjust:95.1%; ascent-override:98.3%; descent-override:26.3%; line-gap-override:0%; }
       *, *::before, *::after { box-sizing:border-box; }
       html, body, #root { min-height:100%; margin:0; }
       /* Keep the viewport/grid width stable when a short route loader becomes
          a long article. This document is isolated from the Legacy root. */
       html { scroll-behavior:smooth; overflow-x:clip; scrollbar-gutter:stable; }
-      body { background:#0C0818; color:#f5f0e8; overflow-x:clip; width:100%; font-family:'Noto Sans Hebrew','Rubik',Arial,sans-serif; }
+      body { background:#0C0818; color:#f5f0e8; overflow-x:clip; width:100%; font-family:'Noto Sans Hebrew','Sod Hebrew Fallback','Rubik','Sod Latin Fallback',Arial,sans-serif; }
       #root { overflow-x:clip; max-width:100%; position:relative; }
     </style>
   </head>

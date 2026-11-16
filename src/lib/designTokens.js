@@ -30,9 +30,11 @@ export const RADIUS = Object.freeze({
 });
 
 export const TYPEFACE = Object.freeze({
-  ui: "'Rubik','Noto Sans Hebrew',Arial,sans-serif",
-  body: "'Noto Sans Hebrew','Rubik',Arial,sans-serif",
-  display: "'Rubik','Noto Sans Hebrew',Arial,sans-serif",
+  // Each web face is followed by a local face with matched metrics (2029.html @font-face "Sod ... Fallback"): while a font is on its way, or if it
+  // never arrives, the text keeps the widths and line heights it will have, so nothing moves when it lands (ZURIEL 16.11.2026).
+  ui: "'Rubik','Sod Rubik Fallback','Noto Sans Hebrew',Arial,sans-serif",
+  body: "'Noto Sans Hebrew','Sod Hebrew Fallback','Rubik','Sod Latin Fallback',Arial,sans-serif",
+  display: "'Rubik','Sod Rubik Fallback','Noto Sans Hebrew',Arial,sans-serif",
   numeric: "'IBM Plex Mono','Roboto Mono','Courier New','Rubik','Noto Sans Hebrew',monospace",
 });
 
