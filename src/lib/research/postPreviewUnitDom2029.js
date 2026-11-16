@@ -99,6 +99,7 @@ export function buildPreviewUnitElement(doc, unit, blocks = null) {
       editedNote(doc, host, block, labelOf);
       continue; }
     if (block.kind === "claim") { host.append(withNumbers(doc, el(doc, "p", { class: "sod29-pu-claim", "data-sod-role": "short", "data-sod-align": al("center") }), block.text)); editedNote(doc, host, block, labelOf); continue; }
+    if (/^מאת:\s/.test(block.text)) { host.append(el(doc, "p", { class: "sod29-pu-byline", "data-sod-role": "short", "data-sod-align": al("start") }, block.text)); continue; }   // the writer of the part that follows
     const p = el(doc, "p", { "data-sod-role": "prose", "data-sod-align": al("start") });
     host.append(withNumbers(doc, p, block.text));
   }

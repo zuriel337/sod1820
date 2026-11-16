@@ -11,23 +11,22 @@ import { publicPostUnitHref } from "../publicPostUrls.js";
 
 export const YAMIN_SMOL_UNIT_ID = "yamin-smol-2026-5787-1237-1158";
 
+// 16.11.2026: re-ordered by ZURIEL (by-lines "מאת: …", the two findings, the system voice in the ✦ mark, Shachar's lines, the four parties with Baal HaSulam).
 // The approved text, exactly as delivered by ZURIEL on 17.11.2026 (clear, graded wording inspired by ASD-STE100, in the SOD1820 spiritual voice; it replaces the
 // 12.11.2026 wording). The bracketed notes of that delivery ("here the canonical component appears") are not text: they are the places of the existing
 // canonical components (the method trace under each result, the editor's "+ gematria" item) and are not part of the words. Do not reword, reorder or "fix" it.
 // The text exists in a build ONLY when the protected-preview flag is on (a static condition the bundler folds away otherwise), so an ordinary or
 // public build carries none of it. Outside a bundler (node tests) `import.meta.env` is undefined and the text is present for the tests.
 const PREVIEW_BUILD = typeof import.meta.env === "undefined" || import.meta.env.VITE_REALITY_MAP_PREVIEW === "true";
-export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `ימין ושמאול תפרצי
+export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `ימין ושמאול תפרצי מדהים!!! רמזים חזקים ביותר
 
-2026 · 5787 · 1237 · 1158
+2026 · 5787 · 1237 · 566 · 1158
 
-המקור
+מאת: יניב לוי
 
 בספר ישעיהו, פרק נ״ד, פסוק ג׳, נאמר:
 
 ״כִּי יָמִין וּשְׂמֹאול תִּפְרֹצִי״
-
-יניב לוי הציג שני חיבורים מספריים המבוססים על הביטוי הזה.
 
 חיבור ראשון — 2026
 
@@ -37,8 +36,6 @@ export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `ימין ושמא
 
 התוצאה: 2026
 
-זהו גם מספר השנה הלועזית המתוארת בפוסט.
-
 חיבור שני — 5787
 
 הביטוי: תפרצי בתשפז
@@ -47,27 +44,25 @@ export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `ימין ושמא
 
 התוצאה: 5787
 
-זהו מספר השנה העברית תשפ״ז.
+✦ אנחנו רואים שהשנה הזאת בסימן של פריצה של השמאל ✦
 
-מה הקשר בין החיבורים?
+מאת: יצחק שחר קנדרו
 
-שני החישובים מתייחסים לאותו ציר רעיוני.
+גדעון איזנקוט ראש הממשלה = 1237
 
-החיבור הראשון מציג את השנה הלועזית. החיבור השני מציג את השנה העברית.
+רוסיה איראן סין ארהב = 1237 מסתתר
 
-ההתאמה המספרית נבדקת באמצעות המנוע. המשמעות הרוחנית של ההתאמה היא פרשנות.
+התחלת הגאולה = 1237
 
-המשך המחקר — 1237
+התגלות = 1237
 
-המספר 1237 מופיע בפוסט באמצעות ביטויים, פסוקים ומקורות שונים.
+מתן כהנא = 566
 
-יניב לוי ויצחק שחר קנדרו הביאו חיבורים נפרדים סביב המספר.
+משיח בן יוסף = 566
 
-לכל חיבור יש לשמור את הביטוי, השיטה, תוצאת הבדיקה והייחוס למקור.
+✦ אנחנו רואים שהמציאות מדברת ✦
 
-חיבור נוסף — 1158
-
-ארבעה ראשי תיבות של מפלגות מופיעים בחישוב:
+ארבע המפלגות הערביות
 
 ראשי תיבות| ערך
 חד״ש| 312
@@ -77,8 +72,6 @@ export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `ימין ושמא
 סך הכול| 1158
 
 גם הביטוי ״שש מאות אלף״ שווה 1158 בגימטריה רגילה.
-
-חשוב להבחין: 1158 הוא סכום ערכי ראשי התיבות. הוא אינו הערך הרגיל של המשפט ״ארבע המפלגות הערביות״.
 
 ושש מאות אלף — הרי הם שישים ריבוא, מספר המזוהה במסורת עם כלל נשמות ישראל.
 
@@ -90,15 +83,7 @@ export const YAMIN_SMOL_APPROVED_TEXT = !PREVIEW_BUILD ? "" : `ימין ושמא
 
 נשמה אחת, המתגלית בריבוי נשמות.
 
-ומכאן עולה רמז יפה לאחדות ישראל.
-
-המסר
-
-החיבורים מצטרפים להתבוננות על ימין ושמאל, פירוד ואחדות.
-
-הפסוק מתאר פריצה והתרחבות.
-
-בקריאה הרוחנית של הפוסט, הוא מזמין מחשבה על האפשרות לצאת מגבולות הפירוד ולגלות אחדות.`;
+ומכאן עולה רמז יפה לאחדות ישראל.`;
 
 // Identity groups INSIDE the text. Only a line the text itself attributes to a writer is attributed to that writer (nothing is put in
 // anyone's mouth). Everything else is the site's editorial wording; scripture and Baal HaSulam keep their own identity.
@@ -112,6 +97,7 @@ const ATTRIBUTION = Object.freeze([
 ]);
 
 const HEADING = /^(✨|👑|✦|📜)\s+(.+)$/u;
+const CLOSING = /^(✨|👑|✦|📜)\s.+\s\1$/u;
 const NUMBERS_ROW = /^\d{3,5}(?:\s·\s\d{3,5})+$/u;
 const VERSE = /^(?:«״.+״»|״[^״]+״)$/u;
 // "הביטוי: …" / "השיטה: …" / "התוצאה: …" — the three labelled lines of a connection (a data line of the "claim" kind; the label and the value are re-read from the text)
@@ -129,7 +115,7 @@ const isPlainHeading = (line) => line.length <= 40 && !/[.!,;:׃]$/.test(line) &
 export function parseYaminSmolText(text = YAMIN_SMOL_APPROVED_TEXT) {
   const lines = String(text).split("\n").map((line) => line.trim()).filter((line) => line.length);
   // a text that marks its section titles with a symbol (✨ 👑 ✦ 📜) uses only those; a text with none uses its short title lines (no sentence mark, no colon)
-  const plainHeadings = !lines.some((line) => HEADING.test(line));
+  const plainHeadings = !lines.some((line) => HEADING.test(line) && !CLOSING.test(line));   // a ✦ … ✦ line is the closing/system-voice mark, not a symbol heading
   const blocks = [];
   let active = null;
   let tableOpen = false;
@@ -194,12 +180,12 @@ export const PREVIEW_UNITS_2029 = Object.freeze(!PREVIEW_BUILD ? {} : {
     postId: 5107,
     seriesKey: "reality-map",
     // The unit's own title/numbers, as they stand in the approved text and in ZURIEL's instruction.
-    title: "ימין ושמאול תפרצי",
+    title: "ימין ושמאול תפרצי מדהים!!! רמזים חזקים ביותר",
     subtitle: "הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר",
-    numbers: Object.freeze([2026, 5787, 1237, 1158]),
+    numbers: Object.freeze([2026, 5787, 1237, 566, 1158]),
     // Proposal for the unit's MAIN MESSAGE in "עכשיו": the closing line of the approved text, decoration removed. Never applied by itself:
     // the editor pre-fills it and ZURIEL flags it as the main message (or changes it) before it reaches "עכשיו".
-    suggestedMainMessage: "ימין ושמאול תפרצי — לצאת מגבולות הפירוד ולגלות אחדות",
+    suggestedMainMessage: "אנחנו רואים שהמציאות מדברת",
   })]),
 });
 
