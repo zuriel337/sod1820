@@ -131,7 +131,7 @@ export function injectPreviewUnits(root, postId, doc = root.ownerDocument || doc
     const element = buildPreviewUnitElement(doc, unit);
     const holder = el(doc, "div", { class: "sod29-update-unit", "data-update-unit": unit.id, "data-preview-holder": "true" });
     const meta = el(doc, "p", { class: "sod29-update-meta" });
-    meta.append(el(doc, "span", { class: "sod29-update-added sod29-pu-badge" }, "יחידה חדשה · הדגמה בפריוויו"));
+    meta.append(el(doc, "span", { class: "sod29-update-added sod29-pu-badge" }, "יחידה חדשה"));
     holder.append(meta, element);
     setLocalDraftBadge(holder, Boolean(readBodyDraftMeta(postId, unit.id)));
     const stack = root.querySelector("[data-sod-update-stack]");

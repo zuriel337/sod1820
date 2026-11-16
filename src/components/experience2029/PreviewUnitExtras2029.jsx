@@ -49,13 +49,9 @@ function Bar({ unit, post, postPath }) {
   </nav>;
 }
 
+// The unit's gematria images are private uploads that are not published: nothing is shown for them (no placeholder, no note to the reader).
 function Images() {
-  return <section className="sod29-pu-images" aria-label="תמונות הגימטריה של היחידה">
-    {YAMIN_SMOL_IMAGES.map((image, i) => <figure key={image.id} className="sod29-pu-image is-pending" data-pu-image={image.ref} data-image-state={image.state}>
-      <div aria-hidden="true">🖼</div>
-      <figcaption><b>תמונת גימטריה {i + 1}</b><span>ממתינה לאישור פרסום — הקובץ שמור בתיבה פרטית ואינו מוצג</span></figcaption>
-    </figure>)}
-  </section>;
+  return null;
 }
 
 function Sources() {
@@ -83,9 +79,8 @@ function Sources() {
     return () => { alive = false; };
   }, []);
   return <section className="sod29-pu-sources" aria-label="מקורות היחידה">
-    <h4>המקורות — כל כותב בזהות נפרדת, בדבריו שלו</h4>
-    <p className="sod29-pu-sources-note">זהויות ביחידה: {ATTRIBUTION_GROUPS.filter((g) => YAMIN_SMOL_SOURCES.some((source) => source.slug === g.identity)).map((g) => g.label).join(" · ")} · פסוקים · בעל הסולם · עריכת האתר. אין מייחסים לכותב אלא את מה שכתב.</p>
-    {units.length === 0 ? <p className="sod29-pu-sources-note" role="status">מקורות הכותבים נטענים מהקורא הציבורי…</p> : null}
+    <h4>המקורות</h4>
+    {units.length === 0 ? <p className="sod29-pu-sources-note" role="status">טוען את המקורות…</p> : null}
     {units.map((source) => <PostExternalSourceUnit2029 key={source.id} source={source} />)}
   </section>;
 }
@@ -115,7 +110,7 @@ function ClaimTrace({ claim, auto = false }) {
   return <div className="sod29-pu-trace" data-trace-state={state.phase} data-trace-auto={auto ? "true" : undefined} ref={hostRef}>
     {!auto ? <button type="button" className="sod29-pu-trace-btn" aria-expanded={open} onClick={toggle}>{open ? "הסתר את החישוב" : "איך הגענו למספר?"}</button> : null}
     {open && state.phase === "loading" ? <p role="status" className="sod29-pu-sources-note">פותח את צעדי החישוב…</p> : null}
-    {open && state.phase === "unavailable" ? <p role="status" className="sod29-pu-sources-note">פירוט החישוב אינו זמין כרגע. לא הומצאו צעדים חלופיים.</p> : null}
+    {open && state.phase === "unavailable" ? <p role="status" className="sod29-pu-sources-note">פירוט החישוב אינו זמין כרגע.</p> : null}
     {open && state.phase === "ready" ? <div className="sod29-pu-trace-body">
       <GematriaView2029 state={claim.by ? state : { ...state, gap: null }} phrase={claim.phrase} display="letters" />
       <p className="sod29-pu-trace-links"><Link to="/beit-midrash">פתח את השיטה בבית המדרש</Link></p>
@@ -125,8 +120,8 @@ function ClaimTrace({ claim, auto = false }) {
 
 function Engine() {
   return <details className="sod29-pu-engine">
-    <summary>בדיקת המנוע לטענות ביחידה</summary>
-    <p className="sod29-pu-sources-note">הנוסח המאושר נשאר כפי שנמסר. כאן מוצג רק מה שהמנוע החזיר לכל טענה; אימות חישוב אינו אימות פרשנות.</p>
+    <summary>בדיקת החישובים ביחידה</summary>
+    <p className="sod29-pu-sources-note">התוצאה של כל חיבור נבדקת במנוע החישוב. התאמה מספרית אינה הוכחה לפרשנות.</p>
     {YAMIN_SMOL_CLAIMS.map((claim) => <div key={claim.id} className="sod29-pu-engine-row" data-claim={claim.id}>
       {claim.by ? <small>בדברי {IDENTITY_LABEL[claim.by]}</small> : <small>בנוסח העריכה</small>}
       <ClaimRow claim={claim} />
@@ -141,7 +136,6 @@ function Share({ unit, post, postPath }) {
   const title = `${unit.title} — ${unit.subtitle}`;
   return <section className="sod29-pu-share" aria-label="שיתוף היחידה" data-pu-share-url={url}>
     <h4>שיתוף היחידה</h4>
-    <p className="sod29-pu-sources-note" data-pu-share-scope="preview-only"><b>קישור פריוויו מוגן (SSO) — אינו ציבורי.</b> היחידה אינה שמורה בפוסט הציבורי; לכן זהו קישור בדיקה בלבד, ללא כרטיס/תצוגה מקדימה לציבור ולבוטים, עד שהיחידה תפורסם באישור נפרד. הקישור פותח את היחידה בתוך פוסט הבחירות, עם דרך להמשיך לכל הפוסט.</p>
     <ShareActions type="post" entityId={`posts:${post.id}#${unit.id}`} sourceSurface="post_2029_unit" subtype="share" url={url} title={title}
       image={unitCardUrl(origin, unit)} force exactState={{ unit: unit.id, series: unit.seriesKey }} />
     <a className="sod29-pu-link" href={url} data-pu-direct-link="true">{url.replace(/^https?:\/\//, "")}</a>

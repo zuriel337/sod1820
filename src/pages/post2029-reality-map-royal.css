@@ -466,3 +466,6 @@
 .sod29-ude-report tr[data-segment-status="failed"] td,.sod29-ude-report tr[data-segment-status="not_sent"] td{color:var(--s29-warn,#e6c46a)}
 
 .sod29-pu-byline{font-weight:800;color:var(--s29-brand-gold);margin-block:1.2em .4em}
+
+/* the unit breadcrumb wraps inside the unit: a long title never runs past the edge */
+.sod29-reading-post[data-reality-map] .sod29-pu-bar>.sod29-pu-crumb{flex:1 1 12rem;min-inline-size:0;max-inline-size:100%;overflow-wrap:anywhere;text-wrap:balance}
