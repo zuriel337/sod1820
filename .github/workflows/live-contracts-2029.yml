@@ -511,6 +511,11 @@ jobs:
       # leaving before adoption removes it; back shows one article.
       - name: Old Posts, article first (readable before the app, adopted not re-rendered, the reader stays, anchors kept, never two articles; real artifact and worker)
         run: node --test --test-concurrency=1 test/article-first-browser-2029.browser.mjs
+      # NEW_POST_ARTICLE_FIRST (ZURIEL 16.11.2026): a Post written on the site after the proof list was made carries its article at its /post/
+      # address when it names nothing a left-out first-paint rule depends on (the build's guard); adopted, the reader stays, nothing shifts;
+      # a guarded Post keeps today's document.
+      - name: New Posts, article first (not on the list; the build's guard; adopted, no layout shift; real artifact and worker)
+        run: node --test --test-concurrency=1 test/article-first-new-post-2029.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)

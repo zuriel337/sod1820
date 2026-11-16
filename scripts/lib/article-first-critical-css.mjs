@@ -153,7 +153,8 @@ function select(css, vocabulary, stats, keyframes) {
     }
     const selectors = postCssSelectors(prelude);
     const keep = selectors.some(selector => selectorMayMatch(selector, vocabulary));
-    if (keep) { out += `${selectors.map(articleFirstBoostSelector).join(",")}{${body}}`; stats.kept += 1; } else stats.dropped += 1;
+    if (keep) { out += `${selectors.map(articleFirstBoostSelector).join(",")}{${body}}`; stats.kept += 1; }
+    else { stats.dropped += 1; if (stats.guard) for (const selector of selectors) addGuardTokens(stats.guard, selector, vocabulary); }
   }
   return out;
 }
@@ -174,12 +175,36 @@ export function articleFirstBoostSelector(selector) {
   return `html.${ARTICLE_FIRST_CLASS} ${text}`;
 }
 
-// cssTexts: the stylesheets in the order the document loads them. → { css, kept, dropped }
+// The guard of a Post that has no proof yet (NEW_POST_ARTICLE_FIRST): every tag, class, id, attribute name and attribute value that a LEFT-OUT
+// rule names and the vocabulary does not hold. A rule is left out only because one of its names is outside the vocabulary; an article that uses
+// none of these names cannot match any left-out rule, so the first-paint stylesheet holds every rule that applies to it. Over-collecting only
+// sends more new Posts down the existing path; the document handler checks a new Post against it (article-first.js).
+const GUARD_IDENT = "(?:\\\\.|[-\\w\\u00A0-\\uFFFF])+";
+function addGuardTokens(guard, selector, vocabulary) {
+  const text = String(selector).replace(/"(?:\\.|[^"])*"|'(?:\\.|[^'])*'/g, match => match);   // quoted values stay for the attribute pass
+  for (const match of text.matchAll(/\[\s*(?:(?:[-\w]*|\*)\|)?([-\w]+)\s*(?:([~|^$*]?=)\s*("(?:\\.|[^"])*"|'(?:\\.|[^'])*'|[^\s\]]+))?[^\]]*\]/g)) {
+    const name = match[1].toLowerCase();
+    if (!vocabulary.attributes.has(name)) guard.attributes.add(name);
+    else if (match[2] && vocabulary.attributes.get(name)) {
+      const value = unescape(match[3].replace(/^["']|["']$/g, ""));
+      if (!vocabulary.attributes.get(name).has(value)) guard.attributeValues.add(`${name}=${value}`);
+    }
+  }
+  const bare = text.replace(/\[[^\]]*\]/g, " ").replace(/"(?:\\.|[^"])*"|'(?:\\.|[^'])*'/g, " ");
+  for (const match of bare.matchAll(new RegExp(`\\.(${GUARD_IDENT})`, "g"))) { const name = unescape(match[1]); if (!vocabulary.classes.has(name)) guard.classes.add(name); }
+  for (const match of bare.matchAll(new RegExp(`#(${GUARD_IDENT})`, "g"))) { const name = unescape(match[1]); if (!vocabulary.ids.has(name)) guard.ids.add(name); }
+  // a type selector starts a compound: at the start, after a combinator, a comma or an opening parenthesis (never after ":" "." "#")
+  for (const match of bare.matchAll(/(?:^|[\s>+~(,])([a-zA-Z][-\w]*)/g)) { const name = match[1].toLowerCase(); if (!vocabulary.tags.has(name)) guard.tags.add(name); }
+}
+export const emptyGuard = () => ({ tags: new Set(), classes: new Set(), ids: new Set(), attributes: new Set(), attributeValues: new Set() });
+export const guardToJson = guard => Object.fromEntries(Object.entries(guard).map(([key, values]) => [key, [...values].sort()]));
+
+// cssTexts: the stylesheets in the order the document loads them. → { css, kept, dropped, guard }
 export function articleFirstCriticalCss(cssTexts, vocabulary) {
-  const stats = { kept: 0, dropped: 0 }; const keyframes = [];
+  const stats = { kept: 0, dropped: 0, guard: emptyGuard() }; const keyframes = [];
   let css = cssTexts.map(text => select(String(text).replace(/\/\*[\s\S]*?\*\//g, ""), vocabulary, stats, keyframes)).join("");
   // animations used by a kept rule stay with it
   const used = keyframes.filter(item => item.name && new RegExp(`(?:^|[\\s:,])${item.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:[\\s;,}]|$)`).test(css));
   css += used.map(item => item.text).join("");
-  return { css, kept: stats.kept, dropped: stats.dropped, keyframes: used.length };
+  return { css, kept: stats.kept, dropped: stats.dropped, keyframes: used.length, guard: stats.guard };
 }

@@ -122,6 +122,7 @@ document=document.replace('<link rel="icon" href="data:," />',`<link rel="icon" 
 //   - the full stylesheets (the entry's, the System Frame's and the Post page's), which the handler puts after the article: they no longer
 //     hold the article's first paint, they still hold the application's start (scripts wait for parser-inserted stylesheets), and the app's own
 //     loader finds them present and does not fetch them twice.
+let articleFirstGuard = null;
 const articleFirstProof = JSON.parse(await readFile(resolve(root, "public-reading-deploy/article-first-proven.json"), "utf8"));
 const articleFirstVocabulary = JSON.parse(await readFile(resolve(root, "public-reading-deploy/article-first-vocabulary.json"), "utf8"));
 const articleFirstIdentity = await articleFirstFingerprint(root);
@@ -139,7 +140,7 @@ if (articleFirstProof.fingerprint !== articleFirstIdentity.fingerprint || articl
   if (!css.length) throw new Error("article_first_css_missing");
   // the vocabulary of the document itself (the head, the opening bar in #root) and of the article-first additions, with the proven articles'
   const { JSDOM } = await import("jsdom");
-  const { vocabularyFromJson, emptyVocabulary, addToVocabulary, mergeVocabularies, articleFirstCriticalCss } = await import("./lib/article-first-critical-css.mjs");
+  const { vocabularyFromJson, emptyVocabulary, addToVocabulary, mergeVocabularies, articleFirstCriticalCss, guardToJson } = await import("./lib/article-first-critical-css.mjs");
   const own = addToVocabulary(emptyVocabulary(), new JSDOM(document).window.document.documentElement);
   own.attributes.set("data-theme-2029", new Set(["dark", "light", "parchment"])); own.attributes.set("data-ssr-standalone", new Set(["true"]));
   const vocabulary = mergeVocabularies(own, vocabularyFromJson(articleFirstVocabulary));
@@ -148,11 +149,17 @@ if (articleFirstProof.fingerprint !== articleFirstIdentity.fingerprint || articl
   if (!critical.css || critical.css.includes("</")) throw new Error("article_first_critical_css");
   console.log(`article-first: first-paint stylesheet ${critical.css.length} B (${critical.kept} rules kept, ${critical.dropped} left out) from ${css.length} stylesheets`);
   document = document.replace("</head>", `<template id="sod29-article-first-css"><style data-sod-article-first-critical>${critical.css}</style>${css.map(file => `<link rel="stylesheet" href="/${file}">`).join("")}</template></head>`);
+  // A Post written after the proof (NEW_POST_ARTICLE_FIRST) is checked by the document handler against the names of the rules left out here.
+  articleFirstGuard = { fingerprint: articleFirstIdentity.fingerprint, ...guardToJson(critical.guard) };
+  console.log(`article-first: new-Post guard ${Object.entries(articleFirstGuard).filter(([key]) => key !== "fingerprint").map(([key, list]) => `${list.length} ${key}`).join(", ")}`);
 }
 // The raw build document must only be reachable through the status/metadata
 // adapter; / and /?p=... cannot be shadowed by an index.html filesystem match.
 await mkdir(templates, { recursive: true });
 await writeFile(resolve(templates, "2029.html"), document);
+// Only with the template: a build without a fresh proof has no guard, and the handler then gives no new Post its article.
+if (articleFirstGuard) await writeFile(resolve(templates, "article-first-guard.json"), JSON.stringify(articleFirstGuard));
+else await rm(resolve(templates, "article-first-guard.json"), { force: true });
 await rm(resolve(output, "2029.html"));
 await rm(resolve(output, "index.html"), { force: true });
 await rm(resolve(output, "robots.txt"), { force: true });

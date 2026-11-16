@@ -1,5 +1,6 @@
 // Proves, Post by Post, that the server builds exactly the browser's article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026), and writes the list
-// the document handler serves from (public-reading-deploy/article-first-proven.json). For every public imported Post that is a candidate
+// the document handler serves from (public-reading-deploy/article-first-proven.json). For every public Post that is a candidate, imported or
+// written on the site (NEW_POST_ARTICLE_FIRST, 16.11.2026)
 // (postArticleFirstPolicy2029.js): the page's article pipeline runs under jsdom (the server) and in Chromium (the browser, the same source
 // bundled by esbuild); Chromium parses both outputs and compares them node by node. Only identical Posts are listed, keyed by the exact
 // stored source and voice, so an edited Post leaves the list until this runs again; the list records the fingerprint of the pipeline code and of
@@ -28,7 +29,7 @@ const identity = await articleFirstFingerprint(root);
 
 const rows = [];
 for (let from = 0; ; from += 200) {
-  const response = await fetch(`${API}/rest/v1/posts?source=eq.wordpress&select=${FIELDS}&order=id&limit=200&offset=${from}`, { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
+  const response = await fetch(`${API}/rest/v1/posts?select=${FIELDS}&order=id&limit=200&offset=${from}`, { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
   if (!response.ok) throw new Error(`article_first_proofs_read_${response.status}`);
   const page = await response.json(); rows.push(...page); if (page.length < 200) break;
 }
@@ -85,8 +86,8 @@ for (let index = 0; index < candidates.length; index += 50) {
 await browser.close();
 const base = (() => { try { return execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim(); } catch { return null; } })();
 const out = { generated: new Date().toISOString(), base, fingerprint: identity.fingerprint, jsdom: identity.jsdom, pipeline: identity.inputs,
-  note: "Imported Posts whose exact stored source (and voice) was proven to give the browser's article on the server (scripts/build-article-first-proofs.mjs). Keyed by post id; the value is the proof key (postArticleProofKey2029). Valid only for the pipeline code and server DOM of `fingerprint` (scripts/lib/article-first-fingerprint.mjs).",
-  counts: { imported: rows.length, candidates: candidates.length, proven: Object.keys(posts).length, differ: differ.length }, differ, posts };
+  note: "Posts (imported or written on the site) whose exact stored source (and voice) was proven to give the browser's article on the server (scripts/build-article-first-proofs.mjs). Keyed by post id; the value is the proof key (postArticleProofKey2029). Valid only for the pipeline code and server DOM of `fingerprint` (scripts/lib/article-first-fingerprint.mjs).",
+  counts: { read: rows.length, candidates: candidates.length, proven: Object.keys(posts).length, differ: differ.length }, differ, posts };
 writeFileSync(new URL("../public-reading-deploy/article-first-proven.json", import.meta.url), JSON.stringify(out, null, 1) + "\n");
 writeFileSync(new URL("../public-reading-deploy/article-first-vocabulary.json", import.meta.url), JSON.stringify({ fingerprint: identity.fingerprint,
   note: "Every tag, id, class, attribute and attribute value of the proven first-document articles (scripts/build-article-first-proofs.mjs); the build keeps the first-paint rules that may match them.",
