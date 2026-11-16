@@ -1,0 +1,29 @@
+{
+  "merged_pr": 1367,
+  "reviewed_head": "29fe07c472b167a641768e19f1ac7af11cde0b55",
+  "main": "21ce4c94d5388d006c0940a1da48360ff350cfc9",
+  "parent": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+  "both_tree": "124baaff63e20b321da30a4fe75497a2057dd174",
+  "source_pr_1368": "closed as included; branch retained",
+  "pre_merge_jobs_successful": 14,
+  "post_merge_workflow": {
+    "id": 43778193846,
+    "name": "Production Release and Legacy Compatibility",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "production_unchanged": {
+    "deployment": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU",
+    "sha": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+    "aliases": [
+      "sod1820.co.il",
+      "www.sod1820.co.il",
+      "sod1820.vercel.app"
+    ]
+  },
+  "local_build": "dormant, passed, not a production candidate",
+  "public_build": "local invocation refused because no real Vercel deployment identity; no guard/environment spoofing or weakening",
+  "new_deployment_id": null,
+  "request_sha256": "38d272e49536bf25ad59e216728fc44ebc8cbe934816d5180ff0c58afbf05751"
+}

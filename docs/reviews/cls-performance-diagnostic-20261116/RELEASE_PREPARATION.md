@@ -1,3 +1,6 @@
+> עדכון אחרי אישור: #1367 מוזג ל־21ce4c94d; מסמך זה משמר את בקשת המיזוג שכבר בוצעה.
+> הבקשה העדכנית היא [POST_MERGE_DEPLOYMENT_REQUEST.md](POST_MERGE_DEPLOYMENT_REQUEST.md).
+
 # חבילת שחרור אחת — מועמד משולב, טרם אושרה לביצוע
 
 הבקשה העדכנית היא [RELEASE_REQUEST.md ב־#1367](https://github.com/zuriel337/sod1820/blob/29fe07c472b167a641768e19f1ac7af11cde0b55/docs/reviews/route-scroll-reset-20261116/RELEASE_REQUEST.md).
