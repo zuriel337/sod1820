@@ -1,0 +1,108 @@
+{
+  "directions": {
+    "museum": {
+      "desktop": {
+        "canvasMs": 6315,
+        "drawCalls": 128,
+        "geometries": 60,
+        "textures": 14,
+        "shadows": "true",
+        "look": "royal",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "inner",
+          "outer"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true,
+          "focusKept": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "discovery": {
+      "desktop": {
+        "canvasMs": 4888,
+        "drawCalls": 128,
+        "geometries": 60,
+        "textures": 14,
+        "shadows": "true",
+        "look": "royal",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "relation",
+          "triangles",
+          "inner",
+          "outer",
+          "cube"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true,
+          "focusKept": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "lab": {
+      "desktop": {
+        "canvasMs": 3682,
+        "drawCalls": 109,
+        "geometries": 55,
+        "textures": 12,
+        "shadows": "false",
+        "look": "royal",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "inner",
+          "outer",
+          "triangles"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true,
+          "focusKept": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "v1": {
+      "desktop": {
+        "canvasMs": 4039,
+        "drawCalls": 105,
+        "geometries": 51,
+        "textures": 12,
+        "shadows": "false",
+        "look": "v1",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "inner",
+          "outer"
+        ],
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}

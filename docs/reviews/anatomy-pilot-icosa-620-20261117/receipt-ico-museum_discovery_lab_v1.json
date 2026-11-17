@@ -1,0 +1,111 @@
+{
+  "directions": {
+    "museum": {
+      "desktop": {
+        "canvasMs": 4778,
+        "drawCalls": 132,
+        "geometries": 63,
+        "textures": 10,
+        "shadows": "true",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "1",
+          "2",
+          "0",
+          "5",
+          "17",
+          "9",
+          "16"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "discovery": {
+      "desktop": {
+        "canvasMs": 2625,
+        "drawCalls": 132,
+        "geometries": 63,
+        "textures": 10,
+        "shadows": "true",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "1",
+          "6",
+          "9"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "lab": {
+      "desktop": {
+        "canvasMs": 2484,
+        "drawCalls": 92,
+        "geometries": 63,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "1",
+          "2",
+          "0",
+          "5",
+          "11",
+          "9",
+          "14",
+          "17",
+          "16"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "v1": {
+      "desktop": {
+        "canvasMs": 4620,
+        "drawCalls": 72,
+        "geometries": 43,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "1",
+          "2",
+          "0",
+          "5",
+          "11",
+          "9",
+          "14",
+          "17",
+          "16"
+        ],
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}
