@@ -39,16 +39,18 @@ function image({ complete = false } = {}) {
 }
 const cleanup = () => { for (const key of ["window", "document", "MutationObserver"]) delete globalThis[key]; };
 
-const HOME = '[data-home-primary]:not([data-home-primary="loading"])';
+// ZURIEL 17.11.2026: the Home's primary content is its pinned מפת המציאות lead, first on the page.
+const HOME = '[data-home-pinned-lead]:not([data-home-pinned-lead="loading"])';
 const POST = '[data-experience-surface="post-reading"], [data-experience-surface="not-found"], .sod29-frame-state';
-test("which content each page waits for: the Home's settled primary column, a Post's article or the notice that replaces it; other pages only the load", () => {
+test("which content each page waits for: the Home's settled pinned lead, a Post's article or the notice that replaces it; other pages only the load", () => {
   assert.equal(primaryContentSelector2029("/"), HOME);
   assert.equal(primaryContentSelector2029("/2029"), HOME, "the Home's 2029 alias");
   assert.equal(primaryContentSelector2029("/post/some-slug"), POST);
   assert.equal(primaryContentSelector2029("/%D7%A1%D7%93%D7%A8-%D7%AA%D7%A4%D7%99%D7%9C%D7%94"), POST, "an original single-segment Post address");
   assert.match(readFileSync(new URL("../src/pages/NotFound2029Page.jsx", import.meta.url), "utf8"), /<main data-experience-surface="not-found"/, "the not-found page is a settled state");
   assert.match(readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8"),
-    /data-home-primary=\{data\.loading \? "loading" : data\.postsError \? "failed" : "empty"\}/, "the Home's states the selector relies on");
+    /data-home-pinned-lead=\{lead \? "feed" : member \? "catalog" : "loading"\}/, "the Home's states the selector relies on (a Post, loading)");
+  assert.match(readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8"), /data-home-pinned-lead="none"/, "and none to show: never left waiting");
   for (const path of ["/community", "/world", "/posts", "/gematria", "/number/26", "/privacy"]) assert.equal(primaryContentSelector2029(path), null, path);
 });
 
