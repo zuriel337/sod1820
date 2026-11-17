@@ -466,3 +466,64 @@ Each read is limited to 5 s. Each answer says how it got the policy, in the head
   - For one request per instance, a newly blocked country can pass, or a newly freed one can still be stopped.
   - Attacks are many requests, so the policy applies from the second request.
 - **New bound:** a new instance waits at most 3 s for the read. Before, it had no limit. After 3 s the existing fail-open applies. The read itself continues in the background.
+
+### 14.4 Tests
+
+| Test | Result |
+|---|---|
+| `test/edge-country-policy-cache.test.mjs` (new) | 8/8, covering: a new instance waits once; a fresh copy needs no read; after 5 minutes an immediate answer and one background read; a hanging read never holds a reader; failed and unusable reads keep the good copy; a bounded wait on a new instance and the late read still lands; past 60 minutes the reader waits again, or gets the last copy if the read fails; the real middleware keeps a blocked country blocked while the background read is pending, answers a warm request in under 200 ms, and applies the new policy from the next request |
+| Edge suite: `middleware.test.js`, the production entry binding, bot reads, `test:cn-sg-security` | 24/24 |
+| Route legitimacy, route SEO decisions | PASS |
+| Post document freshness and CDN, status edge, units, contracts | 49/49 |
+| `npm run build` with the shell budget | PASS |
+| GitHub CI on `46933294d` | 7 workflows passed; the canary was skipped (it does not run on a Preview) |
+
+The new test runs in CI in `live-contracts-2029` (step: edge middleware contracts) and in `npm run test:cn-sg-security`.
+
+### 14.5 Protected Preview A/B (17.11.2026, 19:32–19:50 UTC)
+
+The two arms:
+
+- **Control:** `dpl_2VAQq1pgS7n1C21B7a6nXYkRyvzU` (`168d976d5`): the page CDN change with the old policy read.
+- **Treatment:** `dpl_9tXib9WmQwJYUQfAvBDJt75sMQnn` (`46933294d`): the same plus the fix.
+
+Method: one request to `/` on each, every 60 seconds, for 18 rounds, with the arms alternating order. This is the pattern of a quiet edge region, about one reader a minute. It ran from the test machine (edge `cle1`). Raw rows: `gatekeeper-ab-20261117.tsv`.
+
+| Moment | Control | Treatment |
+|---|---|---|
+| First request (control: copy expired; treatment: read a minute earlier) | 1,199 ms | 237 ms (`fresh`) |
+| Each time the instance's copy passed 5 minutes (19:37:50, 19:42:56, 19:48:02) | 837, 1,152 and 755 ms | 486, 481 and 444 ms (`refresh`: answered at once, read in the background) |
+| All rounds after the first (n=17 each) | p50 517, p75 635, max 1,152 ms | p50 490, p75 516, max 576 ms |
+
+- **At every expiry the control's reader waited an extra 0.3–0.7 s for the read from Tokyo, even from the US. The treatment's reader did not wait at all.** Between expiries the two arms are the same.
+- The base time of ~0.45–0.5 s in this run is the test machine's network: both arms paid it equally, because they were interleaved.
+- The `STALE` rows are the page CDN refreshing its copy at the same 5-minute mark. Both arms show them, so they do not explain the difference.
+
+Security checks on the treatment:
+
+- a bad bot (`python-requests`) got 403;
+- Googlebot passed (`vb=goodbot`);
+- the policy state was `waited` on the instance's first request, then `fresh`/`refresh`.
+
+### 14.6 Expected effect in the field, and how to check it
+
+- **Readers in quiet regions** (Frankfurt, where readers from Israel arrive; Paris, London, Stockholm, São Paulo, Seoul): the read that cost 0.77–1.3 s at p75 is no longer on their path while the instance is warm. Expected: the middleware's p75 on `/` in those regions drops toward the 20–25 ms of the busy regions. This is not measured from there yet.
+- **What remains:** a new instance still waits once for its first read (`waited`), as before, but now at most 3 s.
+- **Check after a release:**
+  - Vercel observability: middleware time to first byte by edge region, before and after.
+  - The share of `x-sod-country-policy: waited` in a sample of responses.
+  - The field server wait for `/` in the speed centre, by build.
+
+### 14.7 Not done or not verified
+
+- Not measured from Europe or Israel.
+- Not run under real traffic.
+- How often instances start cold in the field is unknown.
+- A policy change was not made live during the test (the database was not touched). The unit test proves the new policy applies from the next request.
+- The SG wrapper's own policy read (`sgPolicy`, browsers from Singapore only) was left unchanged.
+
+### 14.8 Recommendation
+
+Release it when you decide, together with the speed-centre field check. It removes the largest measured wait on the Home for readers outside the US, with no change to who is blocked. The only change is that a new policy reaches a quiet instance one request later.
+
+If the field check after the release shows many `waited` answers (new instances), the next step is a regional cached copy of the policy, so even a new instance does not read from Tokyo.

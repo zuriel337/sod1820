@@ -1,0 +1,37 @@
+time	arm	ttfb_s	cache	policy	edge
+19:32:44	control	1.199038	STALE		cle1
+19:32:44	treatment	0.237412	HIT	fresh	cle1
+19:33:45	treatment	0.530100	HIT	fresh	cle1
+19:33:45	control	0.635237	HIT		cle1
+19:34:46	control	0.481088	HIT		cle1
+19:34:46	treatment	0.492521	HIT	fresh	cle1
+19:35:47	treatment	0.515831	HIT	fresh	cle1
+19:35:48	control	0.505404	HIT		cle1
+19:36:48	control	0.537008	HIT		cle1
+19:36:49	treatment	0.515604	HIT	fresh	cle1
+19:37:49	treatment	0.485943	STALE	refresh	cle1
+19:37:50	control	0.836789	STALE		cle1
+19:38:51	control	0.517250	HIT		cle1
+19:38:51	treatment	0.489612	HIT	fresh	cle1
+19:39:51	treatment	0.437075	HIT	fresh	cle1
+19:39:52	control	0.528898	HIT		cle1
+19:40:53	control	0.693486	HIT		cle1
+19:40:53	treatment	0.576034	HIT	fresh	cle1
+19:41:54	treatment	0.492221	HIT	fresh	cle1
+19:41:55	control	0.487252	HIT		cle1
+19:42:56	control	1.152251	STALE		cle1
+19:42:56	treatment	0.480714	STALE	refresh	cle1
+19:43:57	treatment	0.511517	HIT	fresh	cle1
+19:43:57	control	0.460558	HIT		cle1
+19:44:58	control	0.529858	HIT		cle1
+19:44:58	treatment	0.460499	HIT	fresh	cle1
+19:45:59	treatment	0.542426	HIT	fresh	cle1
+19:45:59	control	0.501761	HIT		cle1
+19:47:00	control	0.512146	HIT		cle1
+19:47:00	treatment	0.440498	HIT	fresh	cle1
+19:48:01	treatment	0.444408	STALE	refresh	cle1
+19:48:02	control	0.755307	STALE		cle1
+19:49:02	control	0.487827	HIT		cle1
+19:49:03	treatment	0.430766	HIT	fresh	cle1
+19:50:03	treatment	0.469604	HIT	fresh	cle1
+19:50:04	control	0.466784	HIT		cle1
