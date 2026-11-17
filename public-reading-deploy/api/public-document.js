@@ -83,6 +83,29 @@ export function postDocumentCdnHeaders(post, policy = POST_DOCUMENT_CDN_CACHE) {
   };
 }
 
+// PAGE_DOCUMENT_CDN_CACHE (ZURIEL 17.11.2026, experiment, branch and protected Preview only). The Home and the community chat are the two
+// addresses read again most (Vercel observability 16.11: about 19% of all document requests, about 89% of them a repeat within the hour in
+// the same region). Without a query string their documents are the same bytes for every reader, exactly as a Post's (this handler reads no
+// cookie, no Authorization header and no account), and for these two addresses the metadata owner reads nothing at all: no Post, no site
+// flag, no community row (only a query string makes it read). So nothing outside a deployment can change them, and the platform keeps
+// every deployment's copies apart: a release or a rollback never serves another deployment's copy. They are kept the same way as Post
+// documents, under their own tag (a purge by tag stays possible), refreshed in the background after FRESH seconds and used while refreshing
+// for up to STALE seconds without a request. Only these two exact addresses; anything else on them (a query string, another status, a
+// closed state, another method, the function's own address) keeps no-store.
+export const PAGE_DOCUMENT_CDN_CACHE = Object.freeze({ version: "page-cdn-v1", freshSeconds: 300, staleSeconds: 3600, tag: "page-document" });
+export const PAGE_DOCUMENT_CDN_PAGES = Object.freeze({ "/": "home", "/community/chat": "community-chat" });
+export function pageDocumentCdnCacheable({ method, status, state, temporarilyClosed = false, search = "", originalDocument, post, articleFirst, fresh = false, path = "" } = {}) {
+  return !fresh && Object.hasOwn(PAGE_DOCUMENT_CDN_PAGES, path) && (method === "GET" || method === "HEAD") && status === 200 && state === "public"
+    && !temporarilyClosed && originalDocument === true && !search && post == null && articleFirst === "not-eligible";
+}
+export function pageDocumentCdnHeaders(path, policy = PAGE_DOCUMENT_CDN_CACHE) {
+  return {
+    "Vercel-CDN-Cache-Control": `max-age=${policy.freshSeconds}, stale-while-revalidate=${policy.staleSeconds}`,
+    "Vercel-Cache-Tag": `${policy.tag},${policy.tag}-${PAGE_DOCUMENT_CDN_PAGES[path]}`,
+    "X-Sod-Document-Cache": policy.version,
+  };
+}
+
 // Dependency injection remains a local synthetic test seam. Hosted admission
 // uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
@@ -185,8 +208,9 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       res.setHeader("X-Robots-Tag", robots);
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       if (path.replace(/\/+$/, "") === "/unsubscribe") res.setHeader("Referrer-Policy", "no-referrer");
-      if (postDocumentCdnCacheable({ method: req.method, status, state, temporarilyClosed, search, originalDocument, post: admittedPost, articleFirst: firstDocument.state, fresh, path }))
-        for (const [name, value] of Object.entries(postDocumentCdnHeaders(admittedPost))) res.setHeader(name, value);
+      const keep = { method: req.method, status, state, temporarilyClosed, search, originalDocument, post: admittedPost, articleFirst: firstDocument.state, fresh, path };
+      const cdnHeaders = postDocumentCdnCacheable(keep) ? postDocumentCdnHeaders(admittedPost) : pageDocumentCdnCacheable(keep) ? pageDocumentCdnHeaders(path) : {};
+      for (const [name, value] of Object.entries(cdnHeaders)) res.setHeader(name, value);
       return res.status(status).send(req.method === "HEAD" ? "" : html);
     } catch {
       res.setHeader("Retry-After", "60");
