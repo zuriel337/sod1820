@@ -6,19 +6,25 @@ import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
-import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo, PUBLIC_HOME_SEO } from "../lib/seo.js";
 import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 const WorldFlightStory2029 = lazy(() => import("../components/research/WorldFlightStory2029.jsx"));
 import "./home-world-story2029.css";
-import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
-import HomeRealityRiver2029, { RealityRiver2029 } from "../components/research/RealityRiver2029.jsx";
-import RealityStreamFollow2029 from "../components/research/RealityStreamFollow2029.jsx";
+// Below the opening screen (ZURIEL 17.11.2026, Speed Law): the reality stream, its arrivals list, the mini calculator's methods and the free
+// search's entry resolver load on their own, after the Home's top (construction note, pinned lead, short "עכשיו") has what it needs.
+const SourceArrivalList2029 = lazy(() => import("../components/research/SourceArrivalList2029.jsx"));
+const HomeRealityRiver2029 = lazy(() => import("../components/research/RealityRiver2029.jsx"));
+const RealityRiver2029 = lazy(() => import("../components/research/RealityRiver2029.jsx").then(module => ({ default: module.RealityRiver2029 })));
+const RealityStreamFollow2029 = lazy(() => import("../components/research/RealityStreamFollow2029.jsx"));
 import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
 import ElsRotatingMatrixCard2029 from "../components/experience2029/ElsRotatingMatrixCard2029.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../lib/publicLaunch2029.js";
+import { PUBLIC_READING_RELEASE, afterReadableContent2029 } from "../lib/publicReadingRelease2029.js";
+
+// The first Post's code is prepared before a click (moved here from App2029, ZURIEL 17.11.2026), but only after the Home's own top is readable
+// (its pinned lead and that image): on a slow phone it no longer competes with them for the connection. No Post data is read.
+if (PUBLIC_READING_RELEASE && typeof window !== "undefined") afterReadableContent2029(window.location.pathname, () => { void import("./PublicPostAddress2029Page.jsx").catch(() => {}); });
 
 
 function TemporalTreasures({ item }) {
@@ -184,7 +190,12 @@ function HomeSystemPulse({ pulse, loading }) {
 
 function HomeMiniGematria({ onOpenCalculator }) {
   const [expression, setExpression] = useState("");
-  const preview = useMemo(() => buildCalculator2029FastPreview(expression), [expression]);
+  const [buildPreview, setBuildPreview] = useState(null);
+  // The methods load after the Home's own top is readable, or at once when someone starts typing here.
+  const loadPreview = () => import("../lib/research/calculator2029FastPreview.js").then(module => setBuildPreview(() => module.buildCalculator2029FastPreview)).catch(() => {});
+  useEffect(() => afterReadableContent2029(window.location.pathname, () => { void loadPreview(); }), []);
+  useEffect(() => { if (expression && !buildPreview) void loadPreview(); }, [expression, buildPreview]);
+  const preview = useMemo(() => buildPreview ? buildPreview(expression) : null, [buildPreview, expression]);
   const methods = preview?.methods || [];
   const hasExpression = expression.trim().length > 0;
 
@@ -355,11 +366,17 @@ function HomeBody({ primaryReader = null } = {}) {
     return () => { live = false; };
   }, [worldRequested, worldOpen]);
 
-  const start = (e) => {
+  const [starting, setStarting] = useState(false);
+  const start = async (e) => {
     e?.preventDefault?.();
     const raw = query.trim();
     if (!raw) return;
 
+    setStarting(true);
+    let buildUnifiedResearchEntry;
+    try { ({ buildUnifiedResearchEntry } = await import("../lib/research/unifiedResearchEntry.js")); }
+    catch { setStarting(false); return; }
+    setStarting(false);
     const entry = buildUnifiedResearchEntry({ input: { text: raw } });
     const primary = entry.identity_resolution?.primary || null;
     const id = primary?.type === "number"
@@ -510,11 +527,13 @@ function HomeBody({ primaryReader = null } = {}) {
     story={CORE_PUBLIC_LAUNCH_2029 ? null : <Suspense fallback={<section id="home-plane" className="sod29-flight-story is-home is-loading" aria-label="סיפור המטוס נטען"><p role="status">פותח את סיפור המטוס…</p></section>}><WorldFlightStory2029 surface="home" research={research} shell={shell} /></Suspense>}
     elsEntry={<ElsRotatingMatrixCard2029 />}
     arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
-      {worldRequested ? <HomeRealityRiver2029 />
-        : <RealityRiver2029 loading follow={<RealityStreamFollow2029 source="home_reality_stream_2029" />} />}
-      <SourceArrivalList2029 surface="home" loading={homeWorldState.loading} limit={4} showNew
-        items={worldPreview?.arrivals || worldPreview?.items || []}
-        availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
+      <Suspense fallback={<p className="h29-note" role="status">טוען את זרם המציאות…</p>}>
+        {worldRequested ? <HomeRealityRiver2029 />
+          : <RealityRiver2029 loading follow={<RealityStreamFollow2029 source="home_reality_stream_2029" />} />}
+        <SourceArrivalList2029 surface="home" loading={homeWorldState.loading} limit={4} showNew
+          items={worldPreview?.arrivals || worldPreview?.items || []}
+          availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
+      </Suspense>
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
     </div>}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
@@ -523,7 +542,7 @@ function HomeBody({ primaryReader = null } = {}) {
         <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
         <form className="sod29-command-bar" onSubmit={start}>
           <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או נושא" aria-label="חיפוש או התחלת גילוי" />
-          <button className="sod29-action primary" type="submit">לגלות בעולם</button>
+          <button className="sod29-action primary" type="submit" disabled={starting} aria-busy={starting}>{starting ? "פותח את החיפוש…" : "לגלות בעולם"}</button>
         </form>
         {context?.journey ? <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go(context.subject?.href || '/world')}>להמשך המסע האישי</button></div> : null}
       </section>

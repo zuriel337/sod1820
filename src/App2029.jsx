@@ -21,14 +21,10 @@ import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/experience2029/FeatureClosedNotice2029.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
 
-// Admit Home's component code before preparing the first Post. The existing
-// Post preparation still starts before a click, without blocking Home's module
-// or starting any Post data read.
+// The first Post's code is prepared by the Home itself, after its own top is readable (Home2029Page.jsx; ZURIEL 17.11.2026). It still starts
+// before a click, without starting any Post data read.
 const loadPublicPostAddress = () => import("./pages/PublicPostAddress2029Page.jsx");
-const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx").then(module => {
-  if (PUBLIC_READING_RELEASE) void loadPublicPostAddress().catch(() => {});
-  return module;
-}));
+const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
 const BeitMidrash2029Page = lazy(
   () => import("./pages/BeitMidrash2029Page.jsx")
