@@ -1,6 +1,6 @@
 # The Home's pinned card: its read and cover start with the entry (17.11.2026)
 
-**Status: test branch and protected Preview only.** ZURIEL 17.11.2026: "מאשר, תתחיל בסעיף 2". Task key `HOME_PINNED_LEAD_EARLY_20261117`, draft PR #1381. No merge, no Production, no database change.
+**Status: released and verified live (17.11.2026, section 6).** Started under ZURIEL's "מאשר, תתחיל בסעיף 2" (task key `HOME_PINNED_LEAD_EARLY_20261117`); released on ZURIEL's approval of exactly `8e0cc4194` (task key `HOME_PINNED_LEAD_EARLY_RELEASE_20261117`), PR #1381. No database change.
 
 ## 1. What was slow (the live Home, 17.11.2026)
 
@@ -70,3 +70,59 @@ Start the same reads from the document itself, before the code arrives. The docu
 
 - Then the cover could be in the browser before the card appears. The expected largest paint is about the card's appearance time, ~0.8 s better again on this profile.
 - It needs the exact request list from the build and a handoff into the read layer. It is a separate, larger change, and this first step does not need it.
+
+## 6. Release and live check (17.11.2026, night)
+
+- **Before the merge:** the PR head was `8e0cc4194`, the commit that was tested; CI 13/13 on it; `main` had not moved (`19e0cafe7`); no other open PR or active writer touched the Home files; the live build's source `cff521e86` is inside the branch, so nothing live was dropped.
+- **Merge:** `736dd285b` (a merge commit; its tree is identical to `8e0cc4194`).
+- **Deployment:** `dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5` by the documented procedure: exact SHA, `--public-production-candidate`, and an ignore step that admits only this SHA. READY in about a minute.
+- **Domains:** the three domains moved from `dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2` (the rollback target) at 23:23:42 UTC.
+- **Live files:** the Home document comes from `736dd285b`, entry `2029-DqC-bFSR`; the entry calls the early start; `Home2029Page-Czmyxi4G.js` carries it. The CDN copy of `/` refilled (`HIT`).
+
+### 6.1 The two production builds compared
+
+The previous production build (`dpl_7HPjAYYN`, `cff521e86`) and the new one (`dpl_6BM8mXr7`, `736dd285b`), each through its own deployment address, with the same database. Arms alternating, fresh profile. Script `prod-ab.cjs`; raw rows in `prod-ab-phone.json` and `prod-ab-desktop.json`.
+
+Phone (the section 1 profile: Slow 4G + 4× CPU), 6 runs each:
+
+| Moment (ms, p50 / p75) | Before | After | Change at p50 |
+|---|---|---|---|
+| Catalog reads start | 4,767 / 4,781 | 4,048 / 4,094 | −719 |
+| The card appears | 5,702 / 5,716 | 5,169 / 5,273 | −533 |
+| The cover is requested | 5,806 / 5,843 | 5,123 / 5,205 | −683 |
+| The cover has arrived | 6,383 / 6,403 | 5,873 / 5,960 | −510 |
+| Largest paint (the cover) | 6,176 / 6,404 | 5,968 / 6,036 | −208 (p75 −368) |
+
+Desktop (1440×900, no throttling), 3 runs each:
+
+| Moment (ms, p50) | Before | After | Change |
+|---|---|---|---|
+| Catalog reads start | 1,642 | 1,047 | −595 |
+| The card appears | 2,464 | 1,725 | −739 |
+| The cover has arrived | 2,668 | 1,792 | −876 |
+| Largest paint (a text block on desktop) | 1,864 | 1,644 | −220 |
+
+### 6.2 Nothing read or downloaded twice
+
+In every run of both builds, on phone and on desktop:
+
+- 9 reads of `posts`, all 9 different requests;
+- one request for the cover file (the 768 copy), never the original or a second width;
+- no console errors and no page errors.
+
+In every run of the new build, the early preload was present, and its `imagesrcset` and `imagesizes` were identical to the card's `srcset` and `sizes`.
+
+The live domain gave the same results (`live-phone.json`, `live-desktop.json`, 2 + 2 runs): phone card 5,112 ms, largest paint 5,952 ms; desktop card 1,818 ms.
+
+### 6.3 Canary
+
+- Run against the live domain on the new build at 23:27 UTC: pass (home, entry file, robots, sitemap, health-watch heartbeat).
+- The CI canary that the deployment triggered (run 44198490712) ran at 23:20, after READY but before the domains moved, so it checked the previous build.
+- A manual CI run tonight would be skipped by the canary's daily limit. The next scheduled CI canary (01:17 UTC) checks the new build.
+
+### 6.4 What is still open
+
+- **Field:** the Home's largest paint on mobile by build (`2029-DqC-bFSR` against `2029-CzfHWys2`) in the speed centre, after a day of visits.
+- **A new pinned post:** the card and the early start pick it by the same rule (`seriesLatestMember2029` and `nowModels` share one time function), so the gain carries over. Its 480 and 768 copies are made on their first request. The first reader in each region therefore waits about 1–2 s more for that one image, as before this change.
+- **Not in this package (ZURIEL 17.11.2026):** starting the reads from the server document (section 5). It is a separate change.
+

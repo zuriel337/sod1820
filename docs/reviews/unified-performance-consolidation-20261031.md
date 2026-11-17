@@ -249,7 +249,7 @@ Merged `cff521e86`, deployed `dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2` (aliases moved f
 - **Counts:** 50 fixes, all merged and all in the live deployment; live behaviour verified for 23, not verified for 25, contradicted for 2.
 - **Field check pending:** middleware time by edge region before and after 21:00 UTC; the share of `waited` (new instances); the Home server wait by build.
 
-### Later on 17.11.2026: the Home's pinned card starts with the entry (experiment, branch only)
+### Later on 17.11.2026: the Home's pinned card starts with the entry (experiment; released below)
 
 `S-51` in the JSON (counts: 51 entries, 50 merged, 1 branch-only). Draft PR #1381.
 
@@ -262,3 +262,24 @@ Protected Preview A/B (phone, Slow 4G + 4× CPU, 6 rounds), at p50:
 - the largest paint came 412 ms earlier.
 
 Write-up: `docs/reviews/home-pinned-lead-early-20261117/README.md`.
+
+### Night of 17.11.2026: S-51 released (#1381)
+
+ZURIEL approved the release of exactly `8e0cc4194`. Merged `736dd285b` (its tree is identical to `8e0cc4194`), deployed `dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5` (aliases moved from `dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2` at 23:23:42 UTC; build `2029-DqC-bFSR`).
+
+- **Checked live:** the entry calls the early start and the Home file carries it; the Home document comes from `736dd285b` and the CDN keeps it (`HIT` after the refill).
+- **The two production builds compared** through their own deployment addresses, same database, at p50:
+
+| Moment | Phone before | Phone after | Desktop before | Desktop after |
+|---|---|---|---|---|
+| Catalog reads start | 4,767 ms | 4,048 ms | 1,642 ms | 1,047 ms |
+| The card appears | 5,702 ms | 5,169 ms | 2,464 ms | 1,725 ms |
+| The cover has arrived | 6,383 ms | 5,873 ms | 2,668 ms | 1,792 ms |
+| Largest paint | 6,176 ms (the cover) | 5,968 ms | 1,864 ms (text) | 1,644 ms |
+
+- **Nothing doubled:** 9 reads of `posts` per load in both builds, and one request for the cover file per load in both. No console or page errors.
+- **Canary:** run against the live domain on the new build at 23:27 UTC: pass. The CI canary that the deployment triggered ran at 23:20, before the aliases moved, so it checked the previous build; the next scheduled CI canary is at 01:17 UTC.
+- **Counts:** 51 fixes, all merged and all in the live deployment; live behaviour verified for 24, not verified for 25, contradicted for 2.
+- **Field check pending:** the Home's largest paint on mobile by build (`2029-DqC-bFSR` against `2029-CzfHWys2`).
+- **The speed centre** shows this map from the build, so S-51 appears there as released with the next release.
+- **Not in this package:** starting the reads from the server document (a separate change).
