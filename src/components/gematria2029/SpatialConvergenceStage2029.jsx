@@ -10,6 +10,7 @@ import { useStepPlayer } from "./useStepPlayer.js";
 import { LabControls, LabPartInfo } from "./SpatialLabPanel2029.jsx";
 import { DirectionSwitcher, DiscoveryPanel, LabMoreMenu, LabPrimaryBar, MuseumPanel, ResearchPanel } from "./SpatialLabDirections2029.jsx";
 import { buildLabRows } from "../../lib/spatial/labRows.js";
+import { NUMERIC_OPERATION_REGISTRY } from "../../lib/research/numericArithmeticOperations.js";
 import { pathAriaLabel, pathEquationText, pathPresentation, semanticSummary } from "../../lib/spatial/pathSemantics.js";
 import { ROYAL_LAB_DIRECTIONS, pickLabQuality, resolveRoyalLabDirection } from "../../lib/spatial/royalLabDirections.js";
 import "../experience2029/royal2029.css";
@@ -60,7 +61,12 @@ function PathList({ paths, index, goTo, reached }) {
       const active = i === index;
       const lit = i < reached;
       // the row is drawn from the typed operation: the sign is the registry's symbol for the path's operation_key, the terms keep their roles
-      const { lead, rest, operatorSymbol } = pathPresentation(path);
+      // a commutative operation of more than two terms (1020: 6 × 10 × טוב) puts its EXPRESSION first — the finding leads, as in the two-term rows — and the shape/quantity terms follow;
+      // a non-commutative operation keeps the declared order. A word that lands among the rest is drawn as a word (never as a number in the numeric face).
+      const { ordered, lead: declaredLead, operatorSymbol, operationKey } = pathPresentation(path);
+      const heroIndex = NUMERIC_OPERATION_REGISTRY.get(operationKey)?.commutative ? ordered.findIndex((t) => t.role === "expression") : -1;
+      const lead = heroIndex > 0 ? ordered[heroIndex] : declaredLead;
+      const rest = ordered.filter((t) => t !== lead);
       return <li key={path.id} data-status={path.status} data-lit={lit ? "true" : "false"} data-operation={path.operationKey || ""}>
         <button type="button" data-path-index={i} tabIndex={active ? 0 : -1} aria-pressed={active} className={active ? "is-focus" : undefined}
           aria-label={path.formulaStatus === "unsupported" ? `${path.expression}. ${STATUS_LABEL[path.status]}` : pathAriaLabel(path, STATUS_LABEL[path.status])}
@@ -70,7 +76,9 @@ function PathList({ paths, index, goTo, reached }) {
             <small><bdi dir="ltr">{lead ? (lead.role === "expression" ? lead.value : lead.text) : path.expression}</bdi></small>
           </span>
           <span className="sod29-spatial-convergence__times" aria-hidden="true">{operatorSymbol || ""}</span>
-          <span className="sod29-spatial-convergence__quantity"><b>{rest.map((t) => (t.role === "expression" ? t.text : t.text)).join(` ${operatorSymbol} `)}</b></span>
+          <span className="sod29-spatial-convergence__quantity"><b>{rest.every((t) => t.role !== "expression")
+            ? <bdi dir="ltr">{rest.map((t) => t.text).join(` ${operatorSymbol} `)}</bdi>
+            : rest.map((t, k) => <React.Fragment key={k}>{k ? ` ${operatorSymbol} ` : ""}{t.role === "expression" ? <HebrewGlyph2029 text={t.text} /> : t.text}</React.Fragment>)}</b></span>
           <span className="sod29-spatial-convergence__status">{STATUS_LABEL[path.status]}</span>
         </button>
       </li>;
