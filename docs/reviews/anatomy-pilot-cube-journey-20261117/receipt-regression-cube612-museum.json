@@ -1,0 +1,29 @@
+{
+  "directions": {
+    "museum": {
+      "desktop": {
+        "canvasMs": 7242,
+        "drawCalls": 96,
+        "geometries": 28,
+        "textures": 10,
+        "shadows": "true",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "4",
+          "0",
+          "1"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}

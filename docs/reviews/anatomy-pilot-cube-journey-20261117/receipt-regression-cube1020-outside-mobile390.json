@@ -1,0 +1,26 @@
+{
+  "directions": {
+    "museum": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 42,
+        "geometries": 26,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 499
+        },
+        "heapMB": 21,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}

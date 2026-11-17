@@ -1,0 +1,90 @@
+{
+  "cases": {
+    "walk": {
+      "steps": [
+        {
+          "name": "enter",
+          "search": "?view=explore&kind=spatial&lab=museum&cube=in"
+        },
+        {
+          "name": "face",
+          "doors": 7
+        },
+        {
+          "name": "canvas-pick",
+          "faces": [
+            "2"
+          ]
+        },
+        {
+          "name": "verify",
+          "engineCalled": true
+        },
+        {
+          "name": "return-number",
+          "search": "?view=explore&kind=spatial&lab=museum&cube=in&face=2&door=number"
+        },
+        {
+          "name": "return-seals",
+          "search": "?view=explore&kind=spatial&lab=museum&cube=in&face=2&door=seals&dir=east"
+        },
+        {
+          "name": "return-depths",
+          "search": "?view=explore&kind=spatial&lab=museum&cube=in&face=2&door=depths&dir=east"
+        },
+        {
+          "name": "return-next",
+          "search": "?view=explore&kind=spatial&lab=museum&cube=in&face=2&door=next&dir=east"
+        },
+        {
+          "name": "browser-back",
+          "ok": true
+        },
+        {
+          "name": "reload",
+          "ok": true
+        }
+      ],
+      "requests": {
+        "engineCalls": 7,
+        "pdf": 1,
+        "unexpectedWrites": []
+      }
+    },
+    "hosted": {
+      "locked": 3
+    },
+    "nogl": {
+      "canvas": 0,
+      "doors": 7
+    },
+    "motion": {
+      "crossingOpenWall": "0"
+    },
+    "mobile": {
+      "320": {
+        "overflow": false,
+        "clipped": [],
+        "small": [],
+        "targets": [],
+        "dir": "rtl"
+      },
+      "390": {
+        "overflow": false,
+        "clipped": [],
+        "small": [],
+        "targets": [],
+        "dir": "rtl"
+      }
+    },
+    "leak": {
+      "cycles": 5,
+      "liveContexts": 0,
+      "heapBeforeMB": 17,
+      "heapAfterMB": 17,
+      "geometries": 19,
+      "textures": 6
+    }
+  },
+  "errors": []
+}

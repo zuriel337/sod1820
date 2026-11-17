@@ -1,0 +1,32 @@
+{
+  "directions": {
+    "museum": {
+      "desktop": {
+        "canvasMs": 6812,
+        "drawCalls": 128,
+        "geometries": 55,
+        "textures": 14,
+        "shadows": "true",
+        "look": "royal",
+        "quality": "rich",
+        "glyph": "ready",
+        "canvasPickedParts": [
+          "cube",
+          "relation",
+          "inner",
+          "outer"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true,
+          "focusKept": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}
