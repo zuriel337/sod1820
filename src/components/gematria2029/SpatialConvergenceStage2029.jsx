@@ -181,17 +181,26 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
     research.updateResearchContext?.({ returnTo: cubeReturnTarget({ location: window.location, card, state, doorId: door.id }) });
     if (navigateRef.current) { event.preventDefault(); navigateRef.current(door.href); }
   };
-  // arriving back (exact return / reload): open the 3D inside when the device can, and put focus on the doorway that was left
+  // arriving back (exact return / reload): open the 3D inside when the device can, and put focus on the doorway that was left. The page may still be settling
+  // (lazy chunks, the World page's own anchor scroll), so the focus is re-asserted a few times — and stops at the person's first interaction.
   useEffect(() => {
     if (!restored.current) return undefined;
     restored.current = false;
     promoteS4();
-    const frame = requestAnimationFrame(() => {
-      const target = document.getElementById(journey.door ? `cube-door-${journey.door}` : "cube-journey");
-      target?.scrollIntoView?.({ block: "center", behavior: "auto" });
-      target?.focus?.({ preventScroll: true });
-    });
-    return () => cancelAnimationFrame(frame);
+    const targetId = journey.door ? `cube-door-${journey.door}` : "cube-journey";
+    let stopped = false, scrolled = false;
+    const attempt = () => {
+      if (stopped) return;
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      if (!scrolled) { scrolled = true; target.scrollIntoView?.({ block: "center", behavior: "auto" }); }
+      if (document.activeElement !== target && (!document.activeElement || document.activeElement === document.body || !document.activeElement.isConnected)) target.focus?.({ preventScroll: true });
+    };
+    const timers = [0, 250, 700, 1500, 2600].map((ms) => window.setTimeout(() => requestAnimationFrame(attempt), ms));
+    const stop = () => { stopped = true; timers.forEach(clearTimeout); };
+    const events = ["pointerdown", "keydown", "wheel", "touchstart"];
+    events.forEach((name) => window.addEventListener(name, stop, { capture: true, passive: true, once: true }));
+    return () => { stop(); events.forEach((name) => window.removeEventListener(name, stop, true)); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // Picking a part/path (in the scene, a medal or the table). Discovery also moves in (focus), opens the layers and starts the reveal.
   const pick = (i) => {
@@ -272,8 +281,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
             : <ConvergenceScene3D value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo} onFallback={fallbackToS2} />}
         </Suspense>
       </S4ErrorBoundary>
-      {journeyPanel}
-      {journeyPanel ? null : <>
+      {isCube && journey.inside ? null : <>
       {dir.chrome === "museum" ? <MuseumPanel rows={rows} index={Math.min(index, last)} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} /> : null}
       {dir.chrome === "discovery" ? <DiscoveryPanel rows={rows} index={Math.min(index, last)} discover={discover} onDiscover={setDiscover} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} ledger={ledgerNode} /> : null}
       {dir.chrome === "lab" ? <ResearchPanel rows={rows} index={Math.min(index, last)} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} ledger={ledgerNode} /> : null}
@@ -292,7 +300,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
       </svg>
       <div className="sod29-spatial-convergence__value" aria-hidden="true"><strong>{value}</strong><small>{verifiedCount}/{total}</small></div>
     </div>}
-    {s4 ? null : journeyPanel}
+    {journeyPanel}
     {s4 && dir.chrome !== "v1" ? null : <div className="sod29-spatial-convergence__focus" aria-live="polite">
       <p>
         <span>{focusSummary.supported ? (focusSummary.engineParts.length ? `${focusSummary.engineParts.map((p) => p.replace("=", " = ")).join(" · ")} (מנוע)` : `${focus.operand} — ללא ביטוי מאומת`) : `${focus.expression} — נוסחה שאינה נתמכת`}</span>
