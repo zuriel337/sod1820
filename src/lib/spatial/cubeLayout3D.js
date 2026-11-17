@@ -145,7 +145,7 @@ export function cubeConnectorPoints() {
 // The camera stands in the hollow, near the wall OPPOSITE the face it looks at (that wall is left open — the doorway), with a wide lens, so the whole inner side of
 // the chosen face fills the view. The inner side carries the same word, turned to be read from inside.
 // entryFace: the near wall the camera crosses (the overview looks at the front); defaultFace: the face read first (the one behind it)
-export const CUBE_INSIDE = Object.freeze({ fovDeg: 78, lantern: 6200, lanternDistance: 520, entryFace: 0, defaultFace: 2 });
+export const CUBE_INSIDE = Object.freeze({ fovDeg: 78, lantern: 3200, lanternDistance: 520, entryFace: 0, defaultFace: 2 });
 
 export function oppositeFaceIndex(solid, index) {
   const face = solid.faces[Math.max(0, Math.min(solid.faces.length - 1, Number(index) || 0))];
