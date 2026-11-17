@@ -54,7 +54,7 @@ jobs:
       # the editor, agent and SQL paths; every document change is logged in the same transaction and asks for a purge; non-document changes
       # are not; a change that cannot be logged does not happen; purges are confirmed, retried once and reported; edge and database agree on
       # every address key; exact rollback. A fresh database, so the speed centre run above does not leak into it.
-      - name: Post document freshness (writers, log, purge requests, confirmation watch, edge keys, rollback)
+      - name: Post document freshness (writers incl. information units, log, purge requests, confirmation watch, edge keys, rollback)
         run: |
           psql -d postgres -c "create database post_document_fixture"
           PGDATABASE=post_document_fixture bash tests/sql/run-post-document-freshness.sh

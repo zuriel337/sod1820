@@ -98,6 +98,53 @@ do $t$ declare id2 bigint := pg_temp.id_of('chosen-one-test'); begin
   perform pg_temp.expect_change('agent publishes (sys_save_post)', 'insert', array[pg_temp.id_of('agent-new-test')], pg_temp.keys_of('agent-new-test'));
 end $t$;
 
+-- ── information units (ZURIEL 17.11.2026): a Post built from units, written the way the 16.11 unit of 5107 was written — one statement on
+-- posts.content with posts.modified deliberately left unchanged. Every unit change is a change of the document column content: logged and
+-- purged, through SQL, the editor (admin_save_post) and the agents (sys_save_post). There is no unit-level writer: the unit editor keeps its
+-- choices in the browser only (postSemanticDesign2029.js), so a unit is published only through posts.content.
+insert into public.posts (id, title, slug, content, excerpt, tags, categories, date, modified, author, source) values
+  (9107, 'מפת המציאות — בדיקה', 'reality-map-units-test',
+   '<p>פתיחה</p><h2 id="unit-a-title">יחידה א</h2><section id="unit-a"><p>טקסט א 1820</p><img src="https://x.invalid/a.png"><a href="/post/x">קישור</a></section>'
+   || '<h2 id="unit-b-title">יחידה ב</h2><section id="unit-b"><p>טקסט ב 631</p></section>',
+   'תקציר קבוע', array['מפת המציאות'], array['בחירות'], now() - interval '40 days', now() - interval '7 days', 'מערכת', 'ai');
+do $t$ declare u bigint := pg_temp.id_of('reality-map-units-test'); k jsonb := pg_temp.keys_of('reality-map-units-test');
+  m0 timestamptz := (select modified from public.posts where slug = 'reality-map-units-test'); begin
+  perform pg_temp.reset_log();
+  update public.posts set content = content || '<h2 id="unit-c-title">יחידה ג חדשה</h2><section id="unit-c"><p>טקסט ג 2029</p></section>' where id = u;
+  perform pg_temp.expect_change('unit added (content only, modified unchanged)', 'update', array[u], k);
+  if (select modified from public.posts where id = u) <> m0 then raise exception 'the unit test must leave posts.modified unchanged, as the 16.11 write did'; end if;
+
+  perform pg_temp.reset_log();
+  update public.posts set content = replace(content, '<h2 id="unit-b-title">יחידה ב</h2><section id="unit-b"><p>טקסט ב 631</p></section>', '') where id = u;
+  perform pg_temp.expect_change('unit removed', 'update', array[u], k);
+
+  perform pg_temp.reset_log();
+  update public.posts set content = replace(content, 'טקסט א 1820', 'טקסט א מתוקן 1821') where id = u;
+  perform pg_temp.expect_change('unit text and number changed', 'update', array[u], k);
+  perform pg_temp.reset_log();
+  update public.posts set content = replace(content, 'https://x.invalid/a.png', 'https://x.invalid/a2.png') where id = u;
+  perform pg_temp.expect_change('unit image changed', 'update', array[u], k);
+  perform pg_temp.reset_log();
+  update public.posts set content = replace(content, 'href="/post/x"', 'href="/post/y"') where id = u;
+  perform pg_temp.expect_change('unit link changed', 'update', array[u], k);
+  perform pg_temp.reset_log();
+  update public.posts set content = '<p>פתיחה</p><h2 id="unit-c-title">יחידה ג חדשה</h2><section id="unit-c"><p>טקסט ג 2029</p></section>'
+    || substr(content, strpos(content, '<h2 id="unit-a-title">'), strpos(content, '<h2 id="unit-c-title">') - strpos(content, '<h2 id="unit-a-title">')) where id = u;
+  if (select strpos(content, 'unit-c') > strpos(content, 'unit-a') from public.posts where id = u) then raise exception 'reorder setup failed'; end if;
+  perform pg_temp.expect_change('units reordered', 'update', array[u], k);
+
+  perform pg_temp.reset_log();
+  perform public.admin_save_post(p_id := u, p_title := 'מפת המציאות — בדיקה', p_slug := 'reality-map-units-test',
+    p_content := (select content from public.posts where id = u) || '<section id="unit-d"><p>יחידה ד</p></section>', p_excerpt := 'תקציר קבוע');
+  perform pg_temp.expect_change('unit added through the editor (admin_save_post)', 'update', array[u], k);
+end $t$;
+do $t$ declare u bigint := pg_temp.id_of('reality-map-units-test'); begin
+  perform pg_temp.reset_log();
+  perform public.sys_save_post(p_id := u, p_title := 'מפת המציאות — בדיקה', p_slug := 'reality-map-units-test',
+    p_content := replace((select content from public.posts where id = u), '<section id="unit-d"><p>יחידה ד</p></section>', ''), p_excerpt := 'תקציר קבוע');
+  perform pg_temp.expect_change('unit removed through the agents (sys_save_post)', 'update', array[u], pg_temp.keys_of('reality-map-units-test'));
+end $t$;
+
 -- ── database changes: delete, slug change, a change that is not part of the document, a change to the same value ──────────────────────
 do $t$ declare id2 bigint := pg_temp.id_of('chosen-one-test'); id3 bigint := pg_temp.id_of('פוסט-בדיקה'); begin
   perform pg_temp.reset_log();
