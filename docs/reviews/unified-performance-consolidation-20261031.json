@@ -1327,7 +1327,7 @@
   ],
   "current_state_20261117": {
     "task": "SPEED_CENTRE_CONTROL_20261117",
-    "checked_at": "2026-11-17T18:40:00Z",
+    "checked_at": "2026-11-17T18:30:00Z",
     "main": "84bdb23f96f4f6d433769d87000a69a10d7fbf56",
     "production": {
       "deployment": "dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r",
@@ -4196,7 +4196,7 @@
     "production_deployments_key": "current_state_20261117_production_deployments",
     "revisions": [
       {
-        "at": "2026-11-17T18:40:00Z",
+        "at": "2026-11-17T18:30:00Z",
         "task": "SPEED_MAP_STATUS_20261117_EVENING",
         "by": "CLAUDE (ZURIEL \"מאשר, תתחיל בסעיף 3 ובתיקון הקטן\")",
         "what": "S-47 released (#1376); S-48 added (#1377, Home design); build evidence for 2029-BplD03IN, 2029-B6373d0f, 2029-BQKFETEH; the #1375 line; production deployments of 17.11; counts recomputed from the entries.",
