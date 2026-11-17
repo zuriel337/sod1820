@@ -43,6 +43,11 @@ const DOOR_IDS = Object.freeze(["verify", "number", "zvi", "seals", "gra", "dept
 export const CUBE_JOURNEY_DOORS = DOOR_IDS;
 const DIRECTION_KEYS = SEFER_YETZIRAH_POINTERS.directions.map((item) => item.key);
 
+export const CLOSED_CUBE_JOURNEY = Object.freeze({ inside: false, face: null, door: null, dir: null });
+
+// Does this location ask for the inside of THIS card's cube? (the hash names the card; a page lists several cubes)
+export const cubeJourneyRequested = (location, slug) => Boolean(slug) && location?.hash === `#spatial-${slug}` && readCubeJourney(location?.search || "").inside;
+
 export function readCubeJourney(search = "") {
   const params = new URLSearchParams(search);
   const inside = params.get("cube") === "in";

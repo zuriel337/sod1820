@@ -11,6 +11,7 @@ import { buildPublicCipherContentProjection, buildPublicLanguageContentProjectio
 import { fetchWorldLanguageTriageProjection } from "../../lib/research/worldLanguageTriageProjection.js";
 import { fetchWorldPublicBookContent } from "../../lib/research/worldBookContentProjection.js";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
+import { cubeJourneyRequested } from "../../lib/spatial/cubeJourney.js";
 import { use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 
 export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
@@ -176,7 +177,8 @@ class ConvergenceBoundary extends React.Component {
   render() { return this.state.failed ? <p role="status" className="sod29-muted">ההמחשה אינה זמינה כרגע. הכרטיס והמסלולים נשארים פתוחים.</p> : this.props.children; }
 }
 function ConvergenceOpen({ card }) {
-  const [open, setOpen] = useState(false);
+  // arriving back inside a cube (exact return / reload / Back): the URL names this card and asks for its inside, so the stage opens already
+  const [open, setOpen] = useState(() => typeof window !== "undefined" && card.labFamily === "cube" && cubeJourneyRequested(window.location, card.slug));
   const buttonRef = React.useRef(null);
   // Raziel is the existing one: the selected path goes through the bounded reading-focus / number-focus channels the frame already accepts.
   const shell = use2029Shell();

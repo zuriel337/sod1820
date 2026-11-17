@@ -1,4 +1,5 @@
-import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useInRouterContext, useNavigate } from "react-router-dom";
 import { fetchGematriaMethodTraceRaw } from "../../lib/research/gematriaTrace.js";
 import { isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import { bindPathsToStructure, structureSpecFor, drawableSpec, isSingleSolid, describeStructurePart, deriveConvergencePaths, evaluateConvergencePaths, STRUCTURE_PART_LABEL } from "../../lib/spatialRenderModel.js";
@@ -10,6 +11,9 @@ import { useStepPlayer } from "./useStepPlayer.js";
 import { LabControls, LabPartInfo } from "./SpatialLabPanel2029.jsx";
 import { DirectionSwitcher, DiscoveryPanel, LabMoreMenu, LabPrimaryBar, MuseumPanel, ResearchPanel } from "./SpatialLabDirections2029.jsx";
 import { buildLabRows } from "../../lib/spatial/labRows.js";
+import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { CLOSED_CUBE_JOURNEY, bookReaderAvailable, buildCubeDoorways, cubeJourneyHref, cubeReturnTarget, readCubeJourney } from "../../lib/spatial/cubeJourney.js";
+import CubeJourneyPanel2029 from "./CubeJourneyPanel2029.jsx";
 import { NUMERIC_OPERATION_REGISTRY } from "../../lib/research/numericArithmeticOperations.js";
 import { pathAriaLabel, pathEquationText, pathPresentation, semanticSummary } from "../../lib/spatial/pathSemantics.js";
 import { ROYAL_LAB_DIRECTIONS, pickLabQuality, resolveRoyalLabDirection } from "../../lib/spatial/royalLabDirections.js";
@@ -96,6 +100,13 @@ function LedgerFor({ path }) {
   </details>)}</>;
 }
 
+// Hands the router's navigate to the stage without making the stage depend on being inside a router (the stage is also rendered on its own in tests).
+function LeaveBridge({ navigateRef }) {
+  const navigate = useNavigate();
+  useEffect(() => { navigateRef.current = navigate; return () => { navigateRef.current = null; }; }, [navigate, navigateRef]);
+  return null;
+}
+
 export default function SpatialConvergenceStage2029({ card, traces: injectedTraces = null, depth = "S2", onRazielAction = null }) {
   const rootRef = useRef(null);
   const derived = useMemo(() => deriveConvergencePaths({ value: card?.value, operations: card?.operations, gematria: card?.gematria, quantities: card?.quantities, assignments: card?.assignments }), [card]);
@@ -143,6 +154,45 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   };
 
   const rows = useMemo(() => buildLabRows({ paths: scenePaths, spec, locators: card?.source?.locators || [], statusLabels: STATUS_LABEL }), [scenePaths, spec, card]);
+
+  // ---- the inner exploration of a cube (1020): the state is the page's URL (cube=in&face=…&door=…&dir=…), so a reload, the browser's Back and the frame's existing
+  // "exact return" restore the same face and doorway. Only the card named by the hash owns it. Nothing is stored; the book reader is only linked.
+  const isCube = spec?.family === "cube";
+  const research = useResearch();
+  const inRouter = useInRouterContext();
+  const navigateRef = useRef(null);
+  const ownsUrl = () => typeof window !== "undefined" && window.location.hash === `#spatial-${card?.slug}`;
+  const [journey, setJourney] = useState(() => (isCube && ownsUrl() ? readCubeJourney(window.location.search) : CLOSED_CUBE_JOURNEY));
+  const restored = useRef(journey.inside);
+  const writeUrl = useCallback((next) => {
+    if (typeof window === "undefined" || !ownsUrl()) return;
+    window.history.replaceState(window.history.state, "", cubeJourneyHref(window.location, next));
+  }, [card?.slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  const changeJourney = (patch) => { const next = { ...journey, ...patch }; setJourney(next); writeUrl(next); return next; };
+  const boundPath = isCube ? scenePaths.find((p) => p.part === "cube") || null : null;
+  const doorways = useMemo(() => (isCube ? buildCubeDoorways({ card, path: boundPath, dir: journey.dir, readerAvailable: bookReaderAvailable(), lab: directionId }) : []),
+    [isCube, card, boundPath, journey.dir, directionId]);
+  const enterCube = () => { changeJourney({ inside: true, door: null }); if (!s4) promoteS4(); };
+  const exitCube = () => { changeJourney({ inside: false, door: null }); rootRef.current?.querySelector("[data-cube-enter]")?.focus(); };
+  const leaveThrough = (door, event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const state = changeJourney({ inside: true, door: door.id });
+    // the frame's EXISTING exact-return (Research Context returnTo): the same page, face, doorway and direction
+    research.updateResearchContext?.({ returnTo: cubeReturnTarget({ location: window.location, card, state, doorId: door.id }) });
+    if (navigateRef.current) { event.preventDefault(); navigateRef.current(door.href); }
+  };
+  // arriving back (exact return / reload): open the 3D inside when the device can, and put focus on the doorway that was left
+  useEffect(() => {
+    if (!restored.current) return undefined;
+    restored.current = false;
+    promoteS4();
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(journey.door ? `cube-door-${journey.door}` : "cube-journey");
+      target?.scrollIntoView?.({ block: "center", behavior: "auto" });
+      target?.focus?.({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // Picking a part/path (in the scene, a medal or the table). Discovery also moves in (focus), opens the layers and starts the reveal.
   const pick = (i) => {
     goTo(i);
@@ -168,6 +218,10 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
     goTo(next);
     rootRef.current?.querySelector(`[data-path-index="${next}"]`)?.focus();
   };
+  const journeyPanel = isCube && journey.inside
+    ? <CubeJourneyPanel2029 card={card} spec={spec} path={boundPath} journey={journey} doorways={doorways} ledger={ledgerNode} reduced={reduced}
+        onFace={(i) => changeJourney({ face: i, door: null })} onExit={exitCube} onDir={(key, door) => changeJourney({ dir: key, door: door || journey.door })} onLeave={leaveThrough} />
+    : null;
   const reached = running ? index + 1 : total; // while playing, the funnel fills path by path
   return <section ref={rootRef} className="sod29-spatial-method-stage is-convergence" dir="rtl" data-experience-capability="spatial-method-stage"
     data-method-visual="multi-path-convergence" data-depth={s4 ? "S4" : depth} data-playing={running ? "true" : "false"} data-motion={reduced ? "reduced" : "allowed"}
@@ -186,10 +240,15 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         : <button type="button" data-s4-action="deepen" onClick={promoteS4}>תלת־ממד</button>}
       {s4Note ? <small role="status">{s4Note}</small> : null}
     </div>
+    {inRouter ? <LeaveBridge navigateRef={navigateRef} /> : null}
+    {isCube && !journey.inside ? <div className="r29 sod29-cube-entry">
+      <button type="button" className="r29-btn" data-cube-enter onClick={enterCube}>היכנס לתוך הקובייה</button>
+      <small>חקירה מבפנים: בוחרים פאה ופותחים את הדלתות שלה — אימות במנוע, דף המספר, החישוב של צבי והמקורות. זו אינה התקרבות של המצלמה.</small>
+    </div> : null}
     {s4 ? <div className="r29 r29-hall sod29-spatial-lab-hall" data-royal="true" data-direction={dir.id} data-quality={quality}>
       <div className="sod29-spatial-lab__title"><b>מעבדת גימטריה מרחבית</b><span className="r29-rule" aria-hidden="true">◆</span></div>
       {spec ? <DirectionSwitcher direction={dir.id} onChange={changeDirection} /> : null}
-      {dir.chrome === "v1"
+      {isCube && journey.inside ? null : dir.chrome === "v1"
         ? <LabControls sceneView={sceneView} onSceneView={setSceneView} canStructure={Boolean(spec)} view={lab.view} onView={(view) => setLab((p) => ({ ...p, view }))}
             explode={lab.explode} onExplode={(explode) => setLab((p) => ({ ...p, explode }))} spin={lab.spin} onSpin={(spin) => setLab((p) => ({ ...p, spin }))} reduced={reduced}
             layers={lab.layers} onLayer={(part) => setLab((p) => ({ ...p, layers: { ...p.layers, [part]: p.layers[part] === false } }))}
@@ -204,14 +263,17 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
             ? <IcosaScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={pick}
                 view={lab.view} explode={lab.explode} spin={lab.spin} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} glyphs3D={glyphs3D} />
             : sceneView === "structure" && spec?.family === "cube"
-            ? <CubeScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={pick}
-                view={lab.view} explode={lab.explode} spin={lab.spin} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} glyphs3D={glyphs3D} />
+            ? <CubeScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={journey.inside ? undefined : pick}
+                view={lab.view} explode={lab.explode} spin={lab.spin} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} glyphs3D={glyphs3D}
+                inside={journey.inside} selectedFace={journey.face} onFaceChange={(i) => changeJourney({ face: i, door: journey.inside ? null : journey.door })} />
             : sceneView === "structure" && spec
             ? <StructureScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={discover < 0 && dir.progressive ? -1 : index} onSelect={pick}
                 view={lab.view} explode={lab.explode} spin={lab.spin} layers={lab.layers} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} glyphs3D={glyphs3D} />
             : <ConvergenceScene3D value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={goTo} onFallback={fallbackToS2} />}
         </Suspense>
       </S4ErrorBoundary>
+      {journeyPanel}
+      {journeyPanel ? null : <>
       {dir.chrome === "museum" ? <MuseumPanel rows={rows} index={Math.min(index, last)} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} /> : null}
       {dir.chrome === "discovery" ? <DiscoveryPanel rows={rows} index={Math.min(index, last)} discover={discover} onDiscover={setDiscover} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} ledger={ledgerNode} /> : null}
       {dir.chrome === "lab" ? <ResearchPanel rows={rows} index={Math.min(index, last)} onPick={pick} value={value} onAskRaziel={onRazielAction ? askRaziel : null} ledger={ledgerNode} /> : null}
@@ -221,6 +283,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         </div>
         {spec ? <LabPartInfo card={card} path={scenePaths[Math.min(index, last)]} spec={spec} onAskRaziel={onRazielAction ? askRaziel : null} /> : null}
       </> : null}
+      </>}
     </div> : <div className="sod29-spatial-convergence__funnel" style={{ "--sc-rows": paths.length }} role="group" aria-label="מסלולי ההתכנסות" onKeyDown={onKeyDown}>
       <PathList paths={paths} index={index} goTo={goTo} reached={reached} />
       <svg className="sod29-spatial-convergence__lines" viewBox={`0 0 100 ${paths.length * 100}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -229,6 +292,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
       </svg>
       <div className="sod29-spatial-convergence__value" aria-hidden="true"><strong>{value}</strong><small>{verifiedCount}/{total}</small></div>
     </div>}
+    {s4 ? null : journeyPanel}
     {s4 && dir.chrome !== "v1" ? null : <div className="sod29-spatial-convergence__focus" aria-live="polite">
       <p>
         <span>{focusSummary.supported ? (focusSummary.engineParts.length ? `${focusSummary.engineParts.map((p) => p.replace("=", " = ")).join(" · ")} (מנוע)` : `${focus.operand} — ללא ביטוי מאומת`) : `${focus.expression} — נוסחה שאינה נתמכת`}</span>
