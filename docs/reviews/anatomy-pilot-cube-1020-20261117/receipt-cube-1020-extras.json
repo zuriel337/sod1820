@@ -1,0 +1,33 @@
+{
+  "directions": {
+    "museum": {
+      "gpuRelease": {
+        "cycles": 5,
+        "liveContexts": 0,
+        "heapBeforeMB": 13,
+        "heapAfterMB": 13
+      },
+      "glyphFallback": {
+        "status": "failed"
+      }
+    },
+    "discovery": {
+      "gpuRelease": {
+        "cycles": 5,
+        "liveContexts": 0,
+        "heapBeforeMB": 12,
+        "heapAfterMB": 12
+      }
+    },
+    "lab": {
+      "glyphFallback": {
+        "status": "failed"
+      }
+    }
+  },
+  "cases": [],
+  "errors": [],
+  "reducedMotion": {
+    "reduced": "true"
+  }
+}

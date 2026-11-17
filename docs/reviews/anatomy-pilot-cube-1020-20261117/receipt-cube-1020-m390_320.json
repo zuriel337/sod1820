@@ -1,0 +1,158 @@
+{
+  "directions": {
+    "museum": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 42,
+        "geometries": 26,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 499
+        },
+        "heapMB": 21,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      },
+      "mobile320": {
+        "width": 320,
+        "drawCalls": 42,
+        "geometries": 26,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 229,
+          "h": 430
+        },
+        "heapMB": 22,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      }
+    },
+    "discovery": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 42,
+        "geometries": 26,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 21,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      },
+      "mobile320": {
+        "width": 320,
+        "drawCalls": 42,
+        "geometries": 26,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 229,
+          "h": 400
+        },
+        "heapMB": 25,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      }
+    },
+    "lab": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 42,
+        "geometries": 26,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 18,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      },
+      "mobile320": {
+        "width": 320,
+        "drawCalls": 42,
+        "geometries": 26,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 229,
+          "h": 400
+        },
+        "heapMB": 20,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      }
+    },
+    "v1": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 36,
+        "geometries": 25,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 23,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      },
+      "mobile320": {
+        "width": 320,
+        "drawCalls": 36,
+        "geometries": 25,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 229,
+          "h": 400
+        },
+        "heapMB": 18,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}

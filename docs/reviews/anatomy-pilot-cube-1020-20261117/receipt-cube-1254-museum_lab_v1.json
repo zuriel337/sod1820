@@ -1,0 +1,72 @@
+{
+  "directions": {
+    "museum": {
+      "desktop": {
+        "canvasMs": 6963,
+        "drawCalls": 96,
+        "geometries": 28,
+        "textures": 10,
+        "shadows": "true",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "4",
+          "0",
+          "1"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "lab": {
+      "desktop": {
+        "canvasMs": 2515,
+        "drawCalls": 54,
+        "geometries": 28,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "4",
+          "0",
+          "1"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    },
+    "v1": {
+      "desktop": {
+        "canvasMs": 2876,
+        "drawCalls": 48,
+        "geometries": 27,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "4",
+          "0",
+          "1"
+        ],
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}

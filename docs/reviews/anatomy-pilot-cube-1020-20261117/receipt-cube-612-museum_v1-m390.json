@@ -1,0 +1,46 @@
+{
+  "directions": {
+    "museum": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 54,
+        "geometries": 28,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 499
+        },
+        "heapMB": 20,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      }
+    },
+    "v1": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 48,
+        "geometries": 27,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 21,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 17,
+        "droppedOver100ms": 0
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}
