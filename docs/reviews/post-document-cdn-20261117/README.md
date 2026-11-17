@@ -410,3 +410,59 @@ What this means:
    - keep the last known policy on each instance and refresh it in the background after 5 minutes, so a reader never waits for it on a warm instance;
    - on a cold instance, bound the wait with a short timeout (the read already fails open on errors), or read the policy from a short regional cached copy instead of Tokyo.
    It touches the security layer (country blocking), so it needs ZURIEL's decision before even a test branch. Expected effect: removes most of the 0.3–1.3 s p75 middleware wait outside the US; measurable in the field by edge region.
+
+## 14. The gatekeeper's country policy read — fix in a test branch (ZURIEL 17.11.2026 "מאשר, תתחיל בתיקון שומר הסף בענף בדיקה")
+
+### 14.1 What was slow
+
+The edge middleware runs before every page, including a kept CDN copy. The only network read a browser waits for there is the country policy: `public.edge_blocked_countries`, read from the database in Tokyo with the anonymous key.
+
+Each edge instance kept its copy for 5 minutes. After that it read the table again while the reader waited, with no time limit. On quiet edge regions that is most reads.
+
+Middleware time to first byte on `/`, p75 (Vercel observability, 17.11.2026):
+
+| Region | p75 |
+|---|---|
+| `fra1` | 771 ms |
+| `cdg1` | 794 ms |
+| `arn1` | 1,185 ms |
+| `lhr1` | 1,310 ms |
+| `gru1` | 1,091 ms |
+| `icn1` | 1,089 ms |
+| `cle1`, `sfo1`, `iad1` | 20–25 ms |
+
+Two other reads exist but are not on a reader's path:
+
+- the outer SG wrapper (`middleware.js`), which serves browsers from Singapore only;
+- the crawler-only lookups (Post existence, big numbers).
+
+### 14.2 What changed
+
+`edge-country-policy.js` decides when a reader waits. `middleware-core.js` keeps the owner, the query, the 5-minute constant and every rule.
+
+| The instance's copy | Before | Now |
+|---|---|---|
+| under 5 minutes | used | used (unchanged) |
+| 5 to 60 minutes | the reader waited for a new read | used at once; **one** background read (`waitUntil`) replaces it for the next requests |
+| none yet (a new instance), or older than 60 minutes | the reader waited, with no limit | the reader waits, at most 3 s |
+| the read fails or is too slow | last copy, or none (fail-open) | the same: last copy, or none |
+| an answer that is not a list | ignored | ignored, and it never replaces a good copy |
+
+Each read is limited to 5 s. Each answer says how it got the policy, in the header `x-sod-country-policy`: `fresh`, `refresh`, `waited`, `fallback` or `none`.
+
+### 14.3 Security: what changes and what does not
+
+- **Unchanged:**
+  - the owner table, the modes (blocked, strict, quarantine, monitor) and their order;
+  - good bots and AI crawlers pass;
+  - bad bots are refused;
+  - the challenges and their cookies;
+  - the SG rate limiter;
+  - the fail-open rule on a read error.
+- **Changed: how fast a policy change reaches each instance.**
+  - A busy instance picks it up within the same ~5 minutes as before, plus one request. The request that starts the read still uses the last policy.
+  - A quiet instance (one request every few minutes) also picks it up on its second request after the 5 minutes.
+  - An instance idle for over 60 minutes waits for a fresh read, as before.
+  - For one request per instance, a newly blocked country can pass, or a newly freed one can still be stopped.
+  - Attacks are many requests, so the policy applies from the second request.
+- **New bound:** a new instance waits at most 3 s for the read. Before, it had no limit. After 3 s the existing fail-open applies. The read itself continues in the background.
