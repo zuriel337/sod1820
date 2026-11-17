@@ -9,10 +9,11 @@
 //
 // The list is read in the background (never on a reader's critical path), directly from the database's public read
 // (post_document_recent_changes_v1: hashed address keys and a count only), the way this middleware already reads its other policies. It is
-// read only while this instance is serving a burst — another Post request arrived within LEASE_MS — because only then can a fresh list be
-// used before it is old: a quiet instance makes no extra call and builds every Post fresh, exactly as without a CDN. So after a change
-// commits, every copy made before it stops being used within LEASE_MS + one read (at most fetchTimeoutMs); if the read fails, copies stop
-// being used altogether (fail closed) until a read succeeds.
+// read only while this instance is serving a burst of the same Post — the same address was requested here within LEASE_MS — because only a
+// repeated read can use a kept copy, and only then can a fresh list be used before it is old. A quiet instance, or a crawler reading many
+// different Posts, makes no extra call and builds every Post fresh, exactly as without a CDN. So after a change commits, every copy made
+// before it stops being used within LEASE_MS + one read (at most fetchTimeoutMs); if the read fails, copies stop being used altogether
+// (fail closed) until a read succeeds.
 import { isKnownSingleSegmentRoute, isSingleSegmentRoute, postSlugVariants } from './route-legitimacy.js';
 
 export const POST_DOCUMENT_FRESHNESS = Object.freeze({
@@ -23,6 +24,7 @@ export const POST_DOCUMENT_FRESHNESS = Object.freeze({
   bypassParam: '__sod_fresh',
   testHeader: 'x-sod-test-post-changes',
   testBranch: 'ccr-dcadb071-v1z5ol',
+  recentPaths: 256,       // the addresses this instance remembers for the burst test (oldest forgotten first)
 });
 
 const HEX16 = /^[0-9a-f]{16}$/;
@@ -77,13 +79,20 @@ export function previewTestList(request, env = (typeof process !== 'undefined' ?
 
 /**
  * The gate keeps one list per edge instance. decide() never waits for the network: it answers from the list in memory and hands back a
- * refresh to run in the background (context.waitUntil) when the list is older than refreshAfterMs or missing — but only while the previous
- * Post request on this instance came within leaseMs (a burst). A lone request makes no call: a list read for it would be old before the
- * next request arrives.
+ * refresh to run in the background (context.waitUntil) when the list is older than refreshAfterMs or missing — but only while the same
+ * address was requested on this instance within leaseMs (a burst). Any other request makes no call: it could not use a kept copy, or a list
+ * read for it would be old before the next request arrives.
  */
 export function createPostDocumentGate({ fetchList, now = () => Date.now(), leaseMs = POST_DOCUMENT_FRESHNESS.leaseMs,
   refreshAfterMs = POST_DOCUMENT_FRESHNESS.refreshAfterMs } = {}) {
-  let list = null, readAt = 0, inflight = null, lastSeen = -Infinity;
+  let list = null, readAt = 0, inflight = null;
+  const seen = new Map();   // address -> when this instance last saw it (insertion order = age)
+  const burstOf = (path, at) => {
+    const previous = seen.get(path);
+    seen.delete(path); seen.set(path, at);
+    if (seen.size > POST_DOCUMENT_FRESHNESS.recentPaths) seen.delete(seen.keys().next().value);
+    return previous !== undefined && at - previous <= leaseMs;
+  };
   const refresh = () => inflight || (inflight = Promise.resolve()
     .then(() => fetchList())
     .then(value => { if (validPostDocumentList(value)) { list = { keys: new Set(value.keys), allUntil: Date.parse(value.all_until) || 0 }; readAt = now(); } })
@@ -98,8 +107,7 @@ export function createPostDocumentGate({ fetchList, now = () => Date.now(), leas
       const own = await postDocumentKeysForPath(path);
       return own.some(key => keys.has(key)) ? { bypass: true, reason: 'changed', refresh: null } : { bypass: false, reason: 'clean', refresh: null };
     }
-    const at = now(), burst = at - lastSeen <= leaseMs;
-    lastSeen = at;
+    const at = now(), burst = burstOf(path, at);
     const age = at - readAt;
     if (!list || age > leaseMs) return { bypass: true, reason: 'stale', refresh: burst ? refresh : null };
     const background = age > refreshAfterMs && burst ? refresh : null;

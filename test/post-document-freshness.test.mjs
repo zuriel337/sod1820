@@ -74,7 +74,7 @@ test("the gate: fail closed until a list is read, clean after, bypass for a list
   assert.equal(validPostDocumentList({ version: 1, keys: [key("a")], all_until: null }), true);
 });
 
-test("a quiet edge instance makes no extra call: requests further apart than the lease are built fresh, exactly as without a CDN", async () => {
+test("no extra call unless the same Post is read again within the lease: quiet instances and crawlers reading many Posts are built fresh, exactly as without a CDN", async () => {
   const c = clock(1_800_000_000_000);
   let reads = 0;
   const gate = createPostDocumentGate({ now: c.now, fetchList: async () => { reads++; return { version: 1, keys: [], all_until: null }; } });
@@ -83,11 +83,16 @@ test("a quiet edge instance makes no extra call: requests further apart than the
     assert.deepEqual([d.bypass, d.reason, d.refresh], [true, "stale", null]);
     c.advance(POST_DOCUMENT_FRESHNESS.leaseMs + 1);
   }
+  for (let i = 0; i < 300; i++) {   // a crawler: a different Post every 200 ms
+    const d = await gate.decide(`/post/crawled-${i}`);
+    assert.deepEqual([d.bypass, d.reason, d.refresh], [true, "stale", null]);
+    c.advance(200);
+  }
   assert.equal(reads, 0, "no list read, no database call, no function call");
-  // a burst on the same instance: one read, then kept copies may be used while requests keep coming within the lease
-  let d = await gate.decide("/post/quiet-post"); assert.equal(d.refresh, null);
-  c.advance(500); d = await gate.decide("/post/quiet-post"); await d.refresh();
-  for (let i = 0; i < 10; i++) { c.advance(400); d = await gate.decide("/post/quiet-post"); assert.equal(d.reason, "clean"); if (d.refresh) await d.refresh(); }
+  // the same Post read again and again on this instance: one read, then a kept copy may be used while the reads keep coming
+  let d = await gate.decide("/post/shared-post"); assert.equal(d.refresh, null);
+  c.advance(500); d = await gate.decide("/post/shared-post"); assert.equal(typeof d.refresh, "function"); await d.refresh();
+  for (let i = 0; i < 10; i++) { c.advance(400); d = await gate.decide("/post/shared-post"); assert.equal(d.reason, "clean"); if (d.refresh) await d.refresh(); }
   assert.ok(reads >= 1 && reads <= 3, `at most one read per ${POST_DOCUMENT_FRESHNESS.refreshAfterMs} ms during the burst (${reads})`);
 });
 
