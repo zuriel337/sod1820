@@ -32,6 +32,17 @@ async function invoke(path, agent, options = {}) {
   } finally { globalThis.fetch = original; }
 }
 
+// Post document freshness (ZURIEL 17.11.2026): a Post-shaped address reaches the document handler either as is (x-middleware-next) or, while the
+// edge's list of recent changes is missing or lists the Post, rewritten to the SAME address with only the reserved never-keep marker.
+function passesToDocumentHandler(response, path) {
+  if (response.headers.get("x-middleware-next") === "1") return true;
+  const rewritten = response.headers.get("x-middleware-rewrite");
+  if (!rewritten) return false;
+  const url = new URL(rewritten), expected = new URL("https://sod1820.co.il" + path);
+  return url.origin === expected.origin && url.pathname === expected.pathname && url.search === "?__sod_fresh=1"
+    && response.headers.get("x-middleware-request-x-sod-doc-fresh") === "1";
+}
+
 test("known blocked bot stays403 on public documents, with both existing security counters", async () => {
   for (const path of ["/", "/world", "/number/1820"]) {
     const { response, calls } = await invoke(path, "curl/8.0 SOD1820-MW-UNIT");
@@ -47,7 +58,7 @@ test("ordinary browser keeps all accepted public route families, without a paral
     "/2029/number/1820", "/2029/calculator", "/contact", "/privacy", "/unsubscribe"]) {
     const { response } = await invoke(path, "Mozilla/5.0 AppleWebKit/537.36 Chrome/142.0.0.0 Safari/537.36");
     assert.equal(response.status, 200, path);
-    assert.equal(response.headers.get("x-middleware-next"), "1", path);
+    assert.ok(passesToDocumentHandler(response, path), path);
     assert.match(response.headers.get("set-cookie"), /vb=browser/);
   }
 });
@@ -87,7 +98,7 @@ test("browser: Post documents (old address and /post/) pass the edge without the
   for (const path of ["/post/absent-source", "/absent-old-address", "/%D7%AA%D7%A4%D7%99%D7%9C%D7%94-%D7%9C%D7%A8%D7%A4%D7%95%D7%90%D7%94", "/post/existing-source"]) {
     const { response, calls } = await invoke(path, agent, { postExists: false });
     assert.equal(response.status, 200, path);
-    assert.equal(response.headers.get("x-middleware-next"), "1", path);
+    assert.ok(passesToDocumentHandler(response, path), path);
     assert.equal(calls.some(c => c.path === "/rest/v1/rpc/public_post_slug_exists"), false, `${path}: no edge lookup for a browser document`);
   }
   // HEAD follows the same rule

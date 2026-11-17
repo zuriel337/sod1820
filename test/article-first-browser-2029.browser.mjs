@@ -6,6 +6,7 @@
 //  3. the paragraph the reader is on stays where it is (within 2 px), and so does a named anchor opened by a direct link;
 //  4. a document article that is not exactly the page's article is replaced in place, once (never two);
 //  5. leaving the address before the page adopted it removes it; internal navigation and back show the article once.
+//  6. a kept document whose Post is no longer public (the page's live read finds no public Post) loses its article; a failed read keeps it.
 // Run `node scripts/build-public-reading-production.mjs` first.   node --test --test-concurrency=1 test/article-first-browser-2029.browser.mjs
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -38,7 +39,7 @@ const sleep = ms => new Promise(done => setTimeout(done, ms));
 const FACES = () => Promise.all(["400 16px 'Noto Sans Hebrew'", "700 16px 'Noto Sans Hebrew'", "400 16px Rubik", "700 16px Rubik"].map(font => document.fonts.load(font, "שלום 1820 Ab")));
 
 await loadArticleFirstRenderer();
-async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW, holdCss = null, holdCssLate = null, facts = undefined } = {}, run) {
+async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW, holdCss = null, holdCssLate = null, facts = undefined, readAnswer = null } = {}, run) {
   const proven = { [String(row.id)]: postArticleProofKey2029(row) };
   const fixture = await startFixture({
     documentFor: ({ path, template }) => {
@@ -51,7 +52,7 @@ async function withPage(profile, { holdPostChunk = null, holdRead = null, initSc
     supabase: async ({ url }) => {
       if (!(url.pathname === "/rest/v1/posts" && /slug|wp_id|id=/.test(url.search) && !/order=|limit=(?:[2-9]|\d\d)/.test(url.search))) return null;
       if (holdRead) await holdRead;
-      return { body: [row] };
+      return readAnswer ? readAnswer() : { body: [row] };
     },
   });
   const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
@@ -198,6 +199,37 @@ test("[phone] leaving before the page adopted it removes the document article; i
     await page.waitForSelector(".sod29-reading-source[data-public-post-id] p:not([data-duplicate-cover])", { timeout: 60000 });
     await sleep(1500);
     assert.deepEqual(await counts(page), { articles: 1, h1: 1, documentArticle: false, sources: 1 });
+  });
+});
+
+// Post document freshness (ZURIEL 17.11.2026): a document the CDN kept can be older than a change to its Post. The page's own live read
+// decides: a Post that is no longer public (hidden or deleted after the copy was made) loses the document's article, the reader sees the
+// page's own state and never the old article; only a read that failed (the database could not be asked) keeps the article the server gave.
+test("[phone] the live read says the Post is no longer public (hidden or deleted after the document was kept): the document's article is withdrawn", { timeout: 180000 }, async () => {
+  let release; const held = new Promise(done => { release = done; });
+  await withPage("phone", { holdRead: held, readAnswer: () => ({ body: [] }) }, async ({ page, errors }) => {
+    await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "domcontentloaded" });
+    assert.equal(await page.evaluate(() => /פסקה 1:/.test(document.getElementById("sod29-ssr-article")?.innerText || "")), true, "the kept document carries the old article");
+    release();
+    const result = await adopted(page);
+    assert.equal(result.result, "replaced"); assert.equal(result.reason, "not-public");
+    await page.waitForFunction(() => /הפוסט לא נמצא/.test(document.getElementById("root")?.innerText || ""), null, { timeout: 20000 });
+    const seen = await page.evaluate(() => ({ documentArticle: !!document.getElementById("sod29-ssr-article"), articles: document.querySelectorAll("article.sod29-reading-post").length,
+      oldText: /פסקה \d+:|סדר תפילה ל- רפואה שלמה/.test(document.body.innerText), rootHeld: document.getElementById("root").getBoundingClientRect().height < 140 }));
+    assert.deepEqual(seen, { documentArticle: false, articles: 0, oldText: false, rootHeld: false });
+    await sleep(800);
+    assert.equal(await page.evaluate(() => /פסקה \d+:/.test(document.body.innerText)), false, "the old article never comes back");
+    assert.deepEqual(errors, []);
+  });
+});
+
+test("[phone] the page's own read fails (the database cannot be asked): the reader keeps the article the server gave, below the page's own state", { timeout: 180000 }, async () => {
+  await withPage("phone", { readAnswer: () => ({ status: 503, body: { message: "unavailable" } }) }, async ({ page }) => {
+    await page.goto("https://sod1820.co.il" + PATH, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector('#sod29-ssr-article[data-ssr-standalone="true"]', { state: "attached", timeout: 60000 });
+    const seen = await page.evaluate(() => ({ report: window.__sodArticleFirst?.result || null, article: /פסקה 1:/.test(document.getElementById("sod29-ssr-article").innerText),
+      state: /לא הצלחתי לפתוח את הפוסט/.test(document.getElementById("root").innerText), rootHeld: document.getElementById("root").getBoundingClientRect().height < 140 }));
+    assert.deepEqual(seen, { report: null, article: true, state: true, rootHeld: false });
   });
 });
 

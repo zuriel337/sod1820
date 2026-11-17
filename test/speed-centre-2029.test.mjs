@@ -63,3 +63,30 @@ test("the centre stays an admin-only lazy part of /2029/control and reads only t
   assert.ok(map.groups.length === 34 && map.baseline === "d2dd882f960a329394f4a23d7b6e4a7d4c4c6fd5", "the historical baseline is kept");
   assert.ok(Array.isArray(map.current_state_20261117.build_evidence) && map.current_state_20261117.build_evidence.every(b => b.build && b.sha && b.deployment && b.evidence));
 });
+
+test("post document freshness: a failed purge is urgent, a missing or stopped watch is attention, nothing is listed twice, an inactive layer is no attention", () => {
+  const now = Date.parse("2026-11-17T12:00:00Z");
+  const keys = list => list.map(i => i.key);
+  const base = { samples: 100, latest_sample_at: "2026-11-17T11:59:00Z", watch: { computed_at: "2026-11-17T11:30:00Z" } };
+  const fresh = extra => ({ status: "ok", computed_at: "2026-11-17T11:50:00Z", purge_configured: true, changes_24h: 3, purges_ok: 3, purges_failed: 0, purges_pending: 0, ...extra });
+  const at = w => speedAttention({ read: { data: { web_vitals: { ...base, ...w } } }, now });
+  assert.deepEqual(keys(at({})), [], "the reader does not report it (not active in the database): no attention, no invented state");
+  assert.deepEqual(keys(at({ post_document_freshness: fresh() })), [], "a confirmed purge on a fresh watch is no attention");
+  assert.deepEqual(keys(at({ post_document_freshness: null })), ["freshness-missing"]);
+  assert.deepEqual(keys(at({ post_document_freshness: fresh({ computed_at: "2026-11-17T10:00:00Z" }) })), ["freshness-stale"]);
+  const failed = at({ post_document_freshness: fresh({ status: "purge_failed", purges_failed: 2 }) });
+  assert.deepEqual(keys(failed), ["freshness-failed"]); assert.equal(failed[0].level, "critical");
+  const open = at({ post_document_freshness: fresh({ status: "purge_failed", purges_failed: 2 }),
+    watch_open: [{ id: 7, detector: "post_document_purge_failed", title: "ניקוי ה־CDN נכשל" }] });
+  assert.deepEqual(keys(open), ["finding-7"], "the open suggestion is the one item"); assert.equal(open[0].level, "critical");
+  const unset = at({ post_document_freshness: fresh({ status: "not_configured", purge_configured: false, purges_ok: 0 }) });
+  assert.deepEqual(keys(unset), ["freshness-not-configured"]); assert.equal(unset[0].level, "warn");
+  assert.deepEqual(keys(at({ post_document_freshness: fresh({ status: "idle", purge_configured: false, changes_24h: 0 }) })), [], "no change, nothing to purge");
+});
+
+test("the freshness block reads only the speed source's own field and says when the layer is not active", () => {
+  const component = readFileSync(new URL("../src/components/experience2029/OperationalMetrics2029.jsx", import.meta.url), "utf8");
+  assert.match(component, /<FreshnessBlock fresh=\{w\.post_document_freshness\} \/>/);
+  assert.match(component, /לא פעילה במסד \(המקור לא מחזיר אותה\)/);
+  assert.match(component, /data-post-freshness=\{state\}/);
+});

@@ -13,6 +13,14 @@ on:
       - 'tests/sql/speed_centre_*.sql'
       - 'tests/sql/run-speed-centre.sh'
       - 'tests/sql/extract-function.mjs'
+      - 'supabase/migrations/20261117160000_post_document_freshness.sql'
+      - 'supabase/proposed/ROLLBACK_20261117160000_post_document_freshness.sql'
+      - 'tests/sql/post_document_*.sql'
+      - 'tests/sql/live/posts-writers-*.sql'
+      - 'tests/sql/run-post-document-freshness.sh'
+      - 'tests/sql/post-document-keys-check.mjs'
+      - 'post-document-freshness.js'
+      - 'route-legitimacy.js'
       - '.github/workflows/speed-centre-sql-gate.yml'
   workflow_dispatch:
 permissions:
@@ -42,3 +50,11 @@ jobs:
           node-version-file: .nvmrc
       - name: Fixture, reviewed base definitions, migration, report and watch assertions, rollback, refuse twice
         run: bash tests/sql/run-speed-centre.sh
+      # Post document freshness (ZURIEL 17.11.2026, CDN experiment): the live writers of posts (bodies equal to the live ones by md5) through
+      # the editor, agent and SQL paths; every document change is logged in the same transaction and asks for a purge; non-document changes
+      # are not; a change that cannot be logged does not happen; purges are confirmed, retried once and reported; edge and database agree on
+      # every address key; exact rollback. A fresh database, so the speed centre run above does not leak into it.
+      - name: Post document freshness (writers, log, purge requests, confirmation watch, edge keys, rollback)
+        run: |
+          psql -d postgres -c "create database post_document_fixture"
+          PGDATABASE=post_document_fixture bash tests/sql/run-post-document-freshness.sh

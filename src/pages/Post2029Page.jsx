@@ -193,12 +193,21 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const report = window.__sodArticleFirst = { result: "replaced", reason: result, at: Math.round(performance.now()), place: place?.kind || null, compensated: null };
     keepReaderInPlace2029(place, samePlaceInPage2029(place, target.closest("article"), target), { resume, settled: moved => { report.compensated = moved; } });
   });
-  // The page cannot open the Post (its own read failed) although the server already gave the article: the reader keeps the article, and the
-  // app root is released so the page's own state shows above it. A page that is left never keeps the document article.
+  // The page's own live read decides (post document freshness, ZURIEL 17.11.2026). When it answers that the Post is not public — hidden,
+  // deleted or moved after the document was made; a document the CDN kept can be older than that change — the document's article is
+  // withdrawn and the reader sees the page's own "not found" state, never the old article. Only when the read itself failed (the database
+  // could not be asked) does the reader keep the article the server already gave; the app root is then released so the page's own state
+  // shows above it. A page that is left never keeps the document article.
   useEffect(() => {
     const node = document.getElementById(POST_ARTICLE_DOCUMENT_ID);
-    if (node && !state.loading && (state.error || !state.projection)) node.dataset.ssrStandalone = "true";
-  }, [state.loading, state.error, state.projection]);
+    if (!node || state.loading || state.projection) return;
+    if (state.notPublic) {
+      node.remove();
+      window.__sodArticleFirst = { result: "replaced", reason: "not-public", at: Math.round(performance.now()), place: null, compensated: null };
+      return;
+    }
+    node.dataset.ssrStandalone = "true";
+  }, [state.loading, state.projection, state.notPublic]);
   useEffect(() => () => { if (!adoptionRef.current) document.getElementById(POST_ARTICLE_DOCUMENT_ID)?.remove(); }, []);
   const [activeRegionId, setActiveRegionId] = useState(null);
   const [sourceUpdates, setSourceUpdates] = useState([]);
@@ -221,6 +230,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           loading: false,
           projection,
           error: projection ? null : "הפוסט לא נמצא",
+          notPublic: !projection,   // a valid answer: this address is not a public Post now (a failed read throws and is caught below)
         });
         const restored = resolvePostReadingRegion(projection, entryRef.current?.context, entryRef.current?.hash);
         restoredRegionRef.current = restored;
