@@ -202,7 +202,13 @@ jobs:
               await expect(home.locator('[data-home-public-series="true"] .h29-series-card:not(.h29-skel)').first()).toBeVisible({ timeout: 30_000 });
               await expect(home.locator('[data-home-launch-notice="gradual-opening"]')).toHaveCount(0);
               await expect(home.locator('[data-home-world="open"]')).toHaveCount(0);
-              await expect(home.locator('#home-sources')).toHaveCount(1);
+              // ZURIEL 17.11.2026 (Speed Law): the reality stream and its source arrivals (#home-sources) load when the reader reaches them;
+              // until then one truthful status holds their place. Reaching it brings the arrivals list in; the opening is then screenshotted again.
+              const streamPlaceholder = home.getByText('זרם המציאות ייטען כשתגיעו אליו', { exact: true });
+              await expect(streamPlaceholder).toHaveCount(1);
+              await streamPlaceholder.scrollIntoViewIfNeeded();
+              await expect(home.locator('#home-sources')).toHaveCount(1, { timeout: 20_000 });
+              await page.evaluate(() => window.scrollTo(0, 0));
               await expect(page.getByRole('toolbar', { name: 'מסלול המחקר והפעולות הזמינות עכשיו', exact: true })).toHaveCount(1);
               const widthMetrics = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
               expect(widthMetrics.clientWidth).toBe(width);
