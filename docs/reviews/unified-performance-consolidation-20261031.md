@@ -234,3 +234,7 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 ### Later on 17.11.2026: the Home and the community chat on the CDN (experiment, branch only)
 
 `S-49` in the JSON (counts: 49 entries, 48 merged, 1 branch-only). Draft PR #1379, protected Preview `dpl_2VAQq1pgS7n1C21B7a6nXYkRyvzU`. The two documents are kept the same way as Post documents; nothing outside a deployment can change them. Measured from the test machine: about 30–65 ms faster. The large wait readers see on the Home is the edge middleware's country policy read, which the CDN does not remove (p75 0.77 s in `fra1`). Write-up: `docs/reviews/post-document-cdn-20261117/README.md` section 13.
+
+### Later on 17.11.2026: the gatekeeper's country policy read (experiment, branch only)
+
+`S-50` in the JSON (counts: 50 entries, 48 merged, 2 branch-only). Same draft PR #1379. The edge middleware no longer makes a reader wait for the country policy read while its copy is under 60 minutes old: the read happens in the background. Protected Preview A/B, one request a minute for 18 minutes: at every 5-minute expiry the old read added 0.3–0.7 s, and the fix added nothing. Who is blocked does not change; a policy change reaches a quiet instance one request later. Write-up: `docs/reviews/post-document-cdn-20261117/README.md` section 14.
