@@ -334,7 +334,7 @@ jobs:
           test/world-topic-gallery-state-map-2029.test.mjs
           test/world-gallery-entry-follow-chain-2029.test.mjs
           test/world-one-tree-preview-2029.test.mjs
-      - name: Now centre contracts (ZURIEL 11.11.2026 — the pinned central message of at most 72 hours, the one source picker, the Home centre first and the featured card before the plane story; the Home strip test mounts the real component with react-test-renderer from the calculator step above; it was previously unwired and repaired)
+      - name: Now centre and speed centre contracts (ZURIEL 11.11.2026 — the pinned central message of at most 72 hours, the one source picker, the Home centre first and the featured card before the plane story; ZURIEL 17.11.2026 — the speed centre in /2029/control, its honest states, the real refresh and the account boundary; the mounted tests use react-test-renderer from the calculator step above)
         run: >
           node --test
           test/now-publications-2029.test.mjs
@@ -345,6 +345,9 @@ jobs:
           test/now-media-centred-2029.test.mjs
           test/home-live-updates-2029.test.mjs
           test/home-featured-post-2029.test.mjs
+          test/speed-centre-2029.test.mjs
+          test/operational-metrics-2029.test.mjs
+          test/final-preparation-control-plane.test.mjs
           test/group-youtube-card-2029.test.mjs
           test/group-message-numbers-2029.test.mjs
           test/community-staff-chip-2029.test.mjs
@@ -516,6 +519,12 @@ jobs:
       # a guarded Post keeps today's document.
       - name: New Posts, article first (not on the list; the build's guard; adopted, no layout shift; real artifact and worker)
         run: node --test --test-concurrency=1 test/article-first-new-post-2029.browser.mjs
+      # SPEED_CENTRE_CONTROL_20261117: the real Control Plane page with a synthetic administrator and stub readers — measurements, a failed
+      # source, missing data, the page's refresh reaching the open centre, a failed and a slow refresh, and an account switch; phone and desktop.
+      - name: Speed centre in /2029/control (states, real refresh, account boundary; phone and desktop; isolated, no external traffic)
+        run: node test/speed-centre-2029.browser.mjs
+        env:
+          SPEED_CENTRE_BROWSER_OUT: ${{ runner.temp }}/speed-centre
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)

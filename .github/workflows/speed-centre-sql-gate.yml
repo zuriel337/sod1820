@@ -1,0 +1,44 @@
+name: Speed Centre SQL
+# The speed centre (ZURIEL 17.11.2026): the extended Traffic Intelligence reader (admin_2029_analytics) and the Web Vitals watch inside the
+# existing health watch. Local Postgres only; nothing reaches a shared database. Starts from the reviewed definitions in the repository,
+# applies the migration, checks the report and the watch (regression, measurement gap, de-duplication, privileges), rolls back to the exact
+# previous definitions and proves both files refuse to run out of order.
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20261117120000_speed_centre_web_vitals.sql'
+      - 'supabase/proposed/ROLLBACK_20261117120000_speed_centre_web_vitals.sql'
+      - 'supabase/proposed/20261115180000_measurement_identity_PROPOSAL.sql'
+      - 'supabase/migrations/20260929170000_g3_reliability_preclose_v1.sql'
+      - 'tests/sql/speed_centre_*.sql'
+      - 'tests/sql/run-speed-centre.sh'
+      - 'tests/sql/extract-function.mjs'
+      - '.github/workflows/speed-centre-sql-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  speed-centre-sql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture_only
+          POSTGRES_DB: speed_centre_fixture
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: fixture_only
+      PGHOST: localhost
+      PGUSER: postgres
+      PGDATABASE: speed_centre_fixture
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Fixture, reviewed base definitions, migration, report and watch assertions, rollback, refuse twice
+        run: bash tests/sql/run-speed-centre.sh

@@ -1324,5 +1324,3424 @@
     "Verdict counts are audit entries, not product completion percentages.",
     "No live product DB/RLS/Edge/main/Production write.",
     "Current lab/API fixtures and historical/field metrics remain separate."
+  ],
+  "current_state_20261117": {
+    "task": "SPEED_CENTRE_CONTROL_20261117",
+    "checked_at": "2026-11-17T10:40:00Z",
+    "main": "2011226fe58eff3645750031bd59a69d5e2c208f",
+    "production": {
+      "deployment": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
+      "sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
+      "aliases": [
+        "sod1820.co.il",
+        "www.sod1820.co.il",
+        "sod1820.vercel.app"
+      ],
+      "evidence": "get_alias sod1820.co.il -> dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi; the live document's bootstrap config names entry /assets/2029-CNp2F-eD.js and sourceSha 2011226fe58eff3645750031bd59a69d5e2c208f (read 2026-11-17T10:35Z)"
+    },
+    "build_evidence": [
+      {
+        "build": "2029-CNp2F-eD",
+        "sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
+        "deployment": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
+        "evidence": "live document bootstrap config (entry + sourceSha), read 2026-11-17T10:35Z",
+        "verified_at": "2026-11-17T10:35:00Z"
+      },
+      {
+        "build": "2029-DvYRh6FW",
+        "sha": "e226815f6b07874d1f6e94dc49d6b53756174363",
+        "deployment": "dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6",
+        "evidence": "that deployment's own document (Vercel fetch of sod1820-fx1wg3aco-sod1820-s-projects.vercel.app): bootstrap config entry /assets/2029-DvYRh6FW.js, sourceSha e226815f6, read 2026-11-17T10:34Z",
+        "verified_at": "2026-11-17T10:34:00Z"
+      }
+    ],
+    "build_evidence_note": "props.build is the entry file name (webVitals2029 fieldContext), collected since the #1372 deployment (16.11.2026 evening). Earlier samples carry none and stay unknown. A build is tied to a commit only through a deployment document read above.",
+    "fixes": [
+      {
+        "id": "S-1",
+        "title_he": "עולם: כרטיסי המקור מוצגים לפני שאר הקריאות; קריאות המקור במקביל; מנוע הגילוי המחובר נטען רק בכתובת שלו",
+        "problem": "World writer/source view waited for the publication reader and for serial contributor/alias reads before showing any source card; ordinary World also downloaded the closed connected-discovery reader (SpatialMethodStage, semanticSceneCompiler).",
+        "surface": "world",
+        "source": {
+          "task_keys": [
+            "WORLD_SOURCE_FIRST_PERFORMANCE_20261029",
+            "WORLD_SOURCE_LIBRARY_PROGRESSIVE_ACCEPTANCE_20261029",
+            "WORLD_SOURCE_READ_PARALLEL_20261029",
+            "PUBLIC_READING_MOBILE_PERFORMANCE_20261101"
+          ],
+          "prs": [
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "src/lib/research/contributorFindingsProjection.js :: onSourcesReady partial projection (buildContributorFindingsProjection with researchObjects: [])",
+          "src/lib/research/contributorFindingsProjection.js :: Promise.allSettled([sources, contributions, topics]) parallel reads",
+          "src/pages/World2029Page.jsx :: const WorldConnectedDiscovery = React.lazy(() => import('../components/research/WorldSourceStory.jsx'))"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No behaviour-specific live check found. Before merge only protected-Preview / local real-public-data runs (work_log WORLD_SOURCE_READ_PARALLEL_20261029 AFTER). Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "lab",
+          "before": "anonymous live-reader source-ready 4438/5045/4530 ms (and 5893/3757/3912 ms in a second harness)",
+          "after": "source-ready 3316/2938/2851 ms; final 3888/3276/3253 ms",
+          "conditions": "3 samples per arm, unpaired, variable network, anonymous GET-only reader against real Zvi data; author states no reliable speed claim; local Vite first 12 cards still ~5.3-6.3 s",
+          "source": "work_log WORLD_SOURCE_FIRST_PERFORMANCE_20261029 / WORLD_SOURCE_READ_PARALLEL_20261029 (AFTER rows 2026-10-28)"
+        },
+        "guard": [
+          "src/lib/research/contributorFindingsProjection.test.js [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/world-people-sources-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "No hosted/field measurement; author's own note: 5-6 s first cards locally remains a concern; promoted findings still paged up to 10,000 in background.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F06",
+          "F21"
+        ]
+      },
+      {
+        "id": "S-2",
+        "title_he": "נהר המציאות: גלילה בלי רינדור React בכל צעד (requestAnimationFrame)",
+        "problem": "Reality River scroll re-rendered React and re-measured geometry on each scroll step; thumbnails widened the host (55 px reflow).",
+        "surface": "home",
+        "source": {
+          "task_keys": [
+            "REALITY_RIVER_SCROLL_DATE_POLISH_20261031"
+          ],
+          "prs": [
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "src/components/research/RealityRiver2029.jsx :: frame.current = requestAnimationFrame(() => { frame.current = null; synchronize(); })"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Protected Preview verification only (work_log REALITY_RIVER_SCROLL_DATE_POLISH_20261031 AFTER_IMPLEMENTED_TESTED_PREVIEW_VERIFIED). Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "lab",
+          "before": "React commits on every same-source scroll step; 55 px reflow from thumbnails",
+          "after": "0 React commits for 20 same-source scroll steps; stable width/height",
+          "conditions": "browser 320/390/1440, 3 presets, local",
+          "source": "work_log REALITY_RIVER_SCROLL_DATE_POLISH_20261031"
+        },
+        "guard": [
+          "test/reality-river-2029.browser.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "test/gallery-river-reserved-height-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "No timing number; browser test not referenced in .github/workflows.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F04"
+        ]
+      },
+      {
+        "id": "S-3",
+        "title_he": "רקעי פוסט: גרסאות לאורך קלות + כותרות מטמון ארוכות (נכתבו ב־vercel.json הלא נכון)",
+        "problem": "Post decorative backgrounds had no portrait variants and no long-lived cache headers.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "POSTS_FAST_CLOSURE_CHAIN_20261031",
+            "POSTS_FOUR_CACHE_HEADERS_PREVIEW_20261031"
+          ],
+          "prs": [
+            1179,
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "vercel.json (root) :: immutable Cache-Control for the versioned background files (13 immutable rules)",
+          "public-reading-deploy/vercel.json :: same rules exist now only because of #1366 (see S-30); the Production build uses this file"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "no",
+        "live_evidence": "Verified on a protected Preview only (work_log POSTS_FOUR_CACHE_HEADERS_PREVIEW_20261031). PR #1365 archaeology (branch-only doc) and #1366 commit message: Production builds from public-reading-deploy/vercel.json, so these root rules were inert and backgrounds were served no-store until #1366. Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "none",
+          "before": "unknown",
+          "after": "portrait WebP 21,048-29,988 bytes (asset sizes, not timing)",
+          "conditions": "asset bytes only",
+          "source": "work_log POSTS_FAST_CLOSURE_CHAIN_20261031"
+        },
+        "guard": [
+          "test/public-static-asset-cache-20261115.test.mjs (added later by #1366; pins the DEPLOYED config) [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Inert in Production by itself; effective behaviour comes from S-30.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-4",
+        "title_he": "איחוד ביצועים 31.10: Realtime עצל, צופה סיפורים וטופס דיווח לפי דרישה, איחוד קריאות דגלים בזמן טיסה, מסנן פרסום למדיה במספר",
+        "problem": "Restoration of reviewed historical performance work: Realtime/Phoenix in the eager entry (F20), StoryViewer/ContactGateway eagerly loaded (F13), duplicate in-flight site_flags reads (F18), numeric media windows without published=1 (F10).",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "UNIFIED_2029_PERFORMANCE_CONSOLIDATION_20261031",
+            "PLAN37_UNIFIED_PERFORMANCE_RECEIPT_20261031"
+          ],
+          "prs": [
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "vite.config.js :: alias @supabase/realtime-js -> src/lib/realtimeLazy2029.js",
+          "src/components/experience2029/StoryViewerOnDemand2029.jsx :: loadViewer = () => import('../StoryViewer.jsx')",
+          "src/components/experience2029/ContactGatewayOnDemand2029.jsx :: import('../ContactGateway.jsx')",
+          "src/lib/supabase.js :: getSiteFlags({ pendingScope })",
+          "src/lib/supabase.js :: getEntityBundle published filter (per consolidation doc; test/entity-bundle-publication-2029.test.mjs)"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Protected Preview dpl_hvfBrT9L7hL1uxLk3BNeKan1iXRQ verified (work_log UNIFIED_2029_PERFORMANCE_CONSOLIDATION_20261031); no later live check of these specific boundaries found. Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "budget",
+          "before": "eager gzip 442,195 B (normal) / 439,710 B (Preview)",
+          "after": "421,607 B / 419,411 B; lab flags 10 -> 1 request",
+          "conditions": "build output bytes; lab 12 paired cold runs: timing not uniform (mobile primary 5865->5830 ms, desktop 771->809 ms); no field claim",
+          "source": "docs/reviews/unified-performance-consolidation-20261031.md/.json; work_log UNIFIED_2029_PERFORMANCE_CONSOLIDATION_20261031"
+        },
+        "guard": [
+          "test/realtime-entry-split-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/realtime-entry-split-browser-loopback-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "test/unified-performance-read-policy-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "test/entity-bundle-publication-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]"
+        ],
+        "open": "test/unified-performance-read-policy-2029.test.mjs is not referenced in .github/workflows; no field effect measured.",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F10",
+          "F13",
+          "F18",
+          "F20"
+        ]
+      },
+      {
+        "id": "S-5",
+        "title_he": "בית: קטעים מתחת לקפל (סרטונים, ממד חמש, תצוגת העולם, הנהר, סיפור) נקראים רק בהתקרבות",
+        "problem": "Home started its below-fold readers (videos, Dimension Five, World preview, river, story) at mount, competing with the primary cards.",
+        "surface": "home",
+        "source": {
+          "task_keys": [
+            "HOME_LOADING_ACCEPTANCE_20261031",
+            "PUBLIC_READING_MOBILE_PERFORMANCE_20261101"
+          ],
+          "prs": [
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "src/components/experience2029/HomeComposition2029.jsx :: useApproach2029 for videosRef/summaryRef/standaloneRef/worldRef/storyRef (gated on !primary.loading)",
+          "src/components/experience2029/HomeComposition2029.jsx :: useHomeDeferredData -> getHomeVideos only when videosAdmitted"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No live check of request timing found; acceptance was local/Preview (docs/reviews/home-loading-acceptance-handoff-20261031.md). Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "lab",
+          "before": "primary median 5744.7 ms mobile / 826.7 ms desktop; LCP 5580 / 1016 ms",
+          "after": "5700.2 / 830.5 ms; LCP 5548 / 1084 ms; REST requests without scroll reduced (39027->19, 144028->20 as written in the record)",
+          "conditions": "synthetic lab, 12 paired cold runs; author: no consistent latency or field p75 claim",
+          "source": "work_log HOME_LOADING_ACCEPTANCE_20261031; docs/reviews/home-loading-acceptance-evidence-20261031.json"
+        },
+        "guard": [
+          "test/home-loading-admission-2029.browser.mjs [exists on origin/main; not referenced in .github/workflows or package.json]"
+        ],
+        "open": "Browser test not referenced in .github/workflows; no timing gain shown; Home first mobile load still ~5.4-6.8 s in later GPT labs.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F17",
+          "F27",
+          "F29"
+        ]
+      },
+      {
+        "id": "S-6",
+        "title_he": "פוסט: קריאת המקור מתחילה יחד עם הורדת הקוד; מתאמי Golden והעד ההיסטורי נטענים רק כשצריך",
+        "problem": "First Post read waited for its code chain (post2029ReadingProjection ~51 KB gz) and the code statically pulled the W2 numeric/ELS executors and a 75 KB historical witness that ordinary Posts never use; Home/World source invitations ran full Post enrichment.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "PUBLIC_READING_MOBILE_PERFORMANCE_20261101"
+          ],
+          "prs": [
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "src/App2029.jsx :: PostEntry2029 -> beginPostReadingSource(slug) route-owned read passed as sourceReader",
+          "src/lib/research/post2029ReadingProjection.js :: fetchGoldenContextPack -> Promise.all([import('./researchW2Executors.js'), import('./numberSystemMethods.js'), import('./goldenPostContextPacks.js'), traces])",
+          "src/lib/research/post2029ReadingProjection.js :: (await import('./post2029PreviewSnapshot.js')) only for the GOLDEN_SLUG fallback",
+          "src/lib/research/post2029ReadingProjection.js :: fetchPost2029ReadingProjection(slug, { sourceInvitation })"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Measured on protected Previews with the real service worker (docs/reviews/public-reading-mobile-performance-20261101/DIAGNOSIS.md); no Production-specific check found. Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "lab",
+          "before": "mobile first Post 1146 ms (3-pair native-SW median)",
+          "after": "1099 ms; milui 4105 -> 3370 ms; World 2563 -> 2503 ms; Home 6846 -> 6820 ms (no demonstrated gain)",
+          "conditions": "native protected Preview, CDP 150 ms RTT / 1.6 Mbps / 4x CPU, 390 px, 24 cycles 264 stages, 3 counterbalanced pairs; readiness includes Playwright polling, not LCP/RUM",
+          "source": "work_log PUBLIC_READING_MOBILE_PERFORMANCE_20261101; docs/reviews/public-reading-mobile-performance-20261101/DIAGNOSIS.md"
+        },
+        "guard": [
+          "test/post-reading-source-request-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "test/public-source-invitation-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]"
+        ],
+        "open": "Both guard tests exist but are not referenced in .github/workflows; /:slug (original WordPress addresses) did not get the early read until #1366 (S-31).",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F01",
+          "F21",
+          "F34"
+        ]
+      },
+      {
+        "id": "S-7",
+        "title_he": "דף המספר: הליבה מוצגת לפני החומר המשני; קריאות זהות ועדשות במקביל; שימוש חוזר 30 שניות בפרופיל השיטה",
+        "problem": "Number page blocked its whole projection on serial identity/label and research reads; phrase Back re-read the same method profile.",
+        "surface": "number",
+        "source": {
+          "task_keys": [
+            "NUMBER_FULLPAGE_PROVENANCE_PERFORMANCE_20261101",
+            "PUBLIC_READING_MOBILE_PERFORMANCE_20261101",
+            "PUBLIC_LAUNCH_USEFUL_LOADING_20261102"
+          ],
+          "prs": [
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "src/lib/research/entityHubProjection.js :: parallelNumberReads opt-in (resolveEntityHubNode parallelNumeric)",
+          "src/components/number2029/NumberCore2029.jsx :: materialStatus loading/failed/ready (core shown before material)",
+          "src/lib/research/numberMethodProfileReuse.js :: createNumberMethodProfileReuse({ ttlMs: 30_000, limit: 36 }) used in src/pages/Number2029Page.jsx"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Protected Preview / native-SW measurements only; no Production-specific check found. Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "lab",
+          "before": "390 px first: World->Number useful 8.42 s; number->method 2.95 s; number->phrase 3.55 s; phrase Back 1.09 s",
+          "after": "4.55 s; 1.21 s; 0.90 s; 0.11 s (entity material 8.42 -> 7.19 s); Home useful 5.75 -> 5.39 s but admitted-complete 6.82 -> 7.08 s (regression retained)",
+          "conditions": "native deployed SW, no mocks, 24 cycles / 264 stages, 3 samples per row; useful = actionable DOM, not LCP",
+          "source": "docs/reviews/public-launch-useful-loading-20261102/PERFORMANCE.md"
+        },
+        "guard": [
+          "test/number-method-profile-reuse-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Full journey CLS (Home entry 0.476, Home->post 0.446) not passed in the Nov 1 record; Nov 1 identical-query dedupe code symbol not located on main (unknown).",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F16",
+          "F22"
+        ]
+      },
+      {
+        "id": "S-8",
+        "title_he": "בית: קריאת הכרטיסים הראשית שייכת לנתיב ומתחילה בזמן הורדת הקוד; קוד אופציונלי של הבית נדחה",
+        "problem": "Home primary card request started only after Shell code; Home statically imported traffic/calendar, World/summary projection, Explorer and admin projector code.",
+        "surface": "home",
+        "source": {
+          "task_keys": [
+            "PUBLIC_LAUNCH_USEFUL_LOADING_20261102",
+            "PUBLIC_HOME_JS_CRITICAL_PATH_20261102"
+          ],
+          "prs": [
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "src/App2029.jsx :: HomeEntry2029 -> beginHomeReadingSource({ readCards: ... getHomeLaunchPostCards }) passed as primaryReader",
+          "src/App2029.jsx :: import('./lib/visits.js') only inside the admitted visit branch",
+          "src/components/experience2029/SurfaceContextRail2029.jsx :: GoldenProjectorModeLayer2029 = lazy(...)"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Protected Production-config artifact dpl_BN3p9bEC4mGuUSoMC4BqXfy2PiCy accepted via hosted HTTP + browser (work_log PUBLIC_HOME_JS_CRITICAL_PATH_20261102); not a Production check. Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "lab",
+          "before": "static Home gzip 472,047 B; cold mobile readable title 5.220 s; visible action 5.569 s",
+          "after": "355,102 B; 4.676 s; 5.009 s (first Post 0.717 -> 0.816 s and desktop Number full material 5.641 -> 6.504 s regressions retained)",
+          "conditions": "24 matched journey loops + 24 visible-Home observations, real SW, cold/warm mobile/desktop",
+          "source": "work_log PUBLIC_HOME_JS_CRITICAL_PATH_20261102; docs/reviews/home-js-critical-path-20261102/IMPLEMENTATION.md"
+        },
+        "guard": [
+          "test/home-reading-source-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "test/home-context-code-admission-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "test/home-river-code-admission-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]"
+        ],
+        "open": "All three guard tests exist but none is referenced in .github/workflows; Speed Law shell budget (S-34) now protects the frame, not the Home page graph.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F01",
+          "F12",
+          "F28"
+        ]
+      },
+      {
+        "id": "S-9",
+        "title_he": "גופן IBM Plex Mono החיצוני לא חוסם את הצביעה הראשונה",
+        "problem": "The Google Fonts stylesheet for numeric font blocked 2029 startup.",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "PUBLIC_LAUNCH_USEFUL_LOADING_20261102"
+          ],
+          "prs": [
+            1191
+          ],
+          "merged_via_pr": 1191,
+          "commits": [
+            "71bb76467091ecd920eea92cc5b041c24c8145df"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "2029.html :: <link href='https://fonts.googleapis.com/css2?family=IBM+Plex+Mono...' rel='stylesheet' media='print' onload=\"this.media='all'\"> + noscript fallback"
+        ],
+        "merged": true,
+        "merge_commit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Not separately checked live; the live Home HTML was fetched (own read-only curl of https://sod1820.co.il at 2026-11-17T10:30Z (desktop Chrome UA)) but this specific tag was not asserted. Ancestry rule first satisfied by dpl_xw7fECMyWRrZvxxKdy71yobAhj8h (main 969b51423, 4.11 20:21 UTC). The same code had been served earlier from branch deployments of gpt/2029-public-cutover-final-preparation-20261103 (3-4.11, e.g. dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX = d06cf1ab), which cannot be ancestry-checked because #1191 is a single-parent squash.",
+        "measurement": {
+          "kind": "none",
+          "before": "unknown",
+          "after": "unknown",
+          "conditions": "original commit 6cd64a795 (not an ancestor of main; behaviour arrived via #1191 squash) carried a native-startup script, no before/after numbers on main",
+          "source": "docs/reviews/public-cold-start-20261102 (on commit 6cd64a795 only)"
+        },
+        "guard": [
+          "test/public-reading-production-artifact.test.mjs (asserts media=\"print\") [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Self-hosting IBM Plex Mono remains a recommendation (PERFORMANCE-RECOMMENDATIONS-20261107.md).",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-10",
+        "title_he": "מפת האתר: קריאת דפי ביטויים בשלושה גלים מקבילים ומטמון CDN רק לתשובה קנונית מוצלחת",
+        "problem": "sitemap.xml was read page by page and timed out the 15,000 ms canary; non-canonical/failed answers must not be cached.",
+        "surface": "server",
+        "source": {
+          "task_keys": [
+            "PUBLICATION_FINAL_IMAGES_SITEMAP_ACCEPTANCE_20261104",
+            "SITEMAP_CI_LOCKED_TOOLCHAIN_REPAIR_20261104"
+          ],
+          "prs": [
+            1193
+          ],
+          "merged_via_pr": 1193,
+          "commits": [
+            "a4910bc27a33e58a94cb66098c2e0f883bcf466b"
+          ],
+          "author": "gpt",
+          "head_branch": "gpt/2029-main-live-state-reconcile-20261104"
+        },
+        "code_now": [
+          "api/sitemap.js :: fetchAll(path, { concurrentPages }) width 3 for sitemap_phrases_v1 in production reading",
+          "api/sitemap.js :: Cache-Control 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400'"
+        ],
+        "merged": true,
+        "merge_commit": "a4910bc27a33e58a94cb66098c2e0f883bcf466b",
+        "deployed": true,
+        "deployed_in": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+        "deployed_in_sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+        "deployed_in_created": "2026-11-04T20:21:06Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log COMMUNITY_CALCULATOR_GOOGLE_ROYAL_20261116 (16.11): live sitemap 200, 16,796 URLs, CDN 6 h + SWR 24 h; work_log URL_CONTINUITY_SEO_LEGACY_SITE_20261115: generation cold 6.5-8.5 s, warm 0.35-0.84 s.",
+        "measurement": {
+          "kind": "lab",
+          "before": "canary timeout (15,000 ms) on exact-live d06 sitemap",
+          "after": "cold 6.5-8.5 s, warm 0.35-0.84 s (live, 15.11, after later #1344 too)",
+          "conditions": "live sandbox fetches, not percentiles",
+          "source": "work_log SITEMAP_CI_LOCKED_TOOLCHAIN_REPAIR_20261104; URL_CONTINUITY_SEO_LEGACY_SITE_20261115"
+        },
+        "guard": [
+          "test/public-sitemap-cache-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Cold generation still several seconds; canary first runs failed on cold sitemap more than once (e.g. 2029_RELEASE_20261105_410EAAD1).",
+        "next_owner": "Foundation Closure",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-11",
+        "title_he": "מדידת Web Vitals אנונימית חוברה מחדש באתר החי (RUM)",
+        "problem": "Public Web Vitals RUM and GA4 were disconnected on the canonical domains after the cutover.",
+        "surface": "measurement",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1198
+          ],
+          "merged_via_pr": 1198,
+          "commits": [
+            "11346873d43a358ef308e024275f7018eb800ca5"
+          ],
+          "author": "claude",
+          "head_branch": "gpt/2029-production-observability-reconnect-20261104",
+          "integration_note": "implemented by Claude (Co-Authored-By/Claude-Session in commit 11346873d) on GPT-named branch gpt/2029-production-observability-reconnect-20261104"
+        },
+        "code_now": [
+          "src/lib/webVitals2029.js",
+          "src/lib/publicReadingTelemetry2029.js :: web_vital sample validation",
+          "public-reading-deploy/transport.js"
+        ],
+        "merged": true,
+        "merge_commit": "11346873d43a358ef308e024275f7018eb800ca5",
+        "deployed": true,
+        "deployed_in": "dpl_Ds3PSspTDjTQGEdXK8RPSt4oFZ7s",
+        "deployed_in_sha": "a27d8d06ff72e8ae664c02f0a5bc0bb66dd7a1b5",
+        "deployed_in_created": "2026-11-05T03:31:45Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Own read-only SELECT on public.events (surface='performance', event_type='web_vital'): 1 row on 3.11, 1 on 4.11, 615 on 5.11, 328 on 6.11 — collection resumed on 5.11.",
+        "measurement": {
+          "kind": "field",
+          "before": "1 web_vital row/day (3-4.11)",
+          "after": "hundreds of rows/day from 5.11",
+          "conditions": "row counts only, not a speed measurement",
+          "source": "public.events (read 2026-11-17)"
+        },
+        "guard": [
+          "test/public-reading-observability.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "scripts/test-web-vitals-2029.mjs [exists on origin/main; CI: .github/workflows/2029-isolation-gate.yml]"
+        ],
+        "open": "No device/build/LCP-element until S-43 (16.11); LCP element attribution still missing.",
+        "next_owner": "Traffic Intelligence",
+        "relates_to_groups": [
+          "F19"
+        ]
+      },
+      {
+        "id": "S-12",
+        "title_he": "CLS: אזור התוכן שומר גובה מסך כדי שהפוטר לא יופיע בטעינה + שער CLS לפוסט אמיתי שהנתונים שלו מאחרים",
+        "problem": "At 390 px the footer sat on the first screen while content loaded and then jumped (CLS 0.19-0.26 on topic/books/book/number); real Posts had the worst field CLS with no gate.",
+        "surface": "all",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1220,
+            1226
+          ],
+          "merged_via_pr": 1220,
+          "commits": [
+            "ad2d84c835e9bc108ed2a3224a8e8b1e849e0e73",
+            "f7d047c27e51d8f4da4a8ec6f43072eea360d27b"
+          ],
+          "author": "claude",
+          "head_branch": "claude/footer-cls-20261105"
+        },
+        "code_now": [
+          "src/components/experience2029/footer2029.css :: .sod29-main-stage>.sod29-content{min-height:100dvh}"
+        ],
+        "merged": true,
+        "merge_commit": "f7d047c27e51d8f4da4a8ec6f43072eea360d27b",
+        "deployed": true,
+        "deployed_in": "dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP",
+        "deployed_in_sha": "b0a752c66d10e36d27ade3b9692676d59e8ef834",
+        "deployed_in_created": "2026-11-05T11:20:56Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log 2029_RELEASE_20261105_2500EC56: live real-browser CLS 390/1440 post 0.0012/0.008, books 0.0001/0.0002 (5.11, after b0a752c66/2500ec56).",
+        "measurement": {
+          "kind": "lab",
+          "before": "CLS 0.19-0.26 (/topic/888-yeshua, /books, /book/*, /2029/number/1237); real post with 1.5 s late data 0.2102 (390) / 0.3480 (1440)",
+          "after": "0.0016 / 0.0091 on the gate post",
+          "conditions": "Playwright at 390/1440, production-like build, post reads delayed 1.5 s; budget 0.1 unchanged",
+          "source": "commits ad2d84c83, f7d047c27 (#1220, #1226)"
+        },
+        "guard": [
+          "tests/world2029-release.spec.cjs (CLS gate, 2029-isolation-gate.yml) [exists on origin/main; CI: .github/workflows/2029-isolation-gate.yml]"
+        ],
+        "open": "Field CLS by surface: posts p75 0.008 / other pages 0.051 (14-day field, PR #1365 branch doc) — not an accepted before/after.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-13",
+        "title_he": "CLS: /books ו־/community שומרים את המסך הראשון בזמן הטעינה הראשונה",
+        "problem": "/books rendered its Tanakh tail before the library loaded and /community feed had no reserved height (CLS 0.17-0.26).",
+        "surface": "community",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1223
+          ],
+          "merged_via_pr": 1223,
+          "commits": [
+            "cd2a919753f3250c8e0c43ca030949a9ce318ef7"
+          ],
+          "author": "claude",
+          "head_branch": "claude/cls-books-community-20261105"
+        },
+        "code_now": [
+          "src/components/community2029/CommunityLive2029.jsx",
+          "src/pages/PublicLibraryContinuity2029Page.jsx",
+          "src/pages/community2029.css"
+        ],
+        "merged": true,
+        "merge_commit": "cd2a919753f3250c8e0c43ca030949a9ce318ef7",
+        "deployed": true,
+        "deployed_in": "dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP",
+        "deployed_in_sha": "b0a752c66d10e36d27ade3b9692676d59e8ef834",
+        "deployed_in_created": "2026-11-05T11:20:56Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log 2029_RELEASE_20261105_2500EC56: live CLS community 0/0.0003, books 0.0001/0.0002 at 390/1440 (5.11).",
+        "measurement": {
+          "kind": "lab",
+          "before": "/books 0.1697 (mobile) / 0.2618 (desktop); /community 0.1803 / 0.1721",
+          "after": "0.0004 / 0.0002 and 0 / 0",
+          "conditions": "production-like build with live public reads",
+          "source": "commit cd2a91975 (#1223)"
+        },
+        "guard": [
+          "tests/world2029-release.spec.cjs (hard-isolation CLS budget tests, per commit message) [exists on origin/main; CI: .github/workflows/2029-isolation-gate.yml]"
+        ],
+        "open": "Community field CLS still > 0.1 in 196 of 1,004 loads (7 days, PR #1373 body) — addressed further by S-44.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-14",
+        "title_he": "אווטארים: עותק קטן 160px במקום הקובץ המקורי (3.77MB) + חריגה ב־service worker לעותקים",
+        "problem": "Public avatars were served as originals (a 3.77 MB animated GIF, no-cache); rendition URLs then failed in the service worker (net::ERR_FAILED).",
+        "surface": "community",
+        "source": {
+          "task_keys": [
+            "2029_RELEASE_20261105_2500EC56"
+          ],
+          "prs": [
+            1227,
+            1229
+          ],
+          "merged_via_pr": 1227,
+          "commits": [
+            "33d9b379379737ea88b85b3cb1982c42d8f62f17",
+            "2500ec56065354572e33cbdebde0482d84b2195c"
+          ],
+          "author": "claude",
+          "head_branch": "claude/avatar-weight-20261105"
+        },
+        "code_now": [
+          "src/lib/avatar.js :: STORAGE_RENDER '/storage/v1/render/image/public/' with resize=contain",
+          "public-reading-deploy/transport.js :: rendition exemption for media/gallery/magar width/height/resize/quality"
+        ],
+        "merged": true,
+        "merge_commit": "2500ec56065354572e33cbdebde0482d84b2195c",
+        "deployed": true,
+        "deployed_in": "dpl_4aihnmkHhEHuh2oJjXVziRP5ZLwu",
+        "deployed_in_sha": "2500ec56065354572e33cbdebde0482d84b2195c",
+        "deployed_in_created": "2026-11-05T11:58:39Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log 2029_RELEASE_20261105_2500EC56 (5.11): on /community the only avatar request is the render URL, 200 image/webp 207,480 B; the raw 3,861,429 B GIF is no longer requested.",
+        "measurement": {
+          "kind": "lab",
+          "before": "/community images 3,813 KB (page 5,603 KB); /post images 938 KB",
+          "after": "245 KB (page 2,037 KB); 330 KB",
+          "conditions": "production-like build, bytes",
+          "source": "commit 33d9b3793 (#1227); work_log 2029_RELEASE_20261105_2500EC56"
+        },
+        "guard": [
+          "src/lib/avatar.test.js [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/public-reading-production-artifact.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "None recorded.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F23"
+        ]
+      },
+      {
+        "id": "S-15",
+        "title_he": "שער CI: Realtime נשאר מחוץ לחבילת הכניסה (perf-contracts-2029)",
+        "problem": "The Realtime entry-split speed contract existed but ran in no workflow; it found a dynamic SDK import in accountLink.js.",
+        "surface": "build",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1228
+          ],
+          "merged_via_pr": 1228,
+          "commits": [
+            "b0a752c66d10e36d27ade3b9692676d59e8ef834"
+          ],
+          "author": "claude",
+          "head_branch": "claude/perf-contracts-wiring-20261105"
+        },
+        "code_now": [
+          ".github/workflows/live-contracts-2029.yml :: job perf-contracts-2029",
+          "src/lib/accountLink.js :: static SDK import"
+        ],
+        "merged": true,
+        "merge_commit": "b0a752c66d10e36d27ade3b9692676d59e8ef834",
+        "deployed": true,
+        "deployed_in": "dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP",
+        "deployed_in_sha": "b0a752c66d10e36d27ade3b9692676d59e8ef834",
+        "deployed_in_created": "2026-11-05T11:20:56Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Build/CI gate, not a runtime behaviour: the job is referenced in .github/workflows/live-contracts-2029.yml; b0a752c66 itself was deployed and its alias read back (work_log 2029_RELEASE_20261105_B0A752C66). The live entry chunk was not inspected for Phoenix.",
+        "measurement": {
+          "kind": "budget",
+          "before": "contract ran nowhere",
+          "after": "14/14 with build; mutations fail the contract",
+          "conditions": "CI gate",
+          "source": "commit b0a752c66 (#1228)"
+        },
+        "guard": [
+          "test/realtime-entry-split-2029.test.mjs (perf-contracts-2029) [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "None.",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F08",
+          "F20"
+        ]
+      },
+      {
+        "id": "S-16",
+        "title_he": "בית המדרש: הפסים לא גוללים את הדף בפתיחה (CLS 0.66 -> 0)",
+        "problem": "scrollIntoView on mount scrolled /beit-midrash ~2300 px down and shifted sections (CLS 0.66 at 390).",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "2029_RELEASE_20261105_2500EC56"
+          ],
+          "prs": [
+            1229
+          ],
+          "merged_via_pr": 1229,
+          "commits": [
+            "2500ec56065354572e33cbdebde0482d84b2195c"
+          ],
+          "author": "claude",
+          "head_branch": "claude/handoff-5-11-2026-continuation-wvkvmh"
+        },
+        "code_now": [
+          "src/components/beitMidrash2029/centerInRail.js :: centerInRail (used by BeitMidrashIllustrations.jsx / BeitMidrashMethods.jsx)"
+        ],
+        "merged": true,
+        "merge_commit": "2500ec56065354572e33cbdebde0482d84b2195c",
+        "deployed": true,
+        "deployed_in": "dpl_4aihnmkHhEHuh2oJjXVziRP5ZLwu",
+        "deployed_in_sha": "2500ec56065354572e33cbdebde0482d84b2195c",
+        "deployed_in_created": "2026-11-05T11:58:39Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log 2029_RELEASE_20261105_2500EC56: live cold first visit CLS 0.0000 (3/3 at 390, 2/2 at 1440), scrollY stays 0.",
+        "measurement": {
+          "kind": "lab",
+          "before": "CLS 0.66 (390) / 0.074 (1440), self-scroll ~2300 px",
+          "after": "CLS 0, scrollY 0",
+          "conditions": "local production-like build + live verification",
+          "source": "commit 2500ec560 (#1229)"
+        },
+        "guard": [
+          "test/beit-midrash-rail-no-page-scroll-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "tests/world2029-release.spec.cjs [exists on origin/main; CI: .github/workflows/2029-isolation-gate.yml]"
+        ],
+        "open": "None.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-17",
+        "title_he": "דף המספר: קריאות ערכים במקביל לחיפוש הצומת וקריאה אחת של fn_number_lookup",
+        "problem": "Number page read values after the node lookup and called fn_number_lookup twice.",
+        "surface": "number",
+        "source": {
+          "task_keys": [
+            "2029_NUMBER_PAGE_SPEED_20261105",
+            "2029_MAIN_SESSION_NUMBER_MERGE_AND_1235_VERIFY_20261105"
+          ],
+          "prs": [
+            1238
+          ],
+          "merged_via_pr": 1238,
+          "commits": [
+            "3d81716afc13aa8e2ead65c19d31a0429ecf6f0d"
+          ],
+          "author": "claude",
+          "head_branch": "claude/handoff-5-11-2026-continuation-wvkvmh"
+        },
+        "code_now": [
+          "src/lib/research/entityHubProjection.js :: speculative parallel number reads",
+          "src/lib/research/entityGraphFinding.js :: anchor reuse",
+          "src/lib/supabase.js :: shared fn_number_lookup"
+        ],
+        "merged": true,
+        "merge_commit": "3d81716afc13aa8e2ead65c19d31a0429ecf6f0d",
+        "deployed": true,
+        "deployed_in": "dpl_EDc7PpuMp4vkuJuSbwh1gKQ5QSTV",
+        "deployed_in_sha": "410eaad1751a694b9157ccaa4023edfdd26cf7ec",
+        "deployed_in_created": "2026-11-05T15:42:36Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Deployed with 410eaad17 (work_log 2029_RELEASE_20261105_410EAAD1); no Number-specific live timing check found.",
+        "measurement": {
+          "kind": "lab",
+          "before": "66 DB requests, 889 KB decoded payload; number at y=493 px (390)",
+          "after": "64 requests, 667 KB (-25%; -39% on /number/100); y=420 px; desktop data ready -452..-789 ms (4 sessions)",
+          "conditions": "local production-like build; mobile not consistent (median -100/-78 ms), no mobile gain claimed",
+          "source": "docs/reviews/number-page-speed-20261105/; commit 3d81716af"
+        },
+        "guard": [
+          "test/number-projection-shared-reads-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/entity-graph-anchor-reuse-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/number-mobile-first-screen-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Server-side Number projection is a proposal only.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F22"
+        ]
+      },
+      {
+        "id": "S-18",
+        "title_he": "בית: תמונת האווירה של הבית מתבקשת כבר בזמן מודול הכניסה (חלון CDN למסמך הבית נוסה והוסר)",
+        "problem": "Home hero atmosphere was a CSS background discovered only after the Home chunk rendered (last LCP candidate on slow links).",
+        "surface": "home",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1249,
+            1251
+          ],
+          "merged_via_pr": 1249,
+          "commits": [
+            "c22fcc7890cf04cc417e54700724e9bf37a4d9a9",
+            "a3e6b737f02b82c57b2a3bcac6189d8b994b34c4"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-70e97c56-9enioh"
+        },
+        "code_now": [
+          "src/lib/homeAtmospherePreload2029.js :: homeAtmospherePreloadHref (imported by src/main2029.jsx)"
+        ],
+        "merged": true,
+        "merge_commit": "c22fcc7890cf04cc417e54700724e9bf37a4d9a9",
+        "deployed": true,
+        "deployed_in": "dpl_Fnz5Ax9ARZhs2eBxR2L3Qseae5qP",
+        "deployed_in_sha": "c22fcc7890cf04cc417e54700724e9bf37a4d9a9",
+        "deployed_in_created": "2026-11-06T02:14:40Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Hero preload not checked live. The Home document CDN window from the same PR was checked live: x-vercel-cache MISS age 0 twice, so #1251 removed it (commit a3e6b737f).",
+        "measurement": {
+          "kind": "none",
+          "before": "unknown",
+          "after": "unknown",
+          "conditions": "no timing recorded on main",
+          "source": "commits c22fcc789, a3e6b737f"
+        },
+        "guard": [
+          "test/home-atmosphere-preload-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]"
+        ],
+        "open": "Guard not referenced in .github/workflows; no measured LCP effect; document CDN caching remains open (Step 3 in work_log SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116).",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-19",
+        "title_he": "חבילת ביקורת 8.11: קיצוץ JS בטעינה ראשונה (מדיניות קישורים וטענות Golden מחוץ למעטפת) + שער גרף טעינה ראשונה",
+        "problem": "Contributor link policy and golden-post claim helpers were pulled into the always-loaded shell by static imports.",
+        "surface": "all",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1262
+          ],
+          "merged_via_pr": 1262,
+          "commits": [
+            "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c"
+          ],
+          "author": "claude",
+          "head_branch": "claude/sod1820-audit-rc-g93w32"
+        },
+        "code_now": [
+          "scripts/test-2029-first-load-graph.mjs (keeps heavy modules out of the shell)",
+          "src/components/contributor2029/contributorLinkPolicy2029.js",
+          "src/lib/research/goldenPostPackClaims.js"
+        ],
+        "merged": true,
+        "merge_commit": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+        "deployed": true,
+        "deployed_in": "dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz",
+        "deployed_in_sha": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+        "deployed_in_created": "2026-11-08T00:27:41Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No live check of route JS bytes found; archaeology in PR #1365 (branch-only doc) lists it as LIVE by reading the code.",
+        "measurement": {
+          "kind": "lab",
+          "before": "first-load JS: / 464,399 B; /post/<slug> 417,077 B; /world 503,255 B",
+          "after": "433,098 B; 369,822 B; 445,867 B (-31.3/-47.3/-57.4 KB brotli)",
+          "conditions": "exact bytes, cold, SW active, 390 px; reviewer re-measured within 8-16 B",
+          "source": "docs/reviews/audit-remediation-20261106/PERFORMANCE-PASS-20261107.md §2"
+        },
+        "guard": [
+          "scripts/test-2029-first-load-graph.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "scripts/test-2029-built-graph.mjs [exists on origin/main; CI: .github/workflows/2029-isolation-gate.yml]"
+        ],
+        "open": "Three routes outside the audited nine paid a few KB (disclosed in the doc).",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-20",
+        "title_he": "חבילת ביקורת 8.11: שיתוף קריאות זהות וזיכרון קצר לקריאות אנונימיות; תיקון לולאת Method Lens; זרם המסגרת פעם ב־30 שניות",
+        "problem": "Method Lens refetch loop (1,365 API requests in 5 s); duplicate identical reads across navigations; global frame stream refetched on every navigation.",
+        "surface": "all",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1262
+          ],
+          "merged_via_pr": 1262,
+          "commits": [
+            "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c"
+          ],
+          "author": "claude",
+          "head_branch": "claude/sod1820-audit-rc-g93w32"
+        },
+        "code_now": [
+          "src/lib/readDedupe.js :: sharedReadDedupe (in-flight sharing + anonymous-only TTL memo, explicit RPC list)",
+          "src/lib/supabase.js :: global.fetch = readDedupe.fetch",
+          "src/components/gematria2029/MethodLens2029.jsx"
+        ],
+        "merged": true,
+        "merge_commit": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+        "deployed": true,
+        "deployed_in": "dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz",
+        "deployed_in_sha": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+        "deployed_in_created": "2026-11-08T00:27:41Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No live request-count check found.",
+        "measurement": {
+          "kind": "lab",
+          "before": "Method Lens: 1,365 requests / 5 s, 675 ms long tasks, evidence visible 17,977 ms; 4-page walk 72 requests (16 duplicates); 5 navigations 81 requests",
+          "after": "29 requests, 0 ms, 1,278 ms; 54 (0 duplicates); 47",
+          "conditions": "lab medians, headless Chromium 141, CDP throttling, public-row fixtures",
+          "source": "docs/reviews/audit-remediation-20261106/PERFORMANCE-PASS-20261107.md §3"
+        },
+        "guard": [
+          "src/lib/readDedupe.test.js [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/supabase-client-read-dedupe.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Memo has no per-entry byte cap (doc §8).",
+        "next_owner": "Foundation Closure",
+        "relates_to_groups": [
+          "F01",
+          "F18"
+        ]
+      },
+      {
+        "id": "S-21",
+        "title_he": "חבילת ביקורת 8.11: מטענים קטנים יותר — התכנסות נושאים באצווה, השלמת בולטות בעולם, דופק הבית, עמודות מפורשות לפוסט",
+        "problem": "Topic convergence made 156 requests for 41 slugs; World prominence supplement 144-192 KB; Home pulse 7 requests incl. 4 exact counts; getPostBySlug select * (42 columns).",
+        "surface": "all",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1262
+          ],
+          "merged_via_pr": 1262,
+          "commits": [
+            "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c"
+          ],
+          "author": "claude",
+          "head_branch": "claude/sod1820-audit-rc-g93w32"
+        },
+        "code_now": [
+          "src/lib/research/topicConvergence.js",
+          "src/lib/research/worldProminenceInputs.js",
+          "src/lib/research/home2029Projection.js",
+          "src/lib/postReaderColumns.js :: POST_READER_SELECT (used in src/lib/supabase.js .select(POST_READER_SELECT))"
+        ],
+        "merged": true,
+        "merge_commit": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+        "deployed": true,
+        "deployed_in": "dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz",
+        "deployed_in_sha": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+        "deployed_in_created": "2026-11-08T00:27:41Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No live check found.",
+        "measurement": {
+          "kind": "lab",
+          "before": "convergence 156 requests (41 slugs) / 28 (/number/1820); prominence 144,608 / 191,819 B; pulse 7 requests; 42 post columns",
+          "after": "6 / 4 requests; 6,625 / 5,599 B; 5 requests; 30 columns (~-1.5 KB per post view)",
+          "conditions": "lab counts",
+          "source": "docs/reviews/audit-remediation-20261106/PERFORMANCE-PASS-20261107.md §3"
+        },
+        "guard": [
+          "src/lib/research/topicConvergenceBatch.test.js [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "src/lib/research/worldProminenceInputs.test.js [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "src/lib/research/home2029Pulse.test.js [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "src/lib/postReaderColumns.test.js [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "None recorded.",
+        "next_owner": "Foundation Closure",
+        "relates_to_groups": [
+          "F12",
+          "F26"
+        ]
+      },
+      {
+        "id": "S-22",
+        "title_he": "חבילת ביקורת 8.11: modulepreload לכניסה, preconnect ל־Supabase, כריכת פוסט eager+high, הסתרת הפוטר בזמן מסך טעינה",
+        "problem": "Entry chunk discovered late; Supabase connection setup on the critical path; /post was the only route group over CLS 0.1 in the field (footer shift).",
+        "surface": "all",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1262
+          ],
+          "merged_via_pr": 1262,
+          "commits": [
+            "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c"
+          ],
+          "author": "claude",
+          "head_branch": "claude/sod1820-audit-rc-g93w32"
+        },
+        "code_now": [
+          "scripts/build-public-reading-production.mjs :: <link rel=\"modulepreload\" crossorigin> before the bootstrap",
+          "2029.html :: <link rel=\"preconnect\" href=\"https://linswmnnkjxvweumprav.supabase.co\">",
+          "src/pages/Post2029Page.jsx :: CanonicalMediaFigure2029 primary loading=\"eager\" fetchPriority=\"high\"",
+          "src/components/experience2029/footer2029.css :: .sod29-root:has(... .sod-canonical-progress:only-child) .f29{display:none}"
+        ],
+        "merged": true,
+        "merge_commit": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+        "deployed": true,
+        "deployed_in": "dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz",
+        "deployed_in_sha": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+        "deployed_in_created": "2026-11-08T00:27:41Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "own read-only curl of https://sod1820.co.il at 2026-11-17T10:30Z (desktop Chrome UA): live Home HTML has rel=modulepreload for /assets/2029-CNp2F-eD.js and rel=preconnect to the Supabase host; sourceSha 2011226fe. Cover priority and footer rule not checked live.",
+        "measurement": {
+          "kind": "lab",
+          "before": "/post return visit CLS 1.167 (390) / 0.947 (1440); slow-4G ready / 3732 ms, /post 4019 ms, /world 4602 ms",
+          "after": "0.212 / 0.032; 3590 / 3820 / 4253 ms (whole RC A/B, 7/7 pairs)",
+          "conditions": "lab, N=7 interleaved, Slow 4G 150 ms/1.6 Mbps/CPU x4, 390 px, SW active; entry preload alone: time-to-app -94 ms (p=0.010), LCP -46 ms n.s.",
+          "source": "docs/reviews/audit-remediation-20261106/PERFORMANCE-PASS-20261107.md §4-5"
+        },
+        "guard": [
+          "test/shell-supabase-preconnect-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/footer-loading-cls-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Doc §8: entry preload and :has() footer rule need RUM validation; Chromium only.",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F01",
+          "F23",
+          "F34"
+        ]
+      },
+      {
+        "id": "S-23",
+        "title_he": "צביעה ראשונה: מעטפת פתיחה מלכותית ב־2029.html במקום מסך ריק",
+        "problem": "First paint showed nothing meaningful until the React app mounted.",
+        "surface": "all",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1272
+          ],
+          "merged_via_pr": 1272,
+          "commits": [
+            "b3347131016ce8e58214b849f3f11951ab3077dc"
+          ],
+          "author": "claude",
+          "head_branch": "claude/sod1820-first-paint-royal-shell-g93w32"
+        },
+        "code_now": [
+          "2029.html :: opening2029.css shell",
+          "src/components/experience2029/Opening2029.jsx",
+          "src/components/experience2029/Awakening2029.jsx"
+        ],
+        "merged": true,
+        "merge_commit": "b3347131016ce8e58214b849f3f11951ab3077dc",
+        "deployed": true,
+        "deployed_in": "dpl_Cf3GhwPoLeeQLQEu7daDidps1ViH",
+        "deployed_in_sha": "b3347131016ce8e58214b849f3f11951ab3077dc",
+        "deployed_in_created": "2026-11-08T04:38:11Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No live check found.",
+        "measurement": {
+          "kind": "none",
+          "before": "unknown",
+          "after": "unknown",
+          "conditions": "perceived-performance change, no timing on main",
+          "source": "commit b33471310 (#1272)"
+        },
+        "guard": [
+          "scripts/test-2029-opening-shell.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "test/awakening-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]"
+        ],
+        "open": "scripts/test-2029-opening-shell.mjs and test/awakening-2029.test.mjs are not referenced in .github/workflows.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-24",
+        "title_he": "מדיה ציבורית: ה־worker מעביר תמונות/וידאו/אודיו ציבוריים בטעינה מקורית (Range, הפניות, מטמון HTTP)",
+        "problem": "The public-reading worker rebuilt public media GETs with redirect=error, failing every no-cors media request (no load, no Range/cache).",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SW_TRANSPORT_MEDIA_MAP_20261110"
+          ],
+          "prs": [
+            1299
+          ],
+          "merged_via_pr": 1299,
+          "commits": [
+            "932aba4bdd8eaa7030c57932ce9606f9ca5ebe18"
+          ],
+          "author": "claude",
+          "head_branch": "fix/or-geula-video-sw-bypass"
+        },
+        "code_now": [
+          "src/lib/mediaEgressGuard.js :: PUBLIC_STORAGE_MEDIA_V1",
+          "public-reading-deploy/transport.js"
+        ],
+        "merged": true,
+        "merge_commit": "932aba4bdd8eaa7030c57932ce9606f9ca5ebe18",
+        "deployed": true,
+        "deployed_in": "dpl_HnswhFsyHPK2aSKxLN9nak3r2BKL",
+        "deployed_in_sha": "932aba4bdd8eaa7030c57932ce9606f9ca5ebe18",
+        "deployed_in_created": "2026-11-10T23:58:07Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log SW_TRANSPORT_MEDIA_MAP_20261110 AFTER_DEPLOYED_LIVE_VERIFIED_CANARY_PASSED (11.11 00:08 UTC): dpl_HnswhFsyHPK2aSKxLN9nak3r2BKL from exact 932aba4; candidate browser acceptance 32/32 (video play+seek with 206, WhatsApp images, old-post video/audio, reload, worker upgrade) before the alias move; canary passed.",
+        "measurement": {
+          "kind": "none",
+          "before": "media requests failed (net::ERR_FAILED)",
+          "after": "native load with Range/206 (browser test and pre-alias candidate acceptance 32/32)",
+          "conditions": "functional fix",
+          "source": "commit 932aba4bd (#1299)"
+        },
+        "guard": [
+          "test/public-media-transport-2029.browser.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Mainly a failure fix; no timing measured.",
+        "next_owner": "Foundation Closure",
+        "relates_to_groups": [
+          "F23"
+        ]
+      },
+      {
+        "id": "S-25",
+        "title_he": "מפת האתר: שימוש חוזר בשורות הפוסטים הציבוריות במקום קריאה חוזרת; סרטונים במקביל",
+        "problem": "Sitemap re-read the same admitted posts in batches for video admission and ran two pagers sequentially; release canary timed out at 15,000 ms on /sitemap.xml.",
+        "surface": "server",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1344
+          ],
+          "merged_via_pr": 1344,
+          "commits": [
+            "4b9a8687eea94afcf2466046708903b512d44f38"
+          ],
+          "author": "codex",
+          "head_branch": "codex/sitemap-source-reuse-20261114"
+        },
+        "code_now": [
+          "api/sitemap.js :: publicPostsById map reused for posts in.(...) reads; videoDiscovery started together with the post census"
+        ],
+        "merged": true,
+        "merge_commit": "4b9a8687eea94afcf2466046708903b512d44f38",
+        "deployed": true,
+        "deployed_in": "dpl_C5DBLrWYhELPFDDUaVRJs5W1T6Wj",
+        "deployed_in_sha": "4b9a8687eea94afcf2466046708903b512d44f38",
+        "deployed_in_created": "2026-11-14T23:39:17Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log URL_CONTINUITY_SEO_LEGACY_SITE_20261115 (live dpl_C5DBL = 4b9a8687e): sitemap generation cold 6.5-8.5 s, warm 0.35-0.84 s, 16,790 URLs.",
+        "measurement": {
+          "kind": "lab",
+          "before": "40 requests; 10,053 / 7,907 ms",
+          "after": "28 requests; 6,982 / 5,550 ms",
+          "conditions": "two diagnostic pairs from the execution workspace, not hosted percentiles",
+          "source": "docs/reviews/sitemap-source-reuse-20261114/README.md"
+        },
+        "guard": [
+          "test/sitemap-source-reuse-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Cold sitemap still 6.5-8.5 s.",
+        "next_owner": "Foundation Closure",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-26",
+        "title_he": "פוסט: רקע הפוסט מתחיל לרדת מיד כשהמקור אושר",
+        "problem": "Post background (often the LCP element) started downloading only after canonical calculations (~2,071 ms).",
+        "surface": "post",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1345
+          ],
+          "merged_via_pr": 1345,
+          "commits": [
+            "3843af126f21ae58cf033fe808eaa2821b7a3362"
+          ],
+          "author": "codex",
+          "head_branch": "codex/post-speed-measurement-20261115"
+        },
+        "code_now": [
+          "src/lib/research/postBackground2029.js :: preloadPostBackground2029",
+          "src/lib/research/post2029ReadingProjection.js :: preloadPostBackground2029(publicPost) when !sourceInvitation"
+        ],
+        "merged": true,
+        "merge_commit": "3843af126f21ae58cf033fe808eaa2821b7a3362",
+        "deployed": true,
+        "deployed_in": "dpl_5zVyxXPYNf7tH4jaovi7C4So2FEf",
+        "deployed_in_sha": "fec22ca072ce48114beab161988620d47b7392b8",
+        "deployed_in_created": "2026-11-15T05:10:37Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No live check found.",
+        "measurement": {
+          "kind": "lab",
+          "before": "backdrop request at 2,071 ms; LCP 2,428 ms (the background)",
+          "after": "unknown (doc reports controlled before/after; not extracted here)",
+          "conditions": "headless Chromium 390 px, single observations",
+          "source": "docs/reviews/post-speed-measurement-20261115/README.md"
+        },
+        "guard": [
+          "test/post-background-preload-20261115.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "No field effect measured.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F34"
+        ]
+      },
+      {
+        "id": "S-27",
+        "title_he": "פוסט: העשרות בלתי תלויות (אימותים, סיפור, חבילת הקשר) רצות במקביל",
+        "problem": "fetchPost2029ReadingProjection awaited independent verifications and the context pack serially.",
+        "surface": "post",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1346
+          ],
+          "merged_via_pr": 1346,
+          "commits": [
+            "c752b0014a1ba288e314be9fad66a6af6f52e2cc"
+          ],
+          "author": "codex",
+          "head_branch": "codex/post-projection-parallel-20261115"
+        },
+        "code_now": [
+          "src/lib/research/post2029ReadingProjection.js :: contextPackResult = Promise.allSettled([...]) + Promise.all of verifications"
+        ],
+        "merged": true,
+        "merge_commit": "c752b0014a1ba288e314be9fad66a6af6f52e2cc",
+        "deployed": true,
+        "deployed_in": "dpl_CLXTnXF5de1PN1STtajXghtnhyVU",
+        "deployed_in_sha": "c752b0014a1ba288e314be9fad66a6af6f52e2cc",
+        "deployed_in_created": "2026-11-15T05:56:44Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No live check found.",
+        "measurement": {
+          "kind": "lab",
+          "before": "Bennett focus + story 502 ms",
+          "after": "251 ms (FZ1073 chain unchanged 502 ms)",
+          "conditions": "controlled fixture, each simulated I/O 250 ms, 3 alternating pairs",
+          "source": "docs/reviews/post-projection-parallel-20261115/README.md"
+        },
+        "guard": [
+          "test/post-projection-parallel-20261115.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Applies only to Posts with those enrichments.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F34"
+        ]
+      },
+      {
+        "id": "S-28",
+        "title_he": "הפניות: 496 הפניות מפורשות מגיעות ליעד בקפיצה אחת",
+        "problem": "496 of 589 explicit redirects ended with '/', triggering a second (sometimes third) 308 hop.",
+        "surface": "server",
+        "source": {
+          "task_keys": [
+            "URL_CONTINUITY_SEO_LEGACY_SITE_20261115"
+          ],
+          "prs": [
+            1355
+          ],
+          "merged_via_pr": 1355,
+          "commits": [
+            "fec22ca072ce48114beab161988620d47b7392b8"
+          ],
+          "author": "claude",
+          "head_branch": "codex/url-release-client-parity-20261115",
+          "integration_note": "implemented by Claude (commit trailers), integrated by Codex on codex/url-release-client-parity-20261115"
+        },
+        "code_now": [
+          "public-reading-deploy/vercel.json :: redirects destinations without trailing slash"
+        ],
+        "merged": true,
+        "merge_commit": "fec22ca072ce48114beab161988620d47b7392b8",
+        "deployed": true,
+        "deployed_in": "dpl_5zVyxXPYNf7tH4jaovi7C4So2FEf",
+        "deployed_in_sha": "fec22ca072ce48114beab161988620d47b7392b8",
+        "deployed_in_created": "2026-11-15T05:10:37Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No post-deploy redirect hop check found.",
+        "measurement": {
+          "kind": "none",
+          "before": "2-3 hops (5 x 2 hops, 1 x 3 on known URLs)",
+          "after": "1 hop (by construction)",
+          "conditions": "config analysis",
+          "source": "commit fec22ca07 (#1355)"
+        },
+        "guard": [
+          "test/public-redirect-single-hop-20261115.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Mainly an SEO fix; latency saving not measured.",
+        "next_owner": "Foundation Closure",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-29",
+        "title_he": "מסמך פוסט ישן: שני הכתיבים של הכתובת בבקשה אחת (slug=in.(a,b))",
+        "problem": "api/og.js asked for the decoded slug and only after an empty answer for the encoded form (790 of 1,323 posts) — one extra iad1->Tokyo round trip.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "POST_MOBILE_SPEED_PACKAGE_20261115"
+          ],
+          "prs": [
+            1360,
+            1366
+          ],
+          "merged_via_pr": 1366,
+          "commits": [
+            "d1f1e3252100afe14719a4eeb96c791dd29b7d51"
+          ],
+          "author": "claude",
+          "head_branch": "codex/post-foundation-base-20261115",
+          "integration_note": "implemented by Claude (draft #1360), integrated by Codex in #1366 on codex/post-foundation-base-20261115"
+        },
+        "code_now": [
+          "api/og.js :: readRows(`slug=${encodeURIComponent('in.(' + list + ')')}`, 2)"
+        ],
+        "merged": true,
+        "merge_commit": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+        "deployed": true,
+        "deployed_in": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU",
+        "deployed_in_sha": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+        "deployed_in_created": "2026-11-15T22:00:42Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "docs/reviews/post-edge-lookup-20261116/README.md: live check 16.11 of the released packages — old posts O3/O4 server wait medians 348 / 329 ms vs 770 / 1,056 ms on 15.11 (n=5 each, noisy).",
+        "measurement": {
+          "kind": "lab",
+          "before": "two sequential reads",
+          "after": "cold -236 / -278 ms (O1/O3), warm -193..-214 ms",
+          "conditions": "server, real network, n=8 interleaved (work_log POST_MOBILE_SPEED_PACKAGE_20261115 AFTER)",
+          "source": "work_log POST_MOBILE_SPEED_PACKAGE_20261115; docs/reviews/post-edge-lookup-20261116/README.md"
+        },
+        "guard": [
+          "test/post-document-slug-variants-20261115.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Document still no-store and dynamic; document CDN caching undecided.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-30",
+        "title_he": "קבצים סטטיים: מטמון לגופנים, תמונות מותג ו־12 רקעי פוסט בקונפיג שבאמת נפרס",
+        "problem": "Fonts (~73 KB preloaded by every document), brand images and Post backgrounds were served no-store in Production because the rules lived only in root vercel.json.",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "POST_MOBILE_SPEED_PACKAGE_20261115"
+          ],
+          "prs": [
+            1362,
+            1366
+          ],
+          "merged_via_pr": 1366,
+          "commits": [
+            "d1f1e3252100afe14719a4eeb96c791dd29b7d51"
+          ],
+          "author": "claude",
+          "head_branch": "codex/post-foundation-base-20261115",
+          "integration_note": "implemented by Claude (draft #1362), integrated by Codex in #1366"
+        },
+        "code_now": [
+          "public-reading-deploy/vercel.json :: headers for 12 versioned backgrounds (public, max-age=31536000, immutable), /fonts/(named files) max-age=604800 swr=86400, /brand/2029/(named files) max-age=86400 swr=604800"
+        ],
+        "merged": true,
+        "merge_commit": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+        "deployed": true,
+        "deployed_in": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU",
+        "deployed_in_sha": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+        "deployed_in_created": "2026-11-15T22:00:42Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "own read-only curl of https://sod1820.co.il at 2026-11-17T10:30Z (desktop Chrome UA): /fonts/Rubik-Hebrew-Common.woff2 -> 'public, max-age=604800, stale-while-revalidate=86400' (x-vercel-cache HIT); /legacy-dark-bg-post-720-8f3a91ae32df.webp -> 'public, max-age=31536000, immutable'; /brand/2029/app-icon-3f8a2a2fdc0a.png -> 'public, max-age=86400, stale-while-revalidate=604800'. Also PR #1366 body: headers verified live after release.",
+        "measurement": {
+          "kind": "none",
+          "before": "no-store on every hard load",
+          "after": "cacheable (headers)",
+          "conditions": "header check; no timing",
+          "source": "PR #1366 body; own live check 2026-11-17"
+        },
+        "guard": [
+          "test/public-static-asset-cache-20261115.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Brand app-icon is 1.85 MB (observed live) — size, not cache, is the remaining cost.",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-31",
+        "title_he": "פוסט בכתובת המקורית (/<slug>): קריאת המקור מתחילה יחד עם הורדת קוד הדף",
+        "problem": "/:slug (568 of 968 post loads, slowest LCP/TTFB in the field) began its source read only after the whole page graph mounted.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "POST_MOBILE_SPEED_PACKAGE_20261115"
+          ],
+          "prs": [
+            1361,
+            1366
+          ],
+          "merged_via_pr": 1366,
+          "commits": [
+            "d1f1e3252100afe14719a4eeb96c791dd29b7d51"
+          ],
+          "author": "claude",
+          "head_branch": "codex/post-foundation-base-20261115",
+          "integration_note": "implemented by Claude (draft #1361), integrated by Codex in #1366"
+        },
+        "code_now": [
+          "src/App2029.jsx :: PublicPostAddressEntry2029 -> beginPostReadingSource(slug); <Route path=\"/:slug\" element={<PublicPostAddressEntry2029 />} />"
+        ],
+        "merged": true,
+        "merge_commit": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+        "deployed": true,
+        "deployed_in": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU",
+        "deployed_in_sha": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+        "deployed_in_created": "2026-11-15T22:00:42Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No behaviour-specific live check found (superseded for proven Posts by article-first S-38 the next day).",
+        "measurement": {
+          "kind": "lab",
+          "before": "baseline",
+          "after": "O1 -333 ms, O3 -257 ms (p<0.01); new posts unchanged",
+          "conditions": "Slow 4G + 4x CPU lab",
+          "source": "work_log POST_MOBILE_SPEED_PACKAGE_20261115 AFTER"
+        },
+        "guard": [
+          "test/post-root-address-entry-20261115.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/post-root-address-early-read-20261115.browser.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Signed-in visitor's read still waits for the account check (RG10).",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F01",
+          "F34"
+        ]
+      },
+      {
+        "id": "S-32",
+        "title_he": "חזרה למיקום הגלילה בין דפים (מעבר קדימה מתחיל למעלה; אחורה משחזר גם אחרי תוכן מאוחר)",
+        "problem": "SPA navigation kept the old scroll offset (e.g. y=1346 on /contact); no global restorer for Back with late content (F03).",
+        "surface": "all",
+        "source": {
+          "task_keys": [],
+          "prs": [
+            1367
+          ],
+          "merged_via_pr": 1367,
+          "commits": [
+            "21ce4c94d5388d006c0940a1da48360ff350cfc9"
+          ],
+          "author": "codex",
+          "head_branch": "codex/global-route-scroll-20261116"
+        },
+        "code_now": [
+          "src/components/experience2029/RouteScrollReset2029.jsx"
+        ],
+        "merged": true,
+        "merge_commit": "21ce4c94d5388d006c0940a1da48360ff350cfc9",
+        "deployed": true,
+        "deployed_in": "dpl_4i7djNA8y61CN6iiskzdPDmHWFmP",
+        "deployed_in_sha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+        "deployed_in_created": "2026-11-16T01:10:01Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No live check found.",
+        "measurement": {
+          "kind": "none",
+          "before": "y=1346 after footer link to /contact",
+          "after": "y=0",
+          "conditions": "local browser with complete public-read fixtures, 390x844",
+          "source": "docs/reviews/route-scroll-reset-20261116/README.md"
+        },
+        "guard": [
+          "test/route-scroll-reset-2029.browser.test.mjs (route-navigation-2029.yml) [exists on origin/main; CI: .github/workflows/route-navigation-2029.yml]"
+        ],
+        "open": "Navigation correctness, not a speed fix; included because it closes perf-map group F03.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F03"
+        ]
+      },
+      {
+        "id": "S-33",
+        "title_he": "מסמך פוסט: דפדפן לא מחכה לבדיקת קיום ה־slug בקצה; לזחלנים הבדיקה נשארת עם תקרת 800ms",
+        "problem": "Every Post document waited at the edge for public_post_slug_exists before the document function (median 154 ms per uncached lookup).",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "SPEED_OLD_POSTS_SHELL_20261116"
+          ],
+          "prs": [
+            1370,
+            1371
+          ],
+          "merged_via_pr": 1371,
+          "commits": [
+            "8d5c1df7e98e3e3b38b6b26a922e433362b60353"
+          ],
+          "author": "claude",
+          "head_branch": "claude/old-post-article-first-20261116"
+        },
+        "code_now": [
+          "middleware-core.js :: edgePostLookupRequired(kind) -> goodbot/ai only; POST_ROUTE_LOOKUP_TIMEOUT_MS = 800"
+        ],
+        "merged": true,
+        "merge_commit": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed": true,
+        "deployed_in": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+        "deployed_in_sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed_in_created": "2026-11-16T16:13:59Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Not observable from outside without timing; deployed in dpl_7yhn (work_log COMBINED_RELEASE_1371_20261116 records old-post TTFB 0.67-0.77 s live, not attributed to this change).",
+        "measurement": {
+          "kind": "lab",
+          "before": "edge lookup median 154 ms (8 of 8 samples 232-262 ms vs 99 ms without lookup)",
+          "after": "no lookup for browsers",
+          "conditions": "live measurement at a US edge, 16.11",
+          "source": "docs/reviews/post-edge-lookup-20261116/README.md"
+        },
+        "guard": [
+          "test/post-document-status-edge-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "scripts/test-route-legitimacy-2029.mjs [exists on origin/main; CI: .github/workflows/observability-seo-gate.yml, .github/workflows/route-seo-decision-2029.yml]",
+          "test/public-reading-middleware-entry.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "None recorded.",
+        "next_owner": "Foundation Closure",
+        "relates_to_groups": [
+          "F15"
+        ]
+      },
+      {
+        "id": "S-34",
+        "title_he": "שער תקציב מעטפת: הכניסה, המסגרת וה־CSS שלה לא גדלים ולא מקבלים ייבוא סטטי חדש",
+        "problem": "No ratchet prevented the entry and System Frame from growing (frame weight drift 132,968 -> 151,006 B source since 26.10).",
+        "surface": "build",
+        "source": {
+          "task_keys": [
+            "SPEED_OLD_POSTS_SHELL_20261116",
+            "COMBINED_RELEASE_1371_20261116"
+          ],
+          "prs": [
+            1370,
+            1371
+          ],
+          "merged_via_pr": 1371,
+          "commits": [
+            "4e6e6e2b0c936816b9644956952fbf92a3001de8",
+            "4cce8af4cb3898229bc3651a5b1ed847575679b0",
+            "6ef9bc43c3bb7d280b5a923cc38d5a12b9fb2fec"
+          ],
+          "author": "claude",
+          "head_branch": "claude/old-post-article-first-20261116"
+        },
+        "code_now": [
+          "scripts/test-2029-shell-budget.mjs (package.json postbuild + perf-contracts-2029)",
+          "scripts/2029-shell-budget-baseline.json",
+          "CLAUDE.md :: Speed Law (ZURIEL 16.11.2026)"
+        ],
+        "merged": true,
+        "merge_commit": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed": true,
+        "deployed_in": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+        "deployed_in_sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed_in_created": "2026-11-16T16:13:59Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Build gate, not a runtime behaviour: runs in package.json postbuild and in .github/workflows/live-contracts-2029.yml; release frame size 74,494 B recorded in work_log COMBINED_RELEASE_1371_20261116.",
+        "measurement": {
+          "kind": "budget",
+          "before": "frame JS 93,108 B gzip / 7 files; entry 225,182 B",
+          "after": "75,789 B / 5 files; 219,624 B (baseline lowered); 74,494 B at release",
+          "conditions": "production build gzip bytes",
+          "source": "commit 4cce8af4c; work_log COMBINED_RELEASE_1371_20261116"
+        },
+        "guard": [
+          "scripts/test-2029-shell-budget.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml, package.json]",
+          "test/shell-budget-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Gate covers entry + frame only, not page graphs (Home graph 42 files / 186 KB in #1375 draft).",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-35",
+        "title_he": "דיאטת מסגרת: האזור האישי, רצף האירועים ומפתח 'עדכון סדרה' נטענים רק כשצריך",
+        "problem": "Every page carried the personal workspace panel, the event-sequence panel and (from #1358) a 20 KB gzip import in useSystemFeed2029.",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SPEED_OLD_POSTS_SHELL_20261116",
+            "COMBINED_RELEASE_1371_20261116"
+          ],
+          "prs": [
+            1370,
+            1371
+          ],
+          "merged_via_pr": 1371,
+          "commits": [
+            "540d388ed081041c5a62c7fe1f8ca491c7722e5d",
+            "221c26bc45bc51204d700e102cac22ec623557c1",
+            "a0c13693d433d3918eb2d78ccffdaa7a6e7dd79b"
+          ],
+          "author": "claude",
+          "head_branch": "claude/old-post-article-first-20261116"
+        },
+        "code_now": [
+          "src/components/experience2029/SystemFrame2029.jsx :: WorkspaceProjectionPanel2029 = React.lazy(...)",
+          "src/components/experience2029/SurfaceContextRail2029.jsx :: EventSequencePanel2029 = lazy(...)",
+          "src/components/experience2029/useSystemFeed2029.js :: loadSeriesLatestSeenKey() dynamic import"
+        ],
+        "merged": true,
+        "merge_commit": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed": true,
+        "deployed_in": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+        "deployed_in_sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed_in_created": "2026-11-16T16:13:59Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Only release-level evidence: work_log COMBINED_RELEASE_1371_20261116 (dpl_7yhn, aliases moved, live sourceSha 93daf703e, canary success, frame 74,494 B by build). Lazy loading of these panels was not observed on the live site.",
+        "measurement": {
+          "kind": "lab",
+          "before": "main ea7257598",
+          "after": "text -236..-356 ms, LCP -270..-314 ms (O1, O3, N3, N5); CLS 0",
+          "conditions": "Pixel 7 emulation, Slow 4G, 4x CPU, cold, 8 interleaved runs per post (whole #1370 package)",
+          "source": "docs/reviews/shell-diet-20261116/lab-results.md; PR #1370 body"
+        },
+        "guard": [
+          "scripts/test-2029-shell-budget.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml, package.json]",
+          "test/personal-panel-lazy-recovery-2029.browser.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "ResearchProvider/Raziel still in the opening graph (PR #1372 body); lazy Auth for anonymous readers is a proposal (LAZY-AUTH-PROPOSAL.md).",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-36",
+        "title_he": "Storage עצל: לקוח האחסון נטען רק בהעלאה הראשונה",
+        "problem": "@supabase/storage-js was in the shared Supabase chunk on every page.",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SPEED_OLD_POSTS_SHELL_20261116"
+          ],
+          "prs": [
+            1370,
+            1371
+          ],
+          "merged_via_pr": 1371,
+          "commits": [
+            "e4bbb0d449330f09a401de1c098f67cb7f49095f",
+            "7ff267f47ff3e8209d1dcb3ead09e5390799cd00"
+          ],
+          "author": "claude",
+          "head_branch": "claude/old-post-article-first-20261116"
+        },
+        "code_now": [
+          "vite.config.js :: alias @supabase/storage-js -> src/lib/storageLazy2029.js"
+        ],
+        "merged": true,
+        "merge_commit": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed": true,
+        "deployed_in": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+        "deployed_in_sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed_in_created": "2026-11-16T16:13:59Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "No behaviour-specific live check found.",
+        "measurement": {
+          "kind": "budget",
+          "before": "storage client in entry graph",
+          "after": "part of entry 225,182 -> 219,737 B gzip (whole #1370)",
+          "conditions": "build bytes",
+          "source": "PR #1370 body"
+        },
+        "guard": [
+          "test/storage-lazy-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/community-first-upload-lazy-storage-2029.browser.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "A failed lazy download reloads the page once (documented policy).",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-37",
+        "title_he": "גופנים: שני preload בלבד, Noto ב־WOFF2, קובץ רוביק עברי אחד, חלופות מקומיות ממודדות",
+        "problem": "Four font preloads, a 27 KB TTF body face and a mixed Rubik state caused a phone layout shift (Post 192 CLS 0.139).",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "OLD_POST_ARTICLE_FIRST_READABILITY_20261116",
+            "SPEED_OLD_POSTS_SHELL_20261116"
+          ],
+          "prs": [
+            1370,
+            1371
+          ],
+          "merged_via_pr": 1371,
+          "commits": [
+            "b6350e0196dd946625b7a2af3b9fd7d428029156",
+            "d9798b6991db9804a85f58ae101850d4d4c7b64f",
+            "9852baf0bb701d4a6bfac3170af7ca7bff9ad3ae"
+          ],
+          "author": "claude",
+          "head_branch": "claude/old-post-article-first-20261116"
+        },
+        "code_now": [
+          "2029.html :: preload /fonts/NotoSansHebrew-Regular.woff2 and /fonts/Rubik-Hebrew-Common.woff2 only; @font-face Rubik unicode-range"
+        ],
+        "merged": true,
+        "merge_commit": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed": true,
+        "deployed_in": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+        "deployed_in_sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed_in_created": "2026-11-16T16:13:59Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "own read-only curl of https://sod1820.co.il at 2026-11-17T10:30Z (desktop Chrome UA): live Home has exactly the two font preloads; Rubik-Hebrew-Common.woff2 served 15,140 B. work_log COMBINED_RELEASE_1371_20261116 also confirms the file is served.",
+        "measurement": {
+          "kind": "lab",
+          "before": "body face 27 KB TTF; Post 192 phone CLS 0.139",
+          "after": "11.2 KB WOFF2; CLS 0.000; fallback width diff mean 1.0% -> 0.3-0.4%",
+          "conditions": "lab",
+          "source": "docs/reviews/old-post-article-first-20261116/FONTS.md, FOLLOWUPS.md"
+        },
+        "guard": [
+          "test/fonts-2029-faces.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Android fallback font and removal of unused Rubik-Hebrew.woff2 await ZURIEL (work_log COMBINED_RELEASE_1371_20261116).",
+        "next_owner": "Speed Law (CLAUDE.md)",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-38",
+        "title_he": "פוסטים ותיקים: המאמר כבר במסמך הראשון (jsdom בשרת), הדף מאמץ אותו בלי קפיצה; CSS צביעה ראשונה",
+        "problem": "Old Posts showed text only after ~7 s on a slow phone: the article waited for the whole app, its reads and 397 KB CSS.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "OLD_POST_ARTICLE_FIRST_20261116",
+            "OLD_POST_ARTICLE_FIRST_IMPL_20261116",
+            "OLD_POST_ARTICLE_FIRST_READABILITY_20261116",
+            "COMBINED_RELEASE_1371_20261116"
+          ],
+          "prs": [
+            1371
+          ],
+          "merged_via_pr": 1371,
+          "commits": [
+            "a7e2d59202f5608fc2cbe2ffa38973829f54d341",
+            "23c70ddfdf47e4a35128b8a362516c8705ffba99",
+            "14b1027fe48e9b74bbda3910ec6c025c8a691f2c",
+            "26c1add98fedf59b461b73ab7ede94d0d50d1037",
+            "35044456f36efd0498829af62af1d23f95e236f4"
+          ],
+          "author": "claude",
+          "head_branch": "claude/old-post-article-first-20261116"
+        },
+        "code_now": [
+          "public-reading-deploy/api/article-first.js :: articleFirstDocument -> state 'served'",
+          "src/lib/research/postArticleDocument2029.js",
+          "public-reading-deploy/article-first-proven.json (1,294 entries after #1374)",
+          "scripts/lib/article-first-critical-css.mjs"
+        ],
+        "merged": true,
+        "merge_commit": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed": true,
+        "deployed_in": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+        "deployed_in_sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed_in_created": "2026-11-16T16:13:59Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "own read-only curl of https://sod1820.co.il at 2026-11-17T10:30Z (desktop Chrome UA): old Post 192 at its original address answered 200 with X-Sod-Article-First: served, TTFB 0.12 s. work_log COMBINED_RELEASE_1371_20261116 and SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116: served/adopted live, CLS 0.",
+        "measurement": {
+          "kind": "lab",
+          "before": "phone text visible 6.84-7.14 s; 784-794 KB / 106 requests before text",
+          "after": "1.66-1.78 s (p 0.002); 23-28 KB / 5-8 requests; desktop 2.38-2.75 -> 1.63-1.89 s. Early field (own SELECT on public.events): original-address posts LCP p75 5,827 ms (n=672, 2.11-16.11 16:15 UTC) vs 2,608 ms for samples marked article_first=adopted (n=25, 16.11 16:15-17.11 08:52 UTC)",
+          "conditions": "lab: Slow 4G + 4x CPU phone / broadband desktop, n=6 per post and arm, Mann-Whitney; field: all devices, bot-filtered, tiny after-sample, not controlled",
+          "source": "docs/reviews/old-post-article-first-20261116/FOLLOWUPS.md; public.events"
+        },
+        "guard": [
+          "test/article-first-proof-fresh.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/article-first-document-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/article-first-browser-2029.browser.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/article-first-critical-css-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/post-document-status-edge-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Not tested on Android, screen reader or search engines (PR #1371 body); a code change in postArticleDocument2029.js graph requires rebuilding proofs (scripts/build-article-first-proofs.mjs) or the build serves nothing.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F23",
+          "F34"
+        ]
+      },
+      {
+        "id": "S-39",
+        "title_he": "כלי הפוסט (שיתוף, תגובות, ציר זמן, עורכים) נטענים בפתיחה או בהתקרבות",
+        "problem": "Post research tools loaded with the article and competed with it.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "OLD_POST_ARTICLE_FIRST_IMPL_20261116"
+          ],
+          "prs": [
+            1371
+          ],
+          "merged_via_pr": 1371,
+          "commits": [
+            "0d92cd3fbc6a3241b1506160173e7e20021adda3",
+            "41cc9877807ef4fd95590fe9744225f67d2bbf1e"
+          ],
+          "author": "claude",
+          "head_branch": "claude/old-post-article-first-20261116"
+        },
+        "code_now": [
+          "src/pages/Post2029Page.jsx :: toolOnOpen2029 / toolOnApproach2029; PostTimeline2029 = toolOnOpen2029(...)"
+        ],
+        "merged": true,
+        "merge_commit": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed": true,
+        "deployed_in": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+        "deployed_in_sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed_in_created": "2026-11-16T16:13:59Z",
+        "in_current_production": true,
+        "live_verified": "unknown",
+        "live_evidence": "Not checked separately live.",
+        "measurement": {
+          "kind": "lab",
+          "before": "tools ready with the page",
+          "after": "share usable 335-347 ms after open; comment archive 454-502 ms after reaching the end (phone)",
+          "conditions": "lab, phone Slow 4G + 4x CPU",
+          "source": "docs/reviews/old-post-article-first-20261116/FOLLOWUPS.md §3"
+        },
+        "guard": [
+          "test/post-reading-style-graph-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]"
+        ],
+        "open": "Guard test not referenced in .github/workflows.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F34"
+        ]
+      },
+      {
+        "id": "S-40",
+        "title_he": "תמונות פוסטים ותיקים: עותקים קטנים רק מתחת לרוחב האמיתי של המקור; המקור הוא האפשרות הרחבה",
+        "problem": "Article images were full originals; '1080/1600' copies of narrower originals were re-encoded originals, sometimes heavier.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "OLD_POST_ARTICLE_FIRST_READABILITY_20261116",
+            "COMBINED_RELEASE_1371_20261116"
+          ],
+          "prs": [
+            1371
+          ],
+          "merged_via_pr": 1371,
+          "commits": [
+            "63e64f98aedfcbc355bd4ef8cc60fe89b4d358f4",
+            "cc5b96471f6d47d0133be764f9f5b126a64d27e6"
+          ],
+          "author": "claude",
+          "head_branch": "claude/old-post-article-first-20261116"
+        },
+        "code_now": [
+          "src/lib/research/postArticleCore2029.js :: postImageRenditionSet2029(src, facts)",
+          "public-reading-deploy/article-image-facts.json",
+          "scripts/scan-article-image-facts.mjs",
+          "scripts/warm-article-image-renditions.mjs"
+        ],
+        "merged": true,
+        "merge_commit": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed": true,
+        "deployed_in": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+        "deployed_in_sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+        "deployed_in_created": "2026-11-16T16:13:59Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log COMBINED_RELEASE_1371_20261116: warm-up of 4,782 copies completed in 1,676 s (4 failures); live Post chunk contains ssrImageFacts.",
+        "measurement": {
+          "kind": "lab",
+          "before": "cover V1 519 KB, M1 148 KB; 13,076 copies to warm",
+          "after": "V1 229 KB, M1 84 KB (phone); 4,782 copies; cover finishes -3.2..-4.8 s (phone, p 0.002)",
+          "conditions": "lab, n=6, phone Slow 4G + 4x CPU",
+          "source": "docs/reviews/old-post-article-first-20261116/FOLLOWUPS.md §2"
+        },
+        "guard": [
+          "test/article-first-document-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "O1/O3 cover still 151->157 KB on phone in the lab; warming is a paid release step (Speed Law 6).",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F23"
+        ]
+      },
+      {
+        "id": "S-41",
+        "title_he": "שער 'תוכן קריא קודם': Google, Pixel, ביקור ורצועת המסגרת מתחילים רק אחרי התוכן",
+        "problem": "Google tag, Meta Pixel, the first-party visit and the frame background reads competed with the article on the same connection and main thread.",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SPEED_SERIES_2_SHELL_CONTENT_FIRST_20261116"
+          ],
+          "prs": [
+            1372
+          ],
+          "merged_via_pr": 1372,
+          "commits": [
+            "204e54c2c8d26ce80c024c67e5e0e4c06e66429a",
+            "b14cb3eab42f70f117c876d7a8b6929d69877325"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol"
+        },
+        "code_now": [
+          "src/lib/publicReadingRelease2029.js :: afterReadableContent2029 (load + settled content + priority image + idle, cap 10 s)",
+          "src/App2029.jsx :: GA/Pixel and visit behind afterReadableContent2029",
+          "src/components/experience2029/useSystemFeed2029.js :: frame stream behind the gate off Home"
+        ],
+        "merged": true,
+        "merge_commit": "e226815f6b07874d1f6e94dc49d6b53756174363",
+        "deployed": true,
+        "deployed_in": "dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6",
+        "deployed_in_sha": "e226815f6b07874d1f6e94dc49d6b53756174363",
+        "deployed_in_created": "2026-11-16T20:00:12Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log SPEED_SERIES_2_SHELL_CONTENT_FIRST_20261116 AFTER (16.11 20:20 UTC): live phone browser — Google tag and Pixel start after load and after the text (home 3.86 s vs load 1.40 s; posts 2.1-2.6 s vs 1.1-1.8 s).",
+        "measurement": {
+          "kind": "lab",
+          "before": "main 93daf703e",
+          "after": "new Posts text -1.1..-1.3 s, LCP -1.6..-2.1 s (p 0.002); old Posts long tasks -0.5..-0.6 s; -283 KB per Post (with S-42)",
+          "conditions": "phone, Slow 4G, 4x CPU, production analytics IDs in both arms, n=6 per post",
+          "source": "docs/reviews/speed-series-2-20261116/lab-s2.md; PR #1372 body"
+        },
+        "guard": [
+          "test/content-first-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/content-first-2029.browser.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Expected measurement change: GA/Meta do not see readers who leave before content (PR #1372 body).",
+        "next_owner": "Traffic Intelligence",
+        "relates_to_groups": [
+          "F26"
+        ]
+      },
+      {
+        "id": "S-42",
+        "title_he": "פרסומות מושהות בקוד; הלוח העברי והמפענח של שיתוף המחשבון יצאו מחבילת הפתיחה",
+        "problem": "AdSense script and @hebcal/core (~53 KB gzip) and the calculator share parser loaded on public pages.",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SPEED_SERIES_2_SHELL_CONTENT_FIRST_20261116"
+          ],
+          "prs": [
+            1372
+          ],
+          "merged_via_pr": 1372,
+          "commits": [
+            "204e54c2c8d26ce80c024c67e5e0e4c06e66429a"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol"
+        },
+        "code_now": [
+          "src/lib/adsense.js :: const ADSENSE_PAUSED = true; ADSENSE_ENABLED = !ADSENSE_PAUSED && ...",
+          "src/lib/visits.js :: const dayContext = () => import('./dayContext.js')"
+        ],
+        "merged": true,
+        "merge_commit": "e226815f6b07874d1f6e94dc49d6b53756174363",
+        "deployed": true,
+        "deployed_in": "dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6",
+        "deployed_in_sha": "e226815f6b07874d1f6e94dc49d6b53756174363",
+        "deployed_in_created": "2026-11-16T20:00:12Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log SPEED_SERIES_2_SHELL_CONTENT_FIRST_20261116 AFTER: no ad script request on /, a new Post, an old Post, /community (live phone browser 16.11); SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116: 'no ads' on 17.11.",
+        "measurement": {
+          "kind": "budget",
+          "before": "entry baseline",
+          "after": "entry -656 B gzip vs main despite the new gate; baseline lowered (--lower)",
+          "conditions": "build bytes",
+          "source": "commit 204e54c2c"
+        },
+        "guard": [
+          "test/adsense-gating-2029.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "test/day-context.test.mjs [exists on origin/main; not referenced in .github/workflows or package.json]",
+          "scripts/test-2029-shell-budget.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml, package.json]"
+        ],
+        "open": "adsense-gating-2029 and day-context tests are not referenced in .github/workflows; resuming ads is a ZURIEL decision.",
+        "next_owner": "Traffic Intelligence",
+        "relates_to_groups": [
+          "F01"
+        ]
+      },
+      {
+        "id": "S-43",
+        "title_he": "מדידה: כל דגימת Web Vitals נושאת build, סוג מכשיר, מצב article-first ופירוק זמן המסמך",
+        "problem": "RUM had no device class, build id or article-first state, so no mobile p75 or before/after per build was possible (RG9).",
+        "surface": "measurement",
+        "source": {
+          "task_keys": [
+            "SPEED_SERIES_2_SHELL_CONTENT_FIRST_20261116"
+          ],
+          "prs": [
+            1372
+          ],
+          "merged_via_pr": 1372,
+          "commits": [
+            "4411327a56dbc8872928420fce31592780bbf30b"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol"
+        },
+        "code_now": [
+          "src/lib/webVitals2029.js :: returns { build: BUILD_TOKEN, device_class, article_first, nav_timing }",
+          "src/lib/publicReadingTelemetry2029.js :: context = ['build','device_class','article_first','nav_timing'] validation"
+        ],
+        "merged": true,
+        "merge_commit": "e226815f6b07874d1f6e94dc49d6b53756174363",
+        "deployed": true,
+        "deployed_in": "dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6",
+        "deployed_in_sha": "e226815f6b07874d1f6e94dc49d6b53756174363",
+        "deployed_in_created": "2026-11-16T20:00:12Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Own read-only SELECT on public.events: web_vital rows with build/device_class/article_first/nav_timing — 0 of 640 on 15.11, 90 of 570 on 16.11 (after the 20:00 UTC deploy), 149 of 149 on 17.11.",
+        "measurement": {
+          "kind": "field",
+          "before": "0% of samples with build/device",
+          "after": "100% of 17.11 samples",
+          "conditions": "field coverage, not speed",
+          "source": "public.events (read 2026-11-17)"
+        },
+        "guard": [
+          "test/public-reading-observability.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "scripts/test-web-vitals-2029.mjs [exists on origin/main; CI: .github/workflows/2029-isolation-gate.yml]"
+        ],
+        "open": "LCP element attribution still absent (cls_shift_sources exists).",
+        "next_owner": "Traffic Intelligence",
+        "relates_to_groups": [
+          "F19"
+        ]
+      },
+      {
+        "id": "S-44",
+        "title_he": "קהילה: כל שורש בפיד מגיע עם מספר התגובות — פחות קפיצות פריסה",
+        "problem": "Replies controls appeared only when thread totals arrived, all at once; zero-reply roots showed 'טוען תגובות…' then collapsed (Community 196 of 1,004 loads above CLS 0.1).",
+        "surface": "community",
+        "source": {
+          "task_keys": [
+            "SPEED_SERIES_2_CLS_COMMUNITY_FEED_REPLY_COUNT_20261116",
+            "SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116"
+          ],
+          "prs": [
+            1373
+          ],
+          "merged_via_pr": 1373,
+          "commits": [
+            "6f8bd978da656385ac644c8b45ed29124670c830",
+            "46939f45493cef2506e50fab10accf22b366901c"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol"
+        },
+        "code_now": [
+          "src/lib/community/communityArchive.js :: client.rpc('community_feed_page_v2', args).select(COMMUNITY_FEED_RPC_FIELDS) with fallback",
+          "public-reading-deploy/transport.js :: community_feed_page_v2 admitted with communityFeedFields",
+          "DB: public.community_feed_page_v2 (applied live per work_log)"
+        ],
+        "merged": true,
+        "merge_commit": "7879c96a364b41074de7bfc3e01097013c5f52ff",
+        "deployed": true,
+        "deployed_in": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
+        "deployed_in_sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
+        "deployed_in_created": "2026-11-17T08:51:44Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "work_log SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116 AFTER (17.11): /community/chat reads community_feed_page_v2 (200), CLS 0.037 in a live phone browser.",
+        "measurement": {
+          "kind": "lab",
+          "before": "/community/chat CLS 0.280; /community 0.197",
+          "after": "0.129 (p 0.029); 0.187 (p 0.029); loading-replies collapse 0.05-0.09 -> 0",
+          "conditions": "phone, Slow 4G, 4x CPU, scrolling reader, A B B A, n=4",
+          "source": "docs/reviews/speed-series-2-20261116/cls-step2.md; PR #1373 body"
+        },
+        "guard": [
+          "src/lib/community/communityArchive.test.js [exists on origin/main; CI: .github/workflows/g4-public-core-gate.yml, .github/workflows/live-contracts-2029.yml]",
+          "tests/sql/community_feed_reply_count_v1.sql (community-feed-reply-count-gate.yml, advisory) [exists on origin/main; CI: .github/workflows/community-feed-reply-count-gate.yml]"
+        ],
+        "open": "/community/chat lab CLS still 0.129 > 0.1; tree pins strip and 'new replies' line are owner design decisions.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-45",
+        "title_he": "פוסטים חדשים: גם פוסט שנכתב באתר מגיע עם המאמר במסמך הראשון; עותקי התמונות מוכנים אחרי התשובה",
+        "problem": "A site-written Post was the slowest page (text ~5.8 s on a slow phone); its image copies were made on first request (0.9-1.9 s).",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116"
+          ],
+          "prs": [
+            1374
+          ],
+          "merged_via_pr": 1374,
+          "commits": [
+            "a09d11b2d7c08d50bfbac18b249313164c48094b",
+            "cf8fc0a1714c263c9cd3925116dd4e62dc9009e4"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol-new-posts"
+        },
+        "code_now": [
+          "public-reading-deploy/api/article-first.js :: state 'served-new' / 'new-guarded' (namesGuarded against .generated/article-first-guard.json)",
+          "public-reading-deploy/api/article-first.js :: warmPostImageCopies(article)",
+          "src/lib/research/postArticleFirstPolicy2029.js"
+        ],
+        "merged": true,
+        "merge_commit": "2011226fe58eff3645750031bd59a69d5e2c208f",
+        "deployed": true,
+        "deployed_in": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
+        "deployed_in_sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
+        "deployed_in_created": "2026-11-17T08:51:44Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "own read-only curl of https://sod1820.co.il at 2026-11-17T10:30Z (desktop Chrome UA): /post/mah-kore-usa-blows-toldot-ground-stop (site Post 5139) answered 200 with X-Sod-Article-First: served. work_log SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116 AFTER: new image/video Posts adopted with CLS 0; 146 copies warmed for 119 native Posts, 0 failed.",
+        "measurement": {
+          "kind": "lab",
+          "before": "new Post N3 text 5,699 ms, LCP 5,898 ms",
+          "after": "1,620 ms, 3,340 ms; CLS <= 0.003",
+          "conditions": "phone, Slow 4G, 4x CPU, n=12",
+          "source": "merge commit 2011226fe (#1374); work_log SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116"
+        },
+        "guard": [
+          "test/article-first-document-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/article-first-new-post-2029.browser.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
+          "test/article-first-proof-fresh.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
+        ],
+        "open": "Image Post adoption reports a compensated -356 px at the byline (CLS stayed 0) — under investigation; lab round 2 (N3,N6,N7,N8) interrupted.",
+        "next_owner": "Experience Governance",
+        "relates_to_groups": [
+          "F23",
+          "F34"
+        ]
+      },
+      {
+        "id": "S-46",
+        "title_he": "העלאות agent-upload: קובץ ציבורי שנכתב פעם אחת נשמר עם מטמון של שעה",
+        "problem": "New Posts' media uploaded through agent-upload were stored as no-cache.",
+        "surface": "server",
+        "source": {
+          "task_keys": [
+            "SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116"
+          ],
+          "prs": [
+            1374
+          ],
+          "merged_via_pr": 1374,
+          "commits": [
+            "6889c0235ee135a44267abf31ef6a4b4011fdf9b"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol-new-posts"
+        },
+        "code_now": [
+          "supabase/functions/agent-upload/index.ts :: !t.allow_overwrite && t.public_url ? { 'cache-control': 'max-age=3600' } : {}"
+        ],
+        "merged": true,
+        "merge_commit": "2011226fe58eff3645750031bd59a69d5e2c208f",
+        "deployed": true,
+        "deployed_in": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
+        "deployed_in_sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
+        "deployed_in_created": "2026-11-17T08:51:44Z",
+        "in_current_production": true,
+        "live_verified": "no",
+        "live_evidence": "Edge Function deployed separately: work_log SPEED_SERIES_2_COMMUNITY_AND_NEW_POSTS_20261116 AFTER — agent-upload version 32 -> 33 ACTIVE from main 2011226fe, smoke OPTIONS 200 / 401 without ticket. NOT TESTED: a real ticketed upload showing max-age=3600 on the stored object.",
+        "measurement": {
+          "kind": "none",
+          "before": "no-cache",
+          "after": "max-age=3600 (unit test against the real handler)",
+          "conditions": "unit test only",
+          "source": "supabase/functions/agent-upload/cache-control.test.mts"
+        },
+        "guard": [
+          "supabase/functions/agent-upload/cache-control.test.mts (video-ingest-gate.yml) [exists on origin/main; CI: .github/workflows/video-ingest-gate.yml]"
+        ],
+        "open": "Await the next real upload to confirm the stored header.",
+        "next_owner": "Foundation Closure",
+        "relates_to_groups": [
+          "F23"
+        ]
+      }
+    ],
+    "group_updates": [
+      {
+        "id": "F01",
+        "new_state": "PARTIAL",
+        "by": [
+          "S-6",
+          "S-8",
+          "S-9",
+          "S-18",
+          "S-19",
+          "S-22",
+          "S-23",
+          "S-31",
+          "S-34",
+          "S-35",
+          "S-36",
+          "S-37",
+          "S-42"
+        ],
+        "note": "Early route-owned primary reads now exist for Home, /post/<slug> and /<slug>; entry modulepreload, Supabase preconnect, two font preloads, shell budget ratchet. World/Number early reads and a field before/after per build are not established."
+      },
+      {
+        "id": "F02",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "No later change found."
+      },
+      {
+        "id": "F03",
+        "new_state": "CLOSED_BY",
+        "by": [
+          "S-32"
+        ],
+        "note": "RouteScrollReset2029 restores Back/Forward positions after late content (up to 4 s, cancelled by input); browser test in route-navigation-2029.yml. Not checked live."
+      },
+      {
+        "id": "F04",
+        "new_state": "STILL_OPEN",
+        "by": [],
+        "note": "No offscreen-animation pausing found in Post2029Page or src/lib; S-2 only coalesces River scroll."
+      },
+      {
+        "id": "F05",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "No later change found."
+      },
+      {
+        "id": "F06",
+        "new_state": "UNCHANGED",
+        "by": [
+          "S-1"
+        ],
+        "note": "S-1 speeds the World source view; navigation carry itself unchanged."
+      },
+      {
+        "id": "F07",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "Still lab-only evidence; later labs (shell-diet, speed-series-2, article-first) use production artifacts, interleaving and Mann-Whitney p; Speed Law rule 7 now requires identical builds/env (incl. analytics IDs)."
+      },
+      {
+        "id": "F08",
+        "new_state": "UNCHANGED",
+        "by": [
+          "S-15"
+        ],
+        "note": "S-15 wires the Realtime split contract into CI (perf-contracts-2029); remote CI corpus question unchanged."
+      },
+      {
+        "id": "F09",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "No later change found."
+      },
+      {
+        "id": "F10",
+        "new_state": "UNCHANGED",
+        "by": [
+          "S-4"
+        ],
+        "note": "Carried to main via #1191; test/entity-bundle-publication-2029.test.mjs exists."
+      },
+      {
+        "id": "F11",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "No later change found."
+      },
+      {
+        "id": "F12",
+        "new_state": "PARTIAL",
+        "by": [
+          "S-8",
+          "S-21"
+        ],
+        "note": "Home primary card read is route-owned (getHomeLaunchPostCards); post reader uses 30 explicit columns. WorldFlightStory still uses the reading projection (see F21)."
+      },
+      {
+        "id": "F13",
+        "new_state": "UNCHANGED",
+        "by": [
+          "S-4"
+        ],
+        "note": "StoryViewerOnDemand2029 / ContactGatewayOnDemand2029 carried on main via #1191."
+      },
+      {
+        "id": "F14",
+        "new_state": "STILL_OPEN",
+        "by": [],
+        "note": "src/lib/lockedRouteCode2029.js not on main; no later change found."
+      },
+      {
+        "id": "F15",
+        "new_state": "CLOSED_BY",
+        "by": [
+          "S-33"
+        ],
+        "note": "In the 2029 tree browsers no longer wait for public_post_slug_exists; goodbot/ai keep it with an 800 ms bound (middleware-core.js edgePostLookupRequired). Legacy scope itself is retired."
+      },
+      {
+        "id": "F16",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "No measured inspector chunk change found."
+      },
+      {
+        "id": "F17",
+        "new_state": "CLOSED_BY",
+        "by": [
+          "S-5"
+        ],
+        "note": "getHomeVideos runs only when videosAdmitted (useApproach2029 after primary loaded). Code + tests; no live timing check."
+      },
+      {
+        "id": "F18",
+        "new_state": "UNCHANGED",
+        "by": [
+          "S-4",
+          "S-20"
+        ],
+        "note": "pendingScope coalescing carried; S-20 adds a separate anonymous read dedupe/memo."
+      },
+      {
+        "id": "F19",
+        "new_state": "PARTIAL",
+        "by": [
+          "S-11",
+          "S-43"
+        ],
+        "note": "RUM reconnected 5.11; since 16.11 every web_vital sample carries build, device_class, article_first, nav_timing (verified in public.events). LCP element attribution / usable-content metric still absent."
+      },
+      {
+        "id": "F20",
+        "new_state": "UNCHANGED",
+        "by": [
+          "S-4",
+          "S-15"
+        ],
+        "note": "realtimeLazy2029 alias carried; now enforced in CI by perf-contracts-2029."
+      },
+      {
+        "id": "F21",
+        "new_state": "PARTIAL",
+        "by": [
+          "S-6"
+        ],
+        "note": "WorldFlightStory calls fetchPost2029ReadingProjection with sourceInvitation:true (no context pack/connections); compact-card separation still not carried."
+      },
+      {
+        "id": "F22",
+        "new_state": "PARTIAL",
+        "by": [
+          "S-7",
+          "S-17"
+        ],
+        "note": "Parallel identity/value reads, progressive core vs material, 30 s method reuse, one fn_number_lookup. Mobile time gain not consistent (#1238)."
+      },
+      {
+        "id": "F23",
+        "new_state": "PARTIAL",
+        "by": [
+          "S-14",
+          "S-24",
+          "S-38",
+          "S-40",
+          "S-45",
+          "S-46"
+        ],
+        "note": "Avatar renditions; article images with real-width renditions and reserved size in article-first Posts; upload cache header. Body-media deferral with wheel/touch intent not carried."
+      },
+      {
+        "id": "F24",
+        "new_state": "STILL_OPEN",
+        "by": [],
+        "note": "No ELS payload change in the window."
+      },
+      {
+        "id": "F25",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "No later change found."
+      },
+      {
+        "id": "F26",
+        "new_state": "PARTIAL",
+        "by": [
+          "S-21",
+          "S-41"
+        ],
+        "note": "Home pulse 7 -> 5 requests; frame background reads now wait for content off Home. Capability decision unchanged."
+      },
+      {
+        "id": "F27",
+        "new_state": "CLOSED_BY",
+        "by": [
+          "S-5"
+        ],
+        "note": "Home discovery/summary/standalone/world/story readers are approach-admitted; DiscoveryGateways2029 no longer on main."
+      },
+      {
+        "id": "F28",
+        "new_state": "PARTIAL",
+        "by": [
+          "S-8"
+        ],
+        "note": "Home optional code admission (static Home gzip 472,047 -> 355,102 B in GPT lab); fan-out acceptance and a Home page-graph budget are not established (#1375 draft proposes more)."
+      },
+      {
+        "id": "F29",
+        "new_state": "CLOSED_BY",
+        "by": [
+          "S-5"
+        ],
+        "note": "World preview on Home is approach-admitted (worldAdmitted) after primary content."
+      },
+      {
+        "id": "F30",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "Home2029Page still passes includeTemporal; no decision record found."
+      },
+      {
+        "id": "F31",
+        "new_state": "STILL_OPEN",
+        "by": [],
+        "note": "WorldFlightStory2029 still imports postRowToWorldUpdate from worldDiscoveryStream."
+      },
+      {
+        "id": "F32",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "Historical release evidence."
+      },
+      {
+        "id": "F33",
+        "new_state": "UNCHANGED",
+        "by": [],
+        "note": "Historical Preview identity."
+      },
+      {
+        "id": "F34",
+        "new_state": "CLOSED_BY",
+        "by": [
+          "S-6",
+          "S-27",
+          "S-38",
+          "S-45"
+        ],
+        "note": "For proven public Posts (1,294 of 1,294 candidates) the article is in the first document and adopted by the page; live X-Sod-Article-First: served verified on an old and a site Post. Non-candidates and new-guarded Posts keep the earlier path."
+      }
+    ],
+    "not_merged": [
+      {
+        "pr": 1375,
+        "state": "open draft",
+        "head": "cba72cf9dd (ccr-dcadb071-v1z5ol)",
+        "note": "Home: construction note, pinned reality-map lead, short Now, route preload; branch only. public-reading-deploy/route-preload.js is absent on origin/main. Lab A/B n=3 (first real content 11.4-12.3 -> 6.2-6.3 s; LCP becomes the pinned image 7.5-7.7 s)."
+      },
+      {
+        "pr": 1363,
+        "state": "closed, not merged",
+        "head": "2557c661e3",
+        "note": "Package C (GA/Pixel after the article, wait for cover). Goal superseded by #1372 afterReadableContent2029 (S-41)."
+      },
+      {
+        "pr": 1364,
+        "state": "closed, not merged",
+        "head": "3fd3634e16",
+        "note": "AdSense library on approach. Moot after ADSENSE_PAUSED (S-42); its own lab showed no content gain and higher TBT."
+      },
+      {
+        "pr": 1360,
+        "state": "closed draft, not merged",
+        "head": "1782b9f78",
+        "note": "Package A; same change merged through #1366 (S-29)."
+      },
+      {
+        "pr": 1361,
+        "state": "closed draft, not merged",
+        "head": "0dea8b199",
+        "note": "Package B; same change merged through #1366 (S-31)."
+      },
+      {
+        "pr": 1362,
+        "state": "closed draft, not merged",
+        "head": "15f14f2d70",
+        "note": "Package D; same change merged through #1366 (S-30)."
+      },
+      {
+        "pr": 1365,
+        "state": "closed draft, not merged",
+        "head": "6c45d5c28",
+        "note": "Docs-only evidence/archaeology (docs/reviews/post-speed-package-20261115) — exists only on branch claude/perf-post-speed-evidence-20261115, not on main. Used here only as secondary evidence."
+      },
+      {
+        "pr": null,
+        "branch": "claude/perf-post-middleware-f5-vmwq1d @ 9ed573364",
+        "note": "Older edge-lookup work (Oct); never merged; superseded by 8d5c1df7e (S-33)."
+      },
+      {
+        "pr": null,
+        "branch": "codex/cls-diagnostic-20261116 @ 0bb87ae5e",
+        "note": "CLS diagnostic / readability approval record; not an ancestor of main, no PR found."
+      },
+      {
+        "pr": null,
+        "commit": "547dae070 -> reverted by f5760cc47",
+        "note": "Cover hint for original-address Posts: added and fully reverted inside the #1370 package (measured text +0.35-0.5 s on every old post). Net zero on main."
+      },
+      {
+        "pr": 1249,
+        "part": "Home document Vercel-CDN-Cache-Control window",
+        "note": "Merged and deployed (dpl_Fnz5Ax9ARZhs2eBxR2L3Qseae5qP) but live showed x-vercel-cache MISS age 0; removed by #1251 (a3e6b737f). Not present on main."
+      }
+    ],
+    "double_count_notes": [
+      "#1370 and #1371 share merge commit 93daf703e: GitHub marks draft #1370 merged because its head 2165ec326 is inside #1371. Its items (S-33..S-37) are counted once, under merge 93daf703e.",
+      "#1358 is also marked merged at 93daf703e (included up to 5b4c632b7 via e53ca0adc). Its only speed-relevant effect was a regression (useSystemFeed2029 +20 KB gzip to the frame), fixed in the package by a0c13693d (counted in S-35); #1358 itself is not counted as a fix.",
+      "#1360/#1361/#1362 (Claude packages A/B/D) were closed unmerged; the same changes reached main through #1366 (d1f1e3252) and are counted once as S-29/S-31/S-30.",
+      "#1372 superseded #1363 (and made #1364 moot); nothing from #1363/#1364 is counted.",
+      "The 31.10 GPT immutable background headers (S-3, root vercel.json) and the 15.11 deployed-config headers (S-30) are the same intent; S-3 was inert in Production, S-30 is the effective one. Counted separately with S-3 marked live_verified=no.",
+      "GPT commits 36c79e281, 5245f38e6, d13233577, 6cd64a795 (1-2.11) are not ancestors of main; their behaviour reached main inside the #1191 squash (71bb76467) and is counted under S-6/S-8/S-9.",
+      "#1366's commit message says /post/<slug> has started its route-owned read 'since #1262'; git -S shows beginPostReadingSource was introduced by #1191 (71bb76467). Counted under S-6.",
+      "#1229 is split: avatar rendition SW exemption counted with S-14 (avatars), Beit Midrash scroll/CLS as S-16; its /beit-midrash server-document fix is SEO and not counted.",
+      "#1262 is split into four entries (S-19..S-22) by mechanism; the doc's whole-RC lab A/B (§5) is reported once under S-22.",
+      "Article-first appears twice by population: old imported Posts (S-38, #1371, 1,175 proofs) and site-written Posts (S-45, #1374, proofs 1,294). Same mechanism, different eligibility.",
+      "#1249 is counted once (S-18, hero atmosphere preload); its CDN window part was removed by #1251 and is listed under not_merged.",
+      "PR numbers 1191 (squash, 991 commits per PR #1365 archaeology) and 1193 (a4910bc27) are the merge carriers for the GPT/Codex rounds of 28.10-04.11; main has no commits between 26.10 and 04.11."
+    ],
+    "method": [
+      "Read-only. Local clone was shallow (boundary ea7257598); deepened with 'git fetch origin main --shallow-since=2026-10-20' so ancestry checks are real. No repo file edited.",
+      "merged = merge_commit is an ancestor of origin/main. deployed_in = earliest READY production deployment (Vercel list_deployments, project prj_43q7k7QFAcWnin1tcBjce5xOi7Cq, since 2026-10-28) whose SHA contains merge_commit; deployed=true because every merged entry is also an ancestor of the current aliased deployment 2011226fe.",
+      "Aliasing of historical deployments is not visible in Vercel today; it is taken from work_log release records where cited. Only the current alias was read directly.",
+      "code_now paths were checked with git cat-file/git grep against origin/main; guard files were checked to exist and grep'd in .github/workflows and package.json.",
+      "Own live checks: read-only GETs to https://sod1820.co.il at 2026-11-17T10:30Z (Home HTML hints, static asset Cache-Control, X-Sod-Article-First on one old and one site Post). Own field reads: SELECT on public.events web_vital.",
+      "Measurements are quoted from the cited doc/work_log with their conditions; lab numbers are not field results (Speed Law rule 7)."
+    ],
+    "summary": {
+      "counts": {
+        "total": 46,
+        "merged": 46,
+        "deployed_true": 46,
+        "live_unknown": 25,
+        "live_no": 2,
+        "live_yes": 19
+      },
+      "by_author": {
+        "gpt": 10,
+        "claude": 32,
+        "codex": 4
+      },
+      "by_surface": {
+        "world": 1,
+        "home": 4,
+        "post": 11,
+        "all": 17,
+        "number": 2,
+        "server": 4,
+        "measurement": 2,
+        "community": 3,
+        "build": 2
+      }
+    },
+    "field_snapshot": {
+      "source": "public.events surface='performance' event_type='web_vital', one row per sample_id (final preferred), is_bot not true, synthetic windows of 15.11 (01:00-04:30 and 13:20-24:00 UTC) excluded; read 2026-11-17",
+      "original_address_posts": [
+        {
+          "period": "2026-11-02 .. 2026-11-16 16:15 UTC (before 93daf703e)",
+          "n": 672,
+          "lcp_p75_ms": 5827,
+          "lcp_p50_ms": 3690,
+          "ttfb_p75_ms": 2045
+        },
+        {
+          "period": "2026-11-16 16:15 .. 2026-11-17 08:52 UTC, article_first=adopted",
+          "n": 25,
+          "lcp_p75_ms": 2608,
+          "lcp_p50_ms": 1632,
+          "ttfb_p75_ms": 1402
+        },
+        {
+          "period": "since 2026-11-17 08:52 UTC (2011226fe), article_first=adopted",
+          "n": 4,
+          "lcp_p75_ms": 3229
+        }
+      ],
+      "caveat": "Very small after-samples (one day), all devices mixed, includes possible verification browsers; not a controlled before/after and not a claim of improvement."
+    },
+    "history_compiled_at": "2026-11-17T10:41:38Z",
+    "provenance_note": "Fixes, group updates and deployment ancestry were compiled read-only from origin/main 2011226fe, the PRs, docs/reviews measurement documents, Vercel production deployments and work_log (provenance only); each claim names its evidence. The 31.10 groups above are kept unchanged; group_updates states what later work did to each.",
+    "production_deployments_key": "current_state_20261117_production_deployments"
+  },
+  "current_state_20261117_production_deployments": [
+    {
+      "id": "dpl_H8dw9CX2v9sdSEpAmcGSVR8SZCnD",
+      "sha": "25d6f27215553973ca841fbf90a3e6dd406f8a41",
+      "created": "2026-10-28T14:20:39Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_4PcHUSfNdju65WrrihjSXhQwwWUt",
+      "sha": "0dd40c73929cb994245eb5f18c1a048653812daf",
+      "created": "2026-10-30T01:00:08Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_c3CGahN6e7RG84snSdYHAZzzJ563",
+      "sha": "0dd40c73929cb994245eb5f18c1a048653812daf",
+      "created": "2026-10-30T02:03:31Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "created": "2026-10-31T21:36:55Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+      "sha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+      "created": "2026-11-04T11:28:55Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_9mWvyeuELvNzctiVCd5ouEAG3BNU",
+      "sha": "bde0a822a1a33fa1d8c2e9a0d679b8359cb117f8",
+      "created": "2026-11-04T12:17:02Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_48Ha5ZApCdwpK8YDHkboumGVApyS",
+      "sha": "f4390dd356b374e839024eb235fc4a63344667de",
+      "created": "2026-11-04T12:22:34Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_8yput4peUzwKgnw62ntGaQFzSGBP",
+      "sha": "ae8deb7ae1775046dc616a41f66307a7881dfe70",
+      "created": "2026-11-04T12:37:32Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_C5zm8bEEy7HjgVGvy7zdokVp7dg5",
+      "sha": "f7bfbcd5c833ee5ad395a924dc94f0b703409439",
+      "created": "2026-11-04T12:56:04Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_88SLqagzSeAeCuxbwWN7XXekU4gj",
+      "sha": "5f92bfd2ea86982fc0dfbffb82e5907be2102934",
+      "created": "2026-11-04T12:59:18Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_8whmJeUUTQFi5NaR7ZnUU3Wzow1b",
+      "sha": "cb882fad80ea3e5534da213b7f6943b790a63e66",
+      "created": "2026-11-04T13:11:32Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_85oZ5Mz4br6byBvtBhgas3u5iRct",
+      "sha": "3d97c7c28f98d074b7512bfe03211f8363c9ca92",
+      "created": "2026-11-04T13:33:09Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_9ym1yc7DUvRehxNymJrAcUSDk7Cb",
+      "sha": "209a210fad86da95cf5b5052ec1d1759d80c2071",
+      "created": "2026-11-04T14:03:16Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_DNiWmnVWnLfqkWQYNk94vXWD2qaF",
+      "sha": "98d0508fb81de12850d8e97c5bcc13e2206729e4",
+      "created": "2026-11-04T14:34:37Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_69ZbhzQb8CXt6RokiqCrBnddayfS",
+      "sha": "6c0493f1705f0fd939a29625bbe6c5eee3ee66bf",
+      "created": "2026-11-04T14:51:47Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_E9unk69i6D7JaHwjCRPcnwzHKmHQ",
+      "sha": "273ceb2412cac3de04ba784982bb076bbd465a8e",
+      "created": "2026-11-04T14:55:03Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX",
+      "sha": "d06cf1ab309c8278d61fc3c3588ea78a994262a1",
+      "created": "2026-11-04T15:35:20Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_GZGdkkcfF1cfLHzXCQK5ztssPiiK",
+      "sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+      "created": "2026-11-04T20:17:00Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_BK6439BGWMJ7br8FNxXonkkvvadC",
+      "sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+      "created": "2026-11-04T20:19:54Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+      "sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+      "created": "2026-11-04T20:21:06Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_Ds3PSspTDjTQGEdXK8RPSt4oFZ7s",
+      "sha": "a27d8d06ff72e8ae664c02f0a5bc0bb66dd7a1b5",
+      "created": "2026-11-05T03:31:45Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_ENkQEP9vP4jHEz2NXPZfdY1zY7xH",
+      "sha": "52053ce8be65532c2d77bef22b00927e599a8150",
+      "created": "2026-11-05T04:11:16Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_8wS3rP2YgbqSaapmYxa3SAk8jdFk",
+      "sha": "18c98fa6ff967dbf81d48f1cf416b2abfe8035a3",
+      "created": "2026-11-05T04:22:03Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP",
+      "sha": "b0a752c66d10e36d27ade3b9692676d59e8ef834",
+      "created": "2026-11-05T11:20:56Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_4aihnmkHhEHuh2oJjXVziRP5ZLwu",
+      "sha": "2500ec56065354572e33cbdebde0482d84b2195c",
+      "created": "2026-11-05T11:58:39Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_BoKyLg3mFp6B6WtdkaCLVeS8MwkX",
+      "sha": "ddf125d97b45579de6763e76cee06f03d1241528",
+      "created": "2026-11-05T13:21:00Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_5M5fGStkPYhdTRrQp345aEr4GcXZ",
+      "sha": "68a089a6509137a4ace107ffc1ef251d50254d97",
+      "created": "2026-11-05T13:32:04Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_5H1C4V2ujsPXymaGJk2c5vvMhKfW",
+      "sha": "91024c7f60903adde62cdbedb157393416737fb8",
+      "created": "2026-11-05T13:38:48Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_Vp8REeLwiXEq7UDSjPE47cG5tBXx",
+      "sha": "91024c7f60903adde62cdbedb157393416737fb8",
+      "created": "2026-11-05T13:39:12Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_8wUEdPPfyFJfstANG4SrUJonk579",
+      "sha": "08cb3c17f8833dfb7066a0276ea0bb046bdabddd",
+      "created": "2026-11-05T14:07:36Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_3Ygpm1pWWmE2omFnDKGXdNGYvVwk",
+      "sha": "27187564b4a980614a82e765683dfb4002e6d53e",
+      "created": "2026-11-05T14:29:13Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_B4W6VpZQ8jVN5MRcQPHTzUe2bLL3",
+      "sha": "4e82797e686282bd19c939ebfbe243725a9deddb",
+      "created": "2026-11-05T14:40:01Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_8WXzbuz4dmpKqKeqQYjymu7uPZBb",
+      "sha": "377c7dba8d5cb9d331614427a7eb7a0fa50cbb3c",
+      "created": "2026-11-05T14:51:52Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_EDc7PpuMp4vkuJuSbwh1gKQ5QSTV",
+      "sha": "410eaad1751a694b9157ccaa4023edfdd26cf7ec",
+      "created": "2026-11-05T15:42:36Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_9uZxrbyiN45nWPgrtxhFDL54iVRP",
+      "sha": "ebf06d3ced0d2749099d850f83cf6c6d8d066e97",
+      "created": "2026-11-05T18:14:21Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_2yczMJLNnKiQrp53qsYYuxqzrLbr",
+      "sha": "ebf06d3ced0d2749099d850f83cf6c6d8d066e97",
+      "created": "2026-11-05T18:17:36Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_DT7W8eCPjFq9WFZNSjkxJVHkqB4H",
+      "sha": "8ae69125f190e77a1970cc2a479b23226a75c68b",
+      "created": "2026-11-05T18:47:03Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_7XpLXkusj44GtJMQJhrXFANJLwv1",
+      "sha": "8ae69125f190e77a1970cc2a479b23226a75c68b",
+      "created": "2026-11-05T18:52:58Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_HcnMTEH7SmMmGRF5bCKynDJ6ekJC",
+      "sha": "a5ef82ccefb5188cd49609c08241307c6c925527",
+      "created": "2026-11-05T19:29:27Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_D51GNZUQZeoWdt4sBZgmt3MXdg5j",
+      "sha": "97bf00be246a586c3c7baba6e1e1fed6a0e9028c",
+      "created": "2026-11-05T22:29:07Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_E8QfTF9nbp1uQ7Ayj1ZDegnAPqfs",
+      "sha": "9ea0c2c4b809eaba0e0aa11746adf37303800a2a",
+      "created": "2026-11-06T01:03:13Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_Fnz5Ax9ARZhs2eBxR2L3Qseae5qP",
+      "sha": "c22fcc7890cf04cc417e54700724e9bf37a4d9a9",
+      "created": "2026-11-06T02:14:40Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_AGBw6N6qheCeo7CBbMqy1tKcYmV4",
+      "sha": "a3e6b737f02b82c57b2a3bcac6189d8b994b34c4",
+      "created": "2026-11-06T02:40:41Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_Do29y8ysyCsghSa1z1LBkpbNaJPs",
+      "sha": "d7c0842d1fe4760cd775b998f4c5c43aa940c680",
+      "created": "2026-11-06T02:41:42Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_HSVom9anGkM2Sj89JLAjiYVDUvJB",
+      "sha": "be9b173320f25053dff097ef837b3c7032a7f17a",
+      "created": "2026-11-06T04:28:40Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_Bcuef8wzCcZrQc6YVF9TVP3NDGPA",
+      "sha": "be9b173320f25053dff097ef837b3c7032a7f17a",
+      "created": "2026-11-06T04:32:11Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_HcoHSTtpq6uv6CYkAkrTda8R2H13",
+      "sha": "be9b173320f25053dff097ef837b3c7032a7f17a",
+      "created": "2026-11-06T04:46:20Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_8UabBobRVMxae7drpZkr2gW9mpAD",
+      "sha": "42ff15120b057c41944806623d2b5fe3df14ca18",
+      "created": "2026-11-06T05:54:23Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_7Hn7Lv4mhAVth3zBY3JHKsp4sahh",
+      "sha": "1f0863938062d85757e93043f568ec5eeb0d72f2",
+      "created": "2026-11-06T06:52:20Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_5nnzNsFAb9qAxdQxsqDVjngFjcxP",
+      "sha": "9ca758e44f2251beab41b315fbdcd6914d3b3c53",
+      "created": "2026-11-06T08:14:30Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_BgMKeVB5ENfhTVMj42TSE1jGJH9k",
+      "sha": "f2d3841934caa8daf7a2e7df0e480992d3ec3cea",
+      "created": "2026-11-06T08:49:19Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_LXNbSoPBKL1UtvjCHamzf94n2P37",
+      "sha": "1ec5d6c16645572cebd52777cb294ce48516e94d",
+      "created": "2026-11-06T10:07:34Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_5BhNvF9H3KhKw2WgJd7pgbkByXuZ",
+      "sha": "394a2ba8f90fae8716d95c5bf9182fc16fa7f3a2",
+      "created": "2026-11-06T11:08:06Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_12JhDbtTkEiENigf3Wzy4sproY7E",
+      "sha": "cfda877a15fd4034861950b8668d0ef6d966b515",
+      "created": "2026-11-06T14:19:23Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz",
+      "sha": "cfa7cc1ceee58947cde1de3df66e8f83f1c78b7c",
+      "created": "2026-11-08T00:27:41Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_8moRj58gumZHDyKBJ8gebQWtf3nK",
+      "sha": "58e7d0cc245169b85ac3b52e2eac71ae6646f335",
+      "created": "2026-11-08T01:26:39Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_Hrjh6buc23rVS9hmfUtxrV4szA9i",
+      "sha": "5a6899600aee07f72dc1aba86698c3bd3fe74f34",
+      "created": "2026-11-08T01:58:22Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_FAUosGr2Cy4aZjWph2qwLRNcN5ki",
+      "sha": "3189f87b532d9866ef1a7e58a3aa5f673e414749",
+      "created": "2026-11-08T02:28:19Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_6ge9Cyh5SYfQk6iJwYbB44mESZ2c",
+      "sha": "2a208c097a903e8a1661eec625fb29e9abd38be2",
+      "created": "2026-11-08T02:35:12Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_9AhmVTAgAES1xMegxMJMT92LXL3F",
+      "sha": "8c920c98c63229e628c984e37adc31899d6c6f62",
+      "created": "2026-11-08T02:58:55Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_3QiYc18aSk4ZRvaH82CLYxDgBd5f",
+      "sha": "ef005991eb1caa0258bc7885b7c1c97e28c28ee6",
+      "created": "2026-11-08T03:24:05Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_48tSStYRgVRKp533GL7KpAmuYaND",
+      "sha": "05181200e039905abd0817db0ecaa47cd25aaba9",
+      "created": "2026-11-08T04:23:38Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_Cf3GhwPoLeeQLQEu7daDidps1ViH",
+      "sha": "b3347131016ce8e58214b849f3f11951ab3077dc",
+      "created": "2026-11-08T04:38:11Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_FWiix9cTu4akV58uWYAah2Utm3Y3",
+      "sha": "c8351dccb742860fcf0b1e0a68ab1748f91cf2bf",
+      "created": "2026-11-08T12:29:30Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_Fq8phuGdutqPGSnWcQ8xrDQuEGVG",
+      "sha": "545b852bad8409d1ef67261d2d0a98e4785b8e0e",
+      "created": "2026-11-08T12:47:25Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_ASPuwaFmHS65zDiJdvVuFhEGSxb3",
+      "sha": "29adff9b49f2820fe40b93ef2b7d90305e82ed6a",
+      "created": "2026-11-08T17:49:04Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_2TWXtRRTXFk4v8ULwwygwm7suQUu",
+      "sha": "f84b3f7cd446fa6fe800f1195d941e75d6ee45dc",
+      "created": "2026-11-08T19:21:08Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_67HHU6N8CWV83CQdS8AkWHSAfbvU",
+      "sha": "5d4414d7500cad8303a4f30fcf834a4e7f57f8c3",
+      "created": "2026-11-08T21:06:36Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_BUtPuve7umNnmMkqu2WD3vTSageF",
+      "sha": "5d4414d7500cad8303a4f30fcf834a4e7f57f8c3",
+      "created": "2026-11-08T23:51:55Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_2oCF9xTRe1h4aNqY4jNfcNkvcQk9",
+      "sha": "608c161be241091e4c6630cce40de75353b258d2",
+      "created": "2026-11-09T00:27:01Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_CPmsf6gxqK6SJXWghGuhwpwkPu1t",
+      "sha": "608c161be241091e4c6630cce40de75353b258d2",
+      "created": "2026-11-09T00:31:29Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_CDTXUK73xRa2kax7XykDHfeifVZS",
+      "sha": "608c161be241091e4c6630cce40de75353b258d2",
+      "created": "2026-11-09T00:32:52Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_6RaGctKdbKwns7W1KopkVqSRFJLP",
+      "sha": "608c161be241091e4c6630cce40de75353b258d2",
+      "created": "2026-11-09T00:33:12Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_3CU6nBaEhx9qYmXBnqf84Cw3cjRv",
+      "sha": "608c161be241091e4c6630cce40de75353b258d2",
+      "created": "2026-11-09T00:35:18Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_FuTnSevP5T2oXFsFDFQ7AigB3gbP",
+      "sha": "24b1ef6d0a2f43253be507695a969dde550f23d9",
+      "created": "2026-11-09T14:03:25Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_Eg7C3nWWdPDSijABaQdWm4xxQbko",
+      "sha": "555414a0047b81a292b09b3314dcb9f0d79e0eb8",
+      "created": "2026-11-09T14:22:18Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_4JfDopnpdjwm6ZMWXWuiZ1sBu2c3",
+      "sha": "434614c1216cdc6af37a9f7144bfcb0e59ede799",
+      "created": "2026-11-09T15:28:47Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_DFJTr8CbtGFZTdyWUUmrTDD5ttFF",
+      "sha": "1f0867ffbbe87397d712a76d0ba61633c0befef6",
+      "created": "2026-11-10T12:35:33Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_EQeWiaZnMnkfq5ozMpMwmRsCqaAu",
+      "sha": "1f0867ffbbe87397d712a76d0ba61633c0befef6",
+      "created": "2026-11-10T12:36:12Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_B7SxBXKgp3zjYcumr7nhwADDGEut",
+      "sha": "1f0867ffbbe87397d712a76d0ba61633c0befef6",
+      "created": "2026-11-10T12:36:56Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_2HtPcpejdz5XSJWzayU6f5hgYpGE",
+      "sha": "1f0867ffbbe87397d712a76d0ba61633c0befef6",
+      "created": "2026-11-10T12:40:41Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_7M4RdkzVvfJ5wWVsi3i2s6XT2FjR",
+      "sha": "1f0867ffbbe87397d712a76d0ba61633c0befef6",
+      "created": "2026-11-10T12:42:23Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_BNC9kmC51amWJqPEJ7acogV4tcEZ",
+      "sha": "1f0867ffbbe87397d712a76d0ba61633c0befef6",
+      "created": "2026-11-10T12:59:36Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_7Q7rBC4qKtP5AHwAunCePYeNo5FK",
+      "sha": "1f0867ffbbe87397d712a76d0ba61633c0befef6",
+      "created": "2026-11-10T13:25:34Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_PWibbW6G7Ay2BM8EoJcKSLJGXfw9",
+      "sha": "0d718702cf4c949a35aabadfff87d7c53a1f4eef",
+      "created": "2026-11-10T14:50:39Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_CseQBjfcMUnVzCxiFCfcZ1S9112f",
+      "sha": "54fac7876af97b5c4df62e0facfca8f85ac619b1",
+      "created": "2026-11-10T16:49:56Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_BcUS65VNTCFk9bA3qHm59C8C9Dt3",
+      "sha": "5490785ea745269c90c986d010766200f46b6307",
+      "created": "2026-11-10T17:37:52Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_2Kfmq8qUHjybDYY3Dmvi4ri3CvVD",
+      "sha": "6badaa0715b1a5bbea8a3cea1c909e86467f55c1",
+      "created": "2026-11-10T18:13:25Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_3NeuidQmzJF35U1Uhu45iXE8kRwo",
+      "sha": "6deeb1008285e19aad4cfcb9ae21681863ee0695",
+      "created": "2026-11-10T22:01:43Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_HnswhFsyHPK2aSKxLN9nak3r2BKL",
+      "sha": "932aba4bdd8eaa7030c57932ce9606f9ca5ebe18",
+      "created": "2026-11-10T23:58:07Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_AKEwp7wfzWn6KnoTXgNtVYy8vx3m",
+      "sha": "01d96b627694d9c611b181721daa3a384284b300",
+      "created": "2026-11-11T00:14:05Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_FCwHYvgG4CAQgGB7kUULqTZrg5xW",
+      "sha": "d6662fdcbfa51f16304aacd36c28f0a304b5e12b",
+      "created": "2026-11-11T00:49:12Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_D1bugDCxnj2nWQ1miuuidsVspCzx",
+      "sha": "43c00b728b7b1904b690c7bb80577b184ed26421",
+      "created": "2026-11-11T01:08:33Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_5mHkE6Cf28PYM1xmdHgDa9VNfz9E",
+      "sha": "f250da9f74f64e701dc70a16258186e555edcef7",
+      "created": "2026-11-11T03:49:30Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_3FKYGdd3vZzg4WH3Y5d2CDp9bMmq",
+      "sha": "f250da9f74f64e701dc70a16258186e555edcef7",
+      "created": "2026-11-11T03:53:02Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_DTgmTnQYrC5YoRrFQkevc6eufbC7",
+      "sha": "11aeb6bbc5c3ac72d3818bd23a09e44487cd913f",
+      "created": "2026-11-11T07:03:16Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_2Lg5AgQzxxE2GVU7pTr5gsXoFeif",
+      "sha": "367bd62ee0721cb2562f9f230e33db1e7f5847df",
+      "created": "2026-11-11T11:16:25Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_BQggtJeuxLSxSmfxtrrUf2LepiRH",
+      "sha": "d5fa184f863e58ee8ab8a0c5470c7ca908cb9db8",
+      "created": "2026-11-11T13:10:55Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_2LSJa2osE3AqkmMyznKFLNmhoDcU",
+      "sha": "949c24ad549ae9e95ced528a4ee8159670b52678",
+      "created": "2026-11-11T22:37:25Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_9sJPZEwhbu7a13cakoeTbjXasm3A",
+      "sha": "146f2f0e7e5e6dcd17f49af33e70808e7549ea1f",
+      "created": "2026-11-12T10:30:29Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_FukqRDsqwcioPxHfGfrfkAFZQDH4",
+      "sha": "295141aa41d9be01c4c7e9f2a9dac4730eee01f3",
+      "created": "2026-11-12T13:40:57Z",
+      "ready": false
+    },
+    {
+      "id": "dpl_8wFDbWJmUPWCF7Gm5fBuFFyzMRkK",
+      "sha": "ed30dc05bab6f079b771669de6206a99413dd5de",
+      "created": "2026-11-12T13:53:34Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ",
+      "sha": "aa0f6bc82b8c94286374b1f51208037502994eab",
+      "created": "2026-11-12T16:38:16Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_9paqBrZzi7D1GXow7LV8eWCjkpEF",
+      "sha": "9be0c29fc52337069192b057ef1a9882c7026009",
+      "created": "2026-11-13T08:16:00Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_89Men3jqSi3pAJ5jGMpp75iZqDzx",
+      "sha": "9c4cad1372200759e9afe6e9c38709209d4ee02a",
+      "created": "2026-11-14T15:37:29Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_8AekneeH4eKNwFY1agzMHRaypsAL",
+      "sha": "4c9630db48958417796948b32031f06eb22ed3f1",
+      "created": "2026-11-14T22:43:07Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_C5DBLrWYhELPFDDUaVRJs5W1T6Wj",
+      "sha": "4b9a8687eea94afcf2466046708903b512d44f38",
+      "created": "2026-11-14T23:39:17Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_5zVyxXPYNf7tH4jaovi7C4So2FEf",
+      "sha": "fec22ca072ce48114beab161988620d47b7392b8",
+      "created": "2026-11-15T05:10:37Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_CLXTnXF5de1PN1STtajXghtnhyVU",
+      "sha": "c752b0014a1ba288e314be9fad66a6af6f52e2cc",
+      "created": "2026-11-15T05:56:44Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_J2wg6mqptCp8vFkfDbxz31dtHzoH",
+      "sha": "c2acc064be31df93a229637bc32305a951c8006b",
+      "created": "2026-11-15T13:25:14Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU",
+      "sha": "d1f1e3252100afe14719a4eeb96c791dd29b7d51",
+      "created": "2026-11-15T22:00:42Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_4i7djNA8y61CN6iiskzdPDmHWFmP",
+      "sha": "ea7257598a5217b9a8de308cca1194ec4a027fbf",
+      "created": "2026-11-16T01:10:01Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7",
+      "sha": "93daf703e32e74dade37fdf402ec6b29deb1c91a",
+      "created": "2026-11-16T16:13:59Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6",
+      "sha": "e226815f6b07874d1f6e94dc49d6b53756174363",
+      "created": "2026-11-16T20:00:12Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
+      "sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
+      "created": "2026-11-17T08:51:44Z",
+      "ready": true
+    }
   ]
 }

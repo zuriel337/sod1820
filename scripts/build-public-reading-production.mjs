@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir, readdir, rm } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY_ID } from "../public-reading-deploy/transport.js";
 import { SUPABASE_ANON } from "../src/lib/supabase.js";
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
@@ -221,5 +221,11 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
   workerSha256: hash(worker),
   files: files.sort((a, b) => a.path.localeCompare(b.path)),
 }, null, 2) + "\n");
+// The shell budget guard on the artifact that is really published (scripts/test-2029-shell-budget.mjs, profile "public-reading"): the entry,
+// the System Frame and its CSS of THIS output may not grow past their recorded baseline, whatever VITE_* values the build carries. A failure
+// fails the build, so a grown release artifact cannot be deployed.
+const budget = spawnSync(process.execPath, [resolve(root, "scripts/test-2029-shell-budget.mjs"), "--profile", "public-reading", "--dist", output], { cwd: root, encoding: "utf8" });
+process.stdout.write(budget.stdout || ""); process.stderr.write(budget.stderr || "");
+if (budget.status !== 0) throw new Error("public_reading_shell_budget_failed");
 console.log(publicCandidateMode ? "Public-capable candidate built for protected unrouted acceptance; no traffic switch is authorized." : productionReviewMode ? "Staged Production-target review artifact built. Canonical serving, indexing and cutover remain denied."
   : protectedReview ? "Protected Preview review artifact built. Production/cutover remain denied." : "Dormant public-reading artifact built from actual 2029 source. No deployment or cutover is authorized.");
