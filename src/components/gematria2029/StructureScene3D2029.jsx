@@ -282,7 +282,10 @@ function LabRig({ view, part, explode, resetToken, spin, active, reduced, contro
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return;
-    const to = view === "focus" ? (poses?.focus || focusPose)(part, aspect, explode) : (poses?.overview || overviewPose)(aspect, explode, poseOpts);
+    // a family may register further named views (the cube's "inside"); overview/focus keep their meaning for every family
+    const to = view === "focus" ? (poses?.focus || focusPose)(part, aspect, explode)
+      : view !== "overview" && typeof poses?.[view] === "function" ? poses[view](part, aspect, explode)
+      : (poses?.overview || overviewPose)(aspect, explode, poseOpts);
     if (first.current || reduced) {
       first.current = false;
       camera.position.set(to.position.x, to.position.y, to.position.z);

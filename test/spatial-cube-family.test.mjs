@@ -6,7 +6,7 @@ import { buildZviSpatialWorldProjection } from "../src/lib/research/zviSpatialWo
 import {
   CUBE_FACES, STRUCTURE_PART_LABEL, bindPathsToStructure, cubeStructureSpec, deriveConvergencePaths, describePathSource, describeStructurePart, drawableSpec, evaluateConvergencePaths, structureSpecFor,
 } from "../src/lib/spatialRenderModel.js";
-import { CUBE_3D, cubeConnectorPoints, cubeExtent, cubeFocusPose, cubeLetterBudget, cubeOverviewPose, cubeProbePoints, cubeSolid, cubeWordLayout, facePlacement, plinthPlacement, pointsFitFrustum } from "../src/lib/spatial/cubeLayout3D.js";
+import { CUBE_3D, CUBE_INSIDE, cubeInsidePose, oppositeFaceIndex, cubeConnectorPoints, cubeExtent, cubeFocusPose, cubeLetterBudget, cubeOverviewPose, cubeProbePoints, cubeSolid, cubeWordLayout, facePlacement, plinthPlacement, pointsFitFrustum } from "../src/lib/spatial/cubeLayout3D.js";
 import { buildLabRows, buildRevealSteps } from "../src/lib/spatial/labRows.js";
 import { pathAriaLabel, pathEquationText, pathTagText, razielSemanticFocus } from "../src/lib/spatial/pathSemantics.js";
 
@@ -195,4 +195,30 @@ test("same engine: the cube scene is one more lazy 3D module of the closed set, 
   assert.match(shelf, /card\.operations\?\.length === 1 && card\.labFamily/);
   for (const file of ["../src/lib/spatial/cubeLayout3D.js"]) assert.doesNotMatch(read(file), /from "(three|react|@react-three)/, "the layout is pure");
   for (const file of ["../src/components/gematria2029/StructureScene3D2029.jsx", "../src/components/gematria2029/IcosaScene3D2029.jsx"]) assert.doesNotMatch(read(file), /CubeScene3D2029/, "scenes do not import each other's family");
+});
+
+test("the inside: the camera stands in the hollow near the wall opposite the face it reads, the whole inner side of the face is in view, and the open wall is the opposite one", () => {
+  const solid = cubeSolid(), half = solid.size / 2;
+  assert.deepEqual([0, 1, 2, 3, 4, 5].map((i) => oppositeFaceIndex(solid, i)), [2, 3, 0, 1, 5, 4], "opposite faces");
+  assert.equal(CUBE_INSIDE.entryFace, 0); assert.equal(oppositeFaceIndex(solid, CUBE_INSIDE.defaultFace), CUBE_INSIDE.entryFace, "the default face is behind the wall the camera crosses on entering");
+  for (const face of solid.faces) for (const aspect of [1.6, 1, 0.75, 0.6]) {
+    const pose = cubeInsidePose(solid, face.index, aspect), n = face.normal;
+    const inner = half - solid.depth, along = (p) => p.x * n[0] + p.y * n[1] + p.z * n[2];
+    assert.ok(Math.abs(along(pose.target) - inner) < 1e-9, `${face.name}: it looks at the inner surface of the face`);
+    assert.ok(along(pose.position) < inner - 60, `${face.name}: the camera stands well back from that surface, on the hollow's side`);
+    assert.ok(along(pose.position) <= half * 1.1, `${face.name}: never farther than the open wall's plane (+ a little)`);
+    assert.equal(pose.fovDeg, CUBE_INSIDE.fovDeg);
+    // the four inner corners of the face (and its middle) are inside the frustum of the wide lens
+    const { x, y } = face.frame, corners = [[-1, -1], [1, -1], [1, 1], [-1, 1], [0, 0]].map(([a, b]) => [pose.target.x + x[0] * a * half * 0.96 + y[0] * b * half * 0.96, pose.target.y + x[1] * a * half * 0.96 + y[1] * b * half * 0.96, pose.target.z + x[2] * a * half * 0.96 + y[2] * b * half * 0.96]);
+    if (aspect >= 0.75) assert.ok(pointsFitFrustum(corners, pose.position, pose.target, aspect, CUBE_INSIDE.fovDeg, 1), `${face.name}: the whole inner side is in view at aspect ${aspect}`);
+    else assert.ok(pointsFitFrustum([corners[4]], pose.position, pose.target, aspect, CUBE_INSIDE.fovDeg, 0.5), `${face.name}: the face's middle stays centred on a narrow phone (corners may crop)`);
+  }
+  const top = cubeInsidePose(solid, 4, 1), bottom = cubeInsidePose(solid, 5, 1);
+  assert.ok(top.position.z > top.target.z + 1 && bottom.position.z < bottom.target.z - 1, "looking straight up/down the camera leans, so the word stays upright (top: up is −z, bottom: up is +z)");
+  assert.deepEqual(solid.faces[4].frame.y, [0, 0, -1]); assert.deepEqual(solid.faces[5].frame.y, [0, 0, 1]);
+  const scene = read("../src/components/gematria2029/CubeScene3D2029.jsx");
+  assert.match(scene, /rotation=\{\[0, Math\.PI, 0\]\}/, "the inner side carries the same word, turned to be read from inside");
+  assert.match(scene, /visible=\{f\.index !== openWall\}/, "the open wall is not drawn");
+  assert.match(scene, /const handlers = visible \? \{ onClick: pick, \.\.\.hover \} : \{\}/, "and is not pickable");
+  assert.match(scene, /inside \? null : <>/, "the exterior (stand, route, apex, tag) is not drawn inside");
 });

@@ -140,3 +140,28 @@ export function cubeConnectorPoints() {
   const from = { x: 0, y: h, z: -h };
   return [from, { x: 6, y: h + 70, z: -h - 20 }, { x: -6, y: to.y - 70, z: to.z + 20 }, to];
 }
+
+// ---- the INSIDE of the cube (inner exploration) ----
+// The camera stands in the hollow, near the wall OPPOSITE the face it looks at (that wall is left open — the doorway), with a wide lens, so the whole inner side of
+// the chosen face fills the view. The inner side carries the same word, turned to be read from inside.
+// entryFace: the near wall the camera crosses (the overview looks at the front); defaultFace: the face read first (the one behind it)
+export const CUBE_INSIDE = Object.freeze({ fovDeg: 78, lantern: 6200, lanternDistance: 520, entryFace: 0, defaultFace: 2 });
+
+export function oppositeFaceIndex(solid, index) {
+  const face = solid.faces[Math.max(0, Math.min(solid.faces.length - 1, Number(index) || 0))];
+  return solid.faces.findIndex((other) => other.normal.every((v, i) => Math.abs(v + face.normal[i]) < 1e-9));
+}
+
+export function cubeInsidePose(solid, faceIndex, aspect) {
+  const face = solid.faces[Math.max(0, Math.min(solid.faces.length - 1, Number(faceIndex) || 0))];
+  const n = face.normal, inner = solid.size / 2 - solid.depth;          // the plane of the face's inner surface
+  const half = (solid.size / 2) * 1.02;
+  // a leaning camera (top/bottom face) sees the face obliquely: its near edge is farther off-axis, so it needs a little more room
+  const leans = Math.abs(n[1]) > 0.9;
+  const wanted = fitCameraDistance({ minX: -half, maxX: half, minY: -half, maxY: half }, CUBE_INSIDE.fovDeg, aspect, leans ? 1.2 : 1.02);
+  const d = Math.max(70, Math.min(wanted, solid.size * 1.08));            // never farther than the doorway plane (+ a little), so it still reads as standing inside
+  const target = { x: n[0] * inner, y: n[1] * inner, z: n[2] * inner };
+  // looking straight up/down an orbit camera has no horizon: lean the camera toward the viewer's side so the word stays upright (top: up is −z, bottom: up is +z)
+  const lean = leans ? [0, 0, (n[1] > 0 ? 1 : -1) * d * 0.2] : [0, 0, 0];
+  return { target, position: { x: target.x - n[0] * d + lean[0], y: target.y - n[1] * d + lean[1], z: target.z - n[2] * d + lean[2] }, fovDeg: CUBE_INSIDE.fovDeg };
+}
