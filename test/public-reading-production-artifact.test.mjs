@@ -450,6 +450,12 @@ test("the generated document hints the exact entry the bootstrap imports after w
   assert.equal(html.split(tag).length - 1, 1, "exactly one module preload of the entry");
   assert.ok(html.includes(tag + '<script type="module">(async function startPublicReading'), "the hint sits directly before the inline bootstrap");
   assert.ok(html.indexOf(tag) < html.indexOf("await loadEntry("), "the hint is in the document before the import that consumes it");
+  // The Home's own code (public-reading-deploy/route-preload.js, ZURIEL 17.11.2026): one inert list after the bootstrap, which only the Home's
+  // document turns into hints (the handler removes it from every other document); its module hints use the same CORS mode as the entry's.
+  const homeList = /<!--sod-home-preload ([\s\S]*?) -->/.exec(html);
+  assert.ok(homeList && html.indexOf(homeList[0]) > html.indexOf("await loadEntry(") && html.split("<!--sod-home-preload ").length === 2, "one Home list, after the bootstrap");
+  assert.ok(/<link rel="modulepreload" crossorigin href="\/assets\/Home2029Page-[A-Za-z0-9_-]+\.js">/.test(homeList[1]), "the Home page's own chunk is listed");
+  assert.ok(!homeList[1].includes(config.entry), "never the entry again");
   // The hinted URL, the imported URL and the Vite manifest entry are one and the same file, and it exists.
   const manifest = JSON.parse(read("public-reading-deploy/dist/.vite/manifest.json"));
   const entries = Object.values(manifest).filter(item => item.isEntry);

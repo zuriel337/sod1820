@@ -325,3 +325,13 @@ test("the Royal layer defines no colour of its own: every hue resolves from the 
   const pin = readFileSync(new URL("../src/components/experience2029/NowRoyalCenter2029.jsx", import.meta.url), "utf8");
   assert.match(pin, /import "\.\/royal2029\.css";/); assert.match(pin, /className=\{`rc29-pin r29 r29-hall/);
 });
+
+// ZURIEL 17.11.2026: the Home's pinned lead before the shared feed arrives makes the same choice from the series catalog.
+test("seriesLatestMember2029 / seriesLatestFace2029: the catalog member with the latest publication or registered update, shown as that update when newer", async () => {
+  const { seriesLatestMember2029, seriesLatestFace2029 } = await import("../src/lib/nowPublications2029.js");
+  const members = [{ id: "8", title: "פוסט 8", href: "/post/p-8", publishedAt: "2026-11-01T00:00:00Z" }, { id: "9", title: "פוסט 9", href: "/post/p-9", publishedAt: "2026-11-10T00:00:00Z" }];
+  assert.equal(seriesLatestMember2029(members).id, "9");
+  assert.equal(seriesLatestMember2029([]), null);
+  assert.deepEqual(seriesLatestFace2029(members[1]), { title: "פוסט 9", postTitle: null, at: "2026-11-10T00:00:00Z", href: "/post/p-9" }, "no registered update: the Post itself");
+  assert.equal(seriesLatestFace2029(null), null);
+});
