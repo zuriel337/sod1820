@@ -48,6 +48,40 @@ function missingAssetFile(path) {
   try { return ASSET_FILE_PATH.test(decodeURIComponent(path)); } catch { return false; }
 }
 
+// POST_DOCUMENT_CDN_CACHE (ZURIEL 17.11.2026, experiment). A public Post document is the same bytes for every reader: this handler
+// reads no cookie, no Authorization header and no account; the metadata owner reads the Post with the anonymous key only, and only
+// a public, unsuppressed Post is admitted. So the platform's own CDN (Vercel) may keep that document near the reader for a short,
+// bounded time. Browsers keep `Cache-Control: no-store` exactly as before (service worker, back/forward and reload unchanged); only
+// the CDN reads Vercel-CDN-Cache-Control. Freshness: up to FRESH seconds; after that the next reader still gets the kept copy once
+// while the CDN refreshes it in the background (STALE bounds how long an unrequested copy may be used that way). Each copy is tagged
+// with the Post id, so one Post (or all Post documents) can be refreshed at once by tag. A deployment never serves another
+// deployment's copy. Anything that is not exactly "an admitted public Post, 200, no query string, its own address" keeps no-store.
+export const POST_DOCUMENT_CDN_CACHE = Object.freeze({ version: "post-cdn-v1", freshSeconds: 300, staleSeconds: 60, tag: "post-document" });
+// The edge gate (post-document-freshness.js, in the Routing Middleware) sends a Post that changed in the last 20 minutes, or every Post while
+// it cannot confirm its list of changes, to the origin with this reserved parameter and header. Such a request is never answered from a kept
+// copy (its address differs) and its answer is never kept; the parameter is removed before anything else reads the address.
+export const POST_DOCUMENT_FRESH_PARAM = "__sod_fresh";
+export const POST_DOCUMENT_FRESH_HEADER = "x-sod-doc-fresh";
+export function withoutFreshParam(search) {
+  if (!search || !search.includes(POST_DOCUMENT_FRESH_PARAM)) return search || "";
+  const kept = search.replace(/^\?/, "").split("&").filter(part => part.split("=")[0] !== POST_DOCUMENT_FRESH_PARAM);
+  return kept.length ? "?" + kept.join("&") : "";
+}
+// The article-first step must have reached a final answer: a "warming" document (a cold instance still loading the renderer) or a
+// "failed" one is served as before but never kept, so the CDN never holds a slower copy than the next request would get.
+export const POST_DOCUMENT_CDN_FINAL_ARTICLE_STATES = Object.freeze(["served", "served-new", "not-eligible", "off", "not-proven", "new-guarded"]);
+export function postDocumentCdnCacheable({ method, status, state, temporarilyClosed = false, search = "", originalDocument, post, articleFirst, fresh = false, path = "" } = {}) {
+  return !fresh && !String(path).includes(".") && POST_DOCUMENT_CDN_FINAL_ARTICLE_STATES.includes(articleFirst) && (method === "GET" || method === "HEAD") && status === 200 && (state === "public" || state === "post-lookup") && !temporarilyClosed
+    && originalDocument === true && !search && post != null && /^[0-9A-Za-z_-]{1,64}$/.test(String(post.id ?? ""));
+}
+export function postDocumentCdnHeaders(post, policy = POST_DOCUMENT_CDN_CACHE) {
+  return {
+    "Vercel-CDN-Cache-Control": `max-age=${policy.freshSeconds}, stale-while-revalidate=${policy.staleSeconds}`,
+    "Vercel-Cache-Tag": `${policy.tag},${policy.tag}-${post.id}`,
+    "X-Sod-Document-Cache": policy.version,
+  };
+}
+
 // Dependency injection remains a local synthetic test seam. Hosted admission
 // uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
@@ -65,8 +99,14 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     }
     const original = typeof req.url === "string" && req.url.startsWith("/") && !req.url.startsWith("//")
       ? new URL(req.url, origin) : null;
+    const query = { ...(req.query || {}) };
+    const fresh = Boolean(original?.searchParams.has(POST_DOCUMENT_FRESH_PARAM) || query[POST_DOCUMENT_FRESH_PARAM] != null
+      || String(req.headers?.[POST_DOCUMENT_FRESH_HEADER] || "") === "1");
+    // The original bytes of the query are kept (see the continuation below); only the reserved pair is cut out, and only when present.
+    const originalSearch = original ? withoutFreshParam(original.search) : "";
+    delete query[POST_DOCUMENT_FRESH_PARAM];
     const originalDocument = original && !original.pathname.startsWith("/api/");
-    const path = originalDocument ? original.pathname : req.query?.path ?? "/";
+    const path = originalDocument ? original.pathname : query.path ?? "/";
     if (typeof path !== "string" || !path.startsWith("/") || path.startsWith("//")
       || /[\\\u0000-\u001f\u007f#?]/.test(path)) return res.status(400).send("invalid path");
     try {
@@ -89,11 +129,11 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     if (origin !== CANONICAL_ORIGIN && origin !== protectedReviewOrigin() && origin !== protectedReviewAuthOrigin() && origin !== publicCandidateOrigin() && originalDocument) {
       // URL.search preserves the original bytes, repeated parameters and the
       // legitimate user key `path`. Never reconstruct it from rewrite query.
-      res.setHeader("Location", CANONICAL_ORIGIN + path + original.search);
+      res.setHeader("Location", CANONICAL_ORIGIN + path + originalSearch);
       return res.status(308).send("");
     }
     try {
-      const search = originalDocument ? original.search : new URLSearchParams(Object.entries(req.query || {}).filter(([key]) => key !== "path")).toString();
+      const search = originalDocument ? originalSearch : new URLSearchParams(Object.entries(query).filter(([key]) => key !== "path")).toString();
       const continuation = sourceDocumentContinuation(path, search) || publicReadingContinuation(path, search);
       if (continuation) {
         const target = new URL(continuation, origin);
@@ -118,7 +158,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
         // The metadata owner serves a few aliases (for example /2029) with another route's metadata; it needs the address that
         // was actually requested to keep home-only site identity off those aliases.
         publicRequestedPath: path,
-        query: { ...req.query, path: metadataPath, crawler: "search" },
+        query: { ...query, path: metadataPath, crawler: "search" },
       }, { setHeader(name,value) { if (name.toLowerCase() === "location") metadataLocation = value; }, status(code) { if (!closed) status = code; return this; }, send(value) { metadata = String(value); } });
       if (status === 308 && metadataLocation) {
         const target = new URL(metadataLocation, origin);
@@ -143,6 +183,8 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       res.setHeader("X-Robots-Tag", robots);
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       if (path.replace(/\/+$/, "") === "/unsubscribe") res.setHeader("Referrer-Policy", "no-referrer");
+      if (postDocumentCdnCacheable({ method: req.method, status, state, temporarilyClosed, search, originalDocument, post: admittedPost, articleFirst: firstDocument.state, fresh, path }))
+        for (const [name, value] of Object.entries(postDocumentCdnHeaders(admittedPost))) res.setHeader(name, value);
       return res.status(status).send(req.method === "HEAD" ? "" : html);
     } catch {
       res.setHeader("Retry-After", "60");

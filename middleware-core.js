@@ -1,5 +1,6 @@
-import { next } from '@vercel/edge';
+import { next, rewrite } from '@vercel/edge';
 import { isKnownSingleSegmentRoute, isSingleSegmentRoute, postSlugVariants } from './route-legitimacy.js';
+import { createPostDocumentGate, postDocumentBypassUrl, postDocumentGateCandidate, previewTestList, POST_DOCUMENT_FRESHNESS } from './post-document-freshness.js';
 
 // ── שומר-סף + לוג צד-שרת (Vercel Edge) ────────────────────────────────────────
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
@@ -272,10 +273,12 @@ export function edgePostLookupRequired(kind) {
   return kind === 'goodbot' || kind === 'ai';
 }
 
-async function publicPostSlugExists(path) {
+async function publicPostSlugExists(path, { fresh = false } = {}) {
   const now = Date.now();
   const cached = POST_ROUTE_CACHE.get(path);
-  if (cached && now - cached.at < POST_ROUTE_CACHE_MS) return cached.exists;
+  // A Post changed in the last 20 minutes (published, hidden, deleted, re-addressed) is looked up again: the memory of this instance must
+  // not keep answering "missing" for a Post just published, or "exists" for one just removed.
+  if (!fresh && cached && now - cached.at < POST_ROUTE_CACHE_MS) return cached.exists;
 
   const { decoded, encodedLower } = postSlugVariants(path);
   try {
@@ -295,6 +298,18 @@ async function publicPostSlugExists(path) {
     return null;
   }
 }
+
+// Post document freshness (ZURIEL 17.11.2026): the edge gate of post-document-freshness.js. One list per instance, read in the background
+// directly from the database's public read (as the policies above are), only while this instance serves a burst; never on a reader's
+// critical path.
+const POST_DOCUMENT_GATE = createPostDocumentGate({
+  fetchList: async () => {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${POST_DOCUMENT_FRESHNESS.listRpc}`, {
+      method: 'POST', headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' }, body: '{}',
+      signal: AbortSignal.timeout(POST_DOCUMENT_FRESHNESS.fetchTimeoutMs) });
+    return r.ok ? r.json() : null;
+  },
+});
 
 function routeNotFoundResponse() {
   const html = '<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>העמוד לא נמצא · SOD1820</title></head><body><main style="font-family:system-ui,sans-serif;max-width:680px;margin:12vh auto;padding:24px;text-align:center"><h1>העמוד לא נמצא</h1><p>הכתובת שביקשתם אינה קיימת ב-SOD1820.</p><a href="/">חזרה לדף הראשי</a></main></body></html>';
@@ -386,13 +401,21 @@ export default async function middleware(request, context) {
     if (!hasQuarantineProof(request, country, risk)) return quarantineBrowserChallenge(country, level, risk);
   }
 
+  // Post document freshness: decided before the crawler existence lookup (which re-reads a recently changed Post) and applied at the end.
+  let docGate = null;
+  if (postDocumentGateCandidate(request.method, request.url)) {
+    docGate = await POST_DOCUMENT_GATE.decide(path, { testList: previewTestList(request) });
+    if (docGate.refresh) context.waitUntil(docGate.refresh());
+  }
+  const docChanged = docGate?.reason === 'changed' || docGate?.reason === 'all';
+
   // Route legitimacy runs only after security/quarantine decisions. It does not alter CN/SG semantics.
   if (request.method === 'GET' || request.method === 'HEAD') {
     // Crawlers only (see edgePostLookupRequired): a browser's document gets its 404 from the public document handler, one read later, not two.
     const postLookup = edgePostLookupRequired(kind);
     // Legacy single-segment containment remains for compatibility, but G3 targets /post/:slug.
     if (postLookup && isSingleSegmentRoute(path) && !isKnownSingleSegmentRoute(path)) {
-      const exists = await publicPostSlugExists(path);
+      const exists = await publicPostSlugExists(path, { fresh: docChanged });
       if (exists === false) return routeNotFoundResponse();
       // null = Supabase unavailable/uncertain/timed out -> fail-open, preserving site availability.
     }
@@ -400,7 +423,7 @@ export default async function middleware(request, context) {
     // 2029 Post uses the same exact indexed slug owner — no second route-validity system.
     const post2029 = path.match(/^\/post\/([^/]+)\/?$/);
     if (postLookup && post2029) {
-      const exists = await publicPostSlugExists('/' + post2029[1]);
+      const exists = await publicPostSlugExists('/' + post2029[1], { fresh: docChanged });
       if (exists === false) return routeNotFoundResponse();
     }
 
@@ -421,5 +444,13 @@ export default async function middleware(request, context) {
   const outHeaders = new Headers();
   outHeaders.append('set-cookie', `vc=${country}; Path=/; Max-Age=86400; SameSite=Lax`);
   outHeaders.append('set-cookie', `vb=${kind}; Path=/; Max-Age=86400; SameSite=Lax`);
+  if (docGate) outHeaders.set('x-sod-doc-gate', docGate.reason);
+  // A Post on the list of recent changes, or every Post while the list is missing or older than the lease: the origin builds it now. The
+  // reserved parameter gives the request an address no kept copy has, and the header tells the document function never to keep the answer.
+  if (docGate?.bypass) {
+    const forwarded = new Headers(request.headers);
+    forwarded.set('x-sod-doc-fresh', '1');
+    return rewrite(postDocumentBypassUrl(request.url), { headers: outHeaders, request: { headers: forwarded } });
+  }
   return next({ headers: outHeaders });
 }

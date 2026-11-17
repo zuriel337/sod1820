@@ -81,11 +81,19 @@ async function visit(path, agent, fetchSetup, method = "GET") {
     const pending = [];
     const edge = await publicMiddleware(new Request(SITE + path, { method, headers: { "user-agent": agent, "x-vercel-ip-country": "IL" } }), { waitUntil: p => pending.push(p) });
     await Promise.all(pending);
-    if (edge.headers.get("x-middleware-next") !== "1") return { by: "edge", status: edge.status, robots: edge.headers.get("x-robots-tag") || "", body: await edge.text(), headers: edge.headers };
-    const url = new URL(path, SITE);
+    // A rewrite (the Post document freshness gate, 17.11.2026) also reaches the document function: at the rewritten address, with the
+    // request headers the edge overrode (x-middleware-override-headers / x-middleware-request-*), exactly as the platform forwards them.
+    const rewrite = edge.headers.get("x-middleware-rewrite");
+    if (edge.headers.get("x-middleware-next") !== "1" && !rewrite) return { by: "edge", status: edge.status, robots: edge.headers.get("x-robots-tag") || "", body: await edge.text(), headers: edge.headers };
+    const url = rewrite ? new URL(rewrite) : new URL(path, SITE);
+    if (url.origin !== SITE || url.pathname !== new URL(path, SITE).pathname) throw new Error("the edge rewrote a document to another address: " + url.href);
+    const overridden = {};
+    for (const name of (edge.headers.get("x-middleware-override-headers") || "").split(",").filter(Boolean)) {
+      const value = edge.headers.get("x-middleware-request-" + name); if (value !== null) overridden[name] = value;
+    }
     const res = nodeResponse();
     await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => SHELL })({
-      method, headers: { host: "sod1820.co.il", "user-agent": agent }, url: path,
+      method, headers: { host: "sod1820.co.il", "user-agent": agent, ...overridden }, url: url.pathname + url.search,
       query: { ...Object.fromEntries(url.searchParams), path: url.pathname } }, res);
     return { by: "document", status: res.code, robots: res.headers.get("x-robots-tag") || "", body: res.body, headers: res.headers };
   } finally { clearInterval(keepAlive); globalThis.fetch = original; }

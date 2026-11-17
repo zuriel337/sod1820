@@ -6,6 +6,7 @@
 export const SPEED_MIN_SAMPLES = 20;          // the same floor the speed watch uses before it speaks about a window
 export const SPEED_SAMPLE_STALE_HOURS = 6;    // no sample for this long while the site has visitors = a measurement gap
 export const SPEED_WATCH_STALE_HOURS = 2;     // the watch runs hourly inside the 15-minute health watch
+export const POST_FRESHNESS_STALE_MINUTES = 45;   // the post document freshness watch runs every 15 minutes inside the same health watch
 
 export const SPEED_METRICS = Object.freeze([
   { key: "lcp", label: "LCP", name: "התוכן הראשי מופיע", p75: "lcp_ms", ms: true, good: ["lcp_good_max_ms", 2500], poor: ["lcp_poor_above_ms", 4000] },
@@ -19,6 +20,9 @@ const finite = value => value !== null && value !== undefined && value !== "" &&
 const num = value => (finite(value) ? Number(value) : null);
 const time = value => (value && Number.isFinite(Date.parse(value)) ? Date.parse(value) : null);
 const hoursSince = (at, now) => (time(at) == null ? null : (now - time(at)) / 3600e3);
+const minutesSince = (at, now) => (time(at) == null ? null : Math.round((now - time(at)) / 60e3));
+// Findings that mean a measurement or a protection stopped working, not a slower number.
+const CRITICAL_FINDINGS = new Set(["web_vitals_measurement_gap", "post_document_purge_failed"]);
 
 /** good / needs / poor against the thresholds, or unknown without a value. */
 export function speedRating(value, good, poor) {
@@ -84,8 +88,23 @@ export function speedAttention({ read = {}, now = Date.now(), fixes = [] } = {})
       const age = hoursSince(watch.computed_at || watch.checked_at, now);
       if (age != null && age > SPEED_WATCH_STALE_HOURS) add("warn", "watch-stale", `בדיקת הנסיגות לא רצה ${Math.round(age)} שעות`, "הבדיקה אמורה לרוץ פעם בשעה. נתון שלא התעדכן אינו מצב תקין.");
     }
-    for (const finding of Array.isArray(w.watch_open) ? w.watch_open : []) {
-      add(finding.detector === "web_vitals_measurement_gap" ? "critical" : "warn", `finding-${finding.id}`, finding.title || "ממצא פתוח של בדיקת המהירות", finding.reason || "");
+    const open = Array.isArray(w.watch_open) ? w.watch_open : [];
+    for (const finding of open) {
+      add(CRITICAL_FINDINGS.has(finding.detector) ? "critical" : "warn", `finding-${finding.id}`, finding.title || "ממצא פתוח של בדיקת המהירות", finding.reason || "");
+    }
+    // Post document freshness (ZURIEL 17.11.2026): the database watch confirms every purge the CDN was asked for. Absent = the reader does not
+    // report it (not active in the database); null = active but the watch has not run yet. A failed purge is attention even after its
+    // suggestion was dismissed, but is not listed twice while that suggestion is open.
+    const fresh = w.post_document_freshness;
+    if (fresh === null) add("warn", "freshness-missing", "בדיקת עדכניות הפוסטים עוד לא רצה", "fn_post_document_freshness_watch רצה כל 15 דקות בתוך בדיקת הבריאות הקיימת.");
+    else if (fresh && typeof fresh === "object") {
+      const minutes = minutesSince(fresh.computed_at, now);
+      if (minutes != null && minutes > POST_FRESHNESS_STALE_MINUTES) add("warn", "freshness-stale", `בדיקת עדכניות הפוסטים לא רצה ${minutes} דקות`, "היא אמורה לרוץ כל 15 דקות. נתון שלא התעדכן אינו מצב תקין.");
+      const failed = num(fresh.purges_failed) ?? 0;
+      if (failed > 0 && !open.some(f => f.detector === "post_document_purge_failed"))
+        add("critical", "freshness-failed", `ניקוי המטמון נכשל ב־${failed} שינויי פוסטים ב־24 השעות האחרונות`, "שכבת הקצה עדיין לא מגישה עותק של פוסט שהשתנה במשך 20 דקות, אבל הניקוי המהיר לא עובד.");
+      if (fresh.purge_configured === false && (num(fresh.changes_24h) ?? 0) > 0 && !open.some(f => f.detector === "post_document_purge_not_configured"))
+        add("warn", "freshness-not-configured", "ניקוי המטמון בשינוי פוסט אינו מוגדר", "אין מפתח ניקוי במסד; הגולשים מוגנים בשכבת הקצה (20 דקות) ובתפוגה (6 דקות).");
     }
     for (const row of speedMetricRows(w)) if (row.enough && row.rating === "poor") add("warn", `poor-${row.key}`, `${row.label} p75 במצב גרוע`, `${row.name}: ${row.p75} לעומת סף "גרוע" ${row.poor}.`);
     const cov = w.context_coverage;

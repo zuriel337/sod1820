@@ -127,6 +127,7 @@ function OperationalMetricsBody({ principal, refreshToken, providersOpen }) {
         </div>}
 
         <WatchBlock watch={w?.watch} />
+        {w ? <FreshnessBlock fresh={w.post_document_freshness} /> : null}
 
         <details data-speed-breakdowns="true">
           <summary>פירוט: סוג דף, מכשיר, גרסה, המאמר במסמך, ההמתנה לשרת והדפים עם הכי הרבה מדידות</summary>
@@ -218,6 +219,26 @@ function WatchBlock({ watch }) {
         <small dir="ltr">LCP {number(cur?.lcp_p75_ms)} / {number(base?.lcp_p75_ms)} ms · CLS {number(cur?.cls_p75)} / {number(base?.cls_p75)} · INP {number(cur?.inp_p75_ms)} / {number(base?.inp_p75_ms)} ms</small>
         <small>עכשיו / קודם · {number(cur?.samples)} / {number(base?.samples)} דגימות</small></div></div>;
     })}</div> : null}
+  </details>;
+}
+
+// Post document freshness (ZURIEL 17.11.2026): what the database watch confirmed about the CDN purges of changed Posts. Absent = the reader
+// does not report it (not active in the database); null = active, the watch has not run yet. Counts are the last 24 hours.
+function FreshnessBlock({ fresh }) {
+  const STATUS = { ok: "כל הניקויים אושרו", idle: "לא היו שינויים בפוסטים", purge_failed: "ניקוי נכשל", not_configured: "הניקוי אינו מוגדר" };
+  const state = fresh === undefined ? "inactive" : fresh === null ? "missing" : fresh.status || "unknown";
+  return <details data-post-freshness={state}>
+    <summary>עדכניות פוסטים שנשמרו ב־CDN: {fresh === undefined ? "לא פעילה במסד (המקור לא מחזיר אותה)" : fresh === null ? "הבדיקה עוד לא רצה"
+      : `${STATUS[fresh.status] || fresh.status} · רצה ב־${clock(fresh.computed_at)}`}</summary>
+    <p className="sod29-muted">כל שינוי בפוסט (עריכה, פרסום, הסתרה, מחיקה, שינוי כתובת) נרשם במסד באותה פעולה ומבקש מחיקה של העותקים השמורים שלו. במשך 20 דקות מהשינוי שכבת הקצה בונה את הפוסט מחדש ולא מעותק, ואם רשימת השינויים לא נקראה ב־5 השניות האחרונות היא לא משתמשת בשום עותק. עותק חי 6 דקות לכל היותר. הבדיקה רצה כל 15 דקות בתוך בדיקת הבריאות הקיימת.</p>
+    {fresh ? <div className="sod29-list">
+      <div className="sod29-row"><div><strong>שינויים בפוסטים ב־24 שעות</strong><small>השינוי האחרון: {fresh.last_change_at ? clock(fresh.last_change_at) : "—"}</small></div>
+        <div className="sod29-actions"><span className="sod29-chip" data-post-freshness-changes="true">{number(fresh.changes_24h)}</span></div></div>
+      <div className="sod29-row"><div><strong>ניקויים שאושרו / נכשלו / ממתינים</strong><small>ניקוי שנכשל נוסה שוב פעם אחת ({number(fresh.purges_retried)} ניסיונות חוזרים)</small></div>
+        <div className="sod29-actions"><span className="sod29-chip" dir="ltr" data-post-freshness-purges="true">{number(fresh.purges_ok)} / {number(fresh.purges_failed)} / {number(fresh.purges_pending)}</span></div></div>
+      <div className="sod29-row"><div><strong>שינויים בלי ניקוי</strong><small>{fresh.purge_configured === false ? "מפתח הניקוי לא מוגדר במסד" : "שינויים שהניקוי שלהם לא אושר"}</small></div>
+        <div className="sod29-actions"><span className="sod29-chip">{number(fresh.unpurged_24h)}</span></div></div>
+    </div> : null}
   </details>;
 }
 
