@@ -87,8 +87,9 @@ const stats = async (h) => ({ drawCalls: Number(await h.getAttribute("data-draw-
 const selectedFace = (h) => h.getAttribute("data-selected-face");
 async function pickFacesByCanvas(page, stage) {
   const h = host(stage); await h.scrollIntoViewIfNeeded(); const faces = new Set();
-  for (const fy of [0.3, 0.4, 0.5, 0.6, 0.7]) for (const fx of [0.25, 0.4, 0.5, 0.6, 0.75]) {
-    const box = await h.boundingBox(); await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy); await page.waitForTimeout(60);
+  // the cube stands in the lower-middle of the frame (the apex and its route above): sweep that region, and give a software GL renderer time to service each pick
+  for (const fy of [0.45, 0.55, 0.65, 0.75, 0.82]) for (const fx of [0.3, 0.4, 0.5, 0.6, 0.7]) {
+    const box = await h.boundingBox(); await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy); await page.waitForTimeout(140);
     const f = await selectedFace(h); if (f) faces.add(f);
   }
   return [...faces];
