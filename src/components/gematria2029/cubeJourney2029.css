@@ -18,7 +18,8 @@
 .sod29-cube-journey__context ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}
 .sod29-cube-journey__door{display:grid;gap:6px;min-width:0}
 .sod29-cube-journey__door:focus{outline:2px solid var(--r29-gold);outline-offset:3px}
-.sod29-cube-journey__door :is(button.r29-btn,a.r29-btn){display:grid;gap:3px;justify-items:start;text-align:start;width:100%;padding:8px 14px;text-decoration:none;white-space:normal}
+.sod29-cube-journey__door :is(button.r29-btn,a.r29-btn){display:grid;gap:3px;justify-items:start;text-align:start;width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:8px 14px;text-decoration:none;white-space:normal}
+.sod29-cube-journey__door :is(b,small,p){min-width:0;max-width:100%;overflow-wrap:anywhere}
 .sod29-cube-journey__door b{font-size:16px}
 .sod29-cube-journey__status[data-verified="true"]{color:var(--r29-gold-ink)}
 .sod29-cube-journey__locked,.sod29-cube-journey__choose{display:grid;gap:6px;padding:10px 12px;border:1px dashed color-mix(in srgb,var(--r29-gold) 50%,var(--s29-line));border-radius:12px}

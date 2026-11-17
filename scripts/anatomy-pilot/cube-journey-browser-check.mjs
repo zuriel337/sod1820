@@ -244,7 +244,7 @@ try {
       const ov = await page.evaluate(() => ({ doc: document.documentElement.scrollWidth, inner: window.innerWidth })); assert.ok(ov.doc <= ov.inner + 1, `no horizontal overflow at ${width}`);
       const probe = await page.evaluate(() => {
         const root = document.querySelector("[data-cube-journey]"), rr = root.getBoundingClientRect(), clipped = [], small = [], targets = [];
-        for (const el of root.querySelectorAll("*")) { const r = el.getBoundingClientRect(); if (r.width > 0 && (r.left < rr.left - 1 || r.right > rr.right + 1 || r.right > window.innerWidth + 1 || r.left < -1)) clipped.push(`${el.tagName.toLowerCase()}.${String(el.className).slice(0, 24)}`);
+        for (const el of root.querySelectorAll("*")) { const r = el.getBoundingClientRect(); if (r.width > 0 && (r.left < rr.left - 1 || r.right > rr.right + 1 || r.right > window.innerWidth + 1 || r.left < -1)) clipped.push(`${el.tagName.toLowerCase()}.${String(el.className).slice(0, 24)}[${(el.textContent || '').trim().slice(0, 18)}] L${Math.round(r.left)} R${Math.round(r.right)} (panel ${Math.round(rr.left)}..${Math.round(rr.right)}, window ${window.innerWidth})`);
           const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join("").trim(); if (own && parseFloat(getComputedStyle(el).fontSize) < 15) small.push(`${own.slice(0, 16)}:${getComputedStyle(el).fontSize}`); }
         for (const b of root.querySelectorAll("button, a")) { const r = b.getBoundingClientRect(); if (r.width > 0 && (r.height < 43.5 || r.width < 43.5)) targets.push(b.textContent.trim().slice(0, 14)); }
         return { clipped: clipped.slice(0, 8), small: small.slice(0, 8), targets: targets.slice(0, 8), dir: getComputedStyle(root).direction };
