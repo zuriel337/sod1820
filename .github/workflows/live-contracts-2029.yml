@@ -368,6 +368,10 @@ jobs:
           src/lib/readDedupe.test.js
           test/bot-observability-migrations.test.mjs
           test/public-reading-asset-miss.test.mjs
+      # POST_DOCUMENT_CDN_CACHE (ZURIEL 17.11.2026, experiment): only an admitted public Post document may be kept by the platform CDN, for a
+      # bounded time and tagged by Post; browsers keep no-store; nothing a reader sends changes the kept bytes.
+      - name: Post documents may be kept by the CDN, exactly and only when public and the same for every reader
+        run: node --test test/post-document-cdn-cache.test.mjs
 
       - name: Performance contracts (explicit column lists and one union count instead of repeated reads, batched topic findings, gallery paging, post cover priority, footer hidden while only the loading placeholder is shown so it cannot shift, Supabase preconnect; the public-candidate test reads the production build generated earlier in this job)
         run: >

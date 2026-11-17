@@ -48,6 +48,27 @@ function missingAssetFile(path) {
   try { return ASSET_FILE_PATH.test(decodeURIComponent(path)); } catch { return false; }
 }
 
+// POST_DOCUMENT_CDN_CACHE (ZURIEL 17.11.2026, experiment). A public Post document is the same bytes for every reader: this handler
+// reads no cookie, no Authorization header and no account; the metadata owner reads the Post with the anonymous key only, and only
+// a public, unsuppressed Post is admitted. So the platform's own CDN (Vercel) may keep that document near the reader for a short,
+// bounded time. Browsers keep `Cache-Control: no-store` exactly as before (service worker, back/forward and reload unchanged); only
+// the CDN reads Vercel-CDN-Cache-Control. Freshness: up to FRESH seconds; after that the next reader still gets the kept copy once
+// while the CDN refreshes it in the background (STALE bounds how long an unrequested copy may be used that way). Each copy is tagged
+// with the Post id, so one Post (or all Post documents) can be refreshed at once by tag. A deployment never serves another
+// deployment's copy. Anything that is not exactly "an admitted public Post, 200, no query string, its own address" keeps no-store.
+export const POST_DOCUMENT_CDN_CACHE = Object.freeze({ version: "post-cdn-v1", freshSeconds: 300, staleSeconds: 3600, tag: "post-document" });
+export function postDocumentCdnCacheable({ method, status, state, temporarilyClosed = false, search = "", originalDocument, post } = {}) {
+  return (method === "GET" || method === "HEAD") && status === 200 && (state === "public" || state === "post-lookup") && !temporarilyClosed
+    && originalDocument === true && !search && post != null && /^[0-9A-Za-z_-]{1,64}$/.test(String(post.id ?? ""));
+}
+export function postDocumentCdnHeaders(post, policy = POST_DOCUMENT_CDN_CACHE) {
+  return {
+    "Vercel-CDN-Cache-Control": `max-age=${policy.freshSeconds}, stale-while-revalidate=${policy.staleSeconds}`,
+    "Vercel-Cache-Tag": `${policy.tag},${policy.tag}-${post.id}`,
+    "X-Sod-Document-Cache": policy.version,
+  };
+}
+
 // Dependency injection remains a local synthetic test seam. Hosted admission
 // uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
@@ -143,6 +164,8 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       res.setHeader("X-Robots-Tag", robots);
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       if (path.replace(/\/+$/, "") === "/unsubscribe") res.setHeader("Referrer-Policy", "no-referrer");
+      if (postDocumentCdnCacheable({ method: req.method, status, state, temporarilyClosed, search, originalDocument, post: admittedPost }))
+        for (const [name, value] of Object.entries(postDocumentCdnHeaders(admittedPost))) res.setHeader(name, value);
       return res.status(status).send(req.method === "HEAD" ? "" : html);
     } catch {
       res.setHeader("Retry-After", "60");
