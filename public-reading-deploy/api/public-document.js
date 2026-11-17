@@ -57,8 +57,11 @@ function missingAssetFile(path) {
 // with the Post id, so one Post (or all Post documents) can be refreshed at once by tag. A deployment never serves another
 // deployment's copy. Anything that is not exactly "an admitted public Post, 200, no query string, its own address" keeps no-store.
 export const POST_DOCUMENT_CDN_CACHE = Object.freeze({ version: "post-cdn-v1", freshSeconds: 300, staleSeconds: 3600, tag: "post-document" });
-export function postDocumentCdnCacheable({ method, status, state, temporarilyClosed = false, search = "", originalDocument, post } = {}) {
-  return (method === "GET" || method === "HEAD") && status === 200 && (state === "public" || state === "post-lookup") && !temporarilyClosed
+// The article-first step must have reached a final answer: a "warming" document (a cold instance still loading the renderer) or a
+// "failed" one is served as before but never kept, so the CDN never holds a slower copy than the next request would get.
+export const POST_DOCUMENT_CDN_FINAL_ARTICLE_STATES = Object.freeze(["served", "served-new", "not-eligible", "off", "not-proven", "new-guarded"]);
+export function postDocumentCdnCacheable({ method, status, state, temporarilyClosed = false, search = "", originalDocument, post, articleFirst } = {}) {
+  return POST_DOCUMENT_CDN_FINAL_ARTICLE_STATES.includes(articleFirst) && (method === "GET" || method === "HEAD") && status === 200 && (state === "public" || state === "post-lookup") && !temporarilyClosed
     && originalDocument === true && !search && post != null && /^[0-9A-Za-z_-]{1,64}$/.test(String(post.id ?? ""));
 }
 export function postDocumentCdnHeaders(post, policy = POST_DOCUMENT_CDN_CACHE) {
@@ -164,7 +167,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       res.setHeader("X-Robots-Tag", robots);
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       if (path.replace(/\/+$/, "") === "/unsubscribe") res.setHeader("Referrer-Policy", "no-referrer");
-      if (postDocumentCdnCacheable({ method: req.method, status, state, temporarilyClosed, search, originalDocument, post: admittedPost }))
+      if (postDocumentCdnCacheable({ method: req.method, status, state, temporarilyClosed, search, originalDocument, post: admittedPost, articleFirst: firstDocument.state }))
         for (const [name, value] of Object.entries(postDocumentCdnHeaders(admittedPost))) res.setHeader(name, value);
       return res.status(status).send(req.method === "HEAD" ? "" : html);
     } catch {

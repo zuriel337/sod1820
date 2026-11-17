@@ -23,9 +23,9 @@ const request = (url, { method = "GET", headers = {} } = {}) => ({ method, heade
 // The metadata owner is replaced by a stub that admits a Post for /post/* and Hebrew single-segment addresses (as the real owner does
 // for a public, unsuppressed row) and answers other statuses on request. The article-first step is the identity, so the test measures
 // the cache decision only.
-function handler({ status = 200, admit = true } = {}) {
+function handler({ status = 200, admit = true, articleState = "served" } = {}) {
   return publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE,
-    readDocument: async () => shell, articleFirst: html => ({ html, state: "plain" }),
+    readDocument: async () => shell, articleFirst: (html, options) => ({ html, state: articleState }),
     metadataHandler: async (req, res) => {
       if (admit && /^\/(?:post\/[^/]+|%D7[^/]*)$/i.test(req.publicRequestedPath)) req.publicReadingArticleSource(POST);
       res.status(status).send(head);
@@ -59,6 +59,8 @@ test("everything that is not exactly an admitted public Post document keeps no-s
     ["another method", handler(), request("/post/post-slug", { method: "POST" })],
     ["the direct function address", handler(), { method: "GET", headers: { host: "sod1820.co.il" }, url: "/api/public-document?path=%2Fpost%2Fpost-slug", query: { path: "/post/post-slug" } }],
     ["another host (redirected)", handler(), request("/post/post-slug", { headers: { host: "www.sod1820.co.il" } })],
+    ["a cold instance still warming the article renderer (seen on the protected Preview, 17.11.2026)", handler({ articleState: "warming" }), request("/post/post-slug")],
+    ["the article step failed", handler({ articleState: "failed" }), request("/post/post-slug")],
   ];
   for (const [label, h, req] of cases) {
     const res = await run(h, req);
@@ -80,10 +82,10 @@ test("the kept document is the same for every reader: cookies, Authorization and
 });
 
 test("the decision itself: exact inputs only", () => {
-  const base = { method: "GET", status: 200, state: "public", originalDocument: true, search: "", post: { id: "7" } };
+  const base = { method: "GET", status: 200, state: "public", originalDocument: true, search: "", post: { id: "7" }, articleFirst: "served" };
   assert.equal(postDocumentCdnCacheable(base), true);
   assert.equal(postDocumentCdnCacheable({ ...base, state: "post-lookup" }), true, "an imported Post at its original address");
   for (const change of [{ method: "PUT" }, { status: 404 }, { status: 503 }, { state: "closed" }, { state: "account" }, { state: "missing" }, { state: "admin-view" }, { state: "service-closed" }, { state: "continuation" },
-    { temporarilyClosed: true }, { originalDocument: false }, { search: "a=1" }, { post: null }, { post: { id: "" } }, { post: { id: "a,b" } }])
+    { temporarilyClosed: true }, { originalDocument: false }, { search: "a=1" }, { post: null }, { post: { id: "" } }, { post: { id: "a,b" } }, { articleFirst: "warming" }, { articleFirst: "failed" }, { articleFirst: undefined }])
     assert.equal(postDocumentCdnCacheable({ ...base, ...change }), false, JSON.stringify(change));
 });
