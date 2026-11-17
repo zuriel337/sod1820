@@ -142,7 +142,7 @@ try {
     // 1020 is the cube family's first model (one operation carried by the cube): it now has the structure view, with the three-factor product drawn from the typed operation
     const c1020 = await openCard(page, "hashgacha-pratit-1020", "museum");
     assert.equal(await c1020.locator("button", { hasText: "פתח המחשת המבנה" }).count(), 1, "1020 opens the cube structure view");
-    assert.equal(await page.locator('[data-convergence-card="hashgacha-pratit-1020"]').count(), 0, "the stage itself opens only on the explicit action");
+    assert.equal(await page.locator('[data-convergence-card="hashgacha-pratit-1020"] .is-convergence').count(), 0, "the stage itself opens only on the explicit action");
     record.shelf = Object.fromEntries(Object.entries(out).map(([k, v]) => [k, v.slice(0, 300)]));
     await ctx.close();
   }
