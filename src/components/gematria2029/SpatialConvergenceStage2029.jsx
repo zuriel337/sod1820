@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useInRouterContext, useNavigate } from "react-router-dom";
+import { useInRouterContext, useLocation, useNavigate } from "react-router-dom";
 import { fetchGematriaMethodTraceRaw } from "../../lib/research/gematriaTrace.js";
 import { isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import { bindPathsToStructure, structureSpecFor, drawableSpec, isSingleSolid, describeStructurePart, deriveConvergencePaths, evaluateConvergencePaths, STRUCTURE_PART_LABEL } from "../../lib/spatialRenderModel.js";
@@ -12,7 +12,7 @@ import { LabControls, LabPartInfo } from "./SpatialLabPanel2029.jsx";
 import { DirectionSwitcher, DiscoveryPanel, LabMoreMenu, LabPrimaryBar, MuseumPanel, ResearchPanel } from "./SpatialLabDirections2029.jsx";
 import { buildLabRows } from "../../lib/spatial/labRows.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
-import { CLOSED_CUBE_JOURNEY, bookReaderAvailable, buildCubeDoorways, cubeJourneyHref, cubeReturnTarget, readCubeJourney } from "../../lib/spatial/cubeJourney.js";
+import { CLOSED_CUBE_JOURNEY, bookReaderAvailable, buildCubeDoorways, cubeJourneyHref, cubeJourneyRequested, cubeReturnTarget, readCubeJourney } from "../../lib/spatial/cubeJourney.js";
 import CubeJourneyPanel2029 from "./CubeJourneyPanel2029.jsx";
 import { NUMERIC_OPERATION_REGISTRY } from "../../lib/research/numericArithmeticOperations.js";
 import { pathAriaLabel, pathEquationText, pathPresentation, semanticSummary } from "../../lib/spatial/pathSemantics.js";
@@ -100,10 +100,13 @@ function LedgerFor({ path }) {
   </details>)}</>;
 }
 
-// Hands the router's navigate to the stage without making the stage depend on being inside a router (the stage is also rendered on its own in tests).
-function LeaveBridge({ navigateRef }) {
+// Hands the router's navigate and location to the stage without making the stage depend on being inside a router (it is also rendered on its own in tests).
+// A same-page navigation (to another card, or an exact return back to this one) arrives here as a location change.
+function RouterBridge({ navigateRef, onLocation }) {
   const navigate = useNavigate();
+  const location = useLocation();
   useEffect(() => { navigateRef.current = navigate; return () => { navigateRef.current = null; }; }, [navigate, navigateRef]);
+  useEffect(() => { onLocation(location); }, [location.pathname, location.search, location.hash]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
 
@@ -173,7 +176,15 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   const doorways = useMemo(() => (isCube ? buildCubeDoorways({ card, path: boundPath, dir: journey.dir, readerAvailable: bookReaderAvailable(), lab: directionId }) : []),
     [isCube, card, boundPath, journey.dir, directionId]);
   const enterCube = () => { changeJourney({ inside: true, door: null }); if (!s4) promoteS4(); };
-  const exitCube = () => { changeJourney({ inside: false, door: null }); rootRef.current?.querySelector("[data-cube-enter]")?.focus(); };
+  // leaving the inside puts focus back on the entry control — once it is on the page again (it is only drawn outside)
+  const focusEntryNext = useRef(false);
+  const exitCube = () => { focusEntryNext.current = true; changeJourney({ inside: false, door: null }); };
+  useEffect(() => {
+    if (journey.inside || !focusEntryNext.current) return undefined;
+    focusEntryNext.current = false;
+    const frame = requestAnimationFrame(() => rootRef.current?.querySelector("[data-cube-enter]")?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [journey.inside]);
   const leaveThrough = (door, event) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const state = changeJourney({ inside: true, door: door.id });
@@ -181,13 +192,13 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
     research.updateResearchContext?.({ returnTo: cubeReturnTarget({ location: window.location, card, state, doorId: door.id }) });
     if (navigateRef.current) { event.preventDefault(); navigateRef.current(door.href); }
   };
-  // arriving back (exact return / reload): open the 3D inside when the device can, and put focus on the doorway that was left. The page may still be settling
+  // arriving back (exact return / reload / Back): open the 3D inside when the device can, and put focus on the doorway that was left. The page may still be settling
   // (lazy chunks, the World page's own anchor scroll), so the focus is re-asserted a few times — and stops at the person's first interaction.
-  useEffect(() => {
-    if (!restored.current) return undefined;
-    restored.current = false;
+  const stopArrive = useRef(null);
+  const arrive = (door) => {
+    stopArrive.current?.();
     promoteS4();
-    const targetId = journey.door ? `cube-door-${journey.door}` : "cube-journey";
+    const targetId = door ? `cube-door-${door}` : "cube-journey";
     let stopped = false, scrolled = false;
     const attempt = () => {
       if (stopped) return;
@@ -197,11 +208,30 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
       if (document.activeElement !== target && (!document.activeElement || document.activeElement === document.body || !document.activeElement.isConnected)) target.focus?.({ preventScroll: true });
     };
     const timers = [0, 250, 700, 1500, 2600].map((ms) => window.setTimeout(() => requestAnimationFrame(attempt), ms));
-    const stop = () => { stopped = true; timers.forEach(clearTimeout); };
     const events = ["pointerdown", "keydown", "wheel", "touchstart"];
+    const stop = () => { stopped = true; timers.forEach(clearTimeout); events.forEach((name) => window.removeEventListener(name, stop, true)); };
     events.forEach((name) => window.addEventListener(name, stop, { capture: true, passive: true, once: true }));
-    return () => { stop(); events.forEach((name) => window.removeEventListener(name, stop, true)); };
+    stopArrive.current = stop;
+  };
+  const arriveRef = useRef(null); arriveRef.current = arrive;
+  useEffect(() => {
+    if (restored.current) { restored.current = false; arriveRef.current(journey.door); }
+    return () => stopArrive.current?.();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // a navigation that stays on this page: away (another card) closes the inside; back (exact return) opens it again at the same face and doorway
+  const locationKey = useRef(null);
+  const onLocationRef = useRef(null);
+  onLocationRef.current = (loc) => {
+    const key = `${loc.pathname}${loc.search}${loc.hash}`;
+    if (locationKey.current === null) { locationKey.current = key; return; } // the first report is the URL this stage mounted on
+    if (locationKey.current === key) return;
+    locationKey.current = key;
+    if (!isCube) return;
+    const want = cubeJourneyRequested(loc, card?.slug) ? readCubeJourney(loc.search) : CLOSED_CUBE_JOURNEY;
+    const same = journey.inside === want.inside && journey.face === want.face && journey.door === want.door && journey.dir === want.dir;
+    if (!same) setJourney(want);
+    if (want.inside) arriveRef.current(want.door);
+  };
   // Picking a part/path (in the scene, a medal or the table). Discovery also moves in (focus), opens the layers and starts the reveal.
   const pick = (i) => {
     goTo(i);
@@ -249,7 +279,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         : <button type="button" data-s4-action="deepen" onClick={promoteS4}>תלת־ממד</button>}
       {s4Note ? <small role="status">{s4Note}</small> : null}
     </div>
-    {inRouter ? <LeaveBridge navigateRef={navigateRef} /> : null}
+    {inRouter ? <RouterBridge navigateRef={navigateRef} onLocation={(loc) => onLocationRef.current?.(loc)} /> : null}
     {isCube && !journey.inside ? <div className="r29 sod29-cube-entry">
       <button type="button" className="r29-btn" data-cube-enter onClick={enterCube}>היכנס לתוך הקובייה</button>
       <small>חקירה מבפנים: בוחרים פאה ופותחים את הדלתות שלה — אימות במנוע, דף המספר, החישוב של צבי והמקורות. זו אינה התקרבות של המצלמה.</small>
