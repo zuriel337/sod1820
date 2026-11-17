@@ -1,0 +1,86 @@
+{
+  "directions": {
+    "museum": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 92,
+        "geometries": 63,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 499
+        },
+        "heapMB": 17,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 783,
+        "droppedOver100ms": 4
+      }
+    },
+    "discovery": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 92,
+        "geometries": 63,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 17,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 383,
+        "droppedOver100ms": 5
+      }
+    },
+    "lab": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 92,
+        "geometries": 63,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 21,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 300,
+        "droppedOver100ms": 5
+      }
+    },
+    "v1": {
+      "mobile390": {
+        "width": 390,
+        "drawCalls": 72,
+        "geometries": 43,
+        "textures": 8,
+        "shadows": "false",
+        "quality": "lite",
+        "glyph": "ready",
+        "canvas": {
+          "w": 299,
+          "h": 476
+        },
+        "heapMB": 23,
+        "clipped": [],
+        "smallTargets": [],
+        "frameGapP95Ms": 600,
+        "droppedOver100ms": 5
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}

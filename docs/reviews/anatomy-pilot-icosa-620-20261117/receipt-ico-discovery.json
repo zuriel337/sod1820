@@ -1,0 +1,29 @@
+{
+  "directions": {
+    "discovery": {
+      "desktop": {
+        "canvasMs": 5755,
+        "drawCalls": 132,
+        "geometries": 63,
+        "textures": 10,
+        "shadows": "true",
+        "quality": "rich",
+        "glyph": "ready",
+        "facesPicked": [
+          "1",
+          "6",
+          "9"
+        ],
+        "keyboard": {
+          "explodeToggledByEnter": true
+        },
+        "typography": {
+          "hebrewInNumericFace": [],
+          "under15px": []
+        }
+      }
+    }
+  },
+  "cases": [],
+  "errors": []
+}
