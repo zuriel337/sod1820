@@ -1327,17 +1327,17 @@
   ],
   "current_state_20261117": {
     "task": "SPEED_CENTRE_CONTROL_20261117",
-    "checked_at": "2026-11-17T10:40:00Z",
-    "main": "2011226fe58eff3645750031bd59a69d5e2c208f",
+    "checked_at": "2026-11-17T18:30:00Z",
+    "main": "84bdb23f96f4f6d433769d87000a69a10d7fbf56",
     "production": {
-      "deployment": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
-      "sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
+      "deployment": "dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r",
+      "sha": "84bdb23f96f4f6d433769d87000a69a10d7fbf56",
       "aliases": [
         "sod1820.co.il",
         "www.sod1820.co.il",
         "sod1820.vercel.app"
       ],
-      "evidence": "get_alias sod1820.co.il -> dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi; the live document's bootstrap config names entry /assets/2029-CNp2F-eD.js and sourceSha 2011226fe58eff3645750031bd59a69d5e2c208f (read 2026-11-17T10:35Z)"
+      "evidence": "get_alias sod1820.co.il -> dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r (read 2026-11-17T18:13Z); the live document's bootstrap config names entry /assets/2029-BQKFETEH.js and sourceSha 84bdb23f96f4f6d433769d87000a69a10d7fbf56 (read 2026-11-17T18:13Z)"
     },
     "build_evidence": [
       {
@@ -1353,6 +1353,27 @@
         "deployment": "dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6",
         "evidence": "that deployment's own document (Vercel fetch of sod1820-fx1wg3aco-sod1820-s-projects.vercel.app): bootstrap config entry /assets/2029-DvYRh6FW.js, sourceSha e226815f6, read 2026-11-17T10:34Z",
         "verified_at": "2026-11-17T10:34:00Z"
+      },
+      {
+        "build": "2029-BplD03IN",
+        "sha": "d87ced78b61fdfefce2d2b3ac0a8da41a92c1a26",
+        "deployment": "dpl_H2Vs3UnALoLFwpViK7mYeSx7D1Dw",
+        "evidence": "that deployment's own document (Vercel fetch of sod1820-mnxaj1h1r-sod1820-s-projects.vercel.app): bootstrap config entry /assets/2029-BplD03IN.js, sourceSha d87ced78b, read 2026-11-17T18:17Z",
+        "verified_at": "2026-11-17T18:17:53Z"
+      },
+      {
+        "build": "2029-B6373d0f",
+        "sha": "890efa2044b78079da953f2640c1f153c8e63695",
+        "deployment": "dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo",
+        "evidence": "that deployment's own document (Vercel fetch of sod1820-9fk44za1b-sod1820-s-projects.vercel.app): bootstrap config entry /assets/2029-B6373d0f.js, sourceSha 890efa204, read 2026-11-17T18:17Z",
+        "verified_at": "2026-11-17T18:17:41Z"
+      },
+      {
+        "build": "2029-BQKFETEH",
+        "sha": "84bdb23f96f4f6d433769d87000a69a10d7fbf56",
+        "deployment": "dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r",
+        "evidence": "live document bootstrap config (entry /assets/2029-BQKFETEH.js + sourceSha 84bdb23f9) with get_alias sod1820.co.il -> dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r, read 2026-11-17T18:13Z",
+        "verified_at": "2026-11-17T18:13:00Z"
       }
     ],
     "build_evidence_note": "props.build is the entry file name (webVitals2029 fieldContext), collected since the #1372 deployment (16.11.2026 evening). Earlier samples carry none and stay unknown. A build is tied to a commit only through a deployment document read above.",
@@ -3640,7 +3661,7 @@
       },
       {
         "id": "S-47",
-        "title_he": "דפי פוסט נשמרים ב־CDN של Vercel עד 6 דקות, עם שלוש שכבות עדכניות לפוסט שנערך, הוסתר או נמחק (ניסוי, לא מוזג)",
+        "title_he": "דפי פוסט נשמרים ב־CDN של Vercel עד 6 דקות, עם שלוש שכבות עדכניות לפוסט שנערך, הוסתר או נמחק",
         "problem": "Every Post document is built by the function in iad1 with a database read in Tokyo: 214,143 document requests in 7 days, 0 served by the CDN; field first byte for Posts on phones p50 1,085 ms / p75 1,485 ms, server wait p50 882 ms.",
         "surface": "post",
         "source": {
@@ -3651,33 +3672,39 @@
           "prs": [
             1376
           ],
-          "merged_via_pr": null,
+          "merged_via_pr": 1376,
           "commits": [
             "59874ba55b5beb3ff77dcc4dca57d930c7fb65ec",
             "d6de9034be313c2d125070ede6d96f81202b4f6f",
             "4889ddfb818487c49fb9d22126a181bc20ebcac4",
             "0985f3e3b7fd7fb3ea3e9c21b4a05d3a160ad4be",
             "348d55ea6a81956b3a23ba4927c670ea51a90028",
-            "5f91c56238c635146ad126363922f1e321288f2b"
+            "5f91c56238c635146ad126363922f1e321288f2b",
+            "836d65b80a5f348ddee34e163a398f4010517f92",
+            "41f7f430987e560f68495a2659b58d21b9921e91",
+            "e4061d2b5dbe3a706140b49a709d47f7cb15a0af",
+            "ce927950317d2d16acfe1e8f9f2bdccd2c306182"
           ],
           "author": "claude",
           "head_branch": "ccr-dcadb071-v1z5ol"
         },
         "code_now": [
-          "public-reading-deploy/api/public-document.js :: postDocumentCdnCacheable / postDocumentCdnHeaders (max-age=300, stale-while-revalidate=60; never with the reserved marker) (branch only)",
-          "post-document-freshness.js + middleware-core.js :: edge gate (list of recent changes read directly from the database only during repeated reads of the same Post; fail closed) (branch only)",
-          "public-reading-deploy/api/post-document-cache.js :: purge endpoint (POST, key in Production) (branch only)",
-          "supabase/migrations/20261117160000_post_document_freshness.sql :: change log in the same transaction, purge via pg_net, confirmation watch in fn_health_watch, reader field web_vitals.post_document_freshness (file only, not applied)",
-          "src/pages/Post2029Page.jsx :: the server article is withdrawn when the page's live read says the Post is not public (branch only)",
-          "src/lib/speedCentre2029.js + OperationalMetrics2029.jsx :: freshness block and attention in 'מהירות וביצועים' (branch only)"
+          "public-reading-deploy/api/public-document.js :: postDocumentCdnCacheable / postDocumentCdnHeaders (max-age=300, stale-while-revalidate=60; never with the reserved marker)",
+          "post-document-freshness.js + middleware-core.js :: edge gate (list of recent changes read directly from the database only during repeated reads of the same Post; fail closed)",
+          "public-reading-deploy/api/post-document-cache.js :: purge endpoint (POST only, key compared in constant time; required in Production)",
+          "supabase/migrations/20261117160000_post_document_freshness.sql :: change log in the same transaction, purge via pg_net, confirmation watch in fn_health_watch, reader field web_vitals.post_document_freshness (applied live 17.11.2026 before the deployment; function and trigger fingerprints equal the tested file)",
+          "src/pages/Post2029Page.jsx :: the server article is withdrawn when the page's live read says the Post is not public",
+          "src/lib/speedCentre2029.js + OperationalMetrics2029.jsx :: freshness block and attention in 'מהירות וביצועים'"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "in_current_production": false,
-        "live_verified": "no",
-        "live_evidence": "Protected Previews only, not in Production: dpl_62g74MmMWj4UK1Z5P9zAdjSFcDPs (4889ddfb8, cache), dpl_EXt7XGqv6SMhuwMFdRFn4RLBxc9K (0985f3e3b) and dpl_7VbxX2VmwQqFrFZp7RAYLHDeoDyQ (5f91c5623, final): without a readable list every Post is built fresh (8/8); a Post on the list of recent changes is built fresh while a kept copy exists, and the copy is untouched; purge answered in 0.18-0.24 s and the next reader got a foreground rebuild (REVALIDATED), never the deleted copy; copy served while refreshing at 5 min 20 s, rebuilt at 6 min 15 s.",
+        "merged": true,
+        "merge_commit": "890efa2044b78079da953f2640c1f153c8e63695",
+        "deployed": true,
+        "deployed_in": "dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo",
+        "deployed_in_sha": "890efa2044b78079da953f2640c1f153c8e63695",
+        "deployed_in_created": "2026-11-17T16:59:56Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Released 17.11.2026 (ZURIEL \"תעלה\"), work_log POST_DOCUMENT_FRESHNESS_20261117 AFTER: migration applied in one transaction (guard md5 matched), Vault secret sod_post_document_purge_key and Vercel Production variable SOD_POST_DOCUMENT_PURGE_KEY set before the build; dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo (bootstrap entry /assets/2029-B6373d0f.js, sourceSha 890efa204). Live: /post/chosen-one stale, stale, then a clean MISS (x-sod-document-cache post-cdn-v1) and a HIT in 0.21 s; / and /gematria untouched; purge endpoint without key 401, wrong key 401, GET 405; a purge sent from the database with the Vault key answered 200 {\"purged\":[\"post-document-5077\"]} and the next request was REVALIDATED. The freshness watch runs inside fn_health_watch (heartbeat post_documents:freshness_watch 18:15 UTC: status idle, purge_configured true, 0 failed). Post-Deploy Canary 44132316392 success (attempt 2; attempt 1 cancelled by a GitHub checkout timeout before any site check). Still in Production after #1377 (890efa204 is an ancestor of 84bdb23f9).",
         "measurement": {
           "kind": "lab",
           "before": "server wait 880 ms (field median, Posts, phones): first byte 936, FCP 1,420, readable 3,333 (p75 3,493), LCP 5,222 (p75 5,972), CLS 0.0018",
@@ -3687,15 +3714,71 @@
           "freshness": "First byte from the test machine (edge cle1): kept copy p50 154-160 ms, built fresh p50 508-842 ms (12 each, 2 Posts, alternating). Every update path (editor, agents, SQL incl. hide, delete, slug change, bulk, TRUNCATE) tested on local Postgres with the six live writer bodies (md5-checked); a change that cannot be logged is refused."
         },
         "guard": [
-          "test/post-document-cdn-cache.test.mjs + test/post-document-freshness.test.mjs (live-contracts-2029.yml) [branch only]",
-          "tests/sql/run-post-document-freshness.sh (speed-centre-sql-gate.yml: live writers, log, purge requests, watch, keys, rollback) [branch only]",
-          "test/article-first-browser-2029.browser.mjs: a Post no longer public loses the document's article, a failed read keeps it [branch only]",
-          "test/speed-centre-2029.test.mjs (freshness attention) [branch only]"
+          "test/post-document-cdn-cache.test.mjs + test/post-document-freshness.test.mjs (live-contracts-2029.yml) [on origin/main]",
+          "tests/sql/run-post-document-freshness.sh (speed-centre-sql-gate.yml: live writers, log, purge requests, watch, keys, rollback) [on origin/main]",
+          "test/article-first-browser-2029.browser.mjs: a Post no longer public loses the document's article, a failed read keeps it [on origin/main]",
+          "test/speed-centre-2029.test.mjs (freshness attention) [on origin/main]"
         ],
-        "open": "Awaiting ZURIEL's decision; nothing applied. A release needs approval for: the migration (database), one purge key stored as the Vault secret sod_post_document_purge_key and the Vercel Production variable SOD_POST_DOCUMENT_PURGE_KEY, and the merge and deploy. Remaining windows (README section 12.6): purge works ~ one purge round trip; purge failed at most 6.5 s, only for repeated reads of that Post on an edge instance that read its list before the change; writes with triggers off up to 6 min (run admin_post_document_bypass_all and purge post-document). Reach today: repeated reads of the same Post within seconds only; the average will barely move.",
-        "next_owner": "Experience Governance (decision) · Traffic Intelligence (field check)",
+        "open": "Field impact: needs samples from build 2029-B6373d0f or later on Posts, compared by page kind and device with the window before (Speed Law rule 7); expected reach is small (repeated reads of the same Post within seconds). Remaining windows (README section 12.6): purge failed at most 6.5 s, only for repeated reads of that Post on an edge instance that read its list before the change; writes with triggers off up to 6 min (run admin_post_document_bypass_all and purge post-document). The Home and /community/chat documents (19% of document requests) are not kept: experiment approved 17.11 (isolated branch and protected Preview only).",
+        "next_owner": "Traffic Intelligence (field check) · Experience Governance (Home / community documents)",
         "relates_to_groups": [],
         "reach": "Vercel observability 16.11.2026 (29,573 document requests): with this policy about 3.2-4.5% of the requests outside '/' and '/community/chat' (Posts and junk addresses) would be CDN answers per hour, about 70% for the four most-read Posts in fra1; '/' and '/community/chat' (19% of all document requests, ~89% repeat within the hour) are not kept by this change. With the freshness package (17.11): kept copies are used only for repeated reads of the same Post within 5 s on the same edge instance; quiet traffic and crawlers are built fresh with no extra call."
+      },
+      {
+        "id": "S-48",
+        "title_he": "בית: הערת \"הדף בבנייה\" בראש, פריט מפת המציאות הנעוץ ו\"עכשיו\" קצר; זרם המציאות נטען בהתקרבות; רמזי טעינה לקוד הבית רק בכתובת הבית",
+        "problem": "The Home's first real content waited for the whole \"עכשיו\" box (five sources): lab 11.4-12.3 s on a slow phone; the Home's own code was discovered only after the entry ran (Slow 4G lab ~4.2 s after navigation), one wave after another (Home graph 42 files, 186 KB gzip JS).",
+        "surface": "home",
+        "source": {
+          "task_keys": [
+            "HOME_PINNED_LEAD_SHORT_NOW_SPEED_20261117",
+            "HOME_TOP_FIRST_RELEASE_20261117"
+          ],
+          "prs": [
+            1377
+          ],
+          "merged_via_pr": 1377,
+          "commits": [
+            "cba72cf9dda7f55fcee68e3f82819a8652084efe",
+            "67bdf585cf16be68d2e178bb624a6a2e4154966c",
+            "00802d5db0a5b2e5b6f05f25e5a814b6224bf1a8",
+            "07127c404b6e6c0f6e341410d4bc40831e6790a7"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol"
+        },
+        "code_now": [
+          "src/components/experience2029/HomeComposition2029.jsx :: HomeBuildingNote (top, \"לעדכונים במייל\") · HomePinnedLead (pinned מפת המציאות lead, no time limit, catalog fallback, fixed boxes) · short \"עכשיו\" (3 rows, button to the full sheet) · arrivals behind useApproach2029 (\"זרם המציאות ייטען כשתגיעו אליו\")",
+          "public-reading-deploy/route-preload.js :: homePreloadComment (build: the Home page's static graph beyond the entry) / withRoutePreloads2029 (request: hints for \"/\" with status 200 only; every other document loses the inert comment)",
+          "src/components/experience2029/homeLeadImageGate2029.js :: images below the lead wait for the lead image (cap 6,000 ms)",
+          "src/pages/Home2029Page.jsx + src/lib/nowPublications2029.js :: the short \"עכשיו\" from the same feed as the full sheet"
+        ],
+        "merged": true,
+        "merge_commit": "84bdb23f96f4f6d433769d87000a69a10d7fbf56",
+        "deployed": true,
+        "deployed_in": "dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r",
+        "deployed_in_sha": "84bdb23f96f4f6d433769d87000a69a10d7fbf56",
+        "deployed_in_created": "2026-11-17T18:05:40Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Live 17.11.2026 18:13-18:25 UTC: get_alias sod1820.co.il -> dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r; \"/\" 200 with bootstrap entry /assets/2029-BQKFETEH.js and sourceSha 84bdb23f9; 49 modulepreload hints including /assets/Home2029Page-S__adoX-.js on \"/\" only (a Post document has none of them and no inert comment); a phone-size browser with an ordinary browser identity shows, from the top: the construction note with \"לעדכונים במייל\", the pinned מפת המציאות lead, then \"עכשיו\". Post-Deploy Canary 44144296571 success (attempt 1). The release visual gate checks the note once at the top and the stream with its source arrivals loading when reached. A headless browser identity gets 403 from Vercel's bot protection on the live domain (also before this release).",
+        "measurement": {
+          "kind": "lab",
+          "before": "page drawn 6.2-6.5 s; first real content 11.4-12.3 s; \"עכשיו\" rows 11.4-12.3 s; CLS 0.0075; largest paint = header logo 2.1 s",
+          "after": "page drawn 5.3-5.5 s; first real content 6.2-6.3 s; \"עכשיו\" rows 11.0-11.3 s; CLS 0.0007; largest paint = pinned image 7.5-7.7 s",
+          "conditions": "lab, phone Slow 4G + 4x CPU, recorded data, n=3 alternating, on 2011226fe with cba72cf9d (the same change re-applied as 67bdf585c); not field data",
+          "source": "work_log HOME_PINNED_LEAD_SHORT_NOW_SPEED_20261117 AFTER (provenance; no separate measurement file)"
+        },
+        "guard": [
+          "test/home-live-updates-2029.test.mjs + test/home-route-preload-2029.test.mjs + test/now-publications-2029.test.mjs + test/content-first-2029.test.mjs (live-contracts-2029.yml) [on origin/main]",
+          "test/public-reading-production-artifact.test.mjs (the release document carries the Home hints for \"/\" only) [on origin/main]",
+          ".github/workflows/release-visual-gate.yml (construction note once at the top; stream and #home-sources load on approach) [on origin/main]"
+        ],
+        "open": "Google's largest paint on the Home becomes the pinned image (lab 7.5-7.7 s; it was the logo at 2.1 s) although real content arrives about 5 s sooner; candidate: the document carries the pinned card and its image hint, together with a kept Home document (experiment approved 17.11). \"עכשיו\" rows still about 11 s on slow phones (the feed waits for five sources). Field before/after for build 2029-BQKFETEH once there are enough Home samples.",
+        "next_owner": "Experience Governance (Home) · Traffic Intelligence (field check)",
+        "relates_to_groups": [
+          "F28"
+        ]
       }
     ],
     "group_updates": [
@@ -3975,7 +4058,7 @@
         "pr": 1375,
         "state": "merged 17.11.2026 as the speed centre (d87ced78b)",
         "head": "cba72cf9dd (ccr-dcadb071-v1z5ol)",
-        "note": "The PR was repurposed: the Home design commit cba72cf9d was reverted on the branch (56b1d331f) before the merge, so the merge carries the speed centre only. The Home design stays in branch history, awaiting ZURIEL (lab A/B n=3: first real content 11.4-12.3 -> 6.2-6.3 s; LCP becomes the pinned image 7.5-7.7 s)."
+        "note": "The PR was repurposed: the Home design commit cba72cf9d was reverted on the branch (56b1d331f) before the merge, so the merge carries the speed centre only (deployed dpl_H2Vs3UnALoLFwpViK7mYeSx7D1Dw, build 2029-BplD03IN). The Home design was re-applied on ZURIEL's \"תעלה\" as PR #1377 (67bdf585c), merged 84bdb23f9 and released 17.11.2026 (dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r); it is counted once, as S-48."
       },
       {
         "pr": 1363,
@@ -4058,22 +4141,22 @@
     ],
     "summary": {
       "counts": {
-        "total": 47,
-        "merged": 46,
-        "deployed_true": 46,
+        "total": 48,
+        "merged": 48,
+        "deployed_true": 48,
         "live_unknown": 25,
         "live_no": 2,
-        "live_yes": 19,
-        "branch_only": 1
+        "live_yes": 21,
+        "branch_only": 0
       },
       "by_author": {
         "gpt": 10,
-        "claude": 33,
+        "claude": 34,
         "codex": 4
       },
       "by_surface": {
         "world": 1,
-        "home": 4,
+        "home": 5,
         "post": 12,
         "all": 17,
         "number": 2,
@@ -4110,7 +4193,29 @@
     },
     "history_compiled_at": "2026-11-17T10:41:38Z",
     "provenance_note": "Fixes, group updates and deployment ancestry were compiled read-only from origin/main 2011226fe, the PRs, docs/reviews measurement documents, Vercel production deployments and work_log (provenance only); each claim names its evidence. The 31.10 groups above are kept unchanged; group_updates states what later work did to each.",
-    "production_deployments_key": "current_state_20261117_production_deployments"
+    "production_deployments_key": "current_state_20261117_production_deployments",
+    "revisions": [
+      {
+        "at": "2026-11-17T18:30:00Z",
+        "task": "SPEED_MAP_STATUS_20261117_EVENING",
+        "by": "CLAUDE (ZURIEL \"מאשר, תתחיל בסעיף 3 ובתיקון הקטן\")",
+        "what": "S-47 released (#1376); S-48 added (#1377, Home design); build evidence for 2029-BplD03IN, 2029-B6373d0f, 2029-BQKFETEH; the #1375 line; production deployments of 17.11; counts recomputed from the entries.",
+        "previous": {
+          "checked_at": "2026-11-17T10:40:00Z",
+          "main": "2011226fe58eff3645750031bd59a69d5e2c208f",
+          "production": {
+            "deployment": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
+            "sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
+            "aliases": [
+              "sod1820.co.il",
+              "www.sod1820.co.il",
+              "sod1820.vercel.app"
+            ],
+            "evidence": "get_alias sod1820.co.il -> dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi; the live document's bootstrap config names entry /assets/2029-CNp2F-eD.js and sourceSha 2011226fe58eff3645750031bd59a69d5e2c208f (read 2026-11-17T10:35Z)"
+          }
+        }
+      }
+    ]
   },
   "current_state_20261117_production_deployments": [
     {
@@ -4801,6 +4906,24 @@
       "id": "dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi",
       "sha": "2011226fe58eff3645750031bd59a69d5e2c208f",
       "created": "2026-11-17T08:51:44Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_H2Vs3UnALoLFwpViK7mYeSx7D1Dw",
+      "sha": "d87ced78b61fdfefce2d2b3ac0a8da41a92c1a26",
+      "created": "2026-11-17T12:38:06Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo",
+      "sha": "890efa2044b78079da953f2640c1f153c8e63695",
+      "created": "2026-11-17T16:59:56Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r",
+      "sha": "84bdb23f96f4f6d433769d87000a69a10d7fbf56",
+      "created": "2026-11-17T18:05:40Z",
       "ready": true
     }
   ]
