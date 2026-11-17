@@ -16,9 +16,10 @@ const RPCS = new Set(["gematria_method_trace", "fn_method_profile", "fn_method_v
 const SLUG = process.env.SLUG || "hashgacha-pratit-1020";
 const CASES = {
   "hashgacha-pratit-1020": { word: "טוב", value: 1020, repetitions: "10", words: "60", letters: "180", tag: "× 6 × 10", eq: /6 × 10 × 17 = 1020/, facts: /חזרות של «טוב» בכל פאה[\s\S]*10/, origin: /cube geometry/, cartouche: /קובייה[\s\S]*טוב[\s\S]*6 × 10 × 17 = 1020/ },
-  "emunah-cube-612": { word: "אמונה", value: 612, repetitions: "1", words: "6", letters: "30", tag: "× 6", eq: /6 × 102 = 612/, facts: /פאות בצורה[\s\S]*6/, origin: /source-declared orientation/, cartouche: /קובייה[\s\S]*אמונה[\s\S]*6 × 102 = 612/ },
-  "matamim-cube-1254": { word: "מטעמים", value: 1254, repetitions: "1", words: "6", letters: "36", tag: "× 6", eq: /6 × 209 = 1254/, facts: /פאות בצורה[\s\S]*6/, origin: /cube geometry/, cartouche: /קובייה[\s\S]*מטעמים[\s\S]*6 × 209 = 1254/ },
+  "emunah-cube-612": { word: "אמונה", value: 612, repetitions: "1", words: "6", letters: "30", tag: "× 6", eq: /102 × 6 = 612/, facts: /פאות בצורה[\s\S]*6/, origin: /source-declared orientation/, cartouche: /קובייה[\s\S]*אמונה[\s\S]*102 × 6 = 612/ },
+  "matamim-cube-1254": { word: "מטעמים", value: 1254, repetitions: "1", words: "6", letters: "36", tag: "× 6", eq: /209 × 6 = 1254/, facts: /פאות בצורה[\s\S]*6/, origin: /cube geometry/, cartouche: /קובייה[\s\S]*מטעמים[\s\S]*209 × 6 = 1254/ },
 };
+// a two-term product leads with the word's value (the finding is the hero: "102 × 6"), a three-term product keeps the declared order ("6 × 10 × 17")
 const CASE = CASES[SLUG];
 
 async function session({ width, height, reducedMotion = process.env.REDUCED ? "reduce" : "no-preference", throttle = 1, name, noWebgl = false, dsf = 2 }) {
