@@ -3882,6 +3882,53 @@
         "open": "Field check by edge region (Vercel observability middleware time to first byte, fra1/cdg1/lhr1/arn1, before vs after 17.11 21:00 UTC) and the share of x-sod-country-policy: waited (new instances); if new instances dominate, a regional cached copy of the policy is next.",
         "next_owner": "Traffic Intelligence (edge policy owner, field check)",
         "relates_to_groups": []
+      },
+      {
+        "id": "S-51",
+        "title_he": "דף הבית: קריאת הקטלוג של הפריט הנעוץ ותמונתו מתחילות עם קוד הכניסה, לא אחרי שהדף נטען (ניסוי, לא מוזג)",
+        "problem": "The pinned card waited on a chain: the entry (~2.9 s on a slow phone), the Home mount, then the series catalog read (~4.8-5.2 s), then the card (~5.8-6.2 s) and only then its cover, the page's largest paint (~6.4-6.7 s).",
+        "surface": "home",
+        "source": {
+          "task_keys": [
+            "HOME_PINNED_LEAD_EARLY_20261117"
+          ],
+          "prs": [
+            1381
+          ],
+          "merged_via_pr": null,
+          "commits": [
+            "1cd3d6fdfd448f9b3ce341e0760d68baddd02dc4",
+            "00b36f9f481a114bfeb92684902ae5bff1c04d22"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol"
+        },
+        "code_now": [
+          "src/lib/homePinnedLeadEarly2029.js :: startHomePinnedLeadEarly2029 (the Home's own shared catalog read + one preload of the card's cover copies) (branch only)",
+          "src/components/experience2029/homePinnedCover2029.js :: the card's cover rule in one place (branch only)",
+          "src/lib/homeAtmospherePreload2029.js :: on the Home address of the public release, import(\"../pages/Home2029Page.jsx\") and call its export; no static import into the entry (branch only)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Protected Previews only: treatment dpl_WAJNK9ZiVGFZvmbeN7ApD28o84A9 (1cd3d6fdf) vs control dpl_HdRnQYqeJQ3USc27W7dnQ2Sf3Sc8 (main 19e0cafe7), 6 alternating rounds: the early preload in 6 of 6, 9 posts reads in both arms, one cover request in both.",
+        "measurement": {
+          "kind": "lab",
+          "before": "control p50: catalog reads start 5,211 ms, card 6,196 ms, cover requested 6,282 ms, largest paint (the cover) 6,684 ms (p75 6,796)",
+          "after": "treatment p50: catalog reads start 4,376 ms, card 5,454 ms, cover requested 5,392 ms, largest paint 6,272 ms (p75 6,460)",
+          "conditions": "phone 390x844 @2x, Slow 4G 150 ms / 1.6 Mbps / 750 kbps + 4x CPU, fresh profile, 6 rounds alternating, two protected Previews of the same pipeline differing only in this change; not field data",
+          "source": "docs/reviews/home-pinned-lead-early-20261117/README.md + home-ab-results.json"
+        },
+        "guard": [
+          "test/home-pinned-lead-early-2029.test.mjs (same cover as the card, one definition, one network read per series, no static import into the entry) (live-contracts-2029.yml) [branch only]",
+          "scripts/test-2029-shell-budget.mjs (frame files unchanged) [on origin/main]"
+        ],
+        "open": "Awaiting ZURIEL. Next possible step (not done): start the same reads from the document itself and let the shared read layer adopt them, so the cover is in the browser before the card appears (~0.8 s more on this profile, expected).",
+        "next_owner": "Experience Governance (Home decision) · Traffic Intelligence (field check)",
+        "relates_to_groups": []
       }
     ],
     "group_updates": [
@@ -4244,22 +4291,22 @@
     ],
     "summary": {
       "counts": {
-        "total": 50,
+        "total": 51,
         "merged": 50,
         "deployed_true": 50,
         "live_unknown": 25,
         "live_no": 2,
         "live_yes": 23,
-        "branch_only": 0
+        "branch_only": 1
       },
       "by_author": {
         "gpt": 10,
-        "claude": 36,
+        "claude": 37,
         "codex": 4
       },
       "by_surface": {
         "world": 1,
-        "home": 5,
+        "home": 6,
         "post": 12,
         "all": 19,
         "number": 2,

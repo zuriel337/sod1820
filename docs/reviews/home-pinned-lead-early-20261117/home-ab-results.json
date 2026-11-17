@@ -1,0 +1,297 @@
+{
+  "profile": "phone 390x844@2x, Slow 4G 150ms/1.6Mbps/750kbps + 4x CPU, fresh profile, alternating",
+  "rows": [
+    {
+      "arm": "control",
+      "ttfb": 394,
+      "fcp": 824,
+      "lead": 6757,
+      "lcp": 7164,
+      "lcpEl": "IMG",
+      "catalogStart": 5733,
+      "catalogEnd": 6816,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 6967,
+      "coverEnd": 7452,
+      "coverRequests": 1,
+      "preload": false
+    },
+    {
+      "arm": "treatment",
+      "ttfb": 257,
+      "fcp": 644,
+      "lead": 5454,
+      "lcp": 6200,
+      "lcpEl": "IMG",
+      "catalogStart": 4376,
+      "catalogEnd": 5282,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 5394,
+      "coverEnd": 6151,
+      "coverRequests": 1,
+      "preload": true
+    },
+    {
+      "arm": "treatment",
+      "ttfb": 158,
+      "fcp": 580,
+      "lead": 5372,
+      "lcp": 6216,
+      "lcpEl": "IMG",
+      "catalogStart": 4300,
+      "catalogEnd": 4944,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 5317,
+      "coverEnd": 6170,
+      "coverRequests": 1,
+      "preload": true
+    },
+    {
+      "arm": "control",
+      "ttfb": 272,
+      "fcp": 644,
+      "lead": 6211,
+      "lcp": 6684,
+      "lcpEl": "IMG",
+      "catalogStart": 5185,
+      "catalogEnd": 6167,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 6282,
+      "coverEnd": 6946,
+      "coverRequests": 1,
+      "preload": false
+    },
+    {
+      "arm": "control",
+      "ttfb": 185,
+      "fcp": 640,
+      "lead": 6042,
+      "lcp": 6460,
+      "lcpEl": "IMG",
+      "catalogStart": 5115,
+      "catalogEnd": 6264,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 6316,
+      "coverEnd": 6859,
+      "coverRequests": 1,
+      "preload": false
+    },
+    {
+      "arm": "treatment",
+      "ttfb": 164,
+      "fcp": 552,
+      "lead": 5344,
+      "lcp": 6136,
+      "lcpEl": "IMG",
+      "catalogStart": 4244,
+      "catalogEnd": 5081,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 5287,
+      "coverEnd": 6059,
+      "coverRequests": 1,
+      "preload": true
+    },
+    {
+      "arm": "treatment",
+      "ttfb": 162,
+      "fcp": 568,
+      "lead": 5453,
+      "lcp": 6272,
+      "lcpEl": "IMG",
+      "catalogStart": 4369,
+      "catalogEnd": 5043,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 5392,
+      "coverEnd": 6189,
+      "coverRequests": 1,
+      "preload": true
+    },
+    {
+      "arm": "control",
+      "ttfb": 141,
+      "fcp": 592,
+      "lead": 6196,
+      "lcp": 6796,
+      "lcpEl": "IMG",
+      "catalogStart": 5209,
+      "catalogEnd": 6054,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 6196,
+      "coverEnd": 6742,
+      "coverRequests": 1,
+      "preload": false
+    },
+    {
+      "arm": "control",
+      "ttfb": 157,
+      "fcp": 580,
+      "lead": 6032,
+      "lcp": 6636,
+      "lcpEl": "IMG",
+      "catalogStart": 5211,
+      "catalogEnd": 5834,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 6035,
+      "coverEnd": 6582,
+      "coverRequests": 1,
+      "preload": false
+    },
+    {
+      "arm": "treatment",
+      "ttfb": 215,
+      "fcp": 664,
+      "lead": 5846,
+      "lcp": 6572,
+      "lcpEl": "IMG",
+      "catalogStart": 4756,
+      "catalogEnd": 5086,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 5778,
+      "coverEnd": 6525,
+      "coverRequests": 1,
+      "preload": true
+    },
+    {
+      "arm": "treatment",
+      "ttfb": 139,
+      "fcp": 584,
+      "lead": 5669,
+      "lcp": 6460,
+      "lcpEl": "IMG",
+      "catalogStart": 4381,
+      "catalogEnd": 4766,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 5291,
+      "coverEnd": 6389,
+      "coverRequests": 1,
+      "preload": true
+    },
+    {
+      "arm": "control",
+      "ttfb": 191,
+      "fcp": 608,
+      "lead": 5889,
+      "lcp": 6544,
+      "lcpEl": "IMG",
+      "catalogStart": 5317,
+      "catalogEnd": 5828,
+      "catalogReads": 5,
+      "postsReads": 9,
+      "coverStart": 5890,
+      "coverEnd": 6482,
+      "coverRequests": 1,
+      "preload": false
+    }
+  ],
+  "summary": {
+    "control": {
+      "n": 6,
+      "ttfb": {
+        "p50": 191,
+        "p75": 272
+      },
+      "fcp": {
+        "p50": 640,
+        "p75": 644
+      },
+      "lead": {
+        "p50": 6196,
+        "p75": 6211
+      },
+      "lcp": {
+        "p50": 6684,
+        "p75": 6796
+      },
+      "catalogStart": {
+        "p50": 5211,
+        "p75": 5317
+      },
+      "catalogEnd": {
+        "p50": 6167,
+        "p75": 6264
+      },
+      "coverStart": {
+        "p50": 6282,
+        "p75": 6316
+      },
+      "coverEnd": {
+        "p50": 6859,
+        "p75": 6946
+      },
+      "postsReads": {
+        "p50": 9,
+        "p75": 9
+      },
+      "coverRequests": {
+        "p50": 1,
+        "p75": 1
+      },
+      "lcpEl": [
+        "IMG"
+      ],
+      "preload": [
+        false
+      ]
+    },
+    "treatment": {
+      "n": 6,
+      "ttfb": {
+        "p50": 164,
+        "p75": 215
+      },
+      "fcp": {
+        "p50": 584,
+        "p75": 644
+      },
+      "lead": {
+        "p50": 5454,
+        "p75": 5669
+      },
+      "lcp": {
+        "p50": 6272,
+        "p75": 6460
+      },
+      "catalogStart": {
+        "p50": 4376,
+        "p75": 4381
+      },
+      "catalogEnd": {
+        "p50": 5081,
+        "p75": 5086
+      },
+      "coverStart": {
+        "p50": 5392,
+        "p75": 5394
+      },
+      "coverEnd": {
+        "p50": 6189,
+        "p75": 6389
+      },
+      "postsReads": {
+        "p50": 9,
+        "p75": 9
+      },
+      "coverRequests": {
+        "p50": 1,
+        "p75": 1
+      },
+      "lcpEl": [
+        "IMG"
+      ],
+      "preload": [
+        true
+      ]
+    }
+  }
+}
