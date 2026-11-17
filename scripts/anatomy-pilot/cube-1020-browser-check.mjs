@@ -68,8 +68,17 @@ async function shot(stage, page, name) {
   // A software GL renderer cannot service a continuously animating scene AND a screenshot at 2x: pause motion for the capture (reduced-motion media), then restore.
   // REDUCED=1 runs the whole context with reduced motion instead (static captures of the rich tier).
   if (!process.env.REDUCED) { await page.emulateMedia({ reducedMotion: "reduce" }); await page.waitForTimeout(600); }
-  try { await stage.screenshot({ path: `${out}/${name}.png`, timeout: 25000 }); }
-  catch { const box = await stage.boundingBox(); const off = await page.evaluate(() => ({ x: scrollX, y: scrollY })); await page.screenshot({ path: `${out}/${name}.png`, clip: { x: box.x + off.x, y: Math.max(0, box.y + off.y), width: box.width, height: Math.min(box.height, 8000) }, fullPage: true, timeout: 60000 }); }
+  // a software renderer can miss a capture window while the exploded scene settles: retry the capture (element first, then a clipped page capture) before giving up
+  let captured = false, lastError = null;
+  for (let attempt = 0; attempt < 3 && !captured; attempt += 1) {
+    try { await stage.screenshot({ path: `${out}/${name}.png`, timeout: 25000 }); captured = true; }
+    catch (error) {
+      lastError = error;
+      try { const box = await stage.boundingBox(); const off = await page.evaluate(() => ({ x: scrollX, y: scrollY })); await page.screenshot({ path: `${out}/${name}.png`, clip: { x: box.x + off.x, y: Math.max(0, box.y + off.y), width: box.width, height: Math.min(box.height, 8000) }, fullPage: true, timeout: 60000 }); captured = true; }
+      catch (fallbackError) { lastError = fallbackError; await page.waitForTimeout(1500); }
+    }
+  }
+  if (!captured) throw lastError;
   if (!process.env.REDUCED) await page.emulateMedia({ reducedMotion: "no-preference" });
 }
 const selectedPart = async (stage) => host(stage).getAttribute("data-selected-part");
