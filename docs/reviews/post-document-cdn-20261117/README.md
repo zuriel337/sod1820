@@ -305,3 +305,26 @@ Suggested order: migration and secret, then the deploy.
 - A hidden or deleted Post: never served from a kept copy once the purge has run; if the purge fails, at most 6.5 s on repeated reads of that Post, and the page itself removes the article for JavaScript readers.
 - Cost: no added calls for quiet traffic or crawlers; tiny reads only while a Post is read repeatedly.
 - With today's traffic the average will barely change; most of the gain is for a Post that is being shared.
+
+### 12.12 Posts built from information units (#5107 shape) — checked 17.11.2026
+
+**Finding.** A Post built from units is never given its article in the first document. The article-first policy excludes the reality-map series, Posts with registered unit updates and the special readings; #5107 is all three. Read on the live site (read-only): `x-sod-article-first: not-proven`, and the newest unit's text appears 0 times in the document.
+
+So the document the CDN may keep holds only the Post's head: title, description from the excerpt, share image and dates. The units reach the reader from the page's own live read after it loads.
+
+Consequences, each pinned by a test (`test/post-document-units-2029.test.mjs`, CI `release-contracts-2029`; database cases in `tests/sql/post_document_freshness_v1.sql`, CI `speed-centre-sql`):
+
+| Scenario | Result |
+|---|---|
+| Add, remove, edit (text, number, image, link) or reorder units, written the way the 16.11 unit was (`posts.content` only, `posts.modified` unchanged) | Logged and purged through SQL, the editor (`admin_save_post`) and the agents (`sys_save_post`). The document the origin answers is **byte-for-byte the same** before and after, so a kept copy cannot show an old unit even if the purge failed. |
+| Unit link `?unit=<id>` | Never kept (query string); its share card is computed per request. |
+| Whole unit Post hidden or deleted, purge failed, a kept copy exists | The edge lists it as changed. The origin answers 404, which is never kept, with nothing of the Post in the answer. |
+| "מה התחדש בפוסט" | Computed from the live row: an update shows only when `posts.modified` equals its registered version and its fragment is in the live content. It is not part of the kept document. |
+| "עכשיו", unit anchors, source data | Live reads in the page; not part of the kept document. |
+| Article first | Not applicable to unit Posts. Where it does apply, the proof is bound to the exact content, so a unit change takes the Post off the proof and no stale article is served. |
+
+**Unit editor.** `PostUnitEditors2029` keeps its choices in the browser only (`postSemanticDesign2029.js`, localStorage) and writes nothing. There is no single-unit save path. A unit is published only by writing `posts.content`, as on 16.11 with approval, and that path is covered above. This is reported as a dependency; no new editing system was built.
+
+**Conclusion.** Units need no definition of their own in the CDN package; it already covers them.
+
+Not run: a browser run of the full elections page on a copy of its real content. The page's unit rendering reads the live row and does not pass through the CDN.
