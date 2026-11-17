@@ -328,3 +328,202 @@ Consequences, each pinned by a test (`test/post-document-units-2029.test.mjs`, C
 **Conclusion.** Units need no definition of their own in the CDN package; it already covers them.
 
 Not run: a browser run of the full elections page on a copy of its real content. The page's unit rendering reads the live row and does not pass through the CDN.
+
+## 13. The Home and the community chat on the CDN — experiment (ZURIEL 17.11.2026 "מאשר, תתחיל בסעיף 3"; branch and protected Preview only)
+
+### 13.1 Why these two
+
+On 16.11, `/` and `/community/chat` were about 19% of all document requests (5,616 of 29,573). About 89% of them repeated the same address within the hour in the same region (section 5). Every one of them was built by the function.
+
+- `/community/chat` (3,878): the Meta AI crawler, plus a steady ~13 requests an hour from five regions.
+- `/` (1,738): mostly `facebookexternalhit`.
+
+Facebook clicks carry a unique `?fbclid=` and get no benefit (section 5).
+
+### 13.2 Why a kept copy cannot be stale
+
+| Question | Answer and evidence |
+|---|---|
+| Is the document the same for every reader? | Yes. On the live site the documents of `/` (27,705 bytes) and `/community/chat` (22,282 bytes) were byte-identical with and without a member's cookie and `Authorization` header (17.11, 18:36 UTC). The handler reads no cookie, no `Authorization` header and no account. |
+| Can anything outside a deployment change it? | No. For these two addresses without a query string, the metadata owner (`api/og.js`) reads nothing: no Post, no `site_flags` (it reads them only for the launch-gated areas: world, books, journey, number, heichal, raziel, code), and no community row (only `?thread`, `?reply` or `?path` make it read). The unit test runs the real owner and the real article step with the network replaced by a recorder: **zero reads** for both pages. Page state (`publicReadingPath`, `publicTemporarilyClosed`) is code. The article step answers `not-eligible` (no Post). |
+| Can another release see the copy? | No. The platform keeps every deployment's copies apart (Vercel documentation, section 3), so a release or a rollback never serves another deployment's copy. |
+| Does the edge still check every reader? | Yes. The middleware (bot rules, country policy, challenges, the `vc`/`vb` labels, logging) runs on every request before the cache. The labels are added per request, after the cache (section 3, Post experiment). |
+
+### 13.3 What changed (`public-reading-deploy/api/public-document.js`)
+
+`PAGE_DOCUMENT_CDN_CACHE` sits next to `POST_DOCUMENT_CDN_CACHE`. It uses the same module, the same three headers and no new system:
+
+- `Vercel-CDN-Cache-Control: max-age=300, stale-while-revalidate=3600`;
+- `Vercel-Cache-Tag: page-document,page-document-home` (or `page-document-community-chat`);
+- `X-Sod-Document-Cache: page-cdn-v1`.
+
+**Admitted:** exactly `/` and `/community/chat`, GET or HEAD, status 200, public state, no query string, no Post, article step `not-eligible`.
+
+**Not admitted:** everything else, including `/2029`, `/community`, a trailing slash, `?fbclid`, `?p=`, `?thread`, 404, 503, other hosts and the function's own address. Browsers keep `Cache-Control: no-store`.
+
+The refresh after 5 minutes changes nothing in the bytes. The background refresh only keeps the copy warm, at most one function call per page per region per 5 minutes while it is being read. The tag allows a manual purge (Vercel dashboard or API) if a copy ever has to go at once. The site's purge endpoint stays Post-only.
+
+**Tests:** `test/post-document-cdn-cache.test.mjs`, 9 of 9 pass:
+
+- the two kept pages;
+- 10 cases not kept;
+- the same bytes for every reader;
+- the real owner reads nothing;
+- the exact decision, including `__proto__` and `constructor`.
+
+The 19 test files that load the document function: 188 of 189 pass. The one failure needs `@playwright/test` in this container and fails the same way on clean `main`.
+
+### 13.4 Protected Preview `dpl_2VAQq1pgS7n1C21B7a6nXYkRyvzU` (commit `168d976d5`)
+
+No domain; behind Vercel authentication; built with `--protected-review` for the exact SHA. Read 17.11.2026, 18:54–19:00 UTC, from the test machine (edge `cle1`).
+
+| Check | Result |
+|---|---|
+| `/` three times, `/community/chat` three times (then twice more) | `MISS`, then `HIT`, `HIT` (the chat: 4 of 4 `HIT`); `X-Sod-Document-Cache: page-cdn-v1`; the same ETag on every answer |
+| Same bytes for everyone | identical bodies, except Vercel's own Preview feedback script, which Vercel adds for signed-in browsers on Preview hosts only (never on the site's domains); a crawler gets the copy without it |
+| Per-reader labels | on a `HIT`, Googlebot and `facebookexternalhit` got `vb=goodbot`, a browser `vb=browser`: the middleware sets them per request, after the cache; they are not in the copy |
+| Not kept (each `MISS`, no cache marker) | `/?fbclid=…` (×2, the same bytes as `/` but not kept), `/?p=36971` (308 to the chat, as before), `/community/chat?thread=<unknown>` (404 ×2), `/2029`, `/community`, `/gematria`, an unknown address (404 ×2), the function's own address; `/community/chat/` is redirected by the platform (308) |
+| After 5 minutes | `STALE` at 319–321 s (the kept copy, at once), the next request `HIT` with age 2–3 s and the same ETag: refreshed in the background |
+
+Not tested: a purge by tag (not needed for freshness here: only a deployment changes these documents); a second Preview to show that deployments never share copies (Vercel documentation and section 3).
+
+### 13.5 Measurements, and what they mean
+
+| Measurement | Result |
+|---|---|
+| First byte from the test machine, kept vs built (same deployment, 12 alternating pairs, `?t=` makes the built arm) | `/`: p50 193 vs 232 ms, p75 206 vs 271 ms. `/community/chat`: p50 189 vs 220 ms, p75 206 vs 260 ms. **About 30–65 ms faster from here.** |
+| The function's own time for these two pages (Vercel observability, Production, 7 days) | time to first byte p75 about 20 ms (19–21); duration p50 7–8 ms: they read nothing, so they are cheap and fast |
+| Live today (Production, test machine, 12 each) | `/` p50 191 ms, `/community/chat` p50 163 ms |
+| Field, real readers, 7 days (`events` web_vital, phones) | `/`: server wait p50 505 ms, p75 1,303 ms (n=45). `/community/chat`: p50 379 ms, p75 1,010 ms (n=69) |
+| The edge middleware's time to first byte on `/`, by edge region (Vercel observability, 17.11) | `cle1` 20 ms, `sfo1` 21 ms, `iad1` 25 ms at p75, but **`fra1` 771 ms**, `cdg1` 794 ms, `arn1` 1,185 ms, `lhr1` 1,310 ms, `gru1` 1,091 ms, `icn1` 1,089 ms at p75 |
+
+What this means:
+
+- **The kept copy saves one trip from the reader's edge to the function in Washington (`iad1`), plus the function's ~10–20 ms.** From the test machine (next to `iad1`) that is 30–65 ms. From Frankfurt it is expected to be about 0.1 s (one Atlantic round trip; not measured from there). For Posts the saving was ~0.8 s, because a Post's function waits for the database in Tokyo; these two pages never did.
+- **The large wait readers see on the Home is in the middleware, not the function.** On `/` the only network call the middleware waits for is the country policy read (`countryPolicyMap()`, `edge_blocked_countries` in Tokyo). It is kept for 5 minutes per edge instance, so in quiet regions it is usually read again, blocking the reader: p75 0.77 s in `fra1`, 0.8–1.3 s in other European and far regions, versus 20–25 ms in the busy US regions. The middleware runs before the CDN, so **a kept copy does not remove this wait**. It matches the field server wait p75 of 1.0–1.3 s.
+- Phone lab not run: with a 30–65 ms difference from this machine, a phone lab measures noise; it cannot show the Frankfurt effect either.
+
+### 13.6 Recommendation
+
+1. **This change (the Home and the chat on the CDN): safe, but small.** About 0.1 s for readers in Israel and Europe (expected, not measured from there), ~5,000 fewer function calls a day (most of them crawlers), no new cost, no freshness risk. It can ride along with a future release. It is not the big gain.
+2. **The big gain is the country policy read in the middleware.** It affects every page for readers whose edge instance is quiet, which describes this site's traffic in Europe and Israel. The suggested fix:
+   - keep the last known policy on each instance and refresh it in the background after 5 minutes, so a reader never waits for it on a warm instance;
+   - on a cold instance, bound the wait with a short timeout (the read already fails open on errors), or read the policy from a short regional cached copy instead of Tokyo.
+   It touches the security layer (country blocking), so it needs ZURIEL's decision before even a test branch. Expected effect: removes most of the 0.3–1.3 s p75 middleware wait outside the US; measurable in the field by edge region.
+
+## 14. The gatekeeper's country policy read — fix in a test branch (ZURIEL 17.11.2026 "מאשר, תתחיל בתיקון שומר הסף בענף בדיקה")
+
+### 14.1 What was slow
+
+The edge middleware runs before every page, including a kept CDN copy. The only network read a browser waits for there is the country policy: `public.edge_blocked_countries`, read from the database in Tokyo with the anonymous key.
+
+Each edge instance kept its copy for 5 minutes. After that it read the table again while the reader waited, with no time limit. On quiet edge regions that is most reads.
+
+Middleware time to first byte on `/`, p75 (Vercel observability, 17.11.2026):
+
+| Region | p75 |
+|---|---|
+| `fra1` | 771 ms |
+| `cdg1` | 794 ms |
+| `arn1` | 1,185 ms |
+| `lhr1` | 1,310 ms |
+| `gru1` | 1,091 ms |
+| `icn1` | 1,089 ms |
+| `cle1`, `sfo1`, `iad1` | 20–25 ms |
+
+Two other reads exist but are not on a reader's path:
+
+- the outer SG wrapper (`middleware.js`), which serves browsers from Singapore only;
+- the crawler-only lookups (Post existence, big numbers).
+
+### 14.2 What changed
+
+`edge-country-policy.js` decides when a reader waits. `middleware-core.js` keeps the owner, the query, the 5-minute constant and every rule.
+
+| The instance's copy | Before | Now |
+|---|---|---|
+| under 5 minutes | used | used (unchanged) |
+| 5 to 60 minutes | the reader waited for a new read | used at once; **one** background read (`waitUntil`) replaces it for the next requests |
+| none yet (a new instance), or older than 60 minutes | the reader waited, with no limit | the reader waits, at most 3 s |
+| the read fails or is too slow | last copy, or none (fail-open) | the same: last copy, or none |
+| an answer that is not a list | ignored | ignored, and it never replaces a good copy |
+
+Each read is limited to 5 s. Each answer says how it got the policy, in the header `x-sod-country-policy`: `fresh`, `refresh`, `waited`, `fallback` or `none`.
+
+### 14.3 Security: what changes and what does not
+
+- **Unchanged:**
+  - the owner table, the modes (blocked, strict, quarantine, monitor) and their order;
+  - good bots and AI crawlers pass;
+  - bad bots are refused;
+  - the challenges and their cookies;
+  - the SG rate limiter;
+  - the fail-open rule on a read error.
+- **Changed: how fast a policy change reaches each instance.**
+  - A busy instance picks it up within the same ~5 minutes as before, plus one request. The request that starts the read still uses the last policy.
+  - A quiet instance (one request every few minutes) also picks it up on its second request after the 5 minutes.
+  - An instance idle for over 60 minutes waits for a fresh read, as before.
+  - For one request per instance, a newly blocked country can pass, or a newly freed one can still be stopped.
+  - Attacks are many requests, so the policy applies from the second request.
+- **New bound:** a new instance waits at most 3 s for the read. Before, it had no limit. After 3 s the existing fail-open applies. The read itself continues in the background.
+
+### 14.4 Tests
+
+| Test | Result |
+|---|---|
+| `test/edge-country-policy-cache.test.mjs` (new) | 8/8, covering: a new instance waits once; a fresh copy needs no read; after 5 minutes an immediate answer and one background read; a hanging read never holds a reader; failed and unusable reads keep the good copy; a bounded wait on a new instance and the late read still lands; past 60 minutes the reader waits again, or gets the last copy if the read fails; the real middleware keeps a blocked country blocked while the background read is pending, answers a warm request in under 200 ms, and applies the new policy from the next request |
+| Edge suite: `middleware.test.js`, the production entry binding, bot reads, `test:cn-sg-security` | 24/24 |
+| Route legitimacy, route SEO decisions | PASS |
+| Post document freshness and CDN, status edge, units, contracts | 49/49 |
+| `npm run build` with the shell budget | PASS |
+| GitHub CI on `46933294d` | 7 workflows passed; the canary was skipped (it does not run on a Preview) |
+
+The new test runs in CI in `live-contracts-2029` (step: edge middleware contracts) and in `npm run test:cn-sg-security`.
+
+### 14.5 Protected Preview A/B (17.11.2026, 19:32–19:50 UTC)
+
+The two arms:
+
+- **Control:** `dpl_2VAQq1pgS7n1C21B7a6nXYkRyvzU` (`168d976d5`): the page CDN change with the old policy read.
+- **Treatment:** `dpl_9tXib9WmQwJYUQfAvBDJt75sMQnn` (`46933294d`): the same plus the fix.
+
+Method: one request to `/` on each, every 60 seconds, for 18 rounds, with the arms alternating order. This is the pattern of a quiet edge region, about one reader a minute. It ran from the test machine (edge `cle1`). Raw rows: `gatekeeper-ab-20261117.tsv`.
+
+| Moment | Control | Treatment |
+|---|---|---|
+| First request (control: copy expired; treatment: read a minute earlier) | 1,199 ms | 237 ms (`fresh`) |
+| Each time the instance's copy passed 5 minutes (19:37:50, 19:42:56, 19:48:02) | 837, 1,152 and 755 ms | 486, 481 and 444 ms (`refresh`: answered at once, read in the background) |
+| All rounds after the first (n=17 each) | p50 517, p75 635, max 1,152 ms | p50 490, p75 516, max 576 ms |
+
+- **At every expiry the control's reader waited an extra 0.3–0.7 s for the read from Tokyo, even from the US. The treatment's reader did not wait at all.** Between expiries the two arms are the same.
+- The base time of ~0.45–0.5 s in this run is the test machine's network: both arms paid it equally, because they were interleaved.
+- The `STALE` rows are the page CDN refreshing its copy at the same 5-minute mark. Both arms show them, so they do not explain the difference.
+
+Security checks on the treatment:
+
+- a bad bot (`python-requests`) got 403;
+- Googlebot passed (`vb=goodbot`);
+- the policy state was `waited` on the instance's first request, then `fresh`/`refresh`.
+
+### 14.6 Expected effect in the field, and how to check it
+
+- **Readers in quiet regions** (Frankfurt, where readers from Israel arrive; Paris, London, Stockholm, São Paulo, Seoul): the read that cost 0.77–1.3 s at p75 is no longer on their path while the instance is warm. Expected: the middleware's p75 on `/` in those regions drops toward the 20–25 ms of the busy regions. This is not measured from there yet.
+- **What remains:** a new instance still waits once for its first read (`waited`), as before, but now at most 3 s.
+- **Check after a release:**
+  - Vercel observability: middleware time to first byte by edge region, before and after.
+  - The share of `x-sod-country-policy: waited` in a sample of responses.
+  - The field server wait for `/` in the speed centre, by build.
+
+### 14.7 Not done or not verified
+
+- Not measured from Europe or Israel.
+- Not run under real traffic.
+- How often instances start cold in the field is unknown.
+- A policy change was not made live during the test (the database was not touched). The unit test proves the new policy applies from the next request.
+- The SG wrapper's own policy read (`sgPolicy`, browsers from Singapore only) was left unchanged.
+
+### 14.8 Recommendation
+
+Release it when you decide, together with the speed-centre field check. It removes the largest measured wait on the Home for readers outside the US, with no change to who is blocked. The only change is that a new policy reaches a quiet instance one request later.
+
+If the field check after the release shows many `waited` answers (new instances), the next step is a regional cached copy of the policy, so even a new instance does not read from Tokyo.

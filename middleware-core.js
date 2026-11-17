@@ -1,6 +1,7 @@
 import { next, rewrite } from '@vercel/edge';
 import { isKnownSingleSegmentRoute, isSingleSegmentRoute, postSlugVariants } from './route-legitimacy.js';
 import { createPostDocumentGate, postDocumentBypassUrl, postDocumentGateCandidate, previewTestList, POST_DOCUMENT_FRESHNESS } from './post-document-freshness.js';
+import { createCountryPolicyCache, COUNTRY_POLICY_TIMING } from './edge-country-policy.js';
 
 // ── שומר-סף + לוג צד-שרת (Vercel Edge) ────────────────────────────────────────
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
@@ -38,25 +39,28 @@ export { ANON as SUPABASE_ANON_KEY };
 // mode=quarantine → browser עובר challenge מותאם-סיכון מקומי; אין lookup/API נוסף.
 // mode=monitor    → אין אכיפה נוספת, רק המדידה הרגילה.
 // cache קצר של 5 דקות כדי שאפשר יהיה להעלות/להוריד מינון מה-DB בלי deploy.
+// When a reader waits for the read is decided by edge-country-policy.js (ZURIEL 17.11.2026, test branch): a copy up to 5 minutes old is used as
+// before; an older one (up to 60 minutes) is used at once while ONE background read replaces it; only an instance with no usable copy waits for
+// the read, at most 3 s. On any read error the last copy is kept, or none (fail-open למדיניות מדינה; שכבות bot/path האחרות ממשיכות לפעול).
 const COUNTRY_POLICY_CACHE_MS = 5 * 60 * 1000;
-let COUNTRY_POLICIES = null, COUNTRY_POLICIES_AT = 0;
-async function countryPolicyMap() {
-  const now = Date.now();
-  if (COUNTRY_POLICIES && now - COUNTRY_POLICIES_AT < COUNTRY_POLICY_CACHE_MS) return COUNTRY_POLICIES;
-  try {
+const COUNTRY_POLICY = createCountryPolicyCache({
+  freshMs: COUNTRY_POLICY_CACHE_MS,
+  read: async () => {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/edge_blocked_countries?select=code,mode,strict_level&enabled=eq.true`, {
       headers: { apikey: ANON, Authorization: 'Bearer ' + ANON },
+      signal: AbortSignal.timeout(COUNTRY_POLICY_TIMING.readTimeoutMs),
     });
+    if (!r.ok) return null;
     const arr = await r.json();
-    if (Array.isArray(arr)) {
-      COUNTRY_POLICIES = new Map(arr.map((row) => [
-        String(row.code || '').toUpperCase(),
-        { mode: String(row.mode || 'blocked'), strictLevel: Math.max(1, Math.min(3, Number(row.strict_level) || 1)) },
-      ]));
-      COUNTRY_POLICIES_AT = now;
-    }
-  } catch { /* fail-open למדיניות מדינה; שכבות bot/path האחרות ממשיכות לפעול */ }
-  return COUNTRY_POLICIES || new Map();
+    if (!Array.isArray(arr)) return null;
+    return new Map(arr.map((row) => [
+      String(row.code || '').toUpperCase(),
+      { mode: String(row.mode || 'blocked'), strictLevel: Math.max(1, Math.min(3, Number(row.strict_level) || 1)) },
+    ]));
+  },
+});
+async function countryPolicyMap(context) {
+  return COUNTRY_POLICY.get({ waitUntil: (promise) => context?.waitUntil?.(promise) });
 }
 
 function cookieValue(request, name) {
@@ -349,7 +353,7 @@ export default async function middleware(request, context) {
   let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
   const isBot = kind !== 'browser';       // goodbot | ai | bot
   const uaL = uaRaw.toLowerCase();
-  const policies = await countryPolicyMap();
+  const { policy: policies, state: policyState } = await countryPolicyMap(context);
   const countryPolicy = policies.get(String(country).toUpperCase()) || null;
 
   // ── מדיניות לפי סוג-תוכן + מדינה ──
@@ -444,6 +448,8 @@ export default async function middleware(request, context) {
   const outHeaders = new Headers();
   outHeaders.append('set-cookie', `vc=${country}; Path=/; Max-Age=86400; SameSite=Lax`);
   outHeaders.append('set-cookie', `vb=${kind}; Path=/; Max-Age=86400; SameSite=Lax`);
+  // How this request got the country policy (fresh | refresh | waited | fallback | none): lets a release be checked from outside, per region.
+  outHeaders.set('x-sod-country-policy', policyState);
   if (docGate) outHeaders.set('x-sod-doc-gate', docGate.reason);
   // A Post on the list of recent changes, or every Post while the list is missing or older than the lease: the origin builds it now. The
   // reserved parameter gives the request an address no kept copy has, and the header tells the document function never to keep the answer.
