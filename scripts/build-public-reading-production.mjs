@@ -213,6 +213,7 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
     canonicalSha256: hash(await readFile(resolve(root, "middleware.js"))),
     coreSha256: hash(await readFile(resolve(root, "middleware-core.js"))),
     routeLegitimacySha256: hash(await readFile(resolve(root, "route-legitimacy.js"))),
+    countryPolicySha256: hash(await readFile(resolve(root, "edge-country-policy.js"))),
     hostedInvocation: "requires-separate-positive-and-negative-acceptance",
   },
   documentTemplateSha256: hash(document), documentTemplatePublic: false,
