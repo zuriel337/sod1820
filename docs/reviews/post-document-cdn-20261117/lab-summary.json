@@ -1,0 +1,212 @@
+{
+ "task": "POST_DOCUMENT_CDN_CACHE_EXPERIMENT_20261117",
+ "method": "Same built artifact, same posts, same network and CPU profile; the only difference between the arms is how long the server waits before the document starts (880 ms = field median wait for Post documents on phones, 7 days to 17.11.2026; 60 ms = a CDN answer). Arms alternate in two blocks. Chromium via Playwright, cold profile, third-party scripts loaded, beacons blocked, Supabase reads replayed.",
+ "series": {
+  "article_first_as_live": {
+   "conditions": "lab2 + the real article-first server function (posts O1, O3, V1, M1), mobile Slow 4G + 4x CPU, 3 runs x 2 blocks per arm",
+   "arms": {
+    "miss": {
+     "server_wait_ms": 880,
+     "runs": 24,
+     "page_errors": 0,
+     "adopted": 24,
+     "ttfb_p50": 936,
+     "ttfb_p75": 958,
+     "fcp_p50": 1420,
+     "fcp_p75": 1484,
+     "lcp_p50": 5222,
+     "lcp_p75": 5972,
+     "readable_p50": 3333,
+     "readable_p75": 3493,
+     "cls_max": 0.0018,
+     "per_post": {
+      "M1": {
+       "ttfb": 925,
+       "fcp": 1398,
+       "lcp": 6076,
+       "readable": 3891
+      },
+      "O1": {
+       "ttfb": 900,
+       "fcp": 1396,
+       "lcp": 4674,
+       "readable": 3142
+      },
+      "O3": {
+       "ttfb": 946,
+       "fcp": 1534,
+       "lcp": 4618,
+       "readable": 3376
+      },
+      "V1": {
+       "ttfb": 956,
+       "fcp": 1436,
+       "lcp": 5902,
+       "readable": 3194
+      }
+     }
+    },
+    "hit": {
+     "server_wait_ms": 60,
+     "runs": 24,
+     "page_errors": 0,
+     "adopted": 24,
+     "ttfb_p50": 119,
+     "ttfb_p75": 144,
+     "fcp_p50": 640,
+     "fcp_p75": 712,
+     "lcp_p50": 3974,
+     "lcp_p75": 5220,
+     "readable_p50": 2556,
+     "readable_p75": 3071,
+     "cls_max": 0.0018,
+     "per_post": {
+      "M1": {
+       "ttfb": 92,
+       "fcp": 628,
+       "lcp": 5262,
+       "readable": 3107
+      },
+      "O1": {
+       "ttfb": 85,
+       "fcp": 606,
+       "lcp": 3908,
+       "readable": 2418
+      },
+      "O3": {
+       "ttfb": 144,
+       "fcp": 746,
+       "lcp": 3768,
+       "readable": 2565
+      },
+      "V1": {
+       "ttfb": 132,
+       "fcp": 652,
+       "lcp": 5132,
+       "readable": 2398
+      }
+     }
+    }
+   },
+   "difference_hit_minus_miss": {
+    "ttfb_p50": -817,
+    "ttfb_p75": -814,
+    "fcp_p50": -780,
+    "fcp_p75": -772,
+    "lcp_p50": -1248,
+    "lcp_p75": -752,
+    "readable_p50": -777,
+    "readable_p75": -422
+   }
+  },
+  "app_only_document": {
+   "conditions": "lab3, today's document without the article (posts O1, O3, O4, O5, N1), mobile Slow 4G + 4x CPU, 3 runs x 2 blocks per arm",
+   "arms": {
+    "miss": {
+     "server_wait_ms": 880,
+     "runs": 30,
+     "page_errors": 0,
+     "adopted": 0,
+     "ttfb_p50": 888,
+     "ttfb_p75": 889,
+     "fcp_p50": 1514,
+     "fcp_p75": 1536,
+     "lcp_p50": 7028,
+     "lcp_p75": 7628,
+     "readable_p50": 5866,
+     "readable_p75": 6005,
+     "cls_max": 0,
+     "per_post": {
+      "N1": {
+       "ttfb": 888,
+       "fcp": 1518,
+       "lcp": 5834,
+       "readable": 5716
+      },
+      "O1": {
+       "ttfb": 888,
+       "fcp": 1518,
+       "lcp": 7806,
+       "readable": 5876
+      },
+      "O3": {
+       "ttfb": 891,
+       "fcp": 1520,
+       "lcp": 7274,
+       "readable": 5856
+      },
+      "O4": {
+       "ttfb": 888,
+       "fcp": 1492,
+       "lcp": 6108,
+       "readable": 5852
+      },
+      "O5": {
+       "ttfb": 888,
+       "fcp": 1488,
+       "lcp": 6670,
+       "readable": 5936
+      }
+     }
+    },
+    "hit": {
+     "server_wait_ms": 60,
+     "runs": 30,
+     "page_errors": 0,
+     "adopted": 0,
+     "ttfb_p50": 68,
+     "ttfb_p75": 69,
+     "fcp_p50": 786,
+     "fcp_p75": 812,
+     "lcp_p50": 5614,
+     "lcp_p75": 6768,
+     "readable_p50": 5080,
+     "readable_p75": 5181,
+     "cls_max": 0,
+     "per_post": {
+      "N1": {
+       "ttfb": 68,
+       "fcp": 766,
+       "lcp": 5184,
+       "readable": 5022
+      },
+      "O1": {
+       "ttfb": 70,
+       "fcp": 784,
+       "lcp": 6994,
+       "readable": 5016
+      },
+      "O3": {
+       "ttfb": 68,
+       "fcp": 776,
+       "lcp": 6442,
+       "readable": 5128
+      },
+      "O4": {
+       "ttfb": 69,
+       "fcp": 800,
+       "lcp": 5340,
+       "readable": 5112
+      },
+      "O5": {
+       "ttfb": 68,
+       "fcp": 794,
+       "lcp": 5614,
+       "readable": 5088
+      }
+     }
+    }
+   },
+   "difference_hit_minus_miss": {
+    "ttfb_p50": -820,
+    "ttfb_p75": -820,
+    "fcp_p50": -728,
+    "fcp_p75": -724,
+    "lcp_p50": -1414,
+    "lcp_p75": -860,
+    "readable_p50": -786,
+    "readable_p75": -824
+   }
+  }
+ }
+}

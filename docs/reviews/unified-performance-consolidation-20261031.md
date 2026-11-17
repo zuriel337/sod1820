@@ -170,7 +170,7 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 
 ### Not counted as merged fixes
 
-- 1375: Home: construction note, pinned reality-map lead, short Now, route preload; branch only. public-reading-deploy/route-preload.js is absent on origin/main. Lab A/B n=3 (first real content 11.4-12.3 -> 6.2-6.3 s; LCP becomes the pinned image 7.5-7.7 s).
+- 1375: merged 17.11.2026 as the speed centre (`d87ced78b`). The Home design commit `cba72cf9d` (construction note, pinned reality-map lead, short Now, route preload) was reverted on the branch (`56b1d331f`) before the merge and stays in branch history, awaiting ZURIEL (lab A/B n=3: first real content 11.4-12.3 -> 6.2-6.3 s; LCP becomes the pinned image 7.5-7.7 s).
 - 1363: Package C (GA/Pixel after the article, wait for cover). Goal superseded by #1372 afterReadableContent2029 (S-41).
 - 1364: AdSense library on approach. Moot after ADSENSE_PAUSED (S-42); its own lab showed no content gain and higher TBT.
 - 1360: Package A; same change merged through #1366 (S-29).
@@ -203,3 +203,8 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 - `fn_web_vitals_watch` (System Suggestions / Health), hourly inside the existing `fn_health_watch`: regressions (24 h vs the 7 days before, per page kind, ≥20/≥40 samples) and measurement gaps as de-duplicated `system_suggestions`, heartbeat `analytics_cache` `speed_watch:latest`. First run: one open finding, Community CLS p75 0.1358 vs 0.0620.
 - Release artifact guard: `scripts/test-2029-shell-budget.mjs --profile public-reading` runs inside `scripts/build-public-reading-production.mjs` on `public-reading-deploy/dist`, always enforced (VITE_* values never switch it off), own baseline and history in `scripts/2029-shell-budget-baseline.json`.
 - Open (owners): field before/after per build and page kind (Traffic Intelligence); behaviour checks for the 25 unverified fixes and unwired guard tests (Foundation Closure); Home and Post first-byte wait and redirects p75 ~1 s (Experience Governance); F04, F14, F24, F31 still open.
+
+### Later on 17.11.2026: Post documents on the CDN (experiment, branch only)
+
+`S-47` in the JSON (`current_state_20261117.fixes`; the counts now read 47 entries, 46 merged, 1 branch-only). Vercel's CDN keeps an admitted public Post document for 5 minutes, then serves the kept copy once while refreshing it, for up to an hour; browsers keep `no-store`. Branch `ccr-dcadb071-v1z5ol`, draft PR #1376, protected Preview `dpl_62g74MmMWj4UK1Z5P9zAdjSFcDPs`; not merged and not in Production. Lab (phone Slow 4G + 4x CPU, article first as live, 24 runs per arm, only the server wait differs, 880 vs 60 ms): first byte -817 ms, FCP -780 ms, readable article -777 ms, LCP -1,248 ms (p75 -752 ms), CLS unchanged. Field data come only after a release. Write-up: `docs/reviews/post-document-cdn-20261117/README.md`. The #1375 line under "Not counted as merged fixes" was written while #1375 was still a draft; it now records the merge (the same correction is in the JSON).
+

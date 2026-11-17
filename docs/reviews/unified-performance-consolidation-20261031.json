@@ -3637,6 +3637,51 @@
         "relates_to_groups": [
           "F23"
         ]
+      },
+      {
+        "id": "S-47",
+        "title_he": "דפי פוסט נשמרים ב־CDN של Vercel ל־5 דקות (ניסוי, לא מוזג)",
+        "problem": "Every Post document is built by the function in iad1 with a database read in Tokyo: 214,143 document requests in 7 days, 0 served by the CDN; field first byte for Posts on phones p50 1,085 ms / p75 1,485 ms, server wait p50 882 ms.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "POST_DOCUMENT_CDN_CACHE_EXPERIMENT_20261117"
+          ],
+          "prs": [
+            1376
+          ],
+          "merged_via_pr": null,
+          "commits": [
+            "59874ba55b5beb3ff77dcc4dca57d930c7fb65ec",
+            "d6de9034be313c2d125070ede6d96f81202b4f6f",
+            "4889ddfb818487c49fb9d22126a181bc20ebcac4"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol"
+        },
+        "code_now": [
+          "public-reading-deploy/api/public-document.js :: postDocumentCdnCacheable / postDocumentCdnHeaders (branch only, not on origin/main)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Protected Preview dpl_62g74MmMWj4UK1Z5P9zAdjSFcDPs (4889ddfb8): 17/18 repeat requests HIT on 9 Posts; excluded pages never kept; expiry STALE then HIT (~1 s refresh). Not in Production.",
+        "measurement": {
+          "kind": "lab",
+          "before": "server wait 880 ms (field median, Posts, phones): first byte 936, FCP 1,420, readable 3,333 (p75 3,493), LCP 5,222 (p75 5,972), CLS 0.0018",
+          "after": "server wait 60 ms (CDN answer): first byte 119, FCP 640, readable 2,556 (p75 3,071), LCP 3,974 (p75 5,220), CLS 0.0018",
+          "conditions": "same artifact and Posts (O1, O3, V1, M1), article first as live, phone Slow 4G + 4x CPU, cold profile, 24 runs per arm in alternating blocks; a simulation of the server wait, not field data",
+          "source": "docs/reviews/post-document-cdn-20261117/lab-summary.json"
+        },
+        "guard": [
+          "test/post-document-cdn-cache.test.mjs (live-contracts-2029.yml) [branch only]"
+        ],
+        "open": "Awaiting ZURIEL's decision. After a release: field before/after per build for the Post surface (by_build, by_surface, nav_timing_p75 in /2029/control) and the CDN share from Vercel observability (cache_result, route /api/public-document).",
+        "next_owner": "Experience Governance (decision) · Traffic Intelligence (field check)",
+        "relates_to_groups": []
       }
     ],
     "group_updates": [
@@ -3914,9 +3959,9 @@
     "not_merged": [
       {
         "pr": 1375,
-        "state": "open draft",
+        "state": "merged 17.11.2026 as the speed centre (d87ced78b)",
         "head": "cba72cf9dd (ccr-dcadb071-v1z5ol)",
-        "note": "Home: construction note, pinned reality-map lead, short Now, route preload; branch only. public-reading-deploy/route-preload.js is absent on origin/main. Lab A/B n=3 (first real content 11.4-12.3 -> 6.2-6.3 s; LCP becomes the pinned image 7.5-7.7 s)."
+        "note": "The PR was repurposed: the Home design commit cba72cf9d was reverted on the branch (56b1d331f) before the merge, so the merge carries the speed centre only. The Home design stays in branch history, awaiting ZURIEL (lab A/B n=3: first real content 11.4-12.3 -> 6.2-6.3 s; LCP becomes the pinned image 7.5-7.7 s)."
       },
       {
         "pr": 1363,
@@ -3999,22 +4044,23 @@
     ],
     "summary": {
       "counts": {
-        "total": 46,
+        "total": 47,
         "merged": 46,
         "deployed_true": 46,
         "live_unknown": 25,
         "live_no": 2,
-        "live_yes": 19
+        "live_yes": 19,
+        "branch_only": 1
       },
       "by_author": {
         "gpt": 10,
-        "claude": 32,
+        "claude": 33,
         "codex": 4
       },
       "by_surface": {
         "world": 1,
         "home": 4,
-        "post": 11,
+        "post": 12,
         "all": 17,
         "number": 2,
         "server": 4,
