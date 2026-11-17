@@ -183,7 +183,8 @@ function ConvergenceOpen({ card }) {
   const onRazielAction = shell?.openRaziel
     ? (_kind, focus) => shell.openRaziel({ razielMicroIntent: "explain_reading_focus", readingFocus: focus.readingFocus, numberCoreFocus: focus.numberCoreFocus })
     : null;
-  const eligible = card.operations?.length > 1 && card.gematria?.length;
+  // multi-path convergence, OR a single-operation model whose shape family the lab can draw (e.g. the icosahedron)
+  const eligible = (card.operations?.length > 1 || (card.operations?.length === 1 && card.labFamily)) && card.gematria?.length;
   // Prefetch the (small) chunk only when the button nears the viewport, so the panel opens in the same moment as the click (no late layout shift).
   useEffect(() => {
     if (!eligible || typeof IntersectionObserver !== "function" || !buttonRef.current) return undefined;
@@ -193,7 +194,7 @@ function ConvergenceOpen({ card }) {
   }, [eligible]);
   if (!eligible) return null;
   return <div className="sod29-world-spatial-convergence" data-convergence-card={card.slug}>
-    <button ref={buttonRef} type="button" className="sod29-action" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? "סגור את ההמחשה" : "פתח המחשת התכנסות"}</button>
+    <button ref={buttonRef} type="button" className="sod29-action" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? "סגור את ההמחשה" : card.operations?.length > 1 ? "פתח המחשת התכנסות" : "פתח המחשת המבנה"}</button>
     {open ? <ConvergenceBoundary><Suspense fallback={<p role="status" className="sod29-muted">טוען את ההמחשה…</p>}><SpatialConvergenceStage card={card} onRazielAction={onRazielAction} /></Suspense></ConvergenceBoundary> : null}
   </div>;
 }

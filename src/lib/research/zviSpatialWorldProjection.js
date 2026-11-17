@@ -1,4 +1,5 @@
 import { SPATIAL_MODELS } from "../spatialModels.js";
+import { structureSpecFor } from "../spatialRenderModel.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { buildPublicWorldContentProjectionV1 } from "./publicWorldContentProjectionV1.js";
 import {
@@ -95,6 +96,9 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
       structure: { shapeIdentity: model.spatial?.shapeIdentity || null, dimension: model.spatial?.dimension || null,
         regions: Array.isArray(model.spatial?.regions) ? model.spatial.regions : [], cubeFaceWord: model.cube?.faceWord || null },
       pathCount,
+      // which shape family the 3D lab can draw for this model (null = none): derived from the model's own shape contract, never from the slug
+      labFamily: structureSpecFor({ shapeIdentity: model.spatial?.shapeIdentity, regions: model.spatial?.regions, structuralProperties: model.spatial?.structuralProperties,
+        gematria: model.gematria, cubeFaceWord: model.cube?.faceWord })?.family || null,
       interpretation: model.midrash || null,
       source: {
         contributor: model.spatial?.provenance?.contributor || "צבי",

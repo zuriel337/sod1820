@@ -149,6 +149,7 @@ const THREE_LAZY_MODULES = [
   "components/experience2029/BirthMapScene3D2029.jsx",
   "components/experience2029/GlyphVolume2029.jsx",
   "components/gematria2029/ConvergenceScene3D2029.jsx",
+  "components/gematria2029/IcosaScene3D2029.jsx",
   "components/gematria2029/MistaterScene3D2029.jsx",
   "components/gematria2029/StructureScene3D2029.jsx",
 ];

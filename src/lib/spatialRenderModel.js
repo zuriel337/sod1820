@@ -71,13 +71,18 @@ export function deriveConvergencePaths({ value, operations = [], gematria = [], 
     const match = /^\s*(\d+)\s*[×x*]\s*(\d+)\s*$/.exec(String(operation?.expression || ""));
     const base = { id: `path:${index}`, index, expression: String(operation?.expression || ""), result: Number(operation?.result) };
     if (!match) return { ...base, parsed: false, phrase: null, resultMatches: false };
-    const operand = Number(match[1]);
-    const quantity = Number(match[2]);
+    let operand = Number(match[1]);
+    let quantity = Number(match[2]);
+    // A product is commutative and the model may write it either way ("510 × 6" = value × quantity, "20 × 31" = quantity × value). The orientation is
+    // chosen from what the model DECLARES: swapped only when the first factor has no declared phrase, the second does, and the first is a declared
+    // structural quantity. Otherwise the written order stands (so no existing path changes).
+    let swapped = false;
+    if (!phraseByValue.has(operand) && phraseByValue.has(quantity) && quantities.some((item) => Number(item?.value) === operand)) { [operand, quantity] = [quantity, operand]; swapped = true; }
     // exact attribution: a quantity is attributed to a declared property only when ONE property carries that value (no guessing between two)
     const candidates = quantities.filter((item) => Number(item?.value) === quantity);
     const property = candidates.length === 1 ? candidates[0] : null;
     return {
-      ...base, parsed: true, operand, quantity,
+      ...base, parsed: true, operand, quantity, orientation: swapped ? "quantity_first" : "value_first",
       phrase: phraseByValue.get(operand) || null,
       // Declared-operation consistency only (the model states the result; this guards against a mismatching declaration).
       resultMatches: operand * quantity === base.result && base.result === Number(value),
@@ -132,9 +137,36 @@ export function compoundStructureSpec(spatial, cube = {}) {
   };
 }
 
-export const STRUCTURE_PART_LABEL = Object.freeze({ cube: "קובייה", outer: "מחומש חיצוני", inner: "מחומש פנימי", triangles: "משולשים פנימיים", relation: "שכבת קשר" });
+// Shape family 2 — the regular icosahedron (עשרימון). An icosahedron has exactly 20 faces BY DEFINITION (the same class of geometric fact as a cube's
+// 6); the word on each face and its value come from the model (cube.faceWord + the declared gematria entry; the canonical engine still verifies the value).
+// A model that declares another face count, or no face word / word value, is not drawn as an icosahedron.
+export const ICOSAHEDRON_FACES = 20;
+export function icosahedronStructureSpec({ shapeIdentity, structuralProperties = [], gematria = [], faceWord = null } = {}) {
+  if (shapeIdentity !== "icosahedron" || !faceWord) return null;
+  const declared = (structuralProperties || []).find((item) => item?.key === "faces")?.value;
+  if (declared !== undefined && declared !== ICOSAHEDRON_FACES) return null;
+  const entry = (gematria || []).find((item) => Array.isArray(item) && item[0] === faceWord);
+  const wordValue = Number(entry?.[1]);
+  if (!Number.isFinite(wordValue)) return null;
+  return { family: "icosahedron", faces: ICOSAHEDRON_FACES, word: String(faceWord), wordValue };
+}
+
+// One entry point for every shape family the lab can draw: the compound pentagon family, or the icosahedron. null = not a drawn family.
+export function structureSpecFor({ shapeIdentity, regions, structuralProperties, gematria, cubeFaceWord } = {}) {
+  return compoundStructureSpec({ shapeIdentity, regions, structuralProperties }, { faceWord: cubeFaceWord })
+    || icosahedronStructureSpec({ shapeIdentity, structuralProperties, gematria, faceWord: cubeFaceWord });
+}
+
+export const STRUCTURE_PART_LABEL = Object.freeze({ cube: "קובייה", outer: "מחומש חיצוני", inner: "מחומש פנימי", triangles: "משולשים פנימיים", relation: "שכבת קשר", solid: "עשרימון" });
 
 export function bindPathsToStructure(paths, spec) {
+  if (spec?.family === "icosahedron") {
+    // one solid carries the whole path: word value × 20 faces; a path that does not fit the declared solid has no geometry (relation layer)
+    return paths.map((path) => {
+      const fits = Boolean(path.phrase) && path.phrase === spec.word && path.operand === spec.wordValue && path.quantity === spec.faces;
+      return { ...path, part: fits ? "solid" : "relation", geometric: fits };
+    });
+  }
   const taken = new Set();
   const claim = (part, matches) => {
     if (taken.has(part) || !spec?.[part] || !matches) return null;
@@ -157,6 +189,7 @@ export function describeStructurePart(path, spec) {
   const origin = path.quantityProvenance || "מוצהר במודל";
   const quantity = { key: "כמות במסלול", value: path.quantity, origin };
   const part = path.part;
+  if (part === "solid") return { part, label: STRUCTURE_PART_LABEL.solid, facts: [{ key: "פאות בצורה", value: spec.faces, origin: "גאומטריה של עשרימון משוכלל" }, quantity], note: null };
   if (part === "cube") return { part, label: STRUCTURE_PART_LABEL.cube, facts: [{ key: "פאות בצורה", value: spec.cube.faces, origin: "גאומטריה של קובייה" }, quantity], note: null };
   if (part === "outer" || part === "inner") {
     const ring = spec[part];

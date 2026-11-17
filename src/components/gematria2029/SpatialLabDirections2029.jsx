@@ -38,19 +38,22 @@ export function LabPrimaryBar({ sceneView, onSceneView, explode, onExplode, canS
 }
 
 export function LabMoreMenu({ view, onView, spin, onSpin, reduced, layers, onLayer, parts, onReset, sceneView }) {
-  return <details className="sod29-lab-more" data-lab-more="true">
+  const ref = React.useRef(null);
+  // choosing a view or resetting closes the menu again (it floats over the scene on wide screens); toggles (spin, layers) keep it open
+  const closing = (fn) => (...args) => { fn(...args); if (ref.current) ref.current.open = false; };
+  return <details ref={ref} className="sod29-lab-more" data-lab-more="true">
     <summary>עוד כלים</summary>
     <div className="sod29-lab-more__body">
       {sceneView === "structure" ? <div className="sod29-lab-more__row" role="group" aria-label="מבט">
-        <button type="button" className="r29-chip" aria-pressed={view === "overview"} data-lab-action="view-overview" onClick={() => onView("overview")}>מבט כללי</button>
-        <button type="button" className="r29-chip" aria-pressed={view === "focus"} data-lab-action="view-focus" onClick={() => onView("focus")}>מבט ממוקד</button>
+        <button type="button" className="r29-chip" aria-pressed={view === "overview"} data-lab-action="view-overview" onClick={closing(() => onView("overview"))}>מבט כללי</button>
+        <button type="button" className="r29-chip" aria-pressed={view === "focus"} data-lab-action="view-focus" onClick={closing(() => onView("focus"))}>מבט ממוקד</button>
         {reduced ? null : <button type="button" className="r29-chip" aria-pressed={spin} data-lab-action="spin" onClick={() => onSpin(!spin)}>סיבוב איטי</button>}
       </div> : null}
       {sceneView === "structure" ? <div className="sod29-lab-more__row" role="group" aria-label="שכבות המבנה">
         {PART_ORDER.filter((part) => parts.includes(part)).map((part) => <button key={part} type="button" className="r29-chip" aria-pressed={layers[part] !== false} data-lab-layer={part}
           onClick={() => onLayer(part)}>{STRUCTURE_PART_LABEL[part]}</button>)}
       </div> : null}
-      <div className="sod29-lab-more__row"><button type="button" className="r29-btn is-quiet" data-lab-action="reset" onClick={onReset}>איפוס הסצנה</button></div>
+      <div className="sod29-lab-more__row"><button type="button" className="r29-btn is-quiet" data-lab-action="reset" onClick={closing(onReset)}>איפוס הסצנה</button></div>
     </div>
   </details>;
 }

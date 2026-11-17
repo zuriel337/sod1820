@@ -229,8 +229,27 @@ function RelationPart({ path, glyphs, mats, colors, state, rig }) {
   </group>;
 }
 
+// The lighting rigs of the lab looks (shared by every shape family): royal = warm key + sapphire rim + gold fill; v1 = the previous rig.
+function RoyalLights({ royal, look, quality, colors, keyLight, shadows }) {
+  return royal ? <>
+    <ambientLight intensity={0.16} />
+    <directionalLight position={[200, 380, 280]} intensity={1.7} color={keyLight} castShadow={shadows}
+      shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-bias={-0.0006} shadow-camera-left={-460} shadow-camera-right={460} shadow-camera-top={460} shadow-camera-bottom={-460} shadow-camera-near={50} shadow-camera-far={1400} />
+    <directionalLight position={[-320, 160, -280]} intensity={look.rig === "lab" ? 1.8 : 1.3} color={colors.sapphire} />
+    {quality === "rich" ? <pointLight position={[0, 360, 140]} intensity={look.rig === "museum" ? 52000 : 36000} distance={950} color={colors.gold} /> : <ambientLight intensity={0.2} color={colors.gold} />}
+  </> : <>
+    <ambientLight intensity={0.35} />
+    <directionalLight position={[160, 320, 360]} intensity={2.2} color={colors.hero} />
+    <directionalLight position={[-300, 140, -260]} intensity={1.6} color={colors.sapphire} />
+    <pointLight position={[0, 330, 120]} intensity={60000} distance={900} color={colors.gold} />
+  </>;
+}
+
 // ---- explode: layers glide to / from their exploded positions. Demand rendering: frames are requested only while a layer is moving ----
-function ExplodeDriver({ target, reduced, groups, onPhase }) {
+// Layers glide to / from their exploded positions. `placer` positions one registered group at an explode level (default: the compound structure's parts;
+// the icosahedron passes its own, moving each face along its normal) — the driver itself knows nothing about any shape family.
+const compoundPlacer = (part, group, k) => { const p = partCenter(part, k); group.position.set(p.x, p.y, p.z); };
+function ExplodeDriver({ target, reduced, groups, onPhase, placer = compoundPlacer }) {
   const { invalidate } = useThree();
   const current = useRef(target);
   const moving = useRef(false);
@@ -240,7 +259,7 @@ function ExplodeDriver({ target, reduced, groups, onPhase }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target, reduced]);
   function place() {
-    for (const [part, group] of groups.current) { const p = partCenter(part, current.current); group.position.set(p.x, p.y, p.z); }
+    for (const [part, group] of groups.current) placer(part, group, current.current);
   }
   useFrame((state, delta) => {
     if (!moving.current) return;
@@ -253,7 +272,7 @@ function ExplodeDriver({ target, reduced, groups, onPhase }) {
 }
 
 // ---- camera: tweens between overview / focus poses on the shared OrbitControls; gentle optional spin; nothing runs at rest ----
-function LabRig({ view, part, explode, resetToken, spin, active, reduced, controlsRef, pose: poseOpts }) {
+function LabRig({ view, part, explode, resetToken, spin, active, reduced, controlsRef, pose: poseOpts, poses = null }) {
   const { camera, size, invalidate } = useThree();
   const tween = useRef(null);
   const aspect = Math.round((size.width / Math.max(1, size.height)) * 20) / 20;
@@ -262,7 +281,7 @@ function LabRig({ view, part, explode, resetToken, spin, active, reduced, contro
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return;
-    const to = view === "focus" ? focusPose(part, aspect, explode) : overviewPose(aspect, explode, poseOpts);
+    const to = view === "focus" ? (poses?.focus || focusPose)(part, aspect, explode) : (poses?.overview || overviewPose)(aspect, explode, poseOpts);
     if (first.current || reduced) {
       first.current = false;
       camera.position.set(to.position.x, to.position.y, to.position.z);
@@ -404,18 +423,7 @@ export default function StructureScene3D2029({
     >
       <RoyalEnvironment tint={royal && look.rig !== "lab" ? colors.gold : null} intensity={royal ? 0.7 : 0.85} />
       <GpuStats hostRef={hostRef} />
-      {royal ? <>
-        <ambientLight intensity={0.16} />
-        <directionalLight position={[200, 380, 280]} intensity={1.7} color={keyLight} castShadow={rig.shadows}
-          shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-bias={-0.0006} shadow-camera-left={-460} shadow-camera-right={460} shadow-camera-top={460} shadow-camera-bottom={-460} shadow-camera-near={50} shadow-camera-far={1400} />
-        <directionalLight position={[-320, 160, -280]} intensity={look.rig === "lab" ? 1.8 : 1.3} color={colors.sapphire} />
-        {quality === "rich" ? <pointLight position={[0, 360, 140]} intensity={look.rig === "museum" ? 52000 : 36000} distance={950} color={colors.gold} /> : <ambientLight intensity={0.2} color={colors.gold} />}
-      </> : <>
-        <ambientLight intensity={0.35} />
-        <directionalLight position={[160, 320, 360]} intensity={2.2} color={colors.hero} />
-        <directionalLight position={[-300, 140, -260]} intensity={1.6} color={colors.sapphire} />
-        <pointLight position={[0, 330, 120]} intensity={60000} distance={900} color={colors.gold} />
-      </>}
+      <RoyalLights royal={royal} look={look} quality={quality} colors={colors} keyLight={keyLight} shadows={rig.shadows} />
       {present.map((part) => {
         const entry = byPart.get(part);
         const c = partCenter(part, explodeValue);
@@ -442,3 +450,6 @@ export default function StructureScene3D2029({
     </ul>
   </div>;
 }
+
+// Shared with the other shape families of the lab (same engine): glyph loading + readable fallback, tags, explode/camera drivers, lights, probes.
+export { ExplodeDriver, GLYPH_DEPTH, GlyphWord, GpuStats, LabRig, PartTag, RoyalLights, key as glyphKey, useGlyphMap, useInView, useRounded };
