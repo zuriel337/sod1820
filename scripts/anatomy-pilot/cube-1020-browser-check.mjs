@@ -121,7 +121,10 @@ try {
     }
     if (dir === "discovery") assert.equal(await stage.locator(".sod29-discovery__steps li").count(), 0, "nothing is revealed before a choice");
     rec.facesPicked = await pickFacesByCanvas(page, stage);
-    assert.ok(rec.facesPicked.length >= 3, `faces are selectable directly in the solid (${rec.facesPicked.join(",")})`);
+    // Discovery moves in and opens the layers on the FIRST pick (by design: focus + explode), after which only the lifted top/bottom plates lie under a sweep — so it needs one
+    // pick and the opened layers; every other direction keeps the scene as it is and must reach at least three different faces.
+    if (dir === "discovery") { assert.equal(rec.facesPicked.length >= 1, true, "a face is selectable directly in the solid"); assert.equal(await h.getAttribute("data-explode"), "true", "discovery opens the layers on the first pick"); }
+    else assert.ok(rec.facesPicked.length >= 3, `faces are selectable directly in the solid (${rec.facesPicked.join(",")})`);
     if (dir !== "v1") {
       const before = await h.getAttribute("data-explode"); const ex = action(stage, "explode"); await ex.focus();
       await page.keyboard.press("Enter"); await page.waitForTimeout(300); assert.notEqual(await h.getAttribute("data-explode"), before);
