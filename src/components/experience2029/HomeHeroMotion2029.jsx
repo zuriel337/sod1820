@@ -8,8 +8,7 @@
 // (ConvergenceRatings2029). Components that are not computed yet are listed as "not computed", never active.
 // Reduced motion: no entrance and no pulse animation, the same information is shown statically.
 // Preview only: ?replay=1 replays the entrance; ?pulse=demo shows a clearly labelled demonstration of the update state.
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { HomeLeadImageGate2029 } from "./homeLeadImageGate2029.js";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
@@ -60,7 +59,6 @@ function useHeroData(lead, includeWorld) {
 
 export default function HomeHeroMotion2029({ lead, href, includeWorld = true }) {
   const [open, setOpen] = useState(false);
-  const leadImageGateOpen = useContext(HomeLeadImageGate2029);   // below the pinned lead: its picture waits for the lead's image
   const data = useHeroData(lead, includeWorld && open);
   const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
   const previewTools = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
@@ -93,7 +91,7 @@ export default function HomeHeroMotion2029({ lead, href, includeWorld = true }) 
     : `עודכן ${relativeTimeLabel(update.at)}`;
 
   return <section ref={heroRef} className={`h29-hero h29-hero2${entering ? " is-enter" : ""}${unseen ? " is-pulse" : ""}`} aria-label="תיעוד האירועים" data-home-primary="ready" data-hero-motion={entering ? "enter" : "quiet"}>
-    {lead.poster && leadImageGateOpen ? <img className="h29-hero-img k29-in" style={{ "--i": 0 }} src={lead.poster} alt="" loading="lazy" /> : null}
+    {lead.poster ? <img className="h29-hero-img k29-in" style={{ "--i": 0 }} src={lead.poster} alt="" loading="eager" /> : null}
     <div className="h29-hero-copy">
       <div className="h29-kicker k29-in" style={{ "--i": 0 }}>תיעוד האירועים · רמזי המערכת</div>
       <h1 className="k29-in" style={{ "--i": 1 }}>{clean(lead.title)}</h1>

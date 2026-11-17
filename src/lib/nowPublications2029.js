@@ -226,19 +226,6 @@ const latestRegisteredUpdate = id => Date.parse(newestRegisteredEntry(id)?.updat
 const seriesUpdateTime = model => Math.max(Date.parse(model?.at || "") || 0, latestRegisteredUpdate(model?.id));
 // The seen key of the series-latest mark: per Post and per registered update, so a NEW unit makes the dot blink again for everyone who saw the previous one.
 export const seriesLatestSeenKey = id => `series-latest:${id}:${latestRegisteredUpdate(id)}`;
-// The same choice and the same face for series members read elsewhere (the Home's series catalog, before the shared feed arrives; ZURIEL
-// 17.11.2026): the member with the latest of its publication and its newest registered update, shown as that update when it is newer.
-export function seriesLatestMember2029(members) {
-  const time = member => seriesUpdateTime({ id: `post:${member?.id}`, at: member?.publishedAt });
-  return list(members).filter(member => member?.id != null).slice().sort((a, b) => time(b) - time(a) || String(a.id).localeCompare(String(b.id)))[0] || null;
-}
-export function seriesLatestFace2029(member) {
-  if (!member) return null;
-  const entry = newestRegisteredEntry(`post:${member.id}`);
-  if (!entry?.label || !((Date.parse(entry.updatedAt || "") || 0) > (Date.parse(member.publishedAt || "") || 0))) return { title: member.title, postTitle: null, at: member.publishedAt, href: member.href };
-  const href = member.href && member.href.startsWith("/") && !member.href.includes("#") ? `${member.href}#${entry.targetId}` : member.href;
-  return { title: entry.label, postTitle: member.title, at: entry.updatedAt, href };
-}
 export const nowModels = (rows, now = Date.now(), seen = {}) => {
   const models = sortedNowModels(rows, now);
   const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned)

@@ -334,7 +334,7 @@ jobs:
           test/world-topic-gallery-state-map-2029.test.mjs
           test/world-gallery-entry-follow-chain-2029.test.mjs
           test/world-one-tree-preview-2029.test.mjs
-      - name: Now centre contracts (ZURIEL 11.11.2026 — the pinned central message of at most 72 hours, the Home centre first and the featured card before the plane story; ZURIEL 17.11.2026 — the Home's top is the construction note, the pinned מפת המציאות lead and a short three-row "עכשיו" without a source picker, and the Home's own code is fetched with its document; the Home strip test mounts the real component with react-test-renderer from the calculator step above)
+      - name: Now centre contracts (ZURIEL 11.11.2026 — the pinned central message of at most 72 hours, the one source picker, the Home centre first and the featured card before the plane story; the Home strip test mounts the real component with react-test-renderer from the calculator step above; it was previously unwired and repaired)
         run: >
           node --test
           test/now-publications-2029.test.mjs
@@ -344,7 +344,6 @@ jobs:
           src/lib/community/communityArchive.test.js
           test/now-media-centred-2029.test.mjs
           test/home-live-updates-2029.test.mjs
-          test/home-route-preload-2029.test.mjs
           test/home-featured-post-2029.test.mjs
           test/group-youtube-card-2029.test.mjs
           test/group-message-numbers-2029.test.mjs

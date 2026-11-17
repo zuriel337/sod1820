@@ -11,7 +11,6 @@ import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedRe
 import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029, BRAND_SITE_ICONS_2029 } from "../src/lib/brandAssets2029.js";
 import canonicalMiddleware, { config as canonicalMiddlewareConfig } from "../middleware.js";
 import { articleFirstFingerprint } from "./lib/article-first-fingerprint.mjs";
-import { homePreloadComment } from "../public-reading-deploy/route-preload.js";
 import publicMiddleware, { config as publicMiddlewareConfig } from "../public-reading-deploy/middleware.js";
 
 // Default artifact stays dormant. A separate explicit deployment-scoped review
@@ -103,13 +102,6 @@ if (!entry) throw new Error("missing_2029_entry");
 // exact string the bootstrap imports, which publicReadingBootstrap restricts to /assets/<name>.js.
 // transport.js (worker, handshake, policy id) is not involved: this is document markup only.
 document = document.replace(entry[0], `<link rel="modulepreload" crossorigin href="${entry[1]}">${publicReadingBootstrap(entry[1], sha)}`);
-// The Home's own code (public-reading-deploy/route-preload.js): its static import graph beyond the entry, listed in an inert comment that the
-// document handler turns into preload hints for the Home address only.
-const homePreload = homePreloadComment(JSON.parse(await readFile(resolve(output, ".vite/manifest.json"), "utf8")));
-if (!homePreload) throw new Error("missing_home_preload_graph");
-// After the bootstrap script, so the entry's own hint keeps its place directly before the bootstrap.
-document = document.replace("</head>", `${homePreload}</head>`);
-console.log(`home preload: ${(homePreload.match(/<link /g) || []).length} files`);
 // Candidate PWA only: retain the existing installed-app identity/name/start URL.
 // Refer to the exact complete 2029 brand asset; do not redraw/crop the mark or
 // replace Legacy public/site.webmanifest, logo.png, root HTML or worker.

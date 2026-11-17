@@ -3,7 +3,6 @@ import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } from "../../src/lib/publicReadingRelease2029.js";
 import { withArticleFirst2029 } from "./article-first.js";
-import { withRoutePreloads2029 } from "../route-preload.js";
 import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, publicCandidateOrigin, publicIndexingAllowed, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
@@ -137,8 +136,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       // An imported Post on the proven list carries its article in this document (article-first.js); anything else is exactly as before.
       const firstDocument = articleFirst(await readDocument(), { path, search, status: temporarilyClosed || closed || state === "account" ? 0 : status, post: admittedPost });
       res.setHeader("X-Sod-Article-First", firstDocument.state);
-      // The Home's own code is fetched with its document (route-preload.js); every other document drops the hint list.
-      const html = mergeProductionDocumentMetadata(withRoutePreloads2029(firstDocument.html, { path, status }), metadata, { noindex });
+      const html = mergeProductionDocumentMetadata(firstDocument.html, metadata, { noindex });
       if (temporarilyClosed) { status = 503; res.setHeader("Retry-After", String(PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER)); }
       const robots = html.match(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']+)/i)?.[1];
       if (!robots) throw new Error("public_robots_unavailable");

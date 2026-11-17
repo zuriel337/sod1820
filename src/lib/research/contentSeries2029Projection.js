@@ -198,8 +198,6 @@ export function projectContentSeriesItems(rows = [], spec = {}) {
       excerpt: stripHtml(clean(row?.excerpt)) || null,
       author: clean(row?.author) || null,
       imageUrl: clean(row?.thumb_url || row?.image_url) || null,
-      // The Post's own cover (not its thumbnail), for a card drawn large: the Home's pinned lead (ZURIEL 17.11.2026).
-      coverUrl: clean(row?.image_url) || null,
       publishedAt: row?.date || null,
       updatedAt: row?.modified || row?.date || null,
       categories: Array.isArray(row?.categories) ? row.categories.filter(Boolean).map(String) : [],

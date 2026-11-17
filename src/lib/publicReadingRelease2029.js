@@ -246,12 +246,11 @@ export const PUBLIC_READING_OPEN_ROUTES = Object.freeze(["/", "/world", "/post",
 // image or a page that never reaches its content delays the work and never drops it. With `onHidden`, a page that is hidden first (the
 // reader left or switched away) starts it at once. Returns a cancel function.
 export const CONTENT_FIRST_CAP_MS = 10000;
-// The page's settled state counts as its content: the Home's pinned lead in any state but loading (a Post, or none to show), a Post's
+// The page's settled state counts as its content: the Home's primary column in any state but loading (ready, empty, failed), a Post's
 // article, or the state that replaces it (an error or unavailable notice, the not-found page). Only a page still loading waits.
 export function primaryContentSelector2029(pathname) {
   const path = addressPath(pathname);
-  // ZURIEL 17.11.2026: the Home's primary content is its pinned מפת המציאות lead (in any state but loading), at the top.
-  if (path === "/" || path === "/2029") return '[data-home-pinned-lead]:not([data-home-pinned-lead="loading"])';
+  if (path === "/" || path === "/2029") return '[data-home-primary]:not([data-home-primary="loading"])';
   if (/^\/post\/[^/]+$/.test(path || "") || publicReadingPath(pathname) === "post-lookup")
     return '[data-experience-surface="post-reading"], [data-experience-surface="not-found"], .sod29-frame-state';
   return null;
@@ -276,7 +275,7 @@ export function afterReadableContent2029(pathname, start, { idle = true, onHidde
       if (d.readyState !== "complete") return;                                           // the load listener calls again
       if (selector && !d.querySelector(selector)) {
         if (!observer) (observer = new MutationObserver(step)).observe(d.getElementById("root") || d.body,
-          { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-pinned-lead"] });
+          { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
         return;
       }
       const priority = d.querySelector('img[fetchpriority="high"]');
