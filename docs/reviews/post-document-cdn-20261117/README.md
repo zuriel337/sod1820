@@ -1,6 +1,6 @@
 # Post documents on the CDN — controlled experiment (17 November 2026)
 
-Task: `POST_DOCUMENT_CDN_CACHE_EXPERIMENT_20261117` (ZURIEL, 17.11.2026: an isolated experiment with Vercel's existing CDN only; no merge, no Production, no domains, no paid service, no shared settings without exact approval). This continues the speed project; nothing here replaces or reopens earlier fixes. The machine-readable twin of the lab numbers is `lab-summary.json`; the experiment is entry `S-47` in `docs/reviews/unified-performance-consolidation-20261031.json` (`current_state_20261117`), which the speed centre in `/2029/control` reads.
+Tasks: `POST_DOCUMENT_CDN_CACHE_EXPERIMENT_20261117` and, for the freshness package (three layers that keep a changed, hidden or deleted Post from being served from a kept copy), `POST_DOCUMENT_FRESHNESS_20261117` — section 12. First task (ZURIEL, 17.11.2026: an isolated experiment with Vercel's existing CDN only; no merge, no Production, no domains, no paid service, no shared settings without exact approval). This continues the speed project; nothing here replaces or reopens earlier fixes. The machine-readable twin of the lab numbers is `lab-summary.json`; the experiment is entry `S-47` in `docs/reviews/unified-performance-consolidation-20261031.json` (`current_state_20261117`), which the speed centre in `/2029/control` reads.
 
 ## 1. What was true before the experiment (read 17.11.2026, live sources)
 
@@ -23,7 +23,8 @@ A reader in Israel goes to a nearby edge, the edge goes to Washington, Washingto
 `public-reading-deploy/api/public-document.js` (`POST_DOCUMENT_CDN_CACHE`):
 
 - **Only** an admitted public Post document: answer 200, its own address, no query string, method GET/HEAD, the metadata owner admitted a public, unsuppressed Post (read with the anonymous key), and the article-first step reached a **final** answer (`served`, `served-new`, `not-eligible`, `off`, `not-proven`, `new-guarded`).
-- It then adds `Vercel-CDN-Cache-Control: max-age=300, stale-while-revalidate=3600`, `Vercel-Cache-Tag: post-document,post-document-<id>` and `X-Sod-Document-Cache: post-cdn-v1`.
+- It then adds `Vercel-CDN-Cache-Control: max-age=300, stale-while-revalidate=60` (3600 in the first run of this experiment; shortened by the freshness package, section 12), `Vercel-Cache-Tag: post-document,post-document-<id>` and `X-Sod-Document-Cache: post-cdn-v1`.
+- Never kept: an answer that carries the edge's reserved marker (`?__sod_fresh=1` or the header `x-sod-doc-fresh`, section 12), and any address with a dot.
 - Browsers keep `Cache-Control: no-store` exactly as before (the service worker, back/forward and reload are unchanged); `Vercel-CDN-Cache-Control` is read by Vercel's CDN only and never reaches the browser.
 - Everything else (Home, Community, Number, World, account and admin pages, 404, 503, redirects, query strings, the direct function address) is byte-for-byte as before.
 - No new server, store, table, detector, setting or paid service.
@@ -105,6 +106,8 @@ What this means for the change as tested (Posts only):
 
 ## 8. Freshness policy
 
+> **Superseded by section 12 (freshness package, 17.11.2026).** The policy below describes the first run (copies kept up to an hour while refreshing, purge by hand). It is kept as the record of what was measured then.
+
 - A kept Post is fresh for **5 minutes**. After that, the first reader in that region gets the kept copy once while the CDN refreshes it (about 1 s, measured); everyone after gets the new one. A copy that nobody requests for an hour is not used again.
 - An edited or hidden Post therefore reaches readers within about 5 minutes; in the worst case one reader per region sees the previous version once after a quiet period.
 - When a change must reach readers at once, the Post's tag `post-document-<id>` (or `post-document` for all Posts) is purged in Vercel (dashboard, CLI or API, Production target). That is a Production action and needs ZURIEL's approval; its separate effect was not isolated in this experiment (section 3).
@@ -124,6 +127,8 @@ What this means for the change as tested (Posts only):
 
 ## 11. Recommendation (one decision)
 
+> **Updated in section 12.11.** The recommendation below was made before the freshness package; it is kept as written then.
+
 **Enable it for Post documents exactly as tested** — `max-age=300, stale-while-revalidate=3600`, only admitted public Posts with a final article-first answer, no query strings, browsers unchanged — **and in the same release measure it, without expecting a large change in the Post averages.**
 
 - Proven: about 0.8 s faster first byte, first paint and readable article, and up to 1.2 s faster LCP, for every reader the CDN answers; no layout shift, no personal data in a kept copy, edits reach readers within about 5 minutes.
@@ -131,3 +136,172 @@ What this means for the change as tested (Posts only):
 - Cost: none added; slightly less function and database work.
 - Not part of this decision, measured as the next candidates: the same mechanism for the `/` and `/community/chat` documents (≈19% of all document requests, ≈89% repeat within the hour; needs its own Preview check), and an edge 404 for old WordPress and scanner addresses.
 
+## 12. Freshness package — step 1 (ZURIEL 17.11.2026: three layers, isolated branch and test environment only)
+
+Task `POST_DOCUMENT_FRESHNESS_20261117`. The goal: a changed Post reaches readers at once, and a hidden or deleted Post is not served from a kept copy even when the purge is late or fails. Only existing mechanisms are used:
+
+- Vercel's CDN and its purge API;
+- the existing Routing Middleware;
+- Supabase statement triggers, plus `pg_net` and Vault (both already installed);
+- the `analytics_cache` row store;
+- the 15-minute `fn_health_watch`;
+- `system_suggestions` through `suggest_add`;
+- the speed centre in `/2029/control`.
+
+No new table, column, service, store or detector type. Nothing here is applied to the live database, merged or deployed to Production.
+
+Kept copies now live **at most 6 minutes**: fresh for 5 minutes, then served for up to 60 seconds while refreshing (`max-age=300, stale-while-revalidate=60`). Measured on the Preview: a copy was still served at 5 min 20 s (`STALE`), and a new page was built at 6 min 15 s (`MISS`).
+
+### 12.1 The three layers
+
+| Layer | Where | What it does | If it fails |
+|---|---|---|---|
+| **1. Purge on every change** | Database: `fn_post_document_change` (statement triggers on `posts` for INSERT, UPDATE, DELETE and TRUNCATE), then `pg_net`, then `POST /api/post-document-cache`, then Vercel `dangerouslyDeleteByTag` | A change to any of the 14 columns the document is built from (id, slug, source, link, wp_id, title, excerpt, content, image_url, date, modified, tags, categories, author) is logged **in the same transaction** (`analytics_cache` row `post_documents:changes`). It asks Vercel to delete the copies tagged `post-document-<id>`; when more than 16 Posts change at once, all Posts are purged (`post-document`). A change that cannot be logged does not happen: the transaction fails. Changes to other columns (home placement, scores, Facebook fields, theme, thumbnail…) do not change the document and purge nothing. | Every 15 minutes the health watch checks every purge's answer (`net._http_response`) and retries a failed purge once. A second failure becomes an urgent finding in `system_suggestions` and in the speed centre. Readers stay protected by layer 2. |
+| **2. Edge gate** | The existing Routing Middleware (`middleware-core.js` + `post-document-freshness.js`) | A kept copy may be used only while this edge instance holds a list of recent changes, read at most 5 s ago, that does not name the Post. These requests are built fresh, using the reserved marker `?__sod_fresh=1` plus the header `x-sod-doc-fresh` (such answers are never kept): a Post changed in the last 20 minutes; every Post while the list is missing, old or unreadable. The list (`post_document_recent_changes_v1`: hashed address keys, a count and an end time only) is read in the background, directly from the database, the same way the middleware reads its other policies. It is read only while the same Post is requested again on that instance within 5 s. | Fail closed: no list, no kept copy. |
+| **3. The page** | `Post2029Page.jsx` | When the page's own live read says the Post is not public (hidden, deleted or moved), the document's article is removed and the page shows its "not found" state. Only a failed read keeps the server's article. Report: `window.__sodArticleFirst = {result: "replaced", reason: "not-public"}`. | Covers JavaScript readers only. The guarantee comes from the server-side layers above. |
+
+Why 20 minutes: a copy made before a change lives at most 6 minutes, and the change is counted from its statement time. Every copy made before the change has expired before the Post leaves the list, even after a transaction that stayed open up to 14 minutes.
+
+### 12.2 Every update path
+
+Tested on local Postgres with the live writer bodies (`tests/sql/run-post-document-freshness.sh`, CI `speed-centre-sql-gate`). The six live functions that write `posts` were copied read-only from the live database and checked by the md5 of their bodies: `admin_save_post`, `sys_save_post`, `admin_restore_post_revision`, `admin_set_post_home_hidden`, `admin_reset_post_position`, and `fn_snapshot_post_revision` with its trigger (`tests/sql/live/posts-writers-20261117.sql`). With the migration applied on that copy:
+
+| Path | Result |
+|---|---|
+| Editor: edit (`admin_save_post`), publish new, hide (tag `טיוטה`), restore a revision, reset position | Logged in the same transaction. A purge was requested for exactly that Post (URL, key header and tag checked) and its address keys were listed for the edge. The hidden Post is listed. |
+| Agents: `sys_save_post` edit and publish | Same. |
+| SQL: direct INSERT, UPDATE and DELETE (deleted Post listed) | Same. |
+| SQL: slug change | Both addresses listed. |
+| SQL: bulk insert of 20 Posts | All Posts built fresh for 20 minutes, and `post-document` purged. |
+| SQL: TRUNCATE | Same as the bulk insert. |
+| Non-document changes (home_hidden, verified, convergence_score, Facebook fields, theme, axis_pin, ai_touched, thumb_url, title set to itself) | Nothing logged, nothing purged. |
+| No purge key configured | The change is still logged and listed, so the edge still protects. Purge status `not_configured` and one medium finding. |
+| Network down (`pg_net` fails) | The write still succeeds. Status `request_failed`; the Post is listed. |
+| The log cannot be written | The Post change itself is refused (`check_violation`) and the content is unchanged. |
+| Watch outcomes | Purge confirmed → `ok`. Failed purge → `retried`. Failed again → one urgent finding, not duplicated. No answer within 10 minutes → `retried`. |
+| Edge and database keys | Identical for 12 addresses: Hebrew, percent-encoded upper and lower case, and `/post/…` (`tests/sql/post-document-keys-check.mjs`). |
+| Rollback | Restores the exact previous definitions of `admin_2029_analytics` and `fn_health_watch` (md5 checked) and removes the triggers and functions. Both files refuse to run out of order or twice. |
+
+### 12.3 Protected Preview
+
+The Preview has no domain and is behind Vercel authentication. It reads the live database read-only. The migration is not applied there, so the real list does not exist.
+
+Deployments: `dpl_EXt7XGqv6SMhuwMFdRFn4RLBxc9K` (`0985f3e3b`) and the final `dpl_7VbxX2VmwQqFrFZp7RAYLHDeoDyQ` (`5f91c5623`). On this branch's Preview only, a tester can hand the edge a list in the header `x-sod-test-post-changes`. The header is ignored everywhere else (unit test).
+
+Results on the final Preview; the same results were seen on the first:
+
+| Case | Answers |
+|---|---|
+| No list (the real list cannot be read), the same Post asked 5 times plus another Post 3 times | 8 of 8 built fresh (`MISS`, gate `stale`): **fail closed** |
+| Clean list | `MISS`, then `HIT` (kept) |
+| **This Post on the list** (hidden, deleted or edited), while a kept copy exists | 3 of 3 built fresh (`MISS`, gate `changed`). Right after, "another Post changed" got the kept copy (`HIT`, age 2 s): the fresh answers were never kept and did not replace it. |
+| The imported Post at its Hebrew address on the list | Built fresh (`changed`). |
+| List too old, bulk change (`all_until`), unreadable list | Built fresh (`stale`, `all`, `stale`). |
+| Purge `post-document-5077` | Answered 200 in 0.24 s. The next readers got a page built in the foreground (`REVALIDATED`, age 0), never the deleted copy, and then it was kept again (`HIT`). Vercel's documentation: after a delete, "subsequent requests … will serve REVALIDATED and therefore block while revalidating". |
+| A reader adds `?__sod_fresh=1` | Never kept, and gets no kept copy; the canonical address is unchanged. |
+| A reader sends `x-sod-doc-fresh: 1` | What the CDN serves is unchanged (the kept copy, `HIT`). |
+| Crawler (Googlebot) | Changed Post: built fresh, and the edge's existence check is read again. Clean: kept. Missing Post: the edge's 404. |
+| A missing Post for browsers | 404, never kept. |
+| Not a Post (`/gematria`, `/2029/posts`) | Untouched: no gate, not kept. |
+| Endpoint | GET 405 (no list is served there). Invalid tags 400. Without Vercel authentication: 302 to sign-in. |
+
+### 12.4 Measurements
+
+All from the test machine, through edge region `cle1` to the function in `iad1` and the database in Tokyo. These are not field data.
+
+| Measurement | Result |
+|---|---|
+| First byte, kept copy (`HIT`), 2 Posts × 12, alternating with the next row | p50 154–160 ms, p75 163–178 ms |
+| First byte, built fresh (Post on the list, or no list) | p50 508–842 ms, p75 538–885 ms |
+| Purge request | 0.18–0.24 s; the very next request was already a fresh build (tested from one region) |
+| Copy life | Served while refreshing at 5 min 20 s (`STALE`); built fresh at 6 min 15 s (`MISS`) |
+
+Lab numbers for the reader (first paint, readable article, LCP) are in section 4; they did not change.
+
+### 12.5 Security checks
+
+- **Purge endpoint.**
+  - POST only.
+  - Production requires `SOD_POST_DOCUMENT_PURGE_KEY`, compared in constant time. A missing key answers 503 `purge_not_configured`; a wrong key answers 401.
+  - Tags must match `post-document` or `post-document-<1–12 digits>`, 1 to 16 of them; anything else is 400.
+  - It returns no data. Every answer is `no-store` and `noindex`.
+  - On the protected Preview, Vercel authentication guards it.
+  - With the key, the worst misuse is extra origin work (deleting kept copies), the same as an expired cache.
+- **Public list.** `post_document_recent_changes_v1` returns hashed address keys (the first 16 hex digits of SHA-256), a count and a time. It never returns an id, slug, title or content (SQL test). A key only tells someone who already knows a Post's address that it changed in the last 20 minutes.
+- **Privileges** (SQL test):
+  - list: anon, authenticated, service_role;
+  - `admin_post_document_bypass_all`: administrators, service_role and a database-owner session only (others are refused);
+  - the watch: service_role;
+  - the trigger and key functions: no public execute.
+- **Readers cannot steer the cache.** The marker and the header from outside neither get nor disturb a kept copy (Preview). The test-list header works only on this branch's Preview.
+- **Same bytes for everyone.** Kept bytes are identical for every reader; cookies, `Authorization` and language do not change them (existing test). A copy is never served by another deployment (the cache key includes the deployment).
+- **Not created** (no approval): the Vault secret `sod_post_document_purge_key`, the Vercel Production variable `SOD_POST_DOCUMENT_PURGE_KEY`, and the migration on the live database.
+
+### 12.6 What can still show an old Post: exact windows and fixes
+
+| Case | Window | Who can see it | Fix |
+|---|---|---|---|
+| Purge works (normal) | From the commit until Vercel deletes the copy: `pg_net` sends after the commit, then the purge request (0.18–0.24 s measured). Propagation was measured in one region only, where it was immediate. | A reader in a region that holds a copy of that Post | — |
+| **Purge late or failed** | **At most 6.5 s after the commit** (5 s list lease + at most 1.5 s list read). After that, no copy of that Post is used for 20 minutes, longer than any copy lives. | Only a reader on an edge instance that is serving repeated reads of that same Post, read its list before the change, and sits in a region that holds a copy. Everywhere else the Post is built fresh anyway. | A 2 s lease (at most 3.5 s, more list reads), or a check per request (one more database read and its distance on every repeat read; not recommended). |
+| JavaScript readers inside that window | The article is removed as soon as the page's own read answers (about 0.5–1.5 s after load) if the Post is hidden or deleted. The page also replaces the title and description and marks itself `noindex` (browser test). Clients without JavaScript (crawlers, link previews) see the copy as it was. | — | — |
+| Writes that bypass row triggers (`session_replication_role = replica`, `DISABLE TRIGGER`, a restore with triggers off) | Up to 6 minutes (copy life) | Readers in regions with copies | After such maintenance run `select admin_post_document_bypass_all(20, '<reason>')` and purge `post-document`. Both are in the package. |
+| A transaction open more than 14 minutes between the change and its commit | The 20-minute window may end less than 6 minutes after the commit | Rare: the live writers are single statements | — |
+| Outside this package (as before) | Share-card images `/api/card`: CDN 1 hour plus 1 day stale, built only from their URL's text. The sitemap: its own CDN rule, addresses only. | — | A purge tag for cards if ever needed. |
+
+Zero old content is therefore **not** promised. The proven bound for a failed purge is 6.5 seconds, on repeated reads only.
+
+### 12.7 Cost, and a correction made during the test
+
+The first build (`0985f3e3b`) read the list through the site's own endpoint (a function call plus a database read) on every Post request whose list was older than 2 s.
+
+On this site's traffic that was wrong: about one Post request per minute per region, and two thirds of all document requests come from crawlers reading different Posts (Meta's AI crawler: 15,031 of 29,573 on 16.11). An instance's list is almost always older than the lease, so nearly every request was built fresh anyway, while still costing one more function call and database read.
+
+Corrected in `348d55ea6` and `5f91c5623`:
+
+- **Quiet traffic and crawlers:** no extra call at all. Each request is built fresh, exactly as today (unit test: 20 lone requests and 300 different Posts make 0 reads).
+- **A Post read again and again** (after a share): at most one list read per 2 s per edge instance, a single-row primary-key read straight from the edge, with no site function.
+- **Per change:** one purge call (Vercel does not bill purges; the call itself is an ordinary function invocation) and one `pg_net` request.
+- **Health watch:** a few more reads every 15 minutes.
+- **Reach today:** kept copies are now used only for repeated reads of the same Post within seconds on the same edge instance. Average Post first byte will barely move; the benefit goes to the Post that many people open at once. Vercel does not show which edge instance served a request, so this cannot be estimated more precisely before a release.
+
+### 12.8 Speed centre ("מהירות וביצועים", `/2029/control`)
+
+The existing reader `admin_2029_analytics` (patched by the migration; no new source) returns `web_vitals.post_document_freshness`. The centre shows:
+
+- the last watch: changes in 24 hours, purges confirmed / failed / pending, retries, changes without a purge, and when it ran;
+- a failed purge as **urgent**, even after its suggestion was dismissed, but listed once while the suggestion is open;
+- a watch that has not run for 45 minutes, or has not run yet, as attention;
+- a missing purge key as attention;
+- "not active in the database" while the migration is not applied, never a zero.
+
+Tests: `test/speed-centre-2029.test.mjs` and the browser test `test/speed-centre-2029.browser.mjs` (12 cases).
+
+### 12.9 What a release would need (not approved)
+
+1. **Database change (approval):** apply `supabase/migrations/20261117160000_post_document_freshness.sql`. The rollback is `supabase/proposed/ROLLBACK_20261117160000_post_document_freshness.sql`.
+2. **Secret (approval):** one random value stored twice, as the Vault secret `sod_post_document_purge_key` and as the Vercel Production variable `SOD_POST_DOCUMENT_PURGE_KEY` (sensitive).
+3. **Merge and deploy** by the procedure (approval).
+
+Order: each part is safe alone.
+
+- Code without the migration: no list, so every Post is built fresh, as today (shown on the Preview).
+- Migration without the code: purges fail and are reported; there are no kept copies to protect.
+- Without the secret: purges are `not_configured` and reported, and the edge still protects.
+
+Suggested order: migration and secret, then the deploy.
+
+### 12.10 Not done or not verified
+
+- No live database change, merge, Production deploy, purge in Production or secret.
+- The whole chain on the live database (a real change → `pg_net` → purge → the edge reading the real list). It needs the migration. Its parts were verified separately: the database locally with the live writers; the edge, the purge and re-keeping on the Preview with a test list.
+- Purge propagation in regions other than the test region.
+- How often repeated reads hit the same edge instance in the field.
+
+### 12.11 Recommendation (updated)
+
+**Approve it only if a fast first byte for a Post that many people open at once matters to you now.** If so, enable it with all three layers together; never the CDN cache alone. Then measure the reach in the field.
+
+- For readers who get a kept copy: about 0.35–0.7 s faster first byte (12.4), and the reader-side gains of section 4.
+- A hidden or deleted Post: never served from a kept copy once the purge has run; if the purge fails, at most 6.5 s on repeated reads of that Post, and the page itself removes the article for JavaScript readers.
+- Cost: no added calls for quiet traffic or crawlers; tiny reads only while a Post is read repeatedly.
+- With today's traffic the average will barely change; most of the gain is for a Post that is being shared.

@@ -217,6 +217,8 @@ test("[phone] the live read says the Post is no longer public (hidden or deleted
     const seen = await page.evaluate(() => ({ documentArticle: !!document.getElementById("sod29-ssr-article"), articles: document.querySelectorAll("article.sod29-reading-post").length,
       oldText: /פסקה \d+:|סדר תפילה ל- רפואה שלמה/.test(document.body.innerText), rootHeld: document.getElementById("root").getBoundingClientRect().height < 140 }));
     assert.deepEqual(seen, { documentArticle: false, articles: 0, oldText: false, rootHeld: false });
+    await page.waitForFunction(() => /הפוסט לא נמצא/.test(document.title), null, { timeout: 10000 });
+    assert.match(await page.evaluate(() => document.querySelector('meta[name="robots"]')?.content || ""), /noindex/, "the old title is replaced and the page is not indexed");
     await sleep(800);
     assert.equal(await page.evaluate(() => /פסקה \d+:/.test(document.body.innerText)), false, "the old article never comes back");
     assert.deepEqual(errors, []);

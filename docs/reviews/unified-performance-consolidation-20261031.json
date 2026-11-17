@@ -3640,12 +3640,13 @@
       },
       {
         "id": "S-47",
-        "title_he": "דפי פוסט נשמרים ב־CDN של Vercel ל־5 דקות (ניסוי, לא מוזג)",
+        "title_he": "דפי פוסט נשמרים ב־CDN של Vercel עד 6 דקות, עם שלוש שכבות עדכניות לפוסט שנערך, הוסתר או נמחק (ניסוי, לא מוזג)",
         "problem": "Every Post document is built by the function in iad1 with a database read in Tokyo: 214,143 document requests in 7 days, 0 served by the CDN; field first byte for Posts on phones p50 1,085 ms / p75 1,485 ms, server wait p50 882 ms.",
         "surface": "post",
         "source": {
           "task_keys": [
-            "POST_DOCUMENT_CDN_CACHE_EXPERIMENT_20261117"
+            "POST_DOCUMENT_CDN_CACHE_EXPERIMENT_20261117",
+            "POST_DOCUMENT_FRESHNESS_20261117"
           ],
           "prs": [
             1376
@@ -3654,13 +3655,21 @@
           "commits": [
             "59874ba55b5beb3ff77dcc4dca57d930c7fb65ec",
             "d6de9034be313c2d125070ede6d96f81202b4f6f",
-            "4889ddfb818487c49fb9d22126a181bc20ebcac4"
+            "4889ddfb818487c49fb9d22126a181bc20ebcac4",
+            "0985f3e3b7fd7fb3ea3e9c21b4a05d3a160ad4be",
+            "348d55ea6a81956b3a23ba4927c670ea51a90028",
+            "5f91c56238c635146ad126363922f1e321288f2b"
           ],
           "author": "claude",
           "head_branch": "ccr-dcadb071-v1z5ol"
         },
         "code_now": [
-          "public-reading-deploy/api/public-document.js :: postDocumentCdnCacheable / postDocumentCdnHeaders (branch only, not on origin/main)"
+          "public-reading-deploy/api/public-document.js :: postDocumentCdnCacheable / postDocumentCdnHeaders (max-age=300, stale-while-revalidate=60; never with the reserved marker) (branch only)",
+          "post-document-freshness.js + middleware-core.js :: edge gate (list of recent changes read directly from the database only during repeated reads of the same Post; fail closed) (branch only)",
+          "public-reading-deploy/api/post-document-cache.js :: purge endpoint (POST, key in Production) (branch only)",
+          "supabase/migrations/20261117160000_post_document_freshness.sql :: change log in the same transaction, purge via pg_net, confirmation watch in fn_health_watch, reader field web_vitals.post_document_freshness (file only, not applied)",
+          "src/pages/Post2029Page.jsx :: the server article is withdrawn when the page's live read says the Post is not public (branch only)",
+          "src/lib/speedCentre2029.js + OperationalMetrics2029.jsx :: freshness block and attention in 'מהירות וביצועים' (branch only)"
         ],
         "merged": false,
         "merge_commit": null,
@@ -3668,21 +3677,25 @@
         "deployed_in": null,
         "in_current_production": false,
         "live_verified": "no",
-        "live_evidence": "Protected Preview dpl_62g74MmMWj4UK1Z5P9zAdjSFcDPs (4889ddfb8): 17/18 repeat requests HIT on 9 Posts; excluded pages never kept; expiry STALE then HIT (~1 s refresh). Not in Production.",
+        "live_evidence": "Protected Previews only, not in Production: dpl_62g74MmMWj4UK1Z5P9zAdjSFcDPs (4889ddfb8, cache), dpl_EXt7XGqv6SMhuwMFdRFn4RLBxc9K (0985f3e3b) and dpl_7VbxX2VmwQqFrFZp7RAYLHDeoDyQ (5f91c5623, final): without a readable list every Post is built fresh (8/8); a Post on the list of recent changes is built fresh while a kept copy exists, and the copy is untouched; purge answered in 0.18-0.24 s and the next reader got a foreground rebuild (REVALIDATED), never the deleted copy; copy served while refreshing at 5 min 20 s, rebuilt at 6 min 15 s.",
         "measurement": {
           "kind": "lab",
           "before": "server wait 880 ms (field median, Posts, phones): first byte 936, FCP 1,420, readable 3,333 (p75 3,493), LCP 5,222 (p75 5,972), CLS 0.0018",
           "after": "server wait 60 ms (CDN answer): first byte 119, FCP 640, readable 2,556 (p75 3,071), LCP 3,974 (p75 5,220), CLS 0.0018",
           "conditions": "same artifact and Posts (O1, O3, V1, M1), article first as live, phone Slow 4G + 4x CPU, cold profile, 24 runs per arm in alternating blocks; a simulation of the server wait, not field data",
-          "source": "docs/reviews/post-document-cdn-20261117/lab-summary.json"
+          "source": "docs/reviews/post-document-cdn-20261117/lab-summary.json",
+          "freshness": "First byte from the test machine (edge cle1): kept copy p50 154-160 ms, built fresh p50 508-842 ms (12 each, 2 Posts, alternating). Every update path (editor, agents, SQL incl. hide, delete, slug change, bulk, TRUNCATE) tested on local Postgres with the six live writer bodies (md5-checked); a change that cannot be logged is refused."
         },
         "guard": [
-          "test/post-document-cdn-cache.test.mjs (live-contracts-2029.yml) [branch only]"
+          "test/post-document-cdn-cache.test.mjs + test/post-document-freshness.test.mjs (live-contracts-2029.yml) [branch only]",
+          "tests/sql/run-post-document-freshness.sh (speed-centre-sql-gate.yml: live writers, log, purge requests, watch, keys, rollback) [branch only]",
+          "test/article-first-browser-2029.browser.mjs: a Post no longer public loses the document's article, a failed read keeps it [branch only]",
+          "test/speed-centre-2029.test.mjs (freshness attention) [branch only]"
         ],
-        "open": "Awaiting ZURIEL's decision (recommended: enable for Posts as tested and measure; expect a small change in Post averages). After a release: field before/after per build for the Post surface (by_build, by_surface, nav_timing_p75 in /2029/control) and the CDN share from Vercel observability (cache_result, route /api/public-document). Next candidates, untested: the same for '/' and '/community/chat'; an edge 404 for old WordPress and scanner addresses.",
+        "open": "Awaiting ZURIEL's decision; nothing applied. A release needs approval for: the migration (database), one purge key stored as the Vault secret sod_post_document_purge_key and the Vercel Production variable SOD_POST_DOCUMENT_PURGE_KEY, and the merge and deploy. Remaining windows (README section 12.6): purge works ~ one purge round trip; purge failed at most 6.5 s, only for repeated reads of that Post on an edge instance that read its list before the change; writes with triggers off up to 6 min (run admin_post_document_bypass_all and purge post-document). Reach today: repeated reads of the same Post within seconds only; the average will barely move.",
         "next_owner": "Experience Governance (decision) · Traffic Intelligence (field check)",
         "relates_to_groups": [],
-        "reach": "Vercel observability 16.11.2026 (29,573 document requests): with this policy about 3.2-4.5% of the requests outside '/' and '/community/chat' (Posts and junk addresses) would be CDN answers per hour, about 70% for the four most-read Posts in fra1; '/' and '/community/chat' (19% of all document requests, ~89% repeat within the hour) are not kept by this change."
+        "reach": "Vercel observability 16.11.2026 (29,573 document requests): with this policy about 3.2-4.5% of the requests outside '/' and '/community/chat' (Posts and junk addresses) would be CDN answers per hour, about 70% for the four most-read Posts in fra1; '/' and '/community/chat' (19% of all document requests, ~89% repeat within the hour) are not kept by this change. With the freshness package (17.11): kept copies are used only for repeated reads of the same Post within 5 s on the same edge instance; quiet traffic and crawlers are built fresh with no extra call."
       }
     ],
     "group_updates": [
