@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { fetchGematriaMethodTraceRaw } from "../../lib/research/gematriaTrace.js";
 import { isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
-import { bindPathsToStructure, structureSpecFor, describeStructurePart, deriveConvergencePaths, evaluateConvergencePaths, STRUCTURE_PART_LABEL } from "../../lib/spatialRenderModel.js";
+import { bindPathsToStructure, structureSpecFor, drawableSpec, isSingleSolid, describeStructurePart, deriveConvergencePaths, evaluateConvergencePaths, STRUCTURE_PART_LABEL } from "../../lib/spatialRenderModel.js";
 import { buildRazielPathFocus } from "../../lib/spatial/spatialLabRaziel.js";
 import SpatialMethodStage2029, { S4ErrorBoundary, S4_FALLBACK_NOTE } from "./SpatialMethodStage2029.jsx";
 import { evaluateS4Capability } from "../../lib/spatial/gpuCapability.js";
@@ -35,6 +35,7 @@ const PLAY_MS = 1100;
 const ConvergenceScene3D = lazy(() => import("./ConvergenceScene3D2029.jsx"));
 const StructureScene3D = lazy(() => import("./StructureScene3D2029.jsx"));
 const IcosaScene3D = lazy(() => import("./IcosaScene3D2029.jsx"));
+const CubeScene3D = lazy(() => import("./CubeScene3D2029.jsx"));
 
 function useTraces(phrases, injected) {
   const key = phrases.join("|");
@@ -107,8 +108,10 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   };
   const fallbackToS2 = (reason) => { setS4(false); setS4Note(S4_FALLBACK_NOTE[reason] || S4_FALLBACK_NOTE.render_error); };
   // Compound structure (cube + pentagons + triangles): only models whose spatial contract declares it get the structure view.
-  // one entry point for every shape family the lab draws (compound pentagon, icosahedron); null = no 3D structure for this model
-  const spec = useMemo(() => structureSpecFor({ shapeIdentity: card?.structure?.shapeIdentity, regions: card?.structure?.regions, structuralProperties: card?.quantities, gematria: card?.gematria, cubeFaceWord: card?.structure?.cubeFaceWord }), [card]);
+  // one entry point for every shape family the lab draws (compound pentagon, icosahedron, cube); null = no 3D structure for this model. A single solid is
+  // drawn only when one of the model's own operations is carried by it (drawableSpec): a cube-shaped model whose operations never use its faces is not a cube.
+  const spec = useMemo(() => drawableSpec(structureSpecFor({ shapeIdentity: card?.structure?.shapeIdentity, regions: card?.structure?.regions, structuralProperties: card?.quantities, gematria: card?.gematria,
+    cubeFaceWord: card?.structure?.cubeFaceWord, assignments: card?.assignments, cubeLayout: card?.cubeLayout }), derived), [card, derived]);
   const scenePaths = useMemo(() => bindPathsToStructure(paths, spec).map((path) => ({ ...path, label: STATUS_LABEL[path.status], partLabel: STRUCTURE_PART_LABEL[path.part] })), [paths, spec]);
   // Royal V2 experiment: ONE engine / model / dataset, several presentation directions (A Museum · B Discovery · C Lab · V1 = previous look).
   // The initial direction may be chosen with ?lab=museum|discovery|lab|v1 (or a/b/c) so the directions can be compared by link; it is a display choice only.
@@ -138,8 +141,8 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
     if (direction.progressive) setDiscover(0);
     if (direction.autoFocus || direction.autoExplode) setLab((p) => ({ ...p, view: direction.autoFocus ? "focus" : p.view, explode: direction.autoExplode ? true : p.explode }));
   };
-  // a convergence needs two paths; the one exception is a solid whose single operation IS its structure (the icosahedron: faces × the face word)
-  if (!card || !Number.isFinite(Number(card.value)) || paths.length < (spec?.family === "icosahedron" ? 1 : 2)) return null;
+  // a convergence needs two paths; the one exception is a solid whose single operation IS its structure (faces × the face word [× repetitions])
+  if (!card || !Number.isFinite(Number(card.value)) || paths.length < (isSingleSolid(spec) ? 1 : 2)) return null;
   const value = Number(card.value);
   const focus = paths[Math.min(index, last)];
   const pending = paths.some((path) => path.status === "pending");
@@ -191,6 +194,9 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
           {sceneView === "structure" && spec?.family === "icosahedron"
             ? <IcosaScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={pick}
+                view={lab.view} explode={lab.explode} spin={lab.spin} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} glyphs3D={glyphs3D} />
+            : sceneView === "structure" && spec?.family === "cube"
+            ? <CubeScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={index} onSelect={pick}
                 view={lab.view} explode={lab.explode} spin={lab.spin} resetToken={lab.resetToken} onFallback={fallbackToS2} look={dir.look} quality={quality} glyphs3D={glyphs3D} />
             : sceneView === "structure" && spec
             ? <StructureScene3D spec={spec} value={value} paths={scenePaths} verifiedCount={verifiedCount} total={total} focusIndex={discover < 0 && dir.progressive ? -1 : index} onSelect={pick}

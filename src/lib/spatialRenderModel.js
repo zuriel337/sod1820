@@ -221,20 +221,70 @@ export function icosahedronStructureSpec({ shapeIdentity, structuralProperties =
   return { family: "icosahedron", faces: ICOSAHEDRON_FACES, word: String(faceWord), wordValue };
 }
 
-// One entry point for every shape family the lab can draw: the compound pentagon family, or the icosahedron. null = not a drawn family.
-export function structureSpecFor({ shapeIdentity, regions, structuralProperties, gematria, cubeFaceWord } = {}) {
-  return compoundStructureSpec({ shapeIdentity, regions, structuralProperties }, { faceWord: cubeFaceWord })
-    || icosahedronStructureSpec({ shapeIdentity, structuralProperties, gematria, faceWord: cubeFaceWord });
+// Shape family 3 — the cube with a word repeated on its faces (קובייה). A cube has exactly 6 faces BY DEFINITION; the model may declare `faces` or `directions`
+// (the cube's six sides) and it must say 6. The word on each face and its value come from the model (cube.faceWord + the declared gematria entry; the canonical
+// engine still verifies the value); `repetitionsPerPart` of that word's assignment is how many times the word is written on EACH face (1020: «טוב» ten times).
+// The repetition grid is the model's own `cube.cols × rows` when its product is the repetition count, otherwise the exact near-square factor pair — never a
+// guess at a count. A model with another face count, no face word / word value, or an out-of-range repetition count is not drawn as a cube.
+export const CUBE_FACES = 6;
+export const MAX_CUBE_REPETITIONS = 24;
+export function cubeStructureSpec({ shapeIdentity, structuralProperties = [], assignments = [], gematria = [], faceWord = null, layout = null } = {}) {
+  if (shapeIdentity !== "cube" || !faceWord) return null;
+  const declared = (structuralProperties || []).filter((item) => item?.key === "faces" || item?.key === "directions");
+  if (declared.some((item) => item.value !== CUBE_FACES)) return null;
+  const entry = (gematria || []).find((item) => Array.isArray(item) && item[0] === faceWord);
+  const wordValue = Number(entry?.[1]);
+  if (!Number.isFinite(wordValue)) return null;
+  const assignment = (assignments || []).find((item) => item?.expression === faceWord);
+  const rawRepetitions = assignment?.repetitionsPerPart;
+  if (rawRepetitions !== undefined && !(Number.isInteger(rawRepetitions) && rawRepetitions >= 1 && rawRepetitions <= MAX_CUBE_REPETITIONS)) return null;
+  const repetitions = rawRepetitions ?? 1;
+  const declaredGrid = Number.isInteger(layout?.cols) && Number.isInteger(layout?.rows) && layout.cols >= 1 && layout.rows >= 1 && layout.cols * layout.rows === repetitions ? { cols: layout.cols, rows: layout.rows } : null;
+  let cols = 1;
+  for (let c = 1; c * c <= repetitions; c += 1) if (repetitions % c === 0) cols = c;
+  return {
+    family: "cube", faces: CUBE_FACES, word: String(faceWord), wordValue, repetitions,
+    grid: declaredGrid || { cols, rows: repetitions / cols },
+    facesOrigin: declared[0]?.provenance || "cube geometry",
+  };
 }
+
+// One entry point for every shape family the lab can draw: the compound pentagon family, the icosahedron, or the cube. null = not a drawn family.
+export function structureSpecFor({ shapeIdentity, regions, structuralProperties, gematria, cubeFaceWord, assignments, cubeLayout } = {}) {
+  return compoundStructureSpec({ shapeIdentity, regions, structuralProperties }, { faceWord: cubeFaceWord })
+    || icosahedronStructureSpec({ shapeIdentity, structuralProperties, gematria, faceWord: cubeFaceWord })
+    || cubeStructureSpec({ shapeIdentity, structuralProperties, assignments, gematria, faceWord: cubeFaceWord, layout: cubeLayout });
+}
+
+// A single solid whose ONE operation is its structure (faces × the face word [× repetitions]) — the families that are drawn from one path.
+export const SINGLE_SOLID_FAMILIES = Object.freeze(["icosahedron", "cube"]);
+export const isSingleSolid = (spec) => SINGLE_SOLID_FAMILIES.includes(spec?.family);
 
 export const STRUCTURE_PART_LABEL = Object.freeze({ cube: "קובייה", outer: "מחומש חיצוני", inner: "מחומש פנימי", triangles: "משולשים פנימיים", relation: "שכבת קשר", solid: "עשרימון" });
 
+// Does ONE derived path fit the solid's declared geometry? It must be a multiplication carrying exactly: the face word (with the declared value) as its only
+// expression, and the declared SHAPE quantities as its only other terms — the faces (and, for a repeated word, the repetitions per face), each a quantity or
+// geometry term with a source, never a bare number — and it must evaluate to faces × repetitions × the word's value. Anything else has no geometry (relation layer).
+function singleSolidFits(path, spec) {
+  const terms = Array.isArray(path?.terms) ? path.terms : [];
+  const expressions = terms.filter((t) => t.role === SEMANTIC_ROLE.EXPRESSION);
+  if (path?.operationKey !== "multiply" || expressions.length !== 1 || expressions[0].text !== spec.word || expressions[0].value !== spec.wordValue) return false;
+  const shape = terms.filter((t) => t.role !== SEMANTIC_ROLE.EXPRESSION);
+  if (!shape.every((t) => t.role === SEMANTIC_ROLE.QUANTITY || t.role === SEMANTIC_ROLE.GEOMETRY)) return false;
+  const expected = spec.family === "cube" ? [spec.faces, ...(spec.repetitions > 1 ? [spec.repetitions] : [])] : [spec.faces];
+  const actual = shape.map((t) => Number(t.value)).sort((a, b) => a - b);
+  const sortedExpected = [...expected].sort((a, b) => a - b);
+  if (actual.length !== sortedExpected.length || actual.some((v, i) => v !== sortedExpected[i])) return false;
+  return Number(path.result) === expected.reduce((product, v) => product * v, spec.wordValue);
+}
+
 export function bindPathsToStructure(paths, spec) {
-  if (spec?.family === "icosahedron") {
-    // one solid carries the whole path: word value × 20 faces; a path that does not fit the declared solid has no geometry (relation layer)
+  if (isSingleSolid(spec)) {
+    // one solid carries the whole path; a path that does not fit the declared solid has no geometry (relation layer)
+    const partName = spec.family === "cube" ? "cube" : "solid";
     return paths.map((path) => {
-      const fits = Boolean(path.phrase) && path.phrase === spec.word && path.operand === spec.wordValue && path.quantity === spec.faces;
-      return { ...path, part: fits ? "solid" : "relation", geometric: fits };
+      const fits = singleSolidFits(path, spec);
+      return { ...path, part: fits ? partName : "relation", geometric: fits };
     });
   }
   const taken = new Set();
@@ -254,12 +304,30 @@ export function bindPathsToStructure(paths, spec) {
   });
 }
 
+// The spec a model is actually drawn with: a single solid only when at least one of its derived paths is carried by that solid (a cube-shaped model whose
+// operations never use its faces — 910 — is NOT drawn as a cube). Compound models keep their own spec. null = nothing to draw.
+export function drawableSpec(spec, paths = []) {
+  if (!spec) return null;
+  if (!isSingleSolid(spec)) return spec;
+  return bindPathsToStructure(paths, spec).some((path) => path.geometric) ? spec : null;
+}
+
 // Facts shown for the selected part, each with its ORIGIN, so a shape count is never presented as the source quantity (e.g. 5 sides ≠ 180 units).
 export function describeStructurePart(path, spec) {
   const origin = path.quantityProvenance || "מוצהר במודל";
   const quantity = { key: "כמות במסלול", value: path.quantity, origin };
   const part = path.part;
   if (part === "solid") return { part, label: STRUCTURE_PART_LABEL.solid, facts: [{ key: "פאות בצורה", value: spec.faces, origin: "גאומטריה של עשרימון משוכלל" }, quantity], note: null };
+  if (part === "cube" && spec.family === "cube") {
+    // the cube family: the faces and (for a repeated word) the repetitions per face are two different declared facts, each with its own origin
+    const terms = Array.isArray(path.terms) ? path.terms : [];
+    const facesTerm = terms.find((t) => t.role !== SEMANTIC_ROLE.EXPRESSION && Number(t.value) === spec.faces);
+    const repetitionTerm = spec.repetitions > 1 ? terms.find((t) => t.role !== SEMANTIC_ROLE.EXPRESSION && t !== facesTerm && Number(t.value) === spec.repetitions) : null;
+    return { part, label: STRUCTURE_PART_LABEL.cube, note: null, facts: [
+      { key: "פאות בצורה", value: spec.faces, origin: facesTerm?.origin || spec.facesOrigin || "גאומטריה של קובייה" },
+      ...(repetitionTerm ? [{ key: `חזרות של «${spec.word}» בכל פאה`, value: spec.repetitions, origin: repetitionTerm.origin || "מקור המודל" }] : []),
+    ] };
+  }
   if (part === "cube") return { part, label: STRUCTURE_PART_LABEL.cube, facts: [{ key: "פאות בצורה", value: spec.cube.faces, origin: "גאומטריה של קובייה" }, quantity], note: null };
   if (part === "outer" || part === "inner") {
     const ring = spec[part];

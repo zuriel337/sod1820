@@ -22,7 +22,8 @@ test("the icosahedron spec is read from the model: face word + its declared valu
   assert.equal(ICOSAHEDRON_FACES, 20);
   assert.equal(card.labFamily, "icosahedron");
   assert.equal(projection.cards.find((c) => c.slug === "yesharim-cube-3060").labFamily, "compound_pentagon");
-  assert.equal(projection.cards.find((c) => c.slug === "emunah-cube-612").labFamily, null, "families the lab cannot draw yet stay out");
+  assert.equal(projection.cards.find((c) => c.slug === "emunah-cube-612").labFamily, "cube", "the cube family draws the models whose operation is carried by the cube");
+  assert.equal(projection.cards.find((c) => c.slug === "raza-deshabbat-910").labFamily, null, "a cube-shaped model whose operations never use the faces is not drawn as a cube");
 });
 
 test("fails closed: another face count, no face word, no declared word value, or another shape is NOT drawn as an icosahedron", () => {
@@ -57,7 +58,7 @@ test("the single path binds to the one solid; facts keep the shape count and the
   const rows = buildLabRows({ paths: unverified, spec, locators: card.source.locators, statusLabels: { unavailable: "אימות המנוע אינו זמין" } });
   assert.equal(rows[0].counted, false);
   assert.equal(buildRevealSteps(rows[0]).some((s) => s.kind === "result"), false);
-  const wrongSolid = bindPathsToStructure(evaluated.map((p) => ({ ...p, quantity: 12 })), spec);
+  const wrongSolid = bindPathsToStructure(evaluated.map((p) => ({ ...p, terms: p.terms.map((t) => (t.role === "geometry" ? { ...t, value: 12, text: "12" } : t)) })), spec);
   assert.deepEqual([wrongSolid[0].part, wrongSolid[0].geometric], ["relation", false], "a path that does not fit the declared solid has no geometry");
   assert.equal(describePathSource(paths[0], card.source.locators).quantity.state, "declared");
 });
@@ -106,7 +107,7 @@ test("same engine: the icosahedron scene is one more lazy 3D module of the close
   assert.match(code, /raycast=\{noRaycast\}/, "ornament is not a pick target");
   const stage = read("../src/components/gematria2029/SpatialConvergenceStage2029.jsx");
   assert.equal((stage.match(/lazy\(\(\) => import\("\.\/IcosaScene3D2029\.jsx"\)\)/g) || []).length, 1);
-  assert.match(stage, /paths\.length < \(spec\?\.family === "icosahedron" \? 1 : 2\)/, "only the icosahedron may be a single-path structure view");
+  assert.match(stage, /paths\.length < \(isSingleSolid\(spec\) \? 1 : 2\)/, "only a single solid (icosahedron, cube) may be a single-path structure view");
   const shelf = read("../src/components/research/WorldKnowledgeTypes2029.jsx");
   assert.match(shelf, /card\.operations\?\.length === 1 && card\.labFamily/);
   assert.match(model.cube.faceWord, /אל/);

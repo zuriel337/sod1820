@@ -139,7 +139,10 @@ try {
     assert.match(out["raza-deshabbat-910"], /חיבור: רזא \(208\) \+ שבת \(702\) = 910/); assert.match(out["raza-deshabbat-910"], /כפל: סוד \(70\) × אחד \(13\) = 910/);
     assert.match(out["keter-esrimon-620"], /כפל: אל \(31\) × 20 = 620/); assert.match(out["keter-esrimon-620"], /גיאומטריה 20 \(icosahedron geometry\)/);
     assert.match(out["yesharim-cube-3060"], /765 × 4 = 3060/);
-    assert.equal(await page.locator('[data-convergence-card="hashgacha-pratit-1020"]').count(), 0, "1020 has one operation and no drawn family: no 3D button (its structure is shown as text)");
+    // 1020 is the cube family's first model (one operation carried by the cube): it now has the structure view, with the three-factor product drawn from the typed operation
+    const c1020 = await openCard(page, "hashgacha-pratit-1020", "museum");
+    assert.equal(await c1020.locator("button", { hasText: "פתח המחשת המבנה" }).count(), 1, "1020 opens the cube structure view");
+    assert.equal(await page.locator('[data-convergence-card="hashgacha-pratit-1020"]').count(), 0, "the stage itself opens only on the explicit action");
     record.shelf = Object.fromEntries(Object.entries(out).map(([k, v]) => [k, v.slice(0, 300)]));
     await ctx.close();
   }

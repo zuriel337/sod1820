@@ -453,4 +453,4 @@ export default function StructureScene3D2029({
 }
 
 // Shared with the other shape families of the lab (same engine): glyph loading + readable fallback, tags, explode/camera drivers, lights, probes.
-export { ExplodeDriver, GLYPH_DEPTH, GlyphWord, GpuStats, LabRig, PartTag, RoyalLights, key as glyphKey, useGlyphMap, useInView, useRounded };
+export { ExplodeDriver, GLYPH_DEPTH, GlyphWord, GpuStats, LabRig, PartTag, RoyalLights, key as glyphKey, useGlyphMap, useInstances, useInView, useRounded, useWordTexture };

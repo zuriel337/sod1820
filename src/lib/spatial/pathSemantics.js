@@ -46,7 +46,10 @@ export function pathOperandsText(path, { showValues = false, numeric = false, re
 // The badge a 3D scene puts next to the part that carries the path: the operation's sign and the shape/quantity term ("× 20"). Never a free-text guess.
 export function pathTagText(path, registry = NUMERIC_OPERATION_REGISTRY) {
   const { rest, lead, operatorSymbol } = pathPresentation(path, registry);
-  const q = path?.terms?.find(isShapeQuantity) || rest[0] || lead;
+  // every shape/quantity term of the path, in the declared order, joined by the operation's own sign ("× 6 × 10" for 6 faces × 10 repetitions of the word)
+  const shape = (path?.terms || []).filter(isShapeQuantity);
+  if (shape.length && operatorSymbol) return shape.map((t) => `${operatorSymbol} ${t.text}`).join(" ");
+  const q = shape[0] || rest[0] || lead;
   return q && operatorSymbol ? `${operatorSymbol} ${q.text}` : q ? q.text : "";
 }
 

@@ -1,5 +1,5 @@
 import { SPATIAL_MODELS } from "../spatialModels.js";
-import { deriveConvergencePaths, structureSpecFor } from "../spatialRenderModel.js";
+import { deriveConvergencePaths, drawableSpec, structureSpecFor } from "../spatialRenderModel.js";
 import { pathEquationText, semanticSummary } from "../spatial/pathSemantics.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { buildPublicWorldContentProjectionV1 } from "./publicWorldContentProjectionV1.js";
@@ -70,6 +70,15 @@ function cleanSourceRefs(model) {
   return [...new Set(refs.map((ref) => String(ref || "").trim()).filter(Boolean))];
 }
 
+// The shape family the 3D lab can draw for a model (null = none), from the model's own shape contract and operations — never from the slug.
+function labFamilyOf(model) {
+  const spec = structureSpecFor({ shapeIdentity: model.spatial?.shapeIdentity, regions: model.spatial?.regions, structuralProperties: model.spatial?.structuralProperties,
+    gematria: model.gematria, cubeFaceWord: model.cube?.faceWord, assignments: model.spatial?.assignments, cubeLayout: model.cube });
+  if (!spec) return null;
+  const paths = deriveConvergencePaths({ value: model.value, operations: model.spatial?.operations || [], gematria: model.gematria || [], quantities: model.spatial?.structuralProperties || [], assignments: model.spatial?.assignments || [] });
+  return drawableSpec(spec, paths)?.family || null;
+}
+
 // What each declared operation IS, for the shelf: the equation drawn from the typed operation (the registry's sign), and each part with its semantic role and origin.
 // An operation outside the supported grammar is shown as such — never as verified and never as a failed check.
 function operationsViewOf(model) {
@@ -114,8 +123,9 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
         regions: Array.isArray(model.spatial?.regions) ? model.spatial.regions : [], cubeFaceWord: model.cube?.faceWord || null },
       pathCount,
       // which shape family the 3D lab can draw for this model (null = none): derived from the model's own shape contract, never from the slug
-      labFamily: structureSpecFor({ shapeIdentity: model.spatial?.shapeIdentity, regions: model.spatial?.regions, structuralProperties: model.spatial?.structuralProperties,
-        gematria: model.gematria, cubeFaceWord: model.cube?.faceWord })?.family || null,
+      // a single solid (icosahedron, cube) is drawable only when one of the model's own operations is carried by it (a cube-shaped model whose operations never use its faces is not)
+      labFamily: labFamilyOf(model),
+      cubeLayout: Number.isInteger(model.cube?.cols) && Number.isInteger(model.cube?.rows) ? { cols: model.cube.cols, rows: model.cube.rows } : null,
       interpretation: model.midrash || null,
       source: {
         contributor: model.spatial?.provenance?.contributor || "צבי",
