@@ -238,3 +238,13 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 ### Later on 17.11.2026: the gatekeeper's country policy read (experiment, branch only)
 
 `S-50` in the JSON (counts: 50 entries, 48 merged, 2 branch-only). Same draft PR #1379. The edge middleware no longer makes a reader wait for the country policy read while its copy is under 60 minutes old: the read happens in the background. Protected Preview A/B, one request a minute for 18 minutes: at every 5-minute expiry the old read added 0.3–0.7 s, and the fix added nothing. Who is blocked does not change; a policy change reaches a quiet instance one request later. Write-up: `docs/reviews/post-document-cdn-20261117/README.md` section 14.
+
+### Night of 17.11.2026: S-49 and S-50 released (#1379)
+
+Merged `cff521e86`, deployed `dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2` (aliases moved from `dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r` at 21:01 UTC; build `2029-CzfHWys2`).
+
+- **S-49 (the Home and the chat on the CDN):** checked live: `MISS` then `HIT` with `page-cdn-v1`; query strings not kept.
+- **S-50 (the gatekeeper's country policy read):** checked live: `x-sod-country-policy` on every answer; bad bots still 403; good bots pass.
+- **Canary:** green.
+- **Counts:** 50 fixes, all merged and all in the live deployment; live behaviour verified for 23, not verified for 25, contradicted for 2.
+- **Field check pending:** middleware time by edge region before and after 21:00 UTC; the share of `waited` (new instances); the Home server wait by build.

@@ -527,3 +527,22 @@ Security checks on the treatment:
 Release it when you decide, together with the speed-centre field check. It removes the largest measured wait on the Home for readers outside the US, with no change to who is blocked. The only change is that a new policy reaches a quiet instance one request later.
 
 If the field check after the release shows many `waited` answers (new instances), the next step is a regional cached copy of the policy, so even a new instance does not read from Tokyo.
+
+### 14.9 Released (17.11.2026, ZURIEL "תעלה את שניהם")
+
+Both sections 13 and 14 were released in PR #1379:
+
+- merged as `cff521e86`;
+- deployed as `dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2`, with the three domains moved at 21:01 UTC from `dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r` (the rollback target).
+
+Live checks:
+
+- `/` `MISS`, then `HIT`, `HIT` (`page-cdn-v1`); `/community/chat` `MISS`, then `HIT`; `?fbclid` not kept;
+- `x-sod-country-policy: fresh` on every answer;
+- Googlebot and `facebookexternalhit` got the kept copy, with `vb=goodbot` set per request;
+- `python-requests` got 403;
+- the Post gate and cache behaved as after #1376;
+- the Home rendered in a phone-size browser;
+- the canary passed.
+
+The field check by edge region is the next step (14.6).
