@@ -230,3 +230,7 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 | `2029-BQKFETEH` | 84bdb23f9 (#1377) | dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r | live document (entry + sourceSha) with the alias, read 2026-11-17T18:13Z |
 
 **Open:** field before/after for S-47 and S-48 needs enough samples from these builds, compared by page kind and device with the window before (Speed Law rule 7); on the Home, Google's largest paint is now the pinned image although the content arrives sooner (candidate: the document carries the pinned card and its image hint, together with a kept Home document; experiment approved 17.11, isolated branch and protected Preview only); "עכשיו" rows still about 11 s on slow phones.
+
+### Later on 17.11.2026: the Home and the community chat on the CDN (experiment, branch only)
+
+`S-49` in the JSON (counts: 49 entries, 48 merged, 1 branch-only). Draft PR #1379, protected Preview `dpl_2VAQq1pgS7n1C21B7a6nXYkRyvzU`. The two documents are kept the same way as Post documents; nothing outside a deployment can change them. Measured from the test machine: about 30–65 ms faster. The large wait readers see on the Home is the edge middleware's country policy read, which the CDN does not remove (p75 0.77 s in `fra1`). Write-up: `docs/reviews/post-document-cdn-20261117/README.md` section 13.
