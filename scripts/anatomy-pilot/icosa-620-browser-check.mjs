@@ -127,7 +127,7 @@ try {
       await stage.locator('[data-discover-action="restart"]').click();
       await stage.locator("button.sod29-lab-medal[data-path-index='0']").click(); await page.waitForTimeout(1800);
       assert.equal(await h.getAttribute("data-explode"), "true", "discovery opens the layers (the faces)");
-      for (let i = 0; i < 3; i += 1) await stage.locator('[data-discover-action="next"]').click();
+      while (await stage.locator('[data-discover-action="next"]').count()) await stage.locator('[data-discover-action="next"]').click();
       assert.match(await stage.locator(".sod29-discovery__final").innerText(), /31 × 20 = 620[\s\S]*אומת ונספר/);
       await shot(stage, page, "ico-discovery-desktop-final");
     }

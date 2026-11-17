@@ -11,6 +11,7 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { AdditiveBlending, BackSide, Color, CubicBezierCurve3, DoubleSide, MeshPhysicalMaterial, Vector3 } from "three";
 import { buildGlyphAssetRef } from "../../lib/spatial/hebrewGlyphAssets.js";
 import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
+import { pathEquationText, pathOperandsText } from "../../lib/spatial/pathSemantics.js";
 import { CONVERGENCE_3D, fitCameraDistance, layoutConvergence3D, layoutPhraseLetters } from "../../lib/spatial/convergenceLayout3D.js";
 import { Controls, FALLBACK_COLORS, RoyalEnvironment, noRaycast, resolveTokenColors, useBadgeTexture, useGlyphGeometry, useHaloTexture, useTextTexture } from "./MistaterScene3D2029.jsx";
 
@@ -43,7 +44,7 @@ function PathNode({ node, path, colors, focused, onSelect }) {
   const off = dimmed(path);
   const opacity = off ? 0.5 : 1;
   const { letters, size } = useMemo(() => layoutPhraseLetters(path.phrase), [path.phrase]);
-  const label = useTextTexture([{ text: `${path.operand} × ${path.quantity}`, size: 40, y: 32, color: off ? colors.line : colors.accent, weight: 700 }], { width: 256, height: 64 });
+  const label = useTextTexture([{ text: pathOperandsText(path, { numeric: true }), size: 40, y: 32, color: off ? colors.line : colors.accent, weight: 700 }], { width: 256, height: 64 });
   const missing = useTextTexture([{ text: "—", size: 56, y: 32, color: colors.line, weight: 700 }], { width: 128, height: 64 });
   return <group position={[node.position.x, node.position.y, node.position.z]} name={path.id} data-status={path.status}
     onClick={(event) => { event.stopPropagation(); onSelect?.(node.index); }}>
@@ -136,7 +137,7 @@ export default function ConvergenceScene3D2029({ value, paths, verifiedCount, to
       <Controls target={camera.target} reducedMotion={motionReduced} />
     </Canvas>
     <ul className="sod29-spatial-method-stage__sr-only" aria-label="מסלולי ההתכנסות">
-      {paths.map((path) => <li key={path.id}>{path.phrase || "ללא ביטוי"} {path.operand} × {path.quantity} = {path.result} — {path.label}</li>)}
+      {paths.map((path) => <li key={path.id}>{pathEquationText(path, { showValues: true })} — {path.label}</li>)}
     </ul>
   </div>;
 }

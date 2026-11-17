@@ -94,7 +94,7 @@ const { buildRazielPathFocus, razielSampleQuestions } = await import("../src/lib
 const { createRazielRequestContextSnapshot } = await import("../src/lib/research/razielSessionRequest2029.js");
 
 test("selected-path context flows through the existing Raziel request snapshot unchanged in shape (no new field, no new contract)", () => {
-  const selected = paths[2];
+  const selected = { ...paths[2], status: "verified" }; // the app hands over an evaluated path
   const focus = buildRazielPathFocus({ card, path: selected, partInfo: describeStructurePart(selected, spec), statusLabel: null });
   assert.deepEqual(Object.keys(focus).sort(), ["numberCoreFocus", "readingFocus"], "only the two existing channels are filled");
   const snapshot = createRazielRequestContextSnapshot({ lens: "research", subject: { type: "zvi_card", id: card.slug, label: card.title } },
@@ -102,7 +102,11 @@ test("selected-path context flows through the existing Raziel request snapshot u
   assert.equal(snapshot.v, 1);
   assert.equal(snapshot.focus.number.root, String(card.value));
   assert.equal(snapshot.focus.number.result, selected.operand);
-  assert.equal(snapshot.focus.reading.primary, `${selected.operand} × ${selected.quantity} = ${selected.result}`);
+  // the structure travels in the bounded fields the normalizer keeps: the operation, each part with its ROLE and ORIGIN, the result
+  assert.match(snapshot.focus.reading.primary, /^כפל: טוב \(17, מנוע\) × 180 \(כמות מהמקור\) = 3060$/);
+  assert.match(snapshot.focus.reading.label, /מחומש פנימי · כפל · מנוע: טוב=17 · טוב|מנוע: טוב=17/);
+  assert.match(snapshot.focus.reading.label, /source claim\/diagram/);
+  assert.equal("signals" in snapshot.focus.reading, false, "signals are NOT part of the normalized request — that is why roles/origins are packed into label/primary");
   assert.ok(snapshot.focus.reading.label.length > 0 && snapshot.focus.reading.label.length <= 120);
   assert.match(snapshot.description, new RegExp(String(selected.operand)));
   assert.deepEqual(Object.keys(snapshot).filter((k) => !["v", "surface", "lens", "subjectHref", "subject", "focus", "journey", "sourceNames", "capturedAt", "description", "surfaceContext"].includes(k)), [], "no foreign key leaks into the snapshot");
@@ -118,10 +122,11 @@ test("every path (including the unverified 765 and the relation layer) yields a 
   assert.equal(buildRazielPathFocus({ card, path: null }), null);
 });
 
-test("the five sample questions are plain text for the existing chat: no action, no calculation outside the model", () => {
-  const qs = razielSampleQuestions(paths[0], card.value);
-  assert.equal(qs.length, 5);
-  assert.match(qs[0], new RegExp(`${paths[0].operand}.*${paths[0].quantity}.*${card.value}`));
+test("the sample questions are plain text for the existing chat and name what is on screen (sign, source of a number, engine vs geometry, how V is reached, difference between paths)", () => {
+  const qs = razielSampleQuestions(paths[0], card.value, { pathsCount: paths.length });
+  assert.deepEqual(qs.slice(0, 4), ["למה יש כאן סימן כפל?", "מה המקור של המספר 6?", "איזה ערכים מחושבים בגימטריה ואילו מגיעים מהגיאומטריה?", "איך מגיעים ל־3060?"]);
+  assert.ok(qs.includes("מה ההבדל בין שני מסלולים?")); assert.ok(qs.includes("איפה אפשר לראות את המקור?"));
+  assert.equal(razielSampleQuestions(paths[0], card.value, { pathsCount: 1 }).includes("מה ההבדל בין שני מסלולים?"), false, "no 'two paths' question when there is one path");
   assert.ok(qs.every((q) => typeof q === "string" && !/\{|\}|\$\{/.test(q)));
 });
 

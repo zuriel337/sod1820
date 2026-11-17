@@ -72,11 +72,12 @@ test("765 stays unverified in every presentation: not counted, never promoted, r
   assert.equal(rows.filter((r) => r.counted).length, 4);
   const steps = buildRevealSteps(row765);
   assert.equal(steps[0].kind, "missing"); assert.equal(steps[1].kind, "unverified");
-  assert.equal(steps[3].kind, "declared"); assert.match(steps[3].note, /לא אומתה במנוע ולא נספרת/);
+  assert.equal(steps.at(-1).kind, "declared"); assert.match(steps.at(-1).note, /לא אומתה במנוע ולא נספרת/);
   assert.equal(steps.some((s) => s.kind === "result" || s.kind === "engine"), false);
+  assert.ok(steps.some((s) => s.kind === "operation"), "the operation is explained as a step, named as an operation");
   const verifiedSteps = buildRevealSteps(rows.find((r) => r.phrase === "ישר"));
-  assert.deepEqual(verifiedSteps.map((s) => s.kind), ["text", "engine", "quantity", "result"]);
-  assert.deepEqual(verifiedSteps.map((s) => s.text), ["ישר", 510, 6, 3060]);
+  assert.deepEqual(verifiedSteps.map((s) => s.kind), ["text", "engine", "quantity", "operation", "result"]);
+  assert.deepEqual(verifiedSteps.map((s) => s.text), ["ישר", 510, 6, "כפל ×", 3060]);
 });
 
 test("the main structure is framed without being widened by the relation layer, and the plaque stays inside the shot", () => {

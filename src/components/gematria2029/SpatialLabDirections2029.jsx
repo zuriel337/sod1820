@@ -80,10 +80,10 @@ function PartFacts({ row }) {
   </>;
 }
 
-function RazielBlock({ row, value, onAskRaziel }) {
+function RazielBlock({ row, value, onAskRaziel, pathsCount = 1 }) {
   const [copied, setCopied] = useState(null);
   if (!onAskRaziel) return null;
-  const questions = razielSampleQuestions({ operand: row.operand, quantity: row.quantity }, value);
+  const questions = razielSampleQuestions(row.path, value, { pathsCount });
   const copy = async (text, i) => { try { await navigator.clipboard.writeText(text); setCopied(i); setTimeout(() => setCopied(null), 1600); } catch { setCopied(null); } };
   return <div className="sod29-lab-raziel">
     <button type="button" className="r29-btn is-primary" data-lab-action="raziel" onClick={onAskRaziel}><NavigationIcon2029 name="spark" /> שאל את רזיאל על המסלול</button>
@@ -98,15 +98,15 @@ function RazielBlock({ row, value, onAskRaziel }) {
 function PathMedals({ rows, index, onPick, hint }) {
   return <div className="sod29-lab-medals" role="group" aria-label="בחירת מסלול" data-lab-medals="true">
     {rows.map((row) => <button key={row.id} type="button" className="sod29-lab-medal" data-path-index={row.index} data-status={row.status} aria-pressed={row.index === index}
-      aria-label={`${STRUCTURE_PART_LABEL[row.part]}: ${row.phrase || "ללא ביטוי"}, ${row.operand} כפול ${row.quantity}. ${row.statusLabel}`} onClick={() => onPick(row.index)}>
-      <span className="sod29-lab-medal__qty">× <Num>{row.quantity}</Num></span>
+      aria-label={`${STRUCTURE_PART_LABEL[row.part]}: ${row.ariaLabel}`} onClick={() => onPick(row.index)}>
+      <span className="sod29-lab-medal__qty"><Num>{row.tag}</Num></span>
       <span className="sod29-lab-medal__part">{STRUCTURE_PART_LABEL[row.part]}</span>
     </button>)}
     {hint ? <p className="sod29-lab-hint">{hint}</p> : null}
   </div>;
 }
 
-const EQUATION = (row) => <Num>{row.operand} × {row.quantity} = {row.result}</Num>;
+const EQUATION = (row) => <Num>{row.equationText}</Num>;
 
 // ---------------------------------------------------------------- A · Royal Museum
 export function MuseumPanel({ rows, index, onPick, value, onAskRaziel }) {
@@ -124,7 +124,7 @@ export function MuseumPanel({ rows, index, onPick, value, onAskRaziel }) {
       <summary>מקור ופירוט</summary>
       <PartFacts row={row} />
       <PathSourceBlock row={row} />
-      <RazielBlock row={row} value={value} onAskRaziel={onAskRaziel} />
+      <RazielBlock row={row} value={value} onAskRaziel={onAskRaziel} pathsCount={rows.length} />
     </details>
   </section>;
 }
@@ -146,7 +146,7 @@ export function DiscoveryPanel({ rows, index, discover, onDiscover, onPick, valu
       <ol className="sod29-discovery__steps">
         {shown.map((step, i) => <li key={step.id} data-kind={step.kind} data-latest={i === shown.length - 1 ? "true" : "false"}>
           <small>{i + 1} · {step.title}</small>
-          <strong>{step.kind === "text" || step.kind === "missing" ? step.text : <Num>{step.kind === "quantity" ? `× ${step.text}` : step.text}</Num>}</strong>
+          <strong>{step.kind === "text" || step.kind === "missing" || step.kind === "operation" ? step.text : <Num>{step.display ?? step.text}</Num>}</strong>
           {step.note ? <em>{step.note}</em> : null}
         </li>)}
       </ol>
@@ -156,7 +156,7 @@ export function DiscoveryPanel({ rows, index, discover, onDiscover, onPick, valu
         {!done ? <button type="button" className="r29-btn is-quiet" data-discover-action="all" onClick={() => onDiscover(steps.length - 1)}>הצג הכול</button> : null}
         <button type="button" className="r29-btn is-quiet" data-discover-action="restart" onClick={() => onDiscover(-1)}>חזרה להתחלה</button>
       </div>
-      {done ? <details className="sod29-lab-more"><summary>מקור ופירוט</summary><PartFacts row={row} /><PathSourceBlock row={row} />{ledger}<RazielBlock row={row} value={value} onAskRaziel={onAskRaziel} /></details> : null}
+      {done ? <details className="sod29-lab-more"><summary>מקור ופירוט</summary><PartFacts row={row} /><PathSourceBlock row={row} />{ledger}<RazielBlock row={row} value={value} onAskRaziel={onAskRaziel} pathsCount={rows.length} /></details> : null}
     </> : null}
   </section>;
 }
@@ -188,6 +188,6 @@ export function ResearchPanel({ rows, index, onPick, value, onAskRaziel, ledger 
       {tab === "source" ? <PathSourceBlock row={row} /> : null}
       {tab === "data" ? <PartFacts row={row} /> : null}
     </div>
-    <RazielBlock row={row} value={value} onAskRaziel={onAskRaziel} />
+    <RazielBlock row={row} value={value} onAskRaziel={onAskRaziel} pathsCount={rows.length} />
   </section>;
 }

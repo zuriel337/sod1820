@@ -139,7 +139,7 @@ try {
       assert.equal(await h.getAttribute("data-explode"), "true", "discovery opens the layers");
       assert.equal(await stage.locator(".sod29-discovery__steps li").count(), 1);
       await shot(stage, page, "v2-discovery-desktop-step1");
-      for (let i = 0; i < 3; i += 1) await stage.locator('[data-discover-action="next"]').click();
+      while (await stage.locator('[data-discover-action="next"]').count()) await stage.locator('[data-discover-action="next"]').click();
       assert.match(await stage.locator(".sod29-discovery__final").innerText(), /17 × 180 = 3060[\s\S]*אומת ונספר/);
       await shot(stage, page, "v2-discovery-desktop-final");
       // the unverified path is never promoted

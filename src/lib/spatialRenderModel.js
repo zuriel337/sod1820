@@ -9,6 +9,9 @@
 // this file family. Everything specimen-specific (assignment word, quantity, side-count, result) is
 // read from the model; nothing here is a literal drawn from any one fixture.
 
+import { FORMULA_STATUS, SEMANTIC_ROLE, analyzeFormulaText, analyzeOperationSpec, evaluateFormula, formulaTokens, formulaToText, tokensToText } from "./research/numericOperationTree.js";
+import { NUMERIC_OPERATION_REGISTRY } from "./research/numericArithmeticOperations.js";
+
 export function regionFor(regions, role) {
   return (regions || []).find(r => r.role === role) || null;
 }
@@ -57,57 +60,124 @@ export function isCompoundPentagonModel(spatial) {
 }
 
 
-// ---- Multi-path convergence (Spatial v2 contract: path_i = inputs + quantities + operations -> V) ----
-// Pure and renderer-independent. Reads only what the model declares: operations[{expression "a × b", result}], the phrases listed in
-// gematria[[phrase, value]] and structuralProperties[{key, value, provenance}] (quantity provenance). It never calculates gematria:
-// the operand's phrase value must be confirmed by the canonical engine trace (see evaluateConvergencePaths).
-export function deriveConvergencePaths({ value, operations = [], gematria = [], quantities = [] } = {}) {
-  const phraseByValue = new Map();
+// ---- Multi-path convergence (Spatial v2 contract: path_i = inputs + quantities + operation -> V) ----
+// Pure and renderer-independent. Reads only what the model declares: operations[{operationKey, inputs[], expression, result}], the phrases listed in
+// gematria[[phrase, value]] and structuralProperties[{key, value, provenance}] (quantity provenance). It never calculates gematria: an Expression operand's
+// value must be confirmed by the canonical engine trace (see evaluateConvergencePaths).
+//
+// Semantic Mathematical Understanding: the arithmetic is read by the ONE shared parser/evaluator (research/numericOperationTree.js, registry in
+// research/numericArithmeticOperations.js — research_intake_foundation_contract_law §6.10/§14.3). A path no longer assumes "two integers and a ×": it carries the
+// typed operation (`operationKey`, `operatorSymbol` from the registry), its TERMS with a semantic role (expression / value / quantity / geometry), and the token
+// stream every consumer renders from. The legacy fields (phrase, operand, quantity, …) remain, derived from the roles, for the existing consumers.
+const termOf = (node, declared) => {
+  if (node.kind === "expression") return { role: SEMANTIC_ROLE.EXPRESSION, text: node.text, value: declared[node.text] ?? null };
+  if (node.kind === "quantity") return { role: node.role || SEMANTIC_ROLE.QUANTITY, text: String(node.value), value: Number(node.value), origin: node.provenance || null, key: node.key || null };
+  if (node.kind === "number") return { role: SEMANTIC_ROLE.VALUE, text: String(node.value), value: Number(node.value), declaredOnly: Boolean(node.declaredOnly) };
+  return { role: "derived", text: formulaToText({ sides: [node] }), value: null };
+};
+
+// A model that does not declare `inputs` (legacy text) gets its roles from value matching — never a guess between two candidates:
+// a number that equals exactly one declared structural quantity is that quantity; a number that equals a declared phrase value (when the other operand
+// is not already that phrase) is that phrase. Models should declare `inputs` (the explicit, reviewable form).
+function roleLegacyOperands(node, { declared, quantities }) {
+  if (!node || node.kind !== "op") return { node, ambiguous: false };
+  let ambiguous = false;
+  const operands = node.operands.map((operand) => {
+    if (operand.kind !== "number") return operand;
+    const q = quantities.filter((item) => Number(item?.value) === Number(operand.value));
+    if (q.length === 1 && node.operands.some((o) => o !== operand)) return { kind: "quantity", key: q[0].key, value: Number(operand.value), provenance: q[0].provenance || null, role: /geometry/i.test(q[0].provenance || "") ? SEMANTIC_ROLE.GEOMETRY : SEMANTIC_ROLE.QUANTITY };
+    if (q.length > 1) ambiguous = true;
+    return operand;
+  });
+  return { node: { ...node, operands }, ambiguous };
+}
+
+export function deriveConvergencePaths({ value, operations = [], gematria = [], quantities = [], assignments = [], registry = NUMERIC_OPERATION_REGISTRY } = {}) {
+  const declared = {}, phraseByValue = new Map();
   for (const entry of gematria) {
     const [phrase, phraseValue] = Array.isArray(entry) ? entry : [];
-    if (phrase && Number.isFinite(Number(phraseValue)) && !phraseByValue.has(Number(phraseValue))) phraseByValue.set(Number(phraseValue), String(phrase));
+    if (!phrase || !Number.isFinite(Number(phraseValue))) continue;
+    if (!(phrase in declared)) declared[phrase] = Number(phraseValue);
+    if (!phraseByValue.has(Number(phraseValue))) phraseByValue.set(Number(phraseValue), String(phrase));
   }
+  const declaredValues = Object.fromEntries(Object.entries(declared).map(([text, v]) => [text, { value: v, state: "verified" }]));
+  const model = { gematria, structuralProperties: quantities, assignments };
   return operations.map((operation, index) => {
-    const match = /^\s*(\d+)\s*[×x*]\s*(\d+)\s*$/.exec(String(operation?.expression || ""));
-    const base = { id: `path:${index}`, index, expression: String(operation?.expression || ""), result: Number(operation?.result) };
-    if (!match) return { ...base, parsed: false, phrase: null, resultMatches: false };
-    let operand = Number(match[1]);
-    let quantity = Number(match[2]);
-    // A product is commutative and the model may write it either way ("510 × 6" = value × quantity, "20 × 31" = quantity × value). The orientation is
-    // chosen from what the model DECLARES: swapped only when the first factor has no declared phrase, the second does, and the first is a declared
-    // structural quantity. Otherwise the written order stands (so no existing path changes).
-    let swapped = false;
-    if (!phraseByValue.has(operand) && phraseByValue.has(quantity) && quantities.some((item) => Number(item?.value) === operand)) { [operand, quantity] = [quantity, operand]; swapped = true; }
-    // exact attribution: a quantity is attributed to a declared property only when ONE property carries that value (no guessing between two)
-    const candidates = quantities.filter((item) => Number(item?.value) === quantity);
-    const property = candidates.length === 1 ? candidates[0] : null;
+    const expression = String(operation?.expression || "");
+    const base = { id: `path:${index}`, index, operationId: operation?.id || null, expression, result: Number(operation?.result) };
+    const structured = Array.isArray(operation?.inputs);
+    let analysis, ambiguous = false;
+    const context = { expressionValues: declaredValues, registry, trustLiterals: true };
+    if (structured) analysis = analyzeOperationSpec(operation, model, context);
+    else {
+      analysis = analyzeFormulaText(/=/.test(expression) ? expression : `${expression} = ${Number.isFinite(base.result) ? base.result : ""}`, context);
+      if (analysis.formula) {
+        const first = analysis.formula.sides[0];
+        const mapped = roleLegacyOperands(first, { declared, quantities });
+        ambiguous = mapped.ambiguous;
+        // a bare number equal to a declared phrase value is that phrase's (declared) value — legacy text formulas only
+        if (mapped.node.kind === "op") mapped.node.operands = mapped.node.operands.map((o) => (o.kind === "number" && phraseByValue.has(Number(o.value)) && !mapped.node.operands.some((x) => x.kind === "expression" && declared[x.text] === Number(o.value)) ? { kind: "expression", text: phraseByValue.get(Number(o.value)) } : o));
+        analysis = { ...analysis, formula: { ...analysis.formula, sides: [mapped.node, ...analysis.formula.sides.slice(1)] } };
+        const ev = evaluateFormula(analysis.formula, context);
+        analysis = { ...analysis, evaluation: ev, status: ev.status, tokens: ev.status === FORMULA_STATUS.UNSUPPORTED ? [] : formulaTokens(analysis.formula, ev, { registry }) };
+      }
+    }
+    const top = analysis.formula?.sides?.[0];
+    if (analysis.status === FORMULA_STATUS.UNSUPPORTED || !analysis.formula || top?.kind !== "op") {
+      const code = analysis.code || "not_an_operation";
+      return { ...base, parsed: false, formulaStatus: "unsupported", unsupportedCode: code, unsupportedReason: analysis.reason || "הנוסחה אינה פעולה נתמכת", operationKey: operation?.operationKey || null, operatorSymbol: null,
+        terms: [], expressions: [], phrase: null, resultMatches: false };
+    }
+    const terms = top.operands.map((operand) => termOf(operand, declared));
+    const exprTerm = terms.find((t) => t.role === SEMANTIC_ROLE.EXPRESSION) || null;
+    const qTerm = terms.find((t) => t.role === SEMANTIC_ROLE.QUANTITY || t.role === SEMANTIC_ROLE.GEOMETRY) || null;
+    const valueTerm = exprTerm || terms.find((t) => t.role === SEMANTIC_ROLE.VALUE) || null;
+    const quantityCandidates = quantities.filter((item) => qTerm && Number(item?.value) === Number(qTerm.value));
     return {
-      ...base, parsed: true, operand, quantity, orientation: swapped ? "quantity_first" : "value_first",
-      phrase: phraseByValue.get(operand) || null,
-      // Declared-operation consistency only (the model states the result; this guards against a mismatching declaration).
-      resultMatches: operand * quantity === base.result && base.result === Number(value),
-      quantityKey: property?.key || null,
-      quantityProvenance: property?.provenance || null,
-      quantityAmbiguous: candidates.length > 1,
+      ...base, parsed: true, formulaStatus: "supported", formula: analysis.formula,
+      operationKey: top.key, operatorSymbol: registry.symbol(top.key), terms, expressions: [...new Set(terms.filter((t) => t.role === SEMANTIC_ROLE.EXPRESSION).map((t) => t.text))],
+      equationTokens: analysis.tokens, equationText: tokensToText(analysis.tokens),
+      // legacy fields, derived from the typed terms
+      operand: valueTerm?.value ?? null, phrase: exprTerm?.text ?? null, quantity: qTerm?.value ?? null,
+      orientation: terms[0] && (terms[0].role === SEMANTIC_ROLE.QUANTITY || terms[0].role === SEMANTIC_ROLE.GEOMETRY) && exprTerm ? "quantity_first" : "value_first",
+      // Declared-operation consistency only (the model's own arithmetic): the evaluation with the model's declared phrase values reaches the declared result and the card's value.
+      resultMatches: analysis.status === FORMULA_STATUS.VERIFIED && base.result === Number(value),
+      quantityKey: qTerm?.key || null, quantityProvenance: qTerm?.origin || null, quantityAmbiguous: structured ? false : (ambiguous || quantityCandidates.length > 1 && !qTerm?.key),
     };
   });
 }
 
-// status per path: "verified" (engine-confirmed phrase value + consistent declared operation), "no_phrase" (no phrase is declared for the
-// operand), "pending" (trace not loaded yet), "unavailable" (trace missing/failed/mismatched), "inconsistent" (declared result disagrees).
-// Only "verified" paths are counted; nothing is ever promoted from an unverified path.
-export function evaluateConvergencePaths(paths, traces, isVerified) {
+// status per path: "verified" (engine-confirmed expression values + the arithmetic re-evaluated to the declared result), "no_phrase" (an operand has no declared expression
+// to confirm), "pending" (trace not loaded yet), "unavailable" (trace missing/failed/mismatched), "inconsistent" (the model's declared result disagrees with the evaluated one),
+// "unsupported" (the formula is outside the supported grammar — it is shown, labelled, and NEVER as verified or as a failed check). Only "verified" paths are counted;
+// nothing is ever promoted from an unverified path.
+export function evaluateConvergencePaths(paths, traces, isVerified, { registry = NUMERIC_OPERATION_REGISTRY } = {}) {
   const evaluated = paths.map((path) => {
+    if (path.formulaStatus === "unsupported" || path.parsed === false && path.unsupportedCode) return { ...path, status: "unsupported" };
     if (!path.parsed || !path.resultMatches) return { ...path, status: "inconsistent" };
-    if (!path.phrase) return { ...path, status: "no_phrase" };
-    const entry = traces?.[path.phrase];
-    if (!entry || entry.state === "loading") return { ...path, status: "pending" };
-    const verified = entry.state === "ready" && isVerified(entry.trace, { expression: path.phrase, methodKey: "רגיל", expectedValue: path.operand });
-    return { ...path, status: verified ? "verified" : "unavailable", trace: verified ? entry.trace : null };
+    const exprs = path.expressions || [];
+    const engine = {};
+    let pending = false, unavailable = false;
+    for (const text of exprs) {
+      const entry = traces?.[text];
+      const declaredValue = path.terms.find((t) => t.role === SEMANTIC_ROLE.EXPRESSION && t.text === text)?.value;
+      if (!entry || entry.state === "loading") { pending = true; continue; }
+      const verified = entry.state === "ready" && isVerified(entry.trace, { expression: text, methodKey: "רגיל", expectedValue: declaredValue });
+      if (!verified) { unavailable = true; continue; }
+      engine[text] = { value: declaredValue, state: "verified", trace: entry.trace };
+    }
+    const hasUnconfirmedLiteral = path.terms.some((t) => t.declaredOnly);
+    if (!exprs.length || hasUnconfirmedLiteral) return { ...path, status: "no_phrase" };
+    if (pending) return { ...path, status: "pending" };
+    if (unavailable) return { ...path, status: "unavailable" };
+    const evaluation = evaluateFormula(path.formula, { expressionValues: Object.fromEntries(Object.entries(engine).map(([t, e]) => [t, { value: e.value, state: e.state }])), registry });
+    const status = evaluation.status === FORMULA_STATUS.VERIFIED ? "verified" : evaluation.status === FORMULA_STATUS.UNSUPPORTED ? "unsupported" : "inconsistent";
+    const traceByText = Object.fromEntries(Object.entries(engine).map(([t, e]) => [t, e.trace]));
+    return { ...path, status, evaluation, steps: evaluation.sides[0]?.steps || [], traces: traceByText, trace: status === "verified" ? traceByText[path.phrase] || Object.values(traceByText)[0] || null : null,
+      equationTokens: formulaTokens(path.formula, evaluation, { registry }) };
   });
   return { paths: evaluated, verifiedCount: evaluated.filter((path) => path.status === "verified").length, total: evaluated.length };
 }
-
 
 // ---- Structure binding for the compound pentagon family (Spatial v2 contract: regions / quantity provenance) ----
 // Pure, renderer-independent. Turns model.spatial.regions + the cube leg into a render SPEC and binds each already-derived convergence path

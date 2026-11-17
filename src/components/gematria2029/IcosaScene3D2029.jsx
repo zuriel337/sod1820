@@ -14,6 +14,7 @@ import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { layoutPhraseLetters } from "../../lib/spatial/convergenceLayout3D.js";
 import { ICOSA_3D, facePlacement, faceFrame, faceTriangle2D, icosaConnectorPoints, icosaFocusPose, icosaOverviewPose, icosahedronSolid } from "../../lib/spatial/icosahedronLayout3D.js";
 import { ROYAL_LAB_DIRECTIONS } from "../../lib/spatial/royalLabDirections.js";
+import { pathEquationText, pathTagText } from "../../lib/spatial/pathSemantics.js";
 import { Controls, FALLBACK_COLORS, RoyalEnvironment, noRaycast, resolveTokenColors, useBadgeTexture, useRoyalMaterials } from "./MistaterScene3D2029.jsx";
 import { Apex, PathConnector } from "./ConvergenceScene3D2029.jsx";
 import { ExplodeDriver, GLYPH_DEPTH, GlyphWord, GpuStats, LabRig, PartTag, RoyalLights, useGlyphMap, useInView } from "./StructureScene3D2029.jsx";
@@ -129,7 +130,7 @@ export default function IcosaScene3D2029({
         hover={{ onPointerOver: (event) => { event.stopPropagation(); document.body.style.cursor = "pointer"; if (royal) setHover(f.index); }, onPointerOut: () => { document.body.style.cursor = ""; if (royal) setHover((now) => (now === f.index ? null : now)); } }} />)}
       <mesh position={[0, ICOSA_3D.plinthY, 0]} material={mats.plinth} receiveShadow={rig.shadows} raycast={noRaycast}><cylinderGeometry args={[110, 124, 9, 56]} /></mesh>
       <mesh position={[0, ICOSA_3D.plinthY + 5.4, 0]} rotation={[Math.PI / 2, 0, 0]} material={mats.trim.base} raycast={noRaycast}><torusGeometry args={[110, 1.4, 8, 72]} /></mesh>
-      <PartTag position={[ICOSA_3D.radius * 0.72, ICOSA_3D.radius + 52, 0]} text={`× ${spec.faces}`} colors={colors} state={tagState} />
+      <PartTag position={[ICOSA_3D.radius * 0.72, ICOSA_3D.radius + 52, 0]} text={path ? pathTagText(path) : String(spec.faces)} colors={colors} state={tagState} />
       <sprite position={[0, ICOSA_3D.plinthY + 44, 0]} scale={[100, 25, 1]}><spriteMaterial map={badge} transparent depthWrite={false} /></sprite>
       <PathConnector connector={connector} path={fallbackPath} colors={colors} focused />
       <Apex apex={ICOSA_3D.apex} value={value} verifiedCount={verifiedCount} total={total} colors={colors} labelSide="above" />
@@ -138,7 +139,7 @@ export default function IcosaScene3D2029({
       <LabRig view={view} part={`solid:${face ?? 0}`} explode={explodeValue} resetToken={resetToken} spin={spin} active={active} reduced={motionReduced} controlsRef={controlsRef} pose={pose} poses={poses} />
     </Canvas>
     <ul className="sod29-spatial-method-stage__sr-only" aria-label="המסלול ופאות העשרימון">
-      {paths.map((p) => <li key={p.id}>{p.phrase || "ללא ביטוי"} {p.operand} × {p.quantity} = {p.result} · {p.partLabel} — {p.label}</li>)}
+      {paths.map((p) => <li key={p.id}>{pathEquationText(p, { showValues: true })} · {p.partLabel} — {p.label}</li>)}
       <li>{spec.faces} פאות, על כל פאה «{spec.word}»{face === null ? "" : `; נבחרה פאה ${face + 1}`}</li>
     </ul>
   </div>;

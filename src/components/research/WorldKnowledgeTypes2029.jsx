@@ -218,9 +218,15 @@ function SpatialShelf({ projection }) {
         <ol className="sod29-world-spatial-layers">
           <li><strong>מקור</strong><span>{card.text?.ref || "ממצא צבי"}</span></li>
           <li><strong>גימטריה</strong><span>{card.gematria.map(([label, value]) => `${label} = ${value}`).join(" · ")}</span></li>
-          <li><strong>מבנה</strong><span>{card.operations.map((operation) => operation.expression).join(" · ")}</span></li>
+          <li><strong>מבנה</strong><span>{(card.operationsView?.length ? card.operationsView.map((operation) => operation.text) : card.operations.map((operation) => operation.expression)).join(" · ")}</span></li>
           <li><strong>צורה</strong><span>{card.form}{card.dimension ? ` · ${card.dimension}` : ""}</span></li>
         </ol>
+        {card.operationsView?.length ? <details data-operation-breakdown={card.slug}><summary>פירוק החישוב לפי תפקיד</summary>
+          <ul>{card.operationsView.map((operation) => <li key={operation.id} data-supported={operation.supported ? "true" : "false"}>
+            {operation.supported
+              ? <><strong>{operation.operationLabel}: <bdi dir="ltr">{operation.text}</bdi></strong> {operation.parts.map((part) => `${part.roleLabel} ${part.text}${part.role === "expression" && part.value != null ? ` = ${part.value}` : ""} (${part.origin})`).join(" · ")}</>
+              : <><strong>{operation.text}</strong> נוסחה שאינה נתמכת{operation.reason ? ` — ${operation.reason}` : ""}; מוצגת בלי אימות.</>}
+          </li>)}</ul></details> : null}
         {card.interpretation ? <details><summary>הפרשנות של המקור</summary><p>{card.interpretation}</p></details> : null}
         <details><summary>הופעות מקור מדויקות · {card.source.occurrenceCount}</summary><ul>{card.source.locators.map((item) => <li key={item.ref}><Link to={item.href}>{item.exact ? "פתח את ההופעה בספריית צבי" : "פתח את ספריית צבי"}</Link> · <code dir="ltr">{item.ref}</code></li>)}</ul></details>
         <ConvergenceOpen card={card} />

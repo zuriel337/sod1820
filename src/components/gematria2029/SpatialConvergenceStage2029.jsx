@@ -10,6 +10,7 @@ import { useStepPlayer } from "./useStepPlayer.js";
 import { LabControls, LabPartInfo } from "./SpatialLabPanel2029.jsx";
 import { DirectionSwitcher, DiscoveryPanel, LabMoreMenu, LabPrimaryBar, MuseumPanel, ResearchPanel } from "./SpatialLabDirections2029.jsx";
 import { buildLabRows } from "../../lib/spatial/labRows.js";
+import { pathAriaLabel, pathEquationText, pathPresentation, semanticSummary } from "../../lib/spatial/pathSemantics.js";
 import { ROYAL_LAB_DIRECTIONS, pickLabQuality, resolveRoyalLabDirection } from "../../lib/spatial/royalLabDirections.js";
 import "../experience2029/royal2029.css";
 import "./spatialMethodStage2029.css";
@@ -25,6 +26,7 @@ const STATUS_LABEL = Object.freeze({
   no_phrase: "אין ביטוי מאומת למספר הזה",
   unavailable: "אימות המנוע אינו זמין",
   inconsistent: "הפעולה המוצהרת אינה עקבית",
+  unsupported: "הנוסחה אינה נתמכת — מוצגת בלי אימות",
 });
 const PLAY_MS = 1100;
 
@@ -56,16 +58,18 @@ function PathList({ paths, index, goTo, reached }) {
     {paths.map((path, i) => {
       const active = i === index;
       const lit = i < reached;
-      return <li key={path.id} data-status={path.status} data-lit={lit ? "true" : "false"}>
+      // the row is drawn from the typed operation: the sign is the registry's symbol for the path's operation_key, the terms keep their roles
+      const { lead, rest, operatorSymbol } = pathPresentation(path);
+      return <li key={path.id} data-status={path.status} data-lit={lit ? "true" : "false"} data-operation={path.operationKey || ""}>
         <button type="button" data-path-index={i} tabIndex={active ? 0 : -1} aria-pressed={active} className={active ? "is-focus" : undefined}
-          aria-label={`${path.phrase || "ללא ביטוי"}, ${path.operand} כפול ${path.quantity} שווה ${path.result}. ${STATUS_LABEL[path.status]}`}
+          aria-label={path.formulaStatus === "unsupported" ? `${path.expression}. ${STATUS_LABEL[path.status]}` : pathAriaLabel(path, STATUS_LABEL[path.status])}
           onClick={() => goTo(i)}>
           <span className="sod29-spatial-convergence__phrase">
-            {path.phrase ? <b><HebrewGlyph2029 text={path.phrase} /></b> : <b className="is-missing">—</b>}
-            <small><bdi dir="ltr">{path.operand}</bdi></small>
+            {lead?.role === "expression" ? <b><HebrewGlyph2029 text={lead.text} /></b> : <b className="is-missing">—</b>}
+            <small><bdi dir="ltr">{lead ? (lead.role === "expression" ? lead.value : lead.text) : path.expression}</bdi></small>
           </span>
-          <span className="sod29-spatial-convergence__times" aria-hidden="true">×</span>
-          <span className="sod29-spatial-convergence__quantity"><b>{path.quantity}</b></span>
+          <span className="sod29-spatial-convergence__times" aria-hidden="true">{operatorSymbol || ""}</span>
+          <span className="sod29-spatial-convergence__quantity"><b>{rest.map((t) => (t.role === "expression" ? t.text : t.text)).join(` ${operatorSymbol} `)}</b></span>
           <span className="sod29-spatial-convergence__status">{STATUS_LABEL[path.status]}</span>
         </button>
       </li>;
@@ -73,10 +77,20 @@ function PathList({ paths, index, goTo, reached }) {
   </ol>;
 }
 
+// the ledger of every expression of the path (a sum of two phrases has two): same shared S2 stage, one details per expression
+function LedgerFor({ path }) {
+  const terms = (path.terms || []).filter((t) => t.role === "expression");
+  if (path.status !== "verified" || !terms.length) return null;
+  return <>{terms.map((t) => <details key={t.text} className="sod29-spatial-convergence__ledger">
+    <summary>איך הגענו ל־{t.value}?</summary>
+    <SpatialMethodStage2029 expression={t.text} methodKey="רגיל" trace={path.traces?.[t.text] || path.trace} expectedValue={t.value} depth="S2" />
+  </details>)}</>;
+}
+
 export default function SpatialConvergenceStage2029({ card, traces: injectedTraces = null, depth = "S2", onRazielAction = null }) {
   const rootRef = useRef(null);
-  const derived = useMemo(() => deriveConvergencePaths({ value: card?.value, operations: card?.operations, gematria: card?.gematria, quantities: card?.quantities }), [card]);
-  const phrases = useMemo(() => [...new Set(derived.map((path) => path.phrase).filter(Boolean))], [derived]);
+  const derived = useMemo(() => deriveConvergencePaths({ value: card?.value, operations: card?.operations, gematria: card?.gematria, quantities: card?.quantities, assignments: card?.assignments }), [card]);
+  const phrases = useMemo(() => [...new Set(derived.flatMap((path) => path.expressions || []))], [derived]);
   const traces = useTraces(phrases, injectedTraces);
   const { paths, verifiedCount, total } = useMemo(() => evaluateConvergencePaths(derived, traces, isVerifiedMethodTrace), [derived, traces]);
   const player = useStepPlayer(rootRef, paths.length, PLAY_MS);
@@ -131,10 +145,8 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
   const pending = paths.some((path) => path.status === "pending");
   // a model that is not the compound pentagon family has no structure to direct: it keeps the previous (V1) chrome
   const dir = spec ? direction : ROYAL_LAB_DIRECTIONS.v1;
-  const ledgerNode = focus.status === "verified" ? <details className="sod29-spatial-convergence__ledger">
-    <summary>איך הגענו ל־{focus.operand}?</summary>
-    <SpatialMethodStage2029 expression={focus.phrase} methodKey="רגיל" trace={focus.trace} expectedValue={focus.operand} depth="S2" />
-  </details> : null;
+  const ledgerNode = focus.status === "verified" ? <LedgerFor path={focus} /> : null;
+  const focusSummary = semanticSummary(focus);
   // RTL: ArrowLeft goes to the next path (reading order right→left), ArrowRight back.
   const onKeyDown = (event) => {
     const from = Number(event.target?.closest?.("[data-path-index]")?.dataset?.pathIndex ?? index);
@@ -205,9 +217,11 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
     </div>}
     {s4 && dir.chrome !== "v1" ? null : <div className="sod29-spatial-convergence__focus" aria-live="polite">
       <p>
-        <span>{focus.phrase ? `${focus.phrase} = ${focus.operand} (מנוע)` : `${focus.operand} — ללא ביטוי מאומת`}</span>
-        <strong><bdi dir="ltr">{focus.operand} × {focus.quantity} = {focus.result}</bdi></strong>
-        <small>הכמות {focus.quantity}: {focus.quantityProvenance || "מוצהרת במודל"} · הכפל הוא פעולה מתמטית מוצהרת, לא תוצאת מנוע.</small>
+        <span>{focusSummary.supported ? (focusSummary.engineParts.length ? `${focusSummary.engineParts.map((p) => p.replace("=", " = ")).join(" · ")} (מנוע)` : `${focus.operand} — ללא ביטוי מאומת`) : `${focus.expression} — נוסחה שאינה נתמכת`}</span>
+        <strong><bdi dir="ltr">{pathEquationText(focus, { numeric: true })}</bdi></strong>
+        <small>{focusSummary.supported
+          ? `${focusSummary.parts.filter((p) => !p.engine).map((p) => `${p.role === "value" ? "הערך" : "הכמות"} ${p.text}: ${p.origin}`).join(" · ")}${focusSummary.parts.some((p) => !p.engine) ? " · " : ""}ה${focusSummary.operationLabel} הוא פעולה מתמטית מוצהרת, לא תוצאת מנוע.`
+          : `${focus.unsupportedReason || "הנוסחה אינה בדקדוק הנתמך"} — לא נבדקה ולא נספרת.`}</small>
         {focus.status !== "verified" && focus.status !== "pending" ? <small className="sod29-spatial-convergence__warn">{STATUS_LABEL[focus.status]} — המסלול מוצג אך אינו נספר.</small> : null}
       </p>
       <div className="sod29-spatial-method-stage__actions">
@@ -215,10 +229,7 @@ export default function SpatialConvergenceStage2029({ card, traces: injectedTrac
         <button type="button" disabled={index >= last} onClick={() => goTo(index + 1)}>המסלול הבא</button>
         {reduced ? null : <button type="button" onClick={toggle}>{playing ? "עצירה" : "הפעלת ההתכנסות"}</button>}
       </div>
-      {focus.status === "verified" ? <details className="sod29-spatial-convergence__ledger">
-        <summary>איך הגענו ל־{focus.operand}?</summary>
-        <SpatialMethodStage2029 expression={focus.phrase} methodKey="רגיל" trace={focus.trace} expectedValue={focus.operand} depth="S2" />
-      </details> : focus.status === "pending" ? <div className="sod29-spatial-convergence__ledger is-reserved" role="status">בודק את הביטוי מול המנוע…</div> : null}
+      {focus.status === "verified" ? <LedgerFor path={focus} /> : focus.status === "pending" ? <div className="sod29-spatial-convergence__ledger is-reserved" role="status">בודק את הביטוי מול המנוע…</div> : null}
     </div>}
     <p className="sod29-spatial-method-stage__boundary">ערכי הביטויים מגיעים מהמנוע הקנוני (gematria_method_trace). הכמויות מקורן בחומר המקור ומסומנות כך. פרשנות אינה חלק מהתצוגה.</p>
   </section>;

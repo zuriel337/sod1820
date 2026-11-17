@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { describeStructurePart, STRUCTURE_PART_LABEL } from "../../lib/spatialRenderModel.js";
 import { razielSampleQuestions } from "../../lib/spatial/spatialLabRaziel.js";
+import { pathOperandsText } from "../../lib/spatial/pathSemantics.js";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 
 // DOM controls and the selected-part panel of the S4 lab (3060). No three/WebGL import: these are plain buttons so every lab action works with a
@@ -35,13 +36,13 @@ export function LabPartInfo({ card, path, spec, onAskRaziel }) {
   if (!path) return null;
   const info = describeStructurePart(path, spec);
   const locators = (card?.source?.locators || []).slice(0, 4);
-  const questions = razielSampleQuestions(path, card.value);
+  const questions = razielSampleQuestions(path, card.value, { pathsCount: card?.operations?.length || 1 });
   const copy = async (text, i) => {
     try { await navigator.clipboard.writeText(text); setCopied(i); setTimeout(() => setCopied(null), 1600); }
     catch { setCopied(null); }
   };
   return <section className="sod29-spatial-lab__part" data-lab-part={info.part} aria-live="polite">
-    <h4>{info.label} · {path.phrase || path.operand} × {path.quantity}</h4>
+    <h4>{info.label} · {pathOperandsText(path)}</h4>
     <dl>
       {info.facts.map((fact) => <div key={fact.key}><dt>{fact.key}</dt><dd><bdi dir="ltr">{fact.value}</bdi> <small>({fact.origin})</small></dd></div>)}
     </dl>

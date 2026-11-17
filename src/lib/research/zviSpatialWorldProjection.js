@@ -1,5 +1,6 @@
 import { SPATIAL_MODELS } from "../spatialModels.js";
-import { structureSpecFor } from "../spatialRenderModel.js";
+import { deriveConvergencePaths, structureSpecFor } from "../spatialRenderModel.js";
+import { pathEquationText, semanticSummary } from "../spatial/pathSemantics.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { buildPublicWorldContentProjectionV1 } from "./publicWorldContentProjectionV1.js";
 import {
@@ -69,6 +70,19 @@ function cleanSourceRefs(model) {
   return [...new Set(refs.map((ref) => String(ref || "").trim()).filter(Boolean))];
 }
 
+// What each declared operation IS, for the shelf: the equation drawn from the typed operation (the registry's sign), and each part with its semantic role and origin.
+// An operation outside the supported grammar is shown as such — never as verified and never as a failed check.
+function operationsViewOf(model) {
+  return deriveConvergencePaths({ value: model.value, operations: model.spatial?.operations || [], gematria: model.gematria || [], quantities: model.spatial?.structuralProperties || [], assignments: model.spatial?.assignments || [] })
+    .map((path) => {
+      const summary = semanticSummary(path);
+      return summary.supported
+        ? { id: path.id, supported: true, operationKey: summary.operationKey, operationLabel: summary.operationLabel, text: pathEquationText(path, { showValues: true }), result: path.result,
+            parts: summary.parts.map(({ role, roleLabel, text, value, origin }) => ({ role, roleLabel, text, value, origin })) }
+        : { id: path.id, supported: false, operationKey: path.operationKey, text: path.expression, reason: path.unsupportedReason || null, parts: [] };
+    });
+}
+
 function convergencePathCount(model) {
   const explicit = model?.spatial?.convergences?.find((item) => Number.isFinite(item?.independentPaths))?.independentPaths;
   if (Number.isFinite(explicit)) return explicit;
@@ -93,6 +107,9 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
       structure: Array.isArray(model.structure) ? model.structure : [],
       operations: Array.isArray(model.spatial?.operations) ? model.spatial.operations : [],
       quantities: Array.isArray(model.spatial?.structuralProperties) ? model.spatial.structuralProperties : [],
+      assignments: Array.isArray(model.spatial?.assignments) ? model.spatial.assignments : [],
+      operationsView: operationsViewOf(model),
+      convergences: Array.isArray(model.spatial?.convergences) ? model.spatial.convergences : [],
       structure: { shapeIdentity: model.spatial?.shapeIdentity || null, dimension: model.spatial?.dimension || null,
         regions: Array.isArray(model.spatial?.regions) ? model.spatial.regions : [], cubeFaceWord: model.cube?.faceWord || null },
       pathCount,

@@ -17,6 +17,7 @@ import { prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { layoutPhraseLetters } from "../../lib/spatial/convergenceLayout3D.js";
 import { STRUCTURE_3D, connectorPoints, focusPose, glyphWordMode, overviewPose, partCenter, partsPresent, ringPetals, trianglePositions } from "../../lib/spatial/structureLayout3D.js";
 import { ROYAL_LAB_DIRECTIONS } from "../../lib/spatial/royalLabDirections.js";
+import { pathEquationText, pathTagText } from "../../lib/spatial/pathSemantics.js";
 import { Controls, FALLBACK_COLORS, RoyalEnvironment, buildGlyphGeometry, noRaycast, resolveTokenColors, useBadgeTexture, useRoyalMaterials, useTextTexture } from "./MistaterScene3D2029.jsx";
 import { Apex, PathConnector } from "./ConvergenceScene3D2029.jsx";
 
@@ -186,7 +187,7 @@ function CubePart({ spec, glyphs, mats, colors, state, path, rig }) {
     </group>)}
     <mesh position={[0, -h - 5, 0]} material={mats.plinth} receiveShadow={rig.shadows}><cylinderGeometry args={[s * 0.92, s * 1.02, 8, 56]} /></mesh>
     <mesh position={[0, -h - 0.6, 0]} rotation={[Math.PI / 2, 0, 0]} material={mats.trim.base}><torusGeometry args={[s * 0.92, 1.3, 8, 72]} /></mesh>
-    <PartTag position={[0, h + 36, 0]} text={`× ${path.quantity}`} colors={colors} state={state} />
+    <PartTag position={[0, h + 36, 0]} text={pathTagText(path)} colors={colors} state={state} />
   </group>;
 }
 
@@ -201,7 +202,7 @@ function RingPart({ ring, kind, glyphs, mats, colors, state, path, rig }) {
       <mesh geometry={geometry} material={mats.body[state.key]} castShadow={rig.shadows} receiveShadow={rig.shadows} />
       <GlyphWord word={ring.assignment} width={size * 0.84} height={size * 0.5} glyphs={glyphs} material={mats.trim[state.key]} textColor={colors.gold} dim={state.dim} z={d.petal.depth / 2 - GLYPH_DEPTH / 2 + 0.2} />
     </group>)}
-    <PartTag position={[radius + size * 0.62, 28, 0]} text={`× ${path.quantity}`} colors={colors} state={state} />
+    <PartTag position={[radius + size * 0.62, 28, 0]} text={pathTagText(path)} colors={colors} state={state} />
   </group>;
 }
 
@@ -214,7 +215,7 @@ function TrianglePart({ tri, mats, colors, state, path, rig }) {
   return <group>
     {items.map((p, i) => <mesh key={i} position={[p.x, 0, p.z]} rotation={[0, p.rotY, 0]} material={mats.trim[state.key]} geometry={geometry} castShadow={rig.shadows} receiveShadow={rig.shadows} />)}
     <sprite position={[0, 34, 0]} scale={[52, 19.5, 1]}><spriteMaterial map={label} transparent depthWrite={false} /></sprite>
-    <PartTag position={[-(d.tri.r + 62), 14, 0]} text={`× ${path.quantity}`} colors={colors} state={state} />
+    <PartTag position={[-(d.tri.r + 62), 14, 0]} text={pathTagText(path)} colors={colors} state={state} />
   </group>;
 }
 
@@ -225,7 +226,7 @@ function RelationPart({ path, glyphs, mats, colors, state, rig }) {
     <mesh geometry={geometry} material={mats.body[state.key]} castShadow={rig.shadows} />
     {rig.bezel ? <mesh position={[0, 0, -1.4]} material={mats.trim[state.key === "off" ? "off" : "base"]}><boxGeometry args={[d.relation.w + 5, d.relation.h + 5, 3.4]} /></mesh> : null}
     {path.phrase ? <GlyphWord word={path.phrase} width={d.relation.w * 0.86} height={d.relation.h * 0.46} glyphs={glyphs} material={mats.trim[state.key]} textColor={colors.gold} dim={state.dim} z={-GLYPH_DEPTH / 2 + 3} y={6} /> : null}
-    <PartTag position={[0, -d.relation.h / 2 - 18, 0]} text={`× ${path.quantity}`} colors={colors} state={state} />
+    <PartTag position={[0, -d.relation.h / 2 - 18, 0]} text={pathTagText(path)} colors={colors} state={state} />
   </group>;
 }
 
@@ -446,7 +447,7 @@ export default function StructureScene3D2029({
       <LabRig view={view} part={selected && present.includes(selected) ? selected : present[0]} explode={explodeValue} resetToken={resetToken} spin={spin} active={active} reduced={motionReduced} controlsRef={controlsRef} pose={pose} />
     </Canvas>
     <ul className="sod29-spatial-method-stage__sr-only" aria-label="מסלולי ההתכנסות והחלק במבנה שנושא כל אחד">
-      {paths.map((path) => <li key={path.id}>{path.phrase || "ללא ביטוי"} {path.operand} × {path.quantity} = {path.result} · {path.partLabel} — {path.label}</li>)}
+      {paths.map((path) => <li key={path.id}>{pathEquationText(path, { showValues: true })} · {path.partLabel} — {path.label}</li>)}
     </ul>
   </div>;
 }

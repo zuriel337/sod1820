@@ -14,7 +14,7 @@ test('Zvi 1254 cube preserves geometry-derived quantity provenance', () => {
   assert.equal(m.value, 1254);
   assert.equal(m.spatial.structuralProperties[0].key, 'faces');
   assert.equal(m.spatial.structuralProperties[0].value, 6);
-  assert.deepEqual(m.spatial.operations[0], { operationKey: 'multiply', expression: '6 × 209', result: 1254 });
+  assert.deepEqual(m.spatial.operations[0], { operationKey: 'multiply', inputs: [{ ref: 'quantity:faces' }, { ref: 'expression:מטעמים' }], expression: '6 × 209', result: 1254 });
 });
 
 test('Zvi 3060 is one spatial model with five independent convergence paths', () => {
