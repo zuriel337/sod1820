@@ -1,4 +1,5 @@
-// Home atmosphere early fetch (performance only; no visual or semantic change).
+// Home atmosphere early fetch (performance only; no visual or semantic change). Since 17.11.2026 it also starts the pinned card's catalog read
+// and cover (homePinnedLeadEarlyWanted below).
 //
 // On the public reading release the Home hero's atmosphere is a CSS background
 // image that the browser discovers only after the Home chunk renders, so on slow
@@ -23,9 +24,19 @@ export function homeAtmospherePreloadHref({ release, pathname, storedPreset, nar
   return narrow ? HOME_ATMOSPHERE_2029.mobile : HOME_ATMOSPHERE_2029.desktop;
 }
 
+// The Home's pinned card: its catalog read and cover start from here too (homePinnedLeadEarly2029.js, reached through the Home route module that
+// the router loads anyway, on demand, so the entry gains no static import and no other page's code changes). Same scope as the Home route of
+// the public release; a WordPress ?p= address on "/" opens a Post, not the Home.
+export function homePinnedLeadEarlyWanted({ release, pathname, search = "" }) {
+  if (!release || !["/", "/2029", "/2029/"].includes(pathname)) return false;
+  try { return !new URLSearchParams(search).get("p"); } catch { return true; }
+}
+
 function run() {
   try {
     if (typeof document === "undefined" || typeof window === "undefined") return;
+    if (homePinnedLeadEarlyWanted({ release: PUBLIC_READING_RELEASE, pathname: window.location.pathname, search: window.location.search }))
+      import("../pages/Home2029Page.jsx").then(module => module.startHomePinnedLeadEarly2029?.()).catch(() => {});
     let storedPreset = null;
     try { storedPreset = localStorage.getItem(THEME_STORAGE_KEY_2029); } catch { /* storage unavailable: default preset */ }
     const href = homeAtmospherePreloadHref({

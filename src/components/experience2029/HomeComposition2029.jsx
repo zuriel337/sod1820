@@ -21,7 +21,7 @@ import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost202
 import { NowPinnedMessage2029 } from "./NowRoyalCenter2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
 import { nowModels, buildNowEntries, nowPinnedMessage, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
-import { thumb } from "../../lib/img.js";
+import { pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
 import { HomeLeadImageGate2029, HOME_LEAD_IMAGE_CAP_MS } from "./homeLeadImageGate2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
@@ -316,13 +316,8 @@ function HomeBuildingNote() {
 // our own content, as one large pinned card. It is the SAME model that leads "עכשיו" (nowModels: the newest reality-map publication, or its newest
 // registered update, with the mark that blinks until this viewer enters it), so it stays until a newer reality-map publication replaces it; no
 // timer ends it. Until the shared feed arrives the series catalog's newest member stands in (the same Post in practice), and the card keeps its
-// size either way. An owner's pinned message (a time-bounded pin) still shows, above it. Copies of the cover: two of the Post's own widths at its
-// quality (postArticleCore2029), so they are copies already prepared for the Post. The card is at most ~380 CSS px wide on a desktop and the
-// width of a phone on a phone, so 768 px covers it at the usual densities (5107: 66 KB against 127 KB for the 1080 copy, 17.11.2026).
-const PIN_COVER_WIDTHS = [480, 768];
-const PIN_COVER_QUALITY = 80;
-const pinCoverSet = url => (url && thumb(url, PIN_COVER_WIDTHS[0], PIN_COVER_QUALITY) !== url
-  ? PIN_COVER_WIDTHS.map(width => `${thumb(url, width, PIN_COVER_QUALITY)} ${width}w`).join(", ") : "");
+// size either way. An owner's pinned message (a time-bounded pin) still shows, above it. The cover copies are defined once in
+// homePinnedCover2029.js, which the Home's early start (src/lib/homePinnedLeadEarly2029.js) also uses, so its early request is this card's file.
 const postIdOf = id => /^post:(\d+)$/.exec(String(id || ""))?.[1] || null;
 function HomePinnedLead({ lead, catalogItems, pinned, onNavigateTo, settled = false, onImageSettled = null }) {
   const member = lead ? catalogItems.find(item => item.id === postIdOf(lead.id)) || null : seriesLatestMember2029(catalogItems);
@@ -342,7 +337,7 @@ function HomePinnedLead({ lead, catalogItems, pinned, onNavigateTo, settled = fa
     : <section className="h29-pinlead" data-home-pinned-lead="none" hidden />;
   // One structure whether the Post is known yet or not (same boxes, same heights), so nothing moves when it arrives.
   const body = <>
-    <span className="h29-pinlead-media">{image ? <img src={image} srcSet={set || undefined} sizes={set ? "(max-width: 760px) calc(100vw - 32px), 720px" : undefined}
+    <span className="h29-pinlead-media">{image ? <img src={image} srcSet={set || undefined} sizes={set ? PIN_COVER_SIZES : undefined}
       alt="" width="1280" height="720" fetchpriority="high" decoding="async" onLoad={onImageSettled || undefined} onError={onImageSettled || undefined} /> : <span className="h29-pinlead-empty" aria-hidden="true">✦</span>}</span>
     <span className="h29-pinlead-badge r29-badge is-pinned"><NavigationIcon2029 name="kingdom" size={14} />נעוץ · מפת המציאות</span>
     <strong className="h29-pinlead-title">{href ? title : "טוען את הפרסום הנעוץ…"}</strong>
