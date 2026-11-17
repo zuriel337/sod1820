@@ -248,3 +248,17 @@ Merged `cff521e86`, deployed `dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2` (aliases moved f
 - **Canary:** green.
 - **Counts:** 50 fixes, all merged and all in the live deployment; live behaviour verified for 23, not verified for 25, contradicted for 2.
 - **Field check pending:** middleware time by edge region before and after 21:00 UTC; the share of `waited` (new instances); the Home server wait by build.
+
+### Later on 17.11.2026: the Home's pinned card starts with the entry (experiment, branch only)
+
+`S-51` in the JSON (counts: 51 entries, 50 merged, 1 branch-only). Draft PR #1381.
+
+The entry starts the Home's own series catalog read, which is shared so nothing is read twice, and preloads the card's cover when the read answers.
+
+Protected Preview A/B (phone, Slow 4G + 4× CPU, 6 rounds), at p50:
+
+- the card appeared 742 ms earlier;
+- the cover was requested 890 ms earlier;
+- the largest paint came 412 ms earlier.
+
+Write-up: `docs/reviews/home-pinned-lead-early-20261117/README.md`.
