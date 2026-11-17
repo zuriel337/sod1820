@@ -328,3 +328,47 @@ Consequences, each pinned by a test (`test/post-document-units-2029.test.mjs`, C
 **Conclusion.** Units need no definition of their own in the CDN package; it already covers them.
 
 Not run: a browser run of the full elections page on a copy of its real content. The page's unit rendering reads the live row and does not pass through the CDN.
+
+## 13. The Home and the community chat on the CDN — experiment (ZURIEL 17.11.2026 "מאשר, תתחיל בסעיף 3"; branch and protected Preview only)
+
+### 13.1 Why these two
+
+On 16.11, `/` and `/community/chat` were about 19% of all document requests (5,616 of 29,573). About 89% of them repeated the same address within the hour in the same region (section 5). Every one of them was built by the function.
+
+- `/community/chat` (3,878): the Meta AI crawler, plus a steady ~13 requests an hour from five regions.
+- `/` (1,738): mostly `facebookexternalhit`.
+
+Facebook clicks carry a unique `?fbclid=` and get no benefit (section 5).
+
+### 13.2 Why a kept copy cannot be stale
+
+| Question | Answer and evidence |
+|---|---|
+| Is the document the same for every reader? | Yes. On the live site the documents of `/` (27,705 bytes) and `/community/chat` (22,282 bytes) were byte-identical with and without a member's cookie and `Authorization` header (17.11, 18:40 UTC). The handler reads no cookie, no `Authorization` header and no account. |
+| Can anything outside a deployment change it? | No. For these two addresses without a query string, the metadata owner (`api/og.js`) reads nothing: no Post, no `site_flags` (it reads them only for the launch-gated areas: world, books, journey, number, heichal, raziel, code), and no community row (only `?thread`, `?reply` or `?path` make it read). The unit test runs the real owner and the real article step with the network replaced by a recorder: **zero reads** for both pages. Page state (`publicReadingPath`, `publicTemporarilyClosed`) is code. The article step answers `not-eligible` (no Post). |
+| Can another release see the copy? | No. The platform keeps every deployment's copies apart (Vercel documentation, section 3), so a release or a rollback never serves another deployment's copy. |
+| Does the edge still check every reader? | Yes. The middleware (bot rules, country policy, challenges, the `vc`/`vb` labels, logging) runs on every request before the cache. The labels are added per request, after the cache (section 3, Post experiment). |
+
+### 13.3 What changed (`public-reading-deploy/api/public-document.js`)
+
+`PAGE_DOCUMENT_CDN_CACHE` sits next to `POST_DOCUMENT_CDN_CACHE`. It uses the same module, the same three headers and no new system:
+
+- `Vercel-CDN-Cache-Control: max-age=300, stale-while-revalidate=3600`;
+- `Vercel-Cache-Tag: page-document,page-document-home` (or `page-document-community-chat`);
+- `X-Sod-Document-Cache: page-cdn-v1`.
+
+**Admitted:** exactly `/` and `/community/chat`, GET or HEAD, status 200, public state, no query string, no Post, article step `not-eligible`.
+
+**Not admitted:** everything else, including `/2029`, `/community`, a trailing slash, `?fbclid`, `?p=`, `?thread`, 404, 503, other hosts and the function's own address. Browsers keep `Cache-Control: no-store`.
+
+The refresh after 5 minutes changes nothing in the bytes. The background refresh only keeps the copy warm, at most one function call per page per region per 5 minutes while it is being read. The tag allows a manual purge (Vercel dashboard or API) if a copy ever has to go at once. The site's purge endpoint stays Post-only.
+
+**Tests:** `test/post-document-cdn-cache.test.mjs`, 9 of 9 pass:
+
+- the two kept pages;
+- 10 cases not kept;
+- the same bytes for every reader;
+- the real owner reads nothing;
+- the exact decision, including `__proto__` and `constructor`.
+
+The 19 test files that load the document function: 188 of 189 pass. The one failure needs `@playwright/test` in this container and fails the same way on clean `main`.
