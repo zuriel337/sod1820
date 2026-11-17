@@ -445,8 +445,10 @@ jobs:
           VITE_ADSENSE_SLOT_POST: "0000000001"
           VITE_ADSENSE_SLOT_LIST: "0000000002"
       - name: Install the pinned browser
+        # Without --no-package-lock: the lockfile keeps every installed dependency at its locked version. With it, npm re-resolved ~40
+        # packages (vite 8.3.0 -> 8.3.8) and the rebuild below was no longer the artifact that ships (the release shell budget caught it).
         run: |
-          npm install --no-save --no-package-lock @playwright/test@1.55.0
+          npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
           npx playwright install --with-deps chromium
       - name: Meta Pixel and AdSense (real CSP header + real worker), bots excluded
         run: node --test test/marketing-browser-2029.browser.mjs
