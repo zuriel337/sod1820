@@ -1,0 +1,21 @@
+HEAVY: pairs exact 16 N 5171 hits 4793  | other heavy pairs 19 N 445 hits lo/mid/hi 116 192 426
+  occupancy model check (pair, d, actual hours, model hours): [('/commu', 'fra1', 349, 24, 24.0), ('/commu', 'gru1', 311, 24, 24.0), ('/commu', 'iad1', 243, 24, 24.0), ('/commu', 'bom1', 107, 24, 23.7), ('/commu', 'cdg1', 79, 24, 23.2), ('/commu', 'sin1', 44, 19, 20.3), ('/', 'fra1', 353, 24, 24.0), ('/', 'iad1', 276, 24, 24.0), ('/', 'cle1', 195, 24, 24.0), ('/', 'sin1', 193, 24, 24.0), ('/', 'sfo1', 156, 24, 24.0), ('/', 'cdg1', 136, 24, 23.9), ('/', 'gru1', 77, 24, 23.1), ('/', 'arn1', 51, 23, 21.3)]
+  heavy hourly hits lo/mid/hi 4909 4985 5219 of 5616 = 88.8%
+TAIL: N 23957; hour12 exact hits 35/1109 = 3.2%; hour20 >= 75/1767 = 4.2% (partial)
+  day tail hits: hour-12 rate everywhere 756 ; stratified (h12 rate normal hours, h20 lower-bound rate for hours [10, 11, 20, 21]) 825
+OVERALL hourly-cell estimate (shared per-region cache): central 5810/29573 = 19.6%; band 5665-6251 = 19.2%-21.1%
+  strict lower bound (heavy exact+bounds, tail only the 2 sampled hours): 5019 = 17.0%
+5MIN check cle1 /community/chat 00-08h: actual 5-min hits 404, uniform model 405, hourly hits 492
+5MIN: heavy 2881 (lower bound 2298); tail between 0 and 825
+  overall 5-min: 2881-3707 of 29573 = 9.7%-12.5%; midpoint 11.1%
+HUMAN (bot_name ''): N 8600; heavy N 1673 hits~1291; tail N 6927 hits 179-497 (h12 6/232, h20>=19/265)
+  human hit rate 17.1%-20.8%
+CRAWLER (bot_name set): N 20973; heavy N 3943 hits~3541; tail N 17030 hits 563-635 (h12 3.3%, h20>=3.7%)
+  crawler hit rate 19.6%-19.9%
+FRA1: N 1658; '/'+chat exact hits 654; top-4 posts exact hits 111 (uniform model 87, clumping x1.27)
+  ranks 7-50: N 192 hits 0..148 (model 33); ranks 51+: N 605, hits 0..<= 155
+  fra1 hit rate: lower 46.1%, central 48.4%, upper 64.4%
+  fra1 heavy-only share of fra1 requests: 42.3%
+TOP50 paths: 6939/29573 = 23.5%; top-2 = 19.0%
+hour-12 tail cells K = 1074 distinct (path,region) pairs in that single hour
+FRA1 5-min: measured paths (861 req) model 334 (lower bound 182); hourly for same paths 765; rate on all fra1 = 20.1% (other fra1 paths ~0 at 5 min)

@@ -67,9 +67,25 @@ Arms: server wait 880 ms (field median for Post documents on phones) vs 60 ms (a
 
 The LCP element is the cover image in every run; the image itself is unchanged, it simply starts earlier.
 
-## 5. How much traffic the CDN would answer
+## 5. How much traffic the CDN would answer (Vercel observability, 16.11.2026, one full day)
 
-Not yet estimated in this commit: the per-address, per-region, per-hour counts needed for an honest estimate are being read from Vercel observability (route `/api/public-document`, one full day). Until then the only facts are the volumes in section 1: 214,143 document requests in 7 days, mostly crawlers (`meta-externalagent` alone 49.4%) through cle1, sfo1 and iad1, and 9,346 through fra1. With the policy above, any repeat request for the same Post in the same region within about an hour is answered by the CDN; a Post read once a day in a region gains nothing there.
+Estimator: for each (address, edge region, hour), every request after the first is a CDN answer, which approximates "fresh 5 min, then served while refreshing for up to an hour". 29,573 document requests that day, all answered by the function.
+
+| Population | Requests | Share a CDN would answer (hourly) | (5-minute variant) |
+|---|---|---|---|
+| All document requests | 29,573 | ≈19.6% (lower bound 17.0%) | ≈10–12.5% |
+| `/community/chat` and `/` only (not Posts) | 5,616 (19%) | 88.8% | ≈51% |
+| Everything else: Posts and junk addresses | 23,957 (81%) | **≈3.2–4.5%** | lower |
+| Through fra1 (where Israeli readers arrive) | 1,658 | ≈48% (bounds 46–64%) | ≈20% |
+| fra1, the 4 most-read Posts | 159 | ≈70% | — |
+
+What this means for the change as tested (Posts only):
+
+- **The benefit per CDN answer is large (section 4), but with today's traffic only a few percent of Post requests would get it.** Most Posts are read rarely in a given region within an hour; the exception is a Post that many people open at once (a share, a newsletter), where most readers after the first would get the fast answer.
+- Almost all repeat traffic is on two non-Post addresses: `/community/chat` (3,878 requests; the Meta AI crawler and a steady ~13/hour "human" poll from fra1, gru1, iad1, bom1, cdg1) and `/` (1,738; mostly `facebookexternalhit`). Their documents are also the same for everyone, but they were not tested here and are not kept by this change.
+- Links from Facebook carry a unique `?fbclid=` value, so even if query strings were kept, each click would be its own cache entry; those readers get no benefit either way.
+- Much of the long tail is not content: old WordPress addresses (`/wp-json/oembed/1.0/embed`, `/wp-login.php`, `/feed`), scanner probes, `/community/null`, and old script files under `/assets/` requested mostly by Meta's crawler. Each still runs the function (to answer 404); an edge-level 404 for these would remove that work without any cache.
+- Method limits: one day; the query API returns at most 500 groups, so the long tail was estimated from two sampled hours (one complete, one partial) plus exact series for the heavy addresses; an empty bot name does not prove a human; evictions and deploys not modelled.
 
 ## 6. Cost
 
@@ -105,3 +121,13 @@ Not yet estimated in this commit: the per-address, per-region, per-hour counts n
 - The separate effect of a tag purge (section 3).
 - Field measurement with real readers in Israel: only possible after a release; the lab numbers above are a controlled simulation of the server wait, not field data.
 - Region change: **not justified now.** Moving the function next to the database (Tokyo) would move it away from readers; moving it toward readers (Frankfurt) would move it away from the database; moving the database is a migration. The CDN removes both distances for repeat reads without moving anything.
+
+## 11. Recommendation (one decision)
+
+**Enable it for Post documents exactly as tested** — `max-age=300, stale-while-revalidate=3600`, only admitted public Posts with a final article-first answer, no query strings, browsers unchanged — **and in the same release measure it, without expecting a large change in the Post averages.**
+
+- Proven: about 0.8 s faster first byte, first paint and readable article, and up to 1.2 s faster LCP, for every reader the CDN answers; no layout shift, no personal data in a kept copy, edits reach readers within about 5 minutes.
+- Expected reach today: a few percent of Post visits overall, most of the visits to a Post that is being read by many people at the same moment, and the Israeli readers of the most-read Posts (≈70% in fra1).
+- Cost: none added; slightly less function and database work.
+- Not part of this decision, measured as the next candidates: the same mechanism for the `/` and `/community/chat` documents (≈19% of all document requests, ≈89% repeat within the hour; needs its own Preview check), and an edge 404 for old WordPress and scanner addresses.
+

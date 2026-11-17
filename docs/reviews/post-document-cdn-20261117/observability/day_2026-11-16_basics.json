@@ -1,0 +1,17 @@
+{
+  "window": "2026-11-16T00:00:00Z..2026-11-17T00:00:00Z",
+  "filter": "environment eq 'production' and route eq '/api/public-document'",
+  "N_day": 29573,
+  "N_hourly": [1294,1008,1026,979,1052,1243,1009,990,988,979,2067,1721,1340,1117,1136,827,994,984,1189,1161,2006,1735,1361,1367],
+  "bot_day": {"meta-externalagent": 15031, "": 8600, "claudebot": 1463, "applebot": 1172, "facebookexternalhit": 1435, "googlebot": 531},
+  "heavy_pairs_day": {
+    "/community/chat": {"cle1":1343,"sfo1":1258,"fra1":349,"gru1":311,"iad1":243,"bom1":107,"cdg1":79,"sin1":44,"lhr1":42,"arn1":36,"cpt1":33,"hkg1":22,"yul1":5,"dub1":2,"pdx1":2,"syd1":2},
+    "/": {"fra1":353,"iad1":276,"cle1":195,"sin1":193,"sfo1":156,"cdg1":136,"gru1":77,"arn1":51,"pdx1":46,"bom1":45,"lhr1":37,"icn1":34,"syd1":33,"hkg1":26,"hnd1":21,"cpt1":20,"dub1":15,"kix1":12,"yul1":12}
+  },
+  "heavy_by_bot_day": {
+    "/community/chat": {"meta-externalagent":2462,"":1398,"googlebot":9,"google-read-aloud":7,"baiduspider":2},
+    "/": {"facebookexternalhit":1415,"":275,"baiduspider":17,"googlebot":12,"adsense":10,"bingbot":3,"duckduckbot":3}
+  },
+  "fra1_day": {"N": 1658, "distinct_paths_lower_bound": 500, "note": "limit 500 saturated (2 arrays x 500 rows)",
+    "top_paths": [353,349,60,58,23,18,18,17,15,12,12,11,8,5,5,5,5,5,4,3,3,3,3,3]}
+}

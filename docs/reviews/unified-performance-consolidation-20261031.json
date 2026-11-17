@@ -3679,9 +3679,10 @@
         "guard": [
           "test/post-document-cdn-cache.test.mjs (live-contracts-2029.yml) [branch only]"
         ],
-        "open": "Awaiting ZURIEL's decision. After a release: field before/after per build for the Post surface (by_build, by_surface, nav_timing_p75 in /2029/control) and the CDN share from Vercel observability (cache_result, route /api/public-document).",
+        "open": "Awaiting ZURIEL's decision (recommended: enable for Posts as tested and measure; expect a small change in Post averages). After a release: field before/after per build for the Post surface (by_build, by_surface, nav_timing_p75 in /2029/control) and the CDN share from Vercel observability (cache_result, route /api/public-document). Next candidates, untested: the same for '/' and '/community/chat'; an edge 404 for old WordPress and scanner addresses.",
         "next_owner": "Experience Governance (decision) · Traffic Intelligence (field check)",
-        "relates_to_groups": []
+        "relates_to_groups": [],
+        "reach": "Vercel observability 16.11.2026 (29,573 document requests): with this policy about 3.2-4.5% of the requests outside '/' and '/community/chat' (Posts and junk addresses) would be CDN answers per hour, about 70% for the four most-read Posts in fra1; '/' and '/community/chat' (19% of all document requests, ~89% repeat within the hour) are not kept by this change."
       }
     ],
     "group_updates": [
