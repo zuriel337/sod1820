@@ -793,5 +793,39 @@
         ]
       }
     }
-  ]
+  ],
+  "profiles": {
+    "public-reading": {
+      "$comment": "The release artifact (public-reading-deploy/dist from scripts/build-public-reading-production.mjs), measured with the production build's own VITE_* values (analytics and ad ids). Always enforced; same rules as the top level: lower on its own (--profile public-reading --lower), a raise is a recorded ZURIEL decision.",
+      "tolerance": {
+        "eagerJsFiles": 0,
+        "eagerJsGzip": 1024,
+        "frameJsFiles": 0,
+        "frameJsGzip": 1024,
+        "frameCssGzip": 512
+      },
+      "metrics": {
+        "eagerJsFiles": 17,
+        "eagerJsGzip": 221163,
+        "frameJsFiles": 5,
+        "frameJsGzip": 74646,
+        "frameCssGzip": 35168
+      },
+      "history": [
+        {
+          "date": "2026-11-17",
+          "by": "initial",
+          "sha": "2011226fe",
+          "reason": "first measurement of the release profile on main 2011226fe (ZURIEL 17.11.2026: the same guard on the artifact that is really published). Without the production VITE_* values the same tree measures eagerJsGzip 219558, frameJsGzip 74654.",
+          "metrics": {
+            "eagerJsFiles": 17,
+            "eagerJsGzip": 221163,
+            "frameJsFiles": 5,
+            "frameJsGzip": 74646,
+            "frameCssGzip": 35168
+          }
+        }
+      ]
+    }
+  }
 }

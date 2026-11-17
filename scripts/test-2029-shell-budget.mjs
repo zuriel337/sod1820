@@ -14,6 +14,15 @@
 //
 // Builds that set VITE_* flags (some acceptance jobs) change the bundle slightly: there the byte/file numbers are reported, not enforced, unless
 // SHELL_BUDGET_ENFORCE=1. The perf-contracts-2029 job builds without them and enforces everything.
+//
+// The release artifact (ZURIEL 17.11.2026: "the same guard on the artifact that is really published"): the public reading build
+// (scripts/build-public-reading-production.mjs -> public-reading-deploy/dist) is a different build profile, so it has its own baseline,
+// tolerance and history under `profiles["public-reading"]` in the same baseline file, with the same rules (lower on its own, a raise is a
+// recorded ZURIEL decision). It is ALWAYS enforced — the production build sets VITE_* values on purpose, so they never switch it off — and
+// the build script runs it on its own output, so a grown release artifact fails before it can be deployed.
+//
+//   node scripts/test-2029-shell-budget.mjs --profile public-reading --dist public-reading-deploy/dist     check the release artifact
+//   ... --profile public-reading --dist public-reading-deploy/dist --lower                                  record a reduction
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -22,9 +31,16 @@ import { execFileSync } from "node:child_process";
 
 const root = process.cwd();
 const BASELINE = path.join(root, "scripts/2029-shell-budget-baseline.json");
-const args = new Set(process.argv.slice(2));
+const argv = process.argv.slice(2);
+const args = new Set(argv);
 const lower = args.has("--lower");
 const importsOnly = args.has("--imports-only");
+const option = (name, fallback) => { const i = argv.indexOf(name); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[i + 1] : fallback; };
+export const PROFILES = Object.freeze({ default: { dist: "dist", enforceAlways: false }, "public-reading": { dist: "public-reading-deploy/dist", enforceAlways: true } });
+const profileName = option("--profile", "default");
+const profile = PROFILES[profileName];
+if (!profile) throw new Error(`unknown shell budget profile "${profileName}" (known: ${Object.keys(PROFILES).join(", ")})`);
+const distDir = option("--dist", profile.dist);
 
 // The always-loaded sources whose STATIC imports are pinned (React.lazy/dynamic import() are not static and stay free).
 export const GUARDED_SOURCES = Object.freeze([
@@ -45,7 +61,15 @@ export function staticImports(source) {
   return [...out].sort();
 }
 
-const gzip = (file) => zlib.gzipSync(fs.readFileSync(path.join(root, "dist", file))).length;
+const gzip = (file) => zlib.gzipSync(fs.readFileSync(path.resolve(root, distDir, file))).length;
+
+// The numbers of one profile: the top level for the default build, `profiles[name]` for another (same shape: tolerance, metrics, history).
+export function profileBaseline(baseline, name = "default") {
+  if (name === "default") return baseline;
+  const p = baseline.profiles?.[name];
+  assert.ok(p && p.metrics && p.tolerance && Array.isArray(p.history), `baseline profile "${name}" is missing in ${path.relative(root, BASELINE)}`);
+  return { ...p, staticImports: baseline.staticImports, history: p.history.map((entry) => ({ ...entry, staticImports: baseline.staticImports })) };
+}
 
 export function measureBuild(manifest, { sizeOf = gzip } = {}) {
   const records = Object.entries(manifest);
@@ -95,8 +119,10 @@ function gitSha() { try { return execFileSync("git", ["rev-parse", "--short", "H
 
 const isMain = import.meta.url === `file://${process.argv[1]}`;
 if (isMain) {
-  const baseline = JSON.parse(fs.readFileSync(BASELINE, "utf8"));
-  validateHistory(baseline);
+  const baselineFile = JSON.parse(fs.readFileSync(BASELINE, "utf8"));
+  validateHistory(baselineFile);
+  const baseline = profileBaseline(baselineFile, profileName);
+  if (profileName !== "default") validateHistory(baseline);
   const imports = readStaticImports();
   const failures = [];
   const removals = [];
@@ -110,10 +136,10 @@ if (isMain) {
 
   let metrics = null;
   const flagged = Object.keys(process.env).filter((k) => k.startsWith("VITE_"));
-  const enforceBytes = !flagged.length || process.env.SHELL_BUDGET_ENFORCE === "1";
+  const enforceBytes = profile.enforceAlways || !flagged.length || process.env.SHELL_BUDGET_ENFORCE === "1";
   if (!importsOnly) {
-    const manifestPath = path.join(root, "dist/.vite/manifest.json");
-    assert.ok(fs.existsSync(manifestPath), "dist/.vite/manifest.json missing: run `npm run build` first (or use --imports-only)");
+    const manifestPath = path.resolve(root, distDir, ".vite/manifest.json");
+    assert.ok(fs.existsSync(manifestPath), `${path.relative(root, manifestPath)} missing: run ${profileName === "default" ? "`npm run build`" : "`node scripts/build-public-reading-production.mjs`"} first (or use --imports-only)`);
     metrics = measureBuild(JSON.parse(fs.readFileSync(manifestPath, "utf8")));
     const rows = [];
     for (const [key, base] of Object.entries(baseline.metrics)) {
@@ -124,7 +150,7 @@ if (isMain) {
       if (status === "GROWTH" && enforceBytes)
         failures.push(`${key}: ${now} > ${limit} (baseline ${base} + tolerance ${baseline.tolerance[key] ?? 0}). Every page pays this before its own code. Move the new part behind a lazy slot or a signed-in/on-demand load; a deliberate raise is a ZURIEL decision recorded in the baseline history.`);
     }
-    console.log("2029 shell budget (gzip bytes / files, from dist/.vite/manifest.json)");
+    console.log(`2029 shell budget${profileName === "default" ? "" : ` [${profileName}]`} (gzip bytes / files, from ${distDir}/.vite/manifest.json)`);
     for (const [k, b, n, d, l, s] of rows) console.log(`  ${k.padEnd(14)} baseline ${String(b).padStart(7)}  now ${String(n).padStart(7)}  delta ${String(d >= 0 ? "+" + d : d).padStart(7)}  limit ${String(l).padStart(7)}  ${s}`);
     if (!enforceBytes) console.log(`  (bytes reported, not enforced: this build sets ${flagged.join(", ")}; perf-contracts-2029 enforces them)`);
   }
@@ -134,12 +160,21 @@ if (isMain) {
     if (failures.length) { console.error(failures.join("\n")); process.exit(1); }
     assert.ok(metrics, "--lower needs the build (not --imports-only)");
     const next = { metrics: Object.fromEntries(Object.entries(baseline.metrics).map(([k, v]) => [k, Math.min(v, metrics[k])])), staticImports: imports };
-    const changed = JSON.stringify(next.metrics) !== JSON.stringify(baseline.metrics) || JSON.stringify(next.staticImports) !== JSON.stringify(baseline.staticImports);
+    const importsChanged = JSON.stringify(next.staticImports) !== JSON.stringify(baseline.staticImports);
+    const changed = JSON.stringify(next.metrics) !== JSON.stringify(baseline.metrics) || (profileName === "default" && importsChanged);
     if (!changed) { console.log("nothing to lower"); process.exit(0); }
-    baseline.metrics = next.metrics; baseline.staticImports = next.staticImports;
-    baseline.history.push({ date: new Date().toISOString().slice(0, 10), by: "ratchet", sha: gitSha(), reason: "measured reduction (--lower)", metrics: next.metrics, staticImports: next.staticImports });
-    validateHistory(baseline);
-    fs.writeFileSync(BASELINE, JSON.stringify(baseline, null, 2) + "\n");
+    const entry = { date: new Date().toISOString().slice(0, 10), by: "ratchet", sha: gitSha(), reason: "measured reduction (--lower)", metrics: next.metrics };
+    if (profileName === "default") {
+      baselineFile.metrics = next.metrics; baselineFile.staticImports = next.staticImports;
+      baselineFile.history.push({ ...entry, staticImports: next.staticImports });
+      validateHistory(baselineFile);
+    } else {
+      // A profile carries bytes and files only; the static imports are the sources' and stay at the top level.
+      baselineFile.profiles[profileName].metrics = next.metrics;
+      baselineFile.profiles[profileName].history.push(entry);
+      validateHistory(profileBaseline(baselineFile, profileName));
+    }
+    fs.writeFileSync(BASELINE, JSON.stringify(baselineFile, null, 2) + "\n");
     console.log(`baseline lowered and recorded (${path.relative(root, BASELINE)})`);
     process.exit(0);
   }

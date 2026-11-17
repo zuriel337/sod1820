@@ -71,6 +71,9 @@ function ControlPlaneBody({ auth }) {
   const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], healthError: null, videoError: null, traceError: null, traceLoading: true, traceVersion: 0 });
   const [selectedId, setSelectedId] = useState(null);
   const [metricsOpen, setMetricsOpen] = useState(false);
+  // "רענן" re-reads everything on this page, the speed centre included (ZURIEL 17.11.2026: a refresh that did not reach the open
+  // measurement component was not a refresh).
+  const [refreshToken, setRefreshToken] = useState(0);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
 
   const load = useCallback(async () => {
@@ -105,6 +108,7 @@ function ControlPlaneBody({ auth }) {
     }));
     if (valid()) setState(current => ({ ...current, loading: false }));
   }, [principal, isAdmin]);
+  const refreshAll = useCallback(() => { setRefreshToken(value => value + 1); return load(); }, [load]);
 
   useEffect(() => {
     if (!authLoading && isAdmin && principal) load();
@@ -158,17 +162,20 @@ function ControlPlaneBody({ auth }) {
     symbol={<NavigationIcon2029 name="tools" />}
     wide
   >
+    {/* The speed centre (ZURIEL 17.11.2026) is part of the main view; Google, Vercel and Search Console are read only on "מדידה וגוגל". */}
+    <React.Suspense fallback={<section className="sod29-section"><p role="status">פותח את מרכז המהירות…</p></section>}>
+      <OperationalMetrics2029 principal={principal} refreshToken={refreshToken} providersOpen={metricsOpen}/>
+    </React.Suspense>
     <section className="sod29-section">
       <button className="sod29-action" type="button" aria-expanded={metricsOpen} onClick={()=>setMetricsOpen(open=>!open)}>
         {metricsOpen ? "סגירת מדידה וגוגל" : "מדידה וגוגל"}
       </button>
-      {metricsOpen ? <React.Suspense fallback={<p role="status">פותח את קוראי המדידה…</p>}><OperationalMetrics2029 principal={principal}/></React.Suspense> : null}
     </section>
     <section className="sod29-section">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">SYSTEM HEALTH</div><h2>מה דורש תשומת לב עכשיו</h2>
           <div className="sod29-muted">המסך מקרין owners חיים; הוא אינו מקור אמת חדש.</div></div>
-        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={load} disabled={state.loading}>{state.loading ? "מרענן…" : "רענן"}</button></div>
+        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={refreshAll} disabled={state.loading} data-control-refresh="true">{state.loading ? "מרענן…" : "רענן"}</button></div>
       </div>
       {state.healthError ? <FrameState kind="error" title="לא ניתן לקרוא את מצב המערכת">{String(state.healthError?.message || state.healthError)}</FrameState> : null}
       <p className="sod29-muted">דגימת מצב: {when(health.generated_at)}. כל מקטע מוצג לפי הקריאה שלו; נתון חסר אינו מדידה של אפס.</p>

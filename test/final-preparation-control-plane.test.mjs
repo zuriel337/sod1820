@@ -12,7 +12,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const outfile = resolve(`.test-finalprep-cp1-${process.pid}.mjs`);
 await build({ entryPoints: ['src/pages/ControlPlane2029Page.jsx'], outfile, bundle: true, platform: 'node', format: 'esm', external: ['react'], plugins: [{ name: 'owned-read-boundaries', setup(b) {
   b.onResolve({ filter: /(?:AuthContext\.jsx|visits\.js|NavigationIcon2029\.jsx|Sod2029Shell\.jsx|OperationalMetrics2029\.jsx)$|^react-router-dom$/ }, a => ({ path: a.path, namespace: 'fixture' }));
-  b.onLoad({ filter: /.*/, namespace: 'fixture' }, a => ({ loader: 'jsx', contents: a.path.endsWith('OperationalMetrics2029.jsx') ? 'import React from "react";export default()=>{globalThis.__cp1.metricsMounted=(globalThis.__cp1.metricsMounted||0)+1;return <p>metrics-fixture</p>;};' : a.path.endsWith('AuthContext.jsx') ? 'export const useAuth=()=>globalThis.__cp1.auth;' : a.path.endsWith('visits.js') ? 'export const getSystemHealth=()=>globalThis.__cp1.read("health"),getVideoMapHealth=()=>globalThis.__cp1.read("video"),getOperationalTraceList=(...args)=>globalThis.__cp1.read("list",args),getOperationalTrace=id=>globalThis.__cp1.read("detail",id);' : a.path === 'react-router-dom' ? 'import React from "react";export const Navigate=()=> <p>signed-out</p>;' : a.path.endsWith('NavigationIcon2029.jsx') ? 'export default()=>null;' : 'import React from "react";export default({children})=><main>{children}</main>;export const FrameState=({title,children})=><section><h3>{title}</h3>{children}</section>;' }));
+  b.onLoad({ filter: /.*/, namespace: 'fixture' }, a => ({ loader: 'jsx', contents: a.path.endsWith('OperationalMetrics2029.jsx') ? 'import React from "react";export default(props)=>{globalThis.__cp1.metricsMounted=(globalThis.__cp1.metricsMounted||0)+1;globalThis.__cp1.metricsProps=props;return <p>metrics-fixture providers:{String(Boolean(props.providersOpen))} refresh:{props.refreshToken}</p>;};' : a.path.endsWith('AuthContext.jsx') ? 'export const useAuth=()=>globalThis.__cp1.auth;' : a.path.endsWith('visits.js') ? 'export const getSystemHealth=()=>globalThis.__cp1.read("health"),getVideoMapHealth=()=>globalThis.__cp1.read("video"),getOperationalTraceList=(...args)=>globalThis.__cp1.read("list",args),getOperationalTrace=id=>globalThis.__cp1.read("detail",id);' : a.path === 'react-router-dom' ? 'import React from "react";export const Navigate=()=> <p>signed-out</p>;' : a.path.endsWith('NavigationIcon2029.jsx') ? 'export default()=>null;' : 'import React from "react";export default({children})=><main>{children}</main>;export const FrameState=({title,children})=><section><h3>{title}</h3>{children}</section>;' }));
 } }] });
 const { default: Page } = await import(pathToFileURL(outfile));
 after(async () => { await unlink(outfile); delete globalThis.__cp1; });
@@ -102,12 +102,15 @@ test('old observed egress is labelled last observation, never current24h zero',a
   await act(async()=>root.unmount());
 });
 
-test('provider projection stays unmounted until explicitly opened and disappears with revoked admin',async()=>{
+test('the speed centre is part of the main view; Google sources wait for "מדידה וגוגל"; "רענן" reaches the open measurement; all disappear with revoked admin',async()=>{
   const f=fixture(),root=await mount(f);
-  assert.equal(f.metricsMounted,undefined);assert.ok(!text(root).includes('metrics-fixture'));
+  assert.ok(f.metricsMounted>=1);assert.ok(text(root).includes('metrics-fixture'));assert.equal(f.metricsProps.providersOpen,false);assert.equal(f.metricsProps.refreshToken,0);
   const button=root.root.findAllByType('button').find(b=>b.children.includes('מדידה וגוגל'));
   assert.ok(button);await act(async()=>{button.props.onClick();});
-  assert.ok(f.metricsMounted>=1);assert.ok(text(root).includes('metrics-fixture'));
+  assert.equal(f.metricsProps.providersOpen,true);
+  const refresh=root.root.findAllByType('button').find(b=>b.props['data-control-refresh']==='true');
+  assert.ok(refresh);await act(async()=>{refresh.props.onClick();});
+  assert.equal(f.metricsProps.refreshToken,1,'the page refresh is passed to the open measurement component');
   f.auth={user:{id:'A'},isAdmin:false,loading:false};await act(async()=>root.update(React.createElement(Page)));
   assert.ok(!text(root).includes('metrics-fixture'));assert.ok(text(root).includes('signed-out'));
   await act(async()=>root.unmount());

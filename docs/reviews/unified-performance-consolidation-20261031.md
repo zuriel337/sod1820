@@ -60,3 +60,146 @@ Live October2026 has207 events from207 document sample IDs, last observed30.10. 
 Final build/graph, synthetic browser measurement, functional acceptance, exact protected Preview identity and remaining release gates are recorded in the paired session handoff and passive work_log AFTER. API fixtures, real installed-SDK loopback, public hosted reads and authenticated-user/model acceptance are separate evidence classes. Local synthetic timings are not Production results.
 
 Priority after this bounded cut: Home below-fold request admission (F17/F27–F30); World compact source/card separation (F21/F31); source-first Post and media dimensions/renditions (F23/F34); scoped ELS payload/offline parity (F24); build-attributed usable-content metrics under the existing pipeline (F19). Do not copy old HTML, remove adopted content, widen permissions or deploy server/schema merely because a historical file exists.
+
+## Current-state check — 17 November 2026 (SPEED_CENTRE_CONTROL_20261117)
+
+Added, not replacing: everything above is the 31.10 baseline and stays as it was. This section connects the later rounds (GPT/Codex 28.10–13.11, Claude 15–17.11) to the code on `origin/main` `2011226fe`, the live Production deployment and the measurements. Machine-readable twin: `current_state_20261117` in the adjacent JSON, which the speed centre in `/2029/control` (`OperationalMetrics2029`) reads.
+
+**Live state (read 17.11.2026 10:35 UTC):** `sod1820.co.il`, `www` and `sod1820.vercel.app` → `dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi`; the live document's bootstrap names entry `/assets/2029-CNp2F-eD.js` and `sourceSha 2011226fe`. work_log is provenance only; each state below comes from git ancestry, the deployment record and the live document.
+
+**Counts:** 46 fixes, all merged and all ancestors of the live deployment; live behaviour verified for 19, not verified for 25, contradicted for 2 (S-3 before #1366; S-46 awaiting a real upload). Measurement classes: lab 30, build budget 5, field 2 (both field entries measure coverage, not speed), none 9. No fix is "merged, not deployed" today.
+
+**What the field measurement can and cannot prove.** The site's own RUM (`events.performance.web_vital`) measures document navigations, not in-site transitions, and is not CrUX. Since the #1372 deployment (16.11 evening) each sample carries `build` (entry file name), `device_class`, `article_first` and `nav_timing`; older samples stay "unknown". A before/after claim needs non-overlapping windows, the same page kind and device class, enough samples per metric, and the same conditions; overlapping 24 h / 7 d windows are not a comparison. Until a deployed fix has that, it is "deployed, awaiting impact measurement".
+
+### Build evidence (entry file → commit)
+
+| Build | Commit | Deployment | Evidence |
+|---|---|---|---|
+| `2029-CNp2F-eD` | 2011226fe | dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi | live document bootstrap config (entry + sourceSha), read 2026-11-17T10:35Z |
+| `2029-DvYRh6FW` | e226815f6 | dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6 | that deployment's own document (Vercel fetch of sod1820-fx1wg3aco-sod1820-s-projects.vercel.app): bootstrap config entry /assets/2029-DvYRh6FW.js, sourceSha e226815f6, read 2026-11-17T10:34Z |
+
+### Fixes since 31.10 (one row each; double counting removed)
+
+| Id | Fix | Area | Source | Merge | First Production carrying it | Live | Measurement | Guards |
+|---|---|---|---|---|---|---|---|---|
+| S-1 | עולם: כרטיסי המקור מוצגים לפני שאר הקריאות; קריאות המקור במקביל; מנוע הגילוי המחובר נטען רק בכתובת שלו | world | #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | unknown | lab | 2 |
+| S-2 | נהר המציאות: גלילה בלי רינדור React בכל צעד (requestAnimationFrame) | home | #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | unknown | lab | 2 |
+| S-3 | רקעי פוסט: גרסאות לאורך קלות + כותרות מטמון ארוכות (נכתבו ב־vercel.json הלא נכון) | post | #1179, #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | **no** | none | 1 |
+| S-4 | איחוד ביצועים 31.10: Realtime עצל, צופה סיפורים וטופס דיווח לפי דרישה, איחוד קריאות דגלים בזמן טיסה, מסנן פרסום למדיה במספר | all | #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | unknown | budget | 4 |
+| S-5 | בית: קטעים מתחת לקפל (סרטונים, ממד חמש, תצוגת העולם, הנהר, סיפור) נקראים רק בהתקרבות | home | #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | unknown | lab | 1 |
+| S-6 | פוסט: קריאת המקור מתחילה יחד עם הורדת הקוד; מתאמי Golden והעד ההיסטורי נטענים רק כשצריך | post | #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | unknown | lab | 2 |
+| S-7 | דף המספר: הליבה מוצגת לפני החומר המשני; קריאות זהות ועדשות במקביל; שימוש חוזר 30 שניות בפרופיל השיטה | number | #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | unknown | lab | 1 |
+| S-8 | בית: קריאת הכרטיסים הראשית שייכת לנתיב ומתחילה בזמן הורדת הקוד; קוד אופציונלי של הבית נדחה | home | #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | unknown | lab | 3 |
+| S-9 | גופן IBM Plex Mono החיצוני לא חוסם את הצביעה הראשונה | all | #1191 | 71bb76467 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | unknown | none | 1 |
+| S-10 | מפת האתר: קריאת דפי ביטויים בשלושה גלים מקבילים ומטמון CDN רק לתשובה קנונית מוצלחת | server | #1193 | a4910bc27 | dpl_xw7fECMyWRrZvxxKdy71yobAhj8h | yes | lab | 1 |
+| S-11 | מדידת Web Vitals אנונימית חוברה מחדש באתר החי (RUM) | measurement | #1198 | 11346873d | dpl_Ds3PSspTDjTQGEdXK8RPSt4oFZ7s | yes | field | 2 |
+| S-12 | CLS: אזור התוכן שומר גובה מסך כדי שהפוטר לא יופיע בטעינה + שער CLS לפוסט אמיתי שהנתונים שלו מאחרים | all | #1220, #1226 | f7d047c27 | dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP | yes | lab | 1 |
+| S-13 | CLS: /books ו־/community שומרים את המסך הראשון בזמן הטעינה הראשונה | community | #1223 | cd2a91975 | dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP | yes | lab | 1 |
+| S-14 | אווטארים: עותק קטן 160px במקום הקובץ המקורי (3.77MB) + חריגה ב־service worker לעותקים | community | #1227, #1229 | 2500ec560 | dpl_4aihnmkHhEHuh2oJjXVziRP5ZLwu | yes | lab | 2 |
+| S-15 | שער CI: Realtime נשאר מחוץ לחבילת הכניסה (perf-contracts-2029) | build | #1228 | b0a752c66 | dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP | unknown | budget | 1 |
+| S-16 | בית המדרש: הפסים לא גוללים את הדף בפתיחה (CLS 0.66 -> 0) | all | #1229 | 2500ec560 | dpl_4aihnmkHhEHuh2oJjXVziRP5ZLwu | yes | lab | 2 |
+| S-17 | דף המספר: קריאות ערכים במקביל לחיפוש הצומת וקריאה אחת של fn_number_lookup | number | #1238 | 3d81716af | dpl_EDc7PpuMp4vkuJuSbwh1gKQ5QSTV | unknown | lab | 3 |
+| S-18 | בית: תמונת האווירה של הבית מתבקשת כבר בזמן מודול הכניסה (חלון CDN למסמך הבית נוסה והוסר) | home | #1249, #1251 | c22fcc789 | dpl_Fnz5Ax9ARZhs2eBxR2L3Qseae5qP | unknown | none | 1 |
+| S-19 | חבילת ביקורת 8.11: קיצוץ JS בטעינה ראשונה (מדיניות קישורים וטענות Golden מחוץ למעטפת) + שער גרף טעינה ראשונה | all | #1262 | cfa7cc1ce | dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz | unknown | lab | 2 |
+| S-20 | חבילת ביקורת 8.11: שיתוף קריאות זהות וזיכרון קצר לקריאות אנונימיות; תיקון לולאת Method Lens; זרם המסגרת פעם ב־30 שניות | all | #1262 | cfa7cc1ce | dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz | unknown | lab | 2 |
+| S-21 | חבילת ביקורת 8.11: מטענים קטנים יותר — התכנסות נושאים באצווה, השלמת בולטות בעולם, דופק הבית, עמודות מפורשות לפוסט | all | #1262 | cfa7cc1ce | dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz | unknown | lab | 4 |
+| S-22 | חבילת ביקורת 8.11: modulepreload לכניסה, preconnect ל־Supabase, כריכת פוסט eager+high, הסתרת הפוטר בזמן מסך טעינה | all | #1262 | cfa7cc1ce | dpl_3tEP9gQAzP6Kdq752FwsgSFVxrHz | yes | lab | 2 |
+| S-23 | צביעה ראשונה: מעטפת פתיחה מלכותית ב־2029.html במקום מסך ריק | all | #1272 | b33471310 | dpl_Cf3GhwPoLeeQLQEu7daDidps1ViH | unknown | none | 2 |
+| S-24 | מדיה ציבורית: ה־worker מעביר תמונות/וידאו/אודיו ציבוריים בטעינה מקורית (Range, הפניות, מטמון HTTP) | all | #1299 | 932aba4bd | dpl_HnswhFsyHPK2aSKxLN9nak3r2BKL | yes | none | 1 |
+| S-25 | מפת האתר: שימוש חוזר בשורות הפוסטים הציבוריות במקום קריאה חוזרת; סרטונים במקביל | server | #1344 | 4b9a8687e | dpl_C5DBLrWYhELPFDDUaVRJs5W1T6Wj | yes | lab | 1 |
+| S-26 | פוסט: רקע הפוסט מתחיל לרדת מיד כשהמקור אושר | post | #1345 | 3843af126 | dpl_5zVyxXPYNf7tH4jaovi7C4So2FEf | unknown | lab | 1 |
+| S-27 | פוסט: העשרות בלתי תלויות (אימותים, סיפור, חבילת הקשר) רצות במקביל | post | #1346 | c752b0014 | dpl_CLXTnXF5de1PN1STtajXghtnhyVU | unknown | lab | 1 |
+| S-28 | הפניות: 496 הפניות מפורשות מגיעות ליעד בקפיצה אחת | server | #1355 | fec22ca07 | dpl_5zVyxXPYNf7tH4jaovi7C4So2FEf | unknown | none | 1 |
+| S-29 | מסמך פוסט ישן: שני הכתיבים של הכתובת בבקשה אחת (slug=in.(a,b)) | post | #1360, #1366 | d1f1e3252 | dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU | yes | lab | 1 |
+| S-30 | קבצים סטטיים: מטמון לגופנים, תמונות מותג ו־12 רקעי פוסט בקונפיג שבאמת נפרס | all | #1362, #1366 | d1f1e3252 | dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU | yes | none | 1 |
+| S-31 | פוסט בכתובת המקורית (/<slug>): קריאת המקור מתחילה יחד עם הורדת קוד הדף | post | #1361, #1366 | d1f1e3252 | dpl_EFNqJ27phRRhWQsC6fGTo9zELVRU | unknown | lab | 2 |
+| S-32 | חזרה למיקום הגלילה בין דפים (מעבר קדימה מתחיל למעלה; אחורה משחזר גם אחרי תוכן מאוחר) | all | #1367 | 21ce4c94d | dpl_4i7djNA8y61CN6iiskzdPDmHWFmP | unknown | none | 1 |
+| S-33 | מסמך פוסט: דפדפן לא מחכה לבדיקת קיום ה־slug בקצה; לזחלנים הבדיקה נשארת עם תקרת 800ms | post | #1370, #1371 | 93daf703e | dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7 | unknown | lab | 3 |
+| S-34 | שער תקציב מעטפת: הכניסה, המסגרת וה־CSS שלה לא גדלים ולא מקבלים ייבוא סטטי חדש | build | #1370, #1371 | 93daf703e | dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7 | unknown | budget | 2 |
+| S-35 | דיאטת מסגרת: האזור האישי, רצף האירועים ומפתח 'עדכון סדרה' נטענים רק כשצריך | all | #1370, #1371 | 93daf703e | dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7 | unknown | lab | 2 |
+| S-36 | Storage עצל: לקוח האחסון נטען רק בהעלאה הראשונה | all | #1370, #1371 | 93daf703e | dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7 | unknown | budget | 2 |
+| S-37 | גופנים: שני preload בלבד, Noto ב־WOFF2, קובץ רוביק עברי אחד, חלופות מקומיות ממודדות | all | #1370, #1371 | 93daf703e | dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7 | yes | lab | 1 |
+| S-38 | פוסטים ותיקים: המאמר כבר במסמך הראשון (jsdom בשרת), הדף מאמץ אותו בלי קפיצה; CSS צביעה ראשונה | post | #1371 | 93daf703e | dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7 | yes | lab | 5 |
+| S-39 | כלי הפוסט (שיתוף, תגובות, ציר זמן, עורכים) נטענים בפתיחה או בהתקרבות | post | #1371 | 93daf703e | dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7 | unknown | lab | 1 |
+| S-40 | תמונות פוסטים ותיקים: עותקים קטנים רק מתחת לרוחב האמיתי של המקור; המקור הוא האפשרות הרחבה | post | #1371 | 93daf703e | dpl_7yhnPsvfVwqG2qZAR8DUnXDNLNy7 | yes | lab | 1 |
+| S-41 | שער 'תוכן קריא קודם': Google, Pixel, ביקור ורצועת המסגרת מתחילים רק אחרי התוכן | all | #1372 | e226815f6 | dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6 | yes | lab | 2 |
+| S-42 | פרסומות מושהות בקוד; הלוח העברי והמפענח של שיתוף המחשבון יצאו מחבילת הפתיחה | all | #1372 | e226815f6 | dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6 | yes | budget | 3 |
+| S-43 | מדידה: כל דגימת Web Vitals נושאת build, סוג מכשיר, מצב article-first ופירוק זמן המסמך | measurement | #1372 | e226815f6 | dpl_D3K2f6N2oS53QY6gLKvVrVBYBgv6 | yes | field | 2 |
+| S-44 | קהילה: כל שורש בפיד מגיע עם מספר התגובות — פחות קפיצות פריסה | community | #1373 | 7879c96a3 | dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi | yes | lab | 2 |
+| S-45 | פוסטים חדשים: גם פוסט שנכתב באתר מגיע עם המאמר במסמך הראשון; עותקי התמונות מוכנים אחרי התשובה | post | #1374 | 2011226fe | dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi | yes | lab | 3 |
+| S-46 | העלאות agent-upload: קובץ ציבורי שנכתב פעם אחת נשמר עם מטמון של שעה | server | #1374 | 2011226fe | dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi | **no** | none | 1 |
+
+### The 34 historical groups after the later work
+
+| Group | State now | By | Note |
+|---|---|---|---|
+| F01 | PARTIAL | S-6, S-8, S-9, S-18, S-19, S-22, S-23, S-31, S-34, S-35, S-36, S-37, S-42 | Early route-owned primary reads now exist for Home, /post/<slug> and /<slug>; entry modulepreload, Supabase preconnect, two font preloads, shell budget ratchet. World/Number early reads and a field before/after per build |
+| F02 | UNCHANGED | — | No later change found. |
+| F03 | CLOSED_BY | S-32 | RouteScrollReset2029 restores Back/Forward positions after late content (up to 4 s, cancelled by input); browser test in route-navigation-2029.yml. Not checked live. |
+| F04 | STILL_OPEN | — | No offscreen-animation pausing found in Post2029Page or src/lib; S-2 only coalesces River scroll. |
+| F05 | UNCHANGED | — | No later change found. |
+| F06 | UNCHANGED | S-1 | S-1 speeds the World source view; navigation carry itself unchanged. |
+| F07 | UNCHANGED | — | Still lab-only evidence; later labs (shell-diet, speed-series-2, article-first) use production artifacts, interleaving and Mann-Whitney p; Speed Law rule 7 now requires identical builds/env (incl. analytics IDs). |
+| F08 | UNCHANGED | S-15 | S-15 wires the Realtime split contract into CI (perf-contracts-2029); remote CI corpus question unchanged. |
+| F09 | UNCHANGED | — | No later change found. |
+| F10 | UNCHANGED | S-4 | Carried to main via #1191; test/entity-bundle-publication-2029.test.mjs exists. |
+| F11 | UNCHANGED | — | No later change found. |
+| F12 | PARTIAL | S-8, S-21 | Home primary card read is route-owned (getHomeLaunchPostCards); post reader uses 30 explicit columns. WorldFlightStory still uses the reading projection (see F21). |
+| F13 | UNCHANGED | S-4 | StoryViewerOnDemand2029 / ContactGatewayOnDemand2029 carried on main via #1191. |
+| F14 | STILL_OPEN | — | src/lib/lockedRouteCode2029.js not on main; no later change found. |
+| F15 | CLOSED_BY | S-33 | In the 2029 tree browsers no longer wait for public_post_slug_exists; goodbot/ai keep it with an 800 ms bound (middleware-core.js edgePostLookupRequired). Legacy scope itself is retired. |
+| F16 | UNCHANGED | — | No measured inspector chunk change found. |
+| F17 | CLOSED_BY | S-5 | getHomeVideos runs only when videosAdmitted (useApproach2029 after primary loaded). Code + tests; no live timing check. |
+| F18 | UNCHANGED | S-4, S-20 | pendingScope coalescing carried; S-20 adds a separate anonymous read dedupe/memo. |
+| F19 | PARTIAL | S-11, S-43 | RUM reconnected 5.11; since 16.11 every web_vital sample carries build, device_class, article_first, nav_timing (verified in public.events). LCP element attribution / usable-content metric still absent. |
+| F20 | UNCHANGED | S-4, S-15 | realtimeLazy2029 alias carried; now enforced in CI by perf-contracts-2029. |
+| F21 | PARTIAL | S-6 | WorldFlightStory calls fetchPost2029ReadingProjection with sourceInvitation:true (no context pack/connections); compact-card separation still not carried. |
+| F22 | PARTIAL | S-7, S-17 | Parallel identity/value reads, progressive core vs material, 30 s method reuse, one fn_number_lookup. Mobile time gain not consistent (#1238). |
+| F23 | PARTIAL | S-14, S-24, S-38, S-40, S-45, S-46 | Avatar renditions; article images with real-width renditions and reserved size in article-first Posts; upload cache header. Body-media deferral with wheel/touch intent not carried. |
+| F24 | STILL_OPEN | — | No ELS payload change in the window. |
+| F25 | UNCHANGED | — | No later change found. |
+| F26 | PARTIAL | S-21, S-41 | Home pulse 7 -> 5 requests; frame background reads now wait for content off Home. Capability decision unchanged. |
+| F27 | CLOSED_BY | S-5 | Home discovery/summary/standalone/world/story readers are approach-admitted; DiscoveryGateways2029 no longer on main. |
+| F28 | PARTIAL | S-8 | Home optional code admission (static Home gzip 472,047 -> 355,102 B in GPT lab); fan-out acceptance and a Home page-graph budget are not established (#1375 draft proposes more). |
+| F29 | CLOSED_BY | S-5 | World preview on Home is approach-admitted (worldAdmitted) after primary content. |
+| F30 | UNCHANGED | — | Home2029Page still passes includeTemporal; no decision record found. |
+| F31 | STILL_OPEN | — | WorldFlightStory2029 still imports postRowToWorldUpdate from worldDiscoveryStream. |
+| F32 | UNCHANGED | — | Historical release evidence. |
+| F33 | UNCHANGED | — | Historical Preview identity. |
+| F34 | CLOSED_BY | S-6, S-27, S-38, S-45 | For proven public Posts (1,294 of 1,294 candidates) the article is in the first document and adopted by the page; live X-Sod-Article-First: served verified on an old and a site Post. Non-candidates and new-guarded Posts  |
+
+### Not counted as merged fixes
+
+- 1375: Home: construction note, pinned reality-map lead, short Now, route preload; branch only. public-reading-deploy/route-preload.js is absent on origin/main. Lab A/B n=3 (first real content 11.4-12.3 -> 6.2-6.3 s; LCP becomes the pinned image 7.5-7.7 s).
+- 1363: Package C (GA/Pixel after the article, wait for cover). Goal superseded by #1372 afterReadableContent2029 (S-41).
+- 1364: AdSense library on approach. Moot after ADSENSE_PAUSED (S-42); its own lab showed no content gain and higher TBT.
+- 1360: Package A; same change merged through #1366 (S-29).
+- 1361: Package B; same change merged through #1366 (S-31).
+- 1362: Package D; same change merged through #1366 (S-30).
+- 1365: Docs-only evidence/archaeology (docs/reviews/post-speed-package-20261115) — exists only on branch claude/perf-post-speed-evidence-20261115, not on main. Used here only as secondary evidence.
+- claude/perf-post-middleware-f5-vmwq1d @ 9ed573364: Older edge-lookup work (Oct); never merged; superseded by 8d5c1df7e (S-33).
+- codex/cls-diagnostic-20261116 @ 0bb87ae5e: CLS diagnostic / readability approval record; not an ancestor of main, no PR found.
+- : Cover hint for original-address Posts: added and fully reverted inside the #1370 package (measured text +0.35-0.5 s on every old post). Net zero on main.
+- 1249: Merged and deployed (dpl_Fnz5Ax9ARZhs2eBxR2L3Qseae5qP) but live showed x-vercel-cache MISS age 0; removed by #1251 (a3e6b737f). Not present on main.
+
+### Double-counting notes
+
+- #1370 and #1371 share merge commit 93daf703e: GitHub marks draft #1370 merged because its head 2165ec326 is inside #1371. Its items (S-33..S-37) are counted once, under merge 93daf703e.
+- #1358 is also marked merged at 93daf703e (included up to 5b4c632b7 via e53ca0adc). Its only speed-relevant effect was a regression (useSystemFeed2029 +20 KB gzip to the frame), fixed in the package by a0c13693d (counted in S-35); #1358 itself is not counted as a fix.
+- #1360/#1361/#1362 (Claude packages A/B/D) were closed unmerged; the same changes reached main through #1366 (d1f1e3252) and are counted once as S-29/S-31/S-30.
+- #1372 superseded #1363 (and made #1364 moot); nothing from #1363/#1364 is counted.
+- The 31.10 GPT immutable background headers (S-3, root vercel.json) and the 15.11 deployed-config headers (S-30) are the same intent; S-3 was inert in Production, S-30 is the effective one. Counted separately with S-3 marked live_verified=no.
+- GPT commits 36c79e281, 5245f38e6, d13233577, 6cd64a795 (1-2.11) are not ancestors of main; their behaviour reached main inside the #1191 squash (71bb76467) and is counted under S-6/S-8/S-9.
+- #1366's commit message says /post/<slug> has started its route-owned read 'since #1262'; git -S shows beginPostReadingSource was introduced by #1191 (71bb76467). Counted under S-6.
+- #1229 is split: avatar rendition SW exemption counted with S-14 (avatars), Beit Midrash scroll/CLS as S-16; its /beit-midrash server-document fix is SEO and not counted.
+- #1262 is split into four entries (S-19..S-22) by mechanism; the doc's whole-RC lab A/B (§5) is reported once under S-22.
+- Article-first appears twice by population: old imported Posts (S-38, #1371, 1,175 proofs) and site-written Posts (S-45, #1374, proofs 1,294). Same mechanism, different eligibility.
+- #1249 is counted once (S-18, hero atmosphere preload); its CDN window part was removed by #1251 and is listed under not_merged.
+- PR numbers 1191 (squash, 991 commits per PR #1365 archaeology) and 1193 (a4910bc27) are the merge carriers for the GPT/Codex rounds of 28.10-04.11; main has no commits between 26.10 and 04.11.
+
+### Connected in this task (17.11.2026)
+
+- `admin_2029_analytics` (Traffic Intelligence) extended additively: sample times and per-metric counts, field-context coverage, FCP/TTFB good shares and thresholds, breakdowns by page kind / device / build / article-first, p75 parts of the first byte, routes by samples, and the speed watch's heartbeat and open findings (`supabase/migrations/20261117120000_speed_centre_web_vitals.sql`, applied live 17.11.2026 10:32 UTC, md5 verified against the local run).
+- `fn_web_vitals_watch` (System Suggestions / Health), hourly inside the existing `fn_health_watch`: regressions (24 h vs the 7 days before, per page kind, ≥20/≥40 samples) and measurement gaps as de-duplicated `system_suggestions`, heartbeat `analytics_cache` `speed_watch:latest`. First run: one open finding, Community CLS p75 0.1358 vs 0.0620.
+- Release artifact guard: `scripts/test-2029-shell-budget.mjs --profile public-reading` runs inside `scripts/build-public-reading-production.mjs` on `public-reading-deploy/dist`, always enforced (VITE_* values never switch it off), own baseline and history in `scripts/2029-shell-budget-baseline.json`.
+- Open (owners): field before/after per build and page kind (Traffic Intelligence); behaviour checks for the 25 unverified fixes and unwired guard tests (Foundation Closure); Home and Post first-byte wait and redirects p75 ~1 s (Experience Governance); F04, F14, F24, F31 still open.

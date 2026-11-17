@@ -1,0 +1,117 @@
+{
+  "when": "2026-11-17T10:43:36.363Z",
+  "results": [
+    {
+      "label": "desktop",
+      "scenario": "data",
+      "attention": [
+        "finding-97"
+      ],
+      "reads": 1,
+      "blocked": 0
+    },
+    {
+      "label": "desktop",
+      "scenario": "fail",
+      "attention": [
+        "source"
+      ],
+      "reads": 1,
+      "blocked": 0
+    },
+    {
+      "label": "desktop",
+      "scenario": "missing",
+      "attention": [
+        "no-samples",
+        "watch-missing"
+      ],
+      "reads": 1,
+      "blocked": 0
+    },
+    {
+      "label": "desktop",
+      "scenario": "refresh-fails",
+      "attention": [
+        "source",
+        "finding-97"
+      ],
+      "reads": 2,
+      "blocked": 0
+    },
+    {
+      "label": "desktop",
+      "scenario": "refresh-pending",
+      "attention": [
+        "finding-97"
+      ],
+      "reads": 2,
+      "blocked": 0
+    },
+    {
+      "label": "desktop",
+      "scenario": "account",
+      "attention": [
+        "finding-97"
+      ],
+      "reads": 2,
+      "blocked": 0
+    },
+    {
+      "label": "mobile",
+      "scenario": "data",
+      "attention": [
+        "finding-97"
+      ],
+      "reads": 1,
+      "blocked": 0
+    },
+    {
+      "label": "mobile",
+      "scenario": "fail",
+      "attention": [
+        "source"
+      ],
+      "reads": 1,
+      "blocked": 0
+    },
+    {
+      "label": "mobile",
+      "scenario": "missing",
+      "attention": [
+        "no-samples",
+        "watch-missing"
+      ],
+      "reads": 1,
+      "blocked": 0
+    },
+    {
+      "label": "mobile",
+      "scenario": "refresh-fails",
+      "attention": [
+        "source",
+        "finding-97"
+      ],
+      "reads": 2,
+      "blocked": 0
+    },
+    {
+      "label": "mobile",
+      "scenario": "refresh-pending",
+      "attention": [
+        "finding-97"
+      ],
+      "reads": 2,
+      "blocked": 0
+    },
+    {
+      "label": "mobile",
+      "scenario": "account",
+      "attention": [
+        "finding-97"
+      ],
+      "reads": 2,
+      "blocked": 0
+    }
+  ]
+}
