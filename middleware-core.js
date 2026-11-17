@@ -300,13 +300,13 @@ async function publicPostSlugExists(path, { fresh = false } = {}) {
 }
 
 // Post document freshness (ZURIEL 17.11.2026): the edge gate of post-document-freshness.js. One list per instance, read in the background
-// from this site's own endpoint (the request's origin; CDN-held 2 s); never on a reader's critical path.
-let POST_DOCUMENT_LIST_ORIGIN = null;
+// directly from the database's public read (as the policies above are), only while this instance serves a burst; never on a reader's
+// critical path.
 const POST_DOCUMENT_GATE = createPostDocumentGate({
   fetchList: async () => {
-    if (!POST_DOCUMENT_LIST_ORIGIN) return null;
-    const r = await fetch(new URL(POST_DOCUMENT_FRESHNESS.listPath, POST_DOCUMENT_LIST_ORIGIN), {
-      headers: { accept: 'application/json' }, signal: AbortSignal.timeout(POST_DOCUMENT_FRESHNESS.fetchTimeoutMs) });
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${POST_DOCUMENT_FRESHNESS.listRpc}`, {
+      method: 'POST', headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' }, body: '{}',
+      signal: AbortSignal.timeout(POST_DOCUMENT_FRESHNESS.fetchTimeoutMs) });
     return r.ok ? r.json() : null;
   },
 });
@@ -404,7 +404,6 @@ export default async function middleware(request, context) {
   // Post document freshness: decided before the crawler existence lookup (which re-reads a recently changed Post) and applied at the end.
   let docGate = null;
   if (postDocumentGateCandidate(request.method, request.url)) {
-    try { POST_DOCUMENT_LIST_ORIGIN = new URL(request.url).origin; } catch { /* keep the last one */ }
     docGate = await POST_DOCUMENT_GATE.decide(path, { testList: previewTestList(request) });
     if (docGate.refresh) context.waitUntil(docGate.refresh());
   }

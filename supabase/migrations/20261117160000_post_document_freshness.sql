@@ -126,9 +126,10 @@ create trigger trg_post_document_change_del after delete on public.posts
 create trigger trg_post_document_change_trunc after truncate on public.posts
   for each statement execute function public.fn_post_document_change();
 
--- What the edge reads (through the site's own CDN-held endpoint, at most every 2 seconds per region): the address keys of Posts changed in
--- the last 20 minutes and, after a bulk change, the time until which every Post document must be built fresh. 20 minutes is more than three
--- times the longest life of a kept copy (5 minutes fresh + 1 minute served while refreshing).
+-- What the edge reads (directly, anonymously, in the background, at most every 2 seconds per edge instance and only while that instance serves
+-- a burst of Post requests): the address keys of Posts changed in the last 20 minutes and, after a bulk change, the time until which every
+-- Post document must be built fresh. 20 minutes is more than three times the longest life of a kept copy (5 minutes fresh + 1 minute served
+-- while refreshing). Hashes and a count only: no id, slug, title or content.
 create function public.post_document_recent_changes_v1()
 returns jsonb language sql stable security definer set search_path to 'public' as $function$
   with p as (select payload from public.analytics_cache where cache_key = 'post_documents:changes'),

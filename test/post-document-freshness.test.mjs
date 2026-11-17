@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { createPostDocumentGate, postDocumentKeysForPath, postDocumentGateCandidate, postDocumentBypassUrl, previewTestList,
   validPostDocumentList, POST_DOCUMENT_FRESHNESS } from "../post-document-freshness.js";
 import middleware from "../middleware-core.js";
-import { postDocumentCacheHandler, validPurgeTags, POST_DOCUMENT_LIST_CDN } from "../public-reading-deploy/api/post-document-cache.js";
+import { postDocumentCacheHandler, validPurgeTags } from "../public-reading-deploy/api/post-document-cache.js";
 import { publicReadingDocumentHandler, postDocumentCdnCacheable, POST_DOCUMENT_CDN_CACHE, POST_DOCUMENT_FRESH_PARAM } from "../public-reading-deploy/api/public-document.js";
 
 // Post document freshness at the edge (ZURIEL 17.11.2026). A kept CDN copy of a Post is used only while the edge holds a list of recent changes
@@ -37,8 +37,11 @@ test("the gate: fail closed until a list is read, clean after, bypass for a list
   const gate = createPostDocumentGate({ now: c.now, fetchList: async () => { reads++; if (fail) throw new Error("down"); return list; } });
 
   let d = await gate.decide("/post/quiet-post");
-  assert.deepEqual([d.bypass, d.reason], [true, "stale"], "no list yet: the origin builds it");
-  assert.equal(typeof d.refresh, "function");
+  assert.deepEqual([d.bypass, d.reason, d.refresh], [true, "stale", null], "no list, a lone request: the origin builds it and no read is made for it");
+  c.advance(1000);
+  d = await gate.decide("/post/quiet-post");
+  assert.deepEqual([d.bypass, d.reason], [true, "stale"], "still no list: the origin builds it");
+  assert.equal(typeof d.refresh, "function", "a second request within the lease is a burst: the list is read in the background");
   await d.refresh();
   assert.equal(reads, 1);
 
@@ -71,6 +74,23 @@ test("the gate: fail closed until a list is read, clean after, bypass for a list
   assert.equal(validPostDocumentList({ version: 1, keys: [key("a")], all_until: null }), true);
 });
 
+test("a quiet edge instance makes no extra call: requests further apart than the lease are built fresh, exactly as without a CDN", async () => {
+  const c = clock(1_800_000_000_000);
+  let reads = 0;
+  const gate = createPostDocumentGate({ now: c.now, fetchList: async () => { reads++; return { version: 1, keys: [], all_until: null }; } });
+  for (let i = 0; i < 20; i++) {
+    const d = await gate.decide("/post/quiet-post");
+    assert.deepEqual([d.bypass, d.reason, d.refresh], [true, "stale", null]);
+    c.advance(POST_DOCUMENT_FRESHNESS.leaseMs + 1);
+  }
+  assert.equal(reads, 0, "no list read, no database call, no function call");
+  // a burst on the same instance: one read, then kept copies may be used while requests keep coming within the lease
+  let d = await gate.decide("/post/quiet-post"); assert.equal(d.refresh, null);
+  c.advance(500); d = await gate.decide("/post/quiet-post"); await d.refresh();
+  for (let i = 0; i < 10; i++) { c.advance(400); d = await gate.decide("/post/quiet-post"); assert.equal(d.reason, "clean"); if (d.refresh) await d.refresh(); }
+  assert.ok(reads >= 1 && reads <= 3, `at most one read per ${POST_DOCUMENT_FRESHNESS.refreshAfterMs} ms during the burst (${reads})`);
+});
+
 test("the test list exists only on the protected Preview of the experiment branch", () => {
   const request = new Request("https://x.vercel.app/post/a", { headers: { [POST_DOCUMENT_FRESHNESS.testHeader]: JSON.stringify({ keys: [key("a")] }) } });
   assert.deepEqual(previewTestList(request, { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "ccr-dcadb071-v1z5ol" }).keys, [key("a")]);
@@ -82,7 +102,7 @@ function edge() {
   const calls = [], pending = [];
   const fetchImpl = async url => {
     calls.push(String(url));
-    if (String(url).endsWith(POST_DOCUMENT_FRESHNESS.listPath)) return new Response(JSON.stringify({ version: 1, keys: [key("changed-post")], all_until: null }));
+    if (String(url).endsWith("/rest/v1/rpc/" + POST_DOCUMENT_FRESHNESS.listRpc)) return new Response(JSON.stringify({ version: 1, keys: [key("changed-post")], all_until: null }));
     return new Response("null");
   };
   return { calls, pending, context: { waitUntil: p => pending.push(p) }, fetchImpl };
@@ -100,7 +120,13 @@ test("the real middleware: rewrites to the reserved address with the never-keep 
     assert.equal(res.headers.get("x-sod-doc-gate"), "stale");
     assert.match(res.headers.get("set-cookie") || "", /vb=browser/, "the existing cookies are kept");
     await Promise.all(e.pending);
-    assert.ok(e.calls.some(url => url === "https://sod1820.co.il/api/post-document-cache"), "the list is read in the background from the site's own endpoint");
+    assert.ok(!e.calls.some(url => url.endsWith("/rpc/" + POST_DOCUMENT_FRESHNESS.listRpc)), "a lone request makes no list read");
+    res = await middleware(browser("/post/quiet-post"), e.context);
+    assert.equal(res.headers.get("x-sod-doc-gate"), "stale", "the second request of a burst is still built fresh");
+    await Promise.all(e.pending);
+    assert.ok(e.calls.includes("https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/" + POST_DOCUMENT_FRESHNESS.listRpc),
+      "the burst reads the list in the background, directly from the database's public read");
+    assert.ok(!e.calls.some(url => url.includes("/api/post-document-cache")), "never through a site function");
 
     res = await middleware(browser("/post/quiet-post"), e.context);
     assert.equal(res.headers.get("x-middleware-rewrite"), null, "list read, Post not on it: no rewrite");
@@ -124,15 +150,10 @@ function response() {
 }
 const request = (method, { headers = {}, body = null } = {}) => ({ method, headers: { host: "sod1820.co.il", ...headers }, url: "/api/post-document-cache", query: {}, body });
 
-test("the endpoint: the list is CDN-held 2 s when valid, a 503 that is never kept otherwise", async () => {
-  const good = postDocumentCacheHandler({ authorized: () => true, fetchImpl: async () => new Response(JSON.stringify({ version: 1, keys: [key("a")], all_until: null, window_seconds: 1200 })) });
-  let res = response(); await good(request("GET"), res);
-  assert.equal(res.code, 200); assert.equal(res.headers.get("vercel-cdn-cache-control"), POST_DOCUMENT_LIST_CDN); assert.equal(res.headers.get("cache-control"), "no-store");
-  assert.deepEqual(JSON.parse(res.body).keys, [key("a")]);
-  for (const fetchImpl of [async () => { throw new Error("down"); }, async () => new Response("{}", { status: 500 }),
-    async () => new Response(JSON.stringify({ version: 1, keys: ["leak-a-slug"] }))]) {
-    res = response(); await postDocumentCacheHandler({ authorized: () => true, fetchImpl })(request("GET"), res);
-    assert.equal(res.code, 503); assert.equal(res.headers.get("vercel-cdn-cache-control"), undefined, "a failed list is never kept");
+test("the endpoint serves only the purge: no list, no GET", async () => {
+  for (const method of ["GET", "HEAD", "PUT"]) {
+    const res = response(); await postDocumentCacheHandler({ authorized: () => true, reviewOrigin: () => "https://x.vercel.app", purgeApi: () => ({ dangerouslyDeleteByTag: async () => {} }) })(request(method), res);
+    assert.equal(res.code, 405); assert.equal(res.headers.get("allow"), "POST"); assert.equal(res.headers.get("cache-control"), "no-store");
   }
 });
 
