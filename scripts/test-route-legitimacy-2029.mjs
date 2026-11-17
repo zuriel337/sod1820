@@ -86,7 +86,10 @@ assert.match(middleware, /x-sod-route': 'not-found'/);
 assert.match(app2029, /path="\/post\/:slug"/);
 assert.match(app2029, /path="\/video\/:assetId"/);
 assert.match(middleware, /const post2029 = path\.match\(\/\^\\\/post\\\/\(\[\^\/\]\+\)\\\/\?\$\//);
-assert.match(middleware, /publicPostSlugExists\('\/' \+ post2029\[1\]\)/);
+assert.match(middleware, /publicPostSlugExists\('\/' \+ post2029\[1\], \{ fresh: docChanged \}\)/);
+// Post document freshness (17.11.2026): a Post changed in the last 20 minutes is looked up again, never answered from this instance's memory.
+assert.match(middleware, /const exists = await publicPostSlugExists\(path, \{ fresh: docChanged \}\);/);
+assert.match(middleware, /if \(!fresh && cached && now - cached\.at < POST_ROUTE_CACHE_MS\) return cached\.exists;/);
 assert.match(middleware, /const video2029 = path\.match\(\/\^\\\/video\\\/\(\[\^\/\]\+\)\\\/\?\$\//);
 assert.match(middleware, /!\/\^\[0-9a-f\]\{32\}\$\/i\.test\(video2029\[1\]\)/);
 
