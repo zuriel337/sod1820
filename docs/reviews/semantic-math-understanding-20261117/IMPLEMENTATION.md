@@ -45,3 +45,8 @@
 ## הרצות (מקומיות, לא CI)
 - יחידה/חוזה/רגרסיה: **202 בדיקות, 198 עברו, 0 נכשלו (4 דולגו, קיימות)**; שערי 2029 (`legacy-retired`, `isolation`, `built-graph`, `first-load-graph`, `cheap-hardening`, `canonical-presentation`, `canonical-contract-wiring`) — exit 0.
 - דפדפן (SwiftShader): `semantic-math-browser-check.mjs` PASS (620 · 3060 · 910 מול המנוע האמיתי · פירוק במדף ל־1020/910/620/3060); רגרסיה על **3060** בכל ארבעת הכיוונים (דסקטופ) **PASS**; על **620** בכל ארבעת הכיוונים (דסקטופ) ובמובייל 390 (מוזיאון+גילוי) **PASS**.
+
+## פריסה (Preview מוגן — לא Production)
+- קומיט: `b1b4260bdfbee1f58654db879e7528db301f7d57`; פריסה `dpl_2N8oAQew3qzz1r7MdMFyZrzas5T2`, מצב **READY**, `sod1820-n4wp05pkd-sod1820-s-projects.vercel.app`; `--protected-review`, `target=null`, בלי alias ובלי נגיעה בדומיינים.
+- נתיבים: `/world?view=explore&kind=spatial&lab=museum#spatial-keter-esrimon-620` (620) · `#spatial-yesharim-cube-3060` · `#spatial-raza-deshabbat-910` · `#spatial-hashgacha-pratit-1020` (פירוק החישוב לפי תפקיד).
+- **לא נבדק בדפדפן אוטומטי על הכתובת החיה** (403 לדפדפן הבלתי־מזוהה של הסביבה): READY אינו הוכחת קבלה חזותית; ההוכחות מהבנייה המקומית של אותו קוד.
