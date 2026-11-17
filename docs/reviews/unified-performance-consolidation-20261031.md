@@ -69,6 +69,8 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 
 **Counts:** 46 fixes, all merged and all ancestors of the live deployment; live behaviour verified for 19, not verified for 25, contradicted for 2 (S-3 before #1366; S-46 awaiting a real upload). Measurement classes: lab 30, build budget 5, field 2 (both field entries measure coverage, not speed), none 9. No fix is "merged, not deployed" today.
 
+*(Evening 17.11.2026, last section: 48 fixes, all merged and all in the live deployment `dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r` (`84bdb23f9`); live behaviour verified for 21. S-47 was released through #1376 and the Home design through #1377 (S-48).)*
+
 **What the field measurement can and cannot prove.** The site's own RUM (`events.performance.web_vital`) measures document navigations, not in-site transitions, and is not CrUX. Since the #1372 deployment (16.11 evening) each sample carries `build` (entry file name), `device_class`, `article_first` and `nav_timing`; older samples stay "unknown". A before/after claim needs non-overlapping windows, the same page kind and device class, enough samples per metric, and the same conditions; overlapping 24 h / 7 d windows are not a comparison. Until a deployed fix has that, it is "deployed, awaiting impact measurement".
 
 ### Build evidence (entry file → commit)
@@ -128,6 +130,8 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 | S-44 | קהילה: כל שורש בפיד מגיע עם מספר התגובות — פחות קפיצות פריסה | community | #1373 | 7879c96a3 | dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi | yes | lab | 2 |
 | S-45 | פוסטים חדשים: גם פוסט שנכתב באתר מגיע עם המאמר במסמך הראשון; עותקי התמונות מוכנים אחרי התשובה | post | #1374 | 2011226fe | dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi | yes | lab | 3 |
 | S-46 | העלאות agent-upload: קובץ ציבורי שנכתב פעם אחת נשמר עם מטמון של שעה | server | #1374 | 2011226fe | dpl_8rTXCW3ctoGaysGfGaakZ5HvS5zi | **no** | none | 1 |
+| S-47 | דפי פוסט נשמרים ב־CDN של Vercel עד 6 דקות, עם שלוש שכבות עדכניות לפוסט שנערך, הוסתר או נמחק | post | #1376 | 890efa204 | dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo | yes | lab | 4 |
+| S-48 | בית: הערת "הדף בבנייה" בראש, פריט מפת המציאות הנעוץ ו"עכשיו" קצר; זרם המציאות נטען בהתקרבות; רמזי טעינה לקוד הבית רק בכתובת הבית | home | #1377 | 84bdb23f9 | dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r | yes | lab | 3 |
 
 ### The 34 historical groups after the later work
 
@@ -170,7 +174,7 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 
 ### Not counted as merged fixes
 
-- 1375: merged 17.11.2026 as the speed centre (`d87ced78b`). The Home design commit `cba72cf9d` (construction note, pinned reality-map lead, short Now, route preload) was reverted on the branch (`56b1d331f`) before the merge and stays in branch history, awaiting ZURIEL (lab A/B n=3: first real content 11.4-12.3 -> 6.2-6.3 s; LCP becomes the pinned image 7.5-7.7 s).
+- 1375: merged 17.11.2026 as the speed centre (`d87ced78b`, deployed `dpl_H2Vs3UnALoLFwpViK7mYeSx7D1Dw`, build `2029-BplD03IN`). The Home design commit `cba72cf9d` (construction note, pinned reality-map lead, short Now, route preload) was reverted on the branch (`56b1d331f`) before the merge. It was re-applied on ZURIEL's "תעלה" as PR #1377 (`67bdf585c`), merged `84bdb23f9` and released the same evening; it is counted once, as S-48.
 - 1363: Package C (GA/Pixel after the article, wait for cover). Goal superseded by #1372 afterReadableContent2029 (S-41).
 - 1364: AdSense library on approach. Moot after ADSENSE_PAUSED (S-42); its own lab showed no content gain and higher TBT.
 - 1360: Package A; same change merged through #1366 (S-29).
@@ -208,3 +212,21 @@ Added, not replacing: everything above is the 31.10 baseline and stays as it was
 
 `S-47` in the JSON (`current_state_20261117.fixes`; the counts now read 47 entries, 46 merged, 1 branch-only). Vercel's CDN keeps an admitted public Post document for 5 minutes, then serves the kept copy once while refreshing it, for up to an hour; browsers keep `no-store`. Branch `ccr-dcadb071-v1z5ol`, draft PR #1376, protected Preview `dpl_62g74MmMWj4UK1Z5P9zAdjSFcDPs`; not merged and not in Production. Lab (phone Slow 4G + 4x CPU, article first as live, 24 runs per arm, only the server wait differs, 880 vs 60 ms): first byte -817 ms, FCP -780 ms, readable article -777 ms, LCP -1,248 ms (p75 -752 ms), CLS unchanged. Expected reach with today's traffic (Vercel observability, 16.11): a few percent of Post requests (about 3-4.5% outside `/` and `/community/chat`; about 70% for the four most-read Posts through fra1); most repeat traffic is `/` and `/community/chat`, which this change does not keep. Field data come only after a release. Write-up: `docs/reviews/post-document-cdn-20261117/README.md`. **Freshness package (17.11, `POST_DOCUMENT_FRESHNESS_20261117`, same branch, final Preview `dpl_7VbxX2VmwQqFrFZp7RAYLHDeoDyQ` at `5f91c5623`):** copies now live at most 6 minutes (5 + 60 s while refreshing); every change to a Post's document columns by any writer is logged in the same transaction and asks Vercel to delete that Post's copies (pg_net), confirmed and retried by the existing health watch, a failure reported as urgent here; the existing edge middleware uses a kept copy only with a list of recent changes read at most 5 s ago that does not name the Post (fail closed), reading it straight from the database and only during repeated reads of the same Post, so quiet traffic and crawlers cost nothing extra; the page removes the document's article when its own read says the Post is not public. Proven bound for a failed purge: at most 6.5 s, on repeated reads only. Migration file only, not applied; no merge, no Production. README section 12. The #1375 line under "Not counted as merged fixes" was written while #1375 was still a draft; it now records the merge (the same correction is in the JSON).
 
+
+### Evening 17.11.2026: S-47 released, the Home design released (S-48)
+
+**Live state (read 17.11.2026 18:13 UTC):** `sod1820.co.il`, `www` and `sod1820.vercel.app` → `dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r`; the live document's bootstrap names entry `/assets/2029-BQKFETEH.js` and `sourceSha 84bdb23f9`. The JSON's `checked_at`, `main` and `production` now carry this check; the 10:40 values are kept under `current_state_20261117.revisions`.
+
+- **S-47 (#1376):** merged `890efa204`; the migration was applied before the build (guard md5 matched; live fingerprints equal the tested file), the purge key set in Vault and in the Vercel Production variables; deployed `dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo`. Live: a Post read was refreshed through stale and stale, then a clean MISS and a HIT in 0.21 s; the purge endpoint refused requests with no key and a wrong key, and refused GET; a purge sent from the database answered 200 and the next request was rebuilt in the foreground (REVALIDATED). The watch keeps running inside `fn_health_watch` (heartbeat 18:15 UTC: idle, purge configured, no failures). Canary green.
+- **S-48 (#1377, new entry):** the Home design written on 17.11 (`cba72cf9d`), re-applied as `67bdf585c`, merged `84bdb23f9`, deployed `dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r`. Live: the Home's own code hints (49 modulepreloads, including `Home2029Page`) are on `/` only; a phone-size browser shows the construction note, then the pinned מפת המציאות lead, then "עכשיו". Lab only (Slow 4G + 4x CPU, n=3 alternating): first real content 11.4-12.3 → 6.2-6.3 s; largest paint becomes the pinned image (7.5-7.7 s; it was the logo at 2.1 s). Canary green.
+- **Counts now:** 48 fixes, all merged and all in the live deployment; live behaviour verified for 21, not verified for 25, contradicted for 2 (S-3, S-46). Measurement classes: lab 32, build budget 5, field 2, none 9.
+
+**Build evidence added** (each read from that deployment's own document, so the speed centre names these builds instead of "a build without verified evidence"; field samples today: `2029-BplD03IN` 71, `2029-B6373d0f` 19, `2029-BQKFETEH` 2 at 18:25 UTC):
+
+| Build | Commit | Deployment | Evidence |
+|---|---|---|---|
+| `2029-BplD03IN` | d87ced78b (#1375, speed centre) | dpl_H2Vs3UnALoLFwpViK7mYeSx7D1Dw | that deployment's own document: entry + sourceSha, read 2026-11-17T18:17Z |
+| `2029-B6373d0f` | 890efa204 (#1376) | dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo | that deployment's own document: entry + sourceSha, read 2026-11-17T18:17Z |
+| `2029-BQKFETEH` | 84bdb23f9 (#1377) | dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r | live document (entry + sourceSha) with the alias, read 2026-11-17T18:13Z |
+
+**Open:** field before/after for S-47 and S-48 needs enough samples from these builds, compared by page kind and device with the window before (Speed Law rule 7); on the Home, Google's largest paint is now the pinned image although the content arrives sooner (candidate: the document carries the pinned card and its image hint, together with a kept Home document; experiment approved 17.11, isolated branch and protected Preview only); "עכשיו" rows still about 11 s on slow phones.
