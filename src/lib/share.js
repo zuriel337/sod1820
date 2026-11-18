@@ -47,9 +47,16 @@ export function canNativeShare() {
   return typeof navigator !== "undefined" && !!navigator.share;
 }
 
+// "shared" (the system sheet completed) · "cancelled" (the person closed it) · "failed" (the sheet did not open or threw) · "unsupported".
+// Only "shared" is a share. Opening the sheet is never reported as success.
+export async function nativeShareOutcome({ title = "", url, text = "" } = {}) {
+  if (!canNativeShare()) return "unsupported";
+  try { await navigator.share({ title, text, url }); return "shared"; }
+  catch (error) { return error && error.name === "AbortError" ? "cancelled" : "failed"; }
+}
+
 export async function nativeShare({ title = "", url, text = "" } = {}) {
-  if (!canNativeShare()) return false;
-  try { await navigator.share({ title, text, url }); return true; } catch { return false; }
+  return (await nativeShareOutcome({ title, url, text })) === "shared";
 }
 
 export async function copyLink(url) {
@@ -99,4 +106,19 @@ export async function shareVideoToStory({ url, text = "", title = "אור הגא
     }
     return (await copyLink(url)) ? "copy" : null;
   } catch { return null; }
+}
+
+// With no title from the caller, the words that travel with the link are the page's own SEO title, but only once the page has applied it (its
+// canonical points at this route). A previous page's title never labels this page's link (ZURIEL 18.11.2026).
+export function pageOwnShareTitle(location, doc = typeof document !== "undefined" ? document : null) {
+  const own = String(doc?.title || "").trim();
+  if (!own || !location) return "SOD1820";
+  try {
+    const canonical = new URL(doc.querySelector('link[rel="canonical"]')?.href);
+    const decode = (p) => { try { return decodeURIComponent(p).replace(/\/+$/, "") || "/"; } catch { return p; } };
+    const slug = (p) => (decode(p).match(/^\/(?:post\/)?([^/]+)$/) || [])[1] || null;
+    const here = decode(location.pathname || "/"), there = decode(canonical.pathname);
+    if (here === there || (slug(here) && slug(here) === slug(there))) return own;
+  } catch { /* no canonical yet */ }
+  return "SOD1820";
 }

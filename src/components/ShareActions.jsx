@@ -5,7 +5,7 @@ import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
 import "./experience2029/contentActions2029.css";
 
 import { use2029Palette } from "../lib/palette2029.js";
-import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown, canShareFile, shareImageFile } from "../lib/share.js";
+import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShareOutcome, pageOwnShareTitle, copyLink, floatingShareShown, canShareFile, shareImageFile } from "../lib/share.js";
 import { createShareIntent, resolveModality } from "../lib/share/shareObject.js";
 import { emitShare, shareSlug, attributedShareUrl } from "../lib/share/shareTelemetry.js";
 import { canonicalPostShareUrl } from "../lib/publicPostUrls.js";
@@ -46,7 +46,7 @@ export default function ShareActions({
   const currentUrl = typeof window !== "undefined" ? window.location.href : SITE;
   const fullUrl = url || (type === "post" && typeof document !== "undefined"
     ? canonicalPostShareUrl(currentUrl, document.querySelector('link[rel="canonical"]')?.href) : currentUrl);
-  const text = title || (typeof document !== "undefined" ? document.title : "SOD1820");
+  const text = title || pageOwnShareTitle(typeof window !== "undefined" ? window.location : null);
   const canNative = canNativeShare();
 
   // 🔑 Sharing Foundation repair (Human-Gate 2026-09-05) — תוכן≠יעד: slug=יעד-אמיתי
@@ -72,9 +72,18 @@ export default function ShareActions({
   // A share is recorded only when it happened: the system sheet completed (not cancelled, not failed) or the link was copied.
   // The channel links (WhatsApp, Telegram, Facebook…) open the channel itself, whose outcome the page cannot see; they record
   // the opened share, as before.
+  // A sheet that could not open falls back to the existing copy action, and says so; a cancelled sheet says nothing and records nothing.
+  const [nativeFellBack, setNativeFellBack] = useState(false);
   const native = useCallback(async () => {
-    const shared = await nativeShare({ title: text, url: attributedShareUrl(fullUrl, "native") });
-    if (shared) logShare("native", resolveModality({ ...intent, modality: "link" }, {}));
+    setNativeFellBack(false);
+    const outcome = await nativeShareOutcome({ title: text, url: attributedShareUrl(fullUrl, "native") });
+    if (outcome === "shared") { logShare("native", resolveModality({ ...intent, modality: "link" }, {})); return; }
+    if (outcome === "failed" || outcome === "unsupported") {
+      clearTimeout(copyTimer.current);
+      const ok = await copyLink(attributedShareUrl(fullUrl, "copy"));
+      setCopied(ok); setCopyFailed(!ok); setNativeFellBack(true);
+      if (ok) { logShare("copy", resolveModality({ ...intent, modality: "link" }, {})); copyTimer.current = setTimeout(() => { setCopied(false); setNativeFellBack(false); }, 2400); }
+    }
   }, [text, fullUrl, logShare, intent]);
 
   const copy = useCallback(async () => {
@@ -103,7 +112,7 @@ export default function ShareActions({
     //    האמיתית בין ערוץ למודאליות נרשמת רק ב-meta.share_object, בלי לשנות פרשנות קיימת.
     //    נרשם רק אחרי שיתוף שהושלם או הורדה שבוצעה — ביטול (AbortError) אינו נרשם.
     try {
-      if (file && canShareFile(file)) { await shareImageFile(file, { title: text, text }); logShare("image", resolved); setImgBusy(false); return; }
+      if (file && canShareFile(file)) { await shareImageFile(file, { title: text, text, url: attributedShareUrl(fullUrl, "native") }); logShare("image", resolved); setImgBusy(false); return; }
       const a = document.createElement("a"); a.href = image; a.download = "sod1820.png";
       document.body.appendChild(a); a.click(); a.remove();
       logShare("image", resolved);
@@ -112,7 +121,7 @@ export default function ShareActions({
       try { const a = document.createElement("a"); a.href = image; a.download = "sod1820.png"; document.body.appendChild(a); a.click(); a.remove(); logShare("image", resolved); } catch { /* noop */ }
     }
     setImgBusy(false);
-  }, [image, imgBusy, text, logShare, intent]);
+  }, [image, imgBusy, text, fullUrl, logShare, intent]);
 
   // 👑 share_placement_law — הבלוק מופיע רק היכן שהווידג׳ט-הצף נעדר (אלא אם force). אפס כפילות.
   if (!force && floatingShareShown(pathname)) return null;
@@ -129,7 +138,7 @@ export default function ShareActions({
         onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (canNative) void native(); else void copy(); }}>
         <NavigationIcon2029 name={copied ? "check" : "share"} size={16} />
       </button>
-      <span className="sod-action-announcement" role="status" aria-live="polite">{copied ? iconCopiedLabel : copyFailed ? "ההעתקה נכשלה. נסה שוב." : ""}</span>
+      <span className="sod-action-announcement" role="status" aria-live="polite">{nativeFellBack ? (copied ? "השיתוף לא נפתח. הקישור הועתק." : "השיתוף לא נפתח. אפשר להעתיק את הקישור.") : copied ? iconCopiedLabel : copyFailed ? "ההעתקה נכשלה. נסה שוב." : ""}</span>
     </div>
   );
 
@@ -163,7 +172,7 @@ export default function ShareActions({
       {channels.includes("copy") && (
         <button type="button" data-action="copy" data-state={copied ? "success" : copyFailed ? "error" : "idle"} onClick={copy} title="העתק קישור" aria-label={copied ? "הועתק" : copyFailed ? "ההעתקה נכשלה, נסה שוב" : "העתק קישור"} style={btn}><NavigationIcon2029 name={copied ? "check" : "copy"} /> {label(copied ? "הועתק" : copyFailed ? "נסה שוב" : "העתק")}</button>
       )}
-      <span className="sod-action-announcement" role="status" aria-live="polite">{copied ? "הקישור הועתק" : copyFailed ? "ההעתקה נכשלה. נסה שוב." : ""}</span>
+      <span className="sod-action-announcement" role="status" aria-live="polite">{nativeFellBack ? (copied ? "השיתוף לא נפתח. הקישור הועתק." : "השיתוף לא נפתח. אפשר להעתיק את הקישור.") : copied ? "הקישור הועתק" : copyFailed ? "ההעתקה נכשלה. נסה שוב." : ""}</span>
       {extra}
     </div>
   );

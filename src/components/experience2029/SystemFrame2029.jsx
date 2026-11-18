@@ -549,7 +549,7 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
   );
 }
 
-function InspectProjection({ target, context, surface = "system", onSetFocus, onSave, onAddResearch, isSaved = false, inResearch = false, onOpenNumber, onNeedHelp }) {
+function InspectProjection({ target, context, surface = "system", onSetFocus, onSave, onAddResearch, isSaved = false, inResearch = false, onOpenNumber, onNeedHelp, shareHref = null }) {
   const [commitState, setCommitState] = useState(null);
   const numericFamily = target?.type === "number" || target?.type === "phrase";
   const hasMethodContext = Boolean(target?.expression && target?.method && Number.isSafeInteger(Number(target?.resultValue)));
@@ -672,18 +672,20 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
 
       {commitState && !commitState.ok ? <FrameState kind="error" title="הפעולה לא נשמרה">{commitState.kind === "save" ? "השמירה לא הושלמה" : "ההוספה למחקר לא הושלמה"} — נסה שוב.</FrameState> : null}
 
-      <div className="sod29-canonical-share" data-share-owner="ShareActions">
+      {/* The same public page link as "עוד → שיתוף" (framePublicShareHref: account paths, claim/dm and return addresses never travel), with the
+          page's own title (ShareActions); on a page with no public link there is nothing to share here. */}
+      {shareHref ? <div className="sod29-canonical-share" data-share-owner="ShareActions">
         <React.Suspense fallback={<SharePending2029 />}>
           <ShareActions
             type={target.type || "page"}
-            title={`SOD1820 · ${publicContextLabel(target.label) || entityTypeNounHe(target.type)}`}
+            url={shareHref}
             channels={["native", "copy"]}
             compact
             force
             style={{ marginTop: 10 }}
           />
         </React.Suspense>
-      </div>
+      </div> : null}
 
       <div className="sod29-panel-context-card">
         <b>ההקשר שלך</b>
@@ -1515,7 +1517,7 @@ function SystemFrame2029Body({
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><React.Suspense fallback={<div role="status">טוען כלי מספרים…</div>}><NumberDrawer2029 target={inspectTarget} context={pageContext} research={research} go={go} openRaziel={openRaziel} /></React.Suspense></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(pageContext, inspectTarget) || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={pageContext} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(pageContext, inspectTarget) || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={pageContext} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} shareHref={shareHref} /></PanelShell>;
     if (transientKind === TRANSIENT.CONTEXT) return contextLocked ? null : <PanelShell {...common} icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
       sheet
       surface={surface}
@@ -1543,7 +1545,7 @@ function SystemFrame2029Body({
           onPersonal={openWorkspace}
           adminDestinations={adminOpenClosedDestinations(isAdmin)} onDestination={(item) => { setTransient(null); go(item.href); }}
           toolDockReturn={activeToolDock ? () => { setTransient(null); setSystemDockMode(false); } : null}
-          share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", title: title || "SOD1820", surface } : null} />
+          share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", surface } : null} />
       </PanelShell>;
     }
     if (transientKind === TRANSIENT.TOOLS && toolsFeature.blocked) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><FeatureClosedNotice2029 state={toolsFeature} title="כלים" compact /></PanelShell>;
