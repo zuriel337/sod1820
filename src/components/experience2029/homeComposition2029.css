@@ -76,6 +76,7 @@
   border: 1px dashed var(--s29-line); color: var(--s29-muted); font: 400 14px var(--s29-font-ui);
 }
 .h29-quiet a { color: var(--s29-accent-text); font-weight: 500; }
+@container h29 (max-width: 620px) { .h29-quiet { min-height: 66px; box-sizing: border-box; align-content: center; } }
 
 /* Reality stream (reference: .hp29-stream in fa0e26f): a restrained block of one-line source rows.
    Full text opens deliberately (details/summary); the full stream lives in World. */
@@ -268,7 +269,8 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
 /* "פוסטים אחרונים": secondary and compact; it never competes with the region above. */
 .h29-recent-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px 12px; }
 .h29-recent-item { min-width: 0; border-bottom: 1px solid var(--s29-line); }
-.h29-recent-item.h29-skel { min-height: 68px; border: 0; border-radius: 10px; }
+.h29-recent-item.h29-skel { min-height: 91px; border: 0; border-radius: 10px; }
+@container h29 (max-width: 620px) { .h29-recent-item.h29-skel { min-height: 104px; } }
 .h29-recent-item > a { display: grid; grid-template-columns: 52px minmax(0,1fr); align-items: start; gap: 10px; padding: 8px 4px; min-height: 68px; }
 .h29-recent-thumb { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
 .h29-recent-thumb.is-empty { display: grid; place-items: center; background: color-mix(in srgb,var(--s29-brand-gold) 6%,transparent); color: var(--s29-muted); }
@@ -598,3 +600,17 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
 .h29-live.is-compact .h29-live-item.is-lead strong { font-size: 15px; }
 .h29-live-status { display: grid; align-items: center; block-size: 100%; padding-inline: 12px; color: var(--s29-muted); font: 400 13px/1.4 var(--s29-font-ui); }
 .h29-pinlead-link.is-loading .h29-pinlead-cta { visibility: hidden; }
+
+/* Layout stability below the first screen (CLS, ZURIEL 18.11.2026 "קדימה תבדוק את זה"). The sections that load when the visitor
+   approaches reserve their loaded height, so the page does not grow above a reader who scrolls down or jumps to the end (live Home,
+   before: gradual scroll 0.17-0.27, End key up to 1.19). Heights measured on the live Home at 1366x700, 1366x900, 1920x1080, 412x839,
+   390x664 and 360x740: the reality stream is its river window (realityRiver2029.css) plus a fixed part; the video row is one tile row;
+   a recent-post card is 91px (104px on a phone, where some cards carry a two-line excerpt); the flight-story placeholder keeps its
+   status line inside its own box. */
+.h29 { --h29-stream-reserve: calc(clamp(660px, 86svh, 920px) + 853px); }
+@media (max-width: 760px) { .h29 { --h29-stream-reserve: calc(clamp(640px, 88svh, 860px) + 972px); } }
+@media (max-width: 370px) { .h29 { --h29-stream-reserve: calc(clamp(640px, 88svh, 860px) + 1054px); } }
+.h29-stream-reserve { min-height: var(--h29-stream-reserve); box-sizing: border-box; margin: 0; }
+.h29-stream:has(> .h29-stream-pending) { min-height: var(--h29-stream-reserve); box-sizing: border-box; }
+.h29-strip-row:empty { min-height: 139px; box-sizing: border-box; }
+.h29 .sod29-flight-story.is-loading > p { margin: 0; }
