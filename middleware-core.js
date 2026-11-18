@@ -2,6 +2,7 @@ import { next, rewrite } from '@vercel/edge';
 import { isKnownSingleSegmentRoute, isSingleSegmentRoute, postSlugVariants } from './route-legitimacy.js';
 import { createPostDocumentGate, postDocumentBypassUrl, postDocumentGateCandidate, previewTestList, POST_DOCUMENT_FRESHNESS } from './post-document-freshness.js';
 import { createCountryPolicyCache, COUNTRY_POLICY_TIMING } from './edge-country-policy.js';
+import { createBigNumberEligibility, readBigNumberList, bigNumberUnavailableResponse } from './edge-big-number-eligibility.js';
 
 // ── שומר-סף + לוג צד-שרת (Vercel Edge) ────────────────────────────────────────
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
@@ -241,23 +242,15 @@ function bucketOf(p) {
   return 'other';
 }
 
-// 🔢 allowlist של מספרים-גדולים-עם-תוכן (>4 ספרות) — נשמר ב-cache ברמת-המודול (רענון כל שעה).
-// מספר-גדול שיש לו תוכן (מילה/צופן/עוגן) → מותר לבוטים ואינדוקס; מספר-גדול ריק → נחסם.
-let BIG_OK = null, BIG_OK_AT = 0;
-async function bigContentSet() {
-  const now = Date.now();
-  if (BIG_OK && now - BIG_OK_AT < 3600000) return BIG_OK;
-  try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/content_big_numbers`, {
-      method: 'POST',
-      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
-      body: '{}',
-    });
-    const arr = await r.json();
-    if (Array.isArray(arr)) { BIG_OK = new Set(arr.map(Number)); BIG_OK_AT = now; }
-  } catch { /* אם נכשל — נשארים עם ה-cache הקודם (או null → fail-closed בבדיקה) */ }
-  return BIG_OK;
-}
+// 🔢 Crawler eligibility of big numbers (>4 digits): the canonical list is public.sitemap_numbers(), read through content_big_numbers().
+// Eligible → served; not eligible → 403 (as before); unknown (source down and no copy that may be relied on) → 503 + Retry-After, no-store
+// (ZURIEL 18.11.2026; see edge-big-number-eligibility.js for the timing and its measurements).
+const BIG_NUMBERS = createBigNumberEligibility({
+  read: () => readBigNumberList({
+    url: `${SUPABASE_URL}/rest/v1/rpc/content_big_numbers`,
+    headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+  }),
+});
 
 // ── Route Legitimacy 2029 ────────────────────────────────────────────────────
 // סוגר את ה-soft-404 של /:slug לפני שה-SPA מחזיר index.html ב-200.
@@ -369,10 +362,14 @@ export default async function middleware(request, context) {
   // 🤖 דף-מספר טהור מעל 4 ספרות: חוסמים בוט רק אם המספר **ריק** (לא ב-allowlist התוכן).
   //    מספר-גדול עם תוכן (מילה/צופן/עוגן) → מותר ומאונדקס (בקשת צוריאל). דף-ריק → נחסם.
   //    הכלל הקליינטי (noindex) לא מגיע לבוטים חסרי-JS, לכן האכיפה כאן בקצה.
+  //    בקשה שכבר נחסמה מסיבה עצמאית (בוט-רע, מסלול פרטי, מדינה) אינה פונה למקור הזכאות ושומרת על סיבת החסימה שלה.
+  //    מקור לא זמין וללא עותק שאפשר להסתמך עליו → 503 קל (לא מעבר חופשי ולא 403) — ZURIEL 18.11.2026.
   const bigNum = isBot && /^\/number\/\d{5,}$/.test(path) ? Number(path.slice(8)) : null;
-  if (bigNum != null) {
-    const ok = await bigContentSet();
-    if (!ok || !ok.has(bigNum)) blocked = true;   // אין תוכן (או cache לא זמין) → חסום
+  let bigNumUnknown = false;
+  if (bigNum != null && !blocked) {
+    const { decision } = await BIG_NUMBERS.get(bigNum, { waitUntil: p => context.waitUntil(p) });
+    if (decision === 'not_eligible') blocked = true;
+    else if (decision === 'unknown') bigNumUnknown = true;
   }
 
   // 📊 Crawl Intelligence — לבוטים בלבד: שם-בוט + דלי-תוכן + נחסם (crawl_daily, UPSERT מצטבר)
@@ -381,12 +378,13 @@ export default async function middleware(request, context) {
       fetch(`${SUPABASE_URL}/rest/v1/rpc/log_crawl`, {
         method: 'POST',
         headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_bot: botName(uaL), p_bucket: bucketOf(path), p_blocked: blocked }),
+        body: JSON.stringify({ p_bot: botName(uaL), p_bucket: bucketOf(path), p_blocked: blocked || bigNumUnknown }),
       }).catch(() => {}),
     );
   }
 
   if (blocked) return new Response('Access denied', { status: 403, headers: { 'cache-control': 'no-store' } });
+  if (bigNumUnknown) return bigNumberUnavailableResponse();
 
   // Adaptive STRICT חל רק על browser שלא נחסם בשכבות הקודמות.
   // cookie מקומי מוכיח רק שהדפדפן ביצע JS challenge; הוא אינו Human proof ואינו משנה TI classification.

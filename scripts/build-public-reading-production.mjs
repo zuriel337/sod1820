@@ -214,6 +214,7 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
     coreSha256: hash(await readFile(resolve(root, "middleware-core.js"))),
     routeLegitimacySha256: hash(await readFile(resolve(root, "route-legitimacy.js"))),
     countryPolicySha256: hash(await readFile(resolve(root, "edge-country-policy.js"))),
+    bigNumberEligibilitySha256: hash(await readFile(resolve(root, "edge-big-number-eligibility.js"))),
     hostedInvocation: "requires-separate-positive-and-negative-acceptance",
   },
   documentTemplateSha256: hash(document), documentTemplatePublic: false,
