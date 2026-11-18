@@ -2,7 +2,7 @@
 // מחשבון קהילתי · דף מספר · מרכז מחקר · בית מדרש · כלי-השוואה — כולם קוראים ל-`analyze(...)` באותו מבנה.
 // עיקרון: המנוע (SQL/JS) מייצר עובדות; ה-AI (Claude/Gemini) מפרש בלבד ולעולם לא מחשב.
 // backward-compatible: עוטף את getAiAnalysis הקיים; אפשר לעבור אליו מערכת-מערכת בלי לשבור כלום.
-import { getAiAnalysis } from "./supabase.js";
+import { getAiAnalysis } from "./supabaseApi2029.js";
 
 // המנועים הזמינים — engine נבחר במצב-השוואה (A/B). ברירת-מחדל בשרת: claude.
 export const ENGINES = ["claude", "gemini"];

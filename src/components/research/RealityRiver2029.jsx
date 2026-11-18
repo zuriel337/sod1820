@@ -4,7 +4,7 @@ import CanonicalMediaImage2029 from '../experience2029/CanonicalMediaImage2029.j
 import RealityStreamFollow2029 from './RealityStreamFollow2029.jsx';
 import ShareActions from '../ShareActions.jsx';
 import { worldMediaPublicShare } from '../../lib/research/worldFindingShare.js';
-import { getRealityHints } from '../../lib/supabase.js';
+import { getRealityHints } from '../../lib/supabaseApi2029.js';
 import { realityStreamDatePresentation2029, loadPublicRealityStream2029 } from '../../lib/research/topicSourceContext.js';
 import { publicMediaCaption, publicMediaTitle } from '../../lib/presentation/contentTitle.js';
 import { numberExpressionFocusHref } from '../../lib/research/numberExpressionFocus.js';

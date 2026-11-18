@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test, { mock } from "node:test";
-import { askRaziel, supabase } from "../src/lib/supabase.js";
+import { askRaziel, supabase } from "../src/lib/supabaseApi2029.js";
 import { buildElsRazielMatrixContext } from "../src/lib/research/elsRazielMatrixContext.js";
 import { createRazielProvenance, createRazielTurnSucceededAction, normalizeRazielResponse, prepareRazielSessionSubmission } from "../src/lib/research/razielSessionRequest2029.js";
 import { createInitialRazielSessionState, razielSessionReducer } from "../src/lib/research/razielSession2029.js";

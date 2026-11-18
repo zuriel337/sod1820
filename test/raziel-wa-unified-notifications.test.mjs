@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { mock } from "node:test";
 import { mergeTopicsForSave, mergeChannelsForSave, ADMIN_TOPIC_KEYS, gatesToTopics } from "../src/lib/notifications.js";
-import { saveNotificationPrefs, supabase } from "../src/lib/supabase.js";
+import { saveNotificationPrefs, supabase } from "../src/lib/supabaseApi2029.js";
 
 const mig = fs.readFileSync("supabase/migrations/20261006210000_raziel_whatsapp_unified_notifications_v1.sql", "utf8");
 const code = mig.replace(/^--.*$/gm, "");

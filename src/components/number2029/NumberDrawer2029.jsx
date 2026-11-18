@@ -13,7 +13,7 @@ import {
   methodKey as familyMethodKey,
   phraseOf,
 } from "../../lib/research/numberCoreProjection.js";
-import { getAllValuePhrases, langLinksList } from "../../lib/supabase.js";
+import { getAllValuePhrases, langLinksList } from "../../lib/supabaseApi2029.js";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import "./numberDrawer2029.css";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";

@@ -17,7 +17,8 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const providerSource = read("../src/lib/research/RazielSessionProvider2029.jsx");
 const mountSource = read("../src/components/experience2029/RazielSessionMount2029.jsx");
 const actionsSource = read("../src/components/experience2029/RazielOneShotActions2029.jsx");
-const transportSource = read("../src/lib/supabase.js");
+// SHELL_WEIGHT_REDUCTION_20261118: supabase.js keeps the client and the reads every page needs; the rest of the former file moved unchanged to supabaseApi2029.js. askRaziel lives in supabaseApi2029.js; both together are the former file.
+const transportSource = read("../src/lib/supabase.js") + "\n" + read("../src/lib/supabaseApi2029.js");
 
 const PRIVATE_VALUES = [
   "טקסט רמז פרטי",

@@ -410,7 +410,8 @@ test('repository use is mechanically bounded to the explicit browser-only subset
     ['src/components/community2029/useCommunityTyping2029.js', 1],
     ['src/lib/joinEvents.js', 2],
     ['src/lib/presence.js', 1],
-    ['src/lib/supabase.js', 2],
+    // SHELL_WEIGHT_REDUCTION_20261118: the two channel helpers moved unchanged from supabase.js to supabaseApi2029.js.
+    ['src/lib/supabaseApi2029.js', 2],
     ['src/pages/AdminPage.jsx', 1],
   ]);
   const actualConsumers = new Map();
@@ -468,7 +469,7 @@ test('Vite aliases Realtime only for 2029 and keeps the actual module behind a d
   assert.match(vite, /resolve:\s*is2029\s*\?/);
   assert.match(vite, /find:\s*\/\^@supabase\\\/realtime-js\$\//);
   assert.match(adapter, /import\('@supabase\/realtime-js\/dist\/module\/index\.js'\)/);
-  assert.doesNotMatch(readFileSync(join(root, 'src/lib/supabase.js'), 'utf8'), /createLazyRealtimeClientClass2029/);
+  assert.doesNotMatch(readFileSync(join(root, 'src/lib/supabase.js'), 'utf8') + readFileSync(join(root, 'src/lib/supabaseApi2029.js'), 'utf8'), /createLazyRealtimeClientClass2029/);
 });
 
 test('built 2029 entry excludes the deferred Realtime/Phoenix chunk', { skip: !existsSync(join(root, 'dist/.vite/manifest.json')) }, () => {

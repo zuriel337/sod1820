@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
-import { askRaziel } from "../supabase.js";
+// The default transport loads askRaziel from src/lib/supabaseApi2029.js at the first submit
+// (SHELL_WEIGHT_REDUCTION_20261118): that module is not part of the code every page downloads.
+const askRaziel = (...args) => import("../supabaseApi2029.js").then(module => module.askRaziel(...args));
 import { useResearch } from "./ResearchProvider.jsx";
 import { loadRazielSessionRequestBuilder2029 } from "./razielSessionRequestLoader2029.js";
 import { attachElsMatrixReadingHooks, buildElsMatrixReadingSubmission } from "./elsMatrixReadingSession.js";

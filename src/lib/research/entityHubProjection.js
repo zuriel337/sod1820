@@ -1,4 +1,4 @@
-import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
+import { supabase, getEntityBundle, getValueFamilies } from "../supabaseApi2029.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFindings } from "./topicConvergence.js";

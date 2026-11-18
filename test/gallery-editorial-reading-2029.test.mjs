@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {galleryEditorialUpdate2029 as date,buildPublicGalleryCatalog2029 as catalog,galleryReadingFilters2029 as filters,
   projectGalleryReading2029 as project,loadPublicGalleryReading2029 as read,buildGallerySourceContext,resolvePublicGallerySelection,galleryReadingHref2029,galleryEntryActivity2029 as activity} from '../src/lib/research/topicSourceContext.js';
-import {searchArchiveOcrIds} from '../src/lib/supabase.js';
+import {searchArchiveOcrIds} from '../src/lib/supabaseApi2029.js';
 const id=n=>`10000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const gals=[{id:id(69),wp_gallery_id:69,name:'גלרית 14 - 5'},{id:id(73),wp_gallery_id:73,name:'גלרית 14 - 7'}];
 const row=(n,g=69)=>({id:id(n+1000),gallery_id:id(g),wp_gallery_id:g,ordering:n,published:1,min_tier:0,curator_hidden:false,

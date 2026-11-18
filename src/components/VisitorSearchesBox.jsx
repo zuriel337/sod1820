@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { use2029Palette } from "../lib/palette2029.js";
 import { accentRoles2029 } from "../lib/paletteRoles2029.js";
 import { TYPEFACE } from "../lib/designTokens.js";
-import { getWallRecent } from "../lib/supabase.js";
+import { getWallRecent } from "../lib/supabaseApi2029.js";
 import { timeAgoHe } from "../lib/format.js";
 import { isReadable } from "../lib/nameMask.js";
 

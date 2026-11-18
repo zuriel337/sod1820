@@ -10,7 +10,7 @@ import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js
 import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029ExperienceProjection.js";
 import { fetchEntityHubProjection, fetchGallerySourceContext, fetchTopicSourceContext as readTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
-import { getImagesByGallery } from "../lib/supabase.js";
+import { getImagesByGallery } from "../lib/supabaseApi2029.js";
 import { createCanonicalRelationOpener } from "../lib/research/worldGraphRelationOpener2029.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";

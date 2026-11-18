@@ -33,7 +33,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const timeMapProjection = read("src/lib/research/lifeJourneyTimeMap.js");
   const timeMapSurface = read("src/components/experience2029/LifeJourneyTimeMap2029.jsx");
   const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
-  const supabaseClient = read("src/lib/supabase.js");
+  // SHELL_WEIGHT_REDUCTION_20261118: supabase.js keeps the client and the reads every page needs; the rest of the former file moved unchanged to supabaseApi2029.js. Both together are the former file.
+  const supabaseClient = read("src/lib/supabase.js") + "\n" + read("src/lib/supabaseApi2029.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
   const dateMatrix = read("src/lib/research/lifeJourneyDateMatrix.js");
   const elsAdapter = read("src/lib/research/lifeJourneyElsAdapter.js");

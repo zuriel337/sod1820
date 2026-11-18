@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { askRaziel, supabase } from "../supabase.js";
+import { askRaziel, supabase } from "../supabaseApi2029.js";
 import {
   buildRazielSessionRequest,
   createRazielContinuationSnapshot,

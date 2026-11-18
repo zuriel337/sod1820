@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildPublicGalleryCatalog2029, galleryImageDatePresentation } from '../src/lib/research/topicSourceContext.js';
-import { getGalleriesOverview } from '../src/lib/supabase.js';
+import { getGalleriesOverview } from '../src/lib/supabaseApi2029.js';
 const id=n=>`10000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const gallery=(n=69)=>({id:id(n),wp_gallery_id:n,name:`גלרית 14 - ${n===69?5:7}`,img_count:9999});
 const image=(n,g=69,ordering=n)=>({id:id(n+1000),gallery_id:id(g),wp_gallery_id:g,published:1,min_tier:0,curator_hidden:false,

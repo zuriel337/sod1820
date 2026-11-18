@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getNumberLookup } from "../../lib/supabase.js";
+import { getNumberLookup } from "../../lib/supabaseApi2029.js";
 import { collectVerifiedLookupMatches } from "../../lib/research/methodLensProjection.js";
 import { pickEqualsPreview } from "../../lib/research/equalsPreview.js";
 import { useAuth } from "../../lib/AuthContext.jsx";

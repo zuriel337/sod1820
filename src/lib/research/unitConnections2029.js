@@ -82,7 +82,7 @@ export async function findUnitConnections(query, { postId = null, postHref = "",
 
 async function loadReaders() {
   const [{ fetchNumberMethodProfile }, sb, { fetchVersesByGematria }] = await Promise.all([
-    import("./numberCoreProjection.js"), import("../supabase.js"), import("./verseGematriaSources.js"),
+    import("./numberCoreProjection.js"), import("../supabaseApi2029.js"), import("./verseGematriaSources.js"),
   ]);
   return {
     methodProfile: (q) => fetchNumberMethodProfile(q),
