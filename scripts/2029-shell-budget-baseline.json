@@ -8,7 +8,7 @@
     "frameCssGzip": 512
   },
   "metrics": {
-    "eagerJsFiles": 17,
+    "eagerJsFiles": 18,
     "eagerJsGzip": 202469,
     "frameJsFiles": 3,
     "frameJsGzip": 46314,
@@ -785,7 +785,7 @@
       "sha": "736dd285b",
       "reason": "measured reduction (--lower)",
       "metrics": {
-        "eagerJsFiles": 17,
+        "eagerJsFiles": 18,
         "eagerJsGzip": 202931,
         "frameJsFiles": 5,
         "frameJsGzip": 74582,
@@ -938,7 +938,7 @@
       "sha": "d8818a136",
       "reason": "measured reduction (--lower)",
       "metrics": {
-        "eagerJsFiles": 17,
+        "eagerJsFiles": 18,
         "eagerJsGzip": 202931,
         "frameJsFiles": 4,
         "frameJsGzip": 63321,
@@ -1085,7 +1085,7 @@
       "sha": "2d6c326c3",
       "reason": "measured reduction (--lower)",
       "metrics": {
-        "eagerJsFiles": 17,
+        "eagerJsFiles": 18,
         "eagerJsGzip": 202931,
         "frameJsFiles": 3,
         "frameJsGzip": 46353,
@@ -1227,7 +1227,7 @@
       "sha": "99d5f76a1",
       "reason": "measured reduction (--lower)",
       "metrics": {
-        "eagerJsFiles": 17,
+        "eagerJsFiles": 18,
         "eagerJsGzip": 202469,
         "frameJsFiles": 3,
         "frameJsGzip": 46345,
@@ -1369,7 +1369,7 @@
       "sha": "cd877d907",
       "reason": "measured reduction (--lower)",
       "metrics": {
-        "eagerJsFiles": 17,
+        "eagerJsFiles": 18,
         "eagerJsGzip": 202469,
         "frameJsFiles": 3,
         "frameJsGzip": 46314,
