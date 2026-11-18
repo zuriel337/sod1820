@@ -61,6 +61,8 @@ export function footerSuggestions(pathname, options = {}) {
     .slice(0, 3);
 }
 
+const OPEN_UNDER_CONSTRUCTION = new Set(["world", "els"]);
+
 function FooterLink({ item, state }) {
   if (state === "closed") {
     return <li className="f29-closed"><span>{item.label}</span><small>בבנייה</small></li>;
@@ -71,7 +73,9 @@ function FooterLink({ item, state }) {
       onClick={item.tracking === "whatsapp-join" ? () => trackWhatsappJoin("footer") : undefined}>
       {item.label}<span className="f29-sr"> (נפתח בלשונית חדשה)</span></a></li>;
   }
-  return <li><Link className="f29-link" to={item.href}>{item.label}</Link>{badge}</li>;
+  // Open, and marked as still being built (ZURIEL 18.11.2026: the World and the cipher).
+  const building = OPEN_UNDER_CONSTRUCTION.has(item.id) ? <small className="f29-admin">בבנייה</small> : null;
+  return <li><Link className="f29-link" to={item.href}>{item.label}</Link>{badge}{building}</li>;
 }
 
 // Joining the community group is a real entry point of the system (carried over from the Legacy footer), not a

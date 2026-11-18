@@ -88,7 +88,7 @@ test("temporarily closed feature areas answer 503 with Retry-After and stay inde
       assert.equal(res.headers.get("retry-after"), "2592000", path);
       assert.equal(res.headers.get("x-robots-tag"), "index, follow", path);
       assert.match(res.body, /name="robots" content="index, follow"/, path);
-      assert.match(res.body, /האזור סגור זמנית וייפתח בקרוב/, path);
+      assert.match(res.body, /בבנייה/, path); assert.match(res.body, /הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן/, path); assert.doesNotMatch(res.body, /בקרוב/, path);
     }
     // The Bible code is open in its Classic mode: a normal indexable 200 page, and /els is a permanent continuation to it.
     { const res = response(); await handler(req("/code"), res);
