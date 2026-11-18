@@ -1168,7 +1168,7 @@ test('Fable existing results project exact letters without search, AI, manual-fi
    await page.locator('.els29-native-toolstrip').getByRole('button',{name:'גילוי עם AI',exact:true}).click();
    await page.getByRole('heading',{name:'ממצאים שאומתו במנוע · 25',exact:true}).waitFor();
    await page.getByText('חלק מהציר הראשי — לא הצלבה חדשה',{exact:true}).waitFor();
-   assert.equal(await page.locator('.els29-matrix-reading-result li').count(),25,'not limited to the 12 manual findings');
+   assert.equal(await page.locator('.els29-matrix-reading-result li').count(),25,'not limited to the 24 manual findings');
    assert.ok(await page.locator('.els29-native-cell.is-ai-reading').count()>100);
    const hostCount=await page.evaluate(()=>window.__hostLog.length);
    for(const width of [320,390,1440])for(const theme of ['dark','light','parchment']){
@@ -1523,7 +1523,7 @@ test('native UI: vivid colors and exact finding focus stay readable in every the
     assert.ok(contrast(colors.rowFill,colors.rowInk)>=4.5,`${preset}: selected finding details meet readable contrast`);
     assert.ok(contrast(colors.canvas,colors.plain)>=4.5,`${preset}: source letters meet readable contrast`);
     assert.ok(contrast(colors.axis,colors.onMark)>=4.5,`${preset}: yellow axis contrast`);
-    assert.equal(new Set(colors.assigned).size,12,'automatic colors remain distinct up to the finding limit');
+    assert.equal(new Set(colors.assigned).size,12,'automatic colors stay distinct for the twelve colours of the palette');
     assert.equal(colors.choices[0].label,'אדום');
     for(const choice of colors.choices)assert.ok(contrast(choice.color,colors.onMark)>=4.5,`${preset} ${choice.label}: mark contrast`);
     surfaces.push(colors.canvas);
@@ -3380,4 +3380,39 @@ test('owner 18.11: fullscreen is the same interface re-laid: the page\'s own too
     assert.equal(await page.evaluate(()=>document.documentElement.style.overflow),'','the page scrolls again');
     assert.deepEqual(await page.locator('.els29-native-toolstrip button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label'))),stripBefore);
   });
+});
+
+test('owner 18.11: findings stay on the matrix through zoom and while another word is verified; 24 words fit on one matrix',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:300000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    await addSecondary(page,'תורה');await addSecondary(page,'התורה');
+    const marks=()=>page.evaluate(()=>(window.__state?.matrix?.marks||[]).filter(m=>m.type==='finding').length);
+    const before=await marks();assert.ok(before>0,'two verified words are marked');
+    // A slow verifier, as live (1.5-10 s). Before, every redraw dropped the verdicts and the marks vanished until it answered.
+    await page.evaluate(()=>window.__fixtureVerificationDelay=4000);
+    const samples=[];
+    for(const name of ['הקטן מטריצה','הקטן מטריצה','הגדל מטריצה','הגדל מטריצה']){
+      await page.getByRole('button',{name,exact:true}).first().dispatchEvent('click');
+      await page.waitForTimeout(150);samples.push(await marks());
+    }
+    assert.deepEqual(samples,samples.map(()=>before),'zoom never hides a verified finding: '+JSON.stringify({before,samples}));
+    // Adding a word: the earlier words keep their marks while the new one is being verified.
+    await openPanel(page);
+    await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('קדש');
+    await activate(page,'חפש במטריצה');
+    await page.waitForFunction(()=>window.__operation?.kind==='findings'&&['searching','verifying'].includes(window.__operation.status));
+    const during=[];for(let i=0;i<5;i++){during.push(await marks());await page.waitForTimeout(300);}
+    assert.ok(during.every(n=>n>=before),'earlier findings stay while the new word is verified: '+JSON.stringify({before,during}));
+    await page.evaluate(()=>window.__fixtureVerificationDelay=0);
+    await page.waitForFunction(()=>window.__operation?.kind==='findings'&&window.__operation.status==='done',null,{timeout:60000});
+    // 24 words fit; the 25th is refused by the engine and by the form.
+    const words=['ת','ו','ר','ה','ק','ד','ש','א','ב','ג','ל','מ','נ','י','כ','ע','פ','צ','ס','ח','ט','ז','ן','ם'];
+    await page.evaluate(list=>{const frame=document.querySelector('iframe');const findings=[...window.__state.findings.map(f=>({t:f.t,color:f.color})),...list.map(t=>({t}))];
+      frame.contentWindow.postMessage({source:'sod-host',type:'update-findings',findings,requestId:9001},location.origin);},words);
+    await page.waitForFunction(()=>window.__state?.findings?.length>=24,null,{timeout:60000});
+    assert.equal(await page.evaluate(()=>window.__state.findings.length),24,'the engine keeps exactly 24 words');
+    await openPanel(page);
+    assert.match(await page.locator('.els29-native-rail-head small').first().textContent(),/^24\/24/);
+    assert.equal(await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).isDisabled(),true,'a 25th word cannot be added');
+  },{realHost:true});
 });

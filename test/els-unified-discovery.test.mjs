@@ -89,8 +89,11 @@ test('group admission uses one existing exact load, preserves selections/viewpor
   assert.deepEqual(load.words[3].sourceShown,[source.hitId]);assert.equal(JSON.stringify(state),before);
   assert.equal(prepareElsLexiconFindings(state,scan,[a,{...b}]),null,'foreign member rejected atomically');
   assert.equal(prepareElsLexiconFindings({...state,geometry:{...state.geometry,cw:34}},scan,[a,b]),null,'old window rejected');
-  state.findings=Array.from({length:12},(_,i)=>({t:`קודמ${'א'.repeat(i+1)}`,hits:[],sourceHits:[]}));
+  // ZURIEL 18.11.2026: the cap is 24 words on one matrix (was 12).
+  state.findings=Array.from({length:23},(_,i)=>({t:`קודמ${'א'.repeat(i+1)}`,hits:[],sourceHits:[]}));
   assert.equal(prepareElsLexiconFindings(state,scan,[a,b]),null,'no partial overwrite at finding cap');
+  state.findings=state.findings.slice(0,22);
+  assert.equal(prepareElsLexiconFindings(state,scan,[a,b])?.words.length,24,'two more fit up to the 24th word');
 });
 test('bounds remain explicit in dense input and pure grouping stays bounded',()=>{
   const {state,scan,add}=fixture();

@@ -580,8 +580,18 @@ test('browser: findings operation completion follows canonical verification and 
     assert.equal(await page.evaluate(index => window.__log.slice(index).some(message => message.type === 'operation' && message.kind === 'findings' && message.requestId === 402), completedEvents), false, 'later candidate verification cannot reopen the completed operation');
     assert.equal((await operations(page)).filter(operation => operation.kind === 'findings' && operation.requestId === 402).at(-1).status, 'done');
     await page.evaluate(() => { window.__mode = 'down'; });
+    // ZURIEL 18.11.2026: an occurrence the canonical verifier already answered keeps that verdict on a redraw (same word, corpus and cells),
+    // so an edit that keeps "אל" needs no new call, completes, and its verified marks stay while the verifier is down.
+    const callsBeforeKeep = calls.length;
     await nativeSend(page, { type: 'update-findings', requestId: 403, findings: [{ t: 'אל', color: '#123456' }] });
-    await waitOperation(page, 'findings', 403, 'error');
+    await waitOperation(page, 'findings', 403, 'done');
+    const kept = await latestState(page);
+    assert.ok(kept.findings[0].hits.some(hit => hit.selected && hit.shown && hit.verified), 'already verified occurrences keep their canonical verdict');
+    assert.ok(kept.matrix.marks.some(mark => mark.color === '#123456'), 'and stay on the matrix');
+    assert.equal(calls.length, callsBeforeKeep, 'no verification call for occurrences already answered');
+    // A word never verified in this session still needs the verifier: when it is down, its occurrences stay opaque candidates.
+    await nativeSend(page, { type: 'update-findings', requestId: 404, findings: [{ t: 'לא', color: '#123456' }] });
+    await waitOperation(page, 'findings', 404, 'error');
     const failed = await latestState(page);
     assert.ok(failed.findings[0].hits.some(hit => hit.selected && !hit.verified), 'failed selected occurrences remain opaque candidates');
     assert.ok(failed.findings[0].hits.every(hit => !hit.verified && hit.hitId === null && hit.axisDistance === null));

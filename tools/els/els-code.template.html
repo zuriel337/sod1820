@@ -1542,6 +1542,8 @@
   }
 
   const PALETTE=["#2f9e5a","#3b82d6","#8b5cf6","#e0851b","#d6336c","#0d9488","#b45309","#4f7a12","#c026d3","#0891b2","#dc2626","#65a30d"];
+  // Words on one matrix (ZURIEL 18.11.2026: 24, was 12). Colours repeat after the twelve of the palette.
+  const MAX_FINDING_WORDS=24;
   // ★ ממצאי-מערכת מובנים — מטריצות מוכנות של הפרויקט (לא ניתנות למחיקה), נפתחות עם ההצטלבויות שלהן
   const SYSTEM_MATRICES=[
     {name:"תורה קדשה", term:"תורה קדשה", skip:10065, words:["התורה","אמיתית"], sys:true},
@@ -2157,7 +2159,7 @@
     if(!hasGov(st.res))return;
     const previous=new Map(st.words.map(w=>[w.t,w])),seen=new Set(),next=[];let occurrencesAdded=false;
     for(const raw of rawFindings){
-      if(next.length>=12)break;
+      if(next.length>=MAX_FINDING_WORDS)break;
       const t=norm(typeof raw==="string"?raw:(raw&&raw.t)||"");
       if(!t||seen.has(t))continue;
       seen.add(t);
@@ -3890,7 +3892,7 @@
     return best;
   }
   // הוספת מילה שעדשה מצאה — כממצא צבוע במטריצה
-  function addLensWord(w){const t=norm(w);if(st.words.some(x=>x.t===t)||st.words.length>=12)return;
+  function addLensWord(w){const t=norm(w);if(st.words.some(x=>x.t===t)||st.words.length>=MAX_FINDING_WORDS)return;
     const used=st.words.map(x=>x.color);st.words.push({t,color:PALETTE.find(c=>!used.includes(c))||PALETTE[st.words.length%PALETTE.length],hits:[],total:0});render();}
 
   // 🔬 מערכת עדשות-מחקר — רישום מודולרי. כל עדשה = תוסף שמצייר על התוצאה הנוכחית. לא כפתור קבוע במסך.
@@ -4819,10 +4821,23 @@
 
   // חיפוש ממצאים בתוך הבלוק הנראה — סורק כל תא בחלון ובודק כל כיוון:
   // שורה (דילוג 1..8) · עמודה (דילוג S) · אלכסונים (דילוג S±1, S±2) — בשני הכיוונים.
+  // render() runs on every zoom, pinch step, theme and panel change. Recomputing then rebuilt every finding's occurrence list, which
+  // re-ranked them (the shown occurrence of a word could change) and dropped their canonical verdicts until the server answered again,
+  // so findings vanished while zooming (ZURIEL 18.11.2026). The lists are rebuilt only when what they are computed from changes.
+  let _recomputeSig="",_recomputeBase="";
   function recomputeWords(){
     if(!hasGov(st.res))return;
     const b=blockOf(),S=b.S,c1=b.c0+b.cw;
     const mh=occ();
+    const sig=JSON.stringify([st.scope,st.res.t,hitKey(mh),b.S,b.r0,b.r1,b.c0,b.cw,st.showN,st.words.map(w=>[w.t,w.extra?.size||0,w.off?.size||0,!!w._savedShown,!!w.hits])]);
+    // An identical redraw (zoom, pinch) keeps the lists; a word object that was not computed for this exact view (a new word, a
+    // reopened meeting or a loaded record) is always computed.
+    if(sig===_recomputeSig&&st.words.every(w=>w._recomputedFor===sig&&!w._savedShown))return;
+    _recomputeSig=sig;
+    // Same axis, window and count: only the words or the choices changed. A word already on the matrix keeps the occurrences it shows
+    // by default, in the same order; before, adding a word re-ranked the others and an earlier word's occurrence could jump to another
+    // (still unverified) one and vanish until verified. A new axis, window or count ranks as before.
+    const base=JSON.stringify([st.scope,st.res.t,hitKey(mh),b.S,b.r0,b.r1,b.c0,b.cw,st.showN]),keepSelection=base===_recomputeBase;_recomputeBase=base;
     // דילוגי-אלכסון: סביב כל כפולה של רוחב-המטריצה (kS±2, k=1..4) → תופס אלכסונים מקבילים בכל שיפוע
     // (כולל «התורה» ב-2S+2, מקביל דליל ל«אמיתית»), וגם שורות/אלכסונים קצרים (1..8).
     const rc=p=>[Math.floor(p/S),((p%S)+S)%S];
@@ -4832,6 +4847,12 @@
     const mainSet=new Set(mh.positions);   // לפסילת מופע חופף-לעוגן (תת-מחרוזת של המילה הראשית = טריוויאלי)
     st.words.forEach((w,wi)=>{
       const t=norm(w.t),L=t.length,hits=[],seen=new Set();const skips=searchSpace(b,L);
+      // The canonical verdict of an occurrence that is still here (same word, corpus, skip, direction and cells) stays with it
+      // (ZURIEL 18.11.2026). Every render rebuilds these lists, so before, a zoom or a pinch, or adding another word, dropped every
+      // verdict and the findings vanished from the matrix until the server had verified them all again. Only MATCH and MISMATCH
+      // replies of the verifier carry over; a failed check (CANDIDATE) and any new occurrence are verified as before.
+      const priorVerdicts=new Map();if(w.verdictScope===st.scope)for(const h of (w.hits||[]))if(h.v==="MATCH"||h.v==="MISMATCH")priorVerdicts.set(hitKey(h)+"|"+h.positions.join(","),h.v);
+      const priorDefault=keepSelection&&w.nativeRevision&&Array.isArray(w.hits)?w.hits.slice(0,st.showN).map(hitKey):[];
       // סורקים רק את החלון הנראה — מילים «רחוקות» (72 עמודות…) לא רלוונטיות
       for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){
         const s0=r*S+c;if(s0<0||s0>=scopeN()||T[s0]!==t[0])continue;
@@ -4862,6 +4883,10 @@
       //    זהו סדר-תצוגה בלבד (Rank, Don't Hide).
       const _rank=x=>gapF(gridStep(Math.abs(x.skip),S))*proxF(x.cost);
       hits.sort((a,b2)=>_rank(b2)-_rank(a)||a.cost-b2.cost);
+      if(priorDefault.length){const at=new Map(priorDefault.map((k,i)=>[k,i]));const front=hits.filter(h=>at.has(hitKey(h)));
+        if(front.length===priorDefault.length){front.sort((a,b2)=>at.get(hitKey(a))-at.get(hitKey(b2)));const rest=hits.filter(h=>!at.has(hitKey(h)));hits.length=0;hits.push(...front,...rest);}}
+      for(const h of hits){const verdict=priorVerdicts.get(hitKey(h)+"|"+h.positions.join(","));if(verdict&&h.v===undefined)h.v=verdict;}
+      w.verdictScope=st.scope;
       w.nativeRevision=(w.nativeRevision||0)+1;
       w.total=hits.length;w.inwin=hits.length;w.hits=hits;w.nativePage=0;
       // 🛡️ תאימות-לאחור: מופע שנשמר במפורש במטריצה קיימת (_savedShown) או שהמשתמש הדליק ידנית
@@ -4882,6 +4907,7 @@
         w.extra=new Set([...shownSet].filter(k=>!defKeys.has(k)));
         w._savedShown=null;
       }
+      w._recomputedFor=sig;
     });
   }
 
@@ -5643,7 +5669,7 @@
     const inp=card.querySelector("input"),addb=card.querySelector(".add"),list=card.querySelector(".wlist");
     const add=()=>{const t=norm(inp.value);if(t.length<1)return;
       if(st.words.some(w=>w.t===t)){toast("«"+t+"» כבר מסומן במטריצה");inp.value="";return;}
-      if(st.words.length>=12){toast("עד 12 ממצאים בבת אחת");return;}
+      if(st.words.length>=MAX_FINDING_WORDS){toast("עד "+MAX_FINDING_WORDS+" ממצאים בבת אחת");return;}
       const used=st.words.map(w=>w.color);
       const color=PALETTE.find(c=>!used.includes(c))||PALETTE[st.words.length%PALETTE.length];
       st.words.push({t,color,hits:[],total:0});inp.value="";render();
@@ -5659,13 +5685,13 @@
       if(!st.suggest.length){sbox.innerHTML='<div class="wempty">לא נמצאו מונחים מהמאגר קרובים לאשכול הזה. נסה מטריצה/מופע אחר.</div>';return;}
       const hdr=document.createElement("div");hdr.className="sugg-hdr";
       hdr.innerHTML='<span>💡 מונחים קרובים לאשכול</span><button class="sugg-all">➕ הוסף 5 הטובים</button>';
-      hdr.querySelector(".sugg-all").onclick=()=>{st.suggest.slice(0,5).forEach(s=>{if(st.words.length<12&&!st.words.some(w=>w.t===norm(s.term)))st.words.push(mkWord(s.term));});st.suggest=null;render();};
+      hdr.querySelector(".sugg-all").onclick=()=>{st.suggest.slice(0,5).forEach(s=>{if(st.words.length<MAX_FINDING_WORDS&&!st.words.some(w=>w.t===norm(s.term)))st.words.push(mkWord(s.term));});st.suggest=null;render();};
       sbox.appendChild(hdr);
       st.suggest.forEach(s=>{const chip=document.createElement("button");chip.className="sugg-chip";
         chip.innerHTML='<span class="sc-plus">＋</span><span class="sc-t">'+s.term+'</span>'+
           '<span class="sc-stars" title="איכות ההצעה">'+"★".repeat(s.stars)+'</span>'+
           '<span class="sc-d">'+(s.parallel?"מקביל · ":"")+'מרחק '+heb(s.cost)+'</span>';
-        chip.onclick=()=>{if(st.words.length>=12){toast("עד 12");return;}if(!st.words.some(w=>w.t===norm(s.term)))st.words.push(mkWord(s.term));recomputeWords();st.suggest=suggestCluster();render();};
+        chip.onclick=()=>{if(st.words.length>=MAX_FINDING_WORDS){toast("עד "+MAX_FINDING_WORDS);return;}if(!st.words.some(w=>w.t===norm(s.term)))st.words.push(mkWord(s.term));recomputeWords();st.suggest=suggestCluster();render();};
         sbox.appendChild(chip);});
     }
     sbtn.onclick=()=>{sbtn.textContent="🤖 סורק…";sbtn.disabled=true;setTimeout(()=>{st.suggest=suggestCluster();sbtn.textContent="🤖 הצע אשכול — מצא מילים קרובות";sbtn.disabled=false;renderSuggests();},10);};

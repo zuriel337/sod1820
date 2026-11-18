@@ -27,6 +27,17 @@ test('only canonical verifier and ordered core replies promote a hit', () => {
   assert.match(code, /for\(const o of r\.result\.verified\|\|\[\]\)verified\.add\(/);
 });
 
+test('a redraw keeps only the canonical verdict of the identical occurrence (ZURIEL 18.11.2026)', () => {
+  // recomputeWords rebuilds every list on each render (zoom, pinch, adding a word). It may keep a verifier reply, never make one:
+  // only MATCH/MISMATCH, only for the same word object, corpus (scope), skip, direction, start and cells, and only onto a hit with no verdict.
+  const fn = code.slice(code.indexOf('function recomputeWords('), code.indexOf('function suggestCluster('));
+  assert.match(fn, /if\(w\.verdictScope===st\.scope\)for\(const h of \(w\.hits\|\|\[\]\)\)if\(h\.v==="MATCH"\|\|h\.v==="MISMATCH"\)priorVerdicts\.set\(hitKey\(h\)\+"\|"\+h\.positions\.join\(","\),h\.v\)/);
+  assert.match(fn, /const verdict=priorVerdicts\.get\(hitKey\(h\)\+"\|"\+h\.positions\.join\(","\)\);if\(verdict&&h\.v===undefined\)h\.v=verdict;/);
+  assert.match(fn, /w\.verdictScope=st\.scope;/);
+  assert.equal([...code.matchAll(/\.v=verdict\b/g)].length, 1, 'the carry-over is the only copied verdict');
+  assert.equal([...code.matchAll(/priorVerdicts\.set\(/g)].length, 1);
+});
+
 test('every st.res assignment is census-classified (verified-eager, cache-verified, or scratch+restore)', () => {
   const allowed = [
     /st\.res=res;/, // autoTerms scratch (finally-restored)

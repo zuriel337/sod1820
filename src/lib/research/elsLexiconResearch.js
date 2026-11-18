@@ -56,7 +56,7 @@ export function prepareElsLexiconAdditions(state, result, items, color) {
       || item.hitId !== `${item.skip}_${item.dir}_${item.start}`) return { error: "stale" };
     let word = findings.find(word => word.t === item.term);
     if (!word) {
-      if (findings.length >= 12) return { error: "limit" };
+      if (findings.length >= 24) return { error: "limit" };
       word = { t: item.term, color: typeof color === "function" ? color(findings) : color };
       findings.push(word);
     }
@@ -68,7 +68,7 @@ export function prepareElsLexiconAdditions(state, result, items, color) {
 export function prepareElsLexiconFindings(state, result, items, color) {
   const snapshot = captureElsResearchReturn(state);
   if (!result?.ok || result.pending || !elsResearchSnapshotMatches(snapshot, result.origin)
-    || !Array.isArray(items) || !items.length || items.length > 12) return null;
+    || !Array.isArray(items) || !items.length || items.length > 24) return null;
   if (result.box && (state.geometry?.S !== result.box.S || state.geometry?.r0 !== result.box.r0
     || state.geometry?.r1 !== result.box.r1 || state.geometry?.c0 !== result.box.c0
     || state.geometry?.cw !== result.box.c1 - result.box.c0 + 1)) return null;
@@ -81,7 +81,7 @@ export function prepareElsLexiconFindings(state, result, items, color) {
   for (const item of items) {
     let word = load.words.find(word => word.t === item.term);
     if (!word) {
-      if (load.words.length >= 12) return null;
+      if (load.words.length >= 24) return null;
       word = { t: item.term, color: typeof color === "function" ? color(load.words) : color, sh: [], sourceShown: [] };
       load.words.push(word);
     }

@@ -27,7 +27,9 @@ test('radius-hidden selections survive without admitting candidate hits',()=>{
 });
 test('unverified, unbounded or mismatched snapshots never attach to a different occurrence',()=>{
   assert.equal(captureElsResearchReturn({...state(),verification:{state:'CANDIDATE'}}),null);
-  assert.equal(captureElsResearchReturn({...state(),findings:Array(13).fill(state().findings[0])}),null);
+  // The ceiling is 24 words on one matrix (ZURIEL 18.11.2026, was 12): 24 attach, 25 do not.
+  assert.notEqual(captureElsResearchReturn({...state(),findings:Array(24).fill(state().findings[0])}),null);
+  assert.equal(captureElsResearchReturn({...state(),findings:Array(25).fill(state().findings[0])}),null);
   for(const finding of [null,{}, {t:''}]) assert.equal(captureElsResearchReturn({...state(),findings:[finding]}),null);
   const snap=captureElsResearchReturn(state());
   for(const change of [{start:6},{corpusId:'other'},{corpus:'tanakh'},{term:'אור'},{dir:-1},{skip:51}]){

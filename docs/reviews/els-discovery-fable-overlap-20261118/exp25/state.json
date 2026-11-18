@@ -1,0 +1,99 @@
+{
+ "experiment": "EXP-25",
+ "created_at": "2026-11-18T15:17:25.077Z",
+ "budget_usd": 10,
+ "route": "els-live-reading pass-through (site key)",
+ "arms": [
+  {
+   "id": "C1-51-plain",
+   "model": "claude-fable-5-1",
+   "cipher": "C1",
+   "batch_id": "msgbatch_01AhmuvDMfZ3y3UyRba8q7MR",
+   "custom_id": "els-live-exp25-c1-51-plain",
+   "lock_sha256": "74137e81e92a2f03e9f37f84f0671151892f0cb30881c90663d6a5f585ba2f88",
+   "request_sha256": "27f467a7b46317dc26528023393eda1202f1492d1bd3d097db7c9cdbb8af8844",
+   "input_tokens": 20917,
+   "upper_bound_usd": 1.7307,
+   "expected_usd": {
+    "low": 0.4201,
+    "high": 0.513
+   }
+  },
+  {
+   "id": "C1-51-seeds",
+   "model": "claude-fable-5-1",
+   "cipher": "C1",
+   "batch_id": "msgbatch_01NrEk53VBgcwfEiALuqZqmb",
+   "custom_id": "els-live-exp25-c1-51-seeds",
+   "lock_sha256": "2eaa3f3911fad72788656639e5895c68b6e68922ad9a7c3a930b8e3ca78e9dc5",
+   "request_sha256": "6cdec8d167577c6330a31d37aded1c229e2fe6cdf5d8e42073ceee82821d9de3",
+   "input_tokens": 21459,
+   "upper_bound_usd": 1.7341,
+   "expected_usd": {
+    "low": 0.4228,
+    "high": 0.5157
+   }
+  },
+  {
+   "id": "C1-52-plain",
+   "model": "claude-fable-5-2",
+   "cipher": "C1",
+   "batch_id": "msgbatch_013RXvKrZsN8Gs86Hiw16btp",
+   "custom_id": "els-live-exp25-c1-52-plain",
+   "lock_sha256": "99759d5d12cb48f1e7e2b13a81a18d2fe534b64c06ba5c0887deda95597118bb",
+   "request_sha256": "d1b0021e93bfc52fbf848d841a124d69f9d21f91acaacea843c8d80607b825e0",
+   "input_tokens": 20917,
+   "upper_bound_usd": 1.3846,
+   "expected_usd": {
+    "low": 0.3361,
+    "high": 0.4104
+   }
+  },
+  {
+   "id": "C1-52-seeds",
+   "model": "claude-fable-5-2",
+   "cipher": "C1",
+   "batch_id": "msgbatch_01WuJBWGjrQBYMoS57NgZRya",
+   "custom_id": "els-live-exp25-c1-52-seeds",
+   "lock_sha256": "c2b7bc66c22eb6cee48cf6b2301e813aae700db200a2bee66a88909dbe8aa4bd",
+   "request_sha256": "325d54f0e3f3e4c34da817d01846ce9289061f1a4cf105057f35441ed9f89281",
+   "input_tokens": 21459,
+   "upper_bound_usd": 1.3873,
+   "expected_usd": {
+    "low": 0.3383,
+    "high": 0.4125
+   }
+  },
+  {
+   "id": "C2-52-plain",
+   "model": "claude-fable-5-2",
+   "cipher": "C2",
+   "batch_id": "msgbatch_01SDod8P3yLHA93gQMu9b53h",
+   "custom_id": "els-live-exp25-c2-52-plain",
+   "lock_sha256": "1d1dd7d71f94e633277454829df111e3aef78224c94c3aa6beaf7b2dbdd7077d",
+   "request_sha256": "0ddc6ec86cbd4aafa2eace554610287768ca336d40ad6c93c352cede2b5c329a",
+   "input_tokens": 20901,
+   "upper_bound_usd": 1.3845,
+   "expected_usd": {
+    "low": 0.336,
+    "high": 0.4103
+   }
+  },
+  {
+   "id": "C2-52-seeds",
+   "model": "claude-fable-5-2",
+   "cipher": "C2",
+   "batch_id": "msgbatch_0182jCzAzZ6LjhkTUDYcy7nh",
+   "custom_id": "els-live-exp25-c2-52-seeds",
+   "lock_sha256": "0adffa987687671cccf438ef3fc1262301fed536c78ee0890eb77a72f69f3a4e",
+   "request_sha256": "9ed63cd8251dc7cd30615d60257e3681c445df41c09a19eaed0e7eec62dbacde",
+   "input_tokens": 21472,
+   "upper_bound_usd": 1.3874,
+   "expected_usd": {
+    "low": 0.3383,
+    "high": 0.4126
+   }
+  }
+ ],
+ "upper_bound_total_usd": 9.0086
+}

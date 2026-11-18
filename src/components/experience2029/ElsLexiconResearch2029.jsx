@@ -82,7 +82,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     if (onAdd) {
       const prepared = prepareElsLexiconAdditions(state, data, items, color);
       if (prepared.error) {
-        setNotice(prepared.error === "limit" ? "במטריצה כבר 12 מילים, וזו התקרה. הסירו מילה מרשימת הממצאים ואז הוסיפו."
+        setNotice(prepared.error === "limit" ? "במטריצה כבר 24 מילים, וזו התקרה. הסירו מילה מרשימת הממצאים ואז הוסיפו."
           : "הגילוי אינו מתאר עוד את המטריצה שעל המסך. הפעילו סריקה חדשה ואז הוסיפו.");
         return;
       }
@@ -90,7 +90,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
       return;
     }
     const load = prepareElsLexiconFindings(state, data, items, color);
-    if (!load) { setNotice("לא ניתן להוסיף: בדקו את המופע ואת מגבלת 12 המילים במטריצה."); return; }
+    if (!load) { setNotice("לא ניתן להוסיף: בדקו את המופע ואת מגבלת 24 המילים במטריצה."); return; }
     onRestore?.(load); setNotice("נשלח לאימות במנוע. רק ממצאים שאומתו יסומנו על המטריצה.");
   };
   return <section hidden={!visible} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
