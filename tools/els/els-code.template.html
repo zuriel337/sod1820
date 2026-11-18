@@ -3112,13 +3112,18 @@
       const chunk=hits.slice(offset,offset+wave);
       if(pool){
         const chunks=[];for(let i=0;i<chunk.length;i+=8)chunks.push(chunk.slice(i,i+8));
-        const replies=await Promise.all(chunks.map(async items=>{
+        let replies;
+        try{replies=await Promise.all(chunks.map(async items=>{
           const reply=await xfCall(pool,{type:"hitchunk",reqId:++_xfReqId,hits:items.map(x=>x.h),indices:items.map(x=>x.i),offset:0,T2,pure,rar,axisBase,geometry:window});
           if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
           progress.completed+=items.length;
           operationStatus(operation,"searching",null,{phase:"cross",completed:progress.completed,total:progress.total,phaseElapsedMs:Date.now()-progress.startedAt});
           return reply.meetings;
-        }));
+        }));}catch(e){
+          // A stop ends the wave in flight at once (its workers are terminated); the waves already finished keep their meetings.
+          if(operation?.stopRequested&&epoch===_matrixRequestSeq)break;
+          throw e;
+        }
         meetings.push(...replies.flat());
       }else{
         for(const {h,i} of chunk){const m=crossFindMultiHit(h,i,T2,pure,rar,axisBase,window);if(m)meetings.push(m);}
@@ -3312,7 +3317,7 @@
       const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN(),...(operation&&EXPR2029?{maxLetterGap:operation.maxLetterGap??0}:{})};
       const progress={completed:0,total:[A,B].reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
       // The meetings of the richer axis become the result, so the count shown while scanning is the larger of the two.
-      if(operation&&EXPR2029){operation.countMeetings=true;operation.softStop=()=>{};}
+      if(operation&&EXPR2029){operation.countMeetings=true;operation.softStop=()=>stopXfWorkers();}
       const r1=await crossFindBounded(A,[B],pure,window,operation,progress,requestSeq);
       if(operation)operation.foundFloor=r1.meetings.length;
       const r2=await crossFindBounded(B,[A],pure,window,operation,progress,requestSeq);

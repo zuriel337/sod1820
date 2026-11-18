@@ -2255,9 +2255,13 @@ test('native reliability: cancellation terminates discovery and cross workers; p
       };
       Worker.prototype.terminate=function(){window.__fixtureStoppedWorkers++;return stop.call(this);};
     });
+    // Nothing is found yet (the ordered page is held too), so the button cancels and the matrix on screen stays. A stop after
+    // something was found keeps it (ZURIEL 18.11.2026); that path has its own case below and in the "owner 18.11" test.
+    await page.evaluate(()=>{window.__fixtureHoldOps=['page'];});
     await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('צוריאל');await activate(page,'כל התנ״ך');
     await frame.waitForFunction(()=>window.__fixtureHeldWorkers>0);
     await activate(page,'בטל חיפוש');await frame.waitForFunction(()=>window.__fixtureStoppedWorkers>0);
+    await page.evaluate(()=>{window.__fixtureHoldOps=null;window.__fixtureReleaseHeld?.();});
     await activate(page,'מפת חום');await page.waitForFunction(()=>window.__state.ui.heat===true);
     assert.deepEqual(await identity(page),baseline);
     await frame.evaluate(()=>{window.__fixtureHoldWorker='hitchunk';window.__fixtureHeldWorkers=0;});
@@ -2268,9 +2272,19 @@ test('native reliability: cancellation terminates discovery and cross workers; p
     assert.ok(progress.total>progress.completed);assert.equal(progress.phase,'cross');
     assert.equal(await page.getByRole('progressbar',{name:'מיקומי ציר שנבדקו'}).getAttribute('value'),'8');
     const terminated=await frame.evaluate(()=>window.__fixtureStoppedWorkers);
-    await activate(page,'בטל חיפוש');await frame.waitForFunction(n=>window.__fixtureStoppedWorkers>n,terminated);
+    const foundSoFar=await page.evaluate(()=>window.__operation.found||0),stoppedRequest=await page.evaluate(()=>window.__operation.requestId);
+    if(foundSoFar>0){
+      // Meetings were already found in the finished wave: the stop keeps them, ends the wave in flight and offers to continue the scan.
+      await activate(page,'עצור והצג את מה שנמצא');await frame.waitForFunction(n=>window.__fixtureStoppedWorkers>n,terminated);
+      await page.waitForFunction(id=>window.__operation?.requestId===id&&window.__operation.status==='done'&&window.__operation.partial===true,stoppedRequest,{timeout:60000});
+      const kept=await page.evaluate(()=>window.__state);
+      assert.equal(kept.search.mode,'cross-simple');assert.ok(kept.search.zones>=1&&kept.search.zones<=3);
+      assert.equal(kept.search.coverage.canContinue,true,'the part of the scan that was not done can be continued');
+    }else{
+      await activate(page,'בטל חיפוש');await frame.waitForFunction(n=>window.__fixtureStoppedWorkers>n,terminated);
+      assert.deepEqual(await identity(page),baseline,'cancelled scan never commits its pending geometry or results');
+    }
     assert.equal(await page.locator('.els29-native-progress').count(),0);
-    assert.deepEqual(await identity(page),baseline,'cancelled scan never commits its pending geometry or results');
     await frame.evaluate(()=>window.__fixtureHoldWorker=null);
     const complete=await reliabilityCross(page,'צוריאל','פולייס');
     assert.equal(complete.search.zones,3,'new workers complete the replacement search');
