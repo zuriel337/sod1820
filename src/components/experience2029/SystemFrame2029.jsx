@@ -165,7 +165,7 @@ const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW 
 // from this file, renders each item through the real component and fails on a missing, uncatalogued, shared or fallback symbol.
 const HOME_NAV = [
   { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
-  { to: "/world", label: "העולם", symbol: "world" },
+  { to: "/world", label: "העולם", symbol: "world", building: true },
   { to: "/heichal", label: "היכל", symbol: "heichal" },
   { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
   { to: "/2029/journey", label: "מסע החיים", symbol: "journey" },
@@ -177,7 +177,7 @@ const DIRECT_NAV = [
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
-  { to: "/els", label: "ELS · הצופן התנ״כי", symbol: "els" },
+  { to: "/els", label: "ELS · הצופן התנ״כי", symbol: "els", building: true },
   ...(publicFoundationPreview ? [
     { to: "/map", label: "מפת האתר", symbol: "map" },
     { to: "/updates", label: "עדכונים במייל", symbol: "mail" },
@@ -195,7 +195,7 @@ const CORE_HOME_NAV = [
 ];
 
 const CORE_DIRECT_NAV = [
-  { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els" },
+  { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els", building: true },
   { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
@@ -407,14 +407,16 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
           key={item.to}
           to={item.to}
           end={item.exact}
-          aria-label={item.label}
-          title={item.label}
+          aria-label={item.building ? `${item.label} · בבנייה` : item.label}
+          title={item.building ? `${item.label} · בבנייה` : item.label}
           className={activeClass}
           state={{ sodEntryArrival: "internal" }}
           onClick={() => { preserveReturnFor(item.to); onNavigate?.(); }}
         >
           <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
+          {/* Open, and marked as still being built (ZURIEL 18.11.2026: the World and the cipher). */}
+          {item.building ? <span className="sod29-nav-building">בבנייה</span> : null}
         </NavLink>
       ) : item.action ? (
         <button className="sod29-nav-link" key={item.label} aria-label={item.label} title={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
