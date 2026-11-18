@@ -518,6 +518,26 @@ function installPublicReadingWorker(policy) {
           if (!Array.isArray(chain)) return denied();
           return chain.some(row => row.id === body.p_parent) ? readFetch(req) : new Response("[]", { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
         }
+        // Home follows (ZURIEL 18.11.2026 "פתוח לכולם, גם לאורחים"): the reality-stream follow and the series bells, for guests too.
+        // A guest reads and changes only its own visitor follow through the canonical guest RPCs, always with the public key and the
+        // exact request shape; a member's follow goes through the personal path below. No other topic or source is admitted.
+        if ((rpc === "notification_prefs_guest_get_v1" || rpc === "watch_toggle") && !url.search) {
+          const key = policy.anonKey || "";
+          const authorization = req.headers.get("Authorization");
+          if (key && (!authorization || authorization === "Bearer " + key)) {
+            const body = await jsonBody(req);
+            const visitor = value => typeof value === "string" && /^[A-Za-z0-9-]{8,64}$/.test(value);
+            const homeTopic = value => value === "stream:reality" || typeof value === "string" && /^series:[^\s:]{1,80}$/.test(value);
+            const homeSource = ["home_reality_stream_2029", "gallery_catalog_2029", "gallery_reading_2029", "home_series_2029"];
+            const shape = Object.keys(body).sort().join(",");
+            const ok = rpc === "notification_prefs_guest_get_v1"
+              ? shape === "p_visitor" && visitor(body.p_visitor)
+              : shape === "p_on,p_source,p_topic,p_visitor" && visitor(body.p_visitor) && homeTopic(body.p_topic)
+                && homeSource.includes(body.p_source) && typeof body.p_on === "boolean";
+            if (!ok) return denied();
+            return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
+          }
+        }
         // Guest community publishing: no account is involved, the server enforces the
         // limits (kill switch, per-address rate, text only). Only the exact anonymous
         // request shape is forwarded, always with the public key; any session token is refused.

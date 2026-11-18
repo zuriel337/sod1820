@@ -32,7 +32,10 @@ export default function WatchButton(props) {
   const communityThread = PUBLIC_READING_PRODUCTION_ARTIFACT && props.communityThread === true
     && auth.verified === true && !auth.loading && Boolean(auth.user?.id)
     && props.source === "community_thread" && /^thread:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(props.topic || "");
-  const actionsLocked = publicReadingActionsLocked(auth.isAdmin) && !communityThread;
+  // ZURIEL 18.11.2026 ("פתוח לכולם, גם לאורחים"): the reality-stream follow and the series bells on Home open in the public reading
+  // release, for guests too. Only a callsite that asks for it (publicFollow) and only these two subjects; every other follow stays closed.
+  const publicFollow = props.publicFollow === true && (props.topic === "stream:reality" || /^series:[^\s:]{1,80}$/.test(props.topic || ""));
+  const actionsLocked = publicReadingActionsLocked(auth.isAdmin) && !communityThread && !publicFollow;
   // A closed capability must not mount the controller or create a visitor identity.
   // Keep a truthful, inert affordance; existing Follow data is neither read nor changed.
   if (actionsLocked) return props.topic ? <button type="button" className="sod29-action"

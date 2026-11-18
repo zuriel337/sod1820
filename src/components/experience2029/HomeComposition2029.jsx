@@ -409,8 +409,9 @@ function HomeEntryBand({ journeyLocked, midrashOpen }) {
     {midrashOpen
       ? <Link className="h29-entry k29-rv" to="/beit-midrash" data-home-entry="beit-midrash"><span className="h29-entry-k">בית המדרש</span><strong>איך מחשבים ואיך מגלים</strong><small>השיטות מוסברות, שיטה אחר שיטה</small></Link>
       : <div className="h29-entry k29-rv is-locked" aria-disabled="true" data-home-entry="beit-midrash"><span className="h29-entry-k">בית המדרש · בבנייה</span><strong>איך מחשבים ואיך מגלים</strong><small>ייפתח בהמשך</small></div>}
+    {/* ZURIEL 18.11.2026: Life Journey appears once on Home; while it is locked only the "כלים וכניסות" tile names it. */}
     {journeyLocked
-      ? <div className="h29-entry k29-rv is-locked" aria-disabled="true" data-home-entry="life-journey"><span className="h29-entry-k">מסע החיים · פרומו</span><strong>מסע קצר עם השם והתאריך שלכם</strong><small>בבנייה · ייפתח בהמשך</small></div>
+      ? null
       : <Link className="h29-entry k29-rv" to="/2029/journey" data-home-entry="life-journey"><span className="h29-entry-k">מסע החיים · פרומו</span><strong>מסע קצר עם השם והתאריך שלכם</strong><small>מתחילים כאן</small></Link>}
   </section>;
 }
@@ -448,7 +449,8 @@ function HomeStandalonePosts({ exclude, admitted, admissionRef }) {
 function AvailabilityItem({ label, href, flag }) {
   const feature = useFeatureState(flag, { requireFlag: true });
   const open = !feature.loading && feature.publicState === "open";
-  return <li><Link to={href}>{label}</Link><span>{feature.loading ? "בודק זמינות" : open ? "פתוח לציבור" : "סגור לציבור · בבנייה"}</span></li>;
+  // ZURIEL 18.11.2026: a closed area is named, not linked (a link led to the closed page).
+  return <li>{open ? <Link to={href}>{label}</Link> : <span className="h29-availability-name">{label}</span>}<span>{feature.loading ? "בודק זמינות" : open ? "פתוח לציבור" : "סגור לציבור · בבנייה"}</span></li>;
 }
 
 function HomeAvailabilityMap() {
@@ -618,7 +620,7 @@ export default function HomeComposition2029({
         {!corePublic && now ? <Link className="h29-portion k29-rv" to={`${NUMBER_PAGE_BASE}/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
           <span className="h29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link> : null}
         {corePublic ? <a className="h29-portion k29-rv" href="/community/chat"><span className="h29-portion-h"><NavigationIcon2029 name="community" />צ׳אט</span><small>לשיחות הקהילה</small></a>
-          : <a className="h29-portion k29-rv" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>}
+          : <Link className="h29-portion k29-rv" to="/2029/posts" data-home-archive="posts"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></Link>}
         {journeyLocked
           ? <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-life-journey="locked"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מסע החיים · נעול</span><small>ייפתח לאחר השלמת ההגדרה</small></div>
           : <Link className="h29-portion k29-rv" to="/2029/journey" data-home-life-journey="open"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>}
