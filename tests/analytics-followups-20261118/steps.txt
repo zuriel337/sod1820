@@ -1,0 +1,5 @@
+01-before.sql ok
+drift.sql fail:fn_raziel_activity_notify changed since
+drift-restore.sql ok
+02-apply.sql ok
+03-rollback.sql ok

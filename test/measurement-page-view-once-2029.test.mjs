@@ -19,14 +19,14 @@ const compiled = (await transform(source, { loader: "jsx", format: "cjs" })).cod
 
 // One browser document: the module-level state of App2029.jsx (measuredEntry2029) lives as long as the document.
 function document_({ hostname = "sod1820.co.il" } = {}) {
-  const log = { visits: [], engagement: [] }, timers = [], gates = [];
+  const log = { visits: [], engagement: [], ga: [] }, timers = [], gates = [];
   let auth = {loading:false,isAdmin:false};
   let location = { pathname: "/world", key: "default" }, keyCounter = 0;
   const context = { PUBLIC_READING_RELEASE: true, integratedPreviewEnabled: false, kingdomPreviewEnabled: false,
     useLocation: () => location, useAuth: () => auth, React: { useRef: value => ({ current: value }) },
     window: { location: { hostname }, requestIdleCallback: () => 1, cancelIdleCallback() {} },
     document: { querySelector: () => ({}), getElementById: () => ({}), body: {} }, MutationObserver: class { observe() {} disconnect() {} },
-    readingTelemetryPath, startWebVitals2029: () => () => {}, initGA() {}, trackPageview() {}, initMarketing() {}, trackMarketingPageview() {},
+    readingTelemetryPath, startWebVitals2029: () => () => {}, initGA() {}, trackPageview: path => { log.ga.push(path); }, initMarketing() {}, trackMarketingPageview() {},
     // Readable content first (ZURIEL 16.11.2026): the page's content being on screen is driven by hand (`content()`), like the timers.
     afterReadableContent2029: (path, fn, options = {}) => { const gate = { path, fn, options, live: true }; gates.push(gate); return () => { gate.live = false; }; },
     ensureIdentity: () => assert.fail("identity bridge"),
@@ -34,7 +34,7 @@ function document_({ hostname = "sod1820.co.il" } = {}) {
     visitsModule: () => Promise.resolve({ trackVisit: path => { log.visits.push(path); }, startPublicPageEngagement: path => { log.engagement.push(readingTelemetryPath(path)); return () => {}; } }),
     setTimeout: (fn, ms) => { timers.push({ fn, ms, live: true }); return timers.length; }, clearTimeout: id => { if (timers[id - 1]) timers[id - 1].live = false; } };
   vm.createContext(context);
-  vm.runInContext("let measuredEntry2029 = null; const PAGE_VIEW_SETTLE_MS = 150;" + compiled + ";globalThis.RouteEffects2029 = RouteEffects2029;", context);
+  vm.runInContext("let measuredEntry2029 = null; let marketedEntry2029 = null; const PAGE_VIEW_SETTLE_MS = 150;" + compiled + ";globalThis.RouteEffects2029 = RouteEffects2029;", context);
 
   // A mounted instance of the component: a hook list with the dependency comparison React performs.
   function mount() {
@@ -185,4 +185,25 @@ test("account switch after a query-only change never adds a page view; returning
   d.go('/login');view.render();await d.settle();
   d.go('/world');view.render();await d.settle();
   assert.deepEqual(d.log.visits,['/world','/world']);
+});
+
+// Admins are not public visitors (ZURIEL 18.11.2026): neither the first-party visit nor GA/Meta counts a signed-in admin, both wait for the
+// verified profile (no guest page view is lost while it loads), and an entry reaches GA once even when the account resolves afterwards.
+test("a signed-in admin is not counted, by the visit or by GA and Meta; a guest and a member are, once", async () => {
+  const d = document_(); d.auth({ loading: true, isAdmin: false }); const view = d.mount(); await d.settle();
+  assert.deepEqual(d.log.visits, []); assert.deepEqual(d.log.ga, [], "nothing is sent while the account is still loading");
+  d.auth({ loading: false, isAdmin: true, user: { id: "admin-a" } }); view.render(); await d.settle();
+  assert.deepEqual(d.log.visits, []); assert.deepEqual(d.log.ga, [], "admin: no visit, no GA page view");
+  d.go("/gallery"); view.render(); await d.settle();
+  assert.deepEqual(d.log.visits, []); assert.deepEqual(d.log.ga, [], "admin navigation: still nothing");
+  d.auth({ loading: false, isAdmin: false }); d.go("/world"); view.render(); await d.settle();
+  assert.deepEqual(d.log.visits, ["/world"]); assert.deepEqual(d.log.ga, ["/world"], "signed out: counted once by both");
+  d.auth({ loading: false, isAdmin: false, user: { id: "member-b" } }); view.render(); await d.settle();
+  assert.deepEqual(d.log.ga, ["/world"], "the account resolving on the same entry adds no second GA page view");
+});
+
+test("the account loading before content still yields exactly one GA page view for a guest", async () => {
+  const d = document_(); d.auth({ loading: true, isAdmin: false }); const view = d.mount(); await d.settle();
+  d.auth({ loading: false, isAdmin: false }); view.render(); await d.settle();
+  assert.deepEqual(d.log.ga, ["/world"]); assert.deepEqual(d.log.visits, ["/world"]);
 });

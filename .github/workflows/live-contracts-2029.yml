@@ -181,6 +181,9 @@ jobs:
           test/measurement-hebrew-path-20261118.test.mjs
           test/analytics-google-seo-closure-20261118.test.mjs
           test/gsc-sync-behaviour-20261118.test.mjs
+          test/analytics-followups-20261118.test.mjs
+          test/post-unit-actions-2029.test.mjs
+          test/egress-watch-contract-20261118.test.mjs
           test/measurement-transport-hardening-2029.test.mjs
           test/measurement-package-scope-20261113.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
@@ -408,6 +411,8 @@ jobs:
         run: bash scripts/run-measurement-identity-sql-test.sh
       - name: Provider freshness watch proposal (Search Console and GA4 stopped or stale is reported as missing, never as zero; one high recommendation and one admin notice per state; the high notice reads impact and writes the required e-mail; gsc-daily-sync waits 120 s; drift refuses; second apply no-op; exact rollback; isolated DB)
         run: bash scripts/run-provider-freshness-sql-test.sh
+      - name: Analytics follow-ups proposal (ELS searches admitted as one closed family without the term or an account id; the raziel notice writes the required e-mail; GA 11-15.11 duplicate-view note without changing values; drift refuses; second apply no-op; exact rollback; isolated DB)
+        run: bash scripts/run-analytics-followups-sql-test.sh
       - name: M0-A permissions regression (12 system functions server-only by exact signature, admin guards, account data, Legacy writes closed, dormant policies, cron; idempotent, drift stop, exact rollback)
         run: bash scripts/run-m0a-db-permissions-sql-test.sh
       - name: DEF-004 negative modes (an existing gallery object above 120 MiB stops the proposal; without the proposal the after-assertions fail)
