@@ -86,21 +86,31 @@ newsletter timer (tiny, timing-sensitive). The entry grew ~0.4 KB with Vite's li
 
 ## Verification
 
-- Builds: `npm run build` (prebuild gates + postbuild shell gate) and `node scripts/build-public-reading-production.mjs` on the final
-  tree of every step; both gates PASS.
+- Builds and both shell gates on the final tree of every step: PASS. Dependencies exactly as the lockfile (an install with
+  `--no-package-lock` re-resolves ~40 packages and changes chunking; all numbers here come from lockfile builds).
 - Undefined-name check of every changed module (Babel scope analysis): a real bug was caught in 2/8 before commit (template-literal
   tokens `RADIUS`, `LAYOUT`, `TYPE_SCALE_V2`, `NUMBER_PAGE_BASE` and `razielViewModeLabel`), fixed, and found again by the
   browser run.
-- Unit tests: all 594 `test/*.test.mjs` files on cd877d907: 3,618/3,657 pass; every one of the 34 failures also fails on
-  current main (environment or pre-existing drift); none is new. The footer follow-up d437ea12c: footer, content-first and frame
-  tests 227/230, the same 3 failures as main.
-- Browser, main vs branch at 99d5f76a1 (same local server, live reads, writes answered locally): Home updates strip, Now panel, footer links and
-  layout shift identical on phone and desktop; share row placeholder 62 px = loaded 62 px with no shift; More panel install
-  section identical on Android Chrome, iPhone Safari, desktop Chrome and absent on desktop Firefox on both; visitor never loads the
-  account offer, video layer, ELS line or Raziel panel; administrator fixture loads the account offer and ELS line.
+- Unit tests `test/*.test.mjs` (594 files): 3,711/3,735 on the branch, 3,708/3,735 on main; every branch failure also fails on main
+  with the same message (one parallel-run artifact passes alone).
+- Tests outside `test/` (245 files under src, supabase, api): 2,208/2,214, the same six failures as main.
+- CI scripts: the G1 routing gate 51/51, the 17 `npm run test:*` scripts and the 35 offline `scripts/` checks the workflows run: all
+  pass. The CI browser tests (23 files): all pass; the two Google-tag tests with `VITE_GA_ID=G-TEST` as their headers specify; the
+  speed centre 12 cases.
+- Sign-in: `auth-browser-acceptance-2029` and `auth-storage-browser-2029` pass (login, logout, recovery, OAuth return, refresh,
+  several tabs). Measurement: `content-first-2029` (Google tag, visit and stream after the article, delayed never dropped),
+  `ga-measurement-browser-2029`, `measurement-visit-once-2029`, `post-speed-page-analytics`, `marketing-browser-2029` pass.
+- Browser, main vs branch at 99d5f76a1 (same local server, live reads, writes answered locally): Home updates strip, Now panel, footer
+  links and layout shift identical on phone and desktop; share row keeps its 62 px while loading with no shift; More panel install
+  section identical on Android Chrome, iPhone Safari and desktop Chrome and absent on desktop Firefox; a visitor never loads the
+  account offer, video layer, ELS line or Raziel panel; the administrator fixture loads the account offer and the ELS line.
 - Raziel (administrator fixture, temporary copies of the two Raziel browser tests): navigation actions pass at 320 and 1440 px on
   main and branch; the account-sync flow passes every Raziel step on both and stops at the same later personal-area click on both.
   The committed versions of these tests fail identically on main (they predate the admin-only lock and the removed side companion).
+- CI also caught tests and checks that pinned code by file; each now reads the code where it lives (no assertion removed), and the
+  G1 retired-law record was republished per its rule (four comments repointed to their recorded successors).
+- The default profile's entry-file count stays at main's 18: the isolation gate installs esbuild with `--no-package-lock`, and in
+  that environment main's build also has 18 files. Every byte budget stays lowered.
 
 ## Lab (same local conditions, live public reads, analytics writes answered locally)
 
