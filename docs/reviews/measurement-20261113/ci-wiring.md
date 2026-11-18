@@ -68,3 +68,7 @@ It takes about **3 to 3.5 minutes** (191 s for the four profiles on the machine 
 ## 15 November extension
 
 `test/measurement-identity-20261115.test.mjs` runs in the same Analytics measurement contracts step. `scripts/run-measurement-identity-sql-test.sh` runs in the existing `security-sql-contracts` job against a disposable local PostgreSQL. No required-check name or timeout changes.
+
+## 18 November fix
+
+`test/measurement-hebrew-path-20261118.test.mjs` runs in the same Analytics measurement contracts step (`live-contracts-2029`). No required-check name or timeout changes.
