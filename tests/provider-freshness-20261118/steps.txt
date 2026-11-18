@@ -1,0 +1,7 @@
+01-before.sql ok
+drift-cron.sql fail:gsc-daily-sync command changed since
+drift-restore.sql ok
+drift-notify.sql fail:fn_system_suggestion_notify_high changed since
+drift-restore.sql ok
+02-apply.sql ok
+03-rollback.sql ok
