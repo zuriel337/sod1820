@@ -281,6 +281,7 @@ jobs:
           node --test
           test/admin-open-destinations-2029.test.mjs
           test/footer-2029.test.mjs
+          test/profile-notifications-hash-2029.test.mjs
           test/unlocked-2029-preview-boundary.test.mjs
           test/life-journey-2029-chain.test.mjs
           test/post-topic-pinned-context-rail-2029.test.mjs
