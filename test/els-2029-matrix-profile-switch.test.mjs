@@ -47,7 +47,9 @@ test("ELS 2029 opens in Research and mode changes do not own replay or search", 
 
 test("ELS 2029 public release: Classic and Research are open, Guided, AI scan and Raziel stay with the administrator; the cipher library stays readable", async () => {
   const page = await readFile(PAGE, "utf8");
-  assert.match(page, /const publicClassic = publicReadingActionsLocked\(useAuth\(\)\.isAdmin\)/);
+  // The level comes from the one public-release policy; it only holds its last value while the same account is being re-verified.
+  assert.match(page, /const publicClassic = revalidating \? decided\.current\.publicClassic : publicReadingActionsLocked\(isAdmin\)/);
+  assert.match(page, /const revalidating = Boolean\(user\?\.id\) && !profile && decided\.current\.userId === user\.id && decided\.current\.publicClassic !== null/);
   // Classic and Research are open to the public; Guided discovery stays with the administrator.
   assert.match(page, /if \(requested === "classic" \|\| directSavedOpen \|\| sharedMatrix\.present\) return ELS_MATRIX_PROFILE\.CLASSIC/);
   // Opens in Research for everyone; Guided only by explicit request and never for the public.

@@ -134,7 +134,7 @@ async function screenHarness(path, expose, overrides={}) {
  const React={createElement:(type,props,...children)=>({type,props:{...props,children}}),Fragment:'fragment'};
  const policy=read('src/lib/publicReadingRelease2029.js').replaceAll('export ','').replace('import.meta.env?.VITE_PUBLIC_READING_RELEASE','\"public-reading-20261101\"');
  const actionsLocked=vm.runInNewContext(policy+';publicReadingActionsLocked;', {__SOD_2029_BUILD__:true});
- const context={React,PUBLIC_READING_RELEASE:true,publicReadingActionsLocked:actionsLocked,useAuth:()=>({isAdmin:false,user:null}),useEffect:()=>{},useMemo:fn=>fn(),useState:initial=>[initial,()=>{}],use2029Palette:()=>({}),
+ const context={React,PUBLIC_READING_RELEASE:true,publicReadingActionsLocked:actionsLocked,useAuth:()=>({isAdmin:false,user:null}),useEffect:()=>{},useMemo:fn=>fn(),useRef:initial=>({current:initial}),useState:initial=>[initial,()=>{}],use2029Palette:()=>({}),
   useResearch:()=>({context:{subject:{id:'1820',type:'number',label:'1820'}},addToResearch:()=>calls.push('write'),saveItem:()=>calls.push('write')}),
   use2029Shell:()=>({openRaziel:()=>calls.push('model'),returnExact:()=>{},razielLocked:true}),
   useFeatureState:()=>({blocked:true}),supabase:{functions:{invoke:()=>calls.push('invoke')}},getVisitorId:()=>calls.push('visitor'),
@@ -170,6 +170,20 @@ test('ELS public view is the Classic mode only; the administrator keeps every mo
  const adminNode=admin.render({});assert.equal(adminNode.props.publicClassic,false);assert.equal(adminNode.props.key,'full');
 });
 
+
+test('ELS page keeps the level decided for an account while that same account is re-verified, and never lends it to another',async()=>{
+ // Every auth event empties the profile of the signed-in account for a moment. The page is keyed on the level, so a flicker remounted the engine.
+ const ref={current:{userId:null,publicClassic:null}};let auth={isAdmin:true,user:{id:'a'},profile:{id:'a',role:'admin'}};
+ const h=await screenHarness('src/pages/Els2029Page.jsx','Els2029Page',{useAuth:()=>auth,useRef:()=>ref});
+ assert.equal(h.render({}).props.key,'full');
+ auth={isAdmin:false,user:{id:'a'},profile:null};assert.equal(h.render({}).props.key,'full','a token refresh of the same account keeps the mounted page');
+ auth={isAdmin:true,user:{id:'a'},profile:{id:'a',role:'admin'}};assert.equal(h.render({}).props.key,'full');
+ auth={isAdmin:false,user:{id:'a'},profile:{id:'a',role:'user'}};assert.equal(h.render({}).props.key,'public-classic','a role that was really removed closes the administrator view');
+ auth={isAdmin:false,user:{id:'a'},profile:null};assert.equal(h.render({}).props.key,'public-classic','the removed role is the level that holds now');
+ auth={isAdmin:true,user:{id:'a'},profile:{id:'a',role:'admin'}};assert.equal(h.render({}).props.key,'full');
+ auth={isAdmin:false,user:null,profile:null};assert.equal(h.render({}).props.key,'public-classic','signing out closes it at once');
+ auth={isAdmin:false,user:{id:'b'},profile:null};assert.equal(h.render({}).props.key,'public-classic','another account never inherits the level');
+});
 
 test('admin Book save uses the existing explicit operation and ELS operational surface',async()=>{
  const auth={useAuth:()=>({isAdmin:true,user:{id:'verified-admin'}})};

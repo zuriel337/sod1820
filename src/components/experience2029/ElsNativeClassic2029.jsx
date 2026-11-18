@@ -1113,6 +1113,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [crossThirdTerm, setCrossThirdTerm] = useState("");
   const [thirdRequired, setThirdRequired] = useState(false);
   const lastSearchKindRef = useRef(null);
+  // The search form was edited after the last submit. Such a draft is the person's next search: a result that arrives meanwhile does not
+  // rewrite it, and it can be submitted while the previous search still runs (the new request supersedes the old one in the engine).
+  const [draftDirty, setDraftDirty] = useState(false);
+  const draftDirtyRef = useRef(false);
+  const markDraft = dirty => { draftDirtyRef.current = dirty; setDraftDirty(dirty); };
   useEffect(() => { if (matrix) lastSearchKindRef.current = null; }, [matrix]);
   const [crossRadius, setCrossRadius] = useState(18);
   const [crossLetterGap, setCrossLetterGap] = useState(0);
@@ -1166,9 +1171,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     resetReadContext();
   };
 
-  const requestSearch = (kind, payload = {}) => {
+  // origin: "user" for a search the person asked for; "command" for one started by a research load. The page drops older loads and
+  // opens a new subject only for the first.
+  const requestSearch = (kind, payload = {}, origin = "user") => {
     lastSearchKindRef.current = kind;
-    onSearchStart?.();
+    markDraft(false);
+    onSearchStart?.(kind, payload, origin);
     resetReadContext();
     setLoadError(null);
     setNotice("");
@@ -1207,24 +1215,24 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setCrossThirdTerm("");
     setCrossOpen(searchMode === "crossed_pair");
     if (searchMode === "crossed_three") {
-      requestSearch("cross-three", { terms: requestedAxes, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", radius: 18 });
+      requestSearch("cross-three", { terms: requestedAxes, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", radius: 18 }, "command");
     } else if (searchMode === "crossed_pair") {
-      requestSearch("cross", { axis: term, term: secondaryAxis, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", radius: 18 });
+      requestSearch("cross", { axis: term, term: secondaryAxis, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", radius: 18 }, "command");
     } else {
-      requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah" });
+      requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah" }, "command");
     }
   }, [researchLoad?.researchNonce]);
   useEffect(() => {
     if (researchLoad?.guidedDiscovery === true) setGuidedMatrixOpen(false);
   }, [researchLoad?.researchNonce]);
 
-  const requestFindingsChange = (findings, { preserveRead = false } = {}) => {
+  const requestFindingsChange = (findings, { preserveRead = false, pending = false } = {}) => {
     if (!Array.isArray(findings)) return;
     const previousTerms = (engineStateRef.current?.findings || []).map((finding) => finding.t);
     const membershipChanged = findings.length !== previousTerms.length || findings.some((finding) => !previousTerms.includes(finding.t));
     if (membershipChanged && !preserveRead) resetReadContext();
     const seq = ++findingsSeqRef.current;
-    if (membershipChanged) setOperations((current) => ({ ...current, findings: { kind: "findings", requestId: seq, status: "searching", startedAt: Date.now() } }));
+    if (membershipChanged || pending) setOperations((current) => ({ ...current, findings: { kind: "findings", requestId: seq, status: "searching", startedAt: Date.now() } }));
     setFindingsRequest({ findings, seq });
   };
 
@@ -1235,7 +1243,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (operation.requestId !== expected) return;
     setOperations((current) => ({ ...current, [kind]: { ...current[kind], ...operation, startedAt: current[kind]?.startedAt || Date.now() - (operation.elapsedMs || 0) } }));
     if (kind === "search" && operation.status === "error") setNotice(operation.message || "החיפוש לא הושלם. נסו שוב.");
-    if (kind === "search" && operation.status === "empty") setNotice("לא נמצאו מופעים בסריקה הזאת. אפשר לשנות את המונח ולנסות שוב.");
+    if (kind === "search" && operation.status === "empty") setNotice(["cross", "cross-three"].includes(lastSearchKindRef.current)
+      ? "לא נמצא מפגש בין המונחים בסריקה הזאת. אפשר להגדיל את החלון או את המרחק, או לשנות מונח ולחפש שוב."
+      : "לא נמצאו מופעים בסריקה הזאת. אפשר לשנות את המונח ולנסות שוב.");
     if (kind === "search" && ["done", "empty", "error", "cancelled"].includes(operation.status)) {
       openTool("results");
       requestAnimationFrame(() => {
@@ -1295,7 +1305,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         setOperations((current) => ({ ...current, findings: null }));
       }
     }
-    if (next?.termRaw && !(["cross-three", "cross-three-continue"].includes(lastSearchKindRef.current) && next?.search?.mode === "cross-free") && (next.termRaw !== previous?.termRaw || next?.search?.crossA !== previous?.search?.crossA)) setQuery(next.search?.mode === "cross-simple" ? next.search.crossA : next.termRaw);
+    if (next?.termRaw && !draftDirtyRef.current && !(["cross-three", "cross-three-continue"].includes(lastSearchKindRef.current) && next?.search?.mode === "cross-free") && (next.termRaw !== previous?.termRaw || next?.search?.crossA !== previous?.search?.crossA)) setQuery(next.search?.mode === "cross-simple" ? next.search.crossA : next.termRaw);
     if (next?.ui?.windowRequested !== previous?.ui?.windowRequested && ["small", "medium", "large"].includes(next?.ui?.windowRequested)) setWindowSize(next.ui.windowRequested);
     const canonicalRadius = Number(next?.search?.crossRadius);
     if (Number.isInteger(canonicalRadius) && canonicalRadius >= 2 && canonicalRadius <= 20) {
@@ -1579,7 +1589,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <span>{crossSearchOpen ? "מונח ראשון" : "מונח"}</span>
         <input
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => { markDraft(true); setQuery(event.target.value); }}
           maxLength={40}
           placeholder="למשל: משיח"
           autoComplete="off"
@@ -1590,7 +1600,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <span>מונח שני</span>
           <input
             value={crossTerm}
-            onChange={(event) => setCrossTerm(event.target.value)}
+            onChange={(event) => { markDraft(true); setCrossTerm(event.target.value); }}
             maxLength={40}
             placeholder="למשל: דוד"
             autoComplete="off"
@@ -1599,7 +1609,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <div className="els29-native-third-term">
         <label>
           <span>מונח שלישי</span>
-          <input value={crossThirdTerm} onChange={(event) => setCrossThirdTerm(event.target.value)} maxLength={40}
+          <input value={crossThirdTerm} onChange={(event) => { markDraft(true); setCrossThirdTerm(event.target.value); }} maxLength={40}
             placeholder="אפשר להוסיף מונח לבדיקה בסביבת הזוג" autoComplete="off" aria-describedby="els29-third-help" />
         </label>
         <label className="els29-native-third-required">
@@ -1651,7 +1661,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         </label>
       </> : null}
       <div className="els29-native-query-actions">
-        <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossSearchOpen ? "חפש הצלבה" : "חפש"}</button>
+        <button className="els29-native-search" type="submit" disabled={searchPending && !draftDirty}>{searchPending && !draftDirty ? "מחפש…" : crossSearchOpen ? "חפש הצלבה" : "חפש"}</button>
         {!researchProfile ? <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למטריצה" : "כל הכלים"}</button> : null}
       </div>
       </div>
@@ -1841,6 +1851,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
               <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchProfile && !guidedProfile}
                 busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
                 onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
+                onAdd={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
                 onFindWords={event => openTool("findings", event.currentTarget)} />
               <ElsSplitMatrix2029 key={`split-${user?.id || "guest"}`} state={engineState} visible={active && researchProfile && !guidedProfile}

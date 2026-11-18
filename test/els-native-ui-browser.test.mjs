@@ -899,6 +899,7 @@ const realHostStubs = {
     },functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
     if(window.__fixtureHoldVerification)await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());signal?.addEventListener('abort',()=>{window.__fixtureAborts=(window.__fixtureAborts||0)+1;resolve();},{once:true});});
     if(signal?.aborted)return {data:null,error:{message:'aborted'}};
+    if(window.__fixtureVerificationDelay)await new Promise(resolve=>setTimeout(resolve,window.__fixtureVerificationDelay));
     const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
   '../lib/img.js': `export const thumb=(value)=>value;`,
   '../lib/research/useUniversalWorkspace.js': `const workspace={upsertFinding:()=>{}};export const useUniversalWorkspace=()=>workspace;`,
@@ -3188,3 +3189,84 @@ test('design integration: royal controls preserve matrix identity and stable tou
    }
   },{fullFrame:true,mobile:width<981});
  });
+
+test('owner 18.11: a crossed search with no meeting closes the earlier pair; a draft typed during a search survives and can be submitted',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    const first=page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}),second=page.getByRole('textbox',{name:'מונח שני',exact:true});
+    const found=await reliabilityCross(page,'משיח טבת עשירי','ישלח מלאכו');
+    assert.equal(found.search.mode,'cross-simple');assert.equal(found.axis.hitId,'1820_1_15170');
+    // A second pair that has no meeting: before, the matrix stayed on the first pair under a small "previous result" label.
+    const seq=await page.evaluate(()=>window.__operation.requestId);
+    await first.fill('צוריאל');await second.fill('קטגוריה');await activate(page,'חפש הצלבה');
+    await page.waitForFunction(n=>window.__operation?.requestId>n&&window.__operation.status==='empty',seq,{timeout:120000});
+    await page.waitForFunction(()=>window.__state?.status==='empty');
+    const empty=await page.evaluate(()=>window.__state);
+    assert.equal(empty.termRaw,'צוריאל','the state is the new search');assert.equal(empty.axis,undefined);assert.equal(empty.matrix,undefined);
+    assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0,'the earlier matrix is closed');
+    assert.doesNotMatch(await page.locator('.els29-native-matrix-status').textContent(),/הממצא הקודם/);
+    assert.match(await page.locator('.els29-native-notice').textContent(),/לא נמצא מפגש בין המונחים/);
+    assert.equal(await first.inputValue(),'צוריאל');assert.equal(await second.inputValue(),'קטגוריה');
+    // The next pair replaces it at once.
+    const again=await reliabilityCross(page,'צוריאל','פולייס');
+    assert.equal(again.search.crossA,'צוריאל');assert.equal(again.search.crossB,'פולייס');assert.equal(again.axis.hitId,'14870_-1_251278');
+    // A term typed while a search runs is the person's next search: the running result must not overwrite it, and it can be submitted.
+    await activate(page,'חיפוש רגיל');
+    await page.evaluate(()=>window.__fixtureVerificationDelay=1500);
+    await first.fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
+    await page.waitForFunction(()=>['searching','verifying'].includes(window.__operation?.status));
+    const submit=page.locator('.els29-native-search');
+    assert.equal(await submit.isDisabled(),true,'the same search cannot be sent twice');
+    await first.fill('תורה');
+    assert.equal(await submit.isDisabled(),false,'an edited form can be submitted while the earlier search runs');
+    assert.equal(await submit.textContent(),'חפש');
+    await page.evaluate(()=>window.__fixtureVerificationDelay=0);
+    await submit.dispatchEvent('click');
+    await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.termRaw==='תורה',null,{timeout:120000});
+    assert.equal(await first.inputValue(),'תורה');
+    assert.equal(await page.evaluate(()=>window.__state.search.mode),'regular');
+  },{realHost:true,loadGolden:false,tier:'anon'});
+});
+
+test('owner 18.11: discoveries added from the research tools accumulate, keep the crossed pair and survive a slow verifier',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    const cross=await reliabilityCross(page,'משיח טבת עשירי','ישלח מלאכו');
+    assert.equal(cross.search.mode,'cross-simple');const partner=cross.findings.find(f=>f.t==='ישלחמלאכו');assert.ok(partner);
+    const partnerShown=state=>{const f=state.findings.find(f=>f.t==='ישלחמלאכו');return [...(f?.hits||[]),...(f?.sourceHits||[])].filter(h=>h.selected||h.shown).map(h=>h.hitId).sort();};
+    const before=partnerShown(cross);assert.ok(before.length>0,'the crossed partner is on the matrix');
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});await panel.waitFor();
+    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
+    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:60000});
+    const scan=await page.evaluate(()=>window.__lens);assert.equal(scan.ok,true);
+    await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('els');
+    const picks=[];for(const item of scan.items){if(item.kind==='els'&&!cross.findings.some(f=>f.t===item.term)&&!picks.some(p=>p.term===item.term))picks.push(item);if(picks.length===3)break;}
+    assert.equal(picks.length,3,'three different words to add');
+    const added=item=>page.waitForFunction(item=>window.__state?.status==='ok'&&window.__state.findings?.some(f=>f.t===item.term&&f.hits.some(h=>h.hitId===item.hitId&&h.selected&&h.verified)),item,{timeout:60000});
+    const loads=()=>page.evaluate(()=>(window.__hostLog||[]).filter(m=>m.type==='load-matrix').length);
+    const loadsBefore=await loads();
+    // The verifier is slow, as it is live. Before, a click during that wait dropped the marks of every earlier word.
+    await page.evaluate(()=>window.__fixtureVerificationDelay=1200);
+    for(const [index,item] of picks.entries()){
+      const button=panel.getByRole('button',{name:`בדוק והוסף ${item.label}`,exact:true}).first();
+      await button.click();
+      if(index===0){
+        // A second click while the first addition is still being verified is refused in words, never applied over half a state.
+        const other=panel.getByRole('button',{name:`בדוק והוסף ${picks[1].label}`,exact:true}).first();
+        await page.waitForFunction(()=>['searching','verifying'].includes(window.__operation?.status)&&window.__operation.kind==='findings');
+        assert.equal(await other.isDisabled(),true,'no second addition while the first is being verified');
+      }
+      await added(item);
+      await page.waitForFunction(()=>window.__operation?.kind==='findings'&&window.__operation.status==='done');
+      const state=await page.evaluate(()=>window.__state);
+      assert.equal(state.search.mode,'cross-simple','the crossed search stays a crossed search');
+      assert.equal(state.search.zones,cross.search.zones);assert.deepEqual(state.axis,cross.axis);
+      assert.deepEqual(partnerShown(state),before,'the crossed partner keeps its marks');
+      for(const earlier of picks.slice(0,index+1))assert.ok(state.findings.some(f=>f.t===earlier.term&&f.hits.some(h=>h.hitId===earlier.hitId&&h.selected&&h.verified)),`${earlier.term} stays after adding ${item.term}`);
+    }
+    assert.equal(await loads(),loadsBefore,'an addition never reloads the matrix');
+    assert.equal((await page.evaluate(()=>window.__state)).findings.length,cross.findings.length+3);
+  },{realHost:true,loadGolden:false,tier:'anon'});
+});

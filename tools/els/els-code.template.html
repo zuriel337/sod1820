@@ -2154,7 +2154,7 @@
   // Native list edits are identity-preserving. Color/reorder never re-search or re-verify.
   function updateNativeFindings(rawFindings){
     if(!hasGov(st.res))return;
-    const previous=new Map(st.words.map(w=>[w.t,w])),seen=new Set(),next=[];
+    const previous=new Map(st.words.map(w=>[w.t,w])),seen=new Set(),next=[];let occurrencesAdded=false;
     for(const raw of rawFindings){
       if(next.length>=12)break;
       const t=norm(typeof raw==="string"?raw:(raw&&raw.t)||"");
@@ -2165,8 +2165,16 @@
         (old&&old.color)||PALETTE.find(c=>!next.some(w=>w.color===c))||PALETTE[next.length%PALETTE.length];
       const word=old||{t,color,hits:[],total:0,inwin:0};
       word.color=color;next.push(word);
+      // An addition from the research tools names the exact occurrences to show (ZURIEL 18.11.2026). It joins what is already on the
+      // matrix: the axis, the crossed partner and every earlier word stay as they are. Before, such an addition reloaded the whole matrix.
+      const shown=raw&&typeof raw==="object"&&Array.isArray(raw.addShown)?raw.addShown.filter(k=>typeof k==="string"&&/^\d+_-?1_\d+$/.test(k)).slice(0,64):[];
+      if(shown.length){
+        if(old){old.off=old.off||new Set();old.extra=old.extra||new Set();for(const k of shown){old.off.delete(k);old.extra.add(k);}}
+        else word._savedShown=shown;
+        occurrencesAdded=true;
+      }
     }
-    const membershipChanged=next.length!==st.words.length||next.some(w=>!previous.has(w.t));
+    const membershipChanged=occurrencesAdded||next.length!==st.words.length||next.some(w=>!previous.has(w.t));
     const expanded=st.words[st.expand],line=st.words[st.lineFor];
     st.words=next;st.swOpen=-1;
     st.expand=expanded?next.indexOf(expanded):-1;st.lineFor=line?next.indexOf(line):-1;
@@ -2933,6 +2941,19 @@
     },10);
   }
   function savedWordsInit(){return [];}
+  // A crossed search that ran to its end and found no meeting is still the current search (ZURIEL 18.11.2026): the earlier matrix closes
+  // and the state is the new terms with no occurrence. Before, nothing was committed, so the earlier pair stayed on screen and looked stuck.
+  // A request that failed or was cancelled still keeps the earlier matrix.
+  function commitEmptyCross(operation,axis,partner,terms){
+    if(operation)operation.committed=true;
+    st.editId=null;st.editTerm=null;
+    st.raw=axis;st.res={hits:[],capped:0,t:norm(axis),scope:st.scope,strategy:null,discoveryComplete:false,vstate:"LOCAL_NO_HIT",vtrace:[]};st.occ=0;
+    st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
+    st.crossSimple=false;st.crossFree=false;st.crossBridge=false;st.crossPairA=axis;st.crossPairB=partner||"";st.crossTerms=(terms||[]).slice();
+    st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
+    st.postUrl="";st.postTitle="";st.desc="";st.words=savedWordsInit();
+    q.value=axis;updGem();render();hideSearchStat();
+  }
   // 🔎 חפש את השם שלך — כניסה אישית: מרוקן, ממקד, ואחרי החיפוש מציע אשכול סביב השם
   function startNameSearch(){st.nameMode=true;q.value="";q.placeholder="כתוב את שמך…";q.focus();
     if(simpleOpen())crosstoggle.click();toast("🔎 כתוב את שמך (או כל שם) ולחץ «חפש בתורה»");}
@@ -3198,7 +3219,8 @@
       const pendingCandidates=candidates.filter(z=>!processed.has(candidateKey(z))).length;
       const coverage={phase:"cross-three-wave",thirdRequired,token:previous?.token||++_nativeTripleScanSeq,scanned:runs.reduce((n,r)=>n+r.scanned,0),available:runs.reduce((n,r)=>n+r.available,0),pendingCandidates,canContinue:runs.some(r=>r.scanned<r.available)||pendingCandidates>0,partial:runs.some(r=>r.capped||r.scanned<r.available)||pendingCandidates>0};
       _nativeTripleScan={token:coverage.token,terms:terms.slice(),thirdRequired,pure,window,runs,admitted,processed:[...processed],scope:st.scope,canContinue:coverage.canContinue};
-      if(!admitted.length){operationStatus(operation,"empty","לא נמצא מפגש מאומת בגל המקומי שנבדק; ייתכן שקיימים מופעים נוספים.",coverage);return;}
+      if(!admitted.length){if(!previous&&EXPR2029)commitEmptyCross(operation,terms[0],terms[1],terms.slice(1));
+        operationStatus(operation,"empty","לא נמצא מפגש מאומת בגל המקומי שנבדק; ייתכן שקיימים מופעים נוספים.",coverage);return;}
       const selected=previous&&st.crossFree&&hasGov(st.res)?{axis:norm(st.raw),hit:hitKey(occ())}:null;
       operation.committed=true;Object.assign(st,{ctxR:window.ctxR,windowColumns:window.windowColumns,windowSize:window.windowSize,windowRequested:window.windowRequested});
       st.crossResCache=cache;st.crossMeetings=admitted;st.crossIdx=Math.max(0,selected?admitted.findIndex(z=>norm(z.axis)===selected.axis&&hitKey(cache[z.axis].hits[z.occ])===selected.hit):-1);st.crossTerms=terms.slice(1);st.crossTotal=2;
@@ -3265,7 +3287,9 @@
       if(requestSeq!==_matrixRequestSeq)return;
       go.disabled=false;go.textContent="חפש בתורה ◆";
       const m1=r1.meetings,m2=r2.meetings;
-      if(!m1.length&&!m2.length){const failed=[A,B].some(w=>faMemo(w).verr);toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");operationStatus(operation,failed?"error":"empty",failed?"האימות לא הושלם.":"לא נמצא מפגש בחיפוש המקומי הזה.");return;}
+      if(!m1.length&&!m2.length){const failed=[A,B].some(w=>faMemo(w).verr);toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");
+        if(!failed&&operation&&EXPR2029)commitEmptyCross(operation,A,B,[]);
+        operationStatus(operation,failed?"error":"empty",failed?"האימות לא הושלם.":"לא נמצא מפגש בחיפוש המקומי הזה.");return;}
       // בחירה סימטרית: יותר מפגשים (בו השני נכנס) → ציון → מילה ארוכה → א״ב
       const merged=mergeCrossMeetings(A,B,r1,r2),axis=merged.zones[0]?.axis;
       if(!axis){operationStatus(operation,"error","הצירים שנמצאו טרם עברו אימות.");return;}
