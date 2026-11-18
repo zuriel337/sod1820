@@ -229,3 +229,14 @@ test("middleware: security blocks stay in force whatever the eligibility copy sa
   assert.equal(priv.res.status, 403, "private/expensive path stays refused to crawlers");
   assert.equal(priv.bigCalls, 0);
 });
+
+test("middleware: security blocks stay in force whatever the eligibility copy says (bad bot on an ELIGIBLE number, crawler on private paths)", async () => {
+  const bad = await run({ path: "/number/27010", ua: BAD_BOT, big: async () => Response.json([27010]) });
+  assert.equal(bad.res.status, 403);
+  assert.equal(bad.bigCalls, 0);
+  for (const path of ["/research", "/journey", "/profile"]) {
+    const priv = await run({ path, ua: GOOGLEBOT, big: async () => Response.json([27010]) });
+    assert.equal(priv.res.status, 403, `${path} stays refused to crawlers`);
+    assert.equal(priv.bigCalls, 0);
+  }
+});

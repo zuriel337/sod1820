@@ -25,19 +25,32 @@ Rejected: pass-through on failure ("the bot gets the page when the DB does not a
 The DB comment there still says "fails closed when this RPC is unavailable"; the 503 keeps that intent (nothing is served) and only
 tells crawlers the refusal is temporary. No DB change.
 
-## Timing and why
+## Timing and why (revised 18.11 after review: no 24-hour reliance)
 
 Measured on the live project (Vercel observability, outgoing requests to `rpc/content_big_numbers`, 11–18.11.2026):
 330 reads, all HTTP 200, p50 244 ms, p99 700 ms, **max 786 ms**. Payload 25 bytes (4 values on 18.11).
 
-- Fresh copy: 60 min (unchanged).
-- Copy 1–24 h old: decides at once; one background read replaces it. A failed read never removes a usable copy.
-- No copy / copy over 24 h: the crawler waits for one read, at most **1,500 ms**. 800 ms (the post-route value) sits just above the
-  slowest real read and would turn ordinary slow reads into 503s, now that failure means 503; that path is fail-open, this one is not.
-  1,500 ms ≈ 2× the observed max and is paid only by the first crawler on a cold instance.
-- After a failed read: 30 s without new reads; crawlers in that window get the 503 at once.
+- **Routine:** a copy under 60 min decides (unchanged from before). The first crawler after that waits for one new read, as before. A number
+  that becomes eligible, or stops being eligible, reaches crawlers at that read — within the hour.
+- **Read limit 1,500 ms.** 800 ms (the post-route value) sits just above the slowest real read and would turn ordinary slow reads into 503s,
+  now that failure means 503; that path is fail-open, this one is not. 1,500 ms ≈ 2× the observed max.
+- **Only when that read fails** does the last good copy decide, and only while it is under **6 hours** old. Over 6 h → 503. A failed read never
+  refreshes or extends the copy. So a withdrawn number can stay admitted beyond the hour only during a source outage, at most 6 h.
+- After a failed read: 30 s without new reads (crawlers meanwhile get the copy if under 6 h, else the 503 at once).
 - Concurrent crawlers on a cold instance share one read.
-- Validation: HTTP ok, JSON array, every value a safe integer > 9999, at most 100,000 values. Anything else is unusable.
+- Validation: HTTP ok, JSON array, every value a safe integer > 9999, at most 100,000 values. Anything else is a failure, not an empty list.
+- The edge only admits or refuses the crawler. The page itself still reads the current publication state (`api/og.js` → `is_number_indexable`
+  for its robots tag), so a copy never bypasses the content's own publication check.
+
+Tests (21 + middleware): newly eligible after the copy, withdrawn eligibility, persistent failure until the copy expires, unusable answer,
+security blocks (bad bot on an eligible number, crawlers on /research, /journey, /profile) independent of the copy.
+
+## /research — not in this PR
+
+A crawler exception for exactly `/research` (GET/HEAD, no query, `goodbot` = User-Agent class from `classify()`/`GOOD_BOT`, not a
+verification) is prepared on branch `ccr-dcadb071-v1z5ol-research-crawler` for decision only: it contradicts the existing security test
+`test/public-reading-middleware-entry.test.mjs:68`. Live robots.txt (18.11) no longer disallows /research; Google's "blocked by robots.txt"
+for /research is from its 25.8 crawl.
 
 ## Crawl log
 
