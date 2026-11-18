@@ -225,7 +225,39 @@ test("middleware: security blocks stay in force whatever the eligibility copy sa
   const bad = await run({ path: "/number/27010", ua: BAD_BOT, big: async () => Response.json([27010]) });
   assert.equal(bad.res.status, 403);
   assert.equal(bad.bigCalls, 0);
-  const priv = await run({ path: "/research", ua: GOOGLEBOT, big: async () => Response.json([27010]) });
+  const priv = await run({ path: "/journey", ua: GOOGLEBOT, big: async () => Response.json([27010]) });
   assert.equal(priv.res.status, 403, "private/expensive path stays refused to crawlers");
   assert.equal(priv.bigCalls, 0);
+});
+
+// ── /research: the one crawler exception (goodbot by User-Agent, exact path, GET/HEAD, no query) ──
+async function runMethod({ path, ua, method }) {
+  const { default: middleware } = await import(`../middleware-core.js?i=${++instance}`);
+  const orig = globalThis.fetch;
+  globalThis.fetch = async (u) => (String(u).endsWith("/rpc/content_big_numbers") ? Response.json([]) : Response.json([]));
+  try {
+    const req = new Request(`https://sod1820.co.il${path}`, { method, headers: { "user-agent": ua, "x-vercel-ip-country": "US" } });
+    return await middleware(req, { waitUntil: () => {} });
+  } finally { globalThis.fetch = orig; }
+}
+const AI_BOT = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)";
+
+test("middleware: a goodbot (User-Agent class) reaches only the closed /research document with GET/HEAD and no query", async () => {
+  for (const method of ["GET", "HEAD"]) {
+    const res = await runMethod({ path: "/research", ua: GOOGLEBOT, method });
+    assert.ok(!res || res.status !== 403, `${method} /research continues to the closed document`);
+  }
+  for (const [path, method, ua, why] of [
+    ["/research?x=1", "GET", GOOGLEBOT, "any query"],
+    ["/research/", "GET", GOOGLEBOT, "trailing slash is another path"],
+    ["/research/abc", "GET", GOOGLEBOT, "sub-path"],
+    ["/research", "POST", GOOGLEBOT, "other method"],
+    ["/research", "GET", AI_BOT, "AI crawler"],
+    ["/research", "GET", BAD_BOT, "bad bot"],
+    ["/journey", "GET", GOOGLEBOT, "other private path"],
+    ["/profile", "GET", GOOGLEBOT, "account path"],
+  ]) {
+    const res = await runMethod({ path, ua, method });
+    assert.equal(res?.status, 403, why);
+  }
 });

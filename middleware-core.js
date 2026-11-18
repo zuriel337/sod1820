@@ -197,6 +197,16 @@ const GENERIC_BOT = /(bot|crawler|crawl|spider|scraper)/; // אחרי שניכי
 // 🔒 מסלולים יקרים/פרטיים — חסומים לכל בוט (רק דפדפן-אדם עובר). מגן על טוקנים/AI.
 const EXPENSIVE_PATH = /^\/(journey|journey-beta|research|reveal|experience|auth|profile|login|admin|traffic|numbers-report|theme-preview)(\/|$)/;
 
+// The one exception to the private/expensive path rule (ZURIEL 18.11.2026, indexing review): a crawler CLASSIFIED "goodbot" by its User-Agent
+// (classify() → GOOD_BOT below; this is a User-Agent match, NOT a verification — anyone can send that header) may read exactly the closed
+// /research document with GET or HEAD and no query. That document is the same closed answer every browser already gets (503 + Retry-After
+// from the public document handler, no research reader), so a forged User-Agent gains nothing a browser does not have. Sub-paths, any query,
+// other methods, AI crawlers and bad bots stay refused with 403.
+export function crawlerClosedDocumentAllowed(kind, method, url) {
+  if (kind !== 'goodbot' || (method !== 'GET' && method !== 'HEAD')) return false;
+  try { const u = new URL(url); return u.pathname === '/research' && u.search === ''; } catch { return false; }
+}
+
 function classify(ua) {
   if (!ua) return 'bot';                 // UA ריק = כמעט תמיד אוטומציה
   if (GOOD_BOT.test(ua)) return 'goodbot';
@@ -355,7 +365,7 @@ export default async function middleware(request, context) {
   // 3) country mode=blocked → חסימה מלאה ל-browser/bot; goodbot/ai עוברים.
   // 4) strict/quarantine → browser בלבד מקבל progressive challenge; goodbot/ai עוברים.
   let blocked = false;
-  if (isBot && EXPENSIVE_PATH.test(path)) blocked = true;
+  if (isBot && EXPENSIVE_PATH.test(path) && !crawlerClosedDocumentAllowed(kind, request.method, request.url)) blocked = true;
   else if (kind === 'bot') blocked = true;
   if (countryPolicy?.mode === 'blocked' && kind !== 'goodbot' && kind !== 'ai') blocked = true;
 
