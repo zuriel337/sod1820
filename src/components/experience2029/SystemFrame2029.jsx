@@ -14,8 +14,6 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Palette2029Provider, use2029Palette } from "../../lib/palette2029.js";
 import { setThemePreset, useThemePreset } from "../../lib/themePreset2029.js";
 import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
-import Footer2029 from "./Footer2029.jsx";
-import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
@@ -24,7 +22,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import FeatureClosedNotice2029 from "./FeatureClosedNotice2029.jsx";
-import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
+import { afterReadableContent2029, publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { NUMBER_PAGE_BASE, isNumberPagePath } from "../../lib/research/numberPageAddress.js";
@@ -35,18 +33,26 @@ import {
   resolveContextActions,
   resolveContextTools,
 } from "../../lib/research/contextualCapabilities.js";
-import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 // Preview-only (ZURIEL 12.11.2026): the left Companion returns on a series Post of the protected preview build. Elsewhere it stays unmounted.
-import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
+// Shell weight 3/8 (SHELL_WEIGHT_REDUCTION_20261118): parts of the frame that are not needed to draw a page load on demand, each
+// with its own empty Suspense so nothing else waits for it. The footer (with its newsletter form) mounts once the page's readable
+// content is on screen; the account-link offer only for a signed-in account (it was always empty for a visitor and appears only
+// after its own read); the share row with the inspect panel that shows it; the living ribbon (hidden) and its detail when opened.
+const Footer2029 = React.lazy(() => import("./Footer2029.jsx"));
+const AccountLinkOffer2029 = React.lazy(() => import("./AccountLinkOffer2029.jsx"));
+const ShareActions = React.lazy(() => import("../ShareActions.jsx"));
+// While the share row loads it keeps its exact place: the same row with one invisible button of the shared action size.
+const SharePending2029 = () => <div className="sod-share-actions" dir="rtl" aria-hidden="true" data-share-pending="true" style={{ marginTop: 10, display: "flex", visibility: "hidden" }}><button type="button" tabIndex={-1} disabled>·</button></div>;
+const GlobalLivingRibbon2029 = React.lazy(() => import("./GlobalLivingRibbon2029.jsx"));
+const LivingRibbonDetail2029 = React.lazy(() => import("./GlobalLivingRibbon2029.jsx").then((module) => ({ default: module.LivingRibbonDetail2029 })));
 // ZURIEL 12.11.2026: the header verse line («הנה אנכי שולח לכם את אליה הנביא…») is hidden on every page. One switch: set true to show it again.
 const LIVING_RIBBON_VISIBLE_2029 = false;
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));
 const MorePanel2029 = React.lazy(() => import("./MorePanel2029.jsx"));
-import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";
 import { publicContextLabel, contextDisplayTitle, contextNavigationItems2029, surfaceContextForRoute2029, entityTypeNounHe } from "./razielSessionSeam2029.js";
 
 import { publicPageShareUrl, postAddressSlug } from "../../lib/publicPostUrls.js";
@@ -435,9 +441,26 @@ function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false
   </div>;
 }
 
+// The ELS reading line of the orb title is read from its module once Raziel is open to this viewer (today the administrator);
+// a visitor's locked orb never loads it (shell weight 3/8). Until it arrives the orb shows its plain title, as with no reading.
+let selectElsMatrixReadingActivity2029 = null;
+function useElsReadingSelector2029(active) {
+  const [select, setSelect] = useState(() => selectElsMatrixReadingActivity2029);
+  useEffect(() => {
+    if (!active || select) return undefined;
+    let alive = true;
+    import("../../lib/research/elsMatrixReadingActivity.js")
+      .then((module) => { selectElsMatrixReadingActivity2029 = module.selectElsMatrixReadingActivity; if (alive) setSelect(() => selectElsMatrixReadingActivity2029); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [active, select]);
+  return select;
+}
+
 export function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל", locked = false }) {
   const session = useOptionalRazielSession2029();
-  const reading = locked ? null : selectElsMatrixReadingActivity(session);
+  const selectReading = useElsReadingSelector2029(!locked);
+  const reading = locked || !selectReading ? null : selectReading(session);
   const readingTitle = reading ? `${reading.label} · ${reading.axis.term} · פתח את רזיאל` : title;
   return (
     <button
@@ -641,14 +664,16 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
       {commitState && !commitState.ok ? <FrameState kind="error" title="הפעולה לא נשמרה">{commitState.kind === "save" ? "השמירה לא הושלמה" : "ההוספה למחקר לא הושלמה"} — נסה שוב.</FrameState> : null}
 
       <div className="sod29-canonical-share" data-share-owner="ShareActions">
-        <ShareActions
-          type={target.type || "page"}
-          title={`SOD1820 · ${publicContextLabel(target.label) || entityTypeNounHe(target.type)}`}
-          channels={["native", "copy"]}
-          compact
-          force
-          style={{ marginTop: 10 }}
-        />
+        <React.Suspense fallback={<SharePending2029 />}>
+          <ShareActions
+            type={target.type || "page"}
+            title={`SOD1820 · ${publicContextLabel(target.label) || entityTypeNounHe(target.type)}`}
+            channels={["native", "copy"]}
+            compact
+            force
+            style={{ marginTop: 10 }}
+          />
+        </React.Suspense>
       </div>
 
       <div className="sod29-panel-context-card">
@@ -800,6 +825,11 @@ function SystemFrame2029Body({
   const research = useResearch();
   const { user, profile, isAdmin, loading: authLoading } = useAuth();
   const corePublicViewer = CORE_PUBLIC_LAUNCH_2029 && !isAdmin;
+  // The footer (shell weight 3/8) mounts once the page's readable content is on screen, through the same content-first rule the frame's
+  // background reads use; the content area keeps reserving one viewport, so the footer still starts below the first screen. Once
+  // mounted it stays across navigation as before.
+  const [footerReady, setFooterReady] = useState(false);
+  useEffect(() => afterReadableContent2029(window.location.pathname, () => setFooterReady(true)), []);
   const worldFeature = useFeatureState("lock_world");
   const heichalFeature = useFeatureState("lock_heichal", { requireFlag: true });
   const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
@@ -1638,7 +1668,7 @@ function SystemFrame2029Body({
             </div>
             </div>
           </header>
-          {LIVING_RIBBON_VISIBLE_2029 ? <GlobalLivingRibbon2029 /> : null}
+          {LIVING_RIBBON_VISIBLE_2029 ? <React.Suspense fallback={null}><GlobalLivingRibbon2029 /></React.Suspense> : null}
           </div>
 
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {
@@ -1658,7 +1688,7 @@ function SystemFrame2029Body({
               : <div className="sod29-entry-orientation-slot">{mark}</div>;
           })() : null}
 
-          <AccountLinkOffer2029 />
+          {user?.id ? <React.Suspense fallback={null}><AccountLinkOffer2029 /></React.Suspense> : null}
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
@@ -1687,7 +1717,7 @@ function SystemFrame2029Body({
               suppressLearn={Boolean(transientKind)}
             /> : null}
           </div>
-          <Footer2029 />
+          {footerReady ? <React.Suspense fallback={null}><Footer2029 /></React.Suspense> : null}
         </div>
 
         {navOpen ? <>
