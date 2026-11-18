@@ -779,7 +779,7 @@ function TopicBody() {
         <ConvergenceRatings2029 className="sod29-topic-ratings" quality={projection.quality} meterScore={projection.meterScore} highlightNumbers={projection.highlightNumbers} numbers={projection.numbers} autoTiers />
         <div className="sod29-actions">
           <button className="sod29-action primary" type="button" disabled={shell.razielLocked} onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title })}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל על הציר"}</button>
-          <ShareActions type="topic" url={"https://sod1820.co.il" + projection.canonicalPath} title={projection.title} channels={["native","copy"]} />
+          {projection.canonicalPath ? <ShareActions type="topic" url={"https://sod1820.co.il" + projection.canonicalPath} title={projection.title} channels={["native","copy"]} force /> : null}
         </div>
       </div>
       {secondaryNumbers.length ? <div className="sod29-topic-anchor-cluster" aria-label="מספרים נוספים בציר">
