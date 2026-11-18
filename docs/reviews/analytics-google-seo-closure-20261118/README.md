@@ -126,7 +126,7 @@
 2. פריסת **Edge `gsc-sync`** אחרי בדיקת התאמת הגרסה החיה.
 3. החלטה על שינויי המסד שבסעיף 8.3 (טריות מקורות קודם — זה מה שמונע ״הצלחה״ ריקה).
 
-## 11. שלב 2 — גלאי טריות ותיקון התראת החומרה הגבוהה (הצעה בלבד; לא הוחל על המסד החי)
+## 11. שלב 2 — גלאי טריות ותיקון התראת החומרה הגבוהה (הוחל בחי 18.11, 16:02 UTC, באישור צוריאל)
 
 **קבצים:** `supabase/proposed/20261118190000_provider_freshness_watch_PROPOSAL.sql`, `supabase/proposed/ROLLBACK_20261118190000_provider_freshness_watch.sql`, בדיקה `scripts/run-provider-freshness-sql-test.sh` (`tests/provider-freshness-20261118/`, ב־`security-sql-contracts`). בעלים: `traffic_intelligence_law` (המקורות) ו־`system_suggestions_law` (המלצה דרך `suggest_add` הקיים). אין טבלה, מאגר או אוסף חדשים.
 
@@ -144,3 +144,5 @@
 **ממצא נלווה (לא תוקן; מחוץ לתחום):** גם `fn_raziel_activity_notify` (מיגרציה `20261006210000`) מכניס ל־`user_notifications` בלי `email`, כך שככל הנראה גם התראת פעילות רזיאל לא נכתבת אף פעם (לפי קוד המיגרציה; הגרסה החיה לא נבדקה). מדווח לבירור.
 
 **בדיקה:** 39 בדיקות עוברות גם ב־PostgreSQL 16 מקומי וגם ב־PGlite: הפגם החי משוחזר לפני ההחלה; שני מקרי סטייה נדחים בלי להשאיר שינוי; מצבי fresh, ‏no_data, ‏sync_stopped ו־data_stale לשני המקורות; אין כתיבת שורות מדידה; הודעה אחת למנהל בלבד ולא לחבר רגיל; חלופה לדוא״ל מההעדפות; בלי דוא״ל אין הודעה אבל ההמלצה נכתבת; הפעלה שנייה בלי שינוי; ROLLBACK מדויק.
+
+**אימות אחרי ההחלה (חי, 18.11 16:02 UTC):** הפונקציה `fn_provider_freshness_watch` קיימת, ו־anon ו־authenticated לא יכולים להריץ אותה. `fn_system_suggestion_notify_high` מתוקנת (md5 ‏`0107cc61b431a2e4aba6beb52a1c5ee6`), והטריגר פעיל. המשימה `provider-freshness-watch` פעילה בדקה 41 של כל שעה. לפקודת `gsc-daily-sync` נוסף `timeout_milliseconds:=120000`, ושאר הפקודה זהה. בריצה הראשונה Search Console במצב `fresh` (נתונים עד 15.11) ו־GA4 במצב `fresh` (עד 18.11), ולא נוצרה אף המלצה. לא נבדקה שליחת התראה אמיתית, כי זה היה שולח WhatsApp אמיתי; ההתנהגות הזו נבדקה רק על המסד המבודד. חזרה: `supabase/proposed/ROLLBACK_20261118190000_provider_freshness_watch.sql`.

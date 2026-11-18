@@ -1,5 +1,5 @@
--- PROPOSAL — NOT APPLIED. Provider freshness watch + high-severity notification fix + recorded Search Console sync answer.
--- ZURIEL 18.11.2026 (stage 2 of docs/reviews/analytics-google-seo-closure-20261118/README.md). Apply only with his explicit approval.
+-- APPLIED LIVE 18.11.2026 16:02 UTC (ZURIEL approval in session; PR #1396 head 8e5d7abbb, via execute_sql). Kept here with its exact ROLLBACK and test.
+-- ZURIEL 18.11.2026 (stage 2 of docs/reviews/analytics-google-seo-closure-20261118/README.md). Verified live after apply: watch present (anon/authenticated cannot run it), notify fixed (md5 0107cc61…), job provider-freshness-watch 41 * * * *, gsc-daily-sync timeout 120000; first run: GSC fresh (through 15.11), GA4 fresh (through 18.11).
 --
 -- Owners (no new contract, store or collector):
 --   traffic_intelligence_law v11 — the sources (gsc_metrics from gsc-sync, traffic_history 'ga' from ga-sync-server);
