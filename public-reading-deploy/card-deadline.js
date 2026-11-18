@@ -11,6 +11,9 @@
 // Well above a warm render (hundreds of ms) and a cold start with font and logo loads, well below the platform limit.
 export const CARD_DEADLINE_MS = 10_000;
 
+// Upper bound on a buffered card body (largest measured story card: 268 KB).
+export const CARD_BODY_MAX_BYTES = 2 * 1024 * 1024;
+
 const TIMED_OUT = Symbol('card render deadline');
 
 // Runs `render` (a function returning the card Response) and returns { status, statusText, headers, body } with `body` a
@@ -21,16 +24,37 @@ export async function renderWithinDeadline(render, deadlineMs = CARD_DEADLINE_MS
   const deadline = new Promise((resolve) => {
     timer = setTimeout(() => resolve(TIMED_OUT), deadlineMs);
   });
+  // The body is read through a reader this function holds, so a lost render can be cancelled (a stream locked by arrayBuffer() cannot
+  // be), and its size is bounded: a card is a PNG of about 150-270 KB (measured 18.11.2026); anything past CARD_BODY_MAX_BYTES is refused.
+  let reader = null;
   const rendered = (async () => {
     const response = await render();
-    const body = await response.arrayBuffer();
-    return { status: response.status, statusText: response.statusText, headers: response.headers, body };
+    const chunks = [];
+    let size = 0;
+    if (response.body) {
+      reader = response.body.getReader();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.byteLength;
+        if (size > CARD_BODY_MAX_BYTES) { reader.cancel(new Error('card body too large')).catch(() => {}); throw new Error(`card body exceeded ${CARD_BODY_MAX_BYTES} bytes`); }
+        chunks.push(value);
+      }
+    }
+    const body = new Uint8Array(size);
+    let at = 0;
+    for (const c of chunks) { body.set(c, at); at += c.byteLength; }
+    return { status: response.status, statusText: response.statusText, headers: response.headers, body: body.buffer };
   })();
   // If the deadline wins, the abandoned render may still fail later; that must not surface as an unhandled rejection.
   rendered.catch(() => {});
   try {
     const result = await Promise.race([rendered, deadline]);
-    return result === TIMED_OUT ? null : result;
+    if (result !== TIMED_OUT) return result;
+    // The lost render is cancelled, not left running: cancelling the body stream stops @vercel/og from producing the image (its work
+    // happens while the body is pulled). A pending font or emoji fetch inside it can no longer feed that body.
+    reader?.cancel(new Error('card render deadline')).catch(() => {});
+    return null;
   } finally {
     clearTimeout(timer);
   }

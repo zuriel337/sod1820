@@ -41,7 +41,9 @@ async function wrapper(status) {
 test("canonical successful GET is cacheable; HEAD, errors and other origins are no-store", async () => {
   const ok = await wrapper(200);
   const cacheControl = async (req) => (await ok(req)).headers.get("Cache-Control");
-  assert.equal(await cacheControl(new Request("https://sod1820.co.il/api/card?w=x")), "public, s-maxage=3600, stale-while-revalidate=86400");
+  // A query-only card (no database read) is kept 7 days; a number card that reads the published phrases stays 1 hour (card-request.js).
+  assert.equal(await cacheControl(new Request("https://sod1820.co.il/api/card?w=x")), "public, s-maxage=604800, stale-while-revalidate=86400");
+  assert.equal(await cacheControl(new Request("https://sod1820.co.il/api/card?n=358")), "public, s-maxage=3600, stale-while-revalidate=86400");
   assert.equal(await cacheControl(new Request("https://sod1820.co.il/api/card?w=x", { method: "HEAD" })), "no-store");
   assert.equal(await cacheControl(new Request("https://preview.invalid/api/card?w=x")), "no-store");
   const failing = await wrapper(500);

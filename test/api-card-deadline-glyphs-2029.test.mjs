@@ -325,7 +325,7 @@ test("wrapper: a render that finishes in time is unchanged, including the DEF-01
   const logged = [];
   t.mock.method(console, "error", (...args) => { if (String(args[0]).startsWith("api/card:")) logged.push(args); });
   const wrapper = await wrapperWith(`export default async () => new Response(new ReadableStream({ start(c) { setTimeout(() => { c.enqueue(new Uint8Array([137, 80, 78, 71])); c.close(); }, ${CARD_DEADLINE_MS - 1_000}); } }), { status: 200, headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=31536000' } });`);
-  for (const [method, cache, bytes] of [["GET", "public, s-maxage=3600, stale-while-revalidate=86400", [137, 80, 78, 71]], ["HEAD", "no-store", []]]) {
+  for (const [method, cache, bytes] of [["GET", "public, s-maxage=604800, stale-while-revalidate=86400", [137, 80, 78, 71]], ["HEAD", "no-store", []]]) {
     const pending = wrapper(new Request(`${CANONICAL}/api/card?w=x`, { method }));
     await flush(); // the renderer has started and registered its own timer
     t.mock.timers.tick(CARD_DEADLINE_MS - 1_000);
