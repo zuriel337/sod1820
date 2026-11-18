@@ -1584,7 +1584,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       requestSelection("selection-toggle", index);return;
     }
     setSelectedLetterIndex(index);
-    if (researchWorkspace && mark?.type === "main" && !activePresentation) {
+    // Verse reading is an explicit mode the user turned on: there an axis letter shows its verse, as every other letter does.
+    if (researchWorkspace && mark?.type === "main" && !activePresentation && !verseReadRef.current) {
       openAxisResearch();
       return;
     }

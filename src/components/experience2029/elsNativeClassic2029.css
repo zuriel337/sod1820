@@ -845,7 +845,7 @@
  .els29-native-structure-entry{grid-row:3}
  .els29-native-layout:has(>.els29-native-structure-entry:not([hidden]))>.els29-native-panel-wrap{grid-row:4}
 }
-.els29-research-entry{display:flex;align-items:center;gap:12px;width:100%;min-width:0;min-height:56px;box-sizing:border-box;padding:14px;border:0;border-radius:16px;background:var(--s29-panel-soft);color:var(--s29-ink);text-align:start;font:inherit;font-size:var(--s29-type-ui);cursor:pointer}
+.els29-research-entry{scroll-margin-block:calc(var(--s29-header-height,78px) + 12px) calc(var(--s29-island-clearance,104px) + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px;width:100%;min-width:0;min-height:56px;box-sizing:border-box;padding:14px;border:0;border-radius:16px;background:var(--s29-panel-soft);color:var(--s29-ink);text-align:start;font:inherit;font-size:var(--s29-type-ui);cursor:pointer}
 .els29-research-entry>.sod29-ui-icon{flex:none;width:24px;height:24px}
 .els29-research-entry-copy{display:grid;gap:4px;min-width:0;flex:1;overflow-wrap:anywhere}
 .els29-research-entry-copy strong{font-size:var(--s29-type-lead);font-weight:650}

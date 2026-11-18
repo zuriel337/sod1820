@@ -1794,7 +1794,10 @@ test('native UI: compact findings, vowels and classic letters retain exact base 
       const baseCells = () => page.locator('.els29-native-cell').evaluateAll((cells) => cells.map((cell) => ({ index: cell.dataset.elsIndex, text: cell.textContent.replace(/[\u0591-\u05C7]/g, '') })));
       const original = await baseCells();
       const engineRows = await page.evaluate(() => window.__state.matrix.rows);
-      const mainIndex = baseline.axis.start;
+      // In Research a click on an axis letter opens the axis research tools (7cfc3c64a); the letter inspection is checked on
+      // the source letter right next to the axis start, which every transformation below keeps in the same place.
+      const mainIndex = await page.evaluate((start) => [start + 1, start - 1].find((i) => { const c = document.querySelector(`[data-els-index="${i}"]`); return c && !c.classList.contains('is-axis'); }), baseline.axis.start);
+      assert.ok(Number.isInteger(mainIndex), 'a source letter beside the axis start is on the matrix');
       const showSource = async (label) => {
         // A real pointer click also checks that the transformed/vowel cell remains reachable.
         await page.locator(`[data-els-index="${mainIndex}"]`).click();
@@ -1974,10 +1977,11 @@ test('native transition: minus-two reading layout preserves exact cells and open
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     }
     await page.setViewportSize({width:1440,height:1000});
-    await page.locator('[data-els-index="49435"]').dispatchEvent('click');
-    await page.waitForFunction(()=>window.__lens?.lens==='letter-context'&&window.__lens.target?.i===49435);
+    // 49435 is the axis start; in Research its click opens the axis tools (7cfc3c64a). The source letter beside it is inspected.
+    await page.locator('[data-els-index="49434"]').dispatchEvent('click');
+    await page.waitForFunction(()=>window.__lens?.lens==='letter-context'&&window.__lens.target?.i===49434);
     assert.equal(await page.evaluate(()=>window.__lens.ok),true,'reading view uses the same exact verse inspection');
-    assert.equal(await page.evaluate(()=>window.__lens.letter),'ב');
+    assert.equal(await page.evaluate(()=>window.__lens.letter),originalCells.find(c=>c.i===49434).text.replace(/[\u0591-\u05C7]/g,''));
     await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
     await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');
     await page.getByRole('slider',{name:'מרווח מרבי בין אותיות הממצא בהצלבה'}).fill('20');
