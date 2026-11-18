@@ -179,6 +179,7 @@ jobs:
           test/measurement-page-view-once-2029.test.mjs
           test/measurement-identity-20261115.test.mjs
           test/measurement-hebrew-path-20261118.test.mjs
+          test/analytics-google-seo-closure-20261118.test.mjs
           test/measurement-transport-hardening-2029.test.mjs
           test/measurement-package-scope-20261113.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment

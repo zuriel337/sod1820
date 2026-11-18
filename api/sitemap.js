@@ -215,7 +215,8 @@ export default async function handler(req, res) {
   if (productionReading) urls.push({ loc: '/community/chat', priority: '0.7', changefreq: 'daily' });
   // The calculator is a popular search landing page too (bare address only; query variants carry private inputs).
   if (productionReading) urls.push({ loc: '/community/calculator', lastmod: COMMUNITY_CALCULATOR_LASTMOD, priority: '0.7', changefreq: 'weekly' });
-  if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc,priority:'0.4',changefreq:'yearly'});
+  // A sitemap <loc> is an escaped URL (sitemaps.org): the historical pages are kept by their decoded Hebrew path, so encode them like every other family.
+  if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc:encodeURI(loc),priority:'0.4',changefreq:'yearly'});
   let foundationSourceFailed = false;
   const readingProfile = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
   const videoAssetsPath = 'video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at'
