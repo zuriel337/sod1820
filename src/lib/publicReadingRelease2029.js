@@ -209,7 +209,7 @@ export function publicReadingCapability(pathname) {
     "/whats-new": ["מה חדש באתר", "עדכוני האתר ותמונת הזמינות מופיעים בבית ובמפת האתר. ההרשמה במייל עדיין אינה פעילה בגרסה זו.", "/map", "למפת האתר"],
     "/start": ["מתחילים כאן", "הבית, העולם, הפוסטים, המספרים והגלריות פתוחים לקריאה. מפת האתר מציגה גם את החלקים שעדיין בבנייה.", "/map", "למפת האתר"],
   })[path];
-  return item ? { title: item[0], description: item[1] + (PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) ? " האזור סגור זמנית וייפתח בקרוב." : ""), links: [[item[2], item[3]]] } : null;
+  return item ? { title: item[0], description: item[1] + (PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) ? " הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן." : ""), links: [[item[2], item[3]]] } : null;
 }
 
 export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {}) {
