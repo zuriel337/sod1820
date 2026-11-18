@@ -1820,11 +1820,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             {engineState?.ui?.hideMain ? "הצג ציר" : "סימון הציר"}
           </button>
           <button type="button" aria-pressed={classicGlyphs} onClick={() => setClassicGlyphs((value) => !value)}>אותיות קלאסיות</button>
+          {/* ZURIEL 18.11.2026: vowels also among these display options, in Classic and Research and in fullscreen (where the status row above
+              the matrix is hidden). The same engine control as the status-row button; the name differs only so the two stay distinguishable. */}
+          <button type="button" aria-label="ניקוד במטריצה" aria-pressed={!!engineState?.ui?.niqqud} disabled={!matrixActive}
+            title="הוסף ניקוד מנתוני התורה; בשאר התנ״ך האותיות נשארות ללא ניקוד" onClick={() => requestControl("niqqud-toggle")}>ניקוד</button>
           <button type="button" aria-label="הדגש פסוק במטריצה" aria-pressed={verseRead} disabled={!matrixActive} onClick={toggleVerseRead}>הדגש פסוק</button>
           <button type="button" aria-pressed={!!activePresentation} disabled={!matrixActive || searchPending || !presentationPlan.steps.length}
             onClick={() => setPresentation(activePresentation ? null : { key: presentationPlan.key, index: -1, auto: false, seconds: 3 })}>מצב מצלמה</button>
           {verseRead ? <small role="status">{verseHighlight ? `${verseHighlight.ref} — המילים מודגשות לסירוגין בתכלת ובכתום.` : "געו באות במטריצה כדי להדגיש את הפסוק שלה."}</small> : null}
           {engineState?.ui?.heat ? <small>מפת החום מציגה צפיפות סביב האותיות המסומנות.</small> : null}
+          {engineState?.ui?.niqqud && activeScope === "tanakh" ? <small>הניקוד קיים לתורה בלבד; בשאר התנ״ך האותיות נשארות ללא ניקוד.</small> : null}
           </div>
         </footer>
         {matrixActive && (engineState.ui?.selMode || engineState.ui?.selCells?.length > 0) ? <section className="els29-manual-selection" aria-label="סימון חופשי במטריצה">

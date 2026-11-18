@@ -3472,3 +3472,27 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
     assert.equal(await page.getByRole('region',{name:'שלב 2, המשך עם Fable',exact:true}).getByRole('button').count(),0);
   },{realHost:true});
 });
+
+test('owner 18.11: vowels among the display options under "עוד", in Classic, Research and fullscreen, in step with the status-row button',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+  for(const research of [false,true])await withNative({width:390,height:900},async page=>{
+    if(research)await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    const more=page.getByRole('button',{name:'עוד אפשרויות תצוגה',exact:true});
+    const vowels=page.getByRole('button',{name:'ניקוד במטריצה',exact:true});
+    const vowelCells=()=>page.locator('.els29-native-cell').evaluateAll(cells=>cells.some(cell=>/[֑-ׇ]/.test(cell.textContent)));
+    await more.click();await vowels.waitFor();
+    assert.equal(await vowels.getAttribute('aria-pressed'),'false');
+    await vowels.click();
+    await page.waitForFunction(()=>window.__state?.ui?.niqqud===true&&window.__state?.matrix?.niqqud?.cells?.length>0);
+    assert.equal(await vowelCells(),true,`${research?'Research':'Classic'}: vowels on the matrix`);
+    assert.equal(await vowels.getAttribute('aria-pressed'),'true');
+    assert.equal(await page.getByRole('button',{name:'ניקוד',exact:true}).getAttribute('aria-pressed'),'true','the status-row button shows the same state');
+    // Fullscreen hides the status row; the option stays reachable under "עוד".
+    await page.locator('.els29-fs-toggle').first().dispatchEvent('click');await page.waitForSelector('.els29-native-classic.is-fullscreen');
+    if(!await vowels.isVisible())await more.click();
+    await vowels.click();
+    await page.waitForFunction(()=>window.__state?.ui?.niqqud===false);
+    assert.equal(await vowelCells(),false,'vowels off in fullscreen');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  });
+});
