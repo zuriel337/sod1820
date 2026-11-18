@@ -12,7 +12,7 @@ import { supabaseServiceHeaders } from "../../../supabase/functions/_shared/supa
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const sqlGolden = read("../../../tests/sql/raziel_phase_m_cross_surface_golden_v1.sql");
-const frame = read("../../components/experience2029/SystemFrame2029.jsx");
+const frame = (read("../../components/experience2029/SystemFrame2029.jsx") + "\n" + read("../../components/experience2029/RazielPanel2029.jsx"));  // + RazielPanel2029.jsx: the Raziel chat moved out of the frame (shell weight 2/8, 18.11.2026)
 const session = read("./razielSession2029.js");
 const request = read("./razielSessionRequest2029.js");
 const provider = read("./RazielSessionProvider2029.jsx");

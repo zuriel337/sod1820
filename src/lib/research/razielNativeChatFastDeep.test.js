@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
-const frame = read("../../components/experience2029/SystemFrame2029.jsx");
-const client = read("../supabase.js");
+const frame = (read("../../components/experience2029/SystemFrame2029.jsx") + "\n" + read("../../components/experience2029/RazielPanel2029.jsx"));  // + RazielPanel2029.jsx: the Raziel chat moved out of the frame (shell weight 2/8, 18.11.2026)
+const client = (read("../supabase.js") + "\n" + read("../supabaseApi2029.js"));  // + supabaseApi2029.js: the database actions moved out of the shared core (shell weight 1/8, 18.11.2026)
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const rel = read("../../../supabase/functions/_shared/raziel-reliability.ts");
 const session = read("./razielSession2029.js");

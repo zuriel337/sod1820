@@ -7,10 +7,12 @@ const heichal = readFileSync(
   new URL("../../pages/Heichal2029Page.jsx", import.meta.url),
   "utf8",
 );
+// The frame and, since shell weight 2/8 (18.11.2026), the Raziel conversation panel it loads on open (RazielPanel2029.jsx).
 const frame = readFileSync(
   new URL("../../components/experience2029/SystemFrame2029.jsx", import.meta.url),
   "utf8",
-);
+)
+  + "\n" + readFileSync(new URL("../../components/experience2029/RazielPanel2029.jsx", import.meta.url), "utf8");
 
 test("Heichal consumes the server-gated research-run Result Bundle exactly once", () => {
   assert.match(heichal, /const openRazielFromServerGatedResult = async \(\) =>/);

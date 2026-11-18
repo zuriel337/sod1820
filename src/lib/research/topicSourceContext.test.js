@@ -65,8 +65,8 @@ test("native gallery wiring adds only a lazy 2029 route and reuses the existing 
   assert.match(page,/loadPublicGallerySourceWindow/);assert.match(page,/SourceMethodResearch/);
   assert.doesNotMatch(page,/from ["'][^"']*(?:MuseumGallery|GalleryPage|ArchivePage|Lightbox|AuthContext)/);
   // URLSearchParams.delete edits navigation, not stored data. Keep the mutation
-  // prohibition for everything else, and require the exact existing read imports.
-  assert.deepEqual(page.match(/import \{ ([^}]+) \} from "\.\.\/lib\/supabase.js"/)[1].split(',').map(s=>s.trim()).sort(),
+  // prohibition for everything else, and require the exact existing read imports (from the core or, since shell weight 1/8, the API file).
+  assert.deepEqual(page.match(/import \{ ([^}]+) \} from "\.\.\/lib\/supabase(?:Api2029)?\.js"/)[1].split(',').map(s=>s.trim()).sort(),
     ['getGalleriesOverview','getImagesByGallery','getRealityHints','searchArchiveOcrIds']);
   assert.match(page,/const p=new URLSearchParams\(search\)/);
   assert.match(page,/const set=new Set\(old\)/);
