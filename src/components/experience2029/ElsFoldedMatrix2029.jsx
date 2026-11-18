@@ -16,7 +16,7 @@ const FOLD_COLS = 121;   // the widest column window the lens returns; wider row
 // Research mode only. The SAME text re-flowed into rows of another width: narrower (S/k) puts k-1 rows between consecutive axis letters,
 // wider (S*m) puts m axis letters in one row. Letters, positions and verification are the engine's; this view only reads them through the
 // read-only lens. Cells follow the engine zoom and the letter follows the cell, exactly like the classic matrix.
-export default function ElsFoldedMatrix2029({ state, option, busy, response, onRequest, onExit }) {
+export default function ElsFoldedMatrix2029({ state, option, busy, response, onRequest, onExit, onAxis }) {
   const axisHitId = state?.axis?.hitId || null, scope = state?.scope || null;
   const axisLength = Number(state?.axis?.length) || 5;
   const zoom = Number(state?.ui?.zoom) || 1;
@@ -123,12 +123,22 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
         </> : null}
       </div>
       <div ref={scrollRef} className="els29-native-matrix-scroll els29-fold-scroll" role="region" tabIndex={0} aria-label={`מטריצה ברוחב ${width}, עמודות ${band.c0} עד ${band.c1}`}>
-        <div className="els29-native-matrix is-research" aria-hidden="true" style={{ "--els29-cols": cols, "--els29-cell": `${cellPx}px`, "--els29-font": `${letterPx(cellPx)}px` }}>
+        <div className="els29-native-matrix is-research" style={{ "--els29-cols": cols, "--els29-cell": `${cellPx}px`, "--els29-font": `${letterPx(cellPx)}px` }}>
           {band.rows.map((line, r) => <div className="els29-native-matrix-row" key={r}>
             {Array.from(line).map((letter, c) => {
               const mark = markAt.get(`${r}-${c}`);
               const start = mark?.start && mark.start[0] === r && mark.start[1] === c;
+              const axisAction = mark?.axis ? onAxis : undefined;
               return <span key={c} className={`els29-native-cell${mark ? (mark.axis ? " is-axis" : " is-finding") : ""}${start ? " is-start" : ""}`}
+                aria-hidden={axisAction && start ? undefined : true}
+                aria-label={axisAction && start ? "פתח פעולות לציר" : undefined}
+                role={axisAction && start ? "button" : undefined} tabIndex={axisAction && start ? 0 : undefined}
+                onClick={axisAction} onKeyDown={axisAction && start ? event => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    axisAction();
+                  }
+                } : undefined}
                 style={mark && !mark.axis && mark.color ? { "--els29-mark": mark.color } : undefined}>{letter === " " ? " " : letter}</span>;
             })}
           </div>)}

@@ -6,7 +6,7 @@ import "./elsJointDiscovery2029.css";
 // The joint list of the matrix discovery and the Fable reading (ZURIEL 18.11.2026). Presentation only: rows come from
 // joinElsDiscovery over results that already exist; adding goes through the engine's findings update, which verifies again.
 const PAGE = 20;
-const KINDS = [["els", "ELS בלבד"], ["rare", "לא צפוי במקרה"], ["all", "הכול, כולל טקסט"]];
+const KINDS = [["els", "ELS בלבד"], ["rare", "ELS עם ציפייה נמוכה (E<1)"], ["source", "רצפי מקור"], ["all", "הכול"]];
 const SOURCES = [["all", "כל המקורות"], ["engine", "מנוע"], ["fable", "Fable"], ["both", "שניהם"]];
 const SORTS = [["axis", "קרבה לציר"], ["rare", "נדירות (E)"], ["length", "אורך"]];
 const chance = E => E === null ? null : E < 0.001 ? E.toExponential(1) : E < 10 ? E.toPrecision(2) : Math.round(E).toString();
@@ -21,15 +21,16 @@ function describe(row) {
  * The container: state = the engine state, runs = the discovery panel's completed runs ({ words, language }: { key, mode, data }),
  * projection = the Fable reading projection, onFindingsChange = the host's findings update, onShow = focus a Fable finding on the matrix.
  */
-export default function ElsJointDiscovery2029({ state, runs = {}, projection = null, visible = true, busy = false, color, onFindingsChange, onShow, selectedKey }) {
+export default function ElsJointDiscovery2029({ state, runs = {}, projection = null, busy = false, hideForwardSource, color, onFindingsChange, onShow, selectedKey }) {
   const [notice, setNotice] = useState("");
   const key = elsLexiconWindowKey(state);
   const all = Object.values(runs || {}).filter(run => run?.data);
   const fresh = all.filter(run => run.key === key && !!key);
   const axis = state?.axis && state.term ? { term: state.term, skip: state.axis.skip, dir: state.axis.direction === "back" ? -1 : 1, start: state.axis.start } : null;
   const axisKey = axis ? `${axis.term}:${axis.skip}:${axis.dir}:${axis.start}` : "";
-  const rows = useMemo(() => joinElsDiscovery({ runs: fresh, projection, axis, width: state?.geometry?.S ?? axis?.skip ?? null, scope: state?.scope }),
-    [runs, key, projection, axisKey, state?.geometry?.S, state?.scope]);
+  const rows = useMemo(() => joinElsDiscovery({ runs: fresh, projection, axis, width: state?.geometry?.S ?? axis?.skip ?? null, scope: state?.scope })
+    .filter(row => !(hideForwardSource && row.skip === 1 && row.dir === 1)),
+    [runs, key, projection, axisKey, state?.geometry?.S, state?.scope, hideForwardSource]);
   const isAdded = row => {
     const finding = state?.findings?.find(f => f.t === row.term);
     return [...(finding?.hits || []), ...(finding?.sourceHits || [])].some(hit => hit.hitId === row.hitId && hit.selected && (row.kind === "source" || hit.verified));
@@ -45,7 +46,6 @@ export default function ElsJointDiscovery2029({ state, runs = {}, projection = n
     }
     onFindingsChange?.(prepared.findings); setNotice(`${row.label} נשלח לאימות במנוע. מה שכבר מסומן במטריצה נשאר; רק מה שיאומת יתווסף.`);
   };
-  if (!visible) return null;
   return <ElsJointDiscoveryList rows={rows} current={fresh.length === all.length} busy={busy} isAdded={isAdded} onAdd={add} notice={notice}
     onShow={onShow ? row => onShow(row.fable.key) : null} selectedKey={selectedKey} hasDiscovery={fresh.length > 0} hasReading={!!projection?.findings?.length} />;
 }
@@ -59,10 +59,10 @@ export function ElsJointDiscoveryList({ rows = [], current = true, busy = false,
   const pick = setter => value => { setter(value); setPage(0); };
   return <section className="els29-joint-discovery" aria-label="רשימת הממצאים המשותפת">
     <h3>ממצאים · רשימה משותפת <small>{shown.length}{shown.length !== rows.length ? ` מתוך ${rows.length}` : ""}</small></h3>
-    {!rows.length ? <p>{hasDiscovery || hasReading ? "לא נמצאו ממצאים בסינון הזה." : "הריצו את סריקת המנוע (שלב 1), ואם תרצו את Fable (שלב 2). מה ששניהם מצאו יופיע כאן ברשימה אחת."}</p> : <>
-      <div className="els29-joint-filters" role="group" aria-label="סינון לפי סוג">
-        {KINDS.map(([id, label]) => <button key={id} type="button" aria-pressed={kind === id} onClick={() => pick(setKind)(id)}>{label}</button>)}
-      </div>
+    {!rows.length ? <p>{hasDiscovery || hasReading ? "אין ממצאים להצגה בסינון הנוכחי." : "הריצו סריקת גילוי כדי לראות כאן את הממצאים."}</p> : <>
+      <label className="els29-joint-sort">סוג תוצאות <select aria-label="סוג התוצאות" value={kind} onChange={event => pick(setKind)(event.target.value)}>
+        {KINDS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+      </select></label>
       <div className="els29-joint-filters" role="group" aria-label="סינון לפי מקור">
         {SOURCES.map(([id, label]) => <button key={id} type="button" aria-pressed={source === id} data-joint-source={id} onClick={() => pick(setSource)(id)}>
           {label}{id === "all" ? "" : ` · ${counts[id]}`}</button>)}
@@ -71,16 +71,21 @@ export function ElsJointDiscoveryList({ rows = [], current = true, busy = false,
         {SORTS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
       </select></label>
     </>}
-    {!current && rows.some(row => row.engine) ? <p role="note">חלק מתוצאות הגילוי שייכות לחלון קודם. סרקו שוב לפני הוספה.</p> : null}
+    {!current ? <p role="note">תוצאות מחלון קודם הוסתרו. אפשר לסרוק את החלון הנוכחי.</p> : null}
     {notice ? <p role="status">{notice}</p> : null}
     {slice.length ? <ul>{slice.map(row => {
       const added = isAdded?.(row) === true, fableOnly = !row.engine;
-      const canAdd = !added && !busy && (row.engine ? current : row.fable?.visibility === "full");
-      return <li key={row.key} data-joint-row={row.key} data-joint-source={row.source} data-selected={selectedKey && row.fable?.key === selectedKey ? "true" : undefined}>
+      const canAdd = !added && !busy && (row.engine || row.fable?.visibility === "full");
+      const addLabel = row.fable ? `הוסף למטריצה: ${row.label}` : `בדוק והוסף ${row.label}`;
+      return <li key={row.key} data-joint-row={row.key} data-joint-source={row.source} data-lexicon-hit={row.engine?.item.hitId}
+        data-selected={selectedKey && row.fable?.key === selectedKey ? "true" : undefined}>
         <div className="els29-joint-copy">
           <strong><bdi>{row.label}</bdi></strong>
           {row.label !== row.term ? <small>רצף האותיות: <bdi>{row.term}</bdi></small> : null}
-          <small>{describe(row)}</small>
+          <small>{describe(row)} · התחלה <bdi>{row.start}</bdi></small>
+          {row.engine?.item.language ? <details><summary>האותיות והחלוקה המוצעת</summary>
+            <p>האותיות ברצף: <bdi>{row.term}</bdi>. האימות בודק את האותיות ואת מיקומן. הרווחים הם הצעת קריאה.</p>
+          </details> : null}
           <span className="els29-joint-chips">
             {row.engine ? <span className="is-engine">מנוע</span> : null}
             {row.fable ? <span className="is-fable">Fable</span> : null}
@@ -91,7 +96,7 @@ export function ElsJointDiscoveryList({ rows = [], current = true, busy = false,
         <div className="els29-joint-actions">
           {row.fable && onShow ? <button type="button" disabled={row.fable.visibility === "outside" || row.fable.visibility === "mismatch"} aria-pressed={selectedKey === row.fable.key}
             aria-label={`הצג במטריצה: ${row.label}`} onClick={() => onShow(row)}>{row.fable.visibility === "outside" ? "מחוץ לחלון" : "הצג"}</button> : null}
-          <button type="button" className="is-primary" disabled={!canAdd} aria-label={added ? `${row.label} כבר במטריצה` : `הוסף למטריצה: ${row.label}`}
+          <button type="button" className="is-primary" disabled={!canAdd} aria-label={added ? `${row.label} כבר במטריצה` : addLabel}
             title={fableOnly && row.fable?.visibility !== "full" ? "אפשר להוסיף רק ממצא שכולו בחלון התצוגה" : undefined} onClick={() => onAdd?.(row)}>{added ? "במטריצה" : "הוסף"}</button>
         </div>
       </li>;

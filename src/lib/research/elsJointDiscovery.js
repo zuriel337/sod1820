@@ -67,9 +67,9 @@ export function joinElsDiscovery({ runs = [], projection = null, axis = null, wi
   });
 }
 
-/** kind: "els" (skip 2 and up, the default), "rare" (ELS with E<1), "all" (also the plain text of the rows). source: "all" | "engine" | "fable" | "both". */
+/** kind: "els" (skip 2 and up), "rare" (ELS with E<1), "source", or "all". */
 export function filterElsJointRows(rows, { kind = "els", source = "all" } = {}) {
-  return rows.filter(row => (kind === "all" || row.kind === "els" && (kind !== "rare" || (row.E !== null && row.E < 1)))
+  return rows.filter(row => (kind === "all" || (kind === "source" ? row.kind === "source" : row.kind === "els" && (kind !== "rare" || (row.E !== null && row.E < 1))))
     && (source === "all" || (source === "engine" ? !!row.engine : source === "fable" ? !!row.fable : row.source === "both")));
 }
 

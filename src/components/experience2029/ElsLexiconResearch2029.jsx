@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import { elsLexiconWindowKey, prepareElsLexiconFindings, prepareElsLexiconAdditions, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
 import { groupElsLexiconDiscoveries, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
+import ElsJointDiscovery2029 from "./ElsJointDiscovery2029.jsx";
 import ElsStructureResearch2029 from "./ElsStructureResearch2029.jsx";
 import "./elsLexiconResearch2029.css";
 
@@ -11,19 +12,20 @@ const errors = {
   "results-changed": "המופע השתנה. הפעילו סריקה חדשה במפורש.",
   "scan-failed": "הסריקה לא הושלמה. אין להסיק מכך שאין מילים באזור.",
 };
-const sources = { canonical_tanakh_words: "מילות התנ״ך", maftech_core_snapshot: "מילון הליבה" };
 
-export default function ElsLexiconResearch2029({ state, visible, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords, onResults }) {
-  const [run, setRun] = useState(null), [result, setResult] = useState(null), [notice, setNotice] = useState("");
-  const [page, setPage] = useState(0), [kind, setKind] = useState("groups"), [groupType, setGroupType] = useState("all");
+export default function ElsLexiconResearch2029({
+  state, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
+  onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools,
+}) {
+  const [run, setRun] = useState(null), [notice, setNotice] = useState("");
+  const [page, setPage] = useState(0), [groupType, setGroupType] = useState("all");
+  const [{ result, runs }, setDiscovery] = useState({ result: null, runs: {} });
   const [inspectionVisited, setInspectionVisited] = useState(false);
   const [plan, setPlan] = useState({ minLength: 5, maxLength: 10, maxDistance: 120, minMembers: 2 });
   const [hideForwardSource, setHideForwardSource] = useState(false);
   const languagePlan = plan.mode === "language";
   const scanButton = useRef(null);
   const active = useRef(null), request = useRef(onRequest); request.current = onRequest;
-  // The joint list (ZURIEL 18.11.2026) receives every completed run; "words and expressions together" queues the second plan.
-  const reported = useRef(onResults); reported.current = onResults;
   const queue = useRef([]);
   const key = elsLexiconWindowKey(state);
   const cancel = (message = "הסריקה נעצרה. אפשר להתחיל שוב בלחיצה.") => {
@@ -39,6 +41,10 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     active.current = null;
   }, []);
   useEffect(() => {
+    onProgress(run ? run.progress?.phase === "scan" ? "בודק קווים בחלון הגילוי…" : "טוען ומאמת את אוצר הלשון…" : null);
+    return () => onProgress(null);
+  }, [run, onProgress]);
+  useEffect(() => {
     if (!run) return;
     const timer = setTimeout(() => cancel("הטעינה או הסריקה לא הסתיימו בזמן. הפעולה בוטלה; אפשר לנסות שוב במפורש."), 45000);
     return () => clearTimeout(timer);
@@ -48,23 +54,23 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     if (response.pending) { setRun(current => ({ ...current, progress: response })); return; }
     const runKey = active.current.key; active.current = null; setRun(null);
     if (!response.ok) { queue.current = []; setNotice(errors[response.reason] || errors["scan-failed"]); return; }
-    setResult({ key: runKey, state, data: response }); setPage(0); setNotice("");
-    if (response.plan?.mode === "language") setKind("els");
-    reported.current?.({ key: runKey, mode: response.plan?.mode === "language" ? "language" : "words", data: response });
+    const finished = { key: runKey, state, data: response };
+    const mode = response.plan?.mode === "language" ? "language" : "words";
+    setDiscovery(current => ({ result: finished, runs: { ...current.runs, [mode]: finished } }));
+    setPage(0); setNotice("");
     const next = queue.current.shift();
-    if (next) setTimeout(() => startPlan(next), 0);
+    if (next) startPlan(next);
   }, [response, key]);
   const startPlan = selectedPlan => {
     if (!visible || busy || !key || active.current) return;
     const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope, plan: { ...selectedPlan } };
-    const next = { key, target }; active.current = next; setRun(next); setResult(null); setNotice(""); onRequest(target);
+    const next = { key, target }; active.current = next; setRun(next); setNotice(""); onRequest(target);
   };
   const start = () => { queue.current = []; startPlan(plan); };
-  // One click, both scanners on the same window: the words plan (as set, or the default when the expressions route is selected), then expressions.
   const startBoth = () => {
     const words = plan.mode === "language" ? { ...plan, mode: "words", minLength: 5, maxLength: 10 } : { ...plan, mode: "words" };
-    queue.current = [{ mode: "language", minLength: 5, maxLength: 16, maxDistance: plan.maxDistance, minMembers: plan.minMembers }];
-    startPlan(words);
+    queue.current = [words];
+    startPlan({ ...plan, mode: "language", minLength: 5, maxLength: 16 });
   };
   const updatePlan = (field, value) => setPlan(current => {
     const next = { ...current, [field]: Number(value) };
@@ -73,6 +79,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     return next;
   });
   const data = result?.data, current = result?.key === key && !!key;
+  const languageInspection = runs.language?.key === key ? runs.language?.data.languageInspection : null;
   const presented = useMemo(() => {
     if (!result) return null;
     const items = filterElsForwardSource(result.data.items, hideForwardSource);
@@ -80,8 +87,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
   }, [result, hideForwardSource]);
   const structures = presented?.structures;
   const groups = structures?.groups || [];
-  const rows = kind === "groups" ? groups.filter(group => groupType === "all" || group.types.includes(groupType))
-    : (presented?.items || []).filter(item => item.kind === kind);
+  const rows = groups.filter(group => groupType === "all" || group.types.includes(groupType));
   const nextPlan = data?.plan ? expandElsLexiconPlan(data.plan) : null;
   const slice = rows.slice(page * 20, page * 20 + 20);
   const isAdded = item => {
@@ -106,9 +112,12 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     if (!load) { setNotice("לא ניתן להוסיף: בדקו את המופע ואת מגבלת 24 המילים במטריצה."); return; }
     onRestore?.(load); setNotice("נשלח לאימות במנוע. רק ממצאים שאומתו יסומנו על המטריצה.");
   };
-  return <section hidden={!visible} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
-    <h3>גילוי וקשרים במטריצה</h3>
-    <p>גלו מילים וקשרים בחלון הנוכחי, ובחרו קבוצה לבדיקה ולסימון על אותה מטריצה. ללא AI.</p>
+  return <section hidden={!visible || view === "axis"} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
+    <div hidden={view !== "discovery"} id="els29-discovery-view">
+    <div className="els29-discovery-actions">
+      <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run} onClick={startBoth}>גלה מילים וביטויים יחד</button>
+      {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
+    </div>
     <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={languagePlan ? "language" : "words"}
       onChange={event => setPlan(current => event.target.value === "language"
         ? { ...current, mode: "language", minLength: 5, maxLength: 16 }
@@ -151,13 +160,11 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
       <p>שורות, טורים ושני האלכסונים בשני הכיוונים. קבוצות נבנות רק מההתאמות שנשמרו: מקבילות עד 8 תאים עם תמיכה משותפת, המשכים עד 3 תאים, חיתוכים, חזרות, מסדרונות ואשכולות של 3 מופעים ומעלה עד 4 תאים בין כל זוג. עד 240 קבוצות, עד 8 מופעים בקבוצה.</p>
     </details>
     <div className="els29-discovery-actions">
-      <button ref={scanButton} type="button" disabled={!key || busy || !!run} onClick={start}>{languagePlan ? "בדוק ביטויים וחלוקת רצפים" : "גלה מילים ומבנים"}</button>
-      {onResults ? <button type="button" disabled={!key || busy || !!run} onClick={startBoth}>גלה מילים וביטויים יחד</button> : null}
-      {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
+      <button type="button" disabled={!key || busy || !!run} onClick={start}>{languagePlan ? "בדוק ביטויים וחלוקת רצפים" : "גלה מילים ומבנים"}</button>
     </div>
-    {run ? <CanonicalProgress compact title={languagePlan ? "בדיקת ביטויים" : "סריקה מילונית"} phase={run.progress?.phase === "scan" ? "בודק קווים בחלון" : "טוען ומאמת את אוצר הלשון"}
+    {run ? <CanonicalProgress compact title={run.target.plan.mode === "language" ? "בדיקת ביטויים" : "סריקה מילונית"} phase={run.progress?.phase === "scan" ? "בודק קווים בחלון" : "טוען ומאמת את אוצר הלשון"}
       current={run.progress?.coverage?.completedRays ?? null} total={run.progress?.coverage?.totalRays ?? null} onCancel={() => cancel()} /> : null}
-    <p role="status">{notice || (!key ? "בחרו מופע מאומת לפני סריקה." : !data ? "הסריקה מתחילה רק בלחיצה. התוצאות זמניות בעמוד זה; מעבר מצב עוצר סריקה פעילה." : "")}</p>
+    {!key ? <p>בחרו מופע מאומת לפני סריקה.</p> : null}
     {data ? <div aria-label="תוצאות הסריקה המילונית">
       <p>המופע שנסרק: <bdi>{data.origin.term}</bdi> · {data.origin.corpus === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{data.origin.skip}</bdi>.</p>
       {!current ? <p role="note">התוצאה שייכת לחלון קודם. סרקו את החלון הנוכחי לפני הוספת ממצא.</p> : null}
@@ -179,29 +186,34 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
         <p>רוחב מטריצה {data.box.S}; שורות {data.box.r0}–{data.box.r1}, עמודות {data.box.c0}–{data.box.c1} (ספירה מאפס). חלון המחקר עשוי להיות גדול מהחלק המוצג במסך.</p>
         <p>סדר ההצגה: קרבה לציר, אורך, מילה ומיקום. התקרה נשמרת לפי סדר הסריקה; זו אינה הבטחה שכל הממצאים נמצאו.</p>
       </details>
-      {data.languageInspection ? <details className="els29-language-advanced"><summary>מתקדם · קווים גולמיים והשערות חלוקה</summary>
+      {Object.entries(runs).map(([mode, scan]) => scan.key === key ? <p key={mode}>
+        {mode === "language" ? "ביטויים וחלוקת רצפים" : "מילים ומבנים"} · {scan.data.coverage.completedRays}/{scan.data.coverage.totalRays} קווים
+      </p> : null)}
+      {languageInspection ? <details className="els29-language-advanced"><summary>מתקדם · קווים גולמיים והשערות חלוקה</summary>
         <p>רצפים גולמיים אינם מילים מזוהות. גבולות המילים הם השערות לפי פרופיל לשון, לא ממצאים מאומתים. לא בוצעה קריאת AI.</p>
-        <p>{data.languageInspection.coverage.returnedRays} קווים נבחרו מתוך {data.languageInspection.coverage.totalRays}; כל קו קוצר לעד {data.languageInspection.coverage.maxLetters} אותיות סביב הציר ונבדק בשני הכיוונים.</p>
-        <details><summary>הקווים שנבדקו</summary>{data.languageInspection.rays.map(ray => <p key={ray.id}><bdi>{ray.text}</bdi> · התחלה <bdi>{ray.start}</bdi> · צעד חתום <bdi>{ray.step}</bdi></p>)}</details>
-        <details><summary>דוגמאות גבולות מילים — עד 24 מתוך {data.languageInspection.boundaries.length}</summary>
-          {data.languageInspection.boundaries.slice(0,24).map((row,index) => <p key={index}><bdi>{row.leftContext} | {row.rightContext}</bdi> · מיקום הגבול <bdi>{row.leftEnd} → {row.rightStart}</bdi></p>)}
+        <p>{languageInspection.coverage.returnedRays} קווים נבחרו מתוך {languageInspection.coverage.totalRays}; כל קו קוצר לעד {languageInspection.coverage.maxLetters} אותיות סביב הציר ונבדק בשני הכיוונים.</p>
+        <details><summary>הקווים שנבדקו</summary>{languageInspection.rays.map(ray => <p key={ray.id}><bdi>{ray.text}</bdi> · התחלה <bdi>{ray.start}</bdi> · צעד חתום <bdi>{ray.step}</bdi></p>)}</details>
+        <details><summary>דוגמאות גבולות מילים — עד 24 מתוך {languageInspection.boundaries.length}</summary>
+          {languageInspection.boundaries.slice(0,24).map((row,index) => <p key={index}><bdi>{row.leftContext} | {row.rightContext}</bdi> · מיקום הגבול <bdi>{row.leftEnd} → {row.rightStart}</bdi></p>)}
         </details>
       </details> : null}
-      <label>סוג התוצאות <select aria-label="סוג התוצאות" value={kind} onChange={event => { setKind(event.target.value); setPage(0); }}>
-        <option value="groups">קבוצות ומבנים ({groups.length})</option>
-        <option value="els">{data.plan?.mode === "language" ? "מילים וביטויים בדילוג" : "מילים בדילוג"} ({presented.items.filter(item => item.kind === "els").length})</option>
-        <option value="source">רצפי מקור וקריאות הפוכות ({presented.items.filter(item => item.kind === "source").length})</option>
-      </select></label>
-      {kind === "groups" ? <label>סוג הקשר <select aria-label="סוג הקשר" value={groupType} onChange={event => { setGroupType(event.target.value); setPage(0); }}>
+    </div> : null}
+    {readingExtension}
+    <ElsJointDiscovery2029 state={state} runs={runs} projection={projection} busy={busy || !!run}
+      hideForwardSource={hideForwardSource} color={color} onFindingsChange={onAdd} onShow={onShow} selectedKey={selectedKey} />
+    </div>
+    <div hidden={view !== "structures"} id="els29-structures-view">
+      {data ? <div aria-label="מבנים שזוהו בסריקה">
+        {!current ? <p role="note">הקבוצות שייכות לחלון קודם. סרקו את החלון הנוכחי כדי לאמת קבוצה.</p> : null}
+      <label>סוג הקשר <select aria-label="סוג הקשר" value={groupType} onChange={event => { setGroupType(event.target.value); setPage(0); }}>
         <option value="all">כל הקשרים</option>
         {Object.entries(ELS_DISCOVERY_GROUP_LABELS).map(([value, label]) => {
           const shown = groups.filter(group => group.types.includes(value)).length, total = structures?.typeCounts?.[value] ?? shown;
           return <option key={value} value={value}>{label} ({shown === total ? shown : `${shown} מתוך ${total}`})</option>;
         })}
-      </select></label> : null}
-      {!rows.length ? <p>{kind === "groups" ? "לא נבנו קבוצות מסוג זה מתוך ההתאמות שנשמרו. אפשר לעבור לתצוגת המילים או לחפש מילה ידנית; זה אינו אומר שאין מבנים בטקסט." : "לא נמצאו התאמות מסוג זה במסגרת הסריקה שבוצעה."}</p> : null}
-      <ol>{slice.map(item => {
-        if (kind === "groups") return <li key={item.id}>
+      </select></label>
+      {!rows.length ? <p>לא נבנו קבוצות מסוג זה מההתאמות שנשמרו.</p> : null}
+      <ol>{slice.map(item => <li key={item.id}>
           <strong>{item.types.map(type => ELS_DISCOVERY_GROUP_LABELS[type]).join(" · ")}</strong>
           <p>{item.includesAxis ? <><bdi>{data.origin.term}</bdi> · </> : null}{item.items.map((word, index) => <React.Fragment key={`${word.term}:${word.hitId}`}>{index ? " · " : ""}<bdi>{word.label || word.term}</bdi></React.Fragment>)}</p>
           <details><summary>מה מחבר ביניהם?</summary>{item.reasons.map(reason => <p key={reason}>{reason}</p>)}
@@ -209,22 +221,20 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
           </details>
           {item.membersTruncated ? <p>מוצגים עד 8 מתוך {item.totalMembers} מופעים בקבוצה; ההוספה בודקת רק את המוצגים.</p> : null}
           <button type="button" disabled={!current || busy || !!run || item.items.every(isAdded) || !(onAdd || onRestore)} onClick={() => add(item.items)}>{item.items.every(isAdded) ? "הקבוצה נבחרה במטריצה" : "אמת והצג קבוצה"}</button>
-        </li>;
-        const added = isAdded(item);
-        return <li key={`${item.term}:${item.hitId}`} data-lexicon-hit={item.hitId}><strong>{item.label}</strong><p>{item.skip === 1 ? item.dir < 0 ? "קריאה הפוכה · " : "טקסט מקור קדימה · " : ""}דילוג <bdi>{item.skip}</bdi> · {item.dir < 0 ? "אחורה" : "קדימה"} · התחלה <bdi>{item.start}</bdi> · {item.lexiconSources.map(source => sources[source] || source).join(" + ")}</p>
-          {item.language ? <details><summary>האותיות והחלוקה המוצעת</summary>
-            <p>האותיות ברצף: <bdi>{item.term}</bdi>. הרווחים בכותרת מוצעים לקריאה בלבד; האימות בודק אותיות ומיקום, לא את משמעות הביטוי.</p>
-            {item.language.tokens.some(token => token.relation !== "exact-lexicon-match") ? <p>הזיהוי נעזר בצורות לשון או בכתיב חסר. מילות הבסיס במילון: {item.language.tokens.map(token => token.baseTerm).join(" · ")}. אלו אינן תחליף לאותיות המטריצה.</p> : null}
-          </details> : null}
-          <button type="button" disabled={!current || busy || !!run || added || !(onAdd || onRestore)} onClick={() => add([item])}>{added ? "נבחר במטריצה" : `בדוק והוסף ${item.label}`}</button>
-        </li>;
-      })}</ol>
-      {rows.length > 20 ? <nav aria-label="עמודי תוצאות מילוניות"><button type="button" disabled={page === 0} onClick={() => setPage(page - 1)}>הקודם</button><span>עמוד {page + 1} מתוך {Math.ceil(rows.length / 20)}</span><button type="button" disabled={(page + 1) * 20 >= rows.length} onClick={() => setPage(page + 1)}>הבא</button></nav> : null}
-    </div> : null}
+        </li>)}
+      </ol>
+      {rows.length > 20 ? <nav aria-label="עמודי מבנים"><button type="button" disabled={page === 0} onClick={() => setPage(page - 1)}>הקודם</button><span>עמוד {page + 1} מתוך {Math.ceil(rows.length / 20)}</span><button type="button" disabled={(page + 1) * 20 >= rows.length} onClick={() => setPage(page + 1)}>הבא</button></nav> : null}
+      </div> : <p>סרקו בחלק ״גילוי״ כדי לראות חיתוכים, מקבילות וקשרים נוספים.</p>}
     <details className="els29-discovery-inspection" onToggle={event => { if (event.currentTarget.open) setInspectionVisited(true); }}>
       <summary>בדיקת הסימונים והשוואת מופעים</summary>
       {inspectionVisited ? <ElsStructureResearch2029 state={state} visible={visible} busy={busy || !!run} onRestore={onRestore} onFocus={onFocus}
-        onFindWords={onFindWords} onOpenLexicon={() => { scanButton.current?.scrollIntoView({ block: "center", behavior: "instant" }); scanButton.current?.focus({ preventScroll: true }); }} /> : null}
+        onFindWords={onFindWords} onOpenLexicon={() => {
+          onOpenDiscovery();
+          requestAnimationFrame(() => scanButton.current?.focus());
+        }} /> : null}
     </details>
+    {structureTools}
+    </div>
+    {notice ? <p role="status">{notice}</p> : null}
   </section>;
 }

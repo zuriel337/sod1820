@@ -4,7 +4,6 @@ import { fitCellPx, fitWindow, freeCellPx, letterPx } from "../../lib/elsMatrixZ
 import { use2029Palette } from "../../lib/palette2029.js";
 import { parseElsHitKey, buildJourneyPromotion } from "../../lib/elsJourney.js";
 import { buildElsRazielMatrixContext } from "../../lib/research/elsRazielMatrixContext.js";
-import ElsMatrixReadingCard2029 from "./ElsMatrixReadingCard2029.jsx";
 import { selectElsMatrixReading } from "../../lib/research/elsMatrixReadingPresentation.js";
 import { projectElsReadingFindings } from "../../lib/research/elsMatrixReadingProjection.js";
 import { findingColorChoices, nextFindingColor, projectFindingColor } from "./elsFindingColors2029.js";
@@ -26,8 +25,8 @@ import "./elsNativeClassic2029.css";
 
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
 const ElsLexiconResearch2029 = React.lazy(() => import("./ElsLexiconResearch2029.jsx"));
-// The joint list of discovery and Fable (ZURIEL 18.11.2026): research mode only, loaded with the research tools.
-const ElsJointDiscovery2029 = React.lazy(() => import("./ElsJointDiscovery2029.jsx"));
+const ElsMatrixReadingCard2029 = React.lazy(() => import("./ElsMatrixReadingCard2029.jsx"));
+const ElsAxisResearch2029 = React.lazy(() => import("./ElsAxisResearch2029.jsx"));
 const ElsSplitMatrix2029 = React.lazy(() => import("./ElsSplitMatrix2029.jsx"));
 const ElsFoldedMatrix2029 = React.lazy(() => import("./ElsFoldedMatrix2029.jsx"));
 const ElsPairPlanner2029 = React.lazy(() => import("./ElsPairPlanner2029.jsx"));
@@ -307,7 +306,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
     </p> : null}
     <div
       className={`els29-native-matrix${research ? " is-research" : ""}${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
-      aria-hidden={state?.ui?.selMode ? undefined : true}
+      aria-hidden={state?.ui?.selMode || research ? undefined : true}
       style={{ "--els29-cols": shownCols, "--els29-cell": `${cellPx}px`, ...(research ? { "--els29-font": `${letterPx(cellPx)}px` } : {}) }}
     >
       {matrix.rows.slice(rowFrom, rowTo + 1).map((row, shownRow) => {
@@ -327,6 +326,8 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
             const verseParity = verseHighlight?.parity.get(index);
             const active = !!mark && activeFinding?.indices.has(index);
             const heat = mark ? 0 : heatMap.get(index) || 0;
+            const manualButton = state?.ui?.selMode && onLetterClick && letter !== " ";
+            const axisButton = research && mark?.type === "main" && mark.start && onLetterClick && !presentation;
             const classes = [
               "els29-native-cell",
               verseParity != null ? "is-verse-word" : "",
@@ -349,12 +350,13 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               data-verse-word={verseParity}
               data-present-concealed={concealed ? "true" : undefined}
               title={state?.ui?.selMode ? "סימון חופשי — לחצו שוב להסרה" : sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופעולות הציר"}
-              role={state?.ui?.selMode && onLetterClick && letter !== " " ? "button" : undefined}
-              tabIndex={state?.ui?.selMode && onLetterClick && letter !== " " ? 0 : undefined}
-              aria-label={state?.ui?.selMode && onLetterClick && letter !== " " ? `אות ${letter} במיקום מקור ${index} (ספירה מאפס)` : undefined}
+              aria-hidden={manualButton || axisButton ? undefined : true}
+              role={manualButton || axisButton ? "button" : undefined}
+              tabIndex={manualButton || axisButton ? 0 : undefined}
+              aria-label={manualButton ? `אות ${letter} במיקום מקור ${index} (ספירה מאפס)` : axisButton ? "פתח פעולות לציר" : undefined}
               aria-pressed={state?.ui?.selMode && letter !== " " ? manualSelection.has(index) : undefined}
               onKeyDown={(event) => {
-                if (letter !== " " && ["Enter", " "].includes(event.key)) {
+                if ((manualButton || axisButton) && ["Enter", " "].includes(event.key)) {
                   event.preventDefault();onLetterClick?.({ index, letter, mark });
                 }
               }}
@@ -804,7 +806,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const removeFinding = (index) => onFindingsChange(projected().filter((_, itemIndex) => itemIndex !== index));
   const changeFindingColor = (index, color) => onFindingsChange(projected().map((finding, itemIndex) => itemIndex === index ? { ...finding, color } : finding));
 
-  return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "ai" || activeTool === "research"}>
+  return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "research"}>
     <div ref={railScrollRef} className="els29-native-rail-scroll" hidden={activeTool === "research"}>
       <label className="els29-native-secondary-label" htmlFor="els29-secondary-term">חיפוש משני במטריצה</label>
       <div className="els29-native-finding-add">
@@ -914,15 +916,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [engineState, setEngineState] = useState(null);
   const [engineReady, setEngineReady] = useState(false);
   const readingContext = useMemo(() => buildElsRazielMatrixContext(engineState), [engineState]);
-  const { result: readingResult, matching: readingPending } = selectElsMatrixReading(matrixReading?.session, readingContext?.axis);
+  const { result: readingResult, active: readingActive, matching: readingPending } = selectElsMatrixReading(matrixReading?.session, readingContext?.axis);
   const readingProjection = useMemo(() => {
     const projection = projectElsReadingFindings(readingPending ? null : readingResult, readingContext?.axis, engineState?.matrix);
     return { ...projection, findings: projection.findings.map((finding, i) => ({ ...finding, color: palette.matrix.findings[i % palette.matrix.findings.length].color })) };
   }, [readingResult, readingPending, readingContext, engineState?.matrix, palette]);
   const [readingDisplay, setReadingDisplay] = useState(null);
-  // Completed discovery runs per route ({ words, language }), for the joint list; they are matched to the window there.
-  const [discoveryRuns, setDiscoveryRuns] = useState({});
-  const readingOverlayVisible = !!readingProjection.findings.length && !(readingDisplay?.result === readingResult && readingDisplay.hidden);
+  const researchWorkspace = researchProfile && !guidedProfile;
+  const readingOverlayVisible = researchWorkspace && !!readingProjection.findings.length && !(readingDisplay?.result === readingResult && readingDisplay.hidden);
   const showReadingFinding = key => {
     setPresentation(null);
     setReadingDisplay(current => ({ result: readingResult, key, hidden: false, focus: (current?.focus || 0) + 1 }));
@@ -954,7 +955,23 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
   const [lexiconVisited, setLexiconVisited] = useState(false);
   const [researchToolsOpen, setResearchToolsOpen] = useState(false);
-  const [fsResearchOpen, setFsResearchOpen] = useState(false);
+  const [researchView, setResearchView] = useState("discovery");
+  const [readingExtensionVisited, setReadingExtensionVisited] = useState(false);
+  const [structuresVisited, setStructuresVisited] = useState(false);
+  const [lexiconPhase, setLexiconPhase] = useState(null);
+  const fsResearchOpen = fullscreen && researchToolsOpen;
+  const researchToolsRef = useRef(null);
+  const axisTabRef = useRef(null);
+  const openAxisResearch = () => {
+    setLexiconVisited(true);
+    setResearchView("axis");
+    setResearchToolsOpen(true);
+    setFsQueryOpen(false);
+    requestAnimationFrame(() => {
+      if (!fullscreen) researchToolsRef.current?.scrollIntoView({ block: "nearest" });
+      axisTabRef.current?.focus({ preventScroll: true });
+    });
+  };
   const [lexiconResponse, setLexiconResponse] = useState(null);
   const [splitResponse, setSplitResponse] = useState(null);
   useEffect(() => {
@@ -994,7 +1011,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setFullscreen(true);
   };
   const exitFullscreen = async () => {
-    setFullscreen(false); setFsQueryOpen(false); setFsResearchOpen(false);
+    setFullscreen(false); setFsQueryOpen(false);
     try { if (document.fullscreenElement && document.fullscreenElement === sectionRef.current) await document.exitFullscreen(); } catch { /* already left */ }
   };
   const toggleFullscreen = () => (fullscreen ? exitFullscreen() : enterFullscreen());
@@ -1004,9 +1021,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     // outside the section (or none) ends this mode. Before, coming back from the camera left the section fullscreen without its layout.
     const onChange = () => {
       const element = document.fullscreenElement;
-      if (nativeFullscreenRef.current && !(element && sectionRef.current?.contains(element))) { setFullscreen(false); setFsQueryOpen(false); setFsResearchOpen(false); }
+      if (nativeFullscreenRef.current && !(element && sectionRef.current?.contains(element))) { setFullscreen(false); setFsQueryOpen(false); }
     };
-    const onKey = event => { if (event.key === "Escape" && !nativeFullscreenRef.current && !event.defaultPrevented) { setFullscreen(false); setFsQueryOpen(false); setFsResearchOpen(false); } };
+    const onKey = event => { if (event.key === "Escape" && !nativeFullscreenRef.current && !event.defaultPrevented) { setFullscreen(false); setFsQueryOpen(false); } };
     const previousOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
     document.addEventListener("fullscreenchange", onChange);
@@ -1070,7 +1087,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const foldActive = sideRail && foldOption && !foldOption.base;
   const foldIdentity = `${engineState?.scope}|${engineState?.axis?.hitId || ""}`;
   useEffect(() => { setFoldWidth(null); setFoldResponse(null); }, [foldIdentity]);
-  const aiAvailable = !publicClassic && Boolean(matrixReading || typeof onRazielMatrix === "function");
   const dockProjection = useMemo(() => ({
     surface: "els",
     actions: [
@@ -1080,12 +1096,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
         controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
       })),
-      // AI discovery: a working tool for the administrator, a visible "soon" placeholder for everyone else.
-      ...(aiAvailable ? [{ id: "ai", label: "גילוי עם AI", shortLabel: "AI", icon: "discovery", expanded: !classicOpen && activeTool === "ai",
-        controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select("ai", trigger) }]
-        : publicClassic ? [{ id: "ai", label: "גילוי עם AI · בקרוב", shortLabel: "AI בקרוב", icon: "discovery", disabled: true }] : []),
     ],
-  }), [activeTool, classicOpen, guidedProfile, aiAvailable, publicClassic]);
+  }), [activeTool, classicOpen, guidedProfile]);
   const hasSystemDock = useSystemToolDock2029(active ? dockProjection : null);
   useEffect(() => {
     if (!active || !activeTool || classicOpen) return;
@@ -1536,12 +1548,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestFindingsChange(next);openTool("findings");
   };
 
-  const handleLetterClick = ({ index }) => {
+  const handleLetterClick = ({ index, mark }) => {
     if (searchPending) return;
     if (engineStateRef.current?.ui?.selMode) {
       requestSelection("selection-toggle", index);return;
     }
     setSelectedLetterIndex(index);
+    if (researchWorkspace && mark?.type === "main" && !activePresentation) {
+      openAxisResearch();
+      return;
+    }
     requestLens("letter-context", { i: index });
   };
   const requestSelection = (action, index) => {
@@ -1696,16 +1712,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         {!researchProfile ? <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למטריצה" : "כל הכלים"}</button> : null}
       </div>
       </div>
-      {researchProfile && !guidedProfile ? <details className="els29-planner-entry" onToggle={event => setPairPlannerOpen(event.currentTarget.open)}>
-        <summary>הכנת זוגות לחיפוש</summary>
-        {pairPlannerOpen ? <React.Suspense fallback={<p>טוען את כלי ההכנה…</p>}>
-          <ElsPairPlanner2029 axis={query} scope={activeScope} radius={crossRadius} letterGap={crossLetterGap} disabled={searchPending}
-            onSearchPair={pair => {
-              setQuery(pair.axis); setCrossTerm(pair.term); setCrossThirdTerm(""); setCrossOpen(true);
-              requestSearch("cross", { axis: pair.axis, term: pair.term, scope: activeScope, radius: crossRadius, maxLetterGap: crossLetterGap });
-            }} />
-        </React.Suspense> : null}
-      </details> : null}
       </form>
       <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
         {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: advancedSearchOpen,
@@ -1722,6 +1728,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       : operations.search?.status === "searching" ? `מחפש את המילה במטריצה…${Number.isInteger(operations.search?.found) ? ` · ${elsFoundSoFar(operations.search)}` : ""}`
       : operations.findings?.status === "searching" ? "סורק את הממצאים…"
       : savePending ? "שומר את הצופן…"
+      : researchWorkspace && lexiconPhase ? lexiconPhase
+      : researchWorkspace && readingActive ? readingPending ? "Fable סורק את המטריצה…" : "Fable סורק מופע אחר…"
       : lensPending ? "טוען מקור והקשר…" : null} />
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search", { keepPartial: operations.search?.found > 0 })} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
@@ -1750,7 +1758,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <div className="els29-native-stage-head">
             <div>
               <small className="els29-native-matrix-status" role="status">{matrixStatus}</small>
-              <h3>{engineState?.termRaw || engineState?.term || "הצופן הקלאסי"}</h3>
+              <h3>{researchWorkspace && matrixActive ? <button type="button" className="els29-axis-trigger"
+                aria-label="פעולות לציר הנבחר" aria-controls="els29-research-tools" onClick={openAxisResearch}>{engineState.termRaw || engineState.term}</button>
+                : engineState?.termRaw || engineState?.term || "הצופן הקלאסי"}</h3>
               {readingOverlayVisible ? <p className="els29-reading-matrix-caption" role="status">תוצאות סריקת AI · {readingProjection.visibleCount} מלאות{readingProjection.partialCount ? ` · ${readingProjection.partialCount} חלקיות` : ""}{selectedReading ? ` · נבחר: ${selectedReading.label}` : ""}{activePresentation ? " · הסימונים מוסתרים בזמן מצב מצלמה" : ""}</p> : null}
             </div>
             <div className="els29-native-stage-status">
@@ -1785,7 +1795,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <div className="els29-native-matrix-with-rail-body">
             {foldActive ? <React.Suspense fallback={<p role="status">טוען את המטריצה ברוחב החדש…</p>}>
                 <ElsFoldedMatrix2029 state={engineState} option={foldOption} busy={searchPending} response={foldResponse}
-                  onRequest={target => setLensRequest({ lens: "matrix-window", target })} onExit={() => setFoldWidth(null)} />
+                  onRequest={target => setLensRequest({ lens: "matrix-window", target })} onExit={() => setFoldWidth(null)}
+                  onAxis={matrixActive && !searchPending ? openAxisResearch : undefined} />
               </React.Suspense> : <MatrixSnapshot research layoutMode={fullscreen} state={engineState} onZoomChange={zoom => requestControl("zoom-pinch", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
               readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />}
             </div>
@@ -1868,39 +1879,69 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
-        {!publicClassic && (matrixReading || typeof onRazielMatrix === "function") ? <button type="button" className="els29-ai-entry"
-          aria-expanded={activeTool === "ai"} aria-controls="els29-context-panel"
-          onClick={event => openTool("ai", event.currentTarget)}>
-          <strong>✦ גילוי עם AI</strong><span>{readingPending ? "סריקה פעילה · פתח מעקב" : readingResult?.state === "COMPLETE" ? "התוצאה מוכנה · הצג במטריצה" : "בחרו אזור, בדקו עלות והתחילו רק בלחיצה"}</span>
-        </button> : null}
         </div>
-        <section hidden={!researchProfile || guidedProfile} className={`els29-native-structure-entry${fsResearchOpen ? " is-fs-open" : ""}`} aria-label="כלי מחקר במטריצה">
+        <section ref={researchToolsRef} hidden={!researchProfile || guidedProfile} className={`els29-native-structure-entry${fsResearchOpen ? " is-fs-open" : ""}`} aria-label="כלי מחקר במטריצה">
           <button type="button" className="els29-research-entry" aria-label="כלי מחקר"
             aria-expanded={researchToolsOpen} aria-controls="els29-research-tools"
             onClick={() => { setLexiconVisited(true); setResearchToolsOpen(value => !value); }}>
             <NavigationIcon2029 name="tools" />
-            <span className="els29-research-entry-copy"><strong>כלי מחקר <em className="els29-research-badge">מצב מחקר</em></strong><span>גילוי וקשרים במטריצה · ללא AI</span></span>
+            <span className="els29-research-entry-copy"><strong>כלי מחקר</strong><span>גילוי, מבנים ופעולות לציר</span></span>
             <span className="els29-research-entry-state" aria-hidden="true">{researchToolsOpen ? "סגור" : "פתח"}</span>
           </button>
           <div id="els29-research-tools" hidden={!researchToolsOpen}>
+            <div className="els29-research-views" role="group" aria-label="תצוגות כלי המחקר">
+              {[["discovery", "גילוי"], ["structures", "מבנים"], ["axis", "הציר"]].map(([id, label]) =>
+                <button key={id} ref={id === "axis" ? axisTabRef : null} type="button" aria-pressed={researchView === id}
+                  onClick={() => {
+                    if (id === "structures") setStructuresVisited(true);
+                    setResearchView(id);
+                  }}>{label}</button>)}
+            </div>
             {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי מחקר…</p>}>
-              <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchProfile && !guidedProfile}
+              <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchWorkspace}
+                view={researchView} onOpenDiscovery={() => setResearchView("discovery")} onProgress={setLexiconPhase}
                 busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
                 onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
                 onAdd={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
-                onFindWords={event => openTool("findings", event.currentTarget)}
-                onResults={run => setDiscoveryRuns(current => ({ ...current, [run.mode]: run }))} />
-              {matrixReading && !publicClassic ? <ElsMatrixReadingCard2029 embedded context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
-                projection={readingProjection} selectedKey={selectedReading?.key} overlayVisible={readingOverlayVisible}
-                onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })} onSelectFinding={showReadingFinding} /> : null}
-              <ElsJointDiscovery2029 state={engineState} runs={discoveryRuns} projection={readingProjection} visible={active && researchProfile && !guidedProfile}
-                busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} color={findings => nextFindingColor(findings, palette)}
-                onFindingsChange={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
-                onShow={showReadingFinding} selectedKey={selectedReading?.key} />
-              <ElsSplitMatrix2029 key={`split-${user?.id || "guest"}`} state={engineState} visible={active && researchProfile && !guidedProfile}
-                busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={splitResponse}
-                onRequest={target => setLensRequest({ lens: "matrix-window", target })} />
+                onFindWords={event => { if (fullscreen) setResearchToolsOpen(false); openTool("findings", event.currentTarget); }}
+                projection={readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}
+                readingExtension={!publicClassic && (matrixReading || onRazielMatrix) ? <details className="els29-reading-extension" onToggle={event => { if (event.currentTarget.open) setReadingExtensionVisited(true); }}>
+                  <summary>הרחבה אופציונלית עם Fable</summary>
+                  {readingExtensionVisited ? <React.Suspense fallback={<p role="status">טוען אפשרויות סריקה…</p>}>
+                    {matrixReading ? <ElsMatrixReadingCard2029 embedded context={readingContext} reading={matrixReading} pending={searchPending || Boolean(lexiconPhase)} onSubmit={onRazielMatrix}
+                      projection={readingProjection} overlayVisible={readingOverlayVisible}
+                      onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })} />
+                      : <button type="button" disabled={!readingContext || searchPending || Boolean(lexiconPhase)}
+                        onClick={() => onRazielMatrix(readingContext)}>בקש מרזיאל לבדוק את המטריצה</button>}
+                  </React.Suspense> : null}
+                </details> : null}
+                structureTools={structuresVisited ? <>
+                  <details className="els29-planner-entry" onToggle={event => setPairPlannerOpen(event.currentTarget.open)}>
+                    <summary>הכנת זוגות לחיפוש</summary>
+                    {pairPlannerOpen ? <React.Suspense fallback={<p>טוען את כלי ההכנה…</p>}>
+                      <ElsPairPlanner2029 axis={query} scope={activeScope} radius={crossRadius} letterGap={crossLetterGap} disabled={searchPending}
+                        onSearchPair={pair => {
+                          if (fullscreen) setResearchToolsOpen(false);
+                          setQuery(pair.axis); setCrossTerm(pair.term); setCrossThirdTerm(""); setCrossOpen(true);
+                          requestSearch("cross", { axis: pair.axis, term: pair.term, scope: activeScope, radius: crossRadius, maxLetterGap: crossLetterGap });
+                        }} />
+                    </React.Suspense> : null}
+                  </details>
+                  <React.Suspense fallback={<p role="status">טוען אפשרויות לפיצול המטריצה…</p>}>
+                    <ElsSplitMatrix2029 state={engineState}
+                      visible={active && researchWorkspace && researchView === "structures"}
+                      busy={searchPending || Boolean(lexiconPhase) || ["searching", "verifying"].includes(operations.findings?.status)} response={splitResponse}
+                      onRequest={target => setLensRequest({ lens: "matrix-window", target })} />
+                  </React.Suspense>
+                </> : null} />
+              {researchView === "axis" ? <ElsAxisResearch2029 state={engineState} pending={searchPending}
+                onSource={event => {
+                  if (fullscreen) setResearchToolsOpen(false);
+                  setSelectedLetterIndex(engineState.axis.start);
+                  openTool("findings", event.currentTarget);
+                  requestLens("letter-context", { i: engineState.axis.start }, { revealTool: false });
+                }} /> : null}
             </React.Suspense> : null}
           </div>
         </section>
@@ -1910,49 +1951,24 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
           {fullscreen ? <>
             <button type="button" className="els29-fs-window" aria-pressed={fsQueryOpen} aria-controls="els29-query" aria-label="חלון החיפוש" title="חלון החיפוש"
-              onClick={() => { setFsResearchOpen(false); setFsQueryOpen(open => !open); }}><NavigationIcon2029 name="search" /><small>חיפוש</small></button>
+              onClick={() => { setResearchToolsOpen(false); setFsQueryOpen(open => !open); }}><NavigationIcon2029 name="search" /><small>חיפוש</small></button>
             <button type="button" className="els29-fs-window" aria-pressed={fsResearchOpen} aria-controls="els29-research-tools" aria-label="חלון כלי המחקר" title="חלון כלי המחקר"
-              onClick={() => { setFsQueryOpen(false); setLexiconVisited(true); setResearchToolsOpen(true); setFsResearchOpen(open => !open); }}><NavigationIcon2029 name="tools" /><small>כלי מחקר</small></button>
+              onClick={() => { setFsQueryOpen(false); setLexiconVisited(true); setResearchToolsOpen(open => !open); }}><NavigationIcon2029 name="tools" /><small>כלי מחקר</small></button>
           </> : null}
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
           ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
-          {!publicClassic && (matrixReading || typeof onRazielMatrix === "function") ? <button type="button" aria-label="גילוי עם AI"
-            aria-expanded={activeTool === "ai"} aria-controls="els29-context-panel"
-            onClick={event => activeTool === "ai" ? closeTool() : openTool("ai", event.currentTarget)}>
-            <span aria-hidden="true">✦</span><small>AI</small>
-          </button> : publicClassic ? <button type="button" aria-label="גילוי עם AI · בקרוב" title="גילוי עם AI · בקרוב" disabled data-soon="true">
-            <span aria-hidden="true">✦</span><small>AI בקרוב</small>
-          </button> : null}
           {fullscreen ? <button type="button" className="els29-fs-exit" onClick={exitFullscreen} aria-label="יציאה ממסך מלא" title="יציאה ממסך מלא"><span aria-hidden="true">✕</span><small>יציאה</small></button> : null}
         </div>
         <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{activeTool === "ai" ? "גילוי עם AI" : activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (guidedProfile ? "חבילת הגילוי" : resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (guidedProfile ? "חבילת הגילוי" : resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
             <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
             <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
-        <div className="els29-ai-inspector" hidden={activeTool !== "ai"}>
-        {matrixReading && !publicClassic ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
-          projection={readingProjection} selectedKey={selectedReading?.key} overlayVisible={readingOverlayVisible}
-          onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })}
-          onSelectFinding={showReadingFinding} /> : typeof onRazielMatrix === "function" ? <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
-          <strong>✦ נתח את המטריצה עם AI</strong>
-          {engineState?.verification?.state === "MATCH" && engineState?.axis ? <p>המופע הנבחר: {engineState.termRaw || engineState.term} · דילוג {engineState.axis.skip} · {engineState.axis.direction === "back" ? "לאחור" : "קדימה"} · מיקום {engineState.axis.start}</p> : <p>בחרו מופע מאומת כדי להתחיל.</p>}
-          <p>הסקירה הנוכחית שולחת לרזיאל אזור מוגבל. סריקת Fable המורחבת עדיין אינה מחוברת.</p>
-          <button type="button" disabled={searchPending || !buildElsRazielMatrixContext(engineState)} onClick={async () => {
-            const context = buildElsRazielMatrixContext(engineStateRef.current);
-            if (!context) return;
-            const result = await onRazielMatrix(context);
-            if (!result?.ok) setNotice(result?.error === "replay_pending_or_changed"
-              ? "המופע עדיין לא אומת מחדש או שהבחירה השתנתה. המתינו לאימות ונסו שוב."
-              : "רזיאל לא הצליח לבדוק את המטריצה כעת. אפשר לנסות שוב.");
-          }}>בקש מרזיאל לבדוק את המטריצה</button>
-        </section> : null}
-        </div>
         <CrossResultsRail searchTerms={["cross-three", "cross-three-continue"].includes(operations.search?.searchKind) ? operations.search.payload?.terms : null} crossProgress={operations.search?.progress?.phase === "cross-three-wave" ? operations.search.progress : null}
           onContinueTriple={token => requestSearch("cross-three-continue", {token, terms:operations.search?.payload?.terms, scope:operations.search?.payload?.scope || activeScope})}
           onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
@@ -1975,7 +1991,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onSave={requestSave} onWorkspace={publicClassic ? undefined : () => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />
         <FindingsRail
-          readingCount={readingProjection.findings.length}
+          readingCount={researchWorkspace ? readingProjection.findings.length : 0}
           onHighlightVerse={highlightVerse} verseHighlight={verseHighlight}
           selected={selectedFinding}
           onCancel={() => cancelOperation("findings")}

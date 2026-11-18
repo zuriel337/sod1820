@@ -44,6 +44,7 @@ test("filters and sorting: ELS by default, rare = E<1, all includes plain text; 
     projection: { findings: [fable("נהייהיובלו", 200000, 582, 1, { E: 0.0000099 }), fable("שמו", 239480 - 583 + 2, 584, 1, { E: 256 })] }, axis, width: S });
   assert.deepEqual(filterElsJointRows(rows).map(r => r.term).sort(), ["אילות", "נהייהיובלו", "שמו"].sort());
   assert.deepEqual(filterElsJointRows(rows, { kind: "rare" }).map(r => r.term), ["נהייהיובלו"]);
+  assert.deepEqual(filterElsJointRows(rows, { kind: "source" }).map(r => r.term), ["ונסכיהמ"]);
   assert.equal(filterElsJointRows(rows, { kind: "all" }).length, 4);
   assert.deepEqual(filterElsJointRows(rows, { source: "fable" }).map(r => r.term).sort(), ["נהייהיובלו", "שמו"].sort());
   assert.equal(sortElsJointRows(rows, "rare")[0].term, "נהייהיובלו");

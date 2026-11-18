@@ -22,3 +22,7 @@
 .els29-lexicon-research .els29-discovery-source-filter{flex-wrap:nowrap;min-height:44px;padding:8px;border:1px solid var(--s29-line);border-radius:12px;font-size:16px;cursor:pointer}
 .els29-discovery-source-filter input{width:24px;height:24px;flex:none;accent-color:var(--s29-accent)}
 .els29-discovery-source-filter:focus-within{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+
+.els29-lexicon-research .els29-start-discovery{border-color:var(--s29-accent);color:var(--s29-accent-text);font-weight:700}
+.els29-lexicon-research .els29-reading-extension{margin-block:16px 0;border-block-start:1px solid var(--s29-line)}
+.els29-lexicon-research .els29-reading-extension>summary{padding-inline:0;color:var(--s29-accent-text)}
