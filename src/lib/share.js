@@ -122,3 +122,57 @@ export function pageOwnShareTitle(location, doc = typeof document !== "undefined
   } catch { /* no canonical yet */ }
   return "SOD1820";
 }
+
+// ── Finding share (ZURIEL 18.11.2026) ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// What a finding share sends: the link that opens THE SAME finding, the words that travel with it, the card that shows it, and the plain list
+// the sharer sees before anything is sent. Identity stays with the existing owners (number page focus link, calculator share link); these
+// helpers only describe. Kept in this existing module so the pages that share findings add no new file to the opening graph's map.
+const FINDING_SHARE_ORIGIN = "https://sod1820.co.il";
+
+// Invitations already used on the site (see the review in docs/reviews/share-card-bignum-20261118). No "what the number knows about you":
+// the site's own rule is "עדות — לא ניבוי".
+export const FINDING_HOOK = Object.freeze({
+  calc: "מה מסתתר בשם שלך?",
+  number: "איזה פסוק שווה למספר שלך?",
+  els: "חפשו את השם שלכם בתורה",
+  page: "חשב · גלה · שתף",
+});
+
+const clean = (v) => (v == null ? "" : String(v).trim());
+const isValue = (v) => v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+
+/** The share card (/api/card) for a finding, in the royal layout with the new logo. */
+export function findingCardUrl({ kind = "calc", expression = "", value = null, method = "", context = "" } = {}) {
+  const p = new URLSearchParams();
+  const expr = clean(expression);
+  if (expr) p.set("w", expr.slice(0, 120));
+  if (isValue(value)) p.set("n", String(Number(value)));
+  const sub = [clean(method), clean(context)].filter(Boolean).join(" · ");
+  if (sub) p.set("sub", sub.slice(0, 120));
+  if (kind) p.set("k", kind);
+  return `${FINDING_SHARE_ORIGIN}/api/card?${p.toString()}`;
+}
+
+/** The words that travel with the link (WhatsApp/system share text). The link itself is added by the share action. */
+export function findingShareMessage({ kind = "calc", expression = "", value = null, method = "", number = null } = {}) {
+  const expr = clean(expression);
+  const m = clean(method);
+  const eq = expr && isValue(value) ? `${expr} = ${Number(value)}` : expr;
+  if (kind === "number" && !expr) return `${number} · דף המספר בסוד 1820. ${FINDING_HOOK.number}`;
+  if (kind === "number") return `${eq}${m ? ` ב${m}` : ""} · דף המספר ${number}. ${FINDING_HOOK.number}`;
+  return `${eq}${m ? ` ב${m}` : ""}. ${FINDING_HOOK[kind] || FINDING_HOOK.calc}`;
+}
+
+/** What the sharer sees before sending: exactly the parts that go out, nothing else. */
+export function findingDisclosure({ kind = "calc", expression = "", value = null, method = "", number = null, url = "" } = {}) {
+  const rows = [];
+  if (kind === "number" && !clean(expression)) rows.push(["מה", "דף המספר"]);
+  if (clean(expression)) rows.push(["ביטוי", clean(expression)]);
+  if (clean(method)) rows.push(["שיטה", clean(method)]);
+  if (isValue(value)) rows.push(["תוצאה", String(Number(value))]);
+  if (kind === "number" && number != null) rows.push(["מספר", String(number)]);
+  if (url) { let shown = url; try { shown = decodeURI(url); } catch { /* keep the encoded form */ } rows.push(["קישור", shown.replace(/^https?:\/\//, "")]); }
+  return rows;
+}
+
+export const FINDING_NOT_SENT = "לא נשלח: פרטי החשבון שלך, חיפושים אחרים או מחקר שלא בחרת.";

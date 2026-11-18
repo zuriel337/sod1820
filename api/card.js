@@ -153,158 +153,70 @@ export default async function handler(req) {
   const W = story ? 1080 : 1200;
   const H = story ? 1920 : 630;
 
-  // המילה/המספר הגדול במרכז
-  const hero = w || (n != null ? String(n) : 'סוד 1820');
+  // 👑 Royal card, new logo (ZURIEL 18.11.2026): the brand lockup v2 (src/lib/brandAssets2029.js, _assets/logo.png is a resize-only,
+  // uncropped derivative), navy and gold like the logo and the top bar. One structure for every kind:
+  //   logo · kind label · the finding (big) · detail chips · gold invitation line · footer (site + "open the finding").
+  // Kind (k): calc | number | els | finding | page — given by the caller; otherwise inferred (n alone → number, w with n → calc).
+  const kindParam = (searchParams.get('k') || '').trim();
   const heroIsNumber = !w && n != null;
+  const kind = ['calc', 'number', 'els', 'finding', 'page'].includes(kindParam) ? kindParam
+    : heroIsNumber ? 'number' : (searchParams.get('sig') || '') === 'finding' ? 'finding'
+    : (searchParams.get('sig') || '') === 'els' ? 'els' : (w && n != null) ? 'calc' : 'page';
+  const KIND_LABEL = { calc: 'ממצא במחשבון', number: 'דף המספר', els: 'ממצא בצופן התנ״כי', finding: 'ממצא · מקור · מחקר', page: 'סוד 1820' };
+  // Invitations already used on the site; "what does the number know about you" is gone (the site says: testimony, not prophecy).
+  const KIND_HOOK = { calc: 'מה מסתתר בשם שלך?', number: 'איזה פסוק שווה למספר שלך?', els: 'חפשו את השם שלכם בתורה',
+    finding: 'ממצא · מקור · מחקר', page: 'חשב · גלה · שתף' };
 
-  // שורת המשנה: "מה שווה למספר" או "= n"
-  let sub = subParam;
-  if (!sub) {
-    if (w && n != null) {
-      sub = `שווה ל־${n}`;
-    } else if (heroIsNumber) {
-      const phrases = await topPhrases(n, has);
-      sub = phrases.length ? phrases.join('  ·  ') : 'מרכז ההתכנסות';
-    } else if (t) {
-      sub = t;
-    }
-  }
+  // The finding: a word with its value ("w = n"), a number, or a title.
+  const hero = w || (n != null ? String(n) : 'סוד 1820');
+  const heroValue = w && n != null ? String(n) : null;
 
-  // כיתוב ויראלי בתחתית (ניתן לעקיפה דרך cap=)
-  const cap = text('cap');
-  const teaser = cap
-    ? cap
-    : heroIsNumber
-    ? `מה המספר ${n} יודע עליך?`
-    : w
-    ? `מה מסתתר ב"${w}"?`
-    : 'מה המספרים יודעים עליך?';
+  // Detail chips: an explicit sub (split on " · "), the phrases equal to a number, or a title.
+  let chips = [];
+  if (subParam) chips = subParam.split(/\s*·\s*/).filter(Boolean);
+  else if (heroIsNumber) {
+    const phrases = await topPhrases(n, has);
+    chips = phrases.length ? phrases : ['מרכז ההתכנסות'];
+  } else if (t) chips = [t];
+  chips = chips.slice(0, 3).map((c) => c.slice(0, 40));
 
-  // ✍️ שורת-החתימה בתחתית — הוו הוויראלי:
-  //   ברירת-מחדל = הצופן («חפש את שמך בתורה») — זה ה-WOW של האתר.
-  //   דפי-מספר (n) ודף-השם (sig=gem) → וו-גימטריה («מה מסתתר בשם שלך?»).
-  const sig = (searchParams.get('sig') || '').trim();
-  const sigGem = sig === 'gem' || (sig !== 'els' && heroIsNumber);
-  // A public World finding is a cited research unit, not a gematria/ELS teaser.
-  const signature = sig === 'finding' ? 'ממצא · מקור · מחקר' : sigGem ? 'מה מסתתר בשם שלך?' : 'חפש את שמך בתורה';
+  const hook = text('cap') || KIND_HOOK[kind];
+  const openLabel = kind === 'page' ? 'לכניסה לאתר ‹' : 'לפתיחת הממצא ‹';
 
-  // 👑 הלוגו האמיתי (הכתר + «כי לה' המלוכה») — מוטמע כ-data URI מתוך _assets, בלי תלות-רשת בזמן רינדור.
-  //    logo_integrity_law: המקור היחיד /logo.png (512×512 מרובע) — מוצג contain, בלי חיתוך המילים.
   const logoDataUri = await loadLogo();
-  const logoSize = story ? 150 : 104;
+  const logoSize = story ? 220 : 124;
+  const gold = '#e3be5a';
+  const ink = '#fff3d0';
+  const heroLen = hero.length + (heroValue ? heroValue.length + 3 : 0);
+  const heroSize = heroIsNumber ? (hero.length <= 4 ? 150 : hero.length <= 8 ? 120 : 90)
+    : heroLen <= 10 ? 96 : heroLen <= 16 ? 80 : heroLen <= 24 ? 64 : heroLen <= 34 ? 52 : 42;
 
-  // התאמת גודל הגופן לאורך הגיבור (כולל כותרות פוסט/טופיק ארוכות — מתכווץ וגולש נקי).
-  // ⚠️ כשיש שורת-משנה (sub) מקטינים את הגיבור — אחרת המספר/המילה הענקיים «דורסים» את הכיתוב שמתחת (צמידות).
-  const hasSub = !!sub;
-  const heroSize = hero.length <= 4 ? (hasSub ? 236 : 300)
-                 : hero.length <= 8 ? (hasSub ? 168 : 196)
-                 : hero.length <= 14 ? (hasSub ? 108 : 120)
-                 : hero.length <= 22 ? 84
-                 : hero.length <= 34 ? 62
-                 : 50;
-  // גודל שורת הגימטריה — שורה אחת תמיד (מתכווץ לפי אורך)
-  const subSize = sub.length <= 16 ? 52 : sub.length <= 26 ? 42 : sub.length <= 38 ? 34 : sub.length <= 52 ? 27 : 22;
+  const chip = (c, i) => h('div', { key: i, style: { display: 'flex', color: ink, fontSize: '30px', padding: '6px 22px', borderRadius: '999px',
+    border: `2px solid ${gold}`, background: 'rgba(9,18,58,0.75)' } }, rev(c));
 
   const tree = h(
     'div',
-    {
-      style: {
-        width: `${W}px`,
-        height: `${H}px`,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'radial-gradient(circle at 50% 38%, #1a1340 0%, #0b0820 45%, #05030d 100%)',
-        fontFamily: 'Heebo',
-        position: 'relative',
-      },
-    },
-    // ⚠️ אין מסגרת-זהב פנימית: קו-מסגרת בהיסט קבוע נחתך לקו-שבור כשהכרטיס נגזר (objectFit cover / תמונה-מרובעת).
-    //    הרקע-הרדיאלי לבדו נותן גבול רך שנגזר יפה בכל מקום. אם רוצים מסגרת — רק full-bleed בלי היסט.
-    // כתר + מותג עליון — הלוגו האמיתי; אם הטמעת התמונה נכשלה, הכרטיס מוצג בלי הלוגו (ללא אימוג'י שמחייב טעינה מהרשת)
+    { style: { width: `${W}px`, height: `${H}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      background: 'radial-gradient(circle at 50% 30%, #1b2f7a 0%, #0d1a4a 45%, #060c26 100%)', fontFamily: 'Heebo', position: 'relative' } },
+    // The full lockup, never cropped (logo_integrity / brand core). No emoji stand-in: a missing logo leaves the kind label as the brand line.
     logoDataUri
-      ? h('img', {
-          src: logoDataUri,
-          width: logoSize,
-          height: logoSize,
-          style: { display: 'block', marginBottom: '2px', objectFit: 'contain' },
-        })
-      // No emoji stand-in: the embedded font has no 👑 glyph, so @vercel/og would fetch a twemoji image at render time, with no timeout
-      // (the last network read left on this path, 18.11.2026). Without the logo the card keeps the brand line below.
+      ? h('img', { src: logoDataUri, width: logoSize, height: logoSize, style: { position: 'absolute', top: story ? 90 : 18, left: (W - logoSize) / 2, objectFit: 'contain' } })
       : null,
-    h(
-      'div',
-      {
-        style: {
-          display: 'flex',
-          alignItems: 'center',
-          gap: '14px',
-          color: '#d4af37',
-          fontSize: '34px',
-          letterSpacing: '6px',
-          marginBottom: '8px',
-        },
-      },
-      h('span', null, '|'),
-      h('span', null, rev('סוד 1820')),
-      h('span', null, '|')
-    ),
-    // הגיבור — מספר/מילה ענקיים (מספרים לא הופכים, רק מילות עברית)
-    h(
-      'div',
-      {
-        style: {
-          display: 'flex',
-          fontSize: `${heroSize}px`,
-          fontWeight: 800,
-          color: '#ffe9a8',
-          lineHeight: 1.12,
-          textShadow: '0 0 40px rgba(212,175,55,0.55)',
-          padding: '4px 24px',
-          maxWidth: `${W - 120}px`,
-          textAlign: 'center',
-        },
-      },
-      heroIsNumber ? hero : rev(hero)
-    ),
-    // שורת המשנה — מה שווה לו
-    sub
-      ? h(
-          'div',
-          {
-            style: {
-              display: 'flex',
-              fontSize: `${subSize}px`,
-              color: '#f3ead0',
-              marginTop: '32px',
-              whiteSpace: 'nowrap',
-              textAlign: 'center',
-            },
-          },
-          rev(sub)
-        )
-      : null,
-    // כיתוב ויראלי + קריאה לפעולה
-    h(
-      'div',
-      {
-        style: {
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginTop: `${story ? 110 : 46}px`,
-          gap: '8px',
-        },
-      },
-      h('div', { style: { display: 'flex', fontSize: '40px', color: '#d4af37', fontWeight: 800 } }, rev(teaser)),
-      h('div', { style: { display: 'flex', fontSize: '30px', color: '#b9b3d6' } }, rev(signature) + ' · sod1820.co.il')
-    )
+    h('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: story ? 0 : 40, maxWidth: `${W - 120}px` } },
+      h('div', { style: { display: 'flex', color: gold, fontSize: '30px', letterSpacing: '4px' } }, rev(KIND_LABEL[kind])),
+      h('div', { style: { display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '8px' } },
+        h('div', { style: { display: 'flex', color: ink, fontSize: `${heroSize}px`, fontWeight: 800, lineHeight: 1.1, textAlign: 'center', textShadow: '0 0 36px rgba(227,190,90,0.45)' } },
+          heroIsNumber ? hero : rev(hero)),
+        heroValue ? h('div', { style: { display: 'flex', color: gold, fontSize: `${Math.round(heroSize * 0.9)}px` } }, '=') : null,
+        heroValue ? h('div', { style: { display: 'flex', color: ink, fontSize: `${Math.round(heroSize * 1.1)}px`, fontWeight: 800 } }, heroValue) : null),
+      chips.length ? h('div', { style: { display: 'flex', flexDirection: 'row-reverse', flexWrap: 'wrap', justifyContent: 'center', gap: '14px', marginTop: '18px' } },
+        ...chips.map(chip)) : null),
+    h('div', { style: { position: 'absolute', bottom: story ? 260 : 70, display: 'flex', color: gold, fontSize: story ? '52px' : '40px', fontWeight: 800 } }, rev(hook)),
+    h('div', { style: { position: 'absolute', bottom: story ? 120 : 24, display: 'flex', width: `${W - 100}px`, justifyContent: 'space-between', color: gold, fontSize: story ? '36px' : '26px' } },
+      h('div', { style: { display: 'flex' } }, 'sod1820.co.il'),
+      h('div', { style: { display: 'flex' } }, rev(openLabel)))
   );
 
-  // הערה: ImageResponse של @vercel/og כבר מגדיר בעצמו Cache-Control ל-max-age=31536000
-  //   (שנה), כך שכל כרטיס (צירוף פרמטרים ייחודי) מרונדר פעם אחת ואז מוגש מה-CDN בלי
-  //   לצרוך Fluid Active CPU. אין צורך להעביר headers ידני (בגרסה 0.11 זה משכפל את הערך).
   return new ImageResponse(tree, {
     width: W,
     height: H,
