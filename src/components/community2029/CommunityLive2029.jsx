@@ -280,7 +280,9 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
     const observer = new IntersectionObserver(entries => {
       previewInRange.current = entries.some(entry => entry.isIntersecting);
       if (previewInRange.current) show();
-    }, { rootMargin: "200px" });
+    // CLS (ZURIEL 18.11.2026): the two-reply preview grows the thread by ~200-460 px. Asked 1,500 px ahead, it lands below the
+    // screen, so nothing the reader is looking at moves (live chat, gradual scroll: the preview was the largest shift).
+    }, { rootMargin: "1500px 0px" });
     if (groupRef.current) observer.observe(groupRef.current);
     return () => observer.disconnect();
   }, [rootPreview, row.id, knownCount]);
@@ -471,11 +473,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [guestPending, setGuestPending] = useState(() => []);
   const guestUnreviewedIds = useMemo(() => new Set(guestPending.map(item => item.id)), [guestPending]);
   const guestReviewRead = useRef(0);
-  const [treeHints, setTreeHints] = useState([]);
+  const [treeHints, setTreeHints] = useState(null); // null = the pinned strip is still loading (its place is kept)
   const [treeHintRefresh, setTreeHintRefresh] = useState(0);
   useEffect(() => {
     let live = true;
-    fetchTreeHints({ limit: 20, href: window.location.href }).then(items => { if (live) setTreeHints(items); }).catch(() => { /* the pinned strip is optional */ });
+    fetchTreeHints({ limit: 20, href: window.location.href }).then(items => { if (live) setTreeHints(items || []); }).catch(() => { if (live) setTreeHints([]); /* the pinned strip is optional */ });
     return () => { live = false; };
   }, [treeHintRefresh]);
   const toggleTreeHint = useCallback(async (id, action) => {
@@ -490,7 +492,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     try { await setTreeHint(id, action, { numbers }); setTreeHintRefresh(value => value + 1); setNotice(action === "enter" ? "ההודעה נכנסה לעץ ונעוצה בראש הצ׳אט." : "ההודעה הוצאה מהעץ."); }
     catch { setNotice("הפעולה על רמז העץ לא הושלמה. נסו שוב."); }
   }, []);
-  const treeHintControl = useMemo(() => ({ ids: new Set(treeHints.map(item => item.id)), toggle: isAdmin && user ? toggleTreeHint : null }), [treeHints, isAdmin, user, toggleTreeHint]);
+  const treeHintControl = useMemo(() => ({ ids: new Set((treeHints || []).map(item => item.id)), toggle: isAdmin && user ? toggleTreeHint : null }), [treeHints, isAdmin, user, toggleTreeHint]);
   // Online now: a green dot on a person's own avatar, not a banner/count (ZURIEL 8.11.2026).
   // A signed-in member pings every ~45s while this page is open and visible; everyone
   // (members and guests) reads the short public list and sees the dot wherever that

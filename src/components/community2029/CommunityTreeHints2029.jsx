@@ -34,6 +34,8 @@ function PinLine({ hint }) {
 
 export default function CommunityTreeHints2029({ hints }) {
   const [open, setOpen] = useState(false);
+  // While the pins load their one-line strip keeps its place, so the composer and the feed do not drop 58 px (CLS, 18.11.2026).
+  if (hints === null) return <section className="sod29-tree-pins is-pending" aria-hidden="true" data-tree-pins="pending" />;
   if (!hints?.length) return null;
   const [latest, ...earlier] = hints;
   return <section className="sod29-tree-pins" aria-label="רמזים שנכנסו לעץ" data-tree-pins={hints.length}>

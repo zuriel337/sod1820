@@ -10,7 +10,8 @@ import { fetchPostFollowTargets2029 } from "../../lib/research/postsCatalog2029P
 
 /** Pure: what the bell shows. `state` is the server resolver result (ready | unsupported | unavailable) or null while unknown. */
 export function seriesBellView({ locked, state }) {
-  if (locked) return { kind: "off", reason: "מעקב ייפתח בהמשך" };
+  // ZURIEL 18.11.2026: series follows are not active yet; the bell says plainly that it is under construction.
+  if (locked) return { kind: "building", reason: "מעקב אחרי הסדרה · בבנייה" };
   if (state === "ready") return { kind: "live" };
   if (state === "unsupported") return { kind: "off", reason: "עדכוני הסדרה עדיין אינם פעילים" };
   if (state === "unavailable") return { kind: "off", reason: "לא ניתן לאמת כרגע את מעקב הסדרה" };
@@ -35,5 +36,5 @@ export default function SeriesBell2029({ seriesKey, label, source = "home_series
     return <span className="h29-bell-slot" data-home-series-bell="live"><WatchButton variant="mini" topic={`series:${seriesKey}`} source={source} noPush
       label="מעקב" followLabel="עוקבים" explainer={`עדכון באתר כשמתפרסם פוסט חדש ב${label}`} /></span>;
   }
-  return <span className="h29-bell-slot"><span className="h29-bell is-off" role="img" aria-label={`${label}: ${view.reason}`} title={view.reason} data-home-series-bell={view.kind}><BellGlyph /></span></span>;
+  return <span className="h29-bell-slot"><span className="h29-bell is-off" role="img" aria-label={`${label}: ${view.reason}`} title={view.reason} data-home-series-bell={view.kind}><BellGlyph /></span>{view.kind === "building" ? <small className="h29-bell-building" aria-hidden="true">בבנייה</small> : null}</span>;
 }

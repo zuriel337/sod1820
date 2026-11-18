@@ -310,8 +310,12 @@ export async function logActivity(kind, ref = null, title = null) {
   } catch { /* silent */ }
 }
 
-// כתובת דף-החוקר הקנונית (קוד-מספר עדיף על slug — בלי שמות-אנשים בכתובת)
+// כתובת דף-החוקר הקנונית (קוד-מספר עדיף על slug — בלי שמות-אנשים בכתובת).
+// The person page resolves a numeric segment through `code` and every other segment through `slug` (api/og.js; api/sitemap.js lists
+// the same identity). A text code that differs from the slug (code `panzer`, slug `israel-panzer`) is not an address: it answered 404
+// and was declared as the page's own canonical (18.11.2026).
 export function contributorHref(c) {
   if (!c) return null;
-  return `/community/researcher/${c.code || c.slug}`;
+  const code = String(c.code ?? "").trim();
+  return `/community/researcher/${/^\d+$/.test(code) ? code : (c.slug || code)}`;
 }

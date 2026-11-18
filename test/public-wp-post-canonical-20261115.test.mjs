@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ogHandler from '../api/og.js';
 import sitemapHandler from '../api/sitemap.js';
-import { PUBLIC_READING_PROFILE_ID } from '../src/lib/publicReadingRelease2029.js';
+import { PUBLIC_READING_PROFILE_ID, PUBLIC_HISTORICAL_LECTURE_PATHS } from '../src/lib/publicReadingRelease2029.js';
 import { publicPostHref, publicPostUrl, postAddressSlug } from '../src/lib/publicPostUrls.js';
 
 const SITE = 'https://sod1820.co.il';
@@ -98,7 +98,8 @@ async function sitemapLocs(row) {
 test('the sitemap lists exactly the canonical the page declares (server canonical == sitemap <loc>)', async () => {
   const page = await ask('/' + SLUG_TEXT, wpRow);
   const locs = await sitemapLocs(wpRow);
-  const postLocs = locs.filter(loc => loc.includes('%'));
+  // The historical lecture pages are their own family and are listed escaped too (18.11.2026), so they also contain '%': set them aside.
+  const postLocs = locs.filter(loc => loc.includes('%') && !PUBLIC_HISTORICAL_LECTURE_PATHS.includes(decodeURI(new URL(loc).pathname)));
   assert.equal(postLocs.length, 1, 'the one imported WordPress post is listed once');
   assert.equal(postLocs[0], page.canonical, 'sitemap <loc> and page canonical must be the same address');
   assert.doesNotMatch(new URL(postLocs[0]).pathname, /\/$/);

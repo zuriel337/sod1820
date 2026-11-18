@@ -16,7 +16,7 @@ const { seriesBellView } = await import(pathToFileURL(outfile));
 after(async () => { await rm(outfile, { force: true }); });
 
 test("states: closed actions and unsupported/unavailable series are inert with the reason; only a resolved series is live", () => {
-  assert.deepEqual(seriesBellView({ locked: true, state: "ready" }), { kind: "off", reason: "מעקב ייפתח בהמשך" }, "a closed capability wins over any server state");
+  assert.deepEqual(seriesBellView({ locked: true, state: "ready" }), { kind: "building", reason: "מעקב אחרי הסדרה · בבנייה" }, "a closed capability wins over any server state (ZURIEL 18.11.2026: shown as under construction)");
   assert.equal(seriesBellView({ locked: false, state: "ready" }).kind, "live");
   assert.deepEqual(seriesBellView({ locked: false, state: "unsupported" }), { kind: "off", reason: "עדכוני הסדרה עדיין אינם פעילים" });
   assert.equal(seriesBellView({ locked: false, state: "unavailable" }).kind, "off");
