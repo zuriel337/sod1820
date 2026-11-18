@@ -57,8 +57,8 @@ test("research mode only: the new cell rules, fit crop and recentring never reac
 test("rail buttons are labelled distinctly from the existing zoom bar and meet the touch-target size", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
   assert.doesNotMatch(native, /פקדי צד/, "the duplicate side zoom (+/-) is gone; the zoom bar above the matrix remains");
-  assert.match(native, /aria-label="שורות רחבות יותר"/);
-  assert.match(native, /aria-label="שורות צרות יותר"/);
+  assert.match(native, /"רגיל", "רווח של שורה אחת", "רווח של שתי שורות", "רווח של שלוש שורות", "רווח של ארבע שורות"/);
+  assert.match(native, /aria-pressed=\{fold\.option\?\.between === gap\} disabled=\{!active \|\| !option\}/);
   const css = await read("src/components/experience2029/elsNativeClassic2029.css");
   assert.match(css, /\.els29-native-side-rail button\{width:44px;height:44px/);
   assert.match(css, /@media\(max-width:700px\)\{[^}]*els29-native-matrix-with-rail\{flex-direction:column/, "on a phone the rail lies above the matrix");

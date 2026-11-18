@@ -13,9 +13,8 @@ const errors = {
 
 const FOLD_COLS = 121;   // the widest column window the lens returns; wider rows are paged sideways
 
-// Research mode only. The SAME text re-flowed into rows of another width: narrower (S/k) puts k-1 rows between consecutive axis letters,
-// wider (S*m) puts m axis letters in one row. Letters, positions and verification are the engine's; this view only reads them through the
-// read-only lens. Cells follow the engine zoom and the letter follows the cell, exactly like the classic matrix.
+// Research mode only. Exact divisors of the axis skip put whole rows between its letters.
+// The engine provides both the rendered window and its identity for local discovery.
 export default function ElsFoldedMatrix2029({ state, option, busy, response, onRequest, onExit, onAxis }) {
   const axisHitId = state?.axis?.hitId || null, scope = state?.scope || null;
   const axisLength = Number(state?.axis?.length) || 5;
@@ -23,36 +22,43 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
   const rowsFor = () => clampInt(Math.ceil((axisLength - 1) * option.k / option.m) + 8, 15, 61, 15);
   const colsFor = () => clampInt(option.width, 3, FOLD_COLS, 11);
   const [view, setView] = useState({ focus: axisHitId, rowStart: null, colStart: null, rowCount: rowsFor(), colCount: colsFor() });
-  const [data, setData] = useState(null);
+  const [lastWindow, setLastWindow] = useState(null);
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState("");
   const [boxWidth, setBoxWidth] = useState(0);
   const seqRef = useRef(0), requestRef = useRef(null), scrollRef = useRef(null);
   const send = next => {
     const request = {
-      foldSeq: ++seqRef.current, axisHitId, scope, width: option.width,
+      foldSeq: ++seqRef.current, foldWindowId: crypto.randomUUID(), axisHitId, scope, width: option.width,
       rowCount: next.rowCount, colCount: next.colCount,
       ...(Number.isInteger(next.rowStart) ? { r0: next.rowStart } : {}),
       bands: [{ hitId: next.focus || axisHitId, ...(Number.isInteger(next.colStart) ? { c0: next.colStart } : {}) }],
     };
     requestRef.current = request; setView(next); setPending(true); setNotice(""); onRequest(request);
   };
-  // A new width (or a new axis) re-flows the whole matrix from the axis; nothing from the previous layout stays on screen.
+  const marksKey = JSON.stringify([state?.ui?.hideMain, state?.ui?.findingRadius, (state?.findings || []).map(word => [
+    word.t, word.color, word.hits?.filter(hit => hit.selected && hit.verified).map(hit => hit.hitId),
+    word.sourceHits?.filter(hit => hit.selected).map(hit => hit.hitId),
+  ])]);
   useEffect(() => {
     if (!axisHitId || busy) return;
-    send({ focus: axisHitId, rowStart: null, colStart: null, rowCount: rowsFor(), colCount: colsFor() });
-  }, [axisHitId, option.width]);
+    const previous = requestRef.current;
+    const sameLayout = previous?.axisHitId === axisHitId && previous.scope === scope && previous.width === option.width;
+    send(sameLayout ? view : { focus: axisHitId, rowStart: null, colStart: null, rowCount: rowsFor(), colCount: colsFor() });
+  }, [axisHitId, scope, option.width, busy, marksKey]);
   useEffect(() => {
-    if (!response || !requestRef.current || !(response.target?.foldSeq === requestRef.current.foldSeq && response.target?.axisHitId === requestRef.current.axisHitId && response.target?.scope === requestRef.current.scope)) return;
+    if (!response || !requestRef.current || response.target?.foldWindowId !== requestRef.current.foldWindowId) return;
     setPending(false);
     if (!response.ok) { setNotice(errors[response.reason] || errors["window-failed"]); return; }
-    setData(response);
+    setLastWindow(response);
   }, [response]);
   useEffect(() => {
     if (!pending) return;
     const timer = setTimeout(() => { setPending(false); setNotice(errors.timeout); }, 20000);
     return () => clearTimeout(timer);
   }, [pending]);
+  const data = lastWindow?.target?.axisHitId === axisHitId && lastWindow.target.scope === scope && lastWindow.width === option.width
+    ? lastWindow : null;
   useLayoutEffect(() => {
     const el = scrollRef.current;
     if (!el) return undefined;
@@ -63,11 +69,11 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
     observer.observe(el);
     return () => observer.disconnect();
   }, [Boolean(data)]);
-
   const band = data?.bands?.[0];
   const markAt = useMemo(() => (band ? splitMarkMap(band) : new Map()), [band]);
   const byId = useMemo(() => new Map((data?.hits || []).map(hit => [hit.hitId, hit])), [data?.hits]);
   const width = data?.width || option.width;
+  const layoutKey = band ? [width, data.r0, data.r1, band.c0, band.c1, band.hitId].join(":") : "";
   const cols = band?.rows?.[0]?.length || 1;
   // Same rules as the classic matrix: cell from the available width (zoom multiplies it), letter = cell - 5px.
   const viewportWidth = typeof window === "undefined" ? 800 : window.innerWidth || 800;
@@ -87,7 +93,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
     if (spreadX > el.clientWidth || spreadY > el.clientHeight) rects = [rects[0]];
     el.scrollLeft += (Math.min(...rects.map(r => r.left)) + Math.max(...rects.map(r => r.right))) / 2 - viewport.left - el.clientWidth / 2;
     el.scrollTop += (Math.min(...rects.map(r => r.top)) + Math.max(...rects.map(r => r.bottom))) / 2 - viewport.top - el.clientHeight / 2;
-  }, [band, zoom, cellPx]);
+  }, [layoutKey, zoom, cellPx]);
 
   const jump = hitId => {
     const hit = byId.get(hitId); if (!hit) return;
@@ -95,16 +101,14 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
   };
   const moveRows = delta => data && send({ ...view, rowStart: clampInt(data.r0 + delta, 0, Math.max(0, data.totalRows - view.rowCount), 0) });
   const moveCols = delta => band && send({ ...view, rowStart: data.r0, colStart: clampInt(band.c0 + delta, 0, Math.max(0, width - view.colCount), 0) });
-  const explain = option.m > 1
-    ? `בכל שורה ${option.perRow.toLocaleString("he-IL")} אותיות של הציר`
-    : `בין כל שתי אותיות של הציר יש ${option.between.toLocaleString("he-IL")} שורות`;
+  const explain = option.between === 1 ? "שורת רווח אחת בין אותיות הציר" : `${option.between} שורות רווח בין אותיות הציר`;
 
   return <section className="els29-fold" aria-label="מטריצה ברוחב שורה אחר" data-fold-width={width}>
     <header className="els29-split-head">
-      <strong>רוחב שורה {width.toLocaleString("he-IL")} <em className="els29-research-badge">מצב מחקר</em></strong>
+      <strong>רוחב שורה {width.toLocaleString("he-IL")}</strong>
       <button type="button" onClick={onExit}>חזרה לרוחב הרגיל</button>
     </header>
-    <p className="els29-split-note">{explain} · אותו טקסט בדיוק, רק הפריסה השתנתה.</p>
+    <p className="els29-split-note">{explain}</p>
     {pending ? <CanonicalProgress compact title="פורס את המטריצה ברוחב החדש" phase="פורס את אותו טקסט בשורות חדשות" onCancel={onExit} /> : null}
     {notice ? <p role="alert" className="els29-split-note">{notice}</p> : null}
     {band ? <>

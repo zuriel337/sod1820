@@ -409,22 +409,22 @@ function MatrixControls({ state, onControl, onContext, busy }) {
   </div>;
 }
 
-// Research mode only. Always-visible side controls: zoom (the engine's own zoom, like the classic matrix) and the row width. The row width
-// re-flows the SAME text into rows of another width: a narrower one (an exact divisor of the skip) puts rows between consecutive axis
-// letters, a wider one (a multiple of the skip) puts several axis letters in one row. Letters, positions and verification stay the engine's.
-function MatrixSideRail({ active, fold, onFoldStep, fullscreen, onFullscreen }) {
-  const options = fold?.options || [], index = Math.max(0, options.findIndex(option => option.width === fold?.option?.width));
-  const single = options.length < 2, option = fold?.option;
-  const detail = !option ? "" : option.base ? "רוחב הדילוג" : option.m > 1 ? `${option.perRow.toLocaleString("he-IL")} אותיות ציר בשורה` : `${option.between.toLocaleString("he-IL")} שורות בין האותיות`;
-  return <div className="els29-native-side-rail" role="group" aria-label="מסך מלא ורוחב שורה במטריצה">
+// Research mode only. Exact divisors of the axis skip put whole rows between consecutive axis letters.
+// The engine keeps the letters, coordinates and verification for every layout.
+const ROW_GAP_LABELS = ["רגיל", "רווח של שורה אחת", "רווח של שתי שורות", "רווח של שלוש שורות", "רווח של ארבע שורות"];
+
+function MatrixSideRail({ active, fold, onFold, fullscreen, onFullscreen }) {
+  return <div className="els29-native-side-rail" role="group" aria-label="מסך מלא ופריסת שורות">
     <button type="button" className="els29-fs-toggle" disabled={!active && !fullscreen} aria-pressed={fullscreen} onClick={onFullscreen} aria-label={fullscreen ? "יציאה ממסך מלא" : "מסך מלא"} title={fullscreen ? "יציאה ממסך מלא" : "מטריצה במסך מלא"}>{fullscreen ? "⤡" : "⤢"}</button>
     <hr aria-hidden="true" />
-    <button type="button" className="els29-rail-width" disabled={!active || single || index >= options.length - 1} onClick={() => onFoldStep(1)}
-      aria-label="שורות רחבות יותר" title="שורות רחבות יותר (פי 2, פי 3…)">רחב</button>
-    <output aria-label="רוחב השורה" dir="ltr" className="els29-rail-width-value">{option?.width?.toLocaleString("he-IL") ?? "—"}</output>
-    <small aria-label="פירוט הרוחב">{single ? "אין רוחב נוסף" : detail}</small>
-    <button type="button" className="els29-rail-width" disabled={!active || single || index <= 0} onClick={() => onFoldStep(-1)}
-      aria-label="שורות צרות יותר" title="שורות צרות יותר (חצי, שליש…)">צר</button>
+    <small>שורות רווח</small>
+    {ROW_GAP_LABELS.map((label, gap) => {
+      const option = fold.options.find(item => item.between === gap);
+      return <button key={label} type="button" className="els29-rail-width" aria-label={label}
+        aria-pressed={fold.option?.between === gap} disabled={!active || !option}
+        title={option ? label : `${label} לא זמין לציר הזה`}
+        onClick={() => { if (fold.option !== option) onFold(option.base ? null : option.width); }}>{gap || label}</button>;
+    })}
   </div>;
 }
 
@@ -942,6 +942,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const sectionRef = useRef(null);
   const nativeFullscreenRef = useRef(false);
   const [foldWidth, setFoldWidth] = useState(null);   // research mode only: null = the engine's matrix (row width = skip); otherwise the same text in rows of this width
+  const [foldRequest, setFoldRequest] = useState(null);
   const [foldResponse, setFoldResponse] = useState(null);
   const [matrixOptionsOpen, setMatrixOptionsOpen] = useState(false);
   const matrixOptionsTriggerRef = useRef(null);
@@ -1082,11 +1083,22 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches && !panelOffScreen() ? closeTool() : openTool(tool, trigger),
   };
   const sideRail = researchProfile && !guidedProfile;   // research mode only; the classic matrix keeps its current layout
-  const foldOptionList = useMemo(() => foldOptionsFor(engineState?.axis?.skip, engineState?.axis?.length), [engineState?.axis?.skip, engineState?.axis?.length]);
+  const foldOptionList = useMemo(() => foldOptionsFor(engineState?.axis?.skip, engineState?.axis?.length)
+    .filter(option => option.m === 1 && option.between <= 4), [engineState?.axis?.skip, engineState?.axis?.length]);
   const foldOption = foldOptionList.find(option => option.width === foldWidth) || foldOptionList.find(option => option.base) || foldOptionList[0];
   const foldActive = sideRail && foldOption && !foldOption.base;
   const foldIdentity = `${engineState?.scope}|${engineState?.axis?.hitId || ""}`;
-  useEffect(() => { setFoldWidth(null); setFoldResponse(null); }, [foldIdentity]);
+  useEffect(() => { setFoldWidth(null); setFoldRequest(null); setFoldResponse(null); }, [foldIdentity]);
+  const foldBand = foldResponse?.bands?.[0];
+  const foldScanWindow = foldActive ? (
+    foldResponse?.ok && foldBand && foldRequest && foldRequest.foldWindowId === foldResponse.target?.foldWindowId
+      && foldResponse.width === foldOption.width && foldRequest.axisHitId === engineState.axis?.hitId
+      && foldRequest.scope === engineState.scope
+      ? { id: foldRequest.foldWindowId, geometry: {
+        S: foldResponse.width, r0: foldResponse.r0, r1: foldResponse.r1, c0: foldBand.c0, cw: foldBand.c1 - foldBand.c0 + 1,
+      } }
+      : null
+  ) : undefined;
   const dockProjection = useMemo(() => ({
     surface: "els",
     actions: [
@@ -1790,12 +1802,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           {sideRail ? <div className="els29-native-matrix-with-rail">
             <MatrixSideRail active={matrixActive && !searchPending} fullscreen={fullscreen} onFullscreen={toggleFullscreen}
-              fold={{ options: foldOptionList, option: foldOption }}
-              onFoldStep={delta => { const index = foldOptionList.findIndex(option => option.width === foldOption?.width); const next = foldOptionList[clamp(index + delta, 0, foldOptionList.length - 1)]; if (next) setFoldWidth(next.base ? null : next.width); }} />
+              fold={{ options: foldOptionList, option: foldOption }} onFold={width => { setFoldRequest(null); setFoldWidth(width); }} />
             <div className="els29-native-matrix-with-rail-body">
             {foldActive ? <React.Suspense fallback={<p role="status">טוען את המטריצה ברוחב החדש…</p>}>
                 <ElsFoldedMatrix2029 state={engineState} option={foldOption} busy={searchPending} response={foldResponse}
-                  onRequest={target => setLensRequest({ lens: "matrix-window", target })} onExit={() => setFoldWidth(null)}
+                  onRequest={target => { setFoldRequest(target); setLensRequest({ lens: "matrix-window", target }); }} onExit={() => setFoldWidth(null)}
                   onAxis={matrixActive && !searchPending ? openAxisResearch : undefined} />
               </React.Suspense> : <MatrixSnapshot research layoutMode={fullscreen} state={engineState} onZoomChange={zoom => requestControl("zoom-pinch", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
               readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />}
@@ -1899,16 +1910,18 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </div>
             {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי מחקר…</p>}>
               <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchWorkspace}
+                scanWindow={foldScanWindow}
                 view={researchView} onOpenDiscovery={() => setResearchView("discovery")} onProgress={setLexiconPhase}
                 busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
                 onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
                 onAdd={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
                 onFindWords={event => { if (fullscreen) setResearchToolsOpen(false); openTool("findings", event.currentTarget); }}
-                projection={readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}
+                projection={foldActive ? null : readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}
                 readingExtension={!publicClassic && (matrixReading || onRazielMatrix) ? <details className="els29-reading-extension" onToggle={event => { if (event.currentTarget.open) setReadingExtensionVisited(true); }}>
                   <summary>הרחבה אופציונלית עם Fable</summary>
-                  {readingExtensionVisited ? <React.Suspense fallback={<p role="status">טוען אפשרויות סריקה…</p>}>
+                  {foldActive ? <p>Fable זמין כרגע בפריסת השורות הרגילה. אפשר לסרוק את הפריסה הזו באמצעות הגילוי המקומי.</p>
+                    : readingExtensionVisited ? <React.Suspense fallback={<p role="status">טוען אפשרויות סריקה…</p>}>
                     {matrixReading ? <ElsMatrixReadingCard2029 embedded context={readingContext} reading={matrixReading} pending={searchPending || Boolean(lexiconPhase)} onSubmit={onRazielMatrix}
                       projection={readingProjection} overlayVisible={readingOverlayVisible}
                       onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })} />

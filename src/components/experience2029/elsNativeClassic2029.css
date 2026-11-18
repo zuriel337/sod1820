@@ -892,7 +892,7 @@
 .els29-native-side-rail output,.els29-native-side-rail small{font-size:13px;line-height:1.2;color:var(--s29-muted);text-align:center;font-variant-numeric:tabular-nums}
 .els29-native-side-rail hr{width:70%;margin:2px 0;border:0;border-top:1px solid var(--s29-line)}
 .els29-native-side-rail .els29-rail-width{font-size:15px;font-weight:700}
-.els29-native-side-rail output.els29-rail-width-value{font-size:15px;font-weight:700;color:var(--s29-ink)}
+.els29-native-side-rail .els29-rail-width[aria-pressed=true]{border-color:var(--s29-accent);color:var(--s29-accent-text);box-shadow:inset 0 0 0 1px var(--s29-accent)}
 .els29-native-side-rail small{max-width:60px;overflow-wrap:anywhere}
 /* On a phone the rail lies in one strip above the matrix, so the matrix keeps the full width of the screen. */
 @media(max-width:700px){

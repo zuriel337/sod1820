@@ -14,7 +14,7 @@ const errors = {
 };
 
 export default function ElsLexiconResearch2029({
-  state, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
+  state, scanWindow, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
   onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools,
 }) {
   const [run, setRun] = useState(null), [notice, setNotice] = useState("");
@@ -27,7 +27,8 @@ export default function ElsLexiconResearch2029({
   const scanButton = useRef(null);
   const active = useRef(null), request = useRef(onRequest); request.current = onRequest;
   const queue = useRef([]);
-  const key = elsLexiconWindowKey(state);
+  const scanState = scanWindow === undefined ? state : scanWindow ? { ...state, geometry: scanWindow.geometry } : null;
+  const key = elsLexiconWindowKey(scanState);
   const cancel = (message = "הסריקה נעצרה. אפשר להתחיל שוב בלחיצה.") => {
     queue.current = [];
     if (!active.current) return;
@@ -54,7 +55,7 @@ export default function ElsLexiconResearch2029({
     if (response.pending) { setRun(current => ({ ...current, progress: response })); return; }
     const runKey = active.current.key; active.current = null; setRun(null);
     if (!response.ok) { queue.current = []; setNotice(errors[response.reason] || errors["scan-failed"]); return; }
-    const finished = { key: runKey, state, data: response };
+    const finished = { key: runKey, state: scanState, data: response };
     const mode = response.plan?.mode === "language" ? "language" : "words";
     setDiscovery(current => ({ result: finished, runs: { ...current.runs, [mode]: finished } }));
     setPage(0); setNotice("");
@@ -63,7 +64,8 @@ export default function ElsLexiconResearch2029({
   }, [response, key]);
   const startPlan = selectedPlan => {
     if (!visible || busy || !key || active.current) return;
-    const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope, plan: { ...selectedPlan } };
+    const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope, plan: { ...selectedPlan },
+      ...(scanWindow ? { foldWindowId: scanWindow.id } : {}) };
     const next = { key, target }; active.current = next; setRun(next); setNotice(""); onRequest(target);
   };
   const start = () => { queue.current = []; startPlan(plan); };
@@ -99,7 +101,7 @@ export default function ElsLexiconResearch2029({
     if (busy) { setNotice("התוספת הקודמת עדיין באימות. המתינו לסיומה ואז הוסיפו את הבאה."); return; }
     // The host's findings update adds to what is on the matrix. The older full reload is kept only for a host that has no such update.
     if (onAdd) {
-      const prepared = prepareElsLexiconAdditions(state, data, items, color);
+      const prepared = prepareElsLexiconAdditions(scanState, data, items, color);
       if (prepared.error) {
         setNotice(prepared.error === "limit" ? "במטריצה כבר 24 מילים, וזו התקרה. הסירו מילה מרשימת הממצאים ואז הוסיפו."
           : "הגילוי אינו מתאר עוד את המטריצה שעל המסך. הפעילו סריקה חדשה ואז הוסיפו.");
@@ -108,7 +110,7 @@ export default function ElsLexiconResearch2029({
       onAdd(prepared.findings); setNotice("נשלח לאימות במנוע. מה שכבר מסומן במטריצה נשאר; רק ממצאים שאומתו יתווספו.");
       return;
     }
-    const load = prepareElsLexiconFindings(state, data, items, color);
+    const load = prepareElsLexiconFindings(scanState, data, items, color);
     if (!load) { setNotice("לא ניתן להוסיף: בדקו את המופע ואת מגבלת 24 המילים במטריצה."); return; }
     onRestore?.(load); setNotice("נשלח לאימות במנוע. רק ממצאים שאומתו יסומנו על המטריצה.");
   };
@@ -164,7 +166,8 @@ export default function ElsLexiconResearch2029({
     </div>
     {run ? <CanonicalProgress compact title={run.target.plan.mode === "language" ? "בדיקת ביטויים" : "סריקה מילונית"} phase={run.progress?.phase === "scan" ? "בודק קווים בחלון" : "טוען ומאמת את אוצר הלשון"}
       current={run.progress?.coverage?.completedRays ?? null} total={run.progress?.coverage?.totalRays ?? null} onCancel={() => cancel()} /> : null}
-    {!key ? <p>בחרו מופע מאומת לפני סריקה.</p> : null}
+    {!key ? <p>{scanWindow === null ? "הגילוי יהיה זמין כשחלון המטריצה ייטען." : "בחרו מופע מאומת לפני סריקה."}</p>
+      : scanWindow ? <p>הגילוי משתמש בחלון המוצג, ברוחב <bdi>{scanWindow.geometry.S}</bdi>.</p> : null}
     {data ? <div aria-label="תוצאות הסריקה המילונית">
       <p>המופע שנסרק: <bdi>{data.origin.term}</bdi> · {data.origin.corpus === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{data.origin.skip}</bdi>.</p>
       {!current ? <p role="note">התוצאה שייכת לחלון קודם. סרקו את החלון הנוכחי לפני הוספת ממצא.</p> : null}
@@ -199,7 +202,7 @@ export default function ElsLexiconResearch2029({
       </details> : null}
     </div> : null}
     {readingExtension}
-    <ElsJointDiscovery2029 state={state} runs={runs} projection={projection} busy={busy || !!run}
+    <ElsJointDiscovery2029 state={scanState} runs={runs} projection={projection} busy={busy || !!run}
       hideForwardSource={hideForwardSource} color={color} onFindingsChange={onAdd} onShow={onShow} selectedKey={selectedKey} />
     </div>
     <div hidden={view !== "structures"} id="els29-structures-view">
@@ -227,7 +230,7 @@ export default function ElsLexiconResearch2029({
       </div> : <p>סרקו בחלק ״גילוי״ כדי לראות חיתוכים, מקבילות וקשרים נוספים.</p>}
     <details className="els29-discovery-inspection" onToggle={event => { if (event.currentTarget.open) setInspectionVisited(true); }}>
       <summary>בדיקת הסימונים והשוואת מופעים</summary>
-      {inspectionVisited ? <ElsStructureResearch2029 state={state} visible={visible} busy={busy || !!run} onRestore={onRestore} onFocus={onFocus}
+      {inspectionVisited ? <ElsStructureResearch2029 state={scanState} visible={visible} busy={busy || !!run} onRestore={onRestore} onFocus={onFocus}
         onFindWords={onFindWords} onOpenLexicon={() => {
           onOpenDiscovery();
           requestAnimationFrame(() => scanButton.current?.focus());

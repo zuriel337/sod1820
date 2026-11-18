@@ -3530,6 +3530,48 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
   },{realHost:true});
 });
 
+test('Research row gaps scan the displayed geometry and verify a finding at its original corpus coordinates',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    const original=await page.evaluate(()=>window.__state);
+    const rail=page.getByRole('group',{name:'מסך מלא ופריסת שורות',exact:true});
+    assert.equal(await rail.getByRole('button',{name:'רווח של שורה אחת',exact:true}).isDisabled(),true,'no exact division of this axis into double rows');
+    await rail.getByRole('button',{name:'רווח של ארבע שורות',exact:true}).click();
+    const folded=page.locator('.els29-fold[data-fold-width="2013"]');
+    await folded.locator('.els29-native-cell.is-axis').first().waitFor();
+    const windowResponse=await page.evaluate(()=>window.__lens);
+    assert.equal(windowResponse.width,2013);
+    assert.equal(windowResponse.S,original.axis.skip);
+    const rows=await folded.locator('.els29-native-matrix-row').evaluateAll(nodes=>nodes.flatMap((row,index)=>row.querySelector('.is-axis')?[index]:[]));
+    assert.ok(rows.length>=2);
+    assert.ok(rows.slice(1).every((row,i)=>row-rows[i]===5),'four real rows lie between consecutive axis letters');
+    await openDiscoveryTools(page);
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    await panel.getByRole('button',{name:'גלה מילים וביטויים יחד',exact:true}).click();
+    await page.waitForFunction(()=>window.__lensRuns?.length===2);
+    const scans=await page.evaluate(()=>window.__lensRuns);
+    const band=windowResponse.bands[0];
+    for(const scan of scans){
+      assert.equal(scan.target.foldWindowId,windowResponse.target.foldWindowId);
+      assert.deepEqual(scan.box,{S:2013,r0:windowResponse.r0,r1:windowResponse.r1,c0:band.c0,c1:band.c1});
+      assert.ok(scan.items.every(item=>[1,2012,2013,2014].includes(item.skip)));
+      assert.equal(scan.origin.skip,original.axis.skip);
+    }
+    const activeHits=await panel.locator('[data-lexicon-hit]').evaluateAll(nodes=>nodes.map(node=>node.dataset.lexiconHit));
+    const g=original.geometry;
+    const outside=p=>Math.floor(p/g.S)<g.r0||Math.floor(p/g.S)>g.r1||p%g.S<g.c0||p%g.S>=g.c0+g.cw;
+    const candidate=scans.flatMap(scan=>scan.items).find(item=>item.skip>=2&&activeHits.includes(item.hitId)&&item.positions.some(outside));
+    assert.ok(candidate,'the folded scan can find an occurrence outside the regular window');
+    await panel.locator('[data-lexicon-hit="'+candidate.hitId+'"]').getByRole('button',{name:/בדוק והוסף/}).first().click();
+    await page.waitForFunction(item=>window.__state?.findings?.some(f=>f.t===item.term&&f.hits.some(hit=>hit.hitId===item.hitId&&hit.verified&&hit.selected)),candidate);
+    await folded.locator('.els29-native-cell.is-finding').first().waitFor();
+    assert.deepEqual(await page.evaluate(()=>window.__state.axis),original.axis);
+    await rail.getByRole('button',{name:'רגיל',exact:true}).click();
+    assert.equal(await panel.locator('[data-lexicon-hit]').count(),0,'folded candidates do not leak into the regular window');
+    assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+  },{realHost:true,loadGolden:true});
+});
+
 test('the verified axis opens local gematria in the same Research tools on page and fullscreen',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
   await withNative({width:390,height:900},async page=>{

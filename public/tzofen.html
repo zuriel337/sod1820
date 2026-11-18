@@ -2505,7 +2505,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
 
   // Explicit Research S2: reuse the canonical ray builder and lazy lookup index. No term-by-corpus
   // sweep, morphology, model or Finding mutation. Admission remains the existing verified load.
-  let _lexiconScanSeq=0,_lexiconScanRequest=null;
+  let _lexiconScanSeq=0,_lexiconScanRequest=null,_foldedLexiconWindow=null;
   // Projection of the EXISTING bounded language reader, not a second scanner.
   // Labels contain only exact canonical letters plus proposed spaces. A derived
   // dictionary headword never replaces the letters admitted by canonical replay.
@@ -2598,12 +2598,18 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(!hasGov(source)||!isGov(axis)||target.hitId!==hitKey(axis)||target.scope!==scope||searchUncommitted()){
       send({ok:false,reason:"results-changed"});return;
     }
-    const b=blockOf(),box={S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,c1:b.c0+b.cw-1},cells=(box.r1-box.r0+1)*(box.c1-box.c0+1);
+    const folded=target.foldWindowId==null?null:_foldedLexiconWindow;
+    if(target.foldWindowId!=null&&(!folded||target.foldWindowId!==folded.id||source!==folded.source||axis!==folded.axis||scope!==folded.scope)){
+      send({ok:false,reason:"results-changed"});return;
+    }
+    const b=folded?null:blockOf(),box=folded?.box||{S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,c1:b.c0+b.cw-1},
+      cells=(box.r1-box.r0+1)*(box.c1-box.c0+1);
     if(!Object.values(box).every(Number.isSafeInteger)||box.S<2||box.r0<0||box.r1<box.r0||box.c0<0||box.c1<box.c0||box.c1>=box.S||cells>8192||box.r1-box.r0+1>256||box.c1-box.c0+1>129){
       send({ok:false,reason:"window-too-large"});return;
     }
     _lexiconScanRequest=target.scanId;
-    const cancelled=()=>seq!==_lexiconScanSeq||st.res!==source||st.scope!==scope||!isGov(axis)||occ()!==axis||searchUncommitted()||JSON.stringify(blockOf())!==JSON.stringify(b);
+    const cancelled=()=>seq!==_lexiconScanSeq||st.res!==source||st.scope!==scope||!isGov(axis)||occ()!==axis||searchUncommitted()
+      ||(folded?_foldedLexiconWindow!==folded:JSON.stringify(blockOf())!==JSON.stringify(b));
     try{
       send({ok:true,pending:true,phase:"lexicon",box});
       const lexicon=await guidedLoadDynamicLexicon();if(cancelled())return;
@@ -2621,8 +2627,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   function matrixWindowLens(target){
     const t=target||{},reply=payload=>postHost({type:"lens",lens:"matrix-window",target:t,...payload});
     try{
-      const source=st.res,axis=source?.hits?.[st.occ];
-      if(!hasGov(source)||!isGov(axis)||searchUncommitted()||t.axisHitId!==hitKey(axis)||t.scope!==st.scope){reply({ok:false,reason:"results-changed"});return;}
+      const source=st.res,axis=source?.hits?.[st.occ],scope=st.scope;
+      if(!hasGov(source)||!isGov(axis)||searchUncommitted()||t.axisHitId!==hitKey(axis)||t.scope!==scope){reply({ok:false,reason:"results-changed"});return;}
       const S=Math.abs(axis.skip),total=scopeN();
       if(!Number.isSafeInteger(S)||S<2){reply({ok:false,reason:"window-unavailable"});return;}
       const clampInt=(v,lo,hi,d)=>{const n=Number(v);return Number.isFinite(n)?Math.max(lo,Math.min(hi,Math.round(n))):d;};
@@ -2642,8 +2648,10 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       };
       describe(axis,norm(st.raw)||(source.t||""),null,true);if(!st.hideMain)shown.add(hitKey(axis));
       for(const w of st.words){
-        const shownSet=new Set(shownHitsOf(w).filter(isGov));
-        for(const h of w.hits)if(isGov(h)&&!isSourceHit(h,w.t)){describe(h,w.t,w.color,false);if(shownSet.has(h))shown.add(hitKey(h));}
+        const eligible=h=>isGov(h)&&!isSourceHit(h,w.t)||isFold&&h.v==="PLAIN_TEXT"&&isSourceHit(h,w.t);
+        const selected=isFold?selectedHitsOf(w).filter(h=>st.findingRadius===null||guidedMatrixDistance(h.positions,axis,{S:W})<=st.findingRadius):shownHitsOf(w);
+        const shownSet=new Set(selected.filter(eligible));
+        for(const h of w.hits)if(eligible(h)){describe(h,w.t,w.color,false);if(shownSet.has(h))shown.add(hitKey(h));}
       }
       const requested=(Array.isArray(t.bands)?t.bands:[]).slice(0,MATRIX_WINDOW_MAX_BANDS).filter(b=>b&&registry.has(String(b.hitId)));
       if(!requested.length)requested.push({hitId:hitKey(axis)});
@@ -2670,6 +2678,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         return {hitId:info.hitId,term:info.term,color:info.color,axis:info.axis,c0,c1,rows,marks,
           rowMin:info.rowMin,rowMax:info.rowMax,colMin:info.colMin,colMax:info.colMax};
       });
+      if(isFold&&typeof t.foldWindowId==="string"&&t.foldWindowId.length>0&&t.foldWindowId.length<=100){
+        _foldedLexiconWindow={id:t.foldWindowId,source,axis,scope,box:{S:W,r0,r1,c0:bands[0].c0,c1:bands[0].c1}};
+      }
       reply({ok:true,S,width:W,totalRows,r0,r1,rowCount,colCount,bands,hits:[...registry.values()].map(e=>e.info),
         origin:{corpus:st.scope,corpusId:CORPUS_ID[st.scope],axis:hitKey(axis)},modelCalls:0,findingMutation:false,truthPromotion:false});
     }catch(_){reply({ok:false,reason:"window-failed"});}
@@ -4890,17 +4901,23 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       hits.sort((a,b2)=>_rank(b2)-_rank(a)||a.cost-b2.cost);
       if(priorDefault.length){const at=new Map(priorDefault.map((k,i)=>[k,i]));const front=hits.filter(h=>at.has(hitKey(h)));
         if(front.length===priorDefault.length){front.sort((a,b2)=>at.get(hitKey(a))-at.get(hitKey(b2)));const rest=hits.filter(h=>!at.has(hitKey(h)));hits.length=0;hits.push(...front,...rest);}}
+      // Selected/saved occurrences may be outside the usual window, for example from a narrower row layout.
+      // Check their exact corpus coordinates only. New ELS candidates still go through the canonical verifier.
+      if(L>=2){
+        const keep=new Set([...(w._savedShown||[]),...(w.extra||[])]),available=new Set(hits.map(hitKey));
+        for(const key of keep){
+          if(available.has(key)||!/^\d+_-?1_\d+$/.test(key))continue;
+          const [skip,dir,start]=key.split("_").map(Number),end=start+dir*skip*(L-1);
+          if(![skip,start,end].every(Number.isSafeInteger)||skip<1||start<0||start>=scopeN()||end<0||end>=scopeN())continue;
+          const positions=Array.from({length:L},(_,i)=>start+dir*skip*i);
+          if(positions.every(p=>mainSet.has(p))||positions.some((p,i)=>T[p]!==t[i]))continue;
+          hits.push({skip,dir,start,positions,...(skip===1?{v:"PLAIN_TEXT"}:{})});
+        }
+      }
       for(const h of hits){const verdict=priorVerdicts.get(hitKey(h)+"|"+h.positions.join(","));if(verdict&&h.v===undefined)h.v=verdict;}
       w.verdictScope=st.scope;
       w.nativeRevision=(w.nativeRevision||0)+1;
       w.total=hits.length;w.inwin=hits.length;w.hits=hits;w.nativePage=0;
-      // 🛡️ תאימות-לאחור: מופע שנשמר במפורש במטריצה קיימת (_savedShown) או שהמשתמש הדליק ידנית
-      //    (extra) חייב להישאר זמין גם אם הרחבת מרחב-החיפוש דחקה אותו מעבר ל-30 הראשונים.
-      //    שימור בלבד — מתווסף בסוף, בלי לשנות סדר/דירוג ובלי לגעת בברירת-המחדל (showN).
-      {const keep=new Set([...(w._savedShown||[]),...(w.extra||[])]);
-       if(keep.size){const inTop=new Set(w.hits.map(hitKey));
-         const pin=hits.filter(h=>{const k=hitKey(h);return keep.has(k)&&!inTop.has(k);});
-         if(pin.length)w.hits=w.hits.concat(pin);}}
       // Main-axis distance is separate from the unchanged cluster ranking cost.
       w.hits.forEach(h=>{h.axisDistance=distanceToAnchors(h.positions,baseA,S);});
       // 🔁 שחזור בחירת-הנראות שנשמרה (פעם אחת אחרי טעינה): מתרגם את רשימת ההופעות-שהוצגו
