@@ -91,7 +91,13 @@ import "./googleEntry2029.css";
 
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));
-const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));
+// The invitation's code and stylesheet are fetched before it opens, so the panel appears at its final size (CLS, 18.11.2026:
+// it opened with the frame panel's size and moved when its own stylesheet arrived).
+// React.lazy still shows its fallback for one render after the code has arrived, so the loaded component is kept and used directly.
+let guestNewsletterInviteLoaded2029 = null;
+const loadGuestNewsletterInvite2029 = () => import("./GuestNewsletterInvite2029.jsx").then((module) => { guestNewsletterInviteLoaded2029 = module.default; return module; });
+const GuestNewsletterInviteLazy2029 = React.lazy(loadGuestNewsletterInvite2029);
+const GuestNewsletterInvite2029 = (props) => { const Loaded = guestNewsletterInviteLoaded2029; return Loaded ? <Loaded {...props} /> : <GuestNewsletterInviteLazy2029 {...props} />; };
 import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
 
 const TRANSIENT = Object.freeze({
@@ -1142,7 +1148,7 @@ function SystemFrame2029Body({
     blocked: Boolean(transient) || navOpen,
     routeKey: location.pathname,
     requireResolvedPost: surface === "post",
-    onOpen: () => openTransient(TRANSIENT.NEWSLETTER),
+    onOpen: () => { loadGuestNewsletterInvite2029().then(() => openTransient(TRANSIENT.NEWSLETTER), () => openTransient(TRANSIENT.NEWSLETTER)); },
   });
   useEffect(() => {
     if (authLoading || user) setTransient(current => current?.kind === TRANSIENT.NEWSLETTER ? null : current);
