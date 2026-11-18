@@ -463,3 +463,26 @@ Hosted completion for8.11: protected Preview source`21f1a8d9e3e3fc6c7c35583ac79a
 The existing subscriber table and two existing Edge functions were updated under explicit B/D approval: migration20261103223217, signup20,unsubscribe10. All1,024 pre-existing rows were unchanged. The existing public artifact now admits the same updates form on /updates, matching Home; ordinary readonly preview modes keep their closed state. This is the existing consent form, not a new capability or global flag. Thirty-three mail tests, six route-profile fixtures and ten real nonwriting probes passed. Positive live signup/removal remains owner controlled. Exact protected Preview acceptance follows in the same evidence/journal; no canonical domain or main change. Real-Git+zero-domain Production creation remains a connection capability blocker; current approval does not resolve it.
 
 8.12 hosted completion: protected source`d8ee2753482ee9c264795b19c52745da494be63a`, deployment`dpl_6DekQkT2ByVnPhtPbrFTYmD7bDgZ` accepted4 Home/updates cases390/1440 with actualSW and shared contract; source returned302 without access. No live signup/removal submitted. Earlier2 direct-page failures remain as the proven before-state. Original URLs, unrelated valid acceptance and all Production aliases preserved.
+
+### 8.13 — URL continuity audit of 15.11: evidence pointer and open follow-ups (18 November 2026)
+
+The measured audit of 15.11.2026 (15,052 URLs of the old site, crawl and browser evidence, tools, one execution request) was reviewed as draft PR #1354. It was closed without merge on 18.11.2026 (ZURIEL decision); it holds documents and tools only. Its evidence stays at a fixed commit, also held by GitHub as `refs/pull/1354/head`:
+
+- [README](https://github.com/zuriel337/sod1820/blob/e49199bbd813f1b0e7f60faf4d98e90370d24903/docs/reviews/url-continuity-seo-20261115/README.md) · [execution request and open decisions](https://github.com/zuriel337/sod1820/blob/e49199bbd813f1b0e7f60faf4d98e90370d24903/docs/reviews/url-continuity-seo-20261115/EXECUTION_REQUEST.md) · [evidence](https://github.com/zuriel337/sod1820/tree/e49199bbd813f1b0e7f60faf4d98e90370d24903/docs/reviews/url-continuity-seo-20261115/evidence) · [tools](https://github.com/zuriel337/sod1820/tree/e49199bbd813f1b0e7f60faf4d98e90370d24903/scripts/url-continuity-audit). Branch `claude/sod1820-system-audit-no9qne`, head `e49199bbd813f1b0e7f60faf4d98e90370d24903`, not deleted.
+
+The five fixes it requested (#1349, #1350, #1351, #1352, #1353) were released together as #1355 (`fec22ca07`); see the [release review](reviews/url-release-review-20261115/README.md). The closed draft PRs are duplicates of that merge.
+
+Follow-ups, checked against `origin/main` `3f3355613` on 18.11.2026 (code read only; no live crawl repeated). Each is a decision for ZURIEL; none is authorized by this note:
+
+| # | Follow-up | State at `3f3355613` |
+|---|---|---|
+| 1 | `/?p=<wp_id>`: document identity (current, documented) or 308 to the post | OPEN — unchanged; `api/og.js` serves the post's metadata under the same address |
+| 2 | Temporarily closed areas (DEF-018): 503 + `Retry-After: 259200` with no end date | OPEN — 14 paths in `PUBLIC_TEMPORARILY_CLOSED_PATHS` (`src/lib/publicReadingRelease2029.js`); reopen, 410 or continue |
+| 3 | URLs with no known identity (UNDECIDABLE: `wp-content/uploads`, unknown tags/categories/authors, truncated slugs) | OPEN — no target created; restore from backup was not checked |
+| 4 | Root aliases and `?p=` pages whose canonical names another address (282 pages; 153 without a documented decision) | OPEN — 301 to the canonical or keep canonical only |
+| 5 | 11.11 audit decisions (b) 308 for the remaining public `/2029/*`, (c) niqqud / `/number/0358` normalisation, (d) 301 `/sitemap_index.xml` → `/sitemap.xml` | OPEN — no `sitemap_index` rule in code; (b) and (c) not rechecked |
+| 6 | Bidi / zero-width characters in slugs (DEF-022): slug clean-up + 301 | OPEN — a DB change; not rechecked |
+| 7 | Old researcher alias `/community/researcher/panzer` → `israel-panzer` | OPEN — no redirect in code; the sitemap already lists `israel-panzer` |
+| 8 | Wire the four new URL tests into CI | DONE — all four run in `.github/workflows/live-contracts-2029.yml` |
+| 9 | Search Console Page Indexing access (DEF-006) for the post-release check | OPEN — access not verified |
+| 10 | Saved links in the old form (EXECUTION_REQUEST decision 12) | Not rechecked |
