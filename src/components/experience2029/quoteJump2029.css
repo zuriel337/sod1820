@@ -1,0 +1,2 @@
+/* A shared sentence, highlighted without touching the article's DOM (CSS Highlight API). */
+::highlight(sod-quote) { background-color: color-mix(in srgb, var(--s29-brand-gold, #f9ba3f) 38%, transparent); }

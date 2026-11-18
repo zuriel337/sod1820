@@ -1395,12 +1395,13 @@ function SystemFrame2029Body({
     closeRaziel,
     openWorkspace,
     openIssueReport,
+    openShare,
     closeWorkspace,
     closeTransient,
     go,
     returnExact,
     registerOrientationHost: setOrientationHost,
-  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, razielLocked, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
+  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, razielLocked, closeRaziel, openWorkspace, openIssueReport, openShare, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
