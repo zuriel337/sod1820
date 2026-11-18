@@ -338,6 +338,7 @@ jobs:
           test/group-sources-now-2029.test.mjs
           test/or-geula-video-share-2029.test.mjs
           test/share-contract-2029.test.mjs
+          test/finding-share-preview-2029.test.mjs
           test/install-suggestion-2029.test.mjs
           test/wa-channel-world-2029-contract.test.mjs
           test/wa-trusted-author-tree-routing.test.mjs

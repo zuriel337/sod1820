@@ -54,6 +54,7 @@ const cardUrl = (o = {}) => {
   if (o.sub) p.set('sub', o.sub);
   if (o.cap) p.set('cap', o.cap);
   if (o.sig) p.set('sig', o.sig);
+  if (o.k) p.set('k', o.k);
   return `${SITE}/api/card?${p.toString()}`;
 };
 
@@ -715,7 +716,24 @@ export default async function handler(req, res) {
     // מחשבון הגימטריה — אם שותפו מילה+ערך (?w=&n=) → תמונת כרטיס ויראלית עם המילה.
     const w = String((req.query && req.query.w) || '').trim();
     const nq = parseInt(String((req.query && req.query.n) || ''), 10);
-    if (w && Number.isFinite(nq) && !productionReading) {
+    // An explicit calculator share (ZURIEL 18.11.2026): the sharer chose to send the expression, the method and the result (q, m, v, with the
+    // share id s). The preview shows them — a name or a date included, because the person chose to share them. The value is stated only when
+    // this server's own regular gematria agrees with it; for another method the page computes it on opening, and the preview does not repeat
+    // a number it has not computed. The address stays noindex (query variant) and its canonical stays the calculator.
+    const sq = String((req.query && req.query.q) || '').trim().slice(0, 120);
+    const sm = String((req.query && req.query.m) || '').trim().slice(0, 40);
+    const sv = Number(String((req.query && req.query.v) || ''));
+    const sid = String((req.query && req.query.s) || '').trim();
+    const regularMethod = sm.replace(/[\s"'״׳’‘\-_/]/g, '') === 'רגיל';
+    if (productionReading && sq && sm && sid) {
+      const verified = regularMethod && Number.isSafeInteger(sv) && ragil(sq) === sv;
+      const methodLabel = regularMethod ? 'גימטריה רגילה' : `שיטה: ${sm}`;
+      title = verified ? `${sq} = ${sv} · ${methodLabel} · ${SITE_NAME}` : `${sq} · ${methodLabel} · ${SITE_NAME}`;
+      desc = verified ? `"${sq}" שווה ${sv} ב${methodLabel}. מה מסתתר בשם שלך? פתחו את הממצא במחשבון של סוד 1820.`
+        : `"${sq}" ב${methodLabel}. התוצאה מחושבת בעת פתיחת הממצא במחשבון של סוד 1820. מה מסתתר בשם שלך?`;
+      image = verified ? cardUrl({ w: sq, n: sv, sub: methodLabel, k: 'calc' }) : cardUrl({ w: sq, sub: methodLabel, k: 'calc' });
+      robots = 'noindex, follow';
+    } else if (w && Number.isFinite(nq) && !productionReading) {
       title = `${w} = ${nq} · ${SITE_NAME}`;
       desc = `"${w}" שווה ${nq} בגימטריה. מה המספר אומר עליכם? בדקו גם את השם שלכם במחשבון הגימטריה של סוד 1820.`;
       image = `${SITE}/api/card?w=${encodeURIComponent(w)}&n=${nq}`;
@@ -974,6 +992,18 @@ export default async function handler(req, res) {
       } catch { /* fallback to generic */ }
       // תמונת שיתוף דינמית: המספר ענק + הביטויים השווים לו + כיתוב ויראלי.
       image = `${SITE}/api/card?n=${n}`;
+      // A shared finding inside the page (ZURIEL 18.11.2026): /number/N?focus=<expression>&method=<method>. The preview names that finding;
+      // "= N" is stated only when this server's regular gematria agrees (regular method or none given). The canonical stays /number/N.
+      const fx = String((req.query && req.query.focus) || '').trim().slice(0, 120);
+      const fm = String((req.query && req.query.method) || '').trim().slice(0, 40);
+      if (fx && fx.toLowerCase() !== 'dna') {
+        const fRegular = !fm || fm.replace(/[\s"'״׳’‘\-_/]/g, '') === 'רגיל';
+        const fVerified = fRegular && ragil(fx) === n;
+        const fMethod = fRegular ? 'גימטריה רגילה' : `שיטה: ${fm}`;
+        title = fVerified ? `${fx} = ${n} · דף המספר · ${SITE_NAME}` : `${fx} · דף המספר ${n} · ${SITE_NAME}`;
+        desc = cleanDesc(`${fVerified ? `"${fx}" שווה ${n} ב${fMethod}` : `"${fx}" במיקוד בדף המספר ${n} (${fMethod})`}. איזה פסוק שווה למספר שלך? פתחו את הממצא בסוד 1820.`, 180);
+        image = fVerified ? cardUrl({ w: fx, n, sub: `${fMethod} · בדף המספר ${n}`, k: 'number' }) : cardUrl({ w: fx, sub: `${fMethod} · בדף המספר ${n}`, k: 'number' });
+      }
     } else if (productionReading) {
       title = `${stripHtml(raw).slice(0, 120)} — דף הביטוי · ${SITE_NAME}`;
       desc = 'הביטוי ושיטת החישוב נשמרים בכתובת. החישוב מאומת במנוע הקיים בעת פתיחת הדף.';

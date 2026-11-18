@@ -1,7 +1,7 @@
 // What a share-card request may ask for, and how long its answer may be kept (ZURIEL 18.11.2026, branch only).
 //
 // /api/card is a pure function of its query string, drawn by api/card.js from these keys only:
-//   n w t sub cap sig v nums format   (searchParams.get: the FIRST value of a repeated key counts, as it always did)
+//   n w t sub cap sig v nums format k   (searchParams.get: the FIRST value of a repeated key counts, as it always did; k = kind of card)
 // Every producer found — the builders on main (api/og.js, src/lib/thumbResolve.js, src/lib/research/postPreviewUnits2029.js,
 // src/lib/research/worldFindingShare.js, src/pages/CommunityCalculatorPage.jsx), every card address added in git history, and the card
 // addresses stored in the database (posts, insights, els_records, stories, hint_sets, share_events, visitor_events: only w/sub/cap/sig) — uses
@@ -19,7 +19,7 @@
 //   - "number": n alone (no w/sub, not a unit) also reads the published phrases equal to n (api/card.js topPhrases): 1 hour, unchanged.
 // See docs/reviews/share-card-bignum-20261118/API_CARD_ROOT_CAUSE.md for template/brand changes, removal and privacy.
 
-export const CARD_IMAGE_KEYS = Object.freeze(['n', 'w', 't', 'sub', 'cap', 'sig', 'v', 'nums', 'format']);
+export const CARD_IMAGE_KEYS = Object.freeze(['n', 'w', 't', 'sub', 'cap', 'sig', 'v', 'nums', 'format', 'k']);
 const TEXT_KEYS = ['w', 't', 'sub', 'cap'];
 export const CARD_RAW_TEXT_MAX = 2000;
 export const CARD_QUERY_MAX = 8192;
