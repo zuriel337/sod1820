@@ -324,6 +324,7 @@ jobs:
           test/global-living-ribbon-state.test.mjs
           test/header-pinned-2029.test.mjs
           test/nav-open-under-construction-2029.test.mjs
+          test/rails-one-design-2029.test.mjs
           test/personal-self-preview-route.test.mjs
           test/post-hierarchy-raziel-2029.test.mjs
           test/posts-raziel-final-2029.test.mjs

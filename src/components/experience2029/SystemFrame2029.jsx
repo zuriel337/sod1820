@@ -987,6 +987,15 @@ function SystemFrame2029Body({
   useEffect(() => {
     try { localStorage.setItem("sod-global-rail", sidebarCollapsed ? "collapsed" : "expanded"); } catch { /* ignore */ }
   }, [sidebarCollapsed]);
+  // Hover opens the slim rail over the page, as in Google Analytics (ZURIEL 18.11.2026): a short delay on the way in and out so a passing
+  // pointer does not flash it; keyboard focus opens it too; the pin (the rail button) keeps it open as before.
+  const [railPeek, setRailPeek] = useState(false);
+  const railPeekTimer = useRef(0);
+  const peekRail = (open, delay) => {
+    clearTimeout(railPeekTimer.current);
+    if (open && (!sidebarCollapsed || !window.matchMedia?.("(hover: hover) and (min-width: 981px)").matches)) return;
+    railPeekTimer.current = setTimeout(() => setRailPeek(open), delay);
+  };
 
   useEffect(() => {
     if (orientation.mode !== "prominent" || !orientation.manifest) return;
@@ -1587,7 +1596,7 @@ function SystemFrame2029Body({
     <SystemFeedContext2029.Provider value={feed}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed && !railPeek ? " sidebar-collapsed" : ""}${railPeek ? " rail-peek" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -1607,7 +1616,9 @@ function SystemFrame2029Body({
           <span className="sod29-logo-name" aria-hidden="true"><b>{experience.brand.identity}</b>{experience.brand.expression ? <small>{experience.brand.expression}</small> : null}</span>
         </button>
 
-        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={sidebarCollapsed ? "slim" : "open"}>
+        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={railPeek ? "peek" : sidebarCollapsed ? "slim" : "open"}
+          onMouseEnter={() => peekRail(true, 180)} onMouseLeave={() => peekRail(false, 260)} onFocus={() => peekRail(true, 0)}
+          onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekRail(false, 0); }} onKeyDown={(event) => { if (event.key === "Escape") peekRail(false, 0); }}>
           <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
             <span className="sod29-rail-home" aria-hidden="true">⌂</span>
             <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
@@ -1616,14 +1627,16 @@ function SystemFrame2029Body({
             <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
+          <div className="sod29-rail-foot">
           <div className="sod29-rail-utilities" aria-label="פעולות נוספות">
             <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="sod29-nav-copy">חזרה מדויקת</span></button>
             <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="sod29-nav-copy">דווח על בעיה</span></button>
           </div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
-          <button className="sod29-rail-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"}>
-            <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "הרחב" : "צמצם"}</b>
+          <button className="sod29-rail-toggle" type="button" onClick={() => { clearTimeout(railPeekTimer.current); setRailPeek(false); setSidebarCollapsed((value) => !value); }} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "נעץ את סרגל הניווט פתוח" : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? "נעץ את סרגל הניווט פתוח" : "צמצם את סרגל הניווט"}>
+            <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "נעץ" : "צמצם"}</b>
           </button>
+          </div>
           <div className="sod29-side-foot"><span className="sod29-live-dot" /> {entityTypeNounHe(surface)}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 
