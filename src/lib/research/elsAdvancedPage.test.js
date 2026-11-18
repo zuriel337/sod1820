@@ -66,3 +66,31 @@ test("exact skip uses canonical matrix load without the paged bridge's 500 ceili
   assert.equal(buildElsExactSkipProbe({ term: "תורה קדשה", scope: "torah", skip: "10065" }, 2).request.requestId, 2);
   for (const skip of ["", "1", "2.5", "9007199254740992"]) assert.ok(buildElsExactSkipProbe({ term: "תורה", skip }).error);
 });
+
+test("a work-budget stop is a range still to scan, never a promise of another occurrence or a negative result", () => {
+  const result = (completion, hits = []) => ({ data: { result: {
+    contract: "els_search_page_v1", status: "OK", corpus_id: "tanakh-corpus", input: { normalized: "ויהיאור" }, hits, completion,
+  } } });
+  const budget = projectElsAdvancedPage(result({ executed: true, returned_hits: 0, has_more: true, truncated: true, stop_reason: "work_budget",
+    scanned_through_skip: 84, continuation: { after: { skip: 84, start: 1204582, dir: -1 } } }));
+  assert.equal(budget.error, undefined);
+  assert.equal(budget.projection.occurrences.length, 0);
+  assert.deepEqual(budget.cursor, { skip: 84, start: 1204582, dir: -1 });
+  assert.equal(budget.scanPending, true);
+  assert.ok(buildElsAdvancedPageRequest({ term: "ויהיאור", scope: "tanakh", skipMin: "2", skipMax: "", pageSize: "100" }, budget.cursor).request);
+  const guard = projectElsAdvancedPage(result({ executed: true, returned_hits: 0, has_more: true, truncated: true, stop_reason: "time_guard",
+    scanned_through_skip: 9, continuation: { after: { skip: 9, start: 1204582, dir: -1 } } }));
+  assert.equal(guard.scanPending, true);
+  const full = projectElsAdvancedPage(result({ executed: true, returned_hits: 1, has_more: true, truncated: true, stop_reason: "page_full",
+    continuation: { after: { skip: 86, start: 1200, dir: -1 } } },
+  [{ occurrence_id: "els:tanakh-corpus:ויהיאור:86:-1:1200", skip: 86, dir: -1, start: 1200, end: 684, positions: [1200, 1114, 1028, 942, 856, 770, 684] }]));
+  assert.equal(full.scanPending, false);
+  const done = projectElsAdvancedPage(result({ executed: true, returned_hits: 0, has_more: false, truncated: false, stop_reason: "range_complete",
+    scanned_through_skip: 200, continuation: null }));
+  assert.equal(done.cursor, null);
+  assert.equal(done.scanPending, false);
+  // The body deployed before the work budget has no stop_reason: its cursor keeps meaning "another occurrence exists".
+  const before = projectElsAdvancedPage(result({ executed: true, returned_hits: 1, truncated: true, continuation: { after: { skip: 86, start: 1200, dir: -1 } } },
+  [{ occurrence_id: "els:tanakh-corpus:ויהיאור:86:-1:1200", skip: 86, dir: -1, start: 1200, end: 684, positions: [1200, 1114, 1028, 942, 856, 770, 684] }]));
+  assert.equal(before.scanPending, false);
+});
