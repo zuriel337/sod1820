@@ -57,7 +57,12 @@ export default function WriterPersonal2029Page() {
   const actionsLocked = personalActionsLocked(auth);
   const { module } = useParams();
   const { user, loading } = useAuth();
+  const { hash, search } = useLocation();
   useEffect(() => { applySeo({ title: "האזור האישי", description: "הדף שלי והפעילות האישית שלי.", path: writerPersonalHref(module), noindex: true }); }, [module]);
+  // Links already sent as /profile#notifications ("העדכונים שלי" before 18.11.2026) reach this page as /2029/me/profile#notifications:
+  // the server continues /profile → /2029/me/profile and the browser keeps the fragment; a sign-in return keeps it too. That address
+  // means the follow centre, so it continues there, with its query (returnTo) and without the fragment.
+  if (module === "profile" && hash === "#notifications") return <Navigate replace to={`/2029/me/notifications${search || ""}`} />;
   if (actionsLocked && !PUBLIC_READING_RELEASE) return <WriterPersonalLayout2029 title="האזור האישי ייפתח בהמשך" state="acceptance-pending"><p>פעולות החשבון נשמרו ואינן פעילות בגרסת תצוגה זו.</p></WriterPersonalLayout2029>;
   return <WriterPersonalController2029 key={user?.id || "guest"} module={module} user={user} authLoading={loading} />;
 }
