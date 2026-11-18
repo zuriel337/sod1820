@@ -1,4 +1,4 @@
-// 2029 share alignment (ZURIEL 18.11.2026, branch only). See docs/reviews/share-card-bignum-20261118/SHARE_CONTRACT_2029.md.
+// 2029 share alignment (ZURIEL 18.11.2026, branch only). See docs/reviews/share-card-bignum-20261118/SHARE_ALIGNMENT_REVIEW_2029.md.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
