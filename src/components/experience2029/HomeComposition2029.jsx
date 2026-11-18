@@ -600,7 +600,7 @@ export default function HomeComposition2029({
       </div>
     </Section> : null}
 
-    {arrivals && worldOpen ? <Reveal id="arrivals" admissionRef={worldRef}>{worldAdmitted ? arrivals : <p className="h29-note" role="status">זרם המציאות ייטען כשתגיעו אליו</p>}</Reveal> : null}
+    {arrivals && worldOpen ? <Reveal id="arrivals" admissionRef={worldRef}>{worldAdmitted ? arrivals : <p className="h29-note h29-stream-reserve" role="status">זרם המציאות ייטען כשתגיעו אליו</p>}</Reveal> : null}
 
     {!corePublic ? <Section label="מקורות וכותבים">
       <div className="h29-anchors">
