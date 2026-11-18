@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ELS_GOLDENS, ELS_GOLDEN_CORPUS_ID } from './fixtures/els-runtime-goldens.mjs';
 import { libraryFixturePlugin } from './fixtures/els-library-browser-fixture.mjs';
 import { captureElsResearchReturn, elsResearchReturnLoad } from '../src/lib/research/elsResearchReturnSnapshot.js';
-import { groupElsLexiconDiscoveries } from '../src/lib/research/elsStructureInspection.js';
+import { groupElsLexiconDiscoveries, selectElsStructureCandidates } from '../src/lib/research/elsStructureInspection.js';
 import { readElsMatrixShare } from '../src/lib/elsMatrixShare.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -657,13 +657,18 @@ test('explicit Research lexicon is lazy, exact, cancellable and responsive witho
     assert.equal(await page.locator('.els29-native-structure-entry').count(),1,'one research entry, no competing panels');
     await researchView(page,'מבנים').click();
     await panel.getByRole('button',{name:'אמת והצג קבוצה',exact:true}).first().waitFor();
-    const expectedGroup=groupElsLexiconDiscoveries(before,scan).groups[0];assert.ok(expectedGroup);
     // One group goes through the existing replay admission and selects real occurrences.
-    await panel.getByRole('button',{name:'אמת והצג קבוצה',exact:true}).first().click();
+    const card=panel.locator('[data-structure-card]').first();
+    const id=await card.getAttribute('data-structure-card');
+    const expectedGroup=groupElsLexiconDiscoveries(before,{...scan,items:selectElsStructureCandidates(scan.items)}).groups.find(group=>group.id===id);
+    assert.ok(expectedGroup);
+    await card.getByRole('button',{name:'אמת והצג קבוצה',exact:true}).click();
     await page.waitForFunction(items=>window.__state?.status==='ok'&&items.every(item=>window.__state.findings?.some(f=>f.t===item.term&&[...(f.hits||[]),...(f.sourceHits||[])].some(h=>h.hitId===item.hitId&&h.selected&&(item.kind==='source'||h.verified)))),expectedGroup.items,{timeout:30000});
     const grouped=await page.evaluate(()=>window.__state);
     assert.deepEqual(grouped.axis,before.axis);assert.equal(grouped.verification.state,'MATCH');
     assert.ok(grouped.findings.flatMap(f=>[...(f.hits||[]),...(f.sourceHits||[])]).filter(h=>h.selected).length>=1);
+    const shownRelationship=panel.getByRole('region',{name:'הקשר במטריצה',exact:true});
+    await shownRelationship.locator('.els29-split-band').first().waitFor();
     await researchView(page,'גילוי').click();
     await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('els');
     const first=scan.items.find(item=>item.kind==='els'&&!expectedGroup.items.some(member=>member.term===item.term&&member.hitId===item.hitId));assert.ok(first);
@@ -3623,7 +3628,54 @@ test('saved matrix opening shows elapsed time and locates a verified distant par
       await projection.getByRole('button',{name:'חזרה לציר הראשי',exact:true}).click();
       await page.locator('.els29-native-stage .is-axis').first().waitFor();
       assert.deepEqual(await page.evaluate(()=>window.__state.axis),axis);
+      if(research){
+        await openDiscoveryTools(page,'מבנים');
+        const structures=page.getByRole('region',{name:'קשרים בין מופעים',exact:true});
+        await structures.getByRole('button',{name:/^קווים\s/}).click();
+        const card=structures.locator('[data-structure-card]').filter({hasText:'8,478'});
+        assert.match(await card.textContent(),/16,965.*כיוונים הפוכים.*8,478/);
+        await card.getByRole('button',{name:'הצג את הקשר',exact:true}).click();
+        const relation=page.getByRole('region',{name:'הקשר במטריצה',exact:true});
+        await relation.locator('.els29-split-band').first().waitFor();
+        assert.equal(await relation.locator('.els29-split-band').count(),2);
+        const rows=await relation.locator('figcaption').allTextContents();
+        assert.ok(rows.every(text=>text.includes('שורות 0–14')));
+        assert.equal(await relation.locator('.els29-split-cell.is-axis').count(),5);
+        assert.equal(await relation.locator('.els29-split-cell.is-finding').count(),6);
+        assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+      }
     }
+  },{realHost:true,loadGolden:false});
+});
+
+test('structure cards mark the actual shared letter and the original text between readings',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    const sharedIndex=golden.start+2*golden.skip, step=golden.skip+1;
+    const crossingStart=sharedIndex-2*step;
+    const crossing=Array.from({length:5},(_,i)=>letters[crossingStart+i*step]).join('');
+    const firstSource=sharedIndex+2*golden.skip+5, secondSource=firstSource+5;
+    const left=letters.slice(firstSource,firstSource+3),right=letters.slice(secondSource,secondSource+3);
+    const crossingId=`${step}_1_${crossingStart}`,leftId=`1_1_${firstSource}`,rightId=`1_1_${secondSource}`;
+    const row={id:'structure-markers',search_term:golden.term,skip_distance:golden.skip,direction:'fwd',start_index:golden.start,
+      scope:'torah',corpus_id:ELS_GOLDEN_CORPUS_ID,positions:{findings:[
+        {t:crossing,sh:[crossingId]},{t:left,sh:[],sourceShown:[leftId]},{t:right,sh:[],sourceShown:[rightId]},
+      ]}};
+    await page.evaluate(row=>window.__openSavedMatrix(row),row);
+    await page.waitForFunction(()=>window.__state?.provenance?.editId==='structure-markers'&&window.__operation?.status==='done');
+    await openDiscoveryTools(page,'מבנים');
+    const cards=page.getByRole('region',{name:'קשרים בין מופעים',exact:true});
+    await cards.getByRole('button',{name:/^חיתוכים\s/}).click();
+    await cards.locator('[data-structure-card*="'+crossingId+'"]').getByRole('button',{name:'הצג את הקשר',exact:true}).click();
+    const visual=page.getByRole('region',{name:'הקשר במטריצה',exact:true});
+    const common=visual.locator('[data-relation-cell="shared"]');
+    await common.waitFor();
+    assert.equal(await common.textContent(),letters[sharedIndex]);
+    await cards.getByRole('button',{name:/^קווים\s/}).click();
+    await cards.locator('[data-structure-card*="'+leftId+'"][data-structure-card*="'+rightId+'"]').getByRole('button',{name:'הצג את הקשר',exact:true}).click();
+    const between=visual.locator('[data-relation-cell="between"]');
+    await between.first().waitFor();
+    assert.equal((await between.allTextContents()).join(''),letters.slice(firstSource+3,secondSource));
   },{realHost:true,loadGolden:false});
 });
 

@@ -26,3 +26,9 @@
 .els29-lexicon-research .els29-start-discovery{border-color:var(--s29-accent);color:var(--s29-accent-text);font-weight:700}
 .els29-lexicon-research .els29-reading-extension{margin-block:16px 0;border-block-start:1px solid var(--s29-line)}
 .els29-lexicon-research .els29-reading-extension>summary{padding-inline:0;color:var(--s29-accent-text)}
+.els29-structure-filters,.els29-structure-members{display:flex;flex-wrap:wrap;gap:8px;margin-block:10px}
+.els29-structure-filters button[aria-pressed=true]{border-color:var(--s29-accent);box-shadow:inset 0 0 0 1px var(--s29-accent);color:var(--s29-accent-text)}
+.els29-lexicon-research li.els29-structure-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--s29-panel-soft)}
+.els29-structure-card p{margin:0}
+.els29-structure-members>span{padding:4px 8px;border:1px solid var(--s29-line);border-radius:9px;font-size:var(--s29-type-ui)}
+.els29-structure-members small{color:var(--s29-muted);font-size:var(--s29-type-micro)}

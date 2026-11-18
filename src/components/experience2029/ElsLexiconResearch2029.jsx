@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import { elsLexiconWindowKey, prepareElsLexiconFindings, prepareElsLexiconAdditions, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
-import { groupElsLexiconDiscoveries, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
+import { elsStructureView, groupElsLexiconDiscoveries, inspectElsStructures, isElsStructureMemberMarked, selectElsStructureCandidates, verifiedElsStructureCards, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
 import ElsJointDiscovery2029 from "./ElsJointDiscovery2029.jsx";
 import ElsStructureResearch2029 from "./ElsStructureResearch2029.jsx";
 import "./elsLexiconResearch2029.css";
@@ -15,14 +15,23 @@ const errors = {
 };
 
 const coverageLabel = coverage => `${coverage.completedRays} מתוך ${coverage.totalRays} קווים נבדקו · ${coverage.remainingRays} נותרו · ${coverage.els} מועמדי ELS · ${coverage.source} רצפי מקור`;
+const structureFilters = [
+  ["all", "כל הקשרים", []],
+  ["intersections", "חיתוכים", ["intersection", "transversal"]],
+  ["lines", "קווים", ["parallel", "continuation", "corridor"]],
+  ["repeats", "חזרות", ["motif"]],
+];
+const belongsTo = (card, types) => !types.length || card.types.some(type => types.includes(type));
+const memberKey = card => card.members.map(member => `${member.term}:${member.hitId}`).sort().join("|");
 
 export default function ElsLexiconResearch2029({
   state, scanWindow, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
-  onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools,
+  onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation,
 }) {
   const [run, setRun] = useState(null), [notice, setNotice] = useState("");
   const [page, setPage] = useState(0), [groupType, setGroupType] = useState("all");
   const [{ result, runs }, setDiscovery] = useState({ result: null, runs: {} });
+  const [pendingStructure, setPendingStructure] = useState(null);
   const [inspectionVisited, setInspectionVisited] = useState(false);
   const [plan, setPlan] = useState({ minLength: 5, maxLength: 10, maxDistance: 120, minMembers: 2 });
   const [hideForwardSource, setHideForwardSource] = useState(false);
@@ -111,20 +120,26 @@ export default function ElsLexiconResearch2029({
     if (!result) return null;
     const items = filterElsForwardSource(result.data.items, hideForwardSource);
     // Grouping is quadratic. Keep its existing budget, while every candidate is still in the list.
-    const groupItems = items.length <= 300 ? items : [...items].sort((a, b) => Number(a.kind === "source") - Number(b.kind === "source")
-      || a.distance - b.distance || b.term.length - a.term.length || a.start - b.start).slice(0, 300);
+    const groupItems = selectElsStructureCandidates(items);
     return { items, groupCount: groupItems.length,
       structures: groupElsLexiconDiscoveries(result.state, { ...result.data, items: groupItems }, result.data.plan) };
   }, [result, hideForwardSource]);
   const structures = presented?.structures;
   const groups = structures?.groups || [];
-  const rows = groups.filter(group => groupType === "all" || group.types.includes(groupType));
+  const inspection = useMemo(() => visible && view === "structures" ? inspectElsStructures(scanState) : null, [visible, view, scanState]);
+  const markedCards = useMemo(() => verifiedElsStructureCards(inspection), [inspection]);
+  const axisMember = current ? { term: data.origin.term, hitId: state.axis.hitId, kind: "axis", dir: data.origin.dir,
+    positions: Array.from(data.origin.term, (_, i) => data.origin.start + i * data.origin.dir * data.origin.skip) } : null;
+  const markedKeys = new Set(markedCards.map(memberKey));
+  const discoveryCards = current ? groups.map(group => ({ ...group, members: group.includesAxis ? [axisMember, ...group.items] : group.items })) : [];
+  const cards = [...markedCards, ...discoveryCards.filter(card => !markedKeys.has(memberKey(card)))];
+  const types = structureFilters.find(([id]) => id === groupType)[2];
+  const priority = card => card.types.includes("intersection") || card.types.includes("transversal") ? 0 : card.types.includes("cluster") && card.types.length === 1 ? 2 : 1;
+  const rows = cards.filter(card => belongsTo(card, types)).sort((a, b) => priority(a) - priority(b));
   const nextPlan = data?.plan ? expandElsLexiconPlan(data.plan) : null;
-  const slice = rows.slice(page * 20, page * 20 + 20);
-  const isAdded = item => {
-    const finding = state?.findings?.find(f => f.t === item.term);
-    return [...(finding?.hits || []), ...(finding?.sourceHits || [])].some(hit => hit.hitId === item.hitId && hit.selected && (item.kind === "source" || hit.verified));
-  };
+  const pageIndex = Math.min(page, Math.max(0, Math.ceil(rows.length / 20) - 1));
+  const slice = rows.slice(pageIndex * 20, pageIndex * 20 + 20);
+  const isAdded = member => isElsStructureMemberMarked(state, member);
   const add = items => {
     if (!current || run) return;
     if (busy) { setNotice("התוספת הקודמת עדיין באימות. המתינו לסיומה ואז הוסיפו את הבאה."); return; }
@@ -136,13 +151,34 @@ export default function ElsLexiconResearch2029({
           : "הגילוי אינו מתאר עוד את המטריצה שעל המסך. הפעילו סריקה חדשה ואז הוסיפו.");
         return;
       }
-      onAdd(prepared.findings); setNotice("נשלח לאימות במנוע. מה שכבר מסומן במטריצה נשאר; רק ממצאים שאומתו יתווספו.");
-      return;
+      const requestId = onAdd(prepared.findings);
+      setNotice("נשלח לאימות במנוע. המופעים שאומתו יתווספו למטריצה.");
+      return requestId;
     }
     const load = prepareElsLexiconFindings(scanState, data, items, color);
     if (!load) { setNotice("לא ניתן להוסיף: בדקו את המופע ואת מגבלת 24 המילים במטריצה."); return; }
     onRestore?.(load); setNotice("נשלח לאימות במנוע. רק ממצאים שאומתו יסומנו על המטריצה.");
   };
+  const showStructure = card => {
+    const relation = elsStructureView(card, scanState.geometry.S, state.corpusLetters);
+    const viewRequest = { ...relation, axisHitId: state.axis.hitId, scope: state.scope };
+    const missing = card.members.filter(member => !isAdded(member));
+    if (!missing.length) { onShowStructure(viewRequest); return; }
+    const requestId = add(missing);
+    if (Number.isInteger(requestId)) setPendingStructure({ requestId, key, viewRequest });
+  };
+  useEffect(() => {
+    if (!pendingStructure) return;
+    const { requestId, key: originalKey, viewRequest } = pendingStructure;
+    if (!visible || view !== "structures" || state?.axis?.hitId !== viewRequest.axisHitId || (key && key !== originalKey)
+      || findingsOperation?.requestId > requestId) { setPendingStructure(null); return; }
+    if (!key || findingsOperation?.requestId !== requestId || busy) return;
+    setPendingStructure(null);
+    if (viewRequest.members.every(isAdded)) {
+      setNotice("");
+      onShowStructure(viewRequest);
+    } else setNotice("חלק מהמופעים ממתינים לאימות. אפשר לבדוק אותם ברשימת הממצאים.");
+  }, [pendingStructure, key, state, visible, view, busy, findingsOperation, onShowStructure]);
   return <section hidden={!visible || view === "axis"} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
     <div hidden={view !== "discovery"} id="els29-discovery-view">
     <div className="els29-discovery-actions">
@@ -241,29 +277,30 @@ export default function ElsLexiconResearch2029({
       hideForwardSource={hideForwardSource} color={color} onFindingsChange={onAdd} onShow={onShow} selectedKey={selectedKey} />
     </div>
     <div hidden={view !== "structures"} id="els29-structures-view">
-      {data ? <div aria-label="מבנים שזוהו בסריקה">
-        {!current ? <p role="note">הקבוצות שייכות לחלון קודם. סרקו את החלון הנוכחי כדי לאמת קבוצה.</p> : null}
-        {presented.groupCount < presented.items.length ? <p>הקבוצות חושבו מ־{presented.groupCount} מתוך {presented.items.length} התאמות. כל ההתאמות זמינות ברשימת הממצאים.</p> : null}
-      <label>סוג הקשר <select aria-label="סוג הקשר" value={groupType} onChange={event => { setGroupType(event.target.value); setPage(0); }}>
-        <option value="all">כל הקשרים</option>
-        {Object.entries(ELS_DISCOVERY_GROUP_LABELS).map(([value, label]) => {
-          const shown = groups.filter(group => group.types.includes(value)).length, total = structures?.typeCounts?.[value] ?? shown;
-          return <option key={value} value={value}>{label} ({shown === total ? shown : `${shown} מתוך ${total}`})</option>;
-        })}
-      </select></label>
-      {!rows.length ? <p>לא נבנו קבוצות מסוג זה מההתאמות שנשמרו.</p> : null}
-      <ol>{slice.map(item => <li key={item.id}>
-          <strong>{item.types.map(type => ELS_DISCOVERY_GROUP_LABELS[type]).join(" · ")}</strong>
-          <p>{item.includesAxis ? <><bdi>{data.origin.term}</bdi> · </> : null}{item.items.map((word, index) => <React.Fragment key={`${word.term}:${word.hitId}`}>{index ? " · " : ""}<bdi>{word.label || word.term}</bdi></React.Fragment>)}</p>
-          <details><summary>מה מחבר ביניהם?</summary>{item.reasons.map(reason => <p key={reason}>{reason}</p>)}
-            {item.items.map(word => <p key={`${word.term}:${word.hitId}`}><bdi>{word.label || word.term}</bdi> · {word.kind === "source" ? word.dir < 0 ? "קריאה הפוכה בדילוג 1" : "רצף מקור" : "ELS"} · דילוג <bdi>{word.skip}</bdi> · התחלה <bdi>{word.start}</bdi> · {word.dir < 0 ? "אחורה" : "קדימה"}</p>)}
-          </details>
-          {item.membersTruncated ? <p>מוצגים עד 8 מתוך {item.totalMembers} מופעים בקבוצה; ההוספה בודקת רק את המוצגים.</p> : null}
-          <button type="button" disabled={!current || busy || !!run || item.items.every(isAdded) || !(onAdd || onRestore)} onClick={() => add(item.items)}>{item.items.every(isAdded) ? "הקבוצה נבחרה במטריצה" : "אמת והצג קבוצה"}</button>
-        </li>)}
-      </ol>
-      {rows.length > 20 ? <nav aria-label="עמודי מבנים"><button type="button" disabled={page === 0} onClick={() => setPage(page - 1)}>הקודם</button><span>עמוד {page + 1} מתוך {Math.ceil(rows.length / 20)}</span><button type="button" disabled={(page + 1) * 20 >= rows.length} onClick={() => setPage(page + 1)}>הבא</button></nav> : null}
-      </div> : <p>סרקו בחלק ״גילוי״ כדי לראות חיתוכים, מקבילות וקשרים נוספים.</p>}
+      <section aria-label="קשרים בין מופעים">
+        {current ? <p>{structures?.candidates ?? 0} מועמדים מתוך {presented.items.length} התאמות בסריקה השתתפו בניתוח.</p> : null}
+        {inspection?.ok ? <p>{inspection.lines.length} מופעים מסומנים נבדקו, כולל הציר.</p> : null}
+        {inspection?.ok === false && key ? <p>{inspection.reason}</p> : null}
+        <div className="els29-structure-filters" role="group" aria-label="סוג הקשר">
+          {structureFilters.map(([id, label, filter]) => <button type="button" key={id} aria-pressed={groupType === id}
+            onClick={() => { setGroupType(id); setPage(0); }}>{label} <bdi>{cards.filter(card => belongsTo(card, filter)).length}</bdi></button>)}
+        </div>
+        {!rows.length ? <p>{cards.length ? "אין קשרים בסינון הזה." : "סמנו מופע נוסף במטריצה או הריצו גילוי כדי לבדוק קשרים."}</p> : null}
+        <ol>{slice.map(card => {
+          const ready = card.members.every(isAdded);
+          return <li key={memberKey(card)} data-structure-card={card.id} className="els29-structure-card">
+            <strong>{card.types.map(type => ELS_DISCOVERY_GROUP_LABELS[type]).join(" · ")}</strong>
+            {card.reasons.map(reason => <p key={reason}>{reason}</p>)}
+            <div className="els29-structure-members">{card.members.map(member => <span key={`${member.term}:${member.hitId}`}>
+              <bdi>{member.label || member.term}</bdi> <small>{member.kind === "axis" ? "ציר מאומת" : isAdded(member) ? member.kind === "source" ? "רצף מקור" : "מאומת" : "מועמד"}</small>
+            </span>)}</div>
+            {card.membersTruncated ? <p>מוצגים {card.members.length} מתוך {card.totalMembers} מופעים בקבוצה.</p> : null}
+            <button type="button" disabled={!key || busy || !!run || !!pendingStructure || !onShowStructure || (!ready && !onAdd)}
+              onClick={() => showStructure(card)}>{ready ? "הצג את הקשר" : "אמת והצג קבוצה"}</button>
+          </li>;
+        })}</ol>
+        {rows.length > 20 ? <nav aria-label="עמודי מבנים"><button type="button" disabled={pageIndex === 0} onClick={() => setPage(pageIndex - 1)}>הקודם</button><span>עמוד {pageIndex + 1} מתוך {Math.ceil(rows.length / 20)}</span><button type="button" disabled={(pageIndex + 1) * 20 >= rows.length} onClick={() => setPage(pageIndex + 1)}>הבא</button></nav> : null}
+      </section>
     <details className="els29-discovery-inspection" onToggle={event => { if (event.currentTarget.open) setInspectionVisited(true); }}>
       <summary>בדיקת הסימונים והשוואת מופעים</summary>
       {inspectionVisited ? <ElsStructureResearch2029 state={scanState} visible={visible} busy={busy || !!run} onRestore={onRestore} onFocus={onFocus}

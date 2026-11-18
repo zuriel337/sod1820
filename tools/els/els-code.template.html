@@ -2562,6 +2562,7 @@
     const limits={els:maxResults,source:maxResults},batch={els:0,source:0};
     let windows=previous?.windows||0,completedRays=from.ray,axisFragments=previous?.axisFragments||0;
     let outsidePlan=previous?.outsidePlan||0,shortTokenExcluded=previous?.shortTokenExcluded||0,stop="COMPLETE",cursor=null;
+    let lastReport=started;
     const coverage=()=>({stop,complete:stop==="COMPLETE"&&completedRays===rays.length,completedRays,totalRays:rays.length,
       remainingRays:rays.length-completedRays,windows,axisFragments,outsidePlan,shortTokenExcluded,
       els:(previous?.els||0)+batch.els,source:(previous?.source||0)+batch.source,
@@ -2598,7 +2599,10 @@
           }
         }
       }
-      completedRays++;if(completedRays%4===0||completedRays===rays.length)progress(coverage());
+      completedRays++;
+      // The host needs the current count, not a render for every few lines.
+      const now=performance.now();
+      if(completedRays===rays.length||now-lastReport>=100){progress(coverage());lastReport=now;}
       // Yield between lines, so cancel/selection/navigation can invalidate this same operation.
       if(completedRays%4===0)await new Promise(resolve=>setTimeout(resolve,0));
     }
@@ -2668,22 +2672,27 @@
       const isFold=t.foldSeq!=null,W=clampInt(t.width,2,Math.min(total,Math.max(S,Math.min(S*8,8192))),S),totalRows=Math.ceil(total/W);
       if(!(totalRows>0)){reply({ok:false,reason:"window-unavailable"});return;}
       const rowCount=Math.min(totalRows,clampInt(t.rowCount,5,MATRIX_WINDOW_MAX_ROWS,15)),colCount=Math.min(W,clampInt(t.colCount,3,isFold?MATRIX_WINDOW_MAX_FOLD_COLS:MATRIX_WINDOW_MAX_COLS,5));
+      const focus=Array.isArray(t.structureMembers)&&t.structureMembers.length>=2&&t.structureMembers.length<=MATRIX_WINDOW_MAX_BANDS
+        ? new Map(t.structureMembers.map(member=>[member?.hitId,norm(member?.term||"")])) : null;
+      if(t.structureMembers!=null&&(!focus||focus.size!==t.structureMembers.length||W!==t.width)){reply({ok:false,reason:"window-unavailable"});return;}
       const registry=new Map(),shown=new Set();
       const describe=(hit,term,color,isAxis)=>{
         const key=hitKey(hit);if(registry.has(key)||registry.size>=MATRIX_WINDOW_MAX_HITS)return;
+        if(focus&&focus.get(key)!==term)return;
         let rMin=Infinity,rMax=-Infinity,cMin=Infinity,cMax=-Infinity;
         for(const p of hit.positions){const r=Math.floor(p/W),c=((p%W)+W)%W;if(r<rMin)rMin=r;if(r>rMax)rMax=r;if(c<cMin)cMin=c;if(c>cMax)cMax=c;}
         registry.set(key,{hit,info:{hitId:key,term,color:color||null,axis:isAxis,skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back",start:hit.start,
           rowMin:rMin,rowMax:rMax,colMin:cMin,colMax:cMax,length:hit.positions.length}});
       };
-      describe(axis,norm(st.raw)||(source.t||""),null,true);if(!st.hideMain)shown.add(hitKey(axis));
+      describe(axis,norm(st.raw)||(source.t||""),null,true);if(focus||!st.hideMain)shown.add(hitKey(axis));
       for(const w of st.words){
-        const eligible=h=>isGov(h)&&!isSourceHit(h,w.t)||isFold&&h.v==="PLAIN_TEXT"&&isSourceHit(h,w.t);
+        const eligible=h=>isGov(h)&&!isSourceHit(h,w.t)||(isFold||focus)&&h.v==="PLAIN_TEXT"&&isSourceHit(h,w.t);
         const selected=isFold?selectedHitsOf(w).filter(h=>st.findingRadius===null||guidedMatrixDistance(h.positions,axis,{S:W})<=st.findingRadius):shownHitsOf(w);
         const shownSet=new Set(selected.filter(eligible));
-        for(const h of w.hits)if(eligible(h)){describe(h,w.t,w.color,false);if(shownSet.has(h))shown.add(hitKey(h));}
+        for(const h of w.hits)if(eligible(h)){describe(h,w.t,w.color,false);if(focus||shownSet.has(h))shown.add(hitKey(h));}
       }
       const requested=(Array.isArray(t.bands)?t.bands:[]).slice(0,MATRIX_WINDOW_MAX_BANDS).filter(b=>b&&registry.has(String(b.hitId)));
+      if(focus&&(registry.size!==focus.size||!requested.length)){reply({ok:false,reason:"results-changed"});return;}
       if(!requested.length)requested.push({hitId:hitKey(axis)});
       const lead=registry.get(String(requested[0].hitId)).info;
       const mid=Math.round((lead.rowMin+lead.rowMax)/2);

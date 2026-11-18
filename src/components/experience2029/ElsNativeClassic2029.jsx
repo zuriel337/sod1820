@@ -979,6 +979,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
   const [lexiconResponse, setLexiconResponse] = useState(null);
   const [splitResponse, setSplitResponse] = useState(null);
+  const [splitRelation, setSplitRelation] = useState(null);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
     document.addEventListener("fullscreenchange", sync);
@@ -1298,6 +1299,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const seq = ++findingsSeqRef.current;
     if (membershipChanged || pending) setOperations((current) => ({ ...current, findings: { kind: "findings", requestId: seq, status: "searching", startedAt: Date.now() } }));
     setFindingsRequest({ findings, seq });
+    return seq;
   };
 
   const handleOperation = (operation) => {
@@ -1935,6 +1937,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
                 onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
                 onAdd={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
+                findingsOperation={operations.findings} onShowStructure={setSplitRelation}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
                 onFindWords={event => { if (fullscreen) setResearchToolsOpen(false); openTool("findings", event.currentTarget); }}
                 projection={projectedOption ? null : readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}
@@ -1964,6 +1967,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                   <React.Suspense fallback={<p role="status">טוען אפשרויות לפיצול המטריצה…</p>}>
                     <ElsSplitMatrix2029 state={engineState}
                       visible={active && researchWorkspace && researchView === "structures"}
+                      relation={splitRelation} layoutWidth={projectedOption?.width ?? engineState?.geometry?.S}
                       busy={searchPending || Boolean(lexiconPhase) || ["searching", "verifying"].includes(operations.findings?.status)} response={splitResponse}
                       onRequest={target => setLensRequest({ lens: "matrix-window", target })} />
                   </React.Suspense>
