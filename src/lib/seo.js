@@ -185,7 +185,7 @@ export function setEntityJsonLd({ term, value, isNumber, path, description, imag
       "@id": canonical + "#breadcrumb",
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "בית", item: SITE_URL },
-        { "@type": "ListItem", position: 2, name: "מספרים", item: SITE_URL + "/numbers" },
+        { "@type": "ListItem", position: 2, name: "מספרים", item: SITE_URL + "/number" },
         { "@type": "ListItem", position: 3, name, item: canonical },
       ],
     },

@@ -131,7 +131,7 @@ test('named services remain truthful and do not make missing items, drafts or ma
   await isolated(forbidden, async () => {
     for (const path of ['/journey','/credits','/contact','/early-access','/melech-hamisparim/718']) assert.equal((await metadata(path)).code,200,path);
     // /name is closed only until it reopens soon: a truthful 503 with Retry-After, not a 200 and not a 404.
-    const name = await metadata('/name'); assert.equal(name.code,503); assert.equal(name.headers.get('retry-after'),'259200');
+    const name = await metadata('/name'); assert.equal(name.code,503); assert.equal(name.headers.get('retry-after'),'2592000');
     for (const path of ['/or-geula?v=','/or-geula?page=0','/members?page=0','/community/researchers?page=1&page=2','/forum/not-an-id']) assert.equal((await metadata(path)).code,404,path);
   });
   await isolated(async url => {
