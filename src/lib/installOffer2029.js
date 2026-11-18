@@ -36,58 +36,17 @@ export function installOfferKind() {
   if (isIosBrowser(window.navigator?.userAgent) && !installSuggestionSuppressed()) return "ios-manual";
   return null;
 }
-// Which browser family the manual steps are for. Only families that really can install (add to the home screen / as an app)
-// are named; anything else is null, so nothing is promised. iPadOS reports a Mac user agent; touch points tell it apart.
-export function installBrowser(win = typeof window === "undefined" ? null : window) {
+// iPhone/iPad, including iPadOS, which reports a Mac user agent (touch points tell it apart). There the browser has no install
+// event, so the offer is never listened for; the menu module (installMenu2029.js) names the iOS family from this same test.
+export function isIosFamily(win = typeof window === "undefined" ? null : window) {
   const ua = String(win?.navigator?.userAgent || "");
-  if (!ua) return null;
-  const ipadAsMac = /Macintosh/.test(ua) && Number(win?.navigator?.maxTouchPoints || 0) > 1;
-  if (isIosBrowser(ua) || ipadAsMac) return /CriOS|FxiOS|EdgiOS|OPiOS|GSA\//.test(ua) ? "ios-other" : "ios-safari";
-  if (isAndroidBrowser(ua)) {
-    if (/; wv\)|FBAN|FBAV|Instagram|Line\//.test(ua)) return "android-inapp";
-    if (/SamsungBrowser/.test(ua)) return "android-samsung";
-    if (/Firefox\//.test(ua)) return "android-firefox";
-    return /Chrome\//.test(ua) ? "android-chrome" : null;
-  }
-  if (/Edg\//.test(ua)) return "desktop-edge";
-  if (/Chrome\//.test(ua) && !/OPR\/|Firefox\//.test(ua)) return "desktop-chrome";
-  const safari = /Macintosh/.test(ua) && /Version\/(\d+)/.exec(ua);
-  if (safari && !/Chrome|Firefox/.test(ua) && Number(safari[1]) >= 17) return "desktop-safari";
-  return null; // e.g. Firefox on a computer: it cannot install a site, so no step is offered
+  if (!ua) return false;
+  return isIosBrowser(ua) || (/Macintosh/.test(ua) && Number(win?.navigator?.maxTouchPoints || 0) > 1);
 }
+// For the explicit install action (installMenu2029.js): inside the installed app, or "appinstalled" already fired in this window.
+export const isInstalledApp = (win) => standalone(win);
+export const installedHere = (win) => installedIn.has(win);
 
-// The real steps for each family, in the words of that browser's own menu. Steps, not promises: when an item is missing the
-// last step says what to do instead.
-export const INSTALL_MANUAL_STEPS = Object.freeze({
-  "ios-safari": ["לחצו על כפתור השיתוף בסרגל של Safari.", "גללו ובחרו «הוסף למסך הבית».", "אשרו ב«הוסף» — סוד 1820 יופיע במסך הבית."],
-  "ios-other": ["לחצו על כפתור השיתוף של הדפדפן (ב־Chrome הוא בשורת הכתובת).", "בחרו «הוספה למסך הבית».",
-    "אם האפשרות לא מופיעה, פתחו את האתר ב־Safari והתקינו משם."],
-  "android-chrome": ["פתחו את תפריט הדפדפן (שלוש הנקודות).", "בחרו «התקנת אפליקציה» או «הוספה למסך הבית», ואשרו.",
-    "אם האתר נפתח בתוך אפליקציה אחרת (למשל מקישור בוואטסאפ), בחרו קודם «פתיחה ב־Chrome»."],
-  "android-samsung": ["פתחו את תפריט הדפדפן (שלושת הקווים בתחתית המסך).", "בחרו «הוספת דף אל» ואז «מסך הבית», ואשרו."],
-  "android-firefox": ["פתחו את תפריט הדפדפן (שלוש הנקודות).", "בחרו «התקנה» או «הוספה למסך הבית», ואשרו."],
-  "android-inapp": ["האתר פתוח בתוך אפליקציה אחרת, וממנה אי אפשר להתקין.", "בתפריט שלה בחרו «פתיחה בדפדפן» (או «פתיחה ב־Chrome»).",
-    "בדפדפן פתחו שוב את «עוד» ובחרו בהתקנה."],
-  "desktop-chrome": ["לחצו על סמל ההתקנה בקצה שורת הכתובת.", "או: תפריט הדפדפן (שלוש הנקודות) ← «העברה, שמירה ושיתוף» ← «התקנת הדף כאפליקציה»."],
-  "desktop-edge": ["פתחו את תפריט הדפדפן (שלוש הנקודות).", "בחרו «אפליקציות» ← «התקנת אתר זה כאפליקציה»."],
-  "desktop-safari": ["בתפריט «קובץ» של Safari בחרו «הוספה ל־Dock».", "אשרו ב«הוספה» — סוד 1820 ייפתח כאפליקציה."],
-});
-
-// The explicit, person-initiated install action (the bottom bar's "עוד" panel). Unlike the automatic suggestion it ignores the
-// 14-day dismissal: a person who said "not now" can still install on purpose. "installed" inside the installed app; "native" when the
-// browser really holds an install offer (its own window opens); "ios-manual" on iPhone/iPad and "manual" in any other browser that can
-// install, both with the real steps; otherwise null (a browser that cannot install is promised nothing).
-export function installMenuKind(win = typeof window === "undefined" ? null : window) {
-  if (!win) return null;
-  if (standalone(win) || installedIn.has(win)) return "installed";
-  if (deferred !== null) return "native";
-  const browser = installBrowser(win);
-  if (!browser) return null;
-  return browser.startsWith("ios-") ? "ios-manual" : "manual";
-}
-export function installManualSteps(win = typeof window === "undefined" ? null : window) {
-  return INSTALL_MANUAL_STEPS[installBrowser(win)] || [];
-}
 export function subscribeInstallOffer(listener) {
   subscribers.add(listener);
   return () => subscribers.delete(listener);
@@ -115,7 +74,7 @@ function standalone(win = window) {
 // The browser's offer is always kept (so the explicit menu action can use it, on a phone or a computer), but the browser's own
 // default UI is only replaced where the automatic suggestion may appear (Android, no dismissal in force); elsewhere it is left alone.
 export function listenForInstallOffer(win, storage = store) {
-  if (!win || standalone(win) || installBrowser(win)?.startsWith("ios-")) return false;
+  if (!win || standalone(win) || isIosFamily(win)) return false;
   const android = isAndroidBrowser(win.navigator?.userAgent);
   win.addEventListener("beforeinstallprompt", (event) => {
     if (android && !installSuggestionSuppressed(storage())) event.preventDefault();

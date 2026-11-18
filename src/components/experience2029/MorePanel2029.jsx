@@ -2,7 +2,8 @@ import React, { useState, useSyncExternalStore } from "react";
 import RoyalTile2029, { RoyalTileGrid2029 } from "./RoyalTile2029.jsx";
 import ShareActions from "../ShareActions.jsx";
 import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
-import { installBrowser, installManualSteps, installMenuKind, requestInstall, subscribeInstallOffer, suppressInstallSuggestion, INSTALL_ACCEPTED_DAYS } from "../../lib/installOffer2029.js";
+import { requestInstall, subscribeInstallOffer, suppressInstallSuggestion, INSTALL_ACCEPTED_DAYS } from "../../lib/installOffer2029.js";
+import { installBrowser, installManualSteps, installMenuKind } from "../../lib/installMenu2029.js";
 import "./morePanel2029.css";
 
 // The body of the ONE bottom-bar "עוד" panel (SystemFrame2029 TRANSIENT.MORE), in Royal Tiles 2029. A projection over existing
