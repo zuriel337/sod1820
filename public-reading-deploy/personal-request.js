@@ -68,7 +68,10 @@ export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetch
       && typeof body.p_topic === "string" && body.p_topic.trim().length > 0 && body.p_topic.length <= 500
       && body.p_visitor === null && (body.p_source === "center" && body.p_on === false
         || body.p_source === "community_thread" && typeof body.p_on === "boolean"
-          && /^thread:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(body.p_topic)) ? forward() : denied();
+          && /^thread:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(body.p_topic)
+        // Home follows (ZURIEL 18.11.2026): the reality-stream follow and the series bells for a member's own account.
+        || ["home_reality_stream_2029", "gallery_catalog_2029", "gallery_reading_2029", "home_series_2029"].includes(body.p_source)
+          && typeof body.p_on === "boolean" && (body.p_topic === "stream:reality" || /^series:[^\s:]{1,80}$/.test(body.p_topic))) ? forward() : denied();
     const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
     if (rpc === "replies_to_me") return keys(body,["p_limit","p_before"]) && Number.isInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 100
       && (body.p_before === null || typeof body.p_before === "string" && body.p_before.length <= 64 && Number.isFinite(Date.parse(body.p_before))) ? forward() : denied();

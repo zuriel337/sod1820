@@ -95,6 +95,13 @@ export default async function handler(req, res) {
     const prevPageviews = Number(p.pageviews || 0);
 
     res.setHeader('Cache-Control', 'private, max-age=300');
+    // The public build loads no Vercel Web Analytics collector (control-plane plan §10). An empty answer over both windows is the
+    // absence of collection, not zero visitors: say so instead of reporting 0.
+    if (!visitors && !pageviews && !prevVisitors && !prevPageviews && !cleanAgg(daily).length) {
+      res.status(200).json({ configured: true, collecting: false, source: 'vercel-web-analytics', days,
+        range: { since: since.toISOString(), until: until.toISOString() } });
+      return;
+    }
     res.status(200).json({
       configured: true,
       source: 'vercel-web-analytics',

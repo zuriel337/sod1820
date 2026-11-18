@@ -519,6 +519,7 @@ a.sod29-community-pending-jump:hover,a.sod29-community-pending-jump:focus-visibl
 
 /* Hints that entered the tree: latest pinned as one line, earlier ones on demand. */
 .sod29-tree-pins{margin:0 0 12px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);overflow:hidden}
+.sod29-tree-pins.is-pending{min-height:46px;box-sizing:border-box;border-color:transparent;background:transparent}
 .sod29-tree-pins-head{display:flex;align-items:center;min-width:0}
 .sod29-tree-pins-head .sod29-tree-pin{flex:1}
 .sod29-tree-pins-toggle{flex:none;min-height:44px;padding:0 14px;border:0;border-inline-start:1px solid var(--s29-line-strong);background:transparent;color:var(--s29-ink);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
