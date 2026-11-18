@@ -66,8 +66,7 @@
   }
 
   /* Prototype status strings never belong in product navigation. */
-  .sod29-root.native-frame .sod29-nav-status,
-  .sod29-root.native-frame .sod29-side-foot{display:none!important}
+  .sod29-root.native-frame .sod29-nav-status{display:none!important}
 
   /* The first nav family contained preview-only Posts/Archive placeholders.
      They are intentionally absent until they have a native 2029 surface. */
@@ -150,8 +149,7 @@
 
 /* Mobile keeps the same navigation capability as a drawer; there is no persistent side rail. */
 @media (max-width:980px){
-  .sod29-root.native-frame .sod29-nav-status,
-  .sod29-root.native-frame .sod29-side-foot{display:none!important}
+  .sod29-root.native-frame .sod29-nav-status{display:none!important}
   .sod29-root.native-frame .sod29-nav-group:first-child .sod29-nav-link.is-pending{display:none!important}
   .sod29-root.native-frame .sod29-nav-group:nth-child(2) .sod29-nav-link.is-pending{
     opacity:.34;

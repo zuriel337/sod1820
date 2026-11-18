@@ -36,3 +36,12 @@ test("royal rail (ZURIEL 18.11.2026 \"תעשה רויאל\"): gold kickers, diam
   assert.match(bar, /\.sod29-rail-foot :is\(\.sod29-rail-utilities button, \.sod29-rail-toggle\) \{\s*inline-size: 44px;[^}]*border-radius: 50%;/);
   assert.doesNotMatch(bar.slice(bar.indexOf("ROYAL RAIL")), /#[0-9a-f]{3,8}\b/i, "colour only from palette tokens");
 });
+
+test("speed law: the rail carries no element that is never shown (removed 18.11.2026 with a computed-style check of 19 states)", () => {
+  // .sod29-rail-identity was display:none on desktop (and the whole rail is hidden below 981px), .sod29-side-foot was display:none!important at
+  // every width, and .sod29-logo-name had no width once the open rail lost its logo head. Each one cost frame bytes on every page.
+  for (const gone of ["sod29-rail-identity", "sod29-side-foot", "sod29-logo-name", "sod29-live-dot"]) {
+    assert.doesNotMatch(frame, new RegExp(gone), `${gone} is not rendered`);
+    assert.doesNotMatch(bar, new RegExp(gone), `${gone} has no rules left`);
+  }
+});
