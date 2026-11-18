@@ -12,7 +12,8 @@ export default function MaintenanceAttention2029({ refreshToken = 0 }) {
   useEffect(() => {
     let active = true;
     setState(current => ({ ...current, loading: true, error: false, startedAt: Date.now() }));
-    Promise.all([adminSuggestionsList("pending", 200), adminSuggestionsList("later", 200)]).then(([pending, later]) => {
+    // A reader that throws (also synchronously) becomes this section's read failure; it never takes the control page down.
+    Promise.resolve().then(() => Promise.all([adminSuggestionsList("pending", 200), adminSuggestionsList("later", 200)])).then(([pending, later]) => {
       if (!active) return;
       if (!Array.isArray(pending) || !Array.isArray(later)) throw new Error("source_unavailable");
       setState({ loading: false, rows: [...pending, ...later], readAt: new Date().toISOString() });
