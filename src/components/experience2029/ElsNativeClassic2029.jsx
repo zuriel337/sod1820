@@ -32,6 +32,8 @@ const ElsPairPlanner2029 = React.lazy(() => import("./ElsPairPlanner2029.jsx"));
 const ElsOccurrencePlanner2029 = React.lazy(() => import("./ElsOccurrencePlanner2029.jsx"));
 
 const clean = (value) => String(value ?? "").trim();
+// Words on one matrix (ZURIEL 18.11.2026: 24, was 12). The engine enforces the same number (MAX_FINDING_WORDS).
+const ELS_MAX_FINDING_WORDS = 24;
 const canonicalHebrew = (value) => clean(value).replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
 const safeGuidedAxis = (value) => {
   const term = clean(value), length = canonicalHebrew(term).length;
@@ -470,7 +472,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
               aria-label={`סמן את ${word.label} ברצף`}>
               <b>{word.label}</b><small>{word.matches.length} ברצף{word.matches.some(match => match.direction === -1) ? " · גם בקריאה הפוכה" : ""}</small>
             </button>
-            <button type="button" disabled={addingFinding || added || findings.length >= 12} onClick={() => onAddFinding(word.term)}
+            <button type="button" disabled={addingFinding || added || findings.length >= ELS_MAX_FINDING_WORDS} onClick={() => onAddFinding(word.term)}
               aria-label={`הוסף את ${word.label} לממצאים`}>{added ? "נוסף" : "הוסף"}</button>
           </div>;
         })}
@@ -793,7 +795,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const projected = () => findings.map((finding) => ({ t: finding.t, color: finding.color }));
   const addFinding = () => {
     const term = clean(draft);
-    if (!term || !verified || pending || findings.length >= 12) return;
+    if (!term || !verified || pending || findings.length >= ELS_MAX_FINDING_WORDS) return;
     onFindingsChange([...projected(), { t: term, color: nextFindingColor(findings, palette) }]);
     setDraft("");
   };
@@ -806,9 +808,9 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
       <div className="els29-native-finding-add">
         <input id="els29-secondary-term" value={draft} onChange={(event) => setDraft(event.target.value)}
           onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addFinding(); } }}
-          disabled={!verified || pending || findings.length >= 12} maxLength={26}
+          disabled={!verified || pending || findings.length >= ELS_MAX_FINDING_WORDS} maxLength={26}
           placeholder={verified ? "כתבו מילה נוספת…" : "התחילו בחיפוש ראשי"} aria-label="חיפוש משני במטריצה" />
-        <button type="button" aria-label="חפש במטריצה" onClick={addFinding} disabled={!verified || pending || !clean(draft) || findings.length >= 12}>{pending ? "מחפש…" : "חפש"}</button>
+        <button type="button" aria-label="חפש במטריצה" onClick={addFinding} disabled={!verified || pending || !clean(draft) || findings.length >= ELS_MAX_FINDING_WORDS}>{pending ? "מחפש…" : "חפש"}</button>
       </div>
       <SearchProgress operation={operation} onCancel={onCancel} />
       <div className="els29-native-secondary-status" role="status" aria-live="polite" aria-busy={pending}>
@@ -822,7 +824,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           {[0, 1, 2, 3, 5, 10, 15, 20, 30, 50, 100].map((value) => <option key={value} value={value}>{value === 0 ? "נוגע בציר · 0 תאים" : `עד ${value} תאים`}</option>)}
         </select>
       </label>
-      <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 {readingCount ? `ידניים · ${readingCount} מתוצאות AI` : "משניים"}</small></div>
+      <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/{ELS_MAX_FINDING_WORDS} {readingCount ? `ידניים · ${readingCount} מתוצאות AI` : "משניים"}</small></div>
       <div className="els29-native-findings">
         {verified ? <div className={`els29-native-finding-group is-primary${!selectionValid ? " is-selected" : ""}`} style={{ "--els29-mark": palette.matrix.axis }} data-experience-capability="els-axis-actions">
           <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${state.termRaw || state.term}`}
@@ -1412,7 +1414,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const addLineFinding = (term) => {
     const findings = engineStateRef.current?.findings || [];
-    if (!term || ["searching", "verifying"].includes(operations.findings?.status) || ["searching", "verifying"].includes(operations.search?.status) || findings.length >= 12 || findings.some((finding) => finding.t === term)) return;
+    if (!term || ["searching", "verifying"].includes(operations.findings?.status) || ["searching", "verifying"].includes(operations.search?.status) || findings.length >= ELS_MAX_FINDING_WORDS || findings.some((finding) => finding.t === term)) return;
     // Append through the existing canonical editor. Preserve the read-only line inspector:
     // adding a term does not change its axis, corpus or selected occurrence.
     requestFindingsChange([...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term, color: nextFindingColor(findings, palette) }], { preserveRead: true });
@@ -1517,7 +1519,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const next = findings.map(finding => ({ t: finding.t, color: finding.color }));
     for (const support of Array.isArray(supports) ? supports : []) {
       const term = clean(support?.label || support?.term), key = canonicalHebrew(term);
-      if (!key || existing.has(key) || next.length >= 12) continue;
+      if (!key || existing.has(key) || next.length >= ELS_MAX_FINDING_WORDS) continue;
       existing.add(key);next.push({ t: term, color: nextFindingColor(next, palette) });
     }
     if (next.length === findings.length) return;

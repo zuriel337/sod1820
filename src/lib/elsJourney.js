@@ -79,7 +79,7 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
   if (!snapshot) return { ok: false, reason: "invalid-current-axis" };
 
   const axisColor = options.axisColor || DEFAULT_AXIS_COLOR;
-  const maxFindings = Math.max(1, Number(options.maxFindings || 12));
+  const maxFindings = Math.max(1, Number(options.maxFindings || 24));
   const previousAxis = engineState.termRaw || engineState.term || "";
   const carry = [
     previousAxis ? { t: previousAxis, color: axisColor, sh: [engineState.axis.hitId] } : null,

@@ -5,7 +5,7 @@ import { makeJourneySnapshot, buildJourneyRestore } from "../elsJourney.js";
 export function captureElsResearchReturn(state) {
   if (state?.verification?.state !== "MATCH" || typeof state.verification.corpus_id !== "string"
     || !state.verification.corpus_id || !Array.isArray(state.findings)
-    || state.findings.length > 12
+    || state.findings.length > 24
     || state.findings.some(f => !f || typeof f.t !== "string" || !f.t || f.t.length > 100)) return null;
   const snapshot = makeJourneySnapshot(state);
   if (!snapshot || !snapshot.term || !Number.isSafeInteger(snapshot.axis.start)

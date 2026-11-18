@@ -17,7 +17,7 @@ function sanitize(value) {
   const a = anchor(value?.axis?.hitId);
   if (value?.v !== 1 || !a || a.skip < 2 || !text(value.term, 100)
     || !["torah", "tanakh"].includes(value.scope) || !text(value.corpusId, 100)
-    || !Array.isArray(value.findings) || value.findings.length > 12) return null;
+    || !Array.isArray(value.findings) || value.findings.length > 24) return null;
   const findings = [];
   for (const f of value.findings) {
     if (!text(f?.t, 100) || !/^#[\da-f]{6}$/i.test(f.color)

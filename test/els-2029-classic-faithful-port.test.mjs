@@ -95,14 +95,18 @@ test("Native finding editor delegates normalization, recompute and colors to can
   assert.match(nativeClassic, /onFindingsChange=\{requestFindingsChange\}/);
   assert.match(nativeClassic, /els29-native-system-colors/);
   assert.doesNotMatch(nativeClassic, /type="color"/);
-  assert.match(nativeClassic, /findings\.length >= 12/);
+  // ZURIEL 18.11.2026: 24 words on one matrix (was 12); the form and the engine share the number.
+  assert.match(nativeClassic, /const ELS_MAX_FINDING_WORDS = 24;/);
+  assert.match(nativeClassic, /findings\.length >= ELS_MAX_FINDING_WORDS/);
+  assert.doesNotMatch(nativeClassic, /findings\.length >= 12/);
   assert.doesNotMatch(nativeClassic, /recomputeWords\(|recolorOnly\(|PALETTE|function\s+norm\(/);
 
   assert.match(embed, /findingsRequest = null/);
   assert.match(embed, /postToTool\(\{ type: "update-findings", findings: findingsRequest\.findings, requestId: findingsRequest\.seq \}\)/);
 
   assert.match(template, /if\(d\.type==="update-findings"&&Array\.isArray\(d\.findings\)\)/);
-  assert.match(template, /if\(next\.length>=12\)break/);
+  assert.match(template, /const MAX_FINDING_WORDS=24;/);
+  assert.match(template, /if\(next\.length>=MAX_FINDING_WORDS\)break/);
   assert.match(template, /if\(!t\|\|seen\.has\(t\)\)continue/);
   assert.match(template, /const word=old\|\|/);
   assert.match(template, /if\(membershipChanged\)recomputeWords\(\)/);
