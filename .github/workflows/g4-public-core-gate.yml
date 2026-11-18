@@ -63,7 +63,13 @@ jobs:
         run: bash scripts/test-world-group-source-http.sh
       - run: node scripts/test-2029-system-frame.mjs
       - run: npm install --no-save --no-package-lock @playwright/test@1.55.0
-      - run: npx playwright install --with-deps chromium
+      - name: Install the pinned browser (system packages only if it cannot start)
+        run: |
+          # The runner image already has Chromium's system libraries. --with-deps also pulls font packages from the Ubuntu archive, which
+          # served them at ~65 kB/s on 18.11.2026 (8 min) and ran this job out of time before any test. The packages are installed only
+          # when the browser cannot start without them; the tests and the time limit are unchanged.
+          npx playwright install chromium
+          node -e "require('@playwright/test').chromium.launch().then((b) => b.close())" || npx playwright install-deps chromium
       - name: Start isolated 2029 preview
         run: |
           cp dist/2029.html dist/index.html
