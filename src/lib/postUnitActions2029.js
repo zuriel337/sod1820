@@ -1,9 +1,9 @@
 // Actions inside a Post, measured in the existing public action family entry_2029 (traffic_intelligence_law v11; ZURIEL 18.11.2026).
 // No new family, store or database change: entry_2029 admits any lowercase event token with the closed field list of readingActionSpec().
 // Only the kind of action and the kind of target leave the browser: never the Post, the unit's text, the number, the source address or an
-// account id (the database stamps the verified account itself). Nothing imports this module yet: the call sites live in the Post page and its
-// units, which belong to the speed session (Speed Law §3); the wiring is handed over in
-// docs/reviews/analytics-google-seo-closure-20261118/README.md §13 and costs the reader nothing until an action happens.
+// account id (the database stamps the verified account itself). Wired 18.11.2026 (ZURIEL "תחבר את ספירת הלחיצות בפוסטים"): the Post page
+// and its units load this module with import() on the click itself, never statically (Speed Law §3), so it costs the reader nothing until an
+// action happens (docs/reviews/analytics-google-seo-closure-20261118/README.md §13).
 import { emit } from "./events.js";
 
 export const POST_UNIT_ACTIONS = Object.freeze({
