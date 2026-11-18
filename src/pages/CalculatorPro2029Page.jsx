@@ -684,7 +684,7 @@ function ProExperience() {
           {shareUrl ? (
             <section className="sod29-calcpro-share" aria-label="שיתוף התוצאה" data-share-url={shareUrl}>
               <div>
-                <span>שתף כגילוי</span>
+                <span>מצאתם משהו מעניין? שתפו את הגילוי</span>
                 <strong>{canonicalSelection.expression} = {fmt(canonicalSelection.resultValue)}</strong>
                 <small>הקישור נפתח במחשבון הקהילתי ומשחזר את אותה תוצאה מהמנוע.</small>
               </div>

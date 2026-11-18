@@ -94,3 +94,11 @@ test("speed law: the finding-share button carries no share helpers; the sheet lo
   assert.match(sheet, /aria-label="מה יישלח"/, "the sheet still lists exactly what will be sent");
   assert.match(sheet, /closest\("\.sod29-root"\) \|\| document\.body/, "rendered into the frame root, above the bottom bar");
 });
+
+test("an invitation to share sits right where a calculation ends (ZURIEL 18.11.2026): one line, the existing share section", async () => {
+  const { readFileSync } = await import("node:fs");
+  for (const page of ["Calculator2029Page.jsx", "CalculatorPro2029Page.jsx"]) {
+    const src = readFileSync(new URL(`../src/pages/${page}`, import.meta.url), "utf8");
+    assert.match(src, /<span>מצאתם משהו מעניין\? שתפו את הגילוי<\/span>/, page);
+  }
+});
