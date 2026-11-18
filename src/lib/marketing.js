@@ -114,7 +114,8 @@ function sendCAPI(eventName, eventId, params = {}) {
       body: JSON.stringify({
         event_name: eventName,
         event_id: eventId,
-        event_source_url: typeof location !== "undefined" ? location.href : undefined,
+        // Origin and path only: queries and fragments (searches, expressions, share state) never leave the browser (privacy projection).
+        event_source_url: typeof location !== "undefined" ? location.origin + location.pathname : undefined,
         fbp: getCookie("_fbp"),
         fbc: getCookie("_fbc"),
         custom_data: params,

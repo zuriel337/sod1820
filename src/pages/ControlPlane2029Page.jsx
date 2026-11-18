@@ -5,6 +5,7 @@ import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Sh
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
 const OperationalMetrics2029 = React.lazy(() => import("../components/experience2029/OperationalMetrics2029.jsx"));
+const MaintenanceAttention2029 = React.lazy(() => import("../components/experience2029/MaintenanceAttention2029.jsx"));
 
 const n = v => v == null || typeof v === "boolean" || typeof v === "string" && !v.trim() ? NaN : Number(v);
 const num = v => Number.isFinite(n(v)) ? n(v).toLocaleString("he-IL") : "—";
@@ -171,6 +172,10 @@ function ControlPlaneBody({ auth }) {
         {metricsOpen ? "סגירת מדידה וגוגל" : "מדידה וגוגל"}
       </button>
     </section>
+    {/* Maintenance and recommendations (system_suggestions_law v7): the detectors' pending recommendations grouped by meaning; read only. */}
+    <React.Suspense fallback={<section className="sod29-section"><p role="status">פותח את התחזוקה וההמלצות…</p></section>}>
+      <MaintenanceAttention2029 refreshToken={refreshToken}/>
+    </React.Suspense>
     <section className="sod29-section">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">SYSTEM HEALTH</div><h2>מה דורש תשומת לב עכשיו</h2>

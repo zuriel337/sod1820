@@ -34,8 +34,10 @@ export const supabase={rpc:async(name)=>{f().reads.push(name);return {data:null,
  auth:{getSession:async()=>({data:{session:f().userId?{user:{id:f().userId}}:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},
  from:table=>{f().unexpected.push('from:'+table);throw new Error('Unexpected table '+table);},functions:{invoke:denied('model')}};
 export const getSiteFlags=async()=>({});
+// The control page's maintenance view (18.11.2026) reads the pending recommendations: an isolated, recorded, empty answer.
+export const adminSuggestionsList=async(status)=>{f().reads.push('suggestions:'+status);return [];};
 export default supabase;
-${supabaseExports.filter(n => !['SUPABASE_URL','SUPABASE_ANON','supabase','getSiteFlags'].includes(n)).map(n=>`export const ${n}=denied(${JSON.stringify(n)});`).join('\n')}
+${supabaseExports.filter(n => !['SUPABASE_URL','SUPABASE_ANON','supabase','getSiteFlags','adminSuggestionsList'].includes(n)).map(n=>`export const ${n}=denied(${JSON.stringify(n)});`).join('\n')}
 `;
 const stubAuth = `const denied=name=>(...args)=>{window.__fixture.unexpected.push(name);throw new Error('Unexpected isolated IO '+name);};
 export const getCloudResearch=async()=>({cart:[],saved:[],pinned:[],history:[],collections:[],journeys:[],context:null,revision:0});

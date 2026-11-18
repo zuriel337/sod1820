@@ -7,6 +7,11 @@ import { current_state_20261117 as consolidationNow } from "../../../docs/review
 const number = v => v === null || v === undefined || v === "" || !Number.isFinite(Number(v)) ? "—" : Number(v).toLocaleString("he-IL", { maximumFractionDigits: 3 });
 const clock = v => v && Number.isFinite(Date.parse(v)) ? new Date(v).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
 const ago = hours => hours == null ? "" : hours < 1 / 60 ? "עכשיו" : hours < 1 ? `לפני ${Math.round(hours * 60)} דקות` : `לפני ${Math.round(hours * 10) / 10} שעות`;
+const share = v => v === null || v === undefined || v === "" || !Number.isFinite(Number(v)) ? "—" : `${(Number(v) * 100).toLocaleString("he-IL", { maximumFractionDigits: 1 })}%`;
+const sumOf = (rows, key) => Array.isArray(rows) && rows.length ? rows.reduce((total, row) => total + (Number(row?.[key]) || 0), 0) : null;
+// A provider day ("20261118" from GA4, "2026-11-18" from Search Console) as the day it measured — the data window, not the moment of reading.
+const providerDay = v => { const m = /^(\d{4})-?(\d{2})-?(\d{2})$/.exec(String(v ?? "")); return m ? `${m[3]}/${m[2]}/${m[1]}` : null; };
+const providerWindow = (first, last, note) => providerDay(first) && providerDay(last) ? `טווח הנתונים: ${providerDay(first)}–${providerDay(last)} (${note})` : "הספק לא החזיר טווח נתונים";
 const RATING = { good: "טוב", needs: "בינוני", poor: "גרוע", few: "מעט דגימות", unknown: "אין נתון" };
 const LEVEL = { critical: "דחוף", warn: "לתשומת לב", info: "מידע" };
 const SURFACE = { home: "דף הבית", post: "פוסטים", community: "קהילה", other: "שאר הדפים" };
@@ -20,8 +25,9 @@ function MetricsCard({ title, state, children }) {
     <h3>{title}</h3>
     {state.loading ? <p role="status">קורא את המקור…</p>
       : state.error ? <p role="alert">קריאת המקור נכשלה. לא מוצגת מדידה של אפס.</p>
+      : state.data?.collecting === false ? <p>החיבור מוגדר, אבל אין איסוף: האתר אינו טוען את רכיב המדידה של הספק, ולכן הספק לא החזיר נתונים. אין בכך מדידה של אפס.</p>
       : state.data?.configured === false ? <p>החיבור אינו מוגדר בשרת. {state.data.missing === "VERCEL_API_TOKEN" ? "נדרש מפתח קריאה של Vercel בהגדרות השרת." : "יש להשלים את הגדרת הספק הקיימת."}</p>
-      : state.data ? children(state.data) : <p>לא התקבל מידע מהמקור.</p>}
+      : state.data ? children(state.data, state) : <p>לא התקבל מידע מהמקור.</p>}
   </section>;
 }
 
@@ -69,7 +75,7 @@ function OperationalMetricsBody({ principal, refreshToken, providersOpen }) {
     for (const [key, read] of Object.entries(reads)) Promise.resolve().then(read).then(data => {
       if (controller.signal.aborted) return;
       if (!data || data.error) throw new Error("source_unavailable");
-      setProviders(current => ({ ...current, [key]: { loading: false, data } }));
+      setProviders(current => ({ ...current, [key]: { loading: false, data, readAt: new Date().toISOString() } }));
     }).catch(() => {
       if (!controller.signal.aborted) setProviders(current => ({ ...current, [key]: { loading: false, error: true } }));
     });
@@ -164,11 +170,17 @@ function OperationalMetricsBody({ principal, refreshToken, providersOpen }) {
       <h2>מדידה וגוגל</h2>
       <p className="sod29-muted">כל מקור מוצג בנפרד ובטווח שלו. נתוני Google ו־Vercel אינם הוכחת זהות אנושית. נתון חסר או כשל אינם אפס.</p>
       <div className="sod29-grid">
-        <MetricsCard title="Google Analytics · 28 ימים" state={providers.ga || { loading: true }}>{d => <>
-          <p>משתמשים שנמדדו: {number(d.totals?.users)} · צפיות בדפים: {number(d.totals?.views)}</p>
-          <p className="sod29-muted">מקור: GA4_MEASURED. הנתונים נשמרים כפי שנמדדו אצל Google.</p>
+        <MetricsCard title="Google Analytics · 28 ימים" state={providers.ga || { loading: true }}>{(d, s) => <>
+          <p>משתמשים (totalUsers): {number(d.totals?.users)} · ביקורים (sessions): {number(d.totals?.sessions)} · צפיות בדפים: {number(d.totals?.views)}</p>
+          <p>ביקורים מעורבים: {number(d.totals?.engagedSessions)} · שיעור מעורבות: {share(d.totals?.engagementRate)} · משתמשים פעילים כעת: {number(d.realtime)}</p>
+          <p className="sod29-muted">{providerWindow(d.daily?.[0]?.key, d.daily?.at?.(-1)?.key, "היום נכלל עד כה, חלקי")} · נקרא מ־Google: {clock(s.readAt)}</p>
+          {d.channels?.length ? <details><summary>ערוצי הגעה (GA4)</summary>{d.channels.slice(0, 8).map(c => <p key={c.key}><bdi>{c.key}</bdi> · {number(c.value)}</p>)}</details> : null}
+          <p className="sod29-muted">מקור: GA4_MEASURED. הנתונים נשמרים כפי שנמדדו אצל Google, בנפרד מהמדידה של האתר; אין לחבר את המספרים.</p>
         </>}</MetricsCard>
-        <MetricsCard title="Vercel Analytics · 30 ימים" state={providers.vercel || { loading: true }}>{d => <p>מבקרים שנמדדו: {number(d.totals?.visitors)} · צפיות: {number(d.totals?.pageviews)}</p>}</MetricsCard>
+        <MetricsCard title="Vercel Analytics · 30 ימים" state={providers.vercel || { loading: true }}>{(d, s) => <>
+          <p>מבקרים שנמדדו: {number(d.totals?.visitors)} · צפיות: {number(d.totals?.pageviews)}</p>
+          <p className="sod29-muted">נקרא מ־Vercel: {clock(s.readAt)}</p>
+        </>}</MetricsCard>
         <MetricsCard title={`פעילות באתר · ${number(rum.data?.meta?.hours ?? hours)} שעות`} state={rumState}>{d => {
           const t = d.identified_traffic;
           if (!t) return <p>חיבור הביקורים והחשבונות טרם הופעל במסד.</p>;
@@ -193,14 +205,17 @@ function OperationalMetricsBody({ principal, refreshToken, providersOpen }) {
             </details>
           </>;
         }}</MetricsCard>
-        <MetricsCard title="Google Search Console · 90 ימים" state={providers.gsc || { loading: true }}>{d => <>
-          <p>ימים עם נתונים: {number(d.timeline?.length)}</p>
+        <MetricsCard title="Google Search Console · 90 ימים" state={providers.gsc || { loading: true }}>{(d, s) => <>
+          <p>קליקים: {number(sumOf(d.timeline, "clicks"))} · חשיפות: {number(sumOf(d.timeline, "impressions"))} · ימים עם נתונים: {number(d.timeline?.length)}</p>
+          <p className="sod29-muted">{providerWindow(d.timeline?.[0]?.date, d.timeline?.at?.(-1)?.date, "Google מפרסם את הנתונים באיחור של יומיים־שלושה")} · חיפוש באינטרנט (Web) בלבד בקריאה הזו · נקרא מ־Google: {clock(s.readAt)}</p>
+          {d.queries?.length ? <details><summary>שאילתות מובילות</summary>{d.queries.slice(0, 10).map(q => <p key={q.key}><bdi>{q.key}</bdi> · {number(q.clicks)} קליקים · {number(q.impressions)} חשיפות</p>)}</details> : null}
+          {d.pages?.length ? <details><summary>דפים מובילים</summary>{d.pages.slice(0, 10).map(p => <p key={p.key}><bdi dir="ltr">{p.key}</bdi> · {number(p.clicks)} קליקים</p>)}</details> : null}
           <p className="sod29-muted">הופעה בדוח חיפוש או במפת האתר אינה הוכחה לכיסוי כל הכתובות.</p>
           {d.indexing?.inspections?.map(item => <div className="sod29-row" key={item.path}>
             <div><strong dir="ltr">{item.path}</strong><small>{item.state === "measured" ? item.coverageState || item.verdict : "בדיקת האינדוקס לא הושלמה מול Google"}</small></div>
           </div>)}
           {d.indexing?.sitemaps?.state === "measured" ? <p>מפות שנמצאו בנכס: {number(d.indexing.sitemaps.rows.length)}</p> : <p>קבלת מפת האתר מול Google טרם אומתה.</p>}
-          <p className="sod29-muted">בדיקת אינדוקס מוגבלת לשלוש הכתובות המוצגות; אינה בקשת אינדוקס או קבלה של כל המלאי.</p>
+          <p className="sod29-muted">בדיקת אינדוקס מוגבלת לשלוש הכתובות המוצגות; אינה בקשת אינדוקס או קבלה של כל המלאי. נבדק מול Google: {clock(d.indexing?.checkedAt)}</p>
         </>}</MetricsCard>
       </div>
     </section> : null}
