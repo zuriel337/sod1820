@@ -1561,6 +1561,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
   st.verseRead=false;st.verseHL=-1;
   const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;
+  // 🆔 occurrence_id של הליבה הקנונית ('els:'||corpus_id||':'||term||':'||skip||':'||dir||':'||start): זהות מופע מדויק עם הקורפוס.
+  //    רק למופע מאומת; מופע מהשרת נושא אותו כבר, ואחרת הוא נגזר באותה נוסחה בדיוק. hitKey נשאר המפתח בתוך מטריצה אחת.
+  const occurrenceIdOf=(h,t,scope=st.scope)=>{if(!h||!isGov(h)||!CORPUS_ID[scope])return null;
+    const id="els:"+CORPUS_ID[scope]+":"+norm(t)+":"+Math.abs(h.skip)+":"+h.dir+":"+h.start;
+    return typeof h.occurrence_id==="string"&&h.occurrence_id!==id?null:id;};
   st.findingRadius=null;
   st.windowColumns=80;st.windowSize="legacy";st.windowRequested="legacy";
   const NATIVE_WINDOWS={small:{ctxR:1,windowColumns:40},medium:{ctxR:3,windowColumns:60},large:{ctxR:8,windowColumns:80}};
@@ -2011,7 +2016,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       plainTextCount:w.hits.filter(h=>isSourceHit(h,w.t)).length,
       sourceHits:entries.filter(({h})=>isSourceHit(h,w.t)).map(x=>({...common(x.h,x),kind:"source-sequence",skip:1,direction:x.h.dir===1?"fwd":"back",axisDistance:x.h.axisDistance})),
       shown:[...shown].filter(isGov).map(hitKey),candidateShown:[...shown].filter(h=>!isGov(h)&&!isSourceHit(h,w.t)).length,
-      hits:entries.filter(({h})=>Math.abs(h.skip)>=2).map(x=>({...common(x.h,x),verified:isGov(x.h),
+      hits:entries.filter(({h})=>Math.abs(h.skip)>=2).map(x=>({...common(x.h,x),verified:isGov(x.h),occurrence_id:occurrenceIdOf(x.h,w.t),
         skip:isGov(x.h)?Math.abs(x.h.skip):null,direction:isGov(x.h)?(x.h.dir===1?"fwd":"back"):null,
         axisDistance:isGov(x.h)?x.h.axisDistance:null,clusterDistance:isGov(x.h)?x.h.cost:null})),
       hitsTruncated:available.length>pageSize};
@@ -2042,7 +2047,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       status:"ok",length:L,
       verification:{state:"MATCH",policy:AD_POLICY,strategy:(r.strategy&&r.strategy.strategy)||null,corpus_id:CORPUS_ID[st.scope]||null,
         verified_hits:r.hits.filter(isGov).length,trace_ids:(r.vtrace||[]).slice(0,4)},
-      axis:{skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",start:h.start,hitId:hitKey(h),length:L},
+      axis:{skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",start:h.start,hitId:hitKey(h),occurrence_id:occurrenceIdOf(h,r.t),length:L},
       occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       matrix:matrixSnapshot(b),
@@ -4451,6 +4456,16 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     // 🌍 Performance completion (Pass 2, GAP-6): תנ״ך עובר דרך findAllAdaptive (probe→parallel-רק-
     //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
     //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
+    // 🆔 קישור/רשומה עם occurrence_id: הקורפוס, האותיות, הדילוג, הכיוון וההתחלה נקבעים ממנו. סתירה לשדות הישנים = לא אותו מופע.
+    if(item.occurrenceId!=null){
+      const m=/^els:([\w.-]{1,100}):([א-ת]{2,}):(\d+):(-?1):(\d+)$/u.exec(String(item.occurrenceId));
+      const o=m&&{corpusId:m[1],t:m[2],skip:+m[3],dir:+m[4],start:+m[5]};
+      if(o&&o.corpusId!==CORPUS_ID[st.scope]){if(failResearch("corpus-mismatch"))return;st.res=null;loadError("corpus-mismatch");render();return;}
+      if(!o||o.t!==norm(item.term)||o.skip<2||(item.hitId&&item.hitId!==o.skip+"_"+o.dir+"_"+o.start)
+        ||(item.start!=null&&item.start!==o.start)||(item.dir!=null&&item.dir!==o.dir)||(item.skip&&Math.abs(item.skip)!==o.skip)){
+        if(failResearch("anchor-not-found"))return;st.res=null;loadError("anchor-not-found");render();return;}
+      item={...item,corpusId:o.corpusId,skip:o.skip,dir:o.dir,start:o.start,hitId:o.skip+"_"+o.dir+"_"+o.start};
+    }
     const exact=Number.isInteger(item.start)&&item.start>=0&&[1,-1].includes(item.dir)&&Number.isInteger(item.skip)&&item.skip>=2;
     // Exact saved occurrences use the SAME canonical verifier. A capped
     // discovery list must never substitute a different occurrence of the word.

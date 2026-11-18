@@ -1,3 +1,4 @@
+import { elsOccurrenceId, elsStateAxisOccurrenceId, sameElsOccurrence } from "./research/elsOccurrenceIdentity.js";
 // Presentation/replay adapter for the existing els_records identity. No inferred coordinates.
 export function hasExactSavedMatrix(row) {
   return Number.isInteger(row?.start_index) && row.start_index >= 0
@@ -13,6 +14,8 @@ export function savedMatrixToItem(row) {
     start: Number.isInteger(row.start_index) ? row.start_index : null,
     dir: row.direction === "back" ? -1 : row.direction === "fwd" ? 1 : null,
     corpusId: row.corpus_id || null,
+    // The exact occurrence with its corpus (the engine's occurrence_id); a record without exact coordinates opens as before.
+    ...(hasExactSavedMatrix(row) ? { occurrenceId: savedMatrixOccurrenceId(row) } : {}),
     words: Array.isArray(row.positions?.findings) ? row.positions.findings : [],
     searchWindow: row.positions?.searchWindow || null, view: row.positions?.view || null,
     hideMain: !!row.positions?.hideMain,
@@ -26,12 +29,15 @@ export function elsMatrixLoadKey(row, journey) {
   return row ? JSON.stringify([row.id, row.search_term, row.skip_distance, row.scope, row.start_index, row.direction, row.corpus_id]) : null;
 }
 
+export function savedMatrixOccurrenceId(row) {
+  return hasExactSavedMatrix(row) ? elsOccurrenceId({ corpusId: row.corpus_id, term: row.search_term, skip: row.skip_distance,
+    dir: row.direction === "back" ? -1 : 1, start: row.start_index }) : null;
+}
+
+// The open matrix is the saved one only when it is the same exact occurrence in the same corpus (the occurrence_id).
 export function savedMatrixMatchesAxis(row, state) {
   if (!hasExactSavedMatrix(row) || state?.verification?.state !== "MATCH") return false;
-  const term = value => String(value || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, c => ({ך:"כ",ם:"מ",ן:"נ",ף:"פ",ץ:"צ"}[c]));
-  return term(row.search_term) === term(state.term)
-    && (row.scope || "torah") === state.scope
-    && state.axis?.hitId === `${row.skip_distance}_${row.direction === "back" ? -1 : 1}_${row.start_index}`;
+  return (row.scope || "torah") === state.scope && sameElsOccurrence(savedMatrixOccurrenceId(row), elsStateAxisOccurrenceId(state));
 }
 
 export function savedMatrixWorkspaceHref(row, mode) {

@@ -270,6 +270,8 @@ test('matrix share: explicit, private-safe and exact canonical replay across all
    const url=await share.getByRole('textbox',{name:'קישור למטריצה'}).inputValue();
    const restored=readElsMatrixShare(new URL(url).hash).loadItem;
    assert.ok(restored);assert.equal(restored.hitId,before.axis.hitId);
+   assert.match(before.axis.occurrence_id,/^els:[\w.-]+:[א-ת]+:\d+:-?1:\d+$/,'the engine sends its occurrence_id on the axis');
+   assert.equal(restored.occurrenceId,before.axis.occurrence_id,'a new link names the exact occurrence with its corpus');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await share.getByRole('button',{name:'העתק קישור',exact:true}).click();
    assert.equal(await page.evaluate(()=>window.__copiedMatrix),url);
@@ -286,6 +288,18 @@ test('matrix share: explicit, private-safe and exact canonical replay across all
    await page.waitForFunction(hitId=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===hitId,restored.hitId);
    assert.equal(await page.evaluate(()=>window.__state.verification.state),'MATCH','shared coordinates must reverify');
    assert.deepEqual((await identity(page)).axis,before.axis);
+   assert.equal(await page.evaluate(()=>window.__state.axis.occurrence_id),restored.occurrenceId,'the link opened the exact occurrence');
+   // The same coordinates named in another corpus are another occurrence: refused, never opened here.
+   const errors=()=>page.evaluate(()=>window.__log.filter(m=>m.type==='load-error').map(m=>m.reason));
+   const before2=(await errors()).length;
+   await send({...restored,occurrenceId:restored.occurrenceId.replace(/^els:[^:]+:/,'els:another-corpus:')});
+   await page.waitForFunction(n=>window.__log.filter(m=>m.type==='load-error').length>n,before2);
+   assert.equal((await errors()).at(-1),'corpus-mismatch');
+   // An older link (hitId + corpusId, no occurrenceId) still opens the exact same occurrence.
+   const {occurrenceId:_old,...older}=restored;
+   await send({...older,researchNonce:undefined});
+   await page.waitForFunction(id=>window.__state?.status==='ok'&&window.__state.axis?.occurrence_id===id,restored.occurrenceId);
+   assert.deepEqual((await identity(page)).axis,before.axis,'an older link opens the same exact occurrence');
    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0);
   },{realHost:true,loadGolden:true,matrixAnalysis:true,...profile});
 });
@@ -1242,7 +1256,7 @@ test('Fable existing results project exact letters without search, AI, manual-fi
     const result={contract:'els_matrix_reading_v1',state:'COMPLETE',is_test_fixture:true,provider:{kind:'test_double'},axis:{...axis,corpus_id:axis.corpusId},findings};
     const reading={mode:'on',isAdmin:true,session:{busy:false,thread:[{role:'raziel',elsMatrixReading:result,continuation:{contextSnapshot:{elsMatrixContext:{axis}}}}]}};
     window.__readingFixture=reading;window.__setMatrixReading(reading);
-    return {selected:findings[0].verification.engine.occurrence_id.split(':').slice(-4).join(':'),positions:Array.from({length:5},(_,i)=>findings[0].occurrence.start+i*m.S)};
+    return {selected:findings[0].verification.engine.occurrence_id,positions:Array.from({length:5},(_,i)=>findings[0].occurrence.start+i*m.S)};
    });
    await openFableExtension(page);
    await page.getByRole('heading',{name:'ממצאים שאומתו במנוע · 25',exact:true}).waitFor();
@@ -3560,7 +3574,7 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
       const findings=[...(both?[fromEngine(both)]:[]),only];
       const result={contract:'els_matrix_reading_v1',state:'COMPLETE',is_test_fixture:true,provider:{kind:'test_double'},axis:{...axis,corpus_id:axis.corpusId},findings};
       window.__setMatrixReading({mode:'on',isAdmin:true,session:{busy:false,thread:[{role:'raziel',elsMatrixReading:result,continuation:{contextSnapshot:{elsMatrixContext:{axis}}}}]}});
-      return {both:both?both.term+':'+both.skip+':'+both.dir+':'+both.start:null,only:{text:only.text,hitId:m.S+'_1_'+only.occurrence.start}};
+      return {both:both?'els:'+axis.corpusId+':'+both.term+':'+both.skip+':'+both.dir+':'+both.start:null,only:{text:only.text,hitId:m.S+'_1_'+only.occurrence.start}};
     });
     assert.ok(plan.both,'an engine ELS inside the view, shared with the Fable result');
     // The extension sits in the same panel and opens only on request.

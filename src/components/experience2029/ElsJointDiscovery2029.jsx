@@ -28,16 +28,20 @@ export default function ElsJointDiscovery2029({ state, runs = {}, projection = n
   const fresh = all.filter(run => run.key === key && !!key);
   const axis = state?.axis && state.term ? { term: state.term, skip: state.axis.skip, dir: state.axis.direction === "back" ? -1 : 1, start: state.axis.start } : null;
   const axisKey = axis ? `${axis.term}:${axis.skip}:${axis.dir}:${axis.start}` : "";
-  const rows = useMemo(() => joinElsDiscovery({ runs: fresh, projection, axis, width: state?.geometry?.S ?? axis?.skip ?? null, scope: state?.scope })
+  const corpusId = state?.verification?.corpus_id ?? null;
+  const rows = useMemo(() => joinElsDiscovery({ runs: fresh, projection, axis, width: state?.geometry?.S ?? axis?.skip ?? null, scope: state?.scope, corpusId })
     .filter(row => !(hideForwardSource && row.skip === 1 && row.dir === 1)),
-    [runs, key, projection, axisKey, state?.geometry?.S, state?.scope, hideForwardSource]);
+    [runs, key, projection, axisKey, state?.geometry?.S, state?.scope, corpusId, hideForwardSource]);
   const isAdded = row => {
     const finding = state?.findings?.find(f => f.t === row.term);
-    return [...(finding?.hits || []), ...(finding?.sourceHits || [])].some(hit => hit.hitId === row.hitId && hit.selected && (row.kind === "source" || hit.verified));
+    // The same exact occurrence: the engine's occurrence_id when the hit carries one, else the hitId inside this matrix's corpus.
+    return row.corpusId === corpusId && [...(finding?.hits || []), ...(finding?.sourceHits || [])].some(hit =>
+      (typeof hit.occurrence_id === "string" ? hit.occurrence_id === row.occurrenceId : hit.hitId === row.hitId) && hit.selected && (row.kind === "source" || hit.verified));
   };
   const add = row => {
     if (busy) { setNotice("התוספת הקודמת עדיין באימות. המתינו לסיומה ואז הוסיפו את הבאה."); return; }
-    const prepared = row.engine ? prepareElsLexiconAdditions(state, row.engine.data, [row.engine.item], color) : prepareElsReadingAddition(state, row.fable, color);
+    // An occurrence of another corpus is not on this matrix (its hitId here would be a different occurrence).
+    const prepared = row.corpusId !== corpusId ? { error: "stale" } : row.engine ? prepareElsLexiconAdditions(state, row.engine.data, [row.engine.item], color) : prepareElsReadingAddition(state, row.fable, color);
     if (prepared.error) {
       setNotice(prepared.error === "limit" ? "במטריצה כבר 24 מילים, וזו התקרה. הסירו מילה מרשימת הממצאים ואז הוסיפו."
         : prepared.error === "outside" ? "אפשר להוסיף רק ממצא שכולו בחלון התצוגה. הזיזו את המטריצה אליו או הגדילו את החלון."

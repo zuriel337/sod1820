@@ -8,8 +8,9 @@ import { expectedChance as serverChance } from "../supabase/functions/_shared/el
 const S = 583, axis = { term: "יוממשיחבא", skip: 583, dir: -1, start: 239480 };
 const positions = (start, skip, dir, n) => Array.from({ length: n }, (_, i) => start + dir * skip * i);
 const engineItem = (term, start, skip, dir, extra = {}) => ({ term, label: term, start, skip, dir, hitId: `${skip}_${dir}_${start}`, positions: positions(start, skip, dir, term.length), kind: skip > 1 ? "els" : "source", distance: 3, ...extra });
-const run = items => ({ data: { ok: true, items } });
-const fable = (text, start, skip, dir, extra = {}) => ({ key: `els:x:${text}:${skip}:${dir}:${start}`, label: extra.label || text, positions: positions(start, skip, dir, text.length), visibility: extra.visibility || "full", axisPart: !!extra.axisPart,
+const C = "x";
+const run = items => ({ data: { ok: true, items, origin: { corpusId: C } } });
+const fable = (text, start, skip, dir, extra = {}) => ({ key: `els:${C}:${text}:${skip}:${dir}:${start}`, label: extra.label || text, positions: positions(start, skip, dir, text.length), visibility: extra.visibility || "full", axisPart: !!extra.axisPart,
   item: { text, occurrence: { start, skip, dir, length: text.length }, chance: extra.E === undefined ? undefined : { expected_occurrences: extra.E } } });
 
 test("one row per exact occurrence; what both found shows once with both sources", () => {

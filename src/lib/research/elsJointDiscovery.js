@@ -2,16 +2,19 @@
 // Presentation over results that already exist, never a search, verifier or findings store of its own:
 //   - discovery rows are the engine's lexicon/language results (candidates until the engine verifies them on adding);
 //   - Fable rows are the reading's findings that the canonical engine already verified (elsMatrixReadingProjection);
-//   - one row per exact occurrence (letters, skip, direction, start): what both found shows once, with both sources.
+//   - one row per exact occurrence, keyed by the engine's occurrence_id (corpus, letters, skip, direction, start): what both
+//     found shows once, with both sources, and the same coordinates in two corpora are two rows.
 // E is the same chance model as the server's (supabase/functions/_shared/elsChanceModel.js), Torah only.
 import { expectedChance } from "../../../supabase/functions/_shared/elsChanceModel.js";
+import { elsOccurrenceId, parseElsOccurrenceId } from "./elsOccurrenceIdentity.js";
 
 const FINALS = { ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" };
 const canonical = text => String(text || "").replace(/[ךםןףץ]/g, c => FINALS[c]);
 const integer = Number.isSafeInteger;
 export const ELS_MATRIX_WORD_LIMIT = 24;
 
-export const elsJointKey = (term, skip, dir, start) => `${canonical(term)}:${skip}:${dir}:${start}`;
+/** The row key: the engine's occurrence_id. null without a corpus (such a row has no exact identity and is not listed). */
+export const elsJointKey = (corpusId, term, skip, dir, start) => elsOccurrenceId({ corpusId, term, skip, dir, start });
 
 /** Cells (Chebyshev, in the matrix of width S) between an occurrence and the axis: 0 shares a cell, 1 touches. */
 export function elsAxisDistance(positions, axisPositions, width) {
@@ -24,16 +27,18 @@ export function elsAxisDistance(positions, axisPositions, width) {
   return best;
 }
 
-function baseRow(term, label, skip, dir, start, positions) {
-  return { key: elsJointKey(term, skip, dir, start), term: canonical(term), label: label || canonical(term), skip, dir, start,
-    hitId: `${skip}_${dir}_${start}`, positions, engine: null, fable: null };
+function baseRow(key, term, label, skip, dir, start, positions) {
+  return { key, occurrenceId: key, corpusId: parseElsOccurrenceId(key).corpusId, term: canonical(term), label: label || canonical(term),
+    skip, dir, start, hitId: `${skip}_${dir}_${start}`, positions, engine: null, fable: null };
 }
 
 /**
- * runs: discovery responses [{ data }] (the lexicon lens: data.ok, data.items); projection: the reading projection ({ findings });
- * axis: { term, skip, dir, start }; width: the matrix width (the axis skip); scope: "torah" | "tanakh".
+ * runs: discovery responses [{ data }] (the lexicon lens: data.ok, data.items, data.origin.corpusId); projection: the reading
+ * projection ({ findings }, each keyed by its engine occurrence_id); axis: { term, skip, dir, start }; width: the matrix width
+ * (the axis skip); scope: "torah" | "tanakh"; corpusId: the corpus of the open matrix (the engine state's verification.corpus_id),
+ * used for a run or finding that does not name its own.
  */
-export function joinElsDiscovery({ runs = [], projection = null, axis = null, width = null, scope = "torah" } = {}) {
+export function joinElsDiscovery({ runs = [], projection = null, axis = null, width = null, scope = "torah", corpusId = null } = {}) {
   const axisPositions = axis && integer(axis.start) && integer(axis.skip) && [1, -1].includes(axis.dir)
     ? Array.from(canonical(axis.term), (_, i) => axis.start + axis.dir * axis.skip * i) : [];
   const axisSet = new Set(axisPositions);
@@ -44,8 +49,9 @@ export function joinElsDiscovery({ runs = [], projection = null, axis = null, wi
       if (!item || !integer(item.start) || !integer(item.skip) || item.skip < 1 || ![1, -1].includes(item.dir) || !/^[א-ת]{2,}$/u.test(canonical(item.term))) continue;
       const positions = Array.isArray(item.positions) && item.positions.length ? item.positions : Array.from(canonical(item.term), (_, i) => item.start + item.dir * item.skip * i);
       if (positions.every(p => axisSet.has(p))) continue; // a piece of the axis is not a new finding
-      const key = elsJointKey(item.term, item.skip, item.dir, item.start);
-      const row = rows.get(key) || baseRow(item.term, item.label, item.skip, item.dir, item.start, positions);
+      const key = elsJointKey(run.data.origin?.corpusId ?? corpusId, item.term, item.skip, item.dir, item.start);
+      if (!key) continue;
+      const row = rows.get(key) || baseRow(key, item.term, item.label, item.skip, item.dir, item.start, positions);
       if (!row.engine) row.engine = { item, data: run.data };
       rows.set(key, row);
     }
@@ -53,8 +59,11 @@ export function joinElsDiscovery({ runs = [], projection = null, axis = null, wi
   for (const finding of projection?.findings || []) {
     const hit = finding?.item?.occurrence;
     if (!hit || finding.axisPart || !integer(hit.start) || !integer(hit.skip) || ![1, -1].includes(hit.dir)) continue;
-    const key = elsJointKey(finding.item.text, hit.skip, hit.dir, hit.start);
-    const row = rows.get(key) || baseRow(finding.item.text, finding.label, hit.skip, hit.dir, hit.start, finding.positions);
+    // The reading's key is the engine's occurrence_id (elsMatrixReadingProjection requires it); derived only when absent.
+    const own = parseElsOccurrenceId(finding.key);
+    const key = own ? finding.key : elsJointKey(corpusId, finding.item.text, hit.skip, hit.dir, hit.start);
+    if (!key || (own && (own.term !== canonical(finding.item.text) || own.hitId !== `${hit.skip}_${hit.dir}_${hit.start}`))) continue;
+    const row = rows.get(key) || baseRow(key, finding.item.text, finding.label, hit.skip, hit.dir, hit.start, finding.positions);
     row.fable = finding;
     if (finding.label && finding.label !== row.term) row.label = finding.label;
     rows.set(key, row);
