@@ -6,6 +6,8 @@
 import React, { useEffect, useState } from "react";
 import { checkSourceHint, HINT_STATES, collapseSpacedLetters } from "../../lib/research/postSourceHintCheck2029.js";
 import { SEMANTIC_LEGEND } from "../../lib/research/postSemanticDesign2029.js";
+// A Post unit action is counted only when it happens; the counter loads on that click, never with the page (Speed Law §3, ZURIEL 18.11.2026).
+const countPostUnit2029 = (action) => { import("../../lib/postUnitActions2029.js").then((m) => m.postUnitAction2029(action)).catch(() => {}); };
 
 const symbol = (key) => SEMANTIC_LEGEND.find((item) => item.key === key)?.symbol || "";
 const dateLabel = (iso) => {
@@ -29,7 +31,7 @@ export function ClaimRow({ claim, skipEngine, readProfile }) {
     <span>{claim.phrase}</span>
     <b>{claim.number}</b>
     {claim.methodText ? <small>{claim.methodText}</small> : null}
-    <button type="button" className="sod29-engine" data-engine={state} aria-expanded={open} onClick={() => setOpen((v) => !v)} aria-label={`מצב בדיקה במנוע: ${stateLabel}`}>
+    <button type="button" className="sod29-engine" data-engine={state} aria-expanded={open} onClick={() => setOpen((v) => { if (!v) countPostUnit2029("post_source_check_open"); return !v; })} aria-label={`מצב בדיקה במנוע: ${stateLabel}`}>
       <span aria-hidden="true">{symbol(state)}</span><span>{stateLabel}</span>
     </button>
     {open ? <p className="sod29-engine-detail" role="note">
@@ -50,13 +52,13 @@ export default function PostExternalSourceUnit2029({ source, readProfile = null 
   const claims = source.claims?.length ? source.claims : source.phrase && source.number != null ? [{ phrase: source.phrase, number: source.number, methodText: source.methodText || null }] : [];
   return <aside className="sod29-source-unit" data-source-unit={source.id || ""} data-writer-slug={source.writerSlug || ""} aria-label={`מקור חיצוני: ${source.writerName || ""}`}>
     <header>
-      <strong>{source.writerHref ? <a href={source.writerHref}>{source.writerName}</a> : source.writerName}</strong>
+      <strong>{source.writerHref ? <a href={source.writerHref} onClick={() => countPostUnit2029("post_writer_open")}>{source.writerName}</a> : source.writerName}</strong>
       {source.groupLabel ? <span>{source.groupLabel}</span> : null}
       {source.dateIso ? <time dateTime={source.dateIso}>{dateLabel(source.dateIso)}</time> : null}
       {source.demo ? <span className="sod29-source-unit-demo">נתוני הדגמה</span> : null}
     </header>
     {source.text ? <blockquote lang="he">{source.text}</blockquote> : null}
     {claims.map((claim) => <ClaimRow key={`${claim.phrase}|${claim.number}`} claim={claim} skipEngine={source.skipEngine} readProfile={readProfile} />)}
-    <footer>{source.href ? <a href={source.href}>למקור המדויק ←</a> : null}</footer>
+    <footer>{source.href ? <a href={source.href} onClick={() => countPostUnit2029("post_source_open")}>למקור המדויק ←</a> : null}</footer>
   </aside>;
 }

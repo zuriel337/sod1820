@@ -1234,6 +1234,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         const term = String(legacyNumber.dataset.gem || "").trim();
         if (!term || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
+        // Counted on the click only; the counter loads then, never with the Post (ZURIEL 18.11.2026).
+        import("../lib/postUnitActions2029.js").then((m) => m.postUnitAction2029("post_number_open")).catch(() => {});
         const numericValue = /^\d[\d,]*$/.test(term) ? Number(term.replace(/,/g, "")) : null;
         if (Number.isSafeInteger(numericValue)) {
           openHeroNumber(numericValue);
