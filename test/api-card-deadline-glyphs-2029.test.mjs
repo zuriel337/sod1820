@@ -205,7 +205,7 @@ test("control: undrawable glyphs DO make @vercel/og go to the network when nothi
 
 test("the deadline is about 10 s, far below the platform's 300 s", () => {
   assert.ok(CARD_DEADLINE_MS >= 5_000 && CARD_DEADLINE_MS <= 20_000, String(CARD_DEADLINE_MS));
-  assert.match(wrapperSource, /renderWithinDeadline\(\(\) => handler\(req\)\)/);
+  assert.match(wrapperSource, /renderWithinDeadline\(\(\) => handler\(req\)[,)]/);
 });
 
 test("root cause: ImageResponse returns 200 before it has rendered, so the deadline has to include the body", async (t) => {

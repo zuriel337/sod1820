@@ -1,55 +1,45 @@
 // What a share-card request may ask for, and how long its answer may be kept (ZURIEL 18.11.2026, branch only).
 //
-// /api/card is a pure function of its query string, drawn by api/card.js. Every producer on the site (api/og.js cardUrl and its
-// hand-built addresses, src/lib/thumbResolve.js, src/lib/research/postPreviewUnits2029.js, src/lib/research/worldFindingShare.js,
-// src/pages/CommunityCalculatorPage.jsx) uses only the keys below. Anything else is not a card the site builds: it is refused with a
-// tiny 400 before any font, logo, database or render work, and never cached, so arbitrary parameters cannot create unbounded renders
-// or cache entries.
+// /api/card is a pure function of its query string, drawn by api/card.js from these keys only:
+//   n w t sub cap sig v nums format   (searchParams.get: the FIRST value of a repeated key counts, as it always did)
+// Every producer found — the builders on main (api/og.js, src/lib/thumbResolve.js, src/lib/research/postPreviewUnits2029.js,
+// src/lib/research/worldFindingShare.js, src/pages/CommunityCalculatorPage.jsx), every card address added in git history, and the card
+// addresses stored in the database (posts, insights, els_records, stories, hint_sets, share_events, visitor_events: only w/sub/cap/sig) — uses
+// no other key. Request query strings themselves are not in the logs available to us.
 //
-// Cache classes (the successful canonical GET only; every refusal and error stays no-store, as before):
-//   - "query" cards draw only what their query says (a title, a word, an expression with its value, a unit with its numbers): the same
-//     address is the same picture for as long as the renderer is the same deployment. Kept 7 days at the CDN (+1 day stale while
-//     revalidating). A changed post title changes the address og.js emits, so it is a new card, not a stale one.
-//   - "number" cards (n alone, no w/sub/v) also read the published phrases equal to n from the database (api/card.js topPhrases):
-//     unchanged 1 hour (+1 day stale while revalidating), so a newly published or unpublished phrase reaches the card within the hour.
-// A card never carries private data: the query is public text the page already shows, and the phrase read is the public, verified,
-// published, visibility-tier-1 set.
+// Compatibility first: any other parameter is IGNORED (the picture is the same as without it), never refused, so an old or decorated link
+// keeps its image. Values are not refused either: an unknown sig/v/format value draws the default card, exactly as before. The only refusal
+// is size: a query over CARD_QUERY_MAX or one text value over CARD_RAW_TEXT_MAX characters (the longest post title is 375 characters, the
+// longest published phrase 200; the renderer trims every text to 240 drawable characters anyway). That answer is a tiny 400, no-store,
+// before any font, logo, database or render work.
+//
+// Cache classes (the successful canonical GET only; refusals and errors stay no-store, as before):
+//   - "query": the card draws only what its query says (a title, a word, an expression with its value, a unit with its numbers). The same
+//     address gives the same picture for as long as the renderer is the same: 7 days at the CDN (+1 day stale while revalidating).
+//   - "number": n alone (no w/sub, not a unit) also reads the published phrases equal to n (api/card.js topPhrases): 1 hour, unchanged.
+// See docs/reviews/share-card-bignum-20261118/API_CARD_ROOT_CAUSE.md for template/brand changes, removal and privacy.
 
-export const CARD_KEYS = Object.freeze(['n', 'w', 't', 'sub', 'cap', 'sig', 'v', 'nums', 'format']);
-const TEXT_KEYS = new Set(['w', 't', 'sub', 'cap']);
-// Raw (decoded) length bound per text value, before api/card.js trims it to CARD_TEXT_MAX (240) drawable code points.
-export const CARD_RAW_TEXT_MAX = 600;
-export const CARD_QUERY_MAX = 4096;
+export const CARD_IMAGE_KEYS = Object.freeze(['n', 'w', 't', 'sub', 'cap', 'sig', 'v', 'nums', 'format']);
+const TEXT_KEYS = ['w', 't', 'sub', 'cap'];
+export const CARD_RAW_TEXT_MAX = 2000;
+export const CARD_QUERY_MAX = 8192;
 
 export const CARD_CACHE = Object.freeze({
   query: 'public, s-maxage=604800, stale-while-revalidate=86400',
   number: 'public, s-maxage=3600, stale-while-revalidate=86400',
 });
 
-const VALID = {
-  // The renderer reads only plain digits; other numeric forms (a sign) are drawn as no number, so they are accepted, not refused.
-  n: (v) => /^-?\d{1,12}$/.test(v),
-  v: (v) => v === 'unit',
-  format: (v) => v === 'story',
-  // The renderer special-cases gem/els/finding; thumbResolve.js also sends sod1820/orgeula/video, drawn with the default signature.
-  sig: (v) => /^[a-z0-9_-]{1,16}$/.test(v),
-  // The renderer keeps at most five values of 1-6 digits; a longer list is trimmed there, not refused here.
-  nums: (v) => /^[0-9, ]{0,96}$/.test(v),
-};
-
-/** → { ok: true, cacheClass: "query" | "number" } or { ok: false, reason } for a request that is not a site card. */
+/** → { ok: true, cacheClass: "query" | "number", ignored: [keys] } or { ok: false, reason } for an oversized request. */
 export function cardRequestPolicy(url) {
   const u = url instanceof URL ? url : new URL(url);
   if (u.search.length > CARD_QUERY_MAX) return { ok: false, reason: 'query too long' };
-  const seen = new Set();
-  for (const [key, value] of u.searchParams) {
-    if (!CARD_KEYS.includes(key)) return { ok: false, reason: `unknown parameter ${key.slice(0, 32)}` };
-    if (seen.has(key)) return { ok: false, reason: `repeated parameter ${key}` };
-    seen.add(key);
-    if (TEXT_KEYS.has(key)) { if (value.length > CARD_RAW_TEXT_MAX) return { ok: false, reason: `${key} too long` }; continue; }
-    if (!VALID[key](value)) return { ok: false, reason: `invalid ${key}` };
-  }
   const p = u.searchParams;
-  const numberCard = p.has('n') && !p.has('w') && !p.has('sub') && p.get('v') !== 'unit';
-  return { ok: true, cacheClass: numberCard ? 'number' : 'query' };
+  for (const key of TEXT_KEYS) {
+    const value = p.get(key);
+    if (value != null && value.length > CARD_RAW_TEXT_MAX) return { ok: false, reason: `${key} too long` };
+  }
+  const ignored = [...new Set([...p.keys()].filter((key) => !CARD_IMAGE_KEYS.includes(key)))];
+  // Same test as the renderer: a number card is n made of digits, with no w and no sub, and not a unit.
+  const numberCard = /^\d+$/.test(p.get('n') || '') && !p.get('w') && !p.get('sub') && p.get('v') !== 'unit';
+  return { ok: true, cacheClass: numberCard ? 'number' : 'query', ignored };
 }
