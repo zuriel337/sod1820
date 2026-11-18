@@ -608,7 +608,7 @@ function CalculatorExperience() {
           {shareUrl ? (
             <section className="sod29-calc2029-share" aria-label="שיתוף התוצאה" data-share-url={shareUrl}>
               <div>
-                <span>מצאתם משהו מעניין? שתפו את הגילוי</span>
+                <span>שתף את הגילוי</span>
                 <strong>{selection.expression} = {selection.resultValue}</strong>
                 <small>{selection.methodLabel}{shareDiscovery ? " · " + shareDiscovery.phrase + " = " + shareDiscovery.value : ""}</small>
               </div>
