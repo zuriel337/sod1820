@@ -1377,5 +1377,5 @@
    Moved here from footer2029.css with shell weight 3/8: the footer now loads on demand, the reservation must hold from the first paint. */
 .sod29-main-stage>.sod29-content{min-height:100vh;min-height:100dvh}
 /* An open destination still being built (ZURIEL 18.11.2026: the World and the cipher): a small mark after the label, hidden with the labels in the collapsed rail. */
-.sod29-nav-building{margin-inline-start:auto;flex:none;font-size:12px;line-height:1.5;padding:0 8px;border:1px solid color-mix(in srgb,var(--s29-brand-gold,#d4af37) 50%,transparent);border-radius:999px;color:var(--s29-muted);font-weight:600}
+.sod29-nav-building{margin-inline-start:auto;flex:none;font-size:12px;line-height:1.5;padding:0 8px;border:1px solid var(--s29-line-strong);border-radius:999px;color:var(--s29-muted);font-weight:600}
 .sod29-root.sidebar-collapsed .sod29-sidebar .sod29-nav-building{display:none}
