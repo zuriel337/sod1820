@@ -486,3 +486,43 @@ Follow-ups, checked against `origin/main` `3f3355613` on 18.11.2026 (code read o
 | 8 | Wire the four new URL tests into CI | DONE — all four run in `.github/workflows/live-contracts-2029.yml` |
 | 9 | Search Console Page Indexing access (DEF-006) for the post-release check | OPEN — access not verified |
 | 10 | Saved links in the old form (EXECUTION_REQUEST decision 12) | Not rechecked |
+
+### 8.14 — Decisions of 18.11.2026 and the map of the 14 temporarily closed paths
+
+ZURIEL decided (18.11.2026) on the §8.13 follow-ups:
+
+| §8.13 item | Decision | Done in |
+|---|---|---|
+| 1 `/?p=<wp_id>` | Keep as is: the post, 200, canonical to the post. No redirect, no address change | nothing to change |
+| 2 closed areas | Map each area; no reopening, no 503→200 and no 410 before ZURIEL decides from the map below | map below |
+| 3 URLs with no known identity | Check backups first | read-only finding below |
+| 4 alias canonicals (282) | Keep canonical only | nothing to change |
+| 5d `/sitemap_index.xml` | Permanent redirect to `/sitemap.xml` | redirect in `public-reading-deploy/vercel.json` (this branch) |
+| 6 bidi / zero-width slugs | Measure first | read-only finding below |
+| 7 `/community/researcher/panzer` | Permanent redirect to `israel-panzer` | redirect + `contributorHref` (this branch) |
+
+**Researcher address (item 7).** `contributors` has one row for this person: slug `israel-panzer`, code `panzer`. The page resolves a numeric segment through `code` and any other segment through `slug`, so `panzer` answered 404. `contributorHref` (`src/lib/supabase.js`) built `code || slug`: the researcher links and the page's own client canonical named the 404 address. It now uses the sitemap's rule (numeric code, else slug), and the old address redirects permanently (308, as every rule in that file). No post links to either address.
+
+**Backups (item 3).** The old WordPress files are not lost: the public `media` bucket holds 15,027 objects under `uploads/YYYY/MM/`, with the Hebrew file name transliterated. All five sampled missing files were found (e.g. `/wp-content/uploads/2018/11/אור-השמן.pdf` = `uploads/2018/11/avr-hshmn.pdf`). The mapping table `media_map` is empty. Restoring the 103 file addresses would need a name mapping and must keep the honeypot on the other `/wp-content/*` paths; not designed, not done.
+
+**Hidden characters (item 6).** Two posts carry a bidi or zero-width character in the slug (ids 1775, 1010); Search Console: 1 click and 13 impressions together. A fix is a live-data change for little value; recommendation: leave.
+
+**The 14 closed paths (item 2).** Read 18.11.2026 from `origin/main` `45db9323c`, the live site (6 of the paths answer 503 + `Retry-After: 259200`), the live `site_flags` and `site_visits` (people, 30 days). The 503 is served by `public-reading-deploy/api/public-document.js` for `PUBLIC_TEMPORARILY_CLOSED_PATHS`; removing a path from that list alone turns it into a 200 closed notice, not a page. 12 of the 13 areas have no 2029 page: their Legacy pages were deleted on 5.11, so "reopens in a few days" cannot happen without building them. No area has a real basis for an opening date.
+
+| Path | What exists and works | Missing to open | Meant for the public | Can open now safely | Visits 30d | Recommendation |
+|---|---|---|---|---|---|---|
+| `/heichal` = `/היכל` | `Heichal2029Page`, admin view only; research actions admin-only | public read-only scope; `lock_heichal` (true) is a DB flag; owner said 6.11 "keep as is" | yes, later (flag message: opens after verification) | no | 23 | keep temporarily closed; no date |
+| `/research` | admin-only copy of the `/gematria` calculator; `lock_research` true | nothing to build: it duplicates `/gematria` | as the calculator, which is open | — | 57 | close permanently by continuing to `/gematria` (the continuation table already does this for `?tool=gematria`) |
+| `/archive` | no page; the Home tile and `/gallery-updates` lead into the 503 | a renderer (the frame contract defines the archive as a lens over posts) | yes ("the new archive, closed while it is completed") | no | 41 | keep temporarily closed; no date. The Home tile and `/gallery-updates` point into a 503 meanwhile |
+| `/timeline` | no page; parts `Timeline2029`, `PostTimeline2029` | a renderer | yes ("in the follow-up plan") | no | 29 | keep temporarily closed; no date |
+| `/name` (`/שם`) | no page | a renderer | not stated after 4.11 | no | 28 | close permanently, continue to `/gematria`, unless a name page is planned |
+| `/name-lab` | no page; libraries `nameLab*.js` | a renderer | not stated | no | 1 | close permanently (410) |
+| `/numbers` | no page; `/number` is open (`lock_number` false) | — | the number tree lives in `/number` | — | 22 | close permanently, continue to `/number` |
+| `/reality` | no page; its river runs inside `/gallery` | — | inside `/gallery` | — | 1 | close permanently, continue to `/gallery` |
+| `/broadcasts` | no page | a renderer | not stated | no | 10 | close permanently (410), unless a broadcast surface is planned |
+| `/spatial-gematria` (+ 3D aliases) | no page; building blocks only; `lock_guided_spatial` true | a renderer | owner 6.11: the old 3D generation is not part of the product | no | 2 | close permanently (410) |
+| `/verse-gematria` (`/פסוקים`) | no page | a renderer | not stated | no | 0 | close permanently, continue to `/gematria` |
+| `/languages` (`/קשרי-שפות`) | no page; library `crossLanguageFinding.js` | a renderer | not stated | no | 0 | close permanently (410) |
+| `/cross` (`/הצלבה`) | no page; `lock_cross` true | a renderer | not stated | no | 0 | close permanently (410) |
+
+Every change of these answers (410, a continuation, or reopening) is a site-behaviour change for ZURIEL's decision; none is made here.

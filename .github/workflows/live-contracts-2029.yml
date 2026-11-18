@@ -261,7 +261,7 @@ jobs:
       - name: Static file lifetimes in the DEPLOYED config (fonts, brand images, twelve versioned Post backgrounds; documents stay no-store)
         run: node --test test/public-static-asset-cache-20261115.test.mjs
       - name: Historical URL release (Post canonical, researcher identity, taxonomy hydration and one-hop redirects; uses the pinned renderer from the calculator step)
-        run: node --test test/public-wp-post-canonical-20261115.test.mjs test/public-sitemap-researcher-identity-20261115.test.mjs test/public-taxonomy-canonical-20261115.test.mjs test/public-redirect-single-hop-20261115.test.mjs test/posts-taxonomy-ui-2029.test.mjs
+        run: node --test test/public-wp-post-canonical-20261115.test.mjs test/public-sitemap-researcher-identity-20261115.test.mjs test/public-taxonomy-canonical-20261115.test.mjs test/public-redirect-single-hop-20261115.test.mjs test/public-url-followups-20261118.test.mjs test/posts-taxonomy-ui-2029.test.mjs
       - name: Post document speed (the spellings of one post address are requested together; first-spelling preference, failure fall-through, 503/404 answers and single-request cases unchanged)
         run: node --test test/post-document-slug-variants-20261115.test.mjs
       - name: Reading-mode research and continuity contracts (verified-principal research provider, exact historical pages, root vercel.json content pin; previously unwired, drifted from approved changes and repaired; the research provider test mounts the real provider and needs react-test-renderer from the step above)
