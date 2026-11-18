@@ -1518,9 +1518,9 @@
       },
       "metrics": {
         "eagerJsFiles": 17,
-        "eagerJsGzip": 202473,
+        "eagerJsGzip": 204087,
         "frameJsFiles": 3,
-        "frameJsGzip": 46382,
+        "frameJsGzip": 46401,
         "frameCssGzip": 33850
       },
       "history": [
@@ -1599,6 +1599,19 @@
             "eagerJsGzip": 202473,
             "frameJsFiles": 3,
             "frameJsGzip": 46382,
+            "frameCssGzip": 33850
+          }
+        },
+        {
+          "date": "2026-11-18",
+          "by": "ZURIEL",
+          "sha": "3f3355613",
+          "reason": "ZURIEL decision 18.11.2026, asked explicitly about this correction: \"תקן את הסף\". Correction of a measurement error, not growth: the 18.11.2026 ratchet entries of this profile (736dd285b..cd877d907) were measured on a local build without the production VITE_* values, against this profile's own rule, so they set the limit about 1.6 KB too low. Vercel's production build of main 3f3355613 (dpl_CVQS1AV2DfB1sfsxsSbVU4FLv78W, stopped by this gate) measures eagerJsGzip 204087, frameJsGzip 46401, frameCssGzip 33850; the same tree without the values measures 202470 / 46397 / 33850. Same-condition saving against main 736dd285b on Vercel: eagerJsGzip 221251 -> 204087 (-17164), frameJsGzip 75364 -> 46401 (-28963).",
+          "metrics": {
+            "eagerJsFiles": 17,
+            "eagerJsGzip": 204087,
+            "frameJsFiles": 3,
+            "frameJsGzip": 46401,
             "frameCssGzip": 33850
           }
         }

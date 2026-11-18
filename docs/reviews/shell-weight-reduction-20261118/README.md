@@ -153,6 +153,21 @@ No page errors.
 - Not measured: field data (the branch is not deployed), INP from real visitors (the lab measures one menu/search interaction),
   HTTP/1.1 after the fix. After a release, the speed centre's field view is the check: Home card and largest paint by device.
 
+## Correction after the release build (18.11.2026)
+
+The public-profile numbers above came from a local build without the production `VITE_*` values (analytics and ad ids).
+The profile's own rule is to measure with them. With them, Vercel's production build of main 3f3355613 measured
+`eagerJsGzip` 204,087 B, not 202,470 B, and the gate stopped the deployment (dpl_CVQS1AV2DfB1sfsxsSbVU4FLv78W).
+
+| Vercel production build | main 736dd285b | 3f3355613 |
+| --- | --- | --- |
+| eagerJsGzip | 221,251 B | 204,087 B (−17,164 B) |
+| frameJsGzip | 75,364 B | 46,401 B (−28,963 B) |
+
+The code did not grow. On ZURIEL's decision ("תקן את הסף", 18.11.2026), the public-reading baseline was set to the Vercel measurement.
+The decision is recorded in `scripts/2029-shell-budget-baseline.json`. A future lowering of this profile must be measured with
+the production values.
+
 ## Rollback
 
 Revert the branch commits. No database, Edge Function, flag, secret or configuration change is part of this package.
