@@ -4835,7 +4835,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const b=blockOf(),S=b.S,c1=b.c0+b.cw;
     const mh=occ();
     const sig=JSON.stringify([st.scope,st.res.t,hitKey(mh),b.S,b.r0,b.r1,b.c0,b.cw,st.showN,st.words.map(w=>[w.t,w.extra?.size||0,w.off?.size||0,!!w._savedShown,!!w.hits])]);
-    if(sig===_recomputeSig&&st.words.every(w=>Array.isArray(w.hits)&&!w._savedShown))return;
+    // An identical redraw (zoom, pinch) keeps the lists; a word object that was not computed for this exact view (a new word, a
+    // reopened meeting or a loaded record) is always computed.
+    if(sig===_recomputeSig&&st.words.every(w=>w._recomputedFor===sig&&!w._savedShown))return;
     _recomputeSig=sig;
     // Same axis, window and count: only the words or the choices changed. A word already on the matrix keeps the occurrences it shows
     // by default, in the same order; before, adding a word re-ranked the others and an earlier word's occurrence could jump to another
@@ -4910,6 +4912,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         w.extra=new Set([...shownSet].filter(k=>!defKeys.has(k)));
         w._savedShown=null;
       }
+      w._recomputedFor=sig;
     });
   }
 
