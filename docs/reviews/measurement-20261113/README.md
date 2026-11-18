@@ -47,6 +47,7 @@ Commits here: `ff87b461e` C1 (#1321 family, byte-identical files + one hunk of `
     "docs/reviews/measurement-20261113/transport-review.md"
   ],
   "tests": [
+    "test/measurement-hebrew-path-20261118.test.mjs",
     "test/measurement-identity-20261115.test.mjs",
     "test/measurement-package-scope-20261113.test.mjs",
     "test/measurement-page-view-once-2029.test.mjs",
@@ -142,3 +143,7 @@ Node `v22.23.4`. Browser: Playwright `1.63.0`, Chromium `1243` (Chrome for Testi
 ## 15 November extension (branch proposal)
 
 The identity/report extension is documented in `../measurement-identity-20261115/README.md`. The original anonymous collector remains compatible; the new version opts into browser/session identifiers and server-stamped account attribution. Its test is listed in the inventory above; its SQL and release order belong to the extension, not to the historical package.
+
+## 18 November fix — pages with a Hebrew address
+
+Live 18.11.2026 (`dpl_4o9omstBnmuGwEEwWF3x8tRTVke1`, `b70497f6a`): every measured event of a root WordPress article with a Hebrew address was refused by `ingest_event` (400 `invalid measurement envelope`). `readingTelemetryPath` returned the Hebrew segment itself as the label, and the database admits a measured `p_path` only when it is Latin (`^/([a-z0-9][a-z0-9/-]*(/:(item|value))?)?$`). The 18.11 sitemap has 1,158 such single-segment addresses and one historical page under a Hebrew segment. Fix in the client only, no database change: a first segment that is not Latin is labelled `/post/:item` (no per-alias table: the Hebrew aliases of product pages redirect before a visit settles, the notice pages among them had no visit in 30 days, and a table cost 140 bytes gzip on every page; the fix adds 40), and `readingMeasurementPath` carries the article identity as `/post/<slug>`, which the database already maps to `/post/:item`. A slug with niqqud, punctuation or emoji is not admitted by the database's `[[:alnum:]]`, so it travels as the family alone (83 of the 1,159). Checked over all 16,799 sitemap addresses with a port of the live checks: 1,159 refused before, 0 after; no label of any other address changed. Side effects: page-speed samples and the `site_visits` counter of these pages now carry `/post/:item` instead of the slug (as `/post/<slug>` already did); the speed centre still groups them as Posts; GA keeps the page's own canonical address once the page is ready. Test: `test/measurement-hebrew-path-20261118.test.mjs`.
