@@ -23,6 +23,12 @@ export function readingTelemetryPath(value) {
   // trailing segments so names, IDs, search terms, and private slugs never leave the browser.
   const segments = path.split("/").filter(Boolean);
   if (segments.length === 0) return "/";
+  // A first segment that is not Latin is an old WordPress document: a root article or a historical page (18.11.2026 sitemap: 1,158
+  // single-segment Hebrew addresses and one historical page under a Hebrew segment). Its label is the article family, never the slug:
+  // the slug left the browser before, and ingest_event refuses a non-Latin p_path, so every measured visit to these pages was lost.
+  // (The few Hebrew aliases of product pages redirect to their Latin address before a visit settles; the notice pages among them had
+  // no visit in 30 days, so a per-alias table would cost every page bytes for nothing.)
+  if (/[^\x00-\x7f]/.test(segments[0])) return "/post/:item";
   const safeSegment = /^[a-z0-9][a-z0-9-]{0,63}$/i;
   if (segments.some(segment => !safeSegment.test(segment))) return "/" + segments[0].toLowerCase() + (segments.length > 1 ? "/:item" : "");
   if (segments.length === 1) return "/" + segments[0].toLowerCase();
@@ -167,6 +173,9 @@ export function readingMeasurementPath(value) {
   try { path = decodeURIComponent(value.split(/[?#]/, 1)[0]).replace(/\/+$/, '') || '/'; } catch { return null; }
   if (/^\/(?:post|tag|category|book|video)\/[\p{L}\p{N}_-]{1,256}$/u.test(path)
     || /^\/number\/[0-9]{1,12}$/.test(path)) return path;
+  // A root WordPress article keeps its identity under the article family that ingest_event admits (/post/<letters, digits, _ or ->).
+  // A slug with other characters (niqqud, punctuation, emoji) is reported as the family alone, as the database would refuse it.
+  if (family === "/post/:item" && /[^\x00-\x7f]/.test(path) && /^\/[\p{L}\p{N}_-]{1,256}$/u.test(path)) return "/post" + path;
   return family;
 }
 
