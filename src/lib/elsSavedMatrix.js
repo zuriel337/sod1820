@@ -29,7 +29,8 @@ export function savedMatrixMatchesAxis(row, state) {
     && state.axis?.hitId === `${row.skip_distance}_${row.direction === "back" ? -1 : 1}_${row.start_index}`;
 }
 
-export function savedMatrixWorkspaceHref(row) {
-  return row?.slug ? `/code?cipher=${encodeURIComponent(row.slug)}`
+export function savedMatrixWorkspaceHref(row, mode) {
+  const href = row?.slug ? `/code?cipher=${encodeURIComponent(row.slug)}`
     : row?.id ? `/code?record=${encodeURIComponent(row.id)}` : "/code";
+  return href !== "/code" && (mode === "research" || mode === "classic") ? `${href}&mode=${mode}` : href;
 }

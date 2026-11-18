@@ -169,7 +169,6 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   useEffect(() => { if (!library) setWorkspaceVisited(true); }, [library]);
   const showLibrary = view => setParams(current => { const next = new URLSearchParams(current);next.set("library", view);return next; });
   const closeLibrary = () => setParams(current => { const next = new URLSearchParams(current);next.delete("library");return next; });
-  const openCipher = row => { setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
   const cipherSlug = params.get("cipher");
   const recordId = params.get("record");
   const directSavedOpen = Boolean(cipherSlug || recordId);
@@ -220,17 +219,24 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   });
   // Three projections share the same mounted engine. Entering or switching a mode never
   // starts a scan or an AI call; Guided starts only on its explicit submit.
+  const requested = clean(params.get("mode")).toLowerCase();
   const [matrixProfile, setMatrixProfile] = useState(() => {
-    const requested = clean(params.get("mode")).toLowerCase();
+    if (requested === "research") return ELS_MATRIX_PROFILE.RESEARCH;
     if (requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
     // ZURIEL 6.11: the Bible code opens in Research for everyone. Guided discovery is hidden for everyone, administrator
     // included, until the AI is connected; the code stays behind VITE_ELS_GUIDED_DISCOVERY=visible.
     if (requested === "guided" && guidedVisible) return ELS_MATRIX_PROFILE.GUIDED;
     return ELS_MATRIX_PROFILE.RESEARCH;
   });
+  const savedProfile = requested === "research" ? ELS_MATRIX_PROFILE.RESEARCH : ELS_MATRIX_PROFILE.CLASSIC;
   useEffect(() => {
-    if (directSavedOpen) setMatrixProfile(ELS_MATRIX_PROFILE.CLASSIC);
-  }, [directSavedOpen]);
+    if (directSavedOpen) setMatrixProfile(savedProfile);
+  }, [cipherSlug, recordId, directSavedOpen, savedProfile]);
+  const workspaceMode = matrixProfile === ELS_MATRIX_PROFILE.RESEARCH ? "research" : "classic";
+  const openCipher = row => {
+    setOpenRevision(value => value + 1);
+    setParams(new URLSearchParams(savedMatrixWorkspaceHref(row, workspaceMode).split("?")[1]));
+  };
   const [researchLoad, setResearchLoad] = useState(null);
   const [researchProbe, setResearchProbe] = useState(null);
   const [exactStatus, setExactStatus] = useState("idle");
@@ -418,18 +424,17 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     description={ELS_DESCRIPTION}
   >
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
-      onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} /> : null}
+      onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} workspaceMode={workspaceMode} /> : null}
+    {!library ? <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
+      <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={guidedVisible ? null : [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC]} />
+      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(guidedVisible ? ELS_MATRIX_PROFILE.GUIDED : ELS_MATRIX_PROFILE.RESEARCH);setParams({}); }}>חיפוש חדש</button> : null}
+    </nav> : null}
     {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
       : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
     {sharedMatrix.present ? <p role="status">{sharedMatrix.loadItem ? "מטריצה משותפת: המופע והסימונים נבדקים מחדש במנוע לפני הצגתם." : "קישור המטריצה אינו תקין או גדול מדי. בקשו קישור חדש."}</p> : null}
-    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
-      <div><small>סביבת עבודה</small><strong>{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "מחקר" : "קלאסי"}</strong></div>
-      <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={guidedVisible ? null : [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC]} />
-      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(guidedVisible ? ELS_MATRIX_PROFILE.GUIDED : ELS_MATRIX_PROFILE.RESEARCH);setParams({}); }}>חיפוש חדש</button> : null}
-    </nav>
+    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} workspaceMode={workspaceMode} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
     {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
       <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
       {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}

@@ -3084,9 +3084,34 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   assert.equal(await page.evaluate(()=>window.__libraryEngineMounts),1,'library round-trip keeps the same engine');
   await page.evaluate(()=>window.__libraryRows.unshift({...window.__libraryRows[0],id:'new-save',title:'שמירה חדשה'}));
   await button(page,'שמירה לדוגמה').click();await folder.getByRole('heading',{name:'שמירה חדשה'}).waitFor();
+  const modes=page.getByRole('group',{name:'מצב מטריצה',exact:true});
+  const classic=modes.getByRole('button',{name:'קלאסי',exact:true});
+  const research=modes.getByRole('button',{name:'מחקר',exact:true});
+  assert.equal(await classic.getAttribute('aria-pressed'),'true');
+  assert.equal(await classic.getByText('FREE',{exact:true}).isVisible(),true);
+  for(const width of [320,1440]){
+    await page.setViewportSize({width,height:900});
+    assert.equal(await modes.getByRole('button').count(),2);
+    assert.ok(await modes.getByRole('button').evaluateAll(nodes=>nodes.every(node=>node.getBoundingClientRect().height>=64)));
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  }
+  await research.click();
+  const saved=folder.getByRole('link',{name:/צופן שמור 1/});
+  assert.match(await saved.getAttribute('href'),/record=recent-1&mode=research$/);
+  await saved.click();
+  await page.waitForFunction(()=>document.querySelector('[data-fixture-matrix="recent-1"]'));
+  assert.equal(await research.getAttribute('aria-pressed'),'true','opening a saved cipher keeps Research');
+  assert.equal(await button(page,'חיפוש מתקדם').isVisible(),true);
+  await classic.click();
+  if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
+  const next=folder.getByRole('link',{name:/צופן שמור 2/});
+  assert.match(await next.getAttribute('href'),/record=recent-2&mode=classic$/);
+  await next.click();
+  await page.waitForFunction(()=>document.querySelector('[data-fixture-matrix="recent-2"]'));
+  assert.equal(await classic.getAttribute('aria-pressed'),'true','opening a saved cipher keeps Classic');
   await page.evaluate(()=>window.__switchLibraryUser(null));
-  await page.waitForFunction(()=>!document.body.textContent.includes('שמירה חדשה'));
-  assert.equal(await folder.locator('.els29-library-card').count(),0,'private recent cards leave immediately on sign-out');
+  await page.getByRole('heading',{name:'הצופן אינו זמין',exact:true}).waitFor();
+  assert.equal(await folder.locator('.els29-library-card').count(),0,'private ciphers leave immediately on sign-out');
   assert.deepEqual(errors,[]);
  }finally{await browser?.close();await server.close();}
 });
