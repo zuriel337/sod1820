@@ -13,16 +13,18 @@
 //
 // Timing, from the live source (Vercel observability, outgoing requests to rpc/content_big_numbers, 11-18.11.2026: 330 reads, all HTTP 200,
 // p50 244 ms, p99 700 ms, max 786 ms; payload 25 bytes, 4 values on 18.11):
-//   - copy younger than freshMs (60 min, unchanged): used, no read;
-//   - copy between freshMs and maxStaleMs (24 h): used at once, ONE background read replaces it (a crawler never waits for a refresh);
-//   - no copy, or an older one: the crawler waits for one read, at most readTimeoutMs (1,500 ms). 800 ms would sit just above the slowest
-//     read seen in a week (786 ms) and turn ordinary slow reads into 503s, since a failed read now answers 503 instead of passing; 1,500 ms
-//     is about twice that maximum and is paid only by the first crawler on a cold instance;
-//   - after a failed read no new read starts for failureHoldMs (30 s): crawlers arriving meanwhile get the 503 at once instead of another
-//     wait, and the source is not hammered while it is down.
+//   - routine: a copy younger than freshMs (60 min, unchanged from before) decides; the first crawler after that waits for one new read, as
+//     before. So a number that becomes eligible, or stops being eligible, reaches crawlers within the hour (plus that one read);
+//   - the read waits at most readTimeoutMs (1,500 ms). 800 ms would sit just above the slowest read seen in a week (786 ms) and turn ordinary
+//     slow reads into 503s, since a failed read now answers 503 instead of passing; 1,500 ms is about twice that maximum;
+//   - ONLY when that read fails is the last good copy used, and only while it is younger than failureCopyMaxMs (6 h). Older → 503. The copy
+//     never replaces a successful read and never extends itself;
+//   - after a failed read no new read starts for failureHoldMs (30 s); crawlers meanwhile get the copy (if under 6 h) or the 503 at once.
+// The edge decision only admits or refuses a crawler. The page it reaches still reads the current publication state itself (api/og.js reads
+// is_number_indexable for its robots tag), so a copy never bypasses the content's own publication check.
 export const BIG_NUMBER_ELIGIBILITY = Object.freeze({
   freshMs: 60 * 60 * 1000,
-  maxStaleMs: 24 * 60 * 60 * 1000,
+  failureCopyMaxMs: 6 * 60 * 60 * 1000,
   readTimeoutMs: 1500,
   failureHoldMs: 30 * 1000,
   retryAfterSeconds: 120,
@@ -58,11 +60,11 @@ export async function readBigNumberList({ url, headers, fetchImpl = fetch, timeo
 }
 
 /**
- * @param {{ read: () => Promise<Set<number>>, now?: () => number, freshMs?: number, maxStaleMs?: number, failureHoldMs?: number }} options
+ * @param {{ read: () => Promise<Set<number>>, now?: () => number, freshMs?: number, failureCopyMaxMs?: number, failureHoldMs?: number }} options
  * read() resolves to a usable Set or throws; its own time bound is readBigNumberList's timeout.
  */
 export function createBigNumberEligibility({ read, now = () => Date.now(), freshMs = BIG_NUMBER_ELIGIBILITY.freshMs,
-  maxStaleMs = BIG_NUMBER_ELIGIBILITY.maxStaleMs, failureHoldMs = BIG_NUMBER_ELIGIBILITY.failureHoldMs } = {}) {
+  failureCopyMaxMs = BIG_NUMBER_ELIGIBILITY.failureCopyMaxMs, failureHoldMs = BIG_NUMBER_ELIGIBILITY.failureHoldMs } = {}) {
   let list = null, readAt = 0, failedAt = -Infinity, inflight = null;
   const refresh = () => {
     if (inflight) return inflight;
@@ -76,26 +78,19 @@ export function createBigNumberEligibility({ read, now = () => Date.now(), fresh
     return inflight;
   };
   const decide = (value, state) => ({ decision: list.has(value) ? 'eligible' : 'not_eligible', state });
+  const copyUsable = () => Boolean(list) && now() - readAt < failureCopyMaxMs;
   return {
     /**
-     * → { decision: "eligible" | "not_eligible" | "unknown", state }. state: "fresh" (copy under freshMs) · "stale" (copy under maxStaleMs,
-     * used at once, read again in the background) · "read" (the crawler waited for a new usable copy) · "failed" (that read failed) ·
-     * "held" (a read failed under failureHoldMs ago and there is no copy that may be relied on: no new read).
+     * → { decision: "eligible" | "not_eligible" | "unknown", state }. state: "fresh" (copy under freshMs, no read) · "read" (the crawler waited
+     * for a new usable copy) · "fallback" (that read failed; the last good copy, under failureCopyMaxMs, decided) · "held" (a read failed under
+     * failureHoldMs ago: no new read; the copy decides if usable, else unknown) · "failed" (the read failed and no copy may be relied on).
      */
-    async get(value, { waitUntil } = {}) {
-      const age = list ? now() - readAt : Infinity;
-      if (age < freshMs) return decide(value, 'fresh');
-      if (age < maxStaleMs) {
-        if (now() - failedAt >= failureHoldMs) {
-          const pending = refresh();
-          try { waitUntil?.(pending); } catch { /* no request context: the read simply continues */ }
-        }
-        return decide(value, 'stale');
-      }
-      if (now() - failedAt < failureHoldMs) return { decision: 'unknown', state: 'held' };
+    async get(value) {
+      if (list && now() - readAt < freshMs) return decide(value, 'fresh');
+      if (now() - failedAt < failureHoldMs) return copyUsable() ? decide(value, 'held') : { decision: 'unknown', state: 'held' };
       await refresh();
       if (list && now() - readAt < freshMs) return decide(value, 'read');
-      return { decision: 'unknown', state: 'failed' };
+      return copyUsable() ? decide(value, 'fallback') : { decision: 'unknown', state: 'failed' };
     },
     /** For tests and diagnostics only. */
     snapshot: () => ({ size: list ? list.size : null, readAt, failedAt, reading: Boolean(inflight) }),

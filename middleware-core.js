@@ -367,7 +367,7 @@ export default async function middleware(request, context) {
   const bigNum = isBot && /^\/number\/\d{5,}$/.test(path) ? Number(path.slice(8)) : null;
   let bigNumUnknown = false;
   if (bigNum != null && !blocked) {
-    const { decision } = await BIG_NUMBERS.get(bigNum, { waitUntil: p => context.waitUntil(p) });
+    const { decision } = await BIG_NUMBERS.get(bigNum);
     if (decision === 'not_eligible') blocked = true;
     else if (decision === 'unknown') bigNumUnknown = true;
   }

@@ -12,12 +12,12 @@ function world() {
   let t = 5_000_000;
   const reads = [], background = [];
   const el = createBigNumberEligibility({ now: () => t, read: () => { const d = deferred(); reads.push(d); return d.promise; } });
-  return { el, reads, background, get: v => el.get(v, { waitUntil: p => background.push(p) }), advance: ms => { t += ms; } };
+  return { el, reads, background, get: v => el.get(v), advance: ms => { t += ms; }, now: () => t };
 }
 const settle = () => new Promise(r => setImmediate(r));
 
-test("timing constants are the documented ones (fresh 60 min, stale copy 24 h, read 1.5 s, hold 30 s, Retry-After 120 s)", () => {
-  assert.deepEqual({ ...BIG_NUMBER_ELIGIBILITY }, { freshMs: HOUR, maxStaleMs: 24 * HOUR, readTimeoutMs: 1500, failureHoldMs: 30000, retryAfterSeconds: 120, maxValues: 100000 });
+test("timing constants are the documented ones (fresh 60 min, failure-only copy 6 h, read 1.5 s, hold 30 s, Retry-After 120 s)", () => {
+  assert.deepEqual({ ...BIG_NUMBER_ELIGIBILITY }, { freshMs: HOUR, failureCopyMaxMs: 6 * HOUR, readTimeoutMs: 1500, failureHoldMs: 30000, retryAfterSeconds: 120, maxValues: 100000 });
 });
 
 test("only an array of safe integers above 9999 is a usable answer", () => {
@@ -57,24 +57,68 @@ test("no copy and the read fails → unknown; during the 30 s hold no new read s
   assert.equal((await b).decision, "eligible");
 });
 
-test("a copy between 1 and 24 hours old decides at once while one background read replaces it; a failed read never removes the copy", async () => {
+async function seeded(list) {
   const w = world();
-  const first = w.get(27010); await settle(); w.reads[0].resolve(new Set([27010])); await first;
-  w.advance(2 * HOUR);
-  assert.deepEqual(await w.get(27010), { decision: "eligible", state: "stale" }, "the crawler does not wait for the refresh");
-  assert.equal(w.reads.length, 2); assert.equal(w.background.length, 1);
-  w.reads[1].reject(new Error("down")); await settle();
-  assert.deepEqual(await w.get(27010), { decision: "eligible", state: "stale" }, "copy kept after a failed refresh");
-  assert.equal(w.reads.length, 2, "no new read during the hold");
-  assert.deepEqual(await w.get(12345), { decision: "not_eligible", state: "stale" }, "a usable copy still refuses non-eligible values");
+  const first = w.get(27010); await settle(); w.reads[0].resolve(new Set(list)); await first;
+  return w;
+}
+
+test("routine: after an hour the next crawler waits for ONE new read — the old copy is not used while the source answers", async () => {
+  const w = await seeded([27010]);
+  w.advance(HOUR);
+  const a = w.get(27010); await settle();
+  assert.equal(w.reads.length, 2, "a new read, not the old copy");
+  w.reads[1].resolve(new Set([27010]));
+  assert.deepEqual(await a, { decision: "eligible", state: "read" });
 });
 
-test("a copy older than 24 hours is no longer relied on: failure → unknown, not the old answer", async () => {
+test("a number that becomes eligible after the copy was made is admitted at the next routine read (within the hour)", async () => {
+  const w = await seeded([27010]);
+  assert.equal((await w.get(10401)).decision, "not_eligible", "not yet in the list");
+  w.advance(HOUR);
+  const a = w.get(10401); await settle();
+  w.reads[1].resolve(new Set([27010, 10401]));
+  assert.deepEqual(await a, { decision: "eligible", state: "read" });
+});
+
+test("a number whose eligibility is withdrawn is refused at the next routine read; the old copy does not keep it admitted", async () => {
+  const w = await seeded([27010, 10401]);
+  w.advance(HOUR);
+  const a = w.get(10401); await settle();
+  w.reads[1].resolve(new Set([27010]));
+  assert.deepEqual(await a, { decision: "not_eligible", state: "read" });
+});
+
+test("persistent failure: the last good copy decides only after a failed read and only until it is 6 h old; then 503 (unknown)", async () => {
+  const w = await seeded([27010]);
+  const copyAt = w.now();
+  const STEP = 10 * 60 * 1000;
+  let sawFallback = false, sawHeld = false;
+  w.advance(HOUR);
+  while (w.now() - copyAt < 6 * HOUR) {
+    const before = w.reads.length;
+    const a = w.get(27010); await settle();
+    if (w.reads.length > before) w.reads.at(-1).reject(new Error("down"));
+    const r = await a;
+    assert.equal(r.decision, "eligible", `copy age ${(w.now() - copyAt) / HOUR} h`);
+    sawFallback ||= r.state === "fallback";
+    // within the 30 s hold: no new read, the copy still decides (and still refuses non-eligible values)
+    w.advance(1000);
+    const h = await w.get(12345);
+    assert.equal(h.decision, "not_eligible"); sawHeld ||= h.state === "held";
+    w.advance(STEP);
+  }
+  assert.ok(sawFallback && sawHeld);
+  const before = w.reads.length;
+  const last = w.get(27010); await settle();
+  if (w.reads.length > before) w.reads.at(-1).reject(new Error("still down"));
+  assert.deepEqual(await last, { decision: "unknown", state: "failed" }, "copy over 6 h: no decision → 503");
+  assert.equal(w.el.snapshot().readAt, copyAt, "failed reads never refreshed or extended the copy");
+});
+
+test("an unusable answer (wrong shape) counts as a failure, not as an empty list", async () => {
   const w = world();
-  const first = w.get(27010); await settle(); w.reads[0].resolve(new Set([27010])); await first;
-  w.advance(25 * HOUR);
-  const a = w.get(27010); await settle();
-  w.reads[1].reject(new Error("down"));
+  const a = w.get(27010); await settle(); w.reads[0].reject(new Error("big-number eligibility read: unusable answer"));
   assert.deepEqual(await a, { decision: "unknown", state: "failed" });
 });
 
@@ -175,4 +219,13 @@ test("middleware: a crawler on a small number (four digits) never calls the elig
   const r = await run({ path: "/number/1820", ua: GOOGLEBOT, big: async () => { throw new Error("must not be called"); } });
   assert.ok(!refused(r.res));
   assert.equal(r.bigCalls, 0);
+});
+
+test("middleware: security blocks stay in force whatever the eligibility copy says (bad bot on an ELIGIBLE number, crawler on a private path)", async () => {
+  const bad = await run({ path: "/number/27010", ua: BAD_BOT, big: async () => Response.json([27010]) });
+  assert.equal(bad.res.status, 403);
+  assert.equal(bad.bigCalls, 0);
+  const priv = await run({ path: "/research", ua: GOOGLEBOT, big: async () => Response.json([27010]) });
+  assert.equal(priv.res.status, 403, "private/expensive path stays refused to crawlers");
+  assert.equal(priv.bigCalls, 0);
 });
