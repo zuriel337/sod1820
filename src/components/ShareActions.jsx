@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import { TYPEFACE } from "../lib/designTokens.js";
 import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
 import "./experience2029/contentActions2029.css";
 
 import { use2029Palette } from "../lib/palette2029.js";
-import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShareOutcome, pageOwnShareTitle, copyLink, floatingShareShown, canShareFile, shareImageFile } from "../lib/share.js";
+import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShareOutcome, pageOwnShareTitle, copyLink, canShareFile, shareImageFile } from "../lib/share.js";
 import { createShareIntent, resolveModality } from "../lib/share/shareObject.js";
 import { emitShare, shareSlug, attributedShareUrl } from "../lib/share/shareTelemetry.js";
 import { canonicalPostShareUrl } from "../lib/publicPostUrls.js";
@@ -17,11 +16,11 @@ import { canonicalPostShareUrl } from "../lib/publicPostUrls.js";
 //   title  — הכותרת/טקסט השיתוף
 //   image  — תמונת ה-OG (הרובוטים מושכים אותה דרך /api/og; משמשת גם לשיתוף-קובץ)
 //   channels — אילו ערוצים להציג (ברירת-מחדל: כולם) · compact — אייקונים בלבד · extra — פעולות נוספות
-//   force — לכפות הצגה גם היכן שהווידג׳ט-הצף קיים (חריג נדיר; ברירת-מחדל: כבוי)
+//   force — נשמר לתאימות בלבד; אין לו השפעה (אין ווידג׳ט צף ב־2029)
 // שינוי אייקון/טקסט/ערוץ/באג = פעם אחת כאן → מתעדכן בכל האתר.
-// 👑 share_placement_law: הבלוק מרנדר את עצמו **רק היכן שהווידג׳ט-הצף נעדר** (floatingShareShown=false)
-//    → אפס כפילות עם הלשונית הצפה, ושורה-אחת נקייה. אף דף לא צריך להחליט — זה קורה לבד.
-// הערוצים באים מ-CHANNELS (lib/share.js) — אותו מקור-אמת של הלשונית הצפה. עריכה שם → מתעדכן בשניהם.
+// מיקום (ZURIEL 18.11.2026): השורה מופיעה בכל מקום שדף מציב אותה. share_placement_law (צף או שורה) נגנז ב־15.9.2026 והווידג׳ט
+//    הצף יצא עם Legacy, כך שהכלל הישן הסתיר את השיתוף בדפים רבים בלי תחליף.
+// הערוצים באים מ-CHANNELS (lib/share.js) — מקור-אמת אחד.
 //
 // 🆕 W1 Slice 2 — Share Object (תוספתי, תואם-לאחור לחלוטין):
 //   entityId · sourceSurface · subtype · locale · exactState · context · video · poster
@@ -41,7 +40,6 @@ export default function ShareActions({
   const copyTimer = useRef(null);
   const [copyFailed, setCopyFailed] = useState(false);
   useEffect(() => () => clearTimeout(copyTimer.current), []);
-  const { pathname } = useLocation();
   const [copied, setCopied] = useState(false);
   const currentUrl = typeof window !== "undefined" ? window.location.href : SITE;
   const fullUrl = url || (type === "post" && typeof document !== "undefined"
@@ -123,8 +121,6 @@ export default function ShareActions({
     setImgBusy(false);
   }, [image, imgBusy, text, fullUrl, logShare, intent]);
 
-  // 👑 share_placement_law — הבלוק מופיע רק היכן שהווידג׳ט-הצף נעדר (אלא אם force). אפס כפילות.
-  if (!force && floatingShareShown(pathname)) return null;
 
   // A contextual unit uses the SAME execution/telemetry with one quiet icon.
   // No image file is fetched implicitly: this action shares the exact unit link.

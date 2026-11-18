@@ -105,6 +105,7 @@ function toolOnApproach2029(load, title) {
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
 const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
+const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
 const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
 const PersonalSaveButton2029 = toolOnOpen2029(() => import("../components/userCenter/PersonalSaveButton2029.jsx"));
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
@@ -1533,6 +1534,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     </footer>
       </div>
     </details>
+    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostEndShare2029 url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}

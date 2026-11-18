@@ -59,7 +59,7 @@ export function MoreInstall2029() {
 }
 
 export default function MorePanel2029({ shareOnly = false, context = "", onAction, onTools, onSearch, personal, onPersonal,
-  adminDestinations = [], onDestination, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
+  adminDestinations = [], onDestination, onContext = null, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
   const [candidate] = useState(reviewCandidate);
   return <div className="sod29-more" data-more-panel={shareOnly ? "share" : "full"} data-royal-candidate={candidate}>
     {!shareOnly ? <>
@@ -72,6 +72,7 @@ export default function MorePanel2029({ shareOnly = false, context = "", onActio
           <RoyalTile2029 icon="tools" title="כלים" hint={toolsBuilding ? "סגור · בבנייה" : "כלי המחקר לעמוד"} onClick={onTools} testId="tools" />
           <RoyalTile2029 icon="personal" art={personal?.avatar || null} title={personal?.signedIn ? "האזור שלי" : "כניסה"}
             hint={personal?.signedIn ? (personal.name || "שמירות ומסע אישי") : "לאזור האישי"} onClick={onPersonal} testId="personal" />
+          {onContext ? <RoyalTile2029 icon="layers" title="כאן" hint="בבנייה · מנהל" onClick={onContext} testId="here" /> : null}
           {toolDockReturn ? <RoyalTile2029 icon="cipher" title="כלי הצופן" label="חזור לכלי הצופן" hint="חזרה לכלי שהיה פתוח" onClick={toolDockReturn} testId="tool-return" /> : null}
         </RoyalTileGrid2029>
       </section>
@@ -83,8 +84,10 @@ export default function MorePanel2029({ shareOnly = false, context = "", onActio
       </section> : null}
       <MoreInstall2029 />
     </> : null}
-    {share?.href ? <section className="sod29-more-section sod29-panel-share" data-more-section="share" aria-labelledby="sod29-more-share" data-share-owner="ShareActions">
-      <h3 id="sod29-more-share">שיתוף העמוד</h3>
+    {share?.href ? <section className="sod29-more-section sod29-panel-share" data-more-section="share" aria-labelledby={shareOnly ? undefined : "sod29-more-share"}
+      aria-label={shareOnly ? "שיתוף העמוד" : undefined} data-share-owner="ShareActions">
+      {/* in the share-only panel the panel's own title already says "שיתוף העמוד" */}
+      {shareOnly ? null : <h3 id="sod29-more-share">שיתוף העמוד</h3>}
       <ShareActions type={share.type} url={share.href} title={share.title} sourceSurface={share.surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} force />
     </section> : <p className="sod29-more-note" data-more-section="share">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</p>}
   </div>;
