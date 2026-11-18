@@ -3317,3 +3317,53 @@ test('owner 18.11: the meter counts what was found so far, and stopping keeps th
     assert.equal(crossFound.at(-1)[2],(await page.evaluate(()=>window.__state.search.zones)),'the last count is the number of meetings shown');
   },{realHost:true,loadGolden:false,tier:'anon'});
 });
+
+test('owner 18.11: fullscreen is the same interface re-laid: the page\'s own tool strip, search form and research tools, with the axis in view',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:300000},async()=>{
+  for(const [width,height] of [[1440,900],[390,844]])await withNative({width,height},async page=>{
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    const mark=sel=>page.evaluate(sel=>{const el=document.querySelector(sel);el.dataset.sameElement='1';return true;},sel);
+    // Tag the normal page's elements; fullscreen must show these very elements, not copies.
+    for(const sel of ['#els29-query','.els29-native-toolstrip','.els29-native-structure-entry','.els29-native-matrix-scroll'])await mark(sel);
+    const stripBefore=await page.locator('.els29-native-toolstrip button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
+    await page.locator('.els29-fs-toggle').first().dispatchEvent('click');await page.waitForSelector('.els29-native-classic.is-fullscreen');
+    assert.equal(await page.locator('.els29-fs-bar').count(),0,'no separate fullscreen toolbar');
+    const strip=page.locator('.els29-native-toolstrip');
+    assert.equal(await strip.count(),1);assert.equal(await strip.getAttribute('data-same-element'),'1');assert.equal(await strip.isVisible(),true);
+    const labels=await strip.locator('button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
+    assert.deepEqual(labels,['חלון החיפוש','חלון כלי המחקר',...stripBefore,'יציאה ממסך מלא'],'the page\'s tools plus the three fullscreen controls');
+    const box=sel=>page.evaluate(sel=>{const el=document.querySelector(sel);if(!el||getComputedStyle(el).display==='none')return null;const r=el.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height};},sel);
+    const inView=async sel=>{const b=await box(sel);return !!b&&b.l>=-1&&b.t>=-1&&b.r<=width+1&&b.b<=height+1;};
+    // The matrix has the screen: on a phone it used to share it with a second toolbar row.
+    const scroll=await box('.els29-native-matrix-scroll');assert.ok(scroll.h>=height*0.6,JSON.stringify({width,scroll}));
+    // The axis is in view after the box was resized (it used to slide out).
+    await page.waitForFunction(()=>{const s=document.querySelector('.els29-native-matrix-scroll'),a=s?.querySelector('.els29-native-cell.is-axis');if(!a)return false;
+      const v=s.getBoundingClientRect(),r=a.getBoundingClientRect();return r.left>=v.left-1&&r.right<=v.right+1&&r.top>=v.top-1&&r.bottom<=v.bottom+1;},null,{timeout:5000});
+    // The search window is the page's form; submitting from it closes the window so the matrix and the meter are in view.
+    assert.equal(await box('#els29-query'),null);
+    await strip.getByRole('button',{name:'חלון החיפוש',exact:true}).click();
+    assert.ok(await inView('#els29-query'));assert.equal(await page.locator('#els29-query').getAttribute('data-same-element'),'1');
+    assert.equal(await page.locator('#els29-query').getByRole('button',{name:'חיפוש מתקדם',exact:true}).count(),1,'regular, cross and advanced search are the page\'s own mode group');
+    // The research tools ("deep research") are the page's section, opened as a window.
+    await strip.getByRole('button',{name:'חלון כלי המחקר',exact:true}).click();
+    assert.equal(await box('#els29-query'),null,'one window at a time');
+    assert.ok(await inView('.els29-native-structure-entry'));assert.equal(await page.locator('.els29-native-structure-entry').getAttribute('data-same-element'),'1');
+    await page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true}).waitFor();
+    assert.equal(await page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true}).getByRole('button',{name:'גלה מילים ומבנים',exact:true}).count(),1);
+    const stripBox=await box('.els29-native-toolstrip'),research=await box('.els29-native-structure-entry');
+    assert.ok(research.r<=stripBox.l+1||research.l>=stripBox.r-1||research.t>=stripBox.b-1,'the window never covers the strip that closes it: '+JSON.stringify({stripBox,research}));
+    await strip.getByRole('button',{name:'חלון כלי המחקר',exact:true}).click();assert.equal(await box('.els29-native-structure-entry'),null);
+    // A tool panel opens from the same strip button as on the page.
+    await strip.getByRole('button',{name:'תוצאות',exact:true}).click();assert.ok(await inView('.els29-native-panel-wrap'));
+    await strip.getByRole('button',{name:'תוצאות',exact:true}).click();
+    // Zooming out to the minimum keeps the matrix box on the whole screen area and the controls reachable.
+    for(let i=0;i<8;i++)await page.getByRole('button',{name:'הקטן מטריצה',exact:true}).first().dispatchEvent('click');
+    await page.waitForFunction(()=>window.__state?.ui?.zoom===0.5);
+    const small=await box('.els29-native-matrix-scroll');assert.ok(Math.abs(small.h-scroll.h)<=2&&Math.abs(small.w-scroll.w)<=2,'the matrix area does not collapse when the cells shrink');
+    assert.ok(await inView('.els29-native-bottom-controls'));
+    await strip.getByRole('button',{name:'יציאה ממסך מלא',exact:true}).click();
+    await page.waitForFunction(()=>!document.querySelector('.els29-native-classic.is-fullscreen'));
+    assert.equal(await page.evaluate(()=>document.documentElement.style.overflow),'','the page scrolls again');
+    assert.deepEqual(await page.locator('.els29-native-toolstrip button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label'))),stripBefore);
+  });
+});

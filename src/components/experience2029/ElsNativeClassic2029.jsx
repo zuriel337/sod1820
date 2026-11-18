@@ -51,7 +51,7 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, onZoomChange, readingFindings = [], selectedReading, readingFocus, research = false }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, onZoomChange, readingFindings = [], selectedReading, readingFocus, research = false, layoutMode = false }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const manualSelection = useMemo(() => new Set(state?.ui?.selCells || []), [state?.ui?.selCells]);
@@ -91,6 +91,12 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
     el.scrollTop += (Math.min(...rects.map(r => r.top)) + Math.max(...rects.map(r => r.bottom))) / 2 - viewport.top - el.clientHeight / 2;
   }, [visible, selectedReading?.key, readingFocus]);
 
+  // Entering or leaving fullscreen resizes the matrix box, and in "fit" the cells with it. The view is centred on the axis again once the new
+  // size has settled; before, the axis slid out of view and the screen showed another part of the window. Other width changes (a pinned
+  // panel) keep manual panning, as before.
+  const layoutSettle = useRef({ mode: layoutMode, until: 0, width: null });
+  if (layoutSettle.current.mode !== layoutMode) layoutSettle.current = { mode: layoutMode, until: Date.now() + 800, width: layoutSettle.current.width };
+  if (Date.now() < layoutSettle.current.until) layoutSettle.current.width = boxWidth;
   useEffect(() => {
     const el = scrollRef.current;
     if (visible && el && state?.status === "ready") {
@@ -119,7 +125,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
         ? a.bottom - viewport.top - el.clientHeight + 24
         : a.top - viewport.top - 24;
     // Presentation only: marking, inspection and panel changes preserve manual panning.
-  }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw, research ? state?.ui?.zoom : null, research ? state?.ui?.fit : null]);   // panning is preserved when findings are added: only zoom / fit re-centre
+  }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw, research ? state?.ui?.zoom : null, research ? state?.ui?.fit : null, layoutMode, layoutSettle.current.width]);   // panning is preserved when findings are added: only zoom / fit re-centre
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -936,6 +942,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
   const [lexiconVisited, setLexiconVisited] = useState(false);
   const [researchToolsOpen, setResearchToolsOpen] = useState(false);
+  const [fsResearchOpen, setFsResearchOpen] = useState(false);
   const [lexiconResponse, setLexiconResponse] = useState(null);
   const [splitResponse, setSplitResponse] = useState(null);
   useEffect(() => {
@@ -975,14 +982,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setFullscreen(true);
   };
   const exitFullscreen = async () => {
-    setFullscreen(false); setFsQueryOpen(false);
+    setFullscreen(false); setFsQueryOpen(false); setFsResearchOpen(false);
     try { if (document.fullscreenElement && document.fullscreenElement === sectionRef.current) await document.exitFullscreen(); } catch { /* already left */ }
   };
   const toggleFullscreen = () => (fullscreen ? exitFullscreen() : enterFullscreen());
   useEffect(() => {
     if (!fullscreen) return undefined;
-    const onChange = () => { if (nativeFullscreenRef.current && document.fullscreenElement !== sectionRef.current) { setFullscreen(false); setFsQueryOpen(false); } };
-    const onKey = event => { if (event.key === "Escape" && !nativeFullscreenRef.current && !event.defaultPrevented) { setFullscreen(false); setFsQueryOpen(false); } };
+    // The camera view takes the browser's fullscreen for the stage inside this section and then hands it back; only a fullscreen element
+    // outside the section (or none) ends this mode. Before, coming back from the camera left the section fullscreen without its layout.
+    const onChange = () => {
+      const element = document.fullscreenElement;
+      if (nativeFullscreenRef.current && !(element && sectionRef.current?.contains(element))) { setFullscreen(false); setFsQueryOpen(false); setFsResearchOpen(false); }
+    };
+    const onKey = event => { if (event.key === "Escape" && !nativeFullscreenRef.current && !event.defaultPrevented) { setFullscreen(false); setFsQueryOpen(false); setFsResearchOpen(false); } };
     const previousOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
     document.addEventListener("fullscreenchange", onChange);
@@ -1181,6 +1193,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const requestSearch = (kind, payload = {}, origin = "user") => {
     lastSearchKindRef.current = kind;
     markDraft(false);
+    setFsQueryOpen(false);
     onSearchStart?.(kind, payload, origin);
     resetReadContext();
     setLoadError(null);
@@ -1580,14 +1593,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   return <section ref={sectionRef} className={`els29-native-classic${fullscreen ? " is-fullscreen" : ""}${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
     data-els-native-classic="v4" {...(guidedProfile ? { "data-els-guided-result-surface": "results-first-v1" } : {})}
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
-    {fullscreen ? <div className="els29-fs-bar" role="toolbar" aria-label="חלונות במסך מלא">
-      <button type="button" aria-pressed={fsQueryOpen && !advancedSearchOpen} onClick={() => { setAdvancedOpen(false); setFsQueryOpen(open => (open && !advancedSearchOpen ? false : true)); }}>חיפוש</button>
-      {advancedSearch ? <button type="button" aria-pressed={fsQueryOpen && advancedSearchOpen} onClick={() => { if (fsQueryOpen && advancedSearchOpen) { setFsQueryOpen(false); } else { setAdvancedOpen(true); setFsQueryOpen(true); } }}>מתקדם</button> : null}
-      {[["findings", "סריקה"], ["results", "תוצאות"], ["research", "שמירה"]].map(([tool, label]) => <button type="button" key={tool} aria-pressed={activeTool === tool}
-        onClick={event => (activeTool === tool ? closeTool() : openTool(tool, event.currentTarget))}>{label}</button>)}
-      <span className="els29-fs-spacer" />
-      <button type="button" className="els29-fs-exit" onClick={exitFullscreen} aria-label="יציאה ממסך מלא">✕ יציאה</button>
-    </div> : null}
     <div id="els29-query" ref={queryRef} className={`els29-native-query${fsQueryOpen ? " is-fs-open" : ""}`} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <span><strong>חיפוש חדש</strong></span>
@@ -1769,7 +1774,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             {foldActive ? <React.Suspense fallback={<p role="status">טוען את המטריצה ברוחב החדש…</p>}>
                 <ElsFoldedMatrix2029 state={engineState} option={foldOption} busy={searchPending} response={foldResponse}
                   onRequest={target => setLensRequest({ lens: "matrix-window", target })} onExit={() => setFoldWidth(null)} />
-              </React.Suspense> : <MatrixSnapshot research state={engineState} onZoomChange={zoom => requestControl("zoom-pinch", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
+              </React.Suspense> : <MatrixSnapshot research layoutMode={fullscreen} state={engineState} onZoomChange={zoom => requestControl("zoom-pinch", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
               readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />}
             </div>
           </div> :
@@ -1852,7 +1857,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <strong>✦ גילוי עם AI</strong><span>{readingPending ? "סריקה פעילה · פתח מעקב" : readingResult?.state === "COMPLETE" ? "התוצאה מוכנה · הצג במטריצה" : "בחרו אזור, בדקו עלות והתחילו רק בלחיצה"}</span>
         </button> : null}
         </div>
-        <section hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry" aria-label="כלי מחקר במטריצה">
+        <section hidden={!researchProfile || guidedProfile} className={`els29-native-structure-entry${fsResearchOpen ? " is-fs-open" : ""}`} aria-label="כלי מחקר במטריצה">
           <button type="button" className="els29-research-entry" aria-label="כלי מחקר"
             aria-expanded={researchToolsOpen} aria-controls="els29-research-tools"
             onClick={() => { setLexiconVisited(true); setResearchToolsOpen(value => !value); }}>
@@ -1874,7 +1879,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </React.Suspense> : null}
           </div>
         </section>
+        {/* Fullscreen is the same interface in another layout (ZURIEL 18.11.2026). The strip below is the page's own tool strip; in fullscreen it
+            also carries the three controls that exist only there: show the search window, show the research tools, leave. The search form,
+            the tool panels and the research tools they open are the very elements of the page, so a change to any of them is a change here. */}
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
+          {fullscreen ? <>
+            <button type="button" className="els29-fs-window" aria-pressed={fsQueryOpen} aria-controls="els29-query" aria-label="חלון החיפוש" title="חלון החיפוש"
+              onClick={() => { setFsResearchOpen(false); setFsQueryOpen(open => !open); }}><NavigationIcon2029 name="search" /><small>חיפוש</small></button>
+            <button type="button" className="els29-fs-window" aria-pressed={fsResearchOpen} aria-controls="els29-research-tools" aria-label="חלון כלי המחקר" title="חלון כלי המחקר"
+              onClick={() => { setFsQueryOpen(false); setLexiconVisited(true); setResearchToolsOpen(true); setFsResearchOpen(open => !open); }}><NavigationIcon2029 name="tools" /><small>כלי מחקר</small></button>
+          </> : null}
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
@@ -1887,6 +1901,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </button> : publicClassic ? <button type="button" aria-label="גילוי עם AI · בקרוב" title="גילוי עם AI · בקרוב" disabled data-soon="true">
             <span aria-hidden="true">✦</span><small>AI בקרוב</small>
           </button> : null}
+          {fullscreen ? <button type="button" className="els29-fs-exit" onClick={exitFullscreen} aria-label="יציאה ממסך מלא" title="יציאה ממסך מלא"><span aria-hidden="true">✕</span><small>יציאה</small></button> : null}
         </div>
         <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
