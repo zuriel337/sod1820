@@ -166,6 +166,32 @@ Deno.serve(async (req) => {
       return json({ ok: true, service_account: sa.client_email, sites: d.siteEntry || [] });
     }
 
+    // 🔎 URL Inspection — מצב-אינדוקס אמיתי למדגם URLים (coverageState + canonical שגוגל בחר).
+    // Restored 18.11.2026 exactly as the live version 10 serves it (it was deployed without being committed); no change of contract.
+    if (String(body.action || "") === "inspect") {
+      const urls: string[] = Array.isArray(body.urls) ? body.urls : [];
+      const out: any[] = [];
+      for (const u of urls.slice(0, 40)) {
+        try {
+          const r = await fetch("https://searchconsole.googleapis.com/v1/urlInspection/index:inspect", {
+            method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+            body: JSON.stringify({ inspectionUrl: u, siteUrl: site, languageCode: "he" }),
+          });
+          const d = await r.json().catch(() => ({}));
+          if (!r.ok) { out.push({ url: u, error: d?.error?.message || String(r.status) }); continue; }
+          const idx = d?.inspectionResult?.indexStatusResult || {};
+          out.push({ url: u, verdict: idx.verdict, coverageState: idx.coverageState, robotsTxtState: idx.robotsTxtState,
+            indexingState: idx.indexingState, pageFetchState: idx.pageFetchState,
+            googleCanonical: idx.googleCanonical, userCanonical: idx.userCanonical, lastCrawl: idx.lastCrawlTime });
+        } catch (e) { out.push({ url: u, error: String(e) }); }
+      }
+      return json({ ok: true, site, inspected: out });
+    }
+
+    // The daily sync. The scheduled caller (cron gsc-daily-sync → net.http_post) stops waiting after its default 5 s, and the live
+    // web-only run already takes ~6 s (18.11.2026: 5,967 ms). The run is registered with the Edge runtime so it always completes and
+    // writes its rows, whoever stops waiting; a caller that waits still receives the full report.
+    const run = (async () => {
     const report: Record<string, number> = {};
     const searchTypes: Record<string, { state: "measured" | "no_data" | "unavailable"; rows: number; error?: string }> = {};
     for (const searchType of SEARCH_TYPES) {
@@ -203,7 +229,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ ok: true, site, range: { startDate, endDate }, upserted: report, searchTypes });
+    return { ok: true, site, range: { startDate, endDate }, upserted: report, searchTypes };
+    })();
+    // @ts-ignore EdgeRuntime is a global of the Supabase Edge runtime (absent elsewhere).
+    if (typeof EdgeRuntime !== "undefined") EdgeRuntime.waitUntil(run.catch(() => undefined));
+    return json(await run);
   } catch (e) {
     // A failed run answers 502 so the scheduled call's recorded response (net._http_response) shows the failure, not a success.
     return json({ ok: false, error: String(e) }, 502);
