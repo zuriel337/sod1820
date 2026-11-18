@@ -370,7 +370,7 @@ jobs:
         run: >
           node --test
           test/app-recovery-2029.test.mjs
-          test/api-card-deadline-glyphs-2029.test.mjs
+          test/api-card-deadline-glyphs-2029.test.mjs test/api-card-request-policy-2029.test.mjs
           test/notification-prefs-guest-member-split.test.mjs
           test/push-subscription-rollout-order.test.mjs
           test/rpc-deploy-order-contract.test.mjs

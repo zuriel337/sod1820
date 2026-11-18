@@ -222,7 +222,7 @@ export default async function handler(req) {
     },
     // ⚠️ אין מסגרת-זהב פנימית: קו-מסגרת בהיסט קבוע נחתך לקו-שבור כשהכרטיס נגזר (objectFit cover / תמונה-מרובעת).
     //    הרקע-הרדיאלי לבדו נותן גבול רך שנגזר יפה בכל מקום. אם רוצים מסגרת — רק full-bleed בלי היסט.
-    // כתר + מותג עליון — הלוגו האמיתי (עם נפילה ל-👑 אם הטמעת התמונה נכשלה, כדי שהכרטיס לעולם לא ייפול)
+    // כתר + מותג עליון — הלוגו האמיתי; אם הטמעת התמונה נכשלה, הכרטיס מוצג בלי הלוגו (ללא אימוג'י שמחייב טעינה מהרשת)
     logoDataUri
       ? h('img', {
           src: logoDataUri,
@@ -230,7 +230,9 @@ export default async function handler(req) {
           height: logoSize,
           style: { display: 'block', marginBottom: '2px', objectFit: 'contain' },
         })
-      : h('div', { style: { display: 'flex', fontSize: '56px', marginBottom: '2px' } }, '👑'),
+      // No emoji stand-in: the embedded font has no 👑 glyph, so @vercel/og would fetch a twemoji image at render time, with no timeout
+      // (the last network read left on this path, 18.11.2026). Without the logo the card keeps the brand line below.
+      : null,
     h(
       'div',
       {
