@@ -166,6 +166,29 @@ Deno.serve(async (req) => {
       return json({ ok: true, service_account: sa.client_email, sites: d.siteEntry || [] });
     }
 
+    // URL Inspection: the real index state for a sample of URLs (coverageState + the canonical Google chose). This action was live
+    // (version 10) but missing from the repository; it is kept unchanged so a deploy from main does not remove it.
+    if (String(body.action || "") === "inspect") {
+      const urls: string[] = Array.isArray(body.urls) ? body.urls : [];
+      const out: any[] = [];
+      for (const u of urls.slice(0, 40)) {
+        try {
+          const r = await fetch("https://searchconsole.googleapis.com/v1/urlInspection/index:inspect", {
+            method: "POST",
+            headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+            body: JSON.stringify({ inspectionUrl: u, siteUrl: site, languageCode: "he" }),
+          });
+          const d = await r.json().catch(() => ({}));
+          if (!r.ok) { out.push({ url: u, error: d?.error?.message || String(r.status) }); continue; }
+          const idx = d?.inspectionResult?.indexStatusResult || {};
+          out.push({ url: u, verdict: idx.verdict, coverageState: idx.coverageState, robotsTxtState: idx.robotsTxtState,
+            indexingState: idx.indexingState, pageFetchState: idx.pageFetchState,
+            googleCanonical: idx.googleCanonical, userCanonical: idx.userCanonical, lastCrawl: idx.lastCrawlTime });
+        } catch (e) { out.push({ url: u, error: String(e) }); }
+      }
+      return json({ ok: true, site, inspected: out });
+    }
+
     const report: Record<string, number> = {};
     const searchTypes: Record<string, { state: "measured" | "no_data" | "unavailable"; rows: number; error?: string }> = {};
     for (const searchType of SEARCH_TYPES) {
