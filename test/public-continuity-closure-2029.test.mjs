@@ -38,7 +38,7 @@ test('three exact public historical pages retain original body bytes, dates, par
  // Re-pinned 18.11.2026 by PR #1389: three permanent redirects ZURIEL decided on 18.11 (/community/researcher/panzer[/] -> israel-panzer,
  // /sitemap_index.xml -> /sitemap.xml), before /(.+)/; nothing else in the file changed. The pin holds only with his merge approval of that PR.
  // Root vercel.json is pinned by content hash to the last approved main version (42ff15120: #1191 deploymentEnabled=false, #1253 /tzofen.html). A hash, not `git show`, so the pin needs no commit history and also holds in the shallow CI checkout. Re-pin only with an explicit approval of the config change.
- assert.equal(createHash('sha256').update(readFileSync(new URL('../vercel.json',import.meta.url))).digest('hex'),'6012adcdb561bf6b4e6842c341888f6f141898126204009c906efc893daa7753','root vercel.json changed since the approved pin (42ff15120 + PR #1389)');
+ assert.equal(createHash('sha256').update(readFileSync(new URL('../vercel.json',import.meta.url))).digest('hex'),'8894aba153336ed539d700c30707544eba44a5aae4b49477ada61ad1b729ba1f','root vercel.json changed since the approved pin (42ff15120 + PR #1389 + ZURIEL 18.11.2026 /numbers -> /number)');
 });
 
 test('original historical documents have exact self canonicals without querying a guessed Post identity',async()=>{

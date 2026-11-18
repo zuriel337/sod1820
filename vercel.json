@@ -456,6 +456,16 @@
       "statusCode": 301
     },
     {
+      "source": "/numbers",
+      "destination": "/number",
+      "permanent": true
+    },
+    {
+      "source": "/numbers/",
+      "destination": "/number",
+      "permanent": true
+    },
+    {
       "source": "/community/researcher/panzer",
       "destination": "/community/researcher/israel-panzer",
       "permanent": true

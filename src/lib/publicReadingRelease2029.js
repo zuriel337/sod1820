@@ -89,7 +89,7 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
     // This exact source identity is not republished as an ordinary Post.
     "/yuval-kogan-echad-hasichim-hamashiach": "/community/chat",
     "/post/yuval-kogan-echad-hasichim-hamashiach": "/community/chat",
-    "/posts": "/post", "/פוסטים-אחרונים": "/post", "/פוסטים-אחרונים-2": "/post",
+    "/posts": "/post", "/numbers": "/number", "/פוסטים-אחרונים": "/post", "/פוסטים-אחרונים-2": "/post",
     "/גימטריה": "/gematria", "/888": "/community/researcher/888",
     "/book": "/books", "/book.html": "/books",
     "/אור-הגאולה": "/or-geula", "/צור-קשר": "/contact", "/about": "/contact",
@@ -155,14 +155,15 @@ export function publicReadingExternalSourceHref(value) {
   return typeof value === "string" && registeredExternalSources.has(value) ? value : null;
 }
 
-// ZURIEL 5.11: feature areas that are closed only until they reopen in a few days. They keep their address in the index and are
-// answered 503 + Retry-After (the standard way to say "temporarily unavailable"), never noindex. Personal, payment, mailing and
+// ZURIEL 5.11: feature areas that are closed until they reopen. They keep their address in the index and are answered 503 +
+// Retry-After (the standard way to say "temporarily unavailable"), never noindex. ZURIEL 18.11: they are under construction, not
+// "back in three days": the page says so and Retry-After is 30 days. /numbers continues at /number (permanent redirect). Personal, payment, mailing and
 // private screens are NOT in this list and stay out of the index.
 export const PUBLIC_TEMPORARILY_CLOSED_PATHS = Object.freeze([
   "/research", "/heichal", "/היכל", "/name", "/name-lab", "/spatial-gematria", "/verse-gematria", "/languages", "/cross",
-  "/archive", "/reality", "/timeline", "/numbers", "/broadcasts",
+  "/archive", "/reality", "/timeline", "/broadcasts",
 ]);
-export const PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER = 259200; // 3 days, in seconds
+export const PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER = 2592000; // 30 days, in seconds: under construction (ZURIEL 18.11.2026)
 export function publicTemporarilyClosed(pathname) {
   const path = addressPath(pathname);
   return Boolean(path && PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) && publicReadingCapability(path));
@@ -189,23 +190,22 @@ export function publicReadingCapability(pathname) {
     "/2029/journey": ["מסע החיים", "מסע החיים אינו פתוח לציבור עדיין. המידע האישי הקיים נשמר.", "/login", "כניסה לחשבון"],
     "/raziel": ["רזיאל", "רזיאל נמצא בבנייה ואינו מופעל בכניסה לדף. אפשר להשתמש בחיפוש ובמחשבון הקיימים.", "/gematria", "למחשבון"],
     "/2029/raziel": ["רזיאל", "רזיאל נמצא בבנייה ואינו מופעל בכניסה לדף. אפשר להשתמש בחיפוש ובמחשבון הקיימים.", "/gematria", "למחשבון"],
-    "/research": ["סביבת המחקר", "כלי המחקר מתאימים בהדרגה למערכת החדשה. המחשבון הציבורי זמין כעת.", "/gematria", "למחשבון"],
-    "/name": ["מחקר השם", "מסלול מחקר השם עדיין בתהליך התאמה. אפשר לחשב שם במחשבון הקהילה; זהו כלי נפרד ממחקר השם.", "/community/calculator", "למחשבון הקהילה"],
-    "/name-lab": ["מעבדת השם", "מעבדת השם בתהליך התאמה. חישוב השם זמין במחשבון הקהילה, בלי הפעלת מחקר אישי.", "/community/calculator", "למחשבון הקהילה"],
-    "/spatial-gematria": ["גימטריה מרחבית", "הכלי המרחבי עדיין בתהליך התאמה. המחשבון הרגיל נשאר זמין.", "/gematria", "למחשבון"],
-    "/verse-gematria": ["חיפוש פסוקים", "כלי הפסוקים עדיין בתהליך התאמה למערכת החדשה. אפשר לעיין במקורות שבדף המספר.", "/number", "למספר או לביטוי"],
-    "/languages": ["קשרי שפות", "כלי קשרי השפות עדיין בתהליך התאמה. לא הוחלף בחישוב רגיל.", "/gematria", "למחשבון הגימטריה"],
-    "/cross": ["הצלבת שיטות", "כלי ההצלבה עדיין בתהליך התאמה. שיטות החישוב הקיימות זמינות במחשבון.", "/gematria", "למחשבון"],
+    "/research": ["סביבת המחקר", "סביבת המחקר נמצאת בבנייה. המחשבון הציבורי זמין כעת.", "/gematria", "למחשבון"],
+    "/name": ["מחקר השם", "מחקר השם נמצא בבנייה. אפשר לחשב שם במחשבון הקהילה; זהו כלי נפרד ממחקר השם.", "/community/calculator", "למחשבון הקהילה"],
+    "/name-lab": ["מעבדת השם", "מעבדת השם נמצאת בבנייה. חישוב השם זמין במחשבון הקהילה, בלי הפעלת מחקר אישי.", "/community/calculator", "למחשבון הקהילה"],
+    "/spatial-gematria": ["גימטריה מרחבית", "הכלי המרחבי נמצא בבנייה. המחשבון הרגיל נשאר זמין.", "/gematria", "למחשבון"],
+    "/verse-gematria": ["חיפוש פסוקים", "כלי הפסוקים נמצא בבנייה. אפשר לעיין במקורות שבדף המספר.", "/number", "למספר או לביטוי"],
+    "/languages": ["קשרי שפות", "כלי קשרי השפות נמצא בבנייה. לא הוחלף בחישוב רגיל.", "/gematria", "למחשבון הגימטריה"],
+    "/cross": ["הצלבת שיטות", "כלי ההצלבה נמצא בבנייה. שיטות החישוב הקיימות זמינות במחשבון.", "/gematria", "למחשבון"],
     "/community/whatsapp": ["מקורות WhatsApp", "תיבת המקורות אינה פתוחה לציבור. מקורות שכבר פורסמו נגישים דרך התוכן שלהם באתר.", "/world", "לעולם"],
     "/credits": ["קרדיטים ותשלומים", "רכישה ובדיקת עסקאות אינן פעילות בגרסה זו. כתובת חזרה מתשלום אינה אישור שבוצע חיוב. פרטי החשבון הקיימים נשמרים.", "/contact", "יצירת קשר"],
     "/buy": ["קרדיטים ותשלומים", "רכישה ובדיקת עסקאות אינן פעילות בגרסה זו. כתובת חזרה מתשלום אינה אישור שבוצע חיוב. פרטי החשבון הקיימים נשמרים.", "/contact", "יצירת קשר"],
     "/join": ["הרשמה ועדכוני האתר", "הרשמה לעדכונים אינה פעילה בגרסה זו עדיין. כניסה לחשבון קיים זמינה בנפרד, ללא הרשמה אוטומטית לדיוור.", "/login", "כניסה לחשבון קיים"],
     "/welcome": ["ברוכים הבאים", "אפשר להתחיל לקרוא בבית, למצוא חומר בעולם או להיכנס לחשבון קיים. עמוד זה אינו מאשר הרשמה או תשלום.", "/", "לבית"],
-    "/archive": ["זרם המציאות", "הזרם ההיסטורי בתהליך התאמה. הגלריות והתוכן שפורסם זמינים בנפרד; הם אינם מחליפים את סדר הזרם הישן.", "/gallery", "לגלריות"],
-    "/reality": ["זרם המציאות", "תצוגת הזרם ההיסטורית בתהליך התאמה. תיעוד האירועים שפורסם נשמר בפוסטים ובגלריות.", "/post", "לתיעוד שפורסם"],
-    "/timeline": ["ציר הזמן", "ציר הזמן נמצא בתוכנית ההמשך. פרסומים קיימים נשארים זמינים לפי תאריך.", "/post", "לפוסטים"],
-    "/numbers": ["עץ המספרים", "עץ המספרים בתהליך התאמה. דף של מספר או ביטוי מסוים כבר זמין.", "/number", "למספר או לביטוי"],
-    "/broadcasts": ["מרכז השידורים", "המרכז ההיסטורי בתהליך התאמה. העדכונים הזמינים ממשיכים להופיע ב״עכשיו״ ובמקורות שפורסמו.", "/or-geula", "לאור הגאולה"],
+    "/archive": ["זרם המציאות", "הזרם ההיסטורי נמצא בבנייה. הגלריות והתוכן שפורסם זמינים בנפרד; הם אינם מחליפים את סדר הזרם הישן.", "/gallery", "לגלריות"],
+    "/reality": ["זרם המציאות", "תצוגת הזרם ההיסטורית נמצאת בבנייה. תיעוד האירועים שפורסם נשמר בפוסטים ובגלריות.", "/post", "לתיעוד שפורסם"],
+    "/timeline": ["ציר הזמן", "ציר הזמן נמצא בבנייה. פרסומים קיימים נשארים זמינים לפי תאריך.", "/post", "לפוסטים"],
+    "/broadcasts": ["מרכז השידורים", "מרכז השידורים נמצא בבנייה. העדכונים הזמינים ממשיכים להופיע ב״עכשיו״ ובמקורות שפורסמו.", "/or-geula", "לאור הגאולה"],
     "/whats-new": ["מה חדש באתר", "עדכוני האתר ותמונת הזמינות מופיעים בבית ובמפת האתר. ההרשמה במייל עדיין אינה פעילה בגרסה זו.", "/map", "למפת האתר"],
     "/start": ["מתחילים כאן", "הבית, העולם, הפוסטים, המספרים והגלריות פתוחים לקריאה. מפת האתר מציגה גם את החלקים שעדיין בבנייה.", "/map", "למפת האתר"],
   })[path];
