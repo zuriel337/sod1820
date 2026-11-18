@@ -1,0 +1,212 @@
+{
+ "experiment": "EXP-26",
+ "approved_budget_usd": 10,
+ "cap": 25,
+ "effort": "medium",
+ "max_tokens": 64000,
+ "torah_md5": "0066c2431821863d258745e664d3883e",
+ "ciphers": {
+  "C1": {
+   "name": "יום משיח בא",
+   "axis": "583_-1_239480",
+   "window": {
+    "r0": 390,
+    "r1": 422,
+    "c0": 430,
+    "c1": 470,
+    "rows": 33,
+    "cols": 41
+   },
+   "discovery": {
+    "box": {
+     "r0": 382,
+     "r1": 430,
+     "c0": 430,
+     "c1": 470,
+     "cells": 2009
+    },
+    "items": 624,
+    "by_source": {
+     "words5": 300,
+     "words4": 300,
+     "language": 24
+    },
+    "coverage": {
+     "words5": {
+      "stop": "RESULT_LIMIT",
+      "complete": false,
+      "completedRays": 98,
+      "totalRays": 256,
+      "windows": 40487,
+      "axisFragments": 0,
+      "outsidePlan": 0,
+      "shortTokenExcluded": 0,
+      "maxWindows": 100000,
+      "maxResults": 300,
+      "maxWallMs": 10000,
+      "minLength": 5,
+      "maxLength": 10,
+      "directions": 8,
+      "elapsedMs": 48
+     },
+     "words4": {
+      "stop": "RESULT_LIMIT",
+      "complete": false,
+      "completedRays": 26,
+      "totalRays": 256,
+      "windows": 12853,
+      "axisFragments": 0,
+      "outsidePlan": 0,
+      "shortTokenExcluded": 112,
+      "maxWindows": 100000,
+      "maxResults": 300,
+      "maxWallMs": 10000,
+      "minLength": 4,
+      "maxLength": 10,
+      "directions": 8,
+      "elapsedMs": 18
+     },
+     "language": {
+      "rayCap": 24,
+      "maxLetters": 24,
+      "maxCandidateWindows": 9216,
+      "maxHintComparisons": 8192,
+      "maxLexiconLookups": 196608,
+      "perTraversalReadingCap": 16,
+      "totalRays": 256,
+      "returnedRays": 24,
+      "hintComparisons": 0,
+      "lexiconLookups": 44073,
+      "candidatesExamined": 8208,
+      "returnedReadings": 24,
+      "returnedSegmentations": 24,
+      "returnedRelations": 3,
+      "boundaryCap": 480,
+      "boundaryPerTraversalCap": 10,
+      "boundaryFocusRadius": 8,
+      "boundaryProfileComparisons": 816,
+      "returnedBoundaries": 437,
+      "truncated": true,
+      "rowPad": 20,
+      "colRadius": 20
+     }
+    }
+   },
+   "seeds": [
+    {
+     "id": "S1",
+     "line": "A06-",
+     "text": "יגעאנא",
+     "parts": [
+      "יגע",
+      "אנא"
+     ]
+    },
+    {
+     "id": "S2",
+     "line": "C20-",
+     "text": "אבאאלי",
+     "parts": [
+      "אבא",
+      "אלי"
+     ]
+    },
+    {
+     "id": "S3",
+     "line": "C20-",
+     "text": "מפחאבא",
+     "parts": [
+      "מפח",
+      "אבא"
+     ]
+    },
+    {
+     "id": "S4",
+     "line": "D42+",
+     "text": "הנמורא",
+     "parts": [
+      "הנ",
+      "מורא"
+     ]
+    },
+    {
+     "id": "S5",
+     "line": "A02-",
+     "text": "המנדימ",
+     "parts": []
+    },
+    {
+     "id": "S6",
+     "line": "A07+",
+     "text": "לחאמה",
+     "parts": [
+      "לח",
+      "אמה"
+     ]
+    },
+    {
+     "id": "S7",
+     "line": "A06+",
+     "text": "ימיני",
+     "parts": []
+    },
+    {
+     "id": "S8",
+     "line": "A03-",
+     "text": "ומשעמ",
+     "parts": []
+    },
+    {
+     "id": "S9",
+     "line": "C20+",
+     "text": "מאויי",
+     "parts": []
+    },
+    {
+     "id": "S10",
+     "line": "D09+",
+     "text": "ישמרכ",
+     "parts": []
+    },
+    {
+     "id": "S11",
+     "line": "A42-",
+     "text": "המורה",
+     "parts": []
+    },
+    {
+     "id": "S12",
+     "line": "D11+",
+     "text": "אילות",
+     "parts": []
+    }
+   ]
+  }
+ },
+ "arms": [
+  {
+   "id": "C1-52h-plain",
+   "model": "claude-fable-5-2",
+   "effort": "high",
+   "cipher": "C1",
+   "seeds": 0,
+   "instruction": "general_v2_axis_marked_unnamed",
+   "request_sha256": "dbe78340433709a94f8932dd407a684a67f874c10bdb37be5d9b37311ecdc2a3",
+   "lock_sha256": "8986c8a776e2e9872bcb8896d1ab8d893e09f1c23aef6698a319b07835281dad",
+   "custom_id": "els-live-exp-26-c1-52h-plain",
+   "prompt_chars": 26419
+  },
+  {
+   "id": "C1-52h-seeds",
+   "model": "claude-fable-5-2",
+   "effort": "high",
+   "cipher": "C1",
+   "seeds": 12,
+   "instruction": "general_v2_axis_marked_unnamed+discovery_seeds_unmeasured",
+   "request_sha256": "857802b50b0780e5210fc1149c32a001fc7b95f6a3779f6e9189c16553a9c765",
+   "lock_sha256": "a3dcf4b81c92106f935013eae56dff6e3307b1fb57e07401e3c02d68eb9252d5",
+   "custom_id": "els-live-exp-26-c1-52h-seeds",
+   "prompt_chars": 27156
+  }
+ ]
+}
