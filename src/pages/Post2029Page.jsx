@@ -106,7 +106,6 @@ const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience20
 const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
 const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
-const QuoteShare2029 = toolOnOpen2029(() => import("../components/experience2029/QuoteShare2029.jsx"));
 const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
 const PersonalSaveButton2029 = toolOnOpen2029(() => import("../components/userCenter/PersonalSaveButton2029.jsx"));
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
@@ -133,17 +132,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const [explorationOccurrence, setExplorationOccurrence] = useState(null);
   const calculationRequest = useRef(0);
   const sourceRef = useRef(null);
-  // Share a selected sentence (ZURIEL 18.11.2026): its part loads only after the reader's first selection inside the article.
-  const [quoteArmed, setQuoteArmed] = useState(false);
-  useEffect(() => {
-    if (quoteArmed) return undefined;
-    const onSelect = () => {
-      const sel = window.getSelection?.(), root = sourceRef.current;
-      if (sel && !sel.isCollapsed && sel.rangeCount && root?.contains(sel.getRangeAt(0).commonAncestorContainer)) setQuoteArmed(true);
-    };
-    document.addEventListener("selectionchange", onSelect);
-    return () => document.removeEventListener("selectionchange", onSelect);
-  }, [quoteArmed]);
   const sourcePointerActive = useRef(false);
   const researchRef = useRef(null);
   const [researchOpen, setResearchOpen] = useState(false);
@@ -378,13 +366,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       hidden.forEach(node=>node.setAttribute("data-duplicate-cover","true"));
     };
   },[state.projection,location.search,location.hash]);
-  // A shared sentence (#q=<first words>): its landing loads only when the link carries one.
-  useEffect(() => {
-    if (!state.projection || !/^#q=/.test(location.hash) || !sourceRef.current) return undefined;
-    let alive = true, cleanup = null;
-    import("../components/experience2029/quoteJump2029.js").then((m) => { if (alive) cleanup = m.landOnQuote(sourceRef.current, location.hash.slice(3)); }).catch(() => {});
-    return () => { alive = false; cleanup?.(); };
-  }, [state.projection, passiveSourceHtml.length, location.hash]);
 
   useEffect(() => {
     const reveal = targetId => {
@@ -1553,7 +1534,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     </footer>
       </div>
     </details>
-    {quoteArmed && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <QuoteShare2029 rootRef={sourceRef} url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostEndShare2029 url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
