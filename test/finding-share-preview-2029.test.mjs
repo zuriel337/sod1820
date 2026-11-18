@@ -82,3 +82,15 @@ test('finding share: the card, the words and the "what will be sent" list name t
   assert.match(m.FINDING_NOT_SENT, /לא נשלח/);
   assert.doesNotMatch(JSON.stringify(m.FINDING_HOOK), /יודע עליך/, 'no "what the number knows about you"');
 });
+
+test("speed law: the finding-share button carries no share helpers; the sheet loads on press, with a live status meanwhile", async () => {
+  const { readFileSync } = await import("node:fs");
+  const button = readFileSync(new URL("../src/components/experience2029/FindingShare2029.jsx", import.meta.url), "utf8");
+  const sheet = readFileSync(new URL("../src/components/experience2029/FindingShareSheet2029.jsx", import.meta.url), "utf8");
+  assert.doesNotMatch(button, /lib\/share\.js/, "the button module does not import the share helpers (they would join the number page's opening graph)");
+  assert.match(button, /React\.lazy\(\(\) => import\("\.\/FindingShareSheet2029\.jsx"\)\)/);
+  assert.match(button, /aria-busy="true"[\s\S]*?<p role="status">פותח את השיתוף…<\/p>/, "operation visibility: a status while the sheet loads");
+  assert.match(sheet, /from "\.\.\/\.\.\/lib\/share\.js"/);
+  assert.match(sheet, /aria-label="מה יישלח"/, "the sheet still lists exactly what will be sent");
+  assert.match(sheet, /closest\("\.sod29-root"\) \|\| document\.body/, "rendered into the frame root, above the bottom bar");
+});
