@@ -898,6 +898,7 @@ const realHostStubs = {
       row.description=payload.p_description;row.engine_detail=payload.p_engine_detail;return {error:null};
     },functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
     if(window.__fixtureHoldVerification)await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());signal?.addEventListener('abort',()=>{window.__fixtureAborts=(window.__fixtureAborts||0)+1;resolve();},{once:true});});
+    if(Array.isArray(window.__fixtureHoldOps)&&window.__fixtureHoldOps.includes(op))await new Promise(resolve=>{(window.__fixtureHeldOps||=[]).push(resolve);window.__fixtureReleaseHeld=()=>window.__fixtureHeldOps.splice(0).forEach(done=>done());signal?.addEventListener('abort',resolve,{once:true});});
     if(signal?.aborted)return {data:null,error:{message:'aborted'}};
     if(window.__fixtureVerificationDelay)await new Promise(resolve=>setTimeout(resolve,window.__fixtureVerificationDelay));
     const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
@@ -3268,5 +3269,51 @@ test('owner 18.11: discoveries added from the research tools accumulate, keep th
     }
     assert.equal(await loads(),loadsBefore,'an addition never reloads the matrix');
     assert.equal((await page.evaluate(()=>window.__state)).findings.length,cross.findings.length+3);
+  },{realHost:true,loadGolden:false,tier:'anon'});
+});
+
+test('owner 18.11: the meter counts what was found so far, and stopping keeps the verified occurrences and the meetings already found',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:300000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+    const first=page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/});
+    const founds=()=>page.evaluate(()=>window.__log.filter(m=>m.type==='operation'&&m.kind==='search'&&Number.isInteger(m.found)).map(m=>[m.requestId,m.status,m.found]));
+    // Regular search: the ordered page answers first; the discovery verification is held, as a slow verifier would hold it.
+    await page.evaluate(()=>{window.__fixtureHoldOps=['verify_batch'];});
+    await first.fill('תורה');await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__operation?.found>0&&['searching','verifying'].includes(window.__operation.status),null,{timeout:60000});
+    const running=await page.evaluate(()=>window.__operation);
+    const progress=page.locator('.els29-native-progress');
+    assert.match(await progress.locator('[data-els-found-so-far]').textContent(),new RegExp(`נמצאו עד כה: ${running.found} מופעים מאומתים`));
+    assert.match(await page.locator('[data-els-operation-meter]').textContent(),/נמצאו עד כה: \d+ מופעים מאומתים/,'the sticky meter shows the same count');
+    const stop=progress.getByRole('button',{name:'עצור והצג את מה שנמצא',exact:true});
+    await stop.click();
+    await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__operation.partial===true,null,{timeout:60000});
+    const kept=await page.evaluate(()=>window.__state);
+    assert.equal(kept.status,'ok');assert.equal(kept.termRaw,'תורה');assert.equal(kept.verification.state,'MATCH');
+    assert.ok(kept.search.occurrences.total>=running.found,'every occurrence counted before the stop is in the result');
+    assert.match(await page.locator('.els29-native-notice').textContent(),/החיפוש נעצר\. מוצגים המופעים שאומתו עד העצירה/);
+    assert.equal(await progress.count(),0);
+    await page.evaluate(()=>{window.__fixtureHoldOps=null;window.__fixtureReleaseHeld?.();});
+    // Stopping before anything was found is the cancel it always was: the matrix on screen stays.
+    await page.evaluate(()=>{window.__fixtureHoldOps=['page','verify_batch'];});
+    await first.fill('משיח');await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__operation?.requestId>1&&['searching','verifying'].includes(window.__operation.status));
+    await page.waitForTimeout(600);
+    assert.equal(await progress.getByRole('button',{name:'בטל חיפוש',exact:true}).count(),1,'nothing found yet: the button still cancels');
+    await progress.getByRole('button',{name:'בטל חיפוש',exact:true}).click();
+    await page.waitForFunction(()=>!document.querySelector('.els29-native-progress'));
+    assert.equal((await page.evaluate(()=>window.__state)).termRaw,'תורה','a cancelled search keeps the matrix that was on screen');
+    await page.evaluate(()=>{window.__fixtureHoldOps=null;window.__fixtureReleaseHeld?.();});
+    // Crossed search: the count is meetings; a stop keeps the meetings found and the scan can be continued.
+    await first.fill('משיח טבת עשירי');await activate(page,'הצלבה בין צירים');
+    await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('ישלח מלאכו');
+    await page.getByRole('slider',{name:'מרווח מרבי בין אותיות הממצא בהצלבה'}).fill('20');
+    const before=(await founds()).length;
+    await activate(page,'חפש הצלבה');
+    await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:120000});
+    const crossFound=(await founds()).slice(before);
+    assert.ok(crossFound.length>0,'the crossed search reported its meetings while it ran');
+    assert.ok(crossFound.every((row,i)=>i===0||row[2]>=crossFound[i-1][2]),'the count never goes down');
+    assert.equal(crossFound.at(-1)[2],(await page.evaluate(()=>window.__state.search.zones)),'the last count is the number of meetings shown');
   },{realHost:true,loadGolden:false,tier:'anon'});
 });

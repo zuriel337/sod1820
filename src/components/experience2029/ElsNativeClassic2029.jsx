@@ -534,10 +534,15 @@ function SearchProgress({ operation, onCancel }) {
     <div role="status"><strong>{operation.status === "verifying" ? "בודק את המופעים שנמצאו…" : progress?.phase === "cross" ? "סורק מפגשים סביב הצירים…" : "מחפש…"}</strong>
       <small>עברו {elapsed.toFixed(1)} שניות · {remaining === null ? "זמן הסיום עדיין לא ידוע" : `הערכה: עוד כ־${remaining} שניות לסריקת הצירים`}</small>
       {progress?.total > 0 ? <><progress max={progress.total} value={progress.completed} aria-label="מיקומי ציר שנבדקו" /><small>נבדקו {progress.completed} מתוך {progress.total} מיקומי ציר בסריקה הזאת</small></> : null}
+      {Number.isInteger(operation.found) ? <small data-els-found-so-far={operation.found}>{elsFoundSoFar(operation)}</small> : null}
     </div>
-    <button type="button" onClick={onCancel}>{operation.kind === "findings" ? "בטל חיפוש משני" : "בטל חיפוש"}</button>
+    <button type="button" onClick={onCancel} disabled={operation.stopping === true}>{operation.kind === "findings" ? "בטל חיפוש משני"
+      : operation.stopping ? "עוצר…" : operation.found > 0 ? "עצור והצג את מה שנמצא" : "בטל חיפוש"}</button>
   </div>;
 }
+
+// The count the engine reports while it works: verified occurrences of a regular search, meetings of a crossed one.
+const elsFoundSoFar = operation => `נמצאו עד כה: ${operation.found} ${["cross", "cross-three", "cross-continue", "cross-three-continue"].includes(operation.searchKind) ? "מפגשים" : "מופעים מאומתים"}`;
 
 const guidedFailureLabel = category => ({
   vocabulary: "אוצר המילים המצומצם לא זיהה עדיין שתי מילים מחברות",
@@ -1243,6 +1248,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (operation.requestId !== expected) return;
     setOperations((current) => ({ ...current, [kind]: { ...current[kind], ...operation, startedAt: current[kind]?.startedAt || Date.now() - (operation.elapsedMs || 0) } }));
     if (kind === "search" && operation.status === "error") setNotice(operation.message || "החיפוש לא הושלם. נסו שוב.");
+    if (kind === "search" && operation.status === "done" && operation.partial) setNotice(operation.message || "החיפוש נעצר. מוצג מה שנמצא עד העצירה.");
+    if (kind === "search" && operation.status === "cancelled") setNotice("החיפוש בוטל.");
     if (kind === "search" && operation.status === "empty") setNotice(["cross", "cross-three"].includes(lastSearchKindRef.current)
       ? "לא נמצא מפגש בין המונחים בסריקה הזאת. אפשר להגדיל את החלון או את המרחק, או לשנות מונח ולחפש שוב."
       : "לא נמצאו מופעים בסריקה הזאת. אפשר לשנות את המונח ולנסות שוב.");
@@ -1545,9 +1552,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         : operations.search.status === "cancelled" ? "הממצא הקודם · החיפוש החדש בוטל"
           : "הממצא הקודם · לא נמצאה תוצאה בחיפוש החדש"
     : matrixActive ? "מטריצה פעילה" : "ELS 2029";
-  const cancelOperation = (kind) => {
+  // keepPartial (ZURIEL 18.11.2026): stop the search and work with what it already found. The engine finishes the request with the
+  // verified occurrences or meetings it holds; when it holds none it cancels as before and the earlier matrix stays.
+  const cancelOperation = (kind, { keepPartial = false } = {}) => {
     const operation = operations[kind];
     if (!["searching", "verifying"].includes(operation?.status)) return;
+    if (kind === "search" && keepPartial) {
+      setCancelRequest({ kind, requestId: operation.requestId, keepPartial: true, seq: ++actionSeqRef.current });
+      setOperations((current) => ({ ...current, search: { ...current.search, stopping: true } }));
+      return;
+    }
     resetReadContext();
     setCancelRequest({ kind, requestId: operation.requestId, seq: ++actionSeqRef.current });
     if (kind === "search") { ++searchSeqRef.current; setSearchRequest(null); setNotice("החיפוש בוטל."); }
@@ -1687,12 +1701,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
     <ElsOperationMeter2029 phase={!active ? null
       : !engineReady ? "פותח את המטריצה והמנוע הקנוני…"
-      : operations.search?.status === "verifying" || operations.findings?.status === "verifying" ? "מאמת מול המנוע הקנוני…"
-      : operations.search?.status === "searching" ? "מחפש את המילה במטריצה…"
+      : operations.search?.status === "verifying" || operations.findings?.status === "verifying" ? `מאמת מול המנוע הקנוני…${Number.isInteger(operations.search?.found) && operations.search?.status === "verifying" ? ` · ${elsFoundSoFar(operations.search)}` : ""}`
+      : operations.search?.status === "searching" ? `מחפש את המילה במטריצה…${Number.isInteger(operations.search?.found) ? ` · ${elsFoundSoFar(operations.search)}` : ""}`
       : operations.findings?.status === "searching" ? "סורק את הממצאים…"
       : savePending ? "שומר את הצופן…"
       : lensPending ? "טוען מקור והקשר…" : null} />
-    <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
+    <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search", { keepPartial: operations.search?.found > 0 })} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
 
     {guidedProfile ? <section className="els29-guided-result-overview" aria-label="מצב חבילת הגילוי">
