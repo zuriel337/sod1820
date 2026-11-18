@@ -15,13 +15,14 @@ const FOLD_COLS = 121;   // the widest column window the lens returns; wider row
 
 // Research mode only. Exact divisors of the axis skip put whole rows between its letters.
 // The engine provides both the rendered window and its identity for local discovery.
-export default function ElsFoldedMatrix2029({ state, option, busy, response, onRequest, onExit, onAxis }) {
+export default function ElsFoldedMatrix2029({ state, option, focusHitId, busy, response, onRequest, onExit, onAxis }) {
   const axisHitId = state?.axis?.hitId || null, scope = state?.scope || null;
   const axisLength = Number(state?.axis?.length) || 5;
   const zoom = Number(state?.ui?.zoom) || 1;
   const rowsFor = () => clampInt(Math.ceil((axisLength - 1) * option.k / option.m) + 8, 15, 61, 15);
   const colsFor = () => clampInt(option.width, 3, FOLD_COLS, 11);
-  const [view, setView] = useState({ focus: axisHitId, rowStart: null, colStart: null, rowCount: rowsFor(), colCount: colsFor() });
+  const initialFocus = focusHitId || axisHitId;
+  const [view, setView] = useState({ focus: initialFocus, rowStart: null, colStart: null, rowCount: rowsFor(), colCount: colsFor() });
   const [lastWindow, setLastWindow] = useState(null);
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState("");
@@ -29,7 +30,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
   const seqRef = useRef(0), requestRef = useRef(null), scrollRef = useRef(null);
   const send = next => {
     const request = {
-      foldSeq: ++seqRef.current, foldWindowId: crypto.randomUUID(), axisHitId, scope, width: option.width,
+      foldSeq: ++seqRef.current, foldWindowId: crypto.randomUUID(), axisHitId, scope, width: option.width, initialFocus,
       rowCount: next.rowCount, colCount: next.colCount,
       ...(Number.isInteger(next.rowStart) ? { r0: next.rowStart } : {}),
       bands: [{ hitId: next.focus || axisHitId, ...(Number.isInteger(next.colStart) ? { c0: next.colStart } : {}) }],
@@ -43,9 +44,9 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
   useEffect(() => {
     if (!axisHitId || busy) return;
     const previous = requestRef.current;
-    const sameLayout = previous?.axisHitId === axisHitId && previous.scope === scope && previous.width === option.width;
-    send(sameLayout ? view : { focus: axisHitId, rowStart: null, colStart: null, rowCount: rowsFor(), colCount: colsFor() });
-  }, [axisHitId, scope, option.width, busy, marksKey]);
+    const sameLayout = previous?.axisHitId === axisHitId && previous.scope === scope && previous.width === option.width && previous.initialFocus === initialFocus;
+    send(sameLayout ? view : { focus: initialFocus, rowStart: null, colStart: null, rowCount: rowsFor(), colCount: colsFor() });
+  }, [axisHitId, scope, option.width, initialFocus, busy, marksKey]);
   useEffect(() => {
     if (!response || !requestRef.current || response.target?.foldWindowId !== requestRef.current.foldWindowId) return;
     setPending(false);
@@ -57,7 +58,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
     const timer = setTimeout(() => { setPending(false); setNotice(errors.timeout); }, 20000);
     return () => clearTimeout(timer);
   }, [pending]);
-  const data = lastWindow?.target?.axisHitId === axisHitId && lastWindow.target.scope === scope && lastWindow.width === option.width
+  const data = lastWindow?.target?.axisHitId === axisHitId && lastWindow.target.scope === scope && lastWindow.width === option.width && lastWindow.target.initialFocus === initialFocus
     ? lastWindow : null;
   useLayoutEffect(() => {
     const el = scrollRef.current;
@@ -83,7 +84,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || !band) return;
-    const cells = Array.from(el.querySelectorAll(".is-axis"));
+    const cells = Array.from(el.querySelectorAll("[data-focused-hit]"));
     if (!cells.length) { el.scrollLeft = el.scrollWidth - el.clientWidth; el.scrollTop = 0; return; }
     const viewport = el.getBoundingClientRect();
     let rects = cells.map(cell => cell.getBoundingClientRect());
@@ -106,9 +107,9 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
   return <section className="els29-fold" aria-label="מטריצה ברוחב שורה אחר" data-fold-width={width}>
     <header className="els29-split-head">
       <strong>רוחב שורה {width.toLocaleString("he-IL")}</strong>
-      <button type="button" onClick={onExit}>חזרה לרוחב הרגיל</button>
+      <button type="button" onClick={onExit}>{focusHitId ? "חזרה לציר הראשי" : "חזרה לרוחב הרגיל"}</button>
     </header>
-    <p className="els29-split-note">{explain}</p>
+    <p className="els29-split-note">{focusHitId ? "חלון הממצא מחוץ לחלון הציר" : explain}</p>
     {pending ? <CanonicalProgress compact title="פורס את המטריצה ברוחב החדש" phase="פורס את אותו טקסט בשורות חדשות" onCancel={onExit} /> : null}
     {notice ? <p role="alert" className="els29-split-note">{notice}</p> : null}
     {band ? <>
@@ -134,6 +135,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
               const start = mark?.start && mark.start[0] === r && mark.start[1] === c;
               const axisAction = mark?.axis ? onAxis : undefined;
               return <span key={c} className={`els29-native-cell${mark ? (mark.axis ? " is-axis" : " is-finding") : ""}${start ? " is-start" : ""}`}
+                data-focused-hit={mark?.hitId === band.hitId ? "" : undefined}
                 aria-hidden={axisAction && start ? undefined : true}
                 aria-label={axisAction && start ? "פתח פעולות לציר" : undefined}
                 role={axisAction && start ? "button" : undefined} tabIndex={axisAction && start ? 0 : undefined}

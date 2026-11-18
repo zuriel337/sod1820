@@ -21,6 +21,11 @@ export function savedMatrixToItem(row) {
   };
 }
 
+export function elsMatrixLoadKey(row, journey) {
+  if (journey) return JSON.stringify(journey);
+  return row ? JSON.stringify([row.id, row.search_term, row.skip_distance, row.scope, row.start_index, row.direction, row.corpus_id]) : null;
+}
+
 export function savedMatrixMatchesAxis(row, state) {
   if (!hasExactSavedMatrix(row) || state?.verification?.state !== "MATCH") return false;
   const term = value => String(value || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, c => ({ך:"כ",ם:"מ",ן:"נ",ף:"פ",ץ:"צ"}[c]));

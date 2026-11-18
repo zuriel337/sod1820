@@ -429,7 +429,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
       <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={guidedVisible ? null : [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC]} />
       {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(guidedVisible ? ELS_MATRIX_PROFILE.GUIDED : ELS_MATRIX_PROFILE.RESEARCH);setParams({}); }}>חיפוש חדש</button> : null}
     </nav> : null}
-    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
+    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור" progress={{ phase: "קורא את פרטי הצופן" }}>הממצאים והגדרות המטריצה נטענים.</FrameState>
       : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}

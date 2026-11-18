@@ -34,7 +34,7 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
   assert.match(nativeClassic, /data-els-native-classic="v4"/);
   assert.match(nativeClassic, /aria-label="חיפוש ELS"/);
   assert.match(nativeClassic, /<MatrixControls state=\{engineState\} onControl=\{requestControl\} onContext=\{requestContext\} busy=\{searchPending \|\| \["searching", "verifying"\]\.includes\(operations\.findings\?\.status\)\} \/>/);
-  assert.match(nativeClassic, /<MatrixSnapshot state=\{engineState\}/);
+  assert.match(nativeClassic, /<MatrixSnapshot state=\{displayState\}/);
   assert.match(nativeClassic, /<FindingsRail/);
 });
 

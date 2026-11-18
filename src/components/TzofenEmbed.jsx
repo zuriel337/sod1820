@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
 import { saveMatrix, saveMatrixAnon, getSavedMatrices, getMatrixById, moderateMatrix } from "../lib/elsMatrices.js";
-import { savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
+import { elsMatrixLoadKey, savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
 import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
@@ -78,6 +78,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const engineRequestsRef = useRef(new Map());
   useEffect(() => () => { for (const controller of engineRequestsRef.current.values()) controller.abort(); engineRequestsRef.current.clear(); }, []);
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
+  const journeyKeyRef = useRef(null);
+  const pendingLoadRef = useRef(null);
   const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
   const gateDialogRef = useRef(null);
@@ -426,8 +428,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         //    mounted straight into "?finding=<id>"), the effect below fired before the tool
         //    registered its message listener and the postMessage was silently dropped — same
         //    load race already handled for lensRequest just below. Resend it here too.
-        if (journeyLoad) postToTool({ type: "load-matrix", item: journeyLoad });
-        else if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
+        if (journeyLoad || matrix) {
+          const loadKey = elsMatrixLoadKey(matrix, journeyLoad);
+          lastKeyRef.current = elsMatrixLoadKey(matrix);
+          journeyKeyRef.current = journeyLoad ? loadKey : null;
+          pendingLoadRef.current = loadKey;
+          postToTool({ type: "load-matrix", item: journeyLoad || rowToItem(matrix), loadKey });
+        }
         sendExactSkipProbe(exactSkipProbe);
         if (formsPreviewRequest) postToTool({ type: "preview-forms-batch", requestId: formsPreviewRequest.requestId, expressions: formsPreviewRequest.expressions });
         // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
@@ -453,6 +460,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       }
       if (d.type === "operation") {
         // Only engine acknowledgements drive search progress; React does not infer completion from state ticks.
+        if (d.kind === "load" && d.requestId !== pendingLoadRef.current) return;
         onOperation?.(d);
         return;
       }
@@ -502,7 +510,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         onOnboardingRequired?.(d);
       } else if (d.type === "load-error") {
         // 🧭 Research Journey (Pass 2): loadMatrix בכלי לא מצא את המונח/העוגן-המדויק (hitId/start+dir).
-        onLoadError?.(d);
+        if (!d.requestId || d.requestId === pendingLoadRef.current) onLoadError?.(d);
       }
     }
     window.addEventListener("message", onMsg);
@@ -567,25 +575,15 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
   //    אחרת שינוי-סטטוס היה מריץ מחדש את כל הצופן + סרט-הצופן ללא צורך.
   useEffect(() => {
-    if (!matrix) { lastKeyRef.current = null; return; }
-    const key = [matrix.id, matrix.search_term, matrix.skip_distance, matrix.scope, matrix.start_index, matrix.direction, matrix.corpus_id].join("|");
-    if (lastKeyRef.current === key) return;
-    lastKeyRef.current = key;
-    postToTool({ type: "load-matrix", item: rowToItem(matrix) });
-  }, [matrix, postToTool]);
-
-  // 🧭 Research Journey (Pass 2, elsJourney.js): שחזור-מדויק דרך *אותו* מסלול "load-matrix" — לא
-  //    מסלול-טעינה נפרד. journeyLoad הוא loadItem חד-פעמי (buildJourneyPromotion/buildJourneyRestore);
-  //    שולחים בכל אובייקט-loadItem חדש (זהות לפי JSON — לא מזהה יציב כמו matrix.id, כי כל שחזור/קידום
-  //    הוא אירוע-פעולה, לא מצב-נשמר-לאורך-זמן).
-  const journeyKeyRef = useRef(null);
-  useEffect(() => {
-    if (!journeyLoad) { journeyKeyRef.current = null; return; }
-    const key = JSON.stringify(journeyLoad);
-    if (journeyKeyRef.current === key) return;
-    journeyKeyRef.current = key;
-    postToTool({ type: "load-matrix", item: journeyLoad });
-  }, [journeyLoad, postToTool]);
+    const savedKey = elsMatrixLoadKey(matrix), journeyKey = elsMatrixLoadKey(null, journeyLoad);
+    const savedChanged = lastKeyRef.current !== savedKey, journeyChanged = journeyKeyRef.current !== journeyKey;
+    lastKeyRef.current = savedKey;
+    journeyKeyRef.current = journeyKey;
+    const loadKey = journeyKey ? (journeyChanged && journeyKey) : (savedChanged && savedKey);
+    if (!loadKey || !readyDocumentRef.current) return;
+    pendingLoadRef.current = loadKey;
+    postToTool({ type: "load-matrix", item: journeyLoad || rowToItem(matrix), loadKey });
+  }, [matrix, journeyLoad, postToTool]);
 
   useEffect(() => {
     if (!exactSkipProbe) { exactProbeRef.current = null; return; }

@@ -1494,12 +1494,12 @@
     out.vmismatch=mismatch;out.vtrace=vr.traces;out.vstate="VERIFIED";out.corpus_id=vr.corpus_id||CORPUS_ID[sc];
     return out;
   }
-  async function discoverVerified(raw,cap,operation,exactAnchor=null){
+  async function discoverVerified(raw,cap,operation,exactAnchor=null,background=false){
     const scope=st.scope,epoch=_matrixRequestSeq;
     const cancelled=()=>({hits:[],capped:0,t:norm(raw),vstate:"CANCELLED"});
     let candidates;
     try{
-      const pool=operation&&EXPR2029?await ensureXfInit():null;
+      const pool=(operation||background)&&EXPR2029?await ensureXfInit():null;
       if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return cancelled();
       candidates=pool?(await xfCall(pool,{type:"routed-discover",reqId:++_xfReqId,raw,cap,scope})).result:await routedDiscover(raw,cap);
     }catch(e){if(e?.name==="AbortError"||epoch!==_matrixRequestSeq)return cancelled();throw e;}
@@ -1999,7 +1999,8 @@
     // Selected occurrences remain available to the inspector even while another list page is open.
     for(const h of selected)if(!entries.some(x=>x.h===h))entries.push({h,index:w.hits.indexOf(h),selectedOnly:true});
     const common=(h,x)=>({hitId:isGov(h)||isSourceHit(h,w.t)?hitKey(h):null,candidateIndex:x.index,revision:w.nativeRevision||0,
-      selectedOnly:!!x.selectedOnly,ordinal:available.findIndex(v=>v.h===h)+1,selected:selected.has(h),shown:shown.has(h),withinRadius:withinFindingRadius(h)});
+      selectedOnly:!!x.selectedOnly,ordinal:available.findIndex(v=>v.h===h)+1,selected:selected.has(h),shown:shown.has(h),withinRadius:withinFindingRadius(h),
+      outsideWindow:h.outsideWindow===true});
     return {t:w.t,color:w.color,revision:w.nativeRevision||0,total:w.total||0,inWindow:w.inwin||0,
       page,pageSize,pageTotal:Math.ceil(available.length/pageSize),available:available.length,
       plainTextCount:w.hits.filter(h=>isSourceHit(h,w.t)).length,
@@ -2747,7 +2748,7 @@
     if(d.type==="load-matrix"&&d.item&&d.item.term){   // 🔗 עמוד-צופן קנוני: טען צופן ספציפי
       // ✏️ קשר-עריכה: צופן קיים נטען → שמירה תעדכן אותו במקום (לא עותק). נמחק בחיפוש-מונח חדש.
       if(!d.item.researchNonce){st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");}
-      try{loadMatrix(d.item,0);}catch(e){}
+      loadMatrix(d.item,0,d.loadKey);
     }
     if(d.type==="request-lens"&&searchUncommitted()){
       postHost({type:"lens",lens:d.lens,ok:false,target:d.target||{},reason:"search-pending"});return;
@@ -4361,15 +4362,34 @@
   }
 
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
-  async function loadMatrix(item,filmTimes){
+  async function loadMatrix(item,filmTimes,loadKey=null){
     const requestSeq=++_matrixRequestSeq;
+    const report=status=>{if(loadKey&&requestSeq===_matrixRequestSeq)postHost({type:"operation",kind:"load",requestId:loadKey,status});};
+    const error=reason=>postHost({type:"load-error",term:item.term,reason,requestId:loadKey});
+    report("opening");
+    try{
+      if(loadKey)await paintOperation();
+      if(requestSeq!==_matrixRequestSeq)return;
+      report("verifying");
+      const loaded=await restoreMatrix(item,filmTimes,requestSeq,error);
+      if(loaded&&requestSeq===_matrixRequestSeq&&loadKey&&st.words.length){
+        report("restoring-findings");
+        do{await healGoverned();}while(requestSeq===_matrixRequestSeq&&(_healBusy||st.words.some(w=>selectedHitsOf(w).some(h=>h.skip>=2&&h.v===undefined))));
+      }
+      report(loaded?"done":"error");
+    }catch(_){
+      if(requestSeq!==_matrixRequestSeq)return;
+      error("load-failed");report("error");
+    }
+  }
+  async function restoreMatrix(item,filmTimes,requestSeq,loadError){
     _nativeTripleScan=null;
     const prior=item.researchNonce?{zoom:st.zoom,fit:st.fit,verseHL:st.verseHL,scope:st.scope,
       postUrl:st.postUrl,postTitle:st.postTitle,desc:st.desc,author:st.author,
       cipherSlug:st.cipherSlug,cipherTerm:st.cipherTerm,raw:st.raw,query:q.value,editId:st.editId,editTerm:st.editTerm}:null;
     const failResearch=reason=>{if(!prior)return false;
       const {query,...previous}=prior;Object.assign(st,previous);q.value=query;updateScopeUI();
-      postHost({type:"load-error",term:item.term,reason});render();return true;};
+      loadError(reason);render();return true;};
     invalidateSearchOperation();invalidateFindingsOperation();
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
     st.verseHL=-1;   // 📖 מטריצה חדשה = מנקים הדגשת-פסוק קודמת (המצב עצמו נשאר כפי שהוא)
@@ -4386,10 +4406,10 @@
     const exact=Number.isInteger(item.start)&&item.start>=0&&[1,-1].includes(item.dir)&&Number.isInteger(item.skip)&&item.skip>=2;
     // Exact saved occurrences use the SAME canonical verifier. A capped
     // discovery list must never substitute a different occurrence of the word.
-    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]){if(failResearch("corpus-mismatch"))return;st.res=null;postHost({type:"load-error",term:item.term,reason:"corpus-mismatch"});render();return;}
+    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]){if(failResearch("corpus-mismatch"))return;st.res=null;loadError("corpus-mismatch");render();return;}
     const t=norm(item.term);
     const anchor=exact?{skip:item.skip,dir:item.dir,start:item.start,positions:Array.from(t,(_,k)=>item.start+k*item.skip*item.dir)}:null;
-    const discovered=await discoverVerified(item.term,4000,null,anchor);
+    const discovered=await discoverVerified(item.term,4000,null,anchor,true);
     if(requestSeq!==_matrixRequestSeq)return;
     if(prior&&!discovered.hits.some(h=>isGov(h)&&h.skip===item.skip&&h.dir===item.dir&&h.start===item.start)){
       failResearch("anchor-not-found");return;
@@ -4400,7 +4420,7 @@
       const targeted=await promoteVerified({t,hits:candidates,capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
       if(requestSeq!==_matrixRequestSeq)return;
       const found=targeted.hits.filter(isGov);
-      if(!found.length){st.res=null;postHost({type:"load-error",term:item.term,reason:"saved-skip-not-found"});render();return;}
+      if(!found.length){st.res=null;loadError("saved-skip-not-found");render();return;}
       discovered.hits.push(...found);discovered.hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
     }
     if(requestSeq!==_matrixRequestSeq)return;
@@ -4410,7 +4430,7 @@
       : {ctxR:3,windowColumns:80,windowSize:"legacy",windowRequested:"legacy"});
     st.crossMeetings=null;st.crossSimple=false;st.crossFree=false;st.crossBridge=false;st.crossPairA="";st.crossPairB="";st.crossB="";st.zoneStars=null;st.zoneSig="";
     st.res=discovered;   // 🧬 G3: שחזור צופן שמור = אותו גילוי + אימות canonical (replay parity)
-    if(!hasGov(st.res)){st.res=null;postHost({type:"load-error",term:item.term,reason:exact?"anchor-not-found":"not-found"});updGem();render();return;}
+    if(!hasGov(st.res)){st.res=null;loadError(exact?"anchor-not-found":"not-found");updGem();render();return;}
     // 🧭 Research Journey (Pass 2, elsJourney.js buildJourneyRestore/buildJourneyPromotion, מותאם):
     //    item.hitId (או item.start+item.dir) מזהה מופע *מדויק*, לא רק דילוג — hitKey() הוא הפורמט
     //    הקנוני הקיים (כבר בשימוש ב-Verse-Lens). נופל לגיבוי הישן (skip בלבד) לצפנים-שמורים ותיקים
@@ -4420,9 +4440,9 @@
     if(item.hitId)idx=st.res.hits.findIndex(h=>hitKey(h)===item.hitId);
     if(idx<0&&item.start!=null&&item.dir!=null)idx=st.res.hits.findIndex(h=>h.start===item.start&&h.dir===item.dir&&(!exact||h.skip===item.skip));
     if(idx<0&&!exact&&!item.hitId&&item.skip)idx=st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip);
-    if(idx<0&&(exact||item.hitId)){st.res=null;postHost({type:"load-error",term:item.term,reason:"anchor-not-found"});updGem();render();return;}
+    if(idx<0&&(exact||item.hitId)){st.res=null;loadError("anchor-not-found");updGem();render();return;}
     if(idx<0){
-      if(item.hitId||item.start!=null)postHost({type:"load-error",term:item.term,reason:"anchor-not-found"});
+      if(item.hitId||item.start!=null)loadError("anchor-not-found");
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;
     }
     st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
@@ -4440,6 +4460,7 @@
     const n=(filmTimes==null?1:filmTimes);
     if(n>0){try{armReveal(n);}catch(e){}}
     try{showSearchStat(st.res,null);}catch(e){}   // 📊 מדדי-הצופן הפתוח (מופעים · דילוג)
+    return true;
   }
 
   // ── 🔗 שיתוף · 🖼️ תמונה · 🎬 סרט ──────────────────────────────────────────
@@ -4836,6 +4857,27 @@
   // re-ranked them (the shown occurrence of a word could change) and dropped their canonical verdicts until the server answered again,
   // so findings vanished while zooming (ZURIEL 18.11.2026). The lists are rebuilt only when what they are computed from changes.
   let _recomputeSig="",_recomputeBase="";
+  function parallelFindingCandidates(t,b){
+    if(t.length<2||b.cw>=b.S)return [];
+    const hits=[],steps=t.length-1,N=scopeN();
+    for(const dir of [1,-1]){
+      // All the letters must fit in the research rows and share at least one row with the axis.
+      // At the axis skip the column is constant, so the search needs only one pass over possible starts.
+      const first=Math.max(b.r0+(dir<0?steps:0),b.rMin-(dir>0?steps:0));
+      const last=Math.min(b.r1-(dir>0?steps:0),b.rMax+(dir<0?steps:0));
+      const cap=hits.length+16;
+      for(let r=first;r<=last&&hits.length<cap;r++){
+        for(let c=0;c<b.S&&hits.length<cap;c++){
+          if(c>=b.c0&&c<b.c0+b.cw){c=b.c0+b.cw-1;continue;}
+          const start=r*b.S+c,end=start+dir*b.S*steps;
+          if(start>=N||end>=N||T[start]!==t[0]||T[end]!==t[steps])continue;
+          let k=1;while(k<steps&&T[start+k*dir*b.S]===t[k])k++;
+          if(k===steps)hits.push({skip:b.S,dir,start,positions:Array.from(t,(_,i)=>start+i*dir*b.S),outsideWindow:true});
+        }
+      }
+    }
+    return hits;
+  }
   function recomputeWords(){
     if(!hasGov(st.res))return;
     const b=blockOf(),S=b.S,c1=b.c0+b.cw;
@@ -4894,6 +4936,12 @@
       //    זהו סדר-תצוגה בלבד (Rank, Don't Hide).
       const _rank=x=>gapF(gridStep(Math.abs(x.skip),S))*proxF(x.cost);
       hits.sort((a,b2)=>_rank(b2)-_rank(a)||a.cost-b2.cost);
+      const inWindow=hits.length;
+      for(const h of parallelFindingCandidates(t,b)){
+        const end=h.positions[L-1],key=Math.min(h.start,end)+"_"+Math.max(h.start,end);
+        if(seen.has(key))continue;
+        seen.add(key);h.cost=cost(h);hits.push(h);
+      }
       if(priorDefault.length){const at=new Map(priorDefault.map((k,i)=>[k,i]));const front=hits.filter(h=>at.has(hitKey(h)));
         if(front.length===priorDefault.length){front.sort((a,b2)=>at.get(hitKey(a))-at.get(hitKey(b2)));const rest=hits.filter(h=>!at.has(hitKey(h)));hits.length=0;hits.push(...front,...rest);}}
       // Selected/saved occurrences may be outside the usual window, for example from a narrower row layout.
@@ -4906,13 +4954,13 @@
           if(![skip,start,end].every(Number.isSafeInteger)||skip<1||start<0||start>=scopeN()||end<0||end>=scopeN())continue;
           const positions=Array.from({length:L},(_,i)=>start+dir*skip*i);
           if(positions.every(p=>mainSet.has(p))||positions.some((p,i)=>T[p]!==t[i]))continue;
-          hits.push({skip,dir,start,positions,...(skip===1?{v:"PLAIN_TEXT"}:{})});
+          hits.push({skip,dir,start,positions,cost:cost({positions}),outsideWindow:positions.some(p=>!inWin(p)),...(skip===1?{v:"PLAIN_TEXT"}:{})});
         }
       }
       for(const h of hits){const verdict=priorVerdicts.get(hitKey(h)+"|"+h.positions.join(","));if(verdict&&h.v===undefined)h.v=verdict;}
       w.verdictScope=st.scope;
       w.nativeRevision=(w.nativeRevision||0)+1;
-      w.total=hits.length;w.inwin=hits.length;w.hits=hits;w.nativePage=0;
+      w.total=hits.length;w.inwin=inWindow;w.hits=hits;w.nativePage=0;
       // Main-axis distance is separate from the unchanged cluster ranking cost.
       w.hits.forEach(h=>{h.axisDistance=distanceToAnchors(h.positions,baseA,S);});
       // 🔁 שחזור בחירת-הנראות שנשמרה (פעם אחת אחרי טעינה): מתרגם את רשימת ההופעות-שהוצגו

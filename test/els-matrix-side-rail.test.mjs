@@ -41,7 +41,7 @@ test("research mode only: the new cell rules, fit crop and recentring never reac
   const css = await read("src/components/experience2029/elsNativeClassic2029.css");
   // Exactly one snapshot is the research one; the other keeps the original zoom call and the original cell size.
   assert.equal((native.match(/<MatrixSnapshot research /g) || []).length, 1);
-  assert.match(native, /<MatrixSnapshot state=\{engineState\} onZoomChange=\{zoom => requestControl\("zoom-set", zoom\)\}/);
+  assert.match(native, /<MatrixSnapshot state=\{displayState\} onZoomChange=\{zoom => requestControl\("zoom-set", zoom\)\}/);
   assert.match(native, /: clamp\(Math\.round\(26 \* zoom\), state\?\.ui\?\.selMode \? 44 : 16, 54\);/);
   assert.match(native, /if \(!research \|\| !matrix\?\.rows\?\.length/);
   // The letter follows the cell only under .is-research; the original fixed sizes and fit rules stay for everyone else.

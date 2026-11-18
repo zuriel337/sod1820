@@ -485,6 +485,7 @@
 .els29-native-finding-add button:disabled{opacity:.38;cursor:not-allowed}
 .els29-native-findings{display:grid;gap:6px;min-width:0}
 .els29-native-finding-group{min-width:0;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);overflow:hidden}
+.els29-locate-finding{margin:0 8px 8px;padding:6px 10px;min-height:36px;border:1px solid var(--s29-line-strong);border-radius:8px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;cursor:pointer}
 .els29-native-finding{display:grid;grid-template-columns:20px minmax(0,1fr) 44px;align-items:center;gap:8px;min-width:0;padding:6px;background:transparent}
 .els29-native-color-picker{
   position:relative;

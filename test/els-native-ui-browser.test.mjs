@@ -3530,6 +3530,50 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
   },{realHost:true});
 });
 
+test('saved matrix opening shows elapsed time and locates a verified distant parallel in both modes',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    const row={search_term:'התשפ״ז',skip_distance:16965,scope:'torah',direction:'fwd',start_index:83718,
+      corpus_id:ELS_GOLDEN_CORPUS_ID,positions:{findings:[]}};
+    for(const research of [false,true]){
+      const id=research?'parallel-research':'parallel-classic';
+      await page.evaluate(({research,row,id})=>{
+        window.__fixtureResearchProfile=research;
+        window.__fixtureHoldOps=['verify_batch'];
+        window.__openSavedMatrix({...row,id});
+      },{research,row,id});
+      const meter=page.locator('[data-els-operation-meter]');
+      await meter.getByText('מאמת את הציר השמור…').waitFor();
+      await meter.getByText(/^[1-9]\d* שנ׳/).waitFor();
+      assert.equal(await page.getByRole('region',{name:'טקסט התורה מבראשית, ללא צופן נבחר'}).count(),0);
+      await page.waitForFunction(()=>window.__fixtureHeldOps?.length>0);
+      await page.evaluate(()=>{window.__fixtureHoldOps=null;window.__fixtureReleaseHeld();});
+      await page.waitForFunction(id=>window.__state?.provenance?.editId===id&&window.__operation?.kind==='load'&&window.__operation?.status==='done',id);
+      await meter.waitFor({state:'hidden'});
+      await openPanel(page);
+      await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('ימין נג');
+      await activate(page,'חפש במטריצה');
+      const locate=page.getByRole('button',{name:'הצג את ימיננג במטריצה',exact:true});
+      await locate.waitFor();
+      const {axis,geometry,findings}=await page.evaluate(()=>window.__state);
+      assert.equal(axis.hitId,'16965_1_83718');
+      const word=findings.find(f=>f.t==='ימיננג');
+      const hit=word.hits.find(h=>h.hitId==='16965_-1_109170');
+      assert.equal(word.inWindow,0);
+      assert.ok(hit?.verified&&hit.shown&&hit.outsideWindow);
+      await locate.click();
+      const projection=page.locator('.els29-fold[data-fold-width="16965"]');
+      await projection.locator('.is-finding[data-focused-hit]').first().waitFor();
+      assert.equal(await projection.locator('.is-finding[data-focused-hit]').count(),6);
+      const band=await page.evaluate(()=>window.__lens.bands[0]);
+      assert.ok(band.c0<=7380&&band.c1>=7380&&band.c1<geometry.c0);
+      await projection.getByRole('button',{name:'חזרה לציר הראשי',exact:true}).click();
+      await page.locator('.els29-native-stage .is-axis').first().waitFor();
+      assert.deepEqual(await page.evaluate(()=>window.__state.axis),axis);
+    }
+  },{realHost:true,loadGolden:false});
+});
+
 test('Research row gaps scan the displayed geometry and verify a finding at its original corpus coordinates',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
   await withNative({width:390,height:900},async page=>{
