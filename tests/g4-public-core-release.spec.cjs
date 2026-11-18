@@ -59,7 +59,8 @@ test('2029 Preview Home keeps the adopted page without claiming a public opening
   await expect(page.locator('[data-home-world="open"]')).toHaveCount(0);
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first()).toBeVisible();
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/community/chat"]')).toHaveCount(0);
-  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/archive"]').first()).toBeVisible();
+  // ZURIEL 18.11.2026 "ארכיון ליעד פעיל": the archive tile leads to the open post index, not to the closed /archive.
+  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/2029/posts"][data-home-archive="posts"]').first()).toBeVisible();
   // Doc37 availability map uses the canonical address, while /els stays an alias.
   // This test's explicit OPEN_FLAGS fixture admits the existing screen link.
   const cipherAvailability = page.locator('[data-home-availability-map="true"] li').filter({ has: page.locator('a[href="/code"]') });

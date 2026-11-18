@@ -23,6 +23,20 @@ const SB_KEY    = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
 const DIMS  = ["query", "page", "country", "device"] as const;
 
+// Search type is part of the metric identity (control-plane plan §9, traffic_intelligence_law): values of different search types never
+// overwrite one another. Web keeps the historical dimension names (total/query/page/country/device), so every existing row and reader is
+// unchanged; any other type is stored under "<type>:<dimension>" in the same gsc_metrics key (site, date, dimension, key) — no schema change.
+// Discover and Google News have no query dimension. A type Google does not return (no data, or not available for the property) is reported
+// as such in the run report and stores nothing: it is never written as zero traffic.
+const SEARCH_TYPES = [
+  { type: "web",        prefix: "",            dims: ["total", ...DIMS] },
+  { type: "discover",   prefix: "discover:",   dims: ["total", "page", "country", "device"] },
+  { type: "googleNews", prefix: "googleNews:", dims: ["total", "page", "country", "device"] },
+  { type: "news",       prefix: "news:",       dims: ["total", ...DIMS] },
+  { type: "image",      prefix: "image:",      dims: ["total", ...DIMS] },
+  { type: "video",      prefix: "video:",      dims: ["total", ...DIMS] },
+] as const;
+
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "content-type, x-gsc-key, authorization",
@@ -82,7 +96,7 @@ async function getAccessToken(sa: any): Promise<string> {
 }
 
 // searchAnalytics/query עם pagination — dimensions כוללים תמיד 'date' כדי לקבל פירוק יומי
-async function queryAnalytics(token: string, site: string, startDate: string, endDate: string, dim: string) {
+async function queryAnalytics(token: string, site: string, startDate: string, endDate: string, dim: string, type = "web") {
   const url = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site)}/searchAnalytics/query`;
   const dimensions = dim === "total" ? ["date"] : ["date", dim];
   const rows: any[] = [];
@@ -92,10 +106,10 @@ async function queryAnalytics(token: string, site: string, startDate: string, en
     const r = await fetch(url, {
       method: "POST",
       headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-      body: JSON.stringify({ startDate, endDate, dimensions, rowLimit, startRow }),
+      body: JSON.stringify({ startDate, endDate, dimensions, type, rowLimit, startRow }),
     });
     const d = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(`GSC ${dim} ${r.status}: ${d?.error?.message || JSON.stringify(d)}`);
+    if (!r.ok) throw new Error(`GSC ${type}/${dim} ${r.status}: ${d?.error?.message || JSON.stringify(d)}`);
     const batch = d.rows || [];
     rows.push(...batch);
     if (batch.length < rowLimit) break;
@@ -153,31 +167,45 @@ Deno.serve(async (req) => {
     }
 
     const report: Record<string, number> = {};
-    for (const dim of ["total", ...DIMS]) {
-      const rows = await queryAnalytics(token, site, startDate, endDate, dim);
-      const upserts = rows.map((row: any) => {
-        const date = row.keys[0];                          // 'date' תמיד ראשון
-        const key  = dim === "total" ? "" : String(row.keys[1] ?? "");
-        return {
-          site, date, dimension: dim, key,
-          clicks: row.clicks || 0,
-          impressions: row.impressions || 0,
-          ctr: row.ctr || 0,
-          position: row.position || 0,
-          fetched_at: new Date().toISOString(),
-        };
-      });
-      // upsert בבאצ'ים כדי לא לחרוג ממגבלות
-      for (let i = 0; i < upserts.length; i += 1000) {
-        const chunk = upserts.slice(i, i + 1000);
-        const { error } = await sb.from("gsc_metrics").upsert(chunk, { onConflict: "site,date,dimension,key" });
-        if (error) throw new Error(`upsert ${dim}: ${error.message}`);
+    const searchTypes: Record<string, { state: "measured" | "no_data" | "unavailable"; rows: number; error?: string }> = {};
+    for (const searchType of SEARCH_TYPES) {
+      let typeRows = 0;
+      try {
+        for (const dim of searchType.dims) {
+          const rows = await queryAnalytics(token, site, startDate, endDate, dim, searchType.type);
+          const dimension = searchType.prefix + dim;
+          const upserts = rows.map((row: any) => {
+            const date = row.keys[0];                          // 'date' תמיד ראשון
+            const key  = dim === "total" ? "" : String(row.keys[1] ?? "");
+            return {
+              site, date, dimension, key,
+              clicks: row.clicks || 0,
+              impressions: row.impressions || 0,
+              ctr: row.ctr || 0,
+              position: row.position || 0,
+              fetched_at: new Date().toISOString(),
+            };
+          });
+          // upsert בבאצ'ים כדי לא לחרוג ממגבלות
+          for (let i = 0; i < upserts.length; i += 1000) {
+            const chunk = upserts.slice(i, i + 1000);
+            const { error } = await sb.from("gsc_metrics").upsert(chunk, { onConflict: "site,date,dimension,key" });
+            if (error) throw new Error(`upsert ${dimension}: ${error.message}`);
+          }
+          report[dimension] = upserts.length;
+          typeRows += upserts.length;
+        }
+        searchTypes[searchType.type] = { state: typeRows > 0 ? "measured" : "no_data", rows: typeRows };
+      } catch (e) {
+        // Web is the historical contract: its failure fails the run. Another type Google does not serve for this property is recorded, not fatal.
+        if (searchType.type === "web") throw e;
+        searchTypes[searchType.type] = { state: "unavailable", rows: typeRows, error: String(e).slice(0, 300) };
       }
-      report[dim] = upserts.length;
     }
 
-    return json({ ok: true, site, range: { startDate, endDate }, upserted: report });
+    return json({ ok: true, site, range: { startDate, endDate }, upserted: report, searchTypes });
   } catch (e) {
-    return json({ ok: false, error: String(e) }, 200);
+    // A failed run answers 502 so the scheduled call's recorded response (net._http_response) shows the failure, not a success.
+    return json({ ok: false, error: String(e) }, 502);
   }
 });

@@ -287,6 +287,7 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
 .h29-availability li { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--s29-line); padding-block: 5px; font-size: 14px; }
 .h29-availability li a { min-height: 44px; display: inline-flex; align-items: center; }
 .h29-availability li span { color: var(--s29-muted); font-size: 12px; text-align: end; }
+.h29-availability li .h29-availability-name { color: inherit; font-size: 14px; text-align: start; min-height: 44px; display: inline-flex; align-items: center; }
 @container h29 (max-width:900px) { .h29-series-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @container h29 (max-width:620px) {
   .h29-launch { gap: 14px; }
@@ -446,6 +447,8 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
 .h29-bell:disabled { opacity: .6; cursor: wait; }
 .h29-bell-note { font: 400 12px/1.4 var(--s29-font-ui); color: var(--s29-muted); }
 .h29-bell.is-off { cursor: default; opacity: .6; border-style: dashed; box-shadow: none; }
+.h29-bell-slot:has(.h29-bell-building) { align-items: center; gap: 6px; }
+.h29-bell-building { color: var(--s29-muted); font: 500 12px/1.2 var(--s29-font-ui); white-space: nowrap; }
 .h29-rm .h29-series-head { margin-top: 2px; }
 
 /* Extra items of a series card (each series shows its own explicit count, ZURIEL 8.11.2026): compact title + time rows under the lead item. */
