@@ -34,7 +34,9 @@ test("the engine template sends occurrence_id on the axis and on verified hits, 
   assert.match(engine, /const id="els:"\+CORPUS_ID\[scope\]\+":"\+norm\(t\)\+":"\+Math\.abs\(h\.skip\)\+":"\+h\.dir\+":"\+h\.start;/);
   assert.match(engine, /hitId:hitKey\(h\),occurrence_id:occurrenceIdOf\(h,r\.t\),length:L\}/);
   assert.match(engine, /verified:isGov\(x\.h\),occurrence_id:occurrenceIdOf\(x\.h,w\.t\),/);
-  assert.match(engine, /if\(o&&o\.corpusId!==CORPUS_ID\[st\.scope\]\)\{if\(failResearch\("corpus-mismatch"\)\)return;/);
+  assert.match(engine, /if\(o&&\(o\.corpusId!==CORPUS_ID\[st\.scope\]\|\|\(item\.corpusId&&item\.corpusId!==o\.corpusId\)\)\)refused="corpus-mismatch";/);
+  assert.match(engine, /refused="occurrence-mismatch";/);
+  assert.match(engine, /if\(refused\)\{if\(failResearch\(refused\)\)return;st\.res=null;loadError\(refused\);render\(\);return;\}/, "one existing refusal site (st.res census unchanged)");
   const built = readFileSync(new URL("../public/tzofen.html", import.meta.url), "utf8");
   assert.ok(built.includes("occurrence_id:occurrenceIdOf(h,r.t)"), "public/tzofen.html is rebuilt from the template");
 });
@@ -94,20 +96,20 @@ test("saved records: the record's corpus is part of the occurrence; older record
   assert.equal(savedMatrixToItem(historical).skip, 50, "an older record still opens by its skip");
 });
 
-test("journey and return: the occurrence travels with the snapshot; a different corpus is not the same anchor", () => {
+test("journey and return: the engine's occurrence travels with the snapshot; a different corpus is not the same anchor", () => {
   const engine = state(TORAH, { occurrence_id: `els:${TORAH}:תורה:50:-1:205` });
   const snapshot = makeJourneySnapshot(engine);
   assert.equal(snapshot.axis.occurrenceId, `els:${TORAH}:תורה:50:-1:205`);
+  assert.equal(makeJourneySnapshot(state(TORAH)).axis.occurrenceId, undefined, "an older engine state without the id: hitId only (compatibility)");
   const restored = buildJourneyRestore(snapshot);
   assert.equal(restored.loadItem.occurrenceId, `els:${TORAH}:תורה:50:-1:205`);
   assert.equal(buildJourneyRestore({ ...snapshot, axis: { ...snapshot.axis, occurrenceId: undefined } }).loadItem.occurrenceId, undefined, "an older snapshot opens by hitId");
   assert.equal(journeyAnchorMatches(engine, restored.target), true);
   assert.equal(journeyAnchorMatches(state(TANAKH, { occurrence_id: `els:${TANAKH}:תורה:50:-1:205` }), { ...restored.target, occurrenceId: snapshot.axis.occurrenceId }), false);
   assert.equal(journeyAnchorMatches(state(TANAKH), { hitId: "50_-1_205" }), true, "an older target without an id is compared by hitId as before");
-  const promoted = buildJourneyPromotion(engine, { t: "אמת", shown: ["49_1_25"] });
-  assert.equal(promoted.loadItem.occurrenceId, `els:${TORAH}:אמת:49:1:25`);
-  assert.equal(buildJourneyPromotion(engine, { t: "אמת", shown: ["49_1_25"] }, { scope: "tanakh" }).loadItem.occurrenceId, undefined,
-    "switching scope switches corpus: no id is carried across");
+  const withHit = { t: "אמת", shown: ["49_1_25"], hits: [{ hitId: "49_1_25", occurrence_id: `els:${TORAH}:אמת:49:1:25` }] };
+  assert.equal(buildJourneyPromotion(engine, withHit).loadItem.occurrenceId, `els:${TORAH}:אמת:49:1:25`, "the promoted word carries the engine's id of that hit");
+  assert.equal(buildJourneyPromotion(engine, withHit, { scope: "tanakh" }).loadItem.occurrenceId, undefined, "switching scope switches corpus: no id is carried across");
   const back = elsResearchReturnLoad({ origin: { term: "תורה", corpus: "torah", corpusId: TORAH, start: 205, skip: 50, dir: -1 } });
-  assert.equal(back.occurrenceId, `els:${TORAH}:תורה:50:-1:205`);
+  assert.equal(back.corpusId, TORAH, "the return without a snapshot still names the corpus, which the engine checks");
 });

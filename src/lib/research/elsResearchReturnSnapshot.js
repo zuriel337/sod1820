@@ -1,4 +1,3 @@
-import { elsOccurrenceId } from "./elsOccurrenceIdentity.js";
 import { makeJourneySnapshot, buildJourneyRestore } from "../elsJourney.js";
 
 // A bounded navigation snapshot, not another matrix/result store. Engine-owned values
@@ -50,8 +49,7 @@ export function elsResearchReturnLoad(task) {
       view: { ...snapshot.view }, searchWindow: { ...snapshot.searchWindow }, hideMain: snapshot.hideMain,
       words: restored.loadItem.words.map((word, i) => ({ ...word, sourceShown: [...snapshot.findings[i].sourceShown] })) };
   }
-  const occurrenceId = elsOccurrenceId({ corpusId: origin.corpusId, term: origin.term, skip: origin.skip, dir: origin.dir, start: origin.start });
   return { term: origin.term, scope: origin.corpus, corpusId: origin.corpusId,
     start: origin.start, skip: origin.skip, dir: origin.dir,
-    hitId: `${origin.skip}_${origin.dir}_${origin.start}`, ...(occurrenceId ? { occurrenceId } : {}), words: [] };
+    hitId: `${origin.skip}_${origin.dir}_${origin.start}`, ...(typeof origin.occurrenceId === "string" ? { occurrenceId: origin.occurrenceId } : {}), words: [] };
 }

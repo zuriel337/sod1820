@@ -2085,9 +2085,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           contextRequest={contextRequest}
           saveRequest={saveRequest}
           onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(result.row); }}
-          onLoadError={(error) => { setLoadError(error); if (researchLoad) onResearchLoadError?.(error); setNotice(researchLoad
-            ? "לא הצלחנו למצוא או לאמת מופע בדילוג שביקשתם. אפשר לשנות דילוג או מונח ולנסות שוב."
-            : "לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
+          onLoadError={(error) => { setLoadError(error); if (researchLoad) onResearchLoadError?.(error); setNotice(error?.reason === "corpus-mismatch"
+            ? "המופע השמור שייך לקורפוס אחר (תורה או תנ״ך) מזה שנפתח, ולכן לא שוחזר. שום מופע אחר לא הוצג במקומו."
+            : error?.reason === "occurrence-mismatch"
+              ? "מזהה המופע השמור סותר את המיקום שלו, ולכן לא שוחזר. שום מופע אחר לא הוצג במקומו."
+              : researchLoad
+                ? "לא הצלחנו למצוא או לאמת מופע בדילוג שביקשתם. אפשר לשנות דילוג או מונח ולנסות שוב."
+                : "לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
           workspaceRequest={workspaceRequest}
           onWorkspaceAdded={() => setNotice("הממצא נוסף לתיק המחקר שלך.")}
         />

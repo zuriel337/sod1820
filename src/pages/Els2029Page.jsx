@@ -180,7 +180,11 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     if (!findingId || ["none", "ok", "not-els"].includes(findingStatus)) return undefined;
     const timer = setTimeout(() => setFindingNotice(findingStatus === "not-found"
       ? "הממצא לא נמצא בסביבת המחקר שלך."
-      : "לא נשמר מיקום מדויק לממצא הזה — אפשר לחפש את המונח מחדש."), 1200);
+      : findingStatus === "corpus-mismatch"
+        ? "הממצא נשמר בקורפוס אחר (תורה או תנ״ך) מזה שבשחזור שלו, ולכן לא נפתח. שום מופע אחר לא הוצג במקומו."
+        : findingStatus === "occurrence-mismatch"
+          ? "מזהה המופע של הממצא סותר את המיקום השמור שלו, ולכן הוא לא נפתח. שום מופע אחר לא הוצג במקומו."
+          : "לא נשמר מיקום מדויק לממצא הזה — אפשר לחפש את המונח מחדש."), 1200);
     return () => clearTimeout(timer);
   }, [findingId, findingStatus]);
   const recordKey = `${authLoading ? "loading" : user?.id || "guest"}|${cipherSlug || ""}|${recordId || ""}|${openRevision}`;

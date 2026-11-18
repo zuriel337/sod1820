@@ -4457,19 +4457,20 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
     //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
     // 🆔 קישור/רשומה עם occurrence_id: הקורפוס, האותיות, הדילוג, הכיוון וההתחלה נקבעים ממנו. סתירה לשדות הישנים = לא אותו מופע.
+    let refused=null;   // 🆔 corpus-mismatch / occurrence-mismatch: נסגר בשורת-הסירוב הקיימת למטה (אין השמה חדשה ל-st.res)
     if(item.occurrenceId!=null){
       const m=/^els:([\w.-]{1,100}):([א-ת]{2,}):(\d+):(-?1):(\d+)$/u.exec(String(item.occurrenceId));
       const o=m&&{corpusId:m[1],t:m[2],skip:+m[3],dir:+m[4],start:+m[5]};
-      if(o&&o.corpusId!==CORPUS_ID[st.scope]){if(failResearch("corpus-mismatch"))return;st.res=null;loadError("corpus-mismatch");render();return;}
-      if(!o||o.t!==norm(item.term)||o.skip<2||(item.hitId&&item.hitId!==o.skip+"_"+o.dir+"_"+o.start)
-        ||(item.start!=null&&item.start!==o.start)||(item.dir!=null&&item.dir!==o.dir)||(item.skip&&Math.abs(item.skip)!==o.skip)){
-        if(failResearch("anchor-not-found"))return;st.res=null;loadError("anchor-not-found");render();return;}
-      item={...item,corpusId:o.corpusId,skip:o.skip,dir:o.dir,start:o.start,hitId:o.skip+"_"+o.dir+"_"+o.start};
+      if(o&&(o.corpusId!==CORPUS_ID[st.scope]||(item.corpusId&&item.corpusId!==o.corpusId)))refused="corpus-mismatch";
+      else if(!o||o.t!==norm(item.term)||o.skip<2||(item.hitId&&item.hitId!==o.skip+"_"+o.dir+"_"+o.start)
+        ||(item.start!=null&&item.start!==o.start)||(item.dir!=null&&item.dir!==o.dir)||(item.skip&&Math.abs(item.skip)!==o.skip))refused="occurrence-mismatch";
+      else item={...item,corpusId:o.corpusId,skip:o.skip,dir:o.dir,start:o.start,hitId:o.skip+"_"+o.dir+"_"+o.start};
     }
     const exact=Number.isInteger(item.start)&&item.start>=0&&[1,-1].includes(item.dir)&&Number.isInteger(item.skip)&&item.skip>=2;
     // Exact saved occurrences use the SAME canonical verifier. A capped
     // discovery list must never substitute a different occurrence of the word.
-    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]){if(failResearch("corpus-mismatch"))return;st.res=null;loadError("corpus-mismatch");render();return;}
+    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope])refused="corpus-mismatch";
+    if(refused){if(failResearch(refused))return;st.res=null;loadError(refused);render();return;}
     const t=norm(item.term);
     const anchor=exact?{skip:item.skip,dir:item.dir,start:item.start,positions:Array.from(t,(_,k)=>item.start+k*item.skip*item.dir)}:null;
     const discovered=await discoverVerified(item.term,4000,null,anchor,true);

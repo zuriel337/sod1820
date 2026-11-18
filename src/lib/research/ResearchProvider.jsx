@@ -531,10 +531,10 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
         ?? (d?.axis?.direction === "back" ? -1 : d?.axis?.direction === "fwd" ? 1 : null);
       const dirNumber = dirRaw != null && dirRaw !== "" ? Number(dirRaw) : null;
       const dir = [-1, 1].includes(dirNumber) ? dirNumber : null;
-      const occurrenceId = String(d?.axis?.occurrenceId || d?.occurrence?.occurrence_id || "").trim() || null;
+      const occurrenceId = String(d?.axis?.occurrence_id || d?.axis?.occurrenceId || d?.occurrence?.occurrence_id || "").trim() || null;
       const corpusVersion = String(d?.provenance?.corpusVersion || d?.corpusVersion || "").trim() || null;
       const searchKind = d?.provenance?.searchKind || d?.kind || "regular";
-      const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip ?? ""}|${start ?? ""}|${dir ?? ""}`;
+      const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip ?? ""}|${start ?? ""}|${dir ?? ""}|${occurrenceId ?? ""}`;
       if (lastElsHistorySig.current === sig) return;
       lastElsHistorySig.current = sig;
 
@@ -552,6 +552,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
         && (current?.selection?.start ?? null) === start
         && (current?.selection?.skip ?? null) === skip
         && (current?.selection?.dir ?? null) === dir
+        && (current?.selection?.occurrenceId ?? null) === occurrenceId
         && current?.lens === "els";
       if (!(current?.subject && sameSelection)) {
         const directSubject = { id: term, type: "phrase", label: term, href: `/research?tool=els&q=${encodeURIComponent(term)}` };

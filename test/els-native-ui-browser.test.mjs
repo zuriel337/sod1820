@@ -11,6 +11,9 @@ import { libraryFixturePlugin } from './fixtures/els-library-browser-fixture.mjs
 import { captureElsResearchReturn, elsResearchReturnLoad } from '../src/lib/research/elsResearchReturnSnapshot.js';
 import { groupElsLexiconDiscoveries, selectElsStructureCandidates } from '../src/lib/research/elsStructureInspection.js';
 import { readElsMatrixShare } from '../src/lib/elsMatrixShare.js';
+import { elsStateToUniversalFindings, universalFindingToResearchEntity } from '../src/lib/research/universalFinding.js';
+import { makeJourneySnapshot } from '../src/lib/elsJourney.js';
+import { resolveElsJourneyReopen } from '../src/lib/research/elsJourneyReopen.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const req = createRequire(import.meta.url);
@@ -302,6 +305,57 @@ test('matrix share: explicit, private-safe and exact canonical replay across all
    assert.deepEqual((await identity(page)).axis,before.axis,'an older link opens the same exact occurrence');
    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0);
   },{realHost:true,loadGolden:true,matrixAnalysis:true,...profile});
+});
+
+test('acceptance: the same letters and coordinates in the Torah and the Tanakh are two findings, each reopening its exact occurrence',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:1440,height:1000},async page=>{
+  const send=item=>page.locator('iframe').evaluate((frame,item)=>frame.contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),item);
+  // Opened = a verified state in that corpus (and, when given, on that exact occurrence).
+  const opened=(scope,id=null)=>page.waitForFunction(([scope,id])=>window.__state?.status==='ok'&&window.__state.scope===scope&&window.__state.verification?.state==='MATCH'&&(!id||window.__state.axis?.occurrence_id===id),[scope,id],{timeout:90000});
+  const capture=()=>page.evaluate(()=>JSON.parse(JSON.stringify(window.__state)));
+  // The same exact occurrence (term, skip, direction, start) opened in each corpus; the Tanakh begins with the Torah.
+  const torah=await capture();
+  const anchor={term:torah.term,skip:torah.axis.skip,dir:torah.axis.direction==='back'?-1:1,start:torah.axis.start,hitId:torah.axis.hitId,words:[]};
+  await send({...anchor,scope:'tanakh'});await opened('tanakh');
+  const tanakh=await capture();
+  assert.equal(tanakh.axis.hitId,torah.axis.hitId,'same coordinates');assert.equal(tanakh.term,torah.term,'same letters');
+  assert.notEqual(tanakh.verification.corpus_id,torah.verification.corpus_id,'two corpora');
+  for(const s of [torah,tanakh])assert.equal(s.axis.occurrence_id,`els:${s.verification.corpus_id}:${s.term}:${s.axis.skip}:${anchor.dir}:${s.axis.start}`,'the engine id names the corpus');
+  // Saved as findings the way "add to research" does (TzofenEmbed addAxisFinding): two findings, two workspace entries.
+  const save=state=>{const f=elsStateToUniversalFindings(state,{inputRef:state.axis.hitId}).find(x=>x.view?.rendererHints?.role==='axis');
+   f.projection={...f.projection,journeySnapshot:makeJourneySnapshot(state,{})};return f;};
+  const saved=[save(torah),save(tanakh)];
+  assert.notEqual(saved[0].id,saved[1].id,'two findings, not one');
+  assert.equal(new Set(saved.map(f=>universalFindingToResearchEntity(f).id)).size,2,'the workspace keeps both (it dedupes by id)');
+  assert.deepEqual(saved.map(f=>f.identity.sourceIdentity),[torah.axis.occurrence_id,tanakh.axis.occurrence_id]);
+  // Each reopens in the cipher on its own exact occurrence.
+  for(const [finding,state] of [[saved[0],torah],[saved[1],tanakh],[saved[0],torah]]){
+   const reopen=resolveElsJourneyReopen(finding.id,saved);
+   assert.equal(reopen.status,'ok');assert.equal(reopen.journeyLoad.occurrenceId,state.axis.occurrence_id);
+   await send(reopen.journeyLoad);await opened(state.scope,state.axis.occurrence_id);
+   assert.equal(await page.evaluate(()=>window.__state.axis.occurrence_id),state.axis.occurrence_id,`${state.scope} opens its exact occurrence`);
+  }
+  // An id that contradicts its corpus fails clearly, at the host and in the engine; nothing else is shown instead.
+  const crossed={...saved[0],projection:{...saved[0].projection,journeySnapshot:{...saved[0].projection.journeySnapshot,axis:{...saved[0].projection.journeySnapshot.axis,occurrenceId:tanakh.axis.occurrence_id}}}};
+  assert.equal(resolveElsJourneyReopen(crossed.id,[crossed]).status,'corpus-mismatch');
+  const errors=()=>page.evaluate(()=>window.__log.filter(m=>m.type==='load-error').map(m=>m.reason));
+  let n=(await errors()).length;
+  await send({...anchor,scope:'torah',occurrenceId:tanakh.axis.occurrence_id});
+  await page.waitForFunction(n=>window.__log.filter(m=>m.type==='load-error').length>n,n);
+  assert.equal((await errors()).at(-1),'corpus-mismatch');
+  n=(await errors()).length;
+  await send({...anchor,scope:'torah',occurrenceId:torah.axis.occurrence_id.replace(/:\d+$/,m=>':'+(Number(m.slice(1))+1))});
+  await page.waitForFunction(n=>window.__log.filter(m=>m.type==='load-error').length>n,n);
+  assert.equal((await errors()).at(-1),'occurrence-mismatch');
+  // An older finding (hitId identity, no id in its snapshot) still opens through the compatibility path.
+  const older={...saved[0],id:'uf1:els:older',identity:{...saved[0].identity,sourceIdentity:torah.axis.hitId},
+   projection:{...saved[0].projection,journeySnapshot:{...saved[0].projection.journeySnapshot,axis:{...saved[0].projection.journeySnapshot.axis,occurrenceId:undefined}}}};
+  const compat=resolveElsJourneyReopen(older.id,[older]);
+  assert.equal(compat.status,'ok');assert.equal(compat.journeyLoad.occurrenceId,undefined);
+  await send({...compat.journeyLoad,researchNonce:undefined});await opened('torah',torah.axis.occurrence_id);
+  assert.equal(await page.evaluate(()=>window.__state.axis.occurrence_id),torah.axis.occurrence_id,'the older finding opens the same exact occurrence');
+ },{realHost:true,loadGolden:true});
 });
 
 test('Research has one regular/cross/advanced search surface with preserved drafts and no automatic work',
