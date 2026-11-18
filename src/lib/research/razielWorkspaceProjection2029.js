@@ -71,6 +71,10 @@ export function workspaceCreditBalance(value) {
 export function workspaceResearchHref(entity) {
   const href = text(entity?.link || entity?.href);
   if (!href.startsWith("/") || href.startsWith("//") || /[\\\u0000-\u0020\u007f]/.test(href)) return null;
+  // An ELS finding saved before it linked to the cipher (/research?finding=) opens in the cipher, in Research, by the same id.
+  const els = entity?.finding?.kind === "els" || entity?.findingKind === "els";
+  const old = els && /^\/research\?finding=([^&#]+)$/.exec(href);
+  if (old) return `/code?mode=research&finding=${old[1]}`;
   // Keep the existing exact locator/query/hash. Never put a title, question,
   // conversation identifier or private Context in a newly generated URL.
   return href.replace(/^\/(?:2029\/)?number\//, NUMBER_PAGE_BASE + "/");

@@ -242,6 +242,9 @@ test('letter occurrence actions choose the same verified scan target and open it
   await page.locator(`[data-els-index="${index}"]`).click();await choices.waitFor();
   await choices.getByRole('button',{name:'פתח מטריצה של המופע',exact:true}).last().click();
   await page.waitForFunction(id=>window.__state?.axis?.hitId===id,chosen.hitId,{timeout:60000});
+  // The promotion is one load operation: its carried words are restored (and placed in or out of the window) before it reports done.
+  await page.waitForFunction(()=>{const key=window.__hostLog.filter(m=>m.type==='load-matrix').at(-1)?.loadKey;
+    return !!key&&window.__operation?.kind==='load'&&window.__operation.requestId===key&&window.__operation.status==='done';},null,{timeout:60000});
   assert.equal(await page.evaluate(()=>window.__state.term),chosen.term);
   assert.equal(await page.evaluate(()=>window.__state.verification.state),'MATCH');
   const promoted=await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='load-matrix').at(-1).item);
@@ -251,7 +254,9 @@ test('letter occurrence actions choose the same verified scan target and open it
   assert.ok(carried,'previous term remains in the findings list');
   const b=after.geometry;
   assert.ok(golden.positions.some(i=>Math.floor(i/b.S)<b.r0||Math.floor(i/b.S)>b.r1||i%b.S<b.c0||i%b.S>=b.c0+b.cw),'fixture: old axis lies partly outside the new-width window');
-  assert.equal(carried.shown.includes(state.axis.hitId),false,'never pretend an out-of-window old axis is visible');
+  // A carried occurrence outside the new window stays the user's selection, marked as outside it (b1806d2a7): never presented as in view.
+  const oldAxis=[...(carried.hits||[]),...(carried.sourceHits||[])].find(h=>h.hitId===state.axis.hitId);
+  if(carried.shown.includes(state.axis.hitId)||oldAxis)assert.equal(oldAxis?.outsideWindow,true,'never pretend an out-of-window old axis is visible');
   assert.equal(await page.locator('iframe').count(),1);
   assert.equal(await page.evaluate(()=>window.__state.ui.selCells.length),0);
   assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);

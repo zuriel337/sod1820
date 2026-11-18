@@ -1,6 +1,6 @@
 import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
@@ -705,7 +705,15 @@ function ProExperience() {
   );
 }
 
+// An ELS finding link saved before it opened the cipher (/research?finding=uf1:els:…) opens there now, in Research, by the same id.
 export default function CalculatorPro2029Page() {
+  const { search } = useLocation();
+  const finding = new URLSearchParams(search).get("finding") || "";
+  if (finding.startsWith("uf1:els:")) return <Navigate replace to={`/code?mode=research&finding=${encodeURIComponent(finding)}`} />;
+  return <CalculatorPro2029Content />;
+}
+
+function CalculatorPro2029Content() {
   const location = useLocation();
   useEffect(() => {
     applySeo({

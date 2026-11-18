@@ -178,7 +178,9 @@ export function universalFindingToResearchEntity(finding) {
     type: "finding",
     title: label,
     label,
-    link: finding.subject?.key ? `/research?finding=${encodeURIComponent(finding.id)}` : "/research",
+    // An ELS finding opens in the cipher, in Research, on its exact occurrence (Els2029Page ?finding= → elsJourneyReopen).
+    link: finding.kind === "els" ? `/code?mode=research&finding=${encodeURIComponent(finding.id)}`
+      : finding.subject?.key ? `/research?finding=${encodeURIComponent(finding.id)}` : "/research",
     finding,
     sourceEngine: finding.source?.engine || null,
     findingKind: finding.kind || "other",
@@ -233,6 +235,9 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
     const axisId = occurrenceOf(engineState.axis.occurrence_id, engineState.term || axisTerm, axisHit);
     const axisOccurrence = withOccurrence(axisHit, axisId);
     out.push(makeUniversalFinding({
+      // One occurrence, one finding: with the engine's occurrence_id the id does not depend on how the term was typed
+      // (התשפז / התשפ״ז); the typed spelling stays the label. Without a corpus the older id is kept.
+      ...(axisId ? { id: universalFindingId({ kind: "els", sourceIdentity: axisId }) } : {}),
       kind: "els",
       // ELS corpus is Hebrew-only (Torah/Tanakh text) — source-original and display language
       // are the same today, declared explicitly per the Multilingual Identity Foundation
@@ -269,6 +274,7 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
       const sent = Array.isArray(f.hits) ? f.hits.find(h => h?.hitId === hit.hitId)?.occurrence_id : null;
       const findingId = occurrenceOf(sent, f.t, hit), occurrence = withOccurrence(hit, findingId);
       out.push(makeUniversalFinding({
+        ...(findingId ? { id: universalFindingId({ kind: "els", sourceIdentity: findingId }) } : {}),
         kind: "els",
         subject: { type: "word", key: f.t, label: f.t, lang: "he" },
         source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null, lang: "he" },

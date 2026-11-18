@@ -130,6 +130,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     //    לתוך cart/research_items הקיים (Pass 1), ומאפשר בעתיד "פתח מחדש" מדויק דרך journeyLoad.
     const snap = makeJourneySnapshot(d, {});
     if (snap) axisFinding.projection = { ...axisFinding.projection, journeySnapshot: snap };
+    // The same occurrence is one finding (its id is the engine's occurrence_id): saving it again in another spelling
+    // (התשפז / התשפ״ז) keeps the spelling it was first saved with for display.
+    const existing = [...workspace.findings, ...workspace.savedFindings, ...workspace.pinnedFindings].find(f => f?.id === axisFinding.id);
+    if (existing?.subject) axisFinding.subject = existing.subject;
     workspace.upsertFinding(axisFinding);
     setAddedToast(true);
     onWorkspaceAdded?.();

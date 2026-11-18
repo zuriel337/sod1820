@@ -113,3 +113,25 @@ test("journey and return: the engine's occurrence travels with the snapshot; a d
   const back = elsResearchReturnLoad({ origin: { term: "תורה", corpus: "torah", corpusId: TORAH, start: 205, skip: 50, dir: -1 } });
   assert.equal(back.corpusId, TORAH, "the return without a snapshot still names the corpus, which the engine checks");
 });
+
+test("saved findings: one occurrence in two spellings is one finding; two corpora stay two; the typed spelling is the label; links open the cipher", async () => {
+  const { elsStateToUniversalFindings, universalFindingToResearchEntity } = await import("../src/lib/research/universalFinding.js");
+  const { workspaceResearchHref } = await import("../src/lib/research/razielWorkspaceProjection2029.js");
+  const s = (termRaw, corpus) => ({ status: "ok", term: "התשפז", termRaw, scope: corpus === TORAH ? "torah" : "tanakh",
+    verification: { state: "MATCH", corpus_id: corpus }, axis: { hitId: "16965_1_83718", occurrence_id: `els:${corpus}:התשפז:16965:1:83718` }, findings: [] });
+  const axisOf = state => elsStateToUniversalFindings(state).find(f => f.view?.rendererHints?.role === "axis");
+  const [a, b, c] = [axisOf(s("התשפ״ז", TORAH)), axisOf(s("התשפז", TORAH)), axisOf(s("התשפ״ז", TANAKH))];
+  assert.equal(a.id, b.id, "התשפז and התשפ״ז: the engine names the same occurrence, one finding");
+  assert.notEqual(a.id, c.id, "the same letters and coordinates in the Tanakh are another finding");
+  assert.equal(a.subject.label, "התשפ״ז"); assert.equal(b.subject.label, "התשפז", "each keeps the spelling it was typed in for display");
+  assert.equal(a.identity.sourceIdentity, `els:${TORAH}:התשפז:16965:1:83718`);
+  const entity = universalFindingToResearchEntity(a);
+  assert.equal(entity.link, `/code?mode=research&finding=${encodeURIComponent(a.id)}`, "an ELS finding opens the cipher in Research");
+  assert.equal(workspaceResearchHref(entity), entity.link);
+  assert.equal(workspaceResearchHref({ ...entity, link: `/research?finding=${encodeURIComponent("uf1:els:ישן:50_1_5")}` }),
+    `/code?mode=research&finding=${encodeURIComponent("uf1:els:ישן:50_1_5")}`, "an older saved ELS link opens the cipher by the same id");
+  assert.equal(workspaceResearchHref({ link: "/research?finding=other", finding: { kind: "gematria" } }), "/research?finding=other", "other kinds are untouched");
+  // Without a verified corpus the older identity is kept (compatibility).
+  const legacy = axisOf({ ...s("התשפז", TORAH), verification: { state: "MATCH" }, axis: { hitId: "16965_1_83718" } });
+  assert.equal(legacy.identity.sourceIdentity, "16965_1_83718");
+});
