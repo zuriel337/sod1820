@@ -447,6 +447,8 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
 .h29-bell:disabled { opacity: .6; cursor: wait; }
 .h29-bell-note { font: 400 12px/1.4 var(--s29-font-ui); color: var(--s29-muted); }
 .h29-bell.is-off { cursor: default; opacity: .6; border-style: dashed; box-shadow: none; }
+.h29-bell-slot:has(.h29-bell-building) { align-items: center; gap: 6px; }
+.h29-bell-building { color: var(--s29-muted); font: 500 12px/1.2 var(--s29-font-ui); white-space: nowrap; }
 .h29-rm .h29-series-head { margin-top: 2px; }
 
 /* Extra items of a series card (each series shows its own explicit count, ZURIEL 8.11.2026): compact title + time rows under the lead item. */
