@@ -9,7 +9,8 @@ import {
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("conversation-first copy keeps internal contracts stable and technical language out of ordinary chat", () => {
-  const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+  // SHELL_WEIGHT_REDUCTION_20261118: the Raziel conversation panel moved unchanged from SystemFrame2029.jsx to RazielPanel2029.jsx (loaded when it opens); both together are the former frame file.
+  const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/RazielPanel2029.jsx");
   const chatStart = frame.indexOf("function RazielNativeChat");
   const chatEnd = frame.indexOf("function RazielProjection", chatStart);
   const chat = frame.slice(chatStart, chatEnd);
@@ -23,7 +24,7 @@ test("conversation-first copy keeps internal contracts stable and technical lang
 });
 
 test("slice 3 offers registration only after value and represents only the server-owned guest quota denial", () => {
-  const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+  const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/RazielPanel2029.jsx");
   const actions = read("src/components/experience2029/RazielOneShotActions2029.jsx");
   const chatStart = frame.indexOf("function RazielNativeChat");
   const chatEnd = frame.indexOf("const RESEARCH_SECTIONS", chatStart);
@@ -77,7 +78,7 @@ test("ordinary answer copy says what Raziel found; depth copy may explain source
 });
 
 test("the left Companion panel is gone; Raziel keeps three local preferences and desktop and mobile use the single existing sheet", () => {
-  const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+  const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/RazielPanel2029.jsx");
   const chooser = read("src/lib/research/razielCompanionPreference2029.js");
 
   assert.doesNotMatch(frame, /<CompanionPanel2029|readRazielCompanionView|writeRazielCompanionView/);

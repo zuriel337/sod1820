@@ -97,7 +97,8 @@ test("Raziel voice shape stays calm/bounded and prepares spoken reuse without ex
   assert.equal(guide.spokenScript, [guide.lead, guide.boundary, guide.inactive, guide.question].join(" "));
 
   const source = readFileSync(new URL("../src/lib/research/elsRazielContext.js", import.meta.url), "utf8");
-  const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+  // SHELL_WEIGHT_REDUCTION_20261118: the Raziel conversation panel moved unchanged from SystemFrame2029.jsx to RazielPanel2029.jsx (loaded when it opens); both together are the former frame file.
+  const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8") + "\n" + readFileSync(new URL("../src/components/experience2029/RazielPanel2029.jsx", import.meta.url), "utf8");
   assert.match(frame, /buildElsRazielGuidance\(elsFocus\)/);
   assert.match(frame, /data-raziel-els-guide=\{elsGuide.contract\}/);
   assert.doesNotMatch(source + frame, /speechSynthesis|SpeechSynthesisUtterance|textToSpeech|tts\s*\(|audio\.play|new Audio/);
