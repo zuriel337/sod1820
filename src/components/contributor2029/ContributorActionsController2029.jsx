@@ -91,7 +91,7 @@ export default function ContributorActionsController2029({ view, onPublicData, e
       {caps.owner ? <><a className="pc-open" href={personalHref("page-editor")}>עריכת הדף הציבורי שלי</a><a className="pc-open" href={personalHref("messages")}>תיבת ההודעות שלי</a></> : null}
       <button type="button" className="pc-open" onClick={shell.openWorkspace}>{actor ? "האזור האישי שלי" : "התחברות לאזור האישי"}</button>
       <ShareActions type="researcher" url={`${typeof window === "undefined" ? "https://sod1820.co.il" : window.location.origin}${view.canonicalHref}`}
-        title={view.profile.name} image={view.profile.avatar} sourceSurface="public-contributor-2029" />
+        title={view.profile.name} image={view.profile.avatar} sourceSurface="public-contributor-2029" force />
     </ContributorActionRow2029>
     {actionsLocked ? <p className="pc-reason" role="note">הפרסומים הציבוריים פתוחים לקריאה. מעקב, הודעות ועריכת החשבון עדיין אינם זמינים בגרסה זו.</p> : null}
     {caps.state === "unavailable" ? <p className="pc-reason" role="status">פעולות הכותב אינן זמינות כרגע.</p> : null}
