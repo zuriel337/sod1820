@@ -16,11 +16,9 @@
 }
 .sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar{padding-inline:11px}
 .sod29-nav-copy,
-.sod29-rail-identity-copy,
 .sod29-sidebar-workspace-copy,
 .sod29-nav-status,
 .sod29-nav-group-title,
-.sod29-side-foot,
 .sod29-sidebar-theme{
   transition:
     opacity 180ms ease,
@@ -31,7 +29,6 @@
     padding 300ms ease;
 }
 .sod29-root.closed-shell.sidebar-collapsed .sod29-nav-copy,
-.sod29-root.closed-shell.sidebar-collapsed .sod29-rail-identity-copy,
 .sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar-workspace-copy,
 .sod29-root.closed-shell.sidebar-collapsed .sod29-nav-status{
   opacity:0;
@@ -42,7 +39,6 @@
   pointer-events:none;
 }
 .sod29-root.closed-shell.sidebar-collapsed .sod29-nav-group-title,
-.sod29-root.closed-shell.sidebar-collapsed .sod29-side-foot,
 .sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar-theme{
   opacity:0;
   transform:translateX(8px);
@@ -53,22 +49,9 @@
   border:0;
   pointer-events:none;
 }
-.sod29-root.closed-shell.sidebar-collapsed .sod29-rail-identity,
 .sod29-root.closed-shell.sidebar-collapsed .sod29-nav-link,
 .sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar-workspace{justify-content:center;padding-inline:6px}
 .sod29-root.closed-shell.sidebar-collapsed .sod29-nav-icon{width:36px;min-width:36px}
-.sod29-root.closed-shell.sidebar-collapsed .sod29-rail-identity{
-  min-height:62px;
-  padding:4px 6px;
-  justify-content:center;
-}
-.sod29-root.closed-shell.sidebar-collapsed .sod29-rail-identity::after{
-  inset-inline:14px;
-  opacity:.42;
-}
-.sod29-root.closed-shell.sidebar-collapsed .sod29-rail-home{
-  transform:scale(1);
-}
 .sod29-nav-group{display:grid;gap:5px}
 .sod29-nav-group+.sod29-nav-group{margin-top:12px;padding-top:12px;border-top:1px solid var(--s29-line)}
 .sod29-nav-group-title{padding-inline:12px;margin-bottom:2px;color:var(--s29-muted);font-size:var(--s29-type-micro,14px);font-weight:800;letter-spacing:.04em;opacity:.78}
@@ -77,7 +60,6 @@
 .sod29-nav-status{margin-inline-start:auto;font-size:var(--s29-type-micro,14px);color:var(--s29-accent-text);opacity:.82}
 .sod29-sidebar-workspace{width:100%;min-height:var(--s29-control-min);display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-accent) 6%,transparent);color:var(--s29-ink);cursor:pointer;text-align:start}
 .sod29-sidebar-toggle{width:100%;min-height:var(--s29-control-min);border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-muted);cursor:pointer}
-.sod29-side-foot{font-size:var(--s29-type-micro,14px)}
 .sod29-orientation{font-size:var(--s29-type-micro,14px)}
 .sod29-header-actions button{font-size:var(--s29-type-micro,14px)}
 .sod29-sidebar-theme{

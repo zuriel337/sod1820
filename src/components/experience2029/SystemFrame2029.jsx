@@ -1615,16 +1615,11 @@ function SystemFrame2029Body({
 
         <button className="sod29-logo-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "פתח את סרגל הניווט" : "סגור את סרגל הניווט"} title={sidebarCollapsed ? "פתח את סרגל הניווט" : "סגור את סרגל הניווט"}>
           <DiscoveryGateMark2029 open={!sidebarCollapsed} />
-          <span className="sod29-logo-name" aria-hidden="true"><b>{experience.brand.identity}</b>{experience.brand.expression ? <small>{experience.brand.expression}</small> : null}</span>
         </button>
 
         <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={railPeek ? "peek" : sidebarCollapsed ? "slim" : "open"}
           onMouseEnter={() => peekRail(true, 180)} onMouseLeave={() => peekRail(false, 260)} onFocus={() => peekRail(true, 0)}
           onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekRail(false, 0); }} onKeyDown={(event) => { if (event.key === "Escape") peekRail(false, 0); }}>
-          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
-            <span className="sod29-rail-home" aria-hidden="true">⌂</span>
-            <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
-          </Link>
           <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
             <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
@@ -1639,7 +1634,6 @@ function SystemFrame2029Body({
             <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "נעץ" : "צמצם"}</b>
           </button>
           </div>
-          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {entityTypeNounHe(surface)}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 
         <div className="sod29-main">

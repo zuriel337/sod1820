@@ -252,7 +252,6 @@
     background: color-mix(in srgb, var(--s29-panel) 90%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
     box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
   }
-  .sod29-root.closed-shell.native-frame .sod29-rail-identity { display: none; }
   .sod29-root.closed-shell.native-frame .sod29-sidebar { border-color: var(--s29-capsule-edge); }
   .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-sidebar { inline-size: var(--s29-rail-slim); }
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-sidebar {
@@ -272,9 +271,6 @@
   .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-discovery-gate { inline-size: 44px; flex: 0 0 44px; }
   .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-gate-menu,
   .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-gate-arcs { display: none; }
-  .sod29-root.closed-shell.native-frame .sod29-logo-name { display: flex; flex-direction: column; gap: 4px; max-inline-size: 0; opacity: 0; overflow: hidden; white-space: nowrap; text-align: start; transition: opacity 220ms ease, max-inline-size 340ms ease; }
-  .sod29-root.closed-shell.native-frame .sod29-logo-name b { font: 700 15px/1 var(--s29-font-ui); }
-  .sod29-root.closed-shell.native-frame .sod29-logo-name small { font: 400 11px/1 var(--s29-font-ui); color: var(--s29-muted); }
   /* ZURIEL 18.11.2026: both side panels are one design under the top bar. The logo stays a coin beside the bar, the open rail keeps the capsule top and
      the width of the left panel, a hover opens it over the page (rail-peek: the page keeps the slim column and does not move) and the pin keeps it open. */
   .sod29-root.closed-shell.native-frame { --s29-rail-col: 72px; }
@@ -295,8 +291,8 @@
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot :is(.sod29-rail-utilities button:disabled, .sod29-rail-utilities .sod29-nav-copy, .sod29-rail-toggle > b) { display: none; }
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-nav-link { min-block-size: 42px; }
 }
-@media (prefers-reduced-motion: reduce) { .sod29-logo-toggle, .sod29-logo-name { transition: none !important; } }
-.sod29-root[data-frame-reduced-motion="true"] .sod29-logo-toggle, .sod29-root[data-frame-reduced-motion="true"] .sod29-logo-name { transition: none !important; }
+@media (prefers-reduced-motion: reduce) { .sod29-logo-toggle { transition: none !important; } }
+.sod29-root[data-frame-reduced-motion="true"] .sod29-logo-toggle { transition: none !important; }
 
 /* The three modes sit at the left end of the top bar and stay inside its 56px capsule. */
 @media (min-width: 981px) {
