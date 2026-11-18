@@ -530,7 +530,7 @@ function HomeBody({ primaryReader = null } = {}) {
     story={CORE_PUBLIC_LAUNCH_2029 ? null : <Suspense fallback={<section id="home-plane" className="sod29-flight-story is-home is-loading" aria-label="סיפור המטוס נטען"><p role="status">פותח את סיפור המטוס…</p></section>}><WorldFlightStory2029 surface="home" research={research} shell={shell} /></Suspense>}
     elsEntry={<ElsRotatingMatrixCard2029 />}
     arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
-      <Suspense fallback={<p className="h29-note" role="status">טוען את זרם המציאות…</p>}>
+      <Suspense fallback={<p className="h29-note h29-stream-pending" role="status">טוען את זרם המציאות…</p>}>
         {worldRequested ? <HomeRealityRiver2029 />
           : <RealityRiver2029 loading follow={<RealityStreamFollow2029 source="home_reality_stream_2029" />} />}
         <SourceArrivalList2029 surface="home" loading={homeWorldState.loading} limit={4} showNew
