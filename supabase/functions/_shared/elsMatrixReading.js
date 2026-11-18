@@ -6,6 +6,8 @@
 // Imports only sibling action/job adapters; Node (tests) and Deno (edge) run the same text.
 import { ELS_MATRIX_READING_EXPECTED_MINUTES, ELS_MATRIX_READING_LIMITS, ELS_MATRIX_READING_POLL_SECONDS, ELS_MATRIX_READING_START } from "./elsMatrixReadingAction.js";
 import { createElsReadingJobRepository, ElsReadingJobStorageError } from "./elsMatrixReadingJobs.js";
+import { TORAH_LENGTH, TORAH_LETTER_COUNTS, expectedChance } from "./elsChanceModel.js";
+export { TORAH_LENGTH, TORAH_LETTER_COUNTS, expectedChance };
 
 export const MAX_FINDINGS = 60;
 
@@ -311,7 +313,6 @@ export const MODEL_DEFAULT = "claude-fable-5-1";
 const MODEL_PATTERN = /^claude-fable-[a-z0-9.-]{1,24}$/;
 export const API_VERSION = "2026-10-21";
 export const BATCH_CUSTOM_ID = "els-reading-1";
-export const TORAH_LENGTH = 304_805;
 export const MAX_INPUT_TOKENS_GUARD = 150_000;
 export const JOB_TTL_MS = 14 * 24 * 3600 * 1000;
 export const UNLIKELY_E = 1; // fewer than one chance occurrence expected anywhere in the Torah at this skip
@@ -320,11 +321,6 @@ export const UNLIKELY_E = 1; // fewer than one chance occurrence expected anywhe
 export const DEFAULTS = Object.freeze({ rows: ELS_MATRIX_READING_START.rows, cols: ELS_MATRIX_READING_START.cols, cap: ELS_MATRIX_READING_START.cap, effort: "medium", maxTokens: 64_000 });
 export const LIMITS = Object.freeze({ minRows: ELS_MATRIX_READING_LIMITS.rows.min, maxRows: ELS_MATRIX_READING_LIMITS.rows.max, minCols: ELS_MATRIX_READING_LIMITS.cols.min, maxCols: ELS_MATRIX_READING_LIMITS.cols.max, minCap: ELS_MATRIX_READING_LIMITS.cap.min, maxCap: ELS_MATRIX_READING_LIMITS.cap.max, maxTokens: 64_000 });
 
-/** Letter counts of the Torah stream (public.torah_stream, 304,805 letters, md5 0066c2431821863d258745e664d3883e); the chance model E is computed from them. */
-export const TORAH_LETTER_COUNTS = Object.freeze({
-  א: 27059, ב: 16345, ג: 2109, ד: 7032, ה: 28056, ו: 30513, ז: 2198, ח: 7189, ט: 1804, י: 31531, כ: 11968,
-  ל: 21570, מ: 25090, נ: 14126, ס: 1833, ע: 11250, פ: 4805, צ: 3962, ק: 4695, ר: 18125, ש: 15595, ת: 17950,
-});
 
 /** USD per million tokens, list prices (claude-api model table cached 2026-10-06). Message Batches are charged at half. cacheRead defaults to 0.1x input. */
 export const PRICES = Object.freeze({
@@ -476,14 +472,6 @@ export function describeCoverage({ region, lines, window }) {
   };
 }
 
-/** E: expected number of occurrences of the text at one skip, both directions, over the whole Torah, with independent letters at the Torah's own frequencies (a rough chance model, not a significance test). */
-export function expectedChance(text, skip) {
-  const letters = [...text];
-  const starts = Math.max(0, TORAH_LENGTH - (letters.length - 1) * skip);
-  let p = 1;
-  for (const ch of letters) p *= (TORAH_LETTER_COUNTS[ch] ?? 0) / TORAH_LENGTH;
-  return 2 * starts * p;
-}
 
 /** Distance (cells, Chebyshev) from an occurrence to the selected occurrence: 0 shares a cell, 1 touches (also diagonally), more is farther. */
 export function relationToAxis(region, cells) {

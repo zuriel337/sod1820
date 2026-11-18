@@ -747,7 +747,7 @@ export default function Host(props){
     send({type:'engine-result',requestId:message.requestId,...result});
    }
    if(message.type==='state'){window.__state=message;latest.current.onState?.(message);}
-   if(message.type==='lens'){window.__lens=message;latest.current.onLens?.(message);}
+   if(message.type==='lens'){window.__lens=message;if(message.ok&&!message.pending&&Array.isArray(message.items))(window.__lensRuns=window.__lensRuns||[]).push(message);latest.current.onLens?.(message);}
    if(message.type==='gate')latest.current.onGate?.(message);
    if(message.type==='onboarding-required')latest.current.onOnboardingRequired?.(message);
    if(message.type==='operation'){window.__operation=message;latest.current.onOperation?.(message);}
@@ -1004,7 +1004,7 @@ async function withNative(viewport, run, options = {}) {
           if (event.source !== frame?.contentWindow || message?.source !== 'tzofen') return;
           (window.__log ||= []).push(message);
           if (message.type === 'state') { window.__state = message;if(reentrantRender){window.__reentrantCount=(window.__reentrantCount||0)+1;window.__forceParentRender?.();} }
-          if (message.type === 'lens') window.__lens = message;
+          if (message.type === 'lens') { window.__lens = message; if (message.ok && !message.pending && Array.isArray(message.items)) (window.__lensRuns = window.__lensRuns || []).push(message); }
           if (message.type === 'operation') window.__operation = message;
           if (message.type === 'ready' && loadGolden && !window.__fixtureGoldenInjected) {
             window.__fixtureGoldenInjected = true;
@@ -3414,5 +3414,61 @@ test('owner 18.11: findings stay on the matrix through zoom and while another wo
     await openPanel(page);
     assert.match(await page.locator('.els29-native-rail-head small').first().textContent(),/^24\/24/);
     assert.equal(await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).isDisabled(),true,'a 25th word cannot be added');
+  },{realHost:true});
+});
+
+test('owner 18.11: one research panel — engine discovery, then Fable, one joint list; a Fable finding joins the matrix through the engine',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:300000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});await panel.waitFor();
+    const joint=page.getByRole('region',{name:'רשימת הממצאים המשותפת',exact:true});await joint.waitFor();
+    assert.match(await joint.textContent(),/הריצו את סריקת המנוע/,'empty before any run');
+    // One click runs both engine scanners on the same window.
+    await panel.getByRole('button',{name:'גלה מילים וביטויים יחד',exact:true}).click();
+    await page.waitForFunction(()=>window.__lens?.lens==='matrix-lexicon'&&window.__lens.plan?.mode==='language',null,{timeout:60000});
+    await page.waitForFunction(()=>document.querySelectorAll('[data-joint-row]').length>0,null,{timeout:30000});
+    assert.equal(await joint.locator('[data-joint-row][data-joint-source="engine"]').count()>0,true,'engine rows');
+    // A Fable result for the same axis: one occurrence the engine also found, one only Fable found.
+    const plan=await page.evaluate(()=>{
+      const s=window.__state,m=s.matrix,axis={term:s.term,scope:s.scope,start:s.axis.start,skip:s.axis.skip,dir:s.axis.direction==='back'?-1:1,corpusId:s.verification.corpus_id};
+      const inView=p=>{const r=Math.floor(p/m.S)-m.r0,c=p%m.S-m.c0;return r>=0&&r<m.rows.length&&c>=0&&c<m.cw;};
+      const make=(start,skip,dir,length)=>{const positions=Array.from({length},(_,i)=>start+skip*dir*i);const text=positions.map(p=>m.rows[Math.floor(p/m.S)-m.r0][p%m.S-m.c0]).join('');
+        const key='els:'+axis.corpusId+':'+text+':'+skip+':'+dir+':'+start;
+        return {id:key,text,parts:[text],occurrence:{start,skip,dir,length},chance:{expected_occurrences:0.5},verification:{state:'ENGINE_VERIFIED',letters_match:true,occurrences_verified:1,engine:{contract:'els_occurrence_replay_v1',verification_state:'MATCH',corpus_id:axis.corpusId,occurrence_id:key}}};};
+      const shared=window.__lensRuns?.flatMap(r=>r.items)||[];
+      const known=new Set(shared.map(i=>i.term+':'+i.skip+':'+i.dir+':'+i.start));
+      const both=shared.find(i=>i.skip>=2);
+      const fromEngine=i=>{const key='els:'+axis.corpusId+':'+i.term+':'+i.skip+':'+i.dir+':'+i.start;
+        return {id:key,text:i.term,parts:[i.term],occurrence:{start:i.start,skip:i.skip,dir:i.dir,length:i.term.length},chance:{expected_occurrences:0.5},verification:{state:'ENGINE_VERIFIED',letters_match:true,occurrences_verified:1,engine:{contract:'els_occurrence_replay_v1',verification_state:'MATCH',corpus_id:axis.corpusId,occurrence_id:key}}};};
+      let only=null;for(let c=2;c<m.cw-2&&!only;c++){const start=(m.r0+2)*m.S+m.c0+c,f=make(start,m.S,1,4);if(!known.has(f.text+':'+m.S+':1:'+start))only=f;}
+      const findings=[...(both?[fromEngine(both)]:[]),only];
+      const result={contract:'els_matrix_reading_v1',state:'COMPLETE',is_test_fixture:true,provider:{kind:'test_double'},axis:{...axis,corpus_id:axis.corpusId},findings};
+      window.__setMatrixReading({mode:'on',isAdmin:true,session:{busy:false,thread:[{role:'raziel',elsMatrixReading:result,continuation:{contextSnapshot:{elsMatrixContext:{axis}}}}]}});
+      return {both:both?both.term+':'+both.skip+':'+both.dir+':'+both.start:null,only:{text:only.text,hitId:m.S+'_1_'+only.occurrence.start}};
+    });
+    assert.ok(plan.both,'an engine ELS inside the view, shared with the Fable result');
+    // Step 2 sits in the same panel, with the same Fable card rules.
+    const step2=page.getByRole('region',{name:'שלב 2, המשך עם Fable',exact:true});await step2.waitFor();
+    assert.equal(await step2.getByRole('button',{name:'המשך עם Fable',exact:true}).count(),1);
+    // The engine found hundreds of candidates; the source filter shows what Fable found (alone or with the engine).
+    await page.waitForFunction(()=>[...document.querySelectorAll('button[data-joint-source="fable"]')].some(b=>/Fable · [1-9]/.test(b.textContent)),null,{timeout:30000});
+    await joint.locator('button[data-joint-source="fable"]').click();
+    await page.waitForFunction(()=>document.querySelectorAll('[data-joint-row][data-joint-source="fable"]').length>0,null,{timeout:30000});
+    if(plan.both){assert.equal(await joint.locator(`[data-joint-row="${plan.both}"]`).getAttribute('data-joint-source'),'both','an occurrence both found is one row with both sources');}
+    const onlyRow=joint.locator(`[data-joint-row="${plan.only.text}:${plan.only.hitId.split('_')[0]}:1:${plan.only.hitId.split('_')[2]}"]`);
+    assert.equal(await onlyRow.count(),1);assert.match(await onlyRow.textContent(),/Fable/);assert.match(await onlyRow.textContent(),/מאומת במנוע/);assert.match(await onlyRow.textContent(),/E 0\.50/);
+    assert.match(await joint.locator('button[data-joint-source="fable"]').textContent(),plan.both?/Fable · 2/:/Fable · 1/);
+    assert.equal(await joint.locator('[data-joint-row]').count(),plan.both?2:1,'the Fable filter shows exactly what Fable found');
+    // Adding a Fable finding goes through the engine's findings update and its own verification.
+    await onlyRow.getByRole('button',{name:`הוסף למטריצה: ${plan.only.text}`,exact:true}).click();
+    await page.waitForFunction(only=>window.__state?.findings?.some(f=>f.t===only.text&&f.hits.some(h=>h.hitId===only.hitId&&h.selected&&h.verified)),plan.only,{timeout:30000});
+    await page.waitForFunction(text=>[...document.querySelectorAll('[data-joint-row] button')].some(b=>b.getAttribute('aria-label')===`${text} כבר במטריצה`),plan.only.text,{timeout:15000});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'no horizontal scroll at 390');
+    // A non-admin sees that the step is coming, not the button.
+    await page.evaluate(()=>{const r=window.__readingFixture||null;window.__setMatrixReading({mode:'on',isAdmin:false,session:{busy:false,thread:[]}});});
+    await page.waitForFunction(()=>[...document.querySelectorAll('[aria-label="שלב 2, המשך עם Fable"]')].some(n=>/בקרוב/.test(n.textContent)));
+    assert.equal(await page.getByRole('region',{name:'שלב 2, המשך עם Fable',exact:true}).getByRole('button').count(),0);
   },{realHost:true});
 });

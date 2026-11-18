@@ -26,6 +26,8 @@ import "./elsNativeClassic2029.css";
 
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
 const ElsLexiconResearch2029 = React.lazy(() => import("./ElsLexiconResearch2029.jsx"));
+// The joint list of discovery and Fable (ZURIEL 18.11.2026): research mode only, loaded with the research tools.
+const ElsJointDiscovery2029 = React.lazy(() => import("./ElsJointDiscovery2029.jsx"));
 const ElsSplitMatrix2029 = React.lazy(() => import("./ElsSplitMatrix2029.jsx"));
 const ElsFoldedMatrix2029 = React.lazy(() => import("./ElsFoldedMatrix2029.jsx"));
 const ElsPairPlanner2029 = React.lazy(() => import("./ElsPairPlanner2029.jsx"));
@@ -918,7 +920,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     return { ...projection, findings: projection.findings.map((finding, i) => ({ ...finding, color: palette.matrix.findings[i % palette.matrix.findings.length].color })) };
   }, [readingResult, readingPending, readingContext, engineState?.matrix, palette]);
   const [readingDisplay, setReadingDisplay] = useState(null);
+  // Completed discovery runs per route ({ words, language }), for the joint list; they are matched to the window there.
+  const [discoveryRuns, setDiscoveryRuns] = useState({});
   const readingOverlayVisible = !!readingProjection.findings.length && !(readingDisplay?.result === readingResult && readingDisplay.hidden);
+  const showReadingFinding = key => {
+    setPresentation(null);
+    setReadingDisplay(current => ({ result: readingResult, key, hidden: false, focus: (current?.focus || 0) + 1 }));
+    const region = cameraStageRef.current?.querySelector(".els29-native-matrix-scroll");
+    region?.focus({ preventScroll: true }); region?.scrollIntoView({ block: "center", behavior: "instant" });
+  };
   const selectedReading = readingOverlayVisible && readingDisplay?.result === readingResult ? readingProjection.findings.find(f => f.key === readingDisplay.key) : null;
   const engineStateRef = useRef(null);
   const [classicOpen, setClassicOpen] = useState(false);
@@ -1874,7 +1884,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
                 onAdd={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
-                onFindWords={event => openTool("findings", event.currentTarget)} />
+                onFindWords={event => openTool("findings", event.currentTarget)}
+                onResults={run => setDiscoveryRuns(current => ({ ...current, [run.mode]: run }))} />
+              {matrixReading && !publicClassic ? <ElsMatrixReadingCard2029 embedded context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
+                projection={readingProjection} selectedKey={selectedReading?.key} overlayVisible={readingOverlayVisible}
+                onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })} onSelectFinding={showReadingFinding} /> : null}
+              <ElsJointDiscovery2029 state={engineState} runs={discoveryRuns} projection={readingProjection} visible={active && researchProfile && !guidedProfile}
+                busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} color={findings => nextFindingColor(findings, palette)}
+                onFindingsChange={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
+                onShow={showReadingFinding} selectedKey={selectedReading?.key} />
               <ElsSplitMatrix2029 key={`split-${user?.id || "guest"}`} state={engineState} visible={active && researchProfile && !guidedProfile}
                 busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={splitResponse}
                 onRequest={target => setLensRequest({ lens: "matrix-window", target })} />
@@ -1916,12 +1934,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         {matrixReading && !publicClassic ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
           projection={readingProjection} selectedKey={selectedReading?.key} overlayVisible={readingOverlayVisible}
           onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })}
-          onSelectFinding={key => {
-            setPresentation(null);
-            setReadingDisplay(current => ({ result: readingResult, key, hidden: false, focus: (current?.focus || 0) + 1 }));
-            const region = cameraStageRef.current?.querySelector(".els29-native-matrix-scroll");
-            region?.focus({ preventScroll: true }); region?.scrollIntoView({ block: "center", behavior: "instant" });
-          }} /> : typeof onRazielMatrix === "function" ? <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
+          onSelectFinding={showReadingFinding} /> : typeof onRazielMatrix === "function" ? <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
           <strong>✦ נתח את המטריצה עם AI</strong>
           {engineState?.verification?.state === "MATCH" && engineState?.axis ? <p>המופע הנבחר: {engineState.termRaw || engineState.term} · דילוג {engineState.axis.skip} · {engineState.axis.direction === "back" ? "לאחור" : "קדימה"} · מיקום {engineState.axis.start}</p> : <p>בחרו מופע מאומת כדי להתחיל.</p>}
           <p>הסקירה הנוכחית שולחת לרזיאל אזור מוגבל. סריקת Fable המורחבת עדיין אינה מחוברת.</p>

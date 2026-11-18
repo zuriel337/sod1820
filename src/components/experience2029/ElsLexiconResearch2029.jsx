@@ -13,7 +13,7 @@ const errors = {
 };
 const sources = { canonical_tanakh_words: "מילות התנ״ך", maftech_core_snapshot: "מילון הליבה" };
 
-export default function ElsLexiconResearch2029({ state, visible, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords }) {
+export default function ElsLexiconResearch2029({ state, visible, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords, onResults }) {
   const [run, setRun] = useState(null), [result, setResult] = useState(null), [notice, setNotice] = useState("");
   const [page, setPage] = useState(0), [kind, setKind] = useState("groups"), [groupType, setGroupType] = useState("all");
   const [inspectionVisited, setInspectionVisited] = useState(false);
@@ -22,8 +22,12 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
   const languagePlan = plan.mode === "language";
   const scanButton = useRef(null);
   const active = useRef(null), request = useRef(onRequest); request.current = onRequest;
+  // The joint list (ZURIEL 18.11.2026) receives every completed run; "words and expressions together" queues the second plan.
+  const reported = useRef(onResults); reported.current = onResults;
+  const queue = useRef([]);
   const key = elsLexiconWindowKey(state);
   const cancel = (message = "הסריקה נעצרה. אפשר להתחיל שוב בלחיצה.") => {
+    queue.current = [];
     if (!active.current) return;
     request.current({ ...active.current.target, cancel: true }); active.current = null; setRun(null); setNotice(message);
   };
@@ -43,16 +47,25 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     if (!active.current || response?.target?.scanId !== active.current.target.scanId || active.current.key !== key) return;
     if (response.pending) { setRun(current => ({ ...current, progress: response })); return; }
     const runKey = active.current.key; active.current = null; setRun(null);
-    if (!response.ok) { setNotice(errors[response.reason] || errors["scan-failed"]); return; }
+    if (!response.ok) { queue.current = []; setNotice(errors[response.reason] || errors["scan-failed"]); return; }
     setResult({ key: runKey, state, data: response }); setPage(0); setNotice("");
     if (response.plan?.mode === "language") setKind("els");
+    reported.current?.({ key: runKey, mode: response.plan?.mode === "language" ? "language" : "words", data: response });
+    const next = queue.current.shift();
+    if (next) setTimeout(() => startPlan(next), 0);
   }, [response, key]);
   const startPlan = selectedPlan => {
     if (!visible || busy || !key || active.current) return;
     const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope, plan: { ...selectedPlan } };
     const next = { key, target }; active.current = next; setRun(next); setResult(null); setNotice(""); onRequest(target);
   };
-  const start = () => startPlan(plan);
+  const start = () => { queue.current = []; startPlan(plan); };
+  // One click, both scanners on the same window: the words plan (as set, or the default when the expressions route is selected), then expressions.
+  const startBoth = () => {
+    const words = plan.mode === "language" ? { ...plan, mode: "words", minLength: 5, maxLength: 10 } : { ...plan, mode: "words" };
+    queue.current = [{ mode: "language", minLength: 5, maxLength: 16, maxDistance: plan.maxDistance, minMembers: plan.minMembers }];
+    startPlan(words);
+  };
   const updatePlan = (field, value) => setPlan(current => {
     const next = { ...current, [field]: Number(value) };
     if (field === "minLength" && next.maxLength < next.minLength) next.maxLength = next.minLength;
@@ -139,6 +152,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     </details>
     <div className="els29-discovery-actions">
       <button ref={scanButton} type="button" disabled={!key || busy || !!run} onClick={start}>{languagePlan ? "בדוק ביטויים וחלוקת רצפים" : "גלה מילים ומבנים"}</button>
+      {onResults ? <button type="button" disabled={!key || busy || !!run} onClick={startBoth}>גלה מילים וביטויים יחד</button> : null}
       {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
     </div>
     {run ? <CanonicalProgress compact title={languagePlan ? "בדיקת ביטויים" : "סריקה מילונית"} phase={run.progress?.phase === "scan" ? "בודק קווים בחלון" : "טוען ומאמת את אוצר הלשון"}
