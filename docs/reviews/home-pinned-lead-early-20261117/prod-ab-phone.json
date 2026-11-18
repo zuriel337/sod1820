@@ -1,0 +1,501 @@
+{
+  "profile": "phone",
+  "arms": {
+    "before": "https://sod1820-opjtgg2zm-sod1820-s-projects.vercel.app/",
+    "after": "https://sod1820-d2d15zy5y-sod1820-s-projects.vercel.app/"
+  },
+  "rows": [
+    {
+      "arm": "before",
+      "profile": "phone",
+      "ttfb": 608,
+      "fcp": 1160,
+      "lead": 6903,
+      "lcp": 7412,
+      "lcpEl": "IMG",
+      "catalogStart": 5780,
+      "catalogEnd": 6946,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 7245,
+      "coverEnd": 7853,
+      "imgComplete": true,
+      "preload": false,
+      "preloadMatches": false,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "after",
+      "profile": "phone",
+      "ttfb": 217,
+      "fcp": 672,
+      "lead": 5457,
+      "lcp": 6428,
+      "lcpEl": "IMG",
+      "catalogStart": 4441,
+      "catalogEnd": 5275,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5409,
+      "coverEnd": 6339,
+      "imgComplete": true,
+      "preload": true,
+      "preloadMatches": true,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "after",
+      "profile": "phone",
+      "ttfb": 66,
+      "fcp": 556,
+      "lead": 4896,
+      "lcp": 5808,
+      "lcpEl": "IMG",
+      "catalogStart": 3894,
+      "catalogEnd": 4729,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 4835,
+      "coverEnd": 5723,
+      "imgComplete": true,
+      "preload": true,
+      "preloadMatches": true,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "before",
+      "profile": "phone",
+      "ttfb": 141,
+      "fcp": 544,
+      "lead": 5702,
+      "lcp": 6096,
+      "lcpEl": "IMG",
+      "catalogStart": 4767,
+      "catalogEnd": 5705,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5843,
+      "coverEnd": 6403,
+      "imgComplete": true,
+      "preload": false,
+      "preloadMatches": false,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "before",
+      "profile": "phone",
+      "ttfb": 99,
+      "fcp": 556,
+      "lead": 5716,
+      "lcp": 6404,
+      "lcpEl": "IMG",
+      "catalogStart": 4781,
+      "catalogEnd": 5571,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5717,
+      "coverEnd": 6260,
+      "imgComplete": true,
+      "preload": false,
+      "preloadMatches": false,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "after",
+      "profile": "phone",
+      "ttfb": 138,
+      "fcp": 540,
+      "lead": 5130,
+      "lcp": 5896,
+      "lcpEl": "IMG",
+      "catalogStart": 3969,
+      "catalogEnd": 4507,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5060,
+      "coverEnd": 5853,
+      "imgComplete": true,
+      "preload": true,
+      "preloadMatches": true,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "after",
+      "profile": "phone",
+      "ttfb": 190,
+      "fcp": 644,
+      "lead": 5169,
+      "lcp": 5968,
+      "lcpEl": "IMG",
+      "catalogStart": 4048,
+      "catalogEnd": 4678,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5123,
+      "coverEnd": 5873,
+      "imgComplete": true,
+      "preload": true,
+      "preloadMatches": true,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "before",
+      "profile": "phone",
+      "ttfb": 132,
+      "fcp": 552,
+      "lead": 5659,
+      "lcp": 6024,
+      "lcpEl": "IMG",
+      "catalogStart": 4733,
+      "catalogEnd": 5762,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5806,
+      "coverEnd": 6383,
+      "imgComplete": true,
+      "preload": false,
+      "preloadMatches": false,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "before",
+      "profile": "phone",
+      "ttfb": 71,
+      "fcp": 604,
+      "lead": 5577,
+      "lcp": 6176,
+      "lcpEl": "IMG",
+      "catalogStart": 4668,
+      "catalogEnd": 5330,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5578,
+      "coverEnd": 6124,
+      "imgComplete": true,
+      "preload": false,
+      "preloadMatches": false,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "after",
+      "profile": "phone",
+      "ttfb": 124,
+      "fcp": 528,
+      "lead": 5123,
+      "lcp": 5868,
+      "lcpEl": "IMG",
+      "catalogStart": 4042,
+      "catalogEnd": 4707,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5079,
+      "coverEnd": 5825,
+      "imgComplete": true,
+      "preload": true,
+      "preloadMatches": true,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "after",
+      "profile": "phone",
+      "ttfb": 78,
+      "fcp": 584,
+      "lead": 5273,
+      "lcp": 6036,
+      "lcpEl": "IMG",
+      "catalogStart": 4094,
+      "catalogEnd": 4499,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5205,
+      "coverEnd": 5960,
+      "imgComplete": true,
+      "preload": true,
+      "preloadMatches": true,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "before",
+      "profile": "phone",
+      "ttfb": 134,
+      "fcp": 580,
+      "lead": 5360,
+      "lcp": 5988,
+      "lcpEl": "IMG",
+      "catalogStart": 4754,
+      "catalogEnd": 5291,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5361,
+      "coverEnd": 5929,
+      "imgComplete": true,
+      "preload": false,
+      "preloadMatches": false,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    }
+  ],
+  "summary": {
+    "before": {
+      "n": 6,
+      "ttfb": {
+        "p50": 134,
+        "p75": 141,
+        "max": 608
+      },
+      "fcp": {
+        "p50": 580,
+        "p75": 604,
+        "max": 1160
+      },
+      "lead": {
+        "p50": 5702,
+        "p75": 5716,
+        "max": 6903
+      },
+      "lcp": {
+        "p50": 6176,
+        "p75": 6404,
+        "max": 7412
+      },
+      "catalogStart": {
+        "p50": 4767,
+        "p75": 4781,
+        "max": 5780
+      },
+      "catalogEnd": {
+        "p50": 5705,
+        "p75": 5762,
+        "max": 6946
+      },
+      "coverStart": {
+        "p50": 5806,
+        "p75": 5843,
+        "max": 7245
+      },
+      "coverEnd": {
+        "p50": 6383,
+        "p75": 6403,
+        "max": 7853
+      },
+      "postsReads": {
+        "p50": 9,
+        "p75": 9,
+        "max": 9
+      },
+      "postsUrlsUnique": {
+        "p50": 9,
+        "p75": 9,
+        "max": 9
+      },
+      "coverRequests": {
+        "p50": 1,
+        "p75": 1,
+        "max": 1
+      },
+      "consoleErrors": {
+        "p50": 0,
+        "p75": 0,
+        "max": 0
+      },
+      "pageErrors": {
+        "p50": 0,
+        "p75": 0,
+        "max": 0
+      },
+      "lcpEl": [
+        "IMG"
+      ],
+      "preload": [
+        false
+      ],
+      "preloadMatches": [
+        false
+      ],
+      "imgComplete": [
+        true
+      ],
+      "coverFiles": [
+        "post-5107-cover-20261012/reading-v2.jpg"
+      ]
+    },
+    "after": {
+      "n": 6,
+      "ttfb": {
+        "p50": 138,
+        "p75": 190,
+        "max": 217
+      },
+      "fcp": {
+        "p50": 584,
+        "p75": 644,
+        "max": 672
+      },
+      "lead": {
+        "p50": 5169,
+        "p75": 5273,
+        "max": 5457
+      },
+      "lcp": {
+        "p50": 5968,
+        "p75": 6036,
+        "max": 6428
+      },
+      "catalogStart": {
+        "p50": 4048,
+        "p75": 4094,
+        "max": 4441
+      },
+      "catalogEnd": {
+        "p50": 4707,
+        "p75": 4729,
+        "max": 5275
+      },
+      "coverStart": {
+        "p50": 5123,
+        "p75": 5205,
+        "max": 5409
+      },
+      "coverEnd": {
+        "p50": 5873,
+        "p75": 5960,
+        "max": 6339
+      },
+      "postsReads": {
+        "p50": 9,
+        "p75": 9,
+        "max": 9
+      },
+      "postsUrlsUnique": {
+        "p50": 9,
+        "p75": 9,
+        "max": 9
+      },
+      "coverRequests": {
+        "p50": 1,
+        "p75": 1,
+        "max": 1
+      },
+      "consoleErrors": {
+        "p50": 0,
+        "p75": 0,
+        "max": 0
+      },
+      "pageErrors": {
+        "p50": 0,
+        "p75": 0,
+        "max": 0
+      },
+      "lcpEl": [
+        "IMG"
+      ],
+      "preload": [
+        true
+      ],
+      "preloadMatches": [
+        true
+      ],
+      "imgComplete": [
+        true
+      ],
+      "coverFiles": [
+        "post-5107-cover-20261012/reading-v2.jpg"
+      ]
+    }
+  }
+}

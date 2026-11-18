@@ -1,0 +1,147 @@
+{
+  "profile": "phone",
+  "arms": {
+    "live": "https://sod1820.co.il/"
+  },
+  "rows": [
+    {
+      "arm": "live",
+      "profile": "phone",
+      "ttfb": 222,
+      "fcp": 832,
+      "lead": 5112,
+      "lcp": 5952,
+      "lcpEl": "IMG",
+      "catalogStart": 4108,
+      "catalogEnd": 4763,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5049,
+      "coverEnd": 5907,
+      "imgComplete": true,
+      "preload": true,
+      "preloadMatches": true,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    },
+    {
+      "arm": "live",
+      "profile": "phone",
+      "ttfb": 85,
+      "fcp": 588,
+      "lead": 5086,
+      "lcp": 5876,
+      "lcpEl": "IMG",
+      "catalogStart": 3945,
+      "catalogEnd": 4664,
+      "postsReads": 9,
+      "postsUrlsUnique": 9,
+      "coverFile": "post-5107-cover-20261012/reading-v2.jpg",
+      "coverRequests": 1,
+      "coverUrls": [
+        "render/image/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/reading-v2.jpg?width=768&quality=80&resize=contain"
+      ],
+      "coverStart": 5050,
+      "coverEnd": 5795,
+      "imgComplete": true,
+      "preload": true,
+      "preloadMatches": true,
+      "consoleErrors": 0,
+      "consoleSample": [],
+      "pageErrors": 0,
+      "pageErrorSample": []
+    }
+  ],
+  "summary": {
+    "live": {
+      "n": 2,
+      "ttfb": {
+        "p50": 222,
+        "p75": 222,
+        "max": 222
+      },
+      "fcp": {
+        "p50": 832,
+        "p75": 832,
+        "max": 832
+      },
+      "lead": {
+        "p50": 5112,
+        "p75": 5112,
+        "max": 5112
+      },
+      "lcp": {
+        "p50": 5952,
+        "p75": 5952,
+        "max": 5952
+      },
+      "catalogStart": {
+        "p50": 4108,
+        "p75": 4108,
+        "max": 4108
+      },
+      "catalogEnd": {
+        "p50": 4763,
+        "p75": 4763,
+        "max": 4763
+      },
+      "coverStart": {
+        "p50": 5050,
+        "p75": 5050,
+        "max": 5050
+      },
+      "coverEnd": {
+        "p50": 5907,
+        "p75": 5907,
+        "max": 5907
+      },
+      "postsReads": {
+        "p50": 9,
+        "p75": 9,
+        "max": 9
+      },
+      "postsUrlsUnique": {
+        "p50": 9,
+        "p75": 9,
+        "max": 9
+      },
+      "coverRequests": {
+        "p50": 1,
+        "p75": 1,
+        "max": 1
+      },
+      "consoleErrors": {
+        "p50": 0,
+        "p75": 0,
+        "max": 0
+      },
+      "pageErrors": {
+        "p50": 0,
+        "p75": 0,
+        "max": 0
+      },
+      "lcpEl": [
+        "IMG"
+      ],
+      "preload": [
+        true
+      ],
+      "preloadMatches": [
+        true
+      ],
+      "imgComplete": [
+        true
+      ],
+      "coverFiles": [
+        "post-5107-cover-20261012/reading-v2.jpg"
+      ]
+    }
+  }
+}

@@ -1327,17 +1327,17 @@
   ],
   "current_state_20261117": {
     "task": "SPEED_CENTRE_CONTROL_20261117",
-    "checked_at": "2026-11-17T21:15:00Z",
-    "main": "cff521e8613162b5c4738d800d84f1f4bc93b966",
+    "checked_at": "2026-11-17T23:45:00Z",
+    "main": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
     "production": {
-      "deployment": "dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2",
-      "sha": "cff521e8613162b5c4738d800d84f1f4bc93b966",
+      "deployment": "dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5",
+      "sha": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
       "aliases": [
         "sod1820.co.il",
         "www.sod1820.co.il",
         "sod1820.vercel.app"
       ],
-      "evidence": "assign_alias of the three domains to dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2 (old: dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r) at 2026-11-17T21:01Z; the live document's bootstrap config names entry /assets/2029-CzfHWys2.js and sourceSha cff521e8613162b5c4738d800d84f1f4bc93b966 (read 2026-11-17T21:01Z)"
+      "evidence": "assign_alias of the three domains to dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5 (old: dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2) at 2026-11-17T23:23:42Z (get_alias updatedAt); the live document names entry /assets/2029-DqC-bFSR.js and source 736dd285b8cf0473601aaf3c429a61f1a5deb99e (read 2026-11-17T23:25Z)"
     },
     "build_evidence": [
       {
@@ -1381,6 +1381,13 @@
         "deployment": "dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2",
         "evidence": "live document bootstrap config (entry /assets/2029-CzfHWys2.js + sourceSha cff521e86) after assign_alias sod1820.co.il -> dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2, read 2026-11-17T21:01Z",
         "verified_at": "2026-11-17T21:01:00Z"
+      },
+      {
+        "build": "2029-DqC-bFSR",
+        "sha": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
+        "deployment": "dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5",
+        "evidence": "live document (entry /assets/2029-DqC-bFSR.js + source 736dd285b) after assign_alias sod1820.co.il -> dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5; the entry calls startHomePinnedLeadEarly2029 and Home2029Page-Czmyxi4G.js carries it and data-home-pinned-cover; read 2026-11-17T23:25Z",
+        "verified_at": "2026-11-17T23:25:00Z"
       }
     ],
     "build_evidence_note": "props.build is the entry file name (webVitals2029 fieldContext), collected since the #1372 deployment (16.11.2026 evening). Earlier samples carry none and stay unknown. A build is tied to a commit only through a deployment document read above.",
@@ -3885,7 +3892,7 @@
       },
       {
         "id": "S-51",
-        "title_he": "דף הבית: קריאת הקטלוג של הפריט הנעוץ ותמונתו מתחילות עם קוד הכניסה, לא אחרי שהדף נטען (ניסוי, לא מוזג)",
+        "title_he": "דף הבית: קריאת הקטלוג של הפריט הנעוץ ותמונתו מתחילות עם קוד הכניסה, לא אחרי שהדף נטען",
         "problem": "The pinned card waited on a chain: the entry (~2.9 s on a slow phone), the Home mount, then the series catalog read (~4.8-5.2 s), then the card (~5.8-6.2 s) and only then its cover, the page's largest paint (~6.4-6.7 s).",
         "surface": "home",
         "source": {
@@ -3895,39 +3902,42 @@
           "prs": [
             1381
           ],
-          "merged_via_pr": null,
+          "merged_via_pr": 1381,
           "commits": [
             "1cd3d6fdfd448f9b3ce341e0760d68baddd02dc4",
-            "00b36f9f481a114bfeb92684902ae5bff1c04d22"
+            "00b36f9f481a114bfeb92684902ae5bff1c04d22",
+            "8e0cc4194f374f3c319935d986a2f1c9c2b9b3f0"
           ],
           "author": "claude",
           "head_branch": "ccr-dcadb071-v1z5ol"
         },
         "code_now": [
-          "src/lib/homePinnedLeadEarly2029.js :: startHomePinnedLeadEarly2029 (the Home's own shared catalog read + one preload of the card's cover copies) (branch only)",
-          "src/components/experience2029/homePinnedCover2029.js :: the card's cover rule in one place (branch only)",
-          "src/lib/homeAtmospherePreload2029.js :: on the Home address of the public release, import(\"../pages/Home2029Page.jsx\") and call its export; no static import into the entry (branch only)"
+          "src/lib/homePinnedLeadEarly2029.js :: startHomePinnedLeadEarly2029 (the Home's own shared catalog read + one preload of the card's cover copies)",
+          "src/components/experience2029/homePinnedCover2029.js :: the card's cover rule in one place",
+          "src/lib/homeAtmospherePreload2029.js :: on the Home address of the public release, import(\"../pages/Home2029Page.jsx\") and call its export; no static import into the entry"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "in_current_production": false,
-        "live_verified": "no",
-        "live_evidence": "Protected Previews only: treatment dpl_WAJNK9ZiVGFZvmbeN7ApD28o84A9 (1cd3d6fdf) vs control dpl_HdRnQYqeJQ3USc27W7dnQ2Sf3Sc8 (main 19e0cafe7), 6 alternating rounds: the early preload in 6 of 6, 9 posts reads in both arms, one cover request in both.",
+        "merged": true,
+        "merge_commit": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
+        "deployed": true,
+        "deployed_in": "dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5",
+        "deployed_in_sha": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
+        "deployed_in_created": "2026-11-17T23:19:25Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Released 17.11.2026 (ZURIEL approval for exactly 8e0cc4194; merge 736dd285b, tree identical to 8e0cc4194), work_log HOME_PINNED_LEAD_EARLY_RELEASE_20261117 AFTER: aliases moved 23:23:42 UTC; the live entry 2029-DqC-bFSR calls the early start, Home2029Page-Czmyxi4G carries it; \"/\" from source 736dd285b, CDN HIT after the refill. Production builds compared through their own deployment addresses (dpl_7HPjAYYN cff521e86 before, dpl_6BM8mXr7 736dd285b after, same database): every run read posts 9 times (9 distinct requests) in both, asked once for the cover file (the 768 copy) in both, 0 console and 0 page errors; the early preload present and identical to the card's srcset/sizes in every after-run. The live domain (phone 2 + desktop 2 runs) the same. Canary run locally against the live domain on the new build: PASS 23:27 UTC; the deploy-triggered CI canary 44198490712 ran at 23:20, before the aliases moved (it checked the previous build); the next scheduled CI canary is 01:17 UTC.",
         "measurement": {
           "kind": "lab",
-          "before": "control p50: catalog reads start 5,211 ms, card 6,196 ms, cover requested 6,282 ms, largest paint (the cover) 6,684 ms (p75 6,796)",
-          "after": "treatment p50: catalog reads start 4,376 ms, card 5,454 ms, cover requested 5,392 ms, largest paint 6,272 ms (p75 6,460)",
-          "conditions": "phone 390x844 @2x, Slow 4G 150 ms / 1.6 Mbps / 750 kbps + 4x CPU, fresh profile, 6 rounds alternating, two protected Previews of the same pipeline differing only in this change; not field data",
-          "source": "docs/reviews/home-pinned-lead-early-20261117/README.md + home-ab-results.json"
+          "before": "production build before (dpl_7HPjAYYN), phone p50: catalog reads start 4,767 ms, card 5,702, cover requested 5,806, cover arrived 6,383, largest paint (the cover) 6,176 (p75 6,404); desktop p50: card 2,464, cover arrived 2,668, largest paint (a text block) 1,864",
+          "after": "production build after (dpl_6BM8mXr7), phone p50: catalog reads start 4,048 ms, card 5,169, cover requested 5,123, cover arrived 5,873, largest paint 5,968 (p75 6,036); desktop p50: card 1,725, cover arrived 1,792, largest paint 1,644",
+          "conditions": "phone 390x844 @2x, Slow 4G 150 ms / 1.6 Mbps / 750 kbps + 4x CPU, 6 rounds each; desktop 1440x900 @1 unthrottled, 3 rounds each; fresh profile, arms alternating, test machine through edge cle1; the earlier protected Preview A/B gave card -742 ms and largest paint -412 ms at p50; not field data",
+          "source": "docs/reviews/home-pinned-lead-early-20261117/README.md section 6 + prod-ab-phone.json, prod-ab-desktop.json, live-phone.json, live-desktop.json"
         },
         "guard": [
-          "test/home-pinned-lead-early-2029.test.mjs (same cover as the card, one definition, one network read per series, no static import into the entry) (live-contracts-2029.yml) [branch only]",
+          "test/home-pinned-lead-early-2029.test.mjs (same cover as the card, one definition, one network read per series, no static import into the entry) (live-contracts-2029.yml) [on origin/main]",
           "scripts/test-2029-shell-budget.mjs (frame files unchanged) [on origin/main]"
         ],
-        "open": "Awaiting ZURIEL. Next possible step (not done): start the same reads from the document itself and let the shared read layer adopt them, so the cover is in the browser before the card appears (~0.8 s more on this profile, expected).",
-        "next_owner": "Experience Governance (Home decision) · Traffic Intelligence (field check)",
+        "open": "Field: the Home's largest paint p75 on mobile by build (2029-DqC-bFSR vs 2029-CzfHWys2) in the speed centre after a day of visits. A new pinned post: the card and the early start choose it by the same rule (seriesLatestMember2029 / nowModels, one time function); its 480/768 copies are made on the first request, so the first reader in a region waits ~1-2 s more for that image once. Not in this package (ZURIEL 17.11): starting the reads from the server document, a separate change.",
+        "next_owner": "Traffic Intelligence (field check)",
         "relates_to_groups": []
       }
     ],
@@ -4292,12 +4302,12 @@
     "summary": {
       "counts": {
         "total": 51,
-        "merged": 50,
-        "deployed_true": 50,
+        "merged": 51,
+        "deployed_true": 51,
         "live_unknown": 25,
         "live_no": 2,
-        "live_yes": 23,
-        "branch_only": 1
+        "live_yes": 24,
+        "branch_only": 0
       },
       "by_author": {
         "gpt": 10,
@@ -4382,6 +4392,26 @@
               "sod1820.vercel.app"
             ],
             "evidence": "get_alias sod1820.co.il -> dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r (read 2026-11-17T18:13Z); the live document's bootstrap config names entry /assets/2029-BQKFETEH.js and sourceSha 84bdb23f96f4f6d433769d87000a69a10d7fbf56 (read 2026-11-17T18:13Z)"
+          }
+        }
+      },
+      {
+        "at": "2026-11-17T23:45:00Z",
+        "task": "HOME_PINNED_LEAD_EARLY_RELEASE_20261117",
+        "by": "CLAUDE (ZURIEL: \"עדכן את S-51 ... רק אחרי אימות שהשינוי אכן פעיל באתר\")",
+        "what": "S-51 released (#1381, merge 736dd285b = tested 8e0cc4194, dpl_6BM8mXr7) and verified live; build evidence 2029-DqC-bFSR; production deployment of 23:19 UTC; counts recomputed from the entries.",
+        "previous": {
+          "checked_at": "2026-11-17T21:15:00Z",
+          "main": "cff521e8613162b5c4738d800d84f1f4bc93b966",
+          "production": {
+            "deployment": "dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2",
+            "sha": "cff521e8613162b5c4738d800d84f1f4bc93b966",
+            "aliases": [
+              "sod1820.co.il",
+              "www.sod1820.co.il",
+              "sod1820.vercel.app"
+            ],
+            "evidence": "assign_alias of the three domains to dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2 (old: dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r) at 2026-11-17T21:01Z; the live document's bootstrap config names entry /assets/2029-CzfHWys2.js and sourceSha cff521e8613162b5c4738d800d84f1f4bc93b966 (read 2026-11-17T21:01Z)"
           }
         }
       }
@@ -5100,6 +5130,12 @@
       "id": "dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2",
       "sha": "cff521e8613162b5c4738d800d84f1f4bc93b966",
       "created": "2026-11-17T20:59:33Z",
+      "ready": true
+    },
+    {
+      "id": "dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5",
+      "sha": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
+      "created": "2026-11-17T23:19:25Z",
       "ready": true
     }
   ]
