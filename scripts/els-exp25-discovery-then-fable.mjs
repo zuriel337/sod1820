@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// EXP-21 — "discovery first, then Fable" (ZURIEL 18.11.2026: approved, the test up to USD 10, seeds of 5+ letters as before; plan in
+// EXP-25 — "discovery first, then Fable" (ZURIEL 18.11.2026: approved, the test up to USD 10, seeds of 5+ letters as before; plan in
 // docs/reviews/els-discovery-fable-overlap-20261118/README.md). Measures, on the same windows, whether giving the model the words the engine's
 // matrix discovery already found (seeds, els_seed_expansion_law) brings new engine-verified findings instead of repeats, and whether
 // Claude Fable 5.2 reads the matrix as well as Claude Fable 5.1 (every measurement so far, EXP-15..18, is on 5.1).
@@ -11,10 +11,14 @@
 //   - verification: locateFinding + verifyOccurrences + classify, with every occurrence replayed in the canonical engine (els_verify_occurrence_v1).
 // The Torah letters come from tools/els/data/tk-letters.txt; the script checks their MD5 against public.torah_stream before anything else.
 //
-//   node scripts/els-exp21-discovery-then-fable.mjs                 dry run: discovery, seeds, windows, prompt hashes. No network, no cost.
-//   node scripts/els-exp21-discovery-then-fable.mjs --submit        needs ANTHROPIC_API_KEY: model check, token count (free), budget check, then
-//                                                                   one Message Batch per arm. Refuses when the sum of upper bounds exceeds --budget-usd.
-//   node scripts/els-exp21-discovery-then-fable.mjs --collect       needs ANTHROPIC_API_KEY: collects the ended batches, verifies in the engine, writes the report.
+//   node scripts/els-exp25-discovery-then-fable.mjs                 dry run: discovery, seeds, windows, prompt hashes. No network, no cost.
+//   node scripts/els-exp25-discovery-then-fable.mjs --locks         prints the lock hash of every request (what the pass-through function admits).
+//   node scripts/els-exp25-discovery-then-fable.mjs --submit        model check, token count (free), budget check, then one Message Batch per arm (each sent once).
+//                                                                   Refuses when the sum of upper bounds exceeds --budget-usd; nothing is sent then.
+//   node scripts/els-exp25-discovery-then-fable.mjs --collect       collects the ended batches, verifies in the engine, writes the report.
+// The route to the provider, as in EXP-15..24: the temporary request-locked pass-through `els-live-reading` (scripts/els-live-reading-edge/), which holds the
+// site's existing key. Set ELS_PROXY_URL, ELS_PROXY_TOKEN (the one-time token) and ELS_PROXY_JWT (the public anon JWT). ANTHROPIC_API_KEY works too, if ever set.
+// Without either nothing is sent (fail closed, no mock path).
 // Options: --budget-usd 10 (default, the approved amount) · --out <dir> · --arms <id,id,...>
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -23,7 +27,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   TORAH_LENGTH, DEFAULTS, selectWindow, makeRegion, buildLines, readings, buildReadingRequest, placeSeeds, INSTRUCTION_NO_STORY, INSTRUCTION_SEEDS_SUFFIX,
-  countInputTokens, verifyModel, estimateCost, costFromUsage, createBatch, retrieveBatch, fetchBatchEntry,
+  countInputTokens, verifyModel, estimateCost, costFromUsage, createBatch, retrieveBatch, fetchBatchEntry, lockSha256,
   parseModelOutput, locateFinding, verificationItems, verifyOccurrences, classify, replayOccurrence, MIN_SEED_LETTERS, MAX_SEEDS,
 } from "../supabase/functions/_shared/elsMatrixReading.js";
 
@@ -32,7 +36,7 @@ const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
 const option = (name, fallback) => { const at = args.indexOf(name); return at >= 0 && args[at + 1] ? args[at + 1] : fallback; };
 const BUDGET_USD = Number(option("--budget-usd", "10"));
-const OUT = resolve(root, option("--out", "docs/reviews/els-discovery-fable-overlap-20261118/exp21"));
+const OUT = resolve(root, option("--out", "docs/reviews/els-discovery-fable-overlap-20261118/exp25"));
 const TORAH_STREAM_MD5 = "0066c2431821863d258745e664d3883e";
 const CAP = 25; // what the product card sends (ElsMatrixReadingCard2029: cap 25); cap 60 ended at max_tokens in 6 of 18 runs (EXP-16)
 
@@ -151,7 +155,24 @@ function windowFor(cipher) {
 }
 
 const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
-const key = () => { const value = process.env.ANTHROPIC_API_KEY || ""; if (!value) throw new Error("ANTHROPIC_API_KEY is not set: --submit and --collect need it (the dry run does not)"); return value; };
+// The provider route: the pass-through (preferred, as in EXP-15..24) or a key. The product module addresses api.anthropic.com; the proxy fetch re-addresses those calls
+// to the function and swaps the key for the one-time token and the platform JWT (same as experiments/els-axis-addendum/lib/proxy.mjs).
+const PROXY = { url: (process.env.ELS_PROXY_URL || "").trim().replace(/\/$/, ""), token: (process.env.ELS_PROXY_TOKEN || "").trim(), jwt: (process.env.ELS_PROXY_JWT || "").trim() };
+const viaProxy = Boolean(PROXY.url && PROXY.token && PROXY.jwt);
+const providerFetch = viaProxy ? async (url, init = {}) => {
+  const text = String(url);
+  if (!text.startsWith("https://api.anthropic.com/")) return fetch(url, init);
+  const { "x-api-key": _key, ...headers } = init.headers ?? {};
+  return fetch(`${PROXY.url}${text.slice("https://api.anthropic.com".length)}`, { ...init, headers: { ...headers, authorization: `Bearer ${PROXY.jwt}`, "x-els-token": PROXY.token } });
+} : fetch;
+const key = () => {
+  if (viaProxy) return "held-by-the-pass-through";
+  const value = process.env.ANTHROPIC_API_KEY || "";
+  if (!value) throw new Error("no route to the provider: set ELS_PROXY_URL, ELS_PROXY_TOKEN and ELS_PROXY_JWT (the pass-through) or ANTHROPIC_API_KEY; nothing was sent");
+  return value;
+};
+// The pass-through admits only custom ids of this shape (handler.mjs: CUSTOM_ID).
+const customIdOf = (arm) => `els-live-exp25-${arm.id.toLowerCase()}`;
 const ANON = (() => { const text = readFileSync(join(root, "src/lib/supabase.js"), "utf8"); return { url: text.match(/SUPABASE_URL = '([^']+)'/)[1], key: text.match(/SUPABASE_ANON = '([^']+)'/)[1] }; })();
 const restHeaders = (extraHeaders = {}) => ({ apikey: ANON.key, Authorization: `Bearer ${ANON.key}`, ...extraHeaders });
 const replay = (item) => replayOccurrence(item, { fetchImpl: fetch, supabaseUrl: ANON.url, restHeaders });
@@ -171,6 +192,7 @@ async function prepare() {
     const { request, prompt } = buildReadingRequest({ model: arm.model, region: p.view.region, lines: p.view.lines, cap: CAP, seeds: arm.seeds ? p.seeds.map((seed) => ({ term: seed.text, ...seedPosition(p, seed), parts: seed.parts })) : [] });
     return { arm, request, prompt, instruction: INSTRUCTION_NO_STORY + (prompt.seeds.length ? INSTRUCTION_SEEDS_SUFFIX : ""), request_sha256: sha256(JSON.stringify(request)) };
   });
+  for (const r of requests) r.lock_sha256 = await lockSha256(r.request);
   return { prepared, requests };
 }
 
@@ -185,27 +207,27 @@ function seedPosition(p, seed) {
 }
 
 const summaryOfPreparation = ({ prepared, requests }) => ({
-  experiment: "EXP-21", approved_budget_usd: BUDGET_USD, cap: CAP, effort: DEFAULTS.effort, max_tokens: DEFAULTS.maxTokens, torah_md5: md5,
+  experiment: "EXP-25", approved_budget_usd: BUDGET_USD, cap: CAP, effort: DEFAULTS.effort, max_tokens: DEFAULTS.maxTokens, torah_md5: md5,
   ciphers: Object.fromEntries(Object.entries(prepared).map(([id, p]) => [id, {
     name: p.cipher.name, axis: hitIdOf(p.cipher), window: { r0: p.view.window.r0, r1: p.view.window.r1, c0: p.view.window.c0, c1: p.view.window.c1, rows: p.view.window.rows, cols: p.view.window.cols },
     discovery: { box: p.discovery.box, items: p.discovery.items.length, by_source: countBy(p.discovery.items, (item) => item.source), coverage: p.discovery.coverage },
     seeds: p.seeds,
   }])),
-  arms: requests.map((r) => ({ id: r.arm.id, model: r.arm.model, cipher: r.arm.cipher, seeds: r.prompt.seeds.length, instruction: r.instruction, request_sha256: r.request_sha256, prompt_chars: r.prompt.user.length })),
+  arms: requests.map((r) => ({ id: r.arm.id, model: r.arm.model, cipher: r.arm.cipher, seeds: r.prompt.seeds.length, instruction: r.instruction, request_sha256: r.request_sha256, lock_sha256: r.lock_sha256, custom_id: customIdOf(r.arm), prompt_chars: r.prompt.user.length })),
 });
 const countBy = (list, keyOf) => list.reduce((acc, item) => { const k = keyOf(item); acc[k] = (acc[k] || 0) + 1; return acc; }, {});
 
 // ---------- submit ----------
 async function submit(prep) {
   const apiKey = key();
-  const state = { experiment: "EXP-21", created_at: new Date().toISOString(), budget_usd: BUDGET_USD, arms: [] };
+  const state = { experiment: "EXP-25", created_at: new Date().toISOString(), budget_usd: BUDGET_USD, route: viaProxy ? "els-live-reading pass-through (site key)" : "direct key", arms: [] };
   for (const model of [...new Set(prep.requests.map((r) => r.arm.model))]) {
-    const check = await verifyModel({ fetchImpl: fetch, key: apiKey, model, effort: DEFAULTS.effort, maxTokens: DEFAULTS.maxTokens });
+    const check = await verifyModel({ fetchImpl: providerFetch, key: apiKey, model, effort: DEFAULTS.effort, maxTokens: DEFAULTS.maxTokens });
     if (!check.ok) throw new Error(`model check failed for ${model}: ${JSON.stringify(check.checks)}`);
   }
   let totalUpper = 0;
   for (const r of prep.requests) {
-    r.input_tokens = await countInputTokens({ fetchImpl: fetch, key: apiKey, request: r.request });
+    r.input_tokens = await countInputTokens({ fetchImpl: providerFetch, key: apiKey, request: r.request });
     r.estimate = estimateCost({ model: r.arm.model, inputTokens: r.input_tokens, maxTokens: DEFAULTS.maxTokens, cap: CAP });
     if (!Number.isFinite(r.estimate.upper_bound_usd)) throw new Error(`no price recorded for ${r.arm.model}`);
     totalUpper += r.estimate.upper_bound_usd;
@@ -213,8 +235,8 @@ async function submit(prep) {
   console.log(`upper bound of all arms: $${totalUpper.toFixed(2)} (approved $${BUDGET_USD})`);
   if (totalUpper > BUDGET_USD) throw new Error(`refused: the upper bound $${totalUpper.toFixed(2)} exceeds the approved $${BUDGET_USD}; nothing was sent`);
   for (const r of prep.requests) {
-    const batch = await createBatch({ fetchImpl: fetch, key: apiKey, request: r.request });
-    state.arms.push({ id: r.arm.id, model: r.arm.model, cipher: r.arm.cipher, batch_id: batch.id, request_sha256: r.request_sha256, input_tokens: r.input_tokens, upper_bound_usd: r.estimate.upper_bound_usd, expected_usd: r.estimate.expected_usd });
+    const batch = await createBatch({ fetchImpl: providerFetch, key: apiKey, request: r.request, customId: customIdOf(r.arm) });
+    state.arms.push({ id: r.arm.id, model: r.arm.model, cipher: r.arm.cipher, batch_id: batch.id, custom_id: customIdOf(r.arm), lock_sha256: r.lock_sha256, request_sha256: r.request_sha256, input_tokens: r.input_tokens, upper_bound_usd: r.estimate.upper_bound_usd, expected_usd: r.estimate.expected_usd });
     console.log(`${r.arm.id}: batch ${batch.id} (upper bound $${r.estimate.upper_bound_usd})`);
   }
   state.upper_bound_total_usd = Number(totalUpper.toFixed(4));
@@ -229,12 +251,12 @@ async function collect(prep) {
   for (const entryState of state.arms) {
     const r = prep.requests.find((x) => x.arm.id === entryState.id);
     if (!r || r.request_sha256 !== entryState.request_sha256) throw new Error(`${entryState.id}: the request changed since it was sent; refusing to mix`);
-    const batch = await retrieveBatch({ fetchImpl: fetch, key: apiKey, batchId: entryState.batch_id });
+    const batch = await retrieveBatch({ fetchImpl: providerFetch, key: apiKey, batchId: entryState.batch_id });
     if (batch.processing_status !== "ended") { results.push({ id: entryState.id, state: "RUNNING", processing_status: batch.processing_status }); continue; }
-    const entry = await fetchBatchEntry({ fetchImpl: fetch, key: apiKey, batch });
+    const entry = await fetchBatchEntry({ fetchImpl: providerFetch, key: apiKey, batch, customId: customIdOf(r.arm) });
     results.push(await evaluate(prep, r, entry));
   }
-  const report = { experiment: "EXP-21", collected_at: new Date().toISOString(), preparation: summaryOfPreparation(prep), results, cost_total_usd: Number(results.reduce((sum, x) => sum + (x.cost?.usd ?? 0), 0).toFixed(4)) };
+  const report = { experiment: "EXP-25", collected_at: new Date().toISOString(), preparation: summaryOfPreparation(prep), results, cost_total_usd: Number(results.reduce((sum, x) => sum + (x.cost?.usd ?? 0), 0).toFixed(4)) };
   writeFileSync(join(OUT, "report.json"), JSON.stringify(report, null, 1));
   writeFileSync(join(OUT, "report.md"), renderReport(report));
   console.log(renderReport(report));
@@ -278,7 +300,7 @@ async function evaluate(prep, r, entry) {
 }
 
 function renderReport(report) {
-  const lines = [`# EXP-21 — discovery first, then Fable: results`, "", `Collected ${report.collected_at}. Total cost (estimated from usage at list prices, batch 50%): $${report.cost_total_usd}. Approved: $${report.preparation.approved_budget_usd}.`, "",
+  const lines = [`# EXP-25 — discovery first, then Fable: results`, "", `Collected ${report.collected_at}. Total cost (estimated from usage at list prices, batch 50%): $${report.cost_total_usd}. Approved: $${report.preparation.approved_budget_usd}.`, "",
     "| Arm | Model | Seeds | State | Proposals | Verified by engine | Repeats of seeds | New vs discovery | Continued from seeds | Target (האר חשך) | Output tokens | Cost $ |",
     "|---|---|---|---|---|---|---|---|---|---|---|---|"];
   for (const r of report.results) lines.push(`| ${r.id} | ${r.model} | ${r.seeds_given ?? "-"} | ${r.state} | ${r.proposals ?? "-"} | ${r.verdicts?.verified_by_engine ?? 0} | ${r.repeats_of_seeds?.length ?? "-"} | ${r.new_vs_discovery?.length ?? "-"} | ${r.continued_from_seeds ?? "-"} | ${r.target_found === null || r.target_found === undefined ? "-" : r.target_found ? "yes" : "no"} | ${r.usage?.output_tokens ?? "-"} | ${r.cost?.usd ?? "-"} |`);
@@ -291,7 +313,8 @@ mkdirSync(OUT, { recursive: true });
 const prep = await prepare();
 const summary = summaryOfPreparation(prep);
 writeFileSync(join(OUT, "preparation.json"), JSON.stringify(summary, null, 1));
-if (flag("--submit")) await submit(prep);
+if (flag("--locks")) { for (const r of prep.requests) console.log(`${r.arm.id} ${r.arm.model} ${r.lock_sha256}`); console.log(`--approve ${prep.requests.map((r) => r.lock_sha256).join(",")}`); console.log(`--model ${[...new Set(prep.requests.map((r) => r.arm.model))].join(",")}`); }
+else if (flag("--submit")) await submit(prep);
 else if (flag("--collect")) { if (!existsSync(join(OUT, "state.json"))) throw new Error("no state.json: run --submit first"); await collect(prep); }
 else {
   for (const [id, c] of Object.entries(summary.ciphers)) {
