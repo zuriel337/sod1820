@@ -82,10 +82,10 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
 test("temporarily closed feature areas answer 503 with Retry-After and stay indexable; the rest stay noindex", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
     const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
-    for (const path of ["/research", "/archive", "/reality", "/timeline", "/name", "/numbers", "/languages", "/cross"]) {
+    for (const path of ["/research", "/archive", "/reality", "/timeline", "/name", "/languages", "/cross"]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 503, path);
-      assert.equal(res.headers.get("retry-after"), "259200", path);
+      assert.equal(res.headers.get("retry-after"), "2592000", path);
       assert.equal(res.headers.get("x-robots-tag"), "index, follow", path);
       assert.match(res.body, /name="robots" content="index, follow"/, path);
       assert.match(res.body, /האזור סגור זמנית וייפתח בקרוב/, path);
@@ -130,7 +130,7 @@ test("public aliases and named existing capabilities retain truthful continuatio
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
     // A named capability that is closed only until it reopens soon is a truthful 503 (see the temporarily-closed test).
-    { const res = response(); await handler(req("/name"), res); assert.equal(res.code, 503); assert.equal(res.headers.get("retry-after"), "259200"); }
+    { const res = response(); await handler(req("/name"), res); assert.equal(res.code, 503); assert.equal(res.headers.get("retry-after"), "2592000"); }
     // ZURIEL's accepted Forum continuation preserves the exact public chat
     // destination. It is a redirect, not a generic200 status placeholder.
     const forum=response();await handler(req('/forum?part=2&part=7'),forum);

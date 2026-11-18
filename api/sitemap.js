@@ -155,7 +155,6 @@ const STATIC = [
   { loc: '/forum',        priority: '0.7', changefreq: 'daily'   },
   { loc: '/or-geula',     priority: '0.7', changefreq: 'weekly'  },
   { loc: '/timeline',     priority: '0.8', changefreq: 'weekly'  },
-  { loc: '/numbers',      priority: '0.6', changefreq: 'monthly' },
   { loc: '/gematria',     priority: '0.8', changefreq: 'monthly' },
   { loc: '/name',         priority: '0.6', changefreq: 'monthly' },
   { loc: '/journey',      priority: '0.5', changefreq: 'monthly' },
