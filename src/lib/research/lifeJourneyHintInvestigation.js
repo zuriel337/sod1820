@@ -1,4 +1,4 @@
-import { getNumberLookup } from "../supabase.js";
+import { getNumberLookup } from "../supabaseApi2029.js";
 import { projectLifeJourneyHintDate } from "./lifeJourneyHintProjection.js";
 import { projectLifeJourneyNumberSources } from "./lifeJourneyFamilySourceResearch.js";
 import { exactLifeJourneyDaysBetween } from "./lifeJourneyTimeMap.js";

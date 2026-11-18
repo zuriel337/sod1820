@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getImagesByGallery } from '../src/lib/supabase.js';
+import { getImagesByGallery } from '../src/lib/supabaseApi2029.js';
 import { loadPublicGallerySourceWindow, gallerySourceHref2029, buildGallerySourceContext, galleryOccurrenceItem } from '../src/lib/research/topicSourceContext.js';
 import { worldMediaPublicShare } from '../src/lib/research/worldFindingShare.js';
 const id = n => `10000000-0000-4000-8000-${String(n).padStart(12,'0')}`;

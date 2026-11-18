@@ -5,7 +5,9 @@
 // persona=raziel) with the existing Phase I surface descriptor. Memory only — no storage, no new store —
 // and a different signed-in person never inherits the previous person's thread.
 import React, { useCallback, useEffect, useRef } from "react";
-import { askRaziel } from "../../lib/supabase.js";
+// askRaziel lives in src/lib/supabaseApi2029.js, which is not part of the code every page downloads
+// (SHELL_WEIGHT_REDUCTION_20261118): it is loaded at the first submit, the only moment it is needed.
+const loadAskRaziel = () => import("../../lib/supabaseApi2029.js").then(module => module.askRaziel);
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { useFeatureState } from "../MaintenanceLock.jsx";
@@ -45,7 +47,8 @@ export default function RazielSessionMount2029({ children }) {
   accessRef.current = feature;
   const transport = useCallback((request) => {
     if (accessRef.current.loading || accessRef.current.blocked) return Promise.resolve({ error: "feature_locked", status: 403 });
-    return askRaziel(withRazielSurfaceContext(request, contextRef.current));
+    const contextual = withRazielSurfaceContext(request, contextRef.current);
+    return loadAskRaziel().then(askRaziel => askRaziel(contextual));
   }, []);
   // Auth resolution gets its own empty provider. A previous principal's in-memory thread is therefore
   // unmounted synchronously before a different uid (or anon) can paint, even through the frame fallback.

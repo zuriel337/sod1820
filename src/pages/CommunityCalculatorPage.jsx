@@ -5,7 +5,7 @@ import { use2029Palette } from "../lib/palette2029.js";
 import { setForcedMode, hasStoredThemePreference } from "../lib/themePreset2029.js";
 import { onlyHeb, METHODS } from "../lib/gematria.js";
 import { resolve } from "../lib/engine.js";
-import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabase.js";
+import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabaseApi2029.js";
 import { buildMessages } from "../lib/numberMessage.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";

@@ -13,7 +13,8 @@ const out = resolve(process.env.SPEED_CENTRE_BROWSER_OUT || 'docs/reviews/speed-
 await mkdir(out, { recursive: true });
 
 const exportNames = async file => [...(await readFile(file, 'utf8')).matchAll(/^export (?:async )?(?:function|const|let|class)\s+(\w+)/gm)].map(x => x[1]);
-const supabaseExports = await exportNames('src/lib/supabase.js');
+// The database boundary is both files since shell weight 1/8 (the shared core and the API file that re-exports it): one stub for each.
+const supabaseExports = [...new Set([...(await exportNames('src/lib/supabase.js')), ...(await exportNames('src/lib/supabaseApi2029.js'))])];
 const authExports = await exportNames('src/lib/auth.js');
 const visitsExports = await exportNames('src/lib/visits.js');
 const fixtureAuth = `import React,{createContext,useContext,useState,useEffect} from 'react';
@@ -33,6 +34,7 @@ export const supabase={rpc:async(name)=>{f().reads.push(name);return {data:null,
  auth:{getSession:async()=>({data:{session:f().userId?{user:{id:f().userId}}:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},
  from:table=>{f().unexpected.push('from:'+table);throw new Error('Unexpected table '+table);},functions:{invoke:denied('model')}};
 export const getSiteFlags=async()=>({});
+export default supabase;
 ${supabaseExports.filter(n => !['SUPABASE_URL','SUPABASE_ANON','supabase','getSiteFlags'].includes(n)).map(n=>`export const ${n}=denied(${JSON.stringify(n)});`).join('\n')}
 `;
 const stubAuth = `const denied=name=>(...args)=>{window.__fixture.unexpected.push(name);throw new Error('Unexpected isolated IO '+name);};
@@ -57,10 +59,10 @@ const { outputFiles } = await build({ entryPoints: ['docs/reviews/speed-centre-2
   define: { 'process.env.NODE_ENV': '"production"', '__SOD_2029_BUILD__': 'true', 'import.meta.env': '{"DEV":false,"VITE_PUBLIC_READING_RELEASE":"public-reading-20261101","VITE_INTEGRATED_PREVIEW":"false"}' },
   loader: { '.woff2': 'dataurl', '.png': 'dataurl', '.jpg': 'dataurl', '.svg': 'dataurl' },
   plugins: [{ name: 'isolated-identity-and-readers', setup(b) {
-    b.onResolve({ filter: /(?:^fixture-auth$|AuthContext\.jsx$|\/supabase\.js$|\/auth\.js$|\/visits\.js$|\/analytics2029\.js$)/ }, args => ({ path: /AuthContext\.jsx$|^fixture-auth$/.test(args.path) ? 'fixture-auth' : args.path.split('/').at(-1), namespace: 'fixture' }));
+    b.onResolve({ filter: /(?:^fixture-auth$|AuthContext\.jsx$|\/supabase\.js$|\/supabaseApi2029\.js$|\/auth\.js$|\/visits\.js$|\/analytics2029\.js$)/ }, args => ({ path: /AuthContext\.jsx$|^fixture-auth$/.test(args.path) ? 'fixture-auth' : args.path.split('/').at(-1), namespace: 'fixture' }));
     b.onResolve({ filter: /^\// }, args => args.kind === 'url-token' ? { path: args.path, external: true } : null);
     b.onLoad({ filter: /.*/, namespace: 'fixture' }, args => ({ resolveDir: process.cwd(), loader: 'jsx', contents: args.path === 'fixture-auth' ? fixtureAuth
-      : args.path === 'supabase.js' ? stubSupabase : args.path === 'auth.js' ? stubAuth : args.path === 'visits.js' ? stubVisits : stubAnalytics }));
+      : args.path === 'supabase.js' || args.path === 'supabaseApi2029.js' ? stubSupabase : args.path === 'auth.js' ? stubAuth : args.path === 'visits.js' ? stubVisits : stubAnalytics }));
   } }],
 });
 const js = outputFiles.find(f => f.path.endsWith('.js')).contents, css = outputFiles.find(f => f.path.endsWith('.css'))?.contents || '';

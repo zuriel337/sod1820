@@ -45,7 +45,7 @@ test("no public reader selects '*' or findings from raw topic_cards (must use to
 });
 
 test("canonical public helpers read the view; admin helpers use the explicit privileged RPC", () => {
-  const supa = fs.readFileSync(path.join(ROOT, "src/lib/supabase.js"), "utf8");
+  const supa = fs.readFileSync(path.join(ROOT, "src/lib/supabase.js"), "utf8") + "\n" + fs.readFileSync(path.join(ROOT, "src/lib/supabaseApi2029.js"), "utf8");  // + supabaseApi2029.js: the database actions moved out of the shared core (shell weight 1/8, 18.11.2026)
   assert.match(supa, /export const TOPIC_CARDS_PUBLIC = ['"]topic_cards_public['"]/);
   assert.match(supa, /rpc\(['"]admin_topic_cards_full['"]/, "admin full-row path must be the SECURITY DEFINER RPC");
   const conv = fs.readFileSync(path.join(ROOT, "src/lib/research/topicConvergence.js"), "utf8");

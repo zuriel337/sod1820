@@ -3,7 +3,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const edge = fs.readFileSync("supabase/functions/ai-analyze/index.ts", "utf8");
-const client = fs.readFileSync("src/lib/supabase.js", "utf8");
+// SHELL_WEIGHT_REDUCTION_20261118: supabase.js + supabaseApi2029.js together are exactly the former single client file.
+const client = fs.readFileSync("src/lib/supabase.js", "utf8") + "\n" + fs.readFileSync("src/lib/supabaseApi2029.js", "utf8");
 
 test("name_lab normalized_reflection has one bounded structured response lane", () => {
   assert.match(edge, /structuredNameReflection\s*=\s*kind === "name_lab" && body\?\.operation === "normalized_reflection"/);

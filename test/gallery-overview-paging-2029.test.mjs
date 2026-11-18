@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getGalleriesOverview } from '../src/lib/supabase.js';
+import { getGalleriesOverview } from '../src/lib/supabaseApi2029.js';
 
 // PF4: the public gallery catalog read issues the galleries read and the first three image pages together
 // (4 sequential round trips -> 1). It must return exactly what the sequential reader returned.

@@ -27,7 +27,7 @@ import NumberLivingWorld2029 from "../components/number2029/NumberLivingWorld202
 import NumberPathContinuation2029 from "../components/number2029/NumberPathContinuation2029.jsx";
 import { selectedTopicSourceReturn, resolveJourneySourceReturn } from "../lib/research/journeySourceReturn.js";
 import { applySeo } from "../lib/seo.js";
-import { getValuePhrasesPage, langLinksList, supabase } from "../lib/supabase.js";
+import { getValuePhrasesPage, langLinksList, supabase } from "../lib/supabaseApi2029.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { isCalculatorReturnTarget, numberExpressionFocusHref, numberReadingReturnHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { createNumberMethodProfileReuse } from "../lib/research/numberMethodProfileReuse.js";

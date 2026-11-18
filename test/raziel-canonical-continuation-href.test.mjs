@@ -114,16 +114,20 @@ assert.match(wa, /whatsappContinuationLink\(data, SITE\)/);
 const helperSrc = shared.slice(shared.indexOf("Canonical continuation href"));
 assert.doesNotMatch(helperSrc, /["'`]\/(?:number|topic|post|journey|els|research|heichal|world)\b/);   // no legacy route fallbacks
 assert.doesNotMatch(helperSrc, /https?:\/\/(?!canonical\.invalid)/);
-const sysFrame = fs.readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8");
+// SHELL_WEIGHT_REDUCTION_20261118: the Raziel conversation panel moved unchanged from SystemFrame2029.jsx to RazielPanel2029.jsx (loaded when it opens); both together are the former frame file.
+const sysFrame = fs.readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8") + "\n" + fs.readFileSync("src/components/experience2029/RazielPanel2029.jsx", "utf8");
 const mount = fs.readFileSync("src/components/experience2029/RazielSessionMount2029.jsx", "utf8");
 const seam = fs.readFileSync("src/components/experience2029/razielSessionSeam2029.js", "utf8");
 const provider = fs.readFileSync("src/lib/research/RazielSessionProvider2029.jsx", "utf8");
 const requestAdapter = fs.readFileSync("src/lib/research/razielSessionRequest2029.js", "utf8");
-const supabaseClient = fs.readFileSync("src/lib/supabase.js", "utf8");
+// SHELL_WEIGHT_REDUCTION_20261118: supabase.js keeps the client and the reads every page needs; the rest of the former file moved unchanged to supabaseApi2029.js. Both together are the former file.
+const supabaseClient = fs.readFileSync("src/lib/supabase.js", "utf8") + "\n" + fs.readFileSync("src/lib/supabaseApi2029.js", "utf8");
 assert.match(sysFrame, /session\.submit\(\{/);   // frame submits; it does not mint or substitute hrefs
 assert.match(provider, /await transport\(request\)/);
 assert.match(mount, /contextRef\.current = research\.context/);
-assert.match(mount, /askRaziel\(withRazielSurfaceContext\(request, contextRef\.current\)\)/);
+// SHELL_WEIGHT_REDUCTION_20261118: askRaziel is loaded at the first submit; the surface context is still taken at the moment of the
+// submit (contextRef.current) and the transport still receives only that wrapped request.
+assert.match(mount, /const contextual = withRazielSurfaceContext\(request, contextRef\.current\);\s*return loadAskRaziel\(\)\.then\(askRaziel => askRaziel\(contextual\)\);/);
 assert.match(seam, /export function withRazielSurfaceContext\(request\) \{\s*return request;/);
 assert.match(requestAdapter, /const surfaceContext = buildRazielSurfaceContext\(current\)/);
 assert.match(requestAdapter, /surfaceContext \? \{ surfaceContext \}/);

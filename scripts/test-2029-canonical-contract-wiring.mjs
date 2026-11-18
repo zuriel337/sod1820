@@ -11,7 +11,8 @@ const og = read("api/og.js");
 const app2029 = read("src/App2029.jsx");
 
 // Share: one canonical component, no local share bypass.
-assert.match(frame, /import ShareActions from "\.\.\/ShareActions\.jsx"/);
+// The same canonical module, loaded with the inspect panel that shows it (shell weight 3/8, 18.11.2026): a static or an on-demand import.
+assert.match(frame, /(?:import ShareActions from |const ShareActions = React\.lazy\(\(\) => import\()"\.\.\/ShareActions\.jsx"/);
 assert.match(frame, /<ShareActions/);
 assert.equal(frame.includes("shareOrCopy"), false);
 

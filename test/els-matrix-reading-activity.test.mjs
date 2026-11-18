@@ -51,7 +51,8 @@ test("global frame and existing page consume the same projection; no new polling
   const component=readFileSync(new URL("../src/components/experience2029/ElsMatrixReadingActivity2029.jsx",import.meta.url),"utf8");
   assert.doesNotMatch(component,/useEffect|setInterval|setTimeout|fetch\(|submitElsMatrixReading|createContext/);
   assert.match(component,/navigate\("\/code\?mode=classic", \{ state: \{ elsReadingReturnTurnId: activity.turnId \}/);
-  const frame=readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx",import.meta.url),"utf8");
+  // SHELL_WEIGHT_REDUCTION_20261118: the Raziel conversation panel moved unchanged from SystemFrame2029.jsx to RazielPanel2029.jsx (loaded when it opens); both together are the former frame file.
+  const frame=readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx",import.meta.url),"utf8")+"\n"+readFileSync(new URL("../src/components/experience2029/RazielPanel2029.jsx",import.meta.url),"utf8");
   assert.match(frame,/<ElsMatrixReadingActivity2029 \/>/);assert.match(frame,/data-matrix-reading-status/);
   const page=readFileSync(new URL("../src/pages/Els2029Page.jsx",import.meta.url),"utf8");
   assert.match(page,/elsMatrixReadingReturnLoad\(razielSession, turnId\)/);

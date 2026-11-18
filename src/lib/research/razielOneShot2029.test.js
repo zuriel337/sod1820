@@ -19,7 +19,7 @@ const provider = read("./RazielSessionProvider2029.jsx");
 const sessionSource = read("./razielSession2029.js");
 const requestSource = read("./razielSessionRequest2029.js");
 const gateSource = read("./razielOneShotGate2029.js");
-const frame = read("../../components/experience2029/SystemFrame2029.jsx");
+const frame = (read("../../components/experience2029/SystemFrame2029.jsx") + "\n" + read("../../components/experience2029/RazielPanel2029.jsx"));  // + RazielPanel2029.jsx: the Raziel chat moved out of the frame (shell weight 2/8, 18.11.2026)
 const actions = read("../../components/experience2029/RazielOneShotActions2029.jsx");
 const offer = read("../../components/experience2029/RazielOneShotOffer2029.jsx");
 

@@ -159,7 +159,7 @@ export async function runBatch({ write = false } = {}) {
   };
   try {
     const { getPublicResearchClient } = await import('../src/lib/research/researchViewMode.js');
-    const { getImagesByGallery } = await import('../src/lib/supabase.js');
+    const { getImagesByGallery } = await import('../src/lib/supabaseApi2029.js');
     const { fetchGallerySourceContext } = await import('../src/lib/research/entityHubProjection.js');
     const { galleryOccurrenceItem, resolvePublicGallerySelection } = await import('../src/lib/research/topicSourceContext.js');
     const { fetchWorldPublicFindingsPage } = await import('../src/lib/research/worldPublicFindingReader.js');

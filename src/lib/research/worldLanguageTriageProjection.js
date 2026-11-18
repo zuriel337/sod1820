@@ -1,4 +1,4 @@
-import { getLanguageLinks } from "../supabase.js";
+import { getLanguageLinks } from "../supabaseApi2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 

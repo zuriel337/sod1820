@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 import { buildElsRazielSurfaceContext } from "../src/lib/research/elsRazielContext.js";
 
 const page = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
-const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+// SHELL_WEIGHT_REDUCTION_20261118: the Raziel conversation panel moved unchanged from SystemFrame2029.jsx to RazielPanel2029.jsx (loaded when it opens); both together are the former frame file.
+const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8") + "\n" + readFileSync(new URL("../src/components/experience2029/RazielPanel2029.jsx", import.meta.url), "utf8");
 
 test("ELS opens the existing 2029 Raziel panel only from canonical MATCH-derived layers", () => {
   assert.match(page, /use2029Shell/);

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { fetchNumberMethodProfile } from "../../lib/research/numberCoreProjection.js";
-import { getRelationCandidate } from "../../lib/supabase.js";
+import { getRelationCandidate } from "../../lib/supabaseApi2029.js";
 import {
   buildCalculationSelection,
   calculationAvailabilityLabel,

@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 
 const migration = readFileSync("supabase/migrations/20260922191500_operational_trace_runtime_v1.sql", "utf8");
 const edge = readFileSync("supabase/functions/ai-analyze/index.ts", "utf8");
-const browser = readFileSync("src/lib/supabase.js", "utf8");
+// The browser side of the trace lives in the database files: the shared core and, since shell weight 1/8 (18.11.2026), the API
+// file that holds the AI call (askAI / aiInteractionId).
+const browser = readFileSync("src/lib/supabase.js", "utf8") + "\n" + readFileSync("src/lib/supabaseApi2029.js", "utf8");
 const researchExtract = readFileSync("supabase/functions/research-extract/index.ts", "utf8");
 
 const requiredMigration = [

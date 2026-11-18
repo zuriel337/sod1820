@@ -13,7 +13,7 @@ import {
   upsertFamilyMember,
   upsertFamilyRelation,
   upsertSelfProfile,
-} from "../lib/supabase.js";
+} from "../lib/supabaseApi2029.js";
 import { track } from "../lib/tracking.js";
 import { addHint, getMyHints } from "../lib/hints.js";
 import {

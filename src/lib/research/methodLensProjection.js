@@ -1,4 +1,4 @@
-import { getNumberLookup, getRelationCandidate } from "../supabase.js";
+import { getNumberLookup, getRelationCandidate } from "../supabaseApi2029.js";
 import { canonicalMethodPublicLabel } from "../presentation/canonicalPresentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();

@@ -1,4 +1,4 @@
-import { getNameMultiWithoutEls, getNumberLookup } from "../supabase.js";
+import { getNameMultiWithoutEls, getNumberLookup } from "../supabaseApi2029.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
 import { verseIdentityForEngineRow } from "./tanakhVerseResultAdapter.js";
 

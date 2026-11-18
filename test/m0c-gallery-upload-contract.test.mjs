@@ -62,9 +62,9 @@ const ROUTES = [
     actors: ["member"], allowed: ["png"], denied: [] },
   { id: "R5", file: "src/lib/hints.js", ext: EXT_DQ, path: '`sod1820/hints/${user?.id || "anon"}/${Date.now()}-${Math.round(Math.random() * 1e5)}.${ext}`',
     actors: [], allowed: [], denied: ["jpg", "png"], dormant: "uploadHintImage" },
-  { id: "R6", file: "src/lib/supabase.js", path: "`sod1820/${keyHint}-thumbs/${Date.now()}-${Math.round(Math.random() * 1e6)}.jpg`",
+  { id: "R6", file: "src/lib/supabaseApi2029.js", path: "`sod1820/${keyHint}-thumbs/${Date.now()}-${Math.round(Math.random() * 1e6)}.jpg`",
     actors: [], allowed: [], denied: ["jpg"], dormant: "broadcastChannelUpdate", keyHints: ["broadcast", "or-geula", "channel"] },
-  { id: "R7", file: "src/lib/supabase.js", ext: EXT_SQ, path: "`sod1820/replaced/${Date.now()}-${Math.round(Math.random() * 1e5)}.${ext}`",
+  { id: "R7", file: "src/lib/supabaseApi2029.js", ext: EXT_SQ, path: "`sod1820/replaced/${Date.now()}-${Math.round(Math.random() * 1e5)}.${ext}`",
     actors: [], allowed: [], denied: ["jpg", "png"], dormant: "uploadGalleryImage" },
 ];
 function samples(route, extension, n = 150) {
@@ -119,7 +119,8 @@ test("dormant helpers have no caller and their paths are admin-only", () => {
     for (const extension of route.denied) for (const name of samples(route, extension, 20)) assert.ok(!memberAllows(name, UID), `${route.id} not for members: ${name}`);
   }
   // captureAndUploadPoster is reachable only through broadcastChannelUpdate.
-  const supa = read("src/lib/supabase.js");
+  // SHELL_WEIGHT_REDUCTION_20261118: broadcastChannelUpdate, uploadGalleryImage and captureAndUploadPoster moved unchanged to supabaseApi2029.js.
+  const supa = read("src/lib/supabaseApi2029.js");
   assert.equal([...supa.matchAll(/\bcaptureAndUploadPoster\(/g)].length, 2, "captureAndUploadPoster: definition + the broadcastChannelUpdate call only");
 });
 
@@ -140,7 +141,7 @@ test("no unregistered client upload into gallery", () => {
   };
   ["src", "public-reading-deploy", "api", "server", "public"].forEach(walk);
   assert.deepEqual([...found.keys()].filter((f) => !registered.has(f)), [], "new gallery uploader: add it to the DEF-004 route map");
-  assert.equal(found.get("src/lib/supabase.js"), 2, "supabase.js: poster + replace image");
+  assert.equal(found.get("src/lib/supabaseApi2029.js"), 2, "supabaseApi2029.js (moved from supabase.js): poster + replace image");
 });
 
 test("the public-reading worker admits nothing the policy refuses", () => {

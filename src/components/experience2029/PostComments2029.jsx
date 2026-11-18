@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getCommentsByPostId } from "../../lib/supabase.js";
+import { getCommentsByPostId } from "../../lib/supabaseApi2029.js";
 import { readPostCommentArchive } from "./postComments2029.js";
 import "./postComments2029.css";
 

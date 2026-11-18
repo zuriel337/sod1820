@@ -3939,6 +3939,57 @@
         "open": "Field: the Home's largest paint p75 on mobile by build (2029-DqC-bFSR vs 2029-CzfHWys2) in the speed centre after a day of visits. A new pinned post: the card and the early start choose it by the same rule (seriesLatestMember2029 / nowModels, one time function); its 480/768 copies are made on the first request, so the first reader in a region waits ~1-2 s more for that image once. Not in this package (ZURIEL 17.11): starting the reads from the server document, a separate change.",
         "next_owner": "Traffic Intelligence (field check)",
         "relates_to_groups": []
+      },
+      {
+        "id": "S-52",
+        "title_he": "הקוד המשותף שכל עמוד מוריד ירד ב־46.8KB דחוסים (329.5 → 282.6KB): קובץ המסד, חלונית רזיאל, חלקי המסגרת והצעת ההתקנה נטענים לפי צורך (ניסוי, לא מוזג)",
+        "problem": "Every page downloaded ~329 KB gzip of shared code (entry 219.8 KB + System Frame 74.5 KB + frame CSS 35.2 KB) before its own code, including ~200 database actions (admin ones included), the Raziel conversation panel, the footer, share, video, account-link and live-feed parts that most pages never use at first paint.",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SHELL_WEIGHT_REDUCTION_20261118"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [
+            "d8818a136",
+            "2d6c326c3",
+            "40025ea9c",
+            "99d5f76a1",
+            "cd877d907",
+            "d437ea12c"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol-shell-weight"
+        },
+        "code_now": [
+          "src/lib/supabase.js :: shared client + the reads every page needs; src/lib/supabaseApi2029.js :: the other database actions (branch only)",
+          "src/components/experience2029/RazielPanel2029.jsx :: Raziel conversation panel, React.lazy in the panel Suspense (branch only)",
+          "src/components/experience2029/SystemFrame2029.jsx :: footer in its own file requested with the frame, account offer for signed-in, share row with the inspect panel, ribbon on open, orb ELS line when Raziel is open (branch only)",
+          "src/components/experience2029/useSystemFeed2029.js :: feed row helpers and tier readers load with the feed data (branch only)",
+          "src/lib/installMenu2029.js :: install menu (browser family, steps) with the \"עוד\" panel; installOffer2029.js keeps the entry-time capture (branch only)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Local builds only (not deployed): main 736dd285b vs branch d437ea12c served by the same local server; see docs/reviews/shell-weight-reduction-20261118/README.md.",
+        "measurement": {
+          "kind": "lab",
+          "before": "main 736dd285b, shared code 329,473 B gzip (entry 219,766 + frame 74,539 + frame CSS 35,168); light lab p50: phone Post text 6,846 ms, phone Home largest paint 5,496 ms, phone Home card 4,961 ms; desktop largest paint Home 840 / Post 2,492 ms; blocking time desktop Home 188 / Post 1,212 ms",
+          "after": "branch d437ea12c, shared code 282,647 B gzip (entry 202,483 + frame 46,314 + frame CSS 33,850; -46,826 B, -14.2%); light lab p50: phone Post text 6,488 ms (-358), phone Home largest paint 5,276 ms (-220), phone Home card 5,013 ms (within noise), desktop largest paint Home 828 / Post 2,500 ms (equal), blocking time desktop Home 152 / Post 957 ms; CLS unchanged or lower; no new duplicate downloads; no errors",
+          "conditions": "local public release builds of main and the branch on the same HTTP/2 server, fresh profile per load, arms alternating; phone 390x844 Slow 4G (150 ms / 1.6 Mbps) + 4x CPU, 5 rounds; desktop 1440x900, 4 rounds; live public reads, only analytics writes and third parties intercepted; not field data",
+          "source": "docs/reviews/shell-weight-reduction-20261118/README.md (gate numbers per step from scripts/test-2029-shell-budget.mjs, both builds)"
+        },
+        "guard": [
+          "scripts/test-2029-shell-budget.mjs (baseline lowered by the ratchet after each step: eager 202,469 / frame 46,345 / CSS 33,850 default; 3 frame files) [branch only]",
+          "test/footer-loading-cls-2029.test.mjs (the one-viewport reservation now in systemFrame2029.css, not tied to the on-demand footer) [branch only]"
+        ],
+        "open": "Not changed: on-demand panel CSS (measured < 1 KB), analytics (11.4 KB, no loss-free split; open gap by ZURIEL rule), research store (~20 KB, synchronous state), Auth (33.8 KB, needs full auth acceptance), Raziel session (~6 KB, may serve members on ELS/Life-Journey). Target ~210 KB not reached.",
+        "next_owner": "ZURIEL decision (merge + deploy are separate approvals)",
+        "relates_to_groups": []
       }
     ],
     "group_updates": [
@@ -4301,24 +4352,24 @@
     ],
     "summary": {
       "counts": {
-        "total": 51,
+        "total": 52,
         "merged": 51,
         "deployed_true": 51,
         "live_unknown": 25,
-        "live_no": 2,
+        "live_no": 3,
         "live_yes": 24,
-        "branch_only": 0
+        "branch_only": 1
       },
       "by_author": {
         "gpt": 10,
-        "claude": 37,
+        "claude": 38,
         "codex": 4
       },
       "by_surface": {
         "world": 1,
         "home": 6,
         "post": 12,
-        "all": 19,
+        "all": 20,
         "number": 2,
         "server": 4,
         "measurement": 2,

@@ -4,7 +4,7 @@ import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { copyLink } from "../lib/share.js";
 import { contactSourceHref } from "./experience2029/contactSource2029.js";
-import { sendContactMessage } from "../lib/supabase.js";
+import { sendContactMessage } from "../lib/supabaseApi2029.js";
 import { getMyCommunityHintStatuses } from "../lib/community.js";
 import IssueReport from "./IssueReport.jsx";
 import ReportHint from "./ReportHint.jsx";

@@ -7,8 +7,10 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { rm } from "node:fs/promises";
 import * as require_fs from "node:fs";
-import { isAndroidBrowser, isIosBrowser, installOfferKind, installSuggestionSuppressed, suppressInstallSuggestion, hasInstallOffer, requestInstall, installMenuKind, listenForInstallOffer,
-  installBrowser, installManualSteps, INSTALL_MANUAL_STEPS, INSTALL_DISMISS_DAYS, INSTALL_ACCEPTED_DAYS } from "../src/lib/installOffer2029.js";
+import { isAndroidBrowser, isIosBrowser, installOfferKind, installSuggestionSuppressed, suppressInstallSuggestion, hasInstallOffer, requestInstall, listenForInstallOffer,
+  INSTALL_DISMISS_DAYS, INSTALL_ACCEPTED_DAYS } from "../src/lib/installOffer2029.js";
+// The explicit install action (browser family, menu steps) loads with the "עוד" panel (shell weight 8/8); it reads the same captured offer.
+import { installMenuKind, installBrowser, installManualSteps, INSTALL_MANUAL_STEPS } from "../src/lib/installMenu2029.js";
 
 // The component is JSX with a CSS import: bundle it once, keeping React and the router external.
 const outfile = resolve(`.test-install-suggestion-${process.pid}.mjs`);

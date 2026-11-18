@@ -25,10 +25,10 @@ test("no shipped code writes the seven Legacy tables M0-A closes, and no client 
     const writers = shipped.filter(([, s]) => new RegExp(`from\\(\\s*["'\`]${t}["'\`]\\s*\\)\\s*\\.(?:insert|upsert|update|delete)\\b`).test(s)
       || new RegExp(`/rest/v1/${t}\\b[^\\n]*(?:POST|PATCH|DELETE)`).test(s));
     // the only historical writer (sendChatMessage) must stay unimported
-    const live = writers.filter(([f, s]) => !(t === "chat_messages" && f === "src/lib/supabase.js" && /export async function sendChatMessage/.test(s)));
+    const live = writers.filter(([f, s]) => !(t === "chat_messages" && f === "src/lib/supabaseApi2029.js" && /export async function sendChatMessage/.test(s)));
     assert.deepEqual(live.map(([f]) => f), [], `${t} has a shipped writer`);
   }
-  assert.deepEqual(grepShipped(/\bsendChatMessage\s*\(/).filter((f) => f !== "src/lib/supabase.js"), [], "sendChatMessage gained an importer");
+  assert.deepEqual(grepShipped(/\bsendChatMessage\s*\(/).filter((f) => f !== "src/lib/supabaseApi2029.js"), [], "sendChatMessage gained an importer");
   assert.deepEqual(grepShipped(/from\(\s*["'`]lab_(?:notes|messages)["'`]\s*\)/), [], "a client reads lab_* (would become admin-only)");
 });
 
@@ -44,7 +44,8 @@ test("the public gematria wall already filters private rows, so hiding them chan
 
 test("admin and account functions guarded by M0-A have no non-admin caller in shipped code", () => {
   for (const name of ["wa_msg_count", "admin_resolve_translit"]) assert.deepEqual(grepShipped(new RegExp(`rpc\\(\\s*["'\`]${name}["'\`]|/rpc/${name}\\b`)), [], name);
-  assert.deepEqual(grepShipped(/rpc\(\s*["'`]admin_ai_cost["'`]/), ["src/lib/supabase.js"], "admin_ai_cost only through getAiCostMetrics");
+  // SHELL_WEIGHT_REDUCTION_20261118: sendChatMessage and getAiCostMetrics moved unchanged from supabase.js to supabaseApi2029.js.
+  assert.deepEqual(grepShipped(/rpc\(\s*["'`]admin_ai_cost["'`]/), ["src/lib/supabaseApi2029.js"], "admin_ai_cost only through getAiCostMetrics");
   assert.deepEqual(grepShipped(/rpc\(\s*["'`]link_visitor_identity["'`]/), ["src/lib/AuthContext.jsx"], "link_visitor_identity only from the signed-in session");
 });
 

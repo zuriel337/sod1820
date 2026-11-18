@@ -134,7 +134,8 @@ test("the provider only exposes the reading as an explicit call: nothing renders
   assert.doesNotMatch(effects, /submitElsMatrixReading|elsMatrixReading|askRaziel|transport/);
   assert.equal((provider.match(/await transport\(request\)/g) || []).length, 1, "the single AI boundary is unchanged");
   assert.doesNotMatch(provider, /fetch\(|functions\.invoke|setInterval/);
-  const supabase = readFileSync(new URL("../src/lib/supabase.js", import.meta.url), "utf8");
+  // SHELL_WEIGHT_REDUCTION_20261118: askRaziel moved unchanged to supabaseApi2029.js; both files together are the former supabase.js.
+  const supabase = readFileSync(new URL("../src/lib/supabase.js", import.meta.url), "utf8") + "\n" + readFileSync(new URL("../src/lib/supabaseApi2029.js", import.meta.url), "utf8");
   assert.equal((supabase.match(/runElsMatrixReadingTurn/g) || []).length, 2, "one import, one call in askRaziel");
 });
 
