@@ -123,7 +123,10 @@ test("entrances: Beit Midrash and the life-journey promo link only while open; a
   await act(async () => { root = Renderer.create(React.createElement(HomeEntryBand, { journeyLocked: true, midrashOpen: false })); });
   assert.equal(link("beit-midrash"), undefined); assert.equal(link("life-journey"), undefined);
   const closed = root.root.findAll(node => node.props["aria-disabled"] === "true");
-  assert.equal(closed.length, 2);
+  // ZURIEL 18.11.2026: Life Journey appears once on Home; while it is locked only the "כלים וכניסות" tile names it,
+  // so the band keeps just the closed Beit Midrash gate.
+  assert.equal(closed.length, 1);
+  assert.equal(root.root.findAll(node => node.props["data-home-entry"] === "life-journey").length, 0);
   assert.match(closed.map(node => JSON.stringify(node.children.map(child => typeof child === "string" ? child : child.children?.join("")))).join(" "), /בבנייה/);
   await act(async () => { root.unmount(); });
 });
