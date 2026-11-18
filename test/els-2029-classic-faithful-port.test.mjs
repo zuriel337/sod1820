@@ -102,7 +102,7 @@ test("Native finding editor delegates normalization, recompute and colors to can
   assert.doesNotMatch(nativeClassic, /recomputeWords\(|recolorOnly\(|PALETTE|function\s+norm\(/);
 
   assert.match(embed, /findingsRequest = null/);
-  assert.match(embed, /postToTool\(\{ type: "update-findings", findings: findingsRequest\.findings, requestId: findingsRequest\.seq \}\)/);
+  assert.match(embed, /postToTool\(\{ type: "update-findings", findings: findingsRequest\.findings, requestId: findingsRequest\.seq, foldSearch: findingsRequest\.foldSearch \}\)/);
 
   assert.match(template, /if\(d\.type==="update-findings"&&Array\.isArray\(d\.findings\)\)/);
   assert.match(template, /const MAX_FINDING_WORDS=24;/);
@@ -179,7 +179,7 @@ test("native search progress follows request-correlated canonical operation ackn
   assert.match(nativeClassic, /if \(operation\.requestId !== expected\) return/);
   assert.match(embed, /if \(d\.type === "operation"\) \{[\s\S]*?onOperation\?\.\(d\);[\s\S]*?return;/);
   assert.match(template, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status/);
-  assert.match(template, /updateNativeFindingsOperation\(d\.findings,d\.requestId\)/);
+  assert.match(template, /updateNativeFindingsOperation\(d\.findings,d\.requestId,d\.foldSearch\)/);
   assert.match(template, /const operation=beginOperation\("search",d\.requestId===undefined\?d\.request\.seq:d\.requestId\)/);
   assert.match(template, /if\(operation\.terminal\)return;/);
   assert.match(template, /status==="done"\|\|status==="empty"\|\|status==="error"\|\|status==="cancelled"\)operation\.terminal=true/);
@@ -193,8 +193,9 @@ test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without E
   assert.match(nativeClassic, /mark\?\.type === "main"/);
   assert.match(nativeClassic, /mark\?\.type === "finding"/);
   assert.match(nativeClassic, /state\?\.verification\?\.state === "MATCH"/);
-  assert.match(nativeClassic, /onPointerDown=\{onPointerDown\}/);
-  assert.match(nativeClassic, /scrollLeft = drag\.left - dx/);
+  assert.match(nativeClassic, /useMatrixDrag\(scrollRef\)/);
+  const drag = readFileSync(new URL("../src/components/experience2029/useMatrixDrag.js", import.meta.url), "utf8");
+  assert.match(drag, /scrollLeft = drag\.left - dx/);
   assert.match(nativeClassic, /is-fit/);
   assert.match(css, /\.els29-native-matrix\{[\s\S]*direction:rtl/);
   assert.match(css, /\.els29-native-matrix-row\{[\s\S]*direction:rtl/);

@@ -76,7 +76,7 @@ export function libraryFixturePlugin() {
         researchProfile&&!guidedProfile?React.createElement('button',{onClick:()=>setAdvanced(true)},'חיפוש מתקדם'):null,
         React.createElement('div',{hidden:!researchProfile||guidedProfile||!advanced},advancedSearch?React.cloneElement(advancedSearch,{active:researchProfile&&!guidedProfile&&advanced}):null),
         React.createElement('input',{'aria-label':'טיוטת חיפוש',value:query,onChange:e=>setQuery(e.target.value)}),
-        React.createElement('button',{onClick:onSearchStart},'חיפוש לדוגמה'),
+        React.createElement('button',{onClick:()=>onSearchStart?.('regular',{term:query},'user')},'חיפוש לדוגמה'),
         React.createElement('button',{onClick:onSaved},'שמירה לדוגמה'));}`,
     'MaintenanceLock.jsx': `export const useFeatureState=()=>({loading:false,blocked:false});`,
     'seo.js': `export const applySeo=()=>{};`,

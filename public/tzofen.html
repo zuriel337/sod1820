@@ -2250,7 +2250,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   }
   function supersedeNativeOperations(){++_matrixRequestSeq;invalidateSearchOperation();invalidateFindingsOperation();}
   const paintOperation=()=>new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
-  async function updateNativeFindingsOperation(findings,requestId){
+  async function updateNativeFindingsOperation(findings,requestId,foldSearch){
     if(searchUncommitted()){postHost({type:"operation",kind:"findings",requestId,status:"error",message:"המתינו לסיום החיפוש הראשי."});return;}
     const operation=beginOperation("findings",requestId),seq=_nativeFindingsSeq,axis=hasGov(st.res)?hitKey(occ()):null;
     if(operation)operation.previousWords=st.words.map(w=>({...w,hits:(w.hits||[]).slice(),off:new Set(w.off||[]),extra:new Set(w.extra||[])}));
@@ -2258,6 +2258,17 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     try{
       await paintOperation();
       if(seq!==_nativeFindingsSeq||!hasGov(st.res)||hitKey(occ())!==axis)return;
+      if(foldSearch){
+        const region=_foldedLexiconWindow,term=norm(foldSearch.term||"");
+        if(!region||region.id!==foldSearch.windowId||region.scope!==st.scope||region.source!==st.res||region.axis!==occ()){
+          operationStatus(operation,"error","חלון המטריצה השתנה. חפשו שוב בחלון הנוכחי.");return;
+        }
+        const b={...region.box,cw:region.box.c1-region.box.c0+1},excluded=new Set(region.axis.positions);
+        const {hits}=windowFindingCandidates(term,b,excluded);
+        hits.sort((a,c)=>guidedMatrixDistance(a.positions,region.axis,b)-guidedMatrixDistance(c.positions,region.axis,b)
+          ||a.skip-c.skip||a.start-c.start);
+        findings=findings.map(word=>norm(word.t||"")===term?{...word,addShown:hits.slice(0,st.showN).map(hitKey)}:word);
+      }
       updateNativeFindings(findings);
       do{
         await healGoverned();
@@ -2627,7 +2638,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(target.cancel===true){if(_lexiconScanRequest===target.scanId)_lexiconScanSeq++;return;}
     if(target.pause===true){if(_lexiconScanRequest===target.scanId)_lexiconPauseRequest=target.scanId;return;}
     if(_lexiconScanRequest===target.scanId)return;
-    const seq=++_lexiconScanSeq,source=st.res,axis=source?.hits?.[st.occ],scope=st.scope;
+    const seq=++_lexiconScanSeq,epoch=_matrixRequestSeq,source=st.res,axis=source?.hits?.[st.occ],scope=st.scope;
     const send=payload=>postHost({type:"lens",lens:"matrix-lexicon",target,...payload});
     if(!hasGov(source)||!isGov(axis)||target.hitId!==hitKey(axis)||target.scope!==scope||searchUncommitted()){
       send({ok:false,reason:"results-changed"});return;
@@ -2647,7 +2658,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       send({ok:false,reason:"continuation-unavailable"});return;
     }
     _lexiconScanRequest=target.scanId;_lexiconPauseRequest=null;
-    const cancelled=()=>seq!==_lexiconScanSeq||st.res!==source||st.scope!==scope||!isGov(axis)||occ()!==axis||searchUncommitted()
+    const cancelled=()=>seq!==_lexiconScanSeq||epoch!==_matrixRequestSeq||st.res!==source||st.scope!==scope||!isGov(axis)||occ()!==axis||searchUncommitted()
       ||(folded?_foldedLexiconWindow!==folded:JSON.stringify(blockOf())!==JSON.stringify(b));
     try{
       send({ok:true,pending:true,phase:"lexicon",box});
@@ -2728,7 +2739,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           rowMin:info.rowMin,rowMax:info.rowMax,colMin:info.colMin,colMax:info.colMax};
       });
       if(isFold&&typeof t.foldWindowId==="string"&&t.foldWindowId.length>0&&t.foldWindowId.length<=100){
-        _foldedLexiconWindow={id:t.foldWindowId,source,axis,scope,box:{S:W,r0,r1,c0:bands[0].c0,c1:bands[0].c1}};
+        const box={S:W,r0,r1,c0:bands[0].c0,c1:bands[0].c1},previous=_foldedLexiconWindow;
+        if(previous?.id!==t.foldWindowId||previous.source!==source||previous.axis!==axis||previous.scope!==scope
+          ||Object.keys(box).some(key=>box[key]!==previous.box[key])){
+          _foldedLexiconWindow={id:t.foldWindowId,source,axis,scope,box};
+        }
       }
       reply({ok:true,S,width:W,totalRows,r0,r1,rowCount,colCount,bands,hits:[...registry.values()].map(e=>e.info),
         origin:{corpus:st.scope,corpusId:CORPUS_ID[st.scope],axis:hitKey(axis)},modelCalls:0,findingMutation:false,truthPromotion:false});
@@ -2807,7 +2822,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       postHost({type:"lens",lens:d.lens,ok:false,target:d.target||{},reason:"search-pending"});return;
     }
     if(d.type==="update-findings"&&Array.isArray(d.findings)){   // 🎯 Native/admin edit → אותו st.words קנוני, בלי store נוסף
-      updateNativeFindingsOperation(d.findings,d.requestId);
+      updateNativeFindingsOperation(d.findings,d.requestId,d.foldSearch);
     }
     if(d.type==="native-finding-control")nativeFindingControl(d);
     if(d.type==="native-cancel")cancelNativeOperation(d.kind,d.requestId,d.keepPartial===true);
@@ -3945,7 +3960,6 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   function findInBlock(t){
     t=norm(t);if(!hasGov(st.res)||t.length<2)return null;
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,L=t.length,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions);let best=null;   // mainSet = תאי-הציר (לפסילת חפיפה טריוויאלית, כמו היפוך על אותן אותיות)
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=scopeN()||T[s0]!==t[0])continue;
@@ -3979,7 +3993,6 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   function scanNeighborhood(R){
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const existing=new Set(st.words.map(w=>w.t)),out=[];
@@ -4018,7 +4031,6 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(!hasGov(st.res))return [];
     const P=pat.split(""),L=P.length;if(L<2||P.filter(c=>c!=="?").length<1)return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),p0=P[0],out=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=N)continue;if(p0!=="?"&&T[s0]!==p0)continue;
@@ -4197,7 +4209,6 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   function scanCandidates(){
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const out=new Map();
@@ -4942,9 +4953,25 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     return hits;
   }
+  function windowFindingCandidates(t,b,mainSet){
+    const L=t.length,S=b.S,c1=b.c0+b.cw,hits=[],seen=new Set(),skips=searchSpace(b,L);
+    const inWin=p=>{const r=Math.floor(p/S),c=p%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
+    // סורקים רק את החלון הנראה — מילים «רחוקות» (72 עמודות…) לא רלוונטיות
+    for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){
+      const s0=r*S+c;if(s0<0||s0>=scopeN()||T[s0]!==t[0])continue;
+      if(L===1){if(!mainSet.has(s0))hits.push({skip:0,dir:1,start:s0,positions:[s0]});continue;}
+      for(const sk of skips)for(const d of[1,-1]){
+        const end=s0+d*sk*(L-1);if(end<0||end>=scopeN())continue;
+        let ok=1;const pos=[s0];
+        for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
+        if(ok&&!pos.every(p=>mainSet.has(p))){const key=Math.min(pos[0],pos[L-1])+"_"+Math.max(pos[0],pos[L-1]);if(!seen.has(key)){seen.add(key);hits.push({skip:sk,dir:d,start:s0,positions:pos,...(sk===1?{v:"PLAIN_TEXT"}:{})});}}
+      }
+    }
+    return {hits,seen,inWin};
+  }
   function recomputeWords(){
     if(!hasGov(st.res))return;
-    const b=blockOf(),S=b.S,c1=b.c0+b.cw;
+    const b=blockOf(),S=b.S;
     const mh=occ();
     const sig=JSON.stringify([st.scope,st.res.t,hitKey(mh),b.S,b.r0,b.r1,b.c0,b.cw,st.showN,st.words.map(w=>[w.t,w.extra?.size||0,w.off?.size||0,!!w._savedShown,!!w.hits])]);
     // An identical redraw (zoom, pinch) keeps the lists; a word object that was not computed for this exact view (a new word, a
@@ -4958,29 +4985,17 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     // דילוגי-אלכסון: סביב כל כפולה של רוחב-המטריצה (kS±2, k=1..4) → תופס אלכסונים מקבילים בכל שיפוע
     // (כולל «התורה» ב-2S+2, מקביל דליל ל«אמיתית»), וגם שורות/אלכסונים קצרים (1..8).
     const rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     // ⭐ קרבה נמדדת לאשכול שעל הדף: המילה הראשית + המילים שכבר מוצגות (לא רק לעוגן).
     const baseA=mh.positions.map(rc);
     const mainSet=new Set(mh.positions);   // לפסילת מופע חופף-לעוגן (תת-מחרוזת של המילה הראשית = טריוויאלי)
     st.words.forEach((w,wi)=>{
-      const t=norm(w.t),L=t.length,hits=[],seen=new Set();const skips=searchSpace(b,L);
+      const t=norm(w.t),L=t.length,{hits,seen,inWin}=windowFindingCandidates(t,b,mainSet);
       // The canonical verdict of an occurrence that is still here (same word, corpus, skip, direction and cells) stays with it
       // (ZURIEL 18.11.2026). Every render rebuilds these lists, so before, a zoom or a pinch, or adding another word, dropped every
       // verdict and the findings vanished from the matrix until the server had verified them all again. Only MATCH and MISMATCH
       // replies of the verifier carry over; a failed check (CANDIDATE) and any new occurrence are verified as before.
       const priorVerdicts=new Map();if(w.verdictScope===st.scope)for(const h of (w.hits||[]))if(h.v==="MATCH"||h.v==="MISMATCH")priorVerdicts.set(hitKey(h)+"|"+h.positions.join(","),h.v);
       const priorDefault=keepSelection&&w.nativeRevision&&Array.isArray(w.hits)?w.hits.slice(0,st.showN).map(hitKey):[];
-      // סורקים רק את החלון הנראה — מילים «רחוקות» (72 עמודות…) לא רלוונטיות
-      for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){
-        const s0=r*S+c;if(s0<0||s0>=scopeN()||T[s0]!==t[0])continue;
-        if(L===1){if(!mainSet.has(s0))hits.push({skip:0,dir:1,start:s0,positions:[s0]});continue;}
-        for(const sk of skips)for(const d of[1,-1]){
-          const end=s0+d*sk*(L-1);if(end<0||end>=scopeN())continue;
-          let ok=1;const pos=[s0];
-          for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
-          if(ok&&!pos.every(p=>mainSet.has(p))){const key=Math.min(pos[0],pos[L-1])+"_"+Math.max(pos[0],pos[L-1]);if(!seen.has(key)){seen.add(key);hits.push({skip:sk,dir:d,start:s0,positions:pos,...(sk===1?{v:"PLAIN_TEXT"}:{})});}}
-        }
-      }
       // Preserve an explicitly saved reverse reading of a palindrome while counting the cell set once.
       if(t===t.split("").reverse().join("")){
         const keep=new Set([...(w._savedShown||[]),...(w.extra||[])]);
@@ -5049,7 +5064,6 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>anchors.push(rc(p)))));
     const byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=scopeN())continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const cellCost=(r,c)=>{let m=1e9;for(const a of anchors){const dc=Math.min(Math.abs(c-a[1]),S-Math.abs(c-a[1]));const d=Math.abs(r-a[0])+dc;if(d<m){m=d;if(m===0)return 0;}}return m;};
     const existing=new Set(st.words.map(w=>w.t)),out=[];
     for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2||existing.has(t))continue;

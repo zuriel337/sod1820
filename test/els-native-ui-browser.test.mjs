@@ -908,7 +908,8 @@ export default function Host(props){
   addEventListener('message',receive);return()=>removeEventListener('message',receive);
  },[]);
  useEffect(()=>{if(ready.current&&props.lensRequest)send({type:'request-lens',...props.lensRequest});},[props.lensRequest]);
- useEffect(()=>{if(ready.current&&props.findingsRequest)send({type:'update-findings',findings:props.findingsRequest.findings,requestId:props.findingsRequest.seq});},[props.findingsRequest]);
+ useEffect(()=>{if(ready.current&&props.matrixWindowRequest)send({type:'request-lens',lens:'matrix-window',target:props.matrixWindowRequest});},[props.matrixWindowRequest]);
+ useEffect(()=>{if(ready.current&&props.findingsRequest)send({type:'update-findings',findings:props.findingsRequest.findings,requestId:props.findingsRequest.seq,foldSearch:props.findingsRequest.foldSearch});},[props.findingsRequest]);
  useEffect(()=>{if(ready.current&&props.controlRequest)send({type:'native-control',...props.controlRequest});},[props.controlRequest]);
  useEffect(()=>{if(ready.current&&props.findingControlRequest)send({type:'native-finding-control',...props.findingControlRequest});},[props.findingControlRequest]);
  useEffect(()=>{if(ready.current&&props.searchRequest)send({type:'native-search',request:props.searchRequest,requestId:props.searchRequest.seq});},[props.searchRequest]);
@@ -3237,6 +3238,14 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   await page.waitForFunction(()=>document.querySelector('[data-fixture-matrix="recent-1"]'));
   assert.equal(await research.getAttribute('aria-pressed'),'true','opening a saved cipher keeps Research');
   assert.equal(await button(page,'חיפוש מתקדם').isVisible(),true);
+  await page.getByRole('heading',{name:'צופן שמור 1',exact:true}).waitFor();
+  await page.getByLabel('טיוטת חיפוש').fill('קולומביה');
+  await button(page,'חיפוש לדוגמה').click();
+  await page.waitForFunction(()=>!new URLSearchParams(location.search).has('record'));
+  await page.getByRole('heading',{name:'צופן שמור 1',exact:true}).waitFor({state:'detached'});
+  assert.equal(await research.getAttribute('aria-pressed'),'true');
+  await page.goBack();
+  await page.waitForFunction(()=>document.querySelector('[data-fixture-matrix="recent-1"]'));
   await classic.click();
   if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
   const next=folder.getByRole('link',{name:/צופן שמור 2/});
@@ -3791,11 +3800,65 @@ test('Research row gaps scan the displayed geometry and verify a finding at its 
     await panel.locator('[data-lexicon-hit="'+candidate.hitId+'"]').getByRole('button',{name:/בדוק והוסף/}).first().click();
     await page.waitForFunction(item=>window.__state?.findings?.some(f=>f.t===item.term&&f.hits.some(hit=>hit.hitId===item.hitId&&hit.verified&&hit.selected)),candidate);
     await folded.locator('.els29-native-cell.is-finding').first().waitFor();
+    await panel.locator('[data-lexicon-hit="'+candidate.hitId+'"]').getByRole('button',{name:/כבר במטריצה/}).first().waitFor();
+    const refreshed=await page.evaluate(()=>window.__log.filter(entry=>entry.lens==='matrix-window'&&entry.ok).at(-1));
+    assert.equal(refreshed.target.foldWindowId,windowResponse.target.foldWindowId,'adding a mark preserves the scan window');
     assert.deepEqual(await page.evaluate(()=>window.__state.axis),original.axis);
     await rail.getByRole('button',{name:'רגיל',exact:true}).click();
     assert.equal(await panel.locator('[data-lexicon-hit]').count(),0,'folded candidates do not leak into the regular window');
     assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
   },{realHost:true,loadGolden:true});
+});
+
+test('Columbia folded window scrolls in both directions, expands in place and supports a secondary search',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1280,height:980},async page=>{
+    const row={id:'columbia-test',search_term:'קולומביה',skip_distance:4545,direction:'fwd',start_index:248765,
+      scope:'torah',corpus_id:ELS_GOLDEN_CORPUS_ID,positions:{findings:[]}};
+    await page.evaluate(row=>window.__openSavedMatrix(row),row);
+    await page.waitForFunction(()=>window.__state?.provenance?.editId==='columbia-test'&&window.__operation?.status==='done');
+    const axis=await page.evaluate(()=>window.__state.axis);
+    await page.getByRole('button',{name:'רווח של שתי שורות',exact:true}).click();
+    const fold=page.locator('.els29-fold[data-fold-width="1515"]');
+    await fold.locator('.els29-native-cell.is-axis').first().waitFor();
+    const response=()=>page.evaluate(()=>window.__log.filter(entry=>entry.lens==='matrix-window'&&entry.ok).at(-1));
+    const initial=await response();
+    const scroll=fold.locator('.els29-fold-scroll');
+    await scroll.hover();
+    await page.mouse.wheel(0,2400);
+    await page.waitForFunction(r=>window.__lens?.lens==='matrix-window'&&window.__lens.ok&&window.__lens.r0>r,initial.r0);
+    const down=await response();
+    await scroll.hover();
+    await page.mouse.wheel(0,-2400);
+    await page.waitForFunction(r=>window.__lens?.lens==='matrix-window'&&window.__lens.ok&&window.__lens.r0<r,down.r0);
+    const beforeLarge=await response();
+    await page.getByLabel('גודל חלון החיפוש',{exact:true}).selectOption('large');
+    await page.waitForFunction(rows=>window.__lens?.lens==='matrix-window'&&window.__lens.ok&&window.__lens.rowCount>rows,beforeLarge.rowCount);
+    const large=await response();
+    assert.ok(large.rowCount>initial.rowCount);
+    assert.equal(large.width,1515);
+    assert.deepEqual(await page.evaluate(()=>window.__state.axis),axis);
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(entry=>entry.type==='native-search').length),0);
+
+    const finding=page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true});
+    await finding.fill('חלל נהל');
+    await page.getByRole('button',{name:'חפש במטריצה',exact:true}).click();
+    await page.waitForFunction(()=>window.__state?.findings?.some(word=>word.t==='חללנהל'&&word.hits.some(hit=>hit.hitId==='1514_1_254827'&&hit.verified&&hit.selected)));
+    await fold.locator('.els29-native-cell.is-finding').first().waitFor();
+
+    await openDiscoveryTools(page);
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    await panel.getByRole('button',{name:'גלה מילים וביטויים יחד',exact:true}).click();
+    await page.waitForFunction(()=>window.__lensRuns?.length===2,null,{timeout:65000});
+    const scans=await page.evaluate(()=>window.__lensRuns);
+    for(const scan of scans){
+      assert.deepEqual(scan.box,{S:1515,r0:large.r0,r1:large.r1,c0:large.bands[0].c0,c1:large.bands[0].c1});
+    }
+    assert.ok(scans.some(scan=>scan.items.some(item=>item.hitId==='1514_-1_282088')));
+    await page.evaluate(saved=>window.__openSavedMatrix(saved),{...row,id:'columbia-reopened'});
+    await page.waitForFunction(()=>window.__state?.provenance?.editId==='columbia-reopened'&&window.__operation?.kind==='load'&&window.__operation?.status==='done');
+    assert.deepEqual(await page.evaluate(()=>window.__state.axis),axis);
+  },{realHost:true,loadGolden:false});
 });
 
 test('the verified axis opens local gematria in the same Research tools on page and fullscreen',

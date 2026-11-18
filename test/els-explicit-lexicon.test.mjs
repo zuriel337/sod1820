@@ -125,7 +125,7 @@ test('new UI is lazy and explicit; model, storage, Provider and background promi
 test('lens refuses missing/unverified axis and oversized windows before lexicon I/O',async()=>{
   const messages=[],ctx=vm.createContext({st:{res:null,occ:0,scope:'torah'},postHost:m=>messages.push(m),hasGov:r=>!!r?.hits?.some(h=>h.v==='MATCH'),isGov:h=>h?.v==='MATCH',hitKey:h=>`${h.skip}_${h.dir}_${h.start}`,
     searchUncommitted:()=>false,blockOf:()=>({S:100,c0:0,cw:100,r0:0,r1:100}),guidedLoadDynamicLexicon:()=>{throw new Error('must not load');}});
-  vm.runInContext('let _lexiconScanSeq=0,_lexiconScanRequest=null,_foldedLexiconWindow=null,_lexiconContinuation=null;'+fn('matrixLexiconLens'),ctx);
+  vm.runInContext('let _matrixRequestSeq=0,_lexiconScanSeq=0,_lexiconScanRequest=null,_foldedLexiconWindow=null,_lexiconContinuation=null;'+fn('matrixLexiconLens'),ctx);
   await vm.runInContext('matrixLexiconLens({scanId:"a",scope:"torah",hitId:"10_1_2"})',ctx);
   assert.equal(messages.at(-1).reason,'results-changed');
   ctx.st.res={hits:[{v:'MATCH',skip:10,dir:1,start:2}]};
@@ -142,7 +142,7 @@ test('lens shares one lazy request, ignores duplicate start and discards complet
   const ctx=vm.createContext({st:{res:{hits:[axis]},occ:0,scope:'torah'},postHost:m=>messages.push(m),hasGov:()=>true,isGov:h=>h?.v==='MATCH',hitKey:h=>`${h.skip}_${h.dir}_${h.start}`,
     searchUncommitted:()=>false,blockOf:()=>box,occ:()=>axis,CORPUS_ID:{torah:'test'},norm:normalize,
     guidedLoadDynamicLexicon:()=>{loads++;return new Promise(resolve=>{release=resolve;});},scanMatrixLexicon:()=>{throw new Error('cancelled run must not scan');}});
-  vm.runInContext('let _lexiconScanSeq=0,_lexiconScanRequest=null;'+fn('matrixLexiconLens'),ctx);
+  vm.runInContext('let _matrixRequestSeq=0,_lexiconScanSeq=0,_lexiconScanRequest=null;'+fn('matrixLexiconLens'),ctx);
   const task=vm.runInContext('matrixLexiconLens({scanId:"a",scope:"torah",hitId:"10_1_2"})',ctx);
   await vm.runInContext('matrixLexiconLens({scanId:"a",scope:"torah",hitId:"10_1_2"})',ctx);assert.equal(loads,1);
   await vm.runInContext('matrixLexiconLens({scanId:"a",cancel:true})',ctx);release({});await task;

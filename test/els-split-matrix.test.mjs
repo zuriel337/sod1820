@@ -84,7 +84,8 @@ test("split view is research-only: mounted in the research tools, never in the c
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
   assert.match(native, /const researchWorkspace = researchProfile && !guidedProfile/);
   assert.match(native, /<ElsSplitMatrix2029 state=\{engineState\}\s+visible=\{active && researchWorkspace && researchView === "structures"\}/);
-  assert.match(native, /result\?\.lens === "matrix-window"\) \{ if \(result\.target\?\.foldSeq != null\) setFoldResponse\(result\); else setSplitResponse\(result\); return; \}/);
+  assert.match(native, /if \(result\.target\?\.foldSeq == null\) setSplitResponse\(result\)/);
+  assert.match(native, /result\.target\.foldWindowId === foldRequest\.foldWindowId && result\.target\.foldSeq === foldRequest\.foldSeq/);
   assert.equal((native.match(/<ElsSplitMatrix2029/g) || []).length, 1);
   const component = await read("src/components/experience2029/ElsSplitMatrix2029.jsx");
   assert.match(component, /<CanonicalProgress compact title="טוען חלון שורות"/, "operation visibility law");

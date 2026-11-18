@@ -342,6 +342,13 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     if (origin !== "user") return;
     pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle");
     setResearchLoad(null); setLoadsDismissed(true);
+    if (directSavedOpen) setParams(current => {
+      const next = new URLSearchParams(current);
+      next.delete("cipher");
+      next.delete("record");
+      next.set("mode", workspaceMode);
+      return next;
+    });
     ownSubject(payload?.axis || payload?.term || payload?.terms?.[0]);
   };
 

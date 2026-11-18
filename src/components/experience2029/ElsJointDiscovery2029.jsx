@@ -61,9 +61,10 @@ export function ElsJointDiscoveryList({ rows = [], current = true, busy = false,
   const pages = Math.max(1, Math.ceil(shown.length / PAGE)), at = Math.min(page, pages - 1);
   const slice = shown.slice(at * PAGE, at * PAGE + PAGE);
   const pick = setter => value => { setter(value); setPage(0); };
+  const hasResults = hasDiscovery || hasReading || rows.length > 0;
   return <section className="els29-joint-discovery" aria-label="רשימת הממצאים המשותפת">
-    <h3>ממצאים · רשימה משותפת <small>{shown.length}{shown.length !== rows.length ? ` מתוך ${rows.length}` : ""}</small></h3>
-    {!rows.length ? <p>{hasDiscovery || hasReading ? "אין ממצאים להצגה בסינון הנוכחי." : "הריצו סריקת גילוי כדי לראות כאן את הממצאים."}</p> : <>
+    <h3>ממצאים · רשימה משותפת {hasResults ? <small>{shown.length}{shown.length !== rows.length ? ` מתוך ${rows.length}` : ""}</small> : null}</h3>
+    {rows.length ? <>
       <label className="els29-joint-sort">סוג תוצאות <select aria-label="סוג התוצאות" value={kind} onChange={event => pick(setKind)(event.target.value)}>
         {KINDS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
       </select></label>
@@ -74,7 +75,9 @@ export function ElsJointDiscoveryList({ rows = [], current = true, busy = false,
       <label className="els29-joint-sort">מיון <select aria-label="מיון הרשימה המשותפת" value={sort} onChange={event => pick(setSort)(event.target.value)}>
         {SORTS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
       </select></label>
-    </>}
+    </> : null}
+    {hasResults && !shown.length ? <p>אין ממצאים להצגה בסינון הנוכחי.</p> : null}
+    {current && !hasResults ? <p>הריצו סריקת גילוי כדי לראות כאן את הממצאים.</p> : null}
     {!current ? <p role="note">תוצאות מחלון קודם הוסתרו. אפשר לסרוק את החלון הנוכחי.</p> : null}
     {notice ? <p role="status">{notice}</p> : null}
     {slice.length ? <ul>{slice.map(row => {
