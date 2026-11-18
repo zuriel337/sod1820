@@ -122,6 +122,8 @@ export function readingActionSpec() {
     join: { events: ["click"], fields: { surface: T } },
     arrival: { events: ["source"], fields: { source: T, tag: T, tagged: B } },
     content: { events: ["view"], fields: { kind: T, item_id: I } },
+    // ELS searches from the code tool: kind/scope/skip only (never the term or an account id). Same entry in ingest_event (proposal 20261118210000).
+    els: { events: ["search", "cross_search"], fields: { kind: T, scope: T, skip: I } },
   };
 }
 

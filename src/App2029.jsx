@@ -186,6 +186,7 @@ function RouteErrorBoundary2029({ children }) {
 // state resolves ("auth:pending" -> guest/account), so every direct entry and refresh wrote two visits. It is now mounted beside
 // that subtree, and this record keeps a second mount (or a development double effect) from counting the same entry twice.
 let measuredEntry2029 = null;
+let marketedEntry2029 = null;
 // A redirect hop (an alias address that is replaced at once) is not a page view either: the visit is written only if the address
 // is still the same after this delay.
 const PAGE_VIEW_SETTLE_MS = 150;
@@ -202,7 +203,7 @@ function RouteEffects2029() {
   if (measurementEntry.current.pathname !== pathname) measurementEntry.current = { pathname, key: entryKey };
 
   useEffect(() => {
-    if (!PUBLIC_READING_RELEASE || auth.loading
+    if (!PUBLIC_READING_RELEASE || auth.loading || auth.isAdmin
       || !["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)
       || /^\/books\/[^/]+\/?$/.test(pathname)) return undefined;
     const telemetryPath = readingTelemetryPath(pathname);
@@ -214,7 +215,7 @@ function RouteEffects2029() {
     const settle = setTimeout(() => {
       stopWaiting = afterReadableContent2029(pathname, () => {
         void import("./lib/visits.js").then(({ trackVisit, startPublicPageEngagement }) => {
-          if (stopped) return;
+          if (stopped || measurementAuth.current.isAdmin) return;
           if (measuredEntry2029 !== entry) {
             measuredEntry2029 = entry;
             trackVisit(telemetryPath, { measurementPath: pathname });
@@ -224,7 +225,7 @@ function RouteEffects2029() {
       }, { idle: false, onHidden: true });
     }, PAGE_VIEW_SETTLE_MS);
     return () => { stopped = true; clearTimeout(settle); stopWaiting?.(); stopEngagement?.(); };
-  }, [pathname, auth.loading, auth.user?.id]);
+  }, [pathname, auth.loading, auth.user?.id, auth.isAdmin]);
 
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) {
@@ -242,7 +243,10 @@ function RouteEffects2029() {
   }, []);
 
   useEffect(() => {
-    if (PUBLIC_READING_RELEASE) {
+    // Admins are not public visitors (ZURIEL 18.11.2026): GA and Meta wait for the verified profile and skip an admin account.
+    // Each address entry reaches them once, also when the account resolves or changes afterwards.
+    if (!PUBLIC_READING_RELEASE || auth.loading || auth.isAdmin) return undefined;
+    {
       if (!["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)) return undefined;
       // CanonicalBookAlias2029 always redirects this route. A slow render can
       // outlive the settle timer; only /book/:slug is a real content page view.
@@ -252,8 +256,12 @@ function RouteEffects2029() {
       // Readable content first (ZURIEL 16.11.2026): the optional Google and Meta scripts start only after every public page's readable
       // content is on screen and the document has loaded, at the first idle moment (afterReadableContent2029, bounded). A canceled
       // navigation cannot initialize a stale page view.
+      const entry = `${measurementEntry.current.key}\n${pathname}`;
+      if (marketedEntry2029 === entry) return undefined;
       let stopPageview;
       const stopWaiting = afterReadableContent2029(pathname, () => {
+        if (measurementAuth.current.isAdmin || marketedEntry2029 === entry) return;
+        marketedEntry2029 = entry;
         initGA({ publicReading: true, path: telemetryPath });
         stopPageview = trackPageview(pathname, { publicReading: true });
         // Meta Pixel (ZURIEL 11.11.2026): same admitted routes and timing as GA; bots are filtered inside marketing.js.
@@ -262,6 +270,10 @@ function RouteEffects2029() {
       });
       return () => { stopWaiting(); stopPageview?.(); };
     }
+  }, [pathname, auth.loading, auth.isAdmin]);
+
+  useEffect(() => {
+    if (PUBLIC_READING_RELEASE) return undefined;
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
     if (pathname.startsWith("/2029/control")) return undefined;

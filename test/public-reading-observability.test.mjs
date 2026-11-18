@@ -167,7 +167,7 @@ test("actual route effects restore first-party visits/engagement on the normaliz
   assert.match(source,/import\("\.\/lib\/visits\.js"\)/);
   assert.match(source,/trackVisit\(telemetryPath, \{ measurementPath: pathname \}\)/);
   assert.doesNotMatch(app,/^import \{ trackVisit \}/m);
-  vm.runInNewContext("let measuredEntry2029 = null; const PAGE_VIEW_SETTLE_MS = 150;"+code+";RouteEffects2029();",context);const cleanup=effects.map(fn=>fn());
+  vm.runInNewContext("let measuredEntry2029 = null; let marketedEntry2029 = null; const PAGE_VIEW_SETTLE_MS = 150;"+code+";RouteEffects2029();",context);const cleanup=effects.map(fn=>fn());
   assert.equal(calls.length,1,"nothing first-party is written before the address settles");assert.equal(calls[0][0],"RUM");assert.equal(calls[0][1].publicReading,true);
   // Google and Meta wait on the content gate from the start (default: after the content, at an idle moment); nothing of theirs has started.
   assert.equal(gates.length,1);assert.equal(gates[0].path,"/");assert.deepEqual(gates[0].options,{});
