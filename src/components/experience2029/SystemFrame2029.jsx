@@ -22,7 +22,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import FeatureClosedNotice2029 from "./FeatureClosedNotice2029.jsx";
-import { afterReadableContent2029, publicReadingPath } from "../../lib/publicReadingRelease2029.js";
+import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { NUMBER_PAGE_BASE, isNumberPagePath } from "../../lib/research/numberPageAddress.js";
@@ -38,8 +38,9 @@ import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 // Preview-only (ZURIEL 12.11.2026): the left Companion returns on a series Post of the protected preview build. Elsewhere it stays unmounted.
 // Shell weight 3/8 (SHELL_WEIGHT_REDUCTION_20261118): parts of the frame that are not needed to draw a page load on demand, each
-// with its own empty Suspense so nothing else waits for it. The footer (with its newsletter form) mounts once the page's readable
-// content is on screen; the account-link offer only for a signed-in account (it was always empty for a visitor and appears only
+// with its own empty Suspense so nothing else waits for it. The footer (with its newsletter form) is requested with the frame and drawn
+// when it arrives, hidden while the route shows only its loading placeholder (footer2029.css), as before; drawing it only after the
+// content measured a later largest paint on desktop (its styles and render landed in that window). The account-link offer only for a signed-in account (it was always empty for a visitor and appears only
 // after its own read); the share row with the inspect panel that shows it; the living ribbon (hidden) and its detail when opened.
 const Footer2029 = React.lazy(() => import("./Footer2029.jsx"));
 const AccountLinkOffer2029 = React.lazy(() => import("./AccountLinkOffer2029.jsx"));
@@ -825,11 +826,6 @@ function SystemFrame2029Body({
   const research = useResearch();
   const { user, profile, isAdmin, loading: authLoading } = useAuth();
   const corePublicViewer = CORE_PUBLIC_LAUNCH_2029 && !isAdmin;
-  // The footer (shell weight 3/8) mounts once the page's readable content is on screen, through the same content-first rule the frame's
-  // background reads use; the content area keeps reserving one viewport, so the footer still starts below the first screen. Once
-  // mounted it stays across navigation as before.
-  const [footerReady, setFooterReady] = useState(false);
-  useEffect(() => afterReadableContent2029(window.location.pathname, () => setFooterReady(true)), []);
   const worldFeature = useFeatureState("lock_world");
   const heichalFeature = useFeatureState("lock_heichal", { requireFlag: true });
   const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
@@ -1717,7 +1713,7 @@ function SystemFrame2029Body({
               suppressLearn={Boolean(transientKind)}
             /> : null}
           </div>
-          {footerReady ? <React.Suspense fallback={null}><Footer2029 /></React.Suspense> : null}
+          <React.Suspense fallback={null}><Footer2029 /></React.Suspense>
         </div>
 
         {navOpen ? <>
