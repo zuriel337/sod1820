@@ -49,7 +49,7 @@ test('finding projection pages after applying radius and keeps late selected hit
  const hits=Array.from({length:125},(_,i)=>({skip:2+i,dir:1,start:i,axisDistance:i%5,cost:0,v:'MATCH'}));
  const w={t:'משה',hits,total:125,inwin:125,nativeRevision:3,nativePage:1};
  const c=context(source('nativeFindingResults')+'\nthis.project=nativeFindingResults;',{
-  selectedHitsOf:()=>[hits[120]],shownHitsOf:()=>[hits[120]],isGov:h=>h.v==='MATCH',isSourceHit:()=>false,withinFindingRadius:h=>h.axisDistance===0,withinFindingSearchRadius:h=>h.axisDistance===0,hitKey:h=>`${h.skip}_${h.dir}_${h.start}`,
+  selectedHitsOf:()=>[hits[120]],shownHitsOf:()=>[hits[120]],isGov:h=>h.v==='MATCH',isSourceHit:()=>false,withinFindingRadius:h=>h.axisDistance===0,withinFindingSearchRadius:h=>h.axisDistance===0,hitKey:h=>`${h.skip}_${h.dir}_${h.start}`,occurrenceIdOf:()=>null,
  });
  const r=c.project(w);
  assert.equal(r.available,25);assert.equal(r.pageTotal,1);assert.equal(r.hits.length,25);

@@ -3574,7 +3574,7 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
       const findings=[...(both?[fromEngine(both)]:[]),only];
       const result={contract:'els_matrix_reading_v1',state:'COMPLETE',is_test_fixture:true,provider:{kind:'test_double'},axis:{...axis,corpus_id:axis.corpusId},findings};
       window.__setMatrixReading({mode:'on',isAdmin:true,session:{busy:false,thread:[{role:'raziel',elsMatrixReading:result,continuation:{contextSnapshot:{elsMatrixContext:{axis}}}}]}});
-      return {both:both?'els:'+axis.corpusId+':'+both.term+':'+both.skip+':'+both.dir+':'+both.start:null,only:{text:only.text,hitId:m.S+'_1_'+only.occurrence.start}};
+      return {both:both?'els:'+axis.corpusId+':'+both.term+':'+both.skip+':'+both.dir+':'+both.start:null,only:{text:only.text,hitId:m.S+'_1_'+only.occurrence.start,key:only.id}};
     });
     assert.ok(plan.both,'an engine ELS inside the view, shared with the Fable result');
     // The extension sits in the same panel and opens only on request.
@@ -3586,7 +3586,7 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
     await joint.locator('button[data-joint-source="fable"]').click();
     await page.waitForFunction(()=>document.querySelectorAll('[data-joint-row][data-joint-source="fable"]').length>0,null,{timeout:30000});
     if(plan.both){assert.equal(await joint.locator(`[data-joint-row="${plan.both}"]`).getAttribute('data-joint-source'),'both','an occurrence both found is one row with both sources');}
-    const onlyRow=joint.locator(`[data-joint-row="${plan.only.text}:${plan.only.hitId.split('_')[0]}:1:${plan.only.hitId.split('_')[2]}"]`);
+    const onlyRow=joint.locator(`[data-joint-row="${plan.only.key}"]`);
     assert.equal(await onlyRow.count(),1);assert.match(await onlyRow.textContent(),/Fable/);assert.match(await onlyRow.textContent(),/מאומת במנוע/);assert.match(await onlyRow.textContent(),/E 0\.50/);
     assert.match(await joint.locator('button[data-joint-source="fable"]').textContent(),plan.both?/Fable · 2/:/Fable · 1/);
     assert.equal(await joint.locator('[data-joint-row]').count(),plan.both?2:1,'the Fable filter shows exactly what Fable found');
