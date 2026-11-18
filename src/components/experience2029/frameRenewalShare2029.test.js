@@ -150,7 +150,7 @@ test("global dock opens ShareActions directly with all approved choices and keep
       activeToolDock: null, shareHref: "https://sod1820.co.il/post/current", surface: "post", title: "Current", openAction() {}, openTools() {}, openSiteSearch() {},
       openWorkspace() {}, setTransient() {}, go() {}, setSystemDockMode() {}, user: null, profile: null,
       // The "עוד" panel also renders the administrator's list of still-closed destinations (#1214). This fixture is an ordinary visitor.
-      isAdmin: false, adminOpenClosedDestinations,
+      isAdmin: false, adminOpenClosedDestinations, contextLocked: true, openTransient() {},
       // "פעולות" and "כלים" closed · בבנייה (ZURIEL 11.11.2026): the frame passes the site_flags state of each to the panel.
       actionsFeature: { blocked: true }, toolsFeature: { blocked: true } };
     vm.runInNewContext(code, context);
