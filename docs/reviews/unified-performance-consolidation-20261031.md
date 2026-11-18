@@ -262,3 +262,20 @@ Protected Preview A/B (phone, Slow 4G + 4× CPU, 6 rounds), at p50:
 - the largest paint came 412 ms earlier.
 
 Write-up: `docs/reviews/home-pinned-lead-early-20261117/README.md`.
+
+### 18.11.2026: shared code every page downloads, −46.8 KB gzip (experiment, branch only)
+
+`S-52` in the JSON (counts: 52 entries, 50 merged, 2 branch-only). Branch `ccr-dcadb071-v1z5ol-shell-weight`, head `d437ea12c`, base main `736dd285b`. Not merged, not deployed.
+
+Shared code before every page's own code (entry JS + System Frame JS + frame CSS, gzip): 329,473 → 282,647 B (−14.2%). By step:
+
+- database file split (admin and other on-demand actions out of the shared core): −16.8 KB;
+- the Raziel conversation panel loads when Raziel opens: −11.1 KB;
+- frame parts on demand (footer and newsletter form, share row, account-link offer, video layer, ELS line, hidden ribbon, live-feed helpers): −18.1 KB (CSS −1.3 KB included);
+- install menu with the "עוד" panel: −0.9 KB.
+
+Light lab over HTTP/2 (main vs branch, p50): phone Post text 6,846 → 6,488 ms; phone Home largest paint 5,496 → 5,276 ms; Home card within noise; desktop largest paint equal; CLS unchanged or lower; no new duplicate downloads.
+
+Not changed, with the measured reason: on-demand panel CSS (< 1 KB), analytics (11.4 KB; no loss-free split, open gap), the research store (synchronous state), Auth (33.8 KB; needs the full sign-in acceptance), the Raziel session (may serve members on ELS / Life Journey).
+
+Write-up: `docs/reviews/shell-weight-reduction-20261118/README.md`.
