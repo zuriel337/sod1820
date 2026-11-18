@@ -236,7 +236,6 @@
   .sod29-root.closed-shell.native-frame .sod29-surface-context-rail :is(.sod29-surface-context-depth-pointer, .sod29-surface-context-deepen) {
     border-color: color-mix(in srgb, var(--s29-brand-sapphire) 45%, var(--s29-line)); background: color-mix(in srgb, var(--s29-brand-sapphire) 12%, var(--s29-panel));
   }
-    .sod29-root.closed-shell.native-frame .sod29-nav-link.active { box-shadow: inset -3px 0 0 var(--s29-brand-gold); }
 }
 
 /* Three bars as one family (desktop): the top bar, the navigation rail and the left panel share one capsule language.
@@ -289,10 +288,10 @@
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot { flex-direction: row; align-items: stretch; gap: 6px; }
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot .sod29-sidebar-workspace { flex: 1 1 auto; min-inline-size: 0; min-block-size: 48px; white-space: nowrap; overflow: hidden; }
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot .sod29-sidebar-workspace-copy { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; }
-  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot .sod29-rail-utilities { order: 2; gap: 6px; }
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot .sod29-rail-utilities { order: 2; display: flex; gap: 6px; border: 0; padding: 0; }
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot .sod29-rail-toggle { order: 3; }
-  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot .sod29-rail-utilities button { border: 1px solid var(--s29-line-strong); border-radius: 14px; justify-content: center; }
-  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot :is(.sod29-rail-utilities, .sod29-rail-utilities button, .sod29-rail-toggle) { display: flex; inline-size: auto; min-inline-size: 44px; padding-inline: 8px; }
+
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot :is(.sod29-rail-utilities button, .sod29-rail-toggle) { display: flex; inline-size: auto; min-inline-size: 44px; padding-inline: 8px; }
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot :is(.sod29-rail-utilities button:disabled, .sod29-rail-utilities .sod29-nav-copy, .sod29-rail-toggle > b) { display: none; }
   .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-nav-link { min-block-size: 42px; }
 }
@@ -355,8 +354,6 @@
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-logo-toggle .sod29-gate-halo { display: none; }
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-logo-toggle .sod29-gate-artwork { filter: drop-shadow(0 0 7px color-mix(in srgb, var(--s29-brand-gold) 38%, transparent)); }
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-logo-toggle:hover { background: var(--s29-glass-lift); border-color: color-mix(in srgb, var(--s29-ink) 26%, transparent); }
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-toggle { border-block-end-color: var(--s29-glass-edge); }
-  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-toggle:hover { background: color-mix(in srgb, var(--s29-ink) 5%, transparent); }
 
   /* active item: a lifted glass tile with one small gold dot, no gold fill and no side stripe */
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-nav-link.active {
@@ -534,3 +531,23 @@
 .sod29-orientation .sod29-orientation-back { background: none; border: 0; padding: 0 4px; font: inherit; font-size: 12px; color: var(--s29-accent-text); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
 .sod29-orientation .sod29-orientation-back:focus-visible { outline: 2px solid var(--s29-focus, currentColor); outline-offset: 2px; border-radius: 4px; }
 @media (max-width: 720px) { .sod29-orientation .sod29-orientation-unit { display: none; } }
+
+/* ROYAL RAIL (ZURIEL 18.11.2026 "תעשה רויאל", within the approved Royal Living Icons direction of 14.10): gold kickers, a gold hairline with a
+   small diamond between the groups, icons in a gold tone at rest with a soft glow on hover, the current item in a gold-tinted tile, and the foot
+   as a seal row: the personal area with a gold-ringed avatar and the report and pin as round gold medallions. Colour only from the palette tokens. */
+@media (min-width: 981px) {
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar { --g: var(--s29-brand-gold); --gh: color-mix(in srgb, var(--g) 38%, transparent); }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar .sod29-nav-group-title { color: color-mix(in srgb, var(--g) 82%, var(--s29-ink)); font-size: 12px; letter-spacing: .08em; }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar .sod29-nav-group + .sod29-nav-group { position: relative; border-top-color: transparent; background: linear-gradient(90deg, transparent, var(--gh), transparent) top / 100% 1px no-repeat; }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar .sod29-nav-group + .sod29-nav-group::before { content: ""; position: absolute; top: -3px; left: 50%; inline-size: 6px; block-size: 6px; background: var(--g); transform: translateX(-50%) rotate(45deg); }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar .sod29-nav-icon { color: color-mix(in srgb, var(--g) 72%, var(--s29-ink)); transition: filter 180ms ease; }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar :is(a, button):hover .sod29-nav-icon { filter: drop-shadow(0 0 6px var(--gh)); }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar .sod29-nav-link.active { background: color-mix(in srgb, var(--g) 11%, transparent); border-color: var(--gh); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--g) 22%, transparent); }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar .sod29-nav-link.active .sod29-nav-icon { color: var(--g); }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar .sod29-nav-building { border-color: var(--gh); color: color-mix(in srgb, var(--g) 80%, var(--s29-ink)); }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot :is(.sod29-rail-utilities button, .sod29-rail-toggle) {
+    inline-size: 44px; min-inline-size: 44px; block-size: 44px; min-block-size: 44px; padding: 0; align-self: center; justify-content: center; border: 1px solid var(--gh); border-radius: 50%; background: transparent; color: var(--g);
+  }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame:not(.sidebar-collapsed) .sod29-rail-foot .sod29-sidebar-workspace { border-color: var(--gh); border-radius: 24px; padding-inline: 4px 10px; gap: 8px; font-size: 15px; }
+  .sod29-root[data-frame-theme-preset].closed-shell.native-frame .sod29-sidebar .sod29-sidebar-workspace :is(.sod29-user-avatar, img) { box-shadow: 0 0 0 1.5px var(--g); border-radius: 50%; }
+}

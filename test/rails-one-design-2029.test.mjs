@@ -28,3 +28,11 @@ test("the top bar and the logo keep one form in every rail state", () => {
   assert.match(crown, /\.sod29-header\.closed-orientation \{ margin-inline: calc\(-1 \* var\(--s29-rail-col, 72px\)\) 0; padding-inline: 78px; \}/);
   assert.doesNotMatch(crown, /sidebar-collapsed \.sod29-(header|logo-toggle)/);
 });
+
+test("royal rail (ZURIEL 18.11.2026 \"תעשה רויאל\"): gold kickers, diamond separators, gold icons, gold current tile and a seal row foot", () => {
+  assert.match(bar, /\.sod29-sidebar \{ --g: var\(--s29-brand-gold\);/);
+  assert.match(bar, /\.sod29-nav-group \+ \.sod29-nav-group::before \{ content: ""; [^}]*rotate\(45deg\)/);
+  assert.match(bar, /\.sod29-sidebar \.sod29-nav-link\.active \{ background: color-mix\(in srgb, var\(--g\) 11%, transparent\);/);
+  assert.match(bar, /\.sod29-rail-foot :is\(\.sod29-rail-utilities button, \.sod29-rail-toggle\) \{\s*inline-size: 44px;[^}]*border-radius: 50%;/);
+  assert.doesNotMatch(bar.slice(bar.indexOf("ROYAL RAIL")), /#[0-9a-f]{3,8}\b/i, "colour only from palette tokens");
+});
