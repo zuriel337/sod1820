@@ -30,10 +30,15 @@ async function setup(overrides = {}) {
   return { calls, send };
 }
 
-test("the handler is the verbatim EXP-15..24 copy", () => {
-  const previous = execFileSync("git", ["show", "653ed8cad:experiments/els-axis-addendum/edge/handler.mjs"], { encoding: "utf8" }).split("\n").slice(1).join("\n");
+// SHA-256 of the handler without its first (provenance) line: the body of experiments/els-axis-addendum/edge/handler.mjs at 653ed8cad (EXP-22..24).
+const HANDLER_BODY_SHA256 = "590685d91e8396a146d8d1f2381df089d84ef34c3a2971f69ead7b4c9a651d6a";
+test("the handler is the verbatim EXP-15..24 copy", (t) => {
   const current = readFileSync(new URL("../scripts/els-live-reading-edge/handler.mjs", import.meta.url), "utf8").split("\n").slice(1).join("\n");
-  assert.equal(current, previous);
+  assert.equal(hex(current), HANDLER_BODY_SHA256, "the pinned body");
+  let previous = null;
+  try { previous = execFileSync("git", ["show", "653ed8cad:experiments/els-axis-addendum/edge/handler.mjs"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).split("\n").slice(1).join("\n"); } catch { previous = null; }
+  if (previous === null) { t.diagnostic("commit 653ed8cad is not in this clone (shallow): only the pinned SHA-256 was checked"); return; }
+  assert.equal(current, previous, "the same text as the EXP-22..24 copy in git");
 });
 
 test("an approved request passes once, with the site's key added inside the function", async () => {
