@@ -158,7 +158,9 @@ test("global dock opens ShareActions directly with all approved choices and keep
     assert.equal(tree.props.title, shareOnly ? "שיתוף העמוד" : "עוד");
     assert.equal(more.props.shareOnly, shareOnly);
     // The branch runs in its own realm: compare plain values.
-    assert.equal(JSON.stringify(more.props.share), JSON.stringify({ href: context.shareHref, type: "post", title: "Current", surface: "post" }));
+    // ZURIEL 18.11.2026: the frame no longer hands its static shell title ("Current" here, "פוסט" live) to the share; ShareActions uses the
+    // page's own SEO title once that page applied it (src/lib/share.js pageOwnShareTitle), so the words name the same item as the link.
+    assert.equal(JSON.stringify(more.props.share), JSON.stringify({ href: context.shareHref, type: "post", surface: "post" }));
     assert.equal(JSON.stringify(more.props.adminDestinations), "[]");
     assert.equal(more.props.actionsBuilding, true); assert.equal(more.props.toolsBuilding, true);
   }

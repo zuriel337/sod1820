@@ -18,6 +18,7 @@ import { gatePublicMethodRows, gateSourcePresentation, gateSourceSelectionIsCurr
 import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, loadPublicGalleryReading2029, galleryReadingHref2029, gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection, loadPublicRealityStream2029 } from "../lib/research/topicSourceContext.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { publicMediaCaption, publicMediaTitle } from "../lib/presentation/contentTitle.js";
+import { applySeo } from "../lib/seo.js";
 import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import "./gallery2029.css";
 
@@ -444,5 +445,12 @@ function GalleryBody() {
 
 export default function Gallery2029Page() {
   const location = useLocation();
+  // The gallery applies its own title and canonical, the same the server sends for /gallery (api/og.js): without it the previous page's
+  // title and canonical stayed after SPA navigation and labelled this page's share. Inside the World (/world?view=gallery) the World owns them.
+  useEffect(() => {
+    if (location.pathname !== "/gallery") return;
+    applySeo({ title: "גלריות ומקורות", description: "תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820.", path: "/gallery",
+      noindex: ["gallery", "image", "q", "source"].some((key) => new URLSearchParams(location.search).has(key)), follow: true });
+  }, [location.pathname, location.search]);
   return <Sod2029Shell surface="world" title="גלריות" introVariant="none">{new URLSearchParams(location.search).has('gallery') ? <GalleryBody /> : <GalleryCatalogBody />}</Sod2029Shell>;
 }
