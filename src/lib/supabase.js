@@ -106,6 +106,23 @@ export async function getTzofonStories({ limit = 30 } = {}) {
   } catch { return []; }
 }
 
+// getRealityHints stays in the core: RealityRiver2029.jsx imports it from here and that file is byte-pinned
+// (test/world-gallery-entry-follow-chain-2029.test.mjs); a re-pin is an owner decision, so the import is left as it is.
+export async function getRealityHints(limit = 1000) {
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from('gallery_images')
+    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,ocr_meta,image_type')
+    .eq('source', 'update')
+    .not('image_url', 'is', null)
+    .not('curator_hidden', 'is', true)
+    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
+    .order('stream_at', { ascending: false, nullsFirst: false })    // 🌊 הכי-חדש-שנוסף-לזרם ראשון (חלון 50)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return data || [];
+}
+
 export async function getPostBySlug(slug, { throwOnError = false, signal = null } = {}) {
   if (!supabase) return null;
   const decoded = decodePostSlug(slug);

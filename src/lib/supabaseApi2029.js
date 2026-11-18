@@ -1098,20 +1098,6 @@ export async function deleteNumberSet(id) {
 // ===== זרם המציאות (Reality Stream) — כל ה«רמזים» (source='update') במאגר אחד =====
 // יחידת הבסיס היא רמז: תמונה + מספר דומיננטי (primary_value) + תאריך + תגיות (all_values
 // + ocr_meta.entities). שולפים פעם אחת, והמיון/סינון/דופק מחושבים בצד-לקוח (src/lib/reality.js).
-export async function getRealityHints(limit = 1000) {
-  if (!supabase) return [];
-  const { data } = await supabase
-    .from('gallery_images')
-    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,ocr_meta,image_type')
-    .eq('source', 'update')
-    .not('image_url', 'is', null)
-    .not('curator_hidden', 'is', true)
-    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
-    .order('stream_at', { ascending: false, nullsFirst: false })    // 🌊 הכי-חדש-שנוסף-לזרם ראשון (חלון 50)
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return data || [];
-}
 
 
 
