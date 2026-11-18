@@ -235,7 +235,7 @@ export const INSTRUCTION_WITH_STORY = "general_v2_axis_marked_unnamed+user_story
 // window go to the model as data, so that it continues from them instead of proposing them again. That wording is NOT measured (EXP-21).
 export const INSTRUCTION_SEEDS_SUFFIX = "+discovery_seeds_unmeasured";
 export const MAX_SEEDS = 12;
-export const MIN_SEED_LETTERS = 4; // a short word alone is not a Finding (els_seed_expansion_law, point 7)
+export const MIN_SEED_LETTERS = 5; // as before: discovery's default minimum and the 5-9 letter dictionary of EXP-01 (ZURIEL 18.11: "the same"); a short word alone is not a Finding (els_seed_expansion_law, point 7)
 
 /**
  * Places discovery seeds ({term, start, skip, dir}, stream positions) on the readings of this region. A seed is kept only when all its cells are

@@ -33,7 +33,8 @@ test("a seed is placed on its exact line and reading, with its parts", () => {
 test("anything that is not exactly there is dropped, never repaired", () => {
   assert.deepEqual(placeSeeds(region, lines, [{ ...target, term: "הארחשב" }]), [], "different letters");
   assert.deepEqual(placeSeeds(region, lines, [{ ...target, start: 1000 }]), [], "outside the window");
-  assert.deepEqual(placeSeeds(region, lines, [{ ...target, term: "האר", parts: [] }]), [], `shorter than ${MIN_SEED_LETTERS} letters`);
+  assert.equal(MIN_SEED_LETTERS, 5, "the same minimum as discovery and the earlier experiments");
+  assert.deepEqual(placeSeeds(region, lines, [{ ...target, term: "הארח", parts: [] }]), [], `shorter than ${MIN_SEED_LETTERS} letters`);
   assert.deepEqual(placeSeeds(region, lines, [{ ...target, skip: 2 }]), [], "not a straight line of this matrix");
   assert.deepEqual(placeSeeds(region, lines, [{ ...target, dir: 0 }, { ...target, start: 1.5 }, null, "x"]), [], "malformed");
   assert.equal(placeSeeds(region, lines, [target, { ...target }]).length, 1, "one seed per line position");
@@ -43,8 +44,8 @@ test("anything that is not exactly there is dropped, never repaired", () => {
 test(`at most ${MAX_SEEDS} seeds`, () => {
   const many = [];
   for (const line of lines.filter((l) => l.kind === "C").slice(0, 20)) {
-    const cells = line.cells.slice(0, 4), positions = cells.map(([i, j]) => region.position(i, j));
-    many.push({ term: line.letters.slice(0, 4), start: positions[0], skip: positions[1] - positions[0], dir: 1 });
+    const cells = line.cells.slice(0, MIN_SEED_LETTERS), positions = cells.map(([i, j]) => region.position(i, j));
+    many.push({ term: line.letters.slice(0, MIN_SEED_LETTERS), start: positions[0], skip: positions[1] - positions[0], dir: 1 });
   }
   assert.equal(placeSeeds(region, lines, many).length, MAX_SEEDS);
 });

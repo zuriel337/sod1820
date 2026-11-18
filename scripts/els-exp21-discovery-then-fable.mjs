@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// EXP-21 — "discovery first, then Fable" (ZURIEL 18.11.2026: approved up to USD 10 for this test; plan in
+// EXP-21 — "discovery first, then Fable" (ZURIEL 18.11.2026: approved, the test up to USD 10, seeds of 5+ letters as before; plan in
 // docs/reviews/els-discovery-fable-overlap-20261118/README.md). Measures, on the same windows, whether giving the model the words the engine's
 // matrix discovery already found (seeds, els_seed_expansion_law) brings new engine-verified findings instead of repeats, and whether
 // Claude Fable 5.2 reads the matrix as well as Claude Fable 5.1 (every measurement so far, EXP-15..18, is on 5.1).
