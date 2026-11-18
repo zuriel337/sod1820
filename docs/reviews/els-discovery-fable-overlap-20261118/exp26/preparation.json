@@ -1,6 +1,6 @@
 {
  "experiment": "EXP-26",
- "approved_budget_usd": 7.64,
+ "approved_budget_usd": 10,
  "cap": 25,
  "effort": "medium",
  "max_tokens": 64000,
@@ -47,7 +47,7 @@
       "minLength": 5,
       "maxLength": 10,
       "directions": 8,
-      "elapsedMs": 51
+      "elapsedMs": 54
      },
      "words4": {
       "stop": "RESULT_LIMIT",
@@ -64,7 +64,7 @@
       "minLength": 4,
       "maxLength": 10,
       "directions": 8,
-      "elapsedMs": 24
+      "elapsedMs": 20
      },
      "language": {
       "rayCap": 24,
