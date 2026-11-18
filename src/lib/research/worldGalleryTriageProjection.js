@@ -1,4 +1,4 @@
-import { getGalleryPage } from "../supabase.js";
+import { getGalleryPage } from "../supabaseApi2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const OCR_COMPLETE = new Set(["done", "complete", "completed", "verified"]);

@@ -1,0 +1,43 @@
+name: ELS Search Page SQL
+# The ordered ELS page core (els_search_page_core_v1), bounded work per call (18.11.2026). Local Postgres only; nothing reaches a shared
+# database. Loads the canonical letter streams from the repository (checked against the md5 of the live streams), starts from the reviewed
+# live definitions (md5 checked), applies the migration, compares every occurrence of 19 ranges, in order, with the unchanged generator,
+# compares the one-call answers with the reviewed body, and rolls back to the exact previous body.
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20261118090000_els_search_page_work_budget_v1.sql'
+      - 'supabase/proposed/ROLLBACK_20261118090000_els_search_page_work_budget_v1.sql'
+      - 'supabase/migrations/20260930083354_g3_els_tanakh_canonical_stream_build_v1.sql'
+      - 'tests/sql/els_search_page_*.sql'
+      - 'tests/sql/run-els-search-page-work-budget.sh'
+      - 'tools/els/data/tk-letters.txt'
+      - '.github/workflows/els-search-page-sql-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  els-search-page-sql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture_only
+          POSTGRES_DB: els_search_page_fixture
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: fixture_only
+      PGHOST: localhost
+      PGUSER: postgres
+      PGDATABASE: els_search_page_fixture
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Canonical streams, reviewed definitions, migration, 19 ranges against the generator, exact rollback
+        run: bash tests/sql/run-els-search-page-work-budget.sh

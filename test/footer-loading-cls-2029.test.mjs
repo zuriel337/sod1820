@@ -5,6 +5,9 @@ import { readFileSync } from "node:fs";
 const css = readFileSync(new URL("../src/components/experience2029/footer2029.css", import.meta.url), "utf8");
 const footer = readFileSync(new URL("../src/components/experience2029/Footer2029.jsx", import.meta.url), "utf8");
 const progress = readFileSync(new URL("../src/components/CanonicalProgress.jsx", import.meta.url), "utf8");
+// The one-viewport reservation must hold from the first paint, so it lives in the frame stylesheet, not with the footer that now
+// loads on demand (shell weight 3/8).
+const frameCss = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
 
 // Field RUM (events.web_vital, 5 days): footer.f29 / div.sod29-main-stage.has-context-rail are the top CLS sources on /post.
 // A scroll position applied while only the loading placeholder exists clamps to the bottom of that short document, so the footer
@@ -19,5 +22,6 @@ test("the footer is hidden only while the route content is just the loading plac
 test("the selectors name real elements and the existing one-viewport reservation is untouched", () => {
   assert.match(footer, /<footer className="f29"/);
   assert.match(progress, /className=\{`sod-canonical-progress /);
-  assert.match(css, /\.sod29-main-stage>\.sod29-content\{min-height:100vh;min-height:100dvh\}/);
+  assert.match(frameCss, /\.sod29-main-stage>\.sod29-content\{min-height:100vh;min-height:100dvh\}/);
+  assert.doesNotMatch(css, /\.sod29-main-stage>\.sod29-content\{/, "the reservation is not tied to the on-demand footer stylesheet");
 });

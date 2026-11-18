@@ -19,7 +19,8 @@ import {
 import { razielNavigationButton } from "../../components/experience2029/razielSessionSeam2029.js";
 
 const providerSource = readFileSync(new URL("./RazielSessionProvider2029.jsx", import.meta.url), "utf8");
-const frameSource = readFileSync(new URL("../../components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+const frameSource = readFileSync(new URL("../../components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8")
+  + "\n" + readFileSync(new URL("../../components/experience2029/RazielPanel2029.jsx", import.meta.url), "utf8");  // + RazielPanel2029.jsx: the Raziel chat moved out of the frame (shell weight 2/8, 18.11.2026)
 
 function completedState() {
   return {

@@ -8,7 +8,7 @@ const implementation = source.slice(source.indexOf('  async function runCrossThr
 const terms = ['אבג', 'דהו', 'זחט'];
 
 function fixture({ extra = false, rejectThird = false, throwThird = false, failRequired = false, supersede = false, more = false, sourcePair = false, sourceThird = false } = {}) {
-  const calls = { prefetch: [], axes: [], verify: [], status: [] };
+  const calls = { prefetch: [], axes: [], verify: [], status: [], emptied: [] };
   const hit = { skip: 31, dir: 1, start: 20, positions: [20, 51, 82], v: 'MATCH' };
   const detail = term => ({ t: term, skip: 30, dir: 1, p0: 19, cost: 1 });
   const context = vm.createContext({ Date, Map, Set, DOMException,
@@ -32,6 +32,7 @@ function fixture({ extra = false, rejectThird = false, throwThird = false, failR
       return { ok: true, verified: new Set(term === terms[2] && rejectThird ? [] : hits.map(h => `${h.skip}_${h.dir}_${h.start}`)) };
     },
     openZone: () => {}, healGoverned: async () => {},
+    EXPR2029: true, commitEmptyCross: (op, axis, partner, rest) => { op.committed = true; calls.emptied.push([axis, partner, ...rest.slice(1)]); },
     operationStatus: (op, status, message, progress) => { calls.status.push({ status, message, progress }); },
   });
   vm.runInContext(implementation, context);
@@ -101,4 +102,7 @@ test('optional term does not discard source-text pairs or label literal source a
   assert.deepEqual(f.calls.verify, [], 'ordinary text is not presented as ELS replay');
   const strict = await fixture({ sourcePair: true }).run({ thirdRequired: true });
   assert.equal(strict.last.status, 'empty', 'existing strict Guided semantics remain unchanged');
+  // A first wave that finishes with no meeting is the current search: the earlier matrix closes (ZURIEL 18.11.2026).
+  const emptyFirst = fixture({ sourcePair: true }), firstRun = await emptyFirst.run({ thirdRequired: true });
+  assert.equal(firstRun.last.status, 'empty');assert.deepEqual(emptyFirst.calls.emptied, [terms]);assert.equal(firstRun.operation.committed, true);
 });

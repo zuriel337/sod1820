@@ -10,7 +10,7 @@ import { createInterface } from "node:readline";
 import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { getImagesByGallery, getGalleriesOverview } from '../src/lib/supabase.js';
+import { getImagesByGallery, getGalleriesOverview } from '../src/lib/supabaseApi2029.js';
 import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, storedGalleryOrderIds, gallerySourceHref2029, galleryReadingHref2029 } from '../src/lib/research/topicSourceContext.js';
 
 const require = createRequire(import.meta.url);

@@ -25,8 +25,8 @@ import {
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const provider = read("./RazielSessionProvider2029.jsx");
 const requestSource = read("./razielSessionRequest2029.js");
-const supabase = read("../supabase.js");
-const frame = read("../../components/experience2029/SystemFrame2029.jsx");
+const supabase = (read("../supabase.js") + "\n" + read("../supabaseApi2029.js"));  // + supabaseApi2029.js: the database actions moved out of the shared core (shell weight 1/8, 18.11.2026)
+const frame = (read("../../components/experience2029/SystemFrame2029.jsx") + "\n" + read("../../components/experience2029/RazielPanel2029.jsx"));  // + RazielPanel2029.jsx: the Raziel chat moved out of the frame (shell weight 2/8, 18.11.2026)
 const selector = read("../../components/experience2029/RazielViewModeSelector2029.jsx");
 const css = read("../../components/experience2029/razielViewMode2029.css");
 

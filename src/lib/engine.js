@@ -8,7 +8,7 @@
 // הליבה לא משתנה אף פעם. value-as-trunk: הערך הוא הגזע, הכל מתחבר דרכו.
 
 import { calcGem } from "./gematriaCore.js";
-import { supabase, getEntityBundle, getRecentSearches } from "./supabase.js";
+import { supabase, getEntityBundle, getRecentSearches } from "./supabaseApi2029.js";
 import { buildMessages } from "./numberMessage.js";
 
 // — מתאמי קלט (plugins): שפה/מקור. הליבה לא משתנה כשמוסיפים מתאם —

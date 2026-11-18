@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { askRaziel } from "../../lib/supabase.js";
+import { askRaziel } from "../../lib/supabaseApi2029.js";
 import { emit } from "../../lib/events.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();

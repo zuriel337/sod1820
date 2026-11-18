@@ -18,7 +18,7 @@ A check run is named by its **job** (the job's `name:`, else the job id). The wo
 required status check by that name (and optionally by the app that reported it). No workflow here uses a matrix, a reusable workflow or a
 dynamic job name (the derive script refuses all three, so a new shape fails loudly instead of being read wrongly).
 
-26 pull-request jobs in 19 workflows, 23 distinct names. `D` below = duration. **The ceiling is `timeout-minutes` (exact, from the file;
+27 pull-request jobs in 20 workflows, 24 distinct names. `D` below = duration. **The ceiling is `timeout-minutes` (exact, from the file;
 "unset" = GitHub's default of 360 minutes). The estimate is read from the steps (install, build, browser) and is NOT measured**; the integrator
 can replace it with `gh run list --workflow <file> --json databaseId,conclusion,createdAt,updatedAt` over the last pull requests.
 
@@ -43,6 +43,7 @@ can replace it with `gh run list --workflow <file> --json databaseId,conclusion,
 | `approved-visibility` | community-reaction-visibility-gate.yml | paths (5) | yes | dispatch | unset | 2-4 min | advisory |
 | `reply-count` | community-feed-reply-count-gate.yml | paths (5) | yes | dispatch | unset | 1-2 min | advisory |
 | `speed-centre-sql` | speed-centre-sql-gate.yml | paths (8) | yes | dispatch | 10 | 1-2 min | advisory |
+| `els-search-page-sql` | els-search-page-sql-gate.yml | paths (7) | yes | dispatch | 15 | 1-3 min | advisory |
 | `route-navigation-2029` | route-navigation-2029.yml | paths (4) | yes | dispatch | 5 min | 1-3 min | advisory |
 | `personal-sync` | research-sync-gate.yml | paths (11) | yes | dispatch | unset | 3-6 min | advisory |
 | `journal-browser` | research-sync-gate.yml | paths (11) | yes | dispatch | 15 min | 6-10 min | advisory |

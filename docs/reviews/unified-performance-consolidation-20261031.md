@@ -249,7 +249,7 @@ Merged `cff521e86`, deployed `dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2` (aliases moved f
 - **Counts:** 50 fixes, all merged and all in the live deployment; live behaviour verified for 23, not verified for 25, contradicted for 2.
 - **Field check pending:** middleware time by edge region before and after 21:00 UTC; the share of `waited` (new instances); the Home server wait by build.
 
-### Later on 17.11.2026: the Home's pinned card starts with the entry (experiment, branch only)
+### Later on 17.11.2026: the Home's pinned card starts with the entry (experiment; released below)
 
 `S-51` in the JSON (counts: 51 entries, 50 merged, 1 branch-only). Draft PR #1381.
 
@@ -262,3 +262,41 @@ Protected Preview A/B (phone, Slow 4G + 4× CPU, 6 rounds), at p50:
 - the largest paint came 412 ms earlier.
 
 Write-up: `docs/reviews/home-pinned-lead-early-20261117/README.md`.
+
+### Night of 17.11.2026: S-51 released (#1381)
+
+ZURIEL approved the release of exactly `8e0cc4194`. Merged `736dd285b` (its tree is identical to `8e0cc4194`), deployed `dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5` (aliases moved from `dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2` at 23:23:42 UTC; build `2029-DqC-bFSR`).
+
+- **Checked live:** the entry calls the early start and the Home file carries it; the Home document comes from `736dd285b` and the CDN keeps it (`HIT` after the refill).
+- **The two production builds compared** through their own deployment addresses, same database, at p50:
+
+| Moment | Phone before | Phone after | Desktop before | Desktop after |
+|---|---|---|---|---|
+| Catalog reads start | 4,767 ms | 4,048 ms | 1,642 ms | 1,047 ms |
+| The card appears | 5,702 ms | 5,169 ms | 2,464 ms | 1,725 ms |
+| The cover has arrived | 6,383 ms | 5,873 ms | 2,668 ms | 1,792 ms |
+| Largest paint | 6,176 ms (the cover) | 5,968 ms | 1,864 ms (text) | 1,644 ms |
+
+- **Nothing doubled:** 9 reads of `posts` per load in both builds, and one request for the cover file per load in both. No console or page errors.
+- **Canary:** run against the live domain on the new build at 23:27 UTC: pass. The CI canary that the deployment triggered ran at 23:20, before the aliases moved, so it checked the previous build; the next scheduled CI canary is at 01:17 UTC.
+- **Counts:** 51 fixes, all merged and all in the live deployment; live behaviour verified for 24, not verified for 25, contradicted for 2.
+- **Field check pending:** the Home's largest paint on mobile by build (`2029-DqC-bFSR` against `2029-CzfHWys2`).
+- **The speed centre** shows this map from the build, so S-51 appears there as released with the next release.
+- **Not in this package:** starting the reads from the server document (a separate change).
+
+### 18.11.2026: shared code every page downloads, −46.8 KB gzip (experiment, branch only)
+
+`S-52` in the JSON (counts: 52 entries, 51 merged, 1 branch-only). Branch `ccr-dcadb071-v1z5ol-shell-weight`, head `d437ea12c`, base main `736dd285b`. Not merged, not deployed.
+
+Shared code before every page's own code (entry JS + System Frame JS + frame CSS, gzip): 329,473 → 282,647 B (−14.2%). By step:
+
+- database file split (admin and other on-demand actions out of the shared core): −16.8 KB;
+- the Raziel conversation panel loads when Raziel opens: −11.1 KB;
+- frame parts on demand (footer and newsletter form, share row, account-link offer, video layer, ELS line, hidden ribbon, live-feed helpers): −18.1 KB (CSS −1.3 KB included);
+- install menu with the "עוד" panel: −0.9 KB.
+
+Light lab over HTTP/2 (main vs branch, p50): phone Post text 6,846 → 6,488 ms; phone Home largest paint 5,496 → 5,276 ms; Home card within noise; desktop largest paint equal; CLS unchanged or lower; no new duplicate downloads.
+
+Not changed, with the measured reason: on-demand panel CSS (< 1 KB), analytics (11.4 KB; no loss-free split, open gap), the research store (synchronous state), Auth (33.8 KB; needs the full sign-in acceptance), the Raziel session (may serve members on ELS / Life Journey).
+
+Write-up: `docs/reviews/shell-weight-reduction-20261118/README.md`.

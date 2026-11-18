@@ -38,12 +38,29 @@ test('every st.res assignment is census-classified (verified-eager, cache-verifi
     /st\.res=faMemo\(a\.term\);/, // discovery seed: lazily healed, exits gated
     /st\.res=mergeOrderedHits\(result,page,key\);/, // canonical ordered page, epoch guarded continuation
     /st\.res=null;/, // saved corpus/anchor mismatch: clear the result instead of substituting another hit
+    // commitEmptyCross (18.11.2026): a crossed search that ran to its end with no meeting commits an empty local no-hit. It has no hit,
+    // discoveryComplete:false and vstate LOCAL_NO_HIT, so elsState emits status "empty" with negative_authority:false (never a canonical negative).
+    /st\.res=\{hits:\[\],capped:0,t:norm\(axis\),scope:st\.scope,strategy:null,discoveryComplete:false,vstate:"LOCAL_NO_HIT",vtrace:\[\]\};/,
   ];
   const found = [...code.matchAll(/st\.res=[^;\n]*;?/g)].map((m) => m[0]);
   for (const f of found) assert.ok(allowed.some((a) => a.test(f)), `unclassified st.res assignment: ${f}`);
-  assert.equal(found.length, 15, 'st.res assignment census changed - classify the new site');
-  const regular=code.slice(code.indexOf('const [sample,page]=await Promise.all([discoverVerified(w'),code.indexOf('logSearch("regular",w)'));
-  assert.match(regular,/if\(requestSeq!==_matrixRequestSeq\)return;\s*const discovered=mergeOrderedHits\(sample,page\);/);
+  assert.equal(found.length, 16, 'st.res assignment census changed - classify the new site');
+  const emptyCross=code.slice(code.indexOf('function commitEmptyCross('),code.indexOf('function startNameSearch('));
+  assert.equal([...code.matchAll(/vstate:"LOCAL_NO_HIT",vtrace:\[\]\}/g)].length,1,'the empty local no-hit literal exists only in commitEmptyCross');
+  assert.match(emptyCross,/st\.res=\{hits:\[\],capped:0,[^}]*discoveryComplete:false,vstate:"LOCAL_NO_HIT",vtrace:\[\]\};/);
+  assert.match(code,/if\(!r\|\|!r\.hits\.length\)return Object\.assign\(base,\{status:"empty",verification:\{state:\(r&&r\.vstate\)\|\|"NONE",negative_authority:false\}\}\);/,
+    'an empty result is emitted as status empty without negative authority');
+  // 18.11.2026: between the epoch check and the commit a person's stop may keep what is already verified (no await in between).
+  const regular=code.slice(code.indexOf('let [sample,page]=await Promise.all([discoverVerified(w,4000'),code.indexOf('logSearch("regular",w)'));
+  const commitAt=regular.indexOf('const discovered=mergeOrderedHits(sample,page);');
+  assert.ok(regular.length>0&&commitAt>0,'regular search commits the merged verified discovery');
+  const commitGap=regular.slice(regular.indexOf('if(requestSeq!==_matrixRequestSeq)return;'),commitAt);
+  assert.match(commitGap,/^if\(requestSeq!==_matrixRequestSeq\)return;/);
+  assert.doesNotMatch(commitGap,/\bawait\b/,'no async gap between the epoch check and the committed result');
+  assert.doesNotMatch(commitGap,/st\.res=/);
+  assert.match(commitGap,/sample=\{hits:\(sample\.hits\|\|\[\]\)\.filter\(isGov\),/,'a stopped search keeps only verified occurrences');
+  assert.match(commitGap,/if\(!hasGov\(mergeOrderedHits\(sample,page\)\)\)\{\+\+_matrixRequestSeq;invalidateSearchOperation\(\);return;\}/,
+    'a stop with nothing verified keeps the earlier matrix');
   const restore=code.slice(code.indexOf('const discovered=await discoverVerified(item.term'),code.indexOf('let idx=-1;',code.indexOf('const discovered=await discoverVerified(item.term')));
   assert.match(restore,/await promoteVerified\(/,'targeted legacy skip still uses canonical admission');
   const guarded=restore.slice(restore.lastIndexOf('if(requestSeq!==_matrixRequestSeq)return;'));
@@ -104,8 +121,13 @@ test('every host message type is classified (coordinate-bearing ones are gated a
   assert.match(code, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);operationStatus\(operation,"error",[^;]+\);return;\}/,
     'native search uses the shared onboarding policy and emits UI/access-only messages before blocked searches');
   const operation = code.slice(code.indexOf('function operationStatus('), code.indexOf('function beginOperation('));
-  assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status,\.\.\.\(message\?\{message\}:\{\} \),\s*elapsedMs:Math.max\(0,Date.now\(\)-operation.startedAt\),progress:progress\|\|null\}\)/,
+  // 18.11.2026: the operation also carries how many occurrences or meetings were found so far (an integer) and whether the search was
+  // stopped partway (a flag). Neither is a coordinate; every message of the operation is pinned to exactly these fields.
+  assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status,\.\.\.\(message\?\{message\}:\{\} \),\s*elapsedMs:Math.max\(0,Date.now\(\)-operation.startedAt\),progress:progress\|\|null,\s*\.\.\.\(Number\.isInteger\(operation\.found\)\?\{found:operation\.found\}:\{\}\),\.\.\.\(operation\.partialStop\?\{partial:true\}:\{\}\)\}\)/,
     'operation acknowledges a request and its status without transmitting candidate coordinates');
+  assert.match(operation, /if\(!operation\|\|operation\.terminal\|\|!Number\.isInteger\(count\)\|\|count===operation\.found\)return;/, 'the found value is an integer count only');
+  assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status:operation\.status\|\|"searching",\s*elapsedMs:Math\.max\(0,Date\.now\(\)-operation\.startedAt\),progress:operation\.lastProgress\|\|null,found:count\}\)/);
+  assert.equal([...operation.matchAll(/postHost\(/g)].length, 2, 'the operation sends exactly two message shapes');
   assert.doesNotMatch(operation, /positions|hitId|start_index|start:|skip:/);
   assert.ok(code.includes('function emitState()') && /postHost\(s\)/.test(code));
 });

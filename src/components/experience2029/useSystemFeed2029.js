@@ -1,7 +1,16 @@
 // One watcher of the EXISTING world discovery stream for the whole frame (panel, phone chip). Visibility-bound polling
 // is owned by watchWorldDiscoveryStream. Tiers (Gold/Diamond) are read lazily for the first three convergences.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { feedRows, feedSeenKey, mergeNowDiscussionItems, mergeSystemFeedItems } from "../../lib/systemFeed2029.js";
+// The feed's row helpers (systemFeed2029.js) and the Gold/Diamond tier readers load with the feed's own data instead of with the
+// System Frame every page downloads (shell weight 3/8, SHELL_WEIGHT_REDUCTION_20261118). Every path that delivers feed data (the
+// stream, the featured Post, the Now details) waits for the helpers first, so rows exist exactly when they did before; with no data
+// the helpers return empty lists, which is also what the hook returns while they load.
+let systemFeedHelpers2029 = null;
+let systemFeedHelpersLoad2029 = null;
+const loadSystemFeedHelpers2029 = () => systemFeedHelpers2029 ? Promise.resolve(systemFeedHelpers2029)
+  : (systemFeedHelpersLoad2029 ||= import("../../lib/systemFeed2029.js")
+    .then((module) => (systemFeedHelpers2029 = module))
+    .catch((error) => { systemFeedHelpersLoad2029 = null; throw error; }));
 // The series-latest seen key lives with the publications model (nowPublications2029.js), which the publications window and the Home strip
 // already load. A static import here would put that whole model into the System Frame every page pays for (shell budget, 16.11.2026: +20 KB
 // gzip), so it is read when a row is entered.
@@ -9,8 +18,6 @@ let seriesLatestSeenKeyOf = null;
 const loadSeriesLatestSeenKey = () => seriesLatestSeenKeyOf ? Promise.resolve(seriesLatestSeenKeyOf)
   : import("../../lib/nowPublications2029.js").then((module) => (seriesLatestSeenKeyOf = module.seriesLatestSeenKey));
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
-import { tierLookupNumbers } from "../../lib/ratings2029.js";
-import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
 import { afterReadableContent2029 } from "../../lib/publicReadingRelease2029.js";
 
 // `homeStrip`: the Home "עדכונים אחרונים" strip needs the same public details once (reality-stream images, channel updates, series
@@ -48,8 +55,8 @@ export function useSystemFeed2029({ enabled: frameEnabled = true, nowOpen = fals
     const epoch = ++nowEpoch.current;nowController.current?.abort();
     const controller = new AbortController();nowController.current = controller;
     setNowSources(current => ({ ...current, requested: true, loading: true, error: false }));
-    import("../../lib/research/systemFeedPublicSources2029.js")
-      .then(({ fetchSystemFeedPublicSources2029 }) => {
+    Promise.all([import("../../lib/research/systemFeedPublicSources2029.js"), loadSystemFeedHelpers2029()])
+      .then(([{ fetchSystemFeedPublicSources2029 }]) => {
         // Closing while the chunk is still loading must not start a detached read.
         if (epoch !== nowEpoch.current || !detailsWanted.current || controller.signal.aborted) { controller.abort(); return null; }
         return fetchSystemFeedPublicSources2029({ signal: controller.signal });
@@ -76,7 +83,7 @@ export function useSystemFeed2029({ enabled: frameEnabled = true, nowOpen = fals
   useEffect(() => {
     if (!enabled) return undefined;
     let live = true; let stop;
-    import("../../lib/research/worldDiscoveryStream.js").then(({ watchWorldDiscoveryStream }) => {
+    Promise.all([import("../../lib/research/worldDiscoveryStream.js"), loadSystemFeedHelpers2029()]).then(([{ watchWorldDiscoveryStream }]) => {
       if (!live) return;
       stop = watchWorldDiscoveryStream({
         limit: 40, includeResearch: false,
@@ -100,15 +107,20 @@ export function useSystemFeed2029({ enabled: frameEnabled = true, nowOpen = fals
   }, [enabled, refreshNowDetails]);
 
   useEffect(() => {
-    state.items.filter((item) => item.kind === "convergence").slice(0, 3).forEach((item) => {
-      if (asked.current.has(item.id)) return;
-      asked.current.add(item.id);
-      const numbers = tierLookupNumbers(item.numbers, item.numbers);
-      if (!numbers.length) return;
-      fetchNumberTierSignals(numbers).then((tiers) => {
-        if (tiers?.loaded) setStrongIds((current) => ({ ...current, [item.id]: (tiers.diamond || 0) > 0 || (tiers.gold || 0) > 0 }));
-      });
-    });
+    const pending = state.items.filter((item) => item.kind === "convergence").slice(0, 3).filter((item) => !asked.current.has(item.id));
+    if (!pending.length) return;
+    // the tier readers load only when a convergence row is there to rate
+    Promise.all([import("../../lib/ratings2029.js"), import("../../lib/research/numberTierSignals.js")])
+      .then(([{ tierLookupNumbers }, { fetchNumberTierSignals }]) => pending.forEach((item) => {
+        if (asked.current.has(item.id)) return;
+        asked.current.add(item.id);
+        const numbers = tierLookupNumbers(item.numbers, item.numbers);
+        if (!numbers.length) return;
+        fetchNumberTierSignals(numbers).then((tiers) => {
+          if (tiers?.loaded) setStrongIds((current) => ({ ...current, [item.id]: (tiers.diamond || 0) > 0 || (tiers.gold || 0) > 0 }));
+        });
+      }))
+      .catch(() => {});
   }, [state.items]);
 
   // The featured Post's whole message (ZURIEL 8.11.2026) is ONE more item of this same feed: identity `post:<id>`, listed first so it is the
@@ -117,21 +129,24 @@ export function useSystemFeed2029({ enabled: frameEnabled = true, nowOpen = fals
   useEffect(() => {
     if (!enabled) return undefined;
     let live = true;
-    Promise.all([import("../../lib/research/homeFeaturedPost2029.js"), import("../../lib/research/worldDiscoveryStream.js")])
+    Promise.all([import("../../lib/research/homeFeaturedPost2029.js"), import("../../lib/research/worldDiscoveryStream.js"), loadSystemFeedHelpers2029()])
       .then(([featured, stream]) => featured.getFeaturedPostRow2029().then(row => featured.featuredFeedItem(row, stream.postRowToWorldUpdate)))
       .then(item => { if (live) setFeaturedItem(item); }).catch(() => { if (live) setFeaturedItem(null); });
     return () => { live = false; };
   }, [enabled]);
-  const items = useMemo(() => mergeSystemFeedItems(featuredItem ? [featuredItem] : [], mergeNowDiscussionItems(state.items, nowSources.items)), [featuredItem, state.items, nowSources.items]);
-  const rows = useMemo(() => feedRows(items, { seen, strongIds }), [items, seen, strongIds]);
-  const expandedRows = useMemo(() => feedRows(items, { seen, strongIds, limit: 160,
+  const feed = systemFeedHelpers2029;
+  const items = useMemo(() => feed ? feed.mergeSystemFeedItems(featuredItem ? [featuredItem] : [], feed.mergeNowDiscussionItems(state.items, nowSources.items)) : [], [feed, featuredItem, state.items, nowSources.items]);
+  const rows = useMemo(() => feed ? feed.feedRows(items, { seen, strongIds }) : [], [feed, items, seen, strongIds]);
+  const expandedRows = useMemo(() => !feed ? [] : feed.feedRows(items, { seen, strongIds, limit: 160,
     caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10,
       ...Object.fromEntries(nowSources.items.filter(item => item.channel).map(item => [`channel:${item.channel}`, 12])) },
-  }), [items, seen, strongIds, nowSources.items]);
+  }), [feed, items, seen, strongIds, nowSources.items]);
   const newCount = rows.filter((row) => row.isNew).length;
   const newest = rows.filter((row) => row.isNew).map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
   const see = useCallback((row) => {
-    setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current)));
+    // a row exists only once the helpers are loaded
+    const key = systemFeedHelpers2029?.feedSeenKey(row.item);
+    if (key) setSeen((current) => (current[key] ? current : markSeen(key, current)));
     // entering the row also settles the series-latest dot (per Post and per registered update); the existing per-browser seen state, nothing new
     if (row?.id) loadSeriesLatestSeenKey().then((keyOf) => setSeen((current) => (current[keyOf(row.id)] ? current : markSeen(keyOf(row.id), current)))).catch(() => {});
   }, []);

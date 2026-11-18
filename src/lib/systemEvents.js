@@ -10,7 +10,7 @@
 //
 // הניקוד מכוונן: המשקלים חיים ב-nodes rule 'pulse_scoring' (metadata.weights) וניתנים לשינוי **בלי פריסה**;
 // נופלים ל-DEFAULT_WEIGHTS אם אין. אין חוקים קשיחים («צופן תמיד > ערוץ») — רק ציון, והמערכת ממיינת לבד.
-import { supabase, getRealityHints, getRecentSearchCount, getRecentNumbers } from "./supabase.js";
+import { supabase, getRealityHints, getRecentSearchCount, getRecentNumbers } from "./supabaseApi2029.js";
 import { getForumFeed } from "./contributions.js";
 import { hintNums, effDate } from "./reality.js";
 

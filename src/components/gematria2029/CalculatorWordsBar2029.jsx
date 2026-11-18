@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getWallRecent } from "../../lib/supabase.js";
+import { getWallRecent } from "../../lib/supabaseApi2029.js";
 import { isReadable } from "../../lib/nameMask.js";
 import { dailyWordFor } from "../../lib/dailyWord.js";
 import { calculateGematriaEnvelope } from "../../lib/research/gematriaCalculationContract.js";

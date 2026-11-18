@@ -30,7 +30,7 @@ export default function ElsResearchActivity2029({ onOpenResult = null, selecting
       ? "החזרה משחזרת את המופע, הממצאים והצבעים, הזום והגדרות התצוגה כפי שהיו בתחילת המחקר. המנוע מאמת אותם מחדש."
       : "החזרה פותחת את מופע המוצא המדויק בלבד; לא נקלט צילום מצב של הסימונים והתצוגה."}</p>
     {onOpenResult ? task.rows.map((row, index) => <details key={`${task.id}:${index}`}>
-      <summary><bdi>{row.term}</bdi> · {row.state === "FAILED" ? "הבדיקה לא הושלמה" : `${row.count} מופעים נטענו`}{row.truncated ? " · יש תוצאות נוספות שלא נטענו" : ""}</summary>
+      <summary><bdi>{row.term}</bdi> · {row.state === "FAILED" ? "הבדיקה לא הושלמה" : `${row.count} מופעים נטענו`}{row.truncated ? (row.scanPending ? " · הטווח עוד לא נסרק עד סופו" : " · יש תוצאות נוספות שלא נטענו") : ""}</summary>
       {row.error ? <p>{row.error}</p> : null}
       <p>פתיחת מופע מפעילה אימות במנוע הקנוני. היא אינה מפעילה AI.</p>
       {(row.projection?.occurrences || []).map(hit => <button type="button" className="sod29-action" key={hit.occurrenceId}

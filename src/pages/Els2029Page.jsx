@@ -27,7 +27,7 @@ import { useOptionalRazielSession2029 } from "../components/experience2029/Razie
 import { elsMatrixReadingMode } from "../lib/research/elsMatrixReadingPresentation.js";
 import { elsMatrixReadingReturnLoad } from "../lib/research/elsMatrixReadingActivity.js";
 import { elsResearchReturnLoad } from "../lib/research/elsResearchReturnSnapshot.js";
-import { razielPublicLabel, razielSubjectLabel } from "../components/experience2029/razielSessionSeam2029.js";
+import { razielPublicLabel, razielSubjectLabel, surfaceContextForRoute2029 } from "../components/experience2029/razielSessionSeam2029.js";
 import { readElsMatrixShare } from "../lib/elsMatrixShare.js";
 
 const clean = (value) => String(value ?? "").trim();
@@ -40,8 +40,7 @@ function StateRow({ label, value, state = "ready" }) {
   </div>;
 }
 
-function ElsActiveContext({ research }) {
-  const context = research.context;
+function ElsActiveContext({ research, context }) {
   const [pendingReset, setPendingReset] = useState(null);
   const [notice, setNotice] = useState(null);
   const summaryRef = useRef(null);
@@ -138,7 +137,14 @@ function ElsNativeWithRaziel({ razielSession, researchContext, projection, layer
 // ZURIEL 5.11: in the public release the Bible code is open in its Classic mode only, with the public cipher library (read).
 // Guided discovery, Research, advanced search, the AI scan and Raziel stay for the administrator.
 export default function Els2029Page(props) {
-  const publicClassic = publicReadingActionsLocked(useAuth().isAdmin);
+  const { isAdmin, user, profile } = useAuth();
+  // Every auth event (a token refresh, the tab coming back into view) re-verifies the same account and empties its profile for a moment.
+  // The page below is keyed on the access level, so reading isAdmin as it flickered remounted the whole Bible code for the administrator:
+  // a new engine, the entry seed searched again, the current search gone. The level decided for an account holds until its profile is back.
+  const decided = useRef({ userId: null, publicClassic: null });
+  const revalidating = Boolean(user?.id) && !profile && decided.current.userId === user.id && decided.current.publicClassic !== null;
+  const publicClassic = revalidating ? decided.current.publicClassic : publicReadingActionsLocked(isAdmin);
+  if (!revalidating) decided.current = { userId: user?.id || null, publicClassic };
   return <OperationalEls2029Page key={publicClassic ? "public-classic" : "full"} {...props} publicClassic={publicClassic} />;
 }
 // ZURIEL 6.11: Classic and Research are open to every visitor; Guided discovery, AI and Raziel stay with the administrator.
@@ -148,6 +154,11 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   const razielSession = useOptionalRazielSession2029();
   const location = useLocation();
   const sharedMatrix = useMemo(() => readElsMatrixShare(location.hash), [location.hash]);
+  // ZURIEL 18.11.2026: no research context on the Bible code without an explicit request. A subject or a selection left by another page
+  // is carried in only by an explicit continuation (the existing sodResearchIntent "continue" links) or an unsaved research path.
+  const [continueIntent] = useState(() => location.state?.sodResearchIntent === "continue");
+  const [ownActivity, setOwnActivity] = useState(false);
+  const [loadsDismissed, setLoadsDismissed] = useState(false);
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
   const library = params.get("library");
@@ -189,7 +200,10 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     return () => { alive = false; };
   }, [recordKey]);
   const elsState = useFeatureState("lock_els");
-  const context = research.context || null;
+  const carriesContext = continueIntent || (research.context?.journey?.pendingSteps?.length || 0) > 0;
+  // What this page shows and replays: the shared context once the person asked to continue it or acted here; a neutral one until then.
+  const context = useMemo(() => surfaceContextForRoute2029(research.context || null, { surface: "els", intent: carriesContext || ownActivity ? "continue" : null }),
+    [research.context, carriesContext, ownActivity]);
   const subject = context?.subject || null;
   const selection = context?.selection || null;
   const elsSelection = selection?.entityType === "els";
@@ -290,11 +304,36 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   };
   // Stable entry seed only. Once Classic is live, the canonical tzofen state flows into ResearchProvider
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
-  const [classicSeed] = useState(() => clean(params.get("term") || params.get("q") || selection?.term || subject?.label || ""));
+  const [classicSeed] = useState(() => clean(params.get("term") || params.get("q") || (carriesContext ? selection?.term || subject?.label : "") || ""));
   const legacySkip = Number(params.get("skip"));
   const legacyMatrix = classicSeed && Number.isSafeInteger(legacySkip) && Math.abs(legacySkip) >= 2
     ? { search_term: classicSeed, skip_distance: legacySkip, scope: params.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null }
     : null;
+
+  // A new search is a new subject. Without this the shared context kept the subject of an earlier page or search and only swapped the
+  // selection under it. An explicit continuation keeps its subject.
+  const ownSubject = value => {
+    const term = clean(value);
+    if (!term) return;
+    setOwnActivity(true);
+    if (carriesContext || !research.updateResearchContext) return;
+    const current = research.context?.subject;
+    if (current?.type === "phrase" && current.id === term) return;
+    research.updateResearchContext({ subject: { id: term, type: "phrase", label: term, href: `/research?tool=els&q=${encodeURIComponent(term)}` }, selection: null, lens: "els" });
+  };
+  const entryTerm = clean(researchLoad?.term || savedRecord.row?.search_term || (loadsDismissed ? "" : sharedMatrix.loadItem?.term || findingJourneyLoad?.term)
+    || params.get("term") || params.get("q") || "");
+  useEffect(() => { ownSubject(entryTerm); }, [entryTerm]); // eslint-disable-line react-hooks/exhaustive-deps
+  // A finding or a shared matrix from the address applies once. After the person searches, it must not load again over that search
+  // (it did when its data arrived late); a new address applies again.
+  useEffect(() => { setLoadsDismissed(false); }, [findingId, location.hash]);
+  const beginSearch = (kind, payload, origin) => {
+    setSearchRevision(value => value + 1);
+    if (origin !== "user") return;
+    pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle");
+    setResearchLoad(null); setLoadsDismissed(true);
+    ownSubject(payload?.axis || payload?.term || payload?.terms?.[0]);
+  };
 
   useEffect(() => {
     if (elsState.loading || elsState.blocked || !replayKey) {
@@ -432,7 +471,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
               : "חיפוש ישיר וסימוני צבע על טקסט התורה. הממצאים נשמרים להמשך עבודה."}
           </div>
         </div>
-        <ElsActiveContext research={research} />
+        <ElsActiveContext research={research} context={context} />
       </div>
 
       <section
@@ -447,7 +486,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
           initialSeed={savedRecord.row || legacyMatrix || sharedMatrix.present || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           advancedSearchRequestKey={location.state?.elsResearchReturnTaskId && location.state.elsResearchReturnTaskId === research.elsResearchOperation?.task?.id ? location.key : null}
-          researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+          researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row || loadsDismissed ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           publicClassic={publicClassic}
           advancedSearch={<ElsAdvancedSearch2029
             researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
@@ -456,7 +495,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
           onResearchRestore={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle");
             setResearchLoad({ ...item, researchNonce: crypto.randomUUID() }); }}
-          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
+          onSearchStart={beginSearch} onSaved={row => {
             setSavedRevision(value => value + 1);
             if (row?.id === savedRecord.row?.id) setSavedRecord(current => ({ ...current, row }));
           }} />

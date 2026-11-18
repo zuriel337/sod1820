@@ -11,7 +11,9 @@ import LearnMark2029 from "./LearnMark2029.jsx";
 const EventSequencePanel2029 = lazy(() => import("./EventSequencePanel2029.jsx"));
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
-import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
+// The contextual video layer shows only to the administrator, after its own research read; it loads only for the administrator
+// and no longer with the frame on every page (shell weight 3/8, SHELL_WEIGHT_REDUCTION_20261118).
+const ContextualVideoLayer2029 = lazy(() => import("./ContextualVideoLayer2029.jsx"));
 import {
   buildLearnHelpSeed,
   emitEntryLearn,
@@ -264,7 +266,7 @@ export default function SurfaceContextRail2029({
         </>}
       </div> : null}
       {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><Suspense fallback={null}><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></Suspense></details> : null}
-      <ContextualVideoLayer2029 subject={subject} context={context} />
+      {!identityLoading && isAdmin ? <Suspense fallback={null}><ContextualVideoLayer2029 subject={subject} context={context} /></Suspense> : null}
       {surface === "post" && !identityLoading && isAdmin ? <Suspense fallback={null}><GoldenProjectorModeLayer2029 context={context} surface={surface} /></Suspense> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}

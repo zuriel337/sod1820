@@ -6,7 +6,7 @@ import { normalizeResearchContext } from "./researchContext.js";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
-const frame = read("../../components/experience2029/SystemFrame2029.jsx");
+const frame = (read("../../components/experience2029/SystemFrame2029.jsx") + "\n" + read("../../components/experience2029/RazielPanel2029.jsx"));  // + RazielPanel2029.jsx: the Raziel chat moved out of the frame (shell weight 2/8, 18.11.2026)
 const mod = read("./razielSurfaceContext.js");
 const session = read("./razielSession2029.js");
 const request = read("./razielSessionRequest2029.js");

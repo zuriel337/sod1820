@@ -5,7 +5,7 @@ import { normalizeRazielResponse, prepareRazielSessionSubmission } from "../src/
 import { createInitialRazielSessionState } from "../src/lib/research/razielSession2029.js";
 import { buildRazielSavedSessionEntity, razielSavedSessionState } from "../src/lib/research/razielSavedSession2029.js";
 import { runAiAnalyze, UID, OTHER_UID, USER_JWT } from "./helpers/ai-analyze-handler.mjs";
-import { askRaziel, supabase } from "../src/lib/supabase.js";
+import { askRaziel, supabase } from "../src/lib/supabaseApi2029.js";
 
 // All data/identities/engine/provider answers below are synthetic. No network or live model.
 const corpusId = "a".repeat(32), jobId = "12345678-1234-4234-8234-123456789abc";

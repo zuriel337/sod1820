@@ -55,7 +55,9 @@ export function projectElsAdvancedPage(response) {
     && integer(after?.start) != null && [-1, 1].includes(integer(after?.dir))
     ? { skip: after.skip, start: after.start, dir: after.dir } : null;
   if (more && !cursor) return { error: "השרת דיווח על תוצאות נוספות ללא סמן המשך תקין." };
-  return { projection, cursor, traceId: response?.data?.trace_id ?? response?.trace_id ?? null };
+  // The engine stops a heavy call on a work budget: the cursor then resumes the range; it does not promise another occurrence.
+  const scanPending = cursor != null && ["work_budget", "time_guard"].includes(result?.completion?.stop_reason);
+  return { projection, cursor, scanPending, traceId: response?.data?.trace_id ?? response?.trace_id ?? null };
 }
 
 export function buildElsAdvancedSelection(occurrence, projection, scope) {

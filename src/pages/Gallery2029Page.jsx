@@ -9,7 +9,7 @@ import { worldMediaPublicShare } from "../lib/research/worldFindingShare.js";
 import { SourceMethodResearch } from "../components/research/Revelation1237Gate2029.jsx";
 import WorldZviSourceFindings2029 from "../components/research/WorldZviSourceFindings2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { getImagesByGallery, getGalleriesOverview, getRealityHints, searchArchiveOcrIds } from "../lib/supabase.js";
+import { getImagesByGallery, getGalleriesOverview, getRealityHints, searchArchiveOcrIds } from "../lib/supabaseApi2029.js";
 import { fetchGallerySourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";

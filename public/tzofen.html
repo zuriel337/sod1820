@@ -1432,6 +1432,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))},undefined,operation);
       if(!r||!r.ok||!r.result||r.result.status!=="OK"||r.result.corpus_id!==cid)return {ok:false,error:(r&&r.error)||(r&&r.result&&r.result.status)||"verify_failed"};
       for(const o of r.result.verified||[])verified.add(o.skip+"_"+o.dir+"_"+o.start);
+      if(operation?.foundKeys){for(const k of verified)operation.foundKeys.add(k);operationFound(operation,operation.foundKeys.size);}
       if(r.trace_id)traces.push(r.trace_id);
     }
     return {ok:true,verified,traces,corpus_id:cid};
@@ -2159,7 +2160,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // Native list edits are identity-preserving. Color/reorder never re-search or re-verify.
   function updateNativeFindings(rawFindings){
     if(!hasGov(st.res))return;
-    const previous=new Map(st.words.map(w=>[w.t,w])),seen=new Set(),next=[];
+    const previous=new Map(st.words.map(w=>[w.t,w])),seen=new Set(),next=[];let occurrencesAdded=false;
     for(const raw of rawFindings){
       if(next.length>=12)break;
       const t=norm(typeof raw==="string"?raw:(raw&&raw.t)||"");
@@ -2170,8 +2171,16 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         (old&&old.color)||PALETTE.find(c=>!next.some(w=>w.color===c))||PALETTE[next.length%PALETTE.length];
       const word=old||{t,color,hits:[],total:0,inwin:0};
       word.color=color;next.push(word);
+      // An addition from the research tools names the exact occurrences to show (ZURIEL 18.11.2026). It joins what is already on the
+      // matrix: the axis, the crossed partner and every earlier word stay as they are. Before, such an addition reloaded the whole matrix.
+      const shown=raw&&typeof raw==="object"&&Array.isArray(raw.addShown)?raw.addShown.filter(k=>typeof k==="string"&&/^\d+_-?1_\d+$/.test(k)).slice(0,64):[];
+      if(shown.length){
+        if(old){old.off=old.off||new Set();old.extra=old.extra||new Set();for(const k of shown){old.off.delete(k);old.extra.add(k);}}
+        else word._savedShown=shown;
+        occurrencesAdded=true;
+      }
     }
-    const membershipChanged=next.length!==st.words.length||next.some(w=>!previous.has(w.t));
+    const membershipChanged=occurrencesAdded||next.length!==st.words.length||next.some(w=>!previous.has(w.t));
     const expanded=st.words[st.expand],line=st.words[st.lineFor];
     st.words=next;st.swOpen=-1;
     st.expand=expanded?next.indexOf(expanded):-1;st.lineFor=line?next.indexOf(line):-1;
@@ -2189,8 +2198,19 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(operation.kind==="search"&&operation.terminal&&!operation.committed&&operation.previousScope){
       st.scope=operation.previousScope;updateScopeUI();emitState();
     }
+    if(progress)operation.lastProgress=progress;
     postHost({type:"operation",kind:operation.kind,requestId:operation.requestId,status,...(message?{message}:{} ),
-      elapsedMs:Math.max(0,Date.now()-operation.startedAt),progress:progress||null});
+      elapsedMs:Math.max(0,Date.now()-operation.startedAt),progress:progress||null,
+      ...(Number.isInteger(operation.found)?{found:operation.found}:{}),...(operation.partialStop?{partial:true}:{})});
+  }
+  // Found so far (ZURIEL 18.11.2026, Operation Visibility): verified occurrences of a regular search, meetings of a crossed one.
+  // A real count of what the engine already holds, sent as it grows; never an estimate.
+  function operationFound(operation,count){
+    if(!operation||operation.terminal||!Number.isInteger(count)||count===operation.found)return;
+    if(operation.kind==="findings"?operation!==_nativeFindingsOperation:operation!==_nativeSearchOperation)return;
+    operation.found=count;
+    postHost({type:"operation",kind:operation.kind,requestId:operation.requestId,status:operation.status||"searching",
+      elapsedMs:Math.max(0,Date.now()-operation.startedAt),progress:operation.lastProgress||null,found:count});
   }
   function beginOperation(kind,requestId){
     const valid=Number.isSafeInteger(requestId)&&requestId>=0;
@@ -2209,9 +2229,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(_nativeFindingsOperation&&!_nativeFindingsOperation.terminal)cancelEngineCalls(_nativeFindingsOperation);
     operationStatus(_nativeFindingsOperation,"cancelled");++_nativeFindingsSeq;_nativeFindingsOperation=null;
   }
-  function cancelNativeOperation(kind,requestId){
+  function cancelNativeOperation(kind,requestId,keepPartial){
     const operation=kind==="search"?_nativeSearchOperation:kind==="findings"?_nativeFindingsOperation:null;
     if(!operation||operation.requestId!==requestId||operation.terminal)return;
+    // "Stop and keep what was found": a flow that can keep its partial result registered softStop and finishes with it.
+    if(kind==="search"&&keepPartial&&typeof operation.softStop==="function"&&!operation.stopRequested){operation.stopRequested=true;operation.softStop();return;}
     if(kind==="search"){++_matrixRequestSeq;invalidateSearchOperation();}
     else{
       const previous=operation.previousWords;invalidateFindingsOperation();
@@ -2726,7 +2748,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       updateNativeFindingsOperation(d.findings,d.requestId);
     }
     if(d.type==="native-finding-control")nativeFindingControl(d);
-    if(d.type==="native-cancel")cancelNativeOperation(d.kind,d.requestId);
+    if(d.type==="native-cancel")cancelNativeOperation(d.kind,d.requestId,d.keepPartial===true);
     if(d.type==="native-save"){
       if(searchUncommitted()||!EXPR2029||!hasGov(st.res)||hitKey(occ())!==d.axisHitId||String(d.desc||"").trim().length<12){
         postHost({type:"native-save-result",requestId:d.requestId,ok:false,error:"selection_changed"});
@@ -2908,9 +2930,19 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(async ()=>{
       try{
-      const [sample,page]=await Promise.all([discoverVerified(w,4000,operation),
-        EXPR2029&&operation?orderedSearchPage(t,st.scope,null,operation):Promise.resolve(null)]);
+      if(operation&&EXPR2029){operation.foundKeys=new Set();operation.softStop=()=>{cancelEngineCalls(operation);stopXfWorkers();};}
+      let [sample,page]=await Promise.all([discoverVerified(w,4000,operation),
+        EXPR2029&&operation?orderedSearchPage(t,st.scope,null,operation).then(p=>{
+          if(p&&operation.foundKeys&&requestSeq===_matrixRequestSeq){for(const h of p.hits)operation.foundKeys.add(hitKey(h));operationFound(operation,operation.foundKeys.size);}
+          return p;}):Promise.resolve(null)]);
       if(requestSeq!==_matrixRequestSeq)return;
+      if(operation?.stopRequested){
+        // Stopped by the person: whatever is already verified becomes the result; the rest of the scan was not done.
+        operation.softStop=null;
+        if(sample.vstate==="CANCELLED"||sample.verr)sample={hits:(sample.hits||[]).filter(isGov),capped:0,t:norm(w),scope:st.scope,strategy:null,discoveryComplete:false,vstate:"VERIFIED",vtrace:[]};
+        if(!hasGov(mergeOrderedHits(sample,page))){++_matrixRequestSeq;invalidateSearchOperation();return;}
+        operation.partialStop=true;
+      }
       const discovered=mergeOrderedHits(sample,page);
       // A committed new result ends editing; cancelled requests retain the current matrix identity.
       if(operation)operation.committed=true;
@@ -2933,11 +2965,25 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       // 📊 מדדים + 🎬 «המטריצה מציירת את עצמה»: תוצאת-חיפוש נבנית כסרט כשהיא מול המשתמש (כמו פתיחת-צופן).
       if(hasGov(st.res)){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
       else hideSearchStat();
-      operationStatus(operation,st.res.verr?"error":hasGov(st.res)?"done":"empty",st.res.verr?"האימות לא הושלם. לא הוצג מופע מאומת.":null);
+      if(operation)operation.softStop=null;
+      operationStatus(operation,st.res.verr?"error":hasGov(st.res)?"done":"empty",st.res.verr?"האימות לא הושלם. לא הוצג מופע מאומת.":operation?.partialStop?"החיפוש נעצר. מוצגים המופעים שאומתו עד העצירה; שאר הסריקה לא בוצעה.":null);
       }catch(e){if(requestSeq!==_matrixRequestSeq)return;go.disabled=false;go.textContent=goLabel();if(_slow)doneSearchLoad(0);operationStatus(operation,"error","החיפוש לא הושלם. אפשר לנסות שוב.");}
     },10);
   }
   function savedWordsInit(){return [];}
+  // A crossed search that ran to its end and found no meeting is still the current search (ZURIEL 18.11.2026): the earlier matrix closes
+  // and the state is the new terms with no occurrence. Before, nothing was committed, so the earlier pair stayed on screen and looked stuck.
+  // A request that failed or was cancelled still keeps the earlier matrix.
+  function commitEmptyCross(operation,axis,partner,terms){
+    if(operation)operation.committed=true;
+    st.editId=null;st.editTerm=null;
+    st.raw=axis;st.res={hits:[],capped:0,t:norm(axis),scope:st.scope,strategy:null,discoveryComplete:false,vstate:"LOCAL_NO_HIT",vtrace:[]};st.occ=0;
+    st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
+    st.crossSimple=false;st.crossFree=false;st.crossBridge=false;st.crossPairA=axis;st.crossPairB=partner||"";st.crossTerms=(terms||[]).slice();
+    st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
+    st.postUrl="";st.postTitle="";st.desc="";st.words=savedWordsInit();
+    q.value=axis;updGem();render();hideSearchStat();
+  }
   // 🔎 חפש את השם שלך — כניסה אישית: מרוקן, ממקד, ואחרי החיפוש מציע אשכול סביב השם
   function startNameSearch(){st.nameMode=true;q.value="";q.placeholder="כתוב את שמך…";q.focus();
     if(simpleOpen())crosstoggle.click();toast("🔎 כתוב את שמך (או כל שם) ולחץ «חפש בתורה»");}
@@ -3064,18 +3110,25 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const eligible=resA.hits.map((h,i)=>({h,i})).filter(({h})=>Math.abs(h.skip)>=2),hits=eligible.slice(previous?.scanned||0,(previous?.scanned||0)+150),meetings=[...(previous?.meetings||[])];
     const pool=await ensureXfInit();
     const wave=pool?pool.workers.length*8:8;
+    let processed=0;
     for(let offset=0;offset<hits.length;offset+=wave){
       if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
+      if(operation?.stopRequested)break;   // stopped by the person: the axis positions already scanned keep their meetings
       const chunk=hits.slice(offset,offset+wave);
       if(pool){
         const chunks=[];for(let i=0;i<chunk.length;i+=8)chunks.push(chunk.slice(i,i+8));
-        const replies=await Promise.all(chunks.map(async items=>{
+        let replies;
+        try{replies=await Promise.all(chunks.map(async items=>{
           const reply=await xfCall(pool,{type:"hitchunk",reqId:++_xfReqId,hits:items.map(x=>x.h),indices:items.map(x=>x.i),offset:0,T2,pure,rar,axisBase,geometry:window});
           if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
           progress.completed+=items.length;
           operationStatus(operation,"searching",null,{phase:"cross",completed:progress.completed,total:progress.total,phaseElapsedMs:Date.now()-progress.startedAt});
           return reply.meetings;
-        }));
+        }));}catch(e){
+          // A stop ends the wave in flight at once (its workers are terminated); the waves already finished keep their meetings.
+          if(operation?.stopRequested&&epoch===_matrixRequestSeq)break;
+          throw e;
+        }
         meetings.push(...replies.flat());
       }else{
         for(const {h,i} of chunk){const m=crossFindMultiHit(h,i,T2,pure,rar,axisBase,window);if(m)meetings.push(m);}
@@ -3083,10 +3136,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         operationStatus(operation,"searching",null,{phase:"cross",completed:progress.completed,total:progress.total,phaseElapsedMs:Date.now()-progress.startedAt});
       }
       if(epoch!==_matrixRequestSeq)throw new DOMException("Search replaced","AbortError");
+      processed+=chunk.length;
+      if(operation?.countMeetings)operationFound(operation,Math.max(operation.foundFloor||0,meetings.length));
       await paintOperation();
     }
     meetings.sort((x,y)=>y.stars-x.stars||y.tq-x.tq||y.score-x.score||x.skip-y.skip);
-    return {resA,meetings,total:T2.length,scanned:(previous?.scanned||0)+hits.length,available:eligible.length,capped:!!resA.capped};
+    return {resA,meetings,total:T2.length,scanned:(previous?.scanned||0)+processed,available:eligible.length,capped:!!resA.capped};
   }
   function mergeCrossMeetings(A,B,r1,r2){
     const all=[...r1.meetings.map(z=>({...z,axis:A})),...r2.meetings.map(z=>({...z,axis:B}))];
@@ -3203,7 +3258,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const pendingCandidates=candidates.filter(z=>!processed.has(candidateKey(z))).length;
       const coverage={phase:"cross-three-wave",thirdRequired,token:previous?.token||++_nativeTripleScanSeq,scanned:runs.reduce((n,r)=>n+r.scanned,0),available:runs.reduce((n,r)=>n+r.available,0),pendingCandidates,canContinue:runs.some(r=>r.scanned<r.available)||pendingCandidates>0,partial:runs.some(r=>r.capped||r.scanned<r.available)||pendingCandidates>0};
       _nativeTripleScan={token:coverage.token,terms:terms.slice(),thirdRequired,pure,window,runs,admitted,processed:[...processed],scope:st.scope,canContinue:coverage.canContinue};
-      if(!admitted.length){operationStatus(operation,"empty","לא נמצא מפגש מאומת בגל המקומי שנבדק; ייתכן שקיימים מופעים נוספים.",coverage);return;}
+      if(!admitted.length){if(!previous&&EXPR2029)commitEmptyCross(operation,terms[0],terms[1],terms.slice(1));
+        operationStatus(operation,"empty","לא נמצא מפגש מאומת בגל המקומי שנבדק; ייתכן שקיימים מופעים נוספים.",coverage);return;}
       const selected=previous&&st.crossFree&&hasGov(st.res)?{axis:norm(st.raw),hit:hitKey(occ())}:null;
       operation.committed=true;Object.assign(st,{ctxR:window.ctxR,windowColumns:window.windowColumns,windowSize:window.windowSize,windowRequested:window.windowRequested});
       st.crossResCache=cache;st.crossMeetings=admitted;st.crossIdx=Math.max(0,selected?admitted.findIndex(z=>norm(z.axis)===selected.axis&&hitKey(cache[z.axis].hits[z.occ])===selected.hit):-1);st.crossTerms=terms.slice(1);st.crossTotal=2;
@@ -3265,12 +3321,22 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       if(requestSeq!==_matrixRequestSeq)return;
       const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN(),...(operation&&EXPR2029?{maxLetterGap:operation.maxLetterGap??0}:{})};
       const progress={completed:0,total:[A,B].reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
+      // The meetings of the richer axis become the result, so the count shown while scanning is the larger of the two.
+      if(operation&&EXPR2029){operation.countMeetings=true;operation.softStop=()=>stopXfWorkers();}
       const r1=await crossFindBounded(A,[B],pure,window,operation,progress,requestSeq);
+      if(operation)operation.foundFloor=r1.meetings.length;
       const r2=await crossFindBounded(B,[A],pure,window,operation,progress,requestSeq);
       if(requestSeq!==_matrixRequestSeq)return;
+      if(operation)operation.softStop=null;
       go.disabled=false;go.textContent="חפש בתורה ◆";
       const m1=r1.meetings,m2=r2.meetings;
-      if(!m1.length&&!m2.length){const failed=[A,B].some(w=>faMemo(w).verr);toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");operationStatus(operation,failed?"error":"empty",failed?"האימות לא הושלם.":"לא נמצא מפגש בחיפוש המקומי הזה.");return;}
+      if(operation?.stopRequested){
+        if(!m1.length&&!m2.length){++_matrixRequestSeq;invalidateSearchOperation();return;}
+        operation.partialStop=true;
+      }
+      if(!m1.length&&!m2.length){const failed=[A,B].some(w=>faMemo(w).verr);toast("«"+A+"» ו«"+B+"» לא נמצאו נפגשים קרוב. נסה מונחים אחרים.");
+        if(!failed&&operation&&EXPR2029)commitEmptyCross(operation,A,B,[]);
+        operationStatus(operation,failed?"error":"empty",failed?"האימות לא הושלם.":"לא נמצא מפגש בחיפוש המקומי הזה.");return;}
       // בחירה סימטרית: יותר מפגשים (בו השני נכנס) → ציון → מילה ארוכה → א״ב
       const merged=mergeCrossMeetings(A,B,r1,r2),axis=merged.zones[0]?.axis;
       if(!axis){operationStatus(operation,"error","הצירים שנמצאו טרם עברו אימות.");return;}
@@ -3290,7 +3356,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const sw=norm(axis)!==norm(A);
       toast("🔀 "+heb(merged.zones.length)+" מפגשים של «"+A+"»+«"+B+"»"+(sw?" · סובב סביב «"+axis+"» (הדילוג הגדול — ששניהם נכנסים)":""));
       await healGoverned();if(requestSeq!==_matrixRequestSeq)return;
-      operationStatus(operation,hasGov(st.res)?"done":"error");
+      operationStatus(operation,hasGov(st.res)?"done":"error",hasGov(st.res)&&operation?.partialStop?"ההצלבה נעצרה. מוצגים המפגשים שנמצאו עד העצירה; אפשר להמשיך את הסריקה מרשימת התוצאות.":null);
       }catch(e){if(requestSeq!==_matrixRequestSeq)return;go.disabled=false;go.textContent=goLabel();operationStatus(operation,"error","ההצלבה לא הושלמה. אפשר לנסות שוב.");}
     },10);
   }

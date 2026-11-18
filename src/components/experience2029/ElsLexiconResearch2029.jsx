@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
-import { elsLexiconWindowKey, prepareElsLexiconFindings, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
+import { elsLexiconWindowKey, prepareElsLexiconFindings, prepareElsLexiconAdditions, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
 import { groupElsLexiconDiscoveries, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
 import ElsStructureResearch2029 from "./ElsStructureResearch2029.jsx";
 import "./elsLexiconResearch2029.css";
@@ -13,7 +13,7 @@ const errors = {
 };
 const sources = { canonical_tanakh_words: "מילות התנ״ך", maftech_core_snapshot: "מילון הליבה" };
 
-export default function ElsLexiconResearch2029({ state, visible, busy, response, onRequest, onRestore, color, onFocus, onFindWords }) {
+export default function ElsLexiconResearch2029({ state, visible, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords }) {
   const [run, setRun] = useState(null), [result, setResult] = useState(null), [notice, setNotice] = useState("");
   const [page, setPage] = useState(0), [kind, setKind] = useState("groups"), [groupType, setGroupType] = useState("all");
   const [inspectionVisited, setInspectionVisited] = useState(false);
@@ -76,7 +76,19 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     return [...(finding?.hits || []), ...(finding?.sourceHits || [])].some(hit => hit.hitId === item.hitId && hit.selected && (item.kind === "source" || hit.verified));
   };
   const add = items => {
-    if (!current || busy || run) return;
+    if (!current || run) return;
+    if (busy) { setNotice("התוספת הקודמת עדיין באימות. המתינו לסיומה ואז הוסיפו את הבאה."); return; }
+    // The host's findings update adds to what is on the matrix. The older full reload is kept only for a host that has no such update.
+    if (onAdd) {
+      const prepared = prepareElsLexiconAdditions(state, data, items, color);
+      if (prepared.error) {
+        setNotice(prepared.error === "limit" ? "במטריצה כבר 12 מילים, וזו התקרה. הסירו מילה מרשימת הממצאים ואז הוסיפו."
+          : "הגילוי אינו מתאר עוד את המטריצה שעל המסך. הפעילו סריקה חדשה ואז הוסיפו.");
+        return;
+      }
+      onAdd(prepared.findings); setNotice("נשלח לאימות במנוע. מה שכבר מסומן במטריצה נשאר; רק ממצאים שאומתו יתווספו.");
+      return;
+    }
     const load = prepareElsLexiconFindings(state, data, items, color);
     if (!load) { setNotice("לא ניתן להוסיף: בדקו את המופע ואת מגבלת 12 המילים במטריצה."); return; }
     onRestore?.(load); setNotice("נשלח לאימות במנוע. רק ממצאים שאומתו יסומנו על המטריצה.");
@@ -182,7 +194,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
             {item.items.map(word => <p key={`${word.term}:${word.hitId}`}><bdi>{word.label || word.term}</bdi> · {word.kind === "source" ? word.dir < 0 ? "קריאה הפוכה בדילוג 1" : "רצף מקור" : "ELS"} · דילוג <bdi>{word.skip}</bdi> · התחלה <bdi>{word.start}</bdi> · {word.dir < 0 ? "אחורה" : "קדימה"}</p>)}
           </details>
           {item.membersTruncated ? <p>מוצגים עד 8 מתוך {item.totalMembers} מופעים בקבוצה; ההוספה בודקת רק את המוצגים.</p> : null}
-          <button type="button" disabled={!current || busy || !!run || item.items.every(isAdded) || !onRestore} onClick={() => add(item.items)}>{item.items.every(isAdded) ? "הקבוצה נבחרה במטריצה" : "אמת והצג קבוצה"}</button>
+          <button type="button" disabled={!current || busy || !!run || item.items.every(isAdded) || !(onAdd || onRestore)} onClick={() => add(item.items)}>{item.items.every(isAdded) ? "הקבוצה נבחרה במטריצה" : "אמת והצג קבוצה"}</button>
         </li>;
         const added = isAdded(item);
         return <li key={`${item.term}:${item.hitId}`} data-lexicon-hit={item.hitId}><strong>{item.label}</strong><p>{item.skip === 1 ? item.dir < 0 ? "קריאה הפוכה · " : "טקסט מקור קדימה · " : ""}דילוג <bdi>{item.skip}</bdi> · {item.dir < 0 ? "אחורה" : "קדימה"} · התחלה <bdi>{item.start}</bdi> · {item.lexiconSources.map(source => sources[source] || source).join(" + ")}</p>
@@ -190,7 +202,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
             <p>האותיות ברצף: <bdi>{item.term}</bdi>. הרווחים בכותרת מוצעים לקריאה בלבד; האימות בודק אותיות ומיקום, לא את משמעות הביטוי.</p>
             {item.language.tokens.some(token => token.relation !== "exact-lexicon-match") ? <p>הזיהוי נעזר בצורות לשון או בכתיב חסר. מילות הבסיס במילון: {item.language.tokens.map(token => token.baseTerm).join(" · ")}. אלו אינן תחליף לאותיות המטריצה.</p> : null}
           </details> : null}
-          <button type="button" disabled={!current || busy || !!run || added || !onRestore} onClick={() => add([item])}>{added ? "נבחר במטריצה" : `בדוק והוסף ${item.label}`}</button>
+          <button type="button" disabled={!current || busy || !!run || added || !(onAdd || onRestore)} onClick={() => add([item])}>{added ? "נבחר במטריצה" : `בדוק והוסף ${item.label}`}</button>
         </li>;
       })}</ol>
       {rows.length > 20 ? <nav aria-label="עמודי תוצאות מילוניות"><button type="button" disabled={page === 0} onClick={() => setPage(page - 1)}>הקודם</button><span>עמוד {page + 1} מתוך {Math.ceil(rows.length / 20)}</span><button type="button" disabled={(page + 1) * 20 >= rows.length} onClick={() => setPage(page + 1)}>הבא</button></nav> : null}

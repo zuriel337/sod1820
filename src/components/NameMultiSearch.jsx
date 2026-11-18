@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { getNameMulti, getAiAnalysis, logNameResearch } from "../lib/supabase.js";
+import { getNameMulti, getAiAnalysis, logNameResearch } from "../lib/supabaseApi2029.js";
 import { aggregateFindings } from "../lib/nameNormalize.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { shareOrCopy } from "../lib/share.js";

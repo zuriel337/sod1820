@@ -69,7 +69,8 @@ test('direct Preview model proxy is closed before Auth/provider I/O and Producti
 });
 test('Home opt-in uses the same admitted cards with a bounded metadata projection; legacy default shape is preserved',async()=>{
  const source=readFileSync(new URL('../src/lib/supabase.js',import.meta.url),'utf8');
- const start=source.indexOf('export async function getLatestPostCards('),end=source.indexOf('// 🎬',start);
+ // SHELL_WEIGHT_REDUCTION_20261118: getLatestPostCards stays in supabase.js; its former neighbour (the 🎬 video comment) moved to supabaseApi2029.js, so the slice ends at the function's own closing brace.
+ const start=source.indexOf('export async function getLatestPostCards('),end=source.indexOf('\n}\n',start)+2;
  const publicRow={id:1,slug:'existing',title:'public',thumb_url:'thumb',tags:['1820'],date:'2026-01-01',categories:['category'],source:'wordpress',wp_id:36935,private_ignored:'never project'};
  let selected;const chain={select(s){selected=s;return this;},not(){return this;},order(){return this;},async limit(){return {data:[publicRow,{slug:'draft',tags:['טיוטה']},{slug:'forum',tags:['פורום']}],error:null};}};
  const fn=vm.runInNewContext(source.slice(start,end).replace('export async','async')+';getLatestPostCards;',{supabase:{from(name){assert.equal(name,'posts');return chain;}},stripHtml:s=>s});

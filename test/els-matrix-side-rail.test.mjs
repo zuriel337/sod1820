@@ -30,7 +30,9 @@ test("side zoom is the classic engine's zoom: it keeps fit-to-screen and the pin
 
 test("the matrix re-centres on the axis after every zoom and every fit change, like the classic engine", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /geometry\?\.cw, research \? state\?\.ui\?\.zoom : null, research \? state\?\.ui\?\.fit : null\]\);/);
+  // Zoom and fit, and since 18.11.2026 the resize that entering or leaving fullscreen causes (only while that resize settles).
+  assert.match(native, /geometry\?\.cw, research \? state\?\.ui\?\.zoom : null, research \? state\?\.ui\?\.fit : null, layoutMode, layoutSettle\.current\.width\]\);/);
+  assert.match(native, /if \(Date\.now\(\) < layoutSettle\.current\.until\) layoutSettle\.current\.width = boxWidth;/, "another width change (a pinned panel) keeps manual panning");
   assert.doesNotMatch(native, /fitBox\?\.c0, fitBox/, "adding findings must not re-centre a panned matrix");
 });
 

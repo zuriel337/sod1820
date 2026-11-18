@@ -8,7 +8,7 @@ import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.
 import { use2029Palette } from "../lib/palette2029.js";
 import { setThemePreset, useThemePreset } from "../lib/themePreset2029.js";
 import { RAZIEL_PRESENCE, TYPEFACE } from "../lib/designTokens.js";
-import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase } from "../lib/supabase.js";
+import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase } from "../lib/supabaseApi2029.js";
 import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { applySeo } from "../lib/seo.js";

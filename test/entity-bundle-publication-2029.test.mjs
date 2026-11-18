@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
-const source = readFileSync("src/lib/supabase.js", "utf8");
+// SHELL_WEIGHT_REDUCTION_20261118: supabase.js keeps the client and the reads every page needs; the rest of the former file moved unchanged to supabaseApi2029.js. Both together are the former file.
+const source = readFileSync("src/lib/supabase.js", "utf8") + "\n" + readFileSync("src/lib/supabaseApi2029.js", "utf8");
 const body = source.slice(source.indexOf("export async function getEntityBundle("), source.indexOf("// ── Comments ─"))
   .replace("export async function", "async function");
 async function load(is2029) {

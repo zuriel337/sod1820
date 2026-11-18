@@ -24,7 +24,8 @@ import {
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const app = read("src/App2029.jsx");
-const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+// SHELL_WEIGHT_REDUCTION_20261118: the Raziel conversation panel moved unchanged from SystemFrame2029.jsx to RazielPanel2029.jsx (loaded when it opens); both together are the former frame file.
+const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/RazielPanel2029.jsx");
 const mount = read("src/components/experience2029/RazielSessionMount2029.jsx");
 const seam = read("src/components/experience2029/razielSessionSeam2029.js");
 const provider = read("src/lib/research/RazielSessionProvider2029.jsx");

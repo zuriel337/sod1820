@@ -50,7 +50,7 @@ test("missing rows, root parent zero and malformed dates do not invent archive f
 test("the native post mounts the archive behind its public projection and uses the existing canonical reader", () => {
   const component = readFileSync(new URL("../src/components/experience2029/PostComments2029.jsx", import.meta.url), "utf8");
   const page = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
-  assert.match(component, /import \{ getCommentsByPostId \} from "\.\.\/\.\.\/lib\/supabase\.js"/);
+  assert.match(component, /import \{ getCommentsByPostId \} from "\.\.\/\.\.\/lib\/supabaseApi2029\.js"/); // the same canonical reader; it moved out of the shared core (shell weight 1/8)
   assert.match(component, /readPostCommentArchive\(postWpId, getCommentsByPostId\)/);
   assert.match(component, /<details>/);
   assert.match(component, /<p dir="auto">\{comment\.text\}<\/p>/);

@@ -9,7 +9,9 @@ import { readFileSync } from "node:fs";
 
 const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 
-const supabase = read("src/lib/supabase.js");
+// SHELL_WEIGHT_REDUCTION_20261118: the client and the reads every page needs stay in supabase.js; the rest of the same API moved
+// unchanged to supabaseApi2029.js. Together they are exactly the former single file, so every check below reads both.
+const supabase = read("src/lib/supabase.js") + "\n" + read("src/lib/supabaseApi2029.js");
 const tracking = read("src/lib/tracking.js");
 const marketing = read("src/lib/marketing.js");
 const events = read("src/lib/events.js");

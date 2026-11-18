@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getRelationCandidate } from "../../lib/supabase.js";
+import { getRelationCandidate } from "../../lib/supabaseApi2029.js";
 import { useCalculatorRow, useMethodLedger } from "../../lib/research/useCalculatorRow.js";
 import { buildCalculationSelection } from "../../lib/research/calculator2029Model.js";
 import { isReportableValue } from "../../lib/research/calculator2029Input.js";
