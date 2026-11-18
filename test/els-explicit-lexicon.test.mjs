@@ -43,9 +43,42 @@ test('axis fragments are not promoted; no-hit completes, cancellation returns no
 });
 test('result cap and wall time remain explicit partial outcomes',async()=>{
   const box={S:31,r0:0,r1:30,c0:0,c1:30},axis={positions:[0,31,62,93,124]},ctx=runtime('א'.repeat(961),['אאאאא'],axis,box);
-  const scan=await result(ctx);assert.equal(scan.items.length,300);assert.equal(scan.coverage.stop,'RESULT_LIMIT');assert.equal(scan.coverage.complete,false);
+  const scan=await result(ctx);assert.equal(scan.coverage.stop,'RESULT_LIMIT');assert.equal(scan.coverage.complete,false);
+  assert.equal(Math.max(scan.coverage.els,scan.coverage.source),300);
+  assert.equal(scan.items.length,scan.coverage.els+scan.coverage.source);
   let clock=0;ctx.performance.now=()=>clock+=6000;
   const timed=await result(ctx);assert.equal(timed.coverage.stop,'TIME_LIMIT');assert.equal(timed.coverage.complete,false);
+});
+test('batches resume at the exact sequence with distinct source and ELS quotas',async()=>{
+  const S=19,axis={positions:[0,S,2*S,3*S,4*S]},box={S,r0:0,r1:S-1,c0:0,c1:S-1};
+  const ctx=runtime('א'.repeat(S*S),['אאאאא'],axis,box);
+  const batches=await vm.runInContext(`(async()=>{
+    const parts=[];
+    let checkpoint=null;
+    do {
+      const scan=await scanMatrixLexicon(axis,box,lexicon,()=>false,()=>{},{minLength:5,maxLength:5},checkpoint);
+      const {items,coverage}=scan;
+      parts.push({items,coverage});
+      checkpoint=scan.checkpoint;
+      if(parts.length>20)throw new Error("no progress");
+    } while(checkpoint);
+    return parts;
+  })()`,ctx);
+  assert.ok(batches.length>1);
+  assert.equal(batches[0].coverage.source,0,'the source quota cannot interrupt coverage of the ELS lines');
+  assert.ok(batches.some(batch=>batch.items.length>300),'source sequences have their own quota');
+  const actual=batches.flatMap(batch=>batch.items.map(item=>item.hitId));
+  const expected=[];
+  for(let r=0;r<S;r++)for(let c=0;c<S;c++)for(const [dr,dc] of [[0,1],[0,-1],[1,0],[-1,0],[1,1],[-1,-1],[1,-1],[-1,1]]) {
+    if(r+4*dr<0||r+4*dr>=S||c+4*dc<0||c+4*dc>=S)continue;
+    const start=r*S+c,delta=dr*S+dc;
+    if(Array.from({length:5},(_,i)=>start+i*delta).every(p=>axis.positions.includes(p)))continue;
+    expected.push(`${Math.abs(delta)}_${Math.sign(delta)}_${start}`);
+  }
+  assert.deepEqual(Array.from(actual).sort(),expected.sort());
+  assert.equal(batches.at(-1).coverage.remainingRays,0);
+  assert.ok(batches.at(-1).coverage.complete);
+  for(const {items} of batches)for(const kind of ['els','source'])assert.ok(items.filter(item=>item.kind===kind).length<=300);
 });
 test('bounded rays do not wrap across cropped columns or corpus end',async()=>{
   const text='אבגדה'.repeat(23),box={S:20,r0:0,r1:5,c0:3,c1:15},ctx=runtime(text,['אבגדה','הדגבא'],{positions:[10,30,50]},box);
@@ -92,7 +125,7 @@ test('new UI is lazy and explicit; model, storage, Provider and background promi
 test('lens refuses missing/unverified axis and oversized windows before lexicon I/O',async()=>{
   const messages=[],ctx=vm.createContext({st:{res:null,occ:0,scope:'torah'},postHost:m=>messages.push(m),hasGov:r=>!!r?.hits?.some(h=>h.v==='MATCH'),isGov:h=>h?.v==='MATCH',hitKey:h=>`${h.skip}_${h.dir}_${h.start}`,
     searchUncommitted:()=>false,blockOf:()=>({S:100,c0:0,cw:100,r0:0,r1:100}),guidedLoadDynamicLexicon:()=>{throw new Error('must not load');}});
-  vm.runInContext('let _lexiconScanSeq=0,_lexiconScanRequest=null,_foldedLexiconWindow=null;'+fn('matrixLexiconLens'),ctx);
+  vm.runInContext('let _lexiconScanSeq=0,_lexiconScanRequest=null,_foldedLexiconWindow=null,_lexiconContinuation=null;'+fn('matrixLexiconLens'),ctx);
   await vm.runInContext('matrixLexiconLens({scanId:"a",scope:"torah",hitId:"10_1_2"})',ctx);
   assert.equal(messages.at(-1).reason,'results-changed');
   ctx.st.res={hits:[{v:'MATCH',skip:10,dir:1,start:2}]};
@@ -100,6 +133,9 @@ test('lens refuses missing/unverified axis and oversized windows before lexicon 
   assert.equal(messages.at(-1).reason,'results-changed','a stale folded window cannot fall back to the original geometry');
   await vm.runInContext('matrixLexiconLens({scanId:"b",scope:"torah",hitId:"10_1_2"})',ctx);
   assert.equal(messages.at(-1).reason,'window-too-large');
+  ctx.blockOf=()=>({S:10,c0:0,cw:10,r0:0,r1:10});
+  await vm.runInContext('matrixLexiconLens({scanId:"resume",resumeId:"unknown",scope:"torah",hitId:"10_1_2"})',ctx);
+  assert.equal(messages.at(-1).reason,'continuation-unavailable');
 });
 test('lens shares one lazy request, ignores duplicate start and discards completion after cancel',async()=>{
   let release,loads=0;const messages=[],axis={v:'MATCH',skip:10,dir:1,start:2,positions:[2,12,22,32,42]},box={S:10,c0:0,cw:10,r0:0,r1:8};

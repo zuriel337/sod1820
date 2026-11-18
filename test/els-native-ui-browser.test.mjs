@@ -555,13 +555,20 @@ test('discovery plans and source-direction filtering stay explicit on the actual
     assert.equal(scan.plan.minLength,4);assert.equal(scan.plan.maxLength,8);assert.equal(scan.plan.maxDistance,12);
     assert.ok(scan.items.some(item=>item.term.length===4),'requested short tokens are reachable');
     assert.ok(scan.items.every(item=>item.distance<=12));
+    const resume=panel.getByRole('button',{name:'המשך סריקה',exact:true});
+    while (await page.evaluate(()=>window.__lens?.continuation&&window.__lens.coverage.source===0)) {
+      const previous=await page.evaluate(()=>window.__lens.continuation);
+      await resume.click();
+      await page.waitForFunction(token=>!window.__lens?.pending&&window.__lens?.target?.resumeId===token,previous);
+    }
+    const lastBatch=await page.evaluate(()=>window.__lens.items);
     const starts=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='request-lens'&&x.lens==='matrix-lexicon').length);
     await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('source');
     const countBefore=await panel.locator('[data-lexicon-hit]').count();assert.ok(countBefore>0);
     await panel.getByLabel('הסתר טקסט רגיל קדימה — דילוג 1',{exact:true}).check();
     assert.equal(await panel.locator('[data-lexicon-hit^="1_1_"]').count(),0);
     assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='request-lens'&&x.lens==='matrix-lexicon').length),starts);
-    assert.deepEqual(await page.evaluate(()=>window.__lens.items),scan.items,'raw result remains intact');
+    assert.deepEqual(await page.evaluate(()=>window.__lens.items),lastBatch,'raw result remains intact');
     await panel.getByLabel('הסתר טקסט רגיל קדימה — דילוג 1',{exact:true}).uncheck();
     assert.equal(await panel.locator('[data-lexicon-hit]').count(),countBefore);
     await panel.getByRole('button',{name:'הרחב עוד טבעת · סרוק מחדש עד 30 תאים',exact:true}).click();
@@ -691,7 +698,7 @@ test('explicit Research lexicon is lazy, exact, cancellable and responsive witho
   },{realHost:true});
  });
 
-test('explicit lexicon cancellation discards late download and permits a fresh explicit run',
+test('language cancellation discards late dictionary download and permits a fresh explicit run',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
   await withNative({width:390,height:900},async page=>{
     let release,intercepted;
@@ -700,14 +707,60 @@ test('explicit lexicon cancellation discards late download and permits a fresh e
     await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
     await openDiscoveryTools(page);
     const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
-    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();await requested;
+    await panel.getByLabel('מסלול הגילוי',{exact:true}).selectOption('language');
+    await panel.getByRole('button',{name:'בדוק ביטויים וחלוקת רצפים',exact:true}).click();await requested;
     await panel.getByRole('button',{name:'בטל פעולה',exact:true}).click();release();
     await page.waitForFunction(()=>window.__lens?.target?.cancel!==true);
     assert.equal(await panel.getByLabel('תוצאות הסריקה המילונית').count(),0);
+    await panel.getByLabel('מסלול הגילוי',{exact:true}).selectOption('words');
     await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
     await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
     assert.equal(page.__elsDynamicLexiconRequests.length,1,'shared checked cache reused');
   },{realHost:true});
+ });
+
+test('word discovery can pause and resume, completes the 16965 axis window and separates source quotas',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    const renderWarnings=[];
+    page.on('console',message=>{if(message.text().includes('Maximum update depth'))renderWarnings.push(message.text());});
+    const row={id:'discovery-coverage',search_term:'התשפ״ז',skip_distance:16965,scope:'torah',direction:'fwd',start_index:83718,
+      corpus_id:ELS_GOLDEN_CORPUS_ID,positions:{findings:[]}};
+    await page.evaluate(row=>window.__openSavedMatrix(row),row);
+    await page.waitForFunction(()=>window.__state?.axis?.hitId==='16965_1_83718'&&window.__operation?.kind==='load'&&window.__operation?.status==='done');
+    const tool=page.frames().find(frame=>frame.url().includes('tzofen.html'));
+    await tool.evaluate(()=>{
+      const normal=window.setTimeout.bind(window);
+      window.setTimeout=(callback,delay,...args)=>normal(callback,delay===0&&new Error().stack.includes('scanMatrixLexicon')?40:delay,...args);
+      window.__restoreScanTimer=()=>{window.setTimeout=normal;};
+    });
+    await openDiscoveryTools(page);
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
+    await page.waitForFunction(()=>window.__lens?.pending&&window.__lens?.coverage?.els>=5);
+    await panel.getByRole('button',{name:'השהה סריקה',exact:true}).click();
+    const resume=panel.getByRole('button',{name:'המשך סריקה',exact:true});
+    await resume.waitFor();
+    const paused=await page.evaluate(()=>window.__lens);
+    assert.equal(paused.coverage.stop,'PAUSED');
+    assert.ok(paused.items.length>0&&paused.coverage.remainingRays>0&&paused.coverage.remainingRays<280);
+    await tool.evaluate(()=>window.__restoreScanTimer());
+    await resume.click();
+    await page.waitForFunction(()=>window.__lens?.coverage?.complete===true&&!window.__lens.pending);
+    const found=await page.evaluate(()=>window.__lens);
+    assert.equal(found.target.resumeId,paused.continuation);
+    assert.equal(found.items.length+paused.items.length,341);
+    assert.deepEqual([found.coverage.completedRays,found.coverage.remainingRays,found.coverage.els,found.coverage.source],[280,0,90,251]);
+    const coverage=panel.getByLabel('כיסוי הסריקה',{exact:true});
+    assert.match(await coverage.textContent(),/280 מתוך 280.*0 נותרו.*90 מועמדי ELS.*251 רצפי מקור/);
+    assert.equal(await resume.count(),0);
+    assert.equal(page.__elsDynamicLexiconRequests.length,1);
+    await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('all');
+    assert.match(await panel.locator('.els29-joint-discovery h3').textContent(),/341/);
+    await panel.getByLabel('הסתר טקסט רגיל קדימה — דילוג 1',{exact:true}).check();
+    assert.match(await coverage.textContent(),/90 מועמדי ELS.*251 רצפי מקור/);
+    assert.deepEqual(renderWarnings,[],'streaming coverage does not create a React update loop');
+  },{realHost:true,loadGolden:false});
  });
 
 test('completed phrase has no redundant skip continuation in Classic or Research; a lone axis explains pairs',

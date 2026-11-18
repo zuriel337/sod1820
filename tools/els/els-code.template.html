@@ -2502,6 +2502,7 @@
   // Explicit Research S2: reuse the canonical ray builder and lazy lookup index. No term-by-corpus
   // sweep, morphology, model or Finding mutation. Admission remains the existing verified load.
   let _lexiconScanSeq=0,_lexiconScanRequest=null,_foldedLexiconWindow=null;
+  let _lexiconContinuation=null,_lexiconPauseRequest=null;
   // Projection of the EXISTING bounded language reader, not a second scanner.
   // Labels contain only exact canonical letters plus proposed spaces. A derived
   // dictionary headword never replaces the letters admitted by canonical replay.
@@ -2532,7 +2533,7 @@
       maxWindows:c.maxCandidateWindows,maxResults:48,minLength:5,maxLength:16,directions:8,elapsedMs:Math.round(performance.now()-started)},
       box,lexicon:lexicon.profile,selectionProtocol:"EXPLORATORY_DISCOVERY",modelCalls:0,findingMutation:false,truthPromotion:false};
   }
-  async function scanMatrixLexicon(axis,box,lexicon,cancelled,progress,requestedPlan){
+  async function scanMatrixLexicon(axis,box,lexicon,cancelled,progress,requestedPlan,checkpoint=null,paused=()=>false){
     requestedPlan=requestedPlan||{};
     const started=performance.now(),maxWindows=100000,maxResults=300,maxWallMs=10000;
     // Explicit settings over this scanner, never another word-by-corpus search.
@@ -2548,46 +2549,69 @@
       return projectMatrixLanguageInspection(inspection,axis,box,lexicon,{mode:"language",minLength:5,maxLength:16,
         maxDistance:bounded(requestedPlan.maxDistance,120,0,120),minMembers:bounded(requestedPlan.minMembers,2,2,6)},started);
     }
-    const minLength=bounded(requestedPlan.minLength,5,3,10),maxLength=bounded(requestedPlan.maxLength,10,minLength,10);
-    const maxDistance=bounded(requestedPlan.maxDistance,120,0,120);
-    const plan={minLength,maxLength,maxDistance,minMembers:bounded(requestedPlan.minMembers,2,2,6),
+    const minimum=bounded(requestedPlan.minLength,5,3,10);
+    const plan=checkpoint?.plan||{minLength:minimum,maxLength:bounded(requestedPlan.maxLength,10,minimum,10),
+      maxDistance:bounded(requestedPlan.maxDistance,120,0,120),minMembers:bounded(requestedPlan.minMembers,2,2,6),
       shortTokenRadius:12,shortTokenEligible:(axis.positions||[]).length>=5};
-    const rays=guidedMatrixRays(axis,box,Math.max(box.r1-box.r0+1,box.c1-box.c0+1))
-      .sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id));
-    const items=[],seen=new Set(),axisCells=new Set(axis.positions);let windows=0,completedRays=0,axisFragments=0,outsidePlan=0,shortTokenExcluded=0,stop="COMPLETE";
-    scan:for(const ray of rays){
+    const {minLength,maxLength,maxDistance}=plan;
+    // Scan ELS lines first so the source-text quota cannot interrupt ELS coverage.
+    const rays=checkpoint?.rays||guidedMatrixRays(axis,box,Math.max(box.r1-box.r0+1,box.c1-box.c0+1))
+      .sort((a,b)=>Number(Math.abs(a.step)===1)-Number(Math.abs(b.step)===1)||a.distance-b.distance||a.id.localeCompare(b.id));
+    const from=checkpoint?.cursor||{ray:0,direction:0,offset:0,length:minLength},previous=checkpoint?.coverage;
+    const axisCells=new Set(axis.positions),seen=new Set(checkpoint?.seen),items=[];
+    const limits={els:maxResults,source:maxResults},batch={els:0,source:0};
+    let windows=previous?.windows||0,completedRays=from.ray,axisFragments=previous?.axisFragments||0;
+    let outsidePlan=previous?.outsidePlan||0,shortTokenExcluded=previous?.shortTokenExcluded||0,stop="COMPLETE",cursor=null;
+    const coverage=()=>({stop,complete:stop==="COMPLETE"&&completedRays===rays.length,completedRays,totalRays:rays.length,
+      remainingRays:rays.length-completedRays,windows,axisFragments,outsidePlan,shortTokenExcluded,
+      els:(previous?.els||0)+batch.els,source:(previous?.source||0)+batch.source,
+      maxWindows,maxResults,resultLimits:limits,maxWallMs,minLength,maxLength,directions:8,
+      elapsedMs:(previous?.elapsedMs||0)+Math.round(performance.now()-started)});
+    progress(coverage());
+    // The cursor points to the first untested sequence, including stops in the middle of a line.
+    scan:for(let r=from.ray;r<rays.length;r++){
       if(cancelled())return null;
-      for(const traversal of [{text:ray.text,start:ray.start,step:ray.step},{text:ray.reverseText,start:ray.start+(ray.length-1)*ray.step,step:-ray.step}]){
-        for(let offset=0;offset<traversal.text.length;offset++)for(let length=minLength;length<=maxLength&&offset+length<=traversal.text.length;length++){
-          if(windows>=maxWindows){stop="WINDOW_LIMIT";break scan;}
-          if(performance.now()-started>=maxWallMs){stop="TIME_LIMIT";break scan;}
-          windows++;const term=traversal.text.slice(offset,offset+length),hint=lexicon.words.get(term);if(!hint)continue;
-          const start=traversal.start+offset*traversal.step,skip=Math.abs(traversal.step),dir=traversal.step<0?-1:1,hitId=`${skip}_${dir}_${start}`,key=`${term}:${hitId}`;
-          if(seen.has(key))continue;seen.add(key);
-          const positions=Array.from({length},(_,i)=>start+i*traversal.step);
-          if(positions.every(p=>axisCells.has(p))){axisFragments++;continue;}
-          const distance=guidedMatrixDistance(positions,axis,box);
-          if(distance>maxDistance){outsidePlan++;continue;}
-          if(length<5&&(!plan.shortTokenEligible||distance>plan.shortTokenRadius)){shortTokenExcluded++;continue;}
-          if(items.length>=maxResults){stop="RESULT_LIMIT";break scan;}
-          items.push({term,label:guidedMatrixDisplayTerm(term),hitId,start,skip,dir,positions,
-            kind:skip===1?"source":"els",status:"CANDIDATE",lexiconSources:[...hint.lexiconSources],
-            distance,orientation:ray.orientation});
+      const ray=rays[r],directions=[{text:ray.text,start:ray.start,step:ray.step},{text:ray.reverseText,start:ray.start+(ray.length-1)*ray.step,step:-ray.step}];
+      for(let d=r===from.ray?from.direction:0;d<directions.length;d++){
+        const traversal=directions[d],resuming=r===from.ray&&d===from.direction;
+        const skip=Math.abs(traversal.step),dir=Math.sign(traversal.step),kind=skip===1?"source":"els";
+        for(let offset=resuming?from.offset:0;offset+minLength<=traversal.text.length;offset++){
+          const firstLength=resuming&&offset===from.offset?from.length:minLength;
+          for(let length=firstLength;length<=maxLength&&offset+length<=traversal.text.length;length++){
+            if(paused())stop="PAUSED";
+            else if(windows-(previous?.windows||0)>=maxWindows)stop="WINDOW_LIMIT";
+            else if(performance.now()-started>=maxWallMs)stop="TIME_LIMIT";
+            else if(batch[kind]>=limits[kind])stop="RESULT_LIMIT";
+            if(stop!=="COMPLETE"){cursor={ray:r,direction:d,offset,length};break scan;}
+            windows++;const term=traversal.text.slice(offset,offset+length),hint=lexicon.words.get(term);if(!hint)continue;
+            const start=traversal.start+offset*traversal.step,hitId=`${skip}_${dir}_${start}`,key=`${term}:${hitId}`;
+            if(seen.has(key))continue;seen.add(key);
+            const positions=Array.from({length},(_,i)=>start+i*traversal.step);
+            if(positions.every(p=>axisCells.has(p))){axisFragments++;continue;}
+            const distance=guidedMatrixDistance(positions,axis,box);
+            if(distance>maxDistance){outsidePlan++;continue;}
+            if(length<5&&(!plan.shortTokenEligible||distance>plan.shortTokenRadius)){shortTokenExcluded++;continue;}
+            batch[kind]++;
+            items.push({term,label:guidedMatrixDisplayTerm(term),hitId,start,skip,dir,positions,
+              kind,status:"CANDIDATE",lexiconSources:[...hint.lexiconSources],
+              distance,orientation:ray.orientation});
+          }
         }
       }
-      completedRays++;if(completedRays%4===0||completedRays===rays.length)progress({completedRays,totalRays:rays.length,windows});
+      completedRays++;if(completedRays%4===0||completedRays===rays.length)progress(coverage());
       // Yield between lines, so cancel/selection/navigation can invalidate this same operation.
       if(completedRays%4===0)await new Promise(resolve=>setTimeout(resolve,0));
     }
     if(cancelled())return null;
     items.sort((a,b)=>a.distance-b.distance||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")||a.start-b.start);
-    return {items,plan,coverage:{stop,complete:stop==="COMPLETE",completedRays,totalRays:rays.length,windows,axisFragments,outsidePlan,shortTokenExcluded,
-      maxWindows,maxResults,maxWallMs,minLength,maxLength,directions:8,elapsedMs:Math.round(performance.now()-started)},
+    const summary=coverage();
+    return {items,plan,coverage:summary,checkpoint:cursor?{cursor,rays,seen,plan,coverage:summary}:null,
       box,lexicon:lexicon.profile,selectionProtocol:"EXPLORATORY_DISCOVERY",modelCalls:0,findingMutation:false,truthPromotion:false};
   }
   async function matrixLexiconLens(target){
     if(!target?.scanId||typeof target.scanId!=="string"||target.scanId.length>100)return;
     if(target.cancel===true){if(_lexiconScanRequest===target.scanId)_lexiconScanSeq++;return;}
+    if(target.pause===true){if(_lexiconScanRequest===target.scanId)_lexiconPauseRequest=target.scanId;return;}
     if(_lexiconScanRequest===target.scanId)return;
     const seq=++_lexiconScanSeq,source=st.res,axis=source?.hits?.[st.occ],scope=st.scope;
     const send=payload=>postHost({type:"lens",lens:"matrix-lexicon",target,...payload});
@@ -2603,16 +2627,26 @@
     if(!Object.values(box).every(Number.isSafeInteger)||box.S<2||box.r0<0||box.r1<box.r0||box.c0<0||box.c1<box.c0||box.c1>=box.S||cells>8192||box.r1-box.r0+1>256||box.c1-box.c0+1>129){
       send({ok:false,reason:"window-too-large"});return;
     }
-    _lexiconScanRequest=target.scanId;
+    const boxKey=JSON.stringify(box);
+    const saved=target.resumeId==null?null:_lexiconContinuation;
+    if(target.resumeId!=null&&(!saved||saved.id!==target.resumeId||saved.source!==source||saved.axis!==axis||saved.scope!==scope||saved.boxKey!==boxKey)){
+      send({ok:false,reason:"continuation-unavailable"});return;
+    }
+    _lexiconScanRequest=target.scanId;_lexiconPauseRequest=null;
     const cancelled=()=>seq!==_lexiconScanSeq||st.res!==source||st.scope!==scope||!isGov(axis)||occ()!==axis||searchUncommitted()
       ||(folded?_foldedLexiconWindow!==folded:JSON.stringify(blockOf())!==JSON.stringify(b));
     try{
       send({ok:true,pending:true,phase:"lexicon",box});
       const lexicon=await guidedLoadDynamicLexicon();if(cancelled())return;
       if(!lexicon){send({ok:false,reason:"lexicon-unavailable"});return;}
-      const result=await scanMatrixLexicon(axis,box,lexicon,cancelled,coverage=>send({ok:true,pending:true,phase:"scan",coverage}),target.plan||{});
+      const plan=saved?.checkpoint.plan||target.plan||{},language=plan.mode==="language";
+      const result=await scanMatrixLexicon(axis,box,lexicon,cancelled,coverage=>send({ok:true,pending:true,phase:"scan",coverage}),
+        plan,saved?.checkpoint,()=>_lexiconPauseRequest===target.scanId);
       if(!result||cancelled())return;
-      send({ok:true,pending:false,...result,origin:{term:norm(st.raw),corpus:scope,corpusId:CORPUS_ID[scope],skip:axis.skip,dir:axis.dir,start:axis.start}});
+      const {checkpoint,...payload}=result;
+      const continuation=checkpoint?target.scanId:null;
+      if(!language)_lexiconContinuation=checkpoint?{id:continuation,source,axis,scope,boxKey,checkpoint}:null;
+      send({ok:true,pending:false,...payload,continuation,origin:{term:norm(st.raw),corpus:scope,corpusId:CORPUS_ID[scope],skip:axis.skip,dir:axis.dir,start:axis.start}});
     }catch(_){if(!cancelled())send({ok:false,reason:"scan-failed"});}
   }
 
