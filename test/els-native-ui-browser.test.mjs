@@ -893,7 +893,7 @@ export default function Host(props){
    const message=event.data;
    if(event.source!==frame.current?.contentWindow||message?.source!=='tzofen')return;
    window.__log.push(message);
-   if(message.type==='ready'){ready.current=true;send({type:'tier',tier:'admin'});if(window.__fixtureLoadGolden)send({type:'load-matrix',item:${JSON.stringify(golden)}});}
+   if(message.type==='ready'){send({type:'tier',tier:'admin'});const first=ready.current!==frame.current.contentDocument;ready.current=frame.current.contentDocument;if(first&&window.__fixtureLoadGolden)send({type:'load-matrix',item:${JSON.stringify(golden)}});}
    if(message.type==='engine-request'){
     if(window.__fixtureHoldVerification)await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());});
     const result=await fetch('/oracle',{method:'POST',body:JSON.stringify({op:message.op,payload:message.payload,denied:window.__fixtureVerificationDenied})}).then(response=>response.json());

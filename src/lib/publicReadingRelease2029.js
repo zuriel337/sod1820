@@ -113,6 +113,10 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
   // Only the documented chat aliases, never a tag merely containing "chat".
   if (["/tag/chat", "/tag/צאט", "/tag/צ'אט", "/tag/צ׳אט", "/tag/צ-אט"].includes(path)) target = "/community/chat";
   if (["/", "/2029"].includes(path) && query.get("preview") === "community") target = "/community/chat";
+  if (path === "/research" && query.get("finding")?.startsWith("uf1:els:")) {
+    query.set("mode", "research");
+    return "/code?" + query.toString() + (hash && !hash.startsWith("#") ? "#" : "") + hash;
+  }
   if (path === "/research" && query.get("tool") === "gematria") target = "/gematria";
   // Number / expression addresses (ZURIEL 11.11.2026): /2029/number/<address> and a number with leading zeros continue to the canonical
   // /number/<address> in one hop. An expression keeps its exact encoded segment (never replaced by the number it computes to); the

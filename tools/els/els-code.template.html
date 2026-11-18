@@ -3955,6 +3955,7 @@
   function findInBlock(t){
     t=norm(t);if(!hasGov(st.res)||t.length<2)return null;
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,L=t.length,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
+    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions);let best=null;   // mainSet = תאי-הציר (לפסילת חפיפה טריוויאלית, כמו היפוך על אותן אותיות)
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=scopeN()||T[s0]!==t[0])continue;
@@ -3988,6 +3989,7 @@
   function scanNeighborhood(R){
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
+    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const existing=new Set(st.words.map(w=>w.t)),out=[];
@@ -4026,6 +4028,7 @@
     if(!hasGov(st.res))return [];
     const P=pat.split(""),L=P.length;if(L<2||P.filter(c=>c!=="?").length<1)return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
+    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),p0=P[0],out=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=N)continue;if(p0!=="?"&&T[s0]!==p0)continue;
@@ -4204,6 +4207,7 @@
   function scanCandidates(){
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
+    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const out=new Map();
@@ -5054,6 +5058,7 @@
   function suggestCluster(){
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw;
+    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const anchors=occ().positions.map(rc);
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>anchors.push(rc(p)))));
