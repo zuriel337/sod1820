@@ -405,6 +405,8 @@ jobs:
         run: bash scripts/run-community-dislike-sql-test.sh
       - name: Measurement identity (server account attribution, shared-browser boundaries, report and exact rollback; isolated DB)
         run: bash scripts/run-measurement-identity-sql-test.sh
+      - name: Provider freshness watch proposal (Search Console and GA4 stopped or stale is reported as missing, never as zero; one high recommendation and one admin notice per state; the high notice reads impact and writes the required e-mail; gsc-daily-sync waits 120 s; drift refuses; second apply no-op; exact rollback; isolated DB)
+        run: bash scripts/run-provider-freshness-sql-test.sh
       - name: M0-A permissions regression (12 system functions server-only by exact signature, admin guards, account data, Legacy writes closed, dormant policies, cron; idempotent, drift stop, exact rollback)
         run: bash scripts/run-m0a-db-permissions-sql-test.sh
       - name: DEF-004 negative modes (an existing gallery object above 120 MiB stops the proposal; without the proposal the after-assertions fail)
