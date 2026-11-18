@@ -36,7 +36,7 @@ export async function runElsBackgroundResearch({ prepared, invoke, signal, onPro
     const page = projectElsAdvancedPage(response);
     rows.push({ term: request.term, state: page.error ? "FAILED" : "OK",
       count: page.projection?.occurrences.length || 0, projection: page.projection || null,
-      truncated: !!page.cursor, error: page.error || null });
+      truncated: !!page.cursor, scanPending: page.scanPending === true, error: page.error || null });
     onProgress({ phase: "שומר את תוצאת הדף", rows: [...rows] });
     return response;
   } });

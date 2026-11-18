@@ -136,7 +136,9 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       }
       setPages(current => more ? [...current, page] : [page]);
       setCursor(page.cursor);
-      if (!page.projection.occurrences.length && !more) setNotice("לא נמצאו מופעים בטווח המבוקש. אפשר להרחיב את טווח הדילוגים ולחפש שוב.");
+      if (!page.projection.occurrences.length && !more) setNotice(page.cursor
+        ? `לא נמצאו מופעים עד דילוג ${page.cursor.skip}. הטווח עוד לא נסרק עד סופו; אפשר להמשיך בסריקה.`
+        : "לא נמצאו מופעים בטווח המבוקש. אפשר להרחיב את טווח הדילוגים ולחפש שוב.");
     } catch (error) {
       if (seq === revision.current && !controller.signal.aborted) setNotice(`החיפוש לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
     } finally {
@@ -413,13 +415,13 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     {busy ? <AdvancedLiveProgress key={revision.current} activeVariant={activeVariant} rows={automaticRows}
       reduction={reduction} onReduce={reduceSearch} onStop={() => stopSearch()} /> : null}
     {elsResearchOperation?.task ? <ElsResearchActivity2029 onOpenResult={select} selecting={busy || preparing || !!selecting} /> : null}
-    {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו ב־{pages.length} דפים{cursor ? " · יש תוצאות נוספות" : " · סוף התוצאות בטווח"}</p>
+    {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו ב־{pages.length} דפים{cursor ? (pages.at(-1)?.scanPending ? " · הטווח עוד לא נסרק עד סופו" : " · יש תוצאות נוספות") : " · סוף התוצאות בטווח"}</p>
       <ol>{pages.flatMap(page => page.projection.occurrences.map(hit => <li key={hit.occurrenceId}>
         <button type="button" className="sod29-action" disabled={busy || preparing || !!selecting} onClick={() => select(hit, page.projection)}>
           <bdi>{page.projection.term}</bdi> · דילוג {hit.skip} · {hit.dir === 1 ? "קדימה" : "אחורה"} · מיקום {hit.start + 1}
         </button>
       </li>))}</ol>
-      {cursor ? <button type="button" className="sod29-action" disabled={busy || preparing || !!selecting} onClick={() => search(true)}>טען תוצאות נוספות</button> : null}
+      {cursor ? <button type="button" className="sod29-action" disabled={busy || preparing || !!selecting} onClick={() => search(true)}>{pages.at(-1)?.scanPending ? "המשך סריקה" : "טען תוצאות נוספות"}</button> : null}
     </div> : null}
     {automaticPlan ? <div aria-label="תוכנית צורות אוטומטית">
       <p>{automaticPlan.sources.length} ביטויים · {automaticPlan.candidates.length} צורות שונות · {automaticRows.filter(row => row.state === "OK" || row.state === "EXECUTED_EMPTY").length} הושלמו · {automaticRows.filter(row => row.state === "FAILED").length} נכשלו</p>
@@ -429,7 +431,8 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
         <p className="sod29-muted">{row.derivations.map(item => `״${item.source}״ ← ${item.ruleLabel}`).join(" · ")}</p>
         <p className="sod29-muted">{activeVariant === row.term ? "הצורה הזאת נסרקת כעת…" : row.error ? `הבדיקה לא הושלמה: ${row.error}`
           : row.state === "NOT_SCANNED" || row.state === "BUDGET_STOPPED" ? "הצורה ממתינה להמשך הסריקה."
-            : (automaticPages[row.canonicalTerm] ? automaticPages[row.canonicalTerm].cursor != null : row.cursor != null) ? "יש עוד מופעים לצורה זו."
+            : (automaticPages[row.canonicalTerm] ? automaticPages[row.canonicalTerm].cursor != null : row.cursor != null)
+              ? ((automaticPages[row.canonicalTerm] ? automaticPages[row.canonicalTerm].pages.at(-1)?.scanPending : row.scanPending) ? "הטווח של צורה זו עוד לא נסרק עד סופו." : "יש עוד מופעים לצורה זו.")
               : row.partial && !automaticPages[row.canonicalTerm] ? "הסריקה נעצרה או שיש עוד דפים לבדיקה."
               : row.count === 0 ? "לא נמצאו מופעים בטווח שנבדק."
                 : "הדף הראשון הושלם בטווח שנבדק."}</p>
@@ -437,7 +440,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
           key={hit.occurrenceId} type="button" className="sod29-action" disabled={busy || preparing || !!selecting} onClick={() => select(hit, projection)}>
           דילוג {hit.skip} · {hit.dir === 1 ? "קדימה" : "אחורה"} · מיקום {hit.start + 1}
         </button>))}
-        {(automaticPages[row.canonicalTerm]?.cursor || (automaticPages[row.canonicalTerm] ? null : row.cursor)) ? <button type="button" className="sod29-action" disabled={busy || preparing || !!selecting} onClick={() => continueVariant(row)}>טען עוד מופעים לצורה זו</button> : null}
+        {(automaticPages[row.canonicalTerm]?.cursor || (automaticPages[row.canonicalTerm] ? null : row.cursor)) ? <button type="button" className="sod29-action" disabled={busy || preparing || !!selecting} onClick={() => continueVariant(row)}>{(automaticPages[row.canonicalTerm] ? automaticPages[row.canonicalTerm].pages.at(-1)?.scanPending : row.scanPending) ? "המשך סריקה לצורה זו" : "טען עוד מופעים לצורה זו"}</button> : null}
       </section>)}
       {automaticSlices.at(-1)?.hasMoreCandidates && !busy ? <button type="button" className="sod29-action" disabled={preparing || !!selecting} onClick={continueAutomatic}>המשך לסרוק צורות</button> : null}
       <p className="sod29-muted">צורות של אותו ביטוי הן ניסויים תלויים. קרבה או ריבוי התאמות אינם הוכחת הצלבה; בחרו מופע מאומת לפתיחה במטריצה.</p>

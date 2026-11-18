@@ -953,7 +953,7 @@ export async function runElsAutomaticResearchSlice({ plan, offset = 0, invokePag
         const count = page.projection.occurrences.length;
         onProgress?.({ phase: "done", term: request.term, row: {
           ...candidateByTerm.get(request.term), state: count ? "OK" : "EXECUTED_EMPTY", count,
-          partial: page.cursor != null, error: null, projection: page.projection, cursor: page.cursor,
+          partial: page.cursor != null, scanPending: page.scanPending === true, error: null, projection: page.projection, cursor: page.cursor,
         } });
         return response?.data?.result ?? response?.result;
       } catch (error) {
@@ -987,6 +987,7 @@ export async function runElsAutomaticResearchSlice({ plan, offset = 0, invokePag
         error: outcome?.pages?.find(item => item.error)?.error || null,
         projection: page?.projection || null,
         cursor: page?.cursor || null,
+        scanPending: page?.scanPending === true,
       });
     })),
   });

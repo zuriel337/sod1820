@@ -525,7 +525,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (contextRequest) postToTool({ type: "native-context", delta: contextRequest.delta });
   }, [contextRequest, postToTool]);
   useEffect(() => {
-    if (cancelRequest) postToTool({ type: "native-cancel", kind: cancelRequest.kind, requestId: cancelRequest.requestId });
+    if (cancelRequest) postToTool({ type: "native-cancel", kind: cancelRequest.kind, requestId: cancelRequest.requestId, keepPartial: cancelRequest.keepPartial === true });
   }, [cancelRequest, postToTool]);
 
   // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,

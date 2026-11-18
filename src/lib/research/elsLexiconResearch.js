@@ -40,6 +40,31 @@ export function prepareElsLexiconFinding(state, result, item, color) {
 
 // Group admission is one existing replay/load, never N new searches or a second
 // finding store. Build atomically: a stale/invalid member rejects the whole request.
+// An addition joins the words already on the matrix through the engine's own findings update: the axis, a crossed partner and earlier
+// words are not reloaded. Returns { findings } for that update, or { error } - "limit" when the matrix already holds its twelve words,
+// "stale" when the discovery no longer describes this matrix.
+export function prepareElsLexiconAdditions(state, result, items, color) {
+  const snapshot = captureElsResearchReturn(state);
+  if (!result?.ok || result.pending || !elsResearchSnapshotMatches(snapshot, result.origin) || !Array.isArray(items) || !items.length) return { error: "stale" };
+  if (result.box && (state.geometry?.S !== result.box.S || state.geometry?.r0 !== result.box.r0
+    || state.geometry?.r1 !== result.box.r1 || state.geometry?.c0 !== result.box.c0
+    || state.geometry?.cw !== result.box.c1 - result.box.c0 + 1)) return { error: "stale" };
+  const findings = (state.findings || []).map(finding => ({ t: finding.t, color: finding.color }));
+  for (const item of items) {
+    if (!result.items?.includes(item) || !isElsLexiconCandidate(item, result) || !Number.isSafeInteger(item.skip) || item.skip < 1
+      || ![-1, 1].includes(item.dir) || !Number.isSafeInteger(item.start) || item.start < 0
+      || item.hitId !== `${item.skip}_${item.dir}_${item.start}`) return { error: "stale" };
+    let word = findings.find(word => word.t === item.term);
+    if (!word) {
+      if (findings.length >= 12) return { error: "limit" };
+      word = { t: item.term, color: typeof color === "function" ? color(findings) : color };
+      findings.push(word);
+    }
+    word.addShown = [...new Set([...(word.addShown || []), item.hitId])];
+  }
+  return { findings };
+}
+
 export function prepareElsLexiconFindings(state, result, items, color) {
   const snapshot = captureElsResearchReturn(state);
   if (!result?.ok || result.pending || !elsResearchSnapshotMatches(snapshot, result.origin)
