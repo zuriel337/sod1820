@@ -35,7 +35,8 @@ await build({ entryPoints: ["src/pages/CommunityCalculator2029Page.jsx"], bundle
   external: ["react"], define: { __SOD_2029_BUILD__: "true", "import.meta.env": JSON.stringify({ VITE_PUBLIC_READING_RELEASE: "public-reading-20261101" }) },
   plugins: [{ name: "community-calculator-boundaries", setup(builder) {
     builder.onResolve({ filter: /^react-router-dom$/ }, () => ({ path: "router", namespace: "fixture" }));
-    builder.onResolve({ filter: /\/(palette\.js|themeMode\.js|engine\.js|supabase\.js|gematriaMethodRegistry\.js|tracking\.js|numberMessage\.js|seo\.js|AuthContext\.jsx|ResearchProvider\.jsx|Sod2029Shell\.jsx|NavigationIcon2029\.jsx|ShareActions\.jsx|VisitorSearchesBox\.jsx|NameMultiSearch\.jsx)$/ }, args => ({ path: args.path.split("/").at(-1), namespace: "fixture" }));
+    builder.onResolve({ filter: /\/(palette\.js|themeMode\.js|engine\.js|supabase\.js|supabaseApi2029\.js|gematriaMethodRegistry\.js|tracking\.js|numberMessage\.js|seo\.js|AuthContext\.jsx|ResearchProvider\.jsx|Sod2029Shell\.jsx|NavigationIcon2029\.jsx|ShareActions\.jsx|VisitorSearchesBox\.jsx|NameMultiSearch\.jsx)$/ }, // the database boundary is one fixture whether the page reads the shared core or the API file (shell weight 1/8)
+    args => ({ path: args.path.split("/").at(-1).replace("supabaseApi2029.js", "supabase.js"), namespace: "fixture" }));
     builder.onResolve({ filter: /\.css$/ }, args => ({ path: args.path, namespace: "css-fixture" }));
     builder.onLoad({ filter: /.*/, namespace: "fixture" }, args => ({ contents: fixtures[args.path], loader: "js", resolveDir: process.cwd() }));
     builder.onLoad({ filter: /.*/, namespace: "css-fixture" }, () => ({ contents: "", loader: "js" }));

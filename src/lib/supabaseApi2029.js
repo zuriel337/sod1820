@@ -719,7 +719,7 @@ function aiInteractionId() {
 export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation, interaction_id, surface, persistAnalysis = true }) {
   if (!supabase) return null;
   try {
-    // 📏 ai_quota_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
+    // 📏 platform_tiers_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
     // ✨ long=true → ניתוח עמוק ממוזג ארוך (השרת מרים את הגבלת-האורך; אינרטי אם לא נשלח).
     // 🌳 metatron=true → השרת נשען על «העץ האחד» (חוקים+גרף) → תשובה מבוססת-חומר (בטא, opt-in).
     // provenance-עלות (ref=msg_id · ref_name=group/conversation · user_ref) נשלח לרישום ב-ai_token_log.
@@ -741,7 +741,7 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
       ? data.reflection_interpretation
       : null;
     const analysisText = structuredReflection?.message || data?.analysis || null;
-    // 🧪 ai_style_learning_law — כל ניתוח מוצלח נרשם אוטומטית (בכל משטח באתר, כי כולם עוברים כאן).
+    // 🧪 system_suggestions_law — כל ניתוח מוצלח נרשם אוטומטית (בכל משטח באתר, כי כולם עוברים כאן).
     // fire-and-forget: הרישום לא מעכב ולא מפיל את הניתוח.
     // Private research surfaces may use the existing AI transport without copying their
     // subject/message into the style-learning log. Operational cost traces remain bounded
@@ -898,7 +898,7 @@ export async function askRazielAdvanced({ ask, surface = "number_page", number, 
   } catch { return null; }
 }
 
-// ===== 🧪 מעבדת-הסגנון (ai_style_learning_law) =====
+// ===== 🧪 מעבדת-הסגנון (system_suggestions_law) =====
 // העיקרון (החלטת צוריאל 12.7.2026): המנוע מייצר נתונים → המערכת מסכמת מגמות → האדם מחליט.
 // המשוב משנה סגנון והגשה בלבד — לעולם לא עובדות. אין שום למידה אוטומטית שמשנה סגנון.
 export async function logAiAnalysis({ kind, subject, styleKey, engine, model, content }) {
@@ -1459,7 +1459,7 @@ export async function adminUpdatePost(id, fields = {}) {
 }
 
 // שמירת פוסט (יצירה או עריכה) בעורך המתקדם — דרך RPC admin_save_post (SECURITY DEFINER, מאומת-מנהל).
-// יצירה: id=null → מחשב id/wp_id=max+1, date=modified=now (post_publish_law). עריכה: id קיים → modified=now.
+// יצירה: id=null → מחשב id/wp_id=max+1, date=modified=now (project_codex.publishing_conventions). עריכה: id קיים → modified=now.
 // שדות מתקדמים: theme ('auto'|'light'|'dark' לפוסט) · keepModified (true=אל תקפיץ לראש «עדכונים אחרונים») ·
 //   axisPin (undefined=אל תיגע · null=אוטו · 1=הצג בציר ההתגלות · 0=הסתר) · treePriority (מיקום ידני בציר, גבוה=למעלה).
 // מחזיר { id, slug, wp_id, modified, date, theme, axis_pin, tree_priority }. זורק (not_admin / empty_title / not_found).
@@ -2014,7 +2014,7 @@ export async function setRelationEvidence(method, a, b, value, status, note = nu
 }
 
 // 📜 תיבת-ההגדרות של צוריאל — דרך RPC-ים SECURITY DEFINER (הדפוס הקנוני admin_*):
-// policy ישיר שתלוי ב-select על users נכשל בשקט מהלקוח (rls_client_read_protocol) — תוקן 12.7.
+// policy ישיר שתלוי ב-select על users נכשל בשקט מהלקוח (person_foundation_contract_law) — תוקן 12.7.
 export async function listResearcherDefinitions(limit = 30) {
   if (!supabase) return [];
   try { const { data } = await supabase.rpc('rd_list', { p_limit: limit }); return data || []; }
