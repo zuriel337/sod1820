@@ -295,7 +295,7 @@ jobs:
       - name: Edge middleware contracts (CN and SG quarantine policy and order, the SG rate limiter and its OIDC token resolver, good bots and AI crawlers pass, bad bots are refused, bot reads have no side effect, the production entry binds the audited middleware, a warm instance never waits for the country policy read)
         run: |
           npm run test:cn-sg-security
-          node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs test/edge-country-policy-cache.test.mjs test/edge-big-number-eligibility.test.mjs
+          node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs test/edge-country-policy-cache.test.mjs test/edge-big-number-eligibility.test.mjs test/old-journey-410-2029.test.mjs
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
