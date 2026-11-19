@@ -77,7 +77,7 @@ async function checkManualWordJump(page) {
 test('research window has three capability views, one explicit launch and shared progress',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:390,height:900},async page=>{
-    await researchView(page,'כלי מחקר').click();
+    if(await researchView(page,'כלי מחקר').getAttribute('aria-expanded')!=='true') await researchView(page,'כלי מחקר').click();
     const area=researchArea(page), panel=area.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
     await panel.waitFor();
     assert.deepEqual(await area.getByRole('group',{name:'תצוגות כלי המחקר'}).getByRole('button').allTextContents(),['ממצאים','מבנים וקבוצות','העמקה']);
@@ -118,11 +118,22 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
   assert.equal(await page.locator('.els29-native-toolstrip').isVisible(),true);
   assert.equal(await entry.locator('.sod29-ui-icon').evaluate(el=>getComputedStyle(el).backgroundImage),'none','discovery uses the existing interface icon');
   assert.deepEqual(await sideLabels(),expected);
-  assert.equal(await entry.getAttribute('aria-expanded'),'false');
-  assert.equal(await panel.count(),0,'heavy component remains unmounted until explicit opening');
+  assert.equal(await entry.getAttribute('aria-expanded'),'true');
+  await panel.waitFor();
   const requests=await page.evaluate(()=>window.__log.filter(m=>m.type==='engine-request').length);
-  assert.equal(await area.count(),0,'closed tools are not exposed as a visible region');
-  await entry.press('Enter');await panel.waitFor();
+  assert.equal(await area.count(),1,'discovery opens by default without starting work');
+  for(const name of ['סריקה וממצאים','תוצאות','שמירה']) {
+    const tool=page.locator('.els29-native-toolstrip').getByRole('button',{name,exact:true});
+    if(await tool.getAttribute('aria-expanded')!=='true') await tool.click();
+    assert.equal(await panel.isVisible(),true,'other tools never close discovery');
+    assert.equal(await page.locator('#els29-context-panel').isVisible(),true);
+    const a=await page.locator('#els29-discovery-panel').boundingBox(),b=await page.locator('#els29-context-panel').boundingBox();
+    if(width>=981) assert.ok(a.x+a.width<=b.x+1||b.x+b.width<=a.x+1,'two independent columns');
+    else assert.ok(b.y>=a.y+a.height-1,'readable stacked panels on mobile');
+    await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+    assert.equal(await panel.isVisible(),true,'closing secondary tools preserves discovery');
+  }
+
   assert.equal(await entry.getAttribute('aria-expanded'),'true');
   assert.deepEqual(await sideLabels(),expected,'discovery uses its own action alongside existing tools');
   assert.equal(await area.evaluate(el=>!!el.closest('.els29-native-context-panel')),true);
@@ -142,7 +153,7 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
    assert.ok(await entry.locator('span,strong').evaluateAll(nodes=>nodes.every(el=>parseFloat(getComputedStyle(el).fontSize)>=16)));
    if(process.env.ELS_RESEARCH_AREA_SCREENSHOTS){mkdirSync(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,{recursive:true});await page.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-area-${width}-${theme}.png`)});await page.locator('.els29-native-panel-wrap').scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-tools-${width}-${theme}.png`)});}
   }
-  await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();assert.equal(await panel.isVisible(),false);
+  await page.getByRole('button',{name:'סגור גילוי',exact:true}).click();assert.equal(await panel.isVisible(),false);
   assert.equal(await entry.evaluate(el=>el===document.activeElement),true);
   await entry.press('Enter');
   assert.equal(await researchView(page,'מבנים').getAttribute('aria-pressed'),'true','folding preserves the current view');
@@ -165,7 +176,7 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
   if(width<981)assert.equal(await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).gridRowStart),'3','Classic keeps its original panel row, without an empty research track');
   assert.deepEqual(await sideLabels(),expected.slice(1));
   await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
-  await researchView(page,'כלי מחקר').click();
+  if(await researchView(page,'כלי מחקר').getAttribute('aria-expanded')!=='true') await researchView(page,'כלי מחקר').click();
   assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language');
   assert.deepEqual(await identity(page),before);
   assert.equal(await page.evaluate(()=>window.__log.filter(m=>m.type==='engine-request').length),requests);
@@ -787,7 +798,7 @@ test('Research language wizard reuses the canonical reader and admits exact phra
     await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
     assert.equal(await panel.isVisible(),false,'Classic stays clean');
     await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
-    await researchView(page,'כלי מחקר').click();
+    if(await researchView(page,'כלי מחקר').getAttribute('aria-expanded')!=='true') await researchView(page,'כלי מחקר').click();
   assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language');
     assert.equal(await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='request-lens'&&m.lens==='matrix-lexicon').length),requests,'profile round trip never rescans');
     await page.evaluate(item=>window.__loadResearch({...item,words:[],researchNonce:'language-new-axis'}),ELS_GOLDENS[2]);
@@ -2986,7 +2997,7 @@ test('Fable has one explicit entry in Research and no standalone action in any p
    if(profile.guided) await page.getByRole('button',{name:'פתח מטריצה מדויקת'}).click();
    assert.equal(await page.getByRole('button',{name:/גילוי עם AI/}).count(),0);
    const extension=page.getByText('הרחבה אופציונלית עם Fable',{exact:true});
-   assert.equal(await extension.count(),0,'the extension is lazy');
+   assert.equal(await page.getByRole('region',{name:'שלב 2, המשך עם Fable',exact:true}).count(),0,'the Fable card remains lazy');
    if(profile.researchProfile&&!profile.guided){
      await openFableExtension(page);
      assert.equal(await extension.count(),1);
@@ -3662,7 +3673,7 @@ test('owner 18.11: fullscreen is the same interface re-laid: the page\'s own too
     const stripBox=await box('.els29-native-toolstrip'),research=await box('.els29-native-structure-entry');
     assert.ok(research.r<=stripBox.l+1||research.l>=stripBox.r-1||research.t>=stripBox.b-1,'the window never covers the strip that closes it: '+JSON.stringify({stripBox,research}));
     await checkManualWordJump(page);
-    assert.equal(await box('.els29-native-structure-entry'),null,'manual search closes the research overlay');
+    assert.ok(await box('.els29-native-structure-entry'),'manual search leaves discovery open');
     // A tool panel opens from the same strip button as on the page.
     await strip.getByRole('button',{name:'תוצאות',exact:true}).click();assert.ok(await inView('.els29-native-panel-wrap'));
     await strip.getByRole('button',{name:'תוצאות',exact:true}).click();

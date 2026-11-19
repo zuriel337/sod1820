@@ -926,13 +926,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const cameraStageRef = useRef(null);
   const [cameraFullscreen, setCameraFullscreen] = useState(false);
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
-  const [lexiconVisited, setLexiconVisited] = useState(false);
-  useEffect(() => { if (!researchWorkspace) setActiveTool(current => current === "discovery" ? null : current); }, [researchWorkspace]);
-  const researchToolsOpen = researchWorkspace && activeTool === "discovery";
-  const setResearchToolsOpen = value => setActiveTool(current => {
-    const next = typeof value === "function" ? value(current === "discovery") : value;
-    return next ? "discovery" : current === "discovery" ? null : current;
-  });
+  const [lexiconVisited, setLexiconVisited] = useState(researchWorkspace);
+  const [discoveryOpen, setResearchToolsOpen] = useState(true);
+  const researchToolsOpen = researchWorkspace && discoveryOpen;
+  useEffect(() => { if (researchWorkspace) setLexiconVisited(true); }, [researchWorkspace]);
   const [researchView, setResearchView] = useState("discovery");
   const [readingExtensionVisited, setReadingExtensionVisited] = useState(false);
   const [structuresVisited, setStructuresVisited] = useState(false);
@@ -1049,12 +1046,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const openTool = (tool, trigger, focusWord = false) => {
     if (trigger) panelTriggerRef.current = trigger;
     setClassicOpen(false);
-    if (tool === "discovery") { setLexiconVisited(true); setFsQueryOpen(false); }
+    if (tool === "discovery") {
+      setLexiconVisited(true); setFsQueryOpen(false); setResearchToolsOpen(true);
+      requestAnimationFrame(() => researchToolsRef.current?.scrollIntoView({ block: "nearest" }));
+      return;
+    }
     setActiveTool(tool);
     if (trigger) requestAnimationFrame(() => {
       // Phones always jump to the panel. On a wide screen the panel sits below the matrix (and below the advanced search when it is
       // open), so a tool opened from the bottom dock looked dead: bring the panel into view whenever it is off screen.
-      if (window.matchMedia("(max-width:980px)").matches || panelOffScreen()) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      if (window.matchMedia("(max-width:980px)").matches || panelOffScreen()) panelRef.current?.querySelector("#els29-context-panel")?.scrollIntoView({ block: "start", behavior: "instant" });
       const wordForm = focusWord && panelRef.current?.querySelector(".els29-native-finding-add");
       if (wordForm) {
         wordForm.scrollIntoView({ block: "center", behavior: "instant" });
@@ -1340,7 +1341,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (kind === "search" && ["done", "empty", "error", "cancelled"].includes(operation.status)) {
       openTool("results");
       requestAnimationFrame(() => {
-        if (window.matchMedia("(max-width:980px)").matches) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+        if (window.matchMedia("(max-width:980px)").matches) panelRef.current?.querySelector("#els29-context-panel")?.scrollIntoView({ block: "start", behavior: "instant" });
       });
     }
   };
@@ -1963,7 +1964,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
               onClick={() => { setResearchToolsOpen(false); setFsQueryOpen(open => !open); }}><NavigationIcon2029 name="search" /><small>חיפוש</small></button>
           </> : null}
           {researchWorkspace ? <button type="button" className="els29-discovery-trigger" data-tool-action="discovery" aria-label="כלי מחקר"
-            aria-expanded={researchToolsOpen} aria-controls="els29-context-panel" onClick={event => researchToolsOpen ? closeTool() : openTool("discovery", event.currentTarget)}>
+            aria-expanded={researchToolsOpen} aria-controls="els29-discovery-panel" onClick={event => researchToolsOpen ? setResearchToolsOpen(false) : openTool("discovery", event.currentTarget)}>
             <NavigationIcon2029 name="discovery" /><small>{lexiconPhase ? "סורק" : "גילוי"}</small></button> : null}
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
@@ -1972,12 +1973,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
           {fullscreen ? <button type="button" className="els29-fs-exit" onClick={exitFullscreen} aria-label="יציאה ממסך מלא" title="יציאה ממסך מלא"><span aria-hidden="true">✕</span><small>יציאה</small></button> : null}
         </div>
-        <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
-        <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
-          <header className="els29-native-panel-head">
-            <strong>{activeTool === "discovery" ? "גילוי · כלי המחקר" : activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (guidedProfile ? "חבילת הגילוי" : resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
-            <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
-            <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
+        <div ref={panelRef} className={`els29-native-panel-wrap${researchWorkspace ? " has-discovery" : ""}${researchToolsOpen && activeTool ? " has-two-panels" : ""}`} hidden={classicOpen || (!activeTool && !researchToolsOpen)}>
+        <ContextualInspector2029 hidden={!researchToolsOpen} id="els29-discovery-panel" className="els29-native-context-panel els29-discovery-inspector" ariaLabel="חלונית גילוי">
+          <header className="els29-native-panel-head"><strong>גילוי · כלי המחקר</strong>
+            <button type="button" aria-label="סגור גילוי" onClick={() => { setResearchToolsOpen(false); toolRailRef.current?.querySelector('[data-tool-action="discovery"]')?.focus(); }}>×</button>
           </header>
         <section ref={researchToolsRef} hidden={!researchWorkspace || !researchToolsOpen} className="els29-native-structure-entry els29-discovery-panel" aria-label="כלי מחקר במטריצה">
           <div id="els29-research-tools" hidden={!researchToolsOpen}>
@@ -2001,7 +2000,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 onAdd={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
                 findingsOperation={operations.findings} onShowStructure={setSplitRelation}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
-                onFindWords={event => { if (fullscreen) setResearchToolsOpen(false); openTool("findings", event.currentTarget, true); }}
+                onFindWords={event => { openTool("findings", event.currentTarget, true); }}
                 projection={projectedOption ? null : readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}
                 readingExtension={!publicClassic && (matrixReading || onRazielMatrix) ? <details className="els29-reading-extension" onToggle={event => { if (event.currentTarget.open) setReadingExtensionVisited(true); }}>
                   <summary>הרחבה אופציונלית עם Fable</summary>
@@ -2020,7 +2019,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                     {pairPlannerOpen ? <React.Suspense fallback={<p>טוען את כלי ההכנה…</p>}>
                       <ElsPairPlanner2029 axis={query} scope={activeScope} radius={crossRadius} letterGap={crossLetterGap} disabled={searchPending}
                         onSearchPair={pair => {
-                          if (fullscreen) setResearchToolsOpen(false);
                           setQuery(pair.axis); setCrossTerm(pair.term); setCrossThirdTerm(""); setCrossOpen(true);
                           requestSearch("cross", { axis: pair.axis, term: pair.term, scope: activeScope, radius: crossRadius, maxLetterGap: crossLetterGap });
                         }} />
@@ -2036,7 +2034,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 </> : null} />
               {researchView === "axis" ? <ElsAxisResearch2029 state={engineState} pending={searchPending}
                 onSource={event => {
-                  if (fullscreen) setResearchToolsOpen(false);
                   setSelectedLetterIndex(engineState.axis.start);
                   openTool("findings", event.currentTarget);
                   requestLens("letter-context", { i: engineState.axis.start }, { revealTool: false });
@@ -2044,6 +2041,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </React.Suspense> : null}
           </div>
         </section>
+        </ContextualInspector2029>
+        <ContextualInspector2029 hidden={!activeTool} id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
+          <header className="els29-native-panel-head">
+            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (guidedProfile ? "חבילת הגילוי" : resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
+            <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
+          </header>
         <CrossResultsRail searchTerms={["cross-three", "cross-three-continue"].includes(operations.search?.searchKind) ? operations.search.payload?.terms : null} crossProgress={operations.search?.progress?.phase === "cross-three-wave" ? operations.search.progress : null}
           onContinueTriple={token => requestSearch("cross-three-continue", {token, terms:operations.search?.payload?.terms, scope:operations.search?.payload?.scope || activeScope})}
           onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}

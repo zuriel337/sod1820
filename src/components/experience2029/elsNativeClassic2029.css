@@ -968,3 +968,12 @@
 .els29-native-classic.is-fullscreen .els29-native-context-panel .els29-discovery-panel:not([hidden]){display:block!important;position:static;width:auto;max-height:none;box-shadow:none}
 
 @media(max-width:980px){.els29-native-classic:not(.is-fullscreen) .els29-native-toolstrip:has([data-tool-action=discovery]){grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Discovery is independently open alongside one of the existing three tools. */
+.els29-native-context-panel[hidden]{display:none!important}
+.els29-native-layout .els29-native-panel-wrap.has-discovery{position:relative;inset:auto;grid-column:1/-1;grid-row:2;width:100%;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.els29-native-layout .els29-native-panel-wrap.has-discovery[hidden]{display:none}
+@media(min-width:981px){.els29-native-layout .els29-native-panel-wrap.has-two-panels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:980px){.els29-native-layout .els29-native-panel-wrap.has-discovery{grid-row:3}}
+.els29-native-classic.is-fullscreen .els29-native-layout .els29-native-panel-wrap.has-discovery{position:absolute;top:8px;inset-inline-end:84px;inset-inline-start:auto;grid-row:auto;grid-column:auto;width:min(920px,calc(100% - 100px));max-height:calc(100% - 16px);overflow:auto}
+@media(max-width:980px){.els29-native-classic.is-fullscreen .els29-native-layout .els29-native-panel-wrap.has-discovery{top:63px;max-height:calc(100% - 71px)}}
