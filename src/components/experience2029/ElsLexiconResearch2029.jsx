@@ -1,3 +1,5 @@
+import { parseElsHitKey } from "../../lib/elsJourney.js";
+import { presentElsStructureFamilies } from "../../lib/research/elsStructurePresentation.js";
 import { describeElsDiscoveryPlan, elsResearchNextStep } from "../../lib/research/elsResearchAssessment.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
@@ -36,6 +38,7 @@ export default function ElsLexiconResearch2029({
   onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation, returnProjection, discoveryId,
 }) {
   const [run, setRun] = useState(null), [notice, setNotice] = useState("");
+  const [structureSort, setStructureSort] = useState("diverse");
   const [page, setPage] = useState(0), [groupType, setGroupType] = useState("all");
   const [{ result, runs }, setDiscovery] = useState({ result: null, runs: {} });
   const [pendingStructure, setPendingStructure] = useState(null);
@@ -149,11 +152,11 @@ export default function ElsLexiconResearch2029({
     return discovered ? { ...card, sources: discovered.sources, memberSources: discovered.memberSources } : card;
   }), ...discoveryCards.filter(card => !markedKeys.has(memberKey(card)))];
   const types = structureFilters.find(([id]) => id === groupType)[2];
-  const priority = card => card.types.includes("intersection") || card.types.includes("transversal") ? 0 : card.types.includes("cluster") && card.types.length === 1 ? 2 : 1;
-  const rows = cards.filter(card => belongsTo(card, types)).sort((a, b) => priority(a) - priority(b));
+  const rows = cards.filter(card => belongsTo(card, types));
+  const families = presentElsStructureFamilies(rows, structureSort);
   const nextPlan = data?.plan ? expandElsLexiconPlan(data.plan) : null;
-  const pageIndex = Math.min(page, Math.max(0, Math.ceil(rows.length / 20) - 1));
-  const slice = rows.slice(pageIndex * 20, pageIndex * 20 + 20);
+  const pageIndex = Math.min(page, Math.max(0, Math.ceil(families.length / 20) - 1));
+  const slice = families.slice(pageIndex * 20, pageIndex * 20 + 20);
   const isAdded = member => isElsStructureMemberMarked(state, member);
   const add = items => {
     if (!structures.ok || run) return;
@@ -198,6 +201,23 @@ export default function ElsLexiconResearch2029({
   const nextStep = elsResearchNextStep(overviewRuns, { ready: !!key, busy: busy || !!run });
   const launchPlans = discoveryMode === "both" ? [{ ...plan, mode: "language", minLength: 5, maxLength: 16 },
     { ...plan, mode: "words", minLength: 5, maxLength: 10 }] : [plan];
+  const renderStructureCard = card => {
+          const ready = card.members.every(isAdded);
+          return <li key={memberKey(card)} data-structure-card={card.id} className="els29-structure-card">
+            <strong>{card.types.map(type => ELS_DISCOVERY_GROUP_LABELS[type]).join(" · ")}</strong>
+            {card.reasons.map(reason => <p key={reason}>{reason}</p>)}
+            {card.sources?.length ? <details><summary>מקורות הקבוצה · {card.sources.length} סריקות</summary>
+              {card.sources.map(source => <p key={source.id}>{sourceLabel(source)} · {source.run.data.coverage?.complete ? "כיסוי התכנית הושלם" : "כיסוי חלקי"}</p>)}
+              {card.memberSources.map(member => <p key={`${member.term}:${member.hitId}`}><bdi>{member.term}</bdi> · {member.sourceIds.length} מקורות לאותו מופע, לא אישורים עצמאיים.</p>)}
+            </details> : null}
+            <div className="els29-structure-members">{card.members.map(member => <span key={`${member.term}:${member.hitId}`}>
+              <bdi>{member.label || member.term}</bdi> <small>{member.kind === "axis" ? "ציר מאומת" : isAdded(member) ? member.kind === "source" ? "רצף מקור" : "מאומת" : "מועמד"}</small>
+            </span>)}</div>
+            {card.membersTruncated ? <p>מוצגים {card.members.length} מתוך {card.totalMembers} מופעים בקבוצה.</p> : null}
+            <button type="button" disabled={!key || busy || !!run || !!pendingStructure || !onShowStructure || (!ready && !onAdd)}
+              onClick={() => showStructure(card)}>{ready ? "הצג את הקשר" : "אמת והצג קבוצה"}</button>
+          </li>;
+  };
   return <section hidden={!visible} className="els29-lexicon-research r29" aria-label="גילוי וקשרים במטריצה">
     <header className="els29-discovery-header r29-hall">
       <span className="els29-research-eyebrow">מחקר הצופן</span>
@@ -304,7 +324,7 @@ export default function ElsLexiconResearch2029({
         {hideForwardSource ? <p>הקבוצות נבנו מחדש מהקריאות שנותרו; הסינון אינו משלים התאמות שלא נשמרו בגלל תקרת הסריקה.</p> : null}
         <p>התחלת הציר: <bdi>{data.origin.start}</bdi>. {data.coverage.completedRays}/{data.coverage.totalRays} קווים · {data.coverage.windows} רצפים נבדקו. כדי לחזור לאחר רענון, שמרו במפורש בספריית המחקר.</p>
         <p>הסריקה מצאה התאמות לאותיות, לא דירוג של משמעות או נדירות. חלקי הציר ({data.coverage.axisFragments}) לא נספרו כממצאים חדשים.</p>
-        <p>{groups.length} קבוצות משולבות מוצגות מתוך {structures?.totalGroups ?? 0} שנבנו ממקורות המבנים הנבחרים. קשרים מבניים מוצגים לפני אשכולות של קרבה בלבד. זה סדר תצוגה, לא ציון חוזק.</p>
+        <p>{groups.length} קבוצות משולבות מוצגות מתוך {structures?.totalGroups ?? 0} שנבנו ממקורות המבנים הנבחרים. סדר התצוגה נקבע בבורר המבנים; ברירת המחדל מציגה מגוון מילים וקשרים. זה אינו ציון חוזק.</p>
         <p>אוצר: מילות התנ״ך ומילון הליבה, {data.lexicon.entryCount} ערכים. התאמה מדויקת לאחר נרמול אותיות סופיות; אין השלמת אותיות.</p>
         <p>רוחב מטריצה {data.box.S}; שורות {data.box.r0}–{data.box.r1}, עמודות {data.box.c0}–{data.box.c1} (ספירה מאפס). חלון המחקר עשוי להיות גדול מהחלק המוצג במסך.</p>
         <p>סדר ההצגה: קרבה לציר, אורך, מילה ומיקום. הכיסוי מתייחס לחלון ולתכנית הסריקה שנבחרו.</p>
@@ -355,24 +375,21 @@ export default function ElsLexiconResearch2029({
             onClick={() => { setGroupType(id); setPage(0); }}>{label} <bdi>{cards.filter(card => belongsTo(card, filter)).length}</bdi></button>)}
         </div>
         {!rows.length ? <p>{cards.length ? "אין קשרים בסינון הזה." : "סמנו מופע נוסף במטריצה או הריצו גילוי כדי לבדוק קשרים."}</p> : null}
-        <ol>{slice.map(card => {
-          const ready = card.members.every(isAdded);
-          return <li key={memberKey(card)} data-structure-card={card.id} className="els29-structure-card">
-            <strong>{card.types.map(type => ELS_DISCOVERY_GROUP_LABELS[type]).join(" · ")}</strong>
-            {card.reasons.map(reason => <p key={reason}>{reason}</p>)}
-            {card.sources?.length ? <details><summary>מקורות הקבוצה · {card.sources.length} סריקות</summary>
-              {card.sources.map(source => <p key={source.id}>{sourceLabel(source)} · {source.run.data.coverage?.complete ? "כיסוי התכנית הושלם" : "כיסוי חלקי"}</p>)}
-              {card.memberSources.map(member => <p key={`${member.term}:${member.hitId}`}><bdi>{member.term}</bdi> · {member.sourceIds.length} מקורות לאותו מופע, לא אישורים עצמאיים.</p>)}
-            </details> : null}
-            <div className="els29-structure-members">{card.members.map(member => <span key={`${member.term}:${member.hitId}`}>
-              <bdi>{member.label || member.term}</bdi> <small>{member.kind === "axis" ? "ציר מאומת" : isAdded(member) ? member.kind === "source" ? "רצף מקור" : "מאומת" : "מועמד"}</small>
-            </span>)}</div>
-            {card.membersTruncated ? <p>מוצגים {card.members.length} מתוך {card.totalMembers} מופעים בקבוצה.</p> : null}
-            <button type="button" disabled={!key || busy || !!run || !!pendingStructure || !onShowStructure || (!ready && !onAdd)}
-              onClick={() => showStructure(card)}>{ready ? "הצג את הקשר" : "אמת והצג קבוצה"}</button>
-          </li>;
-        })}</ol>
-        {rows.length > 20 ? <nav aria-label="עמודי מבנים"><button type="button" disabled={pageIndex === 0} onClick={() => setPage(pageIndex - 1)}>הקודם</button><span>עמוד {pageIndex + 1} מתוך {Math.ceil(rows.length / 20)}</span><button type="button" disabled={(pageIndex + 1) * 20 >= rows.length} onClick={() => setPage(pageIndex + 1)}>הבא</button></nav> : null}
+        <label>סדר המבנים<select aria-label="סדר המבנים" value={structureSort} onChange={event => { setStructureSort(event.target.value); setPage(0); }}>
+          <option value="diverse">מגוון מילים וקשרים</option><option value="type">סוג הקשר</option>
+          <option value="length">אורך הממצא</option><option value="distance">קרבה לציר</option>
+        </select></label>
+        <p>{rows.length} קבוצות ב־{families.length} כרטיסי מופעים · הקיבוץ אינו מוחק קבוצות ואינו ציון איכות. האורך מתייחס לממצא הארוך בקבוצה, ללא הציר.</p>
+        <p>קשרים סביב אותו מופע מרוכזים יחד. במיון קרבה, קבוצות ללא נתון מרחק מופיעות בסוף.</p>
+        <ol>{slice.map(family => { const anchor = parseElsHitKey(family.member?.hitId); return <li key={family.id} data-structure-family={family.id}>
+          <strong>{family.member?.term || "קשרים במטריצה"}</strong>
+          {anchor ? <p>מיקום <bdi>{anchor.start}</bdi> · דילוג <bdi>{anchor.skip}</bdi> · {anchor.dir === -1 ? "לאחור" : "קדימה"} · {family.cards.length} קבוצות</p> : null}
+          <ol>{renderStructureCard(family.cards[0])}</ol>
+          {family.cards.length > 1 ? <details><summary>עוד {family.cards.length - 1} קשרים עם המופע הזה</summary>
+            <ol>{family.cards.slice(1).map(renderStructureCard)}</ol>
+          </details> : null}
+        </li>; })}</ol>
+        {families.length > 20 ? <nav aria-label="עמודי מבנים"><button type="button" disabled={pageIndex === 0} onClick={() => setPage(pageIndex - 1)}>הקודם</button><span>עמוד {pageIndex + 1} מתוך {Math.ceil(families.length / 20)}</span><button type="button" disabled={(pageIndex + 1) * 20 >= families.length} onClick={() => setPage(pageIndex + 1)}>הבא</button></nav> : null}
       </section>
     <details className="els29-discovery-inspection" onToggle={event => { if (event.currentTarget.open) setInspectionVisited(true); }}>
       <summary>בדיקת הסימונים והשוואת מופעים</summary>

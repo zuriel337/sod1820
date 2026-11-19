@@ -3730,6 +3730,23 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
     await panel.getByLabel('כיסוי המבנים המשולבים').getByText(/2 סריקות/).first().waitFor();
     const discoveryCalls = await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='request-lens'&&m.lens==='matrix-lexicon').length);
     assert.equal(discoveryCalls,2,'combining canonical scans does not launch a third scan');
+    const familyCards=panel.locator('[data-structure-family]');
+    assert.ok(await familyCards.count()>0,'structures have occurrence families');
+    const counted=await panel.locator('[data-structure-card]').evaluateAll(nodes=>nodes.map(n=>n.dataset.structureCard));
+    assert.equal(new Set(counted).size,counted.length,'no duplicate group inside the presented families');
+    const extraRelations=panel.locator('[data-structure-family]>details>summary').first();
+    assert.ok(await extraRelations.count()>0,'dense findings include folded relationships');
+    await extraRelations.click();
+    assert.equal(await extraRelations.evaluate(el=>el.parentElement.open),true);
+    const hiddenAction=extraRelations.locator('..').getByRole('button',{name:/אמת והצג קבוצה|הצג את הקשר/}).first();
+    assert.equal(await hiddenAction.isVisible(),true,'folded relationships keep their original verification action');
+    for(const sort of ['length','distance','type','diverse']) {
+      await panel.getByLabel('סדר המבנים',{exact:true}).selectOption(sort);
+      assert.ok(await familyCards.count()>0);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+    }
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='request-lens'&&m.lens==='matrix-lexicon').length),discoveryCalls,'sorting and expanding never scan again');
+
     await researchView(page,'גילוי').click();
     await page.waitForFunction(()=>document.querySelectorAll('[data-joint-row]').length>0,null,{timeout:30000});
     assert.equal(await joint.locator('[data-joint-row][data-joint-source="engine"]').count()>0,true,'engine rows');

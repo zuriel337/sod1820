@@ -76,3 +76,7 @@
 
 .els29-lexicon-research .els29-discovery-actions:empty{display:none}
 .els29-lexicon-research :is(.els29-structure-filters,.els29-joint-filters)>button:last-child:nth-child(odd){grid-column:1/-1}
+
+.els29-lexicon-research [data-structure-family]{border-color:color-mix(in srgb,var(--r29-sapphire) 40%,var(--s29-line));min-width:0}
+.els29-lexicon-research [data-structure-family]>ol,.els29-lexicon-research [data-structure-family]>details>ol{grid-template-columns:minmax(0,1fr)}
+.els29-lexicon-research [data-structure-family]>details>summary{color:var(--s29-accent-text);font-weight:650;border-block-start:1px solid var(--s29-line)}
