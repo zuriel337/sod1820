@@ -11,6 +11,7 @@ import { splitMessageNumbers } from "../../lib/community/messageNumbers.js";
 import { numberPageHref } from "../../lib/research/numberPageAddress.js";
 import { readGuestName } from "../../lib/community/communityGuestApi.js";
 import { reviewedCommunityAccountId } from "../../lib/community/communityCanonicalIdentity2029.js";
+import { communityShareOwnWords } from "../../lib/community/communityShareHandoff.js";
 
 // Execute the actual component and effect bodies with isolated hooks/transports.
 // This is a focused unit harness, not a browser or a replacement authorization model.
@@ -120,7 +121,7 @@ test("public read mounts the feed while its composer/account widgets stay unmoun
 
 test("a malformed exact thread request does not read or display the general feed", async () => {
   let feedReads = 0;
-  const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], {
+  const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], { communityShareOwnWords,
     fetchCommunityArchivePage: async () => { feedReads++; return { rows: [], nextOffset: 0 }; },
   });
   h.location.search = "?thread=missing&reply=private";
@@ -360,7 +361,7 @@ test("a direct #legacy-chat link still opens the old chat immediately", async ()
 });
 
 test("restored production artifact reuses the existing ordinary-member composer", async () => {
-  const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], {
+  const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], { communityShareOwnWords,
     PUBLIC_READING_PRODUCTION_ARTIFACT: true, communityActionsLocked: () => false,
   });
   const tree = elements(h.render(h.CommunityLive2029, {}));
@@ -406,7 +407,7 @@ test("a guest can only comment (reply-only); a member always sees publish", asyn
   const replyTo = { id: "11111111-1111-4111-8111-111111111111" };
   // [user, guest, replyTo]: a member always publishes; a guest needs an open reply to publish at all.
   for (const [user, guest, reply] of [[null, true, null], [null, true, replyTo], [{ id: "account" }, false, null]]) {
-    const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], {
+    const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], { communityShareOwnWords,
       PUBLIC_READING_PRODUCTION_ARTIFACT: true, communityActionsLocked: () => false, plainMessageText: value => value,
       useAuth: () => ({ user, profile: {}, isAdmin: false, loading: false, verified: Boolean(user) }),
       useCommunityDraft2029: () => ({ draft: "שלום", setDraft() {}, replyTo: reply, setReplyTo() {}, status: "idle", clear() {}, setHasFiles() {}, reattach: false }),

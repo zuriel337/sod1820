@@ -144,7 +144,8 @@ export function nowRowModel(row) {
   // writer, never the source); a channel is its channel; a series Post is its series; any other Post is "פרסומי האתר". Series, category,
   // source and Post identity stay separate: this key never reads a category.
   const groupKey = hasGroupSource ? clean(item.sourceGroup?.key) || "" : "";
-  const sourceKey = hasGroupSource ? `group:${groupKey || "neutral"}` : isChannel && item.channel ? `channel:${item.channel}`
+  // A channel that is also a public source group («הגילוי היומי»: channel and group gilui-yomi) is ONE source in the picker (ZURIEL 19.11.2026).
+  const sourceKey = hasGroupSource ? `group:${groupKey || "neutral"}` : isChannel && item.channel ? (GROUP_SOURCE_CHANNELS[item.channel] ? `group:${item.channel}` : `channel:${item.channel}`)
     : isPost && seriesKey ? `series:${seriesKey}` : isPost ? "site:posts" : isGallery ? "site:reality" : row?.kind === "finding" || row?.kind === "convergence" ? "site:els" : "site:other";
   const typeLabel = unverified ? "מקור · טרם נבדק"
     : isDiscussion ? "לדיון בקהילה"
@@ -212,8 +213,12 @@ const byPinnedLast = (a, b) => {
   if (ea === null || eb === null) return (eb === null ? 0 : 1) - (ea === null ? 0 : 1);
   return ea === eb ? 0 : eb > ea ? 1 : -1;
 };
+// Groups hidden from "עכשיו" (ZURIEL 19.11.2026: «כי לה׳ המלוכה — גימטריות»): no source chip and none of its rows here. Presentation only:
+// the group's rows, admission and the world reader stay as they are, and removing the key restores it.
+export const NOW_HIDDEN_GROUPS = Object.freeze(["ki-la-hamelucha-gematria"]);
+const hiddenInNow = model => typeof model?.sourceKey === "string" && model.sourceKey.startsWith("group:") && NOW_HIDDEN_GROUPS.includes(model.sourceKey.slice(6));
 const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.title)
-  .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
+  .map(nowRowModel).filter(model => !hiddenInNow(model)).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
   .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 // ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
@@ -395,11 +400,13 @@ export function nowTodayBand(models, now = Date.now(), timeZone = "Asia/Jerusale
 }
 
 // ── Source picker (ZURIEL 11.11.2026; PLAN37 NOW decision) ────────────────────────────────────────────────────────────────────
-// "הכול" first, then the known public groups (also when nothing of theirs is in the window: an honest empty state, never hidden), then
-// channels, series and the site's own publications. Every choice says what KIND of source it is. Built from the loaded rows only.
+// "הכול" first, then every source by its LATEST update in the window, newest first (ZURIEL 19.11.2026: the source that received the newest
+// update stands first, i.e. rightmost in the RTL row; this replaces the fixed kind order of 11.11). A known public group with nothing in the
+// window is still listed (an honest empty state, never hidden), after the sources that have rows. Every choice says what KIND of source it
+// is. Built from the loaded rows only; a row without a valid time never moves its source forward.
 export const NOW_SOURCE_KIND_LABEL = Object.freeze({ group: "קבוצה", channel: "ערוץ", series: "סדרה", site: "פרסומי האתר" });
 const SITE_SOURCE_LABEL = Object.freeze({ "site:posts": "פרסומי האתר", "site:reality": "זרם המציאות", "site:els": "הצופן התנ״כי", "site:other": "עוד מהאתר" });
-const KNOWN_GROUPS = Object.freeze(["torat-haremez", "ki-la-hamelucha-gematria"]);
+const KNOWN_GROUPS = Object.freeze(["torat-haremez"]); // «כי לה׳ המלוכה — גימטריות» hidden from "עכשיו" (ZURIEL 19.11.2026, NOW_HIDDEN_GROUPS)
 const KIND_ORDER = Object.freeze(["group", "channel", "series", "site"]);
 
 export function nowSourceChoices(models) {
@@ -410,16 +417,18 @@ export function nowSourceChoices(models) {
     const kind = key.split(":")[0];
     const label = kind === "group" ? (model.groupLabel || GROUP_SOURCE_CHANNELS[key.slice(6)] || "קבוצת מקור")
       : kind === "series" ? (model.seriesLabel || key.slice(7)) : kind === "site" ? SITE_SOURCE_LABEL[key] : (model.sourceName || key.slice(8));
-    const entry = found.get(key) || { id: key, kind, kindLabel: NOW_SOURCE_KIND_LABEL[kind], label, count: 0, logo: null };
+    const entry = found.get(key) || { id: key, kind, kindLabel: NOW_SOURCE_KIND_LABEL[kind], label, count: 0, logo: null, latestAt: 0 };
     entry.count += 1; if (!entry.logo && model.logo) entry.logo = model.logo;
+    const at = Date.parse(model.at || "");
+    if (Number.isFinite(at) && at > entry.latestAt) entry.latestAt = at;
     found.set(key, entry);
   }
   for (const group of KNOWN_GROUPS) {
     const key = `group:${group}`;
-    if (!found.has(key)) found.set(key, { id: key, kind: "group", kindLabel: NOW_SOURCE_KIND_LABEL.group, label: GROUP_SOURCE_CHANNELS[group], count: 0, logo: null });
+    if (!found.has(key)) found.set(key, { id: key, kind: "group", kindLabel: NOW_SOURCE_KIND_LABEL.group, label: GROUP_SOURCE_CHANNELS[group], count: 0, logo: null, latestAt: 0 });
   }
   const rank = entry => KIND_ORDER.indexOf(entry.kind) * 1000 + (entry.kind === "group" && KNOWN_GROUPS.includes(entry.id.slice(6)) ? KNOWN_GROUPS.indexOf(entry.id.slice(6)) : 100);
-  return [...found.values()].sort((a, b) => rank(a) - rank(b) || b.count - a.count || a.label.localeCompare(b.label, "he"));
+  return [...found.values()].sort((a, b) => b.latestAt - a.latestAt || rank(a) - rank(b) || b.count - a.count || a.label.localeCompare(b.label, "he"));
 }
 
 export const filterNowBySource = (models, sourceKey = "") => list(models).filter(model => !sourceKey || model.sourceKey === sourceKey);

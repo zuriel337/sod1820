@@ -6,6 +6,23 @@ import { FINDING_NOT_SENT, findingCardUrl, findingDisclosure, findingShareMessag
 
 // The finding-share sheet (ZURIEL 18.11.2026): shows exactly what will be sent (the finding, its method and result, the link, the card) and the
 // existing ShareActions sends it. Loaded only when the button is pressed, so the share helpers never join a page's opening graph (speed law).
+function findingImage({ kind, expression, value, method, number, context }) {
+  return kind === "number" && !expression
+    ? `https://sod1820.co.il/api/card?n=${encodeURIComponent(number)}`
+    : findingCardUrl({ kind, expression, value, method, context: kind === "number" && number != null ? `בדף המספר ${number}` : context });
+}
+
+// The same finding for the bar's one share window (ZURIEL 19.11.2026): what the sheet shows — the card, "מה יישלח", the note — and the
+// ShareActions props it sends. The button loads this module on press only, as it loaded the sheet.
+export function findingBarShare({ kind, url, expression, value, method, number, context, sourceSurface }) {
+  return { type: kind === "number" ? "number" : "gematria_result", url, title: findingShareMessage({ kind, expression, value, method, number }),
+    image: findingImage({ kind, expression, value, method, number, context }), sourceSurface,
+    label: expression || kind !== "number" ? "הממצא" : "דף המספר",
+    disclosure: [["יישלח", expression ? "הביטוי, השיטה והתוצאה שבחרת, עם קישור שפותח את אותו ממצא" : "קישור לדף המספר"],
+      ...findingDisclosure({ kind, expression, value, method, number, url })],
+    note: FINDING_NOT_SENT };
+}
+
 export default function FindingShareSheet2029({ kind, url, expression, value, method, number, context, sourceSurface, buttonRef, onClose }) {
   const titleId = useId();
   const sheetRef = useRef(null);
@@ -17,9 +34,7 @@ export default function FindingShareSheet2029({ kind, url, expression, value, me
     return () => document.removeEventListener("keydown", onKey);
   }, []);
   // The number page itself has its own card (the number and its phrases); a finding gets a finding card.
-  const numberPageImage = kind === "number" && !expression
-    ? `https://sod1820.co.il/api/card?n=${encodeURIComponent(number)}`
-    : findingCardUrl({ kind, expression, value, method, context: kind === "number" && number != null ? `בדף המספר ${number}` : context });
+  const numberPageImage = findingImage({ kind, expression, value, method, number, context });
   const rows = findingDisclosure({ kind, expression, value, method, number, url });
   const message = findingShareMessage({ kind, expression, value, method, number });
   // Rendered into the frame root (its theme tokens live there), outside the page container, so the page's own stacking cannot keep it under

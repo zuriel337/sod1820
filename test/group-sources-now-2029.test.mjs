@@ -94,7 +94,8 @@ test("Now: source filter offers the groups; unidentified-label neutral rows stil
   ];
   const models = nowModels(feedRows(items, { limit: 10, caps: { group: 10 } }));
   const choices = nowSecondaryChoices(models).sources.map((s) => s.id);
-  assert.deepEqual(choices.sort(), ["כי לה׳ המלוכה — גימטריות", "קבוצת מקור", "תורת הרמז"].sort());
+  // «כי לה׳ המלוכה — גימטריות» is hidden from Now (ZURIEL 19.11.2026); its row is no longer listed there.
+  assert.deepEqual(choices.sort(), ["קבוצת מקור", "תורת הרמז"].sort());
   assert.equal(filterNowModels(models, { source: "תורת הרמז" }).length, 1);
 });
 

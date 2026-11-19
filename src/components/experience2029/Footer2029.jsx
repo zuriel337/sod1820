@@ -26,18 +26,6 @@ export function footerLinkState(item, { isAdmin = false } = {}) {
   return ACTIVE_STATES.has(state) ? "active" : "closed";
 }
 
-// Grounded suggestions: only registry entries that are open for this viewer, never the page already open,
-// chosen by the kind of page the visitor is on. At most three.
-const SUGGESTIONS_BY_FAMILY = Object.freeze({
-  home: ["posts", "number", "gematria"],
-  post: ["number", "gematria", "world"],
-  number: ["gematria", "world", "posts"],
-  world: ["posts", "number", "books"],
-  gematria: ["number", "world", "posts"],
-  community: ["posts", "world", "map"],
-  library: ["gematria", "world", "posts"],
-  default: ["posts", "number", "map"],
-});
 
 export function footerRouteFamily(pathname) {
   const path = String(pathname || "/");
@@ -52,14 +40,6 @@ export function footerRouteFamily(pathname) {
   return publicReadingPath(path) === "post-lookup" ? "post" : "default";
 }
 
-export function footerSuggestions(pathname, options = {}) {
-  const current = String(pathname || "/").replace(/\/+$/, "") || "/";
-  const family = footerRouteFamily(pathname);
-  return (SUGGESTIONS_BY_FAMILY[family] || SUGGESTIONS_BY_FAMILY.default)
-    .map((id) => siteLinkById(id))
-    .filter((item) => item && !item.external && item.href !== current && footerLinkState(item, options) === "active")
-    .slice(0, 3);
-}
 
 const OPEN_UNDER_CONSTRUCTION = new Set(["world", "els"]);
 
@@ -92,7 +72,6 @@ export default function Footer2029() {
   const { isAdmin } = useAuth();
   const options = { isAdmin: isAdmin === true };
   const isHome = pathname === "/" || pathname === "/2029";
-  const suggestions = footerSuggestions(pathname, options);
   const social = siteLinksForFooterGroup("social");
   const whatsapp = siteLinkById("whatsapp");
 
@@ -119,12 +98,7 @@ export default function Footer2029() {
           ))}
         </ul>
 
-        {suggestions.length ? (
-          <nav className="f29-suggest" aria-label="הצעות להמשך">
-            <span>להמשיך מכאן</span>
-            {suggestions.map((item) => <Link key={item.id} className="f29-chip" to={item.href}>{item.label}</Link>)}
-          </nav>
-        ) : null}
+        {/* The "להמשיך מכאן" suggestion row left the footer (ZURIEL 19.11.2026); the link columns below stay. */}
 
         <nav className="f29-nav" aria-label="ניווט תחתון">
           {NAV_GROUPS.map((group) => (
