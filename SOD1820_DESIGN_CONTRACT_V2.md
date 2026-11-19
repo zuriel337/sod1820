@@ -679,8 +679,9 @@ charcoal, the full blue charcoal also inside posts, and a blue frame around warm
   `--s29-frame-soft`. Day and Parchment have no frame tone; their frame uses their card surfaces.
 - **Pages and posts keep their warmth.** The page background, post halls and content surfaces keep the
   current warm Night (`pageBg #0B0907`, `card #17120E`, `cardSoft #211A13`) and their character.
-- **Primary actions** use a stronger royal blue at Night: `accentBtn` `#3D6EF2 → #2858DE` with
-  `onAccent` text (formerly `#315DD5 → #2454B8`).
+- **Primary actions** use a stronger royal blue at Night: `accentBtn` `#3A6BEE → #2858DE` with
+  `onAccent` text (formerly `#315DD5 → #2454B8`). White text reads at 4.65:1 and 5.93:1 on the two stops.
+  The first preview used `#3D6EF2` (4.46:1, below 4.5:1), and it was darkened by two steps so the text stays readable.
 - **Gold stays restrained:** thin hairlines, rings and the diamond rule; the gold wash inside the “עוד”
   panel is lowered at Night. Status colours keep their meanings.
 - **The bottom bar and its panels share the frame tone**, so an expansion reads as part of the bar.

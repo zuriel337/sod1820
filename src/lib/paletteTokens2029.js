@@ -108,7 +108,7 @@ export const DESIGN_V2_PALETTES = Object.freeze({
     accentDiscovery: "#69DED7",
     accentDim: "#BCA57F",
     heroNum: "#F6E27A",
-    accentBtn: "linear-gradient(135deg, #3D6EF2, #2858DE)",  // ZURIEL 19.11.2026 (Design V2 §14.2): a stronger royal blue for primary actions at Night
+    accentBtn: "linear-gradient(135deg, #3A6BEE, #2858DE)",  // ZURIEL 19.11.2026 (Design V2 §14.2, §14.9): a stronger royal blue for primary actions at Night; white text >= 4.5:1 on both stops
     onAccent: "#FFFFFF",
     glow: "rgba(49,93,213,0.28)",
     focusRing: "#69DED7",
