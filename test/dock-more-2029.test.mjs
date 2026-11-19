@@ -18,7 +18,7 @@ test("global dock: exactly five controls in the order כאן, שיתוף, רזי
 });
 
 test("each bar entry says whether its expansion is open; one expansion at a time", () => {
-  assert.match(frame, /const barExpansion = transientKind === TRANSIENT\.MORE \? \(transient\?\.payload\?\.shareOnly \? "share" : "more"\) : transientKind === TRANSIENT\.CONTEXT \? "here" : null;/);
+  assert.match(frame, /const barExpansion = transientKind === TRANSIENT\.MORE \? \(transient\?\.payload\?\.shareOnly \? "share" : "more"\) : transientKind === TRANSIENT\.CONTEXT \? "here" : transientKind === TRANSIENT\.ATTENTION \|\| transientKind === TRANSIENT\.WORKSPACE \? "now" : null;/);
   assert.match(global, /aria-expanded=\{barExpansion === "here"\}/);
   assert.match(global, /aria-expanded=\{barExpansion === "share"\}/);
   assert.match(global, /aria-expanded=\{barExpansion === "more"\}/);

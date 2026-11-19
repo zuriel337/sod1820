@@ -115,7 +115,7 @@ test('research window has three capability views, one explicit launch and shared
 
 test('Discovery uses the shared inspector and preserves tools without automatic work',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
- for(const width of [320,360,390,1440])await withNative({width,height:900},async page=>{
+ for(const width of [320,360,390,1024,1280,1440])await withNative({width,height:900},async page=>{
   const area=page.getByRole('region',{name:'כלי מחקר במטריצה',exact:true});
   const entry=researchView(page,'כלי מחקר');
   const panel=area.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
@@ -135,7 +135,12 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
     assert.equal(await panel.isVisible(),true,'other tools never close discovery');
     assert.equal(await page.locator('#els29-context-panel').isVisible(),true);
     const a=await page.locator('#els29-discovery-panel').boundingBox(),b=await page.locator('#els29-context-panel').boundingBox();
-    if(width>=981) assert.ok(a.x+a.width<=b.x+1||b.x+b.width<=a.x+1,'two independent columns');
+    if(width>=981) {
+      assert.ok(a.x+a.width<=b.x+1||b.x+b.width<=a.x+1,'two independent columns');
+      await alignedPanel(page, name+' alongside discovery');
+      if(a.width<=302) assert.equal(await page.locator('#els29-discovery-panel .els29-discovery-actions').first().evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),2,'narrow side tools keep two equal action columns');
+      if(process.env.ELS_PANEL_SCREENSHOTS){mkdirSync(process.env.ELS_PANEL_SCREENSHOTS,{recursive:true});await page.locator('.els29-native-layout').screenshot({path:join(process.env.ELS_PANEL_SCREENSHOTS,`panels-${width}-${name}.png`)});}
+    }
     else assert.ok(b.y>=a.y+a.height-1,'readable stacked panels on mobile');
     await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
     assert.equal(await panel.isVisible(),true,'closing secondary tools preserves discovery');
@@ -146,8 +151,21 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
   assert.equal(await area.evaluate(el=>!!el.closest('.els29-native-context-panel')),true);
   assert.equal(await page.locator('[data-tool-action=discovery]:visible').count(),1);
   const launch=panel.locator('.els29-discovery-actions').filter({has:page.getByRole('button',{name:'התחל גילוי',exact:true})});
+  if(process.env.ELS_PANEL_SCREENSHOTS){
+    mkdirSync(process.env.ELS_PANEL_SCREENSHOTS,{recursive:true});
+    await panel.locator('.els29-discovery-header').screenshot({path:join(process.env.ELS_PANEL_SCREENSHOTS,`paired-launch-${width}.png`)});
+    await panel.locator('.els29-research-views').screenshot({path:join(process.env.ELS_PANEL_SCREENSHOTS,`paired-views-${width}.png`)});
+  }
+  const viewButtons=await panel.locator('.els29-research-views button').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};}));
+  assert.ok(viewButtons.every(b=>b.h>=44&&b.h<=56),'view actions stay compact and readable');
+  assert.ok(Math.abs(viewButtons[0].w-viewButtons[1].w)<1,'view actions have equal widths');
   const sizes=await launch.locator(':scope>button').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().width));
   assert.ok(sizes.length>=2 && Math.abs(sizes[0]-sizes[1])<1,'equal launch button tracks');
+  assert.equal(await launch.locator(':scope>button:not(.r29-btn)').count(),0,'Discovery uses the existing Royal button family');
+  assert.equal(await panel.locator('.els29-research-views button:not(.r29-btn)').count(),0,'view buttons use the same Royal family');
+  const actionBoxes=await launch.locator(':scope>button').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {y:r.y,height:r.height};}));
+  assert.ok(Math.abs(actionBoxes[0].y-actionBoxes[1].y)<1,'paired actions remain on the same row on mobile and desktop');
+  assert.ok(actionBoxes.every(box=>box.height>=44&&box.height<=56),'compact readable actions instead of giant buttons');
   await panel.getByLabel('מסלול הגילוי').selectOption('language');
   await researchView(page,'מבנים').click();
   await panel.getByText('בדיקת הסימונים והשוואת מופעים',{exact:true}).click();
@@ -162,6 +180,11 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
   }
   await page.getByRole('button',{name:'סגור גילוי',exact:true}).click();assert.equal(await panel.isVisible(),false);
   assert.equal(await entry.evaluate(el=>el===document.activeElement),true);
+  if(width>=981) for(const name of ['סריקה וממצאים','תוצאות','שמירה']) {
+    await page.locator('.els29-native-toolstrip').getByRole('button',{name,exact:true}).click();
+    await alignedPanel(page,name+' with discovery closed');
+    await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+  }
   await entry.press('Enter');
   assert.equal(await researchView(page,'מבנים').getAttribute('aria-pressed'),'true','folding preserves the current view');
   assert.equal(await panel.locator('.els29-discovery-inspection').getAttribute('open'),'');
@@ -1328,7 +1351,7 @@ async function expectStable(page, before, label) {
   const after = await capture(page);
   for (const key of Object.keys(before)) assert.ok(Math.abs(after[key] - before[key]) <= 1, `${label}: ${key} changed ${before[key]} → ${after[key]}`);
 }
-// Explicit tool navigation scrolls the document to the approved lower inspector.
+// Explicit tool navigation brings the selected inspector into view.
 // All matrix geometry and internal pan must remain exact; subsequent actions also retain pageY.
 async function expectPanelNavigation(page,before,label) {
   const {pageY,...matrixBefore}=before;
@@ -1389,7 +1412,8 @@ async function alignedPanel(page, label) {
   const discovery = page.locator('#els29-discovery-panel');
   if (await discovery.isVisible()) {
     const other = await discovery.boundingBox();
-    assert.ok(panel.y >= stage.y + stage.height - 1, `${label}: both approved inspectors are below the matrix`);
+    assert.ok(Math.abs(panel.y - stage.y) <= 2, `${label}: inspectors stay beside the matrix`);
+    assert.ok(panel.x + panel.width <= stage.x + 2 || panel.x >= stage.x + stage.width - 2, `${label}: tools do not cover the matrix`);
     assert.ok(Math.abs(other.y - panel.y) <= 1, `${label}: inspector tops align`);
     assert.ok(Math.abs(other.height - panel.height) <= 1, `${label}: inspector bottoms align`);
     assert.ok(Math.abs(stage.height - panel.height) <= 1, `${label}: inspector height follows matrix height: ${JSON.stringify({stage,panel})}`);
@@ -1646,7 +1670,13 @@ test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan 
   await withNative({width:2560,height:1000},async page=>{
    const margins=await page.evaluate(()=>{const frame=document.querySelector('.sod29-main').getBoundingClientRect(),content=document.querySelector('.sod29-content').getBoundingClientRect();return{ratio:content.width/frame.width,left:content.left-frame.left,right:frame.right-content.right}});
    assert.ok(Math.abs(margins.ratio-.9)<=.001&&Math.abs(margins.left-margins.right)<=1);
-   assert.ok((await capture(page)).width>1450);await alignedPanel(page,'wide pinned rail');
+   // The two inspectors now occupy their own side columns, not a second row.
+   // Keep the wide work area and verify the matrix gets all remaining space.
+   const matrixWidth=(await capture(page)).width;
+   const inspectorWidth=(await page.locator('.els29-native-panel-wrap').boundingBox()).width;
+   assert.ok(matrixWidth+inspectorWidth>1450,'wide workspace is preserved across matrix and side tools');
+   assert.ok(matrixWidth>inspectorWidth*2,'the matrix retains most of the wide workspace');
+   await alignedPanel(page,'wide pinned rail');
    const pinned=await pan(page);await activate(page,'בטל הצמדה');const overlay=await pan(page);assert.ok(overlay.width>pinned.width);
    await activate(page,'סגור כלי מטריצה');await expectStable(page,overlay,'overlay close');await openPanel(page);await expectPanelNavigation(page,overlay,'overlay reopen');
    await activate(page,'הצמד');const repinned=await pan(page);assert.ok(Math.abs(repinned.width-pinned.width)<=1);
@@ -2270,8 +2300,10 @@ test('Research matrix scrolls and drags vertically as well as horizontally, and 
     assert.ok(sizes.sh>sizes.ch+40,'the matrix has vertical overflow inside its own box');
     const before=await box.evaluate(el=>el.scrollTop);
     await box.scrollIntoViewIfNeeded();
-    const full=await box.boundingBox(), top=Math.max(full.y,0), bottom=Math.min(full.y+full.height,900);
-    const rect={x:full.x,width:full.width,y:top,height:bottom-top};   // the visible part: pointer coordinates must be inside the viewport
+    // The fixed bottom bar (.sod29-command-island) covers the lowest part of the viewport: a press there reaches the bar, not the matrix.
+    const barTop=await page.evaluate(()=>document.querySelector('.sod29-command-island')?.getBoundingClientRect().top??Infinity);
+    const full=await box.boundingBox(), top=Math.max(full.y,0), bottom=Math.min(full.y+full.height,900,barTop);
+    const rect={x:full.x,width:full.width,y:top,height:bottom-top};   // the visible part: pointer coordinates must be inside the viewport, above the bar
     const atBottom=before>=sizes.sh-sizes.ch-2;   // the axis may already centre the view at the bottom edge
     await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height*(atBottom?0.2:0.8));await page.mouse.down();
     await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height*(atBottom?0.8:0.2),{steps:8});await page.mouse.up();

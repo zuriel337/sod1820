@@ -147,3 +147,14 @@
 .r29-share-grid .r29-btn{inline-size:100%;min-block-size:46px;padding-inline:12px}
 .r29-share .sod-action-announcement:empty{display:none}
 .r29-share-grid>:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;inline-size:min(100%,calc(50% - 4px))}
+/* «שתפו בקהילה» and QR inside the one share window (ZURIEL 19.11.2026): the same quiet buttons as the channels, one row of two. */
+.r29-share-more{display:grid;gap:8px;inline-size:100%;padding-block-start:10px;border-block-start:1px solid color-mix(in srgb,var(--r29-gold) 16%,var(--s29-line))}
+.r29-share-more-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.r29-share-more-row .r29-btn{inline-size:100%;min-block-size:46px;padding-inline:12px}
+.r29-qr-glyph{font-size:18px;line-height:1}
+.r29-share-hint{margin:0;text-align:center;font-size:14px;line-height:1.5;color:var(--s29-muted)}
+.r29-share-qr{display:grid;justify-items:center;gap:8px;margin:4px 0 0}
+/* the QR drawing carries its own white quiet zone (uqr, border 2 modules), so the layer adds no colour of its own */
+.r29-share-qr-code{inline-size:min(208px,70vw);aspect-ratio:1;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 30%,transparent)}
+.r29-share-qr-code svg{display:block;inline-size:100%;block-size:100%}
+.r29-share-qr figcaption,.r29-share-qr p{margin:0;text-align:center;font-size:14px;color:var(--s29-muted)}

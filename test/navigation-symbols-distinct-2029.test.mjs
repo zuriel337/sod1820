@@ -115,8 +115,8 @@ test("the destinations that used to look alike each have their own picture", () 
   const symbolOf = (label) => [...HOME_NAV, ...DIRECT_NAV].find((item) => item.label === label)?.symbol;
   assert.notEqual(symbolOf("מחשבון גימטריה"), symbolOf("דף המספר"), "calculator and Number page");
   assert.notEqual(symbolOf("ספרים ומקורות"), symbolOf("בית המדרש"), "Books and Beit Midrash");
-  assert.notEqual(symbolOf("העולם"), symbolOf("מפת האתר"), "World and site map");
-  assert.equal(new Set([symbolOf("קהילה"), symbolOf("עדכונים במייל"), symbolOf("פרטיות")]).size, 3, "Community, updates and privacy");
+  // Site map, email updates and privacy left the rail for the footer (ZURIEL 19.11.2026).
+  for (const label of ["מפת האתר", "עדכונים במייל", "פרטיות"]) assert.equal(symbolOf(label), undefined, `${label} is not a rail row`);
   assert.equal(symbolOf("קהילה"), "community", "Community is the people symbol, not the tools grid");
   assert.equal(symbolOf("דף המספר"), "number");
   assert.equal(symbolOf("ספרים ומקורות"), "books");

@@ -2,8 +2,8 @@
 .els29-lexicon-research[hidden]{display:none}
 .els29-lexicon-research h3{font-size:var(--s29-type-title);margin:0 0 12px}
 .els29-lexicon-research p{font-size:max(var(--s29-type-body),18px);line-height:1.65}
-.els29-lexicon-research button,.els29-lexicon-research select,.els29-lexicon-research summary{font:inherit;font-size:max(var(--s29-type-ui),16px);min-height:44px;min-width:44px;padding:10px 14px;white-space:normal;max-width:100%;cursor:pointer}
-.els29-lexicon-research button,.els29-lexicon-research select{color:var(--s29-ink);background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:12px}
+.els29-lexicon-research button:not(.r29-btn),.els29-lexicon-research select,.els29-lexicon-research summary{font:inherit;font-size:max(var(--s29-type-ui),16px);min-height:44px;min-width:44px;padding:10px 14px;white-space:normal;max-width:100%;cursor:pointer}
+.els29-lexicon-research button:not(.r29-btn),.els29-lexicon-research select{color:var(--s29-ink);background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:12px}
 .els29-lexicon-research button:disabled{opacity:.55;cursor:default}
 .els29-lexicon-research :is(button,select,summary):focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 .els29-lexicon-research ol{padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
@@ -23,7 +23,7 @@
 .els29-discovery-source-filter input{width:24px;height:24px;flex:none;accent-color:var(--s29-accent)}
 .els29-discovery-source-filter:focus-within{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 
-.els29-lexicon-research .els29-start-discovery{border-color:var(--s29-accent);color:var(--s29-accent-text);font-weight:700}
+.els29-lexicon-research .els29-start-discovery:not(.r29-btn){border-color:var(--s29-accent);color:var(--s29-accent-text);font-weight:700}
 .els29-lexicon-research .els29-reading-extension{margin-block:16px 0;border-block-start:1px solid var(--s29-line)}
 .els29-lexicon-research .els29-reading-extension>summary{padding-inline:0;color:var(--s29-accent-text)}
 .els29-structure-filters,.els29-structure-members{display:flex;flex-wrap:wrap;gap:8px;margin-block:10px}
@@ -45,16 +45,16 @@
 .els29-discovery-header>strong{font-size:clamp(22px,2.2vw,28px);color:var(--s29-accent-text);line-height:1.3}
 .els29-research-eyebrow{color:var(--r29-gold-ink);font-size:var(--s29-type-ui);font-weight:700}
 .els29-discovery-header>label,.els29-discovery-header>.els29-discovery-actions{justify-content:center}
-.els29-discovery-header>.els29-discovery-actions>button{flex:1 1 190px;max-width:320px;border-color:color-mix(in srgb,var(--r29-sapphire) 46%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 12%,var(--s29-panel));font-weight:650}
-.els29-discovery-header>.els29-discovery-actions>.els29-start-discovery{background:var(--s29-accent);color:var(--s29-on-accent);border-color:color-mix(in srgb,var(--r29-gold) 60%,var(--s29-accent));box-shadow:inset 0 1px 0 #ffffff24,0 6px 18px -12px var(--r29-sapphire)}
+.els29-discovery-header>.els29-discovery-actions>button:not(.r29-btn){flex:1 1 190px;max-width:320px;border-color:color-mix(in srgb,var(--r29-sapphire) 46%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 12%,var(--s29-panel));font-weight:650}
+.els29-discovery-header>.els29-discovery-actions>.els29-start-discovery:not(.r29-btn){background:var(--s29-accent);color:var(--s29-on-accent);border-color:color-mix(in srgb,var(--r29-gold) 60%,var(--s29-accent));box-shadow:inset 0 1px 0 #ffffff24,0 6px 18px -12px var(--r29-sapphire)}
 .els29-discovery-header>.els29-discovery-settings{max-width:760px;width:100%;box-sizing:border-box;margin-inline:auto;border-block-start:1px solid color-mix(in srgb,var(--r29-gold) 28%,var(--s29-line))}
 .els29-discovery-settings[open]{text-align:start}
 .els29-discovery-settings>summary{text-align:center;color:var(--s29-accent-text)}
 .els29-research-result-navigation{text-align:center;margin-block:20px 12px}
 .els29-research-result-navigation>p{margin:0;color:var(--s29-muted)}
 .els29-research-result-navigation .els29-research-views{padding:12px 0;border-block-end:0}
-.els29-research-result-navigation .els29-research-views button{padding:10px 6px;background:color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel));border-color:color-mix(in srgb,var(--r29-sapphire) 32%,var(--s29-line))}
-.els29-research-result-navigation .els29-research-views button[aria-pressed=true]{background:var(--s29-accent);color:var(--s29-on-accent);border-color:var(--r29-gold);box-shadow:inset 0 1px 0 #ffffff24}
+.els29-research-result-navigation .els29-research-views button:not(.r29-btn){padding:10px 6px;background:color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel));border-color:color-mix(in srgb,var(--r29-sapphire) 32%,var(--s29-line))}
+.els29-research-result-navigation .els29-research-views button:not(.r29-btn)[aria-pressed=true]{background:var(--s29-accent);color:var(--s29-on-accent);border-color:var(--r29-gold);box-shadow:inset 0 1px 0 #ffffff24}
 .els29-lexicon-research>.els29-research-result-navigation~div>p,.els29-lexicon-research #els29-structures-view>section>p{text-align:center}
 .els29-lexicon-research .els29-structure-filters{justify-content:center}
 .els29-lexicon-research.r29 li.els29-structure-card{border-color:color-mix(in srgb,var(--r29-sapphire) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel))}
@@ -80,3 +80,6 @@
 .els29-lexicon-research [data-structure-family]{border-color:color-mix(in srgb,var(--r29-sapphire) 40%,var(--s29-line));min-width:0}
 .els29-lexicon-research [data-structure-family]>ol,.els29-lexicon-research [data-structure-family]>details>ol{grid-template-columns:minmax(0,1fr)}
 .els29-lexicon-research [data-structure-family]>details>summary{color:var(--s29-accent-text);font-weight:650;border-block-start:1px solid var(--s29-line)}
+
+/* Keep the shared Royal typography and states; this surface sets readable sizing only. */
+.els29-lexicon-research .r29-btn{font-size:16px;min-width:44px;white-space:normal}

@@ -14,7 +14,7 @@ test("My Workspace opens the Raziel conversation center before the existing chat
   assert.doesNotMatch(frame, /^import RazielCenter2029 from /m);
   const shell = frame.slice(frame.indexOf("function PanelShell("), frame.indexOf("function PanelShell(") + 2400);
   assert.match(shell, /<React\.Suspense fallback=\{<div role="status">[^<]*<\/div>\}>\{children\}<\/React\.Suspense>/);
-  assert.match(frame, /<PanelShell \{\.\.\.common\} panelKind="workspace"[^\n]*><WorkspaceProjection /);
+  assert.match(frame, /<PanelShell \{\.\.\.common\}[^\n]*panelKind="workspace"[^\n]*><WorkspaceProjection /);
   // The card now comes from the personal-area model: always live (saved conversations stay reachable), opened in the panel, never gated on Raziel's lock.
   const model = read("src/lib/userCenter/personalArea2029.js");
   assert.match(model, /id: "raziel"[\s\S]{0,700}to: \{ section: "raziel" \}/);

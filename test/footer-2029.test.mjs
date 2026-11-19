@@ -80,15 +80,11 @@ test("an admin sees the admin-view routes as working links with a visible admin 
   assert.match(html, /<li class="f29-closed"><span>ארכיון<\/span>/, "/archive stays closed for admins too");
 });
 
-test("suggestions are at most three, open, registry-only and never the page already open", async () => {
+test("no 'להמשיך מכאן' suggestion row in the footer (ZURIEL 19.11.2026)", async () => {
   const footer = await loadFooter(false);
-  for (const [pathname, expected] of [["/2029", ["/post", "/number", "/gematria"]], ["/2029/posts", ["/number", "/gematria", "/world"]],
-    ["/number", ["/gematria", "/world", "/post"]], ["/world", ["/post", "/number", "/books"]], ["/privacy", ["/post", "/number", "/map"]]]) {
+  for (const pathname of ["/2029", "/2029/posts", "/number", "/world", "/privacy"]) {
     const html = render(footer, pathname);
-    const chips = [...html.matchAll(/<a class="f29-chip"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
-    assert.deepEqual(chips, expected, pathname);
-    assert.ok(chips.length <= 3);
-    assert.ok(!chips.includes(pathname.replace(/^\/2029$/, "/")), pathname);
+    assert.doesNotMatch(html, /f29-suggest|f29-chip|להמשיך מכאן/, pathname);
   }
 });
 

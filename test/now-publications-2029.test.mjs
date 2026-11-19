@@ -282,11 +282,23 @@ test("source picker: a stable key per source kind (group / channel / series / th
   const groupKey = models.find(model => model.unverified)?.sourceKey;
   assert.match(groupKey, /^group:/);
   const choices = nowSourceChoices(models);
-  assert.deepEqual(choices.slice(0, 2).map(item => item.kind), ["group", "group"], "groups first");
-  assert.ok(choices.some(item => item.id === "group:ki-la-hamelucha-gematria" && item.count === 0 && item.label === "כי לה׳ המלוכה — גימטריות"));
+  // ZURIEL 19.11.2026: newest update first (rightmost in RTL): the group row (10:00), the channel (09:00), the site (08:00), then the empty known group.
+  assert.deepEqual(choices.map(item => item.id), [groupKey, "channel:or-geula", "site:posts"], "ordered by the latest update, newest first");
+  const later = nowSourceChoices(nowModels([...rows([groupRow].filter(Boolean)), channel, { ...sitePost, at: "2026-11-03T11:00:00Z" }]));
+  assert.equal(later[0].id, "site:posts", "a source that receives a newer update moves to the front");
+  assert.ok(!choices.some(item => item.id === "group:ki-la-hamelucha-gematria"), "«כי לה׳ המלוכה — גימטריות» is hidden from Now (ZURIEL 19.11.2026)");
+  const hiddenRow = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000002", body: "הודעה", created_at: "2026-11-03T12:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique", group_channel: "ki-la-hamelucha-gematria" });
+  if (hiddenRow) assert.equal(nowModels(rows([hiddenRow])).length, 0, "a row of the hidden group does not show in Now");
   assert.equal(choices.find(item => item.id === "channel:or-geula").kindLabel, "ערוץ");
   assert.equal(choices.find(item => item.id === "site:posts").label, "פרסומי האתר");
   assert.deepEqual(filterNowBySource(models, "channel:or-geula").map(model => model.id), ["channel:00000000-0000-4000-8000-0000000000aa"]);
+  // «הגילוי היומי» is one source (ZURIEL 19.11.2026): its channel update and its group arrival share the key group:gilui-yomi.
+  const giluiChannel = { id: "channel:00000000-0000-4000-8000-0000000000bb", kind: "update", title: "עדכון יומי", at: "2026-11-03T07:00:00Z", item: { sourceKind: "channel_update", channel: "gilui-yomi", sourceLabel: "הגילוי היומי", label: "עדכון יומי" }, href: null };
+  const giluiGroup = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000003", body: "הודעה בקבוצה", created_at: "2026-11-03T06:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique", group_channel: "gilui-yomi" });
+  const gilui = nowModels([giluiChannel, ...rows([giluiGroup].filter(Boolean))]);
+  assert.ok(gilui.every(model => model.sourceKey === "group:gilui-yomi"), "channel and group of «הגילוי היומי» are one source");
+  const giluiChoices = nowSourceChoices(gilui).filter(item => /gilui/.test(item.id));
+  assert.equal(giluiChoices.length, 1); assert.equal(giluiChoices[0].label, "הגילוי היומי"); assert.equal(giluiChoices[0].count, gilui.length);
   assert.equal(filterNowBySource(models, "").length, models.length);
 });
 

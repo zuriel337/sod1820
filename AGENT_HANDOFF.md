@@ -85,7 +85,7 @@ After meaningful work:
 1. record exact implementation/release states separately;
 2. preserve branch/PR/commit/query evidence;
 3. record real blockers/open threads;
-4. update canonical docs only when canonical documented state changed;
+4. include `השפעה על התיעוד הקנוני` in the passive AFTER. Record `אין שינוי נדרש` when the documented state still matches. Otherwise give the document and section, what changed, `תוקן` or `ממתין`, and who owns the follow-up. Update the affected canonical section when its documented state changes;
 5. preserve superseded history additively;
 6. rescan main/DB/work_log before declaring DONE/LIVE/CLOSED;
 7. leave `handoff_to` for any dependent actor.
