@@ -91,32 +91,31 @@ try {
     assert.ok(at(/h29-flagship-section/)<at(/h29-series-section/)&&at(/h29-series-section/)<at(/h29-hero/),'flagship, other series, then the lead');
     assert.ok(at(/h29-newsletter-end/)===order.length-1,'the newsletter is the last Home area');
     const dock=page.locator('.sod29-command-island'),here=dock.locator('.sod29-dock-here'),orb=dock.locator('.sod29-raziel-orb');
-    // ZURIEL 18.11.2026: the bar's first place is "שתף" for everyone (it was "כאן · בבנייה"); admins reach "כאן" from "עוד".
-    assert.equal(await here.isDisabled(),false);assert.equal(await orb.isDisabled(),true);
-    assert.match(await here.innerText(),/שתף/);assert.match(await orb.innerText(),/בבנייה/);
+    assert.equal(await here.isDisabled(),true);assert.equal(await orb.isDisabled(),true);
+    assert.match(await here.innerText(),/בבנייה/);assert.match(await orb.innerText(),/בבנייה/);
     const geometry=await dock.evaluate(el=>{const r=el.getBoundingClientRect();const core=el.querySelector('.sod29-raziel-orb-core');return {x:r.x,width:r.width,height:r.height,viewport:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth,purple:getComputedStyle(core).backgroundImage,buttons:[...el.querySelectorAll('button')].map(b=>{const r=b.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height};})};});
     assert.equal(geometry.overflow,false,`overflow ${width}/${theme}`);assert.ok(Math.abs(geometry.x+geometry.width/2-width/2)<1);assert.ok(geometry.width<=width-20);if(width===1440)assert.ok(geometry.width<600);
     assert.match(geometry.purple,/gradient/);
     const colors=[...geometry.purple.matchAll(/rgb\((\d+), (\d+), (\d+)\)/g)].map(c=>c.slice(1).map(Number));
     assert.ok(colors.length>=2&&colors.every(([r,g,b])=>b>r&&r>g), 'orb stays purple across themes');
     for(const b of geometry.buttons){assert.ok(b.w>=44&&b.h>=44,`touch size ${width}/${theme}`);assert.ok(b.x>=geometry.x-1&&b.x+b.w<=geometry.x+geometry.width+1);}
-    const hereGeometry=null; // the construction badge left the bar with "כאן"
+    const hereGeometry=await here.evaluate(el=>{const label=el.querySelector('small').getBoundingClientRect(),badge=el.querySelector('.sod29-construction-badge').getBoundingClientRect();return {label:{x:label.x,y:label.y,width:label.width,height:label.height},badge:{x:badge.x,y:badge.y,width:badge.width,height:badge.height},overlap:Math.max(0,Math.min(label.right,badge.right)-Math.max(label.left,badge.left))*Math.max(0,Math.min(label.bottom,badge.bottom)-Math.max(label.top,badge.top))};});
+    assert.equal(hereGeometry.overlap,0,'construction badge must not cover the Here label');
     const cardGeometry=await panel.evaluate(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top};});
     assert.equal(await panel.locator('svg').count(),2);
     const motion=await panel.locator('.h29-chain').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState==='running').length);assert.equal(motion,0);
     await page.screenshot({path:resolve(out,`browser-fixture-${width}-${theme}.png`)});
     // The actual Frame reads a controlled AuthContext value; this is not a real login.
-    await here.click();await page.locator('[data-more-panel="share"]').waitFor();await page.keyboard.press('Escape');
-    await page.evaluate(()=>window.fixtureRole('admin'));await page.waitForFunction(()=>!document.querySelector('.sod29-raziel-orb')?.disabled);
-    assert.equal(await orb.isDisabled(),false);await dock.getByRole('button',{name:/^עוד/}).click();await page.locator('[data-royal-tile="here"]').click();await page.getByRole('dialog',{name:'כאן · מפת העמוד וההקשר',exact:true}).waitFor();
-    await page.evaluate(()=>window.fixtureRole('member'));await page.waitForFunction(()=>!document.querySelector('[data-royal-tile="here"]'));
+    await page.evaluate(()=>window.fixtureRole('admin'));await page.waitForFunction(()=>!document.querySelector('.sod29-dock-here')?.disabled);
+    assert.equal(await orb.isDisabled(),false);await here.click();await page.getByRole('dialog',{name:'כאן · מפת העמוד וההקשר',exact:true}).waitFor();
+    await page.evaluate(()=>window.fixtureRole('member'));await page.waitForFunction(()=>document.querySelector('.sod29-dock-here')?.disabled);
     assert.equal(await page.getByRole('dialog').count(),0,'role loss closes private context');assert.equal(await orb.isDisabled(),true);
     await page.evaluate(()=>window.fixtureRole('admin'));await page.waitForFunction(()=>!document.querySelector('.sod29-raziel-orb')?.disabled);await orb.click();
     await page.locator('[data-panel-kind="raziel"]').waitFor();
     await page.evaluate(()=>window.fixtureRole('member'));await page.waitForFunction(()=>document.querySelector('.sod29-raziel-orb')?.disabled);
     assert.equal(await page.locator('[data-panel-kind="raziel"]').count(),0,'role loss closes Raziel');
-    await page.evaluate(()=>window.fixtureNavigate('/world'));await page.locator('.sod29-root.surface-world').waitFor();assert.equal(await here.isDisabled(),false);assert.equal(await orb.isDisabled(),true);
-    await page.evaluate(()=>window.fixtureNavigate('/post/fixture-event'));await page.locator('.sod29-root.surface-post').waitFor();assert.equal(await here.isDisabled(),false);assert.equal(await orb.isDisabled(),true);
+    await page.evaluate(()=>window.fixtureNavigate('/world'));await page.locator('.sod29-root.surface-world').waitFor();assert.equal(await here.isDisabled(),true);assert.equal(await orb.isDisabled(),true);
+    await page.evaluate(()=>window.fixtureNavigate('/post/fixture-event'));await page.locator('.sod29-root.surface-post').waitFor();assert.equal(await here.isDisabled(),true);assert.equal(await orb.isDisabled(),true);
     await dock.getByRole('button',{name:/^עכשיו/}).click();await page.getByRole('dialog',{name:'עכשיו',exact:true}).waitFor();await page.keyboard.press('Escape');
     const unexpected=await page.evaluate(()=>window.__fixture.unexpected);assert.deepEqual(unexpected,[]);
     cases.push({width,theme,geometry,hereGeometry,cardGeometry,reducedMotionRunningAnimations:motion,publicClosed:true,adminButtonsOpen:true,roleLossClosesPanels:true,nowPublicOpen:true,blockedExternalRequests:blocked.length,unexpectedIO:unexpected});
