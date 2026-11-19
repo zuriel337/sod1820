@@ -8,9 +8,9 @@ import { seriesLatestMember2029 } from "../src/lib/nowPublications2029.js";
 import { fetchContentSeriesCatalog2029, resetSharedCatalogRead2029 } from "../src/lib/research/contentSeries2029Projection.js";
 import { CONTENT_SERIES_2029 } from "../src/lib/research/contentSeries2029Identity.js";
 
-// HOME_PINNED_LEAD_EARLY_20261117 (ZURIEL 17.11.2026, "מאשר, תתחיל בסעיף 2"; test branch). The Home's pinned card waited for a chain: the entry,
-// then the Home component, then the series catalog read, then its cover. The entry now starts the SAME catalog read at once and, when it
-// answers, asks for the card's own cover copies. One read (shared), one image download (the same src/srcset/sizes), no change for other pages.
+// HOME_PINNED_LEAD_EARLY_20261117. The entry imports the small dedicated early-start chunk, rather than waiting
+// for the full Home route module, then starts the SAME catalog read and asks for the card's own cover copies.
+// One read (shared), one image download (the same src/srcset/sizes), no change for other pages.
 
 const COVER = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5107-cover/reading-v2.jpg";
 const primaryKey = CONTENT_SERIES_2029.find(spec => spec.priorityLane === "primary").key;
@@ -121,10 +121,9 @@ test("the early read and the Home's later read are ONE network read (the catalog
   }
 });
 
-test("the entry reaches the early start through the Home route module only (no new code for other pages)", () => {
+test("the entry reaches the dedicated early-start chunk without waiting for the Home route", () => {
   const entry = readFileSync(new URL("../src/lib/homeAtmospherePreload2029.js", import.meta.url), "utf8");
-  assert.match(entry, /import\("\.\.\/pages\/Home2029Page\.jsx"\)\.then\(module => module\.startHomePinnedLeadEarly2029\?\.\(\)\)\.catch\(\(\) => \{\}\)/);
+  assert.match(entry, /import\("\.\/homePinnedLeadEarly2029\.js"\)\.then\(module => module\.startHomePinnedLeadEarly2029\?\.\(\)\)\.catch\(\(\) => \{\}\)/);
+  assert.doesNotMatch(entry, /Home2029Page\.jsx/, "the early start must not wait for the full Home route chunk");
   assert.doesNotMatch(entry, /^import .*homePinnedLeadEarly2029/m, "no static import into the entry");
-  const page = readFileSync(new URL("../src/pages/Home2029Page.jsx", import.meta.url), "utf8");
-  assert.match(page, /export \{ startHomePinnedLeadEarly2029 \} from "\.\.\/lib\/homePinnedLeadEarly2029\.js";/);
 });
