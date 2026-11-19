@@ -58,3 +58,8 @@
 .els29-lexicon-research>.els29-research-result-navigation~div>p,.els29-lexicon-research #els29-structures-view>section>p{text-align:center}
 .els29-lexicon-research .els29-structure-filters{justify-content:center}
 .els29-lexicon-research.r29 li.els29-structure-card{border-color:color-mix(in srgb,var(--r29-sapphire) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel))}
+
+/* Local research sections only; the global expanding dock remains frame-owned. */
+.els29-research-storage{margin-block-start:24px;padding-block-start:16px;border-block-start:1px solid var(--s29-line);min-width:0}
+.els29-research-storage summary{min-height:44px;align-content:center;color:var(--s29-accent-text);font-weight:650}
+.els29-research-storage [role=note]{padding:12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}

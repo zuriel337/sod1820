@@ -53,6 +53,14 @@ test("combined groups: explicit sources, saved runs, deduplication and one atomi
   try {
     await page.goto(`${origin}/fixture`);
     const start = page.getByRole("button", { name: "התחל גילוי", exact: true }); await start.waitFor();
+    assert.equal(await page.evaluate(()=>{
+      const panel=document.querySelector('.els29-lexicon-research');
+      const settings=panel.querySelector('.els29-discovery-settings'), launch=panel.querySelector('.els29-start-discovery');
+      const results=panel.querySelector('#els29-discovery-view'), storage=panel.querySelector('.els29-research-storage');
+      return !!(settings.compareDocumentPosition(launch)&Node.DOCUMENT_POSITION_FOLLOWING)
+        && !!(results.compareDocumentPosition(storage)&Node.DOCUMENT_POSITION_FOLLOWING);
+    }),true,'configure first, launch together, saved scans after the research content');
+    await page.getByText(/שמירת סריקות · בבנייה/).waitFor();
     await page.getByLabel("תמונת מצב המחקר").getByText(/מסלול שטרם נבדק/).waitFor();
     await page.getByRole("button", { name: "בחר את המסלול המוצע — ללא הפעלה" }).click();
     assert.equal(await page.evaluate(() => window.__requests.length), 0, 'recommendation selection never starts work');

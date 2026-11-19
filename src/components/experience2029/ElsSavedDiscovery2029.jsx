@@ -22,7 +22,8 @@ export default function ElsSavedDiscovery2029({ runs, state, busy, discoveryId, 
   };
   const sync = research.syncStatus;
   return <details className="els29-discovery-saved" open={!!selected || !!discoveryId || undefined}>
-    <summary>שמירת סריקות ופתיחת גילוי שמור · {saved.length}</summary>
+    <summary>שמירת סריקות · בבנייה · {saved.length} שמורות</summary>
+    <p role="note">אזור השמירות בבנייה. שמירת סריקה שונה משמירת המטריצה ומהוספת ממצא למחקר. אין להסתמך על שמירה שלא התקבל עליה אישור מפורש.</p>
     <p>שמירה מפורשת שומרת את המועמדים, התכנית והכיסוי של כל מסלול בנפרד. פתיחת תוצאה אינה מתחילה גילוי או AI.</p>
     {Object.values(runs).filter(run => run?.source && !run.data.savedSnapshot).map(run => <div key={run.id}>
       <button type="button" disabled={busy || !research.saveItem} onClick={() => save(run)}>

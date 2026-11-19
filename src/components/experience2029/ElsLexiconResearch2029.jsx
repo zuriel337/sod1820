@@ -232,10 +232,6 @@ export default function ElsLexiconResearch2029({
     <div aria-label="לפני הפעלת גילוי">{launchPlans.map(selected => <p key={selected.mode}>
       <b>{selected.mode === "language" ? "ביטויים" : "מילים"}</b> · {selected.minLength}–{selected.maxLength} אותיות · עד {selected.maxDistance} תאים. {key ? describeElsDiscoveryPlan(selected, overviewRuns).text : "נדרש חלון מאומת."}
     </p>)}</div>
-    <div className="els29-discovery-actions">
-      <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run} onClick={discoveryMode === "both" ? startBoth : start}>התחל גילוי</button>
-      {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
-    </div>
     <details className="els29-discovery-settings"><summary>הגדרות גילוי, סינון וגבולות</summary>
     {languagePlan ? <p>מילים וחלוקה לשתי מילים על אותו קו, במדגם מוגבל סביב הציר. האותיות נשמרות; הרווחים מוצעים לבדיקה שלכם.</p> : null}
     <details className="els29-discovery-plan"><summary>{languagePlan ? "גבולות בדיקת הביטויים" : "תכנית סריקה · מהיר, רחב או עמוק"}</summary>
@@ -273,6 +269,10 @@ export default function ElsLexiconResearch2029({
     </details>
     </details>
     <div className="els29-discovery-actions">
+      <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run} onClick={discoveryMode === "both" ? startBoth : start}>התחל גילוי</button>
+      {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
+    </div>
+    <div className="els29-discovery-actions">
       {wordRun?.data.continuation ? <button type="button" disabled={busy || !!run}
         onClick={() => startPlan(wordRun.data.plan, wordRun)}>המשך סריקה</button> : null}
     </div>
@@ -284,14 +284,6 @@ export default function ElsLexiconResearch2029({
     {!key ? <p>{scanWindow === null ? "הגילוי יהיה זמין כשחלון המטריצה ייטען." : "בחרו מופע מאומת לפני סריקה."}</p>
       : scanWindow ? <p>הגילוי משתמש בחלון המוצג, ברוחב <bdi>{scanWindow.geometry.S}</bdi>.</p> : null}
     </header>
-    <ElsSavedDiscovery2029 key={discoveryId || "library"} runs={runs} state={scanState} busy={busy || !!run} discoveryId={discoveryId} onRestore={onRestore}
-      onOpen={scan => {
-        if (!elsSavedDiscoveryMatches(scan, scanState)) return;
-        const opened = { ...scan, key, state: scanState };
-        setDiscovery(current => ({ result: opened, runs: { ...current.runs, [`saved:${scan.id}`]: opened } }));
-        setExcludedSourceIds(current => current.filter(id => id !== scan.id));
-        setPage(0); onOpenDiscovery(); setNotice("תוצאה שמורה נטענה ללא סריקה. הוספת מועמדים למטריצה דורשת אימות במנוע.");
-      }} />
     {viewNavigation}
     <div hidden={view !== "discovery"} id="els29-discovery-view">
     <p>המילים והביטויים שנאספו, עם הסבר לסדר ההמלצות ואפשרות להוסיף למטריצה.</p>
@@ -393,5 +385,15 @@ export default function ElsLexiconResearch2029({
     {structureTools}
     </div>
     {notice ? <p role="status">{notice}</p> : null}
+    <footer className="els29-research-storage" aria-label="שמירת תוצאות המחקר">
+    <ElsSavedDiscovery2029 key={discoveryId || "library"} runs={runs} state={scanState} busy={busy || !!run} discoveryId={discoveryId} onRestore={onRestore}
+      onOpen={scan => {
+        if (!elsSavedDiscoveryMatches(scan, scanState)) return;
+        const opened = { ...scan, key, state: scanState };
+        setDiscovery(current => ({ result: opened, runs: { ...current.runs, [`saved:${scan.id}`]: opened } }));
+        setExcludedSourceIds(current => current.filter(id => id !== scan.id));
+        setPage(0); onOpenDiscovery(); setNotice("תוצאה שמורה נטענה ללא סריקה. הוספת מועמדים למטריצה דורשת אימות במנוע.");
+      }} />
+    </footer>
   </section>;
 }
