@@ -539,6 +539,8 @@ jobs:
         run: node --test test/content-first-2029.browser.mjs
       - name: Accepted Community behavior survives release (real artifact, worker and reader; guest/member/admin on mobile/desktop)
         run: node --test test/community-behavior-continuity-2029.browser.mjs
+      - name: Combined pending release (theme glyph, responsive Home media, late Community updates; real worker and CSP, isolated)
+        run: node --test test/pending-release-20261119.browser.mjs
       - name: Public Post at its original address reads its source while the page code downloads (real worker, request order)
         run: node --test test/post-root-address-early-read-20261115.browser.mjs
       - name: Community dislikes beside likes (guest and member, mobile and desktop; real artifact and worker)

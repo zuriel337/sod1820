@@ -4272,8 +4272,9 @@ test('Fable reading uses the shared frame indicator across surfaces, themes, key
 });
 
 
-for (const width of [390,1280]) test(`ELS telemetry covers real tool clicks and engine outcomes without typed content at ${width}`,
- {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+// Static registrations let the CI manifest prove each viewport ran exactly once.
+const telemetryBrowserOptions={skip:!canRun&&'Native browser tooling unavailable',timeout:120000};
+async function telemetryBrowserCase(width){
  await withNative({width,height:900},async page=>{
    const rows=page.__elsTelemetry;
    await page.locator('.els29-native-toolstrip').getByRole('button',{name:'תוצאות',exact:true}).click();
@@ -4291,4 +4292,6 @@ for (const width of [390,1280]) test(`ELS telemetry covers real tool clicks and 
    assert.equal(JSON.stringify(rows).includes('תורה'),false,'no expression, label, href or letter text leaves the surface');
    assert.ok(rows.every(r=>r.p_path==='/code'&&r.p_surface==='els'));
  },{realHost:true,tier:'user',telemetry:true});
-});
+}
+test('ELS telemetry covers real tool clicks and engine outcomes without typed content at 390',telemetryBrowserOptions,()=>telemetryBrowserCase(390));
+test('ELS telemetry covers real tool clicks and engine outcomes without typed content at 1280',telemetryBrowserOptions,()=>telemetryBrowserCase(1280));
