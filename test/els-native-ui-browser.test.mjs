@@ -1358,7 +1358,9 @@ test('Fable existing results project exact letters without search, AI, manual-fi
    await openFableExtension(page);
    await page.getByRole('heading',{name:'ממצאים שאומתו במנוע · 25',exact:true}).waitFor();
    assert.equal(await page.locator('.els29-matrix-ai-card').count(),1,'one persistent card');
+   await researchView(page,'גילוי').click();
    const joint=page.getByRole('region',{name:'רשימת הממצאים המשותפת',exact:true});
+   await joint.waitFor();
    assert.equal(await page.locator('.els29-matrix-reading-result li').count(),0,'the extension does not duplicate the list');
    assert.equal(await joint.locator('[data-joint-row]').count(),20);
    await joint.getByRole('button',{name:'הבא',exact:true}).click();
@@ -1379,12 +1381,15 @@ test('Fable existing results project exact letters without search, AI, manual-fi
    assert.deepEqual(await identity(page),baseline,'projection does not mutate canonical findings or geometry');
    assert.equal(await page.evaluate(()=>window.__hostLog.length),hostCount,'selection and themes send no engine requests');
    assert.equal(await page.evaluate(()=>window.__matrixSubmits?.length||0),0,'zero AI submits');
+   await researchView(page,'הציר').click();
    await page.getByRole('button',{name:'הסתר סימוני AI מהמטריצה',exact:true}).click();
    assert.equal(await page.locator('.is-ai-reading').count(),0);assert.equal(await page.locator('.is-axis').count(),baseline.axis.length);
    await page.getByRole('button',{name:'הצג ממצאי AI במטריצה',exact:true}).click();
    await page.waitForFunction(()=>document.querySelector('.is-ai-reading'));
    await page.evaluate(()=>{const changed=structuredClone(window.__readingFixture);changed.session.thread[0].continuation.contextSnapshot.elsMatrixContext.axis.start++;window.__setMatrixReading(changed);});
    await page.waitForFunction(()=>!document.querySelector('.is-ai-reading'));
+   await researchView(page,'גילוי').click();
+   await joint.waitFor();
    assert.equal(await joint.locator('[data-joint-row]').count(),0,'different occurrence cannot attach');
   },{matrixAnalysis:true});
  });
