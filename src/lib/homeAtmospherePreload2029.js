@@ -28,8 +28,7 @@ export function homeAtmospherePreloadHref({ release, pathname, storedPreset, nar
 // for the much larger Home route module, and it adds no static code to the entry or to other pages. Same scope as the Home route of
 // the public release; a WordPress ?p= address on "/" opens a Post, not the Home.
 export function homePinnedLeadEarlyWanted({ release, pathname, search = "" }) {
-  if (!release || !/^\/(?:2029\/?)?$/.test(pathname)) return false;
-  try { return !new URLSearchParams(search).get("p"); } catch { return true; }
+  return Boolean(release && /^\/(?:2029\/?)?$/.test(pathname) && !new URLSearchParams(search).get("p"));
 }
 
 function run() {
