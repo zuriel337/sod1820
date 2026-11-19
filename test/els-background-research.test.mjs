@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepareElsBackgroundResearch, runElsBackgroundResearch } from '../src/lib/research/elsBackgroundResearch.js';
+import { prepareElsBackgroundResearch, runElsBackgroundResearch, executeElsResearchOperation } from '../src/lib/research/elsBackgroundResearch.js';
 
 const origin = { entityType: 'els', term: 'בדיקה', corpus: 'torah', corpusId: 'fixture', skip: 583, dir: -1, start: 239480 };
 const input = { axis: 'אמת', related: 'חסד', scope: 'torah', skipMin: 2, skipMax: 80, pageSize: 20 };
@@ -56,4 +56,22 @@ test('a MATCH from a different corpus revision cannot start the research', async
   await assert.rejects(() => runElsBackgroundResearch({ prepared: prepareElsBackgroundResearch(input, origin), signal: new AbortController().signal,
     invoke: async () => { calls++; return { data: { result: { ...verify.data.result, corpus_id: 'different' } } }; } }));
   assert.equal(calls, 1);
+});
+
+for (const failed of [false, true]) test(`lazy execution retains ${failed ? 'FAILED' : 'COMPLETE'} outcome and owns the task`, async () => {
+  const operation = { controller: new AbortController(), task: null };
+  let released = false;
+  const result = await executeElsResearchOperation({ input, origin, captured: null, operation,
+    owns: () => true, release: () => { released = true; },
+    publish: patch => { operation.task = { ...operation.task, ...patch }; },
+    invoke: async request => request.op === 'verify' ? verify : failed ? { error: { message: 'offline' } } : empty(request.term) });
+  assert.equal(result.ok, true);
+  assert.equal(operation.task.status, failed ? 'FAILED' : 'COMPLETE');
+  assert.equal(operation.task.rows.length, 2);
+  assert.equal(released, false, 'a completed task stays available for returning to its matrix');
+});
+
+test('lazy execution after principal ownership is lost does not publish or invoke', async () => {
+  const unexpected = () => assert.fail('old principal must not act');
+  assert.deepEqual(await executeElsResearchOperation({ owns: () => false, publish: unexpected, invoke: unexpected, release: unexpected }), { ok: false });
 });

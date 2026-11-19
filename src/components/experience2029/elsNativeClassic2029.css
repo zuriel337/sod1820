@@ -485,6 +485,7 @@
 .els29-native-finding-add button:disabled{opacity:.38;cursor:not-allowed}
 .els29-native-findings{display:grid;gap:6px;min-width:0}
 .els29-native-finding-group{min-width:0;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);overflow:hidden}
+.els29-locate-finding{margin:0 8px 8px;padding:6px 10px;min-height:36px;border:1px solid var(--s29-line-strong);border-radius:8px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;cursor:pointer}
 .els29-native-finding{display:grid;grid-template-columns:20px minmax(0,1fr) 44px;align-items:center;gap:8px;min-width:0;padding:6px;background:transparent}
 .els29-native-color-picker{
   position:relative;
@@ -640,12 +641,6 @@
 .els29-native-toolstrip{grid-column:2;grid-row:1;display:grid;gap:8px;position:sticky;top:80px}
 .els29-native-toolstrip button,.els29-native-panel-head button{min-width:44px;min-height:44px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
 .els29-native-toolstrip button{display:grid;justify-items:center;align-content:center;padding:6px 2px;gap:2px}
-.els29-ai-entry{display:grid;gap:6px;width:100%;min-height:44px;margin-block:12px;padding:12px 16px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;text-align:start;cursor:pointer}
-.els29-ai-entry strong{color:var(--s29-accent-text);font-size:18px}.els29-ai-entry span{font-size:16px}
-.els29-ai-entry:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:3px}
-.els29-ai-inspector{min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:8px;flex:1}
-.els29-ai-inspector[hidden]{display:none}
-.els29-ai-inspector .els29-matrix-ai-card{margin:0;width:100%;box-sizing:border-box}
 .els29-native-toolstrip span{font-size:22px}
 .els29-native-toolstrip small{min-width:0;max-width:100%;font-size:var(--s29-type-micro);line-height:1.3;overflow-wrap:anywhere}
 .els29-native-toolstrip button[aria-expanded="true"],.els29-native-panel-head button[aria-pressed="true"]{border-color:var(--s29-accent);background:var(--s29-panel-soft)}
@@ -850,7 +845,7 @@
  .els29-native-structure-entry{grid-row:3}
  .els29-native-layout:has(>.els29-native-structure-entry:not([hidden]))>.els29-native-panel-wrap{grid-row:4}
 }
-.els29-research-entry{display:flex;align-items:center;gap:12px;width:100%;min-width:0;min-height:56px;box-sizing:border-box;padding:14px;border:0;border-radius:16px;background:var(--s29-panel-soft);color:var(--s29-ink);text-align:start;font:inherit;font-size:var(--s29-type-ui);cursor:pointer}
+.els29-research-entry{scroll-margin-block:calc(var(--s29-header-height,78px) + 12px) calc(var(--s29-island-clearance,104px) + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px;width:100%;min-width:0;min-height:56px;box-sizing:border-box;padding:14px;border:0;border-radius:16px;background:var(--s29-panel-soft);color:var(--s29-ink);text-align:start;font:inherit;font-size:var(--s29-type-ui);cursor:pointer}
 .els29-research-entry>.sod29-ui-icon{flex:none;width:24px;height:24px}
 .els29-research-entry-copy{display:grid;gap:4px;min-width:0;flex:1;overflow-wrap:anywhere}
 .els29-research-entry-copy strong{font-size:var(--s29-type-lead);font-weight:650}
@@ -860,22 +855,30 @@
 .els29-research-entry[aria-expanded=true]{border-end-start-radius:0;border-end-end-radius:0;border-block-end:1px solid var(--s29-line)}
 #els29-research-tools[hidden]{display:none!important}
 #els29-research-tools>.els29-lexicon-research{margin:0;border:0;background:transparent}
+.els29-research-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:12px;border-block-end:1px solid var(--s29-line)}
+.els29-research-views button,.els29-axis-actions :is(a,button){min-height:44px;padding:8px 12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-ui);cursor:pointer}
+.els29-research-views button[aria-pressed=true]{border-color:var(--s29-accent);color:var(--s29-accent-text);box-shadow:inset 0 0 0 1px var(--s29-accent)}
+.els29-axis-research{padding:clamp(12px,2vw,24px);overflow-wrap:anywhere}
+.els29-axis-research dl{display:flex;align-items:baseline;gap:12px;margin:16px 0}
+.els29-axis-research dd{margin:0;color:var(--s29-accent-text);font-size:var(--s29-type-title);font-weight:700}
+.els29-axis-actions{display:flex;flex-wrap:wrap;gap:8px}
+.els29-axis-actions a{display:inline-flex;align-items:center;box-sizing:border-box;text-decoration:underline}
+.els29-axis-trigger{min-height:44px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:start;text-decoration:underline;text-decoration-color:var(--s29-accent);text-underline-offset:.18em;cursor:pointer}
+.els29-native-cell[role=button]:focus-visible,.els29-axis-trigger:focus-visible,.els29-research-views button:focus-visible,.els29-axis-actions :is(a,button):focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+
 .els29-matrix-share{grid-column:1/-1;display:grid;gap:12px;min-width:0;max-width:100%;padding:12px 4px;border-block-start:1px solid var(--s29-line);font-size:var(--s29-type-ui)}
 .els29-matrix-share p{margin:0;font-size:var(--s29-type-small);line-height:1.65;overflow-wrap:anywhere}
 .els29-matrix-share label{display:grid;gap:8px;min-width:0}
 .els29-matrix-share textarea{box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:60px;font-size:var(--s29-type-ui);color:var(--s29-ink);background:var(--s29-panel);border:1px solid var(--s29-line);border-radius:10px;overflow-wrap:anywhere;resize:vertical}
 .els29-matrix-share-actions{display:flex;flex-wrap:wrap;gap:8px}
 .els29-matrix-share-actions button{min-width:44px;min-height:44px;white-space:normal;font-size:var(--s29-type-ui)}
-.els29-native-toolstrip button[data-soon="true"]{opacity:.6;cursor:default}
 
-/* 6.11.2026: the four matrix tools are one centered, equal-width row on phones/tablets; Research mode is named on its tools. */
+/* The remaining matrix tools share a centered, equal-width row on phones and tablets. */
 @media(max-width:980px){
- .els29-native-toolstrip,.els29-native-layout.is-panel-pinned .els29-native-toolstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;justify-content:center;width:100%;max-width:440px;margin-inline:auto;box-sizing:border-box}
+ .els29-native-toolstrip,.els29-native-layout.is-panel-pinned .els29-native-toolstrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;justify-content:center;width:100%;max-width:440px;margin-inline:auto;box-sizing:border-box}
  .els29-native-toolstrip button,.els29-native-layout.is-panel-pinned .els29-native-toolstrip button{min-width:0;width:100%;min-height:64px}
  .els29-native-toolstrip button small{font-size:14px;line-height:1.2;white-space:nowrap}
- .els29-native-toolstrip button[data-soon="true"] small{font-size:12px}
 }
-.els29-research-badge{display:inline-block;margin-inline-start:8px;padding:2px 10px;border-radius:999px;border:1px solid var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 14%,var(--s29-panel));color:var(--s29-accent-text);font:600 12px var(--s29-font-ui);font-style:normal;vertical-align:middle}
 .els29-native-structure-entry{border-color:var(--s29-accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--s29-accent) 22%,transparent)}
 
 /* Research mode: always-visible side controls next to the matrix (zoom + spacing between rows). */
@@ -890,7 +893,7 @@
 .els29-native-side-rail output,.els29-native-side-rail small{font-size:13px;line-height:1.2;color:var(--s29-muted);text-align:center;font-variant-numeric:tabular-nums}
 .els29-native-side-rail hr{width:70%;margin:2px 0;border:0;border-top:1px solid var(--s29-line)}
 .els29-native-side-rail .els29-rail-width{font-size:15px;font-weight:700}
-.els29-native-side-rail output.els29-rail-width-value{font-size:15px;font-weight:700;color:var(--s29-ink)}
+.els29-native-side-rail .els29-rail-width[aria-pressed=true]{border-color:var(--s29-accent);color:var(--s29-accent-text);box-shadow:inset 0 0 0 1px var(--s29-accent)}
 .els29-native-side-rail small{max-width:60px;overflow-wrap:anywhere}
 /* On a phone the rail lies in one strip above the matrix, so the matrix keeps the full width of the screen. */
 @media(max-width:700px){
@@ -921,7 +924,7 @@
   .els29-native-classic.is-fullscreen .els29-native-layout .els29-native-panel-wrap,.els29-native-classic.is-fullscreen .els29-native-layout.is-panel-pinned .els29-native-panel-wrap{inset-inline-start:8px;width:calc(100% - 16px)}
   .els29-native-classic.is-fullscreen .els29-native-query.is-fs-open{inset-inline-end:8px;width:auto}
 }
-.els29-native-classic.is-fullscreen :is(.els29-ai-entry,.els29-native-more){display:none!important}
+.els29-native-classic.is-fullscreen .els29-native-more{display:none!important}
 /* The research tools ("discovery and connections", structures, expressions and splits) are the same section as on the page, shown as a window. */
 .els29-native-classic.is-fullscreen .els29-native-structure-entry{display:none!important}
 .els29-native-classic.is-fullscreen .els29-native-structure-entry.is-fs-open:not([hidden]){display:block!important;position:absolute;inset-block:8px;inset-inline-start:8px;inset-inline-end:auto;grid-column:auto;grid-row:auto;width:min(760px,calc(100% - 92px));max-height:calc(100% - 16px);margin:0;overflow:auto;overscroll-behavior:contain;z-index:42;box-shadow:0 18px 60px #000a}
@@ -958,3 +961,19 @@
   .els29-native-classic.is-fullscreen .els29-native-side-rail{padding:4px 8px;gap:6px}
   .els29-native-classic.is-fullscreen .els29-native-side-rail small{display:none}
 }
+
+/* Discovery reuses the matrix inspector alongside the local findings tools. */
+.els29-native-context-panel .els29-discovery-panel{display:block;grid-column:auto;grid-row:auto;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;margin:0;border:0;box-shadow:none}
+.els29-native-context-panel .els29-discovery-panel[hidden]{display:none!important}
+.els29-native-classic.is-fullscreen .els29-native-context-panel .els29-discovery-panel:not([hidden]){display:block!important;position:static;width:auto;max-height:none;box-shadow:none}
+
+@media(max-width:980px){.els29-native-classic:not(.is-fullscreen) .els29-native-toolstrip:has([data-tool-action=discovery]){grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Discovery is independently open alongside one of the existing three tools. */
+.els29-native-context-panel[hidden]{display:none!important}
+.els29-native-layout .els29-native-panel-wrap.has-discovery{position:relative;inset:auto;grid-column:1/-1;grid-row:2;width:100%;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.els29-native-layout .els29-native-panel-wrap.has-discovery[hidden]{display:none}
+@media(min-width:981px){.els29-native-layout .els29-native-panel-wrap.has-two-panels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:980px){.els29-native-layout .els29-native-panel-wrap.has-discovery{grid-row:3}}
+.els29-native-classic.is-fullscreen .els29-native-layout .els29-native-panel-wrap.has-discovery{position:absolute;top:8px;inset-inline-end:84px;inset-inline-start:auto;grid-row:auto;grid-column:auto;width:min(920px,calc(100% - 100px));max-height:calc(100% - 16px);overflow:auto}
+@media(max-width:980px){.els29-native-classic.is-fullscreen .els29-native-layout .els29-native-panel-wrap.has-discovery{top:63px;max-height:calc(100% - 71px)}}

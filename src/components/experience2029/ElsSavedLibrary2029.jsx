@@ -103,14 +103,14 @@ function CipherOwnerActions({ row, onChanged }) {
   </div>;
 }
 
-function CipherCard({ row, personal, compact = false, onOpen, onChanged }) {
+function CipherCard({ row, personal, compact = false, onOpen, onChanged, workspaceMode }) {
   const exact = hasExactSavedMatrix(row);
   const [failedImage, setFailedImage] = useState(null);
   const imageUrl = row.visibility === "public" && row.image_url ? thumb(row.image_url, compact ? 240 : 480) : null;
   const date = row.created_at ? new Date(row.created_at) : null;
   const validDate = date && Number.isFinite(date.getTime());
   return <article className={`els29-library-card${compact ? " is-compact" : ""}`}>
-    <a href={savedMatrixWorkspaceHref(row)} onClick={event => {
+    <a href={savedMatrixWorkspaceHref(row, workspaceMode)} onClick={event => {
       if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) { event.preventDefault();onOpen(row); }
     }}>
       <div className="els29-library-preview">
@@ -125,7 +125,7 @@ function CipherCard({ row, personal, compact = false, onOpen, onChanged }) {
         <div className="els29-library-tags"><span>{exact ? "מיקום שמור" : "צופן ותיק · חיפוש מחדש"}</span>
           {personal ? <span>{row.status === "published" && row.visibility === "public" ? "פורסם" : row.self_published ? "בתיק הציבורי" : "אישי"}</span> : null}</div>
         {validDate ? <time dateTime={date.toISOString()}>נשמר ב־{dateFormat.format(date)}</time> : null}
-        <span className="els29-library-open">{exact ? "המשך מחקר" : "פתח למחקר"}<span aria-hidden="true">←</span></span>
+        <span className="els29-library-open">{workspaceMode === "classic" ? "פתח בקלאסי" : exact ? "המשך מחקר" : "פתח למחקר"}<span aria-hidden="true">←</span></span>
       </div>
     </a>
     {personal && !compact && onChanged ? <CipherOwnerActions row={row} onChanged={onChanged} /> : null}
@@ -140,7 +140,7 @@ function LibraryStatus({ data, personal, query }) {
   return null;
 }
 
-export function ElsRecentCiphers2029({ onOpen, onLibrary, collapseSignal = 0, revision = 0, enabled = true }) {
+export function ElsRecentCiphers2029({ onOpen, onLibrary, workspaceMode, collapseSignal = 0, revision = 0, enabled = true }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(() => {
     const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
@@ -159,12 +159,12 @@ export function ElsRecentCiphers2029({ onOpen, onLibrary, collapseSignal = 0, re
     </div>
     <div id="els29-recent-ciphers" hidden={!open}>
       <LibraryStatus data={data} personal={!!user} />
-      <div className="els29-recent-grid">{enabled && data.rows.map(row => <CipherCard key={row.id} row={row} personal={!!user} compact onOpen={onOpen} />)}</div>
+      <div className="els29-recent-grid">{enabled && data.rows.map(row => <CipherCard key={row.id} row={row} personal={!!user} compact onOpen={onOpen} workspaceMode={workspaceMode} />)}</div>
     </div>
   </section>;
 }
 
-export default function ElsSavedLibrary2029({ view = "public", onView, onOpen, onClose }) {
+export default function ElsSavedLibrary2029({ view = "public", onView, onOpen, onClose, workspaceMode }) {
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
   const personal = view === "mine";
@@ -181,7 +181,7 @@ export default function ElsSavedLibrary2029({ view = "public", onView, onOpen, o
       </form> : null}
     </div>
     <div className="els29-library-order">האחרונים שנשמרו מופיעים ראשונים</div>
-    <div className="els29-library-grid">{data.rows.map(row => <CipherCard key={row.id} row={row} personal={personal} onOpen={onOpen} onChanged={data.reload} />)}</div>
+    <div className="els29-library-grid">{data.rows.map(row => <CipherCard key={row.id} row={row} personal={personal} onOpen={onOpen} onChanged={data.reload} workspaceMode={workspaceMode} />)}</div>
     <LibraryStatus data={data} personal={personal} query={query} />
     {!data.loading && !data.error && data.more ? <button className="sod29-action els29-library-load" type="button" onClick={data.next}>טען צפנים נוספים</button> : null}
   </section>;

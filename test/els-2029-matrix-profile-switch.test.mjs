@@ -13,6 +13,7 @@ test("Guided/Research/Classic switch stays controlled and uses one profile model
   assert.match(source, /ELS_MATRIX_PROFILE\.RESEARCH/);
   assert.match(source, /ELS_MATRIX_PROFILE\.CLASSIC/);
   assert.match(source, /aria-pressed=\{selected\}/);
+  assert.match(source, /ELS_MATRIX_PROFILE\.CLASSIC \? <span className="els29-profile-free" lang="en" dir="ltr" aria-hidden="true">FREE<\/span>/);
   assert.match(source, /onChange\?\.\(option\.key\)/);
   assert.doesNotMatch(source, /useState\s*\(/);
   assert.doesNotMatch(source, /fetch\s*\(|supabase|localStorage|sessionStorage/);
@@ -51,7 +52,7 @@ test("ELS 2029 public release: Classic and Research are open, Guided, AI scan an
   assert.match(page, /const publicClassic = revalidating \? decided\.current\.publicClassic : publicReadingActionsLocked\(isAdmin\)/);
   assert.match(page, /const revalidating = Boolean\(user\?\.id\) && !profile && decided\.current\.userId === user\.id && decided\.current\.publicClassic !== null/);
   // Classic and Research are open to the public; Guided discovery stays with the administrator.
-  assert.match(page, /if \(requested === "classic" \|\| directSavedOpen \|\| sharedMatrix\.present\) return ELS_MATRIX_PROFILE\.CLASSIC/);
+  assert.match(page, /if \(requested === "research"\) return ELS_MATRIX_PROFILE\.RESEARCH;\s+if \(requested === "classic" \|\| directSavedOpen \|\| sharedMatrix\.present\) return ELS_MATRIX_PROFILE\.CLASSIC/);
   // Opens in Research for everyone; Guided only by explicit request and never for the public.
   assert.match(page, /const guidedVisible = !publicClassic && import\.meta\.env\?\.VITE_ELS_GUIDED_DISCOVERY === "visible"/);
   assert.match(page, /if \(requested === "guided" && guidedVisible\) return ELS_MATRIX_PROFILE\.GUIDED/);
@@ -70,8 +71,9 @@ test("ELS 2029 public release: Classic and Research are open, Guided, AI scan an
   assert.doesNotMatch(native, /publicClassic && !user \? null : <ElsSavePanel2029/);
   assert.match(native, /<ElsSavePanel2029 visible=\{activeTool === "research"\}/);
   assert.match(native, /onWorkspace=\{publicClassic \? undefined :/);
-  assert.equal((native.match(/!publicClassic && \(matrixReading \|\| typeof onRazielMatrix === "function"\)/g) || []).length, 2);
-  assert.match(native, /matrixReading && !publicClassic \? <ElsMatrixReadingCard2029/);
+  assert.doesNotMatch(native, /id: "ai"|els29-ai-inspector/);
+  assert.match(native, /readingExtension=\{!publicClassic && \(matrixReading \|\| onRazielMatrix\) \? <details/);
+  assert.equal((native.match(/<ElsMatrixReadingCard2029 /g) || []).length, 1);
 });
 
 test("Classic representation remains a flat projection of the same canonical layers", async () => {

@@ -90,17 +90,17 @@ for (const theme of ['light', 'parchment', 'dark']) test(`non-AI research surviv
       await page.goto(origin + '/code?mode=research');
       await page.getByRole('region', { name: 'תיקיית הצפנים' }).waitFor();
       assert.equal(await page.getByRole('region', { name: 'תיקיית הצפנים' }).count(), 1);
-      const folderBeforeModes = await page.evaluate(() => !!(document.querySelector('.els29-recent').compareDocumentPosition(document.querySelector('.els29-mode-selector')) & Node.DOCUMENT_POSITION_FOLLOWING));
-      assert.equal(folderBeforeModes, true, 'the same folder sits above mode selection');
+      const modesBeforeFolder = await page.evaluate(() => !!(document.querySelector('.els29-mode-selector').compareDocumentPosition(document.querySelector('.els29-recent')) & Node.DOCUMENT_POSITION_FOLLOWING));
+      assert.equal(modesBeforeFolder, true, 'mode selection stays above the same folder');
       // DOM order alone missed the Preview CSS order:2 regression. Exercise that
-      // actual stylesheet, every review layout, and all three page profiles.
+      // actual stylesheet, every review layout, and both page profiles.
       const calibration = await page.addStyleTag({content:readFileSync(new URL('../src/components/experience2029/previewVisualCalibration2029.css',import.meta.url),'utf8')});
       for(const visual of ['1','2','3','4','5','6','7','8']) {
         await page.evaluate(value=>document.documentElement.setAttribute('data-sod-visual-option',value),visual);
-        for(const profile of ['גילוי מודרך','קלאסי','מחקר']) {
+        for(const profile of ['קלאסי','מחקר']) {
           await page.locator('.els29-mode-selector').getByRole('button',{name:profile,exact:true}).click();
-          const geometry=await page.evaluate(()=>({folder:document.querySelector('.els29-recent').getBoundingClientRect().bottom,modes:document.querySelector('.els29-mode-selector').getBoundingClientRect().top}));
-          assert.ok(geometry.folder<=geometry.modes+1,JSON.stringify({width,theme,visual,profile,geometry}));
+          const geometry=await page.evaluate(()=>({folder:document.querySelector('.els29-recent').getBoundingClientRect().top,modes:document.querySelector('.els29-mode-selector').getBoundingClientRect().bottom}));
+          assert.ok(geometry.modes<=geometry.folder+1,JSON.stringify({width,theme,visual,profile,geometry}));
         }
       }
       await page.evaluate(()=>document.documentElement.removeAttribute('data-sod-visual-option'));
@@ -193,6 +193,7 @@ for (const theme of ['light', 'parchment', 'dark']) test(`non-AI research surviv
       assert.equal(await page.locator('[data-els-research-task="RUNNING"]').count(), 1, 'clearing context does not cancel the active task');
       await page.evaluate(() => { history.pushState({}, '', '/2029'); dispatchEvent(new PopStateEvent('popstate')); });
       await page.getByRole('button', { name: 'עכשיו · סורק', exact: true }).click();
+      await page.getByRole('button', { name: 'המחקר והשמורים שלי', exact: true }).click();
       const activity = page.getByLabel('מעקב מחקר ללא AI');
       await activity.waitFor();
       assert.match(await activity.innerText(), /תורה/);
@@ -201,16 +202,14 @@ for (const theme of ['light', 'parchment', 'dark']) test(`non-AI research surviv
       assert.deepEqual({ saved: cloud.saved, cart: cloud.cart, pinned: cloud.pinned }, retained, 'saved research and pinned items survive');
       assert.equal(writes.some(op => /clear_bucket|history_clear|journey_clear/.test(op.kind)), false, 'no broad clear operation');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${theme}`);
-      // Real global conversation remains available; research never sets its busy state.
+      // This fixture is a regular account; the existing admin-only Raziel gate stays enforced during research.
       await page.keyboard.press('Escape');
-      await page.locator('.sod29-command-island .sod29-raziel-orb').click();
-      const chat = page.locator(width >= 1000 ? '[data-raziel-companion-view="open"] [data-raziel-native-chat="true"]' : '.sod29-frame-panel [data-raziel-native-chat="true"]');
-      await chat.getByRole('textbox', { name: 'שאלה לרזיאל', exact: true }).fill('שאלת בדיקה בזמן המחקר');
-      assert.equal(await chat.getByRole('button', { name: 'שלח', exact: true }).isEnabled(), true);
+      assert.equal(await page.locator('.sod29-command-island .sod29-raziel-orb').isDisabled(), true);
       assert.equal(ai, 0);
       release();
       await page.keyboard.press('Escape');
       await page.getByRole('button', { name: 'עכשיו · תוצאות', exact: true }).click();
+      await page.getByRole('button', { name: 'המחקר והשמורים שלי', exact: true }).click();
       await page.locator('[data-els-research-task="COMPLETE"]').waitFor();
       assert.equal(calls.filter(x => x.op === 'page').length, 2);
       await page.getByRole('button', { name: 'חזור למופע ולתוצאות המחקר', exact: true }).click();

@@ -62,11 +62,11 @@ test("ELS 2029 stays the active build surface: no launch countdown, exact saved/
   // Exercise the actual seed expression: an exact saved/shared/returned matrix must never be overwritten by the ordinary query seed.
   const expressions = [...els2029.matchAll(/initialSeed=\{([^{}]+)\}/g)];
   assert.equal(expressions.length, 1);
-  const seed = new Function("savedRecord", "legacyMatrix", "sharedMatrix", "location", "classicSeed", `return (${expressions[0][1]});`);
-  for (let mask = 0; mask < 32; mask += 1) {
+  const seed = new Function("savedRecord", "legacyMatrix", "sharedMatrix", "location", "classicSeed", "discoveryId", `return (${expressions[0][1]});`);
+  for (let mask = 0; mask < 64; mask += 1) {
     const actual = seed({ row: mask & 1 ? { id: "saved" } : null }, mask & 2 ? { skip_distance: 7 } : null,
       { present: Boolean(mask & 4) }, { state: { elsReadingReturnTurnId: mask & 8 ? "reading-turn" : null,
-        elsResearchReturnTaskId: mask & 16 ? "research-task" : null } }, "זרע מדויק");
+        elsResearchReturnTaskId: mask & 16 ? "research-task" : null } }, "זרע מדויק", mask & 32 ? "saved-discovery" : "");
     assert.equal(actual, mask ? "" : "זרע מדויק", `matrix/return guard mask ${mask}`);
   }
   assert.equal(seed({ row: null }, null, { present: false }, {}, "זרע מדויק"), "זרע מדויק");

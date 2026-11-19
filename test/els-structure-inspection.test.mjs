@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { inspectElsStructures, restoreElsStructureInspection, structureInspectionKey } from '../src/lib/research/elsStructureInspection.js';
+import { elsStructureView, inspectElsStructures, restoreElsStructureInspection, structureInspectionKey, verifiedElsStructureCards } from '../src/lib/research/elsStructureInspection.js';
 
 // Engine-state fixture using the existing vector-geometry Golden. This is adapter
 // regression evidence, not a live backend verification claim.
@@ -41,4 +41,29 @@ test('inspection caps fail closed and comparison identity includes corpus and wi
  s.verification.corpus_id='another';assert.notEqual(structureInspectionKey(r),structureInspectionKey(inspectElsStructures(s)));
  s.findings=[{t:'אמת',shown:[],hits:Array.from({length:64},(_,i)=>({hitId:`2_1_${i*8}`,selected:true,verified:true}))}];
  assert.equal(inspectElsStructures(s).ok,false);
+});
+
+test('a relationship view places distant verified parallels on shared rows',()=>{
+ const s=state();
+ s.term='התשפז';s.axis={hitId:'16965_1_83718'};
+ s.geometry={S:16965,cw:80,c0:15818,r0:0,r1:17};
+ s.findings=[{t:'ימיננג',hits:[{selected:true,verified:true,hitId:'16965_-1_109170'}]}];
+ const cards=verifiedElsStructureCards(inspectElsStructures(s));
+ assert.equal(cards.length,1);
+ assert.match(cards[0].reasons[0],/16,965.*כיוונים הפוכים.*8,478/);
+ const view=elsStructureView(cards[0],16965,s.corpusLetters);
+ assert.deepEqual(view.bands,['16965_1_83718','16965_-1_109170']);
+ assert.equal(view.rowStart,0);assert.equal(view.colCount,5);
+});
+
+test('relationship evidence shows exact common cells and the text between disjoint occurrences',()=>{
+ const s=state(),cards=verifiedElsStructureCards(inspectElsStructures(s));
+ const crossing=cards.find(card=>card.types.includes('intersection'));
+ const shared=elsStructureView(crossing,s.geometry.S,s.corpusLetters);
+ assert.deepEqual(shared.shared,[60941]);assert.equal(shared.bands.length,1);
+ s.findings=[{t:'אמת',hits:[{selected:true,verified:true,hitId:'10065_1_201865'}]},
+   {t:'חסד',hits:[{selected:true,verified:true,hitId:'10065_1_252190'}]}];
+ const same=verifiedElsStructureCards(inspectElsStructures(s)).find(card=>card.members.every(line=>line.kind!=='axis'));
+ const line=elsStructureView(same,s.geometry.S,s.corpusLetters);
+ assert.deepEqual(line.between,[232060,242125]);assert.equal(line.bands.length,1);
 });

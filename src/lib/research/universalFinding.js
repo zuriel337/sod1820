@@ -178,7 +178,9 @@ export function universalFindingToResearchEntity(finding) {
     type: "finding",
     title: label,
     label,
-    link: finding.subject?.key ? `/research?finding=${encodeURIComponent(finding.id)}` : "/research",
+    // An ELS finding opens in the cipher, in Research, on its exact occurrence (Els2029Page ?finding= → elsJourneyReopen).
+    link: finding.kind === "els" ? `/code?mode=research&finding=${encodeURIComponent(finding.id)}`
+      : finding.subject?.key ? `/research?finding=${encodeURIComponent(finding.id)}` : "/research",
     finding,
     sourceEngine: finding.source?.engine || null,
     findingKind: finding.kind || "other",
@@ -215,26 +217,43 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
     return { hitId, skip: Math.abs(signedSkip), signedSkip, dir, direction: dir === -1 ? "back" : "fwd", start };
   };
 
+  // The occurrence identity is the engine's occurrence_id ('els:'||corpus_id||':'||letters||':'||skip||':'||dir||':'||start):
+  // the same coordinates in the Torah and in the Tanakh are two findings. The engine sends it on the axis and on each verified
+  // hit; it is formed the same way only from the state's own verified corpus. A state without a corpus keeps the older hitId.
+  const corpusId = engineState.verification?.state === "MATCH" && typeof engineState.verification.corpus_id === "string"
+    ? engineState.verification.corpus_id : null;
+  const letters = term => String(term || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, c => "כמנפצ"["ךםןףץ".indexOf(c)]);
+  const occurrenceOf = (sent, term, hit) => {
+    const formed = corpusId ? `els:${corpusId}:${letters(term)}:${hit.skip}:${hit.dir}:${hit.start}` : null;
+    return typeof sent === "string" && sent === formed ? sent : formed;
+  };
+  const withOccurrence = (hit, id) => id ? { ...hit, occurrence_id: id, corpus_id: corpusId } : hit;
+
   const axisHit = parseHit(engineState.axis?.hitId);
   const axisTerm = engineState.termRaw || engineState.term || "";
   if (axisHit && axisTerm) {
+    const axisId = occurrenceOf(engineState.axis.occurrence_id, engineState.term || axisTerm, axisHit);
+    const axisOccurrence = withOccurrence(axisHit, axisId);
     out.push(makeUniversalFinding({
+      // One occurrence, one finding: with the engine's occurrence_id the id does not depend on how the term was typed
+      // (התשפז / התשפ״ז); the typed spelling stays the label. Without a corpus the older id is kept.
+      ...(axisId ? { id: universalFindingId({ kind: "els", sourceIdentity: axisId }) } : {}),
       kind: "els",
       // ELS corpus is Hebrew-only (Torah/Tanakh text) — source-original and display language
       // are the same today, declared explicitly per the Multilingual Identity Foundation
       // Closure contract §C rather than left implicit.
       subject: { type: "phrase", key: axisTerm, label: axisTerm, lang: "he" },
       source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null, lang: "he" },
-      identity: { sourceIdentity: axisHit.hitId, occurrence: axisHit },
+      identity: { sourceIdentity: axisId || axisHit.hitId, occurrence: axisOccurrence },
       verification: {
         claimed_expression: null,
         claimed_method: null,
         claimed_value: null,
         engine_method_tested: "els",
-        engine_result: { corpus, ...axisHit },
+        engine_result: { corpus, ...axisOccurrence },
         verification_state: "not_tested",
       },
-      evidence: { refs: [axisHit.hitId], facts: [{ type: "els-occurrence", corpus, ...axisHit }] },
+      evidence: { refs: [axisId || axisHit.hitId], facts: [{ type: "els-occurrence", corpus, ...axisOccurrence }] },
       provenance: { createdBy: "ENGINE:els", createdAt, inputRef: options.inputRef || null },
       projection: {
         anchors: Array.isArray(options.axisPositions) ? options.axisPositions.map(i => ({ space: "corpus-index", i })) : [],
@@ -252,20 +271,23 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
       const length = Array.from(String(f.t)).length;
       const sign = hit.dir === -1 ? -1 : 1;
       const anchors = Array.from({ length }, (_, i) => ({ space: "corpus-index", i: hit.start + sign * hit.skip * i }));
+      const sent = Array.isArray(f.hits) ? f.hits.find(h => h?.hitId === hit.hitId)?.occurrence_id : null;
+      const findingId = occurrenceOf(sent, f.t, hit), occurrence = withOccurrence(hit, findingId);
       out.push(makeUniversalFinding({
+        ...(findingId ? { id: universalFindingId({ kind: "els", sourceIdentity: findingId }) } : {}),
         kind: "els",
         subject: { type: "word", key: f.t, label: f.t, lang: "he" },
         source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null, lang: "he" },
-        identity: { sourceIdentity: hit.hitId, occurrence: hit },
+        identity: { sourceIdentity: findingId || hit.hitId, occurrence },
         verification: {
           claimed_expression: null,
           claimed_method: null,
           claimed_value: null,
           engine_method_tested: "els",
-          engine_result: { corpus, ...hit },
+          engine_result: { corpus, ...occurrence },
           verification_state: "not_tested",
         },
-        evidence: { refs: [hit.hitId], facts: [{ type: "els-occurrence", corpus, ...hit }] },
+        evidence: { refs: [findingId || hit.hitId], facts: [{ type: "els-occurrence", corpus, ...occurrence }] },
         provenance: { createdBy: "ENGINE:els", createdAt, inputRef: options.inputRef || axisHit?.hitId || null },
         projection: { anchors, dimensions: { corpus } },
         view: { color: f.color || null, rendererHints: { role: "finding" } },

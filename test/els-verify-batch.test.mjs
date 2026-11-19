@@ -56,8 +56,13 @@ test('saved record projection preserves zero/backward anchors and marks historic
   const item=savedMatrixToItem(row);
   assert.equal(item.start,0);assert.equal(item.dir,-1);assert.equal(item.corpusId,'corpus');
   assert.deepEqual(item.words,row.positions.findings);assert.deepEqual(item.view,row.positions.view);
-  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_0'}}),true);
-  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_1'}}),false);
+  assert.equal(item.occurrenceId,'els:corpus:תורה:2:-1:0','the exact occurrence with its corpus, in the engine\'s occurrence_id form');
+  // An older engine state (hitId + the corpus of its verification) and a state with the engine's own occurrence_id.
+  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH',corpus_id:'corpus'},axis:{hitId:'2_-1_0'}}),true);
+  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH',corpus_id:'corpus'},axis:{hitId:'2_-1_0',occurrence_id:'els:corpus:תורה:2:-1:0'}}),true);
+  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH',corpus_id:'corpus'},axis:{hitId:'2_-1_1'}}),false);
+  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH',corpus_id:'other-corpus'},axis:{hitId:'2_-1_0'}}),false,'the same coordinates in another corpus are another occurrence');
+  assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_0'}}),false,'no corpus, no identity');
   const historical={...row,start_index:null,direction:'down'};
   assert.equal(hasExactSavedMatrix(historical),false);assert.equal(savedMatrixToItem(historical).start,null);assert.equal(savedMatrixToItem(historical).dir,null);
 });

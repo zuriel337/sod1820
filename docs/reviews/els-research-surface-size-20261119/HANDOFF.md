@@ -1,0 +1,13 @@
+# Research surface height
+
+Actor GPT; task ELS_RESEARCH_SURFACE_SIZE_20261119; owners ELS / Research Workspace; handoff ZURIEL.
+Branch ccr-06bc2910-pgarr4; PR #1397; base 2dcad44aa12dcd4536fbb55cb4712fabdb519b08.
+Authorized by ZURIEL's request to replace the +50% action with a more capable research control. Current relevant work_log scopes were AFTER/delivered; no overlapping active writer observed. No global frame/dock changes.
+
+Research replaces the old direct height toggle with a keyboard-accessible size disclosure: normal, roomy (preserves previous 1.5x size), viewport-relative and manual 60–160 dvh minus 140px control allowance (minimum 300px). The controls explicitly distinguish presentation height, letter zoom and scanned context. Height is temporary local presentation state, not a new saved research identity; it does not claim persistence after reload. Fullscreen owns its own height and hides this disclosure; exiting restores the chosen page height. Classic retains the existing direct toggle. No engine/control RPC or search is launched by height changes.
+
+The documented day-of-messiah occurrence is Torah יוממשיחבא, skip 583, direction -1, start 239480. 583=11*53; no exact division by 2/3/4/5 can keep its axis vertical with 1–4 intervening rows. General divisor geometry permits width 53/gap 10, but that eight-letter axis would require 78 rows, exceeding the existing 61-row fold-options budget. Neither gap contract (0–4) nor engine limits were changed. The new size disclosure explains unavailable 1–4 spacing; arbitrary rounded widths would be a different projection contract.
+
+Acceptance: native browser exercises responsive manual height at mobile/desktop widths, fullscreen exit, unchanged canonical identity and Classic fallback. Existing compact toolbar coverage keeps the roomy/normal height, all display actions and responsive controls. Unit check records the 583 divisor/budget distinction. Final local: 14/14 unit tests, 3/3 native browser scenarios, npm run build and git diff --check passed. Browser scenarios include five responsive toolbar widths, three themes, fullscreen and unchanged canonical identity. Initial toolbar label wrapped at mobile width; shortened to משטח while retaining the accessible full name. Updated the existing toolbar harness to exercise both old Classic and new Research controls. Base CI 2dcad44aa finished at 124/125; its sole failure expected recommended instead of the approved length default. That expectation is corrected here and the exact regression passes locally. New-head CI remains separate.
+
+No new Preview, merge, deployment, SQL write, flag/secret change or AI call. Existing Preview is still 2dcad44aa and does not contain this change. Production unchanged.

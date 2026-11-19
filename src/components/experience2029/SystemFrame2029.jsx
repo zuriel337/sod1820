@@ -1504,8 +1504,11 @@ function SystemFrame2029Body({
   const unifiedGlobalDock = !toolMode;
   // One expanding bar (preview): "עוד", "שיתוף" and "כאן" open an expansion attached to the bar, one at a time.
   const barExpansion = transientKind === TRANSIENT.MORE ? (transient?.payload?.shareOnly ? "share" : "more") : transientKind === TRANSIENT.CONTEXT ? "here" : null;
+  const readingSession = useOptionalRazielSession2029();
   const researchTask = research.elsResearchOperation?.task || null;
-  const expansionActivity = researchTask || LAB_SIMULATED_RESEARCH ? <React.Suspense fallback={null}><ResearchActivity2029 placement="panel" task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={() => openTransient(TRANSIENT.WORKSPACE)} /></React.Suspense> : null;
+  const hasActivity = researchTask || readingSession?.currentTurn?.kind === "els_matrix_reading" || readingSession?.thread?.some(row => row.elsMatrixReading) || LAB_SIMULATED_RESEARCH;
+  const openActivity = kind => kind === "els_matrix_reading" ? openRaziel() : openWorkspace();
+  const expansionActivity = hasActivity ? <React.Suspense fallback={null}><ResearchActivity2029 placement="panel" task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={openActivity} /></React.Suspense> : null;
   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
   // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
   const progressSections = (surface === "post" || surface === "topic") && Array.isArray(pageContext?.dimensions?.surfaceSections)
@@ -1786,7 +1789,7 @@ function SystemFrame2029Body({
         {ephemeralSelection && !unifiedGlobalDock ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
         {unifiedGlobalDock ? <div className="sod29-command-island is-unified-bar is-single-command-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="global" data-bar-expansion={barExpansion || undefined}>
-          {(researchTask || LAB_SIMULATED_RESEARCH) && !barExpansion ? <React.Suspense fallback={null}><ResearchActivity2029 task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={() => openTransient(TRANSIENT.WORKSPACE)} /></React.Suspense> : null}
+          {hasActivity && !barExpansion ? <React.Suspense fallback={null}><ResearchActivity2029 task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={openActivity} /></React.Suspense> : null}
           <button type="button" className="sod29-dock-here" disabled={contextLocked} title={contextLocked ? "כאן בבנייה · למנהל בלבד" : "כאן בבנייה · גישת מנהל"} onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-expanded={barExpansion === "here"} aria-label={contextLocked ? "כאן · בבנייה · למנהל בלבד" : readingProgress ? `כאן · מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}` : "כאן · מפת העמוד וההקשר"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.CONTEXT} data-reading-progress={readingProgress ? `${readingProgress.index}/${readingProgress.total}` : undefined}>
             <NavigationIcon2029 name="layers" /><small>כאן</small><span className="sod29-construction-badge" aria-hidden="true">בבנייה</span>
             {!contextLocked && readingProgress ? <span className="sod29-dock-progress" aria-hidden="true">{readingProgress.ids.map((id,i) => <i key={id} className={i < readingProgress.index ? "is-read" : ""} />)}</span> : null}
@@ -1798,7 +1801,7 @@ function SystemFrame2029Body({
           <button type="button" onClick={research.elsResearchOperation?.task ? openWorkspace : openAttention} aria-label={research.elsResearchOperation?.task ? `עכשיו · ${research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות"}` : feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === (research.elsResearchOperation?.task ? TRANSIENT.WORKSPACE : TRANSIENT.ATTENTION)}><NavigationIcon2029 name="now" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "עכשיו"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
           <button type="button" onClick={openMore} title="עוד · פעולות, כלים, חיפוש ואזור אישי" aria-label="עוד · פעולות, כלים, חיפוש ואזור אישי" aria-haspopup="dialog" aria-expanded={barExpansion === "more"}><NavigationIcon2029 name="tools" /><small>עוד</small></button>
         </div> : <div className="sod29-command-island is-unified-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="tool" data-tool-owner={activeToolDock?.surface}>
-          {(researchTask || LAB_SIMULATED_RESEARCH) && !barExpansion ? <React.Suspense fallback={null}><ResearchActivity2029 task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={() => openTransient(TRANSIENT.WORKSPACE)} /></React.Suspense> : null}
+          {hasActivity && !barExpansion ? <React.Suspense fallback={null}><ResearchActivity2029 task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={openActivity} /></React.Suspense> : null}
           <div className="sod29-bar-zone is-context"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /></div>
           <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />
           <div className="sod29-bar-zone is-actions"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />

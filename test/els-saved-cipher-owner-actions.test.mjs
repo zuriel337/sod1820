@@ -56,11 +56,11 @@ test("tool dock: one labelled straight row for Classic and Research", async () =
   assert.match(native, /\["findings", "סריקה וממצאים", "סריקה", "els"\], \["results", "תוצאות", "תוצאות", "posts"\], \["research", "שמירה", "שמירה", "books"\]/);
 });
 
-test("public release: Research is open, AI shows 'soon', four dock tools in one row", async () => {
+test("public release: Research owns the Fable extension and the dock has no standalone AI action", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /const aiAvailable = !publicClassic && Boolean\(matrixReading \|\| typeof onRazielMatrix === "function"\)/);
-  assert.match(native, /shortLabel: "AI בקרוב", icon: "discovery", disabled: true/);
-  assert.match(native, /data-soon="true"/);
+  assert.doesNotMatch(native, /id: "ai"|data-soon="true"|els29-ai-inspector/);
+  assert.match(native, /readingExtension=\{!publicClassic/);
+  assert.equal((native.match(/<ElsMatrixReadingCard2029 /g) || []).length, 1);
   const dock = await read("src/components/experience2029/SystemToolDock2029.jsx");
   assert.match(dock, /disabled=\{action\.disabled\}/);
   assert.match(dock, /if \(!action\.disabled\) onInvoke/);

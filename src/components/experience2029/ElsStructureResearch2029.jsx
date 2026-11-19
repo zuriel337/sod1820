@@ -9,7 +9,8 @@ export default function ElsStructureResearch2029({ state, busy, visible, onResto
   // Readiness checks only; pairwise geometry runs exclusively on explicit click.
   const ready = state?.status === "ok" && state?.verification?.state === "MATCH";
   const current = result?.ok && ready && state.axis?.hitId === result.snapshot.axis.hitId
-    && state.verification.corpus_id === result.origin.corpusId && state.term === result.origin.term;
+    && state.verification.corpus_id === result.origin.corpusId && state.term === result.origin.term
+    && ["S", "r0", "r1", "c0", "cw"].every(field => state.geometry?.[field] === result.window[field]);
   const inspect = () => { setNotice(""); setResult(inspectElsStructures(state)); };
   const pin = () => {
     const next = inspectElsStructures(state);

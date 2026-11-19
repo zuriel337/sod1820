@@ -1,3 +1,4 @@
+import { copyElsResearchReturn } from "./elsMatrixReadingSavedResult.js";
 import {
   projectRazielConversationResolution,
   resolveRazielConversationTurn,
@@ -792,7 +793,17 @@ export function prepareRazielSessionSubmission({
     elsMatrixReadingAction: normalizedElsMatrixReadingAction,
   });
   if (!request) return null;
+  const readingAxis = selectedContextSnapshot?.elsMatrixContext?.axis;
+  // A resumed job keeps its start-time view. The currently displayed view is never its new origin.
+  const readingAction = normalizedElsMatrixReadingAction;
+  const previousReading = readingAction && [...(state?.thread || []), state?.currentTurn].filter(Boolean).reverse().find(item =>
+    (readingAction.job_id && readingAction.job_id === (item.elsMatrixReading?.job?.id || item.progress?.jobId))
+    || (readingAction.job_token && readingAction.job_token === (item.elsMatrixReading?.job?.token || item.progress?.jobToken)));
+  const candidateSnapshot = readingAction?.op === "start" ? view?.elsReturnSnapshot : previousReading?.elsReturnSnapshot;
+  const returnSnapshot = readingAction && readingAxis
+    ? copyElsResearchReturn(candidateSnapshot, { ...readingAxis, corpus: readingAxis.scope }) : null;
   const turn = {
+    ...(returnSnapshot ? { elsReturnSnapshot: returnSnapshot } : {}),
     id: createTurnId(),
     question: normalizedElsPlanningAction
       ? cleanInline(normalizedElsPlanningAction.story, LIMITS.question)
@@ -1047,6 +1058,7 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
     question: state?.currentTurn?.question || null,
     turnId: state?.currentTurn?.id || null,
     continuation: state?.currentTurn?.continuation || null,
+    ...(state?.currentTurn?.elsReturnSnapshot ? { elsReturnSnapshot: state.currentTurn.elsReturnSnapshot } : {}),
     sourceNames,
     grounding,
     ...(response.evidenceSummary ? { evidenceSummary: response.evidenceSummary } : {}),

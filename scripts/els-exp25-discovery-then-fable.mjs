@@ -28,7 +28,7 @@ import { fileURLToPath } from "node:url";
 import {
   TORAH_LENGTH, DEFAULTS, selectWindow, makeRegion, buildLines, readings, buildReadingRequest, placeSeeds, INSTRUCTION_NO_STORY, INSTRUCTION_SEEDS_SUFFIX,
   countInputTokens, verifyModel, estimateCost, costFromUsage, createBatch, retrieveBatch, fetchBatchEntry, lockSha256,
-  parseModelOutput, locateFinding, verificationItems, verifyOccurrences, classify, replayOccurrence, MIN_SEED_LETTERS, MAX_SEEDS,
+  parseModelOutput, locateFinding, verificationItems, verifyOccurrences, classify, replayOccurrence, MIN_SEED_LETTERS, MAX_SEEDS, expectedChance,
 } from "../supabase/functions/_shared/elsMatrixReading.js";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -36,6 +36,7 @@ const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
 const option = (name, fallback) => { const at = args.indexOf(name); return at >= 0 && args[at + 1] ? args[at + 1] : fallback; };
 const BUDGET_USD = Number(option("--budget-usd", "10"));
+const EXPERIMENT = option("--experiment", "EXP-25"); // EXP-26 (18.11): the same requests on Fable 5.2 at effort high
 const OUT = resolve(root, option("--out", "docs/reviews/els-discovery-fable-overlap-20261118/exp25"));
 const TORAH_STREAM_MD5 = "0066c2431821863d258745e664d3883e";
 const CAP = 25; // what the product card sends (ElsMatrixReadingCard2029: cap 25); cap 60 ended at max_tokens in 6 of 18 runs (EXP-16)
@@ -52,9 +53,13 @@ const ARMS = [
   { id: "C1-52-seeds", cipher: "C1", model: "claude-fable-5-2", seeds: true },
   { id: "C2-52-plain", cipher: "C2", model: "claude-fable-5-2", seeds: false },
   { id: "C2-52-seeds", cipher: "C2", model: "claude-fable-5-2", seeds: true },
+  // EXP-26 (ZURIEL 18.11.2026, "two more"): Fable 5.2 at effort high, the level the provider recommends as its starting point; same requests otherwise.
+  { id: "C1-52h-plain", cipher: "C1", model: "claude-fable-5-2", seeds: false, effort: "high" },
+  { id: "C1-52h-seeds", cipher: "C1", model: "claude-fable-5-2", seeds: true, effort: "high" },
 ];
+const effortOf = (arm) => arm.effort || DEFAULTS.effort;
 const armFilter = option("--arms", "").split(",").filter(Boolean);
-const arms = armFilter.length ? ARMS.filter((arm) => armFilter.includes(arm.id)) : ARMS;
+const arms = armFilter.length ? ARMS.filter((arm) => armFilter.includes(arm.id)) : ARMS.filter((arm) => !arm.effort);
 
 // ---------- the letters ----------
 const torah = readFileSync(join(root, "tools/els/data/tk-letters.txt"), "utf8").trim().slice(0, TORAH_LENGTH);
@@ -172,7 +177,7 @@ const key = () => {
   return value;
 };
 // The pass-through admits only custom ids of this shape (handler.mjs: CUSTOM_ID).
-const customIdOf = (arm) => `els-live-exp25-${arm.id.toLowerCase()}`;
+const customIdOf = (arm) => `els-live-${EXPERIMENT.toLowerCase()}-${arm.id.toLowerCase()}`;
 const ANON = (() => { const text = readFileSync(join(root, "src/lib/supabase.js"), "utf8"); return { url: text.match(/SUPABASE_URL = '([^']+)'/)[1], key: text.match(/SUPABASE_ANON = '([^']+)'/)[1] }; })();
 const restHeaders = (extraHeaders = {}) => ({ apikey: ANON.key, Authorization: `Bearer ${ANON.key}`, ...extraHeaders });
 const replay = (item) => replayOccurrence(item, { fetchImpl: fetch, supabaseUrl: ANON.url, restHeaders });
@@ -189,7 +194,7 @@ async function prepare() {
   }
   const requests = arms.map((arm) => {
     const p = prepared[arm.cipher];
-    const { request, prompt } = buildReadingRequest({ model: arm.model, region: p.view.region, lines: p.view.lines, cap: CAP, seeds: arm.seeds ? p.seeds.map((seed) => ({ term: seed.text, ...seedPosition(p, seed), parts: seed.parts })) : [] });
+    const { request, prompt } = buildReadingRequest({ model: arm.model, effort: effortOf(arm), region: p.view.region, lines: p.view.lines, cap: CAP, seeds: arm.seeds ? p.seeds.map((seed) => ({ term: seed.text, ...seedPosition(p, seed), parts: seed.parts })) : [] });
     return { arm, request, prompt, instruction: INSTRUCTION_NO_STORY + (prompt.seeds.length ? INSTRUCTION_SEEDS_SUFFIX : ""), request_sha256: sha256(JSON.stringify(request)) };
   });
   for (const r of requests) r.lock_sha256 = await lockSha256(r.request);
@@ -207,23 +212,24 @@ function seedPosition(p, seed) {
 }
 
 const summaryOfPreparation = ({ prepared, requests }) => ({
-  experiment: "EXP-25", approved_budget_usd: BUDGET_USD, cap: CAP, effort: DEFAULTS.effort, max_tokens: DEFAULTS.maxTokens, torah_md5: md5,
+  experiment: EXPERIMENT, approved_budget_usd: BUDGET_USD, cap: CAP, effort: DEFAULTS.effort, max_tokens: DEFAULTS.maxTokens, torah_md5: md5,
   ciphers: Object.fromEntries(Object.entries(prepared).map(([id, p]) => [id, {
     name: p.cipher.name, axis: hitIdOf(p.cipher), window: { r0: p.view.window.r0, r1: p.view.window.r1, c0: p.view.window.c0, c1: p.view.window.c1, rows: p.view.window.rows, cols: p.view.window.cols },
     discovery: { box: p.discovery.box, items: p.discovery.items.length, by_source: countBy(p.discovery.items, (item) => item.source), coverage: p.discovery.coverage },
     seeds: p.seeds,
   }])),
-  arms: requests.map((r) => ({ id: r.arm.id, model: r.arm.model, cipher: r.arm.cipher, seeds: r.prompt.seeds.length, instruction: r.instruction, request_sha256: r.request_sha256, lock_sha256: r.lock_sha256, custom_id: customIdOf(r.arm), prompt_chars: r.prompt.user.length })),
+  arms: requests.map((r) => ({ id: r.arm.id, model: r.arm.model, effort: effortOf(r.arm), cipher: r.arm.cipher, seeds: r.prompt.seeds.length, instruction: r.instruction, request_sha256: r.request_sha256, lock_sha256: r.lock_sha256, custom_id: customIdOf(r.arm), prompt_chars: r.prompt.user.length })),
 });
 const countBy = (list, keyOf) => list.reduce((acc, item) => { const k = keyOf(item); acc[k] = (acc[k] || 0) + 1; return acc; }, {});
 
 // ---------- submit ----------
 async function submit(prep) {
   const apiKey = key();
-  const state = { experiment: "EXP-25", created_at: new Date().toISOString(), budget_usd: BUDGET_USD, route: viaProxy ? "els-live-reading pass-through (site key)" : "direct key", arms: [] };
-  for (const model of [...new Set(prep.requests.map((r) => r.arm.model))]) {
-    const check = await verifyModel({ fetchImpl: providerFetch, key: apiKey, model, effort: DEFAULTS.effort, maxTokens: DEFAULTS.maxTokens });
-    if (!check.ok) throw new Error(`model check failed for ${model}: ${JSON.stringify(check.checks)}`);
+  const state = { experiment: EXPERIMENT, created_at: new Date().toISOString(), budget_usd: BUDGET_USD, route: viaProxy ? "els-live-reading pass-through (site key)" : "direct key", arms: [] };
+  for (const pair of [...new Set(prep.requests.map((r) => `${r.arm.model}|${effortOf(r.arm)}`))]) {
+    const [model, effort] = pair.split("|");
+    const check = await verifyModel({ fetchImpl: providerFetch, key: apiKey, model, effort, maxTokens: DEFAULTS.maxTokens });
+    if (!check.ok) throw new Error(`model check failed for ${model} at ${effort}: ${JSON.stringify(check.checks)}`);
   }
   let totalUpper = 0;
   for (const r of prep.requests) {
@@ -256,7 +262,7 @@ async function collect(prep) {
     const entry = await fetchBatchEntry({ fetchImpl: providerFetch, key: apiKey, batch, customId: customIdOf(r.arm) });
     results.push(await evaluate(prep, r, entry));
   }
-  const report = { experiment: "EXP-25", collected_at: new Date().toISOString(), preparation: summaryOfPreparation(prep), results, cost_total_usd: Number(results.reduce((sum, x) => sum + (x.cost?.usd ?? 0), 0).toFixed(4)) };
+  const report = { experiment: EXPERIMENT, collected_at: new Date().toISOString(), preparation: summaryOfPreparation(prep), results, cost_total_usd: Number(results.reduce((sum, x) => sum + (x.cost?.usd ?? 0), 0).toFixed(4)) };
   writeFileSync(join(OUT, "report.json"), JSON.stringify(report, null, 1));
   writeFileSync(join(OUT, "report.md"), renderReport(report));
   console.log(renderReport(report));
@@ -280,6 +286,8 @@ async function evaluate(prep, r, entry) {
   const classified = classify(located, rows);
   const verified = classified.filter((f) => f.verdict === "verified_by_engine");
   const cellsOf = (f) => { const k = f.checks.findIndex((c) => c.letters_match && c.engine_found); return k < 0 ? [] : positionsOf(f.occurrences[k].params, f.text.length); };
+  // E: occurrences expected by chance for the same letters at the same skip over the whole Torah (the product's expectedChance). E<1 = not expected by chance, not "meaningful".
+  const chanceOf = (f) => { const k = f.checks.findIndex((c) => c.letters_match && c.engine_found); return k < 0 ? null : Number(expectedChance(f.text, f.occurrences[k].params.skip).toPrecision(3)); };
   const discoveryKeys = new Set(p.discovery.items.map((item) => item.positions.join(",")));
   const seedKeys = new Set(p.seeds.map((seed) => { const pos = seedPosition(p, seed); return positionsOf(pos, [...seed.text].length).join(","); }));
   const sameCells = (positions, keys) => keys.has(positions.join(",")) || keys.has(positions.slice().reverse().join(","));
@@ -289,6 +297,8 @@ async function evaluate(prep, r, entry) {
     proposals: parsed.value.findings.length,
     verdicts: countBy(classified, (f) => f.verdict),
     verified_texts: verified.map((f) => f.text),
+    verified_with_chance: verified.map((f) => ({ text: f.text, E: chanceOf(f) })),
+    unlikely_by_chance: verified.filter((f) => (chanceOf(f) ?? 99) < 1).map((f) => f.text),
     repeats_of_seeds: verified.filter((f) => sameCells(cellsOf(f), seedKeys)).map((f) => f.text),
     already_in_discovery: verified.filter((f) => sameCells(cellsOf(f), discoveryKeys)).map((f) => f.text),
     new_vs_discovery: verified.filter((f) => !sameCells(cellsOf(f), discoveryKeys)).map((f) => f.text),
@@ -300,10 +310,11 @@ async function evaluate(prep, r, entry) {
 }
 
 function renderReport(report) {
-  const lines = [`# EXP-25 — discovery first, then Fable: results`, "", `Collected ${report.collected_at}. Total cost (estimated from usage at list prices, batch 50%): $${report.cost_total_usd}. Approved: $${report.preparation.approved_budget_usd}.`, "",
-    "| Arm | Model | Seeds | State | Proposals | Verified by engine | Repeats of seeds | New vs discovery | Continued from seeds | Target (האר חשך) | Output tokens | Cost $ |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|"];
-  for (const r of report.results) lines.push(`| ${r.id} | ${r.model} | ${r.seeds_given ?? "-"} | ${r.state} | ${r.proposals ?? "-"} | ${r.verdicts?.verified_by_engine ?? 0} | ${r.repeats_of_seeds?.length ?? "-"} | ${r.new_vs_discovery?.length ?? "-"} | ${r.continued_from_seeds ?? "-"} | ${r.target_found === null || r.target_found === undefined ? "-" : r.target_found ? "yes" : "no"} | ${r.usage?.output_tokens ?? "-"} | ${r.cost?.usd ?? "-"} |`);
+  const lines = [`# ${report.experiment} — discovery first, then Fable: results`, "", `Collected ${report.collected_at}. Total cost (estimated from usage at list prices, batch 50%): $${report.cost_total_usd}. Approved: $${report.preparation.approved_budget_usd}.`, "",
+    "| Arm | Model | Effort | Seeds | State | Proposals | Verified by engine | E<1 | Plain text only | Repeats of seeds | New vs discovery | Continued from seeds | Target (האר חשך) | Output tokens | Cost $ |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"];
+  const effortById = Object.fromEntries((report.preparation.arms || []).map((a) => [a.id, a.effort]));
+  for (const r of report.results) lines.push(`| ${r.id} | ${r.model} | ${effortById[r.id] ?? "-"} | ${r.seeds_given ?? "-"} | ${r.state} | ${r.proposals ?? "-"} | ${r.verdicts?.verified_by_engine ?? 0} | ${r.unlikely_by_chance?.length ?? "-"} | ${r.verdicts?.verified_plain_text_only ?? 0} | ${r.repeats_of_seeds?.length ?? "-"} | ${r.new_vs_discovery?.length ?? "-"} | ${r.continued_from_seeds ?? "-"} | ${r.target_found === null || r.target_found === undefined ? "-" : r.target_found ? "yes" : "no"} | ${r.usage?.output_tokens ?? "-"} | ${r.cost?.usd ?? "-"} |`);
   lines.push("", "Verified means: the letters are at the claimed cells of the canonical stream and els_verify_occurrence_v1 answered MATCH. It says nothing about meaning; random windows give signals of the same kind (EXP-16).");
   return lines.join("\n");
 }

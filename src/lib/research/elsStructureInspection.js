@@ -2,6 +2,7 @@ import { parseElsHitKey } from "../elsJourney.js";
 import { captureElsResearchReturn, elsResearchReturnLoad, elsResearchSnapshotMatches } from "./elsResearchReturnSnapshot.js";
 import { extractElsVectorGeometry } from "./els2029VectorGeometry.js";
 import { isElsLexiconCandidate } from "./elsLexiconResearch.js";
+import { SPLIT_LIMITS, hitBoxAt, splitRowStartFor } from "../elsSplitMatrix.js";
 
 // Presentation adapter over canonical verified occurrence identities and the existing
 // vector geometry owner. No search, lexical generation, score or new result authority.
@@ -50,16 +51,114 @@ export const ELS_DISCOVERY_GROUP_LABELS = Object.freeze({
   parallel: "קווים מקבילים", intersection: "אותיות משותפות", continuation: "המשך על אותו קו",
   motif: "מילה חוזרת", corridor: "מסדרון סביב הציר", cluster: "אשכול קרוב", transversal: "חוצה מקבילות",
 });
+const MAX_STRUCTURE_CANDIDATES = 300;
+
+export function selectElsStructureCandidates(items) {
+  if (items.length <= MAX_STRUCTURE_CANDIDATES) return items;
+  return [...items].sort((a, b) => Number(a.kind === "source") - Number(b.kind === "source")
+    || a.distance - b.distance || b.term.length - a.term.length || a.start - b.start).slice(0, MAX_STRUCTURE_CANDIDATES);
+}
+
+export function isElsStructureMemberMarked(state, member) {
+  if (member.kind === "axis") return state?.axis?.hitId === member.hitId;
+  const finding = state?.findings?.find(item => item.t === member.term);
+  return [...(finding?.hits || []), ...(finding?.sourceHits || [])]
+    .some(hit => hit.hitId === member.hitId && hit.selected && (hit.kind === "source-sequence" || hit.verified));
+}
+
+export function verifiedElsStructureCards(inspection) {
+  if (!inspection?.ok) return [];
+  const { lines, geometry } = inspection;
+  const byId = new Map(lines.map(line => [line.occurrenceId, line]));
+  const cards = new Map();
+  const add = (ids, type, reason) => {
+    const key = [...ids].sort().join("|");
+    if (!cards.has(key)) cards.set(key, { id: key, members: ids.map(id => byId.get(id)), types: [], reasons: [] });
+    const card = cards.get(key);
+    card.types.push(type); card.reasons.push(reason);
+  };
+  for (const pair of geometry.intersections) {
+    const count = pair.positions.length;
+    if (count < Math.min(byId.get(pair.a).positions.length, byId.get(pair.b).positions.length))
+      add([pair.a, pair.b], "intersection", `${count} אותיות במיקומים משותפים`);
+  }
+  for (const pair of geometry.relations) {
+    const a = byId.get(pair.a), b = byId.get(pair.b);
+    if (pair.latticeOffset === 0) {
+      const [short, long] = a.positions.length <= b.positions.length ? [a, b] : [b, a];
+      if (!short.positions.every(position => long.positions.includes(position)))
+        add([pair.a, pair.b], "continuation", "שני מופעים על אותו קו במטריצה");
+      continue;
+    }
+    const sameSkip = Math.abs(a.positions[1] - a.positions[0]) === Math.abs(b.positions[1] - b.positions[0]);
+    const [dr, dc] = pair.primitiveVector;
+    const gap = dc === 0 ? Math.abs(a.positions[0] % inspection.window.S - b.positions[0] % inspection.window.S) : pair.latticeOffset;
+    add([pair.a, pair.b], "parallel", [
+      sameSkip ? `אותו דילוג ${Math.abs(a.positions[1] - a.positions[0]).toLocaleString("he-IL")}` : null,
+      a.dir !== b.dir ? "כיוונים הפוכים" : null,
+      dr === 1 && dc === 0 ? `מרחק ${gap.toLocaleString("he-IL")} עמודות` : `היסט בין הקווים ${gap}`,
+    ].filter(Boolean).join(" · "));
+  }
+  const byTerm = new Map();
+  for (const line of lines) {
+    if (!byTerm.has(line.term)) byTerm.set(line.term, []);
+    byTerm.get(line.term).push(line.occurrenceId);
+  }
+  for (const ids of byTerm.values()) if (ids.length > 1) add(ids, "motif", `אותה מילה ב־${ids.length} מופעים`);
+  return [...cards.values()];
+}
+
+// Intermediate positions are drawn only when both endpoints lie on one physical line in this layout.
+function structureGap(a, b, [dr, dc], width) {
+  let nearest = null;
+  for (const p of a.positions) for (const q of b.positions) {
+    const rowGap = Math.floor(q / width) - Math.floor(p / width), colGap = q % width - p % width;
+    const steps = dr ? rowGap / dr : colGap / dc;
+    if (!Number.isInteger(steps) || rowGap !== steps * dr || colGap !== steps * dc) continue;
+    if (!nearest || Math.abs(steps) < Math.abs(nearest.steps)) nearest = { p, steps };
+  }
+  const gaps = Math.abs(nearest?.steps || 0) - 1;
+  return gaps > 0 && gaps < SPLIT_LIMITS.maxRows
+    ? Array.from({ length: gaps }, (_, i) => nearest.p + (i + 1) * Math.sign(nearest.steps) * (dr * width + dc)) : [];
+}
+
+export function elsStructureView(card, width, corpusLetters) {
+  const members = card.members.map(member => ({ ...member, occurrenceId: member.hitId }));
+  const geometry = extractElsVectorGeometry({ axisWidth: width, occurrences: members });
+  const overlap = card.types.some(type => type === "intersection" || type === "transversal") ? geometry.intersections[0] : null;
+  const relation = !overlap && (card.types.includes("continuation") || card.types.includes("parallel"))
+    ? geometry.relations.find(pair => pair.latticeOffset === 0 ? card.types.includes("continuation") : card.types.includes("parallel")) : null;
+  const pair = overlap || relation;
+  const focus = pair ? [pair.a, pair.b].map(id => members.find(member => member.hitId === id)) : members.slice(0, SPLIT_LIMITS.maxBands);
+  const shared = overlap?.positions || [];
+  const between = relation?.latticeOffset === 0 ? structureGap(...focus, relation.primitiveVector, width) : [];
+  const highlights = shared.length ? shared : between;
+  const boxes = focus.map(member => hitBoxAt({ start: member.positions[0], direction: member.dir < 0 ? "back" : "fwd",
+    skip: Math.abs(member.positions[1] - member.positions[0]), length: member.positions.length }, width));
+  const columnMin = Math.min(...boxes.map(box => box.colMin)), columnMax = Math.max(...boxes.map(box => box.colMax));
+  const colSpan = columnMax - columnMin + 1, rowSpan = Math.max(...boxes.map(box => box.rowMax)) - Math.min(...boxes.map(box => box.rowMin)) + 1;
+  const rowCount = Math.min(SPLIT_LIMITS.maxRows, Math.max(15, rowSpan + 2));
+  const together = colSpan <= SPLIT_LIMITS.maxCols || shared.length > 0;
+  const colCount = together ? Math.min(SPLIT_LIMITS.maxCols, Math.max(5, colSpan + 2)) : 5;
+  const bands = (together ? focus.slice(0, 1) : focus).map(member => member.hitId);
+  const totalRows = Math.ceil(corpusLetters / width);
+  const column = shared.length && colSpan > SPLIT_LIMITS.maxCols ? shared[0] % width - Math.floor(colCount / 2) : columnMin - Math.floor((colCount - colSpan) / 2);
+  const rowStart = highlights.length && rowSpan > rowCount
+    ? Math.max(0, Math.min(totalRows - rowCount, Math.floor(highlights[0] / width) - Math.floor(rowCount / 2)))
+    : splitRowStartFor(boxes, rowCount, totalRows);
+  return { bands, rowCount, colCount, rowStart, width, members: focus, shared, between,
+    columnStarts: together ? { [bands[0]]: Math.max(0, Math.min(width - colCount, column)) } : {} };
+}
 
 // Restore structural discovery as a projection of the EXISTING bounded scan.
 // No letters/dictionary/search here. Engine-provided positions remain candidates
 // until the existing exact-load verifier admits the selected occurrences.
-export function groupElsLexiconDiscoveries(state, result, settings = {}) {
+export function groupElsLexiconDiscoveries(state, result, settings = {}, sourceOf = () => result) {
   const snapshot = captureElsResearchReturn(state), box = result?.box;
   const empty = reason => ({ groups: [], ok: false, reason });
   if (!result?.ok || result.pending || !elsResearchSnapshotMatches(snapshot, result.origin)
     || !box || !Object.values(box).every(Number.isSafeInteger) || box.S < 2
-    || !Number.isSafeInteger(state.corpusLetters) || !Array.isArray(result.items) || result.items.length > 300)
+    || !Number.isSafeInteger(state.corpusLetters) || !Array.isArray(result.items) || result.items.length > MAX_STRUCTURE_CANDIDATES)
     return empty("המופע או חלון הסריקה אינם שלמים.");
   const axisPositions = Array.from(snapshot.normalizedTerm, (_, i) => snapshot.axis.start + i * snapshot.axis.skip * snapshot.axis.dir);
   const axis = { occurrenceId: "axis", term: snapshot.normalizedTerm, positions: axisPositions, dir: snapshot.axis.dir, kind: "axis" };
@@ -68,7 +167,10 @@ export function groupElsLexiconDiscoveries(state, result, settings = {}) {
   let excluded = 0;
   for (const item of result.items) {
     const positions = item?.positions, id = `${item?.term}:${item?.hitId}`;
-    if (!isElsLexiconCandidate(item, result) || !Number.isSafeInteger(item.start) || !Number.isSafeInteger(item.skip)
+    const source = sourceOf(item);
+    if (source !== result && (!source?.items?.includes(item) || !elsResearchSnapshotMatches(snapshot, source.origin)
+      || !["S", "r0", "r1", "c0", "c1"].every(k => source.box?.[k] === box[k]))) { excluded++; continue; }
+    if (!isElsLexiconCandidate(item, source) || !Number.isSafeInteger(item.start) || !Number.isSafeInteger(item.skip)
       || item.skip < 1 || ![-1, 1].includes(item.dir) || item.hitId !== `${item.skip}_${item.dir}_${item.start}`
       || !Array.isArray(positions) || positions.length !== item.term.length
       || positions.some((p, i) => p !== item.start + i * item.skip * item.dir || p < 0 || p >= state.corpusLetters

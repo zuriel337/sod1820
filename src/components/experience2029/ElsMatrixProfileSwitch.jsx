@@ -38,8 +38,7 @@ export default function ElsMatrixProfileSwitch({
       aria-label={ariaLabel}
       data-els-matrix-profile-switch="v1"
       data-profile={active.toLowerCase()}
-      className="sod29-actions"
-      style={{ flexWrap: "wrap", gap: 8 }}
+      className="els29-profile-switch"
     >
       {OPTIONS.filter((option) => !allowed || allowed.includes(option.key)).map((option) => {
         const selected = active === option.key;
@@ -49,6 +48,7 @@ export default function ElsMatrixProfileSwitch({
             type="button"
             className={selected ? "sod29-action primary" : "sod29-action"}
             aria-pressed={selected}
+            aria-description={option.key === ELS_MATRIX_PROFILE.CLASSIC ? "מצב חופשי" : undefined}
             data-els-matrix-profile={option.key.toLowerCase()}
             disabled={disabled}
             title={option.title}
@@ -57,7 +57,8 @@ export default function ElsMatrixProfileSwitch({
               onChange?.(option.key);
             }}
           >
-            {option.label}
+            <span>{option.label}</span>
+            {option.key === ELS_MATRIX_PROFILE.CLASSIC ? <span className="els29-profile-free" lang="en" dir="ltr" aria-hidden="true">FREE</span> : null}
           </button>
         );
       })}
