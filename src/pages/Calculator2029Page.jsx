@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import { FINDING_NOT_SENT, findingCardUrl, findingShareMessage } from "../lib/share.js";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorCompare2029 from "../components/gematria2029/CalculatorCompare2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
@@ -614,13 +615,16 @@ function CalculatorExperience() {
               <ShareActions
                 type="gematria_result"
                 url={shareUrl}
-                title={`${selection.expression} = ${selection.resultValue} · ${selection.methodLabel} · מה מסתתר בשם שלך?`}
+                title={findingShareMessage({ kind: "calc", expression: selection.expression, value: selection.resultValue, method: selection.methodLabel })}
+                image={findingCardUrl({ kind: "calc", expression: selection.expression, value: selection.resultValue, method: selection.methodLabel })}
                 channels={["native", "whatsapp", "telegram", "copy"]}
                 force
                 onShare={(channel) => emit("calculator_2029", "share_created", {
                   props: eventProps(selection, { share_id: shareId, channel, has_discovery: Boolean(shareDiscovery) }),
                 })}
               />
+              {/* What goes out (ZURIEL 18.11.2026): exactly the expression, the method and the result shown here, with a link that opens them. */}
+              <p className="sod29-calc-share-sent" data-share-disclosure="calculator">יישלח: הביטוי, השיטה והתוצאה שמוצגים כאן, וקישור שפותח אותם. {FINDING_NOT_SENT}</p>
             </section>
           ) : null}
         </section>

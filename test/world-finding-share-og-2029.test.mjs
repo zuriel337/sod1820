@@ -62,7 +62,9 @@ test("share uses *reader-provided* exact public href and existing 1200×630 bran
   const cardSource = readFileSync(new URL("../api/card.js", import.meta.url), "utf8");
   assert.match(cardSource, /const W = story \? 1080 : 1200/);
   assert.match(cardSource, /const H = story \? 1920 : 630/);
-  assert.match(cardSource, /sig === 'finding' \? 'ממצא · מקור · מחקר'/);
+  // Royal card (ZURIEL 18.11.2026): a finding card still reads "ממצא · מקור · מחקר" (sig=finding → kind finding).
+  assert.match(cardSource, /\(searchParams\.get\('sig'\) \|\| ''\) === 'finding' \? 'finding'/);
+  assert.match(cardSource, /finding: 'ממצא · מקור · מחקר'/);
 });
 
 test("private, draft, unrelated id, admin and forged outbound URLs cannot be shared", () => {

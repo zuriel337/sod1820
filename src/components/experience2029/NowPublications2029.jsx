@@ -85,7 +85,9 @@ function VideoOnDemand({ model, autoStart = false }) {
 }
 
 // A site Post shared from "עכשיו" goes to its own canonical address through the ONE ShareActions (never an embed or a feed address).
-const postShareUrl = model => !model.unverified && model.item?.sourceKind === "post" && /^\/(?:post|posts)\/[^/?#]+$/.test(model.href || "") ? `${SHARE_SITE}${model.href}` : null;
+// PREPARED (ZURIEL 18.11.2026): href comes from publicPostHref(row) (worldDiscoveryStream / postSourceUpdates), so it is already the canonical
+// address — an old WordPress post at its root address, a native post at /post/<slug>, an updated post with ?unit=#. Any same-site path is shared.
+const postShareUrl = model => !model.unverified && model.item?.sourceKind === "post" && /^\/(?!\/)[^\s]*$/.test(model.href || "") ? `${SHARE_SITE}${model.href}` : null;
 
 function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
   const seriesHref = nowSeriesHref(model);

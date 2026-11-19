@@ -32,13 +32,21 @@ export function withRid(url) {
 // מיפוי ערוץ-שיתוף → קוד-מקור קצר שהמנוע מזהה (tracking.normalizeSource): wa/tg/fb/ig…
 const SRC_BY_CHANNEL = { whatsapp: "wa", telegram: "tg", facebook: "fb", instagram: "ig", x: "x", email: "email", copy: "copy", native: "native" };
 
-// 🔗 קישור-השיתוף הקנוני: rid=<המשתף> (ויראליות) + src=<ערוץ> (מקור-הגעה מדיד).
-// כך כשהנמען נכנס ונרשם — יודעים גם *מי שלח* (rid) וגם *באיזה ערוץ* (src). מקור-אמת יחיד
-// ל-ShareActions וללשונית-הצפה (RoyalShareWidget) — אין תיוג מקומי בכל רכיב.
+// 🔗 The link handed to other people (PREPARED FOR ZURIEL'S DECISION, 18.11.2026 — privacy/analytics contract change, not approved yet).
+// It carries only `src=<channel>`. Removed from the copy made for sharing (the sharer's own address bar and arrival capture are untouched):
+//   - `rid`, the sharer's persistent device id. In the 2029 public build nothing reads it: arrival attribution is `src` first
+//     (events.js via()), `rid` never leaves the browser, and the readers that resolved it to a person (admin_ambassadors, viral_report,
+//     growth_center) have had no input since 3.11.2026 and no caller in src. Keeping `src` keeps production telemetry byte-identical.
+//   - tracking keys of the visit the sharer arrived with (utm_*, fbclid, gclid, …, via, sid, nlid): they misattributed the recipient's visit
+//     and exposed the sharer's own campaign. Identity/context keys (unit, thread, reply, gallery, image, finding, p, q/m/v, …) are kept.
+export const SHARE_STRIP_PARAMS = Object.freeze(["rid", "src", "via", "sid", "nlid", "fbclid", "gclid", "gbraid", "wbraid", "dclid", "msclkid",
+  "igshid", "ttclid", "twclid", "mc_cid", "mc_eid", "_gl", "_ga"]);
 export function taggedShareUrl(url, channel) {
   try {
     const u = new URL(url, typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il");
-    u.searchParams.set("rid", getVisitorId());
+    for (const key of [...u.searchParams.keys()]) {
+      if (SHARE_STRIP_PARAMS.includes(key) || /^utm_/i.test(key)) u.searchParams.delete(key);
+    }
     const src = SRC_BY_CHANNEL[channel] || channel;
     if (src) u.searchParams.set("src", src);
     return u.toString();

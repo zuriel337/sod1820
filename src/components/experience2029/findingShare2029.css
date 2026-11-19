@@ -1,0 +1,22 @@
+/* Finding share (ZURIEL 18.11.2026): loaded with FindingShare2029 only. Tokens of the 2029 frame; gold like the logo. */
+.sod29-finding-share-button{display:inline-flex;align-items:center;gap:8px;min-block-size:44px;padding:8px 16px;border-radius:999px;
+  border:1px solid var(--s29-line-strong);background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-weight:800;cursor:pointer}
+.sod29-finding-share-button.is-prominent{min-block-size:48px;padding:10px 20px;border-color:transparent;
+  background:var(--s29-accent-btn);color:var(--s29-on-accent);box-shadow:0 0 0 2px var(--s29-brand-gold) inset}
+.sod29-finding-share-button:focus-visible{outline:3px solid var(--s29-brand-gold);outline-offset:2px}
+.sod29-finding-share-layer{position:fixed;inset:0;z-index:1950;display:flex;align-items:flex-end;justify-content:center;background:rgb(10 10 30 / .38)}
+.sod29-finding-share-sheet{inline-size:min(560px,100%);max-block-size:92vh;overflow:auto;background:var(--s29-panel);color:var(--s29-ink);
+  border-top:3px solid var(--s29-brand-gold);border-radius:22px 22px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgb(0 0 0 / .25)}
+@media (min-width:720px){.sod29-finding-share-layer{align-items:center}.sod29-finding-share-sheet{border-radius:22px}}
+.sod29-finding-share-sheet header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sod29-finding-share-sheet h3{margin:0;font-size:1.1rem}
+.sod29-finding-share-close{min-inline-size:44px;min-block-size:44px;border:0;background:transparent;color:inherit;font-size:1.6rem;cursor:pointer}
+.sod29-finding-share-sent{margin:10px 0;padding:10px 12px;border:1px dashed var(--s29-line-strong);border-radius:12px;display:grid;gap:4px}
+.sod29-finding-share-sent div{display:flex;gap:10px;align-items:baseline}
+.sod29-finding-share-sent dt{min-inline-size:64px;font-weight:800;color:var(--s29-ink)}
+.sod29-finding-share-sent dd{margin:0;overflow-wrap:anywhere}
+.sod29-finding-share-preview{display:block;inline-size:100%;block-size:auto;aspect-ratio:1200/630;border-radius:10px;margin:8px 0}
+.sod29-finding-share-note{margin:8px 0 0;font-size:.82rem;opacity:.8}
+/* Phone: the page share sits in the hero row with the way back and the save action (ZURIEL 5.11: one row, the number rises). */
+@media (max-width:480px){.sod29-finding-share-button.is-prominent{inline-size:48px;padding:0;justify-content:center;font-size:1.25rem}
+  .sod29-finding-share-button.is-prominent .sod29-finding-share-label{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}}

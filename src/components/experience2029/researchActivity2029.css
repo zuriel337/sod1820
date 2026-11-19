@@ -1,0 +1,23 @@
+/* Compact research indicator on the bottom bar (preview). Palette tokens only; fixed size, so no layout shift. */
+.sod29-research-activity-wrap.is-bar{position:absolute;inset-block-end:calc(100% + 6px);inset-inline:8px;z-index:1}
+.sod29-research-activity{inline-size:100%;display:grid;gap:4px;
+  min-block-size:44px;box-sizing:border-box;padding:6px 12px;border-radius:14px;cursor:pointer;text-align:start;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 34%,var(--s29-line-strong));color:var(--s29-ink);
+  background:color-mix(in srgb,var(--s29-panel) 96%,transparent);box-shadow:0 8px 24px color-mix(in srgb,var(--s29-page) 50%,transparent)}
+.sod29-research-activity-wrap.is-panel{margin-block-end:10px}
+.sod29-research-activity:focus-visible{outline:2px solid var(--s29-accent-text);outline-offset:2px}
+.sod29-research-activity-line{display:flex;align-items:baseline;gap:6px;min-inline-size:0;font:400 14px/1.3 var(--s29-font-ui,inherit);white-space:nowrap}
+.sod29-research-activity-line b{color:var(--s29-accent-text);font-weight:700}
+.sod29-research-activity-line bdi{font-weight:600}
+.sod29-research-activity-phase{flex:1 1 auto;min-inline-size:0;overflow:hidden;text-overflow:ellipsis;color:var(--s29-muted)}
+.sod29-research-activity-line time{font-variant-numeric:tabular-nums;color:var(--s29-muted)}
+.sod29-research-activity-line em{font-style:normal;font-size:12px;padding:0 6px;border-radius:6px;border:1px dashed var(--s29-line-strong);color:var(--s29-muted)}
+.sod29-research-activity-meter{display:block;block-size:3px;border-radius:2px;overflow:hidden;background:var(--s29-line)}
+.sod29-research-activity-meter i{display:block;block-size:100%;inline-size:var(--ra-progress,38%);background:var(--s29-accent-text);border-radius:2px}
+.sod29-research-activity-meter.is-indeterminate i{animation:sod29-ra-slide 1.6s ease-in-out infinite}
+@keyframes sod29-ra-slide{from{transform:translateX(120%)}to{transform:translateX(-260%)}}
+.sod29-research-activity-live{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.sod29-research-activity-meter.is-indeterminate i{animation:none;inline-size:100%;opacity:.45}}
+.sod29-root[data-frame-reduced-motion="true"] .sod29-research-activity-meter.is-indeterminate i{animation:none;inline-size:100%;opacity:.45}
+/* the page keeps clear of the indicator above the bar (loaded with the indicator, not by every page) */
+.sod29-root.native-frame:has(.sod29-research-activity-wrap.is-bar){--s29-island-clearance:142px!important}

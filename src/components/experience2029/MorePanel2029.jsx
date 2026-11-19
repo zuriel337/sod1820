@@ -1,6 +1,11 @@
 import React, { useState, useSyncExternalStore } from "react";
-import RoyalTile2029, { RoyalTileGrid2029 } from "./RoyalTile2029.jsx";
+import RoyalTile2029 from "./RoyalTile2029.jsx";
 import ShareActions from "../ShareActions.jsx";
+import RoyalRow2029 from "./RoyalRow2029.jsx";
+import NavigationIcon2029 from "./NavigationIcon2029.jsx";
+import "./royal2029.css";
+import "./personalArea2029.css";
+import { pageOwnShareTitle } from "../../lib/share.js";
 import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import { requestInstall, subscribeInstallOffer, suppressInstallSuggestion, INSTALL_ACCEPTED_DAYS } from "../../lib/installOffer2029.js";
 import { installBrowser, installManualSteps, installMenuKind } from "../../lib/installMenu2029.js";
@@ -58,34 +63,58 @@ export function MoreInstall2029() {
   </section>;
 }
 
+function shareSubjectPath(href) {
+  try { const url = new URL(href); return decodeURIComponent(url.host + url.pathname).replace(/\/$/, ""); } catch { return ""; }
+}
+
 export default function MorePanel2029({ shareOnly = false, context = "", onAction, onTools, onSearch, personal, onPersonal,
-  adminDestinations = [], onDestination, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
+  adminDestinations = [], onDestination, onNumber = null, numberLocked = false, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
   const [candidate] = useState(reviewCandidate);
-  return <div className="sod29-more" data-more-panel={shareOnly ? "share" : "full"} data-royal-candidate={candidate}>
+  // Design V2 §14 (ZURIEL 19.11.2026, preview): the Personal Area's components (Royal 2029 layer) — centered section headings with the
+  // diamond rule, the shared royal rows, royal-blue primary actions — and one ShareActions in its royal presentation.
+  const heading = (id, text) => <h3 id={id} className="pa29-h is-centered"><span className="r29-rule" aria-hidden="true">◆</span>{text}<span className="r29-rule" aria-hidden="true">◆</span></h3>;
+  return <div className="sod29-more pa29 r29" data-more-panel={shareOnly ? "share" : "full"} data-royal-candidate={candidate} data-r29-kind="site">
     {!shareOnly ? <>
       {context ? <p className="sod29-more-context"><small>ההקשר לפעולות</small><strong dir="auto">{context}</strong></p> : null}
-      <section className="sod29-more-section" data-more-section="main" aria-label="פעולות, כלים ואזור אישי">
-        <RoyalTileGrid2029 label="פעולות, כלים ואזור אישי" columns="4">
-          {/* Closed · בבנייה comes from the frame's useFeatureState (site_flags), never from a local flag; the tile opens the closed notice. */}
-          <RoyalTile2029 icon="action" title="פעולות" hint={actionsBuilding ? "סגור · בבנייה" : context ? "על מה שמוצג כאן" : "על העמוד הזה"} onClick={onAction} testId="actions" />
-          <RoyalTile2029 icon="search" title="חיפוש" hint="בכל האתר" onClick={onSearch} testId="search" />
-          <RoyalTile2029 icon="tools" title="כלים" hint={toolsBuilding ? "סגור · בבנייה" : "כלי המחקר לעמוד"} onClick={onTools} testId="tools" />
-          <RoyalTile2029 icon="personal" art={personal?.avatar || null} title={personal?.signedIn ? "האזור שלי" : "כניסה"}
-            hint={personal?.signedIn ? (personal.name || "שמירות ומסע אישי") : "לאזור האישי"} onClick={onPersonal} testId="personal" />
-          {toolDockReturn ? <RoyalTile2029 icon="cipher" title="כלי הצופן" label="חזור לכלי הצופן" hint="חזרה לכלי שהיה פתוח" onClick={toolDockReturn} testId="tool-return" /> : null}
-        </RoyalTileGrid2029>
+      <section className="pa29-group" data-more-section="main" aria-labelledby="sod29-more-tools">
+        {heading("sod29-more-tools", "כלים וחיפוש")}
+        <div className="pa29-cards">
+          {/* ZURIEL 19.11.2026: gimatria is a direct shortcut here (it left the bar for "שיתוף"); its own lock_number state, never "כלים". */}
+          {onNumber ? <RoyalRow2029 icon="number" title="גימטריה" hint="מספר, ביטוי ושיטות חישוב" state={numberLocked ? "locked" : "live"} reason="נעולה כרגע" kind="site" onPress={onNumber} data={{ "data-royal-tile": "number" }} /> : null}
+          <RoyalRow2029 icon="search" title="חיפוש" hint="בכל האתר" kind="site" onPress={onSearch} data={{ "data-royal-tile": "search" }} />
+          {/* Closed · בבנייה comes from the frame's useFeatureState (site_flags), never from a local flag; the row opens the closed notice. */}
+          <RoyalRow2029 icon="action" title="פעולות" hint={actionsBuilding ? "סגור · בבנייה" : context ? "על מה שמוצג כאן" : "על העמוד הזה"} kind="site" onPress={onAction} data={{ "data-royal-tile": "actions" }} />
+          <RoyalRow2029 icon="tools" title="כלים" hint={toolsBuilding ? "סגור · בבנייה" : "כלי המחקר לעמוד"} kind="site" onPress={onTools} data={{ "data-royal-tile": "tools" }} />
+          {toolDockReturn ? <RoyalRow2029 icon="cipher" title="חזור לכלי הצופן" hint="חזרה לכלי שהיה פתוח" kind="site" onPress={toolDockReturn} data={{ "data-royal-tile": "tool-return" }} /> : null}
+        </div>
       </section>
-      {adminDestinations.length ? <section className="sod29-more-section" data-more-section="admin" aria-labelledby="sod29-more-admin">
-        <h3 id="sod29-more-admin">בבנייה · פתוח למנהל בלבד</h3>
-        <RoyalTileGrid2029 label="בבנייה · פתוח למנהל בלבד" columns="2">
-          {adminDestinations.map(item => <RoyalTile2029 key={item.id} variant="compact" icon="layers" title={item.label} onClick={() => onDestination(item)} testId={`admin-${item.id}`} />)}
-        </RoyalTileGrid2029>
+      <section className="pa29-group" data-more-section="personal" aria-labelledby="sod29-more-me">
+        {heading("sod29-more-me", "האזור האישי")}
+        <div className="pa29-cards">
+          <RoyalRow2029 icon="personal" title={personal?.signedIn ? "האזור שלי" : "כניסה"} hint={personal?.signedIn ? (personal.name || "שמירות ומסע אישי") : "שמירות, מחקר והמשך מהמקום שעצרתם"}
+            kind="site" onPress={onPersonal} data={{ "data-royal-tile": "personal" }} />
+        </div>
+      </section>
+      {adminDestinations.length ? <section className="pa29-group" data-more-section="admin" aria-labelledby="sod29-more-admin">
+        {heading("sod29-more-admin", "בבנייה · פתוח למנהל בלבד")}
+        <div className="pa29-cards">
+          {adminDestinations.map(item => <RoyalRow2029 key={item.id} icon="layers" title={item.label} hint="יעד סגור לציבור" kind="site" onPress={() => onDestination(item)} data={{ "data-royal-tile": `admin-${item.id}` }} />)}
+        </div>
       </section> : null}
       <MoreInstall2029 />
     </> : null}
-    {share?.href ? <section className="sod29-more-section sod29-panel-share" data-more-section="share" aria-labelledby="sod29-more-share" data-share-owner="ShareActions">
-      <h3 id="sod29-more-share">שיתוף העמוד</h3>
-      <ShareActions type={share.type} url={share.href} title={share.title} sourceSurface={share.surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} force />
+    {/* ZURIEL 19.11.2026 (one expanding bar): sharing has its own bar button, so the full "עוד" no longer repeats it.
+        The cipher tool bar reaches the same global bar through "מערכת". */}
+    {!shareOnly ? null : share?.href ? <section className="sod29-more-section sod29-panel-share" data-more-section="share"
+      aria-label="שיתוף העמוד" data-share-owner="ShareActions">
+      {/* the panel's own title already says "שיתוף העמוד"; the subject names exactly what is shared (the words ShareActions sends) */}
+      <div className="sod29-more-share-subject pa29-hall r29-hall is-feature" data-share-subject="true" data-r29-kind="site">
+        <span className="r29-medal" aria-hidden="true"><NavigationIcon2029 name="share" size={20} /></span>
+        <small>משתפים את</small>
+        <strong dir="auto">{share.title || pageOwnShareTitle(typeof window === "undefined" ? null : window.location)}</strong>
+        <span dir="ltr">{shareSubjectPath(share.href)}</span>
+      </div>
+      <ShareActions variant="royal" type={share.type} url={share.href} title={share.title} sourceSurface={share.surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} force />
     </section> : <p className="sod29-more-note" data-more-section="share">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</p>}
   </div>;
 }

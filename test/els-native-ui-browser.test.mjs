@@ -1449,14 +1449,14 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    const globalOrb=await orb().boundingBox();
    assert.ok(Math.abs(globalOrb.x-orbX)<1,`Raziel keeps its stable slot: ${JSON.stringify({width,toolX:orbX,globalX:globalOrb.x})}`);
    // The central single command bar keeps global search and return-to-tool in More.
-   await dock.getByRole('button',{name:'עוד · פעולות, כלים ושיתוף',exact:true}).click();
+   await dock.getByRole('button',{name:'עוד · פעולות, כלים, חיפוש ואזור אישי',exact:true}).click();
    const more=page.getByRole('dialog',{name:'עוד',exact:true});
-   await more.getByRole('button',{name:'כלים',exact:true}).click();
+   await more.getByRole('button',{name:/^כלים/}).click();
    await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:'חיפוש באתר',exact:true}).click();
    await page.getByRole('dialog',{name:'חיפוש באתר',exact:true}).waitFor();
    await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
-   await dock.getByRole('button',{name:'עוד · פעולות, כלים ושיתוף',exact:true}).click();
-   await more.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
+   await dock.getByRole('button',{name:'עוד · פעולות, כלים, חיפוש ואזור אישי',exact:true}).click();
+   await more.getByRole('button',{name:/^חזור לכלי הצופן/}).click();
    assert.equal(await dock.getAttribute('data-command-mode'),'tool');
    assert.deepEqual((await identity(page)).axis,before.axis);
    assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
@@ -3149,7 +3149,8 @@ test('design integration: royal controls preserve matrix identity and stable tou
     // The primary action role is royal blue in every preset (Design V2 section 4); Night keeps the approved
     // warm black-brown surfaces and Crown gold as identity atmosphere, not as the action color.
     // Interaction tests below still enforce the same matrix identity and touch geometry in all presets.
-    assert.match(primary.background,/49, 93, 213/,`${preset}: shared primary palette`);
+    // Night primary is the stronger royal of Design V2 section 14.9 (ZURIEL 19.11.2026); Day and Parchment keep #315DD5.
+    assert.match(primary.background,preset==='dark'?/58, 107, 238/:/49, 93, 213/,`${preset}: shared primary palette`);
     assert.equal(primary.color,'rgb(255, 255, 255)');
     assert.match(primary.font,/Rubik/);
     assert.ok(await page.locator('[data-palette-probe]').evaluate(el=>{const p=JSON.parse(el.dataset.paletteProbe),root=getComputedStyle(el.closest('.sod29-root'));return p.accent===root.getPropertyValue('--s29-accent').trim()&&p.panel===root.getPropertyValue('--s29-panel').trim();}),'frame children inherit the same preset/environment palette as its CSS');

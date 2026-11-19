@@ -2,6 +2,8 @@ import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+// Finding share (ZURIEL 18.11.2026): a small button inside this (already lazy) page; the share actions load when the sheet opens.
+import FindingShare2029 from "../components/experience2029/FindingShare2029.jsx";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -1267,6 +1269,11 @@ function NumberPageBody({ resolvedAddress = null }) {
             ? <button className="sod29-action" type="button" onClick={returnToOriginTopic}>↩ חזרה להתכנסות</button>
             : null}
         <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את {root} בלי מיקוד</button>
+        {/* The focused finding as a link that opens THIS finding (expression, method, crossing) — not a second identity: the page stays /number/N. */}
+        <FindingShare2029 kind="number" label="שתף את הממצא" number={root} expression={focusedCrossingPartner ? `${focusExpression} ↔ ${focusedCrossingPartner}` : focusExpression}
+            value={traceNumber(activeResult)} method={activeMethodLabel || focusMethodKey || ""}
+            url={`https://sod1820.co.il${numberExpressionFocusHref(root, { expression: focusExpression, method: focusMethodKey || null, crossingPartner: focusedCrossingPartner || null }) || `/number/${root}`}`}
+            sourceSurface="number-finding-2029" />
       </div>
     </section> : null}
     <section className="sod29-number-hero" id="number-now">
@@ -1286,7 +1293,8 @@ function NumberPageBody({ resolvedAddress = null }) {
             openProps={{ "data-number-action": "open-calculator" }}
           />
         </nav>
-        <div className="sod29-actions"><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
+        <div className="sod29-actions"><FindingShare2029 kind="number" label="שתף את הדף" prominent number={root}
+          url={Number.isSafeInteger(root) ? `https://sod1820.co.il/number/${root}` : null} sourceSurface="number-page-2029" /><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
       </div>
       <NumberCore2029
         projection={coreProjection}

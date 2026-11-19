@@ -129,7 +129,9 @@ try {
   assert.equal(await search.getByRole('option').count(),0);
   await search.getByRole('button',{name:'ניקוי החיפוש'}).click();assert.equal(await input.inputValue(),'');
   await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
-  await page.getByRole('button',{name:'גימטריה · מספר, ביטוי ושיטות חישוב',exact:true}).click();
+  // ZURIEL 19.11.2026: gimatria is a direct tile in "עוד" (the bar slot became "שיתוף").
+  await page.getByRole('button',{name:'עוד · פעולות, כלים, חיפוש ואזור אישי',exact:true}).click();
+  await page.getByRole('dialog',{name:'עוד',exact:true}).getByRole('button',{name:/^גימטריה/}).click();
   await page.getByRole('dialog',{name:'מספר / ביטוי',exact:true}).waitFor();assert.equal(await page.getByRole('combobox').count(),0);
   await page.keyboard.press('Escape');await page.keyboard.press('Control+k');await input.waitFor();
   await input.fill('ישן');await page.waitForTimeout(350);await page.keyboard.press('Escape');await page.waitForTimeout(1000);

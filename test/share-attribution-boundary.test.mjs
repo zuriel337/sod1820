@@ -72,7 +72,8 @@ for (const prop of ["type", "url", "title", "image", "channels", "compact", "ext
 for (const prop of ["entityId", "sourceSurface", "subtype", "locale", "exactState", "context", "video", "poster"]) {
   assert.match(actions, new RegExp(`${prop}\\s*=`), `new prop ${prop} must have a default`);
 }
-// placement law untouched
-assert.match(actions, /floatingShareShown\(pathname\)/, "share_placement_law behavior must be preserved");
+// placement (ZURIEL 18.11.2026): share_placement_law was archived on 15.9.2026 and the floating widget left with Legacy, so the row
+// shows wherever a page places it; the old gate (which hid it on most public pages) must not come back.
+assert.doesNotMatch(actions, /floatingShareShown/, "no floating-widget gate: there is no floating share widget in 2029");
 
 console.log("share-attribution-boundary: ok");

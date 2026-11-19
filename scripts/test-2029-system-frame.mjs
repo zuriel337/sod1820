@@ -255,7 +255,8 @@ assert.match(frame, /aria-label="מסלול המחקר והפעולות הזמי
 assert.match(frame, /<ActionProjection surface=\{surface\} target=\{inspectTarget\}/);
 assert.match(frame, /<ToolsProjection surface=\{surface\} target=\{inspectTarget\}/);
 // ZURIEL 29.10 approved the five-entry shared launcher; Number still uses the existing capability.
-assert.match(frame, /aria-label=\{numberLocked \? "גימטריה · נעולה כרגע" : "גימטריה · מספר, ביטוי ושיטות חישוב"\}/);
+// ZURIEL 19.11.2026 (preview): "שיתוף" takes the bar slot and gimatria is a direct "עוד" tile with its own lock_number state.
+assert.match(frame, /onNumber=\{openGimatria\} numberLocked=\{numberLocked\}/);
 assert.match(frame, /openNumber\(value != null/);
 assert.equal(frame.includes("<small>בדיקה</small>"), false, "Inspect must route through contextual Action rather than a permanent island slot");
 // Typed Now (approved Home bottom-bar structure): world / for-me / Raziel, each opening an existing frame surface.

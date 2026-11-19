@@ -281,6 +281,7 @@ jobs:
           node --test
           test/admin-open-destinations-2029.test.mjs
           test/footer-2029.test.mjs
+          test/profile-notifications-hash-2029.test.mjs
           test/unlocked-2029-preview-boundary.test.mjs
           test/life-journey-2029-chain.test.mjs
           test/post-topic-pinned-context-rail-2029.test.mjs
@@ -294,7 +295,7 @@ jobs:
       - name: Edge middleware contracts (CN and SG quarantine policy and order, the SG rate limiter and its OIDC token resolver, good bots and AI crawlers pass, bad bots are refused, bot reads have no side effect, the production entry binds the audited middleware, a warm instance never waits for the country policy read)
         run: |
           npm run test:cn-sg-security
-          node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs test/edge-country-policy-cache.test.mjs
+          node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs test/edge-country-policy-cache.test.mjs test/edge-big-number-eligibility.test.mjs test/old-journey-410-2029.test.mjs
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
@@ -324,6 +325,7 @@ jobs:
           test/global-living-ribbon-state.test.mjs
           test/header-pinned-2029.test.mjs
           test/nav-open-under-construction-2029.test.mjs
+          test/rails-one-design-2029.test.mjs
           test/personal-self-preview-route.test.mjs
           test/post-hierarchy-raziel-2029.test.mjs
           test/posts-raziel-final-2029.test.mjs
@@ -336,6 +338,9 @@ jobs:
           test/now-publications-2029.test.mjs
           test/group-sources-now-2029.test.mjs
           test/or-geula-video-share-2029.test.mjs
+          test/share-contract-2029.test.mjs
+          test/finding-share-preview-2029.test.mjs
+          test/share-link-privacy-2029.test.mjs
           test/install-suggestion-2029.test.mjs
           test/wa-channel-world-2029-contract.test.mjs
           test/wa-trusted-author-tree-routing.test.mjs
@@ -369,7 +374,7 @@ jobs:
         run: >
           node --test
           test/app-recovery-2029.test.mjs
-          test/api-card-deadline-glyphs-2029.test.mjs
+          test/api-card-deadline-glyphs-2029.test.mjs test/api-card-request-policy-2029.test.mjs
           test/notification-prefs-guest-member-split.test.mjs
           test/push-subscription-rollout-order.test.mjs
           test/rpc-deploy-order-contract.test.mjs

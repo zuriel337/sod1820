@@ -33,23 +33,24 @@ export const CHANNELS = {
   email:    { label: "אימייל", emoji: "✉️", svg: SVG.email, brand: "linear-gradient(135deg,#b8901f,#7d5e10)", href: emailHref },
 };
 
-// 👑 מקום-השיתוף הקנוני (share_placement_law) — מקור-אמת יחיד להיכן חי הווידג׳ט-הצף.
-// כלל-על: יש ווידג׳ט צף → אין בלוק אינליין. אין צף → שורת-שיתוף אחת. תמיד, בכל דף, אוטומטי.
-// הצף (RoyalShareWidget) מוסתר בדפים שיש להם שיתוף עשיר משלהם; ShareActions עושה את ההיפך —
-// מרנדר רק היכן שהצף נעדר → אף פעם אין כפילות, ואף דף חדש לא צריך להגדיר כלום.
-// 📖 /book: Book Hub הצהיר על Surface Mode=research_clean (Cross-Surface Experience Contract
-// Delta, PR#332) — אין ווידג׳ט-שיתוף צף אוטומטי. שיתוף נשאר זמין רק כפעולה-קונטקסטואלית
-// מפורשת (ShareActions{force:true} ברמת-הספר), לא כ-chrome גלובלי.
-const FLOATING_HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy|number|code|book)/;
-export const floatingShareShown = (pathname = "") => !FLOATING_HIDE.test(pathname || "");
+// Share placement (ZURIEL 18.11.2026): there is no floating share widget in 2029 (RoyalShareWidget left with Legacy, and
+// share_placement_law was archived on 15.9.2026 as "legacy fixed Share placement"). A share row shows wherever a page puts it;
+// each page places one share per item (canonical_ui_components_law v12: Share is a contextual canonical primitive).
 
 export function canNativeShare() {
   return typeof navigator !== "undefined" && !!navigator.share;
 }
 
+// "shared" (the system sheet completed) · "cancelled" (the person closed it) · "failed" (the sheet did not open or threw) · "unsupported".
+// Only "shared" is a share. Opening the sheet is never reported as success.
+export async function nativeShareOutcome({ title = "", url, text = "" } = {}) {
+  if (!canNativeShare()) return "unsupported";
+  try { await navigator.share({ title, text, url }); return "shared"; }
+  catch (error) { return error && error.name === "AbortError" ? "cancelled" : "failed"; }
+}
+
 export async function nativeShare({ title = "", url, text = "" } = {}) {
-  if (!canNativeShare()) return false;
-  try { await navigator.share({ title, text, url }); return true; } catch { return false; }
+  return (await nativeShareOutcome({ title, url, text })) === "shared";
 }
 
 export async function copyLink(url) {
@@ -100,3 +101,72 @@ export async function shareVideoToStory({ url, text = "", title = "אור הגא
     return (await copyLink(url)) ? "copy" : null;
   } catch { return null; }
 }
+
+// With no title from the caller, the words that travel with the link are the page's own SEO title, but only once the page has applied it (its
+// canonical points at this route). A previous page's title never labels this page's link (ZURIEL 18.11.2026).
+export function pageOwnShareTitle(location, doc = typeof document !== "undefined" ? document : null) {
+  const own = String(doc?.title || "").trim();
+  if (!own || !location) return "SOD1820";
+  try {
+    const canonical = new URL(doc.querySelector('link[rel="canonical"]')?.href);
+    const decode = (p) => { try { return decodeURIComponent(p).replace(/\/+$/, "") || "/"; } catch { return p; } };
+    const slug = (p) => (decode(p).match(/^\/(?:post\/)?([^/]+)$/) || [])[1] || null;
+    const here = decode(location.pathname || "/"), there = decode(canonical.pathname);
+    if (here === there || (slug(here) && slug(here) === slug(there))) return own;
+  } catch { /* no canonical yet */ }
+  return "SOD1820";
+}
+
+// ── Finding share (ZURIEL 18.11.2026) ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// What a finding share sends: the link that opens THE SAME finding, the words that travel with it, the card that shows it, and the plain list
+// the sharer sees before anything is sent. Identity stays with the existing owners (number page focus link, calculator share link); these
+// helpers only describe. Kept in this existing module so the pages that share findings add no new file to the opening graph's map.
+const FINDING_SHARE_ORIGIN = "https://sod1820.co.il";
+
+// Invitations already used on the site (see the review in docs/reviews/share-card-bignum-20261118). No "what the number knows about you":
+// the site's own rule is "עדות — לא ניבוי".
+export const FINDING_HOOK = Object.freeze({
+  calc: "מה מסתתר בשם שלך?",
+  number: "איזה פסוק שווה למספר שלך?",
+  els: "חפשו את השם שלכם בתורה",
+  page: "חשב · גלה · שתף",
+});
+
+const clean = (v) => (v == null ? "" : String(v).trim());
+const isValue = (v) => v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+
+/** The share card (/api/card) for a finding, in the royal layout with the new logo. */
+export function findingCardUrl({ kind = "calc", expression = "", value = null, method = "", context = "" } = {}) {
+  const p = new URLSearchParams();
+  const expr = clean(expression);
+  if (expr) p.set("w", expr.slice(0, 120));
+  if (isValue(value)) p.set("n", String(Number(value)));
+  const sub = [clean(method), clean(context)].filter(Boolean).join(" · ");
+  if (sub) p.set("sub", sub.slice(0, 120));
+  if (kind) p.set("k", kind);
+  return `${FINDING_SHARE_ORIGIN}/api/card?${p.toString()}`;
+}
+
+/** The words that travel with the link (WhatsApp/system share text). The link itself is added by the share action. */
+export function findingShareMessage({ kind = "calc", expression = "", value = null, method = "", number = null } = {}) {
+  const expr = clean(expression);
+  const m = clean(method);
+  const eq = expr && isValue(value) ? `${expr} = ${Number(value)}` : expr;
+  if (kind === "number" && !expr) return `${number} · דף המספר בסוד 1820. ${FINDING_HOOK.number}`;
+  if (kind === "number") return `${eq}${m ? ` ב${m}` : ""} · דף המספר ${number}. ${FINDING_HOOK.number}`;
+  return `${eq}${m ? ` ב${m}` : ""}. ${FINDING_HOOK[kind] || FINDING_HOOK.calc}`;
+}
+
+/** What the sharer sees before sending: exactly the parts that go out, nothing else. */
+export function findingDisclosure({ kind = "calc", expression = "", value = null, method = "", number = null, url = "" } = {}) {
+  const rows = [];
+  if (kind === "number" && !clean(expression)) rows.push(["מה", "דף המספר"]);
+  if (clean(expression)) rows.push(["ביטוי", clean(expression)]);
+  if (clean(method)) rows.push(["שיטה", clean(method)]);
+  if (isValue(value)) rows.push(["תוצאה", String(Number(value))]);
+  if (kind === "number" && number != null) rows.push(["מספר", String(number)]);
+  if (url) { let shown = url; try { shown = decodeURI(url); } catch { /* keep the encoded form */ } rows.push(["קישור", shown.replace(/^https?:\/\//, "")]); }
+  return rows;
+}
+
+export const FINDING_NOT_SENT = "לא נשלח: פרטי החשבון שלך, חיפושים אחרים או מחקר שלא בחרת.";
