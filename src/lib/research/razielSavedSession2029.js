@@ -109,7 +109,7 @@ function normalizeSavedNavigationClarify(value) {
     : null;
 }
 
-function normalizeMessage(message) {
+function normalizeMessage(message, recoverReturn) {
   if (!isObject(message) || !["user", "raziel"].includes(message.role)) return null;
   const text = cleanMessageText(message.text, message.role === "user" ? LIMITS.question : LIMITS.answer);
   if (!text) return null;
@@ -132,7 +132,10 @@ function normalizeMessage(message) {
   const axis = continuation?.contextSnapshot?.elsMatrixContext?.axis;
   const elsReturnSnapshot = elsMatrixReading && axis
     ? copyElsResearchReturn(message.elsReturnSnapshot, { ...axis, corpus: axis.scope }) : null;
-  if (message.elsReturnSnapshot != null && !elsReturnSnapshot) return null;
+  // Opening an existing record may fall back to occurrence-only navigation. A bad
+  // optional view must not hide a valid reading; new saves still fail rather than
+  // silently lose navigation. The reading/axis checks above remain mandatory.
+  if (message.elsReturnSnapshot != null && !elsReturnSnapshot && !recoverReturn) return null;
   // An answer cannot simultaneously carry a link and await a number clarification.
   const navigationAction = !message.navigationClarify ? normalizeSavedNavigationAction(message.navigationAction) : null;
   const navigationClarify = !message.navigationAction ? normalizeSavedNavigationClarify(message.navigationClarify) : null;
@@ -156,9 +159,9 @@ function normalizeMessage(message) {
   };
 }
 
-function normalizeThread(thread) {
+function normalizeThread(thread, recoverReturn = false) {
   if (!Array.isArray(thread) || thread.length < 2 || thread.length > LIMITS.messages) return null;
-  const messages = thread.map(normalizeMessage);
+  const messages = thread.map(message => normalizeMessage(message, recoverReturn));
   if (messages.some((message) => !message)) return null;
   if (!messages.some((message) => message.role === "user") || !messages.some((message) => message.role === "raziel")) return null;
   return messages;
@@ -205,7 +208,7 @@ export function buildRazielSavedSessionEntity(state, {
 export function normalizeRazielSavedSessionEntity(value) {
   if (!isObject(value) || value.type !== RAZIEL_SAVED_SESSION_TYPE || value.schema !== RAZIEL_SAVED_SESSION_SCHEMA) return null;
   const ref = cleanInline(value.ref, 160);
-  const thread = normalizeThread(value.thread);
+  const thread = normalizeThread(value.thread, true);
   if (!ref || !thread) return null;
   return {
     id: cleanInline(value.id, 220) || `raziel-session:${ref}`,

@@ -19,19 +19,25 @@ const entry = `import React,{useState} from 'react';import {createRoot} from 're
 import Card from '/src/components/experience2029/ElsMatrixReadingCard2029.jsx';
 import {RazielSessionProvider2029,useRazielSession2029} from '/src/lib/research/RazielSessionProvider2029.jsx';
 import {buildElsRazielMatrixContext} from '/src/lib/research/elsRazielMatrixContext.js';
+import {captureElsResearchReturn} from '/src/lib/research/elsResearchReturnSnapshot.js';
+import {elsMatrixReadingReturnLoad,selectElsMatrixReadingActivity} from '/src/lib/research/elsMatrixReadingActivity.js';
 import {resolve2029Palette} from '/src/lib/palette2029.js';
 import '/src/components/experience2029/elsNativeClassic2029.css';
-const context=buildElsRazielMatrixContext({status:'ok',scope:'torah',termRaw:'קולומביה',verification:{state:'MATCH',corpus_id:'0b022e8eef6f9c16'},axis:{hitId:'4545_1_248765',skip:4545,direction:'fwd',start:248765,length:8},geometry:{S:4545},matrix:{S:4545,r0:40,c0:3300,cw:60,rows:Array(30).fill('א'.repeat(60))}});
+const source={status:'ok',scope:'torah',term:'קולומביה',termRaw:'קולומביה',verification:{state:'MATCH',corpus_id:'0b022e8eef6f9c16'},axis:{hitId:'4545_1_248765',skip:4545,direction:'fwd',start:248765,length:8,occurrence_id:'els:0b022e8eef6f9c16:קולומביה:4545:1:248765'},geometry:{S:4545,cw:60},matrix:{S:4545,r0:40,c0:3300,cw:60,rows:Array(30).fill('א'.repeat(60))},findings:[{t:'חללנהל',color:'#112233',shown:['1514_1_254827']}],ui:{windowSize:'legacy',windowRequested:'legacy',ctxR:3,zoom:1.3,fit:false}};
+const context=buildElsRazielMatrixContext(source);
+const returnSnapshot=captureElsResearchReturn(source,{kind:'row-spacing',width:1515,rowGap:2,r0:161,r1:189,c0:245,c1:365});
+window.__expectedReturn=returnSnapshot;
 window.__requests=[];window.__cancels=0;window.__context=context;
 const transport=request=>{window.__requests.push(request);request.__razielProgress({kind:'els_matrix_reading',phase:'running',elapsedMs:60000,polls:1});
  return new Promise(resolve=>{window.__finish=result=>resolve({v:1,answer:'תוצאת בדיקה',els_matrix_reading:result});
  request.__razielCancelSignal.addEventListener('abort',()=>{window.__cancels++;request.__razielProgress({kind:'els_matrix_reading',phase:'cancelling',elapsedMs:60000,polls:1,cancelling:true});});});};
 function Fixture(){const session=useRazielSession2029();window.__session=session;
+ window.__returnLoad=()=>elsMatrixReadingReturnLoad(session,session.thread.at(-1)?.turnId);window.__readingActivity=()=>selectElsMatrixReadingActivity(session);
  const [ctx,setCtx]=useState(context),[mode,setMode]=useState('on'),[admin,setAdmin]=useState(true),[visible,setVisible]=useState(true),[theme,setTheme]=useState('light');
  window.__selectOther=()=>setCtx({...context,axis:{...context.axis,start:248766,hitId:'4545_1_248766'}});window.__selectOriginal=()=>setCtx(context);
  window.__setMode=setMode;window.__setAdmin=setAdmin;window.__setVisible=setVisible;window.__setTheme=setTheme;
  const p=resolve2029Palette(theme,'research_lab'); const style={'--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-line':p.border,'--s29-ink':p.ink,'--s29-accent':p.accent,'--s29-type-small':'15px',background:p.pageBg,color:p.ink,minHeight:'100vh',padding:12,fontFamily:'Arial',fontSize:18};
- return React.createElement('main',{style,'data-theme':theme},visible?React.createElement(Card,{context:ctx,reading:{mode,isAdmin:admin,session,onCancel:session.cancelActiveTurn},onSubmit:(context,options)=>session.submitElsMatrixReading({...options,context})}):React.createElement('p',null,'דף אחר באותו אתר'));}
+ return React.createElement('main',{style,'data-theme':theme},visible?React.createElement(Card,{context:ctx,reading:{mode,isAdmin:admin,session,onCancel:session.cancelActiveTurn},onSubmit:(context,options)=>session.submitElsMatrixReading({...options,context,returnSnapshot})}):React.createElement('p',null,'דף אחר באותו אתר'));}
 createRoot(document.getElementById('root')).render(React.createElement(RazielSessionProvider2029,{transport},React.createElement(Fixture)));`;
 
 function plugin() {
@@ -118,6 +124,14 @@ test("matrix reading card: one explicit session turn, cancellation, occurrence i
     await page.getByText('תוצאה שמורה — לפי האימות בסריקה המקורית.',{exact:false}).waitFor();
     await page.getByRole('heading',{name:/ממצאים שאומתו בסריקה המקורית/}).waitFor();
     assert.equal(await page.evaluate(()=>window.__requests.length),0,'restore is not a model request');
+    const returned=await page.evaluate(()=>window.__returnLoad());
+    const expected=await page.evaluate(()=>window.__expectedReturn);
+    assert.equal(returned.hitId,'4545_1_248765');assert.equal(returned.occurrenceId,expected.axis.occurrenceId);
+    assert.deepEqual(returned.searchWindow,expected.searchWindow);
+    assert.deepEqual(returned.matrixProjection,expected.matrixProjection);
+    assert.deepEqual(returned.view,expected.view);
+    assert.deepEqual(returned.words,[{t:'חללנהל',color:'#112233',sh:['1514_1_254827'],sourceShown:[]}]);
+    assert.equal(await page.evaluate(()=>window.__readingActivity().hasReturnSnapshot),true);
     for(const width of [320,390,1440]){
       await page.setViewportSize({width,height:900});
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`saved result ${width}`);
@@ -126,6 +140,21 @@ test("matrix reading card: one explicit session turn, cancellation, occurrence i
     await page.evaluate(()=>window.__selectOther());assert.equal(await page.getByLabel('תוצאת סריקת המטריצה').count(),0);
     await page.evaluate(()=>window.__selectOriginal());await page.getByRole('heading',{name:/ממצאים שאומתו בסריקה המקורית/}).waitFor();
     assert.equal(await page.evaluate(()=>window.__requests.length),0,'occurrence changes do not run AI');
+    // A damaged optional view in an existing record cannot hide its valid result or
+    // borrow another matrix's geometry. This is a library fixture, not production storage.
+    await page.evaluate(id=>{
+      const saved=JSON.parse(sessionStorage.getItem('test-reading-library'));
+      saved.find(item=>item.id===id).thread.at(-1).elsReturnSnapshot.axis=null;
+      sessionStorage.setItem('test-reading-library',JSON.stringify(saved));
+    },savedId);
+    await page.reload();await start.waitFor();
+    assert.equal((await page.evaluate(id=>window.__session.restoreSavedSession(id),savedId)).ok,true);
+    await page.getByRole('heading',{name:/ממצאים שאומתו בסריקה המקורית/}).waitFor();
+    const limited=await page.evaluate(()=>window.__returnLoad());
+    assert.equal(limited.hitId,'4545_1_248765');assert.equal(limited.corpusId,'0b022e8eef6f9c16');
+    assert.equal(limited.view,undefined);assert.equal(limited.matrixProjection,undefined);assert.deepEqual(limited.words,[]);
+    assert.equal(Boolean(await page.evaluate(()=>window.__readingActivity().hasReturnSnapshot)),false);
+    assert.equal(await page.evaluate(()=>window.__requests.length),0,'recovering saved navigation never starts AI');
     await start.click();await page.waitForFunction(()=>window.__requests.length===1);
     await page.evaluate(result=>window.__finish({...result,poll_interrupted:{can_resume:true,why:'test network interruption'}}),samples['running-start']);
     await page.getByRole('button',{name:'המשך מעקב אחר הסריקה',exact:true}).waitFor();

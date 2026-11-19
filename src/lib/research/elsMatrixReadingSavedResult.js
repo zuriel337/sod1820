@@ -1,4 +1,4 @@
-import { captureElsResearchReturn, elsResearchSnapshotMatches } from "./elsResearchReturnSnapshot.js";
+import { captureElsResearchReturn, elsResearchSnapshotMatches, normalizeElsReturnProjection } from "./elsResearchReturnSnapshot.js";
 // A display-only projection inside the EXISTING saved Raziel conversation.
 // No storage, requests, tokens, automatic resume, ELS calculation or new truth owner.
 import { ELS_MATRIX_READING_RESULT_CONTRACT, isElsReadingJobId } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
@@ -91,16 +91,18 @@ export function projectSavedElsMatrixReading(value, contextAxis) {
 
 // Re-project external/local session metadata through the same bounded snapshot contract.
 export function copyElsResearchReturn(snapshot, origin) {
-  if (!elsResearchSnapshotMatches(snapshot, origin) || !Array.isArray(snapshot.findings)) return null;
   try {
+    if (!elsResearchSnapshotMatches(snapshot, origin) || !Array.isArray(snapshot.findings)) return null;
     if (typeof snapshot.term !== "string" || snapshot.term.length > 100
       || ["showN", "findingRadius", "zoom"].some(key => snapshot.view?.[key] != null && !Number.isFinite(snapshot.view[key]))
       || ["fit", "heat", "niqqud"].some(key => snapshot.view?.[key] != null && typeof snapshot.view[key] !== "boolean")
       || ["ctxR", "windowColumns"].some(key => snapshot.searchWindow?.[key] != null && !Number.isFinite(snapshot.searchWindow[key]))
-      || ["windowSize", "windowRequested"].some(key => snapshot.searchWindow?.[key] != null && !["small", "medium", "large"].includes(snapshot.searchWindow[key]))) return null;
+      // "legacy" is the engine's supported window for older saved ciphers, not a retired runtime.
+      || ["windowSize", "windowRequested"].some(key => snapshot.searchWindow?.[key] != null && !["legacy", "small", "medium", "large"].includes(snapshot.searchWindow[key]))) return null;
+    if (snapshot.matrixProjection != null && !normalizeElsReturnProjection(snapshot.matrixProjection, snapshot.axis)) return null;
     if (snapshot.findings.some(f => !f || (f.color != null && (typeof f.color !== "string" || f.color.length > 32)) || !Array.isArray(f.shown) || !Array.isArray(f.sourceShown)
       || [...f.shown, ...f.sourceShown].some(id => typeof id !== "string" || id.length > 100))) return null;
-    return captureElsResearchReturn({
+    const copied = captureElsResearchReturn({
       status: "ok", term: snapshot.normalizedTerm, termRaw: snapshot.term, scope: snapshot.scope,
       axis: { ...snapshot.axis, occurrence_id: snapshot.axis.occurrenceId },
       verification: { state: "MATCH", corpus_id: snapshot.corpusId },
@@ -109,5 +111,7 @@ export function copyElsResearchReturn(snapshot, origin) {
       ui: { ...snapshot.view, ...snapshot.searchWindow, hideMain: snapshot.hideMain },
       geometry: { cw: snapshot.searchWindow?.windowColumns },
     }, snapshot.matrixProjection);
+    // Re-capture derives coordinates from hitId; it must not redirect a saved origin.
+    return elsResearchSnapshotMatches(copied, origin) ? copied : null;
   } catch { return null; }
 }

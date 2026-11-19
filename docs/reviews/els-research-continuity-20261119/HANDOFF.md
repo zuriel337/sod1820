@@ -51,3 +51,35 @@ The frame must resolve return references against the current principal's existin
 - Real ResearchProvider browser with mocked auth/transport: source A remains attached after displayed B; double-start reservation, late-response rejection, cancellation, timeout and principal isolation pass.
 - `npm run build` and shell budget PASS on the final tree. No baseline raised.
 - No live Fable/model calls, production browser acceptance or true touch-device acceptance performed. CI must be evaluated for the eventual commit; local passing tests are not CI status.
+
+## Saved-return compatibility and recovery (base `7e2d1b2e2`)
+
+First bounded implementation after ZURIEL's foundation review: the existing saved
+Raziel/Fable conversation now supports the engine's `legacy` window designation,
+alongside small/medium/large. This is a saved-window format, not the retired Legacy
+product. Explicit save/reload retains the original occurrence, corpus, selected
+findings and source marks, zoom, window parameters and supported row-spacing view.
+
+Opening an existing saved conversation tolerates malformed optional return metadata:
+it retains the valid structured reading and falls back to the original occurrence
+only. The existing activity view then discloses the limited return. New saves remain
+strict; invalid reading identity/corpus is still rejected on both save and read.
+Malformed axes are contained by the copy boundary, inconsistent hitId/coordinates
+cannot redirect the return, and an invalid row-spacing projection cannot claim a
+complete saved view. No automatic AI start, status request or storage rewrite occurs
+when opening the saved result. An explicit later save can persist the recovered form.
+
+Validation on the final source tree: 56/56 focused unit tests and 2/2 browser cases
+PASS. The regression tests failed before the fix. Browser coverage uses the real
+session/request/save/restore path with declared model/library/auth/engine fixtures:
+legacy-window save → reload → restore, other-occurrence isolation, damaged snapshot
+recovery, cancellation, and no implicit model request. `npm run build` and the
+unchanged shell budget PASS (eager gzip 203,308 / 203,493; 18 files).
+
+This fixes the two reproduced saved-return gaps; it does not add durable discovery
+runs, background-task resumption after reload, cumulative structure groups, folded
+Fable input, or the Heichal matrix. Those remain subsequent feature slices. No
+frame/dock, engine, SQL, secret/flag or Edge Function changes. No new Preview, merge
+or Production deployment; the existing Preview remains on `7e2d1b2e2`. CI for the new
+commit is tracked separately in PR #1397. Handoff is to ZURIEL in chat; the approved
+read-only database connection cannot write a work-log record.
