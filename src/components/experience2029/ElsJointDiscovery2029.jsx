@@ -59,9 +59,14 @@ export default function ElsJointDiscovery2029({ state, runs = {}, projection = n
 }
 
 export function ElsJointDiscoveryList({ assessment = null, rows = [], current = true, busy = false, isAdded, onAdd, onShow, selectedKey, notice = "", hasDiscovery = false, hasReading = false }) {
-  const [kind, setKind] = useState("els"), [source, setSource] = useState("all"), [sort, setSort] = useState("recommended"), [page, setPage] = useState(0);
+  const [kind, setKind] = useState("els"), [source, setSource] = useState("all"), [sort, setSort] = useState("length"), [page, setPage] = useState(0);
+  const [minLength, setMinLength] = useState(0), [verification, setVerification] = useState("all");
   const counts = useMemo(() => countElsJointRows(rows), [rows]);
-  const shown = useMemo(() => sort === "recommended" ? filterElsJointRows(rows, { kind, source }).sort(compareElsResearchRows) : sortElsJointRows(filterElsJointRows(rows, { kind, source }), sort), [rows, kind, source, sort]);
+  const shown = useMemo(() => {
+    const filtered = filterElsJointRows(rows, { kind, source }).filter(row => row.term.length >= minLength
+      && (verification === "all" || (verification === "verified" ? row.verified : !row.verified)));
+    return sort === "recommended" ? filtered.sort(compareElsResearchRows) : sortElsJointRows(filtered, sort);
+  }, [rows, kind, source, sort, minLength, verification]);
   const pages = Math.max(1, Math.ceil(shown.length / PAGE)), at = Math.min(page, pages - 1);
   const slice = shown.slice(at * PAGE, at * PAGE + PAGE);
   const pick = setter => value => { setter(value); setPage(0); };
@@ -71,6 +76,14 @@ export function ElsJointDiscoveryList({ assessment = null, rows = [], current = 
     {assessment && hasResults ? <p aria-label="סיכום ממצאים">נאספו {assessment.counts.collected} · מאומתים {assessment.counts.verified} · ממתינים לאימות {assessment.counts.awaitingVerification} · מוסתרים בסינון {assessment.counts.collected - shown.length}{assessment.partial ? " · כיסוי חלקי" : ""}</p> : null}
     {sort === "recommended" ? <p>מומלץ לבדיקה: מופעים מאומתים החוצים את הציר, אחריהם יתר המאומתים ואז מועמדים. בתוך כל קבוצה: קרבה ואורך. זה סדר עבודה, לא ציון משמעות או מובהקות.</p> : null}
     {rows.length ? <>
+      <label className="els29-joint-sort">אורך מינימלי להצגה<select aria-label="אורך מינימלי להצגה" value={minLength} onChange={event => pick(setMinLength)(Number(event.target.value))}>
+        <option value={0}>כל האורכים</option>{[3,5,7,10,12,16].map(n => <option key={n} value={n}>{n} אותיות ומעלה</option>)}
+      </select></label>
+      <label className="els29-joint-sort">מצב אימות<select aria-label="מצב אימות הממצאים" value={verification} onChange={event => pick(setVerification)(event.target.value)}>
+        <option value="all">הכול</option><option value="verified">מאומתים</option><option value="pending">ממתינים לאימות</option>
+      </select></label>
+      <p>מוצגים {shown.length} מתוך {rows.length}; {rows.length - shown.length} מוסתרים בסינון. האורך נספר באותיות, ללא רווחים; הוא אינו ציון איכות.</p>
+      <button type="button" onClick={() => { setMinLength(0); setVerification("all"); setKind("all"); setSource("all"); setPage(0); }}>נקה סינון</button>
       <label className="els29-joint-sort">סוג תוצאות <select aria-label="סוג התוצאות" value={kind} onChange={event => pick(setKind)(event.target.value)}>
         {KINDS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
       </select></label>
@@ -95,7 +108,7 @@ export function ElsJointDiscoveryList({ assessment = null, rows = [], current = 
         <div className="els29-joint-copy">
           <strong><bdi>{row.label}</bdi></strong>
           {row.label !== row.term ? <small>רצף האותיות: <bdi>{row.term}</bdi></small> : null}
-          <small>{describe(row)} · התחלה <bdi>{row.start}</bdi></small>
+          <small>{row.term.length} אותיות · {describe(row)} · התחלה <bdi>{row.start}</bdi></small>
           {row.engine?.item.language ? <details><summary>האותיות והחלוקה המוצעת</summary>
             <p>האותיות ברצף: <bdi>{row.term}</bdi>. האימות בודק את האותיות ואת מיקומן. הרווחים הם הצעת קריאה.</p>
           </details> : null}

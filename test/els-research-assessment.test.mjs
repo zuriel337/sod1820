@@ -19,3 +19,25 @@ test('recommended order favors verified crossings, never AI source or unverified
   assert.deepEqual([...rows].sort(compareElsResearchRows).map(r=>r.key),['crossing','far','candidate']);
   assert.equal(compareElsResearchRows(row('same',true,1,'engine'),row('same',true,1,'fable')),0);
 });
+
+test('next-step guidance distinguishes missing paths, active work and continuation without claiming full coverage', async () => {
+  const { elsResearchNextStep, describeElsDiscoveryPlan } = await import('../src/lib/research/elsResearchAssessment.js');
+  const plan = { mode: 'words', minLength: 5, maxLength: 10, maxDistance: 40 };
+  const run = { data: { plan, coverage: { complete: false }, continuation: 'cursor' } };
+  assert.equal(elsResearchNextStep([]).mode, 'language');
+  assert.equal(elsResearchNextStep([], { ready: false }).mode, null);
+  assert.equal(elsResearchNextStep([], { busy: true }).mode, null);
+  assert.equal(describeElsDiscoveryPlan(plan, []).kind, 'new');
+  assert.equal(describeElsDiscoveryPlan(plan, [run]).kind, 'continue');
+  assert.equal(elsResearchNextStep([run]).mode, null);
+  const partial = { data: { ...run.data, continuation: null } };
+  assert.equal(describeElsDiscoveryPlan(plan, [partial]).kind, 'partial');
+  const complete = { data: { ...partial.data, coverage: { complete: true } } };
+  assert.equal(describeElsDiscoveryPlan(plan, [complete]).kind, 'repeat');
+  assert.equal(describeElsDiscoveryPlan({ ...plan, minMembers: 6 }, [complete]).kind, 'repeat');
+  assert.equal(describeElsDiscoveryPlan({ ...plan, maxDistance: 80 }, [complete]).kind, 'new');
+  const language = { data: { plan: { ...plan, mode: 'language' }, coverage: { complete: true } } };
+  assert.equal(describeElsDiscoveryPlan(language.data.plan, [language]).kind, 'sample');
+  assert.equal(elsResearchNextStep([language]).mode, 'words');
+  assert.equal(elsResearchNextStep([language, complete]).mode, null);
+});

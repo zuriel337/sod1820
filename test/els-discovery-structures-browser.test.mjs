@@ -13,7 +13,7 @@ import Panel from '/src/components/experience2029/ElsLexiconResearch2029.jsx';
 import{state,fixtures}from'/test/fixtures/els-discovery-structures.mjs';
 window.__requests=[];window.__adds=[];window.__shows=[];
 function Fixture(){const[s,setState]=useState(state()),[response,setResponse]=useState(null),[view,setView]=useState('discovery'),[operation,setOperation]=useState(null);
-window.__finish=(mode,onlyB=false)=>{const data=fixtures()[mode].data;setResponse({...data,items:onlyB?data.items.slice(1):data.items,target:window.__requests.filter(r=>!r.cancel).at(-1)})};
+window.__finish=(mode,onlyB=false)=>{const data=fixtures()[mode].data;setResponse({...data,plan:window.__requests.filter(r=>!r.cancel).at(-1).plan,items:onlyB?data.items.slice(1):data.items,target:window.__requests.filter(r=>!r.cancel).at(-1)})};
 window.__other=()=>setState({...state(),verification:{state:'MATCH',corpus_id:'other'}});
 window.__verify=()=>{const last=window.__adds.at(-1);setState({...state(),findings:last.map(f=>({...f,hits:(f.addShown||[]).map(hitId=>({hitId,selected:true,verified:true}))}))});setOperation({requestId:window.__adds.length,status:'done'})};
 return React.createElement(Panel,{state:s,visible:true,view,busy:false,response,onProgress:()=>{},color:()=> 'blue',
@@ -53,8 +53,13 @@ test("combined groups: explicit sources, saved runs, deduplication and one atomi
   try {
     await page.goto(`${origin}/fixture`);
     const start = page.getByRole("button", { name: "התחל גילוי", exact: true }); await start.waitFor();
+    await page.getByLabel("תמונת מצב המחקר").getByText(/מסלול שטרם נבדק/).waitFor();
+    await page.getByRole("button", { name: "בחר את המסלול המוצע — ללא הפעלה" }).click();
+    assert.equal(await page.evaluate(() => window.__requests.length), 0, 'recommendation selection never starts work');
     await page.getByLabel("מסלול הגילוי").selectOption("words"); await start.click(); await page.evaluate(() => window.__finish("words"));
     await page.getByLabel("מסלול הגילוי").selectOption("language"); await start.click(); await page.evaluate(() => window.__finish("language"));
+    await page.getByLabel("תמונת מצב המחקר").getByText(/שני מסלולי הגילוי נוסו/).waitFor();
+    await page.getByLabel("לפני הפעלת גילוי").getByText(/מדגם הביטויים כבר נבדק/).waitFor();
     await page.getByRole("button", { name: "מבנים וקבוצות", exact: true }).click();
     const group = page.locator('[data-structure-card]').filter({ has: page.locator('.els29-structure-members', { hasText: 'להבה' }) })
       .filter({ has: page.locator('.els29-structure-members', { hasText: 'חללנהל' }) });
@@ -66,6 +71,13 @@ test("combined groups: explicit sources, saved runs, deduplication and one atomi
     assert.equal(await page.evaluate(() => window.__requests.length), 2, 'selecting sources does not scan');
     await page.getByRole("button", { name: "ממצאים", exact: true }).click();
     assert.equal(await page.locator('[data-joint-row]').count(), 2, 'a grouping filter does not delete the joint findings');
+    await page.getByLabel('אורך מינימלי להצגה').selectOption('7');
+    assert.equal(await page.locator('[data-joint-row]').count(), 1);
+    await page.getByLabel('מצב אימות הממצאים').selectOption('verified');
+    assert.equal(await page.locator('[data-joint-row]').count(), 0);
+    await page.getByRole('button', { name: 'נקה סינון', exact: true }).click();
+    assert.equal(await page.locator('[data-joint-row]').count(), 2);
+    assert.equal(await page.evaluate(() => window.__requests.length), 2, 'filters never launch a scan');
     await page.getByRole("button", { name: "מבנים וקבוצות", exact: true }).click(); await language.check(); await group.waitFor();
     await group.getByRole("button", { name: "אמת והצג קבוצה", exact: true }).click();
     const adds = await page.evaluate(() => window.__adds); assert.equal(adds.length, 1); assert.equal(adds[0].length, 2);

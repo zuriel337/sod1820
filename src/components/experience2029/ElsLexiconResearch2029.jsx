@@ -1,3 +1,4 @@
+import { describeElsDiscoveryPlan, elsResearchNextStep } from "../../lib/research/elsResearchAssessment.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import { elsLexiconWindowKey, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
@@ -193,11 +194,32 @@ export default function ElsLexiconResearch2029({
       onShowStructure(viewRequest);
     } else setNotice("חלק מהמופעים ממתינים לאימות. אפשר לבדוק אותם ברשימת הממצאים.");
   }, [pendingStructure, key, state, visible, view, busy, findingsOperation, onShowStructure]);
+  const overviewRuns = presented.available.map(source => source.run);
+  const nextStep = elsResearchNextStep(overviewRuns, { ready: !!key, busy: busy || !!run });
+  const launchPlans = discoveryMode === "both" ? [{ ...plan, mode: "language", minLength: 5, maxLength: 16 },
+    { ...plan, mode: "words", minLength: 5, maxLength: 10 }] : [plan];
   return <section hidden={!visible} className="els29-lexicon-research r29" aria-label="גילוי וקשרים במטריצה">
     <header className="els29-discovery-header r29-hall">
       <span className="els29-research-eyebrow">מחקר הצופן</span>
       <strong>גילוי במטריצה הפעילה</strong>
       {key ? <p><bdi>{state.term}</bdi> · {state.scope === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{state.axis.skip}</bdi> · רווח שורות <bdi>{scanWindow?.rowGap ?? 0}</bdi> · רוחב <bdi>{scanState.geometry.S}</bdi></p> : null}
+      <section aria-label="תמונת מצב המחקר">
+        <strong>מה כבר נבדק ומה הלאה</strong>
+        <p role="status">{nextStep.text}</p>
+        {nextStep.mode ? <button type="button" disabled={busy || !!run} onClick={() => {
+          setDiscoveryMode(nextStep.mode); setPlan(current => ({ ...current, mode: nextStep.mode, minLength: 5, maxLength: nextStep.mode === "language" ? 16 : 10 }));
+          scanButton.current?.focus();
+        }}>בחר את המסלול המוצע — ללא הפעלה</button> : null}
+        <details><summary>כיסוי והקשר · {overviewRuns.length} מקורות תואמים</summary>
+          {key ? <p>מופע <bdi>{state.axis.hitId}</bdi> · גרסת קורפוס <bdi>{state.verification.corpus_id}</bdi> · שורות {scanState.geometry.r0}–{scanState.geometry.r1} · עמודות {scanState.geometry.c0}–{scanState.geometry.c0 + scanState.geometry.cw - 1} (מאפס).</p> : null}
+          {Object.values(runs).some(scan => scan.key !== key) ? <p>יש תוצאות מהקשר קודם; הן אינן נספרות בכיסוי החלון הנוכחי.</p> : null}
+          {presented.available.map(source => <p key={source.id}>{sourceLabel(source)} · {source.run.data.plan.mode === "language" ? "מדגם מוגבל, לא כיסוי מלא" : source.run.data.coverage?.complete ? "התכנית המוגדרת הושלמה" : "כיסוי חלקי"}
+            · {source.run.data.coverage?.completedRays ?? "לא ידוע"}/{source.run.data.coverage?.totalRays ?? "לא ידוע"} קווים · {source.run.data.items.length} רשומות לפני איחוד כפילויות.</p>)}
+          <p>אין אחוז כיסוי משותף למסלולים. מבנים וקבוצות מנתחים את מה שכבר נאסף, בלי סריקה נוספת.</p>
+          <p>Fable מציעה פרשנות וכיווני בדיקה, ואינה משלימה כיסוי מילוני. הצעותיה דורשות אימות במנוע. קריאה אינה מתחילה בפתיחת תוצאה שמורה.</p>
+          <p>קריאת Fable משתמשת כיום בהקשר המטריצה המקורי; אין כאן אישור שקראה את ההיטל המחולק או את כל ממצאי הגילוי. פרטי ההפעלה והקריאה נמצאים בכרטיס Fable הקיים.</p>
+        </details>
+      </section>
       <p>{languagePlan ? "ביטויים וחלוקת רצפים · ללא AI" : "גילוי מקומי ללא AI · בחרו מסלול להפעלה."}</p>
     <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={discoveryMode}
       onChange={event => { setDiscoveryMode(event.target.value); setPlan(current => event.target.value === "language"
@@ -207,6 +229,9 @@ export default function ElsLexiconResearch2029({
       <option value="words">מילים — התאמה מילונית</option>
       <option value="both">מילים וביטויים יחד</option>
     </select></label>
+    <div aria-label="לפני הפעלת גילוי">{launchPlans.map(selected => <p key={selected.mode}>
+      <b>{selected.mode === "language" ? "ביטויים" : "מילים"}</b> · {selected.minLength}–{selected.maxLength} אותיות · עד {selected.maxDistance} תאים. {key ? describeElsDiscoveryPlan(selected, overviewRuns).text : "נדרש חלון מאומת."}
+    </p>)}</div>
     <div className="els29-discovery-actions">
       <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run} onClick={discoveryMode === "both" ? startBoth : start}>התחל גילוי</button>
       {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}

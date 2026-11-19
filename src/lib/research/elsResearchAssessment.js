@@ -32,3 +32,28 @@ export function compareElsResearchRows(a, b) {
   return priority(a) - priority(b) || (a.distance ?? Infinity) - (b.distance ?? Infinity)
     || b.term.length - a.term.length || a.key.localeCompare(b.key);
 }
+
+// Explain existing work, without promising yield or starting a scan. Group-size
+// settings affect presentation and are deliberately not a new coverage claim.
+export function describeElsDiscoveryPlan(plan, runs = []) {
+  const same = runs.filter(run => ['mode', 'minLength', 'maxLength', 'maxDistance']
+    .every(field => run.data?.plan?.[field] === plan?.[field]));
+  if (!same.length) return { kind: 'new', text: 'התכנית הזו טרם נבדקה בהקשר הנוכחי. היא אינה מבטיחה ממצאים חדשים.' };
+  if (same.some(run => run.data.coverage?.complete === true && plan.mode !== 'language'))
+    return { kind: 'repeat', text: 'התכנית המוגדרת כבר הושלמה. הרצה זהה אינה מוסיפה כיסוי מתוכנן.' };
+  if (plan.mode === 'language') return { kind: 'sample', text: 'מדגם הביטויים כבר נבדק בתכנית הזו. הרצה חוזרת אינה מרחיבה את מדגם הקווים.' };
+  if (same.some(run => run.data.continuation)) return { kind: 'continue', text: 'נשאר כיסוי בתכנית הזו. השתמשו בהמשך סריקה כדי להמשיך מהמקום שנעצר.' };
+  return { kind: 'partial', text: 'התכנית נבדקה חלקית, ואין כאן המשך זמין. הפעלה נוספת מתחילה מחדש ואינה מבטיחה כיסוי נוסף.' };
+}
+
+export function elsResearchNextStep(runs = [], { ready = true, busy = false } = {}) {
+  if (!ready) return { mode: null, text: 'המתינו למופע מאומת ולחלון מחקר זמין.' };
+  if (busy) return { mode: null, text: 'פעולה מתבצעת. המתינו לתוצאתה לפני בחירת הבדיקה הבאה.' };
+  if (runs.some(run => run.data?.plan?.mode === 'words' && run.data.continuation))
+    return { mode: null, text: 'אפשר להמשיך את הסריקה המילונית שנעצרה, בלי להתחיל אותה מחדש.' };
+  if (!runs.some(run => run.data?.plan?.mode === 'language'))
+    return { mode: 'language', text: 'בדיקת ביטויים וחלוקת רצפים תוסיף מסלול שטרם נבדק כאן, במדגם מוגבל וללא AI.' };
+  if (!runs.some(run => run.data?.plan?.mode === 'words'))
+    return { mode: 'words', text: 'גילוי מילים יוסיף התאמות מילוניות במסלול שטרם נבדק כאן. הוא שונה ממדגם הביטויים.' };
+  return { mode: null, text: 'שני מסלולי הגילוי נוסו. בדקו את הכיסוי של כל מקור ואת המבנים שנאספו לפני הרצה חוזרת. אין בכך הוכחה למיצוי החלון.' };
+}

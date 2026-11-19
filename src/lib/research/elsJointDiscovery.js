@@ -88,7 +88,7 @@ export function sortElsJointRows(rows, sort = "axis") {
   const by = {
     axis: (a, b) => far(a.distance) - far(b.distance) || b.term.length - a.term.length,
     rare: (a, b) => far(a.E) - far(b.E) || far(a.distance) - far(b.distance),
-    length: (a, b) => b.term.length - a.term.length || far(a.distance) - far(b.distance),
+    length: (a, b) => b.term.length - a.term.length || Number(!!b.verified) - Number(!!a.verified) || far(a.distance) - far(b.distance),
   }[sort] || ((a, b) => far(a.distance) - far(b.distance));
   return [...rows].sort((a, b) => by(a, b) || a.key.localeCompare(b.key));
 }
