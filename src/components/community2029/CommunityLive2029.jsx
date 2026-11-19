@@ -339,7 +339,6 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
       {loadingReplies && !replies.length ? <p role="status">טוען תגובות…</p> : null}
       {expanded && replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} focusPath={focusPath} messageActions={messageActions} onReplyCountKnown={onReplyCountKnown} />)}
       {expanded && !focusChildId && replyTotal != null && nextReplyOffset < replyTotal ? <button type="button" className="sod29-community-more-replies" disabled={loadingReplies} onClick={() => loadReplies(nextReplyOffset)}>{loadingReplies ? "טוען…" : replyTotal - nextReplyOffset === 1 ? "תגובה נוספת אחת" : `עוד ${replyTotal - nextReplyOffset} תגובות`}</button> : null}
-      {expanded && replies.length > 0 ? <button type="button" className="sod29-community-replies-toggle" data-close-at-end aria-controls={childrenId} onClick={toggleReplies}>סגירה וחזרה להודעה</button> : null}
     </div>
   </div>;
 }
