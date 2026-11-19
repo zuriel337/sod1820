@@ -46,9 +46,13 @@ export default function ShareActions({
   iconLabel = "שתף קישור לתמונה", iconCopiedLabel = "הקישור לתמונה הועתק", shareLabel = null, disclosure = null, note = null,
 }) {
   const [barShare, setBarShare] = useState(false);
+  // A share inside one of the frame's own windows (Inspect, Raziel, the personal area…) keeps its row: sending it to the bar would replace
+  // the window the person is in. Set on mount, before the effect below reads it.
+  const inFramePanel = useRef(false);
+  const place = useCallback((node) => { if (node) inFramePanel.current = Boolean(node.closest?.(".sod29-frame-panel")); }, []);
   useEffect(() => {
     if (variant === "royal") return undefined;
-    const read = () => setBarShare(hasShareBar());
+    const read = () => setBarShare(hasShareBar() && !inFramePanel.current);
     read();
     // The frame marks <html data-share-bar> in its own effect, which can run after this one: watch the attribute (frame bytes stay flat).
     const watch = typeof MutationObserver === "function" ? new MutationObserver(read) : null;
@@ -150,7 +154,7 @@ export default function ShareActions({
     if (!taken) { setBarShare(false); if (variant === "icon") { if (canNative) void native(); else void copy(); } }
   };
   if (barShare && variant !== "royal") return (
-    <div className={`sod-share-actions is-entry${variant === "icon" ? " is-icon" : ""}`} dir="rtl" style={variant === "icon" ? style : undefined}>
+    <div className={`sod-share-actions is-entry${variant === "icon" ? " is-icon" : ""}`} ref={place} dir="rtl" style={variant === "icon" ? style : undefined}>
       <style href="sod-share-entry-2029" precedence="medium">{SHARE_ENTRY_CSS}</style>
       <button type="button" className="sod-share-entry" data-action="share" data-share-entry="bar" aria-haspopup="dialog" onClick={toBar}
         title={variant === "icon" ? iconLabel : `שיתוף ${shareLabel || SHARE_NOUN[type] || "העמוד"}`}
@@ -164,7 +168,7 @@ export default function ShareActions({
   // No image file is fetched implicitly: this action shares the exact unit link.
   // Existing callers keep the original channel row and image-file choice.
   if (variant === "icon") return (
-    <div className="sod-share-actions is-icon" dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, ...style }}>
+    <div className="sod-share-actions is-icon" ref={place} dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, ...style }}>
       <button type="button" data-action="share" data-share-variant="icon"
         data-state={copied ? "success" : copyFailed ? "error" : "idle"}
         title={copied ? "הקישור הועתק" : iconLabel}
@@ -211,7 +215,7 @@ export default function ShareActions({
 
   return (
     // שורה אחת: לא נשבר; במסך צר נגלל אופקית עדין (WebkitOverflowScrolling) במקום להתפזר ל-2-3 שורות
-    <div className="sod-share-actions" dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
+    <div className="sod-share-actions" ref={place} dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
       {channels.includes("native") && canNative && (
         <button type="button" data-action="share" onClick={native} title="שתף" aria-label="שתף" style={{ ...btn, background: P.accentBtn, color: P.onAccent, borderColor: "transparent" }}><NavigationIcon2029 name="share" /> {label("שתף")}</button>
       )}

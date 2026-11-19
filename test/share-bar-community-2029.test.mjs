@@ -58,6 +58,8 @@ test("one share window: a page's share opens the bar's window with the same prop
   const actions = read("src/components/ShareActions.jsx");
   assert.match(actions, /if \(barShare && variant !== "royal"\) return/, "where the bar exists, a page shows one entry");
   assert.match(actions, /if \(!taken\) \{ setBarShare\(false\);/, "and falls back to its own row when the bar does not take it");
+  assert.match(actions, /setBarShare\(hasShareBar\(\) && !inFramePanel\.current\)/, "a share inside a frame window keeps its own row");
+  assert.match(actions, /node\.closest\?\.\("\.sod29-frame-panel"\)/);
   const more = read("src/components/experience2029/MorePanel2029.jsx");
   assert.match(more, /const ShareMore2029 = React\.lazy\(\(\) => import\("\.\/ShareMore2029\.jsx"\)\)/, "community and QR load with the window only");
   const extras = read("src/components/experience2029/ShareMore2029.jsx");
