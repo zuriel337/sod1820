@@ -17,7 +17,7 @@ export const pinCoverSet = url => (url && thumb(url, PIN_COVER_WIDTHS[0], PIN_CO
 
 // Home Media Policy: originals remain canonical in Storage and Posts. This existing Home module
 // emits only the bounded delivery copy that a Home slot actually displays.
-export const HOME_MEDIA_SLOTS_2029 = {
+const HOME_MEDIA_SLOTS_2029 = {
   compact: { widths: [96, 160], sizes: "64px", quality: 58 },
   series: { widths: [240, 480], sizes: "(max-width: 760px) calc(100vw - 48px), 360px", quality: 62 },
   tile: { widths: [160, 320], sizes: "150px", quality: 62 },
