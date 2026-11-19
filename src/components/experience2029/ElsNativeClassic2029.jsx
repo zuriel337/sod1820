@@ -1070,7 +1070,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       && foldResponse.width === projectedOption.width && foldRequest.axisHitId === engineState.axis?.hitId
       && foldRequest.initialFocus === expectedFocus
       && foldRequest.scope === engineState.scope
-      ? { id: foldRequest.foldWindowId, marks: foldBand.marks, geometry: {
+      ? { id: foldRequest.foldWindowId, rowGap: projectedOption.between, marks: foldBand.marks, geometry: {
         S: foldResponse.width, r0: foldResponse.r0, r1: foldResponse.r1, c0: foldBand.c0, cw: foldBand.c1 - foldBand.c0 + 1,
       } }
       : null
@@ -1918,7 +1918,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </button>
           <div id="els29-research-tools" hidden={!researchToolsOpen}>
             <div className="els29-research-views" role="group" aria-label="תצוגות כלי המחקר">
-              {[["discovery", "גילוי"], ["structures", "מבנים"], ["axis", "הציר"]].map(([id, label]) =>
+              {[["discovery", "ממצאים"], ["structures", "מבנים וקבוצות"], ["axis", "העמקה"]].map(([id, label]) =>
                 <button key={id} ref={id === "axis" ? axisTabRef : null} type="button" aria-pressed={researchView === id}
                   onClick={() => {
                     if (id === "structures") setStructuresVisited(true);

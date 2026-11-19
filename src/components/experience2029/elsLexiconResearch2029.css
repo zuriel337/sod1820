@@ -32,3 +32,9 @@
 .els29-structure-card p{margin:0}
 .els29-structure-members>span{padding:4px 8px;border:1px solid var(--s29-line);border-radius:9px;font-size:var(--s29-type-ui)}
 .els29-structure-members small{color:var(--s29-muted);font-size:var(--s29-type-micro)}
+
+.els29-discovery-header{display:grid;gap:8px;border-block-end:1px solid var(--s29-line);padding-block-end:12px;margin-block-end:12px}
+.els29-discovery-header>p{margin:0;font-size:18px}
+.els29-discovery-header>.els29-discovery-actions{margin:0}
+.els29-discovery-settings,.els29-discovery-report{min-width:0}
+.els29-lexicon-research>div[hidden]{display:none}

@@ -31,18 +31,54 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH ||
 const canRun = Boolean(pw && vite && react && executablePath && existsSync(executablePath));
 
 const researchArea = page => page.getByRole('region',{name:'כלי מחקר במטריצה',exact:true});
-const researchView = (page, name) => researchArea(page).getByRole('button',{name,exact:true});
+const researchView = (page, name) => researchArea(page).getByRole('button',{name:({'גילוי':'ממצאים','מבנים':'מבנים וקבוצות','הציר':'העמקה'})[name] || name,exact:true});
 async function openDiscoveryTools(page, view = 'גילוי') {
   const entry=researchView(page,'כלי מחקר');
   if(await entry.getAttribute('aria-expanded')!=='true') await entry.click();
   await researchView(page,view).click();
+  const settings=researchArea(page).getByText('הגדרות גילוי, סינון וגבולות',{exact:true});
+  if(!await settings.evaluate(el=>el.parentElement.open)) await settings.click();
+}
+async function openDiscoveryReport(panel) {
+  const summary=panel.getByText('דוח הסריקה האחרונה והכיסוי',{exact:true});
+  await summary.waitFor({timeout:60000});
+  if(!await summary.evaluate(el=>el.parentElement.open)) await summary.click();
 }
 async function openFableExtension(page) {
-  await openDiscoveryTools(page);
+  await openDiscoveryTools(page,'הציר');
   const summary=researchArea(page).getByText('הרחבה אופציונלית עם Fable',{exact:true});
   if(!await summary.evaluate(el=>el.parentElement.open)) await summary.click();
 }
 
+
+test('research window has three capability views, one explicit launch and shared progress',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    await researchView(page,'כלי מחקר').click();
+    const area=researchArea(page), panel=area.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    assert.deepEqual(await area.getByRole('group',{name:'תצוגות כלי המחקר'}).getByRole('button').allTextContents(),['ממצאים','מבנים וקבוצות','העמקה']);
+    assert.equal(await panel.locator('.els29-discovery-settings').getAttribute('open'),null);
+    for(const view of ['מבנים','הציר','גילוי']) {
+      await researchView(page,view).click();
+      await panel.getByRole('button',{name:'התחל גילוי',exact:true}).waitFor();
+    }
+    assert.equal(page.__elsDynamicLexiconRequests.length,0);
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
+    await researchView(page,'מבנים').click();
+    await page.waitForFunction(()=>window.__lens?.ok&&!window.__lens.pending,null,{timeout:60000});
+    await panel.getByLabel('כיסוי הסריקה').waitFor();
+    await panel.getByRole('button',{name:/קבוצות קרבה/}).waitFor();
+    await researchView(page,'גילוי').click();
+    const summary=panel.getByLabel('סיכום ממצאים'); await summary.waitFor();
+    assert.match(await summary.textContent(),/ממתינים לאימות/);
+    assert.equal(await panel.getByLabel('מיון הרשימה המשותפת').inputValue(),'recommended');
+    assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+    assert.equal(await page.evaluate(()=>window.__lensRuns.length),1,'switching views never starts another scan');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await panel.scrollIntoViewIfNeeded();
+    await page.screenshot({path:'/tmp/els-research-window.png'});
+  },{realHost:true});
+ });
 
 test('Research tools have their own full-width entry below the matrix without adding side actions or automatic work',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
@@ -622,8 +658,8 @@ test('discovery plans and source-direction filtering stay explicit on the actual
     assert.equal(await panel.getByLabel('מינימום אותיות בגילוי').inputValue(),'4');
     assert.equal(await panel.getByLabel('מרחק מהציר בגילוי').inputValue(),'12');
     assert.equal(page.__elsDynamicLexiconRequests.length,0,'settings never load dictionary');
-    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
-    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
+    await openDiscoveryReport(panel);
     const scan=await page.evaluate(()=>window.__lens);
     assert.equal(scan.plan.minLength,4);assert.equal(scan.plan.maxLength,8);assert.equal(scan.plan.maxDistance,12);
     assert.ok(scan.items.some(item=>item.term.length===4),'requested short tokens are reachable');
@@ -668,8 +704,8 @@ test('Research language wizard reuses the canonical reader and admits exact phra
     assert.equal(page.__elsDynamicLexiconRequests.length,0,'choice/opening is not a scan');
     assert.equal(await panel.getByLabel('תוצאות הסריקה המילונית').count(),0);
     const before=await page.evaluate(()=>window.__state);
-    await panel.getByRole('button',{name:'בדוק ביטויים וחלוקת רצפים',exact:true}).evaluate(button=>{button.click();button.click();});
-    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).evaluate(button=>{button.click();button.click();});
+    await openDiscoveryReport(panel);
     const scan=await page.evaluate(()=>window.__lens);
     assert.equal(scan.plan.mode,'language');assert.equal(scan.coverage.complete,false);assert.equal(scan.modelCalls,0);
     assert.equal(scan.languageInspection.contract,'els_matrix_language_inspection_v1');
@@ -691,6 +727,7 @@ test('Research language wizard reuses the canonical reader and admits exact phra
     assert.equal(await panel.locator('[data-lexicon-hit^="1_1_"]').count(),0);
     assert.deepEqual(await page.evaluate(()=>window.__lens.items),scan.items);
     await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('els');
+    await researchView(page,'הציר').click();
     await panel.getByText('מתקדם · קווים גולמיים והשערות חלוקה',{exact:true}).click();
     await panel.getByText('הקווים שנבדקו',{exact:true}).click();
     for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']){
@@ -721,8 +758,8 @@ test('explicit Research lexicon is lazy, exact, cancellable and responsive witho
     const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});await panel.waitFor();
     assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening does not fetch lexicon');
     const before=await page.evaluate(()=>window.__state);
-    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).evaluate(button=>{button.click();button.click();});
-    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).evaluate(button=>{button.click();button.click();});
+    await openDiscoveryReport(panel);
     const scan=await page.evaluate(()=>window.__lens);
     assert.equal(scan.lens,'matrix-lexicon');assert.equal(scan.ok,true);assert.ok(scan.items.length>0);
     assert.equal(scan.modelCalls,0);assert.equal(page.__elsDynamicLexiconRequests.length,1);
@@ -786,13 +823,13 @@ test('language cancellation discards late dictionary download and permits a fres
     await openDiscoveryTools(page);
     const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
     await panel.getByLabel('מסלול הגילוי',{exact:true}).selectOption('language');
-    await panel.getByRole('button',{name:'בדוק ביטויים וחלוקת רצפים',exact:true}).click();await requested;
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();await requested;
     await panel.getByRole('button',{name:'בטל פעולה',exact:true}).click();release();
     await page.waitForFunction(()=>window.__lens?.target?.cancel!==true);
     assert.equal(await panel.getByLabel('תוצאות הסריקה המילונית').count(),0);
     await panel.getByLabel('מסלול הגילוי',{exact:true}).selectOption('words');
-    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
-    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
+    await openDiscoveryReport(panel);
     assert.equal(page.__elsDynamicLexiconRequests.length,1,'shared checked cache reused');
   },{realHost:true});
  });
@@ -814,7 +851,7 @@ test('word discovery can pause and resume, completes the 16965 axis window and s
     });
     await openDiscoveryTools(page);
     const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
-    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
     await page.waitForFunction(()=>window.__lens?.pending&&window.__lens?.coverage?.els>=5);
     await panel.getByRole('button',{name:'השהה סריקה',exact:true}).click();
     const resume=panel.getByRole('button',{name:'המשך סריקה',exact:true});
@@ -3451,8 +3488,8 @@ test('owner 18.11: discoveries added from the research tools accumulate, keep th
     const before=partnerShown(cross);assert.ok(before.length>0,'the crossed partner is on the matrix');
     await openDiscoveryTools(page);
     const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});await panel.waitFor();
-    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
-    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:60000});
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
+    await openDiscoveryReport(panel);
     const scan=await page.evaluate(()=>window.__lens);assert.equal(scan.ok,true);
     await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('els');
     const picks=[];for(const item of scan.items){if(item.kind==='els'&&!cross.findings.some(f=>f.t===item.term)&&!picks.some(p=>p.term===item.term))picks.push(item);if(picks.length===3)break;}
@@ -3561,7 +3598,7 @@ test('owner 18.11: fullscreen is the same interface re-laid: the page\'s own too
     assert.equal(await box('#els29-query'),null,'one window at a time');
     assert.ok(await inView('.els29-native-structure-entry'));assert.equal(await page.locator('.els29-native-structure-entry').getAttribute('data-same-element'),'1');
     await page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true}).waitFor();
-    assert.equal(await page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true}).getByRole('button',{name:'גלה מילים ומבנים',exact:true}).count(),1);
+    assert.equal(await page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true}).getByRole('button',{name:'התחל גילוי',exact:true}).count(),1);
     const stripBox=await box('.els29-native-toolstrip'),research=await box('.els29-native-structure-entry');
     assert.ok(research.r<=stripBox.l+1||research.l>=stripBox.r-1||research.t>=stripBox.b-1,'the window never covers the strip that closes it: '+JSON.stringify({stripBox,research}));
     await strip.getByRole('button',{name:'חלון כלי המחקר',exact:true}).click();assert.equal(await box('.els29-native-structure-entry'),null);
@@ -3624,7 +3661,8 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
     const joint=page.getByRole('region',{name:'רשימת הממצאים המשותפת',exact:true});await joint.waitFor();
     assert.match(await joint.textContent(),/הריצו סריקת גילוי/,'empty before any run');
     // One click runs both engine scanners on the same window.
-    await panel.getByRole('button',{name:'גלה מילים וביטויים יחד',exact:true}).click();
+    await panel.getByLabel('מסלול הגילוי').selectOption('both');
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
     await page.waitForFunction(()=>window.__lensRuns?.length===2,null,{timeout:60000});
     assert.deepEqual(await page.evaluate(()=>window.__lensRuns.map(run=>run.plan.mode || 'words')),['language','words']);
     assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
@@ -3655,6 +3693,7 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
     assert.equal(await step2.getByRole('button',{name:'המשך עם Fable',exact:true}).count(),1);
     // The engine found hundreds of candidates; the source filter shows what Fable found (alone or with the engine).
     await page.waitForFunction(()=>[...document.querySelectorAll('button[data-joint-source="fable"]')].some(b=>/Fable · [1-9]/.test(b.textContent)),null,{timeout:30000});
+    await researchView(page,'גילוי').click();
     await joint.locator('button[data-joint-source="fable"]').click();
     await page.waitForFunction(()=>document.querySelectorAll('[data-joint-row][data-joint-source="fable"]').length>0,null,{timeout:30000});
     if(plan.both){assert.equal(await joint.locator(`[data-joint-row="${plan.both}"]`).getAttribute('data-joint-source'),'both','an occurrence both found is one row with both sources');}
@@ -3667,6 +3706,7 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
     await page.waitForFunction(only=>window.__state?.findings?.some(f=>f.t===only.text&&f.hits.some(h=>h.hitId===only.hitId&&h.selected&&h.verified)),plan.only,{timeout:30000});
     await page.waitForFunction(text=>[...document.querySelectorAll('[data-joint-row] button')].some(b=>b.getAttribute('aria-label')===`${text} כבר במטריצה`),plan.only.text,{timeout:15000});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'no horizontal scroll at 390');
+    await researchView(page,'הציר').click();
     // A non-admin sees that the step is coming, not the button.
     await page.evaluate(()=>{const r=window.__readingFixture||null;window.__setMatrixReading({mode:'on',isAdmin:false,session:{busy:false,thread:[]}});});
     await page.waitForFunction(()=>[...document.querySelectorAll('[aria-label="שלב 2, המשך עם Fable"]')].some(n=>/בקרוב/.test(n.textContent)));
@@ -3782,7 +3822,8 @@ test('Research row gaps scan the displayed geometry and verify a finding at its 
     assert.ok(rows.slice(1).every((row,i)=>row-rows[i]===5),'four real rows lie between consecutive axis letters');
     await openDiscoveryTools(page);
     const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
-    await panel.getByRole('button',{name:'גלה מילים וביטויים יחד',exact:true}).click();
+    await panel.getByLabel('מסלול הגילוי').selectOption('both');
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
     await page.waitForFunction(()=>window.__lensRuns?.length===2);
     const scans=await page.evaluate(()=>window.__lensRuns);
     const band=windowResponse.bands[0];
@@ -3848,7 +3889,8 @@ test('Columbia folded window scrolls in both directions, expands in place and su
 
     await openDiscoveryTools(page);
     const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
-    await panel.getByRole('button',{name:'גלה מילים וביטויים יחד',exact:true}).click();
+    await panel.getByLabel('מסלול הגילוי').selectOption('both');
+    await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
     await page.waitForFunction(()=>window.__lensRuns?.length===2,null,{timeout:65000});
     const scans=await page.evaluate(()=>window.__lensRuns);
     for(const scan of scans){

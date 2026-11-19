@@ -2,13 +2,14 @@ import React, { useMemo, useState } from "react";
 import { joinElsDiscovery, filterElsJointRows, sortElsJointRows, countElsJointRows, prepareElsReadingAddition } from "../../lib/research/elsJointDiscovery.js";
 import { elsLexiconWindowKey, prepareElsLexiconAdditions } from "../../lib/research/elsLexiconResearch.js";
 import "./elsJointDiscovery2029.css";
+import { assessElsResearch, compareElsResearchRows } from "../../lib/research/elsResearchAssessment.js";
 
 // The joint list of the matrix discovery and the Fable reading (ZURIEL 18.11.2026). Presentation only: rows come from
 // joinElsDiscovery over results that already exist; adding goes through the engine's findings update, which verifies again.
 const PAGE = 20;
 const KINDS = [["els", "ELS בלבד"], ["rare", "ELS עם ציפייה נמוכה (E<1)"], ["source", "רצפי מקור"], ["all", "הכול"]];
 const SOURCES = [["all", "כל המקורות"], ["engine", "מנוע"], ["fable", "Fable"], ["both", "שניהם"]];
-const SORTS = [["axis", "קרבה לציר"], ["rare", "נדירות (E)"], ["length", "אורך"]];
+const SORTS = [["recommended", "מומלץ לבדיקה"], ["axis", "קרבה לציר"], ["rare", "נדירות (E)"], ["length", "אורך"]];
 const chance = E => E === null ? null : E < 0.001 ? E.toExponential(1) : E < 10 ? E.toPrecision(2) : Math.round(E).toString();
 
 function describe(row) {
@@ -29,8 +30,7 @@ export default function ElsJointDiscovery2029({ state, runs = {}, projection = n
   const axis = state?.axis && state.term ? { term: state.term, skip: state.axis.skip, dir: state.axis.direction === "back" ? -1 : 1, start: state.axis.start } : null;
   const axisKey = axis ? `${axis.term}:${axis.skip}:${axis.dir}:${axis.start}` : "";
   const corpusId = state?.verification?.corpus_id ?? null;
-  const rows = useMemo(() => joinElsDiscovery({ runs: fresh, projection, axis, width: state?.geometry?.S ?? axis?.skip ?? null, scope: state?.scope, corpusId })
-    .filter(row => !(hideForwardSource && row.skip === 1 && row.dir === 1)),
+  const acquired = useMemo(() => joinElsDiscovery({ runs: fresh, projection, axis, width: state?.geometry?.S ?? axis?.skip ?? null, scope: state?.scope, corpusId }),
     [runs, key, projection, axisKey, state?.geometry?.S, state?.scope, corpusId, hideForwardSource]);
   const isAdded = row => {
     const finding = state?.findings?.find(f => f.t === row.term);
@@ -38,6 +38,9 @@ export default function ElsJointDiscovery2029({ state, runs = {}, projection = n
     return row.corpusId === corpusId && [...(finding?.hits || []), ...(finding?.sourceHits || [])].some(hit =>
       (typeof hit.occurrence_id === "string" ? hit.occurrence_id === row.occurrenceId : hit.hitId === row.hitId) && hit.selected && (row.kind === "source" || hit.verified));
   };
+  const rows = acquired.filter(row => !(hideForwardSource && row.skip === 1 && row.dir === 1))
+    .map(row => ({ ...row, verified: row.verified || isAdded(row) }));
+  const assessment = assessElsResearch({ contextKey: key, runs: fresh, rows: acquired, isVerified: row => row.verified || isAdded(row) });
   const add = row => {
     if (busy) { setNotice("התוספת הקודמת עדיין באימות. המתינו לסיומה ואז הוסיפו את הבאה."); return; }
     // An occurrence of another corpus is not on this matrix (its hitId here would be a different occurrence).
@@ -50,20 +53,22 @@ export default function ElsJointDiscovery2029({ state, runs = {}, projection = n
     }
     onFindingsChange?.(prepared.findings); setNotice(`${row.label} נשלח לאימות במנוע. מה שכבר מסומן במטריצה נשאר; רק מה שיאומת יתווסף.`);
   };
-  return <ElsJointDiscoveryList rows={rows} current={fresh.length === all.length} busy={busy} isAdded={isAdded} onAdd={add} notice={notice}
+  return <ElsJointDiscoveryList assessment={assessment} rows={rows} current={fresh.length === all.length} busy={busy} isAdded={isAdded} onAdd={add} notice={notice}
     onShow={onShow ? row => onShow(row.fable.key) : null} selectedKey={selectedKey} hasDiscovery={fresh.length > 0} hasReading={!!projection?.findings?.length} />;
 }
 
-export function ElsJointDiscoveryList({ rows = [], current = true, busy = false, isAdded, onAdd, onShow, selectedKey, notice = "", hasDiscovery = false, hasReading = false }) {
-  const [kind, setKind] = useState("els"), [source, setSource] = useState("all"), [sort, setSort] = useState("axis"), [page, setPage] = useState(0);
+export function ElsJointDiscoveryList({ assessment = null, rows = [], current = true, busy = false, isAdded, onAdd, onShow, selectedKey, notice = "", hasDiscovery = false, hasReading = false }) {
+  const [kind, setKind] = useState("els"), [source, setSource] = useState("all"), [sort, setSort] = useState("recommended"), [page, setPage] = useState(0);
   const counts = useMemo(() => countElsJointRows(rows), [rows]);
-  const shown = useMemo(() => sortElsJointRows(filterElsJointRows(rows, { kind, source }), sort), [rows, kind, source, sort]);
+  const shown = useMemo(() => sort === "recommended" ? filterElsJointRows(rows, { kind, source }).sort(compareElsResearchRows) : sortElsJointRows(filterElsJointRows(rows, { kind, source }), sort), [rows, kind, source, sort]);
   const pages = Math.max(1, Math.ceil(shown.length / PAGE)), at = Math.min(page, pages - 1);
   const slice = shown.slice(at * PAGE, at * PAGE + PAGE);
   const pick = setter => value => { setter(value); setPage(0); };
   const hasResults = hasDiscovery || hasReading || rows.length > 0;
   return <section className="els29-joint-discovery" aria-label="רשימת הממצאים המשותפת">
     <h3>ממצאים · רשימה משותפת {hasResults ? <small>{shown.length}{shown.length !== rows.length ? ` מתוך ${rows.length}` : ""}</small> : null}</h3>
+    {assessment && hasResults ? <p aria-label="סיכום ממצאים">נאספו {assessment.counts.collected} · מאומתים {assessment.counts.verified} · ממתינים לאימות {assessment.counts.awaitingVerification} · מוסתרים בסינון {assessment.counts.collected - shown.length}{assessment.partial ? " · כיסוי חלקי" : ""}</p> : null}
+    {sort === "recommended" ? <p>מומלץ לבדיקה: מופעים מאומתים החוצים את הציר, אחריהם יתר המאומתים ואז מועמדים. בתוך כל קבוצה: קרבה ואורך. זה סדר עבודה, לא ציון משמעות או מובהקות.</p> : null}
     {rows.length ? <>
       <label className="els29-joint-sort">סוג תוצאות <select aria-label="סוג התוצאות" value={kind} onChange={event => pick(setKind)(event.target.value)}>
         {KINDS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}

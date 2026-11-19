@@ -20,6 +20,7 @@ const structureFilters = [
   ["intersections", "חיתוכים", ["intersection", "transversal"]],
   ["lines", "קווים", ["parallel", "continuation", "corridor"]],
   ["repeats", "חזרות", ["motif"]],
+  ["clusters", "קבוצות קרבה", ["cluster"]],
 ];
 const belongsTo = (card, types) => !types.length || card.types.some(type => types.includes(type));
 const memberKey = card => card.members.map(member => `${member.term}:${member.hitId}`).sort().join("|");
@@ -36,6 +37,7 @@ export default function ElsLexiconResearch2029({
   const [plan, setPlan] = useState({ minLength: 5, maxLength: 10, maxDistance: 120, minMembers: 2 });
   const [hideForwardSource, setHideForwardSource] = useState(false);
   const languagePlan = plan.mode === "language";
+  const [discoveryMode, setDiscoveryMode] = useState("words");
   const scanButton = useRef(null);
   const active = useRef(null), request = useRef(onRequest); request.current = onRequest;
   const queue = useRef([]);
@@ -179,19 +181,24 @@ export default function ElsLexiconResearch2029({
       onShowStructure(viewRequest);
     } else setNotice("חלק מהמופעים ממתינים לאימות. אפשר לבדוק אותם ברשימת הממצאים.");
   }, [pendingStructure, key, state, visible, view, busy, findingsOperation, onShowStructure]);
-  return <section hidden={!visible || view === "axis"} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
-    <div hidden={view !== "discovery"} id="els29-discovery-view">
+  return <section hidden={!visible} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
+    <header className="els29-discovery-header">
+      <strong>גילוי במטריצה הפעילה</strong>
+      {key ? <p><bdi>{state.term}</bdi> · {state.scope === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{state.axis.skip}</bdi> · רווח שורות <bdi>{scanWindow?.rowGap ?? 0}</bdi> · רוחב <bdi>{scanState.geometry.S}</bdi></p> : null}
+      <p>בחרו מסלול ולחצו להפעלה. מעבר בין הלשוניות אינו מפעיל סריקה.</p>
     <div className="els29-discovery-actions">
-      <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run} onClick={startBoth}>גלה מילים וביטויים יחד</button>
+      <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run} onClick={discoveryMode === "both" ? startBoth : start}>התחל גילוי</button>
       {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
     </div>
-    <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={languagePlan ? "language" : "words"}
-      onChange={event => setPlan(current => event.target.value === "language"
+    <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={discoveryMode}
+      onChange={event => { setDiscoveryMode(event.target.value); setPlan(current => event.target.value === "language"
         ? { ...current, mode: "language", minLength: 5, maxLength: 16 }
-        : { ...current, mode: "words", minLength: 5, maxLength: 10 })}>
+        : { ...current, mode: "words", minLength: 5, maxLength: 10 }); }}>
+      <option value="both">מילים וביטויים יחד</option>
       <option value="words">מילים ומבנים — התאמה מילונית</option>
       <option value="language">ביטויים וחלוקת רצפים — קורא הלשון</option>
     </select></label>
+    <details className="els29-discovery-settings"><summary>הגדרות גילוי, סינון וגבולות</summary>
     {languagePlan ? <p>מילים וחלוקה לשתי מילים על אותו קו, במדגם מוגבל סביב הציר. האותיות נשמרות; הרווחים מוצעים לבדיקה שלכם.</p> : null}
     <details className="els29-discovery-plan"><summary>{languagePlan ? "גבולות בדיקת הביטויים" : "תכנית סריקה · מהיר, רחב או עמוק"}</summary>
       <p>הגדירו אילו מילים לחפש וכמה להתרחק מהציר. שינוי הגדרה אינו מתחיל סריקה.</p>
@@ -226,8 +233,8 @@ export default function ElsLexiconResearch2029({
       <p>המילון נטען רק בלחיצה. הסריקה אינה מקיפה את כל התורה, את כל הדילוגים או כל ביטוי עברי. שמות וכתיבים שאינם במילון עלולים להחמיץ; אפשר לחפש אותם ידנית.</p>
       <p>שורות, טורים ושני האלכסונים בשני הכיוונים. קבוצות נבנות רק מההתאמות שנשמרו: מקבילות עד 8 תאים עם תמיכה משותפת, המשכים עד 3 תאים, חיתוכים, חזרות, מסדרונות ואשכולות של 3 מופעים ומעלה עד 4 תאים בין כל זוג. עד 240 קבוצות, עד 8 מופעים בקבוצה.</p>
     </details>
+    </details>
     <div className="els29-discovery-actions">
-      <button type="button" disabled={!key || busy || !!run} onClick={start}>{languagePlan ? "בדוק ביטויים וחלוקת רצפים" : "גלה מילים ומבנים"}</button>
       {wordRun?.data.continuation ? <button type="button" disabled={busy || !!run}
         onClick={() => startPlan(wordRun.data.plan, wordRun)}>המשך סריקה</button> : null}
     </div>
@@ -238,7 +245,9 @@ export default function ElsLexiconResearch2029({
     {!run && Number.isInteger(wordRun?.data.coverage?.remainingRays) ? <p role="status" aria-label="כיסוי הסריקה">{coverageLabel(wordRun.data.coverage)}</p> : null}
     {!key ? <p>{scanWindow === null ? "הגילוי יהיה זמין כשחלון המטריצה ייטען." : "בחרו מופע מאומת לפני סריקה."}</p>
       : scanWindow ? <p>הגילוי משתמש בחלון המוצג, ברוחב <bdi>{scanWindow.geometry.S}</bdi>.</p> : null}
-    {data ? <div aria-label="תוצאות הסריקה המילונית">
+    </header>
+    <div hidden={view !== "discovery"} id="els29-discovery-view">
+    {data ? <details className="els29-discovery-report"><summary>דוח הסריקה האחרונה והכיסוי</summary><div aria-label="תוצאות הסריקה המילונית">
       <p>המופע שנסרק: <bdi>{data.origin.term}</bdi> · {data.origin.corpus === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{data.origin.skip}</bdi>.</p>
       {!current ? <p role="note">התוצאה שייכת לחלון קודם. סרקו את החלון הנוכחי לפני הוספת ממצא.</p> : null}
       <p>{data.plan?.mode === "language" ? "בדיקת מדגם קווים — לא סריקה מלאה של החלון" : data.coverage.complete ? "הסריקה המוגדרת הושלמה"
@@ -263,6 +272,12 @@ export default function ElsLexiconResearch2029({
       {Object.entries(runs).map(([mode, scan]) => scan.key === key ? <p key={mode}>
         {mode === "language" ? "ביטויים וחלוקת רצפים" : "מילים ומבנים"} · {scan.data.coverage.completedRays}/{scan.data.coverage.totalRays} קווים
       </p> : null)}
+    </div></details> : null}
+    <ElsJointDiscovery2029 state={scanState} runs={runs} projection={projection} busy={busy || !!run}
+      hideForwardSource={hideForwardSource} color={color} onFindingsChange={onAdd} onShow={onShow} selectedKey={selectedKey} />
+    </div>
+    <div hidden={view !== "depth" && view !== "axis"} id="els29-depth-view">
+      <p>הרחבת המחקר: קריאת Fable והצעות חלוקה. כל פעולה מופעלת במפורש.</p>
       {languageInspection ? <details className="els29-language-advanced"><summary>מתקדם · קווים גולמיים והשערות חלוקה</summary>
         <p>רצפים גולמיים אינם מילים מזוהות. גבולות המילים הם השערות לפי פרופיל לשון, לא ממצאים מאומתים. לא בוצעה קריאת AI.</p>
         <p>{languageInspection.coverage.returnedRays} קווים נבחרו מתוך {languageInspection.coverage.totalRays}; כל קו קוצר לעד {languageInspection.coverage.maxLetters} אותיות סביב הציר ונבדק בשני הכיוונים.</p>
@@ -271,14 +286,12 @@ export default function ElsLexiconResearch2029({
           {languageInspection.boundaries.slice(0,24).map((row,index) => <p key={index}><bdi>{row.leftContext} | {row.rightContext}</bdi> · מיקום הגבול <bdi>{row.leftEnd} → {row.rightStart}</bdi></p>)}
         </details>
       </details> : null}
-    </div> : null}
-    {readingExtension}
-    <ElsJointDiscovery2029 state={scanState} runs={runs} projection={projection} busy={busy || !!run}
-      hideForwardSource={hideForwardSource} color={color} onFindingsChange={onAdd} onShow={onShow} selectedKey={selectedKey} />
+
+      {readingExtension}
     </div>
     <div hidden={view !== "structures"} id="els29-structures-view">
       <section aria-label="קשרים בין מופעים">
-        {current ? <p>{structures?.candidates ?? 0} מועמדים מתוך {presented.items.length} התאמות בסריקה השתתפו בניתוח.</p> : null}
+        {current ? <p>קבוצות הגילוי מבוססות על הסריקה האחרונה ({data.plan?.mode === "language" ? "ביטויים" : "מילים"}); הרשימה המשותפת בלשונית ממצאים כוללת את שני המסלולים. {structures?.candidates ?? 0} מועמדים מתוך {presented.items.length} התאמות בסריקה השתתפו בניתוח.</p> : null}
         {inspection?.ok ? <p>{inspection.lines.length} מופעים מסומנים נבדקו, כולל הציר.</p> : null}
         {inspection?.ok === false && key ? <p>{inspection.reason}</p> : null}
         <div className="els29-structure-filters" role="group" aria-label="סוג הקשר">
