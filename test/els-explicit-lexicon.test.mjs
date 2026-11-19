@@ -117,7 +117,7 @@ test('exact admission preserves current snapshot and rejects stale or foreign re
 });
 test('new UI is lazy and explicit; model, storage, Provider and background promises absent',()=>{
   const ui=readFileSync(new URL('../src/components/experience2029/ElsLexiconResearch2029.jsx',import.meta.url),'utf8');
-  assert.match(ui,/onClick=\{start\}/);assert.match(ui,/CanonicalProgress/);
+  assert.match(ui,/onClick=\{discoveryMode === "both" \? startBoth : start\}/);assert.match(ui,/CanonicalProgress/);
   assert.doesNotMatch(ui,/ai-analyze|askRaziel|localStorage|setInterval|new Worker|fetch\(/);
   assert.match(source,/d\.lens==="matrix-lexicon"\)matrixLexiconLens/);
 });

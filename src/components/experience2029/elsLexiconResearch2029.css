@@ -38,3 +38,23 @@
 .els29-discovery-header>.els29-discovery-actions{margin:0}
 .els29-discovery-settings,.els29-discovery-report{min-width:0}
 .els29-lexicon-research>div[hidden]{display:none}
+
+/* Research opts into the same Royal surface and sapphire/gold roles as the personal area. */
+.els29-lexicon-research.r29{--r29-hue:var(--r29-sapphire)}
+.els29-discovery-header.r29-hall{gap:10px;padding:clamp(12px,2vw,24px);text-align:center;border-block-end-color:color-mix(in srgb,var(--r29-gold) 50%,var(--s29-line))}
+.els29-discovery-header>strong{font-size:clamp(22px,2.2vw,28px);color:var(--s29-accent-text);line-height:1.3}
+.els29-research-eyebrow{color:var(--r29-gold-ink);font-size:var(--s29-type-ui);font-weight:700}
+.els29-discovery-header>label,.els29-discovery-header>.els29-discovery-actions{justify-content:center}
+.els29-discovery-header>.els29-discovery-actions>button{flex:1 1 190px;max-width:320px;border-color:color-mix(in srgb,var(--r29-sapphire) 46%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 12%,var(--s29-panel));font-weight:650}
+.els29-discovery-header>.els29-discovery-actions>.els29-start-discovery{background:var(--s29-accent);color:var(--s29-on-accent);border-color:color-mix(in srgb,var(--r29-gold) 60%,var(--s29-accent));box-shadow:inset 0 1px 0 #ffffff24,0 6px 18px -12px var(--r29-sapphire)}
+.els29-discovery-header>.els29-discovery-settings{max-width:760px;width:100%;box-sizing:border-box;margin-inline:auto;border-block-start:1px solid color-mix(in srgb,var(--r29-gold) 28%,var(--s29-line))}
+.els29-discovery-settings[open]{text-align:start}
+.els29-discovery-settings>summary{text-align:center;color:var(--s29-accent-text)}
+.els29-research-result-navigation{text-align:center;margin-block:20px 12px}
+.els29-research-result-navigation>p{margin:0;color:var(--s29-muted)}
+.els29-research-result-navigation .els29-research-views{padding:12px 0;border-block-end:0}
+.els29-research-result-navigation .els29-research-views button{padding:10px 6px;background:color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel));border-color:color-mix(in srgb,var(--r29-sapphire) 32%,var(--s29-line))}
+.els29-research-result-navigation .els29-research-views button[aria-pressed=true]{background:var(--s29-accent);color:var(--s29-on-accent);border-color:var(--r29-gold);box-shadow:inset 0 1px 0 #ffffff24}
+.els29-lexicon-research>.els29-research-result-navigation~div>p,.els29-lexicon-research #els29-structures-view>section>p{text-align:center}
+.els29-lexicon-research .els29-structure-filters{justify-content:center}
+.els29-lexicon-research.r29 li.els29-structure-card{border-color:color-mix(in srgb,var(--r29-sapphire) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel))}

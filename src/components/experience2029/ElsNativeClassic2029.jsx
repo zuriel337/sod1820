@@ -932,7 +932,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const fsResearchOpen = fullscreen && researchToolsOpen;
   const researchToolsRef = useRef(null);
   const axisTabRef = useRef(null);
+  const axisFocusPending = useRef(false);
+  const attachAxisTab = node => {
+    axisTabRef.current = node;
+    if (node && axisFocusPending.current) { node.focus({ preventScroll: true }); axisFocusPending.current = false; }
+  };
   const openAxisResearch = () => {
+    axisFocusPending.current = true;
     setLexiconVisited(true);
     setResearchView("axis");
     setResearchToolsOpen(true);
@@ -940,6 +946,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestAnimationFrame(() => {
       if (!fullscreen) researchToolsRef.current?.scrollIntoView({ block: "nearest" });
       axisTabRef.current?.focus({ preventScroll: true });
+      if (axisTabRef.current) axisFocusPending.current = false;
     });
   };
   const [lexiconResponse, setLexiconResponse] = useState(null);
@@ -1028,7 +1035,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const rect = panelRef.current?.getBoundingClientRect();
     return Boolean(rect) && rect.height > 0 && (rect.top > window.innerHeight - 140 || rect.bottom < 140);
   };
-  const openTool = (tool, trigger) => {
+  const openTool = (tool, trigger, focusWord = false) => {
     if (trigger) panelTriggerRef.current = trigger;
     setClassicOpen(false);
     setActiveTool(tool);
@@ -1036,7 +1043,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       // Phones always jump to the panel. On a wide screen the panel sits below the matrix (and below the advanced search when it is
       // open), so a tool opened from the bottom dock looked dead: bring the panel into view whenever it is off screen.
       if (window.matchMedia("(max-width:980px)").matches || panelOffScreen()) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
-      panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
+      const wordForm = focusWord && panelRef.current?.querySelector(".els29-native-finding-add");
+      if (wordForm) {
+        wordForm.scrollIntoView({ block: "center", behavior: "instant" });
+        wordForm.querySelector("input")?.focus({ preventScroll: true });
+        const button = wordForm.querySelector("button");
+        // An explicit jump gets one short cue, never an automatic search or a permanent blink.
+        button?.getAnimations().filter(animation => animation.id === "els29-find-word-cue").forEach(animation => animation.cancel());
+        const ring = { outline: "2px solid var(--s29-focus-ring)", outlineOffset: "3px", opacity: 1 };
+        const reduced = window.matchMedia("(prefers-reduced-motion:reduce)").matches
+          || wordForm.closest('[data-frame-reduced-motion="true"]');
+        button?.animate(reduced ? [ring, ring] : [{ ...ring, opacity: .55 }, ring, { ...ring, opacity: .55 }, ring],
+          { id: "els29-find-word-cue", duration: 1600, easing: "ease-in-out" });
+      } else panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
     });
   };
   const closeTool = () => {
@@ -1917,16 +1936,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <span className="els29-research-entry-state" aria-hidden="true">{researchToolsOpen ? "סגור" : "פתח"}</span>
           </button>
           <div id="els29-research-tools" hidden={!researchToolsOpen}>
-            <div className="els29-research-views" role="group" aria-label="תצוגות כלי המחקר">
-              {[["discovery", "ממצאים"], ["structures", "מבנים וקבוצות"], ["axis", "העמקה"]].map(([id, label]) =>
-                <button key={id} ref={id === "axis" ? axisTabRef : null} type="button" aria-pressed={researchView === id}
-                  onClick={() => {
-                    if (id === "structures") setStructuresVisited(true);
-                    setResearchView(id);
-                  }}>{label}</button>)}
-            </div>
             {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי מחקר…</p>}>
               <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchWorkspace}
+                viewNavigation={<div className="els29-research-result-navigation">
+                  <p>הצגת תוצאות המחקר · המעבר בין הלשוניות אינו מפעיל סריקה</p>
+                  <div className="els29-research-views" role="group" aria-label="תצוגות כלי המחקר">
+                    {[["discovery", "ממצאים"], ["structures", "מבנים וקבוצות"], ["axis", "העמקה"]].map(([id, label]) =>
+                      <button key={id} ref={id === "axis" ? attachAxisTab : null} type="button" aria-pressed={researchView === id}
+                        onClick={() => {
+                          if (id === "structures") setStructuresVisited(true);
+                          setResearchView(id);
+                        }}>{label}</button>)}
+                  </div>
+                </div>}
                 scanWindow={foldScanWindow}
                 view={researchView} onOpenDiscovery={() => setResearchView("discovery")} onProgress={setLexiconPhase}
                 busy={searchPending || !!loadPhase || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
@@ -1934,7 +1956,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 onAdd={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
                 findingsOperation={operations.findings} onShowStructure={setSplitRelation}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
-                onFindWords={event => { if (fullscreen) setResearchToolsOpen(false); openTool("findings", event.currentTarget); }}
+                onFindWords={event => { if (fullscreen) setResearchToolsOpen(false); openTool("findings", event.currentTarget, true); }}
                 projection={projectedOption ? null : readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}
                 readingExtension={!publicClassic && (matrixReading || onRazielMatrix) ? <details className="els29-reading-extension" onToggle={event => { if (event.currentTarget.open) setReadingExtensionVisited(true); }}>
                   <summary>הרחבה אופציונלית עם Fable</summary>

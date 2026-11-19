@@ -36,6 +36,8 @@ async function openDiscoveryTools(page, view = 'גילוי') {
   const entry=researchView(page,'כלי מחקר');
   if(await entry.getAttribute('aria-expanded')!=='true') await entry.click();
   await researchView(page,view).click();
+  // These scenarios exercise the dictionary engine explicitly; the default-language launch is checked below.
+  await researchArea(page).getByLabel('מסלול הגילוי').selectOption('words');
   const settings=researchArea(page).getByText('הגדרות גילוי, סינון וגבולות',{exact:true});
   if(!await settings.evaluate(el=>el.parentElement.open)) await settings.click();
 }
@@ -50,14 +52,34 @@ async function openFableExtension(page) {
   if(!await summary.evaluate(el=>el.parentElement.open)) await summary.click();
 }
 
+async function checkManualWordJump(page) {
+  await researchArea(page).getByRole('button',{name:'חפש מילה מסוימת',exact:true}).click();
+  const input=page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true});
+  await page.waitForFunction(()=>document.activeElement?.id==='els29-secondary-term');
+  assert.equal(await input.isEditable(),true);
+  for(const control of [input,page.getByRole('button',{name:'חפש במטריצה',exact:true})]) {
+    const box=await control.boundingBox(),viewport=page.viewportSize();
+    assert.ok(box.y>=0&&box.y+box.height<=viewport.height&&box.x>=0&&box.x+box.width<=viewport.width,`the word and Search are both in view: ${JSON.stringify({box,viewport})}`);
+  }
+  const cue=await page.getByRole('button',{name:'חפש במטריצה',exact:true}).evaluate(el=>{
+    const animation=el.getAnimations().find(a=>a.id==='els29-find-word-cue');
+    return animation&&{duration:animation.effect.getTiming().duration,opacities:animation.effect.getKeyframes().map(k=>k.opacity)};
+  });
+  assert.ok(cue&&cue.duration<=2000,'one bounded Search cue');
+  return {input,cue};
+}
+
 
 test('research window has three capability views, one explicit launch and shared progress',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:390,height:900},async page=>{
     await researchView(page,'כלי מחקר').click();
     const area=researchArea(page), panel=area.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    await panel.waitFor();
     assert.deepEqual(await area.getByRole('group',{name:'תצוגות כלי המחקר'}).getByRole('button').allTextContents(),['ממצאים','מבנים וקבוצות','העמקה']);
     assert.equal(await panel.locator('.els29-discovery-settings').getAttribute('open'),null);
+    assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language','first launch offers longer language readings');
+    assert.equal(await panel.evaluate(el=>Boolean(el.querySelector('.els29-discovery-header').compareDocumentPosition(el.querySelector('.els29-research-views'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'shared launch controls precede the result tabs');
     for(const view of ['מבנים','הציר','גילוי']) {
       await researchView(page,view).click();
       await panel.getByRole('button',{name:'התחל גילוי',exact:true}).waitFor();
@@ -66,7 +88,7 @@ test('research window has three capability views, one explicit launch and shared
     await panel.getByRole('button',{name:'התחל גילוי',exact:true}).click();
     await researchView(page,'מבנים').click();
     await page.waitForFunction(()=>window.__lens?.ok&&!window.__lens.pending,null,{timeout:60000});
-    await panel.getByLabel('כיסוי הסריקה').waitFor();
+    assert.equal(await page.evaluate(()=>window.__lens.plan.mode),'language','default launch runs the language reader');
     await panel.getByRole('button',{name:/קבוצות קרבה/}).waitFor();
     await researchView(page,'גילוי').click();
     const summary=panel.getByLabel('סיכום ממצאים'); await summary.waitFor();
@@ -114,7 +136,7 @@ test('Research tools have their own full-width entry below the matrix without ad
    const box=await entry.boundingBox();assert.ok(box.width>=44&&box.height>=44);
    assert.equal(await entry.evaluate(el=>{const r=el.getBoundingClientRect();return el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),true,'entry remains reachable above frame overlays');
    assert.ok(await entry.locator('span,strong').evaluateAll(nodes=>nodes.every(el=>parseFloat(getComputedStyle(el).fontSize)>=16)));
-   if(process.env.ELS_RESEARCH_AREA_SCREENSHOTS){mkdirSync(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,{recursive:true});await page.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-area-${width}-${theme}.png`)});}
+   if(process.env.ELS_RESEARCH_AREA_SCREENSHOTS){mkdirSync(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,{recursive:true});await page.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-area-${width}-${theme}.png`)});await panel.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-tools-${width}-${theme}.png`)});}
   }
   await entry.press('Space');assert.equal(await panel.isVisible(),false);
   assert.equal(await entry.evaluate(el=>el===document.activeElement),true);
@@ -123,6 +145,17 @@ test('Research tools have their own full-width entry below the matrix without ad
   assert.equal(await panel.locator('.els29-discovery-inspection').getAttribute('open'),'');
   await researchView(page,'גילוי').click();
   assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language','folding preserves the current tool settings');
+  await checkManualWordJump(page);
+  await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('תורה');
+  await page.locator('.els29-native-unified-rail .els29-native-rail-scroll').evaluate(el=>{el.scrollTop=el.scrollHeight;});
+  const repeated=await checkManualWordJump(page);
+  assert.equal(await repeated.input.inputValue(),'תורה','jumping back keeps the existing draft');
+  if(width===1440)for(const setting of ['os','frame']) {
+    await page.emulateMedia({reducedMotion:setting==='os'?'reduce':'no-preference'});
+    await page.locator('.sod29-root').evaluate((el,on)=>el.dataset.frameReducedMotion=String(on),setting==='frame');
+    const {cue}=await checkManualWordJump(page);
+    assert.ok(cue.opacities.every(value=>value==='1'),`${setting}: static cue, no blinking`);
+  }
   await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
   assert.equal(await area.isVisible(),false,'Classic never acquires the research area');
   if(width<981)assert.equal(await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).gridRowStart),'3','Classic keeps its original panel row, without an empty research track');
@@ -3606,7 +3639,8 @@ test('owner 18.11: fullscreen is the same interface re-laid: the page\'s own too
     assert.equal(await page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true}).getByRole('button',{name:'התחל גילוי',exact:true}).count(),1);
     const stripBox=await box('.els29-native-toolstrip'),research=await box('.els29-native-structure-entry');
     assert.ok(research.r<=stripBox.l+1||research.l>=stripBox.r-1||research.t>=stripBox.b-1,'the window never covers the strip that closes it: '+JSON.stringify({stripBox,research}));
-    await strip.getByRole('button',{name:'חלון כלי המחקר',exact:true}).click();assert.equal(await box('.els29-native-structure-entry'),null);
+    await checkManualWordJump(page);
+    assert.equal(await box('.els29-native-structure-entry'),null,'manual search closes the research overlay');
     // A tool panel opens from the same strip button as on the page.
     await strip.getByRole('button',{name:'תוצאות',exact:true}).click();assert.ok(await inView('.els29-native-panel-wrap'));
     await strip.getByRole('button',{name:'תוצאות',exact:true}).click();
@@ -3854,6 +3888,34 @@ test('Research row gaps scan the displayed geometry and verify a finding at its 
     assert.equal(await panel.locator('[data-lexicon-hit]').count(),0,'folded candidates do not leak into the regular window');
     assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
   },{realHost:true,loadGolden:true});
+});
+
+test('Columbia keeps selected folded findings through display changes',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1280,height:980},async page=>{
+    await page.evaluate(row=>window.__openSavedMatrix(row),{id:'columbia-retention',search_term:'קולומביה',skip_distance:4545,direction:'fwd',start_index:248765,
+      scope:'torah',corpus_id:ELS_GOLDEN_CORPUS_ID,positions:{findings:[]}});
+    await page.waitForFunction(()=>window.__state?.provenance?.editId==='columbia-retention'&&window.__operation?.status==='done');
+    await page.getByRole('button',{name:'רווח של שתי שורות',exact:true}).click();
+    const fold=page.locator('.els29-fold[data-fold-width="1515"]');
+    await fold.locator('.els29-native-cell.is-axis').first().waitFor();
+    const selected=()=>page.evaluate(()=>window.__state.findings.map(w=>({term:w.t,hits:w.hits.filter(h=>h.verified&&h.selected).map(h=>h.hitId)})));
+    for(const term of ['חלל נהל','להבה תמך']) {
+      await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill(term);
+      await page.getByRole('button',{name:'חפש במטריצה',exact:true}).click();
+      await page.waitForFunction(term=>window.__operation?.kind==='findings'&&window.__operation.status==='done'
+        &&window.__state.findings.some(w=>w.t===term),term.replace(/ /g,'').replace(/ך/g,'כ'));
+    }
+    const before=await selected();
+    assert.deepEqual(before,[{term:'חללנהל',hits:['1514_1_254827']},{term:'להבהתמכ',hits:['1514_-1_274518']}],
+      'both exact verified occurrences remain selected after adding the second word');
+    for(const action of ['הקטן מטריצה','הגדל מטריצה','small','large','medium','רגיל','רווח של שתי שורות']) {
+      if(['small','large','medium'].includes(action))await page.getByLabel('גודל חלון החיפוש',{exact:true}).selectOption(action);
+      else await page.getByRole('button',{name:action,exact:true}).first().click();
+      await page.waitForTimeout(500);
+      assert.deepEqual(await selected(),before,`selected identities survive ${action}`);
+    }
+  },{realHost:true,loadGolden:false});
 });
 
 test('Columbia folded window scrolls in both directions, expands in place and supports a secondary search',
