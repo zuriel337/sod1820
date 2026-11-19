@@ -663,18 +663,31 @@ The crown stays at the exact centre of the bar; targets stay at least 44px.
 
 ### 14.7 Pending (not yet approved)
 
-- **The exact Night shell tone**: the current warm black-brown (page `#0B0907`, panel `#17120E`,
-  raised `#211A13`) or the warm charcoal candidate (page `#0D0D0C`, panel `#181716`, raised `#21201E`,
-  a lower gold wash inside the shell). Chosen by ZURIEL after the side-by-side comparison; the chosen
-  values then enter the palette owner (`paletteTokens2029.js`), not a page stylesheet.
+Nothing in §14 is pending any more: the Night shell was decided on 19.11.2026 (§14.9). Exact pixel values
+follow the preview and are re-checked at acceptance.
 
-Decided in the second round (19.11.2026) and no longer pending: the Day and Parchment look and gold
-amount; the bar's royal surface; the arrangement of “עוד” (royal rows under centered headings) and of
-the share expansion (main action, then a centered grid of equal options). Exact pixel values follow
-the preview and are re-checked at acceptance.
+### 14.9 Night: a blue-charcoal frame around warm pages · Human Gate ZURIEL · 19.11.2026
 
-Acceptance after the preview: Day, Parchment and Night at 320/390/1440, keyboard and focus,
-44px targets, reduced motion, contrast of `onAccent` on the royal fill, and the speed gate.
+ZURIEL chose option 5 of the Night comparison (the current warm Night, a warm charcoal, a full blue
+charcoal, the full blue charcoal also inside posts, and a blue frame around warm content).
+
+- **Night only.** Day and Parchment do not change.
+- **The frame** — the top bar, the right navigation rail, the left context rail, the bottom bar, the
+  panels that open from the bar (“עוד”, “שיתוף”, “כאן” and the other frame panels) and the mobile
+  drawer — uses a deep, quiet blue charcoal from the palette owner: `frame #10141D`, `frameSoft #171C28`
+  (`src/lib/paletteTokens2029.js`, Night), exposed by the System Frame as `--s29-frame` and
+  `--s29-frame-soft`. Day and Parchment have no frame tone; their frame uses their card surfaces.
+- **Pages and posts keep their warmth.** The page background, post halls and content surfaces keep the
+  current warm Night (`pageBg #0B0907`, `card #17120E`, `cardSoft #211A13`) and their character.
+- **Primary actions** use a stronger royal blue at Night: `accentBtn` `#3D6EF2 → #2858DE` with
+  `onAccent` text (formerly `#315DD5 → #2454B8`).
+- **Gold stays restrained:** thin hairlines, rings and the diamond rule; the gold wash inside the “עוד”
+  panel is lowered at Night. Status colours keep their meanings.
+- **The bottom bar and its panels share the frame tone**, so an expansion reads as part of the bar.
+- **Side rails match the top bar:** no outer glow; the thin gold top line stays (the 17.11.2026
+  “Royal, subtle” rail shadow loses its outer sapphire glow in every preset).
+- Superseded: the 11.10.2026 selection's Night surfaces apply to the frame no longer; they remain for
+  pages and posts.
 
 ## Naming / product language law — carried from V1 · 11.11.2026
 

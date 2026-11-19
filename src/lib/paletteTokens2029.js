@@ -92,6 +92,10 @@ export const DESIGN_V2_PALETTES = Object.freeze({
     cardSoft: "#211A13",
     cardRaised: "#211A13",
     cardGrad: "linear-gradient(145deg, #211A13, #17120E)",
+    // ZURIEL 19.11.2026 (Design V2 §14.9, option 5): the Night FRAME (top bar, side rails, bottom bar, its panels, drawer) is a deep, quiet blue
+    // charcoal; pages and posts keep the warm surfaces above. Day and Parchment have no frame tone: the frame uses their card surfaces.
+    frame: "#10141D",
+    frameSoft: "#171C28",
     border: "rgba(212,175,55,0.18)",
     borderStrong: "rgba(212,175,55,0.38)",
     ink: "#F5F5F0",
@@ -104,7 +108,7 @@ export const DESIGN_V2_PALETTES = Object.freeze({
     accentDiscovery: "#69DED7",
     accentDim: "#BCA57F",
     heroNum: "#F6E27A",
-    accentBtn: "linear-gradient(135deg, #315DD5, #2454B8)",
+    accentBtn: "linear-gradient(135deg, #3D6EF2, #2858DE)",  // ZURIEL 19.11.2026 (Design V2 §14.2): a stronger royal blue for primary actions at Night
     onAccent: "#FFFFFF",
     glow: "rgba(49,93,213,0.28)",
     focusRing: "#69DED7",

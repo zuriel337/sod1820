@@ -1427,6 +1427,8 @@ function SystemFrame2029Body({
     "--s29-panel": palette.card,
     "--s29-panel-soft": palette.cardSoft,
     "--s29-panel-grad": palette.cardGrad,
+    "--s29-frame": palette.frame || palette.card,
+    "--s29-frame-soft": palette.frameSoft || palette.cardSoft,
     "--s29-line": palette.border,
     "--s29-line-strong": palette.borderStrong,
     "--s29-accent": palette.accent,

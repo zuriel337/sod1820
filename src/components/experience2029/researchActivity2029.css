@@ -19,3 +19,5 @@
 .sod29-research-activity-live{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.sod29-research-activity-meter.is-indeterminate i{animation:none;inline-size:100%;opacity:.45}}
 .sod29-root[data-frame-reduced-motion="true"] .sod29-research-activity-meter.is-indeterminate i{animation:none;inline-size:100%;opacity:.45}
+/* the page keeps clear of the indicator above the bar (loaded with the indicator, not by every page) */
+.sod29-root.native-frame:has(.sod29-research-activity-wrap.is-bar){--s29-island-clearance:142px!important}

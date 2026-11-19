@@ -45,3 +45,5 @@
   .sod29-root.native-frame .sod29-frame-panel[data-panel-kind="more"]{width:100%;border-radius:22px;border-block-end:1px solid color-mix(in srgb,var(--s29-brand-gold) 30%,var(--s29-line-strong));padding-block-end:0}
   .sod29-frame-panel[data-panel-kind="more"] .sod29-frame-panel-head{padding:10px 12px}
 }
+/* Night frame (ZURIEL 19.11.2026, Design V2 §14.9): the panel rests on the blue-charcoal frame tone with a restrained gold wash. */
+.sod29-root.native-frame[data-frame-theme-preset="dark"] .sod29-frame-panel[data-panel-kind="more"]{background:radial-gradient(90% 60% at 50% 0%,color-mix(in srgb,var(--s29-brand-gold) 5%,transparent),transparent 70%),color-mix(in srgb,var(--s29-panel) 96%,transparent)}
