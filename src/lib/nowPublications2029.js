@@ -144,7 +144,8 @@ export function nowRowModel(row) {
   // writer, never the source); a channel is its channel; a series Post is its series; any other Post is "פרסומי האתר". Series, category,
   // source and Post identity stay separate: this key never reads a category.
   const groupKey = hasGroupSource ? clean(item.sourceGroup?.key) || "" : "";
-  const sourceKey = hasGroupSource ? `group:${groupKey || "neutral"}` : isChannel && item.channel ? `channel:${item.channel}`
+  // A channel that is also a public source group («הגילוי היומי»: channel and group gilui-yomi) is ONE source in the picker (ZURIEL 19.11.2026).
+  const sourceKey = hasGroupSource ? `group:${groupKey || "neutral"}` : isChannel && item.channel ? (GROUP_SOURCE_CHANNELS[item.channel] ? `group:${item.channel}` : `channel:${item.channel}`)
     : isPost && seriesKey ? `series:${seriesKey}` : isPost ? "site:posts" : isGallery ? "site:reality" : row?.kind === "finding" || row?.kind === "convergence" ? "site:els" : "site:other";
   const typeLabel = unverified ? "מקור · טרם נבדק"
     : isDiscussion ? "לדיון בקהילה"

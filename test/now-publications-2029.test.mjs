@@ -292,6 +292,13 @@ test("source picker: a stable key per source kind (group / channel / series / th
   assert.equal(choices.find(item => item.id === "channel:or-geula").kindLabel, "ערוץ");
   assert.equal(choices.find(item => item.id === "site:posts").label, "פרסומי האתר");
   assert.deepEqual(filterNowBySource(models, "channel:or-geula").map(model => model.id), ["channel:00000000-0000-4000-8000-0000000000aa"]);
+  // «הגילוי היומי» is one source (ZURIEL 19.11.2026): its channel update and its group arrival share the key group:gilui-yomi.
+  const giluiChannel = { id: "channel:00000000-0000-4000-8000-0000000000bb", kind: "update", title: "עדכון יומי", at: "2026-11-03T07:00:00Z", item: { sourceKind: "channel_update", channel: "gilui-yomi", sourceLabel: "הגילוי היומי", label: "עדכון יומי" }, href: null };
+  const giluiGroup = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000003", body: "הודעה בקבוצה", created_at: "2026-11-03T06:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique", group_channel: "gilui-yomi" });
+  const gilui = nowModels([giluiChannel, ...rows([giluiGroup].filter(Boolean))]);
+  assert.ok(gilui.every(model => model.sourceKey === "group:gilui-yomi"), "channel and group of «הגילוי היומי» are one source");
+  const giluiChoices = nowSourceChoices(gilui).filter(item => /gilui/.test(item.id));
+  assert.equal(giluiChoices.length, 1); assert.equal(giluiChoices[0].label, "הגילוי היומי"); assert.equal(giluiChoices[0].count, gilui.length);
   assert.equal(filterNowBySource(models, "").length, models.length);
 });
 

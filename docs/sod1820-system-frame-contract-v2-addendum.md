@@ -444,6 +444,11 @@ by this section. Owner action: **EXTEND_EXISTING** (this addendum; visual langua
    first chip, on the right in RTL, after “הכול”); a known public group with nothing loaded stays listed
    after them. **Superseded:** the fixed kind order of the 11.11.2026 source picker. The group
    «כי לה׳ המלוכה — גימטריות» is hidden from “עכשיו” (no chip, none of its rows; presentation only).
+6c. **Rail and sources (Human Gate ZURIEL · 19.11.2026).** The navigation rail lists destinations only: site map,
+   email updates and privacy are not rail rows; they stay in the footer (“מידע” and the updates signup) and on
+   their own pages. A rail closed by hand (the × above it or its own button) stays closed while the pointer is
+   still over its column; hover opens it again only after the pointer has left that column. In “עכשיו”,
+   «הגילוי היומי» is one source: its channel updates and its group arrivals share the group's source key.
 7. **Dependency.** The bar's “שיתוף” entry requires `canonical_ui_components_law` v13 (Design V2
    §14.6) before any merge.
 
