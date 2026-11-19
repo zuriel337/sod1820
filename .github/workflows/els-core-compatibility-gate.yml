@@ -108,6 +108,7 @@ jobs:
             test/els-2029-explain-guidance.test.mjs \
             test/els-raziel-context.test.mjs
           node --test test/els-saved-discovery.test.mjs test/els-discovery-structure-sources.test.mjs
+          node --test test/els-matrix-reading-indicator.test.mjs test/els-matrix-reading-activity.test.mjs test/els-matrix-reading-transport.test.mjs
 
       - name: Install PostgreSQL server + client
         run: |

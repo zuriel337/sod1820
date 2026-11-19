@@ -40,7 +40,7 @@ test("start then poll: the first call only starts; every poll carries the job to
 test("progress is reported at every step: starting, then running with elapsed time, the provider status, the batch and the token to resume with", async () => {
   const r = rig([started(), running(20_000), answer("COMPLETE")]);
   await runElsMatrixReadingTurn({ ...r.opts, action: start });
-  assert.deepEqual(r.progress[0], { kind: "els_matrix_reading", expectedMinutes: { min: 3, max: 13 }, phase: "starting", elapsedMs: 0, polls: 0 });
+  assert.deepEqual(r.progress[0], { kind: "els_matrix_reading", expectedMinutes: { min: 3, max: 13 }, observedAt: 1000000, phase: "starting", elapsedMs: 0, polls: 0 });
   const running1 = r.progress[1];
   assert.deepEqual([running1.phase, running1.polls, running1.providerStatus, running1.batchId, running1.jobToken, running1.pollSeconds, running1.cancelling], ["running", 0, "in_progress", "msgbatch_test01", TOKEN, 20, false]);
   assert.equal(r.progress[2].polls, 1);

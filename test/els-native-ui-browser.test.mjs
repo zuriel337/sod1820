@@ -1064,14 +1064,24 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
+ const {RazielSessionProvider2029:ReadingProvider,useRazielSession2029:useReading}=await import('/src/lib/research/RazielSessionProvider2029.jsx');
+ const readingAxis={term:'קולומביה',scope:'torah',corpusId:'0b022e8eef6f9c16',skip:4545,dir:1,start:248765,hitId:'4545_1_248765'};
+ const readingContext={contract:'els_matrix_presentation_context_v1',axis:readingAxis,matrix:{width:4545,rowStart:54,colStart:3300,rows:['אבגד']}};
+ const readingTransport=request=>{window.__readingCalls=(window.__readingCalls||0)+1;
+ window.__readingProgress=(elapsedMs,phase='running')=>request.__razielProgress({kind:'els_matrix_reading',phase,elapsedMs,observedAt:Date.now(),polls:1});
+ window.__readingProgress(125000);
+ return new Promise(resolve=>{window.__readingFinish=(state='COMPLETE',reason=null)=>resolve({v:1,answer:'תוצאת Fable מדומה',els_matrix_reading:{contract:'els_matrix_reading_v1',state,reason,axis:readingAxis,timing:{elapsed_ms:840000},is_test_fixture:true,provider:{kind:'test_double'},findings:[]}});
+ request.__razielCancelSignal.addEventListener('abort',()=>{window.__readingCancels=(window.__readingCancels||0)+1;window.__readingProgress(125000,'cancelling')});});};
+ function ReadingProbe(){const session=useReading();window.__readingSession=session;return React.createElement('button',{onClick:()=>session.submitElsMatrixReading({context:readingContext})},'התחל Fable מדומה');}
  function PaletteProbe(){const p=use2029Palette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
  function FullFrameFixture(){
-  const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
+  const [visible,setVisible]=React.useState(!window.__readingLeft);window.__setNativeVisible=setVisible;
   const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(()=>forceRender(n=>n+1));
-  return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),
+  return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),window.__fixtureReadingIndicator?React.createElement(ReadingProbe):null,
    React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native,{researchProfile:window.__fixtureResearchProfile!==false,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined}):React.createElement('p',null,'Library fixture'))));
  }
- createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
+ function ReadingOwner(){const [owner,setOwner]=React.useState('a');window.__readingOwner=setOwner;return React.createElement(ReadingProvider,{key:owner,transport:readingTransport},React.createElement(FullFrameFixture));}
+ createRoot(document.getElementById('root')).render(React.createElement(window.__fixtureReadingIndicator?ReadingOwner:FullFrameFixture));
 }else createRoot(document.getElementById('root')).render(React.createElement(MemoryRouter,null,React.createElement(Fixture)));
 `;
 
@@ -1184,7 +1194,7 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false, researchProfile = true, initialProbe = null } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false, readingIndicator = false, researchProfile = true, initialProbe = null } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
@@ -1230,6 +1240,7 @@ async function withNative(viewport, run, options = {}) {
     await server.listen();
     browser = await pw.chromium.launch({ headless: true, executablePath });
     const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
+    if(readingIndicator)await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
     const errors = [];
     page.__elsDynamicLexiconRequests = [];
     page.__elsGuidedSnapshotRequests = [];
@@ -1242,11 +1253,11 @@ async function withNative(viewport, run, options = {}) {
     });
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis, researchProfile, initialProbe }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis, readingIndicator, researchProfile, initialProbe }) => {
       window.__fixtureInitialProbe=initialProbe;
       window.__fixtureFullFrame=fullFrame;
       window.__fixtureGuided=guided;
-      window.__fixtureMatrixAnalysis=matrixAnalysis;
+      window.__fixtureMatrixAnalysis=matrixAnalysis;window.__fixtureReadingIndicator=readingIndicator;
       window.__fixtureResearchProfile=researchProfile;
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
@@ -1277,7 +1288,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis, researchProfile, initialProbe });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis, readingIndicator, researchProfile, initialProbe });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -1316,6 +1327,15 @@ const capture = (page) => page.evaluate(() => {
 async function expectStable(page, before, label) {
   const after = await capture(page);
   for (const key of Object.keys(before)) assert.ok(Math.abs(after[key] - before[key]) <= 1, `${label}: ${key} changed ${before[key]} → ${after[key]}`);
+}
+// Explicit tool navigation scrolls the document to the approved lower inspector.
+// All matrix geometry and internal pan must remain exact; subsequent actions also retain pageY.
+async function expectPanelNavigation(page,before,label) {
+  const {pageY,...matrixBefore}=before;
+  await expectStable(page,matrixBefore,label);
+  const panel=await page.locator('#els29-context-panel').boundingBox();
+  assert.ok(panel.y>=0&&panel.y<page.viewportSize().height,label+': selected inspector is in view');
+  return capture(page);
 }
 async function pan(page) {
   await page.locator('.els29-native-matrix-scroll').evaluate((matrix) => { matrix.scrollLeft = 120; matrix.scrollTop = 90; });
@@ -1365,9 +1385,18 @@ async function radius(page, value) {
 }
 async function alignedPanel(page, label) {
   const stage = await page.locator('.els29-native-stage').boundingBox();
-  const panel = await page.locator('.els29-native-context-panel').boundingBox();
-  assert.ok(Math.abs(stage.y - panel.y) <= 1, `${label}: panel top matches the matrix`);
-  assert.ok(Math.abs(stage.y + stage.height - panel.y - panel.height) <= 1, `${label}: panel bottom matches the matrix`);
+  const panel = await page.locator('#els29-context-panel').boundingBox();
+  const discovery = page.locator('#els29-discovery-panel');
+  if (await discovery.isVisible()) {
+    const other = await discovery.boundingBox();
+    assert.ok(panel.y >= stage.y + stage.height - 1, `${label}: both approved inspectors are below the matrix`);
+    assert.ok(Math.abs(other.y - panel.y) <= 1, `${label}: inspector tops align`);
+    assert.ok(Math.abs(other.height - panel.height) <= 1, `${label}: inspector bottoms align`);
+    assert.ok(Math.abs(stage.height - panel.height) <= 1, `${label}: inspector height follows matrix height: ${JSON.stringify({stage,panel})}`);
+  } else {
+    assert.ok(Math.abs(stage.y - panel.y) <= 1, `${label}: panel top matches the matrix`);
+    assert.ok(Math.abs(stage.y + stage.height - panel.y - panel.height) <= 1, `${label}: panel bottom matches the matrix`);
+  }
 }
 async function injectToolMessage(page, message) {
   const frame = page.frames().find((item) => item.parentFrame());
@@ -1500,10 +1529,10 @@ test('Classic opens on unmarked Genesis letters, right aligned, with no sample c
 test('native UI: one unified rail scans exact primary and secondary targets without moving the matrix',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
-   const url=page.url(),initial=await identity(page),before=await pan(page);
+   const url=page.url(),initial=await identity(page);let before=await pan(page);
    await alignedPanel(page,'initial pinned rail');
    await activate(page,'סגור כלי מטריצה');await expectStable(page,before,'close unified rail');
-   await openPanel(page);await expectStable(page,before,'reopen unified rail');
+   await openPanel(page);before=await expectPanelNavigation(page,before,'reopen unified rail');
    await inspectAndScanPrimary(page,before);
    assert.deepEqual(await identity(page),initial,'primary scan preserves verified identity');
    const primary=await page.evaluate(()=>window.__lens);
@@ -1550,7 +1579,7 @@ test('native UI: one unified rail scans exact primary and secondary targets with
    await body.evaluate(element=>element.scrollTop=element.scrollHeight);
    await alignedPanel(page,'scrolled rail');
    for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר']){
-    const action=await button(page,label).boundingBox(),panel=await page.locator('.els29-native-context-panel').boundingBox();
+    const action=await button(page,label).boundingBox(),panel=await page.locator('#els29-context-panel').boundingBox();
     assert.ok(action.height>=44&&action.y>=panel.y&&action.y+action.height<=panel.y+panel.height+1,label+' stays reachable in the persistent footer');
    }
    await expectStable(page,secondaryPan,'internal rail scroll');
@@ -1619,7 +1648,7 @@ test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan 
    assert.ok(Math.abs(margins.ratio-.9)<=.001&&Math.abs(margins.left-margins.right)<=1);
    assert.ok((await capture(page)).width>1450);await alignedPanel(page,'wide pinned rail');
    const pinned=await pan(page);await activate(page,'בטל הצמדה');const overlay=await pan(page);assert.ok(overlay.width>pinned.width);
-   await activate(page,'סגור כלי מטריצה');await expectStable(page,overlay,'overlay close');await openPanel(page);await expectStable(page,overlay,'overlay reopen');
+   await activate(page,'סגור כלי מטריצה');await expectStable(page,overlay,'overlay close');await openPanel(page);await expectPanelNavigation(page,overlay,'overlay reopen');
    await activate(page,'הצמד');const repinned=await pan(page);assert.ok(Math.abs(repinned.width-pinned.width)<=1);
    const baseline=await stageHeight(page);await setStageExpansion(page,true);assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await alignedPanel(page,'expanded pinned rail');
    await setStageExpansion(page,false);await alignedPanel(page,'restored pinned rail');
@@ -2893,11 +2922,11 @@ test('native results: regular and crossed searches expose selectable results in 
    const state=await page.evaluate(()=>window.__state),results=state.search.occurrences;
    assert.equal(state.term,'יהוה');assert.equal(state.verification.state,'MATCH');assert.ok(results.total>80);
    assert.equal(results.items.length,80);assert.equal(results.total,state.verification.verified_hits);
-   assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות החיפוש');
+   assert.equal(await page.locator('#els29-context-panel .els29-native-panel-head strong').innerText(),'תוצאות החיפוש');
    const list=page.locator('[aria-label="רשימת תוצאות החיפוש"]');
    await page.waitForFunction(()=>document.querySelectorAll('[aria-label="רשימת תוצאות החיפוש"] .els29-native-result').length===80);
    assert.equal(await list.isVisible(),true);assert.equal(await list.locator('.els29-native-result').count(),80);
-   const bounds=await page.locator('.els29-native-panel-wrap').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,'completed mobile results come into view');
+   const bounds=await page.locator('#els29-context-panel').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,'completed mobile results come into view');
    assert.equal(await page.getByRole('dialog').count(),0);
    assert.ok(results.items.every(item=>item.skip>=2&&item.ref&&['fwd','back'].includes(item.direction)));
    await activate(page,'מופע קודם');
@@ -2916,7 +2945,7 @@ test('native results: regular and crossed searches expose selectable results in 
    const crossed=await reliabilityCross(page,'צוריאל','פולייס');
    assert.equal(crossed.scope,scope);assert.ok(crossed.search.results.items.some(item=>item.available));
    assert.equal(crossed.search.occurrences,null);
-   assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות הצלבה');
+   assert.equal(await page.locator('#els29-context-panel .els29-native-panel-head strong').innerText(),'תוצאות הצלבה');
    assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
    const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
    if(meeting){await activate(page,`פתח מפגש ${meeting.index+1}`);await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);}
@@ -4124,4 +4153,65 @@ test('Research surface sizing is responsive and independent of canonical data; C
     await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
     await expectHeightControl(page);
   });
+});
+
+test('Fable reading uses the shared frame indicator across surfaces, themes, keyboard and principal reset',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ for(const width of [390,1440])await withNative({width,height:900},async page=>{
+  const indicator=page.locator('.sod29-research-activity-wrap.is-bar button');
+  assert.equal(await indicator.count(),0);
+  assert.equal(await page.evaluate(()=>window.__readingCalls||0),0);
+  await page.getByRole('button',{name:'התחל Fable מדומה',exact:true}).click();
+  await indicator.waitFor();
+  await page.waitForFunction(()=>document.querySelector('.sod29-research-activity-phase')?.textContent==='בעבודה אצל הספק');
+  assert.match(await indicator.getAttribute('aria-label'),/קריאת המטריצה של Fable.*קולומביה/);
+  assert.equal(await indicator.getByRole('progressbar').getAttribute('aria-valuenow'),null);
+  // Main retains the local tool mode; its existing System action opens the new global bar.
+  await page.getByRole('button',{name:'פעולות המערכת',exact:true}).click();
+  await page.locator('[data-command-mode="global"]').waitFor();
+  for(const label of ['כאן','שיתוף','עכשיו','עוד'])assert.ok((await page.locator('[data-command-mode="global"]').innerText()).includes(label));
+  const shot=async(state,theme)=>{if(process.env.ELS_ACTIVITY_SCREENSHOTS){mkdirSync(process.env.ELS_ACTIVITY_SCREENSHOTS,{recursive:true});await page.screenshot({path:join(process.env.ELS_ACTIVITY_SCREENSHOTS,`fable-${width}-${theme}-${state}.png`)});}};
+  for(const theme of ['light','parchment','dark']){
+   await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+   await page.evaluate(()=>window.__readingProgress(125000));
+   await page.waitForFunction(()=>document.querySelector('.sod29-research-activity-estimate')?.textContent?.includes('הערכה בלבד'));
+   const bounds=await indicator.boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=width+1&&bounds.y>=0&&bounds.y+bounds.height<=900);
+   assert.ok(bounds.height>=44);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   await shot('running',theme);
+   await page.evaluate(()=>window.__readingProgress(840000));
+   await indicator.getByText('לוקח יותר מהרגיל',{exact:true}).waitFor();
+   assert.match(await indicator.locator('time').textContent(),/^14:/);
+   await shot('overdue',theme);
+  }
+  // The native matrix unmounts, but the one global session and its original axis remain.
+  await page.evaluate(()=>{window.__readingLeft=true;window.__setNativeVisible(false)});
+  assert.equal(await indicator.isVisible(),true);assert.match(await indicator.getAttribute('aria-label'),/קולומביה/);
+  await indicator.focus();await page.keyboard.press('Enter');
+  await page.getByLabel('מעקב סריקת מטריצה',{exact:true}).waitFor();
+  assert.equal(await page.evaluate(()=>window.__readingCalls),1,'opening the activity never starts a paid reading');
+  await page.getByRole('button',{name:'בקש ביטול סריקה',exact:true}).click();
+  await page.waitForFunction(()=>window.__readingCancels===1);
+  assert.equal(await page.getByRole('button',{name:'בקש ביטול סריקה',exact:true}).isDisabled(),true);
+  assert.equal(await page.locator('.sod29-research-activity-phase').first().textContent(),'ביטול התבקש');
+  await page.evaluate(()=>window.__readingFinish());
+  await page.waitForFunction(()=>document.querySelector('[data-research-activity="COMPLETE"]'));
+  // Close the Raziel surface through the existing frame dismiss action.
+  await page.keyboard.press('Escape');
+  for(const theme of ['light','parchment','dark']){
+   await page.evaluate(theme=>window.__setThemePreset(theme),theme);await shot('complete',theme);
+  }
+  assert.equal(await page.evaluate(()=>window.__readingCalls),1);
+  await page.evaluate(()=>window.__readingOwner('b'));
+  await page.waitForFunction(()=>!document.querySelector('[data-research-activity]'));
+  assert.equal(await page.evaluate(()=>window.__readingCalls),1,'principal replacement does not start or resume a reading');
+  for(const [state,reason,status] of [['INCOMPLETE',null,'PARTIAL'],['FAILED_WITH_REASON','batch_errored','FAILED'],['FAILED_WITH_REASON','batch_canceled','CANCELLED']]){
+   await page.getByRole('button',{name:'התחל Fable מדומה',exact:true}).click();
+   await page.waitForFunction(()=>window.__readingSession?.busy);
+   await page.evaluate(([state,reason])=>window.__readingFinish(state,reason),[state,reason]);
+   await page.waitForFunction(status=>document.querySelector('[data-research-activity="'+status+'"]'),status);
+   assert.equal(await indicator.getByRole('progressbar').count(),0,'terminal state never advertises continuing work');
+  }
+  await page.evaluate(()=>window.__readingOwner('c'));
+  await page.waitForFunction(()=>!document.querySelector('[data-research-activity]'));
+ },{fullFrame:true,readingIndicator:true,leavesMatrix:true,mobile:width<981});
 });
