@@ -402,6 +402,38 @@ AI may prioritize which contextual tool/action is most useful for the current se
 
 Future voice, keyboard, agentic or ambient interfaces should invoke the **same semantic commands**, not introduce a parallel control architecture.
 
+### 10.12 One bar that expands upward · Human Gate ZURIEL · 19.11.2026
+
+**Status:** the composition below is APPROVED by ZURIEL (19.11.2026). Exact visual values are
+PENDING PREVIEW (Design V2 §14.7). No merge, deployment, database write or flag change is approved
+by this section. Owner action: **EXTEND_EXISTING** (this addendum; visual language in Design V2 §14).
+
+1. **Entries.** The global bar holds five entries in this order: **כאן · שיתוף · רזיאל · עכשיו · עוד**.
+   Raziel stays at the physical center. “שיתוף” takes the slot of the former gimatria shortcut.
+   **Superseded:** the v1 working vocabulary `⌖ כאן | 123 מספר | ◉ עכשיו | ✦ רזיאל | ⋯ עוד`
+   (UPDATE 2026-09-07) and the 29.10.2026 order כאן | מספר | רזיאל | עכשיו | עוד.
+2. **Gimatria stays open.** Number/gimatria is a direct shortcut inside “עוד”, with its own
+   availability state (`lock_number`); it never moves behind the “כלים” lock.
+3. **Expansions.** “עוד”, “שיתוף” and “כאן” open an expansion that rests on the bar and is visually
+   attached to it, in the shared visual language. §10.9 applies: one expansion (one transient
+   surface) at a time; switching replaces the visible projection and keeps Research Context and
+   exact return. The bar's row stays reachable and keyboard-operable; each entry exposes whether
+   its expansion is open.
+4. **What each expansion holds.** “עוד”: actions, tools, search, the gimatria shortcut, the
+   personal area and installation. “שיתוף”: the one `ShareActions`, naming the exact page, result or
+   finding being shared (its title and address). “כאן”: context, selection and the page map with the
+   relevant actions. Existing permissions stay: “כאן”, actions and closed capabilities keep their
+   current gates; a new design opens nothing.
+5. **Visible operations.** An active operation shows a compact indicator attached to the bar:
+   operation, context, real phase and elapsed time, also while expansions are closed; activating it
+   opens the detail and the way back to the result. It is a projection of the existing operation
+   owners only (no task store, persistence or polling in the bar), uses the canonical progress model,
+   and never shows an invented percent.
+6. **Tool Mode.** Unchanged: a deep tool projects its actions into the same bar through
+   `SystemToolDock2029`, keeps Raziel and keeps a route back to the global bar.
+7. **Dependency.** The bar's “שיתוף” entry requires `canonical_ui_components_law` v13 (Design V2
+   §14.6) before any merge.
+
 ### 10.11 Acceptance implication for the first native 2029 frame
 
 Before a World-specific surface becomes the presentation authority, the generic System Frame should demonstrate these semantics without World hard-coding:

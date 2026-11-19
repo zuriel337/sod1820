@@ -80,6 +80,7 @@ The Dock is a projection of the System Frame, not an owner of research truth. It
 Working five-slot Global Mode vocabulary is:
 `⌖ כאן | 123 מספר | ◉ עכשיו | ✦ רזיאל | ⋯ עוד`
 Names/icons remain Human-Gate product vocabulary and may evolve without changing the functional contract.
+*(Superseded 19.11.2026 for the current order: כאן · שיתוף · רזיאל · עכשיו · עוד — see `sod1820-system-frame-contract-v2-addendum.md` §10.12.)*
 
 ### Stable structure, adaptive state
 The Dock's structure is stable. Context changes state, signals and available actions; it must not make users chase moving controls.
