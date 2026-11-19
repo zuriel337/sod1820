@@ -1,6 +1,7 @@
 import React, { useState, useSyncExternalStore } from "react";
 import RoyalTile2029, { RoyalTileGrid2029 } from "./RoyalTile2029.jsx";
 import ShareActions from "../ShareActions.jsx";
+import { pageOwnShareTitle } from "../../lib/share.js";
 import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import { requestInstall, subscribeInstallOffer, suppressInstallSuggestion, INSTALL_ACCEPTED_DAYS } from "../../lib/installOffer2029.js";
 import { installBrowser, installManualSteps, installMenuKind } from "../../lib/installMenu2029.js";
@@ -58,8 +59,12 @@ export function MoreInstall2029() {
   </section>;
 }
 
+function shareSubjectPath(href) {
+  try { const url = new URL(href); return decodeURIComponent(url.host + url.pathname).replace(/\/$/, ""); } catch { return ""; }
+}
+
 export default function MorePanel2029({ shareOnly = false, context = "", onAction, onTools, onSearch, personal, onPersonal,
-  adminDestinations = [], onDestination, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
+  adminDestinations = [], onDestination, onNumber = null, numberLocked = false, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
   const [candidate] = useState(reviewCandidate);
   return <div className="sod29-more" data-more-panel={shareOnly ? "share" : "full"} data-royal-candidate={candidate}>
     {!shareOnly ? <>
@@ -67,6 +72,8 @@ export default function MorePanel2029({ shareOnly = false, context = "", onActio
       <section className="sod29-more-section" data-more-section="main" aria-label="פעולות, כלים ואזור אישי">
         <RoyalTileGrid2029 label="פעולות, כלים ואזור אישי" columns="4">
           {/* Closed · בבנייה comes from the frame's useFeatureState (site_flags), never from a local flag; the tile opens the closed notice. */}
+          {/* ZURIEL 19.11.2026: gimatria is a direct shortcut here (it left the bar for "שיתוף"); its own lock_number state, never "כלים". */}
+          {onNumber ? <RoyalTile2029 icon="number" title="גימטריה" hint={numberLocked ? "נעולה כרגע" : "מספר, ביטוי ושיטות"} onClick={onNumber} disabled={numberLocked} testId="number" /> : null}
           <RoyalTile2029 icon="action" title="פעולות" hint={actionsBuilding ? "סגור · בבנייה" : context ? "על מה שמוצג כאן" : "על העמוד הזה"} onClick={onAction} testId="actions" />
           <RoyalTile2029 icon="search" title="חיפוש" hint="בכל האתר" onClick={onSearch} testId="search" />
           <RoyalTile2029 icon="tools" title="כלים" hint={toolsBuilding ? "סגור · בבנייה" : "כלי המחקר לעמוד"} onClick={onTools} testId="tools" />
@@ -83,10 +90,12 @@ export default function MorePanel2029({ shareOnly = false, context = "", onActio
       </section> : null}
       <MoreInstall2029 />
     </> : null}
-    {share?.href ? <section className="sod29-more-section sod29-panel-share" data-more-section="share" aria-labelledby={shareOnly ? undefined : "sod29-more-share"}
-      aria-label={shareOnly ? "שיתוף העמוד" : undefined} data-share-owner="ShareActions">
-      {/* in the share-only panel the panel's own title already says "שיתוף העמוד" */}
-      {shareOnly ? null : <h3 id="sod29-more-share">שיתוף העמוד</h3>}
+    {/* ZURIEL 19.11.2026 (one expanding bar): sharing has its own bar button, so the full "עוד" no longer repeats it.
+        The cipher tool bar reaches the same global bar through "מערכת". */}
+    {!shareOnly ? null : share?.href ? <section className="sod29-more-section sod29-panel-share" data-more-section="share"
+      aria-label="שיתוף העמוד" data-share-owner="ShareActions">
+      {/* the panel's own title already says "שיתוף העמוד" */}
+      {shareOnly ? <p className="sod29-more-share-subject" data-share-subject="true"><small>משתפים את</small><strong dir="auto">{share.title || pageOwnShareTitle(typeof window === "undefined" ? null : window.location)}</strong><span dir="ltr">{shareSubjectPath(share.href)}</span></p> : null}
       <ShareActions type={share.type} url={share.href} title={share.title} sourceSurface={share.surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} force />
     </section> : <p className="sod29-more-note" data-more-section="share">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</p>}
   </div>;

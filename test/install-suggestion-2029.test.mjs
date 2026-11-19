@@ -128,12 +128,17 @@ test("Royal Tiles: the More panel is a tile grid (square), a wide app tile only 
   const html = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, { context: "פוסט · 1234", onAction: noop, onTools: noop, onSearch: noop, onPersonal: noop,
     personal: { signedIn: false }, adminDestinations: [{ id: "lab", label: "מעבדה", href: "/lab" }], onDestination: noop,
     share: { href: "https://sod1820.co.il/post/x", type: "post", title: "x", surface: "post" } })));
-  const order = ["data-royal-tile=\"actions\"", "data-royal-tile=\"search\"", "data-royal-tile=\"tools\"", "data-royal-tile=\"personal\"", "data-more-section=\"admin\"", "data-more-section=\"share\""]
+  // ZURIEL 19.11.2026 (one expanding bar): sharing has its own bar entry, so the full panel ends at admin; the share-only panel is checked below.
+  const order = ["data-royal-tile=\"actions\"", "data-royal-tile=\"search\"", "data-royal-tile=\"tools\"", "data-royal-tile=\"personal\"", "data-more-section=\"admin\""]
     .map(needle => html.indexOf(needle));
-  assert.ok(order.every((at, i) => at > 0 && (i === 0 || at > order[i - 1])), `fixed order: here → tools/search → personal → admin → share ${order}`);
+  assert.ok(order.every((at, i) => at > 0 && (i === 0 || at > order[i - 1])), `fixed order: here → tools/search → personal → admin ${order}`);
+  assert.doesNotMatch(html, /data-more-section="share"/, "no second share inside the full panel");
+  const shareHtml = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, { shareOnly: true,
+    share: { href: "https://sod1820.co.il/post/x", type: "post", title: "x", surface: "post" } })));
+  assert.match(shareHtml, /data-share-owner="ShareActions"/); assert.match(shareHtml, /data-share-subject="true"/);
   assert.equal((html.match(/<button[^>]*class="sod29-royal-tile is-square"/g) || []).length, 4, "four square tiles are real buttons");
   assert.match(html, /class="sod29-royal-tile is-compact"[^>]*data-royal-variant="compact"/, "secondary destinations use the compact variant");
-  assert.match(html, /data-share-owner="ShareActions"/); assert.match(html, /ההקשר לפעולות/);
+  assert.match(html, /ההקשר לפעולות/);
   assert.doesNotMatch(html, /data-more-section="install"/, "server/desktop: no install tile is promised");
   assert.match(html, /data-royal-candidate="palace"/, "the recommended candidate is the default");
   for (const tile of html.match(/<button[^>]*sod29-royal-tile[^>]*>/g)) assert.match(tile, /type="button"/);

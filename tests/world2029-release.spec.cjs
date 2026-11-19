@@ -253,7 +253,9 @@ async function assertNoHorizontalOverflow(page) {
 }
 
 async function openNumberCapabilityFromIsland(page) {
-  const number = page.locator('.sod29-command-island').getByRole('button', { name: 'גימטריה · מספר, ביטוי ושיטות חישוב', exact: true });
+  // ZURIEL 19.11.2026 (one expanding bar): gimatria is a direct tile in "עוד" (its bar slot became "שיתוף").
+  await page.locator('.sod29-command-island').getByRole('button', { name: 'עוד · פעולות, כלים, חיפוש ואזור אישי', exact: true }).click();
+  const number = page.getByRole('dialog', { name: 'עוד', exact: true }).getByRole('button', { name: /^גימטריה/ });
   await expect(number).toBeVisible();
   await number.click();
 }

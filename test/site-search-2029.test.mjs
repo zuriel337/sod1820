@@ -110,6 +110,7 @@ test("top search is lazy and distinct from existing numeric callers and the bott
   assert.match(frame, /SiteSearch2029 = React\.lazy/);
   assert.match(frame, /className="sod29-header-search"[^>]+onClick=\{openSiteSearch\}/);
   assert.match(frame, /if \(action === "number-search"\) openCommand\(\)/);
-  assert.match(frame, /<small>גימטריה<\/small>/);
+  // ZURIEL 19.11.2026 (one expanding bar): the bottom gimatria button became a direct "עוד" tile; the top search stays separate.
+  assert.match(frame, /onNumber=\{openGimatria\} numberLocked=\{numberLocked\}/);
   assert.match(frame, /const openCommand = useCallback\(\(\) => openTransient\(TRANSIENT.COMMAND\)/);
 });

@@ -152,7 +152,9 @@ test("global dock opens ShareActions directly with all approved choices and keep
       // The "עוד" panel also renders the administrator's list of still-closed destinations (#1214). This fixture is an ordinary visitor.
       isAdmin: false, adminOpenClosedDestinations,
       // "פעולות" and "כלים" closed · בבנייה (ZURIEL 11.11.2026): the frame passes the site_flags state of each to the panel.
-      actionsFeature: { blocked: true }, toolsFeature: { blocked: true } };
+      actionsFeature: { blocked: true }, toolsFeature: { blocked: true },
+      // the gimatria shortcut and the research indicator of the expanding bar (preview 19.11)
+      openGimatria() {}, numberLocked: false, expansionActivity: null };
     vm.runInNewContext(code, context);
     const tree = context.render(), more = elements(tree).find(node => node.type === "MorePanel2029");
     assert.equal(tree.props.title, shareOnly ? "שיתוף העמוד" : "עוד");
@@ -174,7 +176,8 @@ test("global dock opens ShareActions directly with all approved choices and keep
   // afterContent (ZURIEL 16.11.2026, readable content first): away from the Home the feed's background reads wait for the page's content.
   assert.match(source, /const feed = useSystemFeed2029\(\{ enabled: surface !== "control", nowOpen: transient\?\.kind === TRANSIENT\.ATTENTION, homeStrip: surface === "home" \&\& !\(corePublicViewer \&\& worldLocked\), afterContent: surface !== "home" \}\)/);
   assert.match(source, /data-command-mode="tool"[\s\S]*activeToolDock\.actions\.slice\(0, 2\)[\s\S]*activeToolDock\.actions\.slice\(2, 4\)/);
-  // #1214 replaced the share-only dock button with the one full "עוד" entry: sharing is a section of that panel (the branch exercised above, ShareActions
-  // with every approved channel) and test/dock-more-2029.test.mjs pins the five-control dock. The dock entry must open that panel.
-  assert.match(source, /onClick=\{openMore\}[^>]*aria-label="עוד · פעולות, כלים ושיתוף"/);
+  // ZURIEL 19.11.2026 (one expanding bar, preview): sharing has its own bar entry (openShare, the share-only panel above) and "עוד" holds actions,
+  // tools, search, the personal area and the gimatria shortcut; test/dock-more-2029.test.mjs pins the five-control order.
+  assert.match(source, /onClick=\{openMore\}[^>]*aria-label="עוד · פעולות, כלים, חיפוש ואזור אישי"/);
+  assert.match(source, /className="sod29-dock-share" onClick=\{openShare\}/);
 });
