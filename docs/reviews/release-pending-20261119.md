@@ -20,6 +20,7 @@ The observed live website remains deployment `dpl_5nvES4gHiW2R85zmmK4w5sj8FMX3`,
 - Register the two telemetry viewport cases with static names and the unchanged shared test body. The manifest now covers **90 cases, 30 per shard**; unknown dynamic registrations still fail closed. No scenario, assertion or timeout is removed.
 - Retain the Community update link's previous 44 px clickable minimum. The proposed 36 px link was smaller than the existing touch-target contract; its surrounding row was already 44 px.
 - Keep #1426's locked dependency restore before the isolation build. Source #1436 failed the old isolation build at 203502/203493 bytes after temporary tool installation; the combined locked build passes. Source PR CI is not substituted for combined-head CI.
+- The personal-sync CI job exposed the same incomplete external-boundary test doubles as the earlier research-access test: supply synthetic Supabase URL/key constants and the bot predicate in `scripts/test-research-sync-provider.mjs`. All ten mounted-provider assertions remain unchanged and pass.
 
 ## Local validation
 
@@ -27,7 +28,7 @@ The observed live website remains deployment `dpl_5nvES4gHiW2R85zmmK4w5sj8FMX3`,
 - Public build with command-only `VITE_ELS_MATRIX_READING_MODE=on`: PASS, 17/17 eager files, 202977/205111 gzip bytes, frame JS 47105/47425 and CSS 34329/34362. No baseline, tolerance or lockfile change.
 - Public compiled artifact, real worker and CSP, local-only remote fixtures: **13/13** cases passed. Includes three themes at nine header widths, responsive Home media and explicit video admission at 390/1440, delayed Community updates preserving the visible message position and CLS <=0.1, one reply toggle, 44 px notice link, and guest/member/admin Fable admission with zero AI requests.
 - Refactored native telemetry registrations: **2/2** browser cases passed, unchanged assertions at 390/1280.
-- Shard-manifest adversarial tests and workflow contracts/actionlint pass. Final full ELS unit/SQL and hosted CI results are recorded on the exact integration PR SHA when complete.
+- Shard-manifest adversarial tests and 22 workflow/enforcement/wiring contracts plus actionlint pass. All 559 distinct ELS unit/SQL cases are covered: the broad run passed 556 with three SQL skips caused by a missing psql PATH entry; rerunning both executable SQL files with the existing local client passed 11/11 with no skips, including those three cases. Hosted CI results are recorded on the exact integration PR SHA when complete.
 
 The new Community fixture initially omitted the worker's parent-context proof; it was corrected to supply that read. Those initial fixture failures are not represented as passing runs. Header acceptance also reproduced the author's known guest-login crowding at 480 px in both artifacts: preceding release rails 20/6 px, combined release 17/6 px, neither with horizontal overflow. The existing crowded header is not claimed as repaired; other measured widths retain paired rails, and the theme sign is visible at every width. No existing gate is relaxed for this limitation.
 
