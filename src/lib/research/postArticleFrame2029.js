@@ -31,6 +31,7 @@ export function postArticleFramePaletteStyle2029(preset) {
   const palette = resolve2029Palette(preset, ENVIRONMENT);
   return [
     ["--s29-page", palette.pageBg], ["--s29-panel", palette.card], ["--s29-panel-soft", palette.cardSoft], ["--s29-panel-grad", palette.cardGrad],
+    ["--s29-frame", palette.frame || palette.card], ["--s29-frame-soft", palette.frameSoft || palette.cardSoft],
     ["--s29-line", palette.border], ["--s29-line-strong", palette.borderStrong], ["--s29-accent", palette.accent], ["--s29-accent-text", palette.accentText],
     ["--s29-accent-secondary", palette.accentSecondary], ["--s29-discovery", palette.accentDiscovery], ["--s29-focus-ring", palette.focusRing],
     ["--s29-warm-accent", palette.warmAccent], ["--s29-brand-sapphire", palette.brandSapphire], ["--s29-brand-gold", palette.brandGold],

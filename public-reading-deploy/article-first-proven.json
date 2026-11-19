@@ -1,7 +1,7 @@
 {
- "generated": "2026-11-19T10:32:23.911Z",
- "base": "deb08542ebdd61e4d25d6e7ba29db90a497375fe",
- "fingerprint": "f538f78192ae278e495f",
+ "generated": "2026-11-19T10:44:59.297Z",
+ "base": "c850d1d9baee4e27dbf49e89913019ea034ca25d",
+ "fingerprint": "1754e681d93979fdac0b",
  "jsdom": "25.0.1",
  "pipeline": [
   "src/lib/designTokens.js",
