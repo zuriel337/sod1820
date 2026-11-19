@@ -2,6 +2,7 @@ import { next, rewrite } from '@vercel/edge';
 import { isKnownSingleSegmentRoute, isSingleSegmentRoute, postSlugVariants } from './route-legitimacy.js';
 import { createPostDocumentGate, postDocumentBypassUrl, postDocumentGateCandidate, previewTestList, POST_DOCUMENT_FRESHNESS } from './post-document-freshness.js';
 import { createCountryPolicyCache, COUNTRY_POLICY_TIMING } from './edge-country-policy.js';
+import { oldJourneyAddress, oldJourneyGoneResponse } from './edge-old-journey.js';
 
 // ── שומר-סף + לוג צד-שרת (Vercel Edge) ────────────────────────────────────────
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
@@ -352,6 +353,9 @@ export default async function middleware(request, context) {
 
   let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
   const isBot = kind !== 'browser';       // goodbot | ai | bot
+  // Old Journey address (/journey?from=…, GET/HEAD): the same light 410 for a browser and a crawler (ZURIEL 19.11.2026, edge-old-journey.js).
+  // It is exempt only from the expensive-path crawler block; bad bots and blocked countries are still refused below.
+  const oldJourney = oldJourneyAddress(request.method, request.url);
   const uaL = uaRaw.toLowerCase();
   const { policy: policies, state: policyState } = await countryPolicyMap(context);
   const countryPolicy = policies.get(String(country).toUpperCase()) || null;
@@ -362,7 +366,7 @@ export default async function middleware(request, context) {
   // 3) country mode=blocked → חסימה מלאה ל-browser/bot; goodbot/ai עוברים.
   // 4) strict/quarantine → browser בלבד מקבל progressive challenge; goodbot/ai עוברים.
   let blocked = false;
-  if (isBot && EXPENSIVE_PATH.test(path)) blocked = true;
+  if (isBot && EXPENSIVE_PATH.test(path) && !oldJourney) blocked = true;
   else if (kind === 'bot') blocked = true;
   if (countryPolicy?.mode === 'blocked' && kind !== 'goodbot' && kind !== 'ai') blocked = true;
 
@@ -404,6 +408,8 @@ export default async function middleware(request, context) {
     const risk = quarantineBrowserRisk(request, uaRaw, path);
     if (!hasQuarantineProof(request, country, risk)) return quarantineBrowserChallenge(country, level, risk);
   }
+
+  if (oldJourney) return oldJourneyGoneResponse(oldJourney.expression, request.method);
 
   // Post document freshness: decided before the crawler existence lookup (which re-reads a recently changed Post) and applied at the end.
   let docGate = null;
