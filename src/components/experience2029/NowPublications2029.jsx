@@ -133,7 +133,8 @@ function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
     {!model.fullText && model.summary && model.href ? <small data-now-detail="excerpt-note">זהו התקציר שפורסם; המשך הפרסום בעמוד המלא.</small> : null}
     {/* YouTube / Vimeo links: the shared click-to-load card. A public group source shows it too (ZURIEL 11.11.2026): the group reader only lets a
         canonical YouTube address through (world_group_source_arrivals_v2) and the row keeps its "מקור · טרם נבדק" label below. */}
-    {externalVideoLinksFromText(model.fullText || model.title).map(link =>
+    {/* Or HaGeula is text only (ZURIEL 19.11.2026): no video card or poster; its link stays in the words above. */}
+    {model.textOnly ? null : externalVideoLinksFromText(model.fullText || model.title).map(link =>
       <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.unverified ? `מקור · טרם נבדק · ${model.sourceName}` : model.sourceName ? `מתוך ${model.sourceName}` : ""} />)}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
     {model.unverified ? <small className="is-unverified">מקור · טרם נבדק. זו הודעת מקור כפי שנשמרה ולא ממצא מאומת.</small> : null}
@@ -215,16 +216,17 @@ function Row({ model, onOpen, feed, timeMode, onSource }) {
 }
 
 // Desktop (>= 761px): list + detail side by side (ZURIEL 5.11.2026). Phone keeps the single list with inline expansion.
-const WIDE_QUERY = "(min-width: 761px)";
-function useWide() {
-  const read = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(WIDE_QUERY).matches;
+// Inside the bottom bar ("compact" host) the list + detail view returns on desktop (ZURIEL 19.11.2026): the bar and the window widen together.
+const WIDE_QUERY = "(min-width: 761px)", BAR_WIDE_QUERY = "(min-width: 981px)";
+function useWide(media = WIDE_QUERY) {
+  const read = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(media).matches;
   const [wide, setWide] = useState(read);
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return undefined;
-    const query = window.matchMedia(WIDE_QUERY), update = () => setWide(query.matches);
+    const query = window.matchMedia(media), update = () => setWide(query.matches);
     update(); query.addEventListener?.("change", update);
     return () => query.removeEventListener?.("change", update);
-  }, []);
+  }, [media]);
   return wide;
 }
 
@@ -252,7 +254,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
   const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [sourceKey, setSourceKey] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
   // Opened from the bottom bar (ZURIEL 19.11.2026) the window has the bar's width: the single list with inline expansion, as on a phone.
-  const wide = useWide() && !compact;
+  const wide = useWide(compact ? BAR_WIDE_QUERY : WIDE_QUERY);
   const [selectedId, setSelectedId] = useState(null), [playId, setPlayId] = useState(null);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];

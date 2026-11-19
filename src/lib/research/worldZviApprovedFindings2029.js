@@ -3,6 +3,7 @@ import { worldPreviewMaterialExclusion } from "./worldPreviewMaterialScope.js";
 import { ZVI_REVIEWED_FINDINGS } from "./zviReviewedFindings2029.js";
 import { universalFindingId } from "./universalFinding.js";
 import { researchPublicStatusPresentation, resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
+import { fullscanResearchIdForOccurrence, readFullscanDisplaySource } from "./tzviFullscanSourceProjection.js";
 
 // This reader is bounded to the existing public contributor view. The source
 // contributor is provenance, not a claim that the source owner authored a row.
@@ -227,13 +228,20 @@ export async function fetchZviApprovedFindingsPage({ client, cursor = null, page
 // Results still pass the same public, identity, review and live-source guards.
 async function fetchZviExactFindingsPage({ client, cursor, pageSize, manifest, subtle, filter }) {
   const reviewedById = new Map(manifest.map((entry) => [text(entry?.id), text(entry?.fingerprint)]));
+  const fullscanId = filter.type === "source" ? fullscanResearchIdForOccurrence(filter.sourceRef) : null;
+  const displaySources = new Map();
+  const projectionOptions = row => displaySources.has(row.id)
+    ? { reviewed: true, contributorId: null, admittedSourceRef: displaySources.get(row.id),
+      admittedSourceHref: contributorSourceLocator(displaySources.get(row.id), { slug: "tzvi-opoc" }).href }
+    : { reviewed: true };
   let query = client.from("world_contributor_research_v1")
     .select("id,created_at,kind,statement,contributor,source,source_ref,source_contributor_id,status,privacy_scope,meta,engine_verified,engine_detail,promoted_node_id,value")
-    .eq("source_contributor_id", ZVI_SOURCE_CONTRIBUTOR_ID)
     .eq("privacy_scope", "public").in("status", ["approved", "canonical"])
     .order("created_at", { ascending: false }).order("id", { ascending: false });
+  if (fullscanId) query = query.or(`and(source_contributor_id.eq.${ZVI_SOURCE_CONTRIBUTOR_ID},or(source_ref.eq.${filter.sourceRef},source_ref.like.${filter.sourceRef}#%)),id.eq.${fullscanId}`);
+  else query = query.eq("source_contributor_id", ZVI_SOURCE_CONTRIBUTOR_ID);
   if (filter.type === "number") query = query.eq("value", filter.value);
-  else query = query.or(`source_ref.eq.${filter.sourceRef},source_ref.like.${filter.sourceRef}#%`);
+  else if (!fullscanId) query = query.or(`source_ref.eq.${filter.sourceRef},source_ref.like.${filter.sourceRef}#%`);
   if (cursor) query = query.or(`created_at.lt."${cursor.createdAt}",and(created_at.eq."${cursor.createdAt}",id.lt.${cursor.id})`);
   const { data, error } = await query.limit(pageSize + 1);
   if (error || !Array.isArray(data)) throw error || new Error("zvi_exact_findings_unavailable");
@@ -245,10 +253,15 @@ async function fetchZviExactFindingsPage({ client, cursor, pageSize, manifest, s
       || (typeof row.value === "string" && !row.value.trim())
       || !Number.isSafeInteger(Number(row.value)) || Number(row.value) !== filter.value
     )) return null;
+    if (row?.id === fullscanId) {
+      const display = await readFullscanDisplaySource(client, row);
+      if (display?.sourceRef !== filter.sourceRef) return null;
+      displaySources.set(row.id, display.sourceRef);
+    }
     const rowSourceRef = text(row?.source_ref);
-    if (filter.type === "source" && rowSourceRef !== filter.sourceRef
+    if (!displaySources.has(row.id) && filter.type === "source" && rowSourceRef !== filter.sourceRef
       && !rowSourceRef.startsWith(`${filter.sourceRef}#`)) return null;
-    if (worldPreviewMaterialExclusion(row, "research_object") || !project(row, { reviewed: true })) return null;
+    if (worldPreviewMaterialExclusion(row, "research_object") || !project(row, projectionOptions(row))) return null;
     if (acceptedResearch(row)) return row;
     const fingerprint = reviewedById.get(text(row.id));
     if (!/^[a-f0-9]{64}$/.test(fingerprint || "")) return null;
@@ -256,7 +269,7 @@ async function fetchZviExactFindingsPage({ client, cursor, pageSize, manifest, s
   }));
   const vetted = checks.filter(Boolean);
   const liveIds = await livePublicSourceIds(client, vetted);
-  const eligible = vetted.filter((row) => liveIds.has(channelUpdateOccurrenceId(row?.source_ref)));
+  const eligible = vetted.filter((row) => displaySources.has(row.id) || liveIds.has(channelUpdateOccurrenceId(row?.source_ref)));
   const last = page.at(-1);
   const nextCursor = data.length > pageSize ? { id: text(last?.id), createdAt: text(last?.created_at) } : null;
   if (nextCursor && (!UUID.test(nextCursor.id) || !TIMESTAMP.test(nextCursor.createdAt))) {
@@ -265,7 +278,7 @@ async function fetchZviExactFindingsPage({ client, cursor, pageSize, manifest, s
   return Object.freeze({
     rows: eligible.map((row) => filter.type === "number"
       ? Object.freeze({ ...project(row, { reviewed: true }), claimedNumber: filter.value })
-      : project(row, { reviewed: true })),
+      : Object.freeze({ ...project(row, projectionOptions(row)), sourceOccurrenceRef: text(row.source_ref) })),
     hasMore: data.length > pageSize,
     nextCursor,
     omittedUnavailable: eligible.length < vetted.length,

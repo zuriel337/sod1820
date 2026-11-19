@@ -19,13 +19,15 @@ test("the same declared tree is shown from either post: Elections -> units + axi
 });
 
 test("a child's addition marks every ancestor (axis and parent post) but not the unrelated branch", () => {
-  const { root } = buildPostTree(5113, new Set(["bennett-israel-78"]));
+  const newest = "bennett-salt-covenant-unity-20261119";
+  const { root } = buildPostTree(5113, new Set([newest, "bennett-israel-78"]));
   const axis = root.children.find((node) => node.kind === "axis");
-  // The axis follows Bennett's own addition (12.10). The root is marked by its newest proven unit: since 12.11.2026 that is
-  // the 10.11 "1234 / 1011" unit (snapshot-interval proof), which is newer than the child's 12.10 addition.
-  assert.equal(axis.changedAt, "2026-10-12T14:06:54.127Z");
-  // 16.11.2026: the newest unit of post 5107 is the "yamin-smol" unit (written with a backup snapshot at 13:02:30Z)
-  assert.equal(root.changedAt, "2026-11-16T13:02:30.887Z");
+  const bennett = axis.children[0];
+  assert.equal(bennett.children[0].id, newest);
+  assert.equal(bennett.changedAt, "2026-11-19T16:19:09.953Z");
+  assert.equal(axis.changedAt, bennett.changedAt);
+  assert.equal(root.changedAt, bennett.changedAt);
+  assert.equal(find(root, node => node.id === "yamin-smol-2026-5787-1237-1158").addedAt, "2026-11-16T13:02:30.887336Z");
   const unit = find(root, (node) => node.id === "bennett-israel-78");
   assert.equal(unit.addedAt, "2026-10-12T14:06:54.127591Z");
 });

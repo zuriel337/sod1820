@@ -1,0 +1,309 @@
+{
+  "source": "Read-only analytics_cache snapshot, independent of Work's earlier audit sample",
+  "window_start": "2026-11-18T19:00:00Z",
+  "window_end": "2026-11-19T19:00:00Z",
+  "expected_observed_hours": 20,
+  "expected_observed_bytes": 675604227,
+  "rows": [
+    {
+      "cache_key": "infra_egress_hour:2026-11-18T19:00:00Z",
+      "computed_at": "2026-11-18 20:59:24.393816+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-18T20:00:00Z",
+        "window_start": "2026-11-18T19:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.9825841826273182
+        },
+        "storage_get_bytes": 19751700
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-18T21:00:00Z",
+      "computed_at": "2026-11-18 22:21:56.613436+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-18T22:00:00Z",
+        "window_start": "2026-11-18T21:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.3908095604697888
+        },
+        "storage_get_bytes": 1697699
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-18T22:00:00Z",
+      "computed_at": "2026-11-18 23:38:49.188562+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-18T23:00:00Z",
+        "window_start": "2026-11-18T22:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.6964101906665389
+        },
+        "storage_get_bytes": 15319783
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-18T23:00:00Z",
+      "computed_at": "2026-11-19 00:18:52.48399+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T00:00:00Z",
+        "window_start": "2026-11-18T23:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.7455652123028293
+        },
+        "storage_get_bytes": 8134324
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T00:00:00Z",
+      "computed_at": "2026-11-19 01:10:18.470842+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T01:00:00Z",
+        "window_start": "2026-11-19T00:00:00Z",
+        "traffic_classes": {
+          "bot_share": 1
+        },
+        "storage_get_bytes": 1375663
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T02:00:00Z",
+      "computed_at": "2026-11-19 03:09:06.211644+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T03:00:00Z",
+        "window_start": "2026-11-19T02:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.9257225989243724
+        },
+        "storage_get_bytes": 12731544
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T03:00:00Z",
+      "computed_at": "2026-11-19 04:15:45.595364+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T04:00:00Z",
+        "window_start": "2026-11-19T03:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.9855972315852202
+        },
+        "storage_get_bytes": 27794101
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T04:00:00Z",
+      "computed_at": "2026-11-19 05:14:04.331104+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T05:00:00Z",
+        "window_start": "2026-11-19T04:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.839081546753545
+        },
+        "storage_get_bytes": 1829380
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T05:00:00Z",
+      "computed_at": "2026-11-19 06:47:37.407589+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T06:00:00Z",
+        "window_start": "2026-11-19T05:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.9939512201752395
+        },
+        "storage_get_bytes": 158912215
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T06:00:00Z",
+      "computed_at": "2026-11-19 08:05:20.114983+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T07:00:00Z",
+        "window_start": "2026-11-19T06:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.9998019954013712
+        },
+        "storage_get_bytes": 110684298
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T07:00:00Z",
+      "computed_at": "2026-11-19 08:49:59.871903+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T08:00:00Z",
+        "window_start": "2026-11-19T07:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.9997054664331984
+        },
+        "storage_get_bytes": 49726081
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T08:00:00Z",
+      "computed_at": "2026-11-19 09:13:42.919373+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T09:00:00Z",
+        "window_start": "2026-11-19T08:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.1360560113661577
+        },
+        "storage_get_bytes": 33662739
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T09:00:00Z",
+      "computed_at": "2026-11-19 10:19:44.924727+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T10:00:00Z",
+        "window_start": "2026-11-19T09:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.5209351677756267
+        },
+        "storage_get_bytes": 42846301
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T11:00:00Z",
+      "computed_at": "2026-11-19 12:09:00.216761+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T12:00:00Z",
+        "window_start": "2026-11-19T11:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.9670572003733008
+        },
+        "storage_get_bytes": 47734164
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T13:00:00Z",
+      "computed_at": "2026-11-19 14:07:48.111661+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T14:00:00Z",
+        "window_start": "2026-11-19T13:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.7956567679900992
+        },
+        "storage_get_bytes": 1751783
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T14:00:00Z",
+      "computed_at": "2026-11-19 15:27:06.531087+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T15:00:00Z",
+        "window_start": "2026-11-19T14:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.786541351406094
+        },
+        "storage_get_bytes": 4334774
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T15:00:00Z",
+      "computed_at": "2026-11-19 16:22:56.881638+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T16:00:00Z",
+        "window_start": "2026-11-19T15:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.6850955963649111
+        },
+        "storage_get_bytes": 2039565
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T16:00:00Z",
+      "computed_at": "2026-11-19 17:29:11.422083+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T17:00:00Z",
+        "window_start": "2026-11-19T16:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.5389280159237226
+        },
+        "storage_get_bytes": 2413506
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T17:00:00Z",
+      "computed_at": "2026-11-19 18:30:53.564628+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T18:00:00Z",
+        "window_start": "2026-11-19T17:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.12107442589520502
+        },
+        "storage_get_bytes": 131205140
+      }
+    },
+    {
+      "cache_key": "infra_egress_hour:2026-11-19T18:00:00Z",
+      "computed_at": "2026-11-19 19:16:16.192426+00",
+      "producer": "traffic_intelligence_law",
+      "producer_version": "v11",
+      "payload": {
+        "basis": "OBSERVED_STORAGE_LOGS",
+        "window_end": "2026-11-19T19:00:00Z",
+        "window_start": "2026-11-19T18:00:00Z",
+        "traffic_classes": {
+          "bot_share": 0.7319350128685898
+        },
+        "storage_get_bytes": 1659467
+      }
+    }
+  ]
+}
