@@ -154,3 +154,7 @@ button.pa29-card,.pa29-more-head{cursor:pointer}
 .pa29-h.is-centered{justify-content:center;text-align:center}
 .pa29-h.is-centered::before,.pa29-h.is-centered::after{content:"";flex:1;max-inline-size:96px;block-size:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 55%,transparent))}
 .pa29-h.is-centered::after{transform:scaleX(-1)}
+
+/* Desktop (ZURIEL 19.11.2026): while the personal area (or "עכשיו") is open from the bar, the bar and its window widen together (up to 980px),
+   still one joined bar; phones keep the bar width. Loaded with the personal area only (frame CSS untouched; same rule in nowPublications2029.css). */
+@media (min-width:981px){.sod29-root.native-frame:has(.sod29-frame-panel[data-bar-expansion="now"]){--s29-bar-w:min(980px,calc(100vw - 48px))}}
