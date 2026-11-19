@@ -36,7 +36,7 @@ function run() {
   try {
     if (typeof document === "undefined" || typeof window === "undefined") return;
     if (homePinnedLeadEarlyWanted({ release: PUBLIC_READING_RELEASE, pathname: window.location.pathname, search: window.location.search }))
-      import("./homePinnedLeadEarly2029.js").then(module => module.startHomePinnedLeadEarly2029?.()).catch(() => {});
+      import("./homePinnedLeadEarly2029.js").then(module => module.default()).catch(() => {});
     let storedPreset = null;
     try { storedPreset = localStorage.getItem(THEME_STORAGE_KEY_2029); } catch { /* storage unavailable: default preset */ }
     const href = homeAtmospherePreloadHref({
