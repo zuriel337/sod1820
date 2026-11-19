@@ -32,7 +32,7 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH ||
 const canRun = Boolean(pw && vite && react && executablePath && existsSync(executablePath));
 
 const researchArea = page => page.getByRole('region',{name:'כלי מחקר במטריצה',exact:true});
-const researchView = (page, name) => researchArea(page).getByRole('button',{name:({'גילוי':'ממצאים','מבנים':'מבנים וקבוצות','הציר':'העמקה'})[name] || name,exact:true});
+const researchView = (page, name) => name === 'כלי מחקר' ? page.locator('[data-tool-action=discovery]:visible').first() : researchArea(page).getByRole('button',{name:({'גילוי':'ממצאים','מבנים':'מבנים וקבוצות','הציר':'העמקה'})[name] || name,exact:true});
 async function openDiscoveryTools(page, view = 'גילוי') {
   const entry=researchView(page,'כלי מחקר');
   if(await entry.getAttribute('aria-expanded')!=='true') await entry.click();
@@ -54,6 +54,9 @@ async function openFableExtension(page) {
 }
 
 async function checkManualWordJump(page) {
+  const entry=researchView(page,'כלי מחקר');
+  if(await entry.getAttribute('aria-expanded')!=='true') await entry.click();
+  await researchView(page,'גילוי').click();
   await researchArea(page).getByRole('button',{name:'חפש מילה מסוימת',exact:true}).click();
   const input=page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true});
   await page.waitForFunction(()=>document.activeElement?.id==='els29-secondary-term');
@@ -103,30 +106,28 @@ test('research window has three capability views, one explicit launch and shared
   },{realHost:true});
  });
 
-test('Research tools have their own full-width entry below the matrix without adding side actions or automatic work',
+test('Discovery uses the shared inspector and preserves tools without automatic work',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  for(const width of [320,360,390,1440])await withNative({width,height:900},async page=>{
   const area=page.getByRole('region',{name:'כלי מחקר במטריצה',exact:true});
-  const entry=area.getByRole('button',{name:'כלי מחקר',exact:true});
+  const entry=researchView(page,'כלי מחקר');
   const panel=area.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
   const before=await identity(page);
   const sideLabels=()=>page.locator('.els29-native-toolstrip > button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
-  const expected=['סריקה וממצאים','תוצאות','שמירה'];
+  const expected=['כלי מחקר','סריקה וממצאים','תוצאות','שמירה'];
   assert.deepEqual(await sideLabels(),expected);
   assert.equal(await entry.getAttribute('aria-expanded'),'false');
   assert.equal(await panel.count(),0,'heavy component remains unmounted until explicit opening');
   const requests=await page.evaluate(()=>window.__log.filter(m=>m.type==='engine-request').length);
-  const geometry=await area.evaluate(el=>{
-   const r=el.getBoundingClientRect(),stage=el.parentElement.querySelector('.els29-native-stage-column').getBoundingClientRect(),root=el.parentElement.getBoundingClientRect();
-   return {top:r.top,bottom:stage.bottom,width:r.width,rootWidth:root.width,insideInspector:!!el.closest('.els29-native-panel-wrap'),insideStage:!!el.closest('.els29-native-stage-column')};
-  });
-  assert.equal(geometry.insideInspector,false,'research must not occupy the pinned inspector column');
-  assert.equal(geometry.insideStage,false,'research is not constrained to the matrix column');
-  assert.ok(geometry.top>=geometry.bottom-1,'entry follows the matrix');
-  assert.ok(geometry.width>=geometry.rootWidth-40,JSON.stringify(geometry));
+  assert.equal(await area.count(),0,'closed tools are not exposed as a visible region');
   await entry.press('Enter');await panel.waitFor();
   assert.equal(await entry.getAttribute('aria-expanded'),'true');
-  assert.deepEqual(await sideLabels(),expected,'no fifth side action and no repurposed existing action');
+  assert.deepEqual(await sideLabels(),expected,'discovery uses its own action alongside existing tools');
+  assert.equal(await area.evaluate(el=>!!el.closest('.els29-native-context-panel')),true);
+  assert.equal(await page.locator('[data-tool-action=discovery]:visible').count(),1);
+  const launch=panel.locator('.els29-discovery-actions').filter({has:page.getByRole('button',{name:'התחל גילוי',exact:true})});
+  const sizes=await launch.locator(':scope>button').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().width));
+  assert.ok(sizes.length>=2 && Math.abs(sizes[0]-sizes[1])<1,'equal launch button tracks');
   await panel.getByLabel('מסלול הגילוי').selectOption('language');
   await researchView(page,'מבנים').click();
   await panel.getByText('בדיקת הסימונים והשוואת מופעים',{exact:true}).click();
@@ -137,9 +138,9 @@ test('Research tools have their own full-width entry below the matrix without ad
    const box=await entry.boundingBox();assert.ok(box.width>=44&&box.height>=44);
    assert.equal(await entry.evaluate(el=>{const r=el.getBoundingClientRect();return el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),true,'entry remains reachable above frame overlays');
    assert.ok(await entry.locator('span,strong').evaluateAll(nodes=>nodes.every(el=>parseFloat(getComputedStyle(el).fontSize)>=16)));
-   if(process.env.ELS_RESEARCH_AREA_SCREENSHOTS){mkdirSync(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,{recursive:true});await page.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-area-${width}-${theme}.png`)});await panel.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-tools-${width}-${theme}.png`)});}
+   if(process.env.ELS_RESEARCH_AREA_SCREENSHOTS){mkdirSync(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,{recursive:true});await page.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-area-${width}-${theme}.png`)});await page.locator('.els29-native-panel-wrap').scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_RESEARCH_AREA_SCREENSHOTS,`research-tools-${width}-${theme}.png`)});}
   }
-  await entry.press('Space');assert.equal(await panel.isVisible(),false);
+  await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();assert.equal(await panel.isVisible(),false);
   assert.equal(await entry.evaluate(el=>el===document.activeElement),true);
   await entry.press('Enter');
   assert.equal(await researchView(page,'מבנים').getAttribute('aria-pressed'),'true','folding preserves the current view');
@@ -160,8 +161,9 @@ test('Research tools have their own full-width entry below the matrix without ad
   await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
   assert.equal(await area.isVisible(),false,'Classic never acquires the research area');
   if(width<981)assert.equal(await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).gridRowStart),'3','Classic keeps its original panel row, without an empty research track');
-  assert.deepEqual(await sideLabels(),expected);
+  assert.deepEqual(await sideLabels(),expected.slice(1));
   await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+  await researchView(page,'כלי מחקר').click();
   assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language');
   assert.deepEqual(await identity(page),before);
   assert.equal(await page.evaluate(()=>window.__log.filter(m=>m.type==='engine-request').length),requests);
@@ -783,7 +785,8 @@ test('Research language wizard reuses the canonical reader and admits exact phra
     await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
     assert.equal(await panel.isVisible(),false,'Classic stays clean');
     await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
-    assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language');
+    await researchView(page,'כלי מחקר').click();
+  assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language');
     assert.equal(await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='request-lens'&&m.lens==='matrix-lexicon').length),requests,'profile round trip never rescans');
     await page.evaluate(item=>window.__loadResearch({...item,words:[],researchNonce:'language-new-axis'}),ELS_GOLDENS[2]);
     await page.waitForFunction(()=>window.__state?.term==='אליהו'&&window.__state.status==='ok');
@@ -1666,7 +1669,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
    const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
    await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
-   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),1);
+   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),0,'shared dock replaces duplicate local launchers');
    const before=await identity(page),commands=await page.evaluate(()=>window.__hostLog.length);
    const orb=()=>dock.locator('.sod29-raziel-orb');
    const orbX=(await orb().boundingBox()).x;
@@ -1676,17 +1679,11 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    }
    assert.equal(await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).count(),0,'search is not a dock action; the page form owns it');
    const panel=page.locator('#els29-context-panel');
-   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים','סריקה וממצאים']]){
+   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['כלי מחקר','גילוי · כלי המחקר']]){
     await dock.getByRole('button',{name:label,exact:true}).click();
     assert.equal(await panel.locator('header strong').innerText(),title);
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
     assert.equal(await page.getByRole('dialog').count(),0,'native tool stays in its page region');
-   }
-   const localTools=page.getByRole('group',{name:'כלי המטריצה'});
-   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים','סריקה וממצאים']]){
-    await localTools.getByRole('button',{name:label,exact:true}).click();
-    assert.equal(await panel.locator('header strong').innerText(),title,'the local launchers open the same panel as the dock');
-    assert.equal(await dock.getByRole('button',{name:label,exact:true}).getAttribute('aria-expanded'),'true');
    }
    if(width<981){
     const position=await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position);assert.equal(position,'relative');
@@ -1718,7 +1715,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
    assert.equal(await page.locator('iframe').count(),1);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-   if(process.env.ELS_SCREENSHOT_DIR){await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`dock-frame-${width}.png`)});}
+   if(process.env.ELS_SCREENSHOT_DIR){await dock.getByRole('button',{name:'כלי מחקר',exact:true}).click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`dock-frame-${width}.png`)});}
    await page.evaluate(()=>window.__setNativeVisible(false));
    await page.waitForFunction(()=>!document.querySelector('.sod29-command-island')?.dataset.toolOwner);
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
@@ -3641,7 +3638,7 @@ test('owner 18.11: fullscreen is the same interface re-laid: the page\'s own too
     const strip=page.locator('.els29-native-toolstrip');
     assert.equal(await strip.count(),1);assert.equal(await strip.getAttribute('data-same-element'),'1');assert.equal(await strip.isVisible(),true);
     const labels=await strip.locator('button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
-    assert.deepEqual(labels,['חלון החיפוש','חלון כלי המחקר',...stripBefore,'יציאה ממסך מלא'],'the page\'s tools plus the three fullscreen controls');
+    assert.deepEqual(labels,['חלון החיפוש',...stripBefore,'יציאה ממסך מלא'],'the page\'s tools plus the three fullscreen controls');
     const box=sel=>page.evaluate(sel=>{const el=document.querySelector(sel);if(!el||getComputedStyle(el).display==='none')return null;const r=el.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height};},sel);
     const inView=async sel=>{const b=await box(sel);return !!b&&b.l>=-1&&b.t>=-1&&b.r<=width+1&&b.b<=height+1;};
     // The matrix has the screen: on a phone it used to share it with a second toolbar row.
@@ -3655,7 +3652,7 @@ test('owner 18.11: fullscreen is the same interface re-laid: the page\'s own too
     assert.ok(await inView('#els29-query'));assert.equal(await page.locator('#els29-query').getAttribute('data-same-element'),'1');
     assert.equal(await page.locator('#els29-query').getByRole('button',{name:'חיפוש מתקדם',exact:true}).count(),1,'regular, cross and advanced search are the page\'s own mode group');
     // The research tools ("deep research") are the page's section, opened as a window.
-    await strip.getByRole('button',{name:'חלון כלי המחקר',exact:true}).click();
+    await strip.getByRole('button',{name:'כלי מחקר',exact:true}).click();
     assert.equal(await box('#els29-query'),null,'one window at a time');
     assert.ok(await inView('.els29-native-structure-entry'));assert.equal(await page.locator('.els29-native-structure-entry').getAttribute('data-same-element'),'1');
     await page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true}).waitFor();

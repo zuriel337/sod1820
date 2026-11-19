@@ -63,3 +63,16 @@
 .els29-research-storage{margin-block-start:24px;padding-block-start:16px;border-block-start:1px solid var(--s29-line);min-width:0}
 .els29-research-storage summary{min-height:44px;align-content:center;color:var(--s29-accent-text);font-weight:650}
 .els29-research-storage [role=note]{padding:12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}
+
+/* Equal action tracks, with independent groups for launch, views and filters. */
+.els29-lexicon-research .els29-discovery-actions,.els29-lexicon-research .els29-structure-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+.els29-lexicon-research .els29-discovery-actions>button{width:100%;max-width:none;min-height:48px;margin:0;text-align:center}
+.els29-lexicon-research .els29-discovery-actions>button:only-child{grid-column:1/-1}
+.els29-lexicon-research .els29-structure-card>button{width:100%;margin-block-start:auto;min-height:48px}
+.els29-lexicon-research .els29-joint-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.els29-lexicon-research .els29-joint-sort{display:grid;grid-template-columns:1fr;gap:6px;text-align:start}
+.els29-lexicon-research .els29-joint-sort select{width:100%}
+.els29-lexicon-research .els29-research-views button{min-height:48px;text-align:center}
+
+.els29-lexicon-research .els29-discovery-actions:empty{display:none}
+.els29-lexicon-research :is(.els29-structure-filters,.els29-joint-filters)>button:last-child:nth-child(odd){grid-column:1/-1}
