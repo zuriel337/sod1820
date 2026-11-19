@@ -43,3 +43,15 @@ Run the assessment/joint/structure/discovery/return unit tests; the native brows
 - `npm run build` PASS, including shell budget (eager gzip 203,079 / 203,493 limit). No baseline change.
 - `git diff --check` PASS. Mobile screenshot inspected locally.
 - Intermediate checks exposed missing waits for the lazy UI to become visible; those waits were corrected. One combined-scan check also timed out during editing/hot reload (cause not isolated); it passed in the final stable-tree run. This does not establish all-suite or CI green status.
+
+## CI isolation follow-up (base af26f802e)
+
+The current PR's Isolation job reproduced locally with the exact repository lockfile and the CI-aligned installed dependencies (Vite 8.3.8, Rolldown 1.2.19): eager gzip **203,749**, limit **203,493**. The earlier local install used Vite 8.3.0 and did not reproduce that failure.
+
+Moved the execution lifecycle from `useElsResearchOperation.js` into the existing dynamically imported `elsBackgroundResearch.js`. The principal-scoped hook still reserves the operation and captures its immutable return snapshot synchronously before import, and owns cancel/clear and principal cleanup. Validation, progress and terminal-state handling now load only on explicit research start. No frame, provider, thresholds, lockfile, engine budgets or features changed.
+
+Same-toolchain build after the change: eager gzip **203,314** (435 bytes less; 179 bytes below the unchanged limit). The existing real-Provider test now delays module loading and switches from matrix A to B before releasing it: one operation starts, retaining A's occurrence and row-gap snapshot. It also checks principal isolation, late responses, cancellation and timeout. Unit checks cover terminal COMPLETE/FAILED and a lost principal before execution.
+
+This is a branch-only correction. No Preview, merge, deployment or database write. CI on the new commit must be reported separately from this local reproduction.
+
+Follow-up local validation: 12/12 background/snapshot unit tests; the real-Provider deferred-import browser test PASS; 3/3 full built-app browser cases PASS (light/parchment/dark, each at 320/390/1440px, including route unmount, return, context reset and cancellation); final `npm run build` and unchanged shell gate PASS. The built-app tests were rerun against a stable artifact after an intermediate run overlapped a rebuild. No server or model calls outside test fixtures.

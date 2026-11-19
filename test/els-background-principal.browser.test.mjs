@@ -52,23 +52,37 @@ test('real ResearchProvider isolates principals, reserves once, rejects late res
     }); },
   };
   const server=await createServer({root:fileURLToPath(new URL('..',import.meta.url)),cacheDir:mkdtempSync(join(tmpdir(),'els-principal-')),configFile:false,plugins:[plugin,react()],server:{host:'127.0.0.1',port:0}});
-  let browser;
+  let browser, releaseExecutor;
+  const executorGate = new Promise(resolve => { releaseExecutor = resolve; });
+  const executorRequests = [];
   try {
     await server.listen();const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
     browser=await chromium.launch({headless:true,executablePath:'/usr/bin/chromium'});
     const page=await browser.newPage(),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
-    await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
+    await page.route('**/*',async route=>{
+      const url=new URL(route.request().url());
+      if(url.pathname==='/src/lib/research/elsBackgroundResearch.js'){
+        executorRequests.push(url.pathname);await executorGate;
+      }
+      return url.origin===origin?route.continue():route.abort();
+    });
     await page.goto(origin+'/fixture');
     await page.waitForFunction(()=>typeof window.__observeProjection==='function');
     await page.evaluate(()=>window.__observeProjection({status:'ok',term:'תורה',termRaw:'תורה',scope:'torah',
       verification:{state:'MATCH',corpus_id:'fixture'},axis:{hitId:'50_1_5',skip:50,start:5,length:4},findings:[],ui:{zoom:1.4}},
       {kind:'row-spacing',width:25,rowGap:1,r0:0,r1:14,c0:0,c1:24}));
+    assert.equal(executorRequests.length,0,'executor is absent before explicit start');
+    const importing=page.waitForRequest(request=>new URL(request.url()).pathname==='/src/lib/research/elsBackgroundResearch.js');
     await page.getByRole('button',{name:'double',exact:true}).click();
-    await page.waitForFunction(()=>window.__pending.length===1);
-    assert.deepEqual(await page.evaluate(()=>window.__calls.map(x=>x.body.op)),['verify','page']);
+    await importing;
+    assert.equal(await page.evaluate(()=>window.__calls.length),0,'no transport before the executor loads');
     await page.evaluate(()=>window.__observeState({status:'ok',term:'אחר',scope:'torah',axis:{hitId:'50_1_9',skip:50,start:9},
       verification:{state:'MATCH',corpus_id:'fixture'},findings:[],ui:{zoom:2}}));
+    releaseExecutor();
+    await page.waitForFunction(()=>window.__pending.length===1);
+    assert.equal(executorRequests.length,1,'double click reserves one lazy execution');
+    assert.deepEqual(await page.evaluate(()=>window.__calls.map(x=>x.body.op)),['verify','page']);
     assert.equal(await page.evaluate(()=>window.__task.returnSnapshot.matrixProjection.width),25);
     assert.equal(await page.evaluate(()=>window.__task.returnSnapshot.axis.start),5);
     const oldId=await page.evaluate(()=>window.__task.id);
@@ -98,5 +112,5 @@ test('real ResearchProvider isolates principals, reserves once, rejects late res
     assert.equal(await page.evaluate(()=>window.__task.rows.length),0);
     assert.deepEqual(await page.evaluate(()=>window.__calls.map(x=>x.name)),Array(6).fill('els-search-bridge'));
     assert.deepEqual(errors,[]);
-  } finally {await browser?.close();await server.close();}
+  } finally {releaseExecutor();await browser?.close();await server.close();}
 });
