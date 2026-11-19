@@ -1480,6 +1480,14 @@ function SystemFrame2029Body({
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
   const unifiedGlobalDock = !toolMode;
+  const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
+  // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
+  const progressSections = (surface === "post" || surface === "topic") && Array.isArray(pageContext?.dimensions?.surfaceSections)
+    ? pageContext.dimensions.surfaceSections.filter((item) => item?.id && item?.label) : [];
+  const progressIndex = progressSections.findIndex((item) => item.id === pageContext?.dimensions?.activeSectionId);
+  const readingProgress = showBottomTrail && progressSections.length >= 2 && progressIndex >= 0
+    ? { ids: progressSections.map((item) => item.id), index: progressIndex + 1, total: progressSections.length, label: progressSections[progressIndex].label }
+    : null;
   // ELS owns its on-demand matrix inspector; avoid a second permanent pageContext column.
   const showContextRail = surface !== "home" && surface !== "control" && surface !== "els" && surface !== "community"
     && Boolean(activeTarget || pageContext?.subject);
@@ -1535,7 +1543,6 @@ function SystemFrame2029Body({
           actionsBuilding={actionsFeature.blocked} toolsBuilding={toolsFeature.blocked}
           personal={{ signedIn: Boolean(user), name: profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || "", avatar: user ? <UserAvatar2029 user={user} profile={profile} /> : null }}
           onPersonal={openWorkspace}
-          onContext={contextLocked ? null : () => openTransient(TRANSIENT.CONTEXT)}
           adminDestinations={adminOpenClosedDestinations(isAdmin)} onDestination={(item) => { setTransient(null); go(item.href); }}
           toolDockReturn={activeToolDock ? () => { setTransient(null); setSystemDockMode(false); } : null}
           share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", surface } : null} />
@@ -1754,10 +1761,10 @@ function SystemFrame2029Body({
         {ephemeralSelection && !unifiedGlobalDock ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
         {unifiedGlobalDock ? <div className="sod29-command-island is-unified-bar is-single-command-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="global">
-          {/* ZURIEL 18.11.2026: the bar's first place is "שתף" for everyone (it was "כאן · בבנייה", admin-only): one tap opens the existing
-              share-only panel of this page. Admins reach "כאן" from "עוד". */}
-          <button type="button" className="sod29-dock-here sod29-dock-share" onClick={openShare} aria-label="שתף את העמוד" aria-haspopup="dialog"
-            aria-expanded={transientKind === TRANSIENT.MORE && Boolean(transient?.payload?.shareOnly)}><NavigationIcon2029 name="share" /><small>שתף</small></button>
+          <button type="button" className="sod29-dock-here" disabled={contextLocked} title={contextLocked ? "כאן בבנייה · למנהל בלבד" : "כאן בבנייה · גישת מנהל"} onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={contextLocked ? "כאן · בבנייה · למנהל בלבד" : readingProgress ? `כאן · מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}` : "כאן · מפת העמוד וההקשר"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.CONTEXT} data-reading-progress={readingProgress ? `${readingProgress.index}/${readingProgress.total}` : undefined}>
+            <NavigationIcon2029 name="layers" /><small>כאן</small><span className="sod29-construction-badge" aria-hidden="true">בבנייה</span>
+            {!contextLocked && readingProgress ? <span className="sod29-dock-progress" aria-hidden="true">{readingProgress.ids.map((id,i) => <i key={id} className={i < readingProgress.index ? "is-read" : ""} />)}</span> : null}
+          </button>
           <button type="button" onClick={() => {
             if (activeTarget?.expression && activeTarget?.method && Number.isSafeInteger(activeTarget?.resultValue)) {
               openNumber(activeTarget); return;

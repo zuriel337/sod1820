@@ -5,11 +5,11 @@ import { readFileSync } from "node:fs";
 const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
 const global = frame.slice(frame.indexOf("is-single-command-bar"), frame.indexOf("data-command-mode=\"tool\""));
 
-test("global dock: exactly five controls — שתף, גימטריה, רזיאל, עכשיו, עוד (ZURIEL 18.11.2026: שתף took the place of כאן · בבנייה)", () => {
-  assert.match(global, /<small>שתף<\/small>/); assert.match(global, /onClick=\{openShare\}/); assert.doesNotMatch(global, /<small>כאן<\/small>/);
-  assert.match(global, /<small>גימטריה<\/small>/);
+test("global dock: exactly five controls — כאן, גימטריה, רזיאל, עכשיו, עוד (share lives inside עוד)", () => {
+  assert.match(global, /<small>כאן<\/small>/); assert.match(global, /<small>גימטריה<\/small>/);
   assert.match(global, /<RazielOrb/); assert.match(global, /"עכשיו"/);
   assert.match(global, /aria-label="עוד · פעולות, כלים ושיתוף"/); assert.match(global, /onClick=\{openMore\}/);
+  assert.doesNotMatch(global, /aria-label="שיתוף"/, "no separate share button: it is a section of עוד");
   assert.equal((global.match(/<button\b/g) || []).length + (global.match(/<RazielOrb/g) || []).length, 5);
 });
 

@@ -59,7 +59,7 @@ export function MoreInstall2029() {
 }
 
 export default function MorePanel2029({ shareOnly = false, context = "", onAction, onTools, onSearch, personal, onPersonal,
-  adminDestinations = [], onDestination, onContext = null, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
+  adminDestinations = [], onDestination, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
   const [candidate] = useState(reviewCandidate);
   return <div className="sod29-more" data-more-panel={shareOnly ? "share" : "full"} data-royal-candidate={candidate}>
     {!shareOnly ? <>
@@ -72,7 +72,6 @@ export default function MorePanel2029({ shareOnly = false, context = "", onActio
           <RoyalTile2029 icon="tools" title="כלים" hint={toolsBuilding ? "סגור · בבנייה" : "כלי המחקר לעמוד"} onClick={onTools} testId="tools" />
           <RoyalTile2029 icon="personal" art={personal?.avatar || null} title={personal?.signedIn ? "האזור שלי" : "כניסה"}
             hint={personal?.signedIn ? (personal.name || "שמירות ומסע אישי") : "לאזור האישי"} onClick={onPersonal} testId="personal" />
-          {onContext ? <RoyalTile2029 icon="layers" title="כאן" hint="בבנייה · מנהל" onClick={onContext} testId="here" /> : null}
           {toolDockReturn ? <RoyalTile2029 icon="cipher" title="כלי הצופן" label="חזור לכלי הצופן" hint="חזרה לכלי שהיה פתוח" onClick={toolDockReturn} testId="tool-return" /> : null}
         </RoyalTileGrid2029>
       </section>
