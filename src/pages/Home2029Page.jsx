@@ -21,9 +21,6 @@ import ElsRotatingMatrixCard2029 from "../components/experience2029/ElsRotatingM
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../lib/publicLaunch2029.js";
 import { PUBLIC_READING_RELEASE, afterReadableContent2029 } from "../lib/publicReadingRelease2029.js";
-// The pinned card's early start (homePinnedLeadEarly2029.js) is reached through this route module: the entry loads it on demand on the Home
-// address (homeAtmospherePreload2029.js), so it lives in the Home's own code and no other page's code changes.
-export { startHomePinnedLeadEarly2029 } from "../lib/homePinnedLeadEarly2029.js";
 
 // The first Post's code is prepared before a click (moved here from App2029, ZURIEL 17.11.2026), but only after the Home's own top is readable
 // (its pinned lead and that image): on a slow phone it no longer competes with them for the connection. No Post data is read.
