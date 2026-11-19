@@ -422,7 +422,7 @@ ZURIEL asked for this bar and approved its look from a standalone preview; it wa
 - **Crown.** The approved lockup, whole (`BRAND_LOCKUP_NAV_2029`), never cropped or recoloured, centred with `left: 50%` (never `inset-inline-start: 50%` in RTL), 100px desktop / 84px to 980 / 72px to 340. No bright glow behind it, only a dark halo (`drop-shadow(0 0 9px rgb(0 0 0 / .6)) drop-shadow(0 3px 6px rgb(0 0 0 / .45))`). The crown link is the home link; the menu entrance is a plain ☰ on the start side.
 - **Arc and line.** A rounded arc under the verse, 320x62 (250x54 to 980, 220x48 to 340), the same glass as the bar (an SVG line plus a masked glass layer). One 2px line for bar and arc, no fading ends, 3px overlap at each joint; the gap under the arc is a mask (not a gradient) so the fill continues beneath it, and `@property --s29-gap` makes the gap animate smoothly.
 - **Scroll.** Over 48px (back under 10px) the arc folds away, the line goes straight and the crown settles inside the bar (scale .62 desktop / .7 phone). Reading progress: `--s29-read` on `<html>`; the line fills from the start side in `#7fe7ff` and the arc turns the same colour past 50%. One passive capture-phase listener (it also hears a page that scrolls inside its own region), one `requestAnimationFrame` per frame.
-- **Layout.** Three equal zones, so the crown is the page centre (collapsed rail: the bar runs over the 72px rail column, `margin-inline: -72px 0; padding-inline: 78px`). On desktop the theme choice is one 44px control; under 620px it lives only in the drawer; under 340px the "where am I" line is hidden. Targets are at least 44px. `prefers-reduced-motion` and `prefers-reduced-transparency` (solid fallback) are honoured.
+- **Layout.** Three equal zones, so the crown is the page centre (collapsed rail: the bar runs over the 72px rail column, `margin-inline: -72px 0; padding-inline: 78px`). On desktop the theme choice is one 44px control; under 620px it lives only in the drawer *(superseded by §14.8, Human Gate ZURIEL · 19.11.2026: on phones the bar shows the theme choice named in Hebrew where search was)*; under 340px the "where am I" line is hidden. Targets are at least 44px. `prefers-reduced-motion` and `prefers-reduced-transparency` (solid fallback) are honoured.
 - **What the bar costs below it.** The header reserves `--s29-bar-reserve` (the arc's depth + 6px, 68px on desktop) so nothing is covered and nothing shifts. A sticky post or topic context rail that has not pinned yet therefore rests 184px below the top (64 bar + 68 reserve + 52 stage padding; it was 130px under the previous 56px bar), and its height budget follows the bar through `--s29-rail-natural-offset` (bar + reserve + 72px = bar and reserve plus the stage padding and a 20px margin), so it ends above the floating bottom bar from any resting position, pinned or not (Release Visual Gate: Bennett, desktop). A new height budget that assumed the old bar must read the same token.
 - **Verified in a real browser** at 1440, 1024, 768, 390, 360 and 320 in dark, light and parchment, at the top and scrolled (36 cases): crown centre = bar centre (0px), no horizontal scroll, line rows exactly 2px on both sides of every joint, every control at least 44px, ESC closes the drawer and returns focus to ☰, the theme choice survives a reload. The cleaned stylesheet renders byte-identically to the reviewed draft in all 36 header captures.
 
@@ -652,6 +652,14 @@ existing availability and permissions are unchanged.
 - **`canonical_colors_law` (database, active v2):** unchanged; this section uses its roles
   (primary/secondary/ghost/disabled/focus). No new role is required for the preview.
 - **System Frame:** `docs/sod1820-system-frame-contract-v2-addendum.md` §10.12 (19.11.2026).
+
+### 14.8 Phone top bar: the theme named in Hebrew · Human Gate ZURIEL · 19.11.2026
+
+On phones (up to 620px) the top bar shows the existing theme control where search was: the current
+theme's sign and its Hebrew name (☀ יום · ▤ קלף · ☾ לילה); a tap opens the three choices, Escape closes and
+returns focus. Search moves out of the phone's top bar and stays one tap away in “עוד” (and in the
+drawer); on desktop the top bar keeps both search (with its keyboard shortcut) and the theme control.
+The crown stays at the exact centre of the bar; targets stay at least 44px.
 
 ### 14.7 Pending (not yet approved)
 

@@ -213,8 +213,11 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame .sod29-he
   html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame .sod29-header-crown img { transform: translateX(-50%) translateY(-1px) scale(.7); }
 }
 @media (max-width: 620px) {
-  /* The three theme choices are already inside the navigation drawer; the bar keeps only search and account. */
-  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets.is-header-control { display: none !important; }
+  /* ZURIEL 19.11.2026 (Design V2 §14.8): on phones the bar names the theme in Hebrew (יום · קלף · לילה) where search was; search lives in "עוד". */
+  .sod29-root.closed-shell.native-frame .sod29-header-end .sod29-header-search { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-header-end .sod29-header-actions .sod29-theme-presets.is-header-control { flex: 0 0 auto; inline-size: auto; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets.is-header-control .sod29-theme-trigger { inline-size: auto; gap: 4px; padding-inline: 10px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control .sod29-theme-trigger b { display: inline; font-size: 15px; }
 }
 @media (max-width: 340px) {
   .sod29-root.closed-shell.native-frame[data-frame-theme-preset] { --s29-crown-w: 72px; --s29-crown-slot: 102px; --s29-dip-w: 220px; --s29-dip-h: 48px; }
