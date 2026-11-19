@@ -52,7 +52,8 @@ test("Googlebot and a browser get the same 410 document for /journey?from=<expre
   assert.doesNotMatch(body, /\/number\/\d+"/, "never a computed number for a word expression");
 });
 
-test("the crawl log records the 410 as served, not blocked", async () => {
+// blocked=false only says the middleware did not refuse the request; it is not a record of the 410 (status is verified by HTTP checks).
+test("the crawl log marks the old Journey request as not blocked (a supplementary signal, not a status record)", async () => {
   crawlLogs.length = 0;
   await run({ path: "/journey?from=438", ua: GOOGLEBOT });
   assert.deepEqual(crawlLogs.map(({ p_bucket, p_blocked }) => ({ p_bucket, p_blocked })), [{ p_bucket: "journey", p_blocked: false }]);

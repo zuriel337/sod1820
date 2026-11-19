@@ -2,8 +2,8 @@
 //
 // Which addresses: GET or HEAD of exactly /journey or /journey/ with a `from` parameter, i.e. /journey?from=<expression>. These are the links
 // of the retired Legacy random walk ("קחו אותי למסע"), one per expression. The 2029 site no longer creates them (rendered pages, sitemap and
-// public content checked 19.11.2026), but Google still requests them: robots.txt stopped excluding /journey at the 4.11 cutover, and
-// 1,723 Googlebot requests answered 403 followed in 6–19.11 (crawl_daily).
+// public content checked 19.11.2026), but Google still requests them: 1,723 Googlebot requests answered 403 in 6–19.11 (crawl_daily),
+// consistent with robots.txt no longer excluding /journey since the 4.11 cutover (not proven as the cause).
 //
 // Not these addresses, and unchanged: /journey without `from`, /journey/<anything>, /journey-beta, /מסע and /2029/journey (the 2029 Life
 // Journey, not open yet), and any other method. Nothing personal is read, written or removed.
