@@ -3855,7 +3855,26 @@ test('Columbia folded window scrolls in both directions, expands in place and su
       assert.deepEqual(scan.box,{S:1515,r0:large.r0,r1:large.r1,c0:large.bands[0].c0,c1:large.bands[0].c1});
     }
     assert.ok(scans.some(scan=>scan.items.some(item=>item.hitId==='1514_-1_282088')));
-    await page.evaluate(saved=>window.__openSavedMatrix(saved),{...row,id:'columbia-reopened'});
+    const returnLoad=await page.evaluate(async()=>{
+      const {captureElsResearchReturn,elsResearchReturnLoad}=await import('/src/lib/research/elsResearchReturnSnapshot.js');
+      const state=window.__state;
+      const response=window.__log.filter(entry=>entry.lens==='matrix-window'&&entry.ok).at(-1);
+      const band=response.bands[0];
+      const snapshot=captureElsResearchReturn(state,{kind:'row-spacing',width:response.width,rowGap:2,
+        r0:response.r0,r1:response.r1,c0:band.c0,c1:band.c1});
+      return elsResearchReturnLoad({origin:{term:state.term,corpus:state.scope,
+        corpusId:state.verification.corpus_id,...state.axis,dir:1},returnSnapshot:snapshot});
+    });
+    await page.evaluate(item=>window.__loadResearch({...item,words:[],researchNonce:'fold-other'}),ELS_GOLDENS[2]);
+    await page.waitForFunction(()=>window.__state?.term!=='קולומביה'&&window.__operation?.status==='done');
+    await page.evaluate(item=>window.__loadResearch({...item,researchNonce:'fold-return'}),returnLoad);
+    await page.waitForFunction(expected=>window.__lens?.lens==='matrix-window'&&window.__lens.ok
+      && window.__lens.width===expected.width&&window.__lens.r0===expected.r0
+      && window.__lens.bands[0].c0===expected.c0,returnLoad.matrixProjection);
+    assert.equal(await page.evaluate(()=>window.__state.axis.skip),4545);
+    await fold.locator('.els29-native-cell.is-finding').first().waitFor();
+
+    await page.evaluate(saved=>{window.__loadResearch(null);window.__openSavedMatrix(saved);},{...row,id:'columbia-reopened'});
     await page.waitForFunction(()=>window.__state?.provenance?.editId==='columbia-reopened'&&window.__operation?.kind==='load'&&window.__operation?.status==='done');
     assert.deepEqual(await page.evaluate(()=>window.__state.axis),axis);
   },{realHost:true,loadGolden:false});

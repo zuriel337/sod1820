@@ -148,3 +148,47 @@ test("a malformed reading cannot report a successful save that silently loses it
   assert.equal(saved.entity, undefined);
   assert.equal(JSON.stringify(saved).includes(TOKEN), false);
 });
+
+test('Fable return snapshot belongs to its original turn, stays local, and survives a later displayed context',async()=>{
+  const {captureElsResearchReturn}=await import('../src/lib/research/elsResearchReturnSnapshot.js');
+  const {elsMatrixReadingReturnLoad}=await import('../src/lib/research/elsMatrixReadingActivity.js');
+  const source={...sample(),term:"קולומביה",findings:[],ui:{zoom:1.7,fit:false,windowSize:'large',windowRequested:'large'}};
+  const snapshot=captureElsResearchReturn(source);
+  assert.ok(snapshot);
+  const prepared=prepare({options:{returnSnapshot:snapshot}});
+  assert.ok(prepared.turn.elsReturnSnapshot);
+  assert.ok(Object.isFrozen(prepared.turn.elsReturnSnapshot.view));
+  assert.doesNotMatch(JSON.stringify(prepared.request),/elsReturnSnapshot|windowRequested/);
+  const load=elsMatrixReadingReturnLoad({busy:true,currentTurn:prepared.turn,contextSnapshot:{surface:'other'}},'turn-1');
+  assert.equal(load.start,source.axis.start);assert.equal(load.view.zoom,1.7);
+  assert.equal(load.searchWindow.windowSize,'large');
+  const bad=prepare({options:{returnSnapshot:{...snapshot,corpusId:'another-corpus'}}});
+  assert.equal(bad.turn.elsReturnSnapshot,undefined);
+});
+
+test('resuming a reading never replaces its starting view with the current matrix view',async()=>{
+  const {captureElsResearchReturn}=await import('../src/lib/research/elsResearchReturnSnapshot.js');
+  const snapshot=zoom=>captureElsResearchReturn({...sample(),term:'קולומביה',findings:[],ui:{zoom}});
+  const original=snapshot(1.2),current=snapshot(2);
+  const prior={...prepare({options:{returnSnapshot:original}}).turn,progress:{jobToken:TOKEN}};
+  const resumed=prepare({options:{op:'status',jobToken:TOKEN,returnSnapshot:current},submit:{state:{...state0(),currentTurn:prior}}});
+  assert.equal(resumed.turn.elsReturnSnapshot.view.zoom,1.2);
+  const unavailable=prepare({options:{op:'status',jobToken:TOKEN,returnSnapshot:current}});
+  assert.equal(unavailable.turn.elsReturnSnapshot,undefined);
+});
+
+test('explicit saved reading retains return view without credentials or a new model request',async()=>{
+  const {captureElsResearchReturn}=await import('../src/lib/research/elsResearchReturnSnapshot.js');
+  const {razielSavedSessionState}=await import('../src/lib/research/razielSavedSession2029.js');
+  const {elsMatrixReadingReturnLoad}=await import('../src/lib/research/elsMatrixReadingActivity.js');
+  const snapshot=captureElsResearchReturn({...sample(),term:'קולומביה',findings:[],ui:{zoom:1.3}});
+  const {turn}=prepare({options:{returnSnapshot:snapshot}});
+  const result={contract:'els_matrix_reading_v1',state:'RUNNING',axis:{...context.axis,corpus_id:context.axis.corpusId},job:{token:TOKEN}};
+  const state={busy:false,thread:[{role:'user',text:'קרא',turnId:turn.id},
+    {role:'raziel',text:'קריאה במעקב',turnId:turn.id,continuation:turn.continuation,elsReturnSnapshot:turn.elsReturnSnapshot,elsMatrixReading:result}]};
+  const saved=buildRazielSavedSessionEntity(state,{now:()=> '2026-11-19T02:00:00.000Z'});
+  assert.equal(saved.ok,true);
+  assert.equal(JSON.stringify(saved).includes(TOKEN),false);
+  const restored=razielSavedSessionState(saved.entity);
+  assert.equal(elsMatrixReadingReturnLoad(restored,turn.id).view.zoom,1.3);
+});

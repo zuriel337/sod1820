@@ -11,6 +11,8 @@ import { findingColorChoices, nextFindingColor, projectFindingColor } from "./el
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
+import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { captureElsResearchReturn, normalizeElsReturnProjection } from "../../lib/research/elsResearchReturnSnapshot.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import ElsOperationMeter2029 from "./ElsOperationMeter2029.jsx";
@@ -905,6 +907,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [fsQueryOpen, setFsQueryOpen] = useState(false);
   const sectionRef = useRef(null);
   const nativeFullscreenRef = useRef(false);
+  const { elsResearchOperation } = useResearch();
+  const restoredProjectionRef = useRef(null);
   const [foldWidth, setFoldWidth] = useState(null);   // research mode only: null = the engine's matrix (row width = skip); otherwise the same text in rows of this width
   const [foldRequest, setFoldRequest] = useState(null);
   const [foldResponse, setFoldResponse] = useState(null);
@@ -1071,6 +1075,28 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       } }
       : null
   ) : undefined;
+  const restoreProjection = engineState?.axis?.hitId === researchLoad?.hitId
+    && engineState?.verification?.corpus_id === researchLoad?.corpusId
+    ? normalizeElsReturnProjection(researchLoad?.matrixProjection, engineState?.axis) : null;
+  useEffect(() => {
+    const key = researchLoad?.researchNonce;
+    if (!key || restoredProjectionRef.current === key || !restoreProjection
+      || engineState?.axis?.hitId !== researchLoad.hitId
+      || engineState?.verification?.corpus_id !== researchLoad.corpusId) return;
+    restoredProjectionRef.current = key;
+    setFoldWidth(restoreProjection.width);
+  }, [researchLoad?.researchNonce, foldIdentity, engineState?.verification?.corpus_id]);
+  const returnProjection = foldActive && foldScanWindow ? {
+    kind: "row-spacing", width: foldOption.width, rowGap: foldOption.between,
+    r0: foldResponse.r0, r1: foldResponse.r1, c0: foldBand.c0, c1: foldBand.c1,
+  } : null;
+  const returnProjectionKey = JSON.stringify(returnProjection);
+  useEffect(() => {
+    if (active) elsResearchOperation?.observeElsProjection?.(engineState, returnProjection);
+  }, [active, engineState, returnProjectionKey, elsResearchOperation?.observeElsProjection]);
+  const submitReading = (context, options = {}) => onRazielMatrix?.(context, {
+    ...options, returnSnapshot: captureElsResearchReturn(engineState, returnProjection),
+  });
   const dockProjection = useMemo(() => ({
     surface: "els",
     actions: [
@@ -1617,6 +1643,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
   const projectedMatrix = projectedOption ? <React.Suspense fallback={<p role="status">טוען את חלון המטריצה…</p>}>
     <ElsFoldedMatrix2029 state={engineState} option={projectedOption} windowSize={windowSize} focusHitId={focusHit?.hitId} busy={searchPending || !!loadPhase} response={foldResponse?.refreshError || foldResponse}
+      initialProjection={restoreProjection} restoreKey={restoreProjection ? researchLoad?.researchNonce : null}
       onRequest={setFoldRequest}
       onExit={() => { if (focusHit) setDistantFinding(null); else setFoldWidth(null); }}
       onAxis={matrixActive && !searchPending && researchWorkspace ? openAxisResearch : undefined} />
@@ -1913,11 +1940,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                   <summary>הרחבה אופציונלית עם Fable</summary>
                   {projectedOption ? <p>Fable זמין כרגע בחלון הציר הראשי. אפשר לסרוק את החלון המוצג באמצעות הגילוי המקומי.</p>
                     : readingExtensionVisited ? <React.Suspense fallback={<p role="status">טוען אפשרויות סריקה…</p>}>
-                    {matrixReading ? <ElsMatrixReadingCard2029 embedded context={readingContext} reading={matrixReading} pending={searchPending || Boolean(lexiconPhase)} onSubmit={onRazielMatrix}
+                    {matrixReading ? <ElsMatrixReadingCard2029 embedded context={readingContext} reading={matrixReading} pending={searchPending || Boolean(lexiconPhase)} onSubmit={submitReading}
                       projection={readingProjection} overlayVisible={readingOverlayVisible}
                       onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })} />
                       : <button type="button" disabled={!readingContext || searchPending || Boolean(lexiconPhase)}
-                        onClick={() => onRazielMatrix(readingContext)}>בקש מרזיאל לבדוק את המטריצה</button>}
+                        onClick={() => submitReading(readingContext)}>בקש מרזיאל לבדוק את המטריצה</button>}
                   </React.Suspense> : null}
                 </details> : null}
                 structureTools={structuresVisited ? <>

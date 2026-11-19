@@ -27,7 +27,7 @@ export default function ElsResearchActivity2029({ onOpenResult = null, selecting
       }}>נקה תוצאה זמנית</button> : null}
     </div>
     <p>{task.returnSnapshot
-      ? "החזרה משחזרת את המופע, הממצאים והצבעים, הזום והגדרות התצוגה כפי שהיו בתחילת המחקר. המנוע מאמת אותם מחדש."
+      ? "החזרה משחזרת את המופע, הממצאים והצבעים, הזום והגדרות התצוגה שנקלטו בתחילת המחקר. בפריסה מופרדת נשמרים הרווח וגבולות החלון; מיקום הגרירה בתוך החלון אינו נשמר. המנוע מאמת מחדש, ללא AI."
       : "החזרה פותחת את מופע המוצא המדויק בלבד; לא נקלט צילום מצב של הסימונים והתצוגה."}</p>
     {onOpenResult ? task.rows.map((row, index) => <details key={`${task.id}:${index}`}>
       <summary><bdi>{row.term}</bdi> · {row.state === "FAILED" ? "הבדיקה לא הושלמה" : `${row.count} מופעים נטענו`}{row.truncated ? (row.scanPending ? " · הטווח עוד לא נסרק עד סופו" : " · יש תוצאות נוספות שלא נטענו") : ""}</summary>

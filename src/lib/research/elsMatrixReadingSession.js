@@ -15,6 +15,7 @@ import {
  */
 export function buildElsMatrixReadingSubmission({
   context,
+  returnSnapshot = null,
   op = "start",
   window: readingWindow = undefined,
   cap = undefined,
@@ -47,7 +48,7 @@ export function buildElsMatrixReadingSubmission({
     submission: {
       question: ELS_MATRIX_READING_SUBJECT,
       intelligenceLevel: "deep",
-      view: { surface: "els", elsFocus: { ...context.axis, occurrenceRef: context.axis.hitId }, elsMatrixContext: context },
+      view: { surface: "els", elsFocus: { ...context.axis, occurrenceRef: context.axis.hitId }, elsMatrixContext: context, ...(returnSnapshot ? { elsReturnSnapshot: returnSnapshot } : {}) },
       elsMatrixReadingAction: action,
     },
   };

@@ -23,7 +23,7 @@ const rowHeight = el => {
 
 // Research mode only. Exact divisors of the axis skip put whole rows between its letters.
 // The engine provides both the rendered window and its identity for local discovery.
-export default function ElsFoldedMatrix2029({ state, option, windowSize, focusHitId, busy, response, onRequest, onExit, onAxis }) {
+export default function ElsFoldedMatrix2029({ state, option, windowSize, focusHitId, busy, response, onRequest, onExit, onAxis, initialProjection = null, restoreKey = null }) {
   const axisHitId = state?.axis?.hitId || null, scope = state?.scope || null;
   const axisLength = Number(state?.axis?.length) || 5;
   const zoom = Number(state?.ui?.zoom) || 1;
@@ -47,7 +47,7 @@ export default function ElsFoldedMatrix2029({ state, option, windowSize, focusHi
     const previous = requestRef.current;
     const id = previous?.key === key ? previous.id : crypto.randomUUID();
     const foldSeq = ++seqRef.current;
-    requestRef.current = { key, id, foldSeq, axisHitId, scope, width: option.width, initialFocus };
+    requestRef.current = { key, id, foldSeq, axisHitId, scope, width: option.width, initialFocus, restoreKey };
     if (anchor || previous?.id !== id) scrollAnchor.current = anchor && { ...anchor, id };
     setView(next);
     setPendingSeq(foldSeq);
@@ -68,8 +68,11 @@ export default function ElsFoldedMatrix2029({ state, option, windowSize, focusHi
   useEffect(() => {
     if (!axisHitId || busy) return;
     const previous = requestRef.current;
-    const sameLayout = previous?.axisHitId === axisHitId && previous.scope === scope && previous.width === option.width && previous.initialFocus === initialFocus;
-    if (!sameLayout) send({ focus: initialFocus, rowStart: null, colStart: null, rowCount, colCount });
+    const sameLayout = previous?.axisHitId === axisHitId && previous.scope === scope && previous.width === option.width && previous.initialFocus === initialFocus && previous.restoreKey === restoreKey;
+    if (!sameLayout) {
+      const restore = initialProjection?.width === option.width ? initialProjection : null;
+      send({ focus: initialFocus, rowStart: restore?.r0 ?? null, colStart: restore?.c0 ?? null, rowCount, colCount });
+    }
     else if (view.rowCount !== rowCount && data && band) {
       const el = scrollRef.current;
       const height = el ? rowHeight(el) : 1;
@@ -78,7 +81,7 @@ export default function ElsFoldedMatrix2029({ state, option, windowSize, focusHi
         0, Math.max(0, data.totalRows - rowCount));
       send({ ...view, rowCount, rowStart, colStart: band.c0 }, { row: data.r0 + visibleRow, left: el?.scrollLeft || 0 });
     } else send({ ...view, rowCount, colCount });
-  }, [axisHitId, scope, option.width, initialFocus, busy, rowCount, marksKey]);
+  }, [axisHitId, scope, option.width, initialFocus, busy, rowCount, marksKey, restoreKey]);
   useEffect(() => {
     const target = response?.target, request = requestRef.current;
     if (!request || target?.foldWindowId !== request.id || target.foldSeq !== request.foldSeq) return;

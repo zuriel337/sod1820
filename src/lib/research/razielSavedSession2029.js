@@ -1,3 +1,4 @@
+import { copyElsResearchReturn } from "./elsMatrixReadingSavedResult.js";
 // Durable Raziel conversations are explicit, private ResearchProvider library items.
 // This module owns only the bounded serialization projection. It creates no memory,
 // truth, conversation or database owner of its own.
@@ -128,6 +129,10 @@ function normalizeMessage(message) {
     : projectSavedElsMatrixReading(message.elsMatrixReading, continuation?.contextSnapshot?.elsMatrixContext?.axis);
   // Do not report a successful save that silently discarded the scan or attached it to another occurrence.
   if (message.elsMatrixReading != null && !elsMatrixReading) return null;
+  const axis = continuation?.contextSnapshot?.elsMatrixContext?.axis;
+  const elsReturnSnapshot = elsMatrixReading && axis
+    ? copyElsResearchReturn(message.elsReturnSnapshot, { ...axis, corpus: axis.scope }) : null;
+  if (message.elsReturnSnapshot != null && !elsReturnSnapshot) return null;
   // An answer cannot simultaneously carry a link and await a number clarification.
   const navigationAction = !message.navigationClarify ? normalizeSavedNavigationAction(message.navigationAction) : null;
   const navigationClarify = !message.navigationAction ? normalizeSavedNavigationClarify(message.navigationClarify) : null;
@@ -143,6 +148,7 @@ function normalizeMessage(message) {
     ...(evidenceSummary ? { evidenceSummary } : {}),
     ...(elsSearchPlan ? { elsSearchPlan } : {}),
     ...(elsMatrixReading ? { elsMatrixReading } : {}),
+    ...(elsReturnSnapshot ? { elsReturnSnapshot } : {}),
     ...(navigationAction ? { navigationAction } : {}),
     ...(navigationClarify ? { navigationClarify } : {}),
     viewMode: ["general", "landscape", "exploratory"].includes(message.viewMode) ? message.viewMode : null,

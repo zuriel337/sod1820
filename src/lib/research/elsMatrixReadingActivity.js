@@ -1,3 +1,4 @@
+import { elsResearchReturnLoad } from "./elsResearchReturnSnapshot.js";
 // A projection of the ONE global session. No requests, timers, storage or new job owner.
 import { normalizeElsRazielMatrixContext } from "./elsRazielMatrixContext.js";
 import { sameElsMatrixReadingAxis } from "./elsMatrixReadingPresentation.js";
@@ -30,6 +31,7 @@ function project(item, active = false) {
     canCancel: active && !item.progress?.cancelling && phase !== "cancelling",
     fixture: result?.is_test_fixture === true || result?.provider?.kind === "test_double",
     saved: result?.saved_snapshot === true,
+    ...(item.elsReturnSnapshot ? { hasReturnSnapshot: true } : {}),
   };
 }
 
@@ -53,6 +55,9 @@ export function elsMatrixReadingReturnLoad(session, turnId) {
   const activity = item && project(item, session?.busy && item === turn);
   if (!activity) return null;
   const axis = activity.axis;
+  if (item.elsReturnSnapshot) return { ...elsResearchReturnLoad({
+    origin: { ...axis, corpus: axis.scope }, returnSnapshot: item.elsReturnSnapshot,
+  }), researchNonce: turnId };
   return { term: axis.term, scope: axis.scope, corpusId: axis.corpusId, skip: axis.skip,
     dir: axis.dir, start: axis.start, hitId: axis.hitId, words: [], researchNonce: turnId };
 }

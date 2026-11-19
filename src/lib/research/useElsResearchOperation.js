@@ -8,12 +8,25 @@ export function useElsResearchOperation({ disabled, invoke }) {
   const active = useRef(false);
   const current = useRef(null);
   const latestSnapshot = useRef(null);
+  const projectionRef = useRef(null);
+  const observeElsProjection = useCallback((state, projection) => {
+    if (!active.current) return;
+    projectionRef.current = projection ? { state, projection } : null;
+    latestSnapshot.current = captureElsResearchReturn(state, projection);
+  }, []);
   const observeElsState = useCallback(state => {
-    if (active.current) latestSnapshot.current = captureElsResearchReturn(state);
+    if (active.current) {
+      const prior = projectionRef.current;
+      const same = prior && prior.state?.axis?.occurrence_id === state.axis?.occurrence_id
+        && prior.state?.axis?.hitId === state.axis?.hitId && prior.state?.term === state.term
+        && prior.state?.verification?.corpus_id === state.verification?.corpus_id;
+      latestSnapshot.current = captureElsResearchReturn(state, same ? prior.projection : null);
+      if (!same) projectionRef.current = null;
+    }
   }, []);
   useEffect(() => {
     active.current = !disabled;
-    return () => { active.current = false; current.current?.controller.abort(); current.current = null; latestSnapshot.current = null; };
+    return () => { active.current = false; current.current?.controller.abort(); current.current = null; latestSnapshot.current = null; projectionRef.current = null; };
   }, [disabled]);
   const start = useCallback(async (input, origin) => {
     if (!active.current || current.current) return { ok: false, error: "קיים מחקר במעקב. עצרו או נקו אותו לפני התחלת מחקר נוסף." };
@@ -72,5 +85,5 @@ export function useElsResearchOperation({ disabled, invoke }) {
     if (current.current?.task?.status === "RUNNING") return false;
     current.current?.controller.abort(); current.current = null; setTask(null); return true;
   }, []);
-  return useMemo(() => ({ task, start, cancel, clear, observeElsState }), [task, start, cancel, clear, observeElsState]);
+  return useMemo(() => ({ task, start, cancel, clear, observeElsState, observeElsProjection }), [task, start, cancel, clear, observeElsState, observeElsProjection]);
 }

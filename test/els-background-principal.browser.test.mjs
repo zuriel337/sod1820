@@ -17,14 +17,14 @@ import {BrowserRouter} from 'react-router-dom';
 import ResearchProvider,{useResearch} from '/src/lib/research/ResearchProvider.jsx';
 const input={axis:'אמת',related:'חסד',scope:'torah',skipMin:2,skipMax:80,pageSize:20};
 const origin={entityType:'els',term:'תורה',corpus:'torah',corpusId:'fixture',skip:50,dir:1,start:5};
-function Probe(){const {elsResearchOperation:op}=useResearch();window.__task=op.task;
+function Probe(){const {elsResearchOperation:op}=useResearch();window.__task=op.task;window.__observeProjection=op.observeElsProjection;window.__observeState=op.observeElsState;
 return React.createElement(React.Fragment,null,
  React.createElement('button',{onClick:()=>op.start(input,origin)},'start'),
  React.createElement('button',{onClick:()=>{void op.start(input,origin);void op.start(input,origin);}},'double'),
  React.createElement('button',{onClick:op.cancel},'cancel'),React.createElement('button',{onClick:op.clear},'clear'),
  React.createElement('output',null,op.task?.status||'IDLE'));}
 createRoot(document.getElementById('root')).render(React.createElement(BrowserRouter,null,React.createElement(ResearchProvider,null,React.createElement(Probe))));`;
-const transport = `export const signalAiBehavior=()=>{};
+const transport = `export const SUPABASE_ANON='fixture';export const SUPABASE_URL='https://fixture.invalid';export const signalAiBehavior=()=>{};
 window.__calls=[];window.__pending=[];window.__aborts=0;
 export const supabase={functions:{async invoke(name,{body,signal}){
  window.__calls.push({name,body});signal?.addEventListener('abort',()=>window.__aborts++,{once:true});
@@ -60,9 +60,17 @@ test('real ResearchProvider isolates principals, reserves once, rejects late res
     page.on('pageerror',error=>errors.push(error.message));
     await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
     await page.goto(origin+'/fixture');
+    await page.waitForFunction(()=>typeof window.__observeProjection==='function');
+    await page.evaluate(()=>window.__observeProjection({status:'ok',term:'תורה',termRaw:'תורה',scope:'torah',
+      verification:{state:'MATCH',corpus_id:'fixture'},axis:{hitId:'50_1_5',skip:50,start:5,length:4},findings:[],ui:{zoom:1.4}},
+      {kind:'row-spacing',width:25,rowGap:1,r0:0,r1:14,c0:0,c1:24}));
     await page.getByRole('button',{name:'double',exact:true}).click();
     await page.waitForFunction(()=>window.__pending.length===1);
     assert.deepEqual(await page.evaluate(()=>window.__calls.map(x=>x.body.op)),['verify','page']);
+    await page.evaluate(()=>window.__observeState({status:'ok',term:'אחר',scope:'torah',axis:{hitId:'50_1_9',skip:50,start:9},
+      verification:{state:'MATCH',corpus_id:'fixture'},findings:[],ui:{zoom:2}}));
+    assert.equal(await page.evaluate(()=>window.__task.returnSnapshot.matrixProjection.width),25);
+    assert.equal(await page.evaluate(()=>window.__task.returnSnapshot.axis.start),5);
     const oldId=await page.evaluate(()=>window.__task.id);
     await page.evaluate(()=>window.__setLibraryUser('owner-b'));
     await page.waitForFunction(()=>window.__task===null);

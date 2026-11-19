@@ -1,3 +1,4 @@
+import { captureElsResearchReturn, elsResearchSnapshotMatches } from "./elsResearchReturnSnapshot.js";
 // A display-only projection inside the EXISTING saved Raziel conversation.
 // No storage, requests, tokens, automatic resume, ELS calculation or new truth owner.
 import { ELS_MATRIX_READING_RESULT_CONTRACT, isElsReadingJobId } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
@@ -86,4 +87,27 @@ export function projectSavedElsMatrixReading(value, contextAxis) {
   saved.tracking_unavailable = !isElsReadingJobId(saved.job?.id) && (value.tracking_unavailable === true || Boolean(value.poll_interrupted)
     || ["RUNNING", "CANCEL_REQUESTED"].includes(value.state) || (value.retryable === true && Boolean(value.job?.token)));
   return saved;
+}
+
+// Re-project external/local session metadata through the same bounded snapshot contract.
+export function copyElsResearchReturn(snapshot, origin) {
+  if (!elsResearchSnapshotMatches(snapshot, origin) || !Array.isArray(snapshot.findings)) return null;
+  try {
+    if (typeof snapshot.term !== "string" || snapshot.term.length > 100
+      || ["showN", "findingRadius", "zoom"].some(key => snapshot.view?.[key] != null && !Number.isFinite(snapshot.view[key]))
+      || ["fit", "heat", "niqqud"].some(key => snapshot.view?.[key] != null && typeof snapshot.view[key] !== "boolean")
+      || ["ctxR", "windowColumns"].some(key => snapshot.searchWindow?.[key] != null && !Number.isFinite(snapshot.searchWindow[key]))
+      || ["windowSize", "windowRequested"].some(key => snapshot.searchWindow?.[key] != null && !["small", "medium", "large"].includes(snapshot.searchWindow[key]))) return null;
+    if (snapshot.findings.some(f => !f || (f.color != null && (typeof f.color !== "string" || f.color.length > 32)) || !Array.isArray(f.shown) || !Array.isArray(f.sourceShown)
+      || [...f.shown, ...f.sourceShown].some(id => typeof id !== "string" || id.length > 100))) return null;
+    return captureElsResearchReturn({
+      status: "ok", term: snapshot.normalizedTerm, termRaw: snapshot.term, scope: snapshot.scope,
+      axis: { ...snapshot.axis, occurrence_id: snapshot.axis.occurrenceId },
+      verification: { state: "MATCH", corpus_id: snapshot.corpusId },
+      findings: snapshot.findings.map(f => ({ t: f.t, color: f.color, shown: f.shown,
+        sourceHits: f.sourceShown.map(hitId => ({ hitId, selected: true })) })),
+      ui: { ...snapshot.view, ...snapshot.searchWindow, hideMain: snapshot.hideMain },
+      geometry: { cw: snapshot.searchWindow?.windowColumns },
+    }, snapshot.matrixProjection);
+  } catch { return null; }
 }
