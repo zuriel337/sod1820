@@ -28,9 +28,13 @@ const DIMS  = ["query", "page", "country", "device"] as const;
 // unchanged; any other type is stored under "<type>:<dimension>" in the same gsc_metrics key (site, date, dimension, key) — no schema change.
 // Discover and Google News have no query dimension. A type Google does not return (no data, or not available for the property) is reported
 // as such in the run report and stores nothing: it is never written as zero traffic.
+// Discover is also never grouped by device: Google answers 400 "Requests for Discover cannot be grouped by device" (first scheduled run with
+// the full report, 19.11.2026 05:17 UTC, request 47924), so it is not requested (ZURIEL 19.11.2026). Each breakdown is reported on its own
+// (searchTypes.<type>.dimensions): a breakdown Google refuses does not hide the totals and breakdowns that did arrive.
+const ALL_DIMS = ["total", ...DIMS] as const;
 const SEARCH_TYPES = [
   { type: "web",        prefix: "",            dims: ["total", ...DIMS] },
-  { type: "discover",   prefix: "discover:",   dims: ["total", "page", "country", "device"] },
+  { type: "discover",   prefix: "discover:",   dims: ["total", "page", "country"] },
   { type: "googleNews", prefix: "googleNews:", dims: ["total", "page", "country", "device"] },
   { type: "news",       prefix: "news:",       dims: ["total", ...DIMS] },
   { type: "image",      prefix: "image:",      dims: ["total", ...DIMS] },
@@ -193,11 +197,18 @@ Deno.serve(async (req) => {
     // writes its rows, whoever stops waiting; a caller that waits still receives the full report.
     const run = (async () => {
     const report: Record<string, number> = {};
-    const searchTypes: Record<string, { state: "measured" | "no_data" | "unavailable"; rows: number; error?: string }> = {};
+    // Per breakdown: measured (rows stored) · no_data (Google answered with no rows; nothing stored, which is not zero) · unavailable (Google
+    // refused it) · write_failed (our upsert failed) · not_supported (Google does not offer it for this type, so it is not requested).
+    // Per type: measured / no_data when every requested breakdown answered, partial when some answered and some did not, unavailable when none did.
+    type DimState = "measured" | "no_data" | "unavailable" | "write_failed" | "not_supported";
+    const searchTypes: Record<string, { state: "measured" | "no_data" | "partial" | "unavailable"; rows: number; error?: string;
+      dimensions: Record<string, { state: DimState; rows: number; error?: string }> }> = {};
     for (const searchType of SEARCH_TYPES) {
       let typeRows = 0;
-      try {
-        for (const dim of searchType.dims) {
+      const dimensions: Record<string, { state: DimState; rows: number; error?: string }> = {};
+      for (const dim of ALL_DIMS) if (!(searchType.dims as readonly string[]).includes(dim)) dimensions[dim] = { state: "not_supported", rows: 0 };
+      for (const dim of searchType.dims) {
+        try {
           const rows = await queryAnalytics(token, site, startDate, endDate, dim, searchType.type);
           const dimension = searchType.prefix + dim;
           const upserts = rows.map((row: any) => {
@@ -220,13 +231,18 @@ Deno.serve(async (req) => {
           }
           report[dimension] = upserts.length;
           typeRows += upserts.length;
+          dimensions[dim] = { state: upserts.length > 0 ? "measured" : "no_data", rows: upserts.length };
+        } catch (e) {
+          // Web is the historical contract: any failure fails the run. For another type the failed breakdown is recorded and the rest continue.
+          if (searchType.type === "web") throw e;
+          const message = String(e).slice(0, 300);
+          dimensions[dim] = { state: message.startsWith("Error: upsert ") ? "write_failed" : "unavailable", rows: 0, error: message };
         }
-        searchTypes[searchType.type] = { state: typeRows > 0 ? "measured" : "no_data", rows: typeRows };
-      } catch (e) {
-        // Web is the historical contract: its failure fails the run. Another type Google does not serve for this property is recorded, not fatal.
-        if (searchType.type === "web") throw e;
-        searchTypes[searchType.type] = { state: "unavailable", rows: typeRows, error: String(e).slice(0, 300) };
       }
+      const requested = searchType.dims.map((dim) => dimensions[dim]);
+      const failed = requested.filter((d) => d.state === "unavailable" || d.state === "write_failed");
+      const state = failed.length === requested.length ? "unavailable" : failed.length > 0 ? "partial" : typeRows > 0 ? "measured" : "no_data";
+      searchTypes[searchType.type] = { state, rows: typeRows, ...(failed.length ? { error: failed[0].error } : {}), dimensions };
     }
 
     return { ok: true, site, range: { startDate, endDate }, upserted: report, searchTypes };

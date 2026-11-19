@@ -27,7 +27,11 @@ test("Search Console sync: search type is part of the metric identity; web keeps
   assert.match(source, /JSON\.stringify\(\{ startDate, endDate, dimensions, type, rowLimit, startRow \}\)/, "the search type is sent to Google");
   assert.match(source, /onConflict: "site,date,dimension,key"/, "same upsert key: no schema change");
   assert.match(source, /if \(searchType\.type === "web"\) throw e;/, "a web failure still fails the run");
-  assert.match(source, /state: "unavailable"/, "another type Google does not serve is recorded, never written as zero");
+  // ZURIEL 19.11.2026: the state is kept per breakdown (a refused breakdown is "unavailable", our failed write "write_failed"), and a type with
+  // some breakdowns answered and some refused is "partial", never "unavailable" as a whole and never zero.
+  assert.match(source, /\? "write_failed" : "unavailable"/, "another type Google does not serve is recorded, never written as zero");
+  assert.match(source, /failed\.length > 0 \? "partial"/, "a type with a refused breakdown is partial, not unavailable as a whole");
+  assert.doesNotMatch(/type: "discover"[^\n]*/.exec(block)[0], /"device"|DIMS/, "Discover is never grouped by device (Google answers 400)");
   assert.match(source, /return json\(\{ ok: false, error: String\(e\) \}, 502\)/, "a failed run is visible in the recorded response");
 });
 
