@@ -169,18 +169,10 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260916151000_g3_els_core_compatibility_truth_hardening_v1.sql
           psql -v ON_ERROR_STOP=1 -f test/els-core-compatibility.sql
 
-  els-browser:
+  # Static names preserve the repository's check-name derivation contract (no matrix/reusable jobs).
+  # Keep the three runners' toolchain pins together; the final check requires all three reports.
+  els-browser-1:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - shard: 1
-            companion: test/els-browser-cutover.test.mjs
-          - shard: 2
-            companion: test/els-saved-discovery-browser.test.mjs
-          - shard: 3
-            companion: test/els-discovery-structures-browser.test.mjs
     env:
       ELS_REQUIRE_EXECUTABLE: '1'
     steps:
@@ -204,32 +196,118 @@ jobs:
       - name: Install Chromium and preserve the gate's system dependencies
         run: '"$RUNNER_TEMP/els-tools/node_modules/.bin/playwright" install --with-deps chromium'
       - name: Native browser scenarios (one disjoint third)
-        run: node scripts/els-browser-shards.mjs run ${{ matrix.shard }} els-reports/shard-${{ matrix.shard }}.json
+        run: node scripts/els-browser-shards.mjs run 1 els-reports/shard-1.json
       - name: Companion browser acceptance
         if: ${{ !cancelled() }}
         env:
-          ELS_COMPANION_TEST: ${{ matrix.companion }}
+          ELS_COMPANION_TEST: test/els-browser-cutover.test.mjs
         run: node --test --test-concurrency=1 "$ELS_COMPANION_TEST"
       - name: Upload exact coverage report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: els-browser-${{ matrix.shard }}
-          path: els-reports/shard-${{ matrix.shard }}.json
+          name: els-browser-1
+          path: els-reports/shard-1.json
           if-no-files-found: error
           retention-days: 7
 
-  # Preserve the required check name; every child and the exact coverage must succeed.
+  els-browser-2:
+    runs-on: ubuntu-24.04
+    env:
+      ELS_REQUIRE_EXECUTABLE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install pinned browser runner and manifest parser
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" playwright@1.64.1 acorn@8.15.0
+          echo "NODE_PATH=$RUNNER_TEMP/els-tools/node_modules" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/els-browsers" >> "$GITHUB_ENV"
+          echo "ELS_NATIVE_CACHE_DIR=$RUNNER_TEMP/els-native-vite" >> "$GITHUB_ENV"
+      - name: Cache exact Chromium revision
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/els-browsers
+          key: ubuntu-24.04-${{ runner.arch }}-els-playwright-1.64.1-v1
+      - name: Install Chromium and preserve the gate's system dependencies
+        run: '"$RUNNER_TEMP/els-tools/node_modules/.bin/playwright" install --with-deps chromium'
+      - name: Native browser scenarios (one disjoint third)
+        run: node scripts/els-browser-shards.mjs run 2 els-reports/shard-2.json
+      - name: Companion browser acceptance
+        if: ${{ !cancelled() }}
+        env:
+          ELS_COMPANION_TEST: test/els-saved-discovery-browser.test.mjs
+        run: node --test --test-concurrency=1 "$ELS_COMPANION_TEST"
+      - name: Upload exact coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: els-browser-2
+          path: els-reports/shard-2.json
+          if-no-files-found: error
+          retention-days: 7
+
+  els-browser-3:
+    runs-on: ubuntu-24.04
+    env:
+      ELS_REQUIRE_EXECUTABLE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install pinned browser runner and manifest parser
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" playwright@1.64.1 acorn@8.15.0
+          echo "NODE_PATH=$RUNNER_TEMP/els-tools/node_modules" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/els-browsers" >> "$GITHUB_ENV"
+          echo "ELS_NATIVE_CACHE_DIR=$RUNNER_TEMP/els-native-vite" >> "$GITHUB_ENV"
+      - name: Cache exact Chromium revision
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/els-browsers
+          key: ubuntu-24.04-${{ runner.arch }}-els-playwright-1.64.1-v1
+      - name: Install Chromium and preserve the gate's system dependencies
+        run: '"$RUNNER_TEMP/els-tools/node_modules/.bin/playwright" install --with-deps chromium'
+      - name: Native browser scenarios (one disjoint third)
+        run: node scripts/els-browser-shards.mjs run 3 els-reports/shard-3.json
+      - name: Companion browser acceptance
+        if: ${{ !cancelled() }}
+        env:
+          ELS_COMPANION_TEST: test/els-discovery-structures-browser.test.mjs
+        run: node --test --test-concurrency=1 "$ELS_COMPANION_TEST"
+      - name: Upload exact coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: els-browser-3
+          path: els-reports/shard-3.json
+          if-no-files-found: error
+          retention-days: 7
+
+  # Preserve the existing check name; every child and the exact coverage must succeed.
   els-core-compatibility:
     if: ${{ always() }}
-    needs: [els-core-contracts, els-browser]
+    needs: [els-core-contracts, els-browser-1, els-browser-2, els-browser-3]
     runs-on: ubuntu-24.04
     steps:
       - name: Require all contract and browser jobs
         env:
           CONTRACTS_RESULT: ${{ needs.els-core-contracts.result }}
-          BROWSER_RESULT: ${{ needs.els-browser.result }}
-        run: test "$CONTRACTS_RESULT" = success && test "$BROWSER_RESULT" = success
+          BROWSER_1_RESULT: ${{ needs.els-browser-1.result }}
+          BROWSER_2_RESULT: ${{ needs.els-browser-2.result }}
+          BROWSER_3_RESULT: ${{ needs.els-browser-3.result }}
+        run: |
+          test "$CONTRACTS_RESULT" = success
+          test "$BROWSER_1_RESULT" = success
+          test "$BROWSER_2_RESULT" = success
+          test "$BROWSER_3_RESULT" = success
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
