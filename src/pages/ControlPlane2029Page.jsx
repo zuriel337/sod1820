@@ -139,6 +139,14 @@ function ControlPlaneBody({ auth }) {
   const dedupe = media.dedupe_latest || {};
   const egressLatest = usage.storage_egress_observed_latest || {};
   const egressTraffic = egressLatest.traffic_classes || {};
+  const egressCoverage = usage.storage_egress_observed_24h_coverage || {};
+  const egressCoverageKnown = Number.isInteger(egressCoverage.observed_hours)
+    && egressCoverage.observed_hours >= 0 && egressCoverage.observed_hours <= 24
+    && egressCoverage.required_hours === 24
+    && ["COMPLETE", "PARTIAL", "NO_DATA"].includes(egressCoverage.status)
+    && Date.parse(egressCoverage.window_end) - Date.parse(egressCoverage.window_start) === 24 * 60 * 60 * 1000;
+  const egressComplete = egressCoverageKnown && egressCoverage.status === "COMPLETE"
+    && egressCoverage.observed_hours === 24 && egressCoverage.partial_hours === 0;
   const egressGuard = usage.storage_egress_guard || {};
   const providerHistory = usage.supabase_egress_historical_exact || {};
   const egressHistory = Array.isArray(usage.storage_egress_observed_history_24h) ? usage.storage_egress_observed_history_24h : [];
@@ -216,18 +224,21 @@ function ControlPlaneBody({ auth }) {
         <div className="sod29-actions">
           <span className="sod29-chip">{egressGuard.state || "NO_HOURLY_DATA"}</span>
           <span className="sod29-chip">{usage.storage_egress_observed_basis || "UNKNOWN"}</span>
+          <span className="sod29-chip">{egressCoverageKnown ? egressCoverage.status : "UNKNOWN"}</span>
         </div>
       </div>
       <div className="sod29-grid">
         <Metric
           label="Observed · המדידה האחרונה"
           value={mib(egressLatest.storage_get_bytes)}
-          note={`snapshot: ${when(usage.storage_egress_observed_latest_at)} · מצב: ${egressGuard.state || "לא נבדק"}. נתון ישן אינו תעבורה נוכחית.`}
+          note={`סיום חלון המדידה: ${when(usage.storage_egress_observed_latest_at)} · מצב: ${egressGuard.state || "לא נבדק"}. נתון ישן אינו תעבורה נוכחית.`}
         />
         <Metric
-          label="Observed · 24 שעות"
-          value={mib(usage.storage_egress_observed_24h_bytes)}
-          note={`WARN ${mib(egressGuard.warn_24h_bytes)} · CRITICAL ${mib(egressGuard.critical_24h_bytes)}`}
+          label={egressComplete ? "Observed · 24 שעות מלאות" : "Observed · סכום חלקי בחלון 24 שעות"}
+          value={egressCoverageKnown ? mib(usage.storage_egress_observed_24h_observed_bytes) : "—"}
+          note={egressCoverageKnown
+            ? `כיסוי ${egressCoverage.observed_hours}/24 שעות · ${egressCoverage.status}. ${when(egressCoverage.window_start)} → ${when(egressCoverage.window_end)}. ${egressComplete ? "כל השעות נמדדו." : "הסכום מתייחס לשעות שנמדדו בלבד; נתון חסר אינו אפס."} WARN ${mib(egressGuard.warn_24h_bytes)} · CRITICAL ${mib(egressGuard.critical_24h_bytes)}`
+            : "כיסוי UNKNOWN — לא התקבל חלון מדידה תקין מהשרת; אין סכום מאומת ל־24 שעות."}
         />
         <Metric
           label="Bot share"

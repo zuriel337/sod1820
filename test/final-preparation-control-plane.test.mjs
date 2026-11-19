@@ -102,6 +102,43 @@ test('old observed egress is labelled last observation, never current24h zero',a
   await act(async()=>root.unmount());
 });
 
+test('egress card exposes 20/24 PARTIAL and never labels the observed subtotal a full day',async()=>{
+  const f=fixture(),root=await mount(f);
+  await settle(f,{health:{...snapshot,usage:{
+    storage_egress_observed_24h_bytes:null,
+    storage_egress_observed_24h_observed_bytes:20*1048576,
+    storage_egress_observed_24h_coverage:{observed_hours:20,required_hours:24,partial_hours:0,status:'PARTIAL',window_start:'2026-11-18T19:00:00Z',window_end:'2026-11-19T19:00:00Z'},
+    storage_egress_guard:{state:'WARN'},supabase_cached_egress_basis:'UNKNOWN'
+  }}});
+  const section=root.root.findByProps({'data-experience-capability':'storage-egress-health'});
+  const chips=section.findAll(n=>n.props.className==='sod29-chip').flatMap(n=>n.children).filter(v=>typeof v==='string');
+  assert.ok(text(root).includes('כיסוי 20/24 שעות · PARTIAL'));
+  assert.ok(text(root).includes('20 MiB'));
+  assert.ok(text(root).includes('הסכום מתייחס לשעות שנמדדו בלבד'));
+  assert.ok(!text(root).includes('24 שעות מלאות'));
+  assert.ok(text(root).includes('UNKNOWN'));
+  assert.ok(chips.includes('PARTIAL'));
+  await act(async()=>root.unmount());
+});
+
+test('egress card distinguishes a complete measured zero from no data and missing coverage metadata',async()=>{
+  for(const kind of ['COMPLETE','NO_DATA','legacy']) {
+    const f=fixture(),root=await mount(f);
+    const coverage={observed_hours:kind==='COMPLETE'?24:0,required_hours:24,partial_hours:0,status:kind,window_start:'2026-11-18T19:00:00Z',window_end:'2026-11-19T19:00:00Z'};
+    await settle(f,{health:{...snapshot,usage:{storage_egress_observed_24h_bytes:123*1048576,
+      storage_egress_observed_24h_observed_bytes:kind==='COMPLETE'?0:null,
+      ...(kind==='legacy'?{}:{storage_egress_observed_24h_coverage:coverage})}}});
+    const cards=root.root.findAll(n=>n.props.className==='sod29-card');
+    const card=cards.find(c=>c.findAllByType('div').some(d=>d.children.some(v=>typeof v==='string' && (v.includes('סכום חלקי בחלון')||v.includes('24 שעות מלאות')))));
+    assert.ok(card);
+    assert.equal(card.findByType('h3').children.join(''),kind==='COMPLETE'?'0 MiB':'—');
+    assert.equal(text(root).includes('24 שעות מלאות'),kind==='COMPLETE');
+    assert.ok(!text(root).includes('123 MiB'),'old unqualified subtotal is not displayed');
+    assert.ok(text(root).includes(kind==='legacy'?'כיסוי UNKNOWN':kind==='COMPLETE'?'כיסוי 24/24':'כיסוי 0/24'));
+    await act(async()=>root.unmount());
+  }
+});
+
 test('the speed centre is part of the main view; Google sources wait for "מדידה וגוגל"; "רענן" reaches the open measurement; all disappear with revoked admin',async()=>{
   const f=fixture(),root=await mount(f);
   assert.ok(f.metricsMounted>=1);assert.ok(text(root).includes('metrics-fixture'));assert.equal(f.metricsProps.providersOpen,false);assert.equal(f.metricsProps.refreshToken,0);
