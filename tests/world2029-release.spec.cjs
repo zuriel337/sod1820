@@ -982,7 +982,10 @@ test('SPARSE live World 122 stays honestly sparse with no fabricated research', 
 test('World uses the shared Command, Inspect, Share and exact-return seams', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
 
-  const command = page.locator('.sod29-header').getByRole('button', { name: 'חיפוש באתר', exact: true });
+  // ZURIEL 19.11.2026 (Design V2 §14.8): at phone width search lives in "עוד"; the top bar shows the theme in Hebrew.
+  await expect(page.locator('.sod29-header').getByRole('button', { name: 'חיפוש באתר', exact: true })).toBeHidden();
+  await page.locator('.sod29-command-island').getByRole('button', { name: /^עוד/ }).click();
+  const command = page.getByRole('dialog', { name: 'עוד', exact: true }).getByRole('button', { name: /^חיפוש/ });
   await expect(command).toBeVisible();
   await command.click();
   await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();
