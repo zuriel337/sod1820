@@ -75,7 +75,7 @@ test("saved discovery: A/B, late response, partial, failure, cancel, reload, acc
     await page.evaluate(() => window.__setState(window.__matrix("another-corpus", "tanakh")));
     await page.waitForFunction(() => window.__requests.some(r => r.cancel));
     await page.evaluate(() => window.__finish({ items: [] }));
-    assert.equal(await saved.getByRole("button", { name: "הצג בכלי הגילוי ללא סריקה" }).isDisabled(), true);
+    assert.equal(await saved.getByRole("button", { name: "צרף לכלי הגילוי ללא סריקה" }).isDisabled(), true);
     assert.equal(await page.locator("[data-lexicon-hit]").count(), 0);
     await saved.getByRole("button", { name: "חזור למטריצה של הסריקה · אימות במנוע" }).click();
     const returned = await page.evaluate(() => window.__restores.at(-1));
@@ -84,7 +84,7 @@ test("saved discovery: A/B, late response, partial, failure, cancel, reload, acc
     // Explicit return sends only a governed load, never a scan.
     assert.equal(await page.evaluate(() => window.__requests.filter(r => !r.cancel).length), 2);
     await page.evaluate(() => window.__setState(window.__matrix()));
-    await saved.getByRole("button", { name: "הצג בכלי הגילוי ללא סריקה" }).click();
+    await saved.getByRole("button", { name: "צרף לכלי הגילוי ללא סריקה" }).click();
     await page.locator('[data-lexicon-hit="1514_1_254827"]').waitFor();
     await start.click(); await page.evaluate(() => window.__finish({ ok: false, reason: "scan-failed" }));
     await page.getByText("הסריקה לא הושלמה. אין להסיק מכך שאין מילים באזור.", { exact: true }).waitFor();
@@ -99,7 +99,7 @@ test("saved discovery: A/B, late response, partial, failure, cancel, reload, acc
     // Fresh page resolves only the current principal's library pointer.
     await page.goto(`${origin}/fixture?discovery=${encodeURIComponent(id)}`);
     await saved.waitFor(); assert.equal(await page.evaluate(() => window.__requests.length), 0);
-    await saved.getByRole("button", { name: "הצג בכלי הגילוי ללא סריקה" }).click();
+    await saved.getByRole("button", { name: "צרף לכלי הגילוי ללא סריקה" }).click();
     await page.locator('[data-lexicon-hit="1514_1_254827"]').waitFor();
     assert.equal(await page.evaluate(() => window.__requests.length), 0);
     await start.click();

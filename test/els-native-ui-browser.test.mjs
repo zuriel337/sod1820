@@ -3718,6 +3718,12 @@ test('owner 18.11: one research panel — engine discovery, then Fable, one join
     await page.waitForFunction(()=>window.__lensRuns?.length===2,null,{timeout:60000});
     assert.deepEqual(await page.evaluate(()=>window.__lensRuns.map(run=>run.plan.mode || 'words')),['language','words']);
     assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+    await researchView(page,'מבנים').click();
+    await panel.getByText('מקורות לניתוח המבנים · 2/2',{exact:true}).waitFor();
+    await panel.getByLabel('כיסוי המבנים המשולבים').getByText(/2 סריקות/).first().waitFor();
+    const discoveryCalls = await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='request-lens'&&m.lens==='matrix-lexicon').length);
+    assert.equal(discoveryCalls,2,'combining canonical scans does not launch a third scan');
+    await researchView(page,'גילוי').click();
     await page.waitForFunction(()=>document.querySelectorAll('[data-joint-row]').length>0,null,{timeout:30000});
     assert.equal(await joint.locator('[data-joint-row][data-joint-source="engine"]').count()>0,true,'engine rows');
     // A Fable result for the same axis: one occurrence the engine also found, one only Fable found.

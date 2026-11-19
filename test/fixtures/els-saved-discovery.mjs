@@ -2,7 +2,7 @@ import { captureElsDiscoverySource } from "../../src/lib/research/elsSavedDiscov
 
 export const projection = { kind: "row-spacing", width: 1515, rowGap: 2, r0: 161, r1: 189, c0: 245, c1: 365 };
 export const matrix = (corpusId = "0b022e8eef6f9c16", scope = "torah") => ({
-  status: "ok", term: "קולומביה", termRaw: "קולומביה", scope,
+  status: "ok", term: "קולומביה", termRaw: "קולומביה", scope, corpusLetters: 304805,
   verification: { state: "MATCH", corpus_id: corpusId },
   axis: { start: 248765, skip: 4545, dir: 1, hitId: "4545_1_248765", length: 8,
     occurrence_id: `els:${corpusId}:קולומביה:4545:1:248765` },

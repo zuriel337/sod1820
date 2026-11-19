@@ -3,6 +3,7 @@ import { joinElsDiscovery, filterElsJointRows, sortElsJointRows, countElsJointRo
 import { elsLexiconWindowKey, prepareElsLexiconAdditions } from "../../lib/research/elsLexiconResearch.js";
 import "./elsJointDiscovery2029.css";
 import { assessElsResearch, compareElsResearchRows } from "../../lib/research/elsResearchAssessment.js";
+import { compatibleElsDiscoveryRuns } from "../../lib/research/elsDiscoveryStructureSources.js";
 
 // The joint list of the matrix discovery and the Fable reading (ZURIEL 18.11.2026). Presentation only: rows come from
 // joinElsDiscovery over results that already exist; adding goes through the engine's findings update, which verifies again.
@@ -26,7 +27,7 @@ export default function ElsJointDiscovery2029({ state, runs = {}, projection = n
   const [notice, setNotice] = useState("");
   const key = elsLexiconWindowKey(state);
   const all = Object.values(runs || {}).filter(run => run?.data);
-  const fresh = all.filter(run => run.key === key && !!key);
+  const fresh = compatibleElsDiscoveryRuns(state, runs).map(source => source.run);
   const axis = state?.axis && state.term ? { term: state.term, skip: state.axis.skip, dir: state.axis.direction === "back" ? -1 : 1, start: state.axis.start } : null;
   const axisKey = axis ? `${axis.term}:${axis.skip}:${axis.dir}:${axis.start}` : "";
   const corpusId = state?.verification?.corpus_id ?? null;
@@ -53,7 +54,7 @@ export default function ElsJointDiscovery2029({ state, runs = {}, projection = n
     }
     onFindingsChange?.(prepared.findings); setNotice(`${row.label} נשלח לאימות במנוע. מה שכבר מסומן במטריצה נשאר; רק מה שיאומת יתווסף.`);
   };
-  return <ElsJointDiscoveryList assessment={assessment} rows={rows} current={fresh.length === all.length} busy={busy} isAdded={isAdded} onAdd={add} notice={notice}
+  return <ElsJointDiscoveryList assessment={assessment} rows={rows} current={all.every(run => run.key === key)} busy={busy} isAdded={isAdded} onAdd={add} notice={notice}
     onShow={onShow ? row => onShow(row.fable.key) : null} selectedKey={selectedKey} hasDiscovery={fresh.length > 0} hasReading={!!projection?.findings?.length} />;
 }
 

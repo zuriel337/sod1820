@@ -153,7 +153,7 @@ export function elsStructureView(card, width, corpusLetters) {
 // Restore structural discovery as a projection of the EXISTING bounded scan.
 // No letters/dictionary/search here. Engine-provided positions remain candidates
 // until the existing exact-load verifier admits the selected occurrences.
-export function groupElsLexiconDiscoveries(state, result, settings = {}) {
+export function groupElsLexiconDiscoveries(state, result, settings = {}, sourceOf = () => result) {
   const snapshot = captureElsResearchReturn(state), box = result?.box;
   const empty = reason => ({ groups: [], ok: false, reason });
   if (!result?.ok || result.pending || !elsResearchSnapshotMatches(snapshot, result.origin)
@@ -167,7 +167,10 @@ export function groupElsLexiconDiscoveries(state, result, settings = {}) {
   let excluded = 0;
   for (const item of result.items) {
     const positions = item?.positions, id = `${item?.term}:${item?.hitId}`;
-    if (!isElsLexiconCandidate(item, result) || !Number.isSafeInteger(item.start) || !Number.isSafeInteger(item.skip)
+    const source = sourceOf(item);
+    if (source !== result && (!source?.items?.includes(item) || !elsResearchSnapshotMatches(snapshot, source.origin)
+      || !["S", "r0", "r1", "c0", "c1"].every(k => source.box?.[k] === box[k]))) { excluded++; continue; }
+    if (!isElsLexiconCandidate(item, source) || !Number.isSafeInteger(item.start) || !Number.isSafeInteger(item.skip)
       || item.skip < 1 || ![-1, 1].includes(item.dir) || item.hitId !== `${item.skip}_${item.dir}_${item.start}`
       || !Array.isArray(positions) || positions.length !== item.term.length
       || positions.some((p, i) => p !== item.start + i * item.skip * item.dir || p < 0 || p >= state.corpusLetters

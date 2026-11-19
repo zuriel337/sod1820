@@ -51,7 +51,7 @@ export default function ElsSavedDiscovery2029({ runs, state, busy, discoveryId, 
       <p>{!scan.source.returnSnapshot ? "נשמר המופע בלבד; תצוגת המקור אינה זמינה לשחזור."
         : scan.source.returnSnapshot.matrixProjection ? "החזרה כוללת את רווח השורות, גבולות החלון, הזום והסימונים הנתמכים."
         : "החזרה כוללת מופע, גודל חלון, זום וסימונים. מיקום הגלילה המדויק בחלון הרגיל אינו מובטח; גבולות הסריקה מוצגים למעלה."}</p>
-      <button type="button" disabled={busy || !matching} onClick={() => onOpen(scan)}>הצג בכלי הגילוי ללא סריקה</button>
+      <button type="button" disabled={busy || !matching} onClick={() => onOpen(scan)}>צרף לכלי הגילוי ללא סריקה</button>
       {!matching ? <p>הוספה לכלי הגילוי זמינה רק במופע, בגרסת הקורפוס ובגבולות החלון המקוריים.</p> : null}
       <details><summary>המועמדים שנשמרו · {scan.data.items.length}</summary>
         <ul>{scan.data.items.slice(page * 20, (page + 1) * 20).map((item, i) => <li key={`${item.hitId}:${item.term}:${i}`}><bdi>{item.label || item.term}</bdi> · דילוג {item.skip} · התחלה {item.start} · מועמד לאימות</li>)}</ul>

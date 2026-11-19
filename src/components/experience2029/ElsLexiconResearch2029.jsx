@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
-import { elsLexiconWindowKey, prepareElsLexiconFindings, prepareElsLexiconAdditions, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
-import { elsStructureView, groupElsLexiconDiscoveries, inspectElsStructures, isElsStructureMemberMarked, selectElsStructureCandidates, verifiedElsStructureCards, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
+import { elsLexiconWindowKey, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
+import { elsStructureView, inspectElsStructures, isElsStructureMemberMarked, verifiedElsStructureCards, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
+import { projectElsDiscoveryStructures, prepareElsStructureAdditions, prepareElsStructureRestore } from "../../lib/research/elsDiscoveryStructureSources.js";
 import ElsJointDiscovery2029 from "./ElsJointDiscovery2029.jsx";
 import ElsStructureResearch2029 from "./ElsStructureResearch2029.jsx";
 import ElsSavedDiscovery2029 from "./ElsSavedDiscovery2029.jsx";
@@ -27,6 +28,7 @@ const structureFilters = [
 ];
 const belongsTo = (card, types) => !types.length || card.types.some(type => types.includes(type));
 const memberKey = card => card.members.map(member => `${member.term}:${member.hitId}`).sort().join("|");
+const sourceLabel = ({ run }) => `${run.data.plan?.mode === "language" ? "ביטויים" : "מילים"}${run.data.savedSnapshot ? " · שמורה" : ""}${run.startedAt ? ` · ${run.startedAt}` : ""}`;
 
 export default function ElsLexiconResearch2029({
   state, scanWindow, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
@@ -39,6 +41,7 @@ export default function ElsLexiconResearch2029({
   const [inspectionVisited, setInspectionVisited] = useState(false);
   const [plan, setPlan] = useState({ mode: "language", minLength: 5, maxLength: 16, maxDistance: 120, minMembers: 2 });
   const [hideForwardSource, setHideForwardSource] = useState(false);
+  const [excludedSourceIds, setExcludedSourceIds] = useState([]);
   const languagePlan = plan.mode === "language";
   const [discoveryMode, setDiscoveryMode] = useState("language");
   const scanButton = useRef(null);
@@ -128,23 +131,22 @@ export default function ElsLexiconResearch2029({
   const data = result?.data, current = result?.key === key && !!key;
   const wordRun = runs.words?.key === key && key ? runs.words : null;
   const languageInspection = runs.language?.key === key ? runs.language?.data.languageInspection : null;
-  const presented = useMemo(() => {
-    if (!result) return null;
-    const items = filterElsForwardSource(result.data.items, hideForwardSource);
-    // Grouping is quadratic. Keep its existing budget, while every candidate is still in the list.
-    const groupItems = selectElsStructureCandidates(items);
-    return { items, groupCount: groupItems.length,
-      structures: groupElsLexiconDiscoveries(result.state, { ...result.data, items: groupItems }, result.data.plan) };
-  }, [result, hideForwardSource]);
-  const structures = presented?.structures;
-  const groups = structures?.groups || [];
+  // Findings/zoom notifications cannot repeat quadratic grouping when source/window did not change.
+  const presented = useMemo(() => projectElsDiscoveryStructures(scanState, runs, { hideForwardSource, excludedIds: excludedSourceIds }),
+    [key, state?.corpusLetters, runs, hideForwardSource, excludedSourceIds]);
+  const latestItems = data ? filterElsForwardSource(data.items, hideForwardSource) : [];
+  const structures = presented.structures, groups = presented.groups;
   const inspection = useMemo(() => visible && view === "structures" ? inspectElsStructures(scanState) : null, [visible, view, scanState]);
   const markedCards = useMemo(() => verifiedElsStructureCards(inspection), [inspection]);
-  const axisMember = current ? { term: data.origin.term, hitId: state.axis.hitId, kind: "axis", dir: data.origin.dir,
-    positions: Array.from(data.origin.term, (_, i) => data.origin.start + i * data.origin.dir * data.origin.skip) } : null;
+  const groupOrigin = presented.included[0]?.run.data.origin;
+  const axisMember = groupOrigin ? { term: groupOrigin.term, hitId: state.axis.hitId, kind: "axis", dir: groupOrigin.dir,
+    positions: Array.from(groupOrigin.term, (_, i) => groupOrigin.start + i * groupOrigin.dir * groupOrigin.skip) } : null;
   const markedKeys = new Set(markedCards.map(memberKey));
-  const discoveryCards = current ? groups.map(group => ({ ...group, members: group.includesAxis ? [axisMember, ...group.items] : group.items })) : [];
-  const cards = [...markedCards, ...discoveryCards.filter(card => !markedKeys.has(memberKey(card)))];
+  const discoveryCards = groups.map(group => ({ ...group, members: group.includesAxis ? [axisMember, ...group.items] : group.items }));
+  const cards = [...markedCards.map(card => {
+    const discovered = discoveryCards.find(found => memberKey(found) === memberKey(card));
+    return discovered ? { ...card, sources: discovered.sources, memberSources: discovered.memberSources } : card;
+  }), ...discoveryCards.filter(card => !markedKeys.has(memberKey(card)))];
   const types = structureFilters.find(([id]) => id === groupType)[2];
   const priority = card => card.types.includes("intersection") || card.types.includes("transversal") ? 0 : card.types.includes("cluster") && card.types.length === 1 ? 2 : 1;
   const rows = cards.filter(card => belongsTo(card, types)).sort((a, b) => priority(a) - priority(b));
@@ -153,11 +155,11 @@ export default function ElsLexiconResearch2029({
   const slice = rows.slice(pageIndex * 20, pageIndex * 20 + 20);
   const isAdded = member => isElsStructureMemberMarked(state, member);
   const add = items => {
-    if (!current || run) return;
+    if (!structures.ok || run) return;
     if (busy) { setNotice("התוספת הקודמת עדיין באימות. המתינו לסיומה ואז הוסיפו את הבאה."); return; }
     // The host's findings update adds to what is on the matrix. The older full reload is kept only for a host that has no such update.
     if (onAdd) {
-      const prepared = prepareElsLexiconAdditions(scanState, data, items, color);
+      const prepared = prepareElsStructureAdditions(scanState, presented, items, color);
       if (prepared.error) {
         setNotice(prepared.error === "limit" ? "במטריצה כבר 24 מילים, וזו התקרה. הסירו מילה מרשימת הממצאים ואז הוסיפו."
           : "הגילוי אינו מתאר עוד את המטריצה שעל המסך. הפעילו סריקה חדשה ואז הוסיפו.");
@@ -167,7 +169,7 @@ export default function ElsLexiconResearch2029({
       setNotice("נשלח לאימות במנוע. המופעים שאומתו יתווספו למטריצה.");
       return requestId;
     }
-    const load = prepareElsLexiconFindings(scanState, data, items, color);
+    const load = prepareElsStructureRestore(scanState, presented, items, color);
     if (!load) { setNotice("לא ניתן להוסיף: בדקו את המופע ואת מגבלת 24 המילים במטריצה."); return; }
     onRestore?.(load); setNotice("נשלח לאימות במנוע. רק ממצאים שאומתו יסומנו על המטריצה.");
   };
@@ -261,7 +263,8 @@ export default function ElsLexiconResearch2029({
       onOpen={scan => {
         if (!elsSavedDiscoveryMatches(scan, scanState)) return;
         const opened = { ...scan, key, state: scanState };
-        setDiscovery(current => ({ result: opened, runs: { ...current.runs, [scan.data.plan.mode === "language" ? "language" : "words"]: opened } }));
+        setDiscovery(current => ({ result: opened, runs: { ...current.runs, [`saved:${scan.id}`]: opened } }));
+        setExcludedSourceIds(current => current.filter(id => id !== scan.id));
         setPage(0); onOpenDiscovery(); setNotice("תוצאה שמורה נטענה ללא סריקה. הוספת מועמדים למטריצה דורשת אימות במנוע.");
       }} />
     {viewNavigation}
@@ -271,8 +274,8 @@ export default function ElsLexiconResearch2029({
       <p>המופע שנסרק: <bdi>{data.origin.term}</bdi> · {data.origin.corpus === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{data.origin.skip}</bdi>.</p>
       {!current ? <p role="note">התוצאה שייכת לחלון קודם. סרקו את החלון הנוכחי לפני הוספת ממצא.</p> : null}
       <p>{data.plan?.mode === "language" ? "בדיקת מדגם קווים — לא סריקה מלאה של החלון" : data.coverage.complete ? "הסריקה המוגדרת הושלמה"
-        : data.coverage.stop === "PAUSED" ? "הסריקה הושהתה" : "מקטע הסריקה הסתיים"} · {presented.items.length} קריאות זמינות מתוך {data.items.length} שנשמרו · {groups.length} קבוצות להצגה.</p>
-      {hideForwardSource ? <p>{data.items.length - presented.items.length} קריאות מקור קדימה הוסתרו. הקבוצות עודכנו בהתאם.</p> : null}
+        : data.coverage.stop === "PAUSED" ? "הסריקה הושהתה" : "מקטע הסריקה הסתיים"} · {latestItems.length} קריאות זמינות מתוך {data.items.length} שנאספו בסריקה זו.</p>
+      {hideForwardSource ? <p>{data.items.length - latestItems.length} קריאות מקור קדימה הוסתרו בסריקה זו. הקבוצות עודכנו בהתאם.</p> : null}
       {current && nextPlan ? <button type="button" disabled={busy || !!run} onClick={() => { setPlan(nextPlan); startPlan(nextPlan); }}>הרחב עוד טבעת · סרוק מחדש עד {nextPlan.maxDistance} תאים</button> : null}
       {nextPlan ? <p>{data.plan?.mode === "language" ? "הרחבה חוזרת על אותו מדגם קווים ומאפשרת להציג קריאות רחוקות יותר מתוכו. היא אינה מוסיפה קווים." : "הרחבה בודקת מחדש את התכנית בטווח רחב יותר בתוך אותו חלון."} האזור שמחוץ לחלון אינו נסרק.</p> : null}
       <p>הקבוצות הן מועמדות לבדיקה. הוספה למטריצה עוברת אימות במנוע.</p>
@@ -284,13 +287,13 @@ export default function ElsLexiconResearch2029({
         {hideForwardSource ? <p>הקבוצות נבנו מחדש מהקריאות שנותרו; הסינון אינו משלים התאמות שלא נשמרו בגלל תקרת הסריקה.</p> : null}
         <p>התחלת הציר: <bdi>{data.origin.start}</bdi>. {data.coverage.completedRays}/{data.coverage.totalRays} קווים · {data.coverage.windows} רצפים נבדקו. כדי לחזור לאחר רענון, שמרו במפורש בספריית המחקר.</p>
         <p>הסריקה מצאה התאמות לאותיות, לא דירוג של משמעות או נדירות. חלקי הציר ({data.coverage.axisFragments}) לא נספרו כממצאים חדשים.</p>
-        <p>{groups.length} קבוצות מוצגות מתוך {structures?.totalGroups ?? 0} שנבנו מאותן מילים. קשרים מבניים מוצגים לפני אשכולות של קרבה בלבד; בתוך כל סוג — קרבה לציר ואז מספר המופעים. זה סדר תצוגה, לא ציון חוזק.</p>
+        <p>{groups.length} קבוצות משולבות מוצגות מתוך {structures?.totalGroups ?? 0} שנבנו ממקורות המבנים הנבחרים. קשרים מבניים מוצגים לפני אשכולות של קרבה בלבד. זה סדר תצוגה, לא ציון חוזק.</p>
         <p>אוצר: מילות התנ״ך ומילון הליבה, {data.lexicon.entryCount} ערכים. התאמה מדויקת לאחר נרמול אותיות סופיות; אין השלמת אותיות.</p>
         <p>רוחב מטריצה {data.box.S}; שורות {data.box.r0}–{data.box.r1}, עמודות {data.box.c0}–{data.box.c1} (ספירה מאפס). חלון המחקר עשוי להיות גדול מהחלק המוצג במסך.</p>
         <p>סדר ההצגה: קרבה לציר, אורך, מילה ומיקום. הכיסוי מתייחס לחלון ולתכנית הסריקה שנבחרו.</p>
       </details>
       {Object.entries(runs).map(([mode, scan]) => scan.key === key ? <p key={mode}>
-        {mode === "language" ? "ביטויים וחלוקת רצפים" : "מילים ומבנים"} · {scan.data.coverage.completedRays}/{scan.data.coverage.totalRays} קווים
+        {scan.data.plan?.mode === "language" ? "ביטויים וחלוקת רצפים" : "מילים ומבנים"} · {scan.data.coverage.completedRays}/{scan.data.coverage.totalRays} קווים
       </p> : null)}
     </div></details> : null}
     <ElsJointDiscovery2029 state={scanState} runs={runs} projection={projection} busy={busy || !!run}
@@ -312,7 +315,22 @@ export default function ElsLexiconResearch2029({
     <div hidden={view !== "structures"} id="els29-structures-view">
       <section aria-label="קשרים בין מופעים">
         <p>קשרים בין הממצאים: חיתוכים, קווים, חזרות וקבוצות קרבה. מעבר לכאן אינו מפעיל סריקה נוספת.</p>
-        {current ? <p>קבוצות הגילוי מבוססות על הסריקה האחרונה ({data.plan?.mode === "language" ? "ביטויים" : "מילים"}); הרשימה המשותפת בלשונית ממצאים כוללת את שני המסלולים. {structures?.candidates ?? 0} מועמדים מתוך {presented.items.length} התאמות בסריקה השתתפו בניתוח.</p> : null}
+        <p>הקבוצות משלבות את הסריקה האחרונה בכל מסלול וסריקות שמורות שצורפו במפורש, באותו מופע ובאותו חלון.</p>
+        <details className="els29-structure-sources"><summary>מקורות לניתוח המבנים · {presented.included.length}/{presented.available.length}</summary>
+          <p>בחירת המקורות משנה את ניתוח המבנים בלבד; הרשימה המשותפת שומרת את כל המועמדים שצורפו. לפני החלפת סריקה באותו מסלול אפשר לשמור אותה ולצרף אותה שוב.</p>
+          {presented.available.map(source => <div key={source.id}>
+            <label className="els29-discovery-source-filter"><input type="checkbox" checked={!excludedSourceIds.includes(source.id)} onChange={event => {
+              const checked = event.target.checked;
+              setExcludedSourceIds(ids => checked ? ids.filter(id => id !== source.id) : [...ids, source.id]); setPage(0);
+            }} />{sourceLabel(source)}</label>
+            <p>{source.run.data.coverage?.complete ? "הסריקה המוגדרת הושלמה" : "כיסוי חלקי"} · {source.run.data.coverage?.completedRays ?? "לא ידוע"}/{source.run.data.coverage?.totalRays ?? "לא ידוע"} קווים · עד {source.run.data.plan?.maxDistance} תאים · {source.run.data.plan?.minLength}–{source.run.data.plan?.maxLength} אותיות.</p>
+          </div>)}
+        </details>
+        {presented.included.length ? <div aria-label="כיסוי המבנים המשולבים">
+          <p>{presented.entries.size} מועמדים ייחודיים מתוך {presented.collected} רשומות ב־{presented.included.length} סריקות; {presented.duplicates} חזרות נספרו פעם אחת. חזרה על אותו מופע אינה אישור עצמאי.</p>
+          <p>{presented.analyzed} מתוך {presented.items.length} המועמדים הזמינים נבחרו לתקציב ניתוח המבנים הקיים; {presented.omittedFromStructures} לא השתתפו. {presented.filtered} הוסתרו במסנן המקור; {presented.invalid} נפסלו בגלל זהות או מיקום לא שלמים.</p>
+          <p>קבוצה מוצגת החל מ־{presented.minMembers} מופעים, לפי הסף הנמוך במקורות הנבחרים. הכיסוי מוצג לכל סריקה בנפרד; אין לחבר אחוזים של אזורים חופפים.{presented.partial ? " חלק מהמקורות מספקים כיסוי חלקי בלבד." : ""}</p>
+        </div> : null}
         {inspection?.ok ? <p>{inspection.lines.length} מופעים מסומנים נבדקו, כולל הציר.</p> : null}
         {inspection?.ok === false && key ? <p>{inspection.reason}</p> : null}
         <div className="els29-structure-filters" role="group" aria-label="סוג הקשר">
@@ -325,6 +343,10 @@ export default function ElsLexiconResearch2029({
           return <li key={memberKey(card)} data-structure-card={card.id} className="els29-structure-card">
             <strong>{card.types.map(type => ELS_DISCOVERY_GROUP_LABELS[type]).join(" · ")}</strong>
             {card.reasons.map(reason => <p key={reason}>{reason}</p>)}
+            {card.sources?.length ? <details><summary>מקורות הקבוצה · {card.sources.length} סריקות</summary>
+              {card.sources.map(source => <p key={source.id}>{sourceLabel(source)} · {source.run.data.coverage?.complete ? "כיסוי התכנית הושלם" : "כיסוי חלקי"}</p>)}
+              {card.memberSources.map(member => <p key={`${member.term}:${member.hitId}`}><bdi>{member.term}</bdi> · {member.sourceIds.length} מקורות לאותו מופע, לא אישורים עצמאיים.</p>)}
+            </details> : null}
             <div className="els29-structure-members">{card.members.map(member => <span key={`${member.term}:${member.hitId}`}>
               <bdi>{member.label || member.term}</bdi> <small>{member.kind === "axis" ? "ציר מאומת" : isAdded(member) ? member.kind === "source" ? "רצף מקור" : "מאומת" : "מועמד"}</small>
             </span>)}</div>
