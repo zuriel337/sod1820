@@ -133,7 +133,7 @@ test("series previews (same Home reader) keep every approved series present even
   assert.equal(nowModels(rows(dup))[0].seriesKey, "messages-from-righteous");
 });
 
-test("the words of the message are shown with its media; unverified source rows stay two lines", () => {
+test("the words of the message are shown (Or HaGeula as text only, ZURIEL 19.11.2026); unverified source rows stay two lines", () => {
   const gen = nowExcerpt({ unverified: false, title: "מסר מאור הגאולה", fullText: "מילות המסר עצמן שנמשכות הלאה", summary: "" });
   assert.equal(gen.excerpt, "מילות המסר עצמן שנמשכות הלאה"); assert.equal(gen.excerptIsLead, false);
   const lead = nowExcerpt({ unverified: false, title: "פתיחה של המסר…", fullText: "פתיחה של המסר ועוד המשך ארוך", summary: "" });
@@ -142,8 +142,12 @@ test("the words of the message are shown with its media; unverified source rows 
   assert.equal(nowExcerpt({ unverified: false, title: "קצר", fullText: "קצר", summary: "" }).excerpt, "");
   const id = "9d4e6b80-f52b-4461-9231-ca30f37f0db9";
   const ch = publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "הגאולה קרובה ויש להתחזק בכל יום", image_url: MP4 });
-  const [m] = nowModels(rows([ch])); assert.equal(m.previewKind, "video");
-  const [img] = nowModels(rows([publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "טקסט", image_url: MP4.replace("clip.mp4", "i.jpg") })])); assert.equal(img.previewKind, "image");
+  // Or HaGeula is text only in "עכשיו" and on Home (ZURIEL 19.11.2026): no poster, no inline player, no image; the words stay.
+  const [m] = nowModels(rows([ch])); assert.equal(m.previewKind, null); assert.equal(m.thumb, null); assert.equal(m.mediaHref, null);
+  assert.equal(m.video, true, "it is still known as a video"); assert.equal(m.canExpand, true, "its words still open in place");
+  assert.equal(m.textOnly, true);
+  assert.match(readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8"), /model\.textOnly \? null : externalVideoLinksFromText/, "no YouTube card for a text-only source");
+  const [img] = nowModels(rows([publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "טקסט", image_url: MP4.replace("clip.mp4", "i.jpg") })])); assert.equal(img.previewKind, null); assert.equal(img.thumb, null); assert.equal(img.mediaHref, null);
   const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "פתיחה ".repeat(40), created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
   assert.equal(nowModels(rows([zvi]))[0].previewKind, null);
 });
@@ -161,7 +165,7 @@ test("collapseSourceRuns: only consecutive unverified rows of one source collaps
   assert.deepEqual(collapseSourceRuns(null), []);
 });
 
-test("source logos mark OUR material only: system-byline posts, Or HaGeula, ELS findings; third-party series and named writers get none", () => {
+test("source logos mark OUR material only: system-byline posts and ELS findings (Or HaGeula: none, 19.11.2026); third-party series and named writers get none", () => {
   const sys = nowModels(rows([postRowToWorldUpdate(post(1, { author: "מערכת כי לה׳ המלוכה" }))]))[0];
   assert.equal(sys.logo?.label, "כי לה׳ המלוכה");
   const alon = nowModels(rows([postRowToWorldUpdate(post(2, { author: "אלון לוי", tags: ["מה קורה הבורא"] }))]))[0];
@@ -169,7 +173,7 @@ test("source logos mark OUR material only: system-byline posts, Or HaGeula, ELS 
   const named = nowModels(rows([postRowToWorldUpdate(post(3, { author: "כותב" }))]))[0];
   assert.equal(named.logo, null);
   const orGeula = nowModels(rows([publicChannelToSystemItem({ id: "10000000-0000-4000-8000-000000000009", channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "מסר" })]))[0];
-  assert.equal(orGeula.logo?.label, "אור הגאולה");
+  assert.equal(orGeula.logo, null, "Or HaGeula shows no picture of theirs, not even the round logo (ZURIEL 19.11.2026)");
   const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000002", body: "הודעה", created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
   assert.equal(nowModels(rows([zvi]))[0].logo, null);
 });

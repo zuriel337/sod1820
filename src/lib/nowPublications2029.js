@@ -64,7 +64,8 @@ const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, isGallery, au
   if (unverified) return null;
   if (isGallery || (isPost && seriesKey === REALITY_MAP_LATEST_KEY)) return "site";
   if (isChannel && channel === "site-news") return "site";
-  if (isChannel && channel === "or-geula") return "or-geula";
+  // Or HaGeula: no picture of theirs at all, not even the round logo (ZURIEL 19.11.2026); the row shows its glyph and its name.
+  if (isChannel && channel === "or-geula") return null;
   if (kind === "finding" || kind === "convergence") return "els";
   if (isPost && !seriesKey && publicAuthorName(author) === SYSTEM_BYLINE) return "site";
   return null;
@@ -121,6 +122,9 @@ export function nowRowModel(row) {
   const isDiscussion = item.sourceKind === "community_thread";
   const isGallery = item.sourceKind === "gallery_update", isChannel = item.sourceKind === "channel_update";
   const media = item.mediaHref || item.mediaUrl || item.media?.url || null;
+  // Or HaGeula updates are shown as text only (ZURIEL 19.11.2026: "I don't want to see their pictures"): no image, no video poster or inline
+  // player, in "עכשיו" and on Home (both read this model). A video stays reachable through its own page link; audio is not a picture and stays.
+  const textOnly = isChannel && item.channel === "or-geula";
   const href = row?.href || null;
   const groupMediaKind = isGroup ? item.media?.kind : null; // a group source declares its own media kind
   const video = groupMediaKind === "video" || (!groupMediaKind && Boolean(media && VIDEO_URL.test(media))) || /^\/video\/[^/]+\/?$/.test(href || "")
@@ -188,16 +192,17 @@ export function nowRowModel(row) {
       ? (realityMapPreviewEnabled() ? featuredCentralWithUnit(item.central.postId, item.central) : null) || item.central
       : null,
     media: video ? "video" : audio ? "audio" : image ? "image" : "text", video, audio, image,
-    thumb: [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
+    textOnly,
+    thumb: textOnly ? null : [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
-    mediaHref: media, lenses,
+    mediaHref: textOnly && !audio ? null : media, lenses,
     fullText, summary: summary && summary !== title ? summary : "",
     ...nowExcerpt({ unverified, title, fullText, summary }),
     // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
-    previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
+    previewKind: textOnly || (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
     // Almost every row opens in place (ZURIEL 11.11.2026): its full text when the item carries it, otherwise the approved summary (a Post's excerpt),
     // otherwise its media. A row with nothing to show stays a plain link — never an empty panel, never an invented continuation.
-    canExpand: !isDiscussion && Boolean(fullText || summary || media),
+    canExpand: !isDiscussion && Boolean(fullText || summary || (textOnly && !audio ? null : media)),
     // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
     // A writer pin is not an update of the publication, so it never says "עודכן".
     updated: Boolean(item.sourceUpdate || pinKind === "owner"),

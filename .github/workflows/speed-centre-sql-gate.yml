@@ -20,6 +20,11 @@ on:
       - 'tests/sql/run-post-document-freshness.sh'
       - 'tests/sql/post-document-keys-check.mjs'
       - 'post-document-freshness.js'
+      - 'supabase/migrations/20261119220000_egress_24h_window.sql'
+      - 'supabase/proposed/ROLLBACK_20261119220000_egress_24h_window.sql'
+      - 'tests/sql/egress_24h_*'
+      - 'tests/sql/live/egress-readers-20261119.sql'
+      - 'tests/sql/run-egress-24h.sh'
       - 'route-legitimacy.js'
       - '.github/workflows/speed-centre-sql-gate.yml'
   workflow_dispatch:
@@ -58,3 +63,7 @@ jobs:
         run: |
           psql -d postgres -c "create database post_document_fixture"
           PGDATABASE=post_document_fixture bash tests/sql/run-post-document-freshness.sh
+      - name: Observed Egress 24h (measured windows, explicit coverage, duplicate revisions, missing data, reader permissions, rollback)
+        run: |
+          psql -d postgres -c "create database egress_window_fixture"
+          PGDATABASE=egress_window_fixture bash tests/sql/run-egress-24h.sh
