@@ -31,6 +31,7 @@ test("external and already transformed sources stay untouched", () => {
 
 test("the Home uses the policy for compact cards, series cards and video tiles", () => {
   const home = readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
+  const featured = readFileSync(new URL("../src/components/experience2029/HomeFeaturedPost2029.jsx", import.meta.url), "utf8");
   assert.match(home, /import \{ homeMediaProps2029 \} from "\.\/homeMediaPolicy2029\.js";/);
   assert.match(home, /function Media\([^]*?homeMediaProps2029\(src, slot\)[^]*?data-home-media=\{slot\}/);
   assert.match(home, /<Media src=\{item\.imageUrl\} fallback="✦" slot="series" \/>/);
@@ -38,4 +39,8 @@ test("the Home uses the policy for compact cards, series cards and video tiles",
   assert.match(home, /className="h29-live-thumb" slot="compact"/);
   assert.match(home, /className="h29-recent-thumb" slot="compact"/);
   assert.match(home, /fallback="▶" slot="tile" \/>/);
+  assert.match(featured, /import \{ homeMediaProps2029 \} from "\.\/homeMediaPolicy2029\.js";/);
+  assert.match(featured, /const poster = homeMediaProps2029\(post\?\.video\?\.poster \|\| post\?\.poster, "poster"\);/);
+  assert.match(featured, /poster=\{near \? poster\.src : undefined\}/);
+  assert.match(featured, /<img className="h29-featured-poster" \{\.\.\.poster\} data-home-media="poster"/);
 });
