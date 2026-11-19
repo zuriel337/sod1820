@@ -92,3 +92,11 @@ test("split view is research-only: mounted in the research tools, never in the c
   assert.match(component, /אין להסיק ממנה שאין מופע בכל התורה/, "a local window never proves absence");
   assert.doesNotMatch(component, /supabase|fetch\(|rpc\(/, "the view reads only from the engine lens");
 });
+
+test('day-of-messiah axis 583 has no exact row gap 1–4; no rounded width is offered', async () => {
+  const { foldOptionsFor, foldOptions } = await import('../src/lib/elsSplitMatrix.js');
+  const options = foldOptionsFor(583, 8);
+  assert.equal(options.some(option => option.between >= 1 && option.between <= 4), false);
+  assert.ok(foldOptions(583).some(option => option.width === 53 && option.between === 10));
+  assert.equal(options.some(option => option.width === 53), false, "the current row budget also excludes the 10-row gap for this axis");
+});

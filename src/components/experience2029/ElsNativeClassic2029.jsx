@@ -903,6 +903,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
+  const [surfaceSizeOpen, setSurfaceSizeOpen] = useState(false);
+  const [surfaceHeight, setSurfaceHeight] = useState(0);
+  const surfaceSizeTrigger = useRef(null);
   const [fullscreen, setFullscreen] = useState(false);   // research mode: the whole ELS surface fills the screen, windows float over the matrix
   const [fsQueryOpen, setFsQueryOpen] = useState(false);
   const sectionRef = useRef(null);
@@ -1675,7 +1678,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   return <section ref={sectionRef} className={`els29-native-classic${fullscreen ? " is-fullscreen" : ""}${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
     data-els-native-classic="v4" {...(guidedProfile ? { "data-els-guided-result-surface": "results-first-v1" } : {})}
-    style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
+    style={{ ...(researchProfile && !fullscreen && surfaceHeight ? { "--els29-stage-height": `max(300px, calc(${surfaceHeight}dvh - 140px))` } : {}), "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
     <div id="els29-query" ref={queryRef} className={`els29-native-query${fsQueryOpen ? " is-fs-open" : ""}`} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <span><strong>חיפוש חדש</strong></span>
@@ -1856,12 +1859,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />}
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
+          {researchProfile ? <button type="button" className="els29-matrix-quick-action els29-matrix-height-trigger"
+            ref={surfaceSizeTrigger} aria-label="גודל משטח המחקר" aria-expanded={surfaceSizeOpen} aria-controls="els29-surface-size"
+            onClick={() => setSurfaceSizeOpen(value => !value)}><NavigationIcon2029 name="tools" /><span>משטח</span></button> :
           <button type="button" className="els29-matrix-quick-action els29-matrix-height-trigger"
             aria-label={heightExpanded ? "חזור לגובה הרגיל" : "הגדל גובה ב־50%"}
             title={heightExpanded ? "חזור לגובה הרגיל" : "הגדל את גובה המטריצה ב־50%"}
             aria-pressed={heightExpanded} onClick={() => setHeightExpanded(value => !value)}>
             <bdi dir="ltr">{heightExpanded ? "100%" : "+50%"}</bdi><span>{heightExpanded ? "רגיל" : "גובה"}</span>
-          </button>
+          </button>}
           <button type="button" className="els29-matrix-quick-action" aria-label="סימון חופשי"
             aria-pressed={!!engineState?.ui?.selMode} disabled={!matrixActive || searchPending}
             onClick={() => requestSelection("selection-mode")}><NavigationIcon2029 name="check" /><span>סימון</span></button>
@@ -1869,6 +1875,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <button ref={matrixOptionsTriggerRef} type="button" className="els29-matrix-quick-action els29-matrix-more-trigger"
             aria-label="עוד אפשרויות תצוגה" aria-expanded={matrixOptionsOpen} aria-controls="els29-matrix-display-options"
             onClick={() => setMatrixOptionsOpen(value => !value)}><NavigationIcon2029 name="tools" /><span>עוד</span></button>
+          {researchProfile ? <div id="els29-surface-size" className="els29-matrix-display-options" hidden={!surfaceSizeOpen || fullscreen}
+            role="group" aria-label="הגדרות גודל משטח המחקר" onKeyDown={event => {
+              if (event.key === "Escape") { event.stopPropagation(); setSurfaceSizeOpen(false); surfaceSizeTrigger.current?.focus(); }
+            }}>
+            <button type="button" aria-pressed={surfaceHeight === 0 && !heightExpanded} onClick={() => { setSurfaceHeight(0); setHeightExpanded(false); }}>גובה רגיל</button>
+            <button type="button" aria-pressed={surfaceHeight === 0 && heightExpanded} onClick={() => { setSurfaceHeight(0); setHeightExpanded(true); }}>גובה מרווח</button>
+            <button type="button" aria-pressed={surfaceHeight === 100} onClick={() => setSurfaceHeight(100)}>לפי גובה המסך</button>
+            <label>גובה מותאם<input type="range" aria-label="גובה משטח מותאם" min="60" max="160" step="5" value={surfaceHeight || 100}
+              onChange={event => setSurfaceHeight(Number(event.target.value))} /></label>
+            <small>{surfaceHeight ? `גובה מותאם: ${surfaceHeight}% מגובה המסך, פחות מקום לפקדים.` : heightExpanded ? "גובה מרווח לפי גודל המסך." : "גובה רגיל לפי גודל המסך."} השינוי משפיע על שטח התצוגה בלבד; גודל האותיות וחלון הסריקה נשארים בבקרות הנפרדות.</small>
+            <small>להגדלת היקף הבדיקה השתמשו בחלון החיפוש; לעבודה בכל המסך השתמשו בכפתור מסך מלא.</small>
+            {matrixActive && foldOptionList.every(option => option.base) ? <small>בדילוג {engineState.axis.skip} אין חלוקה מדויקת לרווח של 1–4 שורות השומרת על הציר בטור אחד. הדילוג צריך להתחלק ב־2, 3, 4 או 5.</small> : null}
+          </div> : null}
           <div id="els29-matrix-display-options" className="els29-matrix-display-options" hidden={!matrixOptionsOpen}
             role="group" aria-label="אפשרויות תצוגת המטריצה"
             onKeyDown={event => { if(event.key === "Escape") { event.stopPropagation();setMatrixOptionsOpen(false);matrixOptionsTriggerRef.current?.focus(); } }}>

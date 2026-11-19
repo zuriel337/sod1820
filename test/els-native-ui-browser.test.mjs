@@ -94,7 +94,7 @@ test('research window has three capability views, one explicit launch and shared
     await researchView(page,'גילוי').click();
     const summary=panel.getByLabel('סיכום ממצאים'); await summary.waitFor();
     assert.match(await summary.textContent(),/ממתינים לאימות/);
-    assert.equal(await panel.getByLabel('מיון הרשימה המשותפת').inputValue(),'recommended');
+    assert.equal(await panel.getByLabel('מיון הרשימה המשותפת').inputValue(),'length');
     assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
     assert.equal(await page.evaluate(()=>window.__lensRuns.length),1,'switching views never starts another scan');
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -184,17 +184,17 @@ test('matrix toolbar is compact, preserves every display action and clears the r
   const boxes=await controls.locator(':scope > button').evaluateAll(nodes=>nodes.map(el=>{const b=el.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,font:parseFloat(getComputedStyle(el).fontSize)};}));
   assert.ok(boxes.every(b=>Math.abs(b.y-boxes[0].y)<1&&Math.abs(b.width-boxes[0].width)<1&&b.width>=44&&b.height>=44&&b.font>=16),'one equal-width row, readable and touch-sized');
   assert.ok(boxes.slice(1).every(b=>boxes[0].x>b.x),'height is the rightmost action in the RTL row');
-  const grow=controls.getByRole('button',{name:'הגדל גובה ב־50%',exact:true});
-  assert.equal(await controls.locator(':scope > button').first().getAttribute('aria-label'),'הגדל גובה ב־50%');
-  assert.equal(await grow.isVisible(),true,'height is visible without opening More');
-  assert.equal(await controls.getByRole('button',{name:'התאם מטריצה למסך',exact:true,includeHidden:true}).count(),1,'fit remains a single action');
+  const researchSize=controls.getByRole('button',{name:'גודל משטח המחקר',exact:true});
+  const isResearch=await researchSize.count()>0;
+  const grow=isResearch?researchSize:controls.getByRole('button',{name:'הגדל גובה ב־50%',exact:true});
+  assert.equal(await controls.locator(':scope > button').first().getAttribute('aria-label'),isResearch?'גודל משטח המחקר':'הגדל גובה ב־50%');
+  assert.equal(await controls.getByRole('button',{name:'התאם מטריצה למסך',exact:true,includeHidden:true}).count(),1);
   const regularHeight=await stageHeight(page);
-  await grow.click();
-  assert.ok(Math.abs(await stageHeight(page)-regularHeight*1.5)<=1,'one explicit click enlarges height by exactly 50%');
-  assert.equal(await more.getAttribute('aria-expanded'),'false','height does not open the disclosure');
-  const restore=controls.getByRole('button',{name:'חזור לגובה הרגיל',exact:true});
-  assert.equal(await restore.getAttribute('aria-pressed'),'true');
-  await restore.press('Enter');assert.ok(Math.abs(await stageHeight(page)-regularHeight)<=1,'keyboard restores regular height');
+  await setStageExpansion(page,true);
+  assert.ok(Math.abs(await stageHeight(page)-regularHeight*1.5)<=1,'roomy preset preserves the previous spacious height');
+  assert.equal(await more.getAttribute('aria-expanded'),'false');
+  await setStageExpansion(page,false);
+  assert.ok(Math.abs(await stageHeight(page)-regularHeight)<=1);
   assert.ok((await controls.boundingBox()).height<90,'closed controls are not a wall of buttons');
   await more.click();assert.equal(await more.getAttribute('aria-expanded'),'true');
   for(const name of ['התאם מטריצה למסך','מפת חום','סימון הציר הראשי','אותיות קלאסיות','הדגש פסוק במטריצה','מצב מצלמה'])
@@ -1362,6 +1362,17 @@ async function expectNative(page, url, label) {
   assert.equal(await page.locator('iframe').count(), 1, `${label}: retains one canonical iframe`);
   assert.equal(await page.evaluate(() => window.__mounts), 1, `${label}: retains the same engine mount`);
 }
+async function setStageExpansion(page, expanded) {
+  const trigger=page.getByRole('button',{name:'גודל משטח המחקר',exact:true});
+  if(await trigger.count()) {
+    if(await trigger.getAttribute('aria-expanded')!=='true') await trigger.click();
+    const option=page.getByRole('group',{name:'הגדרות גודל משטח המחקר',exact:true}).getByRole('button',{name:expanded?'גובה מרווח':'גובה רגיל',exact:true});
+    await option.press('Enter');
+    await option.scrollIntoViewIfNeeded();
+    const bounds=await option.boundingBox();assert.ok(bounds.y>=0&&bounds.y+bounds.height<=page.viewportSize().height+1,'size controls remain reachable');
+    await option.press('Escape');
+  } else await activate(page, expanded?'הגדל גובה ב־50%':'חזור לגובה הרגיל');
+}
 async function expectHeightControl(page) {
   const baseline = await stageHeight(page);
   const engine = await identity(page);
@@ -1370,13 +1381,9 @@ async function expectHeightControl(page) {
   const bounds = await page.locator('.els29-native-stage').boundingBox();
   const footerBounds = await footer.boundingBox();
   assert.ok(footerBounds.y >= bounds.y + bounds.height - 1, 'controls sit below the matrix');
-  await activate(page, 'הגדל גובה ב־50%');
+  await setStageExpansion(page,true);
   assert.ok(Math.abs(await stageHeight(page) - baseline * 1.5) <= 1, 'height toggle adds 50% of the regular stage height');
-  await button(page, 'חזור לגובה הרגיל').scrollIntoViewIfNeeded();
-  const control = await button(page, 'חזור לגובה הרגיל').boundingBox();
-  const viewport = page.viewportSize();
-  assert.ok(control.y >= 0 && control.y + control.height <= viewport.height + 1, 'height control remains reachable below the expanded matrix');
-  await activate(page, 'חזור לגובה הרגיל');
+  await setStageExpansion(page,false);
   assert.ok(Math.abs(await stageHeight(page) - baseline) <= 1, 'height restores the regular stage');
   assert.deepEqual(await identity(page), engine, 'height changes presentation only');
 }
@@ -1589,8 +1596,8 @@ test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan 
    const pinned=await pan(page);await activate(page,'בטל הצמדה');const overlay=await pan(page);assert.ok(overlay.width>pinned.width);
    await activate(page,'סגור כלי מטריצה');await expectStable(page,overlay,'overlay close');await openPanel(page);await expectStable(page,overlay,'overlay reopen');
    await activate(page,'הצמד');const repinned=await pan(page);assert.ok(Math.abs(repinned.width-pinned.width)<=1);
-   const baseline=await stageHeight(page);await activate(page,'הגדל גובה ב־50%');assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await alignedPanel(page,'expanded pinned rail');
-   await activate(page,'חזור לגובה הרגיל');await alignedPanel(page,'restored pinned rail');
+   const baseline=await stageHeight(page);await setStageExpansion(page,true);assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await alignedPanel(page,'expanded pinned rail');
+   await setStageExpansion(page,false);await alignedPanel(page,'restored pinned rail');
    await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
    await page.setViewportSize({width:390,height:844});await openPanel(page);
    const before=await pan(page),sheet=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
@@ -4054,5 +4061,29 @@ test('owner 18.11: vowels among the display options under "עוד", in Classic, 
     await page.waitForFunction(()=>window.__state?.ui?.niqqud===false);
     assert.equal(await vowelCells(),false,'vowels off in fullscreen');
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  });
+});
+
+test('Research surface sizing is responsive and independent of canonical data; Classic retains its height control',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    const before=await identity(page);
+    await page.getByRole('button',{name:'גודל משטח המחקר',exact:true}).click();
+    const settings=page.getByRole('group',{name:'הגדרות גודל משטח המחקר',exact:true});
+    await settings.getByRole('button',{name:'לפי גובה המסך',exact:true}).click();
+    assert.ok(Math.abs(await stageHeight(page)-760)<=1);
+    const slider=settings.getByRole('slider',{name:'גובה משטח מותאם',exact:true});
+    await slider.fill('120');assert.ok(Math.abs(await stageHeight(page)-940)<=1);
+    await page.setViewportSize({width:1440,height:1000});assert.ok(Math.abs(await stageHeight(page)-1060)<=1);
+    assert.deepEqual(await identity(page),before,'height never changes corpus, axis, window, findings or verification');
+    await page.locator('.els29-fs-toggle').first().dispatchEvent('click');
+    await page.locator('.els29-native-classic.is-fullscreen').waitFor();
+    assert.equal(await settings.isVisible(),false,'fullscreen owns the available screen height');
+    await page.locator('.els29-fs-exit').click();
+    await settings.waitFor();assert.ok(Math.abs(await stageHeight(page)-1060)<=1);
+    await slider.press('Escape');assert.equal(await settings.isVisible(),false);
+    await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
+    await expectHeightControl(page);
   });
 });
