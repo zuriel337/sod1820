@@ -501,6 +501,8 @@ export function PreviewTransportDisclosure2029() {
   return <p role="note" data-raziel-preview-disclosure="mock-only">תצוגת בדיקה · תשובות רזיאל הן תשובות דמה בלבד, ללא קריאת מודל או כתיבה חיה.</p>;
 }
 
+// "עכשיו" holds a long feed: a fixed height like "כאן", so the expansion stays attached above the bar on every screen (frame CSS has no room).
+const NOW_EXPANSION_SIZE = { height: "min(640px, calc(100dvh - 120px))" };
 function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKind = null, expansion = null, activity = null }) {
   return (
     <div className={`sod29-frame-backdrop${expansion ? " is-bar-expansion" : ""}`} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
@@ -515,6 +517,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKin
         data-mobile-projection="bottom-context-sheet"
         data-panel-kind={panelKind || undefined}
         data-bar-expansion={expansion || undefined}
+        style={expansion === "now" ? NOW_EXPANSION_SIZE : undefined}
         tabIndex={-1}
       >
         <header className="sod29-frame-panel-head">
@@ -763,7 +766,7 @@ function AttentionProjection({ context, onWorkspace, onOpen, feed, timeMode }) {
   // independent ordering, research read or seen-state cache (see NowPublications2029).
   return (
     <>
-      <NowPublications2029 feed={feed} onOpen={onOpen} timeMode={timeMode} />
+      <NowPublications2029 feed={feed} onOpen={onOpen} timeMode={timeMode} compact />
       {context?.subject ? <button className="sod29-action primary" type="button" onClick={onWorkspace}>◎ פתח את האזור שלי</button> : null}
     </>
   );
@@ -1503,7 +1506,8 @@ function SystemFrame2029Body({
       : [];
   const unifiedGlobalDock = !toolMode;
   // One expanding bar (preview): "עוד", "שיתוף" and "כאן" open an expansion attached to the bar, one at a time.
-  const barExpansion = transientKind === TRANSIENT.MORE ? (transient?.payload?.shareOnly ? "share" : "more") : transientKind === TRANSIENT.CONTEXT ? "here" : null;
+  // "עכשיו" and the personal area it holds open from the same bar too (ZURIEL 19.11.2026).
+  const barExpansion = transientKind === TRANSIENT.MORE ? (transient?.payload?.shareOnly ? "share" : "more") : transientKind === TRANSIENT.CONTEXT ? "here" : transientKind === TRANSIENT.ATTENTION || transientKind === TRANSIENT.WORKSPACE ? "now" : null;
   const researchTask = research.elsResearchOperation?.task || null;
   const expansionActivity = researchTask || LAB_SIMULATED_RESEARCH ? <React.Suspense fallback={null}><ResearchActivity2029 placement="panel" task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={() => openTransient(TRANSIENT.WORKSPACE)} /></React.Suspense> : null;
   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
@@ -1556,7 +1560,7 @@ function SystemFrame2029Body({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} panelKind="now" icon="◉" kicker="פרסומי האתר" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} activity={expansionActivity} panelKind="now" expansion="now" icon="◉" kicker="פרסומי האתר" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
       : <AttentionProjection context={pageContext} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;
@@ -1592,7 +1596,7 @@ function SystemFrame2029Body({
       onDone={closeTransient}
       onOpenPrivateHints={journeyLocked ? null : openPrivateHints}
     /></PanelShell>;
-    return <PanelShell {...common} panelKind="workspace" icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection key={authLoading ? "auth-loading" : user?.id || "guest"}
+    return <PanelShell {...common} activity={expansionActivity} panelKind="workspace" expansion="now" icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection key={authLoading ? "auth-loading" : user?.id || "guest"}
       context={context}
       go={go}
       onRaziel={openRaziel}

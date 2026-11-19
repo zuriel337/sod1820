@@ -436,6 +436,13 @@ by this section. Owner action: **EXTEND_EXISTING** (this addendum; visual langua
    compact royal surface of Design V2 §14.5. Panel titles are centered exactly. Focus moves into an
    opened expansion, Escape closes it and returns focus to its bar entry, and the expansion does not
    trap focus, so the bar row stays reachable.
+6b. **“עכשיו” is an expansion too (Human Gate ZURIEL · 19.11.2026).** “עכשיו” and the personal area it
+   holds open as an expansion of the same bar (one width, joined corners, a fixed height like “כאן”), not
+   as a separate centered window. In the bar the publications show as one list with inline expansion
+   (the 5.11.2026 wide desktop list-and-detail applies only where “עכשיו” is not opened from the bar).
+   The source row of “עכשיו” orders sources by their latest update in the window, newest first (the
+   first chip, on the right in RTL, after “הכול”); a known public group with nothing loaded stays listed
+   after them. **Superseded:** the fixed kind order of the 11.11.2026 source picker.
 7. **Dependency.** The bar's “שיתוף” entry requires `canonical_ui_components_law` v13 (Design V2
    §14.6) before any merge.
 

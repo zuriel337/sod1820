@@ -282,7 +282,10 @@ test("source picker: a stable key per source kind (group / channel / series / th
   const groupKey = models.find(model => model.unverified)?.sourceKey;
   assert.match(groupKey, /^group:/);
   const choices = nowSourceChoices(models);
-  assert.deepEqual(choices.slice(0, 2).map(item => item.kind), ["group", "group"], "groups first");
+  // ZURIEL 19.11.2026: newest update first (rightmost in RTL): the group row (10:00), the channel (09:00), the site (08:00), then the empty known group.
+  assert.deepEqual(choices.map(item => item.id), [groupKey, "channel:or-geula", "site:posts", "group:ki-la-hamelucha-gematria"], "ordered by the latest update, newest first; an empty known group last");
+  const later = nowSourceChoices(nowModels([...rows([groupRow].filter(Boolean)), channel, { ...sitePost, at: "2026-11-03T11:00:00Z" }]));
+  assert.equal(later[0].id, "site:posts", "a source that receives a newer update moves to the front");
   assert.ok(choices.some(item => item.id === "group:ki-la-hamelucha-gematria" && item.count === 0 && item.label === "כי לה׳ המלוכה — גימטריות"));
   assert.equal(choices.find(item => item.id === "channel:or-geula").kindLabel, "ערוץ");
   assert.equal(choices.find(item => item.id === "site:posts").label, "פרסומי האתר");

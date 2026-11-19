@@ -247,11 +247,12 @@ function WideDetail({ model, onOpen, feed, timeMode, autoPlay, onSource }) {
   </article>;
 }
 
-export default function NowPublications2029({ feed, onOpen, timeMode }) {
+export default function NowPublications2029({ feed, onOpen, timeMode, compact = false }) {
   // ZURIEL 11.11.2026 (approved design): the source picker is the primary control ("הכול" by default); lens, series and media move to "מסננים נוספים".
   const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [sourceKey, setSourceKey] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
-  const wide = useWide();
+  // Opened from the bottom bar (ZURIEL 19.11.2026) the window has the bar's width: the single list with inline expansion, as on a phone.
+  const wide = useWide() && !compact;
   const [selectedId, setSelectedId] = useState(null), [playId, setPlayId] = useState(null);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];

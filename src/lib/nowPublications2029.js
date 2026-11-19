@@ -395,8 +395,10 @@ export function nowTodayBand(models, now = Date.now(), timeZone = "Asia/Jerusale
 }
 
 // ── Source picker (ZURIEL 11.11.2026; PLAN37 NOW decision) ────────────────────────────────────────────────────────────────────
-// "הכול" first, then the known public groups (also when nothing of theirs is in the window: an honest empty state, never hidden), then
-// channels, series and the site's own publications. Every choice says what KIND of source it is. Built from the loaded rows only.
+// "הכול" first, then every source by its LATEST update in the window, newest first (ZURIEL 19.11.2026: the source that received the newest
+// update stands first, i.e. rightmost in the RTL row; this replaces the fixed kind order of 11.11). A known public group with nothing in the
+// window is still listed (an honest empty state, never hidden), after the sources that have rows. Every choice says what KIND of source it
+// is. Built from the loaded rows only; a row without a valid time never moves its source forward.
 export const NOW_SOURCE_KIND_LABEL = Object.freeze({ group: "קבוצה", channel: "ערוץ", series: "סדרה", site: "פרסומי האתר" });
 const SITE_SOURCE_LABEL = Object.freeze({ "site:posts": "פרסומי האתר", "site:reality": "זרם המציאות", "site:els": "הצופן התנ״כי", "site:other": "עוד מהאתר" });
 const KNOWN_GROUPS = Object.freeze(["torat-haremez", "ki-la-hamelucha-gematria"]);
@@ -410,16 +412,18 @@ export function nowSourceChoices(models) {
     const kind = key.split(":")[0];
     const label = kind === "group" ? (model.groupLabel || GROUP_SOURCE_CHANNELS[key.slice(6)] || "קבוצת מקור")
       : kind === "series" ? (model.seriesLabel || key.slice(7)) : kind === "site" ? SITE_SOURCE_LABEL[key] : (model.sourceName || key.slice(8));
-    const entry = found.get(key) || { id: key, kind, kindLabel: NOW_SOURCE_KIND_LABEL[kind], label, count: 0, logo: null };
+    const entry = found.get(key) || { id: key, kind, kindLabel: NOW_SOURCE_KIND_LABEL[kind], label, count: 0, logo: null, latestAt: 0 };
     entry.count += 1; if (!entry.logo && model.logo) entry.logo = model.logo;
+    const at = Date.parse(model.at || "");
+    if (Number.isFinite(at) && at > entry.latestAt) entry.latestAt = at;
     found.set(key, entry);
   }
   for (const group of KNOWN_GROUPS) {
     const key = `group:${group}`;
-    if (!found.has(key)) found.set(key, { id: key, kind: "group", kindLabel: NOW_SOURCE_KIND_LABEL.group, label: GROUP_SOURCE_CHANNELS[group], count: 0, logo: null });
+    if (!found.has(key)) found.set(key, { id: key, kind: "group", kindLabel: NOW_SOURCE_KIND_LABEL.group, label: GROUP_SOURCE_CHANNELS[group], count: 0, logo: null, latestAt: 0 });
   }
   const rank = entry => KIND_ORDER.indexOf(entry.kind) * 1000 + (entry.kind === "group" && KNOWN_GROUPS.includes(entry.id.slice(6)) ? KNOWN_GROUPS.indexOf(entry.id.slice(6)) : 100);
-  return [...found.values()].sort((a, b) => rank(a) - rank(b) || b.count - a.count || a.label.localeCompare(b.label, "he"));
+  return [...found.values()].sort((a, b) => b.latestAt - a.latestAt || rank(a) - rank(b) || b.count - a.count || a.label.localeCompare(b.label, "he"));
 }
 
 export const filterNowBySource = (models, sourceKey = "") => list(models).filter(model => !sourceKey || model.sourceKey === sourceKey);
