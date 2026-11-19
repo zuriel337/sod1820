@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { useApproach2029 } from "./useApproach2029.js";
 import { getHomeFeaturedPost2029 } from "../../lib/research/homeFeaturedPost2029.js";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
-import { homeMediaProps2029 } from "./homePinnedCover2029.js";
 
 export function useHomeFeaturedPost() {
   const [state, setState] = useState({ post: null, loading: true });
@@ -21,9 +20,9 @@ export function useHomeFeaturedPost() {
 }
 
 // hideHighlights (ZURIEL 11.11.2026): while the same message is pinned in "עכשיו · המרכז" above, its numbers are shown there only (one appearance on Home).
-export default function HomeFeaturedPost2029({ state, hideHighlights = false }) {
+export default function HomeFeaturedPost2029({ state, hideHighlights = false, mediaFor }) {
   const { post, loading } = state;
-  const poster = homeMediaProps2029(post?.video?.poster || post?.poster, "poster");
+  const poster = mediaFor(post?.video?.poster || post?.poster, "poster");
   // The card sits far below the Home's opening screen: its video poster (a video's poster is never lazy by itself) is asked for only as the
   // reader approaches it, so it does not compete with the pinned lead's image (ZURIEL 17.11.2026). The video box keeps its size meanwhile.
   const [ref, near] = useApproach2029(true, { rootMargin: "600px 0px" });
