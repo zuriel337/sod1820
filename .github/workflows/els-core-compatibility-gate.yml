@@ -207,7 +207,9 @@ jobs:
         run: node scripts/els-browser-shards.mjs run ${{ matrix.shard }} els-reports/shard-${{ matrix.shard }}.json
       - name: Companion browser acceptance
         if: ${{ !cancelled() }}
-        run: node --test --test-concurrency=1 ${{ matrix.companion }}
+        env:
+          ELS_COMPANION_TEST: ${{ matrix.companion }}
+        run: node --test --test-concurrency=1 "$ELS_COMPANION_TEST"
       - name: Upload exact coverage report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
