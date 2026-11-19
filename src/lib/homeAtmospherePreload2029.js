@@ -24,8 +24,8 @@ export function homeAtmospherePreloadHref({ release, pathname, storedPreset, nar
   return narrow ? HOME_ATMOSPHERE_2029.mobile : HOME_ATMOSPHERE_2029.desktop;
 }
 
-// The Home's pinned card: its catalog read and cover start from here too (homePinnedLeadEarly2029.js, reached through the Home route module that
-// the router loads anyway, on demand, so the entry gains no static import and no other page's code changes). Same scope as the Home route of
+// The Home's pinned card: its catalog read and cover start from its own small helper chunk. It does not wait
+// for the much larger Home route module, and it adds no static code to the entry or to other pages. Same scope as the Home route of
 // the public release; a WordPress ?p= address on "/" opens a Post, not the Home.
 export function homePinnedLeadEarlyWanted({ release, pathname, search = "" }) {
   if (!release || !["/", "/2029", "/2029/"].includes(pathname)) return false;
@@ -36,7 +36,7 @@ function run() {
   try {
     if (typeof document === "undefined" || typeof window === "undefined") return;
     if (homePinnedLeadEarlyWanted({ release: PUBLIC_READING_RELEASE, pathname: window.location.pathname, search: window.location.search }))
-      import("../pages/Home2029Page.jsx").then(module => module.startHomePinnedLeadEarly2029?.()).catch(() => {});
+      import("./homePinnedLeadEarly2029.js").then(module => module.startHomePinnedLeadEarly2029?.()).catch(() => {});
     let storedPreset = null;
     try { storedPreset = localStorage.getItem(THEME_STORAGE_KEY_2029); } catch { /* storage unavailable: default preset */ }
     const href = homeAtmospherePreloadHref({
