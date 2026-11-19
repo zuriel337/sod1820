@@ -131,3 +131,16 @@ test("client wiring: emit, track, share, join, arrival and post views use the pu
   assert.match(logView, /m\.emit\("content", "view", \{ props: \{ kind, item_id: Number\(publicItemId\) \} \}\)/);
   assert.doesNotMatch(logView.slice(logView.indexOf("PUBLIC_READING_RELEASE &&"), logView.indexOf("if (PUBLIC_READING_RELEASE) return;")), /slug|ref\b/);
 });
+
+test("the existing worker admits the bounded ELS lifecycle and rejects raw click payloads", async () => {
+ const h=harness({clientUrl:SITE+'/code'});
+ for(const event of ['ui_action','operation_started','operation_phase','operation_finished','cancel_requested']) {
+   const body=action('els',event,{operation:'search',operation_id:'operation-1',region:'tools',control:'discovery',outcome:'partial'},'/code');
+   assert.equal((await h.post('/rest/v1/rpc/ingest_event',body)).status,200);
+ }
+ assert.equal(h.calls.length,5);
+ const body=action('els','ui_action',{region:'matrix'},'/code');
+ body.p_props.text='private';
+ assert.equal((await h.post('/rest/v1/rpc/ingest_event',body)).status,403);
+ assert.equal(h.calls.length,5);
+});

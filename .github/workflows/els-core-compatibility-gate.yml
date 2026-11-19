@@ -53,6 +53,7 @@ on:
       - 'test/els-browser-truth-census.test.mjs'
       - 'test/els-browser-cutover.test.mjs'
       - 'test/els-native-ui-browser.test.mjs'
+      - 'test/els-fable-public.browser.mjs'
       - 'test/els-window-directions.test.mjs'
       - 'test/els-search-parity-repairs.test.mjs'
   workflow_dispatch:
@@ -133,6 +134,13 @@ jobs:
 
       - name: Install application dependencies for native UI acceptance
         run: npm ci
+
+      - name: Public Fable build (administrator-only, explicit options, no AI calls)
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: '0'
+        run: |
+          VITE_ELS_MATRIX_READING_MODE=on node scripts/build-public-reading-production.mjs
+          node --test test/els-fable-public.browser.mjs
 
       - name: Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures
         env:

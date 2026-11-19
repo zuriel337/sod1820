@@ -1,3 +1,4 @@
+import { startElsTelemetry, captureElsUi } from "../../lib/research/elsTelemetryRuntime2029.js";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useMatrixDrag } from "./useMatrixDrag.js";
 import { foldOptionsFor } from "../../lib/elsSplitMatrix.js";
@@ -605,6 +606,18 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
       {languageReadings.length ? <ul>{languageReadings.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}`}><bdi>{reading.exactLetters}</bdi> → {reading.label || reading.baseTerm} · {guidedReadingLabel(reading.relation)} · {guidedLexiconSourceLabel(reading.source)} · לא מאומת</li>)}</ul> : <p>לא נמצאה עדיין חלוקה לשונית חזקה. הקווים נשמרו כקלט תחום להמשך מחקר.</p>}
       <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · גם לאחר replay של האותיות, קריאה ומשמעות נשארות פרשנות לא מאומתת.</small>
     </details> : null}
+
+    {researchProfile && !guidedProfile && advancedSearch ? <section className={`els29-advanced-below${advancedSearchOpen ? " is-expanded" : ""}`} aria-label="חיפוש מורחב מתחת למטריצה">
+      <button type="button" className="r29-btn" aria-expanded={advancedSearchOpen} aria-controls="els29-advanced-search" onClick={() => { setAdvancedSelected(true); setAdvancedOpen(value => !value); }}>חיפוש מורחב</button>
+      <p role="status">{advancedSummary || "חיפוש צירים ומטריצות לפי מונח וטווח דילוגים · ללא AI"}</p>
+      <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
+        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: researchProfile && !guidedProfile && advancedSelected, onSummaryChange: setAdvancedSummary,
+          searchDraft: { term: query, scope: activeScope },
+          activeAxis: matrixActive ? { term: engineState?.termRaw || engineState?.term, scope: activeScope } : null,
+          onChooseCross: () => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); },
+        }) : advancedSearch}
+      </div>
+    </section> : null}
   </section>;
 }
 
@@ -874,7 +887,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
 
 export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, advancedSearch = null, advancedSearchRequestKey = null, researchLoad = null, discoveryId = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onResearchRestore, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult, publicClassic = false }) {
   const palette = use2029Palette("research_lab");
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
   // The iframe source stays stable after mount. User-initiated searches travel through native-search,
   // so changing a term/scope never creates a second engine instance or remounts the canonical one.
@@ -898,6 +911,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
   const selectedReading = readingOverlayVisible && readingDisplay?.result === readingResult ? readingProjection.findings.find(f => f.key === readingDisplay.key) : null;
   const engineStateRef = useRef(null);
+  const telemetryOperations = useRef({});
+  const telemetrySource = () => ({mode:guidedProfile?'guided':researchProfile?'research':'classic',scope:engineStateRef.current?.scope,isAdmin});
+  const beginTelemetry = (kind,requestId,source={}) => {
+    telemetryOperations.current[kind]?.tracker.update('tracking_stopped');
+    const tracker=startElsTelemetry(kind,{...telemetrySource(),...source});
+    telemetryOperations.current[kind]={requestId,tracker};return tracker;
+  };
+  useEffect(()=>()=>{for(const value of Object.values(telemetryOperations.current))value.tracker.update('tracking_stopped');telemetryOperations.current={};},[user?.id]);
   const [classicOpen, setClassicOpen] = useState(false);
   useEffect(() => { if (researchProfile) setClassicOpen(false); }, [researchProfile]);
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
@@ -932,6 +953,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   useEffect(() => { if (researchWorkspace) setLexiconVisited(true); }, [researchWorkspace]);
   const [researchView, setResearchView] = useState("discovery");
   const [readingExtensionVisited, setReadingExtensionVisited] = useState(false);
+  const [readingExtensionOpen, setReadingExtensionOpen] = useState(false);
+  const [advancedSummary, setAdvancedSummary] = useState("");
+  const [advancedSelected, setAdvancedSelected] = useState(false);
   const [structuresVisited, setStructuresVisited] = useState(false);
   const [lexiconPhase, setLexiconPhase] = useState(null);
   useEffect(() => {
@@ -1187,7 +1211,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   useEffect(() => {
     if (!advancedSearchRequestKey || !researchProfile || guidedProfile || openedAdvancedRequest.current === advancedSearchRequestKey) return;
     openedAdvancedRequest.current = advancedSearchRequestKey;
-    setAdvancedOpen(true);
+    setAdvancedSelected(true); setAdvancedOpen(true);
   }, [advancedSearchRequestKey, researchProfile, guidedProfile]);
   const advancedSearchOpen = researchProfile && !guidedProfile && advancedOpen;
   const [pairPlannerOpen, setPairPlannerOpen] = useState(false);
@@ -1269,6 +1293,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     resetGuidedRun();
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
+    beginTelemetry("search",seq,{scope:payload.scope||engineStateRef.current?.scope});
     setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId, payload }, findings: null });
     setActiveTool("results");
     setSearchRequest({ kind, windowSize, ...payload, seq });
@@ -1316,6 +1341,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const membershipChanged = findings.length !== previousTerms.length || findings.some((finding) => !previousTerms.includes(finding.t));
     if (membershipChanged && !preserveRead) resetReadContext();
     const seq = ++findingsSeqRef.current;
+    if (membershipChanged || pending || foldSearch) beginTelemetry("findings",seq);
     if (membershipChanged || pending || foldSearch) setOperations((current) => ({ ...current, findings: { kind: "findings", requestId: seq, status: "searching", startedAt: Date.now() } }));
     setFindingsRequest({ findings, seq, foldSearch });
     return seq;
@@ -1323,6 +1349,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const handleOperation = (operation) => {
     const kind = operation?.kind;
+    if(kind==='load'&&operation.status==='opening'&&telemetryOperations.current.load?.requestId!==operation.requestId)beginTelemetry('load',operation.requestId);
+    const observed=telemetryOperations.current[kind];
+    if(observed?.requestId===operation.requestId)observed.tracker.update(operation.status,{partial:operation.partial});
     if (kind === "load") {
       if (operation.status === "opening") { setLoadError(null); setNotice(""); setDistantFinding(null); }
       setOperations(current => ({ ...current, load: operation }));
@@ -1437,12 +1466,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setClassicOpen(false);
     if (revealTool) openTool("findings");
     const seq = ++lensSeqRef.current;
+    beginTelemetry("lens",seq);
     setLensResult(null);
     setLensPending(true);
     setLensRequest({ lens, target: { ...target, nativeSeq: seq } });
   };
 
   const handleLens = (result) => {
+    const observed=telemetryOperations.current.lens;
+    if(observed && result?.target?.nativeSeq===observed.requestId&&!result.pending)observed.tracker.update(result.ok?'done':'error');
     if (result?.lens === "matrix-lexicon") { setLexiconResponse(result); return; }
     if (result?.lens === "matrix-window") {
       if (result.target?.foldSeq == null) setSplitResponse(result);
@@ -1484,6 +1516,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (!draft) { setActiveTool("research"); return; }
     if (savePending) return;
     setSaveResult(null);setSavePending(true);
+    beginTelemetry("save",actionSeqRef.current+1);
     setSaveRequest({ ...draft, seq: ++actionSeqRef.current, axisHitId: engineStateRef.current?.axis?.hitId,
       view: { classicGlyphs, heightExpanded, shortSkipView } });
   };
@@ -1654,6 +1687,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const cancelOperation = (kind, { keepPartial = false } = {}) => {
     const operation = operations[kind];
     if (!["searching", "verifying"].includes(operation?.status)) return;
+    telemetryOperations.current[kind]?.tracker.cancel();
     if (kind === "search" && keepPartial) {
       setCancelRequest({ kind, requestId: operation.requestId, keepPartial: true, seq: ++actionSeqRef.current });
       setOperations((current) => ({ ...current, search: { ...current.search, stopping: true } }));
@@ -1682,17 +1716,17 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   </React.Suspense> : null;
   const displayState = loadPhase && engineState?.status !== "ok" ? null : engineState;
 
-  return <section ref={sectionRef} className={`els29-native-classic${fullscreen ? " is-fullscreen" : ""}${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
+  return <section ref={sectionRef} data-els-native-telemetry="v1" onClickCapture={event=>captureElsUi(event,telemetrySource())} onChangeCapture={event=>captureElsUi(event,telemetrySource())} className={`els29-native-classic${fullscreen ? " is-fullscreen" : ""}${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
     data-els-native-classic="v4" {...(guidedProfile ? { "data-els-guided-result-surface": "results-first-v1" } : {})}
     style={{ ...(researchProfile && !fullscreen && surfaceHeight ? { "--els29-stage-height": `max(300px, calc(${surfaceHeight}dvh - 140px))` } : {}), "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
     <div id="els29-query" ref={queryRef} className={`els29-native-query${fsQueryOpen ? " is-fs-open" : ""}`} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <span><strong>חיפוש חדש</strong></span>
-        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen && !advancedSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); setAdvancedOpen(false); }}>חיפוש רגיל</button>
+        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen && !advancedSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); setAdvancedSelected(false); setAdvancedOpen(false); }}>חיפוש רגיל</button>
         <button type="button" aria-pressed={crossSearchOpen && !advancedSearchOpen} aria-expanded={crossSearchOpen && !advancedSearchOpen}
-          onClick={() => { setAdvancedOpen(false); setCrossOpen(true); }}>הצלבה בין צירים</button>
+          onClick={() => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); }}>הצלבה בין צירים</button>
         {advancedSearch ? <button type="button" aria-pressed={advancedSearchOpen} aria-controls="els29-advanced-search"
-          onClick={() => { cancelOperation("search"); setAdvancedOpen(true); }}>חיפוש מתקדם</button> : null}</> : null}
+          onClick={() => { setAdvancedSelected(true); setAdvancedOpen(true); requestAnimationFrame(() => document.getElementById("els29-advanced-search")?.scrollIntoView({block:"start",behavior:"smooth"})); }}>חיפוש מתקדם</button> : null}</> : null}
       </div>
       <form className="els29-native-basic-form" onSubmit={submit} hidden={advancedSearchOpen}>
       <div className="els29-native-query-terms">
@@ -1776,13 +1810,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </div>
       </div>
       </form>
-      <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
-        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: advancedSearchOpen,
-          searchDraft: { term: query, scope: activeScope },
-          activeAxis: matrixActive ? { term: engineState?.termRaw || engineState?.term, scope: activeScope } : null,
-          onChooseCross: () => { setAdvancedOpen(false); setCrossOpen(true); },
-        }) : advancedSearch}
-      </div>
+
     </div>
 
     <ElsOperationMeter2029 phase={!active ? null
@@ -1967,7 +1995,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             aria-expanded={researchToolsOpen} aria-controls="els29-discovery-panel" onClick={event => researchToolsOpen ? setResearchToolsOpen(false) : openTool("discovery", event.currentTarget)}>
             <NavigationIcon2029 name="discovery" /><small>{lexiconPhase ? "סורק" : "גילוי"}</small></button> : null}
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
-            type="button" key={tool} aria-label={label} title={label}
+            type="button" key={tool} data-tool-action={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
           ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
@@ -1981,7 +2009,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <section ref={researchToolsRef} hidden={!researchWorkspace || !researchToolsOpen} className="els29-native-structure-entry els29-discovery-panel" aria-label="כלי מחקר במטריצה">
           <div id="els29-research-tools" hidden={!researchToolsOpen}>
             {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי מחקר…</p>}>
-              <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchWorkspace}
+              <ElsLexiconResearch2029 telemetrySource={telemetrySource()} key={user?.id || "guest"} state={engineState} visible={active && researchWorkspace}
                 viewNavigation={<div className="els29-research-result-navigation">
                   <p>הצגת תוצאות המחקר · המעבר בין הלשוניות אינו מפעיל סריקה</p>
                   <div className="els29-research-views" role="group" aria-label="תצוגות כלי המחקר">
@@ -2002,8 +2030,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
                 onFindWords={event => { openTool("findings", event.currentTarget, true); }}
                 projection={projectedOption ? null : readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}
-                readingExtension={!publicClassic && (matrixReading || onRazielMatrix) ? <details className="els29-reading-extension" onToggle={event => { if (event.currentTarget.open) setReadingExtensionVisited(true); }}>
-                  <summary>הרחבה אופציונלית עם Fable</summary>
+                onOpenFable={!publicClassic && (matrixReading || onRazielMatrix) ? () => { setReadingExtensionVisited(true); setReadingExtensionOpen(value => !value); } : null}
+                readingExtension={!publicClassic && (matrixReading || onRazielMatrix) ? <section className="els29-reading-extension" hidden={!readingExtensionOpen} aria-label="אפשרויות Fable">
+                  <button type="button" className="r29-btn" onClick={() => setReadingExtensionOpen(false)}>סגור אפשרויות Fable</button>
                   {projectedOption ? <p>Fable זמין כרגע בחלון הציר הראשי. אפשר לסרוק את החלון המוצג באמצעות הגילוי המקומי.</p>
                     : readingExtensionVisited ? <React.Suspense fallback={<p role="status">טוען אפשרויות סריקה…</p>}>
                     {matrixReading ? <ElsMatrixReadingCard2029 embedded context={readingContext} reading={matrixReading} pending={searchPending || Boolean(lexiconPhase)} onSubmit={submitReading}
@@ -2012,7 +2041,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                       : <button type="button" disabled={!readingContext || searchPending || Boolean(lexiconPhase)}
                         onClick={() => submitReading(readingContext)}>בקש מרזיאל לבדוק את המטריצה</button>}
                   </React.Suspense> : null}
-                </details> : null}
+                </section> : null}
                 structureTools={structuresVisited ? <>
                   <details className="els29-planner-entry" onToggle={event => setPairPlannerOpen(event.currentTarget.open)}>
                     <summary>הכנת זוגות לחיפוש</summary>
@@ -2128,7 +2157,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           findingControlRequest={findingControlRequest}
           contextRequest={contextRequest}
           saveRequest={saveRequest}
-          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(result.row); }}
+          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;telemetryOperations.current.save?.tracker.update(result.ok?"done":"error");setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(result.row); }}
           onLoadError={(error) => { setLoadError(error); if (researchLoad) onResearchLoadError?.(error); setNotice(error?.reason === "corpus-mismatch"
             ? "המופע השמור שייך לקורפוס אחר (תורה או תנ״ך) מזה שנפתח, ולכן לא שוחזר. שום מופע אחר לא הוצג במקומו."
             : error?.reason === "occurrence-mismatch"
@@ -2141,5 +2170,17 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         />
       </div>
     </div>
+
+    {researchProfile && !guidedProfile && advancedSearch ? <section className={`els29-advanced-below${advancedSearchOpen ? " is-expanded" : ""}`} aria-label="חיפוש מורחב מתחת למטריצה">
+      <button type="button" className="r29-btn" aria-expanded={advancedSearchOpen} aria-controls="els29-advanced-search" onClick={() => { setAdvancedSelected(true); setAdvancedOpen(value => !value); }}>חיפוש מורחב</button>
+      <p role="status">{advancedSummary || "חיפוש צירים ומטריצות לפי מונח וטווח דילוגים · ללא AI"}</p>
+      <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
+        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: researchProfile && !guidedProfile && advancedSelected, onSummaryChange: setAdvancedSummary,
+          searchDraft: { term: query, scope: activeScope },
+          activeAxis: matrixActive ? { term: engineState?.termRaw || engineState?.term, scope: activeScope } : null,
+          onChooseCross: () => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); },
+        }) : advancedSearch}
+      </div>
+    </section> : null}
   </section>;
 }

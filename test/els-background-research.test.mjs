@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {createElsOperationTelemetry} from '../src/lib/research/elsTelemetry2029.js';
 import assert from 'node:assert/strict';
 import { prepareElsBackgroundResearch, runElsBackgroundResearch, executeElsResearchOperation } from '../src/lib/research/elsBackgroundResearch.js';
 
@@ -74,4 +75,20 @@ for (const failed of [false, true]) test(`lazy execution retains ${failed ? 'FAI
 test('lazy execution after principal ownership is lost does not publish or invoke', async () => {
   const unexpected = () => assert.fail('old principal must not act');
   assert.deepEqual(await executeElsResearchOperation({ owns: () => false, publish: unexpected, invoke: unexpected, release: unexpected }), { ok: false });
+});
+
+test('background research records outcome on its original context, and abort never claims provider cancellation', async () => {
+ for (const abort of [false,true]) {
+  const rows=[], operation={controller:new AbortController(),task:null};
+  const account={user:'origin'};
+  await executeElsResearchOperation({input,origin,operation,owns:()=>true,release(){},
+   createTelemetry:(kind,source)=>createElsOperationTelemetry(kind,source,{capture:()=>account,id:()=> 'terms-1',send:(ctx,event,props)=>rows.push({ctx,event,props})}),
+   publish:patch=>{operation.task={...operation.task,...patch}},
+   invoke:async request=>{if(request.op==='verify')return verify;if(abort){operation.telemetry.cancel();operation.controller.abort();}return empty(request.term)}
+  });
+  const end=rows.filter(r=>r.event==='operation_finished');
+  assert.equal(end.length,1);assert.equal(end[0].props.outcome,abort?'tracking_stopped':'completed');
+  assert.ok(rows.every(r=>r.ctx===account));
+  assert.equal(rows.some(r=>r.event==='cancel_requested'),abort);
+ }
 });

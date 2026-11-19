@@ -421,6 +421,8 @@ jobs:
         run: bash scripts/run-provider-freshness-sql-test.sh
       - name: Analytics follow-ups proposal (ELS searches admitted as one closed family without the term or an account id; the raziel notice writes the required e-mail; GA 11-15.11 duplicate-view note without changing values; drift refuses; second apply no-op; exact rollback; isolated DB)
         run: bash scripts/run-analytics-followups-sql-test.sh
+      - name: ELS action telemetry proposal (closed fields, exact live definition, permissions, drift and rollback; disposable local PostgreSQL only)
+        run: node --test test/els-action-telemetry-sql.test.mjs
       - name: M0-A permissions regression (12 system functions server-only by exact signature, admin guards, account data, Legacy writes closed, dormant policies, cron; idempotent, drift stop, exact rollback)
         run: bash scripts/run-m0a-db-permissions-sql-test.sh
       - name: DEF-004 negative modes (an existing gallery object above 120 MiB stops the proposal; without the proposal the after-assertions fail)

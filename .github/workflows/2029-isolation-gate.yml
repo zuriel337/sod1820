@@ -195,6 +195,10 @@ jobs:
           node scripts/test-2029-isolation.mjs --with-isolated-a3 --receipt "$RUNNER_TEMP/isolated-a3-receipt.json"
       - name: Public-reading verified admin screen and closed-action acceptance
         run: node --test test/public-reading-admin-admission.test.mjs
+      - name: Restore locked application dependencies after A3 tooling
+        # The temporary esbuild install can re-resolve unrelated build packages.
+        # The product must be built with its reviewed lockfile, as in other gates.
+        run: npm ci
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation

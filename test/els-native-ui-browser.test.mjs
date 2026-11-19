@@ -48,9 +48,9 @@ async function openDiscoveryReport(panel) {
   if(!await summary.evaluate(el=>el.parentElement.open)) await summary.click();
 }
 async function openFableExtension(page) {
-  await openDiscoveryTools(page,'הציר');
-  const summary=researchArea(page).getByText('הרחבה אופציונלית עם Fable',{exact:true});
-  if(!await summary.evaluate(el=>el.parentElement.open)) await summary.click();
+  await openDiscoveryTools(page,'גילוי');
+  const options=page.getByRole('region',{name:'אפשרויות Fable',exact:true});
+  if(!await options.isVisible()) await researchArea(page).getByRole('button',{name:'הרחב עם Fable',exact:true}).click();
 }
 
 async function checkManualWordJump(page) {
@@ -165,7 +165,7 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
   assert.equal(await panel.locator('.els29-research-views button:not(.r29-btn)').count(),0,'view buttons use the same Royal family');
   const actionBoxes=await launch.locator(':scope>button').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {y:r.y,height:r.height};}));
   assert.ok(Math.abs(actionBoxes[0].y-actionBoxes[1].y)<1,'paired actions remain on the same row on mobile and desktop');
-  assert.ok(actionBoxes.every(box=>box.height>=44&&box.height<=56),'compact readable actions instead of giant buttons');
+  assert.ok(actionBoxes.every(box=>box.height>=44&&box.height<=56),`compact readable actions at ${width}: ${JSON.stringify(actionBoxes)}`);
   await panel.getByLabel('מסלול הגילוי').selectOption('language');
   await researchView(page,'מבנים').click();
   await panel.getByText('בדיקת הסימונים והשוואת מופעים',{exact:true}).click();
@@ -482,21 +482,29 @@ test('Research has one regular/cross/advanced search surface with preserved draf
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
     const ai=[];page.on('request',request=>{if(/ai-analyze/.test(request.url()))ai.push(request.url());});
-    const box=page.locator('#els29-query');
+    const box=page.locator('#els29-query'), advanced=page.locator('#els29-advanced-search');
     assert.equal(await box.getByRole('button',{name:'חיפוש רגיל',exact:true}).getAttribute('aria-pressed'),'true');
-    assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').isVisible(),false);
+    assert.equal(await advanced.getByLabel('מונח לחיפוש מתקדם').isVisible(),false);
     await box.getByRole('textbox',{name:'מונח',exact:true}).fill('יום משיח בא');
     const count=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').length);
     const frame=await page.locator('iframe').elementHandle();
     await box.getByRole('button',{name:'חיפוש מתקדם',exact:true}).click();
-    await box.getByRole('button',{name:'השתמש בביטוי שהקלדתי: יום משיח בא',exact:true}).click();
-    assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').inputValue(),'יום משיח בא');
-    await box.getByLabel('מונח לחיפוש מתקדם').fill('סוד החשמל');
+    await advanced.getByRole('button',{name:'השתמש בביטוי שהקלדתי: יום משיח בא',exact:true}).click();
+    assert.equal(await advanced.getByLabel('מונח לחיפוש מתקדם').inputValue(),'יום משיח בא');
+    await advanced.getByLabel('מונח לחיפוש מתקדם').fill('סוד החשמל');
+    const below=page.getByRole('region',{name:'חיפוש מורחב מתחת למטריצה',exact:true});
+    const matrixBox=await page.locator('.els29-native-stage').boundingBox();
+    assert.ok((await below.boundingBox()).y>=matrixBox.y+matrixBox.height-1,'advanced controls live below matrix');
+    await below.getByRole('button',{name:'חיפוש מורחב',exact:true}).click();
+    assert.equal(await advanced.isVisible(),false);
+    assert.match(await below.innerText(),/סוד החשמל/);
+    await below.getByRole('button',{name:'חיפוש מורחב',exact:true}).click();
+    assert.equal(await advanced.getByLabel('מונח לחיפוש מתקדם').inputValue(),'סוד החשמל');
     assert.equal(await box.locator('form form').count(),0);
     assert.equal(await box.getByRole('button',{name:'חפש',exact:true}).isVisible(),false);
-    assert.match(await box.innerText(),/בוחרים ביטוי והיקף בדיקה/);
-    assert.match(await box.getByLabel('מה ייבדק בלחיצה').innerText(),/2–80/);
-    assert.equal(await box.locator('button[type=submit]:visible').count(),1);
+    assert.match(await advanced.innerText(),/בוחרים ביטוי והיקף בדיקה/);
+    assert.match(await advanced.getByLabel('מה ייבדק בלחיצה').innerText(),/2–80/);
+    assert.equal(await advanced.locator('button[type=submit]:visible').count(),1);
     for(const theme of ['light','parchment','dark']){
       await page.evaluate(theme=>window.__setThemePreset(theme),theme);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width}:${theme}`);
@@ -506,10 +514,10 @@ test('Research has one regular/cross/advanced search surface with preserved draf
     await box.getByRole('button',{name:'חיפוש רגיל',exact:true}).click();
     assert.equal(await box.getByRole('textbox',{name:'מונח',exact:true}).inputValue(),'יום משיח בא');
     await box.getByRole('button',{name:'חיפוש מתקדם',exact:true}).click();
-    assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').inputValue(),'סוד החשמל');
+    assert.equal(await advanced.getByLabel('מונח לחיפוש מתקדם').inputValue(),'סוד החשמל');
     await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
     assert.equal(await box.getByRole('button',{name:'חיפוש מתקדם',exact:true}).count(),0);
-    assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').isVisible(),false);
+    assert.equal(await advanced.getByLabel('מונח לחיפוש מתקדם').isVisible(),false);
     assert.equal(await box.getByRole('button',{name:'כל הכלים',exact:true}).count(),0);
     const actions=box.locator('.els29-native-query-actions'), search=actions.getByRole('button',{name:'חפש',exact:true});
     assert.equal(await actions.getByRole('button').count(),1);
@@ -1217,9 +1225,13 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false, readingIndicator = false, researchProfile = true, initialProbe = null } = options;
+  const { telemetry = false, realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false, readingIndicator = false, researchProfile = true, initialProbe = null } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
+    transform(code,id){
+      // Only host admission/auth are fixture inputs. Projection, event wiring, body validator and fetch transport are real.
+      if(telemetry&&id.endsWith('/elsTelemetryRuntime2029.js'))return code.replace(/if\(!PUBLIC_READING_RELEASE[^\n]+return null;/,'').replace('return captureMeasurement();','return window.__measurementContext;');
+    },
     resolveId(id, importer) {
       if (id === 'els-native-fixture') return '\0els-native-fixture';
       if (importer?.endsWith('/ElsAdvancedSearch2029.jsx') && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
@@ -1264,6 +1276,16 @@ async function withNative(viewport, run, options = {}) {
     browser = await pw.chromium.launch({ headless: true, executablePath });
     const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
     if(readingIndicator)await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
+    if(telemetry){
+      page.__elsTelemetry=[];
+      await page.route('**/*',route=>{
+        const u=new URL(route.request().url());
+        if(u.hostname==='127.0.0.1')return route.continue();
+        if(u.pathname==='/rest/v1/rpc/ingest_event') {page.__elsTelemetry.push(route.request().postDataJSON());return route.fulfill({status:200,contentType:'application/json',body:'null',headers:{'access-control-allow-origin':'*'}});}
+        return route.abort();
+      });
+      await page.addInitScript(()=>{window.__measurementContext={auth:{ready:true,userId:null,token:null},path:'/code',pagePath:'/code',sodId:'visitor-test-001',visitorId:'visitor-test-001',sessionId:'session-test-001',appContext:'chrome'};});
+    }
     const errors = [];
     page.__elsDynamicLexiconRequests = [];
     page.__elsGuidedSnapshotRequests = [];
@@ -3064,7 +3086,7 @@ test('Fable has one explicit entry in Research and no standalone action in any p
   for(const width of [320,1440]) await withNative({width,height:900},async page=>{
    if(profile.guided) await page.getByRole('button',{name:'פתח מטריצה מדויקת'}).click();
    assert.equal(await page.getByRole('button',{name:/גילוי עם AI/}).count(),0);
-   const extension=page.getByText('הרחבה אופציונלית עם Fable',{exact:true});
+   const extension=page.getByRole('button',{name:'הרחב עם Fable',exact:true});
    assert.equal(await page.getByRole('region',{name:'שלב 2, המשך עם Fable',exact:true}).count(),0,'the Fable card remains lazy');
    if(profile.researchProfile&&!profile.guided){
      await openFableExtension(page);
@@ -4247,4 +4269,26 @@ test('Fable reading uses the shared frame indicator across surfaces, themes, key
   await page.evaluate(()=>window.__readingOwner('c'));
   await page.waitForFunction(()=>!document.querySelector('[data-research-activity]'));
  },{fullFrame:true,readingIndicator:true,leavesMatrix:true,mobile:width<981});
+});
+
+
+for (const width of [390,1280]) test(`ELS telemetry covers real tool clicks and engine outcomes without typed content at ${width}`,
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+ await withNative({width,height:900},async page=>{
+   const rows=page.__elsTelemetry;
+   await page.locator('.els29-native-toolstrip').getByRole('button',{name:'תוצאות',exact:true}).click();
+   await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+   await page.locator('#els29-query').getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורה');
+   await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__state?.term==='תורה'&&window.__state.status==='ok');
+   await page.waitForTimeout(100);
+   assert.equal(rows.filter(r=>r.p_event_type==='ui_action'&&r.p_props.region==='tools'&&r.p_props.control==='results').length,1);
+   const start=rows.find(r=>r.p_event_type==='operation_started'&&r.p_props.operation==='search');
+   assert.ok(start,'actual search records its lifecycle start');
+   const end=rows.find(r=>r.p_event_type==='operation_finished'&&r.p_props.operation_id===start.p_props.operation_id);
+   assert.equal(end?.p_props.outcome,'completed');
+   assert.equal(rows.filter(r=>r.p_event_type==='operation_finished'&&r.p_props.operation_id===start.p_props.operation_id).length,1);
+   assert.equal(JSON.stringify(rows).includes('תורה'),false,'no expression, label, href or letter text leaves the surface');
+   assert.ok(rows.every(r=>r.p_path==='/code'&&r.p_surface==='els'));
+ },{realHost:true,tier:'user',telemetry:true});
 });

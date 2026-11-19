@@ -49,7 +49,7 @@ function interrupted(data, token, why) {
  * onProgress({ phase, elapsedMs, polls, expectedMinutes, providerStatus, batchId, jobToken, pollSeconds, cancelling }) is called on every step.
  * Returns the last ai-analyze answer (the Raziel contract + els_matrix_reading), or null when the very first call fails.
  */
-export async function runElsMatrixReadingTurn({
+async function runReadingTransport({
   invoke, action, signal = null, cancelSignal = null, onProgress = () => {}, wait = waitUnlessAborted, now = Date.now,
   maxWaitMs = ELS_MATRIX_READING_MAX_WAIT_MS, cancelGraceMs = ELS_MATRIX_READING_CANCEL_GRACE_MS,
 } = {}) {
@@ -97,4 +97,24 @@ export async function runElsMatrixReadingTurn({
     failures = 0;
     data = polled.data;
   }
+}
+
+// Analytics observes the existing polling lifecycle; it never starts another request or poller.
+export async function runElsMatrixReadingTurn(options = {}) {
+  if(options.action?.op==='preview')return runReadingTransport(options);
+  let tracker=options.telemetry;
+  if(!tracker)try{const {startElsTelemetry}=await import('./elsTelemetryRuntime2029.js');tracker=startElsTelemetry('fable',{mode:'research',...options.telemetrySource});}catch{/* optional measurement */}
+  const cancel=()=>tracker?.cancel();
+  options.cancelSignal?.addEventListener?.('abort',cancel,{once:true});
+  if(options.cancelSignal?.aborted||options.action?.op==='cancel')cancel();
+  try {
+    const result=await runReadingTransport({...options,onProgress:p=>{tracker?.update(p.phase);options.onProgress?.(p);}});
+    const value=reading(result);
+    const outcome=value?.reason==='batch_canceled'?'cancelled':value?.poll_interrupted||options.signal?.aborted?'tracking_stopped'
+      :value?.state==='COMPLETE'?'complete':value?.state==='INCOMPLETE'?'partial'
+      :['RUNNING','CANCEL_REQUESTED'].includes(value?.state)?'tracking_stopped':'failed';
+    tracker?.update(outcome,{count:value?.findings?.length});
+    return result;
+  } catch(error){tracker?.update('failed');throw error;}
+  finally{options.cancelSignal?.removeEventListener?.('abort',cancel);}
 }

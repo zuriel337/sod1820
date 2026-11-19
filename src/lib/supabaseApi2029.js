@@ -837,7 +837,7 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
       // Never reached without the canonical contract and a matrix context (the server refuses anything else); the long leg lives in a lazy module.
       if (researchContract !== 'public-number-research-run-v1' || !elsMatrixContext) return null;
       const { runElsMatrixReadingTurn } = await import('./research/elsMatrixReadingTransport.js');
-      data = await runElsMatrixReadingTurn({ invoke: (action) => sendBody(action), action: elsMatrixReadingAction, signal, cancelSignal, onProgress });
+      data = await runElsMatrixReadingTurn({ invoke: (action) => sendBody(action), action: elsMatrixReadingAction, signal, cancelSignal, onProgress, telemetrySource: { scope: elsMatrixContext.axis?.scope } });
       error = data ? null : new Error('els_matrix_reading_unavailable');
     } else {
       ({ data, error } = await sendBody(null));

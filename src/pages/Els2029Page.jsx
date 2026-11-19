@@ -1,3 +1,4 @@
+import { captureElsUi } from "../lib/research/elsTelemetryRuntime2029.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -159,7 +160,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   const [continueIntent] = useState(() => location.state?.sodResearchIntent === "continue");
   const [ownActivity, setOwnActivity] = useState(false);
   const [loadsDismissed, setLoadsDismissed] = useState(false);
-  const { user, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
   const library = params.get("library");
   const [workspaceVisited, setWorkspaceVisited] = useState(!library);
@@ -435,6 +436,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     title="ELS"
     description={ELS_DESCRIPTION}
   >
+    <div style={{display:"contents"}} onClickCapture={event=>captureElsUi(event,{mode:workspaceMode,isAdmin})} onChangeCapture={event=>captureElsUi(event,{mode:workspaceMode,isAdmin})}>
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
       onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} workspaceMode={workspaceMode} /> : null}
     {!library ? <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
@@ -613,5 +615,6 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
       </details>
     </section>
     </div> : null}
+    </div>
   </Sod2029Shell>;
 }

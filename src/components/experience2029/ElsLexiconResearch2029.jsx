@@ -1,3 +1,4 @@
+import { startElsTelemetry } from "../../lib/research/elsTelemetryRuntime2029.js";
 import { parseElsHitKey } from "../../lib/elsJourney.js";
 import { presentElsStructureFamilies } from "../../lib/research/elsStructurePresentation.js";
 import { describeElsDiscoveryPlan, elsResearchNextStep } from "../../lib/research/elsResearchAssessment.js";
@@ -34,8 +35,8 @@ const memberKey = card => card.members.map(member => `${member.term}:${member.hi
 const sourceLabel = ({ run }) => `${run.data.plan?.mode === "language" ? "ביטויים" : "מילים"}${run.data.savedSnapshot ? " · שמורה" : ""}${run.startedAt ? ` · ${run.startedAt}` : ""}`;
 
 export default function ElsLexiconResearch2029({
-  state, scanWindow, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
-  onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation, returnProjection, discoveryId,
+  telemetrySource, state, scanWindow, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
+  onProgress, onOpenFable, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation, returnProjection, discoveryId,
 }) {
   const [run, setRun] = useState(null), [notice, setNotice] = useState("");
   const [structureSort, setStructureSort] = useState("diverse");
@@ -56,6 +57,7 @@ export default function ElsLexiconResearch2029({
   const cancel = (message = "המעקב הופסק ונשלחה בקשת ביטול למנוע. תוצאות מאוחרות לא יצורפו; אפשר להתחיל שוב בלחיצה.") => {
     queue.current = [];
     if (!active.current) return;
+    active.current.telemetry?.cancel(); active.current.telemetry?.update("tracking_stopped");
     request.current({ ...active.current.target, cancel: true }); active.current = null; setRun(null); setNotice(message);
   };
   const pause = () => {
@@ -72,7 +74,7 @@ export default function ElsLexiconResearch2029({
     else if (!visible) pause();
   }, [visible, busy, key]);
   useEffect(() => () => {
-    if (active.current) request.current({ ...active.current.target, cancel: true });
+    if (active.current) { active.current.telemetry?.cancel();active.current.telemetry?.update("tracking_stopped");request.current({ ...active.current.target, cancel: true }); }
     active.current = null;
   }, []);
   const progress = run && response?.pending && response.target?.scanId === run.target.scanId && run.key === key ? response : null;
@@ -89,8 +91,9 @@ export default function ElsLexiconResearch2029({
   useEffect(() => {
     if (!active.current || response?.target?.scanId !== active.current.target.scanId || active.current.key !== key) return;
     if (response.pending) return;
-    const { key: runKey, previous, source, startedAt, target, sourceState } = active.current; active.current = null; setRun(null);
+    const { key: runKey, previous, source, startedAt, target, sourceState, telemetry } = active.current; active.current = null; setRun(null);
     if (!response.ok) {
+      telemetry?.update("failed");
       queue.current = []; setNotice(errors[response.reason] || errors["scan-failed"]);
       if (previous && response.reason === "continuation-unavailable") {
         const expired = { ...previous, data: { ...previous.data, continuation: null } };
@@ -101,8 +104,10 @@ export default function ElsLexiconResearch2029({
     const data = previous ? { ...response, items: [...previous.data.items, ...response.items] } : response;
     // The start snapshot owns this response. A changed UI can never lend it a new origin.
     if (source && !elsDiscoveryResponseMatches(source, response)) {
+      telemetry?.update("failed");
       queue.current = []; setNotice("תשובת הסריקה אינה תואמת למקור הבקשה; היא לא צורפה למטריצה."); return;
     }
+    telemetry?.update("done",{partial:response.coverage?.complete!==true,count:response.items?.length});
     const finished = { key: runKey, state: sourceState, data, source, id: previous?.id || target.scanId,
       startedAt: previous?.startedAt || startedAt, endedAt: new Date().toISOString() };
     const mode = response.plan?.mode === "language" ? "language" : "words";
@@ -116,7 +121,7 @@ export default function ElsLexiconResearch2029({
     const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope, plan: { ...selectedPlan },
       ...(previous ? { resumeId: previous.data.continuation } : {}),
       ...(scanWindow ? { foldWindowId: scanWindow.id } : {}) };
-    const next = { key, target, previous, sourceState: scanState,
+    const next = { key, target, previous, sourceState: scanState, telemetry:startElsTelemetry("discovery",{...telemetrySource,mode:"research",scope:state.scope}),
       source: previous?.source || captureElsDiscoverySource(state, scanState, returnProjection), startedAt: new Date().toISOString() };
     active.current = next; setRun(next); setNotice(""); onRequest(target);
   };
@@ -243,8 +248,10 @@ export default function ElsLexiconResearch2029({
         onClick={canResume ? () => startPlan(wordRun.data.plan, wordRun) : discoveryMode === "both" ? startBoth : start}>
         {canResume ? "המשך סריקה" : "התחל גילוי"}
       </button>
-      {onFindWords ? <button className="r29-btn" type="button" aria-label="חפש מילה מסוימת" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה</button> : null}
+      {onOpenFable ? <button className="r29-btn" type="button" onClick={onOpenFable}>הרחב עם Fable</button> : onFindWords ? <button className="r29-btn" type="button" aria-label="חפש מילה מסוימת" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה</button> : null}
     </div>
+    {onOpenFable && onFindWords ? <button className="r29-btn" type="button" aria-label="חפש מילה מסוימת" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה</button> : null}
+    {readingExtension}
     <details className="els29-discovery-settings"><summary>פרטי הסריקה</summary>
       {key ? <p><bdi>{state.term}</bdi> · {state.scope === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{state.axis.skip}</bdi> · רווח שורות <bdi>{scanWindow?.rowGap ?? 0}</bdi> · רוחב <bdi>{scanState.geometry.S}</bdi></p> : null}
       <section aria-label="תמונת מצב המחקר">
@@ -352,7 +359,6 @@ export default function ElsLexiconResearch2029({
         </details>
       </details> : null}
 
-      {readingExtension}
     </div>
     <div hidden={view !== "structures"} id="els29-structures-view">
       <section aria-label="קשרים בין מופעים">
