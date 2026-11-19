@@ -661,6 +661,10 @@ returns focus. Search moves out of the phone's top bar and stays one tap away in
 drawer); on desktop the top bar keeps both search (with its keyboard shortcut) and the theme control.
 The crown stays at the exact centre of the bar; targets stay at least 44px.
 
+*Human Gate ZURIEL · 19.11.2026 (later the same day):* the theme control is the same at every width: the
+sign and its Hebrew name (☀ יום · ▤ קלף · ☾ לילה) also on desktop and tablet, replacing the icon-only 44px
+desktop control of §5. Search stays in the desktop top bar; only phones move it to “עוד”.
+
 ### 14.7 Pending (not yet approved)
 
 Nothing in §14 is pending any more: the Night shell was decided on 19.11.2026 (§14.9). Exact pixel values
