@@ -606,6 +606,18 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
       {languageReadings.length ? <ul>{languageReadings.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}`}><bdi>{reading.exactLetters}</bdi> → {reading.label || reading.baseTerm} · {guidedReadingLabel(reading.relation)} · {guidedLexiconSourceLabel(reading.source)} · לא מאומת</li>)}</ul> : <p>לא נמצאה עדיין חלוקה לשונית חזקה. הקווים נשמרו כקלט תחום להמשך מחקר.</p>}
       <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · גם לאחר replay של האותיות, קריאה ומשמעות נשארות פרשנות לא מאומתת.</small>
     </details> : null}
+
+    {researchProfile && !guidedProfile && advancedSearch ? <section className={`els29-advanced-below${advancedSearchOpen ? " is-expanded" : ""}`} aria-label="חיפוש מורחב מתחת למטריצה">
+      <button type="button" className="r29-btn" aria-expanded={advancedSearchOpen} aria-controls="els29-advanced-search" onClick={() => { setAdvancedSelected(true); setAdvancedOpen(value => !value); }}>חיפוש מורחב</button>
+      <p role="status">{advancedSummary || "חיפוש צירים ומטריצות לפי מונח וטווח דילוגים · ללא AI"}</p>
+      <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
+        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: researchProfile && !guidedProfile && advancedSelected, onSummaryChange: setAdvancedSummary,
+          searchDraft: { term: query, scope: activeScope },
+          activeAxis: matrixActive ? { term: engineState?.termRaw || engineState?.term, scope: activeScope } : null,
+          onChooseCross: () => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); },
+        }) : advancedSearch}
+      </div>
+    </section> : null}
   </section>;
 }
 
@@ -941,6 +953,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   useEffect(() => { if (researchWorkspace) setLexiconVisited(true); }, [researchWorkspace]);
   const [researchView, setResearchView] = useState("discovery");
   const [readingExtensionVisited, setReadingExtensionVisited] = useState(false);
+  const [readingExtensionOpen, setReadingExtensionOpen] = useState(false);
+  const [advancedSummary, setAdvancedSummary] = useState("");
+  const [advancedSelected, setAdvancedSelected] = useState(false);
   const [structuresVisited, setStructuresVisited] = useState(false);
   const [lexiconPhase, setLexiconPhase] = useState(null);
   useEffect(() => {
@@ -1196,7 +1211,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   useEffect(() => {
     if (!advancedSearchRequestKey || !researchProfile || guidedProfile || openedAdvancedRequest.current === advancedSearchRequestKey) return;
     openedAdvancedRequest.current = advancedSearchRequestKey;
-    setAdvancedOpen(true);
+    setAdvancedSelected(true); setAdvancedOpen(true);
   }, [advancedSearchRequestKey, researchProfile, guidedProfile]);
   const advancedSearchOpen = researchProfile && !guidedProfile && advancedOpen;
   const [pairPlannerOpen, setPairPlannerOpen] = useState(false);
@@ -1707,11 +1722,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     <div id="els29-query" ref={queryRef} className={`els29-native-query${fsQueryOpen ? " is-fs-open" : ""}`} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <span><strong>חיפוש חדש</strong></span>
-        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen && !advancedSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); setAdvancedOpen(false); }}>חיפוש רגיל</button>
+        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen && !advancedSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); setAdvancedSelected(false); setAdvancedOpen(false); }}>חיפוש רגיל</button>
         <button type="button" aria-pressed={crossSearchOpen && !advancedSearchOpen} aria-expanded={crossSearchOpen && !advancedSearchOpen}
-          onClick={() => { setAdvancedOpen(false); setCrossOpen(true); }}>הצלבה בין צירים</button>
+          onClick={() => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); }}>הצלבה בין צירים</button>
         {advancedSearch ? <button type="button" aria-pressed={advancedSearchOpen} aria-controls="els29-advanced-search"
-          onClick={() => { cancelOperation("search"); setAdvancedOpen(true); }}>חיפוש מתקדם</button> : null}</> : null}
+          onClick={() => { setAdvancedSelected(true); setAdvancedOpen(true); requestAnimationFrame(() => document.getElementById("els29-advanced-search")?.scrollIntoView({block:"start",behavior:"smooth"})); }}>חיפוש מתקדם</button> : null}</> : null}
       </div>
       <form className="els29-native-basic-form" onSubmit={submit} hidden={advancedSearchOpen}>
       <div className="els29-native-query-terms">
@@ -1795,13 +1810,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </div>
       </div>
       </form>
-      <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
-        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: advancedSearchOpen,
-          searchDraft: { term: query, scope: activeScope },
-          activeAxis: matrixActive ? { term: engineState?.termRaw || engineState?.term, scope: activeScope } : null,
-          onChooseCross: () => { setAdvancedOpen(false); setCrossOpen(true); },
-        }) : advancedSearch}
-      </div>
+
     </div>
 
     <ElsOperationMeter2029 phase={!active ? null
@@ -2021,8 +2030,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
                 onFindWords={event => { openTool("findings", event.currentTarget, true); }}
                 projection={projectedOption ? null : readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}
-                readingExtension={!publicClassic && (matrixReading || onRazielMatrix) ? <details className="els29-reading-extension" onToggle={event => { if (event.currentTarget.open) setReadingExtensionVisited(true); }}>
-                  <summary>הרחבה אופציונלית עם Fable</summary>
+                onOpenFable={!publicClassic && (matrixReading || onRazielMatrix) ? () => { setReadingExtensionVisited(true); setReadingExtensionOpen(value => !value); } : null}
+                readingExtension={!publicClassic && (matrixReading || onRazielMatrix) ? <section className="els29-reading-extension" hidden={!readingExtensionOpen} aria-label="אפשרויות Fable">
+                  <button type="button" className="r29-btn" onClick={() => setReadingExtensionOpen(false)}>סגור אפשרויות Fable</button>
                   {projectedOption ? <p>Fable זמין כרגע בחלון הציר הראשי. אפשר לסרוק את החלון המוצג באמצעות הגילוי המקומי.</p>
                     : readingExtensionVisited ? <React.Suspense fallback={<p role="status">טוען אפשרויות סריקה…</p>}>
                     {matrixReading ? <ElsMatrixReadingCard2029 embedded context={readingContext} reading={matrixReading} pending={searchPending || Boolean(lexiconPhase)} onSubmit={submitReading}
@@ -2031,7 +2041,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                       : <button type="button" disabled={!readingContext || searchPending || Boolean(lexiconPhase)}
                         onClick={() => submitReading(readingContext)}>בקש מרזיאל לבדוק את המטריצה</button>}
                   </React.Suspense> : null}
-                </details> : null}
+                </section> : null}
                 structureTools={structuresVisited ? <>
                   <details className="els29-planner-entry" onToggle={event => setPairPlannerOpen(event.currentTarget.open)}>
                     <summary>הכנת זוגות לחיפוש</summary>
@@ -2160,5 +2170,17 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         />
       </div>
     </div>
+
+    {researchProfile && !guidedProfile && advancedSearch ? <section className={`els29-advanced-below${advancedSearchOpen ? " is-expanded" : ""}`} aria-label="חיפוש מורחב מתחת למטריצה">
+      <button type="button" className="r29-btn" aria-expanded={advancedSearchOpen} aria-controls="els29-advanced-search" onClick={() => { setAdvancedSelected(true); setAdvancedOpen(value => !value); }}>חיפוש מורחב</button>
+      <p role="status">{advancedSummary || "חיפוש צירים ומטריצות לפי מונח וטווח דילוגים · ללא AI"}</p>
+      <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
+        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: researchProfile && !guidedProfile && advancedSelected, onSummaryChange: setAdvancedSummary,
+          searchDraft: { term: query, scope: activeScope },
+          activeAxis: matrixActive ? { term: engineState?.termRaw || engineState?.term, scope: activeScope } : null,
+          onChooseCross: () => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); },
+        }) : advancedSearch}
+      </div>
+    </section> : null}
   </section>;
 }

@@ -36,7 +36,7 @@ const sourceLabel = ({ run }) => `${run.data.plan?.mode === "language" ? "ביט
 
 export default function ElsLexiconResearch2029({
   telemetrySource, state, scanWindow, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
-  onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation, returnProjection, discoveryId,
+  onProgress, onOpenFable, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation, returnProjection, discoveryId,
 }) {
   const [run, setRun] = useState(null), [notice, setNotice] = useState("");
   const [structureSort, setStructureSort] = useState("diverse");
@@ -248,8 +248,10 @@ export default function ElsLexiconResearch2029({
         onClick={canResume ? () => startPlan(wordRun.data.plan, wordRun) : discoveryMode === "both" ? startBoth : start}>
         {canResume ? "המשך סריקה" : "התחל גילוי"}
       </button>
-      {onFindWords ? <button className="r29-btn" type="button" aria-label="חפש מילה מסוימת" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה</button> : null}
+      {onOpenFable ? <button className="r29-btn" type="button" onClick={onOpenFable}>הרחב עם Fable</button> : onFindWords ? <button className="r29-btn" type="button" aria-label="חפש מילה מסוימת" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה</button> : null}
     </div>
+    {onOpenFable && onFindWords ? <button className="r29-btn" type="button" aria-label="חפש מילה מסוימת" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה</button> : null}
+    {readingExtension}
     <details className="els29-discovery-settings"><summary>פרטי הסריקה</summary>
       {key ? <p><bdi>{state.term}</bdi> · {state.scope === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{state.axis.skip}</bdi> · רווח שורות <bdi>{scanWindow?.rowGap ?? 0}</bdi> · רוחב <bdi>{scanState.geometry.S}</bdi></p> : null}
       <section aria-label="תמונת מצב המחקר">
@@ -357,7 +359,6 @@ export default function ElsLexiconResearch2029({
         </details>
       </details> : null}
 
-      {readingExtension}
     </div>
     <div hidden={view !== "structures"} id="els29-structures-view">
       <section aria-label="קשרים בין מופעים">
