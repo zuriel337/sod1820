@@ -39,7 +39,7 @@ async function openDiscoveryTools(page, view = 'גילוי') {
   await researchView(page,view).click();
   // These scenarios exercise the dictionary engine explicitly; the default-language launch is checked below.
   await researchArea(page).getByLabel('מסלול הגילוי').selectOption('words');
-  const settings=researchArea(page).getByText('הגדרות גילוי, סינון וגבולות',{exact:true});
+  const settings=researchArea(page).getByText('פרטי הסריקה',{exact:true});
   if(!await settings.evaluate(el=>el.parentElement.open)) await settings.click();
 }
 async function openDiscoveryReport(panel) {
@@ -82,6 +82,13 @@ test('research window has three capability views, one explicit launch and shared
     await panel.waitFor();
     assert.deepEqual(await area.getByRole('group',{name:'תצוגות כלי המחקר'}).getByRole('button').allTextContents(),['ממצאים','מבנים וקבוצות','העמקה']);
     assert.equal(await panel.locator('.els29-discovery-settings').getAttribute('open'),null);
+    assert.equal(await panel.getByLabel('לפני הפעלת גילוי').isVisible(),false);
+    assert.equal(await panel.getByLabel('תמונת מצב המחקר').isVisible(),false);
+    assert.equal(await panel.getByRole('button',{name:'בחר את המסלול המוצע — ללא הפעלה'}).count(),0);
+    assert.match(await panel.getByLabel('מסלול הגילוי').locator('option:checked').textContent(),/מומלץ/);
+    const primary=await panel.getByRole('button',{name:'התחל גילוי',exact:true}).boundingBox();
+    const top=await panel.boundingBox();assert.ok(primary.y-top.y<320,'primary action appears before verbose details');
+
     assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language','first launch offers longer language readings');
     assert.equal(await panel.evaluate(el=>Boolean(el.querySelector('.els29-discovery-header').compareDocumentPosition(el.querySelector('.els29-research-views'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'shared launch controls precede the result tabs');
     for(const view of ['מבנים','הציר','גילוי']) {

@@ -200,7 +200,14 @@ export default function ElsLexiconResearch2029({
   const overviewRuns = presented.available.map(source => source.run);
   const nextStep = elsResearchNextStep(overviewRuns, { ready: !!key, busy: busy || !!run });
   const launchPlans = discoveryMode === "both" ? [{ ...plan, mode: "language", minLength: 5, maxLength: 16 },
-    { ...plan, mode: "words", minLength: 5, maxLength: 10 }] : [plan];
+    { ...plan, mode: "words", minLength: 5, maxLength: 10 }] : [{ ...plan, mode: languagePlan ? "language" : "words" }];
+  const canResume = discoveryMode === "words" && !!wordRun?.data.continuation
+    && ["mode", "minLength", "maxLength", "maxDistance", "minMembers"].every(field => (field === "mode" ? (wordRun.data.plan.mode || "words") === "words" : wordRun.data.plan[field] === plan[field]));
+  const planKinds = launchPlans.map(selected => describeElsDiscoveryPlan(selected, overviewRuns).kind);
+  const shortStatus = !key ? "ממתינים למטריצה מאומתת" : busy || run ? "פעולה מתבצעת"
+    : canResume ? "אפשר להמשיך מהמקום שבו הסריקה נעצרה"
+    : planKinds.every(kind => ["repeat", "sample"].includes(kind)) ? "המסלול הזה כבר נבדק"
+    : planKinds.some(kind => kind !== "new") ? "חלק מהמסלול כבר נבדק" : "מוכן לגילוי · ללא AI";
   const renderStructureCard = card => {
           const ready = card.members.every(isAdded);
           return <li key={memberKey(card)} data-structure-card={card.id} className="els29-structure-card">
@@ -222,14 +229,27 @@ export default function ElsLexiconResearch2029({
     <header className="els29-discovery-header r29-hall">
       <span className="els29-research-eyebrow">מחקר הצופן</span>
       <strong>גילוי במטריצה הפעילה</strong>
+    <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={discoveryMode}
+      onChange={event => { setDiscoveryMode(event.target.value); setPlan(current => event.target.value === "language"
+        ? { ...current, mode: "language", minLength: 5, maxLength: 16 }
+        : { ...current, mode: "words", minLength: 5, maxLength: 10 }); }}>
+      <option value="language">ביטויים וחלוקת רצפים{nextStep.mode === "language" ? " · מומלץ" : ""}</option>
+      <option value="words">מילים — התאמה מילונית{nextStep.mode === "words" ? " · מומלץ" : ""}</option>
+      <option value="both">מילים וביטויים יחד</option>
+    </select></label>
+    <p role="status" aria-label="מצב הבדיקה">{shortStatus}</p>
+    <div className="els29-discovery-actions">
+      <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run}
+        onClick={canResume ? () => startPlan(wordRun.data.plan, wordRun) : discoveryMode === "both" ? startBoth : start}>
+        {canResume ? "המשך סריקה" : "התחל גילוי"}
+      </button>
+      {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
+    </div>
+    <details className="els29-discovery-settings"><summary>פרטי הסריקה</summary>
       {key ? <p><bdi>{state.term}</bdi> · {state.scope === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{state.axis.skip}</bdi> · רווח שורות <bdi>{scanWindow?.rowGap ?? 0}</bdi> · רוחב <bdi>{scanState.geometry.S}</bdi></p> : null}
       <section aria-label="תמונת מצב המחקר">
         <strong>מה כבר נבדק ומה הלאה</strong>
         <p role="status">{nextStep.text}</p>
-        {nextStep.mode ? <button type="button" disabled={busy || !!run} onClick={() => {
-          setDiscoveryMode(nextStep.mode); setPlan(current => ({ ...current, mode: nextStep.mode, minLength: 5, maxLength: nextStep.mode === "language" ? 16 : 10 }));
-          scanButton.current?.focus();
-        }}>בחר את המסלול המוצע — ללא הפעלה</button> : null}
         <details><summary>כיסוי והקשר · {overviewRuns.length} מקורות תואמים</summary>
           {key ? <p>מופע <bdi>{state.axis.hitId}</bdi> · גרסת קורפוס <bdi>{state.verification.corpus_id}</bdi> · שורות {scanState.geometry.r0}–{scanState.geometry.r1} · עמודות {scanState.geometry.c0}–{scanState.geometry.c0 + scanState.geometry.cw - 1} (מאפס).</p> : null}
           {Object.values(runs).some(scan => scan.key !== key) ? <p>יש תוצאות מהקשר קודם; הן אינן נספרות בכיסוי החלון הנוכחי.</p> : null}
@@ -240,19 +260,15 @@ export default function ElsLexiconResearch2029({
           <p>קריאת Fable משתמשת כיום בהקשר המטריצה המקורי; אין כאן אישור שקראה את ההיטל המחולק או את כל ממצאי הגילוי. פרטי ההפעלה והקריאה נמצאים בכרטיס Fable הקיים.</p>
         </details>
       </section>
-      <p>{languagePlan ? "ביטויים וחלוקת רצפים · ללא AI" : "גילוי מקומי ללא AI · בחרו מסלול להפעלה."}</p>
-    <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={discoveryMode}
-      onChange={event => { setDiscoveryMode(event.target.value); setPlan(current => event.target.value === "language"
-        ? { ...current, mode: "language", minLength: 5, maxLength: 16 }
-        : { ...current, mode: "words", minLength: 5, maxLength: 10 }); }}>
-      <option value="language">קורא הלשון · ביטויים</option>
-      <option value="words">מילים — התאמה מילונית</option>
-      <option value="both">מילים וביטויים יחד</option>
-    </select></label>
     <div aria-label="לפני הפעלת גילוי">{launchPlans.map(selected => <p key={selected.mode}>
       <b>{selected.mode === "language" ? "ביטויים" : "מילים"}</b> · {selected.minLength}–{selected.maxLength} אותיות · עד {selected.maxDistance} תאים. {key ? describeElsDiscoveryPlan(selected, overviewRuns).text : "נדרש חלון מאומת."}
     </p>)}</div>
-    <details className="els29-discovery-settings"><summary>הגדרות גילוי, סינון וגבולות</summary>
+
+    {!run && Number.isInteger(wordRun?.data.coverage?.remainingRays) ? <p role="status" aria-label="כיסוי הסריקה">{coverageLabel(wordRun.data.coverage)}</p> : null}
+    {!key ? <p>{scanWindow === null ? "הגילוי יהיה זמין כשחלון המטריצה ייטען." : "בחרו מופע מאומת לפני סריקה."}</p>
+      : scanWindow ? <p>הגילוי משתמש בחלון המוצג, ברוחב <bdi>{scanWindow.geometry.S}</bdi>.</p> : null}
+    {wordRun?.data.continuation && !canResume ? <button type="button" disabled={busy || !!run}
+      onClick={() => startPlan(wordRun.data.plan, wordRun)}>המשך סריקה קודמת</button> : null}
     {languagePlan ? <p>מילים וחלוקה לשתי מילים על אותו קו, במדגם מוגבל סביב הציר. האותיות נשמרות; הרווחים מוצעים לבדיקה שלכם.</p> : null}
     <details className="els29-discovery-plan"><summary>{languagePlan ? "גבולות בדיקת הביטויים" : "תכנית סריקה · מהיר, רחב או עמוק"}</summary>
       <p>הגדירו אילו מילים לחפש וכמה להתרחק מהציר. שינוי הגדרה אינו מתחיל סריקה.</p>
@@ -288,21 +304,10 @@ export default function ElsLexiconResearch2029({
       <p>שורות, טורים ושני האלכסונים בשני הכיוונים. קבוצות נבנות רק מההתאמות שנשמרו: מקבילות עד 8 תאים עם תמיכה משותפת, המשכים עד 3 תאים, חיתוכים, חזרות, מסדרונות ואשכולות של 3 מופעים ומעלה עד 4 תאים בין כל זוג. עד 240 קבוצות, עד 8 מופעים בקבוצה.</p>
     </details>
     </details>
-    <div className="els29-discovery-actions">
-      <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run} onClick={discoveryMode === "both" ? startBoth : start}>התחל גילוי</button>
-      {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
-    </div>
-    <div className="els29-discovery-actions">
-      {wordRun?.data.continuation ? <button type="button" disabled={busy || !!run}
-        onClick={() => startPlan(wordRun.data.plan, wordRun)}>המשך סריקה</button> : null}
-    </div>
     {run ? <CanonicalProgress compact title={run.target.plan.mode === "language" ? "בדיקת ביטויים" : "סריקה מילונית"} phase={progress?.phase === "scan" ? "בודק קווים בחלון" : "טוען ומאמת את אוצר הלשון"}
       detail={Number.isInteger(liveCoverage?.remainingRays) ? coverageLabel(liveCoverage) : null}
       current={liveCoverage?.completedRays ?? null} total={liveCoverage?.totalRays ?? null} onCancel={pause}
       copy={run.target.plan.mode === "language" ? null : { cancel: "השהה סריקה" }} /> : null}
-    {!run && Number.isInteger(wordRun?.data.coverage?.remainingRays) ? <p role="status" aria-label="כיסוי הסריקה">{coverageLabel(wordRun.data.coverage)}</p> : null}
-    {!key ? <p>{scanWindow === null ? "הגילוי יהיה זמין כשחלון המטריצה ייטען." : "בחרו מופע מאומת לפני סריקה."}</p>
-      : scanWindow ? <p>הגילוי משתמש בחלון המוצג, ברוחב <bdi>{scanWindow.geometry.S}</bdi>.</p> : null}
     </header>
     {viewNavigation}
     <div hidden={view !== "discovery"} id="els29-discovery-view">

@@ -41,3 +41,13 @@ test('next-step guidance distinguishes missing paths, active work and continuati
   assert.equal(elsResearchNextStep([language]).mode, 'words');
   assert.equal(elsResearchNextStep([language, complete]).mode, null);
 });
+
+test('word presets without explicit mode retain truthful continuation and repeat coverage', async () => {
+  const { describeElsDiscoveryPlan } = await import('../src/lib/research/elsResearchAssessment.js');
+  const preset={minLength:4,maxLength:8,maxDistance:12};
+  const run={data:{plan:preset,continuation:'cursor',coverage:{complete:false}}};
+  assert.equal(describeElsDiscoveryPlan({...preset,mode:'words'},[run]).kind,'continue');
+  assert.equal(describeElsDiscoveryPlan({...preset,mode:'language'},[run]).kind,'new');
+  assert.equal(describeElsDiscoveryPlan({...preset,mode:'words',maxDistance:40},[run]).kind,'new');
+  assert.equal(describeElsDiscoveryPlan({...preset,mode:'words'},[{data:{plan:preset,coverage:{complete:true}}}]).kind,'repeat');
+});

@@ -37,7 +37,7 @@ export function compareElsResearchRows(a, b) {
 // settings affect presentation and are deliberately not a new coverage claim.
 export function describeElsDiscoveryPlan(plan, runs = []) {
   const same = runs.filter(run => ['mode', 'minLength', 'maxLength', 'maxDistance']
-    .every(field => run.data?.plan?.[field] === plan?.[field]));
+    .every(field => field === "mode" ? (run.data?.plan?.mode || "words") === (plan?.mode || "words") : run.data?.plan?.[field] === plan?.[field]));
   if (!same.length) return { kind: 'new', text: 'התכנית הזו טרם נבדקה בהקשר הנוכחי. היא אינה מבטיחה ממצאים חדשים.' };
   if (same.some(run => run.data.coverage?.complete === true && plan.mode !== 'language'))
     return { kind: 'repeat', text: 'התכנית המוגדרת כבר הושלמה. הרצה זהה אינה מוסיפה כיסוי מתוכנן.' };

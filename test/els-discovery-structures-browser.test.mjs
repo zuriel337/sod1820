@@ -57,12 +57,15 @@ test("combined groups: explicit sources, saved runs, deduplication and one atomi
       const panel=document.querySelector('.els29-lexicon-research');
       const settings=panel.querySelector('.els29-discovery-settings'), launch=panel.querySelector('.els29-start-discovery');
       const results=panel.querySelector('#els29-discovery-view'), storage=panel.querySelector('.els29-research-storage');
-      return !!(settings.compareDocumentPosition(launch)&Node.DOCUMENT_POSITION_FOLLOWING)
+      return !!(launch.compareDocumentPosition(settings)&Node.DOCUMENT_POSITION_FOLLOWING)
         && !!(results.compareDocumentPosition(storage)&Node.DOCUMENT_POSITION_FOLLOWING);
-    }),true,'configure first, launch together, saved scans after the research content');
+    }),true,'launch before folded details, saved scans after the research content');
     await page.getByText(/שמירת סריקות · בבנייה/).waitFor();
+    assert.equal(await page.getByRole("button", { name: "בחר את המסלול המוצע — ללא הפעלה" }).count(),0);
+    assert.match(await page.getByLabel("מסלול הגילוי").locator('option:checked').textContent(),/מומלץ/);
+    assert.equal(await page.getByLabel("תמונת מצב המחקר").isVisible(),false);
+    await page.getByText("פרטי הסריקה",{exact:true}).click();
     await page.getByLabel("תמונת מצב המחקר").getByText(/מסלול שטרם נבדק/).waitFor();
-    await page.getByRole("button", { name: "בחר את המסלול המוצע — ללא הפעלה" }).click();
     assert.equal(await page.evaluate(() => window.__requests.length), 0, 'recommendation selection never starts work');
     await page.getByLabel("מסלול הגילוי").selectOption("words"); await start.click(); await page.evaluate(() => window.__finish("words"));
     await page.getByLabel("מסלול הגילוי").selectOption("language"); await start.click(); await page.evaluate(() => window.__finish("language"));
