@@ -1767,7 +1767,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </> : null}
       <div className="els29-native-query-actions">
         <button className="els29-native-search" type="submit" disabled={searchPending && !draftDirty}>{searchPending && !draftDirty ? "מחפש…" : crossSearchOpen ? "חפש הצלבה" : "חפש"}</button>
-        {!researchProfile ? <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למטריצה" : "כל הכלים"}</button> : null}
       </div>
       </div>
       </form>

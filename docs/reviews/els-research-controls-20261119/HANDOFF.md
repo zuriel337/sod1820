@@ -22,3 +22,11 @@ Read-only Vercel check: www.sod1820.co.il points to dpl_E2969XpF1XhrBJPPpeEPgf21
 5. Protected Preview approval for the exact combined SHA, then user's acceptance. Merge/deploy remain ZURIEL main session responsibilities with separate exact approval.
 
 Local acceptance records DOM section order without a new scan, source selection/atomic group admission, saved run reopening, failure/cancel/late results/account switch, mobile widths and the native research-view contract. Final local: 3/3 browser scenarios passed (two panel/lifecycle cases and one native research-view contract); npm run build including shell budget and git diff --check passed. No new pure data behavior was introduced; no new unit tests added. New-head CI is separate. No Production, SQL, shared flag/secret or engine-limit changes. No journal writes or agent dispatch.
+
+## Classic search follow-up (19 November)
+
+Task ELS_CLASSIC_SEARCH_ACTION_20261119, base 6d532e6c7. ZURIEL explicitly requested removing the Classic כל הכלים button and enlarging Search. Removed only that launcher; the existing flex action row now gives Search the full width. Canonical iframe/engine and the normal result/finding/save tools remain. Mode selector stays above the cipher folder; opening a saved cipher continues to respect the selected mode.
+
+Updated acceptance for the intentionally removed launcher: Classic has exactly one full-width submit action, switching Research/Classic preserves drafts and one engine, unified scan and heat remain native. 13/13 unit contracts and 2/2 browser cases passed. Final build reported in PR.
+
+The user clarified that the next placement decision is about the entire discovery workspace, not advanced search. Recommendation only: a Discovery entry beside Results/Save opens the same workspace through the existing SystemToolDock, coordinated with the frame owner. No relocation, second toolbar or changed operation-lifetime promise was implemented in this small follow-up.

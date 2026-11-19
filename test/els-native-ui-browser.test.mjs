@@ -465,8 +465,10 @@ test('Research has one regular/cross/advanced search surface with preserved draf
     await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
     assert.equal(await box.getByRole('button',{name:'חיפוש מתקדם',exact:true}).count(),0);
     assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').isVisible(),false);
-    assert.equal(await box.getByRole('button',{name:'כל הכלים',exact:true}).isVisible(),true);
-    await box.getByRole('button',{name:'כל הכלים',exact:true}).click();
+    assert.equal(await box.getByRole('button',{name:'כל הכלים',exact:true}).count(),0);
+    const actions=box.locator('.els29-native-query-actions'), search=actions.getByRole('button',{name:'חפש',exact:true});
+    assert.equal(await actions.getByRole('button').count(),1);
+    assert.ok(Math.abs((await search.boundingBox()).width-(await actions.boundingBox()).width)<=1,'Classic search fills the action row');
     await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
     assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),0,'Research cannot remain trapped in the full Classic tool');
     assert.equal(await frame.evaluate(node=>node===document.querySelector('iframe')),true,'one unchanged canonical engine');
@@ -1804,11 +1806,12 @@ test('native UI: vivid colors and exact finding focus stay readable in every the
   });
  });
 
-test('native UI: unified scan recovers from Classic; heat paints only unmarked cells without changing research state',
+test('native UI: unified scan stays native; heat paints only unmarked cells without changing research state',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
-   const url=page.url();await selectAxis(page,golden.term);await activate(page,'כל הכלים');
-   assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),1);
+   const url=page.url();await selectAxis(page,golden.term);
+   assert.equal(await button(page,'כל הכלים').count(),0);
+   assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),0);
    await page.getByRole('button',{name:'סרוק לאורך הציר הנבחר',exact:true,includeHidden:true}).dispatchEvent('click');
    await button(page,'סמן את תורה ברצף').waitFor();await expectNative(page,url,'scan after Classic');
    await activate(page,'סגור כלי מטריצה');await revealMatrixOption(page,'מפת חום');await button(page,'מפת חום').scrollIntoViewIfNeeded();

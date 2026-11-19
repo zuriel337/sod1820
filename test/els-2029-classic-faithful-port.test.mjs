@@ -48,7 +48,7 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(nativeClassic, /onGate=\{\(\) => \{ setClassicOpen\(false\);[\s\S]*?setAccountRequired\(true\)/);
   assert.match(embed, /const gateOverlay = !experience2029 && gate && !verified/);
   assert.match(embed, /\(experience2029 \? "&experience=2029" : ""\)/);
-  assert.match(nativeClassic, /classicOpen \? "חזור למטריצה" : "כל הכלים"/);
+  assert.doesNotMatch(nativeClassic, /className="els29-native-more"/);
   assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
 
   assert.match(embed, /engineOnly = false/);
