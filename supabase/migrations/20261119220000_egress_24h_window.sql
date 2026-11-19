@@ -17,20 +17,26 @@ as $function$
 with bounds as (
   select date_trunc('hour', p_at at time zone 'UTC') at time zone 'UTC' as until
 ), hours as (
-  select h as window_start, h + interval '1 hour' as window_end,
-    to_char(h at time zone 'UTC', 'YYYY-MM-DD"T"HH24:00:00"Z"') as start_key,
-    to_char((h + interval '1 hour') at time zone 'UTC', 'YYYY-MM-DD"T"HH24:00:00"Z"') as end_key
+  select h as window_start, h + interval '1 hour' as window_end
   from bounds, lateral generate_series(until - interval '24 hours', until - interval '1 hour', interval '1 hour') h
-), candidates as materialized (
-  select h.window_start, h.window_end, c.cache_key, c.computed_at, c.payload,
-    row_number() over (partition by h.window_start order by c.computed_at desc nulls last, c.cache_key desc) as revision
-  from hours h join public.analytics_cache c
-    on c.payload->>'window_start' = h.start_key and c.payload->>'window_end' = h.end_key
+), parsed as materialized (
+  select c.cache_key, c.computed_at, c.payload,
+    case when c.payload->>'window_start' ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:00:00Z$'
+      and pg_input_is_valid(c.payload->>'window_start', 'timestamp with time zone')
+      then (c.payload->>'window_start')::timestamptz end as window_start
+  from public.analytics_cache c
   where c.cache_key like 'infra_egress_hour:%'
     and c.producer = 'traffic_intelligence_law' and c.producer_version = 'v11'
     and c.payload->>'basis' = 'OBSERVED_STORAGE_LOGS'
     and c.invalidated_at is null
-), observations as materialized (
+), candidates as materialized (
+  select p.*, p.window_start + interval '1 hour' as window_end,
+    row_number() over (partition by p.window_start order by p.computed_at desc nulls last, p.cache_key desc) as revision
+  from parsed p cross join bounds
+  where p.payload->>'window_start' = to_char(p.window_start at time zone 'UTC', 'YYYY-MM-DD"T"HH24:00:00"Z"')
+    and p.payload->>'window_end' = to_char((p.window_start + interval '1 hour') at time zone 'UTC', 'YYYY-MM-DD"T"HH24:00:00"Z"')
+    and p.window_start + interval '1 hour' <= until
+), all_observations as materialized (
   select *,
     case when jsonb_typeof(payload->'storage_get_bytes') = 'number'
       and payload->>'storage_get_bytes' ~ '^[0-9]{1,30}$'
@@ -40,6 +46,9 @@ with bounds as (
       then (payload#>>'{traffic_classes,bot_share}')::numeric end as bot_share,
     coalesce(payload#>>'{coverage,missing_or_invalid_content_length_requests}', '0') <> '0' as partial_hour
   from candidates where revision = 1
+), observations as materialized (
+  -- Only the day total/history is window-limited. Sensor age must survive an outage >24h.
+  select o.* from all_observations o join hours h using (window_start, window_end)
 ), totals as (
   select count(bytes)::int as observed_hours, sum(bytes) as observed_bytes,
     count(*) filter (where bytes is not null and partial_hour)::int as partial_hours
@@ -49,7 +58,7 @@ with bounds as (
     when observed_hours = 24 and partial_hours = 0 then 'COMPLETE' else 'PARTIAL' end as status
   from totals
 ), latest as (
-  select * from observations where bytes is not null order by window_end desc limit 1
+  select * from all_observations where bytes is not null order by window_end desc limit 1
 )
 select jsonb_build_object(
   'storage_egress_observed_basis', 'OBSERVED_STORAGE_LOGS',
@@ -77,8 +86,8 @@ select jsonb_build_object(
     'warn_24h_bytes', 2::bigint * 1024 * 1024 * 1024, 'critical_24h_bytes', 5::bigint * 1024 * 1024 * 1024,
     'warn_bot_share', 0.50,
     'state', case
-      when observed_hours = 0 then 'NO_HOURLY_DATA'
       when (select window_end from latest) < p_at - interval '2 hours' then 'STALE'
+      when observed_hours = 0 then 'NO_HOURLY_DATA'
       when (select bytes from latest) >= 500 * 1024 * 1024 or observed_bytes >= 5::bigint * 1024 * 1024 * 1024 then 'CRITICAL'
       when (select bytes from latest) >= 100 * 1024 * 1024 or observed_bytes >= 2::bigint * 1024 * 1024 * 1024
         or (select bot_share >= 0.50 and bytes >= 50 * 1024 * 1024 from latest) then 'WARN'

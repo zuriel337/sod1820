@@ -3,7 +3,7 @@ begin;
 do $guard$ begin
   if (select md5(prosrc) from pg_proc where oid='public.admin_system_health()'::regprocedure) <> '168d10830f8ea27468a957cb6d3ffcfa'
     or (select md5(prosrc) from pg_proc where oid='public.fn_health_watch()'::regprocedure) <> '4402aaec222c60339ce551b5fe76c649'
-    or (select md5(prosrc) from pg_proc where oid='public.fn_storage_egress_observed_24h(timestamptz)'::regprocedure) <> 'dcfeda1a9ca1a236d112d51b25a462ef' then
+    or (select md5(prosrc) from pg_proc where oid='public.fn_storage_egress_observed_24h(timestamptz)'::regprocedure) <> '13413b91c9df0cf6672a758cdada40cf' then
     raise exception 'EGRESS_24H_ROLLBACK_SOURCE_DRIFT';
   end if;
 end $guard$;

@@ -137,9 +137,29 @@ test('egress card distinguishes a complete measured zero from no data and missin
     assert.ok(!text(root).includes('123 MiB'),'old unqualified subtotal is not displayed');
     const unknown=kind==='legacy'||kind==='invalid-window';
     assert.ok(text(root).includes(unknown?'כיסוי UNKNOWN':kind==='COMPLETE'?'כיסוי 24/24':'כיסוי 0/24'));
-    assert.ok(text(root).includes(unknown?'זמן הרשומה; חלון לא מאומת':'סיום חלון המדידה'));
+    assert.ok(text(root).includes(unknown?'מועד כתיבת המדידה':'סיום חלון המדידה'));
     await act(async()=>root.unmount());
   }
+});
+
+test('30-hour sensor outage displays 0/24 NO_DATA independently of the stale last observation',async()=>{
+  const f=fixture(),root=await mount(f);
+  await settle(f,{health:{...snapshot,usage:{
+    storage_egress_observed_latest:{storage_get_bytes:1048576},
+    storage_egress_observed_latest_at:'2026-11-18T13:00:00Z',
+    storage_egress_observed_24h_bytes:null,storage_egress_observed_24h_observed_bytes:null,
+    storage_egress_observed_24h_coverage:{observed_hours:0,required_hours:24,partial_hours:0,status:'NO_DATA',window_start:'2026-11-18T19:00:00Z',window_end:'2026-11-19T19:00:00Z'},
+    storage_egress_guard:{state:'STALE'},supabase_cached_egress_basis:'UNKNOWN'
+  }}});
+  const section=root.root.findByProps({'data-experience-capability':'storage-egress-health'});
+  const chips=section.findAll(n=>n.props.className==='sod29-chip').flatMap(n=>n.children);
+  assert.ok(chips.includes('NO_DATA'));
+  assert.ok(text(root).includes('כיסוי 0/24'));
+  assert.ok(text(root).includes('STALE'));
+  const day=section.findAll(n=>n.props.className==='sod29-card').find(c=>c.findAllByType('div').some(d=>d.children.some(v=>typeof v==='string' && v.includes('סכום חלקי בחלון'))));
+  assert.equal(day.findByType('h3').children.join(''),'—');
+  assert.ok(!text(root).includes('24 שעות מלאות'));
+  await act(async()=>root.unmount());
 });
 
 test('the speed centre is part of the main view; Google sources wait for "מדידה וגוגל"; "רענן" reaches the open measurement; all disappear with revoked admin',async()=>{

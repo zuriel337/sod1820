@@ -105,6 +105,39 @@ update analytics_cache set payload=payload || '{"storage_get_bytes":600000000,"t
 select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_guard,state}','"CRITICAL"','partial lower bound preserves the CRITICAL threshold');
 select public.fn_health_watch();
 select pg_temp.check_value(to_jsonb((select count(*) from work_log where topic='🚨 ניטור Egress/Storage (אוטומטי)' and status='critical')),'1','unknown bot share does not suppress a byte-threshold alert');
+
+-- Work acceptance: a silent sensor must keep reminding even after its last hour leaves the day.
+truncate analytics_cache,work_log;
+select pg_temp.hour(date_trunc('hour',now())-interval '31 hours','100',now());
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_observed_24h_coverage,observed_hours}','0','30h outage: admin card has 0/24');
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_observed_24h_coverage,status}','"NO_DATA"','30h outage: day coverage is NO_DATA');
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_observed_24h_observed_bytes}','null','30h outage: no stale bytes in day sum');
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_observed_history_24h}','[]','30h outage: no stale hour in day history');
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_observed_latest_at}',to_jsonb(date_trunc('hour',now())-interval '30 hours'),'30h outage: last measurement survives outside day, independent of recent write');
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_guard,state}','"STALE"','30h outage: sensor stays STALE while coverage is NO_DATA');
+select public.fn_health_watch();
+select pg_temp.check_value(to_jsonb((select count(*) from work_log where status='sensor_stale')),'1','30h outage: stale reminder is emitted');
+select public.fn_health_watch();
+select pg_temp.check_value(to_jsonb((select count(*) from work_log where status='sensor_stale')),'1','30h outage: no duplicate within six-hour reminder interval');
+update work_log set created_at=now()-interval '6 hours 1 second' where status='sensor_stale';
+select public.fn_health_watch();
+select pg_temp.check_value(to_jsonb((select count(*) from work_log where status='sensor_stale')),'2','30h outage: reminder returns after existing six-hour interval');
+
+-- More recent unusable/future/invalid revisions cannot make the silent sensor look fresh.
+select pg_temp.hour(date_trunc('hour',now())-interval '1 hour','null');
+select pg_temp.hour(date_trunc('hour',now())-interval '2 hours','100');
+update analytics_cache set payload=payload || '{"coverage":{"source_status":"UNAVAILABLE"}}' where payload->>'window_start'=to_char((date_trunc('hour',now())-interval '2 hours') at time zone 'UTC','YYYY-MM-DD"T"HH24:00:00"Z"');
+select pg_temp.hour(date_trunc('hour',now())+interval '1 hour','100');
+insert into analytics_cache(cache_key,payload,computed_at,producer,producer_version)
+values ('infra_egress_hour:invalid','{"window_start":"2026-02-31T13:00:00Z","window_end":"2026-02-31T14:00:00Z","storage_get_bytes":100,"basis":"OBSERVED_STORAGE_LOGS"}',now(),'traffic_intelligence_law','v11');
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_observed_latest_at}',to_jsonb(date_trunc('hour',now())-interval '30 hours'),'invalid, unavailable and future observations cannot refresh sensor age');
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_observed_24h_coverage,status}','"NO_DATA"','unusable newer rows do not fill the day');
+select pg_temp.hour(date_trunc('hour',now())-interval '1 hour','0',now()+interval '1 second',':recovered');
+select pg_temp.check_value(public.admin_system_health()#>'{usage,storage_egress_guard,state}','"PARTIAL"','fresh valid zero ends sensor staleness');
+truncate analytics_cache,work_log;
+select public.fn_health_watch();
+select pg_temp.check_value(to_jsonb((select count(*) from work_log where status='sensor_stale')),'0','never-observed sensor does not invent a last measurement');
+
 select pg_temp.check_value(to_jsonb(has_function_privilege('anon','public.fn_storage_egress_observed_24h(timestamptz)','execute')),'false','internal projection denied to anon');
 select pg_temp.check_value(to_jsonb(has_function_privilege('authenticated','public.fn_storage_egress_observed_24h(timestamptz)','execute')),'false','internal projection denied to ordinary accounts');
 set test.role='authenticated';
