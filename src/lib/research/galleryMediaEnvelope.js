@@ -92,7 +92,9 @@ export function buildIntrinsicMedia({ row, node = null, label = "" }) {
     text: ocrText ? ocrText.slice(0, OCR_TEXT_CAP) : null,
     numbers: ints(row.ocr_numbers),
   };
+  const storedVideoUrl = clean(row.ocr_meta?.video_url);
   const representation = {
+    ...(storedVideoUrl ? { storedVideoUrl } : {}),
     imageUrl: row.image_url,
     thumbUrl: row.thumb_url || row.image_url,
     fit: "preserve-whole-image",

@@ -18,6 +18,7 @@ import { gatePublicMethodRows, gateSourcePresentation, gateSourceSelectionIsCurr
 import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, loadPublicGalleryReading2029, galleryReadingHref2029, gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection, loadPublicRealityStream2029 } from "../lib/research/topicSourceContext.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { publicMediaCaption, publicMediaTitle } from "../lib/presentation/contentTitle.js";
+import { publicStorageMedia } from "../lib/mediaEgressGuard.js";
 import { applySeo } from "../lib/seo.js";
 import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import "./gallery2029.css";
@@ -153,6 +154,21 @@ function GalleryCatalogBody() {
   </article></>;
 }
 
+function GalleryInlineVideo({ src, poster, title, children }) {
+  const [opened, setOpened] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const label = title || "סרטון מהגלריה";
+  if (!opened) return <button type="button" className="g29-canvas g29-video-cover"
+    aria-label={`הפעלת הסרטון · ${label}`} onClick={() => setOpened(true)}>
+    {children}<span className="g29-video-play" aria-hidden="true">▶</span>
+  </button>;
+  return <div className="g29-canvas g29-video-player">
+    <video src={src} controls playsInline autoPlay preload="none" poster={poster}
+      aria-label={label} onError={() => setFailed(true)} />
+    {failed && <p role="status">הנגן לא הצליח לפתוח את הסרטון. <a href={src} target="_blank" rel="noreferrer">פתיחה ישירה של הסרטון</a></p>}
+  </div>;
+}
+
 function GalleryImageCard({ item, index, selected, opening, error, onRemember, onOpenExpression, onSelect }) {
   const location = useLocation();
   const [captionExpanded, setCaptionExpanded] = useState(false);
@@ -162,16 +178,22 @@ function GalleryImageCard({ item, index, selected, opening, error, onRemember, o
   const title = publicMediaTitle(p.originalName);
   const caption = publicMediaCaption(p.originalCaption);
   const share = worldMediaPublicShare(item, { origin: typeof window !== "undefined" ? window.location.origin : null });
-  const kind = p.imageType === "gematria" ? "גימטריה" : p.imageType === "hint" ? "רמזים בתמונה"
+  const storedVideoUrl = item.intrinsic.representation.storedVideoUrl;
+  const media = storedVideoUrl && publicStorageMedia(storedVideoUrl);
+  const videoUrl = media?.kind === "video" ? media.href : null;
+  const cover = <span className="g29-image-surface"><CanonicalMediaImage2029 item={item} primary loading={index < 2 ? "eager" : "lazy"} alt={title || "תמונה מהגלריה"} /><GalleryImageDate item={item} /></span>;
+  const kind = videoUrl ? "וידאו" : p.imageType === "gematria" ? "גימטריה" : p.imageType === "hint" ? "רמזים בתמונה"
     : p.imageType === "event" ? "מן החדשות" : "מהגלריה";
   const numberLink = (number) => <Link key={number} className="g29-number" to={numberExpressionFocusHref(number)}
     onClick={(event) => { if (ordinaryClick(event)) onRemember(item); }} aria-label={`לדף המספר ${number}`}><bdi>{number.toLocaleString("en-US")}</bdi>
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true"><path d="m3 9 6-6M3 3h6v6" /></svg></Link>;
   return <section id={slotKey} tabIndex={-1} className="g29-exhibit" data-gallery-image-id={item.galleryImageId}
     data-gallery-selected={selected ? item.galleryImageId : undefined} aria-label={title || `תמונה ${index + 1}`}>
-    <a className="g29-canvas" href={item.imageUrl} target="_blank" rel="noreferrer" aria-label={`הגדלת התמונה: ${title || "תמונה מהגלריה"}`}>
-      <span className="g29-image-surface"><CanonicalMediaImage2029 item={item} primary loading={index < 2 ? "eager" : "lazy"} alt={title || "תמונה מהגלריה"} /><GalleryImageDate item={item} /></span>
-    </a>
+    {videoUrl ? <GalleryInlineVideo key={videoUrl} src={videoUrl} poster={item.imageUrl} title={title}>
+      {cover}
+    </GalleryInlineVideo> : <a className="g29-canvas" href={item.imageUrl} target="_blank" rel="noreferrer" aria-label={`הגדלת התמונה: ${title || "תמונה מהגלריה"}`}>
+      {cover}
+    </a>}
     <div className="g29-placard">
       {p.originalName?.includes('עדכון') ? <p className="g29-update-heading">{publicMediaCaption(p.originalName)}</p> : null}
       <div className="g29-card-heading"><span className="g29-kind">{kind}</span><span className="g29-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>

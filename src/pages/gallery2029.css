@@ -103,3 +103,34 @@
   .g29-catalog-controls label:first-child{grid-column:1/-1}
   .g29-catalog-controls .g29-page-link{padding:10px 12px;font-size:var(--s29-type-small,15px)}
 }
+
+button.g29-video-cover {
+  position: relative;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.g29-video-play {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: #191510df;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  pointer-events: none;
+}
+div.g29-video-player { cursor: default; }
+.g29-video-player video {
+  display: block;
+  width: 100%;
+  max-height: 440px;
+  object-fit: contain;
+  background: #000;
+}
