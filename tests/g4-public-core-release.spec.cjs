@@ -152,7 +152,11 @@ test('site search stays separate and a phrase in the Number drawer opens its cal
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
-    await page.locator('.sod29-header-search').click();
+    // ZURIEL 19.11.2026 (Design V2 §14.8): on phones search lives in "עוד" (the top bar shows the theme in Hebrew); desktop keeps it in the top bar.
+    if (width <= 620) {
+      await page.locator('.sod29-command-island').getByRole('button', { name: /^עוד/ }).click();
+      await page.getByRole('dialog', { name: 'עוד', exact: true }).getByRole('button', { name: /^חיפוש/ }).click();
+    } else await page.locator('.sod29-header-search').click();
     const siteSearch = page.getByRole('dialog', { name: 'חיפוש באתר', exact: true });
     await expect(siteSearch.getByRole('combobox', { name: 'מה מחפשים?' })).toBeVisible();
     await expect(siteSearch.locator('.sod29-number-drawer2029')).toHaveCount(0);
