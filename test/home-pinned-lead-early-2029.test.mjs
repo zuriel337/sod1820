@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { homePinnedLeadEarlyWanted } from "../src/lib/homeAtmospherePreload2029.js";
-import { preloadPinnedCover2029, HOME_PINNED_COVER_MARK }, { default as startHomePinnedLeadEarly2029 } from "../src/lib/homePinnedLeadEarly2029.js";
+import startHomePinnedLeadEarly2029, { preloadPinnedCover2029, HOME_PINNED_COVER_MARK } from "../src/lib/homePinnedLeadEarly2029.js";
 import { pinnedCatalogCover2029, pinCoverSet, PIN_COVER_SIZES, PIN_COVER_WIDTHS, PIN_COVER_QUALITY } from "../src/components/experience2029/homePinnedCover2029.js";
 import { seriesLatestMember2029 } from "../src/lib/nowPublications2029.js";
 import { fetchContentSeriesCatalog2029, resetSharedCatalogRead2029 } from "../src/lib/research/contentSeries2029Projection.js";
@@ -127,7 +127,7 @@ test("the early read and the Home's later read are ONE network read (the catalog
 
 test("the entry reaches the dedicated early-start chunk without waiting for the Home route", () => {
   const entry = readFileSync(new URL("../src/lib/homeAtmospherePreload2029.js", import.meta.url), "utf8");
-  assert.match(entry, /import\("\.\/homePinnedLeadEarly2029\.js"\)\.then\(module => module\.startHomePinnedLeadEarly2029\?\.\(\)\)\.catch\(\(\) => \{\}\)/);
+  assert.match(entry, /import\("\.\/homePinnedLeadEarly2029\.js"\)\.then\(module => module\.default\(\)\)\.catch\(\(\) => \{\}\)/);
   assert.doesNotMatch(entry, /Home2029Page\.jsx/, "the early start must not wait for the full Home route chunk");
   assert.doesNotMatch(entry, /^import .*homePinnedLeadEarly2029/m, "no static import into the entry");
 });
