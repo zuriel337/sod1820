@@ -138,6 +138,34 @@ export default function ShareActions({
     </div>
   );
 
+  // Royal presentation (Design V2 §14.2/§14.4, ZURIEL 19.11.2026): the same actions, telemetry and channels as below, rendered with the shared
+  // Royal 2029 button family (.r29-btn, royal2029.css, loaded by the caller): one royal-blue main action, then the channels as equal quiet
+  // buttons whose platform marks keep their own colours. Without native sharing the main action copies the link (and no second copy button).
+  if (variant === "royal") {
+    const announce = nativeFellBack ? (copied ? "השיתוף לא נפתח. הקישור הועתק." : "השיתוף לא נפתח. אפשר להעתיק את הקישור.") : copied ? "הקישור הועתק" : copyFailed ? "ההעתקה נכשלה. נסה שוב." : "";
+    const mainIsNative = channels.includes("native") && canNative;
+    return (
+      <div className="r29-share" data-share-variant="royal" dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, ...style }}>
+        {mainIsNative
+          ? <button type="button" className="r29-btn is-primary is-block" data-action="share" onClick={native}><span className="r29-btn-icon" aria-hidden="true"><NavigationIcon2029 name="share" /></span>שיתוף</button>
+          : <button type="button" className="r29-btn is-primary is-block" data-action="copy" data-state={copied ? "success" : copyFailed ? "error" : "idle"} onClick={copy}
+              aria-label={copied ? "הועתק" : copyFailed ? "ההעתקה נכשלה, נסה שוב" : "העתקת הקישור"}><span className="r29-btn-icon" aria-hidden="true"><NavigationIcon2029 name={copied ? "check" : "copy"} /></span>{copied ? "הקישור הועתק" : "העתקת הקישור"}</button>}
+        <div className="r29-share-grid">
+          {channels.filter(c => CH[c]).map(c => {
+            const m = CH[c];
+            return <a className="r29-btn is-quiet" data-action="share" key={c} href={m.href(attributedShareUrl(fullUrl, c), text)} target="_blank" rel="noopener noreferrer" onClick={() => logShare(c)} aria-label={m.label}>
+              <span className="r29-mark" style={{ background: m.brand }} aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" focusable="false"><path d={m.svg} /></svg></span>{m.label}
+            </a>;
+          })}
+          {mainIsNative && channels.includes("copy") ? <button type="button" className="r29-btn is-quiet" data-action="copy" data-state={copied ? "success" : copyFailed ? "error" : "idle"} onClick={copy}
+            aria-label={copied ? "הועתק" : copyFailed ? "ההעתקה נכשלה, נסה שוב" : "העתק קישור"}><span className="r29-btn-icon" aria-hidden="true"><NavigationIcon2029 name={copied ? "check" : "copy"} /></span>{copied ? "הועתק" : "העתקה"}</button> : null}
+        </div>
+        <span className="sod-action-announcement" role="status" aria-live="polite">{announce}</span>
+        {extra}
+      </div>
+    );
+  }
+
   const btn = { display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", textDecoration: "none",
     background: P.card, borderWidth: 1, borderStyle: "solid", borderColor: P.border, borderRadius: 999, padding: compact ? "8px 11px" : "8px 15px",
     fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 800, color: P.ink, minHeight: 44, whiteSpace: "nowrap", flexShrink: 0 };

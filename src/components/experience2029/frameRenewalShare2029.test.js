@@ -168,7 +168,7 @@ test("global dock opens ShareActions directly with all approved choices and keep
   }
   // Inside the panel: the one ShareActions with every approved channel on the exact URL, and the tools tile only in the full panel.
   const panel = await read("./MorePanel2029.jsx");
-  assert.match(panel, /<ShareActions type=\{share\.type\} url=\{share\.href\}[^>]*channels=\{\["native", "whatsapp", "telegram", "facebook", "copy"\]\}/);
+  assert.match(panel, /<ShareActions variant="royal" type=\{share\.type\} url=\{share\.href\}[^>]*channels=\{\["native", "whatsapp", "telegram", "facebook", "copy"\]\}/);
   assert.match(panel, /\{!shareOnly \? <>[\s\S]*title="כלים"[\s\S]*<\/> : null\}[\s\S]*<ShareActions/);
   assert.match(source, /const openShare = useCallback\(\(\) => openTransient\(TRANSIENT\.MORE, \{ shareOnly: true \}\)/);
   assert.match(source, /<GlobalLivingRibbon2029 \/>/);

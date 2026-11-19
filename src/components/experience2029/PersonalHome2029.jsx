@@ -1,5 +1,6 @@
-import React, { Suspense, useEffect, useId, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
+import RoyalRow2029 from "./RoyalRow2029.jsx";
 import { PERSONAL_GROUPS } from "../../lib/userCenter/personalArea2029.js";
 import "./royal2029.css";
 import "./personalArea2029.css";
@@ -13,22 +14,11 @@ import "./personalArea2029.css";
 //   section "raziel" | "hints"              -> onAction(card)   { signIn } -> focuses the account form on top
 // A card that is closed (locked / building) is a labelled status with the real reason, never a button.
 
-const STATE_LABEL = { locked: "נעול", building: "בבנייה", unavailable: "לא זמין" };
 const HUE = Object.fromEntries(PERSONAL_GROUPS.map(group => [group.id, group.hue]));
 
 function Card({ card, onPress }) {
-  const hintId = useId();
-  const closed = card.state !== "live";
-  const body = <>
-    <span className="pa29-medal r29-medal" aria-hidden="true"><NavigationIcon2029 name={card.icon} size={20} /></span>
-    <span className="pa29-card-text"><strong>{card.title}</strong><small id={hintId}>{card.hint}</small></span>
-    {closed ? <span className="pa29-state r29-badge" data-pa29-state={card.state}>{STATE_LABEL[card.state] || "סגור"}</span>
-      : <span className="pa29-chev" aria-hidden="true" />}
-  </>;
-  const common = { className: `pa29-card r29-card${closed ? " is-closed" : ""}`, "data-r29-kind": HUE[card.group] || "me", "data-workspace-card": card.id, "data-card-state": card.state,
-    "aria-describedby": hintId, title: closed && card.reason ? card.reason : undefined };
-  if (closed) return <div {...common} role="group" aria-disabled="true" aria-label={`${card.title}: ${STATE_LABEL[card.state] || "סגור"}`}>{body}</div>;
-  return <button type="button" {...common} onClick={() => onPress(card)}>{body}</button>;
+  return <RoyalRow2029 icon={card.icon} title={card.title} hint={card.hint} state={card.state} reason={card.reason} kind={HUE[card.group] || "me"}
+    data={{ "data-workspace-card": card.id, "data-card-state": card.state }} onPress={() => onPress(card)} />;
 }
 
 function Disclosure({ id, open, onToggle, icon, title, hint, children, hue = "research", cardId }) {

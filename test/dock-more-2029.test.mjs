@@ -28,7 +28,7 @@ test("each bar entry says whether its expansion is open; one expansion at a time
 test("gimatria stays open to everyone: a direct tile in עוד with its own lock_number state, not behind כלים", () => {
   assert.match(frame, /onNumber=\{openGimatria\} numberLocked=\{numberLocked\}/);
   assert.match(frame, /const numberLocked = numberFeature\.loading \|\| numberFeature\.blocked;/);
-  assert.match(panel, /<RoyalTile2029 icon="number" title="גימטריה"[^>]*onClick=\{onNumber\} disabled=\{numberLocked\}/);
+  assert.match(panel, /<RoyalRow2029 icon="number" title="גימטריה"[^>]*state=\{numberLocked \? "locked" : "live"\}[^>]*onPress=\{onNumber\}/);
   // "כאן" keeps its administrator lock; the redesign opens nothing new.
   assert.match(global, /className="sod29-dock-here" disabled=\{contextLocked\}/);
 });
@@ -36,7 +36,7 @@ test("gimatria stays open to everyone: a direct tile in עוד with its own lock
 test("the full עוד panel keeps actions, tools, search and the personal area; sharing is the share-only panel", () => {
   const more = frame.slice(frame.indexOf("transientKind === TRANSIENT.MORE)"), frame.indexOf("transientKind === TRANSIENT.TOOLS)"));
   assert.match(more, /<MorePanel2029/); assert.match(more, /openAction\(inspectTarget\)/); assert.match(more, /onTools=\{openTools\}/); assert.match(more, /onSearch=\{openSiteSearch\}/);
-  assert.match(panel, /data-share-owner="ShareActions"/); assert.match(panel, /onClick=\{onAction\}/); assert.match(panel, /onClick=\{onTools\}/);
+  assert.match(panel, /data-share-owner="ShareActions"/); assert.match(panel, /onPress=\{onAction\}/); assert.match(panel, /onPress=\{onTools\}/);
   assert.match(panel, /\{!shareOnly \? null : share\?\.href \?/, "share appears only in the share-only expansion");
   assert.match(panel, /data-share-subject="true"/, "the share expansion names what is shared");
   const tools = frame.slice(frame.indexOf("transientKind === TRANSIENT.TOOLS)"), frame.indexOf("transientKind === TRANSIENT.RAZIEL_LOCKED)"));
