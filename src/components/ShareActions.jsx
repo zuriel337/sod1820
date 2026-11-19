@@ -8,6 +8,16 @@ import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShareOutcome,
 import { createShareIntent, resolveModality } from "../lib/share/shareObject.js";
 import { emitShare, shareSlug, attributedShareUrl } from "../lib/share/shareTelemetry.js";
 import { canonicalPostShareUrl } from "../lib/publicPostUrls.js";
+import { openBarShare } from "../lib/share/barShare2029.js";
+
+// One share window (ZURIEL 19.11.2026): where the 2029 bar is mounted (it marks <html data-share-bar>), a share placed in a page shows one
+// "שיתוף" entry that opens the bar's window with exactly these props (same channels, same telemetry). Without the bar the row below stays.
+const SHARE_NOUN = Object.freeze({ post: "הפוסט", number: "המספר", gematria_result: "התוצאה", finding: "הממצא", community_message: "ההודעה",
+  image: "התמונה", video: "הסרטון", topic: "הנושא", researcher: "דף הכותב", calculator: "החישוב", "or-geula": "העדכון", page: "העמוד" });
+// The entry's own look (royal blue like every share, Design V2 §14.2). A React-hoisted <style> (one copy in <head>, deduplicated by href)
+// instead of a CSS file: a new CSS asset would be listed by every page that shares, in the entry's preload map (speed law, shell budget).
+const SHARE_ENTRY_CSS = `.sod29-root .sod-share-actions.is-entry{display:inline-flex;padding:0;overflow:visible}.sod29-root .sod-share-actions.is-entry .sod-share-entry{gap:8px;padding:0 18px!important;border-radius:999px!important;font-weight:700;color:var(--s29-accent-text)!important;border-color:color-mix(in srgb,var(--s29-accent) 52%,var(--s29-line))!important;background:color-mix(in srgb,var(--s29-accent) 11%,var(--s29-panel))!important}.sod29-root .sod-share-actions.is-entry.is-icon .sod-share-entry,.sod29-root .sod-share-actions.is-entry .sod-share-entry:not(:has(span)){inline-size:44px;padding:0!important}`;
+const hasShareBar = () => typeof document !== "undefined" && document.documentElement.hasAttribute("data-share-bar");
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
 // כל מסך (מספר/צופן/פוסט/גלריה/כל ישות) מעביר פרמטרים בלבד — לא משכפל קוד שיתוף.
@@ -33,8 +43,22 @@ export default function ShareActions({
   // Share Object (all optional, additive)
   entityId = null, sourceSurface = null, subtype = "share", locale = null, exactState = null, context = null,
   video = null, poster = null, onShare = null, variant = "default",
-  iconLabel = "שתף קישור לתמונה", iconCopiedLabel = "הקישור לתמונה הועתק",
+  iconLabel = "שתף קישור לתמונה", iconCopiedLabel = "הקישור לתמונה הועתק", shareLabel = null, disclosure = null, note = null,
 }) {
+  const [barShare, setBarShare] = useState(false);
+  // A share inside one of the frame's own windows (Inspect, Raziel, the personal area…) keeps its row: sending it to the bar would replace
+  // the window the person is in. Set on mount, before the effect below reads it.
+  const inFramePanel = useRef(false);
+  const place = useCallback((node) => { if (node) inFramePanel.current = Boolean(node.closest?.(".sod29-frame-panel")); }, []);
+  useEffect(() => {
+    if (variant === "royal") return undefined;
+    const read = () => setBarShare(hasShareBar() && !inFramePanel.current);
+    read();
+    // The frame marks <html data-share-bar> in its own effect, which can run after this one: watch the attribute (frame bytes stay flat).
+    const watch = typeof MutationObserver === "function" ? new MutationObserver(read) : null;
+    watch?.observe(document.documentElement, { attributes: true, attributeFilter: ["data-share-bar"] });
+    return () => watch?.disconnect();
+  }, [variant]);
   const P = use2029Palette();
   const visualPalette = use2029Palette();
   const copyTimer = useRef(null);
@@ -122,11 +146,29 @@ export default function ShareActions({
   }, [image, imgBusy, text, fullUrl, logShare, intent]);
 
 
+  // The bar's window takes the share: the page keeps one entry (icon or "שיתוף"), the window shows the channels, the community option and QR.
+  const toBar = (event) => {
+    event?.preventDefault?.(); event?.stopPropagation?.();
+    const taken = openBarShare({ type, url: fullUrl, title: text, image, entityId, sourceSurface, subtype, locale, exactState, context, video, poster,
+      onShare, extra, disclosure, note, label: shareLabel || SHARE_NOUN[type] || "העמוד" });
+    if (!taken) { setBarShare(false); if (variant === "icon") { if (canNative) void native(); else void copy(); } }
+  };
+  if (barShare && variant !== "royal") return (
+    <div className={`sod-share-actions is-entry${variant === "icon" ? " is-icon" : ""}`} ref={place} dir="rtl" style={variant === "icon" ? style : undefined}>
+      <style href="sod-share-entry-2029" precedence="medium">{SHARE_ENTRY_CSS}</style>
+      <button type="button" className="sod-share-entry" data-action="share" data-share-entry="bar" aria-haspopup="dialog" onClick={toBar}
+        title={variant === "icon" ? iconLabel : `שיתוף ${shareLabel || SHARE_NOUN[type] || "העמוד"}`}
+        aria-label={variant === "icon" ? iconLabel : `שיתוף ${shareLabel || SHARE_NOUN[type] || "העמוד"}`}>
+        <NavigationIcon2029 name="share" size={variant === "icon" ? 16 : 18} />{variant === "icon" || compact ? null : <span>שיתוף</span>}
+      </button>
+    </div>
+  );
+
   // A contextual unit uses the SAME execution/telemetry with one quiet icon.
   // No image file is fetched implicitly: this action shares the exact unit link.
   // Existing callers keep the original channel row and image-file choice.
   if (variant === "icon") return (
-    <div className="sod-share-actions is-icon" dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, ...style }}>
+    <div className="sod-share-actions is-icon" ref={place} dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, ...style }}>
       <button type="button" data-action="share" data-share-variant="icon"
         data-state={copied ? "success" : copyFailed ? "error" : "idle"}
         title={copied ? "הקישור הועתק" : iconLabel}
@@ -173,7 +215,7 @@ export default function ShareActions({
 
   return (
     // שורה אחת: לא נשבר; במסך צר נגלל אופקית עדין (WebkitOverflowScrolling) במקום להתפזר ל-2-3 שורות
-    <div className="sod-share-actions" dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
+    <div className="sod-share-actions" ref={place} dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
       {channels.includes("native") && canNative && (
         <button type="button" data-action="share" onClick={native} title="שתף" aria-label="שתף" style={{ ...btn, background: P.accentBtn, color: P.onAccent, borderColor: "transparent" }}><NavigationIcon2029 name="share" /> {label("שתף")}</button>
       )}

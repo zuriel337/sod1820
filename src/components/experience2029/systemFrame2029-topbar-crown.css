@@ -212,13 +212,12 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame .sod29-he
   .sod29-root.closed-shell.native-frame .sod29-header-rail { margin-inline: 3px; }
   html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame .sod29-header-crown img { transform: translateX(-50%) translateY(-1px) scale(.7); }
 }
-@media (max-width: 620px) {
-  /* ZURIEL 19.11.2026 (Design V2 §14.8): on phones the bar names the theme in Hebrew (יום · קלף · לילה) where search was; search lives in "עוד". */
-  .sod29-root.closed-shell.native-frame .sod29-header-end .sod29-header-search { display: none; }
-  .sod29-root.closed-shell.native-frame .sod29-header-end .sod29-header-actions .sod29-theme-presets.is-header-control { flex: 0 0 auto; inline-size: auto; }
-  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets.is-header-control .sod29-theme-trigger { inline-size: auto; gap: 4px; padding-inline: 10px; }
-  .sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control .sod29-theme-trigger b { display: inline; font-size: 15px; }
-}
+/* ZURIEL 19.11.2026 (Design V2 §14.8): the bar names the theme in Hebrew (יום · קלף · לילה) at every width, the same control on phone and desktop. */
+.sod29-root.closed-shell.native-frame .sod29-header-end .sod29-header-actions .sod29-theme-presets.is-header-control { flex: 0 0 auto; inline-size: auto; }
+.sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets.is-header-control .sod29-theme-trigger { inline-size: auto; gap: 4px; padding-inline: 10px; }
+.sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control .sod29-theme-trigger b { display: inline; font-size: 15px; }
+/* On phones the theme takes the place of search; search lives in "עוד". */
+@media (max-width: 620px) { .sod29-root.closed-shell.native-frame .sod29-header-end .sod29-header-search { display: none; } }
 @media (max-width: 340px) {
   .sod29-root.closed-shell.native-frame[data-frame-theme-preset] { --s29-crown-w: 72px; --s29-crown-slot: 102px; --s29-dip-w: 220px; --s29-dip-h: 48px; }
   /* at 320px the "where am I" line gives its room to the crown and the controls */

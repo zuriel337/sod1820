@@ -11,6 +11,9 @@ import { requestInstall, subscribeInstallOffer, suppressInstallSuggestion, INSTA
 import { installBrowser, installManualSteps, installMenuKind } from "../../lib/installMenu2029.js";
 import "./morePanel2029.css";
 
+// «שתפו בקהילה» and the QR code: loaded with the share window only.
+const ShareMore2029 = React.lazy(() => import("./ShareMore2029.jsx"));
+
 // The body of the ONE bottom-bar "עוד" panel (SystemFrame2029 TRANSIENT.MORE), in Royal Tiles 2029. A projection over existing
 // owners only: the frame's actions/tools/search/workspace openers, the existing ShareActions and installOffer2029.
 // No new bar, personal centre, install system or store. Order: here → tools & search → personal → the app (wide) → share.
@@ -63,12 +66,20 @@ export function MoreInstall2029() {
   </section>;
 }
 
+// The bar's own fields never reach ShareActions as props; everything else a page sent does.
+function shareActionProps(share) {
+  const { href, label, surface, disclosure: _d, note: _n, url: _url, variant: _variant, compact: _compact, ...rest } = share;
+  return { ...rest, url: href, sourceSurface: share.sourceSurface || surface };
+}
+
 function shareSubjectPath(href) {
   try { const url = new URL(href); return decodeURIComponent(url.host + url.pathname).replace(/\/$/, ""); } catch { return ""; }
 }
 
 export default function MorePanel2029({ shareOnly = false, context = "", onAction, onTools, onSearch, personal, onPersonal,
-  adminDestinations = [], onDestination, onNumber = null, numberLocked = false, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
+  adminDestinations = [], onDestination, onNumber = null, numberLocked = false, toolDockReturn = null, share: given = null, actionsBuilding = false, toolsBuilding = false }) {
+  // A page's own share item (barShare2029.js) names its link `url`; the bar's page link names it `href`.
+  const share = given && { ...given, href: given.href || given.url };
   const [candidate] = useState(reviewCandidate);
   // Design V2 §14 (ZURIEL 19.11.2026, preview): the Personal Area's components (Royal 2029 layer) — centered section headings with the
   // diamond rule, the shared royal rows, royal-blue primary actions — and one ShareActions in its royal presentation.
@@ -110,11 +121,22 @@ export default function MorePanel2029({ shareOnly = false, context = "", onActio
       {/* the panel's own title already says "שיתוף העמוד"; the subject names exactly what is shared (the words ShareActions sends) */}
       <div className="sod29-more-share-subject pa29-hall r29-hall is-feature" data-share-subject="true" data-r29-kind="site">
         <span className="r29-medal" aria-hidden="true"><NavigationIcon2029 name="share" size={20} /></span>
-        <small>משתפים את</small>
+        <small>{share.label ? `משתפים את ${share.label}` : "משתפים את"}</small>
         <strong dir="auto">{share.title || pageOwnShareTitle(typeof window === "undefined" ? null : window.location)}</strong>
         <span dir="ltr">{shareSubjectPath(share.href)}</span>
       </div>
-      <ShareActions variant="royal" type={share.type} url={share.href} title={share.title} sourceSurface={share.surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} force />
+      {/* What a page sends (its card and "מה יישלח") folds into one line, so the share buttons stay in view (ZURIEL 19.11.2026). */}
+      {(share.image && share.label) || share.disclosure?.length ? <details className="sod29-more-share-what">
+        <summary>{share.image && share.label ? "מה יישלח · תמונה ופרטים" : "מה יישלח"}</summary>
+        {share.image && share.label ? <img className="sod29-more-share-card" src={share.image} alt={`תמונת השיתוף של ${share.label}`} width="600" height="315" loading="lazy" decoding="async" /> : null}
+        {Array.isArray(share.disclosure) && share.disclosure.length ? <dl className="sod29-more-share-sent" aria-label="מה יישלח">
+          {share.disclosure.map(([key, value]) => <div key={key}><dt>{key}</dt><dd dir="auto">{value}</dd></div>)}
+        </dl> : null}
+      </details> : null}
+      {/* A page's own share button sends its ShareActions props through the bar (barShare2029.js): same component, channels and telemetry. */}
+      <ShareActions channels={["native", "whatsapp", "telegram", "facebook", "copy"]} force {...shareActionProps(share)} variant="royal" />
+      {share.note ? <p className="sod29-more-share-note">{share.note}</p> : null}
+      <React.Suspense fallback={null}><ShareMore2029 href={share.href} title={share.title || ""} label={share.label || ""} type={share.type || "page"} /></React.Suspense>
     </section> : <p className="sod29-more-note" data-more-section="share">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</p>}
   </div>;
 }

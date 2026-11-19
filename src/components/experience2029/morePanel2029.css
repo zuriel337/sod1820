@@ -47,3 +47,17 @@
 }
 /* Night frame (ZURIEL 19.11.2026, Design V2 §14.9): the panel rests on the blue-charcoal frame tone with a restrained gold wash. */
 .sod29-root.native-frame[data-frame-theme-preset="dark"] .sod29-frame-panel[data-panel-kind="more"]{background:radial-gradient(90% 60% at 50% 0%,color-mix(in srgb,var(--s29-brand-gold) 5%,transparent),transparent 70%),color-mix(in srgb,var(--s29-panel) 96%,transparent)}
+/* What a page sends through the share window (ZURIEL 19.11.2026): the card it will show, "מה יישלח", and the note. */
+.sod29-more-share-card{display:block;inline-size:100%;block-size:auto;aspect-ratio:600/315;object-fit:cover;border-radius:14px;border:1px solid color-mix(in srgb,var(--s29-brand-gold) 22%,var(--s29-line))}
+.sod29-more-share-sent{display:grid;gap:6px;margin:0;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--s29-panel-soft) 70%,transparent)}
+.sod29-more-share-sent div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:baseline}
+.sod29-more-share-sent dt{font-size:14px;color:var(--s29-muted)}
+.sod29-more-share-sent dd{margin:0;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.sod29-more-share-note{margin:0;text-align:center;font-size:14px;line-height:1.5;color:var(--s29-muted)}
+.sod29-more-share-what{display:grid;gap:10px}
+.sod29-more-share-what>summary{display:flex;align-items:center;justify-content:center;gap:8px;min-block-size:44px;padding:0 14px;border-radius:999px;cursor:pointer;list-style:none;
+  font-size:15px;font-weight:700;color:var(--s29-accent-text);border:1px solid color-mix(in srgb,var(--s29-brand-gold) 26%,var(--s29-line))}
+.sod29-more-share-what>summary::-webkit-details-marker{display:none}
+.sod29-more-share-what>summary::after{content:"▾";font-size:13px;transition:transform var(--s29-motion,180ms) ease}
+.sod29-more-share-what[open]>summary::after{transform:rotate(180deg)}
+.sod29-more-share-what>summary:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
