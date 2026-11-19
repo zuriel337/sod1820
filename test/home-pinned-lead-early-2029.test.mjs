@@ -66,6 +66,10 @@ test("the card itself renders from the same helper (one definition)", () => {
   assert.match(card, /fetchContentSeriesCatalog2029\(\{ homeOnly: true, homeDisplay: true, signal: controller\.signal \}\)/, "the Home's own read options");
   const early = readFileSync(new URL("../src/lib/homePinnedLeadEarly2029.js", import.meta.url), "utf8");
   assert.match(early, /read\(\{ homeOnly: true, homeDisplay: true \}\)/, "the early start reads with the same options, so it is the same shared read");
+  assert.match(early, /import\("\.\/research\/contentSeries2029Projection\.js"\)/, "the direct starter loads the catalog only on the Home path");
+  assert.match(early, /import\("\.\.\/components\/experience2029\/homePinnedCover2029\.js"\)/, "the direct starter loads the cover rule only on the Home path");
+  assert.doesNotMatch(early, /^import .*contentSeries2029Projection/m, "the catalog must not become an eager entry dependency");
+  assert.doesNotMatch(early, /^import .*homePinnedCover2029/m, "the cover rule must not become an eager entry dependency");
 });
 
 test("one preload link for the cover, with the card's srcset and sizes; idempotent", () => {
@@ -89,11 +93,11 @@ test("the early start reads with the Home's options and preloads the cover; a fa
   const doc = fakeDocument();
   const calls = [];
   const items = [{ id: "5107", coverUrl: COVER, publishedAt: "2026-10-12T00:00:00Z" }];
-  const link = await startHomePinnedLeadEarly2029({ doc, read: async options => { calls.push(options); return { series: seriesWith(items) }; } });
+  const link = await startHomePinnedLeadEarly2029({ doc, read: async options => { calls.push(options); return { series: seriesWith(items) }; }, coverFor: pinnedCatalogCover2029 });
   assert.deepEqual(calls, [{ homeOnly: true, homeDisplay: true }]);
   assert.equal(link.href, COVER);
   const failing = fakeDocument();
-  assert.equal(await startHomePinnedLeadEarly2029({ doc: failing, read: async () => { throw new Error("offline"); } }), null);
+  assert.equal(await startHomePinnedLeadEarly2029({ doc: failing, read: async () => { throw new Error("offline"); }, coverFor: pinnedCatalogCover2029 }), null);
   assert.equal(failing.head.children.length, 0);
 });
 
