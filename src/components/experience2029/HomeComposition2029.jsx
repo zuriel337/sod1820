@@ -21,7 +21,7 @@ import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost202
 import { NowPinnedMessage2029 } from "./NowRoyalCenter2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
 import { nowModels, buildNowEntries, nowPinnedMessage, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
-import { pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
+import { homeMediaProps2029, pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
 import { HomeLeadImageGate2029, HOME_LEAD_IMAGE_CAP_MS } from "./homeLeadImageGate2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
@@ -107,12 +107,13 @@ function useHomeDeferredData({ includeWorld, videosAdmitted }) {
   return state;
 }
 
-function Media({ src, fallback, className = "" }) {
+function Media({ src, fallback, className = "", slot = "compact" }) {
   const [failed, setFailed] = useState(false);
   const open = useContext(HomeLeadImageGate2029);
+  const media = homeMediaProps2029(src, slot);
   useEffect(() => { setFailed(false); }, [src]);
   return src && !failed && open
-    ? <img className={`h29-media ${className}`} src={src} alt="" loading="lazy" onError={() => setFailed(true)} />
+    ? <img className={`h29-media ${className}`} {...media} data-home-media={slot} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)} />
     : <div className={`h29-media is-empty ${className}`}><span>{fallback}</span></div>;
 }
 
@@ -165,7 +166,7 @@ function AdminLatestUpdates() {
 // Latest published item of a series (shared by every series card).
 function SeriesLatestItem({ item, series }) {
   return <Link className="h29-series-item h29-card-open" to={item.href}>
-    <Media src={item.imageUrl} fallback="✦" /><span><strong>{item.title}</strong><small>{item.author || series.writerLabel || series.publisherLabel || "פוסט"}</small><PublicationTime at={item.publishedAt} /><UpdatedTime published={item.publishedAt} updated={item.updatedAt} /></span>
+    <Media src={item.imageUrl} fallback="✦" slot="series" /><span><strong>{item.title}</strong><small>{item.author || series.writerLabel || series.publisherLabel || "פוסט"}</small><PublicationTime at={item.publishedAt} /><UpdatedTime published={item.publishedAt} updated={item.updatedAt} /></span>
   </Link>;
 }
 
@@ -212,7 +213,7 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
         {famView.rows.map((row, rowIndex) => <div className={`h29-fam-row${row.item ? "" : " is-bare"}${attached && rowIndex === 0 ? " is-lead" : ""}`} key={row.key} data-home-family={row.key}>
           {row.item
             ? <Link className="h29-fam-post" to={row.item.href} data-home-rm-item={row.item.id}>
-              <Media src={row.item.imageUrl} fallback={<img src={BRAND_LOCKUP_NAV_2029.src} alt="" width={40} height={40} />} className="h29-rm-thumb" />
+              <Media src={row.item.imageUrl} fallback={<img src={BRAND_LOCKUP_NAV_2029.src} alt="" width={40} height={40} />} className="h29-rm-thumb" slot="compact" />
               <span><b className="h29-fam-k">{row.label}</b><strong>{row.item.title}</strong><small>פוסט {row.item.id} · <PublicationTime at={row.item.publishedAt} /></small></span>
             </Link>
             : <span className="h29-fam-post is-empty"><b className="h29-fam-k">{row.label}</b>{row.note ? <small>{row.note}</small> : null}</span>}
@@ -370,7 +371,7 @@ function HomeLiveUpdates({ updates, onOpenNow }) {
           if (entry.kind === "box") {
             const lead = entry.models[0];
             const body = <>
-              <Media src={lead.logo?.src || lead.thumb} fallback="✦" className="h29-live-thumb" />
+              <Media src={lead.logo?.src || lead.thumb} fallback="✦" className="h29-live-thumb" slot="compact" />
               <span className="rc29-rt"><strong>{entry.models.some(model => model.row?.isNew) ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{lead.title}</strong>
               <small className="h29-live-meta"><b>{entry.label}</b> · {entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}{entry.latest ? <> · <time dateTime={entry.latest}>{relativeTimeLabel(entry.latest)}</time></> : null}</small></span>
             </>;
@@ -380,7 +381,7 @@ function HomeLiveUpdates({ updates, onOpenNow }) {
           }
           const model = entry.model;
           const body = <>
-            <OwnMarkBox2029 logo={model.thumb ? model.logo : null} size={44}><Media src={model.thumb} fallback="✦" className="h29-live-thumb" /></OwnMarkBox2029>
+            <OwnMarkBox2029 logo={model.thumb ? model.logo : null} size={44}><Media src={model.thumb} fallback="✦" className="h29-live-thumb" slot="compact" /></OwnMarkBox2029>
             <span className="rc29-rt"><strong>{model.pinned ? <span className="r29-badge is-pinned rc29-new-badge" data-home-update-pinned="true">📌 נעוץ</span> : null}{model.row?.isNew ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{model.title}</strong>
               <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.seriesLatest ? <> · <SeriesLatestMark2029 model={model} /></> : null}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>
           </>;
@@ -438,7 +439,7 @@ function HomeStandalonePosts({ exclude, admitted, admissionRef }) {
       {pending ? Array.from({ length: HOME_STANDALONE_LIMIT }, (_, i) => <li className="h29-recent-item h29-skel" key={i} aria-hidden="true" />)
         : shown.map(post => <li className="h29-recent-item" data-home-standalone-post={post.slug} key={post.id}>
           <Link to={postHref(post.sourcePost)}>
-            <Media src={post.poster} fallback="✦" className="h29-recent-thumb" />
+            <Media src={post.poster} fallback="✦" className="h29-recent-thumb" slot="compact" />
             <span><strong>{clean(post.title)}</strong>{post.excerpt ? <small className="h29-recent-excerpt">{post.excerpt}</small> : null}<PublicationTime at={post.publishedAt} /></span>
           </Link>
         </li>)}
@@ -593,7 +594,7 @@ export default function HomeComposition2029({
           <div className="h29-sec-h"><h2>הסרטים האחרונים</h2><Link to="/2029/posts?category=וידאו">כל הסרטים ←</Link></div>
           <div className="h29-strip-row">
             {data.videos.map((video) => <a key={video.yt || video.slug} className="h29-tile is-video" href={video.slug ? postHref(video) : "/2029/posts?category=וידאו"}>
-              <Media src={video.poster_url || (video.yt ? `https://i.ytimg.com/vi/${video.yt}/hqdefault.jpg` : null)} fallback="▶" />
+              <Media src={video.poster_url || (video.yt ? `https://i.ytimg.com/vi/${video.yt}/hqdefault.jpg` : null)} fallback="▶" slot="tile" />
               <span>{clean(video.title)}</span>
             </a>)}
             {!data.videosLoading && !data.videos.length ? <p className="h29-empty">אין סרטים להצגה כרגע.</p> : null}
