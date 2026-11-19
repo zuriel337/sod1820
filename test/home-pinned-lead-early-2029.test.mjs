@@ -128,3 +128,23 @@ test("the entry reaches the early start through the Home route module only (no n
   const page = readFileSync(new URL("../src/pages/Home2029Page.jsx", import.meta.url), "utf8");
   assert.match(page, /export \{ startHomePinnedLeadEarly2029 \} from "\.\.\/lib\/homePinnedLeadEarly2029\.js";/);
 });
+
+
+test("Home media policy stays in the Home route and adds no entry dependency", () => {
+  const home = readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
+  const featured = readFileSync(new URL("../src/components/experience2029/HomeFeaturedPost2029.jsx", import.meta.url), "utf8");
+  const cover = readFileSync(new URL("../src/components/experience2029/homePinnedCover2029.js", import.meta.url), "utf8");
+  assert.match(home, /import \{ thumb \} from "..\/..\/lib\/img\.js";/);
+  assert.match(home, /const HOME_MEDIA_SLOTS_2029 = \{/);
+  assert.match(home, /const homeMediaProps2029 = \(url, slot = "compact"\) => \{/);
+  assert.match(home, /function Media\([^]*?homeMediaProps2029\(src, slot\)[^]*?data-home-media=\{slot\}/);
+  assert.match(home, /<HomeFeaturedPost2029 state=\{featured\} hideHighlights=\{Boolean\(updates\.pinned\)\} mediaFor=\{homeMediaProps2029\} \/>/);
+  assert.match(home, /<Media src=\{item\.imageUrl\} fallback="✦" slot="series" \/>/);
+  assert.match(home, /className="h29-rm-thumb" slot="compact"/);
+  assert.match(home, /className="h29-live-thumb" slot="compact"/);
+  assert.match(home, /className="h29-recent-thumb" slot="compact"/);
+  assert.match(home, /fallback="▶" slot="tile" \/>/);
+  assert.match(featured, /export default function HomeFeaturedPost2029\(\{ state, hideHighlights = false, mediaFor \}\)/);
+  assert.match(featured, /const poster = mediaFor\(post\?\.video\?\.poster \|\| post\?\.poster, "poster"\);/);
+  assert.doesNotMatch(cover, /HOME_MEDIA_SLOTS_2029|homeMediaProps2029/, "the early-cover module stays small");
+});

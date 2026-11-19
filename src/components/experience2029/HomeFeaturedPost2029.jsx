@@ -20,8 +20,9 @@ export function useHomeFeaturedPost() {
 }
 
 // hideHighlights (ZURIEL 11.11.2026): while the same message is pinned in "עכשיו · המרכז" above, its numbers are shown there only (one appearance on Home).
-export default function HomeFeaturedPost2029({ state, hideHighlights = false }) {
+export default function HomeFeaturedPost2029({ state, hideHighlights = false, mediaFor }) {
   const { post, loading } = state;
+  const poster = mediaFor(post?.video?.poster || post?.poster, "poster");
   // The card sits far below the Home's opening screen: its video poster (a video's poster is never lazy by itself) is asked for only as the
   // reader approaches it, so it does not compete with the pinned lead's image (ZURIEL 17.11.2026). The video box keeps its size meanwhile.
   const [ref, near] = useApproach2029(true, { rootMargin: "600px 0px" });
@@ -29,10 +30,10 @@ export default function HomeFeaturedPost2029({ state, hideHighlights = false }) 
   if (!post) return null;
   return <section ref={ref} className="h29-launch-card h29-featured" aria-label="תיעוד מוצג" data-home-featured={post.id}>
     {post.video
-      ? <video className="h29-featured-poster is-video" controls preload="none" playsInline poster={near ? post.video.poster : undefined} width="480" height="800" aria-label={`${post.title}. ${post.video.credit}`}>
+      ? <video className="h29-featured-poster is-video" controls preload="none" playsInline poster={near ? poster.src : undefined} width="480" height="800" aria-label={`${post.title}. ${post.video.credit}`}>
         <source src={post.video.src} type="video/mp4" />
       </video>
-      : post.poster ? <img className="h29-featured-poster" src={post.poster} alt="" width="640" height="360" loading="lazy" decoding="async" /> : <span className="h29-featured-poster is-empty" aria-hidden="true">▶</span>}
+      : post.poster ? <img className="h29-featured-poster" {...poster} data-home-media="poster" alt="" width="640" height="360" loading="lazy" decoding="async" /> : <span className="h29-featured-poster is-empty" aria-hidden="true">▶</span>}
     <div className="h29-featured-head">
       <Link className="h29-featured-title" to={post.href}>{post.title}</Link>
       {post.video ? <small className="h29-featured-credit">{post.video.credit}</small> : null}
