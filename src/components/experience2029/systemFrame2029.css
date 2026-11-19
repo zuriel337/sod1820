@@ -81,7 +81,7 @@
 .sod29-frame-panel-body{display:grid;gap:14px;padding:18px;min-height:0}
 .sod29-frame-panel[data-panel-kind="workspace"]{width:min(960px,calc(100vw - 48px));margin-inline:auto}
 .sod29-frame-panel:is([data-panel-kind="workspace"],[data-bar-expansion]) .sod29-frame-panel-head{display:grid;grid-template-columns:44px minmax(0,1fr) 44px}
-.sod29-frame-panel:is([data-panel-kind="workspace"],[data-bar-expansion]) .sod29-frame-panel-title{grid-column:2;justify-self:center;text-align:center}
+.sod29-frame-panel:is([data-panel-kind="workspace"],[data-bar-expansion]) .sod29-frame-panel-title{display:contents}.sod29-frame-panel:is([data-panel-kind="workspace"],[data-bar-expansion]) .sod29-frame-panel-title>:last-child{grid-column:2;justify-self:center;text-align:center}.sod29-frame-panel:is([data-panel-kind="workspace"],[data-bar-expansion]) .sod29-frame-panel-icon{grid-column:1;grid-row:1}
 .sod29-frame-panel:is([data-panel-kind="workspace"],[data-bar-expansion]) .sod29-frame-panel-head>button{grid-column:3;justify-self:end}
 .sod29-frame-panel[data-panel-kind="workspace"] .sod29-frame-panel-body{width:min(100%,900px);margin-inline:auto;box-sizing:border-box}
 .sod29-panel-lead{padding:4px 2px}.sod29-panel-lead h3{font-size:clamp(25px,4vw,34px);line-height:1.05;margin:5px 0 9px}.sod29-panel-lead p{margin:0;color:var(--s29-muted);line-height:1.7}

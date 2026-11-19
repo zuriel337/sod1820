@@ -586,6 +586,11 @@ surface by surface; they do not copy its rules into a page stylesheet.
   the default fill of a control and never signals verification, quality or success.
 - Platform marks keep their own recognisable colours inside the shared button (WhatsApp, Telegram,
   Facebook, Google). Only the mark carries the platform colour; the button around it is the shared one.
+- **Presets (ZURIEL, second round, 19.11.2026):** Day and Parchment keep the look shown in the preview
+  and its current amount of gold. Night keeps the blue cards, the royal-blue actions and the crown; only
+  the shell surfaces (page, panel, raised surface and the gold wash inside the shell) are open, between
+  the current warm black-brown and a darker warm charcoal with less brown (§14.7). Gold stays for brand
+  ornament (rings and thin lines). Success, error and warning keep their status meanings.
 
 ### 14.3 Consistent centering
 
@@ -612,6 +617,13 @@ border); destructive and status use their owned status roles. Text links stay li
 a variant prop (one component, props select the presentation), with the platform marks of §14.2.
 `WatchButton`, the account entry and tiles consume the same family when they adopt it.
 
+- Text keeps its readable size and every target is at least 44×44px; content is never fitted by
+  shrinking text.
+- The main share button follows the browser's actual support for system sharing (`navigator.share`),
+  not the device type: with support it opens the system share; without it, it copies the link. Copying
+  the link stays available in both cases.
+- Share options sit in a centered grid of equal buttons; an odd last option is centered on its own row.
+
 ### 14.5 One bar that expands upward
 
 The bottom Command Island is one bar with the entries **כאן · שיתוף · רזיאל · עכשיו · עוד**.
@@ -621,25 +633,37 @@ expansion is open at a time; the bar's row stays reachable; switching keeps the 
 Active operations show a compact, visible indicator attached to the bar (operation, context, real
 phase, elapsed time). Frame behaviour is owned by System Frame addendum §10.12.
 
+Approved in the second round (19.11.2026): the bar itself joins the royal surface family in a compact
+form for each preset (gold hairline frame and top sheen, sapphire floor); the bar and its expansions
+share one width, the expansion is visually joined to the bar, and all three behave the same; panel
+titles are centered exactly (the icon and close button sit at the two ends). Raziel stays centered,
+the row stays reachable, the active-work indicator stays visible while expansions are closed, and
+existing availability and permissions are unchanged.
+
 ### 14.6 Owners to align
 
 - **`canonical_ui_components_law` (database, active v12):** v8 §1 forbids “a new bottom island
-  action” and “a duplicate persistent share button”; v3 lists `GoldButton` as a shared control.
-  A new version (v13) must permit the bar's “שיתוף” entry (one entry opening the one `ShareActions`)
-  and name `.r29-btn` as the shared button family. **Not written**: a database write needs
-  ZURIEL's explicit approval of the exact text. Until then, nothing that depends on it merges.
+  action” and “a duplicate persistent share button”; v5 names `GoldButton` among the shared controls.
+  The exact text of v13 (an additive block; v12 is kept unchanged) is drafted in
+  `docs/reviews/design-language-20261119/canonical_ui_components_law-v13-DRAFT.md`: it permits the
+  bar's canonical share entry, keeps “שתפו בקהילה” as an option inside the one share mechanism, and
+  names `.r29-btn` as the shared button family. **Not written**: a database write needs ZURIEL's
+  explicit approval of the exact text. Until then, nothing that depends on it merges.
 - **`canonical_colors_law` (database, active v2):** unchanged; this section uses its roles
   (primary/secondary/ghost/disabled/focus). No new role is required for the preview.
 - **System Frame:** `docs/sod1820-system-frame-contract-v2-addendum.md` §10.12 (19.11.2026).
 
-### 14.7 Pending preview (not yet approved)
+### 14.7 Pending (not yet approved)
 
-- exact royal-blue values per preset (fill, gradient depth, pressed tone, ring);
-- sizes: button heights (44 or 48), radii, medallion size, paddings and gaps;
-- final arrangement of “עוד” (rows or tiles; group order) and of the share expansion
-  (main share button plus a 2×2 platform grid, or one row);
-- the amount of gold ornament in Day and Parchment;
-- whether the bar itself adopts the hall surface or keeps the current glass.
+- **The exact Night shell tone**: the current warm black-brown (page `#0B0907`, panel `#17120E`,
+  raised `#211A13`) or the warm charcoal candidate (page `#0D0D0C`, panel `#181716`, raised `#21201E`,
+  a lower gold wash inside the shell). Chosen by ZURIEL after the side-by-side comparison; the chosen
+  values then enter the palette owner (`paletteTokens2029.js`), not a page stylesheet.
+
+Decided in the second round (19.11.2026) and no longer pending: the Day and Parchment look and gold
+amount; the bar's royal surface; the arrangement of “עוד” (royal rows under centered headings) and of
+the share expansion (main action, then a centered grid of equal options). Exact pixel values follow
+the preview and are re-checked at acceptance.
 
 Acceptance after the preview: Day, Parchment and Night at 320/390/1440, keyboard and focus,
 44px targets, reduced motion, contrast of `onAccent` on the royal fill, and the speed gate.

@@ -431,6 +431,11 @@ by this section. Owner action: **EXTEND_EXISTING** (this addendum; visual langua
    and never shows an invented percent.
 6. **Tool Mode.** Unchanged: a deep tool projects its actions into the same bar through
    `SystemToolDock2029`, keeps Raziel and keeps a route back to the global bar.
+6a. **One width, one surface (ZURIEL, second round, 19.11.2026).** The bar and its expansions share one
+   width token (`--s29-bar-w`); an open expansion rests on the bar with joined corners; the bar uses the
+   compact royal surface of Design V2 §14.5. Panel titles are centered exactly. Focus moves into an
+   opened expansion, Escape closes it and returns focus to its bar entry, and the expansion does not
+   trap focus, so the bar row stays reachable.
 7. **Dependency.** The bar's “שיתוף” entry requires `canonical_ui_components_law` v13 (Design V2
    §14.6) before any merge.
 
