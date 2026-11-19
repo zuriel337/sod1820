@@ -35,3 +35,15 @@ test("the guest newsletter invitation opens only after its code and stylesheet a
   // No new static import into the always-loaded frame (Speed Law): the invitation stays a dynamic import.
   assert.doesNotMatch(frame, /^import .*GuestNewsletterInvite2029\.jsx/m);
 });
+
+
+test("live-update marker stays with the reply controls and a thread has one close control", () => {
+  const threadStart = live.indexOf("function LiveThread");
+  const message = live.indexOf("<LiveMessage row={row}", threadStart);
+  const update = live.indexOf('{newReplies?.count > 0 ? <div className="sod29-community-new-replies">', threadStart);
+  assert.ok(message > threadStart && update > message, "the update marker renders after the message it describes");
+  assert.match(live, /className="sod29-community-thread-context"/);
+  assert.doesNotMatch(live, /data-close-at-end/, "do not show a second close button at the bottom of the same thread");
+  assert.match(css, /\.sod29-community-thread-context\{display:flex;align-items:center;flex-wrap:wrap;/);
+  assert.doesNotMatch(css, /\.sod29-community-new-replies\{padding:10px 24px 0\}/, "the marker is not a standalone block above a thread");
+});
