@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { homePinnedLeadEarlyWanted } from "../src/lib/homeAtmospherePreload2029.js";
-import { preloadPinnedCover2029, startHomePinnedLeadEarly2029, HOME_PINNED_COVER_MARK } from "../src/lib/homePinnedLeadEarly2029.js";
+import { preloadPinnedCover2029, HOME_PINNED_COVER_MARK }, { default as startHomePinnedLeadEarly2029 } from "../src/lib/homePinnedLeadEarly2029.js";
 import { pinnedCatalogCover2029, pinCoverSet, PIN_COVER_SIZES, PIN_COVER_WIDTHS, PIN_COVER_QUALITY } from "../src/components/experience2029/homePinnedCover2029.js";
 import { seriesLatestMember2029 } from "../src/lib/nowPublications2029.js";
 import { fetchContentSeriesCatalog2029, resetSharedCatalogRead2029 } from "../src/lib/research/contentSeries2029Projection.js";
