@@ -2,8 +2,9 @@
 // PURE: it writes nothing. Text is escaped (nothing in the words can become markup), the markup is a closed set (section, hr, h2, h3, p, small, span[data-gem], a, blockquote,
 // table), and the insertion is checked before it is returned: the unit id is not in the body yet, every existing section survives unchanged and in order, nothing outside the
 // insertion point changes, and the fragment passes the same safety validator the save plan uses.
-import { parseYaminSmolText, parseFieldLine, parseBylineLine, YAMIN_SMOL_TRACE_CLAIMS } from "./postPreviewUnits2029.js";
+import { parseYaminSmolText, parseFieldLine, parseBylineLine, YAMIN_SMOL_TRACE_CLAIMS, YAMIN_SMOL_UNIT_ID } from "./postPreviewUnits2029.js";
 import { inspectFragment, allSections, contentSha256 } from "./unitFragmentSavePlan2029.js";
+import { cleanGematriaItem } from "./postUnitBody2029.js";
 
 const esc = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const NUMBER = /(?<![\d.])\d{3,5}(?![\d.])/g;
@@ -11,10 +12,15 @@ const withNumbers = (text) => { let out = "", last = 0; for (const m of String(t
 const CENTER = 'style="text-align:center!important"';
 const BIG = 'style="text-align:center!important;font-size:clamp(2.4rem,10vw,4.5rem);line-height:1;margin:22px 0 6px;font-weight:900;color:var(--gold,#e8c840)"';
 const LINE = 'style="text-align:center!important;font-size:1.08rem;margin:4px 0;font-weight:700"';
+const fieldHtml = (label, valueHtml) => `<p ${LINE}><b>${esc(label)}:</b> ${valueHtml}</p>`;
+const peakHtml = number => `<p ${BIG}><span data-gem="${esc(number)}">${esc(number)}</span></p>`;
 
 export function unitToPublishedHtml(unit, text) {
+  return unitBlocksToPublishedHtml(unit, parseYaminSmolText(text));
+}
+
+export function unitBlocksToPublishedHtml(unit, blocks) {
   if (!unit?.id || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,120}$/.test(unit.id)) throw new Error("bad_unit_id");
-  const blocks = parseYaminSmolText(text);
   const out = [];
   let table = null;
   const closeTable = () => { if (table) { out.push(`<table style="margin:14px auto;border-collapse:collapse"><tbody>${table.join("")}</tbody></table>`); table = null; } };
@@ -23,7 +29,7 @@ export function unitToPublishedHtml(unit, text) {
     switch (block.kind) {
       case "title": out.push(`<h2 id="${unit.id}-title" ${CENTER}>${esc(block.text)}</h2>`); break;
       case "subtitle": out.push(`<p ${CENTER}>${esc(block.text)}</p>`); break;
-      case "numbers": out.push(`<p style="text-align:center!important;font-size:1.4rem;font-weight:800;margin:14px 0">${block.numbers.map((n) => `<span data-gem="${n}">${n}</span>`).join(" · ")}</p>`); break;
+      case "numbers": out.push(`<p style="text-align:center!important;font-size:1.4rem;font-weight:800;margin:14px 0">${block.numbers.map((n) => `<span data-gem="${esc(n)}">${esc(n)}</span>`).join(" · ")}</p>`); break;
       case "kicker": out.push(`<p ${CENTER}>${esc(block.text)}</p>`); break;
       case "heading": out.push(`<h3 ${CENTER}>${esc(block.text)}</h3>`); break;
       case "closing": out.push(`<p style="text-align:center!important;font-size:1.15rem;font-weight:800;margin:18px auto;max-width:640px">${esc(block.text)}</p>`); break;
@@ -36,16 +42,26 @@ export function unitToPublishedHtml(unit, text) {
       }
       case "claim": {
         const field = parseFieldLine(block.text);
-        if (field) { out.push(`<p ${LINE}><b>${esc(field.label)}:</b> ${withNumbers(field.value)}</p>`); if (field.label === "התוצאה" && field.number) {
-            out.push(`<p ${BIG}><span data-gem="${field.number}">${field.number}</span></p>`);
+        if (field) { out.push(fieldHtml(field.label, withNumbers(field.value))); if (field.label === "התוצאה" && field.number) {
+            out.push(peakHtml(field.number));
             // the beautiful canonical breakdown (letters, values, sum) is hosted here: an empty host the page fills from the engine, exactly as in the Preview
-            const claim = YAMIN_SMOL_TRACE_CLAIMS.find((c) => c.number === field.number);
+            const claim = unit.id === YAMIN_SMOL_UNIT_ID && YAMIN_SMOL_TRACE_CLAIMS.find((c) => c.number === field.number);
             if (claim) out.push(`<div data-pu-trace="${claim.id}" data-pu-published="true" class="sod29-pu-host sod29-pu-trace-host"></div>`);
           } }
         else out.push(`<p ${LINE}>${withNumbers(block.text)}</p>`);
         break;
       }
-      case "peak": out.push(`<p ${BIG}><span data-gem="${block.number}">${block.number}</span></p>`); break;
+      case "gematria": {
+        const item = cleanGematriaItem(block.item);
+        if (!item) throw new Error("bad_gematria_item");
+        out.push(fieldHtml("הביטוי", esc(item.phrase)), fieldHtml("השיטה", esc(item.methodKey)));
+        if (item.stated != null) {
+          out.push(fieldHtml("התוצאה", `<span data-gem="${item.stated}">${item.stated}</span>`), peakHtml(item.stated));
+        }
+        out.push(`<div data-pu-published="true" data-gx-item="${esc(JSON.stringify(item))}" class="sod29-pu-host sod29-pu-trace-host"></div>`);
+        break;
+      }
+      case "peak": out.push(peakHtml(block.number)); break;
       default: {
         const byline = parseBylineLine(block.text);
         if (byline) out.push(`<p style="text-align:center!important;font-weight:800;margin:16px 0 6px">מאת: ${byline.href ? `<a href="${esc(byline.href)}">${esc(byline.name)}</a>` : esc(byline.name)}</p>`);
