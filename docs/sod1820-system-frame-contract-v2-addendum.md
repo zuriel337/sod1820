@@ -449,6 +449,13 @@ by this section. Owner action: **EXTEND_EXISTING** (this addendum; visual langua
    their own pages. A rail closed by hand (the × above it or its own button) stays closed while the pointer is
    still over its column; hover opens it again only after the pointer has left that column. In “עכשיו”,
    «הגילוי היומי» is one source: its channel updates and its group arrivals share the group's source key.
+6d. **One share window (Human Gate ZURIEL · 19.11.2026).** A share placed inside a page (a post, a finding, a result, an image,
+   a message) opens the bar's “שיתוף” expansion with exactly what it shares (`src/lib/share/barShare2029.js`: the same
+   ShareActions props, channels and telemetry); the page keeps one “שיתוף” entry, never its own channel row. What a page sends
+   (its card and “מה יישלח”) folds into one line so the buttons stay in view. Where no bar is mounted, the page keeps its own
+   ShareActions. The window also holds «שתפו בקהילה» (canonical_ui_components_law v13 §2: the existing composer through the
+   person's existing device draft, own words required before publishing; not a share event) and a QR code of the same link,
+   made on the device when asked. Not yet routed: the ELS matrix share and the Lightbox image link (share map C6).
 7. **Dependency.** The bar's “שיתוף” entry requires `canonical_ui_components_law` v13 (Design V2
    §14.6) before any merge.
 

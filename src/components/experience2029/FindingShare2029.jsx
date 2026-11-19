@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./findingShare2029.css";
+import { openBarShare } from "../../lib/share/barShare2029.js";
 // The sheet (with the share helpers and the card) loads when the button is pressed: the button alone joins the page (speed law, 18.11.2026).
 const FindingShareSheet2029 = React.lazy(() => import("./FindingShareSheet2029.jsx"));
 
@@ -11,9 +12,18 @@ export default function FindingShare2029({ kind = "calc", label = "שתף", url,
   const [open, setOpen] = useState(false);
   const buttonRef = useRef(null);
   if (!url) return null;
+  // One share window (ZURIEL 19.11.2026): the bar's window shows what the sheet showed (card, "מה יישלח", the note); the sheet stays the
+  // fallback where no bar is mounted. The helpers load on press, as before (speed law).
+  const press = async () => {
+    try {
+      const { findingBarShare } = await import("./FindingShareSheet2029.jsx");
+      if (openBarShare(findingBarShare({ kind, url, expression, value, method, number, context, sourceSurface }))) return;
+    } catch { /* the sheet below still opens (and reports its own loading failure) */ }
+    setOpen(true);
+  };
   return <>
     <button ref={buttonRef} type="button" className={`sod29-finding-share-button${prominent ? " is-prominent" : ""}`} data-finding-share={kind}
-      aria-label={label} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+      aria-label={label} aria-haspopup="dialog" aria-expanded={open} onClick={press}>
       <span aria-hidden="true">⤴</span><span className="sod29-finding-share-label">{label}</span>
     </button>
     {/* While the sheet loads, the same layer shows a live status (operation visibility law); a failed download goes to the app's chunk

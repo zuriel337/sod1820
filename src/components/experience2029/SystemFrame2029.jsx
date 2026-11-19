@@ -1238,6 +1238,13 @@ function SystemFrame2029Body({
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS, { subject: normalizeTarget(activeTarget) }), [openTransient, activeTarget]);
   const openMore = useCallback(() => openTransient(TRANSIENT.MORE, { subject: normalizeTarget(activeTarget) }), [openTransient, activeTarget]);
   const openShare = useCallback(() => openTransient(TRANSIENT.MORE, { shareOnly: true }), [openTransient]);
+  // One share window (ZURIEL 19.11.2026): a page's share button sends what it shares ("sod29:share", src/lib/share/barShare2029.js) and the bar opens it.
+  useEffect(() => {
+    const take = (event) => { if (!event.detail?.url) return; event.preventDefault(); openTransient(TRANSIENT.MORE, { shareOnly: true, item: event.detail }); };
+    const root = document.documentElement, mark = (on) => { root.toggleAttribute("data-share-bar", on); window.dispatchEvent(new Event("sod29:share-bar")); };
+    window.addEventListener("sod29:share", take); mark(true);
+    return () => { window.removeEventListener("sod29:share", take); mark(false); };
+  }, [openTransient]);
   const openGimatria = () => {
     setTransient(null);
     if (activeTarget?.expression && activeTarget?.method && Number.isSafeInteger(activeTarget?.resultValue)) { openNumber(activeTarget); return; }
@@ -1577,7 +1584,7 @@ function SystemFrame2029Body({
     if (transientKind === TRANSIENT.MORE) {
       const shareOnly = Boolean(transient?.payload?.shareOnly);
       const contextTitle = inspectTarget ? (contextDisplayTitle(pageContext, inspectTarget) || publicContextLabel(inspectTarget.label) || entityTypeNounHe(inspectTarget.type)) : "";
-      return <PanelShell {...common} activity={expansionActivity} panelKind="more" expansion={shareOnly ? "share" : "more"} icon={<NavigationIcon2029 name={shareOnly ? "share" : "kingdom"} />} kicker={shareOnly ? "שיתוף" : "סוד 1820"} title={shareOnly ? "שיתוף העמוד" : "עוד"}>
+      return <PanelShell {...common} activity={expansionActivity} panelKind="more" expansion={shareOnly ? "share" : "more"} icon={<NavigationIcon2029 name={shareOnly ? "share" : "kingdom"} />} kicker="סוד 1820" title={shareOnly ? `שיתוף ${transient?.payload?.item?.label || "העמוד"}` : "עוד"}>
         <MorePanel2029 shareOnly={shareOnly} context={contextTitle}
           onAction={() => openAction(inspectTarget)} onTools={openTools} onSearch={openSiteSearch}
           actionsBuilding={actionsFeature.blocked} toolsBuilding={toolsFeature.blocked}
@@ -1586,7 +1593,7 @@ function SystemFrame2029Body({
           onNumber={openGimatria} numberLocked={numberLocked}
           adminDestinations={adminOpenClosedDestinations(isAdmin)} onDestination={(item) => { setTransient(null); go(item.href); }}
           toolDockReturn={activeToolDock ? () => { setTransient(null); setSystemDockMode(false); } : null}
-          share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", surface } : null} />
+          share={transient?.payload?.item ? { ...transient.payload.item, href: transient.payload.item.url } : shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", surface } : null} />
       </PanelShell>;
     }
     if (transientKind === TRANSIENT.TOOLS && toolsFeature.blocked) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><FeatureClosedNotice2029 state={toolsFeature} title="כלים" compact /></PanelShell>;

@@ -2,12 +2,20 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { TYPEFACE } from "../lib/designTokens.js";
 import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
 import "./experience2029/contentActions2029.css";
+import "./experience2029/shareEntry2029.css";
 
 import { use2029Palette } from "../lib/palette2029.js";
 import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShareOutcome, pageOwnShareTitle, copyLink, canShareFile, shareImageFile } from "../lib/share.js";
 import { createShareIntent, resolveModality } from "../lib/share/shareObject.js";
 import { emitShare, shareSlug, attributedShareUrl } from "../lib/share/shareTelemetry.js";
 import { canonicalPostShareUrl } from "../lib/publicPostUrls.js";
+import { openBarShare } from "../lib/share/barShare2029.js";
+
+// One share window (ZURIEL 19.11.2026): where the 2029 bar is mounted (it marks <html data-share-bar>), a share placed in a page shows one
+// "שיתוף" entry that opens the bar's window with exactly these props (same channels, same telemetry). Without the bar the row below stays.
+const SHARE_NOUN = Object.freeze({ post: "הפוסט", number: "המספר", gematria_result: "התוצאה", finding: "הממצא", community_message: "ההודעה",
+  image: "התמונה", video: "הסרטון", topic: "הנושא", researcher: "דף הכותב", calculator: "החישוב", "or-geula": "העדכון", page: "העמוד" });
+const hasShareBar = () => typeof document !== "undefined" && document.documentElement.hasAttribute("data-share-bar");
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
 // כל מסך (מספר/צופן/פוסט/גלריה/כל ישות) מעביר פרמטרים בלבד — לא משכפל קוד שיתוף.
@@ -33,8 +41,16 @@ export default function ShareActions({
   // Share Object (all optional, additive)
   entityId = null, sourceSurface = null, subtype = "share", locale = null, exactState = null, context = null,
   video = null, poster = null, onShare = null, variant = "default",
-  iconLabel = "שתף קישור לתמונה", iconCopiedLabel = "הקישור לתמונה הועתק",
+  iconLabel = "שתף קישור לתמונה", iconCopiedLabel = "הקישור לתמונה הועתק", shareLabel = null, disclosure = null, note = null,
 }) {
+  const [barShare, setBarShare] = useState(false);
+  useEffect(() => {
+    if (variant === "royal") return undefined;
+    const read = () => setBarShare(hasShareBar());
+    read();
+    window.addEventListener("sod29:share-bar", read);
+    return () => window.removeEventListener("sod29:share-bar", read);
+  }, [variant]);
   const P = use2029Palette();
   const visualPalette = use2029Palette();
   const copyTimer = useRef(null);
@@ -121,6 +137,23 @@ export default function ShareActions({
     setImgBusy(false);
   }, [image, imgBusy, text, fullUrl, logShare, intent]);
 
+
+  // The bar's window takes the share: the page keeps one entry (icon or "שיתוף"), the window shows the channels, the community option and QR.
+  const toBar = (event) => {
+    event?.preventDefault?.(); event?.stopPropagation?.();
+    const taken = openBarShare({ type, url: fullUrl, title: text, image, entityId, sourceSurface, subtype, locale, exactState, context, video, poster,
+      onShare, extra, disclosure, note, label: shareLabel || SHARE_NOUN[type] || "העמוד" });
+    if (!taken) { setBarShare(false); if (variant === "icon") { if (canNative) void native(); else void copy(); } }
+  };
+  if (barShare && variant !== "royal") return (
+    <div className={`sod-share-actions is-entry${variant === "icon" ? " is-icon" : ""}`} dir="rtl" style={variant === "icon" ? style : undefined}>
+      <button type="button" className="sod-share-entry" data-action="share" data-share-entry="bar" aria-haspopup="dialog" onClick={toBar}
+        title={variant === "icon" ? iconLabel : `שיתוף ${shareLabel || SHARE_NOUN[type] || "העמוד"}`}
+        aria-label={variant === "icon" ? iconLabel : `שיתוף ${shareLabel || SHARE_NOUN[type] || "העמוד"}`}>
+        <NavigationIcon2029 name="share" size={variant === "icon" ? 16 : 18} />{variant === "icon" || compact ? null : <span>שיתוף</span>}
+      </button>
+    </div>
+  );
 
   // A contextual unit uses the SAME execution/telemetry with one quiet icon.
   // No image file is fetched implicitly: this action shares the exact unit link.

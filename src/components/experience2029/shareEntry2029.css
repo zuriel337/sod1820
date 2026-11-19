@@ -1,0 +1,6 @@
+/* Loaded with ShareActions only (never the frame: speed law). The page's one share entry (ZURIEL 19.11.2026): it opens the bar's share window; royal blue like every share (Design V2 §14.2). */
+.sod29-root .sod-share-actions.is-entry{display:inline-flex;padding:0;overflow:visible}
+.sod29-root .sod-share-actions.is-entry .sod-share-entry{gap:8px;padding:0 18px!important;border-radius:999px!important;font-weight:700;
+  color:var(--s29-accent-text)!important;border-color:color-mix(in srgb,var(--s29-accent) 52%,var(--s29-line))!important;
+  background:color-mix(in srgb,var(--s29-accent) 11%,var(--s29-panel))!important}
+.sod29-root .sod-share-actions.is-entry.is-icon .sod-share-entry,.sod29-root .sod-share-actions.is-entry .sod-share-entry:not(:has(span)){inline-size:44px;padding:0!important}

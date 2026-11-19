@@ -1,4 +1,5 @@
 import CommunityHistorySeal2029 from "./CommunityHistorySeal2029.jsx";
+import { communityShareOwnWords } from "../../lib/community/communityShareHandoff.js";
 import { canonicalCommunityAuthorKey } from "../../lib/community/communityCanonicalIdentity2029.js";
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -896,7 +897,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const submit = async () => {
     if (actionsLocked || authLoading || user && !authVerified) return;
     const body = draft.trim();
-    if ((!plainMessageText(draft).trim() && !attachments.length) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
+    if ((!plainMessageText(draft).trim() && !attachments.length) || !communityShareOwnWords(draft) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
     if (guestMustJoin) {
       if (!plainMessageText(draft).trim()) return;
       const saved = stashGuestPost(window.localStorage, { body, parentId: replyTo?.id || null });
@@ -949,7 +950,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     if (!guestMustJoin || authLoading || guestSending || sending) return;
     if (!replyTo?.id) { setNotice(guestPublishErrorMessage({ message: "reply_only" })); return; }
     const body = draft.trim();
-    if (!plainMessageText(draft).trim() || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
+    if (!plainMessageText(draft).trim() || !communityShareOwnWords(draft) || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
     if (guestBodyHasLink(body)) { setNotice(guestPublishErrorMessage({ message: "links_not_allowed" })); return; }
     setGuestSending(true); setNotice("");
     try {
@@ -1041,9 +1042,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
           {guestAttachHint && !user ? <p className="sod29-community-status" role="status" data-guest-attach-hint="true">צירוף תמונות וקבצים זמין לחברי הקהילה. <Link to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>נרשמים בשנייה ←</Link></p> : null}
           {guestMustJoin && !replyTo?.id && (!compactComposer || composerOpen) ? <p className="sod29-community-status" role="note" data-guest-reply-only="true">אורחים יכולים להגיב על הודעה קיימת (״השב״). פתיחת שיחה חדשה — לחברי הקהילה.</p> : null}
+          {/* «שתפו בקהילה» (v8 §2): a link to the site needs the person's own words before it is published. */}
+          {draft && !communityShareOwnWords(draft) ? <p className="sod29-community-own-words" role="status">כתבו כמה מילים משלכם (מחשבה, שאלה או הסבר) לצד הקישור, ואז אפשר לפרסם.</p> : null}
           {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><div className="sod29-community-composer-actions" data-guest={guestMustJoin ? "true" : undefined}>
-            {guestMustJoin && replyTo?.id ? <button type="button" className="sod29-community-primary" data-guest-publish="true" disabled={!plainMessageText(draft).trim() || guestSending || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} onClick={publishAsGuest}>{guestSending ? "מפרסם…" : "תגובה כאורח"}</button> : null}
-            <button type="button" className={guestMustJoin ? "sod29-community-join-link" : "sod29-community-primary"} disabled={(!plainMessageText(draft).trim() && (guestMustJoin || !attachments.length)) || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} data-guest-join={guestMustJoin ? "true" : undefined} onClick={submit}>{sending ? "שולח…" : guestMustJoin ? "להירשם ולפרסם בשמי ←" : "פרסום"}</button>
+            {guestMustJoin && replyTo?.id ? <button type="button" className="sod29-community-primary" data-guest-publish="true" disabled={!plainMessageText(draft).trim() || !communityShareOwnWords(draft) || guestSending || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} onClick={publishAsGuest}>{guestSending ? "מפרסם…" : "תגובה כאורח"}</button> : null}
+            <button type="button" className={guestMustJoin ? "sod29-community-join-link" : "sod29-community-primary"} disabled={(!plainMessageText(draft).trim() && (guestMustJoin || !attachments.length)) || !communityShareOwnWords(draft) || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} data-guest-join={guestMustJoin ? "true" : undefined} onClick={submit}>{sending ? "שולח…" : guestMustJoin ? "להירשם ולפרסם בשמי ←" : "פרסום"}</button>
             {guestMustJoin ? <input className="sod29-community-sr-only" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={guestWebsite} onChange={event => setGuestWebsite(event.target.value)} /> : null}</div></div> : null}
           {(draft.length > 0 || replyTo || draftCache.reattach) && draftCache.status !== "idle" ? <div className="sod29-community-draft-state" data-draft-state={draftCache.status} role="status">
             <span>{draftCache.status === "unavailable" ? "לא ניתן לשמור את הטיוטה במכשיר הזה כרגע." : draftCache.reattach ? "טיוטת הטקסט שוחזרה. יש לצרף קבצים מחדש." : draftCache.status === "restored" ? "הטיוטה שוחזרה מהמכשיר הזה" : "טיוטה נשמרה במכשיר הזה"}</span>

@@ -48,7 +48,8 @@ test("frame: the inspect panel shares the same sanitized public link as the More
   assert.match(frame, /<ShareActions\s+type=\{target\.type \|\| "page"\}\s+url=\{shareHref\}/);
   assert.doesNotMatch(frame, /title=\{`SOD1820 · \$\{publicContextLabel\(target\.label\)/, "the text no longer names a different item than the link");
   assert.match(frame, /onNeedHelp=\{openIssueReport\} shareHref=\{shareHref\} \/>/);
-  assert.match(frame, /share=\{shareHref \? \{ href: shareHref, type: surface === "post" \? "post" : "page", surface \} : null\}/, "no static shell title (פוסט / SOD1820) as share text");
+  // ZURIEL 19.11.2026: a page's own share item (barShare2029.js) comes first; otherwise the page link, still without a static shell title.
+  assert.match(frame, /share=\{transient\?\.payload\?\.item \? \{ \.\.\.transient\.payload\.item, href: transient\.payload\.item\.url \} : shareHref \? \{ href: shareHref, type: surface === "post" \? "post" : "page", surface \} : null\}/, "no static shell title (פוסט / SOD1820) as share text");
 });
 
 test("gallery applies its own title and canonical at /gallery (same as the server), not the previous page's", () => {

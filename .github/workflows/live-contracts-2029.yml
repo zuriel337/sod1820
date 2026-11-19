@@ -340,6 +340,7 @@ jobs:
           test/group-sources-now-2029.test.mjs
           test/or-geula-video-share-2029.test.mjs
           test/share-contract-2029.test.mjs
+          test/share-bar-community-2029.test.mjs
           test/finding-share-preview-2029.test.mjs
           test/share-link-privacy-2029.test.mjs
           test/install-suggestion-2029.test.mjs
