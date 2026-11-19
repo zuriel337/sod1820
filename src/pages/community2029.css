@@ -424,8 +424,12 @@ html[data-theme-2029="parchment"] .sod29-community--artwork{--community-art-opac
 .sod29-community-watch-control>span{display:block;line-height:1.6}
 .sod29-community-reading-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
 .sod29-community-reading-error{font-size:14px!important;color:var(--s29-muted);margin-top:8px!important}
-.sod29-community-new-replies{padding:10px 24px 0}
-.sod29-community-new-replies>a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--community-discovery,var(--s29-accent-text)) 40%,transparent);background:color-mix(in srgb,var(--community-discovery,var(--s29-accent-text)) 8%,transparent);color:var(--community-discovery,var(--s29-accent-text));font-size:14px;text-decoration:none}
+/* Live updates belong beside the reply controls, after the message they describe.
+   They no longer arrive as a separate block before a visible thread. */
+.sod29-community-thread-context{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;margin-top:9px}
+.sod29-community-thread-context .sod29-community-activity-source{margin-top:0}
+.sod29-community-new-replies{display:inline-flex;align-items:center;min-height:44px;max-width:100%;color:var(--community-discovery,var(--s29-accent-text));font-size:14px}
+.sod29-community-new-replies>a{display:inline-flex;align-items:center;gap:8px;min-height:36px;max-width:100%;padding:4px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--community-discovery,var(--s29-accent-text)) 40%,transparent);background:color-mix(in srgb,var(--community-discovery,var(--s29-accent-text)) 8%,transparent);color:inherit;font-size:inherit;text-decoration:none;overflow-wrap:anywhere}
 .sod29-community-new-replies>a:hover{text-decoration:underline}
 .sod29-community-account-replies{display:inline-flex;align-items:center;min-height:44px;color:var(--community-discovery,var(--s29-accent-text));font-size:14px;text-underline-offset:4px}
 
