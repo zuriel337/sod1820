@@ -1131,16 +1131,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const dockProjection = useMemo(() => ({
     surface: "els",
     actions: [
-      ...(researchWorkspace ? [{ id: "discovery", label: "כלי מחקר", shortLabel: lexiconPhase ? "סורק" : "גילוי", icon: "discovery",
-        expanded: researchToolsOpen, controls: "els29-context-panel", onSelect: trigger => toolActionsRef.current.select("discovery", trigger) }] : []),
       ...(guidedProfile
         ? [["results", "הגילוי", "גילוי", "posts"], ["findings", "מקור וממצאים", "מקור", "els"], ["research", "שמירת הגילוי", "שמירה", "books"]]
-        : [["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]]).filter(([id]) => !researchWorkspace || id !== "findings").map(([id, label, shortLabel, icon]) => ({
+        : [["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]]).map(([id, label, shortLabel, icon]) => ({
         id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
         controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
       })),
     ],
-  }), [activeTool, classicOpen, guidedProfile, researchWorkspace, lexiconPhase]);
+  }), [activeTool, classicOpen, guidedProfile]);
   const hasSystemDock = useSystemToolDock2029(active ? dockProjection : null);
   useEffect(() => {
     if (!active || !activeTool || classicOpen) return;

@@ -115,6 +115,8 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
   const before=await identity(page);
   const sideLabels=()=>page.locator('.els29-native-toolstrip > button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
   const expected=['כלי מחקר','סריקה וממצאים','תוצאות','שמירה'];
+  assert.equal(await page.locator('.els29-native-toolstrip').isVisible(),true);
+  assert.equal(await entry.locator('.sod29-ui-icon').evaluate(el=>getComputedStyle(el).backgroundImage),'none','discovery uses the existing interface icon');
   assert.deepEqual(await sideLabels(),expected);
   assert.equal(await entry.getAttribute('aria-expanded'),'false');
   assert.equal(await panel.count(),0,'heavy component remains unmounted until explicit opening');
@@ -1669,7 +1671,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
    const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
    await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
-   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),0,'shared dock replaces duplicate local launchers');
+   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),1,'matrix tools stay available beside the matrix');
    const before=await identity(page),commands=await page.evaluate(()=>window.__hostLog.length);
    const orb=()=>dock.locator('.sod29-raziel-orb');
    const orbX=(await orb().boundingBox()).x;
@@ -1679,7 +1681,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    }
    assert.equal(await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).count(),0,'search is not a dock action; the page form owns it');
    const panel=page.locator('#els29-context-panel');
-   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['כלי מחקר','גילוי · כלי המחקר']]){
+   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים','סריקה וממצאים']]){
     await dock.getByRole('button',{name:label,exact:true}).click();
     assert.equal(await panel.locator('header strong').innerText(),title);
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
@@ -1715,7 +1717,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
    assert.equal(await page.locator('iframe').count(),1);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-   if(process.env.ELS_SCREENSHOT_DIR){await dock.getByRole('button',{name:'כלי מחקר',exact:true}).click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`dock-frame-${width}.png`)});}
+   if(process.env.ELS_SCREENSHOT_DIR){await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`dock-frame-${width}.png`)});}
    await page.evaluate(()=>window.__setNativeVisible(false));
    await page.waitForFunction(()=>!document.querySelector('.sod29-command-island')?.dataset.toolOwner);
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
