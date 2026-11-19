@@ -15,8 +15,8 @@ const stub = {
   'AuthContext.jsx': 'export const useAuth=()=>globalThis.__readingResearch.auth;',
   'auth.js': 'export const getCloudResearch=(...args)=>globalThis.__readingResearch.io("read",...args);export const applyCloudResearchOps=(...args)=>globalThis.__readingResearch.io("write",...args);',
   'tracking.js': 'export const trackResearch=()=>globalThis.__readingResearch.io("track");',
-  'supabase.js': 'export const signalAiBehavior=()=>globalThis.__readingResearch.io("AIbehavior");export const supabase={rpc:(...args)=>globalThis.__readingResearch.io("RPC",...args),functions:{invoke:()=>globalThis.__readingResearch.io("model")}};',
-  'events.js': 'export const emit=()=>globalThis.__readingResearch.io("telemetry");',
+  'supabase.js': 'export const SUPABASE_URL="https://fixture.invalid",SUPABASE_ANON="public-test-key";export const signalAiBehavior=()=>globalThis.__readingResearch.io("AIbehavior");export const supabase={rpc:(...args)=>globalThis.__readingResearch.io("RPC",...args),functions:{invoke:()=>globalThis.__readingResearch.io("model")}};',
+  'events.js': 'export const isBot=()=>false;export const emit=()=>globalThis.__readingResearch.io("telemetry");',
   'eventBus.js': 'export const EVENTS=new Proxy({}, {get:(_,k)=>k});export const emit=()=>{};',
 };
 await build({ entryPoints: ['src/lib/research/ResearchProvider.jsx'], bundle: true, platform: 'node', format: 'esm', outfile,

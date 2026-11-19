@@ -990,7 +990,7 @@
  .els29-native-context-panel .els29-lexicon-research{padding:8px}
  .els29-native-context-panel .els29-discovery-header.r29-hall{padding:8px}
  .els29-native-context-panel .els29-lexicon-research .els29-discovery-actions{gap:8px;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr}
- .els29-native-context-panel .els29-lexicon-research .els29-discovery-actions>button{min-height:48px;padding:8px 6px;border-radius:999px;font-size:16px;line-height:1.25;overflow-wrap:normal;word-break:normal}
+ .els29-native-context-panel .els29-lexicon-research .els29-discovery-actions>button{min-height:48px;padding:7px 6px;border-radius:999px;font-size:16px;line-height:1.25;overflow-wrap:normal;word-break:normal}
 }
 @container els-inspector (max-width:360px){
  .els29-native-context-panel .els29-lexicon-research .els29-research-views{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;justify-content:center}

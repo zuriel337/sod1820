@@ -63,12 +63,14 @@ Commits here: `ff87b461e` C1 (#1321 family, byte-identical files + one hunk of `
   "actionFamilyUsers": [
     "public-reading-deploy/transport.js",
     "src/lib/events.js",
-    "src/lib/publicReadingTelemetry2029.js"
+    "src/lib/publicReadingTelemetry2029.js",
+    "src/lib/research/elsTelemetryRuntime2029.js"
   ]
 }
 -->
 
 The 22 files above (8 source, 1 test helper, 7 test, 6 documents). Per-file source, hunk and decision: [`extraction-map.md`](extraction-map.md).
+The current action-family consumer inventory also includes the ELS-only runtime added by #1426. Its separate implementation, proposed server allowlist and rollout limits are documented in [`TRACKING-IMPLEMENTATION.md`](../els-side-panels-20261119/TRACKING-IMPLEMENTATION.md); this addition does not change the historical measurement package or its budgets.
 `src/pages/Post2029Page.jsx` is one of the four files that main changed after #1321's base; only its one measurement line was re-applied, on top of main's file.
 
 **Not included, and why:** GA4, Meta Pixel, CAPI and AdSense findings of the audit (out of scope by the brief); Raziel, N14, content, M0-A/B/C/D/E packages and the Edge bundles; CL-13; the capture scripts and result JSON of the audit (they read Google, Meta or the live site); any database change; any report change; the CI workflow (written down in [`ci-wiring.md`](ci-wiring.md)).

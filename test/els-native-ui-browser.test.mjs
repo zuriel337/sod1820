@@ -165,7 +165,7 @@ test('Discovery uses the shared inspector and preserves tools without automatic 
   assert.equal(await panel.locator('.els29-research-views button:not(.r29-btn)').count(),0,'view buttons use the same Royal family');
   const actionBoxes=await launch.locator(':scope>button').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {y:r.y,height:r.height};}));
   assert.ok(Math.abs(actionBoxes[0].y-actionBoxes[1].y)<1,'paired actions remain on the same row on mobile and desktop');
-  assert.ok(actionBoxes.every(box=>box.height>=44&&box.height<=56),'compact readable actions instead of giant buttons');
+  assert.ok(actionBoxes.every(box=>box.height>=44&&box.height<=56),`compact readable actions at ${width}: ${JSON.stringify(actionBoxes)}`);
   await panel.getByLabel('מסלול הגילוי').selectOption('language');
   await researchView(page,'מבנים').click();
   await panel.getByText('בדיקת הסימונים והשוואת מופעים',{exact:true}).click();

@@ -16,7 +16,7 @@ The existing captureMeasurement / measurementBody / sendMeasurement -> ingest_ev
 
 ## Server proposal — NOT APPLIED
 
-`supabase/proposed/20261119190000_els_action_telemetry_PROPOSAL.sql` extends only the existing ELS allowlist in ingest_event. It checks the inspected function definition hash and refuses drift. A guarded rollback is adjacent. The client and generated worker schema are tested against the proposed schema. SQL execution/rollback has NOT been validated against PostgreSQL; it needs review and an isolated database check before approval/application. No remote SQL was executed to modify anything.
+`supabase/proposed/20261119190000_els_action_telemetry_PROPOSAL.sql` extends only the existing ELS allowlist in ingest_event. It checks the inspected function definition hash and refuses drift, including unrelated drift after an earlier application. A guarded rollback is adjacent. The client and generated worker schema are tested against the proposed schema. Release preparation validated application, repeat application, refusal of drift and exact rollback in disposable local PostgreSQL using the read-only live function definition (MD5 `897f442aaa8f75a2f1f2dd332ad92c0a`). All 22 SQL regression tests passed, including closed fields/events, unchanged other families, permissions and invalid input rejection. No remote SQL was executed to modify anything.
 
 The new events are not live-ready until the server allowlist is explicitly approved and applied. A branch build is not proof of ingestion. Live aggregate readback remains blocked by the previously observed permission denial on fn_ti_surface_activity; no raw visitor/event rows were read as a workaround.
 
@@ -27,6 +27,8 @@ This is not 100% of all people/clicks. The existing 60 actions/window/10 minute 
 The operation context supports analytics correlation, not reconstruction of a matrix: research replay/snapshots remain their existing separate responsibility. No analytics claim that matrix A's exact viewport can be rebuilt from these events.
 
 ## Validation
+
+Release preparation adds `test/els-action-telemetry-sql.test.mjs` to the security SQL CI job and keeps the live application as a separate approval. The current SQL proposal SHA-256 is `1000055220d89e89dae2b55692934b6fdd4a27384506bffa66fd42149cf872d6`; rollback SHA-256 is `a9ef6a7ca28914d6e83b45cc40aad852235401863197e06f9b7b92ccb4154b93`. The original implementation checks below are historical; see `RELEASE-READINESS.md` for preparation evidence and production prerequisites.
 
 - 65 local unit/contract tests pass: measurement identity and transport, page deduplication, worker admission/budget, ELS lifecycle, background research and Fable transport. Includes late-response origin context, failures, partial/cancel outcomes and storage failures.
 - Browser tests exercise the real native tools and engine, with synthetic identity and mocked ingest endpoint. Production-host admission is bypassed only in the fixture; this is not a live server receipt test.
