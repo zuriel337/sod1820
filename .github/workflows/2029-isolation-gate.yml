@@ -92,6 +92,11 @@ on:
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
+# Cancel only superseded PR checks. Manual and push runs retain their own run identity.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   hard-isolation:
     # Playwright 1.55 supports Ubuntu 24.04; latest can select unsupported 26.04.

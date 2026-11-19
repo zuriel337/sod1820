@@ -44,8 +44,8 @@ test('static: one set-wise verifier, service-only ACL, caps, corpus binding befo
   assert.match(mig, /'negative_authority',false/);
 });
 
-const PG = ['/usr/lib/postgresql/17/bin', '/usr/lib/postgresql/16/bin', '/usr/lib/postgresql/15/bin', '/usr/lib/postgresql/14/bin']
-  .find((d) => existsSync(join(d, 'initdb')));
+const PG = [process.env.ELS_TEST_PG_BIN, '/usr/lib/postgresql/18/bin', '/usr/lib/postgresql/17/bin', '/usr/lib/postgresql/16/bin', '/usr/lib/postgresql/15/bin', '/usr/lib/postgresql/14/bin']
+  .filter(Boolean).find((d) => ['initdb', 'pg_ctl', 'postgres'].every(name => existsSync(join(d, name))));
 const canRun = PG && spawnSync('sh', ['-c', 'command -v psql'], { encoding: 'utf8' }).status === 0;
 
 test('CI: executable SQL gate must not be skipped', () => { if (process.env.ELS_REQUIRE_EXECUTABLE) assert.ok(canRun, 'ELS_REQUIRE_EXECUTABLE=1 but PostgreSQL is missing'); });

@@ -56,10 +56,27 @@ on:
       - 'test/els-fable-public.browser.mjs'
       - 'test/els-window-directions.test.mjs'
       - 'test/els-search-parity-repairs.test.mjs'
+      - 'test/els-*.test.mjs'
+      - 'test/helpers/els-matrix-reading*.mjs'
+      - 'test/fixtures/els-matrix-reading*.sql'
+      - 'test/fixtures/els-matrix-reading/**'
+      - 'supabase/functions/_shared/elsMatrixReading*.js'
+      - 'supabase/functions/_shared/elsChanceModel.js'
+      - 'supabase/migrations/20261029125427_els_matrix_reading_durable_jobs.sql'
+      - 'scripts/els-browser-shards.mjs'
+      - 'src/components/experience2029/ElsSavePanel2029.jsx'
+      - 'src/lib/elsSavedMatrix.js'
+      - 'package-lock.json'
+      - '.nvmrc'
   workflow_dispatch:
 
+# Cancel only superseded PR checks. Manual and push runs retain their own run identity.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  els-core-compatibility:
+  els-core-contracts:
     # Pin the generator toolchain as well as browser compatibility; newer Python/zlib
     # can produce different gzip bytes for identical canonical text.
     runs-on: ubuntu-24.04
@@ -73,12 +90,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install application and pinned test-only helpers
+        run: |
+          npm ci
+          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" acorn@8.15.0
+          echo "NODE_PATH=$RUNNER_TEMP/els-tools/node_modules" >> "$GITHUB_ENV"
+
+      - name: Complete and disjoint native scenario coverage
+        run: node --test test/els-browser-shards.test.mjs
 
       - name: Static one-engine contract tests
         run: node --test test/els-core-compatibility.test.mjs
-
-      - name: Tanakh canonical stream oracle + admission contract
-        run: node --test test/els-tanakh-canonical-stream.test.mjs
 
       - name: Deterministic template -> public/tzofen.html build sync
         run: |
@@ -121,33 +145,12 @@ jobs:
           sudo -u postgres createdb sod1820_els_compat
           PGPASSWORD=postgres psql -h localhost -U postgres -d sod1820_els_compat -v ON_ERROR_STOP=1 -Atqc 'select version()'
 
-      - name: Install Playwright Chromium
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: '0'
-        run: |
-          # Pinned to the release this gate ran on from 14.10 until 5.11.2026 (every run before the incident). An unpinned install failed on 5.11:
-          # playwright@1.65.0 was published at 18:28Z but its playwright-core@1.65.0 only at 20:17Z, so `npm install playwright` hit ETARGET in between.
-          # Move the pin on purpose (with the other browser gates, which pin @playwright/test), not by whatever the registry serves that minute.
-          npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright@1.64.1
-          echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
-          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
-
-      - name: Install application dependencies for native UI acceptance
-        run: npm ci
-
-      - name: Public Fable build (administrator-only, explicit options, no AI calls)
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: '0'
-        run: |
-          VITE_ELS_MATRIX_READING_MODE=on node scripts/build-public-reading-production.mjs
-          node --test test/els-fable-public.browser.mjs
-
-      - name: Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures
+      - name: Executable canonical stream, batch verifier, privacy and durable SQL acceptance
         env:
           ELS_REQUIRE_EXECUTABLE: '1'
-          PLAYWRIGHT_BROWSERS_PATH: '0'
-        run: |
-          node --test --test-concurrency=1 test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs test/els-browser-cutover.test.mjs test/els-native-ui-browser.test.mjs test/els-saved-discovery-browser.test.mjs test/els-discovery-structures-browser.test.mjs
+        run: >-
+          node --test --test-concurrency=1 test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs
+          test/els-matrix-reading-durable-jobs-sql.test.mjs test/els-matrix-reading-durable-postgres-integration.test.mjs
 
       - name: Compile migrations and run executable SQL acceptance
         env:
@@ -166,3 +169,162 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260916150900_g3_els_core_compatibility_extension_v1.sql
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260916151000_g3_els_core_compatibility_truth_hardening_v1.sql
           psql -v ON_ERROR_STOP=1 -f test/els-core-compatibility.sql
+
+  # Static names preserve the repository's check-name derivation contract (no matrix/reusable jobs).
+  # Keep the three runners' toolchain pins together; the final check requires all three reports.
+  els-browser-1:
+    runs-on: ubuntu-24.04
+    env:
+      ELS_REQUIRE_EXECUTABLE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install pinned browser runner and manifest parser
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" playwright@1.64.1 acorn@8.15.0
+          echo "NODE_PATH=$RUNNER_TEMP/els-tools/node_modules" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/els-browsers" >> "$GITHUB_ENV"
+          echo "ELS_NATIVE_CACHE_DIR=$RUNNER_TEMP/els-native-vite" >> "$GITHUB_ENV"
+      - name: Cache exact Chromium revision
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/els-browsers
+          key: ubuntu-24.04-${{ runner.arch }}-els-playwright-1.64.1-v1
+      - name: Install Chromium and preserve the gate's system dependencies
+        run: '"$RUNNER_TEMP/els-tools/node_modules/.bin/playwright" install --with-deps chromium'
+      - name: Native browser scenarios (one disjoint third)
+        run: node scripts/els-browser-shards.mjs run 1 els-reports/shard-1.json
+      - name: Companion browser acceptance
+        if: ${{ !cancelled() }}
+        env:
+          ELS_COMPANION_TEST: test/els-browser-cutover.test.mjs
+        run: node --test --test-concurrency=1 "$ELS_COMPANION_TEST"
+      - name: Upload exact coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: els-browser-1
+          path: els-reports/shard-1.json
+          if-no-files-found: error
+          retention-days: 7
+
+  els-browser-2:
+    runs-on: ubuntu-24.04
+    env:
+      ELS_REQUIRE_EXECUTABLE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install pinned browser runner and manifest parser
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" playwright@1.64.1 acorn@8.15.0
+          echo "NODE_PATH=$RUNNER_TEMP/els-tools/node_modules" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/els-browsers" >> "$GITHUB_ENV"
+          echo "ELS_NATIVE_CACHE_DIR=$RUNNER_TEMP/els-native-vite" >> "$GITHUB_ENV"
+      - name: Cache exact Chromium revision
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/els-browsers
+          key: ubuntu-24.04-${{ runner.arch }}-els-playwright-1.64.1-v1
+      - name: Install Chromium and preserve the gate's system dependencies
+        run: '"$RUNNER_TEMP/els-tools/node_modules/.bin/playwright" install --with-deps chromium'
+      - name: Native browser scenarios (one disjoint third)
+        run: node scripts/els-browser-shards.mjs run 2 els-reports/shard-2.json
+      - name: Companion browser acceptance
+        if: ${{ !cancelled() }}
+        env:
+          ELS_COMPANION_TEST: test/els-saved-discovery-browser.test.mjs
+        run: node --test --test-concurrency=1 "$ELS_COMPANION_TEST"
+      - name: Upload exact coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: els-browser-2
+          path: els-reports/shard-2.json
+          if-no-files-found: error
+          retention-days: 7
+
+  els-browser-3:
+    runs-on: ubuntu-24.04
+    env:
+      ELS_REQUIRE_EXECUTABLE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install pinned browser runner and manifest parser
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" playwright@1.64.1 acorn@8.15.0
+          echo "NODE_PATH=$RUNNER_TEMP/els-tools/node_modules" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/els-browsers" >> "$GITHUB_ENV"
+          echo "ELS_NATIVE_CACHE_DIR=$RUNNER_TEMP/els-native-vite" >> "$GITHUB_ENV"
+      - name: Cache exact Chromium revision
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/els-browsers
+          key: ubuntu-24.04-${{ runner.arch }}-els-playwright-1.64.1-v1
+      - name: Install Chromium and preserve the gate's system dependencies
+        run: '"$RUNNER_TEMP/els-tools/node_modules/.bin/playwright" install --with-deps chromium'
+      - name: Public Fable build (administrator-only, explicit options, no AI calls)
+        run: |
+          VITE_ELS_MATRIX_READING_MODE=on node scripts/build-public-reading-production.mjs
+          node --test test/els-fable-public.browser.mjs
+      - name: Native browser scenarios (one disjoint third)
+        run: node scripts/els-browser-shards.mjs run 3 els-reports/shard-3.json
+      - name: Companion browser acceptance
+        if: ${{ !cancelled() }}
+        env:
+          ELS_COMPANION_TEST: test/els-discovery-structures-browser.test.mjs
+        run: node --test --test-concurrency=1 "$ELS_COMPANION_TEST"
+      - name: Upload exact coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: els-browser-3
+          path: els-reports/shard-3.json
+          if-no-files-found: error
+          retention-days: 7
+
+  # Preserve the existing check name; every child and the exact coverage must succeed.
+  els-core-compatibility:
+    if: ${{ always() }}
+    needs: [els-core-contracts, els-browser-1, els-browser-2, els-browser-3]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require all contract and browser jobs
+        env:
+          CONTRACTS_RESULT: ${{ needs.els-core-contracts.result }}
+          BROWSER_1_RESULT: ${{ needs.els-browser-1.result }}
+          BROWSER_2_RESULT: ${{ needs.els-browser-2.result }}
+          BROWSER_3_RESULT: ${{ needs.els-browser-3.result }}
+        run: |
+          test "$CONTRACTS_RESULT" = success
+          test "$BROWSER_1_RESULT" = success
+          test "$BROWSER_2_RESULT" = success
+          test "$BROWSER_3_RESULT" = success
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install pinned manifest parser
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" acorn@8.15.0
+          echo "NODE_PATH=$RUNNER_TEMP/els-tools/node_modules" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: els-browser-*
+          path: els-reports
+          merge-multiple: true
+      - name: Prove no native scenario was missing, duplicated, skipped or stale
+        run: node scripts/els-browser-shards.mjs verify els-reports

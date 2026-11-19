@@ -64,7 +64,9 @@ class LocalPgClient {
 
 export function localPgBin() {
   const candidates = [process.env.ELS_DURABLE_TEST_PG_BIN, '/usr/lib/postgresql/18/bin', '/usr/lib/postgresql/17/bin', '/usr/lib/postgresql/16/bin', '/usr/lib/postgresql/15/bin'].filter(Boolean);
-  return candidates.find(path => ['postgres', 'initdb', 'pg_ctl'].every(name => existsSync(join(path, name))));
+  const found = candidates.find(path => ['postgres', 'initdb', 'pg_ctl'].every(name => existsSync(join(path, name))));
+  if (!found && process.env.ELS_REQUIRE_EXECUTABLE) throw new Error('ELS_REQUIRE_EXECUTABLE=1 but local PostgreSQL binaries are missing');
+  return found;
 }
 
 export function startLocalPg(bin) {

@@ -105,8 +105,8 @@ test('migration: helper/generator grants are service-only', () => {
 });
 
 // ── executable acceptance on a throwaway local PostgreSQL (skipped when unavailable) ──
-const PG = ['/usr/lib/postgresql/17/bin', '/usr/lib/postgresql/16/bin', '/usr/lib/postgresql/15/bin', '/usr/lib/postgresql/14/bin']
-  .find((d) => existsSync(join(d, 'initdb')));
+const PG = [process.env.ELS_TEST_PG_BIN, '/usr/lib/postgresql/18/bin', '/usr/lib/postgresql/17/bin', '/usr/lib/postgresql/16/bin', '/usr/lib/postgresql/15/bin', '/usr/lib/postgresql/14/bin']
+  .filter(Boolean).find((d) => ['initdb', 'pg_ctl', 'postgres'].every(name => existsSync(join(d, name))));
 const canRun = PG && spawnSync('sh', ['-c', 'command -v psql'], { encoding: 'utf8' }).status === 0;
 
 test('executable: migration admits derived stream and Tanakh runs through the one engine', { skip: !canRun && 'local PostgreSQL not available' }, () => {
