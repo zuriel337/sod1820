@@ -122,9 +122,10 @@ test('egress card exposes 20/24 PARTIAL and never labels the observed subtotal a
 });
 
 test('egress card distinguishes a complete measured zero from no data and missing coverage metadata',async()=>{
-  for(const kind of ['COMPLETE','NO_DATA','legacy']) {
+  for(const kind of ['COMPLETE','NO_DATA','legacy','invalid-window']) {
     const f=fixture(),root=await mount(f);
     const coverage={observed_hours:kind==='COMPLETE'?24:0,required_hours:24,partial_hours:0,status:kind,window_start:'2026-11-18T19:00:00Z',window_end:'2026-11-19T19:00:00Z'};
+    if(kind==='invalid-window') {coverage.status='COMPLETE';coverage.observed_hours=24;coverage.window_end=coverage.window_start;}
     await settle(f,{health:{...snapshot,usage:{storage_egress_observed_24h_bytes:123*1048576,
       storage_egress_observed_24h_observed_bytes:kind==='COMPLETE'?0:null,
       ...(kind==='legacy'?{}:{storage_egress_observed_24h_coverage:coverage})}}});
@@ -134,7 +135,9 @@ test('egress card distinguishes a complete measured zero from no data and missin
     assert.equal(card.findByType('h3').children.join(''),kind==='COMPLETE'?'0 MiB':'—');
     assert.equal(text(root).includes('24 שעות מלאות'),kind==='COMPLETE');
     assert.ok(!text(root).includes('123 MiB'),'old unqualified subtotal is not displayed');
-    assert.ok(text(root).includes(kind==='legacy'?'כיסוי UNKNOWN':kind==='COMPLETE'?'כיסוי 24/24':'כיסוי 0/24'));
+    const unknown=kind==='legacy'||kind==='invalid-window';
+    assert.ok(text(root).includes(unknown?'כיסוי UNKNOWN':kind==='COMPLETE'?'כיסוי 24/24':'כיסוי 0/24'));
+    assert.ok(text(root).includes(unknown?'זמן הרשומה; חלון לא מאומת':'סיום חלון המדידה'));
     await act(async()=>root.unmount());
   }
 });

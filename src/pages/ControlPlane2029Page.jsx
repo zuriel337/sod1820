@@ -231,7 +231,7 @@ function ControlPlaneBody({ auth }) {
         <Metric
           label="Observed · המדידה האחרונה"
           value={mib(egressLatest.storage_get_bytes)}
-          note={`סיום חלון המדידה: ${when(usage.storage_egress_observed_latest_at)} · מצב: ${egressGuard.state || "לא נבדק"}. נתון ישן אינו תעבורה נוכחית.`}
+          note={`${egressCoverageKnown ? "סיום חלון המדידה" : "זמן הרשומה; חלון לא מאומת"}: ${when(usage.storage_egress_observed_latest_at)} · מצב: ${egressGuard.state || "לא נבדק"}. נתון ישן אינו תעבורה נוכחית.`}
         />
         <Metric
           label={egressComplete ? "Observed · 24 שעות מלאות" : "Observed · סכום חלקי בחלון 24 שעות"}
