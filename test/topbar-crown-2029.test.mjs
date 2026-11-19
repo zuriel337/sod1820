@@ -102,6 +102,8 @@ test("accessibility and fallbacks", () => {
   assert.match(css, /\[data-frame-reduced-motion="true"\]/);
   assert.match(css, /@supports not \(\(backdrop-filter: blur\(1px\)\) or \(-webkit-backdrop-filter: blur\(1px\)\)\)/);
   assert.match(css, /outline: 2px solid var\(--s29-focus-ring/, "a visible focus ring on the crown link");
-  assert.match(css, /inline-size: 44px; min-inline-size: 44px; block-size: 44px; min-block-size: 44px;/, "the theme control keeps a 44px target");
+  // The theme control's rules are one set for phone and desktop in the unified-bar sheet (19.11.2026); it keeps a 44px target.
+  assert.match(readFileSync(new URL("systemFrame2029-unified-bar.css", dir), "utf8"), /\.sod29-header-actions \.sod29-theme-trigger \{\s*display: inline-flex; inline-size: 44px; min-inline-size: 44px; block-size: 44px; min-block-size: 44px;/, "the theme control keeps a 44px target");
+  assert.doesNotMatch(css, /theme-trigger b \{ display: none; \}/, "the theme word is shown at every width");
   assert.match(css, /@media \(max-width: 340px\)[\s\S]*?\.sod29-header-leading \.sod29-orientation \{ display: none; \}/, "at 320px the where-am-I line gives its room to the crown");
 });
