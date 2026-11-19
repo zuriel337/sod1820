@@ -1,7 +1,7 @@
 # Release handoff and ELS CI reliability — 19 November 2026
 
 Actor: GPT (Codex). Recipient: ZURIEL. Task: `ci_reliability_20261119`.
-Base: `d550d0fc3ad85265b140435df35d215ceeebc80e`. Branch: `gpt/ci-reliability-20261119`.
+Initial base: `d550d0fc3ad85265b140435df35d215ceeebc80e`. Refreshed against main `2fc4fe88285588c199e972750f79be5700f8fee6` after Claude merged #1428 on 19 November. Branch: `gpt/ci-reliability-20261119`.
 Scope: tests, their local prerequisites and GitHub Actions. Product source, production data, baselines and release approvals are unchanged.
 
 ## Decisions confirmed by ZURIEL in this session
@@ -46,7 +46,8 @@ The repaired short contracts run in `live-contracts-2029` on every PR, so change
 - Workflow reference, check-name, enforcement-package and wiring tests: 25/25. The final job's actual shell guard accepts all-success and rejects 16 failed/cancelled/skipped/missing child-result combinations.
 - `npm run build` passes, including the shell budget. Product dependencies and lockfile unchanged.
 - Full local non-browser acceptance: 531/531, no skips (79 files, including the previously skipped SQL subtests).
-- Local native browser acceptance: 88/88 across three shards; exact coverage reconciliation passed, no skips. All three local runners share one machine, so their timing is not a GitHub speed benchmark.
+- Local native browser acceptance on the initial base: 88/88 across three shards; exact coverage reconciliation passed, no skips. All three local runners share one machine, so their timing is not a GitHub speed benchmark. After the main refresh, full native coverage is rechecked in exact-head CI.
+- Before the main refresh, all 20 workflows passed on `31866f339`. The ELS job critical path was 9m13s (first child start to final check completion), compared with 22m16s for the last serial #1428 job. Registry quota failures in two unrelated PostgreSQL jobs passed targeted retries on the same head. Timings vary across runners and setup conditions.
 - Exact-head PR CI is tracked in the delivery report/PR. Do not infer CI success while that run is pending.
 
-Status: branch-only, no merge or deployment. #1428 remains Claude's active release. The read-only coordination connector cannot write the passive work log; this document and the user conversation are the actual handoff, not a claimed ledger update. Merge and deployment each require ZURIEL's approval of the exact action and revision under `CLAUDE.md` §0.4.
+Status: branch-only, no merge or deployment of #1429. Claude completed #1428 separately; its main refresh into this branch has no file overlap with this CI scope. The read-only coordination connector cannot write the passive work log; this document and the user conversation are the actual handoff, not a claimed ledger update. Merge and deployment each require ZURIEL's approval of the exact action and revision under `CLAUDE.md` §0.4.

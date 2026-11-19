@@ -221,7 +221,7 @@ export default function ElsLexiconResearch2029({
               <bdi>{member.label || member.term}</bdi> <small>{member.kind === "axis" ? "ציר מאומת" : isAdded(member) ? member.kind === "source" ? "רצף מקור" : "מאומת" : "מועמד"}</small>
             </span>)}</div>
             {card.membersTruncated ? <p>מוצגים {card.members.length} מתוך {card.totalMembers} מופעים בקבוצה.</p> : null}
-            <button type="button" disabled={!key || busy || !!run || !!pendingStructure || !onShowStructure || (!ready && !onAdd)}
+            <button className="r29-btn" type="button" disabled={!key || busy || !!run || !!pendingStructure || !onShowStructure || (!ready && !onAdd)}
               onClick={() => showStructure(card)}>{ready ? "הצג את הקשר" : "אמת והצג קבוצה"}</button>
           </li>;
   };
@@ -239,11 +239,11 @@ export default function ElsLexiconResearch2029({
     </select></label>
     <p role="status" aria-label="מצב הבדיקה">{shortStatus}</p>
     <div className="els29-discovery-actions">
-      <button ref={scanButton} type="button" className="els29-start-discovery" disabled={!key || busy || !!run}
+      <button ref={scanButton} type="button" className="els29-start-discovery r29-btn is-primary" disabled={!key || busy || !!run}
         onClick={canResume ? () => startPlan(wordRun.data.plan, wordRun) : discoveryMode === "both" ? startBoth : start}>
         {canResume ? "המשך סריקה" : "התחל גילוי"}
       </button>
-      {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
+      {onFindWords ? <button className="r29-btn" type="button" aria-label="חפש מילה מסוימת" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה</button> : null}
     </div>
     <details className="els29-discovery-settings"><summary>פרטי הסריקה</summary>
       {key ? <p><bdi>{state.term}</bdi> · {state.scope === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{state.axis.skip}</bdi> · רווח שורות <bdi>{scanWindow?.rowGap ?? 0}</bdi> · רוחב <bdi>{scanState.geometry.S}</bdi></p> : null}
@@ -267,13 +267,13 @@ export default function ElsLexiconResearch2029({
     {!run && Number.isInteger(wordRun?.data.coverage?.remainingRays) ? <p role="status" aria-label="כיסוי הסריקה">{coverageLabel(wordRun.data.coverage)}</p> : null}
     {!key ? <p>{scanWindow === null ? "הגילוי יהיה זמין כשחלון המטריצה ייטען." : "בחרו מופע מאומת לפני סריקה."}</p>
       : scanWindow ? <p>הגילוי משתמש בחלון המוצג, ברוחב <bdi>{scanWindow.geometry.S}</bdi>.</p> : null}
-    {wordRun?.data.continuation && !canResume ? <button type="button" disabled={busy || !!run}
+    {wordRun?.data.continuation && !canResume ? <button className="r29-btn" type="button" disabled={busy || !!run}
       onClick={() => startPlan(wordRun.data.plan, wordRun)}>המשך סריקה קודמת</button> : null}
     {languagePlan ? <p>מילים וחלוקה לשתי מילים על אותו קו, במדגם מוגבל סביב הציר. האותיות נשמרות; הרווחים מוצעים לבדיקה שלכם.</p> : null}
     <details className="els29-discovery-plan"><summary>{languagePlan ? "גבולות בדיקת הביטויים" : "תכנית סריקה · מהיר, רחב או עמוק"}</summary>
       <p>הגדירו אילו מילים לחפש וכמה להתרחק מהציר. שינוי הגדרה אינו מתחיל סריקה.</p>
       {!languagePlan ? <div className="els29-discovery-actions" role="group" aria-label="תבניות סריקה">
-        {[["quick", "מהיר"], ["broad", "רחב"], ["deep", "עמוק"]].map(([id, label]) => <button type="button" key={id} disabled={!!run}
+        {[["quick", "מהיר"], ["broad", "רחב"], ["deep", "עמוק"]].map(([id, label]) => <button className="r29-btn" type="button" key={id} disabled={!!run}
           aria-pressed={Object.keys(ELS_LEXICON_PRESETS[id]).every(field => plan[field] === ELS_LEXICON_PRESETS[id][field])}
           onClick={() => setPlan({ ...ELS_LEXICON_PRESETS[id] })}>{label}</button>)}
       </div> : null}
@@ -318,7 +318,7 @@ export default function ElsLexiconResearch2029({
       <p>{data.plan?.mode === "language" ? "בדיקת מדגם קווים — לא סריקה מלאה של החלון" : data.coverage.complete ? "הסריקה המוגדרת הושלמה"
         : data.coverage.stop === "PAUSED" ? "הסריקה הושהתה" : "מקטע הסריקה הסתיים"} · {latestItems.length} קריאות זמינות מתוך {data.items.length} שנאספו בסריקה זו.</p>
       {hideForwardSource ? <p>{data.items.length - latestItems.length} קריאות מקור קדימה הוסתרו בסריקה זו. הקבוצות עודכנו בהתאם.</p> : null}
-      {current && nextPlan ? <button type="button" disabled={busy || !!run} onClick={() => { setPlan(nextPlan); startPlan(nextPlan); }}>הרחב עוד טבעת · סרוק מחדש עד {nextPlan.maxDistance} תאים</button> : null}
+      {current && nextPlan ? <button className="r29-btn" type="button" disabled={busy || !!run} onClick={() => { setPlan(nextPlan); startPlan(nextPlan); }}>הרחב עוד טבעת · סרוק מחדש עד {nextPlan.maxDistance} תאים</button> : null}
       {nextPlan ? <p>{data.plan?.mode === "language" ? "הרחבה חוזרת על אותו מדגם קווים ומאפשרת להציג קריאות רחוקות יותר מתוכו. היא אינה מוסיפה קווים." : "הרחבה בודקת מחדש את התכנית בטווח רחב יותר בתוך אותו חלון."} האזור שמחוץ לחלון אינו נסרק.</p> : null}
       <p>הקבוצות הן מועמדות לבדיקה. הוספה למטריצה עוברת אימות במנוע.</p>
       {!structures?.ok ? <p role="status">{structures?.reason}</p> : null}
@@ -376,7 +376,7 @@ export default function ElsLexiconResearch2029({
         {inspection?.ok ? <p>{inspection.lines.length} מופעים מסומנים נבדקו, כולל הציר.</p> : null}
         {inspection?.ok === false && key ? <p>{inspection.reason}</p> : null}
         <div className="els29-structure-filters" role="group" aria-label="סוג הקשר">
-          {structureFilters.map(([id, label, filter]) => <button type="button" key={id} aria-pressed={groupType === id}
+          {structureFilters.map(([id, label, filter]) => <button className={`r29-btn${groupType === id ? " is-primary" : ""}`} type="button" key={id} aria-pressed={groupType === id}
             onClick={() => { setGroupType(id); setPage(0); }}>{label} <bdi>{cards.filter(card => belongsTo(card, filter)).length}</bdi></button>)}
         </div>
         {!rows.length ? <p>{cards.length ? "אין קשרים בסינון הזה." : "סמנו מופע נוסף במטריצה או הריצו גילוי כדי לבדוק קשרים."}</p> : null}
@@ -394,7 +394,7 @@ export default function ElsLexiconResearch2029({
             <ol>{family.cards.slice(1).map(renderStructureCard)}</ol>
           </details> : null}
         </li>; })}</ol>
-        {families.length > 20 ? <nav aria-label="עמודי מבנים"><button type="button" disabled={pageIndex === 0} onClick={() => setPage(pageIndex - 1)}>הקודם</button><span>עמוד {pageIndex + 1} מתוך {Math.ceil(families.length / 20)}</span><button type="button" disabled={(pageIndex + 1) * 20 >= families.length} onClick={() => setPage(pageIndex + 1)}>הבא</button></nav> : null}
+        {families.length > 20 ? <nav aria-label="עמודי מבנים"><button className="r29-btn" type="button" disabled={pageIndex === 0} onClick={() => setPage(pageIndex - 1)}>הקודם</button><span>עמוד {pageIndex + 1} מתוך {Math.ceil(families.length / 20)}</span><button className="r29-btn" type="button" disabled={(pageIndex + 1) * 20 >= families.length} onClick={() => setPage(pageIndex + 1)}>הבא</button></nav> : null}
       </section>
     <details className="els29-discovery-inspection" onToggle={event => { if (event.currentTarget.open) setInspectionVisited(true); }}>
       <summary>בדיקת הסימונים והשוואת מופעים</summary>

@@ -866,7 +866,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
     </div>
     <div className="els29-native-scan-action" hidden={activeTool === "research"}>
       <small>הציר הנבחר: <b>{targetLabel}</b></small>
-      <button type="button" aria-label="סרוק לאורך הציר הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onScan(target)}>{lensPending ? "טוען…" : "סרוק לאורך הציר הנבחר"}</button>
+      <button type="button" aria-label="סרוק לאורך הציר הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onScan(target)}>{lensPending ? "טוען…" : "סרוק ציר"}</button>
       <button type="button" aria-label="מקור הממצא הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onSource(target)}>מקור ופסוק</button>
     </div>
   </div>;
@@ -1986,7 +1986,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                   <p>הצגת תוצאות המחקר · המעבר בין הלשוניות אינו מפעיל סריקה</p>
                   <div className="els29-research-views" role="group" aria-label="תצוגות כלי המחקר">
                     {[["discovery", "ממצאים"], ["structures", "מבנים וקבוצות"], ["axis", "העמקה"]].map(([id, label]) =>
-                      <button key={id} ref={id === "axis" ? attachAxisTab : null} type="button" aria-pressed={researchView === id}
+                      <button className={`r29-btn${researchView === id ? " is-primary" : ""}`} key={id} ref={id === "axis" ? attachAxisTab : null} type="button" aria-pressed={researchView === id}
                         onClick={() => {
                           if (id === "structures") setStructuresVisited(true);
                           setResearchView(id);

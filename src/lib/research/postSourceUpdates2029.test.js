@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { publicProvenPostSourceUpdate, publicProvenPostSourceUpdates, PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, provenUpdateForHash, formatUpdateDate, addedDateLabel, plainDayLabel } from "./postSourceUpdates2029.js";
+import { publicProvenPostSourceUpdate, publicProvenPostSourceUpdates, PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, provenSourceUpdatesFor, provenUpdateForHash, registeredUnitIds, formatUpdateDate, addedDateLabel, plainDayLabel } from "./postSourceUpdates2029.js";
 
 const UPDATED = "2026-10-10T23:19:35.974936+00:00";
 const reviewedPost = (extra = {}) => ({
@@ -81,7 +81,7 @@ test("native hash resolves only to a proven unit of the same post", () => {
 });
 
 test("Bennett 207->208 units are certified with the exact saved time and only for their own slug", () => {
-  const entries = PROVEN_POST_SOURCE_UPDATES[5113];
+  const entries = PROVEN_POST_SOURCE_UPDATES[5113].filter((entry) => entry.afterRevision === 208);
   assert.deepEqual(entries.map((entry) => entry.targetId), ["bennett-israel-78", "bennett-dead-sea-sequence"]);
   assert.ok(entries.every((entry) => entry.beforeRevision === 207 && entry.afterRevision === 208 && entry.updatedAt === "2026-10-12T14:06:54.127591Z"));
   const event = publicProvenPostSourceUpdate({ id: 5113, slug: "bennett-melach-631-78", source: "ai", tags: [], modified: "2026-10-12T14:06:54.127591Z" });
@@ -89,6 +89,27 @@ test("Bennett 207->208 units are certified with the exact saved time and only fo
   assert.equal(event.fragmentRef, "posts:5113#bennett-israel-78");
   assert.equal(publicProvenPostSourceUpdate({ id: 5113, slug: "bennett-melach-631-78", source: "ai", tags: [], modified: "2026-10-03T00:00:00Z" }), null);
   assert.equal(provenUpdateForHash(5113, "#bennett-dead-sea-sequence").id, "bennett-dead-sea-sequence");
+});
+
+test("Bennett's November unit leads when present, with a stable destination and its actual backup time", async () => {
+  const { JSDOM } = await import("jsdom");
+  const id = "bennett-salt-covenant-unity-20261119";
+  const october = ["bennett-israel-78", "bennett-dead-sea-sequence"];
+  const { document } = new JSDOM([...october, id].map(unit => `<section id="${unit}"></section>`).join("")).window;
+  const updates = () => provenSourceUpdatesFor(5113, document);
+  assert.deepEqual(updates().map(entry => entry.targetId), [id, ...october]);
+  const newest = updates()[0];
+  assert.ok(registeredUnitIds(5113).includes(id));
+  assert.equal(provenUpdateForHash(5113, "#" + id), newest);
+  assert.equal(newest.titleId, id + "-title");
+  assert.equal(newest.updatedAt, "2026-11-19T16:19:09.953152Z");
+  assert.equal(newest.timeBasis, "write_with_backup_snapshot");
+  assert.equal(newest.beforeRevision, 273);
+  const events = publicProvenPostSourceUpdates({ id: 5113, slug: newest.sourceSlug,
+    modified: newest.updatedAt, content: document.body.innerHTML });
+  assert.deepEqual(events.map(event => event.targetId), october);
+  document.getElementById(id).remove();
+  assert.deepEqual(updates().map(entry => entry.targetId), october);
 });
 
 test("a certified newer source preserves distinct child events and their real times", () => {
