@@ -9,17 +9,18 @@ test("save panel: a guest sees a sign-in link, only a member gets the form and t
   assert.match(panel, /!user \? <div className="els29-native-save-guest">/);
   assert.match(panel, /href="\/login"/);
   assert.match(panel, /\{user \? <a className="sod29-action" href="\/els\?library=mine">/);
-  // The member path is unchanged: private by default, explanation required.
-  assert.match(panel, /isPublic: false/);
+  // ZURIEL 19.11.2026: new saves request publication, private is an explicit choice;
+  // updates of an existing private record stay private. Mounted coverage lives in els-save-panel-lifecycle.
+  assert.match(panel, /isPublic: !updating && !keepPrivate/);
   assert.match(panel, /description\.trim\(\)\.length >= 12/);
 });
 
 test("library: owner actions exist only on the personal, non-compact view", async () => {
   const library = await read("src/components/experience2029/ElsSavedLibrary2029.jsx");
   assert.match(library, /personal && !compact && onChanged \? <CipherOwnerActions/);
-  assert.match(library, /<CipherCard key=\{row\.id\} row=\{row\} personal=\{personal\} onOpen=\{onOpen\} onChanged=\{data\.reload\} \/>/);
+  assert.match(library, /<CipherCard key=\{row\.id\} row=\{row\} personal=\{personal\} onOpen=\{onOpen\} onChanged=\{data\.reload\} workspaceMode=\{workspaceMode\} \/>/);
   // The compact folder never offers destructive actions.
-  assert.match(library, /<CipherCard key=\{row\.id\} row=\{row\} personal=\{!!user\} compact onOpen=\{onOpen\} \/>/);
+  assert.match(library, /<CipherCard key=\{row\.id\} row=\{row\} personal=\{!!user\} compact onOpen=\{onOpen\} workspaceMode=\{workspaceMode\} \/>/);
   // Approved (published) evidence cannot be renamed or deleted from the owner UI.
   assert.match(library, /const approved = row\.status === "published"/);
   assert.match(library, /\{approved \? null : <button[^\n]*>שנה שם/);

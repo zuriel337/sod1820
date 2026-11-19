@@ -27,17 +27,20 @@ test("fullscreen is the same interface re-laid: the page's own tool strip carrie
   assert.doesNotMatch(native, /els29-fs-bar/);
   assert.doesNotMatch(css, /els29-fs-bar/);
   assert.equal((native.match(/className="els29-native-toolstrip"/g) || []).length, 1, "one tool strip, on the page and in fullscreen");
-  const strip = native.slice(native.indexOf('<div className="els29-native-toolstrip"'), native.indexOf('<div ref={panelRef} className="els29-native-panel-wrap"'));
+  const strip = native.slice(native.indexOf('<div className="els29-native-toolstrip"'), native.indexOf('<div ref={panelRef}'));
   assert.match(strip, /\{fullscreen \? <>\s*<button type="button" className="els29-fs-window" aria-pressed=\{fsQueryOpen\} aria-controls="els29-query"/);
-  assert.match(strip, /className="els29-fs-window" aria-pressed=\{fsResearchOpen\} aria-controls="els29-research-tools"/);
+  assert.match(strip, /data-tool-action="discovery"[\s\S]*aria-expanded=\{researchToolsOpen\} aria-controls="els29-discovery-panel"/);
+  assert.match(strip, /researchToolsOpen \? setResearchToolsOpen\(false\) : openTool\("discovery", event\.currentTarget\)/);
   assert.match(strip, /\{fullscreen \? <button type="button" className="els29-fs-exit" onClick=\{exitFullscreen\}/);
-  // The windows are the page's own elements: the search form and the research tools section get a class, not a copy.
+  // The search window and discovery inspector reuse the page's own elements.
   assert.match(native, /className=\{`els29-native-query\$\{fsQueryOpen \? " is-fs-open" : ""\}`\}/);
-  assert.match(native, /className=\{`els29-native-structure-entry\$\{fsResearchOpen \? " is-fs-open" : ""\}`\}/);
+  assert.match(native, /<ContextualInspector2029 hidden=\{!researchToolsOpen\} id="els29-discovery-panel"/);
+  assert.match(native, /hidden=\{!researchWorkspace \|\| !researchToolsOpen\} className="els29-native-structure-entry els29-discovery-panel"/);
+  assert.equal((native.match(/id="els29-discovery-panel"/g) || []).length, 1);
   assert.equal((native.match(/<ElsLexiconResearch2029 /g) || []).length, 1);
   assert.equal((native.match(/id="els29-query"/g) || []).length, 1);
   assert.match(css, /\.els29-native-query\.is-fs-open\{display:block;position:absolute;/);
-  assert.match(css, /\.els29-native-structure-entry\.is-fs-open:not\(\[hidden\]\)\{display:block!important;position:absolute;/);
+  assert.match(css, /\.is-fullscreen \.els29-native-context-panel \.els29-discovery-panel:not\(\[hidden\]\)\{display:block!important;position:static;/);
   assert.match(css, /\.is-fullscreen \.els29-native-toolstrip,[^{]+\{grid-column:2;grid-row:1;display:grid;/);
   assert.doesNotMatch(css, /\.is-fullscreen \.els29-native-toolstrip\{display:none/);
   assert.match(css, /\.els29-native-panel-wrap,\.els29-native-classic\.is-fullscreen \.els29-native-layout\.is-panel-pinned \.els29-native-panel-wrap\{position:absolute;/);

@@ -7,7 +7,8 @@ const native = await readFile(new URL("../src/components/experience2029/ElsNativ
 test("a tool opened from the bottom dock brings its panel into view on wide screens too", () => {
   // With the advanced search open the panel sits far below the viewport; on desktop the dock buttons looked dead.
   assert.match(native, /const panelOffScreen = \(\) => \{[\s\S]{0,200}rect\.top > window\.innerHeight - 140 \|\| rect\.bottom < 140/);
-  assert.match(native, /window\.matchMedia\("\(max-width:980px\)"\)\.matches \|\| panelOffScreen\(\)\) panelRef\.current\?\.scrollIntoView\(\{ block: "start", behavior: "instant" \}\)/);
+  // The wrapper now contains two inspectors; scroll the requested tool's panel.
+  assert.match(native, /window\.matchMedia\("\(max-width:980px\)"\)\.matches \|\| panelOffScreen\(\)\) panelRef\.current\?\.querySelector\("#els29-context-panel"\)\?\.scrollIntoView\(\{ block: "start", behavior: "instant" \}\)/);
 });
 
 test("pressing the open tool closes it only when its panel is visible", () => {
