@@ -1,6 +1,7 @@
 // מרנדר כרטיסי-שיתוף סטטיים לצפנים → public/cipher-cards/<id>.png (מהיר ואמין לוואטסאפ/פייסבוק,
 // במקום /api/card הדינמי שנוטה להיכשל בתצוגה-מקדימה). הרצה: node scripts/render-cipher-cards.mjs
 import fs from "fs";
+import { BRAND_CARD_2029 } from "../src/lib/brandAssets2029.js";
 import path from "path";
 import React from "react";
 import satori from "satori";
@@ -22,7 +23,7 @@ const rev = (s) => {
   return g.reverse().map(x => x.t === "a" ? x.v : x.v.split("").reverse().join("")).join("");
 };
 const font = fs.readFileSync(path.join(ROOT, "api/_assets/heebo-800.ttf"));
-const lb = fs.readFileSync(path.join(ROOT, "api/_assets/logo.png"));
+const lb = fs.readFileSync(path.join(ROOT, BRAND_CARD_2029.path));
 const logo = "data:image/png;base64," + Buffer.from(lb).toString("base64");
 
 async function card({ hero, sub, teaser }) {
