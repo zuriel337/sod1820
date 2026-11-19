@@ -58,6 +58,10 @@ on:
       - 'test/els-*.test.mjs'
       - 'test/helpers/els-matrix-reading*.mjs'
       - 'test/fixtures/els-matrix-reading*.sql'
+      - 'test/fixtures/els-matrix-reading/**'
+      - 'supabase/functions/_shared/elsMatrixReading*.js'
+      - 'supabase/functions/_shared/elsChanceModel.js'
+      - 'supabase/migrations/20261029125427_els_matrix_reading_durable_jobs.sql'
       - 'scripts/els-browser-shards.mjs'
       - 'src/components/experience2029/ElsSavePanel2029.jsx'
       - 'src/lib/elsSavedMatrix.js'
@@ -90,17 +94,11 @@ jobs:
       - name: Install application and pinned test-only helpers
         run: |
           npm ci
-          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" acorn@8.15.0 react-test-renderer@19.3.0
+          npm install --no-save --prefix "$RUNNER_TEMP/els-tools" acorn@8.15.0
           echo "NODE_PATH=$RUNNER_TEMP/els-tools/node_modules" >> "$GITHUB_ENV"
-          # Resolve the renderer against the application's exact React instance, without re-resolving its lockfile.
-          cp -R "$RUNNER_TEMP/els-tools/node_modules/react-test-renderer" node_modules/
 
-      - name: Previously unwired ELS contracts and mounted save privacy
-        run: >-
-          node --test test/els-2029-research-bar.test.mjs test/els-dock-opens-panel-in-view.test.mjs
-          test/els-explicit-lexicon.test.mjs test/els-fullscreen-matrix.test.mjs
-          test/els-home-card-2029.test.mjs test/els-saved-cipher-owner-actions.test.mjs
-          test/els-save-panel-lifecycle.test.mjs test/els-browser-shards.test.mjs
+      - name: Complete and disjoint native scenario coverage
+        run: node --test test/els-browser-shards.test.mjs
 
       - name: Static one-engine contract tests
         run: node --test test/els-core-compatibility.test.mjs

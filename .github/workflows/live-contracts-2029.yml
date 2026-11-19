@@ -265,6 +265,13 @@ jobs:
         run: |
           npm install --no-save --package-lock=false react-test-renderer@19.3.0
           node --test test/calculator-equals-preview-lifecycle.test.mjs test/community-calculator-runtime-2029.test.mjs test/community-calculator-continuity-2029.test.mjs
+      # These contracts also depend on Home, saved-library and transport changes outside ELS's path filter.
+      - name: Previously unwired ELS contracts and mounted save privacy (every PR)
+        run: >-
+          node --test test/els-2029-research-bar.test.mjs test/els-dock-opens-panel-in-view.test.mjs
+          test/els-explicit-lexicon.test.mjs test/els-fullscreen-matrix.test.mjs
+          test/els-home-card-2029.test.mjs test/els-saved-cipher-owner-actions.test.mjs
+          test/els-save-panel-lifecycle.test.mjs
       - name: Community calculator as Google sees it (title, description, canonical, robots from the real document handler; shared wording, structured data, Royal layer scoped and opt-in)
         run: node --test test/community-calculator-google-20261116.test.mjs
       - name: Static file lifetimes in the DEPLOYED config (fonts, brand images, twelve versioned Post backgrounds; documents stay no-store)

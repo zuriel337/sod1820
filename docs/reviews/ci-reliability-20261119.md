@@ -25,7 +25,7 @@ The outgoing session's exact 542-test command was unavailable, so these results 
 | els-home-card-2029 | Home order from 8 November instead of the confirmed 17 November composition |
 | els-saved-cipher-owner-actions | Private default and exact JSX without the workspace-mode prop (two failures) |
 
-The repaired contracts are now included in CI. Mounted tests exercise publication/private choice, private updates, copying, guests and blocked submissions. The five skipped tests ran successfully against throwaway local PostgreSQL, including private-save RLS and durable-job concurrency; no remote database is accepted by these fixtures. The two older SQL tests now accept `ELS_TEST_PG_BIN`, as the durable fixtures already accept `ELS_DURABLE_TEST_PG_BIN`. `psql` must be available on PATH.
+The repaired short contracts run in `live-contracts-2029` on every PR, so changes to Home, the saved library or transport outside the ELS path filter cannot leave them stale. Mounted tests exercise publication/private choice, private updates, copying, guests and blocked submissions. The five skipped tests ran successfully against throwaway local PostgreSQL, including private-save RLS and durable-job concurrency; no remote database is accepted by these fixtures. The two older SQL tests now accept `ELS_TEST_PG_BIN`, as the durable fixtures already accept `ELS_DURABLE_TEST_PG_BIN`. `psql` must be available on PATH.
 
 ## CI changes and evidence
 
@@ -43,6 +43,8 @@ The repaired contracts are now included in CI. Mounted tests exercise publicatio
 - Sharding coverage and adversarial tests: 3/3.
 - All 26 workflow files parse; actionlint 1.7.7 and `git diff --check` pass.
 - `npm run build` passes, including the shell budget. Product dependencies and lockfile unchanged.
-- Full local non-browser and sharded browser verification, followed by PR CI, are tracked in the delivery report/PR. Do not infer success from this list while those runs are pending.
+- Full local non-browser acceptance: 531/531, no skips (79 files, including the previously skipped SQL subtests).
+- Local native browser acceptance: 88/88 across three shards; exact coverage reconciliation passed, no skips. All three local runners share one machine, so their timing is not a GitHub speed benchmark.
+- Exact-head PR CI is tracked in the delivery report/PR. Do not infer CI success while that run is pending.
 
 Status: branch-only, no merge or deployment. #1428 remains Claude's active release. The read-only coordination connector cannot write the passive work log; this document and the user conversation are the actual handoff, not a claimed ledger update. Merge and deployment each require ZURIEL's approval of the exact action and revision under `CLAUDE.md` §0.4.
