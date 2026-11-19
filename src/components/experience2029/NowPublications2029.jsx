@@ -15,6 +15,36 @@ import OwnMarkBox2029 from "./OwnMark2029.jsx";
 
 // An Or HaGeula video shown in Now is shared to its own canonical item address (the same one its full page uses), through the ONE
 // ShareActions. Only a published Or HaGeula update has that address; other rows are unchanged.
+function SiteNewsHistory() {
+  const [rows, setRows] = useState(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let active = true;
+    async function read() {
+      const { getPublicResearchClient } = await import("../../lib/research/researchViewMode.js");
+      const { data, error } = await getPublicResearchClient().from("channel_updates")
+        .select("id,text,created_at,ext_msg_id").eq("channel", "site-news")
+        .eq("page_only", true).eq("status", "live")
+        .or("expires_at.is.null,expires_at.gt." + new Date().toISOString())
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      if (active) setRows(data || []);
+    }
+    read().catch(() => { if (active) setFailed(true); });
+    return () => { active = false; };
+  }, []);
+  const launchKey = "site-news:2029:launch";
+  const launch = rows?.find(row => row.ext_msg_id === launchKey);
+  const history = rows?.filter(row => row.ext_msg_id !== launchKey) || [];
+  return <section aria-label="בתוך עדכוני האתר">
+    {launch && <p>{launch.text}</p>}
+    <details><summary>עדכונים היסטוריים · האתר הישן</summary>
+      {failed ? <p role="status">טעינת הארכיון נכשלה.</p> : rows === null ? <p role="status">טוען עדכונים…</p> :
+        <ul>{history.map(row => <li key={row.id}><time dateTime={row.created_at}>{new Date(row.created_at).toLocaleDateString("he-IL", { timeZone: "Asia/Jerusalem" })}</time><p>{row.text}</p></li>)}</ul>}
+    </details>
+  </section>;
+}
+
 const OR_GEULA_ITEM = /^channel:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 function orGeulaVideoShareUrl(model) {
   const video = model?.video || messageLinkPreviews(splitMessageLinks(`${model?.title || ""} ${model?.fullText || ""}`)).some(link => link.kind === "youtube" || link.kind === "vimeo");
@@ -267,6 +297,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   return <section className="sod29-nowpub is-royal r29" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
     {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={href => { feed?.see?.(pinned.model.row); onOpen?.(href); }} /> : todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
     <NowSourcePicker2029 choices={sourceChoices} value={sourceKey} onChange={pick(setSourceKey)} total={models.length} />
+    {sourceKey === "channel:site-news" && <SiteNewsHistory />}
     {lenses.length > 1 || choices.series.length > 0 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
       <summary>מסננים נוספים{secondaryActive ? " · פעיל" : ""}</summary>
       <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
