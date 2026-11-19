@@ -21,8 +21,7 @@ import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost202
 import { NowPinnedMessage2029 } from "./NowRoyalCenter2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
 import { nowModels, buildNowEntries, nowPinnedMessage, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
-import { pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
-import { homeMediaProps2029 } from "./homeMediaPolicy2029.js";
+import { homeMediaProps2029, pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
 import { HomeLeadImageGate2029, HOME_LEAD_IMAGE_CAP_MS } from "./homeLeadImageGate2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
