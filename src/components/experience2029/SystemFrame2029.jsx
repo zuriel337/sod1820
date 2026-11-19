@@ -498,8 +498,6 @@ export function PreviewTransportDisclosure2029() {
   return <p role="note" data-raziel-preview-disclosure="mock-only">תצוגת בדיקה · תשובות רזיאל הן תשובות דמה בלבד, ללא קריאת מודל או כתיבה חיה.</p>;
 }
 
-// "עכשיו" holds a long feed: a fixed height like "כאן", so the expansion stays attached above the bar on every screen (frame CSS has no room).
-const NOW_EXPANSION_SIZE = { height: "min(640px, calc(100dvh - 120px))" };
 function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKind = null, expansion = null, activity = null }) {
   return (
     <div className={`sod29-frame-backdrop${expansion ? " is-bar-expansion" : ""}`} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
@@ -514,7 +512,6 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKin
         data-mobile-projection="bottom-context-sheet"
         data-panel-kind={panelKind || undefined}
         data-bar-expansion={expansion || undefined}
-        style={expansion === "now" ? NOW_EXPANSION_SIZE : undefined}
         tabIndex={-1}
       >
         <header className="sod29-frame-panel-head">
@@ -1241,7 +1238,7 @@ function SystemFrame2029Body({
   // One share window (ZURIEL 19.11.2026): a page's share button sends what it shares ("sod29:share", src/lib/share/barShare2029.js) and the bar opens it.
   useEffect(() => {
     const take = (event) => { if (!event.detail?.url) return; event.preventDefault(); openTransient(TRANSIENT.MORE, { shareOnly: true, item: event.detail }); };
-    const root = document.documentElement, mark = (on) => { root.toggleAttribute("data-share-bar", on); window.dispatchEvent(new Event("sod29:share-bar")); };
+    const mark = (on) => document.documentElement.toggleAttribute("data-share-bar", on); // ShareActions watches this attribute
     window.addEventListener("sod29:share", take); mark(true);
     return () => { window.removeEventListener("sod29:share", take); mark(false); };
   }, [openTransient]);
@@ -1593,7 +1590,7 @@ function SystemFrame2029Body({
           onNumber={openGimatria} numberLocked={numberLocked}
           adminDestinations={adminOpenClosedDestinations(isAdmin)} onDestination={(item) => { setTransient(null); go(item.href); }}
           toolDockReturn={activeToolDock ? () => { setTransient(null); setSystemDockMode(false); } : null}
-          share={transient?.payload?.item ? { ...transient.payload.item, href: transient.payload.item.url } : shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", surface } : null} />
+          share={transient?.payload?.item || (shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", surface } : null)} />
       </PanelShell>;
     }
     if (transientKind === TRANSIENT.TOOLS && toolsFeature.blocked) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><FeatureClosedNotice2029 state={toolsFeature} title="כלים" compact /></PanelShell>;

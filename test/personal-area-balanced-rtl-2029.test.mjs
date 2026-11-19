@@ -8,7 +8,7 @@ test("the canonical Workspace uses the shared centered workspace projection", ()
   const frame = read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
   const frameCss = read("src/components/experience2029/systemFrame2029.css");
   const workspaceCss = read("src/components/experience2029/myWorkspace2029.css");
-  assert.match(frame, /PanelShell \{\.\.\.common\} panelKind="workspace"[^>]*title="האזור האישי שלי"/);
+  assert.match(frame, /PanelShell \{\.\.\.common\}[^>]*panelKind="workspace" expansion="now"[^>]*title="האזור האישי שלי"/);
   assert.match(frameCss, /\.sod29-frame-panel\[data-panel-kind="workspace"\]\{[^}]*width:min\(960px,calc\(100vw - 48px\)\);margin-inline:auto/);
   assert.match(frameCss, /data-panel-kind="workspace"[^}]*\.sod29-frame-panel-body\{[^}]*width:min\(100%,900px\);margin-inline:auto/);
   assert.match(frameCss, /data-panel-kind="workspace"[^}]*height:min\(92dvh,860px\)/);

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { attributedShareUrl } from "../../lib/share/shareTelemetry.js";
-import { communityShareDraft } from "../../lib/community/communityShareHandoff.js";
 
 // Two options inside the ONE share window (ZURIEL 19.11.2026), after the channels:
 //   «שתפו בקהילה» — canonical_ui_components_law v8 §§1–7 / v13 §2: an option inside "שתף", never a separate button or system. It opens the
@@ -15,7 +14,7 @@ export default function ShareMore2029({ href, title = "", label = "" }) {
   const navigate = useNavigate();
   const auth = useAuth();
   const [qr, setQr] = useState(""), [qrOpen, setQrOpen] = useState(false), [qrFailed, setQrFailed] = useState(false);
-  const [communityNote, setCommunityNote] = useState("");
+  const [communityNote, setCommunityNote] = useState(""), [opening, setOpening] = useState(false);
   const qrHref = href ? attributedShareUrl(href, "qr") : "";
   const qrRef = useRef(null);
   useEffect(() => { if (qr && qrOpen) qrRef.current?.scrollIntoView?.({ block: "nearest", behavior: "smooth" }); }, [qr, qrOpen]);
@@ -29,16 +28,21 @@ export default function ShareMore2029({ href, title = "", label = "" }) {
   }, [qrOpen, qrHref]);
 
   if (!href) return null;
+  // Loaded on press, not with this window: the draft code lives with the community composer (the page this opens next), so sharing adds no
+  // separate file to the site's preload map (speed law). The button shows that it is opening while it loads.
   const toCommunity = () => {
-    const result = communityShareDraft({ auth, href, title });
-    if (!result.ok) { setCommunityNote(result.message); return; }
-    navigate("/community/chat");
+    if (opening) return;
+    setOpening(true);
+    import("../community2029/CommunityLive2029.jsx")
+      .then(({ communityShareDraft }) => communityShareDraft({ auth, href, title }))
+      .catch(() => ({ ok: false, message: "לא הצלחנו לפתוח את הקהילה. בדקו את החיבור ונסו שוב." }))
+      .then((result) => { setOpening(false); if (result.ok) navigate("/community/chat"); else setCommunityNote(result.message); });
   };
 
   return <div className="r29-share-more" data-share-more="true">
     <div className="r29-share-more-row">
-      <button type="button" className="r29-btn is-quiet" data-action="community" onClick={toCommunity}
-        aria-describedby="r29-share-community-hint"><span className="r29-btn-icon" aria-hidden="true"><NavigationIcon2029 name="community" /></span>שתפו בקהילה</button>
+      <button type="button" className="r29-btn is-quiet" data-action="community" onClick={toCommunity} aria-busy={opening}
+        aria-describedby="r29-share-community-hint"><span className="r29-btn-icon" aria-hidden="true"><NavigationIcon2029 name="community" /></span>{opening ? "פותחים את הקהילה…" : "שתפו בקהילה"}</button>
       <button type="button" className="r29-btn is-quiet" data-action="qr" aria-expanded={qrOpen} aria-controls="r29-share-qr"
         onClick={() => setQrOpen(open => !open)}><span className="r29-btn-icon r29-qr-glyph" aria-hidden="true">▦</span>{qrOpen ? "הסתרת הקוד" : "קוד QR"}</button>
     </div>

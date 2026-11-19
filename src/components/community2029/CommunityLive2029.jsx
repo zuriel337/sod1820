@@ -1,5 +1,7 @@
 import CommunityHistorySeal2029 from "./CommunityHistorySeal2029.jsx";
 import { communityShareOwnWords } from "../../lib/community/communityShareHandoff.js";
+// «שתפו בקהילה» in the share window loads this through the composer file (ShareMore2029), so the draft code adds no file of its own.
+export { communityShareDraft } from "../../lib/community/communityShareHandoff.js";
 import { canonicalCommunityAuthorKey } from "../../lib/community/communityCanonicalIdentity2029.js";
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";

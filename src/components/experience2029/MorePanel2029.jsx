@@ -77,7 +77,9 @@ function shareSubjectPath(href) {
 }
 
 export default function MorePanel2029({ shareOnly = false, context = "", onAction, onTools, onSearch, personal, onPersonal,
-  adminDestinations = [], onDestination, onNumber = null, numberLocked = false, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
+  adminDestinations = [], onDestination, onNumber = null, numberLocked = false, toolDockReturn = null, share: given = null, actionsBuilding = false, toolsBuilding = false }) {
+  // A page's own share item (barShare2029.js) names its link `url`; the bar's page link names it `href`.
+  const share = given && { ...given, href: given.href || given.url };
   const [candidate] = useState(reviewCandidate);
   // Design V2 §14 (ZURIEL 19.11.2026, preview): the Personal Area's components (Royal 2029 layer) — centered section headings with the
   // diamond rule, the shared royal rows, royal-blue primary actions — and one ShareActions in its royal presentation.

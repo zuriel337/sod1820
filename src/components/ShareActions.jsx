@@ -2,7 +2,6 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { TYPEFACE } from "../lib/designTokens.js";
 import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
 import "./experience2029/contentActions2029.css";
-import "./experience2029/shareEntry2029.css";
 
 import { use2029Palette } from "../lib/palette2029.js";
 import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShareOutcome, pageOwnShareTitle, copyLink, canShareFile, shareImageFile } from "../lib/share.js";
@@ -15,6 +14,9 @@ import { openBarShare } from "../lib/share/barShare2029.js";
 // "שיתוף" entry that opens the bar's window with exactly these props (same channels, same telemetry). Without the bar the row below stays.
 const SHARE_NOUN = Object.freeze({ post: "הפוסט", number: "המספר", gematria_result: "התוצאה", finding: "הממצא", community_message: "ההודעה",
   image: "התמונה", video: "הסרטון", topic: "הנושא", researcher: "דף הכותב", calculator: "החישוב", "or-geula": "העדכון", page: "העמוד" });
+// The entry's own look (royal blue like every share, Design V2 §14.2). A React-hoisted <style> (one copy in <head>, deduplicated by href)
+// instead of a CSS file: a new CSS asset would be listed by every page that shares, in the entry's preload map (speed law, shell budget).
+const SHARE_ENTRY_CSS = `.sod29-root .sod-share-actions.is-entry{display:inline-flex;padding:0;overflow:visible}.sod29-root .sod-share-actions.is-entry .sod-share-entry{gap:8px;padding:0 18px!important;border-radius:999px!important;font-weight:700;color:var(--s29-accent-text)!important;border-color:color-mix(in srgb,var(--s29-accent) 52%,var(--s29-line))!important;background:color-mix(in srgb,var(--s29-accent) 11%,var(--s29-panel))!important}.sod29-root .sod-share-actions.is-entry.is-icon .sod-share-entry,.sod29-root .sod-share-actions.is-entry .sod-share-entry:not(:has(span)){inline-size:44px;padding:0!important}`;
 const hasShareBar = () => typeof document !== "undefined" && document.documentElement.hasAttribute("data-share-bar");
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
@@ -48,8 +50,10 @@ export default function ShareActions({
     if (variant === "royal") return undefined;
     const read = () => setBarShare(hasShareBar());
     read();
-    window.addEventListener("sod29:share-bar", read);
-    return () => window.removeEventListener("sod29:share-bar", read);
+    // The frame marks <html data-share-bar> in its own effect, which can run after this one: watch the attribute (frame bytes stay flat).
+    const watch = typeof MutationObserver === "function" ? new MutationObserver(read) : null;
+    watch?.observe(document.documentElement, { attributes: true, attributeFilter: ["data-share-bar"] });
+    return () => watch?.disconnect();
   }, [variant]);
   const P = use2029Palette();
   const visualPalette = use2029Palette();
@@ -147,6 +151,7 @@ export default function ShareActions({
   };
   if (barShare && variant !== "royal") return (
     <div className={`sod-share-actions is-entry${variant === "icon" ? " is-icon" : ""}`} dir="rtl" style={variant === "icon" ? style : undefined}>
+      <style href="sod-share-entry-2029" precedence="medium">{SHARE_ENTRY_CSS}</style>
       <button type="button" className="sod-share-entry" data-action="share" data-share-entry="bar" aria-haspopup="dialog" onClick={toBar}
         title={variant === "icon" ? iconLabel : `שיתוף ${shareLabel || SHARE_NOUN[type] || "העמוד"}`}
         aria-label={variant === "icon" ? iconLabel : `שיתוף ${shareLabel || SHARE_NOUN[type] || "העמוד"}`}>
