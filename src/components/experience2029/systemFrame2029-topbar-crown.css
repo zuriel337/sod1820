@@ -200,9 +200,8 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame .sod29-he
 /* On phones the theme takes the place of search; search lives in "עוד". */
 @media (max-width: 620px) {
   .sod29-root.closed-shell.native-frame .sod29-header-end .sod29-header-search { display: none; }
-  /* the word names the theme; its glyph gives the room to the rails (ZURIEL 19.11.2026) */
-  .sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control .sod29-theme-trigger > span { display: none; }
-  .sod29-root.closed-shell.native-frame .sod29-header-rail { flex-basis: clamp(6px, 26.7vw - 93px, 20px); }
+  /* the sun/moon stays beside the word (ZURIEL 19.11.2026); the rails take only the room both sides have */
+  .sod29-root.closed-shell.native-frame .sod29-header-rail { flex-basis: clamp(6px, 45vw - 170px, 17px); }
 }
 @media (max-width: 340px) {
   .sod29-root.closed-shell.native-frame[data-frame-theme-preset] { --s29-crown-w: 72px; --s29-crown-slot: 102px; --s29-dip-w: 220px; --s29-dip-h: 48px; }
