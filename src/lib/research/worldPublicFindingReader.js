@@ -4,6 +4,7 @@ import { getPublicResearchClient } from "./researchViewMode.js";
 import { publicResearchPresentationEligible, projectPublicResearchFinding, researchRowDisplayPolicyOk,
   ZVI_SOURCE_CONTRIBUTOR_ID } from "./worldZviApprovedFindings2029.js";
 import { contributorSourceLocator } from "./worldContributorSourceLocator.js";
+import { fullscanOccurrenceForResearchId, readFullscanDisplaySource } from "./tzviFullscanSourceProjection.js";
 import { worldPreviewMaterialExclusion } from "./worldPreviewMaterialScope.js";
 import {
   buildWorldAllResearchProjection,
@@ -140,8 +141,9 @@ async function readWorldPublicFindingById(id, publicClient) {
   // material), exactly the admission of the finding pages.
   if (clean(researchObject.status).toLowerCase() === "candidate" && !await publicResearchPresentationEligible(researchObject)) return null;
 
+  const fullscan = await readFullscanDisplaySource(client, researchObject);
   const [source, topics] = await Promise.all([
-    readExactSource(client, researchObject.source_ref),
+    readExactSource(client, fullscan?.sourceRef || researchObject.source_ref),
     readDocumentedTopics(client, researchObject),
   ]);
   const projection = buildWorldAllResearchProjection({
@@ -151,7 +153,8 @@ async function readWorldPublicFindingById(id, publicClient) {
   });
   const finding = findWorldPublicResearchFinding(projection, wanted);
   if (!finding) return null;
-  const sourceHref = source.sourceHref || verifiedWebUrl(source.row?.link_url) || verifiedWebUrl(source.row?.text);
+  const sourceHref = (fullscan && contributorSourceLocator(fullscan.sourceRef, { slug: "tzvi-opoc" }).href)
+    || source.sourceHref || verifiedWebUrl(source.row?.link_url) || verifiedWebUrl(source.row?.text);
   return sourceHref ? { ...finding, sourceHref } : finding;
 }
 
@@ -166,6 +169,8 @@ export function fetchWorldPublicFindingById(id, {
 } = {}) {
   const wanted = clean(id);
   if (!wanted) return Promise.resolve(null);
+  // These display substitutions must re-admit the channel on every lookup.
+  if (fullscanOccurrenceForResearchId(wanted)) return readWorldPublicFindingById(wanted, publicClient);
   if (!cache) return readWorldPublicFindingById(wanted, publicClient);
   if (findingPromiseCache.has(wanted)) return findingPromiseCache.get(wanted);
   const request = readWorldPublicFindingById(wanted, publicClient)
