@@ -12,6 +12,48 @@ export const APPROVED_GROUP_WRITERS = Object.freeze(['tzvi-opoc', 'yaniv-levi', 
 export const GROUP_SOURCE_LABEL = "הודעת מקור · טרם נבדקה";
 export const WORLD_GROUP_SOURCE_READER = "world_group_source_arrivals_v2";
 
+// Bounded Media7 repair (ZURIEL, 19.11.2026). Admission is still decided by the
+// public reader on every load; this list grants neither identity nor publication.
+const CATALOG_MEDIA7 = new Set([
+  "94cab26c-02cb-4eb3-ae32-61fee950dfea", "9fd28f82-5619-4161-9840-c957842d99fd",
+  "b0c9ae32-82ed-4845-8ac9-676c6010fe5d", "a9386f4b-21c1-4369-9f3d-1d7f95c3c47c",
+  "a6da5b36-121a-4e93-b2be-b8a7a250373f", "12ef341e-5c0e-4276-9680-6471dc569e18",
+  "b1d6c523-bb3d-459a-9db4-32037e8da2e7",
+]);
+
+export async function fetchCatalogGroupSourceMedia({ sources = [], contributor, rpc } = {}) {
+  const wanted = new Map(sources.filter(row => contributor?.slug === "tzvi-opoc"
+    && CATALOG_MEDIA7.has(row.id) && row.status === "live"
+    && row.contributor_id === contributor.id && /^storage-object:[0-9a-f-]{36}$/.test(row.image_url || "")
+    && Number.isFinite(Date.parse(row.created_at))).map(row => [row.id, row]));
+  if (!wanted.size) return { byId: {}, status: "not_applicable" };
+  const dates = [...wanted.values()].map(row => Date.parse(row.created_at));
+  let before = new Date(Math.max(...dates) + 1).toISOString();
+  const oldest = Math.min(...dates), byId = {};
+  try {
+    for (let page = 0; page < 32; page += 1) {
+      const { data, error } = await rpc(WORLD_GROUP_SOURCE_READER, { p_limit: 40, p_before: before }, { get: true });
+      if (error || !Array.isArray(data)) throw error || new Error("invalid_group_source_page");
+      for (const row of data) {
+        const source = wanted.get(row.id), admitted = groupRowToWorldUpdate(row);
+        if (source && admitted?.creatorSlug === contributor.slug && admitted.media
+          && Date.parse(row.created_at) === Date.parse(source.created_at)) byId[row.id] = admitted.media;
+      }
+      if (Object.keys(byId).length === wanted.size) return { byId, status: "ok" };
+      if (data.length < 40) break;
+      // Cursor comes from the RAW page, never from filtered writer/media rows.
+      // The server has a timestamp-only cursor: a boundary tie is not evidence
+      // that an omitted target is absent. Unresolved targets remain unavailable.
+      const next = data.at(-1)?.created_at, time = Date.parse(next);
+      if (!Number.isFinite(time) || time >= Date.parse(before) || time <= oldest) break;
+      before = next;
+    }
+    return { byId, status: "unavailable" };
+  } catch {
+    return { byId: {}, status: "unavailable" };
+  }
+}
+
 // The public source groups that share ONE path (ZURIEL 5.11.2026). The group is the SOURCE of the publication and is always
 // named on it. `group_channel` is returned by the reader once the extended v2 definition is applied; a row from the currently live
 // definition carries no channel and keeps the neutral label. A channel that is not listed here (Or HaGeula, messages, site news ...)
