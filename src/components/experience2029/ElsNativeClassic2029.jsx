@@ -872,7 +872,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, advancedSearch = null, advancedSearchRequestKey = null, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onResearchRestore, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult, publicClassic = false }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, advancedSearch = null, advancedSearchRequestKey = null, researchLoad = null, discoveryId = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onResearchRestore, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult, publicClassic = false }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -929,6 +929,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [readingExtensionVisited, setReadingExtensionVisited] = useState(false);
   const [structuresVisited, setStructuresVisited] = useState(false);
   const [lexiconPhase, setLexiconPhase] = useState(null);
+  useEffect(() => {
+    if (!researchProfile || !discoveryId) return;
+    setLexiconVisited(true); setResearchToolsOpen(true); setResearchView("discovery");
+  }, [discoveryId, researchProfile, user?.id]);
   const fsResearchOpen = fullscreen && researchToolsOpen;
   const researchToolsRef = useRef(null);
   const axisTabRef = useRef(null);
@@ -1949,7 +1953,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                         }}>{label}</button>)}
                   </div>
                 </div>}
-                scanWindow={foldScanWindow}
+                scanWindow={foldScanWindow} returnProjection={returnProjection} discoveryId={discoveryId}
                 view={researchView} onOpenDiscovery={() => setResearchView("discovery")} onProgress={setLexiconPhase}
                 busy={searchPending || !!loadPhase || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
                 onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}

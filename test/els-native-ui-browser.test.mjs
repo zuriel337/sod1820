@@ -14,6 +14,7 @@ import { readElsMatrixShare } from '../src/lib/elsMatrixShare.js';
 import { elsStateToUniversalFindings, universalFindingToResearchEntity } from '../src/lib/research/universalFinding.js';
 import { makeJourneySnapshot } from '../src/lib/elsJourney.js';
 import { resolveElsJourneyReopen } from '../src/lib/research/elsJourneyReopen.js';
+import { captureElsDiscoverySource, buildSavedElsDiscovery, readSavedElsDiscovery, elsDiscoveryResponseMatches } from '../src/lib/research/elsSavedDiscovery.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const req = createRequire(import.meta.url);
@@ -738,10 +739,18 @@ test('Research language wizard reuses the canonical reader and admits exact phra
     assert.equal(await panel.getByLabel('תוצאות הסריקה המילונית').count(),0);
     const before=await page.evaluate(()=>window.__state);
     await panel.getByRole('button',{name:'התחל גילוי',exact:true}).evaluate(button=>{button.click();button.click();});
+    await page.waitForFunction(() => window.__lens?.lens === 'matrix-lexicon' && window.__lens.ok && !window.__lens.pending);
+    const delivered = await page.evaluate(() => window.__lens);
+    assert.equal(elsDiscoveryResponseMatches(captureElsDiscoverySource(before, before), delivered), true,
+      JSON.stringify({ source: captureElsDiscoverySource(before, before), origin: delivered.origin, box: delivered.box }));
     await openDiscoveryReport(panel);
     const scan=await page.evaluate(()=>window.__lens);
     assert.equal(scan.plan.mode,'language');assert.equal(scan.coverage.complete,false);assert.equal(scan.modelCalls,0);
     assert.equal(scan.languageInspection.contract,'els_matrix_language_inspection_v1');
+    const savedLanguage = buildSavedElsDiscovery({ id: 'canonical-language', source: captureElsDiscoverySource(before, before), data: scan,
+      startedAt: '2026-11-19T10:00:00Z', endedAt: '2026-11-19T10:00:30Z' });
+    assert.equal(savedLanguage.ok, true, JSON.stringify(savedLanguage));
+    assert.equal(readSavedElsDiscovery(savedLanguage.entity).scan.data.items.length, scan.items.length, 'all canonical language candidates survive persistence');
     assert.equal(page.__elsDynamicLexiconRequests.length,1);
     const requests=await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='request-lens'&&m.lens==='matrix-lexicon').length);
     assert.equal(requests,1,'one existing operation even after double click');
@@ -795,6 +804,10 @@ test('explicit Research lexicon is lazy, exact, cancellable and responsive witho
     await openDiscoveryReport(panel);
     const scan=await page.evaluate(()=>window.__lens);
     assert.equal(scan.lens,'matrix-lexicon');assert.equal(scan.ok,true);assert.ok(scan.items.length>0);
+    const savedWords = buildSavedElsDiscovery({ id: 'canonical-words', source: captureElsDiscoverySource(before, before), data: scan,
+      startedAt: '2026-11-19T10:00:00Z', endedAt: '2026-11-19T10:00:30Z' });
+    assert.equal(savedWords.ok, true, JSON.stringify(savedWords));
+    assert.equal(readSavedElsDiscovery(savedWords.entity).scan.data.items.length, scan.items.length, 'all canonical word candidates survive persistence');
     assert.equal(scan.modelCalls,0);assert.equal(page.__elsDynamicLexiconRequests.length,1);
     assert.deepEqual((await page.evaluate(()=>window.__state)).findings,before.findings,'scan does not add findings');
     assert.equal(await page.locator('.els29-native-structure-entry').count(),1,'one research entry, no competing panels');

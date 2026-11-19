@@ -11,12 +11,14 @@ import { join, extname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { applyResearchOps, emptyResearchState } from '../src/lib/research/researchSyncState.js';
+import { buildSavedElsDiscovery } from '../src/lib/research/elsSavedDiscovery.js';
+import { discoveryFixture } from './fixtures/els-saved-discovery.mjs';
 const { chromium } = createRequire(import.meta.url)('playwright');
 const dist = fileURLToPath(new URL('../dist', import.meta.url));
 const uid = '11111111-1111-4111-8111-111111111111';
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
 const iframe = `<!doctype html><html><body>Engine transport fixture<script>
-window.__loads=[];addEventListener('message',event=>{if(event.data?.type==='load-matrix')window.__loads.push(event.data.item);});
+window.__loads=[];window.__messages=[];addEventListener('message',event=>{window.__messages.push(event.data);if(event.data?.type==='load-matrix')window.__loads.push(event.data.item);});
 window.__publish=state=>parent.postMessage({source:'tzofen',type:'state',...state},location.origin);
 parent.postMessage({source:'tzofen',type:'ready'},location.origin);</script></body></html>`;
 const TORAH = 'torah-fixture-corpus', TANAKH = 'tanakh-fixture-corpus';
@@ -136,6 +138,28 @@ test('My Research reopens a saved ELS finding on its exact occurrence after a re
     const compat = await page.locator('iframe').first().evaluate(el => el.contentWindow.__loads.at(-1));
     assert.equal(compat.occurrenceId, undefined, 'no id is invented for an older finding');
     assert.deepEqual([compat.scope, compat.hitId, compat.skip, compat.dir, compat.start], ['torah', '50_1_5', 50, 1, 5]);
+    // 4. The same private library carries bounded discovery snapshots. Generic saved-item
+    // navigation opens the lazy ELS page without another toolbar or an automatic scan/replay.
+    const discovery = buildSavedElsDiscovery(discoveryFixture()).entity;
+    cloud = { ...cloud, saved: [...cloud.saved, discovery], revision: cloud.revision + 1 };
+    await page.goto(origin + '/2029');
+    await page.locator('.sod29-header-workspace:visible').first().click();
+    await page.locator('[data-panel-kind="workspace"]').getByRole('button', { name: /^המחקר והשמורים/ }).click();
+    await page.locator('[data-research-bucket="saved"] .sod29-workspace-follow-open').filter({ hasText: discovery.title }).click();
+    await page.waitForURL(url => url.pathname === '/code' && url.searchParams.get('discovery') === discovery.id);
+    const historical = page.getByRole('region', { name: 'סריקת גילוי שמורה', exact: true });
+    await historical.waitFor();
+    const starts = () => page.locator('iframe').first().evaluate(el => el.contentWindow.__messages.filter(m =>
+      m.type === 'load-matrix' || m.type === 'native-search' || (m.type === 'request-lens' && m.lens === 'matrix-lexicon')));
+    assert.deepEqual(await starts(), [], 'opening historical results is passive');
+    await page.reload(); await historical.waitFor(); assert.deepEqual(await starts(), [], 'direct URL after reload is passive');
+    await historical.getByRole('button', { name: 'חזור למטריצה של הסריקה · אימות במנוע' }).click();
+    await page.waitForFunction(() => document.querySelector('iframe')?.contentWindow?.__loads?.length === 1);
+    const returnLoad = await page.locator('iframe').first().evaluate(el => el.contentWindow.__loads[0]);
+    assert.equal(returnLoad.occurrenceId, discovery.scan.source.origin.occurrenceId);
+    assert.equal(returnLoad.scope, 'torah'); assert.equal(returnLoad.skip, 4545);
+    assert.equal(returnLoad.matrixProjection.rowGap, 2); assert.equal(returnLoad.view.zoom, 1.3);
+    assert.equal((await starts()).length, 1, 'the explicit return requests canonical replay only');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
 });

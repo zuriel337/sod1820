@@ -173,6 +173,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   const recordId = params.get("record");
   const directSavedOpen = Boolean(cipherSlug || recordId);
   const findingId = params.get("finding") || "";
+  const discoveryId = params.get("discovery") || "";
   const { journeyLoad: findingJourneyLoad, status: findingStatus } = useElsJourneyReopen(findingId);
   const [findingNotice, setFindingNotice] = useState("");
   useEffect(() => {
@@ -499,11 +500,11 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
         <ElsNativeWithRaziel razielSession={razielSession} researchContext={context} projection={replayProjection} layers={replayLayers} planSummary={automaticSummary} replayReady={replayMatched && layeredReady}
-          initialSeed={savedRecord.row || legacyMatrix || sharedMatrix.present || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
+          initialSeed={discoveryId || savedRecord.row || legacyMatrix || sharedMatrix.present || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           advancedSearchRequestKey={location.state?.elsResearchReturnTaskId && location.state.elsResearchReturnTaskId === research.elsResearchOperation?.task?.id ? location.key : null}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row || loadsDismissed ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
-          publicClassic={publicClassic}
+          publicClassic={publicClassic} discoveryId={discoveryId}
           advancedSearch={<ElsAdvancedSearch2029
             researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
             exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary}

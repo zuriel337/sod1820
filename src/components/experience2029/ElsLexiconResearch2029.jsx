@@ -4,6 +4,8 @@ import { elsLexiconWindowKey, prepareElsLexiconFindings, prepareElsLexiconAdditi
 import { elsStructureView, groupElsLexiconDiscoveries, inspectElsStructures, isElsStructureMemberMarked, selectElsStructureCandidates, verifiedElsStructureCards, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
 import ElsJointDiscovery2029 from "./ElsJointDiscovery2029.jsx";
 import ElsStructureResearch2029 from "./ElsStructureResearch2029.jsx";
+import ElsSavedDiscovery2029 from "./ElsSavedDiscovery2029.jsx";
+import { captureElsDiscoverySource, elsSavedDiscoveryMatches, elsDiscoveryResponseMatches } from "../../lib/research/elsSavedDiscovery.js";
 import "./royal2029.css";
 import "./elsLexiconResearch2029.css";
 
@@ -28,7 +30,7 @@ const memberKey = card => card.members.map(member => `${member.term}:${member.hi
 
 export default function ElsLexiconResearch2029({
   state, scanWindow, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
-  onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation,
+  onProgress, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation, returnProjection, discoveryId,
 }) {
   const [run, setRun] = useState(null), [notice, setNotice] = useState("");
   const [page, setPage] = useState(0), [groupType, setGroupType] = useState("all");
@@ -44,7 +46,7 @@ export default function ElsLexiconResearch2029({
   const queue = useRef([]);
   const scanState = scanWindow === undefined ? state : scanWindow ? { ...state, geometry: scanWindow.geometry } : null;
   const key = elsLexiconWindowKey(scanState);
-  const cancel = (message = "הסריקה נעצרה. אפשר להתחיל שוב בלחיצה.") => {
+  const cancel = (message = "המעקב הופסק ונשלחה בקשת ביטול למנוע. תוצאות מאוחרות לא יצורפו; אפשר להתחיל שוב בלחיצה.") => {
     queue.current = [];
     if (!active.current) return;
     request.current({ ...active.current.target, cancel: true }); active.current = null; setRun(null); setNotice(message);
@@ -74,13 +76,13 @@ export default function ElsLexiconResearch2029({
   useEffect(() => () => onProgress(null), [onProgress]);
   useEffect(() => {
     if (!run) return;
-    const timer = setTimeout(() => cancel("הטעינה או הסריקה לא הסתיימו בזמן. הפעולה בוטלה; אפשר לנסות שוב במפורש."), 45000);
+    const timer = setTimeout(() => cancel("הטעינה או הסריקה לא הסתיימו בזמן. המעקב הופסק ונשלחה בקשת ביטול; אפשר לנסות שוב במפורש."), 45000);
     return () => clearTimeout(timer);
   }, [run?.target.scanId]);
   useEffect(() => {
     if (!active.current || response?.target?.scanId !== active.current.target.scanId || active.current.key !== key) return;
     if (response.pending) return;
-    const { key: runKey, previous } = active.current; active.current = null; setRun(null);
+    const { key: runKey, previous, source, startedAt, target, sourceState } = active.current; active.current = null; setRun(null);
     if (!response.ok) {
       queue.current = []; setNotice(errors[response.reason] || errors["scan-failed"]);
       if (previous && response.reason === "continuation-unavailable") {
@@ -90,7 +92,12 @@ export default function ElsLexiconResearch2029({
       return;
     }
     const data = previous ? { ...response, items: [...previous.data.items, ...response.items] } : response;
-    const finished = { key: runKey, state: scanState, data };
+    // The start snapshot owns this response. A changed UI can never lend it a new origin.
+    if (source && !elsDiscoveryResponseMatches(source, response)) {
+      queue.current = []; setNotice("תשובת הסריקה אינה תואמת למקור הבקשה; היא לא צורפה למטריצה."); return;
+    }
+    const finished = { key: runKey, state: sourceState, data, source, id: previous?.id || target.scanId,
+      startedAt: previous?.startedAt || startedAt, endedAt: new Date().toISOString() };
     const mode = response.plan?.mode === "language" ? "language" : "words";
     setDiscovery(current => ({ result: finished, runs: { ...current.runs, [mode]: finished } }));
     setPage(0); setNotice("");
@@ -102,7 +109,9 @@ export default function ElsLexiconResearch2029({
     const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope, plan: { ...selectedPlan },
       ...(previous ? { resumeId: previous.data.continuation } : {}),
       ...(scanWindow ? { foldWindowId: scanWindow.id } : {}) };
-    const next = { key, target, previous }; active.current = next; setRun(next); setNotice(""); onRequest(target);
+    const next = { key, target, previous, sourceState: scanState,
+      source: previous?.source || captureElsDiscoverySource(state, scanState, returnProjection), startedAt: new Date().toISOString() };
+    active.current = next; setRun(next); setNotice(""); onRequest(target);
   };
   const start = () => { queue.current = []; startPlan(plan); };
   const startBoth = () => {
@@ -248,6 +257,13 @@ export default function ElsLexiconResearch2029({
     {!key ? <p>{scanWindow === null ? "הגילוי יהיה זמין כשחלון המטריצה ייטען." : "בחרו מופע מאומת לפני סריקה."}</p>
       : scanWindow ? <p>הגילוי משתמש בחלון המוצג, ברוחב <bdi>{scanWindow.geometry.S}</bdi>.</p> : null}
     </header>
+    <ElsSavedDiscovery2029 key={discoveryId || "library"} runs={runs} state={scanState} busy={busy || !!run} discoveryId={discoveryId} onRestore={onRestore}
+      onOpen={scan => {
+        if (!elsSavedDiscoveryMatches(scan, scanState)) return;
+        const opened = { ...scan, key, state: scanState };
+        setDiscovery(current => ({ result: opened, runs: { ...current.runs, [scan.data.plan.mode === "language" ? "language" : "words"]: opened } }));
+        setPage(0); onOpenDiscovery(); setNotice("תוצאה שמורה נטענה ללא סריקה. הוספת מועמדים למטריצה דורשת אימות במנוע.");
+      }} />
     {viewNavigation}
     <div hidden={view !== "discovery"} id="els29-discovery-view">
     <p>המילים והביטויים שנאספו, עם הסבר לסדר ההמלצות ואפשרות להוסיף למטריצה.</p>
@@ -266,7 +282,7 @@ export default function ElsLexiconResearch2029({
       <details><summary>מקור, כיסוי וגבולות</summary>
         {data.plan ? <p>בוצע: <bdi>{data.plan.minLength}–{data.plan.maxLength}</bdi> אותיות, עד {data.plan.maxDistance} תאים מהציר, לפחות {data.plan.minMembers} מופעים בקבוצה.</p> : null}
         {hideForwardSource ? <p>הקבוצות נבנו מחדש מהקריאות שנותרו; הסינון אינו משלים התאמות שלא נשמרו בגלל תקרת הסריקה.</p> : null}
-        <p>התחלת הציר: <bdi>{data.origin.start}</bdi>. {data.coverage.completedRays}/{data.coverage.totalRays} קווים · {data.coverage.windows} רצפים נבדקו. התוצאות זמניות בעמוד זה ולא נשמרות ברענון.</p>
+        <p>התחלת הציר: <bdi>{data.origin.start}</bdi>. {data.coverage.completedRays}/{data.coverage.totalRays} קווים · {data.coverage.windows} רצפים נבדקו. כדי לחזור לאחר רענון, שמרו במפורש בספריית המחקר.</p>
         <p>הסריקה מצאה התאמות לאותיות, לא דירוג של משמעות או נדירות. חלקי הציר ({data.coverage.axisFragments}) לא נספרו כממצאים חדשים.</p>
         <p>{groups.length} קבוצות מוצגות מתוך {structures?.totalGroups ?? 0} שנבנו מאותן מילים. קשרים מבניים מוצגים לפני אשכולות של קרבה בלבד; בתוך כל סוג — קרבה לציר ואז מספר המופעים. זה סדר תצוגה, לא ציון חוזק.</p>
         <p>אוצר: מילות התנ״ך ומילון הליבה, {data.lexicon.entryCount} ערכים. התאמה מדויקת לאחר נרמול אותיות סופיות; אין השלמת אותיות.</p>
