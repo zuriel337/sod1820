@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { homePinnedLeadEarlyWanted } from "../src/lib/homeAtmospherePreload2029.js";
 import { preloadPinnedCover2029, startHomePinnedLeadEarly2029, HOME_PINNED_COVER_MARK } from "../src/lib/homePinnedLeadEarly2029.js";
-import { pinnedCatalogCover2029, pinCoverSet, PIN_COVER_SIZES, PIN_COVER_WIDTHS, PIN_COVER_QUALITY } from "../src/components/experience2029/homePinnedCover2029.js";
+import { homeMediaProps2029, HOME_MEDIA_SLOTS_2029, pinnedCatalogCover2029, pinCoverSet, PIN_COVER_SIZES, PIN_COVER_WIDTHS, PIN_COVER_QUALITY } from "../src/components/experience2029/homePinnedCover2029.js";
 import { seriesLatestMember2029 } from "../src/lib/nowPublications2029.js";
 import { fetchContentSeriesCatalog2029, resetSharedCatalogRead2029 } from "../src/lib/research/contentSeries2029Projection.js";
 import { CONTENT_SERIES_2029 } from "../src/lib/research/contentSeries2029Identity.js";
@@ -127,4 +127,35 @@ test("the entry reaches the early start through the Home route module only (no n
   assert.doesNotMatch(entry, /^import .*homePinnedLeadEarly2029/m, "no static import into the entry");
   const page = readFileSync(new URL("../src/pages/Home2029Page.jsx", import.meta.url), "utf8");
   assert.match(page, /export \{ startHomePinnedLeadEarly2029 \} from "\.\.\/lib\/homePinnedLeadEarly2029\.js";/);
+});
+
+
+test("Home Media Policy delivers a responsive small copy without changing the original", () => {
+  const original = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/posts/5018.jpg";
+  const compact = homeMediaProps2029(original, "compact");
+  assert.match(compact.src, /\/storage\/v1\/render\/image\/public\/media\/sod1820\/posts\/5018\.jpg\?width=96&quality=58&resize=contain$/);
+  assert.equal(compact.sizes, "64px");
+  assert.match(compact.srcSet, /width=96&quality=58&resize=contain 96w, .*width=160&quality=58&resize=contain 160w$/);
+  for (const [name, slot] of Object.entries(HOME_MEDIA_SLOTS_2029)) {
+    assert.equal(slot.widths.length, 2, name);
+    assert.ok(slot.widths[0] < slot.widths[1], name);
+  }
+  const external = "https://i.ytimg.com/vi/example/hqdefault.jpg";
+  assert.deepEqual(homeMediaProps2029(external, "tile"), { src: external, srcSet: null, sizes: null });
+});
+
+test("the Home routes every content-card slot through the existing Home media policy", () => {
+  const home = readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
+  const featured = readFileSync(new URL("../src/components/experience2029/HomeFeaturedPost2029.jsx", import.meta.url), "utf8");
+  assert.match(home, /import \{ homeMediaProps2029, pinCoverSet, PIN_COVER_SIZES \} from "\.\/homePinnedCover2029\.js";/);
+  assert.match(home, /function Media\([^]*?homeMediaProps2029\(src, slot\)[^]*?data-home-media=\{slot\}/);
+  assert.match(home, /<Media src=\{item\.imageUrl\} fallback="✦" slot="series" \/>/);
+  assert.match(home, /className="h29-rm-thumb" slot="compact"/);
+  assert.match(home, /className="h29-live-thumb" slot="compact"/);
+  assert.match(home, /className="h29-recent-thumb" slot="compact"/);
+  assert.match(home, /fallback="▶" slot="tile" \/>/);
+  assert.match(featured, /import \{ homeMediaProps2029 \} from "\.\/homePinnedCover2029\.js";/);
+  assert.match(featured, /const poster = homeMediaProps2029\(post\?\.video\?\.poster \|\| post\?\.poster, "poster"\);/);
+  assert.match(featured, /poster=\{near \? poster\.src : undefined\}/);
+  assert.match(featured, /<img className="h29-featured-poster" \{\.\.\.poster\} data-home-media="poster"/);
 });
