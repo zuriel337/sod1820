@@ -31,7 +31,7 @@ export function preloadPinnedCover2029(cover, { doc = typeof document === "undef
 }
 
 /** Starts the Home's catalog read now and preloads the pinned card's cover when it answers. Never throws. */
-export async function startHomePinnedLeadEarly2029({ read: suppliedRead, coverFor: suppliedCoverFor, doc } = {}) {
+export default async function({ read: suppliedRead, coverFor: suppliedCoverFor, doc } = {}) {
   try {
     // Keep this starter chunk independent of the Home route's catalog/card code. The catalog reader starts as soon
     // as its small dependency arrives; the cover rule loads in parallel and only gates creation of the preload link.
