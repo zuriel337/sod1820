@@ -21,7 +21,8 @@ import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost202
 import { NowPinnedMessage2029 } from "./NowRoyalCenter2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
 import { nowModels, buildNowEntries, nowPinnedMessage, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
-import { homeMediaProps2029, pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
+import { pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
+import { thumb } from "../../lib/img.js";
 import { HomeLeadImageGate2029, HOME_LEAD_IMAGE_CAP_MS } from "./homeLeadImageGate2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
@@ -107,6 +108,19 @@ function useHomeDeferredData({ includeWorld, videosAdmitted }) {
   return state;
 }
 
+// Bounded copies for non-LCP Home media. Originals remain canonical in Storage and Posts.
+const HOME_MEDIA_SLOTS_2029 = {
+  compact: { widths: [96, 160], sizes: "64px", quality: 58 },
+  series: { widths: [240, 480], sizes: "(max-width: 760px) calc(100vw - 48px), 360px", quality: 62 },
+  tile: { widths: [160, 320], sizes: "150px", quality: 62 },
+  poster: { widths: [240, 480], sizes: "(max-width: 760px) 150px, 180px", quality: 64 },
+};
+const homeMediaProps2029 = (url, slot = "compact") => {
+  const { widths, sizes, quality } = HOME_MEDIA_SLOTS_2029[slot] || HOME_MEDIA_SLOTS_2029.compact;
+  const src = thumb(url, widths[0], quality);
+  return !src || src === url ? { src: url || null, srcSet: null, sizes: null }
+    : { src, srcSet: widths.map(width => `${thumb(url, width, quality)} ${width}w`).join(", "), sizes };
+};
 function Media({ src, fallback, className = "", slot = "compact" }) {
   const [failed, setFailed] = useState(false);
   const open = useContext(HomeLeadImageGate2029);
@@ -583,7 +597,7 @@ export default function HomeComposition2029({
       </div>
     </Section> : null}
 
-    <HomeFeaturedPost2029 state={featured} hideHighlights={Boolean(updates.pinned)} />
+    <HomeFeaturedPost2029 state={featured} hideHighlights={Boolean(updates.pinned)} mediaFor={homeMediaProps2029} />
 
     {story && worldOpen ? <Reveal id="story" admissionRef={storyRef}>{storyAdmitted ? story
       : <section id="home-plane" className="sod29-flight-story is-home is-loading" aria-label="סיפור המטוס נטען"><p role="status">סיפור המטוס וכיווני הגילוי</p></section>}</Reveal> : null}
