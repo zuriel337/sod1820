@@ -167,6 +167,7 @@ export function normalizeRazielTurnProgress(value) {
     kind: "els_matrix_reading",
     phase: value.phase,
     elapsedMs: nonNegativeInteger(Math.round(Number(value.elapsedMs))),
+    observedAt: nonNegativeInteger(value.observedAt),
     polls: nonNegativeInteger(value.polls),
     expectedMinutes: nonNegativeInteger(minutes.min) != null && nonNegativeInteger(minutes.max) != null ? { min: minutes.min, max: minutes.max } : null,
     providerStatus: cleanInline(value.providerStatus, 40),

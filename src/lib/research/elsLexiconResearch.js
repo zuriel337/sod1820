@@ -30,7 +30,7 @@ export function expandElsLexiconPlan(plan) {
 
 // Request identity and exact return only; the canonical tool owns letters, matching and admission.
 export function elsLexiconWindowKey(state) {
-  if (state?.status !== "ok" || state?.verification?.state !== "MATCH" || !state.axis) return "";
+  if (state?.status !== "ok" || state?.verification?.state !== "MATCH" || !state.axis || !state.geometry) return "";
   return JSON.stringify([state.term, state.scope, state.verification.corpus_id, state.axis.hitId, state.geometry]);
 }
 

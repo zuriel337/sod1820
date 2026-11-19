@@ -156,8 +156,9 @@ test("relation to the selected occurrence: crossing, touching, far", () => {
 });
 
 test("the modules stay plain JS with only their explicit sibling action/job dependencies; no Node or Deno API by name", () => {
-  const allowed = { "elsMatrixReading.js": ["./elsMatrixReadingAction.js", "./elsMatrixReadingJobs.js"],
-    "elsMatrixReadingAction.js": [], "elsMatrixReadingJobs.js": ["./elsMatrixReadingAction.js"] };
+  // elsChanceModel.js (18.11.2026): the chance model (E) moved out so that the 2029 page shows the same number without the server module.
+  const allowed = { "elsMatrixReading.js": ["./elsMatrixReadingAction.js", "./elsMatrixReadingJobs.js", "./elsChanceModel.js"],
+    "elsMatrixReadingAction.js": [], "elsMatrixReadingJobs.js": ["./elsMatrixReadingAction.js"], "elsChanceModel.js": [] };
   for (const name of Object.keys(allowed)) {
     const source = readFileSync(new URL(`../supabase/functions/_shared/${name}`, import.meta.url), "utf8");
     const imports = source.match(/^import .*$/gm) ?? [];

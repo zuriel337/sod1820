@@ -2,7 +2,18 @@ import { makeJourneySnapshot, buildJourneyRestore } from "../elsJourney.js";
 
 // A bounded navigation snapshot, not another matrix/result store. Engine-owned values
 // only: no letter grid, private record metadata, request tokens or inferred occurrences.
-export function captureElsResearchReturn(state) {
+// Projection coordinates are navigation metadata, never occurrence coordinates or verification.
+export function normalizeElsReturnProjection(value, axis) {
+  if (!value || value.kind !== "row-spacing" || !axis) return null;
+  const { width, rowGap, r0, r1, c0, c1 } = value;
+  if (![width, rowGap, r0, r1, c0, c1].every(Number.isSafeInteger)
+    || rowGap < 1 || rowGap > 4 || width < 3 || width * (rowGap + 1) !== axis.skip
+    || r0 < 0 || r1 < r0 || r1 - r0 + 1 > 61 || c0 < 0 || c1 < c0
+    || c1 >= width || c1 - c0 + 1 > 121) return null;
+  return { kind: "row-spacing", width, rowGap, r0, r1, c0, c1 };
+}
+
+export function captureElsResearchReturn(state, projection = null) {
   if (state?.verification?.state !== "MATCH" || typeof state.verification.corpus_id !== "string"
     || !state.verification.corpus_id || !Array.isArray(state.findings)
     || state.findings.length > 24
@@ -23,6 +34,8 @@ export function captureElsResearchReturn(state) {
   snapshot.view = { showN: ui.showN, findingRadius: ui.findingRadius, zoom: ui.zoom,
     fit: ui.fit, heat: ui.heat, niqqud: ui.niqqud };
   snapshot.hideMain = ui.hideMain === true;
+  const matrixProjection = normalizeElsReturnProjection(projection, snapshot.axis);
+  if (matrixProjection) snapshot.matrixProjection = matrixProjection;
   snapshot.searchWindow = { ctxR: ui.ctxR, windowColumns: state.geometry?.cw,
     windowSize: ui.windowSize, windowRequested: ui.windowRequested };
   // Freeze recursively so a subsequent state notification/page cannot rewrite the origin.
@@ -46,10 +59,12 @@ export function elsResearchReturnLoad(task) {
   if (elsResearchSnapshotMatches(snapshot, origin)) {
     const restored = buildJourneyRestore(snapshot);
     if (restored.ok) return { ...restored.loadItem, corpusId: origin.corpusId,
+      ...(normalizeElsReturnProjection(snapshot.matrixProjection, snapshot.axis)
+        ? { matrixProjection: normalizeElsReturnProjection(snapshot.matrixProjection, snapshot.axis) } : {}),
       view: { ...snapshot.view }, searchWindow: { ...snapshot.searchWindow }, hideMain: snapshot.hideMain,
       words: restored.loadItem.words.map((word, i) => ({ ...word, sourceShown: [...snapshot.findings[i].sourceShown] })) };
   }
   return { term: origin.term, scope: origin.corpus, corpusId: origin.corpusId,
     start: origin.start, skip: origin.skip, dir: origin.dir,
-    hitId: `${origin.skip}_${origin.dir}_${origin.start}`, words: [] };
+    hitId: `${origin.skip}_${origin.dir}_${origin.start}`, ...(typeof origin.occurrenceId === "string" ? { occurrenceId: origin.occurrenceId } : {}), words: [] };
 }

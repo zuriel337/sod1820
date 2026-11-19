@@ -22,3 +22,61 @@
 .els29-lexicon-research .els29-discovery-source-filter{flex-wrap:nowrap;min-height:44px;padding:8px;border:1px solid var(--s29-line);border-radius:12px;font-size:16px;cursor:pointer}
 .els29-discovery-source-filter input{width:24px;height:24px;flex:none;accent-color:var(--s29-accent)}
 .els29-discovery-source-filter:focus-within{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+
+.els29-lexicon-research .els29-start-discovery{border-color:var(--s29-accent);color:var(--s29-accent-text);font-weight:700}
+.els29-lexicon-research .els29-reading-extension{margin-block:16px 0;border-block-start:1px solid var(--s29-line)}
+.els29-lexicon-research .els29-reading-extension>summary{padding-inline:0;color:var(--s29-accent-text)}
+.els29-structure-filters,.els29-structure-members{display:flex;flex-wrap:wrap;gap:8px;margin-block:10px}
+.els29-structure-filters button[aria-pressed=true]{border-color:var(--s29-accent);box-shadow:inset 0 0 0 1px var(--s29-accent);color:var(--s29-accent-text)}
+.els29-lexicon-research li.els29-structure-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--s29-panel-soft)}
+.els29-structure-card p{margin:0}
+.els29-structure-members>span{padding:4px 8px;border:1px solid var(--s29-line);border-radius:9px;font-size:var(--s29-type-ui)}
+.els29-structure-members small{color:var(--s29-muted);font-size:var(--s29-type-micro)}
+
+.els29-discovery-header{display:grid;gap:8px;border-block-end:1px solid var(--s29-line);padding-block-end:12px;margin-block-end:12px}
+.els29-discovery-header>p{margin:0;font-size:18px}
+.els29-discovery-header>.els29-discovery-actions{margin:0}
+.els29-discovery-settings,.els29-discovery-report{min-width:0}
+.els29-lexicon-research>div[hidden]{display:none}
+
+/* Research opts into the same Royal surface and sapphire/gold roles as the personal area. */
+.els29-lexicon-research.r29{--r29-hue:var(--r29-sapphire)}
+.els29-discovery-header.r29-hall{gap:10px;padding:clamp(12px,2vw,24px);text-align:center;border-block-end-color:color-mix(in srgb,var(--r29-gold) 50%,var(--s29-line))}
+.els29-discovery-header>strong{font-size:clamp(22px,2.2vw,28px);color:var(--s29-accent-text);line-height:1.3}
+.els29-research-eyebrow{color:var(--r29-gold-ink);font-size:var(--s29-type-ui);font-weight:700}
+.els29-discovery-header>label,.els29-discovery-header>.els29-discovery-actions{justify-content:center}
+.els29-discovery-header>.els29-discovery-actions>button{flex:1 1 190px;max-width:320px;border-color:color-mix(in srgb,var(--r29-sapphire) 46%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 12%,var(--s29-panel));font-weight:650}
+.els29-discovery-header>.els29-discovery-actions>.els29-start-discovery{background:var(--s29-accent);color:var(--s29-on-accent);border-color:color-mix(in srgb,var(--r29-gold) 60%,var(--s29-accent));box-shadow:inset 0 1px 0 #ffffff24,0 6px 18px -12px var(--r29-sapphire)}
+.els29-discovery-header>.els29-discovery-settings{max-width:760px;width:100%;box-sizing:border-box;margin-inline:auto;border-block-start:1px solid color-mix(in srgb,var(--r29-gold) 28%,var(--s29-line))}
+.els29-discovery-settings[open]{text-align:start}
+.els29-discovery-settings>summary{text-align:center;color:var(--s29-accent-text)}
+.els29-research-result-navigation{text-align:center;margin-block:20px 12px}
+.els29-research-result-navigation>p{margin:0;color:var(--s29-muted)}
+.els29-research-result-navigation .els29-research-views{padding:12px 0;border-block-end:0}
+.els29-research-result-navigation .els29-research-views button{padding:10px 6px;background:color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel));border-color:color-mix(in srgb,var(--r29-sapphire) 32%,var(--s29-line))}
+.els29-research-result-navigation .els29-research-views button[aria-pressed=true]{background:var(--s29-accent);color:var(--s29-on-accent);border-color:var(--r29-gold);box-shadow:inset 0 1px 0 #ffffff24}
+.els29-lexicon-research>.els29-research-result-navigation~div>p,.els29-lexicon-research #els29-structures-view>section>p{text-align:center}
+.els29-lexicon-research .els29-structure-filters{justify-content:center}
+.els29-lexicon-research.r29 li.els29-structure-card{border-color:color-mix(in srgb,var(--r29-sapphire) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 8%,var(--s29-panel))}
+
+/* Local research sections only; the global expanding dock remains frame-owned. */
+.els29-research-storage{margin-block-start:24px;padding-block-start:16px;border-block-start:1px solid var(--s29-line);min-width:0}
+.els29-research-storage summary{min-height:44px;align-content:center;color:var(--s29-accent-text);font-weight:650}
+.els29-research-storage [role=note]{padding:12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}
+
+/* Equal action tracks, with independent groups for launch, views and filters. */
+.els29-lexicon-research .els29-discovery-actions,.els29-lexicon-research .els29-structure-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+.els29-lexicon-research .els29-discovery-actions>button{width:100%;max-width:none;min-height:48px;margin:0;text-align:center}
+.els29-lexicon-research .els29-discovery-actions>button:only-child{grid-column:1/-1}
+.els29-lexicon-research .els29-structure-card>button{width:100%;margin-block-start:auto;min-height:48px}
+.els29-lexicon-research .els29-joint-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.els29-lexicon-research .els29-joint-sort{display:grid;grid-template-columns:1fr;gap:6px;text-align:start}
+.els29-lexicon-research .els29-joint-sort select{width:100%}
+.els29-lexicon-research .els29-research-views button{min-height:48px;text-align:center}
+
+.els29-lexicon-research .els29-discovery-actions:empty{display:none}
+.els29-lexicon-research :is(.els29-structure-filters,.els29-joint-filters)>button:last-child:nth-child(odd){grid-column:1/-1}
+
+.els29-lexicon-research [data-structure-family]{border-color:color-mix(in srgb,var(--r29-sapphire) 40%,var(--s29-line));min-width:0}
+.els29-lexicon-research [data-structure-family]>ol,.els29-lexicon-research [data-structure-family]>details>ol{grid-template-columns:minmax(0,1fr)}
+.els29-lexicon-research [data-structure-family]>details>summary{color:var(--s29-accent-text);font-weight:650;border-block-start:1px solid var(--s29-line)}

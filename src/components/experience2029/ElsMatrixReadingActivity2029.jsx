@@ -16,6 +16,9 @@ export default function ElsMatrixReadingActivity2029() {
     {activity.active ? <p>אפשר להמשיך לגלוש באתר. הספק אינו מדווח אחוז התקדמות; שיחת רזיאל תפוסה בזמן המעקב.</p> : null}
     {activity.fixture ? <small>דוגמת בדיקה — לא קריאת AI חיה</small> : null}
     {activity.saved ? <small>תוצאה מהשיחה השמורה — לא סריקה חדשה</small> : null}
+    <p>{activity.hasReturnSnapshot
+      ? "החזרה משחזרת את המופע ואת פרטי התצוגה שנשמרו בתחילת הקריאה. אימות במנוע הוא פעולה נפרדת מקריאת AI."
+      : "נשמר מופע המקור בלבד, ללא צילום מלא של התצוגה. פתיחתו אינה מפעילה קריאת AI חדשה."}</p>
     <div>
       <button type="button" className="sod29-action" onClick={() => navigate("/code?mode=classic", { state: { elsReadingReturnTurnId: activity.turnId } })}>חזור למטריצה של הסריקה</button>
       {activity.active ? <button type="button" className="sod29-action" disabled={!activity.canCancel}

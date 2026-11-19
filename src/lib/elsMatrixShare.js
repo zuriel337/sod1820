@@ -1,5 +1,6 @@
 import { captureElsResearchReturn } from "./research/elsResearchReturnSnapshot.js";
 import { buildJourneyRestore, parseElsHitKey } from "./elsJourney.js";
+import { elsOccurrenceFromHitId, parseElsOccurrenceId } from "./research/elsOccurrenceIdentity.js";
 
 // Portable presentation snapshot, not a saved record or a claim of verification.
 // The recipient replays through the existing canonical load/verification path.
@@ -18,6 +19,11 @@ function sanitize(value) {
   if (value?.v !== 1 || !a || a.skip < 2 || !text(value.term, 100)
     || !["torah", "tanakh"].includes(value.scope) || !text(value.corpusId, 100)
     || !Array.isArray(value.findings) || value.findings.length > 24) return null;
+  // A newer link names the exact occurrence (the engine's occurrence_id, with the corpus). It must be the same occurrence
+  // as the link's own term, corpus and hitId; an older link without it opens by term + corpus + hitId exactly as before.
+  const occurrenceId = value.axis.occurrenceId;
+  if (occurrenceId !== undefined && (!parseElsOccurrenceId(occurrenceId)
+    || elsOccurrenceFromHitId(a.hitId, { corpusId: value.corpusId, term: value.term })?.occurrenceId !== occurrenceId)) return null;
   const findings = [];
   for (const f of value.findings) {
     if (!text(f?.t, 100) || !/^#[\da-f]{6}$/i.test(f.color)
@@ -35,12 +41,13 @@ function sanitize(value) {
   if (integer(inputWindow.windowColumns, 1, 80)) searchWindow.windowColumns = inputWindow.windowColumns;
   for (const key of ["windowSize", "windowRequested"]) if (["small", "medium", "large", "legacy"].includes(inputWindow[key])) searchWindow[key] = inputWindow[key];
   return { v: 1, term: value.term, scope: value.scope, corpusId: value.corpusId,
-    axis: { hitId: a.hitId }, findings, view, searchWindow, hideMain: value.hideMain === true };
+    axis: { hitId: a.hitId, ...(occurrenceId ? { occurrenceId } : {}) }, findings, view, searchWindow, hideMain: value.hideMain === true };
 }
 
 export function buildElsMatrixShareUrl(state, origin) {
   const snapshot = captureElsResearchReturn(state);
-  const value = snapshot && sanitize({ ...snapshot, v: 1,
+  const occurrenceId = snapshot && elsOccurrenceFromHitId(snapshot.axis.hitId, { corpusId: snapshot.corpusId, term: snapshot.term })?.occurrenceId;
+  const value = snapshot && sanitize({ ...snapshot, v: 1, axis: { hitId: snapshot.axis.hitId, ...(occurrenceId ? { occurrenceId } : {}) },
     findings: snapshot.findings.filter(f => f.shown.length || f.sourceShown.length) });
   if (!value) return null;
   try {
@@ -64,7 +71,7 @@ export function readElsMatrixShare(hash) {
     const json = new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(atob(encoded.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0)));
     const value = sanitize(JSON.parse(json));
     if (!value) throw new Error("invalid-share");
-    const restored = buildJourneyRestore(value);
+    const restored = buildJourneyRestore(value);   // carries axis.occurrenceId to the engine when the link has one
     if (!restored.ok) throw new Error("invalid-share");
     return { present: true, loadItem: { ...restored.loadItem, corpusId: value.corpusId,
       view: value.view, searchWindow: value.searchWindow, hideMain: value.hideMain,

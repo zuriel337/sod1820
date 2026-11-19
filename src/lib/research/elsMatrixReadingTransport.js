@@ -54,7 +54,7 @@ export async function runElsMatrixReadingTurn({
   maxWaitMs = ELS_MATRIX_READING_MAX_WAIT_MS, cancelGraceMs = ELS_MATRIX_READING_CANCEL_GRACE_MS,
 } = {}) {
   const startedAt = now();
-  const progress = (extra) => { try { onProgress({ kind: "els_matrix_reading", expectedMinutes: ELS_MATRIX_READING_EXPECTED_MINUTES, ...extra }); } catch { /* a progress sink must never break the turn */ } };
+  const progress = (extra) => { try { onProgress({ kind: "els_matrix_reading", expectedMinutes: ELS_MATRIX_READING_EXPECTED_MINUTES, observedAt: now(), ...extra }); } catch { /* a progress sink must never break the turn */ } };
   const call = async (next) => {
     try { const { data, error } = await invoke(next); return error ? { ok: false } : { ok: true, data }; } catch { return { ok: false }; }
   };
@@ -73,7 +73,7 @@ export async function runElsMatrixReadingTurn({
     if (phase.done) return withToken(data, phase.phase === "complete" ? null : token);
     const elapsedMs = Math.max(0, Number(reading(data)?.progress?.elapsed_ms ?? reading(data)?.job?.elapsed_ms) || (now() - startedAt));
     if (!reference) return interrupted(data, null, "חסר מזהה מעקב; יש לחזור לסריקה דרך המופע שנבחר");
-    progress({ phase: cancelSentAt ? "cancelling" : "running", elapsedMs, polls, providerStatus: reading(data)?.progress?.provider_status ?? reading(data)?.job?.processing_status ?? null, batchId: jobOf().batch_id ?? null, jobToken: token, jobId, pollSeconds: phase.pollAfterSeconds ?? ELS_MATRIX_READING_POLL_SECONDS, cancelling: Boolean(cancelSentAt) });
+    progress({ phase: cancelSentAt || phase.phase === "cancelling" ? "cancelling" : "running", elapsedMs, polls, providerStatus: reading(data)?.progress?.provider_status ?? reading(data)?.job?.processing_status ?? null, batchId: jobOf().batch_id ?? null, jobToken: token, jobId, pollSeconds: phase.pollAfterSeconds ?? ELS_MATRIX_READING_POLL_SECONDS, cancelling: Boolean(cancelSentAt) || phase.phase === "cancelling" });
     if (signal?.aborted) return null;
     const waited = now() - startedAt;
     if (!cancelSentAt && waited > maxWaitMs) return interrupted(data, token, "עבר זמן ההמתנה המרבי");

@@ -41,7 +41,7 @@ test("research mode only: the new cell rules, fit crop and recentring never reac
   const css = await read("src/components/experience2029/elsNativeClassic2029.css");
   // Exactly one snapshot is the research one; the other keeps the original zoom call and the original cell size.
   assert.equal((native.match(/<MatrixSnapshot research /g) || []).length, 1);
-  assert.match(native, /<MatrixSnapshot state=\{engineState\} onZoomChange=\{zoom => requestControl\("zoom-set", zoom\)\}/);
+  assert.match(native, /<MatrixSnapshot state=\{displayState\} onZoomChange=\{zoom => requestControl\("zoom-set", zoom\)\}/);
   assert.match(native, /: clamp\(Math\.round\(26 \* zoom\), state\?\.ui\?\.selMode \? 44 : 16, 54\);/);
   assert.match(native, /if \(!research \|\| !matrix\?\.rows\?\.length/);
   // The letter follows the cell only under .is-research; the original fixed sizes and fit rules stay for everyone else.
@@ -57,8 +57,8 @@ test("research mode only: the new cell rules, fit crop and recentring never reac
 test("rail buttons are labelled distinctly from the existing zoom bar and meet the touch-target size", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
   assert.doesNotMatch(native, /פקדי צד/, "the duplicate side zoom (+/-) is gone; the zoom bar above the matrix remains");
-  assert.match(native, /aria-label="שורות רחבות יותר"/);
-  assert.match(native, /aria-label="שורות צרות יותר"/);
+  assert.match(native, /"רגיל", "רווח של שורה אחת", "רווח של שתי שורות", "רווח של שלוש שורות", "רווח של ארבע שורות"/);
+  assert.match(native, /aria-pressed=\{fold\.option\?\.between === gap\} disabled=\{!active \|\| !option\}/);
   const css = await read("src/components/experience2029/elsNativeClassic2029.css");
   assert.match(css, /\.els29-native-side-rail button\{width:44px;height:44px/);
   assert.match(css, /@media\(max-width:700px\)\{[^}]*els29-native-matrix-with-rail\{flex-direction:column/, "on a phone the rail lies above the matrix");

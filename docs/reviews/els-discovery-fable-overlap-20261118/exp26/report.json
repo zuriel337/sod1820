@@ -1,0 +1,473 @@
+{
+ "experiment": "EXP-26",
+ "collected_at": "2026-11-18T15:41:10.409Z",
+ "preparation": {
+  "experiment": "EXP-26",
+  "approved_budget_usd": 10,
+  "cap": 25,
+  "effort": "medium",
+  "max_tokens": 64000,
+  "torah_md5": "0066c2431821863d258745e664d3883e",
+  "ciphers": {
+   "C1": {
+    "name": "יום משיח בא",
+    "axis": "583_-1_239480",
+    "window": {
+     "r0": 390,
+     "r1": 422,
+     "c0": 430,
+     "c1": 470,
+     "rows": 33,
+     "cols": 41
+    },
+    "discovery": {
+     "box": {
+      "r0": 382,
+      "r1": 430,
+      "c0": 430,
+      "c1": 470,
+      "cells": 2009
+     },
+     "items": 624,
+     "by_source": {
+      "words5": 300,
+      "words4": 300,
+      "language": 24
+     },
+     "coverage": {
+      "words5": {
+       "stop": "RESULT_LIMIT",
+       "complete": false,
+       "completedRays": 98,
+       "totalRays": 256,
+       "windows": 40487,
+       "axisFragments": 0,
+       "outsidePlan": 0,
+       "shortTokenExcluded": 0,
+       "maxWindows": 100000,
+       "maxResults": 300,
+       "maxWallMs": 10000,
+       "minLength": 5,
+       "maxLength": 10,
+       "directions": 8,
+       "elapsedMs": 54
+      },
+      "words4": {
+       "stop": "RESULT_LIMIT",
+       "complete": false,
+       "completedRays": 26,
+       "totalRays": 256,
+       "windows": 12853,
+       "axisFragments": 0,
+       "outsidePlan": 0,
+       "shortTokenExcluded": 112,
+       "maxWindows": 100000,
+       "maxResults": 300,
+       "maxWallMs": 10000,
+       "minLength": 4,
+       "maxLength": 10,
+       "directions": 8,
+       "elapsedMs": 20
+      },
+      "language": {
+       "rayCap": 24,
+       "maxLetters": 24,
+       "maxCandidateWindows": 9216,
+       "maxHintComparisons": 8192,
+       "maxLexiconLookups": 196608,
+       "perTraversalReadingCap": 16,
+       "totalRays": 256,
+       "returnedRays": 24,
+       "hintComparisons": 0,
+       "lexiconLookups": 44073,
+       "candidatesExamined": 8208,
+       "returnedReadings": 24,
+       "returnedSegmentations": 24,
+       "returnedRelations": 3,
+       "boundaryCap": 480,
+       "boundaryPerTraversalCap": 10,
+       "boundaryFocusRadius": 8,
+       "boundaryProfileComparisons": 816,
+       "returnedBoundaries": 437,
+       "truncated": true,
+       "rowPad": 20,
+       "colRadius": 20
+      }
+     }
+    },
+    "seeds": [
+     {
+      "id": "S1",
+      "line": "A06-",
+      "text": "יגעאנא",
+      "parts": [
+       "יגע",
+       "אנא"
+      ]
+     },
+     {
+      "id": "S2",
+      "line": "C20-",
+      "text": "אבאאלי",
+      "parts": [
+       "אבא",
+       "אלי"
+      ]
+     },
+     {
+      "id": "S3",
+      "line": "C20-",
+      "text": "מפחאבא",
+      "parts": [
+       "מפח",
+       "אבא"
+      ]
+     },
+     {
+      "id": "S4",
+      "line": "D42+",
+      "text": "הנמורא",
+      "parts": [
+       "הנ",
+       "מורא"
+      ]
+     },
+     {
+      "id": "S5",
+      "line": "A02-",
+      "text": "המנדימ",
+      "parts": []
+     },
+     {
+      "id": "S6",
+      "line": "A07+",
+      "text": "לחאמה",
+      "parts": [
+       "לח",
+       "אמה"
+      ]
+     },
+     {
+      "id": "S7",
+      "line": "A06+",
+      "text": "ימיני",
+      "parts": []
+     },
+     {
+      "id": "S8",
+      "line": "A03-",
+      "text": "ומשעמ",
+      "parts": []
+     },
+     {
+      "id": "S9",
+      "line": "C20+",
+      "text": "מאויי",
+      "parts": []
+     },
+     {
+      "id": "S10",
+      "line": "D09+",
+      "text": "ישמרכ",
+      "parts": []
+     },
+     {
+      "id": "S11",
+      "line": "A42-",
+      "text": "המורה",
+      "parts": []
+     },
+     {
+      "id": "S12",
+      "line": "D11+",
+      "text": "אילות",
+      "parts": []
+     }
+    ]
+   }
+  },
+  "arms": [
+   {
+    "id": "C1-52h-plain",
+    "model": "claude-fable-5-2",
+    "effort": "high",
+    "cipher": "C1",
+    "seeds": 0,
+    "instruction": "general_v2_axis_marked_unnamed",
+    "request_sha256": "dbe78340433709a94f8932dd407a684a67f874c10bdb37be5d9b37311ecdc2a3",
+    "lock_sha256": "8986c8a776e2e9872bcb8896d1ab8d893e09f1c23aef6698a319b07835281dad",
+    "custom_id": "els-live-exp-26-c1-52h-plain",
+    "prompt_chars": 26419
+   },
+   {
+    "id": "C1-52h-seeds",
+    "model": "claude-fable-5-2",
+    "effort": "high",
+    "cipher": "C1",
+    "seeds": 12,
+    "instruction": "general_v2_axis_marked_unnamed+discovery_seeds_unmeasured",
+    "request_sha256": "857802b50b0780e5210fc1149c32a001fc7b95f6a3779f6e9189c16553a9c765",
+    "lock_sha256": "a3dcf4b81c92106f935013eae56dff6e3307b1fb57e07401e3c02d68eb9252d5",
+    "custom_id": "els-live-exp-26-c1-52h-seeds",
+    "prompt_chars": 27156
+   }
+  ]
+ },
+ "results": [
+  {
+   "id": "C1-52h-plain",
+   "model": "claude-fable-5-2",
+   "cipher": "C1",
+   "seeds_given": 0,
+   "result_type": "succeeded",
+   "stop_reason": "end_turn",
+   "usage": {
+    "input_tokens": 21541,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 32132,
+    "output_tokens_details": {
+     "thinking_tokens": 29395
+    },
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "cost": {
+    "usd": 0.728804,
+    "ils": {
+     "amount": 2.6966,
+     "currency": "ILS",
+     "status": "ESTIMATED",
+     "fx": {
+      "ils_per_usd": 3.7,
+      "basis": "ASSUMPTION_NOT_VERIFIED",
+      "effective_at": null,
+      "source_ref": null
+     }
+    },
+    "list_price_parts_usd": {
+     "input": 0.172328,
+     "cacheWrite": 0,
+     "cacheRead": 0,
+     "output": 1.28528
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+   },
+   "state": "COMPLETE",
+   "proposals": 24,
+   "verdicts": {
+    "verified_by_engine": 21,
+    "verified_plain_text_only": 3
+   },
+   "verified_texts": [
+    "יוממשיחבא",
+    "אנישלח",
+    "שלח",
+    "ימיני",
+    "שמו",
+    "ביתו",
+    "התשבי",
+    "אליה",
+    "משהתאמרלו",
+    "מרימרד",
+    "שופר",
+    "ארז",
+    "חלמ",
+    "ישי",
+    "איש",
+    "זהשמו",
+    "ישעו",
+    "אבאאלי",
+    "ומשח",
+    "תמוז",
+    "איכה"
+   ],
+   "verified_with_chance": [
+    {
+     "text": "יוממשיחבא",
+     "E": 0.000025
+    },
+    {
+     "text": "אנישלח",
+     "E": 0.0219
+    },
+    {
+     "text": "שלח",
+     "E": 51.9
+    },
+    {
+     "text": "ימיני",
+     "E": 2.55
+    },
+    {
+     "text": "שמו",
+     "E": 256
+    },
+    {
+     "text": "ביתו",
+     "E": 19.8
+    },
+    {
+     "text": "התשבי",
+     "E": 0.931
+    },
+    {
+     "text": "אליה",
+     "E": 36.3
+    },
+    {
+     "text": "משהתאמרלו",
+     "E": 0.0000422
+    },
+    {
+     "text": "מרימרד",
+     "E": 0.0345
+    },
+    {
+     "text": "שופר",
+     "E": 2.91
+    },
+    {
+     "text": "ארז",
+     "E": 23.1
+    },
+    {
+     "text": "חלמ",
+     "E": 83.4
+    },
+    {
+     "text": "ישי",
+     "E": 332
+    },
+    {
+     "text": "איש",
+     "E": 285
+    },
+    {
+     "text": "זהשמו",
+     "E": 0.169
+    },
+    {
+     "text": "ישעו",
+     "E": 11.9
+    },
+    {
+     "text": "אבאאלי",
+     "E": 0.166
+    },
+    {
+     "text": "ומשח",
+     "E": 6.03
+    },
+    {
+     "text": "תמוז",
+     "E": 2.12
+    },
+    {
+     "text": "איכה",
+     "E": 20.1
+    }
+   ],
+   "unlikely_by_chance": [
+    "יוממשיחבא",
+    "אנישלח",
+    "התשבי",
+    "משהתאמרלו",
+    "מרימרד",
+    "זהשמו",
+    "אבאאלי"
+   ],
+   "repeats_of_seeds": [
+    "ימיני",
+    "אבאאלי"
+   ],
+   "already_in_discovery": [
+    "ימיני",
+    "ביתו",
+    "אבאאלי"
+   ],
+   "new_vs_discovery": [
+    "יוממשיחבא",
+    "אנישלח",
+    "שלח",
+    "שמו",
+    "התשבי",
+    "אליה",
+    "משהתאמרלו",
+    "מרימרד",
+    "שופר",
+    "ארז",
+    "חלמ",
+    "ישי",
+    "איש",
+    "זהשמו",
+    "ישעו",
+    "ומשח",
+    "תמוז",
+    "איכה"
+   ],
+   "continued_from_seeds": 0,
+   "target_found": false,
+   "observations": "התמקדתי בטור C21 ובקווים שחוצים אותו, ובסריקה כללית של הטורים והאלכסונים. את שורות הטקסט הרציף (R) סקרתי רק חלקית, ואת האלכסונים הקצרים בפינות ואת הטורים C30–C39 בדקתי בפחות עומק."
+  },
+  {
+   "id": "C1-52h-seeds",
+   "model": "claude-fable-5-2",
+   "cipher": "C1",
+   "seeds_given": 12,
+   "result_type": "succeeded",
+   "stop_reason": "max_tokens",
+   "usage": {
+    "input_tokens": 22083,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 64000,
+    "output_tokens_details": {
+     "thinking_tokens": 64000
+    },
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "cost": {
+    "usd": 1.368332,
+    "ils": {
+     "amount": 5.0628,
+     "currency": "ILS",
+     "status": "ESTIMATED",
+     "fx": {
+      "ils_per_usd": 3.7,
+      "basis": "ASSUMPTION_NOT_VERIFIED",
+      "effective_at": null,
+      "source_ref": null
+     }
+    },
+    "list_price_parts_usd": {
+     "input": 0.176664,
+     "cacheWrite": 0,
+     "cacheRead": 0,
+     "output": 2.56
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+   },
+   "state": "INCOMPLETE",
+   "error": "not JSON: Unexpected end of JSON input"
+  }
+ ],
+ "cost_total_usd": 2.0971
+}

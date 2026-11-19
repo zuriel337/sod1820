@@ -38,12 +38,16 @@ export function makeJourneySnapshot(engineState, view = {}) {
   const axisAnchor = parseElsHitKey(engineState.axis.hitId);
   if (!axisAnchor) return null;
 
+  // Eager path (every page): carry the engine's own occurrence_id as sent; the engine validates it on load.
+  const occurrenceId = typeof engineState.axis.occurrence_id === "string" ? engineState.axis.occurrence_id : null;
   return {
     term: engineState.termRaw || engineState.term || "",
     normalizedTerm: engineState.term || "",
     scope: engineState.scope === "tanakh" ? "tanakh" : "torah",
     axis: {
       ...axisAnchor,
+      // The engine's occurrence_id (with the corpus) when it sent one; older snapshots carry only the hitId.
+      ...(occurrenceId ? { occurrenceId } : {}),
       length: Number(engineState.axis.length ?? engineState.length ?? 0),
     },
     occurrence: {
@@ -78,6 +82,10 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
   const snapshot = makeJourneySnapshot(engineState, options.view || {});
   if (!snapshot) return { ok: false, reason: "invalid-current-axis" };
 
+  // The promoted finding is in the corpus of the current state; another scope is another corpus, so no id is carried there.
+  const scope = options.scope || snapshot.scope;
+  const sent = scope === snapshot.scope && Array.isArray(finding.hits) ? finding.hits.find(hit => hit?.hitId === target.hitId)?.occurrence_id : null;
+  const occurrenceId = typeof sent === "string" ? sent : null;
   const axisColor = options.axisColor || DEFAULT_AXIS_COLOR;
   const maxFindings = Math.max(1, Number(options.maxFindings || 24));
   const previousAxis = engineState.termRaw || engineState.term || "";
@@ -99,8 +107,9 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
       start: target.start,
       dir: target.dir,
       hitId: target.hitId,
+      ...(occurrenceId ? { occurrenceId } : {}),
       words: carry,
-      scope: options.scope || snapshot.scope,
+      scope,
     },
   };
 }
@@ -124,6 +133,8 @@ export function buildJourneyRestore(snapshot) {
       start: target.start,
       dir: target.dir,
       hitId: target.hitId,
+      // A conflicting id is refused by the engine (corpus-mismatch / occurrence-mismatch), never repaired here.
+      ...(typeof snapshot.axis.occurrenceId === "string" ? { occurrenceId: snapshot.axis.occurrenceId } : {}),
       words,
       scope: snapshot.scope === "tanakh" ? "tanakh" : "torah",
     },
@@ -135,5 +146,8 @@ export function buildJourneyRestore(snapshot) {
 // position at the same skip would be a different occurrence.
 export function journeyAnchorMatches(engineState, target) {
   if (!target?.hitId || engineState?.status !== "ok") return false;
-  return engineState.axis?.hitId === target.hitId;
+  if (engineState.axis?.hitId !== target.hitId) return false;
+  // With an occurrence_id on both sides the corpus must match too (the same hitId in another corpus is another occurrence).
+  const wanted = target.occurrenceId, opened = engineState.axis?.occurrence_id;
+  return !wanted || !opened || wanted === opened;
 }

@@ -69,9 +69,10 @@ export function toggleSplitBand(bands, axisHitId, hitId) {
   return [axisHitId, ...next];
 }
 
-export function splitWindowRequest({ axisHitId, scope, bands, rowStart, rowCount, colCount, columnStarts = {}, seq }) {
+export function splitWindowRequest({ axisHitId, scope, bands, rowStart, rowCount, colCount, columnStarts = {}, seq, relation }) {
   return {
     splitSeq: seq, axisHitId, scope,
+    ...(relation ? { width: relation.width, structureMembers: relation.members.map(member => ({ hitId: member.hitId, term: member.term })) } : {}),
     ...(Number.isInteger(rowStart) ? { r0: rowStart } : {}),
     rowCount: clampInt(rowCount, SPLIT_LIMITS.minRows, SPLIT_LIMITS.maxRows, 15),
     colCount: clampInt(colCount, SPLIT_LIMITS.minCols, SPLIT_LIMITS.maxCols, 5),

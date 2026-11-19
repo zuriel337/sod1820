@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
 import { saveMatrix, saveMatrixAnon, getSavedMatrices, getMatrixById, moderateMatrix } from "../lib/elsMatrices.js";
-import { savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
+import { elsMatrixLoadKey, savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
 import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
@@ -68,7 +68,7 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null, exactSkipProbe = null, onExactSkipProbeResult = null, formsPreviewRequest = null, onFormsPreviewResult = null, onEngineReady = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, matrixWindowRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null, exactSkipProbe = null, onExactSkipProbeResult = null, formsPreviewRequest = null, onFormsPreviewResult = null, onEngineReady = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -78,6 +78,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const engineRequestsRef = useRef(new Map());
   useEffect(() => () => { for (const controller of engineRequestsRef.current.values()) controller.abort(); engineRequestsRef.current.clear(); }, []);
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
+  const journeyKeyRef = useRef(null);
+  const pendingLoadRef = useRef(null);
   const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
   const gateDialogRef = useRef(null);
@@ -128,6 +130,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     //    לתוך cart/research_items הקיים (Pass 1), ומאפשר בעתיד "פתח מחדש" מדויק דרך journeyLoad.
     const snap = makeJourneySnapshot(d, {});
     if (snap) axisFinding.projection = { ...axisFinding.projection, journeySnapshot: snap };
+    // The same occurrence is one finding (its id is the engine's occurrence_id): saving it again in another spelling
+    // (התשפז / התשפ״ז) keeps the spelling it was first saved with for display.
+    const existing = [...workspace.findings, ...workspace.savedFindings, ...workspace.pinnedFindings].find(f => f?.id === axisFinding.id);
+    if (existing?.subject) axisFinding.subject = existing.subject;
     workspace.upsertFinding(axisFinding);
     setAddedToast(true);
     onWorkspaceAdded?.();
@@ -350,12 +356,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   // Keep the listener registered through synchronous Research Bus renders during dispatch.
   // Read current props/callbacks without removing a listener before it receives that same event.
   const messageContextRef = useRef(null);
-  messageContextRef.current = { onEngineReady, verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult, formsPreviewRequest, onFormsPreviewResult };
+  messageContextRef.current = { onEngineReady, verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, matrixWindowRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult, formsPreviewRequest, onFormsPreviewResult };
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
     async function onMsg(e) {
-      const { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult, formsPreviewRequest, onFormsPreviewResult } = messageContextRef.current;
+      const { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, matrixWindowRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult, formsPreviewRequest, onFormsPreviewResult } = messageContextRef.current;
       if (e.origin !== window.location.origin) return;
       // G3: origin alone is not enough — any same-origin window (other tab/iframe/script) could spoof the tool.
       // Accept only messages whose source is this component's own iframe window.
@@ -426,15 +432,21 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         //    mounted straight into "?finding=<id>"), the effect below fired before the tool
         //    registered its message listener and the postMessage was silently dropped — same
         //    load race already handled for lensRequest just below. Resend it here too.
-        if (journeyLoad) postToTool({ type: "load-matrix", item: journeyLoad });
-        else if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
+        if (journeyLoad || matrix) {
+          const loadKey = elsMatrixLoadKey(matrix, journeyLoad);
+          lastKeyRef.current = elsMatrixLoadKey(matrix);
+          journeyKeyRef.current = journeyLoad ? loadKey : null;
+          pendingLoadRef.current = loadKey;
+          postToTool({ type: "load-matrix", item: journeyLoad || rowToItem(matrix), loadKey });
+        }
         sendExactSkipProbe(exactSkipProbe);
         if (formsPreviewRequest) postToTool({ type: "preview-forms-batch", requestId: formsPreviewRequest.requestId, expressions: formsPreviewRequest.expressions });
         // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
         //    אחרת ה-postMessage הראשון היה עלול לרדת לפני שהמנוע רשם את המאזין שלו (אותו מרוץ-טעינה).
+        if (matrixWindowRequest) postToTool({ type: "request-lens", lens: "matrix-window", target: matrixWindowRequest });
         if (lensRequest) postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
         if (searchRequest?.kind) postToTool({ type: "native-search", request: searchRequest, requestId: searchRequest.seq });
-        if (Array.isArray(findingsRequest?.findings)) postToTool({ type: "update-findings", findings: findingsRequest.findings, requestId: findingsRequest.seq });
+        if (Array.isArray(findingsRequest?.findings)) postToTool({ type: "update-findings", findings: findingsRequest.findings, requestId: findingsRequest.seq, foldSearch: findingsRequest.foldSearch });
         return;
       }
       if (d.type === "state") {
@@ -453,6 +465,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       }
       if (d.type === "operation") {
         // Only engine acknowledgements drive search progress; React does not infer completion from state ticks.
+        if (d.kind === "load" && d.requestId !== pendingLoadRef.current) return;
         onOperation?.(d);
         return;
       }
@@ -502,7 +515,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         onOnboardingRequired?.(d);
       } else if (d.type === "load-error") {
         // 🧭 Research Journey (Pass 2): loadMatrix בכלי לא מצא את המונח/העוגן-המדויק (hitId/start+dir).
-        onLoadError?.(d);
+        if (!d.requestId || d.requestId === pendingLoadRef.current) onLoadError?.(d);
       }
     }
     window.addEventListener("message", onMsg);
@@ -535,6 +548,11 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
   }, [lensRequest, postToTool]);
 
+  // A scan can cancel when the viewport moves. Send the layout on its own channel, so the cancel cannot replace it.
+  useEffect(() => {
+    if (matrixWindowRequest) postToTool({ type: "request-lens", lens: "matrix-window", target: matrixWindowRequest });
+  }, [matrixWindowRequest, postToTool]);
+
   // 🎛️ Native Classic one-shot controls — presentation-only allowlist בתוך ה-Tzofen הקנוני.
   useEffect(() => {
     if (!controlRequest?.action) return;
@@ -552,7 +570,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   // The tool normalizes, bounds, recomputes, recolors and emits the resulting governed state.
   useEffect(() => {
     if (!Array.isArray(findingsRequest?.findings)) return;
-    postToTool({ type: "update-findings", findings: findingsRequest.findings, requestId: findingsRequest.seq });
+    postToTool({ type: "update-findings", findings: findingsRequest.findings, requestId: findingsRequest.seq, foldSearch: findingsRequest.foldSearch });
   }, [findingsRequest, postToTool]);
 
   // A native save is sent once for its explicit user action.
@@ -567,25 +585,15 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
   //    אחרת שינוי-סטטוס היה מריץ מחדש את כל הצופן + סרט-הצופן ללא צורך.
   useEffect(() => {
-    if (!matrix) { lastKeyRef.current = null; return; }
-    const key = [matrix.id, matrix.search_term, matrix.skip_distance, matrix.scope, matrix.start_index, matrix.direction, matrix.corpus_id].join("|");
-    if (lastKeyRef.current === key) return;
-    lastKeyRef.current = key;
-    postToTool({ type: "load-matrix", item: rowToItem(matrix) });
-  }, [matrix, postToTool]);
-
-  // 🧭 Research Journey (Pass 2, elsJourney.js): שחזור-מדויק דרך *אותו* מסלול "load-matrix" — לא
-  //    מסלול-טעינה נפרד. journeyLoad הוא loadItem חד-פעמי (buildJourneyPromotion/buildJourneyRestore);
-  //    שולחים בכל אובייקט-loadItem חדש (זהות לפי JSON — לא מזהה יציב כמו matrix.id, כי כל שחזור/קידום
-  //    הוא אירוע-פעולה, לא מצב-נשמר-לאורך-זמן).
-  const journeyKeyRef = useRef(null);
-  useEffect(() => {
-    if (!journeyLoad) { journeyKeyRef.current = null; return; }
-    const key = JSON.stringify(journeyLoad);
-    if (journeyKeyRef.current === key) return;
-    journeyKeyRef.current = key;
-    postToTool({ type: "load-matrix", item: journeyLoad });
-  }, [journeyLoad, postToTool]);
+    const savedKey = elsMatrixLoadKey(matrix), journeyKey = elsMatrixLoadKey(null, journeyLoad);
+    const savedChanged = lastKeyRef.current !== savedKey, journeyChanged = journeyKeyRef.current !== journeyKey;
+    lastKeyRef.current = savedKey;
+    journeyKeyRef.current = journeyKey;
+    const loadKey = journeyKey ? (journeyChanged && journeyKey) : (savedChanged && savedKey);
+    if (!loadKey || !readyDocumentRef.current) return;
+    pendingLoadRef.current = loadKey;
+    postToTool({ type: "load-matrix", item: journeyLoad || rowToItem(matrix), loadKey });
+  }, [matrix, journeyLoad, postToTool]);
 
   useEffect(() => {
     if (!exactSkipProbe) { exactProbeRef.current = null; return; }

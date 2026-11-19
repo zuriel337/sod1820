@@ -64,3 +64,10 @@ test('a stray public profile variable cannot change the Legacy capability or SDK
  assert.match(read('src/lib/supabase.js')+'\n'+read('src/lib/supabaseApi2029.js'),/PUBLIC_READING_RELEASE[\s\S]*?readingSessionOptions\(readingStorage, globalThis.location, \{ productionArtifact: PUBLIC_READING_PRODUCTION_ARTIFACT \}\)[\s\S]*?: undefined/);
  assert.match(read('src/lib/publicReadingAuthSession.js'),/storageKey: "sod-public-reading-account"/);
 });
+
+test('old ELS finding entry continues to the cipher before the closed research route',()=>{
+ const id='uf1:els:torah:example';
+ assert.equal(publicReadingContinuation('/research','?finding='+encodeURIComponent(id)+'&mode=classic','#saved'),
+   '/code?finding='+encodeURIComponent(id)+'&mode=research#saved');
+ assert.equal(publicReadingContinuation('/research','?finding=uf1:gematria:example'),null);
+});

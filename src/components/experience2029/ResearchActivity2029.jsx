@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { canonicalProgressPercent } from "../../lib/canonicalProgressModel.js";
 import "./researchActivity2029.css";
+import { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
+import { elsMatrixReadingIndicator } from "../../lib/research/elsMatrixReadingActivity.js";
 
 // Compact research indicator attached to the bottom bar (preview, ZURIEL 19.11.2026).
 // A projection only: it reads the one in-memory operation of the existing ResearchProvider
@@ -37,10 +39,13 @@ function useSimulatedTask(enabled) {
 }
 
 export default function ResearchActivity2029({ task: realTask = null, lab = false, onOpen, placement = "bar" }) {
-  const simulated = useSimulatedTask(lab && !realTask);
-  const task = realTask || simulated;
-  const running = task?.status === "RUNNING";
+  const session = useOptionalRazielSession2029();
   const [now, setNow] = useState(() => Date.now());
+  const reading = elsMatrixReadingIndicator(session, now);
+  const simulated = useSimulatedTask(lab && !realTask && !reading);
+  const task = realTask?.status === "RUNNING" && reading?.status !== "RUNNING" ? realTask : reading || realTask || simulated;
+  const isReading = task === reading && Boolean(reading);
+  const running = task?.status === "RUNNING";
   useEffect(() => {
     if (!running) return undefined;
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -50,25 +55,27 @@ export default function ResearchActivity2029({ task: realTask = null, lab = fals
   const total = Array.isArray(task.plan?.terms) ? task.plan.terms.length : null;
   const current = Array.isArray(task.rows) ? task.rows.length : null;
   const percent = canonicalProgressPercent({ current, total });
-  const elapsed = (task.finishedAt || now) - (task.startedAt || now);
-  const status = STATUS_LABEL[task.status] || task.status;
+  const elapsed = task.elapsedMs ?? (task.finishedAt || now) - (task.startedAt || now);
+  const status = isReading ? task.phase : STATUS_LABEL[task.status] || task.status;
+  const title = isReading ? "קריאת המטריצה של Fable" : "מחקר צופן";
   const term = task.origin?.term || "";
   // The wrapper keeps the indicator out of the bar's own button row (the bar styles its direct buttons as dock entries).
   return (<div className={`sod29-research-activity-wrap is-${placement}`}>
-    <button type="button" className={`sod29-research-activity is-${placement}${running ? " is-running" : ""}`} onClick={onOpen}
+    <button type="button" className={`sod29-research-activity is-${placement}${running ? " is-running" : ""}`} onClick={() => onOpen?.(isReading ? "els_matrix_reading" : "els_terms")}
       data-research-activity={task.status} data-simulated={task.simulated ? "true" : undefined}
-      aria-label={`מחקר צופן · ${term} · ${status} · ${task.phase || ""} · ${elapsedLabel(elapsed)}. פתיחת הפירוט והחזרה לתוצאה`}>
+      aria-label={`${title} · ${term} · ${status} · ${task.phase || ""} · ${elapsedLabel(elapsed)} · ${task.estimate || ""}. פתיחת הפירוט והחזרה לתוצאה`}>
       <span className="sod29-research-activity-line" aria-hidden="true">
-        <b>{running ? "סורק" : status}</b>
+        <b>{isReading ? "Fable" : running ? "סורק" : status}</b>
         <bdi>{term}</bdi>
         <span className="sod29-research-activity-phase">{task.phase}</span>
         <time>{elapsedLabel(elapsed)}</time>
         {task.simulated ? <em>מדומה</em> : null}
       </span>
-      <span className={`sod29-research-activity-meter${percent == null ? " is-indeterminate" : ""}`} role="progressbar"
+      {task.estimate ? <span className="sod29-research-activity-estimate">{task.estimate}</span> : null}
+      <span className={`sod29-research-activity-meter${percent == null && running ? " is-indeterminate" : ""}`} role="progressbar"
         aria-label={task.phase || status} aria-valuemin={percent == null ? undefined : 0} aria-valuemax={percent == null ? undefined : 100}
         aria-valuenow={percent == null ? undefined : Math.round(percent)} style={percent == null ? undefined : { "--ra-progress": `${percent}%` }}><i /></span>
     </button>
-    <span className="sod29-research-activity-live" role="status" aria-live="polite">{`מחקר צופן · ${status} · ${task.phase || ""}`}</span>
+    <span className="sod29-research-activity-live" role="status" aria-live="polite">{`${title} · ${status} · ${task.phase || ""}`}</span>
   </div>);
 }

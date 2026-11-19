@@ -70,7 +70,8 @@ test("engine lens is read-only, bounded, axis-scoped and wired only through the 
   const template = await read("tools/els/els-code.template.html");
   const lens = template.slice(template.indexOf("function matrixWindowLens"), template.indexOf("const isAnon=()=>"));
   assert.ok(lens.length > 500);
-  assert.match(lens, /t\.axisHitId!==hitKey\(axis\)\|\|t\.scope!==st\.scope/);
+  assert.match(lens, /scope=st\.scope/);
+  assert.match(lens, /t\.axisHitId!==hitKey\(axis\)\|\|t\.scope!==scope/);
   assert.match(lens, /modelCalls:0,findingMutation:false,truthPromotion:false/);
   assert.match(lens, /isGov\(h\)&&!isSourceHit\(h,w\.t\)/);
   assert.doesNotMatch(lens, /st\.(words|res|occ)\s*=[^=]|\.push\(\{t:|promoteVerified|postHost\(\{type:"search/);
@@ -81,11 +82,21 @@ test("engine lens is read-only, bounded, axis-scoped and wired only through the 
 
 test("split view is research-only: mounted in the research tools, never in the classic toolstrip or the Guided profile", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /<ElsSplitMatrix2029 key=\{`split-\$\{user\?\.id \|\| "guest"\}`\} state=\{engineState\} visible=\{active && researchProfile && !guidedProfile\}/);
-  assert.match(native, /result\?\.lens === "matrix-window"\) \{ if \(result\.target\?\.foldSeq != null\) setFoldResponse\(result\); else setSplitResponse\(result\); return; \}/);
+  assert.match(native, /const researchWorkspace = researchProfile && !guidedProfile/);
+  assert.match(native, /<ElsSplitMatrix2029 state=\{engineState\}\s+visible=\{active && researchWorkspace && researchView === "structures"\}/);
+  assert.match(native, /if \(result\.target\?\.foldSeq == null\) setSplitResponse\(result\)/);
+  assert.match(native, /result\.target\.foldWindowId === foldRequest\.foldWindowId && result\.target\.foldSeq === foldRequest\.foldSeq/);
   assert.equal((native.match(/<ElsSplitMatrix2029/g) || []).length, 1);
   const component = await read("src/components/experience2029/ElsSplitMatrix2029.jsx");
   assert.match(component, /<CanonicalProgress compact title="טוען חלון שורות"/, "operation visibility law");
   assert.match(component, /אין להסיק ממנה שאין מופע בכל התורה/, "a local window never proves absence");
   assert.doesNotMatch(component, /supabase|fetch\(|rpc\(/, "the view reads only from the engine lens");
+});
+
+test('day-of-messiah axis 583 has no exact row gap 1–4; no rounded width is offered', async () => {
+  const { foldOptionsFor, foldOptions } = await import('../src/lib/elsSplitMatrix.js');
+  const options = foldOptionsFor(583, 8);
+  assert.equal(options.some(option => option.between >= 1 && option.between <= 4), false);
+  assert.ok(foldOptions(583).some(option => option.width === 53 && option.between === 10));
+  assert.equal(options.some(option => option.width === 53), false, "the current row budget also excludes the 10-row gap for this axis");
 });

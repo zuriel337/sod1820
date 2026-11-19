@@ -16,7 +16,7 @@ const errors = { not_enabled: "הסריקה עדיין לא הופעלה בסב�
 const number = value => typeof value === "number" && Number.isFinite(value);
 const money = value => number(value) ? value.toFixed(2) : "לא ידוע";
 
-function ReadingResult({ result, axis, projection, onSelectFinding, selectedKey, overlayVisible, onToggleOverlay }) {
+function ReadingResult({ result, axis, projection, onSelectFinding, selectedKey, overlayVisible, onToggleOverlay, embedded = false }) {
   const fixture = result.is_test_fixture === true || result.provider?.kind === "test_double";
   const live = isLiveFableReading(result);
   const complete = result.state === "COMPLETE";
@@ -42,7 +42,7 @@ function ReadingResult({ result, axis, projection, onSelectFinding, selectedKey,
         <button type="button" aria-pressed={overlayVisible} onClick={onToggleOverlay}>{overlayVisible ? "הסתר סימוני AI מהמטריצה" : "הצג ממצאי AI במטריצה"}</button>
         <p>{projected.visibleCount} ממצאים בתוך חלון התצוגה{projected.partialCount ? ` · ${projected.partialCount} נראים בחלקם` : ""}{projected.outsideCount ? ` · ${projected.outsideCount} אינם מוצגים בחלון הנוכחי` : ""}. בחירת ממצא ממקדת את המטריצה; אין סריקה נוספת.</p>
       </div> : null}
-      <ul>{verified.map(finding => { const item = finding.item; return <li key={finding.key} data-reading-finding={finding.key} data-selected={selectedKey === finding.key ? "true" : undefined}>
+      {embedded ? <p>הממצאים שאומתו נמצאים ברשימה המשותפת למטה, יחד עם מה שהמנוע מצא.</p> : <ul>{verified.map(finding => { const item = finding.item; return <li key={finding.key} data-reading-finding={finding.key} data-selected={selectedKey === finding.key ? "true" : undefined}>
         <p><strong>{finding.label}</strong> · דילוג <bdi>{item.occurrence?.skip}</bdi> · {item.occurrence?.dir === -1 ? "לאחור" : "קדימה"} · מיקום <bdi>{item.occurrence?.start}</bdi></p>
         {finding.label !== item.text ? <small>רצף האותיות: <bdi>{item.text}</bdi></small> : null}
         <small>{finding.axisPart ? "חלק מהציר הראשי — לא הצלבה חדשה" : ({ crosses: "חוצה את הציר", touches: "צמוד לציר", far: "מרוחק מהציר" })[item.relation_to_axis?.relation] || ""}
@@ -52,7 +52,7 @@ function ReadingResult({ result, axis, projection, onSelectFinding, selectedKey,
           {finding.visibility === "mismatch" ? "אין התאמה לאותיות המוצגות" : finding.visibility === "outside" ? "מחוץ לחלון התצוגה" : `הצג במטריצה: ${finding.label}${finding.visibility === "partial" ? " (חלק מהממצא)" : ""}`}
         </button> : null}
         {item.model_claims?.note ? <details><summary>קריאת המודל</summary><p>{item.model_claims.note}</p></details> : null}
-      </li>; })}</ul>
+      </li>; })}</ul>}
       <p>הרווחים וחלוקת המילים הם קריאת המודל; רצף האותיות המקורי נשמר. הסימון אינו מוסיף ממצאים לחיפוש ואינו משנה את הציר.</p>
       <p>האימות מאשר אותיות ומיקומים. E הוא אומדן לפי שכיחות אותיות, לא מדד לחוזק הסיפור או מובהקות מתוקנת.</p>
     </> : null}
@@ -64,7 +64,9 @@ function ReadingResult({ result, axis, projection, onSelectFinding, selectedKey,
   </section>;
 }
 
-export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubmit, pending = false, projection, onSelectFinding, selectedKey, overlayVisible, onToggleOverlay }) {
+// embedded (ZURIEL 18.11.2026): step 2 of the joint discovery panel in research mode. The same card, session and rules; its verified
+// findings are shown in the joint list instead of here, and a non-admin sees only that the step is coming.
+export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubmit, pending = false, projection, onSelectFinding, selectedKey, overlayVisible, onToggleOverlay, embedded = false }) {
   const mode = elsMatrixReadingMode(reading.mode);
   const session = reading.session;
   const { active, matching, progress, result } = selectElsMatrixReading(session, context?.axis);
@@ -98,8 +100,11 @@ export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubm
     } catch { setLocal({ saving: false, axis, error: "השמירה לא הושלמה. נסו שוב מתוך השיחה הנוכחית." }); }
     finally { submitting.current = false; }
   };
-  return <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
-    <strong>✦ נתח את המטריצה עם AI</strong>
+  if (embedded && reading.isAdmin !== true) return <section className="els29-native-workrail els29-matrix-ai-card is-embedded" aria-label="שלב 2, המשך עם Fable">
+    <strong>2 · המשך עם Fable</strong><p>קריאת המטריצה עם Fable זמינה כרגע למנהלים בלבד, בשלב ניסיוני. בקרוב.</p></section>;
+  return <section className={`els29-native-workrail els29-matrix-ai-card${embedded ? " is-embedded" : ""}`} aria-label={embedded ? "שלב 2, המשך עם Fable" : "רזיאל ומפת המטריצה"}>
+    <strong>{embedded ? "2 · המשך עם Fable" : "✦ נתח את המטריצה עם AI"}</strong>
+    {embedded ? <p>Fable יקרא את כל הקווים בחלון 33×41 סביב המופע. מה שהמנוע הקנוני יאמת ייכנס לרשימה המשותפת.</p> : null}
     {axis ? <p>המופע הנבחר: {axis.term} · דילוג <bdi>{axis.skip}</bdi> · {axis.dir === -1 ? "לאחור" : "קדימה"} · מיקום <bdi>{axis.start}</bdi></p> : <p>בחרו מופע מאומת כדי להתחיל.</p>}
     {mode === "off" ? <p>חיבור הסריקה מוכן בקוד. ההפעלה החיה עדיין כבויה בסביבה הזאת.</p> : <>
       <p>סריקה ניסיונית באותה שיחת רזיאל · עד 25 הצעות.</p>
@@ -111,7 +116,7 @@ export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubm
       {!reading.isAdmin ? <p>השלב הניסיוני זמין למנהלים בלבד.</p> : reading.locked ? <p>רזיאל אינו זמין כרגע.</p> : axis && (axis.scope !== "torah" || axis.skip < 15) ? <p>הסריקה הזאת זמינה כרגע בתורה, במטריצה ברוחב 15 ומעלה.</p> : null}
     </>}
     <button type="button" disabled={!available || pending || local.pending || local.saving || session?.busy || Boolean(resume) || result?.tracking_unavailable || result?.restart_blocked} onClick={() => submit()}>
-      {mode === "preview" ? "בדוק כיסוי ועלות" : "סרוק את המטריצה עם Fable"}
+      {mode === "preview" ? "בדוק כיסוי ועלות" : embedded ? "המשך עם Fable" : "סרוק את המטריצה עם Fable"}
     </button>
     {active ? <div role="status">
       <p>{matching ? progress?.cancelling ? "ממתינים לאישור ביטול מהספק…" : "קריאת המטריצה מתבצעת…" : "רזיאל קורא כעת מופע אחר. התוצאה תישאר משויכת אליו."}
@@ -122,7 +127,7 @@ export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubm
     {local.error && sameElsMatrixReadingAxis(local.axis, axis) ? <p role="alert">{local.error}</p> : null}
     {!active && resume ? <button type="button" disabled={!available || session?.busy || local.pending || local.saving} onClick={() => submit({ ...reference, op: "status" })}>המשך מעקב אחר הסריקה</button> : null}
     {!active && mode === "on" ? <button type="button" disabled={!available || pending || session?.busy || local.pending || local.saving} onClick={() => submit({ op: "recover" })}>חזור לסריקה האחרונה של המופע</button> : null}
-    {result && !matching ? <ReadingResult result={result} axis={axis} projection={projection} onSelectFinding={onSelectFinding} selectedKey={selectedKey} overlayVisible={overlayVisible} onToggleOverlay={onToggleOverlay} /> : null}
+    {result && !matching ? <ReadingResult result={result} axis={axis} projection={projection} onSelectFinding={onSelectFinding} selectedKey={selectedKey} overlayVisible={overlayVisible} onToggleOverlay={onToggleOverlay} embedded={embedded} /> : null}
     {!session?.busy && result?.state === "COMPLETE" && session?.saveCurrentSession ? <button type="button" disabled={local.saving || local.pending} onClick={saveResult}>
       {local.saving ? "שומר…" : "שמור את השיחה והתוצאה"}
     </button> : null}

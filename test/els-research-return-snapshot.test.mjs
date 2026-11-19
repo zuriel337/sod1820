@@ -37,3 +37,17 @@ test('unverified, unbounded or mismatched snapshots never attach to a different 
     assert.deepEqual(elsResearchReturnLoad({origin:{...origin,...change},returnSnapshot:snap}).words,[]);
   }
 });
+
+test('row spacing restores its own coordinates without replacing occurrence skip, and rejects unsupported geometry',()=>{
+  const current=state();current.axis={...current.axis,skip:60,hitId:'60_1_5'};
+  const projection={kind:'row-spacing',width:20,rowGap:2,r0:2,r1:26,c0:3,c1:19};
+  const snap=captureElsResearchReturn(current,projection);
+  projection.r0=99;
+  const load=elsResearchReturnLoad({origin:{...origin,skip:60},returnSnapshot:snap});
+  assert.equal(load.skip,60);assert.equal(load.matrixProjection.width,20);
+  assert.equal(load.matrixProjection.rowGap,2);assert.equal(load.matrixProjection.r0,2);
+  assert.ok(Object.isFrozen(snap.matrixProjection));
+  for(const change of [{width:30},{rowGap:6},{r0:-1},{r1:90},{c1:20}]){
+    assert.equal(captureElsResearchReturn(current,{...load.matrixProjection,...change}).matrixProjection,undefined);
+  }
+});

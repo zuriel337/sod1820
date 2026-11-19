@@ -169,11 +169,11 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   useEffect(() => { if (!library) setWorkspaceVisited(true); }, [library]);
   const showLibrary = view => setParams(current => { const next = new URLSearchParams(current);next.set("library", view);return next; });
   const closeLibrary = () => setParams(current => { const next = new URLSearchParams(current);next.delete("library");return next; });
-  const openCipher = row => { setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
   const cipherSlug = params.get("cipher");
   const recordId = params.get("record");
   const directSavedOpen = Boolean(cipherSlug || recordId);
   const findingId = params.get("finding") || "";
+  const discoveryId = params.get("discovery") || "";
   const { journeyLoad: findingJourneyLoad, status: findingStatus } = useElsJourneyReopen(findingId);
   const [findingNotice, setFindingNotice] = useState("");
   useEffect(() => {
@@ -181,7 +181,11 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     if (!findingId || ["none", "ok", "not-els"].includes(findingStatus)) return undefined;
     const timer = setTimeout(() => setFindingNotice(findingStatus === "not-found"
       ? "הממצא לא נמצא בסביבת המחקר שלך."
-      : "לא נשמר מיקום מדויק לממצא הזה — אפשר לחפש את המונח מחדש."), 1200);
+      : findingStatus === "corpus-mismatch"
+        ? "הממצא נשמר בקורפוס אחר (תורה או תנ״ך) מזה שבשחזור שלו, ולכן לא נפתח. שום מופע אחר לא הוצג במקומו."
+        : findingStatus === "occurrence-mismatch"
+          ? "מזהה המופע של הממצא סותר את המיקום השמור שלו, ולכן הוא לא נפתח. שום מופע אחר לא הוצג במקומו."
+          : "לא נשמר מיקום מדויק לממצא הזה — אפשר לחפש את המונח מחדש."), 1200);
     return () => clearTimeout(timer);
   }, [findingId, findingStatus]);
   const recordKey = `${authLoading ? "loading" : user?.id || "guest"}|${cipherSlug || ""}|${recordId || ""}|${openRevision}`;
@@ -220,17 +224,24 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   });
   // Three projections share the same mounted engine. Entering or switching a mode never
   // starts a scan or an AI call; Guided starts only on its explicit submit.
+  const requested = clean(params.get("mode")).toLowerCase();
   const [matrixProfile, setMatrixProfile] = useState(() => {
-    const requested = clean(params.get("mode")).toLowerCase();
+    if (requested === "research") return ELS_MATRIX_PROFILE.RESEARCH;
     if (requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
     // ZURIEL 6.11: the Bible code opens in Research for everyone. Guided discovery is hidden for everyone, administrator
     // included, until the AI is connected; the code stays behind VITE_ELS_GUIDED_DISCOVERY=visible.
     if (requested === "guided" && guidedVisible) return ELS_MATRIX_PROFILE.GUIDED;
     return ELS_MATRIX_PROFILE.RESEARCH;
   });
+  const savedProfile = requested === "research" ? ELS_MATRIX_PROFILE.RESEARCH : ELS_MATRIX_PROFILE.CLASSIC;
   useEffect(() => {
-    if (directSavedOpen) setMatrixProfile(ELS_MATRIX_PROFILE.CLASSIC);
-  }, [directSavedOpen]);
+    if (directSavedOpen) setMatrixProfile(savedProfile);
+  }, [cipherSlug, recordId, directSavedOpen, savedProfile]);
+  const workspaceMode = matrixProfile === ELS_MATRIX_PROFILE.RESEARCH ? "research" : "classic";
+  const openCipher = row => {
+    setOpenRevision(value => value + 1);
+    setParams(new URLSearchParams(savedMatrixWorkspaceHref(row, workspaceMode).split("?")[1]));
+  };
   const [researchLoad, setResearchLoad] = useState(null);
   const [researchProbe, setResearchProbe] = useState(null);
   const [exactStatus, setExactStatus] = useState("idle");
@@ -332,6 +343,13 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     if (origin !== "user") return;
     pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle");
     setResearchLoad(null); setLoadsDismissed(true);
+    if (directSavedOpen) setParams(current => {
+      const next = new URLSearchParams(current);
+      next.delete("cipher");
+      next.delete("record");
+      next.set("mode", workspaceMode);
+      return next;
+    });
     ownSubject(payload?.axis || payload?.term || payload?.terms?.[0]);
   };
 
@@ -418,18 +436,17 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     description={ELS_DESCRIPTION}
   >
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
-      onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} /> : null}
-    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
+      onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} workspaceMode={workspaceMode} /> : null}
+    {!library ? <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
+      <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={guidedVisible ? null : [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC]} />
+      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(guidedVisible ? ELS_MATRIX_PROFILE.GUIDED : ELS_MATRIX_PROFILE.RESEARCH);setParams({}); }}>חיפוש חדש</button> : null}
+    </nav> : null}
+    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור" progress={{ phase: "קורא את פרטי הצופן" }}>הממצאים והגדרות המטריצה נטענים.</FrameState>
       : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
     {sharedMatrix.present ? <p role="status">{sharedMatrix.loadItem ? "מטריצה משותפת: המופע והסימונים נבדקים מחדש במנוע לפני הצגתם." : "קישור המטריצה אינו תקין או גדול מדי. בקשו קישור חדש."}</p> : null}
-    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
-      <div><small>סביבת עבודה</small><strong>{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "מחקר" : "קלאסי"}</strong></div>
-      <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={guidedVisible ? null : [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC]} />
-      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(guidedVisible ? ELS_MATRIX_PROFILE.GUIDED : ELS_MATRIX_PROFILE.RESEARCH);setParams({}); }}>חיפוש חדש</button> : null}
-    </nav>
+    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} workspaceMode={workspaceMode} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
     {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
       <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
       {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
@@ -483,11 +500,11 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
         <ElsNativeWithRaziel razielSession={razielSession} researchContext={context} projection={replayProjection} layers={replayLayers} planSummary={automaticSummary} replayReady={replayMatched && layeredReady}
-          initialSeed={savedRecord.row || legacyMatrix || sharedMatrix.present || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
+          initialSeed={discoveryId || savedRecord.row || legacyMatrix || sharedMatrix.present || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           advancedSearchRequestKey={location.state?.elsResearchReturnTaskId && location.state.elsResearchReturnTaskId === research.elsResearchOperation?.task?.id ? location.key : null}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row || loadsDismissed ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
-          publicClassic={publicClassic}
+          publicClassic={publicClassic} discoveryId={discoveryId}
           advancedSearch={<ElsAdvancedSearch2029
             researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
             exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary}
