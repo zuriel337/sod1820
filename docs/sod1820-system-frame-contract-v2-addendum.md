@@ -442,7 +442,8 @@ by this section. Owner action: **EXTEND_EXISTING** (this addendum; visual langua
    (the 5.11.2026 wide desktop list-and-detail applies only where “עכשיו” is not opened from the bar).
    The source row of “עכשיו” orders sources by their latest update in the window, newest first (the
    first chip, on the right in RTL, after “הכול”); a known public group with nothing loaded stays listed
-   after them. **Superseded:** the fixed kind order of the 11.11.2026 source picker.
+   after them. **Superseded:** the fixed kind order of the 11.11.2026 source picker. The group
+   «כי לה׳ המלוכה — גימטריות» is hidden from “עכשיו” (no chip, none of its rows; presentation only).
 7. **Dependency.** The bar's “שיתוף” entry requires `canonical_ui_components_law` v13 (Design V2
    §14.6) before any merge.
 

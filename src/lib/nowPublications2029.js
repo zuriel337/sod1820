@@ -212,8 +212,12 @@ const byPinnedLast = (a, b) => {
   if (ea === null || eb === null) return (eb === null ? 0 : 1) - (ea === null ? 0 : 1);
   return ea === eb ? 0 : eb > ea ? 1 : -1;
 };
+// Groups hidden from "עכשיו" (ZURIEL 19.11.2026: «כי לה׳ המלוכה — גימטריות»): no source chip and none of its rows here. Presentation only:
+// the group's rows, admission and the world reader stay as they are, and removing the key restores it.
+export const NOW_HIDDEN_GROUPS = Object.freeze(["ki-la-hamelucha-gematria"]);
+const hiddenInNow = model => typeof model?.sourceKey === "string" && model.sourceKey.startsWith("group:") && NOW_HIDDEN_GROUPS.includes(model.sourceKey.slice(6));
 const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.title)
-  .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
+  .map(nowRowModel).filter(model => !hiddenInNow(model)).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
   .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 // ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
@@ -401,7 +405,7 @@ export function nowTodayBand(models, now = Date.now(), timeZone = "Asia/Jerusale
 // is. Built from the loaded rows only; a row without a valid time never moves its source forward.
 export const NOW_SOURCE_KIND_LABEL = Object.freeze({ group: "קבוצה", channel: "ערוץ", series: "סדרה", site: "פרסומי האתר" });
 const SITE_SOURCE_LABEL = Object.freeze({ "site:posts": "פרסומי האתר", "site:reality": "זרם המציאות", "site:els": "הצופן התנ״כי", "site:other": "עוד מהאתר" });
-const KNOWN_GROUPS = Object.freeze(["torat-haremez", "ki-la-hamelucha-gematria"]);
+const KNOWN_GROUPS = Object.freeze(["torat-haremez"]); // «כי לה׳ המלוכה — גימטריות» hidden from "עכשיו" (ZURIEL 19.11.2026, NOW_HIDDEN_GROUPS)
 const KIND_ORDER = Object.freeze(["group", "channel", "series", "site"]);
 
 export function nowSourceChoices(models) {
