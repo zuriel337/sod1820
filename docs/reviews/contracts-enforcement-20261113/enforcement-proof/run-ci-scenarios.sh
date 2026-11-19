@@ -141,12 +141,20 @@ reset; add_oi '| some duty | `docs/no-such-owner-contract.md` |'; commit r14; ex
 reset; add_oi '| research workspace duty | `docs/research-studio-v1-contract.md` |'; commit r14b; expect R14b PASS '' "Owner Index row routes to an existing registered document"
 # ── Round 4: readers of the rule tree in runtime code (a recorded successor proves nothing until the readers use it) ──
 refs_next() { py "$1" <<'PY'
-import sys; d=sys.argv[1]+'/audits/g1-agent-entry/'; L=open(d+'G1_RETIRED_LAW_REFERENCES_20261112.txt').read().rstrip('\n').split('\n')
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+directory = Path(sys.argv[1]) / 'audits/g1-agent-entry'
+prefix = 'G1_RETIRED_LAW_REFERENCES_'
+latest = max(directory.glob(prefix + '[0-9]' * 8 + '.txt'))
+next_date = datetime.strptime(latest.stem[len(prefix):], '%Y%m%d') + timedelta(days=1)
+next_record = directory / (prefix + next_date.strftime('%Y%m%d') + '.txt')
+L = latest.read_text().splitlines()
 if sys.argv[2]=='add': L.append('F|src/lib/g1ProofReader.js|ai_quota_law|platform_tiers_law')
 elif sys.argv[2]=='drop':
     n=len(L); L=[l for l in L if l!='F|src/components/SubscribeGate.jsx|subscribe_gate_law|subscription_funnel_law']; assert len(L)==n-1
     p=sys.argv[1]+'/src/components/SubscribeGate.jsx'; t=open(p).read(); assert 'subscribe_gate_law' in t; open(p,'w').write(t.replace('subscribe_gate_law','subscription_funnel_law'))
-open(d+'G1_RETIRED_LAW_REFERENCES_20261113.txt','w').write('\n'.join(L)+'\n')
+next_record.write_text('\n'.join(L)+'\n')
 PY
 }
 reset; printf 'export const quotaOwner = "ai_quota_law";\n' > "$WT/src/lib/g1ProofReader.js"; commit r15; expect R15 FAIL 'src/lib/g1ProofReader.js: names retired law ai_quota_law; its recorded successor is platform_tiers_law' "new runtime code names a retired law"

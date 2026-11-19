@@ -188,7 +188,7 @@ Detailed domain semantics live in owners, not here:
 - No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v7**;
 - Translation / source-language evidence integrity → active `content_translation_law` **v4**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
-- Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v13**.
+- Contextual Source Gap / missing-source research task → [Research Intake owner and active version](SOD1820_MASTER_OWNER_INDEX.md#d-research-intake--source--representation).
 - Content / Series / Reality-map / Reality-stream / hints-pane distinctions and the six classification axes → `SOD1820_CONTENT_FOUNDATION_CONTRACT.md` §12 (pointer only; Human-Gate open points listed there).
 - 2029 Search / Video Discovery Foundation → current Video/Search projection remains on the 2029 product tree; canonical direction: `source/asset → 2029 projection → 2029 route`. Detailed implementation evidence stays in `docs/2029-implementation-dependency-plan-v1.md` + `docs/2029-search-indexing-closure-map-v1.md`, not duplicated here.
 
@@ -205,6 +205,8 @@ Current closure pointers:
 - post-release Maintenance Acceptance Matrix refresh → `work_log.id=4220295a-1e98-40de-98c4-d127d8f20059`;
 - final independent LIVE Foundation verdict → `work_log.id=663f93eb-1d16-4bdf-88dd-f3487508b7bc`;
 - final closure seal → `work_log.id=325cca05-3d5d-4ec5-bc21-683d3a51094d`.
+
+Historical G3 coordination work included dispatcher coverage under `inter_agent_coordination_law` v13. The [current coordination owner](SOD1820_MASTER_OWNER_INDEX.md#b-agent-coordination) routes passive AFTER reports to ZURIEL. Starting another agent requires ZURIEL’s explicit instruction.
 
 Open operational debt from G3 is maintenance work under its existing owners; it does not restore the closed G3 execution plan to this Roadmap.
 
@@ -313,11 +315,10 @@ Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Att
 
 Only decision-changing open items belong here:
 
-- exact remaining hardening/coverage mechanics for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v13;
 - exact runtime integration mechanics for the existing agent media/file upload bridge beyond the live bounded image URL relay;
 - exact physical trace/span persistence + propagation mechanics that extend current AI/cost logs without creating disconnected telemetry;
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
-- exact Home/Global Now composition;
+- remaining Home/Global Now composition choices stay open. ZURIEL settled the entry interaction on 19.11.2026: Now expands from the bar ([System Frame addendum §10.12, item 6b](docs/sod1820-system-frame-contract-v2-addendum.md#L439));
 - final Convergence index-admission threshold after the public Topic census; preserve current `/topic/:slug` behavior until Human Gate approves any bulk deindex policy;
 - exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof; Legacy UX maintenance/parity itself is no longer an objective;
 - exceptional POST-A pilot redirects for FZ1073/Bennett remain bounded Human-Gate pilots, not general URL precedent; before any broad post-URL migration, complete inbound/SEO/canonical parity evidence under the existing route owner;

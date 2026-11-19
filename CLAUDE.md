@@ -257,6 +257,8 @@ Use one task key across ownership claim and passive AFTER to ZURIEL; no GPT ACK.
 
 `actor · from/to · task_key · owner · scope · status · facts_changed · decisions · branch/PR/commit · blockers · open_threads · handoff_to`
 
+For every passive AFTER, include `השפעה על התיעוד הקנוני` using the two outcomes in the [handoff closing protocol](AGENT_HANDOFF.md#closing-protocol).
+
 Do not require ZURIEL to relay messages between GPT and CLAUDE.
 
 `AGENT_HANDOFF.md` is read when reconciling an actual handoff/provenance issue or when another active pointer specifically routes there. It is **not** a mandatory startup read for every task.

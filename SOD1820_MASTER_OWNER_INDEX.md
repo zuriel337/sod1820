@@ -89,12 +89,12 @@ Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws ar
 
 | Responsibility | Canonical owner |
 |---|---|
-| universal research intake / source orchestration / Contextual Source Gap | `research_intake_foundation_contract_law` **v13 ACTIVE** |
+| universal research intake / source orchestration / Contextual Source Gap | `research_intake_foundation_contract_law` **v14 ACTIVE** |
 | corpus admission | `corpus_admission_foundation_v1` |
 | exact expression/source extraction | `shared_expression_extraction_contract_v1` under Intake |
 | writer/contributor material source flow | `writer_material_home_law` under Intake |
 
-`research_intake_foundation_contract_law v13` owns the 2029 Contextual Source Gap: search owned/admitted sources first; a missing-source recommendation is a research task, never evidence; exact acquired source evidence resolves/supersedes the gap additively.
+`research_intake_foundation_contract_law` owns the 2029 Contextual Source Gap: search owned/admitted sources first; a missing-source recommendation is a research task, never evidence; exact acquired source evidence resolves/supersedes the gap additively.
 
 ### E. TRUTH / HUMAN GATE
 
@@ -132,6 +132,8 @@ Old Convergence layout/trigger/one-per-value/single-anchor/display laws are Arch
 `project_codex.gematria_engine` is Registry-first and has **no fixed method count**. Historical method-definition/anagram/bidim/source-specific rules are Archive/on-demand after their current semantics were consolidated. Never use general-model arithmetic as canonical SOD1820 engine truth when verification matters.
 
 ### H. ELS / TEXT CIPHER
+
+For a Heichal finding → ELS matrix → Raziel → return task, resolve ELS research semantics here and cross-surface continuity in section I. Read the relevant `work_log_current` handoff for implementation and release status.
 
 | Responsibility | Canonical owner |
 |---|---|
@@ -194,7 +196,7 @@ Historical Dimension Five / Or-Geula upload recipes and legacy post CSS/layout r
 | global frame/navigation/orientation | `docs/sod1820-system-frame-contract-v1.md` + current addendum lineage |
 | desktop left Companion Updates/Context + nested contextual Golden Projector + mobile Now + bottom Command Island/page-progress | existing System Frame V2 Contextual Inspector (addendum §3.5.3) + `SOD1820_DESIGN_CONTRACT_V2.md` §§8.1 / 11.8; no extra owner, feed, RLS boundary or fixed bar |
 | visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V2.md` — **2029 ACTIVE**; V1 = preserved Legacy provenance |
-| canonical reusable UI primitives | `canonical_ui_components_law` **v12 ACTIVE** |
+| canonical reusable UI primitives | `canonical_ui_components_law` **v13 ACTIVE** |
 | mobile acceptance | `mobile_acceptance_law` |
 | semantic colors | `canonical_colors_law` under Design |
 

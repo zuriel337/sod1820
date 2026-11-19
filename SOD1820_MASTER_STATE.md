@@ -405,7 +405,7 @@ Historical pre-close implementation-compaction gate (satisfied before G3 closure
 
 Historical reliability pre-close blocker: `G3_RELIABILITY_PRECLOSE_V1` was required to be **IMPLEMENTED · RELEASED · LIVE · VERIFIED** before G3 closure and is satisfied by the closure seal above. Required evidence covers canonical IssueReport/incident flow, browser runtime-error capture, sparse deterministic synthetic journeys, sensor/notification dead-man, exact-SHA post-deploy canary, and at least one isolated restore drill. Normal monitoring remains zero-AI/event-driven-first by default.
 
-ELS current-state pointer: active semantic owner is `els_research_layer_law v8`; PR #748 remains branch-only runtime work and is not release evidence.
+ELS research semantics and the active contract version are listed in the [Owner Index, ELS / Text Cipher](SOD1820_MASTER_OWNER_INDEX.md#h-els--text-cipher). The branch-only status recorded for PR #748 belongs to the historical checkpoint above.
 
 ## 9. Future-admission rule — anti-inflation
 

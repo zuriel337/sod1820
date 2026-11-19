@@ -884,3 +884,9 @@ test('REAL base vs head: dated records never edited in place, the contract basel
   }
   assert.deepEqual(violations, [], 'base ' + base.slice(0, 9) + ' -> HEAD');
 });
+
+test('Heichal finding routes to the matrix, continuity owner and current handoff', () => {
+  assert.match(index, /Heichal finding → ELS matrix → Raziel → return[^\n]*work_log_current/);
+  pointsTo('ELS research semantics/capability', 'els_research_layer_law');
+  pointsTo('Raziel companion / 2029 Continuous Research Presence / cross-surface continuity', 'raziel_companion_layer_law');
+});
