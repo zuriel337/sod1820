@@ -194,6 +194,7 @@ async function ingestSource(
   targetMessageId = "",
   verifyOnly = false,
   verifiedRecovery = false,
+  targetMessageIds: string[] = [],
 ): Promise<{ ingested: number; recoveryPending: boolean; recoveryBlocked: boolean; historyOk: boolean }> {
   const chatId: string = src.chat_id;
   const adminOnly: boolean = src.admin_only;
@@ -207,7 +208,8 @@ async function ingestSource(
   const useSenderName: boolean = src.use_sender_name === true;
   const captureOutgoing: boolean = src.capture_outgoing === true;
   const lastRunSec = src.last_run_at ? Date.parse(src.last_run_at) / 1000 : 0;
-  const targeted = !!targetMessageId;
+  const targetIds = targetMessageIds.length ? targetMessageIds : (targetMessageId ? [targetMessageId] : []);
+  const targeted = targetIds.length > 0;
   const recovering = !lastRunSec || (nowSec - lastRunSec) > STALE_RECOVERY_AFTER;
   const historyCount = targeted ? RECOVERY_HISTORY_COUNT : (recovering ? RECOVERY_HISTORY_COUNT : NORMAL_HISTORY_COUNT);
   let n = 0, maxTs = minTs;
@@ -226,7 +228,7 @@ async function ingestSource(
   const msgs = history.rows;
   const ordered = [...msgs].sort((a, b) => Number(a?.timestamp || 0) - Number(b?.timestamp || 0));
   const gapRows = targeted
-    ? ordered.filter((m) => String(m?.idMessage || "") === targetMessageId)
+    ? ordered.filter((m) => targetIds.includes(String(m?.idMessage || "")))
     : ordered.filter((m) => Number(m?.timestamp || 0) > minTs);
   const oldestTs = ordered.length ? Number(ordered[0]?.timestamp || 0) : 0;
   const recoveryBlocked = !targeted
@@ -314,7 +316,7 @@ async function ingestSource(
           continue;
         }
         keep.media = media;
-      } catch (e) { trace.push({ msgId, step: "group-media-source-check-failed", reason: String(e) }); continue; }
+      } catch (e) { trace.push({ msgId, step: "group-media-source-check-failed", reason: String(e) }); break; }
     }
     // A targeted duplicate that already has its media is not downloaded or stored again (no second private copy), unless it is a backfill.
     if (!verifiedBackfill && (isImg || isVid || isAud) && (!dup || !dup.image_url || groupBackfill)) {
@@ -348,6 +350,7 @@ async function ingestSource(
         const r = await waProveAndPublishGroupMedia({ sb, trace, bucket: MEDIA_2029_BUCKET, updateId: dup.id, source: src, msgId, chatId,
           senderId, typeMessage: typ, kind: route.kind, sourceTs: ts, media: keep.media, verifyCopy: verifiedRecovery });
         if (r.published) n++;
+        else if (verifiedRecovery) break;
       } else {
         trace.push({ msgId, step: "targeted-duplicate-no-repair", channel: src.channel });
       }
@@ -419,9 +422,12 @@ Deno.serve(async (req) => {
   const force = u.searchParams.get("force") === "1";
   const recoverChannel = (u.searchParams.get("recover_channel") || "").trim();
   const recoverMessageId = (u.searchParams.get("recover_message_id") || "").trim();
+  const recoverMessageIds = u.searchParams.getAll("recover_message_id").map(id => id.trim()).filter(Boolean);
   const targeted = !!recoverChannel || !!recoverMessageId;
   const verifyOnly = u.searchParams.get("recover_verify_only") === "1";
   const verifiedRecovery = verifyOnly || u.searchParams.get("recover_verified") === "1";
+  if (recoverMessageIds.length > 50 || new Set(recoverMessageIds).size !== recoverMessageIds.length
+    || (recoverMessageIds.length > 1 && !verifiedRecovery)) return new Response("invalid_verified_recovery_batch", { status: 400 });
   if (verifiedRecovery && !targeted) return new Response("verify_requires_target", { status: 400 });
   if (targeted && (!recoverChannel || !recoverMessageId)) {
     return new Response(JSON.stringify({ error: "targeted_recovery_requires_channel_and_message_id" }), {
@@ -476,7 +482,7 @@ Deno.serve(async (req) => {
       continue;
     }
     try {
-      const r = await ingestSource(src, nowSec, aliasMap, targeted ? recoverMessageId : "", verifyOnly, verifiedRecovery);
+      const r = await ingestSource(src, nowSec, aliasMap, targeted ? recoverMessageId : "", verifyOnly, verifiedRecovery, recoverMessageIds);
       ingested += r.ingested;
       if (r.recoveryPending) recoveryPending++;
       if (r.recoveryBlocked) recoveryBlocked++;

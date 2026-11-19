@@ -67,6 +67,10 @@ test('verified recovery is opt-in, targeted, and its read-only branch precedes a
   const code = readFileSync(new URL('../supabase/functions/wa-channel-ingest/index.ts', import.meta.url), 'utf8');
   assert.ok(code.includes('const verifiedBackfill = groupBackfill && verifiedRecovery;'));
   assert.ok(code.includes('if (verifiedRecovery && !targeted)'));
+  assert.ok(code.includes('recoverMessageIds.length > 50'));
+  assert.ok(code.includes('(recoverMessageIds.length > 1 && !verifiedRecovery)'));
+  assert.ok(code.includes('targetIds.includes(String(m?.idMessage || ""))'));
+  assert.ok(code.includes('else if (verifiedRecovery) break;'));
   const check = code.indexOf('if (verifiedRecovery && !groupBackfill)');
   const inspect = code.indexOf('step: "group-media-verified-read"');
   const mutation = code.indexOf('const { error: repairError }');
