@@ -64,7 +64,8 @@ const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, isGallery, au
   if (unverified) return null;
   if (isGallery || (isPost && seriesKey === REALITY_MAP_LATEST_KEY)) return "site";
   if (isChannel && channel === "site-news") return "site";
-  if (isChannel && channel === "or-geula") return "or-geula";
+  // Or HaGeula: no picture of theirs at all, not even the round logo (ZURIEL 19.11.2026); the row shows its glyph and its name.
+  if (isChannel && channel === "or-geula") return null;
   if (kind === "finding" || kind === "convergence") return "els";
   if (isPost && !seriesKey && publicAuthorName(author) === SYSTEM_BYLINE) return "site";
   return null;

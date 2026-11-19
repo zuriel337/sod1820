@@ -216,16 +216,17 @@ function Row({ model, onOpen, feed, timeMode, onSource }) {
 }
 
 // Desktop (>= 761px): list + detail side by side (ZURIEL 5.11.2026). Phone keeps the single list with inline expansion.
-const WIDE_QUERY = "(min-width: 761px)";
-function useWide() {
-  const read = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(WIDE_QUERY).matches;
+// Inside the bottom bar ("compact" host) the list + detail view returns on desktop (ZURIEL 19.11.2026): the bar and the window widen together.
+const WIDE_QUERY = "(min-width: 761px)", BAR_WIDE_QUERY = "(min-width: 981px)";
+function useWide(media = WIDE_QUERY) {
+  const read = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(media).matches;
   const [wide, setWide] = useState(read);
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return undefined;
-    const query = window.matchMedia(WIDE_QUERY), update = () => setWide(query.matches);
+    const query = window.matchMedia(media), update = () => setWide(query.matches);
     update(); query.addEventListener?.("change", update);
     return () => query.removeEventListener?.("change", update);
-  }, []);
+  }, [media]);
   return wide;
 }
 
@@ -253,7 +254,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
   const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [sourceKey, setSourceKey] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
   // Opened from the bottom bar (ZURIEL 19.11.2026) the window has the bar's width: the single list with inline expansion, as on a phone.
-  const wide = useWide() && !compact;
+  const wide = useWide(compact ? BAR_WIDE_QUERY : WIDE_QUERY);
   const [selectedId, setSelectedId] = useState(null), [playId, setPlayId] = useState(null);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];

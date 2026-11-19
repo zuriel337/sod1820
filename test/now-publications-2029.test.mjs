@@ -165,7 +165,7 @@ test("collapseSourceRuns: only consecutive unverified rows of one source collaps
   assert.deepEqual(collapseSourceRuns(null), []);
 });
 
-test("source logos mark OUR material only: system-byline posts, Or HaGeula, ELS findings; third-party series and named writers get none", () => {
+test("source logos mark OUR material only: system-byline posts and ELS findings (Or HaGeula: none, 19.11.2026); third-party series and named writers get none", () => {
   const sys = nowModels(rows([postRowToWorldUpdate(post(1, { author: "מערכת כי לה׳ המלוכה" }))]))[0];
   assert.equal(sys.logo?.label, "כי לה׳ המלוכה");
   const alon = nowModels(rows([postRowToWorldUpdate(post(2, { author: "אלון לוי", tags: ["מה קורה הבורא"] }))]))[0];
@@ -173,7 +173,7 @@ test("source logos mark OUR material only: system-byline posts, Or HaGeula, ELS 
   const named = nowModels(rows([postRowToWorldUpdate(post(3, { author: "כותב" }))]))[0];
   assert.equal(named.logo, null);
   const orGeula = nowModels(rows([publicChannelToSystemItem({ id: "10000000-0000-4000-8000-000000000009", channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "מסר" })]))[0];
-  assert.equal(orGeula.logo?.label, "אור הגאולה");
+  assert.equal(orGeula.logo, null, "Or HaGeula shows no picture of theirs, not even the round logo (ZURIEL 19.11.2026)");
   const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000002", body: "הודעה", created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
   assert.equal(nowModels(rows([zvi]))[0].logo, null);
 });
