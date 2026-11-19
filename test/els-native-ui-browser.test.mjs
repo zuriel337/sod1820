@@ -1217,9 +1217,13 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false, readingIndicator = false, researchProfile = true, initialProbe = null } = options;
+  const { telemetry = false, realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false, readingIndicator = false, researchProfile = true, initialProbe = null } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
+    transform(code,id){
+      // Only host admission/auth are fixture inputs. Projection, event wiring, body validator and fetch transport are real.
+      if(telemetry&&id.endsWith('/elsTelemetryRuntime2029.js'))return code.replace(/if\(!PUBLIC_READING_RELEASE[^\n]+return null;/,'').replace('return captureMeasurement();','return window.__measurementContext;');
+    },
     resolveId(id, importer) {
       if (id === 'els-native-fixture') return '\0els-native-fixture';
       if (importer?.endsWith('/ElsAdvancedSearch2029.jsx') && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
@@ -1264,6 +1268,16 @@ async function withNative(viewport, run, options = {}) {
     browser = await pw.chromium.launch({ headless: true, executablePath });
     const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
     if(readingIndicator)await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
+    if(telemetry){
+      page.__elsTelemetry=[];
+      await page.route('**/*',route=>{
+        const u=new URL(route.request().url());
+        if(u.hostname==='127.0.0.1')return route.continue();
+        if(u.pathname==='/rest/v1/rpc/ingest_event') {page.__elsTelemetry.push(route.request().postDataJSON());return route.fulfill({status:200,contentType:'application/json',body:'null',headers:{'access-control-allow-origin':'*'}});}
+        return route.abort();
+      });
+      await page.addInitScript(()=>{window.__measurementContext={auth:{ready:true,userId:null,token:null},path:'/code',pagePath:'/code',sodId:'visitor-test-001',visitorId:'visitor-test-001',sessionId:'session-test-001',appContext:'chrome'};});
+    }
     const errors = [];
     page.__elsDynamicLexiconRequests = [];
     page.__elsGuidedSnapshotRequests = [];
@@ -4245,4 +4259,26 @@ test('Fable reading uses the shared frame indicator across surfaces, themes, key
   await page.evaluate(()=>window.__readingOwner('c'));
   await page.waitForFunction(()=>!document.querySelector('[data-research-activity]'));
  },{fullFrame:true,readingIndicator:true,leavesMatrix:true,mobile:width<981});
+});
+
+
+for (const width of [390,1280]) test(`ELS telemetry covers real tool clicks and engine outcomes without typed content at ${width}`,
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+ await withNative({width,height:900},async page=>{
+   const rows=page.__elsTelemetry;
+   await page.locator('.els29-native-toolstrip').getByRole('button',{name:'תוצאות',exact:true}).click();
+   await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+   await page.locator('#els29-query').getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורה');
+   await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__state?.term==='תורה'&&window.__state.status==='ok');
+   await page.waitForTimeout(100);
+   assert.equal(rows.filter(r=>r.p_event_type==='ui_action'&&r.p_props.region==='tools'&&r.p_props.control==='results').length,1);
+   const start=rows.find(r=>r.p_event_type==='operation_started'&&r.p_props.operation==='search');
+   assert.ok(start,'actual search records its lifecycle start');
+   const end=rows.find(r=>r.p_event_type==='operation_finished'&&r.p_props.operation_id===start.p_props.operation_id);
+   assert.equal(end?.p_props.outcome,'completed');
+   assert.equal(rows.filter(r=>r.p_event_type==='operation_finished'&&r.p_props.operation_id===start.p_props.operation_id).length,1);
+   assert.equal(JSON.stringify(rows).includes('תורה'),false,'no expression, label, href or letter text leaves the surface');
+   assert.ok(rows.every(r=>r.p_path==='/code'&&r.p_surface==='els'));
+ },{realHost:true,tier:'user',telemetry:true});
 });

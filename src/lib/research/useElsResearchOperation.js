@@ -52,6 +52,7 @@ export function useElsResearchOperation({ disabled, invoke }) {
   const cancel = useCallback(() => {
     const operation = current.current;
     if (!operation || operation.task?.status !== "RUNNING") return;
+    operation.telemetry?.cancel();
     operation.controller.abort();
     operation.task = { ...operation.task, status: "CANCELLED", phase: "המחקר נעצר; התוצאות שכבר התקבלו נשמרו", finishedAt: Date.now() };
     setTask(operation.task);
