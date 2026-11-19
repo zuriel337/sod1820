@@ -15,6 +15,7 @@ export const waIsPrivateMediaRef = (value) => PRIVATE_REF.test(String(value || "
 
 // groupSource: an incoming message of a public source group — the only messages that may get a group proof.
 // groupMedia: such a message that is a plain image or video of the kind the bytes were checked for.
+/** @param {{worldGroup?: boolean, outgoing?: boolean, chatId?: string, typeMessage?: string, mediaKind?: string|null}} input */
 export function waGroupMessageRoute({ worldGroup = false, outgoing = false, chatId = "", typeMessage = "", mediaKind = null } = {}) {
   const groupSource = worldGroup === true && outgoing !== true && String(chatId || "").endsWith("@g.us");
   const type = String(typeMessage || "");

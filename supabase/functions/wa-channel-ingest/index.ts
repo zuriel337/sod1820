@@ -321,7 +321,7 @@ async function ingestSource(
       let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
       if (!dl) {
         try {
-          const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST");
+          const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST") as { result?: { downloadUrl?: string }; downloadUrl?: string };
           dl = d?.result?.downloadUrl || d?.downloadUrl || "";
         } catch { /* noop */ }
       }
@@ -432,7 +432,7 @@ Deno.serve(async (req) => {
 
   let providerState = "unknown";
   try {
-    const state = await waAdmin("getStateInstance", {}, "GET");
+    const state = await waAdmin("getStateInstance", {}, "GET") as { result?: { stateInstance?: string }; stateInstance?: string };
     providerState = String(state?.result?.stateInstance || state?.stateInstance || "unknown");
   } catch (e) {
     trace.push({ step: "provider-state-fail", error: String(e) });
