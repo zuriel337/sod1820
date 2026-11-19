@@ -1,6 +1,6 @@
 # URL Inspection: all 60 answers (read 19.11.2026, ~00:05 UTC)
 
-Source: `url-inspection-all-60.json` holds every answer, as Google returned it.
+Source: `url-inspection-all-60.json` holds the gsc-sync summary of each of the 60 answers (selected fields Google returned), not Google's raw responses.
 - Read from `net._http_response` (requests 47141–47143 and 47156–47157) with a read-only SELECT.
 - No new call to Google was made.
 - `pg_net.ttl` is 6 hours, so these rows would have expired at about 02:40 UTC.
