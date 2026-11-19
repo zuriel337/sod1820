@@ -1451,12 +1451,12 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    // The central single command bar keeps global search and return-to-tool in More.
    await dock.getByRole('button',{name:'עוד · פעולות, כלים, חיפוש ואזור אישי',exact:true}).click();
    const more=page.getByRole('dialog',{name:'עוד',exact:true});
-   await more.getByRole('button',{name:'כלים',exact:true}).click();
+   await more.getByRole('button',{name:/^כלים/}).click();
    await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:'חיפוש באתר',exact:true}).click();
    await page.getByRole('dialog',{name:'חיפוש באתר',exact:true}).waitFor();
    await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
    await dock.getByRole('button',{name:'עוד · פעולות, כלים, חיפוש ואזור אישי',exact:true}).click();
-   await more.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
+   await more.getByRole('button',{name:/^חזור לכלי הצופן/}).click();
    assert.equal(await dock.getAttribute('data-command-mode'),'tool');
    assert.deepEqual((await identity(page)).axis,before.axis);
    assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
