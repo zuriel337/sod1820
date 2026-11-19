@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import { FINDING_NOT_SENT, findingCardUrl, findingShareMessage } from "../lib/share.js";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorEqualsPreview2029 from "../components/gematria2029/CalculatorEqualsPreview2029.jsx";
 import CalculatorWordsBar2029 from "../components/gematria2029/CalculatorWordsBar2029.jsx";
@@ -690,13 +691,16 @@ function ProExperience() {
               <ShareActions
                 type="gematria_result"
                 url={shareUrl}
-                title={`${canonicalSelection.expression} = ${canonicalSelection.resultValue} · ${canonicalSelection.methodLabel} · מה מסתתר בשם שלך?`}
+                title={findingShareMessage({ kind: "calc", expression: canonicalSelection.expression, value: canonicalSelection.resultValue, method: canonicalSelection.methodLabel })}
+                image={findingCardUrl({ kind: "calc", expression: canonicalSelection.expression, value: canonicalSelection.resultValue, method: canonicalSelection.methodLabel })}
                 channels={["native", "whatsapp", "telegram", "copy"]}
                 force
                 onShare={(channel) => emit("calculator_2029", "share_created", {
                   props: { surface: "professional", expression: canonicalSelection.expression, method: canonicalSelection.methodKey, share_id: shareId, channel },
                 })}
               />
+              {/* What goes out (ZURIEL 18.11.2026): exactly the expression, the method and the result shown here, with a link that opens them. */}
+              <p className="sod29-calc-share-sent" data-share-disclosure="calculator">יישלח: הביטוי, השיטה והתוצאה שמוצגים כאן, וקישור שפותח אותם. {FINDING_NOT_SENT}</p>
             </section>
           ) : null}
         </aside>

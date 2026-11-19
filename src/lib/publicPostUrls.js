@@ -114,7 +114,10 @@ export function publicPageShareUrl(location = {}, canonicalUrl) {
   let canonical;
   try {
     const url = new URL(canonicalUrl || location.pathname || "/", SITE);
-    if (url.origin !== SITE || /^\/(?:auth(?:\/|$)|login(?:\/|$)|unsubscribe(?:\/|$)|code(?:\/|$)|els(?:\/|$)|2029\/(?:me|journey|control)(?:\/|$))/.test(location.pathname || url.pathname)) return null;
+    if (url.origin !== SITE || /^\/(?:auth(?:\/|$)|login(?:\/|$)|unsubscribe(?:\/|$)|2029\/(?:me|journey|control)(?:\/|$))/.test(location.pathname || url.pathname)) return null;
+    // PREPARED FOR DECISION (ZURIEL 18.11.2026): the cipher pages (/code, /els) share only their bare public address — never the search, the
+    // research state in the query or the matrix state in the fragment (a found matrix has its own explicit share in the page).
+    if (/^\/(?:code|els)\/?$/.test(location.pathname || url.pathname)) return SITE + "/" + (location.pathname || url.pathname).replace(/^\/|\/$/g, "");
     canonical = url.origin + url.pathname;
   } catch { return null; }
   const params = new URLSearchParams(location.search || "");

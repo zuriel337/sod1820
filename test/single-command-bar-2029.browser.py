@@ -49,7 +49,7 @@ try:
        dock.locator('[data-tool-action="tool-0"]').click();assert page.evaluate('window.__toolAction')==0
        expect(dock.locator('.sod29-raziel-orb')).to_have_count(1)
        dock.get_by_role('button',name='פעולות המערכת',exact=True).click();expect(dock).to_have_class(__import__('re').compile('is-single-command-bar'))
-       dock.get_by_role('button',name=__import__('re').compile('^עוד')).click();page.get_by_role('button',name='חזור לכלי הצופן',exact=True).click();expect(dock).to_have_attribute('data-command-mode','tool')
+       dock.get_by_role('button',name=__import__('re').compile('^עוד')).click();page.get_by_role('button',name=__import__('re').compile('^חזור לכלי הצופן')).click();expect(dock).to_have_attribute('data-command-mode','tool')
       else:
        expect(dock).to_have_class(__import__('re').compile('is-single-command-bar'))
        expect(dock.locator(':scope > button')).to_have_count(5)
@@ -65,7 +65,7 @@ try:
        here.click();page.locator('.sod29-frame-panel').get_by_text('מקורות',exact=True).first.click();expect(page.locator('.sod29-frame-panel')).to_have_count(0);expect(page.locator('#second')).to_be_in_viewport()
        more=dock.get_by_role('button',name=__import__('re').compile('^עוד'));more.click()
        panel=page.locator('.sod29-frame-panel');expect(panel.locator('section[aria-label="פעולות על הבחירה"]')).to_be_visible();expect(panel.locator('section[aria-label="כלי מחקר וחיפוש"]')).to_be_visible()
-       panel.get_by_role('button',name='חיפוש',exact=True).click();expect(page.locator('.sod29-frame-command input')).to_be_visible();close(page);expect(more).to_be_focused()
+       panel.get_by_role('button',name=__import__('re').compile('^חיפוש')).click();expect(page.locator('.sod29-frame-command input')).to_be_visible();close(page);expect(more).to_be_focused()
        dock.get_by_role('button',name=__import__('re').compile('^עכשיו')).click();expect(page.locator('.sod29-frame-panel .sod29-now button')).to_have_count(3)
        for label in page.locator('.sod29-frame-panel .sod29-now-label').all():
         expect(label).to_be_visible();assert label.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)')>=14

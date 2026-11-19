@@ -121,25 +121,30 @@ await build({ entryPoints: ["src/components/experience2029/MorePanel2029.jsx"], 
 const { default: MorePanel2029 } = await import(pathToFileURL(royalOut));
 after(() => rm(royalOut, { force: true }));
 
-test("Royal Tiles: the More panel is a tile grid (square), a wide app tile only when installable, and the existing share owner", async () => {
+test("More panel (Design V2 §14, 19.11.2026): the Personal Area's royal rows under centered headings, a wide app tile only when installable, and the one share owner", async () => {
   const noop = () => {};
   const { MemoryRouter } = await import("react-router-dom");
   const inRouter = element => React.createElement(MemoryRouter, null, element);
   const html = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, { context: "פוסט · 1234", onAction: noop, onTools: noop, onSearch: noop, onPersonal: noop,
     personal: { signedIn: false }, adminDestinations: [{ id: "lab", label: "מעבדה", href: "/lab" }], onDestination: noop,
     share: { href: "https://sod1820.co.il/post/x", type: "post", title: "x", surface: "post" } })));
-  const order = ["data-royal-tile=\"actions\"", "data-royal-tile=\"search\"", "data-royal-tile=\"tools\"", "data-royal-tile=\"personal\"", "data-more-section=\"admin\"", "data-more-section=\"share\""]
+  // ZURIEL 19.11.2026 (one expanding bar): sharing has its own bar entry, so the full panel ends at admin; the share-only panel is checked below.
+  const order = ["data-royal-tile=\"search\"", "data-royal-tile=\"actions\"", "data-royal-tile=\"tools\"", "data-royal-tile=\"personal\"", "data-more-section=\"admin\""]
     .map(needle => html.indexOf(needle));
-  assert.ok(order.every((at, i) => at > 0 && (i === 0 || at > order[i - 1])), `fixed order: here → tools/search → personal → admin → share ${order}`);
-  assert.equal((html.match(/<button[^>]*class="sod29-royal-tile is-square"/g) || []).length, 4, "four square tiles are real buttons");
-  assert.match(html, /class="sod29-royal-tile is-compact"[^>]*data-royal-variant="compact"/, "secondary destinations use the compact variant");
-  assert.match(html, /data-share-owner="ShareActions"/); assert.match(html, /ההקשר לפעולות/);
+  assert.ok(order.every((at, i) => at > 0 && (i === 0 || at > order[i - 1])), `fixed order: tools and search → personal → admin ${order}`);
+  assert.doesNotMatch(html, /data-more-section="share"/, "no second share inside the full panel");
+  const shareHtml = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, { shareOnly: true,
+    share: { href: "https://sod1820.co.il/post/x", type: "post", title: "x", surface: "post" } })));
+  assert.match(shareHtml, /data-share-owner="ShareActions"/); assert.match(shareHtml, /data-share-subject="true"/);
+  assert.equal((html.match(/<button[^>]*class="pa29-card r29-card"/g) || []).length, 5, "search, actions, tools, personal and the admin row are real buttons (shared RoyalRow2029)");
+  assert.match(html, /class="pa29-h is-centered"/, "section headings are centered (§14.3)");
+  assert.match(html, /ההקשר לפעולות/);
   assert.doesNotMatch(html, /data-more-section="install"/, "server/desktop: no install tile is promised");
   assert.match(html, /data-royal-candidate="palace"/, "the recommended candidate is the default");
-  for (const tile of html.match(/<button[^>]*sod29-royal-tile[^>]*>/g)) assert.match(tile, /type="button"/);
-  assert.match(html, /aria-describedby="sod29-royal-hint-search"/, "the hint is part of the accessible description");
+  for (const row of html.match(/<button[^>]*pa29-card[^>]*>/g)) { assert.match(row, /type="button"/); assert.match(row, /aria-describedby="/, "the hint is part of the accessible description"); }
   const shareOnly = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, { shareOnly: true, share: { href: "https://sod1820.co.il/", type: "page", title: "x", surface: "home" } })));
-  assert.doesNotMatch(shareOnly, /sod29-royal-tile/); assert.match(shareOnly, /data-more-panel="share"/);
+  assert.doesNotMatch(shareOnly, /sod29-royal-tile|pa29-card/); assert.match(shareOnly, /data-more-panel="share"/);
+  assert.match(shareOnly, /data-share-variant="royal"/, "the one ShareActions in its royal presentation (§14.4)");
 });
 
 test("Royal Tiles CSS: existing tokens only, three variants, 44px floor, reduced motion, no thick gold or heavy glow", async () => {

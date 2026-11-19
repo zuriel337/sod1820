@@ -1,6 +1,6 @@
 # SOD1820 DESIGN CONTRACT V2
 
-**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; shared icon color resolution and state precedence approved 25.10.2026; balanced RTL composition approved 26.10.2026; content visible before entry and public research findings labelled «טרם אומת» approved 12.11.2026
+**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; shared icon color resolution and state precedence approved 25.10.2026; balanced RTL composition approved 26.10.2026; content visible before entry and public research findings labelled «טרם אומת» approved 12.11.2026; the Personal Area as the shared visual reference, royal blue for primary actions and share, consistent centering, one button family and the one upward-expanding bar approved 19.11.2026 (§14)
 **Owner:** experience_governance_foundation_v1_law (active version; v9 when written) → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
@@ -23,9 +23,9 @@ These are three projections of the same semantic roles, not three design systems
 
 ## 3. 2029 color identity
 Primary identity colors:
-- **Royal blue** — structure, primary action, active state (ZURIEL-approved refinement · 10.10.2026).
+- **Royal blue** — structure, primary action, active state (ZURIEL-approved refinement · 10.10.2026), and **share** (ZURIEL 19.11.2026, §14).
 - **Violet** — depth, secondary focus, spatial glow.
-- **Cyan** — discovery, focus, live research affordance.
+- **Cyan** — discovery, focus, live research affordance. *(Share left cyan on 19.11.2026; see §14.)*
 
 ZURIEL's 11.10.2026 selection supersedes the navy Night canvas and the earlier restriction of warm brown to Parchment: Night uses the approved “שחור · אור הכתר” atmosphere, including its warm brown surfaces. Royal blue/Violet/Cyan retain their interaction roles. Gold frames, identity accents and warmth do not encode quality, verification or Truth.
 
@@ -201,6 +201,8 @@ RTL controls reading direction, logical order and the start edge of Hebrew copy.
 
 This is a composition rule, not a command to center every Hebrew sentence. Page centering and text alignment are separate decisions and must be tested separately.
 
+*(19.11.2026: §14.3 extends this rule with explicit centering of cards and action groups and an alignment table; where they differ, §14.3 governs.)*
+
 **Posts alignment · Human Gate ZURIEL · 31.10.2026:** approved for the existing Post surface: the primary Post title is centered; article subsection headings and ordinary explanatory paragraphs align to logical start (right in Hebrew). Short gematria-box headings and separated equations are centered. A short standalone quotation or emphasis may center deliberately; a poem or intentionally short-line composition may retain its authored alignment. The bounded reading plane and its section navigation stay centered with balanced gutters. This presentation rule does not rewrite authored wording, source locators or calculation semantics, and does not authorize changes to shared chrome or other surfaces. Apply it through the existing Post styles after checking explicit semantic exceptions, rather than rewriting stored article HTML.
 
 ### 8.3 תוכן גלוי לפני כניסה · Human Gate ZURIEL · 12.11.2026
@@ -374,7 +376,7 @@ Global rail expansion preference may persist locally as a presentation preferenc
 - **Right side (RTL):** one existing global navigation rail. **Left side (desktop):** the existing CompanionPanel2029 is one capsule with **עדכונים | הקשר** (Updates | Context), compact/peek/pinned; Home favors Updates and a focused source favors Context, without forcing away a manually chosen tab.
 - The **Golden Projector** is contextual depth **inside** the existing SurfaceContextRail2029/Contextual Inspector, not another rail, map, store or independently owned source reader. Public viewers see only authorized public projections. The current experimental "מנהל / ציבור" compare layer is admin-only and scoped to its governed pilot (Posts 5112/92); approving this composition does **not** authorize expanding its reader or public access.
 - The existing authorized World/source-arrival projection is shared across the desktop Updates tab and the mobile Now/Attention sheet; one frame-level reader and one seen/arrival identity, not two differently sorted "what's new" feeds. New authorized source events are not proof/quality/strength; editorial Gold/Diamond and research candidates remain distinguishable and private/candidate material never enters public feed or persistent shared Research Context.
-- **Bottom:** keep exactly one SystemFrame2029 Command Island for Path, context/actions, Now and Raziel (center). Where actual Post/Topic sections and the active section are available, an optional slender progress cue belongs **within its existing context trail**, opening the existing Page Map/Context sheet; never add a competing fixed floating bar. With no real sections, omit semantic progress/markers rather than guess. Do not replace global navigation with the bottom trail.
+- **Bottom:** keep exactly one SystemFrame2029 Command Island for Path, context/actions, Now and Raziel (center). *(19.11.2026: the island is one bar that expands upward with entries כאן · שיתוף · רזיאל · עכשיו · עוד — §14.5 and System Frame addendum §10.12.)* Where actual Post/Topic sections and the active section are available, an optional slender progress cue belongs **within its existing context trail**, opening the existing Page Map/Context sheet; never add a competing fixed floating bar. With no real sections, omit semantic progress/markers rather than guess. Do not replace global navigation with the bottom trail.
 - Mobile already has Now/Attention and Context sheets; avoid feed-chip / context-cue / two-row dock overlap at 320/390px, respect safe-area and keyboard. Desktop pinned rail must not squeeze content; slim/peek recovery remains. All controls ≥44×44px, 3 presets **יום | קלף | לילה**, RTL/LTR, accessible names/focus, reduced-motion, source RLS and exact return must pass real browser acceptance.
 
 **Current delivery boundary (not a release assertion):** shared-rail implementation lives in PR #1044; compact Post work in PR #1039; source-native fragment update fanout is an outstanding G4 owner-adapter. Human approval here selects the design **only**. The Roadmap/Owner Index point to these existing owners, not to a new Component/Rule engine.
@@ -420,7 +422,7 @@ ZURIEL asked for this bar and approved its look from a standalone preview; it wa
 - **Crown.** The approved lockup, whole (`BRAND_LOCKUP_NAV_2029`), never cropped or recoloured, centred with `left: 50%` (never `inset-inline-start: 50%` in RTL), 100px desktop / 84px to 980 / 72px to 340. No bright glow behind it, only a dark halo (`drop-shadow(0 0 9px rgb(0 0 0 / .6)) drop-shadow(0 3px 6px rgb(0 0 0 / .45))`). The crown link is the home link; the menu entrance is a plain ☰ on the start side.
 - **Arc and line.** A rounded arc under the verse, 320x62 (250x54 to 980, 220x48 to 340), the same glass as the bar (an SVG line plus a masked glass layer). One 2px line for bar and arc, no fading ends, 3px overlap at each joint; the gap under the arc is a mask (not a gradient) so the fill continues beneath it, and `@property --s29-gap` makes the gap animate smoothly.
 - **Scroll.** Over 48px (back under 10px) the arc folds away, the line goes straight and the crown settles inside the bar (scale .62 desktop / .7 phone). Reading progress: `--s29-read` on `<html>`; the line fills from the start side in `#7fe7ff` and the arc turns the same colour past 50%. One passive capture-phase listener (it also hears a page that scrolls inside its own region), one `requestAnimationFrame` per frame.
-- **Layout.** Three equal zones, so the crown is the page centre (collapsed rail: the bar runs over the 72px rail column, `margin-inline: -72px 0; padding-inline: 78px`). On desktop the theme choice is one 44px control; under 620px it lives only in the drawer; under 340px the "where am I" line is hidden. Targets are at least 44px. `prefers-reduced-motion` and `prefers-reduced-transparency` (solid fallback) are honoured.
+- **Layout.** Three equal zones, so the crown is the page centre (collapsed rail: the bar runs over the 72px rail column, `margin-inline: -72px 0; padding-inline: 78px`). On desktop the theme choice is one 44px control; under 620px it lives only in the drawer *(superseded by §14.8, Human Gate ZURIEL · 19.11.2026: on phones the bar shows the theme choice named in Hebrew where search was)*; under 340px the "where am I" line is hidden. Targets are at least 44px. `prefers-reduced-motion` and `prefers-reduced-transparency` (solid fallback) are honoured.
 - **What the bar costs below it.** The header reserves `--s29-bar-reserve` (the arc's depth + 6px, 68px on desktop) so nothing is covered and nothing shifts. A sticky post or topic context rail that has not pinned yet therefore rests 184px below the top (64 bar + 68 reserve + 52 stage padding; it was 130px under the previous 56px bar), and its height budget follows the bar through `--s29-rail-natural-offset` (bar + reserve + 72px = bar and reserve plus the stage padding and a 20px margin), so it ends above the floating bottom bar from any resting position, pinned or not (Release Visual Gate: Bennett, desktop). A new height budget that assumed the old bar must read the same token.
 - **Verified in a real browser** at 1440, 1024, 768, 390, 360 and 320 in dark, light and parchment, at the top and scrolled (36 cases): crown centre = bar centre (0px), no horizontal scroll, line rows exactly 2px on both sides of every joint, every control at least 44px, ESC closes the drawer and returns focus to ☰, the theme choice survives a reload. The cleaned stylesheet renders byte-identically to the reviewed draft in all 36 header captures.
 
@@ -469,7 +471,8 @@ EXTEND_EXISTING: this updates V2 references, not Brand artwork or a second palet
 Primary fills use royal blue with onAccent white; action text uses the separate
 accentText role for contrast. Default button gradients stay within blue, never
 ending in violet. Violet is reserved for spatial depth/secondary focus. Discovery
-and share use cyan/teal in all three presets, including Parchment. Gold/champagne
+and share use cyan/teal in all three presets, including Parchment. **[Superseded for share by §14,
+ZURIEL 19.11.2026: share uses royal blue; discovery keeps cyan/teal.]** Gold/champagne
 remains restrained identity ornament (including a thin content-intro impression),
 never a verification signal or the default control color. Lab alters surfaces
 while preserving these control meanings. (The Legacy palettes were removed on 5.11.2026.)
@@ -501,7 +504,8 @@ no new palette, icon registry, theme store or domain owner.
    appropriate. Pages consume that result rather than establishing their own glyph-to-color map.
 3. **Keep the approved role meanings.** Ordinary icons use theme text; primary actions and
    selection use their accent roles, including the separate accessible action-text role;
-   discovery/share use cyan/teal; secondary/spatial depth uses violet. Existing numeric identity
+   discovery/share use cyan/teal **[share superseded by §14, 19.11.2026: share uses royal blue; discovery keeps
+   cyan/teal]**; secondary/spatial depth uses violet. Existing numeric identity
    retains its approved treatment. Crown gold/sapphire remain bounded identity ornament and
    never imply research standing, verification, delivery success or account authority.
 4. **A subject-kind palette requires an explicit shared decision.** Fixed rules such as
@@ -529,6 +533,162 @@ no new palette, icon registry, theme store or domain owner.
    44px targets, keyboard focus, reduced motion and non-color status labels. Do not introduce a
    runtime alternate-color system merely to test this policy.
 
+
+## 14. The Personal Area as the shared visual language · Human Gate ZURIEL · 19.11.2026
+
+**Status.** The decisions in §14.1–§14.5 are **APPROVED by ZURIEL on 19.11.2026** in the active user
+conversation. The items in §14.7 are **PENDING PREVIEW**: they are proposed values that ZURIEL accepts
+or changes after seeing the combined preview. This section approves no merge, deployment, database
+write, flag change or Production change.
+
+**Owner action: EXTEND_EXISTING.** This section extends this contract and the existing owners: the
+palette (`src/lib/paletteTokens2029.js` + `src/lib/palette2029.js`), the shared Royal 2029 layer
+(`src/components/experience2029/royal2029.css`), the System Frame and `canonical_ui_components_law`.
+It creates no parallel contract, palette, component set or per-screen colours.
+
+### 14.1 The reference
+
+The **Personal Area 2029** chosen by ZURIEL is the reference for the shared visual language of the
+whole site:
+
+| Item | Exact reference |
+|---|---|
+| Version | PR #1314, squash commit `42a509edc` on `main` (12.11.2026); reviewed branch head `18ea65e6b` (`claude/personal-area-2029-royal-20261111`) |
+| Shared layer | `royal2029.css` (“ROYAL 2029”, PR #1312, `d5fa184f8`, 11.11.2026) |
+| Surface | `PersonalHome2029.jsx` + `personalArea2029.css` (`.pa29-*`), inside `WorkspaceProjection2029` |
+| Record | `docs/reviews/personal-area-2029-20261111/README.md` and its screenshots (`signed-in-{mobile,desktop}-{night,day,parchment}.jpg`) |
+
+Components of the reference, all from the shared layer:
+
+- `.r29-hall` — the royal surface: layered light, a double hairline frame and a gold top sheen;
+- `.r29-medal` — a gold-ringed medallion holding a `NavigationIcon2029` glyph, logo or avatar;
+- `.r29-card` — a compact row: medallion, title and hint, chevron, a lit edge in the row's hue;
+- `.r29-btn` — the pill button (`is-primary`, `is-quiet`), 44px minimum height;
+- `.r29-coin` — a number struck in gold; `.r29-badge` — new / updated / pinned / state;
+- `.r29-chip` — a choice with a medallion; `.r29-rule` — the gold diamond divider;
+- `ProviderMark2029` — the real platform marks inside buttons (Google, Facebook).
+
+The Royal layer stays the one implementation. Surfaces adopt it on purpose (`.r29` scope),
+surface by surface; they do not copy its rules into a page stylesheet.
+
+### 14.2 Royal blue for primary actions and share
+
+- Primary actions and **share** use **royal blue**: the palette's `accentPrimary` fill with
+  `onAccent` text, and `accentText` for royal-blue text on a surface. This includes the bar's
+  “שיתוף” entry, the main share button and the selected state of a share option.
+- **Superseded:** the instruction that share uses cyan/teal (“Royal color and shared press
+  refinement”, 10.10.2026, and “Shared icon and surface color resolution”, item 3, 25.10.2026).
+  Both places carry an inline marker. Discovery keeps cyan/teal.
+- **Superseded in the reference itself:** the Personal Area's gold main action (`.pa29-primary`) and
+  the violet/purple fill of `.r29-btn.is-primary` become royal blue when they adopt this section.
+- Brand ornament stays in a measured dose: gold rings on medallions, the hall's gold hairline and
+  sheen, the `.r29-rule` diamond under a section heading, and gold coins for numbers. Gold is never
+  the default fill of a control and never signals verification, quality or success.
+- Platform marks keep their own recognisable colours inside the shared button (WhatsApp, Telegram,
+  Facebook, Google). Only the mark carries the platform colour; the button around it is the shared one.
+- **Presets (ZURIEL, second round, 19.11.2026):** Day and Parchment keep the look shown in the preview
+  and its current amount of gold. Night keeps the blue cards, the royal-blue actions and the crown; only
+  the shell surfaces (page, panel, raised surface and the gold wash inside the shell) are open, between
+  the current warm black-brown and a darker warm charcoal with less brown (§14.7). Gold stays for brand
+  ornament (rings and thin lines). Success, error and warning keep their status meanings.
+
+### 14.3 Consistent centering
+
+Extends §8.2 (where they differ, this section governs):
+
+| Element | Alignment |
+|---|---|
+| Page structure, content plane, card groups, action groups, button rows | centered, with balanced gutters |
+| Surface and section titles; short (one or two line) helper text under them | centered |
+| A card's inner content (medallion, title, hint) | logical start inside a centered card |
+| Long prose, ordinary lists, form fields and their labels | logical start (right in Hebrew) |
+| Numbers and equations standing alone | centered |
+
+An action group is centered as a group; its buttons have equal widths when they share a row.
+The Posts alignment of 31.10.2026 (§8.2) stays as approved.
+
+### 14.4 One button family
+
+Every 2029 button follows the reference: the `.r29-btn` pill — one shape, one height scale, one
+UI type style, `NavigationIcon2029` glyphs at one size, and one set of states (hover, pressed,
+focus ring, disabled, busy). Primary = royal blue fill; secondary = quiet (surface fill, hairline
+border); destructive and status use their owned status roles. Text links stay links.
+`ShareActions` stays the one share component; its options render with this button family through
+a variant prop (one component, props select the presentation), with the platform marks of §14.2.
+`WatchButton`, the account entry and tiles consume the same family when they adopt it.
+
+- Text keeps its readable size and every target is at least 44×44px; content is never fitted by
+  shrinking text.
+- The main share button follows the browser's actual support for system sharing (`navigator.share`),
+  not the device type: with support it opens the system share; without it, it copies the link. Copying
+  the link stays available in both cases.
+- Share options sit in a centered grid of equal buttons; an odd last option is centered on its own row.
+
+### 14.5 One bar that expands upward
+
+The bottom Command Island is one bar with the entries **כאן · שיתוף · רזיאל · עכשיו · עוד**.
+“עוד”, “שיתוף” and “כאן” open an expansion that rests on the bar, in the same visual language
+(hall surface, centered heading with the diamond rule, cards and buttons of §14.1/§14.4). One
+expansion is open at a time; the bar's row stays reachable; switching keeps the research state.
+Active operations show a compact, visible indicator attached to the bar (operation, context, real
+phase, elapsed time). Frame behaviour is owned by System Frame addendum §10.12.
+
+Approved in the second round (19.11.2026): the bar itself joins the royal surface family in a compact
+form for each preset (gold hairline frame and top sheen, sapphire floor); the bar and its expansions
+share one width, the expansion is visually joined to the bar, and all three behave the same; panel
+titles are centered exactly (the icon and close button sit at the two ends). Raziel stays centered,
+the row stays reachable, the active-work indicator stays visible while expansions are closed, and
+existing availability and permissions are unchanged.
+
+### 14.6 Owners to align
+
+- **`canonical_ui_components_law` (database, active v12):** v8 §1 forbids “a new bottom island
+  action” and “a duplicate persistent share button”; v5 names `GoldButton` among the shared controls.
+  The exact text of v13 (an additive block; v12 is kept unchanged) is drafted in
+  `docs/reviews/design-language-20261119/canonical_ui_components_law-v13-DRAFT.md`: it permits the
+  bar's canonical share entry, keeps “שתפו בקהילה” as an option inside the one share mechanism, and
+  names `.r29-btn` as the shared button family. **Not written**: a database write needs ZURIEL's
+  explicit approval of the exact text. Until then, nothing that depends on it merges.
+- **`canonical_colors_law` (database, active v2):** unchanged; this section uses its roles
+  (primary/secondary/ghost/disabled/focus). No new role is required for the preview.
+- **System Frame:** `docs/sod1820-system-frame-contract-v2-addendum.md` §10.12 (19.11.2026).
+
+### 14.8 Phone top bar: the theme named in Hebrew · Human Gate ZURIEL · 19.11.2026
+
+On phones (up to 620px) the top bar shows the existing theme control where search was: the current
+theme's sign and its Hebrew name (☀ יום · ▤ קלף · ☾ לילה); a tap opens the three choices, Escape closes and
+returns focus. Search moves out of the phone's top bar and stays one tap away in “עוד” (and in the
+drawer); on desktop the top bar keeps both search (with its keyboard shortcut) and the theme control.
+The crown stays at the exact centre of the bar; targets stay at least 44px.
+
+### 14.7 Pending (not yet approved)
+
+Nothing in §14 is pending any more: the Night shell was decided on 19.11.2026 (§14.9). Exact pixel values
+follow the preview and are re-checked at acceptance.
+
+### 14.9 Night: a blue-charcoal frame around warm pages · Human Gate ZURIEL · 19.11.2026
+
+ZURIEL chose option 5 of the Night comparison (the current warm Night, a warm charcoal, a full blue
+charcoal, the full blue charcoal also inside posts, and a blue frame around warm content).
+
+- **Night only.** Day and Parchment do not change.
+- **The frame** — the top bar, the right navigation rail, the left context rail, the bottom bar, the
+  panels that open from the bar (“עוד”, “שיתוף”, “כאן” and the other frame panels) and the mobile
+  drawer — uses a deep, quiet blue charcoal from the palette owner: `frame #10141D`, `frameSoft #171C28`
+  (`src/lib/paletteTokens2029.js`, Night), exposed by the System Frame as `--s29-frame` and
+  `--s29-frame-soft`. Day and Parchment have no frame tone; their frame uses their card surfaces.
+- **Pages and posts keep their warmth.** The page background, post halls and content surfaces keep the
+  current warm Night (`pageBg #0B0907`, `card #17120E`, `cardSoft #211A13`) and their character.
+- **Primary actions** use a stronger royal blue at Night: `accentBtn` `#3A6BEE → #2858DE` with
+  `onAccent` text (formerly `#315DD5 → #2454B8`). White text reads at 4.65:1 and 5.93:1 on the two stops.
+  The first preview used `#3D6EF2` (4.46:1, below 4.5:1), and it was darkened by two steps so the text stays readable.
+- **Gold stays restrained:** thin hairlines, rings and the diamond rule; the gold wash inside the “עוד”
+  panel is lowered at Night. Status colours keep their meanings.
+- **The bottom bar and its panels share the frame tone**, so an expansion reads as part of the bar.
+- **Side rails match the top bar:** no outer glow; the thin gold top line stays (the 17.11.2026
+  “Royal, subtle” rail shadow loses its outer sapphire glow in every preset).
+- Superseded: the 11.10.2026 selection's Night surfaces apply to the frame no longer; they remain for
+  pages and posts.
 
 ## Naming / product language law — carried from V1 · 11.11.2026
 

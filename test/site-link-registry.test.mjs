@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { build } from "esbuild";
+import { publicReadingContinuation } from "../src/lib/publicReadingRelease2029.js";
 import {
   SITE_LINKS, SITE_LINK_EXTERNAL, SITE_LINK_GROUPS, findSiteLinkByPhrase, isRegistrySiteHref,
   normalizeSiteLinkPhrase, siteLinkAbsoluteUrl, siteLinkById, siteLinksForFooterGroup,
@@ -50,10 +51,12 @@ test("the external community links are preserved byte for byte (WhatsApp, Instag
 
 test("Legacy navigation is carried over, each Legacy path resolves to exactly one registry entry", () => {
   const legacyNavigation = ["/post", "/category/מימד חמש", "/community/chat", "/category/סוד החשמל", "/archive", "/research", "/world", "/number",
-    "/code", "/profile", "/profile#notifications", "/start", "/community", "/contact", "/privacy", "/map"];
+    "/code", "/start", "/community", "/contact", "/privacy", "/map"];
   for (const href of legacyNavigation) {
-    assert.ok(SITE_LINKS.some((item) => item.href === href), `Legacy path ${href} is not in the registry`);
+    assert.ok(SITE_LINKS.some((item) => item.href === href || item.legacyHrefs.includes(href)), `Legacy path ${href} is not in the registry`);
   }
+  // /profile and /profile#notifications are not registry hrefs since 18.11.2026; the route still carries them to the account area.
+  assert.equal(publicReadingContinuation("/profile", ""), "/2029/me/profile");
   for (const item of SITE_LINKS) assert.ok(item.legacyHrefs.length >= 1, item.id);
   assert.deepEqual(siteLinksForFooterGroup("social").map((item) => item.id), ["whatsapp", "instagram", "facebook", "tiktok"]);
 });
@@ -100,4 +103,15 @@ test("absolute links are https and same-site only; external links are returned o
   assert.equal(siteLinkAbsoluteUrl({ external: true, href: "https://evil.example/x" }, "https://sod1820.co.il"), "");
   assert.equal(isRegistrySiteHref("https://evil.example/x"), false);
   assert.equal(isRegistrySiteHref("/privacy"), true);
+});
+
+// ZURIEL 18.11.2026 (indexing review): the personal footer links point at the existing account routes. The old addresses are not listed in
+// legacyHrefs (nothing reads it outside tests, and listing them cost 14 gzip bytes in the entry, Speed Law); /profile still continues by route.
+test("personal links point at the account routes; /profile still continues to the account area", () => {
+  const byId = Object.fromEntries(SITE_LINKS.map((item) => [item.id, item]));
+  assert.equal(byId.profile.href, "/2029/me/profile");
+  assert.equal(byId.notifications.href, "/2029/me/notifications");
+  assert.equal(publicReadingContinuation("/profile", ""), byId.profile.href);
+  assert.equal(byId.profile.defaultState, "account");
+  assert.equal(byId.notifications.defaultState, "account");
 });

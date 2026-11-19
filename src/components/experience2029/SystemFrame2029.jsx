@@ -53,6 +53,10 @@ const LivingRibbonDetail2029 = React.lazy(() => import("./GlobalLivingRibbon2029
 const LIVING_RIBBON_VISIBLE_2029 = false;
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));
+// The research indicator loads only while a research operation exists. LAB_SIMULATED_RESEARCH is set only in a lab build
+// (VITE_LAB_SIMULATED_RESEARCH=1) to show a marked, simulated operation; a normal build drops it entirely.
+const ResearchActivity2029 = React.lazy(() => import("./ResearchActivity2029.jsx"));
+const LAB_SIMULATED_RESEARCH = import.meta.env.VITE_LAB_SIMULATED_RESEARCH === "1";
 const MorePanel2029 = React.lazy(() => import("./MorePanel2029.jsx"));
 import { publicContextLabel, contextDisplayTitle, contextNavigationItems2029, surfaceContextForRoute2029, entityTypeNounHe } from "./razielSessionSeam2029.js";
 
@@ -497,9 +501,9 @@ export function PreviewTransportDisclosure2029() {
   return <p role="note" data-raziel-preview-disclosure="mock-only">תצוגת בדיקה · תשובות רזיאל הן תשובות דמה בלבד, ללא קריאת מודל או כתיבה חיה.</p>;
 }
 
-function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKind = null }) {
+function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKind = null, expansion = null, activity = null }) {
   return (
-    <div className="sod29-frame-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <div className={`sod29-frame-backdrop${expansion ? " is-bar-expansion" : ""}`} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <aside
         className="sod29-frame-panel"
         ref={panelRef}
@@ -510,6 +514,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKin
         data-desktop-projection="left-context-sidecar"
         data-mobile-projection="bottom-context-sheet"
         data-panel-kind={panelKind || undefined}
+        data-bar-expansion={expansion || undefined}
         tabIndex={-1}
       >
         <header className="sod29-frame-panel-head">
@@ -519,7 +524,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKin
           </div>
           <button type="button" onClick={onClose} aria-label="סגור">×</button>
         </header>
-        <div className="sod29-frame-panel-body"><PreviewTransportDisclosure2029 /><React.Suspense fallback={<div role="status">טוען…</div>}>{children}</React.Suspense></div>
+        <div className="sod29-frame-panel-body">{activity}<PreviewTransportDisclosure2029 /><React.Suspense fallback={<div role="status">טוען…</div>}>{children}</React.Suspense></div>
       </aside>
     </div>
   );
@@ -549,7 +554,7 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
   );
 }
 
-function InspectProjection({ target, context, surface = "system", onSetFocus, onSave, onAddResearch, isSaved = false, inResearch = false, onOpenNumber, onNeedHelp }) {
+function InspectProjection({ target, context, surface = "system", onSetFocus, onSave, onAddResearch, isSaved = false, inResearch = false, onOpenNumber, onNeedHelp, shareHref = null }) {
   const [commitState, setCommitState] = useState(null);
   const numericFamily = target?.type === "number" || target?.type === "phrase";
   const hasMethodContext = Boolean(target?.expression && target?.method && Number.isSafeInteger(Number(target?.resultValue)));
@@ -672,18 +677,20 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
 
       {commitState && !commitState.ok ? <FrameState kind="error" title="הפעולה לא נשמרה">{commitState.kind === "save" ? "השמירה לא הושלמה" : "ההוספה למחקר לא הושלמה"} — נסה שוב.</FrameState> : null}
 
-      <div className="sod29-canonical-share" data-share-owner="ShareActions">
+      {/* The same public page link as "עוד → שיתוף" (framePublicShareHref: account paths, claim/dm and return addresses never travel), with the
+          page's own title (ShareActions); on a page with no public link there is nothing to share here. */}
+      {shareHref ? <div className="sod29-canonical-share" data-share-owner="ShareActions">
         <React.Suspense fallback={<SharePending2029 />}>
           <ShareActions
             type={target.type || "page"}
-            title={`SOD1820 · ${publicContextLabel(target.label) || entityTypeNounHe(target.type)}`}
+            url={shareHref}
             channels={["native", "copy"]}
             compact
             force
             style={{ marginTop: 10 }}
           />
         </React.Suspense>
-      </div>
+      </div> : null}
 
       <div className="sod29-panel-context-card">
         <b>ההקשר שלך</b>
@@ -987,6 +994,15 @@ function SystemFrame2029Body({
   useEffect(() => {
     try { localStorage.setItem("sod-global-rail", sidebarCollapsed ? "collapsed" : "expanded"); } catch { /* ignore */ }
   }, [sidebarCollapsed]);
+  // Hover opens the slim rail over the page, as in Google Analytics (ZURIEL 18.11.2026): a short delay on the way in and out so a passing
+  // pointer does not flash it; keyboard focus opens it too; the pin (the rail button) keeps it open as before.
+  const [railPeek, setRailPeek] = useState(false);
+  const railPeekTimer = useRef(0);
+  const peekRail = (open, delay) => {
+    clearTimeout(railPeekTimer.current);
+    if (open && (!sidebarCollapsed || !window.matchMedia?.("(hover: hover) and (min-width: 981px)").matches)) return;
+    railPeekTimer.current = setTimeout(() => setRailPeek(open), delay);
+  };
 
   useEffect(() => {
     if (orientation.mode !== "prominent" || !orientation.manifest) return;
@@ -1212,6 +1228,12 @@ function SystemFrame2029Body({
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS, { subject: normalizeTarget(activeTarget) }), [openTransient, activeTarget]);
   const openMore = useCallback(() => openTransient(TRANSIENT.MORE, { subject: normalizeTarget(activeTarget) }), [openTransient, activeTarget]);
   const openShare = useCallback(() => openTransient(TRANSIENT.MORE, { shareOnly: true }), [openTransient]);
+  const openGimatria = () => {
+    setTransient(null);
+    if (activeTarget?.expression && activeTarget?.method && Number.isSafeInteger(activeTarget?.resultValue)) { openNumber(activeTarget); return; }
+    const value = researchContextNumber(surfaceFocus?.number ?? (activeTarget?.type === "number" ? activeTarget.id : null));
+    openNumber(value != null ? { id: String(value), type: "number", label: String(value) } : activeTarget);
+  };
   const openRaziel = useCallback((payload = null) => {
     if (razielLocked) {
       openTransient(TRANSIENT.RAZIEL_LOCKED);
@@ -1405,6 +1427,8 @@ function SystemFrame2029Body({
     "--s29-panel": palette.card,
     "--s29-panel-soft": palette.cardSoft,
     "--s29-panel-grad": palette.cardGrad,
+    "--s29-frame": palette.frame || palette.card,
+    "--s29-frame-soft": palette.frameSoft || palette.cardSoft,
     "--s29-line": palette.border,
     "--s29-line-strong": palette.borderStrong,
     "--s29-accent": palette.accent,
@@ -1478,6 +1502,10 @@ function SystemFrame2029Body({
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
   const unifiedGlobalDock = !toolMode;
+  // One expanding bar (preview): "עוד", "שיתוף" and "כאן" open an expansion attached to the bar, one at a time.
+  const barExpansion = transientKind === TRANSIENT.MORE ? (transient?.payload?.shareOnly ? "share" : "more") : transientKind === TRANSIENT.CONTEXT ? "here" : null;
+  const researchTask = research.elsResearchOperation?.task || null;
+  const expansionActivity = researchTask || LAB_SIMULATED_RESEARCH ? <React.Suspense fallback={null}><ResearchActivity2029 placement="panel" task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={() => openTransient(TRANSIENT.WORKSPACE)} /></React.Suspense> : null;
   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
   // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
   const progressSections = (surface === "post" || surface === "topic") && Array.isArray(pageContext?.dimensions?.surfaceSections)
@@ -1515,8 +1543,8 @@ function SystemFrame2029Body({
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><React.Suspense fallback={<div role="status">טוען כלי מספרים…</div>}><NumberDrawer2029 target={inspectTarget} context={pageContext} research={research} go={go} openRaziel={openRaziel} /></React.Suspense></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(pageContext, inspectTarget) || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={pageContext} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
-    if (transientKind === TRANSIENT.CONTEXT) return contextLocked ? null : <PanelShell {...common} icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(pageContext, inspectTarget) || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={pageContext} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} shareHref={shareHref} /></PanelShell>;
+    if (transientKind === TRANSIENT.CONTEXT) return contextLocked ? null : <PanelShell {...common} activity={expansionActivity} expansion="here" icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
       sheet
       surface={surface}
       context={pageContext}
@@ -1535,15 +1563,16 @@ function SystemFrame2029Body({
     if (transientKind === TRANSIENT.MORE) {
       const shareOnly = Boolean(transient?.payload?.shareOnly);
       const contextTitle = inspectTarget ? (contextDisplayTitle(pageContext, inspectTarget) || publicContextLabel(inspectTarget.label) || entityTypeNounHe(inspectTarget.type)) : "";
-      return <PanelShell {...common} panelKind="more" icon={<NavigationIcon2029 name={shareOnly ? "share" : "kingdom"} />} kicker={shareOnly ? "שיתוף" : "סוד 1820"} title={shareOnly ? "שיתוף העמוד" : "עוד"}>
+      return <PanelShell {...common} activity={expansionActivity} panelKind="more" expansion={shareOnly ? "share" : "more"} icon={<NavigationIcon2029 name={shareOnly ? "share" : "kingdom"} />} kicker={shareOnly ? "שיתוף" : "סוד 1820"} title={shareOnly ? "שיתוף העמוד" : "עוד"}>
         <MorePanel2029 shareOnly={shareOnly} context={contextTitle}
           onAction={() => openAction(inspectTarget)} onTools={openTools} onSearch={openSiteSearch}
           actionsBuilding={actionsFeature.blocked} toolsBuilding={toolsFeature.blocked}
           personal={{ signedIn: Boolean(user), name: profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || "", avatar: user ? <UserAvatar2029 user={user} profile={profile} /> : null }}
           onPersonal={openWorkspace}
+          onNumber={openGimatria} numberLocked={numberLocked}
           adminDestinations={adminOpenClosedDestinations(isAdmin)} onDestination={(item) => { setTransient(null); go(item.href); }}
           toolDockReturn={activeToolDock ? () => { setTransient(null); setSystemDockMode(false); } : null}
-          share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", title: title || "SOD1820", surface } : null} />
+          share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", surface } : null} />
       </PanelShell>;
     }
     if (transientKind === TRANSIENT.TOOLS && toolsFeature.blocked) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><FeatureClosedNotice2029 state={toolsFeature} title="כלים" compact /></PanelShell>;
@@ -1587,7 +1616,7 @@ function SystemFrame2029Body({
     <SystemFeedContext2029.Provider value={feed}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed && !railPeek ? " sidebar-collapsed" : ""}${railPeek ? " rail-peek" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -1604,27 +1633,25 @@ function SystemFrame2029Body({
 
         <button className="sod29-logo-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "פתח את סרגל הניווט" : "סגור את סרגל הניווט"} title={sidebarCollapsed ? "פתח את סרגל הניווט" : "סגור את סרגל הניווט"}>
           <DiscoveryGateMark2029 open={!sidebarCollapsed} />
-          <span className="sod29-logo-name" aria-hidden="true"><b>{experience.brand.identity}</b>{experience.brand.expression ? <small>{experience.brand.expression}</small> : null}</span>
         </button>
 
-        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={sidebarCollapsed ? "slim" : "open"}>
-          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
-            <span className="sod29-rail-home" aria-hidden="true">⌂</span>
-            <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
-          </Link>
+        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={railPeek ? "peek" : sidebarCollapsed ? "slim" : "open"}
+          onMouseEnter={() => peekRail(true, 180)} onMouseLeave={() => peekRail(false, 260)} onFocus={() => peekRail(true, 0)}
+          onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekRail(false, 0); }} onKeyDown={(event) => { if (event.key === "Escape") peekRail(false, 0); }}>
           <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
             <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
+          <div className="sod29-rail-foot">
           <div className="sod29-rail-utilities" aria-label="פעולות נוספות">
             <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="sod29-nav-copy">חזרה מדויקת</span></button>
             <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="sod29-nav-copy">דווח על בעיה</span></button>
           </div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
-          <button className="sod29-rail-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"}>
-            <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "הרחב" : "צמצם"}</b>
+          <button className="sod29-rail-toggle" type="button" onClick={() => { clearTimeout(railPeekTimer.current); setRailPeek(false); setSidebarCollapsed((value) => !value); }} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "נעץ את סרגל הניווט פתוח" : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? "נעץ את סרגל הניווט פתוח" : "צמצם את סרגל הניווט"}>
+            <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "נעץ" : "צמצם"}</b>
           </button>
-          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {entityTypeNounHe(surface)}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
+          </div>
         </aside>
 
         <div className="sod29-main">
@@ -1758,22 +1785,20 @@ function SystemFrame2029Body({
 
         {ephemeralSelection && !unifiedGlobalDock ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        {unifiedGlobalDock ? <div className="sod29-command-island is-unified-bar is-single-command-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="global">
-          <button type="button" className="sod29-dock-here" disabled={contextLocked} title={contextLocked ? "כאן בבנייה · למנהל בלבד" : "כאן בבנייה · גישת מנהל"} onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={contextLocked ? "כאן · בבנייה · למנהל בלבד" : readingProgress ? `כאן · מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}` : "כאן · מפת העמוד וההקשר"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.CONTEXT} data-reading-progress={readingProgress ? `${readingProgress.index}/${readingProgress.total}` : undefined}>
+        {unifiedGlobalDock ? <div className="sod29-command-island is-unified-bar is-single-command-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="global" data-bar-expansion={barExpansion || undefined}>
+          {(researchTask || LAB_SIMULATED_RESEARCH) && !barExpansion ? <React.Suspense fallback={null}><ResearchActivity2029 task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={() => openTransient(TRANSIENT.WORKSPACE)} /></React.Suspense> : null}
+          <button type="button" className="sod29-dock-here" disabled={contextLocked} title={contextLocked ? "כאן בבנייה · למנהל בלבד" : "כאן בבנייה · גישת מנהל"} onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-expanded={barExpansion === "here"} aria-label={contextLocked ? "כאן · בבנייה · למנהל בלבד" : readingProgress ? `כאן · מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}` : "כאן · מפת העמוד וההקשר"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.CONTEXT} data-reading-progress={readingProgress ? `${readingProgress.index}/${readingProgress.total}` : undefined}>
             <NavigationIcon2029 name="layers" /><small>כאן</small><span className="sod29-construction-badge" aria-hidden="true">בבנייה</span>
             {!contextLocked && readingProgress ? <span className="sod29-dock-progress" aria-hidden="true">{readingProgress.ids.map((id,i) => <i key={id} className={i < readingProgress.index ? "is-read" : ""} />)}</span> : null}
           </button>
-          <button type="button" onClick={() => {
-            if (activeTarget?.expression && activeTarget?.method && Number.isSafeInteger(activeTarget?.resultValue)) {
-              openNumber(activeTarget); return;
-            }
-            const value = researchContextNumber(surfaceFocus?.number ?? (activeTarget?.type === "number" ? activeTarget.id : null));
-            openNumber(value != null ? { id: String(value), type: "number", label: String(value) } : activeTarget);
-          }} disabled={numberLocked} aria-label={numberLocked ? "גימטריה · נעולה כרגע" : "גימטריה · מספר, ביטוי ושיטות חישוב"} aria-haspopup="dialog"><NavigationIcon2029 name="number" /><small>גימטריה</small></button>
+          {/* ZURIEL 19.11.2026 (preview of the one expanding bar): "שיתוף" takes the gimatria place; gimatria is a direct tile in "עוד". */}
+          <button type="button" className="sod29-dock-share" onClick={openShare} aria-label="שיתוף · מה מוצג כאן" aria-haspopup="dialog"
+            aria-expanded={barExpansion === "share"}><NavigationIcon2029 name="share" /><small>שיתוף</small></button>
           <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />
           <button type="button" onClick={research.elsResearchOperation?.task ? openWorkspace : openAttention} aria-label={research.elsResearchOperation?.task ? `עכשיו · ${research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות"}` : feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === (research.elsResearchOperation?.task ? TRANSIENT.WORKSPACE : TRANSIENT.ATTENTION)}><NavigationIcon2029 name="now" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "עכשיו"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
-          <button type="button" onClick={openMore} title="עוד · פעולות, כלים, חיפוש ושיתוף" aria-label="עוד · פעולות, כלים ושיתוף" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.MORE}><NavigationIcon2029 name="tools" /><small>עוד</small></button>
+          <button type="button" onClick={openMore} title="עוד · פעולות, כלים, חיפוש ואזור אישי" aria-label="עוד · פעולות, כלים, חיפוש ואזור אישי" aria-haspopup="dialog" aria-expanded={barExpansion === "more"}><NavigationIcon2029 name="tools" /><small>עוד</small></button>
         </div> : <div className="sod29-command-island is-unified-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="tool" data-tool-owner={activeToolDock?.surface}>
+          {(researchTask || LAB_SIMULATED_RESEARCH) && !barExpansion ? <React.Suspense fallback={null}><ResearchActivity2029 task={researchTask} lab={LAB_SIMULATED_RESEARCH} onOpen={() => openTransient(TRANSIENT.WORKSPACE)} /></React.Suspense> : null}
           <div className="sod29-bar-zone is-context"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /></div>
           <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />
           <div className="sod29-bar-zone is-actions"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />

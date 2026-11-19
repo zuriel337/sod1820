@@ -56,7 +56,9 @@ test("the traps the design hit stay handled", () => {
   assert.match(css, /transition: --s29-gap \.3s/);
   assert.match(css, /-webkit-mask: linear-gradient\(90deg, #000 0 calc\(50% - var\(--s29-gap\) \/ 2\)/);
   // 4) The collapsed rail column is 72px (systemFrame2029-human-gate.css): the bar runs over it so its centre is the page centre.
-  assert.match(css, /margin-inline: -72px 0; padding-inline: 78px;/);
+  // ZURIEL 18.11.2026 (one design for both side panels): the bar keeps this form in every rail state; the column it covers is the slim 72px one,
+  // or the pinned rail's own column when it is pinned open.
+  assert.match(css, /margin-inline: calc\(-1 \* var\(--s29-rail-col, 72px\)\) 0; padding-inline: 78px;/);
   assert.match(readFileSync(new URL("systemFrame2029-human-gate.css", dir), "utf8"), /72px/);
   // 5) Rules for the existing header outrank the per-theme glass rules that systemFrame2029-unified-bar.css still carries.
   assert.ok(rules.some((r) => r.selector.includes(".sod29-root.closed-shell.native-frame[data-frame-theme-preset] .sod29-header.closed-orientation") && /background:\s*transparent/.test(r.body)));

@@ -38,9 +38,11 @@ test("the shared address has its own preview: title, description and the thumbna
 });
 
 test("a share is recorded only after it happened: completed sheet, successful copy, shared or downloaded image", () => {
-  assert.match(actions, /const shared = await nativeShare\(\{[^}]*\}\);\s*if \(shared\) logShare\("native"/);
+  assert.match(actions, /const outcome = await nativeShareOutcome\(\{[^}]*\}\);\s*if \(outcome === "shared"\) \{ logShare\("native"/);
+  // A sheet that failed to open falls back to copy, recorded only when the copy succeeded; a cancelled sheet records nothing.
+  assert.match(actions, /if \(outcome === "failed" \|\| outcome === "unsupported"\) \{[\s\S]*?if \(ok\) \{ logShare\("copy"/);
   assert.match(actions, /const ok = await copyLink\(attributedShareUrl\(fullUrl, "copy"\)\);\s*setCopied\(ok\); setCopyFailed\(!ok\);\s*if \(ok\) \{ logShare\("copy"/);
-  assert.match(actions, /await shareImageFile\(file, \{ title: text, text \}\); logShare\("image", resolved\);/);
+  assert.match(actions, /await shareImageFile\(file, \{ title: text, text, url: attributedShareUrl\(fullUrl, "native"\) \}\); logShare\("image", resolved\);/, "the image travels with its link");
   assert.match(actions, /if \(e && e\.name === "AbortError"\) \{ setImgBusy\(false\); return; \}/, "a cancelled image share is not recorded");
-  assert.doesNotMatch(actions, /logShare\("native"[^;]*;\s*await nativeShare/, "never recorded before the sheet resolves");
+  assert.doesNotMatch(actions, /logShare\("native"[^;]*;\s*[^\n]*await nativeShareOutcome/, "never recorded before the sheet resolves");
 });

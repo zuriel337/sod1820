@@ -44,8 +44,8 @@ for(const width of [390,1440])test('More, Actions, Tools, canonical share and ke
  let panel=page.getByRole('dialog',{name:'עוד',exact:true});await expect(panel).toBeVisible();await expect(page.getByRole('dialog')).toHaveCount(1);
  await expect(panel.locator('[data-share-owner="ShareActions"]')).toBeVisible();await panel.locator('[data-action="copy"]').click();
  const copied=new URL(await page.evaluate(()=>window.__frameCopied));expect(copied.origin).toBe('https://sod1820.co.il');expect(copied.pathname).toBe(modern);expect(copied.searchParams.get('part')).toBe('7');expect(copied.searchParams.has('_vercel_share')).toBe(false);expect(copied.hash).toBe('#post-story');
- await panel.getByRole('button',{name:'פעולות',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(1);await page.getByRole('button',{name:'חזרה לעוד',exact:true}).click();
- await page.getByRole('dialog',{name:'עוד',exact:true}).getByRole('button',{name:'כלים',exact:true}).click();panel=page.getByRole('dialog',{name:'כלים',exact:true});await expect(panel).toBeVisible();await expect(panel.getByRole('button',{name:/ELS.*למנהל בלבד/})).toBeDisabled();
+ await panel.getByRole('button',{name:/^פעולות/}).click();await expect(page.getByRole('dialog')).toHaveCount(1);await page.getByRole('button',{name:'חזרה לעוד',exact:true}).click();
+ await page.getByRole('dialog',{name:'עוד',exact:true}).getByRole('button',{name:/^כלים/}).click();panel=page.getByRole('dialog',{name:'כלים',exact:true});await expect(panel).toBeVisible();await expect(panel.getByRole('button',{name:/ELS.*למנהל בלבד/})).toBeDisabled();
  await panel.getByRole('button',{name:'חזרה לעוד',exact:true}).click();await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0);await expect(more).toBeFocused();
  const after=await readContext(page);expect(after.subject).toEqual(before.subject);expect(after.selection).toEqual(before.selection);expect(after.journey).toEqual(before.journey);await island(page);await page.screenshot({path:info.outputPath('post-and-context.png')});
 });
@@ -142,7 +142,7 @@ for(const width of [390,1440])test('ordinary Home link preserves exact return wi
 });
 for(const width of [390,1440])test('intentional Number to World uses explicit context and exact return '+width,async({page})=>{
  await page.setViewportSize({width,height:900});const address='/number/1820?from=explicit-world';await page.goto(base+address);await expect(page.locator('.sod29-number-page[data-number-root="1820"]')).toBeVisible({timeout:30000});
- await page.locator('.sod29-command-island').getByRole('button',{name:/^עוד/}).click();await page.getByRole('dialog',{name:'עוד',exact:true}).getByRole('button',{name:'כלים',exact:true}).click();await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:/עולם/}).click();
+ await page.locator('.sod29-command-island').getByRole('button',{name:/^עוד/}).click();await page.getByRole('dialog',{name:'עוד',exact:true}).getByRole('button',{name:/^כלים/}).click();await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:/עולם/}).click();
  await expect(page).toHaveURL(/\/world\?focus=context/);await expect(page.locator('.sod29-root.surface-world')).toBeVisible();await expect.poll(async()=>(await readContext(page))?.subject?.id).toBe('1820');await expect(page.locator('.sod29-main-stage>.sod29-surface-context-rail')).toBeAttached();
  if(width<=980){await page.locator('.sod29-mobile-menu-trigger').click();await page.locator('#sod29-mobile-navigation').getByRole('button',{name:'חזרה מדויקת',exact:true}).click();}else await page.locator('.sod29-sidebar').getByRole('button',{name:'חזרה מדויקת',exact:true}).click();
  await expect(page).toHaveURL(base+address);await expect(page.locator('.sod29-number-page[data-number-root="1820"]')).toBeVisible({timeout:30000});
