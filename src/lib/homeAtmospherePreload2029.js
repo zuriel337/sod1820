@@ -17,7 +17,7 @@ export const HOME_ATMOSPHERE_MOBILE_MAX_WIDTH = 760;
 
 export function homeAtmospherePreloadHref({ release, pathname, storedPreset, narrow }) {
   if (!release) return null;
-  if (!["/", "/2029", "/2029/"].includes(pathname)) return null;
+  if (!/^\/(?:2029\/?)?$/.test(pathname)) return null;
   // themePreset2029 falls back to "dark" for an absent or invalid value.
   const preset = ["light", "parchment", "dark"].includes(storedPreset) ? storedPreset : "dark";
   if (preset !== "dark") return null;
@@ -28,13 +28,13 @@ export function homeAtmospherePreloadHref({ release, pathname, storedPreset, nar
 // for the much larger Home route module, and it adds no static code to the entry or to other pages. Same scope as the Home route of
 // the public release; a WordPress ?p= address on "/" opens a Post, not the Home.
 export function homePinnedLeadEarlyWanted({ release, pathname, search = "" }) {
-  if (!release || !["/", "/2029", "/2029/"].includes(pathname)) return false;
+  if (!release || !/^\/(?:2029\/?)?$/.test(pathname)) return false;
   try { return !new URLSearchParams(search).get("p"); } catch { return true; }
 }
 
 function run() {
   try {
-    if (typeof document === "undefined" || typeof window === "undefined") return;
+    if (!globalThis.document || !globalThis.window) return;
     if (homePinnedLeadEarlyWanted({ release: PUBLIC_READING_RELEASE, pathname: window.location.pathname, search: window.location.search }))
       import("./homePinnedLeadEarly2029.js").then(module => module.default()).catch(() => {});
     let storedPreset = null;
