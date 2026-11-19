@@ -23,8 +23,20 @@ The server verifies returned candidates *inside* the status response; it emits n
 - Six previously reported native scenarios passed locally (three inspector/geometry/results cases and structures/lexicon/completed-phrase cases).
 - Indicator / activity / transport unit subset: 21/21.
 - Broader matrix-reading/session invocation: 147 passed, two existing browser tooling skips in the unit-only invocation; those browser files are separately included in the explicit Playwright run.
-- Actual frame indicator browser passed at 390 and 1440, three palettes, keyboard, explicit cancellation, completion, matrix unmount and principal replacement. Final full browser run and extended terminal cases pending.
+- Actual frame indicator browser passed at 390 and 1440, three palettes, keyboard, explicit cancellation, completion, matrix unmount and principal replacement. Extended browser terminal cases (partial, failure, confirmed cancel) also pass. Full native run remains pending; the latest browser case ran in an isolated Vite cache while that unchanged runtime suite continued.
 - Final runtime `npm run build`: PASS; shell gzip eager 203343/203493; frame JS 46852/47338; frame CSS 34301/34362. No baseline change.
 - Full native/browser run and CI on the pushed SHA are pending; this is not yet release approval.
 
 No main merge, Preview/deployment, database writes, Edge deployment, flags/secrets or paid AI calls. Read-only ledger verified with `supabase_read_only_user`, transaction_read_only=on. No work-log write under the current restriction.
+
+## Screenshots (declared mock, actual frame)
+
+The source matrix is Columbia, skip 4545. The matrix is then unmounted to represent another surface; its original Fable reading remains. Provider replies and elapsed samples are injected through the existing session progress sink. No live/provider scan was made. All three palettes are asserted at 390 and 1440 px; these evidence images show Night.
+
+| State | Phone 390 | Desktop 1440 |
+|---|---|---|
+| Working | [phone](screenshots/fable-390-dark-running.png) | [desktop](screenshots/fable-1440-dark-running.png) |
+| Over 13 minutes | [phone](screenshots/fable-390-dark-overdue.png) | [desktop](screenshots/fable-1440-dark-overdue.png) |
+| Completed | [phone](screenshots/fable-390-dark-complete.png) | [desktop](screenshots/fable-1440-dark-complete.png) |
+
+Final exact-head CI and local full-run results are reported in PR #1397 and ZURIEL's conversation, without implying that this checkpoint predates its own CI run.

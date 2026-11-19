@@ -1078,7 +1078,7 @@ if(window.__fixtureFullFrame){
   const [visible,setVisible]=React.useState(!window.__readingLeft);window.__setNativeVisible=setVisible;
   const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(()=>forceRender(n=>n+1));
   return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),window.__fixtureReadingIndicator?React.createElement(ReadingProbe):null,
-   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native,{researchProfile:window.__fixtureResearchProfile!==false,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined}):React.createElement('p',null,'Library fixture'))));
+   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native,{researchProfile:window.__fixtureResearchProfile!==false,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined}):React.createElement('p',null,window.__fixtureReadingIndicator?'עמוד בדיקה אחר · הקריאה נשארת קשורה לקולומביה':'Library fixture'))));
  }
  function ReadingOwner(){const [owner,setOwner]=React.useState('a');window.__readingOwner=setOwner;return React.createElement(ReadingProvider,{key:owner,transport:readingTransport},React.createElement(FullFrameFixture));}
  createRoot(document.getElementById('root')).render(React.createElement(window.__fixtureReadingIndicator?ReadingOwner:FullFrameFixture));
@@ -4170,6 +4170,7 @@ test('Fable reading uses the shared frame indicator across surfaces, themes, key
   await page.getByRole('button',{name:'פעולות המערכת',exact:true}).click();
   await page.locator('[data-command-mode="global"]').waitFor();
   for(const label of ['כאן','שיתוף','עכשיו','עוד'])assert.ok((await page.locator('[data-command-mode="global"]').innerText()).includes(label));
+  await page.evaluate(()=>{window.__readingLeft=true;window.__setNativeVisible(false)});
   const shot=async(state,theme)=>{if(process.env.ELS_ACTIVITY_SCREENSHOTS){mkdirSync(process.env.ELS_ACTIVITY_SCREENSHOTS,{recursive:true});await page.screenshot({path:join(process.env.ELS_ACTIVITY_SCREENSHOTS,`fable-${width}-${theme}-${state}.png`)});}};
   for(const theme of ['light','parchment','dark']){
    await page.evaluate(theme=>window.__setThemePreset(theme),theme);
