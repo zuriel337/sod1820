@@ -12,6 +12,7 @@ import { AXIS, BATCH, message, savedAnswer, world } from "./helpers/els-matrix-r
 // The stream, the canonical engine, Anthropic and the token log are the shared fakes. So every result here is a TEST DOUBLE of the provider (the handler labels the route
 // live; these tests never reach a model). That is why nothing here may be quoted as a Fable reading.
 const FIXTURE = "https://fixture.invalid";
+const activeServerCalls = new Set();
 const sample = { status: "ok", scope: "torah", termRaw: AXIS.term, verification: { state: "MATCH", corpus_id: "0b022e8eef6f9c16" },
   axis: { hitId: `${AXIS.skip}_1_${AXIS.start}`, skip: AXIS.skip, direction: "fwd", start: AXIS.start, length: 8 },
   geometry: { S: AXIS.skip }, matrix: { S: AXIS.skip, r0: 40, c0: 3300, cw: 60, rows: Array(30).fill("א".repeat(60)) } };
@@ -33,7 +34,10 @@ function serverFor(w, { role = "admin", counter = { calls: 0, ops: [] }, onCall 
       assert.equal(name, "ai-analyze");
       counter.calls += 1; counter.ops.push(body.els_matrix_reading_action?.op ?? "none");
       onCall(counter);
-      const run = await runAiAnalyze(options(body));
+      const request = runAiAnalyze(options(body));
+      activeServerCalls.add(request);
+      let run;
+      try { run = await request; } finally { activeServerCalls.delete(request); }
       return { data: run.result, error: run.status >= 400 ? Object.assign(new Error(`HTTP ${run.status}`), { status: run.status }) : null };
     },
   } });
@@ -64,7 +68,11 @@ function turn(options, { state = createInitialRazielSessionState() } = {}) {
 async function drive(promise, step = () => {}) {
   let settled = false; let value; let error;
   promise.then((v) => { settled = true; value = v; }, (e) => { settled = true; error = e; });
-  for (let i = 0; i < 600 && !settled; i += 1) { await new Promise((resolve) => setImmediate(resolve)); if (settled) break; step(i); mock.timers.tick(20_000); }
+  for (let i = 0; i < 600 && !settled; i += 1) { await new Promise((resolve) => setImmediate(resolve));
+    // Drain the actual in-flight fixture handler before advancing its next polling wait.
+    // A fixed number of event-loop turns is not a deadline for asynchronous module/file IO.
+    await Promise.all([...activeServerCalls]);
+    if (settled) break; step(i); mock.timers.tick(20_000); }
   assert.ok(settled, "the turn did not settle");
   if (error) throw error;
   return value;

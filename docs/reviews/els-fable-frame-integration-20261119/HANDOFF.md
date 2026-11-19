@@ -18,14 +18,21 @@ merged current main `66553879ea52ac8864844a84340ac0b7961181a8` in `55dad0ab1c4ab
 
 The server verifies returned candidates *inside* the status response; it emits no intermediate verification state to the existing polling contract. Therefore “מאמת” cannot truthfully be observed in-flight here. No guessed verification stage is emitted, no extra poll is introduced and no server/DB change is made. Separate canonical engine replay/verification retains its own existing operation meter. Making the provider's in-flight verification visible needs a separately reviewed server-contract change; it is not claimed complete by this client slice.
 
-## Validation at implementation checkpoint
+## Validation
 
-- Six previously reported native scenarios passed locally (three inspector/geometry/results cases and structures/lexicon/completed-phrase cases).
-- Indicator / activity / transport unit subset: 21/21.
-- Broader matrix-reading/session invocation: 147 passed, two existing browser tooling skips in the unit-only invocation; those browser files are separately included in the explicit Playwright run.
-- Actual frame indicator browser passed at 390 and 1440, three palettes, keyboard, explicit cancellation, completion, matrix unmount and principal replacement. Extended browser terminal cases (partial, failure, confirmed cancel) also pass. Full native run remains pending; the latest browser case ran in an isolated Vite cache while that unchanged runtime suite continued.
-- Final runtime `npm run build`: PASS; shell gzip eager 203343/203493; frame JS 46852/47338; frame CSS 34301/34362. No baseline change.
-- Full native/browser run and CI on the pushed SHA are pending; this is not yet release approval.
+- All six reported compatibility regressions passed locally.
+- Full local native + reading activity/card browser run: **90/90**, no skips. The final indicator test additionally passed after the interrupted-time correction (390/1440, three palettes, keyboard, partial/failure/cancel/complete, surface unmount, principal replacement).
+- Reading/session units including isolated PostgreSQL: **159/159**, no skips. Initial environment-only skips were the two PostgreSQL tests, not browser tests; the earlier checkpoint misidentified them. Official PostgreSQL 17.12 Debian packages were extracted to the temporary workspace; these tests accept only a local Unix socket, never Supabase or any remote database.
+- A pre-existing client-e2e timing flake reproduced: its event-loop-count driver advanced fake polling timers before the real fixture-handler promise settled. It now drains in-flight fixture calls first; the 600-step guard and all assertions remain unchanged. Focused test and the entire 159-test set pass after that correction.
+- Interrupted/resumed readings retain the last provider elapsed sample instead of dropping back to the short client turn duration; dedicated regression passes.
+- Final runtime build and shell budget: PASS; eager 203343/203493, frame JS 46851/47338, frame CSS 34301/34362 bytes gzip. No baseline/static frame import change.
+- CI **16/16 on 287e61944905f9a961d263a231df573640cbadf8** before the final elapsed-sample/test synchronization correction. Exact final-head CI is reported in PR #1397; old-head success is not substituted for it.
+
+## Files in this integration slice
+
+- Runtime: `src/components/experience2029/ResearchActivity2029.jsx`, `SystemFrame2029.jsx`, `researchActivity2029.css`; `src/lib/research/elsMatrixReadingActivity.js`, `elsMatrixReadingTransport.js`, `razielSession2029.js`.
+- Tests: `test/els-native-ui-browser.test.mjs`, `els-matrix-reading-indicator.test.mjs`, `els-matrix-reading-transport.test.mjs`, `els-matrix-reading-client-e2e.test.mjs`; `.github/workflows/els-core-compatibility-gate.yml` adds the indicator/activity/transport unit checks.
+- This handoff and the six screenshots below. The separately authorized main merge also imports main's existing files without reimplementing its frame work.
 
 No main merge, Preview/deployment, database writes, Edge deployment, flags/secrets or paid AI calls. Read-only ledger verified with `supabase_read_only_user`, transaction_read_only=on. No work-log write under the current restriction.
 

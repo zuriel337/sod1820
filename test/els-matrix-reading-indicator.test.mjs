@@ -28,3 +28,12 @@ test('principal reset and previews expose no previous reading; later questions r
  assert.equal(select({},now),null);assert.equal(select({busy:true,currentTurn:{...turn,readingOp:'preview'}},now),null);
  const session={...terminal('COMPLETE'),busy:true,currentTurn:{id:'q',kind:'question'}};assert.equal(select(session,now).id,'a');
 });
+
+test('interrupted or resumed jobs retain the provider elapsed sample, not a new short client turn',()=>{
+ const session=terminal('RUNNING',{timing:undefined,progress:{elapsed_ms:840000}});
+ assert.equal(select(session,now).elapsedMs,840000);
+ session.thread[0].elsMatrixReading={state:'CANCEL_REQUESTED',job:{elapsed_ms:850000}};
+ assert.equal(select(session,now).elapsedMs,850000);
+ const failed={currentTurn:{...turn,status:'error',completedAt:turn.startedAt,progress:{jobId:'known',elapsedMs:860000}}};
+ assert.equal(select(failed,now).elapsedMs,860000);
+});

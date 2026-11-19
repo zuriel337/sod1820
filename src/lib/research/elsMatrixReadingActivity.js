@@ -84,9 +84,11 @@ export function elsMatrixReadingIndicator(session, now = Date.now()) {
     : phase === 'CANCEL_REQUESTED' ? 'ביטול התבקש · המעקב נפסק'
     : status === 'INTERRUPTED' ? 'המעקב נפסק' : 'נכשלה';
   const started = Date.parse(item?.startedAt || (turn?.id === activity.turnId ? turn.startedAt : '') || result?.timing?.created_at);
+  const reportedElapsed = result?.timing?.elapsed_ms ?? result?.progress?.elapsed_ms ?? result?.job?.elapsed_ms
+    ?? (turn?.id === activity.turnId ? turn.progress?.elapsedMs : 0);
   const elapsed = activity.active
     ? Math.max(0, (Number(progress?.elapsedMs) || 0) + (progress?.observedAt ? Math.max(0, now - progress.observedAt) : 0), Number.isFinite(started) ? now - started : 0)
-    : Math.max(0, Number(result?.timing?.elapsed_ms) || (turn?.id === activity.turnId ? Date.parse(turn.completedAt) - Date.parse(turn.startedAt) : 0) || 0);
+    : Math.max(0, Number(reportedElapsed) || 0, (turn?.id === activity.turnId ? Date.parse(turn.completedAt) - Date.parse(turn.startedAt) : 0) || 0);
   return { id: activity.turnId, kind: 'els_matrix_reading', status, phase: label,
     origin: activity.axis, elapsedMs: elapsed, canCancel: activity.canCancel,
     estimate: activity.active ? elsMatrixReadingEstimate(elapsed) : null };
