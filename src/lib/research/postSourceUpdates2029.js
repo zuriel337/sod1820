@@ -16,6 +16,20 @@ import { publicPostHref, publicPostUnitHref } from "../publicPostUrls.js";
 //   A later edit of design or metadata never changes any of these.
 export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
   5113: Object.freeze([
+    // Revision 273 is the pre-write snapshot. Its creation time matches the saved post's modified time.
+    Object.freeze({
+      id: "bennett-salt-covenant-unity-20261119",
+      sourceSlug: "bennett-melach-631-78",
+      sourceModifiedAt: "2026-11-19T16:19:09.953152Z",
+      updatedAt: "2026-11-19T16:19:09.953152Z",
+      timeBasis: "write_with_backup_snapshot",
+      targetId: "bennett-salt-covenant-unity-20261119",
+      titleId: "bennett-salt-covenant-unity-20261119-title",
+      label: "מהמלח שנזרק לברית המלח — בנט מנסה לחבר קצוות",
+      date: "2026-11-19",
+      beforeRevision: 273,
+      attribution: "תוספת לפוסט",
+    }),
     ...[
       ["bennett-israel-78", "bennett-israel-78-title", "מלח = 78 — וישראל בת 78"],
       ["bennett-dead-sea-sequence", "bennett-sequence-title", "יומיים אחרי ים המלח — המלח מופיע שוב"],
