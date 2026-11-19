@@ -1,7 +1,7 @@
 {
- "generated": "2026-11-19T11:10:53.228Z",
- "base": "75fad83f85cf65d56d83cf33107c0d7c74f6cf1d",
- "fingerprint": "d7d326cd3b5532642fbf",
+ "generated": "2026-11-19T16:44:56.329Z",
+ "base": "fefc39e95ea7a8a99d6d143476037d57581709ae",
+ "fingerprint": "33563aff5f79464f202f",
  "jsdom": "25.0.1",
  "pipeline": [
   "src/lib/designTokens.js",
@@ -35,7 +35,7 @@
  ],
  "note": "Posts (imported or written on the site) whose exact stored source (and voice) was proven to give the browser's article on the server (scripts/build-article-first-proofs.mjs). Keyed by post id; the value is the proof key (postArticleProofKey2029). Valid only for the pipeline code and server DOM of `fingerprint` (scripts/lib/article-first-fingerprint.mjs).",
  "counts": {
-  "read": 1318,
+  "read": 1319,
   "candidates": 1296,
   "proven": 1296,
   "differ": 0

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { unitToPublishedHtml, insertUnitAtTop } from "./unitPublishedHtml2029.js";
+import { unitToPublishedHtml, unitBlocksToPublishedHtml, insertUnitAtTop } from "./unitPublishedHtml2029.js";
 import { YAMIN_SMOL_APPROVED_TEXT, YAMIN_SMOL_UNIT_ID } from "./postPreviewUnits2029.js";
 import { allSections, contentSha256, inspectFragment } from "./unitFragmentSavePlan2029.js";
 
@@ -72,4 +72,42 @@ test("the insertion refuses: a changed body (conflict), the unit already there, 
   assert.equal((await insertUnitAtTop({ content: LIVE, expectedSha256: sha, fragmentHtml: html.replace("</section>", '<a href="javascript:1">x</a></section>'), unitId: unit.id })).code, "unsafe_markup");
   assert.equal((await insertUnitAtTop({ content: LIVE, expectedSha256: sha, fragmentHtml: html.replace("</section>", '<p id="d">1</p><p id="d">2</p></section>'), unitId: unit.id })).code, "duplicate_ids");
   assert.equal((await insertUnitAtTop({ content: LIVE, expectedSha256: "nope", fragmentHtml: html, unitId: unit.id })).code, "bad_input");
+});
+
+test("Bennett uses the election unit front with three independently sourced engine references, then the full story", async () => {
+  const { JSDOM } = await import("jsdom");
+  const html = readFileSync(new URL("../../../docs/reviews/bennett-unit-5113/salt-covenant.fragment.html", import.meta.url), "utf8");
+  const doc = new JSDOM(html).window.document;
+  const section = doc.querySelector("section");
+  const title = doc.getElementById(section.getAttribute("aria-labelledby"));
+  assert.deepEqual([...title.nextElementSibling.querySelectorAll("[data-gem]")].map(el => el.dataset.gem), ["78", "631"]);
+  const hosts = [...section.querySelectorAll("[data-pu-published]")];
+  const references = hosts.map(host => JSON.parse(host.dataset.gxItem));
+  assert.deepEqual(references.map(ref => [ref.phrase, ref.methodKey, ref.stated]), [
+    ["מלח", "רגיל", 78], ["נפתלי בנט", "רגיל", 631], ["מלך ישראל", "רגיל", 631],
+  ]);
+  for (const [index, host] of hosts.entries()) {
+    assert.deepEqual(Object.keys(references[index]).sort(), ["display", "methodKey", "phrase", "sourceRef", "stated"]);
+    assert.equal(references[index].sourceRef, "posts:5113");
+    const block = unitBlocksToPublishedHtml({ id: section.id }, [{ kind: "gematria", item: references[index] }]);
+    const renderedHost = new JSDOM(block).window.document.querySelector("[data-gx-item]");
+    assert.equal(renderedHost.outerHTML, host.outerHTML);
+    assert.equal(host.children.length, 0);
+    assert.equal(host.previousElementSibling.querySelector("[data-gem]").textContent, String(references[index].stated));
+    assert.match(host.previousElementSibling.previousElementSibling.textContent, /התוצאה/);
+  }
+  for (const tail of ["story", "sources"]) {
+    const id = section.id + "-" + tail;
+    const dest = doc.getElementById(id);
+    assert.ok(dest && section.contains(dest));
+    assert.ok(section.querySelector('a[href="#' + id + '"]'));
+    assert.ok(hosts.at(-1).compareDocumentPosition(dest) & 4);
+  }
+  assert.deepEqual(inspectFragment(html).unsafe, []);
+  assert.deepEqual(inspectFragment(html).duplicateIds, []);
+});
+
+test("a matching number in another unit cannot inherit an election source trace", () => {
+  const html = unitToPublishedHtml({ id: "another-unit" }, YAMIN_SMOL_APPROVED_TEXT);
+  assert.doesNotMatch(html, /data-pu-trace=/);
 });
