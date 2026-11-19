@@ -12,18 +12,14 @@ export const APPROVED_GROUP_WRITERS = Object.freeze(['tzvi-opoc', 'yaniv-levi', 
 export const GROUP_SOURCE_LABEL = "הודעת מקור · טרם נבדקה";
 export const WORLD_GROUP_SOURCE_READER = "world_group_source_arrivals_v2";
 
-// Bounded Media7 repair (ZURIEL, 19.11.2026). Admission is still decided by the
-// public reader on every load; this list grants neither identity nor publication.
-const CATALOG_MEDIA7 = new Set([
-  "94cab26c-02cb-4eb3-ae32-61fee950dfea", "9fd28f82-5619-4161-9840-c957842d99fd",
-  "b0c9ae32-82ed-4845-8ac9-676c6010fe5d", "a9386f4b-21c1-4369-9f3d-1d7f95c3c47c",
-  "a6da5b36-121a-4e93-b2be-b8a7a250373f", "12ef341e-5c0e-4276-9680-6471dc569e18",
-  "b1d6c523-bb3d-459a-9db4-32037e8da2e7",
-]);
+// Tzvi's catalog consumes the same server-proved public mappings as the group
+// reader. A source ID is a lookup target, never an admission list: identity,
+// publication, hold and public-copy evidence are still checked by the server.
+const SOURCE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export async function fetchCatalogGroupSourceMedia({ sources = [], contributor, rpc } = {}) {
   const wanted = new Map(sources.filter(row => contributor?.slug === "tzvi-opoc"
-    && CATALOG_MEDIA7.has(row.id) && row.status === "live"
+    && SOURCE_UUID.test(row.id || "") && row.status === "live"
     && row.contributor_id === contributor.id && /^storage-object:[0-9a-f-]{36}$/.test(row.image_url || "")
     && Number.isFinite(Date.parse(row.created_at))).map(row => [row.id, row]));
   if (!wanted.size) return { byId: {}, status: "not_applicable" };

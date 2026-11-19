@@ -23,11 +23,42 @@ test('Media7 uses raw page cursor, exact admitted IDs and retains the original s
   assert.equal(catalog.items.length, 2); assert.ok(catalog.items.every(s => s.media.url === url));
   assert.ok(projection.sourceGroups.every(g => g.source.imageUrl.startsWith('storage-object:')));
 });
-test('unapproved IDs, other authors, and private sources never trigger the reader', async () => {
+test('invalid IDs, other authors, and private sources never trigger the reader', async () => {
   for (const sources of [[source('outside', '2026-11-12')], [{ ...source(ids[0], '2026-11-12'), status: 'private' }], [{ ...source(ids[0], '2026-11-12'), contributor_id: 'other' }]]) {
     const result = await fetchCatalogGroupSourceMedia({ sources, contributor, rpc: () => assert.fail('unexpected RPC') });
     assert.deepEqual(result, { byId: {}, status: 'not_applicable' });
   }
+});
+test('a new source uses server evidence without adding its ID to a static list', async () => {
+  const fresh = source('61724472-9d81-414c-a911-e00eab0caf38', '2026-11-10T12:00:00Z');
+  const before = JSON.stringify(fresh);
+  const admitted = await fetchCatalogGroupSourceMedia({ sources: [fresh], contributor,
+    rpc: async () => ({ data: [row(fresh)] }) });
+  assert.equal(admitted.status, 'ok');
+  assert.equal(admitted.byId[fresh.id].url, url);
+  assert.equal(JSON.stringify(fresh), before);
+  const absent = await fetchCatalogGroupSourceMedia({ sources: [fresh], contributor,
+    rpc: async () => ({ data: [] }) });
+  assert.deepEqual(absent, { byId: {}, status: 'unavailable' });
+  const other = await fetchCatalogGroupSourceMedia({ sources: [fresh], contributor: { ...contributor, slug: 'shachar-kandro' },
+    rpc: () => assert.fail('other contributor catalog is outside this batch') });
+  assert.equal(other.status, 'not_applicable');
+});
+test('evidence-backed video uses its public URL and poster without changing the source', async () => {
+  const video = source('0c7a4f04-ea80-42ff-af93-db86339ddab2', '2026-11-10T12:00:00Z');
+  const videoUrl = url.replace('original.jpg', 'original.mp4');
+  const result = await fetchCatalogGroupSourceMedia({ sources: [video], contributor,
+    rpc: async () => ({ data: [{ ...row(video), media_kind: 'video', media_url: videoUrl, thumb_url: url }] }) });
+  assert.deepEqual(result.byId[video.id], { kind: 'video', url: videoUrl, thumbUrl: url });
+});
+test('unresolved catalog targets cannot expand the existing 32-page request budget', async () => {
+  const old = source('61724472-9d81-414c-a911-e00eab0caf38', '2026-01-01T00:00:00Z');
+  let calls = 0;
+  const result = await fetchCatalogGroupSourceMedia({ sources: [...sources, old], contributor,
+    rpc: async () => { calls++; return { data: Array.from({ length: 40 }, (_, i) => ({
+      id: `unrelated-${calls}-${i}`, created_at: new Date(Date.parse('2026-11-12T12:00:00Z') - calls * 60000).toISOString(),
+    })) }; } });
+  assert.equal(calls, 32); assert.deepEqual(result, { byId: {}, status: 'unavailable' });
 });
 test('missing proof, wrong writer, private URL and timestamp drift fail closed', async () => {
   for (const delta of [{ group_proof: false }, { contributor_slug: 'shimon-haimov' }, { media_url: url.replace('/public/', '/sign/') }, { created_at: '2026-11-01' }]) {
