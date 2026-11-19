@@ -1,3 +1,4 @@
+import { BRAND_LOCKUP_NAV_2029 } from "./brandAssets2029.js";
 // "Now" publications window: pure presentation projection over the EXISTING system feed rows
 // (useSystemFeed2029 -> feedRows). No network, store, ranking or second reader.
 // One publication is ONE row: identity comes from feed row ids / sourceRefs (see mergeSystemFeedItems);
@@ -54,7 +55,7 @@ const toneOf = (lenses, unverified) => unverified ? "teal" : lenses.has("message
 export const NOW_SOURCE_LOGOS = Object.freeze({
   "or-geula": Object.freeze({ src: "/brand/2029/source-logos/or-geula.webp", label: "אור הגאולה" }),
   els: Object.freeze({ src: "/brand/2029/source-logos/els.webp", label: "הצופן התנכי" }),
-  site: Object.freeze({ src: "/brand/2029/source-logos/site.webp", label: "כי לה׳ המלוכה" }),
+  site: Object.freeze({ src: BRAND_LOCKUP_NAV_2029.src, label: BRAND_LOCKUP_NAV_2029.alt }),
 });
 // OUR logos mark OUR material only (ZURIEL 6.11.2026): Or HaGeula channel, ELS findings, and posts whose public byline is the system
 // identity. A named human writer or a third-party series (e.g. מה קורה הבורא, מימד חמש, סוד החשמל) never gets a site logo: default is none.
@@ -62,6 +63,7 @@ export const NOW_SOURCE_LOGOS = Object.freeze({
 const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, isGallery, author, seriesKey }) => {
   if (unverified) return null;
   if (isGallery || (isPost && seriesKey === REALITY_MAP_LATEST_KEY)) return "site";
+  if (isChannel && channel === "site-news") return "site";
   if (isChannel && channel === "or-geula") return "or-geula";
   if (kind === "finding" || kind === "convergence") return "els";
   if (isPost && !seriesKey && publicAuthorName(author) === SYSTEM_BYLINE) return "site";

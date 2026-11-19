@@ -34,6 +34,13 @@ export const BRAND_LOCKUP_HERO_2029 = Object.freeze({
   sourceSha256: BRAND_LOCKUP_2029.sha256,
 });
 
+// PNG delivery for Satori's card renderers. Approved full lockup, resized without cropping.
+export const BRAND_CARD_2029 = Object.freeze({
+  sourceSha256: BRAND_LOCKUP_2029.sha256,
+  path: "api/_assets/logo.png",
+  sha256: "f7222b4770de01999450d5576ccf0680756b4e2deaa5a57e5d1af0eec9231daa",
+});
+
 // Byte-exact local delivery of the approved full square lockup for installed
 // applications. A fingerprinted URL updates the icon without changing PWA id.
 export const BRAND_APP_ICON_2029 = Object.freeze({
