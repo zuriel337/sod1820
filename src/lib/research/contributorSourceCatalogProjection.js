@@ -43,6 +43,11 @@ function readableText(source) {
 }
 
 function sourceMedia(source) {
+  if (source?.publicMedia?.url) return {
+    url: source.publicMedia.url,
+    type: source.publicMedia.kind === "video" ? CONTRIBUTOR_SOURCE_FORMAT.VIDEO : CONTRIBUTOR_SOURCE_FORMAT.IMAGE,
+    thumbUrl: source.publicMedia.thumbUrl || null,
+  };
   const url = clean(source?.imageUrl || source?.thumbUrl);
   if (!url) return null;
   return {

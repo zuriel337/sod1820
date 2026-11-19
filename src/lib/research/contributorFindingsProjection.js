@@ -122,6 +122,7 @@ function sourceMeta(row) {
     text: clean(row.text) || null,
     imageUrl: clean(row.image_url) || null,
     thumbUrl: clean(row.thumb_url) || null,
+    publicMedia: row.publicMedia || null,
     linkUrl: clean(row.link_url) || null,
     topics: uniq(row.topics),
   };
@@ -826,6 +827,15 @@ export async function fetchContributorFindingsProjection(slug, {
   const contributionValue = value(contributions, { rows: [], total: 0, truncated: false });
   const topicRows = value(topics, []);
 
+  // Keep the stored media locator intact. Only the anonymous, governed reader
+  // may supply a separate public representation for the bounded Media7 cohort.
+  let publicMedia = { byId: {}, status: "not_applicable" };
+  if (mode === PROJECTOR_MODE.PUBLIC_VIEW && contributor.slug === "tzvi-opoc") {
+    const { fetchCatalogGroupSourceMedia } = await import("./worldGroupSource.js");
+    publicMedia = await fetchCatalogGroupSourceMedia({ sources: sourceValue.rows, contributor,
+      rpc: (...args) => client.rpc(...args) });
+  }
+
   // Tree placement does not require lexical enrichment. Skipping it for the library's bounded
   // promoted slice prevents a large writer from turning one selection into a second broad read.
   const terms = sourceLibraryTreeOnly ? [] : uniq(researchValue.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
@@ -839,7 +849,8 @@ export async function fetchContributorFindingsProjection(slug, {
   const projection = buildContributorFindingsProjection({
     contributor,
     researchObjects: researchValue.rows,
-    sourceMessages: sourceValue.rows,
+    sourceMessages: sourceValue.rows.map(row => publicMedia.byId[row.id]
+      ? { ...row, publicMedia: publicMedia.byId[row.id] } : row),
     contributions: contributionValue.rows,
     topics: topicRows,
     lexicalRows,
@@ -854,6 +865,7 @@ export async function fetchContributorFindingsProjection(slug, {
     availability: {
       ...availability,
       research: availability.research,
+      publicMedia: publicMedia.status,
     },
     loadState: {
       researchObjectsTotal: researchValue.total,
