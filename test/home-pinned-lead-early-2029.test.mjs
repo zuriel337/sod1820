@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { homePinnedLeadEarlyWanted } from "../src/lib/homeAtmospherePreload2029.js";
 import { preloadPinnedCover2029, startHomePinnedLeadEarly2029, HOME_PINNED_COVER_MARK } from "../src/lib/homePinnedLeadEarly2029.js";
-import { homeMediaProps2029, HOME_MEDIA_SLOTS_2029, pinnedCatalogCover2029, pinCoverSet, PIN_COVER_SIZES, PIN_COVER_WIDTHS, PIN_COVER_QUALITY } from "../src/components/experience2029/homePinnedCover2029.js";
+import { homeMediaProps2029, pinnedCatalogCover2029, pinCoverSet, PIN_COVER_SIZES, PIN_COVER_WIDTHS, PIN_COVER_QUALITY } from "../src/components/experience2029/homePinnedCover2029.js";
 import { seriesLatestMember2029 } from "../src/lib/nowPublications2029.js";
 import { fetchContentSeriesCatalog2029, resetSharedCatalogRead2029 } from "../src/lib/research/contentSeries2029Projection.js";
 import { CONTENT_SERIES_2029 } from "../src/lib/research/contentSeries2029Identity.js";
@@ -136,9 +136,9 @@ test("Home Media Policy delivers a responsive small copy without changing the or
   assert.match(compact.src, /\/storage\/v1\/render\/image\/public\/media\/sod1820\/posts\/5018\.jpg\?width=96&quality=58&resize=contain$/);
   assert.equal(compact.sizes, "64px");
   assert.match(compact.srcSet, /width=96&quality=58&resize=contain 96w, .*width=160&quality=58&resize=contain 160w$/);
-  for (const [name, slot] of Object.entries(HOME_MEDIA_SLOTS_2029)) {
-    assert.equal(slot.widths.length, 2, name);
-    assert.ok(slot.widths[0] < slot.widths[1], name);
+  for (const name of ["compact", "series", "tile", "poster"]) {
+    const media = homeMediaProps2029(original, name);
+    assert.match(media.srcSet, / 96w,| 160w,| 240w,| 480w,/ , name);
   }
   const external = "https://i.ytimg.com/vi/example/hqdefault.jpg";
   assert.deepEqual(homeMediaProps2029(external, "tile"), { src: external, srcSet: null, sizes: null });
