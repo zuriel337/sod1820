@@ -1,3 +1,5 @@
+import { fullscanDisplaySourceRefs, fullscanResearchIdForOccurrence } from "./tzviFullscanSourceProjection.js";
+export { fullscanDisplaySourceRefs } from "./tzviFullscanSourceProjection.js";
 import { readContributorResearchView } from "./contributorResearchView.js";
 import { supabase } from "../supabase.js";
 import { getPublicResearchClient, PROJECTOR_MODE } from "./researchViewMode.js";
@@ -30,7 +32,8 @@ const uniq = (values) => [...new Set((Array.isArray(values) ? values : []).map(c
 const placeholderSourceCopy = (value) => ["📷 עדכון", "עדכון", "מקור ללא טקסט"].includes(clean(value));
 const postgrestQuoted = (value) => `"${clean(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 
-function researchGroupSourceRef(row) {
+function researchGroupSourceRef(row, displaySourceRefs = {}) {
+  if (displaySourceRefs[row?.id]) return displaySourceRefs[row.id];
   const sourceRef = clean(row?.source_ref) || `research_objects:${row?.id}`;
   return sourceRef.startsWith("channel_updates:") ? sourceRef.split("#", 1)[0] : sourceRef;
 }
@@ -122,6 +125,7 @@ function sourceMeta(row) {
     text: clean(row.text) || null,
     imageUrl: clean(row.image_url) || null,
     thumbUrl: clean(row.thumb_url) || null,
+    publicMedia: row.publicMedia || null,
     linkUrl: clean(row.link_url) || null,
     topics: uniq(row.topics),
   };
@@ -458,6 +462,7 @@ export function buildContributorFindingsProjection({
   contributions = [],
   topics = [],
   lexicalRows = [],
+  displaySourceRefs = {},
 } = {}) {
   if (!contributor?.id) return null;
 
@@ -496,7 +501,7 @@ export function buildContributorFindingsProjection({
   const groups = new Map();
   for (const row of Array.isArray(researchObjects) ? researchObjects : []) {
     if (!row?.id) continue;
-    const sourceRef = researchGroupSourceRef(row);
+    const sourceRef = researchGroupSourceRef(row, displaySourceRefs);
     if (!groups.has(sourceRef)) groups.set(sourceRef, { sourceRef, rows: [] });
     groups.get(sourceRef).rows.push(row);
   }
@@ -651,12 +656,13 @@ async function fetchResearchObjects(client, contributorId, aliases, sourceRef = 
   ].join(",");
   const occurrenceId = channelUpdateOccurrenceId(sourceRef);
   const exactSourceRef = occurrenceId ? `channel_updates:${occurrenceId}` : null;
+  const fullscan = fullscanResearchIdForOccurrence(exactSourceRef);
   const result = await readContributorResearchView((view) => paged((start, end, first) => {
     let query = client
       .from(view)
       .select(fields, first ? { count: "exact" } : undefined)
-      .or(contributorFilter);
-    if (exactSourceRef) query = query.like("source_ref", `${exactSourceRef}%`);
+      .or(fullscan ? `and(or(${contributorFilter}),or(source_ref.like.${exactSourceRef}*,id.eq.${fullscan}))` : contributorFilter);
+    if (exactSourceRef && !fullscan) query = query.like("source_ref", `${exactSourceRef}%`);
     // The source library must stay fast, but it also needs the visitor's
     // documented location in the tree. Read only already-canonical, already-
     // promoted findings here — never the contributor's full research corpus.
@@ -686,7 +692,7 @@ async function fetchContributorContributions(client, contributorId) {
 async function fetchSourceMessages(client, contributor, aliases, sourceRef = null) {
   const byId = new Map();
   let truncated = false;
-  const fields = "id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id,topics";
+  const fields = "id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id,topics,expires_at";
   const occurrenceId = channelUpdateOccurrenceId(sourceRef);
 
   if (occurrenceId) {
@@ -826,6 +832,15 @@ export async function fetchContributorFindingsProjection(slug, {
   const contributionValue = value(contributions, { rows: [], total: 0, truncated: false });
   const topicRows = value(topics, []);
 
+  // Keep the stored media locator intact. Only the anonymous, governed reader
+  // may supply a separate public representation for the bounded Media7 cohort.
+  let publicMedia = { byId: {}, status: "not_applicable" };
+  if (mode === PROJECTOR_MODE.PUBLIC_VIEW && contributor.slug === "tzvi-opoc") {
+    const { fetchCatalogGroupSourceMedia } = await import("./worldGroupSource.js");
+    publicMedia = await fetchCatalogGroupSourceMedia({ sources: sourceValue.rows, contributor,
+      rpc: (...args) => client.rpc(...args) });
+  }
+
   // Tree placement does not require lexical enrichment. Skipping it for the library's bounded
   // promoted slice prevents a large writer from turning one selection into a second broad read.
   const terms = sourceLibraryTreeOnly ? [] : uniq(researchValue.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
@@ -839,10 +854,13 @@ export async function fetchContributorFindingsProjection(slug, {
   const projection = buildContributorFindingsProjection({
     contributor,
     researchObjects: researchValue.rows,
-    sourceMessages: sourceValue.rows,
+    sourceMessages: sourceValue.rows.map(row => publicMedia.byId[row.id]
+      ? { ...row, publicMedia: publicMedia.byId[row.id] } : row),
     contributions: contributionValue.rows,
     topics: topicRows,
     lexicalRows,
+    displaySourceRefs: mode === PROJECTOR_MODE.PUBLIC_VIEW
+      ? fullscanDisplaySourceRefs(researchValue.rows, sourceValue.rows, contributor) : {},
   });
   const availability = deriveAvailability(settled);
 
@@ -854,6 +872,7 @@ export async function fetchContributorFindingsProjection(slug, {
     availability: {
       ...availability,
       research: availability.research,
+      publicMedia: publicMedia.status,
     },
     loadState: {
       researchObjectsTotal: researchValue.total,
