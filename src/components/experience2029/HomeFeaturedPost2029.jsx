@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { useApproach2029 } from "./useApproach2029.js";
 import { getHomeFeaturedPost2029 } from "../../lib/research/homeFeaturedPost2029.js";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
-import { homeMediaProps2029 } from "./homeMediaPolicy2029.js";
+import { homeMediaProps2029 } from "./homePinnedCover2029.js";
 
 export function useHomeFeaturedPost() {
   const [state, setState] = useState({ post: null, loading: true });
