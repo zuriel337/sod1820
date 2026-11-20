@@ -48,3 +48,8 @@ Return PASS / FAIL / UNKNOWN for each check with code path + evidence; identify 
 - For vt.tiktok.com short links, the Edge worker performs at most one HEAD with manual redirect, accepts only an exact canonical TikTok /@handle/video/id destination, strips query tracking, then calls fixed TikTok oEmbed. If redirect does not yield the canonical form, it remains unresolved rather than guessing.
 - The Video Ingest CI now runs test/video-link-intake-2029-contract.test.mjs, including checks for bounded response reading and one-hop TikTok resolution.
 - Explicitly check playlist and short-TikTok behavior on provider test URLs during Claude audit; provider HTTP failures are not proof that intake itself failed.
+
+## Optional v3 client adapter (still off)
+- worldGroupSource.js supports explicit readerVersion="v3" for isolated tests only; production callers default to v2 with no extra RPC, latency, entitlement or fallback request.
+- groupRowToWorldUpdate accepts source_video_title and strictly admitted source_video_href only after the existing server-proof identity gates. World and Now components can open this source when absent from sanitized body.
+- This client work is not activated until SQL v3 is independently audited, granted deliberately, deployed and verified. Review the v3 function and clients as one atomic admission design.
