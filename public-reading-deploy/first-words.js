@@ -1,0 +1,220 @@
+// FIRST WORDS (ZURIEL 20.11.2026). A public page that is not a Post reached a reader, and a search crawler, as the opening shell only: a title
+// and nothing to read (Search Console, URL Inspection 18.11.2026: phrase pages folded into unrelated number pages as duplicates, for example
+// /number/נטע -> /number/2). A Post already carries its article in the document (article-first.js). This module gives the other public
+// families the same first answer: the page's own heading, a short statement and real links, inside the opening shell, before any script runs.
+//
+// Rules:
+//  - Every reader gets the same bytes (no user-agent branch), and the words are visible. The page replaces them with its full form on mount.
+//  - Only public readers under the anonymous key (RLS applies); only verified, published gematria (verified_only_public_gematria_law).
+//  - A value shown for a phrase is the stored canonical value of that verified row. Nothing is calculated here.
+//  - "What people looked for" comes from the one public activity reader, research_pulse_2029 (#1461). While it is not available, the
+//    block is simply absent. No second statistics source.
+//  - Never throws and never delays the document beyond its small deadline: on any failure the answer is today's document.
+//  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
+import { publicPostHref } from "../src/lib/publicPostUrls.js";
+import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
+
+// The public project address and the public anonymous key, as in the other server readers (api/og.js, api/sitemap.js, api/card.js). The browser
+// module src/lib/supabase.js is not imported here: it creates a client, which a server function must not load.
+const SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
+export const FIRST_WORDS_DEADLINE_MS = 1500;
+export const FIRST_WORDS_MAX_BYTES = 24000;
+const HEADERS = { apikey: SUPABASE_ANON, Authorization: "Bearer " + SUPABASE_ANON };
+const VERIFIED = "is_verified=eq.true&is_published=eq.true";
+
+const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+const text = value => String(value ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+const numberHref = value => "/number/" + encodeURIComponent(String(value));
+const day = value => /^\d{4}-\d{2}-\d{2}/.test(String(value || "")) ? String(value).slice(0, 10).split("-").reverse().join(".") : "";
+function unique(rows, key) {
+  const seen = new Set(), out = [];
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const id = text(row?.[key]);
+    if (!id || seen.has(id)) continue;
+    seen.add(id); out.push(row);
+  }
+  return out;
+}
+
+function reader(fetchImpl, signal) {
+  const get = async (path, init = {}) => {
+    const response = await fetchImpl(`${SUPABASE_URL}/rest/v1/${path}`, { ...init, headers: { ...HEADERS, ...(init.headers || {}) }, signal });
+    if (!response.ok) throw new Error("first_words_source_unavailable");
+    return response.json();
+  };
+  return {
+    rows: async path => { const rows = await get(path); if (!Array.isArray(rows)) throw new Error("first_words_source_invalid"); return rows; },
+    rpc: (name, body) => get(`rpc/${name}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }),
+  };
+}
+// A failed optional block is an absent block; it never fails the page's words.
+const optional = promise => promise.catch(() => null);
+
+async function postsOfNumber(read, value) {
+  const found = await read.rpc("posts_by_number_strict", { num: value, lim: 3 });
+  const slugs = unique(found, "slug").map(row => row.slug).slice(0, 3);
+  if (!slugs.length) return [];
+  const rows = await read.rows(`posts?slug=in.(${slugs.map(slug => `"${String(slug).replace(/["\\]/g, "")}"`).map(encodeURIComponent).join(",")})&select=id,slug,wp_id,source,link,title,date`);
+  return slugs.map(slug => rows.find(row => row.slug === slug)).filter(Boolean);
+}
+
+async function numberFacts(read, value) {
+  const [phrases, anchor, posts] = await Promise.all([
+    read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=60`),
+    optional(read.rows(`number_anchors?value=eq.${value}&select=fact,hint&limit=1`)),
+    optional(postsOfNumber(read, value)),
+  ]);
+  const list = unique(phrases, "phrase");
+  if (!list.length && !posts?.length && !anchor?.[0]?.fact) return null;
+  return { kind: "number", value, phrases: list, anchor: anchor?.[0] || null, posts: posts || [] };
+}
+
+async function phraseFacts(read, phrase) {
+  const own = await read.rows(`gematria_words?phrase=eq.${encodeURIComponent(phrase)}&${VERIFIED}&select=phrase,ragil&limit=1`);
+  const value = Number(own[0]?.ragil);
+  if (!own[0] || !Number.isSafeInteger(value) || value < 1) return null;
+  const [peers, posts] = await Promise.all([
+    optional(read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=40`)),
+    optional(postsOfNumber(read, value)),
+  ]);
+  return { kind: "phrase", phrase: own[0].phrase, value, phrases: unique(peers, "phrase").filter(row => row.phrase !== own[0].phrase), posts: posts || [] };
+}
+
+async function calculatorFacts(read, kind) {
+  const [recent, pulse] = await Promise.all([
+    optional(read.rows(`gematria_words?${VERIFIED}&ragil=gte.1&select=phrase,ragil,created_at&order=created_at.desc.nullslast&limit=36`)),
+    // The one public activity reader (#1461). Its own contract: { version: 1, phrases: [{ phrase, value, events }] }; anything else is absent.
+    optional(read.rpc("research_pulse_2029", { p_hours: 168 })),
+  ]);
+  const searched = pulse?.version === 1 && Array.isArray(pulse.phrases)
+    ? unique(pulse.phrases, "phrase").filter(row => Number.isSafeInteger(Number(row.value))).slice(0, 24) : [];
+  return { kind, recent: unique(recent, "phrase").slice(0, 30), searched };
+}
+
+async function codesFacts(read) {
+  const rows = await read.rows("els_records?status=eq.published&visibility=eq.public&select=slug,title,search_term,skip_distance&order=created_at.desc.nullslast&limit=100");
+  return rows.length ? { kind: "codes", codes: unique(rows, "slug") } : null;
+}
+async function codeFacts(read, slug) {
+  const rows = await read.rows(`els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published&visibility=eq.public&select=slug,title,search_term,skip_distance,scope,positions&limit=1`);
+  const row = rows[0];
+  if (!row) return null;
+  const findings = Array.isArray(row.positions?.findings) ? row.positions.findings.map(item => text(item?.t)).filter(Boolean).slice(0, 12) : [];
+  return { kind: "code", code: row, findings };
+}
+async function topicFacts(read, slug) {
+  const rows = await read.rows(`topic_cards_public?slug=eq.${encodeURIComponent(slug)}&select=title,subtitle,highlight_numbers&limit=1`);
+  const row = rows[0];
+  return row ? { kind: "topic", topic: row } : null;
+}
+
+// Which family an address belongs to. Anything else has no first words (today's document).
+export function firstWordsFamily2029(path) {
+  let decoded;
+  try { decoded = decodeURIComponent(path).replace(/\/+$/, "") || "/"; } catch { return null; }
+  if (decoded === "/gematria") return { kind: "gematria" };
+  if (decoded === "/community/calculator") return { kind: "community-calculator" };
+  if (decoded === "/codes") return { kind: "codes" };
+  let match = /^\/number\/([^/]+)$/.exec(decoded);
+  if (match) {
+    if (/^\d{1,9}$/.test(match[1])) return Number(match[1]) >= 1 ? { kind: "number", value: Number(match[1]) } : null;
+    return /^\d+$/.test(match[1]) || match[1].length > 120 ? null : { kind: "phrase", phrase: match[1] };
+  }
+  match = /^\/codes\/([^/]+)$/.exec(decoded);
+  if (match && match[1] !== "מחקר") return { kind: "code", slug: match[1] };
+  match = /^\/topic\/([^/]+)$/.exec(decoded);
+  if (match) return { kind: "topic", slug: match[1] };
+  return null;
+}
+
+export async function firstWordsFacts2029(path, { search = "", fetchImpl = globalThis.fetch, deadlineMs = FIRST_WORDS_DEADLINE_MS } = {}) {
+  const family = search ? null : firstWordsFamily2029(path);
+  if (!family || typeof fetchImpl !== "function") return null;
+  try {
+    const read = reader(fetchImpl, AbortSignal.timeout(deadlineMs));
+    if (family.kind === "number") return await numberFacts(read, family.value);
+    if (family.kind === "phrase") return await phraseFacts(read, family.phrase);
+    if (family.kind === "codes") return await codesFacts(read);
+    if (family.kind === "code") return await codeFacts(read, family.slug);
+    if (family.kind === "topic") return await topicFacts(read, family.slug);
+    return await calculatorFacts(read, family.kind);
+  } catch { return null; }
+}
+
+const links = (items, label) => items.length
+  ? `<h2>${esc(label)}</h2><ul>${items.map(item => `<li><a href="${esc(item.href)}">${esc(item.label)}</a>${item.note ? ` <span>${esc(item.note)}</span>` : ""}</li>`).join("")}</ul>` : "";
+const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: numberHref(row.phrase), label: text(row.phrase), note: withValue && row.ragil != null ? `= ${Number(row.ragil ?? row.value)}` : "" }));
+const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
+
+function body(facts) {
+  if (facts.kind === "number") {
+    const { value, phrases, anchor, posts } = facts;
+    return `<h1>${value} בגימטריה</h1>`
+      + (anchor?.fact ? `<p>${esc(text(anchor.fact))}${anchor.hint ? " — " + esc(text(anchor.hint)) : ""}</p>` : "")
+      + (phrases.length ? `<p>${phrases.length} ביטויים מאומתים שערכם ${value} בגימטריה רגילה, מתוך מאגר סוד 1820.</p>` : "")
+      + links(phraseLinks(phrases), `ביטויים ששווים ${value}`)
+      + links(postLinks(posts), `פוסטים על ${value}`)
+      + `<p><a href="/gematria">מחשבון גימטריה</a> · <a href="${numberHref(value - 1)}">${value - 1}</a> · <a href="${numberHref(value + 1)}">${value + 1}</a></p>`;
+  }
+  if (facts.kind === "phrase") {
+    const { phrase, value, phrases, posts } = facts;
+    return `<h1>${esc(text(phrase))} בגימטריה = ${value}</h1>`
+      + `<p>הערך של «${esc(text(phrase))}» בגימטריה רגילה הוא <a href="${numberHref(value)}">${value}</a>. ביטוי מאומת במאגר סוד 1820.</p>`
+      + links(phraseLinks(phrases), `ביטויים נוספים ששווים ${value}`)
+      + links(postLinks(posts), `פוסטים על ${value}`)
+      + `<p><a href="/gematria?q=${encodeURIComponent(text(phrase))}">חשבו את «${esc(text(phrase))}» בכל השיטות</a></p>`;
+  }
+  if (facts.kind === "gematria" || facts.kind === "community-calculator") {
+    const community = facts.kind === "community-calculator";
+    const searched = links(facts.searched.map(row => ({ href: numberHref(row.phrase), label: text(row.phrase), note: `= ${Number(row.value)}` })), "חיפשו השבוע");
+    const recent = links(phraseLinks(facts.recent, true), "גימטריות מאומתות שנוספו לאחרונה");
+    const explain = `<h2>${esc(COMMUNITY_CALCULATOR_EXPLAINER.heading)}</h2>` + COMMUNITY_CALCULATOR_EXPLAINER.paragraphs.map(paragraph => `<p>${esc(paragraph)}</p>`).join("");
+    return community
+      ? `<h1>${esc(COMMUNITY_CALCULATOR_SEO.heading)}</h1><p>${esc(COMMUNITY_CALCULATOR_SEO.lead)}</p>${searched}${recent}${explain}`
+        + `<h2>שאלות נפוצות</h2>` + COMMUNITY_CALCULATOR_FAQ.map(({ q, a }) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join("")
+      : `<h1>מחשבון גימטריה</h1><p>הקלידו מילה, שם או ביטוי וקבלו את הערך בכל שיטות הגימטריה, עם פירוק האותיות והביטויים ששווים לאותו ערך.</p>`
+        + `${searched}${recent}${explain}<p><a href="/community/calculator">מחשבון הקהילה: שמות, השוואה ותאריך עברי</a> · <a href="/number">דף המספר</a></p>`;
+  }
+  if (facts.kind === "codes") {
+    return `<h1>ספריית הצפנים</h1><p>דילוגי אותיות (ELS) שפורסמו בסוד 1820: המונח, הדילוג והמקום בתורה ובתנ״ך.</p>`
+      + links(facts.codes.map(row => ({ href: "/codes/" + encodeURIComponent(row.slug), label: text(row.title || row.search_term), note: row.skip_distance != null ? `דילוג ${row.skip_distance}` : "" })), "הצפנים שפורסמו")
+      + `<p><a href="/code">כלי הצופן: חיפוש דילוגי אותיות בתנ״ך</a></p>`;
+  }
+  if (facts.kind === "code") {
+    const { code, findings } = facts;
+    return `<h1>הצופן «${esc(text(code.title || code.search_term))}»</h1>`
+      + `<p>דילוג אותיות (ELS) של «${esc(text(code.search_term))}» ב${code.scope === "tanakh" ? "כל התנ״ך" : "תורה"}${code.skip_distance != null ? `, בדילוג ${esc(code.skip_distance)}` : ""}. עדות, לא ניבוי.</p>`
+      + (findings.length ? `<h2>מה נמצא במטריצה</h2><ul>${findings.map(item => `<li>${esc(item)}</li>`).join("")}</ul>` : "")
+      + `<p><a href="/codes">כל הצפנים</a> · <a href="/code">כלי הצופן</a></p>`;
+  }
+  if (facts.kind === "topic") {
+    const numbers = (Array.isArray(facts.topic.highlight_numbers) ? facts.topic.highlight_numbers : []).map(Number).filter(value => Number.isSafeInteger(value) && value > 0).slice(0, 24);
+    return `<h1>${esc(text(facts.topic.title))}</h1>` + (facts.topic.subtitle ? `<p>${esc(text(facts.topic.subtitle))}</p>` : "")
+      + links(numbers.map(value => ({ href: numberHref(value), label: String(value) })), "המספרים בהתכנסות") + `<p><a href="/world">העולם</a></p>`;
+  }
+  if (facts.kind === "taxonomy") {
+    return `<h1>${esc(text(facts.label))}</h1><p>הפרסומים הציבוריים של סוד 1820 ב${facts.taxonomyKind === "tag" ? "תגית" : "סיווג"} «${esc(text(facts.label))}».</p>`
+      + links(postLinks(facts.posts), "פרסומים") + `<p><a href="/post">כל הפוסטים</a></p>`;
+  }
+  return "";
+}
+
+// One small style, scoped to the block; colours are inherited from the opening shell (dark, light and parchment themes alike).
+const STYLE = "<style>.sod29-first-words{max-width:46rem;margin:0 auto;padding:0 16px 48px;line-height:1.7;font-size:17px}.sod29-first-words h1{font-size:26px;line-height:1.3;margin:0 0 12px}.sod29-first-words h2{font-size:19px;margin:22px 0 8px}.sod29-first-words h3{font-size:17px;margin:14px 0 4px}.sod29-first-words p{margin:0 0 10px}.sod29-first-words ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px}.sod29-first-words a{color:inherit;text-decoration:underline;text-underline-offset:3px}.sod29-first-words li span{opacity:.75;font-size:14px}</style>";
+
+export function firstWordsHtml2029(facts) {
+  try {
+    const inner = facts ? body(facts) : "";
+    if (!inner) return "";
+    const html = `${STYLE}<main class="sod29-first-words" data-first-words="${esc(facts.kind)}">${inner}</main>`;
+    return Buffer.byteLength(html, "utf8") <= FIRST_WORDS_MAX_BYTES ? html : "";
+  } catch { return ""; }
+}
+
+// The words go inside the opening shell, after its status line: the shell stays the same bar, and the page replaces the whole shell on mount.
+const SLOT = /(<span class="sod29-opening-status" role="status">[^<]*<\/span>)(\s*<\/div><\/div>)/;
+export function withFirstWords2029(html, fragment) {
+  if (!fragment || typeof html !== "string" || html.includes("data-first-words=") || !SLOT.test(html)) return { html, state: fragment ? "no-slot" : "none" };
+  return { html: html.replace(SLOT, (_, status, close) => status + fragment + close), state: "served" };
+}

@@ -53,7 +53,7 @@ test("public footer links come from the registry and external links keep their v
   }
   const allowed = new Set(SITE_LINKS.map((item) => item.href));
   for (const href of hrefs(html)) assert.ok(allowed.has(href), `footer link ${href} is not in the registry`);
-  for (const href of ["/post", "/category/מימד חמש", "/community/chat", "/category/סוד החשמל", "/world", "/number", "/2029/me/profile", "/2029/me/notifications", "/community", "/contact", "/privacy", "/map"]) {
+  for (const href of ["/post", "/category/מימד-חמש", "/community/chat", "/category/סוד-החשמל", "/world", "/number", "/2029/me/profile", "/2029/me/notifications", "/community", "/contact", "/privacy", "/map"]) {
     assert.ok(hrefs(html).includes(href), `${href} is missing from the footer`);
   }
 });

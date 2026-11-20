@@ -4,6 +4,7 @@ import ogHandler from "../../api/og.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } from "../../src/lib/publicReadingRelease2029.js";
 import { withArticleFirst2029 } from "./article-first.js";
 import { withRoutePreloads2029 } from "../route-preload.js";
+import { firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029 } from "../first-words.js";
 import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, publicCandidateOrigin, publicIndexingAllowed, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
@@ -110,7 +111,9 @@ export function pageDocumentCdnHeaders(path, policy = PAGE_DOCUMENT_CDN_CACHE) {
 // uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
   readDocument = () => readFile(new URL("../.generated/2029.html", import.meta.url), "utf8"),
-  metadataHandler = ogHandler, articleFirst = withArticleFirst2029 } = {}) {
+  metadataHandler = ogHandler, articleFirst = withArticleFirst2029,
+  // A caller that replaces the metadata owner (a local synthetic test seam) gets no live reader unless it names one.
+  firstWords = metadataHandler === ogHandler ? firstWordsFacts2029 : async () => null } = {}) {
   return async (req, res) => {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
@@ -172,9 +175,13 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       const metadataPath = state === "account" ? "/login" : numberAlias ? `/number/${numberAlias[1]}`
         : ({ "/2029": "/", "/2029/posts": "/post", "/2029/gematria": "/gematria",
           "/2029/gematria/viral": "/gematria", "/2029/calculator": "/gematria" })[path] || path;
-      let admittedPost = null;
+      let admittedPost = null, admittedWords = null;
+      // First words (first-words.js): read beside the metadata, never after it, so the document does not wait longer than it does today
+      // for the slower of the two; a closed, unknown or account address reads nothing.
+      const wordsRead = state === "public" && originalDocument ? Promise.resolve().then(() => firstWords(metadataPath, { search })).catch(() => null) : Promise.resolve(null);
       await metadataHandler({ ...req,
         publicReadingArticleSource: row => { admittedPost = row; },
+        publicReadingFirstWords: facts => { admittedWords = facts; },
         publicFoundationPreview: true,
         publicReadingRelease: PUBLIC_READING_PROFILE_ID,
         publicReadingProductionArtifact: true,
@@ -200,8 +207,11 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       // An imported Post on the proven list carries its article in this document (article-first.js); anything else is exactly as before.
       const firstDocument = articleFirst(await readDocument(), { path, search, status: temporarilyClosed || closed || state === "account" ? 0 : status, post: admittedPost });
       res.setHeader("X-Sod-Article-First", firstDocument.state);
+      // Only a page that is answered 200 and is not a Post document gets first words; any failure leaves the document as it is today.
+      const words = status === 200 && !closed && !admittedPost ? withFirstWords2029(firstDocument.html, firstWordsHtml2029(admittedWords || await wordsRead)) : { html: firstDocument.html, state: "not-eligible" };
+      res.setHeader("X-Sod-First-Words", words.state);
       // The Home's own code is fetched with its document (route-preload.js); every other document drops the hint list.
-      const html = mergeProductionDocumentMetadata(withRoutePreloads2029(firstDocument.html, { path, status }), metadata, { noindex });
+      const html = mergeProductionDocumentMetadata(withRoutePreloads2029(words.html, { path, status }), metadata, { noindex });
       if (temporarilyClosed) { status = 503; res.setHeader("Retry-After", String(PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER)); }
       const robots = html.match(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']+)/i)?.[1];
       if (!robots) throw new Error("public_robots_unavailable");

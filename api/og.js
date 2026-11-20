@@ -480,7 +480,7 @@ export default async function handler(req, res) {
     if (!selection || page === null) { documentStatus = 404; robots = 'noindex, follow'; }
     else if (term.length > 120 || /[\u0000-\u001f\u007f]/.test(term)) { documentStatus = 400; robots = 'noindex, follow'; }
     else try {
-      const query = new URLSearchParams({ select: 'id,title,tags,categories,image_url,thumb_url',
+      const query = new URLSearchParams({ select: 'id,slug,wp_id,source,link,date,title,tags,categories,image_url,thumb_url',
         or: `(${selection.publicFilter})`, [selection.field]: `${selection.operator === 'contains' ? 'cs' : 'ov'}.${selection.arrayLiteral}`,
         order: 'modified.desc.nullslast,id.asc', limit: '24', offset: String((page - 1) * 24) });
       if (term) query.set('title', `ilike.%${term.replace(/[\\%_*]/g, '\\$&')}%`);
@@ -505,6 +505,8 @@ export default async function handler(req, res) {
         const evidence = postsTaxonomyEvidence2029({ scope: taxonomy, posts: rows, total, page, search: term, exists });
         documentStatus = evidence.status;
         if (documentStatus !== 200 || term || page > 1) robots = 'noindex, follow';
+        // First words (public-reading-deploy/first-words.js): the first page of an existing collection hands its own admitted rows to the document.
+        if (documentStatus === 200 && !term && page === 1 && typeof req.publicReadingFirstWords === 'function') req.publicReadingFirstWords({ kind: 'taxonomy', taxonomyKind: taxonomy.kind, label: taxonomy.label, posts: rows });
         image = documentStatus === 200 && (rows[0]?.thumb_url || rows[0]?.image_url)
           ? waSafeImage(rows[0].thumb_url || rows[0].image_url) : cardUrl({ w: taxonomy.label, sub: 'פרסומים ומקורות' });
       }
