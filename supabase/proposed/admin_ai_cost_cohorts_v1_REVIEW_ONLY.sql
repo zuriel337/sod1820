@@ -34,8 +34,14 @@ begin
     select l.id, l.created_at, l.source, l.model, l.kind, l.input_tokens, l.output_tokens,
            c.cost_ils, c.cost_usd,
            case
-             when l.user_id = v_uid and u.role = 'admin' then 'my_account'
-             when l.user_id is not null and u.role = 'admin' then 'other_admin'
+             -- The single site owner has multiple site-admin accounts.
+             -- Cohort grouping is based on the owner-approved admin-role policy;
+             -- this is NOT an identity merge or independent account-link proof.
+             when l.user_id is not null and u.role = 'admin' then 'owner_accounts'
+             -- Community moderators have a distinct, restricted role and are
+             -- never treated as site owners merely because they moderate.
+             when l.user_id is not null and u.id is not null
+               and u.community_moderator is true then 'community_moderator'
              when l.user_id is not null and u.id is not null and (
                exists (
                  select 1 from public.membership_subscription_pilots p
@@ -93,7 +99,8 @@ begin
     'by_source',coalesce((select jsonb_agg(to_jsonb(s) order by s.cost_ils desc) from by_source s),'[]'::jsonb),
     'by_model',coalesce((select jsonb_agg(to_jsonb(s) order by s.cost_ils desc) from by_model s),'[]'::jsonb),
     'by_day',coalesce((select jsonb_agg(to_jsonb(s) order by s.day) from by_day s),'[]'::jsonb),
-    'cohort_scope','owner_other_admin_paid_registered_visitor_unattributed',
+    'cohort_scope','owner_accounts_community_moderator_paid_registered_visitor_unattributed',
+    'owner_attribution_basis','owner_asserted_site_admin_role_not_verified_account_merge',
     'unknown_not_zero',true
   ) into v_total;
   return v_total;
@@ -108,7 +115,10 @@ commit;
 -- REVIEW / ACCEPTANCE REQUIRED BEFORE APPLICATION:
 -- 1) Non-admin authenticated, anonymous and service call abuse must fail closed.
 -- 2) For 1/7/30/90 days, SUM(by_segment.cost_ils) agrees with total priced ledger.
--- 3) An admin's "my_account" is exact auth.uid(), not all role='admin'.
+-- 3) The sole site owner has multiple admin-role accounts; group their *costs*,
+--    not identities, under owner_accounts. Do not use this SQL to merge accounts
+--    or to infer future admin-role accounts belong to the same owner without review.
+--    Community moderators must remain community_moderator, not owner_accounts.
 -- 4) No user IDs, visitor tokens, emails, names, raw messages or payment details returned.
 -- 5) Missing settled payment proof never infers a paying customer from tier or pilot status alone.
 -- 6) Unknown and unpriced calls shown separately; no fake zero.
