@@ -11,7 +11,7 @@ const grant={id:"operational:l1:readonly",enabled:true,expiresAt:"2026-11-21T00:
   model:"claude-haiku-4-5",maxInputTokens:1000,maxOutputTokens:200};
 const pricing={model:"claude-haiku-4-5",pricingVerified:true,rateEffectiveForOperation:true,
   usdPerMillionInput:"1.0000",usdPerMillionOutput:"5.0000",ilsPerUsd:"3.010"};
-const costLedger={month:"2026-11",spentAgorot:100,reservedAgorot:0,reconciledWithProviderInvoice:true};
+const costLedger={month:"2026-11",spentAgorot:100,reservedAgorot:0,ledgerCoverageVerified:true};
 const preview=(overrides={})=>previewOperationalL1Task({event,grant,pricing,costLedger,nowIso,...overrides});
 
 test("500 mundane source events never produce a model call or source payload",()=>{
