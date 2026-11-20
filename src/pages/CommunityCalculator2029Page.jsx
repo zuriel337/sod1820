@@ -137,8 +137,8 @@ function BabyNames({ model }) {
   </div>;
 }
 
-// Loaded on demand, like SiteSearch2029/ResearchProvider: a static import here moved the
-// measurement transport into an eager chunk (+710 B gzip on every page, measured 20.11.2026).
+// Loaded on demand, like SiteSearch2029/ResearchProvider: the measurement transport stays
+// out of this route's static graph (cost vs a static import measured at ~7 B gzip, 20.11.2026).
 const recordCommunityCompute = () => void import("../lib/siteActivity2029.js")
   .then(m => m.recordSiteActivity("compute", { section: "calculator_community" })).catch(() => {});
 
