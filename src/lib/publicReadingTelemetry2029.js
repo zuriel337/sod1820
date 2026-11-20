@@ -176,11 +176,8 @@ export function readingMeasurementPath(value) {
   if (!family) return null;
   let path;
   try { path = decodeURIComponent(value.split(/[?#]/, 1)[0]).replace(/\/+$/, '') || '/'; } catch { return null; }
-  if (/^\/(?:post|tag|category|book|video)\/[\p{L}\p{N}_-]{1,256}$/u.test(path)) return path;
-  // A numeric page, also via its /2029 alias (lost as /number/:value before #1461). A non-numeric
-  // segment can be a person's name: it keeps the family label.
-  const n = /^\/(?:2029\/)?number\/([0-9]{1,12})$/.exec(path);
-  if (n) return "/number/" + n[1];
+  if (/^\/(?:post|tag|category|book|video)\/[\p{L}\p{N}_-]{1,256}$/u.test(path)
+    || /^\/number\/[0-9]{1,12}$/.test(path)) return path;
   // A root WordPress article keeps its identity under the article family that ingest_event admits (/post/<letters, digits, _ or ->).
   // A slug with other characters (niqqud, punctuation, emoji) is reported as the family alone, as the database would refuse it.
   if (family === "/post/:item" && /[^\x00-\x7f]/.test(path) && /^\/[\p{L}\p{N}_-]{1,256}$/u.test(path)) return "/post" + path;

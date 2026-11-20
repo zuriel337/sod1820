@@ -81,7 +81,8 @@ test("public calculator mount and typing calculate immediately without wall, AI,
   assert.equal(updated.searchParams.get("method"), "מילוי");
   assert.deepEqual(updated.searchParams.getAll("source"), ["one", "two"]);
   assert.deepEqual(state.effects, []);
-  assert.deepEqual(state.activity, [["compute", { section: "calculator_community" }]], "one content-free compute per settled typed expression");
+  assert.deepEqual(state.activity, [["typing", { section: "calculator_community" }], ["compute", { section: "calculator_community" }]],
+    "one typing burst and one content-free compute per settled typed expression; no per-keystroke events");
   await act(async () => { root.unmount(); });
 });
 

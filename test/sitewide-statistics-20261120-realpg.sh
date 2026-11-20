@@ -36,6 +36,7 @@ create table analytics_cache(cache_key text primary key,payload jsonb,computed_a
 create table auth.users(id uuid,created_at timestamptz,email_confirmed_at timestamptz);
 create table topic_cards_public(id uuid);
 create table els_records(id uuid,status text,visibility text,home_hidden boolean);
+create table posts(id bigint,slug text,title text,tags text[]);
 create table system_suggestions(id uuid,created_at timestamptz,detector text,title text,reason text,observed jsonb,status text,sample_size integer,confidence numeric);
 create function fn_web_vital_surface_group(text,text) returns text language sql as $$select 'other'$$;
 create function edge_rate_limit_check(text,integer,integer) returns jsonb language sql as $$select '{"allowed":true}'::jsonb$$;
@@ -78,6 +79,37 @@ insert into gematria_words(phrase,ragil,is_verified,is_published,is_encrypted) v
 SQL
 check "$(Q -c "set role anon; select (research_pulse_2029(720)->>'state')||':'||jsonb_array_length(research_pulse_2029(720)->'numbers')||':'||extract(minute from (research_pulse_2029(720)->>'latest_event')::timestamptz)")" 'measured:1:0' 'anon reader: number above the floor, hour-granular freshness'
 check "$(Q -c "set role anon; select count(*) from search_log")" 0 'anon cannot read raw search_log'
+# --- PostgREST request emulation (what PostgREST v12 does per request, inside one transaction):
+#     SET LOCAL ROLE <jwt role>; set_config('request.jwt.claims', <json>, true); set_config('request.headers', <json>, true).
+#     auth.uid() is Supabase's own definition (claim.sub, else request.jwt.claims->>'sub'). Not a PostgREST binary run.
+Q <<'SQL' >/dev/null
+create or replace function auth.uid() returns uuid language sql stable as $$
+  select coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''),
+    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid $$;
+-- exact live definition (read 20.11.2026)
+create or replace function public.rd_is_admin() returns boolean language sql stable security definer set search_path to 'public' as $$
+  select exists (select 1 from public.users u where u.id = auth.uid() and u.role = 'admin'); $$;
+insert into public.users(id,role) values ('00000000-0000-4000-8000-0000000000ad','admin'),('00000000-0000-4000-8000-000000000001','member');
+grant execute on function public.admin_2029_analytics(integer,text) to authenticated;
+SQL
+REQALL() { # role claims headers sql -> full output (errors print ERROR then CONTEXT lines)
+  Q -c "begin; set local role $1; select set_config('request.jwt.claims','$2',true); select set_config('request.headers','$3',true); $4; commit;" 2>&1 || true; }
+REQ() { REQALL "$@" | tail -1; }
+OP() { printf '%s' "{\"action_version\":1,\"operation_id\":\"$1\",\"measurement\":{\"version\":2,\"visitor_id\":\"browser-0101\",\"page_path\":\"/gematria\"}}"; }
+ACT="select ingest_event('sod-00101','activity_2029','compute',p_path=>'/gematria',p_app_context=>'chrome',p_session_id=>'human-0101'"
+before=$(Q -c "select count(*) from events where surface='activity_2029'")
+REQ anon '{"role":"anon"}' '{}' "$ACT,p_props=>'$(OP 44444444-4444-4444-8444-444444444444)'::jsonb)" >/dev/null
+check "$(Q -c "select count(*) from events where surface='activity_2029'")" "$before" 'PostgREST anon request without cf-connecting-ip writes no activity (fails closed)'
+REQ anon '{"role":"anon"}' '{"cf-connecting-ip":"198.51.100.7"}' "$ACT,p_props=>'$(OP 55555555-5555-4555-8555-555555555555)'::jsonb)" >/dev/null
+check "$(Q -c "select count(*) from events where event_id='55555555-5555-4555-8555-555555555555' and (props->>'_measurement_account') is null")" 1 'anon request with the edge address header is stored once, as a guest'
+REQ authenticated '{"role":"authenticated","sub":"00000000-0000-4000-8000-000000000001"}' '{"cf-connecting-ip":"198.51.100.7"}' "$ACT,p_props=>'$(OP 66666666-6666-4666-8666-666666666666)'::jsonb)" >/dev/null
+check "$(Q -c "select props->>'_measurement_account' from events where event_id='66666666-6666-4666-8666-666666666666'")" 00000000-0000-4000-8000-000000000001 'JWT claims (request.jwt.claims.sub) stamp the verified account; the client cannot supply it'
+check "$(REQ anon '{"role":"anon"}' '{}' "select length(research_pulse_2029(24)::text)>0")" t 'anon may call the one public wrapper research_pulse_2029'
+check "$(REQALL anon '{"role":"anon"}' '{}' "select fn_ti_activity_pulse2029(24)" | grep -c 'permission denied')" 1 'anon is refused the server-only TI producer'
+check "$(REQALL authenticated '{"role":"authenticated","sub":"00000000-0000-4000-8000-000000000001"}' '{}' "select admin_2029_analytics(24)" | grep -c 'not authorized')" 1 'a signed-in non-admin JWT is refused the admin report'
+check "$(REQ authenticated '{"role":"authenticated","sub":"00000000-0000-4000-8000-0000000000ad"}' '{}' "select (admin_2029_analytics(24)->'site_activity'->>'version')")" 1 'an admin JWT reads the site activity report'
+check "$(REQ anon '{"role":"anon"}' '{}' "select count(*) from search_log")" 0 'anon REST read of search_log returns nothing'
+# The real PostgREST binary (Codex, #1461): runs when the workflow provides POSTGREST_BIN.
 if [ -n "${POSTGREST_BIN:-}" ]; then
   PG_SOCKET="$TMP" PG_BIN="$PG_BIN" node "$ROOT/test/sitewide-statistics-postgrest.mjs"
 else

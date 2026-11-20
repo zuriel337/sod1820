@@ -99,10 +99,16 @@ test("public verified collection keeps its own canonical identity and server-app
 });
 
 test("public tag canonical and admitted taxonomy state are retained", async () => {
-  const path = "/tag/" + encodeURIComponent("סוד החשמל");
-  const { root, fixture } = await mount("public", path);
-  assert.equal(fixture.seo.at(-1).path, path);
-  assert.equal(fixture.seo.at(-1).noindex, false);
-  assert.equal(fixture.reads.at(-1).scope.kind, "tag");
-  await unmount(root);
+  // The canonical tag address is hyphenated, exactly as the server document and the sitemap serve it
+  // (#1355, client/server parity). A visited %20 form keeps working but declares the hyphenated canonical,
+  // so Google sees one address per tag. Verified live 20.11.2026 (browser and Googlebot, sitemap: 0 %20 tags).
+  const canonical = "/tag/" + encodeURIComponent("סוד-החשמל");
+  for (const visited of ["/tag/" + encodeURIComponent("סוד החשמל"), canonical]) {
+    const { root, fixture } = await mount("public", visited);
+    assert.equal(fixture.seo.at(-1).path, canonical);
+    assert.equal(fixture.seo.at(-1).noindex, false);
+    assert.equal(fixture.reads.at(-1).scope.kind, "tag");
+    assert.equal(fixture.reads.at(-1).scope.key, "סוד החשמל", "both forms select the same existing tag (no rename)");
+    await unmount(root);
+  }
 });

@@ -27,6 +27,7 @@ try {
     create table analytics_cache(cache_key text primary key,payload jsonb,computed_at timestamptz,cache_kind text,producer text,producer_version text,input_identity text,expires_at timestamptz,invalidated_at timestamptz,billable_state text,hit_count bigint default 0,last_hit_at timestamptz);
     create table topic_cards_public(id uuid);
     create table els_records(id uuid,status text,visibility text,home_hidden boolean);
+    create table posts(id bigint,slug text,title text,tags text[]);
     create table bidim(value integer,phrase text,method text);
     create table visitor_events(section text,slug text,event_type text,visitor_id text,created_at timestamptz);
     create table convergences(value integer,group_size integer);

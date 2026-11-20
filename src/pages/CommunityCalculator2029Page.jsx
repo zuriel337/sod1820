@@ -139,8 +139,9 @@ function BabyNames({ model }) {
 
 // Loaded on demand, like SiteSearch2029/ResearchProvider: the measurement transport stays
 // out of this route's static graph (cost vs a static import measured at ~7 B gzip, 20.11.2026).
-const recordCommunityCompute = () => void import("../lib/siteActivity2029.js")
-  .then(m => m.recordSiteActivity("compute", { section: "calculator_community" })).catch(() => {});
+const recordCommunity = action => void import("../lib/siteActivity2029.js")
+  .then(m => m.recordSiteActivity(action, { section: "calculator_community" })).catch(() => {});
+const recordCommunityCompute = () => recordCommunity("compute");
 
 function CalculatorExperience({ model, initialState, location }) {
   const research = useResearch();
@@ -167,9 +168,16 @@ function CalculatorExperience({ model, initialState, location }) {
   // #1461: ONE canonical compute per settled expression the visitor changed (same 650ms settle as
   // the phrase lookup). The arrival/share state is not a new computation (TI v9). Content-free.
   const arrivalNames = useRef([initialState.name1, initialState.name2]);
+  // Typing is its own metric: one per editing burst (like Calculator2029Page), never per keystroke;
+  // the burst ends when the expression settles into a compute.
+  const typingBurst = useRef(false);
+  useEffect(() => {
+    if (state.name1 === arrivalNames.current[0] && state.name2 === arrivalNames.current[1]) return;
+    if (!typingBurst.current) { typingBurst.current = true; recordCommunity("typing"); }
+  }, [state.name1, state.name2]);
   useEffect(() => {
     if (!r1 || state.name1 === arrivalNames.current[0]) return undefined;
-    const t = setTimeout(recordCommunityCompute, 650);
+    const t = setTimeout(() => { typingBurst.current = false; recordCommunityCompute(); }, 650);
     return () => clearTimeout(t);
   }, [state.name1, r1?.value]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {

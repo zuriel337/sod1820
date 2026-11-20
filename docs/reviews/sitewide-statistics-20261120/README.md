@@ -58,20 +58,47 @@
 | `CommunityCalculatorPage.jsx`, `engine.js`, `VisitorSearchesBox.jsx`, `getRecentSearches`, `getWallRecent` | בשימוש פעיל דרך `App2029` | **נשמרו** ללא שינוי. ‏`getWallRecent` כבר קורא את הדופק |
 | `recent_number_opens` | ABI; ‏Codex כתב אותו מחדש מעל הקורא הבטוח | נשמר; מועמד לפרישה (§8) |
 
-## 3. מדורים — לפני ואחרי
+## 3. מדורים — מה נמדד, מה מוצג, הוכחה
 
-| מדור | לפני | אחרי |
+הוכחת "נשלח, נקלט ונספר פעם אחת" לכל מדור: `test/sitewide-statistics-sections-sql.mjs` (65/65). הבדיקה בונה את הבקשה בקוד הלקוח האמיתי (`readingMeasurementPath`, ‏`readingTelemetryPath`, ‏`readingMeasurementBody`), שולחת אותה ל־`ingest_event` המוצע **פעמיים**, ובודקת שדוח המנהל סופר אותה פעם אחת ובמדור הנכון. פעולה עם `operation_id` אינה נספרת פעמיים גם כשהיא נשלחת שוב. צפיית דף מנוכה בלקוח, ובדיקת הדפדפן `measurement-visit-once` מכסה זאת. אף מדור נמדד לא נופל ל"אחר".
+
+| מדור | נמדד (Traffic Intelligence, `events`) | מוצג |
 |---|---|---|
-| מנהל `/2029/control` | מדור "אחר" לא הוצג; ארכיון שקרא את `search_log` | מוצגים "אחר", "חיפוש כללי" ו"מחשבון הקהילה"; מסעות `0 · טרם הושק`; הארכיון הוסר; טריות המקורות הישנים מסומנת "נעצר" |
-| בית, עולם, מספר, ELS, ספריית צפנים, מחשבון רגיל | צפייה ופעולות מדודות | ללא שינוי |
-| עכשיו | `view` נשלח רק כשהרכיב אינו compact, ובפועל הוא תמיד compact, כך שלא נשלח אף פעם | נספר בפתיחת הלוח, פעם אחת לכל פתיחה |
-| מחשבון קהילה | ללא אירוע compute; נספר כמחשבון רגיל | `compute` אחד לכל ביטוי שהוקלד והתייצב, ב־section `calculator_community`; הגעה מקישור שיתוף אינה נספרת |
-| חיפוש כללי | נזקף לעמוד שבו נפתח | section `site_search` |
-| מספרים | `/2029/number/N` נרשם כ־`/number/:value` ונעלם מהמספרים החמים | ממופה ל־`/number/N`; מקטע בעברית נשאר תווית, כי הוא עלול להיות שם |
-| ביקוש למספרים ב־TI (מטטרון, רזיאל) | 0 מספרים מאז 9.11 (תווית במקום זהות) | `fn_human_entrances` מזהה את נתיב הנחיתה האמיתי: 51 נחיתות ב־30 יום חוזרות; ‏`suspected_bot` זהה ב־6,207 מתוך 6,207 sessions |
-| מסעות | פיצ'ר סגור, 0 אירועים | `0 · טרם הושק` מבעל ההשקה. אחרי ההשקה: `journey_2029/start`, ואם אין נתונים — `NO_DATA`, לא 0 |
-| היכל, קהילה (פורום, חברים) | page view בלבד; `/members` נספר כאזור אישי | מיפוי מעוגן: `/members`, ‏`/researcher` ו־`/forum` ← community |
-| רזיאל | ביקוש מ־`visitor_events` ו־`search_log` (קפואים) | מקור אחד: TI מעל `events`. ‏human, unknown ו־bot נפרדים; `unique_users=null`; מתחת לסף: `suppressed`; מקור שקט: `unavailable` |
+| בית | צפיית דף | מנהל · דופק ציבורי |
+| עכשיו | פתיחת הלוח (`activity_2029/view`) | מנהל · דופק בלוח (compact) |
+| עולם | צפיית דף | מנהל · דופק |
+| מחשבון רגיל | צפייה · הקלדה (פעם אחת לכל רצף) · חישוב · בחירת תוצאה/שיטה | מנהל (לפי מחשבון ושיטה) · דופק |
+| מחשבון מתקדם | הקלדה · חישוב (`calculator_advanced`) | מנהל · דופק |
+| מחשבון קהילה | צפייה (מדור `calculator_community`) · הקלדה · חישוב; הגעה מקישור שיתוף אינה נספרת | מנהל · דופק |
+| דפי מספר | צפייה ב־`/number/N` · חיפוש · בחירת ביטוי מאושר | מנהל (מספרים מובילים) · דופק (מספרים חמים) |
+| צופן תנ״כי `/code` | צפייה · חיפוש והצלבה (משפחת `els`) | מנהל · דופק |
+| ספריית צפנים `/codes` | צפייה · חיפוש | מנהל · דופק (וספירת צפנים שפורסמו) |
+| פוסטים | צפייה | מנהל · **דופק: "נקרא עכשיו"** (פוסטים ציבוריים מעל הסף; כותרת ומצב פרסום נבדקים בכל קריאה) |
+| ספרים · קהילה (צ'אט, פורום, חברים) | צפייה | מנהל |
+| חיפוש כללי | הקלדה · חיפוש · בחירה (`site_search`) | מנהל |
+| שמירה · שיתוף | `activity_2029/save` · משפחת `share` (לפי ערוץ) | מנהל |
+| הרשמות | `auth.users` מאומתים (מקור Auth, לא אירוע לקוח) | מנהל |
+| היכל · רזיאל · אזור אישי | פתיחה בלבד, ללא תוכן | מנהל מציג את **מצב המוצר** מבעל ההשקה (`publicReadingCapability`): "סגור זמנית · בבנייה" / "בבדיקה" |
+| מסעות | `journey_2029/start` אחרי ההשקה | `0 · טרם הושק`. אחרי ההשקה, כשאין נתונים: `NO_DATA`, לא 0 |
+
+**מרכז הניהול `/2029/control`** (`admin_2029_analytics.site_activity`, למנהל בלבד):
+- **סיכום:** כניסות, צפיות, דפדפנים משוערים, חשבונות, דפדפנים אורחים, הרשמות, פעילים ב־5 דקות (דפדפנים וחשבונות), חדשים וחוזרים, ביקור בדף יחיד.
+- **השוואה לתקופה הקודמת באותו אורך** (יום, שבוע או חודש, לפי החלון): כניסות, צפיות, דפדפנים, חישובים, חיפושים, שיתופים.
+- **מדורים לפי שימוש**, ממוינים מהפופולרי ועד הכמעט לא בשימוש, עם האירוע האחרון בכל מדור.
+- **פילוחים:** חישובים וחיפושים לפי מחשבון או מדור, לפי שעה (שעון ישראל) ולפי מקור ההגעה. שיטות גימטריה. שיתופים לפי ערוץ.
+- **תוכן:** מגמה יומית, מספרים מובילים, ביטויים מאושרים, צפנים והתכנסויות שפורסמו.
+- **איכות תנועה:** אדם, בוט ולא ידוע בנפרד. אירועים בלי זהות. טריות המדידה. מקורות היסטוריים שנעצרו מסומנים "לא מדד חי".
+- **מה שכבר קיים בדוח המנהל נשמר:** מקורות תנועה, Google, ביצועים (RUM), שגיאות, ספקים ועלויות.
+
+**דופק ציבורי** (`research_pulse_2029`):
+- **רכיב:** אחד, טעון בעצלות ובגובה קבוע. מופיע בבית, ב"עכשיו", בעולם, בשלושת המחשבונים, בדף מספר, ב־ELS, בספריית הצפנים ובפוסט.
+- **מה מוצג:** מספרים חמים, ביטויים כלליים מאושרים, "נקרא עכשיו", מגמה (מחצית מול מחצית), פעולות מחקר ופרסומים.
+- **רצפת פרטיות:** 10 אירועים ו־5 sessions. אין שמות, אין חיפושים פרטיים, אין ביטויים מוסתרים ואין גודל קהל (TI v10).
+- **כשה־SQL לא הוחל** (כמו ב־Preview): מוצג "נתוני הפעילות אינם זמינים כרגע". אין נתוני הדגמה.
+
+**פרטים נוספים:**
+- `/2029/number/N` ← הפניית 308 בשרת אל `/number/N`. המדידה קנונית בלבד. 53 הצפיות שנרשמו כתווית הן כתובות לא מספריות, ונשמרו כך בכוונה לצורך פרטיות.
+- `fn_human_entrances` (נחיתת v2 לפי `measurement.page_path`) מתקן את ביקוש הישויות, מטטרון ורזיאל: 0 מספרים מאז 9.11 לפני התיקון. ‏`suspected_bot` זהה ב־6,207 מתוך 6,207 sessions חיים.
 
 ## 4. חוזים
 
@@ -92,44 +119,54 @@
 | `privacy-floor/` | כל קורא ציבורי שדלף מקבל את הפרדיקט המשותף (21 פונקציות; הפירוט ב־`privacy-floor/README.md`). בחי 3,035 שורות מתוך 15,592 אינן זכאיות לפרסום. בין הקוראים: `fn_name_multi` ועוזריו (עד כל המוסתרים), `number_dossier_json`, `fn_en_search`, `strongest_crossings`, `fn_cross_research`, `fn_all_methods` ועוד. ‏`top_collective` ו־`entity_collective_count` מקבלים רצפה של 3 משתמשים ובלי כותרת פרטית. ‏`research_level_of`, ‏`fn_cohort_acceptance` ו־`fn_metatron_gaps` עוברים לצד השרת בלבד. **הרצפה חלה על כל קורא, כולל service_role** (למשל ה־Edge `research-extract` דרך `fn_all_methods`) |
 | רזיאל לא חושף ביקור בודד | `legacy-readers-sql.mjs`: ‏`suppressed` / `unavailable` |
 
-## 6. SQL — סדר שחרור (כל שלב דורש אישור ZURIEL לקומיט מדויק)
+## 6. תוכנית שחרור אחת (כל שלב דורש אישור ZURIEL לקומיט מדויק)
 
-1. `search-log-floor.standalone.psql` — סוגר את קריאת `search_log` שפתוחה היום ל־anon (כ־96 אלף חיפושי טקסט חופשי). אפשר להחיל לבד ומוקדם.
-2. `apply.psql` — כולל preflight עם md5 לחמש פונקציות, הרחבות RLS, את המעטפת, ואת `fn_human_entrances`, ‏`ingest_event` ו־`admin_2029_analytics`. ‏Rollback: ‏`rollback.psql`.
-3. `legacy-readers-hardening.psql` — מחליף את רזיאל ואת `number_cross_resonance` וסוגר RPC מתים. ‏Rollback: ‏`legacy-readers-hardening.rollback.psql`.
-4. `privacy-floor/apply.psql` — מוסיף את פרדיקט הזכאות לכל קורא ציבורי שדולף. ‏Rollback וקנרית נמצאים בתיקייה.
-5. רק אחר כך: פריסת הלקוח לפי נוהל הפריסה ב־CLAUDE.md, ואז קנרית.
+אסור להחיל את `apply.psql` מ־`cfb007e4e`, כי `ON CONFLICT(event_id)` על `events` מחולקת שובר את כל הקליטה. מחילים רק את הקבצים מראש הענף הזה. כל שלב נעצר בעצמו כשיש סטייה (md5 ל־preimage או להרשאות), ולכל שלב יש rollback מדויק.
 
-**אסור להחיל את `apply.psql` מ־`cfb007e4e`.** ‏`ON CONFLICT(event_id)` על `events` מחולקת שובר את כל הקליטה (הוכח ב־PostgreSQL אמיתי). Preview בלי SQL מציג "לא זמין", וזו אינה ראיה לפעילות.
+| # | פעולה | בדיקת קנרית מיד אחרי | rollback |
+|---|---|---|---|
+| 1 | `search-log-floor.standalone.psql` (קריאה וכתיבה של `search_log` נסגרות לכל לקוח) | REST כ־anon: `search_log` מחזיר `[]` ו־INSERT נדחה | `drop policy ti_search_history_server_only on public.search_log; drop policy ti_search_no_new_raw on public.search_log;` |
+| 2 | `apply.psql` (preflight, RLS, `research_pulse_2029`, ‏`fn_human_entrances`, ‏`ingest_event`, ‏`admin_2029_analytics`) | (א) קליטה: `select count(*) from events where ts>now()-interval '5 min'` עולה, כלומר הקליטה לא נשברה. (ב) `research_pulse_2029(24)` מחזיר `version=1`. (ג) `fn_ti_entity_demand_clean_composition` מחזיר מספרים. (ד) `cf-connecting-ip` קיים ב־`request.headers` של בקשה חיה; אם אינו קיים, פעולות `activity_2029` לא נכתבות (נכשל סגור) ומדווחים | `rollback.psql` |
+| 3 | `legacy-readers-hardening.psql` | רזיאל `_scoped` מחזיר `source_state`; ‏`number_cross_resonance` כ־anon בלי ביטוי מוסתר | `legacy-readers-hardening.rollback.psql` |
+| 4 | `privacy-floor/apply.psql` | `privacy-floor/canary.sql` (קריאה בלבד; מסתיים ב־ROLLBACK) | `privacy-floor/rollback.psql` |
+| 5 | פריסת הלקוח לפי נוהל הפריסה ב־CLAUDE.md (alias אחרי READY) | `post-deploy-canary`; ‏`/2029/number/104` ← 308; הדופק בבית מציג "במוקד המחקר"; ‏`/2029/control` כמנהל | `assign_alias` לפריסה הקודמת (נקראת לפני ההחלפה) |
+
+הלקוח בלי ה־SQL בטוח: הדופק מציג "לא זמין" ודוח המנהל מציג "טרם זמינה במסד". לכן אין צורך לחכות עם הפריסה. אבל **מדידת הפעולות החדשות מתחילה רק אחרי שלב 2.**
 
 ## 7. בדיקות וביצועים
 
 | בדיקה | תוצאה |
 |---|---|
-| `sitewide-statistics-20261120-sql.mjs` ‏(PGlite 0.5.16 = PostgreSQL 18.6) | 35/35 |
+| `sitewide-statistics-20261120-sql.mjs` ‏(PGlite 0.5.16 = PostgreSQL 18.6) | 37/37: כולל "נקרא עכשיו", טיוטה שנעלמת גם אחרי cache, השוואה לתקופה קודמת ופילוחים |
+| `sitewide-statistics-sections-sql.mjs` | 65/65: כל מדור, מקוד הלקוח ועד הספירה, פעם אחת |
 | `sitewide-statistics-legacy-readers-sql.mjs` | 18/18; מוכיח גם את שורש הבאג של TI |
-| `sitewide-statistics-20261120-realpg.sh` ‏(PostgreSQL 16.15, psql אמיתי, `events` מחולקת) | 10/10; מול ה־SQL המקורי: FAIL |
+| `sitewide-statistics-20261120-realpg.sh` ‏(PostgreSQL 16.15, psql אמיתי, `events` מחולקת) | 18/18; מול ה־SQL המקורי: FAIL. כולל **הדמיית בקשת PostgREST** (`SET LOCAL ROLE`, ‏`request.jwt.claims`, ‏`request.headers`) עם `auth.uid()` ו־`rd_is_admin()` בהגדרתם החיה: anon בלי כותרת קצה לא כותב; כותרת ← נשמר פעם אחת כאורח; JWT מחתים חשבון; מנהל נדחה ללא הרשאה ומקבל דוח עם הרשאה; המפיק `fn_ti_*` חסום ל־anon |
 | `sitewide-statistics-privacy-floor-realpg.sh` | 6/6: כל 21 ה־preimages זהים לבייט, ה־apply זהה לקבצים שנבדקו, ה־rollback מדויק, והגנת הסטייה עוצרת. **גופי ה־SQL לא הורצו מול טבלאות אמיתיות.** הקנרית רצה רק אחרי ההחלה |
-| PostgreSQL 17 | PASS בסשן Codex המתואם: 17.11 מקומי, אותו major; אין טענה לבדיקה על patch 17.6 |
-| PostgREST ו־JWT | PASS ב־16.6 מקומי, מול PG17 מחולק. כותרת IP חסרה נסגרת; אימות מקור הכותרת בקצה Supabase החי נשאר UNKNOWN |
+| PostgreSQL 17.6 (גרסת המסד החי) | **UNKNOWN**. התקנת 17 נחסמה בסביבה; נבדק על 16 ו־18 |
+| PostgreSQL 17 | **PASS** (Codex, 17.11 מקומי, `events` מחולקת, 11 שערי apply/rollback). אין טענה ל־patch ‏17.6 |
+| PostgREST, JWT ו־`cf-connecting-ip` | **PASS** מקומית: קובץ ההפעלה האמיתי (Codex, PostgREST ‏16.6, ‏`test/sitewide-statistics-postgrest.mjs`, רץ ב־CI עם בדיקת sha256 לקובץ) והדמיית הבקשה (Claude). **UNKNOWN** במערכת החיה: האם הכותרת מגיעה מ־Cloudflare ולא מהלקוח. זו קנרית שלב 2 בסעיף 6 |
 | נפח ×10 מהחי (100 אלף אירועים, 17 אלף sessions) | 720 שעות: קר 0.30 שניות, חם 8–13ms; 24 שעות 84ms; 168 שעות 125ms |
 | pgbench, ‏32 לקוחות, 20 שניות | 21,463 קריאות, 0 כשלים, ממוצע 30ms; חישוב מחדש אחד לכל חלון |
 | מסד חי, ‏`EXPLAIN` (קריאה בלבד) | צבירת 30 יום 1.95 שניות; שרשרת TI לרזיאל (30 יום ועוד 30 קודמים) 3.9 שניות; ‏`statement_timeout` הוא 8 שניות |
-| shell מול `main` (node_modules נקי לפי ה־lockfile) | eager **‎+146B**, ‏frame **‎+50B** (היו ‎+266/‎+74). הגידול שנשאר: מפרט האימות של `activity_2029` ואירוע השמירה. השער עבר. הערה: התקנת `react-test-renderer` לבדיקות משנה את `node_modules` ומנפחת את ה־build בכ־710B; ב־`live-contracts-2029` בניות הקריאה הציבורית רצות אחריה |
+| shell (node_modules נקי לפי ה־lockfile) | eager 203,189B (מגבלה 203,493), ‏frame 47,195B (מגבלה 47,338), ‏CSS ללא שינוי. השער עבר. מול `main` של 20.11 בבוקר: eager **‎+146B**, ‏frame **‎+50B** (היו ‎+266/‎+74). הגידול שנשאר: מפרט האימות של `activity_2029` ואירוע השמירה. השער עבר. הערה: התקנת `react-test-renderer` לבדיקות משנה את `node_modules` ומנפחת את ה־build בכ־710B; ב־`live-contracts-2029` בניות הקריאה הציבורית רצות אחריה |
 | צילומי מסך סינתטיים 390/1440 | `screens/activity-390.png`, ‏`screens/activity-1440.png` |
 
 CI: לפי ה־SHA בתיאור ה־PR.
 
-## 8. נותר פתוח (דורש החלטה, אישור או סביבה)
+## 8. נותר פתוח — רק מה שאינו פתיר בלי הרשאה או החלטה
 
-- אישור SQL ו־Production לפי §6, וקנרית חיה (`privacy-floor/canary.sql`) אחרי ההחלה.
-- בדיקת הקצה החי של Supabase: אמינות cf-connecting-ip וקנרית לאחר החלה מאושרת עדיין פתוחות. PG17 ו־PostgREST מקומי עברו, ראו §9.
-- הכותב הכפול ב־`track()` הוסר גם בבנייה הפנימית; `emit` הקיים נשמר. הוסרה גישת חמשת מתאמי המנהל הנטושים ו־`getNextActions` לנתונים הישנים; REST INSERT נחסם בהצעת RLS. אין הסקת אפס פעילות מההיסטוריה.
-- `recent_number_opens`, `top_collective` (`getTopCollective`): אין להם קורא בלקוח. מועמדים לסגירה בסבב הבא.
-- `fn_metatron_status()` נסגר ללקוחות בהצעת privacy-floor; `admin_command_center` ממשיך לקרוא כ־postgres דרך חוזה המנהל הקיים. נדרש אישור החלה.
-- כמה מתוך 53 הצפיות של `/number/:value` היו `/2029/number/N` (שתוקן) וכמה מקטע בעברית (שנשאר תווית בכוונה): **UNKNOWN**.
-- רישום תוספת החוק ב־`nodes` הפעילים (לא ב־view ההיסטורי `rules_active`) (§4).
+- **אישורי שחרור** לשלבי סעיף 6.
+- **בדיקה חיה** שאפשר לבצע רק אחרי שלב 2: שכותרת `cf-connecting-ip` מגיעה מ־Cloudflare ולא מהלקוח. ‏PostgreSQL 17 ו־PostgREST עברו מקומית (ראו §7).
+- **החלטות בעלים** (לא חוסמות את החבילה):
+  - סגירת `recent_number_opens` ו־`top_collective`, שאין להם קורא.
+  - רישום תוספת החוק ב־`nodes` הפעילים (§4).
+  - Master: ‏`project_codex.gematria_engine` עדיין מצטט v5, וחמישה compaction pointers עדיין V1. כל תיקון של הרשומות החיות דורש אישור (§9).
 
+**מחוץ לחבילה (תועד, ללא קשר לסטטיסטיקה):**
+- `test/posts-public-reading-seo.test.mjs` עודכן לצפות ל־canonical עם מקף, כפי שקבע #1355. אין שינוי קוד.
+- הענף המת `numberAlias` הוסר מ־`public-document.js`.
+- **53 הצפיות של `/number/:value`** (שבעה ימים עד 20.11, מתוך 550; ‏497 קנוניות; 0 תחת `/2029/number/N`) הן כתובות לא מספריות שנשמרו כתווית לצורך פרטיות.
+- **בדיקת HTTP חיה** (דפדפן ו־Googlebot זהים): ‏`/2029/number/N`, ‏`/2029/number/0N` ו־`/number/0N` ← הפניית 308 אחת אל `/number/N`. ‏canonical ו־og:url הם `/number/N`. במפת האתר 13,024 כתובות `/number/` ו־0 תחת `/2029/`.
 
 ## 9. אימות ברירת המחדל והשלמת Codex — 20.11.2026, 21:36–22:00 שעון ישראל
 

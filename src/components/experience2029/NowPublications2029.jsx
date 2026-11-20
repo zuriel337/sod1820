@@ -297,7 +297,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
   const chosenSource = sourceKey ? sourceChoices.find(item => item.id === sourceKey) : null;
 
   return <section className="sod29-nowpub is-royal r29" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
-    {!compact && <ActivityPulseSlot2029 />}
+    <ActivityPulseSlot2029 />
     {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={href => { feed?.see?.(pinned.model.row); onOpen?.(href); }} /> : todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
     <NowSourcePicker2029 choices={sourceChoices} value={sourceKey} onChange={pick(setSourceKey)} total={models.length} />
     {sourceKey === "channel:site-news" && <SiteNewsHistory />}
