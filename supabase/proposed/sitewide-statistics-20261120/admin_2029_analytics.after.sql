@@ -523,6 +523,15 @@ begin
   ), prior_browsers as (
     select distinct props->'measurement'->>'visitor_id' as id from public.events
     where ts>=v_from-interval '30 days' and ts<v_from and props->'_measurement_verified'='2'::jsonb
+  ), previous as materialized (
+    -- The same window length immediately before: the comparison period for every trend card.
+    select surface,event_type,session_id,props->'measurement'->>'visitor_id' as browser_id from public.events
+    where ts>=v_from-(v_to-v_from) and ts<v_from and props->'_measurement_verified'='2'::jsonb
+      and (p_path_prefix is null or path=p_path_prefix or path like rtrim(p_path_prefix,'/')||'/%')
+  ), arrival_source as (
+    -- One source per session (TI attribution: the arrival event), so actions can be read by source.
+    select distinct on (session_id) session_id, coalesce(nullif(props->>'source',''),'unknown') as source
+    from measured where surface='arrival' and event_type='source' order by session_id, ts
   )
   select v_payload || jsonb_build_object('site_activity',jsonb_build_object(
     'version',1,'from',v_from,'to',v_to,'generated_at',now(),'latest_event',(select max(ts) from measured),
@@ -534,6 +543,10 @@ begin
       'accounts',(select count(distinct account_id) from measured),
       'registered_accounts',(select count(*) from auth.users where created_at>=v_from and created_at<v_to and email_confirmed_at is not null),
       'active_accounts_5m',(select count(distinct account_id) from measured where ts>=v_to-interval '5 minutes'),
+      -- A guest is a measured browser that carried no verified account in the window (a browser, not a person).
+      'guest_browsers',(select count(*) from (select browser_id from measured where browser_id is not null
+        group by browser_id having bool_and(account_id is null)) g),
+      'active_browsers_5m',(select count(distinct browser_id) from measured where ts>=v_to-interval '5 minutes'),
       'new_observed_browsers',(select count(distinct browser_id) from measured where browser_id is not null and not exists(select 1 from prior_browsers where id=browser_id)),
       'returning_observed_browsers',(select count(distinct browser_id) from measured where exists(select 1 from prior_browsers where id=browser_id)),
       'unknown_identity_events',(select count(*) from measured where browser_id is null and account_id is null),
@@ -548,6 +561,31 @@ begin
     'actions',coalesce((select jsonb_agg(to_jsonb(x)) from (
       select surface,event_type,count(*) as events from measured
       where surface not in ('page','arrival','performance') group by surface,event_type order by events desc limit 100)x),'[]'::jsonb),
+    'previous',jsonb_build_object('from',v_from-(v_to-v_from),'to',v_from,
+      'entrances',(select count(distinct session_id) from previous where surface='arrival' and event_type='source'),
+      'views',(select count(*) from previous where surface='page' and event_type='view'),
+      'browsers',(select count(distinct browser_id) from previous),
+      'computes',(select count(*) from previous where surface='activity_2029' and event_type='compute'),
+      'searches',(select count(*) from previous where (surface='activity_2029' and event_type='search') or (surface='els' and event_type in ('search','cross_search'))),
+      'shares',(select count(*) from previous where surface='share' and event_type='share')),
+    'activity_by_section',coalesce((select jsonb_agg(to_jsonb(x)) from (
+      select section,event_type,count(*) as events,count(distinct session_id) as sessions from measured
+      where surface='activity_2029' and event_type<>'view' group by section,event_type order by section,events desc)x),'[]'::jsonb),
+    'activity_by_source',coalesce((select jsonb_agg(to_jsonb(x)) from (
+      select coalesce(a.source,'unknown') as source,m.event_type,count(*) as events from measured m
+      left join arrival_source a using(session_id)
+      where (m.surface='activity_2029' and m.event_type in ('compute','search','select','save'))
+         or (m.surface='els' and m.event_type in ('search','cross_search'))
+      group by 1,2 order by events desc limit 60)x),'[]'::jsonb),
+    'hourly',coalesce((select jsonb_agg(to_jsonb(x) order by hour) from (
+      select extract(hour from ts at time zone 'Asia/Jerusalem')::int as hour,
+        count(*) filter(where surface='page' and event_type='view') as views,
+        count(*) filter(where surface='activity_2029' and event_type='compute') as computes,
+        count(*) filter(where (surface='activity_2029' and event_type='search') or (surface='els' and event_type in ('search','cross_search'))) as searches
+      from measured group by 1)x),'[]'::jsonb),
+    'shares',coalesce((select jsonb_agg(to_jsonb(x)) from (
+      select coalesce(props->>'platform','unknown') as platform,count(*) as shares from measured
+      where surface='share' and event_type='share' group by 1 order by shares desc)x),'[]'::jsonb),
     'daily',coalesce((select jsonb_agg(to_jsonb(x) order by day) from (
       select (ts at time zone 'Asia/Jerusalem')::date as day,
         count(*) filter(where surface='page' and event_type='view') as views,

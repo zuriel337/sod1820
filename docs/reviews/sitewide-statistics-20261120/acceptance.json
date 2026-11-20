@@ -26,35 +26,29 @@
   ],
   "checks": {
     "sql_pglite_pg18": {
-      "pass": 31
+      "pass": 37
+    },
+    "sections_end_to_end": {
+      "pass": 65
     },
     "legacy_readers_pglite_pg18": {
       "pass": 18
     },
-    "real_postgres_16_apply_rollback": {
-      "pass": 10,
+    "real_postgres_16_apply_rollback_postgrest_emulation": {
+      "pass": 18,
       "original_cfb007e4e": "FAIL"
     },
     "privacy_floor_real_postgres_16": {
       "pass": 6
     },
-    "node_contracts": {
-      "pass": 167,
-      "fail": 0
-    },
-    "merge_with_main_7e7cc4b": {
-      "pass": 56,
-      "article_first_proofs": {
-        "read": 1320,
-        "candidates": 1297,
-        "proven": 1297,
-        "differ": 0
-      }
+    "live_contracts_node": {
+      "pass": 1494,
+      "fail": 1,
+      "fail_reason": "environment: initdb cannot run as root (same at main)"
     },
     "component_browser_390_1440": {
       "pass": 2,
-      "synthetic": true,
-      "fonts": "harness does not load 2029 fonts; typography not represented"
+      "synthetic": true
     },
     "build": "PASS",
     "public_reading_build": "PASS",
@@ -67,8 +61,8 @@
         "avg_ms": 30
       }
     },
-    "postgrest_jwt_cf_ip": "BLOCKED",
-    "postgres_17": "UNKNOWN"
+    "postgrest_binary_vs_cloudflare": "BLOCKED (live canary after SQL step 2)",
+    "postgres_17": "UNKNOWN (16 and 18 tested)"
   },
   "budgets_vs_main": {
     "eager_js_gzip_delta": 146,
@@ -87,8 +81,8 @@
       "bytes": 730
     },
     "supabase/proposed/sitewide-statistics-20261120/admin_2029_analytics.after.sql": {
-      "sha256": "9b0c2c628ea607066387d69ad6c5f40e3ba7b019a1a94933e9938c8bfb04e9a9",
-      "bytes": 33352
+      "sha256": "1cf99b8225b9be6e81ce710c7314306959b07d85ceabc3254cddc6bb8a0b1090",
+      "bytes": 36783
     },
     "supabase/proposed/sitewide-statistics-20261120/admin_2029_analytics.before.sql": {
       "sha256": "a0650a496f71b5283ac0d2b4c27b867cfd9e173dc87ca8a312f4a348ea01f48f",
@@ -107,8 +101,8 @@
       "bytes": 327
     },
     "supabase/proposed/sitewide-statistics-20261120/extensions.sql": {
-      "sha256": "47fd9b165e0ce85d20ae0035e0012d876f1a1a35672eaeb27a226ca7f049eed8",
-      "bytes": 12677
+      "sha256": "ac44983b1b77fca5e6fcfedc65f4836f4aa10b15fb40994d1f503b913f12d48c",
+      "bytes": 13891
     },
     "supabase/proposed/sitewide-statistics-20261120/fn_human_entrances.after.sql": {
       "sha256": "2e48d2be682e49cbed2bd714b9c4309127883f262102ca39f9a52941d2504402",
@@ -353,6 +347,6 @@
   },
   "previous": {
     "codex_acceptance_schema": 2,
-    "codex_checks": 11
+    "codex_checks": 12
   }
 }

@@ -14,7 +14,7 @@ export default function ActivityPulse2029({ reader = readPulse }) {
     return () => { current = false; };
   }, [hours, reader]);
   const d = state.data;
-  const hasCards = d && (d.numbers?.length || d.phrases?.length || d.activity?.length || d.trend?.length || d.publications?.public_ciphers || d.publications?.approved_convergences);
+  const hasCards = d && (d.numbers?.length || d.phrases?.length || d.content?.length || d.activity?.length || d.trend?.length || d.publications?.public_ciphers || d.publications?.approved_convergences);
   return <section className="activity29" dir="rtl" aria-label="פעילות המחקר באתר">
     <div className="activity29-head"><strong>במוקד המחקר</strong><div role="group" aria-label="טווח הפעילות">
       {[[24,'יממה'],[168,'שבוע'],[720,'חודש']].map(([h,label]) => <button key={h} type="button" aria-pressed={h===hours} onClick={()=>setHours(h)}>{label}</button>)}
@@ -29,6 +29,9 @@ export default function ActivityPulse2029({ reader = readPulse }) {
           {(d.phrases || []).slice(0,2).map(x => <div className="activity29-card" key={x.phrase}>
             <small>ביטוי ציבורי מאושר</small><strong>{x.phrase}</strong><span>{count(x.events)} בחירות בטווח</span>
           </div>)}
+          {(d.content || []).slice(0,2).map(x => <a className="activity29-card" href={x.href} key={x.href}>
+            <small>נקרא עכשיו</small><strong>{x.title}</strong><span>{count(x.events)} קריאות בטווח</span>
+          </a>)}
           {(d.trend || []).slice(0,2).map(x=><div className="activity29-card" key={'trend/'+x.event_type}>
             <small>{names[x.event_type] || 'מחקר'} · שינוי</small><b>{Math.round((x.recent-x.earlier)/x.earlier*100)}%</b><span>מחצית אחרונה מול קודמת</span>
           </div>)}

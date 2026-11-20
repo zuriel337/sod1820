@@ -22,6 +22,7 @@ try {
     create table auth.users(id uuid,created_at timestamptz,email_confirmed_at timestamptz);
     create table topic_cards_public(id uuid);
     create table els_records(id uuid,status text,visibility text,home_hidden boolean);
+    create table posts(id bigint,slug text,title text,tags text[]);
     create table system_suggestions(id uuid,created_at timestamptz,detector text,title text,reason text,observed jsonb,status text,sample_size integer,confidence numeric);
     create function fn_web_vital_surface_group(text,text) returns text language sql as $$select 'other'$$;
     create function edge_rate_limit_check(text,integer,integer) returns jsonb language sql as $$select '{"allowed":true}'::jsonb$$;
@@ -82,6 +83,13 @@ try {
     select now()-interval '1 minute','unknown-'||i,'page','view','/number/:value',
       '{"_measurement_verified":2,"measurement":{"page_path":"/number/105"}}'
     from generate_series(1,20)i;
+    insert into posts values(1,'popular-post','פוסט נקרא',null),(2,'draft-post','טיוטה סודית',array['טיוטה']),(3,'quiet-post','פוסט שקט',null);
+    insert into events(ts,session_id,surface,event_type,path,props)
+    select now()-interval '1 minute','human-'||i%5,'page','view','/post/:item',jsonb_build_object('_measurement_verified',2,'measurement',jsonb_build_object('page_path','/post/'||p))
+    from generate_series(1,10)i, unnest(array['popular-post','draft-post']) p;
+    insert into events(ts,session_id,surface,event_type,path,props)
+    select now()-interval '1 minute','human-'||i,'page','view','/post/:item','{"_measurement_verified":2,"measurement":{"page_path":"/post/quiet-post"}}'
+    from generate_series(1,3)i;
   `);
   await db.exec("set role anon");
   let pulse=await scalar('select research_pulse_2029(24) as v');
@@ -89,6 +97,11 @@ try {
   check(!JSON.stringify(pulse).includes('human-')&&!JSON.stringify(pulse).includes('browser-'),'public response contains no session/browser IDs');
   check(pulse.state==='measured' && new Date(pulse.latest_event).getUTCMinutes()===0 && new Date(pulse.latest_event).getUTCSeconds()===0,'freshness is hour-granular once the window meets the floor');
   check(new Date(pulse.numbers[0].last_at).getUTCMinutes()===0,'number last_at is hour-granular');
+  check(pulse.content.length===1 && pulse.content[0].title==='פוסט נקרא' && pulse.content[0].href==='/post/popular-post' && pulse.content[0].events===10,'popular content: public post above the floor only; draft and below-floor posts absent');
+  check(pulse.content_refs===undefined && !JSON.stringify(pulse).includes('draft-post'),'cached content references never leave the function');
+  await db.exec("reset role; update posts set tags=array['טיוטה'] where slug='popular-post'; set role anon");
+  check((await scalar('select research_pulse_2029(24) as v')).content.length===0,'a post turned draft disappears on the next read, even from cache');
+  await db.exec("reset role; update posts set tags=null where slug='popular-post'; set role anon");
   await db.exec("reset role; update gematria_words set is_published=false where ragil=104");
   await db.exec("set role anon");
   pulse=await scalar('select research_pulse_2029(24) as v');
@@ -98,7 +111,10 @@ try {
   const report=await scalar('select admin_2029_analytics() as v');
   check(report.site_activity.top_numbers.length===2,'admin top numbers project measured pages, including unknown separately');
   check(report.site_activity.summary.registered_accounts===0,'registrations come from canonical verified Auth creation, not client actions');
-  check(report.site_activity.summary.views===30,'admin sees unknown separately; public never treats unknown as human');
+  check(report.site_activity.previous && report.site_activity.previous.views===0 && Array.isArray(report.site_activity.hourly) && Array.isArray(report.site_activity.activity_by_section) && Array.isArray(report.site_activity.activity_by_source),'admin: previous-period comparison, hourly, per-calculator and per-source breakdowns');
+  check(report.site_activity.activity_by_section.some(x=>x.event_type==='compute'&&x.events===1),'admin: compute counted once in its section');
+  check(Number.isInteger(report.site_activity.summary.guest_browsers)&&Number.isInteger(report.site_activity.summary.active_browsers_5m),'admin: guests and active browsers are measured browsers, reported separately from accounts');
+  check(report.site_activity.summary.views===53,'admin sees unknown separately (30 number views incl. 20 unknown + 23 post views); public never treats unknown as human');
   check(report.site_activity.actions.some(x=>x.event_type==='compute'&&x.events===1),'admin counts canonical compute once');
   check(report.web_vitals!==undefined && report.identified_traffic!==undefined,'existing admin projections preserved');
   check((await db.query('select * from search_log')).rows.length===0,'frozen search history is server-only, even for an admin client');

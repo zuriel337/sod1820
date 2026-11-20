@@ -47,7 +47,8 @@ returns text language sql immutable as $$
  when p ~ '^/(2029/)?(now|global-now)' then 'now'
  when p ~ '^/(2029/)?(world|topic)' then 'world'
  when p ~ '^/(2029/)?(calculator-pro|gematria-pro)' then 'calculator_advanced'
- when p ~ '^/(2029/)?(gematria|calculator)' or p='/community/calculator' then 'calculator'
+ when p='/community/calculator' then 'calculator_community'
+ when p ~ '^/(2029/)?(gematria|calculator)' then 'calculator'
  when p ~ '^/(2029/)?codes' then 'cipher'
  when p ~ '^/(2029/)?(els|tzofen|code)' then 'els'
  when p ~ '^/(2029/)?(cipher|ciphers)' then 'cipher'
@@ -108,6 +109,12 @@ begin
      select n,count(*) as events,count(distinct session_id) as sessions,date_trunc('hour',max(ts)) as last_at
      from number_events where n between 1 and 99999 group by n
      having count(*)>=10 and count(distinct session_id)>=5
+   ), posts_viewed as (
+     -- Popular public content: canonical post page views. Only the slug reference is cached;
+     -- title and public state are re-read on every call (an unpublished/draft post disappears).
+     select substr(props->'measurement'->>'page_path',7) as slug,count(*) as events,count(distinct session_id) as sessions
+     from eligible where surface='page' and event_type='view' and props->'measurement'->>'page_path' like '/post/_%'
+     group by 1 having count(*)>=10 and count(distinct session_id)>=5
    ), words as (
      select props->>'word_id' as id,count(*) as events,count(distinct session_id) as sessions,date_trunc('hour',max(ts)) as last_at
      from eligible where surface='activity_2029' and event_type in ('search','select')
@@ -122,6 +129,7 @@ begin
        having count(*)>=10 and count(distinct session_id)>=5),
      'numbers',coalesce((select jsonb_agg(to_jsonb(n.*)) from (select * from numbers order by events desc,n limit 8)n),'[]'::jsonb),
      'word_refs',coalesce((select jsonb_agg(to_jsonb(w)) from (select * from words order by events desc,id limit 8)w),'[]'::jsonb),
+     'content_refs',coalesce((select jsonb_agg(jsonb_build_object('slug',c.slug,'events',c.events)) from (select * from posts_viewed order by events desc,slug limit 8)c),'[]'::jsonb),
      'trend',coalesce((select jsonb_agg(to_jsonb(t)) from (
        select surface,event_type,
          count(*) filter(where ts>=now()-make_interval(hours=>h)/2) as recent,
@@ -149,7 +157,7 @@ begin
      producer_version=excluded.producer_version,expires_at=excluded.expires_at,invalidated_at=null;
  end if;
  -- Never return cached text or identities. Recheck live publication even on hits.
- return (payload-'word_refs'-'numbers') || jsonb_build_object('computed_at',stamp,
+ return (payload-'word_refs'-'numbers'-'content_refs') || jsonb_build_object('computed_at',stamp,
    'state',case when payload->>'latest_event' is null then 'no_data'
      when (payload->>'latest_event')::timestamptz<now()-interval '24 hours' then 'stale' else 'measured' end,
    'numbers',coalesce((select jsonb_agg(jsonb_build_object('n',x.n,'events',x.events,'last_at',x.last_at))
@@ -159,6 +167,11 @@ begin
      from jsonb_to_recordset(payload->'word_refs') x(id text,events bigint)
      join public.gematria_words g on g.id::text=x.id
      where g.public_trend_approved and public.gematria_public_word_eligible(g.id)),'[]'::jsonb),
+   -- Same visibility as the anon posts policy (posts_anon_read): never a draft.
+   'content',coalesce((select jsonb_agg(jsonb_build_object('title',p.title,'href','/post/'||p.slug,'events',x.events) order by x.events desc)
+     from jsonb_to_recordset(payload->'content_refs') x(slug text,events bigint)
+     join public.posts p on p.slug=x.slug
+     where not coalesce(p.tags,'{}'::text[]) && array['טיוטה'::text] and p.title is not null),'[]'::jsonb),
    'publications',jsonb_build_object(
      'approved_convergences',(select count(*) from public.topic_cards_public),
      'public_ciphers',(select count(*) from public.els_records where status='published' and visibility='public' and not coalesce(home_hidden,false))),
