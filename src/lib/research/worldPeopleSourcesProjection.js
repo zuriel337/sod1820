@@ -35,7 +35,7 @@ function safePublicUrl(value) {
     return null;
   }
 }
-function item({ id, sourceRef, type, label, title, summary = null, date = null, dateKind = null, href = null, number = null, mediaUrl = null, meta = null }) {
+function item({ id, sourceRef, type, label, title, summary = null, date = null, dateKind = null, href = null, number = null, mediaUrl = null, mediaKind = null, posterUrl = null, meta = null }) {
   const safeId = clean(id || sourceRef);
   const safeSourceRef = clean(sourceRef);
   const numericValue = clean(number) && Number.isFinite(Number(number)) ? Number(number) : null;
@@ -52,6 +52,7 @@ function item({ id, sourceRef, type, label, title, summary = null, date = null, 
     href: safePublicUrl(href),
     number: numericValue,
     mediaUrl: safePublicUrl(mediaUrl),
+    ...(mediaKind === "video" ? { mediaKind, posterUrl: safePublicUrl(posterUrl) } : {}),
     meta,
   });
 }
@@ -183,7 +184,7 @@ function publicContentProjectionForMaterial(identity, rows, { findings = null } 
         occurrenceHref: exactLocator?.exact ? exactLocator.href : row.href,
         contributor: { slug: identity.slug, label: identity.displayName, href: identity.href || null },
         media: row.mediaUrl && sourceRef === mediaSourceRef
-          ? [{ mediaRef: `media:${sourceRef}`, kind: "image", href: row.mediaUrl }]
+          ? [{ mediaRef: `media:${sourceRef}`, kind: row.mediaKind || "image", href: row.mediaUrl }]
           : [],
         times: itemTimes(row),
       });
@@ -229,8 +230,13 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
 
   for (const row of sourceCatalog?.items || []) put(item({
     id: `source:${row.id}`, sourceRef: row.sourceRef, type: "sources", label: "מקור ועדכון",
-    title: row.title, summary: row.text, date: row.createdAt, href: row.href,
-    mediaUrl: row.media?.url, meta: {
+    title: identity.slug === "tzvi-opoc" && row.media?.type === "video" && row.title === "תמונה מהמקור"
+      ? "סרטון מהמקור" : row.title,
+    summary: row.text, date: row.createdAt, href: row.href,
+    mediaUrl: row.media?.url,
+    ...(identity.slug === "tzvi-opoc" && row.media?.type === "video"
+      ? { mediaKind: "video", posterUrl: row.media.thumbUrl } : {}),
+    meta: {
       sourceRecordCount: row.sourceRecordCount,
       researchFacets: row.researchFacets,
       sourceOccurrenceRefs: row?.evidence?.sourceOccurrenceRefs,
