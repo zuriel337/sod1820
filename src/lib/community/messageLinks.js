@@ -90,6 +90,22 @@ export function externalTikTokLinksFromText(text = "", max = 2) {
   }).filter((v, i, arr) => arr.findIndex(x => x.key === v.key) === i).slice(0, max);
 }
 
+// A playlist is a YouTube collection, not a single-video ID. Link out instead of
+// feeding a playlist into the video player or pretending its first item is the title.
+export function externalYouTubePlaylistLinksFromText(text = "", max = 2) {
+  return splitMessageLinks(String(text || "")).flatMap(({ link }) => {
+    if (!link?.href) return [];
+    try {
+      const u = new URL(link.href);
+      if (u.protocol !== "https:" || u.username || u.password || u.port ||
+          !["youtube.com", "www.youtube.com", "m.youtube.com"].includes(u.hostname.toLowerCase()) || u.pathname !== "/playlist") return [];
+      const id = u.searchParams.get("list");
+      return /^[A-Za-z0-9_-]{10,100}$/.test(id || "")
+        ? [{ href: "https://www.youtube.com/playlist?list=" + id, key: "youtube-playlist:" + id }] : [];
+    } catch { return []; }
+  }).filter((v, i, arr) => arr.findIndex(x => x.key === v.key) === i).slice(0, max);
+}
+
 // The same detector over authored post HTML: iframe/anchor addresses and plain-text URLs (an approved, published post only).
 export function externalVideoLinksFromHtml(html = "", max = 3) {
   const source = String(html || "");
