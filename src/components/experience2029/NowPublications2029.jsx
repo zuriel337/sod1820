@@ -136,6 +136,8 @@ function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
       <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer" className="sod29-action">פתיחת רשימת ההשמעה ב־YouTube</a>)}
     {externalTikTokLinksFromText(model.fullText || model.title).map(link =>
       <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer" className="sod29-action" aria-label="צפייה בסרטון המקורי ב־TikTok">צפייה בסרטון ב־TikTok</a>)}
+    {model.item.sourceVideoHref && !String(model.fullText || "").includes(model.item.sourceVideoHref) ?
+      <a href={model.item.sourceVideoHref} target="_blank" rel="noopener noreferrer" className="sod29-action">צפייה במקור הווידאו</a> : null}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
     {model.unverified ? <small className="is-unverified">מקור · טרם נבדק. זו הודעת מקור כפי שנשמרה ולא ממצא מאומת.</small> : null}
     <div className="sod29-nowpub-actions">
