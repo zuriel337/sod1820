@@ -1740,9 +1740,9 @@ async function rescueFromCorpus(rows) {
 }
 export async function getWallRecent(limit = 60) {
   if (!supabase) return [];
-  const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits,last_at').eq('private', false).order('last_at', { ascending: false }).limit(limit);
-  return rescueFromCorpus(data || []);
+  const { data, error } = await supabase.rpc('fn_ti_public_activity2029', { p_hours: 168 });
+  if (error || data?.version !== 1) return [];
+  return (data.phrases || []).slice(0, Math.max(1, Math.min(24, limit))).map(x => ({ phrase: x.phrase, ragil: x.value, hits: x.events, last_at: data.computed_at }));
 }
 
 // ===== פס פעילות חי (LiveActivityBar) — עדכונים אמיתיים בלבד =====
@@ -1763,7 +1763,7 @@ export async function logSearch(term, value) {
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, '1');
   } catch { /* ignore */ }
-  try { await supabase.from('search_log').insert({ term: t, value: Number.isFinite(value) ? value : null }); } catch { /* ignore */ }
+  // Historical raw search_log is read-only; explicit actions use ingest_event.
   // 🌳 עץ אישי: חיפוש של משתמש מחובר → research_items (bucket 'searched'). מכבד מצב-אנונימי (יצא למעלה).
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -1793,31 +1793,19 @@ export async function adminAddWord(phrase, vals) {
 
 // 🕒 חיפושים אחרונים — מה *כל* הגולשים חוקרים עכשיו (terms ייחודיים אחרונים).
 export async function getRecentSearches(limit = 6) {
-  try {
-    const { data } = await supabase.from('search_log')
-      .select('term,value,created_at')
-      .order('created_at', { ascending: false }).limit(60);
-    const seen = new Set(); const out = [];
-    for (const r of (data || [])) {
-      const t = (r.term || '').trim();
-      if (!t || seen.has(t)) continue;
-      seen.add(t); out.push({ term: t, value: r.value, at: r.created_at });
-      if (out.length >= limit) break;
-    }
-    return out;
-  } catch { return []; }
+  // Suggestions are curated aggregates, never another person's search history.
+  return (await getWallRecent(limit)).map(x => ({ term: x.phrase, value: x.ragil, at: x.last_at }));
 }
 
 // 🔢 מונה חיפושים — כמה חיפושי גימטריה נרשמו ב-N השעות האחרונות (למגירת המספר / בית המדרש).
 export async function getRecentSearchCount(hours = 24) {
-  if (!supabase) return 0;
+  if (!supabase) return null;
   try {
-    const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
-    const { count } = await supabase.from('search_log')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', since);
-    return count || 0;
-  } catch { return 0; }
+    const {data,error}=await supabase.rpc('fn_ti_public_activity2029',{p_hours:[24,168,720].includes(hours)?hours:24});
+    if(error || !data || data.state==='refreshing') return null;
+    const searches=data.activity?.filter(x=>x.event_type==='search'||x.event_type==='cross_search');
+    return searches?.length ? searches.reduce((n,x)=>n+x.events,0) : null;
+  } catch { return null; }
 }
 
 // 🧬 כל המילים-השוות ברגיל לערך (לכפתור «פתח עוד» — הרשימה המלאה). ממוין לפי חוזק
@@ -1852,7 +1840,7 @@ export async function getValuePhrasesPage(value, { offset = 0, limit = 30 } = {}
   const start = Math.max(0, Math.trunc(Number(offset) || 0));
   const size = Math.max(1, Math.min(100, Math.trunc(Number(limit) || 30)));
   const { data, count, error } = await supabase.from("gematria_words")
-    .select("phrase,is_verified,visibility_tier,lead_rank,tags", { count: "exact" })
+    .select("id,phrase,is_verified,visibility_tier,lead_rank,tags", { count: "exact" })
     .eq("ragil", Number(value))
     .eq("is_verified", true).eq("is_published", true)
     .order("lead_rank", { ascending: true, nullsFirst: false })

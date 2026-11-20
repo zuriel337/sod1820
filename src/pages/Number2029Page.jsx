@@ -1,3 +1,5 @@
+import { recordSiteActivity } from "../lib/siteActivity2029.js";
+import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
@@ -995,7 +997,11 @@ function NumberPageBody({ resolvedAddress = null }) {
     }
   };
 
-  const activateExpressionFocus = (expression, preferredMethod = null, options = {}) => navigateExpression(expression, preferredMethod, options);
+  const activateExpressionFocus = (expression, preferredMethod = null, options = {}) => {
+    const row = regularPhraseState.rows.find(x => x.phrase === expression);
+    recordSiteActivity('select', { wordId: row?.id });
+    return navigateExpression(expression, preferredMethod, options);
+  };
 
   const activateMethodFocus = (methodKey) => {
     const key = clean(methodKey);
@@ -1193,6 +1199,7 @@ function NumberPageBody({ resolvedAddress = null }) {
   const resolveNumberQuery = async (rawValue) => {
     const raw = clean(rawValue);
     if (!raw) return;
+    recordSiteActivity('search');
     if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
       openNumberRoot(Number(raw));
       return;
@@ -1493,6 +1500,7 @@ export default function Number2029Page({ resolvedAddress = null } = {}) {
     symbol={<NavigationIcon2029 name="number" />}
     status="דף המספר והביטוי"
   >
+    <ActivityPulseSlot2029 />
     <NumberPageBody resolvedAddress={resolvedAddress} />
   </Sod2029Shell>;
 }

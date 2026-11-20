@@ -1,4 +1,6 @@
+import { useSiteActivityView2029 } from "../../lib/useSiteActivityView2029.js";
 import React, { useEffect, useMemo, useState } from "react";
+import ActivityPulseSlot2029 from "./ActivityPulseSlot2029.jsx";
 import ExternalVideoFacade2029 from "./ExternalVideoFacade2029.jsx";
 import { GroupMessageText } from "../research/GroupSourceMeta2029.jsx";
 import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
@@ -243,6 +245,7 @@ function WideDetail({ model, onOpen, feed, timeMode, autoPlay, onSource }) {
 }
 
 export default function NowPublications2029({ feed, onOpen, timeMode, compact = false }) {
+  useSiteActivityView2029('now', !compact);
   // ZURIEL 11.11.2026 (approved design): the source picker is the primary control ("הכול" by default); lens, series and media move to "מסננים נוספים".
   const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [sourceKey, setSourceKey] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
@@ -293,6 +296,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
   const chosenSource = sourceKey ? sourceChoices.find(item => item.id === sourceKey) : null;
 
   return <section className="sod29-nowpub is-royal r29" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
+    {!compact && <ActivityPulseSlot2029 />}
     {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={href => { feed?.see?.(pinned.model.row); onOpen?.(href); }} /> : todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
     <NowSourcePicker2029 choices={sourceChoices} value={sourceKey} onChange={pick(setSourceKey)} total={models.length} />
     {sourceKey === "channel:site-news" && <SiteNewsHistory />}

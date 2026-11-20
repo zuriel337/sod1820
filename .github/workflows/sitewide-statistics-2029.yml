@@ -1,0 +1,56 @@
+name: Sitewide Statistics 2029
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public-reading-deploy/**'
+      - 'supabase/proposed/sitewide-statistics-20261120/**'
+      - 'test/sitewide-statistics-20261120*'
+      - '.github/workflows/sitewide-statistics-2029.yml'
+permissions:
+  contents: read
+concurrency:
+  group: statistics-2029-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  isolated-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Isolated test dependencies (no project dependency changes)
+        run: |
+          npm install --prefix "$RUNNER_TEMP/statistics-tools" --no-save --ignore-scripts @electric-sql/pglite@0.5.16 playwright@1.55.0
+          node "$RUNNER_TEMP/statistics-tools/node_modules/playwright/cli.js" install --with-deps chromium
+          ln -s "$RUNNER_TEMP/statistics-tools/node_modules/playwright" node_modules/playwright
+          echo "PGLITE_MODULE=$RUNNER_TEMP/statistics-tools/node_modules/@electric-sql/pglite/dist/index.js" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_MODULE=$RUNNER_TEMP/statistics-tools/node_modules/playwright/index.mjs" >> "$GITHUB_ENV"
+          CHROMIUM_PATH=$(node -e "console.log(require('playwright').chromium.executablePath())")
+          echo "CHROMIUM_PATH=$CHROMIUM_PATH" >> "$GITHUB_ENV"
+          echo "STATISTICS_SCREENSHOTS=$RUNNER_TEMP/statistics-evidence" >> "$GITHUB_ENV"
+      - name: SQL/RLS/cache/replay gates (no network or live database)
+        run: node test/sitewide-statistics-20261120.sql.mjs
+      - name: Measurement contracts
+        run: node --test test/sitewide-statistics-20261120.test.mjs test/public-reading-action-measurement.test.mjs test/measurement-identity-20261115.test.mjs test/measurement-page-view-once-2029.test.mjs test/measurement-transport-hardening-2029.test.mjs test/public-reading-protected-review.test.mjs test/sitewide-statistics-preview.test.mjs
+      - name: Build and existing shell budget
+        run: npm run build
+      - name: Public artifact and browser acceptance
+        run: |
+          node scripts/build-public-reading-production.mjs
+          node test/sitewide-statistics-20261120.browser.mjs
+          node --test test/measurement-visit-once-2029.browser.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: statistics-synthetic-browser-evidence
+          path: ${{ runner.temp }}/statistics-evidence
+          if-no-files-found: ignore

@@ -26,7 +26,9 @@ export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typograp
 // acceptance of this exact source-lineage branch. Preview only; no auth alias,
 // Production admission, or relaxation of the pinned platform identity.
 export const TZVI_SOURCE_REVIEW_BRANCH = "gpt/tzvi-source-lineage-20261120";
-export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH]);
+// #1456 user requested one protected acceptance Preview; no Production authority.
+export const STATISTICS_REVIEW_BRANCH = "codex/1456-sitewide-statistics-20261120";
+export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
 export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";

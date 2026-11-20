@@ -1,3 +1,4 @@
+import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useParams } from "react-router-dom";
@@ -1568,6 +1569,7 @@ export default function Post2029Page({ resolvedSlug = null, sourceReader = null 
     symbol="✦"
     status="פוסט"
   >
+    <ActivityPulseSlot2029 />
     <PostReadingBody key={slug} resolvedSlug={slug} sourceReader={sourceReader} />
   </Sod2029Shell>;
 }

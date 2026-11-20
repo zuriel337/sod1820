@@ -1,0 +1,8 @@
+-- PROPOSAL ONLY. Run only after exact-SHA human + independent security gates.
+\set ON_ERROR_STOP on
+begin;
+\ir preflight.sql
+\ir extensions.sql
+\ir ingest_event.after.sql
+\ir admin_2029_analytics.after.sql
+commit;

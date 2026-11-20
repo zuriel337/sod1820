@@ -1,3 +1,4 @@
+import { useSiteActivityView2029 } from "../../lib/useSiteActivityView2029.js";
 import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { filterRazielTitles, projectRazielConversation, projectSavedRazielConversations, projectRazielDossier, razielGroundingCopy, workspaceCreditBalance } from "../../lib/research/razielWorkspaceProjection2029.js";
@@ -55,6 +56,7 @@ function ConversationDossier({ conversation, conversations, research, onOpenRese
 }
 
 export default function RazielCenter2029({ session, research, credits, onBack, onOpenConversation, onOpenResearchItem }) {
+  useSiteActivityView2029('raziel');
   const root = useRef(null);
   useLayoutEffect(() => {
     const panel = root.current?.closest(".sod29-frame-panel");

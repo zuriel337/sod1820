@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "issue": 1456,
+  "branch": "codex/1456-sitewide-statistics-20261120",
+  "base_sha": "33b5cb552b48173cecdc3939c61bf7b7b1f3ed8c",
+  "database_applied": false,
+  "production_changed": false,
+  "merge_authorized": false,
+  "status": "BRANCH_ONLY_REVIEW_NOT_RELEASE_ACCEPTED",
+  "checks": {
+    "sql_pglite": {
+      "pass": 24,
+      "live": false,
+      "limitations": [
+        "classifier fixture",
+        "rate limiter fixture",
+        "no PostgREST or concurrent connections"
+      ]
+    },
+    "measurement_and_preview_node": {
+      "pass": 59
+    },
+    "library_number_focus_node": {
+      "pass": 15
+    },
+    "canonical_presentation": {
+      "pass": 59
+    },
+    "live_static_contracts": {
+      "pass": 6
+    },
+    "component_browser": {
+      "viewports": [
+        390,
+        1440
+      ],
+      "pass": 2,
+      "synthetic": true
+    },
+    "existing_full_browser": {
+      "pass": 4,
+      "profiles": [
+        "desktop_guest",
+        "desktop_member",
+        "phone_guest",
+        "phone_member"
+      ],
+      "duration_ms": 196942,
+      "synthetic": true,
+      "scope": "public artifact, actual worker and Supabase client with offline Auth fixture"
+    },
+    "build": "PASS",
+    "public_reading_build": "PASS",
+    "ci": "pending PR"
+  },
+  "budgets": {
+    "standard": {
+      "eager_js_gzip": 203349,
+      "eager_limit": 203493,
+      "frame_js_gzip": 47194,
+      "frame_limit": 47338,
+      "frame_css_gzip": 34329,
+      "css_limit": 34362
+    },
+    "public_reading": {
+      "eager_js_gzip": 203250,
+      "eager_limit": 205111,
+      "frame_js_gzip": 47207,
+      "frame_limit": 47425
+    },
+    "baselines_changed": false
+  },
+  "sql_files": {
+    "supabase/proposed/sitewide-statistics-20261120/add_wall_word.before.sql": {
+      "sha256": "41399307163ab470607dd3fff0a36da13de3d7afcfd6bc3881b9c09833a862ab",
+      "bytes": 730
+    },
+    "supabase/proposed/sitewide-statistics-20261120/admin_2029_analytics.after.sql": {
+      "sha256": "5eb573d4fbf8823cd96faf54ce82543c57b4e2b21046e73638675842dab782ee",
+      "bytes": 33312
+    },
+    "supabase/proposed/sitewide-statistics-20261120/admin_2029_analytics.before.sql": {
+      "sha256": "a0650a496f71b5283ac0d2b4c27b867cfd9e173dc87ca8a312f4a348ea01f48f",
+      "bytes": 26734
+    },
+    "supabase/proposed/sitewide-statistics-20261120/analytics_cache_get_v1.fixture.sql": {
+      "sha256": "dd8b0f1128dfe1005abd14571c9e4572ea0a1aaceae6d0e26a36da410d195cf2",
+      "bytes": 901
+    },
+    "supabase/proposed/sitewide-statistics-20261120/analytics_cache_producer_version_v1.fixture.sql": {
+      "sha256": "0a15e3a82ee928a623cf03cc3b065c014d41e87166db0132ec3993969a81c371",
+      "bytes": 519
+    },
+    "supabase/proposed/sitewide-statistics-20261120/apply.psql": {
+      "sha256": "796a56bf67586a9195dac2cb8143cd0432fd88ef85b7ee03195763173743c6b4",
+      "bytes": 215
+    },
+    "supabase/proposed/sitewide-statistics-20261120/extensions.sql": {
+      "sha256": "f1c9f4eb6c4165f31b989594778dbd30e8b81af6d2e17724ede17d7c750017e2",
+      "bytes": 10692
+    },
+    "supabase/proposed/sitewide-statistics-20261120/ingest_event.after.sql": {
+      "sha256": "7673c2a56f2688ac2e91c5189f51f5faee0033b3da96171292799d20f3c6d37e",
+      "bytes": 10218
+    },
+    "supabase/proposed/sitewide-statistics-20261120/ingest_event.before.sql": {
+      "sha256": "6b5819ff6a3cf95266c5586d301c4a9fc8942838cc1e30c09701c79e3cd11727",
+      "bytes": 8590
+    },
+    "supabase/proposed/sitewide-statistics-20261120/preflight.sql": {
+      "sha256": "00fd37ff5e81c21993677010a19c678f54be80d3e58231ea79b0247dc89559ad",
+      "bytes": 925
+    },
+    "supabase/proposed/sitewide-statistics-20261120/recent_number_opens.before.sql": {
+      "sha256": "3930709ecab64595e8fddf79709e95f10e63df32540af51a4a84ccd8e47cb669",
+      "bytes": 2722
+    },
+    "supabase/proposed/sitewide-statistics-20261120/rollback.psql": {
+      "sha256": "b5e3bee5a77daae6717c8ac449432881c62cc2de4d6a21537cce612a676bad4d",
+      "bytes": 373
+    }
+  },
+  "release_blockers": [
+    "independent SQL/RLS/API privacy review",
+    "PostgREST trusted-address and JWT proof",
+    "representative-volume SQL planner/performance proof",
+    "legacy SECURITY DEFINER reader audit",
+    "owner approval for phrase curation and lawful archive review",
+    "authorized live acceptance after DB approval"
+  ],
+  "handoff": {
+    "actor": "Codex",
+    "task_key": "ISSUE_1456_SITEWIDE_STATISTICS_20261120",
+    "owner": "Traffic Intelligence / Control Plane",
+    "handoff_to": "ZURIEL",
+    "work_log_written": false,
+    "claude_dispatched": false
+  }
+}

@@ -1,3 +1,4 @@
+import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import React, { createContext, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CommunityCalculatorPage from "./CommunityCalculatorPage.jsx";
@@ -289,6 +290,7 @@ export default function CommunityCalculator2029Page() {
   const initialState = useMemo(() => parseCommunityCalculatorState(location.search), [location.search]);
   const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
   return <Sod2029Shell surface="community" title="מחשבון הקהילה" introVariant="none">
+    <ActivityPulseSlot2029 />
     <CommunityCalculatorPage key={location.key} initialState={initialState} passive actionsLocked={actionsLocked} initialShowAll
       renderCalculator={model => <CalculatorExperience model={model} initialState={initialState} location={location} />}
       renderBabyTool={model => <BabyNames model={model} />} />

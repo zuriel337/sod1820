@@ -1,3 +1,4 @@
+import { startSiteActivity, recordSiteActivity } from "../siteActivity2029.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchNumberMethodProfile } from "./numberCoreProjection.js";
 import { fetchGematriaMethodTrace } from "./gematriaTrace.js";
@@ -23,18 +24,28 @@ export function useCalculatorRow(seed = "") {
   const [draft, setDraft] = useState(seed);
   const [profile, setProfile] = useState({ loading: false, rows: [], error: null, expression: "" });
   const requestRef = useRef(0);
+  const userEdit = useRef(false);
+  const recordCompute = useRef(null);
+  const changeDraft = (value) => {
+    if (!userEdit.current) recordSiteActivity("typing", { section: "calculator_advanced" });
+    userEdit.current = true;
+    recordCompute.current = startSiteActivity("compute", { section: "calculator_advanced" });
+    setDraft(value);
+  };
   const info = useMemo(() => classifyCalculatorInput(draft), [draft]);
 
   useEffect(() => {
     const phrase = info.expression;
     const id = ++requestRef.current;
     if (!phrase || !(info.hebrewApplicable || info.englishApplicable)) {
+      userEdit.current = false; recordCompute.current = null;
       setProfile({ loading: false, rows: [], error: null, expression: phrase });
       return undefined;
     }
     const cached = profileCache.get(phrase);
     if (cached) {
       setProfile({ loading: false, rows: cached, error: null, expression: phrase });
+      if (userEdit.current) { recordCompute.current?.(); userEdit.current = false; }
       return undefined;
     }
     setProfile((current) => ({ ...current, loading: true, error: null }));
@@ -42,7 +53,10 @@ export function useCalculatorRow(seed = "") {
       try {
         const rows = await fetchNumberMethodProfile(phrase);
         if (rows.length) remember(profileCache, phrase, rows);
-        if (id === requestRef.current) setProfile({ loading: false, rows, error: null, expression: phrase });
+        if (id === requestRef.current) {
+          setProfile({ loading: false, rows, error: null, expression: phrase });
+          if (userEdit.current && rows.length) { recordCompute.current?.(); userEdit.current = false; }
+        }
       } catch (error) {
         if (id === requestRef.current) setProfile({ loading: false, rows: [], error, expression: phrase });
       }
@@ -75,7 +89,7 @@ export function useCalculatorRow(seed = "") {
     [info.expression, canonicalSettled, profile.rows],
   );
 
-  return { draft, setDraft, info, profile, canonicalSettled, hebrewRows, englishRows };
+  return { draft, setDraft: changeDraft, info, profile, canonicalSettled, hebrewRows, englishRows };
 }
 
 // Letter ledger from the canonical trace RPC, one lazy fetch per expression+method.

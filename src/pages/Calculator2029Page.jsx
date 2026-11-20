@@ -1,4 +1,6 @@
+import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { startSiteActivity, recordSiteActivity } from "../lib/siteActivity2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -108,6 +110,7 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
 
     if (!typingBurstRef.current) {
       typingBurstRef.current = true;
+      recordSiteActivity("typing", { section: "calculator" });
       onTypingStart?.();
     }
 
@@ -328,8 +331,10 @@ function CalculatorExperience() {
     setShowOpening(false);
     setShareDiscovery(null);
     try {
+      const recordCompute = restore ? () => {} : startSiteActivity("compute", { section: "calculator" });
       const rows = await fetchNumberMethodProfile(phrase);
       if (requestId !== computeRequestRef.current) return;
+      if (rows?.length) recordCompute();
       const list = filterProfileRowsForInput(Array.isArray(rows) ? rows : [], inputInfo);
       const preferred = preferredMethodKey
         ? list.find((row) => row.methodKey === preferredMethodKey)
@@ -645,6 +650,7 @@ function CalculatorBody() {
       title="מה מסתתר בשם שלך?"
       description="הקלידו שם בעברית וגלו מה מסתתר בו. אפשר לשתף בקישור, ולהמשיך לעומק במחשבון המקצועי."
     >
+    <ActivityPulseSlot2029 />
       <CalculatorExperience />
     </Sod2029Shell>
   );

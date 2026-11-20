@@ -207,7 +207,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       saveItem(entity) {
         if (!entity?.id || !entity?.type) return false;
         const ok = commitAction([op("item_upsert", { bucket: "library", entity }), history(entity)]);
-        if (ok) { emit(EVENTS.ITEM_SAVE, entity); if (!PUBLIC_READING_RELEASE) trackResearch("save", { type: entity.type }); }
+        if (ok) { const expectedPath = globalThis.location?.pathname; void import("../siteActivity2029.js").then(m=>m.recordSiteActivity("save", { expectedUserId: userId, expectedPath })).catch(()=>{}); emit(EVENTS.ITEM_SAVE, entity); if (!PUBLIC_READING_RELEASE) trackResearch("save", { type: entity.type }); }
         return ok;
       },
       removeSaved: (id) => remove("library", "saved", id),

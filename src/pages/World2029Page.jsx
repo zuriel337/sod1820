@@ -1,3 +1,4 @@
+import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import StoryTreeSequence2029, { storyTreeReturnSelection2029 } from '../components/research/StoryTreeSequence2029.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import WorldPublicUpdates2029 from '../components/research/WorldPublicUpdates2029.jsx';
@@ -2297,6 +2298,7 @@ export default function World2029Page() {
       description="רמזי גאולה מתוך סיפורים, תמונות ותיעוד, עם קשרים ומקורות מדויקים."
       status="עולם · גילוי"
     >
+    <ActivityPulseSlot2029 />
       <WorldBody />
     </Sod2029Shell>
   );
