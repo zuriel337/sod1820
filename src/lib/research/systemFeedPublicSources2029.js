@@ -50,6 +50,21 @@ export function publicNowMediaKind(value) {
   const media = publicStorageMedia(value);
   return media && !media.rendition ? media.kind : null;
 }
+// Provider metadata posters are external, unlike public Storage. Admit exact known CDN
+// hosts only when the same row carries a provider-verified title and enrichment provenance.
+export function publicProviderVideoPoster(row) {
+  if (!row?.seo_title || !/^(?:youtube|tiktok|vimeo)_oembed$/.test(String(row.enrichment_source || ""))) return null;
+  try {
+    const url = new URL(String(row.thumb_url || ""));
+    if (url.protocol !== "https:" || url.username || url.password || url.port || url.search || url.hash) return null;
+    const host = url.hostname.toLowerCase(), provider = String(row.enrichment_source).split("_")[0];
+    const allowed = provider === "youtube" ? ["i.ytimg.com", "img.youtube.com"].includes(host)
+      : provider === "vimeo" ? (host === "i.vimeocdn.com" || host.endsWith(".vimeocdn.com"))
+      : (host === "tiktokcdn.com" || host.endsWith(".tiktokcdn.com"));
+    return allowed ? url.href : null;
+  } catch { return null; }
+}
+
 export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
   if (!UUID.test(row?.id || "") || !NOW_PUBLIC_CHANNELS_2029[row.channel] || row.status !== "live" || row.page_only !== false
     || row.expires_at && (!date(row.expires_at) || Date.parse(row.expires_at) <= now)) return null;
@@ -63,7 +78,7 @@ export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
   const label = sourceTitle || (!linkOnly && !genericBody && body) || "כותרת בהשלמה";
   const titleNeedsEnrichment = !sourceTitle && (linkOnly || !body || genericBody);
   return { id: `channel:${row.id}`, kind: "source", sourceKind: "channel_update", channel: row.channel,
-    sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), titleNeedsEnrichment, fullText: body, mediaHref, thumbUrl: publicNowMediaHref(row.thumb_url),
+    sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), titleNeedsEnrichment, fullText: body, mediaHref, thumbUrl: publicNowMediaHref(row.thumb_url) || publicProviderVideoPoster(row),
     fullTextTruncated: body.length === 1200,
     creator: NOW_PUBLIC_CHANNELS_2029[row.channel], at, arrivalAt: at, recordedAt: at,
     sourceRef: `channel_updates:${row.id}`, publicState: "published_channel_update",
@@ -137,7 +152,7 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
   const catalogRead = fetchContentSeriesCatalog2029({ client: api, limitPerSeries: 4, homeOnly: true, signal }).then(catalog => ({ catalog }), error => ({ error }));
   const results = await Promise.allSettled([
     ...keys.map(channel => read(api.from("channel_updates")
-      .select("id,text,image_url,thumb_url,seo_title,channel,status,page_only,expires_at,created_at,link_url,priority")
+      .select("id,text,image_url,thumb_url,seo_title,enrichment_source,channel,status,page_only,expires_at,created_at,link_url,priority")
       .eq("status", "live").eq("page_only", false).eq("channel", channel)
       .or(`expires_at.is.null,expires_at.gt.${new Date(now).toISOString()}`)
       .order("created_at", { ascending: false }).limit(12))),
