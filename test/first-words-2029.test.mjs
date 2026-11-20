@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { retiredCollectionContinuation } from "../public-reading-deploy/api/public-document.js";
-import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
+import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_KEEPER, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
 import { beforeEach } from "node:test";
 beforeEach(() => _resetFirstWordsForTests());
 
@@ -89,7 +89,8 @@ test("the calculators read picked phrases only from the one activity reader, nev
 
 test("words are escaped, bounded, and a failing source leaves no words", async () => {
   const html = firstWordsHtml2029({ kind: "taxonomy", taxonomyKind: "category", label: 'סוד <החשמל> "x"', posts: [{ slug: "a", source: "ai", title: "<script>alert(1)</script>כותרת", date: "2026-01-02" }] });
-  assert.doesNotMatch(html.replace(/^<style>.*?<\/style>/, ""), /<script|<החשמל>/);
+  assert.ok(html.endsWith(FIRST_WORDS_KEEPER));
+  assert.doesNotMatch(html.replace(/^<style>.*?<\/style>/, "").replace(FIRST_WORDS_KEEPER, ""), /<script|<החשמל>/);
   assert.match(html, /href="\/post\/a">alert\(1\) כותרת<\/a>/);
   assert.equal(firstWordsHtml2029({ kind: "codes", codes: Array.from({ length: 4000 }, (_, i) => ({ slug: "צופן-" + i, title: "צופן ארוך מאוד " + i })) }), "");
   assert.ok(FIRST_WORDS_MAX_BYTES <= 24000);
@@ -136,4 +137,27 @@ test("an instance keeps what it read: fresh answers read nothing, a stale answer
   assert.equal(await firstWordsFacts2029("/gematria", { ...options, fetchImpl: async () => { throw new Error("down"); } }), null, "too old and the source is down: no words");
   assert.equal((await firstWordsFacts2029("/gematria", options)).recent[0].ragil, 208, "a failure kept nothing");
   assert.ok(FIRST_WORDS_GRACE_MS <= 300 && FIRST_WORDS_CACHE.entries <= 400);
+});
+
+test("the words stay through the page's own opening shell and never return over another page", async () => {
+  const { JSDOM } = await import("jsdom");
+  const shell = '<div class="sod29-opening"><span class="sod29-opening-status" role="status">פותח את העמוד</span></div>';
+  const fragment = firstWordsHtml2029({ kind: "topic", topic: { title: "45 — התדר", subtitle: "מ״ה", highlight_numbers: [45] } });
+  const document = `<!doctype html><html><body><div id="root">${shell.replace("</span></div>", "</span>" + fragment + "</div>")}</div></body></html>`;
+  const { window } = new JSDOM(document, { runScripts: "dangerously" });
+  const root = window.document.getElementById("root"), settle = () => new Promise(resolve => setTimeout(resolve, 0));
+  const twin = () => { const element = window.document.createElement("div"); element.className = "sod29-opening"; return element; };
+  assert.ok(root.querySelector("[data-first-words]"));
+  // 1. the page's code clears the root and paints its twin of the opening shell
+  root.replaceChildren(twin()); await settle();
+  assert.ok(root.querySelector(".sod29-opening > [data-first-words]"), "the words moved into the twin shell");
+  assert.ok(root.querySelector(".sod29-opening > style"), "with their style");
+  // 2. the page itself arrives: the twin (and the words with it) is replaced
+  const page = window.document.createElement("main"); page.textContent = "הדף המלא";
+  root.replaceChildren(page); await settle();
+  assert.equal(root.querySelector("[data-first-words]"), null);
+  // 3. a later opening shell (another route loading) never gets these words back
+  root.replaceChildren(twin()); await settle();
+  assert.equal(root.querySelector("[data-first-words]"), null);
+  window.close();
 });

@@ -238,11 +238,17 @@ function body(facts) {
 // One small style, scoped to the block; colours are inherited from the opening shell (dark, light and parchment themes alike).
 const STYLE = "<style>.sod29-first-words{max-width:46rem;margin:0 auto;padding:0 16px 48px;line-height:1.7;font-size:17px}.sod29-first-words h1{font-size:26px;line-height:1.3;margin:0 0 12px}.sod29-first-words h2{font-size:19px;margin:22px 0 8px}.sod29-first-words h3{font-size:17px;margin:14px 0 4px}.sod29-first-words p{margin:0 0 10px}.sod29-first-words ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px}.sod29-first-words a{color:inherit;text-decoration:underline;text-underline-offset:3px}.sod29-first-words li span{opacity:.75;font-size:14px}</style>";
 
+// The page's code first replaces the document's opening shell with its own twin of it (Opening2029.jsx, the Suspense fallback) and only then
+// with the page. Without this, the words showed, vanished into a bare shell and then the page came (protected Preview, 20.11.2026). This small
+// script, carried only by a document that has words, moves the same words node into the twin shell while it is the only thing in the root, and
+// stops for good the moment anything else is there, so the words never appear over another page. It adds nothing to the code every page loads.
+export const FIRST_WORDS_KEEPER = '<script>(function(){var r=document.getElementById("root"),w=document.querySelector("[data-first-words]");if(!r||!w||!window.MutationObserver)return;var s=w.previousElementSibling,o=new MutationObserver(function(){var c=r.firstElementChild;if(!c)return;if(r.childElementCount!==1||!c.classList.contains("sod29-opening")){o.disconnect();return}if(!c.contains(w)){if(s&&s.tagName==="STYLE")c.appendChild(s);c.appendChild(w)}});o.observe(r,{childList:true})})()</script>';
+
 export function firstWordsHtml2029(facts) {
   try {
     const inner = facts ? body(facts) : "";
     if (!inner) return "";
-    const html = `${STYLE}<main class="sod29-first-words" data-first-words="${esc(facts.kind)}">${inner}</main>`;
+    const html = `${STYLE}<main class="sod29-first-words" data-first-words="${esc(facts.kind)}">${inner}</main>${FIRST_WORDS_KEEPER}`;
     return Buffer.byteLength(html, "utf8") <= FIRST_WORDS_MAX_BYTES ? html : "";
   } catch { return ""; }
 }
