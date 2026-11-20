@@ -19,7 +19,9 @@ for (const code of ['PGRST202', '404', '42501']) {
       rpc: async (name, args) => { calls.push({ name, hours: args.p_hours }); return { data: null, error }; },
       from: () => { throw Error('Raw history fallback is forbidden'); },
     };
-    const pulse = reader('src/components/experience2029/ActivityPulse2029.jsx', 'readPulse', db);
+    // The one public reader now lives in src/lib/researchPulse2029.js (shared by Now, /stats and the section strips).
+    const lib = readFileSync(new URL('../src/lib/researchPulse2029.js', import.meta.url), 'utf8').replace(/^import .*$/m, '').replace(/^export /gm, '');
+    const pulse = vm.runInNewContext(lib + ';readResearchPulse', { supabase: db, Map, Object, Number });
     const wall = reader('src/lib/supabaseApi2029.js', 'getWallRecent', db);
     await assert.rejects(pulse(24), e => e === error);
     assert.equal((await wall()).length, 0);

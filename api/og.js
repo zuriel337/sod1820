@@ -567,6 +567,12 @@ export default async function handler(req, res) {
       documentStatus = publicContinuityHttpStatus2029(result);
       if (result.post) { title = `${result.post.title} — תגובות · ${SITE_NAME}`; canonical = SITE + result.post.href.split('#')[0]; }
     } catch { documentStatus = 503; }
+  } else if (productionReading && decodedKey === '/stats') {
+    // Public statistics page (ZURIEL 21.11.2026): SPA route. Same posture as the client applySeo (noindex) until the owner opens it to search.
+    title = 'סטטיסטיקה · מה קורה עכשיו באתר · ' + SITE_NAME;
+    desc = 'מה נחקר, נקרא ונסרק באתר: מספרים, פוסטים, מחשבונים, צפנים, קהילה ומנועי חיפוש. נתונים מצרפיים בלבד.';
+    canonical = SITE + '/stats'; type = 'website'; robots = 'noindex, nofollow';
+    image = cardUrl({ w: 'סטטיסטיקה', sub: 'מה קורה ב־SOD1820' });
   } else if (productionReading && ['/community', '/community/researchers', '/members', '/contact', '/early-access', '/melech-hamisparim/718'].includes(decodedKey)) {
     const info = {
       '/community': ['הקהילה', 'שיחות ציבוריות, אנשים ומחשבון הקהילה.'],

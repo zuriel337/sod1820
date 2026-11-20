@@ -26,6 +26,8 @@ import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, p
 const loadPublicPostAddress = () => import("./pages/PublicPostAddress2029Page.jsx");
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
+// /stats (ZURIEL 21.11.2026): public statistics page, loaded on demand only (Speed Law).
+const Stats2029Page = lazy(() => import("./pages/Stats2029Page.jsx"));
 const BeitMidrash2029Page = lazy(
   () => import("./pages/BeitMidrash2029Page.jsx")
 );
@@ -436,6 +438,7 @@ export default function App2029() {
               <Route path="/2029/gematria" element={<GematriaEntry2029 />} />
               <Route path="/2029/gematria/viral" element={<Calculator2029Page />} />
               <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
+              <Route path="/stats" element={<Stats2029Page />} />
               <Route
                 path="/beit-midrash"
                 element={<BeitMidrash2029Page />}

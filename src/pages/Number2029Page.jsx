@@ -1,5 +1,5 @@
 import { recordSiteActivity } from "../lib/siteActivity2029.js";
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
@@ -1500,7 +1500,7 @@ export default function Number2029Page({ resolvedAddress = null } = {}) {
     symbol={<NavigationIcon2029 name="number" />}
     status="דף המספר והביטוי"
   >
-    <ActivityPulseSlot2029 />
+    <SectionPulseSlot2029 section="number" value={value} />
     <NumberPageBody resolvedAddress={resolvedAddress} />
   </Sod2029Shell>;
 }

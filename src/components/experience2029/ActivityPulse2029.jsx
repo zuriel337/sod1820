@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase.js';
+import { readResearchPulse, readAdaptivePulse } from '../../lib/researchPulse2029.js';
 import './activityPulse2029.css';
 
 const count = n => Number.isSafeInteger(n) && n >= 0 ? n.toLocaleString('he-IL') : '—';
 const names = { compute: 'חישובים', search: 'חיפושים יזומים', cross_search: 'חיפושי צופן', save: 'שמירות', start: 'מסעות שהתחילו' };
-export default function ActivityPulse2029({ reader = readPulse }) {
-  const [hours, setHours] = useState(24);
+export default function ActivityPulse2029({ reader = readResearchPulse, adaptive = readAdaptivePulse }) {
+  // selected = the visitor's choice; null = the shortest window that has real lists (ZURIEL 21.11.2026).
+  const [selected, setSelected] = useState(null);
   const [state, setState] = useState({ loading: true });
   useEffect(() => {
     let current = true;
     setState({ loading: true });
-    reader(hours).then(data => current && setState({ data }), () => current && setState({ failed: true }));
+    const job = selected == null ? adaptive(reader).then(r => r ? { data: r.data, hours: r.hours } : null) : reader(selected).then(data => ({ data, hours: selected }));
+    job.then(r => current && setState(r ? { data: r.data, hours: r.hours } : { failed: true }), () => current && setState({ failed: true }));
     return () => { current = false; };
-  }, [hours, reader]);
+  }, [selected, reader, adaptive]);
+  const hours = selected ?? state.hours;
   const d = state.data;
   const hasCards = d && (d.numbers?.length || d.phrases?.length || d.content?.length || d.activity?.length || d.trend?.length || d.publications?.public_ciphers || d.publications?.approved_convergences);
   return <section className="activity29" dir="rtl" aria-label="פעילות המחקר באתר">
     <div className="activity29-head"><strong>במוקד המחקר</strong><div role="group" aria-label="טווח הפעילות">
-      {[[24,'יממה'],[168,'שבוע'],[720,'חודש']].map(([h,label]) => <button key={h} type="button" aria-pressed={h===hours} onClick={()=>setHours(h)}>{label}</button>)}
+      {[[24,'יממה'],[168,'שבוע'],[720,'חודש']].map(([h,label]) => <button key={h} type="button" aria-pressed={h===hours} onClick={()=>setSelected(h)}>{label}</button>)}
     </div></div>
     {state.loading ? <p role="status">בודק את פעילות המחקר…</p>
       : state.failed || !d || d.version!==1 || d.state==='refreshing' ? <p role="status">נתוני הפעילות אינם זמינים כרגע.</p>
@@ -42,15 +45,9 @@ export default function ActivityPulse2029({ reader = readPulse }) {
           </div>)}
         </div> : <p>עדיין אין מספיק פעילות מדודה להצגת מגמות בטווח הזה.</p>}
         <small className="activity29-note">{d.state==='stale' ? 'המדידה אינה עדכנית · ' : ''}
-          נתונים מצרפיים בלבד · פעולות אינן מספר אנשים
+          נתונים מצרפיים בלבד · פעולות אינן מספר אנשים · <a className="activity29-more" href="/stats">כל הסטטיסטיקות</a>
           {d.computed_at && Number.isFinite(Date.parse(d.computed_at)) ? ' · עודכן '+new Date(d.computed_at).toLocaleString('he-IL',{timeZone:'Asia/Jerusalem'}) : ''}
         </small>
       </>}
   </section>;
-}
-async function readPulse(hours) {
-  const { data, error } = await supabase.rpc('research_pulse_2029', { p_hours: hours });
-  // PGRST202/404 before the approved SQL rollout is unavailable, never an old-wall fallback.
-  if (error) throw error;
-  return data;
 }

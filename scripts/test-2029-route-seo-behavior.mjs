@@ -67,6 +67,7 @@ const DECISIONS = {
   "/community/chat": { kind: "index", note: "#1234: indexable again (it had been noindex since the 2029 cutover)" },
   "/contact": { kind: "noindex" },
   "/early-access": { kind: "noindex" },
+  "/stats": { kind: "noindex", note: "public statistics page (ZURIEL 21.11.2026); indexing waits for its server metadata (api/og.js, SEO owner)" },
   "/melech-hamisparim/718": { kind: "noindex" },
   "/forum": { kind: "redirect", to: "/community/chat", then: { kind: "index", canonical: "/community/chat" }, note: "the old forum continues in the community chat (#1236); the chat is indexable (#1234)" },
   "/beit-midrash": { kind: "noindex", note: "open to everyone, kept out of search by the owner's decision (same as the page's applySeo)" },
