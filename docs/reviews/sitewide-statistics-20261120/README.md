@@ -78,7 +78,7 @@
 - **TI v4:** כל `fn_ti_*` הוא צד שרת בלבד. המפיק `fn_ti_activity_pulse2029` ו־`fn_ti_surface2029` נשללים מלקוחות. ה־projection הציבורי (TI v9, System Pulse) עובר דרך מעטפת אחת: `research_pulse_2029(p_hours ∈ {24,168,720})`. השם נבחר כדי לא להתנגש ב־`activity_pulse()` הישן שנאסר בבית. ‏`realpg.sh` בודק שאחרי ההחלה אין `fn_ti_*` הנגיש ל־anon או ל־authenticated.
 - **TI v9 ו־v10:** אין מונחי חיפוש של אחרים ואין גודל קהל בציבור. הדופק מציג פעולות עם הכיתוב "פעולות אינן מספר אנשים".
 - **TI v11 (מסעות):** סופרים רק `journey_2029/start`, ומצב המוצר נשמר כמו שהוא.
-- **תוספת חוק מוצעת**, לרישום ב־`rules_active` על ידי ZURIEL. כתיבה למסד לא בוצעה:
+- **תוספת חוק מוצעת**, לרישום ב־`nodes` הפעילים (לא ב־view ההיסטורי `rules_active`) על ידי ZURIEL. כתיבה למסד לא בוצעה:
   > "Public projections of Traffic Intelligence are exposed only through a single non-`fn_ti_*` wrapper per projection (`research_pulse_2029`); the `fn_ti_*` family stays server-only. `search_log`, `gematria_wall` and `visitor_events` are frozen history and never a live metric."
 
 ## 5. פרטיות — הוכחות
@@ -106,12 +106,12 @@
 
 | בדיקה | תוצאה |
 |---|---|
-| `sitewide-statistics-20261120-sql.mjs` ‏(PGlite 0.5.16 = PostgreSQL 18.6) | 31/31 |
+| `sitewide-statistics-20261120-sql.mjs` ‏(PGlite 0.5.16 = PostgreSQL 18.6) | 35/35 |
 | `sitewide-statistics-legacy-readers-sql.mjs` | 18/18; מוכיח גם את שורש הבאג של TI |
 | `sitewide-statistics-20261120-realpg.sh` ‏(PostgreSQL 16.15, psql אמיתי, `events` מחולקת) | 10/10; מול ה־SQL המקורי: FAIL |
 | `sitewide-statistics-privacy-floor-realpg.sh` | 6/6: כל 21 ה־preimages זהים לבייט, ה־apply זהה לקבצים שנבדקו, ה־rollback מדויק, והגנת הסטייה עוצרת. **גופי ה־SQL לא הורצו מול טבלאות אמיתיות.** הקנרית רצה רק אחרי ההחלה |
-| PostgreSQL 17.6 (גרסת המסד החי) | **UNKNOWN**. התקנת 17 נחסמה בסביבה; נבדק על 16 ו־18 |
-| PostgREST, ‏JWT ו־`cf-connecting-ip` | **BLOCKED**. הרצת קובץ ההפעלה של PostgREST נחסמה בסביבה |
+| PostgreSQL 17 | PASS בסשן Codex המתואם: 17.11 מקומי, אותו major; אין טענה לבדיקה על patch 17.6 |
+| PostgREST ו־JWT | PASS ב־16.6 מקומי, מול PG17 מחולק. כותרת IP חסרה נסגרת; אימות מקור הכותרת בקצה Supabase החי נשאר UNKNOWN |
 | נפח ×10 מהחי (100 אלף אירועים, 17 אלף sessions) | 720 שעות: קר 0.30 שניות, חם 8–13ms; 24 שעות 84ms; 168 שעות 125ms |
 | pgbench, ‏32 לקוחות, 20 שניות | 21,463 קריאות, 0 כשלים, ממוצע 30ms; חישוב מחדש אחד לכל חלון |
 | מסד חי, ‏`EXPLAIN` (קריאה בלבד) | צבירת 30 יום 1.95 שניות; שרשרת TI לרזיאל (30 יום ועוד 30 קודמים) 3.9 שניות; ‏`statement_timeout` הוא 8 שניות |
@@ -123,9 +123,41 @@ CI: לפי ה־SHA בתיאור ה־PR.
 ## 8. נותר פתוח (דורש החלטה, אישור או סביבה)
 
 - אישור SQL ו־Production לפי §6, וקנרית חיה (`privacy-floor/canary.sql`) אחרי ההחלה.
-- PostgREST ו־PostgreSQL 17: ראו §7.
-- כותבי `visitor_events` (`track()` ב־`tracking.js` בבנייה הלא־ציבורית) ושישה קוראי מנהל ב־`visits.js` עדיין קוראים ממנו. העברתם ל־TI היא מעבר נפרד: לא נמצא בהם קורא ציבורי.
+- בדיקת הקצה החי של Supabase: אמינות cf-connecting-ip וקנרית לאחר החלה מאושרת עדיין פתוחות. PG17 ו־PostgREST מקומי עברו, ראו §9.
+- הכותב הכפול ב־`track()` הוסר גם בבנייה הפנימית; `emit` הקיים נשמר. הוסרה גישת חמשת מתאמי המנהל הנטושים ו־`getNextActions` לנתונים הישנים; REST INSERT נחסם בהצעת RLS. אין הסקת אפס פעילות מההיסטוריה.
 - `recent_number_opens`, `top_collective` (`getTopCollective`): אין להם קורא בלקוח. מועמדים לסגירה בסבב הבא.
-- `fn_metatron_status()` עדיין PUBLIC ומחזיר נתוני פערים: נדרשת החלטת בעלים.
+- `fn_metatron_status()` נסגר ללקוחות בהצעת privacy-floor; `admin_command_center` ממשיך לקרוא כ־postgres דרך חוזה המנהל הקיים. נדרש אישור החלה.
 - כמה מתוך 53 הצפיות של `/number/:value` היו `/2029/number/N` (שתוקן) וכמה מקטע בעברית (שנשאר תווית בכוונה): **UNKNOWN**.
-- רישום תוספת החוק ב־`rules_active` (§4).
+- רישום תוספת החוק ב־`nodes` הפעילים (לא ב־view ההיסטורי `rules_active`) (§4).
+
+
+## 9. אימות ברירת המחדל והשלמת Codex — 20.11.2026, 21:36–22:00 שעון ישראל
+
+**תשובה: לא ניתן לאשר 100%.** קוד ה־Production ונתיב הבנייה הם 2029; אין חזרה אוטומטית למוצר Legacy. אבל במסד החי עדיין קיימים קוראי ביקוש ו־API ישנים. התיקונים כאן הם **BRANCH ONLY**, לא מצב חי. הדומיין `www.sod1820.co.il` אומת מול Vercel כמפנה ל־`dpl_2ngd15963rnFP1fGqtvxoGL3Pona` / `7e7cc4b`. בדפדפן מסביבת הבדיקה כל 12 הנתיבים ב־390/1440 החזירו `403 Access denied`; זו בדיקה חסומה, לא PASS של המסכים, ולא הוכחה שהאתר חסום לגולשים רגילים. אין שינוי WAF כדי לעבור בדיקה.
+
+תיקוני Claude עד `290556be6` שולבו כ־fast-forward, כולל `8ae33b534`, תיקוני הבעלים המאוחרים ו־main. אין cherry-pick מאבד היסטוריה ואין PR נוסף. ראיות מצב מסד/Edge/cron/חוזים: [`runtime-audit.json`](runtime-audit.json). סריקת Edge כללה **94 חבילות קוד פרוסות**, לא רק עותקי ריפו; אין בהן הפניות ישירות לשלוש טבלאות המדידה הישנות. שימושים דרך SQL נבדקו בנפרד. אין טריגר אפליקטיבי על מקורות המדידה שנבדקו ואין cron פעיל שמזכיר אותם ישירות. קרון השימור הקיים קורא היסטוריה בעקיפין; לא שונה.
+
+| רכיב | פעיל ב־Production / BEFORE | בעלים ומקור האמת | AFTER בחבילה | קבלה שנותרה |
+|---|---|---|---|---|
+| כניסה, routes, fallback | 2029 entry/build/router; Legacy runtime כבר הוסר | App2029 / public-reading-deploy | נשמר; לא חזר ניקוי ישן | דפדפן Production מסביבה מורשית, 403 בבדיקה זו |
+| רזיאל — ביקוש | `fn_raziel_research_intel_scoped` → קורא `visitor_events/search_log` | Traffic Intelligence v11 / events | Claude העביר ל־TI מסווג, scoped ABI נשמר | SQL מאושר + קנרית |
+| `tracking.js` | הציבור כבר משתמש ב־events; הבנייה הפנימית dual-write | emit / ingest_event | הוסר רק INSERT ל־visitor_events; נשמרו gate, debounce ו־emit; RLS מונע חזרת לקוח ישן | החלת SQL ופריסת לקוח |
+| מתאמי מנהל/המשך | חמישה exports ב־visits ו־getNextActions ללא caller | Control / Workspace קיימים | הוסרו המתאמים הנטושים, לא רכיבי הניהול הפעילים | CI + סקירת diff |
+| APIs ישנים נוספים | callable, אבל ללא צרכן runtime בלקוח/Edge/cron/SQL | Control / TI הקיימים | 10 APIs (arrival, AI, ambassadors, journey shares, research usage, audience, viral, community share, ELS) נסגרים ללקוחות ב־privacy-floor; ACL rollback מדויק | אישור SQL |
+| `discover_anchor_families.n_traces` | API מחזיר ספירת journey_trace היסטורית | בעל הקורפוס; ביקוש רק TI | הוסר חישוב מ־visitor_events; ABI מחזיר NULL במקום מדד חי מדומה; תוצאות הקורפוס נשמרו | קנרית גוף SQL מול מסד מלא |
+| `fn_metatron_status` | wrapper ציבורי סביב gaps | admin_command_center | סגירה לציבור משמרת קריאת postgres של המנהל | SQL מאושר |
+| `search_log/gematria_wall` | REST ו־RPC ישנים עדיין חיים | היסטוריה בלבד; events למדידה | חסימות ו־privacy floor של Claude; אין מחיקת טבלאות | SQL לפני פריסת UI |
+| `recent_number_opens`, cache והצעות | קוראים היסטוריים ו־SECURITY DEFINER | אותו פרדיקט זכאות + מעטפת public אחת | אין טקסט פרטי, בדיקה מחדש אחרי cache ו־blocklist | קנרית live לכל 21 הקוראים |
+| מונה כניסות | תצוגת החבילה ספרה arrival גם ל־unknown | fn_ti_clean_classification | רק sessions עם page view שסווג human; שאר המחלקות נשמרות בפילוח | קבלה מול חלון חי |
+| מסעות | טרם הושק; אין לפתוח פיצ'ר | בעל ההשקה + events/journey_2029 | `0 · טרם הושק` גם בלי דוח; לאחר השקה starts בלבד, UNKNOWN בכשל או בלי חיישן; resume/step/היסטוריה לא start | קנרית רק כאשר הבעלים יפתח את המוצר |
+| דוחות/שימור היסטוריים | export_my_data, erasure, retention, admin_infra_load, ניסויי sidebar | בעל פרטיות/תפעול/ניסוי | נשמרו; אינם מקור מספרים חיים ב־Control. share_events מוגבל postgres/service_role | אין מחיקה או שינוי מדיניות שימור בחבילה |
+| `fn_metatron_journey_seeds` | server-only, ללא caller אוטומטי שנמצא; גוף ישן עוד קיים | מטטרון, מוצר מסעות סגור | נשמר רדום; אין הפעלת המלצות ישנות | אם יופעל בעתיד, נדרש מעבר TI לפני הפעלה |
+| Master וחוזים | TI v11, Methods v6, UI v13, Research Intake v14 מאומתים | nodes.is_active=true + Master | לא נוצר בעלים/מסמך חי שני | `project_codex.gematria_engine` עדיין מצטט v5; חמישה compaction pointers עדיין V1. תיקון רשומות חי דורש אישור; אין להחיל חוק דרך rules_active |
+
+**גבולות ההוכחה:** ספירת browser אינה אדם. אפס אירועים אינו הוכחת חיישן תקין. אין חישוב מחדש של היסטוריה. קורא היסטורי מורשה אינו מוצר Legacy. לא הוסרו Supabase/Auth/הרשאות משותפות, קוד המנוע או CommunityCalculatorPage לפי שמם. כיסוי ערוצים מחוץ ל־Vercel/Supabase שאינם חשופים לכלים אינו מאומת.
+
+בדיקות Codex נוספות: PostgreSQL **17.11** מחולק — 11 שערי apply/rollback; PostgREST **16.6** — anon/JWT/admin, זיוף זהות, היעדר IP, REST היסטורי ו־16 שליחות מקבילות (שורה אחת); privacy-floor — **7** שערי byte parity/ACL/rollback/drift. גוף 21 קוראי הקורפוס עדיין דורש קנרית מול מסד מלא: בדיקת wrapper אינה הוכחת תוצאותיהם. PGlite **35 + 18**. רכיבים בנייד ובמחשב והמסעות בכל ארבעת המצבים עברו; artifact + visit-once + Post חדש **7/7**. ה־CI ופריוויו המדויקים מופיעים בתיאור PR #1461 לאחר העלאת ראש החבילה.
+
+הודעת פערי הגרסאות שהובאה בשיחה מתארת ביקורת ניתוב חוזים, לא תוצאה של איחוד הסטטיסטיקה. שני פערי Master אכן סגורים כעת; הפניית v5 ושאריות compaction עדיין קיימות במסד. אין ראיה שמאפשרת לייחס את ההודעה לסשן מסוים אחר.
+
+בנייה סופית באותו lockfile ובאותה סביבה מול main `7e7cc4b`: eager 203147 מול 203104 (**+43B**), frame 47176 מול 47120 (**+56B**), CSS 34329 בשניהם. שערי הבנייה עוברים ללא שינוי ספים. זה אינו אפס גידול; מצוין במפורש לקבלה. 62 בדיקות החוזים הנבחרות עברו.

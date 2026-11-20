@@ -28,6 +28,10 @@ create table gematria_words(id uuid primary key default gen_random_uuid(),phrase
 create table gematria_wall(phrase text unique,private boolean,last_at timestamptz,hits integer,ragil integer);
 create table gematria_blocklist(pattern text);
 create table search_log(id bigint,term text,value integer,created_at timestamptz);
+create table visitor_events(id bigint,section text);
+alter table visitor_events enable row level security;
+create policy old_visitor_write on visitor_events for insert with check(true);
+grant insert on visitor_events to anon,authenticated;
 create table analytics_cache(cache_key text primary key,payload jsonb,computed_at timestamptz,cache_kind text,producer text,producer_version text,input_identity text,expires_at timestamptz,invalidated_at timestamptz,billable_state text,hit_count bigint default 0,last_hit_at timestamptz);
 create table auth.users(id uuid,created_at timestamptz,email_confirmed_at timestamptz);
 create table topic_cards_public(id uuid);
@@ -62,14 +66,23 @@ set request.headers='{"cf-connecting-ip":"192.0.2.1"}';
 select ingest_event('sod-00001','activity_2029','compute',p_path=>'/gematria',p_app_context=>'chrome',p_session_id=>'human-0001',p_props=>'{"action_version":1,"operation_id":"11111111-1111-4111-8111-111111111111","measurement":{"version":2,"visitor_id":"browser-0001","page_path":"/gematria"}}'::jsonb);
 SQL
 )
+for i in $(seq 1 16); do Q -c "$ACT" >/dev/null & done
+wait
 Q -c "$ACT" >/dev/null; Q -c "$ACT" >/dev/null
 check "$(Q -c "select count(*) from events where surface='activity_2029'")" 1 'replayed operation is stored once'
+if Q -c "set role anon; insert into visitor_events values(1,'old-client')" >/dev/null 2>&1; then
+  check written refused 'retired visitor_events writer'; else check refused refused 'retired visitor_events writer'; fi
 Q <<'SQL' >/dev/null
 insert into events(ts,session_id,surface,event_type,path,props) select now()-interval '1 minute','human-'||i%5,'page','view','/number/:value',jsonb_build_object('_measurement_verified',2,'measurement',jsonb_build_object('page_path','/number/104')) from generate_series(1,12)i;
 insert into gematria_words(phrase,ragil,is_verified,is_published,is_encrypted) values('שלום',104,true,true,false);
 SQL
 check "$(Q -c "set role anon; select (research_pulse_2029(720)->>'state')||':'||jsonb_array_length(research_pulse_2029(720)->'numbers')||':'||extract(minute from (research_pulse_2029(720)->>'latest_event')::timestamptz)")" 'measured:1:0' 'anon reader: number above the floor, hour-granular freshness'
 check "$(Q -c "set role anon; select count(*) from search_log")" 0 'anon cannot read raw search_log'
+if [ -n "${POSTGREST_BIN:-}" ]; then
+  PG_SOCKET="$TMP" PG_BIN="$PG_BIN" node "$ROOT/test/sitewide-statistics-postgrest.mjs"
+else
+  echo 'PostgREST/JWT: NOT RUN (POSTGREST_BIN missing)'
+fi
 (cd "$DIR" && "$PG_BIN/psql" -h "$TMP" -p 54391 -U postgres -d review -qX -f rollback.psql >/dev/null)
 check "$(Q -c "select md5(pg_get_functiondef('ingest_event(text,text,text,text,text,text,text,text,text,text,smallint,jsonb,jsonb,boolean)'::regprocedure))")" e7017ece28ccfe1b59fb9b5f66e8af44 'rollback.psql restores the exact ingest_event preimage'
 check "$(Q -c "select md5(pg_get_functiondef('fn_human_entrances(date,date)'::regprocedure))")" 747fde54209aa41e572fe98f46fe2864 'rollback.psql restores the exact fn_human_entrances preimage'

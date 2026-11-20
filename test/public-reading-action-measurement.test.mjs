@@ -122,7 +122,7 @@ test("client wiring: emit, track, share, join, arrival and post views use the pu
   const trackBody = tracking.slice(tracking.indexOf("export function track("), tracking.indexOf("// שיתוף"));
   assert.match(trackBody, /return trackPublicReading\(section, eventType, meta\);/);
   assert.match(tracking, /function trackPublicReading\(section, eventType, meta\) \{\n  try \{ emit\(section, eventType, \{ props: meta \|\| null \}\); \}/);
-  assert.ok(trackBody.indexOf('from("visitor_events")') > trackBody.indexOf("if (PUBLIC_READING_RELEASE)"), "visitor_events stays after the public branch");
+  assert.ok(!tracking.includes('from("visitor_events")'), "visitor_events has no writer in any build; canonical emit remains");
   assert.match(tracking, /if \(PUBLIC_READING_RELEASE\) return track\("share", null, "share", \{ platform \}\);/);
   assert.match(tracking, /if \(PUBLIC_READING_RELEASE\) return track\("join", null, "click", \{ surface: surface \|\| null \}\);/);
   assert.match(visits, /emitPublicArrivalOnce\(context\)/);

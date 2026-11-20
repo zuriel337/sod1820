@@ -1,8 +1,7 @@
 // 🧭 מרכז הפיקוד — עדשות-לקוח לשלב 1+2 (personal_command_center_law).
-// «עץ אחד»: נבנה על נתונים קיימים (visitor_events / research_items / getForumFeed / profiles),
+// «עץ אחד»: נבנה על נתונים קיימים (research_items / getForumFeed / profiles),
 // בלי טבלאות/מערכות מקבילות. הכל beta — הקרדיטים בהרצה.
 import { supabase } from "./supabase.js";
-import { getVisitorId } from "./tracking.js";
 import { plainMessageText } from "./community/messageFormatting.js";
 
 // 💬 הודעות פרטיות (DM) — עדשות-לקוח על direct_messages דרך RPCs (owner-gateway).
@@ -124,40 +123,6 @@ export async function getProfileNudges({ profile } = {}) {
   return out;
 }
 
-export async function getNextActions({ center, profile } = {}) {
-  const out = [];
-  const vid = (() => { try { return getVisitorId(); } catch { return null; } })();
-
-  // 1) המשך מהמקום שעצרת — הישות האחרונה שנחקרה (visitor_events לפי visitor_id)
-  if (supabase && vid) {
-    try {
-      const { data } = await supabase.from("visitor_events")
-        .select("section,slug,created_at")
-        .eq("visitor_id", vid).in("section", ["number", "beit-midrash", "research"])
-        .not("slug", "is", null).order("created_at", { ascending: false }).limit(1);
-      const e = data && data[0];
-      if (e && e.slug) {
-        const link = e.section === "number" ? `/number/${encodeURIComponent(e.slug)}`
-          : e.section === "beit-midrash" ? "/beit-midrash" : "/research";
-        out.push({ icon: "↩️", text: `המשך מהמקום שעצרת — «${e.slug}»`, cta: "פתח", link });
-      }
-    } catch { /* noop */ }
-  }
-
-  // 1.4) בחר שם-תצוגה (אם חסר) — כדי שיראו אותך בשם ולא בשם-משתמש.
-  if (profile && !((profile.display_name || "").trim())) {
-    out.push({ icon: "✍️", text: "בחר שם-תצוגה — כך יראו אותך בקהילה", cta: "בחר שם", module: "settings" });
-  }
-
-  // 🚫 נדנוד «חבר וואטסאפ» הוסר (בקשת צוריאל) — לא מציעים חיבור-וואטסאפ פרואקטיבית.
-
-  // 2) מחקר פעיל (מ-my_center שכבר נטען)
-  if ((center?.research_items ?? 0) > 0) {
-    out.push({ icon: "🔬", text: `יש לך ${center.research_items} פריטים במחקר הפעיל`, cta: "למחקר שלי", module: "research" });
-  }
-
-  return out.slice(0, 3);
-}
 
 // 🤖 רוסטר-הצוות מ-agent_identity (public read · agents_team_law v2). מטטרון(orchestrator) ראשון.
 export async function getAgentRoster() {

@@ -29,6 +29,9 @@ do $pf$ begin
  if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.fn_cohort_acceptance(text)'::regprocedure) is distinct from array['=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: fn_cohort_acceptance'; end if;
  if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.fn_metatron_gaps()'::regprocedure) is distinct from array['=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: fn_metatron_gaps'; end if;
 end $pf$;
+do $pf$ begin
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.fn_metatron_status()'::regprocedure) is distinct from array['=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: fn_metatron_status'; end if;
+end $pf$;
 -- A/B: body changes (CREATE OR REPLACE keeps existing grants)
 \ir entity_collective_count.after.sql
 ;
@@ -79,4 +82,43 @@ revoke execute on function public.fn_cohort_acceptance(text) from public, anon, 
 grant execute on function public.fn_cohort_acceptance(text) to service_role;
 revoke execute on function public.fn_metatron_gaps() from public, anon, authenticated;
 grant execute on function public.fn_metatron_gaps() to service_role;
+-- Closing the inner definer alone leaves this public wrapper able to expose it.
+-- No direct client/Edge/cron caller (20.11). admin_command_center is a definer
+-- owned by postgres and retains its authorized internal call.
+revoke execute on function public.fn_metatron_status() from public, anon, authenticated;
+grant execute on function public.fn_metatron_status() to service_role;
+-- Remaining old telemetry APIs: no runtime consumers in client, 94 deployed Edge bundles,
+-- SQL bodies (cache producer labels are not calls), or active cron. Keep history server-side.
+do $retire$ begin
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.admin_ai_usage(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: admin_ai_usage(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.admin_ambassadors(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: admin_ambassadors(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.admin_journey_shares(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: admin_journey_shares(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.admin_research_usage(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: admin_research_usage(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.arrival_sources(integer)'::regprocedure) is distinct from array['authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: arrival_sources(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.audience_dim5_vs_orgeula(integer)'::regprocedure) is distinct from array['=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: audience_dim5_vs_orgeula(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.audience_overlap_report(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: audience_overlap_report(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.community_share_count()'::regprocedure) is distinct from array['=X/postgres','anon=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: community_share_count()'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.els_analytics(integer)'::regprocedure) is distinct from array['authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: els_analytics(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.viral_report()'::regprocedure) is distinct from array['=X/postgres','anon=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: viral_report()'; end if;
+end $retire$;
+revoke execute on function public.admin_ai_usage(integer) from public,anon,authenticated;
+grant execute on function public.admin_ai_usage(integer) to service_role;
+revoke execute on function public.admin_ambassadors(integer) from public,anon,authenticated;
+grant execute on function public.admin_ambassadors(integer) to service_role;
+revoke execute on function public.admin_journey_shares(integer) from public,anon,authenticated;
+grant execute on function public.admin_journey_shares(integer) to service_role;
+revoke execute on function public.admin_research_usage(integer) from public,anon,authenticated;
+grant execute on function public.admin_research_usage(integer) to service_role;
+revoke execute on function public.arrival_sources(integer) from public,anon,authenticated;
+grant execute on function public.arrival_sources(integer) to service_role;
+revoke execute on function public.audience_dim5_vs_orgeula(integer) from public,anon,authenticated;
+grant execute on function public.audience_dim5_vs_orgeula(integer) to service_role;
+revoke execute on function public.audience_overlap_report(integer) from public,anon,authenticated;
+grant execute on function public.audience_overlap_report(integer) to service_role;
+revoke execute on function public.community_share_count() from public,anon,authenticated;
+grant execute on function public.community_share_count() to service_role;
+revoke execute on function public.els_analytics(integer) from public,anon,authenticated;
+grant execute on function public.els_analytics(integer) to service_role;
+revoke execute on function public.viral_report() from public,anon,authenticated;
+grant execute on function public.viral_report() to service_role;
 commit;

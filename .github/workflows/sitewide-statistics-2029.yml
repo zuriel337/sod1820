@@ -43,6 +43,10 @@ jobs:
           node test/sitewide-statistics-legacy-readers-sql.mjs
       - name: Real PostgreSQL apply/rollback (psql wrappers, partitioned events, md5/grant drift gates)
         run: |
+          curl --fail --location --silent --show-error https://github.com/PostgREST/postgrest/releases/download/v16.6/postgrest-v16.6-linux-static-x86-64.tar.xz -o "$RUNNER_TEMP/postgrest.tar.xz"
+          echo "335ea29f00145705fb569b1268b9c8e53d062f8f6f9188192e92ea3781d2dca1  $RUNNER_TEMP/postgrest.tar.xz" | sha256sum -c -
+          tar -xJf "$RUNNER_TEMP/postgrest.tar.xz" -C "$RUNNER_TEMP"
+          export POSTGREST_BIN="$RUNNER_TEMP/postgrest"
           PG_BIN=$(ls -d /usr/lib/postgresql/*/bin | sort -V | tail -1)
           echo "PostgreSQL binaries: $PG_BIN"
           PG_BIN="$PG_BIN" bash test/sitewide-statistics-20261120-realpg.sh

@@ -35,9 +35,12 @@ assert.ok(!/const BOT_UA\s*=/.test(events),
 //      is_bot column, so marking is impossible and suppression is the only option.
 const GATED = [
   ["src/lib/supabase.js", supabase, "logView", "page_views"],
-  ["src/lib/tracking.js", tracking, "track", "visitor_events"],
   ["src/lib/marketing.js", marketing, "trackMarketingPageview", "meta_capi_pageview"],
 ];
+// The duplicate visitor_events sink is retired in every build. Preserve the
+// canonical bot gate before emit, rather than requiring a removed direct write.
+assert.ok(!/from\(["']visitor_events["']\)/.test(tracking));
+assert.ok(tracking.indexOf('sideEffectAllowed("visitor_events")') < tracking.indexOf('try { emit(section, eventType, { props: (slug'));
 for (const [file, src, fn, sink] of GATED) {
   const start = src.indexOf(`function ${fn}(`);
   assert.ok(start > -1, `${file}: ${fn}() not found`);

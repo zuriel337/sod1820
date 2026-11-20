@@ -6,13 +6,14 @@ const sections = {home:'בית',now:'עכשיו',world:'עולם',calculator:'מ
 // Launch state comes from the existing release owner (publicReadingRelease2029), not a new flag.
 const JOURNEY_LAUNCHED = !publicReadingCapability('/journey');
 const number = n => n == null ? '—' : Number(n).toLocaleString('he-IL');
-export default function SiteActivity2029({ data }) {
-  if (!data) return <section className="site-activity29"><h2>פעילות כל האתר</h2><p>הרחבת דוח הפעילות טרם זמינה במסד. אין להסיק שאין פעילות.</p></section>;
+export default function SiteActivity2029({ data, unavailable = false }) {
+  const journey = !JOURNEY_LAUNCHED ? '0 · טרם הושק' : unavailable || data?.journey?.state !== 'measured' ? 'לא ידוע (UNKNOWN) · אין מדידה זמינה' : number(data.journey.starts) + ' התחלות מסע שנמדדו';
+  if (!data) return <section className="site-activity29"><h2>פעילות כל האתר</h2><p>הרחבת דוח הפעילות טרם זמינה במסד. אין להסיק שאין פעילות.</p><p>מסעות: {journey}</p></section>;
   const s=data.summary || {};
   return <section className="site-activity29" dir="rtl"><h2>פעילות כל האתר</h2>
     <p className="sod29-muted">מקור: events · שעות ישראל · חלון: {new Date(data.from).toLocaleString('he-IL',{timeZone:'Asia/Jerusalem'})} — {new Date(data.to).toLocaleString('he-IL',{timeZone:'Asia/Jerusalem'})}</p>
     <div className="sod29-grid">{[
-      ['כניסות שנמדדו',s.entrances],['צפיות בדפים',s.views],['דפדפנים ייחודיים משוערים',s.browsers],
+      ['כניסות שסווגו כאנושיות',s.entrances],['צפיות בדפים',s.views],['דפדפנים ייחודיים משוערים',s.browsers],
       ['חשבונות בחלון',s.accounts],['הרשמות שאומתו · בכל האתר',s.registered_accounts],['חשבונות פעילים ב־5 דקות',s.active_accounts_5m],
       ['דפדפנים שלא נצפו ב־30 הימים הקודמים',s.new_observed_browsers],
       ['דפדפנים חוזרים שנצפו',s.returning_observed_browsers],
@@ -22,7 +23,7 @@ export default function SiteActivity2029({ data }) {
     <details open><summary>איכות תנועה וכיסוי מדורים</summary>
       {data.traffic_classes?.map(x=><p key={x.traffic_class}>{({human:'אדם לפי המסווג הקנוני',bot:'בוט',unknown:'לא ידוע'})[x.traffic_class]}: {number(x.sessions)} ביקורים</p>)}
       <p>תנועת בוטים שנחסמה נמדדת בקצה; אפס כאן אינו אפס בוטים. אירועים בלי זהות: {number(s.unknown_identity_events)}.</p>
-      {Object.entries(sections).map(([key,label])=>{const row=data.sections?.find(x=>x.section===key);return <div className="sod29-row" key={key}><strong>{label}</strong><span>{key==='journey' && !JOURNEY_LAUNCHED ? '0 · טרם הושק' : row ? number(row.views)+' צפיות בדף · '+number(row.domain_views)+' פתיחות כלי · '+number(row.actions)+' פעולות חדשות' : key==='journey' ? 'אין נתונים (NO_DATA) · אינו אפס' : ['personal','raziel'].includes(key) ? 'פרטי / כיסוי מוגבל — ללא איסוף תוכן' : 'אין דגימה בחלון; לא הוכחת כיסוי מלא'}</span></div>;})}
+      {Object.entries(sections).map(([key,label])=>{const row=data.sections?.find(x=>x.section===key);return <div className="sod29-row" key={key}><strong>{label}</strong><span>{key==='journey' ? journey : row ? number(row.views)+' צפיות בדף · '+number(row.domain_views)+' פתיחות כלי · '+number(row.actions)+' פעולות חדשות' : ['personal','raziel'].includes(key) ? 'פרטי / כיסוי מוגבל — ללא איסוף תוכן' : 'אין דגימה בחלון; לא הוכחת כיסוי מלא'}</span></div>;})}
     </details>
     <details><summary>מגמות יומיות · פעולות · שיטות</summary>
       {data.daily?.map(x=><p key={x.day}>{x.day} · {number(x.views)} צפיות · {number(x.computes)} חישובים · {number(x.searches)} חיפושים</p>)}

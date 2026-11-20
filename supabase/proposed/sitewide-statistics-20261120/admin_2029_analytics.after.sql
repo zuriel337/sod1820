@@ -528,7 +528,7 @@ begin
     'version',1,'from',v_from,'to',v_to,'generated_at',now(),'latest_event',(select max(ts) from measured),
     'source','events / fn_ti_clean_classification','history','forward_only',
     'summary',jsonb_build_object(
-      'entrances',(select count(distinct session_id) from measured where surface='arrival' and event_type='source'),
+      'entrances',(select count(distinct session_id) from classified where traffic_class='human' and surface='page' and event_type='view'),
       'views',(select count(*) from measured where surface='page' and event_type='view'),
       'browsers',(select count(distinct browser_id) from measured),
       'accounts',(select count(distinct account_id) from measured),
@@ -538,6 +538,10 @@ begin
       'returning_observed_browsers',(select count(distinct browser_id) from measured where exists(select 1 from prior_browsers where id=browser_id)),
       'unknown_identity_events',(select count(*) from measured where browser_id is null and account_id is null),
       'single_page_unengaged_sessions',(select count(*) from sessions where pages=1 and engaged_ms<15000)),
+    'journey',jsonb_build_object(
+      'state',case when exists(select 1 from measured where surface='journey_2029') then 'measured' else 'no_data' end,
+      'starts',(select count(*) from measured where surface='journey_2029' and event_type='start'),
+      'source','events / journey_2029 / start'),
     'traffic_classes',coalesce((select jsonb_agg(to_jsonb(x)) from (
       select traffic_class,count(*) as events,count(distinct session_id) as sessions from classified group by traffic_class)x),'[]'::jsonb),
     'sections',coalesce((select jsonb_agg(to_jsonb(x)) from (

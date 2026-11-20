@@ -3,16 +3,17 @@
   "issue": 1456,
   "pr": 1461,
   "doc": "docs/reviews/sitewide-statistics-20261120/README.md",
-  "branch": "claude/pr-1461-acceptance-review-28cnqo",
+  "branch": "codex/1456-sitewide-statistics-20261120",
   "base_sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
   "original_base_sha": "1f01e246abfc25cfdaae2a64cfca9a5ac2992dbc",
   "codex_head": "cfb007e4e71ed4b57f8ee5da439395de9cd5ce42",
   "production": {
     "deployment": "dpl_2ngd15963rnFP1fGqtvxoGL3Pona",
     "source_sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
-    "read_at": "2026-11-20T19:3xZ",
+    "read_at": "2026-11-20T19:36:31Z",
     "changed_by_this_package": false,
-    "previous": "dpl_E9NViP3QgCYtyWkoEsyRDcFTMqAE@bacecaa"
+    "previous": "dpl_E9NViP3QgCYtyWkoEsyRDcFTMqAE@bacecaa",
+    "browser": "BLOCKED_403"
   },
   "database_applied": false,
   "merge_authorized": false,
@@ -26,7 +27,7 @@
   ],
   "checks": {
     "sql_pglite_pg18": {
-      "pass": 31
+      "pass": 35
     },
     "legacy_readers_pglite_pg18": {
       "pass": 18
@@ -39,8 +40,9 @@
       "pass": 6
     },
     "node_contracts": {
-      "pass": 167,
-      "fail": 0
+      "pass": 62,
+      "fail": 0,
+      "evidence": "CI reruns exact committed tree"
     },
     "merge_with_main_7e7cc4b": {
       "pass": 56,
@@ -53,8 +55,8 @@
     },
     "component_browser_390_1440": {
       "pass": 2,
-      "synthetic": true,
-      "fonts": "harness does not load 2029 fonts; typography not represented"
+      "journey_states": 4,
+      "synthetic": true
     },
     "build": "PASS",
     "public_reading_build": "PASS",
@@ -67,19 +69,98 @@
         "avg_ms": 30
       }
     },
-    "postgrest_jwt_cf_ip": "BLOCKED",
-    "postgres_17": "UNKNOWN"
+    "postgrest_jwt_cf_ip": {
+      "local": "PASS",
+      "version": "16.6",
+      "concurrent_replays": 16,
+      "live_header_trust": "UNKNOWN"
+    },
+    "postgres_17": "PASS (17.11; not exact live patch)",
+    "prior_claude": {
+      "sql_pglite_pg18": {
+        "pass": 31
+      },
+      "legacy_readers_pglite_pg18": {
+        "pass": 18
+      },
+      "real_postgres_16_apply_rollback": {
+        "pass": 10,
+        "original_cfb007e4e": "FAIL"
+      },
+      "privacy_floor_real_postgres_16": {
+        "pass": 6
+      },
+      "node_contracts": {
+        "pass": 167,
+        "fail": 0
+      },
+      "merge_with_main_7e7cc4b": {
+        "pass": 56,
+        "article_first_proofs": {
+          "read": 1320,
+          "candidates": 1297,
+          "proven": 1297,
+          "differ": 0
+        }
+      },
+      "component_browser_390_1440": {
+        "pass": 2,
+        "synthetic": true,
+        "fonts": "harness does not load 2029 fonts; typography not represented"
+      },
+      "build": "PASS",
+      "public_reading_build": "PASS",
+      "volume_10x": {
+        "cold_720h_ms": 301,
+        "warm_ms": "8-13",
+        "pgbench_32c_20s": {
+          "tx": 21463,
+          "failed": 0,
+          "avg_ms": 30
+        }
+      },
+      "postgrest_jwt_cf_ip": "BLOCKED",
+      "postgres_17": "UNKNOWN"
+    },
+    "real_postgres_17_apply_rollback": {
+      "pass": 11,
+      "version": "17.11"
+    },
+    "privacy_floor_real_postgres_17": {
+      "pass": 7,
+      "bodies_executed": false
+    },
+    "artifact_and_visit_once": {
+      "pass": 7
+    },
+    "runtime_audit": "runtime-audit.json"
   },
   "budgets_vs_main": {
-    "eager_js_gzip_delta": 146,
-    "frame_js_gzip_delta": 50,
-    "frame_css_gzip_delta": 0,
-    "baselines_changed": false
+    "same_lockfile_same_environment": true,
+    "main_sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
+    "eager_gzip": {
+      "main": 203104,
+      "branch": 203147,
+      "delta": 43
+    },
+    "frame_gzip": {
+      "main": 47120,
+      "branch": 47176,
+      "delta": 56
+    },
+    "frame_css_gzip": {
+      "main": 34329,
+      "branch": 34329,
+      "delta": 0
+    },
+    "budget": "PASS; no thresholds changed"
   },
   "blocked": [
-    "PostgREST/JWT/cf-connecting-ip isolated proof (binary execution denied in session)",
-    "PostgreSQL 17.6 exact-major run (install denied; tested 16.15 and 18.6)",
-    "live SQL/Production (Human Gate)"
+    "Live SQL, merge, Production require exact explicit approval",
+    "Production browser returned 403 Access denied",
+    "Supabase edge cf-connecting-ip authenticity after approved rollout",
+    "21 corpus reader bodies need full live-schema canary",
+    "Live project_codex v5 pointer and five design compaction pointers remain stale"
   ],
   "sql_files": {
     "supabase/proposed/sitewide-statistics-20261120/add_wall_word.before.sql": {
@@ -87,8 +168,8 @@
       "bytes": 730
     },
     "supabase/proposed/sitewide-statistics-20261120/admin_2029_analytics.after.sql": {
-      "sha256": "9b0c2c628ea607066387d69ad6c5f40e3ba7b019a1a94933e9938c8bfb04e9a9",
-      "bytes": 33352
+      "sha256": "d3621e11e402e66923fcd9b416f682af52b8ecaa275ac1101bcdc14b46bc01eb",
+      "bytes": 33678
     },
     "supabase/proposed/sitewide-statistics-20261120/admin_2029_analytics.before.sql": {
       "sha256": "a0650a496f71b5283ac0d2b4c27b867cfd9e173dc87ca8a312f4a348ea01f48f",
@@ -107,8 +188,8 @@
       "bytes": 327
     },
     "supabase/proposed/sitewide-statistics-20261120/extensions.sql": {
-      "sha256": "47fd9b165e0ce85d20ae0035e0012d876f1a1a35672eaeb27a226ca7f049eed8",
-      "bytes": 12677
+      "sha256": "e6b0a4b2d54ed022c2c32da39826bea52b5474cc822e04feadc806cfb1bb9ed2",
+      "bytes": 12971
     },
     "supabase/proposed/sitewide-statistics-20261120/fn_human_entrances.after.sql": {
       "sha256": "2e48d2be682e49cbed2bd714b9c4309127883f262102ca39f9a52941d2504402",
@@ -159,8 +240,8 @@
       "bytes": 1112
     },
     "supabase/proposed/sitewide-statistics-20261120/privacy-floor/apply.psql": {
-      "sha256": "33e56d28a0efb80474cddc4e282c100db96e9c954b9aca31a5f31ef3bbda8ad4",
-      "bytes": 6714
+      "sha256": "21636ddb714816c5d29cd27cc4e3136499e719c277bd08f60dff1ebaa0320fe5",
+      "bytes": 12426
     },
     "supabase/proposed/sitewide-statistics-20261120/privacy-floor/atlas_findings.after.sql": {
       "sha256": "15a261c37cd09ef76e78f6bacdf55aa99a98f4d324c06844a3d8b136337eb14c",
@@ -175,8 +256,8 @@
       "bytes": 10325
     },
     "supabase/proposed/sitewide-statistics-20261120/privacy-floor/discover_anchor_families.after.sql": {
-      "sha256": "57b447e0e2475d3b4868429aa94d24ddfea6ddc450dab64ccede96ca20ca9f05",
-      "bytes": 2462
+      "sha256": "04db747f138703fd93c8e42aa51a320ce8d55bebcb629b1e96d363c8740d6779",
+      "bytes": 2039
     },
     "supabase/proposed/sitewide-statistics-20261120/privacy-floor/discover_anchor_families.before.sql": {
       "sha256": "9647b35bd52895e25f088696dc4c86a85b42f721700d0370fdb3acfd021c9686",
@@ -303,8 +384,8 @@
       "bytes": 1805
     },
     "supabase/proposed/sitewide-statistics-20261120/privacy-floor/rollback.psql": {
-      "sha256": "d0b12db98766cb9d85b64275a34057e79e56d757127b544dcd706250f2f3959d",
-      "bytes": 1472
+      "sha256": "dfd36d161f6343c9f5d4724f25c3cfb3ac94fd293e00af6ee18ee0318cae7c69",
+      "bytes": 3233
     },
     "supabase/proposed/sitewide-statistics-20261120/privacy-floor/strongest_crossings.after.sql": {
       "sha256": "b9988d36dcc01dabdef143824dea0a56bda71c19bb76d71a22fad038668cd53a",
@@ -354,5 +435,6 @@
   "previous": {
     "codex_acceptance_schema": 2,
     "codex_checks": 11
-  }
+  },
+  "claude_integrated_head": "290556be6d65b7ad30784499e699727612d0df34"
 }

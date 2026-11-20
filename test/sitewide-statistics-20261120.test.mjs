@@ -29,3 +29,24 @@ test('worker-compatible action contract separates typing/search/compute/selectio
    assert.equal(readingActionBody({...body,p_props:{...props,term:'private'}}),false);
  }
 });
+
+test('tracking has one canonical sink in public and internal builds; no visitor_events fallback',async()=>{
+ const out=await build({entryPoints:['src/lib/tracking.js'],bundle:true,write:false,format:'iife',globalName:'tracking',plugins:[{name:'isolated-sinks',setup(b){
+  const stubs={
+   'publicReadingRelease2029.js':'export const PUBLIC_READING_RELEASE=globalThis.publicBuild;',
+   'supabase.js':'export const supabase={from(){throw Error("retired sink reached")}};',
+   'marketing.js':'export const trackConversion=()=>{};',
+   'events.js':'export const emit=(...args)=>globalThis.sent.push(args);',
+   'visitorId.js':'export const getVisitorId=()=>"fixture-visitor";',
+   'botVerdict.js':'export const sideEffectAllowed=()=>!globalThis.bot;',
+   'runtimeErrorCapture.js':'export const installRuntimeErrorCapture=()=>{};export const getSharedCapture=()=>()=>{};export const buildIncidentMeta=()=>({});export const sanitizeRoute=x=>x;',
+  };
+  b.onLoad({filter:/\.js$/},args=>{const source=stubs[args.path.split('/').pop()];return source?{contents:source}:null;});
+ }}]});
+ for(const publicBuild of [true,false]){
+  const c={publicBuild,sent:[],bot:false,setTimeout:()=>1,console};vm.createContext(c);vm.runInContext(out.outputFiles[0].text,c);
+  c.tracking.track('share','number/1820','share',{platform:'copy'});
+  assert.equal(c.sent.length,1);assert.equal(c.sent[0][0],'share');
+  if(!publicBuild){c.bot=true;c.tracking.track('share',null,'share');assert.equal(c.sent.length,1);}
+ }
+});

@@ -1,0 +1,1410 @@
+{
+  "checkedAt": "2026-11-20T19:50:21.392Z",
+  "production": {
+    "sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
+    "deployment": "dpl_2ngd15963rnFP1fGqtvxoGL3Pona",
+    "alias": "www.sod1820.co.il",
+    "browser": "BLOCKED: 403 Access denied at 390/1440. No UI success claimed."
+  },
+  "claudeIntegrated": "290556be6d65b7ad30784499e699727612d0df34",
+  "coordination": [],
+  "directOldSourceFunctions": [
+    {
+      "signature": "add_wall_word(text,integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "54081d5894b2aed1d7d605551f51760e",
+      "sources": [
+        "gematria_wall"
+      ]
+    },
+    {
+      "signature": "admin_ai_usage(integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "c054c20a1368275ab3785723e7608bd5",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "admin_ambassadors(integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "704868aafb004e7ee6924631a82a10cf",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "admin_canonical_data_inventory_v1()",
+      "definer": true,
+      "anon": false,
+      "authenticated": true,
+      "body_md5": "48f225743ab87b7ba244a8c38ff06f6e",
+      "sources": [
+        "visitor_events",
+        "search_log",
+        "gematria_wall"
+      ]
+    },
+    {
+      "signature": "admin_infra_load(integer,integer)",
+      "definer": true,
+      "anon": false,
+      "authenticated": true,
+      "body_md5": "de1c35816ca34efe04819a19cbe584da",
+      "sources": [
+        "visitor_events",
+        "search_log"
+      ]
+    },
+    {
+      "signature": "admin_journey_shares(integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "14672626bb4d4fe01647a3365eeacb2d",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "admin_post_sidebar_experiment_report(timestamp with time zone,timestamp with time zone,integer)",
+      "definer": true,
+      "anon": false,
+      "authenticated": true,
+      "body_md5": "2ed67861770648b29e51cbccfff20c0c",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "admin_post_sidebar_raw_counts(timestamp with time zone,timestamp with time zone)",
+      "definer": true,
+      "anon": false,
+      "authenticated": true,
+      "body_md5": "a6445cb18d49159980c3d53d026bbefb",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "admin_research_map(integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "456bba3309fb14959c4e3e3bfe6d8084",
+      "sources": [
+        "visitor_events",
+        "search_log"
+      ]
+    },
+    {
+      "signature": "admin_research_usage(integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "60383afb3b19a5b10d7e34eba6171ccb",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "admin_retention_preview()",
+      "definer": true,
+      "anon": false,
+      "authenticated": true,
+      "body_md5": "601d7603c388c5f7f655e193936d13af",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "arrival_sources(integer)",
+      "definer": true,
+      "anon": false,
+      "authenticated": true,
+      "body_md5": "40d1753ed5350dd38bcdc6a4805139ef",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "audience_dim5_vs_orgeula(integer)",
+      "definer": false,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "64333d6ce3da789c89ebd837eeb5f7b5",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "audience_overlap_report(integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "0b4d927232cba635420e626022ef8d08",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "discover_anchor_families(integer,integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "142f75c0d199beb886a7366276b5934c",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "els_analytics(integer)",
+      "definer": true,
+      "anon": false,
+      "authenticated": true,
+      "body_md5": "9f283dd75f83066ecbb736fd2b8ab0fe",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "erasure_my_account_prepare_v2()",
+      "definer": true,
+      "anon": false,
+      "authenticated": false,
+      "body_md5": "62012fe3c0a5bc38604ece39e9361dda",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "export_my_data_v1()",
+      "definer": true,
+      "anon": false,
+      "authenticated": true,
+      "body_md5": "b5f3dddf72fe04748a971a20615dd434",
+      "sources": [
+        "visitor_events",
+        "search_log"
+      ]
+    },
+    {
+      "signature": "fn_metatron_journey_seeds(integer,boolean)",
+      "definer": true,
+      "anon": false,
+      "authenticated": false,
+      "body_md5": "a1aef8a404c856113f1bf6c516ee60c7",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "fn_raziel_research_intel(integer,text,integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "897b6caa38d47ae696e05fcf4bc9700e",
+      "sources": [
+        "visitor_events",
+        "search_log"
+      ]
+    },
+    {
+      "signature": "fn_telemetry_retention_120d()",
+      "definer": true,
+      "anon": false,
+      "authenticated": false,
+      "body_md5": "71c93b6eba3e8c3cfb5fc075b5f2db97",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "fn_telemetry_retention_guard_v1()",
+      "definer": true,
+      "anon": false,
+      "authenticated": false,
+      "body_md5": "12402ddeafc12b9044e2a3f134eb6fd9",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "journey_pulse()",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "23120339380a57883c78492d4643c6bb",
+      "sources": [
+        "visitor_events"
+      ]
+    },
+    {
+      "signature": "live_stats()",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "826c73075c64b4fd6b2db260bfbe2c63",
+      "sources": [
+        "search_log"
+      ]
+    },
+    {
+      "signature": "save_wall_word_private(text,integer)",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "ab18b1412afdb2c24c3f7d210c8e9239",
+      "sources": [
+        "gematria_wall"
+      ]
+    },
+    {
+      "signature": "viral_report()",
+      "definer": true,
+      "anon": true,
+      "authenticated": true,
+      "body_md5": "281716954115e6739c131504cc23626e",
+      "sources": [
+        "visitor_events"
+      ]
+    }
+  ],
+  "triggers": [],
+  "cron": [
+    {
+      "jobid": 114,
+      "jobname": "wa-raziel",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 3,
+      "jobname": "security_spike_hourly",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 33,
+      "jobname": "wa-green-backfill-daily",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 155,
+      "jobname": "g4-kpi-funnel-hourly",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 11,
+      "jobname": "sod_jerusalem_reels",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 122,
+      "jobname": "share-to-facebook",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 118,
+      "jobname": "welcome-auto-new",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 145,
+      "jobname": "g3-telemetry-retention-120d-daily",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 157,
+      "jobname": "ga4-daily-server-sync",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 158,
+      "jobname": "provider-freshness-watch",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 30,
+      "jobname": "rls-grant-audit-weekly",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 34,
+      "jobname": "edge-grant-audit-daily",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 55,
+      "jobname": "ti-post-37034-daily-watch",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 39,
+      "jobname": "check_stuck_messages_raziel",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 154,
+      "jobname": "wa-system-outbox",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 119,
+      "jobname": "page-ready-auto",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 156,
+      "jobname": "g4-kpi-funnel-nightly-reconcile",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 45,
+      "jobname": "health-watch",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 138,
+      "jobname": "g3-work-log-archive-daily",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 47,
+      "jobname": "traffic-daily-refresh",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 54,
+      "jobname": "cron-job-run-details-retention-daily",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 120,
+      "jobname": "reply-email-auto",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 102,
+      "jobname": "wa-channel-ingest",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 109,
+      "jobname": "gsc-daily-sync",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 110,
+      "jobname": "gallery-thumbs",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 111,
+      "jobname": "post-thumbs",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 112,
+      "jobname": "channel-thumbs",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 113,
+      "jobname": "system-watchman-weekly",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 121,
+      "jobname": "research-nurture-daily",
+      "direct_old_source": false,
+      "status_reader": false
+    },
+    {
+      "jobid": 132,
+      "jobname": "video-map-enrich",
+      "direct_old_source": false,
+      "status_reader": false
+    }
+  ],
+  "edgeFunctions": [
+    {
+      "slug": "els-live-reading",
+      "version": 25,
+      "hash": "b997c74d8456343af1523938981d05a7bf168388fb6ffd12bbdf71c5fa847946",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "nl-track",
+      "version": 3,
+      "hash": "c99e645e7fd87f7eca4c5f302c6abd1d20914b57f2ed385e74550ba2fa1b82ca",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-mora",
+      "version": 6,
+      "hash": "fe6c11dbb515cf7f377e9e7e699ab98af091bf8ac0b64c4df701849a3ffb3047",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "send-push",
+      "version": 12,
+      "hash": "5f11962401b5685ea44b66dd4392542e22aa59d9863d39e361c55c274936cd63",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "facebook-publish",
+      "version": 1,
+      "hash": "1ba4fc893b84531449bb8ca642453ff575c9ae31f5fb4714938e33db665165ac",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "notify-approval",
+      "version": 4,
+      "hash": "1ce8bff4a520cc8dcb01f3185e8f4d8aa8312fb2547298efa696c4b3d75df8bb",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-video-enrich",
+      "version": 11,
+      "hash": "876989e287f50a0ec17fe77380bc740c551c4181b49de99e147e2e14ca4df908",
+      "fileCount": 3,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "capture-video-thumb",
+      "version": 2,
+      "hash": "f3eb8b37f65c03d320c49830dc6e626828df11bdb5693ebf54d95c66f7205ca6",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "sign-upload",
+      "version": 4,
+      "hash": "7d0b7ee9d9a4379a7e9e687b9128fa5597f6645dbec1dd3164f9022098ce13c4",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "email-reply",
+      "version": 4,
+      "hash": "b01ca47d0a6eaa59598c172a731a7df98151b1a7a647b5b873e9402fda95aa0e",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "research-run",
+      "version": 9,
+      "hash": "6118384ad165b82d1e830be0549e5edecd4433f1f6bd853a36d418e4413be6d9",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "storage-cleanup-oneoff",
+      "version": 8,
+      "hash": "cb545772897a2c26a3f15056dcfa4d54bde7b8bb6df0eef1bfff37579473726a",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "contact-notify",
+      "version": 1,
+      "hash": "3e0e293bbe1d7b79928855299c14e2eceaad923b8e3fa9af604e7b77f6645ae6",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "lab-reflect",
+      "version": 3,
+      "hash": "75c4793fdf424d8c29fb3274f1ca65c2787f97365f8c8883b47b4d59930288ba",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-michael",
+      "version": 7,
+      "hash": "63fa75cf1ceb8af2f19369b99b87da41bdbd8227d2f67ab01bc1f6f39e9c55d6",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "send-reengage",
+      "version": 3,
+      "hash": "94ece3eab47a9f30e714249c40dba52be1cf00c6ac10ddec159d23bfcd06bce7",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "openweb-sso",
+      "version": 2,
+      "hash": "2723f64f318d4fbf0b7fbd63dc4ade0dcc3fc430ff945626232e2c2ab7e26b6c",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "send-family-invitation-email",
+      "version": 1,
+      "hash": "8bd46f4a35e9c822946d1bec2ce55a89462ce67d9d3c5d6a38385745baabeef9",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-avatars",
+      "version": 10,
+      "hash": "9a446c348491a0f217ce1897f3efbb6d9446402c462289ed62d2ed0f596dd479",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "post-save",
+      "version": 4,
+      "hash": "cc3e823444a501546dd1bc9b9e013b16157f7591214686f32c2c5052f953b9cc",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-raziel",
+      "version": 22,
+      "hash": "2eb1f68b889c0fa62ebfc589592986fa693db66d8b0c5f6c65f697348c403e7e",
+      "fileCount": 4,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "number-researcher",
+      "version": 12,
+      "hash": "c94555c1a7be5081d06eb00dfe9bc8ed597de66c4c5bfb4da7e61fab844e7175",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "journey-message",
+      "version": 13,
+      "hash": "ef48bb9454ea73e0866bc56db502d3beb1be741de5860b4e10fed39c031309a7",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "facebook-admin",
+      "version": 22,
+      "hash": "120f1c203995cecb6cc36cb9dbe3327b47ff9d46c43fc9a9eb11adae89721835",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "noop",
+      "version": 2,
+      "hash": "6b763ed1b71c56fe8b87421e1a70e011d7e9d34595f7d1d4bc5c4060aff6b35f",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "link-preview",
+      "version": 2,
+      "hash": "09dfca833e20154df6fc3e484642df5405a6b55e737a73dbfa10ba0a2c41abdf",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "smart-search",
+      "version": 17,
+      "hash": "538aacbc09c386b9c90931c625f6def2435b7acb0882e4b65e70af80874d2abb",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "upload-image",
+      "version": 15,
+      "hash": "24204f044910a163caf5edb3d51703fd957dadaa0bc10e366cdaa4269f32b118",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "notify-reply-email",
+      "version": 2,
+      "hash": "efb63c0b83c53f6afee792d601db07459b52d2bc6955fb5b3e0bf4ebf5423020",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "media-upload-intent",
+      "version": 3,
+      "hash": "768f21aa4cb0b9551f43525b092870d40d16e5de0753a0013bc6d98dc8265497",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "research-extract",
+      "version": 8,
+      "hash": "7d645942c1863a6e1dab889cce87108e0d11caba203c4a6f1af5ca59edefb6c0",
+      "fileCount": 3,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "g3-openweb-import-once",
+      "version": 6,
+      "hash": "fc36c38f9d0b2216ae8276fa8e6c0f50e86a86d163c6812e949f8ef53d846935",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "storage-put",
+      "version": 9,
+      "hash": "b4b739d0d98d879be084e4346ea9fc76cbcf451cd321cff5d824ac5236168b29",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-uriel",
+      "version": 18,
+      "hash": "832270a385dec748180e3088ad66578f482f206867655bfade46ed494ac89851",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-ocr",
+      "version": 9,
+      "hash": "4dbc2ee4fbe1f45897117f905836f26389bf7caec8c3f2816d0e95c6febc0a7e",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "meta-capi",
+      "version": 13,
+      "hash": "7d1bd5115ad76b2099ad58f779b5ec23519d041d0c178fc373fb28ae19561c66",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-poll",
+      "version": 11,
+      "hash": "6f12a7582e5d40d1cba35653c6c8dc47359258e960c9b756f8dd6cd57521eda5",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "notify-payment",
+      "version": 4,
+      "hash": "2fb4e07cf2674a5f1b7d023c5ec6bcd54cf6de934d2c426ffe0b518f4dc28fdb",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "email-inbound",
+      "version": 5,
+      "hash": "0da46ead35a32c586e0e708ea7d2ef97a4f3ffc2a5614b27b3bc9ce85a2209bd",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-system-outbox",
+      "version": 1,
+      "hash": "7e82434e29e6a5493949ec74eed4d8e16874be945db579c08b785a77bee567ef",
+      "fileCount": 3,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "admin-upload-once",
+      "version": 5,
+      "hash": "e9841339f1c5ea9ff125fd38d5812b481ce8c253b1b55a74da541cf11d683225",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "admin-card-upload",
+      "version": 9,
+      "hash": "2692f6a55b4a701f299fa46005fd72ff232773c88643236d1c1bc1fc6f4a9a12",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "tmp-pancher-upload",
+      "version": 3,
+      "hash": "6062a8d0175c152080994eccceee6e6f9f96c04a575e6cd4dae5c819ee602417",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "system-watchman",
+      "version": 8,
+      "hash": "08add44afcd018a277149a01993dd3904db11313efd7fc5126ee45a3f05b3546",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "sg-rate-limit",
+      "version": 1,
+      "hash": "a1b511ebf3bfceade5ecf8c4d1764f3d4bd6269ab5671503252ca2ffe6d5764c",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "storage-put-raw",
+      "version": 2,
+      "hash": "1966d33fe7ca666d395df9adf34b2f2bd88315db2838eea15d0ec0fcac6e6461",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "ga-il-returning",
+      "version": 5,
+      "hash": "5813b84fbd6d5bd22009f9c3f8afccbb27133541773071fdd648cc8c497f6f59",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-vip-backfill",
+      "version": 9,
+      "hash": "741a31d3a6e86a1197da3815de34f0061359711be0ed7dfa71afbb16842a4485",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "media-thumb-queue",
+      "version": 3,
+      "hash": "d251bd6208cd4b72237e4d3d93db384da9db16c9d493302cb1a0374a14433460",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "field-router",
+      "version": 10,
+      "hash": "bb3c913bd46e11ec0ee11ea27914adef7dcad193837abaccc4adacfd3583ffa6",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "welcome-backfill",
+      "version": 8,
+      "hash": "d1e9eeb3b121899be39c03cf228437aef4acc1010d04d3f723e6d40b273e1389",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "send-welcome-test",
+      "version": 5,
+      "hash": "829f5365d2d2412b4fd3cd2e278f62885c845a70b0f48ea0e84e5ea52e243bbd",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "video-transcribe",
+      "version": 10,
+      "hash": "caad866f86d9de5f1cb849b8b4ef7b2f745c41c0f6ed96db93457cd2fd0fe012",
+      "fileCount": 7,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "lab-teacher",
+      "version": 3,
+      "hash": "5ba666a2bd55090bb77db6910af3b654785bd3ac9fc0da43be41ff2866a75666",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "notify-page-ready",
+      "version": 6,
+      "hash": "ae45e037f9d507afbc7bf75666a7582274628b18ffba46b3aeb0384ba0013396",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-process",
+      "version": 18,
+      "hash": "84f91cabbe6f516d54e9d2bc035c5b6f89d4d165256898210f5ec3530c34aab5",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "gematria-api",
+      "version": 2,
+      "hash": "54f423c8beef2b22791639f8c632cebbe101d4518b8bd934e451a4057ffff684",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "expression-extract",
+      "version": 4,
+      "hash": "f5480e71a265a3b18dfc0c13d346ff4c76e7f5240511d084dd90e37ee74f068f",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "email-open",
+      "version": 3,
+      "hash": "b60849d6be14de48beb20b820e4bde15fac9cd29a384761ece5f6e22082e261f",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "ai-analyze",
+      "version": 92,
+      "hash": "c37ab66b3f9023d994a69c9142b9df4bccba86664eac1a3675103c4b3032c469",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "raw-put",
+      "version": 2,
+      "hash": "aae4aeeca6f87987ecd57c618bad47ba39d8ec935d43f87fc3382ee111eb8ba0",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-daily-digest",
+      "version": 9,
+      "hash": "0d52a04d054a3036ff47370707fe7eae85022d8fba0ef552690c8948543bfab6",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "migrate-media",
+      "version": 16,
+      "hash": "d9ad57fbbe3597070fd1268fb4b5966325d5ccc4c5ec80bf92bdf7efc496ee3c",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "els-search-bridge",
+      "version": 5,
+      "hash": "0343aef476d97d6457b82a3b92e73b180c2c3d044d77c49472bb9fc5cc9c2847",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "newsletter-unsubscribe",
+      "version": 10,
+      "hash": "3e8997ec176c32338d57f2b3cb7aea97230950b85dce2f9265132b209dfe7604",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "live-whatsapp-feed",
+      "version": 1,
+      "hash": "0b830df6582453402304047c10892597226474cb10e7fcc29d0548a9fa73057a",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "gen-thumb",
+      "version": 10,
+      "hash": "b0cbc04a99fd16bf8e33014b386d573901e89fa5915c3cfd6d08404c7460d3d2",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-channel-ingest",
+      "version": 37,
+      "hash": "bb5444c717771f31159bc629f0f822a9c3f4f69d629dae835664780826221f5d",
+      "fileCount": 5,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "reality-upload",
+      "version": 8,
+      "hash": "627633be88e8db3ebdf56fa229f6c4a366f7a26815bcf589305c1b23e1eccfd2",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-hatishbi",
+      "version": 8,
+      "hash": "d027d9231c273ee2f351c2c1ea615e6fed3fbbbf9733e0aff253ffe55d6692c5",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "research-nurture",
+      "version": 9,
+      "hash": "1475732b0a4df4741e15b748b33aac00b5ac152d21e9042d295de206f44b28e9",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "agent-upload",
+      "version": 33,
+      "hash": "20c3142b8b2e3bf31dbfcf51e7308df9d4a7a300bae6bdd389f2473ac4ff388b",
+      "fileCount": 3,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "claude-raziel",
+      "version": 1,
+      "hash": "5088254070855fe8f916ec55b3d527f796a2d6980ea2d077b7411b5e240160eb",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-gabriel",
+      "version": 16,
+      "hash": "2d45c6a00096b75a4d1b63232b146121e4aa7402e74531edfe0a8b34f7bf4cd7",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-webhook",
+      "version": 28,
+      "hash": "8173175876577ac168fb4587c941f0c5f94dadb29605f8ec11edb7875c9bb0cc",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-groups-list",
+      "version": 1,
+      "hash": "15e278f5fd31206c8ae2c5b8f21e7d3127f4e88a53b615a1405da46785999368",
+      "fileCount": 3,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "fb-audit",
+      "version": 9,
+      "hash": "d6b722b98cb1d2ac1ea3b2cbadfc094953b859524556661eb8de400b47e40c7e",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-channel-research-intake",
+      "version": 7,
+      "hash": "61872c61707f668bc5d482fd898280e9349de64e4e9e5d3572de46f88c5233e1",
+      "fileCount": 3,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "post-to-storyboard",
+      "version": 12,
+      "hash": "5f85c49ccaeced60e884313d643cb58fcccc25fa30c2f69e8646223ea5796c40",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "send-newsletter",
+      "version": 16,
+      "hash": "a6eead21a3dfda849d30575339965aa54c605fe590de64e43d086a363f2a00c4",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "field-pack",
+      "version": 2,
+      "hash": "c9b6191144d0de07e7bf983678f46d31d693cbb7ca3378572f22c2e35fade132",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "wa-christina",
+      "version": 41,
+      "hash": "d42abf5badebd26cb3ad632a59cbb210dcdd9fec1fc0f504eb65e80949ae497c",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "send-test-mail",
+      "version": 21,
+      "hash": "05804cb2c99652ed5dfe155ef1f08d9ccccd51a164c9d5af24cede3072f1eb8e",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "fb-hide-test",
+      "version": 8,
+      "hash": "396c3f260299da0168647f9bcd9f335596fb1f36985b996786f515934c48210e",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "tmp-upload",
+      "version": 16,
+      "hash": "d5bc303ba9127f544e6fde05ada9bb8e03ad42c1e831186422e37e7112176551",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "ga-sync-server",
+      "version": 3,
+      "hash": "54a38ee6a9f88cea5b93ecd85989f029062dd5edf2a872b094750f22854b9459",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "email-ingest",
+      "version": 8,
+      "hash": "670548227d7b302fea14eec1eb87db2c834f73484fb22bc9585c2168e908a2ca",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "gsc-sync",
+      "version": 12,
+      "hash": "584b8eaa11659a1e430f5b9b97447c950bb7f8b9a1d3f98bcb9943fc9e9d8470",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "share-to-facebook",
+      "version": 15,
+      "hash": "eb905678ae7473bcce03b1d5615f6c01aa3221682e683e921e8782f433b141ae",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "post-ai-edit",
+      "version": 5,
+      "hash": "e9d042c5932fb5191503c75179d813fc7a35a5d3bc65bca8bdf915adaeb0a8fd",
+      "fileCount": 1,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "raziel-attention",
+      "version": 4,
+      "hash": "931386e340e527f71738fb3f8908c0cdcccefa64710324bc8ba2e1098d1cf45b",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "video-migrate",
+      "version": 19,
+      "hash": "a957bd80df0cfbb5fb4b575ebd2757fb317ef3abee9a8a3df6711a255f89e2b9",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "gallery-ocr",
+      "version": 18,
+      "hash": "470c11674aaa425bd309155ab605d5193c57e5171c45301d6073d8bdf2330741",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    },
+    {
+      "slug": "newsletter-signup",
+      "version": 20,
+      "hash": "93144711620c2154cce7675c34e6367a75a8c2184d05ed3565510678406f30ac",
+      "fileCount": 2,
+      "matches": [],
+      "error": false
+    }
+  ],
+  "view": [
+    {
+      "definition": " SELECT id,\n    visitor_id,\n    section,\n    slug,\n    event_type,\n    meta,\n    created_at\n   FROM visitor_events\n  WHERE event_type = 'share'::text OR section = 'share'::text OR event_type = 'share_story'::text;",
+      "relacl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}"
+    }
+  ],
+  "viewCallers": [
+    {
+      "caller": "erasure_my_account_prepare_v2()"
+    },
+    {
+      "caller": "export_my_data_v1()"
+    },
+    {
+      "caller": "community_share_count()"
+    },
+    {
+      "caller": "viral_report()"
+    }
+  ],
+  "metatronStatusCaller": [
+    {
+      "caller": "admin_command_center()"
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "canonical_methods_registry_law",
+      "rule_version": 6
+    },
+    {
+      "rule_id": "traffic_intelligence_law",
+      "rule_version": 11
+    },
+    {
+      "rule_id": "canonical_ui_components_law",
+      "rule_version": 13
+    },
+    {
+      "rule_id": "graph_privacy_foundation_law",
+      "rule_version": 1
+    },
+    {
+      "rule_id": "raziel_group_privacy_law",
+      "rule_version": 1
+    },
+    {
+      "rule_id": "research_intake_foundation_contract_law",
+      "rule_version": 14
+    },
+    {
+      "rule_id": "zuriel_surname_privacy_law",
+      "rule_version": 1
+    }
+  ],
+  "codexDrift": [
+    {
+      "slug": "gematria_engine",
+      "updated_at": "2026-09-24 11:51:21.604205+00",
+      "reference": "RENT OWNER TREE\n- Method identity / labels / lifecycle-capable metadata: `public.gematria_methods`, governed by active `canonical_methods_registry_law` (current v5).\n- Method lifecycle: `method_lifecycle`.\n- Execution/scanning authority: `engine_governance_registry_authority_law`.\n- Canonical execution/verification gate: active `gematria_engine_law` (current v2) + registered SQL/function execution path.\n- System/ZURIEL numeric research operators that are not Gematria-method identity live under `"
+    }
+  ],
+  "designDrift": [
+    {
+      "rule_id": "canonical_colors_law",
+      "rule_version": 2,
+      "compaction": {
+        "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+        "owner_family": "brand_design",
+        "classified_at": "2026-09-15",
+        "classification": "CHILD_OF_OWNER",
+        "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+      }
+    },
+    {
+      "rule_id": "worlds_color_law",
+      "rule_version": 1,
+      "compaction": {
+        "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+        "owner_family": "brand_design",
+        "classified_at": "2026-09-15",
+        "classification": "CHILD_OF_OWNER",
+        "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+      }
+    },
+    {
+      "rule_id": "brand_spelling_law",
+      "rule_version": 1,
+      "compaction": {
+        "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+        "owner_family": "brand_design",
+        "classified_at": "2026-09-15",
+        "classification": "CHILD_OF_OWNER",
+        "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+      }
+    },
+    {
+      "rule_id": "logo_integrity_law",
+      "rule_version": 3,
+      "compaction": {
+        "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+        "owner_family": "brand_design",
+        "classified_at": "2026-09-15",
+        "classification": "CHILD_OF_OWNER",
+        "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+      }
+    },
+    {
+      "rule_id": "sod1820_canonical_identity_law",
+      "rule_version": 5,
+      "compaction": {
+        "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+        "owner_family": "brand_design",
+        "classified_at": "2026-09-15",
+        "classification": "CHILD_OF_OWNER",
+        "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+      }
+    }
+  ],
+  "additionalAudit": {
+  "retiredApiAcl": [
+    {
+      "signature": "admin_ai_usage(integer)",
+      "proacl": "{=X/postgres,postgres=X/postgres,authenticated=X/postgres}",
+      "md5": "c37f27931504550b693edcc5db74c0e0"
+    },
+    {
+      "signature": "admin_ambassadors(integer)",
+      "proacl": "{=X/postgres,postgres=X/postgres,authenticated=X/postgres}",
+      "md5": "f8c3eb651ad1d007704db1452c4ae8d5"
+    },
+    {
+      "signature": "admin_journey_shares(integer)",
+      "proacl": "{=X/postgres,postgres=X/postgres,authenticated=X/postgres}",
+      "md5": "c5ab750fa01a4a3635aeda7e265f4be5"
+    },
+    {
+      "signature": "admin_research_usage(integer)",
+      "proacl": "{=X/postgres,postgres=X/postgres,authenticated=X/postgres}",
+      "md5": "66fd3c8fa21c2960ff6c4c81551cf79a"
+    },
+    {
+      "signature": "arrival_sources(integer)",
+      "proacl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "md5": "325066c195d01e7d4f897f9d04cae3e1"
+    },
+    {
+      "signature": "audience_dim5_vs_orgeula(integer)",
+      "proacl": "{=X/postgres,postgres=X/postgres}",
+      "md5": "de90efb0fd0783c9e387b4b333202ca5"
+    },
+    {
+      "signature": "audience_overlap_report(integer)",
+      "proacl": "{=X/postgres,postgres=X/postgres,authenticated=X/postgres}",
+      "md5": "90c76038f4deb907ec440ce84d567537"
+    },
+    {
+      "signature": "community_share_count()",
+      "proacl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+      "md5": "3a615becf59eca42756c10dfb772b4da"
+    },
+    {
+      "signature": "els_analytics(integer)",
+      "proacl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "md5": "5151acf077aa5b7aab51d7b10ec99bcf"
+    },
+    {
+      "signature": "viral_report()",
+      "proacl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+      "md5": "8be56d8857fd7d607107e2c03527c977"
+    }
+  ],
+  "retiredApiCallers": [
+    {
+      "caller": "analytics_cache_contract_write_guard_v1()",
+      "classification": "cache producer label; not an invocation"
+    },
+    {
+      "caller": "arrival_sources(integer)",
+      "classification": "cache producer label; not an invocation"
+    }
+  ],
+  "metatronStatusCaller": [
+    {
+      "caller": "admin_command_center()"
+    }
+  ]
+},
+  "limits": [
+    "Edge scan covers all 94 deployed source bundles, direct literal references only; dynamic function calls need SQL dependency tracing.",
+    "Zero direct old-source cron references; retention job 145 indirectly maintains history.",
+    "Historical readers/export/retention and corpus privacy use are deliberately retained; no source table dropped.",
+    "No live SQL, merge, production deployment or mutation performed."
+  ]
+}
