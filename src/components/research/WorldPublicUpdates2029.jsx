@@ -137,6 +137,8 @@ export default function WorldPublicUpdates2029({
             <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer" className="sod29-action">פתיחת רשימת ההשמעה ב־YouTube</a>)}
           {externalTikTokLinksFromText(`${item.summary || ""} ${item.fullText || ""}`, 1).map(link =>
             <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer" className="sod29-action">צפייה בסרטון ב־TikTok</a>)}
+          {item.sourceVideoHref && !String(item.fullText || "").includes(item.sourceVideoHref) ?
+            <a href={item.sourceVideoHref} target="_blank" rel="noopener noreferrer" className="sod29-action">צפייה במקור הווידאו</a> : null}
           {groupSourceAnchor(item) ? <details className="sod29-world-group-source" id={groupSourceAnchor(item)}
             onToggle={(event) => { if (event.currentTarget.open) onOpen?.(item, { inline: true }); }}
             open={selectedSourceHash === `#${groupSourceAnchor(item)}` || undefined}>
