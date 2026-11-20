@@ -552,7 +552,7 @@ async function providerLinkMetadata(link: { provider: string; url: string }) {
   const timer = setTimeout(() => ctl.abort(), 4500);
   try {
     const response = await fetch(endpoint + encodeURIComponent(link.url), { redirect: "error", signal: ctl.signal, headers: { Accept: "application/json" } });
-    if (!response.ok || !/application\\/json/i.test(response.headers.get("content-type") || "")
+    if (!response.ok || !/application\/json/i.test(response.headers.get("content-type") || "")
       || Number(response.headers.get("content-length") || 0) > 32000 || !response.body) return null;
     // Enforce the response-size limit while reading, even when Content-Length is absent/false.
     const reader = response.body.getReader();
