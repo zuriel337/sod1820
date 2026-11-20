@@ -35,10 +35,12 @@ assert.ok(!/const BOT_UA\s*=/.test(events),
 //      is_bot column, so marking is impossible and suppression is the only option.
 const GATED = [
   ["src/lib/supabase.js", supabase, "logView", "page_views"],
-  ["src/lib/supabase.js", supabase, "logSearch", "search_log"],
-  ["src/lib/tracking.js", tracking, "track", "visitor_events"],
   ["src/lib/marketing.js", marketing, "trackMarketingPageview", "meta_capi_pageview"],
 ];
+// The duplicate visitor_events sink is retired in every build. Preserve the
+// canonical bot gate before emit, rather than requiring a removed direct write.
+assert.ok(!/from\(["']visitor_events["']\)/.test(tracking));
+assert.ok(tracking.indexOf('sideEffectAllowed("visitor_events")') < tracking.indexOf('try { emit(section, eventType, { props: (slug'));
 for (const [file, src, fn, sink] of GATED) {
   const start = src.indexOf(`function ${fn}(`);
   assert.ok(start > -1, `${file}: ${fn}() not found`);
@@ -48,6 +50,11 @@ for (const [file, src, fn, sink] of GATED) {
   assert.ok(/import \{[^}]*sideEffectAllowed[^}]*\} from "\.\/botVerdict\.js"/.test(src),
     `${file}: must import the gate from the canonical primitive`);
 }
+
+// #1461 retirement: search_log is frozen server-only history. The former gated writer (logSearch)
+// is gone, so the strongest guard is that NO client code writes to it at all.
+assert.ok(!/from\(\s*["'`]search_log["'`]\s*\)\s*\.insert\(/.test(supabase) && !/function logSearch\(/.test(supabase),
+  "search_log must have no client writer (retired 20.11.2026)");
 
 // ── 3. The gate must run BEFORE the write, not after it. (A gate placed below the
 //      insert would pass test 2 and still write every bot row.)

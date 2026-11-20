@@ -98,7 +98,7 @@ test("apply_before_deploy entries point at a real proposal, a real caller and a 
   assert.ok(applyBefore.size >= 2 && applyBefore.size === manifest.apply_before_deploy.length, "rpc names in apply_before_deploy must be unique");
   const names = clientRpcs();
   for (const e of manifest.apply_before_deploy) {
-    assert.match(e.sql, /^supabase\/proposed\/[\w.]+\.sql$/, `${e.rpc}: sql must be a file under supabase/proposed`);
+    assert.match(e.sql, /^supabase\/proposed\/(?:[\w-]+\/)*[\w.-]+\.sql$/, `${e.rpc}: sql must be a file under supabase/proposed`);
     assert.ok(fs.existsSync(path.join(root, e.sql)), `${e.rpc}: ${e.sql} does not exist (was the proposal moved to supabase/migrations? then delete this entry)`);
     assert.ok(definedIn([e.sql]).has(e.rpc.toLowerCase()), `${e.rpc}: ${e.sql} does not CREATE FUNCTION ${e.rpc}`);
     assert.ok(!migrationFns.has(e.rpc.toLowerCase()), `${e.rpc} is already defined in supabase/migrations: remove it from apply_before_deploy`);

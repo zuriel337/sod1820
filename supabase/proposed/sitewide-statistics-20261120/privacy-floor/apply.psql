@@ -1,0 +1,124 @@
+-- #1461 privacy floor — PROPOSAL ONLY. Requires explicit ZURIEL approval for the exact SHA (CLAUDE.md 0.4).
+-- Run AFTER ../apply.psql (which creates public.gematria_public_word_eligible). Preimages captured live 2026-11-20.
+\set ON_ERROR_STOP on
+begin;
+do $pf$ begin
+ if to_regprocedure('public.gematria_public_word_eligible(uuid)') is null then raise exception 'privacy floor: helper public.gematria_public_word_eligible(uuid) missing — apply ../apply.psql first'; end if;
+ if to_regprocedure('public.rd_is_admin()') is null then raise exception 'privacy floor: public.rd_is_admin() missing (admin parity with the REST policy)'; end if;
+ if md5(pg_get_functiondef('public.entity_collective_count(text,text)'::regprocedure)) <> '899bd4c073f216d778b046bc001e9b3c' then raise exception 'preimage drift: entity_collective_count'; end if;
+ if md5(pg_get_functiondef('public.fn_anagrams_engine(text[])'::regprocedure)) <> '169b23145b120feacef0f5724b37e93d' then raise exception 'preimage drift: fn_anagrams_engine'; end if;
+ if md5(pg_get_functiondef('public.fn_hebrew_root(text)'::regprocedure)) <> '6896937b1f63baeb5205bec7e74df5c2' then raise exception 'preimage drift: fn_hebrew_root'; end if;
+ if md5(pg_get_functiondef('public.fn_miluy_engine(text[])'::regprocedure)) <> '7040b03d4baf2f34cf24596b2ae42a38' then raise exception 'preimage drift: fn_miluy_engine'; end if;
+ if md5(pg_get_functiondef('public.fn_split_gematria(text[])'::regprocedure)) <> '7960817277fd44da5f361153ec7ab8ce' then raise exception 'preimage drift: fn_split_gematria'; end if;
+ if md5(pg_get_functiondef('public.fn_name_variants(text)'::regprocedure)) <> 'ce04d5a31cd2a9e985e87c976d8737d9' then raise exception 'preimage drift: fn_name_variants'; end if;
+ if md5(pg_get_functiondef('public.fn_transforms_tanach(text)'::regprocedure)) <> '2d6fc40f89e6c1861e4a645abdf2a07f' then raise exception 'preimage drift: fn_transforms_tanach'; end if;
+ if md5(pg_get_functiondef('public.fn_name_multi(text,text,text,text,jsonb)'::regprocedure)) <> '077fb87159e38311261333c2ff61eb07' then raise exception 'preimage drift: fn_name_multi'; end if;
+ if md5(pg_get_functiondef('public.number_dossier_json(integer)'::regprocedure)) <> 'ede9f8c0c326cb8216b5a6bd3a982b40' then raise exception 'preimage drift: number_dossier_json'; end if;
+ if md5(pg_get_functiondef('public.fn_en_search(text,integer)'::regprocedure)) <> '6486821550383df9e3e26341f91c5bec' then raise exception 'preimage drift: fn_en_search'; end if;
+ if md5(pg_get_functiondef('public.strongest_crossings(text,integer,integer)'::regprocedure)) <> '2e777b6523b6ce917f0b2ef92512df68' then raise exception 'preimage drift: strongest_crossings'; end if;
+ if md5(pg_get_functiondef('public.verified_bridges(integer)'::regprocedure)) <> '89816ede7c8bc19f3f9f7aa14d7e9d48' then raise exception 'preimage drift: verified_bridges'; end if;
+ if md5(pg_get_functiondef('public.fn_cross_research(text[])'::regprocedure)) <> '785949fda7709eabd97504be0f5297a9' then raise exception 'preimage drift: fn_cross_research'; end if;
+ if md5(pg_get_functiondef('public.atlas_findings(text,integer)'::regprocedure)) <> '876a2e94adf83e17b6a3c2efb12aec55' then raise exception 'preimage drift: atlas_findings'; end if;
+ if md5(pg_get_functiondef('public.discover_anchor_families(integer,integer)'::regprocedure)) <> 'f13f9375f0a9b79adec4420ab64ddbb8' then raise exception 'preimage drift: discover_anchor_families'; end if;
+ if md5(pg_get_functiondef('public.discover_relation_candidates(text,integer)'::regprocedure)) <> '5a098a7c9d7d0b9ed65d083c9a4e1009' then raise exception 'preimage drift: discover_relation_candidates'; end if;
+ if md5(pg_get_functiondef('public.fn_all_methods(text)'::regprocedure)) <> 'ab597c9f534a56ab3694d09cea0bce84' then raise exception 'preimage drift: fn_all_methods'; end if;
+ if md5(pg_get_functiondef('public.writer_gematria_findings(text,uuid)'::regprocedure)) <> 'f41664470d9bf98424772f78b98e284a' then raise exception 'preimage drift: writer_gematria_findings'; end if;
+ if md5(pg_get_functiondef('public.number_resonance_stats(text,jsonb)'::regprocedure)) <> 'e940dac6d259c7446a2483c8e91e4157' then raise exception 'preimage drift: number_resonance_stats'; end if;
+ if md5(pg_get_functiondef('public.fn_entity_strength(text,text)'::regprocedure)) <> 'ec69381c9f9bd33894280ac07158f8d4' then raise exception 'preimage drift: fn_entity_strength'; end if;
+ if md5(pg_get_functiondef('public.top_collective(integer,integer)'::regprocedure)) <> '11a13e0491f4556cc31c5195effbde8c' then raise exception 'preimage drift: top_collective'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.fn_cohort_acceptance(text)'::regprocedure) is distinct from array['=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: fn_cohort_acceptance'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.fn_metatron_gaps()'::regprocedure) is distinct from array['=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: fn_metatron_gaps'; end if;
+end $pf$;
+do $pf$ begin
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.fn_metatron_status()'::regprocedure) is distinct from array['=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: fn_metatron_status'; end if;
+end $pf$;
+-- A/B: body changes (CREATE OR REPLACE keeps existing grants)
+\ir entity_collective_count.after.sql
+;
+\ir fn_anagrams_engine.after.sql
+;
+\ir fn_hebrew_root.after.sql
+;
+\ir fn_miluy_engine.after.sql
+;
+\ir fn_split_gematria.after.sql
+;
+\ir fn_name_variants.after.sql
+;
+\ir fn_transforms_tanach.after.sql
+;
+\ir fn_name_multi.after.sql
+;
+\ir number_dossier_json.after.sql
+;
+\ir fn_en_search.after.sql
+;
+\ir strongest_crossings.after.sql
+;
+\ir verified_bridges.after.sql
+;
+\ir fn_cross_research.after.sql
+;
+\ir atlas_findings.after.sql
+;
+\ir discover_anchor_families.after.sql
+;
+\ir discover_relation_candidates.after.sql
+;
+\ir fn_all_methods.after.sql
+;
+\ir writer_gematria_findings.after.sql
+;
+\ir number_resonance_stats.after.sql
+;
+\ir fn_entity_strength.after.sql
+;
+\ir top_collective.after.sql
+;
+-- C: revoke-only (zero app/SQL callers except SECURITY DEFINER fn_metatron_status / fn_metatron_recommend, owner postgres)
+-- research_level_of(uuid) is NOT touched (owner gate 20.11.2026): the public contributor rank
+-- (api/public-contributor-rank.js, anon) and api/contributor-self.js (user JWT) call it. Grants unchanged.
+revoke execute on function public.fn_cohort_acceptance(text) from public, anon, authenticated;
+grant execute on function public.fn_cohort_acceptance(text) to service_role;
+revoke execute on function public.fn_metatron_gaps() from public, anon, authenticated;
+grant execute on function public.fn_metatron_gaps() to service_role;
+-- Closing the inner definer alone leaves this public wrapper able to expose it.
+-- No direct client/Edge/cron caller (20.11). admin_command_center is a definer
+-- owned by postgres and retains its authorized internal call.
+revoke execute on function public.fn_metatron_status() from public, anon, authenticated;
+grant execute on function public.fn_metatron_status() to service_role;
+-- Remaining old telemetry APIs: no runtime consumers in client, 94 deployed Edge bundles,
+-- SQL bodies (cache producer labels are not calls), or active cron. Keep history server-side.
+do $retire$ begin
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.admin_ai_usage(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: admin_ai_usage(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.admin_ambassadors(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: admin_ambassadors(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.admin_journey_shares(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: admin_journey_shares(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.admin_research_usage(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: admin_research_usage(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.arrival_sources(integer)'::regprocedure) is distinct from array['authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: arrival_sources(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.audience_dim5_vs_orgeula(integer)'::regprocedure) is distinct from array['=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: audience_dim5_vs_orgeula(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.audience_overlap_report(integer)'::regprocedure) is distinct from array['=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: audience_overlap_report(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.community_share_count()'::regprocedure) is distinct from array['=X/postgres','anon=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: community_share_count()'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.els_analytics(integer)'::regprocedure) is distinct from array['authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: els_analytics(integer)'; end if;
+ if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.viral_report()'::regprocedure) is distinct from array['=X/postgres','anon=X/postgres','authenticated=X/postgres','postgres=X/postgres']::text[] then raise exception 'grant drift: viral_report()'; end if;
+end $retire$;
+revoke execute on function public.admin_ai_usage(integer) from public,anon,authenticated;
+grant execute on function public.admin_ai_usage(integer) to service_role;
+revoke execute on function public.admin_ambassadors(integer) from public,anon,authenticated;
+grant execute on function public.admin_ambassadors(integer) to service_role;
+revoke execute on function public.admin_journey_shares(integer) from public,anon,authenticated;
+grant execute on function public.admin_journey_shares(integer) to service_role;
+revoke execute on function public.admin_research_usage(integer) from public,anon,authenticated;
+grant execute on function public.admin_research_usage(integer) to service_role;
+revoke execute on function public.arrival_sources(integer) from public,anon,authenticated;
+grant execute on function public.arrival_sources(integer) to service_role;
+revoke execute on function public.audience_dim5_vs_orgeula(integer) from public,anon,authenticated;
+grant execute on function public.audience_dim5_vs_orgeula(integer) to service_role;
+revoke execute on function public.audience_overlap_report(integer) from public,anon,authenticated;
+grant execute on function public.audience_overlap_report(integer) to service_role;
+revoke execute on function public.community_share_count() from public,anon,authenticated;
+grant execute on function public.community_share_count() to service_role;
+revoke execute on function public.els_analytics(integer) from public,anon,authenticated;
+grant execute on function public.els_analytics(integer) to service_role;
+revoke execute on function public.viral_report() from public,anon,authenticated;
+grant execute on function public.viral_report() to service_role;
+commit;

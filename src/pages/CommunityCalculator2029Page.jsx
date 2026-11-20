@@ -1,3 +1,4 @@
+import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import React, { createContext, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CommunityCalculatorPage from "./CommunityCalculatorPage.jsx";
@@ -136,6 +137,12 @@ function BabyNames({ model }) {
   </div>;
 }
 
+// Loaded on demand, like SiteSearch2029/ResearchProvider: the measurement transport stays
+// out of this route's static graph (cost vs a static import measured at ~7 B gzip, 20.11.2026).
+const recordCommunity = action => void import("../lib/siteActivity2029.js")
+  .then(m => m.recordSiteActivity(action, { section: "calculator_community" })).catch(() => {});
+const recordCommunityCompute = () => recordCommunity("compute");
+
 function CalculatorExperience({ model, initialState, location }) {
   const research = useResearch();
   const { state, r1, r2 } = model;
@@ -157,6 +164,27 @@ function CalculatorExperience({ model, initialState, location }) {
     previousState.current = signature;
     try { window.history.replaceState(window.history.state, "", returnHref); } catch { /* State still travels in share/return links. */ }
   }, [signature, returnHref]);
+
+  // #1461: ONE canonical compute per settled expression the visitor changed (same 650ms settle as
+  // the phrase lookup). The arrival/share state is not a new computation (TI v9). Content-free.
+  const arrivalNames = useRef([initialState.name1, initialState.name2]);
+  // Typing is its own metric: one per editing burst (like Calculator2029Page), never per keystroke;
+  // the burst ends when the expression settles into a compute.
+  const typingBurst = useRef(false);
+  useEffect(() => {
+    if (state.name1 === arrivalNames.current[0] && state.name2 === arrivalNames.current[1]) return;
+    if (!typingBurst.current) { typingBurst.current = true; recordCommunity("typing"); }
+  }, [state.name1, state.name2]);
+  useEffect(() => {
+    if (!r1 || state.name1 === arrivalNames.current[0]) return undefined;
+    const t = setTimeout(() => { typingBurst.current = false; recordCommunityCompute(); }, 650);
+    return () => clearTimeout(t);
+  }, [state.name1, r1?.value]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!r2 || state.name2 === arrivalNames.current[1]) return undefined;
+    const t = setTimeout(recordCommunityCompute, 650);
+    return () => clearTimeout(t);
+  }, [state.name2, r2?.value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // Form edits replace native history without changing useLocation().search.
@@ -192,6 +220,7 @@ function CalculatorExperience({ model, initialState, location }) {
       {state.babyMode ? <>
         {initialState.invalidBirthDate && !state.baby?.bDate && <p role="status" className="sod29-community-calc-notice">תאריך הלידה בקישור אינו תקין. הזינו יום, חודש ושנה כדי לחשב אותו.</p>}
         {model.babyTool}
+        <ActivityPulseSlot2029 />
       </> : <>
         <section className="sod29-community-calc-panel sod29-community-calc-input-panel">
           <div className="sod29-community-calc-name-fields">
@@ -209,6 +238,7 @@ function CalculatorExperience({ model, initialState, location }) {
           </div>
           {state.name1.trim() && !r1 && <p role="status">הזינו אותיות בעברית כדי לחשב גימטריה.</p>}
         </section>
+        <ActivityPulseSlot2029 />
 
         {state.dateMode && <section className="sod29-community-calc-panel sod29-community-calc-date">
           <h2>המספר של התאריך העברי</h2><p>הזינו תאריך לועזי. אחרי השקיעה, התאריך העברי מתקדם ביום אחד.</p>

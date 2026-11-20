@@ -1,3 +1,4 @@
+import { useSiteActivityView2029 } from "../lib/useSiteActivityView2029.js";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -57,6 +58,7 @@ export default function WriterPersonal2029Page() {
   const actionsLocked = personalActionsLocked(auth);
   const { module } = useParams();
   const { user, loading } = useAuth();
+  useSiteActivityView2029('personal', !!user && !loading);
   const { hash, search } = useLocation();
   useEffect(() => { applySeo({ title: "האזור האישי", description: "הדף שלי והפעילות האישית שלי.", path: writerPersonalHref(module), noindex: true }); }, [module]);
   // Links already sent as /profile#notifications ("העדכונים שלי" before 18.11.2026) reach this page as /2029/me/profile#notifications:

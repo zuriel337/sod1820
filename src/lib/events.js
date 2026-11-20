@@ -1,7 +1,7 @@
 import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
 import { readingActionProps } from "./publicReadingTelemetry2029.js";
 // ===== פליטת אירועים אחידה (events) — שלב 1 =====
-// כותב ל-events דרך RPC ingest_event, במקביל למערכת הישנה (dual-write). fire-and-forget.
+// כותב ל-events דרך RPC ingest_event בלבד. fire-and-forget.
 import { supabase } from "./supabase.js";
 import { getSodId, appContext, sessionId } from "./identity.js";
 import { captureMeasurement, measurementBody, sendMeasurement } from "./measurement2029.js";

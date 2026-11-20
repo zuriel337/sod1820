@@ -5,7 +5,7 @@ import { use2029Palette } from "../lib/palette2029.js";
 import { setForcedMode, hasStoredThemePreference } from "../lib/themePreset2029.js";
 import { onlyHeb, METHODS } from "../lib/gematria.js";
 import { resolve } from "../lib/engine.js";
-import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabaseApi2029.js";
+import { getAllValuePhrases, getAiAnalysis } from "../lib/supabaseApi2029.js";
 import { buildMessages } from "../lib/numberMessage.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
@@ -429,11 +429,10 @@ export default function CommunityCalculatorPage({
     const t = setTimeout(async () => {
       try { const p = await getAllValuePhrases(r1.value, 24); if (alive) setPhrases1((p || []).filter(x => x?.phrase && x.phrase !== name1.trim())); }
       catch { if (alive) setPhrases1([]); }
-      if (!passive && !actionsLocked) addWallWord(name1.trim(), r1.value); // Legacy wall only
+      // Typing is a local preview, never a public search or wall write.
     }, 650);
     return () => { alive = false; clearTimeout(t); };
   }, [name1, r1?.value, passive, actionsLocked]); // eslint-disable-line
-  useEffect(() => { if (!passive && !actionsLocked && r2) { const t = setTimeout(() => addWallWord(name2.trim(), r2.value), 650); return () => clearTimeout(t); } }, [name2, r2?.value, passive, actionsLocked]); // eslint-disable-line
 
   // 🔮 ניתוח-חכם מהגרף (מנוע buildMessages — עובדה מול רמז)
   const analysis = useMemo(

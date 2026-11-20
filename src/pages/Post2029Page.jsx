@@ -1,3 +1,4 @@
+import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useParams } from "react-router-dom";
@@ -1305,7 +1306,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     });
   };
 
-  return <article
+  return <><ActivityPulseSlot2029 /><article
     className={postReadingClassName([experience.wireframe ? "is-architecture-wireframe" : "", protoOn && realityMap.active ? "r29" : ""].filter(Boolean).join(" "))}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"
@@ -1543,7 +1544,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
       <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
     </nav>
-  </article>;
+  </article></>;
 }
 
 export default function Post2029Page({ resolvedSlug = null, sourceReader = null } = {}) {

@@ -1,0 +1,78 @@
+name: Sitewide Statistics 2029
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public-reading-deploy/**'
+      - 'supabase/proposed/sitewide-statistics-20261120/**'
+      - 'test/sitewide-statistics*'
+      - '.github/workflows/sitewide-statistics-2029.yml'
+permissions:
+  contents: read
+concurrency:
+  group: statistics-2029-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  isolated-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Isolated test dependencies (no project dependency changes)
+        run: |
+          npm install --prefix "$RUNNER_TEMP/statistics-tools" --no-save --ignore-scripts @electric-sql/pglite@0.5.16 playwright@1.55.0
+          node "$RUNNER_TEMP/statistics-tools/node_modules/playwright/cli.js" install --with-deps chromium
+          ln -s "$RUNNER_TEMP/statistics-tools/node_modules/playwright" node_modules/playwright
+          echo "PGLITE_MODULE=$RUNNER_TEMP/statistics-tools/node_modules/@electric-sql/pglite/dist/index.js" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_MODULE=$RUNNER_TEMP/statistics-tools/node_modules/playwright/index.mjs" >> "$GITHUB_ENV"
+          CHROMIUM_PATH=$(node -e "console.log(require('playwright').chromium.executablePath())")
+          echo "CHROMIUM_PATH=$CHROMIUM_PATH" >> "$GITHUB_ENV"
+          echo "STATISTICS_SCREENSHOTS=$RUNNER_TEMP/statistics-evidence" >> "$GITHUB_ENV"
+      - name: SQL/RLS/cache/replay gates (no network or live database)
+        run: |
+          node test/sitewide-statistics-20261120-sql.mjs
+          node test/sitewide-statistics-legacy-readers-sql.mjs
+          node test/sitewide-statistics-sections-sql.mjs
+          node test/sitewide-statistics-public-floor-nonregression.mjs
+      - name: Real PostgreSQL apply/rollback (psql wrappers, partitioned events, md5/grant drift gates)
+        run: |
+          curl --fail --location --silent --show-error https://github.com/PostgREST/postgrest/releases/download/v16.6/postgrest-v16.6-linux-static-x86-64.tar.xz -o "$RUNNER_TEMP/postgrest.tar.xz"
+          echo "335ea29f00145705fb569b1268b9c8e53d062f8f6f9188192e92ea3781d2dca1  $RUNNER_TEMP/postgrest.tar.xz" | sha256sum -c -
+          tar -xJf "$RUNNER_TEMP/postgrest.tar.xz" -C "$RUNNER_TEMP"
+          export POSTGREST_BIN="$RUNNER_TEMP/postgrest"
+          # Live is PostgreSQL 17 (17.6 on 20.11.2026): run the real-psql gates on the same major.
+          # Ubuntu 24.04 ships 16 only: add the official PGDG repository via postgresql-common's own script.
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
+          sudo apt-get install -y -qq postgresql-17 >/dev/null
+          PG_BIN=$(ls -d /usr/lib/postgresql/*/bin | sort -V | tail -1)
+          "$PG_BIN/postgres" --version | grep -q ' 17\.' || { echo "expected PostgreSQL 17, got $("$PG_BIN/postgres" --version)"; exit 1; }
+          echo "PostgreSQL binaries: $PG_BIN"
+          PG_BIN="$PG_BIN" bash test/sitewide-statistics-20261120-realpg.sh
+          PG_BIN="$PG_BIN" bash test/sitewide-statistics-search-log-floor-realpg.sh
+          PG_BIN="$PG_BIN" bash test/sitewide-statistics-privacy-floor-realpg.sh
+      - name: Build and existing shell budget
+        run: |
+          npm run build
+          node scripts/build-public-reading-production.mjs
+      - name: Measurement contracts
+        run: node --test test/sitewide-statistics-20261120.test.mjs test/sitewide-statistics-rollout.test.mjs test/public-reading-action-measurement.test.mjs test/measurement-identity-20261115.test.mjs test/measurement-page-view-once-2029.test.mjs test/measurement-transport-hardening-2029.test.mjs test/public-reading-protected-review.test.mjs test/sitewide-statistics-preview.test.mjs
+      - name: Public artifact and browser acceptance
+        run: |
+          node test/sitewide-statistics-20261120.browser.mjs
+          node --test test/measurement-visit-once-2029.browser.mjs
+          node --test test/article-first-new-post-2029.browser.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: statistics-synthetic-browser-evidence
+          path: ${{ runner.temp }}/statistics-evidence
+          if-no-files-found: ignore

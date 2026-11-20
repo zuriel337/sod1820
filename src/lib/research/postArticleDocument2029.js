@@ -2,6 +2,7 @@
 // any script, built by the page's own article pipeline (postArticlePipeline2029.js) and with the page's own class names, so the page's own
 // stylesheets lay it out exactly as they lay out the page's article. Post2029Page adopts the body nodes (it never renders them a second time);
 // anything that does not match exactly is replaced by the page in place. Needs a DOM: the browser's, or a server DOM installed by the caller.
+import { ACTIVITY_PULSE_PLACEHOLDER } from "../activityPulseLayout2029.js";
 import { postArticleSourceHtmlFromRow2029, postArticleSourceKey2029 } from "./postArticlePipeline2029.js";
 import { humanContentTitle } from "../presentation/contentTitle.js";
 import { bilingualDateLabel } from "../relativeTime2029.js";
@@ -83,7 +84,7 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
   const coverSet = postImageRenditionSet2029(cover, imageFacts);   // the page's cover offers the same smaller copies (Post2029Page)
   const frame = postArticleFrameOpen2029({ id: POST_ARTICLE_DOCUMENT_ID, "data-ssr-post": String(post.id), "data-ssr-source": postArticleSourceKey2029(post.content), "data-ssr-path": path,
     ...(Object.keys(imageFacts).length ? { "data-ssr-image-facts": JSON.stringify(imageFacts) } : {}) });
-  return frame
+  return frame + ACTIVITY_PULSE_PLACEHOLDER
     + `<article class="sod29-reading-post" data-golden="false" data-experience-surface="post-reading" data-experience-capability="post-master-reading-stage" data-post-slug="${escapeHtml(post.slug)}"`
     + ` data-post-character="plain" data-post-voice="${escapeHtml(voice)}" data-prefs-tick="0" data-post-background="${escapeHtml(background.key)}"`
     + ` style="--post-background-desktop: url(&quot;${escapeHtml(background.desktop)}&quot;); --post-background-mobile: url(&quot;${escapeHtml(background.mobile)}&quot;);">`

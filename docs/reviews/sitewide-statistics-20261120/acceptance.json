@@ -1,0 +1,412 @@
+{
+  "schema": 2,
+  "issue": 1456,
+  "pr": 1461,
+  "doc": "docs/reviews/sitewide-statistics-20261120/README.md",
+  "branch": "claude/pr-1461-acceptance-review-28cnqo",
+  "base_sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
+  "original_base_sha": "1f01e246abfc25cfdaae2a64cfca9a5ac2992dbc",
+  "codex_head": "db3c4d4ed9252dbf461b705ca3a6190a4de905bf",
+  "codex_head_merged": true,
+  "single_writer": "Claude (ZURIEL decision on #1462, 20.11.2026)",
+  "production": {
+    "deployment": "dpl_2ngd15963rnFP1fGqtvxoGL3Pona",
+    "source_sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
+    "read_at": "2026-11-20T19:3xZ",
+    "changed_by_this_package": false,
+    "previous": "dpl_E9NViP3QgCYtyWkoEsyRDcFTMqAE@bacecaa"
+  },
+  "database_applied": false,
+  "merge_authorized": false,
+  "status": "BRANCH_ONLY_REVIEW_NOT_RELEASE_ACCEPTED",
+  "never_apply": "apply.psql at cfb007e4e (ON CONFLICT(event_id) on partitioned events breaks every ingest_event call)",
+  "release_order": [
+    "supabase/proposed/sitewide-statistics-20261120/search-log-floor.standalone.psql",
+    "supabase/proposed/sitewide-statistics-20261120/apply.psql",
+    "supabase/proposed/sitewide-statistics-20261120/legacy-readers-hardening.psql",
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/apply.psql"
+  ],
+  "checks": {
+    "sql_pglite_pg18": {
+      "pass": 41
+    },
+    "sections_end_to_end": {
+      "pass": 65
+    },
+    "legacy_readers_pglite_pg18": {
+      "pass": 18
+    },
+    "real_postgres_16_apply_rollback_postgrest_emulation": {
+      "pass": 19,
+      "original_cfb007e4e": "FAIL"
+    },
+    "postgres_17_codex": {
+      "pass": 11,
+      "version": "17.11",
+      "note": "Codex coordinated session; not patch 17.6"
+    },
+    "postgrest_binary_codex": {
+      "version": "16.6",
+      "ci": "PASS (isolated-acceptance on f5af86bff, sha256 pinned; anon/JWT/admin, forged identity, header fail-closed, 16 concurrent replays counted once)",
+      "live_edge_header": "UNKNOWN until SQL step 2 canary"
+    },
+    "privacy_floor_real_postgres_16": {
+      "pass": 7
+    },
+    "live_contracts_node": {
+      "pass": 1497,
+      "fail": 1,
+      "fail_reason": "environment: initdb cannot run as root (same at main)"
+    },
+    "component_browser_390_1440": {
+      "pass": 3,
+      "synthetic": true
+    },
+    "build": "PASS",
+    "public_reading_build": "PASS",
+    "volume_10x": {
+      "cold_720h_ms": 301,
+      "warm_ms": "8-13",
+      "pgbench_32c_20s": {
+        "tx": 21463,
+        "failed": 0,
+        "avg_ms": 30
+      }
+    },
+    "real_postgres_ci_major": "17 (CI installs postgresql-17 and fails on any other major)",
+    "pre_existing_failures": [
+      {
+        "test": "test/raziel-canonical-navigation-actions.test.mjs",
+        "result": "26/27",
+        "same_on_main": "7e7cc4b"
+      }
+    ],
+    "public_floor_nonregression_pglite": {
+      "pass": 9
+    },
+    "search_log_floor_real_postgres": {
+      "pass": 8
+    }
+  },
+  "budgets_vs_main": {
+    "eager_js_gzip_delta": 146,
+    "frame_js_gzip_delta": 50,
+    "frame_css_gzip_delta": 0,
+    "baselines_changed": false
+  },
+  "blocked": [
+    "PostgREST/JWT/cf-connecting-ip isolated proof (binary execution denied in session)",
+    "PostgreSQL 17.6 exact-major run (install denied; tested 16.15 and 18.6)",
+    "live SQL/Production (Human Gate)"
+  ],
+  "sql_files": {
+    "supabase/proposed/sitewide-statistics-20261120/add_wall_word.before.sql": {
+      "sha256": "41399307163ab470607dd3fff0a36da13de3d7afcfd6bc3881b9c09833a862ab",
+      "bytes": 730
+    },
+    "supabase/proposed/sitewide-statistics-20261120/admin_2029_analytics.after.sql": {
+      "sha256": "aa4b82497a7ec46cf9abdde038b4a2fe81e2b03ab670aa3cb7ec797576ee002c",
+      "bytes": 37528
+    },
+    "supabase/proposed/sitewide-statistics-20261120/admin_2029_analytics.before.sql": {
+      "sha256": "a0650a496f71b5283ac0d2b4c27b867cfd9e173dc87ca8a312f4a348ea01f48f",
+      "bytes": 26734
+    },
+    "supabase/proposed/sitewide-statistics-20261120/analytics_cache_get_v1.fixture.sql": {
+      "sha256": "dd8b0f1128dfe1005abd14571c9e4572ea0a1aaceae6d0e26a36da410d195cf2",
+      "bytes": 901
+    },
+    "supabase/proposed/sitewide-statistics-20261120/analytics_cache_producer_version_v1.fixture.sql": {
+      "sha256": "0a15e3a82ee928a623cf03cc3b065c014d41e87166db0132ec3993969a81c371",
+      "bytes": 519
+    },
+    "supabase/proposed/sitewide-statistics-20261120/apply.psql": {
+      "sha256": "43b410f264f7da4eaeca0084544b32464cfbdf6be9dc787954b5aec55de024a5",
+      "bytes": 327
+    },
+    "supabase/proposed/sitewide-statistics-20261120/extensions.sql": {
+      "sha256": "d6304bb872d04a5eb2b79cf0db7c584518afec4ba5069f62c80ab466ad59424f",
+      "bytes": 14185
+    },
+    "supabase/proposed/sitewide-statistics-20261120/fn_human_entrances.after.sql": {
+      "sha256": "2e48d2be682e49cbed2bd714b9c4309127883f262102ca39f9a52941d2504402",
+      "bytes": 3323
+    },
+    "supabase/proposed/sitewide-statistics-20261120/fn_human_entrances.before.sql": {
+      "sha256": "c3da312d3b0112befae3771d621e211480aa767b7844367c783b13142df05de0",
+      "bytes": 2897
+    },
+    "supabase/proposed/sitewide-statistics-20261120/fn_raziel_research_intel.after.sql": {
+      "sha256": "71b456917cf58b515bff5db4dcb275189f2e28f89a933864ee8b41e7b986ce6e",
+      "bytes": 8253
+    },
+    "supabase/proposed/sitewide-statistics-20261120/fn_raziel_research_intel.before.sql": {
+      "sha256": "f48c1b6b294fc417c8929f09208315bfba966bf3cdc951df34bd744cfca6947b",
+      "bytes": 5902
+    },
+    "supabase/proposed/sitewide-statistics-20261120/fn_ti_entity_demand.fixture.sql": {
+      "sha256": "40ce9a51ae351b8648085a5b378914bc3d19385ccc1aded6a2b9165910c19152",
+      "bytes": 2293
+    },
+    "supabase/proposed/sitewide-statistics-20261120/ingest_event.after.sql": {
+      "sha256": "da76744c40b03e765f9ccfdbd47b86696955e515f5187213a86e3e0be2d47df9",
+      "bytes": 10632
+    },
+    "supabase/proposed/sitewide-statistics-20261120/ingest_event.before.sql": {
+      "sha256": "6b5819ff6a3cf95266c5586d301c4a9fc8942838cc1e30c09701c79e3cd11727",
+      "bytes": 8590
+    },
+    "supabase/proposed/sitewide-statistics-20261120/legacy-readers-hardening.psql": {
+      "sha256": "62147b1dc40586beafa7694b2639373b3340af45cccd6f8f30bbae3b37bf625d",
+      "bytes": 3994
+    },
+    "supabase/proposed/sitewide-statistics-20261120/legacy-readers-hardening.rollback.psql": {
+      "sha256": "9f1ab65ce6d77968e771b5e30925a0195a8955a68d63bdc5096f7b9290410c15",
+      "bytes": 925
+    },
+    "supabase/proposed/sitewide-statistics-20261120/number_cross_resonance.after.sql": {
+      "sha256": "4c57b5c199a1605809d0948bce7c263cff94999b12f7a32206113e7f1c033eab",
+      "bytes": 1913
+    },
+    "supabase/proposed/sitewide-statistics-20261120/number_cross_resonance.before.sql": {
+      "sha256": "bb0869762aef0613b7f545781d3db7be30efee473ea4651ae02cf49576ad04ab",
+      "bytes": 1523
+    },
+    "supabase/proposed/sitewide-statistics-20261120/preflight.sql": {
+      "sha256": "17c0ea556f243eb21821bab0eabcf109b4125fd499323ede77dbf9153b217555",
+      "bytes": 1112
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/apply.psql": {
+      "sha256": "21636ddb714816c5d29cd27cc4e3136499e719c277bd08f60dff1ebaa0320fe5",
+      "bytes": 12426
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/atlas_findings.after.sql": {
+      "sha256": "15a261c37cd09ef76e78f6bacdf55aa99a98f4d324c06844a3d8b136337eb14c",
+      "bytes": 1529
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/atlas_findings.before.sql": {
+      "sha256": "2559b11cf381e9f20921c47d11754a33d6188eccfb0b2f8a30be5cf6e0cbcc82",
+      "bytes": 1262
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/canary.sql": {
+      "sha256": "aee55455d855ab97f946f255b8bb4561471c1f832d459a0fe0a719051654e1e1",
+      "bytes": 10325
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/discover_anchor_families.after.sql": {
+      "sha256": "04db747f138703fd93c8e42aa51a320ce8d55bebcb629b1e96d363c8740d6779",
+      "bytes": 2039
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/discover_anchor_families.before.sql": {
+      "sha256": "9647b35bd52895e25f088696dc4c86a85b42f721700d0370fdb3acfd021c9686",
+      "bytes": 2377
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/discover_relation_candidates.after.sql": {
+      "sha256": "1e178918033a67c2be789ad3c76a4a34b4d55141bfa05e8d71d520be7e102833",
+      "bytes": 1601
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/discover_relation_candidates.before.sql": {
+      "sha256": "d450f1af6856c546973075323eaf38f14c148e579366e790107d40cb5648f5e3",
+      "bytes": 1516
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/entity_collective_count.after.sql": {
+      "sha256": "2ff6abed9bc6a2cb75f9c4862b47465b27f73cce6e4c8aae165cb6ef84c7e938",
+      "bytes": 2737
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/entity_collective_count.before.sql": {
+      "sha256": "964fdda4e30843f4409325c70b6c66d330ca8b30f0180420c4f378a369b970ad",
+      "bytes": 2661
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_all_methods.after.sql": {
+      "sha256": "3c511b1a2ef916326403562a180d4db25180b0f5968df21f04b65a696bf449de",
+      "bytes": 2122
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_all_methods.before.sql": {
+      "sha256": "e46ff4be0ca7fde6f7de516b007fda95ed35fddfdb51772a6922bff3350857e9",
+      "bytes": 2039
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_anagrams_engine.after.sql": {
+      "sha256": "59c4256ed7013500d4b6b261b5918b9a35ac459d9050dc84237b0735f0bee59a",
+      "bytes": 1223
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_anagrams_engine.before.sql": {
+      "sha256": "2d3dbd01512e68065d50a42ac5e44c2a651a3cd7b7bca7c3f374aae745e1bc96",
+      "bytes": 1152
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_cross_research.after.sql": {
+      "sha256": "beea5f194fbb4d52629fd1a5cd28b9bb67ff6281e3ace7796c2e82c5150df852",
+      "bytes": 2459
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_cross_research.before.sql": {
+      "sha256": "d26001d38d9cd4d6f2251a092caa68b8700f8f9c7250c401e3523ebf8eaac903",
+      "bytes": 2376
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_en_search.after.sql": {
+      "sha256": "5dc6bf0955f44364ffe13ebd1354425e96551e0a495d03fefd9474bb7b64b3e3",
+      "bytes": 2227
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_en_search.before.sql": {
+      "sha256": "60724cb79b55523f614cc23d9f047b66fa79fb2e11ab95c84ac3956148f2d15a",
+      "bytes": 1991
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_entity_strength.after.sql": {
+      "sha256": "df0bdd32e5e02a61d34194cb218c54681676cb980580b39b601384bfafce1cf3",
+      "bytes": 2550
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_entity_strength.before.sql": {
+      "sha256": "ed1a529c7a79983ad627861c79a93f252620802ae6367cfe03b810fa943a7595",
+      "bytes": 2467
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_hebrew_root.after.sql": {
+      "sha256": "35dbdd27daddee15fcb54c90eb8e3e388b8227a16fb64c55d030e81ab17ce518",
+      "bytes": 2051
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_hebrew_root.before.sql": {
+      "sha256": "9be919fcd2db915d21c545e3f5f655528b0e2369c4f69136c59544fce3539ae0",
+      "bytes": 1968
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_miluy_engine.after.sql": {
+      "sha256": "5e0aed86c35e0103c9f5c7b1367b3ba5b0efb31be1d660b6ac8cf8079a97ea59",
+      "bytes": 981
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_miluy_engine.before.sql": {
+      "sha256": "7d312ed063907dcf4feeeb15ac807ac9791366e78809c1f7ee399713a45f39a3",
+      "bytes": 838
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_name_multi.after.sql": {
+      "sha256": "29f2b51da3b927e056e46b40c0a0fed47a98003b28c6c12d846cb37a786b01a5",
+      "bytes": 13798
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_name_multi.before.sql": {
+      "sha256": "c6e3c44c6a2d34513ac870f02f1deeaa984ffba7ccddf833e4183e8a085f155d",
+      "bytes": 13655
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_name_variants.after.sql": {
+      "sha256": "77e4a611a2cadd9e86ef746764bacfd3c228af2e32ec02a98c76601745e402ce",
+      "bytes": 1102
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_name_variants.before.sql": {
+      "sha256": "a9424489af699a9fe302e750c1ccea92bde5d2debd5a5270de2faa6dbb7ce2ac",
+      "bytes": 1019
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_split_gematria.after.sql": {
+      "sha256": "d71c3dd14590a412325b99b2ae1746afcccd4f536e78b2b93b777253e4972e6b",
+      "bytes": 830
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_split_gematria.before.sql": {
+      "sha256": "bdeb2a65701c19089688313f98cdd50425215b849ac83e05f3f280dfbace4948",
+      "bytes": 747
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_transforms_tanach.after.sql": {
+      "sha256": "821a3d511aac0b74d0a456ad59ce0a8228e5162fda7e474d29c5bd38166d62b3",
+      "bytes": 1509
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/fn_transforms_tanach.before.sql": {
+      "sha256": "a92c97a39b748ec2e6016c901d47f705be36ff96f17f456247406389a94d2c81",
+      "bytes": 1426
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/number_dossier_json.after.sql": {
+      "sha256": "d06fdd012613d09923d68e17d7ee9142691226587ea6163610b02474c108a634",
+      "bytes": 4753
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/number_dossier_json.before.sql": {
+      "sha256": "f7bf3888d8215af6a7544b48327808d82ccd7ebe58f1e2b50fe0ef8c2e5e96ce",
+      "bytes": 4323
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/number_resonance_stats.after.sql": {
+      "sha256": "f8a500a02f2857bb153a97a084b451f17d9ab13ac00adb9a844b7867b76d396f",
+      "bytes": 1875
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/number_resonance_stats.before.sql": {
+      "sha256": "6e6b4059032ecfd198736ff0696739a301bfef04c4f600ce6a222a0f074138b1",
+      "bytes": 1805
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/rollback.psql": {
+      "sha256": "dfd36d161f6343c9f5d4724f25c3cfb3ac94fd293e00af6ee18ee0318cae7c69",
+      "bytes": 3233
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/strongest_crossings.after.sql": {
+      "sha256": "b9988d36dcc01dabdef143824dea0a56bda71c19bb76d71a22fad038668cd53a",
+      "bytes": 1392
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/strongest_crossings.before.sql": {
+      "sha256": "a9479d3511eea925fe4022a8e8623c0ebe3c1b143fabb604c3b960c56cfb697d",
+      "bytes": 1321
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/top_collective.after.sql": {
+      "sha256": "91d32a07f22357e38d765054400af873ec6c69ff9b6e4b4e9bec59fd48ecfe50",
+      "bytes": 1447
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/top_collective.before.sql": {
+      "sha256": "45ee5ba1bc709b46eb9a1a4e66d6a9b8c15f064242bc01136485d0668d9b3c20",
+      "bytes": 1412
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/verified_bridges.after.sql": {
+      "sha256": "4fa154ca642d6a9ed9027af9e5b2bc56ba2621b1ca01352e4559e9c682e7cd9f",
+      "bytes": 1675
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/verified_bridges.before.sql": {
+      "sha256": "f71dcc192831f695122fe7e829f12ea087efa7044376c27c1901a2d780c8bcb3",
+      "bytes": 1486
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/writer_gematria_findings.after.sql": {
+      "sha256": "231f9a671f988deb37a6917ced5d1c70c3058843012090ef86092bef54599b4e",
+      "bytes": 2155
+    },
+    "supabase/proposed/sitewide-statistics-20261120/privacy-floor/writer_gematria_findings.before.sql": {
+      "sha256": "de4700d249e230c9bfa2421e8b75b662442b383234847fd4cb5f32f113bc58cd",
+      "bytes": 2084
+    },
+    "supabase/proposed/sitewide-statistics-20261120/recent_number_opens.before.sql": {
+      "sha256": "3930709ecab64595e8fddf79709e95f10e63df32540af51a4a84ccd8e47cb669",
+      "bytes": 2722
+    },
+    "supabase/proposed/sitewide-statistics-20261120/rollback.psql": {
+      "sha256": "79a2ac02c5e115cdee0810e0d09c96403540b0e48dc89b363186ecdba9556659",
+      "bytes": 401
+    },
+    "supabase/proposed/sitewide-statistics-20261120/search-log-floor.standalone.psql": {
+      "sha256": "315ce405df360aeb17437f8d92da37f2fe6343a36977cefa9f0357cffcfc8656",
+      "bytes": 811
+    }
+  },
+  "previous": {
+    "codex_acceptance_schema": 2,
+    "codex_checks": 12
+  },
+  "integration": {
+    "single_writer": "Claude (ZURIEL decision, option A)",
+    "pr": 1462,
+    "contains_pr_1461_commits": [
+      "5a76537f8",
+      "35a6ef718",
+      "8c12817ae",
+      "db3c4d4ed"
+    ],
+    "merge_commit": "767efabff",
+    "runtime_audit_json": "byte-identical to #1461",
+    "calculator_session": {
+      "branch": "ccr-62250444-voptzj",
+      "sha": "1aafeb025",
+      "decision": "not integrated: SEO/indexing scope, no measurement change"
+    }
+  },
+  "public_gate_20261120": {
+    "owner_comment": "#1462 issuecomment-7050714948",
+    "fixed": [
+      "private-wall clause removed: 22 published curated words stay public",
+      "phrase floor hides only phrases present in the corpus with no public row: 39/118 atlas relations and 2/13 bridges stay",
+      "admin parity (select rd_is_admin()) in 19 readers"
+    ],
+    "not_eligible": {
+      "total": 3013,
+      "unpublished": 2996,
+      "published_encrypted": 16,
+      "published_unverified": 1,
+      "already_hidden_from_anon_rest": 3013,
+      "public_words_lost": 0
+    },
+    "sql_applied": false,
+    "canary_preapply_live": "16 probes, read-only; 0 public phrases lost; top_collective 5 not guaranteed (README 10.8)",
+    "stage1_preflight_live": "gates 1-2 pass on live 20.11.2026 (read-only); not applied"
+  }
+}

@@ -3,6 +3,7 @@ import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
+import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -512,6 +513,7 @@ function HomeBody({ primaryReader = null } = {}) {
   // Approved composition (reference fa0e26f) on the same public readers and the single Frame.
   // Include/Publish is unchanged; production keeps its current body until release.
   if (HOME_COMPOSED) return <HomeComposition2029
+    activity={<ActivityPulseSlot2029 />}
     primaryReader={primaryReader}
     projection={{ ...homeState.projection, worldPreview }}
     onWorldApproach={setWorldRequested}
@@ -626,5 +628,5 @@ export default function Home2029Page({ primaryReader = null } = {}) {
       ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? "/" : "/2029" }
       : { title: "בית", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? "/" : "/2029" });
   }, []);
-  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "בית"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody primaryReader={primaryReader} /></Sod2029Shell>;
+  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "בית"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}>{!HOME_COMPOSED && <ActivityPulseSlot2029 />}<HomeBody primaryReader={primaryReader} /></Sod2029Shell>;
 }

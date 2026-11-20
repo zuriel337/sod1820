@@ -150,8 +150,8 @@ test("presentation is opt-in; public mount guards existing wall, telemetry and A
   assert.match(controller, /if \(actionsLocked \|\| !r1 \|\| aiBusy\) return/);
   assert.match(controller, /if \(actionsLocked \|\| !a \|\| ai\[idx\]\?\.busy\) return/);
   assert.match(controller, /if \(passive \|\| actionsLocked\) return undefined/);
-  assert.match(controller, /if \(!passive && !actionsLocked\) addWallWord/);
-  assert.match(controller, /if \(!passive && !actionsLocked && r2\)/);
+  assert.doesNotMatch(controller, /\baddWallWord\b/, "typing must never publish a person's input to the public wall, including non-passive mounts");
+  assert.doesNotMatch(controller, /\b(?:addWallWord|logSearch|saveSearch)\s*\(/, "neither the primary nor comparison input may publish raw search text");
   assert.match(adapter, /publicLaunchActionsLocked\(useAuth\(\)\.isAdmin\)/);
   assert.match(adapter, /initialState=\{initialState\} passive actionsLocked=\{actionsLocked\}/);
   assert.match(adapter, /<Sod2029Shell surface="community"/);

@@ -1,14 +1,14 @@
 import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
 import { supabase } from "./supabase.js";
 import { trackConversion } from "./marketing.js";
-import { emit } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events)
+import { emit } from "./events.js"; // One event pipeline, including non-public 2029 builds.
 import { getVisitorId } from "./visitorId.js"; // ONE TREE: בעלים יחיד ל-sod_vid (לא יוצרים כאן)
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1
 import { installRuntimeErrorCapture, getSharedCapture, buildIncidentMeta, sanitizeRoute } from "./runtimeErrorCapture.js"; // G3_RELIABILITY_PRECLOSE
 
 // ===== אנליטיקה פנימית — מעקב מדורים ופעולות =====
 // כל גולש = visitor_id אנונימי ב-localStorage (לא PII).
-// שולח ל-visitor_events ב-Supabase. debounce על view כדי לא לספור scroll.
+// events / ingest_event owns measurement. visitor_events is retained history only.
 
 // getVisitorId מיוצא-מחדש מהפרימיטיב הקנוני (src/lib/visitorId.js) — צריכה, לא בעלות.
 // כל הקוראים הקיימים (import { getVisitorId } from "./tracking.js") ממשיכים לעבוד ללא שינוי.
@@ -28,25 +28,17 @@ export function track(section, slug = null, eventType = "view", meta = null) {
     return trackPublicReading(section, eventType, meta);
   }
   if (!supabase) return;
-  // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — כיור-העל של האנליטיקה הפנימית. ל-visitor_events אין
-  // עמודת is_bot, ולכן אי-אפשר לסמן כאן בוט — רק לא לכתוב. השער הזה מכסה בבת-אחת את כל
-  // מה שנגזר מ«עצם הקריאה»: view לפי מדור · arrival של הפצה (captureArrival) · מקור-הגעה
-  // (captureArrivalSource) · כניסה לזרם · image_click. הוא מכסה גם את ה-dual-write ל-events
-  // שלמטה, ולכן אין כאן שינוי סמנטי ל-events: ingest_event ממילא כבר זורק שורות-בוט.
-  // ⛔ לא נגענו ב-trackVisit()/site_visits — שם יש is_bot והמדיניות הקיימת היא «לסמן, לא
-  //    לדלג» (שני מונים: כולל-בוטים · אנשים-בלבד). לא סותרים החלטת-בעלים קיימת.
+  // Preserve BOT_READ_NO_SIDE_EFFECT_V1's suppression semantics and diagnostic
+  // bucket name while retiring its duplicate table sink. trackVisit's separate
+  // classified operational meter is unchanged and never summed with TI.
   if (!sideEffectAllowed("visitor_events")) return;
   const key = `${section}:${slug ?? ""}:${eventType}`;
   if (eventType === "view") {
     if (pending.has(key)) return; // כבר בדרך
     pending.set(key, setTimeout(() => { pending.delete(key); }, 2000));
   }
-  const visitor_id = getVisitorId();
-  supabase.from("visitor_events").insert({
-    visitor_id, section, slug, event_type: eventType,
-    meta: meta ?? undefined,
-  }).then(() => {}).catch(() => {});
-  // dual-write: אותו אירוע נרשם גם ב-pipeline החדש (events) לרמת-אדם. לא נוגע בישן.
+  // Retire only the duplicate sink. Preserve the existing bot gate, debounce,
+  // event semantics and canonical emitter; no history is rewritten.
   try { emit(section, eventType, { props: (slug || meta) ? { slug: slug ?? null, ...(meta || {}) } : null }); } catch { /* ignore */ }
 }
 
@@ -111,10 +103,6 @@ export const trackJourneyStep = (from, to, { via = null, surface = null } = {}) 
 // 🧠 שימוש באזור-המשתמש (עולם המשתמש / המחקר) — תופס גם אנונימיים (visitor_id). מפולח לפי action:
 //   open  — נפתח «עולם המשתמש» (סרגל/גיליון/פרופיל)
 //   save  — 🔖/⭐ שמירת ישות · add — ➕ הוסף למחקר · journey — מסע נשמר
-// דשבורד: «כמה נכנסו/שמרו באזור המשתמש» (כולל לא-רשומים).
-export const trackResearch = (action, meta = null) =>
-  track("research", null, action, meta || undefined);
-
 export const trackWhatsapp = slug => trackShare("whatsapp", slug);
 
 // 🟢 לחיצה על CTA «הצטרפו לקבוצת וואטסאפ» — handler משותף אחד לכל ה-surfaces (Footer/Join/

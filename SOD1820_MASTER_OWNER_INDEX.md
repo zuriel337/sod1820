@@ -209,6 +209,7 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
 | Responsibility | Canonical owner |
 |---|---|
 | traffic / analytics measurement truth | `traffic_intelligence_law` **v11 ACTIVE** |
+| sitewide activity (public research pulse, `/2029/control` site activity, Raziel demand) | projection under `traffic_intelligence_law` over `events`; package and SQL state: `docs/reviews/sitewide-statistics-20261120/README.md` (**PROPOSED, not applied**) |
 | system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v7 ACTIVE** |
 | AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
 

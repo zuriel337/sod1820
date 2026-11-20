@@ -4,7 +4,7 @@
 //   the PR base and never moved by later deployments: it stands for the behaviour before the change), NEW_DIST = a build of the tested commit.
 //   A. NEW site, a public candidate: the exact finding opens, shows its text and the label «טרם אומת»; its stored status stays `candidate`
 //      (the page only reads: the mock records every non-GET; no table is written and the only RPCs are the site's own visit telemetry
-//      and the read-only group-arrivals reader).
+//      and the group-arrivals / bounded public activity projections).
 //   B. NEW site, private / person_only / public_candidate (dossier) / rejected rows: the page shows no text of the row (the mock ignores
 //      the PostgREST filters on purpose, so the page's own checks are what is tested).
 //   C. OLD site, the same candidate: not shown (the old client asks only for approved / canonical) - an old tab keeps working and never
@@ -33,8 +33,8 @@ const SKIP = proofSkip(MISSING, 'needs Playwright, a Chromium, OLD_DIST (the his
 const SUPABASE_HOST = 'linswmnnkjxvweumprav.supabase.co';
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-expose-headers': '*' };
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.webp': 'image/webp' };
-// RPCs the 2029 site calls on any page: visit telemetry (link_identity, track_visit, ingest_event) and the read-only group-arrivals reader.
-const KNOWN_RPC = new Set(['link_identity', 'track_visit', 'ingest_event', 'world_group_source_arrivals_v2']);
+// Explicit readers only; the activity projection's content-free arguments are checked below.
+const KNOWN_RPC = new Set(['link_identity', 'track_visit', 'ingest_event', 'world_group_source_arrivals_v2', 'research_pulse_2029']);
 const SOURCE_ID = '44444444-4444-4444-8444-444444444444';
 const uuid = (n) => `55555555-5555-4555-8555-${String(n).padStart(12, '0')}`;
 const row = (n, changes = {}) => ({
@@ -70,7 +70,14 @@ async function wire(page, { rows, v2 = 'present' }, seen) {
     const json = (status, body, headers = {}) => route.fulfill({ status, contentType: 'application/json', headers: { ...CORS, ...headers }, body: JSON.stringify(body) });
     const table = url.pathname.replace(/^\/rest\/v1\//, '');
     if (url.pathname.startsWith('/rest/v1/')) seen.tables.push(table);
-    if (request.method() !== 'GET' && request.method() !== 'HEAD') { seen.writes.push(`${request.method()} ${url.pathname}`); return json(200, {}); }
+    if (request.method() !== 'GET' && request.method() !== 'HEAD') {
+      seen.writes.push(`${request.method()} ${url.pathname}`);
+      if (table === 'rpc/research_pulse_2029') {
+        seen.activityReads.push(request.postDataJSON());
+        return json(200, { version: 1, state: 'no_data', numbers: [], phrases: [], activity: [] });
+      }
+      return json(200, {});
+    }
     const asObject = String(request.headers().accept || '').includes('vnd.pgrst.object');
     if (table === 'research_objects') {
       const id = /^eq\.(.+)$/.exec(url.searchParams.get('id') || '')?.[1];
@@ -95,7 +102,7 @@ async function wire(page, { rows, v2 = 'present' }, seen) {
 async function open(browser, base, n, options) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
   const page = await context.newPage();
-  const errors = [], seen = { tables: [], writes: [] };
+  const errors = [], seen = { tables: [], writes: [], activityReads: [] };
   page.on('pageerror', (error) => errors.push(String(error)));
   await wire(page, options, seen);
   await page.goto(`${base}/world?finding=${uuid(n)}`);
@@ -123,6 +130,7 @@ test('World finding: the new site shows a public candidate labelled «טרם א�
     assert.deepEqual(a.seen.writes.filter((w) => !/\/rest\/v1\/rpc\//.test(w)), [], 'opening the finding writes no table');
     assert.deepEqual([...new Set(a.seen.writes.map((w) => w.replace(/^POST \/rest\/v1\/rpc\//, '')))].filter((name) => !KNOWN_RPC.has(name)), [],
       'the only RPCs are the visit telemetry and a read-only reader');
+    assert.deepEqual(a.seen.activityReads, [{ p_hours: 24 }], 'the public activity read carries only a bounded window, never finding or search text');
     assert.deepEqual(a.errors, []);
     report.A = { shown: true, label: true, tableWrites: 0, rpc: [...new Set(a.seen.writes)] };
     await a.context.close();
