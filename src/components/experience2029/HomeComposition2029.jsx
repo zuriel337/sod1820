@@ -13,6 +13,7 @@ import { stripHtml } from "../../lib/format.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 // The notable convergences sit far below the opening screen: their rating marks load with them (ZURIEL 17.11.2026, Speed Law).
+const MapTimeline = import.meta.env.VITE_REALITY_MAP_PREVIEW === "true" ? lazy(() => import("../research/MapUnitTimeline2029.jsx")) : null;
 const HomeStreamVideo2029 = lazy(() => import("./HomeStreamVideo2029.jsx"));
 const ConvergenceRatings2029 = lazy(() => import("./ConvergenceRatings2029.jsx"));
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
@@ -328,39 +329,46 @@ function HomeBuildingNote() {
 // size either way. An owner's pinned message (a time-bounded pin) still shows, above it. The cover copies are defined once in
 // homePinnedCover2029.js, which the Home's early start (src/lib/homePinnedLeadEarly2029.js) also uses, so its early request is this card's file.
 const postIdOf = id => /^post:(\d+)$/.exec(String(id || ""))?.[1] || null;
-function HomePinnedLead({ lead, catalogItems, pinned, onNavigateTo, settled = false, onImageSettled = null }) {
+function HomeMapSelection({ children }) {
+  if (!MapTimeline) return children();
+  return <Suspense fallback={children({ loading: true })}><MapTimeline>{children}</MapTimeline></Suspense>;
+}
+
+function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, settled = false, onImageSettled = null }) {
   const member = lead ? catalogItems.find(item => item.id === postIdOf(lead.id)) || null : seriesLatestMember2029(catalogItems);
   const face = lead ? { title: lead.title, postTitle: lead.postTitle, at: lead.at, href: lead.href } : seriesLatestFace2029(member);
-  const href = face?.href || null;
-  const title = face?.title || "";
-  const context = face?.postTitle && face.postTitle !== face.title ? face.postTitle : null;
-  const cover = member?.coverUrl || null;
-  const image = cover || lead?.thumb || member?.imageUrl || null;
+  const selected = editorial?.lead;
+  const href = selected?.href || face?.href || null;
+  const title = selected?.label || face?.title || "";
+  const context = selected ? selected.essence : face?.postTitle && face.postTitle !== face.title ? face.postTitle : null;
+  const cover = selected ? selected.cover : member?.coverUrl || null;
+  const image = selected ? cover : cover || lead?.thumb || member?.imageUrl || null;
   const set = cover ? pinCoverSet(cover) : "";
-  const at = face?.at || null;
+  const at = selected?.updatedAt || face?.at || null;
   const time = at && Number.isFinite(new Date(at).getTime()) ? new Date(at) : null;
   // No image to wait for: the images below may start (homeLeadImageGate2029).
   useEffect(() => { if (settled && !image) onImageSettled?.(); }, [settled, image, onImageSettled]);
   // Both readers answered and neither has a reality-map publication (or both failed): no card, and the Home's content gate is not left waiting.
-  if (settled && !lead && !member) return pinned ? <section className="h29-pinlead" aria-label="הנעוץ" data-home-pinned-lead="none"><NowPinnedMessage2029 pinned={pinned} onOpen={onNavigateTo} /></section>
+  if (settled && !selected && !lead && !member) return pinned ? <section className="h29-pinlead" aria-label="הנעוץ" data-home-pinned-lead="none"><NowPinnedMessage2029 pinned={pinned} onOpen={onNavigateTo} /></section>
     : <section className="h29-pinlead" data-home-pinned-lead="none" hidden />;
   // One structure whether the Post is known yet or not (same boxes, same heights), so nothing moves when it arrives.
   const body = <>
     <span className="h29-pinlead-media">{image ? <img src={image} srcSet={set || undefined} sizes={set ? PIN_COVER_SIZES : undefined}
       alt="" width="1280" height="720" fetchpriority="high" decoding="async" onLoad={onImageSettled || undefined} onError={onImageSettled || undefined} /> : <span className="h29-pinlead-empty" aria-hidden="true">✦</span>}</span>
-    <span className="h29-pinlead-badge r29-badge is-pinned"><NavigationIcon2029 name="kingdom" size={14} />נעוץ · מפת המציאות</span>
+    <span className="h29-pinlead-badge r29-badge is-pinned"><NavigationIcon2029 name="kingdom" size={14} />{selected ? "האירוע המוביל · מפת המציאות" : "נעוץ · מפת המציאות"}</span>
     <strong className="h29-pinlead-title">{href ? title : "טוען את הפרסום הנעוץ…"}</strong>
     <small className="h29-pinlead-meta">{context ? <span className="h29-pinlead-ctx">{context}</span> : null}
-      {lead?.seriesLatest ? <SeriesLatestMark2029 model={lead} /> : null}
+      {!selected && lead?.seriesLatest ? <SeriesLatestMark2029 model={lead} /> : null}
       {time ? <time dateTime={time.toISOString()}>{relativeTimeLabel(at)}</time> : null}</small>
     <span className="h29-pinlead-cta r29-btn is-primary" aria-hidden={href ? undefined : "true"}>לקריאה ←</span>
   </>;
-  return <section className="h29-pinlead" aria-label="הנעוץ · מפת המציאות" data-home-pinned-lead={lead ? "feed" : member ? "catalog" : "loading"} aria-busy={!href}>
+  return <section className="h29-pinlead" aria-label="הנעוץ · מפת המציאות" data-home-pinned-lead={selected ? "editorial" : lead ? "feed" : member ? "catalog" : "loading"} aria-busy={!href}>
     {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={onNavigateTo} /> : null}
     <article className="h29-pinlead-card r29 r29-hall">
-      {href ? <Link className="h29-pinlead-link" to={href} data-home-pinned-post={postIdOf(lead?.id) || member?.id || undefined}>{body}</Link>
+      {href ? <Link className="h29-pinlead-link" to={href} data-home-pinned-post={selected?.postId || postIdOf(lead?.id) || member?.id || undefined}>{body}</Link>
         : <span className="h29-pinlead-link is-loading" role="status">{body}</span>}
-      <Link className="h29-pinlead-all" to="/2029/posts?series=reality-map">כל מפת המציאות ←</Link>
+      {selected ? <Link className="h29-pinlead-all" to={editorial.timelineHref}>{editorial.count === 1 ? "חיבור אחד" : editorial.count + " חיבורים"} · לציר המפה ←</Link>
+        : <Link className="h29-pinlead-all" to="/2029/posts?series=reality-map">כל מפת המציאות ←</Link>}
     </article>
   </section>;
 }
@@ -540,6 +548,7 @@ export default function HomeComposition2029({
   const leadImageSettled = useCallback(() => setLeadImageDone(true), []);
   useEffect(() => { const cap = setTimeout(leadImageSettled, HOME_LEAD_IMAGE_CAP_MS); return () => clearTimeout(cap); }, [leadImageSettled]);
 
+
   return <HomeLeadImageGate2029.Provider value={leadImageDone}><div className={`h29 h29-launch${PUBLIC_READING_RELEASE ? " h29-home-cosmos" : ""}`} style={PUBLIC_READING_RELEASE ? {
     "--home-atmosphere-desktop": `url("${HOME_ATMOSPHERE_2029.desktop}")`,
     "--home-atmosphere-mobile": `url("${HOME_ATMOSPHERE_2029.mobile}")`,
@@ -551,7 +560,7 @@ export default function HomeComposition2029({
     {/* ZURIEL 17.11.2026: the construction note, then the pinned מפת המציאות lead (our own content), then a short "עכשיו" from the same feed. */}
     <HomeBuildingNote />
     <div className="h29-lead-pair">
-      <HomePinnedLead lead={updates.lead} catalogItems={primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />
+      <HomeMapSelection>{editorial => <HomePinnedLead editorial={editorial} lead={editorial?.loading ? null : updates.lead} catalogItems={editorial?.loading ? [] : primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!editorial?.loading && !seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />}</HomeMapSelection>
       <Suspense fallback={<div className="h29-stream-slot" aria-hidden="true" />}>
         {leadImageDone ? <HomeStreamVideo2029 /> : <div className="h29-stream-slot" aria-hidden="true" />}
       </Suspense>

@@ -12,8 +12,11 @@ export const PRODUCTION_REVIEW_BRANCH = "main";
 // needs its own recorded approval. The receipt still pins the exact source SHA, deployment id and host, and the runtime still
 // requires every platform field to match, so a branch name alone never authorizes anything.
 // Requested by ZURIEL on 12.11.2026: ONE protected Preview of the "מפת המציאות" prototype, exact branch below. Same rules as above: exact name,
-// Preview target only, no Production. Only on this branch's Preview does the build switch on VITE_REALITY_MAP_PREVIEW; elsewhere it is "false".
+// The original prototype and the Home/World unit integration use this feature only in protected Preview.
 export const REALITY_MAP_PREVIEW_BRANCH = "ccr-b8e8ab12-9hoamu";
+export const REALITY_MAP_REVIEW_BRANCHES = Object.freeze([
+  REALITY_MAP_PREVIEW_BRANCH, "gpt/map-unit-integration-20261120",
+]);
 // Approved by ZURIEL on 17.11.2026 ("ניסוי CDN ... באמצעות סביבת בדיקה מבודדת"): ONE protected Preview of the Post-document CDN cache
 // experiment, exact branch below. Same rules: exact name, Preview target only, never Production, no flag of its own.
 export const CDN_EXPERIMENT_PREVIEW_BRANCH = "ccr-dcadb071-v1z5ol";
@@ -21,7 +24,7 @@ export const CDN_EXPERIMENT_PREVIEW_BRANCH = "ccr-dcadb071-v1z5ol";
 // (ELS) fixes, exact branch below. Same rules: exact name, Preview target only, never Production, no flag of its own.
 // Approved again by ZURIEL on 18.11.2026 ("מאשר את שניהם"): a second protected Preview of the same branch, for the joint discovery + Fable panel.
 export const ELS_FIXES_PREVIEW_BRANCH = "ccr-06bc2910-pgarr4";
-export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111", REALITY_MAP_PREVIEW_BRANCH, CDN_EXPERIMENT_PREVIEW_BRANCH, ELS_FIXES_PREVIEW_BRANCH]);
+export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111", ...REALITY_MAP_REVIEW_BRANCHES, CDN_EXPERIMENT_PREVIEW_BRANCH, ELS_FIXES_PREVIEW_BRANCH]);
 export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
