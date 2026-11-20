@@ -184,8 +184,10 @@ export async function firstWordsFacts2029(path, { search = "", fetchImpl = globa
   } catch { return null; }
 }
 
-const links = (items, label) => items.length
-  ? `<h2>${esc(label)}</h2><ul>${items.map(item => `<li><a href="${esc(item.href)}">${esc(item.label)}</a>${item.note ? ` <span>${esc(item.note)}</span>` : ""}</li>`).join("")}</ul>` : "";
+// `wide` = one item per row (long titles). Every item is one line of fixed height, so a web font that arrives later cannot change how many
+// rows a list has (protected Preview, desktop, slowed: a wrapped title lost a line on the font swap and moved everything below it, CLS 0.098).
+const links = (items, label, wide = false) => items.length
+  ? `<h2>${esc(label)}</h2><ul${wide ? ' class="w"' : ""}>${items.map(item => `<li><a href="${esc(item.href)}">${esc(item.label)}</a>${item.note ? ` <span>${esc(item.note)}</span>` : ""}</li>`).join("")}</ul>` : "";
 const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: numberHref(row.phrase), label: text(row.phrase), note: withValue && row.ragil != null ? `= ${Number(row.ragil ?? row.value)}` : "" }));
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
@@ -196,7 +198,7 @@ function body(facts) {
       + (anchor?.fact ? `<p>${esc(text(anchor.fact))}${anchor.hint ? " — " + esc(text(anchor.hint)) : ""}</p>` : "")
       + (phrases.length ? `<p>${phrases.length} ביטויים מאומתים שערכם ${value} בגימטריה רגילה, מתוך מאגר סוד 1820.</p>` : "")
       + links(phraseLinks(phrases), `ביטויים ששווים ${value}`)
-      + links(postLinks(posts), `פוסטים על ${value}`)
+      + links(postLinks(posts), `פוסטים על ${value}`, true)
       + `<p><a href="/gematria">מחשבון גימטריה</a> · <a href="${numberHref(value - 1)}">${value - 1}</a> · <a href="${numberHref(value + 1)}">${value + 1}</a></p>`;
   }
   if (facts.kind === "phrase") {
@@ -204,7 +206,7 @@ function body(facts) {
     return `<h1>${esc(text(phrase))} בגימטריה = ${value}</h1>`
       + `<p>הערך של «${esc(text(phrase))}» בגימטריה רגילה הוא <a href="${numberHref(value)}">${value}</a>. ביטוי מאומת במאגר סוד 1820.</p>`
       + links(phraseLinks(phrases), `ביטויים נוספים ששווים ${value}`)
-      + links(postLinks(posts), `פוסטים על ${value}`)
+      + links(postLinks(posts), `פוסטים על ${value}`, true)
       + `<p><a href="/gematria?q=${encodeURIComponent(text(phrase))}">חשבו את «${esc(text(phrase))}» בכל השיטות</a></p>`;
   }
   if (facts.kind === "gematria" || facts.kind === "community-calculator") {
@@ -237,13 +239,13 @@ function body(facts) {
   }
   if (facts.kind === "taxonomy") {
     return `<h1>${esc(text(facts.label))}</h1><p>הפרסומים הציבוריים של סוד 1820 ב${facts.taxonomyKind === "tag" ? "תגית" : "סיווג"} «${esc(text(facts.label))}».</p>`
-      + links(postLinks(facts.posts), "פרסומים") + `<p><a href="/post">כל הפוסטים</a></p>`;
+      + links(postLinks(facts.posts), "פרסומים", true) + `<p><a href="/post">כל הפוסטים</a></p>`;
   }
   return "";
 }
 
 // One small style, scoped to the block; colours are inherited from the opening shell (dark, light and parchment themes alike).
-const STYLE = "<style>.sod29-first-words{max-width:46rem;margin:0 auto;padding:0 16px 48px;line-height:1.7;font-size:17px}.sod29-first-words h1{font-size:26px;line-height:1.3;margin:0 0 12px}.sod29-first-words h2{font-size:19px;margin:22px 0 8px}.sod29-first-words h3{font-size:17px;margin:14px 0 4px}.sod29-first-words p{margin:0 0 10px}.sod29-first-words ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px}.sod29-first-words a{color:inherit;text-decoration:underline;text-underline-offset:3px}.sod29-first-words li span{opacity:.75;font-size:14px}</style>";
+const STYLE = "<style>.sod29-first-words{max-width:46rem;margin:0 auto;padding:0 16px 48px;line-height:1.7;font-size:17px}.sod29-first-words h1{font-size:26px;line-height:1.3;margin:0 0 12px}.sod29-first-words h2{font-size:19px;margin:22px 0 8px}.sod29-first-words h3{font-size:17px;margin:14px 0 4px}.sod29-first-words p{margin:0 0 10px}.sod29-first-words ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr));gap:4px 14px}.sod29-first-words ul.w{grid-template-columns:1fr}.sod29-first-words li,.sod29-first-words h1,.sod29-first-words h2,.sod29-first-words h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sod29-first-words a{color:inherit;text-decoration:underline;text-underline-offset:3px}.sod29-first-words li span{opacity:.75;font-size:14px}</style>";
 
 // The page's code first replaces the document's opening shell with its own twin of it (Opening2029.jsx, the Suspense fallback) and only then
 // with the page. Without this, the words showed, vanished into a bare shell and then the page came (protected Preview, 20.11.2026). This small
