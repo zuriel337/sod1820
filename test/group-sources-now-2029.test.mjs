@@ -85,6 +85,27 @@ test("untitled media and link-only sources keep identity but request title enric
   assert.equal(nowRowModel({ title: "כותרת סרטון מאומתת", item: { label: "כותרת סרטון מאומתת" } }).titleNeedsEnrichment, false);
 });
 
+test("v3 source metadata stays behind explicit reader opt-in and inherits v2 proof", async () => {
+  const link="https://vt.tiktok.com/ZSgQykNHe/";
+  const shown=groupRowToWorldUpdate(row({
+    body:"[קישור]", source_video_href:link, source_video_title:"שם הסרטון המאומת"
+  }));
+  assert.equal(shown.label,"שם הסרטון המאומת");
+  assert.equal(shown.titleNeedsEnrichment,false);
+  assert.equal(shown.sourceVideoHref,link);
+  const ignored=groupRowToWorldUpdate(row({
+    body:"[קישור]", source_video_href:"https://evil.invalid/vid", source_video_title:"עדכון"
+  }));
+  assert.equal(ignored.sourceVideoHref,null);
+  assert.equal(ignored.label,"[קישור]");
+  assert.equal(groupRowToWorldUpdate(row({body:"[קישור]",source_video_href:link,group_proof:false})),null);
+  const calls=[];
+  const rpc=async (name,args)=>{calls.push(name);return {data:[],error:null};};
+  await fetchGroupSourceArrivals({rpc});
+  await fetchGroupSourceArrivals({rpc,readerVersion:"v3"});
+  assert.deepEqual(calls,["world_group_source_arrivals_v2","world_group_source_arrivals_v3"]);
+});
+
 test("pagination: the reader keeps the one live RPC, caps pages at 40 and passes the cursor", async () => {
   const calls = [];
   const rpc = async (name, args) => { calls.push([name, args]); return { data: [], error: null }; };
