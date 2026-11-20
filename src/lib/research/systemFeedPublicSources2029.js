@@ -59,8 +59,9 @@ export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
   // Never display a bare URL or media category as a claimed publication title.
   const sourceTitle = text(row.seo_title);
   const linkOnly = /^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body);
-  const label = sourceTitle || (!linkOnly && body) || "כותרת בהשלמה";
-  const titleNeedsEnrichment = !sourceTitle && (linkOnly || !body || /^(?:🎬 עדכון וידאו|📷 עדכון|עדכון)$/i.test(body));
+  const genericBody = /^(?:🎬 עדכון וידאו|📷 עדכון|עדכון|סרטון|וידאו|תמונה)$/i.test(body);
+  const label = sourceTitle || (!linkOnly && !genericBody && body) || "כותרת בהשלמה";
+  const titleNeedsEnrichment = !sourceTitle && (linkOnly || !body || genericBody);
   return { id: `channel:${row.id}`, kind: "source", sourceKind: "channel_update", channel: row.channel,
     sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), titleNeedsEnrichment, fullText: body, mediaHref, thumbUrl: publicNowMediaHref(row.thumb_url),
     fullTextTruncated: body.length === 1200,
