@@ -468,7 +468,8 @@ try {
     assert.equal(bm.statusCode, 200, `${path} must be a public document, not a missing Post`);
     assert.match(bm.body, /<title>בית המדרש · לומדים לגלות · SOD1820<\/title>/, path);
     assert.match(bm.body, /canonical" href="https:\/\/sod1820.co.il\/beit-midrash"/, path);
-    assert.equal(bm.headers.get("x-robots-tag"), "noindex, nofollow", path);
+    // Open to search since 20.11.2026 (ZURIEL: the whole site is open to Google); every address consolidates on the one canonical above.
+    assert.equal(bm.headers.get("x-robots-tag"), "index, follow", path);
     assert.doesNotMatch(bm.body, /הפוסט לא נמצא/, path);
   }
   // Addresses that are not a method/section stay missing rather than becoming a Post lookup.

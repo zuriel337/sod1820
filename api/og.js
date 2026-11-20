@@ -620,10 +620,11 @@ export default async function handler(req, res) {
   } else if (productionReading && (decodedKey === '/beit-midrash' || /^\/beit-midrash\/[^/]+$/.test(decodedKey))) {
     // The learning area is a public SPA route, not a Post slug: without this branch the document fell through to the
     // post lookup and answered 404 "הפוסט לא נמצא" although the page renders. The method/section in the URL is resolved
-    // client-side, so every address shares one canonical. Same posture as the client page (applySeo noindex) until the owner opens it to search.
+    // client-side, so every address shares one canonical. Open to search since 20.11.2026 (ZURIEL: the whole site is open to Google); the
+    // method addresses and query variants consolidate on the one canonical.
     title = 'בית המדרש · לומדים לגלות · ' + SITE_NAME;
     desc = 'לומדים את דרכי החישוב, הקריאה והפענוח: שיטות, מקורות, דוגמאות מודרכות ותרגול.';
-    canonical = SITE + '/beit-midrash'; type = 'website'; robots = 'noindex, nofollow';
+    canonical = SITE + '/beit-midrash'; type = 'website'; robots = 'index, follow';
     image = cardUrl({ w: 'בית המדרש', sub: 'לומדים לגלות' });
   } else if (productionReading && productionRouteState === "post-lookup") {
     await resolvePostMetadata();
