@@ -46,3 +46,9 @@ The pure classifier `src/lib/research/intakeOperationalPolicy2029.js` is an **in
 One concise report: newly received, free-processed, duplicates/reused, verified L1 candidates, actions actually executed, denied/unknown, cost spent/reserved/remaining (with provenance), and decisions needing approval. Immediate owner alert only for security/privacy/identity incidents or irreversible operations.
 
 **Status:** The design and pure classifier are review candidates only. Operational automation and spending authorizations are NOT live.
+
+## Active-research novelty and runtime operations refinement
+- A new source touching an *active research question* is L1-eligible only when two server-owned facts are present: the exact active-research match AND proof the source is materially new; the quantity of an author's messages does not qualify.
+- A possible canonical value/claim discrepancy is L1-eligible only after a deterministic canonical check has already recorded an exact mismatch; the model may diagnose, but never mark that research claim VERIFIED or modify the tree.
+- Repeated runtime or ingestion failures may produce L1 candidates only after two observed failures with server evidence, an exact trace/source ref, and safe public context. It is not permission for self-directed deployment.
+- Operational trace references are supported for site-health events without inventing a new event/source store.
