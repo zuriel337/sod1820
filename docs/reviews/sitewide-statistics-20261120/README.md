@@ -138,7 +138,7 @@
 
 | # | פעולה | בדיקת קנרית מיד אחרי | rollback |
 |---|---|---|---|
-| 1 | `search-log-floor.standalone.psql` (קריאה וכתיבה של `search_log` נסגרות לכל לקוח) | REST כ־anon: `search_log` מחזיר `[]` ו־INSERT נדחה | `drop policy ti_search_history_server_only on public.search_log; drop policy ti_search_no_new_raw on public.search_log;` |
+| 1 | `search-log-floor.standalone.psql` (קריאה וכתיבה של `search_log` נסגרות לכל לקוח) | REST כ־anon: `search_log` מחזיר `[]` ו־INSERT נדחה | `search-log-floor.rollback.psql` (שערים וקנרית בתוך הקובץ: §10.9) |
 | 2 | `apply.psql` (preflight, RLS, `research_pulse_2029`, ‏`fn_human_entrances`, ‏`ingest_event`, ‏`admin_2029_analytics`) | (א) קליטה: `select count(*) from events where ts>now()-interval '5 min'` עולה, כלומר הקליטה לא נשברה. (ב) `research_pulse_2029(24)` מחזיר `version=1`. (ג) `fn_ti_entity_demand_clean_composition` מחזיר מספרים. (ד) `cf-connecting-ip` קיים ב־`request.headers` של בקשה חיה; אם אינו קיים, פעולות `activity_2029` לא נכתבות (נכשל סגור) ומדווחים | `rollback.psql` |
 | 3 | `legacy-readers-hardening.psql` | רזיאל `_scoped` מחזיר `source_state`; ‏`number_cross_resonance` כ־anon בלי ביטוי מוסתר | `legacy-readers-hardening.rollback.psql` |
 | 4 | `privacy-floor/apply.psql` | `privacy-floor/canary.sql` (קריאה בלבד; מסתיים ב־ROLLBACK) | `privacy-floor/rollback.psql` |
@@ -312,3 +312,51 @@ CI: לפי ה־SHA בתיאור ה־PR.
   - מנהל רואה הכול.
 - **בדיקות שעודכנו:** ‏`sitewide-statistics-legacy-readers-sql.mjs` מצפה עכשיו ש־`number_cross_resonance` יחזיר גם את המילה הציבורית שיש לה רישום בקיר.
 - **ההחלטה עדיין שלך:** אין אישור לשום שלב, כולל `search-log-floor`. לפני החלה: הרצת הקנרית `privacy-floor/canary.sql` במצב קריאה בלבד, והשוואה חוזרת של 10.3 על המסד החי.
+
+### 10.8 קנרית לפני החלה: קריאה בלבד מול המסד החי (20.11.2026, ‏`cdcd39e17` ואחריו)
+`privacy-floor/canary-preapply.sql` הוא SELECT יחיד בעסקת קריאה בלבד שמסתיימת ב־ROLLBACK, ומדפיס ספירות בלבד. הוא המקבילה של `canary.sql`, שאפשר להריץ רק אחרי ההחלה, כי הוא דורש את העוזר. כלל הזכאות כתוב בו במפורש, זהה לעוזר המתוקן.
+
+| בדיקה | גולש יכול לקרוא היום | ציבוריים שנשארים | מוסתרים שנסגרים |
+|---|---|---|---|
+| `fn_name_multi(איפה)` | כן | 30 | 4 |
+| `fn_split_gematria(איפה)` | כן | 6 | 4 |
+| `fn_miluy_engine(שבר)` | כן | 3 | 5 |
+| `fn_hebrew_root(שתה)` | כן | 7 | 1 |
+| `fn_anagrams_engine(שלום)` | כן | 3 | 0 |
+| `fn_en_search(איפה)` | כן | 69 | 0 |
+| `strongest_crossings(איפה)` | כן | 138 | 0 |
+| `number_dossier_json(826)` / `(1820)` | כן | 37 / 37 | 0 / 0 |
+| `fn_cross_research(געש)` | כן | 2 | 0 |
+| `verified_bridges(1000)` | כן | 11 | 0 |
+| `atlas_findings(1000)` | כן | 120 | 7 |
+| `discover_relation_candidates(1000)` | כן | 944 | 3 |
+| `discover_anchor_families(1,1000)` | כן | 1,470 | 96 |
+| `top_collective(1,1000)` | כן | 128 | 5\* |
+| `fn_all_methods(שלום)` | כן | ערכים מספריים בלבד | 0 |
+
+- \*`top_collective` לא מסונן לפי ביטוי. הרצפה שלו היא 3 חוקרים לפחות, וכותרת ריקה ממחקר אישי. לכן 5 המחרוזות האלה **לא בהכרח נסגרות**. הקנרית אחרי ההחלה תכריע. אם הן נשארות, זה ממצא פתוח שמחייב תיקון ממוקד לפני שלב 4, לא סיבה לחסום ציבורי.
+- **מסקנה:** אף פלט לא מאבד ביטוי ציבורי, ונסגרים רק ביטויים מוסתרים. לפני שלב 4 מריצים שוב את הקנרית הזו, ומיד אחרי ההחלה את `canary.sql`.
+
+### 10.9 שער SQL לשלב 1 (`search-log-floor.standalone.psql`): דרישות, ומה נבדק
+1. **אישור מפורש של ZURIEL** לקומיט ולשלב. נכון לעכשיו **לא ניתן**.
+2. **שער 1, בתוך הקובץ:** המדיניות בטבלה היא בדיוק `anon insert search` ו־`anyone read search`. ‏RLS פעיל, בלי FORCE, ובעלים `postgres`.
+3. **שער 2, בתוך הקובץ:** כל פונקציה שקוראת את `search_log` היא SECURITY DEFINER בבעלות `postgres`. אחרת, ההחלה נעצרת.
+4. **שער 3, באותה עסקה לפני commit:**
+   - הבעלים עדיין קורא את הטבלה.
+   - גולש קורא 0 שורות.
+   - כתיבה של גולש נדחית. ניסיון הכתיבה של הקנרית מבוטל, ולא נכתבת שום שורה.
+5. **Production:** לקרוא את ה־alias מיד לפני ההחלה. היום `dpl_2ngd15963rnFP1fGqtvxoGL3Pona` (‏`7e7cc4b`), שאין בו צרכן חי של `search_log`.
+6. **Rollback:** ‏`search-log-floor.rollback.psql`, שמסיר רק את שתי המדיניות. אחרי שלב 2, ה־rollback הוא `rollback.psql`.
+
+**נבדק:**
+- **על המסד החי (קריאה בלבד, עכשיו):** שערים 1 ו־2 עוברים. 8 קוראים, כולם definer בבעלות `postgres`.
+- **`test/sitewide-statistics-search-log-floor-realpg.sh`:** ‏8/8 על PostgreSQL אמיתי:
+  - לפני: הדליפה קיימת.
+  - אחרי: 0 שורות לגולש, והכתיבה נדחית.
+  - הקורא בצד השרת לא מושפע, וההיסטוריה נשמרת.
+  - הרצה שנייה נעצרת בשער, וגם קורא בהרשאות המפעיל עוצר את ההחלה.
+  - ה־rollback מדויק.
+
+### 10.10 ה־403 ל־Googlebot: הועבר לבעל ה־SEO (‏#1463), לא בתוך #1462
+- מפת ה־HTTP החיה (דפדפן / Googlebot / בוט עוין) והאילוצים שלך נמסרו לסשן של #1463.
+- #1462 לא נוגע ב־`middleware-core.js`, ב־robots, ב־sitemap או בשערי ההשקה.

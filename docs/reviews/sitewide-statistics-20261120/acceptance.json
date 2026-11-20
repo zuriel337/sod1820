@@ -83,6 +83,9 @@
     ],
     "public_floor_nonregression_pglite": {
       "pass": 9
+    },
+    "search_log_floor_real_postgres": {
+      "pass": 8
     }
   },
   "budgets_vs_main": {
@@ -402,6 +405,8 @@
       "already_hidden_from_anon_rest": 3013,
       "public_words_lost": 0
     },
-    "sql_applied": false
+    "sql_applied": false,
+    "canary_preapply_live": "16 probes, read-only; 0 public phrases lost; top_collective 5 not guaranteed (README 10.8)",
+    "stage1_preflight_live": "gates 1-2 pass on live 20.11.2026 (read-only); not applied"
   }
 }

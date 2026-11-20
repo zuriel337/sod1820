@@ -57,6 +57,7 @@ jobs:
           "$PG_BIN/postgres" --version | grep -q ' 17\.' || { echo "expected PostgreSQL 17, got $("$PG_BIN/postgres" --version)"; exit 1; }
           echo "PostgreSQL binaries: $PG_BIN"
           PG_BIN="$PG_BIN" bash test/sitewide-statistics-20261120-realpg.sh
+          PG_BIN="$PG_BIN" bash test/sitewide-statistics-search-log-floor-realpg.sh
           PG_BIN="$PG_BIN" bash test/sitewide-statistics-privacy-floor-realpg.sh
       - name: Build and existing shell budget
         run: |
