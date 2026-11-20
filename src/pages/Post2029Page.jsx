@@ -1306,7 +1306,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     });
   };
 
-  return <article
+  return <><ActivityPulseSlot2029 /><article
     className={postReadingClassName([experience.wireframe ? "is-architecture-wireframe" : "", protoOn && realityMap.active ? "r29" : ""].filter(Boolean).join(" "))}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"
@@ -1544,7 +1544,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
       <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
     </nav>
-  </article>;
+  </article></>;
 }
 
 export default function Post2029Page({ resolvedSlug = null, sourceReader = null } = {}) {
@@ -1569,7 +1569,6 @@ export default function Post2029Page({ resolvedSlug = null, sourceReader = null 
     symbol="✦"
     status="פוסט"
   >
-    <ActivityPulseSlot2029 />
     <PostReadingBody key={slug} resolvedSlug={slug} sourceReader={sourceReader} />
   </Sod2029Shell>;
 }

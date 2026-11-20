@@ -491,7 +491,7 @@ export default function HomeComposition2029({
   projection, loading, nowHero, story, elsEntry, arrivals, calculator, entry, continuity, primaryReader = null,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
   onWorldApproach, onSummaryApproach, onOpenNow = null,
-  onNavigate,
+  onNavigate, activity = null,
 }) {
   const primary = useHomeCompositionData({ includeWorld: !corePublic && worldOpen, primaryReader });
   // Wait for the primary cards to establish section geometry. A short loading
@@ -557,6 +557,7 @@ export default function HomeComposition2029({
       </Suspense>
     </div>
     <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} />
+    {activity}
 
     {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
 

@@ -32,14 +32,13 @@ test("no shipped code writes the seven Legacy tables M0-A closes, and no client 
   assert.deepEqual(grepShipped(/from\(\s*["'`]lab_(?:notes|messages)["'`]\s*\)/), [], "a client reads lab_* (would become admin-only)");
 });
 
-test("the public gematria wall already filters private rows, so hiding them changes nothing visible", () => {
+test("the public gematria wall uses the privacy-checked TI projection instead of raw legacy rows", () => {
   const readers = shipped.filter(([, s]) => /from\(\s*["'`]gematria_wall["'`]\s*\)/.test(s));
-  assert.ok(readers.length > 0, "the wall reader exists");
-  for (const [f, s] of readers) {
-    for (const m of s.matchAll(/from\(\s*["'`]gematria_wall["'`]\s*\)[\s\S]{0,200}/g)) {
-      assert.match(m[0], /\.eq\(\s*["']private["']\s*,\s*false\s*\)/, `${f}: wall read without private=false`);
-    }
-  }
+  assert.deepEqual(readers.map(([f])=>f), [], "no shipped direct wall reader can bypass the projection");
+  const api = read("src/lib/supabaseApi2029.js");
+  const wall = api.slice(api.indexOf("export async function getWallRecent("), api.indexOf("export async function logSearch("));
+  assert.match(wall, /rpc\('fn_ti_public_activity2029'/, "suggestions use the canonical TI public reader");
+  assert.match(wall, /if \(error \|\| data\?\.version !== 1\) return \[\]/, "no unsafe legacy fallback on failure");
 });
 
 test("admin and account functions guarded by M0-A have no non-admin caller in shipped code", () => {

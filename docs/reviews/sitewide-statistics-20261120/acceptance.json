@@ -51,7 +51,7 @@
     },
     "build": "PASS",
     "public_reading_build": "PASS",
-    "ci": "pending PR",
+    "ci": "PR #1461: exact-head result linked in PR; earlier failures repaired, final workflow must pass before release",
     "release_boundary_negative_cases": {
       "pass": 21
     },
@@ -63,21 +63,45 @@
         "new activity family composed after historical ELS spec without changing old families",
         "browser runner pinned to supported ubuntu-24.04"
       ]
+    },
+    "article_first_browser": {
+      "pass": 21,
+      "synthetic": true,
+      "profiles": [
+        "phone",
+        "desktop"
+      ],
+      "baseline_compared": true
+    },
+    "community_calculator_browser": {
+      "pass": 2,
+      "synthetic": true,
+      "first_screen_input_preserved": true
+    },
+    "article_home_control_permission_contracts": {
+      "pass": 57
+    },
+    "article_first_proofs": {
+      "read": 1320,
+      "candidates": 1297,
+      "proven": 1297,
+      "differ": 0,
+      "source": "public readonly; pipeline fingerprint bound"
     }
   },
   "budgets": {
     "standard": {
-      "eager_js_gzip": 203349,
+      "eager_js_gzip": 203335,
       "eager_limit": 203493,
-      "frame_js_gzip": 47194,
+      "frame_js_gzip": 47193,
       "frame_limit": 47338,
       "frame_css_gzip": 34329,
       "css_limit": 34362
     },
     "public_reading": {
-      "eager_js_gzip": 203250,
+      "eager_js_gzip": 203207,
       "eager_limit": 205111,
-      "frame_js_gzip": 47207,
+      "frame_js_gzip": 47203,
       "frame_limit": 47425
     },
     "baselines_changed": false

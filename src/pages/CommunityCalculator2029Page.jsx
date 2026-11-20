@@ -193,6 +193,7 @@ function CalculatorExperience({ model, initialState, location }) {
       {state.babyMode ? <>
         {initialState.invalidBirthDate && !state.baby?.bDate && <p role="status" className="sod29-community-calc-notice">תאריך הלידה בקישור אינו תקין. הזינו יום, חודש ושנה כדי לחשב אותו.</p>}
         {model.babyTool}
+        <ActivityPulseSlot2029 />
       </> : <>
         <section className="sod29-community-calc-panel sod29-community-calc-input-panel">
           <div className="sod29-community-calc-name-fields">
@@ -210,6 +211,7 @@ function CalculatorExperience({ model, initialState, location }) {
           </div>
           {state.name1.trim() && !r1 && <p role="status">הזינו אותיות בעברית כדי לחשב גימטריה.</p>}
         </section>
+        <ActivityPulseSlot2029 />
 
         {state.dateMode && <section className="sod29-community-calc-panel sod29-community-calc-date">
           <h2>המספר של התאריך העברי</h2><p>הזינו תאריך לועזי. אחרי השקיעה, התאריך העברי מתקדם ביום אחד.</p>
@@ -290,7 +292,6 @@ export default function CommunityCalculator2029Page() {
   const initialState = useMemo(() => parseCommunityCalculatorState(location.search), [location.search]);
   const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
   return <Sod2029Shell surface="community" title="מחשבון הקהילה" introVariant="none">
-    <ActivityPulseSlot2029 />
     <CommunityCalculatorPage key={location.key} initialState={initialState} passive actionsLocked={actionsLocked} initialShowAll
       renderCalculator={model => <CalculatorExperience model={model} initialState={initialState} location={location} />}
       renderBabyTool={model => <BabyNames model={model} />} />
