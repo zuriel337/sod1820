@@ -21,6 +21,7 @@ import { mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
 import { canonicalMediaPath, isCanonicalVideoOriginalPath } from "../_shared/mediaPosterLane.js";
 import { isUniqueViolation, planOriginal, sttOriginalRow, translationRow, translationTargets } from "../_shared/videoTranscriptPolicy.js";
 import { analyzeVideoSemanticMap, semanticMapRpcArgs } from "../_shared/videoSemanticMap.js";
+import { PRIVATE_AUDIO_PREFIX, privateAudioAction, processPrivateChannelAudio } from "../_shared/privateChannelAudioTranscript.js";
 
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const MODEL   = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
@@ -221,6 +222,41 @@ Deno.serve(async (req) => {
   try { b = await req.json(); } catch { return json({ error: "bad_json" }, 400); }
 
   const action = String(b.action || "translate");
+
+  // Private voice sources stay private through the same STT/transcript owner.
+  // No signed URL or Storage credential is returned; no source/identity write.
+  if (privateAudioAction(action)) {
+    const headers = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
+    const readJson = async (path: string, body?: unknown) => {
+      const r = await fetch(`${SB_URL}${path}`, { headers, ...(body === undefined ? {} : { method: "POST", body: JSON.stringify(body) }) });
+      if (!r.ok) throw new Error(`private_audio_read_${r.status}`);
+      return r.json();
+    };
+    try {
+      const out = await processPrivateChannelAudio({ ...b, action }, {
+        readSource: async (id: string) => (await readJson(`/rest/v1/channel_updates?id=eq.${id}&select=id,image_url,status,created_at,ext_msg_id,contributor_id,channel`))[0] || null,
+        resolvePrivate: (id: string, objectId: string) => readJson('/rest/v1/rpc/private_channel_media_access', { p_channel_update_id: id, p_storage_object_id: objectId }),
+        download: async (bucket: string, path: string) => {
+          const r = await fetch(`${SB_URL}/storage/v1/object/authenticated/${bucket}/${path.split('/').map(encodeURIComponent).join('/')}`,
+            { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, redirect: "error" });
+          if (!r.ok) throw new Error(`private_audio_download_${r.status}`);
+          return r.blob();
+        },
+        listOriginals: (key: string) => readJson(`/rest/v1/video_transcripts?video_key=eq.${encodeURIComponent(key)}&is_original=eq.true&select=id,lang,transcript,status`),
+        transcribe: async (args: any) => transcribeBlob({ ...args, key: String(await readJson('/rest/v1/rpc/wa_video_enrich_openai_key', {}) || '').trim() }),
+        insertOriginal: async (row: any) => {
+          try { const saved = await upsertRow(row, "ignore"); return Array.isArray(saved) && saved.length > 0; }
+          catch (e) { if (isUniqueViolation(e)) return false; throw e; }
+        },
+      });
+      return json(out, out.ok ? 200 : 409);
+    } catch { return json({ ok: false, error: "private_audio_processing_failed" }, 502); }
+  }
+
+  // Private source transcripts cannot be published/translated by a generic
+  // public-video action. Their original remains a draft pending review.
+  if (String(b.video_key || "").startsWith(PRIVATE_AUDIO_PREFIX) && action !== "list")
+    return json({ error: "private_audio_action_required" }, 400);
 
   // 🌍 מצב-raw כללי (Language Layer · WhatsApp) — זיהוי+תרגום של טקסט חופשי, ללא video_key וללא כתיבה ל-video_transcripts.
   // ⛔ המקור לעולם לא נשמר/נדרס כאן — מחזיר תרגום כשכבת-תקשורת; רישום-עלות ל-ai_token_log עם provenance.
