@@ -1,8 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { retiredCollectionContinuation } from "../public-reading-deploy/api/public-document.js";
-import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_DATA_PAGE_GRACE_MS, firstWordsGraceMs2029, FIRST_WORDS_KEEPER, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
+import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_DATA_PAGE_GRACE_MS, firstWordsGraceMs2029, FIRST_WORDS_KEEPER, firstWordsStaticFacts2029, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
 import { beforeEach } from "node:test";
 beforeEach(() => _resetFirstWordsForTests());
 
@@ -198,4 +199,17 @@ test("a number or phrase document waits for its words on a first request; the ot
   assert.equal(firstWordsGraceMs2029("/number/" + encodeURIComponent("נטע")), FIRST_WORDS_DATA_PAGE_GRACE_MS);
   for (const path of ["/gematria", "/community/calculator", "/codes", "/topic/x", "/", "/post/x"]) assert.equal(firstWordsGraceMs2029(path), FIRST_WORDS_GRACE_MS, path);
   assert.ok(FIRST_WORDS_DATA_PAGE_GRACE_MS <= 1200 && FIRST_WORDS_GRACE_MS <= 300);
+});
+
+test("the calculators' fixed wording is never missing: without their lists they still carry heading, lead, explanation and questions", async () => {
+  const { COMMUNITY_CALCULATOR_SEO } = await import("../src/lib/research/communityCalculatorSeo2029.js");
+  const { CALCULATOR_PRO_SEO } = await import("../src/lib/research/calculatorProSeo2029.js");
+  const community = firstWordsHtml2029(firstWordsStaticFacts2029("/community/calculator"));
+  assert.ok(community.includes(`<h1>${COMMUNITY_CALCULATOR_SEO.heading}</h1>`));
+  assert.match(community, /שאלות נפוצות/);
+  assert.doesNotMatch(community, /ביטויים נבחרים|נוספו לאחרונה/, "no empty list headings");
+  assert.ok(firstWordsHtml2029(firstWordsStaticFacts2029("/gematria")).includes(`<h1>${CALCULATOR_PRO_SEO.heading}</h1>`));
+  for (const path of ["/number/78", "/codes", "/topic/x", "/"]) assert.equal(firstWordsStaticFacts2029(path), null, path);
+  const documentSource = readFileSync(new URL("../public-reading-deploy/api/public-document.js", import.meta.url), "utf8");
+  assert.match(documentSource, /\|\| firstWordsStaticFacts2029\(metadataPath\)\)\)/);
 });

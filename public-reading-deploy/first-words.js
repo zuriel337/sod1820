@@ -27,6 +27,12 @@ export const FIRST_WORDS_GRACE_MS = 300;
 // A number or phrase document is the words: its own metadata already waits for two reads, and the words are read beside them. Its first
 // request (nothing kept yet) therefore waits for the words up to this bound instead of going out as an empty shell.
 export const FIRST_WORDS_DATA_PAGE_GRACE_MS = 1200;
+// The calculators' heading, lead, explanation and questions are fixed wording and need no read. When their lists are not ready in time
+// (a cold instance), the document still carries that wording rather than an empty shell; the lists come with the next request.
+export function firstWordsStaticFacts2029(path) {
+  const kind = firstWordsFamily2029(path)?.kind;
+  return kind === "gematria" || kind === "community-calculator" ? { kind, recent: [], picked: [], pickedThisWeek: false } : null;
+}
 export function firstWordsGraceMs2029(path) {
   const kind = firstWordsFamily2029(path)?.kind;
   return kind === "number" || kind === "phrase" ? FIRST_WORDS_DATA_PAGE_GRACE_MS : FIRST_WORDS_GRACE_MS;
