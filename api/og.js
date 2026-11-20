@@ -8,6 +8,7 @@ import { fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/li
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { COMMUNITY_CALCULATOR_SEO } from "../src/lib/research/communityCalculatorSeo2029.js";
+import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
 import { communityCardSuitable } from "../src/lib/research/communityCalculatorEquals2029.js";
 import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks2029.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
@@ -757,8 +758,9 @@ export default async function handler(req, res) {
       desc = `"${w}" שווה ${nq} בגימטריה. מה המספר אומר עליכם? בדקו גם את השם שלכם במחשבון הגימטריה של סוד 1820.`;
       image = `${SITE}/api/card?w=${encodeURIComponent(w)}&n=${nq}`;
     } else {
-      title = "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · " + SITE_NAME;
-      desc = "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי.";
+      // One wording for the server, the page and the first words (src/lib/research/calculatorProSeo2029.js).
+      title = CALCULATOR_PRO_SEO.title + " · " + SITE_NAME;
+      desc = CALCULATOR_PRO_SEO.description;
       image = `${SITE}/api/card?w=${encodeURIComponent('מחשבון הגימטריה')}&sub=${encodeURIComponent('חשבו כל מילה · שם · ביטוי')}&cap=${encodeURIComponent('בדקו את השם שלכם · מה המספר אומר עליכם?')}&sig=gem`;
     }
   } else if (key === '/research') {

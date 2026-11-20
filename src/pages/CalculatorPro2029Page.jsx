@@ -29,6 +29,7 @@ import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { GADOL_BASE, hasSofiot } from "../lib/research/gematriaCalculationContract.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { applySeo } from "../lib/seo.js";
+import { CALCULATOR_PRO_SEO } from "../lib/research/calculatorProSeo2029.js";
 import "./calculatorPro2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -545,7 +546,7 @@ function ProExperience() {
 
   return (
     <section className={`sod29-calcpro${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
-      <h1 className="sod29-calcpro-sr">מחשבון גימטריה מקצועי</h1>
+      <h1 className="sod29-calcpro-sr">{CALCULATOR_PRO_SEO.heading}</h1>
       <CalculatorWordsBar2029
         currentExpression={info.expression}
         onPick={(word, kind) => {
@@ -722,8 +723,9 @@ function CalculatorPro2029Content() {
   const location = useLocation();
   useEffect(() => {
     applySeo({
-      title: "מחשבון גימטריה מקצועי · SOD1820",
-      description: "כל שיטות הגימטריה במבט אחד, עם פנקס פירוק אותיות מהמנוע הקנוני, מצב מתקדם להשוואה ומצב מורחב.",
+      // applySeo appends the site name itself; one wording with the server (src/lib/research/calculatorProSeo2029.js).
+      title: CALCULATOR_PRO_SEO.title,
+      description: CALCULATOR_PRO_SEO.description,
       path: import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" ? "/gematria" : location.pathname,
       noindex: import.meta.env?.VITE_PUBLIC_READING_RELEASE !== "public-reading-20261101" || Boolean(location.search),
     });

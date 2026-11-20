@@ -14,6 +14,7 @@
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
+import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
 
 // The public project address and the public anonymous key, as in the other server readers (api/og.js, api/sitemap.js, api/card.js). The browser
 // module src/lib/supabase.js is not imported here: it creates a client, which a server function must not load.
@@ -217,7 +218,7 @@ function body(facts) {
     return community
       ? `<h1>${esc(COMMUNITY_CALCULATOR_SEO.heading)}</h1><p>${esc(COMMUNITY_CALCULATOR_SEO.lead)}</p>${picked}${recent}${explain}`
         + `<h2>שאלות נפוצות</h2>` + COMMUNITY_CALCULATOR_FAQ.map(({ q, a }) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join("")
-      : `<h1>מחשבון גימטריה</h1><p>הקלידו מילה, שם או ביטוי וקבלו את הערך בכל שיטות הגימטריה, עם פירוק האותיות והביטויים ששווים לאותו ערך.</p>`
+      : `<h1>${esc(CALCULATOR_PRO_SEO.heading)}</h1><p>${esc(CALCULATOR_PRO_SEO.lead)}</p>`
         + `${picked}${recent}${explain}<p><a href="/community/calculator">מחשבון הקהילה: שמות, השוואה ותאריך עברי</a> · <a href="/number">דף המספר</a></p>`;
   }
   if (facts.kind === "codes") {

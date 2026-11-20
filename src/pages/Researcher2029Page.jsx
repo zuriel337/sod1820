@@ -171,7 +171,7 @@ export default function Researcher2029Page() {
   const { slug } = useParams();
   useEffect(() => {
     applySeo({
-      title: "קורפוס חוקר · SOD1820",
+      title: "קורפוס חוקר",
       description: "מקורות וממצאים מתוך קורפוס המחקר ב־SOD1820",
       path: `/researcher/${encodeURIComponent(slug || "")}`,
       noindex: true,
