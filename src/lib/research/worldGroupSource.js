@@ -146,6 +146,23 @@ export function redactGroupText(text) {
     .slice(0, 1200);
 }
 
+// Only an already-admitted, public message may expose an external video URL.
+ // Keep provider links separate from binary media: external pages must never enter a <video> src.
+export function publicGroupVideoLink(body) {
+  for (const candidate of clean(body).match(/https?:\/\/[^\s<>]+/gi) || []) {
+    const admitted = publicLinkOrNull(candidate);
+    if (!admitted) continue;
+    try {
+      const u = new URL(admitted.url);
+      const host = u.hostname.toLowerCase();
+      const id = host === "youtu.be" ? u.pathname.slice(1) : u.searchParams.get("v");
+      if ((host === "youtu.be" || ["youtube.com", "www.youtube.com", "m.youtube.com"].includes(host))
+        && ((id && /^[A-Za-z0-9_-]{11}$/.test(id)) || (u.pathname.startsWith("/shorts/") && /^\/shorts\/[A-Za-z0-9_-]{11}\/?$/.test(u.pathname)))) return admitted.url;
+    } catch { /* keep scanning */ }
+  }
+  return null;
+}
+
 export function groupRowToWorldUpdate(row) {
   if (!row?.id || row.group_proof !== true || row.proof_basis !== "verified_phone_unique" || !APPROVED_GROUP_WRITERS.includes(clean(row.contributor_slug))) return null; // unproved / unverified author => excluded
   const channel = clean(row.group_channel);
@@ -155,6 +172,7 @@ export function groupRowToWorldUpdate(row) {
   // A row that declared media which failed public validation is dropped entirely, never shown as plain text.
   if (clean(row.media_kind) && !media) return null;
   const body = redactGroupText(row.body);
+  const sourceVideoHref = publicGroupVideoLink(body);
   if (!body && !media) return null;
   const slug = clean(row.contributor_slug);
   const seen = new Set();
@@ -182,6 +200,7 @@ export function groupRowToWorldUpdate(row) {
     // A media type or a bare link is not a content title. Keep the source visible for later metadata enrichment.
     label: body && !/^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body) ? (body.length > 140 ? `${body.slice(0, 140)}…` : body) : "כותרת בהשלמה",
     titleNeedsEnrichment: !body || /^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body),
+    sourceVideoHref,
     fullText: body,
     sourceGroup: group,
     sourceGroupLabel: group.label,
