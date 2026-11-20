@@ -26,7 +26,7 @@ const MICRO = 1000000n;
 const parseIlsMicro = raw => {
   if (typeof raw !== "string" && typeof raw !== "number") return null;
   const s = String(raw).trim();
-  if (!/^(?:0|[1-9][0-9]{0,9})(?:\\.[0-9]{1,6})?$/.test(s)) return null;
+  if (!/^(?:0|[1-9][0-9]{0,9})(?:\.[0-9]{1,6})?$/.test(s)) return null;
   const [a, f = ""] = s.split(".");
   return BigInt(a) * MICRO + BigInt((f || "").padEnd(6, "0"));
 };
