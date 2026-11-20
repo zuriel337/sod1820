@@ -534,6 +534,10 @@ function publicVideoLink(raw: unknown) {
         const id = host === "youtu.be" ? u.pathname.slice(1) : u.pathname === "/watch" ? u.searchParams.get("v") : /^\/(?:shorts|live)\/([^/]+)\/?$/.exec(u.pathname)?.[1];
         if (/^[A-Za-z0-9_-]{11}$/.test(id || "")) return { provider: "youtube", url: "https://www.youtube.com/watch?v=" + id };
       }
+      if (["vimeo.com", "www.vimeo.com", "player.vimeo.com"].includes(host)) {
+        const id = /^\/(?:video\/)?([0-9]{1,12})\/?$/.exec(u.pathname)?.[1];
+        if (id) return { provider: "vimeo", url: "https://vimeo.com/" + id };
+      }
       if (host === "vt.tiktok.com" && /^\/[A-Za-z0-9]{5,24}\/?$/.test(u.pathname))
         return { provider: "tiktok", url: "https://vt.tiktok.com" + u.pathname };
       if (["tiktok.com", "www.tiktok.com", "m.tiktok.com"].includes(host) && /^\/@[A-Za-z0-9_.-]+\/video\/\d{5,25}\/?$/.test(u.pathname))
@@ -543,7 +547,7 @@ function publicVideoLink(raw: unknown) {
   return null;
 }
 async function providerLinkMetadata(link: { provider: string; url: string }) {
-  const endpoint = link.provider === "youtube" ? "https://www.youtube.com/oembed?format=json&url=" : "https://www.tiktok.com/oembed?url=";
+  const endpoint = link.provider === "youtube" ? "https://www.youtube.com/oembed?format=json&url=" : link.provider === "vimeo" ? "https://vimeo.com/api/oembed.json?url=" : "https://www.tiktok.com/oembed?url=";
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 4500);
   try {
@@ -557,7 +561,7 @@ async function providerLinkMetadata(link: { provider: string; url: string }) {
     let thumbnail = null;
     try {
       const host = new URL(thumb).hostname;
-      if (/^https:\/\//.test(thumb) && (link.provider === "youtube" ? (host === "i.ytimg.com" || host === "img.youtube.com") : (host.endsWith(".tiktokcdn.com") || host === "tiktokcdn.com"))) thumbnail = thumb;
+      if (/^https:\/\//.test(thumb) && (link.provider === "youtube" ? (host === "i.ytimg.com" || host === "img.youtube.com") : link.provider === "vimeo" ? (host === "i.vimeocdn.com" || host.endsWith(".vimeocdn.com")) : (host.endsWith(".tiktokcdn.com") || host === "tiktokcdn.com"))) thumbnail = thumb;
     } catch { /* no valid thumbnail */ }
     return title && !/^(video|youtube|tiktok|untitled)$/i.test(title) ? { title, thumbnail } : null;
   } catch { return null; }
@@ -718,7 +722,7 @@ Deno.serve(async (req) => {
       .select("id,channel,status,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
       .in("channel", PUBLIC_VIDEO_CHANNELS)
       .eq("status", "live")
-      .or("image_url.ilike.%.mp4%,text.ilike.%youtube.com%,text.ilike.%youtu.be%,text.ilike.%tiktok.com%")
+      .or("image_url.ilike.%.mp4%,text.ilike.%youtube.com%,text.ilike.%youtu.be%,text.ilike.%tiktok.com%,text.ilike.%vimeo.com%")
       .eq("enrichment_status", "pending")
       .order("created_at", { ascending: false })
       .limit(limit);
