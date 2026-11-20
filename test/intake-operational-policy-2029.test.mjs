@@ -15,7 +15,8 @@ const verified = (kind, overrides = {}) => ({
 });
 
 test("policy is design-only, 50 ILS, never an execution or production authorization", () => {
-  assert.equal(OPERATIONAL_INTAKE_POLICY_V1.additionalMonthlyAiCapIls, 50);
+  assert.equal(OPERATIONAL_INTAKE_POLICY_V1.monthlySpendingCapEnabled, false);
+  assert.equal(OPERATIONAL_INTAKE_POLICY_V1.costReportingMode, "observability_only");
   assert.equal(OPERATIONAL_INTAKE_POLICY_V1.productionEnabled, false);
   assert.equal(OPERATIONAL_INTAKE_POLICY_V1.allowAutonomousDeepResearch, false);
   const decision = classifyOperationalIntakeEvent(verified("repeated_ingest_failure"));
