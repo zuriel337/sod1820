@@ -47,7 +47,7 @@
     },
     "postgrest_binary_codex": {
       "version": "16.6",
-      "local": "PASS in Codex session; runs in CI with sha256 pin",
+      "ci": "PASS (isolated-acceptance on f5af86bff, sha256 pinned; anon/JWT/admin, forged identity, header fail-closed, 16 concurrent replays counted once)",
       "live_edge_header": "UNKNOWN until SQL step 2 canary"
     },
     "privacy_floor_real_postgres_16": {
@@ -72,7 +72,15 @@
         "failed": 0,
         "avg_ms": 30
       }
-    }
+    },
+    "real_postgres_ci_major": "17 (CI installs postgresql-17 and fails on any other major)",
+    "pre_existing_failures": [
+      {
+        "test": "test/raziel-canonical-navigation-actions.test.mjs",
+        "result": "26/27",
+        "same_on_main": "7e7cc4b"
+      }
+    ]
   },
   "budgets_vs_main": {
     "eager_js_gzip_delta": 146,
@@ -358,5 +366,22 @@
   "previous": {
     "codex_acceptance_schema": 2,
     "codex_checks": 12
+  },
+  "integration": {
+    "single_writer": "Claude (ZURIEL decision, option A)",
+    "pr": 1462,
+    "contains_pr_1461_commits": [
+      "5a76537f8",
+      "35a6ef718",
+      "8c12817ae",
+      "db3c4d4ed"
+    ],
+    "merge_commit": "767efabff",
+    "runtime_audit_json": "byte-identical to #1461",
+    "calculator_session": {
+      "branch": "ccr-62250444-voptzj",
+      "sha": "1aafeb025",
+      "decision": "not integrated: SEO/indexing scope, no measurement change"
+    }
   }
 }
