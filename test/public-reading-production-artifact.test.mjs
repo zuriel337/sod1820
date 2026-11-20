@@ -438,23 +438,28 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
   const gate = spawnSync(process.execPath, ["scripts/test-legacy-retired.mjs"], { cwd: root, encoding: "utf8" }); assert.equal(gate.status, 0, gate.stderr);
 });
 
-test("the generated document hints the exact entry the bootstrap imports after worker admission (one module preload, same URL, no second loader)", () => {
+test("the generated document hints the exact entry the bootstrap imports after worker admission (one hint through the loader, same URL, no second loader)", () => {
   assert.ok(existsSync(new URL("public-reading-deploy/dist/public-reading-artifact.json", root)), "run node scripts/build-public-reading-production.mjs before acceptance");
   const html = read("public-reading-deploy/.generated/2029.html");
   // The URL the bootstrap hands to import(): the serialized config at the end of the inline module script.
   const config = JSON.parse(/\}\)\((\{"entry":"[^"]+","sourceSha":"[a-f0-9]{40}","policy":"[^"]+","timeoutMs":\d+\}),\{navigator,/.exec(html)?.[1] ?? "null");
   assert.ok(config, "bootstrap config is present");
   assert.match(config.entry, /^\/assets\/[A-Za-z0-9_.-]+\.js$/);
-  const tag = `<link rel="modulepreload" crossorigin href="${config.entry}">`;
-  // Exactly one hint for the entry, in the position the Vite entry <script> had, directly before the bootstrap.
-  assert.equal(html.split(tag).length - 1, 1, "exactly one module preload of the entry");
-  assert.ok(html.includes(tag + '<script type="module">(async function startPublicReading'), "the hint sits directly before the inline bootstrap");
-  assert.ok(html.indexOf(tag) < html.indexOf("await loadEntry("), "the hint is in the document before the import that consumes it");
+  // The hints are applied by the hint loader (route-preload.js, slow networks 21.11.2026), not by markup: the entry is the first hint of the one
+  // list the loader receives, directly before the bootstrap, and nothing else in the document hints it.
+  const lists = [...html.matchAll(/__sodHints\((\[\[[\s\S]*?\]\])\)/g)].map(match => JSON.parse(match[1]));
+  assert.ok(lists.length >= 1, "the entry graph's list is present");
+  assert.equal(lists[0][0][0], config.entry, "the entry is the first hint");
+  assert.equal(lists.flat().filter(([href]) => href === config.entry).length, 1, "exactly one hint of the entry");
+  assert.ok(!/<link\b[^>]*rel="modulepreload"/.test(html.replace(/<!--sod-home-preload [\s\S]*? -->/, "")), "no markup module hints compete with the worker's script");
+  const loaderAt = html.indexOf("__sodHints = list =>"), bootAt = html.indexOf('<script type="module">(async function startPublicReading');
+  assert.ok(loaderAt > 0 && loaderAt < bootAt && html.slice(loaderAt, bootAt).includes("</script>"), "the loader is a classic script directly before the inline bootstrap");
+  assert.ok(html.indexOf(`[["${config.entry}"]`) < html.indexOf("await loadEntry("), "the hint is in the document before the import that consumes it");
   // The Home's own code (public-reading-deploy/route-preload.js, ZURIEL 17.11.2026): one inert list after the bootstrap, which only the Home's
   // document turns into hints (the handler removes it from every other document); its module hints use the same CORS mode as the entry's.
   const homeList = /<!--sod-home-preload ([\s\S]*?) -->/.exec(html);
   assert.ok(homeList && html.indexOf(homeList[0]) > html.indexOf("await loadEntry(") && html.split("<!--sod-home-preload ").length === 2, "one Home list, after the bootstrap");
-  assert.ok(/<link rel="modulepreload" crossorigin href="\/assets\/Home2029Page-[A-Za-z0-9_-]+\.js">/.test(homeList[1]), "the Home page's own chunk is listed");
+  assert.ok(/\["\/assets\/Home2029Page-[A-Za-z0-9_-]+\.js"\]/.test(homeList[1]) && homeList[1].includes("__sodHints("), "the Home page's own chunk is listed for the loader");
   assert.ok(!homeList[1].includes(config.entry), "never the entry again");
   // The hinted URL, the imported URL and the Vite manifest entry are one and the same file, and it exists.
   const manifest = JSON.parse(read("public-reading-deploy/dist/.vite/manifest.json"));

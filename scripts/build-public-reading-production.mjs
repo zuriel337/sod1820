@@ -11,7 +11,7 @@ import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedRe
 import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029, BRAND_SITE_ICONS_2029 } from "../src/lib/brandAssets2029.js";
 import canonicalMiddleware, { config as canonicalMiddlewareConfig } from "../middleware.js";
 import { articleFirstFingerprint } from "./lib/article-first-fingerprint.mjs";
-import { homePreloadComment } from "../public-reading-deploy/route-preload.js";
+import { homePreloadComment, hintLoaderScript2029 } from "../public-reading-deploy/route-preload.js";
 import publicMiddleware, { config as publicMiddlewareConfig } from "../public-reading-deploy/middleware.js";
 
 // Default artifact stays dormant. A separate explicit deployment-scoped review
@@ -102,14 +102,18 @@ if (!entry) throw new Error("missing_2029_entry");
 // map; the bootstrap's import() then consumes that map entry (still one request). The URL is the
 // exact string the bootstrap imports, which publicReadingBootstrap restricts to /assets/<name>.js.
 // transport.js (worker, handshake, policy id) is not involved: this is document markup only.
-document = document.replace(entry[0], `<link rel="modulepreload" crossorigin href="${entry[1]}">${publicReadingBootstrap(entry[1], sha)}`);
+// Slow networks (21.11.2026, route-preload.js): the entry and the entry graph's module hints are applied by the hint loader, which waits for the
+// worker's script only when no worker controls the page yet. Same URLs and order; the entry stays first and is still requested once.
+const entryGraph = [...document.matchAll(/<link rel="modulepreload" crossorigin href="(\/assets\/[A-Za-z0-9._-]+\.js)">/g)].map(match => match[1]);
+document = document.replace(/<link rel="modulepreload" crossorigin href="\/assets\/[A-Za-z0-9._-]+\.js">/g, "");
+document = document.replace(entry[0], `${hintLoaderScript2029([entry[1], ...entryGraph.filter(href => href !== entry[1])])}${publicReadingBootstrap(entry[1], sha)}`);
 // The Home's own code (public-reading-deploy/route-preload.js): its static import graph beyond the entry, listed in an inert comment that the
 // document handler turns into preload hints for the Home address only.
 const homePreload = homePreloadComment(JSON.parse(await readFile(resolve(output, ".vite/manifest.json"), "utf8")));
 if (!homePreload) throw new Error("missing_home_preload_graph");
 // After the bootstrap script, so the entry's own hint keeps its place directly before the bootstrap.
 document = document.replace("</head>", `${homePreload}</head>`);
-console.log(`home preload: ${(homePreload.match(/<link /g) || []).length} files`);
+console.log(`home preload: ${(homePreload.match(/"\/assets\//g) || []).length} files; entry graph: ${entryGraph.length + 1} files (applied by the hint loader)`);
 // Candidate PWA only: retain the existing installed-app identity/name/start URL.
 // Refer to the exact complete 2029 brand asset; do not redraw/crop the mark or
 // replace Legacy public/site.webmanifest, logo.png, root HTML or worker.

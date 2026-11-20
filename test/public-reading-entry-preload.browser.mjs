@@ -20,7 +20,8 @@ const canRun = existsSync(resolve(dist, "public-reading-artifact.json")) && exis
 test("built 2029 document: the preloaded entry is requested once per load and consumed by the bootstrap import", { timeout: 90000, skip: !canRun && "needs the built public-reading artifact and Chromium (CHROMIUM_PATH)" }, async () => {
   const template = await readFile(resolve(root, "public-reading-deploy/.generated/2029.html"), "utf8");
   const entry = /"entry":"([^"]+)"/.exec(template)[1];
-  assert.ok(template.includes(`<link rel="modulepreload" crossorigin href="${entry}">`), "the document carries the entry preload");
+  // The hint is applied by the loader (route-preload.js, slow networks 21.11.2026): the entry is the first hint of the loader's list.
+  assert.ok(template.includes(`__sodHints([["${entry}"]`), "the document carries the entry hint");
   const served = [];
   const server = createServer(async (req, res) => {
     try {
