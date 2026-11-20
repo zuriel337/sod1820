@@ -133,3 +133,16 @@ test("the public copy of a source-group picture or video previews inline; every 
   const parts = splitMessageLinks(`📎 תמונה\n${image}`);
   assert.deepEqual(messageLinkPreviews(parts).map((link) => link.kind), ["image"]);
 });
+
+test("TikTok outbound links: exact public video paths only, deduplicated and never embedded", async () => {
+  const { externalTikTokLinksFromText } = await import("./messageLinks.js");
+  const full = "https://www.tiktok.com/@example/video/1234567890123456789";
+  const short = "https://vt.tiktok.com/ZSgQykNHe/";
+  assert.deepEqual(externalTikTokLinksFromText(full + " " + full + " " + short).map(x => x.href), [full, short]);
+  for (const bad of [
+    "https://evil.invalid/@example/video/1234567890123456789",
+    full + "?token=secret",
+    "http://www.tiktok.com/@example/video/1234567890123456789",
+    "https://vt.tiktok.com/private/path",
+  ]) assert.equal(externalTikTokLinksFromText(bad).length, 0, bad);
+});
