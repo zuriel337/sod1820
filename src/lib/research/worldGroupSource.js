@@ -11,6 +11,8 @@ const clean = (v) => v == null ? "" : String(v).trim();
 export const APPROVED_GROUP_WRITERS = Object.freeze(['tzvi-opoc', 'yaniv-levi', 'shachar-kandro', 'shimon-haimov']);
 export const GROUP_SOURCE_LABEL = "הודעת מקור · טרם נבדקה";
 export const WORLD_GROUP_SOURCE_READER = "world_group_source_arrivals_v2";
+// REVIEW ONLY: v3 is not called by normal site readers until a separately approved SQL deployment.
+export const WORLD_GROUP_SOURCE_PROPOSED_READER = "world_group_source_arrivals_v3";
 
 // Tzvi's catalog consumes the same server-proved public mappings as the group
 // reader. A source ID is a lookup target, never an admission list: identity,
@@ -180,8 +182,13 @@ export function groupRowToWorldUpdate(row) {
   // A row that declared media which failed public validation is dropped entirely, never shown as plain text.
   if (clean(row.media_kind) && !media) return null;
   const body = redactGroupText(row.body);
-  const sourceVideoHref = publicGroupVideoLink(body);
-  if (!body && !media) return null;
+  const candidate = clean(row.source_video_href);
+  const fromV3 = /^https:\/\/(?:vt\.tiktok\.com\/|(?:www\.|m\.)?tiktok\.com\/)/i.test(candidate)
+    ? publicLinkOrNull(candidate)?.url || null : null;
+  const sourceVideoHref = publicGroupVideoLink(body) || fromV3;
+  const sourceVideoTitle = redactGroupText(row.source_video_title || "");
+  const titleFromV3 = sourceVideoTitle && !/^(?:עדכון|וידאו|סרטון|כותרת בהשלמה)$/i.test(sourceVideoTitle) ? sourceVideoTitle : "";
+  if (!body && !media && !sourceVideoHref) return null;
   const slug = clean(row.contributor_slug);
   const seen = new Set();
   const occurrences = (Array.isArray(row.occurrences) ? row.occurrences : [{ id: row.id, created_at: row.created_at }])
@@ -206,8 +213,8 @@ export function groupRowToWorldUpdate(row) {
     sourceKind: "group_message",
     sourceLabel: "הודעה מקבוצת מקור",
     // A media type or a bare link is not a content title. Keep the source visible for later metadata enrichment.
-    label: body && !/^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body) ? (body.length > 140 ? `${body.slice(0, 140)}…` : body) : "כותרת בהשלמה",
-    titleNeedsEnrichment: !body || /^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body),
+    label: titleFromV3 || (body && !/^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body) ? (body.length > 140 ? `${body.slice(0, 140)}…` : body) : "כותרת בהשלמה"),
+    titleNeedsEnrichment: !titleFromV3 && (!body || /^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body)),
     sourceVideoHref,
     fullText: body,
     sourceGroup: group,
@@ -238,11 +245,12 @@ export function groupRowToWorldUpdate(row) {
   };
 }
 
-export async function fetchGroupSourceArrivals({ limit = 12, before = null, rpc } = {}) {
+export async function fetchGroupSourceArrivals({ limit = 12, before = null, rpc, readerVersion = "v2" } = {}) {
   const client = rpc ? null : (await import("../supabase.js")).supabase;
   const call = rpc || client.rpc.bind(client);
   const args = { p_limit: Math.min(40, Math.max(1, Number(limit) || 12)), p_before: before };
-  const { data, error } = await call(WORLD_GROUP_SOURCE_READER, args);
+  const reader = readerVersion === "v3" ? WORLD_GROUP_SOURCE_PROPOSED_READER : WORLD_GROUP_SOURCE_READER;
+  const { data, error } = await call(reader, args);
   if (error) throw error;
   return (Array.isArray(data) ? data : []).map(groupRowToWorldUpdate).filter(Boolean);
 }
