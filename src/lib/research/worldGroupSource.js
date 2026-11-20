@@ -110,7 +110,7 @@ export function groupMediaFromRow(row) {
 
 // Public site/video links and calendar dates are NOT private data. Everything else keeps the original conservative
 // redaction: other URLs, e-mail addresses and phone-like numbers. Allow-lists are exact hosts, never wildcards.
-const PUBLIC_LINK_HOSTS = Object.freeze(["sod1820.co.il", "www.sod1820.co.il", "youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"]);
+const PUBLIC_LINK_HOSTS = Object.freeze(["sod1820.co.il", "www.sod1820.co.il", "youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be", "tiktok.com", "www.tiktok.com", "m.tiktok.com", "vt.tiktok.com"]);
 const PRIVATE_QUERY_KEY = /token|signed|signature|key|secret|auth|email|phone|birth|name|session|invite|code|return|redirect|next/i;
 function publicLinkOrNull(raw) {
   const trimmed = raw.replace(/[.,;:!?)\]]+$/, "");
@@ -118,6 +118,14 @@ function publicLinkOrNull(raw) {
     const u = new URL(trimmed);
     if (!/^https?:$/.test(u.protocol) || u.username || u.password || u.port || !PUBLIC_LINK_HOSTS.includes(u.hostname.toLowerCase())
       || [...u.searchParams.keys()].some(k => PRIVATE_QUERY_KEY.test(k) && !(k === "v" || k === "t"))) return null;
+    // The numeric TikTok video id is not a phone number. Admit only canonical,
+    // parameter-free provider paths; never relax the generic phone/email redaction.
+    if (["tiktok.com", "www.tiktok.com", "m.tiktok.com"].includes(u.hostname.toLowerCase())
+      && /^\/@[A-Za-z0-9_.-]+\/video\/\d{5,25}\/?$/.test(u.pathname)
+      && !u.search && !u.hash) return { url: trimmed, tail: raw.slice(trimmed.length) };
+    if (u.hostname.toLowerCase() === "vt.tiktok.com" && /^\/[A-Za-z0-9]{5,24}\/?$/.test(u.pathname)
+      && !u.search && !u.hash) return { url: trimmed, tail: raw.slice(trimmed.length) };
+    if (["tiktok.com", "www.tiktok.com", "m.tiktok.com", "vt.tiktok.com"].includes(u.hostname.toLowerCase())) return null;
     // Holding a URL before text redaction must not preserve credentials or
     // contact details embedded in query values/fragments. Use existing route
     // and share admission for site destinations; do not publish private links.
@@ -146,6 +154,23 @@ export function redactGroupText(text) {
     .slice(0, 1200);
 }
 
+// Only an already-admitted, public message may expose an external video URL.
+ // Keep provider links separate from binary media: external pages must never enter a <video> src.
+export function publicGroupVideoLink(body) {
+  for (const candidate of clean(body).match(/https?:\/\/[^\s<>]+/gi) || []) {
+    const admitted = publicLinkOrNull(candidate);
+    if (!admitted) continue;
+    try {
+      const u = new URL(admitted.url);
+      const host = u.hostname.toLowerCase();
+      const id = host === "youtu.be" ? u.pathname.slice(1) : u.searchParams.get("v");
+      if ((host === "youtu.be" || ["youtube.com", "www.youtube.com", "m.youtube.com"].includes(host))
+        && ((id && /^[A-Za-z0-9_-]{11}$/.test(id)) || (u.pathname.startsWith("/shorts/") && /^\/shorts\/[A-Za-z0-9_-]{11}\/?$/.test(u.pathname)))) return admitted.url;
+    } catch { /* keep scanning */ }
+  }
+  return null;
+}
+
 export function groupRowToWorldUpdate(row) {
   if (!row?.id || row.group_proof !== true || row.proof_basis !== "verified_phone_unique" || !APPROVED_GROUP_WRITERS.includes(clean(row.contributor_slug))) return null; // unproved / unverified author => excluded
   const channel = clean(row.group_channel);
@@ -155,6 +180,7 @@ export function groupRowToWorldUpdate(row) {
   // A row that declared media which failed public validation is dropped entirely, never shown as plain text.
   if (clean(row.media_kind) && !media) return null;
   const body = redactGroupText(row.body);
+  const sourceVideoHref = publicGroupVideoLink(body);
   if (!body && !media) return null;
   const slug = clean(row.contributor_slug);
   const seen = new Set();
@@ -179,7 +205,10 @@ export function groupRowToWorldUpdate(row) {
     kind: "source",
     sourceKind: "group_message",
     sourceLabel: "הודעה מקבוצת מקור",
-    label: body ? (body.length > 140 ? `${body.slice(0, 140)}…` : body) : (media?.kind === "video" ? "סרטון מהקבוצה" : "תמונה מהקבוצה"),
+    // A media type or a bare link is not a content title. Keep the source visible for later metadata enrichment.
+    label: body && !/^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body) ? (body.length > 140 ? `${body.slice(0, 140)}…` : body) : "כותרת בהשלמה",
+    titleNeedsEnrichment: !body || /^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body),
+    sourceVideoHref,
     fullText: body,
     sourceGroup: group,
     sourceGroupLabel: group.label,
