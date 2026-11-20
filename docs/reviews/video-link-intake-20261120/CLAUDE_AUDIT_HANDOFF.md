@@ -36,3 +36,9 @@ This draft is not a production fix until the Edge worker is deployed, historical
 
 ## Handoff format
 Return PASS / FAIL / UNKNOWN for each check with code path + evidence; identify blockers versus suggestions. Do not modify main/DB/Production. If proposing corrections, submit a small separate PR or annotate #1452; avoid concurrent writes to files owned by another active session.
+
+## Subsequent review additions
+- Optional, **not deployed** SQL draft at `supabase/proposed/world_group_source_video_titles_v3_REVIEW_ONLY.sql`. It wraps the existing authorized v2 result, returns only narrow canonical TikTok link and known provider `seo_title`, and intentionally revokes all new EXECUTE permissions. Claude must audit SQL syntax, private metadata containment, role ownership and test coverage before any approval. No frontend switch to v3 occurs here.
+- The metadata worker now enforces a 32 kB **streaming** byte cap, 4.5-second timeout and JSON content-type. Verify edge compilation and oEmbed provider behavior rather than assuming success.
+- The Now reader admits poster URLs only from a strict provider CDN and only with trusted `*_oembed` provenance and title; no arbitrary external image hosts.
+- Release requires re-checking main divergence and all CI on the exact final SHA, which changes with any of these edits.
