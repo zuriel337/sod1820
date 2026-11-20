@@ -1,4 +1,4 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
@@ -741,7 +741,7 @@ function CalculatorPro2029Content() {
       title="מחשבון גימטריה"
       description="כל השיטות במבט אחד, פירוק אותיות מהמנוע ומצב מתקדם להשוואה."
     >
-    <ActivityPulseSlot2029 />
+    <SectionPulseSlot2029 section="calculator" />
       <ProExperience />
     </Sod2029Shell>
   );

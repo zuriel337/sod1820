@@ -28,7 +28,17 @@ function elsItems(d) {
   if (view) items.push({ key: "v", b: pulseCount(view.views), s: "צפיות במדור" });
   return items;
 }
-const BUILD = { number: numberItems, els: elsItems };
+// Calculators (ZURIEL 21.11.2026: above the calculator row): values calculated now, values the old site calculated
+// most (values only, never typed text, from 30 calculations), and the calculator's activity count.
+function calculatorItems(d) {
+  const items = [];
+  const actions = d.totals?.human?.calculator;
+  if (pulseCount(actions)) items.push({ key: "a", b: pulseCount(actions), s: "פעולות במחשבון" });
+  for (const x of (d.computed || []).slice(0, 3)) items.push({ key: "c" + x.n, b: x.n.toLocaleString("he-IL"), s: `${pulseCount(x.events)} חישובים עכשיו`, to: "/number/" + x.n });
+  for (const x of (d.history?.top_values || []).slice(0, 4)) items.push({ key: "h" + x.n, b: x.n.toLocaleString("he-IL"), s: `${pulseCount(x.count)} חישובים באתר הקודם`, to: "/number/" + x.n });
+  return items;
+}
+const BUILD = { number: numberItems, els: elsItems, calculator: calculatorItems };
 
 export default function SectionPulse2029({ section, value = null, read = readAdaptivePulse }) {
   const [r, setR] = useState(null);

@@ -1,4 +1,4 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import React, { createContext, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CommunityCalculatorPage from "./CommunityCalculatorPage.jsx";
@@ -219,9 +219,10 @@ function CalculatorExperience({ model, initialState, location }) {
 
       {state.babyMode ? <>
         {initialState.invalidBirthDate && !state.baby?.bDate && <p role="status" className="sod29-community-calc-notice">תאריך הלידה בקישור אינו תקין. הזינו יום, חודש ושנה כדי לחשב אותו.</p>}
+        <SectionPulseSlot2029 section="calculator" />
         {model.babyTool}
-        <ActivityPulseSlot2029 />
       </> : <>
+        <SectionPulseSlot2029 section="calculator" />
         <section className="sod29-community-calc-panel sod29-community-calc-input-panel">
           <div className="sod29-community-calc-name-fields">
             <label htmlFor="community-calculator-name">{state.compare ? "השם הראשון" : "שם, מילה או ביטוי"}
@@ -238,7 +239,6 @@ function CalculatorExperience({ model, initialState, location }) {
           </div>
           {state.name1.trim() && !r1 && <p role="status">הזינו אותיות בעברית כדי לחשב גימטריה.</p>}
         </section>
-        <ActivityPulseSlot2029 />
 
         {state.dateMode && <section className="sod29-community-calc-panel sod29-community-calc-date">
           <h2>המספר של התאריך העברי</h2><p>הזינו תאריך לועזי. אחרי השקיעה, התאריך העברי מתקדם ביום אחד.</p>
