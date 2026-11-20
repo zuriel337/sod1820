@@ -552,10 +552,25 @@ async function providerLinkMetadata(link: { provider: string; url: string }) {
   const timer = setTimeout(() => ctl.abort(), 4500);
   try {
     const response = await fetch(endpoint + encodeURIComponent(link.url), { redirect: "error", signal: ctl.signal, headers: { Accept: "application/json" } });
-    if (!response.ok || Number(response.headers.get("content-length") || 0) > 32000) return null;
-    const raw = await response.text();
-    if (raw.length > 32000) return null;
-    const data = JSON.parse(raw);
+    if (!response.ok || !/application\\/json/i.test(response.headers.get("content-type") || "")
+      || Number(response.headers.get("content-length") || 0) > 32000 || !response.body) return null;
+    // Enforce the response-size limit while reading, even when Content-Length is absent/false.
+    const reader = response.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > 32000) { await reader.cancel(); return null; }
+        chunks.push(value);
+      }
+    } finally { reader.releaseLock(); }
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+    const data = JSON.parse(new TextDecoder().decode(bytes));
     const title = cleanText(data.title).slice(0, 160);
     const thumb = cleanText(data.thumbnail_url);
     let thumbnail = null;
