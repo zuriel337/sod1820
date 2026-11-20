@@ -41,6 +41,31 @@ function finding(extra = {}) {
   };
 }
 
+test("canonical Tzvi sources use the existing exact occurrence route without an external URL", async () => {
+  const sourceId = "00000000-0000-4000-8000-000000000001";
+  const { client, calls } = clientFor({
+    research_objects: { data: finding({ source_ref: `channel_updates:${sourceId}` }), error: null },
+    channel_updates: { data: { id: sourceId, channel: "torat-haremez", status: "live", contributor_id: "c66f0464-0928-490e-be9b-66d8a87e7fc8" }, error: null },
+  });
+  const row = await fetchWorldPublicFindingById("finding-1", { publicClient: () => client, cache: false });
+  assert.ok(row.sourceHref.startsWith("/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3A"));
+  assert.ok(row.sourceHref.endsWith(`#source-occurrence-${sourceId}`));
+  assert.match(calls.find(x => x.table === "channel_updates").select, /contributor_id/);
+  assert.equal(row.documentedTreeConnected, false);
+});
+
+test("a name or finding credit never assigns another source to the Tzvi occurrence route", async () => {
+  const sourceId = "00000000-0000-4000-8000-000000000002";
+  for (const contributor_id of [null, "00000000-0000-4000-8000-000000000003"]) {
+    const { client } = clientFor({
+      research_objects: { data: finding({ contributor: "צבי (OPOC)", source_ref: `channel_updates:${sourceId}` }), error: null },
+      channel_updates: { data: { id: sourceId, status: "live", contributor_id, link_url: "https://example.com/original" }, error: null },
+    });
+    const row = await fetchWorldPublicFindingById("finding-1", { publicClient: () => client, cache: false });
+    assert.equal(row.sourceHref, "https://example.com/original");
+  }
+});
+
 test("exact public finding reader uses one row and at most two bounded enrichments", async () => {
   const { client, calls } = clientFor({
     research_objects: { data: finding(), error: null },
