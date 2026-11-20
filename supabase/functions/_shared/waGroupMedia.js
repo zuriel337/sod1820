@@ -67,6 +67,12 @@ const mime = value => String(value || "").split(";")[0].trim().toLowerCase();
 const sha256 = async bytes => [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))]
   .map(byte => byte.toString(16).padStart(2, "0")).join("");
 
+// Evidence receipt only, never identity resolution. The operator compares this
+// exact provider JID digest with the existing canonical phone/account proof data;
+// only the existing SQL proof recorder can attribute or publish a source.
+export const waGroupSenderFingerprint = senderId => /^\d+@c\.us$/.test(String(senderId || ""))
+  ? sha256(new TextEncoder().encode(senderId)) : Promise.resolve(null);
+
 // Reviewed recovery reads the exact opaque object already bound to this source.
 // Credentials stay in the existing Edge runtime; receipts contain no signed URL.
 export async function waReadPrivateGroupMedia({ sb, updateId, objectRef, kind }) {

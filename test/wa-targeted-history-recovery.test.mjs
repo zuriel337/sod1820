@@ -1,10 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { waRecoverMissingGroupMessages } from "../supabase/functions/_shared/waGroupMedia.js";
+import { waRecoverMissingGroupMessages, waGroupSenderFingerprint } from "../supabase/functions/_shared/waGroupMedia.js";
+import { createHash } from "node:crypto";
 
 const chatId = "fixture@g.us";
 const envelope = { idMessage: "old", chatId, type: "incoming", senderId: "fixture@c.us", timestamp: 1780000000, typeMessage: "imageMessage" };
 const options = { rows: [], chatId, targetIds: ["old"], verifiedRecovery: true };
+test("sender receipt hashes an exact provider JID without resolving identity or exposing it", async () => {
+  const jid = "123456789@c.us";
+  assert.equal(await waGroupSenderFingerprint(jid), createHash("sha256").update(jid).digest("hex"));
+  assert.notEqual(await waGroupSenderFingerprint(jid), await waGroupSenderFingerprint("123456788@c.us"));
+  for (const value of [null, "", "display name", "123456789@lid", "123456789@g.us"]) assert.equal(await waGroupSenderFingerprint(value), null);
+});
 test("exact incoming envelope supplements history without modifying it", async () => {
   const rows = [{ idMessage: "recent" }];
   const result = await waRecoverMissingGroupMessages({ ...options, rows, fetchMessage: async payload => {
