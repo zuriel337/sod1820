@@ -480,7 +480,7 @@ export default async function handler(req, res) {
     if (!selection || page === null) { documentStatus = 404; robots = 'noindex, follow'; }
     else if (term.length > 120 || /[\u0000-\u001f\u007f]/.test(term)) { documentStatus = 400; robots = 'noindex, follow'; }
     else try {
-      const query = new URLSearchParams({ select: 'id,title,tags,categories,image_url,thumb_url',
+      const query = new URLSearchParams({ select: 'id,slug,wp_id,source,link,date,title,tags,categories,image_url,thumb_url',
         or: `(${selection.publicFilter})`, [selection.field]: `${selection.operator === 'contains' ? 'cs' : 'ov'}.${selection.arrayLiteral}`,
         order: 'modified.desc.nullslast,id.asc', limit: '24', offset: String((page - 1) * 24) });
       if (term) query.set('title', `ilike.%${term.replace(/[\\%_*]/g, '\\$&')}%`);
@@ -505,6 +505,8 @@ export default async function handler(req, res) {
         const evidence = postsTaxonomyEvidence2029({ scope: taxonomy, posts: rows, total, page, search: term, exists });
         documentStatus = evidence.status;
         if (documentStatus !== 200 || term || page > 1) robots = 'noindex, follow';
+        // First words (public-reading-deploy/first-words.js): the first page of an existing collection hands its own admitted rows to the document.
+        if (documentStatus === 200 && !term && page === 1 && typeof req.publicReadingFirstWords === 'function') req.publicReadingFirstWords({ kind: 'taxonomy', taxonomyKind: taxonomy.kind, label: taxonomy.label, posts: rows });
         image = documentStatus === 200 && (rows[0]?.thumb_url || rows[0]?.image_url)
           ? waSafeImage(rows[0].thumb_url || rows[0].image_url) : cardUrl({ w: taxonomy.label, sub: 'פרסומים ומקורות' });
       }
@@ -618,10 +620,11 @@ export default async function handler(req, res) {
   } else if (productionReading && (decodedKey === '/beit-midrash' || /^\/beit-midrash\/[^/]+$/.test(decodedKey))) {
     // The learning area is a public SPA route, not a Post slug: without this branch the document fell through to the
     // post lookup and answered 404 "הפוסט לא נמצא" although the page renders. The method/section in the URL is resolved
-    // client-side, so every address shares one canonical. Same posture as the client page (applySeo noindex) until the owner opens it to search.
+    // client-side, so every address shares one canonical. Open to search since 20.11.2026 (ZURIEL: the whole site is open to Google); the
+    // method addresses and query variants consolidate on the one canonical.
     title = 'בית המדרש · לומדים לגלות · ' + SITE_NAME;
     desc = 'לומדים את דרכי החישוב, הקריאה והפענוח: שיטות, מקורות, דוגמאות מודרכות ותרגול.';
-    canonical = SITE + '/beit-midrash'; type = 'website'; robots = 'noindex, nofollow';
+    canonical = SITE + '/beit-midrash'; type = 'website'; robots = 'index, follow';
     image = cardUrl({ w: 'בית המדרש', sub: 'לומדים לגלות' });
   } else if (productionReading && productionRouteState === "post-lookup") {
     await resolvePostMetadata();

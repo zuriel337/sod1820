@@ -49,8 +49,10 @@ test("the external community links are preserved byte for byte (WhatsApp, Instag
   assert.equal(siteLinkById("whatsapp").tracking, "whatsapp-join");
 });
 
+// The two collection links use the hyphen address since 20.11.2026: it is the one the sitemap lists and the page declares as canonical. The
+// spaced address opens the same page (route convention); linking it from every page told Google the opposite of the canonical.
 test("Legacy navigation is carried over, each Legacy path resolves to exactly one registry entry", () => {
-  const legacyNavigation = ["/post", "/category/מימד חמש", "/community/chat", "/category/סוד החשמל", "/archive", "/research", "/world", "/number",
+  const legacyNavigation = ["/post", "/category/מימד-חמש", "/community/chat", "/category/סוד-החשמל", "/archive", "/research", "/world", "/number",
     "/code", "/start", "/community", "/contact", "/privacy", "/map"];
   for (const href of legacyNavigation) {
     assert.ok(SITE_LINKS.some((item) => item.href === href || item.legacyHrefs.includes(href)), `Legacy path ${href} is not in the registry`);
