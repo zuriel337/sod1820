@@ -12,6 +12,8 @@ test("public video link metadata is enriched by bounded Edge worker, not fetched
     assert.ok(edge.includes(provider.replaceAll("\\", "")), provider);
   }
   assert.match(edge, /redirect: "error"/);
+  assert.match(edge, /method: "HEAD", redirect: "manual"/, "short TikTok URL is resolved with no automatic redirect");
+  assert.match(edge, /canonical = "https:\/\/www\.tiktok\.com" \+ dest\.pathname/, "only canonical TikTok paths enter oEmbed");
   assert.match(edge, /setTimeout\(\(\) => ctl\.abort\(\), 4500\)/);
   assert.match(edge, /total > 32000/);
   assert.match(edge, /response\.body\.getReader\(\)/);
