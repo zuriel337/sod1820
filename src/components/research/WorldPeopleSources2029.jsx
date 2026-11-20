@@ -326,7 +326,10 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             tabIndex={focusedSourceRef === row.sourceRef ? -1 : undefined}
             id={focusedSourceRef === row.sourceRef ? `source-occurrence-${row.sourceRef.split(":").pop()}` : undefined}>
             <div><span>{row.label || materialLabel(row.type)}</span>{row.date ? <time dateTime={row.date}>{materialDatePrefix(row)}{bilingualDateLabel(row.date)}</time> : <time>אין נתון</time>}</div>
-            {row.mediaUrl ? <img loading="lazy" src={row.mediaUrl} alt="" /> : null}
+            {row.mediaUrl ? row.mediaKind === "video"
+              ? <video controls playsInline preload="none" src={row.mediaUrl} poster={row.posterUrl || undefined}
+                  aria-label={row.title} style={{ width: "100%", maxHeight: 480, display: "block" }} />
+              : <img loading="lazy" src={row.mediaUrl} alt="" /> : null}
             <h3>{row.title}</h3>
             {row.summary ? <p>{row.summary}</p> : null}
             {row.number != null ? <strong className="sod29-world-material-number">{row.number}</strong> : null}

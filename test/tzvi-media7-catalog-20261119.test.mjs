@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { fetchCatalogGroupSourceMedia, WORLD_GROUP_SOURCE_READER } from '../src/lib/research/worldGroupSource.js';
 import { buildContributorFindingsProjection } from '../src/lib/research/contributorFindingsProjection.js';
 import { buildContributorSourceCatalogProjection } from '../src/lib/research/contributorSourceCatalogProjection.js';
+import { buildWorldContributorPublicMaterial } from '../src/lib/research/worldPeopleSourcesProjection.js';
 const contributor = { id: 'writer', slug: 'tzvi-opoc' };
 const ids = ['94cab26c-02cb-4eb3-ae32-61fee950dfea', '9fd28f82-5619-4161-9840-c957842d99fd'];
 const source = (id, at) => ({ id, created_at: at, status: 'live', contributor_id: 'writer', image_url: 'storage-object:00000000-0000-0000-0000-000000000001' });
@@ -50,6 +51,16 @@ test('evidence-backed video uses its public URL and poster without changing the 
   const result = await fetchCatalogGroupSourceMedia({ sources: [video], contributor,
     rpc: async () => ({ data: [{ ...row(video), media_kind: 'video', media_url: videoUrl, thumb_url: url }] }) });
   assert.deepEqual(result.byId[video.id], { kind: 'video', url: videoUrl, thumbUrl: url });
+  const projection = buildContributorFindingsProjection({ contributor,
+    sourceMessages: [{ ...video, publicMedia: result.byId[video.id] }] });
+  const catalog = buildContributorSourceCatalogProjection(projection);
+  const material = buildWorldContributorPublicMaterial({ identity: contributor,
+    findings: { ...projection, mode: 'public_view' }, sourceCatalog: catalog, publications: {} });
+  const card = material.items.find(item => item.sourceRef === `channel_updates:${video.id}`);
+  assert.equal(card.mediaKind, 'video');
+  assert.equal(card.mediaUrl, videoUrl);
+  assert.equal(card.posterUrl, url);
+  assert.equal(video.image_url, 'storage-object:00000000-0000-0000-0000-000000000001');
 });
 test('unresolved catalog targets cannot expand the existing 32-page request budget', async () => {
   const old = source('61724472-9d81-414c-a911-e00eab0caf38', '2026-01-01T00:00:00Z');
