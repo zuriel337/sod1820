@@ -138,6 +138,38 @@
   background:radial-gradient(90% 120% at 50% 0,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 70%);
 }
 
+/* ───────────── Dimension Five — series identity (DEC-SERIES-003; ZURIEL 20.11.2026) ─────────────
+   Scoped by the series marker (data-post-background, from contentSeries2029Identity through postBackground2029), which the
+   page and the first-document article both carry, so the article-first path keeps working and nothing moves on adoption.
+   The cosmic violet of the retired Legacy series badge (#8458ff → #3a1d8a) returns as the series colour, tuned per theme
+   for contrast. Centring follows the Legacy series page where it helps reading: the column, media, headings, the lead line
+   and quotes are centred (over the shared start-alignment rule of post2029-reading.css); long paragraphs and lists stay right-aligned
+   so Hebrew lines keep one start edge. */
+.sod29-reading-post[data-post-background="dimension-five"]{--dim5-violet:#6a43e6;--dim5-violet-soft:color-mix(in srgb,#8458ff 16%,transparent);--dim5-glow:rgba(132,88,255,.22)}
+html[data-theme-2029="dark"] .sod29-reading-post[data-post-background="dimension-five"]{--dim5-violet:#a991ff;--dim5-glow:rgba(132,88,255,.34)}
+.sod29-reading-post[data-post-background="dimension-five"] .k29-post-classification .k29-cat[data-post-classification="series"]{
+  color:#fff;border-color:rgba(180,150,255,.45);background:linear-gradient(135deg,#7246f0,#3a1d8a);font-weight:800;
+}
+.sod29-reading-post[data-post-background="dimension-five"] .k29-post-classification .k29-cat[data-post-classification="series"] .k29-post-role{color:inherit;opacity:.85}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source>*{max-width:38rem;margin-inline:auto}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source :is(h2,h3,h4){text-align:center!important;text-wrap:balance}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source h3::after{
+  content:"";display:block;inline-size:44px;block-size:2px;margin:.55em auto 0;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--dim5-violet),transparent);
+}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source>p:first-of-type,
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source>div>p:first-of-type,
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source blockquote{text-align:center!important;text-wrap:balance}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source blockquote{
+  border-radius:18px;border:1px solid color-mix(in srgb,var(--dim5-violet) 30%,transparent);background:var(--dim5-violet-soft);
+}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source a:not(.k29-cat){color:var(--dim5-violet);text-decoration-color:color-mix(in srgb,var(--dim5-violet) 55%,transparent)}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source li::marker{color:var(--dim5-violet)}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source video{
+  display:block;margin-inline:auto;background:#000;border-radius:16px;
+  border:1px solid color-mix(in srgb,var(--dim5-violet) 38%,transparent);box-shadow:0 12px 36px var(--dim5-glow);
+}
+
 /* ───────────── lexicon — letters, roots, equations (Hebrew + English) ───────────── */
 .sod29-reading-post[data-post-character="lexicon"]{--pg-measure:42rem}
 .sod29-reading-post[data-post-character="lexicon"] .sod29-reading-source a.sod-gemlink,

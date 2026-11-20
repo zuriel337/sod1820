@@ -1,7 +1,7 @@
 {
- "generated": "2026-11-19T16:44:56.329Z",
- "base": "fefc39e95ea7a8a99d6d143476037d57581709ae",
- "fingerprint": "33563aff5f79464f202f",
+ "generated": "2026-11-20T13:23:39.242Z",
+ "base": "bacecaa3db3fe613b0527439ee48e24eb179a78d",
+ "fingerprint": "87017cc8220eff431e51",
  "jsdom": "25.0.1",
  "pipeline": [
   "src/lib/designTokens.js",
@@ -35,9 +35,9 @@
  ],
  "note": "Posts (imported or written on the site) whose exact stored source (and voice) was proven to give the browser's article on the server (scripts/build-article-first-proofs.mjs). Keyed by post id; the value is the proof key (postArticleProofKey2029). Valid only for the pipeline code and server DOM of `fingerprint` (scripts/lib/article-first-fingerprint.mjs).",
  "counts": {
-  "read": 1319,
-  "candidates": 1296,
-  "proven": 1296,
+  "read": 1320,
+  "candidates": 1297,
+  "proven": 1297,
   "differ": 0
  },
  "differ": [],
@@ -1337,6 +1337,7 @@
   "5138": "0357f320:11296:unspecified",
   "5139": "38701d9a:47427:unspecified",
   "5140": "93cdaf41:2840:unspecified",
-  "5141": "43584326:1670:unspecified"
+  "5141": "43584326:1670:unspecified",
+  "5142": "6114e2f3:5586:unspecified"
  }
 }
