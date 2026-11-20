@@ -99,6 +99,13 @@
         "42501"
       ],
       "no_history_fallback": true
+    },
+    "historical_client_browser": {
+      "pass": 2,
+      "skipped": 0,
+      "historical_sha": "9c4cad1372200759e9afe6e9c38709209d4ee02a",
+      "public_content_gate_pass": 6,
+      "bounded_activity_rpc_args": true
     }
   },
   "budgets": {
