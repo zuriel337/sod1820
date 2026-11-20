@@ -9,15 +9,41 @@ export const COMMUNITY_CALCULATOR_METHODS = Object.freeze(["רגיל", "מילו
 export const COMMUNITY_EQUALS_LIMIT = 3;
 export const COMMUNITY_EQUALS_MORE_LIMIT = 24;
 
-// The matches shown first and the further ones the visitor may open and choose from; the typed name itself and repeats are left out.
+// A personal card is something people send to each other. These phrases stay in the corpus and on the number pages; they are only never
+// offered on a personal card (ZURIEL 20.11.2026, after "בלעם הרשע בימינו" and "גיהנום" came up as a name's match). Whole words only, with
+// an optional ה or ו in front, so "נשמת" or "שמות" never match "מת" / "מות". Reviewed list; extend it here, nowhere else.
+export const COMMUNITY_CARD_EXCLUDED_WORDS = Object.freeze([
+  "רשע", "רשעה", "רשעים", "גיהנום", "גהנום", "גיהנם", "שטן", "מוות", "מות", "צלמות", "רצח", "רוצח", "הרג", "עמלק", "בלעם", "המן", "היטלר",
+  "שואה", "טמא", "טומאה", "טמאת", "קללה", "ארור", "מגפה", "אליל", "אלילים", "זונה", "זנות", "גוסס", "קבר", "אבדון", "קליפה", "קליפת", "ערלה",
+  "מינות", "כפירה", "אפיקורס", "נחש", "מלחמה", "טרור", "מחבל", "מחבלים", "אויב", "חטא",
+]);
+export const COMMUNITY_CARD_EXCLUDED_PHRASES = Object.freeze(["עבודה זרה", "אלהים אחרים", "סטרא אחרא", "יצר הרע", "מלאך המות"]);
+const EXCLUDED_WORDS = new Set(COMMUNITY_CARD_EXCLUDED_WORDS);
+// the same rule for a term of several words: whole words, with an optional ה or ו in front of its first word
+const EXCLUDED_PHRASE_PATTERNS = COMMUNITY_CARD_EXCLUDED_PHRASES.map(term => new RegExp(`(^| )[הו]?${term}( |$)`));
+export function communityCardSuitable(phrase) {
+  const text = clean(phrase);
+  if (!text) return false;
+  if (EXCLUDED_PHRASE_PATTERNS.some(pattern => pattern.test(text))) return false;
+  return !text.split(" ").some(word => EXCLUDED_WORDS.has(word) || (/^[הו]/.test(word) && EXCLUDED_WORDS.has(word.slice(1))));
+}
+
+const words = text => clean(text).split(" ").filter(Boolean).length;
+const rank = row => Number.isFinite(Number(row?.leadRank)) && row?.leadRank != null ? Number(row.leadRank) : Infinity;
+
+// The matches shown first and the further ones the visitor may open and choose from. A name calculator puts names and single words first:
+// an editor's lead rank still decides first, then fewer words, then the reader's own order. The typed name itself, repeats and phrases that
+// are not suitable for a personal card are left out.
 export function communityEqualsSelection(matches, name, limit = COMMUNITY_EQUALS_LIMIT, moreLimit = COMMUNITY_EQUALS_MORE_LIMIT) {
   const own = clean(name), seen = new Set(), all = [];
-  for (const row of Array.isArray(matches) ? matches : []) {
+  for (const [index, row] of (Array.isArray(matches) ? matches : []).entries()) {
     const phrase = clean(row?.phrase);
-    if (!phrase || phrase === own || seen.has(phrase)) continue;
-    seen.add(phrase); all.push({ ...row, phrase });
+    if (!phrase || phrase === own || seen.has(phrase) || !communityCardSuitable(phrase)) continue;
+    seen.add(phrase); all.push({ ...row, phrase, index });
   }
-  return { top: all.slice(0, limit), more: all.slice(limit, moreLimit), total: all.length };
+  all.sort((a, b) => rank(a) - rank(b) || words(a.phrase) - words(b.phrase) || a.index - b.index);
+  const rows = all.map(({ index, ...row }) => row); // eslint-disable-line no-unused-vars
+  return { top: rows.slice(0, limit), more: rows.slice(limit, moreLimit), total: rows.length };
 }
 
 // The match that goes on the card: the visitor's own choice while it is still one of the matches, otherwise the first.

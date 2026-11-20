@@ -8,6 +8,7 @@ import { fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/li
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { COMMUNITY_CALCULATOR_SEO } from "../src/lib/research/communityCalculatorSeo2029.js";
+import { communityCardSuitable } from "../src/lib/research/communityCalculatorEquals2029.js";
 import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks2029.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { previewUnitOgMeta } from "../src/lib/research/postPreviewUnits2029.js";
@@ -738,7 +739,7 @@ export default async function handler(req, res) {
       // The match the sharer chose (d): named in the preview only when it is a verified, published phrase of the same regular value, read
       // from the public corpus; a phrase that anyone could put in the address is never repeated on this site's card. Any failure: no match.
       const sd = String((req.query && req.query.d) || '').replace(/\s+/g, ' ').trim().slice(0, 80);
-      if (verified && sd && sd !== sq && ragil(sd) === sv) {
+      if (verified && sd && sd !== sq && ragil(sd) === sv && communityCardSuitable(sd)) {
         try {
           const r = await fetch(`${SUPABASE_URL}/rest/v1/gematria_words?phrase=eq.${encodeURIComponent(sd)}&ragil=eq.${sv}&is_verified=eq.true&is_published=eq.true&select=phrase&limit=1`,
             { headers: ogHeaders, signal: AbortSignal.timeout(2500) });

@@ -19,13 +19,14 @@ test("the community calculator has four methods and no more; the rest is one lin
 test("three matches first, more on request; the name itself and repeats are left out; the visitor's choice wins while it is still a match", () => {
   const rows = ["שילה", "ערב יום טוב", "אל שדי", " אל שדי ", "אלהים אחרים", "", "משה", "השם"].map(phrase => ({ phrase }));
   const selection = communityEqualsSelection(rows, "שילה");
-  assert.deepEqual(selection.top.map(row => row.phrase), ["ערב יום טוב", "אל שדי", "אלהים אחרים"]);
-  assert.deepEqual(selection.more.map(row => row.phrase), ["משה", "השם"]);
-  assert.equal(selection.total, 5);
+  // names and single words first; "אלהים אחרים" is never offered on a personal card
+  assert.deepEqual(selection.top.map(row => row.phrase), ["משה", "השם", "אל שדי"]);
+  assert.deepEqual(selection.more.map(row => row.phrase), ["ערב יום טוב"]);
+  assert.equal(selection.total, 4);
   assert.equal(selection.top.length, COMMUNITY_EQUALS_LIMIT);
-  assert.equal(communityEqualsChosen(selection, "משה").phrase, "משה");
-  assert.equal(communityEqualsChosen(selection, "").phrase, "ערב יום טוב");
-  assert.equal(communityEqualsChosen(selection, "ביטוי שאינו התאמה").phrase, "ערב יום טוב");
+  assert.equal(communityEqualsChosen(selection, "ערב יום טוב").phrase, "ערב יום טוב");
+  assert.equal(communityEqualsChosen(selection, "").phrase, "משה");
+  assert.equal(communityEqualsChosen(selection, "אלהים אחרים").phrase, "משה", "an excluded phrase in a link is never chosen");
   assert.equal(communityEqualsChosen(communityEqualsSelection([], "שילה"), "משה"), null);
 });
 
@@ -69,7 +70,7 @@ test("the card: same-method verified matches from the existing reader, a choice,
 test("the preview a recipient sees names the match only when the corpus confirms it", () => {
   const og = read("api/og.js");
   const branch = og.slice(og.indexOf("The match the sharer chose (d)"), og.indexOf("} else if (w && Number.isFinite(nq) && !productionReading)"));
-  assert.match(branch, /verified && sd && sd !== sq && ragil\(sd\) === sv/);
+  assert.match(branch, /verified && sd && sd !== sq && ragil\(sd\) === sv && communityCardSuitable\(sd\)/);
   assert.match(branch, /is_verified=eq\.true&is_published=eq\.true/);
   assert.match(branch, /rows\[0\]\?\.phrase === sd/);
   assert.match(branch, /כמו \$\{sd\}/);
@@ -110,4 +111,15 @@ test("the search wording leads with names, keeps \"מחשבון גימטריה\"
   assert.match(COMMUNITY_CALCULATOR_SEO.description, /שמות|שם/);
   const pair = COMMUNITY_CALCULATOR_FAQ.find(item => /שני שמות/.test(item.q));
   assert.match(pair.a, /לא ניבוי/);
+});
+
+test("a personal card never offers the reviewed negative phrases, and never mistakes a longer word for one", async () => {
+  const { communityCardSuitable, communityEqualsSelection } = await import("../src/lib/research/communityCalculatorEquals2029.js");
+  for (const phrase of ["בלעם הרשע בימינו", "גיהנום", "השטן נחש", "מלאך המות", "בלע המות לנצח", "עבודה זרה", "אלהים אחרים", "הנחש הקדמון", "ארור המן", "קבר", "ויצר הרע"])
+    assert.equal(communityCardSuitable(phrase), false, phrase);
+  for (const phrase of ["משה", "נשמת כל חי", "שמות בני ישראל", "חכמת יהוה", "הכרת הטוב", "קודם כל תשובה", "עץ הדעת טוב", "אהבה", "חמל"])
+    assert.equal(communityCardSuitable(phrase), true, phrase);
+  // lead rank first, then fewer words, then the reader's order
+  const ordered = communityEqualsSelection([{ phrase: "בית יער הלבנון" }, { phrase: "גיהנום" }, { phrase: "אור", leadRank: null }, { phrase: "תורה ומצוות", leadRank: 1 }, { phrase: "שלום" }], "x");
+  assert.deepEqual([...ordered.top, ...ordered.more].map(row => row.phrase), ["תורה ומצוות", "אור", "שלום", "בית יער הלבנון"]);
 });
