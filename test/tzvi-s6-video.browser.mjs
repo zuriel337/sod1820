@@ -18,6 +18,8 @@ const source = { id, contributor_id: writer.id, status: 'live', text: '🎬 עד
 const html = '<!doctype html><html lang="he" dir="rtl"><body><div id="root"></div><script type="module">import RefreshRuntime from "/@react-refresh";RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module" src="/test/fixtures/world-writer-source-focus-2029.jsx"></script></body></html>';
 try {
   const page = await browser.newPage(); const errors = [], unexpected = [];
+  let releasePoster;
+  const posterReady = new Promise(resolve => { releasePoster = resolve; });
   page.on('pageerror', e => errors.push(e.message));
   await page.route('**/*', async route => {
     const request = route.request(), u = new URL(request.url());
@@ -25,7 +27,10 @@ try {
       ? route.fulfill({ contentType: 'text/html', body: html }) : route.continue();
     const headers = { 'access-control-allow-origin': '*' };
     if (request.url() === mediaBase + 'original.mp4') return route.fulfill({ headers, contentType: 'video/mp4', body: videoBytes });
-    if (request.url() === mediaBase + 'poster.jpg') return route.fulfill({ headers, contentType: 'image/jpeg', body: posterBytes });
+    if (request.url() === mediaBase + 'poster.jpg') {
+      await posterReady;
+      return route.fulfill({ headers, contentType: 'image/jpeg', body: posterBytes });
+    }
     if (!u.pathname.includes('/rest/v1/')) return route.fulfill({ status: 204, body: '' });
     if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method())) unexpected.push(u.pathname);
     const name = u.pathname.split('/').at(-1);
@@ -37,14 +42,18 @@ try {
       media_kind: 'video', media_url: mediaBase + 'original.mp4', thumb_url: mediaBase + 'poster.jpg' }];
     return route.fulfill({ headers, contentType: 'application/json', body: JSON.stringify(data) });
   });
-  await page.goto(`${base}/world?source=tzvi-opoc&sourceRef=channel_updates%3A${id}`);
+  await page.goto(`${base}/world?source=tzvi-opoc&sourceRef=channel_updates%3A${id}`, { waitUntil: 'domcontentloaded' });
   const card = page.locator(`article[data-source-ref="channel_updates:${id}"]`);
   const video = card.locator('video'); await video.waitFor({ timeout: 30000 });
   assert.equal(await card.locator('img').count(), 0, 'MP4 must not render as an image');
   assert.equal(await video.getAttribute('poster'), mediaBase + 'poster.jpg');
   assert.equal(await video.getAttribute('preload'), 'none');
+  const beforeMedia = await video.boundingBox();
+  releasePoster();
   await video.evaluate(async v => { const p = new Image(); p.src = v.poster; await p.decode(); v.muted = true; await v.play(); });
   await page.waitForFunction(() => document.querySelector('article video')?.currentTime > 0.25);
+  const afterMedia = await video.boundingBox();
+  assert.ok(Math.abs(beforeMedia.height - afterMedia.height) < 1, 'late poster/video bytes must not resize the media slot');
   assert.ok((await page.locator('h2').allTextContents()).some(t => t.includes('צבי')));
   assert.deepEqual(errors, []); assert.deepEqual(unexpected, []);
   console.log(JSON.stringify({ video: true, poster: true, playback: true, source: id, credit: true, errors }));
