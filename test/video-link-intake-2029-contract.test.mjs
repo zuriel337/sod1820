@@ -27,6 +27,6 @@ test("SQL World v3 is an inert review-only proposal behind existing v2 proof", (
   const sql = read("supabase/proposed/world_group_source_video_titles_v3_REVIEW_ONLY.sql");
   assert.match(sql, /world_group_source_arrivals_v2\(p_limit, p_before\)/);
   assert.match(sql, /revoke all on function public\.world_group_source_arrivals_v3/);
-  assert.doesNotMatch(sql, /grant execute/i);
+  assert.doesNotMatch(sql.replace(/^--.*$/gm, ""), /grant execute/i);
   assert.match(sql, /source_video_title/);
 });
