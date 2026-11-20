@@ -363,10 +363,6 @@ async function ingestSource(
 
     if (!bodyText && !imageUrl) continue;
     const text = bodyText || (isVid ? "🎬 עדכון וידאו" : isAud ? "🎧 הקלטה" : "📷 עדכון");
-    // Public provider links are enriched asynchronously by the existing bounded video cron.
-    // Never promote private group messages or replace the original source message.
-    const publicVideoLink = /https:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?[^\s]*v=[A-Za-z0-9_-]{11}|youtube\.com\/(?:shorts|live)\/[A-Za-z0-9_-]{11}|youtu\.be\/[A-Za-z0-9_-]{11}|(?:www\.)?vimeo\.com\/\d{1,12}|tiktok\.com\/@[A-Za-z0-9_.-]+\/video\/\d+|vt\.tiktok\.com\/[A-Za-z0-9]+)\b/i.test(bodyText);
-    const needsLinkEnrichment = channelStatus(src.channel) === "live" && publicVideoLink;
     const isBotApi = outgoing && !!m.sendByApi;
     const rawCredit = isBotApi
       ? BOT_CREDIT
@@ -382,7 +378,6 @@ async function ingestSource(
       channel: src.channel,
       text,
       image_url: imageUrl,
-      enrichment_status: needsLinkEnrichment ? "pending" : null,
       source,
       credit,
       contributor_id: contributorId,
