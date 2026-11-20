@@ -1,0 +1,13 @@
+-- PROPOSAL ONLY (#1461 acceptance review). Optional first step, independent of the rest.
+-- Live 20.11.2026: public.search_log (~93k raw free-text searches) is readable AND
+-- insertable by anon via REST ("anyone read search" USING true). TI v9 forbids exposing
+-- another user's search terms. These two restrictive policies are the same floor that
+-- extensions.sql adds; extensions.sql drops-if-exists them, so both orders are safe.
+-- Clients: old and new 2029 builds already swallow read/insert errors on search_log.
+\set ON_ERROR_STOP on
+begin;
+create policy ti_search_admin_only on public.search_log as restrictive for select to anon,authenticated
+using (public.rd_is_admin());
+create policy ti_search_no_new_raw on public.search_log as restrictive for insert to anon,authenticated
+with check (false);
+commit;

@@ -22,8 +22,13 @@ begin
       or p_props->>'operation_id' !~ '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
       then raise exception 'invalid activity identity'; end if;
     v_event := (p_props->>'operation_id')::uuid;
-    -- Use the existing event primary key; a replay never creates another row.
-    if exists(select 1 from public.events where event_id=v_event) then return; end if;
+    -- Live public.events is partitioned by ts and has NO unique key on event_id
+    -- (verified 20.11.2026), so ON CONFLICT(event_id) cannot be used: it fails every
+    -- ingest_event call. Serialize the same operation with an xact lock and check a
+    -- bounded window through the existing events_surface_idx(surface,event_type,ts).
+    perform pg_advisory_xact_lock(hashtextextended('activity2029:' || v_event::text,1456));
+    if exists(select 1 from public.events where surface='activity_2029' and event_type=p_event_type
+      and ts>=now()-interval '2 days' and event_id=v_event) then return; end if;
   end if;
   if m is not null then
     -- Versioned client projection. Authentication is supplied by PostgREST,
@@ -113,7 +118,7 @@ begin
   insert into public.events(event_id,ts,sod_id,person_id,session_id,surface,event_type,path,ref_host,
     via,app_context,device,journey_id,depth_reached,utm,is_bot,props)
   values(v_event,now(),p_sod_id,v_person,p_session_id,p_surface,p_event_type,p_path,p_ref_host,
-    p_via,p_app_context,p_device,p_journey_id,p_depth,p_utm,false,v_props) on conflict (event_id) do nothing;
+    p_via,p_app_context,p_device,p_journey_id,p_depth,p_utm,false,v_props);
 end;
 
 $function$

@@ -12,7 +12,8 @@ const scalar=async sql=>(await db.query(sql)).rows[0]?.v;
 try {
   await db.exec(read('tests/measurement-identity-20261115/fixture.sql'));
   await db.exec(`
-    alter table events add primary key(event_id);
+    -- Live shape (20.11.2026): events is partitioned by ts with NO unique key on event_id.
+    -- Do not add a fixture-only key: it previously hid an ON CONFLICT failure of every ingest.
     create table gematria_words(id uuid primary key default gen_random_uuid(),phrase text,ragil integer,is_verified boolean,is_published boolean,is_encrypted boolean,visibility_tier integer);
     create table gematria_wall(phrase text,private boolean,last_at timestamptz,hits integer);
     create table gematria_blocklist(pattern text);
@@ -54,8 +55,20 @@ try {
   await db.exec("reset role; set request.headers='{\"cf-connecting-ip\":\"192.0.2.1\"}'");
   const body={action_version:1,operation_id:'11111111-1111-4111-8111-111111111111',measurement:{version:2,visitor_id:'browser-0001',page_path:'/gematria'}};
   const ingest=async(props=body)=>db.query("select ingest_event('sod-00001','activity_2029','compute',p_path=>'/gematria',p_app_context=>'chrome',p_session_id=>'human-0001',p_props=>$1::jsonb)",[JSON.stringify(props)]);
+  await db.query("select ingest_event('sod-00002','page','view',p_path=>'/')");
+  check(await scalar("select count(*)=1 as v from events where surface='page'"),'unrelated legacy ingest still inserts without a unique event_id key');
+  await db.exec("delete from events");
   await ingest();await ingest();
-  check(await scalar('select count(*)=1 as v from events'),'same operation counted exactly once at event primary key');
+  check(await scalar('select count(*)=1 as v from events'),'same operation counted exactly once without a unique event_id key');
+  check(await scalar("select proconfig::text like '%enable_nestloop=off%' as v from pg_proc where proname='fn_ti_public_activity2029'"),'public reader pins the hash-join plan measured on live volume');
+  check(await scalar("select fn_ti_surface2029('/members')='community' and fn_ti_surface2029('/researcher/:item')='community' and fn_ti_surface2029('/melech-hamisparim/:item')<>'personal' and fn_ti_surface2029('/me')='personal' and fn_ti_surface2029('/journey')='journey' as v"),'route sections are anchored: members/researcher are not personal/journey');
+  {
+    await db.exec("set role anon");
+    const lone=await scalar('select fn_ti_public_activity2029(24) as v');
+    check(lone.latest_event===undefined||lone.latest_event===null,'a single sub-threshold action publishes no timestamp');
+    check(lone.state==='no_data','a single sub-threshold action reads as no_data, not measured');
+    await db.exec("reset role; update analytics_cache set invalidated_at=now()");
+  }
   refused=false;try{await ingest({...body,operation_id:'22222222-2222-4222-8222-222222222222',term:'private'});}catch{refused=true;}check(refused,'free text refused server-side');
   await db.exec("set request.headers='{}'");
   await ingest({...body,operation_id:'33333333-3333-4333-8333-333333333333'});
@@ -74,6 +87,8 @@ try {
   let pulse=await scalar('select fn_ti_public_activity2029(24) as v');
   check(pulse.numbers.length===1 && pulse.numbers[0].n===104,'public number requires 10 events and 5 clean sessions');
   check(!JSON.stringify(pulse).includes('human-')&&!JSON.stringify(pulse).includes('browser-'),'public response contains no session/browser IDs');
+  check(pulse.state==='measured' && new Date(pulse.latest_event).getUTCMinutes()===0 && new Date(pulse.latest_event).getUTCSeconds()===0,'freshness is hour-granular once the window meets the floor');
+  check(new Date(pulse.numbers[0].last_at).getUTCMinutes()===0,'number last_at is hour-granular');
   await db.exec("reset role; update gematria_words set is_published=false where ragil=104");
   await db.exec("set role anon");
   pulse=await scalar('select fn_ti_public_activity2029(24) as v');

@@ -38,7 +38,9 @@ jobs:
           echo "CHROMIUM_PATH=$CHROMIUM_PATH" >> "$GITHUB_ENV"
           echo "STATISTICS_SCREENSHOTS=$RUNNER_TEMP/statistics-evidence" >> "$GITHUB_ENV"
       - name: SQL/RLS/cache/replay gates (no network or live database)
-        run: node test/sitewide-statistics-20261120-sql.mjs
+        run: |
+          node test/sitewide-statistics-20261120-sql.mjs
+          node test/sitewide-statistics-legacy-readers-sql.mjs
       - name: Build and existing shell budget
         run: |
           npm run build

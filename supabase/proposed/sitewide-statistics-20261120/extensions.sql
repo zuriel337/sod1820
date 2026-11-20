@@ -21,6 +21,7 @@ grant execute on function public.fn_ti_public_word_eligible(uuid) to anon,authen
 create policy ti_wall_floor on public.gematria_wall as restrictive for select to anon,authenticated
 using (public.rd_is_admin() or (private is false and exists(select 1 from public.gematria_words g
   where g.phrase=gematria_wall.phrase and g.public_trend_approved and public.fn_ti_public_word_eligible(g.id))));
+drop policy if exists ti_search_admin_only on public.search_log; -- may pre-exist from search-log-floor.standalone.psql
 create policy ti_search_admin_only on public.search_log as restrictive for select to anon,authenticated
 using (public.rd_is_admin());
 -- Explicit review provenance is required before showing legacy raw searches.
@@ -29,6 +30,7 @@ alter table public.search_log add column if not exists admin_review_approved boo
 create policy ti_search_reviewed_only on public.search_log as restrictive for select to anon,authenticated
 using (admin_review_approved and public.rd_is_admin());
 -- Historic data is retained. Anonymous free-text writes cannot establish consent.
+drop policy if exists ti_search_no_new_raw on public.search_log;
 create policy ti_search_no_new_raw on public.search_log as restrictive for insert to anon,authenticated
 with check (false);
 
@@ -55,9 +57,10 @@ returns text language sql immutable as $$
  when p ~ '^/(2029/)?book' then 'books'
  when p ~ '^/(2029/)?(video|media|or-geula)' then 'videos'
  when p ~ '^/(2029/)?community' then 'community'
- when p ~ '^/(2029/)?(journey|life-journey|research)' then 'journey'
+ when p ~ '^/(2029/)?(members|researcher|forum)(/|$)' then 'community'
+ when p ~ '^/(2029/)?(journey|life-journey)(/|$)' then 'journey'
  when p ~ '^/(2029/)?heichal' then 'heichal'
- when p ~ '^/(2029/)?me' then 'personal'
+ when p ~ '^/(2029/)?me(/|$)' then 'personal'
  when p ~ '^/(2029/)?raziel' then 'raziel'
  else 'other' end
 $$;
@@ -66,7 +69,11 @@ $$;
 -- Only aggregate counts and corpus references are cached; words are checked again
 -- AFTER every cache read. No search_log/wall hit count feeds this projection.
 create or replace function public.fn_ti_public_activity2029(p_hours integer default 24)
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp
+-- Live planner (20.11.2026, 720h): the classifier SRF is estimated at 5 human rows vs
+-- ~1,700 actual, producing a nested loop of 16.7M comparisons (9.4s > 8s authenticator
+-- statement_timeout). A hash join runs the same query in ~1.9s. Scoped to this function.
+set enable_nestloop=off as $$
 declare
  h integer := case when p_hours in (24,168,720) then p_hours else 24 end;
  k text := 'ti_public_activity2029:v1:' || h;
@@ -93,18 +100,22 @@ begin
        then split_part(props->'measurement'->>'page_path','/',3)::integer end as n,session_id,ts
      from eligible where surface='page' and event_type='view'
    ), numbers as (
-     select n,count(*) as events,count(distinct session_id) as sessions,max(ts) as last_at
+     -- Hour granularity: an exact max(ts) dates the latest single viewer of the group.
+     select n,count(*) as events,count(distinct session_id) as sessions,date_trunc('hour',max(ts)) as last_at
      from number_events where n between 1 and 99999 group by n
      having count(*)>=10 and count(distinct session_id)>=5
    ), words as (
-     select props->>'word_id' as id,count(*) as events,count(distinct session_id) as sessions,max(ts) as last_at
+     select props->>'word_id' as id,count(*) as events,count(distinct session_id) as sessions,date_trunc('hour',max(ts)) as last_at
      from eligible where surface='activity_2029' and event_type in ('search','select')
        and props ? 'word_id' group by props->>'word_id'
      having count(*)>=10 and count(distinct session_id)>=5
    )
    select jsonb_build_object(
      'version',1,'hours',h,'source','events','timezone','Asia/Jerusalem','from',now()-make_interval(hours=>h),'to',now(),
-     'latest_event',(select max(ts) from eligible),
+     -- Freshness is published only for a window that itself meets the privacy floor and
+     -- only at hour granularity; an exact max(ts) would disclose one person's action time.
+     'latest_event',(select date_trunc('hour',max(ts)) from eligible
+       having count(*)>=10 and count(distinct session_id)>=5),
      'numbers',coalesce((select jsonb_agg(to_jsonb(n.*)) from (select * from numbers order by events desc,n limit 8)n),'[]'::jsonb),
      'word_refs',coalesce((select jsonb_agg(to_jsonb(w)) from (select * from words order by events desc,id limit 8)w),'[]'::jsonb),
      'trend',coalesce((select jsonb_agg(to_jsonb(t)) from (

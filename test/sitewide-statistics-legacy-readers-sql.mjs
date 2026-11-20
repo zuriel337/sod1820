@@ -1,0 +1,81 @@
+// #1461 acceptance review: isolated PGlite proof for legacy-readers-hardening.psql.
+// No live URL or credentials. Reader bodies for fn_name_research/reality_scan/
+// fn_name_research_stats are stubs: only their grants are changed by the proposal.
+import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import assert from 'node:assert/strict';
+const { PGlite } = await import(pathToFileURL(process.env.PGLITE_MODULE).href);
+const db = new PGlite();
+const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+const dir = 'supabase/proposed/sitewide-statistics-20261120/';
+let checks = 0;
+const check = (v, label) => { assert.ok(v, label); checks++; console.log('PASS', label); };
+const scalar = async sql => (await db.query(sql)).rows[0]?.v;
+// Inline \ir, drop psql meta-commands and the live-only md5 preflight block.
+const psql = file => read(dir + file).split('\n').map(line => {
+  const inc = /^\\ir\s+(\S+)/.exec(line);
+  return inc ? read(dir + inc[1]) + '\n;' : line.startsWith('\\') ? '' : line;
+}).join('\n').replace(/do \$\$ begin[\s\S]*?end \$\$;/, '');
+try {
+  await db.exec(read('tests/measurement-identity-20261115/fixture.sql'));
+  await db.exec(`
+    create role service_role;
+    create table gematria_words(id uuid primary key default gen_random_uuid(),phrase text,ragil integer,is_verified boolean,is_published boolean,is_encrypted boolean,visibility_tier integer,lead_rank integer);
+    create table gematria_wall(phrase text,private boolean,last_at timestamptz,hits integer);
+    create table gematria_blocklist(pattern text);
+    create table search_log(id bigint,term text,value integer,created_at timestamptz);
+    create table analytics_cache(cache_key text primary key,payload jsonb,computed_at timestamptz,cache_kind text,producer text,producer_version text,input_identity text,expires_at timestamptz,invalidated_at timestamptz,billable_state text,hit_count bigint default 0,last_hit_at timestamptz);
+    create table topic_cards_public(id uuid);
+    create table els_records(id uuid,status text,visibility text,home_hidden boolean);
+    create table bidim(value integer,phrase text,method text);
+    create table visitor_events(section text,slug text,event_type text,visitor_id text,created_at timestamptz);
+    create table convergences(value integer,group_size integer);
+    create table nodes(type text,label text);
+    create table decision_ledger(subject_ref text,status text);
+    alter table gematria_words enable row level security;
+    create policy baseline_words on gematria_words for select using(is_verified and is_published and not coalesce(is_encrypted,false));
+    grant select on gematria_words to anon,authenticated;
+    create function fn_name_research(text) returns jsonb language sql security definer as $$select '{}'::jsonb$$;
+    create function reality_scan(integer,integer) returns table(value integer) language sql security definer as $$select 1$$;
+    create function fn_name_research_stats(integer) returns jsonb language sql security definer as $$select '{}'::jsonb$$;
+  `);
+  // The current live preimages, then the proposal on top (needs extensions.sql first).
+  await db.exec(read(dir + 'number_cross_resonance.before.sql'));
+  await db.exec(read(dir + 'fn_raziel_research_intel.before.sql'));
+  await db.exec("grant execute on function number_cross_resonance(text,jsonb,integer),fn_name_research(text),reality_scan(integer,integer) to anon,authenticated");
+  await db.exec(read(dir + 'analytics_cache_producer_version_v1.fixture.sql'));
+  await db.exec(read(dir + 'analytics_cache_get_v1.fixture.sql'));
+  await db.exec(read(dir + 'extensions.sql'));
+  await db.exec(`
+    insert into gematria_words(phrase,ragil,is_verified,is_published,is_encrypted,visibility_tier) values
+      ('גלוי',300,true,true,false,1),('נסתר',300,true,false,false,1),('מוצפן',300,true,true,true,1),('פרטי',300,true,true,false,1);
+    insert into gematria_wall values('פרטי',true,now(),1);
+    insert into bidim values(300,'גלוי','רגיל'),(300,'נסתר','רגיל'),(300,'מוצפן','רגיל'),(300,'פרטי','רגיל');
+    insert into visitor_events select 'number','777','view','v'||i,now()-interval '1 hour' from generate_series(1,12)i;
+    insert into visitor_events select 'number','778','view','v1',now()-interval '1 hour';
+    insert into search_log values(1,'private name',778,now());
+  `);
+  const ncr = "select string_agg(match_phrase,',' order by match_phrase) as v from number_cross_resonance('x','[{\"method\":\"רגיל\",\"value\":300}]'::jsonb,90)";
+  await db.exec('set role anon');
+  check((await scalar(ncr)).split(',').length === 4, 'preimage: number_cross_resonance returns hidden, encrypted and private-wall phrases');
+  const lone = await scalar("select fn_raziel_research_intel(778,'24h',8) as v");
+  check(lone.demand.views === 1 && lone.demand.searches === 1, 'preimage: a single visit and a single legacy search are disclosed by p_number');
+  await db.exec('reset role');
+  await db.exec(psql('legacy-readers-hardening.psql'));
+  await db.exec('set role anon');
+  check(await scalar(ncr) === 'גלוי', 'number_cross_resonance returns only publicly eligible phrases');
+  for (const sig of ['fn_raziel_research_intel(integer,text,integer)', 'fn_name_research(text)', 'reality_scan(integer,integer)', 'fn_name_research_stats(integer)'])
+    check(await scalar(`select not has_function_privilege('anon','${sig}','execute') and not has_function_privilege('authenticated','${sig}','execute') and has_function_privilege('service_role','${sig}','execute') as v`), `${sig} is server-only`);
+  check(await scalar("select has_function_privilege('anon','number_cross_resonance(text,jsonb,integer)','execute') as v"), 'number_cross_resonance stays callable by the 2029 client');
+  await db.exec('reset role');
+  const hidden = await scalar("select fn_raziel_research_intel(778,'24h',8) as v");
+  check(hidden.suppressed === 'below_privacy_floor' && hidden.demand === undefined, 'a number below 10 views / 5 visitors is suppressed, shape kept');
+  const shown = await scalar("select fn_raziel_research_intel(777,'24h',8) as v");
+  check(shown.demand.views === 12 && shown.demand.unique_users === 12 && shown.demand.searches === 0, 'a number above the floor keeps demand; legacy searches no longer counted');
+  const top = await scalar("select fn_raziel_research_intel(null,'24h',8) as v");
+  check(top.signals.length === 1 && top.signals[0].number === 777, 'top mode lists only numbers above the floor');
+  await db.exec(psql('legacy-readers-hardening.rollback.psql'));
+  check(await scalar("select md5(pg_get_functiondef('number_cross_resonance(text,jsonb,integer)'::regprocedure))='10e65227bef491d351cadaa68a28b86c' and md5(pg_get_functiondef('fn_raziel_research_intel(integer,text,integer)'::regprocedure))='1b6215ef43e1c794caaca2195c5aa235' as v"), 'rollback restores the exact live preimages');
+  check(await scalar("select has_function_privilege('anon','fn_name_research(text)','execute') and has_function_privilege('anon','fn_raziel_research_intel(integer,text,integer)','execute') as v"), 'rollback restores the previous grants');
+  console.log(`LEGACY READERS SQL ${checks} checks PASS (isolated PGlite; not a live or PostgREST proof)`);
+} catch (e) { console.error(e.message); process.exitCode = 1; } finally { await db.close(); }

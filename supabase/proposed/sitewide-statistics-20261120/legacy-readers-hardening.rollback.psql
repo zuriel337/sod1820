@@ -1,0 +1,11 @@
+-- Approved rollback only: restores the exact live preimages and grants read 20.11.2026.
+-- Rolling back re-opens the disclosures documented in legacy-readers-hardening.psql.
+\set ON_ERROR_STOP on
+begin;
+\ir number_cross_resonance.before.sql
+\ir fn_raziel_research_intel.before.sql
+grant execute on function public.fn_raziel_research_intel(integer,text,integer) to public;
+grant execute on function public.fn_name_research(text) to public,anon,authenticated;
+grant execute on function public.reality_scan(integer,integer) to anon,authenticated;
+grant execute on function public.fn_name_research_stats(integer) to public,authenticated;
+commit;
