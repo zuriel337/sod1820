@@ -74,3 +74,40 @@ test("the preview a recipient sees names the match only when the corpus confirms
   assert.match(branch, /rows\[0\]\?\.phrase === sd/);
   assert.match(branch, /כמו \$\{sd\}/);
 });
+
+test("two names together: the pair is the two names with a space (its regular value is the sum), the meetings are counted in the four methods", async () => {
+  const { communityPairExpression, communityPairShareText, communityPairMeetings } = await import("../src/lib/research/communityCalculatorEquals2029.js");
+  assert.equal(communityPairExpression(" דוד ", "מיכל"), "דוד מיכל");
+  assert.equal(communityPairExpression("דוד", " "), "");
+  assert.equal(communityPairShareText({ first: "דוד", second: "מיכל", value: 114, phrase: "מים" }), "דוד ומיכל ביחד = 114 בגימטריה, כמו מים. ומה אתם שווים ביחד?");
+  assert.equal(communityPairShareText({ first: "דוד", second: "מיכל", value: 114 }), "דוד ומיכל ביחד = 114 בגימטריה. ומה אתם שווים ביחד?");
+  assert.equal(communityPairShareText({ first: "דוד", value: 114 }), "");
+  const a = [{ key: "רגיל", value: 14 }, { key: "מילוי", value: 30 }, { key: "מסתתר", value: 9 }, { key: "גדול", value: 14 }, { key: "אתבש", value: 5 }];
+  const b = [{ key: "רגיל", value: 14 }, { key: "מילוי", value: 31 }, { key: "מסתתר", value: 9 }, { key: "גדול", value: 15 }, { key: "אתבש", value: 5 }];
+  assert.deepEqual(communityPairMeetings(a, b), { meet: ["רגיל", "מסתתר"], total: 4 }, "a method outside the four never counts");
+  assert.deepEqual(communityPairMeetings([], b), { meet: [], total: 4 });
+  // the share link of a pair restores: the engine's regular value of "דוד מיכל" is 14 + 100
+  const { buildCalculatorShareUrl, parseCalculatorShareState } = await import("../src/lib/research/calculator2029Viral.js");
+  const state = parseCalculatorShareState(new URL(buildCalculatorShareUrl({ expression: communityPairExpression("דוד", "מיכל"), methodKey: "רגיל", resultValue: 114 }, { shareId: "p1" })).search);
+  assert.equal(state.expression, "דוד מיכל"); assert.equal(state.resultValue, 114); assert.equal(state.isShared, true);
+});
+
+test("the page: \"שני שמות\" mode with the four-method meetings and the pair card; the old all-methods count is gone", () => {
+  const page = read("src/pages/CommunityCalculator2029Page.jsx");
+  assert.match(page, /\["compare", "שני שמות", "research"\]/);
+  assert.match(page, /communityPairMeetings\(r1\.all, r2\.all\)/);
+  assert.match(page, /row=\{\{ key: "רגיל", value: r1\.value \+ r2\.value \}\} pair=\{\{/);
+  assert.doesNotMatch(page, /model\.compat\.total|model\.compat\.count/);
+  const card = read("src/components/gematria2029/CommunityEqualsCard2029.jsx");
+  assert.match(card, /pair \? "מה אתם שווים ביחד\?" : "למי אתם שווים\?"/);
+  assert.match(card, /mode: pair \? "pair" : "single"/);
+});
+
+test("the search wording leads with names, keeps \"מחשבון גימטריה\" at the front and makes no promise of prediction", async () => {
+  const { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_FAQ } = await import("../src/lib/research/communityCalculatorSeo2029.js");
+  for (const text of [COMMUNITY_CALCULATOR_SEO.title, COMMUNITY_CALCULATOR_SEO.heading, COMMUNITY_CALCULATOR_SEO.description]) assert.ok(text.startsWith("מחשבון גימטריה"), text);
+  assert.match(COMMUNITY_CALCULATOR_SEO.title, /לשמות/);
+  assert.match(COMMUNITY_CALCULATOR_SEO.description, /שמות|שם/);
+  const pair = COMMUNITY_CALCULATOR_FAQ.find(item => /שני שמות/.test(item.q));
+  assert.match(pair.a, /לא ניבוי/);
+});

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ShareActions from "../ShareActions.jsx";
 import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
-import { communityEqualsSelection, communityEqualsChosen, communityEqualsShareText } from "../../lib/research/communityCalculatorEquals2029.js";
+import { communityEqualsSelection, communityEqualsChosen, communityEqualsShareText, communityPairShareText } from "../../lib/research/communityCalculatorEquals2029.js";
 import { FINDING_NOT_SENT, findingCardUrl } from "../../lib/share.js";
 import { getNumberLookup } from "../../lib/supabaseApi2029.js";
 import { collectVerifiedLookupMatches } from "../../lib/research/methodLensProjection.js";
@@ -37,7 +37,9 @@ function useSameMethodMatches(name, methodKey, value) {
 // that already invites the recipient to calculate a name of their own, and that already measures the opening and the recipient's own
 // calculation (shared_result_opened, new_compute_from_share). The share itself is the existing share_created event, without the typed text.
 // With no match the card shows the calculation and its letters instead. The card is for one name; a comparison keeps its own result.
-export default function CommunityEqualsCard2029({ name, row, NumberLink }) {
+// `pair` = { first, second }: the same card for two names together. `name` is then the pair's expression (the two names with a space), whose
+// regular value is the sum; the heading and the share text speak of the two names.
+export default function CommunityEqualsCard2029({ name, row, NumberLink, pair = null }) {
   const methodKey = row.key, value = row.value, methodLabel = canonicalMethodPublicLabel(methodKey);
   const matches = useSameMethodMatches(name, methodKey, value);
   const selection = useMemo(() => communityEqualsSelection(matches.items, name), [matches.items, name]);
@@ -52,14 +54,15 @@ export default function CommunityEqualsCard2029({ name, row, NumberLink }) {
   const shareUrl = buildCalculatorShareUrl({ expression: name, methodKey, resultValue: value },
     { discovery: chosen ? { phrase: chosen.phrase, value } : null, shareId,
       baseUrl: origin + (import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" ? "/gematria" : "/2029/gematria/viral") });
-  const text = communityEqualsShareText({ name, value, phrase: chosen?.phrase, methodKey, methodLabel });
+  const text = pair ? communityPairShareText({ first: pair.first, second: pair.second, value, phrase: chosen?.phrase })
+    : communityEqualsShareText({ name, value, phrase: chosen?.phrase, methodKey, methodLabel });
   if (!text || !shareUrl) return null;
   let shownUrl = shareUrl; try { shownUrl = decodeURI(shareUrl).replace(/^https?:\/\//, ""); } catch { /* keep the encoded form */ }
   return <section className="sod29-community-calc-panel sod29-community-calc-equals" aria-labelledby="community-calculator-equals"
     data-community-equals={matches.ready ? selection.total : "loading"} data-equals-method={methodKey} aria-busy={!matches.ready}>
-    <span className="sod29-community-calc-eyebrow">למי אתם שווים?</span>
-    <h2 id="community-calculator-equals" dir="auto">{name} = <span className="sod29-community-calc-number">{value}</span></h2>
-    <p className="sod29-community-calc-equals-method">בשיטת {methodLabel}</p>
+    <span className="sod29-community-calc-eyebrow">{pair ? "מה אתם שווים ביחד?" : "למי אתם שווים?"}</span>
+    <h2 id="community-calculator-equals" dir="auto">{pair ? `${pair.first} + ${pair.second}` : name} = <span className="sod29-community-calc-number">{value}</span></h2>
+    <p className="sod29-community-calc-equals-method">{pair ? "סכום שני השמות בגימטריה רגילה" : `בשיטת ${methodLabel}`}</p>
     {!matches.ready ? <p role="status">בודק אילו ביטויים מאומתים שווים לאותו ערך…</p>
       : selection.total ? <>
         <p id="community-calculator-equals-pick">{selection.total === 1 ? "אותו ערך, באותה שיטה, כמו:" : "אותו ערך, באותה שיטה. בחרו מה יופיע בכרטיס:"}</p>
@@ -83,8 +86,8 @@ export default function CommunityEqualsCard2029({ name, row, NumberLink }) {
       </blockquote>
       <ShareActions variant="royal" type="gematria_result" sourceSurface="community-calculator" url={shareUrl} title={text} channels={["whatsapp", "native", "copy"]} force
         image={findingCardUrl({ kind: "calc", expression: name, value, method: methodKey === "רגיל" ? "גימטריה רגילה" : `שיטה: ${methodLabel}`, context: chosen ? `כמו ${chosen.phrase}` : "" })}
-        onShare={channel => emit("calculator_2029", "share_created", { props: { surface: "community", method: methodKey, share_id: shareId, channel, has_match: Boolean(chosen), expression_length: name.length } })} />
-      <p className="sod29-community-calc-equals-sent" data-share-disclosure="community-equals">יישלח: השם שהקלדתם, השיטה, הערך{chosen ? " וההתאמה שבחרתם" : ""}, וקישור שפותח אותם. {FINDING_NOT_SENT}</p>
+        onShare={channel => emit("calculator_2029", "share_created", { props: { surface: "community", method: methodKey, share_id: shareId, channel, has_match: Boolean(chosen), mode: pair ? "pair" : "single", expression_length: name.length } })} />
+      <p className="sod29-community-calc-equals-sent" data-share-disclosure="community-equals">יישלח: {pair ? "שני השמות שהקלדתם, הסכום" : "השם שהקלדתם, השיטה, הערך"}{chosen ? " וההתאמה שבחרתם" : ""}, וקישור שפותח אותם. {FINDING_NOT_SENT}</p>
     </div>
   </section>;
 }

@@ -19,7 +19,7 @@ import {
 import {
   COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ, COMMUNITY_CALCULATOR_PATH, COMMUNITY_CALCULATOR_SEO, communityCalculatorJsonLd,
 } from "../lib/research/communityCalculatorSeo2029.js";
-import { COMMUNITY_CALCULATOR_METHODS } from "../lib/research/communityCalculatorEquals2029.js";
+import { COMMUNITY_CALCULATOR_METHODS, communityPairExpression, communityPairMeetings } from "../lib/research/communityCalculatorEquals2029.js";
 import "../components/experience2029/royal2029.css";
 import "./communityCalculator2029.css";
 
@@ -29,7 +29,7 @@ const CommunityEqualsCard2029 = lazy(() => import("../components/gematria2029/Co
 const CORE_METHODS = COMMUNITY_CALCULATOR_METHODS;
 const MODES = [
   ["name", "שם או ביטוי", "number"],
-  ["compare", "השוואת שמות", "research"],
+  ["compare", "שני שמות", "research"],
   ["baby", "שם לתינוק", "community"],
   ["date", "תאריך עברי", "now"],
 ];
@@ -275,11 +275,19 @@ function CalculatorExperience({ model, initialState, location }) {
             </div>}
           </section>}
           {!r2 && selected && <Suspense fallback={null}><CommunityEqualsCard2029 key={state.name1.trim() + "::" + selected.key} name={state.name1.trim()} row={selected} NumberLink={NumberLink} /></Suspense>}
-          {model.compat && <section id="comparison" className="sod29-community-calc-panel sod29-community-calc-compat">
-            <h2><span className="sod29-community-calc-number">{model.compat.count}</span> מתוך <span className="sod29-community-calc-number">{model.compat.total}</span> שיטות נפגשות</h2>
-            <p>{model.matches.length ? model.matches.map(row => canonicalMethodPublicLabel(row.key)).join(" · ") : "לשמות האלה אין כרגע ערך זהה באותה שיטה."}</p>
-            <NumberLink value={r1.value + r2.value}>סכום השמות בגימטריה רגילה: <b className="sod29-community-calc-number">{r1.value + r2.value}</b> ←</NumberLink>
-          </section>}
+          {r2 && (() => {
+            // Two names: where they meet, counted in the community's four methods from the engine's rows; then what they are worth together.
+            const meetings = communityPairMeetings(r1.all, r2.all);
+            const pairExpression = communityPairExpression(state.name1, state.name2);
+            return <>
+              <section id="comparison" className="sod29-community-calc-panel sod29-community-calc-compat" data-pair-meetings={meetings.meet.length}>
+                <h2><span className="sod29-community-calc-number">{meetings.meet.length}</span> מתוך <span className="sod29-community-calc-number">{meetings.total}</span> שיטות נפגשות</h2>
+                <p>{meetings.meet.length ? meetings.meet.map(key => canonicalMethodPublicLabel(key)).join(" · ") : "בארבע השיטות האלה לשמות אין ערך זהה. ביחד הם עדיין שווים משהו:"}</p>
+              </section>
+              {pairExpression && <Suspense fallback={null}><CommunityEqualsCard2029 key={"pair::" + pairExpression} name={pairExpression}
+                row={{ key: "רגיל", value: r1.value + r2.value }} pair={{ first: state.name1.trim(), second: state.name2.trim() }} NumberLink={NumberLink} /></Suspense>}
+            </>;
+          })()}
           <MethodResults expression={state.name1} result={r1} selectedMethod={selected?.key || state.method} onSelect={model.setSelectedMethod} comparison={r2} />
           {r2 && <RelatedPhrases phrases={model.discoveries} value={r1.value} />}
         </>}

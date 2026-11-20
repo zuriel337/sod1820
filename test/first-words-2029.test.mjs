@@ -65,7 +65,8 @@ test("a phrase gets words only when it is a verified published row; free text cr
 test("the calculators read picked phrases only from the one activity reader, never label them as searches, and stay whole without it", async () => {
   const recent = [{ phrase: "אור", ragil: 207, created_at: "2026-11-01" }];
   const without = firstWordsHtml2029(await firstWordsFacts2029("/community/calculator", { fetchImpl: source([[/gematria_words/, recent], [/rpc\/research_pulse_2029/, () => new Response("{}", { status: 404 })]]) }));
-  assert.match(without, /<h1>מחשבון גימטריה חינם<\/h1>/);
+  const { COMMUNITY_CALCULATOR_SEO } = await import("../src/lib/research/communityCalculatorSeo2029.js");
+  assert.ok(without.includes(`<h1>${COMMUNITY_CALCULATOR_SEO.heading}</h1>`), "the heading comes from the one wording source");
   assert.match(without, /שאלות נפוצות/);
   assert.match(without, new RegExp(`href="/number/${encodeURIComponent("אור")}">אור</a> <span>= 207</span>`));
   assert.doesNotMatch(without, /ביטויים נבחרים/);

@@ -33,3 +33,24 @@ export function communityEqualsShareText({ name, value, phrase, methodKey = "ר�
   const method = clean(methodKey) === "רגיל" ? "בגימטריה" : `בגימטריה בשיטת ${clean(methodLabel) || clean(methodKey)}`;
   return `${expression} = ${Number(value)} ${method}${peer ? `, כמו ${peer}` : ""}. ומה השם שלכם שווה?`;
 }
+
+// Two names together (ZURIEL 20.11.2026, the "מחשבון אהבה" searches): the pair is written as the two names with a space, whose regular value is
+// exactly the sum of the two (a space has no value), so the existing share link restores it and the engine verifies it on opening.
+export function communityPairExpression(first, second) {
+  const a = clean(first), b = clean(second);
+  return a && b ? `${a} ${b}` : "";
+}
+export function communityPairShareText({ first, second, value, phrase } = {}) {
+  const a = clean(first), b = clean(second), peer = clean(phrase);
+  if (!a || !b || !Number.isSafeInteger(Number(value)) || Number(value) < 1) return "";
+  return `${a} ו${b} ביחד = ${Number(value)} בגימטריה${peer ? `, כמו ${peer}` : ""}. ומה אתם שווים ביחד?`;
+}
+// In how many of the community's four methods the two names have the same value: counted from the engine's own rows, never estimated.
+export function communityPairMeetings(firstRows, secondRows, methods = COMMUNITY_CALCULATOR_METHODS) {
+  const meet = [];
+  for (const key of methods) {
+    const a = (firstRows || []).find(row => row.key === key), b = (secondRows || []).find(row => row.key === key);
+    if (a && b && Number.isFinite(Number(a.value)) && Number(a.value) === Number(b.value)) meet.push(key);
+  }
+  return { meet, total: methods.length };
+}
