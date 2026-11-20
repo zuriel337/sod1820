@@ -32,6 +32,9 @@ const ESSENTIAL_DIAGNOSTICS = new Set([
   "repeated_ingest_failure",
   "repeated_public_link_failure",
   "public_projection_inconsistency",
+  "new_source_intersects_active_research",
+  "verified_canonical_discrepancy",
+  "repeated_runtime_failure",
 ]);
 const DEEP_RESEARCH = new Set([
   "bulk_corpus_scan",
@@ -43,7 +46,7 @@ const DEEP_RESEARCH = new Set([
 ]);
 
 const SHA256 = /^[a-f0-9]{64}$/i;
-const SOURCE_REF = /^(?:channel_updates|gallery_images|posts|research_objects|community_messages):[a-zA-Z0-9_-]{1,120}$/;
+const SOURCE_REF = /^(?:channel_updates|gallery_images|posts|research_objects|community_messages|op_trace):[a-zA-Z0-9_-]{1,120}$/;
 
 function result(action, priority, reason, extra = {}) {
   return Object.freeze({
@@ -100,10 +103,13 @@ export function classifyOperationalIntakeEvent(event = {}) {
   }
 
   // Essential is evidence-led, not inferred from message count or model interest.
-  const enoughFailures = kind !== "repeated_ingest_failure" &&
-    kind !== "repeated_public_link_failure"
-    || Number.isInteger(event.consecutiveFailures) && event.consecutiveFailures >= 2;
-  if (!enoughFailures || event.serverEvidenceVerified !== true) {
+  const enoughFailures = !["repeated_ingest_failure", "repeated_public_link_failure", "repeated_runtime_failure"].includes(kind)
+    || (Number.isInteger(event.consecutiveFailures) && event.consecutiveFailures >= 2);
+  const sourceNoveltyVerified = kind !== "new_source_intersects_active_research"
+    || (event.activeResearchMatchVerified === true && event.sourceNoveltyVerified === true);
+  const discrepancyVerified = kind !== "verified_canonical_discrepancy"
+    || event.canonicalDiscrepancyVerified === true;
+  if (!enoughFailures || !sourceNoveltyVerified || !discrepancyVerified || event.serverEvidenceVerified !== true) {
     return result(INTAKE_ACTION.FREE, "NORMAL", "essential_evidence_not_yet_proved");
   }
   if (event.sourceAccess !== "public" ||
