@@ -97,7 +97,7 @@ test("v3 source metadata stays behind explicit reader opt-in and inherits v2 pro
     body:"[קישור]", source_video_href:"https://evil.invalid/vid", source_video_title:"עדכון"
   }));
   assert.equal(ignored.sourceVideoHref,null);
-  assert.equal(ignored.label,"[קישור]");
+  assert.equal(ignored.label,"כותרת בהשלמה");
   assert.equal(groupRowToWorldUpdate(row({body:"[קישור]",source_video_href:link,group_proof:false})),null);
   const calls=[];
   const rpc=async (name,args)=>{calls.push(name);return {data:[],error:null};};
