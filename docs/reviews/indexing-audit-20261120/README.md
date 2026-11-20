@@ -1,6 +1,6 @@
 # ביקורת אינדוקס אחרי המעבר ל־2029 — 20.11.2026
 
-**מצב:** BRANCH-ONLY. לא מוזג, לא נפרס ל־Production, אין שינוי במסד. **בסיס:** ענף #1461 (`db3c4d4ed`), שהוא מעל `origin/main` `7e7cc4b`. **חי בזמן הבדיקה:** `dpl_2ngd15963rnFP1fGqtvxoGL3Pona` ממקור `7e7cc4b`.
+**מצב:** BRANCH-ONLY. לא מוזג, לא נפרס ל־Production, אין שינוי במסד. **בסיס:** ענף #1462 (`f5af86bff`, שמכיל את כל #1461), מעל `origin/main` `7e7cc4b`. **חי בזמן הבדיקה:** `dpl_2ngd15963rnFP1fGqtvxoGL3Pona` ממקור `7e7cc4b`. מסירה לאינטגרציה ב־#1462: [HANDOFF.md](HANDOFF.md).
 **מקורות:** האתר החי (בקשות עם זיהוי Googlebot), מפת האתר החיה, המסד הקנוני (קריאה בלבד), טבלת `gsc_metrics` (Search Console מסונכרן, 17.6–17.11.2026), ו־13 בדיקות URL Inspection מ־18.11 (`docs/reviews/gsc-nonindex-review-20261118/url-inspection-raw.json`).
 **לא אומת:** דוח האינדוקס המלא של Search Console (כמה דפים שמורים בפועל בכל משפחה), ופילוח שאילתה×דף. במסד נשמרים שאילתות ודפים בנפרד.
 
