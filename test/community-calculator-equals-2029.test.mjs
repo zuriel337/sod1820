@@ -1,30 +1,76 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { communityEqualsSelection, communityEqualsShareText, COMMUNITY_EQUALS_LIMIT } from "../src/lib/research/communityCalculatorEquals2029.js";
+import { COMMUNITY_CALCULATOR_METHODS, communityEqualsSelection, communityEqualsChosen, communityEqualsShareText, COMMUNITY_EQUALS_LIMIT } from "../src/lib/research/communityCalculatorEquals2029.js";
+import { buildCalculatorShareUrl, parseCalculatorShareState } from "../src/lib/research/calculator2029Viral.js";
 
-test("the large phrases are the first of the calculator's own list; the name itself and repeats are left out; the rest is not repeated", () => {
-  const rows = [{ phrase: "דוד" }, { phrase: "זהב" }, { phrase: " זהב " }, { phrase: "יד" }, { phrase: "" }, { phrase: "אחד בא" }, { phrase: "גיא" }, null];
-  const { top, rest } = communityEqualsSelection(rows, "דוד");
-  assert.deepEqual(top.map(row => row.phrase), ["זהב", "יד", "אחד בא"]);
-  assert.deepEqual(rest.map(row => row.phrase), ["גיא"]);
-  assert.equal(top.length, COMMUNITY_EQUALS_LIMIT);
-  assert.deepEqual(communityEqualsSelection(null, "דוד"), { top: [], rest: [] });
+const read = path => readFileSync(new URL("../" + path, import.meta.url), "utf8");
+
+test("the community calculator has four methods and no more; the rest is one link to the professional calculator", () => {
+  assert.deepEqual([...COMMUNITY_CALCULATOR_METHODS], ["רגיל", "מילוי", "מסתתר", "גדול"]);
+  const page = read("src/pages/CommunityCalculator2029Page.jsx");
+  const methods = page.slice(page.indexOf("function MethodResults"), page.indexOf("function RelatedPhrases"));
+  assert.match(methods, /CORE_METHODS\.map\(key => result\.all\.find/);
+  assert.doesNotMatch(methods, /showAll|onShowAll/);
+  assert.match(methods, /to=\{`\/gematria\?q=\$\{encodeURIComponent\(expression\)\}`\}/);
+  assert.match(page, /selectCommunityCalculatorResult\(communityRows,/, "a method outside the four is never the selected one");
 });
 
-test("the share text states the name, its value and one published phrase, and nothing when there is no result", () => {
-  assert.equal(communityEqualsShareText({ name: " דוד ", value: 14, phrase: "זהב" }), "«דוד» = 14 בגימטריה, כמו «זהב». ומה השם שלכם שווה?");
-  assert.equal(communityEqualsShareText({ name: "דוד", value: 14 }), "«דוד» = 14 בגימטריה. ומה השם שלכם שווה?");
+test("three matches first, more on request; the name itself and repeats are left out; the visitor's choice wins while it is still a match", () => {
+  const rows = ["שילה", "ערב יום טוב", "אל שדי", " אל שדי ", "אלהים אחרים", "", "משה", "השם"].map(phrase => ({ phrase }));
+  const selection = communityEqualsSelection(rows, "שילה");
+  assert.deepEqual(selection.top.map(row => row.phrase), ["ערב יום טוב", "אל שדי", "אלהים אחרים"]);
+  assert.deepEqual(selection.more.map(row => row.phrase), ["משה", "השם"]);
+  assert.equal(selection.total, 5);
+  assert.equal(selection.top.length, COMMUNITY_EQUALS_LIMIT);
+  assert.equal(communityEqualsChosen(selection, "משה").phrase, "משה");
+  assert.equal(communityEqualsChosen(selection, "").phrase, "ערב יום טוב");
+  assert.equal(communityEqualsChosen(selection, "ביטוי שאינו התאמה").phrase, "ערב יום טוב");
+  assert.equal(communityEqualsChosen(communityEqualsSelection([], "שילה"), "משה"), null);
+});
+
+test("the share text: שילה = 345, כמו משה; the method is named when it is not the regular one; nothing without a result", () => {
+  assert.equal(communityEqualsShareText({ name: " שילה ", value: 345, phrase: "משה" }), "שילה = 345 בגימטריה, כמו משה. ומה השם שלכם שווה?");
+  assert.equal(communityEqualsShareText({ name: "שילה", value: 345 }), "שילה = 345 בגימטריה. ומה השם שלכם שווה?");
+  assert.equal(communityEqualsShareText({ name: "שילה", value: 469, methodKey: "מילוי", methodLabel: "מילוי" }), "שילה = 469 בגימטריה בשיטת מילוי. ומה השם שלכם שווה?");
   for (const bad of [{ name: "", value: 14 }, { name: "דוד", value: 0 }, { name: "דוד", value: "x" }, {}]) assert.equal(communityEqualsShareText(bad), "");
 });
 
-test("the page shows the equals card for one name only, from the existing phrase list, with what is sent stated; no new reader, event or AI", () => {
-  const page = readFileSync(new URL("../src/pages/CommunityCalculator2029Page.jsx", import.meta.url), "utf8");
-  const card = page.slice(page.indexOf("function EqualsCard"), page.indexOf("function BabyNames"));
-  assert.match(page, /\{!r2 && <EqualsCard /, "one name only: a comparison keeps its own result");
-  assert.match(card, /communityEqualsSelection\(phrases, name\)/);
+test("the link is the site's existing calculator share link: the recipient gets the same expression, method, value and match", () => {
+  const url = buildCalculatorShareUrl({ expression: "שילה", methodKey: "רגיל", resultValue: 345 }, { discovery: { phrase: "משה", value: 345 }, shareId: "a1b2c3d4e5f60718", baseUrl: "https://sod1820.co.il/gematria" });
+  const state = parseCalculatorShareState(new URL(url).search);
+  assert.deepEqual({ ...state }, { isShared: true, expression: "שילה", methodKey: "רגיל", resultValue: 345, discoveryPhrase: "משה", shareId: "a1b2c3d4e5f60718" });
+  // a match of another value never travels
+  assert.equal(parseCalculatorShareState(new URL(buildCalculatorShareUrl({ expression: "שילה", methodKey: "רגיל", resultValue: 345 }, { discovery: { phrase: "דוד", value: 14 }, shareId: "x1" })).search).discoveryPhrase, null);
+});
+
+test("the card: same-method verified matches from the existing reader, a choice, what is sent, the existing share event without the typed text", () => {
+  const page = read("src/pages/CommunityCalculator2029Page.jsx");
+  const card = read("src/components/gematria2029/CommunityEqualsCard2029.jsx");
+  assert.match(page, /\{!r2 && selected && <Suspense fallback=\{null\}><CommunityEqualsCard2029 /, "one name only: a comparison keeps its own result");
+  assert.match(page, /lazy\(\(\) => import\("\.\.\/components\/gematria2029\/CommunityEqualsCard2029\.jsx"\)\)/, "loaded when there is a result, not with the page");
+  assert.match(card, /collectVerifiedLookupMatches\(packet\.rows, \{ expression: name, methodKey, value: Number\(value\) \}\)/, "same method, verified");
+  assert.match(card, /pickEqualsPreview\(/);
+  assert.match(card, /role="radiogroup"/);
+  assert.match(card, /data-share-preview/);
   assert.match(card, /data-share-disclosure="community-equals"/);
   assert.match(card, /FINDING_NOT_SENT/);
-  assert.doesNotMatch(card, /supabase|rpc\(|fetch\(|recordCommunity|recordSiteActivity|emit\(|runAi|askRaziel/);
-  assert.match(page, /communityEqualsSelection\(model\.discoveries, state\.name1\)\.rest/, "the lower list does not repeat the large phrases");
+  assert.match(card, /buildCalculatorShareUrl\(/);
+  assert.match(card, /useMethodLedger\(matches\.ready && !selection\.total \?/, "no match: the letters of the calculation, from the engine");
+  const event = card.slice(card.indexOf('emit("calculator_2029", "share_created"'));
+  assert.match(event, /surface: "community"/);
+  assert.doesNotMatch(event.slice(0, event.indexOf("})")), /expression:|name\b(?!\.length)/, "the typed text is not part of the measurement");
+  assert.doesNotMatch(card, /recordSiteActivity|startSiteActivity|recordCommunity|runAi|askRaziel|addWallWord|gematria_wall/, "no new metric, no AI, no public list write");
+  // the opening and the recipient's own calculation are measured by the existing shared-result page
+  const shared = read("src/pages/Calculator2029Page.jsx");
+  for (const name of ["shared_result_opened", "new_compute_from_share", "share_created"]) assert.match(shared, new RegExp(`"${name}"`));
+});
+
+test("the preview a recipient sees names the match only when the corpus confirms it", () => {
+  const og = read("api/og.js");
+  const branch = og.slice(og.indexOf("The match the sharer chose (d)"), og.indexOf("} else if (w && Number.isFinite(nq) && !productionReading)"));
+  assert.match(branch, /verified && sd && sd !== sq && ragil\(sd\) === sv/);
+  assert.match(branch, /is_verified=eq\.true&is_published=eq\.true/);
+  assert.match(branch, /rows\[0\]\?\.phrase === sd/);
+  assert.match(branch, /כמו \$\{sd\}/);
 });

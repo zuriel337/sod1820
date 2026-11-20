@@ -1,5 +1,5 @@
 import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
-import React, { createContext, useContext, useEffect, useMemo, useRef } from "react";
+import React, { createContext, lazy, Suspense, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CommunityCalculatorPage from "./CommunityCalculatorPage.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
@@ -19,13 +19,14 @@ import {
 import {
   COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ, COMMUNITY_CALCULATOR_PATH, COMMUNITY_CALCULATOR_SEO, communityCalculatorJsonLd,
 } from "../lib/research/communityCalculatorSeo2029.js";
-import { communityEqualsSelection, communityEqualsShareText } from "../lib/research/communityCalculatorEquals2029.js";
-import { FINDING_NOT_SENT, findingCardUrl } from "../lib/share.js";
+import { COMMUNITY_CALCULATOR_METHODS } from "../lib/research/communityCalculatorEquals2029.js";
 import "../components/experience2029/royal2029.css";
 import "./communityCalculator2029.css";
 
 const Continuation = createContext(null);
-const CORE_METHODS = ["רגיל", "מילוי", "מסתתר"];
+// "למי אתם שווים?" loads when there is a result to show it for (Speed Law: the calculator opens without it).
+const CommunityEqualsCard2029 = lazy(() => import("../components/gematria2029/CommunityEqualsCard2029.jsx"));
+const CORE_METHODS = COMMUNITY_CALCULATOR_METHODS;
 const MODES = [
   ["name", "שם או ביטוי", "number"],
   ["compare", "השוואת שמות", "research"],
@@ -56,15 +57,14 @@ function DateField({ value, onChange, afterSunset, onAfterSunset, label = "תא�
   </fieldset>;
 }
 
-function MethodResults({ expression, result, selectedMethod, onSelect, showAll, onShowAll, comparison }) {
-  const selected = result.all.find(row => row.key === selectedMethod || canonicalMethodPublicLabel(row.key) === selectedMethod);
-  const rows = showAll ? result.all : result.all.filter(row => CORE_METHODS.includes(row.key) || row === selected);
+// Four methods and no more (ZURIEL 20.11.2026). Every other method is in the professional calculator, opened with the same expression.
+function MethodResults({ expression, result, selectedMethod, onSelect, comparison }) {
+  const rows = CORE_METHODS.map(key => result.all.find(row => row.key === key)).filter(Boolean);
+  const selected = rows.find(row => row.key === selectedMethod || canonicalMethodPublicLabel(row.key) === selectedMethod);
   return <section className="sod29-community-calc-methods" aria-label={`שיטות החישוב של ${expression}`}>
     <header className="sod29-community-calc-section-heading">
-      <h2>כל שיטות הגימטריה</h2>
-      <button type="button" className="sod29-community-calc-text-button" onClick={onShowAll} aria-expanded={showAll}>
-        {showAll ? "שיטות הליבה" : `כל ${result.all.length} השיטות`}
-      </button>
+      <h2>ארבע השיטות המרכזיות</h2>
+      <Link className="sod29-community-calc-text-button" to={`/gematria?q=${encodeURIComponent(expression)}`}>כל השיטות במחשבון המקצועי ←</Link>
     </header>
     <div className="sod29-community-calc-method-grid">
       {rows.map(row => {
@@ -90,31 +90,6 @@ function RelatedPhrases({ phrases, value }) {
     <p>ביטויים שפורסמו במאגר ושווים בגימטריה רגילה.</p>
     <div className="sod29-community-calc-chips">
       {phrases.slice(0, 8).map(phrase => <NumberLink key={phrase.phrase} value={value} expression={phrase.phrase}>{phrase.phrase}</NumberLink>)}
-    </div>
-  </section>;
-}
-
-// "למי אתם שווים?" (ZURIEL 20.11.2026): right under the result, the published phrases that share the name's regular value, shown large, and
-// the share of exactly that. The phrases are the calculator's existing list (model.discoveries); the equality is the regular method's, the one
-// that list is read by. The card is for one name; a comparison keeps its own result.
-function EqualsCard({ name, value, phrases, shareUrl }) {
-  const { top } = communityEqualsSelection(phrases, name);
-  const text = communityEqualsShareText({ name, value, phrase: top[0]?.phrase });
-  if (!text) return null;
-  return <section className="sod29-community-calc-panel sod29-community-calc-equals" aria-labelledby="community-calculator-equals" data-community-equals={top.length}>
-    <span className="sod29-community-calc-eyebrow">למי אתם שווים?</span>
-    <h2 id="community-calculator-equals" dir="auto">«{name}» = <span className="sod29-community-calc-number">{value}</span></h2>
-    {top.length ? <>
-      <p>בגימטריה רגילה, אותו ערך כמו:</p>
-      <div className="sod29-community-calc-equals-list">
-        {top.map(row => <NumberLink key={row.phrase} value={value} expression={row.phrase}>{row.phrase}</NumberLink>)}
-      </div>
-    </> : <p>עדיין אין במאגר ביטוי מאומת בערך הזה. <NumberLink value={value} expression={name}>לדף המספר {value} ←</NumberLink></p>}
-    <div className="sod29-community-calc-equals-share">
-      <strong>שלחו את זה הלאה</strong>
-      <ShareActions type="gematria_result" sourceSurface="community-calculator" url={shareUrl} title={text} channels={["whatsapp", "native", "copy"]} force
-        image={findingCardUrl({ kind: "calc", expression: name, value, method: "גימטריה רגילה", context: top[0] ? `כמו ${top[0].phrase}` : "" })} />
-      <p className="sod29-community-calc-equals-sent" data-share-disclosure="community-equals">יישלח: השם שהקלדתם, הערך{top[0] ? " והביטוי הראשון שמוצג כאן" : ""}, וקישור שפותח את אותו חישוב. {FINDING_NOT_SENT}</p>
     </div>
   </section>;
 }
@@ -175,7 +150,9 @@ function CalculatorExperience({ model, initialState, location }) {
   const { state, r1, r2 } = model;
   const mode = state.babyMode ? "baby" : state.dateMode ? "date" : state.compare ? "compare" : "name";
   const claimStillApplies = state.name1 === initialState.name1 && state.method === initialState.method;
-  const selection = selectCommunityCalculatorResult(r1?.all || [], state.method, claimStillApplies ? initialState.resultRaw : "");
+  // Only the four community methods are selectable here; a link that names another method gets the existing "not available here" notice.
+  const communityRows = useMemo(() => COMMUNITY_CALCULATOR_METHODS.map(key => (r1?.all || []).find(row => row.key === key)).filter(Boolean), [r1]);
+  const selection = selectCommunityCalculatorResult(communityRows, state.method, claimStillApplies ? initialState.resultRaw : "");
   const selected = selection.row;
   const second = r2?.all.find(row => row.key === selected?.key);
   const shareHref = communityCalculatorHref(location, state, selected?.value);
@@ -297,15 +274,14 @@ function CalculatorExperience({ model, initialState, location }) {
               </NumberLink>
             </div>}
           </section>}
-          {!r2 && <EqualsCard name={state.name1.trim()} value={r1.value} phrases={model.discoveries} shareUrl={origin + shareHref} />}
+          {!r2 && selected && <Suspense fallback={null}><CommunityEqualsCard2029 key={state.name1.trim() + "::" + selected.key} name={state.name1.trim()} row={selected} NumberLink={NumberLink} /></Suspense>}
           {model.compat && <section id="comparison" className="sod29-community-calc-panel sod29-community-calc-compat">
             <h2><span className="sod29-community-calc-number">{model.compat.count}</span> מתוך <span className="sod29-community-calc-number">{model.compat.total}</span> שיטות נפגשות</h2>
             <p>{model.matches.length ? model.matches.map(row => canonicalMethodPublicLabel(row.key)).join(" · ") : "לשמות האלה אין כרגע ערך זהה באותה שיטה."}</p>
             <NumberLink value={r1.value + r2.value}>סכום השמות בגימטריה רגילה: <b className="sod29-community-calc-number">{r1.value + r2.value}</b> ←</NumberLink>
           </section>}
-          <MethodResults expression={state.name1} result={r1} selectedMethod={state.method} onSelect={model.setSelectedMethod}
-            showAll={model.showAll} onShowAll={() => model.setShowAll(!model.showAll)} comparison={r2} />
-          <RelatedPhrases phrases={r2 ? model.discoveries : communityEqualsSelection(model.discoveries, state.name1).rest} value={r1.value} />
+          <MethodResults expression={state.name1} result={r1} selectedMethod={selected?.key || state.method} onSelect={model.setSelectedMethod} comparison={r2} />
+          {r2 && <RelatedPhrases phrases={model.discoveries} value={r1.value} />}
         </>}
         {!r1 && !state.dateMode && <div className="sod29-community-calc-empty"><NavigationIcon2029 name="number" size={32} /><h2>מתחילים בשם אחד</h2><p>רגיל, מילוי, מסתתר וכל שיטות החישוב של המחשבון מחכות כאן.</p></div>}
       </>}

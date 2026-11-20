@@ -29,6 +29,8 @@ const fixtures = {
   "Sod2029Shell.jsx": "import React from 'react';export default ({children})=>React.createElement('section',{},children);",
   "NavigationIcon2029.jsx": "export default ()=>null;",
   "ShareActions.jsx": "import React from 'react';export default props=>React.createElement('share-actions',props);",
+  // The "למי אתם שווים?" card loads on its own (lazy) and has its own test; here it is a boundary like the share actions.
+  "CommunityEqualsCard2029.jsx": "import React from 'react';export default props=>React.createElement('equals-card',{name:props.name,method:props.row.key,value:props.row.value});",
   "VisitorSearchesBox.jsx": "export default ()=>{globalThis.__communityCalc.effects.push(['visitor-search']);return null;};",
   "NameMultiSearch.jsx": "export default ()=>{globalThis.__communityCalc.effects.push(['deep-name-search']);return null;};",
   "router": "import React from 'react';export const useLocation=()=>globalThis.__communityCalc.location;export const Link=({to,children,...props})=>React.createElement('a',{...props,href:to},children);",
@@ -37,7 +39,7 @@ await build({ entryPoints: ["src/pages/CommunityCalculator2029Page.jsx"], bundle
   external: ["react"], define: { __SOD_2029_BUILD__: "true", "import.meta.env": JSON.stringify({ VITE_PUBLIC_READING_RELEASE: "public-reading-20261101" }) },
   plugins: [{ name: "community-calculator-boundaries", setup(builder) {
     builder.onResolve({ filter: /^react-router-dom$/ }, () => ({ path: "router", namespace: "fixture" }));
-    builder.onResolve({ filter: /\/(palette\.js|themeMode\.js|engine\.js|siteActivity2029\.js|supabase\.js|supabaseApi2029\.js|gematriaMethodRegistry\.js|tracking\.js|numberMessage\.js|seo\.js|AuthContext\.jsx|ResearchProvider\.jsx|Sod2029Shell\.jsx|NavigationIcon2029\.jsx|ShareActions\.jsx|VisitorSearchesBox\.jsx|NameMultiSearch\.jsx)$/ }, // the database boundary is one fixture whether the page reads the shared core or the API file (shell weight 1/8)
+    builder.onResolve({ filter: /\/(palette\.js|themeMode\.js|engine\.js|siteActivity2029\.js|supabase\.js|supabaseApi2029\.js|gematriaMethodRegistry\.js|tracking\.js|numberMessage\.js|seo\.js|AuthContext\.jsx|ResearchProvider\.jsx|Sod2029Shell\.jsx|NavigationIcon2029\.jsx|ShareActions\.jsx|CommunityEqualsCard2029\.jsx|VisitorSearchesBox\.jsx|NameMultiSearch\.jsx)$/ }, // the database boundary is one fixture whether the page reads the shared core or the API file (shell weight 1/8)
     args => ({ path: args.path.split("/").at(-1).replace("supabaseApi2029.js", "supabase.js"), namespace: "fixture" }));
     builder.onResolve({ filter: /\.css$/ }, args => ({ path: args.path, namespace: "css-fixture" }));
     builder.onLoad({ filter: /.*/, namespace: "fixture" }, args => ({ contents: fixtures[args.path], loader: "js", resolveDir: process.cwd() }));

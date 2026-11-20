@@ -735,6 +735,21 @@ export default async function handler(req, res) {
       desc = verified ? `"${sq}" שווה ${sv} ב${methodLabel}. מה מסתתר בשם שלך? פתחו את הממצא במחשבון של סוד 1820.`
         : `"${sq}" ב${methodLabel}. התוצאה מחושבת בעת פתיחת הממצא במחשבון של סוד 1820. מה מסתתר בשם שלך?`;
       image = verified ? cardUrl({ w: sq, n: sv, sub: methodLabel, k: 'calc' }) : cardUrl({ w: sq, sub: methodLabel, k: 'calc' });
+      // The match the sharer chose (d): named in the preview only when it is a verified, published phrase of the same regular value, read
+      // from the public corpus; a phrase that anyone could put in the address is never repeated on this site's card. Any failure: no match.
+      const sd = String((req.query && req.query.d) || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+      if (verified && sd && sd !== sq && ragil(sd) === sv) {
+        try {
+          const r = await fetch(`${SUPABASE_URL}/rest/v1/gematria_words?phrase=eq.${encodeURIComponent(sd)}&ragil=eq.${sv}&is_verified=eq.true&is_published=eq.true&select=phrase&limit=1`,
+            { headers: ogHeaders, signal: AbortSignal.timeout(2500) });
+          const rows = r.ok ? await r.json() : [];
+          if (Array.isArray(rows) && rows[0]?.phrase === sd) {
+            title = `${sq} = ${sv}, כמו ${sd} · ${methodLabel} · ${SITE_NAME}`;
+            desc = `"${sq}" שווה ${sv} ב${methodLabel}, כמו "${sd}". ומה השם שלך שווה? חשבו אותו במחשבון של סוד 1820.`;
+            image = cardUrl({ w: sq, n: sv, sub: `כמו ${sd} · ${methodLabel}`, k: 'calc' });
+          }
+        } catch { /* the preview without the match */ }
+      }
       robots = 'noindex, follow';
     } else if (w && Number.isFinite(nq) && !productionReading) {
       title = `${w} = ${nq} · ${SITE_NAME}`;
