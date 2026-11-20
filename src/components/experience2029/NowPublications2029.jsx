@@ -127,8 +127,11 @@ function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
     {/* YouTube / Vimeo links: the shared click-to-load card. A public group source shows it too (ZURIEL 11.11.2026): the group reader only lets a
         canonical YouTube address through (world_group_source_arrivals_v2) and the row keeps its "מקור · טרם נבדק" label below. */}
     {/* Or HaGeula is text only (ZURIEL 19.11.2026): no video card or poster; its link stays in the words above. */}
-    {model.textOnly ? null : externalVideoLinksFromText(model.fullText || model.title).map(link =>
-      <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.unverified ? `מקור · טרם נבדק · ${model.sourceName}` : model.sourceName ? `מתוך ${model.sourceName}` : ""} />)}
+    {model.textOnly
+      ? externalVideoLinksFromText(model.fullText || model.title).map(link =>
+        <a key={link.key} href={link.watch || link.href} target="_blank" rel="noopener noreferrer" className="sod29-action">צפייה בסרטון המקורי</a>)
+      : externalVideoLinksFromText(model.fullText || model.title).map(link =>
+        <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.unverified ? `מקור · טרם נבדק · ${model.sourceName}` : model.sourceName ? `מתוך ${model.sourceName}` : ""} />)}
     {externalTikTokLinksFromText(model.fullText || model.title).map(link =>
       <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer" className="sod29-action" aria-label="צפייה בסרטון המקורי ב־TikTok">צפייה בסרטון ב־TikTok</a>)}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
