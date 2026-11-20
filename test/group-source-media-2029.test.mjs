@@ -170,7 +170,8 @@ test("the 2029 client shows a media row of the extended reader with the existing
   const item = groupRowToWorldUpdate(row);
   assert.equal(item.media.kind, "image");
   assert.equal(item.mediaHref, row.media_url);
-  assert.equal(item.label, "תמונה מהקבוצה");
+  assert.equal(item.label, "כותרת בהשלמה");
+  assert.equal(item.titleNeedsEnrichment, true, "missing media title is not a caption");
   const video = groupRowToWorldUpdate({ ...row, id: "40000000-0000-4000-8000-000000000002", media_kind: "video",
     media_url: ORIGIN + "sod1820/2029/video/2026/11/0f8fad5b-d9cb-569f-a165-70867728950e/original.mp4",
     thumb_url: ORIGIN + "sod1820/2029/video/2026/11/0f8fad5b-d9cb-569f-a165-70867728950e/derivatives/poster.jpg" });
