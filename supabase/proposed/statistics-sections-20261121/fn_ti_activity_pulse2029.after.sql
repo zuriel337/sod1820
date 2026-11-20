@@ -134,6 +134,21 @@ begin
      from jsonb_to_recordset(payload->'computed_refs') x(n integer,events bigint)
      where exists(select 1 from public.gematria_words g where g.ragil=x.n and public.gematria_public_word_eligible(g.id))),'[]'::jsonb),
    'posts_total',(select count(*) from public.posts where title is not null and not coalesce(tags,'{}'::text[]) && array['טיוטה'::text]),
+   -- Since the site began to be measured (ZURIEL 21.11.2026): one total, no per-year series, never a person count.
+   -- Jetpack (2015-01-01 .. 2026-06-10) + the site's own human-view daily snapshot (site_visits_legacy, from
+   -- 2026-06-20). GA and TI measure the same visits again and are NOT added (no double counting).
+   'history',jsonb_build_object(
+     'views_total',(select coalesce(sum(views),0) from public.traffic_history where source='jetpack' and granularity='day')
+       + (select coalesce(sum(views),0) from public.traffic_history where source='site_visits_legacy'),
+     'views_since','2015-01-01',
+     -- Gematria calculations: the old site's log (values only, never the typed text; TI v9) + measured computes.
+     'gematria_total',(select count(*) from public.search_log)
+       + (select count(*) from public.events where surface='activity_2029' and event_type='compute' and not is_bot),
+     'gematria_since',(select min(created_at) from public.search_log),
+     -- No session id in the old log, so a value is public only from 30 calculations (stricter than 10/5).
+     'top_values',coalesce((select jsonb_agg(jsonb_build_object('n',v.n,'count',v.c) order by v.c desc,v.n) from (
+       select value as n,count(*) as c from public.search_log where value between 1 and 99999
+       group by value having count(*)>=30 order by 2 desc,1 limit 12) v),'[]'::jsonb)),
    'state',case when payload->>'latest_event' is null then 'no_data'
      when (payload->>'latest_event')::timestamptz<now()-interval '24 hours' then 'stale' else 'measured' end,
    'numbers',coalesce((select jsonb_agg(jsonb_build_object('n',x.n,'events',x.events,'last_at',x.last_at))

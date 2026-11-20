@@ -53,8 +53,16 @@ export default function Stats2029Page() {
       {state.loading ? <CanonicalProgress compact title="טוען את נתוני האתר" phase={manual ? "קורא את הטווח שנבחר" : "בוחר את הטווח הקצר ביותר שיש בו נתונים מלאים"} /> : null}
       {state.failed ? <p role="status">הנתונים אינם זמינים כרגע. אפשר לנסות שוב בעוד רגע.</p> : null}
       {d ? <>
+        {d.history?.views_total ? <section className="stats29-block stats29-since" aria-labelledby="stats29-since">
+          <h2 id="stats29-since">מאז 2015</h2>
+          <div className="stats29-grid">
+            <Tile value={d.history.views_total} label="צפיות בדפים מאז תחילת המדידה" note="Jetpack ומדידת האתר עצמו, בלי ספירה כפולה" />
+            <Tile value={d.history.gematria_total} label="חישובי גימטריה שנרשמו" to="/gematria" />
+          </div>
+          {d.history.top_values?.length ? <><h3>הערכים שחושבו הכי הרבה באתר הקודם (יוני עד נובמבר 2026)</h3><ol className="stats29-chips">{d.history.top_values.map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.count)} חישובים</small></Link></li>)}</ol></> : null}
+        </section> : null}
         <section className="stats29-block" aria-labelledby="stats29-site">
-          <h2 id="stats29-site">האתר במספרים</h2>
+          <h2 id="stats29-site">האתר במספרים · {r.label}</h2>
           <div className="stats29-grid">
             <Tile value={human.page_views} label="צפיות בדפים" note="גולשים שסווגו כאנושיים" />
             <Tile value={unknown.page_views} label="צפיות שלא סווגו" note="ייתכן אדם, ייתכן אוטומציה" />
@@ -94,7 +102,7 @@ export default function Stats2029Page() {
             <Tile value={d.publications?.approved_convergences} label="התכנסויות שאושרו" to="/world" />
           </div>
         </section>
-        <p className="stats29-note">כל רשימה מציגה רק פריטים שעברו 10 פעולות מ־5 ביקורים לפחות, כדי ששום פריט לא יצביע על אדם אחד. מספרים הם פעולות, לא אנשים; חיפושים פרטיים אינם מוצגים לעולם.
+        <p className="stats29-note">כל רשימה מציגה רק פריטים שעברו 10 פעולות מ־5 ביקורים לפחות (וערך היסטורי רק מ־30 חישובים), כדי ששום פריט לא יצביע על אדם אחד. מספרים הם פעולות, לא אנשים; חיפושים פרטיים אינם מוצגים לעולם.
           {d.computed_at ? " עודכן " + new Date(d.computed_at).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) + "." : ""}</p>
       </> : null}
     </main>

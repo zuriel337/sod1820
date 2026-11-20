@@ -15,7 +15,7 @@ trap 'as "$PG_BIN/pg_ctl -D $TMP/data -m immediate stop >/dev/null" || true; rm 
 "$PG_BIN/psql" -h "$TMP" -p 54397 -U postgres -qc 'create database review'
 Q() { "$PG_BIN/psql" -h "$TMP" -p 54397 -U postgres -d review -v ON_ERROR_STOP=1 -qtAX "$@"; }
 pass=0; check() { if [ "$1" = "$2" ]; then pass=$((pass+1)); echo "PASS $3"; else echo "FAIL $3 (got '$1', want '$2')"; exit 1; fi; }
-Q -c "create role anon; create role authenticated; create role service_role; create table public.crawl_daily(day date); create table public.research_contributions(id int);"
+Q -c "create role anon; create role authenticated; create role service_role; create table public.crawl_daily(day date); create table public.research_contributions(id int); create table public.traffic_history(id int); create table public.search_log(id int);"
 { echo "set check_function_bodies=off;"; cat "$D/fn_ti_activity_pulse2029.before.sql"; echo ";"; echo "revoke all on function public.fn_ti_activity_pulse2029(integer) from public,anon,authenticated;"
   echo "create function public.research_pulse_2029(p_hours integer default 24) returns jsonb language sql security definer as 'select public.fn_ti_activity_pulse2029(p_hours)';"
   echo "revoke all on function public.research_pulse_2029(integer) from public; grant execute on function public.research_pulse_2029(integer) to anon,authenticated;"; } | Q >/dev/null

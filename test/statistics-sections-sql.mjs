@@ -26,6 +26,7 @@ try {
     create table posts(id bigint,slug text,title text,tags text[],created_at timestamptz default now());
     create table research_contributions(id uuid default gen_random_uuid(),origin text,status text,created_at timestamptz default now());
     create table crawl_daily(day date,bot text,bucket text,blocked boolean,hits integer);
+    create table traffic_history(period date,granularity text,views integer,visitors integer,source text);
     create function edge_rate_limit_check(text,integer,integer) returns jsonb language sql as $$select '{"allowed":true}'::jsonb$$;
     create or replace function fn_ti_clean_classification(date,date) returns table(session_id text,clean_classification text,clean_eligible boolean)
     language sql as $$select distinct session_id,case when session_id like 'human-%' then 'human' else 'unknown' end,session_id like 'human-%' from events$$;
@@ -56,6 +57,9 @@ try {
     insert into research_contributions(origin,status) values('community_2029','approved'),('community_2029','approved'),('community_2029','hidden'),('openweb','approved'),('openweb','pending');
     insert into posts(id,slug,title,tags) values(1,'a','A','{}'),(2,'b','B','{טיוטה}'),(3,'c',null,'{}');
     insert into els_records(status,visibility,home_hidden) values('published','public',false),('draft','public',false),('published','private',false);
+    insert into traffic_history values('2015-01-01','day',1000,null,'jetpack'),('2015-01-01','year',1000,null,'jetpack'),('2026-07-01','day',50,9,'site_visits_legacy'),('2026-07-01','day',70,20,'ga');
+    insert into search_log select i,'private text '||i,26,now()-interval '30 days' from generate_series(1,30) i;
+    insert into search_log select 100+i,'other private '||i,358,now()-interval '30 days' from generate_series(1,29) i;
   `);
   const d = (await db.query('select public.research_pulse_2029(168) as v')).rows[0].v;
   check(d.version === 1 && d.state === 'measured', 'the public wrapper serves the extended producer');
@@ -73,5 +77,9 @@ try {
   check(d.added.community_messages === 2 && d.added.contributions === 1, 'added: only approved messages and contributions (hidden/pending excluded)');
   check(d.added.posts === 1 && d.added.codes === 1 && d.posts_total === 1, 'added: non-draft titled posts and published public codes only');
   check(!JSON.stringify(d).includes('נסתר'), 'a hidden corpus word never appears');
+  check(d.history.views_total === 1050 && d.history.views_since === '2015-01-01', 'history: Jetpack daily + own snapshot once (the year row and GA are not added again)');
+  check(d.history.gematria_total === 59 + 20, 'history: old log + measured computes');
+  check(d.history.top_values.length === 1 && d.history.top_values[0].n === 26 && d.history.top_values[0].count === 30, 'history: a value is public only from 30 calculations (358 with 29 stays out)');
+  check(!JSON.stringify(d.history).includes('private'), 'history: the typed text never leaves the function, only values');
   console.log(`STATISTICS SECTIONS SQL ${checks} checks PASS (isolated PGlite; extended producer v2)`);
 } catch (e) { console.error(e.message); process.exitCode = 1; } finally { await db.close(); }
