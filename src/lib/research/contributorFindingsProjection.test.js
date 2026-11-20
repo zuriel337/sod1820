@@ -196,6 +196,31 @@ test("access or governance disagreement is never hidden as a duplicate", () => {
   assert.equal(result.hiddenSourceGroups, 0);
 });
 
+test("canonical Tzvi keeps adjacent image and filename-bearing text as independent sources", () => {
+  const contributor = { ...CONTRIBUTOR, id: "c66f0464-0928-490e-be9b-66d8a87e7fc8", slug: "tzvi-opoc" };
+  const projection = buildContributorFindingsProjection({ contributor, sourceMessages: [
+    { ...SOURCE, id: "image", text: "📷 עדכון", image_url: "storage-object:original-image", created_at: "2026-10-01T10:00:00Z" },
+    { ...SOURCE, id: "text", text: "הסבר [Image 4.jpg]", created_at: "2026-10-01T10:01:00Z" },
+  ] });
+  assert.equal(projection.counts.linkedImageMessages, 0);
+  assert.equal(projection.sourceGroups.length, 2);
+  assert.ok(projection.sourceGroups.every(group => !group.mediaPair));
+});
+
+test("Tzvi finding deduplication does not hide a distinct source image", () => {
+  const contributor = { ...CONTRIBUTOR, id: "c66f0464-0928-490e-be9b-66d8a87e7fc8", slug: "tzvi-opoc" };
+  const sourceMessages = ["one", "two"].map(id => ({ ...SOURCE, id, text: "📷 עדכון",
+    image_url: `storage-object:${id}`, publicMedia: { kind: "image", url: `https://example.com/${id}.jpg` } }));
+  const researchObjects = ["one", "two"].map((id, index) => ({ ...RESEARCH_ROW, id,
+    statement: index ? "אור = 207" : "אור=207", source_ref: `channel_updates:${id}` }));
+  const projection = buildContributorFindingsProjection({ contributor, sourceMessages, researchObjects });
+  assert.equal(projection.counts.duplicateFindingsHidden, 1);
+  assert.equal(projection.counts.duplicateSourceGroupsHidden, 0);
+  assert.equal(projection.sourceGroups.length, 2);
+  assert.deepEqual(new Set(projection.sourceGroups.map(group => group.source.publicMedia.url)),
+    new Set(["https://example.com/one.jpg", "https://example.com/two.jpg"]));
+});
+
 test("a research permission failure does not erase readable sources; availability is separate from zero", async () => {
   const calls = [];
   const anon = fakeClient("anon", {
