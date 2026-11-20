@@ -295,7 +295,7 @@ function HomeOtherSeries({ state }) {
 // Home takes the first three entries from the shared Now default view after removing the
 // separately presented Reality Map series and central pin. The existing public access gate still applies.
 const HOME_UPDATES_LIMIT = 3;
-function useHomeUpdates(feed, { postsOnly }) {
+function useHomeUpdates(feed, { postsOnly, exclude }) {
   const loading = Boolean(feed?.loading || feed?.detailsPending);
   const all = useMemo(() => {
     const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
@@ -305,9 +305,10 @@ function useHomeUpdates(feed, { postsOnly }) {
   // The newest מפת המציאות publication is the Home's pinned lead (HomePinnedLead below): the SAME model that leads "עכשיו", shown once.
   const lead = useMemo(() => all.find(model => model.seriesLatest) || null, [all]);
   const models = useMemo(() => {
-    const pool = all.filter(model => model.id !== pinned?.model.id && (!postsOnly || model.item?.sourceKind === "post"));
+    const pool = all.filter(model => model.id !== pinned?.model.id && (!postsOnly || model.item?.sourceKind === "post")
+      && !(model.href && exclude?.has(model.href)));
     return buildNowEntries(pool).filter(entry => entry.model?.seriesKey !== REALITY_MAP_LATEST_KEY).slice(0, HOME_UPDATES_LIMIT);
-  }, [all, pinned, postsOnly]);
+  }, [all, pinned, postsOnly, exclude]);
   return { loading, models, pinned, lead, see: feed?.see };
 }
 
@@ -513,7 +514,11 @@ export default function HomeComposition2029({
   const feed = useContext(SystemFeedContext2029);
   const midrashState = publicReadingPath("/beit-midrash", { isAdmin: adminViewer });
   const midrashOpen = !(midrashState === "closed" || midrashState === "missing");
-  const updates = useHomeUpdates(feed, { postsOnly: corePublic && !worldOpen });
+  // The featured story keeps its dedicated card; it must not appear twice on Home.
+  const updatesExclude = useMemo(() => new Set([
+    featured.post?.href,
+  ].filter(Boolean)), [featured.post?.href]);
+  const updates = useHomeUpdates(feed, { exclude: updatesExclude, postsOnly: corePublic && !worldOpen });
   const primaryItems = useMemo(() => seriesState.series.find(series => series.priorityLane === "primary")?.items || [], [seriesState.series]);
   const navigate = useNavigate();
   const openHref = href => { if (!href) return; if (/^\/(?!\/)/.test(href)) { onNavigate?.(href); navigate(href); } else window.location.assign(href); };

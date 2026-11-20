@@ -41,8 +41,8 @@ const post = (id, hours, extra = {}) => ({ id, slug: `p-${id}`, title: `פוסט
 const gallery = (n, hours) => publicGalleryToSystemItem({ id: `10000000-0000-4000-8000-00000000000${n}`, image_url: `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/g${n}.jpg`, name: `תמונה מזרם המציאות ${n}`, description: "", source: "update", published: 1, min_tier: 0, curator_hidden: false, stream_at: iso(hours), created_at: iso(hours), wp_gallery_id: 7 });
 const group = hours => groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "הודעת מקור שטרם נבדקה", created_at: iso(hours), contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
 const feedOf = (items, loading = false) => ({ loading, expandedRows: feedRows(items, { now: NOW, limit: 160, caps: { post: 40, group: 40, gallery: 10 } }) });
-function Probe({ feed, postsOnly = false }) {
-  const updates = useHomeUpdates(feed, { postsOnly });
+function Probe({ feed, postsOnly = false, exclude }) {
+  const updates = useHomeUpdates(feed, { postsOnly, exclude });
   return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => {} });
 }
 // The top of the Home as the composition draws it: the pinned lead (with an owner's pinned message above it), then the short "עכשיו".
@@ -78,6 +78,13 @@ test("at most three items (a short \"עכשיו\"); posts-only while the world i
   await act(async () => { root.unmount(); });
   root = await render({ feed: feedOf(items), postsOnly: true });
   assert.ok(entries(root).every(node => String(node.props["data-home-update-item"]).startsWith("post:")), "no reality-stream item while the world is closed to the public");
+  await act(async () => { root.unmount(); });
+});
+
+test("the dedicated featured story is not duplicated in Home Now; the next shared entries fill the three slots", async () => {
+  const items = [1, 2, 3, 4].map(n => postRowToWorldUpdate(post(n, n))).filter(Boolean);
+  const root = await render({ feed: feedOf(items), exclude: new Set([items[0].href]) });
+  assert.deepEqual(entries(root).map(node => node.props["data-home-update-item"]), ["post:2", "post:3", "post:4"]);
   await act(async () => { root.unmount(); });
 });
 
