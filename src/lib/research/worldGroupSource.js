@@ -125,6 +125,7 @@ function publicLinkOrNull(raw) {
       && !u.search && !u.hash) return { url: trimmed, tail: raw.slice(trimmed.length) };
     if (u.hostname.toLowerCase() === "vt.tiktok.com" && /^\/[A-Za-z0-9]{5,24}\/?$/.test(u.pathname)
       && !u.search && !u.hash) return { url: trimmed, tail: raw.slice(trimmed.length) };
+    if (["tiktok.com", "www.tiktok.com", "m.tiktok.com", "vt.tiktok.com"].includes(u.hostname.toLowerCase())) return null;
     // Holding a URL before text redaction must not preserve credentials or
     // contact details embedded in query values/fragments. Use existing route
     // and share admission for site destinations; do not publish private links.
