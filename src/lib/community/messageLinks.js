@@ -73,6 +73,23 @@ export function externalVideoLinksFromText(text = "", max = 2) {
   return messageLinkPreviews(splitMessageLinks(String(text || ""))).filter(link => link.kind === "youtube" || link.kind === "vimeo").slice(0, max);
 }
 
+// TikTok is an outbound source link, never an arbitrary iframe or <video> src.
+export function externalTikTokLinksFromText(text = "", max = 2) {
+  return splitMessageLinks(String(text || "")).flatMap(({ link }) => {
+    if (!link?.href) return [];
+    try {
+      const u = new URL(link.href);
+      if (u.protocol !== "https:" || u.username || u.password || u.port) return [];
+      const host = u.hostname.toLowerCase();
+      if (host === "vt.tiktok.com" && /^\/[A-Za-z0-9]{5,24}\/?$/.test(u.pathname) && !u.search && !u.hash)
+        return [{ href: u.href, key: "tiktok:" + u.pathname }];
+      if (["www.tiktok.com", "tiktok.com", "m.tiktok.com"].includes(host) && /^\/@[A-Za-z0-9_.-]+\/video\/\d{5,25}\/?$/.test(u.pathname) && !u.search && !u.hash)
+        return [{ href: u.href, key: "tiktok:" + u.pathname }];
+    } catch { /* untrusted URL */ }
+    return [];
+  }).filter((v, i, arr) => arr.findIndex(x => x.key === v.key) === i).slice(0, max);
+}
+
 // The same detector over authored post HTML: iframe/anchor addresses and plain-text URLs (an approved, published post only).
 export function externalVideoLinksFromHtml(html = "", max = 3) {
   const source = String(html || "");
