@@ -1,7 +1,7 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import React, { createContext, lazy, Suspense, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CommunityCalculatorPage from "./CommunityCalculatorPage.jsx";
+import CalculatorWordsBar2029 from "../components/gematria2029/CalculatorWordsBar2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import HumanDateInput from "../components/HumanDateInput.jsx";
@@ -224,8 +224,10 @@ function CalculatorExperience({ model, initialState, location }) {
       {state.babyMode ? <>
         {initialState.invalidBirthDate && !state.baby?.bDate && <p role="status" className="sod29-community-calc-notice">תאריך הלידה בקישור אינו תקין. הזינו יום, חודש ושנה כדי לחשב אותו.</p>}
         {model.babyTool}
-        <ActivityPulseSlot2029 />
       </> : <>
+        {/* The same words bar as the main calculator (word of the day + words visitors recently calculated), from the one public activity
+            reader of #1462; it replaces the activity square on this page (ZURIEL 20.11.2026). A pick fills the first name. */}
+        {!state.dateMode && <CalculatorWordsBar2029 currentExpression={state.name1} onPick={word => model.setName1(word)} />}
         <section className="sod29-community-calc-panel sod29-community-calc-input-panel">
           <div className="sod29-community-calc-name-fields">
             <label htmlFor="community-calculator-name">{state.compare ? "השם הראשון" : "שם, מילה או ביטוי"}
@@ -242,7 +244,6 @@ function CalculatorExperience({ model, initialState, location }) {
           </div>
           {state.name1.trim() && !r1 && <p role="status">הזינו אותיות בעברית כדי לחשב גימטריה.</p>}
         </section>
-        <ActivityPulseSlot2029 />
 
         {state.dateMode && <section className="sod29-community-calc-panel sod29-community-calc-date">
           <h2>המספר של התאריך העברי</h2><p>הזינו תאריך לועזי. אחרי השקיעה, התאריך העברי מתקדם ביום אחד.</p>

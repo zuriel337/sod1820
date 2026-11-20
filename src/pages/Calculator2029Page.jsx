@@ -1,4 +1,3 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { startSiteActivity, recordSiteActivity } from "../lib/siteActivity2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
@@ -651,7 +650,6 @@ function CalculatorBody() {
       title="מה מסתתר בשם שלך?"
       description="הקלידו שם בעברית וגלו מה מסתתר בו. אפשר לשתף בקישור, ולהמשיך לעומק במחשבון המקצועי."
     >
-    <ActivityPulseSlot2029 />
       <CalculatorExperience />
     </Sod2029Shell>
   );

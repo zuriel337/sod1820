@@ -17,6 +17,8 @@ const fixtures = {
   "engine.js": "import {METHODS} from './src/lib/gematria.js';export const resolve=name=>({value:METHODS[0].fn(name)});",
   "supabase.js": `export const getAllValuePhrases=async value=>{globalThis.__communityCalc.reads.push(value);return [{phrase:'רז',is_verified:true}];};
     export const supabase={rpc:async(name,args)=>{if(name!=='research_pulse_2029'||args.p_hours!==24)throw Error('unexpected pulse read');globalThis.__communityCalc.pulseReads.push(name);return {data:{version:1,state:'empty',numbers:[],phrases:[],activity:[]},error:null};}};
+    // The words bar above the input reads the one public activity reader (research_pulse_2029, 168 h) through getWallRecent.
+    export const getWallRecent=async limit=>{globalThis.__communityCalc.pulseReads.push(['getWallRecent',limit]);return [{phrase:'שלום',ragil:376}];};
     export const addWallWord=(...args)=>globalThis.__communityCalc.effects.push(['wall',...args]);
     export const getAiAnalysis=async(...args)=>{globalThis.__communityCalc.effects.push(['ai',...args]);return 'AI';};`,
   "gematriaMethodRegistry.js": "export const fetchGematriaMethodStates=async()=>null;export const indexGematriaMethodStates=()=>null;",
@@ -67,7 +69,7 @@ test("public calculator mount and typing calculate immediately without wall, AI,
   assert.deepEqual(state.replacements, [], "arrival URL is not rewritten on mount");
   await act(async () => { context.mock.timers.tick(2000); });
   assert.ok(state.reads.length > 0);
-  assert.ok(state.pulseReads.length > 0, "the activity strip only reads the approved aggregate RPC");
+  assert.ok(state.pulseReads.length > 0, "the words bar only reads the approved aggregate reader");
   assert.deepEqual(state.effects, []);
   assert.deepEqual(state.activity, [], "a shared-link arrival is not a new computation");
   assert.match(output(root), /ניתוח AI ושמירה אינם זמינים/);
