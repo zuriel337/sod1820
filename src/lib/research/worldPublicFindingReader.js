@@ -96,7 +96,7 @@ async function readExactSource(client, sourceRef) {
     return { row: null, excludedRefs: [] };
   }
   const { data, error } = await client.from("channel_updates")
-    .select("id,channel,status,link_url,text")
+    .select("id,channel,status,link_url,text,contributor_id")
     .eq("id", id)
     .eq("status", "live")
     .maybeSingle();
@@ -154,7 +154,10 @@ async function readWorldPublicFindingById(id, publicClient) {
   const finding = findWorldPublicResearchFinding(projection, wanted);
   if (!finding) return null;
   const sourceHref = (fullscan && contributorSourceLocator(fullscan.sourceRef, { slug: "tzvi-opoc" }).href)
-    || source.sourceHref || verifiedWebUrl(source.row?.link_url) || verifiedWebUrl(source.row?.text);
+    || source.sourceHref
+    || (source.row?.contributor_id === ZVI_SOURCE_CONTRIBUTOR_ID
+      && contributorSourceLocator(researchObject.source_ref, { slug: "tzvi-opoc" }).href)
+    || verifiedWebUrl(source.row?.link_url) || verifiedWebUrl(source.row?.text);
   return sourceHref ? { ...finding, sourceHref } : finding;
 }
 

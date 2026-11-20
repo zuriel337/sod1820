@@ -8,6 +8,7 @@ import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
 import { normalizeWorldAllResearchRow } from "./worldAllResearchProjection.js";
 import { clusterWorldResearchRows } from "./worldFindingClusters.js";
 import { channelUpdateOccurrenceId } from "./worldContributorSourceLocator.js";
+import { ZVI_SOURCE_CONTRIBUTOR_ID } from "./worldZviApprovedFindings2029.js";
 
 const PAGE = 500;
 const MAX = 5000;
@@ -263,7 +264,7 @@ function rebuildContributorSourceGroup(group, rows) {
  * attached for audit, and a source card is hidden only when all its findings
  * are duplicates of findings represented by one other source card.
  */
-export function deduplicateContributorSourceGroups(sourceGroups = []) {
+export function deduplicateContributorSourceGroups(sourceGroups = [], { preserveSourceGroups = false } = {}) {
   const groups = Array.isArray(sourceGroups) ? sourceGroups.filter(Boolean) : [];
   const originalGroupByRef = new Map(groups.map((group) => [group.sourceRef, group]));
   const groupByFindingId = new Map();
@@ -348,7 +349,7 @@ export function deduplicateContributorSourceGroups(sourceGroups = []) {
   for (const group of rebuilt) {
     const original = originalGroupByRef.get(group.sourceRef);
     const targets = targetGroupsBySuppressedGroup.get(group.sourceRef) || new Set();
-    const canHide = (original?.rows || []).length > 0
+    const canHide = !preserveSourceGroups && (original?.rows || []).length > 0
       && group.rows.length === 0
       && targets.size === 1
       && !targets.has(group.sourceRef);
@@ -562,8 +563,14 @@ export function buildContributorFindingsProjection({
     return model;
   }).sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
 
-  const linkedSources = linkAdjacentSourceMediaGroups(unlinkedSourceGroups, sourceMessages);
-  const deduplicatedSources = deduplicateContributorSourceGroups(linkedSources.groups);
+  // Tzvi's raw occurrences remain independently readable. A nearby filename
+  // mention does not bind an image to a text, and equal derived findings do not
+  // prove that two source images are interchangeable.
+  const preserveSourceGroups = contributor.id === ZVI_SOURCE_CONTRIBUTOR_ID;
+  const linkedSources = preserveSourceGroups
+    ? { groups: unlinkedSourceGroups, linkedPairCount: 0 }
+    : linkAdjacentSourceMediaGroups(unlinkedSourceGroups, sourceMessages);
+  const deduplicatedSources = deduplicateContributorSourceGroups(linkedSources.groups, { preserveSourceGroups });
   const sourceGroups = deduplicatedSources.groups;
 
   const worldCounts = {};
