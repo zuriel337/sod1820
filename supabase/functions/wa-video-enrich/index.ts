@@ -572,7 +572,14 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
   }
   if (!binaryVideo && link) {
     const metadata = await providerLinkMetadata(link);
-    if (!metadata) return { id: row.id, ok: false, retryable: true, stage: "provider_metadata", error: "metadata_unavailable" };
+    if (!metadata) {
+      // A failed provider request must not loop on every cron run or consume unbounded egress.
+      const { error: markError } = await sb.from("channel_updates")
+        .update({ enrichment_status: "retry_metadata", enrichment_source: link.provider + "_oembed" })
+        .eq("id", row.id).eq("status", "live");
+      return { id: row.id, ok: false, retryable: true, stage: "provider_metadata",
+        error: "metadata_unavailable", mark_error: markError?.message || null };
+    }
     const updates: Record<string, unknown> = {
       seo_title: metadata.title, enrichment_status: "enriched",
       enrichment_source: link.provider + "_oembed", enriched_at: new Date().toISOString(),
