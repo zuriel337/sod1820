@@ -279,7 +279,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     if (state.loading || state.projection) return;
     applySeo({
       title: "הפוסט לא נמצא",
-      description: "המקור המבוקש אינו זמין ב-SOD1820 2029.",
+      description: "המקור המבוקש אינו זמין ב-SOD1820.",
       path: location.pathname,
       noindex: true,
     });

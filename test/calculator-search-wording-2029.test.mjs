@@ -47,3 +47,16 @@ test("no page hands applySeo a title that already carries the site name (it appe
   }
   assert.deepEqual(offenders, []);
 });
+
+test("no internal \"2029\" in what Google or a reader sees: titles, descriptions, preview cards, screen-reader labels", () => {
+  const files = execFileSync("git", ["ls-files", "src", "api", "public-reading-deploy"], { encoding: "utf8" }).split("\n").filter(file => /\.(jsx?|mjs)$/.test(file) && !/\.test\.|\/dist\//.test(file));
+  const offenders = [];
+  for (const file of files) {
+    const source = readFileSync(new URL("../" + file, import.meta.url), "utf8");
+    for (const match of source.matchAll(/(?:title|description|desc|aria-label|w|sub|cap)\s*[:=]\s*(["'`])([^"'`]*?)\1/g)) {
+      const text = match[2];
+      if (/[\u0590-\u05FF]|SOD1820/.test(text) && /(SOD1820|[\u0590-\u05FF])\s*2029\b|\b2029\s*(—|·)/.test(text)) offenders.push(`${file}: ${text}`);
+    }
+  }
+  assert.deepEqual(offenders, []);
+});

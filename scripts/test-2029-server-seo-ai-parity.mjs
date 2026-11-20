@@ -158,7 +158,8 @@ assertNoHomeIdentity(await render("/", async () => ({ ok: true, json: async () =
 
 const number = await render("/2029/number/123", withOpenLaunchFlag("lock_number"));
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
-assert.match(number, /123 · דף המספר 2029/);
+assert.match(number, /123 · דף המספר · SOD1820/);
+assert.doesNotMatch(number, /דף המספר 2029/, "no internal year in public wording");
 assert.match(number, /og:type" content="website"/);
 assert.equal(number.includes('"@type":"Article"'), false);
 
