@@ -4,7 +4,7 @@
 **ענף:** `ccr-62250444-voptzj` · https://github.com/zuriel337/sod1820/tree/ccr-62250444-voptzj
 **בסיס:** #1462 `f5af86bffdba3ef573d52b00fa9a803e6efe8322` (ממוזג לענף בלי התנגשויות), מעל `origin/main` `7e7cc4b34`.
 **מצב:** COMMITTED, BRANCH-ONLY. לא נדחף ל־#1462, לא מוזג ל־main, לא נפרס, אין שינוי במסד, אין Preview.
-**השינויים עצמם:** `git diff f5af86bff..ccr-62250444-voptzj` (9 קבצים, מלבד המסמכים).
+**השינויים עצמם:** `git diff f5af86bff..ccr-62250444-voptzj` (8 קבצים, מלבד שני המסמכים).
 
 ## מה השתנה
 
