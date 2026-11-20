@@ -34,7 +34,7 @@ export function previewOperationalL1Task({event, grant, pricing, costLedger, now
   }
   if (!pricing || pricing.model !== grant.model
     || !costLedger || costLedger.month !== operationalBudgetMonth(nowIso)
-    || costLedger.reconciledWithProviderInvoice === false) {
+    || costLedger.reconciledWithProviderInvoice !== true) {
     return Object.freeze({state:"NO_L1_CALL",intent:classified.action,reason:"pricing_or_budget_state_unavailable",providerCallAuthorized:false});
   }
   const quote = quoteOperationalAiUpperBound({
