@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import ExternalVideoFacade2029 from "../experience2029/ExternalVideoFacade2029.jsx";
 import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
 import { GroupMessageText } from "./GroupSourceMeta2029.jsx";
-import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
+import { externalVideoLinksFromText, externalTikTokLinksFromText } from "../../lib/community/messageLinks.js";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import {
   CANONICAL_PUBLIC_UI_COPY,
@@ -133,6 +133,8 @@ export default function WorldPublicUpdates2029({
               address through; the group item keeps its "מקור · טרם נבדק" framing. */}
           {externalVideoLinksFromText(`${item.summary || ""} ${item.fullText || ""}`, 1).map(link =>
             <ExternalVideoFacade2029 key={link.key} link={link} title={item.label} context={groupSourceAnchor(item) ? `מקור · טרם נבדק${item.creator ? ` · ${item.creator}` : ""}` : item.creator ? `מקור · ${item.creator}` : ""} />)}
+          {externalTikTokLinksFromText(`${item.summary || ""} ${item.fullText || ""}`, 1).map(link =>
+            <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer" className="sod29-action">צפייה בסרטון ב־TikTok</a>)}
           {groupSourceAnchor(item) ? <details className="sod29-world-group-source" id={groupSourceAnchor(item)}
             onToggle={(event) => { if (event.currentTarget.open) onOpen?.(item, { inline: true }); }}
             open={selectedSourceHash === `#${groupSourceAnchor(item)}` || undefined}>
