@@ -16,7 +16,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
 import { WA_MEDIA_MAX_BYTES, waMessageMediaKind, waPublicMediaPath, waSniffMedia, waStableAssetId, waUploadAlreadyExists } from "../_shared/waMediaAsset.js";
-import { waGroupIntakePublic, waGroupMessageRoute, waInspectPublicGroupMedia, waIsPrivateMediaRef, waProveAndPublishGroupMedia, waReadPrivateGroupMedia } from "../_shared/waGroupMedia.js";
+import { waGroupIntakePublic, waGroupMessageRoute, waInspectPublicGroupMedia, waIsPrivateMediaRef, waProveAndPublishGroupMedia, waReadPrivateGroupMedia, waRecoverMissingGroupMessages } from "../_shared/waGroupMedia.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -225,7 +225,11 @@ async function ingestSource(
     return { ingested: 0, recoveryPending: recovering, recoveryBlocked: false, historyOk: false };
   }
 
-  const msgs = history.rows;
+  const msgs = await waRecoverMissingGroupMessages({
+    rows: history.rows, chatId, targetIds, verifiedRecovery,
+    fetchMessage: (payload: { chatId: string; idMessage: string }) => waAdmin("getMessage", payload, "POST"),
+    note: (result: { msgId: string; outcome: string; httpStatus?: number | null }) => trace.push({ step: "targeted-history-message", ...result }),
+  });
   const ordered = [...msgs].sort((a, b) => Number(a?.timestamp || 0) - Number(b?.timestamp || 0));
   const gapRows = targeted
     ? ordered.filter((m) => targetIds.includes(String(m?.idMessage || "")))

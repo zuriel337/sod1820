@@ -10,6 +10,37 @@ import { WA_MEDIA_MAX_BYTES, waPublicMediaPath, waSniffMedia, waStableAssetId, w
 export const WA_GROUP_MEDIA_TYPES = Object.freeze({ imageMessage: "image", videoMessage: "video" });
 const PRIVATE_REF = /^storage-object:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
+// Explicit verified recovery only: old messages can fall outside getChatHistory's
+// bounded window. An exact provider envelope supplements that window; it does not
+// prove ownership or publication. The existing database/source/media gates still run.
+export async function waRecoverMissingGroupMessages({ rows, chatId, targetIds, verifiedRecovery, fetchMessage, note = () => {} }) {
+  if (!verifiedRecovery || !String(chatId || "").endsWith("@g.us") || !targetIds.length) return rows;
+  const recovered = [...rows];
+  const present = new Set(rows.map(row => String(row?.idMessage || "")));
+  for (const id of [...new Set(targetIds)].slice(0, 50)) {
+    if (!id || present.has(id)) continue;
+    let response;
+    try { response = await fetchMessage({ chatId, idMessage: id }); } catch {
+      note({ msgId: id, outcome: "provider_unavailable" }); continue;
+    }
+    const message = response?.result;
+    if (response?.http_status !== 200) {
+      note({ msgId: id, outcome: "provider_unavailable", httpStatus: response?.http_status ?? null }); continue;
+    }
+    if (response?.http_status !== 200 || !message || Array.isArray(message)
+      || message.idMessage !== id || message.chatId !== chatId || message.type !== "incoming"
+      || message.isDeleted || message.deletedMessageId || message.isEdited || message.editedMessageId
+      || typeof message.senderId !== "string" || !message.senderId
+      || !Number.isFinite(message.timestamp) || message.timestamp <= 0) {
+      note({ msgId: id, outcome: "envelope_rejected" }); continue;
+    }
+    recovered.push(message);
+    present.add(id);
+    note({ msgId: id, outcome: "exact_envelope_recovered" });
+  }
+  return recovered;
+}
+
 // The private original of a research-first channel is stored as an opaque Storage object id (submission-inbox), never a URL.
 export const waIsPrivateMediaRef = (value) => PRIVATE_REF.test(String(value || ""));
 
