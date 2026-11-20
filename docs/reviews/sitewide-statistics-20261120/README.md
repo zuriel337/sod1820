@@ -129,7 +129,7 @@
 | `latest_event` ו־`last_at` | מתפרסמים רק מעל הסף של 10 אירועים ו־5 sessions, ובדיוק של שעה. אירוע יחיד ← `no_data` |
 | `search_log` ו־`gematria_wall` לא נגישים ללקוח | PGlite ו־PostgreSQL אמיתי |
 | קוראי SECURITY DEFINER ישנים | `legacy-readers-hardening.psql`: 5 פונקציות ו־6 RPC שנסגרו |
-| `privacy-floor/` | כל קורא ציבורי שדלף מקבל את הפרדיקט המשותף (21 פונקציות; הפירוט ב־`privacy-floor/README.md`). בחי 3,013 שורות מתוך 15,592 אינן זכאיות לפרסום, וכולן כבר מוסתרות מגולש ב־REST היום (§10.2). מנהל רואה הכול. בין הקוראים: `fn_name_multi` ועוזריו (עד כל המוסתרים), `number_dossier_json`, `fn_en_search`, `strongest_crossings`, `fn_cross_research`, `fn_all_methods` ועוד. ‏`top_collective` ו־`entity_collective_count` מקבלים רצפה של 3 משתמשים ובלי כותרת פרטית. ‏`research_level_of`, ‏`fn_cohort_acceptance` ו־`fn_metatron_gaps` עוברים לצד השרת בלבד. **הרצפה חלה על כל קורא, כולל service_role** (למשל ה־Edge `research-extract` דרך `fn_all_methods`) |
+| `privacy-floor/` | כל קורא ציבורי שדלף מקבל את הפרדיקט המשותף (21 פונקציות; הפירוט ב־`privacy-floor/README.md`). בחי 3,013 שורות מתוך 15,592 אינן זכאיות לפרסום, וכולן כבר מוסתרות מגולש ב־REST היום (§10.2). מנהל רואה הכול. בין הקוראים: `fn_name_multi` ועוזריו (עד כל המוסתרים), `number_dossier_json`, `fn_en_search`, `strongest_crossings`, `fn_cross_research`, `fn_all_methods` ועוד. ‏`top_collective` ו־`entity_collective_count` מקבלים רצפה של 3 משתמשים ובלי כותרת פרטית. ‏`fn_cohort_acceptance` ו־`fn_metatron_gaps` עוברים לצד השרת בלבד. ‏`research_level_of` **לא נוגעים בו**, כי הדירוג הציבורי של התורמים קורא לו (§10.11). **הרצפה חלה על כל קורא, כולל service_role** (למשל ה־Edge `research-extract` דרך `fn_all_methods`) |
 | רזיאל לא חושף ביקור בודד | `legacy-readers-sql.mjs`: ‏`suppressed` / `unavailable` |
 
 ## 6. תוכנית שחרור אחת (כל שלב דורש אישור ZURIEL לקומיט מדויק)
@@ -360,3 +360,11 @@ CI: לפי ה־SHA בתיאור ה־PR.
 ### 10.10 ה־403 ל־Googlebot: הועבר לבעל ה־SEO (‏#1463), לא בתוך #1462
 - מפת ה־HTTP החיה (דפדפן / Googlebot / בוט עוין) והאילוצים שלך נמסרו לסשן של #1463.
 - #1462 לא נוגע ב־`middleware-core.js`, ב־robots, ב־sitemap או בשערי ההשקה.
+
+### 10.11 שחרור מדורג: נמצא ותוקן לפני שלב 4 (‏21:55)
+- בשער של שלב 4 נמצא שהכיסוי של `research_level_of` בהצעה היה שגוי. היא טענה שאין לו קורא, אבל קוראים לו:
+  - **`api/public-contributor-rank.js`:** כגולש, בדירוג התורמים הציבורי.
+  - **`api/contributor-self.js`:** עם ה־JWT של המשתמש.
+- סגירה שלו הייתה שוברת יכולת ציבורית. **התיקון:** `privacy-floor` לא נוגע בו, וגם ההרשאות לא משתנות.
+- הבדיקה האמיתית (`privacy-floor-realpg.sh`) מוודאת עכשיו שגולש ומשתמש שומרים את הגישה.
+- **ממשקי הניהול הישנים** שנסגרים (`arrival_sources`, ‏`admin_ai_usage` ועוד): ‏Production ‏(`7e7cc4b`) מייבא מ־`visits.js` רק פונקציות שלא קוראות להם. לכן מרכז הבקרה לא מאבד יכולת.

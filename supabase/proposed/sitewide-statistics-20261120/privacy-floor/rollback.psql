@@ -43,9 +43,7 @@ begin;
 ;
 \ir top_collective.before.sql
 ;
--- C: previous ACLs: research_level_of {postgres,anon,authenticated}; fn_cohort_acceptance / fn_metatron_gaps {PUBLIC,postgres}
-revoke execute on function public.research_level_of(uuid) from service_role;
-grant execute on function public.research_level_of(uuid) to anon, authenticated;
+-- C: previous ACLs: fn_cohort_acceptance / fn_metatron_gaps {PUBLIC,postgres} (research_level_of is not touched)
 revoke execute on function public.fn_cohort_acceptance(text) from service_role;
 grant execute on function public.fn_cohort_acceptance(text) to public;
 revoke execute on function public.fn_metatron_gaps() from service_role;

@@ -26,7 +26,6 @@ do $pf$ begin
  if md5(pg_get_functiondef('public.number_resonance_stats(text,jsonb)'::regprocedure)) <> 'e940dac6d259c7446a2483c8e91e4157' then raise exception 'preimage drift: number_resonance_stats'; end if;
  if md5(pg_get_functiondef('public.fn_entity_strength(text,text)'::regprocedure)) <> 'ec69381c9f9bd33894280ac07158f8d4' then raise exception 'preimage drift: fn_entity_strength'; end if;
  if md5(pg_get_functiondef('public.top_collective(integer,integer)'::regprocedure)) <> '11a13e0491f4556cc31c5195effbde8c' then raise exception 'preimage drift: top_collective'; end if;
- if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.research_level_of(uuid)'::regprocedure) is distinct from array['anon=X/postgres', 'authenticated=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: research_level_of'; end if;
  if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.fn_cohort_acceptance(text)'::regprocedure) is distinct from array['=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: fn_cohort_acceptance'; end if;
  if (select array_agg(x order by x collate "C") from pg_proc, unnest(proacl::text[]) x where oid='public.fn_metatron_gaps()'::regprocedure) is distinct from array['=X/postgres', 'postgres=X/postgres']::text[] then raise exception 'grant drift: fn_metatron_gaps'; end if;
 end $pf$;
@@ -77,8 +76,8 @@ end $pf$;
 \ir top_collective.after.sql
 ;
 -- C: revoke-only (zero app/SQL callers except SECURITY DEFINER fn_metatron_status / fn_metatron_recommend, owner postgres)
-revoke execute on function public.research_level_of(uuid) from public, anon, authenticated;
-grant execute on function public.research_level_of(uuid) to service_role;
+-- research_level_of(uuid) is NOT touched (owner gate 20.11.2026): the public contributor rank
+-- (api/public-contributor-rank.js, anon) and api/contributor-self.js (user JWT) call it. Grants unchanged.
 revoke execute on function public.fn_cohort_acceptance(text) from public, anon, authenticated;
 grant execute on function public.fn_cohort_acceptance(text) to service_role;
 revoke execute on function public.fn_metatron_gaps() from public, anon, authenticated;

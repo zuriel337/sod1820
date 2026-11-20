@@ -36,7 +36,7 @@ Order: `../apply.psql` (creates `public.gematria_public_word_eligible(uuid)`), t
 | fn_entity_strength | conv count includes hidden rows | predicate on conv count | none found | ec69381c9f9bd33894280ac07158f8d4 |
 | top_collective | title could come from private research_items.entity_ref | floor greatest(min_users,3); research_items leg returns null title | supabaseApi2029.js | 11a13e0491f4556cc31c5195effbde8c |
 | entity_collective_count | counts below 3 exposed | returns 0 below 3 distinct users | supabaseApi2029.js | 899bd4c073f216d778b046bc001e9b3c |
-| research_level_of(uuid) | anon/authenticated EXECUTE, no caller (only a code comment) | revoke public/anon/authenticated; grant service_role | none | body unchanged |
+| research_level_of(uuid) | **not changed** (owner gate 20.11.2026): it has real callers, the public contributor rank (`api/public-contributor-rank.js`, anon) and `api/contributor-self.js` (user JWT). The earlier "no caller" was wrong | none | api/public-contributor-rank.js, api/contributor-self.js | body and grants unchanged |
 | fn_cohort_acceptance(text) | PUBLIC EXECUTE, no caller | same | none | body unchanged |
 | fn_metatron_gaps() | PUBLIC EXECUTE; callers fn_metatron_status and fn_metatron_recommend (both SECURITY DEFINER, owner postgres) | same | none | body unchanged |
 
