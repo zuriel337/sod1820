@@ -1,0 +1,30 @@
+name: Intake Operational Policy V1
+
+on:
+  pull_request:
+    paths:
+      - "src/lib/research/intakeOperationalPolicy2029.js"
+      - "test/intake-operational-policy-2029.test.mjs"
+      - "docs/reviews/intake-operational-autonomy-20261120/**"
+      - ".github/workflows/intake-operational-policy-gate.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  decision-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Deterministic intake operational safety and autonomy
+        run: node --test test/intake-operational-policy-2029.test.mjs
+      - name: Ensure feature is not imported into live intake
+        run: |
+          ! grep -q "intakeOperationalPolicy2029" supabase/functions/wa-channel-ingest/index.ts
+          ! grep -q "intakeOperationalPolicy2029" supabase/functions/wa-channel-research-intake/index.ts
