@@ -7,6 +7,8 @@ on:
       - "test/intake-operational-policy-2029.test.mjs"
       - "src/lib/research/intakeOperationalCostPreview2029.js"
       - "test/intake-operational-cost-2029.test.mjs"
+      - "src/lib/research/intakeOperationalPlanPreview2029.js"
+      - "test/intake-operational-plan-preview-2029.test.mjs"
       - "docs/reviews/intake-operational-autonomy-20261120/**"
       - ".github/workflows/intake-operational-policy-gate.yml"
   workflow_dispatch:
@@ -25,7 +27,7 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: Deterministic intake operational safety and autonomy
-        run: node --test test/intake-operational-policy-2029.test.mjs test/intake-operational-cost-2029.test.mjs
+        run: node --test test/intake-operational-policy-2029.test.mjs test/intake-operational-cost-2029.test.mjs test/intake-operational-plan-preview-2029.test.mjs
       - name: Ensure feature is not imported into live intake
         run: |
           ! grep -q "intakeOperationalPolicy2029" supabase/functions/wa-channel-ingest/index.ts
