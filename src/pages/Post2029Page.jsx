@@ -156,7 +156,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const passiveSourceHtml = useMemo(() => {
     // The one article pipeline, shared with the first document (postArticlePipeline2029.js).
     const html = postArticleSourceHtml2029(state.projection?.post?.content || "", { postId: state.projection?.post?.id, voice: postVoice, annotate: protoOn, cover: state.projection?.post?.image_url || "", facts: imageFacts });
-    return realityMapPreviewEnabled() && protoOn && realityMap.active && !editorEnabled ? compactMapUnitHtml(html, state.projection?.post?.id) : html;
+    return import.meta.env.VITE_REALITY_MAP_PREVIEW === "true" && protoOn && realityMap.active && !editorEnabled ? compactMapUnitHtml(html, state.projection?.post?.id) : html;
   }, [realityMap.active, editorEnabled, state.projection?.post?.content, state.projection?.post?.id, state.projection?.post?.image_url, postVoice, protoOn, imageFacts]);
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second

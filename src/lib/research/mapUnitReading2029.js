@@ -1,12 +1,17 @@
 import { publicPostUnitHref } from "../publicPostUrls.js";
 
+// Editorial selection for the preview, independent of publication order.
+export const mapLeadId = 5107;
+const bennettId = 5113;
+export const mapTimelinePostIds = [mapLeadId, bennettId];
+
 const elections = {
-  id: 5107, slug: "sharshar-elections-redemption-hints-draft", key: "yamin-smol-2026-5787-1237-1158",
+  id: mapLeadId, slug: "sharshar-elections-redemption-hints-draft", key: "yamin-smol-2026-5787-1237-1158",
   label: "ימין ושמאול תפרצי · הבחירות",
   essence: "יניב לוי פותח בפסוק מישעיהו וקושר אותו ל־2026 ולתשפ״ז. בהמשך מופיעה הקריאה המספרית של יצחק שחר קנדרו.",
 };
 const bennett = {
-  id: 5113, slug: "bennett-melach-631-78", key: "bennett-salt-covenant-unity-20261119",
+  id: bennettId, slug: "bennett-melach-631-78", key: "bennett-salt-covenant-unity-20261119",
   label: "ברית מלח · בנט",
   essence: "בקריאה של הפוסט, המלח שנזרק לעבר בנט בבני ברק מתחבר להצעתו להושיב יריבים פוליטיים בממשלה אחת. ״ברית מלח״ היא החוט המקשר בין שני הרגעים.",
 };
