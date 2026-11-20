@@ -18,7 +18,7 @@ A check run is named by its **job** (the job's `name:`, else the job id). The wo
 required status check by that name (and optionally by the app that reported it). No workflow here uses a matrix, a reusable workflow or a
 dynamic job name (the derive script refuses all three, so a new shape fails loudly instead of being read wrongly).
 
-31 pull-request jobs in 20 workflows, 28 distinct names. `D` below = duration. **The ceiling is `timeout-minutes` (exact, from the file;
+32 pull-request jobs in 21 workflows, 29 distinct names. `D` below = duration. **The ceiling is `timeout-minutes` (exact, from the file;
 "unset" = GitHub's default of 360 minutes). The estimate is read from the steps (install, build, browser) and is NOT measured**; the integrator
 can replace it with `gh run list --workflow <file> --json databaseId,conclusion,createdAt,updatedAt` over the last pull requests.
 
@@ -35,6 +35,7 @@ can replace it with `gh run list --workflow <file> --json databaseId,conclusion,
 | `Mobile + Accessibility Acceptance` | release-visual-gate.yml | always (opened, synchronize, reopened, ready_for_review) | no | dispatch | 15 min | 8-12 min | **required** |
 | `gate` (Observability/SEO Build Gate) | observability-seo-gate.yml | always | no | dispatch | unset | 4-8 min | rename first (see 3) |
 | `Production Canary Gate` | release-visual-gate.yml | always | no | dispatch | 5 min | under 1 min | **never** (live state) |
+| `isolated-acceptance` | sitewide-statistics-2029.yml | paths (6) | **yes** | none | 20 min | isolated SQL + builds + browser | advisory; added 20.11.2026 for #1456; no ruleset change |
 | `hard-isolation` | 2029-isolation-gate.yml | **paths (87 entries, incl. `test/**`, `src/lib/research/**`)** | **yes** | dispatch | 20 min | 8-15 min | aggregator candidate |
 | `els-core-compatibility` | els-core-compatibility-gate.yml | paths (64) | **yes** | dispatch | unset | under 1 min after all four children | aggregator candidate (still path-filtered) |
 | `els-core-contracts` | els-core-compatibility-gate.yml | paths (64) | **yes** | dispatch | unset | install + isolated SQL | internal child; advisory |

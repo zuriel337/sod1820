@@ -556,6 +556,26 @@
     "tier": "advisory-path-filtered",
     "reason": "path-filtered: it does not start on a pull request that touches none of its paths, so as a required check it would leave such pull requests at \"Expected - Waiting for status\"; advisory until an aggregator exists"
    }
+  },
+  {
+   "check": "isolated-acceptance",
+   "workflow_file": "sitewide-statistics-2029.yml",
+   "workflow_name": "Sitewide Statistics 2029",
+   "job_id": "isolated-acceptance",
+   "pr_trigger": "paths",
+   "pr_branches": [
+    "main"
+   ],
+   "pr_types": null,
+   "path_filter_entries": 5,
+   "also_on": [],
+   "timeout_minutes": 20,
+   "cost_class": "browser",
+   "duplicate_name": false,
+   "proposal": {
+    "tier": "advisory-path-filtered",
+    "reason": "Path-filtered isolated statistics SQL, measurement and browser acceptance. No ruleset update or required-now promotion."
+   }
   }
  ],
  "updates": [
@@ -564,6 +584,12 @@
    "base_commit": "d550d0fc3ad85265b140435df35d215ceeebc80e",
    "scope": "els-core-compatibility-gate.yml",
    "change": "Split ELS into contracts, three statically named browser jobs and the existing final check; preserve the required-now proposal and repository ruleset."
+  },
+  {
+   "date": "2026-11-20",
+   "base_commit": "20886b760787d1decfe63c67801880c498d061c2",
+   "scope": "sitewide-statistics-2029.yml",
+   "change": "Add one path-filtered isolated statistics acceptance job. Existing required-now proposals and repository ruleset unchanged."
   }
  ]
 }

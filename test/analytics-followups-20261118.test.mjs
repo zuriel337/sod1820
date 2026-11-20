@@ -20,7 +20,13 @@ function proposedDbSpec() {
   assert.deepEqual(oldEls.els, { events: ["search", "cross_search"], fields: { kind: "token", scope: "token", skip: "int" } });
   assert.deepEqual(previous.els, oldEls.els);
   assert.deepEqual(Object.keys(nextEls), ["els"], "the extension changes only the ELS family");
-  return { ...previous, ...nextEls };
+  const prior = { ...previous, ...nextEls };
+  const siteProposal = fs.readFileSync(new URL("../supabase/proposed/sitewide-statistics-20261120/ingest_event.after.sql", import.meta.url), "utf8");
+  const siteSpec = JSON.parse(siteProposal.match(/v_spec jsonb := '(\{.*\})'::jsonb;/)[1]);
+  const { activity_2029, ...unchanged } = siteSpec;
+  assert.deepEqual(unchanged, prior, "site activity must preserve every pre-existing family exactly");
+  assert.ok(activity_2029, "site activity is an explicit extension of the existing ingest owner");
+  return siteSpec;
 }
 
 test("client and proposed ingest_event spec are identical, family by family", () => {

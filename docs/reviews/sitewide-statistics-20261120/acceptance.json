@@ -51,7 +51,19 @@
     },
     "build": "PASS",
     "public_reading_build": "PASS",
-    "ci": "pending PR"
+    "ci": "pending PR",
+    "release_boundary_negative_cases": {
+      "pass": 21
+    },
+    "ci_contract_repairs": {
+      "pass": 15,
+      "details": [
+        "exact Preview branch expectation synchronized",
+        "new advisory CI job recorded without changing ruleset",
+        "new activity family composed after historical ELS spec without changing old families",
+        "browser runner pinned to supported ubuntu-24.04"
+      ]
+    }
   },
   "budgets": {
     "standard": {
