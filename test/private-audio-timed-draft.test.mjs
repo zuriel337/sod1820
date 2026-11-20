@@ -22,6 +22,18 @@ test('Hebrew and Russian are recognized separately without a caller language hin
   for (const [word,lang] of [['שלום','he'],['радость','ru']])
     assert.equal(privateAudioTimedDraft({ok:true,duration:2,words:[{start:0,end:1,word}]}).classification,lang);
 });
+test('invalid word alignment falls back to real segment times and retains raw evidence', () => {
+  const words = [{start:0,end:0,word:'שלום'},{start:1,end:2,word:'לכולם'}];
+  const segments = [{start:0,end:2,text:'שלום לכולם'}, {start:2,end:4,text:'радость'}];
+  const out = privateAudioTimedDraft({ok:true,duration:4,text:'שלום לכולם радость',words,segments});
+  assert.equal(out.classification,'mixed');
+  assert.equal(out.timing_basis,'provider_segments');
+  assert.deepEqual(out.segments.map(s=>[s.start,s.end,s.language]),[[0,2,'he'],[2,4,'ru']]);
+  assert.deepEqual(out.asr_evidence.words,words);
+  const unknown = privateAudioTimedDraft({ok:true,duration:1,text:'שלום',words,segments});
+  assert.equal(unknown.classification,'unknown');
+  assert.equal(unknown.asr_evidence.text,'שלום');
+});
 test('timestamp mode is opt-in; the existing default model and request stay unchanged', async () => {
   for (const timestamped of [false,true]) {
     let request;

@@ -16,6 +16,7 @@ const fixtures = {
   "themeMode.js": "export const setForcedMode=(...args)=>globalThis.__communityCalc.effects.push(['theme',...args]);",
   "engine.js": "import {METHODS} from './src/lib/gematria.js';export const resolve=name=>({value:METHODS[0].fn(name)});",
   "supabase.js": `export const getAllValuePhrases=async value=>{globalThis.__communityCalc.reads.push(value);return [{phrase:'רז',is_verified:true}];};
+    export const supabase={rpc:async(name,args)=>{if(name!=='fn_ti_public_activity2029'||args.p_hours!==24)throw Error('unexpected pulse read');globalThis.__communityCalc.pulseReads.push(name);return {data:{version:1,state:'empty',numbers:[],phrases:[],activity:[]},error:null};}};
     export const addWallWord=(...args)=>globalThis.__communityCalc.effects.push(['wall',...args]);
     export const getAiAnalysis=async(...args)=>{globalThis.__communityCalc.effects.push(['ai',...args]);return 'AI';};`,
   "gematriaMethodRegistry.js": "export const fetchGematriaMethodStates=async()=>null;export const indexGematriaMethodStates=()=>null;",
@@ -47,7 +48,7 @@ after(async () => { await rm(outfile, { force: true }); delete globalThis.__comm
 
 function fixture(search) {
   const browserSearch = new URL(`https://preview.example/community/calculator${search}`).search;
-  const value = { location: { pathname: "/community/calculator", search: browserSearch, hash: "#result", key: "arrival" }, effects: [], reads: [], contexts: [], replacements: [], seo: [] };
+  const value = { location: { pathname: "/community/calculator", search: browserSearch, hash: "#result", key: "arrival" }, effects: [], reads: [], pulseReads: [], contexts: [], replacements: [], seo: [] };
   globalThis.__communityCalc = value;
   globalThis.window = { location: { origin: "https://preview.example" }, history: { state: { key: "arrival" }, replaceState: (_state, _title, url) => value.replacements.push(url) } };
   return value;
@@ -63,6 +64,7 @@ test("public calculator mount and typing calculate immediately without wall, AI,
   assert.deepEqual(state.replacements, [], "arrival URL is not rewritten on mount");
   await act(async () => { context.mock.timers.tick(2000); });
   assert.ok(state.reads.length > 0);
+  assert.ok(state.pulseReads.length > 0, "the activity strip only reads the approved aggregate RPC");
   assert.deepEqual(state.effects, []);
   assert.match(output(root), /ניתוח AI ושמירה אינם זמינים/);
   const numberLink = root.root.findAllByType("a").find(link => link.props.href.includes("/number/643?") && new URL(link.props.href, "https://sod1820.co.il").searchParams.get("focus") === "אור");

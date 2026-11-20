@@ -2,7 +2,7 @@
   "schema": 1,
   "issue": 1456,
   "branch": "codex/1456-sitewide-statistics-20261120",
-  "base_sha": "33b5cb552b48173cecdc3939c61bf7b7b1f3ed8c",
+  "base_sha": "1f01e246abfc25cfdaae2a64cfca9a5ac2992dbc",
   "database_applied": false,
   "production_changed": false,
   "merge_authorized": false,
@@ -87,6 +87,9 @@
       "proven": 1297,
       "differ": 0,
       "source": "public readonly; pipeline fingerprint bound"
+    },
+    "calculator_continuity_and_main_sync": {
+      "pass": 41
     }
   },
   "budgets": {
