@@ -18,7 +18,7 @@ begin
 
   -- 🔵 עובדת-מנוע: עומק-התכנסות (כמה ביטויים מאומתים נפגשים בערך)
   conv := coalesce((select count(*) from public.gematria_words
-                    where ragil = v_val and coalesce(is_encrypted,false)=false and public.gematria_public_word_eligible(gematria_words.id)), 0);
+                    where ragil = v_val and coalesce(is_encrypted,false)=false and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))), 0);
   -- 👥 פופולריות: חוקרים שונים (מאוחד 4a) + מגיבים שונים
   researchers := public.entity_collective_count(p_type, p_ref);
   reactors := coalesce((

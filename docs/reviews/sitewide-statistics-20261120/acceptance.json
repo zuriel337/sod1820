@@ -47,7 +47,7 @@
     },
     "postgrest_binary_codex": {
       "version": "16.6",
-      "local": "PASS in Codex session; runs in CI with sha256 pin",
+      "ci": "PASS (isolated-acceptance on f5af86bff, sha256 pinned; anon/JWT/admin, forged identity, header fail-closed, 16 concurrent replays counted once)",
       "live_edge_header": "UNKNOWN until SQL step 2 canary"
     },
     "privacy_floor_real_postgres_16": {
@@ -72,6 +72,20 @@
         "failed": 0,
         "avg_ms": 30
       }
+    },
+    "real_postgres_ci_major": "17 (CI installs postgresql-17 and fails on any other major)",
+    "pre_existing_failures": [
+      {
+        "test": "test/raziel-canonical-navigation-actions.test.mjs",
+        "result": "26/27",
+        "same_on_main": "7e7cc4b"
+      }
+    ],
+    "public_floor_nonregression_pglite": {
+      "pass": 9
+    },
+    "search_log_floor_real_postgres": {
+      "pass": 8
     }
   },
   "budgets_vs_main": {
@@ -358,5 +372,41 @@
   "previous": {
     "codex_acceptance_schema": 2,
     "codex_checks": 12
+  },
+  "integration": {
+    "single_writer": "Claude (ZURIEL decision, option A)",
+    "pr": 1462,
+    "contains_pr_1461_commits": [
+      "5a76537f8",
+      "35a6ef718",
+      "8c12817ae",
+      "db3c4d4ed"
+    ],
+    "merge_commit": "767efabff",
+    "runtime_audit_json": "byte-identical to #1461",
+    "calculator_session": {
+      "branch": "ccr-62250444-voptzj",
+      "sha": "1aafeb025",
+      "decision": "not integrated: SEO/indexing scope, no measurement change"
+    }
+  },
+  "public_gate_20261120": {
+    "owner_comment": "#1462 issuecomment-7050714948",
+    "fixed": [
+      "private-wall clause removed: 22 published curated words stay public",
+      "phrase floor hides only phrases present in the corpus with no public row: 39/118 atlas relations and 2/13 bridges stay",
+      "admin parity (select rd_is_admin()) in 19 readers"
+    ],
+    "not_eligible": {
+      "total": 3013,
+      "unpublished": 2996,
+      "published_encrypted": 16,
+      "published_unverified": 1,
+      "already_hidden_from_anon_rest": 3013,
+      "public_words_lost": 0
+    },
+    "sql_applied": false,
+    "canary_preapply_live": "16 probes, read-only; 0 public phrases lost; top_collective 5 not guaranteed (README 10.8)",
+    "stage1_preflight_live": "gates 1-2 pass on live 20.11.2026 (read-only); not applied"
   }
 }

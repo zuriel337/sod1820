@@ -19,6 +19,7 @@ pass=0; check() { if [ "$1" = "$2" ]; then pass=$((pass+1)); echo "PASS $3"; els
 Q <<'SQL'
 create role anon; create role authenticated; create role service_role;
 create function public.gematria_public_word_eligible(uuid) returns boolean language sql as 'select true';
+create function public.rd_is_admin() returns boolean language sql as 'select false';
 create function public.research_level_of(uuid) returns jsonb language sql security definer as 'select null::jsonb';
 create function public.fn_cohort_acceptance(text) returns jsonb language sql security definer as 'select null::jsonb';
 create function public.fn_metatron_gaps() returns jsonb language sql security definer as 'select null::jsonb';
@@ -68,11 +69,12 @@ acl_before=$(Q -c "select jsonb_agg(jsonb_build_array(oid::regprocedure::text,(s
 runp() { { echo "set check_function_bodies=off;"; sed "s#\\\\ir #\\\\ir $F/#" "$F/$1"; } | Q >/dev/null; }
 runp apply.psql
 check "$(md5s after)" "$n" "apply.psql: every function equals its reviewed .after.sql"
-check "$(Q -c "select bool_and(not has_function_privilege('anon',oid,'execute') and has_function_privilege('service_role',oid,'execute')) from pg_proc where proname in ('research_level_of','fn_cohort_acceptance','fn_metatron_gaps','fn_metatron_status','admin_ai_usage','admin_ambassadors','admin_journey_shares','admin_research_usage','arrival_sources','audience_dim5_vs_orgeula','audience_overlap_report','community_share_count','els_analytics','viral_report')")" t 'revoked readers and their public wrapper are server-only'
+check "$(Q -c "select bool_and(not has_function_privilege('anon',oid,'execute') and has_function_privilege('service_role',oid,'execute')) from pg_proc where proname in ('fn_cohort_acceptance','fn_metatron_gaps','fn_metatron_status','admin_ai_usage','admin_ambassadors','admin_journey_shares','admin_research_usage','arrival_sources','audience_dim5_vs_orgeula','audience_overlap_report','community_share_count','els_analytics','viral_report')")" t 'revoked readers and their public wrapper are server-only'
+check "$(Q -c "select has_function_privilege('anon','research_level_of(uuid)','execute') and has_function_privilege('authenticated','research_level_of(uuid)','execute')")" t 'public contributor rank keeps research_level_of (not touched)'
 runp rollback.psql
 check "$(Q -c "select jsonb_agg(jsonb_build_array(oid::regprocedure::text,(select array_agg(a order by a) from unnest(proacl::text[]) a)) order by proname) from pg_proc where pronamespace='public'::regnamespace")" "$acl_before" 'rollback restores every original ACL including retired telemetry APIs'
 check "$(md5s before)" "$n" 'rollback.psql restores every exact preimage'
-check "$(Q -c "select has_function_privilege('anon','research_level_of(uuid)','execute') and has_function_privilege('anon','fn_metatron_gaps()','execute')")" t 'rollback restores the previous grants'
+check "$(Q -c "select has_function_privilege('anon','fn_metatron_gaps()','execute')")" t 'rollback restores the previous grants'
 Q -c "update pg_proc set prosrc=prosrc||' ' where proname='strongest_crossings'" >/dev/null
 if runp apply.psql 2>/dev/null; then check applied refused 'drift guard'; else check refused refused 'a drifted preimage stops apply.psql (nothing overwritten)'; fi
 echo "PRIVACY FLOOR REAL POSTGRES ${pass} checks PASS ($("$PG_BIN/postgres" --version); isolated, bodies not executed)"

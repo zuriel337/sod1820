@@ -7,7 +7,7 @@ AS $function$
 -- #1461 privacy floor
   with weighty as (   -- מילים בעלות-משקל: מובילות / תמטיות / בגרף (לא סתם כל מילת-ציר)
     select distinct phrase from gematria_words
-    where (lead_rank is not null or world is not null or node_id is not null) and public.gematria_public_word_eligible(gematria_words.id)
+    where (lead_rank is not null or world is not null or node_id is not null) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
   ),
   hits as (
     select a.method, a.phrase a_phrase, b.phrase b_phrase, a.value

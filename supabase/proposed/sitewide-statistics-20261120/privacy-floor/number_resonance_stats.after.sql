@@ -18,7 +18,7 @@ AS $function$
                 g.lead_rank is not null
                 or (coalesce(array_length(g.source_wp_ids,1),0) = 0
                     and coalesce(g.source,'') !~ '^(excel_import|promoted:|auto:|wp_id:)')
-              ) from gematria_words g where g.phrase = b.phrase and public.gematria_public_word_eligible(g.id)), false) as axis
+              ) from gematria_words g where g.phrase = b.phrase and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(g.id))), false) as axis
     from ours o
     join bidim b on b.value = o.self_value and b.method in (select m from legible)
     where b.phrase <> p_self

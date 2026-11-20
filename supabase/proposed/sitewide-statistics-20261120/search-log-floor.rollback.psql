@@ -1,0 +1,7 @@
+-- PROPOSAL ONLY. Exact revert of search-log-floor.standalone.psql: drops only the two policies it created.
+-- Note: extensions.sql (stage 2) creates the same two policies; after stage 2, revert with rollback.psql instead.
+\set ON_ERROR_STOP on
+begin;
+drop policy ti_search_history_server_only on public.search_log;
+drop policy ti_search_no_new_raw on public.search_log;
+commit;
