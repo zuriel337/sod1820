@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { retiredCollectionContinuation } from "../public-reading-deploy/api/public-document.js";
-import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_KEEPER, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
+import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_DATA_PAGE_GRACE_MS, firstWordsGraceMs2029, FIRST_WORDS_KEEPER, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
 import { beforeEach } from "node:test";
 beforeEach(() => _resetFirstWordsForTests());
 
@@ -134,7 +134,7 @@ test("an instance keeps what it read: fresh answers read nothing, a stale answer
   assert.equal(reads, 2, "one background read");
   assert.equal((await firstWordsFacts2029("/gematria", options)).recent[0].ragil, 208);
   clock += FIRST_WORDS_CACHE.staleMs + 1;
-  assert.equal(await firstWordsFacts2029("/gematria", { ...options, fetchImpl: async () => { throw new Error("down"); } }), null, "too old and the source is down: no words");
+  assert.equal(await firstWordsFacts2029("/gematria", { ...options, fetchImpl: async () => { throw new Error("down"); } }), null, "past the bound and the source is down: no words, never an old answer");
   assert.equal((await firstWordsFacts2029("/gematria", options)).recent[0].ragil, 208, "a failure kept nothing");
   assert.ok(FIRST_WORDS_GRACE_MS <= 300 && FIRST_WORDS_CACHE.entries <= 400);
 });
@@ -160,4 +160,41 @@ test("the words stay through the page's own opening shell and never return over 
   root.replaceChildren(twin()); await settle();
   assert.equal(root.querySelector("[data-first-words]"), null);
   window.close();
+});
+
+test("a hidden phrase leaves the kept answers within the bound: the number page, the phrase page and the calculators", async () => {
+  let clock = 5_000_000, published = true;
+  const fetchImpl = async url => {
+    const address = decodeURIComponent(String(url));
+    assert.match(address, /rpc\/|is_verified=eq\.true&is_published=eq\.true|number_anchors|posts\?/, "every phrase read asks for verified, published rows only");
+    if (address.includes("rpc/")) return new Response("[]", { status: 404 });
+    if (address.includes("number_anchors") || address.includes("posts?")) return json([]);
+    if (address.includes("phrase=eq.טסט")) return json(published ? [{ phrase: "טסט", ragil: 78 }] : []);
+    return json([{ phrase: "מלח", ragil: 78 }, { phrase: "לחם", ragil: 78 }, ...(published ? [{ phrase: "טסט", ragil: 78 }] : [])]);
+  };
+  const options = { fetchImpl, now: () => clock };
+  const pages = ["/number/78", "/number/" + encodeURIComponent("טסט"), "/gematria"];
+  const html = async path => firstWordsHtml2029(await firstWordsFacts2029(path, options));
+  for (const path of pages) assert.match(await html(path), /טסט/, path + ": shown while published");
+  published = false;                                   // the owner hides the phrase
+  clock += FIRST_WORDS_CACHE.freshMs - 1;
+  for (const path of pages) assert.match(await html(path), /טסט/, path + ": a kept answer may still be used inside the fresh window");
+  clock += 2;                                          // just past fresh: used once more, and one read replaces it
+  for (const path of pages) await html(path);
+  await new Promise(resolve => setTimeout(resolve, 5));
+  for (const path of pages) assert.doesNotMatch(await html(path), /טסט/, path + ": gone after the replacing read");
+  assert.equal(await html(pages[1]), "", "the hidden phrase's own page has no words at all");
+  // An instance that saw no request in between never serves the old answer past the bound.
+  _resetFirstWordsForTests(); published = true; clock = 9_000_000;
+  for (const path of pages) await html(path);
+  published = false; clock += FIRST_WORDS_CACHE.staleMs + 1;
+  for (const path of pages) assert.doesNotMatch(await html(path), /טסט/, path + ": past the bound the answer is read again, not reused");
+  assert.ok(FIRST_WORDS_CACHE.staleMs <= 10 * 60 * 1000, "a hidden phrase is out of every document within ten minutes");
+});
+
+test("a number or phrase document waits for its words on a first request; the other families keep the short wait", () => {
+  assert.equal(firstWordsGraceMs2029("/number/78"), FIRST_WORDS_DATA_PAGE_GRACE_MS);
+  assert.equal(firstWordsGraceMs2029("/number/" + encodeURIComponent("נטע")), FIRST_WORDS_DATA_PAGE_GRACE_MS);
+  for (const path of ["/gematria", "/community/calculator", "/codes", "/topic/x", "/", "/post/x"]) assert.equal(firstWordsGraceMs2029(path), FIRST_WORDS_GRACE_MS, path);
+  assert.ok(FIRST_WORDS_DATA_PAGE_GRACE_MS <= 1200 && FIRST_WORDS_GRACE_MS <= 300);
 });

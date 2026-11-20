@@ -13,16 +13,22 @@
 --   (d) a public post that names it in its title (the same rule posts_by_number_strict ranks first) AND at least one verified
 --       published phrase. Quality check 20.11.2026: without the phrase condition, 20 numbers entered on a post title alone with nothing
 --       to show, among them years (2014, 2023, 2026, 5784) and HTML entity codes that sit in imported titles (8211, 8212, 8230).
--- Read-only check of this rule (20.11.2026): 450 -> 1,274 numbers; none of today's 450 leaves. Of the 824 new ones, 251 have ten or more
--- verified phrases, 366 have five to nine, 203 have three or four, and 4 have one or two together with a post that names them.
--- The lower bound stays 10. The function signature, the priority values and every caller stay as they are.
+-- Read-only check of this exact rule AS THE PUBLIC READER (role anon, which is how api/sitemap.js and api/og.js call it), 20.11.2026:
+--   445 -> 1,273 numbers; none of today's 445 leaves; 828 join. (As the owner role the same rule gives 450 -> 1,274: two approved topic
+--   cards are not visible to anon. The public figure is the one the sitemap and the robots answer use.)
+--   The 828 that join: 255 have ten or more verified phrases, 366 have five to nine, 203 have three or four, 4 have one or two together
+--   with a public post that names them. Priority of today's 445 does not change.
+-- lastmod: the newest verified phrase now counts (before, only galleries and topic cards dated a number). 37 of today's 445 get a later
+--   date, none an earlier one, none in the future. 759 of the 828 that join have had no change since the floor date and would carry
+--   2026-07-08. Their documents do change on the day this package is released (first words), so the floor date is a release decision:
+--   set it to the release day when the rule is applied with that release, or leave it.
 create or replace function public.sitemap_numbers()
  returns table(value integer, priority text, lastmod text)
  language sql
  stable
 as $function$
   with gem as (
-    select ragil as v, count(distinct phrase)::int as c
+    select ragil as v, count(distinct phrase)::int as c, max(created_at) as d
     from gematria_words
     where ragil >= 10 and is_verified and is_published
     group by ragil having count(distinct phrase) >= 3
@@ -51,7 +57,8 @@ as $function$
     select i.v,
       (select c from gem where gem.v = i.v) as gc,
       (i.v in (select v from gal)) as has_gal,
-      greatest((select d from gal where gal.v = i.v), (select d from tp where tp.v = i.v), (select d from pt where pt.v = i.v)) as d
+      -- the newest verified phrase counts as a change too; never a date in the future
+      least(greatest((select d from gem where gem.v = i.v), (select d from gal where gal.v = i.v), (select d from tp where tp.v = i.v), (select d from pt where pt.v = i.v)), now()) as d
     from ids i where i.v >= 10 and i.v is not null
   )
   select v as value,

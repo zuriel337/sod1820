@@ -4,7 +4,7 @@ import ogHandler from "../../api/og.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } from "../../src/lib/publicReadingRelease2029.js";
 import { withArticleFirst2029 } from "./article-first.js";
 import { withRoutePreloads2029 } from "../route-preload.js";
-import { firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_GRACE_MS } from "../first-words.js";
+import { firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, firstWordsGraceMs2029 } from "../first-words.js";
 import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, publicCandidateOrigin, publicIndexingAllowed, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
@@ -221,7 +221,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       const firstDocument = articleFirst(await readDocument(), { path, search, status: temporarilyClosed || closed || state === "account" ? 0 : status, post: admittedPost });
       res.setHeader("X-Sod-Article-First", firstDocument.state);
       // Only a page that is answered 200 and is not a Post document gets first words; any failure leaves the document as it is today.
-      const words = status === 200 && !closed && !admittedPost ? withFirstWords2029(firstDocument.html, firstWordsHtml2029(admittedWords || await Promise.race([wordsRead, new Promise(resolve => setTimeout(resolve, FIRST_WORDS_GRACE_MS, null))]))) : { html: firstDocument.html, state: "not-eligible" };
+      const words = status === 200 && !closed && !admittedPost ? withFirstWords2029(firstDocument.html, firstWordsHtml2029(admittedWords || await Promise.race([wordsRead, new Promise(resolve => setTimeout(resolve, firstWordsGraceMs2029(metadataPath), null))]))) : { html: firstDocument.html, state: "not-eligible" };
       res.setHeader("X-Sod-First-Words", words.state);
       // The Home's own code is fetched with its document (route-preload.js); every other document drops the hint list.
       const html = mergeProductionDocumentMetadata(withRoutePreloads2029(words.html, { path, status }), metadata, { noindex });

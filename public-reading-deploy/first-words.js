@@ -23,6 +23,13 @@ export const FIRST_WORDS_DEADLINE_MS = 1500;
 // How long a document waits for words that are not kept yet, counted from the moment its metadata is ready. Past it the document goes out as
 // it does today, and the read still completes for the next request.
 export const FIRST_WORDS_GRACE_MS = 300;
+// A number or phrase document is the words: its own metadata already waits for two reads, and the words are read beside them. Its first
+// request (nothing kept yet) therefore waits for the words up to this bound instead of going out as an empty shell.
+export const FIRST_WORDS_DATA_PAGE_GRACE_MS = 1200;
+export function firstWordsGraceMs2029(path) {
+  const kind = firstWordsFamily2029(path)?.kind;
+  return kind === "number" || kind === "phrase" ? FIRST_WORDS_DATA_PAGE_GRACE_MS : FIRST_WORDS_GRACE_MS;
+}
 export const FIRST_WORDS_MAX_BYTES = 24000;
 const HEADERS = { apikey: SUPABASE_ANON, Authorization: "Bearer " + SUPABASE_ANON };
 const VERIFIED = "is_verified=eq.true&is_published=eq.true";
@@ -78,11 +85,9 @@ async function phraseFacts(read, phrase) {
   const own = await read.rows(`gematria_words?phrase=eq.${encodeURIComponent(phrase)}&${VERIFIED}&select=phrase,ragil&limit=1`);
   const value = Number(own[0]?.ragil);
   if (!own[0] || !Number.isSafeInteger(value) || value < 1) return null;
-  const [peers, posts] = await Promise.all([
-    optional(read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=40`)),
-    optional(postsOfNumber(read, value)),
-  ]);
-  return { kind: "phrase", phrase: own[0].phrase, value, phrases: unique(peers, "phrase").filter(row => row.phrase !== own[0].phrase), posts: posts || [] };
+  // Two reads only (the phrase, then its peers): the posts of the value are on the number page this page links to.
+  const peers = await optional(read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=40`));
+  return { kind: "phrase", phrase: own[0].phrase, value, phrases: unique(peers, "phrase").filter(row => row.phrase !== own[0].phrase), posts: [] };
 }
 
 async function calculatorFacts(read, kind) {
@@ -144,9 +149,11 @@ async function readFacts(family, fetchImpl, deadlineMs) {
 }
 
 // Speed (Speed Law): the calculators and the cipher library read nothing for their metadata, so a read on every request would be new waiting
-// time. Each function instance therefore keeps what it read: an answer is used as it is for FRESH, and after that it is still used at once
-// while one background read replaces it (up to STALE). Only public rows are kept, the same for every reader. A failed read keeps nothing.
-export const FIRST_WORDS_CACHE = Object.freeze({ freshMs: 10 * 60 * 1000, staleMs: 6 * 60 * 60 * 1000, entries: 400 });
+// time. Each function instance therefore keeps what it read, for a short and bounded time: an answer is used as it is for FRESH; between FRESH
+// and STALE it is used once more while one background read replaces it; past STALE it is never used. So a phrase that is hidden (is_published
+// or is_verified turned off) leaves every document within STALE at the latest, on every instance, with no purge step. Only public rows are
+// kept, the same for every reader. A failed read keeps nothing.
+export const FIRST_WORDS_CACHE = Object.freeze({ freshMs: 5 * 60 * 1000, staleMs: 10 * 60 * 1000, entries: 400 });
 const kept = new Map(), reading = new Map();
 export function _resetFirstWordsForTests() { kept.clear(); reading.clear(); }
 function keepAlive(promise) {
