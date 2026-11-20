@@ -1,81 +1,76 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  OPERATIONAL_COST_POLICY_V1, quoteOperationalAiUpperBound,
-  previewOperationalAiBudget, operationalBudgetMonth,
+  AI_COST_SEGMENT_V1 as C, AI_COST_REPORTING_POLICY_V1 as P,
+  attributeAiCostCohort, previewAiCostsByCohort,
 } from "../src/lib/research/intakeOperationalCostPreview2029.js";
 
-const quote = (extra={}) => quoteOperationalAiUpperBound({
-  pricingVerified:true, rateEffectiveForOperation:true,
-  maxInputTokens:1000, maxOutputTokens:200,
-  usdPerMillionInput:"3.0", usdPerMillionOutput:"15.0", ilsPerUsd:"3.5",
-  ...extra,
+const user = (id, extra={}) => ({tokenLogId:id,costIls:"0.123456",identityVerified:true,
+  userId:"u"+id,userRole:"user",visitorPresent:false,...extra});
+const report=(rows,extra={})=>previewAiCostsByCohort(rows,{adminVerified:true,viewerUserId:"u1",...extra});
+
+test("observability is NOT a monetary cap and only admin-safe aggregation is produced",()=>{
+ assert.equal(P.monthlyLimitEnabled,false);
+ assert.equal(P.mode,"observability_only");
+ assert.equal(previewAiCostsByCohort([user(1)],{adminVerified:false}).state,"DENIED");
+ assert.equal(report([user(1)]).bySegment.length,7);
 });
 
-test("nominal cost quote uses fixed-point ceil, safety margin and never authorizes provider", () => {
-  const q=quote();
-  // 1000*3 + 200*15 USD per million tokens = 0.006 USD;
-  // FX 3.5 -> 0.021 ILS; 25% safety = 0.02625 ILS => 3 agorot.
-  assert.equal(q.state,"QUOTED");
-  assert.equal(q.upperBoundAgorot,3);
-  assert.equal(q.upperBoundIls,"0.03");
-  assert.equal(q.providerCallAuthorized,false);
-  assert.equal(OPERATIONAL_COST_POLICY_V1.monthlyCapAgorot,5000);
+test("owner's exact login differs from other admins; paying customer requires verified payment",()=>{
+ const rows=[
+  user(1,{userRole:"admin"}),
+  user(2,{userRole:"admin"}),
+  user(3,{paymentVerifiedAtEvent:true}),
+  user(4,{paymentVerifiedAtEvent:false}),
+  user(5,{identityVerified:false}),
+  {tokenLogId:6,costIls:"0.123456",visitorPresent:true},
+  {tokenLogId:7,costIls:"0.123456",systemOperationVerified:true},
+  {tokenLogId:8,costIls:"0.123456"},
+ ];
+ const r=report(rows);
+ assert.deepEqual(r.bySegment.map(x=>x.calls),[1,1,1,1,1,1,2]);
+ assert.equal(attributeAiCostCohort(rows[0],{viewerUserId:"u1"}),C.MY_ACCOUNT);
+ assert.equal(attributeAiCostCohort(rows[1],{viewerUserId:"u1"}),C.OTHER_ADMIN);
+ assert.equal(attributeAiCostCohort(rows[2]),C.PAYING_CUSTOMER);
+ assert.equal(attributeAiCostCohort(rows[3]),C.REGISTERED);
+ assert.equal(attributeAiCostCohort(rows[5]),C.ANONYMOUS);
+ assert.equal(attributeAiCostCohort(rows[6]),C.SYSTEM);
+ assert.equal(attributeAiCostCohort(rows[7]),C.UNKNOWN);
+ assert.equal(r.knownCostIls,"0.9876");
+ assert.equal(r.unassignedCalls,2);
+ assert.equal(r.notAnInvoice,true);
+ assert.equal(r.includesInfrastructureCosts,false);
+ assert.equal(r.sourcePiiIncluded,false);
+ assert.equal(JSON.stringify(r).includes("u1"),false);
 });
 
-test("unknown/stale/effective dates, negative or unsafe FX and prices fail closed", () => {
-  const inputs=[
-    {pricingVerified:false},{rateEffectiveForOperation:false},
-    {usdPerMillionInput:null},{usdPerMillionOutput:"0"},
-    {usdPerMillionInput:"NaN"},{usdPerMillionOutput:"-1"},
-    {ilsPerUsd:"Infinity"},{ilsPerUsd:"-3"},{ilsPerUsd:"3.1234567"},
-    {maxInputTokens:0},{maxInputTokens:4097},{maxOutputTokens:513},
-    {maxInputTokens:0.5},{maxOutputTokens:1.5},
-  ];
-  for(const input of inputs) {
-    const q=quote(input);
-    assert.equal(q.state,"DENIED",JSON.stringify(input));
-    assert.equal(q.providerCallAuthorized,false);
-  }
+test("unknown prices never count as free; every source call is counted once",()=>{
+ const rows=[user(1,{costIls:"0"}),user(2,{costIls:null}),user(3,{costIls:"-1"}),
+ user(4,{costIls:"2.000001"}),user(4,{costIls:"9999"}),{...user(5),tokenLogId:0}];
+ const r=report(rows);
+ assert.equal(r.state,"PARTIAL_DUPLICATE_OR_INVALID_ROWS");
+ assert.equal(r.calls,4);
+ assert.equal(r.pricedCalls,undefined);
+ assert.equal(r.unpricedCalls,2);
+ assert.equal(r.knownCostIls,"2.0000");
+ assert.equal(r.skippedInvalidOrDuplicateRows,2);
+ assert.equal(r.bySegment.find(x=>x.segment===C.REGISTERED).costCertainty,"PARTIAL");
 });
 
-test("ILS 50 cap counts reserved plus settled, and has per-call bound", () => {
-  const allowed=previewOperationalAiBudget({spentAgorot:4900,reservedAgorot:0,upperBoundAgorot:100});
-  assert.equal(allowed.state,"WOULD_FIT_UNDER_SNAPSHOT");
-  assert.equal(allowed.providerCallAuthorized,false);
-  assert.equal(allowed.remainingAfterAgorot,0);
-  for(const inp of [
-    {spentAgorot:4999,reservedAgorot:0,upperBoundAgorot:2},
-    {spentAgorot:4900,reservedAgorot:99,upperBoundAgorot:2},
-    {spentAgorot:5001,reservedAgorot:0,upperBoundAgorot:1},
-    {spentAgorot:0,reservedAgorot:5001,upperBoundAgorot:1},
-  ]) assert.equal(previewOperationalAiBudget(inp).reason,"monthly_ils_cap_exceeded");
-  assert.equal(previewOperationalAiBudget({spentAgorot:0,reservedAgorot:0,upperBoundAgorot:101}).reason,"per_operation_limit");
+test("50-shekel is not a stop threshold; reports arbitrarily larger measured cost",()=>{
+ const r=report([user(1,{costIls:"501.9952"})]);
+ assert.equal(r.knownCostIls,"501.9952");
+ assert.equal(r.state,"OK");
 });
 
-test("no unverified, negative, fractional or missing snapshot becomes authority", () => {
-  for(const input of [
-    {},{spentAgorot:-1,reservedAgorot:0,upperBoundAgorot:1},
-    {spentAgorot:0,reservedAgorot:0,upperBoundAgorot:0},
-    {spentAgorot:0,reservedAgorot:0,upperBoundAgorot:1.3},
-    {spentAgorot:NaN,reservedAgorot:0,upperBoundAgorot:1},
-  ]) assert.equal(previewOperationalAiBudget(input).state,"DENIED");
+test("no false attribution based on source/model names; unknown stays unknown",()=>{
+ const rows=[{tokenLogId:1,costIls:"13.0733",source:"research-extract",model:"claude-sonnet-5"}];
+ const r=report(rows);
+ assert.equal(r.bySegment.find(x=>x.segment===C.UNKNOWN).knownCostIls,"13.0733");
+ assert.equal(r.bySegment.find(x=>x.segment===C.MY_ACCOUNT).knownCostIls,"0.0000");
 });
 
-test("sequential simulation exhausts exact balance but never asserts concurrency safety", () => {
-  let reserved=0,accepted=0,denied=0;
-  for(let i=0;i<10;i++){
-    const next=previewOperationalAiBudget({spentAgorot:4900,reservedAgorot:reserved,upperBoundAgorot:20});
-    if(next.state==="WOULD_FIT_UNDER_SNAPSHOT"){accepted++;reserved+=20;}
-    else denied++;
-  }
-  assert.equal(accepted,5);
-  assert.equal(denied,5);
-  assert.equal(reserved,100);
-});
-
-test("month follows Asia/Jerusalem midnight, not UTC or US billing month", () => {
-  assert.equal(operationalBudgetMonth("2026-11-30T21:59:59Z"),"2026-11");
-  assert.equal(operationalBudgetMonth("2026-11-30T22:00:00Z"),"2026-12");
-  assert.equal(operationalBudgetMonth("bad"),null);
+test("bounded projection refuses unbounded rows or non-admin request",()=>{
+ assert.equal(report(Array(5001).fill({})).state,"DENIED");
+ assert.equal(report(null).state,"DENIED");
 });
