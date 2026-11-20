@@ -19,8 +19,8 @@ One admin-only lazy cost section in the existing `ControlPlane2029Page.jsx` / `O
 **At-a-glance:** internally priced AI ledger total (₪); number of calls; unpriced calls; attribution coverage; exact reporting date range and update/read timestamp. Costs must be marked `ledger-priced`, `partial` or `unknown`; never `invoice` unless corroborated with the provider.
 
 **Cohorts (one cost per call):**
-1. **My account**: exact authenticated admin `auth.uid()` only, not everyone with `role=admin`.
-2. **Other admins**: other verified `users.role=admin`.
+1. **Site owner — all admin accounts**: the site has one owner who controls multiple logins. Under the owner's current rule, both `users.role='admin'` accounts are grouped as **owner_accounts**, not portrayed as separate people. This is a cost cohort only; do not merge identities or pretend the accounts have a technically verified link.
+2. **Community moderators / staff**: `community_moderator=true` and `role='user'` is a *restricted community role*, never site administrator. Keep this as its own cost cohort.
 3. **Verified paying customers**: only settled, verified successful payment or subscription for same user at time of call. An editable tier label or active pilot alone is insufficient.
 4. **Registered users (payment unconfirmed)**: other verified user IDs.
 5. **Anonymous visitors**: visitor token with no user ID; do not infer identity or purchaser from string.
@@ -40,8 +40,8 @@ One admin-only lazy cost section in the existing `ControlPlane2029Page.jsx` / `O
 
 ## Verified live baseline, read-only, Nov 2026
 250 AI log records total, internal ledger priced sum **₪14.548** with zero unpriced in this period. 39 records with user_id, six visitor-only, 205 with neither. Of the 39 user IDs, 23 had `users.role='admin'` but originated from **two distinct admin accounts**, not necessarily only the owner. Priced breakdown by current data:
-- Admin accounts together **₪0.8878** (needs exact viewer split).
-- Other registered users **₪0.3205** (no observed verified-paying cohort in these calls).
+- Both site-admin logins combined **₪0.8878** (site owner states both are theirs; account linking evidence has not independently confirmed that relationship).
+- Other registered users **₪0.3205** (no observed verified-paying cohort in these calls). Two community moderators currently have **zero AI calls** this month and are a distinct staff category.
 - Visitor-only **₪0.2660**.
 - Unattributed/unknown **₪13.0733**.
 These figures describe AI ledger cost, not the full provider invoices, infrastructure fees, customer revenue, or profit. One active subscription pilot and settlement receipts exist in the database, but that does not mean its account generated AI calls in this period.
@@ -49,7 +49,7 @@ These figures describe AI ledger cost, not the full provider invoices, infrastru
 ## Acceptance and Claude review gate
 1. All cohort sums match internal ledger totals for same time window. Unknown/unpriced never silently vanish; source rows are deduped by token_log id.
 2. Nonadmin RPC access denied; no source PII, user IDs, visitor tokens or payment details in response. Admin role and payment settlement checked against server-owned evidence, not client metadata.
-3. On Control Plane, visible cards exactly distinguish my account, other admins, verified paying customers, registered, visitors, verified system operations, and UNKNOWN.
+3. On Control Plane, visible cards distinguish sole site owner across their admin accounts, community moderators, verified paying customers, registered users, visitors, verified system operations, and UNKNOWN. Show attribution basis; an admin role is not cryptographic proof that two accounts are linked.
 4. Prove source attribution coverage; never allocate ambiguous historical 205 calls to the owner by source-name guess. Future logging should capture server-proven initiating actor/tenant at call time in canonical trace/usage records (requires separate approved write).
 5. Ensure counted costs do not double count `op_trace_spans` + `agent_token_costs`. Show Storage/Vercel/Supabase separately.
 6. Backend reader is dormant; SQL proposed only. UI should be lazily loaded and reviewed by Claude as required by writer lanes, with genuine no-data / loading / stale/partial indicators, and exact user switching safety.
@@ -57,3 +57,9 @@ These figures describe AI ledger cost, not the full provider invoices, infrastru
 8. AI operational executor remains a future separate gate: fixed event classes, nonexpiring/expiring standing authorization as decided by owner, bounded token/time/calls, dedup, privacy and incident stop. There is **no monetary cap**.
 
 **Current status: CODE + PROPOSED READ MODEL, not a working Control Plane card.** Explicitly do not claim Production has cost cohorts before the approved SQL and visual wiring are deployed.
+
+## Sole-owner / community-role correction (same day)
+- Read-only live users census: 2 `role='admin'` accounts, 0 of those flagged community moderators; 2 separate `role='user'` accounts flagged `community_moderator=true`. The owner explicitly states that both site-admin logins are theirs, with one person owning the site. Do not show 'other site administrators' as separate humans.
+- No verified account-link offer between those admin-role logins was found in the current account-linking records. The cohort attribution therefore records basis `owner_asserted_site_admin_role_not_verified_account_merge` and must not be reused as identity/authentication proof or silently absorb future admin accounts without owner review.
+- Community staff moderation is a narrow permission. The current `AuthContext` and the community guest moderator SQL also mention reviewing/approving/hiding guest messages, beyond deleting comments; this is a separate permission-audit finding, not changed by the cost-reporting work.
+- The SQL and pure cost-preview group the role-based site-admin cost under `owner_accounts`; they count community moderators as `community_moderator` before paid/customer status. No personal IDs or emails in the cohort response. Exact billing ownership still requires the server-sourced ledger and independent review.
