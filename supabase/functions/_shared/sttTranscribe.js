@@ -21,7 +21,8 @@ export function mediaExtension(url, fallback = "mp4") {
 }
 
 /**
- * @param {{ key: string, blob: Blob, filename: string, type: string, language?: unknown, fetchImpl?: typeof fetch }} args
+ * @param {{ key: string, blob: Blob, filename: string, type: string, language?: unknown, fetchImpl?: typeof fetch, timestamped?: boolean }} args
+ * @returns {Promise<{ok: boolean, status: number, text?: string, model: string, language: string|null, language_evidence: string, error?: string, raw?: string, words?: Array<{start:number,end:number,word:string}>, segments?: Array<{start:number,end:number,text:string,no_speech_prob?:number,avg_logprob?:number}>, duration?:number, provider_language?:string}>}
  */
 // -> { ok, status, text, language, language_evidence: "declared"|"provider_reported"|"unknown", model, error?, raw }
 export async function transcribeBlob({ key, blob, filename, type, language = null, fetchImpl = fetch, timestamped = false }) {
