@@ -79,3 +79,20 @@ test('conflicting or published originals are never overwritten or accepted as pr
   assert.equal((await processPrivateChannelAudio(request, f.io)).error, 'original_conflict');
   assert.deepEqual(f.calls, []);
 });
+
+test('timed mode persists mixed evidence only as a draft and records unknown failures without touching originals', async () => {
+  for (const failed of [false,true]) {
+    const f=fixture(), before=structuredClone(f.source);
+    const inspected=await processPrivateChannelAudio(body,f.io);
+    f.io.transcribe=async args=>{
+      assert.equal(args.timestamped,true); assert.equal(args.language,null);
+      return failed?{ok:false,status:503,model:'whisper-1'}:{ok:true,model:'whisper-1',duration:4,words:[{start:0,end:1,word:'שלום'},{start:2,end:3,word:'привет'}]};
+    };
+    const out=await processPrivateChannelAudio({...body,action:'transcribe_private_audio_timed',source_lang:'he',expected_sha256:inspected.receipt.sha256},f.io);
+    assert.equal(out.classification,failed?'unknown':'mixed'); assert.equal(f.rows[0].lang,failed?'und':'mul');
+    assert.equal(f.rows[0].status,'draft');assert.deepEqual(f.source,before);
+    const evidence=JSON.parse(f.rows[0].summary);
+    assert.equal(evidence.sha256,inspected.receipt.sha256);assert.equal(evidence.human_reviewed,false);
+    assert.equal(evidence.segments.length,failed?0:2);
+  }
+});

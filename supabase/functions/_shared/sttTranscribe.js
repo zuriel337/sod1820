@@ -24,26 +24,34 @@ export function mediaExtension(url, fallback = "mp4") {
  * @param {{ key: string, blob: Blob, filename: string, type: string, language?: unknown, fetchImpl?: typeof fetch }} args
  */
 // -> { ok, status, text, language, language_evidence: "declared"|"provider_reported"|"unknown", model, error?, raw }
-export async function transcribeBlob({ key, blob, filename, type, language = null, fetchImpl = fetch }) {
-  if (!key) return { ok: false, status: 0, error: "stt_key_missing", model: STT_MODEL, language: null, language_evidence: "unknown" };
-  if (!blob || !blob.size) return { ok: false, status: 0, error: "media_empty", model: STT_MODEL, language: null, language_evidence: "unknown" };
-  if (blob.size > MAX_STT_BYTES) return { ok: false, status: 0, error: `media_too_large:${blob.size}`, model: STT_MODEL, language: null, language_evidence: "unknown" };
+export async function transcribeBlob({ key, blob, filename, type, language = null, fetchImpl = fetch, timestamped = false }) {
+  const model = timestamped ? "whisper-1" : STT_MODEL;
+  if (!key) return { ok: false, status: 0, error: "stt_key_missing", model, language: null, language_evidence: "unknown" };
+  if (!blob || !blob.size) return { ok: false, status: 0, error: "media_empty", model, language: null, language_evidence: "unknown" };
+  if (blob.size > MAX_STT_BYTES) return { ok: false, status: 0, error: `media_too_large:${blob.size}`, model, language: null, language_evidence: "unknown" };
   const declared = normalizeLanguage(language);
   const form = new FormData();
   form.append("file", new File([blob], filename, { type }));
-  form.append("model", STT_MODEL);
+  form.append("model", model);
+  if (timestamped) {
+    form.append("response_format", "verbose_json");
+    form.append("timestamp_granularities[]", "word");
+    form.append("timestamp_granularities[]", "segment");
+    form.append("prompt", "Transcribe the original speech faithfully. Hebrew and Russian may alternate. Preserve each spoken language; do not translate. Do not add words to silence.");
+  }
   if (declared) form.append("language", declared);
   const r = await fetchImpl(STT_ENDPOINT, { method: "POST", headers: { Authorization: `Bearer ${key}` }, body: form });
   const raw = await r.text();
-  if (!r.ok) return { ok: false, status: r.status, error: `stt_${r.status}:${raw.slice(0, 240)}`, model: STT_MODEL, language: declared, language_evidence: declared ? "declared" : "unknown", raw };
+  if (!r.ok) return { ok: false, status: r.status, error: `stt_${r.status}:${raw.slice(0, 240)}`, model, language: declared, language_evidence: declared ? "declared" : "unknown", raw };
   let parsed = null;
   try { parsed = JSON.parse(raw); } catch { /* plain-text response */ }
   const text = String(parsed?.text ?? raw ?? "").trim();
-  if (!text) return { ok: false, status: r.status, error: "stt_empty", model: STT_MODEL, language: declared, language_evidence: declared ? "declared" : "unknown", raw };
+  if (!text) return { ok: false, status: r.status, error: "stt_empty", model, language: declared, language_evidence: declared ? "declared" : "unknown", raw };
   const reported = normalizeLanguage(parsed?.language);
   const language_out = declared || reported;
   return {
-    ok: true, status: r.status, text, model: STT_MODEL, raw,
+    ok: true, status: r.status, text, model, raw,
+    ...(timestamped ? { words: parsed?.words, segments: parsed?.segments, duration: parsed?.duration, provider_language: parsed?.language } : {}),
     language: language_out,
     language_evidence: declared ? "declared" : reported ? "provider_reported" : "unknown",
   };
