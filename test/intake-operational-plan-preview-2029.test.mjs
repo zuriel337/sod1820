@@ -55,7 +55,7 @@ test("standing grant must match kind, action, model and expiry",()=>{
 
 test("unknown rates, FX, budget state and month all fail closed",()=>{
  assert.equal(preview({costLedger:{...costLedger,month:"2026-10"}}).state,"NO_L1_CALL");
- assert.equal(preview({costLedger:{...costLedger,reconciledWithProviderInvoice:false}}).state,"NO_L1_CALL");
+ assert.equal(preview({costLedger:{...costLedger,ledgerCoverageVerified:false}}).state,"NO_L1_CALL");
  assert.equal(preview({pricing:{...pricing,ilsPerUsd:null}}).reason,"unknown_or_invalid_fx_or_rate");
  assert.equal(preview({costLedger:{...costLedger,spentAgorot:4999,reservedAgorot:1}}).reason,"monthly_ils_cap_exceeded");
  assert.equal(preview({nowIso:"invalid"}).state,"NO_L1_CALL");
