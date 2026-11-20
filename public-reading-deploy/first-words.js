@@ -7,8 +7,9 @@
 //  - Every reader gets the same bytes (no user-agent branch), and the words are visible. The page replaces them with its full form on mount.
 //  - Only public readers under the anonymous key (RLS applies); only verified, published gematria (verified_only_public_gematria_law).
 //  - A value shown for a phrase is the stored canonical value of that verified row. Nothing is calculated here.
-//  - "What people looked for" comes from the one public activity reader, research_pulse_2029 (#1461). While it is not available, the
-//    block is simply absent. No second statistics source.
+//  - "ביטויים נבחרים השבוע" comes from the one public activity reader, research_pulse_2029 (#1462). Its phrases are approved corpus phrases
+//    that readers picked (activity_2029/select, above the reader's own privacy floor). They are NOT searches and are never presented as
+//    other visitors' searches (Traffic Intelligence). While the reader is not available, the block is simply absent. No second source.
 //  - Never throws and never delays the document beyond its small deadline: on any failure the answer is today's document.
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
@@ -87,9 +88,9 @@ async function calculatorFacts(read, kind) {
     // The one public activity reader (#1461). Its own contract: { version: 1, phrases: [{ phrase, value, events }] }; anything else is absent.
     optional(read.rpc("research_pulse_2029", { p_hours: 168 })),
   ]);
-  const searched = pulse?.version === 1 && Array.isArray(pulse.phrases)
+  const picked = pulse?.version === 1 && Array.isArray(pulse.phrases)
     ? unique(pulse.phrases, "phrase").filter(row => Number.isSafeInteger(Number(row.value))).slice(0, 24) : [];
-  return { kind, recent: unique(recent, "phrase").slice(0, 30), searched };
+  return { kind, recent: unique(recent, "phrase").slice(0, 30), picked };
 }
 
 async function codesFacts(read) {
@@ -167,14 +168,14 @@ function body(facts) {
   }
   if (facts.kind === "gematria" || facts.kind === "community-calculator") {
     const community = facts.kind === "community-calculator";
-    const searched = links(facts.searched.map(row => ({ href: numberHref(row.phrase), label: text(row.phrase), note: `= ${Number(row.value)}` })), "חיפשו השבוע");
+    const picked = links(facts.picked.map(row => ({ href: numberHref(row.phrase), label: text(row.phrase), note: `= ${Number(row.value)}` })), "ביטויים נבחרים השבוע");
     const recent = links(phraseLinks(facts.recent, true), "גימטריות מאומתות שנוספו לאחרונה");
     const explain = `<h2>${esc(COMMUNITY_CALCULATOR_EXPLAINER.heading)}</h2>` + COMMUNITY_CALCULATOR_EXPLAINER.paragraphs.map(paragraph => `<p>${esc(paragraph)}</p>`).join("");
     return community
-      ? `<h1>${esc(COMMUNITY_CALCULATOR_SEO.heading)}</h1><p>${esc(COMMUNITY_CALCULATOR_SEO.lead)}</p>${searched}${recent}${explain}`
+      ? `<h1>${esc(COMMUNITY_CALCULATOR_SEO.heading)}</h1><p>${esc(COMMUNITY_CALCULATOR_SEO.lead)}</p>${picked}${recent}${explain}`
         + `<h2>שאלות נפוצות</h2>` + COMMUNITY_CALCULATOR_FAQ.map(({ q, a }) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join("")
       : `<h1>מחשבון גימטריה</h1><p>הקלידו מילה, שם או ביטוי וקבלו את הערך בכל שיטות הגימטריה, עם פירוק האותיות והביטויים ששווים לאותו ערך.</p>`
-        + `${searched}${recent}${explain}<p><a href="/community/calculator">מחשבון הקהילה: שמות, השוואה ותאריך עברי</a> · <a href="/number">דף המספר</a></p>`;
+        + `${picked}${recent}${explain}<p><a href="/community/calculator">מחשבון הקהילה: שמות, השוואה ותאריך עברי</a> · <a href="/number">דף המספר</a></p>`;
   }
   if (facts.kind === "codes") {
     return `<h1>ספריית הצפנים</h1><p>דילוגי אותיות (ELS) שפורסמו בסוד 1820: המונח, הדילוג והמקום בתורה ובתנ״ך.</p>`

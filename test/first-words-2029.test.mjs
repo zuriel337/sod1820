@@ -59,20 +59,21 @@ test("a phrase gets words only when it is a verified published row; free text cr
   assert.equal(await firstWordsFacts2029("/number/787", { search: "focus=x", fetchImpl }), null);
 });
 
-test("the calculators read searches only from the one activity reader, and stay whole without it", async () => {
+test("the calculators read picked phrases only from the one activity reader, never label them as searches, and stay whole without it", async () => {
   const recent = [{ phrase: "אור", ragil: 207, created_at: "2026-11-01" }];
   const without = firstWordsHtml2029(await firstWordsFacts2029("/community/calculator", { fetchImpl: source([[/gematria_words/, recent], [/rpc\/research_pulse_2029/, () => new Response("{}", { status: 404 })]]) }));
   assert.match(without, /<h1>מחשבון גימטריה חינם<\/h1>/);
   assert.match(without, /שאלות נפוצות/);
   assert.match(without, new RegExp(`href="/number/${encodeURIComponent("אור")}">אור</a> <span>= 207</span>`));
-  assert.doesNotMatch(without, /חיפשו השבוע/);
+  assert.doesNotMatch(without, /ביטויים נבחרים השבוע/);
   const calls = [];
   const withPulse = firstWordsHtml2029(await firstWordsFacts2029("/gematria", { fetchImpl: source([[/gematria_words/, recent],
     [/rpc\/research_pulse_2029/, { version: 1, phrases: [{ phrase: "משיח", value: 358, events: 9 }] }]], calls) }));
-  assert.match(withPulse, /<h2>חיפשו השבוע<\/h2><ul><li><a href="\/number\/[^"]+">משיח<\/a> <span>= 358<\/span>/);
+  assert.match(withPulse, /<h2>ביטויים נבחרים השבוע<\/h2><ul><li><a href="\/number\/[^"]+">משיח<\/a> <span>= 358<\/span>/);
   assert.ok(!calls.some(call => /gematria_wall|search_log|visitor_events/.test(call.path)), "no second statistics source");
+  assert.doesNotMatch(withPulse, /חיפש|חיפוש/, "approved picked phrases are never presented as searches");
   const wrong = firstWordsHtml2029(await firstWordsFacts2029("/gematria", { fetchImpl: source([[/gematria_words/, recent], [/rpc\/research_pulse_2029/, { version: 2, phrases: [{ phrase: "x", value: 1 }] }]]) }));
-  assert.doesNotMatch(wrong, /חיפשו השבוע/);
+  assert.doesNotMatch(wrong, /ביטויים נבחרים השבוע/);
 });
 
 test("words are escaped, bounded, and a failing source leaves no words", async () => {
