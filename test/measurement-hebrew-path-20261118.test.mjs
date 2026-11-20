@@ -61,8 +61,13 @@ test("Hebrew inside /post, /tag, /category and /number keeps the existing famili
   assert.equal(label("/community/researcher/ישראל"), "/community/:item");
 });
 
-test("any other address under a Hebrew first segment is the article family (no per-alias table: speed law)", () => {
-  for (const path of ["/היכל", "/צור-קשר/טופס-הזמנת-עלונים-ודיסקים"]) assert.equal(label(path), "/post/:item", path);
+test("the active Hebrew Heichal route uses its product family; other Hebrew addresses remain articles", () => {
+  for (const path of ["/היכל", encodeURI("/היכל")]) {
+    assert.equal(label(path), "/heichal", path);
+    assert.equal(identity(path), "/heichal", path);
+    assert.equal(databaseVerdict(label(path), identity(path)), "ok", path);
+  }
+  assert.equal(label("/צור-קשר/טופס-הזמנת-עלונים-ודיסקים"), "/post/:item");
 });
 
 test("Latin addresses are unchanged", () => {

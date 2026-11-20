@@ -136,6 +136,15 @@
     "runtime_audit": "runtime-audit.json",
     "def005_retired_wall_abi": {
       "pass": 5
+    },
+    "coordinated_merge_contracts": {
+      "pass": 21,
+      "fail": 0,
+      "includes": [
+        "measurement-hebrew-path",
+        "def005-rpc-grants-contract",
+        "sitewide-statistics-20261120"
+      ]
     }
   },
   "budgets_vs_main": {
@@ -439,5 +448,5 @@
     "codex_acceptance_schema": 2,
     "codex_checks": 11
   },
-  "claude_integrated_head": "290556be6d65b7ad30784499e699727612d0df34"
+  "claude_integrated_head": "613d554032e268fb7333832e38b2a4091055ee98"
 }
