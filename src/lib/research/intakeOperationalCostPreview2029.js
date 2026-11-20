@@ -1,105 +1,108 @@
-// SOD1820 #1457 — pure budget QUOTE / simulation only.
-// Neither this module nor its result may authorize or run a provider call.
-// The authoritative ledger, standing grant and atomic monthly reservation
-// must be implemented separately in the existing server/cost owner.
-export const OPERATIONAL_COST_POLICY_V1 = Object.freeze({
+// SOD1820 #1457 — observability-only cost cohort projection.
+// NO spending cap, quota, provider call, DB read or authorization.
+// Input must originate from a separately admin-authorized, server-verified aggregate.
+// This module cannot verify payment/identity by itself and must never classify
+// anonymous/unattributed provider calls as owner costs by guessing source names.
+export const AI_COST_SEGMENT_V1 = Object.freeze({
+  MY_ACCOUNT: "my_account",
+  OTHER_ADMIN: "other_admin",
+  PAYING_CUSTOMER: "verified_paying_customer",
+  REGISTERED: "registered_customer_unknown",
+  ANONYMOUS: "anonymous_visitor",
+  SYSTEM: "verified_system_operation",
+  UNKNOWN: "unattributed_unknown",
+});
+export const AI_COST_REPORTING_POLICY_V1 = Object.freeze({
   version: 1,
-  status: "proposal_only",
-  timeZone: "Asia/Jerusalem",
-  monthlyCapAgorot: 5000, // 50 ILS, NOT USD
-  perCallMaxAgorot: 100, // conservative design proposal; owner can review
-  safetyMultiplierNumerator: 125, // 25% upper-bound margin
-  safetyMultiplierDenominator: 100,
-  absoluteMaxInputTokens: 4096,
-  absoluteMaxOutputTokens: 512,
+  mode: "observability_only",
+  monthlyLimitEnabled: false,
+  moneyUnit: "ILS",
+  costLedger: "agent_token_costs",
+  userIdentity: "canonical_users_role",
+  maxPreviewRows: 5000,
+  noPii: true,
 });
-
-const MILLION = 1000000n;
-const COST_DENOMINATOR = MILLION * MILLION * MILLION;
-const ceilDiv = (a,b) => (a+b-1n)/b;
-
-function decimalMicro(raw) {
-  // Accept only fixed-point decimal rates. Exponent, undefined, NaN,
-  // 0 and negative values fail closed. No binary-float cost arithmetic.
+const MICRO = 1000000n;
+const parseIlsMicro = raw => {
   if (typeof raw !== "string" && typeof raw !== "number") return null;
-  const str = String(raw).trim();
-  if (!/^(?:[1-9][0-9]{0,5}|0)(?:\.[0-9]{1,6})?$/.test(str)) return null;
-  const [whole, frac = ""] = str.split(".");
-  const value = BigInt(whole) * MILLION + BigInt(frac.padEnd(6,"0") || "0");
-  return value > 0n ? value : null;
-}
+  const s = String(raw).trim();
+  if (!/^(?:0|[1-9][0-9]{0,9})(?:\\.[0-9]{1,6})?$/.test(s)) return null;
+  const [a, f = ""] = s.split(".");
+  return BigInt(a) * MICRO + BigInt((f || "").padEnd(6, "0"));
+};
+const formatMicro = v => {
+  const a = v / MICRO;
+  const fraction = (v % MICRO).toString().padStart(6, "0");
+  return a.toString() + "." + fraction.slice(0, 4);
+};
 
-const integerIn = (n, lo, hi) => Number.isSafeInteger(n) && n >= lo && n <= hi;
-
-/** Pure quotation based on server-supplied maximum tokens and effective-dated pricing.
- * A quote is NOT an authorization. A server must independently validate source,
- * model, pricing provenance, grant, worst-case usage, and atomic account balance.
+/**
+ * Admin-verified identity and payment attribution are REQUIRED upstream.
+ * Paid subscriber: verified settlement matched to same user at event time;
+ * a tier label or a 'pilot active' flag alone is insufficient.
  */
-export function quoteOperationalAiUpperBound(input = {}) {
-  const { absoluteMaxInputTokens, absoluteMaxOutputTokens,
-    safetyMultiplierNumerator, safetyMultiplierDenominator } = OPERATIONAL_COST_POLICY_V1;
-  const inputTokens = input.maxInputTokens, outputTokens = input.maxOutputTokens;
-  if (!integerIn(inputTokens, 1, absoluteMaxInputTokens)
-    || !integerIn(outputTokens, 1, absoluteMaxOutputTokens)) {
-    return Object.freeze({ state: "DENIED", reason: "unbounded_model_tokens", providerCallAuthorized: false });
+export function attributeAiCostCohort(row = {}, { viewerUserId = null } = {}) {
+  if (row.identityVerified === true && row.userId) {
+    if (row.userId === viewerUserId && row.userRole === "admin") return AI_COST_SEGMENT_V1.MY_ACCOUNT;
+    if (row.userRole === "admin") return AI_COST_SEGMENT_V1.OTHER_ADMIN;
+    if (row.paymentVerifiedAtEvent === true) return AI_COST_SEGMENT_V1.PAYING_CUSTOMER;
+    return AI_COST_SEGMENT_V1.REGISTERED;
   }
-  if (input.pricingVerified !== true || input.rateEffectiveForOperation !== true) {
-    return Object.freeze({ state: "DENIED", reason: "unverified_or_stale_provider_pricing", providerCallAuthorized: false });
-  }
-  const inRate = decimalMicro(input.usdPerMillionInput);
-  const outRate = decimalMicro(input.usdPerMillionOutput);
-  const exchange = decimalMicro(input.ilsPerUsd);
-  if (!inRate || !outRate || !exchange) {
-    return Object.freeze({ state: "DENIED", reason: "unknown_or_invalid_fx_or_rate", providerCallAuthorized: false });
-  }
-  // USD / million tokens * ILS/USD * 100 agorot/ILS, with fixed-point rates.
-  // 3 micro-decimal factors (price, FX, tokens/million) => 10^18.
-  const numerator = (BigInt(inputTokens) * inRate + BigInt(outputTokens) * outRate)
-    * exchange * 100n * BigInt(safetyMultiplierNumerator);
-  const denom = COST_DENOMINATOR * BigInt(safetyMultiplierDenominator);
-  const quoteAgorotBig = ceilDiv(numerator, denom);
-  if (quoteAgorotBig <= 0n || quoteAgorotBig > BigInt(Number.MAX_SAFE_INTEGER)) {
-    return Object.freeze({ state: "DENIED", reason: "invalid_cost_quote", providerCallAuthorized: false });
-  }
-  const upperBoundAgorot = Number(quoteAgorotBig);
-  return Object.freeze({
-    state: "QUOTED", upperBoundAgorot,
-    upperBoundIls: (upperBoundAgorot / 100).toFixed(2),
-    reason: "conservative_estimate_not_reserved",
-    providerCallAuthorized: false,
-  });
+  if (!row.userId && row.visitorPresent === true) return AI_COST_SEGMENT_V1.ANONYMOUS;
+  if (!row.userId && !row.visitorPresent && row.systemOperationVerified === true) return AI_COST_SEGMENT_V1.SYSTEM;
+  return AI_COST_SEGMENT_V1.UNKNOWN;
 }
 
-/** Preview of a budget decision over a single trusted snapshot.
- * NEVER a spending gate: concurrent calls require one database transaction
- * with row locking / conditional reservation and an idempotency key.
+/** Offline projection for deterministic acceptance; never a public-cost API.
+ * Every input must correspond to ONE unique ai_token_log row joined once
+ * to agent_token_costs (by id), with server-computed attribution flags.
+ * Unknown prices remain unknown, not zero. No source texts or user ids returned.
  */
-export function previewOperationalAiBudget(input = {}) {
-  const cap = OPERATIONAL_COST_POLICY_V1.monthlyCapAgorot;
-  const spent = input.spentAgorot, reserved = input.reservedAgorot;
-  const proposed = input.upperBoundAgorot;
-  if (![spent,reserved,proposed].every(x=>integerIn(x,0,Number.MAX_SAFE_INTEGER))
-      || proposed <= 0) return Object.freeze({ state: "DENIED", reason: "untrusted_budget_snapshot" });
-  if (proposed > OPERATIONAL_COST_POLICY_V1.perCallMaxAgorot)
-    return Object.freeze({ state: "DENIED", reason: "per_operation_limit" });
-  if (spent > cap || reserved > cap || spent + reserved > cap ||
-      proposed > cap - spent - reserved)
-    return Object.freeze({ state: "DENIED", reason: "monthly_ils_cap_exceeded" });
-  return Object.freeze({
-    state: "WOULD_FIT_UNDER_SNAPSHOT", reason: "atomic_reservation_still_required",
-    remainingAfterAgorot: cap - spent - reserved - proposed,
-    providerCallAuthorized: false,
+export function previewAiCostsByCohort(rows, { viewerUserId = null, adminVerified = false } = {}) {
+  if (adminVerified !== true) return Object.freeze({ state: "DENIED", reason: "admin_view_required" });
+  if (!Array.isArray(rows) || rows.length > AI_COST_REPORTING_POLICY_V1.maxPreviewRows)
+    return Object.freeze({ state: "DENIED", reason: "invalid_or_unbounded_rows" });
+  const segments = Object.values(AI_COST_SEGMENT_V1);
+  const buckets = new Map(segments.map(key => [key, { key, calls: 0, pricedCalls: 0, unpricedCalls: 0, microIls: 0n }]));
+  const ids = new Set();
+  let invalidDuplicateIds = 0;
+  for (const row of rows) {
+    const id = row?.tokenLogId;
+    if (!Number.isSafeInteger(id) || id <= 0 || ids.has(id)) {
+      invalidDuplicateIds += 1;
+      continue;
+    }
+    ids.add(id);
+    const key = attributeAiCostCohort(row, { viewerUserId });
+    const bucket = buckets.get(key);
+    bucket.calls += 1;
+    const cost = parseIlsMicro(row.costIls);
+    if (cost === null) bucket.unpricedCalls += 1;
+    else { bucket.pricedCalls += 1; bucket.microIls += cost; }
+  }
+  const bySegment = segments.map(key => {
+    const row = buckets.get(key);
+    return Object.freeze({
+      segment: row.key, calls: row.calls, pricedCalls: row.pricedCalls,
+      unpricedCalls: row.unpricedCalls,
+      knownCostIls: formatMicro(row.microIls),
+      costCertainty: row.unpricedCalls ? "PARTIAL" : "LEDGER_PRICED",
+    });
   });
-}
-
-const monthFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: OPERATIONAL_COST_POLICY_V1.timeZone,
-  year: "numeric", month: "2-digit",
-});
-export function operationalBudgetMonth(utcTimestamp) {
-  const date = new Date(utcTimestamp);
-  if (!Number.isFinite(date.getTime())) return null;
-  const parts = Object.fromEntries(monthFormatter.formatToParts(date).map(p => [p.type,p.value]));
-  return /^\d{4}$/.test(parts.year) && /^\d{2}$/.test(parts.month)
-    ? `${parts.year}-${parts.month}` : null;
+  // For totals, sum exact micro-units rather than rounded presentation fields.
+  const totalMicro = [...buckets.values()].reduce((a, r) => a + r.microIls, 0n);
+  return Object.freeze({
+    state: invalidDuplicateIds ? "PARTIAL_DUPLICATE_OR_INVALID_ROWS" : "OK",
+    costScope: "AI_PROVIDER_TOKEN_LEDGER_ONLY",
+    notAnInvoice: true,
+    attributionType: "server_verified_or_unknown",
+    calls: ids.size,
+    knownCostIls: formatMicro(totalMicro),
+    unpricedCalls: bySegment.reduce((a, r) => a + r.unpricedCalls, 0),
+    unassignedCalls: buckets.get(AI_COST_SEGMENT_V1.UNKNOWN).calls,
+    skippedInvalidOrDuplicateRows: invalidDuplicateIds,
+    bySegment,
+    includesInfrastructureCosts: false,
+    sourcePiiIncluded: false,
+  });
 }
