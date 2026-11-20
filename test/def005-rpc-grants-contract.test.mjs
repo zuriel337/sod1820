@@ -70,3 +70,12 @@ test("the functions that must stay public are still called by shipped code, i.e.
   assert.match(noop, /create or replace function public\.add_wall_word\(p_phrase text,p_ragil integer\)[\s\S]*?begin\s*--[^\n]*\n\s*return;\s*end/, "the kept ABI is a no-op");
   assert.ok(!setA.includes("fn_els_search"), "fn_els_search is used by an INVOKER function and must stay executable");
 });
+
+test('#1461 retires the wall writer but keeps the old-client ABI as a no-op', () => {
+  assert.deepEqual(callers('add_wall_word'), [], 'no shipped client may restart typing writes');
+  const sql=fs.readFileSync(path.join(root,'supabase/proposed/sitewide-statistics-20261120/extensions.sql'),'utf8');
+  const body=sql.match(/create or replace function public\.add_wall_word[\s\S]*?as \$\$([\s\S]*?)\$\$/i)?.[1];
+  assert.ok(body); assert.match(body,/\breturn\s*;/i);
+  assert.doesNotMatch(body,/\b(insert|update|delete|execute)\b/i,'compatibility cannot mutate retained history');
+  assert.ok(!setA.includes('add_wall_word'),'the historical DEF-005 package stays unchanged');
+});

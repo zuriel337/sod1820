@@ -19,8 +19,11 @@ function delta(now, before) {
 }
 const when = value => value ? new Date(value).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }) : 'אין בחלון';
 
-export default function SiteActivity2029({ data }) {
-  if (!data) return <section className="site-activity29"><h2>פעילות כל האתר</h2><p>הרחבת דוח הפעילות טרם זמינה במסד. אין להסיק שאין פעילות.</p></section>;
+export default function SiteActivity2029({ data, unavailable = false }) {
+  // Journeys (owner decision): NOT_LAUNCHED -> "0 · טרם הושק"; launched but no measurement -> UNKNOWN, never 0.
+  const journey = closedState('journey') || (unavailable || data?.journey?.state !== 'measured'
+    ? 'לא ידוע (UNKNOWN) · אין מדידה זמינה' : number(data.journey.starts) + ' התחלות מסע שנמדדו');
+  if (!data) return <section className="site-activity29"><h2>פעילות כל האתר</h2><p>הרחבת דוח הפעילות טרם זמינה במסד. אין להסיק שאין פעילות.</p><p>מסעות: {journey}</p></section>;
   const s = data.summary || {}, p = data.previous || null;
   const daily = data.daily || [];
   const computes = daily.reduce((n, x) => n + (x.computes || 0), 0), searches = daily.reduce((n, x) => n + (x.searches || 0), 0);
@@ -30,7 +33,7 @@ export default function SiteActivity2029({ data }) {
   return <section className="site-activity29" dir="rtl"><h2>פעילות כל האתר</h2>
     <p className="sod29-muted">מקור: events (Traffic Intelligence) · שעות ישראל · חלון: {when(data.from)} — {when(data.to)}{p ? ' · השוואה לחלון באותו אורך שלפניו' : ''}</p>
     <div className="sod29-grid">{[
-      ['כניסות שנמדדו', s.entrances, p?.entrances], ['צפיות בדפים', s.views, p?.views], ['דפדפנים ייחודיים משוערים', s.browsers, p?.browsers],
+      ['כניסות שסווגו כאנושיות', s.entrances, p?.entrances], ['צפיות בדפים', s.views, p?.views], ['דפדפנים ייחודיים משוערים', s.browsers, p?.browsers],
       ['חישובים', computes, p?.computes], ['חיפושים יזומים', searches, p?.searches], ['שיתופים', shares, p?.shares],
       ['חשבונות בחלון', s.accounts], ['דפדפנים אורחים', s.guest_browsers], ['הרשמות שאומתו · בכל האתר', s.registered_accounts],
       ['פעילים ב־5 דקות · דפדפנים', s.active_browsers_5m], ['פעילים ב־5 דקות · חשבונות', s.active_accounts_5m],
@@ -41,9 +44,8 @@ export default function SiteActivity2029({ data }) {
     <details open><summary>איכות תנועה · מדורים לפי שימוש</summary>
       {data.traffic_classes?.map(x => <p key={x.traffic_class}>{CLASSES[x.traffic_class] || x.traffic_class}: {number(x.sessions)} ביקורים · {number(x.events)} אירועים</p>)}
       <p>תנועת בוטים שנחסמה נמדדת בקצה; אפס כאן אינו אפס בוטים. אירועים בלי זהות: {number(s.unknown_identity_events)}.</p>
-      {ranked.map(({ key, row, closed }) => <div className="sod29-row" key={key}><strong>{sections[key]}</strong><span>{closed ? closed
+      {ranked.map(({ key, row, closed }) => <div className="sod29-row" key={key}><strong>{sections[key]}</strong><span>{key === 'journey' ? journey : closed ? closed
         : row ? number(row.views) + ' צפיות בדף · ' + number(row.domain_views) + ' פתיחות כלי · ' + number(row.actions) + ' פעולות · אחרון ' + when(row.latest_event)
-        : key === 'journey' ? 'אין נתונים (NO_DATA) · אינו אפס'
         : key === 'personal' ? 'פרטי — פתיחה בלבד, ללא איסוף תוכן; אין דגימה בחלון'
         : 'אין דגימה בחלון; לא הוכחת כיסוי מלא'}</span></div>)}
     </details>

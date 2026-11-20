@@ -1722,6 +1722,20 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
    const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
    await button(page,'סריקה וממצאים').tap();
    const before=await identity(page);
+   const resizeSettled=async height=>{
+    // setViewportSize can resolve before the page's resize listener scrolls the active
+    // inline panel. Observe that event and its layout frames before reading geometry.
+    // This does not move the panel or relax any visibility/occlusion assertion.
+    await page.evaluate(()=>{
+     window.__elsResizeSettled=false;
+     window.addEventListener('resize',()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      window.__elsResizeSettled=true;
+     })),{once:true});
+    });
+    await page.setViewportSize({width,height});
+    await page.waitForFunction(()=>window.__elsResizeSettled===true,null,{timeout:5000});
+    await page.evaluate(()=>{delete window.__elsResizeSettled;});
+   };
    const unobscured=async(label)=>{
     const bounds=await panel.boundingBox(),bar=await dock.boundingBox();
     assert.ok(bounds.y>=0&&bounds.y+bounds.height<=bar.y-1,`${width} ${label}: inline panel ${JSON.stringify(bounds)} clears dock ${JSON.stringify(bar)}`);
@@ -1741,8 +1755,8 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
     }
    };
    await unobscured('open');
-   await page.setViewportSize({width,height:568});await unobscured('short viewport');
-   await page.setViewportSize({width,height:844});
+   await resizeSettled(568);await unobscured('short viewport');
+   await resizeSettled(844);
    await page.context().grantPermissions(['clipboard-read','clipboard-write']);
    await page.evaluate(()=>navigator.clipboard.writeText('תורה'));
    const input=page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true});

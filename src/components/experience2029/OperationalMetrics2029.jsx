@@ -93,7 +93,7 @@ function OperationalMetricsBody({ principal, refreshToken, providersOpen }) {
   const rumState = rum.loading && !rum.data ? { loading: true } : rum.error && !rum.data ? { error: true } : { data: rum.data };
 
   return <>
-    <SiteActivity2029 data={rum.data?.site_activity} />
+    <SiteActivity2029 data={rum.data?.site_activity} unavailable={rum.error || rum.loading} />
     <section className="sod29-section" data-experience-capability="speed-centre" aria-label="מהירות וביצועים">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">SPEED · מרכז הבקרה</div><h2>מהירות וביצועים</h2>

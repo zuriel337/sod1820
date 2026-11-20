@@ -22,21 +22,55 @@ create function public.gematria_public_word_eligible(uuid) returns boolean langu
 create function public.research_level_of(uuid) returns jsonb language sql security definer as 'select null::jsonb';
 create function public.fn_cohort_acceptance(text) returns jsonb language sql security definer as 'select null::jsonb';
 create function public.fn_metatron_gaps() returns jsonb language sql security definer as 'select null::jsonb';
+create function public.fn_metatron_status() returns jsonb language sql security definer as 'select public.fn_metatron_gaps()';
+grant execute on function public.fn_metatron_status() to public;
 -- live ACLs (20.11.2026) the grant-drift guard expects
 revoke all on function public.research_level_of(uuid) from public;
 grant execute on function public.research_level_of(uuid) to anon,authenticated;
 grant execute on function public.fn_cohort_acceptance(text),public.fn_metatron_gaps() to public;
+create function public.admin_ai_usage(integer) returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.admin_ai_usage(integer) from public;
+grant execute on function public.admin_ai_usage(integer) to public,authenticated;
+create function public.admin_ambassadors(integer) returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.admin_ambassadors(integer) from public;
+grant execute on function public.admin_ambassadors(integer) to public,authenticated;
+create function public.admin_journey_shares(integer) returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.admin_journey_shares(integer) from public;
+grant execute on function public.admin_journey_shares(integer) to public,authenticated;
+create function public.admin_research_usage(integer) returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.admin_research_usage(integer) from public;
+grant execute on function public.admin_research_usage(integer) to public,authenticated;
+create function public.arrival_sources(integer) returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.arrival_sources(integer) from public;
+grant execute on function public.arrival_sources(integer) to authenticated;
+create function public.audience_dim5_vs_orgeula(integer) returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.audience_dim5_vs_orgeula(integer) from public;
+grant execute on function public.audience_dim5_vs_orgeula(integer) to public;
+create function public.audience_overlap_report(integer) returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.audience_overlap_report(integer) from public;
+grant execute on function public.audience_overlap_report(integer) to public,authenticated;
+create function public.community_share_count() returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.community_share_count() from public;
+grant execute on function public.community_share_count() to public,anon,authenticated;
+create function public.els_analytics(integer) returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.els_analytics(integer) from public;
+grant execute on function public.els_analytics(integer) to authenticated;
+create function public.viral_report() returns jsonb language sql as 'select null::jsonb';
+revoke all on function public.viral_report() from public;
+grant execute on function public.viral_report() to public,anon,authenticated;
 SQL
 for b in "$F"/*.before.sql; do { echo "set check_function_bodies=off;"; cat "$b"; echo ";"; } | Q >/dev/null; done
 n=$(ls "$F"/*.before.sql | wc -l)
 md5s() { local ext=$1 c=0; for b in "$F"/*.before.sql; do local name; name=$(basename "$b" .before.sql)
   [ "$(Q -c "select md5(pg_get_functiondef(oid)) from pg_proc where proname='$name'")" = "$(md5sum < "$F/$name.$ext.sql" | cut -c1-32)" ] && c=$((c+1)); done; echo $c; }
 check "$(md5s before)" "$n" "all $n live preimages load byte-exact (md5 gate input)"
+acl_before=$(Q -c "select jsonb_agg(jsonb_build_array(oid::regprocedure::text,(select array_agg(a order by a) from unnest(proacl::text[]) a)) order by proname) from pg_proc where pronamespace='public'::regnamespace")
 runp() { { echo "set check_function_bodies=off;"; sed "s#\\\\ir #\\\\ir $F/#" "$F/$1"; } | Q >/dev/null; }
 runp apply.psql
 check "$(md5s after)" "$n" "apply.psql: every function equals its reviewed .after.sql"
-check "$(Q -c "select bool_and(not has_function_privilege('anon',oid,'execute') and has_function_privilege('service_role',oid,'execute')) from pg_proc where proname in ('research_level_of','fn_cohort_acceptance','fn_metatron_gaps')")" t 'revoked readers are server-only'
+check "$(Q -c "select bool_and(not has_function_privilege('anon',oid,'execute') and has_function_privilege('service_role',oid,'execute')) from pg_proc where proname in ('research_level_of','fn_cohort_acceptance','fn_metatron_gaps','fn_metatron_status','admin_ai_usage','admin_ambassadors','admin_journey_shares','admin_research_usage','arrival_sources','audience_dim5_vs_orgeula','audience_overlap_report','community_share_count','els_analytics','viral_report')")" t 'revoked readers and their public wrapper are server-only'
 runp rollback.psql
+check "$(Q -c "select jsonb_agg(jsonb_build_array(oid::regprocedure::text,(select array_agg(a order by a) from unnest(proacl::text[]) a)) order by proname) from pg_proc where pronamespace='public'::regnamespace")" "$acl_before" 'rollback restores every original ACL including retired telemetry APIs'
 check "$(md5s before)" "$n" 'rollback.psql restores every exact preimage'
 check "$(Q -c "select has_function_privilege('anon','research_level_of(uuid)','execute') and has_function_privilege('anon','fn_metatron_gaps()','execute')")" t 'rollback restores the previous grants'
 Q -c "update pg_proc set prosrc=prosrc||' ' where proname='strongest_crossings'" >/dev/null

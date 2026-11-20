@@ -116,15 +116,6 @@ export async function getVisitDetail(gran, key) {
   return data;
 }
 
-// ── מקורות-הגעה מתויגים (?src=ig / utm_source) — פילוח ערוצים (אינסטגרם/פייסבוק…) ──
-// קורא visitor_events (section='arrival') דרך RPC מנהל. מודד מאיפה הגיעו גם כשה-referrer
-// ריק (אינסטגרם/פייסבוק מוחקים referrer בדפדפן הפנימי).
-export async function getArrivalSources(days = 30) {
-  if (!supabase) return null;
-  const { data, error } = await supabase.rpc("arrival_sources", { p_days: days });
-  if (error) throw error;
-  return data;
-}
 
 // ── היסטוריית תנועה ארוכת-טווח: Jetpack (עבר) + חי (האתר החדש), קו רציף ──
 export async function getTrafficHistory(granularity = "month") {
@@ -151,14 +142,6 @@ export async function getInfraLoad(days = 10, hours = 48) {
   return (await dayContext()).annotateTrafficPayloadDaily(data);
 }
 
-// 🚀 טבלת-השגרירים — מי מפיץ קישורים (rid) ומביא אנשים/הרשמות. עצמאי מ-getGrowthCenter
-// כדי לא להכביד על הטעינה הראשית (כמו getGaInsights). אדמין-בלבד (RPC SECURITY DEFINER).
-export async function getAmbassadors(days = 30) {
-  if (!supabase) return null;
-  const { data, error } = await supabase.rpc("admin_ambassadors", { p_days: days });
-  if (error) throw error;
-  return data;
-}
 
 // ── 🧭 דשבורד המסעות (מנהל) — זמן+צפיות לכל דף/כלי-מעבדה + מסע-לכל-מבקר ──
 export async function getPageDwell(hours = 168) {
@@ -170,27 +153,6 @@ export async function getPageDwell(hours = 168) {
 export async function getVisitorJourneys(hours = 24, min = 4) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("admin_visitor_journeys", { p_hours: hours, p_min: min });
-  if (error) throw error;
-  return data;
-}
-// 🔗 שיתופי-מסע + 🔓 פתיחות מסר-עומק (AI) — «מי שיתף» לדשבורד הקרדיטים. מקור: visitor_events.
-export async function getJourneyShares(hours = 336) {
-  if (!supabase) return null;
-  const { data, error } = await supabase.rpc("admin_journey_shares", { p_hours: hours });
-  if (error) throw error;
-  return data;
-}
-// 🤖 שימוש ב-AI לפי כפתור — כמה לחצו על כל כפתור-AI (השוואה/נוטריקון/פסוק/מחקר/מסע…). מקור: visitor_events.
-export async function getAiUsage(hours = 720) {
-  if (!supabase) return null;
-  const { data, error } = await supabase.rpc("admin_ai_usage", { p_hours: hours });
-  if (error) throw error;
-  return data;
-}
-// 🧠 שימוש באזור-המשתמש — כמה נכנסו/שמרו/הוסיפו למחקר (כולל אנונימיים). מקור: visitor_events.
-export async function getResearchUsage(hours = 48) {
-  if (!supabase) return null;
-  const { data, error } = await supabase.rpc("admin_research_usage", { p_hours: hours });
   if (error) throw error;
   return data;
 }

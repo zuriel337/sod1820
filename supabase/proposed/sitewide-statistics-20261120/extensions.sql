@@ -33,6 +33,11 @@ drop policy if exists ti_search_no_new_raw on public.search_log;
 create policy ti_search_no_new_raw on public.search_log as restrictive for insert to anon,authenticated
 with check (false);
 
+-- All 2029 builds now emit through ingest_event. Stop old client writes without
+-- deleting history or changing owner-authorized exports/retention readers.
+create policy ti_visitor_history_no_writes on public.visitor_events as restrictive
+for insert to anon,authenticated with check (false);
+
 create or replace function public.add_wall_word(p_phrase text,p_ragil integer)
 returns void language plpgsql security definer set search_path=public,pg_temp as $$
 begin

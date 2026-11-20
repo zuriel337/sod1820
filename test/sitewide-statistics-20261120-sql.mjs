@@ -18,6 +18,10 @@ try {
     create table gematria_wall(phrase text,private boolean,last_at timestamptz,hits integer);
     create table gematria_blocklist(pattern text);
     create table search_log(id bigint,term text,value integer,created_at timestamptz);
+    create table visitor_events(id bigint,section text);
+    alter table visitor_events enable row level security;
+    create policy old_visitor_write on visitor_events for insert with check(true);
+    grant insert on visitor_events to anon,authenticated;
     create table analytics_cache(cache_key text primary key,payload jsonb,computed_at timestamptz,cache_kind text,producer text,producer_version text,input_identity text,expires_at timestamptz,invalidated_at timestamptz,billable_state text,hit_count bigint default 0,last_hit_at timestamptz);
     create table auth.users(id uuid,created_at timestamptz,email_confirmed_at timestamptz);
     create table topic_cards_public(id uuid);
@@ -52,6 +56,7 @@ try {
   check((await db.query('select * from search_log')).rows.length===0,'raw historical searches unavailable to anon');
   check((await db.query('select * from gematria_wall')).rows.length===0,'frozen wall history (public and private rows) unavailable to anon');
   let refused=false;try{await db.exec("insert into search_log values(2,'new raw input',1,now())");}catch{refused=true;}check(refused,'direct raw search writes refused');
+  refused=false;try{await db.exec("insert into visitor_events values(1,'old-client')");}catch{refused=true;}check(refused,'old clients cannot restart visitor_events writes');
   refused=false;try{await db.query('select admin_2029_analytics()');}catch{refused=true;}check(refused,'anon cannot call admin report');
   await db.exec("reset role; set request.headers='{\"cf-connecting-ip\":\"192.0.2.1\"}'");
   const body={action_version:1,operation_id:'11111111-1111-4111-8111-111111111111',measurement:{version:2,visitor_id:'browser-0001',page_path:'/gematria'}};
@@ -115,6 +120,11 @@ try {
   check(report.site_activity.activity_by_section.some(x=>x.event_type==='compute'&&x.events===1),'admin: compute counted once in its section');
   check(Number.isInteger(report.site_activity.summary.guest_browsers)&&Number.isInteger(report.site_activity.summary.active_browsers_5m),'admin: guests and active browsers are measured browsers, reported separately from accounts');
   check(report.site_activity.summary.views===53,'admin sees unknown separately (30 number views incl. 20 unknown + 23 post views); public never treats unknown as human');
+  check(report.site_activity.summary.entrances===5,'entrances count classified human page-view sessions, not unknown arrivals');
+  check(report.site_activity.journey.state==='no_data','no journey sensor data is not a measured zero');
+  await db.exec("reset role; insert into events(ts,surface,event_type,session_id,props) select now()-interval '1 minute','journey_2029',x,'human-journey','{\"_measurement_verified\":2}'::jsonb from unnest(array['start','step','save','resume'])x; insert into events(surface,event_type,props) values('journey','start','{\"_measurement_verified\":2}'); set role authenticated");
+  const journey=await scalar("select admin_2029_analytics()->'site_activity'->'journey' as v");
+  check(journey.state==='measured'&&journey.starts===1,'journey counts canonical starts only, excluding steps, resumes and old journey signals');
   check(report.site_activity.actions.some(x=>x.event_type==='compute'&&x.events===1),'admin counts canonical compute once');
   check(report.web_vitals!==undefined && report.identified_traffic!==undefined,'existing admin projections preserved');
   check((await db.query('select * from search_log')).rows.length===0,'frozen search history is server-only, even for an admin client');

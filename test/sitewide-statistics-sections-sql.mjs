@@ -49,6 +49,7 @@ try {
     create table topic_cards_public(id uuid);
     create table els_records(id uuid,status text,visibility text,home_hidden boolean);
     create table posts(id bigint,slug text,title text,tags text[]);
+    create table visitor_events(id bigint,section text,slug text,event_type text,visitor_id text,created_at timestamptz);
     create table system_suggestions(id uuid,created_at timestamptz,detector text,title text,reason text,observed jsonb,status text,sample_size integer,confidence numeric);
     create function fn_web_vital_surface_group(text,text) returns text language sql as $$select 'other'$$;
     create function edge_rate_limit_check(text,integer,integer) returns jsonb language sql as $$select '{"allowed":true}'::jsonb$$;
