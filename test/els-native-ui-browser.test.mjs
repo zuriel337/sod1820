@@ -2980,7 +2980,7 @@ test('native results: regular and crossed searches expose selectable results in 
    const list=page.locator('[aria-label="רשימת תוצאות החיפוש"]');
    await page.waitForFunction(()=>document.querySelectorAll('[aria-label="רשימת תוצאות החיפוש"] .els29-native-result').length===80);
    assert.equal(await list.isVisible(),true);assert.equal(await list.locator('.els29-native-result').count(),80);
-   const bounds=await page.locator('#els29-context-panel').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,'completed mobile results come into view');
+   const bounds=await page.locator('#els29-context-panel').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,`completed mobile ${scope} results come into view: ${JSON.stringify(bounds)}`);
    assert.equal(await page.getByRole('dialog').count(),0);
    assert.ok(results.items.every(item=>item.skip>=2&&item.ref&&['fwd','back'].includes(item.direction)));
    await activate(page,'מופע קודם');

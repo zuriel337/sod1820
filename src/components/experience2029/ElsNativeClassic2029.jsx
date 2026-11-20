@@ -607,17 +607,6 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
       <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · גם לאחר replay של האותיות, קריאה ומשמעות נשארות פרשנות לא מאומתת.</small>
     </details> : null}
 
-    {researchProfile && !guidedProfile && advancedSearch ? <section className={`els29-advanced-below${advancedSearchOpen ? " is-expanded" : ""}`} aria-label="חיפוש מורחב מתחת למטריצה">
-      <button type="button" className="r29-btn" aria-expanded={advancedSearchOpen} aria-controls="els29-advanced-search" onClick={() => { setAdvancedSelected(true); setAdvancedOpen(value => !value); }}>חיפוש מורחב</button>
-      <p role="status">{advancedSummary || "חיפוש צירים ומטריצות לפי מונח וטווח דילוגים · ללא AI"}</p>
-      <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
-        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: researchProfile && !guidedProfile && advancedSelected, onSummaryChange: setAdvancedSummary,
-          searchDraft: { term: query, scope: activeScope },
-          activeAxis: matrixActive ? { term: engineState?.termRaw || engineState?.term, scope: activeScope } : null,
-          onChooseCross: () => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); },
-        }) : advancedSearch}
-      </div>
-    </section> : null}
   </section>;
 }
 
@@ -1180,13 +1169,21 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       if (panelPinned || panelRef.current?.contains(event.target) || toolRailRef.current?.contains(event.target)) return;
       setActiveTool(null);
     };
+    const onResize = () => {
+      if (fullscreen || !window.matchMedia("(max-width:980px)").matches) return;
+      const panel = panelRef.current?.querySelector("#els29-context-panel");
+      // Keep the tool being used visible when the phone viewport shrinks; do not pull readers back from the matrix.
+      if (panel?.contains(document.activeElement)) panel.scrollIntoView({ block: "start", behavior: "instant" });
+    };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onOutside);
+    window.addEventListener("resize", onResize);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onOutside);
+      window.removeEventListener("resize", onResize);
     };
-  }, [active, activeTool, classicOpen, panelPinned]);
+  }, [active, activeTool, classicOpen, panelPinned, fullscreen]);
   const [notice, setNotice] = useState("");
   const [accountRequired, setAccountRequired] = useState(false);
   const [operations, setOperations] = useState({ search: null, findings: null });
