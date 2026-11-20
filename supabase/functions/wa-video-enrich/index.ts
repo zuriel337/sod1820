@@ -534,6 +534,8 @@ function publicVideoLink(raw: unknown) {
         const id = host === "youtu.be" ? u.pathname.slice(1) : u.pathname === "/watch" ? u.searchParams.get("v") : /^\/(?:shorts|live)\/([^/]+)\/?$/.exec(u.pathname)?.[1];
         if (/^[A-Za-z0-9_-]{11}$/.test(id || "")) return { provider: "youtube", url: "https://www.youtube.com/watch?v=" + id };
       }
+      if (host === "vt.tiktok.com" && /^\/[A-Za-z0-9]{5,24}\/?$/.test(u.pathname))
+        return { provider: "tiktok", url: "https://vt.tiktok.com" + u.pathname };
       if (["tiktok.com", "www.tiktok.com", "m.tiktok.com"].includes(host) && /^\/@[A-Za-z0-9_.-]+\/video\/\d{5,25}\/?$/.test(u.pathname))
         return { provider: "tiktok", url: "https://www.tiktok.com" + u.pathname };
     } catch { /* malformed link */ }
