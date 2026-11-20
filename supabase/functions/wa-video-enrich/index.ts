@@ -523,9 +523,62 @@ async function mapGroundedVideoText(
   };
 }
 
+// Fixed provider endpoints, exact media ids, bounded response and timeout.
+function publicVideoLink(raw: unknown) {
+  for (const m of cleanText(raw).match(/https:\/\/[^\s<>]+/gi) || []) {
+    try {
+      const u = new URL(m.replace(/[.,;!?]+$/, ""));
+      if (u.protocol !== "https:" || u.username || u.password || u.port) continue;
+      const host = u.hostname.toLowerCase();
+      if (["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"].includes(host)) {
+        const id = host === "youtu.be" ? u.pathname.slice(1) : u.pathname === "/watch" ? u.searchParams.get("v") : /^\/(?:shorts|live)\/([^/]+)\/?$/.exec(u.pathname)?.[1];
+        if (/^[A-Za-z0-9_-]{11}$/.test(id || "")) return { provider: "youtube", url: "https://www.youtube.com/watch?v=" + id };
+      }
+      if (["tiktok.com", "www.tiktok.com", "m.tiktok.com"].includes(host) && /^\/@[A-Za-z0-9_.-]+\/video\/\d{5,25}\/?$/.test(u.pathname))
+        return { provider: "tiktok", url: "https://www.tiktok.com" + u.pathname };
+    } catch { /* malformed link */ }
+  }
+  return null;
+}
+async function providerLinkMetadata(link: { provider: string; url: string }) {
+  const endpoint = link.provider === "youtube" ? "https://www.youtube.com/oembed?format=json&url=" : "https://www.tiktok.com/oembed?url=";
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 4500);
+  try {
+    const response = await fetch(endpoint + encodeURIComponent(link.url), { redirect: "error", signal: ctl.signal, headers: { Accept: "application/json" } });
+    if (!response.ok || Number(response.headers.get("content-length") || 0) > 32000) return null;
+    const raw = await response.text();
+    if (raw.length > 32000) return null;
+    const data = JSON.parse(raw);
+    const title = cleanText(data.title).slice(0, 160);
+    const thumb = cleanText(data.thumbnail_url);
+    let thumbnail = null;
+    try {
+      const host = new URL(thumb).hostname;
+      if (/^https:\/\//.test(thumb) && (link.provider === "youtube" ? (host === "i.ytimg.com" || host === "img.youtube.com") : (host.endsWith(".tiktokcdn.com") || host === "tiktokcdn.com"))) thumbnail = thumb;
+    } catch { /* no valid thumbnail */ }
+    return title && !/^(video|youtube|tiktok|untitled)$/i.test(title) ? { title, thumbnail } : null;
+  } catch { return null; }
+  finally { clearTimeout(timer); }
+}
+
 async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null = null, itemSpanId: string | null = null) {
-  if (!row?.id || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || !VIDEO_RE.test(String(row.image_url || ""))) {
+  const binaryVideo = VIDEO_RE.test(String(row?.image_url || ""));
+  const link = publicVideoLink(row?.text);
+  if (!row?.id || row.status !== "live" || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || (!binaryVideo && !link)) {
     return { id: row?.id || null, ok: false, skipped: "not_supported_public_video_channel" };
+  }
+  if (!binaryVideo && link) {
+    const metadata = await providerLinkMetadata(link);
+    if (!metadata) return { id: row.id, ok: false, retryable: true, stage: "provider_metadata", error: "metadata_unavailable" };
+    const updates: Record<string, unknown> = {
+      seo_title: metadata.title, enrichment_status: "enriched",
+      enrichment_source: link.provider + "_oembed", enriched_at: new Date().toISOString(),
+    };
+    if (!row.thumb_url && metadata.thumbnail) updates.thumb_url = metadata.thumbnail;
+    const { error } = await sb.from("channel_updates").update(updates).eq("id", row.id).eq("status", "live");
+    return error ? { id: row.id, ok: false, stage: "update", error: error.message }
+      : { id: row.id, ok: true, seo_title: metadata.title, enrichment_source: updates.enrichment_source };
   }
 
   const canonical = row.channel === "or-geula"
@@ -643,7 +696,7 @@ Deno.serve(async (req) => {
   let rows: any[] = [];
   if (rowId) {
     const { data, error } = await sb.from("channel_updates")
-      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
+      .select("id,channel,status,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
       .eq("id", rowId)
       .maybeSingle();
     if (error) {
@@ -653,10 +706,10 @@ Deno.serve(async (req) => {
     if (data) rows = [data];
   } else {
     const { data, error } = await sb.from("channel_updates")
-      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
+      .select("id,channel,status,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
       .in("channel", PUBLIC_VIDEO_CHANNELS)
       .eq("status", "live")
-      .ilike("image_url", "%.mp4%")
+      .or("image_url.ilike.%.mp4%,text.ilike.%youtube.com%,text.ilike.%youtu.be%,text.ilike.%tiktok.com%")
       .eq("enrichment_status", "pending")
       .order("created_at", { ascending: false })
       .limit(limit);
