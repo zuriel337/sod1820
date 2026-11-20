@@ -178,6 +178,13 @@ export function postImageRenditionSet2029(src, facts = null) {
 }
 // The column the article's images are drawn in (post2029-reading.css: the reading source on a phone, the reading column on a wider screen).
 export const POST_COVER_IMAGE_SIZES = "(max-width: 760px) calc(100vw - 36px), 560px";
+
+// A Post whose body carries its own video opens with the video, not with a separate cover image above it (ZURIEL 20.11.2026: "לא מתאים
+// לי שבכל פוסט רואים תמונה קטנה כזאת ואז וידאו ... צריך להיות קודם כל את הפרטים של הפוסט"). The cover stays the Post's image for cards and
+// sharing (image_url is unchanged); only the reading cover figure yields. One rule for the page and the first-document article.
+export function postReadingCoverYieldsToVideo2029(post) {
+  return typeof post?.content === "string" && /<video[\s>]/i.test(post.content);
+}
 const bodyImageSizes = width => `(max-width: 760px) min(calc(100vw - 68px), ${width}px), min(680px, ${width}px)`;
 
 // The article's own images: copies offered as above; images below the opening screen load when the reader approaches them (when the Post has

@@ -23,7 +23,7 @@ import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel, registeredUnitIds } from "../lib/research/postSourceUpdates2029.js";
 import { postVoiceFor } from "../lib/postVoice2029.js";
 import { postArticleSourceHtml2029, postArticleSourceKey2029 } from "../lib/research/postArticlePipeline2029.js";
-import { postImageRenditionSet2029, POST_COVER_IMAGE_SIZES } from "../lib/research/postArticleCore2029.js";
+import { postImageRenditionSet2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "../lib/research/postArticleCore2029.js";
 import { postArticleByline2029 } from "../lib/research/postArticleDocument2029.js";
 import { POST_ARTICLE_DOCUMENT_ID, documentArticleFor, documentImageFactsFor, documentArticleBodyMatches, readingPlace2029, samePlaceInPage2029, keepReaderInPlace2029, suspendScrollAnchoring2029 } from "../lib/research/postArticleAdoption2029.js";
 import { resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
@@ -920,7 +920,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
   const { projection } = state;
   const { post } = projection;
-  const coverItem = postReadingCoverItem(post);
+  const coverItem = postReadingCoverYieldsToVideo2029(post) ? null : postReadingCoverItem(post);
   const character = postCharacterFor(post);
   const matrixOpening = matrixOpeningFor(post);
   const background = postBackground2029(projection.sourcePost);
@@ -1537,7 +1537,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     </details>
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostEndShare2029 url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
-    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
+    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}

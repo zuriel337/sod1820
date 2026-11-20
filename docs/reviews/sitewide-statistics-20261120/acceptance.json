@@ -4,12 +4,15 @@
   "pr": 1461,
   "doc": "docs/reviews/sitewide-statistics-20261120/README.md",
   "branch": "claude/pr-1461-acceptance-review-28cnqo",
-  "base_sha": "1f01e246abfc25cfdaae2a64cfca9a5ac2992dbc",
+  "base_sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
+  "original_base_sha": "1f01e246abfc25cfdaae2a64cfca9a5ac2992dbc",
   "codex_head": "cfb007e4e71ed4b57f8ee5da439395de9cd5ce42",
   "production": {
-    "deployment": "dpl_E9NViP3QgCYtyWkoEsyRDcFTMqAE",
-    "source_sha": "bacecaa3db3fe613b0527439ee48e24eb179a78d",
-    "changed": false
+    "deployment": "dpl_2ngd15963rnFP1fGqtvxoGL3Pona",
+    "source_sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
+    "read_at": "2026-11-20T19:3xZ",
+    "changed_by_this_package": false,
+    "previous": "dpl_E9NViP3QgCYtyWkoEsyRDcFTMqAE@bacecaa"
   },
   "database_applied": false,
   "merge_authorized": false,
@@ -39,9 +42,19 @@
       "pass": 167,
       "fail": 0
     },
+    "merge_with_main_7e7cc4b": {
+      "pass": 56,
+      "article_first_proofs": {
+        "read": 1320,
+        "candidates": 1297,
+        "proven": 1297,
+        "differ": 0
+      }
+    },
     "component_browser_390_1440": {
       "pass": 2,
-      "synthetic": true
+      "synthetic": true,
+      "fonts": "harness does not load 2029 fonts; typography not represented"
     },
     "build": "PASS",
     "public_reading_build": "PASS",
@@ -340,6 +353,6 @@
   },
   "previous": {
     "codex_acceptance_schema": 2,
-    "codex_checks": 10
+    "codex_checks": 11
   }
 }

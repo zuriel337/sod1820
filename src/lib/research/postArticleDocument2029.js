@@ -10,7 +10,7 @@ import { postBackground2029 } from "./postBackground2029.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./contentSeries2029Identity.js";
 import { postClassification2029 } from "./postClassification2029.js";
 import { SEMANTIC_LEGEND } from "./postSemanticDesign2029.js";
-import { clean, postPlainText2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
+import { clean, postPlainText2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
 import { postVoiceFor } from "../postVoice2029.js";
 import { POST_ARTICLE_THEME_SCRIPT, POST_ARTICLE_FRAME_CLOSE, postArticleFrameOpen2029 } from "./postArticleFrame2029.js";
 
@@ -74,6 +74,7 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
   const title = humanContentTitle(post.title, { max: 0 });
   const byline = postArticleByline2029(post);
   const cover = typeof post.image_url === "string" ? post.image_url.trim() : "";
+  const coverFigure = Boolean(cover) && !postReadingCoverYieldsToVideo2029(post);   // the page's rule (Post2029Page coverItem)
   const background = postBackground2029(post);
   const voice = postVoiceFor(post).voice;
   const classification = postClassification2029(post);
@@ -100,7 +101,7 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + `<p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p>`
     + `</div></details></div></div></header>`
     + (voice !== "original" ? `<details class="sod29-semantic-legend" data-experience-capability="post-semantic-legend"><summary>מקרא הסמלים בפוסט</summary><dl>${SEMANTIC_LEGEND.map(item => `<dt><span aria-hidden="true">${escapeHtml(item.symbol)}</span> ${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.detail)}</dd>`).join("")}</dl></details>` : "")
-    + (cover ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
+    + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
     + sectionNavHtml(post)
     + `<div class="sod29-reading-layout"><section class="sod29-reading-source" aria-label="טקסט המקור" data-ssr-body="true">${template.innerHTML}</section></div>`
     + `</article>` + POST_ARTICLE_FRAME_CLOSE;

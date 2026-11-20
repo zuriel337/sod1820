@@ -21,7 +21,10 @@ export const CDN_EXPERIMENT_PREVIEW_BRANCH = "ccr-dcadb071-v1z5ol";
 // (ELS) fixes, exact branch below. Same rules: exact name, Preview target only, never Production, no flag of its own.
 // Approved again by ZURIEL on 18.11.2026 ("מאשר את שניהם"): a second protected Preview of the same branch, for the joint discovery + Fable panel.
 export const ELS_FIXES_PREVIEW_BRANCH = "ccr-06bc2910-pgarr4";
-export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111", REALITY_MAP_PREVIEW_BRANCH, CDN_EXPERIMENT_PREVIEW_BRANCH, ELS_FIXES_PREVIEW_BRANCH]);
+// Requested by ZURIEL on 20.11.2026 ("תן לי פרוביו אמיתי"): ONE protected Preview of the Post colour / Dimension Five reading changes, exact
+// branch below. Same rules: exact name, Preview target only, never Production, no flag of its own.
+export const POST_COLOUR_PREVIEW_BRANCH = "ccr-b086914f-f5wwfd";
+export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111", REALITY_MAP_PREVIEW_BRANCH, CDN_EXPERIMENT_PREVIEW_BRANCH, ELS_FIXES_PREVIEW_BRANCH, POST_COLOUR_PREVIEW_BRANCH]);
 // ZURIEL's Tzvi corpus execution authorization (20.11.2026): protected guest
 // acceptance of this exact source-lineage branch. Preview only; no auth alias,
 // Production admission, or relaxation of the pinned platform identity.

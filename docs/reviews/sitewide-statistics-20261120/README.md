@@ -2,7 +2,7 @@
 
 **זה המסמך החי היחיד של החבילה.** מצב חי נקרא מ־Supabase, Vercel ו־`origin/main`, לא מכאן. גרסאות קודמות נשמרות בהיסטוריית Git: README של Codex ב־`cfb007e4e` וביקורת Claude ב־`8ae33b534`.
 
-**סטטוס:** BRANCH-ONLY. ה־SQL **מוצע ולא הוחל**. אין מיזוג. אין שינוי Production. ה־Production החי הוא `dpl_E9NViP3QgCYtyWkoEsyRDcFTMqAE` ממקור `bacecaa`, והחבילה אינה בו.
+**סטטוס:** BRANCH-ONLY. ה־SQL **מוצע ולא הוחל**. אין מיזוג. אין שינוי Production. ה־Production החי (נקרא מחדש ב־20.11, 19:3x UTC): `dpl_2ngd15963rnFP1fGqtvxoGL3Pona` ממקור `7e7cc4b` (#1454). קודם לכן הוא היה `bacecaa`. החבילה אינה באף אחד מהם.
 **החלטות בעל האתר:** תגובות ZURIEL ב־PR #1461 מ־20.11.2026, `#issuecomment-7047824946` ו־`#issuecomment-7047969421`.
 
 ## 1. מקור אמת אחד לכל תחום
@@ -23,7 +23,7 @@
 ## 2. פרישת מקורות ישנים — חוזה חד־משמעי
 
 הסדר המחייב הוא: מעבר קוראים ← אימות ← עצירת כותבים ← סגירת גישה ← הסרת קוד מת. "אפס צרכנים" הוכח בכל אחד מהמקומות האלה:
-- הענף, `origin/main` ו־Production ‏`bacecaa`;
+- הענף, `origin/main`, ‏Production ‏`bacecaa` וגם Production החדש `7e7cc4b`. ב־`7e7cc4b` הקורא החי היחיד הוא `addWallWord` מ־`CommunityCalculatorPage` הישן, ולכן `add_wall_word` נשאר ABI ללא פעולה ולא נסגר;
 - `supabase/functions`;
 - תלויות ב־`pg_proc`;
 - `cron.job`;
