@@ -44,7 +44,7 @@ test("text, image and video: media is public Storage only, preview fields are se
   const text = groupRowToWorldUpdate(row());
   assert.equal(text.media, null); assert.equal(text.mediaHref, null);
   const image = groupRowToWorldUpdate(row({ body: "", media_kind: "image", media_url: IMG }));
-  assert.equal(image.media.kind, "image"); assert.equal(image.thumbUrl, IMG); assert.equal(image.label, "תמונה מהקבוצה");
+  assert.equal(image.media.kind, "image"); assert.equal(image.thumbUrl, IMG); assert.equal(image.label, "כותרת בהשלמה"); assert.equal(image.titleNeedsEnrichment, true);
   const video = groupRowToWorldUpdate(row({ body: "כיתוב", media_kind: "video", media_url: STORAGE, thumb_url: IMG }));
   assert.equal(video.media.kind, "video"); assert.equal(video.mediaHref, STORAGE); assert.equal(video.thumbUrl, IMG); assert.equal(video.fullText, "כיתוב");
   for (const [kind, url] of [["audio", STORAGE], ["video", "http://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/a.mp4"], ["image", "https://evil.example/x.jpg"],
@@ -54,6 +54,23 @@ test("text, image and video: media is public Storage only, preview fields are se
   assert.equal(groupRowToWorldUpdate(row({ body: "  ", media_kind: null })), null, "empty without media is dropped");
   assert.equal(publicGroupMediaUrl(`${IMG}#frag`), null);
   assert.equal(groupMediaFromRow({ media_kind: "image" }), null);
+});
+
+test("untitled media and link-only sources keep identity but request title enrichment", () => {
+  const youtube = groupRowToWorldUpdate(row({ body: "https://youtu.be/Abc123Def45" }));
+  assert.equal(youtube.label, "כותרת בהשלמה");
+  assert.equal(youtube.titleNeedsEnrichment, true);
+  assert.match(youtube.fullText, /youtu.be/);
+  const groupVideo = groupRowToWorldUpdate(row({ body: "", media_kind: "video", media_url: STORAGE }));
+  const [feed] = feedRows([groupVideo]);
+  const model = nowRowModel(feed);
+  assert.equal(model.title, "כותרת בהשלמה");
+  assert.equal(model.titleNeedsEnrichment, true);
+  assert.equal(model.mediaHref, STORAGE);
+  assert.equal(groupVideo.sourceRef, "channel_updates:u1");
+  assert.equal(nowRowModel({ title: "עדכון", item: { label: "עדכון" } }).title, "כותרת בהשלמה");
+  assert.equal(nowRowModel({ title: "סרטון", item: { label: "סרטון" } }).titleNeedsEnrichment, true);
+  assert.equal(nowRowModel({ title: "כותרת סרטון מאומתת", item: { label: "כותרת סרטון מאומתת" } }).titleNeedsEnrichment, false);
 });
 
 test("pagination: the reader keeps the one live RPC, caps pages at 40 and passes the cursor", async () => {
