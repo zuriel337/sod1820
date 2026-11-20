@@ -41,6 +41,12 @@ jobs:
         run: |
           node test/sitewide-statistics-20261120-sql.mjs
           node test/sitewide-statistics-legacy-readers-sql.mjs
+      - name: Real PostgreSQL apply/rollback (psql wrappers, partitioned events, md5/grant drift gates)
+        run: |
+          PG_BIN=$(ls -d /usr/lib/postgresql/*/bin | sort -V | tail -1)
+          echo "PostgreSQL binaries: $PG_BIN"
+          PG_BIN="$PG_BIN" bash test/sitewide-statistics-20261120-realpg.sh
+          PG_BIN="$PG_BIN" bash test/sitewide-statistics-privacy-floor-realpg.sh
       - name: Build and existing shell budget
         run: |
           npm run build

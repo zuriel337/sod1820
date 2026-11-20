@@ -1,0 +1,53 @@
+-- #1461 privacy floor — rollback (approved rollback only). Restores exact preimages and previous grants.
+\set ON_ERROR_STOP on
+begin;
+\ir entity_collective_count.before.sql
+;
+\ir fn_anagrams_engine.before.sql
+;
+\ir fn_hebrew_root.before.sql
+;
+\ir fn_miluy_engine.before.sql
+;
+\ir fn_split_gematria.before.sql
+;
+\ir fn_name_variants.before.sql
+;
+\ir fn_transforms_tanach.before.sql
+;
+\ir fn_name_multi.before.sql
+;
+\ir number_dossier_json.before.sql
+;
+\ir fn_en_search.before.sql
+;
+\ir strongest_crossings.before.sql
+;
+\ir verified_bridges.before.sql
+;
+\ir fn_cross_research.before.sql
+;
+\ir atlas_findings.before.sql
+;
+\ir discover_anchor_families.before.sql
+;
+\ir discover_relation_candidates.before.sql
+;
+\ir fn_all_methods.before.sql
+;
+\ir writer_gematria_findings.before.sql
+;
+\ir number_resonance_stats.before.sql
+;
+\ir fn_entity_strength.before.sql
+;
+\ir top_collective.before.sql
+;
+-- C: previous ACLs: research_level_of {postgres,anon,authenticated}; fn_cohort_acceptance / fn_metatron_gaps {PUBLIC,postgres}
+revoke execute on function public.research_level_of(uuid) from service_role;
+grant execute on function public.research_level_of(uuid) to anon, authenticated;
+revoke execute on function public.fn_cohort_acceptance(text) from service_role;
+grant execute on function public.fn_cohort_acceptance(text) to public;
+revoke execute on function public.fn_metatron_gaps() from service_role;
+grant execute on function public.fn_metatron_gaps() to public;
+commit;

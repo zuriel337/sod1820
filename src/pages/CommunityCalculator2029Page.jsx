@@ -12,7 +12,6 @@ import { numberReadingReturnHref } from "../lib/research/numberExpressionFocus.j
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { applySeo } from "../lib/seo.js";
-import { recordSiteActivity } from "../lib/siteActivity2029.js";
 import {
   parseCommunityCalculatorState, selectCommunityCalculatorResult,
   communityCalculatorHref, communityCalculatorNumberNavigation,
@@ -138,6 +137,11 @@ function BabyNames({ model }) {
   </div>;
 }
 
+// Loaded on demand, like SiteSearch2029/ResearchProvider: a static import here moved the
+// measurement transport into an eager chunk (+710 B gzip on every page, measured 20.11.2026).
+const recordCommunityCompute = () => void import("../lib/siteActivity2029.js")
+  .then(m => m.recordSiteActivity("compute", { section: "calculator_community" })).catch(() => {});
+
 function CalculatorExperience({ model, initialState, location }) {
   const research = useResearch();
   const { state, r1, r2 } = model;
@@ -165,12 +169,12 @@ function CalculatorExperience({ model, initialState, location }) {
   const arrivalNames = useRef([initialState.name1, initialState.name2]);
   useEffect(() => {
     if (!r1 || state.name1 === arrivalNames.current[0]) return undefined;
-    const t = setTimeout(() => recordSiteActivity("compute", { section: "calculator_community" }), 650);
+    const t = setTimeout(recordCommunityCompute, 650);
     return () => clearTimeout(t);
   }, [state.name1, r1?.value]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!r2 || state.name2 === arrivalNames.current[1]) return undefined;
-    const t = setTimeout(() => recordSiteActivity("compute", { section: "calculator_community" }), 650);
+    const t = setTimeout(recordCommunityCompute, 650);
     return () => clearTimeout(t);
   }, [state.name2, r2?.value]); // eslint-disable-line react-hooks/exhaustive-deps
 
