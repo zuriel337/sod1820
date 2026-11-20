@@ -16,12 +16,12 @@ begin
 
   begin
     with u as (
-      select 'רגיל' method,1 prio,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where ragil=n and is_verified and coalesce(is_published,false) and public.gematria_public_word_eligible(gematria_words.id)
-      union all select 'מסתתר',2,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where misratar=n and is_verified and coalesce(is_published,false) and public.gematria_public_word_eligible(gematria_words.id)
-      union all select 'אתבש',3,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where atbash=n and is_verified and coalesce(is_published,false) and public.gematria_public_word_eligible(gematria_words.id)
-      union all select 'קדמי',4,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where kadmi=n and is_verified and coalesce(is_published,false) and public.gematria_public_word_eligible(gematria_words.id)
-      union all select 'גדול',5,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where gadol=n and is_verified and coalesce(is_published,false) and public.gematria_public_word_eligible(gematria_words.id)
-      union all select 'מילוי',6,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where miluy=n and is_verified and coalesce(is_published,false) and public.gematria_public_word_eligible(gematria_words.id)
+      select 'רגיל' method,1 prio,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where ragil=n and is_verified and coalesce(is_published,false) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
+      union all select 'מסתתר',2,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where misratar=n and is_verified and coalesce(is_published,false) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
+      union all select 'אתבש',3,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where atbash=n and is_verified and coalesce(is_published,false) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
+      union all select 'קדמי',4,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where kadmi=n and is_verified and coalesce(is_published,false) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
+      union all select 'גדול',5,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where gadol=n and is_verified and coalesce(is_published,false) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
+      union all select 'מילוי',6,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where miluy=n and is_verified and coalesce(is_published,false) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
     ), scored as (
       select method,prio,phrase,
         ((case when is_verified then 3 else 0 end)
@@ -61,7 +61,7 @@ begin
       join gematria_words g on p.wp_id=any(g.source_wp_ids)
       where (g.ragil=n or g.misratar=n or g.atbash=n)
         and g.is_verified
-        and coalesce(g.is_published,false) and public.gematria_public_word_eligible(g.id)
+        and coalesce(g.is_published,false) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(g.id))
         and p.wp_id is not null
         and NOT (coalesce(p.tags, '{}'::text[]) && ARRAY['טיוטה']::text[])
       limit 4

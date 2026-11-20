@@ -1,13 +1,39 @@
--- PROPOSAL ONLY (#1461 acceptance review). Optional first step, independent of the rest.
--- Live 20.11.2026: public.search_log (~93k raw free-text searches) is readable AND
--- insertable by anon via REST ("anyone read search" USING true). TI v9 forbids exposing
--- another user's search terms. These two restrictive policies are the same floor that
--- extensions.sql adds; extensions.sql drops-if-exists them, so both orders are safe.
--- Clients: old and new 2029 builds already swallow read/insert errors on search_log.
+-- PROPOSAL ONLY (#1461/#1462). Release-plan stage 1, independent of the rest. Requires explicit ZURIEL approval
+-- for this exact commit and this stage (CLAUDE.md 0.4). Revert: search-log-floor.rollback.psql.
+-- Live 20.11.2026: public.search_log (~93k raw free-text searches) is readable AND insertable by anon via REST
+-- ("anyone read search" USING true). TI v9 forbids exposing another user's search terms. These two restrictive
+-- policies are the same floor that extensions.sql adds; extensions.sql drops-if-exists them, so both orders are safe.
+-- Consumers (README §10.6): no live client consumer in Production 7e7cc4b; every server reader is SECURITY DEFINER
+-- owned by postgres without FORCE RLS, so restrictive policies for anon/authenticated do not reach it.
 \set ON_ERROR_STOP on
 begin;
+-- Gate 1: the table is exactly as reviewed on 20.11.2026; any drift stops here and nothing is written.
+do $pre$ begin
+  if (select array_agg(polname::text order by polname::text collate "C") from pg_policy where polrelid='public.search_log'::regclass)
+     is distinct from array['anon insert search','anyone read search'] then
+    raise exception 'search-log-floor: policy drift on public.search_log';
+  end if;
+  if not (select relrowsecurity and not relforcerowsecurity and relowner='postgres'::regrole from pg_class where oid='public.search_log'::regclass) then
+    raise exception 'search-log-floor: RLS/FORCE/owner drift on public.search_log';
+  end if;
+  -- Gate 2: every server reader of search_log stays unaffected (definer, owned by the table owner).
+  if exists (select 1 from pg_proc where pronamespace='public'::regnamespace and prosrc ilike '%search_log%'
+             and not (prosecdef and proowner='postgres'::regrole)) then
+    raise exception 'search-log-floor: a reader of search_log is not SECURITY DEFINER owned by postgres; review it first';
+  end if;
+end $pre$;
 create policy ti_search_history_server_only on public.search_log as restrictive for select to anon,authenticated
 using (false);
 create policy ti_search_no_new_raw on public.search_log as restrictive for insert to anon,authenticated
 with check (false);
+-- Gate 3 (in the same transaction, before commit): a guest reads nothing and cannot write; the owner still reads.
+do $post$ declare n bigint; refused boolean := false; begin
+  if (select count(*) from public.search_log) = 0 then raise exception 'search-log-floor: owner read check failed'; end if;
+  execute 'set local role anon';
+  select count(*) into n from public.search_log;
+  begin insert into public.search_log(term) values ('canary'); exception when insufficient_privilege then refused := true; end;
+  execute 'reset role';
+  if n <> 0 then raise exception 'search-log-floor: anon still reads % rows', n; end if;
+  if not refused then raise exception 'search-log-floor: anon insert was not refused'; end if;
+end $post$;
 commit;

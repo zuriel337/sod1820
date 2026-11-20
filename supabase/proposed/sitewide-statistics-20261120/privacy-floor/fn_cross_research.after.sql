@@ -33,7 +33,7 @@ begin
                  from t group by v having count(*)>=2)
       select coalesce(jsonb_agg(jsonb_build_object(
         'value',v,'hits',n,'across_items',span,'from',frm,
-        'equals',(select string_agg(phrase,' · ') from (select phrase from gematria_words where ragil=v and is_verified and space='core' and public.gematria_public_word_eligible(gematria_words.id) order by lead_rank nulls last limit 4) p),
+        'equals',(select string_agg(phrase,' · ') from (select phrase from gematria_words where ragil=v and is_verified and space='core' and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id)) order by lead_rank nulls last limit 4) p),
         'tanach_verses',(select count(*) from tanach_verses where ragil=v)
       ) order by span desc, n desc),'[]'::jsonb) from g),
     'shared_letters', (

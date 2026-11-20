@@ -7,9 +7,13 @@ returns boolean language sql stable security definer set search_path=public,pg_t
  select exists(select 1 from public.gematria_words g where g.id=p_id
    and g.is_verified is true and g.is_published is true
    and coalesce(g.is_encrypted,false)=false and coalesce(g.visibility_tier,0)>=0
-   and not exists(select 1 from public.gematria_blocklist b where position(b.pattern in g.phrase)>0)
-   and not exists(select 1 from public.gematria_wall w where w.private is true and w.phrase=g.phrase))
+   and not exists(select 1 from public.gematria_blocklist b where position(b.pattern in g.phrase)>0))
 $$;
+-- Same contract as the live anon policy anon_read_verified_gematria (verified + published + not encrypted),
+-- plus the owner's existing moderation signals (visibility_tier<0, blocklist; 0 rows each on 20.11.2026).
+-- A private gematria_wall entry does NOT hide a published corpus word: the wall is server-only history, so a
+-- public word reveals nothing about who typed it. (Measured 20.11.2026: a wall clause would hide 22 curated
+-- public words, 21 promoted:raw_docx_v2 + 1 admin_curated, all tier 3.)
 revoke all on function public.gematria_public_word_eligible(uuid) from public,anon,authenticated;
 
 -- All public callers, including suggestions/direct REST, must obey the same floor.
@@ -20,7 +24,7 @@ using (public.rd_is_admin() or public.gematria_public_word_eligible(id));
 grant execute on function public.gematria_public_word_eligible(uuid) to anon,authenticated;
 -- #1461 owner decision 20.11.2026: gematria_wall is frozen history (typing writes, no consent,
 -- no writes since 2026-11-04). It is no live metric and no client source: server-only read.
--- Rows are kept for audit; gematria_public_word_eligible still reads it (definer) for private=true.
+-- Rows are kept for audit.
 create policy ti_wall_history_server_only on public.gematria_wall as restrictive for select to anon,authenticated
 using (false);
 -- search_log: frozen raw free-text history without recorded consent (no writes since 2026-11-09).

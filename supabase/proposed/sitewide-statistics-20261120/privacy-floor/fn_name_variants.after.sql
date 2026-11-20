@@ -13,7 +13,7 @@ AS $function$
       union all select regexp_replace((select t from q),'י','',1)
     ) c
     where cand <> (select t from q) and length(cand)>=2
-      and (exists(select 1 from gematria_words where phrase=cand and public.gematria_public_word_eligible(gematria_words.id)) or exists(select 1 from tanach_verses where words @> array[cand]))
+      and (exists(select 1 from gematria_words where phrase=cand and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))) or exists(select 1 from tanach_verses where words @> array[cand]))
   )
   select jsonb_build_object('base',(select t from q),
     'variants', (select coalesce(jsonb_agg(jsonb_build_object('form',form,'note',note)),'[]'::jsonb) from (select form,note from curated union select form,note from ktiv) z));

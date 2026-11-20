@@ -23,7 +23,7 @@ AS $function$
     and b.phrase !~ '[A-Za-z0-9]'
     and not exists (select 1 from gematria_blocklist bl where position(bl.pattern in b.phrase) > 0)
     -- #1461 review: bidim mirrors every gematria_words phrase, including unpublished,
-    -- encrypted, tier<0 and private-wall phrases (live 20.11.2026: 120 hidden + 23 private).
+    -- encrypted and tier<0 phrases (live 20.11.2026: 120 hidden). bidim mirrors the corpus, so every phrase here exists in it.
     -- Only a phrase with at least one publicly eligible corpus row may be returned.
     and exists (select 1 from gematria_words g2 where g2.phrase = b.phrase and public.gematria_public_word_eligible(g2.id))
   order by o.self_method,

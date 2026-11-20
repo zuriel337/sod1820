@@ -12,7 +12,7 @@ begin
   else
      select gw.phrase into v_heb
      from word_aliases a join gematria_words gw on gw.id = a.word_id
-     where lower(a.alias) = lower(p_word) and a.lang = 'en' and exists(select 1 from gematria_words g where g.phrase = gw.phrase and public.gematria_public_word_eligible(g.id))
+     where lower(a.alias) = lower(p_word) and a.lang = 'en' and exists(select 1 from gematria_words g where g.phrase = gw.phrase and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(g.id)))
      order by a.verified desc nulls last, a.confidence desc nulls last
      limit 1;
   end if;
@@ -37,13 +37,13 @@ begin
   from vals
   cross join lateral (
     select count(distinct b.phrase)::int sharers
-    from bidim b join gematria_words gw on gw.id = b.word_id and gw.is_verified = true and gw.is_published = true and public.gematria_public_word_eligible(gw.id)
+    from bidim b join gematria_words gw on gw.id = b.word_id and gw.is_verified = true and gw.is_published = true and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gw.id))
     where b.method = vals.m and b.value = vals.v
   ) cnt
   cross join lateral (
     select array_agg(p order by p) matches
     from (select distinct b.phrase p from bidim b
-          join gematria_words gw on gw.id = b.word_id and gw.is_verified = true and gw.is_published = true and public.gematria_public_word_eligible(gw.id)
+          join gematria_words gw on gw.id = b.word_id and gw.is_verified = true and gw.is_published = true and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gw.id))
           where b.method = vals.m and b.value = vals.v and b.phrase <> v_heb
           limit p_max_matches) s
   ) mt

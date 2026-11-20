@@ -31,7 +31,7 @@ AS $function$
       when b.value = albam_calc(b.phrase) then 'אלב״ם'
       else null
     end as method,
-    exists(select 1 from public.gematria_words gw where gw.phrase = b.phrase and public.gematria_public_word_eligible(gw.id)) as in_core,
+    exists(select 1 from public.gematria_words gw where gw.phrase = b.phrase and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gw.id))) as in_core,
     (b.pinned_at is not null) as pinned, b.created_at
   from base b
   order by b.pinned_at desc nulls last, b.created_at desc
