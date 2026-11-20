@@ -146,7 +146,10 @@ test("the words of the message are shown (Or HaGeula as text only, ZURIEL 19.11.
   const [m] = nowModels(rows([ch])); assert.equal(m.previewKind, null); assert.equal(m.thumb, null); assert.equal(m.mediaHref, null);
   assert.equal(m.video, true, "it is still known as a video"); assert.equal(m.canExpand, true, "its words still open in place");
   assert.equal(m.textOnly, true);
-  assert.match(readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8"), /model\.textOnly \? null : externalVideoLinksFromText/, "no YouTube card for a text-only source");
+  const nowUi = readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8");
+  assert.match(nowUi, /model\.textOnly\s*\? externalVideoLinksFromText/, "text-only sources retain an outbound video source link");
+  assert.match(nowUi, /href=\{link\.watch \|\| link\.href\}/, "text-only link opens the original provider");
+  assert.match(nowUi, /:\s*externalVideoLinksFromText\(model\.fullText/, "rich embedded facade is reserved for non-text-only sources");
   const [img] = nowModels(rows([publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "טקסט", image_url: MP4.replace("clip.mp4", "i.jpg") })])); assert.equal(img.previewKind, null); assert.equal(img.thumb, null); assert.equal(img.mediaHref, null);
   const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "פתיחה ".repeat(40), created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
   assert.equal(nowModels(rows([zvi]))[0].previewKind, null);
