@@ -694,6 +694,37 @@ charcoal, the full blue charcoal also inside posts, and a blue frame around warm
 - Superseded: the 11.10.2026 selection's Night surfaces apply to the frame no longer; they remain for
   pages and posts.
 
+### 14.10 Post colour, series colour, video first and the end of a Post · Human Gate ZURIEL · 20.11.2026
+
+ZURIEL: «לא מתאים לי שאין שום צבע ... זה על כל הקטגוריות», «לא מתאים לי שבכל פוסט רואים תמונה קטנה כזאת ואז וידאו», and on the
+end of a Post: comments only when they exist, no "previous site" wording, and a way for a reader to add something that reaches the
+community. Approved for every Post, present and future, with no per-Post list: each rule is derived from facts the Post already
+carries. Presentation only — no stored source, wording, claim, calculation or image_url changes.
+
+- **Reading colour (every Post, every category).** Night: warm cream text `#ede4d3`, title `#f6e27a` with a soft gold glow, subheadings
+  `#e8c840` — the Legacy reading ink. Day and Parchment: title `#7a4a00`, subheadings `#8a5a0a`; Parchment text `#3a2a18`; Day text
+  keeps `--s29-ink`. Every pair ≥4.5:1 on the theme's reading surface. Authored colours (`[data-legacy-color]`), text inside authored
+  panels (`[data-legacy-panel]`) and the Matrix character keep their own palette. Gold is decoration, never a rating.
+- **Series colour.** One colour per mapped series for the series chip (white text on a darker gradient, ≥4.5:1), the heading rule,
+  quotes, links, list markers and the video frame: Dimension Five violet (Legacy `#8458ff → #3a1d8a`; `#6a43e6` / Night `#a991ff`),
+  Sod HaHashmal electric blue (`#1f5fb8` / `#6cb8ff`), Mah Kore HaBora olive (`#556b12` / `#b5c96a`); a Post outside a mapped series
+  keeps the gold. The series is read only from the marker the page and the first-document article both carry
+  (`data-post-background`, from `contentSeries2029Identity` through `postBackground2029`), never from a slug or title. A new series
+  gets its colour here first, then in the stylesheet.
+- **Dimension Five centring — exception to §8.2 "Posts alignment" (31.10.2026) for this series only.** The column, media, subheadings,
+  the lead line and quotes are centred, as on the Legacy series page; paragraphs and lists stay at logical start. Every other Post
+  keeps §8.2 unchanged.
+- **Video first.** A Post whose body carries its own `<video>` shows the post details and then the video: no separate cover image
+  above it, and the body's copy of the cover stays hidden. One rule for the page and the first-document article
+  (`postReadingCoverYieldsToVideo2029`).
+- **End of a Post.** Existing comments for the Post are shown only when there are some; when there are none nothing about them is
+  shown — no empty archive line and no "previous site" wording. «רוצים להוסיף משהו? · להוסיף בקהילה» uses the existing community
+  share draft (the reader's own words are required; nothing is sent from the Post).
+- **Implementation:** `src/pages/post2029-legacy-grade.css` (colour, series, centring), `src/lib/research/postArticleCore2029.js` +
+  `postArticleDocument2029.js` + `Post2029Page.jsx` (video first), `PostComments2029.jsx` (end of a Post). Acceptance:
+  `test/post-reading-colour-2029.test.mjs`, `test/post-comments-2029.test.mjs`, `test/article-first-browser-2029.browser.mjs`.
+  Speed law: CSS and a pure function only; the article-first list is unchanged.
+
 ## Naming / product language law — carried from V1 · 11.11.2026
 
 Carried from `SOD1820_DESIGN_CONTRACT_V1.md` (§ Naming / product language law) so that public naming is owned by the active 2029 contract (Owner Index: «visual language / typography / public naming» → V2). V1 keeps its copy as history; where they differ, this section governs. The bullets are V1's wording; one factual correction is marked inline.
