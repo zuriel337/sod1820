@@ -21,22 +21,24 @@ test("owner's exact login differs from other admins; paying customer requires ve
   user(1,{userRole:"admin"}),
   user(2,{userRole:"admin"}),
   user(3,{paymentVerifiedAtEvent:true}),
-  user(4,{paymentVerifiedAtEvent:false}),
+  user(4,{communityModerator:true,paymentVerifiedAtEvent:false}),
   user(5,{identityVerified:false}),
   {tokenLogId:6,costIls:"0.123456",visitorPresent:true},
   {tokenLogId:7,costIls:"0.123456",systemOperationVerified:true},
   {tokenLogId:8,costIls:"0.123456"},
+  user(9,{paymentVerifiedAtEvent:false}),
  ];
  const r=report(rows);
- assert.deepEqual(r.bySegment.map(x=>x.calls),[1,1,1,1,1,1,2]);
- assert.equal(attributeAiCostCohort(rows[0],{viewerUserId:"u1"}),C.MY_ACCOUNT);
- assert.equal(attributeAiCostCohort(rows[1],{viewerUserId:"u1"}),C.OTHER_ADMIN);
+ assert.deepEqual(r.bySegment.map(x=>x.calls),[2,1,1,1,1,1,2]);
+ assert.equal(attributeAiCostCohort(rows[0]),C.OWNER_ACCOUNTS);
+ assert.equal(attributeAiCostCohort(rows[1]),C.OWNER_ACCOUNTS);
  assert.equal(attributeAiCostCohort(rows[2]),C.PAYING_CUSTOMER);
- assert.equal(attributeAiCostCohort(rows[3]),C.REGISTERED);
+ assert.equal(attributeAiCostCohort(rows[3]),C.COMMUNITY_MODERATOR);
+ assert.equal(attributeAiCostCohort(rows[8]),C.REGISTERED);
  assert.equal(attributeAiCostCohort(rows[5]),C.ANONYMOUS);
  assert.equal(attributeAiCostCohort(rows[6]),C.SYSTEM);
  assert.equal(attributeAiCostCohort(rows[7]),C.UNKNOWN);
- assert.equal(r.knownCostIls,"0.9876");
+ assert.equal(r.knownCostIls,"1.1111");
  assert.equal(r.unassignedCalls,2);
  assert.equal(r.notAnInvoice,true);
  assert.equal(r.includesInfrastructureCosts,false);
@@ -67,7 +69,7 @@ test("no false attribution based on source/model names; unknown stays unknown",(
  const rows=[{tokenLogId:1,costIls:"13.0733",source:"research-extract",model:"claude-sonnet-5"}];
  const r=report(rows);
  assert.equal(r.bySegment.find(x=>x.segment===C.UNKNOWN).knownCostIls,"13.0733");
- assert.equal(r.bySegment.find(x=>x.segment===C.MY_ACCOUNT).knownCostIls,"0.0000");
+ assert.equal(r.bySegment.find(x=>x.segment===C.OWNER_ACCOUNTS).knownCostIls,"0.0000");
 });
 
 test("bounded projection refuses unbounded rows or non-admin request",()=>{
