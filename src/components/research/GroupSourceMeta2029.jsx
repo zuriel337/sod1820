@@ -14,7 +14,9 @@ export function GroupSourceBadge({ item }) {
 export function GroupSourceMedia({ item, compact = false }) {
   const media = item?.media;
   const [armed, setArmed] = useState(false);
-  if (!media) return null;
+  if (!media) return item?.sourceVideoHref
+    ? <a className="sod29-group-media-link" href={item.sourceVideoHref} target="_blank" rel="noopener noreferrer" aria-label="פתיחת הסרטון המקורי ב־YouTube">צפייה בסרטון המקורי ב־YouTube</a>
+    : null;
   if (media.kind === "image") {
     return <img className={`sod29-group-media is-image${compact ? " is-compact" : ""}`} src={media.url} alt={`תמונה מהקבוצה · ${item.sourceGroupLabel || ""}`.trim()} loading="lazy" decoding="async" />;
   }
