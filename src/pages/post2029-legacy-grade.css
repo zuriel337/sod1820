@@ -138,37 +138,61 @@
   background:radial-gradient(90% 120% at 50% 0,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 70%);
 }
 
-/* ───────────── Dimension Five — series identity (DEC-SERIES-003; ZURIEL 20.11.2026) ─────────────
-   Scoped by the series marker (data-post-background, from contentSeries2029Identity through postBackground2029), which the
-   page and the first-document article both carry, so the article-first path keeps working and nothing moves on adoption.
-   The cosmic violet of the retired Legacy series badge (#8458ff → #3a1d8a) returns as the series colour, tuned per theme
-   for contrast. Centring follows the Legacy series page where it helps reading: the column, media, headings, the lead line
-   and quotes are centred (over the shared start-alignment rule of post2029-reading.css); long paragraphs and lists stay right-aligned
-   so Hebrew lines keep one start edge. */
-.sod29-reading-post[data-post-background="dimension-five"]{--dim5-violet:#6a43e6;--dim5-violet-soft:color-mix(in srgb,#8458ff 16%,transparent);--dim5-glow:rgba(132,88,255,.22)}
-html[data-theme-2029="dark"] .sod29-reading-post[data-post-background="dimension-five"]{--dim5-violet:#a991ff;--dim5-glow:rgba(132,88,255,.34)}
-.sod29-reading-post[data-post-background="dimension-five"] .k29-post-classification .k29-cat[data-post-classification="series"]{
-  color:#fff;border-color:rgba(180,150,255,.45);background:linear-gradient(135deg,#7246f0,#3a1d8a);font-weight:800;
+/* ───────────── Post colour — warm gold for every Post, one colour per series (ZURIEL 20.11.2026) ─────────────
+   "לא מתאים לי שאין שום צבע ... זה על כל הקטגוריות": the reading ink of the retired Legacy post page returns in every theme — warm cream
+   text and gold headings at night (Legacy #ede4d3 · #f6e27a · #e8c840), dark amber/bronze headings by day and on parchment, measured at
+   ≥4.5:1 on the reading surface of each theme (paletteTokens2029 card). Authored colours keep their own rules: [data-legacy-color] is never
+   recoloured here (postLegacyColor2029). Each series has one colour of its own (--post-series) for its chip, heading rule, quotes, links,
+   list markers and video frame; a Post outside a mapped series keeps the gold. The series is read from the marker the page and the
+   first-document article both carry (data-post-background ← contentSeries2029Identity), so the article-first path is unchanged.
+   The Matrix character keeps its own palette, and text inside an authored panel ([data-legacy-panel]) keeps the panel's ink.
+   Series chips carry white text on their darker gradient (≥4.5:1). Gold is decoration, never a rating. */
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]){
+  --post-text:var(--s29-ink);--post-strong:#0f1b2e;--post-title:#7a4a00;--post-heading:#8a5a0a;
+  --post-series:#8a5a0a;--post-series-soft:color-mix(in srgb,#d4af37 16%,transparent);--post-series-glow:rgba(154,120,24,.20);
 }
-.sod29-reading-post[data-post-background="dimension-five"] .k29-post-classification .k29-cat[data-post-classification="series"] .k29-post-role{color:inherit;opacity:.85}
+html[data-theme-2029="parchment"] .sod29-reading-post[data-post-character]:not([data-post-character="matrix"]){--post-text:#3a2a18;--post-strong:#1e140a}
+html[data-theme-2029="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="matrix"]){
+  --post-text:#ede4d3;--post-strong:#fff6e0;--post-title:#f6e27a;--post-heading:#e8c840;
+  --post-series:#e8c840;--post-series-glow:rgba(212,175,55,.26);
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-hero h1{color:var(--post-title)}
+html[data-theme-2029="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-hero h1{text-shadow:0 0 34px rgba(212,175,55,.28)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-source :is(p,li):not([data-legacy-color]):not([data-legacy-panel] *){color:var(--post-text)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-source :is(h2,h3,h4):not([data-legacy-color]):not([data-legacy-panel] *){color:var(--post-heading)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-source :is(b,strong):not([data-legacy-color]):not([data-legacy-panel] *){color:var(--post-strong)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-source h3::after{
+  content:"";display:block;inline-size:44px;block-size:2px;margin:.55em 0 0;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--post-series),transparent);
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-source a:not(.k29-cat):not([data-legacy-color]):not([data-legacy-panel] *){color:var(--post-series);text-decoration-color:color-mix(in srgb,var(--post-series) 55%,transparent)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-source li::marker{color:var(--post-series)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-source blockquote{border-radius:18px;border:1px solid color-mix(in srgb,var(--post-series) 30%,transparent);background:var(--post-series-soft)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"]) .sod29-reading-source video{
+  display:block;margin-inline:auto;background:#000;border-radius:16px;
+  border:1px solid color-mix(in srgb,var(--post-series) 38%,transparent);box-shadow:0 12px 36px var(--post-series-glow);
+}
+/* Series colours: Dimension Five — the Legacy cosmic violet (#8458ff → #3a1d8a); Sod HaHashmal — electric blue; Mah Kore HaBora — olive. */
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"])[data-post-background="dimension-five"]{--post-series:#6a43e6;--post-series-soft:color-mix(in srgb,#8458ff 16%,transparent);--post-series-glow:rgba(132,88,255,.22);--post-series-chip:linear-gradient(135deg,#7246f0,#3a1d8a)}
+html[data-theme-2029="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="matrix"])[data-post-background="dimension-five"]{--post-series:#a991ff;--post-series-glow:rgba(132,88,255,.34)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"])[data-post-background="sod-hashmal"]{--post-series:#1f5fb8;--post-series-soft:color-mix(in srgb,#2a7be0 14%,transparent);--post-series-glow:rgba(42,123,224,.22);--post-series-chip:linear-gradient(135deg,#2368c4,#123d7a)}
+html[data-theme-2029="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="matrix"])[data-post-background="sod-hashmal"]{--post-series:#6cb8ff;--post-series-glow:rgba(42,123,224,.34)}
+.sod29-reading-post[data-post-character]:not([data-post-character="matrix"])[data-post-background="mah-kore-habora"]{--post-series:#556b12;--post-series-soft:color-mix(in srgb,#8aa82a 15%,transparent);--post-series-glow:rgba(107,138,26,.22);--post-series-chip:linear-gradient(135deg,#5a7614,#2f3f08)}
+html[data-theme-2029="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="matrix"])[data-post-background="mah-kore-habora"]{--post-series:#b5c96a;--post-series-glow:rgba(138,168,42,.32)}
+.sod29-reading-post[data-post-background]:not([data-post-background="general"]) .k29-post-classification .k29-cat[data-post-classification="series"]{
+  color:#fff;border-color:color-mix(in srgb,var(--post-series) 45%,transparent);background:var(--post-series-chip,var(--post-series));font-weight:800;
+}
+.sod29-reading-post[data-post-background]:not([data-post-background="general"]) .k29-post-classification .k29-cat[data-post-classification="series"] .k29-post-role{color:inherit;opacity:.85}
+
+/* Dimension Five — centring (ZURIEL 20.11.2026). Follows the Legacy series page where it helps reading: the column, media, headings,
+   the lead line and quotes are centred (over the shared start-alignment rule of post2029-reading.css); long paragraphs and lists stay
+   right-aligned so Hebrew lines keep one start edge. */
 .sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source>*{max-width:38rem;margin-inline:auto}
 .sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source :is(h2,h3,h4){text-align:center!important;text-wrap:balance}
-.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source h3::after{
-  content:"";display:block;inline-size:44px;block-size:2px;margin:.55em auto 0;border-radius:2px;
-  background:linear-gradient(90deg,transparent,var(--dim5-violet),transparent);
-}
+.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source h3::after{margin-inline:auto}
 .sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source>p:first-of-type,
 .sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source>div>p:first-of-type,
 .sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source blockquote{text-align:center!important;text-wrap:balance}
-.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source blockquote{
-  border-radius:18px;border:1px solid color-mix(in srgb,var(--dim5-violet) 30%,transparent);background:var(--dim5-violet-soft);
-}
-.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source a:not(.k29-cat){color:var(--dim5-violet);text-decoration-color:color-mix(in srgb,var(--dim5-violet) 55%,transparent)}
-.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source li::marker{color:var(--dim5-violet)}
-.sod29-reading-post[data-post-background="dimension-five"] .sod29-reading-source video{
-  display:block;margin-inline:auto;background:#000;border-radius:16px;
-  border:1px solid color-mix(in srgb,var(--dim5-violet) 38%,transparent);box-shadow:0 12px 36px var(--dim5-glow);
-}
 
 /* ───────────── lexicon — letters, roots, equations (Hebrew + English) ───────────── */
 .sod29-reading-post[data-post-character="lexicon"]{--pg-measure:42rem}
