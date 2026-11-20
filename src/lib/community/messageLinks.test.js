@@ -146,3 +146,14 @@ test("TikTok outbound links: exact public video paths only, deduplicated and nev
     "https://vt.tiktok.com/private/path",
   ]) assert.equal(externalTikTokLinksFromText(bad).length, 0, bad);
 });
+
+test("YouTube playlists remain distinct source links, never single video embeds", async () => {
+  const { externalYouTubePlaylistLinksFromText } = await import("./messageLinks.js");
+  const href = "https://youtube.com/playlist?list=PLn_h_6FyNmGQRHmEW2aE1waFpBz3k1m_9&si=share";
+  const links = externalYouTubePlaylistLinksFromText(href + " " + href);
+  assert.equal(links.length, 1);
+  assert.equal(links[0].href, "https://www.youtube.com/playlist?list=PLn_h_6FyNmGQRHmEW2aE1waFpBz3k1m_9");
+  for (const invalid of ["https://evil.example/playlist?list=PLn_h_6FyNmGQRHmEW2aE1waFpBz3k1m_9",
+    "https://youtube.com/playlist?list=short", "https://user:pass@youtube.com/playlist?list=PLn_h_6FyNmGQRHmEW2aE1waFpBz3k1m_9"])
+    assert.deepEqual(externalYouTubePlaylistLinksFromText(invalid), []);
+});
