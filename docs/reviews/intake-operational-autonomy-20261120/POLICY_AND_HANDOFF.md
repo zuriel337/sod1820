@@ -1,54 +1,59 @@
-# SOD1820 — Operational AI autonomy policy v1 (REVIEW CANDIDATE)
-Owner decision 20 November 2026 · Issue #1457 · BRANCH-ONLY, **not activated**
+# SOD1820 #1457 — Site AI Operations + Control Plane Cost Attribution
+**Owner decision, 20 Nov 2026 — REVIEW CANDIDATE / BRANCH ONLY**
 
-## The separation
-- **Intake is continuous, intelligence is conditional.** The site must not create a paid research job merely because a WhatsApp message, image, video, link, person, post or article arrived.
-- **Level 0 — free deterministic intake:** preserve the exact source, source ref, proof/access, source time, attach already-known metadata, normalize trusted links, use canonical arithmetic/rules and existing indices. Every distinct occurrence keeps its own identity. No automatic promotion of truth or publication.
-- **Level 1 — autonomous operational diagnosis:** use AI only when an actual *server-verified, material operational event* is detected (repeated ingestion failure, repeated broken public source, proven mismatch in an existing public projection). A bounded, redacted summary/diagnosis or change proposal is allowed under a standing **class-specific** owner grant, only after an independent server authority check and atomic budget reservation. Low confidence events, content popularity, an author's message count, or a model saying "interesting" never trigger spend.
-- **Immediate incident containment:** potential private/public leak, credential exposure, mistaken identity-linking or unauthorized publication => STOP unsafe action and alert owner; never let a model itself release, delete, modify privileges or promote truth. Event handling must be non-destructive and can operate before any AI.
-- **Level 2 — deep/bulk research:** scanning Zvi's large corpus, STT/OCR over many sources, broad method testing, rewriting or connecting canonical findings, long-running agent loops: **explicit owner task/approval**, separate from standing operations grant. No cron 128 activation.
-- **System AI does not equal model calls:** existing canonical owners and deterministic engines own provenance/truth and should do most of the work. Use Raziel/Strategy/Metatron as decision/diagnostic capabilities within their existing owner boundary, not a new AI brain or data store.
+## Decision that supersedes the earlier plan
+The ₪50 spending ceiling is **CANCELLED**. There is no new spending quota, monetary hold/reservation, or automatic shutdown at ₪50. The owner wants AI to operate the site intelligently when genuinely essential, not run a costly full corpus study merely because more content arrives. AI cost should be *visible and attributable*, not arbitrarily capped.
 
-## How the decision works
-The pure classifier `src/lib/research/intakeOperationalPolicy2029.js` is an **intent classifier**. It receives only typed, server-proven event facts, never raw source text, instructions from posts or provider-issued access. Its action `BOUNDED_OPERATIONAL_AI_CANDIDATE` is not permission to execute. It cannot call an LLM or be used as a server authorization gate. A real executor must fail closed unless all below are independently proven:
-1. Evidence is independently computed server-side; canonical sourceRef exists, exact source revision SHA-256 and access are current; duplicates/in-flight tasks are verified through owned revision/source paths.
-2. Active, explicit **standing authorization** includes the exact event class, one bounded operation type, permitted provider/model, per-invocation timeout/token bounds and narrow redacted data scope. Revoked/expired/unknown policy => denial.
-3. **Hard monthly cap** of **₪50 additional autonomous operational AI cost**, in Asia/Jerusalem, is enforced *server-side* with **atomic** idempotent reservations and bounded worst-case provider cost *before* provider execution; concurrent calls, retries, unknown FX/pricing, missing receipt or unexpected model must fail closed. Reconcile the exact usage/cost ledger against outstanding holds. Rejected/spent-but-failed attempts must not silently retry.
-4. Every provider adapter is behind this gate, including direct `research-extract`, video image analysis, translation, STT/OCR and externally launched L1 triage. `wa-channel-research-intake` remains paused; independent cron 132 is active and requires an own paid-call inventory.
-5. Model output stays advisory: safe operational recommendation, low-risk read-only diagnostic. No DB mutation, publication, person account changes, source deletion, permission changes or production deploy without separate specific approval.
-6. Logs include task/trace ID, sourceRef, input revision, approval class/version, action, estimated/reserved/actual cost and success/error; **no raw messages, personal data, passwords or media payloads** in the generic operational log.
+This document supersedes the earlier ₪50-budget draft. Historical prior decisions remain in GitHub Issue #1457, but must NOT be implemented.
 
-## Existing implementation facts (read-only audit 20 Nov 2026)
-- Active owners: `research_intake_foundation_contract_law v14`, `research_strategy_layer_law v17`, `system_suggestions_law v7`, `raziel_routing_law v2`, `truth_axes_foundation_law v3`.
-- WhatsApp job 102 active each 5 minutes; research intake job **128 disabled**; video-map-enrich job 132 active every 30 minutes.
-- Code: `wa-channel-research-intake` does native source dedup/limited retry, but can call `research-extract` which directly makes a paid Claude API call. `materialGate.js` composes existing provider gates.
-- **Critical budget finding:** `ai_quota_check` in `supabase/migrations/20260922194500_server_capability_execution_gate_v1.sql` counts daily **requests**, not ILS; its `admin` tier may bypass the count. This is NOT a 50-ILS cap and must never be trusted as one.
-- `ai_token_log`, `api_pricing`, `agent_token_costs` provide usage ledger and effective rate data, not necessarily the full invoiced provider cost. Existing provider accounting and new atomic holds must be reconciled through the current operational/cost owner rather than inventing a parallel "intake AI budget" system.
+## The existing system and proper owner boundaries
+Research Intake v14 captures canonical sourceRefs and native source evidence. Strategy v17/Raziel Routing v2 plans bounded research. System Suggestions v7 handles operational incidents. Truth Axes v3 owns epistemic state, verification, governance and publication. UI presentation is owned by the Design/Experience writer lane (Claude); GPT must not create a competing Control Plane visual design without adoption.
 
-## Suggested acceptance tests
-- 500 synthetic source events / 100 identical-content occurrences => 0 paid model calls without a verified L1 event; every distinct occurrence remains preserved.
-- L1 diagnostics only after at least two failures or independently verified public projection mismatch. Missing proof, private/unredacted payload or unknown revision: no autonomous model.
-- Duplicate revision reuses existing result; no cross-source identity fusion, no duplicate paid retries.
-- Ten concurrent L1 calls cannot exceed 50 ILS including existing unsettled reservations. Test 49.99 ILS occupied + 0.02 additional => denied, and unknown provider pricing => denied.
-- Private/public leak or identity-conflict => immediate alert/containment, 0 provider calls, 0 automatic changes.
-- 1000 corpus messages => deterministic classification only; no automatic deep analysis.
-- Cron 128 remains disabled; existing live ingestion and publication rules unaffected.
-- Exact source proof, publication gate, Read-Only preview, performance budgets and all CI gates before any merge or release.
+Cron 102 ingest remains active. Cron 128 periodic deep research remains inactive. Cron 132 media enrichment currently operates independently; its AI usage requires observability but not a new fixed ₪50 limit.
 
-## Staging and release sequence
-1. Pure classifier tests (this PR): no runtime invocation, no new dependency or UI import.
-2. Audit all live paid pathways and existing cost owner; propose exact atomic ILS holds and per-kind standing authorization. This is NOT included or enabled in this PR.
-3. Propose a narrowly gated L1 executor through existing operational capability surfaces, server-only; staging with synthetic source events and simulated pricing. No cron 128.
-4. Independent Claude security/cost audit, reproducible main comparison and exact-sha CI.
-5. Separate user approvals for merge, SQL, Edge, feature flag, any Preview and Production. No automatic enabling based on an issue description or branch.
+The **branch-only, pure** event classifier `src/lib/research/intakeOperationalPolicy2029.js` identifies routine intake, duplicates, verified repeated operational failures, security incidents and research tasks. It only identifies a candidate, never approves a paid provider call or Production write. The plan preview keeps standing owner authorization, source freshness, safe redaction, deterministic dedup, model/token/time bounds and no automatic mutation. It no longer does any 50-ILS quote/reservation.
 
-## Daily owner-facing digest
-One concise report: newly received, free-processed, duplicates/reused, verified L1 candidates, actions actually executed, denied/unknown, cost spent/reserved/remaining (with provenance), and decisions needing approval. Immediate owner alert only for security/privacy/identity incidents or irreversible operations.
+## New cost visibility: what to show in Control Plane
+One admin-only lazy cost section in the existing `ControlPlane2029Page.jsx` / `OperationalMetrics2029` experience. No static Shell/Frame import or extra public bundle.
 
-**Status:** The design and pure classifier are review candidates only. Operational automation and spending authorizations are NOT live.
+**At-a-glance:** internally priced AI ledger total (₪); number of calls; unpriced calls; attribution coverage; exact reporting date range and update/read timestamp. Costs must be marked `ledger-priced`, `partial` or `unknown`; never `invoice` unless corroborated with the provider.
 
-## Active-research novelty and runtime operations refinement
-- A new source touching an *active research question* is L1-eligible only when two server-owned facts are present: the exact active-research match AND proof the source is materially new; the quantity of an author's messages does not qualify.
-- A possible canonical value/claim discrepancy is L1-eligible only after a deterministic canonical check has already recorded an exact mismatch; the model may diagnose, but never mark that research claim VERIFIED or modify the tree.
-- Repeated runtime or ingestion failures may produce L1 candidates only after two observed failures with server evidence, an exact trace/source ref, and safe public context. It is not permission for self-directed deployment.
-- Operational trace references are supported for site-health events without inventing a new event/source store.
+**Cohorts (one cost per call):**
+1. **My account**: exact authenticated admin `auth.uid()` only, not everyone with `role=admin`.
+2. **Other admins**: other verified `users.role=admin`.
+3. **Verified paying customers**: only settled, verified successful payment or subscription for same user at time of call. An editable tier label or active pilot alone is insufficient.
+4. **Registered users (payment unconfirmed)**: other verified user IDs.
+5. **Anonymous visitors**: visitor token with no user ID; do not infer identity or purchaser from string.
+6. **Verified system operations**: ONLY if positive server-owned trace/source evidence proves automated system initiator. Current historical sources cannot be assigned just because their name starts with `wa-` or `research-`.
+7. **Unknown / unattributed**: every remaining cost. This is never included in My Account or quietly set to zero.
+
+**Drill-down:** 1/7/30/90 days, daily trend, top source/channel, model/provider, token usage and cohort, missing provenance and gaps. For paying customers only add per-client cost vs. verified payment receipts if access and billing ownership are separately reviewed. Keep owner/visitor identity private by default; do not expose customer PII to nonadmins.
+
+**Infrastructure costs:** Supabase Storage/Egress, Functions, Vercel and other vendors should use their own priced sources and freshness/certainty labels. Do not add observed Storage logs to provider invoices or double count cached egress.
+
+**Relevant code:**
+- `src/lib/research/intakeOperationalCostPreview2029.js`: pure offline cost cohort aggregation and unknown handling; there is **no limit/quota**.
+- `src/lib/research/costCohortView2029.js`: dormant reader/normalizer for an admin-only RPC that does not yet exist live.
+- `supabase/proposed/admin_ai_cost_cohorts_v1_REVIEW_ONLY.sql`: proposed read-only cohort summary from `ai_token_log` + `agent_token_costs` with exact admin identity checks, authoritative payment evidence and no PII in output; NOT APPLIED.
+- `src/lib/research/intakeOperationalPlanPreview2029.js`: no-cost intent preview only; not provider invocation.
+- `test/intake-operational-cost-2029.test.mjs`, `test/cost-cohort-view-2029.test.mjs`, `test/intake-operational-plan-preview-2029.test.mjs`, `test/intake-operational-policy-2029.test.mjs`: no-cost tests.
+
+## Verified live baseline, read-only, Nov 2026
+250 AI log records total, internal ledger priced sum **₪14.548** with zero unpriced in this period. 39 records with user_id, six visitor-only, 205 with neither. Of the 39 user IDs, 23 had `users.role='admin'` but originated from **two distinct admin accounts**, not necessarily only the owner. Priced breakdown by current data:
+- Admin accounts together **₪0.8878** (needs exact viewer split).
+- Other registered users **₪0.3205** (no observed verified-paying cohort in these calls).
+- Visitor-only **₪0.2660**.
+- Unattributed/unknown **₪13.0733**.
+These figures describe AI ledger cost, not the full provider invoices, infrastructure fees, customer revenue, or profit. One active subscription pilot and settlement receipts exist in the database, but that does not mean its account generated AI calls in this period.
+
+## Acceptance and Claude review gate
+1. All cohort sums match internal ledger totals for same time window. Unknown/unpriced never silently vanish; source rows are deduped by token_log id.
+2. Nonadmin RPC access denied; no source PII, user IDs, visitor tokens or payment details in response. Admin role and payment settlement checked against server-owned evidence, not client metadata.
+3. On Control Plane, visible cards exactly distinguish my account, other admins, verified paying customers, registered, visitors, verified system operations, and UNKNOWN.
+4. Prove source attribution coverage; never allocate ambiguous historical 205 calls to the owner by source-name guess. Future logging should capture server-proven initiating actor/tenant at call time in canonical trace/usage records (requires separate approved write).
+5. Ensure counted costs do not double count `op_trace_spans` + `agent_token_costs`. Show Storage/Vercel/Supabase separately.
+6. Backend reader is dormant; SQL proposed only. UI should be lazily loaded and reviewed by Claude as required by writer lanes, with genuine no-data / loading / stale/partial indicators, and exact user switching safety.
+7. No SQL, PR merge, Edge, cron, production or feature-flag changes without separate exact approvals. Cron 128 remains OFF.
+8. AI operational executor remains a future separate gate: fixed event classes, nonexpiring/expiring standing authorization as decided by owner, bounded token/time/calls, dedup, privacy and incident stop. There is **no monetary cap**.
+
+**Current status: CODE + PROPOSED READ MODEL, not a working Control Plane card.** Explicitly do not claim Production has cost cohorts before the approved SQL and visual wiring are deployed.
