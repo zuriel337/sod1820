@@ -10,7 +10,7 @@ The check names, triggers and timeouts below are **derived**, not remembered: `n
 `.github/workflows/*.yml`; `required-checks.json` is the checked-in result with the proposed role of each name, and
 `test/required-checks-definition-2029.test.mjs` fails when a workflow gains, loses or renames a pull-request job, changes its trigger class,
 branch filter, timeout or other triggers, or when a name proposed as required is path-filtered, duplicated, conditional or live-state dependent.
-Derived from `origin/main` `9be0c29fc`.
+Originally derived from `origin/main` `9be0c29fc`. The ELS rows were refreshed on 19.11.2026 for the CI split on base `d550d0fc3`; the nine required-now proposals and the repository ruleset are unchanged.
 
 ## 1. What a pull request gets
 
@@ -18,7 +18,7 @@ A check run is named by its **job** (the job's `name:`, else the job id). The wo
 required status check by that name (and optionally by the app that reported it). No workflow here uses a matrix, a reusable workflow or a
 dynamic job name (the derive script refuses all three, so a new shape fails loudly instead of being read wrongly).
 
-27 pull-request jobs in 20 workflows, 24 distinct names. `D` below = duration. **The ceiling is `timeout-minutes` (exact, from the file;
+31 pull-request jobs in 20 workflows, 28 distinct names. `D` below = duration. **The ceiling is `timeout-minutes` (exact, from the file;
 "unset" = GitHub's default of 360 minutes). The estimate is read from the steps (install, build, browser) and is NOT measured**; the integrator
 can replace it with `gh run list --workflow <file> --json databaseId,conclusion,createdAt,updatedAt` over the last pull requests.
 
@@ -36,7 +36,11 @@ can replace it with `gh run list --workflow <file> --json databaseId,conclusion,
 | `gate` (Observability/SEO Build Gate) | observability-seo-gate.yml | always | no | dispatch | unset | 4-8 min | rename first (see 3) |
 | `Production Canary Gate` | release-visual-gate.yml | always | no | dispatch | 5 min | under 1 min | **never** (live state) |
 | `hard-isolation` | 2029-isolation-gate.yml | **paths (87 entries, incl. `test/**`, `src/lib/research/**`)** | **yes** | dispatch | 20 min | 8-15 min | aggregator candidate |
-| `els-core-compatibility` | els-core-compatibility-gate.yml | paths (43) | **yes** | dispatch | unset | **19 min measured once** (see below) | aggregator candidate |
+| `els-core-compatibility` | els-core-compatibility-gate.yml | paths (64) | **yes** | dispatch | unset | under 1 min after all four children | aggregator candidate (still path-filtered) |
+| `els-core-contracts` | els-core-compatibility-gate.yml | paths (64) | **yes** | dispatch | unset | install + isolated SQL | internal child; advisory |
+| `els-browser-1` | els-core-compatibility-gate.yml | paths (64) | **yes** | dispatch | unset | one third of native scenarios + companion browser file | internal child; advisory |
+| `els-browser-2` | els-core-compatibility-gate.yml | paths (64) | **yes** | dispatch | unset | one third of native scenarios + companion browser file | internal child; advisory |
+| `els-browser-3` | els-core-compatibility-gate.yml | paths (64) | **yes** | dispatch | unset | one third of native scenarios + companion browser file | internal child; advisory |
 | `public-core` | g4-public-core-gate.yml | paths (36) | **yes** | dispatch | 10 min | 5-9 min | aggregator candidate |
 | `isolated-postgres17-auth-rls` | follow-identity-isolated-db-gate.yml | paths (18) | **yes** | **none: it cannot be dispatched by hand** | 25 min | 5-15 min | aggregator candidate |
 | `gate` (Media Release Batch Gate) | media-release-batch-gate.yml | paths (10) | **yes** | **none** | 15 min | 3-6 min | advisory; rename first |

@@ -7,18 +7,27 @@ import { readingActionSpec, readingActionProps } from "../src/lib/publicReadingT
 
 const proposal = fs.readFileSync(new URL("../supabase/proposed/20261118210000_analytics_followups_PROPOSAL.sql", import.meta.url), "utf8");
 const baseline = fs.readFileSync(new URL("../tests/analytics-followups-20261118/baseline-ingest-event.sql", import.meta.url), "utf8");
+const elsProposal = fs.readFileSync(new URL("../supabase/proposed/20261119190000_els_action_telemetry_PROPOSAL.sql", import.meta.url), "utf8");
 
 function proposedDbSpec() {
   const live = JSON.parse(baseline.match(/v_spec jsonb := '(\{.*\})'::jsonb;/)[1]);
   const added = proposal.match(/v_new text := '"content":\{[^}]*\{[^}]*\}\},("els":.*?)\}''::jsonb';/)[1];
-  return { ...live, ...JSON.parse("{" + added + "}") };
+  const previous = { ...live, ...JSON.parse("{" + added + "}") };
+  // The 18 November proposal remains historical. Apply the separately reviewed
+  // ELS-only extension in order, and continue comparing every family exactly.
+  const oldEls = JSON.parse("{" + elsProposal.match(/v_old text := '([^']+)';/)[1] + "}");
+  const nextEls = JSON.parse("{" + elsProposal.match(/v_new text := '([^']+)';/)[1] + "}");
+  assert.deepEqual(oldEls.els, { events: ["search", "cross_search"], fields: { kind: "token", scope: "token", skip: "int" } });
+  assert.deepEqual(previous.els, oldEls.els);
+  assert.deepEqual(Object.keys(nextEls), ["els"], "the extension changes only the ELS family");
+  return { ...previous, ...nextEls };
 }
 
 test("client and proposed ingest_event spec are identical, family by family", () => {
   const client = readingActionSpec(), db = proposedDbSpec();
   assert.deepEqual(Object.keys(client).sort(), Object.keys(db).sort());
   for (const [family, spec] of Object.entries(client)) assert.deepEqual(spec, db[family], family);
-  assert.deepEqual(db.els, { events: ["search", "cross_search"], fields: { kind: "token", scope: "token", skip: "int" } });
+  assert.deepEqual(db.els.events, ["search", "cross_search", "ui_action", "operation_started", "operation_phase", "operation_finished", "cancel_requested"]);
 });
 
 test("the code tool's emit is projected without the term or the account id", () => {

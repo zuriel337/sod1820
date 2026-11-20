@@ -47,12 +47,21 @@ export async function runElsBackgroundResearch({ prepared, invoke, signal, onPro
 
 // Execution lifecycle is loaded with the existing bounded executor, only on explicit start.
 // Reservation, principal ownership, synchronous origin capture and cancel stay in the hook.
-export async function executeElsResearchOperation({ input, origin, captured, operation, owns, publish, invoke, release }) {
-  let timer;
+export async function executeElsResearchOperation({ input, origin, captured, operation, owns, publish, invoke, release, createTelemetry }) {
+  let timer, tracker, stop;
   try {
     if (!owns()) return { ok: false };
     const prepared = prepareElsBackgroundResearch(input, origin);
     if (prepared.error) { release(); return { ok: false, error: prepared.error }; }
+    try {
+      const start = createTelemetry || (await import("./elsTelemetryRuntime2029.js")).startElsTelemetry;
+      if (!owns() || operation.controller.signal.aborted) return { ok: false };
+      tracker = start("terms", { mode: "research", scope: prepared.plan.scope });
+      operation.telemetry = tracker;
+      stop = () => tracker?.update("tracking_stopped");
+      operation.controller.signal.addEventListener("abort", stop, { once: true });
+    } catch { /* Optional analytics never blocks research. */ }
+    if (!owns() || operation.controller.signal.aborted) return { ok: false };
     publish({ id: crypto.randomUUID(), kind: "els_terms", status: "RUNNING", startedAt: Date.now(),
       plan: prepared.plan, origin: prepared.origin,
       returnSnapshot: elsResearchSnapshotMatches(captured, prepared.origin) ? captured : null,
@@ -61,6 +70,7 @@ export async function executeElsResearchOperation({ input, origin, captured, ope
     // outer request watchdog, not a promise that a server computation can be killed.
     timer = setTimeout(() => {
       if (!owns() || operation.task.status !== "RUNNING") return;
+      tracker?.update("partial");
       operation.controller.abort();
       publish({ status: "PARTIAL", phase: "הזמן שהוקצה הסתיים; המחקר לא הושלם", finishedAt: Date.now() });
     }, 60000);
@@ -69,15 +79,17 @@ export async function executeElsResearchOperation({ input, origin, captured, ope
     if (owns() && !operation.controller.signal.aborted) {
       const partial = !result.scan?.complete || result.rows.some(row => row.state !== "OK" || row.truncated);
       const failed = result.rows.length > 0 && result.rows.every(row => row.state === "FAILED");
+      tracker?.update(failed ? "failed" : partial ? "partial" : "done", { count: result.rows.length });
       publish({ status: failed ? "FAILED" : partial ? "PARTIAL" : "COMPLETE", phase: failed ? "בדיקות המונחים נכשלו; אין להסיק שאין מופעים" : partial ? "הבדיקה הסתיימה עם כיסוי חלקי" : "תוצאות המחקר מוכנות",
         rows: result.rows, result, finishedAt: Date.now() });
     }
     return { ok: true };
   } catch {
+    tracker?.update(operation.controller.signal.aborted ? "tracking_stopped" : "failed");
     if (owns() && !operation.controller.signal.aborted) {
       if (operation.task) publish({ status: "FAILED", phase: "המחקר לא הושלם. נסו שוב במפורש לאחר בדיקת ההגדרות.", finishedAt: Date.now() });
       else release();
     }
     return { ok: false, error: "המחקר לא הושלם." };
-  } finally { clearTimeout(timer); }
+  } finally { clearTimeout(timer); operation?.controller?.signal.removeEventListener("abort", stop); tracker?.update("tracking_stopped"); }
 }

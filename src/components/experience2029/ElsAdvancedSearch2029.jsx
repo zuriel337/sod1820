@@ -33,7 +33,7 @@ function AdvancedLiveProgress({ activeVariant, rows, reduction, onReduce, onStop
   </section>;
 }
 
-export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle", researchOrigin = null, active = true, searchDraft = null, activeAxis = null, onChooseCross }) {
+export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, onSummaryChange, exactStatus = "idle", researchOrigin = null, active = true, searchDraft = null, activeAxis = null, onChooseCross }) {
   const { elsResearchOperation } = useResearch();
   const [form, setForm] = useState(initialForm);
   const [query, setQuery] = useState(null);
@@ -91,6 +91,10 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
   const rangeError = !fullRange && form.skipMax.trim() === "" ? "הזינו גבול עליון, או סמנו במפורש חיפוש בכל הדילוגים האפשריים." : null;
   const draft = { form, related, researchTarget, exactSkip, searchMode, runMode, fullRange, excludedTerms };
   const settingsChanged = lastRun && JSON.stringify(draft) !== JSON.stringify(lastRun.draft);
+  useEffect(() => {
+    onSummaryChange?.(`${busy || preparing || selecting ? "חיפוש פעיל · " : ""}${form.term || "טרם נבחר מונח"} · ${form.scope === "torah" ? "תורה" : "תנ״ך"} · ${searchMode === "exact" ? `דילוג ${exactSkip || "?"}` : fullRange ? `מ־${form.skipMin}, ללא גבול עליון שנבחר` : `דילוגים ${form.skipMin}–${form.skipMax}`}${settingsChanged ? " · ההגדרות שונו מאז החיפוש האחרון" : ""}`);
+  }, [onSummaryChange, busy, preparing, selecting, form.term, form.scope, form.skipMin, form.skipMax, searchMode, exactSkip, fullRange, settingsChanged]);
+
   const rememberRun = () => setLastRun({ draft, preparedPlan });
   const restoreSettings = () => {
     if (!lastRun) return;

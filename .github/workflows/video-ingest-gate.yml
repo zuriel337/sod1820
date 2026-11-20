@@ -32,6 +32,11 @@ on:
       - ".github/workflows/video-ingest-gate.yml"
   workflow_dispatch:
 
+# Cancel only superseded PR checks. Manual and push runs retain their own run identity.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   tiktok-source-resolver:
     runs-on: ubuntu-latest

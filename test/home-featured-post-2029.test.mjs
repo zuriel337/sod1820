@@ -29,7 +29,7 @@ test("Home (ZURIEL 11.11.2026): 'עכשיו · המרכז' is the first area; th
   const centre = body.indexOf("<HomeLiveUpdates"), featured = body.indexOf("<HomeFeaturedPost2029"), els = body.indexOf("elsEntry ? <Reveal"), plane = body.indexOf('<Reveal id="story"');
   assert.ok(centre > 0 && centre < els, "the centre comes before the ELS entry");
   assert.ok(featured > els && featured < plane && !/<Reveal|<Section|<section/.test(body.slice(featured + 10, plane)), "the featured card sits directly before the plane story");
-  assert.match(body, /<HomeFeaturedPost2029 state=\{featured\} hideHighlights=\{Boolean\(updates\.pinned\)\} \/>/, "its numbers show once: in the pinned centre while the pin is open");
+  assert.match(body, /<HomeFeaturedPost2029 state=\{featured\} hideHighlights=\{Boolean\(updates\.pinned\)\} mediaFor=\{homeMediaProps2029\} \/>/, "its numbers show once: in the pinned centre while the pin is open");
   assert.match(home, /featured\.post\?\.href,/); assert.match(home, /featured\.post\?\.slug,/);
   const css = await readFile(new URL("../src/components/experience2029/homeComposition2029.css", import.meta.url), "utf8");
   assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 1140px; \}/, "height reserved while loading (544 + the 1234 and 1011 blocks and the sentence, ZURIEL 10.11.2026)");

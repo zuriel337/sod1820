@@ -72,7 +72,9 @@ test("ELS 2029 public release: Classic and Research are open, Guided, AI scan an
   assert.match(native, /<ElsSavePanel2029 visible=\{activeTool === "research"\}/);
   assert.match(native, /onWorkspace=\{publicClassic \? undefined :/);
   assert.doesNotMatch(native, /id: "ai"|els29-ai-inspector/);
-  assert.match(native, /readingExtension=\{!publicClassic && \(matrixReading \|\| onRazielMatrix\) \? <details/);
+  assert.match(native, /readingExtension=\{!publicClassic && \(matrixReading \|\| onRazielMatrix\) \? <section className="els29-reading-extension" hidden=\{!readingExtensionOpen\}/);
+  assert.match(native, /const \[readingExtensionOpen, setReadingExtensionOpen\] = useState\(false\)/);
+  assert.match(native, /readingExtensionVisited \? <React\.Suspense/);
   assert.equal((native.match(/<ElsMatrixReadingCard2029 /g) || []).length, 1);
 });
 

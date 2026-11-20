@@ -93,12 +93,15 @@ test("/code keeps the existing cipher inside the canonical framed feature gate",
 test("integration is one optional slot and one callsite; hero, posts and stream are untouched", () => {
   assert.equal((composition.match(/elsEntry/g) || []).length, 3); // prop name, truthiness check, rendered child
   assert.match(composition, /\{elsEntry \? <Reveal id="els-entry">\{elsEntry\}<\/Reveal> : null\}/);
-  // ZURIEL 6.11.2026: the ELS entry is the FIRST Home area, then the latest ciphers, then the live updates, the flagship region and the other series.
+  // ZURIEL 17.11.2026: the pinned reality-map lead and live updates precede ELS.
   const els = composition.indexOf("elsEntry ? <Reveal");
   const ciphers = composition.indexOf('<Section label="הצפנים האחרונים בתורה">');
-  assert.ok(els > composition.indexOf("<HomeFeaturedPost2029") && composition.indexOf("<HomeFeaturedPost2029") > composition.indexOf(`data-experience-capability="home-composition"`) && els < ciphers, "the featured Post card (ZURIEL 8.11) comes first, then the ELS entry");
-  assert.ok(ciphers < composition.indexOf("<HomeLiveUpdates") && composition.indexOf("<HomeLiveUpdates") < composition.indexOf("<HomeFlagshipRegion"));
+  const lead = composition.indexOf("<HomePinnedLead");
+  const updates = composition.indexOf("<HomeLiveUpdates");
+  assert.ok(lead > composition.indexOf(`data-experience-capability="home-composition"`) && lead < updates && updates < els && els < ciphers);
+  assert.ok(ciphers < composition.indexOf("<HomeFlagshipRegion"));
   assert.ok(composition.indexOf("<HomeFlagshipRegion") < composition.indexOf("<HomeOtherSeries"));
+  assert.ok(composition.indexOf("<HomeOtherSeries") < composition.indexOf("<HomeFeaturedPost2029"));
   assert.ok(els < composition.indexOf(`<Reveal id="story"`));
   assert.match(home, /elsEntry=\{<ElsRotatingMatrixCard2029 \/>\}/);
   assert.equal((home.match(/ElsRotatingMatrixCard2029/g) || []).length, 3); // import (name + path) and one callsite

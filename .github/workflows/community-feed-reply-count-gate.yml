@@ -13,6 +13,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# Cancel only superseded PR checks. Manual and push runs retain their own run identity.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   reply-count:
     runs-on: ubuntu-latest

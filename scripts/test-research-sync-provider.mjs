@@ -15,8 +15,8 @@ const stub={
   'AuthContext.jsx':`export const useAuth=()=>globalThis.__researchFixture.auth;`,
   'auth.js':`export const getCloudResearch=(...a)=>globalThis.__researchFixture.read(...a);export const applyCloudResearchOps=(...a)=>globalThis.__researchFixture.write(...a);`,
   'tracking.js':`export const trackResearch=()=>{};`,
-  'supabase.js':`export const signalAiBehavior=()=>{};export const supabase={rpc:(...args)=>globalThis.__researchFixture.pathRpc(...args)};`,
-  'events.js':`export const emit=(...args)=>globalThis.__researchFixture.journeyEvents.push(args);`,
+  'supabase.js':`export const SUPABASE_URL='https://fixture.invalid';export const SUPABASE_ANON='fixture-anon-key';export const signalAiBehavior=()=>{};export const supabase={rpc:(...args)=>globalThis.__researchFixture.pathRpc(...args)};`,
+  'events.js':`export const isBot=()=>false;export const emit=(...args)=>globalThis.__researchFixture.journeyEvents.push(args);`,
   'eventBus.js':`export const EVENTS=new Proxy({}, {get:(_,k)=>k});export const emit=(...args)=>globalThis.__researchFixture.events.push(args);`,
 };
 await build({entryPoints:['src/lib/research/ResearchProvider.jsx'],bundle:true,platform:'node',format:'esm',outfile,

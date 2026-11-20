@@ -13,7 +13,7 @@ test("the floating Raziel research bar is retired: it covered the matrix tools a
 });
 
 test("Classic stays mounted in place for every profile", () => {
-  assert.match(page, /<ElsNativeWithRaziel[^>]*initialSeed=\{savedRecord\.row \|\| legacyMatrix \|\| sharedMatrix\.present \|\| location\.state\?\.elsReadingReturnTurnId \|\| location\.state\?\.elsResearchReturnTaskId \? "" : classicSeed\}/);
+  assert.match(page, /<ElsNativeWithRaziel[^>]*initialSeed=\{discoveryId \|\| savedRecord\.row \|\| legacyMatrix \|\| sharedMatrix\.present \|\| location\.state\?\.elsReadingReturnTurnId \|\| location\.state\?\.elsResearchReturnTaskId \? "" : classicSeed\}/);
   assert.match(page, /return <ElsNativeClassic2029 \{\.\.\.props\}/);
   assert.match(page, /data-els-research-composition/);
 });
