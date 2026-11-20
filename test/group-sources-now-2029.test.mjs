@@ -61,6 +61,12 @@ test("untitled media and link-only sources keep identity but request title enric
   assert.equal(youtube.label, "כותרת בהשלמה");
   assert.equal(youtube.titleNeedsEnrichment, true);
   assert.match(youtube.fullText, /youtu.be/);
+  assert.equal(youtube.sourceVideoHref, "https://youtu.be/Abc123Def45");
+  assert.equal(groupRowToWorldUpdate(row({ body: "https://www.youtube.com/watch?v=Abc123Def45" })).sourceVideoHref, "https://www.youtube.com/watch?v=Abc123Def45");
+  assert.equal(groupRowToWorldUpdate(row({ body: "https://evil.invalid/watch?v=Abc123Def45" })).sourceVideoHref, null);
+  assert.equal(groupRowToWorldUpdate(row({ body: "https://www.youtube.com/watch?v=Abc123Def45&token=private" })).sourceVideoHref, null);
+  assert.equal(groupRowToWorldUpdate(row({ body: "https://youtu.be/short" })).sourceVideoHref, null);
+  assert.equal(groupRowToWorldUpdate(row({ body: "https://youtu.be/Abc123Def45", group_proof: false })), null);
   const groupVideo = groupRowToWorldUpdate(row({ body: "", media_kind: "video", media_url: STORAGE }));
   const [feed] = feedRows([groupVideo]);
   const model = nowRowModel(feed);
