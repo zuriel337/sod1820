@@ -1,4 +1,3 @@
-import { mapUnitReading } from "../../lib/research/mapUnitReading2029.js";
 import { publicContextLabel, contextDisplayTitle, entityTypeNounHe } from "./razielSessionSeam2029.js";
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
@@ -9,6 +8,8 @@ import SurfaceProgressSpine2029, { revealAndScrollTo } from "./SurfaceProgressSp
 import LearnMark2029 from "./LearnMark2029.jsx";
 // The event sequence opens only inside the closed "רצף האירועים" section of the mobile sheet: it loads on that open, not with the frame on every page
 // (shell budget, ZURIEL 16.11.2026). It brings its own readers (source updates, lineage) with it.
+const MapUnitContext2029 = import.meta.env.VITE_REALITY_MAP_PREVIEW === "true"
+  ? lazy(() => import("./MapUnitContext2029.jsx")) : null;
 const EventSequencePanel2029 = lazy(() => import("./EventSequencePanel2029.jsx"));
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
@@ -209,8 +210,6 @@ export default function SurfaceContextRail2029({
   const nextStation = stations[stationIndex + 1] || null;
 
   const activeKey = context?.dimensions?.activeUnitRef;
-  const mapUnit = import.meta.env.VITE_REALITY_MAP_PREVIEW === "true" && surface === "post" && restMode
-    && context?.subject?.type === "post" && activeKey && mapUnitReading(context.subject.id, activeKey);
 
   return <>
     <ContextualInspector2029
@@ -228,10 +227,8 @@ export default function SurfaceContextRail2029({
       </div>}
       footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
-      {mapUnit ? <section aria-label="קשר במפת המציאות">
-        <strong>{mapUnit.label}</strong><p>{mapUnit.reason}</p>
-        <a href={mapUnit.href}>{mapUnit.relatedLabel} ←</a>
-      </section> : null}
+      {MapUnitContext2029 && surface === "post" && restMode && context?.subject?.type === "post" && activeKey
+        ? <Suspense fallback={null}><MapUnitContext2029 postId={context.subject.id} unitKey={activeKey} /></Suspense> : null}
       {sections.length ? <div className="sod29-surface-context-progress">
         <div className="sod29-context-inspector-kicker">{mapLabel}</div>
         <SurfaceProgressSpine2029
