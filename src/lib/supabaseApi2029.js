@@ -1741,6 +1741,7 @@ async function rescueFromCorpus(rows) {
 export async function getWallRecent(limit = 60) {
   if (!supabase) return [];
   const { data, error } = await supabase.rpc('fn_ti_public_activity2029', { p_hours: 168 });
+  // Fail closed on PGRST202/404 (proposal not applied) and every other read error.
   if (error || data?.version !== 1) return [];
   return (data.phrases || []).slice(0, Math.max(1, Math.min(24, limit))).map(x => ({ phrase: x.phrase, ragil: x.value, hits: x.events, last_at: data.computed_at }));
 }

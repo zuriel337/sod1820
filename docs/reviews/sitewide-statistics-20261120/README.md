@@ -71,7 +71,7 @@
 ```sh
 npm ci --ignore-scripts
 node --test test/sitewide-statistics-20261120.test.mjs test/sitewide-statistics-preview.test.mjs
-PGLITE_MODULE=/absolute/path/to/pglite/dist/index.js node test/sitewide-statistics-20261120.sql.mjs
+PGLITE_MODULE=/absolute/path/to/pglite/dist/index.js node test/sitewide-statistics-20261120-sql.mjs
 npm run build
 node scripts/build-public-reading-production.mjs
 PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs CHROMIUM_PATH=/path/to/chromium node test/sitewide-statistics-20261120.browser.mjs
@@ -84,7 +84,10 @@ CHROMIUM_PATH=/path/to/chromium node --test test/measurement-visit-once-2029.bro
 - הוכחות article-first נוצרו מחדש מהקורא הציבורי: 1,320 פוסטים נקראו, 1,297 מועמדים הוכחו, ללא הבדל בתוכן. בדיקות המאמר הקיימות עברו: 18 לתוכן הישן ועוד 3 למאמר חדש, בנייד ובמחשב. ב־main הנקי אותן בדיקות עברו, והכשל שהתיקון פתר היה של הענף.
 - במחשבון הקהילה הפעילות מופיעה מיד לאחר אזור ההזנה; שתי בדיקות הדפדפן מוכיחות שהשדה נשאר במסך הראשון. בבית נשמרים הודעת הבנייה, התוכן הנעוץ ותקציר עכשיו לפני הפעילות.
 - 57 בדיקות נוספות של מסמך המאמר, הבית, Control והרשאות עברו. תיקוני CI: בנייה לפני בדיקות שקוראות תוצרים, ועדכון חוזה קורא הקיר כדי לדרוש את projection הפרטיות במקום REST ישיר. חוזי המחשבון דורשים כעת היעדר מוחלט של כתיבת טקסט לקיר, וריתמת הרכיב מתירה רק קריאת RPC מצרפי; 41 בדיקות המשכיות/מחשבון/סנכרון נוספות עברו. לא הוגדלו ספים ולא הוסרו בדיקות.
+- סדר הפריסה הקיים `APPLY-BEFORE-DEPLOY.json` כולל את ה־RPC החדש ואת רתמת הסירוב: PGRST202/404/הרשאה נדחית אינם מפעילים fallback לטקסט היסטורי. 28 בדיקות סדר פריסה/נתיבי CI/מדיניות בקשה עברו; סף תזמון ישן שנכשל בריצה עמוסה עבר בהרצה הממוקדת ללא שינוי בקוד או בסף. רתמת SQL נקראת `sitewide-statistics-20261120-sql.mjs`, כדי שמבקר נתיבי ה־CI לא יפרש סיומת ביניים כקובץ SQL.
 - ה־PR היחיד: [#1461](https://github.com/zuriel337/sod1820/pull/1461). קישור הפריוויו המדויק ותוצאות CI של ראש הענף מתוחזקים בתיאור ה־PR; אין לראות בפריוויו הוכחה להחלת SQL.
+
+ריצת גילוי בדיקות מקומית נוספת הופסקה ואינה נכללת במספרי הקבלה: רשימת קבצים ריקה הפעילה בטעות את ברירת המחדל של `node --test`, וכללה סקריפטים שאינם חלק מהחבילה. בדיקת `research-run` ישנה ניסתה לשלוח בקשה ונכשלה ב־`Failed to send a request to the Edge Function`; לא התקבלה ראיית כתיבה חיה. בדיקות מסד אחרות נעצרו בהיעדר מסד מקומי. לאחר העצירה נבחרו קבצים במפורש; אין שימוש בתוצאות הריצה שהופסקה כהוכחת PASS.
 
 ## שאלות ביקורת ל־Claude ושערי קבלה
 
@@ -103,4 +106,4 @@ CHROMIUM_PATH=/path/to/chromium node --test test/measurement-visit-once-2029.bro
 
 `actor=Codex (lane GPT היסטורי)` · `task_key=ISSUE_1456_SITEWIDE_STATISTICS_20261120` · `owner=Traffic Intelligence / Control Plane` · `scope=ענף + SQL מוצע + Preview` · `handoff_to=ZURIEL`.
 
-תיאום נבדק בקריאה דרך `work_log_current` בלבד. אין הרשאת כתיבה דרך חיבור זה ולא נרשמה מסירת work_log. חבילת הביקורת היא מסירה פסיבית למשתמש; אין טענה שסוכן אחר קיבל או אישר אותה. דוח סנכרון Master/project_codex שהמשתמש ציטט לא הופק בסשן זה; מקורו לא זוהה, והוא אינו תיקון בחבילה זו.
+תיאום נבדק בקריאה דרך `work_log_current` בלבד. אין הרשאת כתיבה דרך חיבור זה ולא נרשמה מסירת work_log. חבילת הביקורת היא מסירה פסיבית למשתמש; אין טענה שסוכן אחר קיבל או אישר אותה. דוח סנכרון Master/project_codex שהמשתמש ציטט לא הופק בסשן זה; המקור אומת מול תוצאת האוטומציה „בדיקת התאמת המאסטר לחוזים החיים” מ־20.11.2026, 15:31 UTC ([שיחה נפרדת](https://chatgpt.com/c/6aff170f-3108-83ed-afe0-3f9c6f812e04)); הוא אינו תיקון בחבילה זו.

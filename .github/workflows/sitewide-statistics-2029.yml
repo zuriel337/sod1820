@@ -6,7 +6,7 @@ on:
       - 'src/**'
       - 'public-reading-deploy/**'
       - 'supabase/proposed/sitewide-statistics-20261120/**'
-      - 'test/sitewide-statistics-20261120*'
+      - 'test/sitewide-statistics*'
       - '.github/workflows/sitewide-statistics-2029.yml'
 permissions:
   contents: read
@@ -38,13 +38,13 @@ jobs:
           echo "CHROMIUM_PATH=$CHROMIUM_PATH" >> "$GITHUB_ENV"
           echo "STATISTICS_SCREENSHOTS=$RUNNER_TEMP/statistics-evidence" >> "$GITHUB_ENV"
       - name: SQL/RLS/cache/replay gates (no network or live database)
-        run: node test/sitewide-statistics-20261120.sql.mjs
+        run: node test/sitewide-statistics-20261120-sql.mjs
       - name: Build and existing shell budget
         run: |
           npm run build
           node scripts/build-public-reading-production.mjs
       - name: Measurement contracts
-        run: node --test test/sitewide-statistics-20261120.test.mjs test/public-reading-action-measurement.test.mjs test/measurement-identity-20261115.test.mjs test/measurement-page-view-once-2029.test.mjs test/measurement-transport-hardening-2029.test.mjs test/public-reading-protected-review.test.mjs test/sitewide-statistics-preview.test.mjs
+        run: node --test test/sitewide-statistics-20261120.test.mjs test/sitewide-statistics-rollout.test.mjs test/public-reading-action-measurement.test.mjs test/measurement-identity-20261115.test.mjs test/measurement-page-view-once-2029.test.mjs test/measurement-transport-hardening-2029.test.mjs test/public-reading-protected-review.test.mjs test/sitewide-statistics-preview.test.mjs
       - name: Public artifact and browser acceptance
         run: |
           node test/sitewide-statistics-20261120.browser.mjs

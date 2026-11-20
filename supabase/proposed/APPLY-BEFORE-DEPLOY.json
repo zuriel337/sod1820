@@ -12,7 +12,9 @@
       "rpc": "push_subscription_upsert_v1",
       "sql": "supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql",
       "rollback_sql": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
-      "callers": ["src/lib/pushSubscriptionStore.js"],
+      "callers": [
+        "src/lib/pushSubscriptionStore.js"
+      ],
       "introduced_by": "ba67fa5ae (DEF-001b)",
       "deployed_before_sql": "degrades_gracefully",
       "degradation_test": "test/push-subscription-rollout-order.test.mjs"
@@ -21,7 +23,9 @@
       "rpc": "push_subscription_delete_v1",
       "sql": "supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql",
       "rollback_sql": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
-      "callers": ["src/lib/pushSubscriptionStore.js"],
+      "callers": [
+        "src/lib/pushSubscriptionStore.js"
+      ],
       "introduced_by": "ba67fa5ae (DEF-001b)",
       "deployed_before_sql": "degrades_gracefully",
       "degradation_test": "test/push-subscription-rollout-order.test.mjs"
@@ -30,21 +34,41 @@
       "rpc": "community_claimed_contributors",
       "sql": "supabase/proposed/20261111160000_community_claimed_contributors.sql",
       "rollback_sql": "supabase/proposed/ROLLBACK_20261111160000_community_claimed_contributors.sql",
-      "callers": ["src/lib/community/communityArchive.js"],
+      "callers": [
+        "src/lib/community/communityArchive.js"
+      ],
       "introduced_by": "community legacy-account list (11.11.2026)",
       "deployed_before_sql": "degrades_gracefully",
       "degradation_test": "src/lib/community/communityAviZohar2029.test.js"
+    },
+    {
+      "rpc": "fn_ti_public_activity2029",
+      "sql": "supabase/proposed/sitewide-statistics-20261120/extensions.sql",
+      "rollback_sql": "supabase/proposed/sitewide-statistics-20261120/rollback.psql",
+      "apply_entrypoint": "supabase/proposed/sitewide-statistics-20261120/apply.psql",
+      "callers": [
+        "src/components/experience2029/ActivityPulse2029.jsx",
+        "src/lib/supabaseApi2029.js"
+      ],
+      "introduced_by": "Issue #1456 sitewide statistics proposal (2026-11-20)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/sitewide-statistics-rollout.test.mjs",
+      "rollout_note": "Run the preflight and all files through apply.psql after exact SQL approval; extensions.sql is not a standalone rollout. Preview before SQL shows unavailable and never falls back to raw wall/search history."
     }
   ],
   "known_missing_dormant": [
     {
       "rpc": "els_search_v1",
-      "callers": ["src/lib/research/elsW2Executor.js"],
+      "callers": [
+        "src/lib/research/elsW2Executor.js"
+      ],
       "reason": "Defined in repo migrations 20260916150500 and 20260916150700, but those versions are not recorded as applied in the live project (live has els_search_core_v1, els_search_page_v1 and els_search_geometry_v1, no els_search_v1). Reached only through the lazily imported W2 research executors (researchW2Executors.js); no request for it was seen in the Supabase API logs of the last 72 hours. Resolve by applying or retiring the migration, not by calling it from new code."
     },
     {
       "rpc": "admin_people_identity_review_v1",
-      "callers": ["src/lib/research/peopleIdentityProjection.js"],
+      "callers": [
+        "src/lib/research/peopleIdentityProjection.js"
+      ],
       "reason": "Not defined in any migration or proposal and absent from the live schema. peopleIdentityProjection.js has no importer in shipped code (only test/people-identity-review-2029-contract.test.mjs imports it), so no route can call it. Do not wire it into a screen before the function exists."
     }
   ]

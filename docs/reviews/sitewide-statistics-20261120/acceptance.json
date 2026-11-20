@@ -90,6 +90,15 @@
     },
     "calculator_continuity_and_main_sync": {
       "pass": 41
+    },
+    "rollout_and_ci_path_contracts": {
+      "pass": 28,
+      "rpc_unavailable_cases": [
+        "PGRST202",
+        "404",
+        "42501"
+      ],
+      "no_history_fallback": true
     }
   },
   "budgets": {
