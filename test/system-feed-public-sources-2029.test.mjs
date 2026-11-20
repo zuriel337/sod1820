@@ -23,6 +23,16 @@ test('provider-enriched videos show real titles without hiding the source or cha
  assert.equal(pending.label,'כותרת בהשלמה');
  assert.equal(pending.titleNeedsEnrichment,true);
 });
+test('provider thumbnail requires matching trusted provenance and CDN; source stays unchanged',()=>{
+ const good={...row,text:'https://youtu.be/Abc123Def45',seo_title:'כותרת מקורית',enrichment_source:'youtube_oembed',thumb_url:'https://i.ytimg.com/vi/Abc123Def45/hqdefault.jpg'};
+ assert.equal(publicChannelToSystemItem(good).thumbUrl,good.thumb_url);
+ for(const bad of [
+   {...good,thumb_url:'https://attacker.invalid/p.jpg'},
+   {...good,thumb_url:good.thumb_url+'?token=secret'},
+   {...good,enrichment_source:null},
+   {...good,seo_title:null},
+ ]) assert.equal(publicChannelToSystemItem(bad).thumbUrl,null);
+});
 test('gallery activity preserves stream chronology, exact native image source and visibility',()=>{
  const g={id,wp_gallery_id:29,name:'עדכון ציבורי',description:'תיאור',source:'update',published:1,min_tier:0,curator_hidden:false,stream_at:'2026-11-01',created_at:'2026-10-01',occurred_at:'2020-01-01'};const dto=publicGalleryToSystemItem(g);assert.equal(dto.at,'2026-11-01T00:00:00.000Z');assert.equal(dto.occurredAt,'2020-01-01T00:00:00.000Z');assert.match(dto.href,/view=gallery&gallery=29&image=/);assert.ok(dto.href.endsWith('#gallery-source-'+id));
  for(const x of[{published:0},{min_tier:1},{curator_hidden:true},{source:'private'},{id:'bad'}])assert.equal(publicGalleryToSystemItem({...g,...x}),null);
