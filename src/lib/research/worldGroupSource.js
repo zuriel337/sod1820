@@ -110,7 +110,7 @@ export function groupMediaFromRow(row) {
 
 // Public site/video links and calendar dates are NOT private data. Everything else keeps the original conservative
 // redaction: other URLs, e-mail addresses and phone-like numbers. Allow-lists are exact hosts, never wildcards.
-const PUBLIC_LINK_HOSTS = Object.freeze(["sod1820.co.il", "www.sod1820.co.il", "youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"]);
+const PUBLIC_LINK_HOSTS = Object.freeze(["sod1820.co.il", "www.sod1820.co.il", "youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be", "tiktok.com", "www.tiktok.com", "m.tiktok.com", "vt.tiktok.com"]);
 const PRIVATE_QUERY_KEY = /token|signed|signature|key|secret|auth|email|phone|birth|name|session|invite|code|return|redirect|next/i;
 function publicLinkOrNull(raw) {
   const trimmed = raw.replace(/[.,;:!?)\]]+$/, "");
@@ -118,6 +118,13 @@ function publicLinkOrNull(raw) {
     const u = new URL(trimmed);
     if (!/^https?:$/.test(u.protocol) || u.username || u.password || u.port || !PUBLIC_LINK_HOSTS.includes(u.hostname.toLowerCase())
       || [...u.searchParams.keys()].some(k => PRIVATE_QUERY_KEY.test(k) && !(k === "v" || k === "t"))) return null;
+    // The numeric TikTok video id is not a phone number. Admit only canonical,
+    // parameter-free provider paths; never relax the generic phone/email redaction.
+    if (["tiktok.com", "www.tiktok.com", "m.tiktok.com"].includes(u.hostname.toLowerCase())
+      && /^\/@[A-Za-z0-9_.-]+\/video\/\d{5,25}\/?$/.test(u.pathname)
+      && !u.search && !u.hash) return { url: trimmed, tail: raw.slice(trimmed.length) };
+    if (u.hostname.toLowerCase() === "vt.tiktok.com" && /^\/[A-Za-z0-9]{5,24}\/?$/.test(u.pathname)
+      && !u.search && !u.hash) return { url: trimmed, tail: raw.slice(trimmed.length) };
     // Holding a URL before text redaction must not preserve credentials or
     // contact details embedded in query values/fragments. Use existing route
     // and share admission for site destinations; do not publish private links.
