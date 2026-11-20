@@ -6,9 +6,11 @@ import {readAiCostCohorts2029,normalizeAiCostCohortResponse}
 
 const record={v:1,not_invoice:true,includes_infrastructure:false,
   unknown_not_zero:true,pricing_basis:"internal_ai_token_ledger",
+  owner_attribution_basis:"owner_asserted_site_admin_role_not_verified_account_merge",
   total:{calls:250,unpriced_calls:0,cost_ils:14.548,unattributed_calls:205},
   by_segment:[
-    {segment:"my_account",calls:23,unpriced_calls:0,cost_ils:0.8878},
+    {segment:"owner_accounts",calls:23,unpriced_calls:0,cost_ils:0.8878},
+    {segment:"community_moderator",calls:0,unpriced_calls:0,cost_ils:0},
     {segment:"registered_customer_unknown",calls:16,unpriced_calls:0,cost_ils:0.3205},
     {segment:"anonymous_visitor",calls:6,unpriced_calls:0,cost_ils:0.266},
     {segment:"unattributed_unknown",calls:205,unpriced_calls:0,cost_ils:13.0733},
@@ -20,6 +22,9 @@ test("admin cohort summary normalizes exact priced ledger with 205 explicitly un
  assert.equal(r.total.calls,250);
  assert.equal(r.total.knownCostIls,14.548);
  assert.equal(r.total.unassignedCalls,205);
+ assert.equal(r.segments.find(x=>x.key==="owner_accounts").calls,23);
+ assert.equal(r.segments.find(x=>x.key==="community_moderator").calls,0);
+ assert.equal(r.ownerAttributionBasis,"owner_asserted_site_admin_role_not_verified_account_merge");
  assert.equal(r.notInvoice,true);
  assert.equal(r.unknownNotZero,true);
 });
