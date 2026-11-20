@@ -531,6 +531,8 @@ jobs:
         run: node --test test/auth-browser-acceptance-2029.browser.mjs test/auth-storage-browser-2029.browser.mjs
         env:
           AUTH_EVIDENCE_DIR: ${{ runner.temp }}/auth-evidence
+      - name: Built artifact admits only its own worker; the preloaded entry is requested once and consumed by the bootstrap (real Chromium)
+        run: node --test test/public-reading-production-artifact.browser.mjs test/public-reading-entry-preload.browser.mjs
       - name: Google Analytics 4 is not blocked (real CSP header + real worker)
         run: node --test test/ga-measurement-browser-2029.browser.mjs
       - name: Public Post background starts during calculation; GA uses the current public page identity

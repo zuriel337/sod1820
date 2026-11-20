@@ -49,7 +49,7 @@ Chromium אמיתי מול `sod1820.co.il`, נייד 390px ומחשב 1440px. כ
 - `public-reading-analytics-worker`, `public-reading-observability`, `measurement-transport-hardening`, `measurement-page-view-once`, `public-reading-full-account-transport`, `article-first-document`: 95/95.
 - דפדפן: `stale-chunk-recovery-2029.browser.mjs` עבר; "stale service worker… heals once" מתוך `auth-browser-acceptance-2029.browser.mjs` עבר; `measurement-visit-once-2029.browser.mjs` 4/4.
 - `node scripts/build-public-reading-production.mjs`: עבר, `2029 shell budget: PASS`, `Legacy retired gate: PASS`.
-- **לא רצו:** `public-reading-production-artifact.browser.mjs` ו־`public-reading-entry-preload.browser.mjs` דורשים `@playwright/test`, שאינו מותקן בסביבה הזו (`ERR_MODULE_NOT_FOUND`). זו מגבלת סביבה, לא כשל קוד; ירוצו ב־CI.
+- `public-reading-production-artifact.browser.mjs` ו־`public-reading-entry-preload.browser.mjs` (עם `@playwright/test@1.55.0`, הגרסה של CI): 1/1 ו־1/1. שתיהן לא היו מחוברות לאף workflow; נוספו כצעד אחד ב־`auth-browser-acceptance-2029` (`live-contracts-2029.yml`), בלי שינוי בזמן או בספים.
 
 ## 4. השפעת ביצועים
 
