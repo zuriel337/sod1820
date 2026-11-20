@@ -8,6 +8,7 @@ test("public video link metadata is enriched by bounded Edge worker, not fetched
   const edge = read("supabase/functions/wa-video-enrich/index.ts");
   const now = read("src/lib/research/systemFeedPublicSources2029.js");
   assert.match(edge, /providerLinkMetadata/);
+  assert.match(edge, /u\.pathname === "\/playlist"/, "YouTube collections have a separate metadata path");
   for (const provider of ["youtube.com\/oembed", "tiktok.com\/oembed", "vimeo.com\/api\/oembed"]) {
     assert.ok(edge.includes(provider.replaceAll("\\", "")), provider);
   }
@@ -22,6 +23,7 @@ test("public video link metadata is enriched by bounded Edge worker, not fetched
   assert.match(edge, /seo_title: metadata\.title/);
   assert.match(now, /sourceTitle = text\(row\.seo_title\)/);
   assert.match(now, /publicProviderVideoPoster/);
+  assert.match(read("src/lib/community/messageLinks.js"), /externalYouTubePlaylistLinksFromText/, "playlists are outbound, not single-video players");
   assert.doesNotMatch(now, /fetch\(/, "no provider or card fetch in public projection");
 });
 
