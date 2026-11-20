@@ -9,8 +9,19 @@ test('only explicit live non-page-only unexpired public channels enter Now; priv
  const redacted=publicChannelToSystemItem({...row,text:'1820 user@example.invalid +972501234567 https://private.invalid/path'});assert.ok(!redacted.fullText.includes('@'));assert.ok(!redacted.fullText.includes('972'));assert.ok(!redacted.fullText.includes('https://'));assert.ok(redacted.fullText.includes('1820'));
 });
 test('real media-only updates remain represented, with public objects only and no fabricated link',()=>{
- const media='https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/clip.mp4';const dto=publicChannelToSystemItem({...row,text:'',image_url:media});assert.equal(dto.mediaHref,media);assert.match(dto.label,/סרטון/);assert.equal(dto.href,null);
+ const media='https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/clip.mp4';const dto=publicChannelToSystemItem({...row,text:'',image_url:media});assert.equal(dto.mediaHref,media);assert.equal(dto.label,"כותרת בהשלמה");assert.equal(dto.titleNeedsEnrichment,true);assert.equal(dto.href,null);
  for(const url of['javascript:alert(1)','https://outside.invalid/image.jpg',media+'?token=private',media.replace('/public/','/authenticated/'),media.replace('/public/','/sign/')])assert.equal(publicNowMediaHref(url),null);
+});
+test('provider-enriched videos show real titles without hiding the source or changing identity',()=>{
+ const url='https://www.youtube.com/watch?v=Abc123Def45';
+ const video=publicChannelToSystemItem({...row,text:url,seo_title:'השם המקורי של הסרטון'});
+ assert.equal(video.label,'השם המקורי של הסרטון');
+ assert.equal(video.titleNeedsEnrichment,false);
+ assert.equal(video.fullText,url);
+ assert.equal(video.sourceRef,'channel_updates:'+id);
+ const pending=publicChannelToSystemItem({...row,text:url,seo_title:null});
+ assert.equal(pending.label,'כותרת בהשלמה');
+ assert.equal(pending.titleNeedsEnrichment,true);
 });
 test('gallery activity preserves stream chronology, exact native image source and visibility',()=>{
  const g={id,wp_gallery_id:29,name:'עדכון ציבורי',description:'תיאור',source:'update',published:1,min_tier:0,curator_hidden:false,stream_at:'2026-11-01',created_at:'2026-10-01',occurred_at:'2020-01-01'};const dto=publicGalleryToSystemItem(g);assert.equal(dto.at,'2026-11-01T00:00:00.000Z');assert.equal(dto.occurredAt,'2020-01-01T00:00:00.000Z');assert.match(dto.href,/view=gallery&gallery=29&image=/);assert.ok(dto.href.endsWith('#gallery-source-'+id));
