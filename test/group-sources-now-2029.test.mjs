@@ -64,6 +64,12 @@ test("untitled media and link-only sources keep identity but request title enric
   assert.equal(youtube.sourceVideoHref, "https://youtu.be/Abc123Def45");
   assert.equal(groupRowToWorldUpdate(row({ body: "https://www.youtube.com/watch?v=Abc123Def45" })).sourceVideoHref, "https://www.youtube.com/watch?v=Abc123Def45");
   assert.equal(groupRowToWorldUpdate(row({ body: "https://evil.invalid/watch?v=Abc123Def45" })).sourceVideoHref, null);
+  const tik = groupRowToWorldUpdate(row({ body: "https://www.tiktok.com/@example/video/1234567890123456789" }));
+  assert.match(tik.fullText, /tiktok\.com/);
+  assert.equal(tik.titleNeedsEnrichment, true);
+  assert.equal(groupRowToWorldUpdate(row({ body: "https://vt.tiktok.com/ZSgQykNHe/" })).titleNeedsEnrichment, true);
+  assert.equal(groupRowToWorldUpdate(row({ body: "https://www.tiktok.com/@example/video/1234567890123456789?token=secret" })).fullText, "[קישור]");
+
   assert.equal(groupRowToWorldUpdate(row({ body: "https://www.youtube.com/watch?v=Abc123Def45&token=private" })).sourceVideoHref, null);
   assert.equal(groupRowToWorldUpdate(row({ body: "https://youtu.be/short" })).sourceVideoHref, null);
   assert.equal(groupRowToWorldUpdate(row({ body: "https://youtu.be/Abc123Def45", group_proof: false })), null);
