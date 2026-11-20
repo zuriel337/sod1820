@@ -166,7 +166,13 @@ export function nowRowModel(row) {
   const mainMessage = realityMapPreviewEnabled() && item.sourceUpdate ? resolveUnitMessage(String(item.sourceUpdate.sourceRef || "").replace(/^posts:/, ""), item.sourceUpdate.targetId) : null;
   const fullText = cleanNowText(mainMessage || item.fullText);
   const summary = cleanNowText(mainMessage || item.summary);
-  const title = shortNowTitle(row?.title || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
+  // Content titles must not be generic media/action labels or bare URLs.
+  // Do not guess a YouTube title without verified metadata; flag the preserved item for enrichment.
+  const proposedTitle = shortNowTitle(row?.title || item.label);
+  const genericTitle = /^(?:עדכון|עדכון חדש|סרטון|סרטון מהקבוצה|וידאו|וידאו חדש|תמונה|תמונה מהקבוצה|קישור|מקור חדש|כותרת בהשלמה)$/i;
+  const titleNeedsEnrichment = Boolean(item.titleNeedsEnrichment)
+    || !proposedTitle || genericTitle.test(proposedTitle);
+  const title = titleNeedsEnrichment ? "כותרת בהשלמה" : proposedTitle;
   const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
   // Two pin kinds, one order (ZURIEL 11.11.2026): the owner's own pin (the Home featured item) leads; a writer pin follows it; then everything
   // else by time. A writer pin exists ONLY on a public group arrival (already proved by the server: group proof, verified number, approved
@@ -176,7 +182,7 @@ export function nowRowModel(row) {
     && Number.isFinite(Date.parse(item.pinUntil)) && groupWriterPinListed(item.sourceGroup?.key, item.creatorSlug);
   const pinKind = writerPin ? "writer" : item.pinned === true && !isGroup && item.pinKind !== "writer" ? "owner" : null;
   return {
-    id: row?.id, row, item, title, byline, typeLabel, unverified, mainMessage,
+    id: row?.id, row, item, title, titleNeedsEnrichment, byline, typeLabel, unverified, mainMessage,
     tone: toneOf(lenses, unverified),
     // Pinned by the owner (the Home featured item): stays first in "עכשיו" whatever its time; how pinning is governed is to be set in the contracts.
     // A writer pin (pinKind "writer") stays at the top too, under the owner's pin, until its pinUntil. It keeps the row's source status
