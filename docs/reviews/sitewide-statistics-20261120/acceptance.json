@@ -80,7 +80,10 @@
         "result": "26/27",
         "same_on_main": "7e7cc4b"
       }
-    ]
+    ],
+    "public_floor_nonregression_pglite": {
+      "pass": 9
+    }
   },
   "budgets_vs_main": {
     "eager_js_gzip_delta": 146,
@@ -383,5 +386,22 @@
       "sha": "1aafeb025",
       "decision": "not integrated: SEO/indexing scope, no measurement change"
     }
+  },
+  "public_gate_20261120": {
+    "owner_comment": "#1462 issuecomment-7050714948",
+    "fixed": [
+      "private-wall clause removed: 22 published curated words stay public",
+      "phrase floor hides only phrases present in the corpus with no public row: 39/118 atlas relations and 2/13 bridges stay",
+      "admin parity (select rd_is_admin()) in 19 readers"
+    ],
+    "not_eligible": {
+      "total": 3013,
+      "unpublished": 2996,
+      "published_encrypted": 16,
+      "published_unverified": 1,
+      "already_hidden_from_anon_rest": 3013,
+      "public_words_lost": 0
+    },
+    "sql_applied": false
   }
 }

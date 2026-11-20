@@ -31,7 +31,7 @@ begin
   end loop;
   select coalesce(jsonb_agg(distinct phrase), '[]'::jsonb) into rel
   from (select phrase from gematria_words
-        where phrase ~ ('^'||pat) and public.gematria_public_word_eligible(gematria_words.id) and length(phrase) between length(root) and length(root)+4
+        where phrase ~ ('^'||pat) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id)) and length(phrase) between length(root) and length(root)+4
         order by phrase limit 10) q;
   return jsonb_build_object(
     'input', p_word, 'normalized', w, 'root_candidate', root,

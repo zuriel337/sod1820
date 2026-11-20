@@ -14,6 +14,6 @@ AS $function$
          exists(select 1 from word_aliases wa join gematria_words g on g.id=wa.word_id
             where wa.verified and g.phrase in (re.a_phrase, re.b_phrase))
   from relation_evidence re
-  where re.status = 'confirmed' and (p_relation is null or re.relation_type = p_relation) and exists(select 1 from gematria_words ga where ga.phrase = re.a_phrase and public.gematria_public_word_eligible(ga.id)) and exists(select 1 from gematria_words gb where gb.phrase = re.b_phrase and public.gematria_public_word_eligible(gb.id))
+  where re.status = 'confirmed' and (p_relation is null or re.relation_type = p_relation) and (not exists(select 1 from gematria_words ga where ga.phrase = re.a_phrase) or exists(select 1 from gematria_words ga where ga.phrase = re.a_phrase and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(ga.id)))) and (not exists(select 1 from gematria_words gb where gb.phrase = re.b_phrase) or exists(select 1 from gematria_words gb where gb.phrase = re.b_phrase and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gb.id))))
   order by re.updated_at desc limit p_limit;
 $function$

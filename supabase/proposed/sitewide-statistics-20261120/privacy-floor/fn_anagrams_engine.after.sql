@@ -16,7 +16,7 @@ AS $function$
         'word', gw.phrase,
         'type', case when exists(select 1 from tanach_verses tv where tv.words @> array[gw.phrase]) then 'מקרא' else 'מילון' end)),'[]'::jsonb)
       from gematria_words gw
-      where gw.phrase <> base.b and public.gematria_public_word_eligible(gw.id) and char_length(gw.phrase)=char_length(base.b)
+      where gw.phrase <> base.b and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gw.id)) and char_length(gw.phrase)=char_length(base.b)
         and (select string_agg(c,'' order by c) from regexp_split_to_table(translate(regexp_replace(gw.phrase,'[^א-ת]','','g'),'ךםןףץ','כמנפצ'),'') c)=base.sig)
   )) from base),'[]'::jsonb));
 $function$

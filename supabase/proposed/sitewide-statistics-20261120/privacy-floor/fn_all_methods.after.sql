@@ -35,7 +35,7 @@ begin
   -- provenance only: whether a verified stored row exists (and its כל_הערכים blob); never a value source
   select to_jsonb(t) into cached from (
     select all_values as "כל_הערכים" from public.gematria_words
-     where phrase = w and is_verified = true and public.gematria_public_word_eligible(gematria_words.id)
+     where phrase = w and is_verified = true and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
      order by (space='core') desc, lead_rank nulls last limit 1) t;
   if cached is not null then v := v || cached || jsonb_build_object('מהמאגר', true);
   else v := v || jsonb_build_object('מהמאגר', false); end if;

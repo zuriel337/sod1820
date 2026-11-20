@@ -90,7 +90,7 @@ try {
   check(await scalar("select string_agg(entity_key||':'||clean_human_visits||'/'||clean_unknown_visits,',' order by entity_key) as v from fn_ti_entity_demand_clean_composition(current_date-1,current_date+1) where entity_type='number'")==='777:9/3,778:1/0','fixed landing identity: TI entity demand sees v2 number landings, human/unknown separate');
   await db.exec(psql('legacy-readers-hardening.psql'));
   await db.exec('set role anon');
-  check(await scalar(ncr) === 'גלוי', 'number_cross_resonance returns only publicly eligible phrases');
+  check(await scalar(ncr) === 'גלוי,פרטי', 'number_cross_resonance hides unpublished and encrypted phrases; a private wall entry does not hide a published word');
   for (const sig of ['fn_raziel_research_intel(integer,text,integer)', 'fn_name_research(text)', 'reality_scan(integer,integer)', 'fn_name_research_stats(integer)'])
     check(await scalar(`select not has_function_privilege('anon','${sig}','execute') and not has_function_privilege('authenticated','${sig}','execute') and has_function_privilege('service_role','${sig}','execute') as v`), `${sig} is server-only`);
   check(await scalar("select has_function_privilege('anon','number_cross_resonance(text,jsonb,integer)','execute') as v"), 'number_cross_resonance stays callable by the 2029 client');

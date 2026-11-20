@@ -27,8 +27,8 @@ begin
   w_first    := (fn_name_in_tanach(fst)->>'count')::int;
   w_last     := case when lst is not null and lst<>fst then (fn_name_in_tanach(lst)->>'count')::int else null end;
   combo_verses := fn_verses_by_gematria(v_full,12);
-  combo_words  := (select count(*) from gematria_words where ragil=v_full and is_verified=true and is_published=true and public.gematria_public_word_eligible(gematria_words.id));
-  sv_words     := (select coalesce(jsonb_agg(phrase),'[]'::jsonb) from (select phrase from gematria_words where ragil=v_full and is_verified=true and is_published=true and public.gematria_public_word_eligible(gematria_words.id) and phrase <> all(parts||nfull) limit 120) z);
+  combo_words  := (select count(*) from gematria_words where ragil=v_full and is_verified=true and is_published=true and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id)));
+  sv_words     := (select coalesce(jsonb_agg(phrase),'[]'::jsonb) from (select phrase from gematria_words where ragil=v_full and is_verified=true and is_published=true and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id)) and phrase <> all(parts||nfull) limit 120) z);
   neigh        := fn_name_neighbors(fst,20);
   v_shared     := fn_shared_numbers(array(select distinct x from unnest(array[nfull,fst,lst]) x where coalesce(x,'')<>''));
   v_transforms := fn_transforms_tanach(fst);

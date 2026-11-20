@@ -10,7 +10,7 @@ AS $function$
   pairs as (
     select b.phrase partner, b.method, b.value
     from bidim b join mine on mine.method = b.method and mine.value = b.value
-    join gematria_words gw on gw.id = b.word_id and gw.is_verified = true and gw.is_published = true and public.gematria_public_word_eligible(gw.id)
+    join gematria_words gw on gw.id = b.word_id and gw.is_verified = true and gw.is_published = true and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gw.id))
     where b.phrase <> p_self and b.phrase !~ '[A-Za-z0-9]'
       and heb_letter_key(b.phrase) <> heb_letter_key(p_self)      -- 🚫 בלי אנגרמות
       and not exists (select 1 from gematria_blocklist bl where position(bl.pattern in b.phrase) > 0)

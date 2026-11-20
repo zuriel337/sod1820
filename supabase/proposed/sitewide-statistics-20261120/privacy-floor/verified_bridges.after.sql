@@ -10,7 +10,7 @@ AS $function$
            l.method, l.note, coalesce(l.evidence_level,'medium') as evidence,
            coalesce(l.human_verified,false) as human_verified, l.created_at
     from language_links l
-    where l.status = 'approved' and exists(select 1 from gematria_words g2 where g2.phrase = l.hebrew and public.gematria_public_word_eligible(g2.id))
+    where l.status = 'approved' and (not exists(select 1 from gematria_words g2 where g2.phrase = l.hebrew) or exists(select 1 from gematria_words g2 where g2.phrase = l.hebrew and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(g2.id))))
   ),
   wa as (
     select wa.alias, wa.lang, g.phrase as hebrew, g.ragil as value,
@@ -19,7 +19,7 @@ AS $function$
     from word_aliases wa
     join gematria_words g on g.id = wa.word_id
     where wa.verified
-      and g.is_verified = true and g.is_published = true and public.gematria_public_word_eligible(g.id)
+      and g.is_verified = true and g.is_published = true and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(g.id))
       and coalesce(wa.lang,'he') not in ('he','heb','עברית')
       and coalesce(g.is_encrypted,false) = false
       and not exists (select 1 from gematria_blocklist bl where position(bl.pattern in g.phrase) > 0)

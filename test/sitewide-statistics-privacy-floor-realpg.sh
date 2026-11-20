@@ -19,6 +19,7 @@ pass=0; check() { if [ "$1" = "$2" ]; then pass=$((pass+1)); echo "PASS $3"; els
 Q <<'SQL'
 create role anon; create role authenticated; create role service_role;
 create function public.gematria_public_word_eligible(uuid) returns boolean language sql as 'select true';
+create function public.rd_is_admin() returns boolean language sql as 'select false';
 create function public.research_level_of(uuid) returns jsonb language sql security definer as 'select null::jsonb';
 create function public.fn_cohort_acceptance(text) returns jsonb language sql security definer as 'select null::jsonb';
 create function public.fn_metatron_gaps() returns jsonb language sql security definer as 'select null::jsonb';

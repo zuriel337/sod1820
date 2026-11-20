@@ -8,7 +8,7 @@ AS $function$
   with axis as (
     select distinct phrase from gematria_words
     where (lead_rank is not null
-       or (coalesce(array_length(source_wp_ids,1),0)=0 and coalesce(source,'') !~ '^(excel_import|promoted:|auto:|wp_id:)')) and public.gematria_public_word_eligible(gematria_words.id)
+       or (coalesce(array_length(source_wp_ids,1),0)=0 and coalesce(source,'') !~ '^(excel_import|promoted:|auto:|wp_id:)')) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id))
   ),
   anchors as (
     select distinct zero_root(v::int) rv from (

@@ -4,6 +4,7 @@
 begin;
 do $pf$ begin
  if to_regprocedure('public.gematria_public_word_eligible(uuid)') is null then raise exception 'privacy floor: helper public.gematria_public_word_eligible(uuid) missing — apply ../apply.psql first'; end if;
+ if to_regprocedure('public.rd_is_admin()') is null then raise exception 'privacy floor: public.rd_is_admin() missing (admin parity with the REST policy)'; end if;
  if md5(pg_get_functiondef('public.entity_collective_count(text,text)'::regprocedure)) <> '899bd4c073f216d778b046bc001e9b3c' then raise exception 'preimage drift: entity_collective_count'; end if;
  if md5(pg_get_functiondef('public.fn_anagrams_engine(text[])'::regprocedure)) <> '169b23145b120feacef0f5724b37e93d' then raise exception 'preimage drift: fn_anagrams_engine'; end if;
  if md5(pg_get_functiondef('public.fn_hebrew_root(text)'::regprocedure)) <> '6896937b1f63baeb5205bec7e74df5c2' then raise exception 'preimage drift: fn_hebrew_root'; end if;

@@ -12,6 +12,6 @@ AS $function$
     'sum', (select s from agg),
     'diff', (select d from agg),
     'sum_verses', coalesce((select fn_verses_by_gematria((select s from agg),6)),'null'::jsonb),
-    'sum_words', coalesce((select jsonb_agg(phrase) from (select phrase from gematria_words where ragil=(select s from agg) and public.gematria_public_word_eligible(gematria_words.id) limit 10) z),'[]'::jsonb)
+    'sum_words', coalesce((select jsonb_agg(phrase) from (select phrase from gematria_words where ragil=(select s from agg) and ((select public.rd_is_admin()) or public.gematria_public_word_eligible(gematria_words.id)) limit 10) z),'[]'::jsonb)
   );
 $function$
