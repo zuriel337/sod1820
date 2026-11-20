@@ -3,7 +3,7 @@
 // Never call until owner explicitly approves that SQL and the feature rollout.
 const DAYS = new Set([1,7,30,90,365]);
 const GROUPS = new Set([
- "my_account","other_admin","verified_paying_customer","registered_customer_unknown",
+ "owner_accounts","community_moderator","verified_paying_customer","registered_customer_unknown",
  "anonymous_visitor","verified_system_operation","unattributed_unknown",
 ]);
 const metric = raw => {
@@ -37,6 +37,7 @@ export function normalizeAiCostCohortResponse(raw) {
     byModel:Array.isArray(raw.by_model) ? raw.by_model.slice(0,40) : [],
     byDay:Array.isArray(raw.by_day) ? raw.by_day.slice(0,365) : [],
     infrastructureExcluded:true,
+    ownerAttributionBasis:raw.owner_attribution_basis || "not_verified",
     unknownNotZero:true,
   });
 }
