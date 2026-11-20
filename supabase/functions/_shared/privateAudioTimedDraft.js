@@ -11,15 +11,28 @@ export function privateAudioTimedDraft(stt) {
   const duration = Number(stt?.duration);
   const evidence = { classification: 'unknown', language_evidence: 'ASR_original_script_not_human_reviewed',
     duration_seconds: Number.isFinite(duration) ? duration : null,
-    provider_language: stt?.provider_language || null, segments: [], reason: null };
+    provider_language: stt?.provider_language || null, segments: [], reason: null,
+    // Retain the provider evidence in the private draft, including unusable
+    // timings, so a failed alignment never discards the recognized source text.
+    asr_evidence: { text: stt?.text || '', words: stt?.words || [], segments: stt?.segments || [] },
+    timing_basis: null };
   if (!stt?.ok || !Number.isFinite(duration) || duration <= 0) {
     evidence.reason = stt?.ok ? 'duration_missing' : `provider_failed_${stt?.status || 0}`;
     return evidence;
   }
   const rejected = (stt.segments || []).filter(s => Number(s.no_speech_prob) > 0.6 || Number(s.avg_logprob) < -1);
   const words = Array.isArray(stt.words) ? stt.words : [];
-  const timed = words.length ? words.map(w => ({ ...w, text: String(w.word || '').trim() }))
-    : (stt.segments || []).map(s => ({ ...s, text: String(s.text || '').trim() }));
+  const wordItems = words.map(w => ({ ...w, text: String(w.word || '').trim() }));
+  const segmentItems = (stt.segments || []).map(s => ({ ...s, text: String(s.text || '').trim() }));
+  const usable = items => items.length > 0 && items.every((item, i) =>
+    validTime(item, duration) && item.text && (!i || item.start >= items[i - 1].end - 0.05));
+  // Providers sometimes emit zero-duration or overlapping words. Prefer their
+  // independently supplied segment boundaries; never interpolate replacements.
+  const timed = usable(wordItems) ? wordItems : usable(segmentItems) ? segmentItems : [];
+  evidence.timing_basis = timed === wordItems ? 'provider_words' : timed === segmentItems ? 'provider_segments' : null;
+  if (!timed.length && (wordItems.length || segmentItems.length)) {
+    evidence.reason = 'invalid_or_overlapping_timestamps'; return evidence;
+  }
   let previousEnd = 0;
   for (const item of timed) {
     if (!validTime(item, duration) || item.start < previousEnd - 0.05 || !item.text) {
