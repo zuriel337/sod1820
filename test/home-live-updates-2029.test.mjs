@@ -20,10 +20,10 @@ assert.ok(["function useHomeUpdates", "function HomeLiveUpdates", "function Home
 const outfile = resolve(`.test-home-live-updates-${process.pid}.mjs`);
 await build({ stdin: { contents: `
   import React, {useEffect, useMemo} from 'react';
-  import {nowModels, buildNowEntries, nowPinnedMessage, seriesLatestFace2029, seriesLatestMember2029} from './src/lib/nowPublications2029.js';
+  import {nowModels, buildNowEntries, nowPinnedMessage, REALITY_MAP_LATEST_KEY, seriesLatestFace2029, seriesLatestMember2029} from './src/lib/nowPublications2029.js';
   import {pinCoverSet, PIN_COVER_SIZES} from './src/components/experience2029/homePinnedCover2029.js';
   import NavigationIcon2029 from './src/components/experience2029/NavigationIcon2029.jsx';
-  import OwnMarkBox2029 from './src/components/experience2029/OwnMark2029.jsx';
+  import NowThumb2029 from './src/components/experience2029/NowThumb2029.jsx';
   import SeriesLatestMark2029 from './src/components/experience2029/SeriesLatestMark2029.jsx';
   import {NowPinnedMessage2029} from './src/components/experience2029/NowRoyalCenter2029.jsx';
   import {relativeTimeLabel} from './src/lib/relativeTime2029.js';
@@ -41,13 +41,13 @@ const post = (id, hours, extra = {}) => ({ id, slug: `p-${id}`, title: `פוסט
 const gallery = (n, hours) => publicGalleryToSystemItem({ id: `10000000-0000-4000-8000-00000000000${n}`, image_url: `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/g${n}.jpg`, name: `תמונה מזרם המציאות ${n}`, description: "", source: "update", published: 1, min_tier: 0, curator_hidden: false, stream_at: iso(hours), created_at: iso(hours), wp_gallery_id: 7 });
 const group = hours => groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "הודעת מקור שטרם נבדקה", created_at: iso(hours), contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
 const feedOf = (items, loading = false) => ({ loading, expandedRows: feedRows(items, { now: NOW, limit: 160, caps: { post: 40, group: 40, gallery: 10 } }) });
-function Probe({ feed, exclude = new Set(), postsOnly = false }) {
-  const updates = useHomeUpdates(feed, { exclude, postsOnly });
+function Probe({ feed, postsOnly = false, exclude }) {
+  const updates = useHomeUpdates(feed, { postsOnly, exclude });
   return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => {} });
 }
 // The top of the Home as the composition draws it: the pinned lead (with an owner's pinned message above it), then the short "עכשיו".
 function TopProbe({ feed, catalogItems = [] }) {
-  const updates = useHomeUpdates(feed, { exclude: new Set(), postsOnly: false });
+  const updates = useHomeUpdates(feed, { postsOnly: false });
   return React.createElement(React.Fragment, null,
     React.createElement(HomePinnedLead, { lead: updates.lead, catalogItems, pinned: updates.pinned, onNavigateTo: () => {} }),
     React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => {} }));
@@ -56,12 +56,12 @@ const render = async props => { let root; await act(async () => { root = Rendere
 const renderTop = async props => { let root; await act(async () => { root = Renderer.create(React.createElement(TopProbe, props)); }); return root; };
 const entries = root => root.root.findAll(node => node.type === "li" && node.props["data-home-update-item"]);
 
-test("newest first across kinds: a reality-stream image shows as an image with its relative time; unverified source messages never appear", async () => {
+test("newest first across kinds: a reality-stream image shows as an image with its relative time; public group messages retain their source label", async () => {
   const items = [postRowToWorldUpdate(post(1, 30)), gallery(1, 2), postRowToWorldUpdate(post(2, 10)), group(1)].filter(Boolean);
   const root = await render({ feed: feedOf(items) });
   const list = entries(root);
-  assert.deepEqual(list.map(node => node.props["data-home-update-item"]), ["gallery:10000000-0000-4000-8000-000000000001", "post:2", "post:1"]);
-  const [first] = list;
+  assert.deepEqual(list.map(node => node.props["data-home-update-item"]), ["group:20000000-0000-4000-8000-000000000001", "gallery:10000000-0000-4000-8000-000000000001", "post:2"]);
+  const [, first] = list;
   assert.ok(first.findAll(node => node.type === "b").some(node => node.children.join("") === "תמונה"), "type label: an image");
   assert.ok(first.findAllByType("img").some(img => /g1\.jpg/.test(img.props.src)), "the image itself is the thumbnail");
   assert.match(first.findAllByType("time")[0].children.join(""), /לפני|שעה/, "relative time on the main Home");
@@ -69,18 +69,22 @@ test("newest first across kinds: a reality-stream image shows as an image with i
   await act(async () => { root.unmount(); });
 });
 
-test("at most three items (a short \"עכשיו\"); anything already shown by the flagship region or ciphers is not repeated; posts-only while the world is closed", async () => {
+test("at most three items (a short \"עכשיו\"); posts-only while the world is closed", async () => {
   const items = [1, 2, 3, 4, 5, 6, 7].map(n => postRowToWorldUpdate(post(n, n))).concat([gallery(2, 0.5)]).filter(Boolean);
   let root = await render({ feed: feedOf(items) });
   assert.equal(entries(root).length, 3);
   assert.equal(root.root.findAll(node => node.props.className === "rc29-ex").length, 0, "no excerpts in the short strip");
   assert.equal(root.root.findAll(node => node.type === "button" && node.props["data-home-open-now"] === "true").length, 1, "the whole picture is one tap away");
   await act(async () => { root.unmount(); });
-  root = await render({ feed: feedOf(items), exclude: new Set(["/post/p-1"]) });
-  assert.equal(entries(root).some(node => node.props["data-home-update-item"] === "post:1"), false);
-  await act(async () => { root.unmount(); });
   root = await render({ feed: feedOf(items), postsOnly: true });
   assert.ok(entries(root).every(node => String(node.props["data-home-update-item"]).startsWith("post:")), "no reality-stream item while the world is closed to the public");
+  await act(async () => { root.unmount(); });
+});
+
+test("the dedicated featured story is not duplicated in Home Now; the next shared entries fill the three slots", async () => {
+  const items = [1, 2, 3, 4].map(n => postRowToWorldUpdate(post(n, n))).filter(Boolean);
+  const root = await render({ feed: feedOf(items), exclude: new Set([items[0].href]) });
+  assert.deepEqual(entries(root).map(node => node.props["data-home-update-item"]), ["post:2", "post:3", "post:4"]);
   await act(async () => { root.unmount(); });
 });
 
@@ -90,7 +94,7 @@ test("loading reserves rows; nothing to show or no feed renders nothing: no empt
   assert.equal(root.root.findAll(node => node.props["data-home-top-updates"] === "live")[0].props["aria-busy"], true);
   assert.match(root.root.findAll(node => node.props.role === "status")[0].children.join(""), /טוען/, "a visible loading line, inside the reserved rows (Operation Visibility Law)");
   await act(async () => { root.unmount(); });
-  for (const feed of [null, feedOf([]), feedOf([group(1)].filter(Boolean))]) {
+  for (const feed of [null, feedOf([])]) {
     root = await render({ feed });
     assert.equal(root.toJSON(), null);
     await act(async () => { root.unmount(); });
@@ -154,11 +158,11 @@ test("the pinned central message is the card on top (once): never repeated as a 
   await act(async () => { root.unmount(); });
 });
 
-test("no source picker on the Home (it stays in the full \"עכשיו\" sheet); unverified group rows stay out of the Home strip", async () => {
+test("no source picker on the Home (it stays in the full \"עכשיו\" sheet); public group rows keep their displayed source status", async () => {
   const items = [postRowToWorldUpdate(post(1, 3)), group(1)].filter(Boolean);
   const root = await render({ feed: feedOf(items) });
   assert.equal(root.root.findAll(node => node.props["data-now-source"]).length, 0, "no source chips on the Home");
-  assert.deepEqual(entries(root).map(node => node.props["data-home-update-item"]), ["post:1"], "only the Post; the unverified source message stays out");
+  assert.deepEqual(entries(root).map(node => node.props["data-home-update-item"]), ["group:20000000-0000-4000-8000-000000000001", "post:1"]);
   await act(async () => { root.unmount(); });
 });
 
@@ -175,7 +179,7 @@ test("the pinned lead is the newest מפת המציאות publication: the same 
   assert.match(link.findAll(node => node.props.className === "h29-pinlead-title")[0].children.join(""), /פוסט 9/);
   assert.equal(link.findAll(node => node.props["data-now-series-latest"] === "reality-map").length, 1, "the same mark as in \"עכשיו\" (blinks until entered)");
   const rows = entries(root).map(node => node.props["data-home-update-item"]);
-  assert.ok(!rows.includes("post:9"), "not a second time in the strip");
+  assert.deepEqual(rows, ["post:1", "post:2"], "both map posts stay in their dedicated area");
   await act(async () => { root.unmount(); });
 });
 
@@ -237,12 +241,12 @@ test("the pinned update hierarchy (ZURIEL 11.11.2026, second pass): the Post tit
 
 // ── ZURIEL 12.11.2026: a pinned writer message shows on Home, newest pin first, and is clickable ──────────────────────────────────────────
 const levi = hours => groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000009", body: "גילוי של יניב", created_at: iso(hours), contributor_slug: "yaniv-levi", contributor_name: "יניב לוי", group_proof: true, proof_basis: "verified_phone_unique", group_channel: "gilui-yomi" });
-test("Home shows a pinned writer message first, with a pin badge and a link to its source message; an unpinned source message stays out", async () => {
+test("Home shows a pinned writer message first, with a pin badge and a link to its source message; an unpinned public source follows", async () => {
   const root = await render({ feed: feedOf([postRowToWorldUpdate(post(1, 2)), levi(1), group(3)].filter(Boolean)) });
   const list = entries(root);
   const ids = list.map(node => node.props["data-home-update-item"]);
   assert.equal(ids[0], "group:20000000-0000-4000-8000-000000000009", "the pinned message leads on Home");
-  assert.ok(!ids.includes("group:20000000-0000-4000-8000-000000000001"), "an unpinned source message stays out of Home");
+  assert.ok(ids.includes("group:20000000-0000-4000-8000-000000000001"));
   assert.equal(list[0].findAll(node => node.props["data-home-update-pinned"] === "true").length, 1, "pin badge");
   const links = list[0].findAll(node => node.type === "a" && String(node.props.href).startsWith("/world#group-source-20000000-0000-4000-8000-000000000009"));
   assert.equal(links.length, 1, "the row is a link to the source message");
@@ -253,7 +257,7 @@ test("a pinned row without any address still opens the Now sheet (never a dead c
   let opened = 0;
   const noAddress = { ...levi(1), href: null, url: null };
   function OpenProbe({ feed }) {
-    const updates = useHomeUpdates(feed, { exclude: new Set(), postsOnly: false });
+    const updates = useHomeUpdates(feed, { postsOnly: false });
     updates.models = updates.models.map(entry => entry.model ? { ...entry, model: { ...entry.model, href: null } } : entry);
     return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => { opened += 1; } });
   }
@@ -263,5 +267,17 @@ test("a pinned row without any address still opens the Now sheet (never a dead c
   assert.equal(open.length, 1);
   await act(async () => { open[0].props.onClick(); });
   assert.equal(opened, 1);
+  await act(async () => { root.unmount(); });
+});
+
+test("Home groups consecutive public messages from one source and reuses the sheet's source logo even without a thumbnail", async () => {
+  const first = group(1);
+  const next = { ...first, id: "group:20000000-0000-4000-8000-000000000008", at: iso(2) };
+  const photo = { ...gallery(1, 4), mediaHref: null };
+  const root = await render({ feed: feedOf([first, next, photo]) });
+  const [run, image] = entries(root);
+  assert.equal(run.props["data-home-update-item"], "run:" + first.id);
+  assert.match(run.findByType("small").children.filter(child => typeof child === "string").join(""), /טרם נבדק/);
+  assert.ok(image.findAllByType("img").some(img => img.props.className.includes("is-logo")));
   await act(async () => { root.unmount(); });
 });

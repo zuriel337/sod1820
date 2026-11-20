@@ -13,6 +13,7 @@ import { stripHtml } from "../../lib/format.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 // The notable convergences sit far below the opening screen: their rating marks load with them (ZURIEL 17.11.2026, Speed Law).
+const HomeStreamVideo2029 = lazy(() => import("./HomeStreamVideo2029.jsx"));
 const ConvergenceRatings2029 = lazy(() => import("./ConvergenceRatings2029.jsx"));
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
@@ -20,7 +21,7 @@ import SeriesBell2029 from "./SeriesBell2029.jsx";
 import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost2029.jsx";
 import { NowPinnedMessage2029 } from "./NowRoyalCenter2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
-import { nowModels, buildNowEntries, nowPinnedMessage, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
+import { nowModels, buildNowEntries, nowPinnedMessage, REALITY_MAP_LATEST_KEY, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
 import { pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
 import { thumb } from "../../lib/img.js";
 import { HomeLeadImageGate2029, HOME_LEAD_IMAGE_CAP_MS } from "./homeLeadImageGate2029.js";
@@ -36,7 +37,7 @@ import PostCategories2029 from "./PostCategories2029.jsx";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 import SeriesLatestMark2029 from "./SeriesLatestMark2029.jsx";
-import OwnMarkBox2029 from "./OwnMark2029.jsx";
+import NowThumb2029 from "./NowThumb2029.jsx";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
@@ -291,18 +292,10 @@ function HomeOtherSeries({ state }) {
   </Section>;
 }
 
-// "עדכונים אחרונים" (ZURIEL, 6.11.2026): the first Home area, always live. It is a projection of the Frame's ONE shared stream
-// watcher (the same publications as "עכשיו"), newest first, with the type (an image from the reality stream shows as an image),
-// the source and the relative time ("לפני X" is the main-Home record-time rule). Unverified source messages are never shown here;
-// while the world is closed to the public only Posts appear. Anything the flagship region or the ciphers already show is left
-// out (one appearance per item). Nothing to show, or no feed: no card and no error text.
-// "עכשיו · המרכז" (ZURIEL 11.11.2026, approved design) extends this area: the pinned central message on top, one source picker ("הכול" by
-// default) and compact rows — still the SAME shared watcher and the same models as the "עכשיו" sheet (no reader, store or ranking of its own).
-// Unverified group rows stay out of Home unless the reader picks that group in the picker (then they show with their "טרם נבדק" label).
-// ZURIEL 17.11.2026 ("אני רוצה שיראה עכשיו אבל לא את כל הריבוע ... שהוא התעדכן מאותו מקום"): the Home shows a SHORT "עכשיו" (three rows, no
-// source picker, no excerpts) from the same shared feed and the same models as the "עכשיו" sheet; the whole picture stays one tap away.
+// Home takes the first three entries from the shared Now default view after removing the
+// separately presented Reality Map series and central pin. The existing public access gate still applies.
 const HOME_UPDATES_LIMIT = 3;
-function useHomeUpdates(feed, { exclude, postsOnly }) {
+function useHomeUpdates(feed, { postsOnly, exclude }) {
   const loading = Boolean(feed?.loading || feed?.detailsPending);
   const all = useMemo(() => {
     const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
@@ -311,11 +304,12 @@ function useHomeUpdates(feed, { exclude, postsOnly }) {
   const pinned = useMemo(() => nowPinnedMessage(all), [all]);
   // The newest מפת המציאות publication is the Home's pinned lead (HomePinnedLead below): the SAME model that leads "עכשיו", shown once.
   const lead = useMemo(() => all.find(model => model.seriesLatest) || null, [all]);
-  const pool = useMemo(() => all.filter(model => model.id !== pinned?.model.id && model.id !== lead?.id
-    && (!postsOnly || model.item?.sourceKind === "post") && !(model.href && exclude.has(model.href))), [all, pinned, lead, postsOnly, exclude]);
-  // Same grouping function as "עכשיו": every Or HaGeula "רב/הרב" update lives in ONE box that sits at its newest member (one entry here).
-  const models = useMemo(() => buildNowEntries(pool.filter(model => !model.unverified || model.pinned), { sourceRuns: false }).slice(0, HOME_UPDATES_LIMIT), [pool]);
-  return { loading, models, pinned, lead, total: pool.length };
+  const models = useMemo(() => {
+    const pool = all.filter(model => model.id !== pinned?.model.id && (!postsOnly || model.item?.sourceKind === "post")
+      && !(model.href && exclude?.has(model.href)));
+    return buildNowEntries(pool).filter(entry => entry.model?.seriesKey !== REALITY_MAP_LATEST_KEY).slice(0, HOME_UPDATES_LIMIT);
+  }, [all, pinned, postsOnly, exclude]);
+  return { loading, models, pinned, lead, see: feed?.see };
 }
 
 // The site-wide construction note (Design Contract V2: it describes the whole site), first on the Home (ZURIEL 17.11.2026: "לכתוב שם שהדף בבנייה").
@@ -371,6 +365,14 @@ function HomePinnedLead({ lead, catalogItems, pinned, onNavigateTo, settled = fa
   </section>;
 }
 
+function HomeNowThumb({ model }) {
+  const thumb = <NowThumb2029 model={model} className="h29-live-thumb">
+    <Media src={model.thumb} fallback={model.video ? "▶" : "◈"} className="h29-live-thumb" slot="compact" />
+  </NowThumb2029>;
+  return model.previewKind === "video" && (model.thumb || model.logo)
+    ? <span className="h29-live-video">{thumb}<i aria-hidden="true">▶</i></span> : thumb;
+}
+
 function HomeLiveUpdates({ updates, onOpenNow }) {
   const { loading, models } = updates;
   if (!loading && !models.length) return null;
@@ -382,25 +384,27 @@ function HomeLiveUpdates({ updates, onOpenNow }) {
         ? <li className="h29-live-item h29-skel" key={i}><span className="h29-live-status" role="status">טוען את העדכונים האחרונים…</span></li>
         : <li className="h29-live-item h29-skel" key={i} aria-hidden="true" />)
         : models.map((entry, index) => {
-          if (entry.kind === "box") {
+          if (entry.models) {
             const lead = entry.models[0];
+            const run = entry.kind === "run";
+            const at = entry.latest || lead.at;
             const body = <>
-              <Media src={lead.logo?.src || lead.thumb} fallback="✦" className="h29-live-thumb" slot="compact" />
+              {lead.logo ? <HomeNowThumb model={lead} /> : null}
               <span className="rc29-rt"><strong>{entry.models.some(model => model.row?.isNew) ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{lead.title}</strong>
-              <small className="h29-live-meta"><b>{entry.label}</b> · {entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}{entry.latest ? <> · <time dateTime={entry.latest}>{relativeTimeLabel(entry.latest)}</time></> : null}</small></span>
+              <small className="h29-live-meta"><b>{entry.label || entry.sourceName}</b>{run ? " · מקור · טרם נבדק" : ""} · {entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}{at ? <> · <time dateTime={at}>{relativeTimeLabel(at)}</time></> : null}</small></span>
             </>;
-            return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-tone="gold" data-home-update-item={entry.id} data-home-update-box="or-geula-rabbi" key={entry.id}>
+            return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-tone={run ? "ember" : "gold"} data-home-update-item={entry.id} data-home-group="true" data-home-update-box={run ? undefined : "or-geula-rabbi"} key={entry.id}>
               {onOpenNow ? <button type="button" className="h29-live-open r29-card" onClick={onOpenNow}>{body}</button> : <div className="r29-card">{body}</div>}
             </li>;
           }
           const model = entry.model;
           const body = <>
-            <OwnMarkBox2029 logo={model.thumb ? model.logo : null} size={44}><Media src={model.thumb} fallback="✦" className="h29-live-thumb" slot="compact" /></OwnMarkBox2029>
-            <span className="rc29-rt"><strong>{model.pinned ? <span className="r29-badge is-pinned rc29-new-badge" data-home-update-pinned="true">📌 נעוץ</span> : null}{model.row?.isNew ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : null}{model.title}</strong>
-              <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.seriesLatest ? <> · <SeriesLatestMark2029 model={model} /></> : null}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>
+            <HomeNowThumb model={model} />
+            <span className="rc29-rt"><strong>{model.pinned ? <span className="r29-badge is-pinned rc29-new-badge" data-home-update-pinned="true">📌 נעוץ</span> : null}{model.row?.isNew ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : model.updated ? <span className="r29-badge is-updated rc29-new-badge">עודכן</span> : null}{model.title}</strong>
+              <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline.length ? ` · ${model.byline.join(" · ")}` : ""}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>
           </>;
           return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-tone={model.tone} data-home-update-item={model.id} key={model.id}>
-            {model.href?.startsWith("/") ? <Link className="r29-card" to={model.href}>{body}</Link> : model.href ? <a className="r29-card" href={model.href}>{body}</a>
+            {model.href?.startsWith("/") ? <Link className="r29-card" to={model.href} onClick={() => updates.see?.(model.row)}>{body}</Link> : model.href ? <a className="r29-card" href={model.href} onClick={() => updates.see?.(model.row)}>{body}</a>
               : onOpenNow ? <button type="button" className="h29-live-open r29-card" onClick={onOpenNow} data-home-update-opens-now="true">{body}</button> : <div className="r29-card">{body}</div>}
           </li>;
         })}
@@ -510,12 +514,10 @@ export default function HomeComposition2029({
   const feed = useContext(SystemFeedContext2029);
   const midrashState = publicReadingPath("/beit-midrash", { isAdmin: adminViewer });
   const midrashOpen = !(midrashState === "closed" || midrashState === "missing");
-  // An item shown by the flagship region or the ciphers is not repeated in the live updates strip.
+  // The featured story keeps its dedicated card; it must not appear twice on Home.
   const updatesExclude = useMemo(() => new Set([
-    ...(seriesState.series.find(series => series.priorityLane === "primary")?.items || []).map(item => item.href),
-    ...(HOME_SECTIONS_2029.ciphers ? (data.ciphers || []).map(cipher => postHref(cipher.link_url)) : []),
     featured.post?.href,
-  ].filter(Boolean).map(String)), [seriesState.series, data.ciphers, featured.post]);
+  ].filter(Boolean)), [featured.post?.href]);
   const updates = useHomeUpdates(feed, { exclude: updatesExclude, postsOnly: corePublic && !worldOpen });
   const primaryItems = useMemo(() => seriesState.series.find(series => series.priorityLane === "primary")?.items || [], [seriesState.series]);
   const navigate = useNavigate();
@@ -523,7 +525,7 @@ export default function HomeComposition2029({
   const standaloneExclude = useMemo(() => new Set([
     ...data.posts.map(post => post.slug), ...(data.videos || []).map(video => video.slug),
     ...(HOME_SECTIONS_2029.ciphers ? (data.ciphers || []).map(cipher => postAddressSlug(cipher.link_url)) : []),
-    ...updates.models.map(model => model.href ? postAddressSlug(model.href) : null),
+    ...updates.models.flatMap(entry => (entry.models || [entry.model]).map(model => model.href ? postAddressSlug(model.href) : null)),
     featured.post?.slug,
   ].filter(Boolean).map(String)), [data.posts, data.videos, data.ciphers, updates.models, featured.post]);
   useEffect(() => { if (worldAdmitted) onWorldApproach?.(true); }, [worldAdmitted, onWorldApproach]);
@@ -548,7 +550,12 @@ export default function HomeComposition2029({
   }}>
     {/* ZURIEL 17.11.2026: the construction note, then the pinned מפת המציאות lead (our own content), then a short "עכשיו" from the same feed. */}
     <HomeBuildingNote />
-    <HomePinnedLead lead={updates.lead} catalogItems={primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />
+    <div className="h29-lead-pair">
+      <HomePinnedLead lead={updates.lead} catalogItems={primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />
+      <Suspense fallback={<div className="h29-stream-slot" aria-hidden="true" />}>
+        {leadImageDone ? <HomeStreamVideo2029 /> : <div className="h29-stream-slot" aria-hidden="true" />}
+      </Suspense>
+    </div>
     <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} />
 
     {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
