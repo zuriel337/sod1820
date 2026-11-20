@@ -26,6 +26,19 @@ export function sourceDocumentContinuation(path, search = "") {
   return rule ? rule.destination + (search ? (rule.destination.includes("?") ? "&" : "?") + search.replace(/^\?/, "") : "") : null;
 }
 
+// A collection address of the old site whose name no longer exists as a collection continues, in one permanent step, at the collection that
+// holds its posts today. Server side only (an arrival from outside is a document request), so no page pays for it.
+// "/category/שיעורי-שמע-סוד-החשמל" was the WordPress archive of the Sod HaChashmal lessons (Search Console knew it up to /page/11). Its posts
+// are the "סוד החשמל" collection now (125 public posts, 120 of them imported); the single page "/שיעורי-שמע-סוד-החשמל" is one post that lists
+// the lessons, a different document, so it is not the target.
+const RETIRED_COLLECTIONS = Object.freeze({ "/category/שיעורי-שמע-סוד-החשמל": "/category/סוד-החשמל" });
+export function retiredCollectionContinuation(path, search = "") {
+  let key;
+  try { key = decodeURIComponent(path).replace(/\/+$/, "").replace(/\/page\/\d{1,4}$/, ""); } catch { return null; }
+  const target = Object.hasOwn(RETIRED_COLLECTIONS, key) ? RETIRED_COLLECTIONS[key] : null;
+  return target && !search ? encodeURI(target) : null;
+}
+
 export function mergeProductionDocumentMetadata(document, metadata, { noindex = false } = {}) {
   let head = metadata.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1];
   if (!head) throw new Error("public_metadata_unavailable");
@@ -161,7 +174,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     }
     try {
       const search = originalDocument ? originalSearch : new URLSearchParams(Object.entries(query).filter(([key]) => key !== "path")).toString();
-      const continuation = sourceDocumentContinuation(path, search) || publicReadingContinuation(path, search);
+      const continuation = sourceDocumentContinuation(path, search) || publicReadingContinuation(path, search) || retiredCollectionContinuation(path, search);
       if (continuation) {
         const target = new URL(continuation, origin);
         res.setHeader("Location", target.pathname + target.search + target.hash);

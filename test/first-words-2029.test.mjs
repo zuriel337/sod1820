@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { retiredCollectionContinuation } from "../public-reading-deploy/api/public-document.js";
 import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES } from "../public-reading-deploy/first-words.js";
 
 // First words: a public page that is not a Post carries its own heading, statement and links in the document (ZURIEL 20.11.2026).
@@ -65,15 +66,20 @@ test("the calculators read picked phrases only from the one activity reader, nev
   assert.match(without, /<h1>מחשבון גימטריה חינם<\/h1>/);
   assert.match(without, /שאלות נפוצות/);
   assert.match(without, new RegExp(`href="/number/${encodeURIComponent("אור")}">אור</a> <span>= 207</span>`));
-  assert.doesNotMatch(without, /ביטויים נבחרים השבוע/);
+  assert.doesNotMatch(without, /ביטויים נבחרים/);
   const calls = [];
   const withPulse = firstWordsHtml2029(await firstWordsFacts2029("/gematria", { fetchImpl: source([[/gematria_words/, recent],
-    [/rpc\/research_pulse_2029/, { version: 1, phrases: [{ phrase: "משיח", value: 358, events: 9 }] }]], calls) }));
+    [/rpc\/research_pulse_2029/, { version: 1, hours: 168, phrases: [{ phrase: "משיח", value: 358, events: 9 }] }]], calls) }));
   assert.match(withPulse, /<h2>ביטויים נבחרים השבוע<\/h2><ul><li><a href="\/number\/[^"]+">משיח<\/a> <span>= 358<\/span>/);
   assert.ok(!calls.some(call => /gematria_wall|search_log|visitor_events/.test(call.path)), "no second statistics source");
   assert.doesNotMatch(withPulse, /חיפש|חיפוש/, "approved picked phrases are never presented as searches");
+  // Without the reader's own seven-day window the block names no period.
+  const noPeriod = firstWordsHtml2029(await firstWordsFacts2029("/gematria", { fetchImpl: source([[/gematria_words/, recent],
+    [/rpc\/research_pulse_2029/, { version: 1, hours: 24, phrases: [{ phrase: "משיח", value: 358, events: 9 }] }]]) }));
+  assert.match(noPeriod, /<h2>ביטויים נבחרים<\/h2>/);
+  assert.doesNotMatch(noPeriod, /השבוע/);
   const wrong = firstWordsHtml2029(await firstWordsFacts2029("/gematria", { fetchImpl: source([[/gematria_words/, recent], [/rpc\/research_pulse_2029/, { version: 2, phrases: [{ phrase: "x", value: 1 }] }]]) }));
-  assert.doesNotMatch(wrong, /ביטויים נבחרים השבוע/);
+  assert.doesNotMatch(wrong, /ביטויים נבחרים/);
 });
 
 test("words are escaped, bounded, and a failing source leaves no words", async () => {
@@ -97,4 +103,13 @@ test("the words enter the real opening shell once, after its status line, and no
   assert.equal(withFirstWords2029(out.html, fragment).html, out.html, "never twice");
   assert.deepEqual(withFirstWords2029(shell, ""), { html: shell, state: "none" });
   assert.equal(withFirstWords2029("<html></html>", fragment).state, "no-slot");
+});
+
+test("the retired lessons archive continues once at the collection that holds its posts; nothing else is redirected", () => {
+  const target = encodeURI("/category/סוד-החשמל");
+  for (const path of ["/category/שיעורי-שמע-סוד-החשמל", "/category/שיעורי-שמע-סוד-החשמל/", encodeURI("/category/שיעורי-שמע-סוד-החשמל"), "/category/שיעורי-שמע-סוד-החשמל/page/11"])
+    assert.equal(retiredCollectionContinuation(path), target, path);
+  for (const path of ["/category/סוד-החשמל", "/שיעורי-שמע-סוד-החשמל", "/category/שיעורי-שמע-סוד-החשמל/x", "/category/%E0%A4%A", "/category/toString"])
+    assert.equal(retiredCollectionContinuation(path), null, path);
+  assert.equal(retiredCollectionContinuation("/category/שיעורי-שמע-סוד-החשמל", "q=x"), null);
 });

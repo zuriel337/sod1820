@@ -90,7 +90,8 @@ async function calculatorFacts(read, kind) {
   ]);
   const picked = pulse?.version === 1 && Array.isArray(pulse.phrases)
     ? unique(pulse.phrases, "phrase").filter(row => Number.isSafeInteger(Number(row.value))).slice(0, 24) : [];
-  return { kind, recent: unique(recent, "phrase").slice(0, 30), picked };
+  // "this week" is stated only when the reader itself reports the seven-day window it measured; otherwise the block has no period.
+  return { kind, recent: unique(recent, "phrase").slice(0, 30), picked, pickedThisWeek: picked.length > 0 && pulse?.hours === 168 };
 }
 
 async function codesFacts(read) {
@@ -168,7 +169,7 @@ function body(facts) {
   }
   if (facts.kind === "gematria" || facts.kind === "community-calculator") {
     const community = facts.kind === "community-calculator";
-    const picked = links(facts.picked.map(row => ({ href: numberHref(row.phrase), label: text(row.phrase), note: `= ${Number(row.value)}` })), "ביטויים נבחרים השבוע");
+    const picked = links(facts.picked.map(row => ({ href: numberHref(row.phrase), label: text(row.phrase), note: `= ${Number(row.value)}` })), facts.pickedThisWeek ? "ביטויים נבחרים השבוע" : "ביטויים נבחרים");
     const recent = links(phraseLinks(facts.recent, true), "גימטריות מאומתות שנוספו לאחרונה");
     const explain = `<h2>${esc(COMMUNITY_CALCULATOR_EXPLAINER.heading)}</h2>` + COMMUNITY_CALCULATOR_EXPLAINER.paragraphs.map(paragraph => `<p>${esc(paragraph)}</p>`).join("");
     return community
