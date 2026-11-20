@@ -42,3 +42,9 @@ Return PASS / FAIL / UNKNOWN for each check with code path + evidence; identify 
 - The metadata worker now enforces a 32 kB **streaming** byte cap, 4.5-second timeout and JSON content-type. Verify edge compilation and oEmbed provider behavior rather than assuming success.
 - The Now reader admits poster URLs only from a strict provider CDN and only with trusted `*_oembed` provenance and title; no arbitrary external image hosts.
 - Release requires re-checking main divergence and all CI on the exact final SHA, which changes with any of these edits.
+
+## Provider coverage added after initial handoff
+- YouTube playlists are treated as collections: separate outbound source links, not single-video player embeds. The server oEmbed worker can request their verified title; real provider success remains unverified until an authorized staging run.
+- For vt.tiktok.com short links, the Edge worker performs at most one HEAD with manual redirect, accepts only an exact canonical TikTok /@handle/video/id destination, strips query tracking, then calls fixed TikTok oEmbed. If redirect does not yield the canonical form, it remains unresolved rather than guessing.
+- The Video Ingest CI now runs test/video-link-intake-2029-contract.test.mjs, including checks for bounded response reading and one-hop TikTok resolution.
+- Explicitly check playlist and short-TikTok behavior on provider test URLs during Claude audit; provider HTTP failures are not proof that intake itself failed.
