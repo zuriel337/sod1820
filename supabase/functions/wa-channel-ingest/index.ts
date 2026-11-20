@@ -361,7 +361,7 @@ async function ingestSource(
     const text = bodyText || (isVid ? "🎬 עדכון וידאו" : isAud ? "🎧 הקלטה" : "📷 עדכון");
     // Link-only messages are accepted as source text, then enriched asynchronously by the
     // existing wa-video-enrich cron. A URL is not itself a verified video title.
-    const publicVideoLink = /https:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?[^\s]*v=[A-Za-z0-9_-]{11}|youtube\.com\/shorts\/[A-Za-z0-9_-]{11}|youtu\.be\/[A-Za-z0-9_-]{11}|tiktok\.com\/@[A-Za-z0-9_.-]+\/video\/\d+|vt\.tiktok\.com\/[A-Za-z0-9]+)\b/i.test(bodyText);
+    const publicVideoLink = /https:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?[^\s]*v=[A-Za-z0-9_-]{11}|youtube\.com\/(?:shorts|live)\/[A-Za-z0-9_-]{11}|youtu\.be\/[A-Za-z0-9_-]{11}|(?:www\.)?vimeo\.com\/\d{1,12}|tiktok\.com\/@[A-Za-z0-9_.-]+\/video\/\d+|vt\.tiktok\.com\/[A-Za-z0-9]+)\b/i.test(bodyText);
     const needsLinkEnrichment = channelStatus(src.channel) === "live" && publicVideoLink;
 
     const isBotApi = outgoing && !!m.sendByApi;
