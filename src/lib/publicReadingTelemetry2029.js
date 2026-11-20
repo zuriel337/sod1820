@@ -10,6 +10,7 @@ export function readingTelemetryPath(value) {
     || /^\/2029\/(?:me|control|preview)(?:\/|$)/i.test(path)
     || /^\/community\/(?:researcher\/me|whatsapp)(?:\/|$)/i.test(path)) return null;
   if (path === "/2029") return "/";
+  if (path === "/היכל") return "/heichal";
   if (/^\/(?:2029\/)?(?:calculator|gematria)(?:\/viral)?$/.test(path)) return "/gematria";
   if (/^\/(?:2029\/)?posts?$/.test(path)) return "/post";
   // Legacy WordPress article permalinks used a top-level slug.

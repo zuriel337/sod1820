@@ -40,7 +40,7 @@
       "pass": 6
     },
     "node_contracts": {
-      "pass": 62,
+      "pass": 63,
       "fail": 0,
       "evidence": "CI reruns exact committed tree"
     },
@@ -133,15 +133,18 @@
     "artifact_and_visit_once": {
       "pass": 7
     },
-    "runtime_audit": "runtime-audit.json"
+    "runtime_audit": "runtime-audit.json",
+    "def005_retired_wall_abi": {
+      "pass": 5
+    }
   },
   "budgets_vs_main": {
     "same_lockfile_same_environment": true,
     "main_sha": "7e7cc4b34ffefb75a8d931589afbd4871d8fe2c6",
     "eager_gzip": {
       "main": 203104,
-      "branch": 203147,
-      "delta": 43
+      "branch": 203158,
+      "delta": 54
     },
     "frame_gzip": {
       "main": 47120,
