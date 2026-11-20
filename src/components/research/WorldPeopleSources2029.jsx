@@ -241,11 +241,12 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   useEffect(() => {
     const key = `${source}:${focusedSourceRef || ""}`;
     if (!focusedSourceRef) { appliedFocus.current = null; return; }
+    if (source === "tzvi-opoc" && (selectedMaterial.loading || selectedMaterial.data?.researchLoading || selectedMaterial.data?.publicationsLoading)) return;
     if (!materialWindow.focusedItem || !focusedCard.current || appliedFocus.current === key) return;
     focusedCard.current.focus({ preventScroll: true });
     focusedCard.current.scrollIntoView({ block: "center", behavior: "auto" });
     appliedFocus.current = key;
-  }, [source, focusedSourceRef, materialWindow.focusedItem]);
+  }, [source, focusedSourceRef, materialWindow.focusedItem, selectedMaterial.loading, selectedMaterial.data?.researchLoading, selectedMaterial.data?.publicationsLoading]);
 
   return <div className="sod29-world-people-sources" id="world-source-selection">
     {passageId ? <SignedChannelPassage2029 id={passageId} /> : null}
@@ -328,8 +329,9 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             <div><span>{row.label || materialLabel(row.type)}</span>{row.date ? <time dateTime={row.date}>{materialDatePrefix(row)}{bilingualDateLabel(row.date)}</time> : <time>אין נתון</time>}</div>
             {row.mediaUrl ? row.mediaKind === "video"
               ? <video controls playsInline preload="none" src={row.mediaUrl} poster={row.posterUrl || undefined}
-                  aria-label={row.title} style={{ width: "100%", maxHeight: 480, display: "block" }} />
-              : <img loading="lazy" src={row.mediaUrl} alt="" /> : null}
+                  aria-label={row.title} style={{ width: "100%", aspectRatio: "4 / 3", objectFit: "contain", display: "block" }} />
+              : <img loading="lazy" src={row.mediaUrl} alt="" style={selected.slug === "tzvi-opoc"
+                  ? { width: "100%", aspectRatio: "4 / 3", objectFit: "contain", display: "block" } : undefined} /> : null}
             <h3>{row.title}</h3>
             {row.summary ? <p>{row.summary}</p> : null}
             {row.number != null ? <strong className="sod29-world-material-number">{row.number}</strong> : null}
