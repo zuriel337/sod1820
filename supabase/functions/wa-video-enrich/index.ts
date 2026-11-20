@@ -556,7 +556,20 @@ async function providerLinkMetadata(link: { provider: string; url: string }) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 4500);
   try {
-    const response = await fetch(endpoint + encodeURIComponent(link.url), { redirect: "error", signal: ctl.signal, headers: { Accept: "application/json" } });
+    let canonical = link.url;
+    // Short TikTok shares are not guaranteed to work in oEmbed. Resolve at most
+    // one redirect, to one exact canonical TikTok video path, without following it.
+    if (link.provider === "tiktok" && /^https:\/\/vt\.tiktok\.com\//.test(link.url)) {
+      const short = await fetch(link.url, { method: "HEAD", redirect: "manual", signal: ctl.signal });
+      const location = short.headers.get("location");
+      if (![301, 302, 303, 307, 308].includes(short.status) || !location) return null;
+      const dest = new URL(location, link.url);
+      if (dest.protocol !== "https:" || dest.username || dest.password || dest.port
+        || !["tiktok.com", "www.tiktok.com", "m.tiktok.com"].includes(dest.hostname.toLowerCase())
+        || !/^\/@[A-Za-z0-9_.-]+\/video\/\d{5,25}\/?$/.test(dest.pathname)) return null;
+      canonical = "https://www.tiktok.com" + dest.pathname;
+    }
+    const response = await fetch(endpoint + encodeURIComponent(canonical), { redirect: "error", signal: ctl.signal, headers: { Accept: "application/json" } });
     if (!response.ok || !/application\/json/i.test(response.headers.get("content-type") || "")
       || Number(response.headers.get("content-length") || 0) > 32000 || !response.body) return null;
     // Enforce the response-size limit while reading, even when Content-Length is absent/false.
