@@ -18,13 +18,17 @@ pass=0; check() { if [ "$1" = "$2" ]; then pass=$((pass+1)); echo "PASS $3"; els
 Q -c "create role anon; create role authenticated; create role service_role; create table public.crawl_daily(day date); create table public.research_contributions(id int); create table public.traffic_history(id int); create table public.search_log(id int);"
 { echo "set check_function_bodies=off;"; cat "$D/fn_ti_activity_pulse2029.before.sql"; echo ";"; echo "revoke all on function public.fn_ti_activity_pulse2029(integer) from public,anon,authenticated;"
   echo "create function public.research_pulse_2029(p_hours integer default 24) returns jsonb language sql security definer as 'select public.fn_ti_activity_pulse2029(p_hours)';"
-  echo "revoke all on function public.research_pulse_2029(integer) from public; grant execute on function public.research_pulse_2029(integer) to anon,authenticated;"; } | Q >/dev/null
+  echo "revoke all on function public.research_pulse_2029(integer) from public; grant execute on function public.research_pulse_2029(integer) to anon,authenticated;"
+  cat "$D/fn_raziel_research_intel.before.sql"; echo ";"
+  echo "revoke all on function public.fn_raziel_research_intel(integer,text,integer) from public,anon,authenticated;"; } | Q >/dev/null
 check "$(Q -c "select md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure))")" 478b49a442419f2fd5528fa480f835cb 'the live preimage loads byte-exact'
 runp() { { echo "set check_function_bodies=off;"; sed "s#\\\\ir #\\\\ir $D/#" "$D/$1"; } | Q >/dev/null; }
 runp apply.psql
 check "$(Q -c "select pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure) like '%ti_activity_pulse2029:v2:%'")" t 'apply installs the v2 producer'
+check "$(Q -c "select pg_get_functiondef('public.fn_raziel_research_intel(integer,text,integer)'::regprocedure) !~ 'Asia/Jerusalem'")" t 'apply installs the Raziel window with one date convention'
 check "$(Q -c "select not has_function_privilege('anon','public.fn_ti_activity_pulse2029(integer)','execute') and has_function_privilege('anon','public.research_pulse_2029(integer)','execute')")" t 'grants unchanged: producer server-only, wrapper public'
 if runp apply.psql 2>/dev/null; then check applied refused 'drift'; else check refused refused 'a second apply stops at the md5 preimage gate'; fi
 runp rollback.psql
 check "$(Q -c "select md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure))")" 478b49a442419f2fd5528fa480f835cb 'rollback restores the exact preimage'
+check "$(Q -c "select md5(pg_get_functiondef('public.fn_raziel_research_intel(integer,text,integer)'::regprocedure))")" c054fb8d9808a77959ed6b481ce5cfbc 'rollback restores the exact Raziel preimage'
 echo "STATISTICS SECTIONS REAL POSTGRES ${pass} checks PASS ($("$PG_BIN/postgres" --version); isolated)"

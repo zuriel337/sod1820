@@ -9,6 +9,7 @@ const cache = new Map();
 export function readResearchPulse(hours) {
   if (!cache.has(hours)) {
     cache.set(hours, supabase.rpc("research_pulse_2029", { p_hours: hours }).then(({ data, error }) => {
+      // PGRST202/404 (reader not applied yet) or 42501: the caller shows "unavailable", never an old-wall fallback.
       if (error) throw error;
       return data;
     }).catch(error => { cache.delete(hours); throw error; }));

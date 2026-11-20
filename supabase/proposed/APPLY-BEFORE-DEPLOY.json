@@ -47,7 +47,7 @@
       "rollback_sql": "supabase/proposed/sitewide-statistics-20261120/rollback.psql",
       "apply_entrypoint": "supabase/proposed/sitewide-statistics-20261120/apply.psql",
       "callers": [
-        "src/components/experience2029/ActivityPulse2029.jsx",
+        "src/lib/researchPulse2029.js",
         "src/lib/supabaseApi2029.js"
       ],
       "introduced_by": "Issue #1456 sitewide statistics proposal (2026-11-20)",
