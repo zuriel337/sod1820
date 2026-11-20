@@ -41,3 +41,14 @@ test("duplicate target IDs are fetched once and request count is bounded", async
   await waRecoverMissingGroupMessages({ ...options, targetIds: Array.from({ length: 60 }, (_, i) => `id${i}`), fetchMessage: async () => { calls++; return { http_status: 404 }; } });
   assert.equal(calls, 50);
 });
+test("recovery receipts distinguish absence from rejected envelopes without provider bodies", async () => {
+  const notes = [];
+  for (const response of [{ http_status: 400, result: { error: "private provider detail" } }, { http_status: 200, result: { ...envelope, isEdited: true } }, { http_status: 200, result: envelope }]) {
+    await waRecoverMissingGroupMessages({ ...options, fetchMessage: async () => response, note: value => notes.push(value) });
+  }
+  assert.deepEqual(notes, [
+    { msgId: "old", outcome: "provider_unavailable", httpStatus: 400 },
+    { msgId: "old", outcome: "envelope_rejected" },
+    { msgId: "old", outcome: "exact_envelope_recovered" },
+  ]);
+});

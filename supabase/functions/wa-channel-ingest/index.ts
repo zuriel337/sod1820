@@ -228,6 +228,7 @@ async function ingestSource(
   const msgs = await waRecoverMissingGroupMessages({
     rows: history.rows, chatId, targetIds, verifiedRecovery,
     fetchMessage: (payload: { chatId: string; idMessage: string }) => waAdmin("getMessage", payload, "POST"),
+    note: (result: { msgId: string; outcome: string; httpStatus?: number | null }) => trace.push({ step: "targeted-history-message", ...result }),
   });
   const ordered = [...msgs].sort((a, b) => Number(a?.timestamp || 0) - Number(b?.timestamp || 0));
   const gapRows = targeted
