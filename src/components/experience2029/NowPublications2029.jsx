@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ExternalVideoFacade2029 from "./ExternalVideoFacade2029.jsx";
 import { GroupMessageText } from "../research/GroupSourceMeta2029.jsx";
-import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
+import { externalVideoLinksFromText, externalTikTokLinksFromText } from "../../lib/community/messageLinks.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowBySource, filterNowModels, nowLensCounts, nowModels, nowPinnedMessage, nowTodayBand, nowSecondaryChoices, nowSeriesHref, nowSourceChoices } from "../../lib/nowPublications2029.js";
 import { NowPinnedMessage2029, NowSourceEmpty2029, NowSourcePicker2029 } from "./NowRoyalCenter2029.jsx";
@@ -129,6 +129,8 @@ function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
     {/* Or HaGeula is text only (ZURIEL 19.11.2026): no video card or poster; its link stays in the words above. */}
     {model.textOnly ? null : externalVideoLinksFromText(model.fullText || model.title).map(link =>
       <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.unverified ? `מקור · טרם נבדק · ${model.sourceName}` : model.sourceName ? `מתוך ${model.sourceName}` : ""} />)}
+    {externalTikTokLinksFromText(model.fullText || model.title).map(link =>
+      <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer" className="sod29-action" aria-label="צפייה בסרטון המקורי ב־TikTok">צפייה בסרטון ב־TikTok</a>)}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
     {model.unverified ? <small className="is-unverified">מקור · טרם נבדק. זו הודעת מקור כפי שנשמרה ולא ממצא מאומת.</small> : null}
     <div className="sod29-nowpub-actions">
