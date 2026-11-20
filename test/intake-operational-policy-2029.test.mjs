@@ -76,6 +76,31 @@ test("L1 AI candidate requires verified incident, repeated failure, public scope
     { serverEvidenceVerified: false })).action, INTAKE_ACTION.FREE);
 });
 
+test("new sources touching active research need independently proven novelty and active match", () => {
+  const kind = "new_source_intersects_active_research";
+  assert.equal(classifyOperationalIntakeEvent(verified(kind)).action, INTAKE_ACTION.FREE);
+  assert.equal(classifyOperationalIntakeEvent(verified(kind, { activeResearchMatchVerified: true })).action, INTAKE_ACTION.FREE);
+  const approvedCandidate = classifyOperationalIntakeEvent(verified(kind, {
+    activeResearchMatchVerified: true, sourceNoveltyVerified: true,
+  }));
+  assert.equal(approvedCandidate.action, INTAKE_ACTION.L1_CANDIDATE);
+  assert.equal(approvedCandidate.providerCallAuthorized, false);
+});
+
+test("verified canonical discrepancies and repeated runtime failures may be L1 candidates only", () => {
+  assert.equal(classifyOperationalIntakeEvent(verified("verified_canonical_discrepancy")).action, INTAKE_ACTION.FREE);
+  assert.equal(classifyOperationalIntakeEvent(verified("verified_canonical_discrepancy", {
+    canonicalDiscrepancyVerified: true,
+  })).action, INTAKE_ACTION.L1_CANDIDATE);
+  const runtime = "op_trace:10000000-0000-4000-8000-000000000001";
+  assert.equal(classifyOperationalIntakeEvent(verified("repeated_runtime_failure", {
+    sourceRef: runtime, consecutiveFailures: 1,
+  })).action, INTAKE_ACTION.FREE);
+  assert.equal(classifyOperationalIntakeEvent(verified("repeated_runtime_failure", {
+    sourceRef: runtime,
+  })).action, INTAKE_ACTION.L1_CANDIDATE);
+});
+
 test("unsafe/private/unhashed incidents cannot use a standing operational grant", () => {
   for (const overrides of [
     { sourceAccess: "private" }, { sourceAccess: "personal" },
