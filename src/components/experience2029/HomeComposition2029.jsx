@@ -13,6 +13,7 @@ import { stripHtml } from "../../lib/format.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 // The notable convergences sit far below the opening screen: their rating marks load with them (ZURIEL 17.11.2026, Speed Law).
+const HomeStreamVideo2029 = lazy(() => import("./HomeStreamVideo2029.jsx"));
 const ConvergenceRatings2029 = lazy(() => import("./ConvergenceRatings2029.jsx"));
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
@@ -548,7 +549,12 @@ export default function HomeComposition2029({
   }}>
     {/* ZURIEL 17.11.2026: the construction note, then the pinned מפת המציאות lead (our own content), then a short "עכשיו" from the same feed. */}
     <HomeBuildingNote />
-    <HomePinnedLead lead={updates.lead} catalogItems={primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />
+    <div className="h29-lead-pair">
+      <HomePinnedLead lead={updates.lead} catalogItems={primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />
+      <Suspense fallback={<div className="h29-stream-slot" aria-hidden="true" />}>
+        {leadImageDone ? <HomeStreamVideo2029 /> : <div className="h29-stream-slot" aria-hidden="true" />}
+      </Suspense>
+    </div>
     <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} />
 
     {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}

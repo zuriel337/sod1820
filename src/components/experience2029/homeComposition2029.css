@@ -617,3 +617,12 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
 .h29-stream:has(> .h29-stream-pending) { min-height: var(--h29-stream-reserve); box-sizing: border-box; }
 .h29-strip-row:empty { min-height: 139px; box-sizing: border-box; }
 .h29 .sod29-flight-story.is-loading > p { margin: 0; }
+
+.h29-lead-pair { display: grid; gap: 14px; }
+.h29-lead-pair > .h29-pinlead { margin: 0; min-inline-size: 0; }
+.h29-lead-pair > [hidden] { display: none; }
+.h29-stream-slot, .h29-stream-video { min-block-size: 150px; }
+@container h29 (min-width: 820px) {
+  .h29-lead-pair:has(> .h29-pinlead:not([hidden]) + *) { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); }
+  .h29-stream-slot, .h29-stream-video { min-block-size: 242px; }
+}
