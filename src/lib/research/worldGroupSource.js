@@ -179,7 +179,9 @@ export function groupRowToWorldUpdate(row) {
     kind: "source",
     sourceKind: "group_message",
     sourceLabel: "הודעה מקבוצת מקור",
-    label: body ? (body.length > 140 ? `${body.slice(0, 140)}…` : body) : (media?.kind === "video" ? "סרטון מהקבוצה" : "תמונה מהקבוצה"),
+    // A media type or a bare link is not a content title. Keep the source visible for later metadata enrichment.
+    label: body && !/^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body) ? (body.length > 140 ? `${body.slice(0, 140)}…` : body) : "כותרת בהשלמה",
+    titleNeedsEnrichment: !body || /^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body),
     fullText: body,
     sourceGroup: group,
     sourceGroupLabel: group.label,
