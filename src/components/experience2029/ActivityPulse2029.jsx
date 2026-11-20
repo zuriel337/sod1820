@@ -46,7 +46,7 @@ export default function ActivityPulse2029({ reader = readPulse }) {
   </section>;
 }
 async function readPulse(hours) {
-  const { data, error } = await supabase.rpc('fn_ti_public_activity2029', { p_hours: hours });
+  const { data, error } = await supabase.rpc('research_pulse_2029', { p_hours: hours });
   // PGRST202/404 before the approved SQL rollout is unavailable, never an old-wall fallback.
   if (error) throw error;
   return data;

@@ -2,7 +2,8 @@
 -- Do NOT restore the unsafe legacy recent_number_opens/add_wall_word implementations.
 \set ON_ERROR_STOP on
 begin;
+\ir fn_human_entrances.before.sql
 \ir ingest_event.before.sql
 \ir admin_2029_analytics.before.sql
-revoke execute on function public.fn_ti_public_activity2029(integer) from public,anon,authenticated;
+revoke execute on function public.research_pulse_2029(integer) from public,anon,authenticated;
 commit;

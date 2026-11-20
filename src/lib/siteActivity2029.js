@@ -3,6 +3,10 @@ import { captureMeasurement, measurementBody, sendMeasurement } from './measurem
 import { isBot } from './botVerdict.js';
 import { isAnon } from './privacy.js';
 
+// Sections a component may state explicitly; anything else is attributed by the measured page path.
+// Same list as admin_2029_analytics (site_activity.sections). Content-free tokens only.
+export const SECTIONS = new Set(['now','personal','raziel','calculator','calculator_advanced','calculator_community','site_search']);
+
 export function startSiteActivity(action, { method, value, wordId, section, expectedUserId, expectedPath } = {}) {
   if (isBot() || isAnon()) return () => false;
   const context = captureMeasurement() || (section === 'personal' ? captureMeasurement('/personal') : null);
@@ -10,7 +14,7 @@ export function startSiteActivity(action, { method, value, wordId, section, expe
   if (!context || !id || expectedUserId !== undefined && context.auth.userId !== expectedUserId
     || expectedPath !== undefined && globalThis.location?.pathname !== expectedPath) return () => false;
   const props = { action_version: 1, operation_id: id };
-  if (['now','personal','raziel','calculator','calculator_advanced'].includes(section)) props.section = section;
+  if (SECTIONS.has(section)) props.section = section;
   if (typeof method === 'string' && /^[a-z0-9_:-]{1,48}$/i.test(method)) props.method = method.toLowerCase();
   if (Number.isSafeInteger(value) && value > 0 && value <= 99999) props.number = value;
   if (typeof wordId === 'string' && /^[0-9a-f-]{36}$/i.test(wordId)) props.word_id = wordId;

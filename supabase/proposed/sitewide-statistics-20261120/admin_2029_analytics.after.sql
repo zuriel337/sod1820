@@ -506,7 +506,7 @@ begin
       e.props->>'_measurement_account' as account_id,
       case when e.surface='journey_2029' then 'journey' when e.surface='els' then 'els'
         when e.surface='calculator_2029' and e.props->>'surface'='professional' then 'calculator_advanced'
-        when e.surface='activity_2029' and e.props->>'section' in ('now','personal','raziel','calculator','calculator_advanced') then e.props->>'section' else public.fn_ti_surface2029(e.props->'measurement'->>'page_path') end as section
+        when e.surface='activity_2029' and e.props->>'section' in ('now','personal','raziel','calculator','calculator_advanced','calculator_community','site_search') then e.props->>'section' else public.fn_ti_surface2029(e.props->'measurement'->>'page_path') end as section
     from public.events e where e.ts>=v_from and e.ts<v_to
       and e.props->'_measurement_verified'='2'::jsonb
       and (p_path_prefix is null or e.path=p_path_prefix or e.path like rtrim(p_path_prefix,'/')||'/%')
@@ -567,7 +567,7 @@ begin
       select g.phrase,g.ragil as value,count(*) as selections from measured m
       join public.gematria_words g on g.id::text=m.props->>'word_id'
       where m.surface='activity_2029' and m.event_type='select'
-        and g.public_trend_approved and public.fn_ti_public_word_eligible(g.id)
+        and g.public_trend_approved and public.gematria_public_word_eligible(g.id)
       group by g.id,g.phrase,g.ragil order by selections desc,g.phrase limit 20)x),'[]'::jsonb),
     'publications',jsonb_build_object('public_ciphers',(select count(*) from public.els_records
       where status='published' and visibility='public' and not coalesce(home_hidden,false)),

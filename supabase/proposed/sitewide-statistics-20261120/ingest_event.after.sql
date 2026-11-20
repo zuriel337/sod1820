@@ -93,7 +93,7 @@ begin
       if (public.edge_rate_limit_check(
         encode(sha256(convert_to('activity2029:' || (current_setting('request.headers',true)::jsonb->>'cf-connecting-ip'),'UTF8')),'hex'),60,60)->>'allowed')::boolean is distinct from true then return; end if;
       if v_props ? 'word_id' and not exists(select 1 from public.gematria_words g
-        where g.id::text=v_props->>'word_id' and public.fn_ti_public_word_eligible(g.id) and g.public_trend_approved) then
+        where g.id::text=v_props->>'word_id' and public.gematria_public_word_eligible(g.id) and g.public_trend_approved) then
         v_props := v_props - 'word_id';
       end if;
     end if;

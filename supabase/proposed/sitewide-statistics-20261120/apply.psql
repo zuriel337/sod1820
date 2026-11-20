@@ -3,6 +3,8 @@
 begin;
 \ir preflight.sql
 \ir extensions.sql
+-- TI root fix: v2 landing identity (entity demand, Metatron, Raziel read it).
+\ir fn_human_entrances.after.sql
 \ir ingest_event.after.sql
 \ir admin_2029_analytics.after.sql
 commit;

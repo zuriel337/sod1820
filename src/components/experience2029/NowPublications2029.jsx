@@ -245,7 +245,8 @@ function WideDetail({ model, onOpen, feed, timeMode, autoPlay, onSource }) {
 }
 
 export default function NowPublications2029({ feed, onOpen, timeMode, compact = false }) {
-  useSiteActivityView2029('now', !compact);
+  // The compact pane mounts only when the reader opens the "עכשיו" panel: that open is the domain view (one per mount).
+  useSiteActivityView2029('now');
   // ZURIEL 11.11.2026 (approved design): the source picker is the primary control ("הכול" by default); lens, series and media move to "מסננים נוספים".
   const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [sourceKey, setSourceKey] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);

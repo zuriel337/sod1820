@@ -1,12 +1,12 @@
 -- PROPOSAL ONLY (#1461 acceptance review, 20.11.2026). Not wired into apply.psql.
--- Order: run only AFTER apply.psql (needs public.fn_ti_public_word_eligible).
+-- Order: run only AFTER apply.psql (needs public.gematria_public_word_eligible).
 -- Requires an explicit ZURIEL approval for this exact file/SHA (CLAUDE.md 0.4).
 -- Closes anon/authenticated access to legacy SECURITY DEFINER readers that return
 -- hidden phrases or per-number search statistics below any privacy floor.
 \set ON_ERROR_STOP on
 begin;
 do $$ begin
- if to_regprocedure('public.fn_ti_public_word_eligible(uuid)') is null then raise exception 'apply.psql must run first'; end if;
+ if to_regprocedure('public.gematria_public_word_eligible(uuid)') is null then raise exception 'apply.psql must run first'; end if;
  if md5(pg_get_functiondef('public.fn_raziel_research_intel(integer,text,integer)'::regprocedure)) <> '1b6215ef43e1c794caaca2195c5aa235' then raise exception 'preimage drift: fn_raziel_research_intel'; end if;
  if md5(pg_get_functiondef('public.number_cross_resonance(text,jsonb,integer)'::regprocedure)) <> '10e65227bef491d351cadaa68a28b86c' then raise exception 'preimage drift: number_cross_resonance'; end if;
  if md5(pg_get_functiondef('public.fn_name_research(text)'::regprocedure)) <> 'd2202e7f66cd26f99e6acec0a2b0f7a6' then raise exception 'preimage drift: fn_name_research'; end if;
@@ -15,8 +15,10 @@ do $$ begin
 end $$;
 -- Still used by the 2029 client (supabaseApi2029.js number_cross_resonance): filter, keep grants.
 \ir number_cross_resonance.after.sql
--- Re-exposed to anon through fn_raziel_research_intel_scoped (always returns v_public):
--- the floor must live in the base reader; direct calls become server-only.
+-- Raziel demand moves from frozen visitor_events/search_log to Traffic Intelligence over
+-- events (fn_ti_entity_demand_clean_composition; needs apply.psql's fn_human_entrances fix).
+-- It is re-exposed through fn_raziel_research_intel_scoped (unchanged; its permission
+-- contract stays), so the privacy floor lives in the base reader; direct calls are server-only.
 \ir fn_raziel_research_intel.after.sql
 revoke execute on function public.fn_raziel_research_intel(integer,text,integer) from public,anon,authenticated;
 grant execute on function public.fn_raziel_research_intel(integer,text,integer) to service_role;
@@ -29,4 +31,13 @@ revoke execute on function public.fn_name_research(text) from public,anon,authen
 revoke execute on function public.reality_scan(integer,integer) from public,anon,authenticated;
 revoke execute on function public.fn_name_research_stats(integer) from public,anon,authenticated;
 grant execute on function public.fn_name_research(text),public.reality_scan(integer,integer),public.fn_name_research_stats(integer) to service_role;
+-- Retired legacy RPCs (#1461 retirement matrix): zero callers in branch, origin/main and the
+-- live Production build (bacecaa), in Edge Functions, SQL (pg_proc) and pg_cron (20.11.2026).
+-- They read frozen sources (visitor_events/search_log) or publish audience size (TI v10).
+-- save_wall_word_private is the last open writer to gematria_wall. Server-only; nothing dropped.
+revoke execute on function public.journey_pulse(),public.activity_pulse(),public.site_pulse_today(),
+  public.live_stats(),public.admin_research_map(integer),public.save_wall_word_private(text,integer)
+  from public,anon,authenticated;
+grant execute on function public.journey_pulse(),public.activity_pulse(),public.site_pulse_today(),
+  public.live_stats(),public.admin_research_map(integer),public.save_wall_word_private(text,integer) to service_role;
 commit;

@@ -6,8 +6,8 @@
 -- Clients: old and new 2029 builds already swallow read/insert errors on search_log.
 \set ON_ERROR_STOP on
 begin;
-create policy ti_search_admin_only on public.search_log as restrictive for select to anon,authenticated
-using (public.rd_is_admin());
+create policy ti_search_history_server_only on public.search_log as restrictive for select to anon,authenticated
+using (false);
 create policy ti_search_no_new_raw on public.search_log as restrictive for insert to anon,authenticated
 with check (false);
 commit;

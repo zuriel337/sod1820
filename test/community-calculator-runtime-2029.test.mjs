@@ -16,10 +16,11 @@ const fixtures = {
   "themeMode.js": "export const setForcedMode=(...args)=>globalThis.__communityCalc.effects.push(['theme',...args]);",
   "engine.js": "import {METHODS} from './src/lib/gematria.js';export const resolve=name=>({value:METHODS[0].fn(name)});",
   "supabase.js": `export const getAllValuePhrases=async value=>{globalThis.__communityCalc.reads.push(value);return [{phrase:'רז',is_verified:true}];};
-    export const supabase={rpc:async(name,args)=>{if(name!=='fn_ti_public_activity2029'||args.p_hours!==24)throw Error('unexpected pulse read');globalThis.__communityCalc.pulseReads.push(name);return {data:{version:1,state:'empty',numbers:[],phrases:[],activity:[]},error:null};}};
+    export const supabase={rpc:async(name,args)=>{if(name!=='research_pulse_2029'||args.p_hours!==24)throw Error('unexpected pulse read');globalThis.__communityCalc.pulseReads.push(name);return {data:{version:1,state:'empty',numbers:[],phrases:[],activity:[]},error:null};}};
     export const addWallWord=(...args)=>globalThis.__communityCalc.effects.push(['wall',...args]);
     export const getAiAnalysis=async(...args)=>{globalThis.__communityCalc.effects.push(['ai',...args]);return 'AI';};`,
   "gematriaMethodRegistry.js": "export const fetchGematriaMethodStates=async()=>null;export const indexGematriaMethodStates=()=>null;",
+  "siteActivity2029.js": "export const recordSiteActivity=(...args)=>globalThis.__communityCalc.activity.push(args);",
   "tracking.js": "export const track=(...args)=>globalThis.__communityCalc.effects.push(['track',...args]);",
   "numberMessage.js": "export const buildMessages=()=>[];",
   "seo.js": "export const SITE_URL='https://sod1820.co.il';export const applySeo=options=>globalThis.__communityCalc.seo.push(options);",
@@ -36,7 +37,7 @@ await build({ entryPoints: ["src/pages/CommunityCalculator2029Page.jsx"], bundle
   external: ["react"], define: { __SOD_2029_BUILD__: "true", "import.meta.env": JSON.stringify({ VITE_PUBLIC_READING_RELEASE: "public-reading-20261101" }) },
   plugins: [{ name: "community-calculator-boundaries", setup(builder) {
     builder.onResolve({ filter: /^react-router-dom$/ }, () => ({ path: "router", namespace: "fixture" }));
-    builder.onResolve({ filter: /\/(palette\.js|themeMode\.js|engine\.js|supabase\.js|supabaseApi2029\.js|gematriaMethodRegistry\.js|tracking\.js|numberMessage\.js|seo\.js|AuthContext\.jsx|ResearchProvider\.jsx|Sod2029Shell\.jsx|NavigationIcon2029\.jsx|ShareActions\.jsx|VisitorSearchesBox\.jsx|NameMultiSearch\.jsx)$/ }, // the database boundary is one fixture whether the page reads the shared core or the API file (shell weight 1/8)
+    builder.onResolve({ filter: /\/(palette\.js|themeMode\.js|engine\.js|siteActivity2029\.js|supabase\.js|supabaseApi2029\.js|gematriaMethodRegistry\.js|tracking\.js|numberMessage\.js|seo\.js|AuthContext\.jsx|ResearchProvider\.jsx|Sod2029Shell\.jsx|NavigationIcon2029\.jsx|ShareActions\.jsx|VisitorSearchesBox\.jsx|NameMultiSearch\.jsx)$/ }, // the database boundary is one fixture whether the page reads the shared core or the API file (shell weight 1/8)
     args => ({ path: args.path.split("/").at(-1).replace("supabaseApi2029.js", "supabase.js"), namespace: "fixture" }));
     builder.onResolve({ filter: /\.css$/ }, args => ({ path: args.path, namespace: "css-fixture" }));
     builder.onLoad({ filter: /.*/, namespace: "fixture" }, args => ({ contents: fixtures[args.path], loader: "js", resolveDir: process.cwd() }));
@@ -48,7 +49,7 @@ after(async () => { await rm(outfile, { force: true }); delete globalThis.__comm
 
 function fixture(search) {
   const browserSearch = new URL(`https://preview.example/community/calculator${search}`).search;
-  const value = { location: { pathname: "/community/calculator", search: browserSearch, hash: "#result", key: "arrival" }, effects: [], reads: [], pulseReads: [], contexts: [], replacements: [], seo: [] };
+  const value = { location: { pathname: "/community/calculator", search: browserSearch, hash: "#result", key: "arrival" }, effects: [], activity: [], reads: [], pulseReads: [], contexts: [], replacements: [], seo: [] };
   globalThis.__communityCalc = value;
   globalThis.window = { location: { origin: "https://preview.example" }, history: { state: { key: "arrival" }, replaceState: (_state, _title, url) => value.replacements.push(url) } };
   return value;
@@ -66,6 +67,7 @@ test("public calculator mount and typing calculate immediately without wall, AI,
   assert.ok(state.reads.length > 0);
   assert.ok(state.pulseReads.length > 0, "the activity strip only reads the approved aggregate RPC");
   assert.deepEqual(state.effects, []);
+  assert.deepEqual(state.activity, [], "a shared-link arrival is not a new computation");
   assert.match(output(root), /ניתוח AI ושמירה אינם זמינים/);
   const numberLink = root.root.findAllByType("a").find(link => link.props.href.includes("/number/643?") && new URL(link.props.href, "https://sod1820.co.il").searchParams.get("focus") === "אור");
   await act(async () => { numberLink.props.onClick({ button: 0 }); });
@@ -79,6 +81,7 @@ test("public calculator mount and typing calculate immediately without wall, AI,
   assert.equal(updated.searchParams.get("method"), "מילוי");
   assert.deepEqual(updated.searchParams.getAll("source"), ["one", "two"]);
   assert.deepEqual(state.effects, []);
+  assert.deepEqual(state.activity, [["compute", { section: "calculator_community" }]], "one content-free compute per settled typed expression");
   await act(async () => { root.unmount(); });
 });
 

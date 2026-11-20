@@ -644,11 +644,6 @@ export async function getRetention(days = 30) {
   try { const { data } = await supabase.rpc('admin_retention', { p_days: days }); return data || null; } catch { return null; }
 }
 
-// 🎛️ דופק עליון — כל מספרי הכותרת ממקור-האמת, קריאה אחת. מנהל בלבד. null בכשל.
-export async function getPulse() {
-  if (!supabase) return null;
-  try { const { data } = await supabase.rpc('admin_pulse'); return data || null; } catch { return null; }
-}
 
 // 📈 מעקב כניסות אמיתיות לאורך זמן + מקורות (referrer), מסונן-בוטים. null בכשל.
 export async function getRealTraffic(days = 30) {
@@ -954,12 +949,6 @@ export async function adminAiPulse(days = 30) {
   try { const { data } = await supabase.rpc('admin_ai_pulse', { p_days: days }); return data || null; }
   catch { return null; }
 }
-// 🧭 מפת-מחקר (admin): מה הכי חיפשו (search_log) + מסעות אמיתיים (journey_trace: מאיפה→לאן→דרך איזו שיטה).
-export async function adminResearchMap(days = 30) {
-  if (!supabase) return null;
-  try { const { data } = await supabase.rpc('admin_research_map', { p_days: days }); return data || null; }
-  catch { return null; }
-}
 
 // ===== 🧠 מנוע-ההמלצות (system_suggestions_law) — Observe→Detect→Suggest→Explain→Decide =====
 // «המערכת לעולם אינה משנה את עצמה. היא רק לומדת, מסבירה ומציעה.» כל שינוי = החלטת צוריאל.
@@ -1254,39 +1243,8 @@ export async function getPopularPosts({ limit = 10 } = {}) {
   return recent ?? [];
 }
 
-// 📡 הודעות-טיקר ידניות — צוריאל שולט (טבלת ticker_messages). מוצגות ראשונות בטיקר.
-// להוסיף: insert into ticker_messages(text,priority[,link_url]) · להסיר: update ... set is_active=false.
-// 🫧 דופק-פעילות ציבורי (activity_pulse) — סוגי פעילות בשעה האחרונה, בלי תוכן (פרטיות).
-export async function getActivityPulse() {
-  if (!supabase) return null;
-  try {
-    const { data, error } = await supabase.rpc("activity_pulse");
-    if (error) return null;
-    return data;
-  } catch { return null; }
-}
 
-// 🌳 דופק-היום — מקור-אמת אחד (RPC site_pulse_today): חקירות היום (site_visits, זהה לדף-הבית),
-// פעילים עכשיו, צפנים חדשים היום, וכתבים חדשים. today-only (שואל now()::date). מזין את הטיקר.
-export async function getSitePulseToday() {
-  if (!supabase) return null;
-  try {
-    const { data, error } = await supabase.rpc("site_pulse_today");
-    if (error) return null;
-    return data;
-  } catch { return null; }
-}
 
-// 🔢 מספרים שנפתחו לאחרונה (דפי-מספר בפועל, לא חיפושים אישיים). מספר = לא-פרטי → קריא-לציבור.
-// מקור: RPC recent_number_opens (SECURITY DEFINER) — מסונן למספרים משמעותיים (יש להם ביטויים במאגר).
-export async function getRecentNumbers(limit = 8) {
-  if (!supabase) return [];
-  try {
-    const { data, error } = await supabase.rpc("recent_number_opens", { lim: limit });
-    if (error) return [];
-    return data || [];
-  } catch { return []; }
-}
 
 // 🧹 [הוסר 22.7.2026] saveUserItem/getUserItems/deleteUserItem + טבלת user_saved_items —
 //    קוד מת: הפונקציות לא נקראו מאף רכיב, והטבלה נשארה ריקה (0 שורות) מאז ומתמיד.
@@ -1714,19 +1672,6 @@ export async function createTopicCardDraft(card) {
   return data;
 }
 
-// ===== קיר הגימטריה החי (ניסוי ויראלי) — gematria_wall =====
-// כל מילה/שם שגולש מחשב נרשם כאן דרך RPC מאובטח (sanitize + dedup + מונה).
-export async function addWallWord(phrase, ragil) {
-  if (!supabase || !phrase || !ragil) return;
-  try { await supabase.rpc('add_wall_word', { p_phrase: String(phrase).trim(), p_ragil: ragil }); }
-  catch { /* שקט — לוג בלבד, לא לשבור את החישוב */ }
-}
-// שמירה פרטית (אדמין): נשמרת עם private=true — לעולם לא מוצגת בקיר הציבורי.
-export async function saveWallWordPrivate(phrase, ragil) {
-  if (!supabase || !phrase || !ragil) return;
-  try { await supabase.rpc('save_wall_word_private', { p_phrase: String(phrase).trim(), p_ragil: ragil }); }
-  catch { /* שקט */ }
-}
 // 🛟 שכבת "מציל" — מילה שנכשלה במבחן הכתיב המבני אבל קיימת במאגר gematria_words
 // מסומנת recognized=true כדי שתוצג במלואה. לעולם רק מוסיף (מציל מילה אמיתית נדירה),
 // אף פעם לא חוסם מילה תקינה — מילים איכותיות שלא במאגר ממשיכות להופיע כרגיל.
@@ -1740,7 +1685,7 @@ async function rescueFromCorpus(rows) {
 }
 export async function getWallRecent(limit = 60) {
   if (!supabase) return [];
-  const { data, error } = await supabase.rpc('fn_ti_public_activity2029', { p_hours: 168 });
+  const { data, error } = await supabase.rpc('research_pulse_2029', { p_hours: 168 });
   // Fail closed on PGRST202/404 (proposal not applied) and every other read error.
   if (error || data?.version !== 1) return [];
   return (data.phrases || []).slice(0, Math.max(1, Math.min(24, limit))).map(x => ({ phrase: x.phrase, ragil: x.value, hits: x.events, last_at: data.computed_at }));
@@ -1749,39 +1694,6 @@ export async function getWallRecent(limit = 60) {
 // ===== פס פעילות חי (LiveActivityBar) — עדכונים אמיתיים בלבד =====
 
 const SEARCH_TERM_OK = /^[ 0-9א-ת׳״'"\-]{1,40}$/;
-// תיעוד חיפוש אמיתי (מהמחשבון / דף הביטוי). ללא PII; נכשל בשקט. דדופ לכל גלישה.
-export async function logSearch(term, value) {
-  if (isAnon()) return;   // 🕶️ מצב אנונימי — לא נשמר בהיסטוריית החיפושים
-  // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — search_log מזין את «המספרים החמים» (getHotNumbers →
-  // דף-הבית) ואת מפת-החום, כלומר prominence ציבורי שמייצר קישורים חדשים לסריקה. אין לו
-  // עמודת is_bot, ולכן סריקה לא נספרת כ«חיפוש». זה גם חוסם את כתיבת research_items שלמטה —
-  // וזה נכון: בוט אינו «חוקר» ואסור לו לצבור התקדמות/עץ-אישי.
-  if (!sideEffectAllowed("search_log")) return;
-  const t = (term || '').trim();
-  if (!SEARCH_TERM_OK.test(t)) return;
-  try {
-    const key = 'sl:' + t;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, '1');
-  } catch { /* ignore */ }
-  // Historical raw search_log is read-only; explicit actions use ingest_event.
-  // 🌳 עץ אישי: חיפוש של משתמש מחובר → research_items (bucket 'searched'). מכבד מצב-אנונימי (יצא למעלה).
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    const uid = session?.user?.id;
-    if (uid) {
-      const type = /^\d+$/.test(t) ? 'number' : 'phrase';
-      const link = `/number/${encodeURIComponent(t)}`;
-      const ent = { id: `${type}:${t}`, type, title: t, ref: t, link, metadata: {}, addedAt: Date.now() };
-      await supabase.from('research_items').upsert(
-        { user_id: uid, bucket: 'searched', entity_type: type, entity_ref: t, title: t, link, metadata: ent, created_at: new Date().toISOString() },
-        { onConflict: 'user_id,bucket,entity_type,entity_ref' }
-      );
-    }
-  } catch { /* ignore */ }
-  // היסטוריה אישית (פר-משתמש) — לתצוגת "חיפושים אחרונים" בפרופיל. RLS דואג לבעלות.
-  try { logActivity('gematria', t, Number.isFinite(value) ? String(value) : null); } catch { /* ignore */ }
-}
 
 // ➕ אדמין: הוספת מילה מהחיפושים למאגר הראשי (ערכים מהמנוע המאומת).
 export async function adminAddWord(phrase, vals) {
@@ -1798,16 +1710,6 @@ export async function getRecentSearches(limit = 6) {
   return (await getWallRecent(limit)).map(x => ({ term: x.phrase, value: x.ragil, at: x.last_at }));
 }
 
-// 🔢 מונה חיפושים — כמה חיפושי גימטריה נרשמו ב-N השעות האחרונות (למגירת המספר / בית המדרש).
-export async function getRecentSearchCount(hours = 24) {
-  if (!supabase) return null;
-  try {
-    const {data,error}=await supabase.rpc('fn_ti_public_activity2029',{p_hours:[24,168,720].includes(hours)?hours:24});
-    if(error || !data || data.state==='refreshing') return null;
-    const searches=data.activity?.filter(x=>x.event_type==='search'||x.event_type==='cross_search');
-    return searches?.length ? searches.reduce((n,x)=>n+x.events,0) : null;
-  } catch { return null; }
-}
 
 // 🧬 כל המילים-השוות ברגיל לערך (לכפתור «פתח עוד» — הרשימה המלאה). ממוין לפי חוזק
 // (lead_rank › מאומת › visibility_tier › recency) — אותו סדר כמו story-top, ונושא שדות-חוזק
@@ -2207,15 +2109,6 @@ export async function getClassicJourneySeed() {
   } catch { return null; }
 }
 
-// 🔴 דופק המסע — נתוני-חיים אמיתיים בלבד (לטיקר תחושת-קהילה על המסע).
-// { researchers_today, journeys_today, recent_numbers[] } מ-RPC journey_pulse (SECURITY DEFINER, ספירות בלבד).
-export async function getJourneyPulse() {
-  if (!supabase) return null;
-  try {
-    const { data } = await supabase.rpc('journey_pulse');
-    return data || null;
-  } catch { return null; }
-}
 
 // 💎 הצלבת קציר: פוסטים שמזכירים ביטוי ששווה למספר הזה (mentions שנקצרו מהפוסטים).
 export async function getHarvestedPosts(value, lim = 6) {

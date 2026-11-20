@@ -36,9 +36,14 @@ test("the public gematria wall uses the privacy-checked TI projection instead of
   const readers = shipped.filter(([, s]) => /from\(\s*["'`]gematria_wall["'`]\s*\)/.test(s));
   assert.deepEqual(readers.map(([f])=>f), [], "no shipped direct wall reader can bypass the projection");
   const api = read("src/lib/supabaseApi2029.js");
-  const wall = api.slice(api.indexOf("export async function getWallRecent("), api.indexOf("export async function logSearch("));
-  assert.match(wall, /rpc\('fn_ti_public_activity2029'/, "suggestions use the canonical TI public reader");
+  const start = api.indexOf("export async function getWallRecent(");
+  const wall = api.slice(start, api.indexOf("\nexport ", start + 1));
+  assert.match(wall, /rpc\('research_pulse_2029'/, "suggestions use the canonical TI public reader");
   assert.match(wall, /if \(error \|\| data\?\.version !== 1\) return \[\]/, "no unsafe legacy fallback on failure");
+  // #1461 retirement: the dead wall/search writers and legacy pulse adapters are gone (zero callers on branch, main and Production bacecaa).
+  for (const dead of ["addWallWord", "saveWallWordPrivate", "logSearch", "getRecentSearchCount", "getRecentNumbers", "adminResearchMap", "getJourneyPulse", "getActivityPulse", "getSitePulseToday", "getPulse"])
+    assert.doesNotMatch(api, new RegExp(`export (?:async )?function ${dead}\\(`), `${dead} stays retired`);
+  assert.deepEqual(grepShipped(/rpc\(\s*["'`](?:add_wall_word|save_wall_word_private|journey_pulse|activity_pulse|site_pulse_today|live_stats|admin_research_map)["'`]/), [], "no shipped caller of a retired legacy RPC");
 });
 
 test("admin and account functions guarded by M0-A have no non-admin caller in shipped code", () => {

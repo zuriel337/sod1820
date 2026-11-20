@@ -30,7 +30,9 @@ const checks = [
     return r.ok && total(r) > 0; }],
   ["private research findings NOT readable by anon", async () => {
     const r = await get("research_objects?select=id&privacy_scope=eq.private&limit=1"); return r.ok && (await r.json()).length === 0; }],
-  ["public gematria wall readable", async () => { const r = await get("gematria_wall?select=phrase,ragil&private=eq.false&limit=1"); return r.ok && (await r.json()).length === 1; }],
+  // #1461 owner decision 20.11.2026: the wall is frozen history (no writes since 4.11), kept server-only.
+  // Before sitewide-statistics apply.psql this check fails BY DESIGN: it reports the open legacy read.
+  ["frozen gematria wall history NOT readable by anon", async () => { const r = await get("gematria_wall?select=phrase&limit=1"); return r.ok ? (await r.json()).length === 0 : [401, 403].includes(r.status); }],
   ["gematria engine (gem_calc, all methods) computes", async () => { const r = await rpc("gem_calc", { p: "שלום" }); const row = r.ok ? (await r.json())?.[0] : null;
     return Boolean(row) && row.siduri === 52 && row.atbash === 112 && row.miluy === 536; }],
   ["ragil_calc computes", async () => { const r = await rpc("ragil_calc", { t: "אמת" }); return r.ok && Number(await r.json()) === 441; }],

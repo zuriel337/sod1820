@@ -1,10 +1,12 @@
 import './siteActivity2029.css';
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase.js';
+import React from 'react';
+import { publicReadingCapability } from '../../lib/publicReadingRelease2029.js';
 
-const sections = {home:'בית',now:'עכשיו',world:'עולם',calculator:'מחשבון',calculator_advanced:'מחשבון מתקדם',els:'צופן תנ״כי',cipher:'דפי צופן',number:'מספרים',posts:'פוסטים',books:'ספרים',videos:'סרטונים',community:'קהילה',journey:'מסעות',heichal:'היכל',personal:'אזור אישי',raziel:'רזיאל'};
+const sections = {home:'בית',now:'עכשיו',world:'עולם',calculator:'מחשבון',calculator_advanced:'מחשבון מתקדם',calculator_community:'מחשבון הקהילה',site_search:'חיפוש כללי',els:'צופן תנ״כי',cipher:'דפי צופן',number:'מספרים',posts:'פוסטים',books:'ספרים',videos:'סרטונים',community:'קהילה',journey:'מסעות',heichal:'היכל',personal:'אזור אישי',raziel:'רזיאל',other:'אחר · ללא שיוך מדור'};
+// Launch state comes from the existing release owner (publicReadingRelease2029), not a new flag.
+const JOURNEY_LAUNCHED = !publicReadingCapability('/journey');
 const number = n => n == null ? '—' : Number(n).toLocaleString('he-IL');
-export default function SiteActivity2029({ data, principal }) {
+export default function SiteActivity2029({ data }) {
   if (!data) return <section className="site-activity29"><h2>פעילות כל האתר</h2><p>הרחבת דוח הפעילות טרם זמינה במסד. אין להסיק שאין פעילות.</p></section>;
   const s=data.summary || {};
   return <section className="site-activity29" dir="rtl"><h2>פעילות כל האתר</h2>
@@ -20,7 +22,7 @@ export default function SiteActivity2029({ data, principal }) {
     <details open><summary>איכות תנועה וכיסוי מדורים</summary>
       {data.traffic_classes?.map(x=><p key={x.traffic_class}>{({human:'אדם לפי המסווג הקנוני',bot:'בוט',unknown:'לא ידוע'})[x.traffic_class]}: {number(x.sessions)} ביקורים</p>)}
       <p>תנועת בוטים שנחסמה נמדדת בקצה; אפס כאן אינו אפס בוטים. אירועים בלי זהות: {number(s.unknown_identity_events)}.</p>
-      {Object.entries(sections).map(([key,label])=>{const row=data.sections?.find(x=>x.section===key);return <div className="sod29-row" key={key}><strong>{label}</strong><span>{row ? number(row.views)+' צפיות בדף · '+number(row.domain_views)+' פתיחות כלי · '+number(row.actions)+' פעולות חדשות' : ['personal','raziel'].includes(key) ? 'פרטי / כיסוי מוגבל — ללא איסוף תוכן' : 'אין דגימה בחלון; לא הוכחת כיסוי מלא'}</span></div>;})}
+      {Object.entries(sections).map(([key,label])=>{const row=data.sections?.find(x=>x.section===key);return <div className="sod29-row" key={key}><strong>{label}</strong><span>{key==='journey' && !JOURNEY_LAUNCHED ? '0 · טרם הושק' : row ? number(row.views)+' צפיות בדף · '+number(row.domain_views)+' פתיחות כלי · '+number(row.actions)+' פעולות חדשות' : key==='journey' ? 'אין נתונים (NO_DATA) · אינו אפס' : ['personal','raziel'].includes(key) ? 'פרטי / כיסוי מוגבל — ללא איסוף תוכן' : 'אין דגימה בחלון; לא הוכחת כיסוי מלא'}</span></div>;})}
     </details>
     <details><summary>מגמות יומיות · פעולות · שיטות</summary>
       {data.daily?.map(x=><p key={x.day}>{x.day} · {number(x.views)} צפיות · {number(x.computes)} חישובים · {number(x.searches)} חיפושים</p>)}
@@ -35,31 +37,9 @@ export default function SiteActivity2029({ data, principal }) {
       {data.top_phrases?.map(x=><p key={x.phrase}>{x.phrase} · {number(x.value)} · {number(x.selections)} בחירות</p>)}
       <p>{number(data.publications?.public_ciphers)} צפנים ציבוריים · {number(data.publications?.approved_convergences)} התכנסויות שאושרו לפרסום. מספר פרסומים אינו מספר מחקרים פעילים.</p>
     </details>
-    <details><summary>טריות והיסטוריית החיפושים</summary>
-      <p>אירוע אחרון: {data.latest_event || 'אין בחלון'} · search_log: {data.legacy_search_latest || 'לא ידוע'} · קיר: {data.legacy_wall_latest || 'לא ידוע'}</p>
-      <p>היסטוריה נשמרת כפי שנאספה; בקיר היו גם הקלדות. לא משחזרים ממנה חיפושים אמינים. היסטוריית ההסכמה אינה מתועדת במקור הישן. מוצגות רק רשומות שסומנו במקור כמאושרות לעיון; שאר ההיסטוריה נשמרת ואינה מוצגת.</p>
-      <SearchArchive principal={principal}/>
+    <details><summary>טריות המדידה</summary>
+      <p>אירוע אחרון ב־events: {data.latest_event || 'אין בחלון'}</p>
+      <p>מקורות היסטוריים שנעצרו (אינם מדד חי ואינם נספרים כאן): search_log עד {data.legacy_search_latest || 'לא ידוע'} · קיר הגימטריה עד {data.legacy_wall_latest || 'לא ידוע'}. ההיסטוריה נשמרת פרטית בצד השרת לביקורת, ללא תצוגה וללא שחזור לחיפושים.</p>
     </details>
   </section>;
-}
-function SearchArchive({ principal }) {
-  const [page,setPage]=useState(null),[state,setState]=useState({});
-  useEffect(()=>{
-    if(page===null)return;
-    let live=true;const controller=new AbortController();
-    setState({loading:true});
-    (async()=>{
-      const auth=await supabase.auth.getSession();
-      if(auth.data?.session?.user?.id!==principal)throw new Error('identity_changed');
-      const {data,error}=await supabase.from('search_log').select('id,term,value,created_at').eq('admin_review_approved',true).order('id',{ascending:false}).range(page*50,page*50+49).abortSignal(controller.signal);
-      if(error)throw error;
-      if(live)setState({rows:data || []});
-    })().catch(()=>{if(live)setState({error:true});});
-    return()=>{live=false;controller.abort();};
-  },[page,principal]);
-  return <div>{page===null ? <button type="button" className="sod29-action" onClick={()=>setPage(0)}>פתיחת ארכיון מנהל מורשה</button> : <>
-    {state.loading ? <p role="status">טוען חיפושים…</p> : state.error ? <p role="alert">הארכיון אינו זמין או שאין הרשאה.</p> : state.rows?.length===0 ? <p>אין רשומות מאושרות לעיון בטווח הזה.</p> : state.rows?.map(x=><p key={x.id}>{x.term} · {x.value} · {x.created_at}</p>)}
-    <button type="button" disabled={!page || state.loading} onClick={()=>setPage(x=>x-1)}>הקודם</button>
-    <button type="button" disabled={state.loading || state.rows?.length!==50} onClick={()=>setPage(x=>x+1)}>הבא</button>
-  </>}</div>;
 }

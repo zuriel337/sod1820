@@ -4,7 +4,6 @@ import { useAuth } from "../AuthContext.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingActionsLocked } from "../publicReadingRelease2029.js";
 import { personalActionsLocked } from "../publicLaunch2029.js";
 import { applyCloudResearchOps, getCloudResearch } from "../auth.js";
-import { trackResearch } from "../tracking.js";
 import { signalAiBehavior, supabase } from "../supabase.js";
 import { useElsResearchOperation } from "./useElsResearchOperation.js";
 import { emit, EVENTS } from "./eventBus.js";
@@ -195,7 +194,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       addToResearch(entity) {
         if (!entity?.id || !entity?.type) return false;
         const ok = commitAction([op("item_upsert", { bucket: "cart", entity }), history(entity)]);
-        if (ok) { emit(EVENTS.RESEARCH_ADD, entity); if (!PUBLIC_READING_RELEASE) { trackResearch("add", { type: entity.type }); signalAiBehavior("research"); } }
+        if (ok) { emit(EVENTS.RESEARCH_ADD, entity); if (!PUBLIC_READING_RELEASE) signalAiBehavior("research"); }
         return ok;
       },
       removeFromResearch: (id) => remove("cart", "cart", id),
@@ -207,7 +206,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       saveItem(entity) {
         if (!entity?.id || !entity?.type) return false;
         const ok = commitAction([op("item_upsert", { bucket: "library", entity }), history(entity)]);
-        if (ok) { const expectedPath = globalThis.location?.pathname; void import("../siteActivity2029.js").then(m=>m.recordSiteActivity("save", { expectedUserId: userId, expectedPath })).catch(()=>{}); emit(EVENTS.ITEM_SAVE, entity); if (!PUBLIC_READING_RELEASE) trackResearch("save", { type: entity.type }); }
+        if (ok) { const expectedPath = globalThis.location?.pathname; void import("../siteActivity2029.js").then(m=>m.recordSiteActivity("save", { expectedUserId: userId, expectedPath })).catch(()=>{}); emit(EVENTS.ITEM_SAVE, entity); }
         return ok;
       },
       removeSaved: (id) => remove("library", "saved", id),
@@ -239,7 +238,6 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
         if (j?.root == null) return false;
         const journey = { id: `j${j.root}`, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
         const ok = commitAction([op("journey_add", { journey })]);
-        if (ok && !PUBLIC_READING_RELEASE) trackResearch("journey", { root: j.root });
         return ok;
       },
       removeJourney: (id) => commitAction([op("journey_remove", { id })]),
@@ -360,7 +358,6 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     }
     setPathResume({ loading: false, latest: result, error: null });
     if (!PUBLIC_READING_RELEASE) {
-      trackResearch("path_save", { revision: result.revision_no, surface: surface || null });
       emitJourney2029("save", { context: current, sourceSurface: surface, pathId: result.path_id });
     }
     return result;
@@ -402,7 +399,6 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     actions.setResearchContext(next);
     setPathResume({ loading: false, latest: snapshot, error: null });
     if (!PUBLIC_READING_RELEASE) {
-      trackResearch("path_resume", { revision: snapshot.revision_no });
       emitJourney2029("resume", { context: next, pathId: snapshot.path_id });
     }
     return { ...snapshot, href: resumeHrefFromResearchPath(snapshot), context: next };
@@ -470,7 +466,6 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     });
     setPathResume({ loading: false, latest: result, error: null });
     if (!PUBLIC_READING_RELEASE) {
-      trackResearch("path_fork", { revision: result.revision_no, surface: surface || null });
       emitJourney2029("fork", { context: current, sourceSurface: surface, pathId: result.path_id });
     }
     return result;

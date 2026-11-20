@@ -10,7 +10,7 @@ import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEng
 // which records are public. Explicit verified-admin actions retain the existing
 // server policies; authentication itself starts no model, write or credit action.
 export const PUBLIC_READING_READ_RPCS = Object.freeze([
-  "fn_ti_public_activity2029",
+  "research_pulse_2029",
   "gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale",
   "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey",
   "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods",
@@ -477,7 +477,7 @@ function installPublicReadingWorker(policy) {
           if (!uid || req.signal.aborted) return denied();
           return readFetch(req);
         }
-        if (rpc === "fn_ti_public_activity2029" && !url.search) {
+        if (rpc === "research_pulse_2029" && !url.search) {
           const body = await jsonBody(req);
           return Object.keys(body).join(",") === "p_hours" && [24,168,720].includes(body.p_hours) ? readFetch(req) : denied();
         }

@@ -2,7 +2,7 @@
 -- A marker on the canonical word, NOT a second phrase registry. Default deny.
 alter table public.gematria_words add column if not exists public_trend_approved boolean not null default false;
 
-create or replace function public.fn_ti_public_word_eligible(p_id uuid)
+create or replace function public.gematria_public_word_eligible(p_id uuid)
 returns boolean language sql stable security definer set search_path=public,pg_temp as $$
  select exists(select 1 from public.gematria_words g where g.id=p_id
    and g.is_verified is true and g.is_published is true
@@ -10,25 +10,24 @@ returns boolean language sql stable security definer set search_path=public,pg_t
    and not exists(select 1 from public.gematria_blocklist b where position(b.pattern in g.phrase)>0)
    and not exists(select 1 from public.gematria_wall w where w.private is true and w.phrase=g.phrase))
 $$;
-revoke all on function public.fn_ti_public_word_eligible(uuid) from public,anon,authenticated;
+revoke all on function public.gematria_public_word_eligible(uuid) from public,anon,authenticated;
 
 -- All public callers, including suggestions/direct REST, must obey the same floor.
 -- Restrictive policies compose with the current public read policy rather than replacing it.
 create policy ti_public_word_floor on public.gematria_words as restrictive for select to anon,authenticated
-using (public.rd_is_admin() or public.fn_ti_public_word_eligible(id));
--- Policy needs EXECUTE, but the helper returns only eligibility, never phrase data.
-grant execute on function public.fn_ti_public_word_eligible(uuid) to anon,authenticated;
-create policy ti_wall_floor on public.gematria_wall as restrictive for select to anon,authenticated
-using (public.rd_is_admin() or (private is false and exists(select 1 from public.gematria_words g
-  where g.phrase=gematria_wall.phrase and g.public_trend_approved and public.fn_ti_public_word_eligible(g.id))));
-drop policy if exists ti_search_admin_only on public.search_log; -- may pre-exist from search-log-floor.standalone.psql
-create policy ti_search_admin_only on public.search_log as restrictive for select to anon,authenticated
-using (public.rd_is_admin());
--- Explicit review provenance is required before showing legacy raw searches.
--- No historic row is approved or reconstructed by this proposal.
-alter table public.search_log add column if not exists admin_review_approved boolean not null default false;
-create policy ti_search_reviewed_only on public.search_log as restrictive for select to anon,authenticated
-using (admin_review_approved and public.rd_is_admin());
+using (public.rd_is_admin() or public.gematria_public_word_eligible(id));
+-- Gematria corpus owner helper (not TI). RLS needs EXECUTE; it returns only eligibility, never phrase data.
+grant execute on function public.gematria_public_word_eligible(uuid) to anon,authenticated;
+-- #1461 owner decision 20.11.2026: gematria_wall is frozen history (typing writes, no consent,
+-- no writes since 2026-11-04). It is no live metric and no client source: server-only read.
+-- Rows are kept for audit; gematria_public_word_eligible still reads it (definer) for private=true.
+create policy ti_wall_history_server_only on public.gematria_wall as restrictive for select to anon,authenticated
+using (false);
+-- search_log: frozen raw free-text history without recorded consent (no writes since 2026-11-09).
+-- Server-only for every client role, admins included; rows are retained for audit/retention policy.
+drop policy if exists ti_search_history_server_only on public.search_log; -- may pre-exist from search-log-floor.standalone.psql
+create policy ti_search_history_server_only on public.search_log as restrictive for select to anon,authenticated
+using (false);
 -- Historic data is retained. Anonymous free-text writes cannot establish consent.
 drop policy if exists ti_search_no_new_raw on public.search_log;
 create policy ti_search_no_new_raw on public.search_log as restrictive for insert to anon,authenticated
@@ -64,29 +63,34 @@ returns text language sql immutable as $$
  when p ~ '^/(2029/)?raziel' then 'raziel'
  else 'other' end
 $$;
+-- TI v4: fn_ti_* is server-only; only definer readers call this mapping.
+revoke all on function public.fn_ti_surface2029(text) from public,anon,authenticated;
 
 -- Public aggregate reader in the EXISTING fn_ti family, using the EXISTING cache.
 -- Only aggregate counts and corpus references are cached; words are checked again
 -- AFTER every cache read. No search_log/wall hit count feeds this projection.
-create or replace function public.fn_ti_public_activity2029(p_hours integer default 24)
-returns jsonb language plpgsql security definer set search_path=public,pg_temp
--- Live planner (20.11.2026, 720h): the classifier SRF is estimated at 5 human rows vs
--- ~1,700 actual, producing a nested loop of 16.7M comparisons (9.4s > 8s authenticator
--- statement_timeout). A hash join runs the same query in ~1.9s. Scoped to this function.
-set enable_nestloop=off as $$
+create or replace function public.fn_ti_activity_pulse2029(p_hours integer default 24)
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
 declare
  h integer := case when p_hours in (24,168,720) then p_hours else 24 end;
- k text := 'ti_public_activity2029:v1:' || h;
+ k text := 'ti_activity_pulse2029:v1:' || h;
  payload jsonb;
  stamp timestamptz;
+ nestloop text;
 begin
- payload := public.analytics_cache_get_v1(k,'fn_ti_public_activity2029');
+ payload := public.analytics_cache_get_v1(k,'fn_ti_activity_pulse2029');
  select computed_at into stamp from public.analytics_cache where cache_key=k;
  if payload is null then
    -- One bounded recomputation per window; contenders get explicit unavailable.
    if not pg_try_advisory_xact_lock(hashtextextended(k,1820)) then
      return jsonb_build_object('version',1,'state','refreshing','hours',h,'numbers','[]'::jsonb,'phrases','[]'::jsonb);
    end if;
+   -- Live planner (20.11.2026, 720h): the classifier SRF is estimated at 5 human rows vs
+   -- ~1,700 actual -> nested loop of 16.7M comparisons (9.4s > 8s statement_timeout); a hash
+   -- join takes ~1.9s. The hint covers THIS statement only: a function-level SET would leak into
+   -- every nested gematria_public_word_eligible() call (measured: ~100ms per word, 42s at 10x).
+   nestloop := current_setting('enable_nestloop');
+   perform set_config('enable_nestloop','off',true);
    with clean as materialized (
      select session_id,clean_classification from public.fn_ti_clean_classification(
        ((now()-make_interval(hours=>h)) at time zone 'Asia/Jerusalem')::date,
@@ -137,9 +141,10 @@ begin
        group by surface,event_type having count(*)>=10 and count(distinct session_id)>=5
      ) a),'[]'::jsonb)
    ) into payload;
+   perform set_config('enable_nestloop',nestloop,true);
    stamp:=now();
    insert into public.analytics_cache(cache_key,payload,computed_at,cache_kind,producer,producer_version,input_identity,expires_at,billable_state)
-   values(k,payload,stamp,'memoized_result','fn_ti_public_activity2029',public.analytics_cache_producer_version_v1('fn_ti_public_activity2029'),k,stamp+interval '60 seconds','NOT_BILLABLE')
+   values(k,payload,stamp,'memoized_result','fn_ti_activity_pulse2029',public.analytics_cache_producer_version_v1('fn_ti_activity_pulse2029'),k,stamp+interval '60 seconds','NOT_BILLABLE')
    on conflict(cache_key) do update set payload=excluded.payload,computed_at=excluded.computed_at,
      producer_version=excluded.producer_version,expires_at=excluded.expires_at,invalidated_at=null;
  end if;
@@ -149,19 +154,29 @@ begin
      when (payload->>'latest_event')::timestamptz<now()-interval '24 hours' then 'stale' else 'measured' end,
    'numbers',coalesce((select jsonb_agg(jsonb_build_object('n',x.n,'events',x.events,'last_at',x.last_at))
      from jsonb_to_recordset(payload->'numbers') x(n integer,events bigint,last_at timestamptz)
-     where exists(select 1 from public.gematria_words g where g.ragil=x.n and public.fn_ti_public_word_eligible(g.id))),'[]'::jsonb),
+     where exists(select 1 from public.gematria_words g where g.ragil=x.n and public.gematria_public_word_eligible(g.id))),'[]'::jsonb),
    'phrases',coalesce((select jsonb_agg(jsonb_build_object('phrase',g.phrase,'value',g.ragil,'events',x.events))
      from jsonb_to_recordset(payload->'word_refs') x(id text,events bigint)
      join public.gematria_words g on g.id::text=x.id
-     where g.public_trend_approved and public.fn_ti_public_word_eligible(g.id)),'[]'::jsonb),
+     where g.public_trend_approved and public.gematria_public_word_eligible(g.id)),'[]'::jsonb),
    'publications',jsonb_build_object(
      'approved_convergences',(select count(*) from public.topic_cards_public),
      'public_ciphers',(select count(*) from public.els_records where status='published' and visibility='public' and not coalesce(home_hidden,false))),
    'threshold',jsonb_build_object('events',10,'sessions',5),
    'coverage','clean_human_only; unknown excluded; no historical reconstruction');
 end $$;
-revoke all on function public.fn_ti_public_activity2029(integer) from public;
-grant execute on function public.fn_ti_public_activity2029(integer) to anon,authenticated;
+-- TI v4: the fn_ti_* family is server-only (postgres). The producer stays inside it.
+revoke all on function public.fn_ti_activity_pulse2029(integer) from public,anon,authenticated;
+
+-- The ONE public projection (TI v9 System Pulse) is a thin wrapper outside the fn_ti_*
+-- namespace: it accepts only the three bounded windows and returns the producer's
+-- already-floored, already-rechecked output. It widens no internal TI grant.
+create or replace function public.research_pulse_2029(p_hours integer default 24)
+returns jsonb language sql volatile security definer set search_path=public,pg_temp as $$
+ select public.fn_ti_activity_pulse2029(case when p_hours in (24,168,720) then p_hours else 24 end)
+$$;
+revoke all on function public.research_pulse_2029(integer) from public;
+grant execute on function public.research_pulse_2029(integer) to anon,authenticated;
 
 -- Keep the existing ABI but consume the same safe read model. No legacy cached
 -- lead text or expression-derived numbers can escape via this alternate API.
@@ -169,6 +184,6 @@ create or replace function public.recent_number_opens(lim integer default 8)
 returns table(n integer,opens bigint,last_at timestamptz,lead text)
 language sql security definer set search_path=public,pg_temp as $$
  select x.n,x.events,x.last_at,null::text
- from jsonb_to_recordset(public.fn_ti_public_activity2029(24)->'numbers') x(n integer,events bigint,last_at timestamptz)
+ from jsonb_to_recordset(public.fn_ti_activity_pulse2029(24)->'numbers') x(n integer,events bigint,last_at timestamptz)
  limit greatest(1,least(coalesce(lim,8),24))
 $$;

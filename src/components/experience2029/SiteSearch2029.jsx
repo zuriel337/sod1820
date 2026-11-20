@@ -8,6 +8,8 @@ function Highlight({ title, query }) {
   return <>{title.slice(0, at)}<mark>{title.slice(at, at + query.length)}</mark>{title.slice(at + query.length)}</>;
 }
 const waitingGroups = () => Object.fromEntries(SITE_SEARCH_GROUPS.map(g => [g.key, { state: "loading", items: [] }]));
+// Site-wide search is its own section; it is not credited to the page it was opened on.
+const SITE_SEARCH = Object.freeze({ section: 'site_search' });
 export default function SiteSearch2029({ query, setQuery, go, reader = fetchSiteSearch2029 }) {
   const telemetry = useRef(null);
   useEffect(() => { let live = true; void import("../../lib/siteActivity2029.js").then(m => { if (live) telemetry.current = m.recordSiteActivity; }).catch(()=>{}); return () => { live = false; }; }, []);
@@ -26,7 +28,7 @@ export default function SiteSearch2029({ query, setQuery, go, reader = fetchSite
   const active = items.findIndex(item => item.id === activeId);
   const loading = eligible && SITE_SEARCH_GROUPS.some(g => !groups[g.key] || groups[g.key].state === "loading");
   const failed = eligible ? SITE_SEARCH_GROUPS.filter(g => groups[g.key]?.state === "failed") : [];
-  const open = item => { if (item?.href) { telemetry.current?.("select"); go(item.href); } };
+  const open = item => { if (item?.href) { telemetry.current?.("select", SITE_SEARCH); go(item.href); } };
   const onLink = (event, item) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
     event.preventDefault(); open(item);
@@ -70,12 +72,12 @@ export default function SiteSearch2029({ query, setQuery, go, reader = fetchSite
   useEffect(() => { if (active >= 0) document.getElementById(`${listId}-${active}`)?.scrollIntoView({ block: "nearest" }); }, [active, listId]);
   return <section className="sod29-site-search" aria-label="חיפוש תוכן באתר">
     <p>פוסטים, נושאים, סדרות וכותבים. התחילו להקליד ובחרו מההצעות.</p>
-    <form onSubmit={event => { event.preventDefault(); if (eligible) telemetry.current?.("search"); if (!eligible) inputRef.current?.focus(); else if (items.length) { setActiveId(items[0].id); inputRef.current?.focus(); } else setAttempt(n => n + 1); }}>
+    <form onSubmit={event => { event.preventDefault(); if (eligible) telemetry.current?.("search", SITE_SEARCH); if (!eligible) inputRef.current?.focus(); else if (items.length) { setActiveId(items[0].id); inputRef.current?.focus(); } else setAttempt(n => n + 1); }}>
       <label htmlFor={`${listId}-input`}>מה מחפשים?</label>
       <div className="sod29-site-search-input">
         <input id={`${listId}-input`} ref={inputRef} data-autofocus type="search" role="combobox" autoComplete="off"
           placeholder="פוסט, נושא, סדרה או כותב…" value={query} maxLength={120}
-          onChange={event => { if (!typing.current) { telemetry.current?.("typing"); typing.current = true; } setQuery(event.target.value); }} onBlur={() => { typing.current = false; }} onKeyDown={keyDown}
+          onChange={event => { if (!typing.current) { telemetry.current?.("typing", SITE_SEARCH); typing.current = true; } setQuery(event.target.value); }} onBlur={() => { typing.current = false; }} onKeyDown={keyDown}
           onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}
           aria-autocomplete="list" aria-expanded={items.length > 0} aria-controls={listId}
           aria-activedescendant={active >= 0 && items[active] ? `${listId}-${active}` : undefined}

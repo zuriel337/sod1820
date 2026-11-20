@@ -34,7 +34,7 @@ const SUPABASE_HOST = 'linswmnnkjxvweumprav.supabase.co';
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-expose-headers': '*' };
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.webp': 'image/webp' };
 // Explicit readers only; the activity projection's content-free arguments are checked below.
-const KNOWN_RPC = new Set(['link_identity', 'track_visit', 'ingest_event', 'world_group_source_arrivals_v2', 'fn_ti_public_activity2029']);
+const KNOWN_RPC = new Set(['link_identity', 'track_visit', 'ingest_event', 'world_group_source_arrivals_v2', 'research_pulse_2029']);
 const SOURCE_ID = '44444444-4444-4444-8444-444444444444';
 const uuid = (n) => `55555555-5555-4555-8555-${String(n).padStart(12, '0')}`;
 const row = (n, changes = {}) => ({
@@ -72,7 +72,7 @@ async function wire(page, { rows, v2 = 'present' }, seen) {
     if (url.pathname.startsWith('/rest/v1/')) seen.tables.push(table);
     if (request.method() !== 'GET' && request.method() !== 'HEAD') {
       seen.writes.push(`${request.method()} ${url.pathname}`);
-      if (table === 'rpc/fn_ti_public_activity2029') {
+      if (table === 'rpc/research_pulse_2029') {
         seen.activityReads.push(request.postDataJSON());
         return json(200, { version: 1, state: 'no_data', numbers: [], phrases: [], activity: [] });
       }

@@ -12,7 +12,7 @@ function reader(path, name, supabase) {
 }
 
 for (const code of ['PGRST202', '404', '42501']) {
-  test(`unavailable aggregate ${code}: public strip refuses, wall stays empty, count stays unknown`, async () => {
+  test(`unavailable aggregate ${code}: public strip refuses, wall stays empty`, async () => {
     const calls = [];
     const error = { code, message: 'Unavailable fixture' };
     const db = {
@@ -21,10 +21,8 @@ for (const code of ['PGRST202', '404', '42501']) {
     };
     const pulse = reader('src/components/experience2029/ActivityPulse2029.jsx', 'readPulse', db);
     const wall = reader('src/lib/supabaseApi2029.js', 'getWallRecent', db);
-    const count = reader('src/lib/supabaseApi2029.js', 'getRecentSearchCount', db);
     await assert.rejects(pulse(24), e => e === error);
     assert.equal((await wall()).length, 0);
-    assert.equal(await count(), null);
-    assert.deepEqual(calls, [24, 168, 24].map(hours => ({ name: 'fn_ti_public_activity2029', hours })));
+    assert.deepEqual(calls, [24, 168].map(hours => ({ name: 'research_pulse_2029', hours })));
   });
 }

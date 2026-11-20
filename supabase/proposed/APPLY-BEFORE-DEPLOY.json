@@ -42,7 +42,7 @@
       "degradation_test": "src/lib/community/communityAviZohar2029.test.js"
     },
     {
-      "rpc": "fn_ti_public_activity2029",
+      "rpc": "research_pulse_2029",
       "sql": "supabase/proposed/sitewide-statistics-20261120/extensions.sql",
       "rollback_sql": "supabase/proposed/sitewide-statistics-20261120/rollback.psql",
       "apply_entrypoint": "supabase/proposed/sitewide-statistics-20261120/apply.psql",

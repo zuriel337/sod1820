@@ -38,6 +38,7 @@ create function edge_rate_limit_check(text,integer,integer) returns jsonb langua
 create function _analytics_cache_on() returns boolean language sql as $$select true$$;
 create or replace function fn_ti_clean_classification(date,date) returns table(session_id text,clean_classification text,clean_eligible boolean)
  language sql as $$select distinct session_id,case when session_id like 'human-%' then 'human' else 'unknown' end,session_id like 'human-%' from events$$;
+revoke all on function fn_ti_clean_classification(date,date) from public; -- live ACL: postgres only
 alter table gematria_words enable row level security; alter table gematria_wall enable row level security; alter table search_log enable row level security;
 create policy baseline_words on gematria_words for select using(is_verified and is_published and not coalesce(is_encrypted,false));
 create policy baseline_wall on gematria_wall for select using(not coalesce(private,false));
@@ -47,11 +48,13 @@ grant usage on schema public to anon,authenticated;
 grant select on gematria_words,gematria_wall,search_log to anon,authenticated; grant insert on search_log to anon,authenticated;
 SQL
 # The exact live preimages, so preflight.sql's md5 gate runs for real.
-for f in analytics_cache_producer_version_v1.fixture.sql analytics_cache_get_v1.fixture.sql ingest_event.before.sql admin_2029_analytics.before.sql recent_number_opens.before.sql add_wall_word.before.sql; do
+for f in analytics_cache_producer_version_v1.fixture.sql analytics_cache_get_v1.fixture.sql ingest_event.before.sql admin_2029_analytics.before.sql recent_number_opens.before.sql add_wall_word.before.sql fn_human_entrances.before.sql; do
   { cat "$DIR/$f"; echo ';'; } | Q
 done
 (cd "$DIR" && "$PG_BIN/psql" -h "$TMP" -p 54391 -U postgres -d review -qX -f apply.psql >/dev/null)
-check "$(Q -c "select to_regprocedure('fn_ti_public_activity2029(integer)') is not null")" t 'apply.psql commits under real psql (preflight md5 gate passed)'
+check "$(Q -c "select to_regprocedure('research_pulse_2029(integer)') is not null")" t 'apply.psql commits under real psql (preflight md5 gate passed)'
+check "$(Q -c "select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'fn\\_ti\\_%' and (has_function_privilege('anon',p.oid,'execute') or has_function_privilege('authenticated',p.oid,'execute'))")" 0 'TI v4: no fn_ti_* function is callable by anon/authenticated; only the research_pulse_2029 wrapper is public'
+check "$(Q -c "select md5(pg_get_functiondef('fn_human_entrances(date,date)'::regprocedure))<>'747fde54209aa41e572fe98f46fe2864'")" t 'TI landing identity fix applied'
 Q -c "select ingest_event('sod-00002','page','view',p_path=>'/')" >/dev/null
 check "$(Q -c "select count(*) from events where surface='page'")" 1 'legacy ingest still inserts on a partitioned events table without a unique key'
 ACT=$(cat <<'SQL'
@@ -65,9 +68,10 @@ Q <<'SQL' >/dev/null
 insert into events(ts,session_id,surface,event_type,path,props) select now()-interval '1 minute','human-'||i%5,'page','view','/number/:value',jsonb_build_object('_measurement_verified',2,'measurement',jsonb_build_object('page_path','/number/104')) from generate_series(1,12)i;
 insert into gematria_words(phrase,ragil,is_verified,is_published,is_encrypted) values('שלום',104,true,true,false);
 SQL
-check "$(Q -c "set role anon; select (fn_ti_public_activity2029(720)->>'state')||':'||jsonb_array_length(fn_ti_public_activity2029(720)->'numbers')||':'||extract(minute from (fn_ti_public_activity2029(720)->>'latest_event')::timestamptz)")" 'measured:1:0' 'anon reader: number above the floor, hour-granular freshness'
+check "$(Q -c "set role anon; select (research_pulse_2029(720)->>'state')||':'||jsonb_array_length(research_pulse_2029(720)->'numbers')||':'||extract(minute from (research_pulse_2029(720)->>'latest_event')::timestamptz)")" 'measured:1:0' 'anon reader: number above the floor, hour-granular freshness'
 check "$(Q -c "set role anon; select count(*) from search_log")" 0 'anon cannot read raw search_log'
 (cd "$DIR" && "$PG_BIN/psql" -h "$TMP" -p 54391 -U postgres -d review -qX -f rollback.psql >/dev/null)
 check "$(Q -c "select md5(pg_get_functiondef('ingest_event(text,text,text,text,text,text,text,text,text,text,smallint,jsonb,jsonb,boolean)'::regprocedure))")" e7017ece28ccfe1b59fb9b5f66e8af44 'rollback.psql restores the exact ingest_event preimage'
-check "$(Q -c "select has_function_privilege('anon','fn_ti_public_activity2029(integer)','execute')")" f 'rollback.psql closes the public activity API'
+check "$(Q -c "select md5(pg_get_functiondef('fn_human_entrances(date,date)'::regprocedure))")" 747fde54209aa41e572fe98f46fe2864 'rollback.psql restores the exact fn_human_entrances preimage'
+check "$(Q -c "select has_function_privilege('anon','research_pulse_2029(integer)','execute')")" f 'rollback.psql closes the public activity API'
 echo "REAL POSTGRES ${pass} checks PASS ($("$PG_BIN/postgres" --version); isolated cluster, not live/PostgREST)"

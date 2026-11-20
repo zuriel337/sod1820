@@ -41,7 +41,7 @@
 |---|---|---|---|---|
 | `fn_name_research(text)` | ביטויים מאומתים אבל לא מפורסמים, מוצפנים או בדרג שלילי. אין בדיקת blocklist או קיר פרטי. | 115 שורות | אין | REVOKE מ־public, anon ו־authenticated; GRANT ל־service_role |
 | `reality_scan(int,int)` | הציר כולל ביטויים לא מאומתים ולא מפורסמים (`sample`) | 397 ביטויים מוסתרים | אין | REVOKE, כמו בשורה הקודמת |
-| `number_cross_resonance(text,jsonb,int)` | ‏`bidim` משקף את כל `gematria_words`, כולל ביטויים מוסתרים ופרטיים | 120 מוסתרים ועוד 23 מהקיר הפרטי | **כן** (`supabaseApi2029.js:1959`) | סינון `fn_ti_public_word_eligible`; ההרשאות נשמרות |
+| `number_cross_resonance(text,jsonb,int)` | ‏`bidim` משקף את כל `gematria_words`, כולל ביטויים מוסתרים ופרטיים | 120 מוסתרים ועוד 23 מהקיר הפרטי | **כן** (`supabaseApi2029.js:1959`) | סינון `gematria_public_word_eligible`; ההרשאות נשמרות |
 | `fn_raziel_research_intel(int,text,int)` | ספירות צפייה ומבקרים לכל מספר, וספירות חיפוש מ־`search_log`, **בלי סף**. עם `p_number` אפשר לחשוף צפייה בודדת. | — | דרך `fn_raziel_research_intel_scoped`, שמחזיר `v_public` לכל קורא, גם anon | סף של 10 צפיות ו־5 מבקרים; הסרת `search_log`; קריאה ישירה רק בצד השרת |
 | `fn_name_research_stats(int)` | ספירות של חיפושי שם פרטיים, כולל `has_surname` ו־`has_birthdate`, לכל חלון, בלי סף | — | אין | REVOKE |
 
@@ -80,10 +80,10 @@
 
 ### C1 · MEDIUM · DRIFT מול חוזה TI: מענק ציבורי בתוך משפחת `fn_ti_*`
 - **החוזה:** TI v4 קובע ש־`fn_ti_*` היא "Grants: postgres בלבד (server-only)".
-- **ה־PR:** מעניק ל־anon ול־authenticated גם את `fn_ti_public_activity2029` וגם את `fn_ti_public_word_eligible`.
+- **ה־PR:** מעניק ל־anon ול־authenticated גם את `research_pulse_2029` וגם את `gematria_public_word_eligible`.
 - **הצד השני:** TI v9 מתיר projection ציבורי מעל הבעלים, כך שזו סתירת שמות והרשאות ולא באג.
 - **מה צריך:** החלטת צוריאל. האפשרויות הן לאשר חריגה רשומה בחוק, או לשנות שם או סכמה. לא שיניתי.
-- **הערה:** ‏`fn_ti_public_word_eligible` חשופה כ־RPC ומחזירה true/false לכל uuid. זו סיכון נמוך, אבל היא נדרשת למדיניות RLS.
+- **הערה:** ‏`gematria_public_word_eligible` חשופה כ־RPC ומחזירה true/false לכל uuid. זו סיכון נמוך, אבל היא נדרשת למדיניות RLS.
 
 ### N1 · LOW · ביצועי מדיניות RLS על `gematria_words`
 - **המדידה החיה:** סריקה מלאה של 15,592 שורות עם תנאי הזכאות בשורה אחת לקחה כ־380ms. עם עלות קריאה ל־SECURITY DEFINER שאינה מוטמעת, ההערכה היא עד כ־1 שנייה.
@@ -116,7 +116,7 @@
 
 ## תחום 4 — SQL, תאימות, rollback, PostgREST, קצב
 
-- **preflight:** כל 9 ה־preimages זהים למסד החי בבדיקה מחודשת (20.11). ה־preimages מתקבלים byte-exact גם ב־PG16, ולכן `preflight.sql` עובר בבדיקה אמיתית. במסד החי עדיין אין `fn_ti_public_activity2029` ואין מדיניות `ti_*`.
+- **preflight:** כל 9 ה־preimages זהים למסד החי בבדיקה מחודשת (20.11). ה־preimages מתקבלים byte-exact גם ב־PG16, ולכן `preflight.sql` עובר בבדיקה אמיתית. במסד החי עדיין אין `research_pulse_2029` ואין מדיניות `ti_*`.
 - **rollback:** לאחר התיקון PASS. ‏`ingest_event` חוזר ל־md5 ‏`e7017ece…`, וה־API הציבורי נסגר. ה־RLS והעמודות נשארים בכוונה.
 - **תאימות לאתר הקיים:**
   - `ti_wall_floor` מרוקן את הקיר הציבורי עד שתהיה אצירה. אין ביטוי מאושר כברירת מחדל, ו־`getWallRecent` וקוראי הקיר הישנים יחזירו `[]`.

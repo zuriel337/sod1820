@@ -49,7 +49,7 @@ try {
   await db.exec("set role anon");
   check((await db.query('select phrase from gematria_words')).rows.map(x=>x.phrase).join(',')==='סליחות,שלום','anon suggestions exclude hidden words; ordinary word remains');
   check((await db.query('select * from search_log')).rows.length===0,'raw historical searches unavailable to anon');
-  check((await db.query('select * from gematria_wall')).rows.length===0,'private wall unavailable to anon');
+  check((await db.query('select * from gematria_wall')).rows.length===0,'frozen wall history (public and private rows) unavailable to anon');
   let refused=false;try{await db.exec("insert into search_log values(2,'new raw input',1,now())");}catch{refused=true;}check(refused,'direct raw search writes refused');
   refused=false;try{await db.query('select admin_2029_analytics()');}catch{refused=true;}check(refused,'anon cannot call admin report');
   await db.exec("reset role; set request.headers='{\"cf-connecting-ip\":\"192.0.2.1\"}'");
@@ -60,11 +60,11 @@ try {
   await db.exec("delete from events");
   await ingest();await ingest();
   check(await scalar('select count(*)=1 as v from events'),'same operation counted exactly once without a unique event_id key');
-  check(await scalar("select proconfig::text like '%enable_nestloop=off%' as v from pg_proc where proname='fn_ti_public_activity2029'"),'public reader pins the hash-join plan measured on live volume');
+  check(await scalar("select prosrc like '%set_config(''enable_nestloop'',''off'',true)%' and prosrc like '%set_config(''enable_nestloop'',nestloop,true)%' and proconfig::text not like '%enable_nestloop%' as v from pg_proc where proname='fn_ti_activity_pulse2029'"),'hash-join hint is scoped to the aggregation statement and restored (never leaks into nested privacy checks)');
   check(await scalar("select fn_ti_surface2029('/members')='community' and fn_ti_surface2029('/researcher/:item')='community' and fn_ti_surface2029('/melech-hamisparim/:item')<>'personal' and fn_ti_surface2029('/me')='personal' and fn_ti_surface2029('/journey')='journey' as v"),'route sections are anchored: members/researcher are not personal/journey');
   {
     await db.exec("set role anon");
-    const lone=await scalar('select fn_ti_public_activity2029(24) as v');
+    const lone=await scalar('select research_pulse_2029(24) as v');
     check(lone.latest_event===undefined||lone.latest_event===null,'a single sub-threshold action publishes no timestamp');
     check(lone.state==='no_data','a single sub-threshold action reads as no_data, not measured');
     await db.exec("reset role; update analytics_cache set invalidated_at=now()");
@@ -84,14 +84,14 @@ try {
     from generate_series(1,20)i;
   `);
   await db.exec("set role anon");
-  let pulse=await scalar('select fn_ti_public_activity2029(24) as v');
+  let pulse=await scalar('select research_pulse_2029(24) as v');
   check(pulse.numbers.length===1 && pulse.numbers[0].n===104,'public number requires 10 events and 5 clean sessions');
   check(!JSON.stringify(pulse).includes('human-')&&!JSON.stringify(pulse).includes('browser-'),'public response contains no session/browser IDs');
   check(pulse.state==='measured' && new Date(pulse.latest_event).getUTCMinutes()===0 && new Date(pulse.latest_event).getUTCSeconds()===0,'freshness is hour-granular once the window meets the floor');
   check(new Date(pulse.numbers[0].last_at).getUTCMinutes()===0,'number last_at is hour-granular');
   await db.exec("reset role; update gematria_words set is_published=false where ragil=104");
   await db.exec("set role anon");
-  pulse=await scalar('select fn_ti_public_activity2029(24) as v');
+  pulse=await scalar('select research_pulse_2029(24) as v');
   check(pulse.numbers.length===0,'publication is rechecked after a cached aggregate');
   check((await db.query('select * from recent_number_opens()')).rows.length===0,'recent_number_opens cannot bypass publication/cache gate');
   await db.exec("reset role; set test.admin='true'; set role authenticated");
@@ -101,11 +101,10 @@ try {
   check(report.site_activity.summary.views===30,'admin sees unknown separately; public never treats unknown as human');
   check(report.site_activity.actions.some(x=>x.event_type==='compute'&&x.events===1),'admin counts canonical compute once');
   check(report.web_vitals!==undefined && report.identified_traffic!==undefined,'existing admin projections preserved');
-  check((await db.query('select * from search_log')).rows.length===0,'unreviewed legacy search is unavailable even in new admin archive');
+  check((await db.query('select * from search_log')).rows.length===0,'frozen search history is server-only, even for an admin client');
   await db.exec('reset role');
   check((await db.query('select * from search_log')).rows.length===1,'original historical row is retained');
-  await db.exec('update search_log set admin_review_approved=true; set role authenticated');
-  check((await db.query('select * from search_log')).rows.length===1,'reviewed legacy search is available to admin only');
+  check((await db.query("select * from gematria_wall")).rows.length===3,'wall history rows are retained server-side for audit');
   await db.exec('reset role');
   await db.exec(`
     update gematria_words set is_published=true where ragil=104;
@@ -116,15 +115,15 @@ try {
     update analytics_cache set invalidated_at=now();
     set test.admin='false'; set role anon;
   `);
-  pulse=await scalar('select fn_ti_public_activity2029(24) as v');
+  pulse=await scalar('select research_pulse_2029(24) as v');
   check(pulse.phrases.length===1 && pulse.phrases[0].phrase==='סליחות','curated public corpus phrase passes only at the aggregate threshold');
   await db.exec("reset role; insert into gematria_blocklist values('סליחות'); set role anon");
-  pulse=await scalar('select fn_ti_public_activity2029(24) as v');
+  pulse=await scalar('select research_pulse_2029(24) as v');
   check(pulse.phrases.length===0 && pulse.numbers.length===0,'blocklist hides both cached phrase and number on the next read');
   await db.exec("reset role; delete from gematria_blocklist; update gematria_words set public_trend_approved=false where ragil=104; set role anon");
-  pulse=await scalar('select fn_ti_public_activity2029(24) as v');
+  pulse=await scalar('select research_pulse_2029(24) as v');
   check(pulse.phrases.length===0,'revoking curation hides an already cached phrase');
-  check((await db.query('select * from search_log')).rows.length===0,'even reviewed search text stays inaccessible to anon');
+  check((await db.query('select * from search_log')).rows.length===0,'search history stays inaccessible to anon');
   await db.exec('reset role');
   console.log(`SQL ${checks} checks PASS (isolated; classifier/rate limiter are dependency fixtures)`);
 } catch(e) { console.error(e.message); process.exitCode=1; } finally { await db.close(); }

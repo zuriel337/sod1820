@@ -25,7 +25,7 @@ AS $function$
     -- #1461 review: bidim mirrors every gematria_words phrase, including unpublished,
     -- encrypted, tier<0 and private-wall phrases (live 20.11.2026: 120 hidden + 23 private).
     -- Only a phrase with at least one publicly eligible corpus row may be returned.
-    and exists (select 1 from gematria_words g2 where g2.phrase = b.phrase and public.fn_ti_public_word_eligible(g2.id))
+    and exists (select 1 from gematria_words g2 where g2.phrase = b.phrase and public.gematria_public_word_eligible(g2.id))
   order by o.self_method,
            (b.method = 'רגיל') desc,
            coalesce(gw.is_verified,false) desc,

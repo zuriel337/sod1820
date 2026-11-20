@@ -12,6 +12,7 @@ import { numberReadingReturnHref } from "../lib/research/numberExpressionFocus.j
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { applySeo } from "../lib/seo.js";
+import { recordSiteActivity } from "../lib/siteActivity2029.js";
 import {
   parseCommunityCalculatorState, selectCommunityCalculatorResult,
   communityCalculatorHref, communityCalculatorNumberNavigation,
@@ -158,6 +159,20 @@ function CalculatorExperience({ model, initialState, location }) {
     previousState.current = signature;
     try { window.history.replaceState(window.history.state, "", returnHref); } catch { /* State still travels in share/return links. */ }
   }, [signature, returnHref]);
+
+  // #1461: ONE canonical compute per settled expression the visitor changed (same 650ms settle as
+  // the phrase lookup). The arrival/share state is not a new computation (TI v9). Content-free.
+  const arrivalNames = useRef([initialState.name1, initialState.name2]);
+  useEffect(() => {
+    if (!r1 || state.name1 === arrivalNames.current[0]) return undefined;
+    const t = setTimeout(() => recordSiteActivity("compute", { section: "calculator_community" }), 650);
+    return () => clearTimeout(t);
+  }, [state.name1, r1?.value]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!r2 || state.name2 === arrivalNames.current[1]) return undefined;
+    const t = setTimeout(() => recordSiteActivity("compute", { section: "calculator_community" }), 650);
+    return () => clearTimeout(t);
+  }, [state.name2, r2?.value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // Form edits replace native history without changing useLocation().search.
