@@ -534,6 +534,11 @@ function publicVideoLink(raw: unknown) {
         const id = host === "youtu.be" ? u.pathname.slice(1) : u.pathname === "/watch" ? u.searchParams.get("v") : /^\/(?:shorts|live)\/([^/]+)\/?$/.exec(u.pathname)?.[1];
         if (/^[A-Za-z0-9_-]{11}$/.test(id || "")) return { provider: "youtube", url: "https://www.youtube.com/watch?v=" + id };
       }
+      if (["youtube.com", "www.youtube.com", "m.youtube.com"].includes(host) && u.pathname === "/playlist") {
+        const playlist = u.searchParams.get("list");
+        if (/^[A-Za-z0-9_-]{10,100}$/.test(playlist || ""))
+          return { provider: "youtube", url: "https://www.youtube.com/playlist?list=" + playlist };
+      }
       if (["vimeo.com", "www.vimeo.com", "player.vimeo.com"].includes(host)) {
         const id = /^\/(?:video\/)?([0-9]{1,12})\/?$/.exec(u.pathname)?.[1];
         if (id) return { provider: "vimeo", url: "https://vimeo.com/" + id };
