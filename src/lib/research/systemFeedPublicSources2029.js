@@ -55,9 +55,15 @@ export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
     || row.expires_at && (!date(row.expires_at) || Date.parse(row.expires_at) <= now)) return null;
   const body = text(row.text), at = date(row.created_at), mediaHref = publicNowMediaHref(row.image_url);
   if (!at || !body && !mediaHref) return null;
-  const label = body || `${publicNowMediaKind(mediaHref) === "video" ? "סרטון" : publicNowMediaKind(mediaHref) === "audio" ? "הקלטה" : "תמונה"} · ${NOW_PUBLIC_CHANNELS_2029[row.channel]}`;
+  // The existing asynchronous metadata worker writes verified provider titles to seo_title.
+  // Never display a bare URL or media category as a claimed publication title.
+  const sourceTitle = text(row.seo_title);
+  const linkOnly = /^(?:https?:\/\/\S+|\[קישור\])\s*$/i.test(body);
+  const genericBody = /^(?:🎬 עדכון וידאו|📷 עדכון|עדכון|סרטון|וידאו|תמונה)$/i.test(body);
+  const label = sourceTitle || (!linkOnly && !genericBody && body) || "כותרת בהשלמה";
+  const titleNeedsEnrichment = !sourceTitle && (linkOnly || !body || genericBody);
   return { id: `channel:${row.id}`, kind: "source", sourceKind: "channel_update", channel: row.channel,
-    sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), fullText: body, mediaHref, thumbUrl: publicNowMediaHref(row.thumb_url),
+    sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), titleNeedsEnrichment, fullText: body, mediaHref, thumbUrl: publicNowMediaHref(row.thumb_url),
     fullTextTruncated: body.length === 1200,
     creator: NOW_PUBLIC_CHANNELS_2029[row.channel], at, arrivalAt: at, recordedAt: at,
     sourceRef: `channel_updates:${row.id}`, publicState: "published_channel_update",
@@ -131,7 +137,7 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
   const catalogRead = fetchContentSeriesCatalog2029({ client: api, limitPerSeries: 4, homeOnly: true, signal }).then(catalog => ({ catalog }), error => ({ error }));
   const results = await Promise.allSettled([
     ...keys.map(channel => read(api.from("channel_updates")
-      .select("id,text,image_url,thumb_url,channel,status,page_only,expires_at,created_at,link_url,priority")
+      .select("id,text,image_url,thumb_url,seo_title,channel,status,page_only,expires_at,created_at,link_url,priority")
       .eq("status", "live").eq("page_only", false).eq("channel", channel)
       .or(`expires_at.is.null,expires_at.gt.${new Date(now).toISOString()}`)
       .order("created_at", { ascending: false }).limit(12))),
