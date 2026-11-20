@@ -16,7 +16,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
 import { WA_MEDIA_MAX_BYTES, waMessageMediaKind, waPublicMediaPath, waSniffMedia, waStableAssetId, waUploadAlreadyExists } from "../_shared/waMediaAsset.js";
-import { waGroupIntakePublic, waGroupMessageRoute, waIsPrivateMediaRef, waProveAndPublishGroupMedia } from "../_shared/waGroupMedia.js";
+import { waGroupIntakePublic, waGroupMessageRoute, waInspectPublicGroupMedia, waIsPrivateMediaRef, waProveAndPublishGroupMedia, waReadPrivateGroupMedia } from "../_shared/waGroupMedia.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -192,6 +192,9 @@ async function ingestSource(
   nowSec: number,
   aliasMap: Map<string, string>,
   targetMessageId = "",
+  verifyOnly = false,
+  verifiedRecovery = false,
+  targetMessageIds: string[] = [],
 ): Promise<{ ingested: number; recoveryPending: boolean; recoveryBlocked: boolean; historyOk: boolean }> {
   const chatId: string = src.chat_id;
   const adminOnly: boolean = src.admin_only;
@@ -205,7 +208,8 @@ async function ingestSource(
   const useSenderName: boolean = src.use_sender_name === true;
   const captureOutgoing: boolean = src.capture_outgoing === true;
   const lastRunSec = src.last_run_at ? Date.parse(src.last_run_at) / 1000 : 0;
-  const targeted = !!targetMessageId;
+  const targetIds = targetMessageIds.length ? targetMessageIds : (targetMessageId ? [targetMessageId] : []);
+  const targeted = targetIds.length > 0;
   const recovering = !lastRunSec || (nowSec - lastRunSec) > STALE_RECOVERY_AFTER;
   const historyCount = targeted ? RECOVERY_HISTORY_COUNT : (recovering ? RECOVERY_HISTORY_COUNT : NORMAL_HISTORY_COUNT);
   let n = 0, maxTs = minTs;
@@ -224,7 +228,7 @@ async function ingestSource(
   const msgs = history.rows;
   const ordered = [...msgs].sort((a, b) => Number(a?.timestamp || 0) - Number(b?.timestamp || 0));
   const gapRows = targeted
-    ? ordered.filter((m) => String(m?.idMessage || "") === targetMessageId)
+    ? ordered.filter((m) => targetIds.includes(String(m?.idMessage || "")))
     : ordered.filter((m) => Number(m?.timestamp || 0) > minTs);
   const oldestTs = ordered.length ? Number(ordered[0]?.timestamp || 0) : 0;
   const recoveryBlocked = !targeted
@@ -273,7 +277,7 @@ async function ingestSource(
       if (blockNames.length && blockNames.some((bn) => senderName.includes(bn))) continue;
     }
 
-    const { data: dup } = await sb.from("channel_updates").select("id,image_url").eq("ext_msg_id", msgId).maybeSingle();
+    const { data: dup } = await sb.from("channel_updates").select("id,image_url,created_at,channel").eq("ext_msg_id", msgId).maybeSingle();
     if (dup && !targeted) continue;
 
     const mime = m.mimeType || m.fileMessageData?.mimeType || "";
@@ -294,14 +298,32 @@ async function ingestSource(
     // Targeted recovery of an EXISTING private group image/video (opened for the media path by a reviewed backfill file): re-read the bytes
     // only, the private original already exists. Without the opened intake marker the server refuses the proof and nothing changes.
     const groupBackfill = !!dup && targeted && route.groupMedia && waIsPrivateMediaRef(dup.image_url);
+    const verifiedBackfill = groupBackfill && verifiedRecovery;
+    if (verifiedRecovery && !groupBackfill) { trace.push({ msgId, step: "verified-recovery-not-recoverable" }); continue; }
+    if (verifiedBackfill && (m.type !== "incoming" || dup.channel !== src.channel || Date.parse(dup.created_at) !== ts * 1000)) {
+      trace.push({ msgId, step: "group-media-source-envelope-mismatch" }); continue;
+    }
     const keep: { media?: MediaBytes } = {};
     let imageUrl: string | null = null;
+    if (verifiedBackfill) {
+      try {
+        const media = await waReadPrivateGroupMedia({ sb, updateId: dup.id, objectRef: dup.image_url, kind: route.kind });
+        if (verifyOnly) {
+          const assetId = await waStableAssetId(src.channel, msgId);
+          const path = waPublicMediaPath(route.kind, assetId, ts, media.ext);
+          const publicCopy = await waInspectPublicGroupMedia({ sb, bucket: MEDIA_2029_BUCKET, path, media });
+          trace.push({ msgId, step: "group-media-verified-read", source: { mime: media.ct, size: media.buf.byteLength, sha256: media.sha256 }, publicCopy });
+          continue;
+        }
+        keep.media = media;
+      } catch (e) { trace.push({ msgId, step: "group-media-source-check-failed", reason: String(e) }); break; }
+    }
     // A targeted duplicate that already has its media is not downloaded or stored again (no second private copy), unless it is a backfill.
-    if ((isImg || isVid || isAud) && (!dup || !dup.image_url || groupBackfill)) {
+    if (!verifiedBackfill && (isImg || isVid || isAud) && (!dup || !dup.image_url || groupBackfill)) {
       let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
       if (!dl) {
         try {
-          const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST");
+          const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST") as { result?: { downloadUrl?: string }; downloadUrl?: string };
           dl = d?.result?.downloadUrl || d?.downloadUrl || "";
         } catch { /* noop */ }
       }
@@ -326,8 +348,9 @@ async function ingestSource(
         else { n++; trace.push({ msgId, step: "targeted-media-repaired", channel: src.channel }); }
       } else if (groupBackfill && keep.media && route.kind) {
         const r = await waProveAndPublishGroupMedia({ sb, trace, bucket: MEDIA_2029_BUCKET, updateId: dup.id, source: src, msgId, chatId,
-          senderId, typeMessage: typ, kind: route.kind, sourceTs: ts, media: keep.media });
+          senderId, typeMessage: typ, kind: route.kind, sourceTs: ts, media: keep.media, verifyCopy: verifiedRecovery });
         if (r.published) n++;
+        else if (verifiedRecovery) break;
       } else {
         trace.push({ msgId, step: "targeted-duplicate-no-repair", channel: src.channel });
       }
@@ -399,7 +422,13 @@ Deno.serve(async (req) => {
   const force = u.searchParams.get("force") === "1";
   const recoverChannel = (u.searchParams.get("recover_channel") || "").trim();
   const recoverMessageId = (u.searchParams.get("recover_message_id") || "").trim();
+  const recoverMessageIds = u.searchParams.getAll("recover_message_id").map(id => id.trim()).filter(Boolean);
   const targeted = !!recoverChannel || !!recoverMessageId;
+  const verifyOnly = u.searchParams.get("recover_verify_only") === "1";
+  const verifiedRecovery = verifyOnly || u.searchParams.get("recover_verified") === "1";
+  if (recoverMessageIds.length > 50 || new Set(recoverMessageIds).size !== recoverMessageIds.length
+    || (recoverMessageIds.length > 1 && !verifiedRecovery)) return new Response("invalid_verified_recovery_batch", { status: 400 });
+  if (verifiedRecovery && !targeted) return new Response("verify_requires_target", { status: 400 });
   if (targeted && (!recoverChannel || !recoverMessageId)) {
     return new Response(JSON.stringify({ error: "targeted_recovery_requires_channel_and_message_id" }), {
       status: 400,
@@ -409,7 +438,7 @@ Deno.serve(async (req) => {
 
   let providerState = "unknown";
   try {
-    const state = await waAdmin("getStateInstance", {}, "GET");
+    const state = await waAdmin("getStateInstance", {}, "GET") as { result?: { stateInstance?: string }; stateInstance?: string };
     providerState = String(state?.result?.stateInstance || state?.stateInstance || "unknown");
   } catch (e) {
     trace.push({ step: "provider-state-fail", error: String(e) });
@@ -453,7 +482,7 @@ Deno.serve(async (req) => {
       continue;
     }
     try {
-      const r = await ingestSource(src, nowSec, aliasMap, targeted ? recoverMessageId : "");
+      const r = await ingestSource(src, nowSec, aliasMap, targeted ? recoverMessageId : "", verifyOnly, verifiedRecovery, recoverMessageIds);
       ingested += r.ingested;
       if (r.recoveryPending) recoveryPending++;
       if (r.recoveryBlocked) recoveryBlocked++;

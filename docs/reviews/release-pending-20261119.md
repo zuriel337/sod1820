@@ -14,6 +14,8 @@ ZURIEL requested #1438 and all remaining current packages, then explicitly selec
 
 The observed live website remains deployment `dpl_5nvES4gHiW2R85zmmK4w5sj8FMX3`, source `2fc4fe88285588c199e972750f79be5700f8fee6`. Publishing current main also includes already-merged #1424 (canonical routing documents), #1432 (Tzvi media/source projections), #1433 (Now presentation/Egress) and #1434 (explicit gallery-video playback). Old held drafts are not included.
 
+During final gates another session merged #1439 into main at `a5fbda1400751798ca5ed62d9cb2f3a05f045d86`. The integration incorporates that current main without conflicts and reruns acceptance. Its client-side Tzvi media lookup is consequently part of the website tree; deploying `wa-channel-ingest` or executing its opt-in recovery/data batches is not included in this release's production actions.
+
 ## Integration corrections
 
 - One merge conflict in the ELS workflow: preserve #1429's SQL/core job and three complete browser shards; run #1426's public Fable proof with the existing pinned/cached browser in shard 3. The aggregate gate still requires all four jobs and exact source-bound native coverage.
@@ -25,8 +27,9 @@ The observed live website remains deployment `dpl_5nvES4gHiW2R85zmmK4w5sj8FMX3`,
 
 ## Local validation
 
-- Default build after the guided/mobile repair: PASS, 17/18 eager files, 203105/203493 gzip bytes, frame JS 47107/47338 and CSS 34329/34362.
-- Public build with command-only `VITE_ELS_MATRIX_READING_MODE=on`: PASS, 17/17 eager files, 202962/205111 gzip bytes, frame JS 47088/47425 and CSS 34329/34362. No baseline, tolerance or lockfile change.
+- Default build after the guided/mobile repair and current-main integration: PASS, 17/18 eager files, 203089/203493 gzip bytes, frame JS 47107/47338 and CSS 34329/34362.
+- Public build with command-only `VITE_ELS_MATRIX_READING_MODE=on`: PASS, 17/17 eager files, 202964/205111 gzip bytes, frame JS 47088/47425 and CSS 34329/34362. No baseline, tolerance or lockfile change.
+- Current-main media compatibility: **21/21** focused group-media, verified-recovery, Tzvi-catalog and WhatsApp/World contract cases pass. This is isolated validation, not execution of recovery against production.
 - Public compiled artifact, real worker and CSP, local-only remote fixtures: **13/13** cases passed. Includes three themes at nine header widths, responsive Home media and explicit video admission at 390/1440, delayed Community updates preserving the visible message position and CLS <=0.1, one reply toggle, 44 px notice link, and guest/member/admin Fable admission with zero AI requests.
 - Refactored native telemetry registrations: **2/2** browser cases passed, unchanged assertions at 390/1280.
 - Guided/mobile repair: **4/4** browser cases passed together in a clean run (inline mobile scan/clipboard/viewport resize; bounded guided occurrence coverage; the two-axis golden discovery/source interaction; regular/crossed Torah/Tanakh results and recovery). **9/9** profile, dock and shard-manifest contracts passed. An earlier focused attempt overlapped a build that triggered Vite page reloads; it is retained as a failed attempt, not counted as acceptance.
