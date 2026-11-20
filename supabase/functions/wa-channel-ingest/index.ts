@@ -16,7 +16,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
 import { WA_MEDIA_MAX_BYTES, waMessageMediaKind, waPublicMediaPath, waSniffMedia, waStableAssetId, waUploadAlreadyExists } from "../_shared/waMediaAsset.js";
-import { waGroupIntakePublic, waGroupMessageRoute, waInspectPublicGroupMedia, waIsPrivateMediaRef, waProveAndPublishGroupMedia, waReadPrivateGroupMedia, waRecoverMissingGroupMessages } from "../_shared/waGroupMedia.js";
+import { waGroupIntakePublic, waGroupMessageRoute, waInspectPublicGroupMedia, waIsPrivateMediaRef, waProveAndPublishGroupMedia, waReadPrivateGroupMedia, waRecoverMissingGroupMessages, waGroupSenderFingerprint } from "../_shared/waGroupMedia.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -316,7 +316,7 @@ async function ingestSource(
           const assetId = await waStableAssetId(src.channel, msgId);
           const path = waPublicMediaPath(route.kind, assetId, ts, media.ext);
           const publicCopy = await waInspectPublicGroupMedia({ sb, bucket: MEDIA_2029_BUCKET, path, media });
-          trace.push({ msgId, step: "group-media-verified-read", source: { mime: media.ct, size: media.buf.byteLength, sha256: media.sha256 }, publicCopy });
+          trace.push({ msgId, step: "group-media-verified-read", sender_jid_sha256: await waGroupSenderFingerprint(senderId), source: { mime: media.ct, size: media.buf.byteLength, sha256: media.sha256 }, publicCopy });
           continue;
         }
         keep.media = media;
