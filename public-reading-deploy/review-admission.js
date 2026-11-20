@@ -25,7 +25,11 @@ export const ELS_FIXES_PREVIEW_BRANCH = "ccr-06bc2910-pgarr4";
 // branch below. Same rules: exact name, Preview target only, never Production, no flag of its own.
 export const POST_COLOUR_PREVIEW_BRANCH = "ccr-b086914f-f5wwfd";
 export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111", REALITY_MAP_PREVIEW_BRANCH, CDN_EXPERIMENT_PREVIEW_BRANCH, ELS_FIXES_PREVIEW_BRANCH, POST_COLOUR_PREVIEW_BRANCH]);
-export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES]);
+// ZURIEL's Tzvi corpus execution authorization (20.11.2026): protected guest
+// acceptance of this exact source-lineage branch. Preview only; no auth alias,
+// Production admission, or relaxation of the pinned platform identity.
+export const TZVI_SOURCE_REVIEW_BRANCH = "gpt/tzvi-source-lineage-20261120";
+export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
 export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
