@@ -20,6 +20,9 @@ import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CAL
 const SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
 export const FIRST_WORDS_DEADLINE_MS = 1500;
+// How long a document waits for words that are not kept yet, counted from the moment its metadata is ready. Past it the document goes out as
+// it does today, and the read still completes for the next request.
+export const FIRST_WORDS_GRACE_MS = 300;
 export const FIRST_WORDS_MAX_BYTES = 24000;
 const HEADERS = { apikey: SUPABASE_ANON, Authorization: "Bearer " + SUPABASE_ANON };
 const VERIFIED = "is_verified=eq.true&is_published=eq.true";
@@ -84,7 +87,7 @@ async function phraseFacts(read, phrase) {
 
 async function calculatorFacts(read, kind) {
   const [recent, pulse] = await Promise.all([
-    optional(read.rows(`gematria_words?${VERIFIED}&ragil=gte.1&select=phrase,ragil,created_at&order=created_at.desc.nullslast&limit=36`)),
+    read.rows(`gematria_words?${VERIFIED}&ragil=gte.1&select=phrase,ragil,created_at&order=created_at.desc.nullslast&limit=36`),
     // The one public activity reader (#1461). Its own contract: { version: 1, phrases: [{ phrase, value, events }] }; anything else is absent.
     optional(read.rpc("research_pulse_2029", { p_hours: 168 })),
   ]);
@@ -130,17 +133,47 @@ export function firstWordsFamily2029(path) {
   return null;
 }
 
-export async function firstWordsFacts2029(path, { search = "", fetchImpl = globalThis.fetch, deadlineMs = FIRST_WORDS_DEADLINE_MS } = {}) {
+async function readFacts(family, fetchImpl, deadlineMs) {
+  const read = reader(fetchImpl, AbortSignal.timeout(deadlineMs));
+  if (family.kind === "number") return numberFacts(read, family.value);
+  if (family.kind === "phrase") return phraseFacts(read, family.phrase);
+  if (family.kind === "codes") return codesFacts(read);
+  if (family.kind === "code") return codeFacts(read, family.slug);
+  if (family.kind === "topic") return topicFacts(read, family.slug);
+  return calculatorFacts(read, family.kind);
+}
+
+// Speed (Speed Law): the calculators and the cipher library read nothing for their metadata, so a read on every request would be new waiting
+// time. Each function instance therefore keeps what it read: an answer is used as it is for FRESH, and after that it is still used at once
+// while one background read replaces it (up to STALE). Only public rows are kept, the same for every reader. A failed read keeps nothing.
+export const FIRST_WORDS_CACHE = Object.freeze({ freshMs: 10 * 60 * 1000, staleMs: 6 * 60 * 60 * 1000, entries: 400 });
+const kept = new Map(), reading = new Map();
+export function _resetFirstWordsForTests() { kept.clear(); reading.clear(); }
+function keepAlive(promise) {
+  try { globalThis[Symbol.for("@vercel/request-context")]?.get?.()?.waitUntil?.(promise); } catch { /* no request context: plain process */ }
+  return promise;
+}
+function refresh(key, family, fetchImpl, deadlineMs, now) {
+  if (reading.has(key)) return reading.get(key);
+  const pending = readFacts(family, fetchImpl, deadlineMs).then(facts => {
+    kept.delete(key); kept.set(key, { facts, at: now() });
+    if (kept.size > FIRST_WORDS_CACHE.entries) kept.delete(kept.keys().next().value);
+    return facts;
+  }).finally(() => { if (reading.get(key) === pending) reading.delete(key); });
+  reading.set(key, pending);
+  // The read outlives a request that stopped waiting for it, so the next request finds its answer.
+  keepAlive(pending.catch(() => null));
+  return pending;
+}
+
+export async function firstWordsFacts2029(path, { search = "", fetchImpl = globalThis.fetch, deadlineMs = FIRST_WORDS_DEADLINE_MS, now = Date.now } = {}) {
   const family = search ? null : firstWordsFamily2029(path);
   if (!family || typeof fetchImpl !== "function") return null;
   try {
-    const read = reader(fetchImpl, AbortSignal.timeout(deadlineMs));
-    if (family.kind === "number") return await numberFacts(read, family.value);
-    if (family.kind === "phrase") return await phraseFacts(read, family.phrase);
-    if (family.kind === "codes") return await codesFacts(read);
-    if (family.kind === "code") return await codeFacts(read, family.slug);
-    if (family.kind === "topic") return await topicFacts(read, family.slug);
-    return await calculatorFacts(read, family.kind);
+    const key = JSON.stringify(family), entry = kept.get(key), age = entry ? now() - entry.at : Infinity;
+    if (entry && age < FIRST_WORDS_CACHE.freshMs) return entry.facts;
+    if (entry && age < FIRST_WORDS_CACHE.staleMs) { refresh(key, family, fetchImpl, deadlineMs, now).catch(() => null); return entry.facts; }
+    return await refresh(key, family, fetchImpl, deadlineMs, now);
   } catch { return null; }
 }
 

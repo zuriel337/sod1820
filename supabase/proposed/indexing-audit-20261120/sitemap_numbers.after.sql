@@ -10,7 +10,11 @@
 --   (a) at least 3 verified published phrases, or
 --   (b) a gallery image, or
 --   (c) an approved topic card, or
---   (d) a public post that names it in its title (the same rule posts_by_number_strict ranks first).
+--   (d) a public post that names it in its title (the same rule posts_by_number_strict ranks first) AND at least one verified
+--       published phrase. Quality check 20.11.2026: without the phrase condition, 20 numbers entered on a post title alone with nothing
+--       to show, among them years (2014, 2023, 2026, 5784) and HTML entity codes that sit in imported titles (8211, 8212, 8230).
+-- Read-only check of this rule (20.11.2026): 450 -> 1,274 numbers; none of today's 450 leaves. Of the 824 new ones, 251 have ten or more
+-- verified phrases, 366 have five to nine, 203 have three or four, and 4 have one or two together with a post that names them.
 -- The lower bound stays 10. The function signature, the priority values and every caller stay as they are.
 create or replace function public.sitemap_numbers()
  returns table(value integer, priority text, lastmod text)
@@ -33,10 +37,14 @@ as $function$
     group by v
   ),
   pt as (
-    select (m[1])::int as v, max(p.date) as d
-    from posts p, regexp_matches(p.title, '(?:^|[^0-9])([0-9]{2,6})(?:[^0-9]|$)', 'g') m
-    where not (coalesce(p.tags, '{}'::text[]) && array['טיוטה'::text])
-    group by 1
+    select x.v, x.d
+    from (
+      select (m[1])::int as v, max(p.date) as d
+      from posts p, regexp_matches(p.title, '(?:^|[^0-9])([0-9]{2,6})(?:[^0-9]|$)', 'g') m
+      where not (coalesce(p.tags, '{}'::text[]) && array['טיוטה'::text])
+      group by 1
+    ) x
+    where exists (select 1 from gematria_words w where w.ragil = x.v and w.is_verified and w.is_published)
   ),
   ids as (select v from gem union select v from gal union select v from tp union select v from pt),
   agg as (

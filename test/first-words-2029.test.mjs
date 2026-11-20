@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { retiredCollectionContinuation } from "../public-reading-deploy/api/public-document.js";
-import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES } from "../public-reading-deploy/first-words.js";
+import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
+import { beforeEach } from "node:test";
+beforeEach(() => _resetFirstWordsForTests());
 
 // First words: a public page that is not a Post carries its own heading, statement and links in the document (ZURIEL 20.11.2026).
 // Synthetic sources only; no network.
@@ -67,6 +69,7 @@ test("the calculators read picked phrases only from the one activity reader, nev
   assert.match(without, /שאלות נפוצות/);
   assert.match(without, new RegExp(`href="/number/${encodeURIComponent("אור")}">אור</a> <span>= 207</span>`));
   assert.doesNotMatch(without, /ביטויים נבחרים/);
+  _resetFirstWordsForTests();
   const calls = [];
   const withPulse = firstWordsHtml2029(await firstWordsFacts2029("/gematria", { fetchImpl: source([[/gematria_words/, recent],
     [/rpc\/research_pulse_2029/, { version: 1, hours: 168, phrases: [{ phrase: "משיח", value: 358, events: 9 }] }]], calls) }));
@@ -74,10 +77,12 @@ test("the calculators read picked phrases only from the one activity reader, nev
   assert.ok(!calls.some(call => /gematria_wall|search_log|visitor_events/.test(call.path)), "no second statistics source");
   assert.doesNotMatch(withPulse, /חיפש|חיפוש/, "approved picked phrases are never presented as searches");
   // Without the reader's own seven-day window the block names no period.
+  _resetFirstWordsForTests();
   const noPeriod = firstWordsHtml2029(await firstWordsFacts2029("/gematria", { fetchImpl: source([[/gematria_words/, recent],
     [/rpc\/research_pulse_2029/, { version: 1, hours: 24, phrases: [{ phrase: "משיח", value: 358, events: 9 }] }]]) }));
   assert.match(noPeriod, /<h2>ביטויים נבחרים<\/h2>/);
   assert.doesNotMatch(noPeriod, /השבוע/);
+  _resetFirstWordsForTests();
   const wrong = firstWordsHtml2029(await firstWordsFacts2029("/gematria", { fetchImpl: source([[/gematria_words/, recent], [/rpc\/research_pulse_2029/, { version: 2, phrases: [{ phrase: "x", value: 1 }] }]]) }));
   assert.doesNotMatch(wrong, /ביטויים נבחרים/);
 });
@@ -112,4 +117,23 @@ test("the retired lessons archive continues once at the collection that holds it
   for (const path of ["/category/סוד-החשמל", "/שיעורי-שמע-סוד-החשמל", "/category/שיעורי-שמע-סוד-החשמל/x", "/category/%E0%A4%A", "/category/toString"])
     assert.equal(retiredCollectionContinuation(path), null, path);
   assert.equal(retiredCollectionContinuation("/category/שיעורי-שמע-סוד-החשמל", "q=x"), null);
+});
+
+test("an instance keeps what it read: fresh answers read nothing, a stale answer is used at once while one read replaces it, a failure keeps nothing", async () => {
+  let clock = 1_000_000, reads = 0, value = 207;
+  const fetchImpl = async url => { if (String(url).includes("gematria_words")) reads++; return String(url).includes("rpc/") ? new Response("{}", { status: 404 }) : json([{ phrase: "אור", ragil: value }]); };
+  const options = { fetchImpl, now: () => clock };
+  const first = await firstWordsFacts2029("/gematria", options);
+  assert.equal(reads, 1);
+  assert.equal(await firstWordsFacts2029("/gematria", options), first);
+  assert.equal(reads, 1, "fresh: no read");
+  clock += FIRST_WORDS_CACHE.freshMs + 1; value = 208;
+  assert.equal(await firstWordsFacts2029("/gematria", options), first, "stale: the kept answer, at once");
+  await new Promise(resolve => setTimeout(resolve, 5));
+  assert.equal(reads, 2, "one background read");
+  assert.equal((await firstWordsFacts2029("/gematria", options)).recent[0].ragil, 208);
+  clock += FIRST_WORDS_CACHE.staleMs + 1;
+  assert.equal(await firstWordsFacts2029("/gematria", { ...options, fetchImpl: async () => { throw new Error("down"); } }), null, "too old and the source is down: no words");
+  assert.equal((await firstWordsFacts2029("/gematria", options)).recent[0].ragil, 208, "a failure kept nothing");
+  assert.ok(FIRST_WORDS_GRACE_MS <= 300 && FIRST_WORDS_CACHE.entries <= 400);
 });
