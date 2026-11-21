@@ -1746,7 +1746,7 @@ function SystemFrame2029Body({
                   <React.Suspense fallback={null}><RoyalIntro2029 key={currentHref} surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>
                   <div className="sod29-hero-visual" aria-hidden="true"><span className="sod29-hero-symbol r29-medal">{React.isValidElement(symbol) ? symbol : <NavigationIcon2029 name={introIcon || "home"} />}</span></div>
                   <div className="sod29-hero-copy">
-                    {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
+                    {eyebrow && eyebrow !== title ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
                     <IntroResearchContext2029 context={pageContext || {}} currentHref={currentHref} pageTitle={currentLabel} onReturnExact={returnExact} />
