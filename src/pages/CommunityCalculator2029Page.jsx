@@ -142,6 +142,8 @@ function BabyNames({ model }) {
 const recordCommunity = action => void import("../lib/siteActivity2029.js")
   .then(m => m.recordSiteActivity(action, { section: "calculator_community" })).catch(() => {});
 const recordCommunityCompute = () => recordCommunity("compute");
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../lib/searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
 
 function CalculatorExperience({ model, initialState, location }) {
   const research = useResearch();
@@ -177,12 +179,12 @@ function CalculatorExperience({ model, initialState, location }) {
   }, [state.name1, state.name2]);
   useEffect(() => {
     if (!r1 || state.name1 === arrivalNames.current[0]) return undefined;
-    const t = setTimeout(() => { typingBurst.current = false; recordCommunityCompute(); }, 650);
+    const t = setTimeout(() => { typingBurst.current = false; recordCommunityCompute(); logSearch(state.name1, r1.value, "gematria"); }, 650);
     return () => clearTimeout(t);
   }, [state.name1, r1?.value]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!r2 || state.name2 === arrivalNames.current[1]) return undefined;
-    const t = setTimeout(recordCommunityCompute, 650);
+    const t = setTimeout(() => { recordCommunityCompute(); logSearch(state.name2, r2.value, "gematria"); }, 650);
     return () => clearTimeout(t);
   }, [state.name2, r2?.value]); // eslint-disable-line react-hooks/exhaustive-deps
 

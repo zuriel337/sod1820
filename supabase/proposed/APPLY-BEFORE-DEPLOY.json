@@ -54,6 +54,32 @@
       "deployed_before_sql": "degrades_gracefully",
       "degradation_test": "test/sitewide-statistics-rollout.test.mjs",
       "rollout_note": "Run the preflight and all files through apply.psql after exact SQL approval; extensions.sql is not a standalone rollout. Preview before SQL shows unavailable and never falls back to raw wall/search history."
+    },
+    {
+      "rpc": "log_search_2029",
+      "sql": "supabase/proposed/search-wall-20261121/search_wall.after.sql",
+      "rollback_sql": "supabase/proposed/search-wall-20261121/rollback.sql",
+      "apply_entrypoint": "supabase/proposed/search-wall-20261121/search_wall.after.sql",
+      "callers": [
+        "src/lib/searchLog2029.js"
+      ],
+      "introduced_by": "ZURIEL 21.11.2026 private search wall",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/search-log-2029.test.mjs",
+      "rollout_note": "Before the SQL the call answers PGRST202/404; the writer swallows it (fire-and-forget), the page is unaffected and nothing is stored."
+    },
+    {
+      "rpc": "admin_search_wall_2029",
+      "sql": "supabase/proposed/search-wall-20261121/search_wall.after.sql",
+      "rollback_sql": "supabase/proposed/search-wall-20261121/rollback.sql",
+      "apply_entrypoint": "supabase/proposed/search-wall-20261121/search_wall.after.sql",
+      "callers": [
+        "src/components/experience2029/SearchWall2029.jsx"
+      ],
+      "introduced_by": "ZURIEL 21.11.2026 private search wall",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/search-log-2029.test.mjs",
+      "rollout_note": "Admin console only. Before the SQL the wall shows a read error; no other surface reads it."
     }
   ],
   "known_missing_dormant": [

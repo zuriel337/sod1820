@@ -6,6 +6,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
 const OperationalMetrics2029 = React.lazy(() => import("../components/experience2029/OperationalMetrics2029.jsx"));
 const MaintenanceAttention2029 = React.lazy(() => import("../components/experience2029/MaintenanceAttention2029.jsx"));
+const SearchWall2029 = React.lazy(() => import("../components/experience2029/SearchWall2029.jsx"));
 
 const n = v => v == null || typeof v === "boolean" || typeof v === "string" && !v.trim() ? NaN : Number(v);
 const num = v => Number.isFinite(n(v)) ? n(v).toLocaleString("he-IL") : "—";
@@ -72,6 +73,7 @@ function ControlPlaneBody({ auth }) {
   const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], healthError: null, videoError: null, traceError: null, traceLoading: true, traceVersion: 0 });
   const [selectedId, setSelectedId] = useState(null);
   const [metricsOpen, setMetricsOpen] = useState(false);
+  const [searchWallOpen, setSearchWallOpen] = useState(false);
   // "רענן" re-reads everything on this page, the speed centre included (ZURIEL 17.11.2026: a refresh that did not reach the open
   // measurement component was not a refresh).
   const [refreshToken, setRefreshToken] = useState(0);
@@ -180,6 +182,15 @@ function ControlPlaneBody({ auth }) {
         {metricsOpen ? "סגירת מדידה וגוגל" : "מדידה וגוגל"}
       </button>
     </section>
+    {/* Private search wall (ZURIEL 21.11.2026): admin only, opened on demand. */}
+    <section className="sod29-section">
+      <button className="sod29-action" type="button" aria-expanded={searchWallOpen} onClick={()=>setSearchWallOpen(open=>!open)} data-search-wall-toggle>
+        {searchWallOpen ? "סגירת קיר החיפושים" : "קיר חיפושים פרטי"}
+      </button>
+    </section>
+    {searchWallOpen ? <React.Suspense fallback={<section className="sod29-section"><p role="status">פותח את קיר החיפושים…</p></section>}>
+      <SearchWall2029/>
+    </React.Suspense> : null}
     {/* Maintenance and recommendations (system_suggestions_law v7): the detectors' pending recommendations grouped by meaning; read only. */}
     <React.Suspense fallback={<section className="sod29-section"><p role="status">פותח את התחזוקה וההמלצות…</p></section>}>
       <MaintenanceAttention2029 refreshToken={refreshToken}/>
