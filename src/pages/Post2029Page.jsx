@@ -104,7 +104,8 @@ function toolOnApproach2029(load, title) {
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
 const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
 const discussionReviewEnabled = import.meta.env.DEV && import.meta.env.VITE_POST_DISCUSSION_REVIEW === "true";
-const PostDiscussionReview2029 = toolOnOpen2029(() => import("../components/experience2029/PostDiscussionReview2029.jsx"));
+const PostDiscussionReview2029 = discussionReviewEnabled
+  ? toolOnOpen2029(() => import("../components/experience2029/PostDiscussionReview2029.jsx")) : null;
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
 const PostReadingActions2029 = toolOnOpen2029(() => import("../components/experience2029/PostReadingActions2029.jsx"), "טוען פעולות");
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
