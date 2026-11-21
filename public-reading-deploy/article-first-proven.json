@@ -1,10 +1,9 @@
 {
- "generated": "2026-11-20T19:34:18.363Z",
- "base": "3f16cde278d15cc62b86ff647a334b946ce8bbf7",
- "fingerprint": "00d7bf30c30da4fdda0d",
+ "generated": "2026-11-21T00:02:33.630Z",
+ "base": "f2ca9aafc7e765c79df7d7a2da1e55f1578bc72b",
+ "fingerprint": "a2d19fff0d4e08fb52bd",
  "jsdom": "25.0.1",
  "pipeline": [
-  "src/lib/activityPulseLayout2029.js",
   "src/lib/designTokens.js",
   "src/lib/format.js",
   "src/lib/img.js",
