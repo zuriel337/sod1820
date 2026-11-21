@@ -1535,3 +1535,16 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 .sod29-reading-source [data-legacy-panel="light"]:not([data-legacy-color]){color:#172B46}
 .sod29-reading-source [data-legacy-panel="dark"] a:not([data-legacy-color]){color:#FFD27A}
 .sod29-reading-source [data-legacy-panel="light"] a:not([data-legacy-color]){color:#1F4FBF}
+
+/* Royal reading opening: title, a short introduction and compact disclosures. */
+.surface-post .sod29-orientation-context {display: none;}
+.sod29-reading-post .sod29-reading-hero {
+  border-block-start-color: color-mix(in srgb, var(--s29-brand-gold) 58%, var(--s29-line));
+}
+.sod29-reading-opening {max-width: 68ch; margin: .3em 0 .8em; color: var(--post-text, var(--s29-ink)); line-height: 1.6;}
+.sod29-reading-post > .sod29-post-research:not([open]) {
+  width: fit-content;
+  max-width: 100%;
+  margin-block: .5rem;
+  margin-inline-start: 0;
+}

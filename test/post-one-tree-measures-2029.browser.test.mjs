@@ -30,8 +30,8 @@ function fixturePlugin(){
     ['SpatialMethodStage2029.jsx','noop'],['WorldSourceStory.jsx','noop'],
   ]);
   const modules={
-    events:`export const emit=()=>{};`,
-    tracking:`export const getVisitorId=()=>'fixture-guest';export const trackResearch=()=>{};export function track(...args){window.__contentEntries.push(args);}`,
+    events:`export const emit=()=>{}, isBot=()=>false;`,
+    tracking:`export const getVisitorId=()=>'fixture-guest';export const trackResearch=()=>{}, trackShare=()=>{};export function track(...args){window.__contentEntries.push(args);}`,
     noop:`export default function Noop(){return null;}`,
     auth:`export const useAuth=()=>({user:null,isAdmin:false,loading:false});`,
     hub:`export async function fetchEntityHubProjection(){return null;}export async function fetchGallerySourceContext(){return {items:[]};}`,
@@ -55,6 +55,7 @@ function fixturePlugin(){
       export const getAllValuePhrases=async()=>[],langLinksList=async()=>[];
       export const getNumberLookup=async()=>null,getRelationCandidate=async()=>null;
       export async function getPostBySlug(slug){return window.__post.slug===slug?structuredClone(window.__post):null;}
+      export default null;
       export const supabase={from(table){const filters=[];let range=null,limit=null;
         const q={select(){return q;},eq(k,v){filters.push([k,v]);return q;},in(k,values){filters.push([k,values]);return q;},
           overlaps(){return q;},order(k){if(k==='meter_score')throw Error('forbidden score order');return q;},
@@ -204,7 +205,11 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       const errors=[];page.on('pageerror',error=>errors.push(error.message));
       await context.addInitScript(()=>sessionStorage.setItem('fixture-post-overrides',JSON.stringify({slug:'readability-dim5',author:'בדרך לנצח',content:'<h2>קריאה נוחה בעברית</h2><p id="reading-prose" style="text-align:center;color:#cbb25e">'+('פסקה ארוכה נשארת מיושרת לתחילת השורה בתוך טור קריאה ממורכז. '.repeat(5))+'</p><blockquote><p id="reading-quote">ציטוט קצר במרכז</p></blockquote><p class="sod29-gematria-line" id="reading-equation">12 + 3 = 15</p><div class="sod-gematria-box"><div class="gb-title">🔢 גימטריה — עובדה מאומתת במנוע</div><div class="gb-rows"><div><b>216</b> = גבורה = ראיה</div><div><b>32</b> = כבוד = לב</div></div><div class="gb-note">שני השוויונות בגימטריה רגילה אומתו במנוע הרשמי. <b>זהו חישוב, לא הוכחת משמעות.</b> הקריאה נשארת רמז ופרשנות למחקר.</div></div>'})));
       await page.goto(origin+'/post/readability-dim5?theme='+theme);await page.locator('#reading-prose').waitFor();
-      const help=page.getByRole('button',{name:'איך זה עובד? — איך קוראים את הפוסט?',exact:true});await help.waitFor();
+      assert.equal(await page.locator('nav[aria-label="בתוך הפוסט"], .sod29-semantic-legend').count(),0);
+      const help=page.locator('.sod29-post-details').getByRole('button',{name:'איך זה עובד? — איך קוראים את הפוסט?',exact:true});
+      assert.equal(await help.isVisible(),false);
+      await page.locator('.sod29-post-details > summary').click();
+      await help.waitFor();
       assert.equal(await help.locator('.sod29-learn-mark-label').innerText(),'איך זה עובד?');
       const typography=await help.evaluate(node=>{const s=getComputedStyle(node);return {font:s.fontSize,line:s.lineHeight,weight:s.fontWeight};});
       assert.deepEqual(typography,{font:'16px',line:'22.4px',weight:'500'},'Shared help must override the generic button font inheritance');
@@ -212,12 +217,11 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       const geometry=await page.evaluate(()=>{
         const rect=selector=>{const b=document.querySelector(selector).getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,center:b.x+b.width/2};};
         const symbol=getComputedStyle(document.querySelector('.sod29-learn-mark-symbol'));
-        return {article:rect('article'),source:rect('.sod29-reading-source'),nav:rect('nav[aria-label="בתוך הפוסט"]'),help:rect('.sod29-learn-mark-trigger'),details:rect('.sod29-post-details'),
+        return {article:rect('article'),source:rect('.sod29-reading-source'),help:rect('.sod29-learn-mark-trigger'),details:rect('.sod29-post-details'),
           prose:getComputedStyle(document.querySelector('#reading-prose')).textAlign,quote:getComputedStyle(document.querySelector('#reading-quote')).textAlign,equation:getComputedStyle(document.querySelector('#reading-equation')).textAlign,
           symbolBorder:parseFloat(symbol.borderTopWidth),overflow:document.documentElement.scrollWidth>innerWidth};
       });
       assert.ok(Math.abs(geometry.source.center-geometry.article.center)<1,'The removed spine leaves no empty grid column');
-      assert.ok(Math.abs(geometry.nav.center-geometry.source.center)<1,'Section menu and source share the same centered axis');
       assert.ok(['start','right'].includes(geometry.prose));assert.equal(geometry.quote,'center');assert.equal(geometry.equation,'center');
       const claimBox=await page.locator('.sod-gematria-box').evaluate(box=>{
         const title=box.querySelector('.gb-title'),rows=box.querySelector('.gb-rows'),note=box.querySelector('.gb-note');
@@ -234,14 +238,6 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       assert.ok(claimBox.rowsOffset<1,'Equation group shares the centered title axis');assert.equal(claimBox.within,true);
       assert.match(claimBox.label,/טענת הפוסט/);assert.equal(claimBox.text,'🔢 גימטריה — עובדה מאומתת במנוע','Authored caption and emoji stay source wording, not a new verification badge');
       assert.equal(geometry.symbolBorder,0);assert.ok(geometry.help.width>=44&&geometry.help.height>=44);assert.equal(geometry.overflow,false);
-      if(width===390)assert.ok(Math.min(geometry.help.y+geometry.help.height,geometry.details.y+geometry.details.height)>Math.max(geometry.help.y,geometry.details.y),'Compact help shares the metadata row when space allows');
-      for(const button of await page.locator('nav[aria-label="בתוך הפוסט"] button').all()){const b=await button.boundingBox();assert.ok(b.width>=44&&b.height>=44);}
-      if(width===320){
-        const boxes=await page.locator('nav[aria-label="בתוך הפוסט"] button').evaluateAll(nodes=>nodes.map(node=>{const b=node.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width};}));
-        assert.equal(boxes[0].y,boxes[1].y);assert.ok(Math.abs(boxes[0].width-boxes[1].width)<1);
-        for(let i=2;i+1<boxes.length;i+=2)assert.equal(boxes[i].y,boxes[i+1].y);
-        if(boxes.length%2){const last=boxes.at(-1);assert.ok(Math.abs(last.x+last.width/2-geometry.nav.center)<1);assert.ok(last.width>boxes[0].width);}
-      }
       await page.screenshot({path:join(artifacts,`reading-alignment-${width}-${theme}.png`),fullPage:true});
       await help.focus();assert.equal(await help.evaluate(node=>getComputedStyle(node).outlineStyle),'solid');await page.keyboard.press('Enter');
       assert.equal(await help.getAttribute('aria-expanded'),'true');
@@ -509,21 +505,22 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       const alignment=await hero.evaluate(node=>{const parent=node.parentElement.getBoundingClientRect(),box=node.getBoundingClientRect();return Math.abs((box.x+box.width/2)-(parent.x+parent.width/2));});
       assert.ok(alignment<2,'Post classifications share the centered title axis');
       assert.equal(await hero.locator('[data-post-classification="legacy-media-label"]').count(),0);
-      assert.ok(await hero.getByRole('link',{name:'סיווג במקור: שבילי שפה',exact:true}).isVisible());
+      assert.equal(await hero.getByRole('link',{name:'סיווג במקור: שבילי שפה',exact:true}).count(),0);
       const geometry=await series.evaluate(node=>({height:node.getBoundingClientRect().height,size:getComputedStyle(node).fontSize}));
       assert.ok(geometry.height>=44);assert.equal(geometry.size,'14px');
       await series.focus();assert.equal(await series.evaluate(node=>document.activeElement===node),true);
       await page.locator('.sod29-post-details > summary').click();
       assert.ok(await page.getByText('מפרסם: בדרך לנצח',{exact:true}).isVisible());
+      assert.ok(await page.locator('.sod29-post-details').getByRole('link',{name:'סיווג במקור: שבילי שפה',exact:true}).isVisible());
       // ZURIEL 16.11.2026: the legacy media label and its maintenance sentence are not audience wording
       assert.equal(await page.locator('[data-post-classification="legacy-media-label"]').count(),0);
       assert.equal(await page.getByText('נשמר כסיווג ישן',{exact:false}).count(),0);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
       if(width===390)await page.screenshot({path:join(artifacts,'classification-'+theme+'-mobile.png'),fullPage:true});
-      await page.locator('#post-next').getByRole('link',{name:'עוד ממימד חמש',exact:false}).click();
+      assert.equal(await page.locator('#post-next').count(),0);
+      await series.click();
       await page.waitForURL('**/2029/posts?series=dimension-five');
-      assert.match(await page.evaluate(()=>window.__researchContext.returnTo.href),/^\/post\/future-source/);
-      assert.deepEqual(errors,[]);classificationResults.push({width,theme,geometry,seriesFooter:true});
+      assert.deepEqual(errors,[]);classificationResults.push({width,theme,geometry,seriesLink:true});
       await context.close();
     }
     const defaults=await browser.newPage();await defaults.goto(origin+'/category-default');
