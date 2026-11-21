@@ -171,3 +171,38 @@ test("our logo marks OUR material only: the reality-map series and the reality s
   assert.equal(byTitle("שלנו").logo?.label, "כי לה׳ המלוכה");
   assert.equal(byTitle("צד שלישי")?.logo ?? null, null);
 });
+
+test("Bennett's Nov 21 edit leads Now without claiming a new source unit; the next elections edit replaces it", () => {
+  const elections = post(5107, { tags: ["מפת המציאות"], title: "הבחירות",
+    date: "2026-09-30T08:55:06Z", modified: "2026-11-10T16:56:00Z" });
+  const bennett = post(5113, { tags: ["מפת המציאות"], title: "בנט והמלח",
+    date: "2026-09-30T23:57:13Z", modified: "2026-11-21T02:56:15Z" });
+  const { models, items } = nowFor([elections, bennett], [elections, bennett],
+    Date.parse("2026-11-22T08:00:00Z"));
+  assert.equal(items.filter(item => item.id === "post:5113").length, 1, "the edit does not create a second Post");
+  assert.equal(models[0].id, "post:5113");
+  assert.equal(models[0].title, "בנט והמלח");
+  assert.equal(models[0].typeLabel, "פוסט · נערך");
+  assert.equal(models[0].updated, true);
+  assert.equal(models[0].at, "2026-11-21T02:56:15.000Z");
+  assert.equal(models[0].href, "/post/p-5113", "opens the whole Post, not an older 19 Nov unit");
+  assert.equal(models[0].item.sourceUpdate, null, "no invented source-unit addition");
+  assert.equal(models[0].item.sourcePublishedAt, "2026-09-30T23:57:13.000Z", "original publication preserved");
+
+  const nextElections = { ...elections, modified: "2026-11-23T10:00:00Z" };
+  const next = nowFor([nextElections, bennett], [nextElections, bennett],
+    Date.parse("2026-11-24T08:00:00Z")).models;
+  assert.equal(next[0].id, "post:5107");
+  assert.equal(next[0].typeLabel, "פוסט · נערך");
+});
+
+test("Now's shared series-catalog fallback exposes edits without any additional network reader", () => {
+  const bennett = post(5113, { tags: ["מפת המציאות"], title: "בנט והמלח",
+    date: "2026-09-30T23:57:13Z", modified: "2026-11-21T02:56:15Z" });
+  const catalogOnly = nowFor([], [bennett], Date.parse("2026-11-22T08:00:00Z"));
+  assert.equal(catalogOnly.items[0].sourceUpdatedAt, bennett.modified);
+  assert.equal(catalogOnly.models[0].id, "post:5113");
+  assert.equal(catalogOnly.models[0].at, "2026-11-21T02:56:15.000Z");
+  assert.equal(catalogOnly.models[0].href, "/post/p-5113");
+});
+
