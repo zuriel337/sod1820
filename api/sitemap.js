@@ -30,6 +30,54 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 // (tags∋«טיוטה»/«פורום» — אותו אות שסרגל מימד-חמש כבר משתמש בו). אין אורך-טקסט, אין
 // home_hidden, אין ציון-איכות שרירותי. הפוסטים עדיין נגישים — רק לא מפורסמים לסריקה.
 const POST_PUBLISHED_FILTER = "&or=" + encodeURIComponent("(" + publicPostOnlyFilter() + ")");
+const SITEMAP_CACHE = 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400';
+const PHRASE_PAGE_SIZE = 1000;
+const PHRASE_SOURCE = `${SUPABASE_URL}/rest/v1/sitemap_phrases_v1?select=phrase,lastmod&order=phrase.asc`;
+
+function phraseUrls(rows) {
+  return rows.flatMap(row => {
+    const phrase = String(row?.phrase || '').trim();
+    return !phrase || /^\d+$/.test(phrase) ? [] : [{ loc: '/number/' + encodeURIComponent(phrase),
+      lastmod: row.lastmod || undefined, changefreq: 'monthly', priority: '0.5' }];
+  });
+}
+
+// The public HTTP adapter serves one small index, content and catalog maps,
+// and independently cacheable, bounded phrase pages. Same public source and
+// publication predicates; no snapshots, cron, new RPC or client-side work.
+export async function partitionedSitemap(req, res) {
+  const params = new URL(req.url || '/sitemap.xml', SITE).searchParams;
+  const part = params.get('part'), page = params.get('page');
+  const valid = [...params.keys()].every(key => key === 'part' || key === 'page')
+    && params.getAll('part').length <= 1 && params.getAll('page').length <= 1
+    && ((!part && !params.size) || (['content', 'catalog'].includes(part) && page === null)
+      || (part === 'phrases' && /^[1-9]\d{0,4}$/.test(page || '') && Number(page) < 50000));
+  if (!valid) { res.setHeader('Cache-Control', 'no-store'); return res.status(404).send('unknown sitemap part'); }
+  if (part === 'content' || part === 'catalog') return handler({ ...req, sitemapExcludePhrases: true, sitemapSection: part }, res);
+  try {
+    let xml;
+    if (part === 'phrases') {
+      const response = await fetch(`${PHRASE_SOURCE}&limit=${PHRASE_PAGE_SIZE}&offset=${(Number(page) - 1) * PHRASE_PAGE_SIZE}`, { headers: HEADERS });
+      if (!response.ok) throw Error('phrase-source-unavailable');
+      const rows = await response.json();
+      if (!Array.isArray(rows) || rows.length > PHRASE_PAGE_SIZE) throw Error('phrase-source-invalid');
+      xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + phraseUrls(rows).map(urlTag).join('\n') + '\n</urlset>\n';
+    } else {
+      // Count metadata only: never download or rebuild all phrase pages just to
+      // discover them. Invalid/missing totals fail closed, not a truncated index.
+      const response = await fetch(`${PHRASE_SOURCE}&limit=1`, { method: 'HEAD', headers: { ...HEADERS, Prefer: 'count=exact' } });
+      const match = /\/(\d+)$/.exec(response.headers.get('content-range') || '');
+      const count = match ? Number(match[1]) : NaN;
+      if (!response.ok || !Number.isSafeInteger(count) || count < 0 || Math.ceil(count / PHRASE_PAGE_SIZE) > 49998) throw Error('phrase-count-unavailable');
+      const links = ['/sitemap.xml?part=content', '/sitemap.xml?part=catalog', ...Array.from({ length: Math.ceil(count / PHRASE_PAGE_SIZE) }, (_, i) => `/sitemap.xml?part=phrases&page=${i + 1}`)];
+      xml = '<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + links.map(link => `  <sitemap><loc>${esc(SITE + link)}</loc></sitemap>`).join('\n') + '\n</sitemapindex>\n';
+    }
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8'); res.setHeader('Cache-Control', SITEMAP_CACHE);
+    return res.status(200).send(xml);
+  } catch { res.setHeader('Cache-Control', 'no-store'); return res.status(503).send('sitemap source unavailable'); }
+}
 
 function urlTag({ loc, lastmod, changefreq, priority }) {
   return [
@@ -201,6 +249,7 @@ async function fetchAll(path, { concurrentPages = 1 } = {}) {
 }
 
 export default async function handler(req, res) {
+  const catalogOnly = req.sitemapSection === 'catalog', contentOnly = req.sitemapSection === 'content';
   const productionReading = req.publicReadingProductionArtifact === true && req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
   const foundation = req.publicFoundationPreview === true;
   const foundationStatics = new Set(["/", "/world", "/post", "/map", "/privacy", "/number"]);
@@ -218,6 +267,7 @@ export default async function handler(req, res) {
   if (productionReading) urls.push({ loc: '/beit-midrash', priority: '0.6', changefreq: 'weekly' });
   // A sitemap <loc> is an escaped URL (sitemaps.org): the historical pages are kept by their decoded Hebrew path, so encode them like every other family.
   if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc:encodeURI(loc),priority:'0.4',changefreq:'yearly'});
+  if (catalogOnly) urls.length = 0;
   let foundationSourceFailed = false;
   const readingProfile = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
   const videoAssetsPath = 'video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at'
@@ -225,11 +275,11 @@ export default async function handler(req, res) {
   // Discovery is independent of the post census; admission still waits for it.
   // Capture either outcome immediately, including when the post read fails first.
   // This overlaps two sequential pagers, below the existing three-read bound.
-  const videoDiscovery = productionReading ? fetchAll(videoAssetsPath).then(
+  const videoDiscovery = productionReading && !catalogOnly ? fetchAll(videoAssetsPath).then(
     rows => ({ rows }), error => ({ error }),
   ) : null;
   let posts;
-  try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${productionReading ? ',title,tags,categories' : ''}${POST_PUBLISHED_FILTER}&order=date.desc`); }
+  try { posts = catalogOnly ? [] : await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${productionReading ? ',title,tags,categories' : ''}${POST_PUBLISHED_FILTER}&order=date.desc`); }
   catch { res.setHeader("Cache-Control", "no-store"); return res.status(503).send("sitemap source unavailable"); }
   // DEF-002: the sitemap lists the post address WITHOUT a trailing slash - the form the edge serves (it answers `/<slug>/` with
   // a 308 to `/<slug>`). The address itself is owned by the single adapter (src/lib/publicPostUrls.js); this only drops a
@@ -254,6 +304,7 @@ export default async function handler(req, res) {
   // כולל פוסטים גם מחוץ לקטגוריית «וידאו», Or-Geula, home_videos וערוצי WhatsApp ציבוריים.
   const unifiedVideoPages = new Map();
   const videoPrimaryPaths = new Set();
+  if (!catalogOnly) {
   try {
     const discovered = videoDiscovery ? await videoDiscovery : null;
     if (discovered && 'error' in discovered) throw discovered.error;
@@ -280,6 +331,7 @@ export default async function handler(req, res) {
       if (path) videoPrimaryPaths.add(path);
     }
   } catch (e) { if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) foundationSourceFailed = true; }
+  }
   const unifiedVideoUrls = [...unifiedVideoPages.entries()].map(([pageUrl, assets]) => unifiedVideoPageTag(pageUrl, assets));
 
   // ── פוסטים → /<slug> (מדלגים על עמודים שכבר נכנסים עם video:video מה-Projection) ──
@@ -315,6 +367,7 @@ export default async function handler(req, res) {
 
   // ── דפי מספר → /number/:n — יהלומים: גלריות ∪ גימטריה עשירה(≥20) ∪ התכנסויות (RPC sitemap_numbers).
   // כולל lastmod (אות re-crawl לתבנית ה-story-top) + priority לפי עושר. ספרה בודדת מפנה ל-/sulamot → ≥10.
+  if (!contentOnly) {
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/sitemap_numbers`, {
       method: 'POST', headers: { ...HEADERS, 'Content-Type': 'application/json' }, body: '{}',
@@ -334,16 +387,9 @@ export default async function handler(req, res) {
   // ── דפי ביטוי מאומתים → /number/:phrase — אותו SSOT של robots בעמוד עצמו.
   // רק verified + published + visible מתוך sitemap_phrases_v1; ביטוי מספרי נשאר בבעל-המספר.
   try {
-    const phrases = await fetchAll('sitemap_phrases_v1?select=phrase,lastmod&order=phrase.asc', { concurrentPages: productionReading ? 3 : 1 });
-    for (const row of phrases) {
-      const phrase = String(row?.phrase || '').trim();
-      if (!phrase || /^\d+$/.test(phrase)) continue;
-      urls.push({
-        loc: '/number/' + encodeURIComponent(phrase),
-        lastmod: row.lastmod || undefined,
-        changefreq: 'monthly',
-        priority: '0.5',
-      });
+    if (!req.sitemapExcludePhrases) {
+      const phrases = await fetchAll('sitemap_phrases_v1?select=phrase,lastmod&order=phrase.asc', { concurrentPages: productionReading ? 3 : 1 });
+      urls.push(...phraseUrls(phrases));
     }
   } catch (e) { if (foundation) foundationSourceFailed = true; }
 
@@ -431,6 +477,7 @@ export default async function handler(req, res) {
     }
   } catch (e) { if (productionReading) foundationSourceFailed = true; }
 
+  }
   if (foundationSourceFailed) { res.setHeader("Cache-Control", "no-store"); return res.status(503).send("sitemap source unavailable"); }
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -443,6 +490,6 @@ export default async function handler(req, res) {
 
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   // נשמר בקאש שעה בדפדפן / 6 שעות ב-CDN — טרי מספיק, וזול על המכסה.
-  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400');
+  res.setHeader('Cache-Control', SITEMAP_CACHE);
   res.status(200).send(xml);
 }

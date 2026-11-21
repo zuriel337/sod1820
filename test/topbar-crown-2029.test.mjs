@@ -68,11 +68,13 @@ test("the traps the design hit stay handled", () => {
   assert.match(css, /object-fit: contain/);
 });
 
+// Design V2 §14.9 + Royal continuation: Night glass consumes the frame role,
+// not the warm editorial panel resolved on the root; Day/Parchment pins below stay.
 test("the approved numbers", () => {
   const must = [
     "--s29-bar-h: 64px", "--s29-line-w: 2px", "--s29-dip-w: 320px", "--s29-dip-h: 62px", "--s29-crown-w: 100px",
     "--s29-crown-w: 84px", "--s29-dip-w: 250px", "--s29-dip-h: 54px", "--s29-crown-w: 72px", "--s29-dip-w: 220px", "--s29-dip-h: 48px",
-    "color-mix(in srgb, var(--s29-panel) 72%, transparent)", "rgb(16 11 28 / .90)", "--s29-line-prog: #7fe7ff",
+    "color-mix(in srgb, var(--s29-frame) 72%, transparent)", "rgb(16 11 28 / .90)", "--s29-line-prog: #7fe7ff",
     "--s29-panel: #17120e", "--s29-ink: #f5f5f0", "--s29-muted: #c6c6c1", "--s29-brand-gold: #f9ba3f", "--s29-accent-text: #a8c7ff", "--s29-focus-ring: #69ded7",
     "translateX(-50%) translateY(-2px) scale(.62)", "translateX(-50%) translateY(-1px) scale(.7)",
   ];

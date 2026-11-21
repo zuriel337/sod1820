@@ -1,7 +1,7 @@
 import React from "react";
 import { NewsletterSignup2029 } from "../StayUpdatedCTA.jsx";
 import { confirmGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
-import { BRAND_LOCKUP_NAV_2029, HOME_ATMOSPHERE_2029 } from "../../lib/brandAssets2029.js";
+import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import "./guestNewsletterInvite2029.css";
 
 // Same invitation as the mounted Legacy popup, using the existing 2029 form.
@@ -9,7 +9,6 @@ import "./guestNewsletterInvite2029.css";
 export default function GuestNewsletterInvite2029({ onClose }) {
   return <section className="sod29-newsletter-invite" dir="rtl" data-newsletter-invite="site-updates">
     <div className="sod29-newsletter-invite-brand">
-      <img className="sod29-newsletter-invite-atmosphere" src={HOME_ATMOSPHERE_2029.mobile} alt="" width="800" height="1200" />
       <img className="sod29-newsletter-invite-logo" src={BRAND_LOCKUP_NAV_2029.src} alt={BRAND_LOCKUP_NAV_2029.alt} width={BRAND_LOCKUP_NAV_2029.width} height={BRAND_LOCKUP_NAV_2029.height} />
       <strong>SOD1820</strong><small>גילוי · מחקר · תודעה</small>
     </div>

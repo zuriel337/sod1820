@@ -88,6 +88,11 @@ test("a cold instance answers exactly as today and loads the server DOM in the b
   assert.ok(document.head.querySelector("script[data-sod-article-first-theme]"), "the reader's theme is set before the first paint");
   // the first paint waits for the first-paint stylesheet only: no stylesheet in the head blocks it; the full stylesheets come after the article
   assert.ok(document.head.querySelector("style[data-sod-article-first-critical]"), "the first-paint stylesheet is in the head");
+  const reserve = document.head.querySelector("style[data-sod-article-first]");
+  assert.ok(reserve, "header space is reserved before any streamed body can paint");
+  assert.equal(document.querySelectorAll("style[data-sod-article-first]").length, 1);
+  assert.equal((reserve.textContent.match(/html\.sod-af-first #root,html:has\(/g) || []).length, 3, "all three header sizes apply even before the article node is parsed");
+  assert.match(reserve.textContent, /html:has\(#sod29-ssr-article:not\(\[data-ssr-standalone\]\)\) #root/, "the existing reservation survives full CSS and ends on article adoption");
   assert.equal(document.head.querySelectorAll('link[rel="stylesheet"][href^="/assets/"]').length, 0, "no render-blocking stylesheet in the head");
   const full = [...document.querySelectorAll("link[data-sod-article-first-full]")];
   assert.ok(full.length >= 3 && full.every(link => link.parentElement === document.body), "the full stylesheets are in the body");

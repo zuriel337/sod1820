@@ -39,6 +39,36 @@ const sleep = ms => new Promise(done => setTimeout(done, ms));
 const FACES = () => Promise.all(["400 16px 'Noto Sans Hebrew'", "700 16px 'Noto Sans Hebrew'", "400 16px Rubik", "700 16px Rubik"].map(font => document.fonts.load(font, "שלום 1820 Ab")));
 
 await loadArticleFirstRenderer();
+
+test("streamed article reserves its header before the article node arrives, then releases on adoption", { timeout: 60000 }, async () => {
+  const template = readFileSync(new URL("../public-reading-deploy/.generated/2029.html", import.meta.url), "utf8");
+  const result = withArticleFirst2029(template, { path: PATH, search: "", status: 200, post: ROW, proven: PROVEN });
+  assert.equal(result.state, "served");
+  // Pause parsing immediately before the server article. This deterministic
+  // boundary reproduces the early paint a warm decorative image can expose.
+  const start = result.html.search(/<div\b[^>]*\bid="sod29-ssr-article"/);
+  assert.ok(start > 0);
+  const staticHtml = html => html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
+  const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true });
+  try {
+    for (const [width, header] of [[320, 116], [390, 122], [1440, 132]]) {
+      const page = await browser.newPage({ viewport: { width, height: 900 } });
+      await page.route("**/*", route => route.abort()); // pure document geometry, no app or remote media
+      await page.setContent(staticHtml(result.html.slice(0, start)));
+      const height = () => page.locator("#root").evaluate(el => el.getBoundingClientRect().height);
+      assert.equal(await page.locator("#sod29-ssr-article").count(), 0);
+      assert.equal(await height(), header, `${width}: first streamed paint reserves only the header`);
+      await page.setContent(staticHtml(result.html));
+      await page.evaluate(() => document.documentElement.classList.remove("sod-af-first"));
+      assert.equal(await height(), header, "full CSS handover keeps the reservation while the article exists");
+      await page.locator("#sod29-ssr-article").evaluate(el => el.remove());
+      await page.locator("#root").evaluate(el => { el.innerHTML = '<main style="height:1000px">Adopted article content</main>'; });
+      assert.equal(await height(), 1000, "adoption releases the app root for its normal content height");
+      await page.close();
+    }
+  } finally { await browser.close(); }
+});
+
 async function withPage(profile, { holdPostChunk = null, holdRead = null, initScript = null, row = ROW, holdCss = null, holdCssLate = null, facts = undefined, readAnswer = null } = {}, run) {
   const proven = { [String(row.id)]: postArticleProofKey2029(row) };
   const fixture = await startFixture({

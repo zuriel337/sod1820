@@ -1,0 +1,1337 @@
+{
+  "blocked": [
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    }
+  ],
+  "fixture": "Heichal lock disabled in browser responses only; every other response is a cached public read."
+}

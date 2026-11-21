@@ -93,14 +93,16 @@ for (const width of [390, 1280]) for (const viewer of ['guest', 'member', 'admin
         const beforeReads = staffReads;
         const responseCount = staffResponses.length;
         await page.goto(fixture.origin + '/community/chat', {waitUntil: 'domcontentloaded'});
+        // The verified-admin boundary remounts the guest view. Wait for its actual staff response before inspecting the final feed.
+        const deadline = Date.now() + 10000;
+        while ((staffResponses.length === responseCount || viewer === 'admin' && staffResponses.at(-1) !== (mode === 'error' ? 503 : 200)) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 25));
+        assert.ok(staffResponses.length > responseCount, 'the real page must actually attempt its staff read');
         const emily = page.locator('.sod29-community-author-link').filter({hasText: 'אמילי'});
         const esther = page.locator('.sod29-community-author-link').filter({hasText: 'Esther26'});
-        await emily.first().waitFor({timeout: 20000});
+        await emily.nth(1).waitFor({timeout: 20000});
+        await esther.nth(1).waitFor({timeout: 20000});
         assert.equal(await emily.count(), 2, 'historical and current Emily messages both render');
         assert.equal(await esther.count(), 2, 'historical and current Esther messages retain the approved public name');
-        const deadline = Date.now() + 10000;
-        while (staffResponses.length === responseCount && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 25));
-        assert.ok(staffResponses.length > responseCount, 'the real page must actually attempt its staff read');
         if (viewer === 'admin') {
           assert.ok(staffReads > beforeReads, 'a real worker-admitted staff request must reach the fixture');
           assert.equal(staffResponses.at(-1), mode === 'error' ? 503 : 200);

@@ -131,7 +131,12 @@ function articleFirstDocument(html, { path, search = "", status, post, proven = 
     .replace(/<html(\s[^>]*)?>/i, match => /\sclass="/i.test(match) ? match.replace(/\sclass="/i, ' class="sod-af-first ') : match.replace(/^<html/i, '<html class="sod-af-first"'));
   const full = links.map(link => link.replace(/^<link /, "<link data-sod-article-first-full ")).join("")
     + '<script data-sod-article-first-done>document.documentElement.classList.remove("sod-af-first")</script>';
-  document = `${head}${critical}${document.slice(headEnd, document.search(/<\/body>/i))}${POST_ARTICLE_DOCUMENT_STYLE}${article}${full}${document.slice(document.search(/<\/body>/i))}`;
+  // A streamed/cached document can paint #root before the article is parsed.
+  // Reserve the same header height from that first paint, not only once :has()
+  // sees the article. The existing first-paint class hands over to :has() when
+  // full CSS arrives; adoption still releases the reservation automatically.
+  const reserve = POST_ARTICLE_DOCUMENT_STYLE.replaceAll("html:has(", "html.sod-af-first #root,html:has(");
+  document = `${head}${critical}${reserve}${document.slice(headEnd, document.search(/<\/body>/i))}${article}${full}${document.slice(document.search(/<\/body>/i))}`;
   if (post.source !== "wordpress") keepAlive(warmPostImageCopies(article, warm)).catch(() => {});
   return { html: document, state: newPost ? "served-new" : "served" };
 }

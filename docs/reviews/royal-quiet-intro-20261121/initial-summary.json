@@ -1,0 +1,1370 @@
+[
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 664,
+      "min": 664,
+      "max": 668
+    },
+    "usefulPaint": {
+      "median": 598.5,
+      "min": 581.8,
+      "max": 602.7
+    },
+    "usefulDom": {
+      "median": 573.9,
+      "min": 570,
+      "max": 591.8
+    },
+    "introHeight": {
+      "median": 173.1,
+      "min": 173.1,
+      "max": 173.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 668,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 628,
+      "min": 596,
+      "max": 664
+    },
+    "usefulPaint": {
+      "median": 558.1,
+      "min": 532.3,
+      "max": 615.3
+    },
+    "usefulDom": {
+      "median": 552.5,
+      "min": 521.1,
+      "max": 602.8
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 628,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 596,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 528,
+      "min": 524,
+      "max": 544
+    },
+    "usefulPaint": {
+      "median": 466.3,
+      "min": 453.9,
+      "max": 489.9
+    },
+    "usefulDom": {
+      "median": 457.3,
+      "min": 450,
+      "max": 487.1
+    },
+    "introHeight": {
+      "median": 173.1,
+      "min": 173.1,
+      "max": 173.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 544,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 524,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 528,
+      "min": 528,
+      "max": 572
+    },
+    "usefulPaint": {
+      "median": 461.2,
+      "min": 460.7,
+      "max": 464.5
+    },
+    "usefulDom": {
+      "median": 450.2,
+      "min": 449.2,
+      "max": 452.7
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 572,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 700,
+      "min": 680,
+      "max": 772
+    },
+    "usefulPaint": {
+      "median": 563.1,
+      "min": 562.7,
+      "max": 619.3
+    },
+    "usefulDom": {
+      "median": 553.8,
+      "min": 553,
+      "max": 612.5
+    },
+    "introHeight": {
+      "median": 160.6,
+      "min": 160.6,
+      "max": 160.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 700,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 680,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 772,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.02001971879286694
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 700,
+      "min": 692,
+      "max": 712
+    },
+    "usefulPaint": {
+      "median": 641.3,
+      "min": 628.9,
+      "max": 643
+    },
+    "usefulDom": {
+      "median": 622.2,
+      "min": 621.6,
+      "max": 635.5
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 712,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 700,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 692,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 632,
+      "min": 612,
+      "max": 648
+    },
+    "usefulPaint": {
+      "median": 461.5,
+      "min": 450.9,
+      "max": 469.7
+    },
+    "usefulDom": {
+      "median": 428.2,
+      "min": 415.1,
+      "max": 448.9
+    },
+    "introHeight": {
+      "median": 160.6,
+      "min": 160.6,
+      "max": 160.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 632,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 612,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 648,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 588,
+      "min": 564,
+      "max": 668
+    },
+    "usefulPaint": {
+      "median": 532.8,
+      "min": 524.3,
+      "max": 577
+    },
+    "usefulDom": {
+      "median": 512.5,
+      "min": 502.1,
+      "max": 565
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 588,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 668,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 564,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 1064,
+      "min": 628,
+      "max": 1088
+    },
+    "usefulPaint": {
+      "median": 477.8,
+      "min": 474.4,
+      "max": 484.8
+    },
+    "usefulDom": {
+      "median": 469.5,
+      "min": 461.9,
+      "max": 475.9
+    },
+    "introHeight": {
+      "median": 195.1,
+      "min": 195.1,
+      "max": 195.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 1088,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      },
+      {
+        "kind": "lcp",
+        "at": 1064,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      },
+      {
+        "kind": "lcp",
+        "at": 628,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      }
+    ],
+    "maxCLS": 0.0002704320173885098
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 148,
+      "min": 124,
+      "max": 164
+    },
+    "usefulPaint": {
+      "median": 474.7,
+      "min": 466.4,
+      "max": 499
+    },
+    "usefulDom": {
+      "median": 467.5,
+      "min": 458.4,
+      "max": 490.1
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 124,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 164,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.0002704320173885098
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 76,
+      "min": 64,
+      "max": 76
+    },
+    "usefulPaint": {
+      "median": 377.6,
+      "min": 373.7,
+      "max": 383.7
+    },
+    "usefulDom": {
+      "median": 370.5,
+      "min": 368.9,
+      "max": 370.8
+    },
+    "introHeight": {
+      "median": 195.1,
+      "min": 195.1,
+      "max": 195.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 68,
+      "min": 64,
+      "max": 80
+    },
+    "usefulPaint": {
+      "median": 387.4,
+      "min": 383.6,
+      "max": 403.9
+    },
+    "usefulDom": {
+      "median": 376.2,
+      "min": 372.7,
+      "max": 388.9
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 636,
+      "min": 612,
+      "max": 636
+    },
+    "usefulPaint": {
+      "median": 486.7,
+      "min": 465.4,
+      "max": 493.8
+    },
+    "usefulDom": {
+      "median": 479,
+      "min": 459,
+      "max": 479.7
+    },
+    "introHeight": {
+      "median": 134.6,
+      "min": 134.6,
+      "max": 134.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 612,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 636,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 636,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "maxCLS": 2.5716145833333334e-05
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 632,
+      "min": 612,
+      "max": 668
+    },
+    "usefulPaint": {
+      "median": 479.9,
+      "min": 468,
+      "max": 487.1
+    },
+    "usefulDom": {
+      "median": 468.8,
+      "min": 460.2,
+      "max": 479.6
+    },
+    "introHeight": {
+      "median": 183.4,
+      "min": 183.4,
+      "max": 183.4
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 612,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 632,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 668,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "maxCLS": 2.5716145833333334e-05
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 532,
+      "min": 504,
+      "max": 564
+    },
+    "usefulPaint": {
+      "median": 392.5,
+      "min": 381,
+      "max": 394
+    },
+    "usefulDom": {
+      "median": 383.5,
+      "min": 365,
+      "max": 384.7
+    },
+    "introHeight": {
+      "median": 134.6,
+      "min": 134.6,
+      "max": 134.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 532,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 504,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 564,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 532,
+      "min": 516,
+      "max": 532
+    },
+    "usefulPaint": {
+      "median": 379.7,
+      "min": 378,
+      "max": 392.3
+    },
+    "usefulDom": {
+      "median": 374.3,
+      "min": 372.8,
+      "max": 381.3
+    },
+    "introHeight": {
+      "median": 183.4,
+      "min": 183.4,
+      "max": 183.4
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 532,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 532,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 512,
+      "min": 512,
+      "max": 516
+    },
+    "usefulPaint": {
+      "median": 486.7,
+      "min": 482.3,
+      "max": 491.8
+    },
+    "usefulDom": {
+      "median": 479.1,
+      "min": 468.7,
+      "max": 482.9
+    },
+    "introHeight": {
+      "median": 123.1,
+      "min": 123.1,
+      "max": 123.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 512,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 512,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 524,
+      "min": 508,
+      "max": 568
+    },
+    "usefulPaint": {
+      "median": 488.7,
+      "min": 484,
+      "max": 528
+    },
+    "usefulDom": {
+      "median": 486.5,
+      "min": 474.4,
+      "max": 523
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 508,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 568,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 524,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 432,
+      "min": 432,
+      "max": 464
+    },
+    "usefulPaint": {
+      "median": 399.9,
+      "min": 395.2,
+      "max": 429.5
+    },
+    "usefulDom": {
+      "median": 387.4,
+      "min": 381.2,
+      "max": 414
+    },
+    "introHeight": {
+      "median": 123.1,
+      "min": 123.1,
+      "max": 123.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 464,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 432,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 432,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 440,
+      "min": 436,
+      "max": 456
+    },
+    "usefulPaint": {
+      "median": 411.4,
+      "min": 397,
+      "max": 423.6
+    },
+    "usefulDom": {
+      "median": 389.3,
+      "min": 386.2,
+      "max": 410.9
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 436,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 456,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 440,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 148,
+      "min": 136,
+      "max": 160
+    },
+    "usefulPaint": {
+      "median": 585.5,
+      "min": 559.1,
+      "max": 590.9
+    },
+    "usefulDom": {
+      "median": 508.6,
+      "min": 508.6,
+      "max": 530.3
+    },
+    "introHeight": {
+      "median": 110.6,
+      "min": 110.6,
+      "max": 110.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 136,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 160,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 144,
+      "min": 140,
+      "max": 164
+    },
+    "usefulPaint": {
+      "median": 574.9,
+      "min": 547.9,
+      "max": 577.4
+    },
+    "usefulDom": {
+      "median": 541.2,
+      "min": 496.5,
+      "max": 546.5
+    },
+    "introHeight": {
+      "median": 183.4,
+      "min": 183.4,
+      "max": 183.4
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 164,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 64,
+      "min": 64,
+      "max": 72
+    },
+    "usefulPaint": {
+      "median": 397.8,
+      "min": 393.4,
+      "max": 405.2
+    },
+    "usefulDom": {
+      "median": 392.7,
+      "min": 389.5,
+      "max": 400.1
+    },
+    "introHeight": {
+      "median": 110.6,
+      "min": 110.6,
+      "max": 110.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "quiet",
+    "n": 3,
+    "lcp": {
+      "median": 68,
+      "min": 64,
+      "max": 76
+    },
+    "usefulPaint": {
+      "median": 451,
+      "min": 407.5,
+      "max": 453.4
+    },
+    "usefulDom": {
+      "median": 403,
+      "min": 396.8,
+      "max": 404.2
+    },
+    "introHeight": {
+      "median": 183.4,
+      "min": 183.4,
+      "max": 183.4
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  }
+]

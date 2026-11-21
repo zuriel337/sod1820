@@ -5,7 +5,7 @@ import { HOME_ATMOSPHERE_2029 } from "../src/lib/brandAssets2029.js";
 
 const base = { release: true, pathname: "/", storedPreset: null, narrow: true };
 
-test("home atmosphere preload picks the variant the Home CSS will use", () => {
+test("retained historical home atmosphere selector identifies its versioned assets", () => {
   assert.equal(homeAtmospherePreloadHref(base), HOME_ATMOSPHERE_2029.mobile);
   assert.equal(homeAtmospherePreloadHref({ ...base, narrow: false }), HOME_ATMOSPHERE_2029.desktop);
   for (const pathname of ["/", "/2029", "/2029/"]) assert.ok(homeAtmospherePreloadHref({ ...base, pathname }));

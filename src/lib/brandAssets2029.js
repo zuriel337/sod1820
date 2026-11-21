@@ -63,3 +63,9 @@ export const BRAND_SITE_ICONS_2029 = Object.freeze({
 
 // User-selected decorative Home atmosphere, 2 Nov 2026; not a content source or Brand mark.
 export const HOME_ATMOSPHERE_2029 = Object.freeze({"desktop": "/backgrounds/2029/home-cosmos-desktop-5113c94ba6e5.webp", "mobile": "/backgrounds/2029/home-cosmos-mobile-8eaaeef46082.webp"});
+
+// Royal Palace atmosphere, approved attachment 21 Nov 2026. Byte-exact WebP assets; not a logo.
+export const ROYAL_PALACE_ATMOSPHERE_2029 = Object.freeze({"mobile": "/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp", "desktop": "/backgrounds/2029/royal-palace-desktop-61280d3bdc55.webp"});
+
+// Responsive derivatives of the same approved palace; emitted once with the document.
+export const ROYAL_CONNECTED_ATMOSPHERE_2029 = /* @__PURE__ */ Object.freeze({"mobile": {"avif": "/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif", "webp": "/backgrounds/2029/royal-connected-mobile-96cbcf5c1e1e.webp"}, "desktop": {"avif": "/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif", "webp": "/backgrounds/2029/royal-connected-desktop-c7b865b042af.webp"}});

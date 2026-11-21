@@ -99,9 +99,9 @@ function PostTargetActions({ target, image }) {
       <button type="button" className="r29-btn is-quiet post-reading-share" aria-haspopup="dialog" aria-label="שיתוף" title="שיתוף" onClick={share}>
         <NavigationIcon2029 name="share" size={18} /> <span>שיתוף</span>
       </button>
-      <button type="button" className="r29-btn is-quiet" onClick={add} aria-label={researchLabel} title={researchLabel} aria-pressed={inResearch} disabled={inResearch}>
+      {research.researchWorkspaceActive && <button type="button" className="r29-btn is-quiet" onClick={add} aria-label={researchLabel} title={researchLabel} aria-pressed={inResearch} disabled={inResearch}>
         <NavigationIcon2029 name="research" size={18} /> <span>{researchLabel}</span>
-      </button>
+      </button>}
       <button type="button" className="r29-btn is-quiet" onClick={reply} aria-label={replyLabel} title={replyLabel} disabled={opening}>
         <NavigationIcon2029 name="conversation" size={18} /> <span>תגובה</span>
       </button>

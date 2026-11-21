@@ -1,0 +1,475 @@
+[
+  {
+    "theme": "light",
+    "width": 320,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 320,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 320,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 768,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 768,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 768,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 320,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 320,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 320,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 390,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 390,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 390,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 768,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 768,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 768,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 1440,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 1440,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "parchment",
+    "width": 1440,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 768,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 768,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 768,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "route": "/world",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/world"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "route": "/heichal",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/heichal"
+    ],
+    "h1": 1
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "route": "/books",
+    "overflow": false,
+    "dir": "rtl",
+    "animation": "none",
+    "helpHeight": 44,
+    "links": [
+      "/books"
+    ],
+    "h1": 1
+  },
+  {
+    "learningExactOrigin": true,
+    "helpPreservesContext": true,
+    "noneOmitsImage": true
+  }
+]

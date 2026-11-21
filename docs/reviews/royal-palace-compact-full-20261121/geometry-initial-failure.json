@@ -1,0 +1,194 @@
+[
+  {
+    "route": "world",
+    "width": 320,
+    "variant": "compact",
+    "height": 260.578125,
+    "overlap": true,
+    "overflow": false
+  },
+  {
+    "route": "world",
+    "width": 320,
+    "variant": "full",
+    "height": 330.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "heichal",
+    "width": 320,
+    "variant": "compact",
+    "height": 260.578125,
+    "overlap": true,
+    "overflow": false
+  },
+  {
+    "route": "heichal",
+    "width": 320,
+    "variant": "full",
+    "height": 330.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "books",
+    "width": 320,
+    "variant": "compact",
+    "height": 260.578125,
+    "overlap": true,
+    "overflow": false
+  },
+  {
+    "route": "books",
+    "width": 320,
+    "variant": "full",
+    "height": 330.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "variant": "compact",
+    "height": 260.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "variant": "full",
+    "height": 330.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "variant": "compact",
+    "height": 260.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "variant": "full",
+    "height": 330.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "variant": "compact",
+    "height": 260.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "variant": "full",
+    "height": 330.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "world",
+    "width": 768,
+    "variant": "compact",
+    "height": 264.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "world",
+    "width": 768,
+    "variant": "full",
+    "height": 330.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "heichal",
+    "width": 768,
+    "variant": "compact",
+    "height": 238.984375,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "heichal",
+    "width": 768,
+    "variant": "full",
+    "height": 304.984375,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "books",
+    "width": 768,
+    "variant": "compact",
+    "height": 238.984375,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "books",
+    "width": 768,
+    "variant": "full",
+    "height": 304.984375,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "variant": "compact",
+    "height": 274.171875,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "variant": "full",
+    "height": 340.171875,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "variant": "compact",
+    "height": 248.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "variant": "full",
+    "height": 314.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "variant": "compact",
+    "height": 248.578125,
+    "overlap": false,
+    "overflow": false
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "variant": "full",
+    "height": 314.578125,
+    "overlap": false,
+    "overflow": false
+  }
+]

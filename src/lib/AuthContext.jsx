@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef, useSyncExternalStore } from 'react';
 import { supabase, logActivity } from './supabase.js';
-import { fetchProfile, signOut as doSignOut, claimResearchLead } from './auth.js';
+const fetchProfile = (...args) => import('./auth.js').then(m => m.fetchProfile(...args));
+const doSignOut = (...args) => import('./auth.js').then(m => m.signOut(...args));
+const claimResearchLead = (...args) => import('./auth.js').then(m => m.claimResearchLead(...args));
 import { getVisitorId } from './tracking.js';
 import { stitchLogin } from './identity.js';
 import { PUBLIC_READING_RELEASE } from './publicReadingRelease2029.js';
@@ -108,7 +110,7 @@ export function AuthProvider({ children }) {
     // לחשבון — יוצר קשר kind='login' → persons.account_user_id. בלי זה אף מבקר/שגריר
     // לא נפתר לשם/מייל (identity_edges היו רק device/legacy_seed, אפס login). idempotent.
     try { stitchLogin(user.id); } catch { /* ignore */ }
-    try { claimResearchLead(getVisitorId()); } catch { /* ignore */ }
+    try { void claimResearchLead(getVisitorId()).catch(() => {}); } catch { /* ignore */ }
     // 🔗 גשר לשידור-החי: לקשר את מזהה site_visits (sod_visitor UUID) לחשבון, כדי שמחוברים
     // יזוהו במסך החי עם המייל. (מזהה נפרד מ-getVisitorId — לכן קישור ייעודי.)
     try {

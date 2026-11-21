@@ -1,4 +1,3 @@
-import CalculatorPulseLineSlot2029 from "../components/gematria2029/CalculatorPulseLineSlot2029.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
@@ -549,9 +548,7 @@ function ProExperience() {
   return (
     <section className={`sod29-calcpro r29${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
       <h1 className="sod29-calcpro-sr">{CALCULATOR_PRO_SEO.heading}</h1>
-      <CalculatorPulseLineSlot2029 />
       <CalculatorWordsBar2029
-        trailing={<CalculatorPulseLineSlot2029 inline />}
         currentExpression={info.expression}
         onPick={(word, kind) => {
           emit("calculator_2029", "words_bar_pick", { props: { surface: "professional", kind } });

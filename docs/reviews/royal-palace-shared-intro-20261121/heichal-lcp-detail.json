@@ -1,0 +1,230 @@
+[
+  {
+    "lcp": [
+      {
+        "time": 724,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4180/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      }
+    ],
+    "resources": [],
+    "version": "before",
+    "run": 0
+  },
+  {
+    "lcp": [
+      {
+        "time": 88,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4180/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      }
+    ],
+    "resources": [],
+    "version": "before",
+    "run": 1
+  },
+  {
+    "lcp": [
+      {
+        "time": 52,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4180/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      }
+    ],
+    "resources": [],
+    "version": "before",
+    "run": 2
+  },
+  {
+    "lcp": [
+      {
+        "time": 60,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4180/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      }
+    ],
+    "resources": [],
+    "version": "before",
+    "run": 3
+  },
+  {
+    "lcp": [
+      {
+        "time": 140,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4181/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      },
+      {
+        "time": 532,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4181/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+        "size": 123895
+      }
+    ],
+    "resources": [
+      {
+        "url": "http://localhost:4181/assets/RoyalIntro2029-Ceuvs5P4.js",
+        "start": 189.80000000004657,
+        "end": 194.89999999990687,
+        "transfer": 2030
+      },
+      {
+        "url": "http://localhost:4181/assets/RoyalIntro2029-C58zOhVX.css",
+        "start": 190.10000000009313,
+        "end": 193.5,
+        "transfer": 3525
+      },
+      {
+        "url": "http://localhost:4181/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+        "start": 203.10000000009313,
+        "end": 220.60000000009313,
+        "transfer": 30398
+      }
+    ],
+    "version": "after",
+    "run": 0
+  },
+  {
+    "lcp": [
+      {
+        "time": 60,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4181/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      },
+      {
+        "time": 428,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4181/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+        "size": 123895
+      }
+    ],
+    "resources": [
+      {
+        "url": "http://localhost:4181/assets/RoyalIntro2029-Ceuvs5P4.js",
+        "start": 62.89999999990687,
+        "end": 62.89999999990687,
+        "transfer": 0
+      },
+      {
+        "url": "http://localhost:4181/assets/RoyalIntro2029-C58zOhVX.css",
+        "start": 63.5,
+        "end": 63.5,
+        "transfer": 0
+      },
+      {
+        "url": "http://localhost:4181/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+        "start": 69.30000000004657,
+        "end": 69.30000000004657,
+        "transfer": 0
+      }
+    ],
+    "version": "after",
+    "run": 1
+  },
+  {
+    "lcp": [
+      {
+        "time": 60,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4181/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      },
+      {
+        "time": 452,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4181/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+        "size": 123895
+      }
+    ],
+    "resources": [
+      {
+        "url": "http://localhost:4181/assets/RoyalIntro2029-Ceuvs5P4.js",
+        "start": 58.39999999990687,
+        "end": 58.39999999990687,
+        "transfer": 0
+      },
+      {
+        "url": "http://localhost:4181/assets/RoyalIntro2029-C58zOhVX.css",
+        "start": 58.5,
+        "end": 58.5,
+        "transfer": 0
+      },
+      {
+        "url": "http://localhost:4181/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+        "start": 62.800000000046566,
+        "end": 62.800000000046566,
+        "transfer": 0
+      }
+    ],
+    "version": "after",
+    "run": 2
+  },
+  {
+    "lcp": [
+      {
+        "time": 84,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4181/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      },
+      {
+        "time": 420,
+        "tag": "IMG",
+        "cls": "",
+        "text": "",
+        "url": "http://localhost:4181/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+        "size": 123895
+      }
+    ],
+    "resources": [
+      {
+        "url": "http://localhost:4181/assets/RoyalIntro2029-Ceuvs5P4.js",
+        "start": 60.800000000046566,
+        "end": 60.800000000046566,
+        "transfer": 0
+      },
+      {
+        "url": "http://localhost:4181/assets/RoyalIntro2029-C58zOhVX.css",
+        "start": 61.0999999998603,
+        "end": 61.0999999998603,
+        "transfer": 0
+      },
+      {
+        "url": "http://localhost:4181/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+        "start": 67.89999999990687,
+        "end": 67.89999999990687,
+        "transfer": 0
+      }
+    ],
+    "version": "after",
+    "run": 3
+  }
+]

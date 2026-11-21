@@ -67,10 +67,12 @@ async function mountAuth({profileReader=async id=>({id,role:'admin'}),verify=asy
   useRef:initial=>{const i=ri++;if(first)refs[i]={current:initial};return refs[i];},useCallback:fn=>fn,useSyncExternalStore:(subscribe,getSnapshot)=>getSnapshot(),
   createElement:(_type,props)=>props.value};
  const supabase={auth:{getSession:async()=>({data:{session:null}}),getUser:verify,onAuthStateChange:fn=>{callback=fn;return {data:{subscription:{unsubscribe(){}}}};}},rpc:(...args)=>calls.push(args)};
- let source=read('src/lib/AuthContext.jsx').replace(/^import .*;\n/gm,'').replaceAll("import.meta.env.VITE_INTEGRATED_PREVIEW",'"false"').replace('export const useAuth','const useAuth').replace('export function AuthProvider','function AuthProvider');
+ let source=read('src/lib/AuthContext.jsx').replace(/^import .*;\n/gm,'').replaceAll("import.meta.env.VITE_INTEGRATED_PREVIEW",'"false"').replaceAll("import('./auth.js')", 'loadAuthModule()').replace('export const useAuth','const useAuth').replace('export function AuthProvider','function AuthProvider');
  const compiled=(await transform(source,{loader:'jsx',format:'cjs'})).code;
  const context={React,...React,supabase,PUBLIC_READING_RELEASE:true,verifyReadingSession,fetchProfile:profileReader,
   logActivity:(...args)=>calls.push(args),stitchLogin:(...args)=>calls.push(args),claimResearchLead:(...args)=>calls.push(args),getVisitorId:()=>{calls.push('visitor');return 'visitor';},doSignOut:async()=>({}),getPasswordRecovery,subscribePasswordRecovery,localStorage:{getItem:()=>{calls.push('localStorage');return null;},setItem:()=>calls.push('storageWrite')},Date,console};
+ // Exercise the real lazy wrappers with an asynchronous module fixture, including stale-role races.
+ context.loadAuthModule=async()=>({fetchProfile:profileReader,signOut:context.doSignOut,claimResearchLead:context.claimResearchLead});
  const measurementSource=read('src/lib/measurementAuth2029.js').replace(/^export /gm,'');
  vm.createContext(context);vm.runInContext(measurementSource+'\n'+compiled+';globalThis.AuthProvider=AuthProvider;',context);
  const render=()=>{si=0;ri=0;effects=[];const initial=first;const result=context.AuthProvider({children:null});first=false;if(!initial)effects.slice(1).forEach(fn=>fn());return result;};

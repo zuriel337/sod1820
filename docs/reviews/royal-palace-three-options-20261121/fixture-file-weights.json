@@ -1,0 +1,44 @@
+{
+  "compact": {
+    "RoyalIntro2029-BJK-Gs7w.js": {
+      "bytes": 1730,
+      "gzipBytes": 925
+    },
+    "Sod2029Shell-7fwiofKa.css": {
+      "bytes": 226374,
+      "gzipBytes": 33083
+    },
+    "RoyalIntro2029-CBa--onZ.css": {
+      "bytes": 3301,
+      "gzipBytes": 1132
+    }
+  },
+  "strip": {
+    "RoyalIntro2029-BJK-Gs7w.js": {
+      "bytes": 1730,
+      "gzipBytes": 925
+    },
+    "Sod2029Shell-7fwiofKa.css": {
+      "bytes": 226784,
+      "gzipBytes": 33176
+    },
+    "RoyalIntro2029-CBa--onZ.css": {
+      "bytes": 3410,
+      "gzipBytes": 1173
+    }
+  },
+  "crown": {
+    "RoyalIntro2029-BJK-Gs7w.js": {
+      "bytes": 1469,
+      "gzipBytes": 802
+    },
+    "Sod2029Shell-7fwiofKa.css": {
+      "bytes": 226784,
+      "gzipBytes": 33176
+    },
+    "RoyalIntro2029-CBa--onZ.css": {
+      "bytes": 3301,
+      "gzipBytes": 1132
+    }
+  }
+}

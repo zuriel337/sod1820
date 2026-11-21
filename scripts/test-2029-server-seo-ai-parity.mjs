@@ -438,11 +438,18 @@ assert.ok(
 const privacySitemapFetch = globalThis.fetch;
 try {
   const publicReadingSitemapHandler = await loadPublicSitemapAdapter();
-  globalThis.fetch = async () => new Response("[]", { headers: { "Content-Type": "application/json" } });
-  const sitemapResponse = makeRes();
-  const publicationRequest = { method: "GET", url: "/sitemap.xml", headers: { host: "sod1820.co.il" }, query: {} };
+  // The public sitemap is an index of bounded parts (#1469): the index lists the content part, whose map holds the static pages.
+  // Each answer is a public, cacheable success; the phrase count comes from the source's Content-Range header.
+  globalThis.fetch = async () => new Response("[]", { headers: { "Content-Type": "application/json", "Content-Range": "0-0/0" } });
   const publication = publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === "https://sod1820.co.il" });
-  await publication(publicationRequest, sitemapResponse);
+  const sitemapIndex = makeRes();
+  const publicationRequest = { method: "GET", url: "/sitemap.xml", headers: { host: "sod1820.co.il" }, query: {} };
+  await publication(publicationRequest, sitemapIndex);
+  assert.equal(sitemapIndex.statusCode, 200);
+  assert.match(sitemapIndex.body, /<sitemapindex[\s\S]*<loc>https:\/\/sod1820.co.il\/sitemap.xml\?part=content<\/loc>/);
+  assert.match(sitemapIndex.headers.get("cache-control"), /^public,.*s-maxage=21600.*stale-while-revalidate=86400/);
+  const sitemapResponse = makeRes();
+  await publication({ ...publicationRequest, url: "/sitemap.xml?part=content" }, sitemapResponse);
   assert.equal(sitemapResponse.statusCode, 200);
   assert.match(sitemapResponse.body, /<loc>https:\/\/sod1820.co.il\/privacy<\/loc>/);
   assert.match(sitemapResponse.headers.get("cache-control"), /^public,.*s-maxage=21600.*stale-while-revalidate=86400/);

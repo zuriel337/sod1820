@@ -1,0 +1,1826 @@
+[
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 664,
+      "min": 648,
+      "max": 672
+    },
+    "usefulPaint": {
+      "median": 586,
+      "min": 571.4,
+      "max": 592.7
+    },
+    "usefulDom": {
+      "median": 576.2,
+      "min": 565.7,
+      "max": 578.9
+    },
+    "introHeight": {
+      "median": 173.1,
+      "min": 173.1,
+      "max": 173.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 672,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 648,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 504,
+      "min": 496,
+      "max": 520
+    },
+    "usefulPaint": {
+      "median": 537,
+      "min": 527.2,
+      "max": 557.9
+    },
+    "usefulDom": {
+      "median": 527.1,
+      "min": 518.5,
+      "max": 550.5
+    },
+    "introHeight": {
+      "median": 195.6,
+      "min": 195.6,
+      "max": 195.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 504,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 520,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 496,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 504,
+      "min": 500,
+      "max": 520
+    },
+    "usefulPaint": {
+      "median": 430.6,
+      "min": 429.5,
+      "max": 455.7
+    },
+    "usefulDom": {
+      "median": 414.7,
+      "min": 413.2,
+      "max": 427.9
+    },
+    "introHeight": {
+      "median": 173.1,
+      "min": 173.1,
+      "max": 173.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 504,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 520,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 500,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 404,
+      "min": 400,
+      "max": 412
+    },
+    "usefulPaint": {
+      "median": 430.9,
+      "min": 416.7,
+      "max": 446
+    },
+    "usefulDom": {
+      "median": 414.5,
+      "min": 404.4,
+      "max": 430.4
+    },
+    "introHeight": {
+      "median": 195.6,
+      "min": 195.6,
+      "max": 195.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 412,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 400,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 404,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 680,
+      "min": 672,
+      "max": 688
+    },
+    "usefulPaint": {
+      "median": 572.6,
+      "min": 550.6,
+      "max": 575.6
+    },
+    "usefulDom": {
+      "median": 553,
+      "min": 533.6,
+      "max": 553.6
+    },
+    "introHeight": {
+      "median": 160.6,
+      "min": 160.6,
+      "max": 160.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 680,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 688,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 672,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 588,
+      "min": 580,
+      "max": 604
+    },
+    "usefulPaint": {
+      "median": 611.8,
+      "min": 607.7,
+      "max": 642.5
+    },
+    "usefulDom": {
+      "median": 601,
+      "min": 599.4,
+      "max": 632.6
+    },
+    "introHeight": {
+      "median": 209.2,
+      "min": 209.2,
+      "max": 209.2
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 588,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 580,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 604,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 596,
+      "min": 580,
+      "max": 608
+    },
+    "usefulPaint": {
+      "median": 470,
+      "min": 460.6,
+      "max": 480.1
+    },
+    "usefulDom": {
+      "median": 449.7,
+      "min": 441.8,
+      "max": 463.4
+    },
+    "introHeight": {
+      "median": 160.6,
+      "min": 160.6,
+      "max": 160.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 596,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 608,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 580,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 496,
+      "min": 484,
+      "max": 496
+    },
+    "usefulPaint": {
+      "median": 503,
+      "min": 491,
+      "max": 529.5
+    },
+    "usefulDom": {
+      "median": 432.6,
+      "min": 418.7,
+      "max": 508.1
+    },
+    "introHeight": {
+      "median": 209.2,
+      "min": 209.2,
+      "max": 209.2
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 496,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 484,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 496,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 1396,
+      "min": 1044,
+      "max": 1428
+    },
+    "usefulPaint": {
+      "median": 466.6,
+      "min": 460.7,
+      "max": 467.2
+    },
+    "usefulDom": {
+      "median": 455.5,
+      "min": 454,
+      "max": 459
+    },
+    "introHeight": {
+      "median": 195.1,
+      "min": 195.1,
+      "max": 195.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 1044,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      },
+      {
+        "kind": "lcp",
+        "at": 1396,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      },
+      {
+        "kind": "lcp",
+        "at": 1428,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      }
+    ],
+    "maxCLS": 0.0002704320173885098
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 528,
+      "min": 528,
+      "max": 532
+    },
+    "usefulPaint": {
+      "median": 480.9,
+      "min": 470.6,
+      "max": 481.8
+    },
+    "usefulDom": {
+      "median": 469,
+      "min": 463,
+      "max": 472.2
+    },
+    "introHeight": {
+      "median": 195.6,
+      "min": 195.6,
+      "max": 195.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 532,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.0002704320173885098
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 68,
+      "min": 68,
+      "max": 88
+    },
+    "usefulPaint": {
+      "median": 383,
+      "min": 381.5,
+      "max": 390.8
+    },
+    "usefulDom": {
+      "median": 375.8,
+      "min": 375.3,
+      "max": 385.6
+    },
+    "introHeight": {
+      "median": 195.1,
+      "min": 195.1,
+      "max": 195.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 436,
+      "min": 428,
+      "max": 444
+    },
+    "usefulPaint": {
+      "median": 378.8,
+      "min": 368.4,
+      "max": 389.4
+    },
+    "usefulDom": {
+      "median": 370.8,
+      "min": 363.1,
+      "max": 378.7
+    },
+    "introHeight": {
+      "median": 195.6,
+      "min": 195.6,
+      "max": 195.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 444,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 428,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 436,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 608,
+      "min": 608,
+      "max": 632
+    },
+    "usefulPaint": {
+      "median": 472.1,
+      "min": 471,
+      "max": 486.2
+    },
+    "usefulDom": {
+      "median": 463.8,
+      "min": 459.2,
+      "max": 478.9
+    },
+    "introHeight": {
+      "median": 134.6,
+      "min": 134.6,
+      "max": 134.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 632,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 608,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 608,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "maxCLS": 2.5716145833333334e-05
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 620,
+      "min": 620,
+      "max": 656
+    },
+    "usefulPaint": {
+      "median": 481,
+      "min": 470.6,
+      "max": 515.3
+    },
+    "usefulDom": {
+      "median": 472.9,
+      "min": 457.5,
+      "max": 499.8
+    },
+    "introHeight": {
+      "median": 183.6,
+      "min": 183.6,
+      "max": 183.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 656,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 620,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 620,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 2.5716145833333334e-05
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 540,
+      "min": 524,
+      "max": 544
+    },
+    "usefulPaint": {
+      "median": 384.5,
+      "min": 384.4,
+      "max": 394.9
+    },
+    "usefulDom": {
+      "median": 379.2,
+      "min": 377.7,
+      "max": 383.6
+    },
+    "introHeight": {
+      "median": 134.6,
+      "min": 134.6,
+      "max": 134.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 544,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 524,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      },
+      {
+        "kind": "lcp",
+        "at": 540,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 524,
+      "min": 516,
+      "max": 564
+    },
+    "usefulPaint": {
+      "median": 385.8,
+      "min": 385.2,
+      "max": 409
+    },
+    "usefulDom": {
+      "median": 379.4,
+      "min": 375.8,
+      "max": 403.8
+    },
+    "introHeight": {
+      "median": 183.6,
+      "min": 183.6,
+      "max": 183.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 524,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 564,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 548,
+      "min": 516,
+      "max": 572
+    },
+    "usefulPaint": {
+      "median": 495.6,
+      "min": 476.3,
+      "max": 537.3
+    },
+    "usefulDom": {
+      "median": 487.4,
+      "min": 469.9,
+      "max": 528.3
+    },
+    "introHeight": {
+      "median": 123.1,
+      "min": 123.1,
+      "max": 123.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 572,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 548,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 476,
+      "min": 472,
+      "max": 492
+    },
+    "usefulPaint": {
+      "median": 487.3,
+      "min": 482.7,
+      "max": 506.3
+    },
+    "usefulDom": {
+      "median": 479.2,
+      "min": 478.5,
+      "max": 498.3
+    },
+    "introHeight": {
+      "median": 170.0,
+      "min": 170.0,
+      "max": 170.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 476,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 472,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 492,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 440,
+      "min": 432,
+      "max": 456
+    },
+    "usefulPaint": {
+      "median": 403.4,
+      "min": 402.9,
+      "max": 407
+    },
+    "usefulDom": {
+      "median": 391.1,
+      "min": 388.9,
+      "max": 393.3
+    },
+    "introHeight": {
+      "median": 123.1,
+      "min": 123.1,
+      "max": 123.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 440,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 456,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      },
+      {
+        "kind": "lcp",
+        "at": 432,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 388,
+      "min": 384,
+      "max": 412
+    },
+    "usefulPaint": {
+      "median": 400.1,
+      "min": 397.9,
+      "max": 429.4
+    },
+    "usefulDom": {
+      "median": 390.5,
+      "min": 385.7,
+      "max": 412.7
+    },
+    "introHeight": {
+      "median": 170.0,
+      "min": 170.0,
+      "max": 170.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 384,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 388,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 412,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 168,
+      "min": 152,
+      "max": 192
+    },
+    "usefulPaint": {
+      "median": 561,
+      "min": 558.6,
+      "max": 617
+    },
+    "usefulDom": {
+      "median": 556.3,
+      "min": 505.6,
+      "max": 585
+    },
+    "introHeight": {
+      "median": 110.6,
+      "min": 110.6,
+      "max": 110.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 152,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 168,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 192,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 544,
+      "min": 536,
+      "max": 556
+    },
+    "usefulPaint": {
+      "median": 576.6,
+      "min": 567.4,
+      "max": 600.6
+    },
+    "usefulDom": {
+      "median": 555,
+      "min": 489.6,
+      "max": 562.4
+    },
+    "introHeight": {
+      "median": 158.0,
+      "min": 158.0,
+      "max": 158.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 536,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 544,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 556,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 76,
+      "min": 64,
+      "max": 84
+    },
+    "usefulPaint": {
+      "median": 400.5,
+      "min": 395.8,
+      "max": 453.7
+    },
+    "usefulDom": {
+      "median": 392.2,
+      "min": 389.6,
+      "max": 396
+    },
+    "introHeight": {
+      "median": 110.6,
+      "min": 110.6,
+      "max": 110.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 84,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 460,
+      "min": 452,
+      "max": 460
+    },
+    "usefulPaint": {
+      "median": 411.6,
+      "min": 386.5,
+      "max": 451.8
+    },
+    "usefulDom": {
+      "median": 405.7,
+      "min": 380.1,
+      "max": 411.3
+    },
+    "introHeight": {
+      "median": 158.0,
+      "min": 158.0,
+      "max": 158.0
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 460,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 460,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 452,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0
+  },
+  {
+    "route": "code",
+    "width": 390,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 144,
+      "min": 140,
+      "max": 160
+    },
+    "usefulPaint": {
+      "median": 581.9,
+      "min": 550.1,
+      "max": 588
+    },
+    "usefulDom": {
+      "median": 521.8,
+      "min": 505.3,
+      "max": 532.1
+    },
+    "introHeight": {
+      "median": 173.1,
+      "min": 173.1,
+      "max": 173.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 160,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.013094234731456317
+  },
+  {
+    "route": "code",
+    "width": 390,
+    "warm": false,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 496,
+      "min": 484,
+      "max": 516
+    },
+    "usefulPaint": {
+      "median": 586.1,
+      "min": 544.4,
+      "max": 596.2
+    },
+    "usefulDom": {
+      "median": 539,
+      "min": 503.7,
+      "max": 541.4
+    },
+    "introHeight": {
+      "median": 195.6,
+      "min": 195.6,
+      "max": 195.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 484,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 496,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.013092848334968979
+  },
+  {
+    "route": "code",
+    "width": 390,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 72,
+      "min": 68,
+      "max": 80
+    },
+    "usefulPaint": {
+      "median": 437.2,
+      "min": 413.9,
+      "max": 441.7
+    },
+    "usefulDom": {
+      "median": 402.5,
+      "min": 398.6,
+      "max": 415.8
+    },
+    "introHeight": {
+      "median": 173.1,
+      "min": 173.1,
+      "max": 173.1
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.013091600859346698
+  },
+  {
+    "route": "code",
+    "width": 390,
+    "warm": true,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 404,
+      "min": 384,
+      "max": 464
+    },
+    "usefulPaint": {
+      "median": 445.2,
+      "min": 425.8,
+      "max": 522.5
+    },
+    "usefulDom": {
+      "median": 432,
+      "min": 390.5,
+      "max": 471.4
+    },
+    "introHeight": {
+      "median": 195.6,
+      "min": 195.6,
+      "max": 195.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 404,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 384,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 464,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.013090486961479285
+  },
+  {
+    "route": "code",
+    "width": 1440,
+    "warm": false,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 148,
+      "min": 140,
+      "max": 168
+    },
+    "usefulPaint": {
+      "median": 637,
+      "min": 626.3,
+      "max": 655.9
+    },
+    "usefulDom": {
+      "median": 572.6,
+      "min": 545.3,
+      "max": 577.1
+    },
+    "introHeight": {
+      "median": 160.6,
+      "min": 160.6,
+      "max": 160.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 168,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.03367651769065072
+  },
+  {
+    "route": "code",
+    "width": 1440,
+    "warm": false,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 568,
+      "min": 560,
+      "max": 596
+    },
+    "usefulPaint": {
+      "median": 621.4,
+      "min": 612.6,
+      "max": 653.3
+    },
+    "usefulDom": {
+      "median": 547.5,
+      "min": 535.5,
+      "max": 576.6
+    },
+    "introHeight": {
+      "median": 183.6,
+      "min": 183.6,
+      "max": 183.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 596,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 568,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 560,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.03885167000225051
+  },
+  {
+    "route": "code",
+    "width": 1440,
+    "warm": true,
+    "arm": "main",
+    "n": 3,
+    "lcp": {
+      "median": 92,
+      "min": 88,
+      "max": 140
+    },
+    "usefulPaint": {
+      "median": 478.5,
+      "min": 478,
+      "max": 516.4
+    },
+    "usefulDom": {
+      "median": 449.1,
+      "min": 431.1,
+      "max": 476.2
+    },
+    "introHeight": {
+      "median": 160.6,
+      "min": 160.6,
+      "max": 160.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 92,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.03350440416793928
+  },
+  {
+    "route": "code",
+    "width": 1440,
+    "warm": true,
+    "arm": "connected",
+    "n": 3,
+    "lcp": {
+      "median": 476,
+      "min": 460,
+      "max": 484
+    },
+    "usefulPaint": {
+      "median": 457.5,
+      "min": 453,
+      "max": 488
+    },
+    "usefulDom": {
+      "median": 415.7,
+      "min": 412.5,
+      "max": 434.1
+    },
+    "introHeight": {
+      "median": 183.6,
+      "min": 183.6,
+      "max": 183.6
+    },
+    "lcpCandidates": [
+      {
+        "kind": "lcp",
+        "at": 476,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 484,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": "lcp",
+        "at": 460,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "maxCLS": 0.03865255921498575
+  }
+]

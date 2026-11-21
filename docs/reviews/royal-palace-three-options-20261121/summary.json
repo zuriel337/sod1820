@@ -1,0 +1,1010 @@
+[
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 520,
+      "min": 496,
+      "max": 548
+    },
+    "usefulPaint": {
+      "median": 571,
+      "min": 551.7,
+      "max": 601.4
+    },
+    "usefulDom": {
+      "median": 561.5,
+      "min": 543.4,
+      "max": 587.1
+    },
+    "introHeight": {
+      "median": 260.6,
+      "min": 260.6,
+      "max": 260.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 576,
+      "min": 560,
+      "max": 604
+    },
+    "usefulPaint": {
+      "median": 528.6,
+      "min": 524.2,
+      "max": 556.1
+    },
+    "usefulDom": {
+      "median": 519.6,
+      "min": 512.4,
+      "max": 548.8
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 620,
+      "min": 576,
+      "max": 636
+    },
+    "usefulPaint": {
+      "median": 565.2,
+      "min": 533.3,
+      "max": 578.2
+    },
+    "usefulDom": {
+      "median": 560.1,
+      "min": 521.8,
+      "max": 563.2
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 404,
+      "min": 404,
+      "max": 408
+    },
+    "usefulPaint": {
+      "median": 441.5,
+      "min": 425,
+      "max": 448.1
+    },
+    "usefulDom": {
+      "median": 424.1,
+      "min": 412.3,
+      "max": 444.2
+    },
+    "introHeight": {
+      "median": 260.6,
+      "min": 260.6,
+      "max": 260.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 480,
+      "min": 472,
+      "max": 508
+    },
+    "usefulPaint": {
+      "median": 443.6,
+      "min": 421.9,
+      "max": 457.3
+    },
+    "usefulDom": {
+      "median": 432.6,
+      "min": 417.8,
+      "max": 452.1
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 524,
+      "min": 496,
+      "max": 540
+    },
+    "usefulPaint": {
+      "median": 476.3,
+      "min": 435.6,
+      "max": 498.6
+    },
+    "usefulDom": {
+      "median": 463.5,
+      "min": 421.8,
+      "max": 490.9
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 608,
+      "min": 600,
+      "max": 636
+    },
+    "usefulPaint": {
+      "median": 639.7,
+      "min": 635.6,
+      "max": 673.2
+    },
+    "usefulDom": {
+      "median": 635.5,
+      "min": 618.3,
+      "max": 665.3
+    },
+    "introHeight": {
+      "median": 274.2,
+      "min": 274.2,
+      "max": 274.2
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 540,
+      "min": 528,
+      "max": 544
+    },
+    "usefulPaint": {
+      "median": 606.2,
+      "min": 559.6,
+      "max": 625.1
+    },
+    "usefulDom": {
+      "median": 599.3,
+      "min": 542.2,
+      "max": 602.3
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 696,
+      "min": 692,
+      "max": 740
+    },
+    "usefulPaint": {
+      "median": 571.5,
+      "min": 558.2,
+      "max": 586.8
+    },
+    "usefulDom": {
+      "median": 549.2,
+      "min": 548.3,
+      "max": 567.5
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 500,
+      "min": 492,
+      "max": 560
+    },
+    "usefulPaint": {
+      "median": 535.1,
+      "min": 523.1,
+      "max": 584.6
+    },
+    "usefulDom": {
+      "median": 513.3,
+      "min": 510.9,
+      "max": 573.7
+    },
+    "introHeight": {
+      "median": 274.2,
+      "min": 274.2,
+      "max": 274.2
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 452,
+      "min": 440,
+      "max": 456
+    },
+    "usefulPaint": {
+      "median": 485.9,
+      "min": 463.7,
+      "max": 492.9
+    },
+    "usefulDom": {
+      "median": 460.6,
+      "min": 460.1,
+      "max": 473.5
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 632,
+      "min": 616,
+      "max": 672
+    },
+    "usefulPaint": {
+      "median": 482.1,
+      "min": 445.2,
+      "max": 492.9
+    },
+    "usefulDom": {
+      "median": 473.3,
+      "min": 416.5,
+      "max": 484.7
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 544,
+      "min": 524,
+      "max": 552
+    },
+    "usefulPaint": {
+      "median": 493.4,
+      "min": 461.9,
+      "max": 500.6
+    },
+    "usefulDom": {
+      "median": 485.7,
+      "min": 455.4,
+      "max": 489.4
+    },
+    "introHeight": {
+      "median": 260.6,
+      "min": 260.6,
+      "max": 260.6
+    },
+    "maxCLS": 0.00023782526115859447
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 556,
+      "min": 524,
+      "max": 584
+    },
+    "usefulPaint": {
+      "median": 493,
+      "min": 470.8,
+      "max": 533.8
+    },
+    "usefulDom": {
+      "median": 484.3,
+      "min": 464.1,
+      "max": 517.4
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0.00023782526115859447
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 148,
+      "min": 136,
+      "max": 168
+    },
+    "usefulPaint": {
+      "median": 482.4,
+      "min": 467.2,
+      "max": 497.5
+    },
+    "usefulDom": {
+      "median": 470.1,
+      "min": 459.4,
+      "max": 488.8
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 444,
+      "min": 428,
+      "max": 444
+    },
+    "usefulPaint": {
+      "median": 381.7,
+      "min": 373.4,
+      "max": 389.6
+    },
+    "usefulDom": {
+      "median": 374.9,
+      "min": 365.6,
+      "max": 376.1
+    },
+    "introHeight": {
+      "median": 260.6,
+      "min": 260.6,
+      "max": 260.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 436,
+      "min": 436,
+      "max": 440
+    },
+    "usefulPaint": {
+      "median": 378.4,
+      "min": 368.6,
+      "max": 383.2
+    },
+    "usefulDom": {
+      "median": 368.2,
+      "min": 364,
+      "max": 376.7
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 64,
+      "min": 56,
+      "max": 76
+    },
+    "usefulPaint": {
+      "median": 385.6,
+      "min": 382.7,
+      "max": 385.8
+    },
+    "usefulDom": {
+      "median": 376.7,
+      "min": 363.4,
+      "max": 378.9
+    },
+    "introHeight": {
+      "median": 234.6,
+      "min": 234.6,
+      "max": 234.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 612,
+      "min": 604,
+      "max": 616
+    },
+    "usefulPaint": {
+      "median": 482.5,
+      "min": 461.7,
+      "max": 485.7
+    },
+    "usefulDom": {
+      "median": 474.8,
+      "min": 454.2,
+      "max": 475.7
+    },
+    "introHeight": {
+      "median": 248.6,
+      "min": 248.6,
+      "max": 248.6
+    },
+    "maxCLS": 2.5716145833333334e-05
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 584,
+      "min": 564,
+      "max": 584
+    },
+    "usefulPaint": {
+      "median": 476.9,
+      "min": 469,
+      "max": 481
+    },
+    "usefulDom": {
+      "median": 465.7,
+      "min": 461.8,
+      "max": 470.5
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "maxCLS": 2.5716145833333334e-05
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 564,
+      "min": 564,
+      "max": 572
+    },
+    "usefulPaint": {
+      "median": 474.3,
+      "min": 471.3,
+      "max": 474.8
+    },
+    "usefulDom": {
+      "median": 465.4,
+      "min": 459.3,
+      "max": 466.1
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "maxCLS": 2.5716145833333334e-05
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 532,
+      "min": 532,
+      "max": 532
+    },
+    "usefulPaint": {
+      "median": 383.8,
+      "min": 378.4,
+      "max": 393.4
+    },
+    "usefulDom": {
+      "median": 377.7,
+      "min": 371.6,
+      "max": 385.2
+    },
+    "introHeight": {
+      "median": 248.6,
+      "min": 248.6,
+      "max": 248.6
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 480,
+      "min": 468,
+      "max": 492
+    },
+    "usefulPaint": {
+      "median": 385.8,
+      "min": 372.7,
+      "max": 386.2
+    },
+    "usefulDom": {
+      "median": 379.2,
+      "min": 366.6,
+      "max": 380.8
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 476,
+      "min": 472,
+      "max": 488
+    },
+    "usefulPaint": {
+      "median": 386.2,
+      "min": 385.3,
+      "max": 389.6
+    },
+    "usefulDom": {
+      "median": 380.2,
+      "min": 379.2,
+      "max": 380.4
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 488,
+      "min": 484,
+      "max": 504
+    },
+    "usefulPaint": {
+      "median": 500.2,
+      "min": 489.4,
+      "max": 527.4
+    },
+    "usefulDom": {
+      "median": 491.5,
+      "min": 485.9,
+      "max": 518.5
+    },
+    "introHeight": {
+      "median": 235.0,
+      "min": 235.0,
+      "max": 235.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 536,
+      "min": 524,
+      "max": 548
+    },
+    "usefulPaint": {
+      "median": 505.8,
+      "min": 486.1,
+      "max": 519.8
+    },
+    "usefulDom": {
+      "median": 497.5,
+      "min": 473,
+      "max": 512
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 548,
+      "min": 512,
+      "max": 564
+    },
+    "usefulPaint": {
+      "median": 509.2,
+      "min": 487.1,
+      "max": 530
+    },
+    "usefulDom": {
+      "median": 499.3,
+      "min": 482.7,
+      "max": 517.1
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 380,
+      "min": 376,
+      "max": 384
+    },
+    "usefulPaint": {
+      "median": 406.1,
+      "min": 386.8,
+      "max": 411.3
+    },
+    "usefulDom": {
+      "median": 389.4,
+      "min": 375.9,
+      "max": 395.9
+    },
+    "introHeight": {
+      "median": 235.0,
+      "min": 235.0,
+      "max": 235.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 440,
+      "min": 428,
+      "max": 456
+    },
+    "usefulPaint": {
+      "median": 389.8,
+      "min": 389.1,
+      "max": 424.6
+    },
+    "usefulDom": {
+      "median": 380.2,
+      "min": 372.7,
+      "max": 410.5
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 452,
+      "min": 428,
+      "max": 460
+    },
+    "usefulPaint": {
+      "median": 404.9,
+      "min": 398.8,
+      "max": 408.5
+    },
+    "usefulDom": {
+      "median": 388.3,
+      "min": 380.4,
+      "max": 395.4
+    },
+    "introHeight": {
+      "median": 209.0,
+      "min": 209.0,
+      "max": 209.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 556,
+      "min": 548,
+      "max": 584
+    },
+    "usefulPaint": {
+      "median": 594.3,
+      "min": 583.5,
+      "max": 607.7
+    },
+    "usefulDom": {
+      "median": 570.8,
+      "min": 560.8,
+      "max": 604.5
+    },
+    "introHeight": {
+      "median": 223.0,
+      "min": 223.0,
+      "max": 223.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 568,
+      "min": 556,
+      "max": 572
+    },
+    "usefulPaint": {
+      "median": 581.6,
+      "min": 557.9,
+      "max": 593.1
+    },
+    "usefulDom": {
+      "median": 576.3,
+      "min": 492.6,
+      "max": 587
+    },
+    "introHeight": {
+      "median": 183.4,
+      "min": 183.4,
+      "max": 183.4
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 156,
+      "min": 148,
+      "max": 172
+    },
+    "usefulPaint": {
+      "median": 570.9,
+      "min": 557.1,
+      "max": 635.6
+    },
+    "usefulDom": {
+      "median": 552,
+      "min": 508.7,
+      "max": 587.4
+    },
+    "introHeight": {
+      "median": 183.4,
+      "min": 183.4,
+      "max": 183.4
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "compact",
+    "n": 3,
+    "lcp": {
+      "median": 464,
+      "min": 464,
+      "max": 496
+    },
+    "usefulPaint": {
+      "median": 421.2,
+      "min": 406.4,
+      "max": 483.8
+    },
+    "usefulDom": {
+      "median": 414.6,
+      "min": 401.5,
+      "max": 475
+    },
+    "introHeight": {
+      "median": 223.0,
+      "min": 223.0,
+      "max": 223.0
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "strip",
+    "n": 3,
+    "lcp": {
+      "median": 472,
+      "min": 472,
+      "max": 492
+    },
+    "usefulPaint": {
+      "median": 403.7,
+      "min": 403.5,
+      "max": 460.1
+    },
+    "usefulDom": {
+      "median": 399,
+      "min": 398.1,
+      "max": 400.8
+    },
+    "introHeight": {
+      "median": 183.4,
+      "min": 183.4,
+      "max": 183.4
+    },
+    "maxCLS": 0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "crown",
+    "n": 3,
+    "lcp": {
+      "median": 76,
+      "min": 72,
+      "max": 84
+    },
+    "usefulPaint": {
+      "median": 457.3,
+      "min": 399.5,
+      "max": 479.8
+    },
+    "usefulDom": {
+      "median": 401.6,
+      "min": 392.9,
+      "max": 404.5
+    },
+    "introHeight": {
+      "median": 183.4,
+      "min": 183.4,
+      "max": 183.4
+    },
+    "maxCLS": 0
+  }
+]

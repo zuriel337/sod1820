@@ -21,7 +21,8 @@ assert.match(sitemap, /\{ loc: '\/privacy',/);
 assert.match(publicationSitemap, /origin === CANONICAL_ORIGIN && !noindex && sourceStatus === 200/);
 assert.match(publicationSitemap, /req\.method === "GET"/);
 assert.match(publicationSitemap, /cacheable \? sourceCacheControl : "no-store"/);
-assert.match(sitemap, /if \(!phrase \|\| \/\^\\d\+\$\/\.test\(phrase\)\) continue/);
+// A numeric phrase stays with its number page (the bounded phrase parts share one rule, #1469).
+assert.match(sitemap, /return !phrase \|\| \/\^\\d\+\$\/\.test\(phrase\) \? \[\]/);
 
 // Missing/unverifiable post slugs fail closed at client SEO level.
 

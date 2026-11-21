@@ -105,6 +105,41 @@ test("keyboard watcher toggles the page class, cleans up, and is inert without a
   assert.equal(typeof watchKeyboardClearance({}, doc), "function");
 });
 
+test("keyboard clearance never recenters or refocuses an editing field during scrolling, resize or dismissal", t => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const viewport = new EventTarget(); viewport.height = 844;
+  const doc = new EventTarget(); const classes = new Set();
+  doc.documentElement = { classList: {
+    toggle: (name, on) => on ? classes.add(name) : classes.delete(name),
+    remove: name => classes.delete(name),
+  } };
+  const scroll = t.mock.fn(), focus = t.mock.fn(), blur = t.mock.fn();
+  const field = { matches: () => true, scrollIntoView: scroll, focus, blur, value: "בראשית" };
+  doc.activeElement = field;
+  const stop = watchKeyboardClearance({ innerHeight: 844, visualViewport: viewport }, doc);
+  viewport.height = 500; viewport.dispatchEvent(new Event("resize"));
+  assert.ok(classes.has("sod29-kbd-open"), "the bottom bar still steps aside");
+  for (let i = 0; i < 4; i++) {
+    viewport.dispatchEvent(new Event("scroll"));
+    t.mock.timers.tick(200);
+  }
+  viewport.height = 480; viewport.dispatchEvent(new Event("resize"));
+  t.mock.timers.tick(200);
+  assert.equal(scroll.mock.callCount(), 0, "neither manual scroll nor viewport resize pulls the reader back");
+  assert.equal(doc.activeElement, field, "editing focus is preserved");
+  assert.equal(field.value, "בראשית", "editing text is preserved");
+  viewport.height = 844; viewport.dispatchEvent(new Event("resize"));
+  assert.equal(classes.has("sod29-kbd-open"), false, "bar returns even if dismissed keyboard leaves the caret active");
+  viewport.height = 500; viewport.dispatchEvent(new Event("resize"));
+  doc.activeElement = null; doc.dispatchEvent(new Event("focusout"));
+  t.mock.timers.tick(200);
+  assert.equal(classes.has("sod29-kbd-open"), false);
+  stop(); t.mock.timers.tick(500);
+  assert.equal(scroll.mock.callCount(), 0, "no stale delayed scroll after blur or cleanup");
+  assert.equal(focus.mock.callCount(), 0, "no forced refocus that could reopen the keyboard");
+  assert.equal(blur.mock.callCount(), 0, "no forced blur during editing");
+});
+
 test('the "account" workspace-section marker has exactly one owner (a strict locator must resolve to one element)', async () => {
   const { readFileSync } = await import('node:fs');
   const read = f => readFileSync(new URL(`../${f}`, import.meta.url), 'utf8');

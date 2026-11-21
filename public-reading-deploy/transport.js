@@ -656,10 +656,13 @@ export async function startPublicReading(config, runtime) {
     // CacheStorage, then reload. Never touches the signed-in session (the SDK keeps it in its own storage).
     if (error?.message !== "worker_required" && await runtime.recover?.(error)) return false;
     const article = document.getElementById?.("sod29-ssr-article");
-    if (article?.isConnected && document.createElement) {
+    const words = document.querySelector?.("[data-first-words]");
+    if ((article?.isConnected || words?.isConnected) && document.createElement) {
       const bar = document.createElement("p");
       bar.setAttribute("role", "status"); bar.setAttribute("data-sod-reading-only", "");
-      bar.textContent = "המאמר זמין לקריאה. שאר העמוד לא נפתח; אפשר לרענן ולנסות שוב.";
+      bar.textContent = article?.isConnected
+        ? "המאמר זמין לקריאה. שאר העמוד לא נפתח; אפשר לרענן ולנסות שוב."
+        : "התוכן זמין לקריאה. הכלים לא נטענו; אפשר לרענן ולנסות שוב.";
       bar.style.cssText = "position:fixed;inset-inline:0;bottom:0;z-index:2147483000;margin:0;padding:10px 16px;background:#14101d;color:#f3ead2;font:15px/1.5 sans-serif;text-align:center";
       document.body.style.paddingBottom = "64px";
       document.body.appendChild(bar);

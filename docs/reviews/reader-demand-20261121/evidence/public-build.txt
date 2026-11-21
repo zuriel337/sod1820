@@ -1,0 +1,8 @@
+2029 shell budget [public-reading] (gzip bytes / files, from /workspace/sod1820/public-reading-deploy/dist/.vite/manifest.json)
+  eagerJsFiles   baseline      17  now      17  delta      +0  limit      17  ok
+  eagerJsGzip    baseline  203216  now  176665  delta  -26551  limit  204240  lower
+  frameJsFiles   baseline       3  now       3  delta      +0  limit       3  ok
+  frameJsGzip    baseline   45986  now   46316  delta    +330  limit   47010  ok
+  frameCssGzip   baseline   33850  now   34213  delta    +363  limit   34362  ok
+2029 shell budget: PASS
+Dormant public-reading artifact built from actual 2029 source. No deployment or cutover is authorized.

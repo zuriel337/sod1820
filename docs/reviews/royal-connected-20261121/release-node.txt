@@ -1,0 +1,40 @@
+design v2 palette roles: PASS
+✔ test/palette-design-v2-roles.test.mjs (29.069025ms)
+✔ every post action is an admitted entry_2029 event with closed fields only (1.878667ms)
+✔ the module sends only the action and the target kind (0.17862ms)
+✔ every post action is wired at its click, and the counter loads only on that click (0.585585ms)
+✔ the library reads the existing public media views and never the legacy category or a manual tag (0.645795ms)
+✔ the posts list offers the two named scopes and the media view is noindex and does not replace the catalog's own scopes (0.172882ms)
+✔ the legacy category entrance keeps its results and links to the real media views; the media chip comes from the media itself (0.095535ms)
+✔ documents and every other address stay uncacheable by default: the catch-all is unchanged (0.567797ms)
+✔ all twelve versioned Post backgrounds are immutable in the deployed config, placed after the catch-all, and their name carries their own hash (1.458172ms)
+✔ self-hosted fonts and brand images (names without a content hash) get a bounded lifetime, never immutable, and only for files that exist (1.077567ms)
+✔ a missing file under the same folders, a document and the worker are not matched by any cache rule (0.657924ms)
+✔ immutable is reserved for content-hashed files; no other address receives a public lifetime (0.213763ms)
+✔ the service worker files stay uncacheable (0.097497ms)
+✔ Royal Palace names only the two existing hash-verified images, after no-store and before worker (0.365592ms)
+✔ connected palace permits only the four verified delivery derivatives (0.432132ms)
+✔ connected palace derivatives stay lazy, fingerprinted, responsive and immutable (5.160493ms)
+✔ page statistics strips no longer mount or import their lazy readers (1.169006ms)
+✔ approved palace delivery is fingerprinted WebP, responsive, shared and cacheable (2.300664ms)
+✔ intro navigation keeps absent targets as text and preserves exact return addresses (1.069165ms)
+✔ system share reports what really happened: shared, cancelled, failed or unsupported — opening is never success (1.134743ms)
+✔ the share text is the page's own title only once that page applied it; a previous page's title never travels (0.282186ms)
+✔ ShareActions: a failed sheet falls back to copy and says so; an image share keeps its link (0.364571ms)
+✔ frame: the inspect panel shares the same sanitized public link as the More panel, and nothing on a private page (0.4305ms)
+✔ gallery applies its own title and canonical at /gallery (same as the server), not the previous page's (0.738204ms)
+✔ the draft machinery is gone: one final design, one stylesheet (1.650813ms)
+✔ the bar's structure: start zone, the crown link with its arc, end zone, two rails (0.266973ms)
+✔ reading progress and the settled crown: one passive capture-phase listener, one frame at a time (0.203838ms)
+✔ the traps the design hit stay handled (0.818055ms)
+✔ the approved numbers (0.247924ms)
+✔ the post and topic rail ends above the floating bottom bar from its natural resting position (0.487716ms)
+✔ accessibility and fallbacks (0.402588ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 130.157106

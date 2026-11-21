@@ -410,5 +410,5 @@ export default function Heichal2029Page() {
   const research = useResearch();
   useEffect(() => { applySeo({ title: "היכל", description: "סביבת המחקר העמוקה של SOD1820", path: "/heichal" }); }, []);
   const hasContext = Boolean(research.context?.subject);
-  return <Sod2029Shell wide surface="heichal" symbol="◇" eyebrow="DEEP RESEARCH ENVIRONMENT" title="היכל" description="Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence, Findings ופעולות שמסתגלים למחקר.">{hasContext ? <ActiveResearchEnvironment /> : <NoContextEntry />}</Sod2029Shell>;
+  return <Sod2029Shell wide surface="heichal" symbol="◇" eyebrow="מחקר · מקורות · חיבורים" title="היכל" description="חוקרים שאלה, בודקים חישובים ומקורות, וממשיכים מאותו הקשר.">{hasContext ? <ActiveResearchEnvironment /> : <NoContextEntry />}</Sod2029Shell>;
 }
