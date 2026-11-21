@@ -365,8 +365,8 @@ function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, s
   const body = <>
     <span className="h29-pinlead-media">{image ? <img src={image} srcSet={set || undefined} sizes={set ? PIN_COVER_SIZES : undefined}
       alt="" width="1280" height="720" fetchpriority="high" decoding="async" onLoad={onImageSettled || undefined} onError={onImageSettled || undefined} /> : <span className="h29-pinlead-empty" aria-hidden="true">✦</span>}</span>
-    <span className="h29-pinlead-badge r29-badge is-pinned"><NavigationIcon2029 name="kingdom" size={14} />{selected ? "האירוע המוביל · מפת המציאות" : "נעוץ · מפת המציאות"}</span>
-    <strong className="h29-pinlead-title">{href ? title : "טוען את הפרסום הנעוץ…"}</strong>
+    <span className="h29-pinlead-badge r29-badge is-pinned"><NavigationIcon2029 name="kingdom" size={14} />{selected ? "האירוע המוביל · מפת המציאות" : "העדכון האחרון · מפת המציאות"}</span>
+    <strong className="h29-pinlead-title">{href ? title : "טוען את הפרסום האחרון…"}</strong>
     <small className="h29-pinlead-meta">{context ? <span className="h29-pinlead-ctx">{context}</span> : null}
       {!selected && lead?.seriesLatest ? <SeriesLatestMark2029 model={lead} /> : null}
       {time ? <time dateTime={time.toISOString()}>{relativeTimeLabel(at)}</time> : null}</small>
