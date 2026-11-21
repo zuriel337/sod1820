@@ -14,6 +14,7 @@
 // Whatever fails here only restores today's timing: the Home reads and renders as before.
 import { fetchContentSeriesCatalog2029 } from "./research/contentSeries2029Projection.js";
 import { pinnedCatalogCover2029 } from "../components/experience2029/homePinnedCover2029.js";
+import { mapLeadId } from "./research/mapUnitReading2029.js";
 
 export const HOME_PINNED_COVER_MARK = "data-home-pinned-cover";
 
@@ -37,7 +38,8 @@ export function preloadPinnedCover2029(cover, { doc = typeof document === "undef
 export async function startHomePinnedLeadEarly2029({ read = fetchContentSeriesCatalog2029, doc } = {}) {
   try {
     const result = await read({ homeOnly: true, homeDisplay: true });
-    return preloadPinnedCover2029(pinnedCatalogCover2029(result?.series), doc === undefined ? {} : { doc });
+    const editorialPostId = import.meta.env?.VITE_MAP_READING_RELEASE === "true" ? mapLeadId : null;
+    return preloadPinnedCover2029(pinnedCatalogCover2029(result?.series, { editorialPostId }), doc === undefined ? {} : { doc });
   } catch {
     return null;
   }
