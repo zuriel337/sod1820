@@ -33,7 +33,7 @@ test("R-1: the 1437 lines are an AMENDMENT of the sworn unit — recorded from t
 test("fail closed: a body whose version no longer matches projects nothing; unknown ids are not registered", () => {
   assert.deepEqual(publicProvenPostSourceUpdates({ ...row, modified: "2026-11-11T06:46:17.566164Z" }), []);
   assert.deepEqual(publicProvenPostSourceUpdates({ ...row, content: BODY.replace('id="knesset-sworn-1234-1011"', 'id="x"') }).filter((e) => e.targetId === "knesset-sworn-1234-1011"), []);
-  assert.equal(registeredUnitIds(5107).length, 6);
+  assert.equal(registeredUnitIds(5107).length, 7);
   assert.equal(registeredUnitIds(5107).includes("unknown"), false);
   assert.deepEqual(unitAmendments(5107, "sharshar-shoes-66"), []);
 });

@@ -33,7 +33,8 @@ import { contentSeriesKeysForPost } from "../lib/research/contentSeries2029Ident
 import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
 import PublishedUnitTraces2029 from "../components/experience2029/PublishedUnitTraces2029.jsx";
 import { mapIntegrationReview } from "../lib/research/mapIntegrationReviewStorage.js";
-import { compactMapUnitHtml, mapUnitReading, mapWorldHref } from "../lib/research/mapUnitReading2029.js";
+import { electionsUnitTimelineHtml2029 } from "../lib/research/electionsUnitTimelinePreview2029.js";
+import { compactMapUnitHtml, mapLeadId, mapUnitReading, mapWorldHref } from "../lib/research/mapUnitReading2029.js";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
 import { setPostUnits, setActivePostUnit, clearPostUnits, unitContextStrings } from "../lib/research/postUnitStore2029.js";
 const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/experience2029/PostExternalSourcesPreview2029.jsx"));
@@ -162,7 +163,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const passiveSourceHtml = useMemo(() => {
     // The one article pipeline, shared with the first document (postArticlePipeline2029.js).
     const html = postArticleSourceHtml2029(state.projection?.post?.content || "", { postId: state.projection?.post?.id, voice: postVoice, annotate: protoOn, cover: state.projection?.post?.image_url || "", facts: imageFacts });
-    return import.meta.env.VITE_REALITY_MAP_PREVIEW === "true" && protoOn && realityMap.active && !editorEnabled ? compactMapUnitHtml(html, state.projection?.post?.id) : html;
+    if (import.meta.env.VITE_REALITY_MAP_PREVIEW !== "true" || !protoOn || !realityMap.active || editorEnabled) return html;
+    if (mapIntegrationReview && Number(state.projection?.post?.id) === mapLeadId) return electionsUnitTimelineHtml2029(html);
+    return compactMapUnitHtml(html, state.projection?.post?.id);
   }, [realityMap.active, editorEnabled, state.projection?.post?.content, state.projection?.post?.id, state.projection?.post?.image_url, postVoice, protoOn, imageFacts]);
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second

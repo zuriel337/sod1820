@@ -29,7 +29,9 @@ export default function PostReadingActions2029({ projection, rootRef, articleHtm
       const host = document.createElement("div");
       host.dataset.postUnitActionHost = unit.id;
       const anchor = byId.get(unit.id);
-      anchor.after(host);
+      const unitDepth = anchor.matches("[data-elections-timeline-unit]") && anchor.querySelector(":scope > details[data-map-depth]");
+      if (unitDepth) unitDepth.append(host);
+      else anchor.after(host);
       return { host, anchor, target: postActionTarget2029(projection, units, unit.id) };
     });
     setUnitHosts(hosts);

@@ -565,3 +565,102 @@
 .sod29-reading-post[data-post-design-preview][data-reality-map] [data-map-depth] {
   margin-block: .35rem;
 }
+
+/* Elections preview: one line on the reading edge and one marker per unit. */
+.sod29-reading-post[data-post-design-preview][data-reality-map] .sod29-reading-source [data-elections-timeline] {
+  --elections-line: color-mix(in srgb, var(--r29-gold) 48%, var(--s29-line));
+  --elections-gold: var(--rm-gold-ink);
+  background: var(--s29-panel);
+  padding: clamp(.75rem, 2.4vw, 1.25rem);
+  border-radius: 12px;
+}
+[data-elections-timeline] .sod29-update-stack-head {
+  margin-block-end: .8rem;
+}
+.sod29-reading-post[data-post-design-preview] .sod29-reading-source [data-elections-timeline] > [data-update-unit] {
+  position: relative;
+  margin-block: 0;
+  margin-inline-start: 5px;
+  padding: .6rem .8rem .55rem 0;
+  border-inline-start: 1px solid var(--elections-line);
+}
+[data-elections-timeline] > [data-update-unit] + [data-update-unit] {
+  border-block-start: 1px solid var(--s29-line);
+}
+[data-elections-timeline] > [data-update-unit]::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 1.12rem;
+  inset-inline-start: -4px;
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: 50%;
+  background: var(--elections-line);
+}
+[data-elections-timeline] > [data-update-unit]:has(> [data-elections-timeline-unit] > details[open])::before {
+  background: var(--elections-gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--r29-gold) 20%, transparent);
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-timeline-unit][data-sod-unit] {
+  inline-size: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: start !important;
+}
+.sod29-reading-post[data-post-design-preview] .sod29-reading-source :is([data-elections-unit-date], [data-elections-timeline-unit] > [data-map-essence]) {
+  margin: 0 0 .2rem;
+  max-inline-size: 100%;
+  text-align: start !important;
+}
+.sod29-reading-post[data-post-design-preview] .sod29-reading-source [data-elections-unit-date] {
+  font-size: .8rem;
+  line-height: 1.45;
+  color: var(--s29-muted);
+}
+.sod29-reading-post[data-post-design-preview][data-reality-map] .sod29-reading-source [data-elections-timeline-unit] > h2 {
+  margin-block: 0 .15rem;
+  font-size: clamp(1.05rem, 4.15vw, 1.35rem);
+  color: var(--elections-gold);
+  font-weight: 800;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-timeline-unit] > [data-map-essence] {
+  font-size: clamp(.94rem, 3.85vw, 1.04rem);
+  line-height: 1.5;
+}
+[data-elections-timeline-unit] > [data-map-essence] strong {
+  color: var(--elections-gold);
+}
+.sod29-reading-post[data-reality-map] [data-elections-timeline-unit] > [data-map-depth] {
+  margin: 0;
+}
+.sod29-reading-post[data-reality-map] [data-elections-timeline-unit] > [data-map-depth] > summary {
+  inline-size: fit-content;
+  min-block-size: 44px;
+  padding-inline: 0;
+  font-size: .87rem;
+  text-decoration: none;
+}
+.sod29-reading-post[data-reality-map] [data-elections-unit-content] {
+  padding-block: .5rem;
+  border-block-start: 1px solid var(--s29-line);
+}
+.sod29-reading-post[data-reality-map] [data-elections-unit-content] > hr {
+  display: none;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-unit-content] > :is(h2, p) {
+  margin: .45rem 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+  text-align: start !important;
+}
+.sod29-reading-post[data-reality-map] [data-elections-unit-content] > h2::before {
+  display: none;
+}
+[data-elections-timeline-unit] [data-post-unit-action-host] .post-reading-actions {
+  margin-block: .35rem .15rem;
+}
