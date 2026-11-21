@@ -787,6 +787,9 @@ function SystemFrame2029Body({
   const toolMode = Boolean(activeToolDock && !systemDockMode);
   useEffect(() => { if (!activeToolDock) setSystemDockMode(false); }, [activeToolDock]);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
+  const [introHelpRoute, setIntroHelpRoute] = useState(null);
+  const introHelpOpened = introHelpRoute === location.key;
+  useEffect(() => setIntroHelpRoute(null), [location.key]);
   const [commandQuery, setCommandQuery] = useState("");
   const [siteSearchQuery, setSiteSearchQuery] = useState("");
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -1489,6 +1492,7 @@ function SystemFrame2029Body({
   };
 
   const resolvedIntroVariant = introVariant === "none" ? "none" : ["world", "heichal", "books"].includes(surface) ? "quiet" : introVariant === "full" ? "full" : "compact";
+  const introHelpTrigger = <button type="button" className="sod29-action" style={{ position: "absolute", top: 14, insetInlineStart: 16, zIndex: 5 }} disabled={introHelpOpened} aria-expanded="false" onClick={() => setIntroHelpRoute(location.key)}>{introHelpOpened ? "טוען הסבר…" : "? מה זה?"}</button>;
   const introIcon = { world: "world", heichal: "heichal", topic: "graph", books: "books", els: "els", calculator: "calculator", journey: "journey", number: "number", control: "tools" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
@@ -1603,7 +1607,7 @@ function SystemFrame2029Body({
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
                 <section className="sod29-page-intro r29 r29-hall" data-intro-variant={resolvedIntroVariant}>
-                  <React.Suspense fallback={null}><RoyalIntro2029 key={currentHref} surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>
+                  {resolvedIntroVariant === "quiet" && !introHelpOpened ? introHelpTrigger : <React.Suspense fallback={resolvedIntroVariant === "quiet" ? introHelpTrigger : null}><RoyalIntro2029 key={currentHref} initialOpen={resolvedIntroVariant === "quiet"} surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>}
                   <div className="sod29-hero-visual" aria-hidden="true"><span className="sod29-hero-symbol r29-medal">{React.isValidElement(symbol) ? symbol : <NavigationIcon2029 name={introIcon || "home"} />}</span></div>
                   <div className="sod29-hero-copy">
                     {resolvedIntroVariant !== "quiet" && eyebrow && eyebrow !== title ? <div className="sod29-eyebrow">{eyebrow}</div> : null}

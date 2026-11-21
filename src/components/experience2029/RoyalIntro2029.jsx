@@ -1,4 +1,4 @@
-import React, { useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { ENTRY_METHODS_LEARNING_HREF, ENTRY_ORIENTATION_MANIFESTS } from "../../lib/entryLearn2029.js";
 import { ROYAL_PALACE_ATMOSPHERE_2029 } from "../../lib/brandAssets2029.js";
 import { MethodsLearningLink } from "./LearnMark2029.jsx";
@@ -7,10 +7,11 @@ import "./royalIntro2029.css";
 
 // Optional atmosphere/help inside the existing page intro. The frame's live
 // heading and context links render independently of this chunk and its image.
-export default function RoyalIntro2029({ surface, title, description, orientationCopy }) {
-  const [open, setOpen] = useState(false);
+export default function RoyalIntro2029({ surface, title, description, orientationCopy, initialOpen = false }) {
+  const [open, setOpen] = useState(initialOpen);
   const trigger = useRef(null);
   const panel = useId();
+  useEffect(() => { if (initialOpen) trigger.current?.focus(); }, [initialOpen]);
   const manifest = ENTRY_ORIENTATION_MANIFESTS[surface];
   const close = () => { setOpen(false); trigger.current?.focus(); };
   return <>
