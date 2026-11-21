@@ -14,6 +14,11 @@ test("a Post with proven updates: 'מה התחדש' is one section and the units
   assert.deepEqual(items.map((i) => [i.label, i.level, i.parentId]), [["מה התחדש", 1, null], ["ממשלת משיח בן דוד = 1234", 2, "upd"], ["ציר השבע", 2, "upd"], ["רמזי הבחירות", 1, null], ["מקורות", 1, null]]);
 });
 
+test("a unit timeline is usable as the single top-level group", () => {
+  const items = buildPostOutline({ entries: [e("updates", "upd", "מה התחדש"), e("unit", "u1", "יחידה ראשונה")] });
+  assert.deepEqual(items.map(item => [item.id, item.level, item.parentId]), [["upd", 1, null], ["u1", 2, "upd"]]);
+});
+
 test("a sub-heading never hangs under 'מה התחדש', a lone section is not a tree, an empty Post gives nothing", () => {
   assert.deepEqual(buildPostOutline({ entries: [e("updates", "upd", "x"), e("h3", "h3", "ביניים"), e("h2", "h", "כותרת")] }).map((i) => [i.id, i.level]), [["upd", 1], ["h", 1]]);
   assert.deepEqual(buildPostOutline({ entries: [e("h2", "only", "כותרת יחידה")] }), []);

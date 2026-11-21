@@ -86,6 +86,7 @@ const realityMapPreview = previewReviewMode && reviewTarget === "preview" && Boo
   && process.env.VERCEL_GIT_COMMIT_REF === REALITY_MAP_PREVIEW_BRANCH;
 await build({ root, define: {
   "import.meta.env.VITE_REALITY_MAP_PREVIEW": JSON.stringify(realityMapPreview ? "true" : "false"),
+  "import.meta.env.VITE_MAP_READING_RELEASE": JSON.stringify(!reviewMode || publicCandidateMode ? "true" : "false"),
   ...Object.fromEntries(previewFlags.map(key => ["import.meta.env." + key, JSON.stringify("false")])),
   "import.meta.env.VITE_PUBLIC_READING_RELEASE": JSON.stringify(PUBLIC_READING_PROFILE_ID),
   "import.meta.env.VITE_AUTH_VERIFIED_PREVIEW_ORIGINS": JSON.stringify(JSON.stringify(oauthOrigins)),

@@ -41,9 +41,9 @@ const post = (id, hours, extra = {}) => ({ id, slug: `p-${id}`, title: `פוסט
 const gallery = (n, hours) => publicGalleryToSystemItem({ id: `10000000-0000-4000-8000-00000000000${n}`, image_url: `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/g${n}.jpg`, name: `תמונה מזרם המציאות ${n}`, description: "", source: "update", published: 1, min_tier: 0, curator_hidden: false, stream_at: iso(hours), created_at: iso(hours), wp_gallery_id: 7 });
 const group = hours => groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "הודעת מקור שטרם נבדקה", created_at: iso(hours), contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
 const feedOf = (items, loading = false) => ({ loading, expandedRows: feedRows(items, { now: NOW, limit: 160, caps: { post: 40, group: 40, gallery: 10 } }) });
-function Probe({ feed, postsOnly = false, exclude }) {
+function Probe({ feed, postsOnly = false, exclude, editorialHref }) {
   const updates = useHomeUpdates(feed, { postsOnly, exclude });
-  return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => {} });
+  return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => {}, editorialHref });
 }
 // The top of the Home as the composition draws it: the pinned lead (with an owner's pinned message above it), then the short "עכשיו".
 function TopProbe({ feed, catalogItems = [] }) {
@@ -85,6 +85,23 @@ test("the dedicated featured story is not duplicated in Home Now; the next share
   const items = [1, 2, 3, 4].map(n => postRowToWorldUpdate(post(n, n))).filter(Boolean);
   const root = await render({ feed: feedOf(items), exclude: new Set([items[0].href]) });
   assert.deepEqual(entries(root).map(node => node.props["data-home-update-item"]), ["post:2", "post:3", "post:4"]);
+  await act(async () => { root.unmount(); });
+});
+
+test("an editorial lead keeps a different unit from the shared Now feed and omits only an exact duplicate", async () => {
+  const slug = "bennett-melach-631-78";
+  const id = "bennett-salt-covenant-unity-20261119";
+  const path = `/post/${slug}`;
+  const items = [postRowToWorldUpdate(post(5113, 1, { slug, date: "2026-10-01", created_at: "2026-10-01",
+    modified: "2026-10-01", tags: ["מפת המציאות"] })), postRowToWorldUpdate(post(2, 4))];
+  const feed = feedOf(items);
+  let root = await render({ feed, editorialHref: `${path}?unit=other-unit#other-unit` });
+  const update = entries(root).find(node => node.props["data-home-update-item"] === "post:5113");
+  assert.ok(update, "a different unit from the same post is still an update");
+  assert.equal(update.findByType("a").props.href, `${path}?unit=${id}#${id}`);
+  await act(async () => { root.unmount(); });
+  root = await render({ feed, editorialHref: `${path}?unit=${id}#${id}` });
+  assert.deepEqual(entries(root).map(node => node.props["data-home-update-item"]), ["post:2"]);
   await act(async () => { root.unmount(); });
 });
 

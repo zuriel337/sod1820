@@ -1,0 +1,40 @@
+.post-reading-actions {
+  margin-block: .75rem;
+}
+.post-reading-action-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: start;
+  gap: .4rem;
+}
+.post-reading-actions .post-reading-action-row .r29-btn {
+  min-block-size: 44px;
+  min-inline-size: 44px;
+  white-space: nowrap;
+}
+.post-reading-save {
+  display: grid;
+  justify-items: start;
+  gap: .3rem;
+  position: relative;
+}
+.post-reading-save > small {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  inline-size: min(240px, 65vw);
+  padding: .3rem .5rem;
+  background: var(--s29-panel);
+  color: var(--s29-ink);
+  border: 1px solid var(--s29-line);
+  border-radius: .5rem;
+}
+@media (max-width: 540px) {
+  .post-reading-action-row .r29-btn { padding-inline: .55rem; }
+  .post-reading-action-row .r29-btn > span { display: none; }
+}
+
+@media (max-width: 768px) {
+  .sod29-root:has(.sod29-dock-share) [data-mobile-share-in-dock] .post-reading-share { display: none; }
+}

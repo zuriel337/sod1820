@@ -8,6 +8,8 @@ import SurfaceProgressSpine2029, { revealAndScrollTo } from "./SurfaceProgressSp
 import LearnMark2029 from "./LearnMark2029.jsx";
 // The event sequence opens only inside the closed "רצף האירועים" section of the mobile sheet: it loads on that open, not with the frame on every page
 // (shell budget, ZURIEL 16.11.2026). It brings its own readers (source updates, lineage) with it.
+const MapUnitContext2029 = import.meta.env.VITE_MAP_READING_RELEASE === "true"
+  ? lazy(() => import("./MapUnitContext2029.jsx")) : null;
 const EventSequencePanel2029 = lazy(() => import("./EventSequencePanel2029.jsx"));
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
@@ -206,6 +208,11 @@ export default function SurfaceContextRail2029({
   const openSheet = onOpenSheet || onOpenContext;
   const prevStation = stations[stationIndex - 1] || null;
   const nextStation = stations[stationIndex + 1] || null;
+
+  if (MapUnitContext2029 && surface === "post" && context?.subject?.type === "post" && context.dimensions?.postMapReading) {
+    return <Suspense fallback={null}><MapUnitContext2029 context={context} rail sheet={sheet}
+      onNavigate={onNavigate} onFollowConnection={onFollowConnection} /></Suspense>;
+  }
 
   return <>
     <ContextualInspector2029
