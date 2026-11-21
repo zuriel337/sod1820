@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import { use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 import { personalActionsLocked } from "../../lib/publicLaunch2029.js";
 import { entityIdentity } from "../../lib/research/researchSyncState.js";
 
 // The existing library identity. A local commit is not a server receipt.
-export default function PersonalSaveButton2029({ entity }) {
+export default function PersonalSaveButton2029({ entity, royal = false }) {
   const auth=useAuth(),research=useResearch(),shell=use2029Shell();
   const [notice,setNotice]=useState(""),pending=useRef(false);
   const saved=(research.saved||[]).some(row=>entityIdentity(row)===entityIdentity(entity));
@@ -26,5 +27,12 @@ export default function PersonalSaveButton2029({ entity }) {
     if(!ok){pending.current=false;setNotice('לא ניתן להתחיל את השמירה כרגע.');}
     else setNotice('ממתין לאישור שמירה מהשרת…');
   };
-  return <span className="sod29-actions" data-personal-save="true"><button type="button" className="sod29-action" disabled={pending.current} aria-pressed={saved} onClick={save}>{saved?'✓ ברשימת השמורים':'שמירה לאזור האישי'}</button>{notice?<small role="status">{notice}</small>:null}</span>;
+  const label = saved ? "✓ ברשימת השמורים" : "שמירה לאזור האישי";
+  return <span className={royal ? "post-reading-save" : "sod29-actions"} data-personal-save="true">
+    <button type="button" className={royal ? "r29-btn is-quiet" : "sod29-action"} disabled={pending.current}
+      aria-label={royal ? label : undefined} title={royal ? label : undefined} aria-pressed={saved} onClick={save}>
+      {royal ? <><NavigationIcon2029 name={saved ? "check" : "save"} size={18} /><span>{saved ? "נשמר" : "שמירה"}</span></> : label}
+    </button>
+    {notice ? <small role="status">{notice}</small> : null}
+  </span>;
 }

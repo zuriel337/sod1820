@@ -104,7 +104,6 @@ function toolOnApproach2029(load, title) {
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
 const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
-const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
 const PostReadingActions2029 = toolOnOpen2029(() => import("../components/experience2029/PostReadingActions2029.jsx"), "טוען פעולות");
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
 const PreviewUnitExtras2029 = toolOnOpen2029(() => import("../components/experience2029/PreviewUnitExtras2029.jsx"));
@@ -157,8 +156,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second
   // time, only when they are exactly this page's article; the reader stays on the same place. Otherwise this page's article replaces it once.
-  const [detailsOpened, setDetailsOpened] = useState(false);   // share and save load when the details are opened
-  const [actionUnitView, setActionUnitView] = useState(null);
   const adoptionRef = useRef(null);   // { id, html, node } once adopted; the adopted nodes stay until the article itself changes
   const documentArticle = useMemo(() => {
     const projection = state.projection;
@@ -282,10 +279,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       noindex: true,
     });
   }, [state.loading, state.projection, slug]);
-
-  useEffect(() => {
-    if (detailsOpened) setActionUnitView({ projection: state.projection, units: postActionUnits2029(state.projection?.post, sourceRef.current) });
-  }, [detailsOpened, state.projection, passiveSourceHtml]);
 
   const regions = state.projection?.regions || [];
   const activeFocus = useMemo(
@@ -924,7 +917,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const { projection } = state;
   const { post } = projection;
   const postActionTarget = postActionTarget2029(projection);
-  const postActionQuery = new URLSearchParams(location.search).get("unit") || "";
   const coverItem = postReadingCoverYieldsToVideo2029(post) ? null : postReadingCoverItem(post);
   const character = postCharacterFor(post);
   const matrixOpening = matrixOpeningFor(post);
@@ -1344,7 +1336,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
           <PostCategories2029 post={projection.sourcePost} compact max={4} />
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
-          <details className="sod29-post-details" onToggle={event => { if (event.currentTarget.open) setDetailsOpened(true); }}>
+          <details className="sod29-post-details">
             <summary>
               <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>
               <span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span>
@@ -1356,10 +1348,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               <div className="sod29-reading-meta-line">
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
               </div>
-              {detailsOpened && postActionTarget ? <PostReadingActions2029 key={`${post.id}:${postActionQuery}`}
-                projection={projection} units={actionUnitView?.projection === projection ? actionUnitView.units : []} openingUnit={postActionQuery}
-              /> : null}
-
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
               {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
@@ -1385,6 +1373,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           <p>{isBennettMaster || isFz1073Master || isElectionsMaster ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת בחלון צד ושומרת את הפוסט והדרך חזרה."}</p>
         </div> : null}
       </div>
+      {postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml} /> : null}
     </header>
 
     {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
@@ -1538,9 +1527,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     </footer>
       </div>
     </details>
-    {postActionTarget ? <PostEndShare2029 url={postActionTarget.url} title={postActionTarget.title} entityId={postActionTarget.ref} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
-    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={postActionTarget?.url} title={post.title} /> : null}
+    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { openBarShare } from "../../lib/share/barShare2029.js";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
@@ -6,26 +7,37 @@ import PersonalSaveButton2029 from "../userCenter/PersonalSaveButton2029.jsx";
 import { use2029Shell } from "./Sod2029Shell.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { personalActionsLocked } from "../../lib/publicLaunch2029.js";
-import { postActionTarget2029 } from "../../lib/research/postActionTarget2029.js";
+import { postActionTarget2029, postActionUnits2029 } from "../../lib/research/postActionTarget2029.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { entityIdentity } from "../../lib/research/researchSyncState.js";
+import "./royal2029.css";
+import "./postReadingActions2029.css";
 
-export default function PostReadingActions2029({ projection, units, openingUnit }) {
-  const [selected, setSelected] = useState(null);
-  const post = postActionTarget2029(projection);
-  if (!post) return null;
-  const unit = postActionTarget2029(projection, units, selected ?? openingUnit);
-  const target = unit || (selected ? null : post);
+export default function PostReadingActions2029({ projection, rootRef, articleHtml }) {
+  const [unitHosts, setUnitHosts] = useState([]);
+  useEffect(() => {
+    const root = rootRef.current;
+    const post = projection.post;
+    const units = postActionUnits2029(post, root);
+    const byId = new Map(Array.from(root?.querySelectorAll("[id]") || [], node => [node.id, node]));
+    const hosts = units.map(unit => {
+      const host = document.createElement("div");
+      host.dataset.postUnitActionHost = unit.id;
+      byId.get(unit.id).after(host);
+      return { host, target: postActionTarget2029(projection, units, unit.id) };
+    });
+    setUnitHosts(hosts);
+    return () => hosts.forEach(({ host }) => host.remove());
+  }, [projection, rootRef, articleHtml]);
+
+  const target = postActionTarget2029(projection);
+  if (!target) return null;
+  const image = projection.post.image_url;
   return <>
-    {units.length || selected ? <label>
-      יעד הפעולות{" "}
-      <select value={target?.unitId || selected || ""} onChange={event => setSelected(event.target.value)}>
-        <option value="">הפוסט כולו</option>
-        {!target ? <option value={selected} disabled>היחידה אינה זמינה</option> : null}
-        {units.map(unit => <option key={unit.id} value={unit.id}>{unit.title || unit.id}</option>)}
-      </select>
-    </label> : null}
-    {target ? <PostTargetActions key={target.ref} target={target} image={projection.post.image_url} /> : null}
+    <PostTargetActions key={target.ref} target={target} image={image} />
+    {unitHosts.filter(item => item.target).map(item => createPortal(
+      <PostTargetActions target={item.target} image={image} />, item.host, item.target.ref
+    ))}
   </>;
 }
 
@@ -70,17 +82,22 @@ function PostTargetActions({ target, image }) {
     }
   };
 
-  return <div className="sod29-actions" data-post-action-target={target.ref}>
-    <PersonalSaveButton2029 entity={target.entity} />
-    <button type="button" className="sod29-action" aria-haspopup="dialog" onClick={share}>
-      <NavigationIcon2029 name="share" size={18} /> שיתוף
-    </button>
-    <button type="button" className="sod29-action" onClick={add} aria-pressed={inResearch} disabled={inResearch}>
-      {inResearch ? "במחקר" : "הוסף למחקר"}
-    </button>
-    <button type="button" className="sod29-action" onClick={reply} disabled={opening}>
-      {target.unitId ? "להגיב ליחידה בקהילה" : "להגיב לפוסט בקהילה"}
-    </button>
+  const replyLabel = target.unitId ? "להגיב ליחידה בקהילה" : "להגיב לפוסט בקהילה";
+  const researchLabel = inResearch ? "במחקר" : "הוסף למחקר";
+  return <div className="r29 post-reading-actions" data-post-action-target={target.ref} role="group"
+    aria-label={target.unitId ? `פעולות ליחידה · ${target.title}` : "פעולות לפוסט"}>
+    <div className="post-reading-action-row">
+      <PersonalSaveButton2029 entity={target.entity} royal />
+      <button type="button" className="r29-btn is-quiet" aria-haspopup="dialog" aria-label="שיתוף" title="שיתוף" onClick={share}>
+        <NavigationIcon2029 name="share" size={18} /> <span>שיתוף</span>
+      </button>
+      <button type="button" className="r29-btn is-quiet" onClick={add} aria-label={researchLabel} title={researchLabel} aria-pressed={inResearch} disabled={inResearch}>
+        <NavigationIcon2029 name="research" size={18} /> <span>{researchLabel}</span>
+      </button>
+      <button type="button" className="r29-btn is-quiet" onClick={reply} aria-label={replyLabel} title={replyLabel} disabled={opening}>
+        <NavigationIcon2029 name="conversation" size={18} /> <span>תגובה</span>
+      </button>
+    </div>
     {note ? <small role="status">{note}</small> : null}
   </div>;
 }
