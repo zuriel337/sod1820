@@ -235,6 +235,7 @@ const postIdOfRowId = id => { const n = Number(/^post:(\d+)$/.exec(String(id || 
 // the newest REGISTERED update of the Post (a unit added to its body); 0 when it has none
 const newestRegisteredEntry = id => { const postId = postIdOfRowId(id); const entries = postId == null ? [] : (PROVEN_POST_SOURCE_UPDATES[postId] || []); return entries.reduce((best, entry) => ((Date.parse(entry.updatedAt || "") || 0) > (Date.parse(best?.updatedAt || "") || 0) ? entry : best), null); };
 const latestRegisteredUpdate = id => Date.parse(newestRegisteredEntry(id)?.updatedAt || "") || 0;
+const registeredUpdateHref = (href, targetId) => (href?.startsWith("/") && !href.startsWith("//") && publicPostUnitHref(href, targetId)) || href;
 // When the publication (or its latest proven update) happened: the later of the row's own time and the newest registered update of that Post.
 const seriesUpdateTime = model => Math.max(Date.parse(model?.at || "") || 0, latestRegisteredUpdate(model?.id));
 // The seen key of the series-latest mark: per Post and per registered update, so a NEW unit makes the dot blink again for everyone who saw the previous one.
@@ -249,7 +250,7 @@ export function seriesLatestFace2029(member) {
   if (!member) return null;
   const entry = newestRegisteredEntry(`post:${member.id}`);
   if (!entry?.label || !((Date.parse(entry.updatedAt || "") || 0) > (Date.parse(member.publishedAt || "") || 0))) return { title: member.title, postTitle: null, at: member.publishedAt, href: member.href };
-  const href = publicPostUnitHref(member.href, entry.targetId) || member.href;
+  const href = registeredUpdateHref(member.href, entry.targetId);
   return { title: entry.label, postTitle: member.title, at: entry.updatedAt, href };
 }
 export const nowModels = (rows, now = Date.now(), seen = {}) => {
@@ -266,7 +267,7 @@ export const nowModels = (rows, now = Date.now(), seen = {}) => {
   const asUpdate = entry && entry.label && (Date.parse(entry.updatedAt || "") || 0) > (Date.parse(latest.at || "") || 0)
     ? { title: entry.label, postTitle: latest.title, excerpt: entry.summary || (latest.title ? `בפוסט: ${latest.title}` : ""), excerptIsLead: false, at: entry.updatedAt,
         ...(entry.summary ? { fullText: entry.summary, summary: entry.summary } : {}),
-        href: publicPostUnitHref(latest.href, entry.targetId) || latest.href } : {};
+        href: registeredUpdateHref(latest.href, entry.targetId) } : {};
   return [...rest.slice(0, leading), { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
 };
 
