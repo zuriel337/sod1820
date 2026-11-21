@@ -5,10 +5,11 @@ import { resolveThumb, isVideoUrl } from "./thumbResolve.js"; // Thumbnail Valid
 // כתובת האתר הקנונית (דומיין המותג). לשנות כאן אם הדומיין משתנה.
 export const SITE_URL = "https://sod1820.co.il";
 export const SITE_NAME = "SOD1820";
-// Approved homepage identity, projected by the existing client and OG owners.
+// Approved homepage identity, projected by the existing client and OG owners. Wording: ZURIEL 21.11.2026 (#1470), verbatim
+// (geresh ׳ and gershayim ״ as in the issue). The home document's readable words are in homePublicWords2029.js (server only).
 export const PUBLIC_HOME_SEO = Object.freeze({
-  fullTitle: "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
-  description: "מחקר חי של מספרים, גימטריה, צפנים בתורה, קוד המציאות, מקורות ומסעות גילוי — מערכת SOD1820 מחברת בין מספרים, מילים, פסוקים, אנשים ואירועים.",
+  fullTitle: "כי לה׳ המלוכה | רמזי הגאולה, גימטריה וצפנים בתורה",
+  description: "סוד 1820 — תיעוד אירועים ורמזי הגאולה דרך מספרים, מילים ופסוקים. גלו את אוצר המלוכה, חקרו במחשבון הגימטריה ובצופן התנ״כי, ועיינו במקורות ובמחקרים.",
   path: "/",
 });
 export const DEFAULT_DESC =
