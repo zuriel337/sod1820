@@ -1,4 +1,3 @@
-import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { captureElsUi } from "../lib/research/elsTelemetryRuntime2029.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -417,13 +416,13 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (elsState.loading) {
-    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="הצופן התנ״כי · חיפוש ומחקר" title="ELS" description={ELS_DESCRIPTION}>
+    return <Sod2029Shell introVariant={library ? "none" : "compact"} wide surface="els" symbol="✦" eyebrow="הצופן התנ״כי · חיפוש ומחקר" title="ELS" description={ELS_DESCRIPTION}>
       <FrameState kind="loading" title="טוען את מצב ELS" progress={{ phase: "בודק את מצב היכולת הקנוני", compact: true }}>המערכת מוודאת שהיכולת זמינה לפני פתיחת סביבת המחקר.</FrameState>
     </Sod2029Shell>;
   }
 
   if (elsState.blocked) {
-    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="הצופן התנ״כי · חיפוש ומחקר" title="ELS" description={ELS_DESCRIPTION}>
+    return <Sod2029Shell introVariant={library ? "none" : "compact"} wide surface="els" symbol="✦" eyebrow="הצופן התנ״כי · חיפוש ומחקר" title="ELS" description={ELS_DESCRIPTION}>
       <FeatureClosedNotice state={elsState} title="ELS" to="/world" />
     </Sod2029Shell>;
   }
@@ -437,7 +436,6 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     title="ELS"
     description={ELS_DESCRIPTION}
   >
-    <SectionPulseSlot2029 section="els" />
     <div style={{display:"contents"}} onClickCapture={event=>captureElsUi(event,{mode:workspaceMode,isAdmin})} onChangeCapture={event=>captureElsUi(event,{mode:workspaceMode,isAdmin})}>
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
       onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} workspaceMode={workspaceMode} /> : null}

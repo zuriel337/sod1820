@@ -33,7 +33,7 @@
      rail leaves that offset plus a 20px margin, so it ends above the floating bottom bar from any resting position (the Release Visual Gate). */
   --s29-rail-natural-offset: calc(var(--s29-bar-h) + var(--s29-bar-reserve) + 72px);
   --s29-line-w: 2px;
-  --s29-gap: calc(var(--s29-dip-w) - 6px);           /* the bar's line overlaps the arc by 3px each side: no seam */
+  --s29-gap: var(--s29-dip-w);                     /* straight ends meet the arc exactly, without doubled overlap */
   --s29-glass: color-mix(in srgb, var(--s29-frame) 72%, transparent);
   --s29-pod-line: var(--s29-brand-gold);
   --s29-line-prog: #7fe7ff;
