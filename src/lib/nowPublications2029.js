@@ -126,7 +126,7 @@ export function nowRowModel(row) {
   // Or HaGeula updates are shown as text only (ZURIEL 19.11.2026: "I don't want to see their pictures"): no image, no video poster or inline
   // player, in "עכשיו" and on Home (both read this model). A video stays reachable through its own page link; audio is not a picture and stays.
   const textOnly = isChannel && item.channel === "or-geula";
-  const href = (postEdited && item.postHref) || row?.href || null;
+  const href = row?.href || null;
   const groupMediaKind = isGroup ? item.media?.kind : null; // a group source declares its own media kind
   const video = groupMediaKind === "video" || (!groupMediaKind && Boolean(media && VIDEO_URL.test(media))) || /^\/video\/[^/]+\/?$/.test(href || "")
     || (isPost && categories.includes(VIDEO_CATEGORY));
@@ -192,7 +192,8 @@ export function nowRowModel(row) {
     // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
     dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, isGallery, author: item.author, seriesKey })] || null,
-    at: postEdited ? new Date(editedAt).toISOString() : row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
+    at: postEdited ? new Date(editedAt).toISOString() : row?.at || null,
+    href: postEdited && item.postHref ? item.postHref : href, seriesKey, seriesLabel, sourceName, sourceKey,
     pinUntil: pinKind && typeof item.pinUntil === "string" ? item.pinUntil : null,
     central: pinKind === "owner" && item.central && Array.isArray(item.central.groups)
       // Re-read at model time: a main message saved after the feed was built still reaches the pinned card (same canonical unit record).
