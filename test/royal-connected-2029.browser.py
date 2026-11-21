@@ -1,11 +1,11 @@
 """Geometry/keyboard checks for the implemented quiet intro."""
 from pathlib import Path
 exec((Path(__file__).parent/'royal-palace-intro-2029.browser.py').read_text().split('import sys')[0])
-OUT=ROOT/'docs/reviews/royal-connected-20261121'
+OUT=ROOT/'docs/reviews/royal-persistent-20261121'
 rows=[]
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
- for arm,port in [('dark',4201),('light',4201),('parchment',4201)]:
+ for arm,port in [('dark',4203),('light',4203),('parchment',4203)]:
   for width in [320,390,768,1440]:
    c=b.new_context(viewport={'width':width,'height':740 if width==320 else 844 if width==390 else 900},locale='he-IL',reduced_motion='reduce',service_workers='block');c.add_init_script(INIT.replace('THEME',arm));pg=c.new_page();guard(pg)
    for route in ['world','heichal','books','code']:
@@ -24,7 +24,7 @@ with sync_playwright() as p:
      trigger.evaluate('(e)=>e.blur()');pg.screenshot(path=str(OUT/f'{route}-{width}-{arm}-reduced.png'))
     rows.append(dict(arm=arm,width=width,route=route,**r));(OUT/'geometry-keyboard.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2))
    c.close();print(arm,width,flush=True)
- c=b.new_context(service_workers='block');pg=c.new_page();guard(pg);pg.goto('http://localhost:4201/2029/posts');pg.wait_for_timeout(1200);assert pg.locator('.sod29-page-intro').count()==0;assert not pg.evaluate("performance.getEntriesByType('resource').some(e=>/RoyalIntro|RoyalBackdrop|royal-connected|royal-palace/.test(e.name))");assert pg.locator('.sod29-dock-here').is_disabled();c.close()
+ c=b.new_context(service_workers='block');pg=c.new_page();guard(pg);pg.goto('http://localhost:4203/2029/posts');pg.wait_for_timeout(1200);assert pg.locator('.sod29-page-intro').count()==0;assert not pg.evaluate("performance.getEntriesByType('resource').some(e=>/RoyalIntro/.test(e.name))");assert pg.locator('.r29-connected-art img').count()==1;assert pg.locator('.sod29-dock-here').is_disabled();c.close()
  b.close()
 for width in [320,390,768,1440]:
  for route in ['world','heichal','books','code']:

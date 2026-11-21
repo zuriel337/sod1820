@@ -22,7 +22,7 @@ const rows = [
 const views = page => page.evaluate(() => (window.dataLayer || []).map(x=>Array.from(x))
   .filter(x=>x[0]==='event' && x[1]==='page_view').map(x=>x[2]));
 
-for (const width of [390,1280]) test(`[${width}px] public backdrop overlaps calculation; GA identifies both posts once`, {timeout:60000}, async t => {
+for (const width of [390,1280]) test(`[${width}px] shared Royal backdrop is independent of calculation; GA identifies both posts once`, {timeout:60000}, async t => {
   let releaseCalculation, calculationStarted = false, calculationFinished = false;
   const calculation = new Promise(resolve => { releaseCalculation = resolve; });
   const fixture = await startFixture({supabase:async ({url})=>{
@@ -44,11 +44,11 @@ for (const width of [390,1280]) test(`[${width}px] public backdrop overlaps calc
     // serves assets/ statics. Answer the actual image locally, once per request.
     const images=[];
     const assets=new Set(Object.values(POST_BACKGROUND_ASSETS_2029).flatMap(x=>[x.mobile,x.desktop]));
-    await context.route('https://sod1820.co.il/*.webp',async route=>{
+    await context.route(/https:\/\/sod1820\.co\.il\/.*\.(?:webp|avif)$/,async route=>{
       const path=new URL(route.request().url()).pathname;
-      if(!assets.has(path)) return route.continue();
+      if(!assets.has(path) && !path.startsWith("/backgrounds/2029/royal-connected-")) return route.continue();
       images.push({path,calculationStarted,calculationFinished});
-      await route.fulfill({status:200,contentType:'image/webp',body:readFileSync(join(dist,path))});
+      await route.fulfill({status:200,contentType:path.endsWith('.avif')?'image/avif':'image/webp',body:readFileSync(join(dist,path))});
     });
     await context.route('https://www.googletagmanager.com/**',route=>route.fulfill({status:200,contentType:'application/javascript',body:''}));
     const page=await context.newPage();
@@ -57,8 +57,8 @@ for (const width of [390,1280]) test(`[${width}px] public backdrop overlaps calc
     // This fails on main, where the image is discovered only after it finishes.
     const deadline=Date.now()+15000;
     while((!calculationStarted || !images.length) && Date.now()<deadline) await delay(25);
-    const expected=POST_BACKGROUND_ASSETS_2029['sod-hashmal'][width<=760?'mobile':'desktop'];
-    assert.equal(images[0]?.path,expected,'the source-admitted CSS backdrop starts while the RPC is pending');
+    const expected=width<650?'/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif':'/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif';
+    assert.equal(images[0]?.path,expected,'the App-owned image starts independently of the pending Post calculation');
     assert.equal(images[0].calculationFinished,false);
     releaseCalculation();
     await page.locator('article').waitFor({timeout:15000});
@@ -72,7 +72,8 @@ for (const width of [390,1280]) test(`[${width}px] public backdrop overlaps calc
     assert.equal(sent[0].campaign_source,'fixture');
     assert.equal(sent[0].campaign_medium,'email');
     assert.equal(sent[0].campaign_name,'acceptance');
-    assert.equal(images.filter(x=>x.path===expected).length,1,'CSS reuses its preload');
+    assert.equal(images.filter(x=>x.path===expected).length,1,'one shared image request');
+    await page.evaluate(()=>window.firstRoyalImage=document.querySelector('.r29-connected-art img'));
     await page.evaluate(path=>{history.pushState({},'',path);dispatchEvent(new PopStateEvent('popstate',{state:{}}));},'/post/'+rows[1].slug);
     await page.waitForFunction(()=>window.dataLayer?.filter(x=>x[0]==='event'&&x[1]==='page_view').length===2,null,{timeout:10000});
     sent=await views(page);
@@ -82,6 +83,8 @@ for (const width of [390,1280]) test(`[${width}px] public backdrop overlaps calc
     assert.equal(sent[1].campaign_source,undefined,'the next route does not invent a campaign');
     await delay(600);
     assert.equal((await views(page)).length,2);
+    assert.equal(await page.evaluate(()=>firstRoyalImage===document.querySelector('.r29-connected-art img')),true);
+    assert.equal(images.length,1,'no series image and no second Royal request on Post transition');
     t.diagnostic(JSON.stringify({width,images,pageviews:sent}));
   } finally {releaseCalculation();await browser.close();await fixture.close();}
 });

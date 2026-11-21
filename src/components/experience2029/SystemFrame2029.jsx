@@ -42,7 +42,6 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 // when it arrives, hidden while the route shows only its loading placeholder (footer2029.css), as before; drawing it only after the
 // content measured a later largest paint on desktop (its styles and render landed in that window). The account-link offer only for a signed-in account (it was always empty for a visitor and appears only
 // after its own read); the share row with the inspect panel that shows it; the living ribbon (hidden) and its detail when opened.
-const RoyalBackdrop2029 = React.lazy(() => import("./RoyalBackdrop2029.jsx"));
 const RoyalIntro2029 = React.lazy(() => import("./RoyalIntro2029.jsx"));
 const Footer2029 = React.lazy(() => import("./Footer2029.jsx"));
 const AccountLinkOffer2029 = React.lazy(() => import("./AccountLinkOffer2029.jsx"));
@@ -1541,7 +1540,6 @@ function SystemFrame2029Body({
         </aside>
 
         <div className="sod29-main" data-royal-intro={hasRoyalIntro || undefined}>
-          {hasRoyalIntro && <React.Suspense fallback={null}><RoyalBackdrop2029 /></React.Suspense>}
           <div className="sod29-living-header-stack">
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">

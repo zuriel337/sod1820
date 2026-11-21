@@ -484,9 +484,8 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       assert.equal(await page.locator('#post-research').evaluate(node=>node.open),false);
       assert.equal(await page.evaluate(()=>window.__reads.filter(table=>table==='topic_cards_public').length),0);
       const requests=backgroundRequests.slice(before);
-      const expected=POST_BACKGROUND_ASSETS_2029[key][width<=760?'mobile':'desktop'];
-      assert.deepEqual(requests.map(row=>row.path),theme==='dark'?[expected]:[]);
-      assert.ok(requests.every(row=>row.bytes<=(width<=760?30_000:60_000)));
+      assert.deepEqual(requests,[],'the Post component must not fetch a retired series backdrop');
+      assert.equal(await page.locator('article').evaluate(e=>getComputedStyle(e,'::before').backgroundImage),'none');
       const warmStart=backgroundRequests.length;
       await page.reload({waitUntil:'networkidle'});
       assert.equal(backgroundRequests.length,warmStart,'Warm reload must reuse the single selected background');
