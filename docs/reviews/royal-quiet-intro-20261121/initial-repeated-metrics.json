@@ -1,0 +1,4874 @@
+[
+  {
+    "lcp": 664,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 188,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 510.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 648,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 591.7999999970198,
+    "usefulPaint": 598.5,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 544,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 84,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 386.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 544,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 487.1000000014901,
+    "usefulPaint": 489.8999999985099,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 628,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 474.59999999403954
+      },
+      {
+        "kind": "lcp",
+        "at": 628,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 552.5,
+    "usefulPaint": 558.0999999940395,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 259.59999999403954,
+        "end": 261.19999999552965
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 259.8999999985099,
+        "end": 262.69999999552965
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740504,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 379262,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "world",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 572,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 387.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 572,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 452.70000000298023,
+    "usefulPaint": 464.5,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 99.5,
+        "end": 99.5
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 101.10000000149012,
+        "end": 101.10000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 0,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "world",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 1088,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 462
+      },
+      {
+        "kind": "lcp",
+        "at": 1088,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      }
+    ],
+    "usefulDom": 461.8999999985099,
+    "usefulPaint": 474.3999999985099,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 64,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 368.8999999985099
+      }
+    ],
+    "usefulDom": 368.8999999985099,
+    "usefulPaint": 373.70000000298023,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 148,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 467.5
+      }
+    ],
+    "usefulDom": 467.5,
+    "usefulPaint": 474.69999999552965,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 190.69999999552965,
+        "end": 196.10000000149012
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 190.89999999850988,
+        "end": 195.10000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187582,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 256647,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 64,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 372.70000000298023
+      }
+    ],
+    "usefulDom": 372.70000000298023,
+    "usefulPaint": 387.3999999985099,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 66.70000000298023,
+        "end": 66.70000000298023
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 67,
+        "end": 67
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 516,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 132,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 446.70000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 482.8999999985099,
+    "usefulPaint": 491.79999999701977,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 464,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 389.5
+      },
+      {
+        "kind": "lcp",
+        "at": 464,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 414,
+    "usefulPaint": 429.5,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 508,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 128,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 436.19999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 508,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 474.3999999985099,
+    "usefulPaint": 484,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 156,
+        "end": 161.19999999552965
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 156.19999999552965,
+        "end": 162.19999999552965
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110973,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 272775,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "books",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 436,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 56,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 358.79999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 436,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 386.20000000298023,
+    "usefulPaint": 397,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 57.100000001490116,
+        "end": 57.100000001490116
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 57.399999998509884,
+        "end": 57.399999998509884
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "books",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 700,
+    "cls": 0.02001971879286694,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 156,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 471.79999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 688,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 700,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 553.7999999970198,
+    "usefulPaint": 563.1000000014901,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 632,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 372
+      },
+      {
+        "kind": "lcp",
+        "at": 596,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 632,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 448.8999999985099,
+    "usefulPaint": 461.5,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 712,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 184,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 502.79999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 712,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 635.5,
+    "usefulPaint": 643,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 300.79999999701977,
+        "end": 304.5
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 301.19999999552965,
+        "end": 304.1000000014901
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740504,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 379262,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "world",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 588,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 100,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 397.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 588,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 512.5,
+    "usefulPaint": 532.7999999970198,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 105.29999999701977,
+        "end": 105.29999999701977
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 105.79999999701977,
+        "end": 105.79999999701977
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 0,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "world",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 612,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 136,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 459
+      },
+      {
+        "kind": "lcp",
+        "at": 612,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 459,
+    "usefulPaint": 465.40000000596046,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 532,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 384.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 532,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 384.70000000298023,
+    "usefulPaint": 392.5,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 612,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 460.20000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 612,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 460.20000000298023,
+    "usefulPaint": 468,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 186.5,
+        "end": 203.10000000149012
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 186.60000000149012,
+        "end": 189.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187582,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 256647,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 516,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 372.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 372.80000000447035,
+    "usefulPaint": 378,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 61,
+        "end": 61
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 61.30000000447035,
+        "end": 61.30000000447035
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 136,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 136,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 438.70000000298023
+      }
+    ],
+    "usefulDom": 530.3000000044703,
+    "usefulPaint": 559.1000000014901,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 64,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 358.30000000447035
+      }
+    ],
+    "usefulDom": 400.1000000014901,
+    "usefulPaint": 405.20000000298023,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 164,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 164,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 457.8999999985099
+      }
+    ],
+    "usefulDom": 546.5,
+    "usefulPaint": 577.3999999985099,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 173.39999999850988,
+        "end": 179.20000000298023
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 173.79999999701977,
+        "end": 177.89999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110973,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 272775,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "books",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 68,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 365.8999999985099
+      }
+    ],
+    "usefulDom": 396.79999999701977,
+    "usefulPaint": 451,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 65.89999999850988,
+        "end": 65.89999999850988
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 66.29999999701977,
+        "end": 66.29999999701977
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "books",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 596,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 136,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 451.20000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 596,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 521.1000000014901,
+    "usefulPaint": 532.3000000044703,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 211.70000000298023,
+        "end": 215.70000000298023
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 212.20000000298023,
+        "end": 215.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740504,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 379262,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "world",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 528,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 379
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 450.20000000298023,
+    "usefulPaint": 460.70000000298023,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 80.10000000149012,
+        "end": 80.10000000149012
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 80.60000000149012,
+        "end": 80.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 0,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "world",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 668,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 459.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 652,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 668,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 570,
+    "usefulPaint": 602.6999999955297,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 528,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 377.79999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 450,
+    "usefulPaint": 453.8999999985099,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 124,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 124,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 458.5
+      }
+    ],
+    "usefulDom": 458.3999999985099,
+    "usefulPaint": 466.3999999985099,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 172.59999999403954,
+        "end": 178.29999999701977
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 173,
+        "end": 179.29999999701977
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187582,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 256647,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 68,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 376.20000000298023
+      }
+    ],
+    "usefulDom": 376.20000000298023,
+    "usefulPaint": 383.6000000014901,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 57.5,
+        "end": 57.5
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 57.70000000298023,
+        "end": 57.70000000298023
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 1064,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 469.5
+      },
+      {
+        "kind": "lcp",
+        "at": 1064,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      }
+    ],
+    "usefulDom": 469.5,
+    "usefulPaint": 477.79999999701977,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 76,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 370.5
+      }
+    ],
+    "usefulDom": 370.5,
+    "usefulPaint": 383.70000000298023,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 568,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 188,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 496.70000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 568,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 523,
+    "usefulPaint": 528,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 223.79999999701977,
+        "end": 231
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 224.10000000149012,
+        "end": 230.29999999701977
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110973,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 272775,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "books",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 456,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 104,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 390.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 456,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 410.8999999985099,
+    "usefulPaint": 423.6000000014901,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 89.20000000298023,
+        "end": 89.20000000298023
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 89.5,
+        "end": 89.5
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "books",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 512,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 449.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 512,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 479.1000000014901,
+    "usefulPaint": 486.69999999552965,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 432,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 362.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 432,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 381.19999999552965,
+    "usefulPaint": 395.19999999552965,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 700,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 463.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 700,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 622.1999999955297,
+    "usefulPaint": 641.2999999970198,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 231.5,
+        "end": 234.89999999850988
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 231.79999999701977,
+        "end": 233.89999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740504,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 379262,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "world",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 668,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 96,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 399.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 668,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 565,
+    "usefulPaint": 577,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 101.39999999850988,
+        "end": 101.39999999850988
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 101.79999999701977,
+        "end": 101.79999999701977
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 0,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "world",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 680,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 152,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 477.20000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 668,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 680,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 553,
+    "usefulPaint": 562.7000000029802,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 612,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 375.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 560,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 612,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 415.1000000014901,
+    "usefulPaint": 450.8999999985099,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 632,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 468.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 632,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 468.80000000447035,
+    "usefulPaint": 479.8999999985099,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 189.20000000298023,
+        "end": 198.20000000298023
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 189.60000000149012,
+        "end": 194.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187582,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 256647,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 532,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 374.3999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 532,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 374.30000000447035,
+    "usefulPaint": 379.70000000298023,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 65.20000000298023,
+        "end": 65.20000000298023
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 65.60000000149012,
+        "end": 65.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 636,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 172,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 479
+      },
+      {
+        "kind": "lcp",
+        "at": 636,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 479,
+    "usefulPaint": 486.70000000298023,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 504,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 365
+      },
+      {
+        "kind": "lcp",
+        "at": 504,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 365,
+    "usefulPaint": 381,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 144,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 449.30000000447035
+      }
+    ],
+    "usefulDom": 541.2000000029802,
+    "usefulPaint": 574.8999999985099,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 164.60000000149012,
+        "end": 167.80000000447035
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 165,
+        "end": 169.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110973,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 272775,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "books",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 64,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 364.6000000014901
+      }
+    ],
+    "usefulDom": 404.20000000298023,
+    "usefulPaint": 453.40000000596046,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 65.90000000596046,
+        "end": 65.90000000596046
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 66.20000000298023,
+        "end": 66.20000000298023
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "books",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 148,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 460.3999999985099
+      }
+    ],
+    "usefulDom": 508.6000000014901,
+    "usefulPaint": 585.5,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 72,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 363.1000000014901
+      }
+    ],
+    "usefulDom": 389.5,
+    "usefulPaint": 393.40000000596046,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 664,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 172,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 503
+      },
+      {
+        "kind": "lcp",
+        "at": 632,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 573.8999999985099,
+    "usefulPaint": 581.7999999970198,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 524,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 374.5
+      },
+      {
+        "kind": "lcp",
+        "at": 524,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 457.30000000447035,
+    "usefulPaint": 466.30000000447035,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 664,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 184,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 498
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 602.8000000044703,
+    "usefulPaint": 615.3000000044703,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 262.70000000298023,
+        "end": 265.6000000014901
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 263.1000000014901,
+        "end": 264.80000000447035
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740504,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 379262,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "world",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 528,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 370.69999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62766,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 449.19999999552965,
+    "usefulPaint": 461.19999999552965,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 73.60000000149012,
+        "end": 73.60000000149012
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 74,
+        "end": 74
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 0,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "world",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 628,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 168,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 475.90000000596046
+      },
+      {
+        "kind": "lcp",
+        "at": 628,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      }
+    ],
+    "usefulDom": 475.90000000596046,
+    "usefulPaint": 484.80000000447035,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 76,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 370.80000000447035
+      }
+    ],
+    "usefulDom": 370.80000000447035,
+    "usefulPaint": 377.6000000014901,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 164,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 164,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 490.19999999552965
+      }
+    ],
+    "usefulDom": 490.09999999403954,
+    "usefulPaint": 499,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 218,
+        "end": 223.39999999850988
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 218.39999999850988,
+        "end": 221.69999999552965
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187582,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 256647,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 80,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 388.8999999985099
+      }
+    ],
+    "usefulDom": 388.8999999985099,
+    "usefulPaint": 403.8999999985099,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 82.39999999850988,
+        "end": 82.39999999850988
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 82.79999999701977,
+        "end": 82.79999999701977
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 512,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 436.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 512,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 468.70000000298023,
+    "usefulPaint": 482.29999999701977,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 432,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 361.79999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 432,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 387.3999999985099,
+    "usefulPaint": 399.8999999985099,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 524,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 453.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 524,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 486.5,
+    "usefulPaint": 488.69999999552965,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 179.10000000149012,
+        "end": 182.19999999552965
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 179.39999999850988,
+        "end": 185.19999999552965
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110973,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 272775,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "books",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 440,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 60,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 367.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 440,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 389.30000000447035,
+    "usefulPaint": 411.3999999985099,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 64.39999999850988,
+        "end": 64.39999999850988
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 64.70000000298023,
+        "end": 64.70000000298023
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "books",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 772,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 204,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 520.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 760,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 772,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 612.5,
+    "usefulPaint": 619.2999999970198,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 648,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 383.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 576,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 648,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 428.19999999552965,
+    "usefulPaint": 469.69999999552965,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 692,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 481
+      },
+      {
+        "kind": "lcp",
+        "at": 692,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 621.6000000014901,
+    "usefulPaint": 628.9000000059605,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 258.5,
+        "end": 261.6000000014901
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 258.90000000596046,
+        "end": 261.40000000596046
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740504,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 379262,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "world",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 564,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 377.5
+      },
+      {
+        "kind": "lcp",
+        "at": 564,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42039,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 502.1000000014901,
+    "usefulPaint": 524.2999999970198,
+    "introHeight": 208.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 83.89999999850988,
+        "end": 83.89999999850988
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 84.39999999850988,
+        "end": 84.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708704
+      },
+      "css": {
+        "files": 18,
+        "transfer": 0,
+        "encoded": 373862
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "world",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 636,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 156,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 479.69999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 636,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 479.69999999552965,
+    "usefulPaint": 493.79999999701977,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 564,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 383.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 564,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 383.5,
+    "usefulPaint": 394,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 668,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 164,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 479.59999999403954
+      },
+      {
+        "kind": "lcp",
+        "at": 668,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 479.59999999403954,
+    "usefulPaint": 487.09999999403954,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 204.09999999403954,
+        "end": 208.59999999403954
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 204.69999999552965,
+        "end": 209.69999999552965
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187582,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 256647,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 532,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 381.3999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 532,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 381.29999999701977,
+    "usefulPaint": 392.29999999701977,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 72,
+        "end": 72
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 72.29999999701977,
+        "end": 72.29999999701977
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1170182
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 254547
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "quiet",
+    "warm": true
+  },
+  {
+    "lcp": 160,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 160,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 463.30000000447035
+      }
+    ],
+    "usefulDom": 508.6000000014901,
+    "usefulPaint": 590.8999999985099,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 64,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 361.1000000014901
+      }
+    ],
+    "usefulDom": 392.70000000298023,
+    "usefulPaint": 397.80000000447035,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 140,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 452.5
+      }
+    ],
+    "usefulDom": 496.5,
+    "usefulPaint": 547.8999999985099,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 2075,
+        "encoded": 1775,
+        "start": 172.29999999701977,
+        "end": 180.29999999701977
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 3790,
+        "encoded": 3490,
+        "start": 172.59999999403954,
+        "end": 176.09999999403954
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110973,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 272775,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "books",
+    "arm": "quiet",
+    "warm": false
+  },
+  {
+    "lcp": 76,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4201/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 376.59999999403954
+      }
+    ],
+    "usefulDom": 403,
+    "usefulPaint": 407.5,
+    "introHeight": 183.390625,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "RoyalIntro2029-Dfz1Z2IQ.js",
+        "transfer": 0,
+        "encoded": 1775,
+        "start": 75.89999999850988,
+        "end": 75.89999999850988
+      },
+      {
+        "url": "RoyalIntro2029-C2fhALGx.css",
+        "transfer": 0,
+        "encoded": 3490,
+        "start": 76.39999999850988,
+        "end": 76.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097473
+      },
+      "css": {
+        "files": 7,
+        "transfer": 0,
+        "encoded": 270675
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "books",
+    "arm": "quiet",
+    "warm": true
+  }
+]
