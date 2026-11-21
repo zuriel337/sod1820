@@ -138,7 +138,7 @@ export function getFeaturedPostRow2029({ client, signal, config = HOME_FEATURED_
   if (!client && cached && now - cached.at < 60000) return cached.promise;
   const c = client || getPublicResearchClient();
   const promise = (async () => {
-    let query = c.from("posts").select("id,slug,title,excerpt,image_url,thumb_url,date,created_at,tags,categories,author,source,link,wp_id,home_hidden")
+    let query = c.from("posts").select("id,slug,title,excerpt,image_url,thumb_url,date,modified,created_at,tags,categories,author,source,link,wp_id,home_hidden")
       .or(publicPostOnlyFilter()).eq("id", config.id).limit(1);
     const { data, error } = await query;
     if (error) throw error;
