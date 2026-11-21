@@ -58,6 +58,15 @@ test("the early cover is the card's cover: the same member, src, srcset and size
   assert.equal(pinnedCatalogCover2029(null), null);
 });
 
+test("the cover preload follows the editorial choice when a newer unit appears", () => {
+  const items = [
+    { id: "5113", coverUrl: COVER.replace("5107", "5113"), publishedAt: "2026-11-19T16:19:09Z" },
+    { id: "5107", coverUrl: COVER, publishedAt: "2026-10-12T00:00:00Z" },
+  ];
+  assert.equal(pinnedCatalogCover2029(seriesWith(items)).memberId, "5113");
+  assert.equal(pinnedCatalogCover2029(seriesWith(items), { editorialPostId: 5107 }).src, COVER);
+});
+
 test("the card itself renders from the same helper (one definition)", () => {
   const card = readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
   assert.match(card, /import \{ pinCoverSet, PIN_COVER_SIZES \} from "\.\/homePinnedCover2029\.js";/);

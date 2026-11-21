@@ -19,10 +19,12 @@ export const pinCoverSet = url => (url && thumb(url, PIN_COVER_WIDTHS[0], PIN_CO
  * The image the card shows while it stands on the series catalog (before the shared feed names the lead; the same Post in practice):
  * the newest member of the primary series and its cover copies. → { src, srcSet, sizes } or null when that member has no cover.
  */
-export function pinnedCatalogCover2029(series) {
+export function pinnedCatalogCover2029(series, { editorialPostId = null } = {}) {
   const primary = (Array.isArray(series) ? series : []).find(entry => entry?.priorityLane === "primary") || null;
-  const member = seriesLatestMember2029(primary?.items || []);
-  const src = member?.coverUrl || null;
+  const items = primary?.items || [];
+  const editorial = editorialPostId == null ? null : items.find(item => String(item.id) === String(editorialPostId));
+  const member = editorial || seriesLatestMember2029(items);
+  const src = member?.coverUrl || editorial?.imageUrl || null;
   if (!src) return null;
   const srcSet = pinCoverSet(src);
   return { src, srcSet: srcSet || null, sizes: srcSet ? PIN_COVER_SIZES : null, memberId: member.id };

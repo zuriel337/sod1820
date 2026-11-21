@@ -28,7 +28,7 @@ export function buildPostOutline({ entries = [], fixed = [] } = {}) {
     const label = outlineLabel(entry?.text);
     if (!entry?.id || !label) continue;
     if (entry.kind === "updates") {
-      parent = add({ id: entry.id, label: "מה התחדש", targetId: entry.id, level: 1, parentId: null, kind: "updates" }); childCount = 0;
+      parent = add({ id: entry.id, label: entry.label || "מה התחדש", targetId: entry.id, level: 1, parentId: null, kind: "updates" }); childCount = 0;
     } else if (entry.kind === "unit") {
       if (parent && parent.kind === "updates" && childCount < OUTLINE_MAX_CHILDREN) { if (add({ id: entry.id, label, targetId: entry.id, level: 2, parentId: parent.id, kind: "unit" })) childCount += 1; }
     } else if (entry.kind === "unit-top" || entry.kind === "h2") {
@@ -46,7 +46,7 @@ export function buildPostOutline({ entries = [], fixed = [] } = {}) {
   const labels = new Set(items.map((i) => i.label));
   for (const f of Array.isArray(fixed) ? fixed : []) if (f?.id && f?.label && !seen.has(f.id) && !labels.has(f.label)) { seen.add(f.id); labels.add(f.label); items.push({ id: f.id, label: f.label, targetId: f.id, level: 1, parentId: null, kind: "fixed" }); }
   // one section alone is not a tree: the caller keeps its single "הסיפור" station
-  return items.filter((i) => i.level === 1).length >= 2 ? items.map(({ kind, ...item }) => item) : [];
+  return items.length >= 2 ? items.map(({ kind, ...item }) => item) : [];
 }
 
 // the item that should be treated as active when a child is active: its parent keeps its children open

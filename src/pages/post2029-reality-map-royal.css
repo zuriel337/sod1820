@@ -1,6 +1,8 @@
+@import "../components/research/mapReadingPalette2029.css";
+
 /* "מפת המציאות" — royal finish (ZURIEL 12.11.2026, design round 2). SCOPE: only a Post that carries data-reality-map (the flagship series, or the
    preview acceptance exception) and the preview-only Companion. No other Post, page or surface changes.
-   NO new palette: every colour is a role of the canonical 2029 palette (--s29-*) reached through the shared Royal layer (royal2029.css, .r29):
+   The original Royal finish uses roles of the canonical 2029 palette (--s29-*) reached through the shared Royal layer (royal2029.css, .r29):
    gold ← brand-gold · sapphire ← brand-sapphire · violet depth ← accent-secondary · azure ← accent-text. Day / Parchment / Night come from the
    frame itself (the .r29 intensity per preset). Gold and sapphire are decoration and hierarchy, never a rating, a verification or an importance. */
 
@@ -471,3 +473,268 @@
 .sod29-reading-post[data-reality-map] .sod29-pu-bar>.sod29-pu-crumb{flex:1 1 12rem;min-inline-size:0;max-inline-size:100%;overflow-wrap:anywhere;text-wrap:balance}
 .sod29-pu-byline-link{color:inherit;text-decoration:underline;text-underline-offset:3px}
 .sod29-pu-byline-link:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:3px}
+
+/* Compact unit preview: one palette for the story and its timeline. */
+.sod29-reading-post[data-reality-map]:has([data-map-depth]) .sod29-reading-hero {
+  background: var(--map-lead);
+  color: var(--map-ink);
+}
+.sod29-reading-post[data-reality-map]:has([data-map-depth]) .sod29-reading-hero h1 {
+  color: var(--map-title);
+  -webkit-text-fill-color: currentColor;
+}
+.sod29-reading-post[data-reality-map] [id]:has(> [data-map-depth]) {
+  padding: clamp(.8rem, 3vw, 1.5rem);
+  border: 1px solid var(--s29-line);
+  border-inline-start: 3px solid var(--map-wine);
+  border-radius: .75rem;
+  background: var(--map-paper);
+  color: var(--map-ink);
+}
+.sod29-reading-post[data-reality-map] [id]:has(> [data-map-depth]) > h2 {
+  color: var(--map-heading);
+  -webkit-text-fill-color: currentColor;
+}
+.sod29-reading-post[data-reality-map] [data-map-essence] {color: var(--map-ink);}
+.sod29-reading-post[data-reality-map] :is([data-map-equation], [data-map-related], [data-map-depth] > summary) {
+  color: var(--map-link);
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.sod29-reading-post[data-reality-map] [data-map-equation] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: .2em .8em;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: .4em;
+  background: var(--map-lead);
+}
+.sod29-reading-post[data-reality-map] [data-map-depth] > summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+}
+
+
+.map29-mobile-post-context{display:none}
+@media(max-width:980px){
+  .map29-mobile-post-context{display:block;margin-block:.45rem}
+}
+
+/* Keep the compact preview in the post's Royal reading palette. */
+.sod29-reading-post[data-post-design-preview][data-reality-map] {
+  --map-lead: var(--s29-panel);
+  --map-title: var(--rm-gold-ink);
+  --map-paper: var(--s29-panel);
+  --map-ink: var(--s29-ink);
+  --map-heading: var(--rm-gold-ink);
+  --map-link: var(--s29-accent-text);
+  --map-wine: color-mix(in srgb, var(--r29-gold) 42%, var(--s29-line));
+}
+.sod29-reading-post[data-post-design-preview][data-reality-map] .sod29-reading-source .sod29-update-meta {
+  gap: .25rem .6rem;
+  margin: 0 0 .3rem;
+  font-size: .78rem;
+}
+.sod29-reading-post[data-post-design-preview][data-reality-map] :is(.sod29-update-added, .sod29-update-event, .sod29-update-source, .sod29-update-batch) {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--s29-muted);
+  font-size: inherit;
+  font-weight: 500;
+}
+.sod29-reading-post[data-post-design-preview][data-reality-map] :is([data-sod-unit], [data-map-depth]) {
+  overflow-wrap: anywhere;
+}
+.sod29-reading-post[data-post-design-preview][data-reality-map] :is(.sod29-pu-head > h2, [data-sod-unit]:has(> [data-map-depth]) > h2, [data-sod-unit]:has(> [data-map-depth]) > header > h2) {
+  margin-block: 0 .35rem;
+  font-size: clamp(1.25rem, 3.8vw, 1.65rem);
+  line-height: 1.3;
+  text-align: start;
+}
+.sod29-reading-post[data-post-design-preview][data-reality-map] [data-map-essence] {
+  margin-block: .35rem;
+  line-height: 1.65;
+}
+.sod29-reading-post[data-post-design-preview][data-reality-map] [data-map-depth] {
+  margin-block: .35rem;
+}
+
+/* Unit timeline preview: one line on the reading edge and one marker per unit. */
+.sod29-reading-post[data-post-design-preview][data-reality-map] .sod29-reading-source [data-reading-timeline] {
+  --reading-timeline-line: color-mix(in srgb, var(--r29-gold) 48%, var(--s29-line));
+  --reading-timeline-gold: var(--rm-gold-ink);
+  background: var(--s29-panel);
+  padding: clamp(.75rem, 2.4vw, 1.25rem);
+  border-radius: 12px;
+}
+[data-reading-timeline] .sod29-update-stack-head {
+  margin-block-end: .8rem;
+}
+.sod29-reading-post[data-post-design-preview] .sod29-reading-source [data-reading-timeline] > [data-update-unit] {
+  position: relative;
+  margin-block: 0;
+  margin-inline-start: 5px;
+  padding: .6rem .8rem .55rem 0;
+  border-inline-start: 1px solid var(--reading-timeline-line);
+}
+[data-reading-timeline] > [data-update-unit] + [data-update-unit] {
+  border-block-start: 1px solid var(--s29-line);
+}
+[data-reading-timeline] > [data-update-unit]::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 1.12rem;
+  inset-inline-start: -4px;
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: 50%;
+  background: var(--reading-timeline-line);
+}
+[data-reading-timeline] > [data-update-unit]:has(> [data-reading-timeline-unit] > details[open])::before {
+  background: var(--reading-timeline-gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--r29-gold) 20%, transparent);
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-reading-timeline-unit][data-sod-unit] {
+  inline-size: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: start !important;
+}
+.sod29-reading-post[data-post-design-preview] .sod29-reading-source :is([data-reading-unit-date], [data-reading-timeline-unit] > [data-map-essence]) {
+  margin: 0 0 .2rem;
+  max-inline-size: 100%;
+  text-align: start !important;
+}
+.sod29-reading-post[data-post-design-preview] .sod29-reading-source [data-reading-unit-date] {
+  font-size: .8rem;
+  line-height: 1.45;
+  color: var(--s29-muted);
+}
+.sod29-reading-post[data-post-design-preview][data-reality-map] .sod29-reading-source [data-reading-timeline-unit] > h2 {
+  margin-block: 0 .15rem;
+  font-size: clamp(1.05rem, 4.15vw, 1.35rem);
+  color: var(--reading-timeline-gold);
+  font-weight: 800;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-reading-timeline-unit] > [data-map-essence] {
+  font-size: clamp(.94rem, 3.85vw, 1.04rem);
+  line-height: 1.5;
+}
+[data-reading-timeline-unit] > [data-map-essence] strong {
+  color: var(--reading-timeline-gold);
+}
+.sod29-reading-post[data-reality-map] [data-reading-timeline-unit] > [data-map-depth] {
+  margin: 0;
+}
+.sod29-reading-post[data-reality-map] [data-reading-timeline-unit] > [data-map-depth] > summary {
+  inline-size: fit-content;
+  min-block-size: 44px;
+  padding-inline: 0;
+  font-size: .87rem;
+  text-decoration: none;
+}
+.sod29-reading-post[data-reality-map] [data-reading-unit-content] {
+  padding-block: .5rem;
+  border-block-start: 1px solid var(--s29-line);
+}
+.sod29-reading-post[data-reality-map] [data-reading-unit-content] > hr {
+  display: none;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-reading-unit-content] > :is(h2, p) {
+  margin: .45rem 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+  text-align: start !important;
+}
+.sod29-reading-post[data-reality-map] [data-reading-unit-content] > h2::before {
+  display: none;
+}
+[data-reading-timeline-unit] [data-post-unit-action-host] .post-reading-actions {
+  margin-block: .35rem .15rem;
+}
+
+[data-reading-unit-content] .reading-calculation-row {
+  display: flex;
+  justify-content: safe center;
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+[data-reading-unit-content] .reading-calculation-row a {
+  display: inline-flex;
+  flex: none;
+  align-items: baseline;
+  align-content: center;
+  gap: .15rem .4rem;
+  min-block-size: 44px;
+  padding: .45rem .3rem;
+  white-space: nowrap;
+  color: var(--reading-timeline-gold);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-underline-offset: .18em;
+}
+[data-reading-unit-content] .reading-calculation-row a:focus-visible {
+  outline-offset: -2px;
+}
+[data-reading-unit-content] .reading-calculation-row small {
+  color: var(--s29-muted);
+  font-size: .85rem;
+}
+[data-reading-focal-trace] .sod29-pu-trace-links {
+  display: none;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-original-numbers] > h3,
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-former-unit] > h3 {
+  margin: .95rem 0 .3rem;
+  font-size: 1.05rem;
+  color: var(--reading-timeline-gold);
+}
+[data-elections-former-unit] {
+  border-block-start: 1px solid var(--s29-line);
+  margin-block-start: .9rem;
+  padding-block-start: .55rem;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-former-unit] > :is(h2, p) {
+  font-size: 1rem !important;
+  text-align: start !important;
+  margin: .4rem 0 !important;
+  line-height: 1.55 !important;
+}
+.sod29-reading-post[data-reality-map] [data-elections-former-unit] > hr {
+  display: none;
+}
+
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-reading-timeline-unit] > h2,
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-reading-unit-content]
+  :is(h2, h3, blockquote, [data-sod-role="verse"], [data-sod-role="peak"], .sod29-post-equality, .reading-calculation-row) {
+  text-align: center !important;
+}
+
+.reading-unit-video {
+  display: inline-grid;
+  inline-size: 17px;
+  block-size: 13px;
+  margin-inline-start: .45rem;
+  place-items: center;
+  vertical-align: middle;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  color: var(--reading-timeline-gold);
+}
+.reading-unit-video::before {
+  content: "";
+  border-block: 3px solid transparent;
+  border-left: 5px solid currentColor;
+  translate: 1px 0;
+}
