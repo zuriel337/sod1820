@@ -16,12 +16,12 @@ const dateFormat = new Intl.DateTimeFormat("he-IL", {
 export default function PostComments2029({ postWpId, href = "", title = "" }) {
   const navigate = useNavigate();
   const auth = useAuth();
-  const [state, setState] = useState({ rows: [], loading: true, error: false });
+  const [state, setState] = useState({ rows: [], loading: postWpId != null, error: false });
   const [note, setNote] = useState(""), [opening, setOpening] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    setState({ rows: [], loading: true, error: false });
+    setState({ rows: [], loading: postWpId != null, error: false });
     readPostCommentArchive(postWpId, getCommentsByPostId)
       .then((rows) => { if (alive) setState({ rows, loading: false, error: false }); })
       .catch(() => { if (alive) setState({ rows: [], loading: false, error: true }); });
@@ -39,10 +39,10 @@ export default function PostComments2029({ postWpId, href = "", title = "" }) {
   };
 
   const rows = state.rows;
-  return <section id="post-comments" className="sod29-post-comments" aria-label="תגובות" data-post-comment-archive={String(postWpId)}>
+  return <section id="post-comments" className="sod29-post-comments" aria-label="תגובות" data-post-comment-archive={postWpId == null ? undefined : String(postWpId)}>
     {state.loading ? <p className="sod29-post-comments-status" role="status">טוען תגובות…</p>
       : state.error ? <p className="sod29-post-comments-status" role="alert">לא הצלחנו לטעון את התגובות. אפשר לרענן ולנסות שוב.</p> : null}
-    {rows.length ? <details open>
+    {rows.length ? <details>
       <summary>תגובות ({rows.length})</summary>
       <ol className="sod29-post-comment-list">
         {rows.map((comment, index) => <li
@@ -59,9 +59,9 @@ export default function PostComments2029({ postWpId, href = "", title = "" }) {
       </ol>
     </details> : null}
     {href ? <div className="sod29-post-comments-add">
-      <p><strong>רוצים להוסיף משהו?</strong> כתבו כמה מילים משלכם, והן יעלו לקהילה יחד עם הקישור לפוסט.</p>
+
       <button type="button" className="sod29-post-comments-button" data-action="community" onClick={toCommunity} aria-busy={opening} aria-describedby="post-comments-add-hint">
-        {opening ? "פותחים את הקהילה…" : "להוסיף בקהילה"}
+        {opening ? "פותחים את הקהילה…" : "להגיב בקהילה"}
       </button>
       {note ? <p id="post-comments-add-hint" className="sod29-post-comments-hint" role="status">{note}</p> : <span id="post-comments-add-hint" hidden>נפתח חלון כתיבה בקהילה עם הקישור לפוסט</span>}
     </div> : null}
