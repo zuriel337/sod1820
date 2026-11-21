@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { createPortal } from "react-dom";
 import { useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -19,15 +18,14 @@ import { logView, logActivity } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel, registeredUnitIds } from "../lib/research/postSourceUpdates2029.js";
+import { provenUpdateForHash, registeredUnitIds } from "../lib/research/postSourceUpdates2029.js";
 import { postVoiceFor } from "../lib/postVoice2029.js";
 import { postArticleSourceHtml2029, postArticleSourceKey2029 } from "../lib/research/postArticlePipeline2029.js";
 import { postImageRenditionSet2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "../lib/research/postArticleCore2029.js";
-import { postArticleByline2029 } from "../lib/research/postArticleDocument2029.js";
+import { postArticleOpening2029 } from "../lib/research/postArticleDocument2029.js";
 import { POST_ARTICLE_DOCUMENT_ID, documentArticleFor, documentImageFactsFor, documentArticleBodyMatches, readingPlace2029, samePlaceInPage2029, keepReaderInPlace2029, suspendScrollAnchoring2029 } from "../lib/research/postArticleAdoption2029.js";
-import { resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
+import { subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
-import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import { usePostOutline2029 } from "../lib/research/postOutlineDom2029.js";
 import { markSeen } from "../lib/homeMotion2029.js";
 import { seriesLatestSeenKey } from "../lib/nowPublications2029.js";
@@ -45,7 +43,6 @@ import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
 import { postReadingClassName } from "./postReadingStyles2029.js";
 
-import AdSlot from "../components/AdSlot.jsx";
 import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
@@ -103,9 +100,7 @@ function toolOnApproach2029(load, title) {
 }
 // The timeline lives inside "מקורות וקשרים": it loads when that section is opened (as its measures do), or when the address points at it.
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
-const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
-const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
 const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
 const PersonalSaveButton2029 = toolOnOpen2029(() => import("../components/userCenter/PersonalSaveButton2029.jsx"));
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
@@ -211,7 +206,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   }, [state.loading, state.projection, state.notPublic]);
   useEffect(() => () => { if (!adoptionRef.current) document.getElementById(POST_ARTICLE_DOCUMENT_ID)?.remove(); }, []);
   const [activeRegionId, setActiveRegionId] = useState(null);
-  const [sourceUpdates, setSourceUpdates] = useState([]);
 
   useEffect(() => {
     let live = true;
@@ -284,6 +278,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     });
   }, [state.loading, state.projection, slug]);
 
+  const authoredLinks = useMemo(() => readPostResearchLinks2029(passiveSourceHtml), [passiveSourceHtml]);
   const regions = state.projection?.regions || [];
   const activeFocus = useMemo(
     () => regions.find((region) => region.id === activeRegionId) || regions[0] || null,
@@ -297,25 +292,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
   const mergedUpdates = !useOutline && regions.length > 1 && outlineUpdates.length > 1;
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
-  // Flagship "מפת המציאות" experience: exactly FOUR semantic entries that fit one line (message · context · connections · sources), each mapped to
-  // real content of this Post. Every other Post keeps the existing list unchanged.
-  const flagshipNav = protoOn && realityMap.active;
-  const [activeNavId, setActiveNavId] = useState(null);
-  const sectionItems = useMemo(() => flagshipNav ? [
-    { id: "nav-message", label: "מסר", targetId: "post-story", targetIds: [...previewUnitIdsFor(state.projection?.post?.id), "post-story"] },
-    { id: "nav-context", label: "הקשר", targetId: "post-research", targetIds: ["post-research", "post-measures", "post-story"] },
-    { id: "nav-connections", label: "חיבורים", targetId: state.projection?.experience?.connections?.some((item) => item.href) ? "post-connections" : "post-classification", targetIds: ["post-connections", "post-classification", "post-measures"] },
-    { id: "nav-sources", label: "מקורות", targetId: "post-sources", targetIds: ["post-sources"] },
-  ] : [
-    { id: "post-story", label: "הסיפור", targetId: "post-story" },
-    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
-    ...(state.projection?.experience?.connections?.some((item) => item.href)
-      ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
-    { id: "post-sources", label: "מקורות", targetId: "post-sources" },
-    ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
-    { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions, state.projection, commentArchiveId, flagshipNav]);
-
   useEffect(() => {
     const root = sourceRef.current;
     const cover = typeof state.projection?.post?.image_url === "string"
@@ -368,32 +344,16 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   },[state.projection,location.search,location.hash]);
 
   useEffect(() => {
-    const reveal = targetId => {
-      const target = targetId ? document.getElementById(targetId) : null;
-      if (target && researchRef.current?.contains(target)) revealReadingAnchor(target);
-    };
-    const onMapClick = event => {
-      const button = event.target?.closest?.(".sod29-surface-tabs button");
-      if (!button) return;
-      const item = sectionItems.find(entry => entry.label === (button.textContent || "").trim());
-      if (item) reveal(item.targetId || item.id);
-    };
-    let targetId = "";
-    try { targetId = decodeURIComponent((location.hash || "").replace(/^#/, "")); } catch { /* A malformed URL fragment has no target. */ }
-    reveal(targetId);
-    document.addEventListener("click", onMapClick, true);
-    return () => document.removeEventListener("click", onMapClick, true);
-  }, [sectionItems, location.hash, state.projection]);
+    const id = location.hash.slice(1);
+    const target = id && document.getElementById(id);
+    if (target && researchRef.current?.contains(target)) revealReadingAnchor(target);
+  }, [location.hash, state.projection]);
 
   // Entering a reality-map Post settles the "latest update" dot in "עכשיו" for this viewer (the existing per-browser seen state; a newer registered unit makes it blink again).
   useEffect(() => {
     const post = state.projection?.sourcePost || state.projection?.post;
     if (post?.id && contentSeriesKeysForPost(post).includes("reality-map")) markSeen(seriesLatestSeenKey(`post:${post.id}`));
   }, [state.projection?.sourcePost, state.projection?.post?.id]);
-
-  useEffect(() => {
-    setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
-  }, [state.projection]);
 
   // Series Posts publish their units (identity + references) for the left panel and, as plain strings, on the existing research context.
   useEffect(() => {
@@ -480,20 +440,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       if (frame) cancelAnimationFrame(frame);
     };
   }, [state.projection, passiveSourceHtml, realityMap.active, protoOn, location.search]);
-
-  const jumpToSourceUpdate = (entry) => {
-    const target = sourceRef.current?.querySelector(`[id="${entry.targetId}"]`);
-    if (!target) return;
-    revealReadingAnchor(target);
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-    // Exact entry survives refresh/share: the hash names the source unit.
-    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}#${encodeURIComponent(entry.targetId)}`); } catch { /* hash is a convenience */ }
-    target.setAttribute("tabindex", "-1");
-    target.focus?.({ preventScroll: true });
-    target.classList.add("sod29-update-target");
-    window.setTimeout(() => target.classList.remove("sod29-update-target"), 2600);
-  };
 
   useEffect(() => {
     // Native hash entry (refresh / shared link) into a proven source unit: land exactly on it.
@@ -954,6 +900,14 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : item
   ));
   const contextualConnections = (experience.connections || []).filter((connection) => connection.href);
+  const playableEvidence = Boolean(experience.media?.highlight?.src || experience.media?.mediaUrl || experience.media?.wireframe);
+  const hasEvidenceLink = Boolean(experience.media?.sourceCard?.href || experience.media?.fullSource?.href);
+  const connectedHrefs = new Set(contextualConnections.map(item => item.href));
+  const extraLinks = authoredLinks.filter(item => !connectedHrefs.has(item.href));
+  const publicPost = !projection.draft && !projection.privateStage && !projection.previewSnapshot;
+  const showResearch = contextualConnections.length > 0 || visibleTimeline.some(item => !item.current)
+    || hasEvidenceLink || authoredLinks.length > 0 || measureSource.claims.length > 0;
+  const opening = postArticleOpening2029(post);
   const exactReturnForRegion = (region) => ({
     href: exactPostReadingHref(post, location, `#source-region-${region?.id || projection.defaultRegionId}`),
     label: post.title,
@@ -1335,16 +1289,15 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
-          {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
-          <PostCategories2029 post={projection.sourcePost} compact max={4} />
-          <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
+          {opening ? <p className="sod29-reading-opening">{opening}</p> : null}
+          <PostCategories2029 post={projection.sourcePost} featured />
           <details className="sod29-post-details" onToggle={event => { if (event.currentTarget.open) setDetailsOpened(true); }}>
             <summary>
-              <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>
               <span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span>
             </summary>
             <div className="sod29-post-details-body">
-              {classification.credit ? <p>{classification.credit.prefix}: {classification.credit.name}</p> : null}
+              <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
+              {classification.credit ? <p className="sod29-reading-byline">{classification.credit.prefix}: {classification.credit.name}</p> : null}
               {projection.sourceLine && projection.sourceLine !== visibleSourceLabel && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
               {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
               <div className="sod29-reading-meta-line">
@@ -1356,7 +1309,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               /> : null}
               {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
 
-              {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
               {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
             </div>
@@ -1383,85 +1335,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div>
     </header>
 
-    {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
-      <span className="sod29-update-strip-kicker">עודכן</span>
-      <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
-        <strong data-update-caption={resolveUnitMessage(post.id, sourceUpdates[0].targetId) ? "main-message" : "label"}>{(realityMap.active && resolveUnitMessage(post.id, sourceUpdates[0].targetId)) || sourceUpdates[0].label}</strong>
-        <small>{sourceUpdates[0].attribution} · {addedDateLabel(sourceUpdates[0]) ? <time dateTime={sourceUpdates[0].updatedAt}>{addedDateLabel(sourceUpdates[0])}</time> : "תאריך ההוספה אינו מוכח"}</small>
-      </button>
-      {sourceUpdates.length > 1 ? <details className="sod29-update-strip-more">
-        <summary>עוד {sourceUpdates.length - 1}</summary>
-        <ul>
-          {sourceUpdates.slice(1, 6).map((entry) => <li key={entry.id}>
-            <button type="button" onClick={() => jumpToSourceUpdate(entry)}>
-              <span>{entry.label}</span><small>{addedDateLabel(entry) ? <time dateTime={entry.updatedAt}>{addedDateLabel(entry)}</time> : null}</small>
-            </button>
-          </li>)}
-        </ul>
-      </details> : null}
-    </aside> : null}
-    {protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
-    {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
-      <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" srcSet={postImageRenditionSet2029(coverItem.imageUrl, documentImageFactsFor(post?.id)) || undefined} sizes={POST_COVER_IMAGE_SIZES} alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
-    </figure> : null}
-
-    <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" activeId={flagshipNav ? activeNavId : null} onSelect={flagshipNav ? (item) => setActiveNavId(item.id) : null} />
-
-    <PostEvidenceMedia2029 media={experience.media} />
-    {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}
-    {sourceMediaOpen ? <React.Suspense fallback={null}><SourceLightbox images={[{image_url:sourceMediaOpen.href,name:sourceMediaOpen.alt}]} onClose={()=>setSourceMediaOpen(null)} note="מדיה מתוך הפוסט המקורי" /></React.Suspense> : null}
-
-    {/* The event sequence lives in the context rail (tree) and the bottom path: no third inline copy. */}
-
-    <div className="sod29-reading-layout">
-      <section
-        ref={sourceRef}
-        className="sod29-reading-source"
-        aria-label="טקסט המקור"
-        data-public-post-id={post.id}
-        onPointerDownCapture={() => { sourcePointerActive.current = true; }}
-        onPointerUpCapture={() => { sourcePointerActive.current = false; }}
-        onPointerCancel={() => { sourcePointerActive.current = false; }}
-        onFocusCapture={event => {
-          const control = event.target?.closest?.("[data-gem],[data-expression]");
-          if (!control || !event.currentTarget.contains(control)) return;
-          // Pointer-down focus must not move the target before pointer-up/click.
-          // Keyboard and programmatic return still receive visibility restoration.
-          if (sourcePointerActive.current) return;
-          // A restored focus may use preventScroll while the Frame closes.
-          // Keep the source control clear of its existing header/island margins.
-          const box = control.getBoundingClientRect(), style = getComputedStyle(control);
-          const before = parseFloat(style.scrollMarginBlockStart) || 0;
-          const after = parseFloat(style.scrollMarginBlockEnd) || 0;
-          if (box.top < before || box.bottom > window.innerHeight - after) {
-            control.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
-          }
-        }}
-        onClick={handleSourceContextualFocus}
-        onKeyDown={(event) => {
-          sourcePointerActive.current = false;
-          if ((event.key === "Enter" || event.key === " ") && event.target?.matches?.('[data-gem][role="button"],[data-expression][role="button"]')) {
-            event.preventDefault();
-            handleSourceContextualFocus(event);
-          }
-        }}
-        {...(documentArticle ? {} : { dangerouslySetInnerHTML: { __html: passiveSourceHtml } })}
-      />
-      {protoOn && realityMap.active ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} postHref={publicPostHref(post)} htmlKey={passiveSourceHtml.length} editable={editorEnabled} /> : null}
-      {protoOn && realityMap.active ? <PreviewUnitExtras2029 rootRef={sourceRef} post={post} htmlKey={passiveSourceHtml.length} /> : null}
-      <PublishedUnitTraces2029 rootRef={sourceRef} htmlKey={passiveSourceHtml.length} />
-      {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
-
-
-    </div>
-
-    {calculationNotice ? (calculationFeedbackHost
-      ? createPortal(<><p role="status">{calculationNotice}</p>{explorationOccurrence ? <div className="sod29-post-engine-exploration">
-        <p>אפשר לבדוק את הביטוי מחדש במנוע. זו בדיקה נוספת, ואינה משלימה את התיעוד או מאמתת את חישוב המקור.</p>
-        <button type="button" onClick={openPostEngineExploration}>בדיקה חדשה במנוע</button>
-      </div> : null}</>, calculationFeedbackHost)
-      : <p role="status">{calculationNotice}</p>) : null}
-    <details ref={researchRef} open={researchOpen} className="sod29-post-research" id="post-research"
+    {showResearch ? <details ref={researchRef} open={researchOpen} className="sod29-post-research" id="post-research"
       data-experience-capability="post-sources-and-connections"
       onToggle={event => {
         if (event.target !== event.currentTarget) return;
@@ -1470,11 +1344,14 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       }}>
       <summary>
         <span className="sod29-post-research-title">מקורות וקשרים</span>
-        <span className="sod29-post-research-hint">מקור, חיבורים, ציר זמן ומדדים — בלי להעמיס על הקריאה</span>
         <span className="sod29-post-research-chevron" aria-hidden="true">⌄</span>
       </summary>
       <div className="sod29-post-research-body">
-    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <div id="post-measures">
+        {!playableEvidence && hasEvidenceLink ? <PostEvidenceMedia2029 media={experience.media} /> : null}
+        {extraLinks.length ? <ul className="sod29-post-source-links">
+          {extraLinks.map(item => <li key={item.href}><a href={item.href}>{item.label}</a></li>)}
+        </ul> : null}
+    {publicPost && measureSource.claims.length ? <div id="post-measures">
       {researchStarted ? <PostConvergenceMeasures2029 key={`${post.id}:${post.modified || ""}:${user?.id || "public"}`}
         sourcePost={projection.sourcePost} sourceProjection={projection} claims={measureSource.claims} placements={measureSource.placements}
         initialCardId={research.context?.subject?.type === "post" && String(research.context.subject.id) === String(post.id)
@@ -1533,17 +1410,83 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
     </footer>
       </div>
-    </details>
-    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostEndShare2029 url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
-    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
-    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
-    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
-    <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
-      {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}
-      <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
-      <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
-    </nav>
+    </details> : null}
+
+    {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
+      <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" srcSet={postImageRenditionSet2029(coverItem.imageUrl, documentImageFactsFor(post?.id)) || undefined} sizes={POST_COVER_IMAGE_SIZES} alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
+    </figure> : null}
+
+    {playableEvidence ? <PostEvidenceMedia2029 media={experience.media} /> : null}
+    {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}
+    {sourceMediaOpen ? <React.Suspense fallback={null}><SourceLightbox images={[{image_url:sourceMediaOpen.href,name:sourceMediaOpen.alt}]} onClose={()=>setSourceMediaOpen(null)} note="מדיה מתוך הפוסט המקורי" /></React.Suspense> : null}
+
+    {/* The event sequence lives in the context rail (tree) and the bottom path: no third inline copy. */}
+
+    <div className="sod29-reading-layout">
+      <section
+        ref={sourceRef}
+        className="sod29-reading-source"
+        aria-label="טקסט המקור"
+        data-public-post-id={post.id}
+        onPointerDownCapture={() => { sourcePointerActive.current = true; }}
+        onPointerUpCapture={() => { sourcePointerActive.current = false; }}
+        onPointerCancel={() => { sourcePointerActive.current = false; }}
+        onFocusCapture={event => {
+          const control = event.target?.closest?.("[data-gem],[data-expression]");
+          if (!control || !event.currentTarget.contains(control)) return;
+          // Pointer-down focus must not move the target before pointer-up/click.
+          // Keyboard and programmatic return still receive visibility restoration.
+          if (sourcePointerActive.current) return;
+          // A restored focus may use preventScroll while the Frame closes.
+          // Keep the source control clear of its existing header/island margins.
+          const box = control.getBoundingClientRect(), style = getComputedStyle(control);
+          const before = parseFloat(style.scrollMarginBlockStart) || 0;
+          const after = parseFloat(style.scrollMarginBlockEnd) || 0;
+          if (box.top < before || box.bottom > window.innerHeight - after) {
+            control.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+          }
+        }}
+        onClick={handleSourceContextualFocus}
+        onKeyDown={(event) => {
+          sourcePointerActive.current = false;
+          if ((event.key === "Enter" || event.key === " ") && event.target?.matches?.('[data-gem][role="button"],[data-expression][role="button"]')) {
+            event.preventDefault();
+            handleSourceContextualFocus(event);
+          }
+        }}
+        {...(documentArticle ? {} : { dangerouslySetInnerHTML: { __html: passiveSourceHtml } })}
+      />
+      {protoOn && realityMap.active ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} postHref={publicPostHref(post)} htmlKey={passiveSourceHtml.length} editable={editorEnabled} /> : null}
+      {protoOn && realityMap.active ? <PreviewUnitExtras2029 rootRef={sourceRef} post={post} htmlKey={passiveSourceHtml.length} /> : null}
+      <PublishedUnitTraces2029 rootRef={sourceRef} htmlKey={passiveSourceHtml.length} />
+      {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
+
+
+    </div>
+
+    {calculationNotice ? (calculationFeedbackHost
+      ? createPortal(<><p role="status">{calculationNotice}</p>{explorationOccurrence ? <div className="sod29-post-engine-exploration">
+        <p>אפשר לבדוק את הביטוי מחדש במנוע. זו בדיקה נוספת, ואינה משלימה את התיעוד או מאמתת את חישוב המקור.</p>
+        <button type="button" onClick={openPostEngineExploration}>בדיקה חדשה במנוע</button>
+      </div> : null}</>, calculationFeedbackHost)
+      : <p role="status">{calculationNotice}</p>) : null}
+    {publicPost ? <PostComments2029 key={post.id} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
   </article></>;
+}
+
+function readPostResearchLinks2029(html) {
+  if (!html || !html.includes("<a")) return [];
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  const links = new Map();
+  for (const anchor of template.content.querySelectorAll("a[href]")) {
+    const href = anchor.getAttribute("href")?.trim();
+    const label = (anchor.textContent || anchor.getAttribute("aria-label") || "").trim();
+    if (!label || !/^(?:https?:\/\/|\/(?:post|number|topic)\/)/i.test(href) || links.has(href)) continue;
+    links.set(href, { href, label });
+    if (links.size === 12) break;
+  }
+  return [...links.values()];
 }
 
 export default function Post2029Page({ resolvedSlug = null, sourceReader = null } = {}) {
