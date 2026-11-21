@@ -13,13 +13,12 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { publicPostHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
 import { publicPostLinkedMedia, legacySourcePath } from "../lib/research/publicPostSourceLinks2029.js";
-import { publicPostShareUrl } from "../lib/publicPostUrls.js";
-import { entityFromPost } from "../lib/research/entity.js";
+import { postActionTarget2029, postActionUnits2029 } from "../lib/research/postActionTarget2029.js";
 import { logView, logActivity } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel, registeredUnitIds } from "../lib/research/postSourceUpdates2029.js";
+import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel } from "../lib/research/postSourceUpdates2029.js";
 import { postVoiceFor } from "../lib/postVoice2029.js";
 import { postArticleSourceHtml2029, postArticleSourceKey2029 } from "../lib/research/postArticlePipeline2029.js";
 import { postImageRenditionSet2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "../lib/research/postArticleCore2029.js";
@@ -104,10 +103,11 @@ function toolOnApproach2029(load, title) {
 // The timeline lives inside "מקורות וקשרים": it loads when that section is opened (as its measures do), or when the address points at it.
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
 const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
+const discussionReviewEnabled = import.meta.env.DEV && import.meta.env.VITE_POST_DISCUSSION_REVIEW === "true";
+const PostDiscussionReview2029 = discussionReviewEnabled
+  ? toolOnOpen2029(() => import("../components/experience2029/PostDiscussionReview2029.jsx")) : null;
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
-const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
-const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
-const PersonalSaveButton2029 = toolOnOpen2029(() => import("../components/userCenter/PersonalSaveButton2029.jsx"));
+const PostReadingActions2029 = toolOnOpen2029(() => import("../components/experience2029/PostReadingActions2029.jsx"), "טוען פעולות");
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
 const PreviewUnitExtras2029 = toolOnOpen2029(() => import("../components/experience2029/PreviewUnitExtras2029.jsx"));
 const MatrixRain = toolOnOpen2029(() => import("../components/MatrixRain.jsx"));
@@ -142,6 +142,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const recordedContentEntry = useRef(null);
   entryRef.current = { context: research.context, hash: location.hash };
   const restoredRegionRef = useRef(null);
+  const [discussionDraft, setDiscussionDraft] = useState(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const postVoice = postVoiceFor(state.projection?.post).voice;
   // The flagship series experience (ZURIEL 12.11.2026): exact series tag, or the preview-only acceptance exception for 5107 / 5112.
@@ -159,7 +160,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second
   // time, only when they are exactly this page's article; the reader stays on the same place. Otherwise this page's article replaces it once.
-  const [detailsOpened, setDetailsOpened] = useState(false);   // share and save load when the details are opened
   const adoptionRef = useRef(null);   // { id, html, node } once adopted; the adopted nodes stay until the article itself changes
   const documentArticle = useMemo(() => {
     const projection = state.projection;
@@ -880,8 +880,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     // A unit link (?unit=<id>) lands on that exact unit even if the fragment was dropped by a messenger (every registered unit).
     const wanted = new URLSearchParams(location.search).get("unit");
     if (!wanted || location.hash || !state.projection || !sourceRef.current) return undefined;
-    // `?unit=<id>` names a REGISTERED unit of this Post (a proven live unit or the preview unit); any other id is ignored and the Post opens normally.
-    if (![...registeredUnitIds(state.projection.post?.id), ...previewUnitIdsFor(state.projection.post?.id)].includes(wanted)) return undefined;
+    // Only a public unit with a unique anchor, or the existing preview unit, can receive focus.
+    if (!postActionUnits2029(state.projection.post, sourceRef.current).some(unit => unit.id === wanted)
+      && !previewUnitIdsFor(state.projection.post?.id).includes(wanted)) return undefined;
     const target = [...sourceRef.current.querySelectorAll("[id]")].find((node) => node.id === wanted);
     if (!target) return undefined;
     const frame = requestAnimationFrame(() => {
@@ -919,6 +920,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
   const { projection } = state;
   const { post } = projection;
+  const postActionTarget = postActionTarget2029(projection);
   const coverItem = postReadingCoverYieldsToVideo2029(post) ? null : postReadingCoverItem(post);
   const character = postCharacterFor(post);
   const matrixOpening = matrixOpeningFor(post);
@@ -1338,7 +1340,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
           <PostCategories2029 post={projection.sourcePost} compact max={4} />
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
-          <details className="sod29-post-details" onToggle={event => { if (event.currentTarget.open) setDetailsOpened(true); }}>
+          <details className="sod29-post-details">
             <summary>
               <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>
               <span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span>
@@ -1350,12 +1352,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               <div className="sod29-reading-meta-line">
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
               </div>
-              {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <ShareActions
-                type="post" url={publicPostShareUrl(post, location)}
-                title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"
-              /> : null}
-              {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
-
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
               {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
@@ -1381,6 +1377,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           <p>{isBennettMaster || isFz1073Master || isElectionsMaster ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת בחלון צד ושומרת את הפוסט והדרך חזרה."}</p>
         </div> : null}
       </div>
+      {postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml}
+        onDraft={discussionReviewEnabled ? target => setDiscussionDraft(current => current?.postId === target.postId ? current : target) : undefined} /> : null}
     </header>
 
     {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
@@ -1534,9 +1532,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     </footer>
       </div>
     </details>
-    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostEndShare2029 url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
-    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
+    {discussionReviewEnabled && postActionTarget ? <PostDiscussionReview2029 key={post.id} post={post}
+      draftTarget={discussionDraft?.postId === post.id ? discussionDraft : null} onDraftClosed={() => setDiscussionDraft(null)} />
+      : commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}
