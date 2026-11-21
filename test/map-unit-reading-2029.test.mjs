@@ -29,3 +29,22 @@ test("collapse retains source anchors, citations and media, once and in order", 
     assert.equal(compactMapUnitHtml(html, 5112), html);
   } finally { delete globalThis.document; dom.window.close(); }
 });
+
+test("the salt equation links to canonical number reading with the expression and method from the compact unit", () => {
+  const dom = new JSDOM("");
+  globalThis.document = dom.window.document;
+  try {
+    const { key } = mapUnitReading(5113);
+    const html = `<section id="${key}"><h2>ברית מלח</h2><p>בגימטריה רגילה, ערך המילה ״מלח״ הוא <span data-gem="78">78</span>.</p></section>`;
+    const unit = JSDOM.fragment(compactMapUnitHtml(html, 5113));
+    const link = unit.querySelector("[data-map-equation]");
+    const url = new URL(link.getAttribute("href"), "https://sod1820.co.il");
+    assert.match(url.pathname, /\/number\/78$/);
+    assert.equal(url.searchParams.get("focus"), "מלח");
+    assert.equal(url.searchParams.get("method"), "רגיל");
+    assert.equal(link.textContent, "מלח = 78");
+    assert.equal(unit.querySelector("[data-map-depth] [data-gem]").textContent, "78");
+    const unrelated = html.replace("״מלח״", "״גיל״");
+    assert.equal(JSDOM.fragment(compactMapUnitHtml(unrelated, 5113)).querySelector("[data-map-equation]"), null);
+  } finally { delete globalThis.document; dom.window.close(); }
+});

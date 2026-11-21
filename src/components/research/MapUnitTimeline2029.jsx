@@ -51,7 +51,7 @@ export default function MapUnitTimeline2029({ children }) {
       : !entries ? <p role="status">טוען את היחידות…</p>
       : entries.length === 0 ? <p>אין כרגע יחידות זמינות להצגה.</p>
       : <ol aria-label="יחידות לפי מועד הוספה">{entries.map(row => <li key={row.key} data-leading={row === lead || undefined}>
-        <small>{row === lead ? "האירוע המוביל" : lead ? "חיבור לאירוע המוביל" : "יחידת תוכן"} · נוספה לפוסט ב־<time dateTime={row.updatedAt}>{addedDateLabel(row)}</time></small>
+        <small><span className="map29-status">{row === lead ? "האירוע המוביל" : lead ? "חיבור לאירוע המוביל" : "יחידת תוכן"}</span> · נוספה לפוסט ב־<time dateTime={row.updatedAt}>{addedDateLabel(row)}</time></small>
         <h3><Link to={row.href}>{row.label}</Link></h3>
         <p>{row.essence}</p>
         {lead && row !== lead ? <details><summary>מה מחבר ביניהם?</summary><p>{row.reason}</p><Link to={lead.href}>{lead.label}</Link></details> : null}

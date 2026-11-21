@@ -1,11 +1,22 @@
-.map29-timeline {max-width: 48rem; margin-inline: auto; padding: clamp(1rem, 3vw, 2rem); text-align: start; color: inherit;}
+@import "./mapReadingPalette2029.css";
+
+.map29-timeline {max-width: 48rem; margin-inline: auto; padding: clamp(1rem, 3vw, 2rem); text-align: start; color: var(--map-ink); background: var(--map-paper); border-radius: 1rem;}
 .map29-timeline > a, .map29-timeline small {font-size: .85rem;}
-.map29-timeline > h2 {margin: .45rem 0 1.1rem; font-size: clamp(1.6rem, 4vw, 2.2rem);}
+.map29-timeline > h2 {margin: .45rem 0 1.1rem; font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--map-title);}
 .map29-timeline ol {list-style: none; padding: 0; margin: 0; display: grid; gap: .8rem;}
-.map29-timeline li {border-inline-start: 3px solid #92754c; background: color-mix(in srgb, currentColor 5%, transparent); padding: .85rem 1rem; border-radius: .65rem;}
-.map29-timeline li[data-leading] {border-inline-start-color: #c19845;}
+.map29-timeline li {border-inline-start: 3px solid var(--s29-line, currentColor); padding: .85rem 1rem; border-radius: .65rem;}
+.map29-timeline li[data-leading] {border-inline-start-color: var(--map-wine); background: var(--map-lead);}
 .map29-timeline h3 {margin: .35rem 0; line-height: 1.4; font-size: 1.22rem;}
 .map29-timeline p {margin: .35rem 0; line-height: 1.6;}
-.map29-timeline a {text-decoration: underline; text-underline-offset: .2em;}
+.map29-timeline a {color: var(--map-link); text-decoration: underline; text-underline-offset: .2em;}
 .map29-timeline details {margin-top: .65rem;}
-.map29-timeline summary {cursor: pointer; font-weight: 600;}
+.map29-timeline summary {cursor: pointer; font-weight: 600; color: var(--map-link); min-height: 44px; align-content: center;}
+
+.map29-timeline h3 a {color: var(--map-heading);}
+.map29-timeline [data-leading] .map29-status {
+  display: inline-block;
+  padding: .1em .55em;
+  border-radius: .25em;
+  background: var(--map-wine);
+  color: var(--map-chip-ink);
+}
