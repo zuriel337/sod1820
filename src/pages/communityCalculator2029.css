@@ -51,6 +51,27 @@
 .sod29-community-calc-method small { font-size: var(--s29-type-small); line-height: 1.6; color: var(--s29-muted); }
 .sod29-community-calc-method > a { min-height: 44px; display: flex; align-items: center; padding: 10px 16px; border-top: 1px solid var(--s29-line); font-size: var(--s29-type-ui); }
 .sod29-community-calc-comparison-value { color: var(--s29-muted); }
+/* "למי אתם שווים?" — the result to send on: the name's value and the published phrases that share it, large, with the share in the middle. */
+.sod29-community-calc-equals { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 24px 18px; }
+.sod29-community-calc-equals h2 { font-size: clamp(24px,6vw,34px); line-height: 1.25; max-width: 100%; overflow-wrap: anywhere; }
+.sod29-community-calc-equals-method { font-size: var(--s29-type-ui); color: var(--s29-muted); margin-top: -6px; }
+.sod29-community-calc-equals-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.sod29-community-calc-equals-list > button { font: inherit; cursor: pointer; min-height: 52px; display: flex; align-items: center; padding: 10px 20px; border-radius: 16px; font-size: clamp(19px,5vw,24px); font-weight: 700;
+  border: 1px solid color-mix(in srgb, var(--r29-gold, var(--s29-accent)) 45%, var(--s29-line)); background: color-mix(in srgb, var(--s29-accent) 8%, var(--s29-panel)); color: var(--s29-ink); }
+.sod29-community-calc-equals-list > button[aria-checked="true"] { border-width: 2px; border-color: var(--r29-gold, var(--s29-accent)); background: color-mix(in srgb, var(--r29-gold, var(--s29-accent)) 20%, var(--s29-panel)); }
+.sod29-community-calc-equals-list > button:focus-visible { outline: 2px solid var(--s29-accent); outline-offset: 2px; }
+.sod29-community-calc-equals-letters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 64px; direction: rtl; }
+.sod29-community-calc-equals-letters > span { min-width: 54px; display: grid; gap: 2px; padding: 8px 6px; border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel-soft); }
+.sod29-community-calc-equals-letters b { font-size: 28px; line-height: 1.1; }
+.sod29-community-calc-equals-letters i { font-style: normal; font-size: var(--s29-type-ui); }
+.sod29-community-calc-equals-preview { margin: 0; inline-size: 100%; max-inline-size: 30rem; display: grid; gap: 6px; padding: 12px 14px; border-radius: 14px; text-align: start;
+  border: 1px dashed var(--s29-line-strong); background: var(--s29-panel-soft); font-size: var(--s29-type-ui); }
+.sod29-community-calc-equals-preview small { color: var(--s29-muted); overflow-wrap: anywhere; font-size: var(--s29-type-small); }
+.sod29-community-calc-equals-share .r29-share { inline-size: 100%; max-inline-size: 30rem; }
+.sod29-community-calc-equals-share { display: grid; gap: 10px; justify-items: center; inline-size: 100%; padding-top: 14px; border-top: 1px solid var(--s29-line); }
+.sod29-community-calc-equals-share > strong { font-size: var(--s29-type-lead); }
+.sod29-community-calc-equals-share .sod-share-actions { flex-wrap: wrap!important; justify-content: center; overflow: visible!important; }
+.sod29-community-calc-equals-sent { font-size: var(--s29-type-small); color: var(--s29-muted); max-width: 46ch; }
 .sod29-community-calc-related { display: grid; gap: 10px; padding: 20px 0; }
 .sod29-community-calc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .sod29-community-calc-chips > a { min-height: 44px; display: flex; align-items: center; padding: 9px 14px; border-radius: 12px; background: var(--s29-panel-soft); border: 1px solid var(--s29-line); }

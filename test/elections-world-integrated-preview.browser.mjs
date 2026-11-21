@@ -287,7 +287,7 @@ try {
       await dialog.getByRole("button", { name: "סגור", exact: true }).click();
       if (width < 768) {
         await page.getByRole("button", { name: "פתח ניווט", exact: true }).click();
-        await page.getByRole("dialog", { name: "ניווט SOD1820 2029", exact: true })
+        await page.getByRole("dialog", { name: "ניווט SOD1820", exact: true })
           .getByRole("button", { name: "חזרה מדויקת", exact: true }).click();
       } else {
         await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click();
@@ -324,7 +324,7 @@ try {
     await sourceDialog.getByRole('button',{name:'סגור',exact:true}).click();
     if(width<768){
       await page.getByRole('button',{name:'פתח ניווט',exact:true}).click();
-      await page.getByRole('dialog',{name:'ניווט SOD1820 2029',exact:true}).getByRole('button',{name:'חזרה מדויקת',exact:true}).click();
+      await page.getByRole('dialog',{name:'ניווט SOD1820',exact:true}).getByRole('button',{name:'חזרה מדויקת',exact:true}).click();
     }else await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click();
     await page.waitForURL(origin+'/topic/1237#rv-source-gallery-81-288ee048-1e25-4b0e-9630-e3f59c5c3338');
     await gallerySource.locator('summary').filter({hasText:'מספרים שסומנו במקור'}).click();
@@ -378,7 +378,7 @@ try {
     assert.match(await page.locator('.sod29-number-focus-ribbon').innerText(),/התגלות/);
     if(width<768){
       await page.getByRole('button',{name:'פתח ניווט',exact:true}).click();
-      await page.getByRole('dialog',{name:'ניווט SOD1820 2029',exact:true}).getByRole('button',{name:'חזרה מדויקת',exact:true}).click();
+      await page.getByRole('dialog',{name:'ניווט SOD1820',exact:true}).getByRole('button',{name:'חזרה מדויקת',exact:true}).click();
     }else await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click();
     await page.waitForURL(origin+nativeHref);await exhibit.waitFor();
     const nativeOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);

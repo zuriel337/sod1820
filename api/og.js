@@ -8,6 +8,8 @@ import { fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/li
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { COMMUNITY_CALCULATOR_SEO } from "../src/lib/research/communityCalculatorSeo2029.js";
+import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
+import { communityCardSuitable } from "../src/lib/research/communityCalculatorEquals2029.js";
 import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks2029.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { previewUnitOgMeta } from "../src/lib/research/postPreviewUnits2029.js";
@@ -76,9 +78,9 @@ const STATIC = {
   '/': { title: PUBLIC_HOME_SEO.fullTitle,
     desc: PUBLIC_HOME_SEO.description,
     card: { w: 'סוד 1820', sub: "כי לה' המלוכה · לגלות את המציאות בשפת המספרים", cap: 'מה המספרים יודעים עליך?' } },
-  '/2029': { title: "SOD1820 2029 — מערכת המחקר החדשה",
+  '/2029': { title: "SOD1820 — מערכת המחקר",
     desc: "שער הכניסה למערכת SOD1820 החדשה — עולם, מספרים, מקורות, ELS, היכל ורזיאל על עץ ידע אחד.",
-    card: { w: 'SOD1820 2029', sub: 'מערכת מחקר אחת · עץ ידע אחד', cap: 'לגלות · לחקור · להמשיך' } },
+    card: { w: 'SOD1820', sub: 'מערכת מחקר אחת · עץ ידע אחד', cap: 'לגלות · לחקור · להמשיך' } },
   '/world': { title: "העולם · SOD1820",
     desc: "מספרים, ביטויים, מקורות, אירועים וקשרים שנפתחים מתוך נקודה שמסקרנת אותך — העולם של SOD1820.",
     card: { w: 'העולם', sub: 'מה מתחבר?', cap: 'מספרים · מקורות · אנשים · אירועים' } },
@@ -411,7 +413,7 @@ export default async function handler(req, res) {
       documentStatus = postLookupFailed ? 503 : 404;
       robots = 'noindex, follow';
       title = 'הפוסט לא נמצא · ' + SITE_NAME;
-      desc = 'המקור המבוקש אינו זמין ב-SOD1820 2029.';
+      desc = 'המקור המבוקש אינו זמין ב-SOD1820.';
     }
   }
   const continuitySearch = req.publicReadingSearch ?? queryInPath;
@@ -480,7 +482,7 @@ export default async function handler(req, res) {
     if (!selection || page === null) { documentStatus = 404; robots = 'noindex, follow'; }
     else if (term.length > 120 || /[\u0000-\u001f\u007f]/.test(term)) { documentStatus = 400; robots = 'noindex, follow'; }
     else try {
-      const query = new URLSearchParams({ select: 'id,title,tags,categories,image_url,thumb_url',
+      const query = new URLSearchParams({ select: 'id,slug,wp_id,source,link,date,title,tags,categories,image_url,thumb_url',
         or: `(${selection.publicFilter})`, [selection.field]: `${selection.operator === 'contains' ? 'cs' : 'ov'}.${selection.arrayLiteral}`,
         order: 'modified.desc.nullslast,id.asc', limit: '24', offset: String((page - 1) * 24) });
       if (term) query.set('title', `ilike.%${term.replace(/[\\%_*]/g, '\\$&')}%`);
@@ -505,6 +507,8 @@ export default async function handler(req, res) {
         const evidence = postsTaxonomyEvidence2029({ scope: taxonomy, posts: rows, total, page, search: term, exists });
         documentStatus = evidence.status;
         if (documentStatus !== 200 || term || page > 1) robots = 'noindex, follow';
+        // First words (public-reading-deploy/first-words.js): the first page of an existing collection hands its own admitted rows to the document.
+        if (documentStatus === 200 && !term && page === 1 && typeof req.publicReadingFirstWords === 'function') req.publicReadingFirstWords({ kind: 'taxonomy', taxonomyKind: taxonomy.kind, label: taxonomy.label, posts: rows });
         image = documentStatus === 200 && (rows[0]?.thumb_url || rows[0]?.image_url)
           ? waSafeImage(rows[0].thumb_url || rows[0].image_url) : cardUrl({ w: taxonomy.label, sub: 'פרסומים ומקורות' });
       }
@@ -624,10 +628,11 @@ export default async function handler(req, res) {
   } else if (productionReading && (decodedKey === '/beit-midrash' || /^\/beit-midrash\/[^/]+$/.test(decodedKey))) {
     // The learning area is a public SPA route, not a Post slug: without this branch the document fell through to the
     // post lookup and answered 404 "הפוסט לא נמצא" although the page renders. The method/section in the URL is resolved
-    // client-side, so every address shares one canonical. Same posture as the client page (applySeo noindex) until the owner opens it to search.
+    // client-side, so every address shares one canonical. Open to search since 20.11.2026 (ZURIEL: the whole site is open to Google); the
+    // method addresses and query variants consolidate on the one canonical.
     title = 'בית המדרש · לומדים לגלות · ' + SITE_NAME;
     desc = 'לומדים את דרכי החישוב, הקריאה והפענוח: שיטות, מקורות, דוגמאות מודרכות ותרגול.';
-    canonical = SITE + '/beit-midrash'; type = 'website'; robots = 'noindex, nofollow';
+    canonical = SITE + '/beit-midrash'; type = 'website'; robots = 'index, follow';
     image = cardUrl({ w: 'בית המדרש', sub: 'לומדים לגלות' });
   } else if (productionReading && productionRouteState === "post-lookup") {
     await resolvePostMetadata();
@@ -715,7 +720,7 @@ export default async function handler(req, res) {
     } else {
       title = `מה מסתתר בשם שלך? · ${SITE_NAME}`;
       desc = 'חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.';
-      image = cardUrl({ w: 'מה מסתתר בשם שלך?', sub: 'מחשבון גימטריה 2029', cap: 'חשב · גלה · שתף', sig: 'gem' });
+      image = cardUrl({ w: 'מה מסתתר בשם שלך?', sub: 'מחשבון גימטריה', cap: 'חשב · גלה · שתף', sig: 'gem' });
       canonical = SITE + '/2029/gematria';
     }
   } else if (key === '/gematria' || key === '/גימטריה') {
@@ -738,14 +743,30 @@ export default async function handler(req, res) {
       desc = verified ? `"${sq}" שווה ${sv} ב${methodLabel}. מה מסתתר בשם שלך? פתחו את הממצא במחשבון של סוד 1820.`
         : `"${sq}" ב${methodLabel}. התוצאה מחושבת בעת פתיחת הממצא במחשבון של סוד 1820. מה מסתתר בשם שלך?`;
       image = verified ? cardUrl({ w: sq, n: sv, sub: methodLabel, k: 'calc' }) : cardUrl({ w: sq, sub: methodLabel, k: 'calc' });
+      // The match the sharer chose (d): named in the preview only when it is a verified, published phrase of the same regular value, read
+      // from the public corpus; a phrase that anyone could put in the address is never repeated on this site's card. Any failure: no match.
+      const sd = String((req.query && req.query.d) || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+      if (verified && sd && sd !== sq && ragil(sd) === sv && communityCardSuitable(sd)) {
+        try {
+          const r = await fetch(`${SUPABASE_URL}/rest/v1/gematria_words?phrase=eq.${encodeURIComponent(sd)}&ragil=eq.${sv}&is_verified=eq.true&is_published=eq.true&select=phrase&limit=1`,
+            { headers: ogHeaders, signal: AbortSignal.timeout(2500) });
+          const rows = r.ok ? await r.json() : [];
+          if (Array.isArray(rows) && rows[0]?.phrase === sd) {
+            title = `${sq} = ${sv}, כמו ${sd} · ${methodLabel} · ${SITE_NAME}`;
+            desc = `"${sq}" שווה ${sv} ב${methodLabel}, כמו "${sd}". ומה השם שלך שווה? חשבו אותו במחשבון של סוד 1820.`;
+            image = cardUrl({ w: sq, n: sv, sub: `כמו ${sd} · ${methodLabel}`, k: 'calc' });
+          }
+        } catch { /* the preview without the match */ }
+      }
       robots = 'noindex, follow';
     } else if (w && Number.isFinite(nq) && !productionReading) {
       title = `${w} = ${nq} · ${SITE_NAME}`;
       desc = `"${w}" שווה ${nq} בגימטריה. מה המספר אומר עליכם? בדקו גם את השם שלכם במחשבון הגימטריה של סוד 1820.`;
       image = `${SITE}/api/card?w=${encodeURIComponent(w)}&n=${nq}`;
     } else {
-      title = "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · " + SITE_NAME;
-      desc = "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי.";
+      // One wording for the server, the page and the first words (src/lib/research/calculatorProSeo2029.js).
+      title = CALCULATOR_PRO_SEO.title + " · " + SITE_NAME;
+      desc = CALCULATOR_PRO_SEO.description;
       image = `${SITE}/api/card?w=${encodeURIComponent('מחשבון הגימטריה')}&sub=${encodeURIComponent('חשבו כל מילה · שם · ביטוי')}&cap=${encodeURIComponent('בדקו את השם שלכם · מה המספר אומר עליכם?')}&sig=gem`;
     }
   } else if (key === '/research') {
@@ -840,7 +861,7 @@ export default async function handler(req, res) {
           const nm = stripHtml(v.title || 'וידאו').trim();
           title = `${nm || 'וידאו'} · ${SITE_NAME}`;
           const topics = Array.isArray(v.topics) ? v.topics.filter(Boolean).slice(0, 5) : [];
-          desc = cleanDesc(topics.length ? `${nm} — ${topics.join(' · ')}` : `${nm} — וידאו ב-SOD1820 2029`, 180) || DEFAULT_DESC;
+          desc = cleanDesc(topics.length ? `${nm} — ${topics.join(' · ')}` : `${nm} — וידאו ב-SOD1820`, 180) || DEFAULT_DESC;
           image = waSafeImage(safeVideoThumb(v.thumb_url, safeVideoThumb(v.poster_url, DEFAULT_IMAGE)));
           type = 'video.other';
           robots = v.google_indexable === true ? 'index, follow' : 'noindex, follow';
@@ -967,15 +988,15 @@ export default async function handler(req, res) {
     try { raw = decodeURIComponent(raw); } catch { /* keep */ }
     const n = productionReading ? (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw)) ? Number(raw) : NaN) : parseInt(raw, 10);
     if (Number.isFinite(n)) {
-      title = `${n} · דף המספר 2029 · ${SITE_NAME}`;
-      desc = 'דף המספר 2029 — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.';
+      title = `${n} · דף המספר · ${SITE_NAME}`;
+      desc = 'דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.';
       type = 'website';
       robots = 'noindex, nofollow';
       image = `${SITE}/api/card?n=${n}`;
     } else {
       robots = 'noindex, nofollow';
-      title = `דף המספר 2029 · ${SITE_NAME}`;
-      desc = 'תצוגת Number 2029 אינה זמינה לערך הזה.';
+      title = `דף המספר · ${SITE_NAME}`;
+      desc = 'דף המספר אינו זמין לערך הזה.';
     }
   } else if (key.startsWith('/number/')) {
     // עמוד מספר — תמונה מייצגת (primary_value)
@@ -1083,8 +1104,8 @@ export default async function handler(req, res) {
     robots = 'noindex, nofollow';
     type = 'website';
     title = `קורפוס חוקר · SOD1820 · ${SITE_NAME}`;
-    desc = 'Admin researcher corpus projection in SOD1820 2029';
-    image = cardUrl({ w: 'קורפוס חוקר', sub: 'SOD1820 2029', cap: 'ממשק מחקר פנימי' });
+    desc = 'Admin researcher corpus projection in SOD1820';
+    image = cardUrl({ w: 'קורפוס חוקר', sub: 'SOD1820', cap: 'ממשק מחקר פנימי' });
   } else if (key.startsWith('/community/researcher/')) {
     // 👤 דף חוקר קנוני (contributors) — כרטיס-שיתוף ממותג עם שם החוקר ותפקידו.
     // המשטח הציבורי/SEO של האדם (canonical_ui_components_law — כל URL קנוני = ענף OG).

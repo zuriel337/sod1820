@@ -139,7 +139,11 @@ test("hrefs come only from the closed table, which mirrors App2029 and the exist
     assert.equal(isCanonicalRazielNavigationHref(bad), false, String(bad));
   }
   // the lazy submit adapter's pre-existing "open_number" shape is the same shape
-  assert.match(read("src/lib/research/razielSessionRequest2029.js"), /\^\\\/2029\\\/number\\\/\(\[1-9\]\\d\{0,5\}\)\$/);
+  // The adapter reads the public /number/N address and the /2029/number/N alias alike (same 1..999999 bound) and always emits the public
+  // number page base; the alias is accepted on input only and is not a public address.
+  const adapter = read("src/lib/research/razielSessionRequest2029.js");
+  assert.ok(adapter.includes(String.raw`href.match(/^\/(?:2029\/)?number\/([1-9]\d{0,5})$/)`));
+  assert.ok(adapter.includes("href: `${NUMBER_PAGE_BASE}/${number}`"));
 });
 
 test("no hardcoded URL, no model/network/db call and no Preview origin inside the shared resolver", () => {

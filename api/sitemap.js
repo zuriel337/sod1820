@@ -214,6 +214,8 @@ export default async function handler(req, res) {
   if (productionReading) urls.push({ loc: '/community/chat', priority: '0.7', changefreq: 'daily' });
   // The calculator is a popular search landing page too (bare address only; query variants carry private inputs).
   if (productionReading) urls.push({ loc: '/community/calculator', lastmod: COMMUNITY_CALCULATOR_LASTMOD, priority: '0.7', changefreq: 'weekly' });
+  // The learning area is open to search since 20.11.2026 (ZURIEL: the whole site is open to Google); one address, its method pages consolidate on it.
+  if (productionReading) urls.push({ loc: '/beit-midrash', priority: '0.6', changefreq: 'weekly' });
   // A sitemap <loc> is an escaped URL (sitemaps.org): the historical pages are kept by their decoded Hebrew path, so encode them like every other family.
   if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc:encodeURI(loc),priority:'0.4',changefreq:'yearly'});
   let foundationSourceFailed = false;

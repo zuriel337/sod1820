@@ -73,7 +73,6 @@ export default function BeitMidrash2029Page() {
       title: "בית המדרש · לומדים לגלות",
       description: "לומדים את דרכי החישוב, הקריאה והפענוח: שיטות, מקורות, דוגמאות מודרכות ותרגול.",
       path: "/beit-midrash",
-      noindex: true,
     });
     let live = true;
     Promise.allSettled([

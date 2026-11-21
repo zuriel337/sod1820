@@ -319,7 +319,10 @@ const GematriaEntry2029 = lazy(() => {
   return import("./lib/research/calculator2029Viral.js").then(({ parseCalculatorShareState }) => ({
     default: function GematriaEntry2029() {
       const { search } = useLocation();
-      return parseCalculatorShareState(search).isShared
+      // Decided once, on arrival: the shared-result page clears the address when the recipient starts typing a name of their own, and
+      // re-deciding then replaced that page (and the name being typed) with the professional calculator (found 20.11.2026, live).
+      const shared = React.useRef(parseCalculatorShareState(search).isShared);
+      return shared.current
         ? <Calculator2029Page />
         : <CalculatorPro2029Page />;
     },

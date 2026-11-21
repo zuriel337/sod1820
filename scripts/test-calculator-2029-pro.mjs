@@ -13,6 +13,7 @@ import { ledgerFromFinding } from "../src/lib/research/calculator2029Ledger.js";
 import { buildCalculationSelection, normalizeCalculatorMethods } from "../src/lib/research/calculator2029Model.js";
 import { buildCalculatorShareUrl, parseCalculatorShareState } from "../src/lib/research/calculator2029Viral.js";
 import { buildCalculator2029FastPreview } from "../src/lib/research/calculator2029FastPreview.js";
+const { CALCULATOR_PRO_SEO } = await import("../src/lib/research/calculatorProSeo2029.js");
 
 // ── input classification ──
 const kind = (text) => classifyCalculatorInput(text).kind;
@@ -120,6 +121,7 @@ assert.ok(seoObject, "the professional page retains an explicit SEO declaration"
 for (const publicRelease of [false, true]) for (const search of ["", "?q=fixture"]) {
   const seo = vm.runInNewContext(`({${seoObject.replaceAll("import.meta.env", "buildEnv")}})`, {
     buildEnv: { VITE_PUBLIC_READING_RELEASE: publicRelease ? "public-reading-20261101" : "false" },
+    CALCULATOR_PRO_SEO, // the page reads its title/description from the one calculator wording source (21.11.2026)
     location: { pathname: "/2029/calculator", search },
   }, { timeout: 100 });
   assert.equal(seo.path, publicRelease ? "/gematria" : "/2029/calculator");

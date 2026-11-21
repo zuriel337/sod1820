@@ -34,7 +34,13 @@ export const STATISTICS_REVIEW_BRANCH = "codex/1456-sitewide-statistics-20261120
 // #1462 (ZURIEL 20.11.2026): Preview of the consolidated statistics acceptance branch. Preview only;
 // no auth alias, no Production admission, no SQL. Without the SQL the activity strip says "unavailable".
 export const STATISTICS_ACCEPTANCE_REVIEW_BRANCH = "claude/pr-1461-acceptance-review-28cnqo";
-export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH]);
+// Approved by ZURIEL on 20.11.2026 ("אני מאשר ליצור Preview מוגן לענף ccr-62250444-voptzj ... לענף המדויק בלבד, ללא פתיחה ציבורית"): ONE protected
+// Preview of the indexing / first-words package. Same rules: exact name, Preview target only, never Production, no flag of its own.
+export const INDEXING_FIRST_WORDS_PREVIEW_BRANCH = "ccr-62250444-voptzj";
+// Approved by ZURIEL on 20.11.2026 ("מאשר להכין את 1 ו־2 יחד בפריוויו לנייד ב־/community/calculator. פתח ענף נפרד מ־#1463"): ONE protected Preview
+// of the community calculator share card, exact branch below (built on top of #1463). Same rules: Preview target only, never Production.
+export const COMMUNITY_SHARE_PREVIEW_BRANCH = "ccr-62250444-voptzj-community-share";
+export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH, INDEXING_FIRST_WORDS_PREVIEW_BRANCH, COMMUNITY_SHARE_PREVIEW_BRANCH]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
 export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";

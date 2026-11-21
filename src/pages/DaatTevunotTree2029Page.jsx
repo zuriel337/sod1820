@@ -255,7 +255,7 @@ export default function DaatTevunotTree2029Page() {
 
   return <Sod2029Shell
     title="עץ דעת תבונות"
-    eyebrow="ספרים 2029 · מהדורת מקור מלאה"
+    eyebrow="ספרים · מהדורת מקור מלאה"
     description="195 סעיפים, תשעה ענפי־על ומקור פתוח לצד כל נקודת קריאה."
     status="Preview מוגן · קריאה בלבד"
     surface="books"

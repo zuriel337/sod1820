@@ -85,7 +85,10 @@ const allResearchAdminPolicy = read("supabase/migrations/20260920055800_world_hu
 
 // Human-Gate correction: Beit Midrash stays open during the notice-only transition.
 assert.match(sitemapSource, /loc:\s*'\/world'/, "World remains addressable independently");
-assert.equal(sitemapSource.includes("loc: '/beit-midrash'"), false, "restoring the route does not silently change sitemap admission");
+// Sitemap admission of the Beit Midrash is no longer silent: ZURIEL opened it to search on 20.11.2026 ("the whole site is open to Google").
+// It is listed once, for the production reading artifact only, by its one canonical address.
+assert.equal(sitemapSource.split("loc: '/beit-midrash'").length - 1, 1, "Beit Midrash is admitted to the sitemap once, by an explicit owner decision");
+assert.match(sitemapSource, /if \(productionReading\) urls\.push\(\{ loc: '\/beit-midrash'/, "admitted for the production reading artifact only");
 assert.match(sitemapSource, /\/topic\//, "canonical Topic/Convergence URLs must remain in sitemap");
 const legacyRedirects = Array.isArray(vercelConfig.redirects) ? vercelConfig.redirects : [];
 assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash" || r.source === "/beit-midrash/(.*)"), false, "Beit Midrash must not redirect into World yet");

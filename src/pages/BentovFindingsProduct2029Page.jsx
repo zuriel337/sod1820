@@ -1318,7 +1318,7 @@ export default function BentovFindingsProduct2029Page() {
 
   if (finalFindingMode) return <Sod2029Shell
     title={`ממצא ${String(finalFinding.number).padStart(2, "0")}`}
-    eyebrow="ספרים 2029 · 33 ממצאים"
+    eyebrow="ספרים · 33 ממצאים"
     description="דברי הספר באנגלית, הסבר נלווה בעברית ומסלול חקירה רציף."
     status="Preview · קריאה בלבד"
     surface="books"
@@ -1450,7 +1450,7 @@ export default function BentovFindingsProduct2029Page() {
 
   return <Sod2029Shell
     title="מפת הממצאים"
-    eyebrow="ספרים 2029 · הדמיית מוצר"
+    eyebrow="ספרים · הדמיית מוצר"
     description="מחוויית קריאה למרחב מחקר חזותי: מקורות, ממצאים, קשרים ומצב אמון — באותו מסך."
     status="Preview · קריאה בלבד"
     surface="books"

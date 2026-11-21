@@ -1653,7 +1653,7 @@ function SystemFrame2029Body({
           <DiscoveryGateMark2029 open={!sidebarCollapsed} />
         </button>
 
-        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={railPeek ? "peek" : sidebarCollapsed ? "slim" : "open"}
+        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820" data-rail-state={railPeek ? "peek" : sidebarCollapsed ? "slim" : "open"}
           onMouseEnter={() => peekRail(true, 180)} onMouseLeave={() => peekRail(false, 260)} onFocus={() => peekRail(true, 0)}
           onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekRail(false, 0); }} onKeyDown={(event) => { if (event.key === "Escape") peekRail(false, 0); }}>
           <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
@@ -1777,7 +1777,7 @@ function SystemFrame2029Body({
             ref={navRef}
             role="dialog"
             aria-modal="true"
-            aria-label="ניווט SOD1820 2029"
+            aria-label="ניווט SOD1820"
             tabIndex={-1}
           >
             <div className="sod29-mobile-drawer-head">
