@@ -725,6 +725,55 @@ carries. Presentation only — no stored source, wording, claim, calculation or 
   `test/post-reading-colour-2029.test.mjs`, `test/post-comments-2029.test.mjs`, `test/article-first-browser-2029.browser.mjs`.
   Speed law: CSS and a pure function only; the article-first list is unchanged.
 
+## 14.11 One Royal Design Family — blue-charcoal frame, editorial warm center, research-blue depth · Product reconciliation proposal · ZURIEL discussion 21.11.2026
+
+> **STATUS: PROPOSED FOR PRODUCT ACCEPTANCE · DESIGN-CONTRACT DRAFT ONLY.** This section captures ZURIEL's requested audit and options for one Royal identity across SOD1820: the site should not look predominantly old brown, while the already-approved Night blue-charcoal frame remains and the editorial center may stay warm in a fully Royal treatment. Some defined spaces (e.g. Beit Midrash, advanced ELS research) may become blue Royal. **The exact full-site zone matrix, palette values, Day/Parchment frame treatment and any additional CSS roles are recommendations, not newly ratified overrides.** Until Human Gate accepts them, §14.1–§14.10 remain authoritative. This text must NOT be cited by an agent as permission to restyle, merge, deploy, change user themes, or introduce a second palette.
+
+### 14.11.1 Single governing design — not a new theme engine
+
+- One **SOD1820 Royal visual grammar**: the same `r29-hall/card/medal/btn/chip/badge/rule` geometry and density, fonts, border hierarchy, restrained gold sheen, focus/touch behavior, transitions and status semantics in every surface.
+- Two **surface treatments** under this one grammar: **Royal Editorial / warm** for comfortable reading, and **Royal Research / blue** for focused research and exceptional product zones. The third concern **Royal Frame / blue-charcoal** is global chrome/navigation/overlays, not a third user-selected theme.
+- Preserve the THREE user theme presets (`light`, `parchment`, `dark`); no forced fourth theme and no route-owned theme store. Reconcile the surface treatment with each preset, keeping its contrast and user preference. Approved Night frame values in §14.9 (`#10141D` / `#171C28`) are the baseline. **Day/Parchment chrome blue treatment remains a decision gate** because §14.9 specifically approved Night only.
+- “Research-blue” is an *environment/presentation role*, **not** an indication of paid access, verified truth, high confidence, or publishing authority. The product words “Premium”, “approved”, “gold” and “strong hints” must not be inferred from color. `platform_tiers_law` continues to own entitlements; Truth/Research owners own verification.
+- Series/category colors from §14.10 may appear as **small identity accents** (series label, ruled border, media frame) but must not become a standalone theme/palette/button geometry for each series. Existing authored media/legacy panels, ELS matrix semantic colors, contributor identity and approved Hero artwork remain protected.
+
+### 14.11.2 Proposed surface role matrix (not an authorization to restyle)
+
+| Surface / product zone | Main content treatment | Shared frame / action | Notes |
+|---|---|---|---|
+| Top bar, right global rail, left post/topic rail, global dock, drawer, sheets and panel expansions | n/a | **Royal Frame: blue-charcoal**; same recipe/top gold hairline/edge/radius; across Night at minimum | Existing §14.9; same chrome family everywhere, not another Royal per page |
+| Home, posts, categories, archive/listings, public editorial cards, long-form articles | **Royal Editorial / warm**, but visibly elevated (not flat brown): layered surface, legible ink, gold hairline, sapphire micro-accent | Royal Frame, Royal-blue primary/Share/Follow controls | “Warm” means curated, rich and readable, not unstyled brown |
+| Public World exploration, visual gallery, source/Book reader | **Royal Editorial / warm** by default for breadth/reading; **Royal Research / blue** only on explicitly selected research/detail workspace | Same Royal Frame | Preserve imagery/real books; World graphs and entity cards do not all repaint by adjacency |
+| Personal Area, saved research, My Workspace | **Royal Research / blue** for authored personal command surfaces | Same Royal Frame | Golden visual reference of §14.1. Uses current `PersonalHome2029`, not duplicate CSS |
+| Beit Midrash, Heichal deep-research laboratory | **Royal Research / blue** as intentional focus environment | Same Royal Frame | Only authorized research zones, not an entitlement signal |
+| ELS classical search/matrix | Preserve matrix/engine colors and reading neutrality | Same Royal Frame | **Selected ELS advanced research/inspector/planner panels** may use Royal Research blue using existing `research_lab` seam, not global recolor of matrix |
+| Number/Phrase and calculators | Editorial for explanation/reading; **Research blue** on selected analytical or saved-work panels | Same Royal Frame | Do not overturn detailed Number identity/method/matrix roles |
+| Community, discussion, profiles and comments | Editorial readable cards, with blue Royal action/selection; personal account areas can use Research treatment | Same Royal Frame | Avoid blue cards everywhere in text-heavy threads |
+| Flagship “אוצר המלוכה” brand placements | One approved Royal brand lockup: full canonical SOD1820 logo, series name, subtitle “רמזים חזקים” | Approved sapphire/gold, subordinate to content readability | Existing separate product decision PR #1474; never replace the logo with arbitrary crowns |
+
+**Rule:** a route may choose an **existing semantic surface role** through a shared API, not literal colors, copied gradients, a per-route brand style or a new stylesheet with duplicated Royal definitions.
+
+### 14.11.3 Implementation seam / anti-drift for all agents
+
+1. **Single owner chain:** `SOD1820_DESIGN_CONTRACT_V2.md` (ratified design decisions) → active `canonical_colors_law` v2 and `canonical_ui_components_law` v13 → `src/lib/themePreset2029.js` → `src/lib/paletteTokens2029.js` / `palette2029.js` → `src/components/experience2029/royal2029.css` → `SystemFrame2029` and consuming surfaces. The agent does not invent hex colors, a `RoyalTheme` store, ad hoc shadow scale, or button/icon variants in the page.
+2. **One component family:** `.r29-hall`, `.r29-card`, `.r29-medal`, `.r29-btn`, `.r29-chip`, `.r29-badge`; `NavigationIcon2029`, `WatchButton`, `ShareActions` and the Research action row consume these roles. New surface differences are props/data attributes/semantic tokens resolved by a shared owner, NOT duplicate CSS recipes or a new set of components.
+3. **Clear token ownership:** keep `--s29-frame`, `--s29-frame-soft`, `--s29-brand-sapphire`, `--s29-brand-gold`, `--s29-accent`, `--s29-accent-btn` etc. from the existing palette. If editorial/research surface role cannot be expressed with approved tokens, propose **the smallest additive role** in the palette owner *after Human Gate*, with contract and 3-preset contrast tests; never add it locally to a Post/Home/ELS stylesheet.
+4. **No theme drift:** CSS of a page may handle layout/spacing/content positioning only; a novel “gold/button/blue-card” recipe must first be mapped to `royal2029.css` or be documented as a real semantic exception. Product/series/category color is an identity marker, not a separate design system. Agents must check §14.2, §14.9, §14.10 and this proposal before changing color.
+5. **No bulk CSS rewrite:** use representative Golden Cases and one writer owning a bounded set of files; reconcile current post CSS (`post2029-legacy-grade.css`), home composition, World, `elsNativeClassic2029.css`, `elsLexiconResearch2029.css`, `personalArea2029.css` and global chrome without mass overriding all selectors or raising CSS budgets.
+6. **No visual noise:** no gratuitous blur/3D/anims or gold floods on every card. Royal depth from a small shared stack of layers; loading first content is a higher priority than decoration.
+7. **Technical acceptance:** screenshot/visual diff of main-vs-branch on all role representatives, Day/Parchment/Night at 320/360/390/768/1440, RTL, keyboard/focus, contrast (text ≥4.5:1, meaningful non-text affordance ≥3:1 where applicable), touch ≥44px, reduced-motion, LCP/CLS, unchanged import cost, CSS size and strict existing thresholds. A badge's visual gold cannot signal “verified” or override Truth status.
+
+### 14.11.4 Governance / explicit acceptance gates
+
+- **A. Approval of zone matrix** (Royal Editorial vs Royal Research per actual feature area; especially World, Beit Midrash, ELS classic/advanced, Number and community).
+- **B. User-theme decision:** §14.9 explicitly limits the blue-charcoal frame to Night. Do Day and Parchment frame regions also become blue, or retain their contrast-adapted card surfaces with the same Royal geometry? This cannot be silently overridden.
+- **C. Existing series visual exceptions:** preserve §14.10 identity colors as bounded accents or review any particular exception before changing it; do not recolor whole posts without consent.
+- **D. Runtime acceptance:** a true browser preview with approved existing `r29` components and source content; once approved, add small implementation steps from shared tokens outward, document AFTER/owners and seek distinct merge/deploy permission.
+
+**Prior authority:** `canonical_colors_law` v2 ACTIVE, `canonical_ui_components_law` v13 ACTIVE, `experience_governance_foundation_v1_law` v10 ACTIVE, Design V2 §14.9/§14.10 approved; design variants above have proposal status. This paragraph is not a new Law, store or owner.
+
+---
+
 ## Naming / product language law — carried from V1 · 11.11.2026
 
 Carried from `SOD1820_DESIGN_CONTRACT_V1.md` (§ Naming / product language law) so that public naming is owned by the active 2029 contract (Owner Index: «visual language / typography / public naming» → V2). V1 keeps its copy as history; where they differ, this section governs. The bullets are V1's wording; one factual correction is marked inline.
