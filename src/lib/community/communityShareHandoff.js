@@ -18,7 +18,7 @@ export function communityShareDraft({ auth, href, storage = typeof window === "u
   const current = loadCommunityDraft(storage, principal, now);
   if (!current.available) return { ok: false, message: "לא ניתן לשמור טיוטה במכשיר הזה. אפשר להעתיק את הקישור ולהדביק בקהילה." };
   const before = current.value?.body || "";
-  if (before.includes(href)) return { ok: true, kept: true };
+  if ((before.match(URL_IN_TEXT) || []).includes(href)) return { ok: true, kept: true };
   const body = before.trim() ? `${before.replace(/\s+$/, "")}\n${href}` : href;
   const saved = saveCommunityDraft(storage, principal, { body, reply: null, hadAttachments: current.value?.hadAttachments === true }, now);
   return saved ? { ok: true } : { ok: false, message: "הטיוטה ארוכה מדי כדי לצרף את הקישור. קצרו אותה בקהילה ונסו שוב." };

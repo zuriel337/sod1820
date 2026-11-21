@@ -76,6 +76,7 @@ import {
 } from "../lib/research/worldLandingNavigation.js";
 import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 
+const MapTimeline = import.meta.env.VITE_MAP_READING_RELEASE === "true" ? React.lazy(() => import("../components/research/MapUnitTimeline2029.jsx")) : null;
 const WorldAllResearchTable = React.lazy(() => import("../components/research/WorldAllResearchTable.jsx"));
 const WorldKnowledgeTypes2029 = React.lazy(() => import("../components/research/WorldKnowledgeTypes2029.jsx"));
 const WorldPeopleSources2029 = React.lazy(() => import("../components/research/WorldPeopleSources2029.jsx"));
@@ -1127,6 +1128,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </section> : null);
 
   return <>
+    {MapTimeline && activeView === WORLD_LANDING_VIEW.START ? <Link className="sod29-action" to="/world?view=reality-map">ציר מפת המציאות ←</Link> : null}
     {activeView === WORLD_LANDING_VIEW.START ? <div data-world-story-entry>
       <WorldFlightStory2029 research={research} shell={shell} />
     </div> : null}
@@ -2265,6 +2267,7 @@ function WorldBody() {
   // Ordinary World navigation is a destination, not an implicit request to replay
   // whichever subject happened to be active on the previous surface. Context is
   // projected into Anchored World only after an explicit "open in World" action.
+  if (MapTimeline && new URLSearchParams(location.search).get("view") === "reality-map") return <React.Suspense fallback={<p role="status">טוען את המפה…</p>}><MapTimeline /></React.Suspense>;
   const explicitContext = new URLSearchParams(location.search).get("focus") === "context";
   // Exact URL return works after reload without depending on a previous Provider subject.
   // The fragment is only a locator: the same canonical/public readers re-admit it.
