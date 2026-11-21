@@ -1,26 +1,29 @@
 /* Structural geometry is eager: title, links and reserved help slot never wait
    for the optional Royal artwork. No layout changes when that chunk arrives. */
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] {
+.native-frame .sod29-page-intro[data-intro-variant] {
   position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;
-  min-height:0;padding:72px 24px 20px;gap:16px;border-radius:20px;overflow:hidden;
+  min-height:0;padding:16px 24px;gap:10px;border-radius:20px;overflow:hidden;
   background:var(--s29-panel);color:var(--s29-ink);text-align:center;
   border:1px solid var(--s29-brand-gold);
 }
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant]::before,
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant]::after {display:none}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-visual {
-  position:relative;inset:auto;aspect-ratio:auto;width:64px;height:64px;min-height:0;opacity:1;display:grid;place-items:center;
+.native-frame .sod29-page-intro[data-intro-variant]::before,
+.native-frame .sod29-page-intro[data-intro-variant]::after {display:none}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-visual {
+  position:relative;inset:auto;aspect-ratio:auto;width:44px;height:44px;min-height:0;opacity:1;display:grid;place-items:center;
 }
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol {
-  width:64px;height:64px;border-radius:50%;color:var(--s29-accent-text);background:var(--s29-panel-soft);
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol {
+  width:44px;height:44px;border-radius:50%;color:var(--s29-accent-text);background:var(--s29-panel-soft);
 }
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol svg {width:36px;height:36px}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-copy {width:100%;min-width:0;max-width:none;overflow-wrap:anywhere;text-align:center}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] h1 {font-size:clamp(28px,3vw,40px);font-weight:740;line-height:1.2;margin:0;text-align:center}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] p {font-size:var(--s29-type-ui,16px);line-height:1.6;margin:8px auto 0;max-width:58ch}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-eyebrow {font-size:var(--s29-type-micro,14px);line-height:1.4;letter-spacing:0;margin:0 0 6px;justify-content:center}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-context-strip {justify-content:center;flex-wrap:wrap;margin-top:18px;gap:8px;padding-top:12px;border-top:1px solid var(--s29-brand-gold)}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol svg {width:28px;height:28px}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-copy {width:100%;min-width:0;max-width:none;overflow-wrap:anywhere;text-align:center}
+.native-frame .sod29-page-intro[data-intro-variant] h1 {font-size:clamp(24px,2.4vw,32px);font-weight:740;line-height:1.2;margin:0;text-align:center}
+.native-frame .sod29-page-intro[data-intro-variant] p {font-size:var(--s29-type-ui,16px);line-height:1.6;margin:8px auto 0;max-width:58ch}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-eyebrow {font-size:var(--s29-type-micro,14px);line-height:1.4;letter-spacing:0;margin:0 0 6px;justify-content:center}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-context-strip {justify-content:center;flex-wrap:wrap;margin-top:10px;gap:8px;padding-top:8px;border-top:1px solid var(--s29-brand-gold)}
 .sod29-page-intro .sod29-context-strip :is(a,button,span) {min-height:44px;display:inline-flex;align-items:center;justify-content:center;white-space:normal;overflow-wrap:anywhere}
-@media(max-width:650px) {.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] {padding:68px 16px 16px;gap:14px}}
+@media(max-width:650px) {.native-frame .sod29-page-intro[data-intro-variant] {padding:14px 12px;gap:10px}}
 
 .sod29-page-intro .sod29-context-strip :is(a,button) {padding:0 16px;border-radius:999px}
+
+/* Full is explicit opt-in; legacy hero callers inherit Compact. */
+.native-frame .sod29-page-intro[data-intro-variant="full"] {padding-block:72px 20px;gap:16px}

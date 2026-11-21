@@ -23,3 +23,4 @@
 @keyframes r29-palace-sheen {0%,100% {opacity:0}40% {opacity:.85}}
 @media(prefers-reduced-motion:reduce) {.sod29-page-intro *, .sod29-page-intro.r29-hall::before {animation:none!important;transition:none!important;transform:none!important}}
 [data-frame-reduced-motion="true"] .sod29-page-intro *,[data-frame-reduced-motion="true"] .sod29-page-intro.r29-hall::before {animation:none!important;transition:none!important;transform:none!important}
+@media(max-width:360px) {.r29-palace-help>.r29-btn {padding-inline:4px;gap:4px}}

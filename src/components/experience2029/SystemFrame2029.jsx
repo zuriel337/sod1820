@@ -1628,7 +1628,7 @@ function SystemFrame2029Body({
     /></PanelShell>;
   };
 
-  const resolvedIntroVariant = introVariant === "none" ? "none" : ["world", "heichal", "topic", "books", "els", "calculator"].includes(surface) ? "compact" : introVariant;
+  const resolvedIntroVariant = introVariant === "none" ? "none" : introVariant === "full" ? "full" : "compact";
   const introIcon = { world: "world", heichal: "heichal", topic: "graph", books: "books", els: "els", calculator: "calculator", journey: "journey", number: "number", control: "tools" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
@@ -1742,7 +1742,7 @@ function SystemFrame2029Body({
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
-                <section className={`sod29-page-intro r29 r29-hall${resolvedIntroVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={resolvedIntroVariant}>
+                <section className="sod29-page-intro r29 r29-hall" data-intro-variant={resolvedIntroVariant}>
                   <React.Suspense fallback={null}><RoyalIntro2029 key={currentHref} surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>
                   <div className="sod29-hero-visual" aria-hidden="true"><span className="sod29-hero-symbol r29-medal">{React.isValidElement(symbol) ? symbol : <NavigationIcon2029 name={introIcon || "home"} />}</span></div>
                   <div className="sod29-hero-copy">
