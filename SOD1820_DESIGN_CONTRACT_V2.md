@@ -293,6 +293,72 @@ Large blur/backdrop/shadow stacks must not be multiplied merely for spectacle.
 
 The content remains the hero of information-dense surfaces.
 
+### 10.6 Approved site-wide Hero and single-primary-media decision · ZURIEL 21.11.2026
+
+**PRODUCT DECISION — APPROVED by ZURIEL. IMPLEMENTATION/RELEASE STATUS: NOT VERIFIED FOR ALL ROUTES.** ZURIEL explicitly asked to establish the unified site-opening policy with a mandatory correction: **a post with video must not show a separate cover image followed by a player showing the same video-poster image again**. This extends §§10.1–10.5 and §14.10 (video-first) using the existing Hero projection owner; it does **not** create a new Hero service, media registry, user theme or design law.
+
+**North Star:** One Royal page-opening grammar across the 2029 experience, **not one image on every page**. The reader sees one dominant content identity and at most one dominant media opening. The protected global Crown/brand in the frame already supplies brand identity; an additional decorative photograph is not required.
+
+**Shared slots and language:** small contextual eyebrow; one primary H1/title; short descriptive lead; real series/category context where valid; context-dependent actions; **one optional visual focus** (canonical photo OR playable video OR small medallion/brand lockup OR none); canonical attribution/locator. Use the existing Royal `r29-*` components, semantic palette and approved Brand artwork. Do not duplicate the header title inside a second enormous card on World (already identified in the 21.11 screenshot). Brand lockup is an optional slot of `typographic`/compact intro, **not** a fourth technical Hero type.
+
+#### Media precedence for posts — exactly one first-viewport media
+
+**Reader-facing decision table (first meaningful content):**
+
+| Actual post content / intention | What the reader sees | What happens to `posts.image_url` |
+|---|---|---|
+| Verified primary playable video (native MP4/video or a canonical supported embedded player) plus matching poster/cover | **One video player** with a single poster and play affordance, immediately after post title/details; **no standalone copy of the poster above or immediately before it** | Preserved for cards, OG/WhatsApp, lists and fallback; does not render as a separate opening figure |
+| Primary video with no poster asset | **One player**, using a real poster if one can be resolved from the authorized media source, otherwise a player state/play affordance without invented thumbnail | No fabricated cover or automatic external image fetch |
+| No primary video, but an actual, usable canonical post image | **One canonical cover image** in a Royal media frame | Remains the reader cover; do not repeat the identical source image immediately again as first body image |
+| Text/research post without valid canonical image or primary video | **Royal typographic opening**, with meaningful live title/lead and optional restrained canonical symbol | Do not synthesize decorative image to fill an empty slot |
+| Post has a unique genuine cover image, while a **secondary** video later in the article is evidence/context | **Preserve the genuine editorial cover** and show secondary video in its real location; do not remove meaningful independent media merely because `content` contains some `<video>` | Retained as its own editorial image unless equivalence/primary-video role is proven |
+| Multiple distinct video clips or figures | Choose **at most one primary** opening; others remain authored content/sections, lazy-loaded where possible | No accidental deletion of author evidence/media; only deduplicate confirmed duplicate presentation |
+
+- **Poster ≠ second image:** a player `poster` can show `posts.image_url` **inside** the player; it must not create an additional `<img>` above the player. Preserve player controls, keyboard activation, consent/egress guards and proper fallback.
+- **Duplicate-image identity check:** compare the actual source identity/canonical media reference (including known thumbnail/rendition mapping), not mere title, category or a visually similar-looking photograph. Do **not** hide different evidence images or purposeful editorial figures. Any suppression is presentation-only and must retain source data, attribution, SEO image references, media links and exact return locators.
+- **Primary media detection must include** native `<video>`, supported YouTube/Vimeo embeds/approved hosted-player projections and poster/thumbnail wrappers that the canonical media readers actually admit. Merely finding a URL or the word “video” in text is insufficient to mark it as the first playable media.
+- **Do not blanket-hide every post cover when any video occurs somewhere:** decide primary media from structured/rendered canonical media and its location/role. Distinguish first-viewport player from secondary footage in the body.
+- **First-document parity:** SSR/first HTML and hydrated React must make **the exact same primary-media and duplicate-suppression decision before paint**; otherwise users see a flash of two images, a late removal or CLS. Preserve authorship, post data, OG metadata, accessible alt/aria and media truth/permissions.
+
+### 10.7 Hero role matrix — same Royal grammar, context-specific visuals
+
+| Surface | Opening default | A picture is justified when |
+|---|---|---|
+| Home | Compact identity/topbar + live flagship/featured story; canonical media when editorially meaningful | A real featured story/image/video benefits readers; do not force repeated global Crown and another generic picture |
+| **World** | **Compact Royal typographic Surface Intro, NO large decorative photograph** | An explicit selected content object needs image inside its own card; do not turn World navigation into a generic article cover |
+| Post / editorial article | Media opening if genuine; **video player wins when it is primary**, else meaningful canonical cover; typographic fallback | User has actual authored/media source; no duplication with player thumbnail |
+| Category / general Topic | Compact typographic title/lead/icon; no automatic full-width image | Only a specific authored/canonical image materially identifies the Topic and is approved for that surface |
+| Series | Compact Brand/typographic identity, optional real content excerpt | A curated original image adds value without duplicating the Brand mark. “אוצר המלוכה” uses the **complete SOD1820 lockup + name + subtitle ‘רמזים חזקים’** at every branded appearance per separate approved content decision |
+| Number / Phrase / Calculator | Number/value/operation as visual focus; compact typographic intro | A verified contextual research figure is part of content, not decorative page Hero |
+| Books / sources / gallery | Compact intro, natural document/image content in its own reader | The real book cover, source scan or gallery asset is the content; do not clone it into generic top Hero |
+| Beit Midrash / Heichal / premium research | Compact Royal Research-blue entrance and selected live tool/state | Specific research artifact/authorized spatial view needs it; full-screen/immersive is intentional rather than boilerplate |
+| ELS classic and advanced | Compact tool intro, genuine matrix/workspace as focus | A source-backed research visualization; never substitute a generic cover for actual ELS results |
+| Personal Area / community | Royal identity/command intro, compact | Profile/media content under its own privacy/access role, not giant decorative cover |
+
+This respects existing three Hero projection types (`media`, `spatial`, `typographic`), and keeps compact Surface Intro outside Hero classification. The blue-frame/warm-editorial/blue-research role matrix is still the **proposal in §14.11**; the Hero/media precedence decision here does not silently approve a new palette.
+
+### 10.8 Implementation seam, performance and acceptance
+
+**Existing code (read at 21.11.2026, implementation scope incomplete):**
+- `src/lib/research/postArticleCore2029.js` already exposes `postReadingCoverYieldsToVideo2029(post)`, currently returning true for any `<video>` in `post.content`. It **does not recognize supported embeds as a primary player** and does not distinguish secondary video.
+- `src/pages/Post2029Page.jsx` and `src/lib/research/postArticleDocument2029.js` both consume this helper and conditionally omit the separate reading cover. The initial-document reader and React must remain in semantic sync.
+- `markDuplicateCover` / `data-duplicate-cover` currently check the first body `<img>` against `image_url` as a same-source presentation case; review how it interacts with video-player poster. Do not turn that into broad image deletion.
+- Post classification video search (`postHasVideoMedia2029`) uses a different source URL pattern; this is **not** an authority to show/hide first media on its own. Resolve from actual player capability/provenance.
+- Read-only canonical posts count, 21.11.2026: **490** post rows contain `image_url` and an HTML5-video or YouTube/Vimeo string; **203** contain `<video>`, **328** contain YouTube/Vimeo strings (overlap), and 77 have `poster=` in markup. These are **audit candidates**, not proven 490 visual duplicates.
+
+**Required acceptance (Golden tests):**
+1. Primary native video + exact same poster/cover: first viewport contains **one player with one poster**, 0 separate matching cover figures, no double download due to different URL variants.
+2. Supported YouTube/Vimeo embedded main video + canonical thumbnail: no duplicated cover/thumbnail before player; fallback on blocked embed/consent is honest and still provides playable access.
+3. Post with meaningful cover and only **secondary** video later: cover remains; video remains in author location.
+4. Image-only post: one cover, any identical first-body presentation not duplicated; secondary different images preserved. Text-only post: rich Royal typography, no invented image and no broken empty frame.
+5. Video poster fallback, missing/invalid cover, multiple video clips, source figure linked to archive/gallery, and inline click-through: original media/attribution/links survive; no empty hero.
+6. First-document HTML and React parity checked in an actual browser on slow mobile, 320/360/390/768/1440 and Day/Parchment/Night; no double flash, layout shift, hidden-player regression, pre-play unwanted media requests or duplicate autoplay.
+7. `posts.image_url` / social OG and `/api/card` / WhatsApp remain intact, without extra media fetch. Reserve media dimensions; select **one** meaningful LCP resource (`fetchpriority=high` on actual opening image where appropriate); lazy load below-fold media; poster/video should not preload the full video unless user acts or capability requires it.
+8. Verify World compact intro with existing global Crown, no extra generic photograph, no title echo twice; same headings/spacing/Royal family across all target surfaces.
+9. Performance budgets unchanged; no new image generation, per-page design store, heavy video scanner/AI on page load, doubled media reader or added SSR-only HTML weight. Migrate via existing media/content UI owners and ONE ACTIVE WRITER / Human Gate.
+
+**Work status:** Design/media-policy decision approved **in contract draft**, not evidence that the code is already corrected or that production duplicates have been fixed. All writes to source content, media and deployment require separate authorization, and duplicate suppression is a rendering decision rather than a destructive data migration.
+
 ## 11. Global Chrome / Mobile Projection
 
 Global Chrome is owned by the existing System Frame. No page creates its own topbar, global navigation drawer or mobile chrome owner.
