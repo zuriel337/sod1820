@@ -9,12 +9,12 @@ const readings = {
     title: "ברית מלח · בנט",
     essence: ["מהמלחיות בבני ברק ועד לניסיון להגיע להסכמה בין יריבים. הפוסט מחבר את שני הרגעים דרך הפסוק על ", "ברית מלח", "."],
     expansion: "הרחבה, חישובים ומקורות",
+    hasVideo: Boolean(BENNETT_REVIEW_MEDIA_2029.highlight.src),
   },
   [originalId]: {
     title: "הסיפור המקורי והמקורות",
     essence: ["תיעוד האירוע בבני ברק, המקורות והקשרים לפוסט הבחירות ולים המלח."],
     expansion: "הרחבה ומקורות",
-    hasVideo: Boolean(BENNETT_REVIEW_MEDIA_2029.highlight.src),
   },
   "bennett-israel-78": {
     title: "מלח ו־78 שנות עצמאות",
@@ -79,6 +79,11 @@ function formatBennettContent(content, unitId) {
       calculationRow(doc, "מלח", 78, "רגיל", false, unitId),
       focalTrace(doc, "מלח", "רגיל", 78),
     );
+  }
+  if (unitId === leadId) {
+    const media = doc.createElement("div");
+    media.dataset.bennettUnitMedia = "";
+    content.prepend(media);
   }
 }
 

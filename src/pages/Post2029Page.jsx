@@ -155,7 +155,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   entryRef.current = { context: research.context, hash: location.hash };
   const restoredRegionRef = useRef(null);
   const [discussionDraft, setDiscussionDraft] = useState(null);
-  const [bennettResearchHost, setBennettResearchHost] = useState(null);
+  const [bennettUnitHosts, setBennettUnitHosts] = useState(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const postVoice = postVoiceFor(state.projection?.post).voice;
   // The flagship series experience (ZURIEL 12.11.2026): exact series tag, or the preview-only acceptance exception for 5107 / 5112.
@@ -176,8 +176,14 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   }, [realityMap.active, editorEnabled, state.projection?.post?.content, state.projection?.post?.id, state.projection?.post?.image_url, postVoice, protoOn, imageFacts]);
 
   const bennettTimeline = mapIntegrationReview && passiveSourceHtml.includes("data-bennett-unit-research");
+  const bennettResearchHost = bennettUnitHosts?.research;
+  const bennettMediaHost = bennettUnitHosts?.media;
   useLayoutEffect(() => {
-    setBennettResearchHost(bennettTimeline ? sourceRef.current?.querySelector("[data-bennett-unit-research]") || null : null);
+    const root = bennettTimeline ? sourceRef.current : null;
+    setBennettUnitHosts(root ? {
+      research: root.querySelector("[data-bennett-unit-research]"),
+      media: root.querySelector("[data-bennett-unit-media]"),
+    } : null);
   }, [bennettTimeline, passiveSourceHtml]);
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second
@@ -1638,9 +1644,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       {protoOn && realityMap.active ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} postHref={publicPostHref(post)} htmlKey={passiveSourceHtml.length} editable={editorEnabled} /> : null}
       {protoOn && realityMap.active ? <PreviewUnitExtras2029 rootRef={sourceRef} post={post} htmlKey={passiveSourceHtml.length} /> : null}
       <PublishedUnitTraces2029 rootRef={sourceRef} htmlKey={passiveSourceHtml.length} />
+      {bennettTimeline && bennettMediaHost ? createPortal(<PostEvidenceMedia2029 media={BENNETT_REVIEW_MEDIA_2029} />, bennettMediaHost) : null}
       {bennettTimeline && bennettResearchHost ? createPortal(<>
         {cover}
-        <PostEvidenceMedia2029 media={BENNETT_REVIEW_MEDIA_2029} />
         {researchDisclosure}
       </>, bennettResearchHost) : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
