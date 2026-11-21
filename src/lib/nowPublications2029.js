@@ -141,7 +141,7 @@ export function nowRowModel(row) {
   // Never re-date its publication or move an older unit's verified addedAt.
   const publishedOrProvenAt = Date.parse(row?.at || "") || 0;
   const editedAt = isPost && seriesKey === REALITY_MAP_LATEST_KEY ? Date.parse(item.sourceUpdatedAt || "") || 0 : 0;
-  const postEdited = editedAt > publishedOrProvenAt;
+  const postEdited = editedAt > Math.max(publishedOrProvenAt, latestRegisteredUpdate(row?.id));
   // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
   const hasGroupSource = isGroup || isDiscussion;
   const groupLabel = hasGroupSource ? clean(item.sourceGroupLabel) : "";
