@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { createPortal } from "react-dom";
 import { Link, useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -79,7 +78,7 @@ import PostConvergenceMeasures2029 from "../components/experience2029/PostConver
 const SourceLightbox = React.lazy(() => import("../components/Lightbox.jsx"));
 
 // The tools around the article load when they are used (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026: "the article first, the tools on request";
-// hiding them is not enough). The article, its title, credit, date, cover, categories and section navigation stay in this page's code.
+// hiding them is not enough). The article, its title, credit, date, cover and categories stay in this page's code.
 // On open: the code loads when the tool is rendered (an opened research section, an opened details panel, the series-only editors).
 // On approach: below the article, the code loads when the reader comes within a screen and a half of it. Both show the live loading state.
 function toolOnOpen2029(load, title = null) {
@@ -302,24 +301,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
   const mergedUpdates = !useOutline && regions.length > 1 && outlineUpdates.length > 1;
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
-  // Flagship "מפת המציאות" experience: exactly FOUR semantic entries that fit one line (message · context · connections · sources), each mapped to
-  // real content of this Post. Every other Post keeps the existing list unchanged.
-  const flagshipNav = protoOn && realityMap.active;
-  const [activeNavId, setActiveNavId] = useState(null);
-  const sectionItems = useMemo(() => flagshipNav ? [
-    { id: "nav-message", label: "מסר", targetId: "post-story", targetIds: [...previewUnitIdsFor(state.projection?.post?.id), "post-story"] },
-    { id: "nav-context", label: "הקשר", targetId: "post-research", targetIds: ["post-research", "post-measures", "post-story"] },
-    { id: "nav-connections", label: "חיבורים", targetId: state.projection?.experience?.connections?.some((item) => item.href) ? "post-connections" : "post-classification", targetIds: ["post-connections", "post-classification", "post-measures"] },
-    { id: "nav-sources", label: "מקורות", targetId: "post-sources", targetIds: ["post-sources"] },
-  ] : [
-    { id: "post-story", label: "הסיפור", targetId: "post-story" },
-    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
-    ...(state.projection?.experience?.connections?.some((item) => item.href)
-      ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
-    { id: "post-sources", label: "מקורות", targetId: "post-sources" },
-    ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
-    { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions, state.projection, commentArchiveId, flagshipNav]);
 
   useEffect(() => {
     const root = sourceRef.current;
@@ -377,18 +358,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       const target = targetId ? document.getElementById(targetId) : null;
       if (target && researchRef.current?.contains(target)) revealReadingAnchor(target);
     };
-    const onMapClick = event => {
-      const button = event.target?.closest?.(".sod29-surface-tabs button");
-      if (!button) return;
-      const item = sectionItems.find(entry => entry.label === (button.textContent || "").trim());
-      if (item) reveal(item.targetId || item.id);
-    };
     let targetId = "";
     try { targetId = decodeURIComponent((location.hash || "").replace(/^#/, "")); } catch { /* A malformed URL fragment has no target. */ }
     reveal(targetId);
-    document.addEventListener("click", onMapClick, true);
-    return () => document.removeEventListener("click", onMapClick, true);
-  }, [sectionItems, location.hash, state.projection]);
+  }, [location.hash, state.projection]);
 
   // Entering a reality-map Post settles the "latest update" dot in "עכשיו" for this viewer (the existing per-browser seen state; a newer registered unit makes it blink again).
   useEffect(() => {
@@ -1421,7 +1394,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" srcSet={postImageRenditionSet2029(coverItem.imageUrl, documentImageFactsFor(post?.id)) || undefined} sizes={POST_COVER_IMAGE_SIZES} alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
     </figure> : null}
 
-    <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" activeId={flagshipNav ? activeNavId : null} onSelect={flagshipNav ? (item) => setActiveNavId(item.id) : null} />
 
     <PostEvidenceMedia2029 media={experience.media} />
     {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}

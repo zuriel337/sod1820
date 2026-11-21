@@ -292,7 +292,7 @@ test("Post Master Bennett fixture opens canonical contextual number focus withou
 });
 
 
-test("Unified Experience exposes one shared rail and section navigation without a duplicate Post rail", () => {
+test("Unified Experience keeps the Post rail and reserves the shared section bar for Topic", () => {
   const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
   const rail = readFileSync(new URL("../src/components/experience2029/SurfaceContextRail2029.jsx", import.meta.url), "utf8");
   const tabs = readFileSync(new URL("../src/components/experience2029/SurfaceSectionNav2029.jsx", import.meta.url), "utf8");
@@ -305,6 +305,8 @@ test("Unified Experience exposes one shared rail and section navigation without 
   assert.match(rail, /בתוך הפוסט/);
   assert.match(rail, /בתוך הציר/);
   assert.match(tabs, /data-experience-capability="surface-section-nav"/);
-  assert.match(post, /SurfaceSectionNav2029/);
+  const topic = readFileSync(new URL("../src/pages/Topic2029Page.jsx", import.meta.url), "utf8");
+  assert.match(topic, /<SurfaceSectionNav2029/);
+  assert.doesNotMatch(post, /SurfaceSectionNav2029/);
   assert.doesNotMatch(post, /<ReadingContextRail2029/);
 });
