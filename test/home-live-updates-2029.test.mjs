@@ -21,6 +21,7 @@ const outfile = resolve(`.test-home-live-updates-${process.pid}.mjs`);
 await build({ stdin: { contents: `
   import React, {useEffect, useMemo} from 'react';
   import {nowModels, buildNowEntries, nowPinnedMessage, REALITY_MAP_LATEST_KEY, seriesLatestFace2029, seriesLatestMember2029} from './src/lib/nowPublications2029.js';
+  import {homeMapLeadMember2029, homeMapLeadFace2029} from './src/lib/research/homeMapLead2029.js';
   import {pinCoverSet, PIN_COVER_SIZES} from './src/components/experience2029/homePinnedCover2029.js';
   import NavigationIcon2029 from './src/components/experience2029/NavigationIcon2029.jsx';
   import NowThumb2029 from './src/components/experience2029/NowThumb2029.jsx';
