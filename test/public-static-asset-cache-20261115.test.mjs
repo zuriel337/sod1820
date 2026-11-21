@@ -15,8 +15,8 @@ const palace = Object.values(ROYAL_PALACE_ATMOSPHERE_2029);
 const connected = [
  '/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif',
  '/backgrounds/2029/royal-connected-mobile-96cbcf5c1e1e.webp',
- '/backgrounds/2029/royal-connected-desktop-42810d335bd2.avif',
- '/backgrounds/2029/royal-connected-desktop-c25f055092d8.webp',
+ '/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif',
+ '/backgrounds/2029/royal-connected-desktop-c7b865b042af.webp',
 ];
 
 const config = JSON.parse(readFileSync(new URL('../public-reading-deploy/vercel.json', import.meta.url), 'utf8'));

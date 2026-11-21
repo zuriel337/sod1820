@@ -1,6 +1,6 @@
 import React from "react";
-// Re-encoded derivatives of brandAssets2029's approved palace, kept in this lazy chunk.
-const art = {"mobile": {"avif": "/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif", "webp": "/backgrounds/2029/royal-connected-mobile-96cbcf5c1e1e.webp"}, "desktop": {"avif": "/backgrounds/2029/royal-connected-desktop-42810d335bd2.avif", "webp": "/backgrounds/2029/royal-connected-desktop-c25f055092d8.webp"}};
+// Re-encoded derivatives of brandAssets2029's approved palace, desktop crops only unseen rows; kept in this lazy chunk.
+const art = {"mobile": {"avif": "/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif", "webp": "/backgrounds/2029/royal-connected-mobile-96cbcf5c1e1e.webp"}, "desktop": {"avif": "/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif", "webp": "/backgrounds/2029/royal-connected-desktop-c7b865b042af.webp"}};
 import "./royalBackdrop2029.css";
 
 // Optional, shared decoration. Text and controls never suspend on its download.
