@@ -1,0 +1,1713 @@
+{
+  "blocked": [
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/research_pulse_2029",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/link_identity",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/track_visit",
+      "method": "POST"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/agent/els-igor-all-261106.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtum2gdo-i0w2n5.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtsrdb42-mexb8k.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtqvghlo-xy76zz.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtozq66v-3fi4aw.png",
+      "method": "GET"
+    },
+    {
+      "path": "/storage/v1/render/image/public/gallery/sod1820/ciphers/c-mtoy3pb3-ni3ddy.png",
+      "method": "GET"
+    }
+  ],
+  "fixture": "Heichal lock disabled in browser responses only; every other response is a cached public read."
+}

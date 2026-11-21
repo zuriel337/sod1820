@@ -1,6 +1,6 @@
-"""Main vs implemented quiet Royal intro. Identical fresh default build profiles.
+"""Main vs connected Royal intro. Identical fresh default build profiles.
 Public-read guard and browser-only Heichal flag fixture from original acceptance.
-No production writes. No production writes; same public-read fixtures across both builds.
+No production writes; same public-read fixtures across both builds.
 """
 from pathlib import Path
 exec((Path(__file__).parent/'royal-palace-intro-2029.browser.py').read_text().split('import sys')[0])

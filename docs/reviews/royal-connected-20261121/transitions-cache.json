@@ -1,0 +1,81 @@
+[
+  {
+    "route": "world",
+    "art": {
+      "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+      "w": 500,
+      "h": 547
+    },
+    "resources": [
+      {
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859
+      }
+    ]
+  },
+  {
+    "route": "books",
+    "art": {
+      "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+      "w": 500,
+      "h": 547
+    },
+    "resources": [
+      {
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859
+      }
+    ]
+  },
+  {
+    "route": "heichal",
+    "art": {
+      "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+      "w": 500,
+      "h": 547
+    },
+    "resources": [
+      {
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859
+      }
+    ]
+  },
+  {
+    "route": "code",
+    "art": {
+      "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+      "w": 500,
+      "h": 547
+    },
+    "resources": [
+      {
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859
+      }
+    ]
+  },
+  {
+    "webpFallbackDecodes": true
+  },
+  {
+    "postRoute": "http://localhost:4203/post/flydubai-fz1073-363-14000-remzei-geula",
+    "palaceAbsent": true
+  },
+  {
+    "route": "2029/posts",
+    "introCount": 0
+  },
+  {
+    "route": "2029/calculator",
+    "introCount": 0
+  },
+  {
+    "route": "code?library=public",
+    "introCount": 0
+  }
+]

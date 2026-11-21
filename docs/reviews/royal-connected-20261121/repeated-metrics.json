@@ -1,0 +1,6728 @@
+[
+  {
+    "lcp": 672,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 160,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 482.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 640,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 672,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 578.8999999985099,
+    "usefulPaint": 592.6999999955297,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 504,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 373.3999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 484,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 504,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 413.20000000298023,
+    "usefulPaint": 430.6000000014901,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 504,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 465.30000000447035
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 465.30000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 504,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 518.5,
+    "usefulPaint": 527.2000000029802,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 264.30000000447035,
+        "end": 265.5
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740090,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 365181,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "world",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 412,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 84,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 388.1000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 388.20000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 412,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 430.40000000596046,
+    "usefulPaint": 446,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 99.10000000149012,
+        "end": 99.10000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 0,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "world",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 1044,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 459
+      },
+      {
+        "kind": "lcp",
+        "at": 1044,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      }
+    ],
+    "usefulDom": 459,
+    "usefulPaint": 467.20000000298023,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 68,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 375.3999999985099
+      }
+    ],
+    "usefulDom": 375.29999999701977,
+    "usefulPaint": 381.5,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 532,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 472.19999999552965
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 472.19999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 532,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 472.19999999552965,
+    "usefulPaint": 481.79999999701977,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 202.79999999701977,
+        "end": 205.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187173,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 242566,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 444,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 378.80000000447035
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 378.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 444,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 378.70000000298023,
+    "usefulPaint": 389.3999999985099,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 79.80000000447035,
+        "end": 79.80000000447035
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 572,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 180,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 492
+      },
+      {
+        "kind": "lcp",
+        "at": 572,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 528.3000000044703,
+    "usefulPaint": 537.3000000044703,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 440,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 60,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 361.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 440,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 393.30000000447035,
+    "usefulPaint": 402.90000000596046,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 476,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 132,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 443.79999999701977
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 443.79999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 476,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 479.19999999552965,
+    "usefulPaint": 487.29999999701977,
+    "introHeight": 169.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 171.39999999850988,
+        "end": 176.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110564,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 258694,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "books",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 384,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 355.29999999701977
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 355.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 384,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 385.70000000298023,
+    "usefulPaint": 400.1000000014901,
+    "introHeight": 169.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 59,
+        "end": 59
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "books",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 144,
+    "cls": 0.013094234731456317,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 456.6000000014901
+      }
+    ],
+    "usefulDom": 505.30000000447035,
+    "usefulPaint": 550.1000000014901,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 1413791,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 380823,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "code",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 80,
+    "cls": 0.013091600859346698,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 367.6000000014901
+      }
+    ],
+    "usefulDom": 398.6000000014901,
+    "usefulPaint": 441.70000000298023,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 0,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "code",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 484,
+    "cls": 0.013090522957169018,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 152,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 454.6000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 454.70000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 484,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 503.70000000298023,
+    "usefulPaint": 544.4000000059605,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 199.80000000447035,
+        "end": 204.30000000447035
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 1405662,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 379274,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "code",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 404,
+    "cls": 1.4282977199178263e-06,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 382.29999999701977
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 382.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 404,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 432,
+    "usefulPaint": 445.19999999552965,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 87.19999999552965,
+        "end": 87.19999999552965
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 0,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 0,
+    "width": 390,
+    "route": "code",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 680,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 168,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 484.09999999403954
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 680,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 553,
+    "usefulPaint": 572.5999999940395,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 596,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 392.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 564,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 596,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 449.69999999552965,
+    "usefulPaint": 460.6000000014901,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 588,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 464.79999999701977
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 464.79999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 588,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 599.3999999985099,
+    "usefulPaint": 611.7999999970198,
+    "introHeight": 209.171875,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 250.10000000149012,
+        "end": 251.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740090,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 365181,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "world",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 496,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 92,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 385.6000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 385.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 496,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 432.6000000014901,
+    "usefulPaint": 503,
+    "introHeight": 209.171875,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 104.60000000149012,
+        "end": 104.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 0,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "world",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 632,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 160,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 479
+      },
+      {
+        "kind": "lcp",
+        "at": 632,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 478.8999999985099,
+    "usefulPaint": 486.20000000298023,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 544,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 84,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 383.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 544,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 383.6000000014901,
+    "usefulPaint": 394.8999999985099,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 656,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 156,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 499.80000000447035
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 499.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 656,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 499.80000000447035,
+    "usefulPaint": 515.3000000044703,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 211,
+        "end": 212.89999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187173,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 242566,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 524,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 84,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 379.40000000596046
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 379.40000000596046
+      },
+      {
+        "kind": "lcp",
+        "at": 524,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 379.40000000596046,
+    "usefulPaint": 385.80000000447035,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 75.80000000447035,
+        "end": 75.80000000447035
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 152,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 152,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 459.80000000447035
+      }
+    ],
+    "usefulDom": 556.3000000044703,
+    "usefulPaint": 561,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 64,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 362.3999999985099
+      }
+    ],
+    "usefulDom": 392.19999999552965,
+    "usefulPaint": 453.69999999552965,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 536,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 445.20000000298023
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 445.20000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 536,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 489.6000000014901,
+    "usefulPaint": 576.6000000014901,
+    "introHeight": 157.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 173.89999999850988,
+        "end": 177.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110564,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 258694,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "books",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 460,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 375
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 375
+      },
+      {
+        "kind": "lcp",
+        "at": 460,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 405.69999999552965,
+    "usefulPaint": 411.59999999403954,
+    "introHeight": 157.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 74.09999999403954,
+        "end": 74.09999999403954
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "books",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 168,
+    "cls": 0.033674214220504865,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 168,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 476.69999999552965
+      }
+    ],
+    "usefulDom": 577.1000000014901,
+    "usefulPaint": 637,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 1413791,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 380823,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "code",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 88,
+    "cls": 0.03162005060140979,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 379.5
+      }
+    ],
+    "usefulDom": 449.1000000014901,
+    "usefulPaint": 478,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 0,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "code",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 596,
+    "cls": 0.03885167000225051,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 180,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 493
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 493
+      },
+      {
+        "kind": "lcp",
+        "at": 596,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 576.6000000014901,
+    "usefulPaint": 653.3000000044703,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 228.39999999850988,
+        "end": 230
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 1405662,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 379274,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "code",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 476,
+    "cls": 0.03676820564845625,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 370.29999999701977
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 370.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 476,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 434.1000000014901,
+    "usefulPaint": 488,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 72.5,
+        "end": 72.5
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 0,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 0,
+    "width": 1440,
+    "route": "code",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 520,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 156,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 485.70000000298023
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 485.70000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 520,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 550.5,
+    "usefulPaint": 557.8999999985099,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 260.8999999985099,
+        "end": 262.70000000298023
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740090,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 365181,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "world",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 400,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 371.6000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 371.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 400,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 404.3999999985099,
+    "usefulPaint": 416.69999999552965,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 94.39999999850988,
+        "end": 94.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 0,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "world",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 648,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 172,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 484.69999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 620,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 648,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 565.6999999955297,
+    "usefulPaint": 571.3999999985099,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 520,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 381.69999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 480,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 520,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 427.8999999985099,
+    "usefulPaint": 455.69999999552965,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 528,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 156,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 463
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 463
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 463,
+    "usefulPaint": 470.6000000014901,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 192.69999999552965,
+        "end": 196.10000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187173,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 242566,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 428,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 363.1000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 363.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 428,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 363.1000000014901,
+    "usefulPaint": 368.3999999985099,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 62.100000001490116,
+        "end": 62.100000001490116
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 1396,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 136,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 455.5
+      },
+      {
+        "kind": "lcp",
+        "at": 1396,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      }
+    ],
+    "usefulDom": 455.5,
+    "usefulPaint": 466.6000000014901,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 68,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 375.90000000596046
+      }
+    ],
+    "usefulDom": 375.80000000447035,
+    "usefulPaint": 383,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 472,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 443
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 443
+      },
+      {
+        "kind": "lcp",
+        "at": 472,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 478.5,
+    "usefulPaint": 482.69999999552965,
+    "introHeight": 169.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 166.79999999701977,
+        "end": 169.5
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110564,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 258694,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "books",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 388,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 365.8999999985099
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 366
+      },
+      {
+        "kind": "lcp",
+        "at": 388,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 390.5,
+    "usefulPaint": 397.8999999985099,
+    "introHeight": 169.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 72.10000000149012,
+        "end": 72.10000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "books",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 516,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 441
+      },
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 469.8999999985099,
+    "usefulPaint": 476.30000000447035,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 456,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 60,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 361.20000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 456,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 391.1000000014901,
+    "usefulPaint": 403.3999999985099,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 516,
+    "cls": 0.013092848334968979,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 168,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 487.5
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 487.5
+      },
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 539,
+    "usefulPaint": 586.1000000014901,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 228.20000000298023,
+        "end": 233.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 1405662,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 379274,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "code",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 384,
+    "cls": 0.013088882341122945,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 362.29999999701977
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 362.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 384,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 390.5,
+    "usefulPaint": 425.79999999701977,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 67.5,
+        "end": 67.5
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 0,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "code",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 160,
+    "cls": 0.01309166807004862,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 160,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 476.5
+      }
+    ],
+    "usefulDom": 532.1000000014901,
+    "usefulPaint": 581.8999999985099,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 1413791,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 380823,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "code",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 68,
+    "cls": 3.7795474218735153e-07,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 363.5
+      }
+    ],
+    "usefulDom": 402.5,
+    "usefulPaint": 413.8999999985099,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 0,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 1,
+    "width": 390,
+    "route": "code",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 580,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 164,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 469.5
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 469.5
+      },
+      {
+        "kind": "lcp",
+        "at": 580,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 601,
+    "usefulPaint": 607.7000000029802,
+    "introHeight": 209.171875,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 254.70000000298023,
+        "end": 256.1000000014901
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740090,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 365181,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "world",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 484,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 380.30000000447035
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 380.30000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 484,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 418.70000000298023,
+    "usefulPaint": 491,
+    "introHeight": 209.171875,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 91.39999999850988,
+        "end": 91.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 0,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "world",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 688,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 467
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 688,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 553.5999999940395,
+    "usefulPaint": 575.5999999940395,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 608,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 387.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 552,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 608,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 441.80000000447035,
+    "usefulPaint": 480.1000000014901,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 620,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 472.8999999985099
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 472.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 620,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 472.8999999985099,
+    "usefulPaint": 481,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 204.30000000447035,
+        "end": 206.60000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187173,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 242566,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 516,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 375.80000000447035
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 375.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 516,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 375.80000000447035,
+    "usefulPaint": 385.20000000298023,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 77.89999999850988,
+        "end": 77.89999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 608,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 152,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 463.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 608,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 463.80000000447035,
+    "usefulPaint": 471,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 524,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 84,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 377.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 524,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 377.70000000298023,
+    "usefulPaint": 384.3999999985099,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 544,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 172,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 463.6000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 463.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 544,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 562.3999999985099,
+    "usefulPaint": 567.3999999985099,
+    "introHeight": 157.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 201.30000000447035,
+        "end": 202.89999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110564,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 258694,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "books",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 460,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 84,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 372.59999999403954
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 372.59999999403954
+      },
+      {
+        "kind": "lcp",
+        "at": 460,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 411.29999999701977,
+    "usefulPaint": 451.79999999701977,
+    "introHeight": 157.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 76.39999999850988,
+        "end": 76.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "books",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 168,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 168,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 470.3999999985099
+      }
+    ],
+    "usefulDom": 505.6000000014901,
+    "usefulPaint": 558.6000000014901,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 76,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 369.69999999552965
+      }
+    ],
+    "usefulDom": 396,
+    "usefulPaint": 400.5,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 568,
+    "cls": 0.03885006613397794,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 461.59999999403954
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 461.59999999403954
+      },
+      {
+        "kind": "lcp",
+        "at": 568,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 547.5,
+    "usefulPaint": 612.5999999940395,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 249.59999999403954,
+        "end": 253.59999999403954
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 1405662,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 379274,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "code",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 484,
+    "cls": 0.03865255921498575,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 369.1000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 369.20000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 484,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 412.5,
+    "usefulPaint": 457.5,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 71,
+        "end": 71
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 0,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "code",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 140,
+    "cls": 0.033674214220504865,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 453
+      }
+    ],
+    "usefulDom": 572.6000000014901,
+    "usefulPaint": 655.8999999985099,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 1413791,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 380823,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "code",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 92,
+    "cls": 0.03350440416793928,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 92,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 381.5
+      }
+    ],
+    "usefulDom": 431.1000000014901,
+    "usefulPaint": 478.5,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 0,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 1,
+    "width": 1440,
+    "route": "code",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 664,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 172,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 489.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 644,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 664,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 576.1999999955297,
+    "usefulPaint": 586,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 500,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 370.5
+      },
+      {
+        "kind": "lcp",
+        "at": 468,
+        "url": "",
+        "size": 26433,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 500,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 62736,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 414.69999999552965,
+    "usefulPaint": 429.5,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 496,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 465.3999999985099
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 465.3999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 496,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 527.1000000014901,
+    "usefulPaint": 537,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 278,
+        "end": 280
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740090,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 365181,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "world",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 404,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 64,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 372.1000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 372.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 404,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 414.5,
+    "usefulPaint": 430.8999999985099,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 81.5,
+        "end": 81.5
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 0,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "world",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 1428,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 132,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 454.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 1428,
+        "url": "",
+        "size": 30798,
+        "tag": "P",
+        "classes": "",
+        "text": "Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence"
+      }
+    ],
+    "usefulDom": 454,
+    "usefulPaint": 460.70000000298023,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 88,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 385.70000000298023
+      }
+    ],
+    "usefulDom": 385.6000000014901,
+    "usefulPaint": 390.80000000447035,
+    "introHeight": 195.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 528,
+    "cls": 0.0002704320173885098,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 156,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 469.1000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 469.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 528,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 469,
+    "usefulPaint": 480.90000000596046,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 194.20000000298023,
+        "end": 196.70000000298023
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187173,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 242566,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 436,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 370.8999999985099
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 370.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 436,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 370.79999999701977,
+    "usefulPaint": 378.79999999701977,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 73.19999999552965,
+        "end": 73.19999999552965
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 548,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 454.3999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 548,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 487.3999999985099,
+    "usefulPaint": 495.6000000014901,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 432,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 56,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 363.1000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 432,
+        "url": "",
+        "size": 26200,
+        "tag": "P",
+        "classes": "books29-card-summary",
+        "text": "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר "
+      }
+    ],
+    "usefulDom": 388.90000000596046,
+    "usefulPaint": 407,
+    "introHeight": 123.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 492,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 461.70000000298023
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 461.70000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 492,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 498.29999999701977,
+    "usefulPaint": 506.29999999701977,
+    "introHeight": 169.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 201.20000000298023,
+        "end": 205.5
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110564,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 258694,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "books",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 412,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 386.8999999985099
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 386.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 412,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 412.70000000298023,
+    "usefulPaint": 429.3999999985099,
+    "introHeight": 169.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 88.5,
+        "end": 88.5
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "books",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 140,
+    "cls": 0.013093649801498169,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 461.40000000596046
+      }
+    ],
+    "usefulDom": 521.8000000044703,
+    "usefulPaint": 588,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 1413791,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 380823,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "code",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 72,
+    "cls": 8.079345046906704e-07,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 72,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 369
+      }
+    ],
+    "usefulDom": 415.79999999701977,
+    "usefulPaint": 437.19999999552965,
+    "introHeight": 173.09375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 0,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "code",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 496,
+    "cls": 0.01309171193979548,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 160,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 474.5
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 474.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 496,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 541.3999999985099,
+    "usefulPaint": 596.2000000029802,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 19159,
+        "encoded": 18859,
+        "start": 240,
+        "end": 241.70000000298023
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 1405662,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 379274,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 19159,
+        "encoded": 18859
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "code",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 464,
+    "cls": 0.013090486961479285,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 24012,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 433.20000000298023
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 433.20000000298023
+      },
+      {
+        "kind": "lcp",
+        "at": 464,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+        "size": 127500,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 471.3999999985099,
+    "usefulPaint": 522.5,
+    "introHeight": 195.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-mobile-ee14537e1801.avif",
+        "transfer": 0,
+        "encoded": 18859,
+        "start": 137.70000000298023,
+        "end": 137.70000000298023
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 0,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 18859
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 2,
+    "width": 390,
+    "route": "code",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 672,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 458.29999999701977
+      },
+      {
+        "kind": "lcp",
+        "at": 640,
+        "url": "",
+        "size": 29788,
+        "tag": "P",
+        "classes": "sod29-flight-lead",
+        "text": "787 · השנה, החג וההודיה. לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את"
+      },
+      {
+        "kind": "lcp",
+        "at": 672,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 533.6000000014901,
+    "usefulPaint": 550.6000000014901,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 1742903,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 365170,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 580,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 92,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 386.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 580,
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+        "size": 42197,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 463.3999999985099,
+    "usefulPaint": 470,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 105,
+        "transfer": 0,
+        "encoded": 1711403
+      },
+      "css": {
+        "files": 16,
+        "transfer": 0,
+        "encoded": 360370
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "world",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 604,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 172,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 495
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 495
+      },
+      {
+        "kind": "lcp",
+        "at": 604,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 632.6000000014901,
+    "usefulPaint": 642.5,
+    "introHeight": 209.171875,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 272.29999999701977,
+        "end": 273.6000000014901
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 1740090,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 365181,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "world",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 496,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 88,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 389.19999999552965
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 389.19999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 496,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 508.09999999403954,
+    "usefulPaint": 529.5,
+    "introHeight": 209.171875,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 97.09999999403954,
+        "end": 97.09999999403954
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 106,
+        "transfer": 0,
+        "encoded": 1708290
+      },
+      "css": {
+        "files": 17,
+        "transfer": 0,
+        "encoded": 360081
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "world",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 608,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 459.19999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 608,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 459.19999999552965,
+    "usefulPaint": 472.09999999403954,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 1190045,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 242555,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 540,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 80,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 379.30000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 540,
+        "url": "",
+        "size": 45047,
+        "tag": "H2",
+        "classes": "",
+        "text": "היכל מתחיל משאלה,לא מקיר של כלים."
+      }
+    ],
+    "usefulDom": 379.20000000298023,
+    "usefulPaint": 384.5,
+    "introHeight": 134.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 57,
+        "transfer": 0,
+        "encoded": 1172945
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 241055
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 620,
+    "cls": 2.5716145833333334e-05,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 144,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 457.6000000014901
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 457.6000000014901
+      },
+      {
+        "kind": "lcp",
+        "at": 620,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 457.5,
+    "usefulPaint": 470.6000000014901,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 183.20000000298023,
+        "end": 185.10000000149012
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 1187173,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 242566,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 564,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 100,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 403.8999999985099
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 403.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 564,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 403.79999999701977,
+    "usefulPaint": 409,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 113.29999999701977,
+        "end": 113.29999999701977
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 58,
+        "transfer": 0,
+        "encoded": 1169773
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 240766
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "heichal",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 192,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 192,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 487.3999999985099
+      }
+    ],
+    "usefulDom": 585,
+    "usefulPaint": 617,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 1113377,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 258683,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 84,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 84,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 365
+      }
+    ],
+    "usefulDom": 389.6000000014901,
+    "usefulPaint": 395.79999999701977,
+    "introHeight": 110.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 44,
+        "transfer": 0,
+        "encoded": 1100177
+      },
+      "css": {
+        "files": 5,
+        "transfer": 0,
+        "encoded": 257183
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "books",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 556,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 160,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 459.80000000447035
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 459.80000000447035
+      },
+      {
+        "kind": "lcp",
+        "at": 556,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 555,
+    "usefulPaint": 600.6000000014901,
+    "introHeight": 157.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 182.89999999850988,
+        "end": 188.20000000298023
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 1110564,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 258694,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 57004,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      },
+      "json": {
+        "files": 1,
+        "transfer": 10007,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "books",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 452,
+    "cls": 0,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 357.90000000596046
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 357.90000000596046
+      },
+      {
+        "kind": "lcp",
+        "at": 452,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 380.1000000014901,
+    "usefulPaint": 386.5,
+    "introHeight": 157.984375,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 64,
+        "end": 64
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 45,
+        "transfer": 0,
+        "encoded": 1097064
+      },
+      "css": {
+        "files": 6,
+        "transfer": 0,
+        "encoded": 256894
+      },
+      "webp": {
+        "files": 2,
+        "transfer": 0,
+        "encoded": 56404
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      },
+      "json": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 9707
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "books",
+    "arm": "connected",
+    "warm": true
+  },
+  {
+    "lcp": 148,
+    "cls": 0.03367651769065072,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 148,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 458.30000000447035
+      }
+    ],
+    "usefulDom": 545.3000000044703,
+    "usefulPaint": 626.3000000044703,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 1413791,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 380823,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "code",
+    "arm": "main",
+    "warm": false
+  },
+  {
+    "lcp": 140,
+    "cls": 0.03350440416793928,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 140,
+        "url": "http://localhost:4200/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 430.1000000014901
+      }
+    ],
+    "usefulDom": 476.20000000298023,
+    "usefulPaint": 516.3999999985099,
+    "introHeight": 160.59375,
+    "overflow": false,
+    "resources": [],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 65,
+        "transfer": 0,
+        "encoded": 1394291
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 378123
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "code",
+    "arm": "main",
+    "warm": true
+  },
+  {
+    "lcp": 560,
+    "cls": 0.03885006613397794,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 156,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 460.79999999701977
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 460.8999999985099
+      },
+      {
+        "kind": "lcp",
+        "at": 560,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 535.5,
+    "usefulPaint": 621.3999999985099,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 22416,
+        "encoded": 22116,
+        "start": 193.39999999850988,
+        "end": 196.39999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 74048,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 1405662,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 379274,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 16434,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 22416,
+        "encoded": 22116
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 2590786,
+        "encoded": 2590486
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "code",
+    "arm": "connected",
+    "warm": false
+  },
+  {
+    "lcp": 460,
+    "cls": 0.03865255921498575,
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 76,
+        "url": "http://localhost:4203/brand/2029/canonical-lockup-128.webp",
+        "size": 29260,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 366.19999999552965
+      },
+      {
+        "kind": ".r29-connected-art img",
+        "at": 366.19999999552965
+      },
+      {
+        "kind": "lcp",
+        "at": 460,
+        "url": "http://localhost:4203/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+        "size": 500610,
+        "tag": "IMG",
+        "classes": "",
+        "text": ""
+      }
+    ],
+    "usefulDom": 415.69999999552965,
+    "usefulPaint": 453,
+    "introHeight": 183.578125,
+    "overflow": false,
+    "resources": [
+      {
+        "url": "royal-connected-desktop-7cad736e16eb.avif",
+        "transfer": 0,
+        "encoded": 22116,
+        "start": 66.89999999850988,
+        "end": 66.89999999850988
+      }
+    ],
+    "weights": {
+      "woff2": {
+        "files": 4,
+        "transfer": 0,
+        "encoded": 72848
+      },
+      "js": {
+        "files": 63,
+        "transfer": 0,
+        "encoded": 1386762
+      },
+      "css": {
+        "files": 9,
+        "transfer": 0,
+        "encoded": 376574
+      },
+      "webp": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 16134
+      },
+      "avif": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 22116
+      },
+      "html?embed=1&bridge=hidden&experience=2029": {
+        "files": 1,
+        "transfer": 0,
+        "encoded": 2590486
+      }
+    },
+    "run": 2,
+    "width": 1440,
+    "route": "code",
+    "arm": "connected",
+    "warm": true
+  }
+]

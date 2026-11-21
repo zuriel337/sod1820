@@ -1,0 +1,37 @@
+[
+  {
+    "script": "test-2029-system-frame.mjs",
+    "exit": 0,
+    "output": "G3 canonical long-task progress contract: PASS\n2029 System Frame acceptance: PASS\n"
+  },
+  {
+    "script": "test-2029-canonical-contract-wiring.mjs",
+    "exit": 0,
+    "output": "2029 canonical contract wiring acceptance: PASS\n"
+  },
+  {
+    "script": "test-connected-golden-2029.mjs",
+    "exit": 0,
+    "output": "Connected Golden 2029 contract: PASS\n"
+  },
+  {
+    "script": "test-2029-first-load-graph.mjs",
+    "exit": 0,
+    "output": "2029 first-load graph: PASS\n2029 entry (eager): 17 static chunks, 641677 bytes raw\nSod2029Shell (every page): 20 static chunks, 788507 bytes raw\nPost2029Page: 63 static chunks, 1244882 bytes raw\nNumber2029Page: 74 static chunks, 1445776 bytes raw\nWorld2029Page: 93 static chunks, 1576341 bytes raw\n"
+  },
+  {
+    "script": "test-2029-module-boundary.mjs",
+    "exit": 0,
+    "output": "2029 module boundary: PASS (1040 modules, Legacy runtime absent, graph closed)\n"
+  },
+  {
+    "script": "test-entry-contextual-learn-2029.mjs",
+    "exit": 0,
+    "output": "Entry Orientation + Contextual Learn 2029 smoke gate: PASS\n"
+  },
+  {
+    "script": "test-my-workspace-2029.mjs",
+    "exit": 0,
+    "output": "My Workspace 2029 native home contract: PASS\n"
+  }
+]

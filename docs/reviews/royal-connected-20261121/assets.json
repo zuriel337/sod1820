@@ -1,0 +1,64 @@
+[
+  {
+    "file": "public/backgrounds/2029/royal-connected-desktop-c7b865b042af.webp",
+    "bytes": 27936,
+    "dimensions": [
+      1000,
+      600
+    ],
+    "sha256": "c7b865b042afcf53483693a90646b73f4ad4104bab5dd4c6635b416aa1bb0719",
+    "source": "public/backgrounds/2029/royal-palace-desktop-61280d3bdc55.webp",
+    "sourceSha256": "61280d3bdc5547d8746124358de8c11a8ed2cb9034ef78692504f0816443a80d",
+    "crop": [
+      0,
+      148,
+      1000,
+      748
+    ],
+    "encoder": "Pillow WebP quality65 method6"
+  },
+  {
+    "file": "public/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif",
+    "bytes": 18859,
+    "dimensions": [
+      500,
+      547
+    ],
+    "sha256": "ee14537e1801e00ebc91c6407ea657780687356d13019fc463771a5ca0dca86a",
+    "source": "public/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+    "sourceSha256": "bc3e82850af6950dcc34d62281f96f78bf33477fb4245409c23199c7d5966ee4",
+    "crop": null,
+    "encoder": "Pillow AVIF quality55 speed6"
+  },
+  {
+    "file": "public/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif",
+    "bytes": 22116,
+    "dimensions": [
+      1000,
+      600
+    ],
+    "sha256": "7cad736e16eb0c86bfb8248b6d7a29496f793a701d1f484d5b64f480ae0eae1f",
+    "source": "public/backgrounds/2029/royal-palace-desktop-61280d3bdc55.webp",
+    "sourceSha256": "61280d3bdc5547d8746124358de8c11a8ed2cb9034ef78692504f0816443a80d",
+    "crop": [
+      0,
+      148,
+      1000,
+      748
+    ],
+    "encoder": "Pillow AVIF quality55 speed6"
+  },
+  {
+    "file": "public/backgrounds/2029/royal-connected-mobile-96cbcf5c1e1e.webp",
+    "bytes": 25496,
+    "dimensions": [
+      500,
+      547
+    ],
+    "sha256": "96cbcf5c1e1ecab029a22f8f07498be639e6016551ea08b8d6b838a856f40668",
+    "source": "public/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+    "sourceSha256": "bc3e82850af6950dcc34d62281f96f78bf33477fb4245409c23199c7d5966ee4",
+    "crop": null,
+    "encoder": "Pillow WebP quality65 method6"
+  }
+]
