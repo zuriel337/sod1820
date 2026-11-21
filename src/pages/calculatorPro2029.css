@@ -207,7 +207,11 @@
 .sod29-calcpro-word-live button { font-size: 14px; font-weight: 600; }
 /* Dense Row Law (ZURIEL 21.11.2026): on a computer the statistics line sits in the word-of-the-day row, content-wide;
    on a phone it is its own thin row above (the words row scrolls sideways there). Only one of the two is shown. */
-.sod29-calcpro-pulse-inline { display: inline-flex; flex: 1 1 0; min-width: 0; max-width: max-content; min-height: 40px; align-items: center; }
+/* One row, always (ZURIEL 21.11.2026): word of the day, then the statistics to its left. The row never wraps; the
+   statistics line gives way (ellipsis) before anything moves to a second line, and it is never an empty stretch. */
+@media (min-width: 641px) { .sod29-calcpro-words { flex-wrap: nowrap; overflow: hidden; } .sod29-calcpro-words > button { flex: 0 0 auto; } }
+.sod29-calcpro-pulse-inline { display: inline-flex; flex: 0 1 auto; min-width: 0; max-width: max-content; min-height: 40px; align-items: center; overflow: hidden; }
+.sod29-calcpro-pulse-inline .nowpulse29 { min-width: 0; }
 .sod29-calcpro-pulse-inline .nowpulse29 { margin: 0; }
 .sod29-calcpro-pulse-row { display: none; }
 @media (max-width: 640px) {
