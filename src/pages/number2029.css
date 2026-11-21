@@ -1393,3 +1393,16 @@
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="medium"]>:is(strong,h1){font-size:var(--sod29-number-title-medium,28px)}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="long"]>:is(strong,h1){font-size:var(--sod29-number-title-long,21px)}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="xl"]>:is(strong,h1){font-size:var(--sod29-number-title-xl,21px);line-height:1.4;font-weight:600}
+
+/* Dense Row Law (ZURIEL 21.11.2026): the top of the number page is ONE row on a computer — way back to the calculator,
+   share, save and the statistics line (content-wide, last, its height reserved). Nothing stands alone on its own floor.
+   On a phone the statistics take a reserved thin row above the actions. */
+.sod29-number-hero-bar>.sod29-section-pulse-inline{flex:0 1 auto;min-width:0;height:36px;display:inline-flex;align-items:center;overflow:hidden}
+@media(min-width:561px){
+  .sod29-number-hero-bar{display:flex;flex-wrap:nowrap;align-items:center;gap:10px;margin:0 0 14px;min-width:0}
+  .sod29-number-hero-bar>.sod29-number-calculator-return{flex:0 0 auto;margin:0}
+  .sod29-number-hero-bar>.sod29-actions{flex:0 0 auto;margin:0;flex-wrap:nowrap}
+}
+@media(max-width:560px){
+  .sod29-number-hero-bar>.sod29-section-pulse-inline{order:-1;flex:1 0 100%}
+}

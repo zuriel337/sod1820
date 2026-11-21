@@ -1302,6 +1302,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         </nav>
         <div className="sod29-actions"><FindingShare2029 kind="number" label="שתף את הדף" prominent number={root}
           url={Number.isSafeInteger(root) ? `https://sod1820.co.il/number/${root}` : null} sourceSurface="number-page-2029" /><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
+        <SectionPulseSlot2029 inline section="number" value={root} />
       </div>
       <NumberCore2029
         projection={coreProjection}
@@ -1500,7 +1501,6 @@ export default function Number2029Page({ resolvedAddress = null } = {}) {
     symbol={<NavigationIcon2029 name="number" />}
     status="דף המספר והביטוי"
   >
-    <SectionPulseSlot2029 section="number" value={value} />
     <NumberPageBody resolvedAddress={resolvedAddress} />
   </Sod2029Shell>;
 }
