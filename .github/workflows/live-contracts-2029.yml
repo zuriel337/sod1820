@@ -72,6 +72,8 @@ jobs:
           fi
       - name: Contracts and enforcement package pins (package scope and counts, CL-16 independence, required-checks definition)
         run: node --test test/contracts-enforcement-package-2029.test.mjs test/required-checks-definition-2029.test.mjs
+      - name: Zion email 111 one-off public community proof (static, no DB connection)
+        run: node --test test/zion-email111-oneoff-review.test.mjs
 
   perf-contracts-2029:
     name: perf-contracts-2029
