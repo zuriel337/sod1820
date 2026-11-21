@@ -3,8 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { mapLeadId, mapUnitReading, mapWorldHref } from "../../lib/research/mapUnitReading2029.js";
 import { readMapTimeline } from "../../lib/research/mapUnitCatalog2029.js";
 import { publicPostUnitHref } from "../../lib/publicPostUrls.js";
+import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 
-export default function MapUnitContext2029({ context, onNavigate, onFollowConnection }) {
+export default function MapUnitContext2029({ context, rail = false, sheet = false, onNavigate, onFollowConnection }) {
   const location = useLocation();
   const dimensions = context?.dimensions || {};
   const reading = mapUnitReading(context.subject.id, dimensions.activeUnitRef || undefined);
@@ -49,7 +50,7 @@ export default function MapUnitContext2029({ context, onNavigate, onFollowConnec
     return true;
   }).slice(0, 4);
 
-  return <div className="map29-post-context" dir="rtl">
+  const content = <div className="map29-post-context" dir="rtl">
     {sections.length ? <nav aria-label="בתוך הפוסט">
       <h2>בתוך הפוסט</h2>
       <ul>{sections.filter(item => item.level !== 2).map(item => {
@@ -71,4 +72,6 @@ export default function MapUnitContext2029({ context, onNavigate, onFollowConnec
       </ul>
     </section> : null}
   </div>;
+  return rail ? <ContextualInspector2029 className={`sod29-surface-context-rail${sheet ? " is-sheet" : ""} is-rest`}
+    ariaLabel="הקשר הפוסט" contextId={context.subject.id}>{content}</ContextualInspector2029> : content;
 }

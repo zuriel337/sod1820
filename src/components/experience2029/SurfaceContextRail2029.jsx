@@ -210,10 +210,8 @@ export default function SurfaceContextRail2029({
   const nextStation = stations[stationIndex + 1] || null;
 
   if (MapUnitContext2029 && surface === "post" && context?.subject?.type === "post" && context.dimensions?.postMapReading) {
-    return <ContextualInspector2029 className={`sod29-surface-context-rail${sheet ? " is-sheet" : ""} is-rest`} ariaLabel="הקשר הפוסט" contextId={context.subject.id}>
-      <Suspense fallback={null}><MapUnitContext2029 context={context} onNavigate={sheet ? () => onNavigate?.() : undefined}
-        onFollowConnection={onFollowConnection} /></Suspense>
-    </ContextualInspector2029>;
+    return <Suspense fallback={null}><MapUnitContext2029 context={context} rail sheet={sheet}
+      onNavigate={onNavigate} onFollowConnection={onFollowConnection} /></Suspense>;
   }
 
   return <>

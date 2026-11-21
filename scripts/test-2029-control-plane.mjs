@@ -99,7 +99,7 @@ assert.match(articlePipeline, /import \{ hardenPassiveMediaHtml \} from "\.\.\/m
 // (the smaller-image step runs last, on the hardened and annotated HTML: it only adds srcset/sizes/loading to the Post's own images)
 assert.match(articlePipeline, /const hardened = hardenPassiveMediaHtml\(postReadingHtml2029\(projectedContent \|\| ""\)\);\s*return postArticleImages2029\(annotate \? annotatePostSource\(hardened, \{ postId, voice \}\) : hardened, \{ cover, facts \}\);/);
 // facts: the real widths of the originals that the first document was built with (only copies smaller than the original; 16.11.2026)
-assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => \{[^}]*return postArticleSourceHtml2029\(state\.projection\?\.post\?\.content \|\| "", \{ postId: state\.projection\?\.post\?\.id, voice: postVoice, annotate: protoOn, cover: state\.projection\?\.post\?\.image_url \|\| "", facts: imageFacts \}\);/);
+assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => \{[^}]*const html = postArticleSourceHtml2029\(state\.projection\?\.post\?\.content \|\| "", \{ postId: state\.projection\?\.post\?\.id, voice: postVoice, annotate: protoOn, cover: state\.projection\?\.post\?\.image_url \|\| "", facts: imageFacts \}\);\s*if \(mapReadingLayout\) return readingPostId === mapLeadId \? electionsUnitTimelineHtml2029\(html\) : bennettUnitTimelineHtml2029\(html\);\s*return html;/);
 // the sink renders that HTML, except when it adopted the first document's nodes, which are exactly that HTML (documentArticleBodyMatches)
 assert.match(post2029, /\{\.\.\.\(documentArticle \? \{\} : \{ dangerouslySetInnerHTML: \{ __html: passiveSourceHtml \} \}\)\}/);
 
