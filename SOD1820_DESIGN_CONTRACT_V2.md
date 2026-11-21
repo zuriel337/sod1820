@@ -293,6 +293,76 @@ Large blur/backdrop/shadow stacks must not be multiplied merely for spectacle.
 
 The content remains the hero of information-dense surfaces.
 
+### 10.6 Approved site-wide Hero and single-primary-media decision · ZURIEL 21.11.2026
+
+**PRODUCT DECISION — APPROVED by ZURIEL. IMPLEMENTATION/RELEASE STATUS: NOT VERIFIED FOR ALL ROUTES.** ZURIEL explicitly asked to establish the unified site-opening policy with a mandatory correction: **a post with video must not show a separate cover image followed by a player showing the same video-poster image again**. This extends §§10.1–10.5 and §14.10 (video-first) using the existing Hero projection owner; it does **not** create a new Hero service, media registry, user theme or design law.
+
+**North Star:** One Royal page-opening grammar across the 2029 experience, **not one image on every page**. The reader sees one dominant content identity and at most one dominant media opening. The protected global Crown/brand in the frame already supplies brand identity; an additional decorative photograph is not required.
+
+**Post publishing default (explicit user priority):** every **new/updated public Post should be supplied with a meaningful real visual asset**: an approved canonical cover image for a text/photo Post, or the actual primary video player's poster for a video-led Post. **Do not demand two images to satisfy the rule:** the video poster is the Post's one visual opening and is also allowed to be reused as the `image_url` for OG/cards. If an old imported Post lacks a valid image/video, render a graceful typographic fallback **and report the missing editorial media for authorized content repair** rather than fabricate a source or block all historical posts automatically. Do not silently change publishing gates or edit post records until the publishing owner accepts the exact validation.
+
+**Clarification from ZURIEL · 21.11.2026 — POST HAS COVER, READER HAS NO DUPLICATE:** The **cover image stays**. The product rule is “every publishable Post has one meaningful canonical cover image or video-derived poster image” (using existing editorial/media ownership; do not invent generic stock art). **Even a video-led Post must retain a usable image asset** for its series cards, post listings, home pinned lead, OpenGraph/WhatsApp/social preview, and fallback. The image need not become a **second visible** image in the article: if it is the frame/thumbnail/poster **derived from the same primary video**, render it **only within the primary video player** until playback, and suppress its separate reader-cover presentation. Match by canonical video/media lineage or approved poster mapping, not only URL equality, because transcoded video frames and poster URLs can differ. Preserve different **independent** authored photos inside the article. For a true text/photo Post without a video, keep the actual cover visible at the top. **Do not delete or null** `posts.image_url`, `posts.thumb_url`, video poster references, series background assets or media storage objects to solve a rendering duplicate; never delete image content as a UI optimization. A historical missing asset receives an honest typographic fallback until the publishing owner supplies a valid asset; stronger admission enforcement is a separate human-approved content-policy change.
+
+**Shared slots and language:** small contextual eyebrow; one primary H1/title; short descriptive lead; real series/category context where valid; context-dependent actions; **one optional visual focus** (canonical photo OR playable video OR small medallion/brand lockup OR none); canonical attribution/locator. Use the existing Royal `r29-*` components, semantic palette and approved Brand artwork. Do not duplicate the header title inside a second enormous card on World (already identified in the 21.11 screenshot). Brand lockup is an optional slot of `typographic`/compact intro, **not** a fourth technical Hero type.
+
+#### Media precedence for posts — exactly one first-viewport media
+
+**Reader-facing decision table (first meaningful content):**
+
+| Actual post content / intention | What the reader sees | What happens to `posts.image_url` |
+|---|---|---|
+| Verified primary playable video (native MP4/video or a canonical supported embedded player) plus matching poster/cover | **One video player** with a single poster and play affordance, immediately after post title/details; **no standalone copy of the poster above or immediately before it** | Preserved for cards, OG/WhatsApp, lists and fallback; does not render as a separate opening figure |
+| Primary video with no poster asset | **One player**, using a real poster if one can be resolved from the authorized media source, otherwise a player state/play affordance without invented thumbnail | No fabricated cover or automatic external image fetch |
+| No primary video, but an actual, usable canonical post image | **One canonical cover image** in a Royal media frame | Remains the reader cover; do not repeat the identical source image immediately again as first body image |
+| Text/research post without valid canonical image or primary video | **Royal typographic opening**, with meaningful live title/lead and optional restrained canonical symbol | Do not synthesize decorative image to fill an empty slot |
+| Post has a unique genuine cover image, while a **secondary** video later in the article is evidence/context | **Preserve the genuine editorial cover** and show secondary video in its real location; do not remove meaningful independent media merely because `content` contains some `<video>` | Retained as its own editorial image unless equivalence/primary-video role is proven |
+| Multiple distinct video clips or figures | Choose **at most one primary** opening; others remain authored content/sections, lazy-loaded where possible | No accidental deletion of author evidence/media; only deduplicate confirmed duplicate presentation |
+
+- **Poster ≠ second image:** a player `poster` can show `posts.image_url` **inside** the player; it must not create an additional `<img>` above the player. Preserve player controls, keyboard activation, consent/egress guards and proper fallback.
+- **Duplicate-image identity check:** compare the actual source identity/canonical media reference (including known thumbnail/rendition mapping), not mere title, category or a visually similar-looking photograph. Do **not** hide different evidence images or purposeful editorial figures. Any suppression is presentation-only and must retain source data, attribution, SEO image references, media links and exact return locators.
+- **Primary media detection must include** native `<video>`, supported YouTube/Vimeo embeds/approved hosted-player projections and poster/thumbnail wrappers that the canonical media readers actually admit. Merely finding a URL or the word “video” in text is insufficient to mark it as the first playable media.
+- **Do not blanket-hide every post cover when any video occurs somewhere:** decide primary media from structured/rendered canonical media and its location/role. Distinguish first-viewport player from secondary footage in the body.
+- **First-document parity:** SSR/first HTML and hydrated React must make **the exact same primary-media and duplicate-suppression decision before paint**; otherwise users see a flash of two images, a late removal or CLS. Preserve authorship, post data, OG metadata, accessible alt/aria and media truth/permissions.
+
+### 10.7 Hero role matrix — same Royal grammar, context-specific visuals
+
+| Surface | Opening default | A picture is justified when |
+|---|---|---|
+| Home | Compact identity/topbar + live flagship/featured story; canonical media when editorially meaningful | A real featured story/image/video benefits readers; do not force repeated global Crown and another generic picture |
+| **World** | **Compact Royal typographic Surface Intro, NO large decorative photograph** | An explicit selected content object needs image inside its own card; do not turn World navigation into a generic article cover |
+| Post / editorial article | Media opening if genuine; **video player wins when it is primary**, else meaningful canonical cover; typographic fallback | User has actual authored/media source; no duplication with player thumbnail |
+| Category / general Topic | Compact typographic title/lead/icon; no automatic full-width image | Only a specific authored/canonical image materially identifies the Topic and is approved for that surface |
+| Series | Compact Brand/typographic identity, optional real content excerpt | A curated original image adds value without duplicating the Brand mark. “מפת המציאות” uses its public name and the canonical SOD1820 brand assets at branded appearances. “רמזים חזקים” is an independent category; series membership and branding do not depend on it |
+| Number / Phrase / Calculator | Number/value/operation as visual focus; compact typographic intro | A verified contextual research figure is part of content, not decorative page Hero |
+| Books / sources / gallery | Compact intro, natural document/image content in its own reader | The real book cover, source scan or gallery asset is the content; do not clone it into generic top Hero |
+| Beit Midrash / Heichal / premium research | Compact Royal Research-blue entrance and selected live tool/state | Specific research artifact/authorized spatial view needs it; full-screen/immersive is intentional rather than boilerplate |
+| ELS classic and advanced | Compact tool intro, genuine matrix/workspace as focus | A source-backed research visualization; never substitute a generic cover for actual ELS results |
+| Personal Area / community | Royal identity/command intro, compact | Profile/media content under its own privacy/access role, not giant decorative cover |
+
+This respects existing three Hero projection types (`media`, `spatial`, `typographic`), and keeps compact Surface Intro outside Hero classification. The blue-frame/warm-editorial/blue-research role matrix is still the **proposal in §14.11**; the Hero/media precedence decision here does not silently approve a new palette.
+
+### 10.8 Implementation seam, performance and acceptance
+
+**Existing code (read at 21.11.2026, implementation scope incomplete):**
+- `src/lib/research/postArticleCore2029.js` already exposes `postReadingCoverYieldsToVideo2029(post)`, currently returning true for any `<video>` in `post.content`. It **does not recognize supported embeds as a primary player** and does not distinguish secondary video.
+- `src/pages/Post2029Page.jsx` and `src/lib/research/postArticleDocument2029.js` both consume this helper and conditionally omit the separate reading cover. The initial-document reader and React must remain in semantic sync.
+- `markDuplicateCover` / `data-duplicate-cover` currently check the first body `<img>` against `image_url` as a same-source presentation case; review how it interacts with video-player poster. Do not turn that into broad image deletion.
+- Post classification video search (`postHasVideoMedia2029`) uses a different source URL pattern; this is **not** an authority to show/hide first media on its own. Resolve from actual player capability/provenance.
+- Read-only canonical posts count, 21.11.2026: **490** post rows contain `image_url` and an HTML5-video or YouTube/Vimeo string; **203** contain `<video>`, **328** contain YouTube/Vimeo strings (overlap), and 77 have `poster=` in markup. These are **audit candidates**, not proven 490 visual duplicates.
+
+**Required acceptance (Golden tests):**
+1. Primary native video + exact same poster/cover: first viewport contains **one player with one poster**, 0 separate matching cover figures, no double download due to different URL variants.
+2. Supported YouTube/Vimeo embedded main video + canonical thumbnail: no duplicated cover/thumbnail before player; fallback on blocked embed/consent is honest and still provides playable access.
+3. Post with meaningful cover and only **secondary** video later: cover remains; video remains in author location.
+4. Image-only post: one cover, any identical first-body presentation not duplicated; secondary different images preserved. Text-only post: rich Royal typography, no invented image and no broken empty frame.
+5. Video poster fallback, missing/invalid cover, multiple video clips, source figure linked to archive/gallery, and inline click-through: original media/attribution/links survive; no empty hero.
+6. First-document HTML and React parity checked in an actual browser on slow mobile, 320/360/390/768/1440 and Day/Parchment/Night; no double flash, layout shift, hidden-player regression, pre-play unwanted media requests or duplicate autoplay.
+7. `posts.image_url` / social OG and `/api/card` / WhatsApp remain intact, without extra media fetch. Reserve media dimensions; select **one** meaningful LCP resource (`fetchpriority=high` on actual opening image where appropriate); lazy load below-fold media; poster/video should not preload the full video unless user acts or capability requires it.
+8. Verify World compact intro with existing global Crown, no extra generic photograph, no title echo twice; same headings/spacing/Royal family across all target surfaces.
+9. Performance budgets unchanged; no new image generation, per-page design store, heavy video scanner/AI on page load, doubled media reader or added SSR-only HTML weight. Migrate via existing media/content UI owners and ONE ACTIVE WRITER / Human Gate.
+
+**Work status:** Design/media-policy decision approved **in contract draft**, not evidence that the code is already corrected or that production duplicates have been fixed. All writes to source content, media and deployment require separate authorization, and duplicate suppression is a rendering decision rather than a destructive data migration.
+
 ## 11. Global Chrome / Mobile Projection
 
 Global Chrome is owned by the existing System Frame. No page creates its own topbar, global navigation drawer or mobile chrome owner.
@@ -724,6 +794,67 @@ carries. Presentation only — no stored source, wording, claim, calculation or 
   `postArticleDocument2029.js` + `Post2029Page.jsx` (video first), `PostComments2029.jsx` (end of a Post). Acceptance:
   `test/post-reading-colour-2029.test.mjs`, `test/post-comments-2029.test.mjs`, `test/article-first-browser-2029.browser.mjs`.
   Speed law: CSS and a pure function only; the article-first list is unchanged.
+
+## 14.11 One Royal Design Family — blue-charcoal frame, editorial warm center, research-blue depth · Product reconciliation proposal · ZURIEL discussion 21.11.2026
+
+> **STATUS: PROPOSED FOR PRODUCT ACCEPTANCE · DESIGN-CONTRACT DRAFT ONLY.** This section captures ZURIEL's requested audit and options for one Royal identity across SOD1820: the site should not look predominantly old brown, while the already-approved Night blue-charcoal frame remains and the editorial center may stay warm in a fully Royal treatment. Some defined spaces (e.g. Beit Midrash, advanced ELS research) may become blue Royal. **The exact full-site zone matrix, palette values, Day/Parchment frame treatment and any additional CSS roles are recommendations, not newly ratified overrides.** Until Human Gate accepts them, §14.1–§14.10 remain authoritative. This text must NOT be cited by an agent as permission to restyle, merge, deploy, change user themes, or introduce a second palette.
+
+### 14.11.1 Single governing design — not a new theme engine
+
+- One **SOD1820 Royal visual grammar**: the same `r29-hall/card/medal/btn/chip/badge/rule` geometry and density, fonts, border hierarchy, restrained gold sheen, focus/touch behavior, transitions and status semantics in every surface.
+- Two **surface treatments** under this one grammar: **Royal Editorial / warm** for comfortable reading, and **Royal Research / blue** for focused research and exceptional product zones. The third concern **Royal Frame / blue-charcoal** is global chrome/navigation/overlays, not a third user-selected theme.
+- Preserve the THREE user theme presets (`light`, `parchment`, `dark`); no forced fourth theme and no route-owned theme store. Reconcile the surface treatment with each preset, keeping its contrast and user preference. Approved Night frame values in §14.9 (`#10141D` / `#171C28`) are the baseline. **Day/Parchment chrome blue treatment remains a decision gate** because §14.9 specifically approved Night only.
+- “Research-blue” is an *environment/presentation role*, **not** an indication of paid access, verified truth, high confidence, or publishing authority. The product words “Premium”, “approved”, “gold” and “strong hints” must not be inferred from color. `platform_tiers_law` continues to own entitlements; Truth/Research owners own verification.
+- Series/category colors from §14.10 may appear as **small identity accents** (series label, ruled border, media frame) but must not become a standalone theme/palette/button geometry for each series. Existing authored media/legacy panels, ELS matrix semantic colors, contributor identity and approved Hero artwork remain protected.
+
+### 14.11.2 Proposed surface role matrix (not an authorization to restyle)
+
+| Surface / product zone | Main content treatment | Shared frame / action | Notes |
+|---|---|---|---|
+| Top bar, right global rail, left post/topic rail, global dock, drawer, sheets and panel expansions | n/a | **Royal Frame: blue-charcoal**; same recipe/top gold hairline/edge/radius; across Night at minimum | Existing §14.9; same chrome family everywhere, not another Royal per page |
+| Home, posts, categories, archive/listings, public editorial cards, long-form articles | **Royal Editorial / warm**, but visibly elevated (not flat brown): layered surface, legible ink, gold hairline, sapphire micro-accent | Royal Frame, Royal-blue primary/Share/Follow controls | “Warm” means curated, rich and readable, not unstyled brown |
+| Public World exploration, visual gallery, source/Book reader | **Royal Editorial / warm** by default for breadth/reading; **Royal Research / blue** only on explicitly selected research/detail workspace | Same Royal Frame | Preserve imagery/real books; World graphs and entity cards do not all repaint by adjacency |
+| Personal Area, saved research, My Workspace | **Royal Research / blue** for authored personal command surfaces | Same Royal Frame | Golden visual reference of §14.1. Uses current `PersonalHome2029`, not duplicate CSS |
+| Beit Midrash, Heichal deep-research laboratory | **Royal Research / blue** as intentional focus environment | Same Royal Frame | Only authorized research zones, not an entitlement signal |
+| ELS classical search/matrix | Preserve matrix/engine colors and reading neutrality | Same Royal Frame | **Selected ELS advanced research/inspector/planner panels** may use Royal Research blue using existing `research_lab` seam, not global recolor of matrix |
+| Number/Phrase and calculators | Editorial for explanation/reading; **Research blue** on selected analytical or saved-work panels | Same Royal Frame | Do not overturn detailed Number identity/method/matrix roles |
+| Community, discussion, profiles and comments | Editorial readable cards, with blue Royal action/selection; personal account areas can use Research treatment | Same Royal Frame | Avoid blue cards everywhere in text-heavy threads |
+| Flagship “מפת המציאות” brand placements | Canonical SOD1820 brand assets and the public series name | Approved sapphire/gold, subordinate to content readability | Updated decision in PR #1474: “רמזים חזקים” is an independent category and is not a required subtitle or membership gate |
+
+**Rule:** a route may choose an **existing semantic surface role** through a shared API, not literal colors, copied gradients, a per-route brand style or a new stylesheet with duplicated Royal definitions.
+
+### 14.11.3 Implementation seam / anti-drift for all agents
+
+1. **Single owner chain:** `SOD1820_DESIGN_CONTRACT_V2.md` (ratified design decisions) → active `canonical_colors_law` v2 and `canonical_ui_components_law` v13 → `src/lib/themePreset2029.js` → `src/lib/paletteTokens2029.js` / `palette2029.js` → `src/components/experience2029/royal2029.css` → `SystemFrame2029` and consuming surfaces. The agent does not invent hex colors, a `RoyalTheme` store, ad hoc shadow scale, or button/icon variants in the page.
+2. **One component family:** `.r29-hall`, `.r29-card`, `.r29-medal`, `.r29-btn`, `.r29-chip`, `.r29-badge`; `NavigationIcon2029`, `WatchButton`, `ShareActions` and the Research action row consume these roles. New surface differences are props/data attributes/semantic tokens resolved by a shared owner, NOT duplicate CSS recipes or a new set of components.
+3. **Clear token ownership:** keep `--s29-frame`, `--s29-frame-soft`, `--s29-brand-sapphire`, `--s29-brand-gold`, `--s29-accent`, `--s29-accent-btn` etc. from the existing palette. If editorial/research surface role cannot be expressed with approved tokens, propose **the smallest additive role** in the palette owner *after Human Gate*, with contract and 3-preset contrast tests; never add it locally to a Post/Home/ELS stylesheet.
+4. **No theme drift:** CSS of a page may handle layout/spacing/content positioning only; a novel “gold/button/blue-card” recipe must first be mapped to `royal2029.css` or be documented as a real semantic exception. Product/series/category color is an identity marker, not a separate design system. Agents must check §14.2, §14.9, §14.10 and this proposal before changing color.
+5. **No bulk CSS rewrite:** use representative Golden Cases and one writer owning a bounded set of files; reconcile current post CSS (`post2029-legacy-grade.css`), home composition, World, `elsNativeClassic2029.css`, `elsLexiconResearch2029.css`, `personalArea2029.css` and global chrome without mass overriding all selectors or raising CSS budgets.
+6. **No visual noise:** no gratuitous blur/3D/anims or gold floods on every card. Royal depth from a small shared stack of layers; loading first content is a higher priority than decoration.
+7. **Technical acceptance:** screenshot/visual diff of main-vs-branch on all role representatives, Day/Parchment/Night at 320/360/390/768/1440, RTL, keyboard/focus, contrast (text ≥4.5:1, meaningful non-text affordance ≥3:1 where applicable), touch ≥44px, reduced-motion, LCP/CLS, unchanged import cost, CSS size and strict existing thresholds. A badge's visual gold cannot signal “verified” or override Truth status.
+
+### 14.11.4 Governance / explicit acceptance gates
+
+- **A. Approval of zone matrix** (Royal Editorial vs Royal Research per actual feature area; especially World, Beit Midrash, ELS classic/advanced, Number and community).
+- **B. User-theme decision:** §14.9 explicitly limits the blue-charcoal frame to Night. Do Day and Parchment frame regions also become blue, or retain their contrast-adapted card surfaces with the same Royal geometry? This cannot be silently overridden.
+- **C. Existing series visual exceptions:** preserve §14.10 identity colors as bounded accents or review any particular exception before changing it; do not recolor whole posts without consent.
+- **D. Runtime acceptance:** a true browser preview with approved existing `r29` components and source content; once approved, add small implementation steps from shared tokens outward, document AFTER/owners and seek distinct merge/deploy permission.
+
+### 14.11.5 Agent change contract and drift gate (proposal for acceptance)
+
+Every Codex/Claude/Work task changing visual styles must include in its BEFORE and AFTER:
+
+1. **Surface/role identification:** target route and zone, the selected approved `frame | editorial | research` presentation role (or existing role until this proposal is ratified), the selected user preset and the effective inherited palette.
+2. **Ownership trace:** links to Design V2 paragraph, `canonical_colors_law`, `canonical_ui_components_law`, reused `r29-*` primitive and source CSS variable; an exception must name its real domain owner (e.g. ELS matrix, authored video/media).
+3. **No-local-palette proof:** a scoped static review/gate compares changed `src/**/*.{css,jsx,tsx}` lines against existing semantic role usage, flags newly introduced hard-coded hex/RGBA gradients, duplicated royal shadow/border mixes and new theme stores, and allows only explicitly justified exceptions/approved source artwork. **Baseline existing debt, do not mass-fail untouched legacy/old CSS.**
+4. **Three-presets visual proof:** capture before/after of representative actual components in Day/Parchment/Night at desktop and 320/390 mobile. Check exact component and status states, color contrast, RTL, 44px, reduced motion and layout stability; no static mock standing in for `WatchButton`/`ShareActions`.
+5. **Release gate:** Design owner reviews and signs visual diff; UI owner has the only active writer claim; include measurable performance/JS/CSS bundle delta and no threshold increase. No silent self-approval, no merge or production without separately authorized Human Gate.
+
+Implementation should add the smallest viable reusable design-role test and a scoped lint/visual acceptance CI stage **only after** ZURIEL approves the actual role matrix and its exceptions. This proposal is not itself an active failing gate.
+
+**Prior authority:** `canonical_colors_law` v2 ACTIVE, `canonical_ui_components_law` v13 ACTIVE, `experience_governance_foundation_v1_law` v10 ACTIVE, Design V2 §14.9/§14.10 approved; design variants above have proposal status. This paragraph is not a new Law, store or owner.
+
+---
 
 ## Naming / product language law — carried from V1 · 11.11.2026
 
