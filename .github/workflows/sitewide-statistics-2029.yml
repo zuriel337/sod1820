@@ -70,7 +70,7 @@ jobs:
           npm run build
           node scripts/build-public-reading-production.mjs
       - name: Measurement contracts
-        run: node --test test/sitewide-statistics-20261120.test.mjs test/sitewide-statistics-rollout.test.mjs test/public-reading-action-measurement.test.mjs test/measurement-identity-20261115.test.mjs test/measurement-page-view-once-2029.test.mjs test/measurement-transport-hardening-2029.test.mjs test/public-reading-protected-review.test.mjs test/sitewide-statistics-preview.test.mjs test/search-log-2029.test.mjs
+        run: node --test test/sitewide-statistics-20261120.test.mjs test/sitewide-statistics-rollout.test.mjs test/public-reading-action-measurement.test.mjs test/measurement-identity-20261115.test.mjs test/measurement-page-view-once-2029.test.mjs test/measurement-transport-hardening-2029.test.mjs test/public-reading-protected-review.test.mjs test/sitewide-statistics-preview.test.mjs test/search-log-2029.test.mjs test/shell-surface-known-2029.test.mjs
       - name: Public artifact and browser acceptance
         run: |
           node test/sitewide-statistics-20261120.browser.mjs
