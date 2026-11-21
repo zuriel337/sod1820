@@ -552,3 +552,63 @@
 }
 
 .sod29-calcpro-ai > footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--s29-muted); font-size: 14px; }
+
+/* ROYAL 2029 adoption (ZURIEL 21.11.2026): the main calculator in the Royal design of the community calculator and the personal area —
+   royal blue and gold. Opt-in through .r29 on the calculator's root. Every colour is a role of the canonical --s29-* palette resolved per
+   preset (Night / Day / Parchment) by royal2029.css; nothing here is a second palette. Selectors are prefixed with .sod29-calcpro.r29 so they
+   outrank the base rules above and the shared .r29-* rules in any stylesheet order. Presentation only: no layout of the result changes. */
+.sod29-calcpro.r29 { --r29-hue: var(--r29-sapphire); }
+/* royal halls: the result, the equal phrases, the choice panel, the share, the letter ledger and the method lens */
+.sod29-calcpro.r29 :is(.sod29-calcpro-hero, .sod29-calcpro-equals, .sod29-calcpro-inspector, .sod29-calcpro-share, .sod29-calcpro-ledgercard, .sod29-method-lens) {
+  position: relative; isolation: isolate; border-radius: var(--r29-radius); color: var(--s29-ink);
+  border: 1px solid color-mix(in srgb, var(--r29-hue) var(--r29-frame), var(--s29-line));
+  background:
+    radial-gradient(90% 60% at 50% -12%, color-mix(in srgb, var(--r29-gold) var(--r29-glow), transparent), transparent 70%),
+    radial-gradient(70% 70% at 100% 10%, color-mix(in srgb, var(--r29-violet-deep) var(--r29-glow), transparent), transparent 65%),
+    radial-gradient(80% 60% at 0% 110%, color-mix(in srgb, var(--r29-sapphire) var(--r29-glow), transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--r29-hue) var(--r29-wash), var(--s29-panel)), var(--s29-panel));
+  box-shadow: var(--r29-shadow), inset 0 0 0 3px color-mix(in srgb, var(--s29-panel) 70%, transparent), inset 0 0 0 4px color-mix(in srgb, var(--r29-hue) var(--r29-hair), transparent);
+}
+/* the input: royal glass with a gold focus */
+.sod29-calcpro.r29 .sod29-calcpro-command input {
+  border-color: color-mix(in srgb, var(--r29-gold) 46%, var(--s29-line-strong));
+  background: radial-gradient(120% 140% at 50% 0%, color-mix(in srgb, var(--r29-sapphire) 16%, var(--s29-panel)), color-mix(in srgb, var(--r29-sapphire) 6%, var(--s29-panel)));
+  box-shadow: var(--r29-shadow), inset 0 0 0 1px color-mix(in srgb, var(--r29-gold) 18%, transparent);
+}
+.sod29-calcpro.r29 .sod29-calcpro-command input:focus-visible { outline-color: var(--r29-gold); border-color: var(--r29-gold); }
+/* the views: a royal capsule; the lit one is sapphire with a gold ring (as the community calculator's tools) */
+.sod29-calcpro.r29 .sod29-calcpro-tabs { background: color-mix(in srgb, var(--r29-sapphire) 10%, var(--s29-panel-soft)); border-color: color-mix(in srgb, var(--r29-sapphire) 46%, var(--s29-line)); }
+.sod29-calcpro.r29 .sod29-calcpro-tabs button[aria-selected="true"] {
+  color: var(--s29-ink); border: 1px solid color-mix(in srgb, var(--r29-gold) 70%, transparent);
+  background: radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--r29-sapphire) 40%, var(--s29-panel)), color-mix(in srgb, var(--r29-sapphire) 18%, var(--s29-panel)));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--r29-gold) 30%, transparent), 0 6px 18px -8px color-mix(in srgb, var(--r29-sapphire) 80%, transparent);
+}
+.sod29-calcpro.r29 .sod29-calcpro-modes > button { border-color: color-mix(in srgb, var(--r29-gold) 34%, var(--s29-line)); }
+.sod29-calcpro.r29 .sod29-calcpro-modes > button[aria-pressed="true"] { border-color: var(--r29-gold); color: var(--r29-gold-ink); background: color-mix(in srgb, var(--r29-gold) 12%, var(--s29-panel)); }
+/* the methods: royal tiles, the number struck in gold; the chosen one carries the gold ring */
+.sod29-calcpro.r29 .sod29-calcpro-tile { border-color: color-mix(in srgb, var(--r29-sapphire) 38%, var(--s29-line)); background: color-mix(in srgb, var(--r29-sapphire) 8%, var(--s29-panel)); }
+.sod29-calcpro.r29 .sod29-calcpro-tile strong { color: var(--r29-gold-ink); }
+.sod29-calcpro.r29 .sod29-calcpro-tile.is-same:not(.is-active) { border-color: color-mix(in srgb, var(--r29-teal) 55%, var(--s29-line)); }
+.sod29-calcpro.r29 .sod29-calcpro-tile.is-active {
+  border-color: color-mix(in srgb, var(--r29-gold) 80%, transparent);
+  background: radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--r29-sapphire) 34%, var(--s29-panel)), color-mix(in srgb, var(--r29-sapphire) 14%, var(--s29-panel)));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--r29-gold) 40%, transparent), 0 8px 22px -10px color-mix(in srgb, var(--r29-gold) 60%, transparent);
+}
+.sod29-calcpro.r29 .sod29-calcpro-tile.is-active strong { text-shadow: 0 0 18px color-mix(in srgb, var(--r29-gold) 40%, transparent); }
+/* the result: the number in gold light */
+.sod29-calcpro.r29 .sod29-calcpro-hero-value { color: var(--r29-gold-ink); text-shadow: 0 0 28px color-mix(in srgb, var(--r29-gold) 38%, transparent); }
+.sod29-calcpro.r29 .sod29-calcpro-hero em { border-color: color-mix(in srgb, var(--r29-gold) 45%, var(--s29-line)); color: var(--r29-gold-ink); }
+.sod29-calcpro.r29 .sod29-calcpro-equals-list button { border-color: color-mix(in srgb, var(--r29-gold) 40%, var(--s29-line)); background: color-mix(in srgb, var(--r29-sapphire) 10%, var(--s29-panel)); }
+/* the letters: each letter a small royal medallion, its value in gold */
+.sod29-calcpro.r29 .sod29-calcpro-letter { border-color: color-mix(in srgb, var(--r29-gold) 36%, var(--s29-line)); background: color-mix(in srgb, var(--r29-sapphire) 10%, var(--s29-panel)); }
+.sod29-calcpro.r29 .sod29-calcpro-letter i { color: var(--r29-gold-ink); }
+/* actions: the main one royal sapphire with a gold edge, the rest quiet gold */
+.sod29-calcpro.r29 .sod29-calcpro-actions :is(button, a) { border-color: color-mix(in srgb, var(--r29-gold) 30%, var(--s29-line)); }
+.sod29-calcpro.r29 .sod29-calcpro-actions .is-primary {
+  color: var(--s29-on-accent, #fff); border-color: color-mix(in srgb, var(--r29-gold) 60%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--r29-sapphire) 88%, white), var(--r29-sapphire));
+}
+/* the words bar above the input: royal chips, the values in gold */
+.sod29-calcpro.r29 .sod29-calcpro-words button { border-color: color-mix(in srgb, var(--r29-gold) 34%, var(--s29-line)); background: color-mix(in srgb, var(--r29-sapphire) 8%, var(--s29-panel)); }
+.sod29-calcpro.r29 .sod29-calcpro-words em { color: var(--r29-gold-ink); background: color-mix(in srgb, var(--r29-gold) 14%, transparent); }
+@media (prefers-reduced-motion: reduce) { .sod29-calcpro.r29 .sod29-calcpro-tile { transition: none; } }

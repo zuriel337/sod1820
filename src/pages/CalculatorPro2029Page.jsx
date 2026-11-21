@@ -29,6 +29,7 @@ import { GADOL_BASE, hasSofiot } from "../lib/research/gematriaCalculationContra
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { applySeo } from "../lib/seo.js";
 import { CALCULATOR_PRO_SEO } from "../lib/research/calculatorProSeo2029.js";
+import "../components/experience2029/royal2029.css";
 import "./calculatorPro2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -545,7 +546,7 @@ function ProExperience() {
   ) : null;
 
   return (
-    <section className={`sod29-calcpro${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
+    <section className={`sod29-calcpro r29${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
       <h1 className="sod29-calcpro-sr">{CALCULATOR_PRO_SEO.heading}</h1>
       <CalculatorWordsBar2029
         currentExpression={info.expression}
