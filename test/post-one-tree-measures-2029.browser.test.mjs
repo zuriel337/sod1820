@@ -30,8 +30,8 @@ function fixturePlugin(){
     ['SpatialMethodStage2029.jsx','noop'],['WorldSourceStory.jsx','noop'],
   ]);
   const modules={
-    events:`export const emit=()=>{};`,
-    tracking:`export const getVisitorId=()=>'fixture-guest';export const trackResearch=()=>{};export function track(...args){window.__contentEntries.push(args);}`,
+    events:`export const emit=()=>{};export const isBot=()=>false;`,
+    tracking:`export const trackShare=()=>{};export const getVisitorId=()=>'fixture-guest';export const trackResearch=()=>{};export function track(...args){window.__contentEntries.push(args);}`,
     noop:`export default function Noop(){return null;}`,
     auth:`export const useAuth=()=>({user:null,isAdmin:false,loading:false});`,
     hub:`export async function fetchEntityHubProjection(){return null;}export async function fetchGallerySourceContext(){return {items:[]};}`,
@@ -72,6 +72,7 @@ function fixturePlugin(){
           if(name==='gematria_method_trace')return {error:null,data:window.__traceMissing?null:window.__wrongTrace?{...trace,input:'אחר'}:trace};
           throw Error('Unexpected RPC '+name);}
       };
+      export default supabase;
     `,
     shell:`
       import React,{createContext,useContext,useState} from 'react';import {useNavigate} from 'react-router-dom';

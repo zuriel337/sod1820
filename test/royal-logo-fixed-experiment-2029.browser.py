@@ -23,5 +23,18 @@ with sync_playwright() as p:
     (OUT/'logo-experiment.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2))
    print(width,run,flush=True)
   c.close()
+ # Separately measure initial/revisit LCP with the same browser-only CSS applied before rendering.
+ initial=[]
+ obs=(Path(__file__).parent/'royal-connected-repeat-2029.browser.py').read_text().split("OBS=\'\'\'",1)[1].split("\'\'\'",1)[0].replace('SELECTOR',json.dumps('.sod29-flight-copy h2'))
+ for run in range(3):
+  for width in [390,1440]:
+   for fixed in ([False,True] if run%2==0 else [True,False]):
+    c=b.new_context(viewport={'width':width,'height':844 if width==390 else 900},service_workers='block');c.add_init_script(INIT.replace('THEME','dark'));c.add_init_script(obs)
+    if fixed:c.add_init_script('document.addEventListener("DOMContentLoaded",()=>{const s=document.createElement("style");s.textContent='+json.dumps(CSS)+';document.head.appendChild(s)},{once:true})')
+    pg=c.new_page();guard(pg)
+    for warm in [False,True]:
+     pg.goto('http://localhost:4203/world',wait_until='domcontentloaded');pg.locator('.sod29-flight-copy h2').wait_for();pg.wait_for_timeout(1200)
+     d=pg.evaluate('()=>({...__royal})');d.update(run=run,width=width,fixed=fixed,warm=warm);initial.append(d)
+    c.close();(OUT/'logo-initial-metrics.json').write_text(json.dumps(initial,ensure_ascii=False,indent=2))
  b.close()
 print('logo observations',len(rows))

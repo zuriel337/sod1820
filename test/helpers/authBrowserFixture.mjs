@@ -13,7 +13,7 @@ import { createAuthServer } from './authContractHarness.mjs';
 const root = fileURLToPath(new URL('../..', import.meta.url));
 export const dist = resolve(root, 'public-reading-deploy/dist');
 const SUPABASE_HOST = 'linswmnnkjxvweumprav.supabase.co';
-const TYPES = { '.js': 'application/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.webp': 'image/webp', '.png': 'image/png', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const TYPES = { '.js': 'application/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.avif': 'image/avif', '.webp': 'image/webp', '.png': 'image/png', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
 
 // Storage media for the transport regression (public-media-transport-2029.browser.mjs): real files from the repository and a
 // generated PCM tone, answered with HTTP Range/206 exactly like Storage, under public, rendition and signed paths. Every storage
@@ -55,7 +55,7 @@ function sendStorage(req, res, file, log) {
 // It returns null to serve the real file. Every /assets/ request is logged in state.assets either way.
 // `documentFor` (optional): a test's own document for an address (for example the first-document article built by the real server function),
 // given the generated template; it returns null to serve the template as it is.
-export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0), supabase = null, asset = null, documentFor = null } = {}) {
+export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0), supabase = null, asset = null, staticAsset = null, documentFor = null } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'auth-fixture-'));
   execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '2', '-subj', '/CN=sod1820.co.il',
     '-addext', `subjectAltName=DNS:sod1820.co.il,DNS:www.sod1820.co.il,DNS:${SUPABASE_HOST}`, '-keyout', join(dir, 'k.pem'), '-out', join(dir, 'c.pem')], { stdio: 'ignore' });
@@ -108,6 +108,8 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
       if (/^\/(assets|fonts|brand|backgrounds|cards|cipher-cards)\//.test(url.pathname) || url.pathname === '/site.webmanifest' || url.pathname === '/favicon.ico') {
         const file = resolve(dist, '.' + url.pathname);
         if (!file.startsWith(dist + '/')) return send(400, 'text/plain', 'bad');
+        const customStatic = staticAsset ? await staticAsset({ url, path: url.pathname }) : null;
+        if (customStatic) return send(customStatic.status ?? 200, customStatic.type ?? 'application/octet-stream', customStatic.body ?? '', customStatic.headers ?? {});
         if (url.pathname.startsWith('/assets/')) {
           const entry = { path: url.pathname, status: null };   // logged on arrival; the status is filled in when it is answered
           state.assets.push(entry);

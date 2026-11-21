@@ -25,7 +25,15 @@ const views = page => page.evaluate(() => (window.dataLayer || []).map(x=>Array.
 for (const width of [390,1280]) test(`[${width}px] shared Royal backdrop is independent of calculation; GA identifies both posts once`, {timeout:60000}, async t => {
   let releaseCalculation, calculationStarted = false, calculationFinished = false;
   const calculation = new Promise(resolve => { releaseCalculation = resolve; });
-  const fixture = await startFixture({supabase:async ({url})=>{
+  const images=[], retired=[];
+  const cacheRules=JSON.parse(readFileSync(join(dist,'../vercel.json'),'utf8')).headers;
+  const fixture = await startFixture({staticAsset:async({path})=>{
+    if(!path.startsWith('/backgrounds/2029/royal-connected-')) return null;
+    images.push({path,calculationStarted,calculationFinished});
+    const policy=cacheRules.find(rule=>rule.source===path)?.headers.find(h=>h.key.toLowerCase()==='cache-control')?.value;
+    assert.equal(policy,'public, max-age=31536000, immutable');
+    return {type:path.endsWith('.avif')?'image/avif':'image/webp',body:readFileSync(join(dist,path)),headers:{'cache-control':policy}};
+  },supabase:async ({url})=>{
     if(url.pathname==='/rest/v1/posts') {
       const slug=url.searchParams.get('slug') || '';
       const selected=rows.filter(row=>slug.includes(row.slug));
@@ -40,18 +48,10 @@ for (const width of [390,1280]) test(`[${width}px] shared Royal backdrop is inde
   const browser=await pw.chromium.launch({executablePath,headless:true,args:fixture.chromiumArgs,env:fixture.browserEnv});
   try {
     const context=await browser.newContext({ignoreHTTPSErrors:true,viewport:{width,height:900},locale:'he-IL',serviceWorkers:'allow'});
-    // These exact existing assets are root files; the shared auth fixture only
-    // serves assets/ statics. Answer the actual image locally, once per request.
-    const images=[];
-    const assets=new Set(Object.values(POST_BACKGROUND_ASSETS_2029).flatMap(x=>[x.mobile,x.desktop]));
-    await context.route(/https:\/\/sod1820\.co\.il\/.*\.(?:webp|avif)$/,async route=>{
-      const path=new URL(route.request().url()).pathname;
-      if(!assets.has(path) && !path.startsWith("/backgrounds/2029/royal-connected-")) return route.continue();
-      images.push({path,calculationStarted,calculationFinished});
-      await route.fulfill({status:200,contentType:path.endsWith('.avif')?'image/avif':'image/webp',body:readFileSync(join(dist,path))});
-    });
-    await context.route('https://www.googletagmanager.com/**',route=>route.fulfill({status:200,contentType:'application/javascript',body:''}));
+    // Serve bytes through the fixture server with actual deployment cache policy.
+    // Playwright route interception disables HTTP cache and can double-observe worker requests.
     const page=await context.newPage();
+    page.on('request',request=>{if(Object.values(POST_BACKGROUND_ASSETS_2029).some(x=>[x.mobile,x.desktop].includes(new URL(request.url()).pathname))) retired.push(request.url());});
     await page.goto(fixture.origin+'/post/'+rows[0].slug+'?utm_source=fixture&utm_medium=email&utm_campaign=acceptance', {waitUntil:'domcontentloaded'});
     // Wait for both independent operations without releasing the calculation.
     // This fails on main, where the image is discovered only after it finishes.
@@ -84,6 +84,7 @@ for (const width of [390,1280]) test(`[${width}px] shared Royal backdrop is inde
     await delay(600);
     assert.equal((await views(page)).length,2);
     assert.equal(await page.evaluate(()=>firstRoyalImage===document.querySelector('.r29-connected-art img')),true);
+    assert.deepEqual(retired,[]);
     assert.equal(images.length,1,'no series image and no second Royal request on Post transition');
     t.diagnostic(JSON.stringify({width,images,pageviews:sent}));
   } finally {releaseCalculation();await browser.close();await fixture.close();}
