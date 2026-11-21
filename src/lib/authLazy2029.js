@@ -27,11 +27,12 @@ export class AuthClient {
     if (!this.canDefer) return this.materialize();
     // The existing anonymous public projection deliberately has no account store.
     if (this.options.persistSession === false && this.options.autoRefreshToken === false && this.options.detectSessionInUrl === false) return null;
-    if (!this.options.storage || !this.options.persistSession) return this.materialize();
+    const sessionStore = this.options.storage;
+    if (!sessionStore || !this.options.persistSession) return this.materialize();
     try {
-      if (this.options.storage.probe?.() !== 'durable') return this.materialize();
+      if (sessionStore.probe?.() !== 'durable') return this.materialize();
       const key = this.options.storageKey;
-      if (!key || await this.options.storage.getItem(key) || await this.options.storage.getItem(key + '-code-verifier')) return this.materialize();
+      if (!key || await sessionStore.getItem(key) || await sessionStore.getItem(key + '-code-verifier')) return this.materialize();
     } catch { return this.materialize(); }
     return null;
   }
