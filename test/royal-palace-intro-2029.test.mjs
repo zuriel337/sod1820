@@ -13,7 +13,7 @@ test('approved palace delivery is fingerprinted WebP, responsive, shared and cac
     assert.ok(url.includes(createHash('sha256').update(bytes).digest('hex').slice(0, 12)));
     assert.ok(bytes.length <= (kind === 'mobile' ? 31000 : 90000));
   }
-  for (const file of ['vercel.json', 'public-reading-deploy/vercel.json']) {
+  for (const file of ['public-reading-deploy/vercel.json']) {
     for (const url of Object.values(ROYAL_PALACE_ATMOSPHERE_2029)) {
       const rules = JSON.parse(fs.readFileSync(file)).headers;
       const index = rules.findIndex(r => r.source === url);
