@@ -996,8 +996,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const worldSelection = location.state?.mapWorldUnit;
   const worldReturn = mapReadingLayout && typeof worldSelection === "string" && /^[a-z0-9-]+$/.test(worldSelection)
     ? mapWorldHref(worldSelection) : null;
-  const coverYields = mapReadingLayout ? previewPostMedia2029(post).duplicateCover : postReadingCoverYieldsToVideo2029(post);
-  const coverItem = coverYields ? null : postReadingCoverItem(post);
+  const sourceCover = postReadingCoverYieldsToVideo2029(post) ? null : postReadingCoverItem(post);
+  const coverItem = mapReadingLayout && previewPostMedia2029(post).duplicateCover ? null : sourceCover;
   const character = postCharacterFor(post);
   const matrixOpening = matrixOpeningFor(post);
   const background = postBackground2029(projection.sourcePost);
