@@ -5,7 +5,7 @@
 // card is at most ~380 CSS px wide on a desktop and the width of a phone on a phone, so 768 px covers it at the usual densities (5107: 66 KB
 // against 127 KB for the 1080 copy, 17.11.2026).
 import { thumb } from "../../lib/img.js";
-import { seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
+import { homeMapLeadMember2029 } from "../../lib/research/homeMapLead2029.js";
 
 export const PIN_COVER_WIDTHS = Object.freeze([480, 768]);
 export const PIN_COVER_QUALITY = 80;
@@ -19,12 +19,10 @@ export const pinCoverSet = url => (url && thumb(url, PIN_COVER_WIDTHS[0], PIN_CO
  * The image the card shows while it stands on the series catalog (before the shared feed names the lead; the same Post in practice):
  * the newest member of the primary series and its cover copies. → { src, srcSet, sizes } or null when that member has no cover.
  */
-export function pinnedCatalogCover2029(series, { editorialPostId = null } = {}) {
+export function pinnedCatalogCover2029(series) {
   const primary = (Array.isArray(series) ? series : []).find(entry => entry?.priorityLane === "primary") || null;
-  const items = primary?.items || [];
-  const editorial = editorialPostId == null ? null : items.find(item => String(item.id) === String(editorialPostId));
-  const member = editorial || seriesLatestMember2029(items);
-  const src = member?.coverUrl || editorial?.imageUrl || null;
+  const member = homeMapLeadMember2029(primary?.items);
+  const src = member?.coverUrl || member?.imageUrl || null;
   if (!src) return null;
   const srcSet = pinCoverSet(src);
   return { src, srcSet: srcSet || null, sizes: srcSet ? PIN_COVER_SIZES : null, memberId: member.id };
