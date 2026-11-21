@@ -352,6 +352,44 @@ test("signed Legacy unsubscribe alone can reach its unchanged HMAC server from e
   const [request] = harness.calls[0]; assert.equal(request.url, API + path); assert.equal(request.credentials, "omit"); assert.equal(request.cache, "no-store");
 });
 
+test("a failed worker admission keeps the document's own article readable and fetches, imports or measures nothing", async () => {
+  // Reproduced live 20.11.2026: without a usable worker (no API, blocked, slow or broken handshake) the 3,000-word article the
+  // first document already carried was replaced by the one-line failure message.
+  function page({ article }) {
+    const appended = [], busy = { removed: [], removeAttribute(name) { this.removed.push(name); } };
+    const body = { textContent: "ARTICLE TEXT", style: {}, appendChild(node) { appended.push(node); } };
+    const document = { body, appended, busy,
+      getElementById: id => (article && id === "sod29-ssr-article" ? { isConnected: true } : null),
+      querySelector: selector => (selector === "#root [aria-busy]" ? busy : null),
+      createElement: tag => ({ tag, attributes: {}, style: {}, textContent: "", setAttribute(k, v) { this.attributes[k] = v; } }) };
+    const imports = [], recovered = [];
+    return { imports, recovered, document, navigator: {}, MessageChannel: class {}, setTimeout, clearTimeout,
+      loadEntry: async entry => { imports.push(entry); }, recover: async error => { recovered.push(error.message); return false; } };
+  }
+  const config = { entry: "/assets/entry.js", sourceSha: sha, policy: PUBLIC_READING_POLICY_ID, timeoutMs: 10 };
+  const withArticle = page({ article: true });
+  assert.equal(await startPublicReading(config, withArticle), false);
+  assert.equal(withArticle.imports.length, 0, "the application is never imported without an admitted worker");
+  assert.deepEqual(withArticle.recovered, [], "no worker API: there is nothing to heal, so no reload");
+  assert.equal(withArticle.document.body.textContent, "ARTICLE TEXT", "the article is not replaced");
+  assert.equal(withArticle.document.appended.length, 1);
+  const [bar] = withArticle.document.appended;
+  assert.equal(bar.tag, "p"); assert.equal(bar.attributes.role, "status");
+  assert.match(bar.textContent, /המאמר זמין לקריאה/); assert.match(bar.style.cssText, /position:fixed/);
+  assert.deepEqual(withArticle.document.busy.removed, ["aria-busy"]);
+  // A timed-out handshake with an article: one heal attempt first (unchanged), then the same reading-only state.
+  const slow = page({ article: true });
+  slow.navigator = { serviceWorker: { register: () => new Promise(() => {}) } };
+  assert.equal(await startPublicReading(config, slow), false);
+  assert.deepEqual(slow.recovered, ["worker_bootstrap_timeout:registration"]);
+  assert.equal(slow.document.body.textContent, "ARTICLE TEXT"); assert.equal(slow.imports.length, 0);
+  // No article in the document: the existing message, unchanged.
+  const shellOnly = page({ article: false });
+  assert.equal(await startPublicReading(config, shellOnly), false);
+  assert.equal(shellOnly.document.body.textContent, "העמוד לא נפתח. אפשר לרענן ולנסות שוב.");
+  assert.equal(shellOnly.document.appended.length, 0);
+});
+
 test("bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout", async () => {
   function runtime({ register, ready = Promise.resolve(), controller = "valid", installing } = {}) {
     const imports = [], document = { body: { textContent: "existing shell" } };
@@ -438,23 +476,28 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
   const gate = spawnSync(process.execPath, ["scripts/test-legacy-retired.mjs"], { cwd: root, encoding: "utf8" }); assert.equal(gate.status, 0, gate.stderr);
 });
 
-test("the generated document hints the exact entry the bootstrap imports after worker admission (one module preload, same URL, no second loader)", () => {
+test("the generated document hints the exact entry the bootstrap imports after worker admission (one hint through the loader, same URL, no second loader)", () => {
   assert.ok(existsSync(new URL("public-reading-deploy/dist/public-reading-artifact.json", root)), "run node scripts/build-public-reading-production.mjs before acceptance");
   const html = read("public-reading-deploy/.generated/2029.html");
   // The URL the bootstrap hands to import(): the serialized config at the end of the inline module script.
   const config = JSON.parse(/\}\)\((\{"entry":"[^"]+","sourceSha":"[a-f0-9]{40}","policy":"[^"]+","timeoutMs":\d+\}),\{navigator,/.exec(html)?.[1] ?? "null");
   assert.ok(config, "bootstrap config is present");
   assert.match(config.entry, /^\/assets\/[A-Za-z0-9_.-]+\.js$/);
-  const tag = `<link rel="modulepreload" crossorigin href="${config.entry}">`;
-  // Exactly one hint for the entry, in the position the Vite entry <script> had, directly before the bootstrap.
-  assert.equal(html.split(tag).length - 1, 1, "exactly one module preload of the entry");
-  assert.ok(html.includes(tag + '<script type="module">(async function startPublicReading'), "the hint sits directly before the inline bootstrap");
-  assert.ok(html.indexOf(tag) < html.indexOf("await loadEntry("), "the hint is in the document before the import that consumes it");
+  // The hints are applied by the hint loader (route-preload.js, slow networks 21.11.2026), not by markup: the entry is the first hint of the one
+  // list the loader receives, directly before the bootstrap, and nothing else in the document hints it.
+  const lists = [...html.matchAll(/__sodHints\((\[\[[\s\S]*?\]\])\)/g)].map(match => JSON.parse(match[1]));
+  assert.ok(lists.length >= 1, "the entry graph's list is present");
+  assert.equal(lists[0][0][0], config.entry, "the entry is the first hint");
+  assert.equal(lists.flat().filter(([href]) => href === config.entry).length, 1, "exactly one hint of the entry");
+  assert.ok(!/<link\b[^>]*rel="modulepreload"/.test(html.replace(/<!--sod-home-preload [\s\S]*? -->/, "")), "no markup module hints compete with the worker's script");
+  const loaderAt = html.indexOf("__sodHints = list =>"), bootAt = html.indexOf('<script type="module">(async function startPublicReading');
+  assert.ok(loaderAt > 0 && loaderAt < bootAt && html.slice(loaderAt, bootAt).includes("</script>"), "the loader is a classic script directly before the inline bootstrap");
+  assert.ok(html.indexOf(`[["${config.entry}"]`) < html.indexOf("await loadEntry("), "the hint is in the document before the import that consumes it");
   // The Home's own code (public-reading-deploy/route-preload.js, ZURIEL 17.11.2026): one inert list after the bootstrap, which only the Home's
   // document turns into hints (the handler removes it from every other document); its module hints use the same CORS mode as the entry's.
   const homeList = /<!--sod-home-preload ([\s\S]*?) -->/.exec(html);
   assert.ok(homeList && html.indexOf(homeList[0]) > html.indexOf("await loadEntry(") && html.split("<!--sod-home-preload ").length === 2, "one Home list, after the bootstrap");
-  assert.ok(/<link rel="modulepreload" crossorigin href="\/assets\/Home2029Page-[A-Za-z0-9_-]+\.js">/.test(homeList[1]), "the Home page's own chunk is listed");
+  assert.ok(/\["\/assets\/Home2029Page-[A-Za-z0-9_-]+\.js"\]/.test(homeList[1]) && homeList[1].includes("__sodHints("), "the Home page's own chunk is listed for the loader");
   assert.ok(!homeList[1].includes(config.entry), "never the entry again");
   // The hinted URL, the imported URL and the Vite manifest entry are one and the same file, and it exists.
   const manifest = JSON.parse(read("public-reading-deploy/dist/.vite/manifest.json"));

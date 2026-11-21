@@ -1,0 +1,146 @@
+[
+ {
+  "dev": "phone",
+  "page": "/",
+  "cold": "open",
+  "coldMs": 1011,
+  "warm": "open",
+  "warmMs": 773,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": {
+   "href": "/post/chibur-bein-hasafot-mafteach-lagan",
+   "at": "/post/chibur-bein-hasafot-mafteach-lagan",
+   "ok": true
+  },
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "בית ☾ לילה 🛠️ הדף בבנייה האתר נפתח בהדרגה, חלק אחר חלק לעדכונים במייל ← נעוץ · מפת המציאו"
+ },
+ {
+  "dev": "phone",
+  "page": "/number/358",
+  "cold": "open",
+  "coldMs": 758,
+  "warm": "open",
+  "warmMs": 721,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "כי לה׳ המלוכה ☾ לילה ? איך זה עובד? במוקד המחקר יממהשבועחודש צפנים ציבוריים 115 פורסמו למח"
+ },
+ {
+  "dev": "phone",
+  "page": "/calculator",
+  "cold": "open",
+  "coldMs": 716,
+  "warm": "open",
+  "warmMs": 628,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "פוסט ☾ לילה ? איך זה עובד? ! לא הצלחתי לפתוח את הפוסט הפוסט לא נמצאניסיון קריאה נוסף סוד 1"
+ },
+ {
+  "dev": "phone",
+  "page": "/post/manhigut-shel-emet-rut-kedem-20261026",
+  "cold": "open",
+  "coldMs": 655,
+  "warm": "open",
+  "warmMs": 504,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "פוסט ☾ לילה במוקד המחקר יממהשבועחודש צפנים ציבוריים 115 פורסמו למחקר התכנסויות שאושרו 204 "
+ },
+ {
+  "dev": "desktop",
+  "page": "/",
+  "cold": "open",
+  "coldMs": 853,
+  "warm": "open",
+  "warmMs": 660,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": {
+   "href": "/post/sharshar-elections-redemption-hints-draft#yamin-smol-2026-5787-1237-1158",
+   "at": "/post/sharshar-elections-redemption-hints-draft",
+   "ok": true
+  },
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "123 › SOD1820 / בית ⌕ ☾ לילה התחברות 🛠️ הדף בבנייה האתר נפתח בהדרגה, חלק אחר חלק לעדכונים"
+ },
+ {
+  "dev": "desktop",
+  "page": "/number/358",
+  "cold": "open",
+  "coldMs": 781,
+  "warm": "open",
+  "warmMs": 674,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "123 › SOD1820 / כי לה׳ המלוכה / 358 ⌕ ☾ לילה התחברות ? איך זה עובד? במוקד המחקר יממהשבועחו"
+ },
+ {
+  "dev": "desktop",
+  "page": "/calculator",
+  "cold": "open",
+  "coldMs": 709,
+  "warm": "open",
+  "warmMs": 612,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "123 › SOD1820 / פוסט ⌕ ☾ לילה התחברות ? איך זה עובד? ! לא הצלחתי לפתוח את הפוסט הפוסט לא נ"
+ },
+ {
+  "dev": "desktop",
+  "page": "/post/manhigut-shel-emet-rut-kedem-20261026",
+  "cold": "open",
+  "coldMs": 636,
+  "warm": "open",
+  "warmMs": 527,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "123 › SOD1820 / פוסט / מנהיגות של אמת — התביעה הפנימית לשכל אלוקי | רות קדם ⌕ ☾ לילה התחבר"
+ }
+]

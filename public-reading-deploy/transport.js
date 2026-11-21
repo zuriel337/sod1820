@@ -599,6 +599,9 @@ export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } 
 
 // One deadline covers register, install, ready, controller and policy handshake.
 // A late resolution after timeout can never import the application.
+// When admission fails, a document that already carries its article (article-first Post, #sod29-ssr-article) keeps it readable under
+// a fixed status bar (no layout shift): only the interactive page is lost. Nothing is fetched, imported or measured on that path.
+// Comments inside the function are inlined into every document, so they stay out of it.
 export async function startPublicReading(config, runtime) {
   const { navigator, document, MessageChannel, setTimeout, clearTimeout, loadEntry } = runtime;
   let cancelled = false, timer, phase = "registration";
@@ -652,7 +655,16 @@ export async function startPublicReading(config, runtime) {
     // One safe self-heal per tab session when a stale worker/cache keeps the page from opening: drop service workers and
     // CacheStorage, then reload. Never touches the signed-in session (the SDK keeps it in its own storage).
     if (error?.message !== "worker_required" && await runtime.recover?.(error)) return false;
-    document.body.textContent = "העמוד לא נפתח. אפשר לרענן ולנסות שוב.";
+    const article = document.getElementById?.("sod29-ssr-article");
+    if (article?.isConnected && document.createElement) {
+      const bar = document.createElement("p");
+      bar.setAttribute("role", "status"); bar.setAttribute("data-sod-reading-only", "");
+      bar.textContent = "המאמר זמין לקריאה. שאר העמוד לא נפתח; אפשר לרענן ולנסות שוב.";
+      bar.style.cssText = "position:fixed;inset-inline:0;bottom:0;z-index:2147483000;margin:0;padding:10px 16px;background:#14101d;color:#f3ead2;font:15px/1.5 sans-serif;text-align:center";
+      document.body.style.paddingBottom = "64px";
+      document.body.appendChild(bar);
+      document.querySelector?.("#root [aria-busy]")?.removeAttribute("aria-busy");
+    } else document.body.textContent = "העמוד לא נפתח. אפשר לרענן ולנסות שוב.";
     return false;
   } finally { clearTimeout(timer); for (const close of cleanup) close(); }
 }
