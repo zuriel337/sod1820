@@ -1,5 +1,7 @@
 # Royal Palace Shared Intro V1 — branch review
 
+**Later continuation:** [Compact / Full, repeated measurements and current release blockers](../royal-palace-compact-full-20261121/README.md). This V1 report is retained as historical evidence.
+
 **Draft; not release-ready for the owner's zero-regression target.** Implemented on `codex/royal-palace-shared-intro-v1-20261121`, based on `d353b62a520a009b130970dc82c17ad00a43ad96` (`origin/main`, rechecked unchanged before delivery). No main write, merge, deployment, protected Preview, product database write or flag change.
 
 ## Authorization and ownership

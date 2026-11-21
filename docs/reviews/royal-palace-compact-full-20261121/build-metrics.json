@@ -1,0 +1,30 @@
+{
+  "main": {
+    "eagerJsFiles": 17,
+    "eagerJsGzip": 203373,
+    "frameJsFiles": 3,
+    "frameJsGzip": 47178,
+    "frameCssGzip": 34329
+  },
+  "v1": {
+    "eagerJsFiles": 17,
+    "eagerJsGzip": 203438,
+    "frameJsFiles": 3,
+    "frameJsGzip": 47153,
+    "frameCssGzip": 34223
+  },
+  "compact": {
+    "eagerJsFiles": 17,
+    "eagerJsGzip": 203424,
+    "frameJsFiles": 3,
+    "frameJsGzip": 47127,
+    "frameCssGzip": 34225
+  },
+  "public": {
+    "eagerJsFiles": 17,
+    "eagerJsGzip": 203443,
+    "frameJsFiles": 3,
+    "frameJsGzip": 47114,
+    "frameCssGzip": 34225
+  }
+}
