@@ -1397,7 +1397,8 @@
 /* Dense Row Law (ZURIEL 21.11.2026): the top of the number page is ONE row on a computer — way back to the calculator,
    share, save and the statistics line (content-wide, last, its height reserved). Nothing stands alone on its own floor.
    On a phone the statistics take a reserved thin row above the actions. */
-.sod29-number-hero-bar>.sod29-section-pulse-inline{flex:0 1 auto;min-width:0;height:var(--s29-control-min,44px);display:inline-flex;align-items:center;overflow:hidden}
+.sod29-number-hero,.sod29-number-hero-bar{min-width:0;max-width:100%}
+.sod29-number-hero-bar>.sod29-section-pulse-inline{flex:0 1 auto;min-width:0;max-width:100%;height:var(--s29-control-min,44px);display:inline-flex;align-items:center;overflow:hidden}
 /* Same shape as the buttons beside it (.sod29-action): same height, border, background and 13px corners (ZURIEL 21.11.2026). */
 .sod29-number-hero-bar .sectionpulse29{height:var(--s29-control-min,44px);border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);border-radius:13px;padding:0 13px;font-family:var(--s29-font-ui)}
 @media(min-width:561px){

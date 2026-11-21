@@ -13,8 +13,7 @@ function numberItems(d, value) {
   if (computed) items.push({ key: "computed", b: pulseCount(computed.events), s: "חישובים של הערך" });
   const ever = value ? d.history?.top_values?.find(x => x.n === Number(value)) : null;
   if (ever) items.push({ key: "ever", b: pulseCount(ever.count), s: "חישובים של הערך באתר הקודם" });
-  const crawled = d.crawlers?.by_section?.find(x => x.bucket === "/number");
-  if (crawled) items.push({ key: "crawled", b: pulseCount(crawled.hits), s: "סריקות של דפי מספר ע״י מנועי חיפוש" });
+  // Crawler counts appear only on /stats (ZURIEL 21.11.2026): never in section lines or Now.
   for (const x of (d.numbers || []).filter(x => x.n !== Number(value)).slice(0, 4)) items.push({ key: "n" + x.n, b: x.n.toLocaleString("he-IL"), s: `${pulseCount(x.events)} פתיחות`, to: "/number/" + x.n });
   return items;
 }

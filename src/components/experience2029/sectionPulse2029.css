@@ -1,9 +1,11 @@
 /* Dense Row Law (ZURIEL 21.11.2026): one thin line, as wide as its content — never a tall, mostly empty box. */
 .sectionpulse29{display:inline-flex;flex-direction:row;align-items:center;gap:10px;max-width:100%;height:36px;box-sizing:border-box;padding:0 10px;border:1px solid var(--s29-line,#574327);border-radius:10px;background:var(--s29-panel,#201b16);color:var(--s29-ink,#f6eddc);overflow:hidden;min-width:0;font-size:13px;line-height:18px}
-.sectionpulse29 ul{display:flex;align-items:center;gap:6px;margin:0;padding:0;list-style:none;overflow:hidden;min-width:0;flex:0 1 auto}
+.sectionpulse29 ul{display:flex;align-items:center;gap:6px;margin:0;padding:0;list-style:none;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;min-width:0;flex:0 1 auto}
 .sectionpulse29 li{flex:0 0 auto}
 .sectionpulse29 li>a,.sectionpulse29 li>span{display:inline-flex;align-items:baseline;gap:5px;padding:2px 8px;border-radius:999px;background:var(--s29-panel-soft,#2c231b);color:inherit;text-decoration:none;white-space:nowrap}
 .sectionpulse29 b{font-size:14px;color:var(--s29-accent-text,#d5b477);font-variant-numeric:tabular-nums}
 .sectionpulse29 small{font-size:12px;color:var(--s29-muted,#b6a995)}
-.sectionpulse29-more{flex:0 0 auto;font-size:13px;color:var(--s29-accent-text,#d5b477);min-height:32px;display:inline-flex;align-items:center;white-space:nowrap}
+.sectionpulse29-more{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--s29-accent-text,#d5b477);min-height:32px;display:inline-flex;align-items:center;white-space:nowrap}
 .sectionpulse29 a:focus-visible{outline:2px solid var(--s29-accent-text,#d5b477);outline-offset:2px}
+/* Never wider than its row (mobile 21.11.2026: the number page row grew to 588px on a 360px phone and was clipped). */
+.sectionpulse29{max-width:100%}
