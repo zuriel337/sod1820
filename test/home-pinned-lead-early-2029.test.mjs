@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { homePinnedLeadEarlyWanted } from "../src/lib/homeAtmospherePreload2029.js";
 import { preloadPinnedCover2029, startHomePinnedLeadEarly2029, HOME_PINNED_COVER_MARK } from "../src/lib/homePinnedLeadEarly2029.js";
 import { pinnedCatalogCover2029, pinCoverSet, PIN_COVER_SIZES, PIN_COVER_WIDTHS, PIN_COVER_QUALITY } from "../src/components/experience2029/homePinnedCover2029.js";
-import { seriesLatestMember2029 } from "../src/lib/nowPublications2029.js";
+import { homeMapLeadMember2029, homeMapLeadFace2029 } from "../src/lib/research/homeMapLead2029.js";
 import { fetchContentSeriesCatalog2029, resetSharedCatalogRead2029 } from "../src/lib/research/contentSeries2029Projection.js";
 import { CONTENT_SERIES_2029 } from "../src/lib/research/contentSeries2029Identity.js";
 
@@ -47,8 +47,8 @@ test("the early cover is the card's cover: the same member, src, srcset and size
     { id: "5107", coverUrl: COVER, publishedAt: "2026-10-12T00:00:00Z" },
   ];
   const cover = pinnedCatalogCover2029(seriesWith(items));
-  const member = seriesLatestMember2029(items);
-  assert.equal(cover.memberId, member.id, "the same member as the card (seriesLatestMember2029)");
+  const member = homeMapLeadMember2029(items);
+  assert.equal(cover.memberId, member.id, "the same member as the Home card (latest edit or proven update)");
   assert.equal(cover.src, member.coverUrl);
   assert.equal(cover.srcSet, pinCoverSet(member.coverUrl));
   assert.equal(cover.sizes, PIN_COVER_SIZES);
@@ -58,13 +58,25 @@ test("the early cover is the card's cover: the same member, src, srcset and size
   assert.equal(pinnedCatalogCover2029(null), null);
 });
 
-test("the cover preload follows the editorial choice when a newer unit appears", () => {
+test("Home and early preload choose Bennett's edited Post over the fixed 5107 World unit", () => {
   const items = [
-    { id: "5113", coverUrl: COVER.replace("5107", "5113"), publishedAt: "2026-11-19T16:19:09Z" },
-    { id: "5107", coverUrl: COVER, publishedAt: "2026-10-12T00:00:00Z" },
+    { id: "5107", title: "בחירות", href: "/post/elections", coverUrl: COVER,
+      publishedAt: "2026-09-30T08:55:06Z", updatedAt: "2026-11-10T16:56:00Z" },
+    { id: "5113", title: "בנט והמלח", href: "/post/bennett", coverUrl: COVER.replace("5107", "5113"),
+      publishedAt: "2026-09-30T23:57:13Z", updatedAt: "2026-11-21T02:56:15Z" },
   ];
+  const chosen = homeMapLeadMember2029(items);
+  assert.equal(chosen.id, "5113");
   assert.equal(pinnedCatalogCover2029(seriesWith(items)).memberId, "5113");
-  assert.equal(pinnedCatalogCover2029(seriesWith(items), { editorialPostId: 5107 }).src, COVER);
+  assert.deepEqual(homeMapLeadFace2029(chosen), { title: "בנט והמלח", postTitle: null,
+    at: "2026-11-21T02:56:15Z", href: "/post/bennett" }, "21 Nov edit opens the whole Post, not an older unit");
+
+  const electionsEditedTomorrow = { ...items[0], updatedAt: "2026-11-23T10:00:00Z" };
+  assert.equal(homeMapLeadMember2029([electionsEditedTomorrow, items[1]]).id, "5107",
+    "a later election Post edit takes the lead again without changing mapLeadId");
+  assert.equal(homeMapLeadFace2029(electionsEditedTomorrow).href, "/post/elections");
+  assert.equal(homeMapLeadMember2029([]), null);
+  assert.equal(homeMapLeadFace2029(null), null);
 });
 
 test("the card itself renders from the same helper (one definition)", () => {
