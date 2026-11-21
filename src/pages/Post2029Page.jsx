@@ -1221,6 +1221,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       event.preventDefault();
       // The shared sheet captures the active element for its close action, including taps.
       previewCalculation.focus({ preventScroll: true });
+      const place = { top: previewCalculation.getBoundingClientRect().top };
+      previewCalculation.addEventListener("focus", () => {
+        if (sourceRef.current?.contains(previewCalculation)) keepReaderInPlace2029(place, previewCalculation);
+      }, { once: true });
       const locator = `#${previewCalculation.id}`;
       const href = exactPostReadingHref(post, location, locator);
       shell.openNumber({ id: previewCalculation.id, type: "phrase", label: expression,
