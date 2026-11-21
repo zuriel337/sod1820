@@ -3990,6 +3990,51 @@
         "open": "Not changed: on-demand panel CSS (measured < 1 KB), analytics (11.4 KB, no loss-free split; open gap by ZURIEL rule), research store (~20 KB, synchronous state), Auth (33.8 KB, needs full auth acceptance), Raziel session (~6 KB, may serve members on ELS/Life-Journey). Target ~210 KB not reached.",
         "next_owner": "ZURIEL decision (merge + deploy are separate approvals)",
         "relates_to_groups": []
+      },
+      {
+        "id": "S-53",
+        "title_he": "ברשת איטית קובץ ה־worker כבר לא ממתין מאחורי ~70 רמזי טעינה: הרמזים יוצאים מיד בביקור חוזר, ובביקור ראשון רק כשהרישום מחזיק את ה־worker (ניסוי, לא מוזג)",
+        "problem": "On a first visit the document requested up to ~70 hints (17 entry-graph modulepreloads in the markup + 51 Home hints on /) before the bootstrap registered sw.js; on a slow line they shared the bandwidth with sw.js inside the one 10 s public-reading deadline (lab Slow 3G Home: sw.js done at 10.4 s), which is how 'העמוד לא נפתח' appears on slow networks.",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SLOW_NET_SW_PRIORITY_20261121"
+          ],
+          "prs": [
+            1466
+          ],
+          "merged_via_pr": null,
+          "commits": [
+            "7bd18aebb"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-dcadb071-v1z5ol-slow-net-sw-priority"
+        },
+        "code_now": [
+          "public-reading-deploy/route-preload.js :: sodHintLoader2029 / hintLoaderScript2029 (classic inline loader; controlled page -> hints at once, first visit -> when the registration holds a worker, no SW API -> none); the Home comment carries __sodHints (branch only)",
+          "scripts/build-public-reading-production.mjs :: the markup modulepreloads move into the loader list, entry first and once (branch only)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Local lab only (not deployed): main 36c69db02 vs branch 7bd18aebb on the same HTTP/2 lab server; functional check with the real database on the branch merged with claude/sod1820-no-sw-reading-y5ph01 (5f9e1d752); see docs/reviews/slow-net-sw-priority-20261121/README.md.",
+        "measurement": {
+          "kind": "lab",
+          "before": "main 36c69db02, cold phone, medians: Slow 3G Home first paint 4,746 / sw.js 10,415 / open 11,008 ms; 3G Home 2,718 / 5,710 / 6,290; Slow 4G Home 1,408 / 2,716 / 3,282; Slow 3G CLS up to 0.034",
+          "after": "branch 7bd18aebb: Slow 3G Home 1,430 / 2,310 / 11,132 ms; 3G Home 966 / 1,513 / 6,464; Slow 4G Home 532 / 748 / 3,354; number, gematria and post the same pattern (first paint ~3x earlier); app open +2-7% on first visits on slow lines; warm equal; bytes before open equal; CLS 0-0.015; LCP after not quoted (observer limits)",
+          "conditions": "one shared emulated line (Slow 4G 1600/150, 3G 750/300, Slow 3G 400/400 kbps/ms), 390 px phone, supabase answered [], 2 runs (3 fast); lab numbers, not field results"
+        },
+        "guard": [
+          "test/home-route-preload-2029.test.mjs (loader: controlled -> at once, first visit waits for the registration's worker, no SW API -> none) [branch only]",
+          "test/public-reading-production-artifact.test.mjs (entry first hint once, no markup modulepreload, loader before the bootstrap) [branch only]",
+          "test/public-reading-entry-preload.browser.mjs (entry requested once and consumed, cold and controlled) [branch only]"
+        ],
+        "open": "The price: the full app opens 2-7% later on a first visit on a slow line. Not checked on protected Preview or live. The 10 s deadline is kept (registration ends ~2.3 s on Slow 3G after the change). Integration with the reading-preservation fix (1259417ab) checked locally only.",
+        "next_owner": "ZURIEL decision (merge + deploy are separate approvals; together with the SW session's fix)",
+        "relates_to_groups": []
       }
     ],
     "group_updates": [
@@ -4352,24 +4397,24 @@
     ],
     "summary": {
       "counts": {
-        "total": 52,
+        "total": 53,
         "merged": 51,
         "deployed_true": 51,
         "live_unknown": 25,
-        "live_no": 3,
+        "live_no": 4,
         "live_yes": 24,
-        "branch_only": 1
+        "branch_only": 2
       },
       "by_author": {
         "gpt": 10,
-        "claude": 38,
+        "claude": 39,
         "codex": 4
       },
       "by_surface": {
         "world": 1,
         "home": 6,
         "post": 12,
-        "all": 20,
+        "all": 21,
         "number": 2,
         "server": 4,
         "measurement": 2,
@@ -4464,6 +4509,15 @@
             ],
             "evidence": "assign_alias of the three domains to dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2 (old: dpl_7StHxSXF1mEwiuoLSKLR28XHWU7r) at 2026-11-17T21:01Z; the live document's bootstrap config names entry /assets/2029-CzfHWys2.js and sourceSha cff521e8613162b5c4738d800d84f1f4bc93b966 (read 2026-11-17T21:01Z)"
           }
+        }
+      },
+      {
+        "at": "2026-11-21T00:40:00Z",
+        "task": "SLOW_NET_SW_PRIORITY_20261121",
+        "by": "CLAUDE (ZURIEL: \"תרשום את הכל במקום של היעודי של מערכי המהירות\")",
+        "what": "S-53 added as branch-only (draft PR #1466, 7bd18aebb); lab before/after on Slow 4G / 3G / Slow 3G; counts recomputed from the entries.",
+        "previous": {
+          "counts_total": 52
         }
       }
     ]
