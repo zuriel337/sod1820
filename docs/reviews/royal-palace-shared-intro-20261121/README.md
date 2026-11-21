@@ -85,7 +85,7 @@ Local Chromium, compiled default builds, 900px viewport height, no network/CPU t
 | /books / 768 | 632 → 640 | 548 → 428 | 0.00000 → 0.00000 |
 | /books / 1440 | 164 → 528 | 72 → 476 | 0.00000 → 0.00000 |
 
-**Open performance issue:** Heichal's warm median across the four widths is 64ms → 450ms. Removing the redundant `loading=lazy` did not eliminate this difference. All measured CLS values are below 0.1 and the fixed shell gates pass, but the owner's stronger zero-slowdown acceptance is **not proven/met**. Do not merge or release this draft on the strength of the passing budgets. The next step is an isolated repeated Heichal warm-load profile, identifying the final LCP element and art/dependency timing before changing loading further; no baseline increase.
+**Open performance issue:** Heichal's warm median across the four widths is 64ms → 450ms. Removing the redundant `loading=lazy` did not eliminate this difference. All measured CLS values are below 0.1 and the fixed shell gates pass, but the owner's stronger zero-slowdown acceptance is **not proven/met**. Do not merge or release this draft on the strength of the passing budgets. A repeated 390px profile identifies the new palace image as the final LCP candidate (420–452ms), while the base candidate is the brand lockup (52–88ms). The palace file is already returned from cache around 63–69ms. See [heichal-lcp-detail.json](heichal-lcp-detail.json). The next step is to resolve the render delay without enlarging the eager graph; no baseline increase.
 
 ## Validation
 
@@ -93,7 +93,7 @@ Passed locally:
 
 - `npm run build`, including the postbuild shell budget; explicit `scripts/test-2029-shell-budget.mjs`.
 - `scripts/build-public-reading-production.mjs` and its enforced public-reading budget. This produces a local artifact only.
-- 67 tests: production artifact, Realtime split, Storage boundary, icon catalog, shell budget, palace asset/context checks and Raziel frame seam.
+- 74 tests (including the static cache contract): production artifact, Realtime split, Storage boundary, icon catalog, shell budget, palace asset/context checks and Raziel frame seam.
 - `scripts/test-entry-contextual-learn-2029.mjs`; `scripts/test-2029-system-frame.mjs`; `scripts/test-2029-first-load-graph.mjs`; module-boundary, live-contracts and 59 canonical-presentation checks.
 - World/Heichal/Books: 320/390/768/1440, one intro H1, correct icons, RTL, no horizontal overflow, keyboard open/Escape/focus return; image-cache behavior and CLS.
 - Three presets × four widths × three surfaces: close button, keyboard activation and reduced motion. Details in [interaction-checks.json](interaction-checks.json).
@@ -116,3 +116,11 @@ Not completed / limitations:
 Actor: GPT (Codex ledger label) · task: ROYAL_PALACE_SHARED_INTRO_V1_20261121 · owner: existing Design/System Frame/Experience · scope: branch-only shared intro · status: IMPLEMENTED / COMMITTED / BRANCH-ONLY, release acceptance incomplete · handoff_to: ZURIEL.
 
 השפעה על התיעוד הקנוני: אין שינוי בבעלות או בסמנטיקה הקנונית; ההקצאה לקודקס והעיצוב המאושר הם הוראת הסשן הנוכחי. מסמך זה הוא ראיות מסירה בלבד, לא חוזה עיצוב מקביל.
+
+## CI follow-up
+
+On initial head `19bce7ab49dfce77adb6f78994c81739fa5a529f`, GitHub `perf-contracts-2029`, `live-contracts-2029`, route SEO, legacy-retired and security SQL gates passed.
+
+- `release-contracts-2029` caught an overly broad immutable palace path rule. **Corrected** to the two exact fingerprinted files, after the no-store catch-all. The existing cache tests were extended to verify both hashes, precedence and missing-file exclusion; no assertion or protection was removed. All seven cache tests pass locally.
+- `Production Canary Gate` fails closed on `latest_canary_failure` for current Production SHA `d353b62a520a009b130970dc82c17ad00a43ad96`, whose canary failed at 02:17 UTC, before this task. [Existing failing canary](https://github.com/zuriel337/sod1820/actions/runs/44854981457). This draft neither caused that deployment nor overrides its gate.
+- Final-head GitHub CI must be read from [PR #1469](https://github.com/zuriel337/sod1820/pull/1469); earlier-head passes are not presented as final-head passes.

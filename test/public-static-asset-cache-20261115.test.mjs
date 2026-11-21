@@ -10,6 +10,9 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { POST_BACKGROUND_ASSETS_2029 } from '../src/lib/research/postBackground2029.js';
 
+import { ROYAL_PALACE_ATMOSPHERE_2029 } from '../src/lib/brandAssets2029.js';
+const palace = Object.values(ROYAL_PALACE_ATMOSPHERE_2029);
+
 const config = JSON.parse(readFileSync(new URL('../public-reading-deploy/vercel.json', import.meta.url), 'utf8'));
 const rules = config.headers;
 const cacheOf = rule => rule.headers.find(header => header.key.toLowerCase() === 'cache-control')?.value;
@@ -64,7 +67,7 @@ test('self-hosted fonts and brand images (names without a content hash) get a bo
 });
 
 test('a missing file under the same folders, a document and the worker are not matched by any cache rule', () => {
-  for (const path of ['/fonts/does-not-exist.woff2', '/fonts/', '/fonts', '/brand/2029/does-not-exist.png', '/brand/2029/source-logos/x.png', '/brand/other.png',
+  for (const path of ['/backgrounds/2029/royal-palace-missing-000000000000.webp', '/backgrounds/2029/royal-palace-unversioned.webp', '/fonts/does-not-exist.woff2', '/fonts/', '/fonts', '/brand/2029/does-not-exist.png', '/brand/2029/source-logos/x.png', '/brand/other.png',
     '/', '/2029', '/post/some-post', '/some-original-address', '/sw.js', '/public-reading-sw.js', '/api/og', '/sitemap.xml']) {
     assert.deepEqual(matchingCache(path), [], `${path} must stay no-store`);
   }
@@ -72,7 +75,7 @@ test('a missing file under the same folders, a document and the worker are not m
 });
 
 test('immutable is reserved for content-hashed files; no other address receives a public lifetime', () => {
-  const allowedPublic = new Set(['/assets/(.*)', '/(favicon.ico|apple-touch-icon.png|apple-touch-icon-precomposed.png)', fontsSource, brandSource, ...backgrounds]);
+  const allowedPublic = new Set(['/assets/(.*)', '/(favicon.ico|apple-touch-icon.png|apple-touch-icon-precomposed.png)', fontsSource, brandSource, ...backgrounds, ...palace]);
   for (const rule of cachingRules) {
     assert.ok(allowedPublic.has(rule.source), `${rule.source} must not be cacheable`);
     if (/immutable/.test(cacheOf(rule))) assert.ok(rule.source === '/assets/(.*)' || /-[a-f0-9]{12}\.webp$/.test(rule.source), `${rule.source} is not content-hashed`);
@@ -84,4 +87,15 @@ test('the service worker files stay uncacheable', () => {
   assert.ok(worker);
   assert.equal(cacheOf(worker), 'no-store');
   assert.ok(rules.indexOf(worker) > Math.max(...cachingRules.map(rule => rules.indexOf(rule))), 'the worker rule is still the last one');
+});
+
+test('Royal Palace names only the two existing hash-verified images, after no-store and before worker', () => {
+  assert.equal(palace.length, 2);
+  for (const href of palace) {
+    assert.ok(lastIndexOf(href) > catchAll);
+    assert.equal(cacheOf(rules[lastIndexOf(href)]), 'public, max-age=31536000, immutable');
+    assert.deepEqual(matchingCache(href), [href]);
+    const hash = createHash('sha256').update(readFileSync(new URL('../public' + href, import.meta.url))).digest('hex').slice(0, 12);
+    assert.ok(href.endsWith(`-${hash}.webp`));
+  }
 });

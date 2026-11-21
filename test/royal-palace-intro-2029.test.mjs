@@ -14,8 +14,12 @@ test('approved palace delivery is fingerprinted WebP, responsive, shared and cac
     assert.ok(bytes.length <= (kind === 'mobile' ? 31000 : 90000));
   }
   for (const file of ['vercel.json', 'public-reading-deploy/vercel.json']) {
-    const rule = JSON.parse(fs.readFileSync(file)).headers.find(r => r.source === '/backgrounds/2029/royal-palace-:path*');
-    assert.ok(rule.headers.some(h => h.key === 'Cache-Control' && h.value.includes('immutable')));
+    for (const url of Object.values(ROYAL_PALACE_ATMOSPHERE_2029)) {
+      const rules = JSON.parse(fs.readFileSync(file)).headers;
+      const index = rules.findIndex(r => r.source === url);
+      assert.ok(index > rules.findIndex(r => r.source === '/(.*)'));
+      assert.ok(rules[index].headers.some(h => h.key === 'Cache-Control' && h.value.includes('immutable')));
+    }
   }
   assert.equal(BRAND_LOCKUP_2029.sha256, '3f8a2a2fdc0a5a141d10b63bc633eefbd9ba2bfe7dbf7521f3984c21830dcd18');
 });
