@@ -212,6 +212,8 @@
 @media (min-width: 641px) { .sod29-calcpro-words { flex-wrap: nowrap; overflow: hidden; } .sod29-calcpro-words > button { flex: 0 0 auto; } }
 .sod29-calcpro-pulse-inline { display: inline-flex; flex: 0 1 auto; min-width: 0; max-width: max-content; min-height: 40px; align-items: center; overflow: hidden; }
 .sod29-calcpro-pulse-inline .nowpulse29 { min-width: 0; }
+/* Same shape as the word-of-the-day pill beside it: 40px high, round ends, same border and panel (ZURIEL 21.11.2026). */
+.sod29-calcpro-pulse-inline .nowpulse29 { height: 40px; border-radius: 999px; padding: 0 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); }
 .sod29-calcpro-pulse-inline .nowpulse29 { margin: 0; }
 .sod29-calcpro-pulse-row { display: none; }
 @media (max-width: 640px) {
