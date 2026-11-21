@@ -1,6 +1,9 @@
 .sod29-post-comments{margin-block:32px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel);color:var(--s29-ink);padding:16px 20px;scroll-margin-top:110px}
 .sod29-post-comments summary{cursor:pointer;font-weight:700;font-size:17px;line-height:1.7;color:var(--s29-accent-text)}
 .sod29-post-comments summary span{margin-inline-start:12px;font-weight:400;font-size:14px;color:var(--s29-muted)}
+.sod29-post-comments h2{margin:0 0 12px;font-size:19px}
+.sod29-post-community-thread+.sod29-post-community-thread{margin-block-start:12px}
+.sod29-post-community-thread>p:last-child{margin-block-end:0}
 .sod29-post-comment-list{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:14px}
 .sod29-post-comment-list li{min-width:0;border:1px solid var(--s29-line);border-inline-start:3px solid var(--s29-accent);border-radius:10px;padding:14px 16px;background:var(--s29-panel-soft);scroll-margin-top:110px}
 .sod29-post-comment-list li.is-reply{margin-inline-start:22px}
