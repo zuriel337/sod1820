@@ -91,6 +91,9 @@ export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
     recordedAt: safeDate(row.created_at),
     discoveredAt: null,
     sourceUpdatedAt: safeDate(row.modified),
+    // Ordinary edits stay distinct from certified source-unit additions.
+    // Now may show their edit time, but must link to the full Post, not an older unit.
+    postHref: publicPostHref(row),
     researchUpdatedAt: null,
     sourceRef: `posts:${row.id}`,
     href: sourceUpdate?.targetHref || publicPostHref(row),
