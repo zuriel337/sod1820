@@ -41,6 +41,9 @@ import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import { CALCULATOR_PRO_SEO } from "../lib/research/calculatorProSeo2029.js";
 import "./calculator2029.css";
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../lib/searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
+const regularValueOfRows = rows => { const r = rows.find(x => x?.methodKey === "רגיל"); const v = Number(r?.computedValue); return Number.isSafeInteger(v) ? v : null; };
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240;
@@ -336,6 +339,7 @@ function CalculatorExperience() {
       const rows = await fetchNumberMethodProfile(phrase);
       if (requestId !== computeRequestRef.current) return;
       if (rows?.length) recordCompute();
+      if (rows?.length && !restore) logSearch(phrase, regularValueOfRows(rows), "gematria");
       const list = filterProfileRowsForInput(Array.isArray(rows) ? rows : [], inputInfo);
       const preferred = preferredMethodKey
         ? list.find((row) => row.methodKey === preferredMethodKey)

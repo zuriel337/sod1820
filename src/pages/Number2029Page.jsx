@@ -41,6 +41,8 @@ import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/rese
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
 import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 import "./number2029.css";
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../lib/searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
 
 const GOLDEN_878_JOURNEY_ID = GOLDEN_WORLD_JOURNEY_878.id;
 const GOLDEN_878_JOURNEY_OPEN = GOLDEN_WORLD_JOURNEY_878.locked !== true;
@@ -1200,6 +1202,7 @@ function NumberPageBody({ resolvedAddress = null }) {
     const raw = clean(rawValue);
     if (!raw) return;
     recordSiteActivity('search');
+    logSearch(raw, /^\d+$/.test(raw) ? Number(raw) : null, "gematria");
     if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
       openNumberRoot(Number(raw));
       return;
