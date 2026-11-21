@@ -352,6 +352,44 @@ test("signed Legacy unsubscribe alone can reach its unchanged HMAC server from e
   const [request] = harness.calls[0]; assert.equal(request.url, API + path); assert.equal(request.credentials, "omit"); assert.equal(request.cache, "no-store");
 });
 
+test("a failed worker admission keeps the document's own article readable and fetches, imports or measures nothing", async () => {
+  // Reproduced live 20.11.2026: without a usable worker (no API, blocked, slow or broken handshake) the 3,000-word article the
+  // first document already carried was replaced by the one-line failure message.
+  function page({ article }) {
+    const appended = [], busy = { removed: [], removeAttribute(name) { this.removed.push(name); } };
+    const body = { textContent: "ARTICLE TEXT", style: {}, appendChild(node) { appended.push(node); } };
+    const document = { body, appended, busy,
+      getElementById: id => (article && id === "sod29-ssr-article" ? { isConnected: true } : null),
+      querySelector: selector => (selector === "#root [aria-busy]" ? busy : null),
+      createElement: tag => ({ tag, attributes: {}, style: {}, textContent: "", setAttribute(k, v) { this.attributes[k] = v; } }) };
+    const imports = [], recovered = [];
+    return { imports, recovered, document, navigator: {}, MessageChannel: class {}, setTimeout, clearTimeout,
+      loadEntry: async entry => { imports.push(entry); }, recover: async error => { recovered.push(error.message); return false; } };
+  }
+  const config = { entry: "/assets/entry.js", sourceSha: sha, policy: PUBLIC_READING_POLICY_ID, timeoutMs: 10 };
+  const withArticle = page({ article: true });
+  assert.equal(await startPublicReading(config, withArticle), false);
+  assert.equal(withArticle.imports.length, 0, "the application is never imported without an admitted worker");
+  assert.deepEqual(withArticle.recovered, [], "no worker API: there is nothing to heal, so no reload");
+  assert.equal(withArticle.document.body.textContent, "ARTICLE TEXT", "the article is not replaced");
+  assert.equal(withArticle.document.appended.length, 1);
+  const [bar] = withArticle.document.appended;
+  assert.equal(bar.tag, "p"); assert.equal(bar.attributes.role, "status");
+  assert.match(bar.textContent, /המאמר זמין לקריאה/); assert.match(bar.style.cssText, /position:fixed/);
+  assert.deepEqual(withArticle.document.busy.removed, ["aria-busy"]);
+  // A timed-out handshake with an article: one heal attempt first (unchanged), then the same reading-only state.
+  const slow = page({ article: true });
+  slow.navigator = { serviceWorker: { register: () => new Promise(() => {}) } };
+  assert.equal(await startPublicReading(config, slow), false);
+  assert.deepEqual(slow.recovered, ["worker_bootstrap_timeout:registration"]);
+  assert.equal(slow.document.body.textContent, "ARTICLE TEXT"); assert.equal(slow.imports.length, 0);
+  // No article in the document: the existing message, unchanged.
+  const shellOnly = page({ article: false });
+  assert.equal(await startPublicReading(config, shellOnly), false);
+  assert.equal(shellOnly.document.body.textContent, "העמוד לא נפתח. אפשר לרענן ולנסות שוב.");
+  assert.equal(shellOnly.document.appended.length, 0);
+});
+
 test("bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout", async () => {
   function runtime({ register, ready = Promise.resolve(), controller = "valid", installing } = {}) {
     const imports = [], document = { body: { textContent: "existing shell" } };
