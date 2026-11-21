@@ -34,6 +34,7 @@ import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
 import PublishedUnitTraces2029 from "../components/experience2029/PublishedUnitTraces2029.jsx";
 import { mapIntegrationReview } from "../lib/research/mapIntegrationReviewStorage.js";
 import { parseNumberExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { BENNETT_REVIEW_MEDIA_2029 } from "../lib/research/bennettReviewMedia2029.js";
 import { bennettPostId, bennettUnitTimelineHtml2029 } from "../lib/research/bennettUnitTimelinePreview2029.js";
 import { electionsUnitTimelineHtml2029 } from "../lib/research/electionsUnitTimelinePreview2029.js";
 import { compactMapUnitHtml, mapLeadId, mapUnitReading, mapWorldHref } from "../lib/research/mapUnitReading2029.js";
@@ -1621,7 +1622,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <PublishedUnitTraces2029 rootRef={sourceRef} htmlKey={passiveSourceHtml.length} />
       {bennettTimeline && bennettResearchHost ? createPortal(<>
         {cover}
-        <PostEvidenceMedia2029 media={experience.media} />
+        <PostEvidenceMedia2029 media={BENNETT_REVIEW_MEDIA_2029} />
         {researchDisclosure}
       </>, bennettResearchHost) : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
