@@ -1799,7 +1799,7 @@
       },
       "metrics": {
         "eagerJsFiles": 17,
-        "eagerJsGzip": 203432,
+        "eagerJsGzip": 203429,
         "frameJsFiles": 3,
         "frameJsGzip": 45986,
         "frameCssGzip": 33850
@@ -1943,6 +1943,19 @@
           "metrics": {
             "eagerJsFiles": 17,
             "eagerJsGzip": 203432,
+            "frameJsFiles": 3,
+            "frameJsGzip": 45986,
+            "frameCssGzip": 33850
+          }
+        },
+        {
+          "date": "2026-11-21",
+          "by": "ratchet",
+          "sha": "a74e29b",
+          "reason": "measured reduction (--lower)",
+          "metrics": {
+            "eagerJsFiles": 17,
+            "eagerJsGzip": 203429,
             "frameJsFiles": 3,
             "frameJsGzip": 45986,
             "frameCssGzip": 33850

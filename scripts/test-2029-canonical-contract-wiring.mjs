@@ -5,7 +5,9 @@ import path from "node:path";
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 
-const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+const frameSource = read("src/components/experience2029/SystemFrame2029.jsx");
+assert.match(frameSource, /React\.lazy\(\(\) => import\("\.\/InspectProjection2029\.jsx"\)\)/);
+const frame = frameSource + "\n" + read("src/components/experience2029/InspectProjection2029.jsx");
 const els = read("src/pages/Els2029Page.jsx");
 const og = read("api/og.js");
 const app2029 = read("src/App2029.jsx");

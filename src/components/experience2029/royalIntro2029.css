@@ -27,3 +27,5 @@
 
 .sod29-root.closed-shell.native-frame .sod29-page-intro.r29-hall[data-intro-variant="quiet"] {box-shadow:var(--r29-shadow)}
 .sod29-page-intro[data-intro-variant="quiet"].r29-hall::before {border:0}
+
+.sod29-page-intro[data-intro-variant="quiet"] .r29-palace-help {text-align:end}
