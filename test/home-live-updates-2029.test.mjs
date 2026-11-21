@@ -98,7 +98,7 @@ test("an editorial lead keeps a different unit from the shared Now feed and omit
   let root = await render({ feed, editorialHref: `${path}?unit=other-unit#other-unit` });
   const update = entries(root).find(node => node.props["data-home-update-item"] === "post:5113");
   assert.ok(update, "a different unit from the same post is still an update");
-  assert.equal(update.findByType("a").props.href, `${path}#${id}`);
+  assert.equal(update.findByType("a").props.href, `${path}?unit=${id}#${id}`);
   await act(async () => { root.unmount(); });
   root = await render({ feed, editorialHref: `${path}?unit=${id}#${id}` });
   assert.deepEqual(entries(root).map(node => node.props["data-home-update-item"]), ["post:2"]);

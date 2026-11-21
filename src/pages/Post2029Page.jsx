@@ -10,7 +10,7 @@ import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorMode
 import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029ExperienceProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
-import { publicPostHref, publicPostUnitHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
+import { publicPostHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
 import { publicPostLinkedMedia, legacySourcePath } from "../lib/research/publicPostSourceLinks2029.js";
 import { postActionTarget2029, postActionUnits2029 } from "../lib/research/postActionTarget2029.js";
 import { logView, logActivity } from "../lib/supabase.js";
@@ -37,7 +37,7 @@ import { parseNumberExpressionFocus } from "../lib/research/numberExpressionFocu
 import { BENNETT_REVIEW_MEDIA_2029 } from "../lib/research/bennettReviewMedia2029.js";
 import { bennettPostId, bennettUnitTimelineHtml2029 } from "../lib/research/bennettUnitTimelinePreview2029.js";
 import { electionsUnitTimelineHtml2029 } from "../lib/research/electionsUnitTimelinePreview2029.js";
-import { compactMapUnitHtml, mapLeadId, mapUnitReading, mapWorldHref } from "../lib/research/mapUnitReading2029.js";
+import { compactMapUnitHtml, mapLeadId, mapWorldHref } from "../lib/research/mapUnitReading2029.js";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
 import { setPostUnits, setActivePostUnit, clearPostUnits, unitContextStrings } from "../lib/research/postUnitStore2029.js";
 const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/experience2029/PostExternalSourcesPreview2029.jsx"));
@@ -144,6 +144,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const sourceRef = useRef(null);
   const sourcePointerActive = useRef(false);
   const researchRef = useRef(null);
+  const postContextDialog = useRef(null);
+  const [postContextOpen, setPostContextOpen] = useState(false);
   const [researchOpen, setResearchOpen] = useState(false);
   const [researchStarted, setResearchStarted] = useState(false);
   const connectionsHeadingRef = useRef(null);
@@ -315,6 +317,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const { outline: postOutline, activeId: activeOutlineId } = usePostOutline2029(sourceRef, `${state.projection?.post?.id || ""}|${passiveSourceHtml.length}`);
   const previewUnits = useMemo(() => mapIntegrationReview ? postActionUnits2029(state.projection?.post, sourceRef.current) : [],
     [state.projection?.post, postOutline]);
+  const previewOutline = useMemo(() => mapIntegrationReview
+    ? postOutline.filter(item => !["post-connections", "post-sources"].includes(item.id)) : [], [postOutline]);
   const useOutline = postOutline.length > 0 && regions.length <= 1;
   // a Post with hand-written reading regions AND a stack of proven updates keeps its regions and gets "מה התחדש" (with its units) in front of them
   const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
@@ -483,6 +487,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const target = sourceRef.current?.querySelector(`[id="${entry.targetId}"]`);
     if (!target) return;
     revealReadingAnchor(target);
+    if (mapIntegrationReview && target.matches("details")) target.open = true;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
     // Exact entry survives refresh/share: the hash names the source unit.
@@ -750,6 +755,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       sourceLabel: state.projection.sourceLabel,
       locator: `#source-region-${activeFocus.id}`,
     };
+    const railClassification = mapIntegrationReview && postClassification2029(state.projection.sourcePost);
+    const railSeries = railClassification?.series[0];
+    const railCategory = railClassification?.items.find(item => item.name === "רמזים חזקים");
 
     research.updateResearchContext?.({
       subject: preserveExplicitGematriaFocus && protectedSubject ? protectedSubject : {
@@ -767,7 +775,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         bottomTrail: preserveExplicitGematriaFocus && Array.isArray(protectedBottomTrail)
           ? protectedBottomTrail
           : passiveTrail,
-        surfaceSections: useOutline ? postOutline.map(({ id, label, targetId, level, parentId }) => ({ id, label, targetId, level, parentId })) : [
+        surfaceSections: previewOutline.length ? previewOutline : useOutline ? postOutline.map(({ id, label, targetId, level, parentId }) => ({ id, label, targetId, level, parentId })) : [
           ...(mergedUpdates ? outlineUpdates.map(({ id, label, targetId, level, parentId }) => ({ id, label, targetId, level, parentId })) : []),
           ...regions.map((region) => ({
             id: region.id,
@@ -775,7 +783,14 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
             targetId: `source-region-${region.id}`,
           })),
         ],
-        activeSectionId: useOutline ? (activeOutlineId || postOutline[0].id) : (mergedUpdates && outlineUpdates.some((item) => item.id === activeOutlineId) ? activeOutlineId : activeFocus.id),
+        activeSectionId: previewOutline.length ? (previewOutline.find(item => item.id === activeOutlineId)?.id || previewOutline[0].id)
+          : useOutline ? (activeOutlineId || postOutline[0].id) : (mergedUpdates && outlineUpdates.some((item) => item.id === activeOutlineId) ? activeOutlineId : activeFocus.id),
+        ...(mapIntegrationReview ? {
+          postRailUnitIds: previewUnits.map(unit => unit.id),
+          postRailSeriesHref: railSeries?.href || null,
+          postRailSeriesLabel: railSeries?.name || null,
+          postRailCategoryHref: railCategory?.href || null,
+        } : {}),
         surfaceMapLabel: "בתוך הפוסט",
         surfaceFindings: state.projection.draft || state.projection.privateStage || state.projection.previewSnapshot ? [] : post.slug === "bennett-melach-631-78"
           ? (state.projection.experience?.connections || [])
@@ -815,7 +830,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         },
       },
     });
-  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack), location.pathname, location.search, useOutline, mergedUpdates, postOutline, activeOutlineId]);
+  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack), location.pathname, location.search, useOutline, mergedUpdates, postOutline, activeOutlineId, previewOutline, previewUnits]);
 
   useEffect(() => {
     if (research.context?.subject?.type === "post" && research.context?.selection?.entityType === "post_occurrence") {
@@ -888,6 +903,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     if (!target) return undefined;
     const frame = requestAnimationFrame(() => {
       revealReadingAnchor(target);
+      if (mapIntegrationReview) {
+        const depth = target.querySelector(":scope > details[data-map-depth]");
+        if (depth) depth.open = true;
+      }
       target.scrollIntoView({ block: "start", behavior: "instant" });
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
@@ -901,17 +920,23 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
     if (!id || id.startsWith("signed-passage-") || !state.projection || !sourceRef.current) return;
+    const root = sourceRef.current;
     const target = id === "post-measures" || id === "post-classification" ? document.getElementById(id)
-      : [...sourceRef.current.querySelectorAll("[id]")].find(node => node.id === id);
+      : root.id === id ? root : [...root.querySelectorAll("[id]")].find(node => node.id === id);
     if (!target) return;
     revealReadingAnchor(target);
+    if (mapIntegrationReview && new URLSearchParams(location.search).get("unit") === id
+      && postActionUnits2029(state.projection.post, sourceRef.current).some(unit => unit.id === id)) {
+      const depth = target.querySelector(":scope > details[data-map-depth]");
+      if (depth) depth.open = true;
+    }
     const frame = requestAnimationFrame(() => {
       target.scrollIntoView({ block: "start", behavior: "instant" });
       if (!target.matches("button,a,input,summary")) target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
-  }, [state.projection, location.hash, measureSource.legacyOccurrences]);
+  }, [state.projection, location.hash, mapIntegrationReview ? location.key : null, measureSource.legacyOccurrences]);
 
   if (state.loading) {
     return <FrameState kind="loading" title="פותח את המקור">המילים נשארות במרכז; שכבת ההקשר נטענת מסביבן.</FrameState>;
@@ -923,8 +948,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const { projection } = state;
   const { post } = projection;
   const postActionTarget = postActionTarget2029(projection);
-  const mapUnit = mapIntegrationReview ? mapUnitReading(post.id) : null;
-  const worldReturn = mapUnit && location.state?.mapWorldUnit === mapUnit.key ? mapWorldHref(mapUnit.key) : null;
+  const previewRailContext = mapIntegrationReview && research.context?.subject?.type === "post"
+    && String(research.context.subject.id) === String(post.id) ? research.context : null;
+  const worldSelection = location.state?.mapWorldUnit;
+  const worldReturn = mapIntegrationReview && typeof worldSelection === "string" && /^[a-z0-9-]+$/.test(worldSelection)
+    ? mapWorldHref(worldSelection) : null;
   const coverYields = mapIntegrationReview ? previewPostMedia2029(post).duplicateCover : postReadingCoverYieldsToVideo2029(post);
   const coverItem = coverYields ? null : postReadingCoverItem(post);
   const character = postCharacterFor(post);
@@ -966,7 +994,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const hasResearchContent = contextualConnections.length > 0 || visibleTimeline.some(item => !item.current)
     || additionalLinks.length > 0 || measureSource.claims.length > 0
     || Boolean(experience.media?.sourceCard?.href || experience.media?.fullSource?.href);
-  const previewOutline = mapIntegrationReview ? postOutline.filter(item => !["post-connections", "post-sources"].includes(item.id)) : [];
   const previewCategories = mapIntegrationReview ? canonicalPostCategories(projection.sourcePost.categories).filter(name => name !== "וידאו") : [];
   const previewTags = mapIntegrationReview ? [...new Set((projection.sourcePost.tags || [])
     .map(tag => postsTaxonomyScope2029("tag", tag)).filter(scope => scope.kind === "tag").map(scope => scope.key))] : [];
@@ -1530,27 +1557,18 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div>
       {postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml}
         onDraft={discussionReviewEnabled ? target => setDiscussionDraft(current => current?.postId === target.postId ? current : target) : undefined} /> : null}
-      {mapIntegrationReview && (previewOutline.length || mapUnit) ? <details className="map29-mobile-post-context">
-        <summary>הקשר הפוסט</summary>
-        {previewOutline.length ? <nav aria-label="בתוך הפוסט">
-          <div className="sod29-context-inspector-kicker">בתוך הפוסט</div>
-          <ul>{previewOutline.map(item => {
-            const id = item.targetId || item.id;
-            const unit = previewUnits.find(candidate => candidate.id === id);
-            const href = unit ? publicPostUnitHref(post, id) : `#${encodeURIComponent(id)}`;
-            return <li key={item.id} data-level={item.level}><Link to={href} state={location.state}
-              aria-current={activeOutlineId === item.id ? "location" : undefined}
-              onClick={event => {
-                if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
-                event.currentTarget.closest("details").open = false;
-                const target = unit && document.getElementById(unit.id);
-                const depth = target && sourceRef.current?.contains(target) && target.querySelector(":scope > details[data-map-depth]");
-                if (depth) depth.open = true;
-              }}>{item.label}</Link></li>;
-          })}</ul>
-        </nav> : null}
-        {mapUnit && MapUnitContextReview ? <MapUnitContextReview postId={post.id} unitKey={mapUnit.key} /> : null}
-      </details> : null}
+      {previewRailContext && MapUnitContextReview ? <div className="map29-mobile-post-context">
+        <button type="button" className="sod29-action" aria-haspopup="dialog" onClick={() => {
+          postContextDialog.current?.showModal();
+          setPostContextOpen(true);
+        }}>הקשר הפוסט</button>
+        <dialog ref={postContextDialog} className="map29-post-context-sheet" aria-label="הקשר הפוסט" onClose={() => setPostContextOpen(false)}>
+          <button type="button" className="sod29-action" onClick={() => postContextDialog.current?.close()}>סגירה</button>
+          {postContextOpen ? <MapUnitContextReview context={previewRailContext} onNavigate={event => {
+            if (!event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) postContextDialog.current?.close();
+          }} /> : null}
+        </dialog>
+      </div> : null}
       {worldReturn ? <div className="sod29-actions" aria-label="מסלול הבדיקה">
         <Link className="sod29-action" to={worldReturn}>חזרה לאותה בחירה בעולם</Link>
       </div> : null}

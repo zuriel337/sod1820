@@ -211,6 +211,12 @@ export default function SurfaceContextRail2029({
 
   const activeKey = context?.dimensions?.activeUnitRef;
   const postRailReview = Boolean(MapUnitContext2029) && surface === "post";
+  if (import.meta.env.VITE_MAP_INTEGRATION_REVIEW === "true" && postRailReview && context?.subject?.type === "post") {
+    return <ContextualInspector2029 className={`sod29-surface-context-rail${sheet ? " is-sheet" : ""} is-rest`} ariaLabel="הקשר הפוסט" contextId={context.subject.id}>
+      <Suspense fallback={null}><MapUnitContext2029 context={context} onNavigate={sheet ? () => onNavigate?.() : undefined}
+        onFollowConnection={onFollowConnection} /></Suspense>
+    </ContextualInspector2029>;
+  }
 
   return <>
     <ContextualInspector2029

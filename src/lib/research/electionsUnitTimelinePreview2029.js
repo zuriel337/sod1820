@@ -3,8 +3,8 @@ import { calculationRow, focalTrace, renderPostUnitTimeline2029, textElement } f
 
 const firstUnitId = "yamin-smol-2026-5787-1237-1158";
 const originalUnitId = "elections-original-reading";
-const sharsharId = "sharshar-shoes-66";
-const sharsharSourceIds = ["sharshar-knesset-source", "sharshar-monthly-help-requests"];
+export const sharsharId = "sharshar-shoes-66";
+export const sharsharSourceIds = ["sharshar-knesset-source", "sharshar-monthly-help-requests"];
 
 const readings = {
   "yamin-smol-2026-5787-1237-1158": {

@@ -520,9 +520,7 @@
 
 .map29-mobile-post-context{display:none}
 @media(max-width:980px){
-  .map29-mobile-post-context{display:block;padding:12px;margin-block:12px;border:1px solid var(--s29-line);border-radius:14px}
-  .map29-mobile-post-context summary{min-height:44px;cursor:pointer;align-content:center}
-  .map29-mobile-post-context>section{margin-block-start:12px}
+  .map29-mobile-post-context{display:block;margin-block:.45rem}
 }
 
 /* Keep the compact preview in the post's Royal reading palette. */

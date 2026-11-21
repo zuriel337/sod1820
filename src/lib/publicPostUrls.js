@@ -65,7 +65,7 @@ export function publicPostHref(post, { search = "", hash = "" } = {}) {
 export function publicPostUnitHref(post, unitId, { origin = "" } = {}) {
   const id = String(unitId ?? "").trim();
   if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,120}$/.test(id)) return null;
-  const base = typeof post === "string" ? (post.startsWith("/") ? post.replace(/[?#].*$/, "") : null) : publicPostHref(post);
+  const base = typeof post === "string" ? (post.startsWith("/") && !post.startsWith("//") ? post.replace(/[?#].*$/, "") : null) : publicPostHref(post);
   if (!base) return null;
   return String(origin || "").replace(/\/$/, "") + base + "?unit=" + encodeURIComponent(id) + "#" + encodeURIComponent(id);
 }

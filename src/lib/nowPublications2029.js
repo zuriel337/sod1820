@@ -9,6 +9,7 @@ import { realityMapPreviewEnabled } from "./research/realityMap2029.js";
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
 import { PROVEN_POST_SOURCE_UPDATES } from "./research/postSourceUpdates2029.js";
+import { publicPostUnitHref } from "./publicPostUrls.js";
 import { publicStorageMedia } from "./mediaEgressGuard.js";
 import { GROUP_SOURCE_CHANNELS, groupWriterPinListed } from "./research/worldGroupSource.js";
 
@@ -248,7 +249,7 @@ export function seriesLatestFace2029(member) {
   if (!member) return null;
   const entry = newestRegisteredEntry(`post:${member.id}`);
   if (!entry?.label || !((Date.parse(entry.updatedAt || "") || 0) > (Date.parse(member.publishedAt || "") || 0))) return { title: member.title, postTitle: null, at: member.publishedAt, href: member.href };
-  const href = member.href && member.href.startsWith("/") && !member.href.includes("#") ? `${member.href}#${entry.targetId}` : member.href;
+  const href = publicPostUnitHref(member.href, entry.targetId) || member.href;
   return { title: entry.label, postTitle: member.title, at: entry.updatedAt, href };
 }
 export const nowModels = (rows, now = Date.now(), seen = {}) => {
@@ -265,7 +266,7 @@ export const nowModels = (rows, now = Date.now(), seen = {}) => {
   const asUpdate = entry && entry.label && (Date.parse(entry.updatedAt || "") || 0) > (Date.parse(latest.at || "") || 0)
     ? { title: entry.label, postTitle: latest.title, excerpt: entry.summary || (latest.title ? `בפוסט: ${latest.title}` : ""), excerptIsLead: false, at: entry.updatedAt,
         ...(entry.summary ? { fullText: entry.summary, summary: entry.summary } : {}),
-        href: latest.href && latest.href.startsWith("/") && !latest.href.includes("#") ? `${latest.href}#${entry.targetId}` : latest.href } : {};
+        href: publicPostUnitHref(latest.href, entry.targetId) || latest.href } : {};
   return [...rest.slice(0, leading), { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
 };
 

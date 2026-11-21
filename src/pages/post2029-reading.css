@@ -1608,32 +1608,67 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 [data-post-design-preview] .post-design-links a {
   overflow-wrap: anywhere;
 }
-[data-post-design-preview] .map29-mobile-post-context {
-  padding-block: 0;
-  margin-block: .45rem;
-  box-shadow: none;
+.map29-post-context :is(h2, p, ul) {
+  margin: 0;
 }
-[data-post-design-preview] .map29-mobile-post-context ul {
-  max-block-size: min(40dvh, 18rem);
-  overflow: auto;
-  overscroll-behavior: contain;
+.map29-post-context h2 {
+  font-size: 1rem;
+  color: var(--s29-accent-text, var(--s29-ink));
+}
+.map29-post-context ul {
   list-style: none;
   padding-inline: 0;
-  margin-block: 0 .5rem;
 }
-[data-post-design-preview] .map29-mobile-post-context li[data-level="2"] {
-  padding-inline-start: 1rem;
+.map29-post-context ul ul {
+  border-inline-start: 1px solid var(--s29-line);
+  margin-inline-start: .5rem;
+  padding-inline-start: .6rem;
 }
-[data-post-design-preview] .map29-mobile-post-context :is(li a, section > a) {
+.map29-post-context :is(a, summary) {
   display: block;
-  min-block-size: 44px;
+  min-block-size: 2rem;
   padding-block: .5rem;
   overflow-wrap: anywhere;
+  color: var(--s29-ink);
 }
-[data-post-design-preview] .map29-mobile-post-context [aria-current="location"] {
+.map29-post-context summary {
+  display: list-item;
+  cursor: pointer;
+}
+.map29-post-context a[aria-current="location"] {
   color: var(--s29-accent-text);
   font-weight: 700;
 }
+.map29-post-context section {
+  border-block-start: 1px solid var(--s29-line);
+  margin-block-start: .8rem;
+  padding-block-start: .8rem;
+}
+.map29-post-context section li + li {
+  border-block-start: 1px solid var(--s29-line);
+  margin-block-start: .35rem;
+}
+.map29-post-context :is(small, p) {
+  color: var(--s29-muted);
+  font-size: .875rem;
+  line-height: 1.55;
+}
+.map29-post-context-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: none;
+  max-height: 72dvh;
+  margin: 0;
+  padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  border: 1px solid var(--s29-line);
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--s29-panel);
+  color: var(--s29-ink);
+  overscroll-behavior: contain;
+}
+.map29-post-context-sheet::backdrop { background: rgb(0 0 0 / .55); }
+.map29-post-context-sheet :is(a, summary, button) { min-block-size: 44px; }
 @media (max-width: 760px) {
   [data-post-design-preview] .post-design-title {
     align-items: center;
