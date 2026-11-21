@@ -1,4 +1,4 @@
-import sitemapHandler from "../../api/sitemap.js";
+import { partitionedSitemap as sitemapHandler } from "../../api/sitemap.js";
 import { PUBLIC_READING_PROFILE_ID } from "../../src/lib/publicReadingRelease2029.js";
 import { CANONICAL_ORIGIN, deploymentAuthorized, publicIndexingAllowed } from "../authorization.js";
 import { requestOrigin } from "./public-document.js";

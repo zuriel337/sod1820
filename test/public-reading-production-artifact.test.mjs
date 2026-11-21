@@ -196,7 +196,8 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     const value = String(url); calls.push(value);
     if (value.includes("/posts?")) return json([legacy, modern, encoded]);
     if (value.includes("/rpc/sitemap_numbers")) { assert.equal(options.method, "POST"); return json([{ value: 1820 }]); }
-    if (value.includes("/sitemap_phrases_v1?")) return json([{ phrase: "בראשית" }]);
+    if (value.includes("/sitemap_phrases_v1?")) return options?.method === "HEAD"
+      ? new Response(null, { headers: { "content-range": "0-0/1" } }) : json([{ phrase: "בראשית" }]);
     if (value.includes("/topic_cards_public?")) return json([{ slug: "subject" }]);
     if (value.includes("/contributors?")) { assert.match(value, /active=eq.true.*visibility.eq.public/); return json([{ slug: "writer", code: "2042" }]); }
     if (value.includes("/els_records?")) { assert.match(value, /status=eq.published.*visibility=eq.public/); assert.match(value, /source.neq.research/); return json([{ slug: 'published-cipher' }]); }
@@ -216,6 +217,17 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
   await withFetch(fetcher, async () => {
     const res = response(); await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/sitemap.xml"), res);
     assert.equal(res.code, 200); assert.equal(res.headers.get("cache-control"), "public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400");
+    assert.match(res.body, /<sitemapindex\b/);
+    const parts = [...res.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1].replace(/&amp;/g, "&"));
+    assert.equal(parts.length, 3);
+    const bodies = [];
+    for (const part of parts) {
+      const child = response(), url = new URL(part);
+      await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req(url.pathname + url.search), child);
+      assert.equal(child.code, 200); assert.match(child.body, /<urlset\b/);
+      assert.equal(child.headers.get("cache-control"), res.headers.get("cache-control")); bodies.push(child.body);
+    }
+    res.body = bodies.join("\n");
     for (const path of ["/old-post", "/post/new-post", "/number/1820", "/number/" + encodeURIComponent("בראשית"),
       "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/code", "/codes/published-cipher", "/privacy"])
       assert.ok(res.body.includes(`<loc>${SITE}${path}</loc>`), path);
@@ -355,12 +367,12 @@ test("signed Legacy unsubscribe alone can reach its unchanged HMAC server from e
 test("a failed worker admission keeps the document's own article readable and fetches, imports or measures nothing", async () => {
   // Reproduced live 20.11.2026: without a usable worker (no API, blocked, slow or broken handshake) the 3,000-word article the
   // first document already carried was replaced by the one-line failure message.
-  function page({ article }) {
+  function page({ article, words = false }) {
     const appended = [], busy = { removed: [], removeAttribute(name) { this.removed.push(name); } };
     const body = { textContent: "ARTICLE TEXT", style: {}, appendChild(node) { appended.push(node); } };
     const document = { body, appended, busy,
       getElementById: id => (article && id === "sod29-ssr-article" ? { isConnected: true } : null),
-      querySelector: selector => (selector === "#root [aria-busy]" ? busy : null),
+      querySelector: selector => (selector === "#root [aria-busy]" ? busy : selector === "[data-first-words]" && words ? { isConnected: true } : null),
       createElement: tag => ({ tag, attributes: {}, style: {}, textContent: "", setAttribute(k, v) { this.attributes[k] = v; } }) };
     const imports = [], recovered = [];
     return { imports, recovered, document, navigator: {}, MessageChannel: class {}, setTimeout, clearTimeout,
@@ -383,6 +395,15 @@ test("a failed worker admission keeps the document's own article readable and fe
   assert.equal(await startPublicReading(config, slow), false);
   assert.deepEqual(slow.recovered, ["worker_bootstrap_timeout:registration"]);
   assert.equal(slow.document.body.textContent, "ARTICLE TEXT"); assert.equal(slow.imports.length, 0);
+  // Public first words (including Home) are already admitted server content too.
+  // Missing worker support must not erase that content or admit the application.
+  const withWords = page({ article: false, words: true });
+  assert.equal(await startPublicReading(config, withWords), false);
+  assert.equal(withWords.document.body.textContent, "ARTICLE TEXT");
+  assert.equal(withWords.imports.length, 0);
+  assert.equal(withWords.document.appended.length, 1);
+  assert.match(withWords.document.appended[0].textContent, /התוכן זמין לקריאה/);
+  assert.deepEqual(withWords.document.busy.removed, ["aria-busy"]);
   // No article in the document: the existing message, unchanged.
   const shellOnly = page({ article: false });
   assert.equal(await startPublicReading(config, shellOnly), false);

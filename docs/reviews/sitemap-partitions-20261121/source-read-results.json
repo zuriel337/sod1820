@@ -1,0 +1,210 @@
+{
+  "results": [
+    {
+      "url": "/sitemap.xml",
+      "code": 200,
+      "ms": 1883,
+      "requests": 1,
+      "bytes": 1454
+    },
+    {
+      "url": "/sitemap.xml?part=content",
+      "code": 200,
+      "ms": 4976,
+      "requests": 7,
+      "bytes": 1354660
+    },
+    {
+      "url": "/sitemap.xml?part=catalog",
+      "code": 200,
+      "ms": 5168,
+      "requests": 6,
+      "bytes": 136308
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=1",
+      "code": 200,
+      "ms": 1233,
+      "requests": 1,
+      "bytes": 224463
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=2",
+      "code": 200,
+      "ms": 1017,
+      "requests": 1,
+      "bytes": 222248
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=3",
+      "code": 200,
+      "ms": 1019,
+      "requests": 1,
+      "bytes": 217219
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=4",
+      "code": 200,
+      "ms": 1036,
+      "requests": 1,
+      "bytes": 242235
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=5",
+      "code": 200,
+      "ms": 1001,
+      "requests": 1,
+      "bytes": 212345
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=6",
+      "code": 200,
+      "ms": 1057,
+      "requests": 1,
+      "bytes": 225630
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=7",
+      "code": 200,
+      "ms": 1167,
+      "requests": 1,
+      "bytes": 211357
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=8",
+      "code": 200,
+      "ms": 1222,
+      "requests": 1,
+      "bytes": 223703
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=9",
+      "code": 200,
+      "ms": 1834,
+      "requests": 1,
+      "bytes": 212471
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=10",
+      "code": 200,
+      "ms": 1044,
+      "requests": 1,
+      "bytes": 206695
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=11",
+      "code": 200,
+      "ms": 1132,
+      "requests": 1,
+      "bytes": 209697
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=12",
+      "code": 200,
+      "ms": 1052,
+      "requests": 1,
+      "bytes": 210068
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=13",
+      "code": 200,
+      "ms": 1316,
+      "requests": 1,
+      "bytes": 121593
+    },
+    {
+      "url": "/sitemap.xml",
+      "code": 200,
+      "ms": 4280,
+      "requests": 6,
+      "bytes": 4229091
+    },
+    {
+      "url": "/sitemap.xml",
+      "code": 200,
+      "ms": 2439,
+      "requests": 1,
+      "bytes": 1454
+    },
+    {
+      "url": "/sitemap.xml?part=content",
+      "code": 200,
+      "ms": 5658,
+      "requests": 7,
+      "bytes": 1354660
+    },
+    {
+      "url": "/sitemap.xml?part=catalog",
+      "code": 200,
+      "ms": 5215,
+      "requests": 6,
+      "bytes": 136308
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=1",
+      "code": 200,
+      "ms": 1354,
+      "requests": 1,
+      "bytes": 224463
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=7",
+      "code": 200,
+      "ms": 1587,
+      "requests": 1,
+      "bytes": 211357
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=13",
+      "code": 200,
+      "ms": 1507,
+      "requests": 1,
+      "bytes": 121593
+    },
+    {
+      "url": "/sitemap.xml",
+      "code": 200,
+      "ms": 2944,
+      "requests": 1,
+      "bytes": 1454
+    },
+    {
+      "url": "/sitemap.xml?part=content",
+      "code": 200,
+      "ms": 4668,
+      "requests": 7,
+      "bytes": 1354660
+    },
+    {
+      "url": "/sitemap.xml?part=catalog",
+      "code": 200,
+      "ms": 6078,
+      "requests": 6,
+      "bytes": 136308
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=1",
+      "code": 200,
+      "ms": 1323,
+      "requests": 1,
+      "bytes": 224463
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=7",
+      "code": 200,
+      "ms": 2247,
+      "requests": 1,
+      "bytes": 211357
+    },
+    {
+      "url": "/sitemap.xml?part=phrases&page=13",
+      "code": 200,
+      "ms": 1244,
+      "requests": 1,
+      "bytes": 121593
+    }
+  ],
+  "entries": 16808,
+  "parity": true,
+  "peak": 3
+}

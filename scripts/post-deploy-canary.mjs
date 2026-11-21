@@ -33,6 +33,25 @@ export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000 } =
     add("robots_200", robots.status === 200, `status=${robots.status}`);
     const sitemap = await get("/sitemap.xml");
     add("sitemap_200", sitemap.status === 200 && /<urlset|<sitemapindex/.test(sitemap.text), `status=${sitemap.status}`);
+    if (sitemap.status === 200 && /<sitemapindex\b/.test(sitemap.text)) {
+      const parts = [...sitemap.text.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1].replace(/&amp;/g, "&"));
+      const valid = parts.length > 0 && parts.length <= 50000 && new Set(parts).size === parts.length
+        && parts.every(part => { try { return new URL(part).origin === new URL(origin).origin; } catch { return false; } });
+      add("sitemap_index_parts", valid, `parts=${parts.length}`);
+      if (valid) {
+        // Every advertised part keeps the same per-response deadline; no root-
+        // only success can hide a failing child. At most three reads at once.
+        for (let from = 0; from < parts.length; from += 3) {
+          const checksForParts = await Promise.all(parts.slice(from, from + 3).map(async part => {
+            const url = new URL(part);
+            try { const result = await get(url.pathname + url.search);
+              return { ok: result.status === 200 && /<urlset\b/.test(result.text), detail: `${url.pathname}${url.search} status=${result.status}` };
+            } catch (error) { return { ok: false, detail: `${url.pathname}${url.search} ${error?.message || error}` }; }
+          }));
+          checksForParts.forEach((result, index) => add(`sitemap_part_${from + index + 1}`, result.ok, result.detail));
+        }
+      }
+    }
   } catch (e) {
     add("request_error", false, e?.message || e);
   }
