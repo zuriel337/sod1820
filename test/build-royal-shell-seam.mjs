@@ -1,0 +1,5 @@
+import { build } from 'esbuild';
+import fs from 'node:fs';
+const out=process.argv[2] || '/workspace/scratch/quiet-seam';fs.mkdirSync(out,{recursive:true});
+await build({absWorkingDir:process.cwd(),entryPoints:['test/fixtures/royal-shell-seam.jsx'],outdir:out,external:['/backgrounds/*','/legacy-*.webp'],bundle:true,splitting:true,format:'esm',loader:{'.png':'dataurl','.svg':'dataurl','.woff2':'dataurl'},define:{'import.meta.env':JSON.stringify({DEV:false,MODE:'test',VITE_SUPABASE_URL:'https://linswmnnkjxvweumprav.supabase.co',VITE_SUPABASE_ANON_KEY:'review-only-not-a-key'}),'process.env.NODE_ENV':'"production"'},plugins:[{name:'fixture-auth',setup(b){b.onLoad({filter:/\/AuthContext.jsx$/},()=>({contents:'export const useAuth=()=>({user:null,profile:null,loading:false,isAdmin:true,isMember:false});export const AuthProvider=({children})=>children;',loader:'jsx'}));}}]});
+fs.writeFileSync(out+'/2029.html','<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><link rel="stylesheet" href="/royal-shell-seam.css"><div id="root"></div><script type="module" src="/royal-shell-seam.js"></script></html>');

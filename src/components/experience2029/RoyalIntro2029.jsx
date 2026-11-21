@@ -14,10 +14,10 @@ export default function RoyalIntro2029({ surface, title, description, orientatio
   const manifest = ENTRY_ORIENTATION_MANIFESTS[surface];
   const close = () => { setOpen(false); trigger.current?.focus(); };
   return <>
-    <picture className="r29-palace-art" aria-hidden="true">
+    {!["world", "heichal", "books"].includes(surface) ? <picture className="r29-palace-art" aria-hidden="true">
       <source media="(min-width: 650px)" srcSet={ROYAL_PALACE_ATMOSPHERE_2029.desktop} />
       <img src={ROYAL_PALACE_ATMOSPHERE_2029.mobile} width="500" height="547" alt="" decoding="async" loading="eager" fetchPriority="low" />
-    </picture>
+    </picture> : null}
     <div className="r29-palace-help" onKeyDown={event => {
       if (event.key === "Escape" && open) { event.stopPropagation(); close(); }
     }}>

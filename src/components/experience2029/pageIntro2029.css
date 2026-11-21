@@ -27,3 +27,9 @@
 
 /* Full is explicit opt-in; legacy hero callers inherit Compact. */
 .native-frame .sod29-page-intro[data-intro-variant="full"] {padding-block:72px 20px;gap:16px}
+
+/* Approved quiet Royal opening: complete content, no decorative image. */
+.native-frame .sod29-page-intro[data-intro-variant="quiet"] {padding-block:10px;gap:6px;background:var(--s29-frame)}
+.native-frame .sod29-page-intro[data-intro-variant="quiet"] h1 {font-size:24px}
+.native-frame .sod29-page-intro[data-intro-variant="quiet"] p {margin-top:4px}
+.native-frame .sod29-page-intro[data-intro-variant="quiet"] .sod29-context-strip {margin-top:4px;padding-top:4px}

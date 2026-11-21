@@ -44,9 +44,10 @@ test("ShareActions: a failed sheet falls back to copy and says so; an image shar
 
 test("frame: the inspect panel shares the same sanitized public link as the More panel, and nothing on a private page", () => {
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
-  assert.match(frame, /\{shareHref \? <div className="sod29-canonical-share" data-share-owner="ShareActions">/);
-  assert.match(frame, /<ShareActions\s+type=\{target\.type \|\| "page"\}\s+url=\{shareHref\}/);
-  assert.doesNotMatch(frame, /title=\{`SOD1820 · \$\{publicContextLabel\(target\.label\)/, "the text no longer names a different item than the link");
+  const inspect = read("src/components/experience2029/InspectProjection2029.jsx");
+  assert.match(inspect, /\{shareHref \? <div className="sod29-canonical-share" data-share-owner="ShareActions">/);
+  assert.match(inspect, /<ShareActions\s+type=\{target\.type \|\| "page"\}\s+url=\{shareHref\}/);
+  assert.doesNotMatch(frame + inspect, /title=\{`SOD1820 · \$\{publicContextLabel\(target\.label\)/, "the text no longer names a different item than the link");
   assert.match(frame, /onNeedHelp=\{openIssueReport\} shareHref=\{shareHref\} \/>/);
   // ZURIEL 19.11.2026: a page's own share item (barShare2029.js) comes first; otherwise the page link, still without a static shell title.
   assert.match(frame, /share=\{transient\?\.payload\?\.item \|\| \(shareHref \? \{ href: shareHref, type: surface === "post" \? "post" : "page", surface \} : null\)\}/, "no static shell title (פוסט / SOD1820) as share text");
