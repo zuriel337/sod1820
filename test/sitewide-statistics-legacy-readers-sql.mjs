@@ -89,6 +89,8 @@ try {
   await db.exec(read(dir + 'fn_human_entrances.after.sql'));
   check(await scalar("select string_agg(entity_key||':'||clean_human_visits||'/'||clean_unknown_visits,',' order by entity_key) as v from fn_ti_entity_demand_clean_composition(current_date-1,current_date+1) where entity_type='number'")==='777:9/3,778:1/0','fixed landing identity: TI entity demand sees v2 number landings, human/unknown separate');
   await db.exec(psql('legacy-readers-hardening.psql'));
+  // Raziel window date convention fix (statistics-sections-20261121): the window uses the server date, like fn_human_entrances.
+  await db.exec(read('supabase/proposed/statistics-sections-20261121/fn_raziel_research_intel.after.sql'));
   await db.exec('set role anon');
   check(await scalar(ncr) === 'גלוי,פרטי', 'number_cross_resonance hides unpublished and encrypted phrases; a private wall entry does not hide a published word');
   for (const sig of ['fn_raziel_research_intel(integer,text,integer)', 'fn_name_research(text)', 'reality_scan(integer,integer)', 'fn_name_research_stats(integer)'])
