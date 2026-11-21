@@ -300,3 +300,38 @@ Light lab over HTTP/2 (main vs branch, p50): phone Post text 6,846 → 6,488 ms;
 Not changed, with the measured reason: on-demand panel CSS (< 1 KB), analytics (11.4 KB; no loss-free split, open gap), the research store (synchronous state), Auth (33.8 KB; needs the full sign-in acceptance), the Raziel session (may serve members on ELS / Life Journey).
 
 Write-up: `docs/reviews/shell-weight-reduction-20261118/README.md`.
+
+### 21.11.2026: slow networks, the worker script before the module hints (experiment, branch only)
+
+`S-53` in the JSON (counts: 53 entries, 51 merged, 2 branch-only). Branch `ccr-dcadb071-v1z5ol-slow-net-sw-priority`, draft PR #1466, commit `7bd18aebb`, base main `36c69db02`. Not merged, not deployed.
+
+**The problem.** On a first visit the document requested up to ~70 hints before the bootstrap registered `sw.js`: 17 entry modules, plus 51 Home files on `/`. On a slow line they shared the bandwidth with `sw.js` inside the one 10 s deadline. In the lab, on Slow 3G Home, `sw.js` arrived only after 10.4 s.
+
+**The fix.** One small loader in `route-preload.js` sends the same hints:
+
+- at once on a repeat visit;
+- on a first visit, as soon as the registration holds the worker;
+- never without the Service Worker API.
+
+Not changed: `transport.js`, the 10 s deadline, policy validation, heal, fail-closed, Article First and the shell budget.
+
+**Lab, cold phone, median, before → after (ms):**
+
+| Profile | Home first paint | Home `sw.js` | Home app open |
+|---|---|---|---|
+| Slow 4G | 1,408 → 532 | 2,716 → 748 | 3,282 → 3,354 |
+| 3G | 2,718 → 966 | 5,710 → 1,513 | 6,290 → 6,464 |
+| Slow 3G | 4,746 → 1,430 | 10,415 → 2,310 | 11,008 → 11,132 |
+
+- **Other pages:** number, gematria and post show the same pattern: first paint about 3× earlier, the worker much earlier.
+- **Repeat visit:** equal.
+- **Bytes before open:** equal.
+- **CLS:** 0.034 → 0–0.015.
+- **The price:** the full app opens 2–7% later on a first visit on a slow line.
+- **LCP after the change:** not quoted, because of the observer's limits in the lab.
+
+**Integration.** Merged locally with the reading-preservation fix of the SW session (`claude/sod1820-no-sw-reading-y5ph01`, `5f9e1d752`). The merge is clean. Build, artifact tests and shell budget pass. The functional check with the real database (phone and desktop: Home, number, gematria, post, navigation) found no errors and no duplicate requests.
+
+**Timeout.** The deadline stays 10 s: registration now ends in about 2.3 s on Slow 3G.
+
+Write-up: `docs/reviews/slow-net-sw-priority-20261121/README.md`.
