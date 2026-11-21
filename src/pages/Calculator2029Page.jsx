@@ -650,7 +650,7 @@ function CalculatorBody() {
       surface="number"
       calmBottomChrome
       orientationCopy={{ label: "מה אני רואה במחשבון?", body: "הקלידו שם, מילה או ביטוי ובדקו את ערכו בגימטריה. בחרו שיטה כדי לראות את הצעדים שלה, ובלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם." }}
-      symbol={<NavigationIcon2029 name="number" />}
+      symbol={<NavigationIcon2029 name="calculator" />}
       eyebrow="גימטריה · חישוב מיידי"
       title="מה מסתתר בשם שלך?"
       description="הקלידו שם בעברית וגלו מה מסתתר בו. אפשר לשתף בקישור, ולהמשיך לעומק במחשבון המקצועי."

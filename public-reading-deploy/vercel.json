@@ -3027,6 +3027,15 @@
   ],
   "headers": [
     {
+      "source": "/backgrounds/2029/royal-palace-:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {

@@ -42,6 +42,7 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 // when it arrives, hidden while the route shows only its loading placeholder (footer2029.css), as before; drawing it only after the
 // content measured a later largest paint on desktop (its styles and render landed in that window). The account-link offer only for a signed-in account (it was always empty for a visitor and appears only
 // after its own read); the share row with the inspect panel that shows it; the living ribbon (hidden) and its detail when opened.
+const RoyalIntro2029 = React.lazy(() => import("./RoyalIntro2029.jsx"));
 const Footer2029 = React.lazy(() => import("./Footer2029.jsx"));
 const AccountLinkOffer2029 = React.lazy(() => import("./AccountLinkOffer2029.jsx"));
 const ShareActions = React.lazy(() => import("../ShareActions.jsx"));
@@ -796,8 +797,8 @@ function IntroResearchContext2029({ context, currentHref, pageTitle, onReturnExa
   const items=contextNavigationItems2029(context,{currentHref,pageTitle});
   const strip = <nav className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
     {items.map(item=>item.href?(item.key==='return'
-      ?<button key={item.key} type="button" data-context-role={item.key} onClick={onReturnExact}>{item.prefix} · {item.label}</button>
-      :<Link key={item.key} data-context-role={item.key} to={item.href}>{item.prefix} · {item.label}</Link>)
+      ?<button key={item.key} className="r29-btn is-quiet" type="button" data-context-role={item.key} onClick={onReturnExact}>{item.prefix} · {item.label}</button>
+      :<Link key={item.key} className="r29-btn is-quiet" data-context-role={item.key} to={item.href}>{item.prefix} · {item.label}</Link>)
       :<span key={item.key} data-context-role={item.key}>{item.prefix} · {item.label}</span>)}
   </nav>;
   const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
@@ -1628,7 +1629,7 @@ function SystemFrame2029Body({
   };
 
   const resolvedIntroVariant = introVariant === "none" ? "none" : ["world", "heichal", "topic", "books", "els", "calculator"].includes(surface) ? "compact" : introVariant;
-  const introIcon = { world: "world", heichal: "heichal", topic: "world", books: "books", els: "els", calculator: "number" }[surface];
+  const introIcon = { world: "world", heichal: "heichal", topic: "graph", books: "books", els: "els", calculator: "calculator", journey: "journey", number: "number", control: "tools" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
     <SystemFeedContext2029.Provider value={feed}>
@@ -1720,7 +1721,7 @@ function SystemFrame2029Body({
           {LIVING_RIBBON_VISIBLE_2029 ? <React.Suspense fallback={null}><GlobalLivingRibbon2029 /></React.Suspense> : null}
           </div>
 
-          {orientation.mode !== "hidden" && orientation.manifest ? (() => {
+          {(resolvedIntroVariant === "none" || !(eyebrow || title || description)) && orientation.mode !== "hidden" && orientation.manifest ? (() => {
             const mark = <LearnMark2029
               scope={LEARN_SCOPE.SURFACE}
               label={orientationCopy?.label || orientation.manifest.label}
@@ -1741,13 +1742,14 @@ function SystemFrame2029Body({
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
-                <section className={`sod29-page-intro${resolvedIntroVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={resolvedIntroVariant}>
-                  <div className="sod29-hero-visual" aria-hidden="true">{resolvedIntroVariant !== "compact" ? <><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /></> : null}<span className="sod29-hero-symbol">{introIcon ? <NavigationIcon2029 name={introIcon} /> : symbol}</span></div>
+                <section className={`sod29-page-intro r29 r29-hall${resolvedIntroVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={resolvedIntroVariant}>
+                  <React.Suspense fallback={null}><RoyalIntro2029 key={currentHref} surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>
+                  <div className="sod29-hero-visual" aria-hidden="true"><span className="sod29-hero-symbol r29-medal">{React.isValidElement(symbol) ? symbol : <NavigationIcon2029 name={introIcon || "home"} />}</span></div>
                   <div className="sod29-hero-copy">
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
-                    {context && surface !== "number" ? <IntroResearchContext2029 context={pageContext} currentHref={currentHref} pageTitle={currentLabel} onReturnExact={returnExact} /> : null}
+                    <IntroResearchContext2029 context={pageContext || {}} currentHref={currentHref} pageTitle={currentLabel} onReturnExact={returnExact} />
                   </div>
                 </section>
               ) : null}
