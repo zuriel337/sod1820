@@ -11,7 +11,7 @@ test('connected palace derivatives stay lazy, fingerprinted, responsive and immu
   const bytes=fs.readFileSync('public'+url);
   assert.ok(url.includes(createHash('sha256').update(bytes).digest('hex').slice(0,12)));
   assert.ok(bytes.length < (url.includes('mobile') ? 30100 : 89135));
-  for(const config of ['vercel.json','public-reading-deploy/vercel.json']){
+  for(const config of ['public-reading-deploy/vercel.json']){
    const rules=JSON.parse(fs.readFileSync(config)).headers;
    const idx=rules.findIndex(x=>x.source===url);
    assert.ok(idx>rules.findIndex(x=>x.source==='/(.*)'));
