@@ -2,9 +2,8 @@
    for the optional Royal artwork. No layout changes when that chunk arrives. */
 .native-frame .sod29-page-intro[data-intro-variant] {
   position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;
-  min-height:0;padding:16px 24px;gap:10px;border-radius:20px;overflow:hidden;
-  background:var(--s29-panel);color:var(--s29-ink);text-align:center;
-  border:1px solid var(--s29-brand-gold);
+  min-height:0;padding:16px 24px;gap:10px;border-radius:0;overflow:visible;
+  background:none;color:var(--s29-ink);text-align:center;border:0;box-shadow:none;
 }
 .native-frame .sod29-page-intro[data-intro-variant]::before,
 .native-frame .sod29-page-intro[data-intro-variant]::after {display:none}
@@ -19,8 +18,8 @@
 .native-frame .sod29-page-intro[data-intro-variant] h1 {font-size:clamp(24px,2.4vw,32px);font-weight:740;line-height:1.2;margin:0;text-align:center}
 .native-frame .sod29-page-intro[data-intro-variant] p {font-size:var(--s29-type-ui,16px);line-height:1.6;margin:8px auto 0;max-width:58ch}
 .native-frame .sod29-page-intro[data-intro-variant] .sod29-eyebrow {font-size:var(--s29-type-micro,14px);line-height:1.4;letter-spacing:0;margin:0 0 6px;justify-content:center}
-.native-frame .sod29-page-intro[data-intro-variant] .sod29-context-strip {justify-content:center;flex-wrap:wrap;margin-top:10px;gap:8px;padding-top:8px;border-top:1px solid var(--s29-brand-gold)}
-.sod29-page-intro .sod29-context-strip :is(a,button,span) {min-height:44px;display:inline-flex;align-items:center;justify-content:center;white-space:normal;overflow-wrap:anywhere}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-context-strip {justify-content:center;flex-wrap:wrap;margin-top:8px;gap:8px}
+.sod29-page-intro .sod29-context-strip :is(a,button) {min-height:44px;display:inline-flex;align-items:center;justify-content:center;white-space:normal;overflow-wrap:anywhere}
 @media(max-width:650px) {.native-frame .sod29-page-intro[data-intro-variant] {padding:14px 12px;gap:10px}}
 
 .sod29-page-intro .sod29-context-strip :is(a,button) {padding:0 16px;border-radius:999px}
@@ -28,9 +27,5 @@
 /* Full is explicit opt-in; legacy hero callers inherit Compact. */
 .native-frame .sod29-page-intro[data-intro-variant="full"] {padding-block:72px 20px;gap:16px}
 
-/* Open Royal: the shared frame carries the surface, a single rule ends it. */
-.native-frame .sod29-page-intro[data-intro-variant="quiet"] {padding-block:10px;display:grid;grid-template-columns:44px minmax(0,1fr) 100px;gap:6px 10px;background:linear-gradient(90deg,transparent,var(--s29-frame),transparent);border:0;border-radius:0;box-shadow:none;border-bottom:1px solid var(--s29-brand-gold)}
-.native-frame .sod29-page-intro[data-intro-variant="quiet"] .sod29-hero-copy {display:contents}
-.native-frame .sod29-page-intro[data-intro-variant="quiet"] h1 {font-size:24px;grid-column:2}
-.native-frame .sod29-page-intro[data-intro-variant="quiet"] p {margin-top:4px;grid-column:1/-1;max-width:none}
-.native-frame .sod29-page-intro[data-intro-variant="quiet"] .sod29-context-strip {margin-top:0;padding-top:0;border:0;grid-column:1/-1}
+
+.sod29-main[data-royal-intro]{position:relative;isolation:isolate}
