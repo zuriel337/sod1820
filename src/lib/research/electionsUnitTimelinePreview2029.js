@@ -99,25 +99,49 @@ function calculationRow(doc, expression, value, method, region = false) {
   const row = doc.createElement("p");
   row.className = "elections-calculation-row";
   const methodLabel = method === "קדמי" ? "משולש" : method;
-  const link = textElement(doc, "a", String(value));
+  const link = doc.createElement("a");
   link.href = numberExpressionFocusHref(value, { expression, method });
-  link.dataset.electionsCalculation = "";
-  if (region) link.dataset.sourceHeading = "true";
+  link.id = `elections-calculation-${value}-${method}-${expression.replace(/[^\p{L}\p{N}]+/gu, "-")}`;
+  link.dataset.electionsCalculation = String(value);
+  link.setAttribute("aria-haspopup", "dialog");
   link.setAttribute("aria-label", `${expression} = ${value}, ${methodLabel}`);
-  row.append(textElement(doc, "b", expression), " = ", link, textElement(doc, "small", methodLabel));
+  const number = textElement(doc, "strong", String(value));
+  if (region) number.dataset.sourceHeading = "true";
+  link.append(textElement(doc, "b", expression), textElement(doc, "span", "="), number, textElement(doc, "small", methodLabel));
+  row.append(link);
   return row;
+}
+
+function focalTrace(doc, phrase, methodKey, stated) {
+  const host = doc.createElement("div");
+  host.dataset.electionsFocalTrace = "";
+  host.dataset.puPublished = "";
+  host.dataset.gxItem = JSON.stringify({ phrase, methodKey, stated, display: "letters" });
+  return host;
 }
 
 function rewriteOathCalculation(content) {
   placeOathNumbersInline(content);
-  const expression = "משיח הויה";
-  const row = calculationRow(content.ownerDocument, expression, 1437, "קדמי");
-  const authored = [...content.querySelectorAll(":scope > p")]
-    .find(node => /משיח י-הוה.*משולש\s*=\s*1437/.test(node.textContent));
-  if (authored) {
-    if (authored.id) row.id = authored.id;
-    authored.replaceWith(row);
-  } else content.append(row);
+  const doc = content.ownerDocument;
+  const expressions = [
+    ["ממשלת משיח בן דוד", 1234, "רגיל"],
+    ["התגלות השכינה", 1234, "רגיל"],
+    ["משיח הויה", 1437, "קדמי", "משיח י-הוה — משולש"],
+    ["המשיח פועל במעשים", 1011, "רגיל"],
+    ["הגאלה תבא בהיסח הדעת", 1011, "רגיל"],
+    ["קץ זוהמת הנחש", 1011, "רגיל"],
+  ];
+  for (const [expression, value, method, sourcePhrase = expression] of expressions) {
+    const authored = [...content.querySelectorAll(":scope > p")]
+      .find(node => node.textContent.trim().replace(/\s+/g, " ") === `${sourcePhrase} = ${value}`);
+    if (!authored && value !== 1437) continue;
+    const row = calculationRow(doc, expression, value, method);
+    if (authored) {
+      if (authored.id) row.id = authored.id;
+      authored.replaceWith(row);
+    } else content.append(row);
+    if (value === 1437) row.after(focalTrace(doc, expression, method, value));
+  }
 }
 
 function moveSharsharIntoOneUnit(root) {
@@ -193,7 +217,9 @@ function moveOriginalReadingBelowFirst(root) {
     calculationRow(doc, "בראשית ברא אלהים את השמים ואת הארץ", 2701, "רגיל", true),
     textElement(doc, "h3", "עופר וינטר וציר 631"),
     calculationRow(doc, "עופר וינטר", 1820, "מילוי", true),
+    focalTrace(doc, "עופר וינטר", "מילוי", 1820),
     calculationRow(doc, "עופר וינטר", 631, "רגיל", true),
+    focalTrace(doc, "עופר וינטר", "רגיל", 631),
     calculationRow(doc, "הבחירות", 631, "רגיל"),
     calculationRow(doc, "מלך ישראל", 631, "רגיל"),
     calculationRow(doc, "נפתלי בנט", 631, "רגיל"),

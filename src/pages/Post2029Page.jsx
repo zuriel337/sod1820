@@ -33,6 +33,7 @@ import { contentSeriesKeysForPost } from "../lib/research/contentSeries2029Ident
 import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
 import PublishedUnitTraces2029 from "../components/experience2029/PublishedUnitTraces2029.jsx";
 import { mapIntegrationReview } from "../lib/research/mapIntegrationReviewStorage.js";
+import { parseNumberExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { electionsUnitTimelineHtml2029 } from "../lib/research/electionsUnitTimelinePreview2029.js";
 import { compactMapUnitHtml, mapLeadId, mapUnitReading, mapWorldHref } from "../lib/research/mapUnitReading2029.js";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
@@ -1213,8 +1214,20 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       if(binding){event.preventDefault();setSourceMediaOpen(binding);return;}
     }
     const previewCalculation = event.target?.closest?.("a[data-elections-calculation]");
-    if (previewCalculation && sourceRef.current?.contains(previewCalculation)) {
-      openConnection(event, previewCalculation.getAttribute("href"));
+    if (mapIntegrationReview && previewCalculation && sourceRef.current?.contains(previewCalculation)) {
+      const { expression, method } = parseNumberExpressionFocus(previewCalculation.search);
+      const value = Number(previewCalculation.dataset.electionsCalculation);
+      if (event.button !== 0 || !expression || !method || !Number.isSafeInteger(value) || !shell.openNumber) return;
+      event.preventDefault();
+      // The shared sheet captures the active element for its close action, including taps.
+      previewCalculation.focus({ preventScroll: true });
+      const locator = `#${previewCalculation.id}`;
+      const href = exactPostReadingHref(post, location, locator);
+      shell.openNumber({ id: previewCalculation.id, type: "phrase", label: expression,
+        expression, method, resultValue: value, number: value, href, locator,
+        sourceLabel: projection.sourceLabel, source: "post-elections-calculation" });
+      research.updateResearchContext?.({ returnTo: { ...exactReturn, href, label: expression,
+        selection: { entityId: previewCalculation.id, entityType: "post_occurrence", locator } } });
       return;
     }
     const authored = event.target?.closest?.("[data-expression]");

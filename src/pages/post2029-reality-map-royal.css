@@ -667,19 +667,34 @@
 
 [data-elections-unit-content] .elections-calculation-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: .15rem .4rem;
+  justify-content: safe center;
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
 }
 [data-elections-unit-content] .elections-calculation-row a {
+  display: inline-flex;
+  flex: none;
+  align-items: baseline;
+  align-content: center;
+  gap: .15rem .4rem;
+  min-block-size: 44px;
+  padding: .45rem .3rem;
+  white-space: nowrap;
   color: var(--elections-gold);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   text-underline-offset: .18em;
 }
+[data-elections-unit-content] .elections-calculation-row a:focus-visible {
+  outline-offset: -2px;
+}
 [data-elections-unit-content] .elections-calculation-row small {
   color: var(--s29-muted);
   font-size: .85rem;
+}
+[data-elections-focal-trace] .sod29-pu-trace-links {
+  display: none;
 }
 .sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-original-numbers] > h3,
 .sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-former-unit] > h3 {
@@ -700,4 +715,10 @@
 }
 .sod29-reading-post[data-reality-map] [data-elections-former-unit] > hr {
   display: none;
+}
+
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-timeline-unit] > h2,
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-unit-content]
+  :is(h2, h3, blockquote, [data-sod-role="verse"], [data-sod-role="peak"], .sod29-post-equality, .elections-calculation-row) {
+  text-align: center !important;
 }
