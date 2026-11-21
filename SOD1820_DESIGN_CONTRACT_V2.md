@@ -770,6 +770,18 @@ carries. Presentation only — no stored source, wording, claim, calculation or 
 - **C. Existing series visual exceptions:** preserve §14.10 identity colors as bounded accents or review any particular exception before changing it; do not recolor whole posts without consent.
 - **D. Runtime acceptance:** a true browser preview with approved existing `r29` components and source content; once approved, add small implementation steps from shared tokens outward, document AFTER/owners and seek distinct merge/deploy permission.
 
+### 14.11.5 Agent change contract and drift gate (proposal for acceptance)
+
+Every Codex/Claude/Work task changing visual styles must include in its BEFORE and AFTER:
+
+1. **Surface/role identification:** target route and zone, the selected approved `frame | editorial | research` presentation role (or existing role until this proposal is ratified), the selected user preset and the effective inherited palette.
+2. **Ownership trace:** links to Design V2 paragraph, `canonical_colors_law`, `canonical_ui_components_law`, reused `r29-*` primitive and source CSS variable; an exception must name its real domain owner (e.g. ELS matrix, authored video/media).
+3. **No-local-palette proof:** a scoped static review/gate compares changed `src/**/*.{css,jsx,tsx}` lines against existing semantic role usage, flags newly introduced hard-coded hex/RGBA gradients, duplicated royal shadow/border mixes and new theme stores, and allows only explicitly justified exceptions/approved source artwork. **Baseline existing debt, do not mass-fail untouched legacy/old CSS.**
+4. **Three-presets visual proof:** capture before/after of representative actual components in Day/Parchment/Night at desktop and 320/390 mobile. Check exact component and status states, color contrast, RTL, 44px, reduced motion and layout stability; no static mock standing in for `WatchButton`/`ShareActions`.
+5. **Release gate:** Design owner reviews and signs visual diff; UI owner has the only active writer claim; include measurable performance/JS/CSS bundle delta and no threshold increase. No silent self-approval, no merge or production without separately authorized Human Gate.
+
+Implementation should add the smallest viable reusable design-role test and a scoped lint/visual acceptance CI stage **only after** ZURIEL approves the actual role matrix and its exceptions. This proposal is not itself an active failing gate.
+
 **Prior authority:** `canonical_colors_law` v2 ACTIVE, `canonical_ui_components_law` v13 ACTIVE, `experience_governance_foundation_v1_law` v10 ACTIVE, Design V2 §14.9/§14.10 approved; design variants above have proposal status. This paragraph is not a new Law, store or owner.
 
 ---
