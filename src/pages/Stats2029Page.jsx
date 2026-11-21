@@ -43,7 +43,7 @@ export default function Stats2029Page() {
   const crawlers = d?.crawlers;
   const added = d?.added || {};
   const sections = (d?.sections || []).filter(x => SECTIONS[x.section]);
-  return <Sod2029Shell surface="stats" introVariant="none" symbol={<NavigationIcon2029 name="now" />}
+  return <Sod2029Shell surface="world" introVariant="none" symbol={<NavigationIcon2029 name="now" />}
     eyebrow="סטטיסטיקה" title="מה קורה ב־SOD1820" description="מה נחקר, נקרא ונסרק באתר. נתונים מצרפיים בלבד: פעולות, לא אנשים.">
     <main className="stats29" dir="rtl" data-experience-surface="stats">
       <div className="stats29-window" role="group" aria-label="טווח הנתונים">
