@@ -1,0 +1,70 @@
+[
+ {
+  "dev": "phone",
+  "page": "/gematria",
+  "cold": "open",
+  "coldMs": 711,
+  "warm": "open",
+  "warmMs": 507,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "מחשבון גימטריה ☾ לילה ? איך זה עובד? במוקד המחקר יממהשבועחודש צפנים ציבוריים 115 פורסמו למ"
+ },
+ {
+  "dev": "phone",
+  "page": "/number/358",
+  "cold": "open",
+  "coldMs": 710,
+  "warm": "open",
+  "warmMs": 570,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "כי לה׳ המלוכה ☾ לילה ? איך זה עובד? במוקד המחקר יממהשבועחודש צפנים ציבוריים 115 פורסמו למח"
+ },
+ {
+  "dev": "desktop",
+  "page": "/gematria",
+  "cold": "open",
+  "coldMs": 700,
+  "warm": "open",
+  "warmMs": 713,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "123 › SOD1820 / מחשבון גימטריה ⌕ ☾ לילה התחברות ? איך זה עובד? במוקד המחקר יממהשבועחודש צפ"
+ },
+ {
+  "dev": "desktop",
+  "page": "/number/358",
+  "cold": "open",
+  "coldMs": 799,
+  "warm": "open",
+  "warmMs": 670,
+  "ctrl": true,
+  "dupCold": 0,
+  "dupWarm": 0,
+  "nav": "skip",
+  "errors": [
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+   "console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ],
+  "text": "123 › SOD1820 / כי לה׳ המלוכה / 358 ⌕ ☾ לילה התחברות ? איך זה עובד? במוקד המחקר יממהשבועחו"
+ }
+]

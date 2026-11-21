@@ -5,6 +5,32 @@
 // Home address only and removes the comment from every other document. The hints fetch the same URLs the app imports (one request each, kept
 // in the document's module map / HTTP cache); nothing about what runs, or when, changes.
 export const HOME_PRELOAD_MARK = "sod-home-preload";
+
+// Slow networks (21.11.2026): the app opens only after the Service Worker is admitted, and the worker's script (/sw.js, ~24KB) competed for the
+// line with ~70 module/style hints (~950KB on the Home). On Slow 3G the registration then missed the 10 s bootstrap deadline and the page failed.
+// The hints are therefore applied by this loader instead of the markup:
+//   - the page is already controlled by a worker (a returning reader, the common case): the hints start at once, exactly as before;
+//   - no worker controls the page yet (first visit, hard reload): the hints start as soon as the browser holds the worker's script
+//     (the registration has an installing/waiting/active worker), so /sw.js is never queued behind them;
+//   - no Service Worker API: the app cannot open there (the bootstrap fails closed), so the hints are not fetched at all.
+// The URLs, CORS mode and order are the same as the markup hints had; the bootstrap's import() consumes them (one request each).
+export function sodHintLoader2029(w, d, n) {
+  let open = false, tries = 0; const queue = [];
+  const add = list => { for (const [href, style] of list) { const link = d.createElement("link"); link.rel = style ? "preload" : "modulepreload"; if (style) link.as = "style"; link.crossOrigin = "anonymous"; link.href = href; d.head.appendChild(link); } };
+  w.__sodHints = list => { if (open) add(list); else queue.push(list); };
+  const start = () => { if (open) return; open = true; for (const list of queue.splice(0)) add(list); };
+  const sw = n.serviceWorker;
+  if (!sw) return;
+  if (sw.controller) return start();
+  const wait = () => sw.getRegistration("/").then(r => { if (r && (r.installing || r.waiting || r.active)) start(); else if (++tries < 300) setTimeout(wait, 50); }, () => {});
+  wait();
+}
+
+const hintList = hrefs => JSON.stringify(hrefs.map(href => href.endsWith(".css") ? [href, 1] : [href]));
+/** Build side: the loader and the given hints (the entry first), in place of their markup links. */
+export function hintLoaderScript2029(hrefs) {
+  return `<script>(${sodHintLoader2029.toString()})(window,document,navigator);__sodHints(${hintList(hrefs)})</script>`;
+}
 const BLOCK = new RegExp(`<!--${HOME_PRELOAD_MARK} ([\\s\\S]*?) -->`);
 const ASSET = /^\/assets\/[A-Za-z0-9._-]+\.(?:js|css)$/;
 
@@ -18,9 +44,8 @@ export function homePreloadComment(manifest, { page = "src/pages/Home2029Page.js
   const scripts = keys.map(key => `/${manifest[key].file}`).filter(href => ASSET.test(href));
   const styles = [...new Set(keys.flatMap(key => manifest[key].css || []).map(file => `/${file}`))].filter(href => ASSET.test(href));
   if (!scripts.length) return "";
-  // `crossorigin` on both: the app's loader asks for these stylesheets and modules in CORS mode, and a hint in another mode is a second download.
-  const links = [...styles.map(href => `<link rel="preload" as="style" crossorigin href="${href}">`), ...scripts.map(href => `<link rel="modulepreload" crossorigin href="${href}">`)].join("");
-  return `<!--${HOME_PRELOAD_MARK} ${links} -->`;
+  // Applied by the hint loader above (same URLs, CORS mode "anonymous" like the app's own loader, styles before scripts).
+  return `<!--${HOME_PRELOAD_MARK} <script>__sodHints(${hintList([...styles, ...scripts])})</script> -->`;
 }
 
 /** Request side: the Home address gets the hints; every other document loses the comment. */
