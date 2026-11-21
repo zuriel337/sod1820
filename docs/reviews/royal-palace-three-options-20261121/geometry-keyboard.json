@@ -1,0 +1,578 @@
+[
+  {
+    "arm": "compact",
+    "width": 320,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 320,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 320,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 390,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 390,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 390,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 768,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 768,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 768,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 1440,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 1440,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "compact",
+    "width": 1440,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 320,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 320,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 320,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 390,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 390,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 390,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 768,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 768,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 768,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 1440,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 1440,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "strip",
+    "width": 1440,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 1
+  },
+  {
+    "arm": "crown",
+    "width": 320,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 320,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 320,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 390,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 390,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 390,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 768,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 768,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 768,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 1440,
+    "route": "world",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/world"
+    ],
+    "icon": "world",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 1440,
+    "route": "heichal",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/heichal"
+    ],
+    "icon": "heichal",
+    "palaceRequests": 0
+  },
+  {
+    "arm": "crown",
+    "width": 1440,
+    "route": "books",
+    "overflow": false,
+    "h1": 1,
+    "dir": "rtl",
+    "helpHeight": 44,
+    "overlap": false,
+    "animation": "none",
+    "links": [
+      "/books"
+    ],
+    "icon": "books",
+    "palaceRequests": 0
+  }
+]

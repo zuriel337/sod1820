@@ -1,0 +1,23 @@
+{
+  "sourceHead": "17fb67610e21814869a88afcce06ced9288cfef0",
+  "fixtures": {
+    "compact": {
+      "directory": "/workspace/scratch/royal-three-options/compact",
+      "modifiedFiles": {}
+    },
+    "strip": {
+      "directory": "/workspace/scratch/royal-three-options/strip",
+      "modifiedFiles": {
+        "Sod2029Shell-7fwiofKa.css": "feb38b251e0b3dba6a6dbc9b877245e2dcb5a424823e85cfab897a00502a44cb",
+        "RoyalIntro2029-CBa--onZ.css": "f415970c4dd4304c62173ebf80b43c11f573ff082a2a0d5a3149fa47d0f2af51"
+      }
+    },
+    "crown": {
+      "directory": "/workspace/scratch/royal-three-options/crown",
+      "modifiedFiles": {
+        "Sod2029Shell-7fwiofKa.css": "feb38b251e0b3dba6a6dbc9b877245e2dcb5a424823e85cfab897a00502a44cb",
+        "RoyalIntro2029-BJK-Gs7w.js": "42cb396f608dd7010dc11239811fbd502a363161bb6d821f72716b564d977dd8"
+      }
+    }
+  }
+}
