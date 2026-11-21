@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { startFixture } from './helpers/authBrowserFixture.mjs';
 import { COMMUNITY_CALCULATOR_FAQ, COMMUNITY_CALCULATOR_SEO } from '../src/lib/research/communityCalculatorSeo2029.js';
+import { COMMUNITY_CALCULATOR_METHODS } from "../src/lib/research/communityCalculatorEquals2029.js";
 
 const require = createRequire(import.meta.url);
 let pw; for (const name of ['playwright', '@playwright/test']) { try { pw = require(name); break; } catch {} }
@@ -52,10 +53,11 @@ for (const [width, height] of [[390, 844], [1280, 900]]) test(`[${width}x${heigh
     assert.deepEqual(graph.map(node => node['@type']), ['WebApplication', 'FAQPage']);
     assert.deepEqual(graph[1].mainEntity.map(entry => entry.name), questions, 'structured questions are the visible questions');
 
-    // Typing: every method opens at once in the classic grid, the regular method first and lit; the number is the regular value.
+    // Typing: the community calculator's four methods (ZURIEL 20.11.2026: רגיל, מילוי, מסתתר, גדול and no more; every other method is
+    // one link to the professional calculator) open at once, the regular method first and lit; the number is the regular value.
     await input.fill('אור');
     await page.locator('.sod29-community-calc-method').first().waitFor({ timeout: 30000 });
-    assert.ok(await page.locator('.sod29-community-calc-method').count() >= 20, 'all methods are open from the first keystroke');
+    assert.equal(await page.locator('.sod29-community-calc-method').count(), COMMUNITY_CALCULATOR_METHODS.length, 'the four methods are open from the first keystroke');
     const lit = page.locator('.sod29-community-calc-method.is-selected');
     assert.equal(await lit.count(), 1);
     assert.match(await lit.innerText(), /רגיל[\s\S]*207/);

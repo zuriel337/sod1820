@@ -31,7 +31,7 @@ function LifeJourney2029Surface() {
 export default function LifeJourney2029Page() {
   useEffect(() => {
     applySeo({
-      title: "מסע החיים · SOD1820",
+      title: "מסע החיים",
       description: "מרחב אישי ופרטי לחיבור שם, תאריך ומשפחה אל מסע מחקר אחד.",
       path: "/2029/journey",
       noindex: true,

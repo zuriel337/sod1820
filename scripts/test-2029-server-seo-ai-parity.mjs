@@ -158,7 +158,8 @@ assertNoHomeIdentity(await render("/", async () => ({ ok: true, json: async () =
 
 const number = await render("/2029/number/123", withOpenLaunchFlag("lock_number"));
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
-assert.match(number, /123 · דף המספר 2029/);
+assert.match(number, /123 · דף המספר · SOD1820/);
+assert.doesNotMatch(number, /דף המספר 2029/, "no internal year in public wording");
 assert.match(number, /og:type" content="website"/);
 assert.equal(number.includes('"@type":"Article"'), false);
 
@@ -468,7 +469,8 @@ try {
     assert.equal(bm.statusCode, 200, `${path} must be a public document, not a missing Post`);
     assert.match(bm.body, /<title>בית המדרש · לומדים לגלות · SOD1820<\/title>/, path);
     assert.match(bm.body, /canonical" href="https:\/\/sod1820.co.il\/beit-midrash"/, path);
-    assert.equal(bm.headers.get("x-robots-tag"), "noindex, nofollow", path);
+    // Open to search since 20.11.2026 (ZURIEL: the whole site is open to Google); every address consolidates on the one canonical above.
+    assert.equal(bm.headers.get("x-robots-tag"), "index, follow", path);
     assert.doesNotMatch(bm.body, /הפוסט לא נמצא/, path);
   }
   // Addresses that are not a method/section stay missing rather than becoming a Post lookup.

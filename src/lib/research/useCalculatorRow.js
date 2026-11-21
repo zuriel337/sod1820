@@ -7,6 +7,9 @@ import { classifyCalculatorInput, filterProfileRowsForInput, isEnglishMethodKey 
 import { buildEnglishLaneRows } from "./calculator2029English.js";
 import { ledgerFromFinding } from "./calculator2029Ledger.js";
 import { normalizeCalculatorMethods } from "./calculator2029Model.js";
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
+const regularValueOfRows = rows => { const r = rows.find(x => x?.methodKey === "רגיל"); const v = Number(r?.computedValue); return Number.isSafeInteger(v) ? v : null; };
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const CALCULATOR_ROW_SETTLE_MS = 240;
@@ -45,7 +48,7 @@ export function useCalculatorRow(seed = "") {
     const cached = profileCache.get(phrase);
     if (cached) {
       setProfile({ loading: false, rows: cached, error: null, expression: phrase });
-      if (userEdit.current) { recordCompute.current?.(); userEdit.current = false; }
+      if (userEdit.current) { recordCompute.current?.(); userEdit.current = false; logSearch(phrase, regularValueOfRows(cached), "gematria"); }
       return undefined;
     }
     setProfile((current) => ({ ...current, loading: true, error: null }));
@@ -55,7 +58,7 @@ export function useCalculatorRow(seed = "") {
         if (rows.length) remember(profileCache, phrase, rows);
         if (id === requestRef.current) {
           setProfile({ loading: false, rows, error: null, expression: phrase });
-          if (userEdit.current && rows.length) { recordCompute.current?.(); userEdit.current = false; }
+          if (userEdit.current && rows.length) { recordCompute.current?.(); userEdit.current = false; logSearch(phrase, regularValueOfRows(rows), "gematria"); }
         }
       } catch (error) {
         if (id === requestRef.current) setProfile({ loading: false, rows: [], error, expression: phrase });

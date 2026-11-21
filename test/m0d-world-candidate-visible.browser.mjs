@@ -130,7 +130,7 @@ test('World finding: the new site shows a public candidate labelled «טרם א�
     assert.deepEqual(a.seen.writes.filter((w) => !/\/rest\/v1\/rpc\//.test(w)), [], 'opening the finding writes no table');
     assert.deepEqual([...new Set(a.seen.writes.map((w) => w.replace(/^POST \/rest\/v1\/rpc\//, '')))].filter((name) => !KNOWN_RPC.has(name)), [],
       'the only RPCs are the visit telemetry and a read-only reader');
-    assert.deepEqual(a.seen.activityReads, [{ p_hours: 24 }], 'the public activity read carries only a bounded window, never finding or search text');
+    assert.deepEqual(a.seen.activityReads, [], 'World no longer draws the generic activity square (ZURIEL 21.11.2026: section data only, on /stats and Now)');
     assert.deepEqual(a.errors, []);
     report.A = { shown: true, label: true, tableWrites: 0, rpc: [...new Set(a.seen.writes)] };
     await a.context.close();

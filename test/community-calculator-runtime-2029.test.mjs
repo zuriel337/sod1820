@@ -17,6 +17,8 @@ const fixtures = {
   "engine.js": "import {METHODS} from './src/lib/gematria.js';export const resolve=name=>({value:METHODS[0].fn(name)});",
   "supabase.js": `export const getAllValuePhrases=async value=>{globalThis.__communityCalc.reads.push(value);return [{phrase:'רז',is_verified:true}];};
     export const supabase={rpc:async(name,args)=>{if(name!=='research_pulse_2029'||args.p_hours!==24)throw Error('unexpected pulse read');globalThis.__communityCalc.pulseReads.push(name);return {data:{version:1,state:'empty',numbers:[],phrases:[],activity:[]},error:null};}};
+    // The words bar above the input reads the one public activity reader (research_pulse_2029, 168 h) through getWallRecent.
+    export const getWallRecent=async limit=>{globalThis.__communityCalc.pulseReads.push(['getWallRecent',limit]);return [{phrase:'שלום',ragil:376}];};
     export const addWallWord=(...args)=>globalThis.__communityCalc.effects.push(['wall',...args]);
     export const getAiAnalysis=async(...args)=>{globalThis.__communityCalc.effects.push(['ai',...args]);return 'AI';};`,
   "gematriaMethodRegistry.js": "export const fetchGematriaMethodStates=async()=>null;export const indexGematriaMethodStates=()=>null;",
@@ -29,6 +31,8 @@ const fixtures = {
   "Sod2029Shell.jsx": "import React from 'react';export default ({children})=>React.createElement('section',{},children);",
   "NavigationIcon2029.jsx": "export default ()=>null;",
   "ShareActions.jsx": "import React from 'react';export default props=>React.createElement('share-actions',props);",
+  // The "למי אתם שווים?" card loads on its own (lazy) and has its own test; here it is a boundary like the share actions.
+  "CommunityEqualsCard2029.jsx": "import React from 'react';export default props=>React.createElement('equals-card',{name:props.name,method:props.row.key,value:props.row.value});",
   "VisitorSearchesBox.jsx": "export default ()=>{globalThis.__communityCalc.effects.push(['visitor-search']);return null;};",
   "NameMultiSearch.jsx": "export default ()=>{globalThis.__communityCalc.effects.push(['deep-name-search']);return null;};",
   "router": "import React from 'react';export const useLocation=()=>globalThis.__communityCalc.location;export const Link=({to,children,...props})=>React.createElement('a',{...props,href:to},children);",
@@ -37,7 +41,7 @@ await build({ entryPoints: ["src/pages/CommunityCalculator2029Page.jsx"], bundle
   external: ["react"], define: { __SOD_2029_BUILD__: "true", "import.meta.env": JSON.stringify({ VITE_PUBLIC_READING_RELEASE: "public-reading-20261101" }) },
   plugins: [{ name: "community-calculator-boundaries", setup(builder) {
     builder.onResolve({ filter: /^react-router-dom$/ }, () => ({ path: "router", namespace: "fixture" }));
-    builder.onResolve({ filter: /\/(palette\.js|themeMode\.js|engine\.js|siteActivity2029\.js|supabase\.js|supabaseApi2029\.js|gematriaMethodRegistry\.js|tracking\.js|numberMessage\.js|seo\.js|AuthContext\.jsx|ResearchProvider\.jsx|Sod2029Shell\.jsx|NavigationIcon2029\.jsx|ShareActions\.jsx|VisitorSearchesBox\.jsx|NameMultiSearch\.jsx)$/ }, // the database boundary is one fixture whether the page reads the shared core or the API file (shell weight 1/8)
+    builder.onResolve({ filter: /\/(palette\.js|themeMode\.js|engine\.js|siteActivity2029\.js|supabase\.js|supabaseApi2029\.js|gematriaMethodRegistry\.js|tracking\.js|numberMessage\.js|seo\.js|AuthContext\.jsx|ResearchProvider\.jsx|Sod2029Shell\.jsx|NavigationIcon2029\.jsx|ShareActions\.jsx|CommunityEqualsCard2029\.jsx|VisitorSearchesBox\.jsx|NameMultiSearch\.jsx)$/ }, // the database boundary is one fixture whether the page reads the shared core or the API file (shell weight 1/8)
     args => ({ path: args.path.split("/").at(-1).replace("supabaseApi2029.js", "supabase.js"), namespace: "fixture" }));
     builder.onResolve({ filter: /\.css$/ }, args => ({ path: args.path, namespace: "css-fixture" }));
     builder.onLoad({ filter: /.*/, namespace: "fixture" }, args => ({ contents: fixtures[args.path], loader: "js", resolveDir: process.cwd() }));
@@ -65,7 +69,7 @@ test("public calculator mount and typing calculate immediately without wall, AI,
   assert.deepEqual(state.replacements, [], "arrival URL is not rewritten on mount");
   await act(async () => { context.mock.timers.tick(2000); });
   assert.ok(state.reads.length > 0);
-  assert.ok(state.pulseReads.length > 0, "the activity strip only reads the approved aggregate RPC");
+  assert.ok(state.pulseReads.length > 0, "the words bar only reads the approved aggregate reader");
   assert.deepEqual(state.effects, []);
   assert.deepEqual(state.activity, [], "a shared-link arrival is not a new computation");
   assert.match(output(root), /ניתוח AI ושמירה אינם זמינים/);

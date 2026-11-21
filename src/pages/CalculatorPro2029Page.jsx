@@ -1,4 +1,4 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
+import CalculatorPulseLineSlot2029 from "../components/gematria2029/CalculatorPulseLineSlot2029.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
@@ -29,12 +29,17 @@ import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { GADOL_BASE, hasSofiot } from "../lib/research/gematriaCalculationContract.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { applySeo } from "../lib/seo.js";
+import { CALCULATOR_PRO_SEO } from "../lib/research/calculatorProSeo2029.js";
+import "../components/experience2029/royal2029.css";
 import "./calculatorPro2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const fmt = (value) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US") : "—";
 const EXAMPLES = Object.freeze(["אהבה", "משיח", "David"]);
 const CORE_FAMILY_KEY = "base";
+// Methods this calculator does not show (ZURIEL 21.11.2026: "סידורי"). The engine and the registry keep them; a link that names one opens on
+// the default method instead (the existing fallback when a method is not among the rows).
+const HIDDEN_METHOD_KEYS = new Set(["סידורי"]);
 // Reuse the existing idle preview. These zeros are display placeholders, never
 // a canonical selection, an empty-expression calculation or a Number0 link.
 const EMPTY_METHOD_ROWS = Object.freeze(buildCalculator2029FastPreview("").methods.map(method => ({
@@ -211,7 +216,7 @@ function ProExperience() {
   const row = useCalculatorRow(seedExpression);
   const { info } = row;
   const emptyInput = !info.expression;
-  const displayHebrewRows = emptyInput ? EMPTY_METHOD_ROWS : row.hebrewRows;
+  const displayHebrewRows = useMemo(() => (emptyInput ? EMPTY_METHOD_ROWS : row.hebrewRows).filter((method) => !HIDDEN_METHOD_KEYS.has(method.methodKey)), [emptyInput, row.hebrewRows]);
 
   const [selectedKey, setSelectedKey] = useState(seedMethod || null);
   // Default view is "classic" (Human-Gate decision): every method in one flat grid right after the input.
@@ -221,7 +226,6 @@ function ProExperience() {
     return tab === "ledger" ? "ledger" : tab === "tiles" ? "tiles" : "classic";
   });
   const [showAllFamilies, setShowAllFamilies] = useState(false);
-  const [advanced, setAdvanced] = useState(params.get("mode") === "adv");
   const desktop = useIsDesktop();
   const [wideRequested, setWide] = useState(params.get("view") === "wide");
   const wide = wideRequested && desktop && !emptyInput;
@@ -323,11 +327,10 @@ function ProExperience() {
     if (canonicalSelection?.methodKey) next.set("m", canonicalSelection.methodKey);
     else if (selectedKey && isEnglishMethodKey(selectedKey)) next.set("m", selectedKey);
     if (view !== "classic") next.set("tab", view);
-    if (advanced) next.set("mode", "adv");
     if (wideRequested) next.set("view", "wide");
     if (next.toString() !== params.toString()) navigate({ pathname: location.pathname, search: next.toString() ? `?${next}` : "", hash: location.hash }, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlExpression, canonicalSelection?.methodKey, selectedKey, view, advanced, wideRequested]);
+  }, [urlExpression, canonicalSelection?.methodKey, selectedKey, view, wideRequested]);
 
   const chooseMethod = useCallback((method) => setSelectedKey(method.methodKey), []);
   const fillExample = (text) => {
@@ -400,7 +403,7 @@ function ProExperience() {
 
   // With no input yet the chosen view stays highlighted; only a non-Hebrew expression falls back to families.
   const effectiveView = !info.expression || info.hebrewApplicable ? view : "tiles";
-  const visibleFamilies = showAllFamilies || advanced || wide
+  const visibleFamilies = showAllFamilies || wide
     ? familyGroups
     : familyGroups.filter((group) => group.key === CORE_FAMILY_KEY);
   const hiddenMethodCount = familyGroups
@@ -408,7 +411,7 @@ function ProExperience() {
     .reduce((sum, group) => sum + group.methods.length, 0);
   const isNumeric = info.kind === CALCULATOR_INPUT_KIND.NUMERIC;
   const hasAnyResults = allMethods.length > 0;
-  const showDuo = Boolean(canonicalSelection) && (advanced || wide);
+  const showDuo = Boolean(canonicalSelection) && wide;
   const isEnglishSelected = selectedMethod?.language === "en";
 
   // D3: a count of matching methods is NOT a count of independent evidence axes. This page does not
@@ -500,7 +503,7 @@ function ProExperience() {
             </div>
           </div>
         ))}
-        {!advanced && !wide && hiddenMethodCount > 0 ? (
+        {!wide && hiddenMethodCount > 0 ? (
           <button type="button" className="sod29-calcpro-more" onClick={() => setShowAllFamilies((value) => !value)} aria-expanded={showAllFamilies}>
             {showAllFamilies ? "צמצם" : `שיטות עומק ומורכבות · עוד ${hiddenMethodCount}`}
           </button>
@@ -544,9 +547,11 @@ function ProExperience() {
   ) : null;
 
   return (
-    <section className={`sod29-calcpro${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
-      <h1 className="sod29-calcpro-sr">מחשבון גימטריה מקצועי</h1>
+    <section className={`sod29-calcpro r29${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
+      <h1 className="sod29-calcpro-sr">{CALCULATOR_PRO_SEO.heading}</h1>
+      <CalculatorPulseLineSlot2029 />
       <CalculatorWordsBar2029
+        trailing={<CalculatorPulseLineSlot2029 inline />}
         currentExpression={info.expression}
         onPick={(word, kind) => {
           emit("calculator_2029", "words_bar_pick", { props: { surface: "professional", kind } });
@@ -577,11 +582,6 @@ function ProExperience() {
                 <button type="button" role="tab" aria-selected={effectiveView === "tiles"} onClick={() => setView("tiles")}>משפחות</button>
                 <button type="button" role="tab" aria-selected={effectiveView === "ledger"} onClick={() => setView("ledger")} disabled={!info.hebrewApplicable}>פנקס</button>
               </div>
-            ) : null}
-            {!wide ? (
-              <button type="button" aria-pressed={advanced} onClick={() => setAdvanced((value) => !value)}>
-                {advanced ? "סגור מתקדם" : "מתקדם"}
-              </button>
             ) : null}
             {desktop ? (
               <button type="button" aria-pressed={wide} onClick={() => setWide((value) => !value)}>
@@ -722,8 +722,9 @@ function CalculatorPro2029Content() {
   const location = useLocation();
   useEffect(() => {
     applySeo({
-      title: "מחשבון גימטריה מקצועי · SOD1820",
-      description: "כל שיטות הגימטריה במבט אחד, עם פנקס פירוק אותיות מהמנוע הקנוני, מצב מתקדם להשוואה ומצב מורחב.",
+      // applySeo appends the site name itself; one wording with the server (src/lib/research/calculatorProSeo2029.js).
+      title: CALCULATOR_PRO_SEO.title,
+      description: CALCULATOR_PRO_SEO.description,
       path: import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" ? "/gematria" : location.pathname,
       noindex: import.meta.env?.VITE_PUBLIC_READING_RELEASE !== "public-reading-20261101" || Boolean(location.search),
     });
@@ -739,9 +740,8 @@ function CalculatorPro2029Content() {
       symbol="∑"
       eyebrow="מחשבון מקצועי"
       title="מחשבון גימטריה"
-      description="כל השיטות במבט אחד, פירוק אותיות מהמנוע ומצב מתקדם להשוואה."
+      description="כל השיטות במבט אחד ופירוק אותיות."
     >
-    <ActivityPulseSlot2029 />
       <ProExperience />
     </Sod2029Shell>
   );

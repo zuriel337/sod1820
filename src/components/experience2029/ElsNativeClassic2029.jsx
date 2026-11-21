@@ -26,6 +26,8 @@ import {
   projectElsGuidedSourceContext,
 } from "../../lib/research/elsAutomaticResearchPlan.js";
 import "./elsNativeClassic2029.css";
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../../lib/searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
 
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
 const ElsLexiconResearch2029 = React.lazy(() => import("./ElsLexiconResearch2029.jsx"));
@@ -1380,6 +1382,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       setNotice("כתבו לפחות שתי אותיות.");
       return;
     }
+    logSearch(term, null, "els");
     requestSearch("regular", { term, scope: activeScope });
   };
 

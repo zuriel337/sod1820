@@ -140,7 +140,7 @@ function PostsMediaLibrary2029({ media }) {
   const view = media.view;
   const key = `${view}:${page}:${attempt}`;
   useEffect(() => {
-    applySeo({ title: `${view === "videos" ? "כל הסרטונים" : "פוסטים עם וידאו"} · SOD1820 2029`, description: "פוסטים וסרטונים לפי סוג המדיה.", path: postsMediaHref(view), noindex: true });
+    applySeo({ title: `${view === "videos" ? "כל הסרטונים" : "פוסטים עם וידאו"}`, description: "פוסטים וסרטונים לפי סוג המדיה.", path: postsMediaHref(view), noindex: true });
     let live = true;
     const controller = new AbortController();
     setState({ key, loading: true, posts: [], items: [], total: null, error: null });
@@ -243,7 +243,7 @@ function PostsMediaCombinationNotice2029({ media, searchParams, taxonomyScope = 
   withoutMedia.delete("media"); withoutMedia.delete("view"); withoutMedia.delete("page");
   const selectionHref = `${location.pathname}${withoutMedia.toString() ? `?${withoutMedia}` : ""}`;
   useEffect(() => {
-    applySeo({ title: `${viewLabel} · SOD1820 2029`, description: "סוג המדיה עדיין אינו משתלב עם בחירה נוספת ברשימת הפוסטים.", path: location.pathname, noindex: true });
+    applySeo({ title: `${viewLabel}`, description: "סוג המדיה עדיין אינו משתלב עם בחירה נוספת ברשימת הפוסטים.", path: location.pathname, noindex: true });
   }, [viewLabel, location.pathname]);
   return <Sod2029Shell surface="post" title={viewLabel} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
     <main className="sod29-posts-library" data-experience-surface="posts-index" data-posts-media={view} data-posts-media-state="unsupported-combination">
@@ -323,7 +323,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
 
   useEffect(() => {
     applySeo({
-      title: `${scope.label} · SOD1820 2029`,
+      title: `${scope.label}`,
       description: "אינדקס הפוסטים של SOD1820.",
       path: taxonomyCanonicalPath || (verifiedOnly ? location.pathname : allPostsHref),
       noindex: !publicCatalog || !(scope.kind === "all" || PUBLIC_READING_RELEASE && scope.kind === "verified") || Boolean(search) || page > 1,
@@ -359,7 +359,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
     if (!isTaxonomy) return;
     const verified = state.scopeKey === scopeKey && state.page === page && !state.loading && !state.error && state.taxonomy?.status === 200;
     applySeo({
-      title: `${scope.kind === "invalid" ? title : `${taxonomyLabel}: ${title}`} · SOD1820 2029`,
+      title: `${scope.kind === "invalid" ? title : `${taxonomyLabel}: ${title}`}`,
       description: `פוסטים ב${taxonomyLabel} ${title} באתר SOD1820.`,
       path: taxonomyCanonicalPath || `${allPostsHref}?${scope.kind}=${encodeURIComponent(scope.key)}`,
       noindex: !publicCatalog || !verified || Boolean(search) || page > 1,

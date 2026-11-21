@@ -3,6 +3,7 @@ import { getWallRecent } from "../../lib/supabaseApi2029.js";
 import { isReadable } from "../../lib/nameMask.js";
 import { dailyWordFor } from "../../lib/dailyWord.js";
 import { calculateGematriaEnvelope } from "../../lib/research/gematriaCalculationContract.js";
+import "./calculatorWordsBar2029.css";
 
 // Words above the input: the word of the day + words visitors recently calculated (public, non-private
 // wall rows only, with the same readability guard the wall uses — unreadable/masked phrases are skipped,
@@ -12,7 +13,7 @@ const MAX_VISITOR_WORDS = 8;
 
 const fmt = (value) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US") : "";
 
-export default function CalculatorWordsBar2029({ onPick, currentExpression = "" }) {
+export default function CalculatorWordsBar2029({ onPick, currentExpression = "", trailing = null }) {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function CalculatorWordsBar2029({ onPick, currentExpression = "" 
           ))}
         </div>
       ) : null}
+      {trailing}
     </section>
   );
 }

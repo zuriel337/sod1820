@@ -118,6 +118,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/heichal",
   "/login",
   "/posts",
+  "/stats",
   "/world",
   "/דף-ראשי",
   "/דף-ראשי-2",

@@ -1,0 +1,16 @@
+-- Exact revert to the live preimage captured 21.11.2026 (md5 478b49a442419f2fd5528fa480f835cb). Old v1 cache rows stay valid.
+\set ON_ERROR_STOP on
+begin;
+\ir fn_ti_activity_pulse2029.before.sql
+;
+\ir fn_raziel_research_intel.before.sql
+;
+do $chk$ begin
+  if md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure)) <> '478b49a442419f2fd5528fa480f835cb' then
+    raise exception 'rollback did not restore the exact preimage';
+  end if;
+  if md5(pg_get_functiondef('public.fn_raziel_research_intel(integer,text,integer)'::regprocedure)) <> 'c054fb8d9808a77959ed6b481ce5cfbc' then
+    raise exception 'rollback did not restore the Raziel preimage';
+  end if;
+end $chk$;
+commit;

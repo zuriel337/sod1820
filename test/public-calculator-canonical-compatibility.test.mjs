@@ -25,10 +25,20 @@ async function read(path, method = "GET") {
   const original = structuredClone(req);
   const res = response();
   const originalFetch = globalThis.fetch;
-  let calls = 0;
-  globalThis.fetch = async () => { calls++; throw Error("Calculator metadata must not query or write to a server"); };
+  // Metadata (canonical, og:url, robots) never needs the server. The only read allowed is the first-words block of #1463 (ZURIEL
+  // 20.11.2026: the calculators' public lists in the first document): a GET of verified, published phrases through the anonymous REST
+  // reader and the read-only research_pulse_2029 RPC, at most two, never a write and never another table. It fails here on purpose, and the metadata must not change.
+  const calls = [];
+  globalThis.fetch = async (url, init = {}) => { calls.push({ url: String(url), method: (init.method || "GET").toUpperCase() }); throw Error("no server in this test"); };
   try { await handler(req, res); } finally { globalThis.fetch = originalFetch; }
-  assert.equal(calls, 0);
+  assert.ok(calls.length <= 2, "at most the two first-words reads");
+  for (const c of calls) {
+    // Two read-only public readers: verified, published phrases (GET) and the one public activity reader research_pulse_2029
+    // (a read-only RPC; PostgREST calls RPCs with POST). Any other address or write fails.
+    const phrases = c.method === "GET" && /\/rest\/v1\/gematria_words\?/.test(c.url) && /is_verified=eq\.true/.test(c.url) && /is_published=eq\.true/.test(c.url);
+    const pulse = c.method === "POST" && /\/rest\/v1\/rpc\/research_pulse_2029$/.test(c.url);
+    assert.ok(phrases || pulse, `only the first-words public readers, never a write: ${c.method} ${c.url}`);
+  }
   assert.deepEqual(req, original, "metadata must preserve the requested address and parameters");
   assert.equal(res.code, 200);
   assert.equal(res.headers.get("location"), undefined, "existing aliases still render directly");

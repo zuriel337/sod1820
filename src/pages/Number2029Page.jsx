@@ -1,5 +1,5 @@
 import { recordSiteActivity } from "../lib/siteActivity2029.js";
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
@@ -41,6 +41,8 @@ import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/rese
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
 import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 import "./number2029.css";
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../lib/searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
 
 const GOLDEN_878_JOURNEY_ID = GOLDEN_WORLD_JOURNEY_878.id;
 const GOLDEN_878_JOURNEY_OPEN = GOLDEN_WORLD_JOURNEY_878.locked !== true;
@@ -1200,6 +1202,7 @@ function NumberPageBody({ resolvedAddress = null }) {
     const raw = clean(rawValue);
     if (!raw) return;
     recordSiteActivity('search');
+    logSearch(raw, /^\d+$/.test(raw) ? Number(raw) : null, "gematria");
     if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
       openNumberRoot(Number(raw));
       return;
@@ -1302,6 +1305,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         </nav>
         <div className="sod29-actions"><FindingShare2029 kind="number" label="שתף את הדף" prominent number={root}
           url={Number.isSafeInteger(root) ? `https://sod1820.co.il/number/${root}` : null} sourceSurface="number-page-2029" /><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
+        <SectionPulseSlot2029 inline section="number" value={root} />
       </div>
       <NumberCore2029
         projection={coreProjection}
@@ -1500,7 +1504,6 @@ export default function Number2029Page({ resolvedAddress = null } = {}) {
     symbol={<NavigationIcon2029 name="number" />}
     status="דף המספר והביטוי"
   >
-    <ActivityPulseSlot2029 />
     <NumberPageBody resolvedAddress={resolvedAddress} />
   </Sod2029Shell>;
 }

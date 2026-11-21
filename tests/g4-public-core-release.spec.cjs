@@ -75,7 +75,7 @@ test('public navigation opens the same user area', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'פתח ניווט' }).click();
-  await page.getByRole('dialog', { name: 'ניווט SOD1820 2029', exact: true })
+  await page.getByRole('dialog', { name: 'ניווט SOD1820', exact: true })
     .getByRole('button', { name: 'האזור האישי שלי', exact: true }).click();
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
 });

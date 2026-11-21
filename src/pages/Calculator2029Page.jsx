@@ -1,4 +1,4 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { startSiteActivity, recordSiteActivity } from "../lib/siteActivity2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
@@ -39,7 +39,11 @@ import {
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
+import { CALCULATOR_PRO_SEO } from "../lib/research/calculatorProSeo2029.js";
 import "./calculator2029.css";
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../lib/searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
+const regularValueOfRows = rows => { const r = rows.find(x => x?.methodKey === "רגיל"); const v = Number(r?.computedValue); return Number.isSafeInteger(v) ? v : null; };
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240;
@@ -335,6 +339,7 @@ function CalculatorExperience() {
       const rows = await fetchNumberMethodProfile(phrase);
       if (requestId !== computeRequestRef.current) return;
       if (rows?.length) recordCompute();
+      if (rows?.length && !restore) logSearch(phrase, regularValueOfRows(rows), "gematria");
       const list = filterProfileRowsForInput(Array.isArray(rows) ? rows : [], inputInfo);
       const preferred = preferredMethodKey
         ? list.find((row) => row.methodKey === preferredMethodKey)
@@ -650,7 +655,7 @@ function CalculatorBody() {
       title="מה מסתתר בשם שלך?"
       description="הקלידו שם בעברית וגלו מה מסתתר בו. אפשר לשתף בקישור, ולהמשיך לעומק במחשבון המקצועי."
     >
-    <ActivityPulseSlot2029 />
+    <SectionPulseSlot2029 section="calculator" />
       <CalculatorExperience />
     </Sod2029Shell>
   );
@@ -659,8 +664,8 @@ function CalculatorBody() {
 export default function Calculator2029Page() {
   useEffect(() => {
     applySeo({
-      title: "מחשבון גימטריה 2029 · SOD1820",
-      description: "חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.",
+      title: CALCULATOR_PRO_SEO.title,
+      description: CALCULATOR_PRO_SEO.description,
       path: PUBLIC_READING_RELEASE ? "/gematria" : "/2029/gematria/viral",
       noindex: true,
     });

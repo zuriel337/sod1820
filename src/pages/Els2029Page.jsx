@@ -1,4 +1,4 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { captureElsUi } from "../lib/research/elsTelemetryRuntime2029.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -437,7 +437,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     title="ELS"
     description={ELS_DESCRIPTION}
   >
-    <ActivityPulseSlot2029 />
+    <SectionPulseSlot2029 section="els" />
     <div style={{display:"contents"}} onClickCapture={event=>captureElsUi(event,{mode:workspaceMode,isAdmin})} onChangeCapture={event=>captureElsUi(event,{mode:workspaceMode,isAdmin})}>
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
       onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} workspaceMode={workspaceMode} /> : null}

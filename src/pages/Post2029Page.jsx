@@ -1,4 +1,3 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useParams } from "react-router-dom";
@@ -279,7 +278,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     if (state.loading || state.projection) return;
     applySeo({
       title: "הפוסט לא נמצא",
-      description: "המקור המבוקש אינו זמין ב-SOD1820 2029.",
+      description: "המקור המבוקש אינו זמין ב-SOD1820.",
       path: location.pathname,
       noindex: true,
     });
@@ -1306,7 +1305,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     });
   };
 
-  return <><ActivityPulseSlot2029 /><article
+  return <><article
     className={postReadingClassName([experience.wireframe ? "is-architecture-wireframe" : "", protoOn && realityMap.active ? "r29" : ""].filter(Boolean).join(" "))}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"

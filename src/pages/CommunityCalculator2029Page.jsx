@@ -1,7 +1,8 @@
-import ActivityPulseSlot2029 from "../components/experience2029/ActivityPulseSlot2029.jsx";
-import React, { createContext, useContext, useEffect, useMemo, useRef } from "react";
+import CalculatorPulseLineSlot2029 from "../components/gematria2029/CalculatorPulseLineSlot2029.jsx";
+import React, { createContext, lazy, Suspense, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CommunityCalculatorPage from "./CommunityCalculatorPage.jsx";
+import CalculatorWordsBar2029 from "../components/gematria2029/CalculatorWordsBar2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import HumanDateInput from "../components/HumanDateInput.jsx";
@@ -19,14 +20,17 @@ import {
 import {
   COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ, COMMUNITY_CALCULATOR_PATH, COMMUNITY_CALCULATOR_SEO, communityCalculatorJsonLd,
 } from "../lib/research/communityCalculatorSeo2029.js";
+import { COMMUNITY_CALCULATOR_METHODS, communityPairExpression, communityPairMeetings } from "../lib/research/communityCalculatorEquals2029.js";
 import "../components/experience2029/royal2029.css";
 import "./communityCalculator2029.css";
 
 const Continuation = createContext(null);
-const CORE_METHODS = ["רגיל", "מילוי", "מסתתר"];
+// "למי אתם שווים?" loads when there is a result to show it for (Speed Law: the calculator opens without it).
+const CommunityEqualsCard2029 = lazy(() => import("../components/gematria2029/CommunityEqualsCard2029.jsx"));
+const CORE_METHODS = COMMUNITY_CALCULATOR_METHODS;
 const MODES = [
   ["name", "שם או ביטוי", "number"],
-  ["compare", "השוואת שמות", "research"],
+  ["compare", "שני שמות", "research"],
   ["baby", "שם לתינוק", "community"],
   ["date", "תאריך עברי", "now"],
 ];
@@ -54,15 +58,14 @@ function DateField({ value, onChange, afterSunset, onAfterSunset, label = "תא�
   </fieldset>;
 }
 
-function MethodResults({ expression, result, selectedMethod, onSelect, showAll, onShowAll, comparison }) {
-  const selected = result.all.find(row => row.key === selectedMethod || canonicalMethodPublicLabel(row.key) === selectedMethod);
-  const rows = showAll ? result.all : result.all.filter(row => CORE_METHODS.includes(row.key) || row === selected);
+// Four methods and no more (ZURIEL 20.11.2026). Every other method is in the professional calculator, opened with the same expression.
+function MethodResults({ expression, result, selectedMethod, onSelect, comparison }) {
+  const rows = CORE_METHODS.map(key => result.all.find(row => row.key === key)).filter(Boolean);
+  const selected = rows.find(row => row.key === selectedMethod || canonicalMethodPublicLabel(row.key) === selectedMethod);
   return <section className="sod29-community-calc-methods" aria-label={`שיטות החישוב של ${expression}`}>
     <header className="sod29-community-calc-section-heading">
-      <h2>כל שיטות הגימטריה</h2>
-      <button type="button" className="sod29-community-calc-text-button" onClick={onShowAll} aria-expanded={showAll}>
-        {showAll ? "שיטות הליבה" : `כל ${result.all.length} השיטות`}
-      </button>
+      <h2>ארבע השיטות המרכזיות</h2>
+      <Link className="sod29-community-calc-text-button" to={`/gematria?q=${encodeURIComponent(expression)}`}>כל השיטות במחשבון המקצועי ←</Link>
     </header>
     <div className="sod29-community-calc-method-grid">
       {rows.map(row => {
@@ -142,13 +145,17 @@ function BabyNames({ model }) {
 const recordCommunity = action => void import("../lib/siteActivity2029.js")
   .then(m => m.recordSiteActivity(action, { section: "calculator_community" })).catch(() => {});
 const recordCommunityCompute = () => recordCommunity("compute");
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../lib/searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
 
 function CalculatorExperience({ model, initialState, location }) {
   const research = useResearch();
   const { state, r1, r2 } = model;
   const mode = state.babyMode ? "baby" : state.dateMode ? "date" : state.compare ? "compare" : "name";
   const claimStillApplies = state.name1 === initialState.name1 && state.method === initialState.method;
-  const selection = selectCommunityCalculatorResult(r1?.all || [], state.method, claimStillApplies ? initialState.resultRaw : "");
+  // Only the four community methods are selectable here; a link that names another method gets the existing "not available here" notice.
+  const communityRows = useMemo(() => COMMUNITY_CALCULATOR_METHODS.map(key => (r1?.all || []).find(row => row.key === key)).filter(Boolean), [r1]);
+  const selection = selectCommunityCalculatorResult(communityRows, state.method, claimStillApplies ? initialState.resultRaw : "");
   const selected = selection.row;
   const second = r2?.all.find(row => row.key === selected?.key);
   const shareHref = communityCalculatorHref(location, state, selected?.value);
@@ -177,12 +184,12 @@ function CalculatorExperience({ model, initialState, location }) {
   }, [state.name1, state.name2]);
   useEffect(() => {
     if (!r1 || state.name1 === arrivalNames.current[0]) return undefined;
-    const t = setTimeout(() => { typingBurst.current = false; recordCommunityCompute(); }, 650);
+    const t = setTimeout(() => { typingBurst.current = false; recordCommunityCompute(); logSearch(state.name1, r1.value, "gematria"); }, 650);
     return () => clearTimeout(t);
   }, [state.name1, r1?.value]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!r2 || state.name2 === arrivalNames.current[1]) return undefined;
-    const t = setTimeout(recordCommunityCompute, 650);
+    const t = setTimeout(() => { recordCommunityCompute(); logSearch(state.name2, r2.value, "gematria"); }, 650);
     return () => clearTimeout(t);
   }, [state.name2, r2?.value]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -220,8 +227,11 @@ function CalculatorExperience({ model, initialState, location }) {
       {state.babyMode ? <>
         {initialState.invalidBirthDate && !state.baby?.bDate && <p role="status" className="sod29-community-calc-notice">תאריך הלידה בקישור אינו תקין. הזינו יום, חודש ושנה כדי לחשב אותו.</p>}
         {model.babyTool}
-        <ActivityPulseSlot2029 />
       </> : <>
+        <CalculatorPulseLineSlot2029 />
+        {/* The same words bar as the main calculator (word of the day + words visitors recently calculated), from the one public activity
+            reader of #1462; it replaces the activity square on this page (ZURIEL 20.11.2026). A pick fills the first name. */}
+        {!state.dateMode && <CalculatorWordsBar2029 currentExpression={state.name1} onPick={word => model.setName1(word)} trailing={<CalculatorPulseLineSlot2029 inline />} />}
         <section className="sod29-community-calc-panel sod29-community-calc-input-panel">
           <div className="sod29-community-calc-name-fields">
             <label htmlFor="community-calculator-name">{state.compare ? "השם הראשון" : "שם, מילה או ביטוי"}
@@ -238,7 +248,6 @@ function CalculatorExperience({ model, initialState, location }) {
           </div>
           {state.name1.trim() && !r1 && <p role="status">הזינו אותיות בעברית כדי לחשב גימטריה.</p>}
         </section>
-        <ActivityPulseSlot2029 />
 
         {state.dateMode && <section className="sod29-community-calc-panel sod29-community-calc-date">
           <h2>המספר של התאריך העברי</h2><p>הזינו תאריך לועזי. אחרי השקיעה, התאריך העברי מתקדם ביום אחד.</p>
@@ -270,14 +279,22 @@ function CalculatorExperience({ model, initialState, location }) {
               </NumberLink>
             </div>}
           </section>}
-          {model.compat && <section id="comparison" className="sod29-community-calc-panel sod29-community-calc-compat">
-            <h2><span className="sod29-community-calc-number">{model.compat.count}</span> מתוך <span className="sod29-community-calc-number">{model.compat.total}</span> שיטות נפגשות</h2>
-            <p>{model.matches.length ? model.matches.map(row => canonicalMethodPublicLabel(row.key)).join(" · ") : "לשמות האלה אין כרגע ערך זהה באותה שיטה."}</p>
-            <NumberLink value={r1.value + r2.value}>סכום השמות בגימטריה רגילה: <b className="sod29-community-calc-number">{r1.value + r2.value}</b> ←</NumberLink>
-          </section>}
-          <MethodResults expression={state.name1} result={r1} selectedMethod={state.method} onSelect={model.setSelectedMethod}
-            showAll={model.showAll} onShowAll={() => model.setShowAll(!model.showAll)} comparison={r2} />
-          <RelatedPhrases phrases={model.discoveries} value={r1.value} />
+          {!r2 && selected && <Suspense fallback={null}><CommunityEqualsCard2029 key={state.name1.trim() + "::" + selected.key} name={state.name1.trim()} row={selected} NumberLink={NumberLink} /></Suspense>}
+          {r2 && (() => {
+            // Two names: where they meet, counted in the community's four methods from the engine's rows; then what they are worth together.
+            const meetings = communityPairMeetings(r1.all, r2.all);
+            const pairExpression = communityPairExpression(state.name1, state.name2);
+            return <>
+              <section id="comparison" className="sod29-community-calc-panel sod29-community-calc-compat" data-pair-meetings={meetings.meet.length}>
+                <h2><span className="sod29-community-calc-number">{meetings.meet.length}</span> מתוך <span className="sod29-community-calc-number">{meetings.total}</span> שיטות נפגשות</h2>
+                <p>{meetings.meet.length ? meetings.meet.map(key => canonicalMethodPublicLabel(key)).join(" · ") : "בארבע השיטות האלה לשמות אין ערך זהה. ביחד הם עדיין שווים משהו:"}</p>
+              </section>
+              {pairExpression && <Suspense fallback={null}><CommunityEqualsCard2029 key={"pair::" + pairExpression} name={pairExpression}
+                row={{ key: "רגיל", value: r1.value + r2.value }} pair={{ first: state.name1.trim(), second: state.name2.trim() }} NumberLink={NumberLink} /></Suspense>}
+            </>;
+          })()}
+          <MethodResults expression={state.name1} result={r1} selectedMethod={selected?.key || state.method} onSelect={model.setSelectedMethod} comparison={r2} />
+          {r2 && <RelatedPhrases phrases={model.discoveries} value={r1.value} />}
         </>}
         {!r1 && !state.dateMode && <div className="sod29-community-calc-empty"><NavigationIcon2029 name="number" size={32} /><h2>מתחילים בשם אחד</h2><p>רגיל, מילוי, מסתתר וכל שיטות החישוב של המחשבון מחכות כאן.</p></div>}
       </>}

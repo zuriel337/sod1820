@@ -14,7 +14,7 @@ const evidence = [
 
 export default function IntegratedPreview2029Page() {
   const [selected, setSelected] = useState(0);
-  return <Sod2029Shell title="2029 · פריוויו משולב" surface="world" introVariant="compact" status="תצוגה לבדיקה" wide>
+  return <Sod2029Shell title="פריוויו משולב" surface="world" introVariant="compact" status="תצוגה לבדיקה" wide>
     <div className="integrated-preview" dir="rtl">
       <section className="integrated-preview__opening">
         <p className="integrated-preview__eyebrow">סיפור · חיבור · מקור · מסע</p>

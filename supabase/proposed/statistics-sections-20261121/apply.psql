@@ -1,0 +1,33 @@
+-- PROPOSAL ONLY (/stats + section strips, ZURIEL 21.11.2026). Requires explicit ZURIEL approval for the exact SHA (CLAUDE.md 0.4).
+-- Extends the existing TI producer fn_ti_activity_pulse2029 (v2 cache key) and fixes the Raziel window date convention. Grants unchanged (CREATE OR REPLACE);
+-- the public wrapper research_pulse_2029 is not touched. Revert: rollback.psql (exact live preimage).
+\set ON_ERROR_STOP on
+begin;
+do $pre$ begin
+  if md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure)) <> '478b49a442419f2fd5528fa480f835cb' then
+    raise exception 'preimage drift: fn_ti_activity_pulse2029';
+  end if;
+  if md5(pg_get_functiondef('public.fn_raziel_research_intel(integer,text,integer)'::regprocedure)) <> 'c054fb8d9808a77959ed6b481ce5cfbc' then
+    raise exception 'preimage drift: fn_raziel_research_intel';
+  end if;
+  if to_regclass('public.crawl_daily') is null or to_regclass('public.research_contributions') is null
+     or to_regclass('public.traffic_history') is null or to_regclass('public.search_log') is null then
+    raise exception 'statistics-sections: source table missing';
+  end if;
+  if has_function_privilege('anon','public.fn_ti_activity_pulse2029(integer)','execute') then
+    raise exception 'statistics-sections: producer must stay server-only';
+  end if;
+end $pre$;
+\ir fn_ti_activity_pulse2029.after.sql
+;
+-- Raziel window date convention (UTC server date, same as fn_human_entrances); grants unchanged (server-only).
+\ir fn_raziel_research_intel.after.sql
+;
+do $post$ begin
+  if has_function_privilege('anon','public.fn_ti_activity_pulse2029(integer)','execute')
+     or not has_function_privilege('anon','public.research_pulse_2029(integer)','execute')
+     or has_function_privilege('anon','public.fn_raziel_research_intel(integer,text,integer)','execute') then
+    raise exception 'statistics-sections: grant drift after apply';
+  end if;
+end $post$;
+commit;

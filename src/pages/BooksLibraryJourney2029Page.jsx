@@ -186,7 +186,7 @@ export default function BooksLibraryJourney2029Page() {
 
   const shellProps = {
     title: "מסע כל הספרים",
-    eyebrow: "2029 · פריוויו · כל הספרים",
+    eyebrow: "פריוויו · כל הספרים",
     description: "מוצר אחד שמראה את כל הספרים, גם כשהחומר עדיין לא אומת.",
     status: "קריאה בלבד · ללא פרסום",
     surface: "books",

@@ -475,7 +475,7 @@ export default function BookPublicationReview2029Page({ slug = "" }) {
 
   const shellProps = {
     title: "ביקורת מועמדי ספרים",
-    eyebrow: "2029 · פנימי · מנהל",
+    eyebrow: "פנימי · מנהל",
     description: "מסך מבודד לבדיקת מועמדי ספרים. ממשל מחקרי ופרסום נשארים גבולות נפרדים.",
     status: "מנהל · קריאה בלבד",
     // Use the existing Books experience profile; authorization remains the

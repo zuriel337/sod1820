@@ -101,7 +101,7 @@ export default function VideoAssetPage() {
     if (state.loading || asset) return;
     applySeo({
       title: "הסרטון לא נמצא",
-      description: "נכס הווידאו המבוקש אינו זמין ב-SOD1820 2029.",
+      description: "נכס הווידאו המבוקש אינו זמין ב-SOD1820.",
       path: `/video/${assetId || ""}`,
       noindex: true,
     });

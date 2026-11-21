@@ -1,6 +1,8 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { fetchSiteSearch2029, SITE_SEARCH_GROUPS, siteSearchEligible, siteSearchItems, siteSearchMoreHref, siteSearchSeries, siteSearchTerm } from "../../lib/research/siteSearch2029.js";
 import "./siteSearch2029.css";
+// Private search wall (ZURIEL 21.11.2026): loaded on demand; admin-only, never public. Settles in the module.
+const logSearch = (...args) => void import("../../lib/searchLog2029.js").then(m => m.logSearch2029(...args)).catch(() => {});
 
 function Highlight({ title, query }) {
   const at = title.toLocaleLowerCase("he").indexOf(query.toLocaleLowerCase("he"));
@@ -20,6 +22,7 @@ export default function SiteSearch2029({ query, setQuery, go, reader = fetchSite
   let term = "", invalid = "";
   try { term = siteSearchTerm(query); } catch (error) { invalid = error.message; }
   const eligible = !invalid && !composing && siteSearchEligible(term);
+  useEffect(() => { if (eligible) logSearch(term, null, "site"); }, [eligible, term]);
   const current = state.term === term ? state.groups : {};
   const groups = eligible ? current : {};
   const items = useMemo(() => eligible ? siteSearchItems(groups, filter) : [], [eligible, groups, filter]);
