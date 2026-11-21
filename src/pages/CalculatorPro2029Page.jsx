@@ -1,4 +1,4 @@
-import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
+import CalculatorPulseLineSlot2029 from "../components/gematria2029/CalculatorPulseLineSlot2029.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
@@ -546,6 +546,7 @@ function ProExperience() {
   return (
     <section className={`sod29-calcpro${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
       <h1 className="sod29-calcpro-sr">מחשבון גימטריה מקצועי</h1>
+      <CalculatorPulseLineSlot2029 />
       <CalculatorWordsBar2029
         currentExpression={info.expression}
         onPick={(word, kind) => {
@@ -741,7 +742,6 @@ function CalculatorPro2029Content() {
       title="מחשבון גימטריה"
       description="כל השיטות במבט אחד, פירוק אותיות מהמנוע ומצב מתקדם להשוואה."
     >
-    <SectionPulseSlot2029 section="calculator" />
       <ProExperience />
     </Sod2029Shell>
   );

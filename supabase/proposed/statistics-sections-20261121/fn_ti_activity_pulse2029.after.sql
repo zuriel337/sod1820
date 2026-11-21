@@ -76,11 +76,13 @@ begin
      'numbers',coalesce((select jsonb_agg(to_jsonb(n.*)) from (select * from numbers order by events desc,n limit 24)n),'[]'::jsonb),
      'computed_refs',coalesce((select jsonb_agg(jsonb_build_object('n',c.n,'events',c.events)) from (select * from computed order by events desc,n limit 12)c),'[]'::jsonb),
      'sections',coalesce((select jsonb_agg(jsonb_build_object('section',x.section,'views',x.views) order by x.views desc) from sections x),'[]'::jsonb),
-     'totals',coalesce((select jsonb_object_agg(t.cls,jsonb_build_object('page_views',t.page_views,'calculator',t.calculator,'els_searches',t.els,'actions',t.actions))
+     'totals',coalesce((select jsonb_object_agg(t.cls,jsonb_build_object('page_views',t.page_views,'calculator',t.calculator,'computes',t.computes,'els_searches',t.els,'actions',t.actions))
        from (select cls,count(*) filter (where surface='page' and event_type='view') as page_views,
                count(*) filter (where surface='calculator_2029') as calculator,
                count(*) filter (where surface='els' and event_type in ('search','cross_search')) as els,
-               count(*) filter (where surface='activity_2029') as actions
+               count(*) filter (where surface='activity_2029') as actions,
+               -- Gematria calculations committed (any calculator page), ZURIEL 21.11.2026: "how many searches", next to the word of the day.
+               count(*) filter (where surface='activity_2029' and event_type='compute') as computes
              from measured group by cls having count(*)>=10 and count(distinct session_id)>=5) t),'{}'::jsonb),
      -- Crawlers are machines, not people: served (not blocked) document hits counted at the edge, per day.
      -- Blocked traffic stays in the admin centre; publishing it would describe the defence.

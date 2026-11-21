@@ -69,6 +69,7 @@ try {
   const number = d.sections.find(x => x.section === 'number');
   check(number && number.views === 15 && !d.sections.some(x => x.views < 10), 'sections: one aggregate per section (number 12+3 = 15 views) and the floor applies to the section');
   check(d.totals.human.page_views === 15 && d.totals.human.actions === 20, 'human totals are events of human sessions (15 views incl. below-floor items, 20 actions)');
+  check(d.totals.human.computes === 20, 'human totals count committed gematria calculations (computes) apart from all actions');
   check(d.totals.unknown.page_views === 10, 'unknown is counted apart, never added to people');
   check(!JSON.stringify(d.totals).includes('65'), 'bot rows never enter any total');
   check(d.crawlers.served === 1040 && d.crawlers.days === 7, 'crawlers: served hits in the window only (blocked 999 and a 30-day-old row excluded)');
