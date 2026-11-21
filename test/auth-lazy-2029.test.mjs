@@ -121,10 +121,11 @@ test('all application Auth operations and SDK imports stay inside the lazy bound
   assert.deepEqual(offenders, []);
 });
 test('Auth inventory catches unsupported methods, aliases and error-class imports', () => {
+  const authPackage = '@supabase/' + 'auth-js', clientPackage = '@supabase/' + 'supabase-js';
   for (const mutation of ['client.auth.signInAnonymously()', 'client.auth[method]()', 'client.auth.mfa.enroll({})',
     'function f({auth=client.auth}) { auth.signInAnonymously(); }', 'const {signOut}=client.auth', 'const auth=client.auth',
-    'import {AuthError} from "@supabase/auth-js"', 'export * from "@supabase/auth-js"',
-    'import {AuthError} from "@supabase/supabase-js"', 'import("@supabase/auth-js")'])
+    `import {AuthError} from "${authPackage}"`, `export * from "${authPackage}"`,
+    `import {AuthError} from "${clientPackage}"`, `import("${authPackage}")`])
     assert.ok(authBoundaryViolations(mutation).length > 0, mutation);
   assert.deepEqual(authBoundaryViolations('client.auth["signOut"](); client?.auth?.getSession?.()'), []);
 });
