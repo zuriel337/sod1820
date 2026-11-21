@@ -1492,7 +1492,7 @@ function SystemFrame2029Body({
   };
 
   const resolvedIntroVariant = introVariant === "none" ? "none" : ["world", "heichal", "books"].includes(surface) ? "quiet" : introVariant === "full" ? "full" : "compact";
-  const introHelpTrigger = <button type="button" className="sod29-action" style={{ position: "absolute", top: 14, insetInlineEnd: 16, zIndex: 5 }} disabled={introHelpOpened} aria-expanded="false" onClick={() => setIntroHelpRoute(location.key)}>{introHelpOpened ? "טוען הסבר…" : "? מה זה?"}</button>;
+  const introHelpTrigger = <button type="button" className="sod29-action" style={{ position: "absolute", top: 14, insetInlineEnd: 16, zIndex: 5, background: "none", border: 0, boxShadow: "none", padding: "0 6px", fontSize: "var(--s29-type-micro,14px)", minHeight: 44 }} disabled={introHelpOpened} aria-expanded="false" onClick={() => setIntroHelpRoute(location.key)}>{introHelpOpened ? "טוען הסבר…" : "? מה זה?"}</button>;
   const introIcon = { world: "world", heichal: "heichal", topic: "graph", books: "books", els: "els", calculator: "calculator", journey: "journey", number: "number", control: "tools" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>

@@ -22,8 +22,8 @@ export default function RoyalIntro2029({ surface, title, description, orientatio
     <div className="r29-palace-help" onKeyDown={event => {
       if (event.key === "Escape" && open) { event.stopPropagation(); close(); }
     }}>
-      <button ref={trigger} type="button" className="r29-btn is-quiet" aria-expanded={open} aria-controls={panel} onClick={() => setOpen(!open)}>
-        <span aria-hidden="true">?</span> מה זה?
+      <button ref={trigger} type="button" className="r29-btn is-quiet" style={{ background: "none", border: 0, boxShadow: "none", padding: "0 6px", fontSize: "var(--s29-type-micro,14px)", minHeight: 44 }} aria-expanded={open} aria-controls={panel} onClick={() => setOpen(!open)}>
+        ? מה זה?
       </button>
       <div id={panel} className="r29-palace-disclosure" data-open={open} inert={!open} aria-hidden={!open}>
         <div className="r29-palace-explanation">

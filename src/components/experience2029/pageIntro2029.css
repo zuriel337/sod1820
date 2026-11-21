@@ -28,9 +28,9 @@
 /* Full is explicit opt-in; legacy hero callers inherit Compact. */
 .native-frame .sod29-page-intro[data-intro-variant="full"] {padding-block:72px 20px;gap:16px}
 
-/* Approved quiet Royal opening: complete content, no decorative image. */
-.native-frame .sod29-page-intro[data-intro-variant="quiet"] {padding-block:10px;display:grid;grid-template-columns:44px minmax(0,1fr) 100px;gap:6px 10px;background:var(--s29-frame)}
+/* Open Royal: the shared frame carries the surface, a single rule ends it. */
+.native-frame .sod29-page-intro[data-intro-variant="quiet"] {padding-block:10px;display:grid;grid-template-columns:44px minmax(0,1fr) 100px;gap:6px 10px;background:linear-gradient(90deg,transparent,var(--s29-frame),transparent);border:0;border-radius:0;box-shadow:none;border-bottom:1px solid var(--s29-brand-gold)}
 .native-frame .sod29-page-intro[data-intro-variant="quiet"] .sod29-hero-copy {display:contents}
 .native-frame .sod29-page-intro[data-intro-variant="quiet"] h1 {font-size:24px;grid-column:2}
 .native-frame .sod29-page-intro[data-intro-variant="quiet"] p {margin-top:4px;grid-column:1/-1;max-width:none}
-.native-frame .sod29-page-intro[data-intro-variant="quiet"] .sod29-context-strip {margin-top:4px;padding-top:4px;grid-column:1/-1}
+.native-frame .sod29-page-intro[data-intro-variant="quiet"] .sod29-context-strip {margin-top:0;padding-top:0;border:0;grid-column:1/-1}
