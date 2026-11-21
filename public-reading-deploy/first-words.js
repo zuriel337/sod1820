@@ -15,6 +15,7 @@
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
 import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
+import { HOME_FIRST_WORDS } from "../src/lib/homePublicWords2029.js";
 
 // The public project address and the public anonymous key, as in the other server readers (api/og.js, api/sitemap.js, api/card.js). The browser
 // module src/lib/supabase.js is not imported here: it creates a client, which a server function must not load.
@@ -29,8 +30,10 @@ export const FIRST_WORDS_GRACE_MS = 300;
 export const FIRST_WORDS_DATA_PAGE_GRACE_MS = 1200;
 // The calculators' heading, lead, explanation and questions are fixed wording and need no read. When their lists are not ready in time
 // (a cold instance), the document still carries that wording rather than an empty shell; the lists come with the next request.
+// The home page's words are fixed wording only (ZURIEL 21.11.2026, #1470): no read, so they are never missing, even on a cold instance.
 export function firstWordsStaticFacts2029(path) {
   const kind = firstWordsFamily2029(path)?.kind;
+  if (kind === "home") return { kind };
   return kind === "gematria" || kind === "community-calculator" ? { kind, recent: [], picked: [], pickedThisWeek: false } : null;
 }
 export function firstWordsGraceMs2029(path) {
@@ -130,6 +133,7 @@ async function topicFacts(read, slug) {
 export function firstWordsFamily2029(path) {
   let decoded;
   try { decoded = decodeURIComponent(path).replace(/\/+$/, "") || "/"; } catch { return null; }
+  if (decoded === "/") return { kind: "home" };
   if (decoded === "/gematria") return { kind: "gematria" };
   if (decoded === "/community/calculator") return { kind: "community-calculator" };
   if (decoded === "/codes") return { kind: "codes" };
@@ -182,6 +186,7 @@ function refresh(key, family, fetchImpl, deadlineMs, now) {
 
 export async function firstWordsFacts2029(path, { search = "", fetchImpl = globalThis.fetch, deadlineMs = FIRST_WORDS_DEADLINE_MS, now = Date.now } = {}) {
   const family = search ? null : firstWordsFamily2029(path);
+  if (family?.kind === "home") return { kind: "home" };
   if (!family || typeof fetchImpl !== "function") return null;
   try {
     const key = JSON.stringify(family), entry = kept.get(key), age = entry ? now() - entry.at : Infinity;
@@ -199,6 +204,14 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "home") {
+    const words = HOME_FIRST_WORDS;
+    // Exact wording; the series line and the start line are links to destinations that exist today. The start items are inline
+    // links on one line (no list), as written in the approved text.
+    return `<h1>${esc(words.heading)}</h1><p><strong>${esc(words.tagline)}</strong></p><p>${esc(words.lead)}</p>`
+      + `<p><a href="${esc(words.series.href)}"><strong>${esc(words.series.label)}</strong></a> — ${esc(words.series.note)}</p>`
+      + `<p><strong>${esc(words.startLabel)}</strong> ${words.start.map(item => `<a href="${esc(item.href)}">${esc(item.label)}</a>`).join(" · ")}.</p>`;
+  }
   if (facts.kind === "number") {
     const { value, phrases, anchor, posts } = facts;
     return `<h1>${value} בגימטריה</h1>`

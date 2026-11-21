@@ -26,7 +26,8 @@ test("only the named public families have first words; a query string, a private
   assert.deepEqual(firstWordsFamily2029("/community/calculator"), { kind: "community-calculator" });
   assert.deepEqual(firstWordsFamily2029("/codes"), { kind: "codes" });
   assert.equal(firstWordsFamily2029("/codes/מחקר"), null);
-  for (const path of ["/", "/2029/me/profile", "/number/0", "/number/1234567890123", "/post/x", "/number/%E0%A4%A", "/journey"]) assert.equal(firstWordsFamily2029(path), null, path);
+  assert.deepEqual(firstWordsFamily2029("/"), { kind: "home" });
+  for (const path of ["/2029/me/profile", "/number/0", "/number/1234567890123", "/post/x", "/number/%E0%A4%A", "/journey"]) assert.equal(firstWordsFamily2029(path), null, path);
 });
 
 test("a number page lists only verified published phrases, its published posts and a way back to the calculator", async () => {
@@ -209,7 +210,8 @@ test("the calculators' fixed wording is never missing: without their lists they 
   assert.match(community, /שאלות נפוצות/);
   assert.doesNotMatch(community, /ביטויים נבחרים|נוספו לאחרונה/, "no empty list headings");
   assert.ok(firstWordsHtml2029(firstWordsStaticFacts2029("/gematria")).includes(`<h1>${CALCULATOR_PRO_SEO.heading}</h1>`));
-  for (const path of ["/number/78", "/codes", "/topic/x", "/"]) assert.equal(firstWordsStaticFacts2029(path), null, path);
+  for (const path of ["/number/78", "/codes", "/topic/x"]) assert.equal(firstWordsStaticFacts2029(path), null, path);
+  assert.deepEqual(firstWordsStaticFacts2029("/"), { kind: "home" }, "the home words are fixed wording too (#1470)");
   const documentSource = readFileSync(new URL("../public-reading-deploy/api/public-document.js", import.meta.url), "utf8");
   assert.match(documentSource, /\|\| firstWordsStaticFacts2029\(metadataPath\)\)\)/);
 });
