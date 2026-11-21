@@ -125,3 +125,21 @@ test("the Now band is carried by the featured feed item and holds the WHOLE upda
   assert.deepEqual(item.band.groups.flatMap(g => g.phrases), HOME_FEATURED_POST_2029.highlights.flatMap(g => [...g.phrases]));
   assert.equal(item.band.statement, HOME_FEATURED_POST_2029.statement);
 });
+
+test("a later edit of the featured elections Post is ranked in Now by edit time, without a fake unit addition", async () => {
+  const { featuredFeedItem } = await import("../src/lib/research/homeFeaturedPost2029.js");
+  const { postRowToWorldUpdate } = await import("../src/lib/research/worldDiscoveryStream.js");
+  const { nowModels } = await import("../src/lib/nowPublications2029.js");
+  const { feedRows } = await import("../src/lib/systemFeed2029.js");
+  const now = Date.parse("2026-11-24T08:00:00Z");
+  const edited = featuredFeedItem(row({ date: "2026-09-30T08:55:06Z",
+    modified: "2026-11-23T10:00:00Z", tags: ["מפת המציאות"] }),
+    postRowToWorldUpdate, HOME_FEATURED_POST_2029, now);
+  const [model] = nowModels(feedRows([edited], { now, limit: 10 }), now);
+  assert.equal(model.id, "post:5107");
+  assert.equal(model.title, row().title, "the current Post title replaces the fixed featured headline after a later edit");
+  assert.equal(model.at, "2026-11-23T10:00:00.000Z");
+  assert.equal(model.href, "/post/sharshar-elections-redemption-hints-draft");
+  assert.equal(model.typeLabel, "פוסט · נערך");
+  assert.equal(model.item.sourceUpdate, null);
+});
