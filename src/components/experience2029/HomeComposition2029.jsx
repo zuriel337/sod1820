@@ -22,6 +22,7 @@ import SeriesBell2029 from "./SeriesBell2029.jsx";
 import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost2029.jsx";
 import { NowPinnedMessage2029 } from "./NowRoyalCenter2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
+import { mapIntegrationReview } from "../../lib/research/mapIntegrationReviewStorage.js";
 import { nowModels, buildNowEntries, nowPinnedMessage, REALITY_MAP_LATEST_KEY, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
 import { pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
 import { thumb } from "../../lib/img.js";
@@ -305,12 +306,13 @@ function useHomeUpdates(feed, { postsOnly, exclude }) {
   const pinned = useMemo(() => nowPinnedMessage(all), [all]);
   // The newest מפת המציאות publication is the Home's pinned lead (HomePinnedLead below): the SAME model that leads "עכשיו", shown once.
   const lead = useMemo(() => all.find(model => model.seriesLatest) || null, [all]);
-  const models = useMemo(() => {
+  const entries = useMemo(() => {
     const pool = all.filter(model => model.id !== pinned?.model.id && (!postsOnly || model.item?.sourceKind === "post")
       && !(model.href && exclude?.has(model.href)));
-    return buildNowEntries(pool).filter(entry => entry.model?.seriesKey !== REALITY_MAP_LATEST_KEY).slice(0, HOME_UPDATES_LIMIT);
+    return buildNowEntries(pool);
   }, [all, pinned, postsOnly, exclude]);
-  return { loading, models, pinned, lead, see: feed?.see };
+  const models = useMemo(() => entries.filter(entry => entry.model?.seriesKey !== REALITY_MAP_LATEST_KEY).slice(0, HOME_UPDATES_LIMIT), [entries]);
+  return { loading, models, entries, pinned, lead, see: feed?.see };
 }
 
 // The site-wide construction note (Design Contract V2: it describes the whole site), first on the Home (ZURIEL 17.11.2026: "לכתוב שם שהדף בבנייה").
@@ -381,8 +383,20 @@ function HomeNowThumb({ model }) {
     ? <span className="h29-live-video">{thumb}<i aria-hidden="true">▶</i></span> : thumb;
 }
 
-function HomeLiveUpdates({ updates, onOpenNow }) {
-  const { loading, models } = updates;
+// The editorial card and the latest publication can point at different units of the same post.
+function homeUpdateIdentity(href) {
+  if (!href?.startsWith("/") || href.startsWith("//")) return href;
+  const url = new URL(href, "https://sod1820.co.il");
+  const unit = url.searchParams.get("unit") || url.hash.slice(1);
+  return url.pathname + "#" + unit;
+}
+
+function HomeLiveUpdates({ updates, onOpenNow, editorialHref = null }) {
+  const { loading } = updates;
+  const editorialId = homeUpdateIdentity(editorialHref);
+  const models = editorialId
+    ? updates.entries.filter(entry => homeUpdateIdentity(entry.model?.href) !== editorialId).slice(0, HOME_UPDATES_LIMIT)
+    : updates.models;
   if (!loading && !models.length) return null;
   return <section className="rc29 r29 r29-hall is-home is-compact h29-live" aria-label="עכשיו" data-home-top-updates="live" data-home-now-center="true" data-home-now-compact="true" aria-busy={loading}>
     <header className="rc29-head h29-live-head"><span className="rc29-medal r29-medal" aria-hidden="true"><NavigationIcon2029 name="now" size={18} /></span>
@@ -559,13 +573,15 @@ export default function HomeComposition2029({
   }}>
     {/* ZURIEL 17.11.2026: the construction note, then the pinned מפת המציאות lead (our own content), then a short "עכשיו" from the same feed. */}
     <HomeBuildingNote />
-    <div className="h29-lead-pair">
-      <HomeMapSelection>{editorial => <HomePinnedLead editorial={editorial} lead={editorial?.loading ? null : updates.lead} catalogItems={editorial?.loading ? [] : primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!editorial?.loading && !seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />}</HomeMapSelection>
-      <Suspense fallback={<div className="h29-stream-slot" aria-hidden="true" />}>
-        {leadImageDone ? <HomeStreamVideo2029 /> : <div className="h29-stream-slot" aria-hidden="true" />}
-      </Suspense>
-    </div>
-    <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} />
+    <HomeMapSelection>{editorial => <>
+      <div className="h29-lead-pair">
+        <HomePinnedLead editorial={editorial} lead={editorial?.loading ? null : updates.lead} catalogItems={editorial?.loading ? [] : primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!editorial?.loading && !seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />
+        <Suspense fallback={<div className="h29-stream-slot" aria-hidden="true" />}>
+          {leadImageDone ? <HomeStreamVideo2029 /> : <div className="h29-stream-slot" aria-hidden="true" />}
+        </Suspense>
+      </div>
+      <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} editorialHref={mapIntegrationReview ? editorial?.lead?.href : null} />
+    </>}</HomeMapSelection>
     {activity}
 
     {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}

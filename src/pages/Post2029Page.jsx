@@ -1498,10 +1498,17 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           <div className="sod29-context-inspector-kicker">בתוך הפוסט</div>
           <ul>{previewOutline.map(item => {
             const id = item.targetId || item.id;
-            const href = previewUnits.some(unit => unit.id === id) ? publicPostUnitHref(post, id) : `#${encodeURIComponent(id)}`;
+            const unit = previewUnits.find(candidate => candidate.id === id);
+            const href = unit ? publicPostUnitHref(post, id) : `#${encodeURIComponent(id)}`;
             return <li key={item.id} data-level={item.level}><Link to={href} state={location.state}
               aria-current={activeOutlineId === item.id ? "location" : undefined}
-              onClick={event => { event.currentTarget.closest("details").open = false; }}>{item.label}</Link></li>;
+              onClick={event => {
+                if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+                event.currentTarget.closest("details").open = false;
+                const target = unit && document.getElementById(unit.id);
+                const depth = target && sourceRef.current?.contains(target) && target.querySelector(":scope > details[data-map-depth]");
+                if (depth) depth.open = true;
+              }}>{item.label}</Link></li>;
           })}</ul>
         </nav> : null}
         {mapUnit && MapUnitContextReview ? <MapUnitContextReview postId={post.id} unitKey={mapUnit.key} /> : null}
