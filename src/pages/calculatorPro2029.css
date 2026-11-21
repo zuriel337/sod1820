@@ -205,7 +205,14 @@
 .sod29-calcpro-word-live { display: contents; }
 .sod29-calcpro-word-live-label { color: var(--s29-muted); font-size: 12.5px; }
 .sod29-calcpro-word-live button { font-size: 14px; font-weight: 600; }
+/* Dense Row Law (ZURIEL 21.11.2026): on a computer the statistics line sits in the word-of-the-day row, content-wide;
+   on a phone it is its own thin row above (the words row scrolls sideways there). Only one of the two is shown. */
+.sod29-calcpro-pulse-inline { display: inline-flex; flex: 1 1 0; min-width: 0; max-width: max-content; min-height: 40px; align-items: center; }
+.sod29-calcpro-pulse-inline .nowpulse29 { margin: 0; }
+.sod29-calcpro-pulse-row { display: none; }
 @media (max-width: 640px) {
+  .sod29-calcpro-pulse-inline { display: none; }
+  .sod29-calcpro-pulse-row { display: block; }
   .sod29-calcpro-words { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
   .sod29-calcpro-words button, .sod29-calcpro-word-live-label { flex: 0 0 auto; white-space: nowrap; }
   .sod29-calcpro-word-live { display: flex; gap: 8px; align-items: center; }

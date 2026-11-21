@@ -548,6 +548,7 @@ function ProExperience() {
       <h1 className="sod29-calcpro-sr">מחשבון גימטריה מקצועי</h1>
       <CalculatorPulseLineSlot2029 />
       <CalculatorWordsBar2029
+        trailing={<CalculatorPulseLineSlot2029 inline />}
         currentExpression={info.expression}
         onPick={(word, kind) => {
           emit("calculator_2029", "words_bar_pick", { props: { surface: "professional", kind } });

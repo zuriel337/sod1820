@@ -12,7 +12,7 @@ const MAX_VISITOR_WORDS = 8;
 
 const fmt = (value) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US") : "";
 
-export default function CalculatorWordsBar2029({ onPick, currentExpression = "" }) {
+export default function CalculatorWordsBar2029({ onPick, currentExpression = "", trailing = null }) {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -62,6 +62,7 @@ export default function CalculatorWordsBar2029({ onPick, currentExpression = "" 
           ))}
         </div>
       ) : null}
+      {trailing}
     </section>
   );
 }

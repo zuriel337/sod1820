@@ -1,7 +1,9 @@
-.sectionpulse29{display:flex;flex-direction:column;justify-content:center;gap:6px;height:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--s29-line,#574327);border-radius:14px;background:var(--s29-panel,#201b16);color:var(--s29-ink,#f6eddc);overflow:hidden;min-width:0}
-.sectionpulse29 ul{display:flex;gap:8px;margin:0;padding:0;list-style:none;overflow-x:auto}
-.sectionpulse29 li>a,.sectionpulse29 li>span{display:flex;flex-direction:column;flex:0 0 auto;min-width:96px;max-width:170px;padding:6px 10px;border-radius:10px;background:var(--s29-panel-soft,#2c231b);color:inherit;text-decoration:none}
-.sectionpulse29 b{font-size:18px;line-height:24px;color:var(--s29-accent-text,#d5b477);font-variant-numeric:tabular-nums}
-.sectionpulse29 small{font-size:12px;line-height:16px;color:var(--s29-muted,#b6a995);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sectionpulse29-more{font-size:13px;line-height:18px;color:var(--s29-accent-text,#d5b477);align-self:flex-start;min-height:24px;display:inline-flex;align-items:center}
+/* Dense Row Law (ZURIEL 21.11.2026): one thin line, as wide as its content — never a tall, mostly empty box. */
+.sectionpulse29{display:inline-flex;flex-direction:row;align-items:center;gap:10px;max-width:100%;height:36px;box-sizing:border-box;padding:0 10px;border:1px solid var(--s29-line,#574327);border-radius:10px;background:var(--s29-panel,#201b16);color:var(--s29-ink,#f6eddc);overflow:hidden;min-width:0;font-size:13px;line-height:18px}
+.sectionpulse29 ul{display:flex;align-items:center;gap:6px;margin:0;padding:0;list-style:none;overflow:hidden;min-width:0;flex:0 1 auto}
+.sectionpulse29 li{flex:0 0 auto}
+.sectionpulse29 li>a,.sectionpulse29 li>span{display:inline-flex;align-items:baseline;gap:5px;padding:2px 8px;border-radius:999px;background:var(--s29-panel-soft,#2c231b);color:inherit;text-decoration:none;white-space:nowrap}
+.sectionpulse29 b{font-size:14px;color:var(--s29-accent-text,#d5b477);font-variant-numeric:tabular-nums}
+.sectionpulse29 small{font-size:12px;color:var(--s29-muted,#b6a995)}
+.sectionpulse29-more{flex:0 0 auto;font-size:13px;color:var(--s29-accent-text,#d5b477);min-height:32px;display:inline-flex;align-items:center;white-space:nowrap}
 .sectionpulse29 a:focus-visible{outline:2px solid var(--s29-accent-text,#d5b477);outline-offset:2px}
