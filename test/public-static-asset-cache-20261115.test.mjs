@@ -12,6 +12,12 @@ import { POST_BACKGROUND_ASSETS_2029 } from '../src/lib/research/postBackground2
 
 import { ROYAL_PALACE_ATMOSPHERE_2029 } from '../src/lib/brandAssets2029.js';
 const palace = Object.values(ROYAL_PALACE_ATMOSPHERE_2029);
+const connected = [
+ '/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif',
+ '/backgrounds/2029/royal-connected-mobile-96cbcf5c1e1e.webp',
+ '/backgrounds/2029/royal-connected-desktop-42810d335bd2.avif',
+ '/backgrounds/2029/royal-connected-desktop-c25f055092d8.webp',
+];
 
 const config = JSON.parse(readFileSync(new URL('../public-reading-deploy/vercel.json', import.meta.url), 'utf8'));
 const rules = config.headers;
@@ -75,10 +81,10 @@ test('a missing file under the same folders, a document and the worker are not m
 });
 
 test('immutable is reserved for content-hashed files; no other address receives a public lifetime', () => {
-  const allowedPublic = new Set(['/assets/(.*)', '/(favicon.ico|apple-touch-icon.png|apple-touch-icon-precomposed.png)', fontsSource, brandSource, ...backgrounds, ...palace]);
+  const allowedPublic = new Set(['/assets/(.*)', '/(favicon.ico|apple-touch-icon.png|apple-touch-icon-precomposed.png)', fontsSource, brandSource, ...backgrounds, ...palace, ...connected]);
   for (const rule of cachingRules) {
     assert.ok(allowedPublic.has(rule.source), `${rule.source} must not be cacheable`);
-    if (/immutable/.test(cacheOf(rule))) assert.ok(rule.source === '/assets/(.*)' || /-[a-f0-9]{12}\.webp$/.test(rule.source), `${rule.source} is not content-hashed`);
+    if (/immutable/.test(cacheOf(rule))) assert.ok(rule.source === '/assets/(.*)' || /-[a-f0-9]{12}\.(webp|avif)$/.test(rule.source), `${rule.source} is not content-hashed`);
   }
 });
 
@@ -98,4 +104,15 @@ test('Royal Palace names only the two existing hash-verified images, after no-st
     const hash = createHash('sha256').update(readFileSync(new URL('../public' + href, import.meta.url))).digest('hex').slice(0, 12);
     assert.ok(href.endsWith(`-${hash}.webp`));
   }
+});
+
+test('connected palace permits only the four verified delivery derivatives', () => {
+ for (const href of connected) {
+  assert.ok(lastIndexOf(href) > catchAll);
+  assert.equal(cacheOf(rules[lastIndexOf(href)]), 'public, max-age=31536000, immutable');
+  assert.deepEqual(matchingCache(href), [href]);
+  const hash=createHash('sha256').update(readFileSync(new URL('../public'+href,import.meta.url))).digest('hex').slice(0,12);
+  assert.equal(/-([a-f0-9]{12})\.(webp|avif)$/.exec(href)?.[1],hash);
+ }
+ for(const href of ['/backgrounds/2029/royal-connected-missing-000000000000.avif','/backgrounds/2029/royal-connected-mobile.avif']) assert.deepEqual(matchingCache(href),[]);
 });
