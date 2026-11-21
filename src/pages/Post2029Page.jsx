@@ -34,6 +34,7 @@ import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
 import PublishedUnitTraces2029 from "../components/experience2029/PublishedUnitTraces2029.jsx";
 import { mapIntegrationReview } from "../lib/research/mapIntegrationReviewStorage.js";
 import { parseNumberExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { bennettPostId, bennettUnitTimelineHtml2029 } from "../lib/research/bennettUnitTimelinePreview2029.js";
 import { electionsUnitTimelineHtml2029 } from "../lib/research/electionsUnitTimelinePreview2029.js";
 import { compactMapUnitHtml, mapLeadId, mapUnitReading, mapWorldHref } from "../lib/research/mapUnitReading2029.js";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
@@ -151,6 +152,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   entryRef.current = { context: research.context, hash: location.hash };
   const restoredRegionRef = useRef(null);
   const [discussionDraft, setDiscussionDraft] = useState(null);
+  const [bennettResearchHost, setBennettResearchHost] = useState(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const postVoice = postVoiceFor(state.projection?.post).voice;
   // The flagship series experience (ZURIEL 12.11.2026): exact series tag, or the preview-only acceptance exception for 5107 / 5112.
@@ -166,8 +168,14 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const html = postArticleSourceHtml2029(state.projection?.post?.content || "", { postId: state.projection?.post?.id, voice: postVoice, annotate: protoOn, cover: state.projection?.post?.image_url || "", facts: imageFacts });
     if (import.meta.env.VITE_REALITY_MAP_PREVIEW !== "true" || !protoOn || !realityMap.active || editorEnabled) return html;
     if (mapIntegrationReview && Number(state.projection?.post?.id) === mapLeadId) return electionsUnitTimelineHtml2029(html);
+    if (mapIntegrationReview && Number(state.projection?.post?.id) === bennettPostId) return bennettUnitTimelineHtml2029(html);
     return compactMapUnitHtml(html, state.projection?.post?.id);
   }, [realityMap.active, editorEnabled, state.projection?.post?.content, state.projection?.post?.id, state.projection?.post?.image_url, postVoice, protoOn, imageFacts]);
+
+  const bennettTimeline = mapIntegrationReview && passiveSourceHtml.includes("data-bennett-unit-research");
+  useLayoutEffect(() => {
+    setBennettResearchHost(bennettTimeline ? sourceRef.current?.querySelector("[data-bennett-unit-research]") || null : null);
+  }, [bennettTimeline, passiveSourceHtml]);
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second
   // time, only when they are exactly this page's article; the reader stays on the same place. Otherwise this page's article replaces it once.
@@ -371,7 +379,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     let targetId = "";
     try { targetId = decodeURIComponent((location.hash || "").replace(/^#/, "")); } catch { /* A malformed URL fragment has no target. */ }
     reveal(targetId);
-  }, [location.hash, state.projection]);
+  }, [location.hash, state.projection, bennettResearchHost]);
 
   // Entering a reality-map Post settles the "latest update" dot in "עכשיו" for this viewer (the existing per-browser seen state; a newer registered unit makes it blink again).
   useEffect(() => {
@@ -596,7 +604,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     // Authored legacy number links use the same in-place Number capability.
     // Keep their href for ordinary modified-click navigation and copying.
     for (const link of sourceRef.current.querySelectorAll('a[href^="/number/"]')) {
-      if (link.hasAttribute("data-gem") || link.hasAttribute("data-elections-calculation")) continue;
+      if (link.hasAttribute("data-gem") || link.hasAttribute("data-reading-calculation")) continue;
       try {
         const term = decodeURIComponent(link.getAttribute("href").slice("/number/".length).split(/[?#]/)[0]).trim();
         if (term) {
@@ -1213,10 +1221,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       const binding=publicPostLinkedMedia(state.projection?.post?.content,sourceAnchor.dataset.sourceAttachment);
       if(binding){event.preventDefault();setSourceMediaOpen(binding);return;}
     }
-    const previewCalculation = event.target?.closest?.("a[data-elections-calculation]");
+    const previewCalculation = event.target?.closest?.("a[data-reading-calculation]");
     if (mapIntegrationReview && previewCalculation && sourceRef.current?.contains(previewCalculation)) {
       const { expression, method } = parseNumberExpressionFocus(previewCalculation.search);
-      const value = Number(previewCalculation.dataset.electionsCalculation);
+      const value = Number(previewCalculation.dataset.readingCalculation);
       if (event.button !== 0 || !expression || !method || !Number.isSafeInteger(value) || !shell.openNumber) return;
       event.preventDefault();
       // The shared sheet captures the active element for its close action, including taps.
@@ -1229,7 +1237,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       const href = exactPostReadingHref(post, location, locator);
       shell.openNumber({ id: previewCalculation.id, type: "phrase", label: expression,
         expression, method, resultValue: value, number: value, href, locator,
-        sourceLabel: projection.sourceLabel, source: "post-elections-calculation" });
+        sourceLabel: projection.sourceLabel, source: "post-reading-calculation" });
       research.updateResearchContext?.({ returnTo: { ...exactReturn, href, label: expression,
         selection: { entityId: previewCalculation.id, entityType: "post_occurrence", locator } } });
       return;
@@ -1457,7 +1465,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
               {heroDate ? <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time> : null}
             </div>
-            {cover}
+            {!bennettTimeline ? cover : null}
           </div>
           {projection.excerpt ? <p className="post-design-opening">{projection.excerpt}</p> : null}
           <details className="sod29-post-details">
@@ -1566,9 +1574,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     </aside> : null}
     {!mapIntegrationReview && protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
     {!mapIntegrationReview ? cover : null}
-    {mapIntegrationReview && (hasResearchContent || researchOpen || researchAnchorRequested) ? researchDisclosure : null}
+    {mapIntegrationReview && !bennettTimeline && (hasResearchContent || researchOpen || researchAnchorRequested) ? researchDisclosure : null}
 
-    <PostEvidenceMedia2029 media={experience.media} />
+    {!bennettTimeline ? <PostEvidenceMedia2029 media={experience.media} /> : null}
     {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}
     {sourceMediaOpen ? <React.Suspense fallback={null}><SourceLightbox images={[{image_url:sourceMediaOpen.href,name:sourceMediaOpen.alt}]} onClose={()=>setSourceMediaOpen(null)} note="מדיה מתוך הפוסט המקורי" /></React.Suspense> : null}
 
@@ -1611,6 +1619,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       {protoOn && realityMap.active ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} postHref={publicPostHref(post)} htmlKey={passiveSourceHtml.length} editable={editorEnabled} /> : null}
       {protoOn && realityMap.active ? <PreviewUnitExtras2029 rootRef={sourceRef} post={post} htmlKey={passiveSourceHtml.length} /> : null}
       <PublishedUnitTraces2029 rootRef={sourceRef} htmlKey={passiveSourceHtml.length} />
+      {bennettTimeline && bennettResearchHost ? createPortal(<>
+        {cover}
+        <PostEvidenceMedia2029 media={experience.media} />
+        {researchDisclosure}
+      </>, bennettResearchHost) : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
 
 
@@ -1627,7 +1640,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     {discussionReviewEnabled && postActionTarget ? <PostDiscussionReview2029 key={post.id} post={post} browserReview={mapIntegrationReview}
       draftTarget={discussionDraft?.postId === post.id ? discussionDraft : null} onDraftClosed={() => setDiscussionDraft(null)} />
       : commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
-    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
+    {!bennettTimeline && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>

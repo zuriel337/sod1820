@@ -29,11 +29,11 @@ export default function PostReadingActions2029({ projection, rootRef, articleHtm
       const host = document.createElement("div");
       host.dataset.postUnitActionHost = unit.id;
       const anchor = byId.get(unit.id);
-      const unitDepth = anchor.matches("[data-elections-timeline-unit]") && anchor.querySelector(":scope > details[data-map-depth]");
+      const unitDepth = anchor.matches("[data-reading-timeline-unit]") && anchor.querySelector(":scope > details[data-map-depth]");
       if (unitDepth) unitDepth.append(host);
       else anchor.after(host);
       const target = postActionTarget2029(projection, units, unit.id);
-      if (target && mapIntegrationReview && anchor.hasAttribute("data-elections-original-unit")) {
+      if (target && mapIntegrationReview && anchor.hasAttribute("data-review-only-unit")) {
         target.url = new URL(target.href, window.location.origin).href;
       }
       return { host, anchor, target };
