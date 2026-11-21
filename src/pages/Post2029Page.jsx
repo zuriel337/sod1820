@@ -105,6 +105,8 @@ function toolOnApproach2029(load, title) {
 // The timeline lives inside "מקורות וקשרים": it loads when that section is opened (as its measures do), or when the address points at it.
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
 const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
+const MapUnitContextReview = mapIntegrationReview
+  ? toolOnOpen2029(() => import("../components/experience2029/MapUnitContext2029.jsx")) : null;
 const discussionReviewEnabled = mapIntegrationReview || import.meta.env.DEV && import.meta.env.VITE_POST_DISCUSSION_REVIEW === "true";
 const PostDiscussionReview2029 = discussionReviewEnabled
   ? toolOnOpen2029(() => import("../components/experience2029/PostDiscussionReview2029.jsx")) : null;
@@ -1385,6 +1387,12 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div>
       {postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml}
         onDraft={discussionReviewEnabled ? target => setDiscussionDraft(current => current?.postId === target.postId ? current : target) : undefined} /> : null}
+      {mapUnit && MapUnitContextReview ? <details className="map29-mobile-post-context">
+        <summary>הקשר הפוסט</summary>
+        <div className="sod29-context-inspector-kicker">בתוך הפוסט</div>
+        <a href={`#${mapUnit.key}`}>{mapUnit.label}</a>
+        <MapUnitContextReview postId={post.id} unitKey={mapUnit.key} />
+      </details> : null}
       {mapUnit ? <div className="sod29-actions" aria-label="מסלול הבדיקה">
         <Link className="sod29-action" to={worldReturn || mapWorldHref(mapUnit.key)}>{worldReturn ? "חזרה לאותה בחירה בעולם" : "לקשר בעולם"}</Link>
         <small>שמירה ותגובות בפריוויו זה נשמרות בדפדפן הבדיקה.</small>

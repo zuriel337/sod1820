@@ -1,4 +1,3 @@
-import { mapIntegrationAccess } from "../map-integration-access.js";
 import { readFile } from "node:fs/promises";
 import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
@@ -140,7 +139,6 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     }
     const original = typeof req.url === "string" && req.url.startsWith("/") && !req.url.startsWith("//")
       ? new URL(req.url, origin) : null;
-    if (mapIntegrationAccess(req, res, original)) return;
     const query = { ...(req.query || {}) };
     const fresh = Boolean(original?.searchParams.has(POST_DOCUMENT_FRESH_PARAM) || query[POST_DOCUMENT_FRESH_PARAM] != null
       || String(req.headers?.[POST_DOCUMENT_FRESH_HEADER] || "") === "1");
