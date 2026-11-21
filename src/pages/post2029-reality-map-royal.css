@@ -722,3 +722,21 @@
   :is(h2, h3, blockquote, [data-sod-role="verse"], [data-sod-role="peak"], .sod29-post-equality, .reading-calculation-row) {
   text-align: center !important;
 }
+
+.reading-unit-video {
+  display: inline-grid;
+  inline-size: 17px;
+  block-size: 13px;
+  margin-inline-start: .45rem;
+  place-items: center;
+  vertical-align: middle;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  color: var(--reading-timeline-gold);
+}
+.reading-unit-video::before {
+  content: "";
+  border-block: 3px solid transparent;
+  border-left: 5px solid currentColor;
+  translate: 1px 0;
+}

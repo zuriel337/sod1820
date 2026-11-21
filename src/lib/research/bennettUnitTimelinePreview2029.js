@@ -1,3 +1,4 @@
+import { BENNETT_REVIEW_MEDIA_2029 } from "./bennettReviewMedia2029.js";
 import { calculationRow, focalTrace, renderPostUnitTimeline2029 } from "./postUnitTimelinePreview2029.js";
 
 export const bennettPostId = 5113;
@@ -13,6 +14,7 @@ const readings = {
     title: "הסיפור המקורי והמקורות",
     essence: ["תיעוד האירוע בבני ברק, המקורות והקשרים לפוסט הבחירות ולים המלח."],
     expansion: "הרחבה ומקורות",
+    hasVideo: Boolean(BENNETT_REVIEW_MEDIA_2029.highlight.src),
   },
   "bennett-israel-78": {
     title: "מלח ו־78 שנות עצמאות",

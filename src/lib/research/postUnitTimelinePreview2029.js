@@ -93,6 +93,17 @@ export function renderPostUnitTimeline2029(template, { postId, readings, onConte
     while (unit.firstChild) content.append(unit.firstChild);
 
     onContent?.(content, key);
+    const hasVideo = reading.hasVideo || content.querySelector('video[src]:not([src=""]), video source[src]:not([src=""])')
+      || [...content.querySelectorAll("iframe[src]")].some(frame => /^https?:\/\/(?:(?:www\.)?youtube(?:-nocookie)?\.com\/embed\/|player\.vimeo\.com\/video\/)/i.test(frame.getAttribute("src")));
+    if (hasVideo) {
+      const icon = doc.createElement("span");
+      icon.className = "reading-unit-video";
+      icon.title = "יש וידאו ביחידה";
+      icon.setAttribute("aria-hidden", "true");
+      const label = textElement(doc, "span", " · יש וידאו ביחידה");
+      label.className = "sod29-sr";
+      summary.append(icon, label);
+    }
     const batch = mergeBatchDates && holder.hasAttribute("data-update-batch") ? meta.querySelector("time")?.dateTime : null;
     placeTimelineDate(holder, meta, content, reading, batch && displayedBatches.has(batch));
     if (batch) displayedBatches.add(batch);
