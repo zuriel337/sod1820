@@ -1,0 +1,224 @@
+[
+  {
+    "path": "src/pages/EntityHubPreviewPage.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/BooksLibraryJourney2029Page.jsx",
+    "callSites": 4,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Heichal2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/CalculatorPro2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/SeferYetzirahWorld2029Page.jsx",
+    "callSites": 2,
+    "explicitNone": 1,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Post2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/Posts2029Page.jsx",
+    "callSites": 3,
+    "explicitNone": 3,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/BeitMidrash2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/PublicServices2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/Kingdom2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/PublicContinuity2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/Researcher2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/BookPublicationReview2029Page.jsx",
+    "callSites": 5,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Home2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/AhavatTorahSystem2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Gallery2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/Els2029Page.jsx",
+    "callSites": 3,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/PublicPostAddress2029Page.jsx",
+    "callSites": 3,
+    "explicitNone": 3,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/PublicLibraryContinuity2029Page.jsx",
+    "callSites": 2,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Auth2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/Number2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/DaatTevunotTree2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Stats2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/ControlPlane2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/CommunityCalculator2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/LifeJourney2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Community2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/Video2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Books2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/NewPassword2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/BentovFindingsProduct2029Page.jsx",
+    "callSites": 2,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Topic2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/NumberAddress2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  },
+  {
+    "path": "src/pages/IntegratedPreview2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/World2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/pages/Calculator2029Page.jsx",
+    "callSites": 1,
+    "explicitNone": 0,
+    "possibleIntro": true
+  },
+  {
+    "path": "src/components/community2029/CommunityLive2029.jsx",
+    "callSites": 1,
+    "explicitNone": 1,
+    "possibleIntro": false
+  }
+]

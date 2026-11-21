@@ -1,0 +1,38 @@
+{
+  "source": "b34b96f80a9fb42d5771811ced604527b1cf0807",
+  "nodeTests": {
+    "passed": 19,
+    "failed": 0
+  },
+  "browser": {
+    "themeGeometryKeyboardCases": 36,
+    "selectedSlotCardHerePairs": 6,
+    "helpDemandCases": 3,
+    "noneDoesNotLoadIntro": true,
+    "guestHereGatePreserved": true
+  },
+  "build": {
+    "default": "PASS",
+    "publicReading": "PASS",
+    "defaultBudget": "PASS",
+    "publicReadingBudget": "PASS"
+  },
+  "gates": {
+    "systemFrame": "PASS",
+    "myWorkspace": "PASS",
+    "contextualLearn": "PASS",
+    "firstLoadGraph": "PASS",
+    "moduleBoundary": "PASS"
+  },
+  "limitations": [
+    "Local fixture Heichal flag only; no DB writes",
+    "Synthetic owner renderer and admin identity in selected-item seam fixture",
+    "Actual #1477 World action registration and combined action journey not implemented by this shell scope"
+  ],
+  "ci": {
+    "passed": 18,
+    "failed": 1,
+    "failure": "auth-browser-acceptance ECONNRESET; exact local rerun passed 1/1"
+  },
+  "performanceAcceptance": "OPEN: Books desktop useful visibility +37.0ms cold / +65.6ms warm"
+}

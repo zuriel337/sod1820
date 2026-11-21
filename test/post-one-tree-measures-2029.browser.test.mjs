@@ -30,8 +30,8 @@ function fixturePlugin(){
     ['SpatialMethodStage2029.jsx','noop'],['WorldSourceStory.jsx','noop'],
   ]);
   const modules={
-    events:`export const emit=()=>{};`,
-    tracking:`export const getVisitorId=()=>'fixture-guest';export const trackResearch=()=>{};export function track(...args){window.__contentEntries.push(args);}`,
+    events:`export const emit=()=>{};export const isBot=()=>false;`,
+    tracking:`export const trackShare=()=>{};export const getVisitorId=()=>'fixture-guest';export const trackResearch=()=>{};export function track(...args){window.__contentEntries.push(args);}`,
     noop:`export default function Noop(){return null;}`,
     auth:`export const useAuth=()=>({user:null,isAdmin:false,loading:false});`,
     hub:`export async function fetchEntityHubProjection(){return null;}export async function fetchGallerySourceContext(){return {items:[]};}`,
@@ -72,6 +72,7 @@ function fixturePlugin(){
           if(name==='gematria_method_trace')return {error:null,data:window.__traceMissing?null:window.__wrongTrace?{...trace,input:'אחר'}:trace};
           throw Error('Unexpected RPC '+name);}
       };
+      export default supabase;
     `,
     shell:`
       import React,{createContext,useContext,useState} from 'react';import {useNavigate} from 'react-router-dom';
@@ -484,9 +485,8 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       assert.equal(await page.locator('#post-research').evaluate(node=>node.open),false);
       assert.equal(await page.evaluate(()=>window.__reads.filter(table=>table==='topic_cards_public').length),0);
       const requests=backgroundRequests.slice(before);
-      const expected=POST_BACKGROUND_ASSETS_2029[key][width<=760?'mobile':'desktop'];
-      assert.deepEqual(requests.map(row=>row.path),theme==='dark'?[expected]:[]);
-      assert.ok(requests.every(row=>row.bytes<=(width<=760?30_000:60_000)));
+      assert.deepEqual(requests,[],'the Post component must not fetch a retired series backdrop');
+      assert.equal(await page.locator('article').evaluate(e=>getComputedStyle(e,'::before').backgroundImage),'none');
       const warmStart=backgroundRequests.length;
       await page.reload({waitUntil:'networkidle'});
       assert.equal(backgroundRequests.length,warmStart,'Warm reload must reuse the single selected background');

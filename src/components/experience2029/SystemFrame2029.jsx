@@ -42,11 +42,11 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 // when it arrives, hidden while the route shows only its loading placeholder (footer2029.css), as before; drawing it only after the
 // content measured a later largest paint on desktop (its styles and render landed in that window). The account-link offer only for a signed-in account (it was always empty for a visitor and appears only
 // after its own read); the share row with the inspect panel that shows it; the living ribbon (hidden) and its detail when opened.
+const RoyalIntro2029 = React.lazy(() => import("./RoyalIntro2029.jsx"));
 const Footer2029 = React.lazy(() => import("./Footer2029.jsx"));
 const AccountLinkOffer2029 = React.lazy(() => import("./AccountLinkOffer2029.jsx"));
-const ShareActions = React.lazy(() => import("../ShareActions.jsx"));
-// While the share row loads it keeps its exact place: the same row with one invisible button of the shared action size.
-const SharePending2029 = () => <div className="sod-share-actions" dir="rtl" aria-hidden="true" data-share-pending="true" style={{ marginTop: 10, display: "flex", visibility: "hidden" }}><button type="button" tabIndex={-1} disabled>·</button></div>;
+const InspectProjection = React.lazy(() => import("./InspectProjection2029.jsx"));
+const SelectedRoyalItem2029 = React.lazy(() => import("./SelectedRoyalItem2029.jsx"));
 const GlobalLivingRibbon2029 = React.lazy(() => import("./GlobalLivingRibbon2029.jsx"));
 const LivingRibbonDetail2029 = React.lazy(() => import("./GlobalLivingRibbon2029.jsx").then((module) => ({ default: module.LivingRibbonDetail2029 })));
 // ZURIEL 12.11.2026: the header verse line («הנה אנכי שולח לכם את אליה הנביא…») is hidden on every page. One switch: set true to show it again.
@@ -68,16 +68,12 @@ import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";
 import {
-  buildLearnHelpSeed,
   classifyEntryArrival,
   emitEntryLearn,
-  getConceptFamiliarity,
-  getLearnFragment,
   getSurfaceFamiliarity,
   isEntryLearnSurfaceActive,
   LEARN_LAYER,
   LEARN_SCOPE,
-  markConceptFamiliarity,
   markSurfaceFamiliarity,
   resolveEntryOrientation,
 } from "../../lib/entryLearn2029.js";
@@ -139,6 +135,7 @@ const ShellContext = createContext({
   go: () => {},
   returnExact: () => {},
   registerOrientationHost: () => {},
+  registerSelectedItemActions: () => () => {},
   experience: null,
 });
 
@@ -551,152 +548,6 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
   );
 }
 
-function InspectProjection({ target, context, surface = "system", onSetFocus, onSave, onAddResearch, isSaved = false, inResearch = false, onOpenNumber, onNeedHelp, shareHref = null }) {
-  const [commitState, setCommitState] = useState(null);
-  const numericFamily = target?.type === "number" || target?.type === "phrase";
-  const hasMethodContext = Boolean(target?.expression && target?.method && Number.isSafeInteger(Number(target?.resultValue)));
-  const conceptKey = hasMethodContext ? "method" : numericFamily ? "anchor" : null;
-  const fragment = conceptKey && isEntryLearnSurfaceActive(surface) ? getLearnFragment(conceptKey) : null;
-  const [conceptFamiliarity, setConceptFamiliarity] = useState(() => conceptKey ? getConceptFamiliarity(conceptKey) : null);
-
-  useEffect(() => {
-    setConceptFamiliarity(conceptKey ? getConceptFamiliarity(conceptKey) : null);
-  }, [conceptKey]);
-
-  if (!target) {
-    return <FrameState kind="empty" title="אין כרגע משהו לבדוק">סמן ביטוי או מספר בטקסט, חפש משהו או בחר פריט. המערכת לא ממציאה חיבור שלא קיים.</FrameState>;
-  }
-
-  const openLearn = () => {
-    if (!conceptKey || !fragment) return;
-    const familiarity = markConceptFamiliarity(conceptKey, "seen", fragment.version);
-    setConceptFamiliarity(familiarity);
-    emitEntryLearn("learn_opened", {
-      entrySurface: surface,
-      conceptKey,
-      layer: LEARN_LAYER.SEE,
-      manifestVersion: fragment.version,
-    });
-    emitEntryLearn("learn_layer", {
-      entrySurface: surface,
-      conceptKey,
-      layer: LEARN_LAYER.EXPLAIN,
-      manifestVersion: fragment.version,
-    });
-  };
-
-  const askForLearnHelp = () => {
-    if (!conceptKey || !fragment) return;
-    const tried = conceptFamiliarity?.stage === "tried";
-    const learnStage = tried ? LEARN_LAYER.TRY : LEARN_LAYER.EXPLAIN;
-    const actionTried = tried && numericFamily ? "open_number" : null;
-    emitEntryLearn("learn_help_requested", {
-      entrySurface: surface,
-      conceptKey,
-      layer: learnStage,
-      actionId: actionTried,
-      manifestVersion: fragment.version,
-    });
-    onNeedHelp?.({
-      initialText: buildLearnHelpSeed(conceptKey),
-      capability: numericFamily ? "number" : null,
-      concept: conceptKey,
-      learnStage,
-      actionTried,
-    });
-  };
-
-  const tryLearn = () => {
-    if (!conceptKey || !fragment || !numericFamily) return;
-    const familiarity = markConceptFamiliarity(conceptKey, hasMethodContext ? "tried" : "seen", fragment.version);
-    setConceptFamiliarity(familiarity);
-    emitEntryLearn(hasMethodContext ? "method_tried" : "example_tried", {
-      entrySurface: surface,
-      conceptKey,
-      layer: LEARN_LAYER.TRY,
-      actionId: "open_number",
-      targetSurface: "number",
-      manifestVersion: fragment.version,
-    });
-    emitEntryLearn("continued_to_research", {
-      entrySurface: surface,
-      conceptKey,
-      layer: LEARN_LAYER.EXPLORE,
-      actionId: "open_number",
-      targetSurface: "number",
-      manifestVersion: fragment.version,
-    });
-    onOpenNumber?.(target);
-  };
-
-  return (
-    <>
-      <section className="sod29-inspect-identity">
-        <div className="sod29-kicker">{target.source === "selection" ? "בחירה זמנית" : "מוקד נוכחי"}</div>
-        <strong>{publicContextLabel(target.label) || entityTypeNounHe(target.type)}</strong>
-        <span>{entityTypeNounHe(target.type)}</span>
-      </section>
-
-      {target.excerpt ? <section className="sod29-inspect-excerpt" data-inspect-excerpt style={{ display: "grid", gap: 2 }}>
-        {target.stateLabel ? <small>{target.stateLabel}</small> : null}
-        {target.attribution ? <small>{target.attribution}</small> : null}
-        <p style={{ whiteSpace: "pre-wrap", margin: "8px 0 0" }}>{target.excerpt}</p>
-      </section> : null}
-
-      {hasMethodContext ? <div className="sod29-surface-context-expression"><span>{target.expression}</span><small>{target.methodLabel || target.method}</small><b>{Number(target.resultValue)}</b></div> : null}
-
-      {numericFamily ? (
-        <FrameState title="מספר / ביטוי · בדיקה מהירה">
-          הבדיקה שומרת את המקום וההקשר. אפשר לפתוח את החישוב בלי לצאת למסך אחר ובלי לאבד את הדרך חזרה.
-        </FrameState>
-      ) : (
-        <FrameState title="בדיקה מהירה">אותה בדיקה יכולה להיפתח גם על ספר, מקור, אדם, אירוע או גילוי כשהחיבור קיים במערכת.</FrameState>
-      )}
-
-      {fragment ? <LearnMark2029
-        scope={LEARN_SCOPE.CONCEPT}
-        label={fragment.label}
-        compact={Number(conceptFamiliarity?.v) === Number(fragment.version)}
-        onOpen={openLearn}
-        onStillUnclear={askForLearnHelp}
-        actions={numericFamily ? <button type="button" onClick={tryLearn}>{hasMethodContext ? "ראה את החישוב" : "פתח בדף המספר"}</button> : null}
-      >
-        <p>{fragment.explain}</p>
-        {hasMethodContext ? <p><strong>{target.expression}</strong> מוצג במוקד הפעיל בשיטה <strong>{target.method}</strong> עם תוצאה <strong>{target.resultValue}</strong>. ההסבר אינו מקור חישוב נוסף.</p> : null}
-      </LearnMark2029> : null}
-
-      <div className="sod29-panel-actions-grid">
-        <button className="sod29-action primary" type="button" onClick={() => onSetFocus(target)}>⌖ התמקד בזה</button>
-        <button className="sod29-action" type="button" data-inspect-action="save" aria-pressed={isSaved} onClick={() => setCommitState({ kind: "save", ok: Boolean(onSave?.(target)) })}>{isSaved ? "✓ שמור" : "＋ שמור"}</button>
-        <button className="sod29-action" type="button" data-inspect-action="research" aria-pressed={inResearch} onClick={() => setCommitState({ kind: "research", ok: Boolean(onAddResearch?.(target)) })}>{inResearch ? "✓ במחקר" : "◎ למחקר"}</button>
-        <button className="sod29-action" type="button" disabled title="המעקב המלא יחובר בהמשך">♢ עקוב</button>
-      </div>
-
-      {commitState && !commitState.ok ? <FrameState kind="error" title="הפעולה לא נשמרה">{commitState.kind === "save" ? "השמירה לא הושלמה" : "ההוספה למחקר לא הושלמה"} — נסה שוב.</FrameState> : null}
-
-      {/* The same public page link as "עוד → שיתוף" (framePublicShareHref: account paths, claim/dm and return addresses never travel), with the
-          page's own title (ShareActions); on a page with no public link there is nothing to share here. */}
-      {shareHref ? <div className="sod29-canonical-share" data-share-owner="ShareActions">
-        <React.Suspense fallback={<SharePending2029 />}>
-          <ShareActions
-            type={target.type || "page"}
-            url={shareHref}
-            channels={["native", "copy"]}
-            compact
-            force
-            style={{ marginTop: 10 }}
-          />
-        </React.Suspense>
-      </div> : null}
-
-      <div className="sod29-panel-context-card">
-        <b>ההקשר שלך</b>
-        <span>{context?.subject ? contextDisplayTitle(context) || "ההקשר הנוכחי" : "אין מוקד פעיל"}</span>
-        <small>בחירה זמנית אינה הופכת חיבור לעובדה.</small>
-      </div>
-    </>
-  );
-}
 function ContextualActionButtons({ actions, target, onInspect, onCapability, onRaziel, razielLocked, go }) {
   const elsState = useFeatureState("lock_els");
   return <div className="sod29-panel-actions-grid">{actions.map((action) => {
@@ -793,11 +644,12 @@ import useKeyboardClearance2029 from "./useKeyboardClearance2029.js";
 const WorkspaceProjectionPanel2029 = React.lazy(() => { void import("./PersonalHome2029.jsx").catch(() => {}); return import("./WorkspaceProjection2029.jsx"); });
 const WorkspaceProjection = (props) => <React.Suspense fallback={<FrameState kind="loading" title="פותח את האזור האישי">טוען את האזור האישי.</FrameState>}><WorkspaceProjectionPanel2029 {...props} /></React.Suspense>;
 function IntroResearchContext2029({ context, currentHref, pageTitle, onReturnExact }) {
-  const items=contextNavigationItems2029(context,{currentHref,pageTitle});
+  const items=contextNavigationItems2029(context,{currentHref,pageTitle}).filter(item => item.key !== "page");
+  if (!items.length) return null;
   const strip = <nav className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
     {items.map(item=>item.href?(item.key==='return'
-      ?<button key={item.key} type="button" data-context-role={item.key} onClick={onReturnExact}>{item.prefix} · {item.label}</button>
-      :<Link key={item.key} data-context-role={item.key} to={item.href}>{item.prefix} · {item.label}</Link>)
+      ?<button key={item.key} className="r29-btn is-quiet" type="button" data-context-role={item.key} onClick={onReturnExact}>{item.prefix} · {item.label}</button>
+      :<Link key={item.key} className="r29-btn is-quiet" data-context-role={item.key} to={item.href}>{item.prefix} · {item.label}</Link>)
       :<span key={item.key} data-context-role={item.key}>{item.prefix} · {item.label}</span>)}
   </nav>;
   const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
@@ -923,10 +775,22 @@ function SystemFrame2029Body({
     setToolDock({ ...projection, lease });
     return () => setToolDock((current) => current?.lease === lease ? null : current);
   }, []);
+  // Owners supply a validated target and their existing action renderer. No capability logic here.
+  const [selectedItemActions, setSelectedItemActions] = useState(null);
+  const registerSelectedItemActions = useCallback((projection) => {
+    const lease = Symbol("selected-item-actions");
+    setSelectedItemActions({ ...projection, lease, route: location.key });
+    return () => setSelectedItemActions(current => current?.lease === lease ? null : current);
+  }, [location.key]);
+  const selectedItem = selectedItemActions?.route === location.key ? selectedItemActions : null;
+  const selectedRoyal = (placement) => selectedItem ? <React.Suspense fallback={null}><SelectedRoyalItem2029 projection={selectedItem} placement={placement} /></React.Suspense> : null;
   const activeToolDock = toolDock?.surface === surface ? toolDock : null;
   const toolMode = Boolean(activeToolDock && !systemDockMode);
   useEffect(() => { if (!activeToolDock) setSystemDockMode(false); }, [activeToolDock]);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
+  const [introHelpRoute, setIntroHelpRoute] = useState(null);
+  const introHelpOpened = introHelpRoute === location.key;
+  useEffect(() => setIntroHelpRoute(null), [location.key]);
   const [commandQuery, setCommandQuery] = useState("");
   const [siteSearchQuery, setSiteSearchQuery] = useState("");
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -1434,7 +1298,8 @@ function SystemFrame2029Body({
     go,
     returnExact,
     registerOrientationHost: setOrientationHost,
-  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, razielLocked, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
+    registerSelectedItemActions,
+  }), [registerSelectedItemActions, experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, razielLocked, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
@@ -1561,8 +1426,8 @@ function SystemFrame2029Body({
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><React.Suspense fallback={<div role="status">טוען כלי מספרים…</div>}><NumberDrawer2029 target={inspectTarget} context={pageContext} research={research} go={go} openRaziel={openRaziel} /></React.Suspense></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(pageContext, inspectTarget) || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={pageContext} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} shareHref={shareHref} /></PanelShell>;
-    if (transientKind === TRANSIENT.CONTEXT) return contextLocked ? null : <PanelShell {...common} activity={expansionActivity} expansion="here" icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(pageContext, inspectTarget) || "בדיקה מהירה"}><React.Suspense fallback={<div role="status">טוען פריט…</div>}><InspectProjection target={inspectTarget} context={pageContext} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} shareHref={shareHref} /></React.Suspense></PanelShell>;
+    if (transientKind === TRANSIENT.CONTEXT) return contextLocked ? null : <PanelShell {...common} activity={expansionActivity} expansion="here" icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{selectedRoyal("here")}{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
       sheet
       surface={surface}
       context={pageContext}
@@ -1627,8 +1492,10 @@ function SystemFrame2029Body({
     /></PanelShell>;
   };
 
-  const resolvedIntroVariant = introVariant === "none" ? "none" : ["world", "heichal", "topic", "books", "els", "calculator"].includes(surface) ? "compact" : introVariant;
-  const introIcon = { world: "world", heichal: "heichal", topic: "world", books: "books", els: "els", calculator: "number" }[surface];
+  const resolvedIntroVariant = introVariant === "none" ? "none" : introVariant === "full" ? "full" : "compact";
+  const hasRoyalIntro = resolvedIntroVariant !== "none" && Boolean(eyebrow || title || description);
+  const introHelpTrigger = <button type="button" className="sod29-action" style={{ position: "absolute", top: 14, insetInlineEnd: 16, zIndex: 5, background: "none", border: 0, boxShadow: "none", padding: "0 6px", fontSize: "var(--s29-type-micro,14px)", minHeight: 44 }} disabled={introHelpOpened} aria-expanded="false" onClick={() => setIntroHelpRoute(location.key)}>{introHelpOpened ? "טוען הסבר…" : "? מה זה?"}</button>;
+  const introIcon = { world: "world", heichal: "heichal", topic: "graph", books: "books", els: "els", calculator: "calculator", journey: "journey", number: "number", control: "tools" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
     <SystemFeedContext2029.Provider value={feed}>
@@ -1672,7 +1539,7 @@ function SystemFrame2029Body({
           </div>
         </aside>
 
-        <div className="sod29-main">
+        <div className="sod29-main" data-royal-intro={hasRoyalIntro || undefined}>
           <div className="sod29-living-header-stack">
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">
@@ -1720,7 +1587,7 @@ function SystemFrame2029Body({
           {LIVING_RIBBON_VISIBLE_2029 ? <React.Suspense fallback={null}><GlobalLivingRibbon2029 /></React.Suspense> : null}
           </div>
 
-          {orientation.mode !== "hidden" && orientation.manifest ? (() => {
+          {(resolvedIntroVariant === "none" || !(eyebrow || title || description)) && orientation.mode !== "hidden" && orientation.manifest ? (() => {
             const mark = <LearnMark2029
               scope={LEARN_SCOPE.SURFACE}
               label={orientationCopy?.label || orientation.manifest.label}
@@ -1740,17 +1607,19 @@ function SystemFrame2029Body({
           {user?.id ? <React.Suspense fallback={null}><AccountLinkOffer2029 /></React.Suspense> : null}
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
-              {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
-                <section className={`sod29-page-intro${resolvedIntroVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={resolvedIntroVariant}>
-                  <div className="sod29-hero-visual" aria-hidden="true">{resolvedIntroVariant !== "compact" ? <><i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" /></> : null}<span className="sod29-hero-symbol">{introIcon ? <NavigationIcon2029 name={introIcon} /> : symbol}</span></div>
+              {hasRoyalIntro ? (
+                <section className="sod29-page-intro r29 r29-hall" data-intro-variant={resolvedIntroVariant}>
+                  {!introHelpOpened ? introHelpTrigger : <React.Suspense fallback={introHelpTrigger}><RoyalIntro2029 key={currentHref} initialOpen surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>}
+                  <div className="sod29-hero-visual" aria-hidden="true"><span className="sod29-hero-symbol r29-medal">{React.isValidElement(symbol) ? symbol : <NavigationIcon2029 name={introIcon || "home"} />}</span></div>
                   <div className="sod29-hero-copy">
-                    {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
+                    {eyebrow && eyebrow !== title ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
-                    {context && surface !== "number" ? <IntroResearchContext2029 context={pageContext} currentHref={currentHref} pageTitle={currentLabel} onReturnExact={returnExact} /> : null}
+                    <IntroResearchContext2029 context={pageContext || {}} currentHref={currentHref} pageTitle={currentLabel} onReturnExact={returnExact} />
                   </div>
                 </section>
               ) : null}
+              {surface === "world" ? selectedRoyal("card") : null}
               {children}
             </main>
             {showContextRail ? <SurfaceContextRail2029

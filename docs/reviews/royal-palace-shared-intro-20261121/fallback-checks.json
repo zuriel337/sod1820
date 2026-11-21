@@ -1,0 +1,111 @@
+{
+  "imageFailureUsable": true,
+  "frameMotionRespected": true,
+  "typography": [
+    {
+      "theme": "dark",
+      "fonts": [
+        {
+          "tag": "BUTTON",
+          "size": 16,
+          "height": 44,
+          "align": "center"
+        },
+        {
+          "tag": "DIV",
+          "size": 14,
+          "height": 19.59375,
+          "align": "center"
+        },
+        {
+          "tag": "H1",
+          "size": 28,
+          "height": 33.59375,
+          "align": "center"
+        },
+        {
+          "tag": "P",
+          "size": 16,
+          "height": 51.1875,
+          "align": "center"
+        },
+        {
+          "tag": "A",
+          "size": 16,
+          "height": 44,
+          "align": "start"
+        }
+      ]
+    },
+    {
+      "theme": "light",
+      "fonts": [
+        {
+          "tag": "BUTTON",
+          "size": 16,
+          "height": 44,
+          "align": "center"
+        },
+        {
+          "tag": "DIV",
+          "size": 14,
+          "height": 19.59375,
+          "align": "center"
+        },
+        {
+          "tag": "H1",
+          "size": 28,
+          "height": 33.59375,
+          "align": "center"
+        },
+        {
+          "tag": "P",
+          "size": 16,
+          "height": 51.1875,
+          "align": "center"
+        },
+        {
+          "tag": "A",
+          "size": 16,
+          "height": 44,
+          "align": "start"
+        }
+      ]
+    },
+    {
+      "theme": "parchment",
+      "fonts": [
+        {
+          "tag": "BUTTON",
+          "size": 16,
+          "height": 44,
+          "align": "center"
+        },
+        {
+          "tag": "DIV",
+          "size": 14,
+          "height": 19.59375,
+          "align": "center"
+        },
+        {
+          "tag": "H1",
+          "size": 28,
+          "height": 33.59375,
+          "align": "center"
+        },
+        {
+          "tag": "P",
+          "size": 16,
+          "height": 51.1875,
+          "align": "center"
+        },
+        {
+          "tag": "A",
+          "size": 16,
+          "height": 44,
+          "align": "start"
+        }
+      ]
+    }
+  ]
+}

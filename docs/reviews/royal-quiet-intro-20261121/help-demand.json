@@ -1,0 +1,20 @@
+[
+  {
+    "route": "world",
+    "initialOptionalRequests": [],
+    "opensOnDemand": true,
+    "escapeFocusRestored": true
+  },
+  {
+    "route": "heichal",
+    "initialOptionalRequests": [],
+    "opensOnDemand": true,
+    "escapeFocusRestored": true
+  },
+  {
+    "route": "books",
+    "initialOptionalRequests": [],
+    "opensOnDemand": true,
+    "escapeFocusRestored": true
+  }
+]

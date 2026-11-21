@@ -1,0 +1,85 @@
+{
+  "fixture": "Real Shell + ResearchProvider; admin identity stub; synthetic validated owner targets and probe renderer; no real save/share/comment operation.",
+  "rows": [
+    {
+      "width": 390,
+      "key": "node",
+      "target": {
+        "ref": "node:78",
+        "href": "/world?node=78",
+        "title": "צומת בדיקה 78"
+      },
+      "card": true,
+      "here": true
+    },
+    {
+      "width": 390,
+      "key": "edge",
+      "target": {
+        "ref": "edge:78-salt",
+        "href": "/world?edge=78-salt",
+        "title": "קשר בדיקה"
+      },
+      "card": true,
+      "here": true
+    },
+    {
+      "width": 390,
+      "key": "unit",
+      "target": {
+        "postId": 42,
+        "unitId": "salt-78",
+        "ref": "posts:42#salt-78",
+        "href": "/fixture-post?unit=salt-78#salt-78",
+        "title": "יחידת בדיקה",
+        "entity": {
+          "type": "post_unit",
+          "ref": "posts:42#salt-78"
+        }
+      },
+      "card": true,
+      "here": true
+    },
+    {
+      "width": 1440,
+      "key": "node",
+      "target": {
+        "ref": "node:78",
+        "href": "/world?node=78",
+        "title": "צומת בדיקה 78"
+      },
+      "card": true,
+      "here": true
+    },
+    {
+      "width": 1440,
+      "key": "edge",
+      "target": {
+        "ref": "edge:78-salt",
+        "href": "/world?edge=78-salt",
+        "title": "קשר בדיקה"
+      },
+      "card": true,
+      "here": true
+    },
+    {
+      "width": 1440,
+      "key": "unit",
+      "target": {
+        "postId": 42,
+        "unitId": "salt-78",
+        "ref": "posts:42#salt-78",
+        "href": "/fixture-post?unit=salt-78#salt-78",
+        "title": "יחידת בדיקה",
+        "entity": {
+          "type": "post_unit",
+          "ref": "posts:42#salt-78"
+        }
+      },
+      "card": true,
+      "here": true
+    }
+  ],
+  "staleLeaseCannotClearNewTarget": true,
+  "clearAndRouteChangeRemoveSlot": true
+}

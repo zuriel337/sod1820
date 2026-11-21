@@ -1,16 +1,7 @@
-// Home atmosphere early fetch (performance only; no visual or semantic change). Since 17.11.2026 it also starts the pinned card's catalog read
-// and cover (homePinnedLeadEarlyWanted below).
-//
-// On the public reading release the Home hero's atmosphere is a CSS background
-// image that the browser discovers only after the Home chunk renders, so on slow
-// links it was the last LCP candidate. This asks for the same file at entry-module
-// time instead. It is the exact URL the Home CSS already uses, so the later CSS
-// request is served from this one. Scope is deliberately narrow: only the Home
-// path, only the release that renders the atmosphere, only the dark preset (the
-// only preset whose CSS paints it) and only the viewport variant that will be used.
+// Royal background loading belongs to App2029. Keep the independent pinned Home lead warmup.
+// The old pure asset selector remains for provenance only; run() never invokes it.
 import { HOME_ATMOSPHERE_2029 } from "./brandAssets2029.js";
 import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
-import { THEME_STORAGE_KEY_2029 } from "./themePreset2029.js";
 
 // Same breakpoint as homeComposition2029.css (@media (max-width:760px)).
 export const HOME_ATMOSPHERE_MOBILE_MAX_WIDTH = 760;
@@ -37,21 +28,6 @@ function run() {
     if (typeof document === "undefined" || typeof window === "undefined") return;
     if (homePinnedLeadEarlyWanted({ release: PUBLIC_READING_RELEASE, pathname: window.location.pathname, search: window.location.search }))
       import("../pages/Home2029Page.jsx").then(module => module.startHomePinnedLeadEarly2029?.()).catch(() => {});
-    let storedPreset = null;
-    try { storedPreset = localStorage.getItem(THEME_STORAGE_KEY_2029); } catch { /* storage unavailable: default preset */ }
-    const href = homeAtmospherePreloadHref({
-      release: PUBLIC_READING_RELEASE,
-      pathname: window.location.pathname,
-      storedPreset,
-      narrow: window.matchMedia(`(max-width:${HOME_ATMOSPHERE_MOBILE_MAX_WIDTH}px)`).matches,
-    });
-    if (!href || document.querySelector(`link[rel="preload"][href="${href}"]`)) return;
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "image";
-    link.type = "image/webp";
-    link.href = href;
-    document.head.appendChild(link);
   } catch { /* a missed preload only restores the previous timing */ }
 }
 

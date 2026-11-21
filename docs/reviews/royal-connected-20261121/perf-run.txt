@@ -1,0 +1,25 @@
+0 390 world
+0 390 heichal
+0 390 books
+0 390 code
+0 1440 world
+0 1440 heichal
+0 1440 books
+0 1440 code
+1 390 world
+1 390 heichal
+1 390 books
+1 390 code
+1 1440 world
+1 1440 heichal
+1 1440 books
+1 1440 code
+2 390 world
+2 390 heichal
+2 390 books
+2 390 code
+2 1440 world
+2 1440 heichal
+2 1440 books
+2 1440 code
+observations 96

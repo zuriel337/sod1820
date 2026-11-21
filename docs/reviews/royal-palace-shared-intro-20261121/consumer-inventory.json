@@ -1,0 +1,326 @@
+[
+  {
+    "file": "src/App2029.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<PublicContributorFrame2029 surface={surface} title={title} introVariant=\"compact\">",
+      "<PublicContributorFrame2029 surface=\"community\" title=\"מרכז עדכונים\" introVariant=\"none\">",
+      "<PublicContributorFrame2029 surface=\"community\" title=\"הדף שלי\" introVariant=\"none\">",
+      "<PublicContributorFrame2029 surface=\"community\" title=\"האזור האישי\" introVariant=\"none\">",
+      "<PublicContributorFrame2029 surface=\"community\" title=\"דף כותב\" introVariant=\"none\">"
+    ]
+  },
+  {
+    "file": "src/pages/EntityHubPreviewPage.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    wide\n    surface=\"number\"\n    symbol=\"123\"\n    status=\"GOLDEN 1237 · CONTEXTUAL SIDECAR\"\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/BooksLibraryJourney2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell {...shellProps}>",
+      "<Sod2029Shell {...shellProps}>",
+      "<Sod2029Shell {...shellProps}>",
+      "<Sod2029Shell {...shellProps}>"
+    ]
+  },
+  {
+    "file": "src/pages/Heichal2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell wide surface=\"heichal\" symbol=\"◇\" eyebrow=\"DEEP RESEARCH ENVIRONMENT\" title=\"היכל\" description=\"Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence, Findings ופעולות שמסתגלים למחקר.\">"
+    ]
+  },
+  {
+    "file": "src/pages/CalculatorPro2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n      wide\n      surface=\"number\"\n      orientationCopy={CALCULATOR_ORIENTATION_COPY}\n      calmBottomChrome\n      introVariant=\"none\"\n      symbol=\"∑\"\n      eyebrow=\"מחשבון מקצועי\"\n      title=\"מחשבון גימטריה\"\n      description=\"כל השיטות במבט אחד ופירוק אותיות.\"\n    >"
+    ]
+  },
+  {
+    "file": "src/pages/SeferYetzirahWorld2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell wide introVariant=\"none\" surface=\"books\" symbol=\"✦\" eyebrow=\"ספר יצירה · עשרת העומקים\" title=\"ספר יצירה\" description=\"מרחב לימוד, הסבר ומקור באותה בחירה.\">",
+      "<Sod2029Shell wide surface=\"books\" symbol=\"✦\" eyebrow=\"ספר יצירה · עולם קריאה\" title=\"ספר יצירה\" description=\"המקור, הפירושים והמבנים המרחביים בתוך קורא אחד.\">"
+    ]
+  },
+  {
+    "file": "src/pages/Post2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    surface=\"post\"\n    title=\"פוסט\"\n    introVariant=\"none\"\n    symbol=\"✦\"\n    status=\"פוסט\"\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/Posts2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"post\" title={view === \"videos\" ? \"כל הסרטונים\" : \"פוסטים עם וידאו\"} introVariant=\"none\" symbol={<NavigationIcon2029 name=\"posts\" />} status=\"פוסטים\">",
+      "<Sod2029Shell surface=\"post\" title={viewLabel} introVariant=\"none\" symbol={<NavigationIcon2029 name=\"posts\" />} status=\"פוסטים\">",
+      "<Sod2029Shell surface=\"post\" title={title} introVariant=\"none\" symbol={<NavigationIcon2029 name=\"posts\" />} status=\"פוסטים\">"
+    ]
+  },
+  {
+    "file": "src/pages/BeitMidrash2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    surface=\"beit-midrash\"\n    introVariant=\"none\"\n    symbol={<NavigationIcon2029 name=\"books\" />}\n    eyebrow={manifest.identity.eyebrow}\n    title={manifest.identity.title}\n    description={manifest.identity.description}\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/PublicServices2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"community\" title={LABELS[kind]} introVariant=\"none\">"
+    ]
+  },
+  {
+    "file": "src/pages/Kingdom2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell title=\"ממלכת המספרים\" surface=\"journey\" introVariant=\"none\" status=\"התנסות\" wide>"
+    ]
+  },
+  {
+    "file": "src/pages/PublicContinuity2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface={kind === \"or-geula\" ? \"world\" : \"community\"} title={pageTitle} introVariant=\"none\">"
+    ]
+  },
+  {
+    "file": "src/pages/Researcher2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n      surface=\"world\"\n      symbol=\"⌁\"\n      eyebrow=\"מקורות ומחקר\"\n      title=\"קורפוס חוקר\"\n      description=\"החומר המפוענח של החוקר במקום אחד: חיפוש, סינון ופתיחה ישירה של מילה או מספר — בלי מסלול Legacy באמצע.\"\n      status=\"מנהל · מחקר\"\n    >"
+    ]
+  },
+  {
+    "file": "src/pages/BookPublicationReview2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell {...shellProps}>",
+      "<Sod2029Shell {...shellProps}>",
+      "<Sod2029Shell {...shellProps}>",
+      "<Sod2029Shell {...shellProps}>",
+      "<Sod2029Shell {...shellProps}>"
+    ]
+  },
+  {
+    "file": "src/pages/Home2029Page.jsx",
+    "introPossible": true,
+    "conditional": true,
+    "tags": [
+      "<Sod2029Shell surface=\"home\" introVariant={HOME_COMPOSED ? \"none\" : undefined} symbol={<NavigationIcon2029 name=\"home\" />} eyebrow=\"גלה · עכשיו · המשך\" title={CORE_PUBLIC_LAUNCH_2029 ? \"SOD1820\" : \"בית\"} description={CORE_PUBLIC_LAUNCH_2029 ? \"פוסטים, ELS, גימטריה ושיחות הקהילה.\" : \"מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה.\"}>"
+    ]
+  },
+  {
+    "file": "src/pages/AhavatTorahSystem2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    title=\"אהבת תורה\"\n    eyebrow=\"ספרים ומקורות · קריאה ולימוד\"\n    description=\"לקרוא את המקור, להבין את המהלך ולחקור את מבני הספר.\"\n    status=\"Preview מוגן · קריאה בלבד\"\n    surface=\"books\"\n    symbol={<NavigationIcon2029 name=\"books\" />}\n    introVariant=\"none\"\n    wide\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/Gallery2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"world\" title=\"גלריות\" introVariant=\"none\">"
+    ]
+  },
+  {
+    "file": "src/pages/Els2029Page.jsx",
+    "introPossible": true,
+    "conditional": true,
+    "tags": [
+      "<Sod2029Shell wide surface=\"els\" symbol=\"✦\" eyebrow=\"הצופן התנ״כי · חיפוש ומחקר\" title=\"ELS\" description={ELS_DESCRIPTION}>",
+      "<Sod2029Shell wide surface=\"els\" symbol=\"✦\" eyebrow=\"הצופן התנ״כי · חיפוש ומחקר\" title=\"ELS\" description={ELS_DESCRIPTION}>",
+      "<Sod2029Shell\n    introVariant={library ? \"none\" : \"compact\"}\n    wide\n    surface=\"els\"\n    symbol=\"✦\"\n    eyebrow=\"הצופן התנ״כי · חיפוש ומחקר\"\n    title=\"ELS\"\n    description={ELS_DESCRIPTION}\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/PublicPostAddress2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"post\" introVariant=\"none\">",
+      "<Sod2029Shell surface=\"post\" introVariant=\"none\">",
+      "<Sod2029Shell surface=\"post\" introVariant=\"none\">"
+    ]
+  },
+  {
+    "file": "src/pages/PublicLibraryContinuity2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"books\" title=\"אהבת תורה\">",
+      "<Sod2029Shell surface={kind === \"books\" ? \"books\" : \"els\"} symbol={<NavigationIcon2029 name={kind === \"books\" ? \"books\" : \"els\"} />} eyebrow=\"קריאה במקורות\" title={title}\n    description={kind === \"books\" ? \"פותחים ספר, מוצאים את המקום וממשיכים לקרוא במקור.\" : \"חוזרים לצפנים שפורסמו, לטקסט ולמראה־המקום שנשמרו עמם.\"}>"
+    ]
+  },
+  {
+    "file": "src/pages/Auth2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"community\" title=\"כניסה לחשבון\" introVariant=\"none\" status=\"חשבון\" symbol=\"◎\">"
+    ]
+  },
+  {
+    "file": "src/pages/Number2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    surface=\"number\"\n    symbol={<NavigationIcon2029 name=\"number\" />}\n    status=\"דף המספר והביטוי\"\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/DaatTevunotTree2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    title=\"עץ דעת תבונות\"\n    eyebrow=\"ספרים · מהדורת מקור מלאה\"\n    description=\"195 סעיפים, תשעה ענפי־על ומקור פתוח לצד כל נקודת קריאה.\"\n    status=\"Preview מוגן · קריאה בלבד\"\n    surface=\"books\"\n    symbol={<NavigationIcon2029 name=\"books\" />}\n    introVariant=\"none\"\n    wide\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/Stats2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"world\" introVariant=\"none\" symbol={<NavigationIcon2029 name=\"now\" />}\n    eyebrow=\"סטטיסטיקה\" title=\"מה קורה ב־SOD1820\" description=\"מה נחקר, נקרא ונסרק באתר. נתונים מצרפיים בלבד: פעולות, לא אנשים.\">"
+    ]
+  },
+  {
+    "file": "src/pages/ControlPlane2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    title=\"Control Plane\"\n    eyebrow=\"2029 · INTERNAL\"\n    description=\"בריאות, עלות ו־No Black Box במקום אחד — מהאגרגציה אל root trace ו־spans.\"\n    status=\"ADMIN · READ ONLY\"\n    surface=\"control\"\n    symbol={<NavigationIcon2029 name=\"tools\" />}\n    wide\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/CommunityCalculator2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"community\" title=\"מחשבון הקהילה\" introVariant=\"none\">"
+    ]
+  },
+  {
+    "file": "src/pages/LifeJourney2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    surface=\"journey\"\n    symbol={<NavigationIcon2029 name=\"journey\" />}\n    eyebrow=\"PERSON · FAMILY · CONTEXT\"\n    title=\"מסע החיים\"\n    description=\"מרחב אישי אחד שמתחיל ממך, שומר את ההקשר ומעמיק בלי לפתוח מערכת חדשה.\"\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/Community2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"community\" title=\"הקהילה\" introVariant=\"none\" status=\"תצוגת עיצוב\" symbol=\"◎\">"
+    ]
+  },
+  {
+    "file": "src/pages/Video2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    surface=\"world\"\n    symbol={<NavigationIcon2029 name=\"video\" />}\n    eyebrow=\"VIDEO · SOURCE · CONTEXT\"\n    title=\"וידאו · SOD1820\"\n    description=\"נכס וידאו אחד, הקשרים רבים — מקור, סדרה, צופן ופוסטים על אותה זהות מדיה.\"\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/Books2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"books\" symbol=\"▤\" eyebrow=\"ספרים ומקורות\" title={slug ? \"ספר ומקור\" : \"ספרים ומקורות\"} description=\"קוראים בספרים, מבינים את הרעיונות וחוזרים תמיד לעמוד המקור.\">"
+    ]
+  },
+  {
+    "file": "src/pages/NewPassword2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"community\" title=\"בחירת סיסמה חדשה\" introVariant=\"none\" status=\"חשבון\" symbol=\"◎\">"
+    ]
+  },
+  {
+    "file": "src/pages/BentovFindingsProduct2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    title={`ממצא ${String(finalFinding.number).padStart(2, \"0\")}`}\n    eyebrow=\"ספרים · 33 ממצאים\"\n    description=\"דברי הספר באנגלית, הסבר נלווה בעברית ומסלול חקירה רציף.\"\n    status=\"Preview · קריאה בלבד\"\n    surface=\"books\"\n    symbol={<NavigationIcon2029 name=\"books\" />}\n    introVariant=\"none\"\n    wide\n  >",
+      "<Sod2029Shell\n    title=\"מפת הממצאים\"\n    eyebrow=\"ספרים · הדמיית מוצר\"\n    description=\"מחוויית קריאה למרחב מחקר חזותי: מקורות, ממצאים, קשרים ומצב אמון — באותו מסך.\"\n    status=\"Preview · קריאה בלבד\"\n    surface=\"books\"\n    symbol={<NavigationIcon2029 name=\"books\" />}\n    introVariant=\"compact\"\n    wide\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/Topic2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n    surface=\"topic\"\n    symbol=\"✦\"\n    eyebrow=\"SOD1820 · ציר\"\n    title=\"טופיק\"\n    description=\"מספרים, ביטויים, פוסטים ומקורות שמתחברים סביב אותו ציר.\"\n    status=\"Topic\"\n  >"
+    ]
+  },
+  {
+    "file": "src/pages/NumberAddress2029Page.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"number\" title=\"דף המספר והביטוי\" introVariant=\"none\">"
+    ]
+  },
+  {
+    "file": "src/pages/IntegratedPreview2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell title=\"פריוויו משולב\" surface=\"world\" introVariant=\"compact\" status=\"תצוגה לבדיקה\" wide>"
+    ]
+  },
+  {
+    "file": "src/pages/World2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n      surface={WORLD_EXPERIENCE.surface}\n      symbol=\"◌\"\n      eyebrow={`${WORLD_EXPERIENCE.brand.identity} · ${WORLD_EXPERIENCE.experience.question}`}\n      title=\"העולם\"\n      description=\"רמזי גאולה מתוך סיפורים, תמונות ותיעוד, עם קשרים ומקורות מדויקים.\"\n      status=\"עולם · גילוי\"\n    >"
+    ]
+  },
+  {
+    "file": "src/pages/Calculator2029Page.jsx",
+    "introPossible": true,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell\n      wide\n      surface=\"number\"\n      calmBottomChrome\n      orientationCopy={{ label: \"מה אני רואה במחשבון?\", body: \"הקלידו שם, מילה או ביטוי ובדקו את ערכו בגימטריה. בחרו שיטה כדי לראות את הצעדים שלה, ובלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם.\" }}\n      symbol={<NavigationIcon2029 name=\"number\" />}\n      eyebrow=\"גימטריה · חישוב מיידי\"\n      title=\"מה מסתתר בשם שלך?\"\n      description=\"הקלידו שם בעברית וגלו מה מסתתר בו. אפשר לשתף בקישור, ולהמשיך לעומק במחשבון המקצועי.\"\n    >"
+    ]
+  },
+  {
+    "file": "src/components/community2029/CommunityLive2029.jsx",
+    "introPossible": false,
+    "conditional": false,
+    "tags": [
+      "<Sod2029Shell surface=\"community\" title=\"הקהילה\" introVariant=\"none\" status=\"קהילה\" symbol=\"◎\">"
+    ]
+  }
+]

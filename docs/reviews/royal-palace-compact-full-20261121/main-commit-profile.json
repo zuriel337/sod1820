@@ -1,0 +1,57 @@
+[
+  {
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 520,
+        "tag": "IMG",
+        "url": "http://localhost:4180/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 790.9000000003725
+      },
+      {
+        "kind": "lcp",
+        "at": 1168,
+        "tag": "P",
+        "url": "",
+        "size": 30798
+      }
+    ],
+    "resources": []
+  },
+  {
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 68,
+        "tag": "IMG",
+        "url": "http://localhost:4180/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 355.59999999962747
+      }
+    ],
+    "resources": []
+  },
+  {
+    "events": [
+      {
+        "kind": "lcp",
+        "at": 56,
+        "tag": "IMG",
+        "url": "http://localhost:4180/brand/2029/canonical-lockup-128.webp",
+        "size": 24012
+      },
+      {
+        "kind": ".sod29-page-intro",
+        "at": 340.7000000011176
+      }
+    ],
+    "resources": []
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "theme": "dark",
+    "width": 390,
+    "straight": "2px",
+    "curve": "2px",
+    "color": "rgb(249, 186, 63)",
+    "paint": "linear-gradient(to left, rgb(127, 231, 255) 0%, rgb(249, 186, 63) 0%)",
+    "gap": 250,
+    "arc": 250,
+    "center": 0,
+    "blur": "none",
+    "folded": {
+      "gap": "0px",
+      "opacity": "0"
+    }
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "straight": "2px",
+    "curve": "2px",
+    "color": "rgb(249, 186, 63)",
+    "paint": "linear-gradient(to left, rgb(127, 231, 255) 0%, rgb(249, 186, 63) 0%)",
+    "gap": 320,
+    "arc": 320,
+    "center": 0,
+    "blur": "none",
+    "folded": {
+      "gap": "0px",
+      "opacity": "0"
+    }
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "straight": "2px",
+    "curve": "2px",
+    "color": "rgb(249, 186, 63)",
+    "paint": "linear-gradient(to left, rgb(127, 231, 255) 0%, rgb(249, 186, 63) 0%)",
+    "gap": 250,
+    "arc": 250,
+    "center": 0,
+    "blur": "none",
+    "folded": {
+      "gap": "0px",
+      "opacity": "0"
+    }
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "straight": "2px",
+    "curve": "2px",
+    "color": "rgb(249, 186, 63)",
+    "paint": "linear-gradient(to left, rgb(127, 231, 255) 0%, rgb(249, 186, 63) 0%)",
+    "gap": 320,
+    "arc": 320,
+    "center": 0,
+    "blur": "none",
+    "folded": {
+      "gap": "0px",
+      "opacity": "0"
+    }
+  },
+  {
+    "theme": "parchment",
+    "width": 390,
+    "straight": "2px",
+    "curve": "2px",
+    "color": "rgb(249, 186, 63)",
+    "paint": "linear-gradient(to left, rgb(127, 231, 255) 0%, rgb(249, 186, 63) 0%)",
+    "gap": 250,
+    "arc": 250,
+    "center": 0,
+    "blur": "none",
+    "folded": {
+      "gap": "0px",
+      "opacity": "0"
+    }
+  },
+  {
+    "theme": "parchment",
+    "width": 1440,
+    "straight": "2px",
+    "curve": "2px",
+    "color": "rgb(249, 186, 63)",
+    "paint": "linear-gradient(to left, rgb(127, 231, 255) 0%, rgb(249, 186, 63) 0%)",
+    "gap": 320,
+    "arc": 320,
+    "center": 0,
+    "blur": "none",
+    "folded": {
+      "gap": "0px",
+      "opacity": "0"
+    }
+  }
+]

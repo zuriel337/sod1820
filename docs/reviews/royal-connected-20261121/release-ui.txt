@@ -1,0 +1,13 @@
+dark 320
+dark 390
+dark 768
+dark 1440
+light 320
+light 390
+light 768
+light 1440
+parchment 320
+parchment 390
+parchment 768
+parchment 1440
+48 passed; same links and icons across arms

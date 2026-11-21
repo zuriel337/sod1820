@@ -1,0 +1,17 @@
+✔ three exact public historical pages retain original body bytes, dates, parent dependencies and source video order (6.204127ms)
+✔ original historical documents have exact self canonicals without querying a guessed Post identity (6.078768ms)
+✔ proven Forum aliases retain query/anchor and every well-formed old thread address continues to the chat, uniformly (5.003695ms)
+✔ a metadata Location cannot select an external or unrelated destination (1.79459ms)
+✔ public account returns preserve Home, old Posts, calculator, taxonomy, phrase, media and every original query/anchor (2.488237ms)
+✔ canonical dormant artifact reuses SDK-owned local storage without a token-copy bridge; all Preview origins remain isolated (0.907ms)
+✔ operational numeric projection distinguishes missing/error from measured zero (4.011116ms)
+✔ connected palace derivatives stay lazy, fingerprinted, responsive and immutable (18.725121ms)
+✔ page statistics strips no longer mount or import their lazy readers (1.882853ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 515.02743

@@ -1,0 +1,36 @@
+{
+  "before": {
+    "eagerJsFiles": 17,
+    "eagerJsGzip": 203373,
+    "frameJsFiles": 3,
+    "frameJsGzip": 47178,
+    "frameCssGzip": 34329,
+    "optionalRoyal": []
+  },
+  "after": {
+    "eagerJsFiles": 17,
+    "eagerJsGzip": 203438,
+    "frameJsFiles": 3,
+    "frameJsGzip": 47153,
+    "frameCssGzip": 34223,
+    "optionalRoyal": [
+      {
+        "file": "assets/RoyalIntro2029-Ceuvs5P4.js",
+        "raw": 1730,
+        "gzip": 939,
+        "css": [
+          {
+            "file": "assets/RoyalIntro2029-C58zOhVX.css",
+            "raw": 3225,
+            "gzip": 1111
+          },
+          {
+            "file": "assets/royal2029-DVlWSzbz.css",
+            "raw": 11150,
+            "gzip": 2640
+          }
+        ]
+      }
+    ]
+  }
+}

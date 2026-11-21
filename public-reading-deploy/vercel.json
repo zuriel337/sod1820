@@ -3066,6 +3066,24 @@
       ]
     },
     {
+      "source": "/backgrounds/2029/royal-palace-mobile-bc3e82850af6.webp",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/backgrounds/2029/royal-palace-desktop-61280d3bdc55.webp",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
       "source": "/legacy-dark-bg-post-720-8f3a91ae32df.webp",
       "headers": [
         {
@@ -3226,6 +3244,10 @@
         }
       ]
     },
+    {"source": "/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
+    {"source": "/backgrounds/2029/royal-connected-mobile-96cbcf5c1e1e.webp", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
+    {"source": "/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
+    {"source": "/backgrounds/2029/royal-connected-desktop-c7b865b042af.webp", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
     {
       "source": "/:worker(sw.js|preview-readonly-sw.js|public-reading-sw.js)",
       "headers": [

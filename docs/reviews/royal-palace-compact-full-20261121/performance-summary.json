@@ -1,0 +1,1142 @@
+[
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 640,
+          "min": 616,
+          "max": 648
+        },
+        "usefulDom": {
+          "median": 555.6,
+          "min": 540,
+          "max": 556.3
+        },
+        "usefulPaint": {
+          "median": 569,
+          "min": 552.9,
+          "max": 569.6
+        },
+        "introHeight": {
+          "median": 173.1,
+          "min": 173.1,
+          "max": 173.1
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 504,
+          "min": 480,
+          "max": 524
+        },
+        "usefulDom": {
+          "median": 540.7,
+          "min": 515.2,
+          "max": 556.9
+        },
+        "usefulPaint": {
+          "median": 559.5,
+          "min": 530,
+          "max": 562
+        },
+        "introHeight": {
+          "median": 357.4,
+          "min": 357.4,
+          "max": 357.4
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 500,
+          "min": 488,
+          "max": 500
+        },
+        "usefulDom": {
+          "median": 532.2,
+          "min": 507.2,
+          "max": 535.8
+        },
+        "usefulPaint": {
+          "median": 544.3,
+          "min": 516.5,
+          "max": 544.9
+        },
+        "introHeight": {
+          "median": 260.6,
+          "min": 260.6,
+          "max": 260.6
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 500,
+          "min": 492,
+          "max": 520
+        },
+        "usefulDom": {
+          "median": 548.2,
+          "min": 514.5,
+          "max": 550.3
+        },
+        "usefulPaint": {
+          "median": 558.5,
+          "min": 522,
+          "max": 565.7
+        },
+        "introHeight": {
+          "median": 330.6,
+          "min": 330.6,
+          "max": 330.6
+        }
+      }
+    }
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 520,
+          "min": 500,
+          "max": 536
+        },
+        "usefulDom": {
+          "median": 443.7,
+          "min": 407.3,
+          "max": 459
+        },
+        "usefulPaint": {
+          "median": 453.9,
+          "min": 431.5,
+          "max": 482.1
+        },
+        "introHeight": {
+          "median": 173.1,
+          "min": 173.1,
+          "max": 173.1
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 400,
+          "min": 392,
+          "max": 416
+        },
+        "usefulDom": {
+          "median": 429.8,
+          "min": 409.5,
+          "max": 431.1
+        },
+        "usefulPaint": {
+          "median": 439.3,
+          "min": 423.7,
+          "max": 442.4
+        },
+        "introHeight": {
+          "median": 357.4,
+          "min": 357.4,
+          "max": 357.4
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 404,
+          "min": 404,
+          "max": 408
+        },
+        "usefulDom": {
+          "median": 418.2,
+          "min": 413,
+          "max": 418.9
+        },
+        "usefulPaint": {
+          "median": 431.4,
+          "min": 422,
+          "max": 432.6
+        },
+        "introHeight": {
+          "median": 260.6,
+          "min": 260.6,
+          "max": 260.6
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 396,
+          "min": 396,
+          "max": 400
+        },
+        "usefulDom": {
+          "median": 410.3,
+          "min": 407.4,
+          "max": 420.4
+        },
+        "usefulPaint": {
+          "median": 426.7,
+          "min": 414.5,
+          "max": 430
+        },
+        "introHeight": {
+          "median": 330.6,
+          "min": 330.6,
+          "max": 330.6
+        }
+      }
+    }
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 684,
+          "min": 680,
+          "max": 736
+        },
+        "usefulDom": {
+          "median": 558.1,
+          "min": 554.6,
+          "max": 572.7
+        },
+        "usefulPaint": {
+          "median": 566.7,
+          "min": 563.8,
+          "max": 590.7
+        },
+        "introHeight": {
+          "median": 160.6,
+          "min": 160.6,
+          "max": 160.6
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 588,
+          "min": 580,
+          "max": 608
+        },
+        "usefulDom": {
+          "median": 625.5,
+          "min": 598.2,
+          "max": 626.7
+        },
+        "usefulPaint": {
+          "median": 632.9,
+          "min": 615.2,
+          "max": 635.1
+        },
+        "introHeight": {
+          "median": 381.8,
+          "min": 381.8,
+          "max": 381.8
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 604,
+          "min": 576,
+          "max": 640
+        },
+        "usefulDom": {
+          "median": 634.9,
+          "min": 607.1,
+          "max": 661.2
+        },
+        "usefulPaint": {
+          "median": 645.9,
+          "min": 628.1,
+          "max": 667.8
+        },
+        "introHeight": {
+          "median": 274.2,
+          "min": 274.2,
+          "max": 274.2
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 608,
+          "min": 608,
+          "max": 644
+        },
+        "usefulDom": {
+          "median": 624.5,
+          "min": 621.5,
+          "max": 664.2
+        },
+        "usefulPaint": {
+          "median": 639.7,
+          "min": 630.5,
+          "max": 671.9
+        },
+        "introHeight": {
+          "median": 340.2,
+          "min": 340.2,
+          "max": 340.2
+        }
+      }
+    }
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 572,
+          "min": 572,
+          "max": 628
+        },
+        "usefulDom": {
+          "median": 413.1,
+          "min": 404,
+          "max": 463.9
+        },
+        "usefulPaint": {
+          "median": 435.4,
+          "min": 430.6,
+          "max": 470.4
+        },
+        "introHeight": {
+          "median": 160.6,
+          "min": 160.6,
+          "max": 160.6
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 540,
+          "min": 516,
+          "max": 584
+        },
+        "usefulDom": {
+          "median": 528.7,
+          "min": 461,
+          "max": 610.3
+        },
+        "usefulPaint": {
+          "median": 547.5,
+          "min": 543.8,
+          "max": 628.2
+        },
+        "introHeight": {
+          "median": 381.8,
+          "min": 381.8,
+          "max": 381.8
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 512,
+          "min": 480,
+          "max": 544
+        },
+        "usefulDom": {
+          "median": 497.2,
+          "min": 422,
+          "max": 571.7
+        },
+        "usefulPaint": {
+          "median": 521.6,
+          "min": 501.9,
+          "max": 587.1
+        },
+        "introHeight": {
+          "median": 274.2,
+          "min": 274.2,
+          "max": 274.2
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 524,
+          "min": 484,
+          "max": 544
+        },
+        "usefulDom": {
+          "median": 541.2,
+          "min": 489.8,
+          "max": 551.7
+        },
+        "usefulPaint": {
+          "median": 554.7,
+          "min": 504.3,
+          "max": 568.5
+        },
+        "introHeight": {
+          "median": 340.2,
+          "min": 340.2,
+          "max": 340.2
+        }
+      }
+    }
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 1116,
+          "min": 1100,
+          "max": 1176
+        },
+        "usefulDom": {
+          "median": 466,
+          "min": 449.9,
+          "max": 477.1
+        },
+        "usefulPaint": {
+          "median": 472.7,
+          "min": 456.2,
+          "max": 484.5
+        },
+        "introHeight": {
+          "median": 195.1,
+          "min": 195.1,
+          "max": 195.1
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 508,
+          "min": 496,
+          "max": 520
+        },
+        "usefulDom": {
+          "median": 448.7,
+          "min": 438.6,
+          "max": 462.3
+        },
+        "usefulPaint": {
+          "median": 457.8,
+          "min": 444.7,
+          "max": 469.7
+        },
+        "introHeight": {
+          "median": 357.4,
+          "min": 357.4,
+          "max": 357.4
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 520,
+          "min": 508,
+          "max": 524
+        },
+        "usefulDom": {
+          "median": 451.1,
+          "min": 450.9,
+          "max": 457.7
+        },
+        "usefulPaint": {
+          "median": 458.7,
+          "min": 458.5,
+          "max": 464.7
+        },
+        "introHeight": {
+          "median": 260.6,
+          "min": 260.6,
+          "max": 260.6
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 516,
+          "min": 508,
+          "max": 528
+        },
+        "usefulDom": {
+          "median": 455.5,
+          "min": 454.9,
+          "max": 465.5
+        },
+        "usefulPaint": {
+          "median": 463.8,
+          "min": 461.4,
+          "max": 473.8
+        },
+        "introHeight": {
+          "median": 330.6,
+          "min": 330.6,
+          "max": 330.6
+        }
+      }
+    }
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 60,
+          "min": 60,
+          "max": 76
+        },
+        "usefulDom": {
+          "median": 366,
+          "min": 365.2,
+          "max": 382.2
+        },
+        "usefulPaint": {
+          "median": 371,
+          "min": 370.8,
+          "max": 396.4
+        },
+        "introHeight": {
+          "median": 195.1,
+          "min": 195.1,
+          "max": 195.1
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 436,
+          "min": 420,
+          "max": 440
+        },
+        "usefulDom": {
+          "median": 365.9,
+          "min": 360.5,
+          "max": 370.5
+        },
+        "usefulPaint": {
+          "median": 377.9,
+          "min": 373.7,
+          "max": 383.2
+        },
+        "introHeight": {
+          "median": 357.4,
+          "min": 357.4,
+          "max": 357.4
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 428,
+          "min": 424,
+          "max": 436
+        },
+        "usefulDom": {
+          "median": 366.2,
+          "min": 365.5,
+          "max": 367.5
+        },
+        "usefulPaint": {
+          "median": 372.5,
+          "min": 372.1,
+          "max": 380.1
+        },
+        "introHeight": {
+          "median": 260.6,
+          "min": 260.6,
+          "max": 260.6
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 432,
+          "min": 424,
+          "max": 464
+        },
+        "usefulDom": {
+          "median": 376.9,
+          "min": 361.6,
+          "max": 396.6
+        },
+        "usefulPaint": {
+          "median": 389.8,
+          "min": 366.3,
+          "max": 407.5
+        },
+        "introHeight": {
+          "median": 330.6,
+          "min": 330.6,
+          "max": 330.6
+        }
+      }
+    }
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 612,
+          "min": 600,
+          "max": 628
+        },
+        "usefulDom": {
+          "median": 460.5,
+          "min": 458,
+          "max": 485
+        },
+        "usefulPaint": {
+          "median": 468.8,
+          "min": 467.3,
+          "max": 494.7
+        },
+        "introHeight": {
+          "median": 134.6,
+          "min": 134.6,
+          "max": 134.6
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 548,
+          "min": 544,
+          "max": 564
+        },
+        "usefulDom": {
+          "median": 459.9,
+          "min": 457.4,
+          "max": 487
+        },
+        "usefulPaint": {
+          "median": 470.6,
+          "min": 466.9,
+          "max": 496.3
+        },
+        "introHeight": {
+          "median": 356.2,
+          "min": 356.2,
+          "max": 356.2
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 628,
+          "min": 600,
+          "max": 636
+        },
+        "usefulDom": {
+          "median": 472.7,
+          "min": 458,
+          "max": 484.9
+        },
+        "usefulPaint": {
+          "median": 486.5,
+          "min": 465.4,
+          "max": 493.8
+        },
+        "introHeight": {
+          "median": 248.6,
+          "min": 248.6,
+          "max": 248.6
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 604,
+          "min": 588,
+          "max": 616
+        },
+        "usefulDom": {
+          "median": 471.8,
+          "min": 453.3,
+          "max": 475.5
+        },
+        "usefulPaint": {
+          "median": 483.2,
+          "min": 464.1,
+          "max": 483.3
+        },
+        "introHeight": {
+          "median": 314.6,
+          "min": 314.6,
+          "max": 314.6
+        }
+      }
+    }
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 548,
+          "min": 524,
+          "max": 568
+        },
+        "usefulDom": {
+          "median": 382.8,
+          "min": 373.3,
+          "max": 406.7
+        },
+        "usefulPaint": {
+          "median": 388.7,
+          "min": 378.7,
+          "max": 411.8
+        },
+        "introHeight": {
+          "median": 134.6,
+          "min": 134.6,
+          "max": 134.6
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 460,
+          "min": 456,
+          "max": 468
+        },
+        "usefulDom": {
+          "median": 379.5,
+          "min": 373.2,
+          "max": 380.5
+        },
+        "usefulPaint": {
+          "median": 387.2,
+          "min": 379.3,
+          "max": 388
+        },
+        "introHeight": {
+          "median": 356.2,
+          "min": 356.2,
+          "max": 356.2
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 520,
+          "min": 516,
+          "max": 532
+        },
+        "usefulDom": {
+          "median": 376.2,
+          "min": 375.5,
+          "max": 378.2
+        },
+        "usefulPaint": {
+          "median": 384.2,
+          "min": 381.6,
+          "max": 387.5
+        },
+        "introHeight": {
+          "median": 248.6,
+          "min": 248.6,
+          "max": 248.6
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 516,
+          "min": 512,
+          "max": 520
+        },
+        "usefulDom": {
+          "median": 372.5,
+          "min": 371.3,
+          "max": 376.1
+        },
+        "usefulPaint": {
+          "median": 381.1,
+          "min": 380.2,
+          "max": 385.3
+        },
+        "introHeight": {
+          "median": 314.6,
+          "min": 314.6,
+          "max": 314.6
+        }
+      }
+    }
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 512,
+          "min": 508,
+          "max": 524
+        },
+        "usefulDom": {
+          "median": 475,
+          "min": 469.8,
+          "max": 492
+        },
+        "usefulPaint": {
+          "median": 480.8,
+          "min": 476.6,
+          "max": 497.4
+        },
+        "introHeight": {
+          "median": 123.1,
+          "min": 123.1,
+          "max": 123.1
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 472,
+          "min": 468,
+          "max": 492
+        },
+        "usefulDom": {
+          "median": 486.9,
+          "min": 473.2,
+          "max": 496.9
+        },
+        "usefulPaint": {
+          "median": 496.3,
+          "min": 479,
+          "max": 516.8
+        },
+        "introHeight": {
+          "median": 357.4,
+          "min": 357.4,
+          "max": 357.4
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 464,
+          "min": 464,
+          "max": 520
+        },
+        "usefulDom": {
+          "median": 479.4,
+          "min": 470.3,
+          "max": 548.3
+        },
+        "usefulPaint": {
+          "median": 489,
+          "min": 482,
+          "max": 573.9
+        },
+        "introHeight": {
+          "median": 235.0,
+          "min": 235.0,
+          "max": 235.0
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 484,
+          "min": 480,
+          "max": 528
+        },
+        "usefulDom": {
+          "median": 488.3,
+          "min": 486.1,
+          "max": 543.5
+        },
+        "usefulPaint": {
+          "median": 496.4,
+          "min": 489.4,
+          "max": 546.1
+        },
+        "introHeight": {
+          "median": 305.0,
+          "min": 305.0,
+          "max": 305.0
+        }
+      }
+    }
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 436,
+          "min": 436,
+          "max": 444
+        },
+        "usefulDom": {
+          "median": 388.7,
+          "min": 386.3,
+          "max": 396.3
+        },
+        "usefulPaint": {
+          "median": 403.7,
+          "min": 402.2,
+          "max": 407.4
+        },
+        "introHeight": {
+          "median": 123.1,
+          "min": 123.1,
+          "max": 123.1
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 392,
+          "min": 392,
+          "max": 400
+        },
+        "usefulDom": {
+          "median": 379.4,
+          "min": 377,
+          "max": 396.9
+        },
+        "usefulPaint": {
+          "median": 397.9,
+          "min": 379.8,
+          "max": 406.3
+        },
+        "introHeight": {
+          "median": 357.4,
+          "min": 357.4,
+          "max": 357.4
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 392,
+          "min": 384,
+          "max": 396
+        },
+        "usefulDom": {
+          "median": 393.1,
+          "min": 381.4,
+          "max": 399
+        },
+        "usefulPaint": {
+          "median": 404.6,
+          "min": 390.3,
+          "max": 412
+        },
+        "introHeight": {
+          "median": 235.0,
+          "min": 235.0,
+          "max": 235.0
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 392,
+          "min": 384,
+          "max": 396
+        },
+        "usefulDom": {
+          "median": 389.8,
+          "min": 388.2,
+          "max": 398
+        },
+        "usefulPaint": {
+          "median": 401,
+          "min": 396.8,
+          "max": 406.4
+        },
+        "introHeight": {
+          "median": 305.0,
+          "min": 305.0,
+          "max": 305.0
+        }
+      }
+    }
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 148,
+          "min": 144,
+          "max": 148
+        },
+        "usefulDom": {
+          "median": 555.4,
+          "min": 490.8,
+          "max": 566.7
+        },
+        "usefulPaint": {
+          "median": 575.9,
+          "min": 560.1,
+          "max": 599.3
+        },
+        "introHeight": {
+          "median": 110.6,
+          "min": 110.6,
+          "max": 110.6
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 552,
+          "min": 544,
+          "max": 572
+        },
+        "usefulDom": {
+          "median": 548.8,
+          "min": 547.6,
+          "max": 591.3
+        },
+        "usefulPaint": {
+          "median": 582.6,
+          "min": 556,
+          "max": 600.8
+        },
+        "introHeight": {
+          "median": 356.2,
+          "min": 356.2,
+          "max": 356.2
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 548,
+          "min": 540,
+          "max": 584
+        },
+        "usefulDom": {
+          "median": 553.4,
+          "min": 531.7,
+          "max": 564.5
+        },
+        "usefulPaint": {
+          "median": 586,
+          "min": 585.7,
+          "max": 595.1
+        },
+        "introHeight": {
+          "median": 223.0,
+          "min": 223.0,
+          "max": 223.0
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 548,
+          "min": 548,
+          "max": 564
+        },
+        "usefulDom": {
+          "median": 565.6,
+          "min": 560.8,
+          "max": 566.4
+        },
+        "usefulPaint": {
+          "median": 569,
+          "min": 563.4,
+          "max": 569.4
+        },
+        "introHeight": {
+          "median": 289.0,
+          "min": 289.0,
+          "max": 289.0
+        }
+      }
+    }
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arms": {
+      "main": {
+        "lcp": {
+          "median": 80,
+          "min": 56,
+          "max": 96
+        },
+        "usefulDom": {
+          "median": 404.3,
+          "min": 386.4,
+          "max": 430
+        },
+        "usefulPaint": {
+          "median": 446.1,
+          "min": 445.7,
+          "max": 481.2
+        },
+        "introHeight": {
+          "median": 110.6,
+          "min": 110.6,
+          "max": 110.6
+        }
+      },
+      "v1": {
+        "lcp": {
+          "median": 460,
+          "min": 444,
+          "max": 472
+        },
+        "usefulDom": {
+          "median": 404.6,
+          "min": 393.7,
+          "max": 416
+        },
+        "usefulPaint": {
+          "median": 460.9,
+          "min": 446.3,
+          "max": 473.1
+        },
+        "introHeight": {
+          "median": 356.2,
+          "min": 356.2,
+          "max": 356.2
+        }
+      },
+      "compact": {
+        "lcp": {
+          "median": 464,
+          "min": 456,
+          "max": 472
+        },
+        "usefulDom": {
+          "median": 408.6,
+          "min": 402.9,
+          "max": 409.5
+        },
+        "usefulPaint": {
+          "median": 460.7,
+          "min": 407.6,
+          "max": 464.3
+        },
+        "introHeight": {
+          "median": 223.0,
+          "min": 223.0,
+          "max": 223.0
+        }
+      },
+      "full": {
+        "lcp": {
+          "median": 460,
+          "min": 456,
+          "max": 484
+        },
+        "usefulDom": {
+          "median": 402.5,
+          "min": 399.7,
+          "max": 412.9
+        },
+        "usefulPaint": {
+          "median": 459.4,
+          "min": 458.3,
+          "max": 470.2
+        },
+        "introHeight": {
+          "median": 289.0,
+          "min": 289.0,
+          "max": 289.0
+        }
+      }
+    }
+  }
+]

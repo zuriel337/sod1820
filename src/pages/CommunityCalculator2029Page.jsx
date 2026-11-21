@@ -1,4 +1,3 @@
-import CalculatorPulseLineSlot2029 from "../components/gematria2029/CalculatorPulseLineSlot2029.jsx";
 import React, { createContext, lazy, Suspense, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CommunityCalculatorPage from "./CommunityCalculatorPage.jsx";
@@ -228,10 +227,9 @@ function CalculatorExperience({ model, initialState, location }) {
         {initialState.invalidBirthDate && !state.baby?.bDate && <p role="status" className="sod29-community-calc-notice">תאריך הלידה בקישור אינו תקין. הזינו יום, חודש ושנה כדי לחשב אותו.</p>}
         {model.babyTool}
       </> : <>
-        <CalculatorPulseLineSlot2029 />
         {/* The same words bar as the main calculator (word of the day + words visitors recently calculated), from the one public activity
             reader of #1462; it replaces the activity square on this page (ZURIEL 20.11.2026). A pick fills the first name. */}
-        {!state.dateMode && <CalculatorWordsBar2029 currentExpression={state.name1} onPick={word => model.setName1(word)} trailing={<CalculatorPulseLineSlot2029 inline />} />}
+        {!state.dateMode && <CalculatorWordsBar2029 currentExpression={state.name1} onPick={word => model.setName1(word)} />}
         <section className="sod29-community-calc-panel sod29-community-calc-input-panel">
           <div className="sod29-community-calc-name-fields">
             <label htmlFor="community-calculator-name">{state.compare ? "השם הראשון" : "שם, מילה או ביטוי"}

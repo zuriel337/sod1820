@@ -157,7 +157,19 @@ test("no window (server render, node): a no-op", () => {
 
 test("source pins: measurement, ads and the frame's background reads follow the content", () => {
   const app = readFileSync(new URL("../src/App2029.jsx", import.meta.url), "utf8");
-  assert.match(app, /afterReadableContent2029\(pathname, \(\) => \{\s+initGA\(\{ publicReading: true/, "Google's tag (and the Pixel after it) start inside the content gate");
+  // Match the complete callback, including its closing brace: proximity alone cannot prove containment.
+  // Keep the admin/dedup guards; neither GA nor the Pixel may move before or after this gate.
+  const marketingGate = new RegExp(String.raw`afterReadableContent2029\(pathname, \(\) => \{\s*
+    if \(measurementAuth\.current\.isAdmin \|\| marketedEntry2029 === entry\) return;\s*
+    marketedEntry2029 = entry;\s*
+    initGA\(\{ publicReading: true, path: telemetryPath \}\);\s*
+    stopPageview = trackPageview\(pathname, \{ publicReading: true \}\);\s*
+    (?://[^\n]*\n\s*)*
+    initMarketing\(\);\s*
+    trackMarketingPageview\(\);\s*
+    \}\);`.replace(/\n +/g, ""));
+  assert.match(app, marketingGate, "Google's tag and the Pixel start inside the same content gate, after admin/dedup guards");
+  assert.equal((app.match(/initGA\(\{ publicReading: true/g) || []).length, 1, "no second public GA start outside the gate");
   assert.equal((app.match(/afterReadableContent2029\(pathname,/g) || []).length, 2, "the visit and Google/Meta both wait for the content");
   const feed = readFileSync(new URL("../src/components/experience2029/useSystemFeed2029.js", import.meta.url), "utf8");
   assert.match(feed, /afterReadableContent2029\(window\.location\.pathname/);

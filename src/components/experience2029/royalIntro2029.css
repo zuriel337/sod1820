@@ -1,0 +1,14 @@
+.r29-palace-help {position:absolute;inset-block:14px;inset-inline:16px;z-index:5;text-align:end;pointer-events:none}
+.r29-palace-help>.r29-btn {pointer-events:auto;background:var(--s29-panel);font-size:var(--s29-type-ui)}
+.r29-palace-disclosure {position:absolute;inset-block-start:50px;inset-inline:0;max-width:600px;height:calc(100% - 50px);margin-inline:auto;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity 180ms ease,transform 180ms ease,visibility 180ms;pointer-events:none}
+.r29-palace-disclosure[data-open="true"] {opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.r29-palace-explanation {max-height:100%;overflow:auto;box-sizing:border-box;padding:16px;border:1px solid var(--r29-gold);border-radius:var(--r29-radius-sm);background:var(--s29-panel);box-shadow:var(--r29-shadow);color:var(--s29-ink);font-size:var(--s29-type-ui);line-height:1.6;text-align:start}
+.r29-palace-explanation a {display:flex;align-items:center;min-height:44px;color:var(--s29-accent-text);text-decoration:underline}
+.r29-palace-explanation .r29-btn {margin-top:8px}
+
+.sod29-page-intro .sod29-context-strip :is(a,button) {transition:transform 160ms,filter 160ms}
+.sod29-page-intro :is(a,button):active {filter:brightness(1.15);transform:scale(.98)}
+.sod29-page-intro :is(a,button):focus-visible {outline:2px solid var(--s29-focus-ring);outline-offset:3px}
+@media(prefers-reduced-motion:reduce) {.sod29-page-intro *, .sod29-page-intro.r29-hall::before {animation:none!important;transition:none!important;transform:none!important}}
+[data-frame-reduced-motion="true"] .sod29-page-intro *,[data-frame-reduced-motion="true"] .sod29-page-intro.r29-hall::before {animation:none!important;transition:none!important;transform:none!important}
+@media(max-width:360px) {.r29-palace-help>.r29-btn {padding-inline:4px;gap:4px}}

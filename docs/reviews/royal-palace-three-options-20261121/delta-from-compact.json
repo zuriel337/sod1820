@@ -1,0 +1,218 @@
+[
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "strip",
+    "lcp": 56,
+    "usefulPaint": -42.4,
+    "introHeight": -26.0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": false,
+    "arm": "crown",
+    "lcp": 100,
+    "usefulPaint": -5.8,
+    "introHeight": -26.0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "strip",
+    "lcp": 76,
+    "usefulPaint": 2.1,
+    "introHeight": -26.0
+  },
+  {
+    "route": "world",
+    "width": 390,
+    "warm": true,
+    "arm": "crown",
+    "lcp": 120,
+    "usefulPaint": 34.8,
+    "introHeight": -26.0
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "strip",
+    "lcp": -68,
+    "usefulPaint": -33.5,
+    "introHeight": -39.6
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": false,
+    "arm": "crown",
+    "lcp": 88,
+    "usefulPaint": -68.2,
+    "introHeight": -39.6
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "strip",
+    "lcp": -48,
+    "usefulPaint": -49.2,
+    "introHeight": -39.6
+  },
+  {
+    "route": "world",
+    "width": 1440,
+    "warm": true,
+    "arm": "crown",
+    "lcp": 132,
+    "usefulPaint": -53.0,
+    "introHeight": -39.6
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "strip",
+    "lcp": 12,
+    "usefulPaint": -0.4,
+    "introHeight": -26.0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": false,
+    "arm": "crown",
+    "lcp": -396,
+    "usefulPaint": -11.0,
+    "introHeight": -26.0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "strip",
+    "lcp": -8,
+    "usefulPaint": -3.3,
+    "introHeight": -26.0
+  },
+  {
+    "route": "heichal",
+    "width": 390,
+    "warm": true,
+    "arm": "crown",
+    "lcp": -380,
+    "usefulPaint": 3.9,
+    "introHeight": -26.0
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "strip",
+    "lcp": -28,
+    "usefulPaint": -5.6,
+    "introHeight": -39.6
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": false,
+    "arm": "crown",
+    "lcp": -48,
+    "usefulPaint": -8.2,
+    "introHeight": -39.6
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "strip",
+    "lcp": -52,
+    "usefulPaint": 2.0,
+    "introHeight": -39.6
+  },
+  {
+    "route": "heichal",
+    "width": 1440,
+    "warm": true,
+    "arm": "crown",
+    "lcp": -56,
+    "usefulPaint": 2.4,
+    "introHeight": -39.6
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "strip",
+    "lcp": 48,
+    "usefulPaint": 5.6,
+    "introHeight": -26.0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": false,
+    "arm": "crown",
+    "lcp": 60,
+    "usefulPaint": 9.0,
+    "introHeight": -26.0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "strip",
+    "lcp": 60,
+    "usefulPaint": -16.3,
+    "introHeight": -26.0
+  },
+  {
+    "route": "books",
+    "width": 390,
+    "warm": true,
+    "arm": "crown",
+    "lcp": 72,
+    "usefulPaint": -1.2,
+    "introHeight": -26.0
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "strip",
+    "lcp": 12,
+    "usefulPaint": -12.7,
+    "introHeight": -39.6
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": false,
+    "arm": "crown",
+    "lcp": -400,
+    "usefulPaint": -23.4,
+    "introHeight": -39.6
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "strip",
+    "lcp": 8,
+    "usefulPaint": -17.5,
+    "introHeight": -39.6
+  },
+  {
+    "route": "books",
+    "width": 1440,
+    "warm": true,
+    "arm": "crown",
+    "lcp": -388,
+    "usefulPaint": 36.1,
+    "introHeight": -39.6
+  }
+]

@@ -1,0 +1,2322 @@
+{
+  "method": "Compiled default builds; local HTTP server, Chromium, no CPU/network throttle, 1500 ms post-intro observation; cold context followed by warm same-context navigation. Public reads cached identically; Heichal uses browser-only flag fixture. Not field Web Vitals.",
+  "rows": [
+    {
+      "lcp": 7156,
+      "cls": 0.044048199688946736,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [],
+      "introHeight": 197.09375,
+      "version": "before",
+      "width": 320,
+      "route": "/world",
+      "warm": false,
+      "observedMs": 12801,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 99,
+          "transfer": 1660536,
+          "encoded": 1630836
+        },
+        "css": {
+          "requests": 16,
+          "transfer": 365170,
+          "encoded": 360370
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 16434,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 1208,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [],
+      "introHeight": 197.09375,
+      "version": "before",
+      "width": 320,
+      "route": "/world",
+      "warm": true,
+      "observedMs": 3062,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 105,
+          "transfer": 0,
+          "encoded": 1711403
+        },
+        "css": {
+          "requests": 16,
+          "transfer": 0,
+          "encoded": 360370
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 1064,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [],
+      "introHeight": 238.6875,
+      "version": "before",
+      "width": 320,
+      "route": "/heichal",
+      "warm": false,
+      "observedMs": 2419,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 57,
+          "transfer": 1190045,
+          "encoded": 1172945
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 242555,
+          "encoded": 241055
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 16434,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 64,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [],
+      "introHeight": 238.6875,
+      "version": "before",
+      "width": 320,
+      "route": "/heichal",
+      "warm": true,
+      "observedMs": 2346,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 57,
+          "transfer": 0,
+          "encoded": 1172945
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 0,
+          "encoded": 241055
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 972,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [],
+      "introHeight": 147.09375,
+      "version": "before",
+      "width": 320,
+      "route": "/books",
+      "warm": false,
+      "observedMs": 2486,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 44,
+          "transfer": 1113377,
+          "encoded": 1100177
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 258683,
+          "encoded": 257183
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 57004,
+          "encoded": 56404
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 10007,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 452,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [],
+      "introHeight": 147.09375,
+      "version": "before",
+      "width": 320,
+      "route": "/books",
+      "warm": true,
+      "observedMs": 2344,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 44,
+          "transfer": 0,
+          "encoded": 1100177
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 0,
+          "encoded": 257183
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 56404
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 680,
+      "cls": 0.03870544476100031,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [],
+      "introHeight": 173.09375,
+      "version": "before",
+      "width": 390,
+      "route": "/world",
+      "warm": false,
+      "observedMs": 2434,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 105,
+          "transfer": 1742903,
+          "encoded": 1711403
+        },
+        "css": {
+          "requests": 16,
+          "transfer": 365170,
+          "encoded": 360370
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 16434,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 540,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [],
+      "introHeight": 173.09375,
+      "version": "before",
+      "width": 390,
+      "route": "/world",
+      "warm": true,
+      "observedMs": 2367,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 105,
+          "transfer": 0,
+          "encoded": 1711403
+        },
+        "css": {
+          "requests": 16,
+          "transfer": 0,
+          "encoded": 360370
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 1124,
+      "cls": 0.00023782526115859447,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [],
+      "introHeight": 195.09375,
+      "version": "before",
+      "width": 390,
+      "route": "/heichal",
+      "warm": false,
+      "observedMs": 2413,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 57,
+          "transfer": 1190045,
+          "encoded": 1172945
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 242555,
+          "encoded": 241055
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 16434,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 64,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [],
+      "introHeight": 195.09375,
+      "version": "before",
+      "width": 390,
+      "route": "/heichal",
+      "warm": true,
+      "observedMs": 2335,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 57,
+          "transfer": 0,
+          "encoded": 1172945
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 0,
+          "encoded": 241055
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 512,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [],
+      "introHeight": 123.09375,
+      "version": "before",
+      "width": 390,
+      "route": "/books",
+      "warm": false,
+      "observedMs": 2412,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 44,
+          "transfer": 1113377,
+          "encoded": 1100177
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 258683,
+          "encoded": 257183
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 57004,
+          "encoded": 56404
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 10007,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 440,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [],
+      "introHeight": 123.09375,
+      "version": "before",
+      "width": 390,
+      "route": "/books",
+      "warm": true,
+      "observedMs": 2337,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 44,
+          "transfer": 0,
+          "encoded": 1100177
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 0,
+          "encoded": 257183
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 56404
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 744,
+      "cls": 0.0410982751414609,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [],
+      "introHeight": 153.09375,
+      "version": "before",
+      "width": 768,
+      "route": "/world",
+      "warm": false,
+      "observedMs": 2428,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 105,
+          "transfer": 1742903,
+          "encoded": 1711403
+        },
+        "css": {
+          "requests": 16,
+          "transfer": 365170,
+          "encoded": 360370
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 16434,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 612,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [],
+      "introHeight": 153.09375,
+      "version": "before",
+      "width": 768,
+      "route": "/world",
+      "warm": true,
+      "observedMs": 2353,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 105,
+          "transfer": 0,
+          "encoded": 1711403
+        },
+        "css": {
+          "requests": 16,
+          "transfer": 0,
+          "encoded": 360370
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 1472,
+      "cls": 0.00023589771412037034,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [],
+      "introHeight": 127.09375,
+      "version": "before",
+      "width": 768,
+      "route": "/heichal",
+      "warm": false,
+      "observedMs": 2400,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 57,
+          "transfer": 1190045,
+          "encoded": 1172945
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 242555,
+          "encoded": 241055
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 16434,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 56,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [],
+      "introHeight": 127.09375,
+      "version": "before",
+      "width": 768,
+      "route": "/heichal",
+      "warm": true,
+      "observedMs": 2347,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 57,
+          "transfer": 0,
+          "encoded": 1172945
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 0,
+          "encoded": 241055
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 632,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [],
+      "introHeight": 103.09375,
+      "version": "before",
+      "width": 768,
+      "route": "/books",
+      "warm": false,
+      "observedMs": 2412,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 44,
+          "transfer": 1113377,
+          "encoded": 1100177
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 258683,
+          "encoded": 257183
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 57004,
+          "encoded": 56404
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 10007,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 548,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [],
+      "introHeight": 103.09375,
+      "version": "before",
+      "width": 768,
+      "route": "/books",
+      "warm": true,
+      "observedMs": 2362,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 44,
+          "transfer": 0,
+          "encoded": 1100177
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 0,
+          "encoded": 257183
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 56404
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 672,
+      "cls": 0.02001971879286694,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [],
+      "introHeight": 160.59375,
+      "version": "before",
+      "width": 1440,
+      "route": "/world",
+      "warm": false,
+      "observedMs": 2427,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 105,
+          "transfer": 1742903,
+          "encoded": 1711403
+        },
+        "css": {
+          "requests": 16,
+          "transfer": 365170,
+          "encoded": 360370
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 16434,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 560,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [],
+      "introHeight": 160.59375,
+      "version": "before",
+      "width": 1440,
+      "route": "/world",
+      "warm": true,
+      "observedMs": 2361,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 105,
+          "transfer": 0,
+          "encoded": 1711403
+        },
+        "css": {
+          "requests": 16,
+          "transfer": 0,
+          "encoded": 360370
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 644,
+      "cls": 2.5716145833333334e-05,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [],
+      "introHeight": 134.59375,
+      "version": "before",
+      "width": 1440,
+      "route": "/heichal",
+      "warm": false,
+      "observedMs": 2414,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 57,
+          "transfer": 1190045,
+          "encoded": 1172945
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 242555,
+          "encoded": 241055
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 16434,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 520,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [],
+      "introHeight": 134.59375,
+      "version": "before",
+      "width": 1440,
+      "route": "/heichal",
+      "warm": true,
+      "observedMs": 2345,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 57,
+          "transfer": 0,
+          "encoded": 1172945
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 0,
+          "encoded": 241055
+        },
+        "webp": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 16134
+        }
+      }
+    },
+    {
+      "lcp": 164,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [],
+      "introHeight": 110.59375,
+      "version": "before",
+      "width": 1440,
+      "route": "/books",
+      "warm": false,
+      "observedMs": 2429,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 44,
+          "transfer": 1113377,
+          "encoded": 1100177
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 258683,
+          "encoded": 257183
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 57004,
+          "encoded": 56404
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 10007,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 72,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [],
+      "introHeight": 110.59375,
+      "version": "before",
+      "width": 1440,
+      "route": "/books",
+      "warm": true,
+      "observedMs": 2335,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 44,
+          "transfer": 0,
+          "encoded": 1100177
+        },
+        "css": {
+          "requests": 5,
+          "transfer": 0,
+          "encoded": 257183
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 56404
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 928,
+      "cls": 0.004964909577546299,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 30398,
+          "encoded": 30098,
+          "ms": 1.5
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 320,
+      "route": "/world",
+      "warm": false,
+      "observedMs": 8870,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 106,
+          "transfer": 1744926,
+          "encoded": 1713126
+        },
+        "css": {
+          "requests": 18,
+          "transfer": 378830,
+          "encoded": 373430
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 46832,
+          "encoded": 46232
+        }
+      }
+    },
+    {
+      "lcp": 420,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 0,
+          "encoded": 30098,
+          "ms": 0
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 320,
+      "route": "/world",
+      "warm": true,
+      "observedMs": 2390,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 106,
+          "transfer": 0,
+          "encoded": 1713126
+        },
+        "css": {
+          "requests": 18,
+          "transfer": 0,
+          "encoded": 373430
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 46232
+        }
+      }
+    },
+    {
+      "lcp": 536,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 30398,
+          "encoded": 30098,
+          "ms": 3.1000000000931323
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 320,
+      "route": "/heichal",
+      "warm": false,
+      "observedMs": 2487,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 58,
+          "transfer": 1192004,
+          "encoded": 1174604
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 256215,
+          "encoded": 254115
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 46832,
+          "encoded": 46232
+        }
+      }
+    },
+    {
+      "lcp": 408,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 0,
+          "encoded": 30098,
+          "ms": 0
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 320,
+      "route": "/heichal",
+      "warm": true,
+      "observedMs": 2356,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 58,
+          "transfer": 0,
+          "encoded": 1174604
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 0,
+          "encoded": 254115
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 46232
+        }
+      }
+    },
+    {
+      "lcp": 600,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 30398,
+          "encoded": 30098,
+          "ms": 2.2000000001862645
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 320,
+      "route": "/books",
+      "warm": false,
+      "observedMs": 2521,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 45,
+          "transfer": 1115395,
+          "encoded": 1101895
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 272343,
+          "encoded": 270243
+        },
+        "webp": {
+          "requests": 3,
+          "transfer": 87402,
+          "encoded": 86502
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 10007,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 380,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 0,
+          "encoded": 30098,
+          "ms": 0
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 320,
+      "route": "/books",
+      "warm": true,
+      "observedMs": 2344,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 45,
+          "transfer": 0,
+          "encoded": 1101895
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 0,
+          "encoded": 270243
+        },
+        "webp": {
+          "requests": 3,
+          "transfer": 0,
+          "encoded": 86502
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 300,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 516,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 30398,
+          "encoded": 30098,
+          "ms": 3.199999999953434
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 390,
+      "route": "/world",
+      "warm": false,
+      "observedMs": 2451,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 106,
+          "transfer": 1744926,
+          "encoded": 1713126
+        },
+        "css": {
+          "requests": 18,
+          "transfer": 378830,
+          "encoded": 373430
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 46832,
+          "encoded": 46232
+        }
+      }
+    },
+    {
+      "lcp": 428,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 0,
+          "encoded": 30098,
+          "ms": 0
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 390,
+      "route": "/world",
+      "warm": true,
+      "observedMs": 2362,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 106,
+          "transfer": 0,
+          "encoded": 1713126
+        },
+        "css": {
+          "requests": 18,
+          "transfer": 0,
+          "encoded": 373430
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 46232
+        }
+      }
+    },
+    {
+      "lcp": 520,
+      "cls": 0.00023782526115859447,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 30398,
+          "encoded": 30098,
+          "ms": 3.300000000046566
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 390,
+      "route": "/heichal",
+      "warm": false,
+      "observedMs": 2466,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 58,
+          "transfer": 1192004,
+          "encoded": 1174604
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 256215,
+          "encoded": 254115
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 46832,
+          "encoded": 46232
+        }
+      }
+    },
+    {
+      "lcp": 432,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 0,
+          "encoded": 30098,
+          "ms": 0
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 390,
+      "route": "/heichal",
+      "warm": true,
+      "observedMs": 2350,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 58,
+          "transfer": 0,
+          "encoded": 1174604
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 0,
+          "encoded": 254115
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 46232
+        }
+      }
+    },
+    {
+      "lcp": 476,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 30398,
+          "encoded": 30098,
+          "ms": 2.300000000046566
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 390,
+      "route": "/books",
+      "warm": false,
+      "observedMs": 2422,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 45,
+          "transfer": 1115395,
+          "encoded": 1101895
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 272343,
+          "encoded": 270243
+        },
+        "webp": {
+          "requests": 3,
+          "transfer": 87402,
+          "encoded": 86502
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 10007,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 380,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [
+        {
+          "url": "royal-palace-mobile-bc3e82850af6.webp",
+          "transfer": 0,
+          "encoded": 30098,
+          "ms": 0
+        }
+      ],
+      "introHeight": 357.375,
+      "version": "after",
+      "width": 390,
+      "route": "/books",
+      "warm": true,
+      "observedMs": 2340,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 45,
+          "transfer": 0,
+          "encoded": 1101895
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 0,
+          "encoded": 270243
+        },
+        "webp": {
+          "requests": 3,
+          "transfer": 0,
+          "encoded": 86502
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 556,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 89434,
+          "encoded": 89134,
+          "ms": 1.7000000001862645
+        }
+      ],
+      "introHeight": 367.375,
+      "version": "after",
+      "width": 768,
+      "route": "/world",
+      "warm": false,
+      "observedMs": 2447,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 106,
+          "transfer": 1744926,
+          "encoded": 1713126
+        },
+        "css": {
+          "requests": 18,
+          "transfer": 378830,
+          "encoded": 373430
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 105868,
+          "encoded": 105268
+        }
+      }
+    },
+    {
+      "lcp": 500,
+      "cls": 6.487811053240741e-07,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 0,
+          "encoded": 89134,
+          "ms": 0
+        }
+      ],
+      "introHeight": 367.375,
+      "version": "after",
+      "width": 768,
+      "route": "/world",
+      "warm": true,
+      "observedMs": 2388,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 106,
+          "transfer": 0,
+          "encoded": 1713126
+        },
+        "css": {
+          "requests": 18,
+          "transfer": 0,
+          "encoded": 373430
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 105268
+        }
+      }
+    },
+    {
+      "lcp": 564,
+      "cls": 0.0001098293728298611,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 89434,
+          "encoded": 89134,
+          "ms": 5.2000000001862645
+        }
+      ],
+      "introHeight": 341.78125,
+      "version": "after",
+      "width": 768,
+      "route": "/heichal",
+      "warm": false,
+      "observedMs": 2431,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 58,
+          "transfer": 1192004,
+          "encoded": 1174604
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 256215,
+          "encoded": 254115
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 105868,
+          "encoded": 105268
+        }
+      }
+    },
+    {
+      "lcp": 468,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 0,
+          "encoded": 89134,
+          "ms": 0
+        }
+      ],
+      "introHeight": 341.78125,
+      "version": "after",
+      "width": 768,
+      "route": "/heichal",
+      "warm": true,
+      "observedMs": 2352,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 58,
+          "transfer": 0,
+          "encoded": 1174604
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 0,
+          "encoded": 254115
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 105268
+        }
+      }
+    },
+    {
+      "lcp": 640,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 89434,
+          "encoded": 89134,
+          "ms": 2.3999999999068677
+        }
+      ],
+      "introHeight": 341.78125,
+      "version": "after",
+      "width": 768,
+      "route": "/books",
+      "warm": false,
+      "observedMs": 2524,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 45,
+          "transfer": 1115395,
+          "encoded": 1101895
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 272343,
+          "encoded": 270243
+        },
+        "webp": {
+          "requests": 3,
+          "transfer": 146438,
+          "encoded": 145538
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 10007,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 428,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 0,
+          "encoded": 89134,
+          "ms": 0
+        }
+      ],
+      "introHeight": 341.78125,
+      "version": "after",
+      "width": 768,
+      "route": "/books",
+      "warm": true,
+      "observedMs": 2349,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 45,
+          "transfer": 0,
+          "encoded": 1101895
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 0,
+          "encoded": 270243
+        },
+        "webp": {
+          "requests": 3,
+          "transfer": 0,
+          "encoded": 145538
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 536,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 89434,
+          "encoded": 89134,
+          "ms": 1.4000000001396984
+        }
+      ],
+      "introHeight": 381.78125,
+      "version": "after",
+      "width": 1440,
+      "route": "/world",
+      "warm": false,
+      "observedMs": 2447,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 106,
+          "transfer": 1744926,
+          "encoded": 1713126
+        },
+        "css": {
+          "requests": 18,
+          "transfer": 378830,
+          "encoded": 373430
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 105868,
+          "encoded": 105268
+        }
+      }
+    },
+    {
+      "lcp": 428,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "world",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 0,
+          "encoded": 89134,
+          "ms": 0
+        }
+      ],
+      "introHeight": 381.78125,
+      "version": "after",
+      "width": 1440,
+      "route": "/world",
+      "warm": true,
+      "observedMs": 2368,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 106,
+          "transfer": 0,
+          "encoded": 1713126
+        },
+        "css": {
+          "requests": 18,
+          "transfer": 0,
+          "encoded": 373430
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 105268
+        }
+      }
+    },
+    {
+      "lcp": 540,
+      "cls": 2.5716145833333334e-05,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 89434,
+          "encoded": 89134,
+          "ms": 3.0999999998603016
+        }
+      ],
+      "introHeight": 356.1875,
+      "version": "after",
+      "width": 1440,
+      "route": "/heichal",
+      "warm": false,
+      "observedMs": 2426,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 58,
+          "transfer": 1192004,
+          "encoded": 1174604
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 256215,
+          "encoded": 254115
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 105868,
+          "encoded": 105268
+        }
+      }
+    },
+    {
+      "lcp": 488,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "heichal",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 0,
+          "encoded": 89134,
+          "ms": 0
+        }
+      ],
+      "introHeight": 356.1875,
+      "version": "after",
+      "width": 1440,
+      "route": "/heichal",
+      "warm": true,
+      "observedMs": 2365,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 58,
+          "transfer": 0,
+          "encoded": 1174604
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 0,
+          "encoded": 254115
+        },
+        "webp": {
+          "requests": 2,
+          "transfer": 0,
+          "encoded": 105268
+        }
+      }
+    },
+    {
+      "lcp": 528,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 89434,
+          "encoded": 89134,
+          "ms": 2.2000000001862645
+        }
+      ],
+      "introHeight": 356.1875,
+      "version": "after",
+      "width": 1440,
+      "route": "/books",
+      "warm": false,
+      "observedMs": 2410,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 74048,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 45,
+          "transfer": 1115395,
+          "encoded": 1101895
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 272343,
+          "encoded": 270243
+        },
+        "webp": {
+          "requests": 3,
+          "transfer": 146438,
+          "encoded": 145538
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 10007,
+          "encoded": 9707
+        }
+      }
+    },
+    {
+      "lcp": 476,
+      "cls": 0,
+      "overflow": false,
+      "intros": 1,
+      "h1": 1,
+      "icon": "books",
+      "images": [
+        {
+          "url": "royal-palace-desktop-61280d3bdc55.webp",
+          "transfer": 0,
+          "encoded": 89134,
+          "ms": 0
+        }
+      ],
+      "introHeight": 356.1875,
+      "version": "after",
+      "width": 1440,
+      "route": "/books",
+      "warm": true,
+      "observedMs": 2348,
+      "resourceTotals": {
+        "woff2": {
+          "requests": 4,
+          "transfer": 0,
+          "encoded": 72848
+        },
+        "js": {
+          "requests": 45,
+          "transfer": 0,
+          "encoded": 1101895
+        },
+        "css": {
+          "requests": 7,
+          "transfer": 0,
+          "encoded": 270243
+        },
+        "webp": {
+          "requests": 3,
+          "transfer": 0,
+          "encoded": 145538
+        },
+        "other": {
+          "requests": 1,
+          "transfer": 0,
+          "encoded": 9707
+        }
+      }
+    }
+  ],
+  "audit": {
+    "blocked": [
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/link_identity",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/track_visit",
+        "method": "POST"
+      }
+    ],
+    "fixture": "Heichal lock disabled in browser responses only; every other response is a cached public read."
+  }
+}

@@ -1,57 +1,31 @@
-/* Shared content intro. Media/story composition belongs to the page body.
-   Keep the global topbar, navigation rail and command island independent. */
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] {
-  display:grid;grid-template-columns:48px minmax(0,1fr);align-items:center;
-  min-height:0;padding:12px 16px;gap:12px;border-radius:16px;
-  background:var(--s29-panel);box-shadow:none;overflow:hidden;
+/* Structural geometry is eager: title, links and reserved help slot never wait
+   for the optional Royal artwork. No layout changes when that chunk arrives. */
+.native-frame .sod29-page-intro[data-intro-variant] {
+  position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;
+  min-height:0;padding:16px 24px;gap:10px;border-radius:0;overflow:visible;
+  background:none;color:var(--s29-ink);text-align:center;border:0;box-shadow:none;
 }
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant]::before {
-  background:none;border-block-start:1px solid color-mix(in srgb,var(--s29-brand-gold) 70%,var(--s29-line));pointer-events:none;
+.native-frame .sod29-page-intro[data-intro-variant]::before,
+.native-frame .sod29-page-intro[data-intro-variant]::after {display:none}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-visual {
+  position:relative;inset:auto;aspect-ratio:auto;width:44px;height:44px;min-height:0;opacity:1;display:grid;place-items:center;
 }
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-visual {
-  position:relative;inset:auto;aspect-ratio:auto;width:48px;height:48px;
-  min-height:0;opacity:1;display:grid;place-items:center;perspective:400px;
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol {
+  width:44px;height:44px;border-radius:50%;color:var(--s29-accent-text);background:var(--s29-panel-soft);
 }
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol {
-  width:44px;height:44px;border-radius:12px;background:var(--s29-panel-soft);
-  color:var(--s29-accent-text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--s29-brand-gold) 55%,transparent);transform-style:preserve-3d;
-  transition:transform 180ms ease-out;
-}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .ring {
-  width:48px;height:48px;inset:0;box-shadow:none;animation:none;
-  border-color:color-mix(in srgb,var(--s29-brand-gold) 65%,var(--s29-line-strong));pointer-events:none;
-  transition:transform 180ms ease-out;
-}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .ring-b {inset:4px;width:40px;height:40px;opacity:.45}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .ring-c {display:none}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-copy {
-  min-width:0;max-width:none;overflow-wrap:anywhere;
-}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] h1 {
-  font-size:clamp(22px,2vw,28px);line-height:1.25;margin:0;
-}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] p {
-  font-size:var(--s29-type-ui,16px);line-height:1.5;margin:4px 0 0;max-width:85ch;
-}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-eyebrow {
-  font-size:var(--s29-type-micro,14px);line-height:1.4;letter-spacing:0;margin:0 0 2px;
-}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-context-strip {margin-top:6px}
-@media(hover:hover) {
-  .sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-visual:hover .sod29-hero-symbol {transform:rotateX(8deg) rotateY(-10deg) translateY(-1px)}
-}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-visual:active .sod29-hero-symbol {transform:scale(.92) rotateX(-6deg)}
-@media(max-width:720px) {
-  .sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] {padding:10px 12px;gap:10px;grid-template-columns:44px minmax(0,1fr)}
-  .sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-visual {width:44px;height:44px}
-  .sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .ring {width:44px;height:44px}
-  .sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .ring-b {width:36px;height:36px}
-}
-@media(prefers-reduced-motion:reduce) {
-  .sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol {transform:none!important;transition:none!important}
-}
-.sod29-root.closed-shell.native-frame[data-frame-reduced-motion="true"] .sod29-page-intro[data-intro-variant] .sod29-hero-symbol {transform:none!important;transition:none!important}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol svg {width:28px;height:28px}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-copy {width:100%;min-width:0;max-width:none;overflow-wrap:anywhere;text-align:center}
+.native-frame .sod29-page-intro[data-intro-variant] h1 {font-size:clamp(24px,2.4vw,32px);font-weight:740;line-height:1.2;margin:0;text-align:center}
+.native-frame .sod29-page-intro[data-intro-variant] p {font-size:var(--s29-type-ui,16px);line-height:1.6;margin:8px auto 0;max-width:58ch}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-eyebrow {font-size:var(--s29-type-micro,14px);line-height:1.4;letter-spacing:0;margin:0 0 6px;justify-content:center}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-context-strip {justify-content:center;flex-wrap:wrap;margin-top:8px;gap:8px}
+.sod29-page-intro .sod29-context-strip :is(a,button) {min-height:44px;display:inline-flex;align-items:center;justify-content:center;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:650px) {.native-frame .sod29-page-intro[data-intro-variant] {padding:14px 12px;gap:10px}}
 
-/* The former travelling edge light overflowed narrow RTL intros. */
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant]::after {display:none}
-.sod29-root.closed-shell.native-frame .sod29-page-intro[data-intro-variant] .ring::after {width:3px;height:3px;box-shadow:none}
+.sod29-page-intro .sod29-context-strip :is(a,button) {padding:0 16px;border-radius:999px}
+
+/* Full is explicit opt-in; legacy hero callers inherit Compact. */
+.native-frame .sod29-page-intro[data-intro-variant="full"] {padding-block:72px 20px;gap:16px}
+
+
+.sod29-main[data-royal-intro]{position:relative;isolation:isolate}
