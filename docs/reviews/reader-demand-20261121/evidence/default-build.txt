@@ -1,0 +1,7 @@
+2029 shell budget (gzip bytes / files, from dist/.vite/manifest.json)
+  eagerJsFiles   baseline      17  now      17  delta      +0  limit      17  ok
+  eagerJsGzip    baseline  176524  now  176534  delta     +10  limit  177548  ok
+  frameJsFiles   baseline       3  now       3  delta      +0  limit       3  ok
+  frameJsGzip    baseline   45966  now   46134  delta    +168  limit   46990  ok
+  frameCssGzip   baseline   33850  now   34213  delta    +363  limit   34362  ok
+2029 shell budget: PASS

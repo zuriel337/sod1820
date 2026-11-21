@@ -1,0 +1,99 @@
+{
+  "observations": 24,
+  "main": "886f80db20a6cf21d655a7766d1595766cbd32cd",
+  "candidate_code": "dd75987",
+  "rounds": 3,
+  "max_cls": 0.054684651841049946,
+  "page_errors": 0,
+  "overflow": 0,
+  "groups": [
+    {
+      "width": 390,
+      "visit": "first",
+      "main": {
+        "n": 3,
+        "useful_median": 487.1,
+        "lcp_median": 1296,
+        "cls_max": 3.7970278286996803e-05,
+        "lcp_elements": [
+          "ARTICLE sod29-reading-post https://sod1820.co.il/legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp"
+        ]
+      },
+      "royal": {
+        "n": 3,
+        "useful_median": 489.6,
+        "lcp_median": 1152,
+        "cls_max": 3.7970278286996803e-05,
+        "lcp_elements": [
+          "IMG  https://sod1820.co.il/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif"
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "visit": "return",
+      "main": {
+        "n": 3,
+        "useful_median": 341.4,
+        "lcp_median": 376,
+        "cls_max": 0.054684651841049946,
+        "lcp_elements": [
+          "ARTICLE sod29-reading-post https://sod1820.co.il/legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp"
+        ]
+      },
+      "royal": {
+        "n": 3,
+        "useful_median": 345.8,
+        "lcp_median": 320,
+        "cls_max": 0.054684651841049946,
+        "lcp_elements": [
+          "IMG  https://sod1820.co.il/backgrounds/2029/royal-connected-mobile-ee14537e1801.avif"
+        ]
+      }
+    },
+    {
+      "width": 1440,
+      "visit": "first",
+      "main": {
+        "n": 3,
+        "useful_median": 482.7,
+        "lcp_median": 1112,
+        "cls_max": 0.006854286886667845,
+        "lcp_elements": [
+          "ARTICLE sod29-reading-post https://sod1820.co.il/legacy-dark-bg-post-1280-6ca0167e2dda.webp"
+        ]
+      },
+      "royal": {
+        "n": 3,
+        "useful_median": 488.1,
+        "lcp_median": 1296,
+        "cls_max": 0.006854286886667845,
+        "lcp_elements": [
+          "IMG  https://sod1820.co.il/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif"
+        ]
+      }
+    },
+    {
+      "width": 1440,
+      "visit": "return",
+      "main": {
+        "n": 3,
+        "useful_median": 373.6,
+        "lcp_median": 488,
+        "cls_max": 0.03147191358024691,
+        "lcp_elements": [
+          "ARTICLE sod29-reading-post https://sod1820.co.il/legacy-dark-bg-post-1280-6ca0167e2dda.webp"
+        ]
+      },
+      "royal": {
+        "n": 3,
+        "useful_median": 395.2,
+        "lcp_median": 332,
+        "cls_max": 0.03147191358024691,
+        "lcp_elements": [
+          "IMG  https://sod1820.co.il/backgrounds/2029/royal-connected-desktop-7cad736e16eb.avif"
+        ]
+      }
+    }
+  ]
+}

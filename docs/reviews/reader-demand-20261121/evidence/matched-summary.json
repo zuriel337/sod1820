@@ -1,0 +1,457 @@
+{
+  "observations": 144,
+  "expected": 144,
+  "conditions": {
+    "rounds": 3,
+    "widths": [
+      390,
+      1440
+    ],
+    "shared_downlink_kbps": 1600,
+    "response_delay_ms": 150,
+    "cpu_slowdown": 4,
+    "http": "HTTP/2 + gzip",
+    "tls": "local fixture SPKI pinned",
+    "visit": "new empty browser context then navigate away and return, HTTP cache retained",
+    "baseline": "886f80db20a6cf21d655a7766d1595766cbd32cd",
+    "candidate_runtime": "1d68c34449918bf11858e72b4ac734cd982bb4c3"
+  },
+  "medians": [
+    {
+      "route": "home",
+      "width": 390,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 4505.2,
+      "useful_after": 4230.3,
+      "lcp_before": 3736,
+      "lcp_after": 744,
+      "cls_max_before": 0,
+      "cls_max_after": 0,
+      "lcp_elements_before": [
+        "DIV h29 h29-launch h29-home-cosmos"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "home",
+      "width": 390,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1572.8,
+      "useful_after": 1591.6,
+      "lcp_before": 1288,
+      "lcp_after": 312,
+      "cls_max_before": 0,
+      "cls_max_after": 0,
+      "lcp_elements_before": [
+        "DIV h29 h29-launch h29-home-cosmos"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "home",
+      "width": 1440,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 4622.6,
+      "useful_after": 4223.6,
+      "lcp_before": 3692,
+      "lcp_after": 792,
+      "cls_max_before": 0,
+      "cls_max_after": 0,
+      "lcp_elements_before": [
+        "DIV h29 h29-launch h29-home-cosmos"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "home",
+      "width": 1440,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1724.1,
+      "useful_after": 1696.3,
+      "lcp_before": 1532,
+      "lcp_after": 300,
+      "cls_max_before": 0,
+      "cls_max_after": 0,
+      "lcp_elements_before": [
+        "DIV h29 h29-launch h29-home-cosmos"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "world",
+      "width": 390,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 4951,
+      "useful_after": 4884,
+      "lcp_before": 6760,
+      "lcp_after": 740,
+      "cls_max_before": 0.038097005612159965,
+      "cls_max_after": 0.00017040612613883165,
+      "lcp_elements_before": [
+        "IMG "
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "world",
+      "width": 390,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1724.9,
+      "useful_after": 1659.2,
+      "lcp_before": 3360,
+      "lcp_after": 268,
+      "cls_max_before": 6.374330462173138e-05,
+      "cls_max_after": 0.00012269383939889504,
+      "lcp_elements_before": [
+        "IMG "
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "world",
+      "width": 1440,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 5006.6,
+      "useful_after": 4997.6,
+      "lcp_before": 7424,
+      "lcp_after": 792,
+      "cls_max_before": 0.018681357385036228,
+      "cls_max_after": 3.9165899750300065e-05,
+      "lcp_elements_before": [
+        "IMG "
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "world",
+      "width": 1440,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1681.8,
+      "useful_after": 1740.2,
+      "lcp_before": 3440,
+      "lcp_after": 284,
+      "cls_max_before": 2.780565803433642e-05,
+      "cls_max_after": 2.6584494424618483e-05,
+      "lcp_elements_before": [
+        "IMG "
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "books",
+      "width": 390,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 3594.4,
+      "useful_after": 3515,
+      "lcp_before": 3600,
+      "lcp_after": 752,
+      "cls_max_before": 2.5814815080782965e-05,
+      "cls_max_after": 7.469583687170964e-05,
+      "lcp_elements_before": [
+        "P books29-card-summary"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "books",
+      "width": 390,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1428.3,
+      "useful_after": 1361.6,
+      "lcp_before": 1428,
+      "lcp_after": 300,
+      "cls_max_before": 1.2834994336438177e-05,
+      "cls_max_after": 1.2837244067046436e-05,
+      "lcp_elements_before": [
+        "P books29-card-summary"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "books",
+      "width": 1440,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 3666.2,
+      "useful_after": 3638.4,
+      "lcp_before": 3760,
+      "lcp_after": 788,
+      "cls_max_before": 6.971646532600309e-05,
+      "cls_max_after": 0.0001286178609798311,
+      "lcp_elements_before": [
+        "P books29-card-summary"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "books",
+      "width": 1440,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1451.6,
+      "useful_after": 1479.7,
+      "lcp_before": 1568,
+      "lcp_after": 292,
+      "cls_max_before": 2.234489535108025e-05,
+      "cls_max_after": 1.4919202514146092e-05,
+      "lcp_elements_before": [
+        "P books29-card-summary"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "code",
+      "width": 390,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 3746,
+      "useful_after": 3746.6,
+      "lcp_before": 568,
+      "lcp_after": 776,
+      "cls_max_before": 0.040858877663303074,
+      "cls_max_after": 0.014427069070041274,
+      "lcp_elements_before": [
+        "IMG "
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "code",
+      "width": 390,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1112.8,
+      "useful_after": 1122.3,
+      "lcp_before": 236,
+      "lcp_after": 236,
+      "cls_max_before": 0.014240257627090698,
+      "cls_max_after": 0.01425195482017202,
+      "lcp_elements_before": [
+        "IMG "
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "code",
+      "width": 1440,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 3740.7,
+      "useful_after": 3809.1,
+      "lcp_before": 568,
+      "lcp_after": 804,
+      "cls_max_before": 0.05332824042258763,
+      "cls_max_after": 0.03878100529842089,
+      "lcp_elements_before": [
+        "IMG "
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "code",
+      "width": 1440,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1157.6,
+      "useful_after": 1176.4,
+      "lcp_before": 260,
+      "lcp_after": 276,
+      "cls_max_before": 0.033288520090864526,
+      "cls_max_after": 0.03820248608164009,
+      "lcp_elements_before": [
+        "IMG "
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "post",
+      "width": 390,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 4347.6,
+      "useful_after": 4340.5,
+      "lcp_before": 4476,
+      "lcp_after": 748,
+      "cls_max_before": 9.926936308938622e-06,
+      "cls_max_after": 9.908376031420493e-06,
+      "lcp_elements_before": [
+        "ARTICLE sod29-reading-post is-architecture-wireframe"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "post",
+      "width": 390,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1535.6,
+      "useful_after": 1501.8,
+      "lcp_before": 1572,
+      "lcp_after": 1460,
+      "cls_max_before": 0.05468828178138637,
+      "cls_max_after": 0.05468656383085064,
+      "lcp_elements_before": [
+        "ARTICLE sod29-reading-post is-architecture-wireframe"
+      ],
+      "lcp_elements_after": [
+        "P "
+      ]
+    },
+    {
+      "route": "post",
+      "width": 1440,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 4568.2,
+      "useful_after": 4434.3,
+      "lcp_before": 4832,
+      "lcp_after": 800,
+      "cls_max_before": 0.0052056445212030605,
+      "cls_max_after": 0.005206674114797668,
+      "lcp_elements_before": [
+        "ARTICLE sod29-reading-post is-architecture-wireframe"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "post",
+      "width": 1440,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 1504,
+      "useful_after": 1506.1,
+      "lcp_before": 1652,
+      "lcp_after": 288,
+      "cls_max_before": 0.03132406176657343,
+      "cls_max_after": 0.03132052633235811,
+      "lcp_elements_before": [
+        "ARTICLE sod29-reading-post is-architecture-wireframe"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "imported",
+      "width": 390,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 483.8,
+      "useful_after": 491.4,
+      "lcp_before": 1332,
+      "lcp_after": 1156,
+      "cls_max_before": 3.7970278286996803e-05,
+      "cls_max_after": 3.7970278286996803e-05,
+      "lcp_elements_before": [
+        "ARTICLE sod29-reading-post"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "imported",
+      "width": 390,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 346.9,
+      "useful_after": 421.9,
+      "lcp_before": 388,
+      "lcp_after": 324,
+      "cls_max_before": 0.054684651841049946,
+      "cls_max_after": 0.7583337940781619,
+      "lcp_elements_before": [
+        "ARTICLE sod29-reading-post"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "imported",
+      "width": 1440,
+      "visit": "first",
+      "n": 3,
+      "useful_before": 512.8,
+      "useful_after": 526.6,
+      "lcp_before": 1140,
+      "lcp_after": 1260,
+      "cls_max_before": 0.006854286886667845,
+      "cls_max_after": 0.006854286886667845,
+      "lcp_elements_before": [
+        "ARTICLE sod29-reading-post"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    },
+    {
+      "route": "imported",
+      "width": 1440,
+      "visit": "return",
+      "n": 3,
+      "useful_before": 373,
+      "useful_after": 377.7,
+      "lcp_before": 496,
+      "lcp_after": 324,
+      "cls_max_before": 0.03158559067965535,
+      "cls_max_after": 0.4818422839506173,
+      "lcp_elements_before": [
+        "ARTICLE sod29-reading-post"
+      ],
+      "lcp_elements_after": [
+        "IMG "
+      ]
+    }
+  ],
+  "max_cls": 0.7583337940781619,
+  "overflow": 0,
+  "page_errors": [],
+  "return_static_transfers": []
+}
