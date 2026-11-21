@@ -104,6 +104,11 @@ function installPublicReadingWorker(policy) {
   const communityResponse = async req => {
     const url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
+    if (policy.integrationReview && !safeMethods.has(req.method)
+      && !(req.method === "POST" && url.origin === authOrigin && reads.has(rpc))) {
+      event.respondWith(denied());
+      return;
+    }
     const names = new Set(["add_contribution", "toggle_contribution_reaction", "contributors_claim_legacy", "community_message_actions_v1", "community_edit_message", "community_delete_message",
       // Presence heartbeat and guest-review moderation (ZURIEL, 8.11.2026): each DB function
       // already requires a real signed-in account (grant to authenticated, or self-checked
@@ -591,10 +596,10 @@ function installPublicReadingWorker(policy) {
   });
 }
 
-export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
+export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "", integrationReview = false } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
   return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
-    sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityFeedFields: COMMUNITY_FEED_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
+    sourceSha, anonKey, integrationReview, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityFeedFields: COMMUNITY_FEED_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
 // One deadline covers register, install, ready, controller and policy handshake.

@@ -9,6 +9,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { personalActionsLocked } from "../../lib/publicLaunch2029.js";
 import { postActionTarget2029, postActionUnits2029 } from "../../lib/research/postActionTarget2029.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { mapIntegrationReview, readMapReviewValue, writeMapReviewValue } from "../../lib/research/mapIntegrationReviewStorage.js";
 import { entityIdentity } from "../../lib/research/researchSyncState.js";
 import "./royal2029.css";
 import "./postReadingActions2029.css";
@@ -48,6 +49,7 @@ function PostTargetActions({ target, image, onDraft }) {
   const navigate = useNavigate();
   const [note, setNote] = useState("");
   const [opening, setOpening] = useState(false);
+  const [reviewSaved, setReviewSaved] = useState(() => mapIntegrationReview && readMapReviewValue("saved", target.ref, false));
   const inResearch = (research.cart || []).some(item => entityIdentity(item) === entityIdentity(target.entity));
 
   const add = () => {
@@ -88,13 +90,19 @@ function PostTargetActions({ target, image, onDraft }) {
   return <div className="r29 post-reading-actions" data-post-action-target={target.ref} role="group"
     aria-label={target.unitId ? `פעולות ליחידה · ${target.title}` : "פעולות לפוסט"}>
     <div className="post-reading-action-row">
-      <PersonalSaveButton2029 entity={target.entity} royal />
+      {mapIntegrationReview ? <button type="button" className="r29-btn is-quiet" aria-pressed={reviewSaved}
+        aria-label={reviewSaved ? "נשמר בדפדפן הבדיקה" : "שמירת בדיקה"}
+        onClick={() => {
+          if (writeMapReviewValue("saved", target.ref, true)) setReviewSaved(true);
+          else setNote("לא ניתן לשמור בדפדפן הזה.");
+        }}><NavigationIcon2029 name={reviewSaved ? "check" : "save"} size={18} /><span>{reviewSaved ? "נשמר" : "שמירת בדיקה"}</span></button>
+        : <PersonalSaveButton2029 entity={target.entity} royal />}
       <button type="button" className="r29-btn is-quiet" aria-haspopup="dialog" aria-label="שיתוף" title="שיתוף" onClick={share}>
         <NavigationIcon2029 name="share" size={18} /> <span>שיתוף</span>
       </button>
-      <button type="button" className="r29-btn is-quiet" onClick={add} aria-label={researchLabel} title={researchLabel} aria-pressed={inResearch} disabled={inResearch}>
+      {!mapIntegrationReview ? <button type="button" className="r29-btn is-quiet" onClick={add} aria-label={researchLabel} title={researchLabel} aria-pressed={inResearch} disabled={inResearch}>
         <NavigationIcon2029 name="research" size={18} /> <span>{researchLabel}</span>
-      </button>
+      </button> : null}
       <button type="button" className="r29-btn is-quiet" onClick={reply} aria-label={replyLabel} title={replyLabel} disabled={opening}>
         <NavigationIcon2029 name="conversation" size={18} /> <span>תגובה</span>
       </button>

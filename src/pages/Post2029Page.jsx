@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
@@ -33,6 +33,8 @@ import { seriesLatestSeenKey } from "../lib/nowPublications2029.js";
 import { contentSeriesKeysForPost } from "../lib/research/contentSeries2029Identity.js";
 import { previewUnitIdsFor } from "../lib/research/postPreviewUnits2029.js";
 import PublishedUnitTraces2029 from "../components/experience2029/PublishedUnitTraces2029.jsx";
+import { mapIntegrationReview } from "../lib/research/mapIntegrationReviewStorage.js";
+import { compactMapUnitHtml, mapUnitReading, mapWorldHref } from "../lib/research/mapUnitReading2029.js";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
 import { setPostUnits, setActivePostUnit, clearPostUnits, unitContextStrings } from "../lib/research/postUnitStore2029.js";
 const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/experience2029/PostExternalSourcesPreview2029.jsx"));
@@ -103,7 +105,7 @@ function toolOnApproach2029(load, title) {
 // The timeline lives inside "מקורות וקשרים": it loads when that section is opened (as its measures do), or when the address points at it.
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
 const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
-const discussionReviewEnabled = import.meta.env.DEV && import.meta.env.VITE_POST_DISCUSSION_REVIEW === "true";
+const discussionReviewEnabled = mapIntegrationReview || import.meta.env.DEV && import.meta.env.VITE_POST_DISCUSSION_REVIEW === "true";
 const PostDiscussionReview2029 = discussionReviewEnabled
   ? toolOnOpen2029(() => import("../components/experience2029/PostDiscussionReview2029.jsx")) : null;
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
@@ -155,8 +157,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const imageFacts = documentImageFactsFor(state.projection?.post?.id);   // the widths the first document was built with, if any
   const passiveSourceHtml = useMemo(() => {
     // The one article pipeline, shared with the first document (postArticlePipeline2029.js).
-    return postArticleSourceHtml2029(state.projection?.post?.content || "", { postId: state.projection?.post?.id, voice: postVoice, annotate: protoOn, cover: state.projection?.post?.image_url || "", facts: imageFacts });
-  }, [state.projection?.post?.content, state.projection?.post?.id, state.projection?.post?.image_url, postVoice, protoOn, imageFacts]);
+    const html = postArticleSourceHtml2029(state.projection?.post?.content || "", { postId: state.projection?.post?.id, voice: postVoice, annotate: protoOn, cover: state.projection?.post?.image_url || "", facts: imageFacts });
+    return import.meta.env.VITE_REALITY_MAP_PREVIEW === "true" && protoOn && realityMap.active && !editorEnabled ? compactMapUnitHtml(html, state.projection?.post?.id) : html;
+  }, [realityMap.active, editorEnabled, state.projection?.post?.content, state.projection?.post?.id, state.projection?.post?.image_url, postVoice, protoOn, imageFacts]);
 
   // The first-document article (OLD_POST_ARTICLE_FIRST, ZURIEL 16.11.2026): adopt its body nodes instead of rendering the article a second
   // time, only when they are exactly this page's article; the reader stays on the same place. Otherwise this page's article replaces it once.
@@ -444,6 +447,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       const line = window.innerHeight * 0.38;
       let best = null;
       for (const unit of root.querySelectorAll("[data-sod-unit]")) {
+        if (!unit.getClientRects().length) continue;
         const box = unit.getBoundingClientRect();
         if (box.top <= line && box.bottom >= line) { best = unit; break; }
         if (box.top <= line) best = unit;
@@ -921,6 +925,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const { projection } = state;
   const { post } = projection;
   const postActionTarget = postActionTarget2029(projection);
+  const mapUnit = mapIntegrationReview ? mapUnitReading(post.id) : null;
+  const worldReturn = mapUnit && location.state?.mapWorldUnit === mapUnit.key ? mapWorldHref(mapUnit.key) : null;
   const coverItem = postReadingCoverYieldsToVideo2029(post) ? null : postReadingCoverItem(post);
   const character = postCharacterFor(post);
   const matrixOpening = matrixOpeningFor(post);
@@ -1379,6 +1385,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div>
       {postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml}
         onDraft={discussionReviewEnabled ? target => setDiscussionDraft(current => current?.postId === target.postId ? current : target) : undefined} /> : null}
+      {mapUnit ? <div className="sod29-actions" aria-label="מסלול הבדיקה">
+        <Link className="sod29-action" to={worldReturn || mapWorldHref(mapUnit.key)}>{worldReturn ? "חזרה לאותה בחירה בעולם" : "לקשר בעולם"}</Link>
+        <small>שמירה ותגובות בפריוויו זה נשמרות בדפדפן הבדיקה.</small>
+      </div> : null}
     </header>
 
     {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
@@ -1533,7 +1543,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div>
     </details>
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
-    {discussionReviewEnabled && postActionTarget ? <PostDiscussionReview2029 key={post.id} post={post}
+    {discussionReviewEnabled && postActionTarget ? <PostDiscussionReview2029 key={post.id} post={post} browserReview={mapIntegrationReview}
       draftTarget={discussionDraft?.postId === post.id ? discussionDraft : null} onDraftClosed={() => setDiscussionDraft(null)} />
       : commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}

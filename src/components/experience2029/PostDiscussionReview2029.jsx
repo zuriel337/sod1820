@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { supabase } from "../../lib/supabase.js";
 import { publicPostUnitHref } from "../../lib/publicPostUrls.js";
+import { readMapReviewValue, writeMapReviewValue } from "../../lib/research/mapIntegrationReviewStorage.js";
 import { archiveCommentText } from "./postComments2029.js";
 import "./postComments2029.css";
 
-export default function PostDiscussionReview2029({ post, draftTarget, onDraftClosed }) {
+export default function PostDiscussionReview2029({ post, draftTarget, onDraftClosed, browserReview = false }) {
   const auth = useAuth();
   const input = useRef(null);
   const [rows, setRows] = useState([]);
@@ -16,6 +17,10 @@ export default function PostDiscussionReview2029({ post, draftTarget, onDraftClo
   const [writeError, setWriteError] = useState(false);
 
   useEffect(() => {
+    if (browserReview) {
+      setRows(readMapReviewValue("discussion", post.id, []));
+      return undefined;
+    }
     let current = true;
     supabase.rpc("post_discussion_read_v1", { p_post_id: post.id }).then(({ data, error }) => {
       if (!current) return;
@@ -23,7 +28,7 @@ export default function PostDiscussionReview2029({ post, draftTarget, onDraftClo
       if (!error) setRows(data || []);
     }).catch(() => { if (current) setReadError(true); });
     return () => { current = false; };
-  }, [post.id, revision]);
+  }, [post.id, revision, browserReview]);
 
   useEffect(() => {
     if (draftTarget) input.current?.focus();
@@ -31,7 +36,18 @@ export default function PostDiscussionReview2029({ post, draftTarget, onDraftClo
 
   async function submit(event) {
     event.preventDefault();
-    if (!draftTarget || !body.trim() || sending || auth.verified !== true || !auth.user?.id) return;
+    if (!draftTarget || !body.trim() || sending) return;
+    if (browserReview) {
+      const next = [{ source_kind: "review", source_id: window.crypto.randomUUID(),
+        author_name: "חשבון בדיקה", body: body.trim(), post_unit_id: draftTarget.unitId }, ...rows];
+      if (!writeMapReviewValue("discussion", post.id, next)) { setWriteError(true); return; }
+      setRows(next);
+      setBody("");
+      setWriteError(false);
+      onDraftClosed();
+      return;
+    }
+    if (auth.verified !== true || !auth.user?.id) return;
     setSending(true);
     setWriteError(false);
     try {
@@ -50,6 +66,7 @@ export default function PostDiscussionReview2029({ post, draftTarget, onDraftClo
   }
 
   return <section id="post-comments" className="sod29-post-comments" aria-label="דיון הפוסט">
+    {browserReview ? <small>תגובות בדיקה בדפדפן הזה</small> : null}
     <details open>
       <summary>תגובות ({rows.length})</summary>
       {readError ? <p role="alert">לא הצלחנו לטעון את הדיון.</p> : null}
@@ -67,7 +84,7 @@ export default function PostDiscussionReview2029({ post, draftTarget, onDraftClo
     {draftTarget ? <form onSubmit={submit}>
       <label>תגובה ל{draftTarget.unitId ? "יחידה" : "פוסט"}<textarea ref={input} value={body}
         onChange={event => setBody(event.target.value)} required maxLength={6000} disabled={sending} /></label>
-      <button type="submit" disabled={sending || auth.verified !== true || !auth.user?.id}>שליחת תגובה</button>
+      <button type="submit" disabled={sending || (!browserReview && (auth.verified !== true || !auth.user?.id))}>שליחת תגובה</button>
       <button type="button" disabled={sending} onClick={() => { setBody(""); setWriteError(false); onDraftClosed(); }}>ביטול טיוטה</button>
       {writeError ? <p role="alert">התגובה לא נשלחה. הטיוטה נשמרה כאן לניסיון נוסף.</p> : null}
     </form> : null}

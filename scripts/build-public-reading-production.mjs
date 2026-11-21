@@ -7,7 +7,7 @@ import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY
 import { SUPABASE_ANON } from "../src/lib/supabase.js";
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
-import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization, REALITY_MAP_PREVIEW_BRANCH } from "../public-reading-deploy/review-admission.js";
+import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization, REALITY_MAP_PREVIEW_BRANCH, MAP_INTEGRATION_REVIEW_BRANCH } from "../public-reading-deploy/review-admission.js";
 import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029, BRAND_SITE_ICONS_2029 } from "../src/lib/brandAssets2029.js";
 import canonicalMiddleware, { config as canonicalMiddlewareConfig } from "../middleware.js";
 import { articleFirstFingerprint } from "./lib/article-first-fingerprint.mjs";
@@ -82,9 +82,11 @@ const gaId = process.env.VITE_GA_ID || loadEnv("production", root, "VITE_GA_ID")
 const marketingKeys = ["VITE_META_PIXEL_ID", "VITE_ADSENSE_CLIENT", "VITE_ADSENSE_SLOT_POST", "VITE_ADSENSE_SLOT_LIST"];
 const marketingEnv = Object.fromEntries(marketingKeys.map(key => [key, process.env[key] || loadEnv("production", root, key)[key] || ""]));
 const previewFlags = ["VITE_PUBLIC_FRAME_PREVIEW", "VITE_PUBLIC_FOUNDATION_PREVIEW", "VITE_PUBLIC_LAUNCH_READ_ONLY_PREVIEW", "VITE_INTEGRATED_PREVIEW", "VITE_KINGDOM_PREVIEW", "VITE_BOOK_PUBLICATION_REVIEW_PREVIEW", "VITE_UNLOCKED_2029_PREVIEW", "VITE_FUNCTIONAL_UNIFIED_PREVIEW"];
+const mapIntegration = previewReviewMode && protectedReview?.branch === MAP_INTEGRATION_REVIEW_BRANCH;
 const realityMapPreview = previewReviewMode && reviewTarget === "preview" && Boolean(protectedReview)
-  && process.env.VERCEL_GIT_COMMIT_REF === REALITY_MAP_PREVIEW_BRANCH;
+  && (mapIntegration || process.env.VERCEL_GIT_COMMIT_REF === REALITY_MAP_PREVIEW_BRANCH);
 await build({ root, define: {
+  "import.meta.env.VITE_MAP_INTEGRATION_REVIEW": JSON.stringify(mapIntegration ? "true" : "false"),
   "import.meta.env.VITE_REALITY_MAP_PREVIEW": JSON.stringify(realityMapPreview ? "true" : "false"),
   ...Object.fromEntries(previewFlags.map(key => ["import.meta.env." + key, JSON.stringify("false")])),
   "import.meta.env.VITE_PUBLIC_READING_RELEASE": JSON.stringify(PUBLIC_READING_PROFILE_ID),
@@ -176,7 +178,7 @@ await rm(resolve(output, "2029.html"));
 await rm(resolve(output, "index.html"), { force: true });
 await rm(resolve(output, "robots.txt"), { force: true });
 await rm(resolve(output, "sitemap.xml"), { force: true });
-const worker = buildPublicReadingWorker(sha, { anonKey: SUPABASE_ANON, gaId });
+const worker = buildPublicReadingWorker(sha, { anonKey: SUPABASE_ANON, gaId, integrationReview: mapIntegration });
 for (const name of ["sw.js", "public-reading-sw.js", "preview-readonly-sw.js"]) await writeFile(resolve(output, name), worker);
 const hash = data => createHash("sha256").update(data).digest("hex");
 const files = [];

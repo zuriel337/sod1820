@@ -8,6 +8,8 @@ import SurfaceProgressSpine2029, { revealAndScrollTo } from "./SurfaceProgressSp
 import LearnMark2029 from "./LearnMark2029.jsx";
 // The event sequence opens only inside the closed "רצף האירועים" section of the mobile sheet: it loads on that open, not with the frame on every page
 // (shell budget, ZURIEL 16.11.2026). It brings its own readers (source updates, lineage) with it.
+const MapUnitContext2029 = import.meta.env.VITE_REALITY_MAP_PREVIEW === "true"
+  ? lazy(() => import("./MapUnitContext2029.jsx")) : null;
 const EventSequencePanel2029 = lazy(() => import("./EventSequencePanel2029.jsx"));
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
@@ -207,6 +209,9 @@ export default function SurfaceContextRail2029({
   const prevStation = stations[stationIndex - 1] || null;
   const nextStation = stations[stationIndex + 1] || null;
 
+  const activeKey = context?.dimensions?.activeUnitRef;
+  const postRailReview = Boolean(MapUnitContext2029) && surface === "post";
+
   return <>
     <ContextualInspector2029
       className={`sod29-surface-context-rail${sheet ? " is-sheet" : ""}${compact ? " is-compact" : ""}${restMode ? " is-rest" : documentSurface ? " is-focus" : ""}`}
@@ -218,13 +223,13 @@ export default function SurfaceContextRail2029({
       subtitle={subtitle}
       actions={<div className="sod29-surface-context-actions">
         {hasNumber ? <button type="button" onClick={() => onOpenNumber?.({ id: String(number), type: "number", label: String(number), href: `${NUMBER_PAGE_BASE}/${number}` })}>פתח את {number}</button> : null}
-        {onOpenWorld ? <button type="button" onClick={onOpenWorld}>פתח בעולם</button> : null}
-        <button className="is-raziel" type="button" onClick={onAskRaziel} disabled={!onAskRaziel}>{onAskRaziel ? "✦ שאל את רזיאל" : "✦ רזיאל · נעול"}</button>
+        {onOpenWorld && !postRailReview ? <button type="button" onClick={onOpenWorld}>פתח בעולם</button> : null}
+        {!postRailReview ? <button className="is-raziel" type="button" onClick={onAskRaziel} disabled={!onAskRaziel}>{onAskRaziel ? "✦ שאל את רזיאל" : "✦ רזיאל · נעול"}</button> : null}
       </div>}
       footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
       {sections.length ? <div className="sod29-surface-context-progress">
-        <div className="sod29-context-inspector-kicker">{mapLabel}</div>
+        <div className="sod29-context-inspector-kicker">{postRailReview ? "בתוך הפוסט" : mapLabel}</div>
         <SurfaceProgressSpine2029
           items={sections}
           activeId={activeSectionId}
@@ -233,6 +238,8 @@ export default function SurfaceContextRail2029({
           ariaLabel={mapLabel}
         />
       </div> : null}
+      {postRailReview && context?.subject?.type === "post"
+        ? <Suspense fallback={null}><MapUnitContext2029 postId={context.subject.id} unitKey={activeKey} /></Suspense> : null}
       {restMode && activeSection ? <button className="sod29-surface-context-depth-pointer" type="button" onClick={() => { jumpToDepth(); if (sheet) onNavigate?.(activeSection); }}>
         <small>העומק בגוף {surface === "post" ? "הפוסט" : "הציר"}</small>
         <b>{activeSection.label}</b>

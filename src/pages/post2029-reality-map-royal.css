@@ -1,6 +1,8 @@
+@import "../components/research/mapReadingPalette2029.css";
+
 /* "מפת המציאות" — royal finish (ZURIEL 12.11.2026, design round 2). SCOPE: only a Post that carries data-reality-map (the flagship series, or the
    preview acceptance exception) and the preview-only Companion. No other Post, page or surface changes.
-   NO new palette: every colour is a role of the canonical 2029 palette (--s29-*) reached through the shared Royal layer (royal2029.css, .r29):
+   The original Royal finish uses roles of the canonical 2029 palette (--s29-*) reached through the shared Royal layer (royal2029.css, .r29):
    gold ← brand-gold · sapphire ← brand-sapphire · violet depth ← accent-secondary · azure ← accent-text. Day / Parchment / Night come from the
    frame itself (the .r29 intensity per preset). Gold and sapphire are decoration and hierarchy, never a rating, a verification or an importance. */
 
@@ -471,3 +473,46 @@
 .sod29-reading-post[data-reality-map] .sod29-pu-bar>.sod29-pu-crumb{flex:1 1 12rem;min-inline-size:0;max-inline-size:100%;overflow-wrap:anywhere;text-wrap:balance}
 .sod29-pu-byline-link{color:inherit;text-decoration:underline;text-underline-offset:3px}
 .sod29-pu-byline-link:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:3px}
+
+/* Compact unit preview: one palette for the story and its timeline. */
+.sod29-reading-post[data-reality-map]:has([data-map-depth]) .sod29-reading-hero {
+  background: var(--map-lead);
+  color: var(--map-ink);
+}
+.sod29-reading-post[data-reality-map]:has([data-map-depth]) .sod29-reading-hero h1 {
+  color: var(--map-title);
+  -webkit-text-fill-color: currentColor;
+}
+.sod29-reading-post[data-reality-map] [id]:has(> [data-map-depth]) {
+  padding: clamp(.8rem, 3vw, 1.5rem);
+  border: 1px solid var(--s29-line);
+  border-inline-start: 3px solid var(--map-wine);
+  border-radius: .75rem;
+  background: var(--map-paper);
+  color: var(--map-ink);
+}
+.sod29-reading-post[data-reality-map] [id]:has(> [data-map-depth]) > h2 {
+  color: var(--map-heading);
+  -webkit-text-fill-color: currentColor;
+}
+.sod29-reading-post[data-reality-map] [data-map-essence] {color: var(--map-ink);}
+.sod29-reading-post[data-reality-map] :is([data-map-equation], [data-map-related], [data-map-depth] > summary) {
+  color: var(--map-link);
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.sod29-reading-post[data-reality-map] [data-map-equation] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: .2em .8em;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: .4em;
+  background: var(--map-lead);
+}
+.sod29-reading-post[data-reality-map] [data-map-depth] > summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+}
