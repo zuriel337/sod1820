@@ -13,7 +13,7 @@ import { entityIdentity } from "../../lib/research/researchSyncState.js";
 import "./royal2029.css";
 import "./postReadingActions2029.css";
 
-export default function PostReadingActions2029({ projection, rootRef, articleHtml }) {
+export default function PostReadingActions2029({ projection, rootRef, articleHtml, onDraft }) {
   const [unitHosts, setUnitHosts] = useState([]);
   useEffect(() => {
     const root = rootRef.current;
@@ -34,14 +34,14 @@ export default function PostReadingActions2029({ projection, rootRef, articleHtm
   if (!target) return null;
   const image = projection.post.image_url;
   return <>
-    <PostTargetActions key={target.ref} target={target} image={image} />
+    <PostTargetActions key={target.ref} target={target} image={image} onDraft={onDraft} />
     {unitHosts.filter(item => item.target).map(item => createPortal(
-      <PostTargetActions target={item.target} image={image} />, item.host, item.target.ref
+      <PostTargetActions target={item.target} image={image} onDraft={onDraft} />, item.host, item.target.ref
     ))}
   </>;
 }
 
-function PostTargetActions({ target, image }) {
+function PostTargetActions({ target, image, onDraft }) {
   const auth = useAuth();
   const research = useResearch();
   const shell = use2029Shell();
@@ -67,6 +67,7 @@ function PostTargetActions({ target, image }) {
 
   const reply = async () => {
     if (opening) return;
+    if (onDraft) { onDraft(target); return; }
     setOpening(true);
     // Capture the target on press, before the composer or auth flow loads.
     const href = target.url;
@@ -82,7 +83,7 @@ function PostTargetActions({ target, image }) {
     }
   };
 
-  const replyLabel = target.unitId ? "להגיב ליחידה בקהילה" : "להגיב לפוסט בקהילה";
+  const replyLabel = `להגיב ל${target.unitId ? "יחידה" : "פוסט"}${onDraft ? "" : " בקהילה"}`;
   const researchLabel = inResearch ? "במחקר" : "הוסף למחקר";
   return <div className="r29 post-reading-actions" data-post-action-target={target.ref} role="group"
     aria-label={target.unitId ? `פעולות ליחידה · ${target.title}` : "פעולות לפוסט"}>
