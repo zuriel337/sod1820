@@ -19,8 +19,12 @@ with params as (
          current_date as d_to
 ),
 win as (
-  select pk, days, d_to, d_to - (days - 1) as d_from,
-         d_to - (2*days - 1) as p_from, d_to - days as p_to from params
+  -- The window covers at least `days` full 24-hour periods (fix 21.11.2026): starting at the date of now() - days.
+  -- A calendar-day window was nearly empty right after midnight (24h = "today" only). The comparison period has
+  -- the same length and ends the day before the window starts.
+  select pk, days, d_to, (now() - make_interval(days => days))::date as d_from,
+         (now() - make_interval(days => days))::date - 1 - (d_to - (now() - make_interval(days => days))::date) as p_from,
+         (now() - make_interval(days => days))::date - 1 as p_to from params
 ),
 -- Source health: the TI writer must have measured page views in the window.
 health as (
