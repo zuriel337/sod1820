@@ -35,6 +35,9 @@ const clean = (value) => value == null ? "" : String(value).trim();
 const fmt = (value) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US") : "—";
 const EXAMPLES = Object.freeze(["אהבה", "משיח", "David"]);
 const CORE_FAMILY_KEY = "base";
+// Methods this calculator does not show (ZURIEL 21.11.2026: "סידורי"). The engine and the registry keep them; a link that names one opens on
+// the default method instead (the existing fallback when a method is not among the rows).
+const HIDDEN_METHOD_KEYS = new Set(["סידורי"]);
 // Reuse the existing idle preview. These zeros are display placeholders, never
 // a canonical selection, an empty-expression calculation or a Number0 link.
 const EMPTY_METHOD_ROWS = Object.freeze(buildCalculator2029FastPreview("").methods.map(method => ({
@@ -211,7 +214,7 @@ function ProExperience() {
   const row = useCalculatorRow(seedExpression);
   const { info } = row;
   const emptyInput = !info.expression;
-  const displayHebrewRows = emptyInput ? EMPTY_METHOD_ROWS : row.hebrewRows;
+  const displayHebrewRows = useMemo(() => (emptyInput ? EMPTY_METHOD_ROWS : row.hebrewRows).filter((method) => !HIDDEN_METHOD_KEYS.has(method.methodKey)), [emptyInput, row.hebrewRows]);
 
   const [selectedKey, setSelectedKey] = useState(seedMethod || null);
   // Default view is "classic" (Human-Gate decision): every method in one flat grid right after the input.
@@ -221,7 +224,6 @@ function ProExperience() {
     return tab === "ledger" ? "ledger" : tab === "tiles" ? "tiles" : "classic";
   });
   const [showAllFamilies, setShowAllFamilies] = useState(false);
-  const [advanced, setAdvanced] = useState(params.get("mode") === "adv");
   const desktop = useIsDesktop();
   const [wideRequested, setWide] = useState(params.get("view") === "wide");
   const wide = wideRequested && desktop && !emptyInput;
@@ -323,11 +325,10 @@ function ProExperience() {
     if (canonicalSelection?.methodKey) next.set("m", canonicalSelection.methodKey);
     else if (selectedKey && isEnglishMethodKey(selectedKey)) next.set("m", selectedKey);
     if (view !== "classic") next.set("tab", view);
-    if (advanced) next.set("mode", "adv");
     if (wideRequested) next.set("view", "wide");
     if (next.toString() !== params.toString()) navigate({ pathname: location.pathname, search: next.toString() ? `?${next}` : "", hash: location.hash }, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlExpression, canonicalSelection?.methodKey, selectedKey, view, advanced, wideRequested]);
+  }, [urlExpression, canonicalSelection?.methodKey, selectedKey, view, wideRequested]);
 
   const chooseMethod = useCallback((method) => setSelectedKey(method.methodKey), []);
   const fillExample = (text) => {
@@ -400,7 +401,7 @@ function ProExperience() {
 
   // With no input yet the chosen view stays highlighted; only a non-Hebrew expression falls back to families.
   const effectiveView = !info.expression || info.hebrewApplicable ? view : "tiles";
-  const visibleFamilies = showAllFamilies || advanced || wide
+  const visibleFamilies = showAllFamilies || wide
     ? familyGroups
     : familyGroups.filter((group) => group.key === CORE_FAMILY_KEY);
   const hiddenMethodCount = familyGroups
@@ -408,7 +409,7 @@ function ProExperience() {
     .reduce((sum, group) => sum + group.methods.length, 0);
   const isNumeric = info.kind === CALCULATOR_INPUT_KIND.NUMERIC;
   const hasAnyResults = allMethods.length > 0;
-  const showDuo = Boolean(canonicalSelection) && (advanced || wide);
+  const showDuo = Boolean(canonicalSelection) && wide;
   const isEnglishSelected = selectedMethod?.language === "en";
 
   // D3: a count of matching methods is NOT a count of independent evidence axes. This page does not
@@ -500,7 +501,7 @@ function ProExperience() {
             </div>
           </div>
         ))}
-        {!advanced && !wide && hiddenMethodCount > 0 ? (
+        {!wide && hiddenMethodCount > 0 ? (
           <button type="button" className="sod29-calcpro-more" onClick={() => setShowAllFamilies((value) => !value)} aria-expanded={showAllFamilies}>
             {showAllFamilies ? "צמצם" : `שיטות עומק ומורכבות · עוד ${hiddenMethodCount}`}
           </button>
@@ -577,11 +578,6 @@ function ProExperience() {
                 <button type="button" role="tab" aria-selected={effectiveView === "tiles"} onClick={() => setView("tiles")}>משפחות</button>
                 <button type="button" role="tab" aria-selected={effectiveView === "ledger"} onClick={() => setView("ledger")} disabled={!info.hebrewApplicable}>פנקס</button>
               </div>
-            ) : null}
-            {!wide ? (
-              <button type="button" aria-pressed={advanced} onClick={() => setAdvanced((value) => !value)}>
-                {advanced ? "סגור מתקדם" : "מתקדם"}
-              </button>
             ) : null}
             {desktop ? (
               <button type="button" aria-pressed={wide} onClick={() => setWide((value) => !value)}>
@@ -740,7 +736,7 @@ function CalculatorPro2029Content() {
       symbol="∑"
       eyebrow="מחשבון מקצועי"
       title="מחשבון גימטריה"
-      description="כל השיטות במבט אחד, פירוק אותיות מהמנוע ומצב מתקדם להשוואה."
+      description="כל השיטות במבט אחד ופירוק אותיות."
     >
       <ProExperience />
     </Sod2029Shell>

@@ -60,3 +60,12 @@ test("no internal \"2029\" in what Google or a reader sees: titles, descriptions
   }
   assert.deepEqual(offenders, []);
 });
+
+test("the main calculator shows no \"סידורי\" method and has no advanced mode (ZURIEL 21.11.2026)", () => {
+  const page = read("src/pages/CalculatorPro2029Page.jsx");
+  assert.match(page, /const HIDDEN_METHOD_KEYS = new Set\(\["סידורי"\]\);/);
+  assert.match(page, /\.filter\(\(method\) => !HIDDEN_METHOD_KEYS\.has\(method\.methodKey\)\)/, "every view reads the filtered rows");
+  assert.doesNotMatch(page, /\badvanced\b|setAdvanced|"מתקדם"|סגור מתקדם|next\.set\("mode", "adv"\)/);
+  assert.doesNotMatch(page, /מצב מתקדם/);
+  assert.doesNotMatch(read("src/lib/research/communityCalculatorSeo2029.js"), /הסידורי/, "the explanation no longer names it");
+});
