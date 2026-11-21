@@ -119,6 +119,7 @@ export function seriesCatalogToSystemItems(catalog) {
       label: text(item.title).slice(0, 160), summary: text(item.excerpt).slice(0, 240) || null,
       creator: item.author || series.writerLabel || series.publisherLabel || "יצירה באתר", author: item.author || "",
       at: date(item.publishedAt), arrivalAt: date(item.publishedAt), sourceRef: item.sourceRef, href: item.href,
+      sourceUpdatedAt: date(item.updatedAt), postHref: item.href,
       thumbUrl: /^https:\/\//.test(item.imageUrl || "") ? item.imageUrl : null,
       seriesKey: series.key, seriesLabel: series.label, researchCount: 0, numbers: [], publicState: "published_source_representation" })));
 }

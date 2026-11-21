@@ -136,6 +136,12 @@ export function nowRowModel(row) {
   const postId = isPost ? Number(/^post:(\d+)$/.exec(String(item.id || ""))?.[1]) || undefined : undefined;
   const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ id: postId, categories, tags, author: item.author })[0] || null : null);
   const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
+  // A Post edit is not automatically a proven NEW unit. In the owner's flagship
+  // only, the public modified timestamp is an ordinary edit signal for "עכשיו".
+  // Never re-date its publication or move an older unit's verified addedAt.
+  const publishedOrProvenAt = Date.parse(row?.at || "") || 0;
+  const editedAt = isPost && seriesKey === REALITY_MAP_LATEST_KEY ? Date.parse(item.sourceUpdatedAt || "") || 0 : 0;
+  const postEdited = editedAt > Math.max(publishedOrProvenAt, latestRegisteredUpdate(row?.id));
   // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
   const hasGroupSource = isGroup || isDiscussion;
   const groupLabel = hasGroupSource ? clean(item.sourceGroupLabel) : "";
@@ -155,7 +161,7 @@ export function nowRowModel(row) {
   const typeLabel = unverified ? "מקור · טרם נבדק"
     : isDiscussion ? "לדיון בקהילה"
     : row?.kind === "convergence" ? "התכנסות" : row?.kind === "finding" ? "ממצא"
-    : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : audio ? "הקלטה" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
+    : postEdited ? "פוסט · נערך" : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : audio ? "הקלטה" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
   const lenses = new Set(["all"]);
   if (seriesKey) lenses.add("series");
   if (isGroup) lenses.add("sources");
@@ -167,7 +173,7 @@ export function nowRowModel(row) {
   const mainMessage = realityMapPreviewEnabled() && item.sourceUpdate ? resolveUnitMessage(String(item.sourceUpdate.sourceRef || "").replace(/^posts:/, ""), item.sourceUpdate.targetId) : null;
   const fullText = cleanNowText(mainMessage || item.fullText);
   const summary = cleanNowText(mainMessage || item.summary);
-  const title = shortNowTitle(row?.title || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
+  const title = shortNowTitle((postEdited ? item.sourcePostTitle || item.label : row?.title) || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
   const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
   // Two pin kinds, one order (ZURIEL 11.11.2026): the owner's own pin (the Home featured item) leads; a writer pin follows it; then everything
   // else by time. A writer pin exists ONLY on a public group arrival (already proved by the server: group proof, verified number, approved
@@ -186,7 +192,8 @@ export function nowRowModel(row) {
     // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
     dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, isGallery, author: item.author, seriesKey })] || null,
-    at: row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
+    at: postEdited ? new Date(editedAt).toISOString() : row?.at || null,
+    href: postEdited && item.postHref ? item.postHref : href, seriesKey, seriesLabel, sourceName, sourceKey,
     pinUntil: pinKind && typeof item.pinUntil === "string" ? item.pinUntil : null,
     central: pinKind === "owner" && item.central && Array.isArray(item.central.groups)
       // Re-read at model time: a main message saved after the feed was built still reaches the pinned card (same canonical unit record).
@@ -206,7 +213,7 @@ export function nowRowModel(row) {
     canExpand: !isDiscussion && Boolean(fullText || summary || (textOnly && !audio ? null : media)),
     // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
     // A writer pin is not an update of the publication, so it never says "עודכן".
-    updated: Boolean(item.sourceUpdate || pinKind === "owner"),
+    updated: Boolean(item.sourceUpdate || pinKind === "owner" || postEdited),
   };
 }
 

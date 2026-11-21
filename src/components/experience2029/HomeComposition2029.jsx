@@ -24,6 +24,7 @@ import { NowPinnedMessage2029 } from "./NowRoyalCenter2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
 import { nowModels, buildNowEntries, nowPinnedMessage, REALITY_MAP_LATEST_KEY, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
 import { pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
+import { homeMapLeadMember2029, homeMapLeadFace2029 } from "../../lib/research/homeMapLead2029.js";
 import { thumb } from "../../lib/img.js";
 import { HomeLeadImageGate2029, HOME_LEAD_IMAGE_CAP_MS } from "./homeLeadImageGate2029.js";
 import { useReveal } from "./useReveal2029.js";
@@ -336,9 +337,17 @@ function HomeMapSelection({ children }) {
 }
 
 function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, settled = false, onImageSettled = null }) {
-  const member = lead ? catalogItems.find(item => item.id === postIdOf(lead.id)) || null : seriesLatestMember2029(catalogItems);
-  const face = lead ? { title: lead.title, postTitle: lead.postTitle, at: lead.at, href: lead.href } : seriesLatestFace2029(member);
-  const selected = editorial?.lead;
+  // Home follows the newest real edit of an admitted reality-map Post; the World
+  // timeline may retain its separately curated historical leading unit (5107).
+  const member = homeMapLeadMember2029(catalogItems) || (lead ? catalogItems.find(item => item.id === postIdOf(lead.id)) || null : null);
+  const catalogFace = homeMapLeadFace2029(member);
+  const feedFace = lead && (!member || String(member.id) === postIdOf(lead.id))
+    ? { title: lead.title, postTitle: lead.postTitle, at: lead.at, href: lead.href } : null;
+  const face = catalogFace && feedFace && (Date.parse(feedFace.at || "") || 0) > (Date.parse(catalogFace.at || "") || 0)
+    ? feedFace : catalogFace || feedFace;
+  const selected = editorial?.lead && ((member && String(editorial.lead.postId) === String(member.id)) || (!member && !lead))
+    && (Date.parse(editorial.lead.updatedAt || "") || 0) >= (Date.parse(face?.at || "") || 0)
+    ? editorial.lead : null;
   const href = selected?.href || face?.href || null;
   const title = selected?.label || face?.title || "";
   const context = selected ? selected.essence : face?.postTitle && face.postTitle !== face.title ? face.postTitle : null;
@@ -356,8 +365,8 @@ function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, s
   const body = <>
     <span className="h29-pinlead-media">{image ? <img src={image} srcSet={set || undefined} sizes={set ? PIN_COVER_SIZES : undefined}
       alt="" width="1280" height="720" fetchpriority="high" decoding="async" onLoad={onImageSettled || undefined} onError={onImageSettled || undefined} /> : <span className="h29-pinlead-empty" aria-hidden="true">✦</span>}</span>
-    <span className="h29-pinlead-badge r29-badge is-pinned"><NavigationIcon2029 name="kingdom" size={14} />{selected ? "האירוע המוביל · מפת המציאות" : "נעוץ · מפת המציאות"}</span>
-    <strong className="h29-pinlead-title">{href ? title : "טוען את הפרסום הנעוץ…"}</strong>
+    <span className="h29-pinlead-badge r29-badge is-pinned"><NavigationIcon2029 name="kingdom" size={14} />{selected ? "האירוע המוביל · מפת המציאות" : "העדכון האחרון · מפת המציאות"}</span>
+    <strong className="h29-pinlead-title">{href ? title : "טוען את הפרסום האחרון…"}</strong>
     <small className="h29-pinlead-meta">{context ? <span className="h29-pinlead-ctx">{context}</span> : null}
       {!selected && lead?.seriesLatest ? <SeriesLatestMark2029 model={lead} /> : null}
       {time ? <time dateTime={time.toISOString()}>{relativeTimeLabel(at)}</time> : null}</small>
@@ -368,7 +377,7 @@ function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, s
     <article className="h29-pinlead-card r29 r29-hall">
       {href ? <Link className="h29-pinlead-link" to={href} data-home-pinned-post={selected?.postId || postIdOf(lead?.id) || member?.id || undefined}>{body}</Link>
         : <span className="h29-pinlead-link is-loading" role="status">{body}</span>}
-      {selected ? <Link className="h29-pinlead-all" to={editorial.timelineHref}>{editorial.count === 1 ? "חיבור אחד" : editorial.count + " חיבורים"} · לציר המפה ←</Link>
+      {editorial?.count ? <Link className="h29-pinlead-all" to={editorial.timelineHref}>{editorial.count === 1 ? "חיבור אחד" : editorial.count + " חיבורים"} · לציר המפה ←</Link>
         : <Link className="h29-pinlead-all" to="/2029/posts?series=reality-map">כל מפת המציאות ←</Link>}
     </article>
   </section>;
@@ -579,7 +588,7 @@ export default function HomeComposition2029({
           {leadImageDone ? <HomeStreamVideo2029 /> : <div className="h29-stream-slot" aria-hidden="true" />}
         </Suspense>
       </div>
-      <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} editorialHref={editorial?.lead?.href} />
+      <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} editorialHref={homeMapLeadFace2029(homeMapLeadMember2029(primaryItems))?.href || editorial?.lead?.href} />
     </>}</HomeMapSelection>
     {activity}
 
