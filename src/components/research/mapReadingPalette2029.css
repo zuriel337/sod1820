@@ -1,0 +1,25 @@
+:where(.map29-timeline, .sod29-reading-post[data-reality-map]:has([data-map-depth])) {
+  --map-title: #7a4a00;
+  --map-heading: #8a5a0a;
+  --map-ink: #352720;
+  --map-paper: #fffcf8;
+  --map-lead: #f5eae5;
+  --map-link: #812c45;
+  --map-wine: #722d43;
+  --map-chip-ink: #fff2e8;
+}
+[data-theme-2029="parchment"] :where(.map29-timeline, .sod29-reading-post[data-reality-map]:has([data-map-depth])) {
+  --map-heading: #764a07;
+  --map-ink: #3a2a18;
+  --map-paper: #f9efd9;
+  --map-lead: #f5e6c9;
+  --map-link: #74273d;
+}
+[data-theme-2029="dark"] :where(.map29-timeline, .sod29-reading-post[data-reality-map]:has([data-map-depth])) {
+  --map-title: #f6e27a;
+  --map-heading: #e8c840;
+  --map-ink: #ede4d3;
+  --map-paper: #211b1d;
+  --map-lead: #2c1d23;
+  --map-link: #f2a8b8;
+}

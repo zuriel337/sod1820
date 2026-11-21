@@ -8,8 +8,7 @@ import { bilingualDateLabel } from "../relativeTime2029.js";
 import { postBackground2029 } from "./postBackground2029.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./contentSeries2029Identity.js";
 import { postClassification2029 } from "./postClassification2029.js";
-import { SEMANTIC_LEGEND } from "./postSemanticDesign2029.js";
-import { clean, postPlainText2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
+import { postPlainText2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
 import { postVoiceFor } from "../postVoice2029.js";
 import { POST_ARTICLE_THEME_SCRIPT, POST_ARTICLE_FRAME_CLOSE, postArticleFrameOpen2029 } from "./postArticleFrame2029.js";
 
@@ -42,25 +41,14 @@ function markDuplicateCover(root, imageUrl) {
 // The page's chips for a Post (PostCategories2029 with a post): the same items, links, titles and icon. The first-document article shows exactly
 // what the page will show, so nothing moves when the page takes over (test/article-first-browser-2029.browser.mjs compares the markup).
 const LAYERS_ICON = '<svg class="sod29-ui-icon sod29-ui-icon--layers " data-icon-shape="layers" data-icon-name="layers" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="width: 16px; height: 16px;"><path d="m12 4 8 4-8 4-8-4z"></path><path d="m4 12 8 4 8-4M4 16l8 4 8-4"></path></svg>';
-function chipsHtml(classification, max) {
-  const visible = classification.items.filter(item => item.role !== "legacy-media-label").slice(0, max);
+function chipsHtml(classification, featured) {
+  const visible = classification.items.filter(item => featured ? item.role === "series" || item.role === "editorial" : item.role !== "legacy-media-label");
   if (!visible.length) return "";
-  return `<span class="k29-cats k29-post-classification" aria-label="סדרה וסיווג הפוסט">${visible.map(item => `<a class="k29-cat" href="${escapeHtml(item.href)}" title="${escapeHtml(`${item.prefix}: ${item.name}`)}" data-post-classification="${escapeHtml(item.role)}">${LAYERS_ICON}<span class="k29-post-role">${escapeHtml(item.prefix)}:</span> ${escapeHtml(item.name)}</a>`).join("")}</span>`;
+  return `<span class="k29-cats k29-post-classification" aria-label="סדרה וסיווג הפוסט">${visible.map(item => `<a class="k29-cat${item.role === "editorial" ? " is-strong" : ""}" href="${escapeHtml(item.href)}" title="${escapeHtml(`${item.prefix}: ${item.name}`)}" data-post-classification="${escapeHtml(item.role)}">${LAYERS_ICON}<span class="k29-post-role">${escapeHtml(item.prefix)}:</span> ${escapeHtml(item.name)}</a>`).join("")}</span>`;
 }
 
-// The frame's orientation mark in the Post header (SystemFrame2029 portals LearnMark2029 into the page's orientation host): the surface manifest
-// of entryLearn2029.js for "post", as a first arrival sees it. Inactive until the page takes over (aria-disabled); a reader who already dismissed
-// it gets the compact mark from the page. Buttons below are inactive the same way: the page's own controls replace them.
-const ORIENTATION_MARK = '<span class="sod29-entry-orientation-slot is-in-header"><div class="sod29-learn-mark scope-surface has-visible-label is-prominent" data-learn-scope="surface">'
-  + '<button type="button" class="sod29-learn-mark-trigger" aria-expanded="false" aria-disabled="true" aria-label="איך זה עובד? — חדש כאן? מה עושים בפוסט הזה?"><span class="sod29-learn-mark-symbol" aria-hidden="true">?</span>'
-  + '<span class="sod29-learn-mark-label">איך זה עובד?</span></button></div></span>';
-
-// The page's section navigation for an ordinary imported Post before its context arrives (Post2029Page sectionItems): the story, the sources,
-// the comment archive when the Post has one, and what comes next. A "connections" tab is added by the page when its connections resolve.
-function sectionNavHtml(post) {
-  const comments = /^[1-9]\d*$/.test(clean(post.wp_id)) && Number.isSafeInteger(Number(post.wp_id));
-  const labels = ["הסיפור", "מקורות", ...(comments ? ["תגובות"] : []), "המשך"];
-  return `<nav class="sod29-surface-tabs" aria-label="בתוך הפוסט" data-experience-capability="surface-section-nav">${labels.map(label => `<button type="button" class="" aria-disabled="true">${label}</button>`).join("")}</nav>`;
+export function postArticleOpening2029(post) {
+  return postPlainText2029(post?.excerpt || "").trim();
 }
 
 // facts: the real widths of the originals (public-reading-deploy/article-image-facts.json); the document carries exactly this Post's ones, so the page
@@ -77,8 +65,7 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
   const background = postBackground2029(post);
   const voice = postVoiceFor(post).voice;
   const classification = postClassification2029(post);
-  const sourceLabel = clean(post.author) || "מקור הפוסט";
-  const excerpt = clean(post.excerpt) || postPlainText2029(post.content).slice(0, 220);
+  const opening = postArticleOpening2029(post);
   const coverLabel = `פתח את תמונת הפוסט: ${title}`;
   const coverSet = postImageRenditionSet2029(cover, imageFacts);   // the page's cover offers the same smaller copies (Post2029Page)
   const frame = postArticleFrameOpen2029({ id: POST_ARTICLE_DOCUMENT_ID, "data-ssr-post": String(post.id), "data-ssr-source": postArticleSourceKey2029(post.content), "data-ssr-path": path,
@@ -90,20 +77,16 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + ` data-post-character="plain" data-post-voice="${escapeHtml(voice)}" data-prefs-tick="0" data-post-background="${escapeHtml(background.key)}"`
     + ` style="--post-background-desktop: url(&quot;${escapeHtml(background.desktop)}&quot;); --post-background-mobile: url(&quot;${escapeHtml(background.mobile)}&quot;);">`
     + `<header id="post-story" class="sod29-reading-hero" data-experience-capability="post-master-hero"><div class="sod29-reading-hero-grid"><div class="sod29-reading-hero-copy"><h1>${escapeHtml(title)}</h1>`
-    + (byline.credit || byline.date ? `<p class="sod29-reading-byline">${byline.credit ? `<span>${escapeHtml(byline.credit)}</span>` : ""}${byline.date ? `<time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time>` : ""}</p>` : "")
-    + chipsHtml(classification, 4)
-    + `<span class="sod29-orientation-host">${ORIENTATION_MARK}</span>`
-    + `<details class="sod29-post-details"><summary><span class="sod29-reading-source-badge">${escapeHtml(sourceLabel)}</span><span class="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span></summary>`
+    + (opening ? `<p class="sod29-reading-opening">${escapeHtml(opening)}</p>` : "")
+    + chipsHtml(classification, true)
+    + `<details class="sod29-post-details"><summary><span class="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span></summary>`
     + `<div class="sod29-post-details-body">`
-    + (classification.credit ? `<p>${escapeHtml(classification.credit.prefix)}: ${escapeHtml(classification.credit.name)}</p>` : "")
+    + (classification.credit ? `<p class="sod29-reading-byline">${escapeHtml(classification.credit.prefix)}: ${escapeHtml(classification.credit.name)}</p>` : "")
     + (byline.date ? `<p>תאריך הפוסט: <time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time></p>` : "")
-    + `<div class="sod29-reading-meta-line">${chipsHtml(classification, Infinity)}</div>`
-    + (excerpt ? `<p>${escapeHtml(excerpt)}</p>` : "")
+    + `<div class="sod29-reading-meta-line">${chipsHtml(classification, false)}</div>`
     + `<p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p>`
     + `</div></details></div></div></header>`
-    + (voice !== "original" ? `<details class="sod29-semantic-legend" data-experience-capability="post-semantic-legend"><summary>מקרא הסמלים בפוסט</summary><dl>${SEMANTIC_LEGEND.map(item => `<dt><span aria-hidden="true">${escapeHtml(item.symbol)}</span> ${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.detail)}</dd>`).join("")}</dl></details>` : "")
     + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
-    + sectionNavHtml(post)
     + `<div class="sod29-reading-layout"><section class="sod29-reading-source" aria-label="טקסט המקור" data-ssr-body="true">${template.innerHTML}</section></div>`
     + `</article>` + POST_ARTICLE_FRAME_CLOSE;
 }

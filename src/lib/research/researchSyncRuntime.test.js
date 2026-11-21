@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createResearchSyncRuntime } from './researchSyncRuntime.js';
+import { postActionTarget2029 } from './postActionTarget2029.js';
 import { applyResearchOps, emptyResearchState, appendResearchOp, principalStateKey, principalContextKey, principalToken, LEGACY_CONTEXT_SESSION_KEY } from './researchSyncState.js';
 import { readFile } from 'node:fs/promises';
 const copy = x => JSON.parse(JSON.stringify(x));
@@ -57,6 +58,25 @@ test('identity uses exact type/ref tuple; delimiter collisions do not merge',()=
 test('invalid collection identity patches and unknown ops fail loudly',()=>{
   assert.throws(()=>applyResearchOps({},[op('collection_update',{id:'a',patch:{id:'b'}})]));
   assert.throws(()=>applyResearchOps({},[op('bad')]));
+});
+
+test('a post and its unit survive a fresh session for the same account as distinct saves', async () => {
+  const projection = { post: { id: 5113, slug: 'bennett-melach-631-78', title: 'בנט', source: 'ai' } };
+  const unitId = 'bennett-salt-covenant-unity-20261119';
+  const post = postActionTarget2029(projection);
+  const unit = postActionTarget2029(projection, [{ postId: '5113', id: unitId, title: 'ברית מלח' }], unitId);
+  const account = await ready(setup({ uid: 'post-test-account' }));
+  assert.equal(account.runtime.commit([post, unit].map(target => op('item_upsert', { bucket: 'library', entity: target.entity }))), true);
+  await account.runtime.flush();
+  assert.equal(account.runtime.getSnapshot().syncStatus, 'synced');
+  account.runtime.stop();
+
+  const resumed = await ready(setup({ uid: 'post-test-account', server: account.server }));
+  assert.deepEqual(resumed.runtime.getSnapshot().saved.map(item => item.link), [unit.href, post.href]);
+  resumed.runtime.stop();
+  const other = await ready(setup({ uid: 'other-test-account', server: account.server }));
+  assert.deepEqual(other.runtime.getSnapshot().saved, []);
+  other.runtime.stop();
 });
 test('guest remains local, survives account login, never auto-adopted',async()=>{
   const g=setup({uid:null});add(g.runtime,'guest');g.runtime.stop();
