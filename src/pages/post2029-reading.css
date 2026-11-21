@@ -1535,3 +1535,10 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 .sod29-reading-source [data-legacy-panel="light"]:not([data-legacy-color]){color:#172B46}
 .sod29-reading-source [data-legacy-panel="dark"] a:not([data-legacy-color]){color:#FFD27A}
 .sod29-reading-source [data-legacy-panel="light"] a:not([data-legacy-color]){color:#1F4FBF}
+
+/* Keep anchored content and focusable controls above the fixed mobile toolbar. */
+@media (max-width: 768px) {
+  .sod29-reading-post :is([data-sod-unit], [data-map-depth], #post-comments, #post-comments :is(textarea, button), .post-reading-actions, .post-reading-actions button) {
+    scroll-margin-block-end: calc(var(--s29-island-clearance, 104px) + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+}

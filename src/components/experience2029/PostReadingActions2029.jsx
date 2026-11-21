@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
-import { openBarShare } from "../../lib/share/barShare2029.js";
+import { useLocation, useNavigate } from "react-router-dom";
+import { openBarShare, registerMobilePostShare } from "../../lib/share/barShare2029.js";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import PersonalSaveButton2029 from "../userCenter/PersonalSaveButton2029.jsx";
 import { use2029Shell } from "./Sod2029Shell.jsx";
@@ -16,6 +16,10 @@ import "./postReadingActions2029.css";
 
 export default function PostReadingActions2029({ projection, rootRef, articleHtml, onDraft }) {
   const [unitHosts, setUnitHosts] = useState([]);
+  const { pathname } = useLocation();
+  const context = useResearch().context;
+  const activeId = context?.dimensions?.surfaceContextHref?.split(/[?#]/)[0] === pathname
+    ? context.dimensions.activeUnitRef : null;
   useEffect(() => {
     const root = rootRef.current;
     const post = projection.post;
@@ -24,14 +28,33 @@ export default function PostReadingActions2029({ projection, rootRef, articleHtm
     const hosts = units.map(unit => {
       const host = document.createElement("div");
       host.dataset.postUnitActionHost = unit.id;
-      byId.get(unit.id).after(host);
-      return { host, target: postActionTarget2029(projection, units, unit.id) };
+      const anchor = byId.get(unit.id);
+      anchor.after(host);
+      return { host, anchor, target: postActionTarget2029(projection, units, unit.id) };
     });
     setUnitHosts(hosts);
     return () => hosts.forEach(({ host }) => host.remove());
   }, [projection, rootRef, articleHtml]);
 
   const target = postActionTarget2029(projection);
+  useEffect(() => {
+    if (!mapIntegrationReview || !target) return undefined;
+    return registerMobilePostShare(pathname, () => {
+      const line = window.innerHeight * 0.38;
+      let visible;
+      let distance = Infinity;
+      for (const item of unitHosts) {
+        if (!item.target || !rootRef.current?.contains(item.anchor) || !item.anchor.getClientRects().length) continue;
+        const box = item.anchor.getBoundingClientRect();
+        if (box.bottom < 0 || box.top > window.innerHeight * 0.82) continue;
+        const gap = Math.max(box.top - line, line - box.bottom, 0);
+        if (gap < distance) { visible = item.target; distance = gap; }
+      }
+      const active = visible || unitHosts.find(item => item.target?.unitId === activeId && rootRef.current?.contains(item.anchor))?.target;
+      return postShareItem(active || target, projection.post.image_url);
+    });
+  }, [pathname, projection, rootRef, unitHosts, activeId]);
+
   if (!target) return null;
   const image = projection.post.image_url;
   return <>
@@ -40,6 +63,11 @@ export default function PostReadingActions2029({ projection, rootRef, articleHtm
       <PostTargetActions target={item.target} image={image} onDraft={onDraft} />, item.host, item.target.ref
     ))}
   </>;
+}
+
+function postShareItem(target, image) {
+  return { type: "post", url: target.url, entityId: target.ref, title: target.title,
+    image, sourceSurface: "post_2029", label: target.unitId ? "היחידה" : "הפוסט" };
 }
 
 function PostTargetActions({ target, image, onDraft }) {
@@ -62,8 +90,7 @@ function PostTargetActions({ target, image, onDraft }) {
   };
 
   const share = () => {
-    const opened = openBarShare({ type: "post", url: target.url, entityId: target.ref, title: target.title,
-      image, sourceSurface: "post_2029", label: target.unitId ? "היחידה" : "הפוסט" });
+    const opened = openBarShare(postShareItem(target, image));
     setNote(opened ? "" : "חלונית השיתוף אינה זמינה כרגע.");
   };
 
@@ -87,7 +114,7 @@ function PostTargetActions({ target, image, onDraft }) {
 
   const replyLabel = `להגיב ל${target.unitId ? "יחידה" : "פוסט"}${onDraft ? "" : " בקהילה"}`;
   const researchLabel = inResearch ? "במחקר" : "הוסף למחקר";
-  return <div className="r29 post-reading-actions" data-post-action-target={target.ref} role="group"
+  return <div className="r29 post-reading-actions" data-post-action-target={target.ref} data-mobile-share-in-dock={mapIntegrationReview || undefined} role="group"
     aria-label={target.unitId ? `פעולות ליחידה · ${target.title}` : "פעולות לפוסט"}>
     <div className="post-reading-action-row">
       {mapIntegrationReview ? <button type="button" className="r29-btn is-quiet" aria-pressed={reviewSaved}
@@ -97,7 +124,7 @@ function PostTargetActions({ target, image, onDraft }) {
           else setNote("לא ניתן לשמור בדפדפן הזה.");
         }}><NavigationIcon2029 name={reviewSaved ? "check" : "save"} size={18} /><span>{reviewSaved ? "נשמר" : "שמירת בדיקה"}</span></button>
         : <PersonalSaveButton2029 entity={target.entity} royal />}
-      <button type="button" className="r29-btn is-quiet" aria-haspopup="dialog" aria-label="שיתוף" title="שיתוף" onClick={share}>
+      <button type="button" className="r29-btn is-quiet post-reading-share" aria-haspopup="dialog" aria-label="שיתוף" title="שיתוף" onClick={share}>
         <NavigationIcon2029 name="share" size={18} /> <span>שיתוף</span>
       </button>
       {!mapIntegrationReview ? <button type="button" className="r29-btn is-quiet" onClick={add} aria-label={researchLabel} title={researchLabel} aria-pressed={inResearch} disabled={inResearch}>

@@ -34,3 +34,7 @@
   .post-reading-action-row .r29-btn { padding-inline: .55rem; }
   .post-reading-action-row .r29-btn > span { display: none; }
 }
+
+@media (max-width: 768px) {
+  .sod29-root:has(.sod29-dock-share) [data-mobile-share-in-dock] .post-reading-share { display: none; }
+}

@@ -6,6 +6,15 @@
 
 export const BAR_SHARE_EVENT = "sod29:share";
 
+export function registerMobilePostShare(pathname, getShare) {
+  const request = event => {
+    if (event.detail === pathname && window.matchMedia("(max-width: 768px)").matches
+      && openBarShare(getShare())) event.preventDefault();
+  };
+  window.addEventListener("sod29:share-mobile-post", request);
+  return () => window.removeEventListener("sod29:share-mobile-post", request);
+}
+
 /**
  * Ask the bar to open its share window for one subject.
  * @param {object} share  { url, title, type, label, ...ShareActions props }  `label` names the kind of thing ("הממצא", "התמונה", "ההודעה").

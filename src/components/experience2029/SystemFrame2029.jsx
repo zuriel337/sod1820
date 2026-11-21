@@ -1234,7 +1234,12 @@ function SystemFrame2029Body({
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS, { subject: normalizeTarget(activeTarget) }), [openTransient, activeTarget]);
   const openMore = useCallback(() => openTransient(TRANSIENT.MORE, { subject: normalizeTarget(activeTarget) }), [openTransient, activeTarget]);
-  const openShare = useCallback(() => openTransient(TRANSIENT.MORE, { shareOnly: true }), [openTransient]);
+  const openShare = useCallback(() => {
+    if (import.meta.env.VITE_MAP_INTEGRATION_REVIEW === "true" && surface === "post" && !window.dispatchEvent(new CustomEvent("sod29:share-mobile-post", {
+      detail: location.pathname, cancelable: true,
+    }))) return;
+    openTransient(TRANSIENT.MORE, { shareOnly: true });
+  }, [surface, location.pathname, openTransient]);
   // One share window (ZURIEL 19.11.2026): a page's share button sends what it shares ("sod29:share", src/lib/share/barShare2029.js) and the bar opens it.
   useEffect(() => {
     const take = (event) => { if (!event.detail?.url) return; event.preventDefault(); openTransient(TRANSIENT.MORE, { shareOnly: true, item: event.detail }); };
