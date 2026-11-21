@@ -139,7 +139,9 @@ test("a later edit of the featured elections Post is ranked in Now by edit time,
   assert.equal(model.id, "post:5107");
   assert.equal(model.title, row().title, "the current Post title replaces the fixed featured headline after a later edit");
   assert.equal(model.at, "2026-11-23T10:00:00.000Z");
-  assert.equal(model.href, "/post/sharshar-elections-redemption-hints-draft");
+  const { publicPostHref } = await import("../src/lib/publicPostUrls.js");
+  assert.equal(model.href, publicPostHref(row()), "the Post's own canonical address");
+  assert.equal(model.href, "/sharshar-elections-redemption-hints-draft");
   assert.equal(model.typeLabel, "פוסט · נערך");
   assert.equal(model.item.sourceUpdate, null);
 });
