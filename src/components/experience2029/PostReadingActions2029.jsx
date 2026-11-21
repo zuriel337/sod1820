@@ -25,14 +25,18 @@ export default function PostReadingActions2029({ projection, rootRef, articleHtm
     const post = projection.post;
     const units = postActionUnits2029(post, root);
     const byId = new Map(Array.from(root?.querySelectorAll("[id]") || [], node => [node.id, node]));
-    const hosts = units.map(unit => {
+    const hosts = units.filter(unit => !byId.get(unit.id)?.hasAttribute("data-elections-former-unit")).map(unit => {
       const host = document.createElement("div");
       host.dataset.postUnitActionHost = unit.id;
       const anchor = byId.get(unit.id);
       const unitDepth = anchor.matches("[data-elections-timeline-unit]") && anchor.querySelector(":scope > details[data-map-depth]");
       if (unitDepth) unitDepth.append(host);
       else anchor.after(host);
-      return { host, anchor, target: postActionTarget2029(projection, units, unit.id) };
+      const target = postActionTarget2029(projection, units, unit.id);
+      if (target && mapIntegrationReview && anchor.hasAttribute("data-elections-original-unit")) {
+        target.url = new URL(target.href, window.location.origin).href;
+      }
+      return { host, anchor, target };
     });
     setUnitHosts(hosts);
     return () => hosts.forEach(({ host }) => host.remove());

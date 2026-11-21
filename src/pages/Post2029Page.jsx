@@ -595,7 +595,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     // Authored legacy number links use the same in-place Number capability.
     // Keep their href for ordinary modified-click navigation and copying.
     for (const link of sourceRef.current.querySelectorAll('a[href^="/number/"]')) {
-      if (link.hasAttribute("data-gem")) continue;
+      if (link.hasAttribute("data-gem") || link.hasAttribute("data-elections-calculation")) continue;
       try {
         const term = decodeURIComponent(link.getAttribute("href").slice("/number/".length).split(/[?#]/)[0]).trim();
         if (term) {
@@ -629,7 +629,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     // An explicitly selected source image wins over the default story region.
     // Native author hashes still keep their existing exact-return precedence.
     const selectedSource = !location.hash && sourceRef.current.querySelector('[data-legacy-attachment-focus="true"]');
-    const unitLanding = location.state?.puWhole === true || (new URLSearchParams(location.search).has("unit") && Boolean(location.hash)); // a unit link or "continue to the whole post" names its own place
+    const requestedUnit = new URLSearchParams(location.search).get("unit");
+    const unitLanding = location.state?.puWhole === true || Boolean(requestedUnit && (location.hash
+      || postActionUnits2029(state.projection.post, sourceRef.current).some(unit => unit.id === requestedUnit)
+      || previewUnitIdsFor(state.projection.post.id).includes(requestedUnit)));
     const requested = selectedSource || unitLanding ? null : resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
     if(selectedSource||unitLanding)restoredRegionRef.current=null;
     const restored = mapped.find(({ region }) => region.id === requested);
@@ -874,6 +877,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const target = [...sourceRef.current.querySelectorAll("[id]")].find((node) => node.id === wanted);
     if (!target) return undefined;
     const frame = requestAnimationFrame(() => {
+      revealReadingAnchor(target);
       target.scrollIntoView({ block: "start", behavior: "instant" });
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
@@ -1207,6 +1211,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     if(sourceAnchor&&sourceRef.current?.contains(sourceAnchor)){
       const binding=publicPostLinkedMedia(state.projection?.post?.content,sourceAnchor.dataset.sourceAttachment);
       if(binding){event.preventDefault();setSourceMediaOpen(binding);return;}
+    }
+    const previewCalculation = event.target?.closest?.("a[data-elections-calculation]");
+    if (previewCalculation && sourceRef.current?.contains(previewCalculation)) {
+      openConnection(event, previewCalculation.getAttribute("href"));
+      return;
     }
     const authored = event.target?.closest?.("[data-expression]");
     if (authored && sourceRef.current?.contains(authored)) {

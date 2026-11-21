@@ -15,7 +15,7 @@ export function scanPostOutline(root) {
     return node.id;
   };
   for (const node of root.querySelectorAll("h2, h3, [data-sod-update-stack], [data-sod-unit]")) {
-    if (node.matches("[data-sod-update-stack]")) { entries.push({ kind: "updates", id: ensure(node, "post-updates"), text: "מה התחדש" }); continue; }
+    if (node.matches("[data-sod-update-stack]")) { entries.push({ kind: "updates", id: ensure(node, "post-updates"), text: "מה התחדש", label: node.hasAttribute("data-elections-timeline") ? "יחידות הפוסט" : null }); continue; }
     if (node.matches("[data-sod-unit]")) {
       const title = node.querySelector("h2, h3, [data-sod-role='title']")?.textContent || node.getAttribute("aria-label") || "";
       entries.push({ kind: node.closest("[data-sod-update-stack]") ? "unit" : "unit-top", id: ensure(node, `post-unit-${++n}`), text: title });

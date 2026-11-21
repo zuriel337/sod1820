@@ -664,3 +664,40 @@
 [data-elections-timeline-unit] [data-post-unit-action-host] .post-reading-actions {
   margin-block: .35rem .15rem;
 }
+
+[data-elections-unit-content] .elections-calculation-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .15rem .4rem;
+}
+[data-elections-unit-content] .elections-calculation-row a {
+  color: var(--elections-gold);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-underline-offset: .18em;
+}
+[data-elections-unit-content] .elections-calculation-row small {
+  color: var(--s29-muted);
+  font-size: .85rem;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-original-numbers] > h3,
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-former-unit] > h3 {
+  margin: .95rem 0 .3rem;
+  font-size: 1.05rem;
+  color: var(--elections-gold);
+}
+[data-elections-former-unit] {
+  border-block-start: 1px solid var(--s29-line);
+  margin-block-start: .9rem;
+  padding-block-start: .55rem;
+}
+.sod29-reading-post[data-reality-map] .sod29-reading-source [data-elections-former-unit] > :is(h2, p) {
+  font-size: 1rem !important;
+  text-align: start !important;
+  margin: .4rem 0 !important;
+  line-height: 1.55 !important;
+}
+.sod29-reading-post[data-reality-map] [data-elections-former-unit] > hr {
+  display: none;
+}
