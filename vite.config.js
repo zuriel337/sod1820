@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { royalBackdropDocument2029 } from './scripts/lib/royal-backdrop-document.mjs'
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url))
 // SOD_BUILD_TARGET is still passed by existing scripts and is ignored: 2029 is the only target.
@@ -14,12 +15,13 @@ export default defineConfig({
   // (is2029 is constant true now; the conditional form is kept because the Realtime entry-split contract test asserts it.)
   resolve: is2029 ? {
     alias: [
+      { find: /^@supabase\/auth-js$/, replacement: resolve(rootDir, 'src/lib/authLazy2029.js') },
       { find: /^@supabase\/realtime-js$/, replacement: resolve(rootDir, 'src/lib/realtimeLazy2029.js') },
       // Same boundary for Storage (shell budget, 16.11.2026): only from().upload/getPublicUrl are used; the real client loads on the first upload.
       { find: /^@supabase\/storage-js$/, replacement: resolve(rootDir, 'src/lib/storageLazy2029.js') },
     ],
   } : undefined,
-  plugins: [react()],
+  plugins: [react(), { name: 'royal-backdrop-document-2029', transformIndexHtml: royalBackdropDocument2029 }],
   define: { __SOD_2029_BUILD__: JSON.stringify(is2029) },
   build: {
     emptyOutDir: true,

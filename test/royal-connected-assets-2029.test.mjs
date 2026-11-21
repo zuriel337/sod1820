@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 
-test('connected palace derivatives stay lazy, fingerprinted, responsive and immutable',()=>{
- const source=fs.readFileSync('src/components/experience2029/RoyalBackdrop2029.jsx','utf8');
+test('connected palace derivatives are document-owned, fingerprinted, responsive and immutable',()=>{
+ const source=fs.readFileSync('src/lib/brandAssets2029.js','utf8');
+ const document=fs.readFileSync('scripts/lib/royal-backdrop-document.mjs','utf8');
  const urls=[...source.matchAll(/"(\/backgrounds\/2029\/royal-connected-[^"]+)"/g)].map(x=>x[1]);
  assert.equal(urls.length,4);
  for(const url of urls){
@@ -18,11 +19,12 @@ test('connected palace derivatives stay lazy, fingerprinted, responsive and immu
    assert.ok(rules[idx].headers.some(x=>x.key==='Cache-Control'&&x.value==='public, max-age=31536000, immutable'));
   }
  }
- assert.match(source,/type="image\/avif"/);assert.match(source,/type="image\/webp"/);assert.match(source,/fetchPriority="low"/);
+ assert.match(document,/type="image\/avif"/);assert.match(document,/type="image\/webp"/);assert.match(document,/fetchpriority="low"/);
  const frame=fs.readFileSync('src/components/experience2029/SystemFrame2029.jsx','utf8');
  const app=fs.readFileSync("src/App2029.jsx","utf8");
- assert.match(app,/lazy\(\(\) => import\("\.\/components\/experience2029\/RoyalBackdrop2029.jsx"\)\)/);
- assert.ok(app.indexOf("<RoyalBackdrop2029 />") < app.indexOf("<ResearchProvider>"));
+ assert.doesNotMatch(app,/RoyalBackdrop/,'no React mount or client dependency delays the document background');
+ assert.match(document,/replace\(\/<body/,'picture belongs to the document outside React root');
+ assert.match(fs.readFileSync('vite.config.js','utf8'),/transformIndexHtml: royalBackdropDocument2029/);
  assert.doesNotMatch(frame,/RoyalBackdrop2029/);
  assert.match(frame,/introVariant === "none" \? "none"/);
  assert.match(frame,/filter\(item => item.key !== "page"\)/);
@@ -36,7 +38,7 @@ test('page statistics strips no longer mount or import their lazy readers',()=>{
 });
 
 
-test('retired page backgrounds and early fetches cannot compete with the App-owned image',()=>{
+test('retired page backgrounds and early fetches cannot compete with the document-owned image',()=>{
  for(const file of ['src/pages/community2029.css','src/pages/post2029-legacy-grade.css','src/components/experience2029/homeComposition2029.css','src/components/experience2029/guestNewsletterInvite2029.css'])
   assert.doesNotMatch(fs.readFileSync(file,'utf8'),/url\(|var\(--(?:post-background|home-atmosphere)/);
  assert.doesNotMatch(fs.readFileSync('src/components/experience2029/GuestNewsletterInvite2029.jsx','utf8'),/HOME_ATMOSPHERE/);

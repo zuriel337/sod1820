@@ -3,11 +3,12 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingActionsLocked } from "../publicReadingRelease2029.js";
 import { personalActionsLocked } from "../publicLaunch2029.js";
-import { applyCloudResearchOps, getCloudResearch } from "../auth.js";
+const getCloudResearch = (...args) => import("../auth.js").then(m => m.getCloudResearch(...args));
+const applyCloudResearchOps = (...args) => import("../auth.js").then(m => m.applyCloudResearchOps(...args));
 import { signalAiBehavior, supabase } from "../supabase.js";
 import { useElsResearchOperation } from "./useElsResearchOperation.js";
 import { emit, EVENTS } from "./eventBus.js";
-import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
+import { normalizeResearchContext, mergeResearchContext, isResearchWorkspace2029 } from "./researchContext.js";
 import { retainTopicSourceReturn, restoreJourneySourceViewport } from "./journeySourceReturn.js";
 import { parseNumberExpressionFocus } from "./numberExpressionFocus.js";
 import {
@@ -26,6 +27,7 @@ import { emitJourney2029 } from "./journey2029Telemetry.js";
 import { entityRef, makeResearchOp, principalToken } from "./researchSyncState.js";
 import { createResearchSyncRuntime } from "./researchSyncRuntime.js";
 import { isNumberPagePath, numberPageUsesPublicBase } from "./numberPageAddress.js";
+
 
 const MODE_ROLLOUT_KEY = "sod_mode_rollout_v1";
 const LEGACY_UNSCOPED_KEY = "sod_research_v1";
@@ -83,9 +85,16 @@ export default function ResearchProvider({ children }) {
 }
 
 function PrincipalResearchProvider({ children, userId, disabled, personalLocked, isAdmin }) {
-  const actionsLocked = disabled || personalLocked;
+  const { pathname, search, hash } = useLocation();
+  const workspaceActive = isResearchWorkspace2029(pathname);
+  const workspace = useRef(workspaceActive);
+  workspace.current = workspaceActive;
+  const [personalDemand, setPersonalDemand] = useState(false);
+  const personalAllowed = useRef(false);
+  personalAllowed.current = !disabled && !personalLocked;
+  const actionsLocked = disabled || personalLocked || (!workspaceActive && !personalDemand);
   const featureAccess = useRef(false);
-  featureAccess.current = !disabled && !publicReadingActionsLocked(isAdmin && Boolean(userId));
+  featureAccess.current = workspaceActive && !disabled && !publicReadingActionsLocked(isAdmin && Boolean(userId));
   const access = useRef({ allowed: !actionsLocked, epoch: 0 });
   // Same-principal revalidation must revoke stale callbacks immediately without
   // remounting the workspace or throwing away exact-return context.
@@ -97,7 +106,6 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     return invokeElsResearch(body, signal);
   }, []);
   const elsResearchOperation = useElsResearchOperation({ disabled: actionsLocked || !featureAccess.current, invoke: guardedElsInvoke });
-  const { pathname, search, hash } = useLocation();
   const [runtime] = useState(() => createResearchSyncRuntime({
     userId, disabled, cloudEnabled: !actionsLocked, resumePendingOnStart: !PUBLIC_READING_RELEASE,
     storage: browserStorage("localStorage"), session: browserStorage("sessionStorage"),
@@ -138,16 +146,16 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     return () => window.removeEventListener("pagehide", release);
   }, [runtime, disabled, actionsLocked]);
   useEffect(() => {
-    if (PUBLIC_READING_RELEASE) return undefined;
+    if (PUBLIC_READING_RELEASE || actionsLocked) return undefined;
     const reconnect = () => { void runtime.retry(); };
     window.addEventListener("online", reconnect);
     return () => window.removeEventListener("online", reconnect);
-  }, [runtime]);
+  }, [runtime, actionsLocked]);
 
   // One-time discovery-mode rollout nudge for a returning local (pre-sync) user. Applied at most
   // once per browser, and never for a fresh/guest install that never had local research state.
   useEffect(() => {
-    if (disabled) return;
+    if (disabled || !workspaceActive) return;
     try {
       const storage = browserStorage("localStorage");
       if (!storage || storage.getItem(MODE_ROLLOUT_KEY) === "1") return;
@@ -155,7 +163,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       storage.setItem(MODE_ROLLOUT_KEY, "1");
       if (returning) runtime.setMode("discovery");
     } catch { /* noop */ }
-  }, [disabled, runtime]);
+  }, [disabled, runtime, workspaceActive]);
 
   const [pathResume, setPathResume] = useState({ loading: false, latest: null, error: null });
 
@@ -164,6 +172,15 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     const op = makeResearchOp;
     const history = (entity) => op("history_add", { entity: { ...entity, t: Date.now() } });
     const commitAction = (ops) => access.current.allowed && runtime.commit(ops);
+    const admitPersonalAction = () => {
+      if (!personalAllowed.current) return false;
+      // Explicit personal save/retry, not a page-view: use the same principal-bound
+      // journal and receipts. Never create a second personal store.
+      if (!access.current.allowed) access.current = { allowed: true, epoch: access.current.epoch + 1 };
+      setPersonalDemand(true);
+      runtime.setCloudAccess(true);
+      return true;
+    };
     function remove(bucket, key, id) {
       const e = now()[key].find((x) => x.id === id);
       return e ? commitAction([op("item_delete", { bucket, entity_type: e.type, entity_ref: entityRef(e) })]) : false;
@@ -192,6 +209,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     }
     return {
       addToResearch(entity) {
+        if (!workspace.current) return false;
         if (!entity?.id || !entity?.type) return false;
         const ok = commitAction([op("item_upsert", { bucket: "cart", entity }), history(entity)]);
         if (ok) { emit(EVENTS.RESEARCH_ADD, entity); if (!PUBLIC_READING_RELEASE) signalAiBehavior("research"); }
@@ -204,7 +222,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
         return ok;
       },
       saveItem(entity) {
-        if (!entity?.id || !entity?.type) return false;
+        if (!entity?.id || !entity?.type || !admitPersonalAction()) return false;
         const ok = commitAction([op("item_upsert", { bucket: "library", entity }), history(entity)]);
         if (ok) { const expectedPath = globalThis.location?.pathname; void import("../siteActivity2029.js").then(m=>m.recordSiteActivity("save", { expectedUserId: userId, expectedPath })).catch(()=>{}); emit(EVENTS.ITEM_SAVE, entity); }
         return ok;
@@ -218,7 +236,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
         return ok;
       },
       isPinned: (id) => now().pinned.some((e) => e.id === id),
-      logHistory: (entity) => (entity?.id ? runtime.commit([history(entity)]) : false),
+      logHistory: (entity) => (workspace.current && entity?.id ? commitAction([history(entity)]) : false),
       clearHistory: () => commitAction([op("history_clear")]),
       addCollection(name, meta = {}) {
         const id = `c${crypto.randomUUID()}`;
@@ -258,7 +276,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       setMode: runtime.setMode,
       enterDiscovery: () => runtime.setMode("discovery"),
       toggleMode: () => runtime.setMode(now().mode === "discovery" ? "reader" : "discovery"),
-      retryResearchSync: (...args) => access.current.allowed ? runtime.retry(...args) : false,
+      retryResearchSync: (...args) => admitPersonalAction() ? runtime.retry(...args) : false,
       resolveResearchSyncConflict: (...args) => access.current.allowed ? runtime.resolveConflict(...args) : false,
       exportPendingResearch: runtime.exportPending,
       listResearchRecoveryJournals: runtime.listRecoveryJournals,
@@ -286,7 +304,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       if (alive && access.current.allowed && epoch === access.current.epoch && version === pathSession.current.version) setPathResume({ loading: false, latest: null, error: error?.message || "research_path_unavailable" });
     });
     return () => { alive = false; };
-  }, [userId, actionsLocked, isAdmin]);
+  }, [userId, actionsLocked, isAdmin, workspaceActive]);
 
   const saveCurrentResearchPath = useMemo(() => async ({ href = null, label = null, surface = null } = {}) => {
     if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
@@ -498,7 +516,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
 
   const lastElsHistorySig = useRef(null);
   useEffect(() => {
-    if (actionsLocked) return undefined;
+    if (actionsLocked || !workspaceActive) return undefined;
     const onElsState = (event) => {
       if (!access.current.allowed || event.origin !== window.location.origin) return;
       // Reject detached/old-principal frames, even when origin and claimed source text match.
@@ -569,7 +587,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     };
     window.addEventListener("message", onElsState);
     return () => window.removeEventListener("message", onElsState);
-  }, [runtime, actions, actionsLocked, elsResearchOperation.observeElsState]);
+  }, [runtime, actions, actionsLocked, workspaceActive, elsResearchOperation.observeElsState]);
 
   const researchPathSteps = useMemo(() => {
     const journey = state.context?.journey;
@@ -588,7 +606,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     if (!actions.setResearchContext(next)) return { ok: false, error: "session_unavailable" };
     return { ok: true, context: next, href: next.subject.href };
   }, [runtime, actions, researchPathSteps]);
-  const value = useMemo(() => ({ ...state, elsResearchOperation, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, ...actions }),
-    [state, elsResearchOperation, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, actions]);
+  const value = useMemo(() => ({ ...state, researchWorkspaceActive: workspaceActive, researchActionsAvailable: workspaceActive && !actionsLocked, elsResearchOperation, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, ...actions }),
+    [state, workspaceActive, actionsLocked, elsResearchOperation, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, actions]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

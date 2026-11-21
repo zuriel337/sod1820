@@ -325,3 +325,12 @@ export function researchContextSubjectKey(context) {
   const subject = normalizeResearchContext(context)?.subject;
   return subject ? `${subject.type}:${subject.id}` : null;
 }
+
+// Existing research destinations and their aliases. Reading routes retain exact-return
+// context, but do not admit background research cloud work.
+export function isResearchWorkspace2029(pathname = '') {
+  let path = String(pathname).replace(/\/+$/, '') || '/';
+  try { path = decodeURIComponent(path); } catch { return false; }
+  path = path.replace(/^\/2029(?=\/)/, '');
+  return /^\/(world|heichal|היכל|code|els|gematria|verse-gematria|calculator|calculator-pro|number)(\/|$)/.test(path);
+}

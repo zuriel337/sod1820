@@ -12,7 +12,6 @@ import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import { readingTelemetryPath } from "./lib/publicReadingTelemetry2029.js";
 import { installOfferKind, subscribeInstallOffer } from "./lib/installOffer2029.js";
-const RoyalBackdrop2029 = lazy(() => import("./components/experience2029/RoyalBackdrop2029.jsx"));
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 import Opening2029 from "./components/experience2029/Opening2029.jsx";
 import Awakening2029 from "./components/experience2029/Awakening2029.jsx";
@@ -396,7 +395,6 @@ export default function App2029() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Suspense fallback={null}><RoyalBackdrop2029 /></Suspense>
         <RouteScrollReset2029 />
         {/* Measurement stays outside ResearchProvider: its keyed subtree is replaced when the account state resolves. */}
         <RouteEffects2029 />

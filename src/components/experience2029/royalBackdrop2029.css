@@ -1,5 +1,5 @@
 .r29-site-backdrop{position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--s29-page)}
-.sod29-root.closed-shell.native-frame[data-frame-theme-preset]{background:transparent}
+html.sod-af-first .sod29-root.closed-shell.native-frame[data-frame-theme-preset],.sod29-root.closed-shell.native-frame[data-frame-theme-preset],html[data-theme-2029] .sod29-opening{background:transparent}
 /* The existing crown geometry is the single boundary, including on scroll. */
 .r29-connected-art{position:absolute;top:63px;inset-inline:0;height:370px;z-index:0;pointer-events:none;overflow:hidden;mask-image:linear-gradient(#000 0%,#000 25%,transparent 100%)}
 .r29-connected-art img{width:100%;height:100%;object-fit:cover;object-position:center 30%}

@@ -49,7 +49,7 @@ test("which content each page waits for: the Home's settled pinned lead, a Post'
   assert.equal(primaryContentSelector2029("/%D7%A1%D7%93%D7%A8-%D7%AA%D7%A4%D7%99%D7%9C%D7%94"), POST, "an original single-segment Post address");
   assert.match(readFileSync(new URL("../src/pages/NotFound2029Page.jsx", import.meta.url), "utf8"), /<main data-experience-surface="not-found"/, "the not-found page is a settled state");
   assert.match(readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8"),
-    /data-home-pinned-lead=\{lead \? "feed" : member \? "catalog" : "loading"\}/, "the Home's states the selector relies on (a Post, loading)");
+    /data-home-pinned-lead=\{selected \? "editorial" : lead \? "feed" : member \? "catalog" : "loading"\}/, "the Home's states the selector relies on (a Post, loading)");
   assert.match(readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8"), /data-home-pinned-lead="none"/, "and none to show: never left waiting");
   for (const path of ["/community", "/world", "/posts", "/gematria", "/number/26", "/privacy"]) assert.equal(primaryContentSelector2029(path), null, path);
 });
