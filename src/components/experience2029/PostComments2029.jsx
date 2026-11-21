@@ -9,7 +9,10 @@ import "./postComments2029.css";
 const dateFormat = new Intl.DateTimeFormat("he-IL", {
   day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
 });
-const electionsThreadIds = ["2c22eafe-5847-4c31-a510-2abfd1fa3291"];
+const electionsThreadIds = [
+  "81c5c66a-e32a-4b0e-bdfd-bbcad10b636e",
+  "2c22eafe-5847-4c31-a510-2abfd1fa3291",
+];
 const communityThreadIdsByPost = new Map([[5107, electionsThreadIds], [5113, electionsThreadIds]]);
 
 function CommunityCommentThread({ thread }) {
