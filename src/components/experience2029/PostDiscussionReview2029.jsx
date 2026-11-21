@@ -10,6 +10,7 @@ export default function PostDiscussionReview2029({ post, draftTarget, onDraftClo
   const auth = useAuth();
   const input = useRef(null);
   const [rows, setRows] = useState([]);
+  const [discussionOpen, setDiscussionOpen] = useState(false);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [revision, refresh] = useState(0);
@@ -31,7 +32,10 @@ export default function PostDiscussionReview2029({ post, draftTarget, onDraftClo
   }, [post.id, revision, browserReview]);
 
   useEffect(() => {
-    if (draftTarget) input.current?.focus();
+    if (draftTarget) {
+      setDiscussionOpen(true);
+      input.current?.focus();
+    }
   }, [draftTarget]);
 
   async function submit(event) {
@@ -66,9 +70,11 @@ export default function PostDiscussionReview2029({ post, draftTarget, onDraftClo
   }
 
   return <section id="post-comments" className="sod29-post-comments" aria-label="דיון הפוסט">
-    {browserReview ? <small>תגובות בדיקה בדפדפן הזה</small> : null}
-    <details open>
+    <details open={!browserReview || discussionOpen} onToggle={event => {
+      if (browserReview) setDiscussionOpen(event.currentTarget.open);
+    }}>
       <summary>תגובות ({rows.length})</summary>
+      {browserReview ? <small>תגובות בדיקה בדפדפן הזה</small> : null}
       {readError ? <p role="alert">לא הצלחנו לטעון את הדיון.</p> : null}
       <ol className="sod29-post-comment-list">
         {rows.map(row => {

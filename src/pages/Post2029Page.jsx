@@ -10,7 +10,7 @@ import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorMode
 import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029ExperienceProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
-import { publicPostHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
+import { publicPostHref, publicPostUnitHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
 import { publicPostLinkedMedia, legacySourcePath } from "../lib/research/publicPostSourceLinks2029.js";
 import { postActionTarget2029, postActionUnits2029 } from "../lib/research/postActionTarget2029.js";
 import { logView, logActivity } from "../lib/supabase.js";
@@ -43,6 +43,9 @@ import { postClassification2029, postHierarchyContext2029, postContentEntry2029 
 import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
 import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
+import { postsTaxonomyScope2029 } from "../lib/research/postsTaxonomy2029Route.js";
+import { canonicalPostCategories } from "../lib/postCategoryIdentity.js";
+import { previewPostMedia2029, previewPostSourceLinks2029 } from "../lib/research/postDesignPreview2029.js";
 import { postReadingClassName } from "./postReadingStyles2029.js";
 
 import AdSlot from "../components/AdSlot.jsx";
@@ -288,6 +291,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     });
   }, [state.loading, state.projection, slug]);
 
+  const previewSourceLinks = useMemo(() => mapIntegrationReview ? previewPostSourceLinks2029(passiveSourceHtml) : [], [passiveSourceHtml]);
   const regions = state.projection?.regions || [];
   const activeFocus = useMemo(
     () => regions.find((region) => region.id === activeRegionId) || regions[0] || null,
@@ -296,6 +300,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const activeRegionFocus = activeFocus;
   // ONE two-level outline of the Post (sections → units / sub-headings) read from the rendered Post; a hand-written reading-region list (the flight Post, the golden Post) still wins
   const { outline: postOutline, activeId: activeOutlineId } = usePostOutline2029(sourceRef, `${state.projection?.post?.id || ""}|${passiveSourceHtml.length}`);
+  const previewUnits = useMemo(() => mapIntegrationReview ? postActionUnits2029(state.projection?.post, sourceRef.current) : [],
+    [state.projection?.post, postOutline]);
   const useOutline = postOutline.length > 0 && regions.length <= 1;
   // a Post with hand-written reading regions AND a stack of proven updates keeps its regions and gets "מה התחדש" (with its units) in front of them
   const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
@@ -902,7 +908,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const postActionTarget = postActionTarget2029(projection);
   const mapUnit = mapIntegrationReview ? mapUnitReading(post.id) : null;
   const worldReturn = mapUnit && location.state?.mapWorldUnit === mapUnit.key ? mapWorldHref(mapUnit.key) : null;
-  const coverItem = postReadingCoverYieldsToVideo2029(post) ? null : postReadingCoverItem(post);
+  const coverYields = mapIntegrationReview ? previewPostMedia2029(post).duplicateCover : postReadingCoverYieldsToVideo2029(post);
+  const coverItem = coverYields ? null : postReadingCoverItem(post);
   const character = postCharacterFor(post);
   const matrixOpening = matrixOpeningFor(post);
   const background = postBackground2029(projection.sourcePost);
@@ -919,7 +926,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : [...new Set(
           regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
         )].slice(0, 5);
-  // One cover only: the sharp whole-image reading cover below the header (shared media kit). No second thumbnail above the title.
   const classification = postClassification2029(projection.sourcePost);
   const heroDate = isBennettMaster
     ? "2026-10-01"
@@ -937,6 +943,16 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : item
   ));
   const contextualConnections = (experience.connections || []).filter((connection) => connection.href);
+  const connectedHrefs = new Set(contextualConnections.map(item => item.href));
+  const additionalLinks = previewSourceLinks.filter(item => !connectedHrefs.has(item.href));
+  const researchAnchorRequested = /^#(?:post-(?:research|sources|classification|connections|measures)|source-region-post-connections|timeline)/.test(location.hash);
+  const hasResearchContent = contextualConnections.length > 0 || visibleTimeline.some(item => !item.current)
+    || additionalLinks.length > 0 || measureSource.claims.length > 0
+    || Boolean(experience.media?.sourceCard?.href || experience.media?.fullSource?.href);
+  const previewOutline = mapIntegrationReview ? postOutline.filter(item => !["post-connections", "post-sources"].includes(item.id)) : [];
+  const previewCategories = mapIntegrationReview ? canonicalPostCategories(projection.sourcePost.categories).filter(name => name !== "וידאו") : [];
+  const previewTags = mapIntegrationReview ? [...new Set((projection.sourcePost.tags || [])
+    .map(tag => postsTaxonomyScope2029("tag", tag)).filter(scope => scope.kind === "tag").map(scope => scope.key))] : [];
   const exactReturnForRegion = (region) => ({
     href: exactPostReadingHref(post, location, `#source-region-${region?.id || projection.defaultRegionId}`),
     label: post.title,
@@ -1288,8 +1304,94 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     });
   };
 
+  const cover = coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
+    <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high"
+      srcSet={postImageRenditionSet2029(coverItem.imageUrl, documentImageFactsFor(post.id)) || undefined}
+      sizes={mapIntegrationReview ? "(max-width: 760px) 40px, 128px" : POST_COVER_IMAGE_SIZES}
+      alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
+  </figure> : null;
+
+  const researchDisclosure = <details ref={researchRef} open={researchOpen} className="sod29-post-research" id="post-research"
+      data-experience-capability="post-sources-and-connections"
+      onToggle={event => {
+        if (event.target !== event.currentTarget) return;
+        setResearchOpen(event.currentTarget.open);
+        if (event.currentTarget.open) setResearchStarted(true);
+      }}>
+      <summary>
+        <span className="sod29-post-research-title">מקורות וקשרים</span>
+        {!mapIntegrationReview ? <span className="sod29-post-research-hint">מקור, חיבורים, ציר זמן ומדדים — בלי להעמיס על הקריאה</span> : null}
+        <span className="sod29-post-research-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div className="sod29-post-research-body">
+    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <div id="post-measures">
+      {researchStarted ? <PostConvergenceMeasures2029 key={`${post.id}:${post.modified || ""}:${user?.id || "public"}`}
+        sourcePost={projection.sourcePost} sourceProjection={projection} claims={measureSource.claims} placements={measureSource.placements}
+        initialCardId={research.context?.subject?.type === "post" && String(research.context.subject.id) === String(post.id)
+          ? research.context?.dimensions?.postMeasureSelectedCardId || null : null}
+        onOpenCalculation={openCheckedPostCalculation} onNavigate={openMeasureConnection}
+        onRefresh={() => invalidatePostSource("source_changed")} onSourceInvalid={invalidatePostSource} /> : null}
+    </div> : null}
+
+    {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
+      <header>
+        <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
+        <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
+      </header>
+      {[
+        { title: null, items: contextualConnections.filter((connection) => !connection.id.startsWith("elections-history-")) },
+        { title: "בחירות לאורך השנים", items: contextualConnections.filter((connection) => connection.id.startsWith("elections-history-")) },
+      ].filter((group) => group.items.length).map((group) => <div key={group.title || "connections"}>
+      {group.title ? <header><h3>{group.title}</h3><p>מתוך החומר שכבר פורסם בישראל ובארה״ב, לפי תאריך הפרסום. בכל חיבור אפשר לראות למה הוא מופיע כאן ולפתוח את המקור.</p></header> : null}
+      <div className="sod29-post-continuation-grid">
+        {group.items.map((connection) => <a
+          key={connection.id}
+          href={connection.href}
+          className="sod29-post-continuation"
+          data-post-connection={connection.id}
+          onClick={(event) => openConnection(event, connection.href)}
+        >
+          <span className="sod29-post-continuation-type">{group.title ? connection.kind : connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
+          <h3>{connection.label}</h3>
+          {connection.reason ? <p>{connection.reason}</p> : null}
+          <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
+        </a>)}
+      </div>
+      </div>)}
+    </section> : null}
+
+    {additionalLinks.length ? <section aria-label="קישורים מתוך הפוסט" className="post-design-links">
+      <h3>קישורים מתוך הפוסט</h3>
+      <ul>{additionalLinks.map(item => <li key={item.href}><a href={item.href}>{item.label}</a></li>)}</ul>
+    </section> : null}
+    {researchStarted || /timeline/i.test(location.hash || "") ? <PostTimeline2029 items={visibleTimeline} currentHref={publicPostHref(post)} /> : null}
+
+      {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <section id="post-classification" className="sod29-post-continuations">
+        <header><h2>איך הפוסט משתלב?</h2>
+        <p>הפוסט הוא הסיפור; סדרה מאגדת פרסומים, ערוץ הוא בית פרסום, ונושא מחבר תכנים על אותו עניין. אלה תפקידים שיכולים לחפוף, בלי להיכפות להורה אחד.</p>
+        {!mapIntegrationReview ? <p>„מימד חמש” היא סדרת תוכן של „בדרך לנצח”; „אור הגאולה” הוא ערוץ. ההשוואה ביניהם אינה משייכת את הפוסט לערוץ. ייחוס במקור אינו זיהוי אוטומטי של כתב.</p> : null}
+        <p>מעקב נבחר במפורש בהמשך הפוסט. רלוונטיות והמלצה של רזיאל אינן הרשמה למעקב.</p>
+        </header>
+        {classification.series.length ? classification.series.map(item => <button key={item.key} type="button" className="sod29-action"
+          disabled={shell.razielLocked || !shell.openRaziel} onClick={() => askAboutPostHierarchy(item.key)}>
+          להבין את השיוך ל{item.name} עם רזיאל
+        </button>) : <button type="button" className="sod29-action" disabled={shell.razielLocked || !shell.openRaziel} onClick={() => askAboutPostHierarchy()}>
+          לברר את שיוך הפוסט עם רזיאל
+        </button>}
+      </section> : null}
+
+    <footer id="post-sources" className="sod29-reading-footnote">
+      <span>מקור</span>
+      <strong>{projection.sourceLine}</strong>
+      <p>{projection.caveat}</p>
+
+    </footer>
+      </div>
+    </details>;
+
   return <><article
     className={postReadingClassName([experience.wireframe ? "is-architecture-wireframe" : "", protoOn && realityMap.active ? "r29" : ""].filter(Boolean).join(" "))}
+    data-post-design-preview={mapIntegrationReview ? "" : undefined}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"
     data-experience-capability="post-master-reading-stage"
@@ -1317,6 +1419,35 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div> : null}
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
+          {mapIntegrationReview ? <>
+          <div className="post-design-title">
+            <div>
+              {classification.series.length ? <div className="post-design-series" aria-label="סדרות">
+                {classification.series.map(item => <a key={item.key} href={item.href} onClick={event => openConnection(event, item.href)}>סדרה: {item.name}</a>)}
+              </div> : null}
+              <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
+              {heroDate ? <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time> : null}
+            </div>
+            {cover}
+          </div>
+          {projection.excerpt ? <p className="post-design-opening">{projection.excerpt}</p> : null}
+          <details className="sod29-post-details">
+            <summary><span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span></summary>
+            <div className="sod29-post-details-body">
+              {classification.credit ? <p>קרדיט · {classification.credit.name}</p> : null}
+              {projection.sourceLine && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
+              {previewCategories.length ? <div className="post-design-categories"><strong>קטגוריות</strong>
+                <PostCategories2029 categories={previewCategories} max={Infinity} />
+              </div> : null}
+              {previewTags.length ? <div className="post-design-categories"><strong>תגיות</strong>
+                <div className="post-design-series">{previewTags.map(tag => <Link key={tag} to={`/2029/posts?tag=${encodeURIComponent(tag)}`}>{tag}</Link>)}</div>
+              </div> : null}
+              {postActionTarget ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_details_2029" /> : null}
+              {heroNumbers.length ? <p>לחיצה על מספר בתוך הפוסט פותחת את החישוב.</p> : null}
+              <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
+            </div>
+          </details>
+          </> : <>
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
           {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
           <PostCategories2029 post={projection.sourcePost} compact max={4} />
@@ -1338,9 +1469,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
             </div>
           </details>
+          </>}
         </div>
 
-        {heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
+        {!mapIntegrationReview && heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
           <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
             {heroNumbers.map((number, index) => <button
@@ -1360,19 +1492,26 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div>
       {postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml}
         onDraft={discussionReviewEnabled ? target => setDiscussionDraft(current => current?.postId === target.postId ? current : target) : undefined} /> : null}
-      {mapUnit && MapUnitContextReview ? <details className="map29-mobile-post-context">
+      {mapIntegrationReview && (previewOutline.length || mapUnit) ? <details className="map29-mobile-post-context">
         <summary>הקשר הפוסט</summary>
-        <div className="sod29-context-inspector-kicker">בתוך הפוסט</div>
-        <a href={`#${mapUnit.key}`}>{mapUnit.label}</a>
-        <MapUnitContextReview postId={post.id} unitKey={mapUnit.key} />
+        {previewOutline.length ? <nav aria-label="בתוך הפוסט">
+          <div className="sod29-context-inspector-kicker">בתוך הפוסט</div>
+          <ul>{previewOutline.map(item => {
+            const id = item.targetId || item.id;
+            const href = previewUnits.some(unit => unit.id === id) ? publicPostUnitHref(post, id) : `#${encodeURIComponent(id)}`;
+            return <li key={item.id} data-level={item.level}><Link to={href} state={location.state}
+              aria-current={activeOutlineId === item.id ? "location" : undefined}
+              onClick={event => { event.currentTarget.closest("details").open = false; }}>{item.label}</Link></li>;
+          })}</ul>
+        </nav> : null}
+        {mapUnit && MapUnitContextReview ? <MapUnitContextReview postId={post.id} unitKey={mapUnit.key} /> : null}
       </details> : null}
-      {mapUnit ? <div className="sod29-actions" aria-label="מסלול הבדיקה">
-        <Link className="sod29-action" to={worldReturn || mapWorldHref(mapUnit.key)}>{worldReturn ? "חזרה לאותה בחירה בעולם" : "לקשר בעולם"}</Link>
-        <small>שמירה ותגובות בפריוויו זה נשמרות בדפדפן הבדיקה.</small>
+      {worldReturn ? <div className="sod29-actions" aria-label="מסלול הבדיקה">
+        <Link className="sod29-action" to={worldReturn}>חזרה לאותה בחירה בעולם</Link>
       </div> : null}
     </header>
 
-    {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
+    {!mapIntegrationReview && sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
       <span className="sod29-update-strip-kicker">עודכן</span>
       <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
         <strong data-update-caption={resolveUnitMessage(post.id, sourceUpdates[0].targetId) ? "main-message" : "label"}>{(realityMap.active && resolveUnitMessage(post.id, sourceUpdates[0].targetId)) || sourceUpdates[0].label}</strong>
@@ -1389,11 +1528,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         </ul>
       </details> : null}
     </aside> : null}
-    {protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
-    {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
-      <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" srcSet={postImageRenditionSet2029(coverItem.imageUrl, documentImageFactsFor(post?.id)) || undefined} sizes={POST_COVER_IMAGE_SIZES} alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
-    </figure> : null}
-
+    {!mapIntegrationReview && protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
+    {!mapIntegrationReview ? cover : null}
+    {mapIntegrationReview && (hasResearchContent || researchOpen || researchAnchorRequested) ? researchDisclosure : null}
 
     <PostEvidenceMedia2029 media={experience.media} />
     {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}
@@ -1449,80 +1586,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         <button type="button" onClick={openPostEngineExploration}>בדיקה חדשה במנוע</button>
       </div> : null}</>, calculationFeedbackHost)
       : <p role="status">{calculationNotice}</p>) : null}
-    <details ref={researchRef} open={researchOpen} className="sod29-post-research" id="post-research"
-      data-experience-capability="post-sources-and-connections"
-      onToggle={event => {
-        if (event.target !== event.currentTarget) return;
-        setResearchOpen(event.currentTarget.open);
-        if (event.currentTarget.open) setResearchStarted(true);
-      }}>
-      <summary>
-        <span className="sod29-post-research-title">מקורות וקשרים</span>
-        <span className="sod29-post-research-hint">מקור, חיבורים, ציר זמן ומדדים — בלי להעמיס על הקריאה</span>
-        <span className="sod29-post-research-chevron" aria-hidden="true">⌄</span>
-      </summary>
-      <div className="sod29-post-research-body">
-    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <div id="post-measures">
-      {researchStarted ? <PostConvergenceMeasures2029 key={`${post.id}:${post.modified || ""}:${user?.id || "public"}`}
-        sourcePost={projection.sourcePost} sourceProjection={projection} claims={measureSource.claims} placements={measureSource.placements}
-        initialCardId={research.context?.subject?.type === "post" && String(research.context.subject.id) === String(post.id)
-          ? research.context?.dimensions?.postMeasureSelectedCardId || null : null}
-        onOpenCalculation={openCheckedPostCalculation} onNavigate={openMeasureConnection}
-        onRefresh={() => invalidatePostSource("source_changed")} onSourceInvalid={invalidatePostSource} /> : null}
-    </div> : null}
-
-    {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
-      <header>
-        <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
-        <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
-      </header>
-      {[
-        { title: null, items: contextualConnections.filter((connection) => !connection.id.startsWith("elections-history-")) },
-        { title: "בחירות לאורך השנים", items: contextualConnections.filter((connection) => connection.id.startsWith("elections-history-")) },
-      ].filter((group) => group.items.length).map((group) => <div key={group.title || "connections"}>
-      {group.title ? <header><h3>{group.title}</h3><p>מתוך החומר שכבר פורסם בישראל ובארה״ב, לפי תאריך הפרסום. בכל חיבור אפשר לראות למה הוא מופיע כאן ולפתוח את המקור.</p></header> : null}
-      <div className="sod29-post-continuation-grid">
-        {group.items.map((connection) => <a
-          key={connection.id}
-          href={connection.href}
-          className="sod29-post-continuation"
-          data-post-connection={connection.id}
-          onClick={(event) => openConnection(event, connection.href)}
-        >
-          <span className="sod29-post-continuation-type">{group.title ? connection.kind : connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
-          <h3>{connection.label}</h3>
-          {connection.reason ? <p>{connection.reason}</p> : null}
-          <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
-        </a>)}
-      </div>
-      </div>)}
-    </section> : null}
-
-    {researchStarted || /timeline/i.test(location.hash || "") ? <PostTimeline2029 items={visibleTimeline} currentHref={publicPostHref(post)} /> : null}
-
-      {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <section id="post-classification" className="sod29-post-continuations">
-        <header><h2>איך הפוסט משתלב?</h2>
-        <p>הפוסט הוא הסיפור; סדרה מאגדת פרסומים, ערוץ הוא בית פרסום, ונושא מחבר תכנים על אותו עניין. אלה תפקידים שיכולים לחפוף, בלי להיכפות להורה אחד.</p>
-        <p>„מימד חמש” היא סדרת תוכן של „בדרך לנצח”; „אור הגאולה” הוא ערוץ. ההשוואה ביניהם אינה משייכת את הפוסט לערוץ. ייחוס במקור אינו זיהוי אוטומטי של כתב.</p>
-        <p>מעקב נבחר במפורש בהמשך הפוסט. רלוונטיות והמלצה של רזיאל אינן הרשמה למעקב.</p>
-        </header>
-        {classification.series.length ? classification.series.map(item => <button key={item.key} type="button" className="sod29-action"
-          disabled={shell.razielLocked || !shell.openRaziel} onClick={() => askAboutPostHierarchy(item.key)}>
-          להבין את השיוך ל{item.name} עם רזיאל
-        </button>) : <button type="button" className="sod29-action" disabled={shell.razielLocked || !shell.openRaziel} onClick={() => askAboutPostHierarchy()}>
-          לברר את שיוך הפוסט עם רזיאל
-        </button>}
-      </section> : null}
-
-    <footer id="post-sources" className="sod29-reading-footnote">
-      <span>מקור</span>
-      <strong>{projection.sourceLine}</strong>
-      <p>{projection.caveat}</p>
-
-    </footer>
-      </div>
-    </details>
-    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
+    {!mapIntegrationReview ? researchDisclosure : null}
+    {!mapIntegrationReview && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
     {discussionReviewEnabled && postActionTarget ? <PostDiscussionReview2029 key={post.id} post={post} browserReview={mapIntegrationReview}
       draftTarget={discussionDraft?.postId === post.id ? discussionDraft : null} onDraftClosed={() => setDiscussionDraft(null)} />
       : commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
