@@ -32,6 +32,52 @@ async function signInWithCode(page, fixture, email) {
 }
 const overflow = page => page.evaluate(() => { const p = document.querySelector('[data-panel-kind="workspace"]'); const body = p.querySelector(".pa29") || p; return { panel: p.scrollWidth - p.clientWidth, body: body.scrollWidth - body.clientWidth, docX: document.documentElement.scrollWidth - innerWidth }; });
 
+for (const width of [320, 390]) test(`[${width}] keyboard clearance preserves manual scrolling and returns the bottom bar after dismissal`, { skip: !canRun && "playwright or the built artifact is unavailable", timeout: 90000 }, async () => {
+  // Chromium does not provide a native phone keyboard. Exercise the real built
+  // frame with controlled visualViewport events; physical-device QA is separate.
+  const fixture = await startFixture();
+  const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
+  try {
+    const context = await browser.newContext({ ...PROFILES.mobile, viewport: { width, height: 844 }, ignoreHTTPSErrors: true, locale: "he-IL" });
+    await context.addInitScript(() => {
+      const viewport = new EventTarget();
+      Object.defineProperty(viewport, "height", { get: () => window.__keyboardHeight ?? innerHeight });
+      Object.defineProperty(window, "visualViewport", { value: viewport, configurable: true });
+    });
+    const page = await context.newPage(); const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    await page.goto(fixture.origin + "/login", { waitUntil: "domcontentloaded" }); await ready(page);
+    await page.getByRole("textbox", { name: "כתובת מייל" }).fill(A);
+    const result = await page.evaluate(async () => {
+      const field = document.activeElement;
+      const dock = document.querySelector(".sod29-command-island");
+      const priorDisplay = getComputedStyle(dock).display;
+      let scrollCalls = 0, focusCalls = 0;
+      const originalScroll = field.scrollIntoView, originalFocus = field.focus;
+      field.scrollIntoView = function (...args) { scrollCalls++; return originalScroll.apply(this, args); };
+      field.focus = function (...args) { focusCalls++; return originalFocus.apply(this, args); };
+      const settle = () => new Promise(resolve => setTimeout(resolve, 180));
+      window.__keyboardHeight = innerHeight - 320;
+      visualViewport.dispatchEvent(new Event("resize")); await settle();
+      const hidden = getComputedStyle(dock).display;
+      for (let i = 0; i < 3; i++) { window.scrollBy(0, 30); visualViewport.dispatchEvent(new Event("scroll")); await settle(); }
+      const retained = document.activeElement === field && field.value === "first.person@example.invalid";
+      window.__keyboardHeight = innerHeight;
+      visualViewport.dispatchEvent(new Event("resize")); await settle();
+      const dismissed = { display: getComputedStyle(dock).display, open: document.documentElement.classList.contains("sod29-kbd-open") };
+      field.blur(); await settle();
+      return { scrollCalls, focusCalls, retained, priorDisplay, hidden, dismissed, overflow: document.documentElement.scrollWidth - innerWidth };
+    });
+    assert.equal(result.scrollCalls, 0, "the frame never pulls the reader back to the input");
+    assert.equal(result.focusCalls, 0, "no delayed refocus reopens the keyboard");
+    assert.equal(result.retained, true, "scrolling preserves both text and editing focus");
+    assert.notEqual(result.priorDisplay, "none"); assert.equal(result.hidden, "none");
+    assert.deepEqual(result.dismissed, { display: result.priorDisplay, open: false });
+    assert.ok(result.overflow <= 1); assert.deepEqual(errors, []);
+    await context.close();
+  } finally { await browser.close(); await fixture.close(); }
+});
+
 for (const [name, options] of Object.entries(PROFILES)) {
   test(`[${name}] personal area: guest, sign-in, destinations, keyboard, refresh, sign-out and account switch`, { skip: !canRun && "playwright or the built artifact is unavailable", timeout: 240000 }, async () => {
     const fixture = await startFixture();

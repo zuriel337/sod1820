@@ -10,18 +10,17 @@ export function watchKeyboardClearance(win = globalThis.window, doc = globalThis
   const viewport = win?.visualViewport;
   if (!viewport || !doc?.documentElement) return () => {};
   const root = doc.documentElement;
-  let timer = 0;
   const apply = () => {
     const open = keyboardOpen({ innerHeight: win.innerHeight, visualHeight: viewport.height, active: doc.activeElement });
     root.classList.toggle("sod29-kbd-open", open);
-    // Keep the field in use clear of the keyboard once the viewport has settled.
-    if (open) { clearTimeout(timer); timer = setTimeout(() => doc.activeElement?.scrollIntoView?.({ block: "center", behavior: "instant" }), 120); }
   };
-  viewport.addEventListener("resize", apply); viewport.addEventListener("scroll", apply);
+  // Native focus reveals the field. Do not recenter it on viewport changes:
+  // that fights touch scrolling and can pull the reader back after dismissal.
+  viewport.addEventListener("resize", apply);
   doc.addEventListener("focusin", apply); doc.addEventListener("focusout", apply);
   apply();
   return () => {
-    clearTimeout(timer); viewport.removeEventListener("resize", apply); viewport.removeEventListener("scroll", apply);
+    viewport.removeEventListener("resize", apply);
     doc.removeEventListener("focusin", apply); doc.removeEventListener("focusout", apply); root.classList.remove("sod29-kbd-open");
   };
 }
