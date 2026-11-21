@@ -128,7 +128,8 @@ export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATUR
   const central = config.central && groups.length ? { ...config.central, postId: config.id, ...(mainMessage ? { lead: mainMessage, leadSub: "" } : {}), groups, statement: config.statement || null, postTitle: projectHomeFeaturedPost(row, config)?.postTitle || "" } : null;
   // While pinned, the short central message is THE summary of this item, so every projection of the shared feed (Home, "עכשיו", World) shows the same words.
   const shortMessage = pin.active && (mainMessage || config.central?.lead) ? (mainMessage || [config.central.lead, config.central.leadSub].filter(Boolean).join(". ")) : null;
-  return { ...base, label: config.headline || base.label, summary: shortMessage || config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: pin.active, pinUntil: pin.active ? pin.until : null, central, liveDot: pin.active ? "עדכון חדש בפוסט" : null, band: config.band ? { ...config.band, groups: (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] })), statement: config.statement || null } : null };
+  return { ...base, label: config.headline || base.label, sourcePostTitle: base.label,
+    summary: shortMessage || config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: pin.active, pinUntil: pin.active ? pin.until : null, central, liveDot: pin.active ? "עדכון חדש בפוסט" : null, band: config.band ? { ...config.band, groups: (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] })), statement: config.statement || null } : null };
 }
 
 // One public read shared by Home and the feed hook (cached for a minute): never two requests for the same Post.
