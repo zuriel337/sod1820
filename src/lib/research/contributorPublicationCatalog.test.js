@@ -74,6 +74,21 @@ test("cipher reader requires explicit public+published even when self_published 
   assert.equal(result.items[0].strength, null);
 });
 
+test("a public writer dossier admits just the owner's explicitly submitted community matrix", async () => {
+  const { client, calls } = clientFixture({ count: 0 });
+  await fetchContributorPublicationCatalog(identity, { client, families: ["ciphers"], includeDossierSubmissions: true });
+  const selection = calls.find(call => call.table === "els_records" && call.filter)?.filter;
+  assert.ok(selection?.includes('and(owner_user_id.eq."owner",source.eq.community,status.eq.pending,visibility.eq.private,self_published.eq.true)'));
+  const submission = { id: "mine", slug: "saved-matrix", owner_user_id: identity.user_id, source: "community",
+    status: "pending", visibility: "private", self_published: true };
+  const rows = [submission, ...[
+    { owner_user_id: "other" }, { status: "draft" }, { status: "hidden" },
+    { self_published: false }, { source: "admin" },
+  ].map((change, index) => ({ ...submission, ...change, id: String(index) }))];
+  const result = appendContributorPublicationCatalog(view(), { ciphers: { rows, complete: true } }, identity);
+  assert.deepEqual(result.items.map(row => [row.id, row.href]), [["els:mine", "/code?cipher=saved-matrix"]]);
+});
+
 test("lineage collapses a projected insight, while keeping its original source reference", () => {
   const result = appendContributorPublicationCatalog(view(), {
     contributions: { rows: [{ id: "original", status: "published", title: "Source", projected_insight_id: "projection" }], complete: true },

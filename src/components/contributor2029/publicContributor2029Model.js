@@ -1,9 +1,11 @@
+import { savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
 // Page-local presentation over the canonical readers. No persistence or attribution inference.
 import { normalizeWorldAllResearchRow } from "../../lib/research/worldAllResearchProjection.js";
 import { orderResearchByPublicStatusTier, researchPublicStatusPresentation } from "../../lib/research/researchObjectPresentation.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import { safePublicUrl, approvedReturnHref } from "./contributorLinkPolicy2029.js";
 import {
+  isOwnSubmittedCipher,
   contributorPublicationRecordTime,
   contributorPublicationRecordTimeKind,
 } from "../../lib/research/contributorPublicationCatalog.js";
@@ -206,12 +208,13 @@ export function appendContributorPublicationCatalog(view, catalogue, identity) {
     });
   }
   for (const row of catalogue.ciphers?.rows || []) {
-    if (row.status !== "published" || row.visibility !== "public" || !row.slug) continue;
+    const submitted = isOwnSubmittedCipher(row, identity?.user_id);
+    if (!row.slug || (!submitted && (row.status !== "published" || row.visibility !== "public"))) continue;
     const mediaUrl = safePublicUrl(row.image_url);
     put({ id: `els:${row.id}`, sourceRef: `els_records:${row.id}`,
       type: row.attributionBasis === "source_author_credit" ? "findings" : "sources",
       label: row.attributionBasis === "source_author_credit" ? "צופן שמור" : "צופן שהועלה",
-      title: text(row.title || row.search_term), date: row.created_at, href: `/codes/${encodeURIComponent(row.slug)}`,
+      title: text(row.title || row.search_term), date: row.created_at, href: submitted ? savedMatrixWorkspaceHref(row) : `/codes/${encodeURIComponent(row.slug)}`,
       media: Boolean(mediaUrl), mediaUrl, strength: null, quality: null, value: null, verification: null,
       reason: row.attributionBasis === "source_author_credit"
         ? "צופן עם קרדיט מחבר מפורש במקור; חשבון המעלה עשוי להיות שונה. פרסום אינו אימות."
