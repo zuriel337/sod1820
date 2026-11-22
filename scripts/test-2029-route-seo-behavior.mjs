@@ -81,6 +81,7 @@ const DECISIONS = {
   "/2029/journey": { kind: "closed" },
   "/2029/control": { kind: "closed" },
   "/2029/me/:module": { kind: "closed" },
+  "/archive": { kind: "archive" },
   "/reality": { kind: "index" },
   "/cross": { kind: "item" },
   "/languages": { kind: "item" },
@@ -194,6 +195,10 @@ function expectDocument(label, a, d, route, mode) {
       break;
     case "shape":
       check(label, a.status === 404 && a.robots === NOINDEX_ALL, `invalid identifier: want 404 noindex in every data condition, got ${a.status} "${a.robots}"`);
+      break;
+    case "archive":
+      if (mode === "down") check(label, a.status === 503 && a.robots === NOINDEX_ALL, "failed archive reader should return 503");
+      else check(label, a.status === 200 && a.canonical === want && a.robots === "noindex, follow", "empty archive should retain its address without indexing");
       break;
     case "collection":
       if (mode === "down") check(label, a.status === 503 && a.robots === NOINDEX_ALL, `source down: want 503 noindex, got ${a.status} "${a.robots}"`);

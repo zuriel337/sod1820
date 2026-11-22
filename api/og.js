@@ -1,3 +1,4 @@
+import { PUBLIC_ARCHIVE_2029, readPublicArchive2029 } from "../src/lib/research/publicArchive2029.js";
 import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
 import { PUBLIC_REALITY_STREAM_2029, isPublicResearchReading2029, publicResearchCategory2029, PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
@@ -116,9 +117,8 @@ const STATIC = {
     card: { w: 'פוסטים', sub: 'החדשות והרמזים האחרונים', cap: 'מה מתגלה עכשיו?' } },
   '/timeline': { title: "ציר ההתגלות · " + SITE_NAME, desc: "ציר הזמן של אירועי הגאולה — כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים.",
     card: { w: 'ציר ההתגלות', sub: 'כל אירועי הגאולה — מחוברים', cap: 'המסע בזמן של סוד 1820' } },
-  '/archive': { title: "ארכיון ההתגלות · " + SITE_NAME,
-    desc: "וואו — אלפי תמונות שבהן המציאות עצמה חתומה במספרים. צפנים, ממצאים ורמזי גאולה שלא תאמין שקיימים. תיכנס ותראה מה יש פה. פלא פלאים.",
-    card: { w: 'ארכיון ההתגלות', sub: 'אלפי תמונות · צפנים · ממצאים', cap: 'לא תאמין מה יש פה' } },
+  '/archive': { title: PUBLIC_ARCHIVE_2029.title + ' · ' + SITE_NAME, desc: PUBLIC_ARCHIVE_2029.description,
+    card: { w: PUBLIC_ARCHIVE_2029.title, sub: 'תיעוד לפי שנה ונושא' } },
   '/map': { title: "מרכז הניווט · " + SITE_NAME, desc: "מפת האתר החיה — כל מערכות SOD1820 במקום אחד.",
     card: { w: 'מרכז הניווט', sub: 'כל מערכות סוד 1820', cap: 'מאיפה מתחילים?' } },
   '/community': { title: "קהילה · " + SITE_NAME, desc: "מרכז הפעילות של SOD1820 — צ'אט, תגובות, מחשבון קהילתי ופעילות אחרונה.",
@@ -466,6 +466,24 @@ export default async function handler(req, res) {
     robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
     image = cardUrl({ w: PUBLISHED_FINDINGS_READING.title, sub: 'ממצאים ומקורות' });
     if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'findings' });
+  } else if (productionReading && decodedKey === '/archive') {
+    title = PUBLIC_ARCHIVE_2029.title + ' · ' + SITE_NAME;
+    desc = PUBLIC_ARCHIVE_2029.description;
+    canonical = SITE + '/archive';
+    image = cardUrl(STATIC['/archive'].card);
+    type = 'website';
+    try {
+      const signal = AbortSignal.timeout(2500);
+      const archive = await readPublicArchive2029(path => {
+        const [table, params] = path.split('?');
+        return readContinuityRows(table, new URLSearchParams(params), { signal });
+      }, continuitySearch);
+      robots = continuityParams.size || !archive.collections.length ? 'noindex, follow' : 'index, follow';
+      req.publicReadingFirstWords?.({ kind: 'archive', ...archive });
+    } catch {
+      documentStatus = 503;
+      robots = 'noindex, nofollow';
+    }
   } else if (productionReading && decodedKey === '/reality') {
     title = PUBLIC_REALITY_STREAM_2029.title + ' · ' + SITE_NAME;
     desc = PUBLIC_REALITY_STREAM_2029.description;
@@ -480,7 +498,7 @@ export default async function handler(req, res) {
     desc = 'תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820.';
     canonical = SITE + '/gallery'; type = 'website';
     image = cardUrl({ w: 'גלריות ומקורות', sub: 'תמונות · מקורות · ממצאים' });
-    if (['gallery', 'image', 'q', 'source'].some(key => continuityParams.has(key))) robots = 'noindex, follow';
+    if (['gallery', 'image', 'q', 'source', 'tab', 'nums'].some(key => continuityParams.has(key))) robots = 'noindex, follow';
   } else if (productionReading && decodedKey === '/verified') {
     title='פוסטים עם סימון אימות · '+SITE_NAME;desc='הפרסומים הציבוריים עם סימון האימות השמור במקור.';
     canonical=SITE+'/verified';

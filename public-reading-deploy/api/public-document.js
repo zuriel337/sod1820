@@ -1,3 +1,4 @@
+import { legacyArchiveContinuation2029 } from "../../src/lib/legacyArchiveContinuation2029.js";
 import { readFile } from "node:fs/promises";
 import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
@@ -174,7 +175,8 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     }
     try {
       const search = originalDocument ? originalSearch : new URLSearchParams(Object.entries(query).filter(([key]) => key !== "path")).toString();
-      const continuation = sourceDocumentContinuation(path, search) || publicReadingContinuation(path, search) || retiredCollectionContinuation(path, search);
+      const continuation = sourceDocumentContinuation(path, search) || legacyArchiveContinuation2029(path, search)
+        || publicReadingContinuation(path, search) || retiredCollectionContinuation(path, search);
       if (continuation) {
         const target = new URL(continuation, origin);
         res.setHeader("Location", target.pathname + target.search + target.hash);
