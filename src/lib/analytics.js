@@ -60,8 +60,12 @@ function setPublicPageContext(fields) {
     page_title: fields.page_title, page_referrer: fields.page_referrer });
 }
 
+function numberViewSuppressed(path) {
+  return readingTelemetryPath(path) === "/number/:value" && !sideEffectAllowed("ga4_number_view");
+}
+
 export function initGA({ publicReading = false, path = "/" } = {}) {
-  if (publicReading && (!readingTelemetryPath(path) || !sideEffectAllowed("ga4_init"))) return;
+  if (publicReading && (!readingTelemetryPath(path) || numberViewSuppressed(path))) return;
   if (inited || !GA_ID || typeof window === "undefined") return;
   inited = true;
   const s = document.createElement("script");
@@ -84,7 +88,7 @@ export function initGA({ publicReading = false, path = "/" } = {}) {
 export function trackPageview(path, { publicReading = false } = {}) {
   if (!GA_ID || typeof window === "undefined" || !window.gtag) return;
   if (publicReading) {
-    if (!readingTelemetryPath(path) || !sideEffectAllowed("ga4_page_view")) return;
+    if (!readingTelemetryPath(path) || numberViewSuppressed(path)) return;
     // A slow next page must not inherit the previous article's identity.
     // Until its SEO projection is ready, use the same safe family fallback.
     const initial = publicPageviewFields(path);
