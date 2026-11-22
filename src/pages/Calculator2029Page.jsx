@@ -455,7 +455,7 @@ function CalculatorExperience() {
     if (!selection) return;
     updateSelectionContext(selection, { focusOrigin: "calculator-2029" });
     research.updateResearchContext?.({ lens: "heichal" });
-    navigate("/heichal");
+    navigate("/heichal?mode=research");
   };
 
   const openRaziel = () => {

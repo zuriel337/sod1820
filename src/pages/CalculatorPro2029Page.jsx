@@ -354,7 +354,7 @@ function ProExperience() {
     if (!canonicalSelection) return;
     research.updateResearchContext?.(buildCalculatorResearchContext(canonicalSelection, { focusOrigin: "calculator-pro-2029" }));
     research.updateResearchContext?.({ lens: "heichal" });
-    navigate("/heichal");
+    navigate("/heichal?mode=research");
   };
 
   const openRaziel = () => {

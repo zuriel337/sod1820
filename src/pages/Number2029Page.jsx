@@ -1362,7 +1362,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         rootOpeningState={focusExplicit && focusExpression && focusResult == null
           ? methodProfileState.error ? "failed" : "pending" : "ready"}
         onOpenWorld={() => openWorld()}
-        onOpenHeichal={() => shell.go("/heichal")}
+        onOpenHeichal={() => shell.go("/heichal?mode=research")}
         onOpenMethodLesson={openMethodLesson}
         onOpenJourney={continueJourney}
         journeyLabel={research.context?.dimensions?.journey2029Active ? "המשך במסע" : GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNEY_878.rootValue ? "צא למסע 878" : "צא למסע"}
@@ -1431,7 +1431,7 @@ function NumberPageBody({ resolvedAddress = null }) {
       activityCount={activityCount}
       researchState={researchState}
       onOpenWorld={openWorld}
-      onOpenHeichal={(focus) => shell.go(focus?.kind === "els_saved_from_number" ? "/els?library=public" : focus?.kind === "els_new_from_number" ? "/els" : "/heichal")}
+      onOpenHeichal={(focus) => shell.go(focus?.kind === "els_saved_from_number" ? "/els?library=public" : focus?.kind === "els_new_from_number" ? "/els" : "/heichal?mode=research")}
       onRazielAction={askRaziel}
       onOpenNumber={(next) => openNumberRoot(next, { preserveFocus: false })}
       onOpenPublicSource={(source) => {
