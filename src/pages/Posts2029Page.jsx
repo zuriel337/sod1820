@@ -465,6 +465,32 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
         </div>
       </header>
 
+      {taxonomyScope?.kind === "category" && taxonomyScope.key === "הרצאות" && !search && page === 1 ? <section className="sod29-lecture-hub" aria-labelledby="sod29-lecture-hub-title">
+        <div className="sod29-lecture-hub-heading">
+          <span className="sod29-lecture-hub-kicker">ארכיון הרצאות · מקורות מצולמים</span>
+          <h2 id="sod29-lecture-hub-title">הרצאות וסדרות לימוד</h2>
+          <p>מתחילים בהרצאות המקור או ממשיכים אל הפוסטים המסווגים כהרצאות. התוכן ההיסטורי נשמר בכתובותיו המקוריות.</p>
+        </div>
+        <nav className="sod29-lecture-hub-grid" aria-label="הרצאות המקור">
+          <Link to="/משיח-בשנת-התשעו" className="sod29-lecture-hub-card">
+            <span className="sod29-lecture-hub-icon" aria-hidden="true">▶</span>
+            <span><strong>משיח בשנת התשע״ו</strong><small>סדרת ההרצאות ההיסטורית</small></span>
+            <span className="sod29-lecture-hub-arrow" aria-hidden="true">←</span>
+          </Link>
+          <Link to="/משיח-בשנת-התשעו/מתי-שנת-הגאולה" className="sod29-lecture-hub-card">
+            <span className="sod29-lecture-hub-icon" aria-hidden="true">▶</span>
+            <span><strong>מתי שנת הגאולה</strong><small>הרצאות המשך מן המקור</small></span>
+            <span className="sod29-lecture-hub-arrow" aria-hidden="true">←</span>
+          </Link>
+          <Link to="/הוכחות-לאמיתות-התורה-משמים" className="sod29-lecture-hub-card">
+            <span className="sod29-lecture-hub-icon" aria-hidden="true">▶</span>
+            <span><strong>הוכחות לאמיתות התורה משמים</strong><small>אותיות, גימטריות והמספר 1820</small></span>
+            <span className="sod29-lecture-hub-arrow" aria-hidden="true">←</span>
+          </Link>
+        </nav>
+        <a className="sod29-lecture-hub-posts" href="#posts-catalog">להמשך הפוסטים בקטגוריית הרצאות ↓</a>
+      </section> : null}
+
       <form className="sod29-posts-search" role="search" aria-label={isTaxonomy ? `חיפוש פוסטים ב${taxonomyLabel}` : "חיפוש פוסטים וסדרות"} onSubmit={submitSearch}>
         <label htmlFor="posts-search"><NavigationIcon2029 name="search" size={20} /> {isTaxonomy ? `חיפוש לפי כותרת בתוך ה${taxonomyLabel}` : "חיפוש לפי כותרת פוסט או שם סדרה"}</label>
         <div><input id="posts-search" type="search" value={draftSearch} maxLength={120} onChange={event => setDraftSearch(event.target.value)} placeholder={isTaxonomy ? "איזה פוסט תרצו למצוא?" : "מה תרצו לקרוא?"} dir="auto" /><button type="submit">חיפוש</button></div>
