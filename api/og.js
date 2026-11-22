@@ -672,7 +672,11 @@ export default async function handler(req, res) {
         const { visible, hasMore } = publicPeopleSlice2029(result.people, page, query);
         if (page > 1 && !visible.length) { documentStatus = 404; robots = 'noindex, follow'; }
         else if (!query) req.publicReadingFirstWords?.({ kind: 'writers', people: visible, page, hasMore });
-      } catch { documentStatus = 503; robots = 'noindex, follow'; }
+      } catch {
+        // The permanent directory still exists during a source outage. Only another page needs membership evidence.
+        if (page === 1 && !continuityParams.has('q')) req.publicReadingFirstWords?.({ kind: 'writers', people: [], page, unavailable: true });
+        else { documentStatus = 503; robots = 'noindex, follow'; }
+      }
     }
   } else if (productionReading && (/^\/book\/[^/]+$/.test(decodedKey) || /^\/codes\/[^/]+$/.test(decodedKey) && decodedKey !== '/codes/מחקר')) {
     const kind = decodedKey.startsWith('/book/') ? 'books' : 'codes';
