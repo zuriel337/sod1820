@@ -1010,9 +1010,10 @@
   }
   .sod29-root.closed-shell .sod29-main-stage{
     --read-inset:max(var(--s29-rail-col),var(--s29-sidecar-inset,0px));
-    display:grid;
     padding-inline:calc(var(--read-inset) - var(--s29-rail-col)) var(--read-inset);
   }
+  /* While the route placeholder is alone, the server article still supplies the reading frame. */
+  .sod29-main-stage:not(:has(>.sod29-content>.sod-canonical-progress:last-child)){display:grid}
   .sod29-root.rail-peek .sod29-main-stage,
   .sod29-root.closed-shell .sod29-main-stage.has-context-rail{
     --read-inset:max(calc(var(--s29-context-rail-width) + var(--s29-context-rail-inset) * 2),var(--s29-sidecar-inset,0px));
@@ -1313,14 +1314,9 @@
 @media(max-width:980px){
   .sod29-glass-locator{
     inset-inline:max(8px,env(safe-area-inset-left,0px)) max(8px,env(safe-area-inset-right,0px));
-    inset-block-start:auto;
     inset-block-end:calc(var(--s29-island-clearance,104px) + 6px + env(safe-area-inset-bottom,0px));
-    transform:none;
-    width:auto;
-    max-height:none;
     min-height:48px;
     grid-template-columns:44px minmax(0,1fr) 44px;
-    grid-template-rows:none;
     align-items:center;
     gap:4px;
     padding:2px 4px;
