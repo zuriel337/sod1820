@@ -59,7 +59,7 @@ const ogRegexes = [...og.matchAll(/\/(\^\\\/[^\n]*?)\/[gimsuy]*\.test\(decodedKe
 const registeredByOgRegex = (route) => ogRegexes.some((re) => re.test(sample(route)));
 // /tag/:slug and /category/:slug: og.js asks the taxonomy route owner; the real function answers (no copy of its rules here).
 const { postsTaxonomyRoute2029 } = await import(new URL("../src/lib/research/postsTaxonomy2029Route.js", import.meta.url));
-assert.match(og, /postsTaxonomyRoute2029\(key,/, "api/og.js must keep asking the taxonomy route owner");
+assert.match(og, /postsTaxonomyRoute2029\(researchCategory\?\.path \|\| key,/, "api/og.js must keep asking the taxonomy route owner");
 assert.match(og, /\}\s*else if \(taxonomy\)\s*\{/, "api/og.js must keep a taxonomy metadata branch");
 const registeredByTaxonomyOwner = (route) => /^\/(tag|category)\//.test(route) && Boolean(postsTaxonomyRoute2029(sample(route), ""));
 const knownSingleSegment = (route) => /^\/[^/:*]+$/.test(route) && routeLegitimacy.includes(`"${route}",`);

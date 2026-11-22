@@ -168,13 +168,38 @@ export const PUBLIC_TEMPORARILY_CLOSED_PATHS = Object.freeze([
   "/archive", "/reality", "/timeline", "/broadcasts",
 ]);
 export const PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER = 2592000; // 30 days, in seconds: under construction (ZURIEL 18.11.2026)
-export function publicTemporarilyClosed(pathname) {
-  const path = addressPath(pathname);
-  return Boolean(path && PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) && publicReadingCapability(path));
+export const PUBLIC_REALITY_STREAM_2029 = Object.freeze({
+  title: "זרם המציאות",
+  description: "תמונות ורמזים שפורסמו בגלריות. מכל תמונה בזרם אפשר לפתוח את המקור שלה.",
+});
+
+// These two operational addresses also have existing, separately canonical
+// public Post categories. Only a reading entry uses the catalog. A saved tool
+// request, finding or arbitrary query must never be interpreted as a category.
+const researchCategories = new Map([
+  ["/cross", { path: "/category/חידושי-הצלבות", toolNotice: "כלי ההצלבה בבנייה. כאן אפשר לקרוא את ההצלבות שכבר פורסמו." }],
+  ["/languages", { path: "/category/שבילי-שפה", toolNotice: "כלי קשרי השפות בבנייה. כאן אפשר לקרוא את המאמרים שפורסמו במדור שבילי שפה." }],
+]);
+
+export function publicResearchCategory2029(pathname) {
+  return researchCategories.get(addressPath(pathname)) || null;
 }
 
-export function publicReadingCapability(pathname) {
+export function isPublicResearchReading2029(pathname, search = "") {
   const path = addressPath(pathname);
+  if (path !== "/reality" && !researchCategories.has(path)) return false;
+  return [...new URLSearchParams(search).keys()].every(key =>
+    ["src", "gclid", "fbclid"].includes(key) || key.startsWith("utm_"));
+}
+
+export function publicTemporarilyClosed(pathname, search = "") {
+  const path = addressPath(pathname);
+  return Boolean(path && PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) && publicReadingCapability(path, search));
+}
+
+export function publicReadingCapability(pathname, search = "") {
+  const path = addressPath(pathname);
+  if (isPublicResearchReading2029(path, search)) return null;
   if (path === '/2029/me' || path === '/community/researcher/me'
     || /^\/2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress)$/.test(path || '')) {
     return { title: 'האזור האישי', description: 'החשבון והמידע הקיימים נשמרים. הגישה המלאה באזור הזה עדיין בתהליך בדיקה; מידע אישי אינו מוצג בדף הציבורי.', links: [['/login', 'כניסה לחשבון']] };
@@ -206,14 +231,14 @@ export function publicReadingCapability(pathname) {
     "/buy": ["קרדיטים ותשלומים", "רכישה ובדיקת עסקאות אינן פעילות בגרסה זו. כתובת חזרה מתשלום אינה אישור שבוצע חיוב. פרטי החשבון הקיימים נשמרים.", "/contact", "יצירת קשר"],
     "/join": ["הרשמה ועדכוני האתר", "הרשמה לעדכונים אינה פעילה בגרסה זו עדיין. כניסה לחשבון קיים זמינה בנפרד, ללא הרשמה אוטומטית לדיוור.", "/login", "כניסה לחשבון קיים"],
     "/welcome": ["ברוכים הבאים", "אפשר להתחיל לקרוא בבית, למצוא חומר בעולם או להיכנס לחשבון קיים. עמוד זה אינו מאשר הרשמה או תשלום.", "/", "לבית"],
-    "/archive": ["זרם המציאות", "הזרם ההיסטורי נמצא בבנייה. הגלריות והתוכן שפורסם זמינים בנפרד; הם אינם מחליפים את סדר הזרם הישן.", "/gallery", "לגלריות"],
+    "/archive": ["ארכיון", "הארכיון ההיסטורי נמצא בבנייה. בגלריות אפשר לפתוח את התיעוד והתמונות שפורסמו. זרם המציאות מציג מבחר מהתמונות.", "/gallery", "לגלריות", ["/reality", "למבחר מזרם המציאות"]],
     "/reality": ["זרם המציאות", "תצוגת הזרם ההיסטורית נמצאת בבנייה. תיעוד האירועים שפורסם נשמר בפוסטים ובגלריות.", "/post", "לתיעוד שפורסם"],
-    "/timeline": ["ציר הזמן", "ציר הזמן נמצא בבנייה. פרסומים קיימים נשארים זמינים לפי תאריך.", "/post", "לפוסטים"],
-    "/broadcasts": ["מרכז השידורים", "מרכז השידורים נמצא בבנייה. העדכונים הזמינים ממשיכים להופיע ב״עכשיו״ ובמקורות שפורסמו.", "/or-geula", "לאור הגאולה"],
+    "/timeline": ["ציר הזמן", "ציר הזמן נמצא בבנייה. אפשר לעיין בפוסטים ובנושאים מתוארכים שפורסמו, ובהם הציר ההודי.", "/post", "לפוסטים", ["/topic/india-axis", "לנושא שפורסם · הציר ההודי"]],
+    "/broadcasts": ["מרכז השידורים", "מרכז השידורים נמצא בבנייה. באור הגאולה אפשר לפתוח את העדכונים והסרטונים שפורסמו בערוץ.", "/or-geula", "לאור הגאולה"],
     "/whats-new": ["מה חדש באתר", "עדכוני האתר ותמונת הזמינות מופיעים בבית ובמפת האתר. ההרשמה במייל עדיין אינה פעילה בגרסה זו.", "/map", "למפת האתר"],
     "/start": ["מתחילים כאן", "הבית, העולם, הפוסטים, המספרים והגלריות פתוחים לקריאה. מפת האתר מציגה גם את החלקים שעדיין בבנייה.", "/map", "למפת האתר"],
   })[path];
-  return item ? { title: item[0], description: item[1] + (PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) ? " הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן." : ""), links: [[item[2], item[3]]] } : null;
+  return item ? { title: item[0], description: item[1] + (PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) ? " הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן." : ""), links: [[item[2], item[3]], ...item.slice(4)] } : null;
 }
 
 export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {}) {
@@ -223,10 +248,11 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   if (publicReadingContinuation(pathname, search)) return "continuation";
   if (path === "/login" || path === "/auth/callback" || path === "/community/researcher/me") return "account";
   if (/^\/2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress|research|notes)$/.test(path)) return "account";
+  if (isPublicResearchReading2029(path, search)) return "public";
   // Only existing application surfaces; arbitrary /api or unknown paths do not
   // become public or executable merely because the viewer is an admin.
   if (isAdmin === true && /^\/(?:books?|admin|journey|raziel|2029\/(?:me|journey|raziel|control)|community\/(?:chat|researcher\/me))(?:\/|$)/.test(path)) return "admin-view";
-  if (publicReadingCapability(path)) return "closed";
+  if (publicReadingCapability(path, search)) return "closed";
   if (/^\/(?:api|admin|auth|2029\/me|community\/researcher\/me)(?:\/|$)/.test(path)) return "closed";
   if (path === "/unsubscribe" && PUBLIC_READING_PRODUCTION_ARTIFACT) return "public";
   if (["/updates", "/unsubscribe"].includes(path)) return "service-closed";
@@ -236,6 +262,15 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   // A historical single-segment Post remains subject to the canonical public
   // Post lookup/boundary. This does not declare an unknown/draft slug published.
   return /^\/[^/]+$/.test(path) ? "post-lookup" : "missing";
+}
+
+// Registry links may name a particular operation. Resolve that exact mode, not
+// the public reader at its unparameterized pathname.
+export function publicReadingLinkState2029(href, { isAdmin = false } = {}) {
+  const address = String(href || "").split("#")[0];
+  const i = address.indexOf("?");
+  return i < 0 ? publicReadingPath(address, { isAdmin })
+    : publicReadingPath(address.slice(0, i), { isAdmin, search: address.slice(i + 1) });
 }
 
 export const PUBLIC_READING_OPEN_ROUTES = Object.freeze(["/", "/world", "/post", "/number", "/gematria", "/gallery", "/map", "/privacy"]);

@@ -6,6 +6,7 @@ export function publicMapLinks2029(production) {
     ["/gematria", "מחשבון גימטריה מקצועי"],
     ["/community/calculator", "מחשבון הקהילה"],
     ["/gallery", "גלריות"],
+    ...(production ? [["/reality", "זרם המציאות"], ["/cross", "חידושי הצלבות"], ["/languages", "שבילי שפה"]] : []),
     ["/or-geula", "אור הגאולה"],
     ["/community/chat", "הצ׳אט הקהילתי · קריאה"],
     ["/community/researchers", "אנשים וכתבים"],

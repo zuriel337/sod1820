@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import "./footer2029.css";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { trackWhatsappJoin } from "../../lib/tracking.js";
-import { PUBLIC_READING_RELEASE, publicReadingPath } from "../../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingLinkState2029, publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import { NewsletterSignup2029 } from "../StayUpdatedCTA.jsx";
 import {
@@ -21,7 +21,7 @@ const ACTIVE_STATES = new Set(["public", "continuation", "account", "service-clo
 
 export function footerLinkState(item, { isAdmin = false } = {}) {
   if (item.external) return "active";
-  const state = publicReadingPath(item.href.split("#")[0], { isAdmin });
+  const state = publicReadingLinkState2029(item.href, { isAdmin });
   if (state === "admin-view") return isAdmin ? "admin" : "closed";
   return ACTIVE_STATES.has(state) ? "active" : "closed";
 }

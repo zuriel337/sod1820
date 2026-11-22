@@ -33,6 +33,7 @@ const BeitMidrash2029Page = lazy(
 );
 const Books2029Page = lazy(() => import("./pages/Books2029Page.jsx"));
 const Els2029Page = lazy(() => import("./pages/Els2029Page.jsx"));
+const RealityPublicReading2029Page = lazy(() => import("./pages/RealityPublicReading2029Page.jsx"));
 const PublishedFindings2029Page = lazy(() => import("./pages/PublishedFindings2029Page.jsx"));
 const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
 const PublicContributor2029Page = lazy(() => import("./pages/PublicContributor2029Page.jsx"));
@@ -377,7 +378,7 @@ function PublicReadingBoundary({ children }) {
   const continuation = PUBLIC_READING_RELEASE ? publicReadingContinuation(location.pathname, location.search, location.hash) : null;
   const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname, { isAdmin: !loading && isAdmin, search: location.search }) : null;
   if (continuation) return <Navigate replace to={continuation} />;
-  const capability = PUBLIC_READING_RELEASE ? publicReadingCapability(location.pathname) : null;
+  const capability = PUBLIC_READING_RELEASE ? publicReadingCapability(location.pathname, location.search) : null;
   if (state === "closed" && capability) return <PublicContinuity2029Page kind="status" {...capability}
     links={capability.links.map(([href, label]) => [href === '/login' ? `/login?returnTo=${encodeURIComponent(location.pathname + location.search + location.hash)}` : href, label])} />;
   if (state === "closed") return <>
@@ -456,6 +457,9 @@ export default function App2029() {
               <Route path="/2029/posts" element={<Posts2029Page />} />
               {import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" && <Route path="/posts" element={<Posts2029Page />} />}
               {(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE) && <Route path="/research" element={<GematriaEntry2029 />} />}
+              {PUBLIC_READING_RELEASE && <Route path="/reality" element={<RealityPublicReading2029Page />} />}
+              {PUBLIC_READING_RELEASE && <Route path="/cross" element={<PostsTaxonomy2029Page />} />}
+              {PUBLIC_READING_RELEASE && <Route path="/languages" element={<PostsTaxonomy2029Page />} />}
               <Route path="/login" element={<AuthPage />} />
               <Route path="/auth/callback" element={<OAuthCallback2029 />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />

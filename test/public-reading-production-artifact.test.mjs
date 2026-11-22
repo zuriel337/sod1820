@@ -94,18 +94,62 @@ test("the published findings reader is independent of the unbuilt Heichal and fu
   });
 });
 
+test("bare research routes read admitted publications and keep their exact canonical address", async () => {
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true, readDocument: async () => read("public-reading-deploy/.generated/2029.html") });
+  for (const [path, category] of [["/languages", "שבילי שפה"], ["/cross", "חידושי הצלבות"]]) {
+    const source = { ...modern, categories: [category] };
+    await withFetch(async input => {
+      const url = new URL(input);
+      assert.equal(url.pathname, "/rest/v1/posts");
+      assert.ok(url.searchParams.get("or"));
+      assert.match(url.searchParams.get("categories"), new RegExp(category));
+      return new Response(JSON.stringify([source]), { headers: { "content-type": "application/json", "content-range": "0-0/1" } });
+    }, async () => {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 200, path);
+      assert.equal(res.headers.get("x-sod-first-words"), "served");
+      assert.ok(res.body.includes('rel="canonical" href="' + SITE + "/category/" + encodeURIComponent(category.replace(/ /g, "-")) + '"'));
+      assert.match(res.body, /href="\/post\/new-post"/);
+      assert.match(res.body, /בבנייה/);
+      assert.equal(res.headers.get("x-robots-tag"), "index, follow");
+    });
+    await withFetch(async () => new Response("[]", { headers: { "content-type": "application/json", "content-range": "*/0" } }), async () => {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 404);
+      assert.match(res.headers.get("x-robots-tag"), /noindex/);
+    });
+  }
+  await withFetch(async () => { throw Error("no source or research action expected"); }, async () => {
+    for (const [path, canonical] of [["/findings", "/findings"], ["/reality", "/reality"]]) {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 200);
+      assert.equal(res.headers.get("x-sod-first-words"), "served");
+      assert.ok(res.body.includes('rel="canonical" href="' + SITE + canonical + '"'));
+    }
+    for (const [path, target] of [
+      ["/research?tool=gematria&value=533", "/gematria?tool=gematria&value=533"],
+      ["/research?finding=uf1%3Aels%3Apublished", "/code?finding=uf1%3Aels%3Apublished&mode=research"],
+    ]) {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 308);
+      assert.equal(res.headers.get("location"), target);
+    }
+  });
+});
+
 // ZURIEL 5.11: feature areas that are closed only until they reopen in a few days keep their address in the index. The standard
 // way to say "temporarily unavailable" is 503 + Retry-After; they are never noindex. Personal, payment and private screens stay out.
 test("temporarily closed feature areas answer 503 with Retry-After and stay indexable; the rest stay noindex", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
     const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
-    for (const path of ["/research", "/archive", "/reality", "/timeline", "/name", "/languages", "/cross"]) {
+    for (const path of ["/research?finding=unknown", "/archive", "/reality?mode=research", "/timeline", "/name", "/languages?mode=research", "/cross?mode=research"]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 503, path);
       assert.equal(res.headers.get("retry-after"), "2592000", path);
-      assert.equal(res.headers.get("x-robots-tag"), "index, follow", path);
-      assert.match(res.body, /name="robots" content="index, follow"/, path);
-      if (path === "/research") assert.match(res.body, /לשלב עתידי/, path); else assert.match(res.body, /בבנייה/, path); assert.match(res.body, /הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן/, path); assert.doesNotMatch(res.body, /בקרוב/, path);
+      const robots = path.includes("?") ? "noindex, nofollow" : "index, follow";
+      assert.equal(res.headers.get("x-robots-tag"), robots, path);
+      assert.ok(res.body.includes('name="robots" content="' + robots + '"'), path);
+      if (path.startsWith("/research")) assert.match(res.body, /לשלב עתידי/, path); else assert.match(res.body, /בבנייה/, path); assert.match(res.body, /הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן/, path); assert.doesNotMatch(res.body, /בקרוב/, path);
     }
     // The Bible code is open in its Classic mode: a normal indexable 200 page, and /els is a permanent continuation to it.
     { const res = response(); await handler(req("/code"), res);

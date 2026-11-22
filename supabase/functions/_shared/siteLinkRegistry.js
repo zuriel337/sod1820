@@ -74,8 +74,9 @@ export const SITE_LINKS = Object.freeze([
   // ZURIEL 18.11.2026 (indexing review): the personal links point at the existing account routes directly. /profile still continues to
   // /2029/me/profile; /profile#notifications used to land on the profile module, not on the follow centre at /2029/me/notifications.
   entry({ id: "profile", label: "האזור שלי", href: "/2029/me/profile", defaultState: "account", aliases: ["האזור שלי", "אזור אישי", "האזור האישי", "הפרופיל שלי", "פרופיל"], footer: { group: "personal", order: 1 } }),
-  entry({ id: "my-research", label: "המחקר שלי", href: "/research", defaultState: "closed", aliases: ["המחקר שלי"],
-    closed: { message: "המחקר האישי נמצא בבנייה. אפשר להמשיך למחשבון הגימטריה.", alt: "gematria" }, footer: { group: "personal", order: 2 } }),
+  entry({ id: "my-research", label: "המחקר שלי", href: "/2029/me/research", defaultState: "account", aliases: ["המחקר שלי"], footer: { group: "personal", order: 2 } }),
+  entry({ id: "research-tools", label: "פעולות מחקר", href: "/research", defaultState: "closed", raziel: false,
+    closed: { message: "פעולות המחקר מתוכננות לשלב עתידי. אפשר לקרוא את הממצאים שכבר פורסמו.", alt: "findings" }, footer: { group: "research", order: 7 } }),
   entry({ id: "notifications", label: "העדכונים שלי", href: "/2029/me/notifications", defaultState: "account", aliases: ["העדכונים שלי", "ההתראות שלי", "התראות"], footer: { group: "personal", order: 3 } }),
   // ── מידע ──
   entry({ id: "start", label: "כאן מתחילים", href: "/start", defaultState: "closed", aliases: ["כאן מתחילים", "מתחילים כאן", "איפה מתחילים"],

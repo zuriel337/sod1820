@@ -215,7 +215,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       }
       if (status >= 500) throw new Error("public_source_unavailable");
       // A feature area closed only until it reopens soon is answered 503 + Retry-After and keeps its indexable state.
-      const temporarilyClosed = state === "closed" && publicTemporarilyClosed(path);
+      const temporarilyClosed = state === "closed" && publicTemporarilyClosed(path, search);
       const noindex = !originalDocument || !indexable(origin) || (closed && !temporarilyClosed) || state === "account" || status !== 200;
       // An imported Post on the proven list carries its article in this document (article-first.js); anything else is exactly as before.
       const firstDocument = articleFirst(await readDocument(), { path, search, status: temporarilyClosed || closed || state === "account" ? 0 : status, post: admittedPost });

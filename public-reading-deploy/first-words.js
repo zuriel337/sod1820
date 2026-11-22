@@ -12,6 +12,7 @@
 //    other visitors' searches (Traffic Intelligence). While the reader is not available, the block is simply absent. No second source.
 //  - Never throws and never delays the document beyond its small deadline: on any failure the answer is today's document.
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
+import { PUBLIC_REALITY_STREAM_2029 } from "../src/lib/publicReadingRelease2029.js";
 import { publicMapLinks2029 } from "../src/lib/publicMap2029.js";
 import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
@@ -209,6 +210,10 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "reality") {
+    const { title, description } = PUBLIC_REALITY_STREAM_2029;
+    return `<h1>${esc(title)}</h1><p>${esc(description)}</p><p><a href="/gallery">גלריות ומקורות</a></p>`;
+  }
   if (facts.kind === "map") {
     return '<h1>מפת האתר</h1>' + links(publicMapLinks2029(true).map(([href, label]) => ({ href, label })), "דפי האתר");
   }
@@ -277,6 +282,7 @@ function body(facts) {
   }
   if (facts.kind === "taxonomy") {
     return `<h1>${esc(text(facts.label))}</h1><p>הפרסומים הציבוריים של סוד 1820 ב${facts.taxonomyKind === "tag" ? "תגית" : "סיווג"} «${esc(text(facts.label))}».</p>`
+      + (facts.toolNotice ? `<p>${esc(text(facts.toolNotice))}</p>` : "")
       + links(postLinks(facts.posts), "פרסומים", true) + `<p><a href="/post">כל הפוסטים</a></p>`;
   }
   return "";

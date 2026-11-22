@@ -61,7 +61,7 @@ test("public footer links come from the registry and external links keep their v
 test("closed routes are shown as under construction, never as active links (public viewer)", async () => {
   const footer = await loadFooter(false);
   const html = render(footer, "/2029/posts");
-  for (const label of ["היכל", "ארכיון", "המחקר שלי", "כאן מתחילים"]) {
+  for (const label of ["היכל", "ארכיון", "פעולות מחקר", "כאן מתחילים"]) {
     assert.match(html, new RegExp(`<li class="f29-closed"><span>${label}</span><small>בבנייה</small></li>`), label);
   }
   for (const closedHref of ["/heichal", "/archive", "/research", "/start"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
@@ -75,6 +75,7 @@ test("the public release never offers an unfinished Heichal or research workspac
   const footer = await loadFooter(true);
   const html = render(footer, "/2029/posts");
   assert.ok(!hrefs(html).includes("/research"));
+  assert.ok(hrefs(html).includes("/2029/me/research"));
   assert.ok(hrefs(html).includes("/code"));
   assert.doesNotMatch(html, /href="\/heichal"|href="\/research"/);
   assert.match(html, /<li class="f29-closed"><span>ארכיון<\/span>/, "/archive stays closed for admins too");
