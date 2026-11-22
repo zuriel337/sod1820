@@ -66,6 +66,15 @@ test('2029 Preview Home keeps the adopted page without claiming a public opening
   const cipherAvailability = page.locator('[data-home-availability-map="true"] li').filter({ has: page.locator('a[href="/code"]') });
   await expect(cipherAvailability).toBeVisible();
   await expect(cipherAvailability).toContainText('פתוח לציבור');
+  const availability = page.locator('[data-home-availability-map="true"]');
+  for (const [label, path] of [
+    ['מחשבון גימטריה מקצועי', '/gematria'],
+    ['מחשבון הקהילה לשמות', '/community/calculator'],
+    ['ספריית הצפנים', '/codes'],
+  ]) {
+    await expect(availability.getByRole('link', { name: label, exact: true })).toHaveAttribute('href', path);
+  }
+  await expect(availability.locator('a[href="/heichal"], a[href="/2029/journey"]')).toHaveCount(0);
   await page.locator('[data-home-user-area="open"]').click();
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
   await expect(page.locator('[data-workspace-card="life-journey"]')).toHaveAttribute('aria-disabled', 'true');
