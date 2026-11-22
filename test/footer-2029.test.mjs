@@ -53,7 +53,7 @@ test("public footer links come from the registry and external links keep their v
   }
   const allowed = new Set(SITE_LINKS.map((item) => item.href));
   for (const href of hrefs(html)) assert.ok(allowed.has(href), `footer link ${href} is not in the registry`);
-  for (const href of ["/post", "/category/מימד-חמש", "/community/chat", "/category/סוד-החשמל", "/world", "/number", "/2029/me/profile", "/2029/me/notifications", "/community", "/contact", "/privacy", "/map"]) {
+  for (const href of ["/post", "/category/מימד-חמש", "/community/chat", "/category/סוד-החשמל", "/world", "/number", "/codes", "/heichal", "/2029/me/profile", "/2029/me/notifications", "/community", "/contact", "/privacy", "/map"]) {
     assert.ok(hrefs(html).includes(href), `${href} is missing from the footer`);
   }
 });
@@ -61,7 +61,7 @@ test("public footer links come from the registry and external links keep their v
 test("closed routes are shown as under construction, never as active links (public viewer)", async () => {
   const footer = await loadFooter(false);
   const html = render(footer, "/2029/posts");
-  for (const label of ["ארכיון", "היכל", "המחקר שלי", "כאן מתחילים"]) {
+  for (const label of ["ארכיון", "המחקר שלי", "כאן מתחילים"]) {
     assert.match(html, new RegExp(`<li class="f29-closed"><span>${label}</span><small>בבנייה</small></li>`), label);
   }
   for (const closedHref of ["/archive", "/research", "/start"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);

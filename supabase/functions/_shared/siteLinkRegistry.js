@@ -52,7 +52,7 @@ export const SITE_LINKS = Object.freeze([
   entry({ id: "archive", label: "ארכיון", href: "/archive", defaultState: "closed", aliases: ["ארכיון", "הארכיון"],
     closed: { message: "הארכיון ההיסטורי בתהליך התאמה. הגלריות והתוכן שפורסם זמינים בנפרד.", alt: "gallery" }, footer: { group: "discover", order: 5 } }),
   // ── לחקור ──
-  entry({ id: "heichal", label: "היכל", href: "/research", defaultState: "closed", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/research", "/heichal", "/היכל"],
+  entry({ id: "heichal", label: "היכל", href: "/heichal", defaultState: "public", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל"],
     closed: { message: "ההיכל נמצא בבנייה ואינו פתוח לציבור עדיין. אפשר להמשיך לספרים ולמקורות.", alt: "books" }, footer: { group: "research", order: 1 } }),
   // raziel:false — owner decision: "/world" opens from Raziel only through the existing explicit "open the world" grammar,
   // never from a "where is" question, so the site-link answers do not index this entry.
@@ -86,9 +86,9 @@ export const SITE_LINKS = Object.freeze([
   entry({ id: "updates", label: "עדכונים במייל", href: "/updates", defaultState: "service", aliases: ["ניוזלטר", "עדכונים במייל", "עדכוני האתר", "הרשמה לעדכונים", "רשימת תפוצה", "הרשמה לניוזלטר"] }),
   // ── יעדים פתוחים שמשמשים חלופה כשיעד נעול (אינם בכותרת התחתונה) ──
   entry({ id: "books", label: "ספרים ומקורות", href: "/books", defaultState: "public", aliases: ["ספרים", "ספרים ומקורות"] }),
-  entry({ id: "codes", label: "ספריית הצפנים", href: "/codes", defaultState: "public", aliases: ["ספריית צפנים", "ספריית הצפנים", "צפנים שפורסמו"] }),
+  entry({ id: "codes", label: "ספריית הצפנים", href: "/codes", defaultState: "public", aliases: ["ספריית צפנים", "ספריית הצפנים", "צפנים שפורסמו"], footer: { group: "research", order: 7 } }),
   entry({ id: "gallery", label: "גלריות", href: "/gallery", defaultState: "public", aliases: ["גלריות", "הגלריות"] }),
-  entry({ id: "gematria", label: "מחשבון גימטריה", href: "/gematria", defaultState: "public", aliases: ["מחשבון גימטריה", "מחשבון", "גימטריה"], footer: { group: "research", order: 3 } }),
+  entry({ id: "gematria", label: "מחשבון גימטריה מקצועי", href: "/gematria", defaultState: "public", aliases: ["מחשבון גימטריה", "מחשבון", "גימטריה"], footer: { group: "research", order: 3 } }),
   // ── רשתות חיצוניות (קישורים מאומתים, נשמרו מהאתר הישן) ──
   entry({ id: "whatsapp", label: "קבוצת הוואטסאפ", href: SITE_LINK_EXTERNAL.whatsapp, external: true, glyph: "💬", defaultState: "public",
     aliases: ["וואטסאפ", "ווטסאפ", "וואצאפ", "ווצאפ", "וואטסאפ של האתר", "קבוצת הוואטסאפ", "קבוצת וואטסאפ", "קבוצת ווצאפ", "קבוצת הווצאפ", "קבוצת הוואצאפ", "קבוצת הווטסאפ", "whatsapp"], tracking: "whatsapp-join", footer: { group: "social", order: 1 } }),

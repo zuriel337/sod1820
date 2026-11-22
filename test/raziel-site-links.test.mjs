@@ -30,7 +30,7 @@ test("where is the WhatsApp / social links: exact verified external URLs, no mod
 
 test("where are community / Number / privacy / newsletter: exact internal registry hrefs", () => {
   for (const [text, href] of [
-    ["איפה הקהילה", "/community"], ["איפה הצ'אט", "/community/chat"], ["איפה אור הגאולה", "/community/chat"], ["איפה דף המספר", "/number"],
+    ["איפה ההיכל", "/heichal"], ["איפה הקהילה", "/community"], ["איפה הצ'אט", "/community/chat"], ["איפה אור הגאולה", "/community/chat"], ["איפה דף המספר", "/number"],
     ["איפה הפרטיות", "/privacy"], ["תן לי את הפרטיות", "/privacy"], ["קח אותי לקהילה", "/community"], ["איפה הניוזלטר", "/updates"],
     ["איפה מפת האתר", "/map"], ["איפה צור קשר", "/contact"], ["הלינק לפוסטים", "/post"],
   ]) {
@@ -44,7 +44,6 @@ test("where are community / Number / privacy / newsletter: exact internal regist
 
 test("a closed route is never offered as open: honest reason plus the registry's open alternative", () => {
   for (const [text, closedId, altHref] of [
-    ["איפה ההיכל", "heichal", "/books"], ["איפה אפשר למצוא את ההיכל", "heichal", "/books"],
     ["איפה הארכיון", "archive", "/gallery"], ["איפה כאן מתחילים", "start", "/map"],
   ]) {
     const action = ask(text);
@@ -82,10 +81,10 @@ test("a closed route is never offered as open: honest reason plus the registry's
 
 test("the web adapter's live route state agrees with every registry entry", () => {
   // "els": the Bible code is public since ZURIEL's 5.11 decision (Classic and Research open to everyone since 6.11), so the web adapter reports it open (router flag lock_els).
-  for (const id of ["posts", "or-geula", "community", "privacy", "number", "map", "els", "whatsapp", "instagram", "updates"]) {
+  for (const id of ["heichal", "posts", "or-geula", "community", "privacy", "number", "map", "els", "whatsapp", "instagram", "updates"]) {
     assert.equal(razielSiteLinkState(siteLinkById(id)), "open", id);
   }
-  for (const id of ["heichal", "archive", "start", "my-research"]) {
+  for (const id of ["archive", "start", "my-research"]) {
     assert.equal(razielSiteLinkState(siteLinkById(id)), "closed", id);
   }
 });
