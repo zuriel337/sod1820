@@ -125,3 +125,27 @@ test('ordinary public page families retain their distinct title and canonical pa
     assert.equal(f.views()[0].page_path,path);assert.equal(f.views()[0].page_title,`Title for ${path}`);
   }
 });
+
+
+test('two admitted numeric pages keep their exact path and title on fast navigation before SEO resolves', () => {
+  const f = fixture('/number/533');
+  for (const value of ['533', '337']) {
+    const path = '/number/' + value;
+    f.context.window.location = new URL(path, 'https://sod1820.co.il');
+    const stop = f.api.trackPageview(path, { publicReading: true });
+    stop();
+    f.notify();
+    for (const timeout of f.timers.values()) timeout();
+  }
+  assert.deepEqual(f.views().map(({page_path, page_title}) => [page_path, page_title]), [
+    ['/number/533', '533 · דף המספר · SOD1820'], ['/number/337', '337 · דף המספר · SOD1820'],
+  ]);
+});
+
+test('a numeric-looking canonical cannot expose a free expression or its title', () => {
+  const f = fixture('/number/private-name');
+  f.ready('/number/533', 'private-name', true);
+  f.api.trackPageview('/number/private-name', { publicReading: true });
+  assert.equal(f.views()[0].page_path, '/number/:value');
+  assert.equal(f.views()[0].page_title, 'SOD1820');
+});

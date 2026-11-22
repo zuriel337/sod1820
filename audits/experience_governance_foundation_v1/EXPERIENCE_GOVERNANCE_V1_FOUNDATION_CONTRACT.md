@@ -382,3 +382,11 @@ Apply the same requirements retrospectively to Ahavat Torah, Sefer Yetzirah and 
 The versioned compliance map and measured observations belong in `docs/reviews/books-spatial-experience-binding-contract-20261027.md` and its JSON evidence, not as duplicated normative text. For each model: current source/branch/SHA; compliant parts; gaps; specification-only/unimplemented parts; tested versus untested requirements; owner and smallest repair slice.
 
 Repair in stages: **(1)** source identity, exact unit/component locators and honest text/verification; **(2)** explicit/lazy start/close and useful non-WebGL/keyboard paths; **(3)** visual legend/readability/return in the existing Design lane; **(4)** independent per-model browser/full-suite acceptance and controlled integration. A gap is not hidden by an attractive screenshot. This task does not authorize any source merge, main/Production/Preview deployment, source publication, DB/RLS/permission or entitlement change.
+
+### גילוי לפני מחקר · Human Gate ZURIEL · 22.11.2026
+
+תוכן שאושר לפרסום ציבורי מקבל כתובת עצמאית שאורח יכול לקרוא ולשתף. העולם וההיכל מקשרים בין הפריטים. קישור מגוגל, מפוסט או מהמחשבון פותח את הפריט ישירות. מדור חסר ייצוג בתפריט כפוף לאותם כללי פרסום וגישה.
+
+כלי שאינו מוכן מקבל מצב זמינות מפורש. הממצאים שכבר פורסמו נקראים דרך קורא המקורות הציבורי. מסע החיים נשאר סגור. מידע אישי, טיוטות, תפעול והרשאות ממשיכים לעבור דרך בעלי הסמכות ובקרות הגישה הקיימות.
+
+בסקירת שינוי שמשפיע על קישור, רצועה או מדור שאושרו יש לזהות את הרכיב ולקבל החלטת בעלים מפורשת לפני הסרתו. בבדיקות הקבלה בודקים את נוכחות התוכן והמשך הניווט כאורח בנייד ובמחשב, את המסמך הראשון והקנוניקל ואת תקציבי המהירות, על אותו קומיט.

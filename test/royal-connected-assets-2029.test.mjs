@@ -31,9 +31,14 @@ test('connected palace derivatives are document-owned, fingerprinted, responsive
  assert.doesNotMatch(fs.readFileSync('src/components/experience2029/RoyalIntro2029.jsx','utf8'),/<picture/);
 });
 
-test('page statistics strips no longer mount or import their lazy readers',()=>{
- const callers=['src/pages/Calculator2029Page.jsx','src/pages/CalculatorPro2029Page.jsx','src/pages/CommunityCalculator2029Page.jsx','src/pages/Number2029Page.jsx','src/pages/Els2029Page.jsx','src/pages/PublicLibraryContinuity2029Page.jsx','src/components/experience2029/NowPublications2029.jsx'];
+test('approved number and cipher strips remain available while other pages keep their layout',()=>{
+ const callers=['src/pages/Calculator2029Page.jsx','src/pages/CalculatorPro2029Page.jsx','src/pages/CommunityCalculator2029Page.jsx','src/components/experience2029/NowPublications2029.jsx'];
  for(const file of callers) assert.doesNotMatch(fs.readFileSync(file,'utf8'),/SectionPulseSlot2029|NowPulseLineSlot2029|CalculatorPulseLineSlot2029/);
+ for(const [file, mount] of [
+   ['Number2029Page', '<SectionPulseSlot2029 inline section="number" value={root} />'],
+   ['Els2029Page', '<SectionPulseSlot2029 section="els" />'],
+   ['PublicLibraryContinuity2029Page', 'kind === "codes" ? <SectionPulseSlot2029 section="els" />'],
+ ]) assert.ok(fs.readFileSync('src/pages/'+file+'.jsx','utf8').includes(mount), file);
  assert.ok(fs.existsSync('src/components/experience2029/SectionPulse2029.jsx'),'statistics capability is retained, only page-strip mounts removed');
 });
 

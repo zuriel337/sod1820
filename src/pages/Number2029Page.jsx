@@ -6,6 +6,7 @@ import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/r
 import React, { useEffect, useMemo, useRef, useState } from "react";
 // Finding share (ZURIEL 18.11.2026): a small button inside this (already lazy) page; the share actions load when the sheet opens.
 import FindingShare2029 from "../components/experience2029/FindingShare2029.jsx";
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -1305,6 +1306,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         </nav>
         <div className="sod29-actions"><FindingShare2029 kind="number" label="שתף את הדף" prominent number={root}
           url={Number.isSafeInteger(root) ? `https://sod1820.co.il/number/${root}` : null} sourceSurface="number-page-2029" /><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
+        <SectionPulseSlot2029 inline section="number" value={root} />
       </div>
       <NumberCore2029
         projection={coreProjection}

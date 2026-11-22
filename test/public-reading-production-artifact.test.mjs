@@ -33,6 +33,23 @@ const modern = { id: 2, wp_id: 36936, slug: "new-post", title: "Native", source:
 const encoded = { ...legacy, id: 3, slug: "%d7%a9%d7%9c%d7%95%d7%9d", title: "שלום" };
 const assetId = "b".repeat(32);
 
+test("only the clean public gallery receives its existing heading and lead in the first document", async () => {
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true,
+    readDocument: async () => read("public-reading-deploy/.generated/2029.html") });
+  const listing = response();
+  await handler(req("/gallery"), listing);
+  assert.equal(listing.code, 200);
+  assert.equal(listing.headers.get("x-sod-first-words"), "served");
+  assert.match(listing.body, /<h1>גלריות רמזי הגאולה<\/h1>/);
+  assert.match(listing.body, /האוספים ההיסטוריים/);
+  for (const search of ["?gallery=87", "?q=test", "?image=selected", "?source=private"]) {
+    const result = response();
+    await handler(req("/gallery" + search), result);
+    assert.doesNotMatch(result.body, /data-first-words="gallery"/);
+    assert.equal(result.headers.get("x-robots-tag"), "noindex, follow");
+  }
+});
+
 test("dormant default cannot be activated by environment, forged request or production branch name", async () => {
   assert.equal(PUBLIC_READING_DEPLOYMENT_AUTHORIZATION.state, "dormant"); assert.equal(deploymentAuthorized(), false);
   let reads = 0;
@@ -381,6 +398,15 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     if (value.includes("/rpc/sitemap_numbers")) { assert.equal(options.method, "POST"); return json([{ value: 1820 }]); }
     if (value.includes("/sitemap_phrases_v1?")) return options?.method === "HEAD"
       ? new Response(null, { headers: { "content-range": "0-0/1" } }) : json([{ phrase: "בראשית" }]);
+    if (value.includes("/research_contributions?")) {
+      const params = new URL(value).searchParams;
+      assert.equal(params.get("origin"), "eq.forum");
+      assert.equal(params.get("status"), "eq.approved");
+      assert.equal(params.get("deleted_at"), "is.null");
+      assert.equal(params.get("thread_hidden_at"), "is.null");
+      return json([{ id: "00000000-0000-4000-8000-000000000003", title: "דיון פומבי", origin: "forum",
+        status: "approved", deleted_at: null, thread_hidden_at: null, parent_id: null, target_id: null, target_type: null }]);
+    }
     if (value.includes("/topic_cards_public?")) return json([{ slug: "subject" }]);
     if (value.includes("/contributors?")) { assert.match(value, /active=eq.true.*visibility.eq.public/); return json([{ slug: "writer", code: "2042" }]); }
     if (value.includes("/els_records?")) { assert.match(value, /status=eq.published.*visibility=eq.public/); assert.doesNotMatch(value, /source.neq.research/); return json([{ slug: 'published-cipher' }, { slug: 'published-research-cipher' }]); }
@@ -415,7 +441,9 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
       "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/code", "/codes/published-cipher", "/codes/published-research-cipher", "/codes/" + encodeURIComponent("מחקר"), "/privacy"])
       assert.ok(res.body.includes(`<loc>${SITE}${path}</loc>`), path);
     for (const path of ["/login", "/journey", "/unsubscribe"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
-    assert.ok(!calls.some(url => /site_flags|research_contributions/.test(url)));
+    assert.ok(!calls.some(url => /site_flags/.test(url)));
+    assert.ok(calls.some(url => url.includes("/research_contributions?")));
+    assert.match(bodies.join(""), /<loc>https:\/\/sod1820\.co\.il\/forum\/00000000-0000-4000-8000-000000000003<\/loc>/);
   });
   await withFetch(async () => { throw Error("synthetic outage"); }, async () => {
     const res = response(); await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/sitemap.xml"), res); assert.equal(res.code, 503);

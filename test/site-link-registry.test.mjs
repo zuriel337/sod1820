@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { build } from "esbuild";
+import { publicMapGroups2029 } from "../src/lib/publicMap2029.js";
 import { publicReadingContinuation } from "../src/lib/publicReadingRelease2029.js";
 import {
   SITE_LINKS, SITE_LINK_EXTERNAL, SITE_LINK_GROUPS, findSiteLinkByPhrase, isRegistrySiteHref,
@@ -118,4 +119,16 @@ test("personal links point at the account routes; /profile still continues to th
   assert.equal(byId["my-research"].defaultState, "account");
   assert.equal(byId.profile.defaultState, "account");
   assert.equal(byId.notifications.defaultState, "account");
+});
+
+test("unlisted destinations and gated personal actions cannot enter through menu groups", async () => {
+  const { publicReadingPath } = await productionRouter();
+  const destinations = publicMapGroups2029(true).flatMap(group => group.links);
+  for (const [href] of destinations) {
+    const { pathname, search } = new URL(href, "https://sod1820.co.il");
+    const state = publicReadingPath(pathname, { search });
+    if (href === "/updates") assert.equal(state, "service-closed");
+    else if (href === "/login") assert.equal(state, "account");
+    else assert.ok(["public", "taxonomy-lookup"].includes(state), href + " " + state);
+  }
 });

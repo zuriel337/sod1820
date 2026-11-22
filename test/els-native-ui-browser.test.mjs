@@ -1185,7 +1185,7 @@ const realHostStubs = {
         (payload.isPublic?(row.self_published||row.visibility==='public')&&(window.__fixtureTier==='admin'||row.owner_user_id==='fixture-owner'&&row.status!=='published'):row.owner_user_id==='fixture-owner'&&row.visibility==='private'&&!row.self_published&&row.status!=='published'));
       const row={id:old?.id||'saved-'+(rows.length+1),slug:old?.slug||'native-save-'+(rows.length+1),search_term:payload.term,title:payload.title,
         scope:payload.scope,skip_distance:payload.skip,direction:payload.direction,start_index:payload.startIndex,corpus_id:'${ELS_GOLDEN_CORPUS_ID}',
-        owner_user_id:'fixture-owner',visibility:payload.isPublic&&window.__fixtureTier==='admin'?'public':'private',status:payload.isPublic?(window.__fixtureTier==='admin'?'published':'pending'):'draft',self_published:!!payload.isPublic,positions:payload.positions,description:payload.note,image_url:payload.imageUrl};
+        owner_user_id:'fixture-owner',visibility:payload.isPublic&&!window.__prePublicationRpc?'public':'private',status:payload.isPublic?(window.__prePublicationRpc?'pending':'published'):'draft',self_published:!!payload.isPublic,positions:payload.positions,description:payload.note,image_url:payload.imageUrl};
       if(old)Object.assign(old,row);else rows.push(row);return row.id;
     };
     export const saveMatrixAnon=async payload=>{window.__anonymousSaves=(window.__anonymousSaves||0)+1;
@@ -2348,21 +2348,25 @@ test('Research matrix scrolls and drags vertically as well as horizontally, and 
   },{researchProfile:true});
  });
 
-test('native save: cloud-only, published to the research file by default unless the person ticks "do not publish"',
+test('native save: publish by default and show the real library or pre-rollout receipt',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
-  await withNative({width:1440,height:1000},async page=>{
+  for (const preRollout of [false, true]) await withNative({width:1440,height:1000},async page=>{
     await unsavedPrivacyAxis(page);
     await activate(page,'שמירה');
     const box=page.getByRole('checkbox',{name:'לא לפרסם (לשמור פרטי)',exact:true});
     assert.equal(await box.isChecked(),false,'publishing is the default');
     assert.equal(await page.getByText('שמור אצלי').count(),0,'no "save on my side" concept');
-    await page.evaluate(()=>{window.__fixtureTier='registered';});
+    await page.evaluate(older => { window.__fixtureTier='registered'; window.__prePublicationRpc=older; },preRollout);
     await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('ממצא שמתפרסם כברירת מחדל בתיק המחקר');
     await activate(page,'שמירה בענן');
     await page.waitForFunction(()=>window.__savedRows?.length===1);
     assert.equal(await page.evaluate(()=>window.__saveCalls.at(-1).isPublic),true);
     assert.equal(await page.evaluate(()=>window.__savedRows[0].self_published),true);
-    assert.notEqual(await page.evaluate(()=>window.__savedRows[0].status),'published','site-library publication still needs the existing approval and truth gate');
+    assert.equal(await page.evaluate(()=>window.__savedRows[0].status), preRollout ? 'pending' : 'published');
+    const receipt = page.locator('.els29-native-save-result');
+    await receipt.waitFor();
+    assert.equal(await receipt.locator('a[href^="/codes/"]').count(), preRollout ? 0 : 1);
+    assert.match(await receipt.innerText(), preRollout ? /ממתין לאישור/ : /פורסם בספריית האתר/);
   },{realHost:true});
  });
 
@@ -2581,7 +2585,7 @@ test('privacy F4: explicit private targets, missing access, lookup failures and 
   },{realHost:true});
  });
 
-test('privacy F4: public heuristic re-save by another member or guest keeps the existing pending-variant path',
+test('privacy F4: public re-save by another member or guest retains attribution and preserves the original',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
   for(const tier of ['registered','anon'])await withNative({width:1440,height:1000},async page=>{
     const row=await privacyRecord(page,{owner_user_id:'public-author',visibility:'public',status:'published',self_published:true});

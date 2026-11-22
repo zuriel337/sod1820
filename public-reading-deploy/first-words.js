@@ -19,6 +19,7 @@ import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
 import { CALCULATOR_PRO_PATH, CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
+import { GALLERY_CATALOG_INTRO } from "../src/lib/galleryCatalogIntro2029.js";
 import { HOME_FIRST_WORDS } from "../src/lib/homePublicWords2029.js";
 
 // The public project address and the public anonymous key, as in the other server readers (api/og.js, api/sitemap.js, api/card.js). The browser
@@ -85,9 +86,13 @@ async function postsOfNumber(read, value) {
   return slugs.map(slug => rows.find(row => row.slug === slug)).filter(Boolean);
 }
 
-async function numberFacts(read, value) {
+async function numberFacts(read, value, progress) {
   const [phrases, anchor, posts] = await Promise.all([
-    read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=60`),
+    read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=60`).then(rows => {
+      const phrases = unique(rows, "phrase");
+      if (phrases.length) progress.partial = { kind: "number", value, phrases, anchor: null, posts: [] };
+      return rows;
+    }),
     optional(read.rows(`number_anchors?value=eq.${value}&select=fact,hint&limit=1`)),
     optional(postsOfNumber(read, value)),
   ]);
@@ -139,6 +144,8 @@ export function firstWordsFamily2029(path) {
   let decoded;
   try { decoded = decodeURIComponent(path).replace(/\/+$/, "") || "/"; } catch { return null; }
   if (decoded === "/") return { kind: "home" };
+  if (decoded === "/number") return { kind: "number-search" };
+  if (decoded === "/community" || decoded === "/community/chat") return { kind: "community-chat" };
   if (decoded === "/gematria") return { kind: "gematria" };
   if (decoded === "/community/calculator") return { kind: "community-calculator" };
   if (decoded === "/codes") return { kind: "codes" };
@@ -155,9 +162,9 @@ export function firstWordsFamily2029(path) {
   return null;
 }
 
-async function readFacts(family, fetchImpl, deadlineMs) {
+async function readFacts(family, fetchImpl, deadlineMs, progress) {
   const read = reader(fetchImpl, AbortSignal.timeout(deadlineMs));
-  if (family.kind === "number") return numberFacts(read, family.value);
+  if (family.kind === "number") return numberFacts(read, family.value, progress);
   if (family.kind === "phrase") return phraseFacts(read, family.phrase);
   if (family.kind === "codes") return codesFacts(read, family);
   if (family.kind === "topic") return topicFacts(read, family.slug);
@@ -177,23 +184,31 @@ function keepAlive(promise) {
   return promise;
 }
 function refresh(key, family, fetchImpl, deadlineMs, now) {
-  if (reading.has(key)) return reading.get(key);
-  const pending = readFacts(family, fetchImpl, deadlineMs).then(facts => {
+  if (reading.has(key)) return reading.get(key).pending;
+  const progress = { pending: null, partial: null };
+  const pending = readFacts(family, fetchImpl, deadlineMs, progress).then(facts => {
     kept.delete(key); kept.set(key, { facts, at: now() });
     if (kept.size > FIRST_WORDS_CACHE.entries) kept.delete(kept.keys().next().value);
     return facts;
-  }).finally(() => { if (reading.get(key) === pending) reading.delete(key); });
-  reading.set(key, pending);
+  }).finally(() => { if (reading.get(key) === progress) reading.delete(key); });
+  progress.pending = pending;
+  reading.set(key, progress);
   // The read outlives a request that stopped waiting for it, so the next request finds its answer.
   keepAlive(pending.catch(() => null));
   return pending;
+}
+
+// A cold number read may already have public verified phrases while its related posts are loading.
+export function numberWordsInFlight2029(path, search) {
+  const family = !search && firstWordsFamily2029(path);
+  return family?.kind === "number" ? reading.get(JSON.stringify(family))?.partial : null;
 }
 
 export async function firstWordsFacts2029(path, { search = "", fetchImpl = globalThis.fetch, deadlineMs = FIRST_WORDS_DEADLINE_MS, now = Date.now } = {}) {
   const family = search ? null : firstWordsFamily2029(path);
   // Detail metadata admits the exact record. Pagination metadata reads the requested slice.
   if (family?.kind === "code") return null;
-  if (family?.kind === "home") return { kind: "home" };
+  if (family && ["home", "number-search", "community-chat"].includes(family.kind)) return family;
   if (!family || typeof fetchImpl !== "function") return null;
   try {
     const key = JSON.stringify(family), entry = kept.get(key), age = entry ? now() - entry.at : Infinity;
@@ -211,6 +226,21 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "insight") {
+    return `<h1 id="comm-${esc(facts.id)}">${esc(facts.title)}</h1><p>${esc(facts.body.slice(0, 1900))}</p><p><a href="/findings">לממצאים שפורסמו</a></p>`;
+  }
+  if (facts.kind === "writers") {
+    const base = "/community/researchers";
+    return '<h1>הכתבים והחוקרים</h1>'
+      + (facts.unavailable ? '<p>רשימת הכותבים אינה זמינה כרגע. אפשר לנסות שוב בהמשך.</p>' : "")
+      + links(facts.people.map(person => ({ label: person.displayName, href: person.href })), "דפי הכותבים")
+      + (facts.page > 1 ? `<a rel="prev" href="${base}${facts.page > 2 ? `?page=${facts.page - 1}` : ""}">לעמוד הקודם</a> ` : "")
+      + (facts.hasMore ? `<a rel="next" href="${base}?page=${facts.page + 1}">לעמוד הבא</a>` : "");
+  }
+  if (facts.kind === "writer") return `<h1>${esc(facts.name)}</h1>`
+    + (facts.bio ? `<p>${esc(facts.bio)}</p>` : "")
+    + links(facts.works, "פרסומים ומקורות", true)
+    + '<p><a href="/community/researchers">כל הכתבים והחוקרים</a></p>';
   if (facts.kind === "timeline" || facts.kind === "broadcasts") {
     let html = `<h1>${esc(facts.title)}</h1><p>${esc(facts.description)}</p>`;
     if (facts.notice) html += `<p>${esc(facts.notice)}</p>`;
@@ -250,6 +280,9 @@ function body(facts) {
     const { title, description } = PUBLIC_REALITY_STREAM_2029;
     return `<h1>${esc(title)}</h1><p>${esc(description)}</p><p><a href="/gallery">גלריות ומקורות</a></p>`;
   }
+  if (facts.kind === "forum") {
+    return `<h1>${esc(facts.title)}</h1><p>${esc(facts.excerpt)}</p><p><a href="/community/chat">לשיחת הקהילה</a></p>`;
+  }
   if (facts.kind === "map") {
     return '<h1>מפת האתר</h1>' + links(publicMapLinks2029(true).map(([href, label]) => ({ href, label })), "דפי האתר");
   }
@@ -265,6 +298,14 @@ function body(facts) {
       + `<p><a href="${esc(words.series.href)}"><strong>${esc(words.series.label)}</strong></a> — ${esc(words.series.note)}</p>`
       + `<p><strong>${esc(words.startLabel)}</strong> ${words.start.map(item => `<a href="${esc(item.href)}">${esc(item.label)}</a>`).join(" · ")}.</p>`;
   }
+  if (facts.kind === "number-search") {
+    return "<h1>מספר או ביטוי</h1><p>המספרים, הביטויים והמקורות במנוע הקיים. חיפוש אינו פרסום ציבורי.</p>"
+      + '<p><a href="/number/1820">1820 בגימטריה</a> · <a href="/gematria">מחשבון גימטריה מקצועי</a></p>';
+  }
+  if (facts.kind === "community-chat") {
+    return "<h1>צ'אט הקהילה</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>"
+      + '<p><a href="/community/researchers">אנשים בקהילה</a> · <a href="/community/calculator">מחשבון הקהילה</a></p>';
+  }
   if (facts.kind === "number") {
     const { value, phrases, anchor, posts } = facts;
     return `<h1>${value} בגימטריה</h1>`
@@ -273,6 +314,9 @@ function body(facts) {
       + links(phraseLinks(phrases), `ביטויים ששווים ${value}`)
       + links(postLinks(posts), `פוסטים על ${value}`, true)
       + `<p><a href="/gematria">מחשבון גימטריה</a> · <a href="${numberHref(value - 1)}">${value - 1}</a> · <a href="${numberHref(value + 1)}">${value + 1}</a></p>`;
+  }
+  if (facts.kind === "gallery") {
+    return `<h1>${esc(GALLERY_CATALOG_INTRO.heading)}</h1><p>${esc(GALLERY_CATALOG_INTRO.description)}</p><p><a href="/world">חזרה לעולם ←</a></p>`;
   }
   if (facts.kind === "phrase") {
     const { phrase, value, phrases, posts } = facts;

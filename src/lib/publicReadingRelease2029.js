@@ -83,6 +83,10 @@ function publishedFindingsEntry(path, params) {
   return ["/research", "/heichal", "/היכל"].includes(path) && readingEntryQuery(params);
 }
 
+export function publicInsightId2029(value) {
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value) ? value.toLowerCase() : null;
+}
+
 export function publicReadingContinuation(pathname, search = "", hash = "") {
   const path = addressPath(pathname);
   if (!path) return null;
@@ -108,6 +112,16 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
     "/gallery-updates": "/archive", "/מסע": "/journey", "/journey-beta": "/journey",
   })[path];
   if (publishedFindingsEntry(path, query)) target = "/findings";
+  if (path === "/research" && query.get("tool") === "midrash" && query.get("tab") === "community") {
+    const id = publicInsightId2029(query.get("insight"));
+    const extras = new URLSearchParams(query);
+    for (const key of ["tool", "tab", "insight"]) extras.delete(key);
+    if (id && ["tool", "tab", "insight"].every(key => query.getAll(key).length === 1) && readingEntryQuery(extras)) {
+      const selected = new URLSearchParams({ insight: id });
+      for (const [key, value] of extras) selected.append(key, value);
+      return "/findings?" + selected + (hash && !hash.startsWith("#") ? "#" : "") + hash;
+    }
+  }
   if (path === "/" && query.getAll("p").length === 1 && query.get("p") === "36971") target = "/community/chat";
   if (path === "/") {
     const sourceId = query.getAll("p").length === 1 && !query.has("page_id") ? query.get("p")

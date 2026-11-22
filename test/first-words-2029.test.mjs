@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { retiredCollectionContinuation } from "../public-reading-deploy/api/public-document.js";
-import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_DATA_PAGE_GRACE_MS, firstWordsGraceMs2029, FIRST_WORDS_KEEPER, firstWordsStaticFacts2029, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
+import { numberWordsInFlight2029, firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_DATA_PAGE_GRACE_MS, firstWordsGraceMs2029, FIRST_WORDS_KEEPER, firstWordsStaticFacts2029, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
 import { beforeEach } from "node:test";
 beforeEach(() => _resetFirstWordsForTests());
 
@@ -28,6 +28,23 @@ test("only the named public families have first words; a query string, a private
   assert.deepEqual(firstWordsFamily2029("/codes/מחקר"), { kind: "codes", research: true });
   assert.deepEqual(firstWordsFamily2029("/"), { kind: "home" });
   for (const path of ["/2029/me/profile", "/number/0", "/number/1234567890123", "/post/x", "/number/%E0%A4%A", "/journey"]) assert.equal(firstWordsFamily2029(path), null, path);
+});
+
+test("the bare number search and community chat have reading links without fetching conversations or searches", async () => {
+  let calls = 0;
+  const fetchImpl = () => { calls++; throw new Error("unexpected reader"); };
+  for (const [path, heading, href] of [
+    ["/number", "מספר או ביטוי", "/number/1820"],
+    ["/community/chat", "צ'אט הקהילה", "/community/calculator"],
+    ["/community", "צ'אט הקהילה", "/community/calculator"],
+  ]) {
+    const html = firstWordsHtml2029(await firstWordsFacts2029(path, { fetchImpl }));
+    assert.ok(html.includes(`<h1>${heading}</h1>`), path);
+    assert.ok(html.includes(`href="${href}"`), path);
+    assert.equal(await firstWordsFacts2029(path, { search: "?q=test", fetchImpl }), null, path);
+    assert.equal(firstWordsStaticFacts2029(path), null, "a query variant cannot inherit a fallback");
+  }
+  assert.equal(calls, 0);
 });
 
 test("a number page lists only verified published phrases, its published posts and a way back to the calculator", async () => {
@@ -214,6 +231,23 @@ test("the calculators' fixed wording is never missing: without their lists they 
   assert.deepEqual(firstWordsStaticFacts2029("/"), { kind: "home" }, "the home words are fixed wording too (#1470)");
   const documentSource = readFileSync(new URL("../public-reading-deploy/api/public-document.js", import.meta.url), "utf8");
   assert.match(documentSource, /\|\| firstWordsStaticFacts2029\(metadataPath\)\)\)/);
+});
+
+test("an indexed number can show verified phrases while related posts are pending", async () => {
+  let finishPosts;
+  const posts = new Promise(resolve => { finishPosts = resolve; });
+  const full = firstWordsFacts2029("/number/533", { fetchImpl: source([
+    [/gematria_words/, [{ phrase: "ביטוי מהמקור" }]], [/number_anchors/, []],
+    [/posts_by_number_strict/, () => posts],
+  ]) });
+  await new Promise(resolve => setImmediate(resolve));
+  const partial = numberWordsInFlight2029("/number/533", "");
+  assert.match(firstWordsHtml2029(partial), /ביטוי מהמקור/);
+  assert.equal(numberWordsInFlight2029("/number/533", "?focus=x"), null);
+  assert.equal(numberWordsInFlight2029("/number/534", ""), undefined);
+  finishPosts(json([]));
+  assert.deepEqual(await full, partial);
+  assert.equal(numberWordsInFlight2029("/number/533", ""), undefined);
 });
 
 test("the cipher library has a readable first document while its published records are unavailable", () => {

@@ -11,6 +11,7 @@ import Renderer, { act } from 'react-test-renderer';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const outfile = resolve(`.test-els-save-panel-${process.pid}.mjs`);
 await build({ entryPoints: ['src/components/experience2029/ElsSavePanel2029.jsx'], bundle: true,
+  define: { '__SOD_2029_BUILD__': 'true', 'import.meta.env': JSON.stringify({ VITE_PUBLIC_READING_RELEASE: 'public-reading-20261101' }) },
   platform: 'node', format: 'esm', outfile, external: ['react'], loader: { '.css': 'empty' }, logLevel: 'silent' });
 const Panel = (await import(pathToFileURL(outfile))).default;
 after(() => rm(outfile, { force: true }));
@@ -29,10 +30,10 @@ async function mount(t, overrides = {}) {
 }
 const checkboxes = root => root.root.findAll(node => node.type === 'input' && node.props.type === 'checkbox');
 
-test('new save requests publication by default, explains dossier vs library, and offers an explicit private choice', async t => {
+test('new save requests publication by default, explains guest library access, and offers an explicit private choice', async t => {
   const f = await mount(t);
-  assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל הוא מתפרסם בתיק המחקר שלך/);
-  assert.match(JSON.stringify(f.root.toJSON()), /הצגתו בספריית האתר כפופה לאישור/);
+  assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל הצופן יפורסם בספריית הצפנים/);
+  assert.match(JSON.stringify(f.root.toJSON()), /כדי שרק אתם תוכלו לפתוח אותו/);
   assert.equal(checkboxes(f.root)[0].props.checked, false);
   await f.submit();
   assert.deepEqual(f.saves[0], { title: 'תורה', desc: state.provenance.desc, isPublic: true });
@@ -79,4 +80,27 @@ test('guest cannot submit; unverified, busy, pending and short-description state
   await f.update({ user: null });
   assert.equal(f.root.root.findAllByType('form').length, 0);
   assert.equal(f.root.root.findAll(node => node.type === 'a' && node.props.href === '/login').length, 1);
+});
+
+test('public form respects the server limit and preserves an overlong description until the member edits it', async t => {
+  const f = await mount(t, { state: { ...state, provenance: { desc: 'א'.repeat(4001) } } });
+  const input = f.root.root.findByType('textarea');
+  assert.equal(input.props.maxLength, 4000);
+  assert.equal(input.props.value.length, 4001);
+  await f.submit();
+  assert.equal(f.saves.length, 0);
+  await act(async () => input.props.onChange({ target: { value: 'א'.repeat(4000) } }));
+  await f.submit();
+  assert.equal(f.saves[0].desc.length, 4000);
+});
+
+test('only confirmed public receipts link to the exact reading address', async t => {
+  const f = await mount(t);
+  for (const [status, visibility, expected] of [
+    ['draft', 'private', false], ['pending', 'private', false], ['published', 'public', true],
+  ]) {
+    await f.update({ result: { ok: true, row: { status, visibility, slug: 'בדיקה-2' } } });
+    const links = f.root.root.findAll(node => node.type === 'a' && node.props.href === '/codes/' + encodeURIComponent('בדיקה-2'));
+    assert.equal(links.length, Number(expected));
+  }
 });

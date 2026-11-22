@@ -550,7 +550,7 @@ function removeMeta(attr, key) {
   if (typeof document === "undefined") return;
   document.head.querySelectorAll(`meta[${attr}="${key}"]`).forEach(el => el.remove());
 }
-function setJsonLd(id, obj) {
+export function setJsonLd(id, obj) {
   if (typeof document === "undefined") return;
   const clean = JSON.parse(JSON.stringify(obj)); // מסיר undefined
   let el = document.getElementById(id);
@@ -562,7 +562,7 @@ function setJsonLd(id, obj) {
   }
   el.textContent = JSON.stringify(clean);
 }
-function removeJsonLd(id) {
+export function removeJsonLd(id) {
   if (typeof document === "undefined") return;
   document.getElementById(id)?.remove();
 }

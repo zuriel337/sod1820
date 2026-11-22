@@ -28,12 +28,13 @@ export function contributorAuthorAttribution(identity, rows) {
   return { identity: canonical, names };
 }
 
-export async function fetchContributorAuthorAttribution(identity, { client } = {}) {
+export async function fetchContributorAuthorAttribution(identity, { client, signal } = {}) {
   const rows = [];
   for (let offset = 0; offset < 10000; offset += 100) {
-    const { data, error } = await client.from("contributors")
+    const query = client.from("contributors")
       .select("id,slug,code,display_name,user_id,wa_names,active,locked,building,public_visibility:dossier_settings->>visibility")
       .order("id", { ascending: true }).range(offset, offset + 99);
+    const { data, error } = await (signal ? query.abortSignal(signal) : query);
     if (error) throw error;
     if (!Array.isArray(data)) throw new Error("invalid_author_attribution_page");
     rows.push(...data);

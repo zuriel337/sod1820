@@ -55,7 +55,7 @@ const DECISIONS = {
   "/number": { kind: "index" },
   "/community": { kind: "index", canonical: "/community/chat", note: "#1234: the community address is the chat" },
   "/community/researchers": { kind: "index" },
-  "/members": { kind: "index" },
+  "/members": { kind: "index", canonical: "/community/researchers", note: "The same public writer directory is served at the legacy address." },
   "/codes": { kind: "index" },
   "/code": { kind: "index", note: "#1237: the Bible code is open to the public in Classic mode" },
   "/els": { kind: "redirect", to: "/code", then: { kind: "index", canonical: "/code" }, note: "#1237: the old /els address continues at /code (308, the query is kept)" },

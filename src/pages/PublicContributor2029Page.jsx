@@ -7,7 +7,8 @@ import { loadCommunityPerson2029 } from "../components/contributor2029/loadCommu
 import { readContributorLocation, SECTIONS, selectContributorItems } from "../components/contributor2029/publicContributor2029Model.js";
 import { use2029Palette } from "../lib/palette2029.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import { applySeo } from "../lib/seo.js";
+import { writerProfileSchema2029 } from "../lib/research/contributorProfileAddress2029.js";
+import { applySeo, setJsonLd, removeJsonLd, SITE_URL } from "../lib/seo.js";
 import "./publicContributor2029.css";
 import ContributorCommunityActivity2029 from "../components/contributor2029/ContributorCommunityActivity2029.jsx";
 import PublicSourceCatalog2029 from "../components/contributor2029/PublicSourceCatalog2029.jsx";
@@ -63,7 +64,8 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
     "--pc-secondary": P.accentSecondary, "--pc-discovery": P.accentDiscovery };
   const message = loading ? "טוען את דף הכותב…" : error ? "לא ניתן לקרוא את דף הכותב כרגע." : !view ? "הכותב לא נמצא." : null;
   return <section className="public-contributor-2029" dir="rtl" lang="he" style={style} aria-busy={loading} aria-labelledby="public-contributor-title">
-    {context.returnHref ? <Link className="pc-return" to={context.returnHref}>חזרה למקום שממנו הגעת <span aria-hidden="true">↗</span></Link> : null}
+    {context.returnHref ? <Link className="pc-return" to={context.returnHref}>חזרה למקום שממנו הגעת <span aria-hidden="true">↗</span></Link>
+      : view?.canonicalHref?.startsWith("/community/researcher/") ? <Link className="pc-return" to="/community/researchers">כל הכתבים והחוקרים</Link> : null}
     {message ? <div className="pc-notice" role={error ? "alert" : "status"}>
       <h1 id="public-contributor-title">{message}</h1>
       {error && onRetry ? <button onClick={onRetry} type="button">ניסיון נוסף</button> : null}
@@ -163,15 +165,20 @@ export default function PublicContributor2029Page({ communityAuthorKey = null, e
   }, [slug, communityAuthorKey, attempt]);
   const active = state.key === slug ? state : { loading: true, view: null, error: false };
   useEffect(() => {
-    applySeo({ title: active.view?.profile.name || "דף כותב", path: active.view?.canonicalHref || `/community/researcher/${encodeURIComponent(slug || "")}`,
-      description: active.view?.profile.bio || "הכתבים, המקורות והממצאים הציבוריים של הכותב.", noindex: !active.view || active.view.noindex === true });
+    if (active.loading) return;
+    applySeo({ title: active.view ? `${active.view.profile.name} — דף כותב` : "דף כותב", path: active.view?.canonicalHref || `/community/researcher/${encodeURIComponent(slug || "")}`,
+      description: active.view?.profile.bio || `הכתבים, המקורות והממצאים הציבוריים של ${active.view?.profile.name || "הכותב"}.`, noindex: !active.view || active.view.noindex === true });
+    if (!communityAuthorKey && active.view && !active.view.noindex) {
+      setJsonLd("sod-writer-profile-ld", writerProfileSchema2029(active.view.profile.name, SITE_URL + encodeURI(active.view.canonicalHref)));
+    }
     if (communityAuthorKey && active.view) {
       const heading = document.getElementById("public-contributor-title");
       heading?.setAttribute("tabindex", "-1");
       heading?.focus({ preventScroll: true });
       heading?.scrollIntoView({ block: "start" });
     }
-  }, [slug, communityAuthorKey, active.view]);
+    return () => removeJsonLd("sod-writer-profile-ld");
+  }, [slug, communityAuthorKey, active.loading, active.view]);
   return <PublicContributor2029View {...active} view={active.view ? { ...active.view, entryReturnHref,
     ...(active.view.publicActions === false && communityOwnProfileHref
       ? { publicLinks: [{ href: communityOwnProfileHref, label: "עריכת הפרופיל שלי" }] } : {}) } : null}

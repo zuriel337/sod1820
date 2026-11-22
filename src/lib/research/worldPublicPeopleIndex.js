@@ -1,3 +1,4 @@
+import { contributorHref } from "../supabase.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -50,7 +51,7 @@ export function buildWorldPublicPeopleIndex(rows = []) {
       role: clean(row.role) || "חוקר וכותב",
       avatar: publicAvatar(row),
       updatedAt: row.updated_at || row.created_at || null,
-      href: `/community/researcher/${encodeURIComponent(clean(row.slug))}`,
+      href: encodeURI(contributorHref(row)),
       sourceHref: `/world?view=sources&source=${encodeURIComponent(clean(row.slug))}`,
       trusted: row.trusted === true,
     }))
