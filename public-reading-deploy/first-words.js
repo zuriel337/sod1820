@@ -32,8 +32,9 @@ export const FIRST_WORDS_DATA_PAGE_GRACE_MS = 1200;
 // (a cold instance), the document still carries that wording rather than an empty shell; the lists come with the next request.
 // The home page's words are fixed wording only (ZURIEL 21.11.2026, #1470): no read, so they are never missing, even on a cold instance.
 export function firstWordsStaticFacts2029(path) {
-  const kind = firstWordsFamily2029(path)?.kind;
+  const family = firstWordsFamily2029(path), kind = family?.kind;
   if (kind === "home") return { kind };
+  if (kind === "codes") return { ...family, codes: [] };
   return kind === "gematria" || kind === "community-calculator" ? { kind, recent: [], picked: [], pickedThisWeek: false } : null;
 }
 export function firstWordsGraceMs2029(path) {
@@ -112,16 +113,16 @@ async function calculatorFacts(read, kind) {
   return { kind, recent: unique(recent, "phrase").slice(0, 30), picked, pickedThisWeek: picked.length > 0 && pulse?.hours === 168 };
 }
 
-async function codesFacts(read) {
-  const rows = await read.rows("els_records?status=eq.published&visibility=eq.public&select=slug,title,search_term,skip_distance&order=created_at.desc.nullslast&limit=100");
-  return rows.length ? { kind: "codes", codes: unique(rows, "slug") } : null;
-}
-async function codeFacts(read, slug) {
-  const rows = await read.rows(`els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published&visibility=eq.public&select=slug,title,search_term,skip_distance,scope,positions&limit=1`);
-  const row = rows[0];
-  if (!row) return null;
-  const findings = Array.isArray(row.positions?.findings) ? row.positions.findings.map(item => text(item?.t)).filter(Boolean).slice(0, 12) : [];
-  return { kind: "code", code: row, findings };
+const CIPHER_PAGE_SIZE = 24;
+const researchCodesPath = "/codes/" + encodeURIComponent("מחקר");
+
+async function codesFacts(read, family) {
+
+  const filter = family.research ? "&source=eq.research" : "";
+  const rows = await read.rows("els_records?status=eq.published&visibility=eq.public" + filter
+    + "&select=slug,title,search_term,skip_distance&order=created_at.desc,id.desc"
+    + `&limit=${CIPHER_PAGE_SIZE + 1}`);
+  return { ...family, more: rows.length > CIPHER_PAGE_SIZE, codes: unique(rows.slice(0, CIPHER_PAGE_SIZE), "slug") };
 }
 async function topicFacts(read, slug) {
   const rows = await read.rows(`topic_cards_public?slug=eq.${encodeURIComponent(slug)}&select=title,subtitle,highlight_numbers&limit=1`);
@@ -137,6 +138,7 @@ export function firstWordsFamily2029(path) {
   if (decoded === "/gematria") return { kind: "gematria" };
   if (decoded === "/community/calculator") return { kind: "community-calculator" };
   if (decoded === "/codes") return { kind: "codes" };
+  if (decoded === "/codes/מחקר") return { kind: "codes", research: true };
   let match = /^\/number\/([^/]+)$/.exec(decoded);
   if (match) {
     if (/^\d{1,9}$/.test(match[1])) return Number(match[1]) >= 1 ? { kind: "number", value: Number(match[1]) } : null;
@@ -153,8 +155,7 @@ async function readFacts(family, fetchImpl, deadlineMs) {
   const read = reader(fetchImpl, AbortSignal.timeout(deadlineMs));
   if (family.kind === "number") return numberFacts(read, family.value);
   if (family.kind === "phrase") return phraseFacts(read, family.phrase);
-  if (family.kind === "codes") return codesFacts(read);
-  if (family.kind === "code") return codeFacts(read, family.slug);
+  if (family.kind === "codes") return codesFacts(read, family);
   if (family.kind === "topic") return topicFacts(read, family.slug);
   return calculatorFacts(read, family.kind);
 }
@@ -186,6 +187,8 @@ function refresh(key, family, fetchImpl, deadlineMs, now) {
 
 export async function firstWordsFacts2029(path, { search = "", fetchImpl = globalThis.fetch, deadlineMs = FIRST_WORDS_DEADLINE_MS, now = Date.now } = {}) {
   const family = search ? null : firstWordsFamily2029(path);
+  // Detail metadata admits the exact record. Pagination metadata reads the requested slice.
+  if (family?.kind === "code") return null;
   if (family?.kind === "home") return { kind: "home" };
   if (!family || typeof fetchImpl !== "function") return null;
   try {
@@ -242,14 +245,19 @@ function body(facts) {
         + `${picked}${recent}${explain}<p><a href="/community/calculator">מחשבון הקהילה: שמות, השוואה ותאריך עברי</a> · <a href="/number">דף המספר</a></p>`;
   }
   if (facts.kind === "codes") {
-    return `<h1>ספריית הצפנים</h1><p>דילוגי אותיות (ELS) שפורסמו בסוד 1820: המונח, הדילוג והמקום בתורה ובתנ״ך.</p>`
+    const path = facts.research ? researchCodesPath : "/codes";
+    const page = facts.page || 1;
+    const prev = page > 1 ? `<a rel="prev" href="${path}${page === 2 ? "" : "?page=" + (page - 1)}">העמוד הקודם</a>` : "";
+    const next = facts.more ? `<a rel="next" href="${path}?page=${page + 1}">העמוד הבא</a>` : "";
+    return `<h1>${facts.research ? "פרסומי מחקר בצפנים" : "ספריית הצפנים"}</h1><p>דילוגי אותיות (ELS) שפורסמו בסוד 1820: המונח, הדילוג והמקום בתורה ובתנ״ך.</p>`
       + links(facts.codes.map(row => ({ href: "/codes/" + encodeURIComponent(row.slug), label: text(row.title || row.search_term), note: row.skip_distance != null ? `דילוג ${row.skip_distance}` : "" })), "הצפנים שפורסמו")
-      + `<p><a href="/code">כלי הצופן: חיפוש דילוגי אותיות בתנ״ך</a></p>`;
+      + (prev || next ? `<nav aria-label="דפי הספרייה">${[prev, next].filter(Boolean).join(" · ")}</nav>` : "")
+      + `<p><a href="${facts.research ? "/codes" : researchCodesPath}">${facts.research ? "כל הצפנים שפורסמו" : "פרסומי מחקר בצפנים"}</a> · <a href="/code">כלי הצופן: חיפוש דילוגי אותיות בתנ״ך</a></p>`;
   }
   if (facts.kind === "code") {
     const { code, findings } = facts;
     return `<h1>הצופן «${esc(text(code.title || code.search_term))}»</h1>`
-      + `<p>דילוג אותיות (ELS) של «${esc(text(code.search_term))}» ב${code.scope === "tanakh" ? "כל התנ״ך" : "תורה"}${code.skip_distance != null ? `, בדילוג ${esc(code.skip_distance)}` : ""}. עדות, לא ניבוי.</p>`
+      + `<p>דילוג אותיות (ELS) של «${esc(text(code.search_term))}» ${code.scope === "tanakh" ? "בכל התנ״ך" : code.scope === "torah" ? "בתורה" : ""}${code.skip_distance != null ? `, בדילוג ${esc(code.skip_distance)}` : ""}. עדות, לא ניבוי.</p>`
       + (findings.length ? `<h2>מה נמצא במטריצה</h2><ul>${findings.map(item => `<li>${esc(item)}</li>`).join("")}</ul>` : "")
       + `<p><a href="/codes">כל הצפנים</a> · <a href="/code">כלי הצופן</a></p>`;
   }

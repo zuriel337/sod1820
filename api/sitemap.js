@@ -254,7 +254,7 @@ export default async function handler(req, res) {
   const foundation = req.publicFoundationPreview === true;
   const foundationStatics = new Set(["/", "/world", "/post", "/map", "/privacy", "/number"]);
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) foundationStatics.add("/gematria");
-  if (productionReading) for (const path of ['/books', '/code', '/codes', '/or-geula', '/community/researchers']) foundationStatics.add(path);
+  if (productionReading) for (const path of ['/books', '/code', '/codes', '/codes/' + encodeURIComponent('מחקר'), '/or-geula', '/community/researchers']) foundationStatics.add(path);
   const urls = foundation ? STATIC.filter(row => foundationStatics.has(row.loc)) : [...STATIC];
   if (foundation && !urls.some(row => row.loc === "/number")) urls.push({ loc: "/number", priority: "0.6", changefreq: "monthly" });
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && !urls.some(row => row.loc === "/gallery")) urls.push({ loc: "/gallery", priority: "0.6", changefreq: "weekly" });
@@ -418,7 +418,7 @@ export default async function handler(req, res) {
   // ── צפנים מאושרים → /codes/:slug (els_records published) ──
   try {
     if (foundation && !productionReading) throw new Error("outside-public-foundation");
-    const codes = await fetchAll('els_records?select=slug,created_at&status=eq.published' + (productionReading ? '&visibility=eq.public&or=(source.is.null,source.neq.research)' : ''));
+    const codes = await fetchAll('els_records?select=slug,created_at&status=eq.published' + (productionReading ? '&visibility=eq.public' : ''));
     for (const c of codes) {
       if (!c.slug) continue;
       const lastmod = (c.created_at || '').slice(0, 10) || undefined;
