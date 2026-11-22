@@ -96,7 +96,6 @@ const LECTURE_SPEAKER_TAGS_2029 = [
   "הרב יורם מיכאל אברג'ל זצוק״ל", "הרב שמעון דהן",
 ];
 const NON_SPEAKER_BYLINES_2029 = new Set(["", "מזכה הרבים", "מערכת", "צוות האתר"]);
-const LECTURE_TOPIC_EXCLUDE_2029 = new Set(["הרצאות", "וידאו", "משיח בתשע״ו", 'משיח בתשע"ו']);
 function lectureSpeaker2029(post) {
   const byline = String(post?.author || "").trim();
   if (!NON_SPEAKER_BYLINES_2029.has(byline)) return byline;
@@ -104,12 +103,9 @@ function lectureSpeaker2029(post) {
   return named.length === 1 ? named[0] : null;
 }
 function LectureFacetedCatalogue2029({ scope, onFilterChange }) {
-  const [opened, setOpened] = useState(false);
-  const [result, setResult] = useState({ loading: false, posts: [], error: "" });
-  const [topic, setTopic] = useState("");
+  const [result, setResult] = useState({ loading: true, posts: [], error: "" });
   const [speaker, setSpeaker] = useState("");
   useEffect(() => {
-    if (!opened) return undefined;
     const controller = new AbortController();
     let active = true;
     setResult({ loading: true, posts: [], error: "" });
@@ -126,33 +122,31 @@ function LectureFacetedCatalogue2029({ scope, onFilterChange }) {
       if (all.length !== first.total) throw new Error("לא התקבלו כל ההרצאות הציבוריות.");
       if (active) setResult({ loading: false, posts: all, error: "" });
     })().catch(error => {
-      if (active && error?.name !== "AbortError") setResult({ loading: false, posts: [], error: "לא ניתן לטעון את הקטלוג המלא כרגע." });
+      if (active && error?.name !== "AbortError") setResult({ loading: false, posts: [], error: "לא ניתן לטעון את רשימת המרצים כרגע." });
     });
     return () => { active = false; controller.abort(); };
-  }, [opened, scope.kind, scope.key]);
-  const topics = useMemo(() => [...new Set(result.posts.flatMap(post =>
-    (post.categories || []).filter(name => !LECTURE_TOPIC_EXCLUDE_2029.has(name))))].sort((a,b) => a.localeCompare(b,"he")), [result.posts]);
+  }, [scope.kind, scope.key]);
   const speakers = useMemo(() => [...new Set(result.posts.map(lectureSpeaker2029).filter(Boolean))]
     .sort((a,b) => a.localeCompare(b,"he")), [result.posts]);
-  const selected = Boolean(topic || speaker);
+  const selected = Boolean(speaker);
   useEffect(() => { onFilterChange(selected); return () => onFilterChange(false); }, [selected, onFilterChange]);
-  const filtered = result.posts.filter(post => (!topic || post.categories?.includes(topic)) && (!speaker || lectureSpeaker2029(post) === speaker));
-  return <section className="sod29-lecture-facets" aria-label="קטלוג לפי נושא ומרצה">
+  const filtered = result.posts.filter(post => lectureSpeaker2029(post) === speaker);
+  return <section className="sod29-lecture-facets" aria-label="הרצאות לפי מרצה">
     <div className="sod29-lecture-facets-heading">
-      <div><h2>לגלות הרצאות לפי נושא או מרצה</h2><p>סינון לפי שיוכים קיימים בפוסטים — בלי שינוי במקורות.</p></div>
-      {!opened ? <button type="button" onClick={() => setOpened(true)}>פתח את הקטלוג</button> : null}
+      <div><h2>הרצאות לפי מרצה</h2><p>בחרו מרצה כדי לראות את ההרצאות שלו.</p></div>
     </div>
-    {opened && result.loading ? <p role="status">קורא את רשימת ההרצאות הציבוריות…</p> : null}
-    {opened && result.error ? <p role="alert">{result.error}</p> : null}
-    {opened && !result.loading && !result.error ? <>
-      <div className="sod29-lecture-facet-controls">
-        <label>נושא<select value={topic} onChange={e => setTopic(e.target.value)}><option value="">כל הנושאים</option>{topics.map(name => <option key={name} value={name}>{name}</option>)}</select></label>
-        <label>מרצה<select value={speaker} onChange={e => setSpeaker(e.target.value)}><option value="">כל המרצים</option>{speakers.map(name => <option key={name} value={name}>{name}</option>)}</select></label>
-        {selected ? <button type="button" onClick={() => {setTopic("");setSpeaker("");}}>נקה סינון</button> : null}
-      </div>
-      {selected ? <div role="status" className="sod29-lecture-facets-count">{filtered.length} הרצאות מתאימות</div> : <p>בחרו נושא או מרצה לצפייה בתוצאות. הרשימה המלאה מופיעה בהמשך.</p>}
-      {selected && filtered.length > 0 ? <div className="sod29-posts-library-grid">{filtered.map((post,index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}</div> : null}
-      {selected && !filtered.length ? <p>אין הרצאות המשלבות את שתי הבחירות. אפשר לנקות אחד מהמסננים.</p> : null}
+    <div className="sod29-lecture-facet-controls">
+      <label>מרצה<select value={speaker} onChange={e => setSpeaker(e.target.value)} disabled={result.loading || Boolean(result.error)}>
+        <option value="">{result.loading ? "טוען מרצים…" : "כל המרצים"}</option>
+        {speakers.map(name => <option key={name} value={name}>{name}</option>)}
+      </select></label>
+      {selected ? <button type="button" onClick={() => setSpeaker("")}>נקה סינון</button> : null}
+    </div>
+    {result.loading ? <p role="status">טוען את רשימת המרצים…</p> : null}
+    {result.error ? <p role="alert">{result.error}</p> : null}
+    {selected && !result.loading && !result.error ? <>
+      <div role="status" className="sod29-lecture-facets-count">{filtered.length} הרצאות מתאימות</div>
+      {filtered.length > 0 ? <div className="sod29-posts-library-grid">{filtered.map((post,index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}</div> : <p>לא נמצאו הרצאות של המרצה שנבחר.</p>}
     </> : null}
   </section>;
 }
