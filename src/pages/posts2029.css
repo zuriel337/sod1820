@@ -89,3 +89,21 @@
 .sod29-posts-media-switch a[aria-current="page"] { border-color: var(--s29-brand-gold); background: color-mix(in srgb, var(--s29-brand-gold) 14%, transparent); font-weight: 700; }
 .sod29-posts-media-switch a:focus-visible { outline: 2px solid var(--s29-focus, currentColor); outline-offset: 2px; }
 .sod29-posts-media-scope { color: var(--s29-muted); font-size: 14px; margin: 0; }
+
+/* Lecture-category hub: editorial entrances only, no duplicate post fetch or media preload. */
+.sod29-lecture-hub{margin-block:20px 28px;padding:22px;border:1px solid var(--s29-line);border-radius:20px;background:var(--s29-panel);color:var(--s29-ink)}
+.sod29-lecture-hub-heading{max-width:760px}
+.sod29-lecture-hub-kicker{display:block;color:var(--s29-accent-text);font-size:14px;letter-spacing:.02em}
+.sod29-lecture-hub-heading h2{margin:6px 0 8px;font-size:clamp(23px,3vw,30px);line-height:1.35}
+.sod29-lecture-hub-heading p{margin:0;color:var(--s29-muted);line-height:1.6}
+.sod29-lecture-hub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-block:20px 12px}
+.sod29-lecture-hub-card{display:flex;align-items:center;gap:12px;min-height:106px;padding:16px;border:1px solid var(--s29-line-strong);border-radius:16px;background:var(--s29-panel-soft);color:inherit;text-decoration:none}
+.sod29-lecture-hub-card:hover{border-color:var(--s29-accent-text)}
+.sod29-lecture-hub-icon{display:grid;flex:none;place-items:center;width:36px;height:36px;border:1px solid var(--s29-line-strong);border-radius:50%;color:var(--s29-accent-text);font-size:15px}
+.sod29-lecture-hub-card>span:nth-child(2){display:grid;gap:6px;min-width:0}
+.sod29-lecture-hub-card strong{font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+.sod29-lecture-hub-card small{font-size:14px;line-height:1.4;color:var(--s29-muted)}
+.sod29-lecture-hub-arrow{margin-inline-start:auto;color:var(--s29-accent-text)}
+.sod29-lecture-hub-posts{display:inline-flex;min-height:44px;align-items:center;color:var(--s29-accent-text);font-size:15px;text-underline-offset:4px}
+@media(max-width:900px){.sod29-lecture-hub-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.sod29-lecture-hub{padding:16px;margin-block:14px 20px}.sod29-lecture-hub-card{min-height:82px;padding:12px}}
