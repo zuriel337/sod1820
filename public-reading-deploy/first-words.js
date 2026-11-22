@@ -34,6 +34,7 @@ export const FIRST_WORDS_DATA_PAGE_GRACE_MS = 1200;
 export function firstWordsStaticFacts2029(path) {
   const kind = firstWordsFamily2029(path)?.kind;
   if (kind === "home") return { kind };
+  if (kind === "codes") return { kind, codes: [] };
   return kind === "gematria" || kind === "community-calculator" ? { kind, recent: [], picked: [], pickedThisWeek: false } : null;
 }
 export function firstWordsGraceMs2029(path) {
