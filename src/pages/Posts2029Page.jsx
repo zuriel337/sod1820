@@ -293,7 +293,8 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
   const search = searchParams.get("q") || "";
   const [draftSearch, setDraftSearch] = useState(search);
   useEffect(() => { setDraftSearch(search); }, [search]);
-  const title = scope.kind === "all" ? "פוסטים" : isTaxonomy && scope.key ? scope.key : scope.label;
+  const lectureCatalog = isTaxonomy && scope.kind === "category" && scope.key === "הרצאות";
+  const title = scope.kind === "all" ? "פוסטים" : lectureCatalog ? "הרצאות" : isTaxonomy && scope.key ? scope.key : scope.label;
   const taxonomyPage = isTaxonomy ? postsTaxonomyPage2029(searchParams) : 1;
   const scopeKey = JSON.stringify([scope.kind, scope.key, search, ...(isTaxonomy ? [taxonomyPage !== null] : [])]);
   const requestedPage = Number(searchParams.get("page") || 1);
@@ -447,7 +448,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
             {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-taxonomy-label"><NavigationIcon2029 name="layers" size={20} />{taxonomyLabel}</p> : null}
             <h1>{title}</h1>
             {scope.kind === "all" ? <p className="sod29-posts-library-intro">סיפורים, רמזים וחיבורים שמעוררים התבוננות</p> : null}
-            {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-library-intro">{scope.kind === "tag" ? "לקרוא ולגלות דרך הפוסטים עם התגית הזו" : "הפוסטים שנאספו תחת הסיווג הזה"}</p> : null}
+            {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-library-intro">{lectureCatalog ? "קטלוג ההרצאות מתוך הפוסטים שבקטגוריה: תכנים, סרטונים ומקורות כפי שפורסמו, עם חיפוש ועיון לפי עדכון." : scope.kind === "tag" ? "לקרוא ולגלות דרך הפוסטים עם התגית הזו" : "הפוסטים שנאספו תחת הסיווג הזה"}</p> : null}
             {researchCategory && <p>{researchCategory.toolNotice}</p>}
             {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
             {scope.sourceLink ? <p><Link className="sod29-posts-library-back" to={scope.sourceLink.href}>{scope.sourceLink.label} ←</Link></p> : null}
@@ -464,32 +465,6 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
           </div>
         </div>
       </header>
-
-      {taxonomyScope?.kind === "category" && taxonomyScope.key === "הרצאות" && !search && page === 1 ? <section className="sod29-lecture-hub" aria-labelledby="sod29-lecture-hub-title">
-        <div className="sod29-lecture-hub-heading">
-          <span className="sod29-lecture-hub-kicker">ארכיון הרצאות · מקורות מצולמים</span>
-          <h2 id="sod29-lecture-hub-title">הרצאות וסדרות לימוד</h2>
-          <p>מתחילים בהרצאות המקור או ממשיכים אל הפוסטים המסווגים כהרצאות. התוכן ההיסטורי נשמר בכתובותיו המקוריות.</p>
-        </div>
-        <nav className="sod29-lecture-hub-grid" aria-label="הרצאות המקור">
-          <Link to="/משיח-בשנת-התשעו" className="sod29-lecture-hub-card">
-            <span className="sod29-lecture-hub-icon" aria-hidden="true">▶</span>
-            <span><strong>משיח בשנת התשע״ו</strong><small>סדרת ההרצאות ההיסטורית</small></span>
-            <span className="sod29-lecture-hub-arrow" aria-hidden="true">←</span>
-          </Link>
-          <Link to="/משיח-בשנת-התשעו/מתי-שנת-הגאולה" className="sod29-lecture-hub-card">
-            <span className="sod29-lecture-hub-icon" aria-hidden="true">▶</span>
-            <span><strong>מתי שנת הגאולה</strong><small>הרצאות המשך מן המקור</small></span>
-            <span className="sod29-lecture-hub-arrow" aria-hidden="true">←</span>
-          </Link>
-          <Link to="/הוכחות-לאמיתות-התורה-משמים" className="sod29-lecture-hub-card">
-            <span className="sod29-lecture-hub-icon" aria-hidden="true">▶</span>
-            <span><strong>הוכחות לאמיתות התורה משמים</strong><small>אותיות, גימטריות והמספר 1820</small></span>
-            <span className="sod29-lecture-hub-arrow" aria-hidden="true">←</span>
-          </Link>
-        </nav>
-        <a className="sod29-lecture-hub-posts" href="#posts-catalog">להמשך הפוסטים בקטגוריית הרצאות ↓</a>
-      </section> : null}
 
       <form className="sod29-posts-search" role="search" aria-label={isTaxonomy ? `חיפוש פוסטים ב${taxonomyLabel}` : "חיפוש פוסטים וסדרות"} onSubmit={submitSearch}>
         <label htmlFor="posts-search"><NavigationIcon2029 name="search" size={20} /> {isTaxonomy ? `חיפוש לפי כותרת בתוך ה${taxonomyLabel}` : "חיפוש לפי כותרת פוסט או שם סדרה"}</label>
@@ -526,7 +501,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
 
       {hasItems ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label={mixedSeries ? "פוסטים ומקורות בסדרה" : "פוסטים"} data-posts-page={page}>
         <div className="sod29-posts-library-stage-head">
-          <h2>{mixedSeries ? "הפוסטים והמקורות בסדרה" : isTaxonomy ? search ? "הפוסטים שנמצאו" : `הפוסטים ב${taxonomyLabel}` : scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
+          <h2>{lectureCatalog ? search ? "הרצאות שנמצאו" : "קטלוג ההרצאות" : mixedSeries ? "הפוסטים והמקורות בסדרה" : isTaxonomy ? search ? "הפוסטים שנמצאו" : `הפוסטים ב${taxonomyLabel}` : scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
           <span><bdi className="sod29-posts-numeric">{state.total}</bdi> {mixedSeries && state.sourceTotal != null ? "פריטים" : "פוסטים"} · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
           <small>{scope.kind === "series" ? "לפי מועד הפרסום במקור" : "הפוסטים האחרונים · לפי עדכון הפוסט"}</small>
         </div>
