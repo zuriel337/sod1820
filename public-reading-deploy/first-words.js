@@ -143,6 +143,8 @@ export function firstWordsFamily2029(path) {
   let decoded;
   try { decoded = decodeURIComponent(path).replace(/\/+$/, "") || "/"; } catch { return null; }
   if (decoded === "/") return { kind: "home" };
+  if (decoded === "/number") return { kind: "number-search" };
+  if (decoded === "/community" || decoded === "/community/chat") return { kind: "community-chat" };
   if (decoded === "/gematria") return { kind: "gematria" };
   if (decoded === "/community/calculator") return { kind: "community-calculator" };
   if (decoded === "/codes") return { kind: "codes" };
@@ -205,7 +207,7 @@ export async function firstWordsFacts2029(path, { search = "", fetchImpl = globa
   const family = search ? null : firstWordsFamily2029(path);
   // Detail metadata admits the exact record. Pagination metadata reads the requested slice.
   if (family?.kind === "code") return null;
-  if (family?.kind === "home") return { kind: "home" };
+  if (family && ["home", "number-search", "community-chat"].includes(family.kind)) return family;
   if (!family || typeof fetchImpl !== "function") return null;
   try {
     const key = JSON.stringify(family), entry = kept.get(key), age = entry ? now() - entry.at : Infinity;
@@ -276,6 +278,14 @@ function body(facts) {
     return `<h1>${esc(words.heading)}</h1><p><strong>${esc(words.tagline)}</strong></p><p>${esc(words.lead)}</p>`
       + `<p><a href="${esc(words.series.href)}"><strong>${esc(words.series.label)}</strong></a> — ${esc(words.series.note)}</p>`
       + `<p><strong>${esc(words.startLabel)}</strong> ${words.start.map(item => `<a href="${esc(item.href)}">${esc(item.label)}</a>`).join(" · ")}.</p>`;
+  }
+  if (facts.kind === "number-search") {
+    return "<h1>מספר או ביטוי</h1><p>המספרים, הביטויים והמקורות במנוע הקיים. חיפוש אינו פרסום ציבורי.</p>"
+      + '<p><a href="/number/1820">1820 בגימטריה</a> · <a href="/gematria">מחשבון גימטריה מקצועי</a></p>';
+  }
+  if (facts.kind === "community-chat") {
+    return "<h1>צ'אט הקהילה</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>"
+      + '<p><a href="/community/researchers">אנשים בקהילה</a> · <a href="/community/calculator">מחשבון הקהילה</a></p>';
   }
   if (facts.kind === "number") {
     const { value, phrases, anchor, posts } = facts;
