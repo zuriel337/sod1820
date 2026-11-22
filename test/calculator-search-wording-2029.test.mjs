@@ -25,6 +25,8 @@ test("both calculators open with the phrase people search, fit a result line, an
     assert.match(text, /^מחשבון גימטריה מקצועי/);
   }
   assert.match(COMMUNITY_CALCULATOR_SEO.description, /הקהילה/);
+  assert.match(read("src/pages/CalculatorPro2029Page.jsx"), /to="\/community\/calculator">מחשבון הקהילה/);
+  assert.match(read("src/pages/CommunityCalculator2029Page.jsx"), /to="\/gematria">למחשבון הגימטריה המקצועי/);
   const communityDocument = firstWordsHtml2029(firstWordsStaticFacts2029("/community/calculator"));
   assert.match(communityDocument, /<a href="\/gematria">מחשבון גימטריה מקצועי<\/a>/);
   assert.match(COMMUNITY_CALCULATOR_SEO.title, /לשמות/, "the community calculator owns the names searches");

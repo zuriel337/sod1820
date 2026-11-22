@@ -703,6 +703,7 @@ function ProExperience() {
           ) : null}
         </aside>
       </div>
+      <Link className="sod29-action" to="/community/calculator">מחשבון הקהילה לשמות ולהשוואה</Link>
     </section>
   );
 }

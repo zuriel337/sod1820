@@ -323,7 +323,7 @@ function CalculatorExperience({ model, initialState, location }) {
             <button type="button" className="sod29-community-calc-button" disabled={model.aiBusy} onClick={() => model.runAi()}>{model.aiBusy ? "מכין ניתוח…" : "ניתוח AI של השם"}</button>
             {model.aiText && <p>{model.aiText}</p>}
           </div> : null}
-        <Link className="sod29-community-calc-text-button" to="/gematria">למחשבון הגימטריה הכללי ←</Link>
+        <Link className="sod29-community-calc-text-button" to="/gematria">למחשבון הגימטריה המקצועי ←</Link>
       </footer>
     </main>
   </Continuation.Provider>;
