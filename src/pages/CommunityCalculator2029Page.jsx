@@ -212,7 +212,7 @@ function CalculatorExperience({ model, initialState, location }) {
   return <Continuation.Provider value={{ returnHref, research }}>
     <main className="sod29-community-calc r29" dir="rtl">
       <header className="sod29-community-calc-hero">
-        <span className="sod29-community-calc-eyebrow">גימטריה · שמות · תאריכים</span>
+        <span className="sod29-community-calc-eyebrow">מחשבון הקהילה · שמות ותאריכים</span>
         <h1>{COMMUNITY_CALCULATOR_SEO.heading}</h1>
         <p className="sod29-community-calc-hook">{COMMUNITY_CALCULATOR_SEO.hook}</p>
         <div className="r29-rule" aria-hidden="true">◆</div>

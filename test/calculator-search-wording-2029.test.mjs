@@ -41,7 +41,7 @@ test("the main calculator's server, page, shared-result page and first words rea
     assert.match(source, /title: CALCULATOR_PRO_SEO\.title,/, page);
     assert.match(source, /description: CALCULATOR_PRO_SEO\.description,/, page);
   }
-  assert.match(read("src/pages/CalculatorPro2029Page.jsx"), /<h1 className="sod29-calcpro-sr">\{CALCULATOR_PRO_SEO\.heading\}<\/h1>/);
+  assert.match(read("src/pages/CalculatorPro2029Page.jsx"), /<h1 className="sod29-kicker">\{CALCULATOR_PRO_SEO\.heading\}<\/h1>/);
   assert.match(read("public-reading-deploy/first-words.js"), /<h1>\$\{esc\(CALCULATOR_PRO_SEO\.heading\)\}<\/h1><p>\$\{esc\(CALCULATOR_PRO_SEO\.lead\)\}<\/p>/);
 });
 
