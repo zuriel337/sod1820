@@ -408,7 +408,7 @@ function ActiveResearchEnvironment() {
 
 export default function Heichal2029Page() {
   const research = useResearch();
-  useEffect(() => { applySeo({ title: "היכל", description: "סביבת המחקר העמוקה של SOD1820", path: "/heichal" }); }, []);
+  useEffect(() => { applySeo({ title: "היכל", description: "סביבת המחקר העמוקה של SOD1820", path: "/heichal", noindex: Boolean(window.location.search) }); }, []);
   const hasContext = Boolean(research.context?.subject);
   return <Sod2029Shell wide surface="heichal" symbol="◇" eyebrow="מחקר · מקורות · חיבורים" title="היכל" description="חוקרים שאלה, בודקים חישובים ומקורות, וממשיכים מאותו הקשר.">{hasContext ? <ActiveResearchEnvironment /> : <NoContextEntry />}</Sod2029Shell>;
 }
