@@ -1,0 +1,12 @@
+\set ON_ERROR_STOP on
+BEGIN;
+DO $guard$
+BEGIN
+  IF md5(pg_get_functiondef('public.admin_2029_analytics(integer,text)'::regprocedure)) <> '0ac30e150e828fb4cb2477ce6d720cdf' THEN
+    RAISE EXCEPTION 'The reviewed number-report definition changed';
+  END IF;
+END
+$guard$;
+\ir ../sitewide-statistics-20261120/admin_2029_analytics.after.sql
+;
+COMMIT;

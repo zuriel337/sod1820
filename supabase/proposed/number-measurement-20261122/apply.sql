@@ -12,6 +12,19 @@ BEGIN
       OR cardinality(string_to_array(definition, old_filter)) <> 2 THEN
     RAISE EXCEPTION 'The reviewed analytics reader changed';
   END IF;
-  EXECUTE replace(definition, old_filter, new_filter);
+  definition := replace(definition, old_filter, new_filter);
+  definition := replace(definition, $old$or e.path = p_path_prefix$old$,
+    $new$or e.path = p_path_prefix or (p_path_prefix ~ '^/number/[0-9]{1,12}$'
+          and e.path='/number/:value' and e.props->'_measurement_verified'='2'::jsonb
+          and e.props->'measurement'->>'page_path'=p_path_prefix)$new$);
+  definition := replace(definition, $old$or e.path=p_path_prefix$old$,
+    $new$or e.path=p_path_prefix or (p_path_prefix ~ '^/number/[0-9]{1,12}$'
+          and e.path='/number/:value' and e.props->'_measurement_verified'='2'::jsonb
+          and e.props->'measurement'->>'page_path'=p_path_prefix)$new$);
+  definition := replace(definition, $old$or path=p_path_prefix$old$,
+    $new$or path=p_path_prefix or (p_path_prefix ~ '^/number/[0-9]{1,12}$'
+          and path='/number/:value' and props->'_measurement_verified'='2'::jsonb
+          and props->'measurement'->>'page_path'=p_path_prefix)$new$);
+  EXECUTE definition;
 END
 $proposal$;
