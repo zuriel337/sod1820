@@ -1,3 +1,4 @@
+import { requestedPublicInsight2029, readPublicInsight2029 } from "../src/lib/publicInsightReading2029.js";
 import { PUBLIC_HISTORY_READING, readPublicHistory2029 } from "../src/lib/publicHistoryReading2029.js";
 import { PUBLIC_ARCHIVE_2029, readPublicArchive2029 } from "../src/lib/research/publicArchive2029.js";
 import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
@@ -470,7 +471,27 @@ export default async function handler(req, res) {
     type = 'website';
     robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
     image = cardUrl({ w: PUBLISHED_FINDINGS_READING.title, sub: 'ממצאים ומקורות' });
-    if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'findings' });
+    if (continuityParams.has('insight')) {
+      const id = requestedPublicInsight2029(continuityParams);
+      try {
+        const signal = AbortSignal.timeout(2500);
+        const item = await readPublicInsight2029(path => readPublicSourcePath(path, signal), id);
+        if (item) {
+          title = item.title + ' · ' + SITE_NAME;
+          desc = item.body.slice(0, 170);
+          canonical = SITE + item.href;
+          robots = continuityParams.size === 1 ? 'index, follow' : 'noindex, follow';
+          req.publicReadingFirstWords?.({ kind: 'insight', ...item });
+        } else {
+          documentStatus = 404;
+          title = 'החידוש לא נמצא · ' + SITE_NAME;
+          robots = 'noindex, follow';
+        }
+      } catch {
+        documentStatus = 503;
+        robots = 'noindex, nofollow';
+      }
+    } else if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'findings' });
   } else if (productionReading && decodedKey === '/archive') {
     title = PUBLIC_ARCHIVE_2029.title + ' · ' + SITE_NAME;
     desc = PUBLIC_ARCHIVE_2029.description;

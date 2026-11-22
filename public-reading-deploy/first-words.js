@@ -226,6 +226,9 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "insight") {
+    return `<h1 id="comm-${esc(facts.id)}">${esc(facts.title)}</h1><p>${esc(facts.body.slice(0, 1900))}</p><p><a href="/findings">לממצאים שפורסמו</a></p>`;
+  }
   if (facts.kind === "timeline" || facts.kind === "broadcasts") {
     let html = `<h1>${esc(facts.title)}</h1><p>${esc(facts.description)}</p>`;
     if (facts.notice) html += `<p>${esc(facts.notice)}</p>`;
