@@ -281,3 +281,8 @@ The frame must leave a future place to explain why joining today creates value t
 
 ### Product experience goal
 Opening a mega menu should make the visitor understand the scale of SOD1820: existing knowledge plus visible future capability. "Coming soon" belongs beside the live material it extends, rather than in a disconnected roadmap page.
+### ניווט ישיר לתוכן שפורסם · 22.11.2026
+
+הבית, מפת האתר האנושית, החיפוש והקישורים הפנימיים מפנים לכתובות התוכן הקנוניות. מדור מרכזי יימצא בשתי פעולות מהבית או דרך החיפוש ומפת האתר. יעד סגור מציג את מצב הזמינות האמיתי. במפה מבדילים בין ספריית הצפנים לכלי הצופן ובין מחשבון הגימטריה המקצועי למחשבון הקהילה. המסגרת מקרינה את בעל הנתיב ואת מרשם הקישורים הקיימים.
+
+המסמך הראשון של דף קריאה ציבורי משמעותי כולל כותרת, תוכן קריא וקישורי המשך על בסיס הרשאת הפרסום. דפים פרטיים, וריאציות חיפוש ודפים חסרי תוכן עוברים דרך תנאי האינדוקס הקיימים.
