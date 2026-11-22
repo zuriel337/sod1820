@@ -383,7 +383,7 @@ The versioned compliance map and measured observations belong in `docs/reviews/b
 
 Repair in stages: **(1)** source identity, exact unit/component locators and honest text/verification; **(2)** explicit/lazy start/close and useful non-WebGL/keyboard paths; **(3)** visual legend/readability/return in the existing Design lane; **(4)** independent per-model browser/full-suite acceptance and controlled integration. A gap is not hidden by an attractive screenshot. This task does not authorize any source merge, main/Production/Preview deployment, source publication, DB/RLS/permission or entitlement change.
 
-### גילוי לפני מחקר · החלטת בעלים, 22.11.2026
+### גילוי לפני מחקר · Human Gate ZURIEL · 22.11.2026
 
 תוכן שאושר לפרסום ציבורי מקבל כתובת עצמאית שאורח יכול לקרוא ולשתף. העולם וההיכל מקשרים בין הפריטים. קישור מגוגל, מפוסט או מהמחשבון פותח את הפריט ישירות. מדור חסר ייצוג בתפריט כפוף לאותם כללי פרסום וגישה.
 

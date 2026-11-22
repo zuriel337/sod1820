@@ -738,6 +738,6 @@ Carried from `SOD1820_DESIGN_CONTRACT_V1.md` (§ Naming / product language law) 
 - Never hard-code a lens label. The canonical labels are kingdom = `כי לה׳ המלוכה`, reality = `קוד המציאות`. *(Correction 11.11.2026: V1 said «Read it from `STREAMS`»; that constant no longer exists in the 2029 code, and several 2029 components currently repeat the literal labels — one shared source is an open follow-up for the Design/Experience owner.)*
 - Before broad UI/copy changes, read `SOD1820_MASTER_ROADMAP.md` and current canonical sources.
 
-### נוכחות תוכן שאושר · החלטת בעלים, 22.11.2026
+### נוכחות תוכן שאושר · Human Gate ZURIEL · 22.11.2026
 
 הטקסט, קישורי ההמשך ורכיבי הנתונים שאושרו חייבים להיות נגישים גם בנייד וגם במחשב. שיפור ביצועים נעשה בטעינה מדורגת, בייבוא לפי דרישה ובמטמון מתאים. שינוי עיצובי שמסיר רכיב מאושר מחייב הצגה מפורשת של ההסרה והחלטת בעלים. הקבלה כוללת בדיקות נוכחות לצד בדיקות נגישות ותקציבי JS,‏ LCP,‏ INP ו־CLS.

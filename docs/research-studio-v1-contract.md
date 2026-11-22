@@ -194,7 +194,7 @@ At approval time, `SOD1820_MASTER_ROADMAP.md` v5.1 has `LAST_RECONCILED=2026-08-
 
 This branch records the approved, reconciled contract; `SOD1820_MASTER_STATE.md`/`SOD1820_MASTER_ROADMAP.md` should be kept in sync with it before the architecture is treated as fully reflected by canonical docs. No existing historical work is deleted; prior plans remain provenance and are marked superseded/absorbed only where a direct approved replacement exists.
 
-### טעינה לפי כוונת הגולש · 22.11.2026
+### טעינה לפי כוונת הגולש · Human Gate ZURIEL · 22.11.2026
 
 | רמה | טריגר | תוכן ופעולות |
 | --- | --- | --- |
