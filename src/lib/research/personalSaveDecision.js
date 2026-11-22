@@ -26,3 +26,4 @@ export function saveLabelState({ saved, syncStatus, syncPending }) {
   if (!saved) return 'unsaved';
   return isCloudConfirmed({ syncStatus, syncPending }) ? 'confirmed' : 'local';
 }
+

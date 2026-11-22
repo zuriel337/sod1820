@@ -122,3 +122,13 @@ test('local collections/journeys/history are set aside on hydrate: never deleted
   const raw = [...storage.d.entries()].find(([k]) => k.endsWith(':localonly'));
   assert.ok(raw, 'record persisted');
 });
+
+test('snapshot.cloudConfirmed is true only when synced with an empty queue (single shared definition)', async () => {
+  const server = new Server(), storage = new Store();
+  const off = make({ server, storage, cloudEnabled: false }); save(off, 776);
+  assert.equal(off.getSnapshot().cloudConfirmed, false); off.stop();
+  const a = make({ server, storage: new Store() }); await settle();
+  save(a, 533); await settle();
+  assert.equal(a.getSnapshot().cloudConfirmed, true);
+  a.stop();
+});

@@ -7,6 +7,7 @@ import { applyResearchOps, assertCloudSnapshot, emptyResearchState, normalizeRes
 import { normalizeResearchContext } from './researchContext.js';
 import { HEARTBEAT_MS, LEASE_TTL_MS, REAP_GRACE_MS, planPersist, planReap } from './researchJournalLifecycle.js';
 import { compactPassiveQueue } from './researchQueueCompaction.js';
+import { isCloudConfirmed } from './personalSaveDecision.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const object = x => !!x && typeof x === 'object' && !Array.isArray(x);
@@ -86,7 +87,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   let legacyRecoveryAvailable = false;
   try { legacyRecoveryAvailable = !disabled && !!storage?.getItem(LEGACY_UNSCOPED_KEY); } catch { /* unavailable */ }
   const notify = () => {
-    snapshot = Object.freeze({ ...state, mode, syncStatus: status, syncPending: queue.length,
+    snapshot = Object.freeze({ ...state, mode, syncStatus: status, syncPending: queue.length, cloudConfirmed: isCloudConfirmed({ syncStatus: status, syncPending: queue.length }),
       syncRevision: revision, syncAwaitingAction: Boolean(userId && cloudEnabled && queue.length && !writeIntent),
       legacyRecoveryAvailable, recoveryJournals: listRecoveryJournals() });
     for (const fn of listeners) fn();
