@@ -37,12 +37,15 @@ test("archive years retain publication vs occurrence dates; authored memberships
 
 test("historic year and page use half-open source-date bounds and stable pagination", async () => {
   const calls = [];
-  const data = await readPublicArchive2029(reader({ posts: Array(13).fill(post) }, calls), "?year=2025&page=2");
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].table, "posts");
-  assert.deepEqual(calls[0].params.getAll("date"), ["not.is.null", "gte.2025-01-01", "lt.2026-01-01"]);
-  assert.equal(calls[0].params.get("offset"), "12");
-  assert.equal(calls[0].params.get("order"), "date.desc.nullslast,id.desc");
+  const data = await readPublicArchive2029(reader({ posts: Array(13).fill(post), topic_cards_public: [] }, calls), "?year=2025&page=2");
+  assert.equal(calls.length, 2);
+  const query = calls.find(c => c.table === "posts").params;
+  const topics = calls.find(c => c.table === "topic_cards_public").params;
+  assert.equal(topics.get("offset"), "16");
+  assert.deepEqual(topics.getAll("occurred_at"), ["not.is.null", "gte.2025-01-01", "lt.2026-01-01"]);
+  assert.deepEqual(query.getAll("date"), ["not.is.null", "gte.2025-01-01", "lt.2026-01-01"]);
+  assert.equal(query.get("offset"), "12");
+  assert.equal(query.get("order"), "date.desc.nullslast,id.desc");
   assert.equal(data.hasMore, true);
   assert.equal(data.collections.find(group => group.key === "year-2025").items.length, 12);
 });

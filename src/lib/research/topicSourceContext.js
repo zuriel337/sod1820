@@ -254,12 +254,13 @@ export function projectGalleryReading2029(catalog, filters, { ocrIds = [], ocrPa
 
 // Bounded composition of the SAME existing public occurrence page reader.
 // At most ten 12-row reads; every destination independently re-admitted.
-export async function loadPublicGalleryReading2029({ gallery, take=12, imageId=null, fetchSourceContext }) {
-  if(!gallerySourceHref2029(gallery?.wpGalleryId)||!Number.isSafeInteger(take)||take<12||take>120||take%12)throw new RangeError('Invalid reading range');
+export async function loadPublicGalleryReading2029({ gallery, take=12, imageId=null, offset=0, fetchSourceContext }) {
+  if(!gallerySourceHref2029(gallery?.wpGalleryId)||!Number.isSafeInteger(take)||take<12||take>120||take%12||!Number.isSafeInteger(offset)||offset<0)throw new RangeError('Invalid reading range');
   const ids=gallery.entries.map(row=>row.id), index=imageId?ids.indexOf(imageId):-1;
   if(imageId&&index<0)return {status:'unavailable',page:null,selected:null};
   // Exact old links never expand unboundedly to reach a far locator.
-  const start=index>=take?Math.floor(index/12)*12:0, end=Math.min(ids.length,start+take);
+  const start=index>=take ? Math.floor(index/12)*12 : imageId ? 0 : offset;
+  const end=Math.min(ids.length,start+take);
   const pages=[];
   for(let offset=start;offset<end;offset+=12)pages.push(await loadPublicGallerySourcePage({wpGalleryId:gallery.wpGalleryId,
     listGalleryImages:async()=>gallery.entries,fetchSourceContext,orderedIds:ids,offset,limit:12}));

@@ -60,17 +60,17 @@ function postsQuery(year, page) {
   return `posts?${params}`;
 }
 
-function topicsQuery(year) {
+function topicsQuery(year, page) {
   const params = withYear(new URLSearchParams({
     select: "id,slug,title,status,occurred_at,image_ids",
     status: "eq.approved", occurred_at: "not.is.null",
-    order: "occurred_at.desc,slug.asc", limit: String(TOPIC_LIMIT),
+    order: "occurred_at.desc,slug.asc", limit: String(TOPIC_LIMIT + 1), offset: String((page - 1) * TOPIC_LIMIT),
   }), "occurred_at", year);
   return `topic_cards_public?${params}`;
 }
 
 function topicSourceIds(topic) {
-  return Array.isArray(topic.image_ids) ? topic.image_ids.filter(id => imageIdPattern.test(id)).slice(0, SOURCES_PER_TOPIC) : [];
+  return Array.isArray(topic.image_ids) ? [...new Set(topic.image_ids.filter(id => imageIdPattern.test(id)))].slice(0, SOURCES_PER_TOPIC) : [];
 }
 
 // These links use only the source memberships placed on a published topic. A shared
@@ -127,12 +127,12 @@ export async function readPublicArchive2029(readRows, search = "") {
     return state;
   }
   const [topicRows, postRows] = await Promise.all([
-    page === 1 ? readRows(topicsQuery(year)) : [],
+    readRows(topicsQuery(year, page)),
     readRows(postsQuery(year, page)),
   ]);
-  const topics = topicRows.filter(topic => topic.status === "approved" && topic.title && simpleSlug(topic.slug) && datePart(topic.occurred_at));
+  const topics = topicRows.slice(0, TOPIC_LIMIT).filter(topic => topic.status === "approved" && topic.title && simpleSlug(topic.slug) && datePart(topic.occurred_at));
   const posts = postRows.slice(0, PAGE_SIZE).filter(post => !["gpt-draft", "web"].includes(post.source) && !hasSuppressedPublicPostTag(post) && post.title && publicPostHref(post) && datePart(post.date));
-  state.hasMore = postRows.length > PAGE_SIZE;
+  state.hasMore = postRows.length > PAGE_SIZE || topicRows.length > TOPIC_LIMIT;
   let images = new Map();
   try { images = await topicSourceImages(readRows, topics); }
   catch (error) {

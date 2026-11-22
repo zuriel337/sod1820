@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import CanonicalMediaImage2029 from "../components/experience2029/CanonicalMediaImage2029.jsx";
 import ShareActions from "../components/ShareActions.jsx";
@@ -246,7 +246,7 @@ function GalleryImageCard({ item, index, selected, opening, error, onRemember, o
   </section>;
 }
 
-function GalleryBody({ sourceGallery = null }) {
+function GalleryBody() {
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
@@ -257,7 +257,7 @@ function GalleryBody({ sourceGallery = null }) {
   const [opening, setOpening] = useState(null);
   const [error, setError] = useState(null);
   const params = new URLSearchParams(location.search);
-  const galleryId = params.get("gallery") ?? sourceGallery;
+  const galleryId = params.get("gallery");
   const flow=params.get('flow')==='1';
   const reading=useGalleryReading(location.search,retry,flow);
   const takeText=params.get('take')||'12', take=/^\d+$/.test(takeText)?Number(takeText):NaN;
@@ -279,7 +279,7 @@ function GalleryBody({ sourceGallery = null }) {
       ?{...old,status:'loading_more',routeKey}:{status:'loading',routeKey});
     if(flow&&reading.status==='loading')return()=>{alive=false;};
     const resultPromise=flow?(reading.status==='failed'?Promise.reject(Error('overview unavailable')):selectedGallery
-      ?loadPublicGalleryReading2029({gallery:selectedGallery,take,imageId,fetchSourceContext:fetchGallerySourceContext})
+      ?loadPublicGalleryReading2029({gallery:selectedGallery,take,imageId,offset,fetchSourceContext:fetchGallerySourceContext})
       :Promise.resolve({status:imageId?'unavailable':'empty_window',page:null,selected:null})):readWindow({ wpGalleryId, imageId, offset });
     resultPromise.then((result) => {
       if (alive) setState({ ...result, routeKey,progressScope,take });
@@ -323,10 +323,10 @@ function GalleryBody({ sourceGallery = null }) {
     if (!item || !slotKey) return;
     const previous = restoredRouteRef.current;
     restoredRouteRef.current = routeKey;
-    if (!imageId && !location.hash && (flow || !previous || previous === routeKey)) return;
+    if (!imageId && !offset && !location.hash && (flow || !previous || previous === routeKey)) return;
     const frame = requestAnimationFrame(() => {
       // A shared image can be deep in a bounded page even when the URL has no fragment.
-      const target = galleryImageFragment2029(location.hash) ? slotKey : location.hash.slice(1) || (imageId ? slotKey : "gallery-top");
+      const target = galleryImageFragment2029(location.hash) ? slotKey : location.hash.slice(1) || (imageId || offset ? slotKey : "gallery-top");
       const element = document.getElementById(target);
       element?.scrollIntoView({ block: "start", behavior: "instant" });
       element?.focus({ preventScroll: true });
@@ -397,6 +397,7 @@ function GalleryBody({ sourceGallery = null }) {
     } finally { if (request === requestRef.current) setOpening(null); }
   };
 
+  if (current.status === "unavailable" && imageId) return <GalleryImageLocation key={imageId} imageId={imageId} />;
   if (!gallerySourceHref2029(wpGalleryId)) return <FrameState kind="empty" title="הגלריה עדיין לא זמינה כאן"><Link to="/world">לגלריות ולסיפורים בעולם</Link></FrameState>;
   if (current.status === "loading") return <FrameState kind="loading" title="פותחים את הגלריה">עוד רגע, התמונות בדרך…</FrameState>;
   const page = current.page;
@@ -470,6 +471,7 @@ function GalleryBody({ sourceGallery = null }) {
 // A legacy pool link may name only an occurrence. Resolve that exact published
 // placement before asking the same gallery reader to open its source window.
 function GalleryImageLocation({ imageId }) {
+  const location = useLocation();
   const [result, setResult] = useState({ status: "loading" });
   const [retry, setRetry] = useState(0);
   useEffect(() => {
@@ -485,9 +487,15 @@ function GalleryImageLocation({ imageId }) {
     }).catch(() => { if (active) setResult({ status: "failed" }); });
     return () => { active = false; };
   }, [imageId, retry]);
-  if (result.status === "ready") return <GalleryBody sourceGallery={result.gallery} />;
+  if (result.status === "ready") {
+    const params = new URLSearchParams(location.search);
+    if (params.get("gallery") !== result.gallery) {
+      params.set("gallery", result.gallery);
+      return <Navigate replace to={{ pathname: location.pathname, search: "?" + params, hash: location.hash }} />;
+    }
+  }
   if (result.status === "failed") return <FrameState kind="error" title="לא הצלחנו לטעון את התמונה"><button onClick={() => setRetry(n => n + 1)}>בדיקה מחדש</button></FrameState>;
-  if (result.status === "unavailable") return <FrameState kind="empty" title="התמונה המבוקשת אינה זמינה כאן כרגע"><Link to="/gallery">לגלריות</Link></FrameState>;
+  if (result.status !== "loading") return <FrameState kind="empty" title="התמונה המבוקשת אינה זמינה כאן כרגע"><Link to="/gallery">לגלריות</Link></FrameState>;
   return <FrameState kind="loading" title="טוען את התמונה" />;
 }
 
