@@ -296,3 +296,7 @@ export function afterReadableContent2029(pathname, start, { idle = true, onHidde
   step();
   return stop;
 }
+
+export function requestedHeichalResearch(search, isAdmin) {
+  return isAdmin === true && new URLSearchParams(search).get("mode") === "research";
+}
