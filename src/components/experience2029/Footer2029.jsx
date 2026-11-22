@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import "./footer2029.css";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { trackWhatsappJoin } from "../../lib/tracking.js";
-import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import { NewsletterSignup2029 } from "../StayUpdatedCTA.jsx";
 import {
@@ -53,8 +53,8 @@ function FooterLink({ item, state }) {
       onClick={item.tracking === "whatsapp-join" ? () => trackWhatsappJoin("footer") : undefined}>
       {item.label}<span className="f29-sr"> (נפתח בלשונית חדשה)</span></a></li>;
   }
-  // Open, and marked as still being built (ZURIEL 18.11.2026: the World and the cipher).
-  const building = OPEN_UNDER_CONSTRUCTION.has(item.id) ? <small className="f29-admin">בבנייה</small> : null;
+  // Preview can mark unfinished links; the public release already resolves the read state above.
+  const building = !PUBLIC_READING_RELEASE && OPEN_UNDER_CONSTRUCTION.has(item.id) ? <small className="f29-admin">בבנייה</small> : null;
   return <li><Link className="f29-link" to={item.href}>{item.label}</Link>{badge}{building}</li>;
 }
 

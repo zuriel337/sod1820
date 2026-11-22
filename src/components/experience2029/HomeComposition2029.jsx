@@ -315,10 +315,10 @@ function useHomeUpdates(feed, { postsOnly, exclude }) {
   return { loading, models, entries, pinned, lead, see: feed?.see };
 }
 
-// The site-wide construction note (Design Contract V2: it describes the whole site), first on the Home (ZURIEL 17.11.2026: "לכתוב שם שהדף בבנייה").
+// Keep the site-wide construction notice and newsletter action. The public Home itself is open to readers.
 function HomeBuildingNote() {
   return <p className="h29-building" role="note" data-home-building-note="true">
-    <span className="h29-building-k"><span aria-hidden="true">🛠️</span> הדף בבנייה</span>
+    <span className="h29-building-k"><span aria-hidden="true">🛠️</span> מדורים נוספים בבנייה</span>
     <span className="h29-building-t">האתר נפתח בהדרגה, חלק אחר חלק</span>
     <button type="button" className="h29-linkbtn" onClick={scrollToNewsletter}>לעדכונים במייל ←</button>
   </p>;
@@ -506,13 +506,18 @@ function HomeAvailabilityMap() {
   return <section className="h29-launch-card h29-availability" aria-label="מפת פתיחת חלקי האתר" data-home-availability-map="true">
     <h2>האתר ממשיך להיבנות</h2><p>החלקים נפתחים בהדרגה. אפשר לראות כאן מה זמין עכשיו.</p>
     <ul><li><Link to="/2029/posts">פוסטים</Link><span>פתוח לציבור</span></li>
-      <li><Link to="/gematria">מחשבון גימטריה</Link><span>פתוח לציבור</span></li>
+      <li><Link to="/gematria">מחשבון גימטריה מקצועי</Link><span>פתוח לציבור</span></li>
+      <li><Link to="/community/calculator">מחשבון הקהילה לשמות</Link><span>פתוח לציבור</span></li>
+      <li><Link to="/codes">ספריית הצפנים</Link><span>פתוח לציבור</span></li>
       <AvailabilityItem label="העולם והגלריות" href="/world" flag="lock_world" />
       <AvailabilityItem label="מספרים וביטויים" href={`${NUMBER_PAGE_BASE}/1820`} flag="lock_number" />
       <AvailabilityItem label="הצופן התנ״כי" href="/code" flag="lock_els" />
       <AvailabilityItem label="מסע החיים" href="/2029/journey" flag="lock_life_journey" />
       <AvailabilityItem label="רזיאל" href="/2029/raziel" flag="lock_raziel_site" />
-      <AvailabilityItem label="ההיכל" href="/heichal" flag="lock_heichal" />
+      {PUBLIC_READING_RELEASE ? <>
+        <li><Link to="/findings">ממצאים שפורסמו</Link><span>פתוח לציבור</span></li>
+        <li><span className="h29-availability-name">היכל המחקר</span><span>סביבת העבודה טרם נבנתה</span></li>
+      </> : <AvailabilityItem label="ההיכל" href="/heichal" flag="lock_heichal" />}
     </ul><Link className="h29-btn" to="/map">מפת האתר המלאה ←</Link>
   </section>;
 }
@@ -662,7 +667,7 @@ export default function HomeComposition2029({
 
     {!corePublic ? <Section label="מקורות וכותבים">
       <div className="h29-anchors">
-        <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
+        <Link className="h29-anchor k29-rv" to="/community/researchers"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
         <Link className="h29-anchor k29-rv" to="/2029/posts?series=messages-from-righteous"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
           <span><b>מסרים</b><small>הסדרה המשותפת · המקור נשמר בכל פריט</small></span></Link>

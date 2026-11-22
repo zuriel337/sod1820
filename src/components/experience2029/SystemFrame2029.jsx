@@ -22,7 +22,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import FeatureClosedNotice2029 from "./FeatureClosedNotice2029.jsx";
-import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { NUMBER_PAGE_BASE, isNumberPagePath } from "../../lib/research/numberPageAddress.js";
@@ -174,7 +174,7 @@ const HOME_NAV = [
 ];
 
 const DIRECT_NAV = [
-  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
@@ -194,7 +194,7 @@ const CORE_HOME_NAV = [
 
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els", building: true },
-  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
@@ -708,8 +708,8 @@ function SystemFrame2029Body({
   const booksLocked = booksFeature.loading || booksFeature.blocked;
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
-  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || isNumberPagePath(item.to) ? { ...item, locked: numberLocked } : item);
+  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? (PUBLIC_READING_RELEASE ? { label: item.label, symbol: item.symbol, status: "טרם נבנה" } : { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed }) : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked, building: !PUBLIC_READING_RELEASE } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => (item.to === "/els" || item.to === "/code") ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed), building: !PUBLIC_READING_RELEASE } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || isNumberPagePath(item.to) ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
 
   // The crown settles into the bar once the page is scrolled, and the bar's line fills with how much of the page was read.

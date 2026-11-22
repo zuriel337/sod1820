@@ -132,7 +132,7 @@ test("entrances: Beit Midrash and the life-journey promo link only while open; a
   await act(async () => { root = Renderer.create(React.createElement(HomeBuildingNote)); });
   const note = root.root.findAll(node => node.props["data-home-building-note"] === "true")[0];
   assert.equal(note.props.role, "note");
-  assert.match(note.findAll(node => node.type === "span").map(node => node.children.filter(child => typeof child === "string").join("")).join(" "), /הדף בבנייה/);
+  assert.match(note.findAll(node => node.type === "span").map(node => node.children.filter(child => typeof child === "string").join("")).join(" "), /מדורים נוספים בבנייה/);
   assert.match(note.findAll(node => node.type === "span").map(node => node.children.filter(child => typeof child === "string").join("")).join(" "), /האתר נפתח בהדרגה/, "it describes the whole site (Design Contract V2)");
   assert.equal(note.findAllByType("button").length, 1, "a button that goes to the sign-up at the end of the page");
   await act(async () => { root.unmount(); });

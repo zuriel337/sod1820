@@ -1,0 +1,22 @@
+export function publicMapLinks2029(production) {
+  return [["/", "בית"],
+    ["/world", "העולם"],
+    ["/post", "פוסטים"],
+    ["/number", "מספר או ביטוי"],
+    ["/gematria", "מחשבון גימטריה מקצועי"],
+    ["/community/calculator", "מחשבון הקהילה"],
+    ["/gallery", "גלריות"],
+    ["/or-geula", "אור הגאולה"],
+    ["/community/chat", "הצ׳אט הקהילתי · קריאה"],
+    ["/community/researchers", "אנשים וכתבים"],
+    ["/books", "ספרים ומקורות"],
+    ["/codes", "ספריית הצפנים"],
+    ["/codes/מחקר", "אוסף המחקר"],
+    ["/code", "כלי הצופן התנ״כי"],
+    ["/findings", "ממצאים שפורסמו"],
+    ["/contact", "דיווח או הצעה"],
+    ["/login", "כניסה לחשבון"],
+    ["/updates", production ? "עדכונים במייל" : "עדכונים במייל · בהכנה"],
+    ["/privacy", "פרטיות ומחיקת נתונים"],
+    ["/unsubscribe", "הסרה מהדיוור"]];
+}
