@@ -209,14 +209,6 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
-  if (facts.kind === "number-search") {
-    return "<h1>מספר או ביטוי</h1><p>המספרים, הביטויים והמקורות במנוע הקיים. חיפוש אינו פרסום ציבורי.</p>"
-      + '<p><a href="/number/1820">1820 בגימטריה</a> · <a href="/gematria">מחשבון גימטריה מקצועי</a></p>';
-  }
-  if (facts.kind === "community-chat") {
-    return "<h1>צ'אט הקהילה</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>"
-      + '<p><a href="/community/researchers">אנשים בקהילה</a> · <a href="/community/calculator">מחשבון הקהילה</a></p>';
-  }
   if (facts.kind === "home") {
     const words = HOME_FIRST_WORDS;
     // Exact wording; the series line and the start line are links to destinations that exist today. The start items are inline
@@ -224,6 +216,14 @@ function body(facts) {
     return `<h1>${esc(words.heading)}</h1><p><strong>${esc(words.tagline)}</strong></p><p>${esc(words.lead)}</p>`
       + `<p><a href="${esc(words.series.href)}"><strong>${esc(words.series.label)}</strong></a> — ${esc(words.series.note)}</p>`
       + `<p><strong>${esc(words.startLabel)}</strong> ${words.start.map(item => `<a href="${esc(item.href)}">${esc(item.label)}</a>`).join(" · ")}.</p>`;
+  }
+  if (facts.kind === "number-search") {
+    return "<h1>מספר או ביטוי</h1><p>המספרים, הביטויים והמקורות במנוע הקיים. חיפוש אינו פרסום ציבורי.</p>"
+      + '<p><a href="/number/1820">1820 בגימטריה</a> · <a href="/gematria">מחשבון גימטריה מקצועי</a></p>';
+  }
+  if (facts.kind === "community-chat") {
+    return "<h1>צ'אט הקהילה</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>"
+      + '<p><a href="/community/researchers">אנשים בקהילה</a> · <a href="/community/calculator">מחשבון הקהילה</a></p>';
   }
   if (facts.kind === "number") {
     const { value, phrases, anchor, posts } = facts;
