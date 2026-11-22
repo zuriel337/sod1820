@@ -17,10 +17,9 @@ import Opening2029 from "./components/experience2029/Opening2029.jsx";
 import Awakening2029 from "./components/experience2029/Awakening2029.jsx";
 import ErrorBoundary2029 from "./components/experience2029/ErrorBoundary2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
-import { requestedHeichalResearch } from "./lib/heichalPublicReading2029.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/experience2029/FeatureClosedNotice2029.jsx";
-import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
+import { requestedHeichalResearch, PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
 
 // The first Post's code is prepared by the Home itself, after its own top is readable (Home2029Page.jsx; ZURIEL 17.11.2026). It still starts
 // before a click, without starting any Post data read.
