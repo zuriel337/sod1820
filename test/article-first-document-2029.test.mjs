@@ -55,6 +55,11 @@ test("a cold instance answers exactly as today and loads the server DOM in the b
   assert.equal(warm.headers.get("x-sod-article-first"), "served");
   const article = articleOf(warm.body);
   assert.ok(article, "the article is in the first document");
+  const medal = article.querySelectorAll('.sod29-page-intro[data-intro-variant="compact"][data-intro-symbol-only] .r29-medal');
+  assert.equal(medal.length, 1, "the original post address paints the section emblem once");
+  assert.equal(medal[0].querySelector("svg").dataset.iconName, "posts");
+  assert.equal(medal[0].closest("section").nextElementSibling.tagName, "ARTICLE");
+  assert.equal(article.querySelectorAll("h1").length, 1, "the post keeps its own heading");
   assert.equal(article.dataset.ssrPost, "31"); assert.equal(article.dataset.ssrSource, postArticleSourceKey2029(post.content));
   assert.equal(article.querySelector("h1").textContent, "תפילה לרפואה – הינוקא", "the page's own title");
   assert.match(article.querySelector(".sod29-reading-byline").textContent, /ייחוס במקור: מזכה הרבים/);

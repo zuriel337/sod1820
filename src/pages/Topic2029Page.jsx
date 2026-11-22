@@ -836,6 +836,7 @@ export default function Topic2029Page() {
     symbol="✦"
     eyebrow="SOD1820 · ציר"
     title="טופיק"
+    contentHeading
     description="מספרים, ביטויים, פוסטים ומקורות שמתחברים סביב אותו ציר."
     status="Topic"
   >

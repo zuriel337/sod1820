@@ -45,10 +45,10 @@ function GateHero() {
     </div>
     <div className="rv-hero-copy">
       <p className="rv-eyebrow">ציר עצמאי · התגלות מתוך הסתרה</p>
-      <h2 className="rv-h">
+      <h1 className="rv-h">
         <span className="rv-numeral" dir="ltr" aria-label="אלף מאתיים שלושים ושבע">1,237</span>
         <span className="rv-title">התגלות</span>
-      </h2>
+      </h1>
       <p className="rv-lede">אור שמתגלה מתוך הסתרה: מספר אחד שחוזר בשיטות, בגלריות, באירועים ובמקורות. כל שכבה כאן נשארת נפרדת — מקור, דיווח, חישוב ופרשנות.</p>
       <nav className="rv-nav" aria-label="פרקי השער">
         {NAV.map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}

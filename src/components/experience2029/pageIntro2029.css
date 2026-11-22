@@ -13,7 +13,7 @@
 .native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol {
   width:44px;height:44px;border-radius:50%;color:var(--s29-accent-text);background:var(--s29-panel-soft);
 }
-.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol svg {width:28px;height:28px}
+.native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-symbol svg {width:24px;height:24px}
 .native-frame .sod29-page-intro[data-intro-variant] .sod29-hero-copy {width:100%;min-width:0;max-width:none;overflow-wrap:anywhere;text-align:center}
 .native-frame .sod29-page-intro[data-intro-variant] h1 {font-size:clamp(24px,2.4vw,32px);font-weight:740;line-height:1.2;margin:0;text-align:center}
 .native-frame .sod29-page-intro[data-intro-variant] p {font-size:var(--s29-type-ui,16px);line-height:1.6;margin:8px auto 0;max-width:58ch}
@@ -29,3 +29,7 @@
 
 
 .sod29-main[data-royal-intro]{position:relative;isolation:isolate}
+
+/* The application frame already owns the emblem when the preserved article is shown on a read failure. */
+.native-frame .sod29-page-intro[data-intro-symbol-only]{padding-block:4px 8px}
+.native-frame[data-ssr-standalone="true"] .sod29-page-intro[data-intro-symbol-only]{display:none}

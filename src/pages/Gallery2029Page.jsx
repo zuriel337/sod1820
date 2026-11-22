@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { GALLERY_CATALOG_INTRO } from "../lib/galleryCatalogIntro2029.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -505,6 +506,6 @@ export default function Gallery2029Page() {
   }, [location.pathname, location.search]);
   const params = new URLSearchParams(location.search);
   const image = params.get("image") ?? galleryImageFragment2029(location.hash);
-  return <Sod2029Shell surface="world" title="גלריות" introVariant="none">{params.has("gallery") ? <GalleryBody />
+  return <Sod2029Shell surface="world" symbol={<NavigationIcon2029 name="gallery" />} title="גלריות" introVariant="none">{params.has("gallery") ? <GalleryBody />
     : image ? <GalleryImageLocation key={image} imageId={image} /> : <GalleryCatalogBody />}</Sod2029Shell>;
 }

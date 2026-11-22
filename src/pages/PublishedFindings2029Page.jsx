@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { lazy, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
@@ -24,7 +25,7 @@ function FindingsIndex({ search }) {
   useEffect(() => {
     applySeo({ title, description, path: "/findings", noindex: Boolean(search), follow: true });
   }, [title, description, search]);
-  return <Sod2029Shell surface="world" title={title} introVariant="none">
+  return <Sod2029Shell surface="world" symbol={<NavigationIcon2029 name="heichal" />} title={title} introVariant="none">
     <section className="sod29-section">
       <h1>{title}</h1>
       <p>{description}</p>
