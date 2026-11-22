@@ -20,14 +20,15 @@ export function publicPageviewFields(path, { doc = globalThis.document, loc = gl
   const ready = title?.dataset?.analyticsRoute === requested && title.dataset.analyticsPublic === "true";
   // A numeric route has its public report identity even while its title is loading.
   let pagePath = safe === "/number/:value" ? readingMeasurementPath(requested) || safe : safe;
-  let pageTitle = "SOD1820";
-  if (ready) {
+  const number = /^\/number\/(\d{1,12})$/.exec(pagePath);
+  let pageTitle = number ? `${number[1]} · דף המספר · SOD1820` : "SOD1820";
+  if (ready && (safe !== "/number/:value" || number)) {
     const canonical = title.dataset.analyticsPath;
     if (typeof canonical === "string" && readingTelemetryPath(canonical)) {
       // Expressions can contain personal text even on an otherwise public
       // number surface. Only a literal numeric value identifies this GA page.
-      const number = /^\/(?:2029\/)?number\/([^/?#]+)\/?$/.exec(canonical);
-      if (!number || /^\d{1,12}$/.test(number[1])) {
+      const canonicalNumber = /^\/(?:2029\/)?number\/([^/?#]+)\/?$/.exec(canonical);
+      if (!canonicalNumber || /^\d{1,12}$/.test(canonicalNumber[1])) {
         pagePath = new URL(canonical, loc.origin).pathname;
         pageTitle = String(title.textContent || doc.title || "SOD1820").slice(0, 300);
       }
@@ -48,7 +49,9 @@ export function publicPageviewFields(path, { doc = globalThis.document, loc = gl
       if (value && value.length <= 200 && !/[\u0000-\u001f\u007f]/.test(value)) campaign[field] = value;
     }
   } catch { /* Malformed location contributes no campaign. */ }
-  return { ready, fields: { page_path: pagePath, page_location: loc.origin + pagePath,
+  // The route effect has already admitted a readable page. A literal numeric
+  // identity is complete even before the SEO owner finishes its indexability check.
+  return { ready: ready || Boolean(number), fields: { page_path: pagePath, page_location: loc.origin + pagePath,
     page_title: pageTitle, page_referrer: referrer, ...campaign } };
 }
 
