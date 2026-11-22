@@ -232,6 +232,7 @@ function body(facts) {
   if (facts.kind === "writers") {
     const base = "/community/researchers";
     return '<h1>הכתבים והחוקרים</h1>'
+      + (facts.unavailable ? '<p>רשימת הכותבים אינה זמינה כרגע. אפשר לנסות שוב בהמשך.</p>' : "")
       + links(facts.people.map(person => ({ label: person.displayName, href: person.href })), "דפי הכותבים")
       + (facts.page > 1 ? `<a rel="prev" href="${base}${facts.page > 2 ? `?page=${facts.page - 1}` : ""}">לעמוד הקודם</a> ` : "")
       + (facts.hasMore ? `<a rel="next" href="${base}?page=${facts.page + 1}">לעמוד הבא</a>` : "");
