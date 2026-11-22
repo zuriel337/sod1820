@@ -174,6 +174,7 @@ test("archive serves dated collections and original source links in the first do
     assert.match(res.body, /data-first-words="archive"><h1>[^<]+<\/h1>/);
     assert.match(res.body, /<h2>2019<\/h2>/);
     assert.match(res.body, /href="\/topic\/test-event"/);
+    for (const tab of ["pool", "cascade"]) assert.ok(res.body.includes('href="/archive?tab=' + tab + '"'));
     assert.match(res.body, /href="\/post\/published-report"/);
   });
 });

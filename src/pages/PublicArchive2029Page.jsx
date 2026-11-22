@@ -2,16 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { legacyArchiveContinuation2029 } from "../lib/legacyArchiveContinuation2029.js";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
-import { PUBLIC_ARCHIVE_2029, readPublicArchive2029 } from "../lib/research/publicArchive2029.js";
+import { PUBLIC_ARCHIVE_2029, publicArchiveHref2029, readPublicArchive2029 } from "../lib/research/publicArchive2029.js";
 import { SUPABASE_ANON, SUPABASE_URL } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
-
-function archiveHref(year, page = 1) {
-  const params = new URLSearchParams();
-  if (year) params.set("year", String(year));
-  if (page > 1) params.set("page", String(page));
-  return params.size ? `/archive?${params}` : "/archive";
-}
 
 export default function PublicArchive2029Page() {
   const { pathname, search, hash } = useLocation();
@@ -25,6 +18,8 @@ function ArchiveReader({ search }) {
   const data = result?.search === search ? result.data : null;
   const failed = result?.search === search && result.failed;
   const { title, description } = PUBLIC_ARCHIVE_2029;
+  const tab = new URLSearchParams(search).get("tab");
+  const imageTab = tab === "pool" || tab === "cascade" ? tab : null;
   const firstYear = data?.collections.find(collection => collection.key.startsWith("year-"));
   const firstTopic = data?.collections.find(collection => collection.key.startsWith("topic-"));
 
@@ -58,6 +53,7 @@ function ArchiveReader({ search }) {
         <h1>{title}</h1>
         <p>{description}</p>
         <form key={search} className="sod29-input-row" action="/archive" method="get">
+          {imageTab && <input type="hidden" name="tab" value={imageTab} />}
           <label>שנת התיעוד <input name="year" type="number" min="1000" max="9998" required
             placeholder="2025" defaultValue={new URLSearchParams(search).get("year") || ""} /></label>
           <button className="sod29-action" type="submit">הצגת השנה</button>
@@ -65,7 +61,9 @@ function ArchiveReader({ search }) {
         <nav className="sod29-actions" aria-label="עיון במקורות">
           {firstYear && <a className="sod29-action" href={`#archive-${firstYear.key}`}>לפי שנה</a>}
           {firstTopic && <a className="sod29-action" href={`#archive-${firstTopic.key}`}>לפי נושא</a>}
-          {search && <Link className="sod29-action" to="/archive">לכל השנים</Link>}
+          {search && <Link className="sod29-action" to="/archive">לארכיון המלא</Link>}
+          {imageTab !== "pool" && <Link className="sod29-action" to="/archive?tab=pool">מאגר התמונות</Link>}
+          {imageTab !== "cascade" && <Link className="sod29-action" to="/archive?tab=cascade">אוצרות הגילוי</Link>}
           <Link className="sod29-action" to="/gallery">לגלריות ולתמונות</Link>
           <Link className="sod29-action" to="/post">לכל הפוסטים</Link>
           <Link className="sod29-action" to="/reality">לזרם המציאות</Link>
@@ -81,12 +79,12 @@ function ArchiveReader({ search }) {
             <ul className="sod29-list">{collection.items.map(item =>
               <li key={item.href}><Link className="sod29-row" to={item.href}>{item.title}</Link></li>)}</ul>
             {!data.year && collection.key.startsWith("year-") && <Link className="sod29-action"
-              to={archiveHref(collection.title)}>לכל התיעוד משנת {collection.title}</Link>}
+              to={publicArchiveHref2029(collection.title)}>לכל התיעוד משנת {collection.title}</Link>}
           </section>)}
           {data.partialMedia && <p role="status">לא ניתן לטעון כרגע את קישורי התמונות שבנושאים.</p>}
           {!data.selectionNotice && (data.hasMore || data.page > 1) && <nav className="sod29-actions" aria-label="עמודי פרסומים בארכיון">
-            {data.page > 1 && <Link className="sod29-action" to={archiveHref(data.year, data.page - 1)}>לעמוד הקודם</Link>}
-            {data.hasMore && <Link className="sod29-action" to={archiveHref(data.year, data.page + 1)}>לפרסומים הבאים</Link>}
+            {data.page > 1 && <Link className="sod29-action" to={publicArchiveHref2029(data.year, data.page - 1, data.tab)}>לעמוד הקודם</Link>}
+            {data.hasMore && <Link className="sod29-action" to={publicArchiveHref2029(data.year, data.page + 1, data.tab)}>לעמוד הבא</Link>}
           </nav>}
         </>}
     </article>

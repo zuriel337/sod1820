@@ -70,11 +70,37 @@ test("a failed optional media read preserves independent sources; unavailable pr
 });
 
 test("unsupported historical selections and malformed years never render a generic collection as a match", async () => {
-  for (const search of ["?tab=pool", "?set=12", "?tab=cascade", "?tab=trial", "?q=text", "?year=bad", "?page=-2"]) {
+  for (const search of ["?tab=pool&set=12", "?set=12", "?tab=sets", "?tab=trial", "?q=text", "?year=bad", "?page=-2"]) {
     const calls = [];
     const result = await readPublicArchive2029(reader({}, calls), search);
     assert.deepEqual(calls, []);
     assert.ok(result.selectionNotice);
     assert.deepEqual(result.collections, []);
   }
+});
+
+test("old image collection tabs keep treasure selection, original placement, stored dates and stable page boundaries", async () => {
+  const calls = [];
+  const selected = { ...image, treasure: true, occurred_at: "2019-04-01", created_at: "2026-01-02T03:00:00Z" };
+  const other = { ...image, id: "b83221ae-53bc-59f4-8cb6-158c852db7a0", treasure: false, created_at: "2026-01-02T03:00:00Z" };
+  const inactive = { ...image, id: "b83221ae-53bc-59f4-8cb6-158c852db7a1", treasure: true, min_tier: 1 };
+  const run = search => readPublicArchive2029(reader({ gallery_images: [selected, other, inactive] }, calls), search);
+  const curated = await run("?tab=cascade");
+  const [chosen, origin] = curated.collections[0].items;
+  assert.equal(curated.collections[0].key, "cascade");
+  assert.equal(curated.collections[0].items.length, 2);
+  assert.ok(chosen.href.endsWith(`&image=${imageId}#gallery-source-${imageId}`));
+  assert.match(chosen.title, /אירוע 01.04.2019$/);
+  assert.equal(origin.href, "/world?view=gallery&gallery=87");
+  assert.equal(calls[0].params.get("treasure"), "is.true");
+  assert.equal(calls[0].params.get("order"), "importance.desc.nullslast,created_at.desc.nullslast,id.asc");
+  const pool = await run("?tab=pool&page=2");
+  assert.equal(pool.tab, "pool");
+  assert.equal(calls[1].params.get("offset"), "12");
+  assert.equal(calls[1].params.get("treasure"), null);
+  assert.equal(pool.collections[0].items.length, 3);
+  assert.match(pool.collections[0].items[2].title, /נוסף למאגר 02.01.2026$/);
+  assert.ok(pool.collections[0].items.every(item => !item.href.includes(inactive.id)));
+  await run("?tab=pool&year=2019");
+  assert.deepEqual(calls[2].params.getAll("occurred_at"), ["gte.2019-01-01", "lt.2020-01-01"]);
 });

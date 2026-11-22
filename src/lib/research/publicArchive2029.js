@@ -18,6 +18,14 @@ const topicPath = slug => `/topic/${encodeURIComponent(slug)}`;
 const simpleSlug = slug => typeof slug === "string" && slug && !/[/?#\\\u0000-\u001f]/.test(slug);
 const datePart = value => typeof value === "string" && /^\d{4}-\d\d-\d\d(?:T|$)/.test(value) ? value.slice(0, 10) : null;
 
+export function publicArchiveHref2029(year, page = 1, tab = null) {
+  const params = new URLSearchParams();
+  if (tab) params.set("tab", tab);
+  if (year) params.set("year", String(year));
+  if (page > 1) params.set("page", String(page));
+  return params.size ? `/archive?${params}` : "/archive";
+}
+
 function archiveSelection(search) {
   const params = new URLSearchParams(search);
   const year = params.get("year");
@@ -30,9 +38,8 @@ function archiveSelection(search) {
 function legacyNotice(search) {
   const params = new URLSearchParams(search);
   const tab = params.get("tab");
-  if (tab === "pool" || tab === "sets" || params.has("set") || params.has("sets"))
+  if (tab === "sets" || params.has("set") || params.has("sets"))
     return "הקישור מפנה למאגר הסטים הישן. אין כרגע כתובת קריאה מאומתת לסט שנבחר.";
-  if (tab === "cascade") return "הקישור מפנה לאוצרות הגילוי. תצוגת האוצרות ההיסטורית עדיין אינה זמינה.";
   if (tab === "trial") return "אזור הניסוי אינו פתוח לציבור.";
   if (params.has("q") || params.has("nums") || params.has("num")) return "סינון המקור שבקישור הישן אינו זמין בכתובת זו.";
   return null;
@@ -73,20 +80,40 @@ function topicSourceIds(topic) {
   return Array.isArray(topic.image_ids) ? [...new Set(topic.image_ids.filter(id => imageIdPattern.test(id)))].slice(0, SOURCES_PER_TOPIC) : [];
 }
 
+const imageSelect = "id,name,description,gallery_id,image_url,published,min_tier,curator_hidden,treasure,occurred_at,created_at,galleries!inner(id,wp_gallery_id,name)";
+
+function publicImagesQuery() {
+  return new URLSearchParams({
+    select: imageSelect, published: "eq.1", min_tier: "eq.0", or: "(curator_hidden.is.null,curator_hidden.eq.false)",
+    "galleries.wp_gallery_id": "gt.0",
+  });
+}
+
+function admittedImage(row) {
+  return isPublicSourceImage(row) && publicStorageMedia(row.image_url)?.kind === "image"
+    && row.galleries && row.galleries.id === row.gallery_id && gallerySourceHref2029(row.galleries.wp_gallery_id, row.id);
+}
+
+function imageSourceLinks(row) {
+  const gallery = row.galleries;
+  const name = gallery.name || `גלריה ${gallery.wp_gallery_id}`;
+  return {
+    image: { title: publicMediaTitle(row.name) || humanContentTitle(row.description) || `תמונה מתוך ${name}`,
+      href: gallerySourceHref2029(gallery.wp_gallery_id, row.id) },
+    gallery: { title: name, href: gallerySourceHref2029(gallery.wp_gallery_id) },
+  };
+}
+
 // These links use only the source memberships placed on a published topic. A shared
 // number, similar title or another occurrence of the image does not attach a gallery.
 async function topicSourceImages(readRows, topics) {
   const ids = [...new Set(topics.flatMap(topicSourceIds))];
   if (!ids.length) return new Map();
-  const params = new URLSearchParams({
-    select: "id,name,description,gallery_id,image_url,published,min_tier,curator_hidden,galleries(id,wp_gallery_id,name)",
-    id: `in.(${ids.join(",")})`, published: "eq.1", min_tier: "eq.0",
-    or: "(curator_hidden.is.null,curator_hidden.eq.false)", limit: String(ids.length),
-  });
+  const params = publicImagesQuery();
+  params.set("id", `in.(${ids.join(",")})`);
+  params.set("limit", String(ids.length));
   const images = await readRows(`gallery_images?${params}`);
-  return new Map(images.filter(row => isPublicSourceImage(row) && publicStorageMedia(row.image_url)?.kind === "image"
-    && row.galleries && row.galleries.id === row.gallery_id && gallerySourceHref2029(row.galleries.wp_gallery_id, row.id))
-    .map(row => [row.id, row]));
+  return new Map(images.filter(admittedImage).map(row => [row.id, row]));
 }
 
 function topicCollection(topic, images) {
@@ -94,16 +121,35 @@ function topicCollection(topic, images) {
   for (const id of topicSourceIds(topic)) {
     const row = images.get(id);
     if (!row) continue;
-    const gallery = row.galleries;
-    const href = gallerySourceHref2029(gallery.wp_gallery_id);
-    if (!items.some(item => item.href === href))
-      items.push({ title: gallery.name, href });
-    items.push({
-      title: publicMediaTitle(row.name) || humanContentTitle(row.description) || `תמונה מתוך ${gallery.name}`,
-      href: gallerySourceHref2029(gallery.wp_gallery_id, row.id),
-    });
+    const source = imageSourceLinks(row);
+    if (!items.some(item => item.href === source.gallery.href)) items.push(source.gallery);
+    items.push(source.image);
   }
   return { key: `topic-${topic.slug}`, title: topic.title, items };
+}
+
+async function readImageCollection(readRows, state, tab) {
+  const treasure = tab === "cascade";
+  const params = withYear(publicImagesQuery(), "occurred_at", state.year);
+  if (treasure) params.set("treasure", "is.true");
+  params.set("order", treasure ? "importance.desc.nullslast,created_at.desc.nullslast,id.asc"
+    : "occurred_at.desc.nullslast,importance.desc.nullslast,created_at.desc.nullslast,id.asc");
+  params.set("limit", String(PAGE_SIZE + 1));
+  params.set("offset", String((state.page - 1) * PAGE_SIZE));
+  const rows = await readRows(`gallery_images?${params}`);
+  const items = [];
+  for (const row of rows.slice(0, PAGE_SIZE)) {
+    if (!admittedImage(row) || (treasure && row.treasure !== true)) continue;
+    const source = imageSourceLinks(row);
+    const occurred = datePart(row.occurred_at);
+    const added = datePart(row.created_at);
+    const date = occurred || added;
+    if (date) source.image.title += ` · ${occurred ? "אירוע" : "נוסף למאגר"} ${date.split("-").reverse().join(".")}`;
+    items.push(source.image);
+    if (!items.some(item => item.href === source.gallery.href)) items.push(source.gallery);
+  }
+  return { ...state, tab, hasMore: rows.length > PAGE_SIZE,
+    collections: items.length ? [{ key: tab, title: treasure ? "אוצרות הגילוי" : "מאגר התמונות", items }] : [] };
 }
 
 function taxonomyCollection(posts, kind, field, title) {
@@ -126,6 +172,8 @@ export async function readPublicArchive2029(readRows, search = "") {
     state.selectionNotice ||= "בחירת השנה או העמוד בקישור אינה תקינה.";
     return state;
   }
+  const tab = new URLSearchParams(search).get("tab");
+  if (tab === "pool" || tab === "cascade") return readImageCollection(readRows, state, tab);
   const [topicRows, postRows] = await Promise.all([
     readRows(topicsQuery(year, page)),
     readRows(postsQuery(year, page)),
