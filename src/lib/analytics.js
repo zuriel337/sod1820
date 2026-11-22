@@ -3,7 +3,7 @@
 // בלי ID — כל הפונקציות הן no-op (לא שובר כלום).
 
 const GA_ID = import.meta.env.VITE_GA_ID;
-import { readingTelemetryPath } from "./publicReadingTelemetry2029.js";
+import { readingMeasurementPath, readingTelemetryPath } from "./publicReadingTelemetry2029.js";
 export const GA_ENABLED = !!GA_ID;
 let inited = false;
 
@@ -17,7 +17,9 @@ export function publicPageviewFields(path, { doc = globalThis.document, loc = gl
   // Post mounts a noindex loading title before the admitted source is ready.
   // A matching route alone is not a resolved public page identity.
   const ready = title?.dataset?.analyticsRoute === requested && title.dataset.analyticsPublic === "true";
-  let pagePath = safe, pageTitle = "SOD1820";
+  // A numeric route has its public report identity even while its title is loading.
+  let pagePath = safe === "/number/:value" ? readingMeasurementPath(requested) || safe : safe;
+  let pageTitle = "SOD1820";
   if (ready) {
     const canonical = title.dataset.analyticsPath;
     if (typeof canonical === "string" && readingTelemetryPath(canonical)) {

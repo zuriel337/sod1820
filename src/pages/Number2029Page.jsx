@@ -1,3 +1,4 @@
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { recordSiteActivity } from "../lib/siteActivity2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
@@ -1304,6 +1305,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         </nav>
         <div className="sod29-actions"><FindingShare2029 kind="number" label="שתף את הדף" prominent number={root}
           url={Number.isSafeInteger(root) ? `https://sod1820.co.il/number/${root}` : null} sourceSurface="number-page-2029" /><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
+        <SectionPulseSlot2029 inline section="number" value={root} />
       </div>
       <NumberCore2029
         projection={coreProjection}
