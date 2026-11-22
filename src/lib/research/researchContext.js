@@ -328,9 +328,10 @@ export function researchContextSubjectKey(context) {
 
 // Existing research destinations and their aliases. Reading routes retain exact-return
 // context, but do not admit background research cloud work.
-export function isResearchWorkspace2029(pathname = '') {
+export function isResearchWorkspace2029(pathname = '', { heichalResearch = true } = {}) {
   let path = String(pathname).replace(/\/+$/, '') || '/';
   try { path = decodeURIComponent(path); } catch { return false; }
   path = path.replace(/^\/2029(?=\/)/, '');
+  if (path === "/heichal" || path === "/היכל") return heichalResearch;
   return /^\/(world|heichal|היכל|code|els|gematria|verse-gematria|calculator|calculator-pro|number)(\/|$)/.test(path);
 }

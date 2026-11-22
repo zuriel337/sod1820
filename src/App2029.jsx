@@ -17,6 +17,7 @@ import Opening2029 from "./components/experience2029/Opening2029.jsx";
 import Awakening2029 from "./components/experience2029/Awakening2029.jsx";
 import ErrorBoundary2029 from "./components/experience2029/ErrorBoundary2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
+import { requestedHeichalResearch } from "./lib/heichalPublicReading2029.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/experience2029/FeatureClosedNotice2029.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
@@ -39,8 +40,7 @@ const HeichalPublicReading2029Page = lazy(() => import("./pages/HeichalPublicRea
 function HeichalEntry2029() {
   const { isAdmin } = useAuth();
   const { search } = useLocation();
-  const requested = new URLSearchParams(search);
-  if (!PUBLIC_READING_RELEASE || (isAdmin && requested.get("mode") === "research")) {
+  if (!PUBLIC_READING_RELEASE || requestedHeichalResearch(search, isAdmin)) {
     return <Locked flag="lock_heichal" requireFlag allowAdminView homeHref="/2029"><Heichal2029Page /></Locked>;
   }
   return <HeichalPublicReading2029Page canResearch={isAdmin} />;
