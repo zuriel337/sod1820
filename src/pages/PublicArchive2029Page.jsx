@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
+import { legacyArchiveContinuation2029 } from "../lib/legacyArchiveContinuation2029.js";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import { PUBLIC_ARCHIVE_2029, readPublicArchive2029 } from "../lib/research/publicArchive2029.js";
 import { SUPABASE_ANON, SUPABASE_URL } from "../lib/supabase.js";
@@ -13,7 +14,12 @@ function archiveHref(year, page = 1) {
 }
 
 export default function PublicArchive2029Page() {
-  const { search } = useLocation();
+  const { pathname, search, hash } = useLocation();
+  const target = legacyArchiveContinuation2029(pathname, search, hash);
+  return target ? <Navigate to={target} replace /> : <ArchiveReader search={search} />;
+}
+
+function ArchiveReader({ search }) {
   const [result, setResult] = useState(null);
   const [attempt, setAttempt] = useState(0);
   const data = result?.search === search ? result.data : null;

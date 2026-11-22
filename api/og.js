@@ -498,7 +498,7 @@ export default async function handler(req, res) {
     desc = 'תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820.';
     canonical = SITE + '/gallery'; type = 'website';
     image = cardUrl({ w: 'גלריות ומקורות', sub: 'תמונות · מקורות · ממצאים' });
-    if (['gallery', 'image', 'q', 'source'].some(key => continuityParams.has(key))) robots = 'noindex, follow';
+    if (['gallery', 'image', 'q', 'source', 'tab', 'nums'].some(key => continuityParams.has(key))) robots = 'noindex, follow';
   } else if (productionReading && decodedKey === '/verified') {
     title='פוסטים עם סימון אימות · '+SITE_NAME;desc='הפרסומים הציבוריים עם סימון האימות השמור במקור.';
     canonical=SITE+'/verified';

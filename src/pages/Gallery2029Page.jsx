@@ -15,12 +15,12 @@ import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.j
 import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { gatePublicMethodRows, gateSourcePresentation, gateSourceSelectionIsCurrent } from "../lib/research/revelation1237Gate2029.js";
-import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, loadPublicGalleryReading2029, galleryReadingHref2029, gallerySourceHref2029, galleryItemSourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection, loadPublicRealityStream2029 } from "../lib/research/topicSourceContext.js";
+import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, loadPublicGalleryReading2029, galleryReadingHref2029, gallerySourceHref2029, relocatedGalleryHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection, loadPublicRealityStream2029 } from "../lib/research/topicSourceContext.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { publicMediaCaption, publicMediaTitle } from "../lib/presentation/contentTitle.js";
 import { publicStorageMedia } from "../lib/mediaEgressGuard.js";
 import { applySeo } from "../lib/seo.js";
-import { galleryImageFragment2029 } from "../lib/publicReadingRelease2029.js";
+import { galleryImageFragment2029 } from "../lib/legacyArchiveContinuation2029.js";
 import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import "./gallery2029.css";
 
@@ -327,7 +327,7 @@ function GalleryBody() {
     const frame = requestAnimationFrame(() => {
       // A shared image can be deep in a bounded page even when the URL has no fragment.
       const target = galleryImageFragment2029(location.hash) ? slotKey : location.hash.slice(1) || (imageId || offset ? slotKey : "gallery-top");
-      const element = document.getElementById(target);
+      const element = document.getElementById(target) || (imageId ? document.getElementById(slotKey) : null);
       element?.scrollIntoView({ block: "start", behavior: "instant" });
       element?.focus({ preventScroll: true });
     });
@@ -479,20 +479,13 @@ function GalleryImageLocation({ imageId }) {
     setResult({ status: "loading" });
     fetchGallerySourceContext({ imageIds: [imageId] }).then(({ items }) => {
       if (!active) return;
-      const positions = new Set(items.flatMap(item => {
-        const href = galleryItemSourceHref2029(item, imageId);
-        return href ? [new URL(href, window.location.origin).searchParams.get("gallery")] : [];
-      }));
-      setResult(positions.size === 1 ? { status: "ready", gallery: [...positions][0] } : { status: "unavailable" });
+      setResult({ status: "ready", items });
     }).catch(() => { if (active) setResult({ status: "failed" }); });
     return () => { active = false; };
   }, [imageId, retry]);
   if (result.status === "ready") {
-    const params = new URLSearchParams(location.search);
-    if (params.get("gallery") !== result.gallery) {
-      params.set("gallery", result.gallery);
-      return <Navigate replace to={{ pathname: location.pathname, search: "?" + params, hash: location.hash }} />;
-    }
+    const href = relocatedGalleryHref2029(location, imageId, result.items);
+    if (href) return <Navigate replace to={href} />;
   }
   if (result.status === "failed") return <FrameState kind="error" title="לא הצלחנו לטעון את התמונה"><button onClick={() => setRetry(n => n + 1)}>בדיקה מחדש</button></FrameState>;
   if (result.status !== "loading") return <FrameState kind="empty" title="התמונה המבוקשת אינה זמינה כאן כרגע"><Link to="/gallery">לגלריות</Link></FrameState>;
@@ -506,7 +499,7 @@ export default function Gallery2029Page() {
   useEffect(() => {
     if (location.pathname !== "/gallery") return;
     applySeo({ title: "גלריות ומקורות", description: "תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820.", path: "/gallery",
-      noindex: ["gallery", "image", "q", "source"].some((key) => new URLSearchParams(location.search).has(key)), follow: true });
+      noindex: ["gallery", "image", "q", "source", "tab", "nums"].some((key) => new URLSearchParams(location.search).has(key)), follow: true });
   }, [location.pathname, location.search]);
   const params = new URLSearchParams(location.search);
   const image = galleryImageFragment2029(location.hash) ?? params.get("image");

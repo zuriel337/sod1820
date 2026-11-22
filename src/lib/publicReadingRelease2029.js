@@ -75,11 +75,6 @@ export function canonicalNumberPagePath(pathname) {
   return `/number/${segment}`;
 }
 
-// Gallery source sections have used both IDs in links saved by visitors.
-export function galleryImageFragment2029(hash) {
-  return /^#(?:gallery-source|pool)-([a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12})$/i.exec(hash || "")?.[1].toLowerCase() || null;
-}
-
 export function publicReadingContinuation(pathname, search = "", hash = "") {
   const path = addressPath(pathname);
   if (!path) return null;
@@ -104,34 +99,6 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
     "/gematria-3d": "/spatial-gematria", "/גימטריה-תלת-ממדית": "/spatial-gematria", "/גימטריה-מרחבית": "/spatial-gematria",
     "/gallery-updates": "/archive", "/מסע": "/journey", "/journey-beta": "/journey",
   })[path];
-  if (path === "/archive" || path === "/gallery-updates") {
-    const tab = query.get("tab");
-    if (query.has("gal") || query.has("gallery") || query.has("image") || tab === "galleries" || galleryImageFragment2029(hash)) {
-      target = "/gallery";
-      // Translate only the retired gallery selector. Keep the source, offset, other query bytes and fragment.
-      search = search.replace(/^\?/, "").split("&").flatMap(field => {
-        const part = new URLSearchParams(field);
-        if (part.get("tab") === "galleries") return [];
-        return [part.has("gal") && !query.has("gallery") ? field.replace(/^[^=]*/, "gallery") : field];
-      }).join("&");
-    } else if (!query.has("set") && !query.has("sets")) {
-      const numbers = tab === "pool" ? query.get("nums") || query.get("num")
-        : (!tab || tab === "reality") && /^\d+$/.test(query.get("q") || "") ? query.get("q") : null;
-      if (numbers && /^(?:[1-9]\d*)(?:[,\s]+[1-9]\d*){0,11}$/.test(numbers) && numbers.split(/[,\s]+/).every(n => Number.isSafeInteger(Number(n)))) {
-        target = "/gallery";
-        query.set("tab", tab || "reality");
-        query.set("nums", numbers);
-        query.delete(tab === "pool" ? "num" : "q");
-        search = query.toString();
-      } else if (tab === "reality") {
-        query.delete("tab");
-        if (isPublicResearchReading2029("/reality", query.toString())) {
-          target = "/reality";
-          search = query.toString();
-        }
-      }
-    }
-  }
   if (path === "/" && query.getAll("p").length === 1 && query.get("p") === "36971") target = "/community/chat";
   if (path === "/") {
     const sourceId = query.getAll("p").length === 1 && !query.has("page_id") ? query.get("p")

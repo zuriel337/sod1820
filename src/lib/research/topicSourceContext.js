@@ -91,6 +91,20 @@ export function galleryItemSourceHref2029(item, imageId = item?.galleryImageId) 
   return targets.size === 1 ? [...targets][0] : null;
 }
 
+// A move changes the containing gallery, not the occurrence UUID. Multiple
+// appearances of the same media file cannot stand in for the requested row.
+export function relocatedGalleryHref2029({ pathname, search = "", hash = "" }, imageId, items) {
+  const targets = new Set(items.map(item => galleryItemSourceHref2029(item, imageId)).filter(Boolean));
+  if (targets.size !== 1) return null;
+  const gallery = new URL([...targets][0], "https://sod1820.co.il").searchParams.get("gallery");
+  const old = new URLSearchParams(search);
+  if (old.get("gallery") === gallery) return null;
+  const fields = search.replace(/^\?/, "").split("&").filter(Boolean)
+    .map(field => new URLSearchParams(field).has("gallery") ? "gallery=" + gallery : field);
+  if (!old.has("gallery")) fields.push("gallery=" + gallery);
+  return pathname + "?" + fields.join("&") + hash;
+}
+
 // A return is an exact admitted source occurrence, not a number/topic match or
 // an arbitrary URL carried in navigation state. Original and filtered routes only.
 export function isExactGalleryFindingReturn2029(href, sourceRefs = []) {

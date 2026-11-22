@@ -137,6 +137,26 @@ test("bare research routes read admitted publications and keep their exact canon
   });
 });
 
+test("historical gallery continuations keep the target and unowned query parameters in the HTTP location", async () => {
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true });
+  for (const path of ["/archive", "/gallery-updates"]) {
+    const res = response();
+    await handler(req(path + "?source=shared%20post&tab=galleries&gal=87&offset=12&ref=1&ref=2"), res);
+    assert.equal(res.code, 308);
+    // With no fragment in Location the browser inherits the fragment from its original URL.
+    assert.equal(res.headers.get("location"), "/gallery?source=shared%20post&gallery=87&offset=12&ref=1&ref=2");
+  }
+});
+
+test("a shared archive filter keeps the gallery canonical and its numeric result out of the index", async () => {
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true, readDocument: async () => document });
+  const res = response();
+  await handler(req("/gallery?tab=reality&nums=786"), res);
+  assert.equal(res.code, 200);
+  assert.equal(res.headers.get("x-robots-tag"), "noindex, follow");
+  assert.ok(res.body.includes('rel="canonical" href="' + SITE + '/gallery"'));
+});
+
 test("archive serves dated collections and original source links in the first document", async () => {
   const template = '<html><head><title>static</title></head><body><div id="root"><div><div><span class="sod29-opening-status" role="status">פותח</span></div></div></div></body></html>';
   const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true, readDocument: async () => template });
