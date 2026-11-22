@@ -21,7 +21,7 @@ for (const [name, foundation, release] of [["public", "false", "public-reading-2
   await build({ stdin: { contents: `
     import React,{useEffect,useMemo,useRef,useState} from 'react';
     import {MemoryRouter,Routes,Route,Link,useLocation,useParams,useNavigate,useNavigationType,useSearchParams} from 'react-router-dom';
-    import {PUBLIC_READING_RELEASE} from './src/lib/publicReadingRelease2029.js';
+    import {PUBLIC_READING_RELEASE,publicResearchCategory2029} from './src/lib/publicReadingRelease2029.js';
     import {postsCatalogScope2029,postClassification2029} from './src/lib/research/postsCatalog2029Projection.js';
     import {postsTaxonomyLocation2029,postsTaxonomyRoute2029,postsTaxonomyPage2029} from './src/lib/research/postsTaxonomy2029Route.js';
     import {publicPostHref} from './src/lib/publicPostUrls.js';

@@ -21,7 +21,7 @@ await build({ stdin: { contents: `
   import {postsCatalogScope2029,postClassification2029} from './src/lib/research/postsCatalog2029Projection.js';
   import {postsTaxonomyLocation2029,postsTaxonomyRoute2029,postsTaxonomyPage2029} from './src/lib/research/postsTaxonomy2029Route.js';
   import {publicPostHref} from './src/lib/publicPostUrls.js';
-  import {PUBLIC_READING_RELEASE} from './src/lib/publicReadingRelease2029.js';
+  import {PUBLIC_READING_RELEASE,publicResearchCategory2029} from './src/lib/publicReadingRelease2029.js';
   import {postsMediaScope2029,postsMediaHref,VIDEO_PAGE_SIZE} from './src/lib/research/postsVideoLibrary2029.js';
   const fetchPostsWithVideoPage2029=options=>globalThis.__taxonomyUi.readMedia('posts',options);
   const fetchVideoLibraryPage2029=options=>globalThis.__taxonomyUi.readMedia('videos',options);

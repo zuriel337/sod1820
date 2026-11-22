@@ -38,9 +38,10 @@ const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
 const HeichalPublicReading2029Page = lazy(() => import("./pages/HeichalPublicReading2029Page.jsx"));
 
 function ResearchEntry2029() {
+  const { isAdmin } = useAuth();
   const { search, pathname } = useLocation();
   return PUBLIC_READING_RELEASE && isPublicResearchReading2029(pathname, search)
-    ? <HeichalPublicReading2029Page />
+    ? <HeichalPublicReading2029Page canResearch={isAdmin} />
     : <GematriaEntry2029 />;
 }
 
