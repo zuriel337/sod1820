@@ -10,6 +10,9 @@ import { compactPassiveQueue } from './researchQueueCompaction.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const object = x => !!x && typeof x === 'object' && !Array.isArray(x);
+// sessionStorage only holds re-derivable tab hints (context copy, journal pointer): best-effort, never fails a save.
+// The durable journal lives in `storage`, whose failures stay fail-closed.
+const best = f => { try { return f(); } catch { /* best-effort */ } };
 function read(storage, key, fallback) {
   const raw = storage?.getItem(key);
   return raw == null ? fallback : JSON.parse(raw);
@@ -41,14 +44,14 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     if (disabled) { storage = null; session = null; }
     cached = read(storage, key, {});
     if (!object(cached)) throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED');
-    activeContext = read(session, contextKey, null);
+    activeContext = best(() => read(session, contextKey, null)) ?? null;
     // Guest only, and only when the current principal key is empty: the new key always wins.
     // Never adopt the unscoped legacy context into an authenticated principal.
     if (principal === 'guest' && activeContext == null) {
       const legacy = readLegacyContext(session);
       if (legacy) { activeContext = legacy; legacyContextKeyToRetire = LEGACY_CONTEXT_SESSION_KEY; }
     }
-    restoredFrom = session?.getItem(pointerKey);
+    restoredFrom = best(() => session.getItem(pointerKey));
     if (restoredFrom?.startsWith(`${key}:pending:`)) {
       restoredRaw = storage?.getItem(restoredFrom);
       if (restoredRaw) {
@@ -121,7 +124,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   function writeJournal() {
     claimJournal();
     storage.setItem(journalKey, JSON.stringify({ principal, revision, queue, inflight, owner: { id: selfId, at: now(), released: false } }));
-    session.setItem(pointerKey, journalKey);
+    best(() => session.setItem(pointerKey, journalKey));
   }
   // Every mounted tab with pending work owns a separate journal. Copy-on-resume retains exact batch IDs/revisions;
   // duplicated tabs cannot overwrite another tab's pending operations. Version conflicts fail closed.
@@ -129,20 +132,19 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   function persist() {
     if (disabled || storageFault) return false;
     try {
-      if (!storage || !session) throw new Error('RESEARCH_STORAGE_UNAVAILABLE');
+      if (!storage) throw new Error('RESEARCH_STORAGE_UNAVAILABLE');
       const hasWork = queue.length > 0 || Boolean(inflight);
       if (hasWork && (touched || journalKey)) writeJournal();
       else if (!hasWork && journalKey) {
-        if (ownedRecord()) { storage.removeItem(journalKey); session.removeItem(pointerKey); }
+        if (ownedRecord()) { storage.removeItem(journalKey); best(() => session.removeItem(pointerKey)); }
         journalKey = null;
       }
       storage.setItem(key, JSON.stringify({ state, mode, revision }));
-      if (state.context == null) session.removeItem(contextKey);
-      else session.setItem(contextKey, JSON.stringify(state.context));
+      best(() => state.context == null ? session.removeItem(contextKey) : session.setItem(contextKey, JSON.stringify(state.context)));
       // Retire the legacy unscoped key only once its content is durably persisted under the
       // principal-scoped key, so a mid-write failure leaves the recoverable original in place.
       if (legacyContextKeyToRetire) {
-        session.removeItem(legacyContextKeyToRetire);
+        best(() => session.removeItem(legacyContextKeyToRetire));
         legacyContextKeyToRetire = null;
       }
       return true;
