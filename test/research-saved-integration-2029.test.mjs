@@ -106,3 +106,19 @@ test('two tabs: concurrent hydrate keeps one record without loss, and double con
   const saved = server.st('A').saved; assert.equal(saved.length, 2);
   assert.equal(new Set(saved.map(e => e.ref)).size, 2);
 });
+
+test('local collections/journeys/history are set aside on hydrate: never deleted, never sent', async () => {
+  const server = new Server(), storage = new Store();
+  const off = make({ server, storage, cloudEnabled: false });
+  off.commit([makeResearchOp('collection_add', { collection: { id: 'c1', name: 'אוסף' } })]);
+  off.commit([makeResearchOp('history_add', { entity: { id: 'h1', title: 'x' } })]);
+  const before = off.getSnapshot(); off.stop();
+  const on = make({ server, storage, session: new Store() }); await settle();
+  assert.equal(server.writes, 0);
+  const ex = await on.localOnly('extras');
+  const kept = [...(ex.collections || []), ...(ex.history || [])];
+  assert.equal(kept.length, before.collections.length + before.history.length);
+  assert.ok(kept.length >= 1);
+  const raw = [...storage.d.entries()].find(([k]) => k.endsWith(':localonly'));
+  assert.ok(raw, 'record persisted');
+});

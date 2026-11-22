@@ -211,7 +211,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         // what lets an exact-SHA Preview change without making the user's Life Journey disappear.
         const hydratedContext = state.context ?? (hasQueuedContextIntent ? null : cloudContext);
         // Local items the account has not confirmed are set aside (never dropped, never auto-synced) before the replacement.
-        if (state.saved.length || state.cart.length || state.pinned.length) {
+        if (state.saved.length || state.cart.length || state.pinned.length || state.collections.length || state.journeys.length || state.history.length) {
           (await lazyLocalOnly()).preserve({ ...localOnlyContext(), local: state, after: applyResearchOps(cloud, queue.flatMap(b => b.ops)) });
           if (!active || generation !== epoch) return;
         }

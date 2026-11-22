@@ -13,13 +13,19 @@ const recordKey = key => `${key}:localonly`;
 const rowsOf = s => BUCKETS.flatMap(([bucket, field]) => (s?.[field] || []).filter(e => entityIdentity(e)).map(entity => ({ bucket, entity })));
 export const rowId = r => `${r.bucket}|${entityIdentity(r.entity)}`;
 
-function readRecord(storage, key, principal) {
+// Collections, journeys and history have no item_upsert recovery path. They are only PRESERVED (never deleted, never auto-synced),
+// by id, so a hydrate that replaces them with the account state cannot lose them. Restoring them is a separate, explicit step.
+const EXTRA = ['collections', 'journeys', 'history'];
+const idOf = x => String(x?.id ?? x?.root ?? '');
+
+function readFull(storage, key, principal) {
   const raw = storage?.getItem(recordKey(key));
-  if (raw == null) return [];
+  if (raw == null) return { items: [], extras: {} };
   const record = JSON.parse(raw);
   if (record?.principal !== principal || !Array.isArray(record.items)) throw new Error('RESEARCH_LOCALONLY_INVALID');
-  return record.items;
+  return { items: record.items, extras: record.extras && typeof record.extras === 'object' ? record.extras : {} };
 }
+const readRecord = (storage, key, principal) => readFull(storage, key, principal).items;
 
 // local: state before hydration. after: state that will replace it (cloud + queued ops).
 export function preserve({ storage, key, principal, local, after }) {
@@ -30,8 +36,20 @@ export function preserve({ storage, key, principal, local, after }) {
     const id = rowId(row);
     if (!confirmed.has(id) && !merged.has(id)) merged.set(id, row);
   }
-  if (!merged.size && storage.getItem(recordKey(key)) == null) return 0;
-  storage.setItem(recordKey(key), JSON.stringify({ principal, items: [...merged.values()], at: Date.now() }));
+  const extras = {};
+  const prior = readFull(storage, key, principal).extras;
+  for (const f of EXTRA) {
+    const have = new Set((after?.[f] || []).map(idOf));
+    const m = new Map();
+    for (const x of [...(prior[f] || []), ...(local?.[f] || [])]) {
+      const id = idOf(x);
+      if (id && !have.has(id) && !m.has(id)) m.set(id, x);
+    }
+    if (m.size) extras[f] = [...m.values()];
+  }
+  const extraCount = Object.values(extras).reduce((n, a) => n + a.length, 0);
+  if (!merged.size && !extraCount && storage.getItem(recordKey(key)) == null) return 0;
+  storage.setItem(recordKey(key), JSON.stringify({ principal, items: [...merged.values()], extras, at: Date.now() }));
   return merged.size;
 }
 
@@ -56,5 +74,16 @@ function confirm({ ids, commit, live, confirm: confirmed, ...ctx }) {
   for (let i = 0; i < ops.length; i += 100) if (!commit(ops.slice(i, i + 100))) return i;
   return ops.length;
 }
+// Read-only view of preserved collections/journeys/history that the account state does not hold.
+export function extras({ storage, key, principal, current }) {
+  const out = {};
+  const kept = readFull(storage, key, principal).extras;
+  for (const f of EXTRA) {
+    const have = new Set((current?.[f] || []).map(idOf));
+    const rows = (kept[f] || []).filter(x => !have.has(idOf(x)));
+    if (rows.length) out[f] = rows;
+  }
+  return out;
+}
 // The only operations the runtime hands out.
-export const api = { list, confirm };
+export const api = { list, confirm, extras };
