@@ -211,6 +211,24 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "timeline" || facts.kind === "broadcasts") {
+    let html = `<h1>${esc(facts.title)}</h1><p>${esc(facts.description)}</p>`;
+    if (facts.notice) html += `<p>${esc(facts.notice)}</p>`;
+    for (const [rel, href, label] of [["prev", facts.previousHref, "לעמוד הקודם"], ["next", facts.nextHref, "לעמוד הבא"]]) {
+      if (href) html += `<a rel="${rel}" href="${esc(href)}">${label}</a> `;
+    }
+    for (const section of facts.sections) {
+      let items = "";
+      for (const item of section.items) {
+        const title = item.href ? `<a href="${esc(item.href)}">${esc(item.title)}</a>` : esc(item.title);
+        const row = `<li${item.id ? ` id="${esc(item.id)}"` : ""}>${title}${item.detail ? ` <span>${esc(item.detail)}</span>` : ""}</li>`;
+        if (Buffer.byteLength(html + items + row + STYLE + FIRST_WORDS_KEEPER, "utf8") > FIRST_WORDS_MAX_BYTES - 300) break;
+        items += row;
+      }
+      if (items) html += `<h2>${esc(section.title)}</h2><ul class="w">${items}</ul>`;
+    }
+    return html;
+  }
   if (facts.kind === "archive") {
     const { title, description } = PUBLIC_ARCHIVE_2029;
     const introduction = `<h1>${esc(title)}</h1><p>${esc(description)}</p>`;

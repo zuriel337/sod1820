@@ -81,14 +81,16 @@ const DECISIONS = {
   "/2029/journey": { kind: "closed" },
   "/2029/control": { kind: "closed" },
   "/2029/me/:module": { kind: "closed" },
-  "/archive": { kind: "archive" },
+  "/archive": { kind: "source-directory" },
+  "/timeline": { kind: "source-directory" },
+  "/broadcasts": { kind: "source-directory" },
   "/reality": { kind: "index" },
   "/cross": { kind: "item" },
   "/languages": { kind: "item" },
-  "/research": { kind: "closed503", note: "#1236: closed only until it reopens soon: 503 + Retry-After, kept indexable" },
+  "/research": { kind: "redirect", to: "/findings", then: { kind: "index" } },
   "/findings": { kind: "index" },
-  "/heichal": { kind: "closed503", note: "#1236, same" },
-  "/היכל": { kind: "closed503", canonical: "/heichal", note: "#1236, same (Hebrew alias)" },
+  "/heichal": { kind: "redirect", to: "/findings", then: { kind: "index" } },
+  "/היכל": { kind: "redirect", to: "/findings", then: { kind: "index" } },
 
   "/login": { kind: "account" },
   "/auth/callback": { kind: "account" },
@@ -196,7 +198,7 @@ function expectDocument(label, a, d, route, mode) {
     case "shape":
       check(label, a.status === 404 && a.robots === NOINDEX_ALL, `invalid identifier: want 404 noindex in every data condition, got ${a.status} "${a.robots}"`);
       break;
-    case "archive":
+    case "source-directory":
       if (mode === "down") check(label, a.status === 503 && a.robots === NOINDEX_ALL, "failed archive reader should return 503");
       else check(label, a.status === 200 && a.canonical === want && a.robots === "noindex, follow", "empty archive should retain its address without indexing");
       break;

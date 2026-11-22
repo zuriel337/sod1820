@@ -24,5 +24,10 @@ export function productionApp2029Source(source) {
     assert.ok(result.includes(guarded),`${route} must retain its explicit accepted build guard`);
     result=result.replace(guarded,'');
   }
+  for (const route of ["/timeline", "/broadcasts"]) {
+    const guarded = `{PUBLIC_READING_RELEASE && <Route path="${route}" element={<PublicHistory2029Page path="${route}" />} />}`;
+    assert.ok(result.includes(guarded), `${route} must use its own public history reader and build guard`);
+    result = result.replace(guarded, "");
+  }
   return result;
 }

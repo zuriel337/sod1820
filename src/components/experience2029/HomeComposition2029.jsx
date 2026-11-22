@@ -504,7 +504,9 @@ function AvailabilityItem({ label, href, flag }) {
 
 function HomeAvailabilityMap() {
   return <section className="h29-launch-card h29-availability" aria-label="מפת פתיחת חלקי האתר" data-home-availability-map="true">
-    <h2>האתר ממשיך להיבנות</h2><p>החלקים נפתחים בהדרגה. אפשר לראות כאן מה זמין עכשיו.</p>
+    {PUBLIC_READING_RELEASE ? <h2>מדורי האתר</h2> : <>
+      <h2>האתר ממשיך להיבנות</h2><p>החלקים נפתחים בהדרגה. אפשר לראות כאן מה זמין עכשיו.</p>
+    </>}
     <ul><li><Link to="/2029/posts">פוסטים</Link><span>פתוח לציבור</span></li>
       <li><Link to="/gematria">מחשבון גימטריה מקצועי</Link><span>פתוח לציבור</span></li>
       <li><Link to="/community/calculator">מחשבון הקהילה לשמות</Link><span>פתוח לציבור</span></li>

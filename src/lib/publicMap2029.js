@@ -6,7 +6,7 @@ export function publicMapLinks2029(production) {
     ["/gematria", "מחשבון גימטריה מקצועי"],
     ["/community/calculator", "מחשבון הקהילה"],
     ["/gallery", "גלריות"],
-    ...(production ? [["/archive", "ארכיון לפי שנה ונושא"], ["/reality", "זרם המציאות"], ["/cross", "חידושי הצלבות"], ["/languages", "שבילי שפה"]] : []),
+    ...(production ? [["/archive", "ארכיון לפי שנה ונושא"], ["/timeline", "ציר הזמן"], ["/broadcasts", "מרכז השידורים"], ["/reality", "זרם המציאות"], ["/cross", "חידושי הצלבות"], ["/languages", "שבילי שפה"]] : []),
     ["/or-geula", "אור הגאולה"],
     ["/community/chat", "הצ׳אט הקהילתי · קריאה"],
     ["/community/researchers", "אנשים וכתבים"],

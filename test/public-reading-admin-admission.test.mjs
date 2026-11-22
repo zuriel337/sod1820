@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { transform } from 'esbuild';
 import { verifyReadingSession, readingSessionOptions } from '../src/lib/publicReadingAuthSession.js';
-import { publicReadingPath, publicReadingFeatureLock } from '../src/lib/publicReadingRelease2029.js';
+import { publicReadingPath, publicReadingContinuation, publicReadingFeatureLock } from '../src/lib/publicReadingRelease2029.js';
 import { getPasswordRecovery, subscribePasswordRecovery, markPasswordRecovery, clearPasswordRecovery, resetPasswordRecoveryForTests } from '../src/lib/passwordRecovery.js';
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
@@ -40,8 +40,9 @@ test('verified admin can enter existing private surfaces while public and unknow
   assert.equal(publicReadingPath(path),'public'); assert.equal(publicReadingPath(path,{isAdmin:true}),'public');
  }
  for(const path of ['/heichal','/היכל','/research']) {
-  assert.equal(publicReadingPath(path),'closed');
-  assert.equal(publicReadingPath(path,{isAdmin:true}),'closed');
+  assert.equal(publicReadingPath(path),'continuation');
+  assert.equal(publicReadingContinuation(path),'/findings');
+  for (const isAdmin of [false, true]) assert.equal(publicReadingPath(path,{ isAdmin, search:'?mode=workspace' }),'closed');
  }
  for(const path of ['/2029/journey','/2029/me/overview']) {
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');

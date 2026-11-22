@@ -1,3 +1,4 @@
+import { PUBLIC_HISTORY_READING, readPublicHistory2029 } from "../src/lib/publicHistoryReading2029.js";
 import { PUBLIC_ARCHIVE_2029, readPublicArchive2029 } from "../src/lib/research/publicArchive2029.js";
 import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
 import { PUBLIC_REALITY_STREAM_2029, isPublicResearchReading2029, publicResearchCategory2029, PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
@@ -426,6 +427,10 @@ export default async function handler(req, res) {
     if (!Array.isArray(rows)) throw new Error('continuity-source-invalid');
     return rows;
   };
+  const readPublicSourcePath = (path, signal) => {
+    const [table, params] = path.split('?');
+    return readContinuityRows(table, new URLSearchParams(params), { signal });
+  };
   const readLibraryRows = async (spec, { signal } = {}) => {
     const params = new URLSearchParams({ select: spec.select, limit: String(spec.limit), offset: String(spec.offset) });
     for (const [field, value] of Object.entries(spec.eq || {})) params.set(field, `eq.${value}`);
@@ -474,12 +479,25 @@ export default async function handler(req, res) {
     type = 'website';
     try {
       const signal = AbortSignal.timeout(2500);
-      const archive = await readPublicArchive2029(path => {
-        const [table, params] = path.split('?');
-        return readContinuityRows(table, new URLSearchParams(params), { signal });
-      }, continuitySearch);
+      const archive = await readPublicArchive2029(path => readPublicSourcePath(path, signal), continuitySearch);
       robots = continuityParams.size || !archive.collections.length ? 'noindex, follow' : 'index, follow';
       req.publicReadingFirstWords?.({ kind: 'archive', ...archive });
+    } catch {
+      documentStatus = 503;
+      robots = 'noindex, nofollow';
+    }
+  } else if (productionReading && (decodedKey === '/timeline' || decodedKey === '/broadcasts')) {
+    const reading = PUBLIC_HISTORY_READING[decodedKey];
+    title = reading.title + ' · ' + SITE_NAME;
+    desc = reading.description;
+    canonical = SITE + decodedKey;
+    type = 'website';
+    image = cardUrl({ w: reading.title, sub: 'סוד 1820' });
+    try {
+      const signal = AbortSignal.timeout(2500);
+      const data = await readPublicHistory2029(path => readPublicSourcePath(path, signal), decodedKey, continuitySearch);
+      robots = continuityParams.size || !data.sections.some(section => section.items.length) ? 'noindex, follow' : 'index, follow';
+      req.publicReadingFirstWords?.({ ...data, kind: decodedKey.slice(1) });
     } catch {
       documentStatus = 503;
       robots = 'noindex, nofollow';

@@ -85,7 +85,7 @@ test("the published findings reader is independent of the unbuilt Heichal and fu
     assert.equal(findings.headers.get("x-sod-first-words"), "served");
     assert.match(findings.body, /data-first-words="findings"><h1>ממצאים שפורסמו/);
     assert.match(findings.body, /rel="canonical" href="https:\/\/sod1820\.co\.il\/findings"/);
-    for (const path of ["/heichal", "/%D7%94%D7%99%D7%9B%D7%9C", "/heichal?mode=research", "/research", "/research?mode=research"]) {
+    for (const path of ["/heichal?mode=research", "/%D7%94%D7%99%D7%9B%D7%9C?mode=research", "/research?mode=research"]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 503, path);
       assert.match(res.body, /טרם נבנו|לשלב עתידי/);
@@ -127,6 +127,10 @@ test("bare research routes read admitted publications and keep their exact canon
       assert.ok(res.body.includes('rel="canonical" href="' + SITE + canonical + '"'));
     }
     for (const [path, target] of [
+      ["/heichal", "/findings"],
+      [encodeURI("/היכל"), "/findings"],
+      ["/research", "/findings"],
+      ["/research?utm_source=google", "/findings?utm_source=google"],
       ["/research?tool=gematria&value=533", "/gematria?tool=gematria&value=533"],
       ["/research?finding=uf1%3Aels%3Apublished", "/code?finding=uf1%3Aels%3Apublished&mode=research"],
     ]) {
@@ -179,12 +183,50 @@ test("archive serves dated collections and original source links in the first do
   });
 });
 
+test("timeline and broadcasts return a canonical public first document and handle empty or unavailable sources", async () => {
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true,
+    readDocument: async () => read("public-reading-deploy/.generated/2029.html") });
+  const id = "34efde76-405e-4235-8e16-551e0a9a37b2";
+  async function sources(input) {
+    const url = new URL(input);
+    if (url.pathname === "/rest/v1/topic_cards_public") return json([{ slug: "published-topic", title: "אירוע מאומת", status: "approved", occurred_at: "2026-10-05" }]);
+    if (url.pathname === "/rest/v1/nodes") return json([]);
+    if (url.pathname === "/rest/v1/channel_updates") {
+      const channel = url.searchParams.get("channel");
+      return json(channel === "eq.gilui-yomi" ? [{ id, channel: "gilui-yomi", status: "live", page_only: false, created_at: "2026-10-05", text: "עדכון מקורי" }] : []);
+    }
+    throw Error("unexpected public source " + url.pathname);
+  }
+  for (const [path, item] of [["/timeline", "/topic/published-topic"], ["/broadcasts", id]]) {
+    await withFetch(sources, async () => {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 200, path);
+      assert.equal(res.headers.get("x-sod-first-words"), "served", path);
+      assert.equal(res.headers.get("x-robots-tag"), "index, follow", path);
+      assert.equal(res.headers.get("retry-after"), undefined, path);
+      assert.ok(res.body.includes('rel="canonical" href="' + SITE + path + '"'));
+      assert.ok(res.body.includes('data-first-words="' + path.slice(1) + '"><h1>'));
+      assert.ok(res.body.includes(item));
+    });
+    await withFetch(async () => json([]), async () => {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 200, path);
+      assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
+    });
+    await withFetch(async () => { throw Error("source unavailable"); }, async () => {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 503, path);
+      assert.equal(res.headers.get("retry-after"), "60", path);
+    });
+  }
+});
+
 // ZURIEL 5.11: feature areas that are closed only until they reopen in a few days keep their address in the index. The standard
 // way to say "temporarily unavailable" is 503 + Retry-After; they are never noindex. Personal, payment and private screens stay out.
 test("temporarily closed feature areas answer 503 with Retry-After and stay indexable; the rest stay noindex", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
     const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
-    for (const path of ["/research?finding=unknown", "/reality?mode=research", "/timeline", "/name", "/languages?mode=research", "/cross?mode=research"]) {
+    for (const path of ["/research?finding=unknown", "/reality?mode=research", "/name-lab", "/name", "/languages?mode=research", "/cross?mode=research"]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 503, path);
       assert.equal(res.headers.get("retry-after"), "2592000", path);
