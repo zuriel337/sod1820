@@ -62,11 +62,11 @@ export function useContributorReading2029(view, onRefresh) {
   const actions = (item) => {
     const entity = writerReadingEntity(item, key);
     if (!entity) return null;
-    const saved = !visitorPreview && (research.saved || []).some((saved) => saved.type === entity.type && String(saved.ref) === String(entity.ref));
+    const saved = !visitorPreview && research.cloudConfirmed === true && (research.saved || []).some((saved) => saved.type === entity.type && String(saved.ref) === String(entity.ref));
     return <WriterReadingActions2029 saved={saved} onSave={!actionsLocked && research.saveItem ? () => {
       if (visitorPreview) { setStatus({ scope, id: item.id, text: "זו תצוגה ציבורית. אפשר לחזור לאזור האישי כדי לשמור." }); return; }
       const ok = research.saveItem(entity);
-      setStatus({ scope, id: item.id, text: ok ? "נשמר בספרייה האישית" : "השמירה אינה זמינה כרגע" });
+      setStatus({ scope, id: item.id, text: ok ? "נשמר במכשיר · מסתנכרן לחשבון" : "השמירה אינה זמינה כרגע" });
     } : undefined} onResume={() => { recordOpen(item); if (item.href.startsWith("/")) navigate(item.href); else window.location.assign(item.href); }} isOwner={!visitorPreview && current.owner === true}
       onFeature={() => mutate("feature", { itemId: item.id, enabled: !selected.has(item.id) }, item.id)} featured={selected.has(item.id)} busy={state.state === "saving"}
       status={state.id === item.id && state.state === "limit" ? "אפשר לבחור עד שלושה כתבים להצגה. בטלו בחירה קיימת כדי להחליף כתב."

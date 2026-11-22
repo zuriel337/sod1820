@@ -6,6 +6,7 @@ import { use2029Palette } from "../lib/palette2029.js";
 import { personalActionsLocked } from "../lib/publicLaunch2029.js";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import LocalOnlyResearch2029 from "../components/userCenter/LocalOnlyResearch2029.jsx";
 import { ResearchStateSections } from "../components/experience2029/WorkspaceProjection2029.jsx";
 import PersonalNotes2029 from "../components/userCenter/PersonalNotes2029.jsx";
 import { applySeo } from "../lib/seo.js";
@@ -120,6 +121,7 @@ function WriterPersonalController2029({ module, user, authLoading }) {
     {!user && !authLoading ? <section className="wp-card wp-login" aria-labelledby="wp-login-title"><h2 id="wp-login-title" className="wp-h">צריך להתחבר כדי לראות את האזור האישי</h2><p className="wp-muted">הפרופיל, ההודעות, המעקב וההתקדמות מוצגים רק לחשבון שלהם הם שייכים.</p><button className="wp-btn wp-primary" type="button" onClick={shell.openWorkspace}>התחברות לאזור האישי</button></section> : null}
     {state === "ready" && PUBLIC_READING_RELEASE && !auth.verified ? <p role="status">מאמת את החשבון לפני הצגת המידע האישי…</p> : null}
     {state === "ready" ? <div style={{display: PUBLIC_READING_RELEASE && !auth.verified ? "none" : undefined}} inert={PUBLIC_READING_RELEASE && !auth.verified ? true : undefined}>
+      {selected === "research" ? <LocalOnlyResearch2029 research={research} /> : null}
       {selected === "research" ? <ResearchStateSections research={research} go={goto} onOpenNumber={target=>shell.openNumber?.(target)} onInspect={target=>shell.openInspect?.(target)} /> : null}
       {selected === "notes" ? <PersonalNotes2029 key={user.id} userId={user.id} disabled={personalActionsLocked(auth)} /> : null}
       {previewReadOnly && (selected === "public-page" || selected === "page-editor") ? <p role="status">בגרסת התצוגה אפשר לצפות בפרטי הדף. יצירה ושמירה של שינויים אינן זמינות כאן.</p> : null}

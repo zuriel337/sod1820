@@ -283,6 +283,8 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       enterDiscovery: () => runtime.setMode("discovery"),
       toggleMode: () => runtime.setMode(now().mode === "discovery" ? "reader" : "discovery"),
       retryResearchSync: (...args) => admitPersonalAction() ? runtime.retry(...args) : false,
+      // Recovery of device-only items: list (read-only) / confirm (explicit sync). Never automatic.
+      localOnlyResearch: runtime.localOnly,
       resolveResearchSyncConflict: (...args) => access.current.allowed ? runtime.resolveConflict(...args) : false,
       exportPendingResearch: runtime.exportPending,
       listResearchRecoveryJournals: runtime.listRecoveryJournals,
