@@ -98,8 +98,9 @@ async function sitemapLocs(row) {
 test('the sitemap lists exactly the canonical the page declares (server canonical == sitemap <loc>)', async () => {
   const page = await ask('/' + SLUG_TEXT, wpRow);
   const locs = await sitemapLocs(wpRow);
-  // The historical lecture pages are their own family and are listed escaped too (18.11.2026), so they also contain '%': set them aside.
-  const postLocs = locs.filter(loc => loc.includes('%') && !PUBLIC_HISTORICAL_LECTURE_PATHS.includes(decodeURI(new URL(loc).pathname)));
+  // The lecture pages and the public research cipher collection are independently indexed Hebrew addresses.
+  const otherFamilies = new Set([...PUBLIC_HISTORICAL_LECTURE_PATHS, '/codes/מחקר']);
+  const postLocs = locs.filter(loc => loc.includes('%') && !otherFamilies.has(decodeURI(new URL(loc).pathname)));
   assert.equal(postLocs.length, 1, 'the one imported WordPress post is listed once');
   assert.equal(postLocs[0], page.canonical, 'sitemap <loc> and page canonical must be the same address');
   assert.doesNotMatch(new URL(postLocs[0]).pathname, /\/$/);
