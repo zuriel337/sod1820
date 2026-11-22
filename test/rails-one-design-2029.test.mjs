@@ -13,7 +13,9 @@ test("hover opens the slim rail over the page with a delay, focus opens it, Esca
   assert.match(frame, /event\.key === "Escape"\) peekRail\(false, 0\)/);
   assert.match(frame, /\(hover: hover\) and \(min-width: 981px\)/);
   assert.match(frame, /\$\{sidebarCollapsed && !railPeek \? " sidebar-collapsed" : ""\}\$\{railPeek \? " rail-peek" : ""\}/);
-  assert.match(frame, /<b>\{sidebarCollapsed \? "נעץ" : "צמצם"\}<\/b>/);
+  assert.match(frame, /<b>\{sidebarCollapsed \? \(PUBLIC_READING_RELEASE \? "כל המדורים" : "נעץ"\) : "צמצם"\}<\/b>/);
+  assert.match(frame, /<FrameNavigation home=\{homeNav\} direct=\{directNav\} expanded=\{!sidebarCollapsed\}/,
+    "peeking must keep the keyboard-focused shortcut mounted");
   // a peek keeps the slim page column, so the content does not move
   assert.match(bar, /\.sod29-root\.closed-shell\.native-frame\.rail-peek \{ grid-template-columns: 72px minmax\(0, 1fr\); \}/);
 });
