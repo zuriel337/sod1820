@@ -8,7 +8,7 @@ const applyCloudResearchOps = (...args) => import("../auth.js").then(m => m.appl
 import { signalAiBehavior, supabase } from "../supabase.js";
 import { useElsResearchOperation } from "./useElsResearchOperation.js";
 import { emit, EVENTS } from "./eventBus.js";
-import { normalizeResearchContext, mergeResearchContext, isResearchWorkspace2029 } from "./researchContext.js";
+import { normalizeResearchContext, mergeResearchContext, isResearchWorkspace2029, isPersonalResearchCloudRoute2029 } from "./researchContext.js";
 import { retainTopicSourceReturn, restoreJourneySourceViewport } from "./journeySourceReturn.js";
 import { parseNumberExpressionFocus } from "./numberExpressionFocus.js";
 import {
@@ -94,7 +94,11 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
   const [personalDemand, setPersonalDemand] = useState(false);
   const personalAllowed = useRef(false);
   personalAllowed.current = !disabled && !personalLocked;
-  const actionsLocked = disabled || personalLocked || (!workspaceActive && !personalDemand);
+  // Reading the authenticated "my research" page must activate the existing
+  // private saved-library reader, even though the page is NOT a research-engine
+  // workspace. Engine access remains governed by workspaceActive/featureAccess.
+  const personalLibraryPage = isPersonalResearchCloudRoute2029(pathname);
+  const actionsLocked = disabled || personalLocked || (!workspaceActive && !personalDemand && !personalLibraryPage);
   const featureAccess = useRef(false);
   featureAccess.current = workspaceActive && !disabled && !publicReadingActionsLocked(isAdmin && Boolean(userId));
   const access = useRef({ allowed: !actionsLocked, epoch: 0 });
