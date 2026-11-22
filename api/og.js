@@ -442,6 +442,12 @@ export default async function handler(req, res) {
     desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
     const capability = publicReadingCapability(key);
     if (capability) { title = `${capability.title} · ${SITE_NAME}`; desc = capability.description; image = cardUrl({ w: capability.title, sub: 'בבנייה' }); }
+  } else if (productionReading && decodedKey === '/map') {
+    title = 'מפת האתר · ' + SITE_NAME;
+    desc = 'מפת האתר של סוד 1820. פוסטים, מחשבונים, מספרים, צפנים ומקורות לקריאה.';
+    canonical = SITE + '/map';
+    robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
+    if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'map' });
   } else if (productionReading && ['/heichal', '/היכל'].includes(decodedKey)) {
     title = HEICHAL_PUBLIC_READING.title + ' · ' + SITE_NAME;
     desc = HEICHAL_PUBLIC_READING.description;

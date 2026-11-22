@@ -12,6 +12,7 @@
 //    other visitors' searches (Traffic Intelligence). While the reader is not available, the block is simply absent. No second source.
 //  - Never throws and never delays the document beyond its small deadline: on any failure the answer is today's document.
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
+import { publicMapLinks2029 } from "../src/lib/publicMap2029.js";
 import { HEICHAL_PUBLIC_READING } from "../src/lib/heichalPublicReading2029.js";
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
@@ -205,6 +206,9 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "map") {
+    return '<h1>מפת האתר</h1>' + links(publicMapLinks2029(true).map(([href, label]) => ({ href, label })), "דפי האתר");
+  }
   if (facts.kind === "heichal") {
     const { title, description } = HEICHAL_PUBLIC_READING;
     return `<h1>${esc(title)}</h1><p>${esc(description)}</p><p><a href="/books">ספרים ומקורות</a> · <a href="/codes/מחקר">אוסף המחקר</a></p>`;
