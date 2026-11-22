@@ -21,6 +21,6 @@ test("/archive is never classified as legacy: it is the new archive, closed whil
   assert.equal(publicTemporarilyClosed("/archive"), true, "closed temporarily, not retired");
 });
 
-test("/heichal stays closed (no accidental opening)", () => {
-  assert.equal(publicTemporarilyClosed("/heichal"), true);
+test("published Heichal reading no longer returns a maintenance response", () => {
+  assert.equal(publicTemporarilyClosed("/heichal"), false);
 });

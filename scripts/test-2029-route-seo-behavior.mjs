@@ -82,8 +82,8 @@ const DECISIONS = {
   "/2029/control": { kind: "closed" },
   "/2029/me/:module": { kind: "closed" },
   "/research": { kind: "closed503", note: "#1236: closed only until it reopens soon: 503 + Retry-After, kept indexable" },
-  "/heichal": { kind: "closed503", note: "#1236, same" },
-  "/היכל": { kind: "closed503", canonical: "/heichal", note: "#1236, same (Hebrew alias)" },
+  "/heichal": { kind: "index" },
+  "/היכל": { kind: "index", canonical: "/heichal" },
 
   "/login": { kind: "account" },
   "/auth/callback": { kind: "account" },
