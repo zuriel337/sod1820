@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { retiredCollectionContinuation } from "../public-reading-deploy/api/public-document.js";
-import { firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_DATA_PAGE_GRACE_MS, firstWordsGraceMs2029, FIRST_WORDS_KEEPER, firstWordsStaticFacts2029, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
+import { numberWordsInFlight2029, firstWordsFamily2029, firstWordsFacts2029, firstWordsHtml2029, withFirstWords2029, FIRST_WORDS_MAX_BYTES, FIRST_WORDS_CACHE, FIRST_WORDS_GRACE_MS, FIRST_WORDS_DATA_PAGE_GRACE_MS, firstWordsGraceMs2029, FIRST_WORDS_KEEPER, firstWordsStaticFacts2029, _resetFirstWordsForTests } from "../public-reading-deploy/first-words.js";
 import { beforeEach } from "node:test";
 beforeEach(() => _resetFirstWordsForTests());
 
@@ -214,6 +214,23 @@ test("the calculators' fixed wording is never missing: without their lists they 
   assert.deepEqual(firstWordsStaticFacts2029("/"), { kind: "home" }, "the home words are fixed wording too (#1470)");
   const documentSource = readFileSync(new URL("../public-reading-deploy/api/public-document.js", import.meta.url), "utf8");
   assert.match(documentSource, /\|\| firstWordsStaticFacts2029\(metadataPath\)\)\)/);
+});
+
+test("an indexed number can show verified phrases while related posts are pending", async () => {
+  let finishPosts;
+  const posts = new Promise(resolve => { finishPosts = resolve; });
+  const full = firstWordsFacts2029("/number/533", { fetchImpl: source([
+    [/gematria_words/, [{ phrase: "ביטוי מהמקור" }]], [/number_anchors/, []],
+    [/posts_by_number_strict/, () => posts],
+  ]) });
+  await new Promise(resolve => setImmediate(resolve));
+  const partial = numberWordsInFlight2029("/number/533", "");
+  assert.match(firstWordsHtml2029(partial), /ביטוי מהמקור/);
+  assert.equal(numberWordsInFlight2029("/number/533", "?focus=x"), null);
+  assert.equal(numberWordsInFlight2029("/number/534", ""), undefined);
+  finishPosts(json([]));
+  assert.deepEqual(await full, partial);
+  assert.equal(numberWordsInFlight2029("/number/533", ""), undefined);
 });
 
 test("the cipher library has a readable first document while its published records are unavailable", () => {
