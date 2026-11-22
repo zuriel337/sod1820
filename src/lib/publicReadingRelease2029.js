@@ -297,6 +297,8 @@ export function afterReadableContent2029(pathname, start, { idle = true, onHidde
   return stop;
 }
 
+export const HEICHAL_RESEARCH_ENTRY = PUBLIC_READING_RELEASE ? "/heichal?mode=research" : "/heichal";
+
 export function requestedHeichalResearch(search, isAdmin) {
   return isAdmin === true && new URLSearchParams(search).get("mode") === "research";
 }
