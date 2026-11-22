@@ -19,6 +19,7 @@ import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
 import { CALCULATOR_PRO_PATH, CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
+import { GALLERY_CATALOG_INTRO } from "../src/lib/galleryCatalogIntro2029.js";
 import { HOME_FIRST_WORDS } from "../src/lib/homePublicWords2029.js";
 
 // The public project address and the public anonymous key, as in the other server readers (api/og.js, api/sitemap.js, api/card.js). The browser
@@ -295,6 +296,9 @@ function body(facts) {
       + links(phraseLinks(phrases), `ביטויים ששווים ${value}`)
       + links(postLinks(posts), `פוסטים על ${value}`, true)
       + `<p><a href="/gematria">מחשבון גימטריה</a> · <a href="${numberHref(value - 1)}">${value - 1}</a> · <a href="${numberHref(value + 1)}">${value + 1}</a></p>`;
+  }
+  if (facts.kind === "gallery") {
+    return `<h1>${esc(GALLERY_CATALOG_INTRO.heading)}</h1><p>${esc(GALLERY_CATALOG_INTRO.description)}</p><p><a href="/world">חזרה לעולם ←</a></p>`;
   }
   if (facts.kind === "phrase") {
     const { phrase, value, phrases, posts } = facts;
