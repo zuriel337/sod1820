@@ -22,7 +22,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import FeatureClosedNotice2029 from "./FeatureClosedNotice2029.jsx";
-import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { NUMBER_PAGE_BASE, isNumberPagePath } from "../../lib/research/numberPageAddress.js";
@@ -174,7 +174,7 @@ const HOME_NAV = [
 ];
 
 const DIRECT_NAV = [
-  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
@@ -194,7 +194,7 @@ const CORE_HOME_NAV = [
 
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els", building: true },
-  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
@@ -701,7 +701,7 @@ function SystemFrame2029Body({
   // closed when the row is missing; the administrator keeps the existing admin bypass. A closed panel renders the notice only (no projection, no read).
   const actionsFeature = useFeatureState("lock_context_actions", { requireFlag: true });
   const toolsFeature = useFeatureState("lock_context_tools", { requireFlag: true });
-  const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
+  const heichalLocked = PUBLIC_READING_RELEASE ? publicReadingPath("/heichal") !== "public" : heichalFeature.loading || heichalFeature.blocked;
   const contextLocked = authLoading || isAdmin !== true;
   const razielLocked = contextLocked || razielFeature.loading || razielFeature.blocked;
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
