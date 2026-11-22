@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { legacyArchiveContinuation2029 } from "../lib/legacyArchiveContinuation2029.js";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import { PUBLIC_ARCHIVE_2029, publicArchiveHref2029, readPublicArchive2029 } from "../lib/research/publicArchive2029.js";
-import { SUPABASE_ANON, SUPABASE_URL } from "../lib/supabase.js";
+import { readAnonymousSourceRows2029 } from "../lib/readAnonymousSourceRows2029.js";
 import { applySeo } from "../lib/seo.js";
 
 export default function PublicArchive2029Page() {
@@ -29,16 +29,7 @@ function ArchiveReader({ search }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    async function readRows(path) {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-        headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` },
-        credentials: "omit", signal: controller.signal,
-      });
-      if (!response.ok) throw new Error("archive_source_unavailable");
-      const rows = await response.json();
-      if (!Array.isArray(rows)) throw new Error("invalid_archive_source");
-      return rows;
-    }
+    const readRows = path => readAnonymousSourceRows2029(path, controller.signal);
     readPublicArchive2029(readRows, search).then(data => {
       if (!controller.signal.aborted) setResult({ search, data });
     }).catch(() => {

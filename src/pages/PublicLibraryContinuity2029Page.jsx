@@ -99,7 +99,10 @@ function PublicCipher({ item }) {
     <details className="public-library29-locator"><summary>פרטי המקור ומראה־המקום</summary><dl><div><dt>מזהה הפרסום</dt><dd><bdi>{item.sourceRef}</bdi></dd></div>
       {item.exactLocator ? <><div><dt>מזהה קורפוס</dt><dd><bdi>{item.exactLocator.corpusId}</bdi></dd></div><div><dt>מיקום התחלה שמור</dt><dd><bdi>{item.exactLocator.startIndex}</bdi></dd></div><div><dt>כיוון הדילוג</dt><dd>{item.exactLocator.direction === "back" ? "לאחור" : "קדימה"}</dd></div></> : <div><dt>מראה־מקום</dt><dd>לא נשמר מראה־מקום מלא שניתן לשחזר במדויק.</dd></div>}
     </dl></details>
-    <section className="public-library29-capability" data-experience-capability="cipher-search-unavailable"><h3>חיפוש חדש בצופן התנ״כי</h3><p>מנוע החיפוש החדש אינו פתוח לציבור כרגע. אפשר להמשיך לקרוא פרסומים בספריית הצפנים.</p><Link className="sod29-action" to="/codes">לספריית הצפנים</Link></section>
+    <section className="public-library29-capability" data-experience-capability="cipher-classic-search">
+      <h3>הצופן התנ״כי</h3>
+      <Link className="sod29-action" to={`/code?mode=classic&record=${encodeURIComponent(item.id)}`}>פתיחת הצופן השמור בכלי הקלאסי</Link>
+    </section>
     {hash === "#cipher-research" ? <section id="cipher-research" className="public-library29-capability" data-experience-capability="cipher-discussion-unavailable"><h3>הדיון המקושר לצופן</h3><p>הדיון סביב הפרסום אינו זמין בקורא הציבורי הזה כרגע. טקסט הצופן ומראה־המקום השמור שלו זמינים באותו עמוד.</p><a className="sod29-action" href="#description">לטקסט הפרסום</a></section> : null}
   </article>;
 }

@@ -24,18 +24,29 @@ test("the public archive owns its address and the old gallery-update alias", () 
   assert.equal(publicReadingContinuation("/gallery-updates"), "/archive");
 });
 
-test("/heichal stays closed (no accidental opening)", () => {
-  assert.equal(publicTemporarilyClosed("/heichal"), true);
+test("ordinary research and Heichal visits reach the public findings reader while workspace requests keep their gate", () => {
+  for (const path of ["/research", "/heichal", encodeURI("/היכל")]) {
+    assert.equal(publicReadingContinuation(path), "/findings");
+    assert.equal(publicReadingContinuation(path, "?utm_source=share", "#item"), "/findings?utm_source=share#item");
+    assert.equal(publicTemporarilyClosed(path), false);
+    assert.equal(publicReadingCapability(path), null);
+    assert.equal(publicReadingContinuation(path, "?mode=research"), null);
+    assert.equal(publicTemporarilyClosed(path, "?mode=research"), true);
+  }
+  for (const [path, state] of [["/research-viewer", "closed"], ["/2029/control", "closed"], ["/journey", "closed"], ["/2029/me/notes", "account"]]) {
+    assert.equal(publicReadingContinuation(path), null);
+    assert.equal(publicReadingPath(path), state);
+  }
+  assert.equal(publicReadingContinuation("/heichal", "?demo=1"), null);
+  assert.equal(publicReadingContinuation("/research", "?tool=gematria"), "/gematria?tool=gematria");
+  assert.match(publicReadingContinuation("/research", "?finding=uf1:els:1"), /^\/code\?/);
 });
 
 
-test("historical notices offer direct reading from the corresponding public sources", () => {
-  const expected = {
-    "/timeline": ["/post", "/topic/india-axis"],
-    "/broadcasts": ["/or-geula"],
-  };
-  for (const [path, destinations] of Object.entries(expected)) {
-    assert.equal(publicTemporarilyClosed(path), true);
-    assert.deepEqual(publicReadingCapability(path).links.map(([href]) => href), destinations);
+test("timeline and broadcasts admit public reading at their historical addresses", () => {
+  for (const [path, search] of [["/timeline", ""], ["/broadcasts", ""], ["/broadcasts", "?tab=channels&c=or-geula"]]) {
+    assert.equal(publicReadingPath(path, { search }), "public");
+    assert.equal(publicTemporarilyClosed(path, search), false);
+    assert.equal(publicReadingCapability(path, search), null);
   }
 });
