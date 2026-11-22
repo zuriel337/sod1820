@@ -42,6 +42,7 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 // when it arrives, hidden while the route shows only its loading placeholder (footer2029.css), as before; drawing it only after the
 // content measured a later largest paint on desktop (its styles and render landed in that window). The account-link offer only for a signed-in account (it was always empty for a visitor and appears only
 // after its own read); the share row with the inspect panel that shows it; the living ribbon (hidden) and its detail when opened.
+const PublicMenuSections2029 = PUBLIC_READING_RELEASE ? React.lazy(() => import("./PublicMenuSections2029.jsx")) : null;
 const RoyalIntro2029 = React.lazy(() => import("./RoyalIntro2029.jsx"));
 const Footer2029 = React.lazy(() => import("./Footer2029.jsx"));
 const AccountLinkOffer2029 = React.lazy(() => import("./AccountLinkOffer2029.jsx"));
@@ -164,28 +165,43 @@ const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW 
 // picks it: "123" was shared by the calculator and the Number page, "▤" by Books and Beit Midrash, "◌" by the World and the site map,
 // and "◉" / "✉" / "◇" fell back to the generic tools grid. test/navigation-symbols-distinct-2029.test.mjs reads these four lists
 // from this file, renders each item through the real component and fails on a missing, uncatalogued, shared or fallback symbol.
+// Only the public-reading router serves all four destinations. Both rail variants use the same entries.
+const archiveAndGalleryNav = PUBLIC_READING_RELEASE ? [
+  { to: "/archive", label: "ארכיון לפי שנה ונושא", symbol: "journal" },
+  { to: "/gallery", label: "גלריות ותמונות", symbol: "gallery" },
+] : [];
+const cipherLibraryNav = PUBLIC_READING_RELEASE ? [
+  { to: "/codes", label: "ספריית הצפנים", symbol: "layers" },
+] : [];
+const communityCalculatorNav = PUBLIC_READING_RELEASE ? [
+  { to: "/community/calculator", label: "מחשבון הקהילה לשמות", symbol: "letters" },
+] : [];
+
 const HOME_NAV = [
   { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
   { to: "/world", label: "העולם", symbol: "world", building: true },
   { to: "/heichal", label: "היכל", symbol: "heichal" },
   { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
+  ...archiveAndGalleryNav,
   { to: "/2029/journey", label: "מסע החיים", symbol: "journey" },
   { to: "/community/chat", label: "קהילה", symbol: "community" },
 ];
 
 const DIRECT_NAV = [
   { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
+  ...communityCalculatorNav,
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
-  { to: "/els", label: "ELS · הצופן התנ״כי", symbol: "els", building: true },
-  // Site map, email updates and privacy are not rows of the navigation rail (ZURIEL 19.11.2026): they live in the footer ("מידע",
-  // and the updates signup) and in their own pages; the rail keeps destinations only.
+  ...cipherLibraryNav,
+  { to: "/els", label: "כלי הצופן התנ״כי", symbol: "els", building: true },
+  // The expanded public menu groups service pages separately from these compact shortcuts.
 ];
 
 const CORE_HOME_NAV = [
   { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
   { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
+  ...archiveAndGalleryNav,
   { to: "/community/chat", label: "קהילה", symbol: "community" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", symbol: "heichal" },
@@ -193,8 +209,10 @@ const CORE_HOME_NAV = [
 ];
 
 const CORE_DIRECT_NAV = [
-  { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els", building: true },
+  ...cipherLibraryNav,
+  { to: "/code", label: "כלי הצופן התנ״כי", symbol: "els", building: true },
   { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
+  ...communityCalculatorNav,
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
@@ -391,10 +409,21 @@ export function UserAvatar2029({ user, profile, size = "normal" }) {
   );
 }
 
+function FrameNavigation({ home, direct, expanded, ...controls }) {
+  const compact = <>
+    <NavGroup title="בתים מרכזיים" items={home} {...controls} />
+    <NavGroup title="גילוי וכלים" items={direct} {...controls} />
+  </>;
+  if (!expanded || !PublicMenuSections2029) return compact;
+  return <React.Suspense fallback={compact}>
+    <PublicMenuSections2029 home={home} direct={direct} NavGroup={NavGroup} {...controls} />
+  </React.Suspense>;
+}
+
 function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
   return (
     <div className="sod29-nav-group">
-      <div className="sod29-nav-group-title">{title}</div>
+      {title && <div className="sod29-nav-group-title">{title}</div>}
       {items.map((item) => item.locked ? (
         <button className="sod29-nav-link is-gated" key={item.label} type="button" disabled aria-label={`${item.label} · נעול`} title={`${item.label} · נעול`}>
           <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
@@ -1183,12 +1212,13 @@ function SystemFrame2029Body({
   useEffect(() => {
     if (!navOpen || !navRef.current) return undefined;
     const nav = navRef.current;
-    const focusables = [...nav.querySelectorAll(FOCUSABLE)];
+    const visibleControls = () => [...nav.querySelectorAll(`${FOCUSABLE},summary`)].filter(node => node.getClientRects().length);
+    const focusables = visibleControls();
     const initial = nav.querySelector("[data-autofocus]") || focusables[0] || nav;
     requestAnimationFrame(() => initial.focus?.());
     const trap = (event) => {
       if (event.key !== "Tab") return;
-      const current = [...nav.querySelectorAll(FOCUSABLE)];
+      const current = visibleControls();
       if (!current.length) { event.preventDefault(); nav.focus(); return; }
       const first = current[0];
       const last = current[current.length - 1];
@@ -1524,8 +1554,7 @@ function SystemFrame2029Body({
           onMouseEnter={() => peekRail(true, 180)} onMouseLeave={() => peekRail(false, 260)} onFocus={() => peekRail(true, 0)}
           onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekRail(false, 0); }} onKeyDown={(event) => { if (event.key === "Escape") peekRail(false, 0); }}>
           <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
-            <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
-            <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
+            <FrameNavigation home={homeNav} direct={directNav} expanded={!sidebarCollapsed || railPeek} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
           <div className="sod29-rail-foot">
           <div className="sod29-rail-utilities" aria-label="פעולות נוספות">
@@ -1656,8 +1685,7 @@ function SystemFrame2029Body({
               </button>
             </div>
             <PreviewTransportDisclosure2029 />
-            <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
-            <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
+            <FrameNavigation home={homeNav} direct={directNav} expanded preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
               <small>מראה</small>
               <ThemePresetControl2029 />
