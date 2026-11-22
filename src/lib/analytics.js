@@ -4,6 +4,7 @@
 
 const GA_ID = import.meta.env.VITE_GA_ID;
 import { readingMeasurementPath, readingTelemetryPath } from "./publicReadingTelemetry2029.js";
+import { sideEffectAllowed } from "./botVerdict.js";
 export const GA_ENABLED = !!GA_ID;
 let inited = false;
 
@@ -60,7 +61,7 @@ function setPublicPageContext(fields) {
 }
 
 export function initGA({ publicReading = false, path = "/" } = {}) {
-  if (publicReading && !readingTelemetryPath(path)) return;
+  if (publicReading && (!readingTelemetryPath(path) || !sideEffectAllowed("ga4_init"))) return;
   if (inited || !GA_ID || typeof window === "undefined") return;
   inited = true;
   const s = document.createElement("script");
@@ -83,7 +84,7 @@ export function initGA({ publicReading = false, path = "/" } = {}) {
 export function trackPageview(path, { publicReading = false } = {}) {
   if (!GA_ID || typeof window === "undefined" || !window.gtag) return;
   if (publicReading) {
-    if (!readingTelemetryPath(path)) return;
+    if (!readingTelemetryPath(path) || !sideEffectAllowed("ga4_page_view")) return;
     // A slow next page must not inherit the previous article's identity.
     // Until its SEO projection is ready, use the same safe family fallback.
     const initial = publicPageviewFields(path);

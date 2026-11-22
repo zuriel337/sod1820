@@ -150,3 +150,60 @@ for (const [profile, options] of Object.entries(PROFILES)) for (const identity o
     } finally { await browser.close(); await fixture.close(); }
   });
 }
+
+for (const [profile, options] of Object.entries(PROFILES)) for (const identity of ['guest', 'member']) {
+  test(`[${profile} · ${identity}] exact number page views across arrivals and navigation`, { skip, timeout: 240000 }, async () => {
+    const views = [];
+    const ga = [];
+    const fixture = await startFixture({ supabase: ({ url, body }) => {
+      if (url.pathname !== '/rest/v1/rpc/ingest_event') return null;
+      const event = JSON.parse(body.toString());
+      if (event.p_surface === 'page' && event.p_event_type === 'view') views.push(event);
+      return { status: 204, body: '' };
+    } });
+    const browser = await pw.chromium.launch({ executablePath, headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
+    try {
+      const context = await browser.newContext({ ...options, ignoreHTTPSErrors: true });
+      await context.addCookies([{ name: 'vb', value: 'browser', domain: 'sod1820.co.il', path: '/', secure: true }]);
+      // Observe the GA command before transport. The mapped fixture cannot send traffic to Google.
+      await context.exposeFunction('observeNumberView', (path) => ga.push(path));
+      await context.addInitScript(() => {
+        const layer = window.dataLayer = [];
+        layer.push = function (...commands) {
+          for (const cmd of commands) if (cmd[0] === 'event' && cmd[1] === 'page_view') window.observeNumberView(cmd[2].page_path);
+          return Array.prototype.push.apply(this, commands);
+        };
+      });
+      const page = await context.newPage();
+      if (identity === 'member') {
+        fixture.auth.newUser(MEMBER, true);
+        await signInWithCode(page, fixture, MEMBER);
+      }
+      const checkGA = process.env.NUMBER_BROWSER_GA === '1';
+      const step = async (label, action, path) => {
+        const before = views.length, gaBefore = ga.length;
+        await action();
+        const deadline = Date.now() + 22000;
+        while ((views.length === before || (checkGA && ga.length === gaBefore)) && Date.now() < deadline) await page.waitForTimeout(200);
+        await page.waitForTimeout(250);
+        assert.deepEqual(views.slice(before).map(v => v.p_props.measurement.page_path), [path], label);
+        if (checkGA && path.startsWith('/number/')) assert.deepEqual(ga.slice(gaBefore), [path], 'GA4 ' + label);
+        assert.ok(views.slice(before).every(v => v.p_is_bot === false), label);
+      };
+      await step('Google landing', () => page.goto(fixture.origin + '/number/533', { referer: 'https://www.google.com/', waitUntil: 'domcontentloaded' }), '/number/533');
+      await step('number to number', () => inSite(page, '/number/1820'), '/number/1820');
+      await step('back', () => page.goBack({ waitUntil: 'commit' }), '/number/533');
+      await step('forward', () => page.goForward({ waitUntil: 'commit' }), '/number/1820');
+      await step('refresh', () => page.reload({ waitUntil: 'domcontentloaded' }), '/number/1820');
+      const before = views.length, gaBefore = ga.length;
+      await page.evaluate(() => { window.dispatchEvent(new Event('blur')); window.dispatchEvent(new Event('focus')); });
+      await page.waitForTimeout(750);
+      assert.equal(views.length, before, 'focus does not open another page');
+      assert.equal(ga.length, gaBefore);
+      await step('open post', () => inSite(page, '/post/measurement-fixture-a'), '/post/measurement-fixture-a');
+      await step('post to number', () => inSite(page, '/number/533'), '/number/533');
+      await step('open calculator', () => inSite(page, '/gematria'), '/gematria');
+      await step('calculator to number', () => inSite(page, '/number/123456'), '/number/123456');
+    } finally { await browser.close(); await fixture.close(); }
+  });
+}
