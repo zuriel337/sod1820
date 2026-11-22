@@ -11,7 +11,7 @@ import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
 import { normalizeElsRazielMatrixContext } from "./elsRazielMatrixContext.js";
 import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../../../supabase/functions/_shared/elsRazielOccurrenceContext.js";
 import { isRegularMethodIdentity } from "./methodIdentity.js";
-import { publicReadingPath } from "../publicReadingRelease2029.js";
+import { publicReadingLinkState2029 } from "../publicReadingRelease2029.js";
 import {
   isValidRazielNavigationNumber,
   normalizeRazielNavigationAction,
@@ -626,7 +626,7 @@ export function selectRazielVerifiedNumberFocus({ thread = [], surfaceSemantic =
 const RAZIEL_OPEN_ROUTE_STATES = new Set(["public", "continuation", "account", "service-closed", "post-lookup"]);
 export function razielSiteLinkState(item) {
   if (item?.external) return "open";
-  return RAZIEL_OPEN_ROUTE_STATES.has(publicReadingPath(String(item?.href || "").split("#")[0])) ? "open" : "closed";
+  return RAZIEL_OPEN_ROUTE_STATES.has(publicReadingLinkState2029(item?.href)) ? "open" : "closed";
 }
 
 export function resolveRazielNavigationTurn({ question, state, contextSnapshot } = {}) {

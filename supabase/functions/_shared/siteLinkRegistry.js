@@ -52,7 +52,7 @@ export const SITE_LINKS = Object.freeze([
   entry({ id: "archive", label: "ארכיון", href: "/archive", defaultState: "public", aliases: ["ארכיון", "הארכיון"],
     footer: { group: "discover", order: 5 } }),
   // ── לחקור ──
-  entry({ id: "heichal", label: "היכל", href: "/heichal", defaultState: "closed", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל"],
+  entry({ id: "heichal", label: "היכל", href: "/heichal?mode=workspace", defaultState: "closed", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל"],
     closed: { message: "סביבת העבודה בהיכל טרם נבנתה. אפשר לקרוא את הממצאים שפורסמו.", alt: "findings" }, footer: { group: "research", order: 1 } }),
   entry({ id: "findings", label: "ממצאים שפורסמו", href: "/findings", defaultState: "public", aliases: ["ממצאים שפורסמו", "הממצאים שפורסמו"], footer: { group: "discover", order: 6 } }),
   // raziel:false — owner decision: "/world" opens from Raziel only through the existing explicit "open the world" grammar,
@@ -75,7 +75,7 @@ export const SITE_LINKS = Object.freeze([
   // /2029/me/profile; /profile#notifications used to land on the profile module, not on the follow centre at /2029/me/notifications.
   entry({ id: "profile", label: "האזור שלי", href: "/2029/me/profile", defaultState: "account", aliases: ["האזור שלי", "אזור אישי", "האזור האישי", "הפרופיל שלי", "פרופיל"], footer: { group: "personal", order: 1 } }),
   entry({ id: "my-research", label: "המחקר שלי", href: "/2029/me/research", defaultState: "account", aliases: ["המחקר שלי"], footer: { group: "personal", order: 2 } }),
-  entry({ id: "research-tools", label: "פעולות מחקר", href: "/research", defaultState: "closed", raziel: false,
+  entry({ id: "research-tools", label: "פעולות מחקר", href: "/research?mode=workspace", legacyHrefs: ["/research"], defaultState: "closed", raziel: false,
     closed: { message: "פעולות המחקר מתוכננות לשלב עתידי. אפשר לקרוא את הממצאים שכבר פורסמו.", alt: "findings" }, footer: { group: "research", order: 7 } }),
   entry({ id: "notifications", label: "העדכונים שלי", href: "/2029/me/notifications", defaultState: "account", aliases: ["העדכונים שלי", "ההתראות שלי", "התראות"], footer: { group: "personal", order: 3 } }),
   // ── מידע ──

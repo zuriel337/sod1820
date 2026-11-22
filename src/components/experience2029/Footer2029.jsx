@@ -21,9 +21,7 @@ const ACTIVE_STATES = new Set(["public", "continuation", "account", "service-clo
 
 export function footerLinkState(item, { isAdmin = false } = {}) {
   if (item.external) return "active";
-  // These entries name workspaces; the footer has a separate published findings link.
-  const workspace = item.id === "heichal" || item.id === "research-tools";
-  const state = publicReadingLinkState2029(workspace ? item.href + "?mode=workspace" : item.href, { isAdmin });
+  const state = publicReadingLinkState2029(item.href, { isAdmin });
   if (state === "admin-view") return isAdmin ? "admin" : "closed";
   return ACTIVE_STATES.has(state) ? "active" : "closed";
 }
