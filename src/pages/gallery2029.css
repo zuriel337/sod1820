@@ -6,7 +6,7 @@
 .g29-breadcrumb a{display:inline-flex;align-items:center;min-height:44px;color:inherit;text-decoration:none}
 .g29-heading-line{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .g29-eyebrow{margin:0 0 10px;color:var(--g29-warm);font-size:var(--s29-type-small,15px);font-weight:500;letter-spacing:.03em}
-.g29-heading h2{font-size:clamp(var(--s29-type-title,28px),4vw,var(--s29-type-display,46px));line-height:1.2;font-weight:650;letter-spacing:-.03em;margin:0;max-width:800px}
+.g29-heading h1{font-size:clamp(var(--s29-type-title,28px),4vw,var(--s29-type-display,46px));line-height:1.2;font-weight:650;letter-spacing:-.03em;margin:0;max-width:800px}
 .g29-gallery-mark{display:none}
 .g29-intro{font-family:var(--s29-font-body);font-size:var(--s29-type-lead,21px);line-height:1.7;color:var(--s29-muted);margin:10px 0 12px}
 .g29-heading-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}

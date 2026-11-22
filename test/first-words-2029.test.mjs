@@ -224,3 +224,17 @@ test("the cipher library has a readable first document while its published recor
   assert.doesNotMatch(html, /<ul/);
   assert.ok(html.includes(encodeURIComponent("מחקר")));
 });
+
+test("the clean gallery catalog serves its own visible title and intro without any read", async () => {
+  let reads = 0;
+  const fetchImpl = () => { reads++; throw new Error("unexpected gallery metadata read"); };
+  const facts = await firstWordsFacts2029("/gallery", { fetchImpl });
+  const html = firstWordsHtml2029(facts);
+  assert.match(html, /<h1>גלריות רמזי הגאולה<\/h1>/);
+  assert.match(html, /האוספים ההיסטוריים/);
+  assert.match(html, /href="\/world"/);
+  for (const search of ["?gallery=87", "?q=test", "?image=selected", "?source=private"]) {
+    assert.equal(await firstWordsFacts2029("/gallery", { search, fetchImpl }), null);
+  }
+  assert.equal(reads, 0);
+});

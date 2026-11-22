@@ -12,6 +12,7 @@
 //    other visitors' searches (Traffic Intelligence). While the reader is not available, the block is simply absent. No second source.
 //  - Never throws and never delays the document beyond its small deadline: on any failure the answer is today's document.
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
+import { GALLERY_CATALOG_INTRO } from "../src/lib/galleryCatalogIntro2029.js";
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
 import { CALCULATOR_PRO_PATH, CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
@@ -33,7 +34,7 @@ export const FIRST_WORDS_DATA_PAGE_GRACE_MS = 1200;
 // The home page's words are fixed wording only (ZURIEL 21.11.2026, #1470): no read, so they are never missing, even on a cold instance.
 export function firstWordsStaticFacts2029(path) {
   const family = firstWordsFamily2029(path), kind = family?.kind;
-  if (kind === "home") return { kind };
+  if (kind === "gallery" || kind === "home") return { kind };
   if (kind === "codes") return { ...family, codes: [] };
   return kind === "gematria" || kind === "community-calculator" ? { kind, recent: [], picked: [], pickedThisWeek: false } : null;
 }
@@ -135,6 +136,7 @@ export function firstWordsFamily2029(path) {
   let decoded;
   try { decoded = decodeURIComponent(path).replace(/\/+$/, "") || "/"; } catch { return null; }
   if (decoded === "/") return { kind: "home" };
+  if (decoded === "/gallery") return { kind: "gallery" };
   if (decoded === "/gematria") return { kind: "gematria" };
   if (decoded === "/community/calculator") return { kind: "community-calculator" };
   if (decoded === "/codes") return { kind: "codes" };
@@ -189,7 +191,7 @@ export async function firstWordsFacts2029(path, { search = "", fetchImpl = globa
   const family = search ? null : firstWordsFamily2029(path);
   // Detail metadata admits the exact record. Pagination metadata reads the requested slice.
   if (family?.kind === "code") return null;
-  if (family?.kind === "home") return { kind: "home" };
+  if (family?.kind === "gallery" || family?.kind === "home") return family;
   if (!family || typeof fetchImpl !== "function") return null;
   try {
     const key = JSON.stringify(family), entry = kept.get(key), age = entry ? now() - entry.at : Infinity;
@@ -207,6 +209,9 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "gallery") {
+    return `<h1>${esc(GALLERY_CATALOG_INTRO.heading)}</h1><p>${esc(GALLERY_CATALOG_INTRO.description)}</p><p><a href="/world">חזרה לעולם ←</a></p>`;
+  }
   if (facts.kind === "home") {
     const words = HOME_FIRST_WORDS;
     // Exact wording; the series line and the start line are links to destinations that exist today. The start items are inline

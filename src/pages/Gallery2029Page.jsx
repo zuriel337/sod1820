@@ -1,3 +1,4 @@
+import { GALLERY_CATALOG_INTRO } from "../lib/galleryCatalogIntro2029.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
@@ -127,7 +128,7 @@ function GalleryCatalogBody() {
     </section> : null}
     <article className="g29-gallery g29-catalog" id="gallery-catalog" dir="rtl">
     <header className="g29-heading"><div className="g29-heading-line"><div><p className="g29-eyebrow">סוד 1820 · מבט בתמונות</p>
-      <h2>גלריות רמזי הגאולה</h2></div></div><p className="g29-intro">האוספים ההיסטוריים — סיפורים, מספרים ותמונות שנאספו לאורך השנים. כברירת מחדל, הפעילות האחרונה מופיעה ראשונה; אפשר לבחור גם בעדכוני המקור או בסדר ההיסטורי.</p>
+      <h1>{GALLERY_CATALOG_INTRO.heading}</h1></div></div><p className="g29-intro">{GALLERY_CATALOG_INTRO.description}</p>
       <Link className="g29-text-link" to="/world">חזרה לעולם ←</Link></header>
     <GalleryReadingControls reading={reading} search={location.search} onChange={href=>navigate(href,{replace:true})} onRefresh={()=>setRetry(n=>n+1)} />
     {state.status === 'loading' ? <FrameState kind="loading" title="פותחים את הגלריות">טוענים את הגלריות הזמינות לעיון.</FrameState> : null}
@@ -412,7 +413,7 @@ function GalleryBody() {
     <header className="g29-heading">
       <nav className="g29-breadcrumb" aria-label="מיקום בגלריות"><Link to="/world">העולם</Link><span aria-hidden="true">/</span><Link to="/world?view=gallery">כל הגלריות</Link></nav>
       <div className="g29-heading-line"><div><p className="g29-eyebrow">סוד 1820 · מבט בתמונות</p>
-        <h2>{title}</h2></div><svg className="g29-gallery-mark" width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">
+        <h1>{title}</h1></div><svg className="g29-gallery-mark" width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">
           <rect x="11" y="7" width="45" height="48" rx="7" transform="rotate(-8 11 7)" /><rect x="17" y="16" width="45" height="48" rx="7" />
           <circle cx="46" cy="31" r="5" /><path d="m23 53 12-14 9 9 6-6 7 11" />
         </svg></div>
