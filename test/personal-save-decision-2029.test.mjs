@@ -43,13 +43,26 @@ test('local-only item (cloud was off) reaches the server on re-save, and nothing
   assert.equal(runtime.getSnapshot().saved.length, 1);
 });
 
-test('blocked sessionStorage: commit fails but the item stays queued and syncs once storage works', async () => {
+test('blocked sessionStorage no longer strands the item: it syncs and is confirmed', async () => {
   const session = new Store(); session.fail = true;
   const { runtime, server } = make({ session, cloudEnabled: true }); await tick();
+  assert.equal(upsert(runtime), true);
+  await tick(); await tick(); await tick();
+  assert.equal(server.items.length, 1);
+  assert.equal(decideSaveClick({ saved: true, ...pick(runtime) }), 'confirm');
+});
+test('blocked durable storage keeps the item queued (fail-closed) and retry works once storage recovers', async () => {
+  const storage = new Store();
+  const server = { rev: 0, items: [] };
+  const runtime = createResearchSyncRuntime({ userId: 'U', storage, session: new Store(), delay: 1, resumePendingOnStart: false, cloudEnabled: true,
+    readCloud: async () => ({ ...emptyResearchState(), saved: [...server.items], revision: server.rev }),
+    writeCloud: async (_u, ops, { batchId }) => { server.items = applyResearchOps({ ...emptyResearchState(), saved: server.items }, ops).saved; server.rev++;
+      return { ok: true, batch_id: batchId, applied_revision: server.rev, snapshot: { ...emptyResearchState(), saved: server.items, revision: server.rev } }; } });
+  runtime.start(); await tick();
+  storage.fail = true;
   assert.equal(upsert(runtime), false);
-  assert.equal(runtime.getSnapshot().saved.length, 1);
   assert.equal(decideSaveClick({ saved: true, ...pick(runtime) }), 'retry');
-  session.fail = false;
+  storage.fail = false;
   assert.equal(await runtime.retry(), true); await tick(); await tick();
   assert.equal(server.items.length, 1);
   assert.equal(decideSaveClick({ saved: true, ...pick(runtime) }), 'confirm');

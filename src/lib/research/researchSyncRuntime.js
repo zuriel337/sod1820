@@ -210,7 +210,12 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         // session Context, so it may resume the same principal's private cloud Context. This is
         // what lets an exact-SHA Preview change without making the user's Life Journey disappear.
         const hydratedContext = state.context ?? (hasQueuedContextIntent ? null : cloudContext);
-        state = { ...applyResearchOps(cloud, queue.flatMap(b => b.ops)), context: hydratedContext };
+        // Local items the account has not confirmed are set aside (never dropped, never auto-synced) before the replacement.
+        if (state.saved.length || state.cart.length || state.pinned.length) {
+          (await lazyLocalOnly()).preserve({ ...localOnlyContext(), local: state, after: applyResearchOps(cloud, queue.flatMap(b => b.ops)) });
+          if (!active || generation !== epoch) return;
+        }
+        state = { ...applyResearchOps(cloud, queue.flatMap(b => b.ops)), context: state.context ?? hydratedContext };
         cloudReady = true; status = queue.length ? 'pending' : 'synced';
         persist(); notify();
       } catch (e) { if (active && generation === epoch) { cloudReady = false; markError(e); } }
@@ -322,6 +327,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       return cloudReady;
     } catch (e) { markError(e); return false; }
   }
+  const lazyLocalOnly = () => import('./researchLocalOnly.js'), localOnlyContext = () => ({ storage, key, principal, current: state });
   notify();
   return {
     principal, getSnapshot: () => snapshot,
@@ -364,6 +370,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     },
     commit, flush, retry, resolveConflict, recoverJournal, heartbeat, release,
     listRecoveryJournals,
+    localOnly: async (op, o) => (await lazyLocalOnly()).api[op]({ ...o, ...localOnlyContext(), commit, live: active && !disabled && cloudEnabled && !!userId }),
     setMode(value) { if (!active || disabled) return; mode = value === 'discovery' ? 'discovery' : 'reader'; persist(); notify(); },
     // Export is caller-initiated, principal-bound and never publishes or auto-adopts unscoped v1 data.
     exportPending: () => clone({ principal, revision, queue, inflight }),
