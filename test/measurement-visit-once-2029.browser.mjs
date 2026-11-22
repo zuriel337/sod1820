@@ -166,11 +166,11 @@ for (const [profile, options] of Object.entries(PROFILES)) for (const identity o
       const context = await browser.newContext({ ...options, ignoreHTTPSErrors: true });
       await context.addCookies([{ name: 'vb', value: 'browser', domain: 'sod1820.co.il', path: '/', secure: true }]);
       // Observe the GA command before transport. The mapped fixture cannot send traffic to Google.
-      await context.exposeFunction('observeNumberView', (path) => ga.push(path));
+      await context.exposeFunction('observeNumberView', (view) => ga.push(view));
       await context.addInitScript(() => {
         const layer = window.dataLayer = [];
         layer.push = function (...commands) {
-          for (const cmd of commands) if (cmd[0] === 'event' && cmd[1] === 'page_view') window.observeNumberView(cmd[2].page_path);
+          for (const cmd of commands) if (cmd[0] === 'event' && cmd[1] === 'page_view') window.observeNumberView({path: cmd[2].page_path, title: cmd[2].page_title});
           return Array.prototype.push.apply(this, commands);
         };
       });
@@ -187,7 +187,7 @@ for (const [profile, options] of Object.entries(PROFILES)) for (const identity o
         while ((views.length === before || (checkGA && ga.length === gaBefore)) && Date.now() < deadline) await page.waitForTimeout(200);
         await page.waitForTimeout(250);
         assert.deepEqual(views.slice(before).map(v => v.p_props.measurement.page_path), [path], label);
-        if (checkGA && path.startsWith('/number/')) assert.deepEqual(ga.slice(gaBefore), [path], 'GA4 ' + label);
+        if (checkGA && path.startsWith('/number/')) assert.deepEqual(ga.slice(gaBefore), [{path, title: path.split('/').pop() + ' · דף המספר · SOD1820'}], 'GA4 ' + label);
         assert.ok(views.slice(before).every(v => v.p_is_bot === false), label);
       };
       await step('Google landing', () => page.goto(fixture.origin + '/number/533', { referer: 'https://www.google.com/', waitUntil: 'domcontentloaded' }), '/number/533');
