@@ -1,4 +1,3 @@
-import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { recordSiteActivity } from "../lib/siteActivity2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
@@ -6,6 +5,7 @@ import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/r
 import React, { useEffect, useMemo, useRef, useState } from "react";
 // Finding share (ZURIEL 18.11.2026): a small button inside this (already lazy) page; the share actions load when the sheet opens.
 import FindingShare2029 from "../components/experience2029/FindingShare2029.jsx";
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
