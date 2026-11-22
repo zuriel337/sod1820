@@ -266,8 +266,9 @@ function GalleryBody() {
   const [passed,setPassed]=useState([]);
   useEffect(()=>{setPassed([]);},[progressScope]);
   const wpGalleryId = /^[1-9]\d*$/.test(galleryId || "") ? Number(galleryId) : null;
-  // An in-gallery anchor is the reader’s last explicit position, including older pool links.
-  const imageId = galleryImageFragment2029(location.hash) ?? params.get("image");
+  // A saved URL can select an image and separately anchor another visible card in its reading window.
+  const anchoredImage = galleryImageFragment2029(location.hash);
+  const imageId = params.get("image") ?? anchoredImage;
   const offsetText = params.get("offset") || "0";
   const offset = /^\d+$/.test(offsetText) ? Number(offsetText) : NaN;
   const routeKey = `${galleryId}:${location.search}:${imageId || ""}`;
@@ -326,7 +327,7 @@ function GalleryBody() {
     if (!imageId && !offset && !location.hash && (flow || !previous || previous === routeKey)) return;
     const frame = requestAnimationFrame(() => {
       // A shared image can be deep in a bounded page even when the URL has no fragment.
-      const target = galleryImageFragment2029(location.hash) ? slotKey : location.hash.slice(1) || (imageId || offset ? slotKey : "gallery-top");
+      const target = anchoredImage ? "gallery-source-" + anchoredImage : location.hash.slice(1) || (imageId || offset ? slotKey : "gallery-top");
       const element = document.getElementById(target) || (imageId ? document.getElementById(slotKey) : null);
       element?.scrollIntoView({ block: "start", behavior: "instant" });
       element?.focus({ preventScroll: true });
@@ -502,7 +503,7 @@ export default function Gallery2029Page() {
       noindex: ["gallery", "image", "q", "source", "tab", "nums"].some((key) => new URLSearchParams(location.search).has(key)), follow: true });
   }, [location.pathname, location.search]);
   const params = new URLSearchParams(location.search);
-  const image = galleryImageFragment2029(location.hash) ?? params.get("image");
+  const image = params.get("image") ?? galleryImageFragment2029(location.hash);
   return <Sod2029Shell surface="world" title="גלריות" introVariant="none">{params.has("gallery") ? <GalleryBody />
     : image ? <GalleryImageLocation key={image} imageId={image} /> : <GalleryCatalogBody />}</Sod2029Shell>;
 }
