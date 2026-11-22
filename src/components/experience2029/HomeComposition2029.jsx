@@ -666,7 +666,7 @@ export default function HomeComposition2029({
 
     {!corePublic ? <Section label="מקורות וכותבים">
       <div className="h29-anchors">
-        <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
+        <Link className="h29-anchor k29-rv" to="/community/researchers"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
         <Link className="h29-anchor k29-rv" to="/2029/posts?series=messages-from-righteous"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
           <span><b>מסרים</b><small>הסדרה המשותפת · המקור נשמר בכל פריט</small></span></Link>

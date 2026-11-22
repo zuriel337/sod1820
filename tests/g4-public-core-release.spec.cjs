@@ -66,6 +66,7 @@ test('2029 Preview Home keeps the adopted page without claiming a public opening
   const cipherAvailability = page.locator('[data-home-availability-map="true"] li').filter({ has: page.locator('a[href="/code"]') });
   await expect(cipherAvailability).toBeVisible();
   await expect(cipherAvailability).toContainText('פתוח לציבור');
+  await expect(page.locator('.h29-anchors a').filter({ hasText: 'הכותבים' })).toHaveAttribute('href', '/community/researchers');
   const availability = page.locator('[data-home-availability-map="true"]');
   for (const [label, path] of [
     ['מחשבון גימטריה מקצועי', '/gematria'],
