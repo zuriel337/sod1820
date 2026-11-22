@@ -10,7 +10,7 @@ test("the menu applies construction badges to preview and respects the World and
   assert.match(frame, /\{ to: "\/world", label: "העולם", symbol: "world", building: true \}/);
   assert.match(frame, /\{ to: "\/els", label: "ELS · הצופן התנ״כי", symbol: "els", building: true \}/);
   assert.match(frame, /\{ to: "\/code", label: "ELS · הצופן התנ״כי", symbol: "els", building: true \}/);
-  assert.ok(frame.includes('item.to === "/world" ? { ...item, locked: worldLocked, building: !PUBLIC_READING_RELEASE }'));
+  assert.ok(frame.includes('item.label === "העולם" ? { ...item, locked: worldLocked, building: !PUBLIC_READING_RELEASE }'));
   assert.ok(frame.includes('(item.to === "/els" || item.to === "/code") ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed), building: !PUBLIC_READING_RELEASE }'));
   // The mark is rendered inside the NavLink (still a link), never as the disabled pending button.
   assert.match(frame, /<span className="sod29-nav-copy">\{item\.label\}<\/span>\s*\{\/\*[^*]*\*\/\}\s*\{item\.building \? <span className="sod29-nav-building">בבנייה<\/span> : null\}\s*<\/NavLink>/);
