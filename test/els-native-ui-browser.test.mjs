@@ -2737,7 +2737,8 @@ test('native library: paginated existing records, legacy disclosure and account 
     await button(page,'צפנים שפורסמו').click();
     await page.getByRole('alert').waitFor();
     await page.evaluate(()=>window.__libraryFailure=false);await button(page,'נסה שוב').click();
-    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
+    await page.waitForFunction(() => document.querySelectorAll('.els29-library-card').length === 2);
+    assert.equal(await publicCards.filter({ hasText: 'צופן research' }).count(), 1);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'library fits mobile width');
     assert.deepEqual(errors,[]);
     if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'library-mobile.png'),fullPage:true});
