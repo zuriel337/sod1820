@@ -15,6 +15,10 @@ test("the expanded menu and reader map share unique public sections", () => {
   for (const href of ["/map", "/post", "/world", "/findings", "/archive", "/timeline", "/broadcasts", "/gallery", "/reality", "/books", "/cross", "/languages", "/beit-midrash", "/stats"]) assert.ok(hrefs.includes(href), href);
   for (const href of ["/journey", "/heichal?mode=workspace", "/admin", "/early-access", "/unsubscribe"]) assert.ok(!hrefs.includes(href), href);
   assert.ok(map.includes("/unsubscribe"), "the existing signed mail service still has a help entry");
+  assert.deepEqual(groups.find(group => group.title === "הרצאות").links, [["/category/הרצאות", "קטלוג ההרצאות"]]);
+  for (const oldHref of ["/משיח-בשנת-התשעו", "/משיח-בשנת-התשעו/מתי-שנת-הגאולה", "/הוכחות-לאמיתות-התורה-משמים"]) {
+    assert.ok(!hrefs.includes(oldHref), "historical lecture links stay published but outside navigation");
+  }
 });
 
 test("community distinguishes the live chat from author pages, and tools from their libraries", () => {

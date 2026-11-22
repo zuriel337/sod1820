@@ -1,5 +1,4 @@
 import { siteLinkById } from "../../supabase/functions/_shared/siteLinkRegistry.js";
-import { PUBLIC_HISTORICAL_LECTURE_PATHS } from "./publicReadingRelease2029.js";
 
 function registered(id, label) {
   const link = siteLinkById(id);
@@ -34,17 +33,14 @@ export function publicMapGroups2029(production) {
     ] },
     { title: "שידורים וסרטונים", links: [
       ...(production ? [["/broadcasts", "מרכז השידורים"], ["/post?media=video&view=videos", "כל הסרטונים"],
-        ["/post?media=video", "פוסטים עם וידאו"]] : []),
+        ["/post?media=video", "פוסטים עם וידאו"], ["/melech-hamisparim/718", "מלך המספרים · 718"]] : []),
       ["/or-geula", "אור הגאולה"],
     ] },
     { title: "קהילה", links: [
       registered("or-geula", "הצ׳אט החי"), ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות לפוסטים"],
     ] },
-    ...(production ? [{ title: "הרצאות ודפי מקור", links: [
-      [PUBLIC_HISTORICAL_LECTURE_PATHS[0], "משיח בשנת התשע״ו"],
-      [PUBLIC_HISTORICAL_LECTURE_PATHS[1], "מתי שנת הגאולה"],
-      [PUBLIC_HISTORICAL_LECTURE_PATHS[2], "הוכחות לאמיתות התורה משמים"],
-      ["/melech-hamisparim/718", "מלך המספרים · 718"],
+    ...(production ? [{ title: "הרצאות", links: [
+      ["/category/הרצאות", "קטלוג ההרצאות"],
     ] }] : []),
     { title: "מידע ושירות", links: [
       registered("map"), ...(production ? [["/stats", "נתוני האתר"]] : []),

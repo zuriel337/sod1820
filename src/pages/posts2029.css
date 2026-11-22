@@ -89,3 +89,16 @@
 .sod29-posts-media-switch a[aria-current="page"] { border-color: var(--s29-brand-gold); background: color-mix(in srgb, var(--s29-brand-gold) 14%, transparent); font-weight: 700; }
 .sod29-posts-media-switch a:focus-visible { outline: 2px solid var(--s29-focus, currentColor); outline-offset: 2px; }
 .sod29-posts-media-scope { color: var(--s29-muted); font-size: 14px; margin: 0; }
+
+
+/* On-demand lecture facets: the first category page remains as light as before until opened. */
+.sod29-lecture-facets{margin:18px 0 26px;padding:20px;border:1px solid var(--s29-line);border-radius:18px;background:var(--s29-panel)}
+.sod29-lecture-facets-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.sod29-lecture-facets h2{font-size:clamp(19px,2.6vw,24px);line-height:1.4;margin:0 0 6px;color:var(--s29-ink)}
+.sod29-lecture-facets p{margin:0;color:var(--s29-muted);line-height:1.6}
+.sod29-lecture-facet-controls{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:16px 0}
+.sod29-lecture-facet-controls label{display:grid;gap:6px;flex:1 1 190px;font-size:15px;color:var(--s29-ink)}
+.sod29-lecture-facet-controls select{min-height:44px;width:100%;min-width:0;max-width:100%;border-radius:12px;border:1px solid var(--s29-line-strong);padding:9px 12px;color:var(--s29-ink);background:var(--s29-panel-soft);font:inherit}
+.sod29-lecture-facets-count{margin-block:16px;color:var(--s29-accent-text);font-weight:650}
+.sod29-lecture-facets .sod29-posts-library-grid{margin-top:16px}
+@media(max-width:620px){.sod29-lecture-facets{padding:16px}.sod29-lecture-facet-controls{display:grid;grid-template-columns:minmax(0,1fr)}}
