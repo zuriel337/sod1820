@@ -87,6 +87,76 @@ function SeriesEntrances2029({ activeKey, search = "", onRead, refreshKey = 0 })
   </section>;
 }
 
+// The lecture catalog facets operate only on public, validated category pages.
+// Publisher placeholders are not lecturers; only an attributed byline or a
+// single recognised source tag identifies the speaker.
+const LECTURE_SPEAKER_TAGS_2029 = [
+  "לוי סודרי", "יעקב קירש", "אלון לוי", "הרב דינוביץ", "הרב יצחק כהן",
+  "הרב אריק נווה", "אריק נווה", "הרב אליהו גודלבסקי", "פרופסור ריפס",
+  "הרב יורם מיכאל אברג'ל זצוק״ל", "הרב שמעון דהן",
+];
+const NON_SPEAKER_BYLINES_2029 = new Set(["", "מזכה הרבים", "מערכת", "צוות האתר"]);
+const LECTURE_TOPIC_EXCLUDE_2029 = new Set(["הרצאות", "וידאו", "משיח בתשע״ו", 'משיח בתשע"ו']);
+function lectureSpeaker2029(post) {
+  const byline = String(post?.author || "").trim();
+  if (!NON_SPEAKER_BYLINES_2029.has(byline)) return byline;
+  const named = (post?.tags || []).filter(tag => LECTURE_SPEAKER_TAGS_2029.includes(tag));
+  return named.length === 1 ? named[0] : null;
+}
+function LectureFacetedCatalogue2029({ scope, onFilterChange }) {
+  const [opened, setOpened] = useState(false);
+  const [result, setResult] = useState({ loading: false, posts: [], error: "" });
+  const [topic, setTopic] = useState("");
+  const [speaker, setSpeaker] = useState("");
+  useEffect(() => {
+    if (!opened) return undefined;
+    const controller = new AbortController();
+    let active = true;
+    setResult({ loading: true, posts: [], error: "" });
+    (async () => {
+      const first = await fetchPostsCatalog2029({ scope, page: 1, signal: controller.signal });
+      const pages = Math.ceil(first.total / 24);
+      if (pages > 4) throw new Error("קטלוג ההרצאות גדל ונדרשת הרחבת העימוד לפני סינון מלא.");
+      const all = [...first.posts];
+      for (let page = 2; page <= pages; page++) {
+        const next = await fetchPostsCatalog2029({ scope, page, signal: controller.signal });
+        if (next.total !== first.total) throw new Error("הרשימה השתנתה במהלך הקריאה; יש לנסות מחדש.");
+        all.push(...next.posts);
+      }
+      if (all.length !== first.total) throw new Error("לא התקבלו כל ההרצאות הציבוריות.");
+      if (active) setResult({ loading: false, posts: all, error: "" });
+    })().catch(error => {
+      if (active && error?.name !== "AbortError") setResult({ loading: false, posts: [], error: "לא ניתן לטעון את הקטלוג המלא כרגע." });
+    });
+    return () => { active = false; controller.abort(); };
+  }, [opened, scope.kind, scope.key]);
+  const topics = useMemo(() => [...new Set(result.posts.flatMap(post =>
+    (post.categories || []).filter(name => !LECTURE_TOPIC_EXCLUDE_2029.has(name))))].sort((a,b) => a.localeCompare(b,"he")), [result.posts]);
+  const speakers = useMemo(() => [...new Set(result.posts.map(lectureSpeaker2029).filter(Boolean))]
+    .sort((a,b) => a.localeCompare(b,"he")), [result.posts]);
+  const selected = Boolean(topic || speaker);
+  useEffect(() => { onFilterChange(selected); return () => onFilterChange(false); }, [selected, onFilterChange]);
+  const filtered = result.posts.filter(post => (!topic || post.categories?.includes(topic)) && (!speaker || lectureSpeaker2029(post) === speaker));
+  return <section className="sod29-lecture-facets" aria-label="קטלוג לפי נושא ומרצה">
+    <div className="sod29-lecture-facets-heading">
+      <div><h2>לגלות הרצאות לפי נושא או מרצה</h2><p>סינון לפי שיוכים קיימים בפוסטים — בלי שינוי במקורות.</p></div>
+      {!opened ? <button type="button" onClick={() => setOpened(true)}>פתח את הקטלוג</button> : null}
+    </div>
+    {opened && result.loading ? <p role="status">קורא את רשימת ההרצאות הציבוריות…</p> : null}
+    {opened && result.error ? <p role="alert">{result.error}</p> : null}
+    {opened && !result.loading && !result.error ? <>
+      <div className="sod29-lecture-facet-controls">
+        <label>נושא<select value={topic} onChange={e => setTopic(e.target.value)}><option value="">כל הנושאים</option>{topics.map(name => <option key={name} value={name}>{name}</option>)}</select></label>
+        <label>מרצה<select value={speaker} onChange={e => setSpeaker(e.target.value)}><option value="">כל המרצים</option>{speakers.map(name => <option key={name} value={name}>{name}</option>)}</select></label>
+        {selected ? <button type="button" onClick={() => {setTopic("");setSpeaker("");}}>נקה סינון</button> : null}
+      </div>
+      {selected ? <div role="status" className="sod29-lecture-facets-count">{filtered.length} הרצאות מתאימות</div> : <p>בחרו נושא או מרצה לצפייה בתוצאות. הרשימה המלאה מופיעה בהמשך.</p>}
+      {selected && filtered.length > 0 ? <div className="sod29-posts-library-grid">{filtered.map((post,index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}</div> : null}
+      {selected && !filtered.length ? <p>אין הרצאות המשלבות את שתי הבחירות. אפשר לנקות אחד מהמסננים.</p> : null}
+    </> : null}
+  </section>;
+}
+
 function PostIndexCard({ post, index, seriesItem = null, publicationOrder = false }) {
   const title = humanContentTitle(seriesItem?.title || post?.title, { max: 0 });
   const excerpt = stripHtml(seriesItem?.excerpt || post?.excerpt || post?.content || "").slice(0, 180);
@@ -291,6 +361,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
   const updateSearchParams = onSearchParams || setSearchParams;
   const mixedSeries = scope.kind === "series" && Boolean(scope.spec?.approvedSources?.length);
   const search = searchParams.get("q") || "";
+  const [lectureFiltering, setLectureFiltering] = useState(false);
   const [draftSearch, setDraftSearch] = useState(search);
   useEffect(() => { setDraftSearch(search); }, [search]);
   const lectureCatalog = isTaxonomy && scope.kind === "category" && scope.key === "הרצאות";
@@ -466,6 +537,8 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
         </div>
       </header>
 
+      {lectureCatalog && page === 1 && !search ? <LectureFacetedCatalogue2029 scope={scope} onFilterChange={setLectureFiltering} /> : null}
+
       <form className="sod29-posts-search" role="search" aria-label={isTaxonomy ? `חיפוש פוסטים ב${taxonomyLabel}` : "חיפוש פוסטים וסדרות"} onSubmit={submitSearch}>
         <label htmlFor="posts-search"><NavigationIcon2029 name="search" size={20} /> {isTaxonomy ? `חיפוש לפי כותרת בתוך ה${taxonomyLabel}` : "חיפוש לפי כותרת פוסט או שם סדרה"}</label>
         <div><input id="posts-search" type="search" value={draftSearch} maxLength={120} onChange={event => setDraftSearch(event.target.value)} placeholder={isTaxonomy ? "איזה פוסט תרצו למצוא?" : "מה תרצו לקרוא?"} dir="auto" /><button type="submit">חיפוש</button></div>
@@ -499,7 +572,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
         </FrameState>
         : null}
 
-      {hasItems ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label={mixedSeries ? "פוסטים ומקורות בסדרה" : "פוסטים"} data-posts-page={page}>
+      {!lectureFiltering && hasItems ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label={mixedSeries ? "פוסטים ומקורות בסדרה" : "פוסטים"} data-posts-page={page}>
         <div className="sod29-posts-library-stage-head">
           <h2>{lectureCatalog ? search ? "הרצאות שנמצאו" : "קטלוג ההרצאות" : mixedSeries ? "הפוסטים והמקורות בסדרה" : isTaxonomy ? search ? "הפוסטים שנמצאו" : `הפוסטים ב${taxonomyLabel}` : scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
           <span><bdi className="sod29-posts-numeric">{state.total}</bdi> {mixedSeries && state.sourceTotal != null ? "פריטים" : "פוסטים"} · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
