@@ -288,12 +288,7 @@ function HistoricalLecturesContent() {
       <p className="sod29-reading-deck">תוכן המקור משנת {new Date(page.publishedAt).getUTCFullYear()} נשמר כאן כפי שפורסם. המועדים והטענות שבו שייכים למקור ההיסטורי. לכל הרצאה יש גם קישור ישיר לאתר המקור.</p>
       <details className="sod29-post-details"><summary>מקור וגרסת הקריאה</summary><p>הטקסט שוחזר מעותק ציבורי מתוארך מ־{bilingualDateLabel(page.capturedAt)}, ונמצא זהה בעותק נוסף.</p><a href={page.archiveUrl} target="_blank" rel="noopener noreferrer">לעותק המקור המתוארך ↗</a></details>
     </header>
-    <div className="sod29-reading-layout"><section className="sod29-reading-source" aria-label="תוכן ההרצאות המקורי" onToggleCapture={event => {
-      const details = event.target;
-      if (details.tagName !== "DETAILS" || !details.open) return;
-      const frame = details.querySelector("iframe[data-video-src]");
-      if (frame && !frame.hasAttribute("src")) frame.src = frame.dataset.videoSrc;
-    }} dangerouslySetInnerHTML={{__html:html}} /></div>
+    <div className="sod29-reading-layout"><section className="sod29-reading-source" aria-label="תוכן ההרצאות המקורי" dangerouslySetInnerHTML={{__html:html}} /></div>
   </article>;
 }
 

@@ -268,15 +268,16 @@ test("continuation module is server-importable and UI mounts no legacy activity 
     assert.doesNotMatch(String(record.html), /<svg|<math|xlink|formaction|javascript:|<script|srcdoc|[\s"'\/]on[a-z]+\s*=/i, `bundled lecture ${record.path} carries active content the denylist sanitiser does not remove`);
   }
   // ... and the adapter still neutralises active content: it removes script/object/embed/form/base/link/meta,
-  // strips every on* handler and srcdoc, keeps only YouTube-identified frames (lazy, no-referrer, sandboxed,
-  // src withheld until the viewer opens them) and drops non-http(s) link targets.
+  // strips every on* handler and srcdoc, keeps only recognised YouTube IDs in lazy, sandboxed,
+  // inline players and drops non-http(s) link targets.
   assert.match(helper, /querySelectorAll\("script,style,object,embed,form,base,link,meta"\)\) unsafe\.remove\(\)/);
   assert.match(helper, /\/\^on\/i\.test\(attr\.name\) \|\| attr\.name === "srcdoc"\) node\.removeAttribute\(attr\.name\)/);
   assert.match(helper, /if \(!item\) \{ frame\.remove\(\); continue; \}/);
   assert.match(helper, /\[A-Za-z0-9_-\]\{11\}/);
-  assert.match(helper, /frame\.setAttribute\("referrerpolicy","no-referrer"\)/);
-  assert.match(helper, /frame\.setAttribute\("sandbox","/);
-  assert.match(helper, /frame\.removeAttribute\("src"\); frame\.dataset\.videoSrc=embed\.href/);
+  assert.match(helper, /frame\.loading = "lazy"/);
+  assert.match(helper, /frame\.setAttribute\("sandbox", "allow-scripts allow-same-origin allow-presentation"\)/);
+  assert.match(helper, /frame\.src = `https:\/\/www\.youtube\.com\/embed\/\$\{id\}`/);
+  assert.match(helper, /fragment\.append\(text\.textContent\.slice\(offset,match\.index\),wrapper\)/);
   assert.match(helper, /!\/\^https\?:\$\/\.test\(url\.protocol\) \|\| url\.username \|\| url\.password\) link\.removeAttribute\("href"\)/);
   assert.match(page, /openIssueReport\(\)/);
   assert.match(page, /controller\.abort\(\)/);
