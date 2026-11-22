@@ -30,10 +30,10 @@ async function mount(t, overrides = {}) {
 }
 const checkboxes = root => root.root.findAll(node => node.type === 'input' && node.props.type === 'checkbox');
 
-test('new save requests publication by default, explains dossier vs library, and offers an explicit private choice', async t => {
+test('new save requests publication by default, explains guest library access, and offers an explicit private choice', async t => {
   const f = await mount(t);
-  assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל אפשר לשתף קישור לצופן/);
-  assert.match(JSON.stringify(f.root.toJSON()), /ההוספה לספריית האתר כפופה לאישור/);
+  assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל הצופן יפורסם בספריית הצפנים/);
+  assert.match(JSON.stringify(f.root.toJSON()), /כדי שרק אתם תוכלו לפתוח אותו/);
   assert.equal(checkboxes(f.root)[0].props.checked, false);
   await f.submit();
   assert.deepEqual(f.saves[0], { title: 'תורה', desc: state.provenance.desc, isPublic: true });
@@ -92,4 +92,15 @@ test('public form respects the server limit and preserves an overlong descriptio
   await act(async () => input.props.onChange({ target: { value: 'א'.repeat(4000) } }));
   await f.submit();
   assert.equal(f.saves[0].desc.length, 4000);
+});
+
+test('only confirmed public receipts link to the exact reading address', async t => {
+  const f = await mount(t);
+  for (const [status, visibility, expected] of [
+    ['draft', 'private', false], ['pending', 'private', false], ['published', 'public', true],
+  ]) {
+    await f.update({ result: { ok: true, row: { status, visibility, slug: 'בדיקה-2' } } });
+    const links = f.root.root.findAll(node => node.type === 'a' && node.props.href === '/codes/' + encodeURIComponent('בדיקה-2'));
+    assert.equal(links.length, Number(expected));
+  }
 });

@@ -26,7 +26,7 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
 
   return <div className="els29-native-rail-scroll els29-native-save" hidden={!visible}>
     <strong>{updating ? "עדכון הממצא השמור" : "שמירת הצופן"}</strong>
-    <p className="els29-native-muted">{updating ? "הממצאים וההסבר יעדכנו את אותה רשומה, שנשארת פרטית." : copying ? "הצופן המקורי נשאר בידי מי ששמר אותו. השמירה יוצרת עותק משלך." : "השמירה כוללת את הציר, הממצאים והגדרות התצוגה. כברירת מחדל אפשר לשתף קישור לצופן. אם יש לך דף כותב ציבורי, הצופן יופיע גם בו. ההוספה לספריית האתר כפופה לאישור."}</p>
+    <p className="els29-native-muted">{updating ? "הממצאים וההסבר יעדכנו את אותה רשומה, שנשארת פרטית." : copying ? "הצופן המקורי נשאר בידי מי ששמר אותו. השמירה יוצרת עותק משלך." : "השמירה כוללת את הציר, הממצאים והגדרות התצוגה. כברירת מחדל הצופן יפורסם בספריית הצפנים וכל אדם יוכל לפתוח ולשתף אותו. כדי שרק אתם תוכלו לפתוח אותו, בחרו לשמור פרטי."}</p>
     {!user ? <div className="els29-native-save-guest">
       <p className="els29-native-muted">אפשר לחפש ולבדוק צפנים בלי חשבון. כדי לשמור צופן ולחזור אליו, צריך להיכנס או להירשם.</p>
       <a className="sod29-action primary" href="/login">היכנסו לחשבון כדי לשמור</a>
@@ -44,7 +44,7 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
       {!ready ? <small>בחרו מופע מאומת במטריצה כדי לשמור.</small> : null}
     </form>}
     {result ? <div role={result.ok ? "status" : "alert"} className="els29-native-save-result">
-      {result.ok ? <>{result.status === "updated" ? "הממצא השמור עודכן." : result.row?.status === "published" ? "הצופן נשמר ופורסם בספריית האתר." : result.row?.self_published ? "הצופן נשמר ואפשר לשתף את הקישור. הוא ממתין לאישור בספריית האתר." : result.row?.visibility === "private" ? "הצופן נשמר בענן, פרטי." : "הצופן נשמר בענן."}<a href={savedMatrixWorkspaceHref(result.row || { id: result.id })}>פתח את הצופן השמור</a></>
+      {result.ok ? <>{result.status === "updated" ? "הממצא השמור עודכן." : result.row?.status === "published" ? "הצופן נשמר ופורסם בספריית האתר." : result.row?.self_published ? "הצופן נשמר ואפשר לשתף את הקישור. הוא ממתין לאישור בספריית האתר." : result.row?.visibility === "private" ? "הצופן נשמר בענן, פרטי." : "הצופן נשמר בענן."}<a href={savedMatrixWorkspaceHref(result.row || { id: result.id })}>פתח את הצופן השמור</a>{result.row?.status === "published" && result.row?.visibility === "public" && result.row?.slug ? <a href={`/codes/${encodeURIComponent(result.row.slug)}`}>לקריאת הצופן בספרייה</a> : null}</>
         : result.error === "selection_changed" ? "הממצא השתנה בזמן השמירה. נסו לשמור את הממצא הנוכחי."
         : result.error === "auth_required" ? "נדרשת התחברות לחשבון כדי לשמור."
         : "השמירה לא הושלמה. ההסבר נשאר כאן — אפשר לנסות שוב."}

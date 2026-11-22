@@ -335,13 +335,14 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           postToTool({ type: "saved", ok: true, status: row.status || "saved" });
           completeNative({ ok: true, id, row, status: row.status || "saved" }); return;
         }
-        const st = privateSave ? "draft" : isAdmin ? "published" : (isReSave ? "variant" : "pending");
+        const receipt = privateSave ? null : await getMatrixById(id).catch(() => null);
+        const st = privateSave ? "draft" : receipt?.status === "pending" && isReSave ? "variant" : receipt?.status || "saved";
         postToTool({ type: "saved", ok: true, status: st });
         // 🎉 כניסה 1: אחרי השמירה הראשונה — מודל-חגיגה להכנת-תיק. אחרת: טוסט-שמירה חוזר עם קישור לדף-המחקר.
         let firstTime = false;
         try { firstTime = !localStorage.getItem("sod_dossier_prompted_v1"); if (firstTime) localStorage.setItem("sod_dossier_prompted_v1", "1"); } catch { /* noop */ }
         if (firstTime && !privateSave) setDossierPrompt(true); else setSavedToast({ status: st });
-        if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
+        if (st === "published") pushSavedMatrices();
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
         await saveMatrixAnon({ ...common, visitorId: getVisitorId(), authorName: d.author || null });
@@ -769,9 +770,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
               <div style={{ fontFamily: "'Frank Ruhl Libre',serif", fontWeight: 800, fontSize: 14.5, lineHeight: 1.3 }}>
                 {savedToast.status === "updated" ? "עודכן בתיק המחקר שלך"
                   : savedToast.status === "draft" ? "נשמר אצלך באופן פרטי — לא נשלח לפרסום"
-                  : savedToast.status === "published" ? "פורסם לתיק המחקר — גלוי לחוקרים"
+                  : savedToast.status === "published" ? "הצופן פורסם בספריית הצפנים"
                   : savedToast.status === "variant" ? "נשמר כגרסה — ממתין לאישור"
-                  : "נשמר לתיק המחקר שלך — ממתין לאישור לפומבי"}
+                  : savedToast.status === "pending" ? "הצופן נשמר וממתין לאישור" : "הצופן נשמר בחשבון שלך"}
               </div>
               <div style={{ color: "#9fb2e6", fontSize: 11.5, marginTop: 1 }}>הצופן שמור בדף החוקר שלך.</div>
             </div>
