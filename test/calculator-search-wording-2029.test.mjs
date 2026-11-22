@@ -20,6 +20,10 @@ test("both calculators open with the phrase people search, fit a result line, an
     assert.doesNotMatch(JSON.stringify(seo), /2029|קנוני|מנוע|פנקס|מצב מורחב|קיר הגימטריה|\bAI\b|בינה מלאכותית|8 שיטות/);
   }
   assert.notEqual(CALCULATOR_PRO_SEO.title, COMMUNITY_CALCULATOR_SEO.title);
+  for (const text of [CALCULATOR_PRO_SEO.title, CALCULATOR_PRO_SEO.heading, CALCULATOR_PRO_SEO.description]) {
+    assert.match(text, /^מחשבון גימטריה מקצועי/);
+  }
+  assert.match(COMMUNITY_CALCULATOR_SEO.description, /הקהילה/);
   assert.match(COMMUNITY_CALCULATOR_SEO.title, /לשמות/, "the community calculator owns the names searches");
   assert.doesNotMatch(CALCULATOR_PRO_SEO.title, /לשמות/, "the main calculator owns the general search");
 });

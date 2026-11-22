@@ -17,7 +17,7 @@ export const COMMUNITY_CALCULATOR_SITE_NAME = "SOD1820";
 // The day the public content of this page (title, wording, visible explanation) last changed. The sitemap publishes it as <lastmod>: Google's last
 // visit (4.11.2026) saw the page as noindex, and an honest, later date is the only signal the sitemap can give that the page is worth a new visit.
 // Move it forward only when the public content really changes; it is not a build date.
-export const COMMUNITY_CALCULATOR_LASTMOD = "2026-11-20";
+export const COMMUNITY_CALCULATOR_LASTMOD = "2026-11-22";
 
 // 20.11.2026 (ZURIEL, from Search Console 17.6–17.11.2026): the page ranked on names and play, not on the general phrase. "מחשבון גימטריה"
 // 11,361 impressions at position 8.0 and 0.4% clicks; "מחשבון גימטריה שמות" 484 at 5.0 and 5%; "מחשבון גימטריה מצחיק" 125 at 2.8 and 28%;
@@ -26,7 +26,7 @@ export const COMMUNITY_CALCULATOR_LASTMOD = "2026-11-20";
 // `title` is the page title WITHOUT the site name (applySeo and api/og.js both append " · SOD1820").
 export const COMMUNITY_CALCULATOR_SEO = Object.freeze({
   title: "מחשבון גימטריה לשמות — מה השם שלך שווה?",
-  description: "מחשבון גימטריה לשמות: מה השם שלך שווה ולמי הוא שווה? חישוב כל שם ברגיל, מילוי, מסתתר וגדול, ביטויים מאומתים באותו ערך, ושני שמות ביחד.",
+  description: "מחשבון גימטריה לשמות של הקהילה. מה השם שלך שווה ולמי הוא שווה? חשבו שם בארבע שיטות, מצאו ביטויים מאומתים באותו ערך והשוו בין שני שמות.",
   heading: "מחשבון גימטריה לשמות",
   hook: "מה השם שלך שווה, ולמי הוא שווה?",
   introHeading: "מחשבון גימטריה לכל שם, מילה וביטוי",
