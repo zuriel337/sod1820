@@ -8,10 +8,9 @@ test("the public never gets the admin list; an admin gets every closed destinati
   for (const viewer of [false, null, undefined, "true", 1]) assert.deepEqual(adminOpenClosedDestinations(viewer), []);
   const list = adminOpenClosedDestinations(true);
   const labels = list.map((item) => item.label);
-  // Still closed to the public and opened for the administrator: the personal research area.
-  for (const wanted of ["המחקר שלי"]) assert.ok(labels.includes(wanted), wanted);
+  for (const future of ["היכל", "המחקר שלי"]) assert.ok(!labels.includes(future), future);
   // ZURIEL opened the Bible code (Classic) and the Beit Midrash to everyone (5.11.2026): they are not "still closed", so the administrator list must not offer them.
-  for (const opened of ["היכל", "דילוגי אותיות", "בית המדרש"]) assert.ok(!labels.includes(opened), `${opened} is open to the public and is not offered as a closed destination`);
+  for (const opened of ["דילוגי אותיות", "בית המדרש"]) assert.ok(!labels.includes(opened), `${opened} is open to the public and is not offered as a closed destination`);
   // Everything offered is closed for the public and admin-view for the administrator, by the same router the pages use (no private list).
   for (const item of list) {
     assert.equal(publicReadingPath(item.href.split("#")[0], { isAdmin: false }), "closed", `${item.label} is closed for the public`);

@@ -1,4 +1,4 @@
-import { HEICHAL_RESEARCH_ENTRY } from "../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { recordSiteActivity } from "../lib/siteActivity2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
@@ -1363,7 +1363,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         rootOpeningState={focusExplicit && focusExpression && focusResult == null
           ? methodProfileState.error ? "failed" : "pending" : "ready"}
         onOpenWorld={() => openWorld()}
-        onOpenHeichal={() => shell.go(HEICHAL_RESEARCH_ENTRY)}
+        onOpenHeichal={PUBLIC_READING_RELEASE ? undefined : () => shell.go("/heichal")}
         onOpenMethodLesson={openMethodLesson}
         onOpenJourney={continueJourney}
         journeyLabel={research.context?.dimensions?.journey2029Active ? "המשך במסע" : GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNEY_878.rootValue ? "צא למסע 878" : "צא למסע"}
@@ -1432,7 +1432,8 @@ function NumberPageBody({ resolvedAddress = null }) {
       activityCount={activityCount}
       researchState={researchState}
       onOpenWorld={openWorld}
-      onOpenHeichal={(focus) => shell.go(focus?.kind === "els_saved_from_number" ? "/els?library=public" : focus?.kind === "els_new_from_number" ? "/els" : HEICHAL_RESEARCH_ENTRY)}
+      onOpenCipher={kind => shell.go(kind === "els_saved_from_number" ? "/els?library=public" : "/els")}
+      onOpenHeichal={PUBLIC_READING_RELEASE ? undefined : () => shell.go("/heichal")}
       onRazielAction={askRaziel}
       onOpenNumber={(next) => openNumberRoot(next, { preserveFocus: false })}
       onOpenPublicSource={(source) => {

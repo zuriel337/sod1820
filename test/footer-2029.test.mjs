@@ -71,12 +71,12 @@ test("closed routes are shown as under construction, never as active links (publ
   assert.doesNotMatch(html, /<li class="f29-closed"><span>דילוגי אותיות<\/span>/, "the Bible code is not shown as under construction");
 });
 
-test("an admin sees the admin-view routes as working links with a visible admin marker", async () => {
+test("the public release never offers an unfinished Heichal or research workspace to an administrator", async () => {
   const footer = await loadFooter(true);
   const html = render(footer, "/2029/posts");
-  assert.ok(hrefs(html).includes("/research"));
+  assert.ok(!hrefs(html).includes("/research"));
   assert.ok(hrefs(html).includes("/code"));
-  assert.match(html, /<small class="f29-admin">למנהל<\/small>/);
+  assert.doesNotMatch(html, /href="\/heichal"|href="\/research"/);
   assert.match(html, /<li class="f29-closed"><span>ארכיון<\/span>/, "/archive stays closed for admins too");
 });
 

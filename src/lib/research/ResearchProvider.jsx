@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useLayoutEffect, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
-import { requestedHeichalResearch, PUBLIC_READING_RELEASE, publicReadingActionsLocked } from "../publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingActionsLocked } from "../publicReadingRelease2029.js";
 import { personalActionsLocked } from "../publicLaunch2029.js";
 const getCloudResearch = (...args) => import("../auth.js").then(m => m.getCloudResearch(...args));
 const applyCloudResearchOps = (...args) => import("../auth.js").then(m => m.applyCloudResearchOps(...args));
@@ -87,7 +87,7 @@ export default function ResearchProvider({ children }) {
 function PrincipalResearchProvider({ children, userId, disabled, personalLocked, isAdmin }) {
   const { pathname, search, hash } = useLocation();
   const workspaceActive = isResearchWorkspace2029(pathname, {
-    heichalResearch: !PUBLIC_READING_RELEASE || requestedHeichalResearch(search, isAdmin),
+    heichalResearch: !PUBLIC_READING_RELEASE,
   });
   const workspace = useRef(workspaceActive);
   workspace.current = workspaceActive;

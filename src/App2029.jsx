@@ -19,7 +19,7 @@ import ErrorBoundary2029 from "./components/experience2029/ErrorBoundary2029.jsx
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/experience2029/FeatureClosedNotice2029.jsx";
-import { requestedHeichalResearch, PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
 
 // The first Post's code is prepared by the Home itself, after its own top is readable (Home2029Page.jsx; ZURIEL 17.11.2026). It still starts
 // before a click, without starting any Post data read.
@@ -33,18 +33,8 @@ const BeitMidrash2029Page = lazy(
 );
 const Books2029Page = lazy(() => import("./pages/Books2029Page.jsx"));
 const Els2029Page = lazy(() => import("./pages/Els2029Page.jsx"));
+const PublishedFindings2029Page = lazy(() => import("./pages/PublishedFindings2029Page.jsx"));
 const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
-const HeichalPublicReading2029Page = lazy(() => import("./pages/HeichalPublicReading2029Page.jsx"));
-
-function HeichalEntry2029() {
-  const { isAdmin } = useAuth();
-  const { search } = useLocation();
-  if (!PUBLIC_READING_RELEASE || requestedHeichalResearch(search, isAdmin)) {
-    return <Locked flag="lock_heichal" requireFlag allowAdminView homeHref="/2029"><Heichal2029Page /></Locked>;
-  }
-  return <HeichalPublicReading2029Page canResearch={isAdmin} />;
-}
-
 const PublicContributor2029Page = lazy(() => import("./pages/PublicContributor2029Page.jsx"));
 const WriterPersonal2029Page = lazy(() => import("./pages/WriterPersonal2029Page.jsx"));
 const WriterMe2029Redirect = lazy(() => import("./pages/WriterPersonal2029Page.jsx").then((module) => ({ default: module.WriterMe2029Redirect })));
@@ -477,8 +467,9 @@ export default function App2029() {
               <Route path="/book/:slug" element={<BooksEntry2029 />} />
               <Route path="/code" element={<FramedGate2029 flag="lock_els" surface="els" title="הצופן התנ״כי"><Els2029Page /></FramedGate2029>} />
               <Route path="/els" element={<ElsAddressAlias2029 />} />
-              <Route path="/heichal" element={<HeichalEntry2029 />} />
-              <Route path="/היכל" element={<HeichalEntry2029 />} />
+              {PUBLIC_READING_RELEASE && <Route path="/findings" element={<PublishedFindings2029Page />} />}
+              <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag allowAdminView homeHref="/2029"><Heichal2029Page /></Locked>} />
+              <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag allowAdminView homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/community/researcher/me" element={<PublicContributorFrame2029 surface="community" title="הדף שלי" introVariant="none"><WriterMe2029Redirect /></PublicContributorFrame2029>} />
               <Route path="/2029/me/:module" element={<PublicContributorFrame2029 surface="community" title="האזור האישי" introVariant="none"><WriterPersonal2029Page /></PublicContributorFrame2029>} />
               <Route path="/community/researcher/:slug" element={<PublicContributorFrame2029 surface="community" title="דף כותב" introVariant="none"><PublicContributor2029Page /></PublicContributorFrame2029>} />

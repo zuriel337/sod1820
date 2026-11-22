@@ -233,6 +233,7 @@ export default function NumberLivingWorld2029({
   onOpenWorld,
   focusSection = null,
   onOpenHeichal,
+  onOpenCipher,
   onRazielAction,
   onOpenNumber,
   onOpenPublicSource,
@@ -710,11 +711,11 @@ export default function NumberLivingWorld2029({
           available even before the separate approach-admitted source read. */}
       <NumberZviPublicResearch2029 value={root} />
       <div className="sod29-lw-depth-gates">
-        {onOpenHeichal ? <>
-          <button type="button" onClick={() => onOpenHeichal({ kind: "els_saved_from_number", root })}><span>ELS / צפנים</span><strong>פתח ספריית צפנים שמורים</strong><small>פריטים מורשים בלבד</small></button>
-          <button type="button" onClick={() => onOpenHeichal({ kind: "els_new_from_number", root })}><span>ELS / חקירה</span><strong>פתח חיפוש חדש</strong><small>חיפוש מתחיל רק בפעולה מפורשת</small></button>
-          <button type="button" onClick={() => onOpenHeichal({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>נטען רק כשפותחים</small></button>
+        {onOpenCipher ? <>
+          <button type="button" onClick={() => onOpenCipher("els_saved_from_number")}><span>ELS / צפנים</span><strong>פתח ספריית צפנים שמורים</strong><small>פריטים מורשים בלבד</small></button>
+          <button type="button" onClick={() => onOpenCipher("els_new_from_number")}><span>ELS / חקירה</span><strong>פתח חיפוש חדש</strong><small>חיפוש מתחיל רק בפעולה מפורשת</small></button>
         </> : null}
+        {onOpenHeichal ? <button type="button" onClick={() => onOpenHeichal({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>נטען רק כשפותחים</small></button> : <p>מחקר בהיכל מתוכנן לשלב עתידי.</p>}
       </div>
       {sourceCards.length > 5 && !showAllSources ? <DepthButton onClick={() => setShowAllSources(true)}>ראה מקורות נוספים</DepthButton> : null}
       {showAllSources && sourceLimit < sourceCards.length ? <DepthButton onClick={() => setSourceLimit((n) => n + 24)}>{`הצג עוד מקורות · ${sourcesShown.length} מתוך ${sourceCards.length}`}</DepthButton> : null}

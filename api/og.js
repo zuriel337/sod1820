@@ -1,4 +1,4 @@
-import { HEICHAL_PUBLIC_READING } from "../src/lib/heichalPublicReading2029.js";
+import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
@@ -448,14 +448,14 @@ export default async function handler(req, res) {
     canonical = SITE + '/map';
     robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
     if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'map' });
-  } else if (productionReading && ['/heichal', '/היכל'].includes(decodedKey)) {
-    title = HEICHAL_PUBLIC_READING.title + ' · ' + SITE_NAME;
-    desc = HEICHAL_PUBLIC_READING.description;
-    canonical = SITE + '/heichal';
+  } else if (productionReading && decodedKey === '/findings') {
+    title = PUBLISHED_FINDINGS_READING.title + ' · ' + SITE_NAME;
+    desc = PUBLISHED_FINDINGS_READING.description;
+    canonical = SITE + '/findings';
     type = 'website';
     robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
-    image = cardUrl({ w: HEICHAL_PUBLIC_READING.title, sub: 'ממצאים ומקורות' });
-    if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'heichal' });
+    image = cardUrl({ w: PUBLISHED_FINDINGS_READING.title, sub: 'ממצאים ומקורות' });
+    if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'findings' });
   } else if (productionReading && decodedKey === '/gallery') {
     // This admitted collection is not a Post slug. Selected images still pass
     // through the existing public gallery reader; no query becomes metadata.
