@@ -1,4 +1,4 @@
-name: Production Release and Legacy Compatibility
+name: 2029 Release Safety and Retired Legacy Guard
 
 on:
   pull_request:
