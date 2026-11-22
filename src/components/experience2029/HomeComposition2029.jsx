@@ -315,10 +315,10 @@ function useHomeUpdates(feed, { postsOnly, exclude }) {
   return { loading, models, entries, pinned, lead, see: feed?.see };
 }
 
-// The site-wide construction note (Design Contract V2: it describes the whole site), first on the Home (ZURIEL 17.11.2026: "לכתוב שם שהדף בבנייה").
+// Keep the site-wide construction notice and newsletter action. The public Home itself is open to readers.
 function HomeBuildingNote() {
   return <p className="h29-building" role="note" data-home-building-note="true">
-    <span className="h29-building-k"><span aria-hidden="true">🛠️</span> הדף בבנייה</span>
+    <span className="h29-building-k"><span aria-hidden="true">🛠️</span> מדורים נוספים בבנייה</span>
     <span className="h29-building-t">האתר נפתח בהדרגה, חלק אחר חלק</span>
     <button type="button" className="h29-linkbtn" onClick={scrollToNewsletter}>לעדכונים במייל ←</button>
   </p>;
