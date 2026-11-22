@@ -53,7 +53,7 @@ test("public footer links come from the registry and external links keep their v
   }
   const allowed = new Set(SITE_LINKS.map((item) => item.href));
   for (const href of hrefs(html)) assert.ok(allowed.has(href), `footer link ${href} is not in the registry`);
-  for (const href of ["/post", "/category/מימד-חמש", "/community/chat", "/category/סוד-החשמל", "/world", "/number", "/codes", "/heichal", "/2029/me/profile", "/2029/me/notifications", "/community", "/contact", "/privacy", "/map"]) {
+  for (const href of ["/post", "/category/מימד-חמש", "/community/chat", "/category/סוד-החשמל", "/world", "/number", "/codes", "/findings", "/2029/me/profile", "/2029/me/notifications", "/community", "/contact", "/privacy", "/map"]) {
     assert.ok(hrefs(html).includes(href), `${href} is missing from the footer`);
   }
 });
@@ -61,24 +61,23 @@ test("public footer links come from the registry and external links keep their v
 test("closed routes are shown as under construction, never as active links (public viewer)", async () => {
   const footer = await loadFooter(false);
   const html = render(footer, "/2029/posts");
-  for (const label of ["ארכיון", "כלי המחקר", "כאן מתחילים"]) {
+  for (const label of ["היכל", "ארכיון", "פעולות מחקר", "כאן מתחילים"]) {
     assert.match(html, new RegExp(`<li class="f29-closed"><span>${label}</span><small>בבנייה</small></li>`), label);
   }
-  for (const closedHref of ["/archive", "/research?mode=research", "/start"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
-  assert.match(html, /href="\/2029\/me\/research"[^>]*>המחקר שלי<\/a>/);
+  for (const closedHref of ["/heichal", "/archive", "/research", "/start"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
   // ZURIEL opened the Bible code (Classic) to the public on 5.11.2026: the footer takes its state from the same router as the pages, so it is a
   // working link for the public and no longer "בבנייה" (the registry's own defaultState is not what the footer shows).
   assert.ok(hrefs(html).includes("/code"), "the Bible code is an active link for the public");
   assert.doesNotMatch(html, /<li class="f29-closed"><span>דילוגי אותיות<\/span>/, "the Bible code is not shown as under construction");
 });
 
-test("an admin sees the admin-view routes as working links with a visible admin marker", async () => {
+test("the public release never offers an unfinished Heichal or research workspace to an administrator", async () => {
   const footer = await loadFooter(true);
   const html = render(footer, "/2029/posts");
-  assert.ok(hrefs(html).includes("/research?mode=research"));
+  assert.ok(!hrefs(html).includes("/research"));
   assert.ok(hrefs(html).includes("/2029/me/research"));
   assert.ok(hrefs(html).includes("/code"));
-  assert.match(html, /<small class="f29-admin">למנהל<\/small>/);
+  assert.doesNotMatch(html, /href="\/heichal"|href="\/research"/);
   assert.match(html, /<li class="f29-closed"><span>ארכיון<\/span>/, "/archive stays closed for admins too");
 });
 

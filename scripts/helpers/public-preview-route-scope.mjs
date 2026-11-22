@@ -17,7 +17,8 @@ export function productionApp2029Source(source) {
     ['/reality','RealityPublicReading2029Page','PUBLIC_READING_RELEASE'],
     ['/cross','PostsTaxonomy2029Page','PUBLIC_READING_RELEASE'],
     ['/languages','PostsTaxonomy2029Page','PUBLIC_READING_RELEASE'],
-    ['/research','ResearchEntry2029','(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE)']]) {
+    ['/findings','PublishedFindings2029Page','PUBLIC_READING_RELEASE'],
+    ['/research','GematriaEntry2029','(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE)']]) {
     const guarded=`{${guard} && <Route path="${route}" element={<${component} />} />}`;
     assert.ok(result.includes(guarded),`${route} must retain its explicit accepted build guard`);
     result=result.replace(guarded,'');

@@ -36,12 +36,13 @@ test('reading account storage stays separate and tab scoped; only the exact call
 test('verified admin can enter existing private surfaces while public and unknown services remain closed', () => {
  // The Bible code is public (Classic only); /els continues to /code. Neither is an administrator-only view any more.
  assert.equal(publicReadingPath('/code'),'public');assert.equal(publicReadingPath('/els'),'continuation');
- for(const path of ['/heichal','/היכל','/research','/reality','/cross','/languages']) {
-  assert.equal(publicReadingPath(path),'public');
-  assert.equal(publicReadingPath(path,{isAdmin:true}),'public');
+ for(const path of ['/findings','/cross','/languages','/reality']) {
+  assert.equal(publicReadingPath(path),'public'); assert.equal(publicReadingPath(path,{isAdmin:true}),'public');
  }
- assert.equal(publicReadingPath('/research',{isAdmin:true,search:'?mode=research'}),'admin-view');
- assert.equal(publicReadingPath('/research',{search:'?mode=research'}),'closed');
+ for(const path of ['/heichal','/היכל','/research']) {
+  assert.equal(publicReadingPath(path),'closed');
+  assert.equal(publicReadingPath(path,{isAdmin:true}),'closed');
+ }
  for(const path of ['/2029/journey','/2029/me/overview']) {
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
   assert.equal(publicReadingPath(path),'closed');

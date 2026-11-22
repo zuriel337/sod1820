@@ -21,6 +21,19 @@ test("/archive is never classified as legacy: it is the new archive, closed whil
   assert.equal(publicTemporarilyClosed("/archive"), true, "closed temporarily, not retired");
 });
 
-test("published Heichal reading no longer returns a maintenance response", () => {
-  assert.equal(publicTemporarilyClosed("/heichal"), false);
+test("/heichal stays closed (no accidental opening)", () => {
+  assert.equal(publicTemporarilyClosed("/heichal"), true);
+});
+
+
+test("historical notices offer direct reading from the corresponding public sources", () => {
+  const expected = {
+    "/archive": ["/gallery", "/reality"],
+    "/timeline": ["/post", "/topic/india-axis"],
+    "/broadcasts": ["/or-geula"],
+  };
+  for (const [path, destinations] of Object.entries(expected)) {
+    assert.equal(publicTemporarilyClosed(path), true);
+    assert.deepEqual(publicReadingCapability(path).links.map(([href]) => href), destinations);
+  }
 });

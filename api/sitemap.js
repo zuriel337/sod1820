@@ -260,7 +260,7 @@ export default async function handler(req, res) {
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && !urls.some(row => row.loc === "/gallery")) urls.push({ loc: "/gallery", priority: "0.6", changefreq: "weekly" });
   if (productionReading) urls.push({ loc: '/community/researchers', priority: '0.5', changefreq: 'weekly' });
   // The community chat is the replacement of the retired forum and a popular search landing page: it belongs in the sitemap.
-  if (productionReading) urls.push({ loc: '/heichal', priority: '0.6', changefreq: 'weekly' },
+  if (productionReading) urls.push({ loc: '/findings', priority: '0.6', changefreq: 'weekly' },
     { loc: '/reality', priority: '0.6', changefreq: 'weekly' });
   if (productionReading) urls.push({ loc: '/community/chat', priority: '0.7', changefreq: 'daily' });
   // The calculator is a popular search landing page too (bare address only; query variants carry private inputs).

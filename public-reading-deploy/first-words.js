@@ -14,7 +14,7 @@
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
 import { PUBLIC_REALITY_STREAM_2029 } from "../src/lib/publicReadingRelease2029.js";
 import { publicMapLinks2029 } from "../src/lib/publicMap2029.js";
-import { HEICHAL_PUBLIC_READING } from "../src/lib/heichalPublicReading2029.js";
+import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
 import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
@@ -214,9 +214,9 @@ function body(facts) {
   if (facts.kind === "map") {
     return '<h1>מפת האתר</h1>' + links(publicMapLinks2029(true).map(([href, label]) => ({ href, label })), "דפי האתר");
   }
-  if (facts.kind === "heichal") {
-    const { title, description } = HEICHAL_PUBLIC_READING;
-    return `<h1>${esc(title)}</h1><p>${esc(description)}</p><p><a href="/books">ספרים ומקורות</a> · <a href="/codes/מחקר">אוסף המחקר</a></p>`;
+  if (facts.kind === "findings") {
+    const { title, description } = PUBLISHED_FINDINGS_READING;
+    return `<h1>${esc(title)}</h1><p>${esc(description)}</p><p><a href="/books">ספרים ומקורות</a> · <a href="/codes/מחקר">צפני מחקר שפורסמו</a></p>`;
   }
   if (facts.kind === "home") {
     const words = HOME_FIRST_WORDS;

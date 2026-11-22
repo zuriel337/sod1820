@@ -77,6 +77,23 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
   });
 });
 
+test("the published findings reader is independent of the unbuilt Heichal and future research workspace", async () => {
+  await withFetch(async () => { throw Error("published findings introduction and future notices must not query research"); }, async () => {
+    const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true, readDocument: async () => read("public-reading-deploy/.generated/2029.html") });
+    const findings = response(); await handler(req("/findings"), findings);
+    assert.equal(findings.code, 200);
+    assert.equal(findings.headers.get("x-sod-first-words"), "served");
+    assert.match(findings.body, /data-first-words="findings"><h1>ממצאים שפורסמו/);
+    assert.match(findings.body, /rel="canonical" href="https:\/\/sod1820\.co\.il\/findings"/);
+    for (const path of ["/heichal", "/%D7%94%D7%99%D7%9B%D7%9C", "/heichal?mode=research", "/research", "/research?mode=research"]) {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 503, path);
+      assert.match(res.body, /טרם נבנו|לשלב עתידי/);
+      assert.doesNotMatch(res.body, /data-first-words="findings"/);
+    }
+  });
+});
+
 test("bare research routes read admitted publications and keep their exact canonical address", async () => {
   const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true, readDocument: async () => read("public-reading-deploy/.generated/2029.html") });
   for (const [path, category] of [["/languages", "שבילי שפה"], ["/cross", "חידושי הצלבות"]]) {
@@ -103,7 +120,7 @@ test("bare research routes read admitted publications and keep their exact canon
     });
   }
   await withFetch(async () => { throw Error("no source or research action expected"); }, async () => {
-    for (const [path, canonical] of [["/research", "/heichal"], ["/reality", "/reality"]]) {
+    for (const [path, canonical] of [["/findings", "/findings"], ["/reality", "/reality"]]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 200);
       assert.equal(res.headers.get("x-sod-first-words"), "served");
@@ -132,7 +149,7 @@ test("temporarily closed feature areas answer 503 with Retry-After and stay inde
       const robots = path.includes("?") ? "noindex, nofollow" : "index, follow";
       assert.equal(res.headers.get("x-robots-tag"), robots, path);
       assert.ok(res.body.includes('name="robots" content="' + robots + '"'), path);
-      assert.match(res.body, /בבנייה/, path); assert.match(res.body, /הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן/, path); assert.doesNotMatch(res.body, /בקרוב/, path);
+      if (path.startsWith("/research")) assert.match(res.body, /לשלב עתידי/, path); else assert.match(res.body, /בבנייה/, path); assert.match(res.body, /הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן/, path); assert.doesNotMatch(res.body, /בקרוב/, path);
     }
     // The Bible code is open in its Classic mode: a normal indexable 200 page, and /els is a permanent continuation to it.
     { const res = response(); await handler(req("/code"), res);

@@ -402,8 +402,8 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(heichalAction).toBeVisible();
   await expect(heichalAction).toBeEnabled();
   const heichalLinks = 'a[href="/heichal"], a[href="/היכל"]';
-  await expect(page.locator('footer').locator(heichalLinks)).toHaveCount(1);
-  await expect(page.locator(heichalLinks)).toHaveCount(2);
+  await expect(page.locator('footer').locator(heichalLinks)).toHaveCount(0);
+  await expect(page.locator(heichalLinks)).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
   await heichalAction.click();
