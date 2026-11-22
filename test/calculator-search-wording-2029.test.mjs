@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
 import { COMMUNITY_CALCULATOR_SEO } from "../src/lib/research/communityCalculatorSeo2029.js";
+import { firstWordsHtml2029, firstWordsStaticFacts2029 } from "../public-reading-deploy/first-words.js";
 
 const read = path => readFileSync(new URL("../" + path, import.meta.url), "utf8");
 const SITE = " · SOD1820";
@@ -24,6 +25,8 @@ test("both calculators open with the phrase people search, fit a result line, an
     assert.match(text, /^מחשבון גימטריה מקצועי/);
   }
   assert.match(COMMUNITY_CALCULATOR_SEO.description, /הקהילה/);
+  const communityDocument = firstWordsHtml2029(firstWordsStaticFacts2029("/community/calculator"));
+  assert.match(communityDocument, /<a href="\/gematria">מחשבון גימטריה מקצועי<\/a>/);
   assert.match(COMMUNITY_CALCULATOR_SEO.title, /לשמות/, "the community calculator owns the names searches");
   assert.doesNotMatch(CALCULATOR_PRO_SEO.title, /לשמות/, "the main calculator owns the general search");
 });

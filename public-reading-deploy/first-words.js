@@ -14,7 +14,7 @@
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
-import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
+import { CALCULATOR_PRO_PATH, CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
 import { HOME_FIRST_WORDS } from "../src/lib/homePublicWords2029.js";
 
 // The public project address and the public anonymous key, as in the other server readers (api/og.js, api/sitemap.js, api/card.js). The browser
@@ -235,7 +235,8 @@ function body(facts) {
     const recent = links(phraseLinks(facts.recent, true), "גימטריות מאומתות שנוספו לאחרונה");
     const explain = `<h2>${esc(COMMUNITY_CALCULATOR_EXPLAINER.heading)}</h2>` + COMMUNITY_CALCULATOR_EXPLAINER.paragraphs.map(paragraph => `<p>${esc(paragraph)}</p>`).join("");
     return community
-      ? `<h1>${esc(COMMUNITY_CALCULATOR_SEO.heading)}</h1><p>${esc(COMMUNITY_CALCULATOR_SEO.lead)}</p>${picked}${recent}${explain}`
+      ? `<h1>${esc(COMMUNITY_CALCULATOR_SEO.heading)}</h1><p>${esc(COMMUNITY_CALCULATOR_SEO.lead)}</p>`
+        + `<p><a href="${CALCULATOR_PRO_PATH}">${esc(CALCULATOR_PRO_SEO.heading)}</a></p>${picked}${recent}${explain}`
         + `<h2>שאלות נפוצות</h2>` + COMMUNITY_CALCULATOR_FAQ.map(({ q, a }) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join("")
       : `<h1>${esc(CALCULATOR_PRO_SEO.heading)}</h1><p>${esc(CALCULATOR_PRO_SEO.lead)}</p>`
         + `${picked}${recent}${explain}<p><a href="/community/calculator">מחשבון הקהילה: שמות, השוואה ותאריך עברי</a> · <a href="/number">דף המספר</a></p>`;
