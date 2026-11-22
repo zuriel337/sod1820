@@ -126,7 +126,7 @@ function PublicBook({ item, retry }) {
   </article>;
 }
 
-// Route owner supplies kind; /codes/מחקר is a public, unlisted collection of
+// Route owner supplies kind; /codes/מחקר is a filtered public collection of
 // published records, distinct from the closed /code search capability.
 export default function PublicLibraryContinuity2029Page({ kind = "codes", collection = "published" }) {
   const { slug: routeSlug } = useParams(), location = useLocation(), [params, setParams] = useSearchParams();
@@ -148,10 +148,23 @@ export default function PublicLibraryContinuity2029Page({ kind = "codes", collec
     return () => cancelAnimationFrame(frame);
   }, [data.status, item, location.hash]);
   useEffect(() => {
-    applySeo({ ...publicLibraryMetadata2029({ kind, item, detail: Boolean(slug), collection: selectedCollection,
-      loading: data.status === "loading", failed: ["failed", "canceled"].includes(data.status) }), path: slug ? item?.href || `${kind === "books" ? "/book" : "/codes"}/${encodeURIComponent(slug)}` : href });
-  }, [kind, slug, selectedCollection, data.status, item, href]);
-  const changePage = nextPage => { const next = new URLSearchParams(params); next.set("page", String(nextPage + 1)); setParams(next); };
+    const meta = publicLibraryMetadata2029({ kind, item, detail: Boolean(slug), collection: selectedCollection,
+      loading: data.status === "loading", failed: ["failed", "canceled"].includes(data.status) });
+    const cipherList = kind === "codes" && !slug;
+    const filtered = cipherList && [...params.keys()].some(key => key !== "page");
+    const invalidPage = cipherList && params.has("page") && (params.getAll("page").length !== 1 || String(page + 1) !== params.get("page"));
+    const emptyPage = cipherList && page > 0 && data.status === "ready" && !data.value?.items?.length;
+    const listHref = cipherList && page > 0 && !filtered && !invalidPage ? href + "?page=" + (page + 1) : href;
+    applySeo({ ...meta, noindex: meta.noindex || filtered || invalidPage || emptyPage, follow: cipherList,
+      title: cipherList && page > 0 ? meta.title + " · עמוד " + (page + 1) : meta.title,
+      path: slug ? item?.href || `${kind === "books" ? "/book" : "/codes"}/${encodeURIComponent(slug)}` : listHref });
+  }, [kind, slug, selectedCollection, data.status, data.value, item, href, page, params]);
+  const pageHref = nextPage => {
+    const next = new URLSearchParams(params);
+    if (nextPage > 0) next.set("page", String(nextPage + 1));
+    else next.delete("page");
+    return href + (next.size ? "?" + next.toString() : "");
+  };
   if (kind === "books" && item?.slug === "ahavat-torah" && item.readerState === "ready" && item.manifest && params.get("reader") !== "source") return <Suspense fallback={<Sod2029Shell surface="books" title="אהבת תורה"><FrameState kind="loading" title="פותח את קורא אהבת תורה">המקור הציבורי אומת; טוען את הקורא הקיים.</FrameState></Sod2029Shell>}>
     <AhavatTorahSystem2029Page publicReadOnly preparation={item.preparation?.[item.slug]} returnTo={returnHref(kind,selectedCollection,location)}/>
   </Suspense>;
@@ -159,6 +172,7 @@ export default function PublicLibraryContinuity2029Page({ kind = "codes", collec
     description={kind === "books" ? "פותחים ספר, מוצאים את המקום וממשיכים לקרוא במקור." : "חוזרים לצפנים שפורסמו, לטקסט ולמראה־המקום שנשמרו עמם."}>
     <main className="public-library29" dir="rtl" data-experience-capability={kind === "books" ? "public-book-library" : "public-cipher-library"}>
 
+      {kind === "codes" && !slug ? <nav className="public-library29-breadcrumb" aria-label="אוספי צפנים"><Link to={researchCollection ? "/codes" : RESEARCH_PATH}>{researchCollection ? "כל הצפנים שפורסמו" : "פרסומי מחקר בצפנים"}</Link></nav> : null}
       {slug ? <nav className="public-library29-breadcrumb" aria-label="חזרה לספרייה"><Link to={returnHref(kind, item?.sourceCollection || selectedCollection, location)}>→ חזרה ל{title}</Link></nav> : <form className="public-library29-search" onSubmit={event => { event.preventDefault(); if (draft.trim()) recordSiteActivity("search"); const next = new URLSearchParams(params); if (draft.trim()) next.set("q", draft.trim()); else next.delete("q"); next.delete("page"); setParams(next); }}><label htmlFor="public-library29-query">חיפוש ב{title}<input id="public-library29-query" type="search" value={draft} maxLength={120} onChange={event => setDraft(event.target.value)} placeholder={kind === "books" ? "שם הספר" : "מילה או שם הצופן"} /></label><button className="sod29-action" type="submit"><NavigationIcon2029 name="search" /> חיפוש</button></form>}
       {data.status === "loading" ? <FrameState kind="loading" title={slug ? "פותח את המקור" : "טוען את הספרייה"} progress={{ onCancel: data.cancel }}>בודק זמינות לקריאה ציבורית.</FrameState>
         : data.status === "failed" ? <FrameState kind="error" title="הטעינה לא הושלמה"><p>המקור לא נטען. אפשר לנסות שוב.</p><button className="sod29-action" type="button" onClick={data.retry}>ניסיון טעינה נוסף</button></FrameState>
@@ -168,7 +182,7 @@ export default function PublicLibraryContinuity2029Page({ kind = "codes", collec
               : <>
                 {data.value?.items.length ? <div className={kind === "books" ? "sod29-book-grid" : "public-library29-grid"}>{data.value.items.map(row => <LibraryCard key={row.id} item={row} preparation={data.value.preparation?.[row.slug]} returnTo={location.pathname + location.search + location.hash} />)}</div>
                   : <FrameState kind="empty" title={query ? "לא נמצאו פרסומים לחיפוש הזה" : page ? "אין פרסומים נוספים בעמוד הזה" : "אין כרגע פרסומים זמינים בספרייה הזאת"}>{query ? "אפשר לנסות שם או מילה אחרת." : "הספרייה מציגה מקורות הזמינים לקריאה ציבורית."}</FrameState>}
-                {page > 0 || data.value?.more ? <nav className="public-library29-pagination" aria-label="דפי הספרייה"><button className="sod29-action" type="button" disabled={page === 0} onClick={() => changePage(page - 1)}>→ הקודם</button><span>עמוד <bdi>{page + 1}</bdi></span><button className="sod29-action" type="button" disabled={!data.value?.more} onClick={() => changePage(page + 1)}>הבא ←</button></nav> : null}
+                {page > 0 || data.value?.more ? <nav className="public-library29-pagination" aria-label="דפי הספרייה">{page > 0 ? <Link className="sod29-action" rel="prev" to={pageHref(page - 1)}>→ הקודם</Link> : null}<span>עמוד <bdi>{page + 1}</bdi></span>{data.value?.more ? <Link className="sod29-action" rel="next" to={pageHref(page + 1)}>הבא ←</Link> : null}</nav> : null}
               </>}
       {kind === "books" && !slug && data.status !== "loading" ? <section className="sod29-section" aria-labelledby="public-books29-tanakh-title"><h2 id="public-books29-tanakh-title">ספרי התנ״ך — בהכנה</h2><p>כ״ד ספרי התנ״ך יקבלו כאן מקום לקריאה לפי ספר, פרק ופסוק. הקריאה בהם מתוך הספרייה עדיין אינה זמינה.</p></section>:null}
     </main>

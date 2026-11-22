@@ -33,12 +33,12 @@ test("number browsing separates Human-Gate anchors from recently added active nu
   assert.doesNotMatch(types, /const\s+(FEATURED|SELECTED)_NUMBERS\s*=/);
 });
 
-test("cipher shelf is public-only and never imports drafts or research-folder rows", () => {
+test("cipher shelf reads public publications across sources without importing drafts", () => {
   assert.match(types, /getMatrixLibraryPage\(\{ view: "public", pageSize: 12 \}\)/);
   assert.doesNotMatch(types, /getDraftMatrices|getResearchMatrices|getMyMatrices/);
   const reader = matrices.slice(matrices.indexOf("export async function getMatrixLibraryPage"), matrices.indexOf("export async function getMatrixById"));
   assert.match(reader, /eq\("status", "published"\)\.eq\("visibility", "public"\)/);
-  assert.match(reader, /source\.is\.null,source\.neq\.research/);
+  assert.doesNotMatch(reader, /source\.neq\.research/);
 });
 
 test("media shelf uses one bounded public World projection and preserves source identity", () => {

@@ -21,8 +21,8 @@ test("public cipher query always requires canonical published/public and omits p
   const list = publicLibraryQuery2029({ kind: "codes", q: ' תורה%,_(secret)" ', limit: 5000, offset: -1 });
   assert.deepEqual(list.eq, { status: "published", visibility: "public" });
   assert.equal(list.pageSize, 48); assert.equal(list.offset, 0);
-  assert.equal(list.or[0], "source.is.null,source.neq.research");
-  assert.ok(!list.or[1].includes("(secret)"));
+  assert.equal(list.or.length, 1);
+  assert.ok(!list.or[0].includes("(secret)"));
   assert.doesNotMatch(list.select, /positions|engine_detail|owner_user_id|self_published/);
   const detail = publicLibraryQuery2029({ kind: "codes", slug: "published-cipher" });
   assert.equal(detail.eq.slug, "published-cipher");
@@ -60,10 +60,10 @@ test("signed, private, expired-token and external media URLs are never used as s
   }
 });
 
-test("public list deduplicates exact identities and does not mix hidden research collection", async () => {
+test("public list deduplicates exact identities, includes published research, and preserves its filtered collection", async () => {
   const rows = [cipher(), cipher(), cipher({ id: "other", slug: "other", source: "research" })];
   const result = await fetchPublicLibrary2029({ kind: "codes", limit: 3, readRows: async () => rows });
-  assert.equal(result.items.length, 1); assert.equal(result.nextOffset, 3); assert.equal(result.more, false);
+  assert.deepEqual(result.items.map(item => item.id), [rows[0].id, "other"]); assert.equal(result.nextOffset, 3); assert.equal(result.more, false);
   const research = await fetchPublicLibrary2029({ kind: "codes", collection: "research", readRows: async () => rows });
   assert.deepEqual(research.items.map(item => item.id), ["other"]);
 });
@@ -155,12 +155,12 @@ test("external binding is preserved, but unfinished books stay closed without a 
   assert.equal(publicLibraryMetadata2029({ kind: "books", item, detail: true }).noindex, true);
 });
 
-test("metadata stays generic/noindex until public admission and never promotes unlisted research", () => {
+test("metadata stays generic/noindex until public admission and includes published research", () => {
   const item = projectPublicCipher2029(cipher());
   assert.equal(publicLibraryMetadata2029({ item, detail: true, loading: true }).noindex, true);
   assert.notEqual(publicLibraryMetadata2029({ item, detail: true, loading: true }).title, item.title);
   assert.equal(publicLibraryMetadata2029({ item, detail: true }).noindex, false);
-  assert.equal(publicLibraryMetadata2029({ item: { ...item, sourceCollection: "research" }, detail: true }).noindex, true);
+  assert.equal(publicLibraryMetadata2029({ item: { ...item, sourceCollection: "research" }, detail: true }).noindex, false);
   assert.equal(publicLibraryMetadata2029({ kind: "books", item: projectPublicBook2029(book()), detail: true }).noindex, true);
   assert.equal(publicLibraryMetadata2029({ detail: true, failed: true }).noindex, true);
 });
