@@ -5,6 +5,7 @@ import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.js
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -1138,6 +1139,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <h2>{activeView === WORLD_LANDING_VIEW.START ? "לאן ממשיכים מכאן?" : "מפת הידע של SOD1820"}</h2>
         <p>מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.</p>
         <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>חיפוש מספר או ביטוי</button>
+        {PUBLIC_READING_RELEASE ? <Link className="sod29-action" to="/findings">ממצאים שפורסמו</Link> : null}
       </div>
       <nav className="sod29-world-entry-grid" aria-label="דרכים לגלות את העולם">
         {WORLD_LANDING_ENTRIES.map((entry) => <button type="button" key={entry.key}

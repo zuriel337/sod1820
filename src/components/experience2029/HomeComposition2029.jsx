@@ -514,9 +514,10 @@ function HomeAvailabilityMap() {
       <AvailabilityItem label="הצופן התנ״כי" href="/code" flag="lock_els" />
       <AvailabilityItem label="מסע החיים" href="/2029/journey" flag="lock_life_journey" />
       <AvailabilityItem label="רזיאל" href="/2029/raziel" flag="lock_raziel_site" />
-      {PUBLIC_READING_RELEASE && publicReadingPath("/heichal") === "public"
-        ? <li><Link to="/heichal">היכל המחקר</Link><span>פתוח לציבור</span></li>
-        : <AvailabilityItem label="ההיכל" href="/heichal" flag="lock_heichal" />}
+      {PUBLIC_READING_RELEASE ? <>
+        <li><Link to="/findings">ממצאים שפורסמו</Link><span>פתוח לציבור</span></li>
+        <li><span className="h29-availability-name">היכל המחקר</span><span>סביבת העבודה טרם נבנתה</span></li>
+      </> : <AvailabilityItem label="ההיכל" href="/heichal" flag="lock_heichal" />}
     </ul><Link className="h29-btn" to="/map">מפת האתר המלאה ←</Link>
   </section>;
 }

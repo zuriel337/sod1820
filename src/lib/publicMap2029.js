@@ -13,7 +13,7 @@ export function publicMapLinks2029(production) {
     ["/codes", "ספריית הצפנים"],
     ["/codes/מחקר", "אוסף המחקר"],
     ["/code", "כלי הצופן התנ״כי"],
-    ["/heichal", "היכל המחקר"],
+    ["/findings", "ממצאים שפורסמו"],
     ["/contact", "דיווח או הצעה"],
     ["/login", "כניסה לחשבון"],
     ["/updates", production ? "עדכונים במייל" : "עדכונים במייל · בהכנה"],

@@ -32,6 +32,6 @@ export default function PublicServices2029Page({ kind }) {
         <h1>עדכונים במייל</h1><NewsletterSignup2029 /><p>להסרה: השתמשו בקישור האישי שבתחתית המייל שקיבלתם. <Link to="/unsubscribe">עזרה בהסרה</Link> · <Link to="/privacy">פרטיות ויצירת קשר</Link></p>
       </> : <section className="sod29-section"><h1>מפת האתר</h1><p>קריאה, מקורות ושירותים. חלק מהיכולות החדשות עדיין בבנייה; כניסה לדף אינה מפעילה כתיבה או כלי מחקר.</p><nav aria-label="דפי האתר" className="sod29-actions">
         {publicMapLinks2029(PUBLIC_READING_PRODUCTION_ARTIFACT).map(([href, label]) => <Link key={href} className="sod29-action" to={href}>{label}</Link>)}
-      </nav><h2>עדיין בבנייה</h2><nav className="sod29-actions" aria-label="יכולות בתהליך התאמה">{[["/raziel", "רזיאל"], ["/name", "מחקר השם"], ["/credits", "קרדיטים ותשלומים"]].map(([href, label]) => <Link key={href} className="sod29-action" to={href}>{label}</Link>)}</nav></section>}</>}
+      </nav><h2>עדיין בבנייה</h2><p>סביבת העבודה בהיכל טרם נבנתה. פעולות מחקר מתקדמות מתוכננות להמשך.</p><nav className="sod29-actions" aria-label="יכולות בתהליך התאמה">{[["/raziel", "רזיאל"], ["/name", "מחקר השם"], ["/credits", "קרדיטים ותשלומים"]].map(([href, label]) => <Link key={href} className="sod29-action" to={href}>{label}</Link>)}</nav></section>}</>}
   </Sod2029Shell>;
 }

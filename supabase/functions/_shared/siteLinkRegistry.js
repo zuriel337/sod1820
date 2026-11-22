@@ -52,8 +52,9 @@ export const SITE_LINKS = Object.freeze([
   entry({ id: "archive", label: "ארכיון", href: "/archive", defaultState: "closed", aliases: ["ארכיון", "הארכיון"],
     closed: { message: "הארכיון ההיסטורי בתהליך התאמה. הגלריות והתוכן שפורסם זמינים בנפרד.", alt: "gallery" }, footer: { group: "discover", order: 5 } }),
   // ── לחקור ──
-  entry({ id: "heichal", label: "היכל", href: "/heichal", defaultState: "public", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל"],
-    closed: { message: "ההיכל נמצא בבנייה ואינו פתוח לציבור עדיין. אפשר להמשיך לספרים ולמקורות.", alt: "books" }, footer: { group: "research", order: 1 } }),
+  entry({ id: "heichal", label: "היכל", href: "/heichal", defaultState: "closed", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל"],
+    closed: { message: "סביבת העבודה בהיכל טרם נבנתה. אפשר לקרוא את הממצאים שפורסמו.", alt: "findings" }, footer: { group: "research", order: 1 } }),
+  entry({ id: "findings", label: "ממצאים שפורסמו", href: "/findings", defaultState: "public", aliases: ["ממצאים שפורסמו", "הממצאים שפורסמו"], footer: { group: "discover", order: 6 } }),
   // raziel:false — owner decision: "/world" opens from Raziel only through the existing explicit "open the world" grammar,
   // never from a "where is" question, so the site-link answers do not index this entry.
   entry({ id: "world", label: "העולם", href: "/world", defaultState: "public", raziel: false, aliases: ["עולם", "העולם"], footer: { group: "research", order: 2 } }),

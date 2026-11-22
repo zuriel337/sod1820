@@ -701,14 +701,14 @@ function SystemFrame2029Body({
   // closed when the row is missing; the administrator keeps the existing admin bypass. A closed panel renders the notice only (no projection, no read).
   const actionsFeature = useFeatureState("lock_context_actions", { requireFlag: true });
   const toolsFeature = useFeatureState("lock_context_tools", { requireFlag: true });
-  const heichalLocked = PUBLIC_READING_RELEASE ? publicReadingPath("/heichal") !== "public" : heichalFeature.loading || heichalFeature.blocked;
+  const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
   const contextLocked = authLoading || isAdmin !== true;
   const razielLocked = contextLocked || razielFeature.loading || razielFeature.blocked;
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const booksLocked = booksFeature.loading || booksFeature.blocked;
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
-  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked, building: !PUBLIC_READING_RELEASE } : item);
+  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? (PUBLIC_READING_RELEASE ? { label: item.label, symbol: item.symbol, status: "טרם נבנה" } : { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed }) : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked, building: !PUBLIC_READING_RELEASE } : item);
   const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => (item.to === "/els" || item.to === "/code") ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed), building: !PUBLIC_READING_RELEASE } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || isNumberPagePath(item.to) ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
 

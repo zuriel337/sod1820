@@ -30,7 +30,7 @@ test("where is the WhatsApp / social links: exact verified external URLs, no mod
 
 test("where are community / Number / privacy / newsletter: exact internal registry hrefs", () => {
   for (const [text, href] of [
-    ["איפה ההיכל", "/heichal"], ["איפה הקהילה", "/community"], ["איפה הצ'אט", "/community/chat"], ["איפה אור הגאולה", "/community/chat"], ["איפה דף המספר", "/number"],
+    ["איפה הממצאים שפורסמו", "/findings"], ["איפה הקהילה", "/community"], ["איפה הצ'אט", "/community/chat"], ["איפה אור הגאולה", "/community/chat"], ["איפה דף המספר", "/number"],
     ["איפה הפרטיות", "/privacy"], ["תן לי את הפרטיות", "/privacy"], ["קח אותי לקהילה", "/community"], ["איפה הניוזלטר", "/updates"],
     ["איפה מפת האתר", "/map"], ["איפה צור קשר", "/contact"], ["הלינק לפוסטים", "/post"],
   ]) {
@@ -44,14 +44,14 @@ test("where are community / Number / privacy / newsletter: exact internal regist
 
 test("a closed route is never offered as open: honest reason plus the registry's open alternative", () => {
   for (const [text, closedId, altHref] of [
-    ["איפה הארכיון", "archive", "/gallery"], ["איפה כאן מתחילים", "start", "/map"],
+    ["איפה ההיכל", "heichal", "/findings"], ["איפה הארכיון", "archive", "/gallery"], ["איפה כאן מתחילים", "start", "/map"],
   ]) {
     const action = ask(text);
     assert.equal(action.type, "navigate", text);
     assert.equal(action.closed_target, closedId, text);
     assert.equal(action.href, altHref, text);
     assert.equal(action.message, siteLinkById(closedId).closed.message, text);
-    assert.match(action.message, /בבנייה|בתהליך התאמה/u, text);
+    assert.match(action.message, /בבנייה|בתהליך התאמה|טרם נבנתה/u, text);
   }
   // The Bible code (/code) is open to the public since the owner's 5.11 decision (Classic and Research open to everyone since 6.11),
   // so the registry's own state is open and Raziel answers with the real link, not with the "under construction" alternative that
@@ -81,10 +81,10 @@ test("a closed route is never offered as open: honest reason plus the registry's
 
 test("the web adapter's live route state agrees with every registry entry", () => {
   // "els": the Bible code is public since ZURIEL's 5.11 decision (Classic and Research open to everyone since 6.11), so the web adapter reports it open (router flag lock_els).
-  for (const id of ["heichal", "posts", "or-geula", "community", "privacy", "number", "map", "els", "whatsapp", "instagram", "updates"]) {
+  for (const id of ["findings", "posts", "or-geula", "community", "privacy", "number", "map", "els", "whatsapp", "instagram", "updates"]) {
     assert.equal(razielSiteLinkState(siteLinkById(id)), "open", id);
   }
-  for (const id of ["archive", "start", "my-research"]) {
+  for (const id of ["heichal", "archive", "start", "my-research"]) {
     assert.equal(razielSiteLinkState(siteLinkById(id)), "closed", id);
   }
 });
