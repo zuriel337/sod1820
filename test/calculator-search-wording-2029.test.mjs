@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
 import { COMMUNITY_CALCULATOR_SEO } from "../src/lib/research/communityCalculatorSeo2029.js";
+import { firstWordsHtml2029, firstWordsStaticFacts2029 } from "../public-reading-deploy/first-words.js";
 
 const read = path => readFileSync(new URL("../" + path, import.meta.url), "utf8");
 const SITE = " · SOD1820";
@@ -20,6 +21,14 @@ test("both calculators open with the phrase people search, fit a result line, an
     assert.doesNotMatch(JSON.stringify(seo), /2029|קנוני|מנוע|פנקס|מצב מורחב|קיר הגימטריה|\bAI\b|בינה מלאכותית|8 שיטות/);
   }
   assert.notEqual(CALCULATOR_PRO_SEO.title, COMMUNITY_CALCULATOR_SEO.title);
+  for (const text of [CALCULATOR_PRO_SEO.title, CALCULATOR_PRO_SEO.heading, CALCULATOR_PRO_SEO.description]) {
+    assert.match(text, /^מחשבון גימטריה מקצועי/);
+  }
+  assert.match(COMMUNITY_CALCULATOR_SEO.description, /הקהילה/);
+  assert.match(read("src/pages/CalculatorPro2029Page.jsx"), /to="\/community\/calculator">מחשבון הקהילה/);
+  assert.match(read("src/pages/CommunityCalculator2029Page.jsx"), /to="\/gematria">למחשבון הגימטריה המקצועי/);
+  const communityDocument = firstWordsHtml2029(firstWordsStaticFacts2029("/community/calculator"));
+  assert.match(communityDocument, /<a href="\/gematria">מחשבון גימטריה מקצועי<\/a>/);
   assert.match(COMMUNITY_CALCULATOR_SEO.title, /לשמות/, "the community calculator owns the names searches");
   assert.doesNotMatch(CALCULATOR_PRO_SEO.title, /לשמות/, "the main calculator owns the general search");
 });
@@ -34,7 +43,7 @@ test("the main calculator's server, page, shared-result page and first words rea
     assert.match(source, /title: CALCULATOR_PRO_SEO\.title,/, page);
     assert.match(source, /description: CALCULATOR_PRO_SEO\.description,/, page);
   }
-  assert.match(read("src/pages/CalculatorPro2029Page.jsx"), /<h1 className="sod29-calcpro-sr">\{CALCULATOR_PRO_SEO\.heading\}<\/h1>/);
+  assert.match(read("src/pages/CalculatorPro2029Page.jsx"), /<h1 className="sod29-kicker">\{CALCULATOR_PRO_SEO\.heading\}<\/h1>/);
   assert.match(read("public-reading-deploy/first-words.js"), /<h1>\$\{esc\(CALCULATOR_PRO_SEO\.heading\)\}<\/h1><p>\$\{esc\(CALCULATOR_PRO_SEO\.lead\)\}<\/p>/);
 });
 

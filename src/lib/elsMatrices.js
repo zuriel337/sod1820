@@ -18,7 +18,7 @@ export async function getMatrixLibraryPage({ view = "public", userId, query = ""
   const reviewView = view === "review";
   let request = supabase.from("els_records").select((reviewView ? REVIEW_COLS : LIBRARY_COLS) + ",status,visibility,owner_user_id");
   if (view === "mine") request = request.eq("owner_user_id", userId);
-  else if (!reviewView) request = request.eq("status", "published").eq("visibility", "public").or("source.is.null,source.neq.research");
+  else if (!reviewView) request = request.eq("status", "published").eq("visibility", "public");
   // Remove PostgREST filter syntax, while retaining Hebrew terms and normal titles.
   const words = String(query).replace(/[%,()."\\]/g, " ").trim().slice(0, 120);
   if (words) request = request.or(`search_term.ilike.%${words}%,title.ilike.%${words}%`);
@@ -34,13 +34,12 @@ export async function getMatrixById(id) {
   return data || null;
 }
 
-// ספריית-הצפנים הראשית (וגם גלריית-הכלי/בית) — מאושרות, **בלי תיקיית-המחקר** (source='research').
-// אלה חיים רק בתיקייה הנסתרת /codes/מחקר (getResearchMatrices). כך המחקר לא מוצג לכל מי שנכנס.
+// Recent public publications from all sources for the existing embedded gallery.
 export async function getSavedMatrices(limit = 100) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("els_records").select(COLS)
-      .eq("status", "published").or("source.is.null,source.neq.research")
+      .eq("status", "published").eq("visibility", "public")
       .order("created_at", { ascending: false }).limit(limit);
     return data || [];
   } catch { return []; }
@@ -59,13 +58,12 @@ export async function getSystemCiphers(limit = 20) {
   } catch { return []; }
 }
 
-// 🔬 תיקיית-המחקר (נסתרת) — רק צפני-מחקר מאושרים. עדשה על els_records where source='research'.
-// לא מקושרת מהתפריט/בית/כלי — רק מי שנכנס לכתובת /codes/מחקר רואה (unlisted).
+// Public research publications are also available as a filtered collection.
 export async function getResearchMatrices(limit = 100) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("els_records").select(COLS)
-      .eq("status", "published").eq("source", "research")
+      .eq("status", "published").eq("visibility", "public").eq("source", "research")
       .order("importance", { ascending: false }).order("created_at", { ascending: false }).limit(limit);
     return data || [];
   } catch { return []; }

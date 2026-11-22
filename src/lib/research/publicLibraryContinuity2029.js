@@ -32,8 +32,7 @@ export function publicLibraryQuery2029({ kind = "codes", slug = null, collection
   return {
     table: "els_records", select: `${CIPHER_FIELDS}${exactSlug ? ",saved_shape:positions->>shapeUrl,saved_findings:positions->findings" : ""}`,
     eq: { status: "published", visibility: "public", ...(exactSlug ? { slug: exactSlug } : collection === "research" ? { source: "research" } : {}) },
-    or: [!exactSlug && collection !== "research" ? "source.is.null,source.neq.research" : null,
-      !exactSlug && term ? `search_term.ilike.%${term}%,title.ilike.%${term}%` : null].filter(Boolean),
+    or: !exactSlug && term ? [`search_term.ilike.%${term}%,title.ilike.%${term}%`] : [],
     order: [["created_at", false], ["id", false]], offset: exactSlug ? 0 : start, limit: exactSlug ? 2 : size + 1, pageSize: size,
   };
 }
@@ -149,7 +148,7 @@ export async function fetchPublicLibrary2029(options = {}) {
   const rows = await rowsFor(spec, options), page = rows.slice(0, spec.pageSize), seen = new Set();
   const items = page.flatMap(row => {
     const item = options.kind === "books" ? projectPublicBook2029(row) : projectPublicCipher2029(row);
-    if (!item || seen.has(item.id) || options.kind !== "books" && item.sourceCollection !== (options.collection === "research" ? "research" : "published")) return [];
+    if (!item || seen.has(item.id) || options.kind !== "books" && options.collection === "research" && item.sourceCollection !== "research") return [];
     seen.add(item.id);
     return [item];
   });
@@ -186,6 +185,6 @@ export function publicLibraryMetadata2029({ kind = "codes", item = null, detail 
     title: known && item ? item.title : detail ? loading ? "פותח את המקור" : failed ? "המקור לא נטען" : "הפריט אינו זמין לציבור" : title,
     description: known && item ? item.readerState === "preparation_closed" ? "הספר בהכנה. המקור והעבודה הקיימת נשמרים; הקריאה תיפתח בנפרד." : item.description || (kind === "books" ? "קריאה במקור הספר." : "פרסום צופן שמור. החישוב והפרשנות מוצגים בנפרד מן המקור.") : `${title} · קריאה במקורות ציבוריים.`,
     image: known ? item?.image || undefined : undefined,
-    noindex: !known || collection === "research" || item?.sourceCollection === "research" || kind === "books" && detail && item?.readerState !== "ready",
+    noindex: !known || kind === "books" && detail && item?.readerState !== "ready",
   };
 }

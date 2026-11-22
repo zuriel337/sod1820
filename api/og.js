@@ -5,7 +5,7 @@ import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
   loadPublicForumContinuation2029, loadPublicCommentPostContinuation2029,
   loadPublicPeopleContinuation2029, publicContinuityPage2029, publicContinuityHttpStatus2029,
   publicForumChatHref2029, publicHistoricalLecturePage2029 } from "../src/lib/publicContinuityReaders2029.js";
-import { fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
+import { fetchPublicLibrary2029, fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { COMMUNITY_CALCULATOR_SEO } from "../src/lib/research/communityCalculatorSeo2029.js";
@@ -426,6 +426,14 @@ export default async function handler(req, res) {
     if (!Array.isArray(rows)) throw new Error('continuity-source-invalid');
     return rows;
   };
+  const readLibraryRows = async (spec, { signal } = {}) => {
+    const params = new URLSearchParams({ select: spec.select, limit: String(spec.limit), offset: String(spec.offset) });
+    for (const [field, value] of Object.entries(spec.eq || {})) params.set(field, `eq.${value}`);
+    for (const [field, value] of Object.entries(spec.ilike || {})) params.set(field, `ilike.${value}`);
+    if (spec.or?.length) params.set('and', `(${spec.or.map(value => `or(${value})`).join(',')})`);
+    if (spec.order?.length) params.set('order', spec.order.map(([field, asc]) => field + (asc ? '.asc' : '.desc')).join(','));
+    return readContinuityRows(spec.table, Object.fromEntries(params), { signal });
+  };
   const productionRouteState = productionReading ? decodedKey === "/unsubscribe" ? "public" : publicReadingPath(key, { search: continuitySearch }) : null;
   const researchCategory = productionReading && productionRouteState === "public" ? publicResearchCategory2029(key) : null;
   let taxonomy = productionReading ? postsTaxonomyRoute2029(researchCategory?.path || key, continuitySearch) : null;
@@ -631,13 +639,11 @@ export default async function handler(req, res) {
     const kind = decodedKey.startsWith('/book/') ? 'books' : 'codes';
     const slug = decodedKey.slice(decodedKey.indexOf('/', 1) + 1);
     try {
-      const item = await fetchPublicLibraryItem2029(kind, slug, { readRows: async (spec, { signal } = {}) => {
-        const params = new URLSearchParams({ select: spec.select, limit: String(spec.limit), offset: String(spec.offset) });
-        for (const [field, value] of Object.entries(spec.eq || {})) params.set(field, `eq.${value}`);
-        for (const [field, value] of Object.entries(spec.ilike || {})) params.set(field, `ilike.${value}`);
-        if (spec.or?.length) params.set('and', `(${spec.or.map(value => `or(${value})`).join(',')})`);
-        return readContinuityRows(spec.table, Object.fromEntries(params), { signal });
-      } });
+      const item = await fetchPublicLibraryItem2029(kind, slug, { readRows: readLibraryRows });
+      if (kind === 'codes' && item && !continuityParams.size) req.publicReadingFirstWords?.({
+        kind: 'code', code: { title: item.title, search_term: item.term, scope: item.scope, skip_distance: item.skip },
+        findings: item.annotations.slice(0, 12).map(annotation => annotation.term),
+      });
       const meta = publicLibraryMetadata2029({ kind, item, detail: true });
       documentStatus = item ? 200 : 404;
       title = `${meta.title} · ${SITE_NAME}`; desc = cleanDesc(meta.description, 180);
@@ -649,6 +655,23 @@ export default async function handler(req, res) {
     title = `${meta.title} · ${SITE_NAME}`; desc = meta.description;
     image = cardUrl({ w: meta.title, sub: 'מקורות ציבוריים' });
     robots = meta.noindex ? 'noindex, follow' : 'index, follow';
+    if (decodedKey.startsWith('/codes') && continuityParams.size) {
+      const pages = continuityParams.getAll('page'), page = Number(pages[0] || 1);
+      const validPage = !pages.length || pages.length === 1 && /^[1-9]\d{0,3}$/.test(pages[0]) && page <= 4167;
+      if (!validPage) { documentStatus = 404; robots = 'noindex, follow'; }
+      else if ([...continuityParams.keys()].some(key => key !== 'page')) robots = 'noindex, follow';
+      else try {
+        const research = decodedKey === '/codes/מחקר';
+        const result = await fetchPublicLibrary2029({ kind: 'codes', collection: research ? 'research' : 'published', offset: (page - 1) * 24, readRows: readLibraryRows });
+        if (page > 1 && !result.items.length) { documentStatus = 404; robots = 'noindex, follow'; }
+        else {
+          canonical = SITE + encodeURI(decodedKey) + (page > 1 ? '?page=' + page : '');
+          if (page > 1) title = `${meta.title} · עמוד ${page} · ${SITE_NAME}`;
+          req.publicReadingFirstWords?.({ kind: 'codes', page, research, more: result.more,
+            codes: result.items.map(item => ({ slug: item.slug, title: item.title, skip_distance: item.skip })) });
+        }
+      } catch { documentStatus = 503; robots = 'noindex, follow'; }
+    }
   } else if (productionReading && (decodedKey === '/beit-midrash' || /^\/beit-midrash\/[^/]+$/.test(decodedKey))) {
     // The learning area is a public SPA route, not a Post slug: without this branch the document fell through to the
     // post lookup and answered 404 "הפוסט לא נמצא" although the page renders. The method/section in the URL is resolved
