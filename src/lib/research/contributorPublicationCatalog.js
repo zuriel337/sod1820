@@ -43,8 +43,14 @@ async function pages(read) {
   return { rows, complete: false };
 }
 
+// An author's explicit dossier submission is readable at the exact matrix workspace.
+export function isOwnSubmittedCipher(row, userId) {
+  return Boolean(userId && row?.owner_user_id === userId && row.source === "community"
+    && row.self_published === true && row.status === "pending" && row.visibility === "private");
+}
+
 export async function fetchContributorPublicationCatalog(identity, { client, attributionReader = fetchContributorAuthorAttribution,
-  families = CONTRIBUTOR_PUBLICATION_FAMILIES } = {}) {
+  families = CONTRIBUTOR_PUBLICATION_FAMILIES, includeDossierSubmissions = false } = {}) {
   if (!client || !identity?.id) throw new Error("anonymous_catalogue_identity_required");
   // One shared, bounded inventory resolves registered aliases and collisions for
   // every name-based family, including callers from World that only carry an ID.
@@ -67,11 +73,14 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
       const filters = [canonical.user_id && `owner_user_id.eq.${quoted(canonical.user_id)}`,
         ...names.map((name) => `author_name.eq.${quoted(name)}`)].filter(Boolean);
       if (!filters.length) throw new Error("public_author_credit_unresolved");
-      const result = await pages((offset, size) => client.from("els_records")
-      .select("id,slug,title,search_term,created_at,image_url,author_name,owner_user_id,status,visibility")
-      .or(filters.join(",")).eq("status", "published").eq("visibility", "public")
-      .order("created_at", { ascending: false }).order("id", { ascending: false })
-      .range(offset, offset + size - 1));
+      const result = await pages((offset, size) => {
+        const base = client.from("els_records")
+          .select("id,slug,title,search_term,created_at,image_url,author_name,owner_user_id,status,visibility,self_published,source");
+        const scoped = includeDossierSubmissions && canonical.user_id
+          ? base.or(`and(status.eq.published,visibility.eq.public,or(${filters.join(",")})),and(owner_user_id.eq.${quoted(canonical.user_id)},source.eq.community,status.eq.pending,visibility.eq.private,self_published.eq.true)`)
+          : base.or(filters.join(",")).eq("status", "published").eq("visibility", "public");
+        return scoped.order("created_at", { ascending: false }).order("id", { ascending: false }).range(offset, offset + size - 1);
+      });
       return { ...result, rows: result.rows.filter((row) => names.includes(row.author_name?.trim())
         || Boolean(canonical.user_id && row.owner_user_id === canonical.user_id))
         .map((row) => ({ ...row, attributionBasis: names.includes(row.author_name?.trim()) ? "source_author_credit"

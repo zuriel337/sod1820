@@ -1,6 +1,6 @@
 import { contributorHref } from "../../lib/supabase.js";
 import { CONTRIBUTOR_LOAD_PROFILE, fetchContributorFindingsProjection } from "../../lib/research/contributorFindingsProjection.js";
-import { CONTRIBUTOR_PUBLICATION_FAMILIES, fetchContributorPublicationCatalog } from "../../lib/research/contributorPublicationCatalog.js";
+import { CONTRIBUTOR_PUBLICATION_FAMILIES, fetchContributorPublicationCatalog, isOwnSubmittedCipher } from "../../lib/research/contributorPublicationCatalog.js";
 import { getPublicResearchClient, PROJECTOR_MODE } from "../../lib/research/researchViewMode.js";
 import { appendContributorPublicationCatalog, buildPublicContributorView, publicContributorAvatar } from "./publicContributor2029Model.js";
 import { displayAvatarUrl } from "../../lib/avatar.js";
@@ -42,14 +42,14 @@ export async function loadPublicContributorCard2029(slug, { client = getPublicRe
   publicationReader = fetchContributorPublicationCatalog } = {}) {
   const identity = await readPublicContributorIdentity(slug, client);
   if (!identity) return null;
-  const catalogue = await publicationReader(identity, { client, families: identity.slug === "tzvi-opoc" ? ["posts"] : writerCardFamilies });
+  const catalogue = await publicationReader(identity, { client, includeDossierSubmissions: true, families: identity.slug === "tzvi-opoc" ? ["posts"] : writerCardFamilies });
   const count = (family, rows = catalogue[family]?.rows) => catalogue[family]?.complete === true && catalogue[family].availability === "ok"
     ? rows.length : null;
   return {
     name: identity.display_name,
     avatar: publicContributorPortrait(identity),
     posts: count("posts", catalogue.posts?.rows.filter(row => row.slug)),
-    ciphers: count("ciphers", catalogue.ciphers?.rows.filter(row => row.slug && row.status === "published" && row.visibility === "public")),
+    ciphers: count("ciphers", catalogue.ciphers?.rows.filter(row => row.slug && (row.status === "published" && row.visibility === "public" || isOwnSubmittedCipher(row, identity.user_id)))),
     contributions: count("contributions", publicSiteContributions(catalogue)),
     signedPassages: count("signedPassages"),
     firstPublicationAt: earliestWriterPublication(catalogue),
@@ -96,7 +96,7 @@ export async function loadPublicContributor2029(slug, {
     // The existing Topic reader imports the session client and has no anonymous-client seam.
     // Fail closed until its owner adds one. Never duplicate that reader in a visual session.
     topicsReader: async () => { throw new Error("anonymous_topic_reader_unavailable"); },
-  }), publicationReader(identity, { client, families: [...CONTRIBUTOR_PUBLICATION_FAMILIES, "signedPassages"] })]);
+  }), publicationReader(identity, { client, includeDossierSubmissions: true, families: [...CONTRIBUTOR_PUBLICATION_FAMILIES, "signedPassages"] })]);
   if (!projection) return null;
   const view = buildPublicContributorView(projection, identity);
   return withPublicContributorPerson2029(appendContributorPublicationCatalog({ ...view, profile: { ...view.profile, avatar: avatarUrl },
