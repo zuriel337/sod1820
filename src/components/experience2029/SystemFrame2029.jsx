@@ -164,21 +164,36 @@ const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW 
 // picks it: "123" was shared by the calculator and the Number page, "▤" by Books and Beit Midrash, "◌" by the World and the site map,
 // and "◉" / "✉" / "◇" fell back to the generic tools grid. test/navigation-symbols-distinct-2029.test.mjs reads these four lists
 // from this file, renders each item through the real component and fails on a missing, uncatalogued, shared or fallback symbol.
+// Only the public-reading router serves all four destinations. Both rail variants use the same entries.
+const archiveAndGalleryNav = PUBLIC_READING_RELEASE ? [
+  { to: "/archive", label: "ארכיון לפי שנה ונושא", symbol: "journal" },
+  { to: "/gallery", label: "גלריות ותמונות", symbol: "gallery" },
+] : [];
+const cipherLibraryNav = PUBLIC_READING_RELEASE ? [
+  { to: "/codes", label: "ספריית הצפנים", symbol: "layers" },
+] : [];
+const communityCalculatorNav = PUBLIC_READING_RELEASE ? [
+  { to: "/community/calculator", label: "מחשבון הקהילה לשמות", symbol: "letters" },
+] : [];
+
 const HOME_NAV = [
   { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
   { to: "/world", label: "העולם", symbol: "world", building: true },
   { to: "/heichal", label: "היכל", symbol: "heichal" },
   { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
+  ...archiveAndGalleryNav,
   { to: "/2029/journey", label: "מסע החיים", symbol: "journey" },
   { to: "/community/chat", label: "קהילה", symbol: "community" },
 ];
 
 const DIRECT_NAV = [
   { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
+  ...communityCalculatorNav,
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
-  { to: "/els", label: "ELS · הצופן התנ״כי", symbol: "els", building: true },
+  ...cipherLibraryNav,
+  { to: "/els", label: "כלי הצופן התנ״כי", symbol: "els", building: true },
   // Site map, email updates and privacy are not rows of the navigation rail (ZURIEL 19.11.2026): they live in the footer ("מידע",
   // and the updates signup) and in their own pages; the rail keeps destinations only.
 ];
@@ -186,6 +201,7 @@ const DIRECT_NAV = [
 const CORE_HOME_NAV = [
   { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
   { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
+  ...archiveAndGalleryNav,
   { to: "/community/chat", label: "קהילה", symbol: "community" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", symbol: "heichal" },
@@ -193,8 +209,10 @@ const CORE_HOME_NAV = [
 ];
 
 const CORE_DIRECT_NAV = [
-  { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els", building: true },
+  ...cipherLibraryNav,
+  { to: "/code", label: "כלי הצופן התנ״כי", symbol: "els", building: true },
   { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
+  ...communityCalculatorNav,
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },

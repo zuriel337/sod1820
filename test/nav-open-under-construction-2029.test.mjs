@@ -8,8 +8,8 @@ const footer = readFileSync(new URL("../src/components/experience2029/Footer2029
 
 test("the menu applies construction badges to preview and respects the World and cipher locks", () => {
   assert.match(frame, /\{ to: "\/world", label: "העולם", symbol: "world", building: true \}/);
-  assert.match(frame, /\{ to: "\/els", label: "ELS · הצופן התנ״כי", symbol: "els", building: true \}/);
-  assert.match(frame, /\{ to: "\/code", label: "ELS · הצופן התנ״כי", symbol: "els", building: true \}/);
+  assert.match(frame, /\{ to: "\/els", label: "כלי הצופן התנ״כי", symbol: "els", building: true \}/);
+  assert.match(frame, /\{ to: "\/code", label: "כלי הצופן התנ״כי", symbol: "els", building: true \}/);
   assert.ok(frame.includes('item.label === "העולם" ? { ...item, locked: worldLocked, building: !PUBLIC_READING_RELEASE }'));
   assert.ok(frame.includes('(item.to === "/els" || item.to === "/code") ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed), building: !PUBLIC_READING_RELEASE }'));
   // The mark is rendered inside the NavLink (still a link), never as the disabled pending button.

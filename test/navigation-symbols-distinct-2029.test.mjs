@@ -48,21 +48,15 @@ const { render, ICON_CATALOG, NAVIGATION_ICON_NAMES } = await import(pathToFileU
 const frameSource = await readFile(join(root, "src/components/experience2029/SystemFrame2029.jsx"), "utf8");
 const LIST_NAMES = ["HOME_NAV", "DIRECT_NAV", "CORE_HOME_NAV", "CORE_DIRECT_NAV"];
 
-/** The text of `const NAME = [ ... ];` as written in the frame (each list ends on a line that is just `];`). */
-function listLiteral(name) {
-  const header = `const ${name} = [`;
-  const start = frameSource.indexOf(header);
-  assert.notEqual(start, -1, `${name} is defined in SystemFrame2029.jsx`);
-  assert.equal(frameSource.indexOf(header, start + 1), -1, `${name} is defined once`);
-  const end = frameSource.indexOf("\n];", start);
-  assert.notEqual(end, -1, `${name} ends with a line that is just "];"`);
-  return frameSource.slice(start + `const ${name} = `.length, end + 3);
-}
-
-/** Evaluates the real lists. `publicFoundationPreview` is the only switch they read. */
-function navigationLists(publicFoundationPreview) {
-  const body = LIST_NAMES.map((name) => `const ${name} = ${listLiteral(name)};`).join("\n");
-  return new Function("publicFoundationPreview", `${body}\nreturn { ${LIST_NAMES.join(", ")} };`)(publicFoundationPreview);
+// Evaluate the production declarations, including the shared groups controlled by the release profile.
+function navigationLists(publicFoundationPreview, publicReadingRelease = false) {
+  const start = frameSource.indexOf("const archiveAndGalleryNav = ");
+  const end = frameSource.indexOf("const FOCUSABLE = ", start);
+  assert.ok(start >= 0 && end > start, "the frame's navigation declarations exist");
+  const declarations = frameSource.slice(start, end);
+  return new Function("publicFoundationPreview", "PUBLIC_READING_RELEASE", declarations + `\nreturn { ${LIST_NAMES.join(", ")} };`)(
+    publicFoundationPreview, publicReadingRelease
+  );
 }
 
 const innerGeometry = (markup) => markup.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
@@ -95,9 +89,8 @@ function auditRails(rails) {
 /** Every rail a visitor can be shown: the public-foundation build and the default build, each in its normal and core-public variant. */
 function realRails() {
   const rails = {};
-  for (const publicFoundationPreview of [true, false]) {
-    const lists = navigationLists(publicFoundationPreview);
-    const tag = publicFoundationPreview ? "public foundation" : "default";
+  for (const [tag, foundation, release] of [["default", false, false], ["public foundation", true, false], ["public reading", true, true]]) {
+    const lists = navigationLists(foundation, release);
     rails[`${tag} rail`] = [...lists.HOME_NAV, ...lists.DIRECT_NAV];
     rails[`${tag} core rail`] = [...lists.CORE_HOME_NAV, ...lists.CORE_DIRECT_NAV];
   }
@@ -108,6 +101,23 @@ test("every navigation destination names a catalogued symbol, none is shared and
   const rails = realRails();
   assert.ok(Object.values(rails).every((items) => items.length >= 11), "the rails were read in full, not an empty or partial list");
   assert.deepEqual(auditRails(rails), []);
+});
+
+test("each public rail offers archive, gallery, cipher library and community calculator once next to its related destination", () => {
+  const publicLists = navigationLists(true, true);
+  const previewLists = navigationLists(true, false);
+  for (const [home, direct] of [["HOME_NAV", "DIRECT_NAV"], ["CORE_HOME_NAV", "CORE_DIRECT_NAV"]]) {
+    const items = [...publicLists[home], ...publicLists[direct]];
+    const preview = [...previewLists[home], ...previewLists[direct]];
+    for (const href of ["/archive", "/gallery", "/codes", "/community/calculator"]) {
+      assert.equal(items.filter(item => item.to === href).length, 1, href);
+      assert.ok(!preview.some(item => item.to === href), href + " release scope");
+    }
+    const posts = items.findIndex(item => item.symbol === "posts");
+    assert.deepEqual(items.slice(posts + 1, posts + 3).map(item => item.to), ["/archive", "/gallery"]);
+    assert.equal(items[items.findIndex(item => item.symbol === "els") - 1].to, "/codes");
+    assert.equal(items[items.findIndex(item => item.to === "/gematria") + 1].to, "/community/calculator");
+  }
 });
 
 test("the destinations that used to look alike each have their own picture", () => {
@@ -171,7 +181,7 @@ test("the whole icon family stays distinct, on the 24px grid and in theme colour
 });
 
 test("the frame draws the named symbol and keeps it when a destination is shown as under construction", () => {
-  for (const name of LIST_NAMES) assert.ok(!/\bicon:\s*"/.test(listLiteral(name)), `${name}: no item picks its picture from a text glyph any more`);
+  for (const [name, items] of Object.entries(realRails())) assert.ok(items.every(item => !Object.hasOwn(item, "icon")), `${name}: no item picks its picture from a text glyph`);
   assert.equal((frameSource.match(/<NavigationIcon2029 name=\{item\.symbol\} \/>/g) || []).length, 4, "locked, link, action and pending rows draw item.symbol");
   assert.ok(!/<NavigationIcon2029 glyph=\{item\.icon\}/.test(frameSource), "no row picks its picture from a text glyph");
   assert.match(frameSource, /\{ label: item\.label, symbol: item\.symbol, status: "בבנייה" \}/, "the under-construction state keeps the symbol");
