@@ -135,6 +135,8 @@ export function firstWordsFamily2029(path) {
   let decoded;
   try { decoded = decodeURIComponent(path).replace(/\/+$/, "") || "/"; } catch { return null; }
   if (decoded === "/") return { kind: "home" };
+  if (decoded === "/number") return { kind: "number-search" };
+  if (decoded === "/community" || decoded === "/community/chat") return { kind: "community-chat" };
   if (decoded === "/gematria") return { kind: "gematria" };
   if (decoded === "/community/calculator") return { kind: "community-calculator" };
   if (decoded === "/codes") return { kind: "codes" };
@@ -189,7 +191,7 @@ export async function firstWordsFacts2029(path, { search = "", fetchImpl = globa
   const family = search ? null : firstWordsFamily2029(path);
   // Detail metadata admits the exact record. Pagination metadata reads the requested slice.
   if (family?.kind === "code") return null;
-  if (family?.kind === "home") return { kind: "home" };
+  if (family && ["home", "number-search", "community-chat"].includes(family.kind)) return family;
   if (!family || typeof fetchImpl !== "function") return null;
   try {
     const key = JSON.stringify(family), entry = kept.get(key), age = entry ? now() - entry.at : Infinity;
@@ -207,6 +209,14 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "number-search") {
+    return "<h1>מספר או ביטוי</h1><p>המספרים, הביטויים והמקורות במנוע הקיים. חיפוש אינו פרסום ציבורי.</p>"
+      + '<p><a href="/number/1820">1820 בגימטריה</a> · <a href="/gematria">מחשבון גימטריה מקצועי</a></p>';
+  }
+  if (facts.kind === "community-chat") {
+    return "<h1>צ'אט הקהילה</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>"
+      + '<p><a href="/community/researchers">אנשים בקהילה</a> · <a href="/community/calculator">מחשבון הקהילה</a></p>';
+  }
   if (facts.kind === "home") {
     const words = HOME_FIRST_WORDS;
     // Exact wording; the series line and the start line are links to destinations that exist today. The start items are inline

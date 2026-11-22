@@ -30,6 +30,23 @@ test("only the named public families have first words; a query string, a private
   for (const path of ["/2029/me/profile", "/number/0", "/number/1234567890123", "/post/x", "/number/%E0%A4%A", "/journey"]) assert.equal(firstWordsFamily2029(path), null, path);
 });
 
+test("the bare number search and community chat have reading links without fetching conversations or searches", async () => {
+  let calls = 0;
+  const fetchImpl = () => { calls++; throw new Error("unexpected reader"); };
+  for (const [path, heading, href] of [
+    ["/number", "מספר או ביטוי", "/number/1820"],
+    ["/community/chat", "צ'אט הקהילה", "/community/calculator"],
+    ["/community", "צ'אט הקהילה", "/community/calculator"],
+  ]) {
+    const html = firstWordsHtml2029(await firstWordsFacts2029(path, { fetchImpl }));
+    assert.ok(html.includes(`<h1>${heading}</h1>`), path);
+    assert.ok(html.includes(`href="${href}"`), path);
+    assert.equal(await firstWordsFacts2029(path, { search: "?q=test", fetchImpl }), null, path);
+    assert.equal(firstWordsStaticFacts2029(path), null, "a query variant cannot inherit a fallback");
+  }
+  assert.equal(calls, 0);
+});
+
 test("a number page lists only verified published phrases, its published posts and a way back to the calculator", async () => {
   const calls = [];
   const fetchImpl = source([
