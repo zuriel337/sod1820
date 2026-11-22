@@ -584,7 +584,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
         </div>
         <AdSlot place="list" />
       </section> : null}
-      {!loading && !error && hasItems ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
+      {!lectureFiltering && !loading && !error && hasItems ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
         <button type="button" disabled={page <= 1} onClick={() => goToPage(page - 1)}>פוסטים חדשים יותר</button>
         <span aria-live="polite">עמוד {page} מתוך {pages}</span>
         <button type="button" disabled={page >= pages} onClick={() => goToPage(page + 1)}>פוסטים קודמים</button>
