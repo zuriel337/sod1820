@@ -38,7 +38,7 @@ export function publicMapGroups2029(production) {
       ["/or-geula", "אור הגאולה"],
     ] },
     { title: "קהילה", links: [
-      registered("or-geula", "הצ׳אט החי"), ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות הקהילה"],
+      registered("or-geula", "הצ׳אט החי"), ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות לפוסטים"],
     ] },
     ...(production ? [{ title: "הרצאות ודפי מקור", links: [
       [PUBLIC_HISTORICAL_LECTURE_PATHS[0], "משיח בשנת התשע״ו"],
