@@ -80,9 +80,13 @@ async function postsOfNumber(read, value) {
   return slugs.map(slug => rows.find(row => row.slug === slug)).filter(Boolean);
 }
 
-async function numberFacts(read, value) {
+async function numberFacts(read, value, progress) {
   const [phrases, anchor, posts] = await Promise.all([
-    read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=60`),
+    read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=60`).then(rows => {
+      const phrases = unique(rows, "phrase");
+      if (phrases.length) progress.partial = { kind: "number", value, phrases, anchor: null, posts: [] };
+      return rows;
+    }),
     optional(read.rows(`number_anchors?value=eq.${value}&select=fact,hint&limit=1`)),
     optional(postsOfNumber(read, value)),
   ]);
@@ -149,9 +153,9 @@ export function firstWordsFamily2029(path) {
   return null;
 }
 
-async function readFacts(family, fetchImpl, deadlineMs) {
+async function readFacts(family, fetchImpl, deadlineMs, progress) {
   const read = reader(fetchImpl, AbortSignal.timeout(deadlineMs));
-  if (family.kind === "number") return numberFacts(read, family.value);
+  if (family.kind === "number") return numberFacts(read, family.value, progress);
   if (family.kind === "phrase") return phraseFacts(read, family.phrase);
   if (family.kind === "codes") return codesFacts(read);
   if (family.kind === "code") return codeFacts(read, family.slug);
@@ -172,16 +176,24 @@ function keepAlive(promise) {
   return promise;
 }
 function refresh(key, family, fetchImpl, deadlineMs, now) {
-  if (reading.has(key)) return reading.get(key);
-  const pending = readFacts(family, fetchImpl, deadlineMs).then(facts => {
+  if (reading.has(key)) return reading.get(key).pending;
+  const progress = { pending: null, partial: null };
+  const pending = readFacts(family, fetchImpl, deadlineMs, progress).then(facts => {
     kept.delete(key); kept.set(key, { facts, at: now() });
     if (kept.size > FIRST_WORDS_CACHE.entries) kept.delete(kept.keys().next().value);
     return facts;
-  }).finally(() => { if (reading.get(key) === pending) reading.delete(key); });
-  reading.set(key, pending);
+  }).finally(() => { if (reading.get(key) === progress) reading.delete(key); });
+  progress.pending = pending;
+  reading.set(key, progress);
   // The read outlives a request that stopped waiting for it, so the next request finds its answer.
   keepAlive(pending.catch(() => null));
   return pending;
+}
+
+// A cold number read may already have public verified phrases while its related posts are loading.
+export function numberWordsInFlight2029(path, search) {
+  const family = !search && firstWordsFamily2029(path);
+  return family?.kind === "number" ? reading.get(JSON.stringify(family))?.partial : null;
 }
 
 export async function firstWordsFacts2029(path, { search = "", fetchImpl = globalThis.fetch, deadlineMs = FIRST_WORDS_DEADLINE_MS, now = Date.now } = {}) {
