@@ -72,6 +72,8 @@ jobs:
           fi
       - name: Contracts and enforcement package pins (package scope and counts, CL-16 independence, required-checks definition)
         run: node --test test/contracts-enforcement-package-2029.test.mjs test/required-checks-definition-2029.test.mjs
+      - name: Gilui Yomi quoted-parent canonical source proof (no network, no DB writes)
+        run: node --test test/gilui-yomi-quoted-parent-contract.test.mjs
 
   perf-contracts-2029:
     name: perf-contracts-2029
