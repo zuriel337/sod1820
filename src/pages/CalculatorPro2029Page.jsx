@@ -547,7 +547,7 @@ function ProExperience() {
 
   return (
     <section className={`sod29-calcpro r29${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
-      <h1 className="sod29-calcpro-sr">{CALCULATOR_PRO_SEO.heading}</h1>
+      <h1 className="sod29-kicker">{CALCULATOR_PRO_SEO.heading}</h1>
       <CalculatorWordsBar2029
         currentExpression={info.expression}
         onPick={(word, kind) => {
@@ -703,6 +703,7 @@ function ProExperience() {
           ) : null}
         </aside>
       </div>
+      <Link className="sod29-action" to="/community/calculator">מחשבון הקהילה לשמות ולהשוואה</Link>
     </section>
   );
 }
@@ -736,7 +737,7 @@ function CalculatorPro2029Content() {
       introVariant="none"
       symbol="∑"
       eyebrow="מחשבון מקצועי"
-      title="מחשבון גימטריה"
+      title={CALCULATOR_PRO_SEO.heading}
       description="כל השיטות במבט אחד ופירוק אותיות."
     >
       <ProExperience />
