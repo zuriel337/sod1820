@@ -3,7 +3,7 @@
 //
 // These assertions used to sit inside Legacy-era tests (convergence-tree-closure, test-legacy-research-containment, code-page-els-launch-gate,
 // test-whatsapp-kod-hametsiut-join, live-whatsapp-feed-projection, research-viewer-*). Those tests are deleted together with the Legacy code they
-// mostly describe, but each one also guarded something that still ships: the public sitemap, the closed Heichal entry, the ELS 2029 page, the
+// mostly describe, but each one also guarded something that still ships: the public sitemap, the Heichal reading and research entries, the ELS 2029 page, the
 // early-access entry and its redirects, the WhatsApp feed edge functions, and the Human Gate of the research viewer projection.
 // Only assertions about files that still exist are kept here; nothing is loosened and no new behaviour is invented.
 //
@@ -32,7 +32,7 @@ test("public sitemap never lists the retired /numbers entry, whatever the conver
   } finally { globalThis.fetch = previousFetch; }
 });
 
-test("2029 surfaces do not link to the unopened Heichal entry; context actions never deepen into it", () => {
+test("public Heichal navigation is readable and only explicit research actions enter the workspace", () => {
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
   const topic = read("src/pages/Topic2029Page.jsx");
   const books = read("src/pages/Books2029Page.jsx");
@@ -40,15 +40,12 @@ test("2029 surfaces do not link to the unopened Heichal entry; context actions n
   const drawer = read("src/components/number2029/NumberDrawer2029.jsx");
   const contextual = read("src/lib/research/contextualCapabilities.js");
   for (const [name, source] of [["SystemFrame2029", frame], ["Topic2029", topic], ["Books2029", books], ["NumberDrawer2029", drawer]]) {
-    assert.equal(source.includes('to="/heichal"'), false, `${name} must not link to unopened Heichal 2029`);
-    assert.equal(source.includes('navigate("/heichal")'), false, `${name} must not navigate to unopened Heichal 2029`);
-    assert.equal(source.includes('go("/heichal"'), false, `${name} must not navigate to unopened Heichal 2029`);
-    assert.equal(source.includes('go?.("/heichal"'), false, `${name} must not navigate to unopened Heichal 2029`);
+    assert.equal(source.includes('/heichal?mode=research'), false, `${name} must not automatically enter the Heichal workspace`);
   }
   // Number b2531763 explicitly wired the existing Heichal action, alongside distinct saved-ELS and new-ELS destinations.
-  assert.match(number, /onOpenHeichal=\{\(\) => shell\.go\("\/heichal"\)\}/);
+  assert.match(number, /onOpenHeichal=\{\(\) => shell\.go\("\/heichal\?mode=research"\)\}/);
   assert.match(number, /focus\?\.kind === "els_saved_from_number" \? "\/els\?library=public"/);
-  assert.match(number, /focus\?\.kind === "els_new_from_number" \? "\/els" : "\/heichal"/);
+  assert.match(number, /focus\?\.kind === "els_new_from_number" \? "\/els" : "\/heichal\?mode=research"/);
   assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), true, "2029 Global Chrome must expose canonical Heichal navigation");
   assert.equal(contextual.includes('label: "◇ העמק בהיכל"'), false, "context actions must not expose Heichal");
   assert.equal(contextual.includes("deepenTool()"), false, "context tools must not generate Heichal deepen entries");
