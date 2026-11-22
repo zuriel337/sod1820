@@ -2,7 +2,6 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { publicMapGroups2029, publicMapLinks2029 } from "../src/lib/publicMap2029.js";
 
-
 const groups = publicMapGroups2029(true);
 const destinations = groups.flatMap(group => group.links);
 const hrefs = destinations.map(([href]) => href);
