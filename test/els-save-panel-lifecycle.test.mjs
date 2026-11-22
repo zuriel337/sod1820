@@ -31,8 +31,8 @@ const checkboxes = root => root.root.findAll(node => node.type === 'input' && no
 
 test('new save requests publication by default, explains dossier vs library, and offers an explicit private choice', async t => {
   const f = await mount(t);
-  assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל הוא מתפרסם בתיק המחקר שלך/);
-  assert.match(JSON.stringify(f.root.toJSON()), /הצגתו בספריית האתר כפופה לאישור/);
+  assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל אפשר לשתף קישור לצופן/);
+  assert.match(JSON.stringify(f.root.toJSON()), /ההוספה לספריית האתר כפופה לאישור/);
   assert.equal(checkboxes(f.root)[0].props.checked, false);
   await f.submit();
   assert.deepEqual(f.saves[0], { title: 'תורה', desc: state.provenance.desc, isPublic: true });

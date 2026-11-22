@@ -1,4 +1,3 @@
-import { savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
 // Page-local presentation over the canonical readers. No persistence or attribution inference.
 import { normalizeWorldAllResearchRow } from "../../lib/research/worldAllResearchProjection.js";
 import { orderResearchByPublicStatusTier, researchPublicStatusPresentation } from "../../lib/research/researchObjectPresentation.js";
@@ -214,7 +213,7 @@ export function appendContributorPublicationCatalog(view, catalogue, identity) {
     put({ id: `els:${row.id}`, sourceRef: `els_records:${row.id}`,
       type: row.attributionBasis === "source_author_credit" ? "findings" : "sources",
       label: row.attributionBasis === "source_author_credit" ? "צופן שמור" : "צופן שהועלה",
-      title: text(row.title || row.search_term), date: row.created_at, href: submitted ? savedMatrixWorkspaceHref(row) : `/codes/${encodeURIComponent(row.slug)}`,
+      title: text(row.title || row.search_term), date: row.created_at, href: submitted ? `/code?record=${encodeURIComponent(row.id)}` : `/codes/${encodeURIComponent(row.slug)}`,
       media: Boolean(mediaUrl), mediaUrl, strength: null, quality: null, value: null, verification: null,
       reason: row.attributionBasis === "source_author_credit"
         ? "צופן עם קרדיט מחבר מפורש במקור; חשבון המעלה עשוי להיות שונה. פרסום אינו אימות."

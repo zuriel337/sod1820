@@ -86,7 +86,7 @@ test("a public writer dossier admits just the owner's explicitly submitted commu
     { self_published: false }, { source: "admin" },
   ].map((change, index) => ({ ...submission, ...change, id: String(index) }))];
   const result = appendContributorPublicationCatalog(view(), { ciphers: { rows, complete: true } }, identity);
-  assert.deepEqual(result.items.map(row => [row.id, row.href]), [["els:mine", "/code?cipher=saved-matrix"]]);
+  assert.deepEqual(result.items.map(row => [row.id, row.href]), [["els:mine", "/code?record=mine"]]);
 });
 
 test("lineage collapses a projected insight, while keeping its original source reference", () => {
