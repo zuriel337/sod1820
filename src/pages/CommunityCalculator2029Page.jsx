@@ -212,7 +212,7 @@ function CalculatorExperience({ model, initialState, location }) {
   return <Continuation.Provider value={{ returnHref, research }}>
     <main className="sod29-community-calc r29" dir="rtl">
       <header className="sod29-community-calc-hero">
-        <span className="sod29-community-calc-eyebrow">גימטריה · שמות · תאריכים</span>
+        <span className="sod29-community-calc-eyebrow">מחשבון הקהילה · שמות ותאריכים</span>
         <h1>{COMMUNITY_CALCULATOR_SEO.heading}</h1>
         <p className="sod29-community-calc-hook">{COMMUNITY_CALCULATOR_SEO.hook}</p>
         <div className="r29-rule" aria-hidden="true">◆</div>
@@ -323,7 +323,7 @@ function CalculatorExperience({ model, initialState, location }) {
             <button type="button" className="sod29-community-calc-button" disabled={model.aiBusy} onClick={() => model.runAi()}>{model.aiBusy ? "מכין ניתוח…" : "ניתוח AI של השם"}</button>
             {model.aiText && <p>{model.aiText}</p>}
           </div> : null}
-        <Link className="sod29-community-calc-text-button" to="/gematria">למחשבון הגימטריה הכללי ←</Link>
+        <Link className="sod29-community-calc-text-button" to="/gematria">למחשבון הגימטריה המקצועי ←</Link>
       </footer>
     </main>
   </Continuation.Provider>;

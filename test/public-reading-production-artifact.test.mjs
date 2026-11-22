@@ -207,6 +207,44 @@ test("public topic/writer/video missing and failed source responses keep 404 and
   }
 });
 
+test('public cipher documents reuse the admitted record and preserve page links across the research collection', async () => {
+  const cipher = { id: 'cipher-id', slug: 'research-result', title: 'פרסום מחקר', source: 'research', status: 'published', visibility: 'public' };
+  const shell = '<html><head><title>static</title></head><body><div id="root"><div><div><span class="sod29-opening-status" role="status">פותח</span></div></div></div></body></html>';
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true, readDocument: async () => shell });
+  const calls = [];
+  await withFetch(async input => {
+    const url = new URL(input);
+    assert.equal(url.pathname, '/rest/v1/els_records');
+    const query = url.searchParams;
+    calls.push(query);
+    assert.equal(query.get('status'), 'eq.published');
+    assert.equal(query.get('visibility'), 'eq.public');
+    if (query.has('slug')) return json(query.get('slug') === 'eq.research-result' ? [cipher] : []);
+    return json(query.get('offset') === '24' ? [cipher] : []);
+  }, async () => {
+    const detail = response();
+    await handler(req('/codes/research-result'), detail);
+    assert.equal(calls.length, 1);
+    assert.equal(detail.code, 200);
+    assert.equal(detail.headers.get('x-sod-first-words'), 'served');
+    assert.equal(detail.headers.get('x-robots-tag'), 'index, follow');
+    assert.match(detail.body, /<h1>הצופן «פרסום מחקר»<\/h1>/);
+    const page = response();
+    await handler(req('/codes?page=2'), page);
+    assert.equal(calls.length, 2);
+    assert.equal(calls[1].get('order'), 'created_at.desc,id.desc');
+    assert.match(page.body, /href="\/codes\/research-result"/);
+    assert.match(page.body, /rel="prev" href="\/codes"/);
+    assert.match(page.body, /rel="canonical" href="https:\/\/sod1820\.co\.il\/codes\?page=2"/);
+    for (const path of ['/codes?page=3', '/codes/hidden']) {
+      const unavailable = response();
+      await handler(req(path), unavailable);
+      assert.equal(unavailable.code, 404);
+      assert.doesNotMatch(unavailable.body, /data-first-words="code/);
+    }
+  });
+});
+
 test("sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video", async () => {
   const calls = [];
   const fetcher = async (url, options) => {
@@ -217,7 +255,7 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
       ? new Response(null, { headers: { "content-range": "0-0/1" } }) : json([{ phrase: "בראשית" }]);
     if (value.includes("/topic_cards_public?")) return json([{ slug: "subject" }]);
     if (value.includes("/contributors?")) { assert.match(value, /active=eq.true.*visibility.eq.public/); return json([{ slug: "writer", code: "2042" }]); }
-    if (value.includes("/els_records?")) { assert.match(value, /status=eq.published.*visibility=eq.public/); assert.match(value, /source.neq.research/); return json([{ slug: 'published-cipher' }]); }
+    if (value.includes("/els_records?")) { assert.match(value, /status=eq.published.*visibility=eq.public/); assert.doesNotMatch(value, /source.neq.research/); return json([{ slug: 'published-cipher' }, { slug: 'published-research-cipher' }]); }
     if (value.includes("/nodes?")) { assert.match(value, /type=eq.book.*is_active=eq.true/); return json([]); }
     if (value.includes("/video_media_assets_v1?")) return json([{ public_id: assetId, title: "Video", google_indexable: true,
       primary_source_type: "channel_update", primary_source_id: "00000000-0000-4000-8000-000000000001",
@@ -246,9 +284,9 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     }
     res.body = bodies.join("\n");
     for (const path of ["/old-post", "/post/new-post", "/number/1820", "/number/" + encodeURIComponent("בראשית"),
-      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/code", "/codes/published-cipher", "/privacy"])
+      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/code", "/codes/published-cipher", "/codes/published-research-cipher", "/codes/" + encodeURIComponent("מחקר"), "/privacy"])
       assert.ok(res.body.includes(`<loc>${SITE}${path}</loc>`), path);
-    for (const path of ["/login", "/journey", "/unsubscribe", "/codes/מחקר"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
+    for (const path of ["/login", "/journey", "/unsubscribe"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
     assert.ok(!calls.some(url => /site_flags|research_contributions/.test(url)));
   });
   await withFetch(async () => { throw Error("synthetic outage"); }, async () => {
