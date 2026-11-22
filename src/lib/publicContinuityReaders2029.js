@@ -43,6 +43,23 @@ export function historicalLectureHtml2029(page, sourceDocument = globalThis.docu
       return /^[A-Za-z0-9_-]{11}$/.test(id || "") ? {u,id} : null;
     } catch { return null; }
   };
+  // Show original YouTube videos in their historical order, without fetching
+  // every third-party player before the visitor scrolls to it.
+  const playableFrame = (id, title) => {
+    const frame = sourceDocument.createElement("iframe");
+    frame.title = title;
+    frame.src = `https://www.youtube.com/embed/${id}`;
+    frame.loading = "lazy";
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    frame.allow = "encrypted-media; picture-in-picture; fullscreen";
+    frame.allowFullscreen = true;
+    frame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-presentation");
+    frame.style.display = "block";
+    frame.style.width = "100%";
+    frame.style.aspectRatio = "16 / 9";
+    frame.style.border = "0";
+    return frame;
+  };
   for (const frame of template.content.querySelectorAll("iframe")) {
     const item = video(frame.getAttribute("src")); if (!item) { frame.remove(); continue; }
     const width = Number(frame.getAttribute("width")), height = Number(frame.getAttribute("height"));
@@ -50,16 +67,11 @@ export function historicalLectureHtml2029(page, sourceDocument = globalThis.docu
     const watch = new URL("https://www.youtube.com/watch"); watch.searchParams.set("v",item.id);
     for (const [key,value] of item.u.searchParams) if (key !== "autoplay") watch.searchParams.append(key,value);
     const title = frame.getAttribute("title") || "הרצאת המקור";
-    const details = sourceDocument.createElement("details"),summary = sourceDocument.createElement("summary");
-    summary.textContent = `נגן: ${title}`;details.append(summary);
-    frame.setAttribute("loading","lazy");frame.setAttribute("referrerpolicy","no-referrer");
-    frame.setAttribute("allow","encrypted-media; picture-in-picture");
-    frame.setAttribute("sandbox","allow-scripts allow-same-origin allow-presentation");
-    frame.removeAttribute("width");frame.removeAttribute("height");frame.style.width="100%";
-    frame.style.aspectRatio=width>0&&height>0?`${width} / ${height}`:"16 / 9";
-    const embed = new URL(item.u);embed.searchParams.delete("autoplay");frame.removeAttribute("src"); frame.dataset.videoSrc=embed.href;
-    details.append(frame);figure.append(details,sourceLink(watch.href,`לצפייה במקור: ${title} ↗`));
-    frame.dataset.originalVideoUrl=item.u.href;details.dataset.videoSource=item.id;
+    const player = playableFrame(item.id, title);
+    player.style.aspectRatio = width > 0 && height > 0 ? `${width} / ${height}` : "16 / 9";
+    player.dataset.originalVideoUrl = item.u.href;
+    figure.append(player, sourceLink(watch.href,`לצפייה במקור: ${title} ↗`));
+    figure.dataset.videoSource = item.id;
   }
   for (const link of template.content.querySelectorAll("a[href]")) {
     try {
@@ -75,7 +87,14 @@ export function historicalLectureHtml2029(page, sourceDocument = globalThis.docu
   while(walker.nextNode()) if(!walker.currentNode.parentElement?.closest("a,iframe,summary")) texts.push(walker.currentNode);
   for(const text of texts){const matches=[...text.textContent.matchAll(/https?:\/\/[^\s<>]+/g)].filter(match=>video(match[0]));if(!matches.length)continue;
     const fragment=sourceDocument.createDocumentFragment();let offset=0;
-    for(const match of matches){fragment.append(text.textContent.slice(offset,match.index),sourceLink(match[0],match[0]));offset=match.index+match[0].length;}
+    for(const match of matches){
+      const item=video(match[0]); const wrapper=sourceDocument.createElement("span");
+      wrapper.className="historical-lecture-inline-player";
+      wrapper.style.display="block"; wrapper.style.marginBlock="1rem";
+      wrapper.append(playableFrame(item.id,"הרצאת מקור ביוטיוב"),sourceLink(match[0],"צפייה בסרטון המקורי ביוטיוב ↗"));
+      fragment.append(text.textContent.slice(offset,match.index),wrapper);
+      offset=match.index+match[0].length;
+    }
     fragment.append(text.textContent.slice(offset));text.replaceWith(fragment);
   }
   return template.innerHTML;
