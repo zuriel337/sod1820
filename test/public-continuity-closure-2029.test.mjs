@@ -48,7 +48,7 @@ test('original historical documents have exact self canonicals without querying 
  finally{globalThis.fetch=original;}
 });
 
-test('proven Forum aliases retain query/anchor and every well-formed old thread address continues to the chat, uniformly',async()=>{
+test('Forum aliases keep their chat continuation; admitted original discussions return their own public document',async()=>{
  for(const path of ['/forum','/yuval-kogan-echad-hasichim-hamashiach','/post/yuval-kogan-echad-hasichim-hamashiach'])
   assert.equal(publicReadingContinuation(path,'?part=2&part=7','#return'),'/community/chat?part=2&part=7#return');
  assert.equal(publicReadingContinuation('/','?p=36971&source=google','#original'),'/community/chat?p=36971&source=google#original');
@@ -56,12 +56,12 @@ test('proven Forum aliases retain query/anchor and every well-formed old thread 
  const id='00000000-0000-4000-8000-000000000001';
  const original=globalThis.fetch;
  try{
-  // ZURIEL 5.11: the retired Forum is replaced by the chat. A well-formed old thread address continues to the chat whether or not the thread still
- // exists (approved, draft or gone): the answer is identical, so nothing about an unpublished thread is disclosed.
- for(const [rows,status]of [[[ {id,status:'approved'} ],308],[[],308],[[{id,status:'draft'}],308],[[{id:'00000000-0000-4000-8000-000000000002',status:'approved'}],308]]){
-   let reads=0;globalThis.fetch=async input=>{const u=new URL(input);assert.ok(u.pathname.endsWith('/research_contributions'));assert.equal(u.searchParams.get('select'),'id,status');assert.equal(u.searchParams.get('id'),'eq.'+id);assert.equal(u.searchParams.get('status'),'eq.approved');reads++;return json(rows);};
-   const result=await document('/forum/'+id+'?part=2&part=7');assert.equal(result.code,status);assert.equal(reads,1);
-   if(status===308)assert.equal(result.headers.location,'/community/chat?part=2&part=7');else assert.equal(result.headers.location,undefined);
+  const row={id,origin:"forum",parent_id:null,target_type:null,target_id:null,status:"approved",deleted_at:null,thread_hidden_at:null,title:"דיון המקור",body:"תוכן המקור"};
+  for(const [rows,status] of [[[row],200],[[],308],[[{...row,status:"draft"}],308],[[{...row,origin:"openweb"}],308],[[{...row,deleted_at:"now"}],308]]) {
+    const reads=[];globalThis.fetch=async input=>{const u=new URL(input);assert.ok(u.pathname.endsWith('/research_contributions'));assert.equal(u.searchParams.get('id'),'eq.'+id);assert.equal(u.searchParams.get('status'),'eq.approved');reads.push(u.searchParams.get('select'));return json(rows);};
+    const result=await document('/forum/'+id+'?part=2&part=7');assert.equal(result.code,status);
+    if(status===308) { assert.equal(result.headers.location,'/community/chat?part=2&part=7');assert.ok(reads.every(fields=>!fields.includes('body'))); }
+    else { assert.equal(result.headers.location,undefined);assert.match(result.body,/דיון המקור/);assert.match(result.body,new RegExp('https://sod1820.co.il/forum/'+id)); }
   }
   globalThis.fetch=async()=>{throw Error('source outage');};assert.equal((await document('/forum/'+id)).code,503);
   globalThis.fetch=()=>assert.fail('invalid IDs must not read');assert.equal((await document('/forum/not-an-id')).code,404);

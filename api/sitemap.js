@@ -1,3 +1,4 @@
+import { loadPublicForumIndexPage2029 } from "../src/lib/publicContinuityReaders2029.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingContinuation, PUBLIC_HISTORICAL_LECTURE_PATHS } from "../src/lib/publicReadingRelease2029.js";
 import { projectPublicBook2029, fetchPublicLibraryItem2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { postsTaxonomyRoute2029, postMatchesTaxonomy2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
@@ -405,17 +406,29 @@ export default async function handler(req, res) {
     }
   } catch (e) { if (productionReading) foundationSourceFailed = true; }
 
-  // ── פתילי פורום מאושרים → /forum/:id (research_contributions ברמה-עליונה) ──
-  // כל פתיל = עמוד DiscussionForumPosting עצמאי; בלי זה גוגל בקושי מגלה דיונים בודדים.
   try {
-    if (foundation) throw new Error("outside-public-foundation");
-    const threads = await fetchAll('research_contributions?select=id,created_at&status=eq.approved&parent_id=is.null&order=created_at.desc');
-    for (const t of threads) {
-      if (!t.id) continue;
-      const lastmod = (t.created_at || '').slice(0, 10) || undefined;
-      urls.push({ loc: '/forum/' + encodeURIComponent(t.id), lastmod, changefreq: 'weekly', priority: '0.6' });
+    if (productionReading) {
+      const readRows = async (table, params) => {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers: HEADERS });
+        if (!response.ok) throw new Error("forum-sitemap-source-unavailable");
+        return response.json();
+      };
+      let page = 1;
+      let more;
+      do {
+        const index = await loadPublicForumIndexPage2029(page++, { readRows });
+        for (const item of index.items) urls.push({ loc: item.href, changefreq: 'monthly', priority: '0.5' });
+        more = index.hasMore;
+      } while (more);
+    } else if (!foundation) {
+      const threads = await fetchAll('research_contributions?select=id,created_at&status=eq.approved&parent_id=is.null&order=created_at.desc');
+      for (const t of threads) {
+        if (!t.id) continue;
+        const lastmod = (t.created_at || '').slice(0, 10) || undefined;
+        urls.push({ loc: '/forum/' + encodeURIComponent(t.id), lastmod, changefreq: 'weekly', priority: '0.6' });
+      }
     }
-  } catch (e) { /* ממשיכים גם בלי פתילי פורום */ }
+  } catch { if (productionReading) foundationSourceFailed = true; }
 
   // ── צפנים מאושרים → /codes/:slug (els_records published) ──
   try {

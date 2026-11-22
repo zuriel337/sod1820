@@ -398,6 +398,15 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     if (value.includes("/rpc/sitemap_numbers")) { assert.equal(options.method, "POST"); return json([{ value: 1820 }]); }
     if (value.includes("/sitemap_phrases_v1?")) return options?.method === "HEAD"
       ? new Response(null, { headers: { "content-range": "0-0/1" } }) : json([{ phrase: "בראשית" }]);
+    if (value.includes("/research_contributions?")) {
+      const params = new URL(value).searchParams;
+      assert.equal(params.get("origin"), "eq.forum");
+      assert.equal(params.get("status"), "eq.approved");
+      assert.equal(params.get("deleted_at"), "is.null");
+      assert.equal(params.get("thread_hidden_at"), "is.null");
+      return json([{ id: "00000000-0000-4000-8000-000000000003", title: "דיון פומבי", origin: "forum",
+        status: "approved", deleted_at: null, thread_hidden_at: null, parent_id: null, target_id: null, target_type: null }]);
+    }
     if (value.includes("/topic_cards_public?")) return json([{ slug: "subject" }]);
     if (value.includes("/contributors?")) { assert.match(value, /active=eq.true.*visibility.eq.public/); return json([{ slug: "writer", code: "2042" }]); }
     if (value.includes("/els_records?")) { assert.match(value, /status=eq.published.*visibility=eq.public/); assert.doesNotMatch(value, /source.neq.research/); return json([{ slug: 'published-cipher' }, { slug: 'published-research-cipher' }]); }
@@ -432,7 +441,9 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
       "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/code", "/codes/published-cipher", "/codes/published-research-cipher", "/codes/" + encodeURIComponent("מחקר"), "/privacy"])
       assert.ok(res.body.includes(`<loc>${SITE}${path}</loc>`), path);
     for (const path of ["/login", "/journey", "/unsubscribe"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
-    assert.ok(!calls.some(url => /site_flags|research_contributions/.test(url)));
+    assert.ok(!calls.some(url => /site_flags/.test(url)));
+    assert.ok(calls.some(url => url.includes("/research_contributions?")));
+    assert.match(bodies.join(""), /<loc>https:\/\/sod1820\.co\.il\/forum\/00000000-0000-4000-8000-000000000003<\/loc>/);
   });
   await withFetch(async () => { throw Error("synthetic outage"); }, async () => {
     const res = response(); await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/sitemap.xml"), res); assert.equal(res.code, 503);

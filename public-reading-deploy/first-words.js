@@ -268,6 +268,9 @@ function body(facts) {
     const { title, description } = PUBLIC_REALITY_STREAM_2029;
     return `<h1>${esc(title)}</h1><p>${esc(description)}</p><p><a href="/gallery">גלריות ומקורות</a></p>`;
   }
+  if (facts.kind === "forum") {
+    return `<h1>${esc(facts.title)}</h1><p>${esc(facts.excerpt)}</p><p><a href="/community/chat">לשיחת הקהילה</a></p>`;
+  }
   if (facts.kind === "map") {
     return '<h1>מפת האתר</h1>' + links(publicMapLinks2029(true).map(([href, label]) => ({ href, label })), "דפי האתר");
   }
