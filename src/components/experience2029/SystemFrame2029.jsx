@@ -902,6 +902,8 @@ function SystemFrame2029Body({
     const release = (event) => { if (!r || event.clientX < r.left - 8 || event.clientX > r.right + 8) { railHold.current = false; document.removeEventListener("pointermove", release); } };
     document.addEventListener("pointermove", release);
   };
+  // Peeking widens the existing shortcuts in place. Opening the rail explicitly switches to all sections.
+  const openRailLabel = PUBLIC_READING_RELEASE ? "פתח את כל מדורי האתר" : "נעץ את סרגל הניווט פתוח";
   const toggleRail = () => { if (sidebarCollapsed) { setRailPeek(false); setSidebarCollapsed(false); } else closeRail(); };
 
   useEffect(() => {
@@ -1554,7 +1556,7 @@ function SystemFrame2029Body({
           onMouseEnter={() => peekRail(true, 180)} onMouseLeave={() => peekRail(false, 260)} onFocus={() => peekRail(true, 0)}
           onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekRail(false, 0); }} onKeyDown={(event) => { if (event.key === "Escape") peekRail(false, 0); }}>
           <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
-            <FrameNavigation home={homeNav} direct={directNav} expanded={!sidebarCollapsed || railPeek} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
+            <FrameNavigation home={homeNav} direct={directNav} expanded={!sidebarCollapsed} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
           <div className="sod29-rail-foot">
           <div className="sod29-rail-utilities" aria-label="פעולות נוספות">
@@ -1562,8 +1564,8 @@ function SystemFrame2029Body({
             <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="sod29-nav-copy">דווח על בעיה</span></button>
           </div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
-          <button className="sod29-rail-toggle" type="button" onClick={toggleRail} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "נעץ את סרגל הניווט פתוח" : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? "נעץ את סרגל הניווט פתוח" : "צמצם את סרגל הניווט"}>
-            <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "נעץ" : "צמצם"}</b>
+          <button className="sod29-rail-toggle" type="button" onClick={toggleRail} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? openRailLabel : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? openRailLabel : "צמצם את סרגל הניווט"}>
+            <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? (PUBLIC_READING_RELEASE ? "כל המדורים" : "נעץ") : "צמצם"}</b>
           </button>
           </div>
         </aside>
