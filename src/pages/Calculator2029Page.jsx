@@ -35,7 +35,7 @@ import {
   parseCalculatorShareState,
   pickVerifiedShareDiscovery,
 } from "../lib/research/calculator2029Viral.js";
-import { HEICHAL_RESEARCH_ENTRY, PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import { CALCULATOR_PRO_SEO } from "../lib/research/calculatorProSeo2029.js";
@@ -452,10 +452,11 @@ function CalculatorExperience() {
   };
 
   const openHeichal = () => {
+    if (PUBLIC_READING_RELEASE) return;
     if (!selection) return;
     updateSelectionContext(selection, { focusOrigin: "calculator-2029" });
     research.updateResearchContext?.({ lens: "heichal" });
-    navigate(HEICHAL_RESEARCH_ENTRY);
+    navigate("/heichal");
   };
 
   const openRaziel = () => {
@@ -573,7 +574,7 @@ function CalculatorExperience() {
           {showMore ? (
             <div className="sod29-calc2029-actions is-more">
               <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-              <button type="button" disabled={actionsLocked} onClick={openHeichal}>חקור בהיכל</button>
+              <button type="button" disabled={actionsLocked || PUBLIC_READING_RELEASE} onClick={openHeichal}>{PUBLIC_READING_RELEASE ? "מחקר בהיכל · בעתיד" : "חקור בהיכל"}</button>
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
                 {showCompare ? "סגור השוואה" : "השווה"}
               </button>

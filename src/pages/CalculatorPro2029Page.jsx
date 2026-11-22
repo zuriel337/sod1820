@@ -1,4 +1,4 @@
-import { HEICHAL_RESEARCH_ENTRY } from "../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
@@ -352,10 +352,11 @@ function ProExperience() {
   };
 
   const openHeichal = () => {
+    if (PUBLIC_READING_RELEASE) return;
     if (!canonicalSelection) return;
     research.updateResearchContext?.(buildCalculatorResearchContext(canonicalSelection, { focusOrigin: "calculator-pro-2029" }));
     research.updateResearchContext?.({ lens: "heichal" });
-    navigate(HEICHAL_RESEARCH_ENTRY);
+    navigate("/heichal");
   };
 
   const openRaziel = () => {
@@ -655,7 +656,7 @@ function ProExperience() {
                   {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
                 </button>
                 <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}>למד את השיטה</Link>
-                <button type="button" onClick={openHeichal} disabled={actionsLocked}>חקור בהיכל</button>
+                <button type="button" onClick={openHeichal} disabled={actionsLocked || PUBLIC_READING_RELEASE}>{PUBLIC_READING_RELEASE ? "מחקר בהיכל · בעתיד" : "חקור בהיכל"}</button>
                 <button type="button" className="is-raziel" onClick={openRaziel} disabled={actionsLocked}>✦ שאל את רזיאל</button>
               </div>
               <CalculatorOpening2029 selection={canonicalSelection} open={showOpening} onClose={() => setShowOpening(false)} />

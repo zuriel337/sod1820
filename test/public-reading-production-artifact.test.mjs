@@ -77,6 +77,23 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
   });
 });
 
+test("the published findings reader is independent of the unbuilt Heichal and future research workspace", async () => {
+  await withFetch(async () => { throw Error("published findings introduction and future notices must not query research"); }, async () => {
+    const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true, readDocument: async () => read("public-reading-deploy/.generated/2029.html") });
+    const findings = response(); await handler(req("/findings"), findings);
+    assert.equal(findings.code, 200);
+    assert.equal(findings.headers.get("x-sod-first-words"), "served");
+    assert.match(findings.body, /data-first-words="findings"><h1>ממצאים שפורסמו/);
+    assert.match(findings.body, /rel="canonical" href="https:\/\/sod1820\.co\.il\/findings"/);
+    for (const path of ["/heichal", "/%D7%94%D7%99%D7%9B%D7%9C", "/heichal?mode=research", "/research", "/research?mode=research"]) {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 503, path);
+      assert.match(res.body, /טרם נבנו|לשלב עתידי/);
+      assert.doesNotMatch(res.body, /data-first-words="findings"/);
+    }
+  });
+});
+
 // ZURIEL 5.11: feature areas that are closed only until they reopen in a few days keep their address in the index. The standard
 // way to say "temporarily unavailable" is 503 + Retry-After; they are never noindex. Personal, payment and private screens stay out.
 test("temporarily closed feature areas answer 503 with Retry-After and stay indexable; the rest stay noindex", async () => {
@@ -88,7 +105,7 @@ test("temporarily closed feature areas answer 503 with Retry-After and stay inde
       assert.equal(res.headers.get("retry-after"), "2592000", path);
       assert.equal(res.headers.get("x-robots-tag"), "index, follow", path);
       assert.match(res.body, /name="robots" content="index, follow"/, path);
-      assert.match(res.body, /בבנייה/, path); assert.match(res.body, /הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן/, path); assert.doesNotMatch(res.body, /בקרוב/, path);
+      if (path === "/research") assert.match(res.body, /לשלב עתידי/, path); else assert.match(res.body, /בבנייה/, path); assert.match(res.body, /הכתובת נשמרת, והאזור ייפתח כשיהיה מוכן/, path); assert.doesNotMatch(res.body, /בקרוב/, path);
     }
     // The Bible code is open in its Classic mode: a normal indexable 200 page, and /els is a permanent continuation to it.
     { const res = response(); await handler(req("/code"), res);

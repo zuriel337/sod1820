@@ -12,7 +12,7 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('one release scope opens only the approved readers; closed aliases cannot enter product routes',()=>{
  for(const path of ['/','/world','/post','/post/existing','/old-post','/number/1820','/number/בראשית','/gematria','/gallery','/map','/topic/existing','/community/researcher/zvi'])assert.ok(['public','post-lookup'].includes(publicReadingPath(path)),path);
  assert.equal(publicReadingPath('/code'),'public');assert.equal(publicReadingPath('/els'),'continuation');
- for(const path of ['/journey','/2029/journey','/raziel','/2029/raziel','/admin'])assert.equal(publicReadingPath(path),'closed',path);
+ for(const path of ['/journey','/2029/journey','/raziel','/2029/raziel','/admin','/heichal','/היכל'])assert.equal(publicReadingPath(path),'closed',path);
  // Existing-account continuation was explicitly accepted after this test was
  // authored. It must remain a private account destination, never a public read.
  assert.equal(publicReadingPath('/2029/me'),'continuation');
