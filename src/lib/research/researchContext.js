@@ -328,6 +328,13 @@ export function researchContextSubjectKey(context) {
 
 // Existing research destinations and their aliases. Reading routes retain exact-return
 // context, but do not admit background research cloud work.
+// Personal-library landing is not a research engine workspace. It may read an
+// authenticated user's existing saved research through ResearchProvider but must
+// not admit expensive research tools, guest cloud calls or new research stores.
+export function isPersonalResearchCloudRoute2029(pathname = "") {
+  return pathname === "/2029/me/research";
+}
+
 export function isResearchWorkspace2029(pathname = '', { heichalResearch = true } = {}) {
   let path = String(pathname).replace(/\/+$/, '') || '/';
   try { path = decodeURIComponent(path); } catch { return false; }
