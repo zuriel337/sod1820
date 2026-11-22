@@ -20,19 +20,33 @@ export default function PersonalSaveButton2029({ entity, royal = false }) {
   const save=()=>{
     if(personalActionsLocked(auth)){shell.openWorkspace();setNotice('יש להתחבר לחשבון קיים, ואז ללחוץ שוב על שמירה.');return;}
     if(pending.current||!entity?.id)return;
+    // A locally present item is NOT a request to save a second time. Do not
+    // turn a repeat tap on an already-saved button into a misleading failure.
+    // The local membership and the cloud receipt are separate signals.
+    if(saved){
+      if(research.syncPending>0&&['error','conflict'].includes(research.syncStatus)){
+        pending.current=Boolean(research.retryResearchSync?.());
+        setNotice(pending.current?'מנסה לסנכרן את הפריט השמור…':'לא התקבל אישור מהשרת. אפשר לנסות לסנכרן מהאזור האישי.');
+      }else if(research.syncStatus==='synced'&&research.syncPending===0){
+        setNotice('הפריט כבר שמור בחשבון ✓');
+      }else if(['error','conflict','local_error','local_recovery_required'].includes(research.syncStatus)){
+        setNotice('הפריט מופיע ברשימה המקומית, אבל לא התקבל אישור שמירה מהשרת.');
+      }else{
+        setNotice('הפריט ברשימת השמורים; הסנכרון לחשבון עדיין לא אושר.');
+      }
+      return;
+    }
     pending.current=true;
-    // Retry an existing save only when this exact entity already exists locally.
-    const retry=saved&&research.syncPending>0&&['error','conflict'].includes(research.syncStatus);
-    const ok=retry?research.retryResearchSync?.():research.saveItem?.(entity);
+    const ok=research.saveItem?.(entity);
     if(!ok){pending.current=false;setNotice('לא ניתן להתחיל את השמירה כרגע.');}
     else setNotice('ממתין לאישור שמירה מהשרת…');
   };
   const label = saved ? "✓ ברשימת השמורים" : "שמירה לאזור האישי";
-  return <span className={royal ? "post-reading-save" : "sod29-actions"} data-personal-save="true">
+  return <span className={royal ? "post-reading-save" : "sod29-actions"} data-personal-save="true" style={royal ? undefined : { display: "inline-flex", flexDirection: "column", alignItems: "flex-start", maxWidth: "100%", minWidth: 0 }}>
     <button type="button" className={royal ? "r29-btn is-quiet" : "sod29-action"} disabled={pending.current}
       aria-label={royal ? label : undefined} title={royal ? label : undefined} aria-pressed={saved} onClick={save}>
       {royal ? <><NavigationIcon2029 name={saved ? "check" : "save"} size={18} /><span>{saved ? "נשמר" : "שמירה"}</span></> : label}
     </button>
-    {notice ? <small role="status">{notice}</small> : null}
+    {notice ? <small role="status" style={royal ? undefined : { whiteSpace: "normal", overflowWrap: "anywhere", maxWidth: "min(260px, 80vw)" }}>{notice}</small> : null}
   </span>;
 }
