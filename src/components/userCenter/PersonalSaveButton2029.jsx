@@ -42,11 +42,11 @@ export default function PersonalSaveButton2029({ entity, royal = false }) {
     else setNotice('ממתין לאישור שמירה מהשרת…');
   };
   const label = saved ? "✓ ברשימת השמורים" : "שמירה לאזור האישי";
-  return <span className={royal ? "post-reading-save" : "sod29-actions"} data-personal-save="true">
+  return <span className={royal ? "post-reading-save" : "sod29-actions"} data-personal-save="true" style={royal ? undefined : { display: "inline-flex", flexDirection: "column", alignItems: "flex-start", maxWidth: "100%", minWidth: 0 }}>
     <button type="button" className={royal ? "r29-btn is-quiet" : "sod29-action"} disabled={pending.current}
       aria-label={royal ? label : undefined} title={royal ? label : undefined} aria-pressed={saved} onClick={save}>
       {royal ? <><NavigationIcon2029 name={saved ? "check" : "save"} size={18} /><span>{saved ? "נשמר" : "שמירה"}</span></> : label}
     </button>
-    {notice ? <small role="status">{notice}</small> : null}
+    {notice ? <small role="status" style={royal ? undefined : { whiteSpace: "normal", overflowWrap: "anywhere", maxWidth: "min(260px, 80vw)" }}>{notice}</small> : null}
   </span>;
 }
