@@ -39,14 +39,14 @@ function usePublicRead(reader) {
   return [state.reader === reader ? state : { status: "loading" }, () => setAttempt(value => value + 1)];
 }
 
-function ContentPlane({ kind, title, description, path, state = "ready", children }) {
+function ContentPlane({ kind, title, description, path, state = "ready", noindex = false, children }) {
   const location = useLocation();
   const canonicalPath = path || location.pathname;
   // A feature area closed only until it reopens soon stays indexable (the server answers it 503 + Retry-After).
   const reopeningSoon = state === "gated" && publicTemporarilyClosed(location.pathname);
   useEffect(() => {
-    applySeo({ title, description, path: canonicalPath, noindex: !(["ready", "empty"].includes(state) || reopeningSoon) });
-  }, [title, description, canonicalPath, state, reopeningSoon]);
+    applySeo({ title, description, path: canonicalPath, noindex: noindex || !(["ready", "empty"].includes(state) || reopeningSoon) });
+  }, [title, description, canonicalPath, state, reopeningSoon, noindex]);
   return <section className="public-continuity-2029" dir="rtl" data-continuity-kind={kind} data-read-state={state} data-state={state}>
     <header className="continuity-heading">
       <span className="continuity-eyebrow">סוד 1820</span>
@@ -218,17 +218,17 @@ function ForumContent() {
   const location = useLocation();
   const reader = useCallback(signal => loadPublicForumContinuation2029(id ?? null, { signal }), [id]);
   const [state, retry] = usePublicRead(reader);
-  // Only an actual anonymous-approved identity can continue. Unknown/private
-  // IDs retain their404 instead of becoming successful generic destinations.
-  if (state.exists === true && state.status === "gated") return <Navigate replace to={publicForumChatHref2029(location.search,location.hash)} />;
-  return <ContentPlane kind="forum" title="פורום המחקר" state={state.status} description="מקום לדיונים, שאלות ותרומות מחקר של הקהילה.">
+  if (state.status === "not-found" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id || "")) {
+    return <Navigate replace to={publicForumChatHref2029(location.search, location.hash)} />;
+  }
+  return <ContentPlane kind="forum" title={state.item?.title || "פורום המחקר"} path={state.item?.href} state={state.status} noindex={Boolean(location.search)}>
     <ReadBoundary state={state} retry={retry} missing="לא נמצא דיון ציבורי זמין בכתובת הזאת.">
-      <StatePanel title="הפורום פתוח כעת למשתמשים רשומים" icon="conversation">
-        <p>{state.exists ? "הקישור לדיון זוהה. " : ""}קריאת הפורום דרך העמוד הזה עדיין אינה זמינה. אפשר להמשיך לפרסומים הציבוריים או לשיחת הקהילה.</p>
-        <div className="continuity-actions"><Link className="continuity-action" to="/post">לפרסומים</Link><Link className="continuity-action" to="/community/chat">לשיחת הקהילה</Link></div>
-      </StatePanel>
+      {state.item && <article data-forum-occurrence={state.item.id}>
+        {state.item.body && <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{state.item.body}</p>}
+        {state.item.image && <img src={state.item.image} alt="התמונה שצורפה לדיון" loading="lazy" referrerPolicy="no-referrer" style={{ maxWidth: "100%", height: "auto" }} />}
+      </article>}
+      <Link className="continuity-action" to="/community/chat">לשיחת הקהילה</Link>
     </ReadBoundary>
-    {id ? <Link className="continuity-back" to="/forum">לעמוד הפורום</Link> : null}
   </ContentPlane>;
 }
 

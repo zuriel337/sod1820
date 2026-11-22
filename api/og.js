@@ -601,13 +601,15 @@ export default async function handler(req, res) {
     try {
       const forum = await loadPublicForumContinuation2029(decodedKey === '/forum' ? null : decodedKey.slice(7), { readRows: readContinuityRows });
       documentStatus = publicContinuityHttpStatus2029(forum);
-      if (forum.exists === true) {
-        res.setHeader('Location', publicForumChatHref2029(continuitySearch));
-        return res.status(308).send('');
-      }
-      // The retired Forum is replaced by the community chat: an old thread address (a well-formed id) that no longer exists
-      // continues to the chat like the ones that do; a malformed address stays 404 and an unavailable source stays 503.
-      if (documentStatus === 404 && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(decodedKey.slice(7))) {
+      if (forum.item) {
+        title = `${forum.item.title} · ${SITE_NAME}`;
+        desc = cleanDesc(forum.item.body || forum.item.title, 180);
+        canonical = SITE + forum.item.href;
+        if (forum.item.image) image = forum.item.image;
+        robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
+        req.publicReadingFirstWords?.({ kind: 'forum', title: forum.item.title, excerpt: forum.item.body.slice(0, 700) });
+      } else if (documentStatus === 404 && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(decodedKey.slice(7))) {
+        // Old addresses without a current public discussion retain their uniform continuation.
         res.setHeader('Location', publicForumChatHref2029(continuitySearch));
         return res.status(308).send('');
       }

@@ -211,6 +211,9 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "forum") {
+    return `<h1>${esc(facts.title)}</h1><p>${esc(facts.excerpt)}</p><p><a href="/community/chat">לשיחת הקהילה</a></p>`;
+  }
   if (facts.kind === "archive") {
     const { title, description } = PUBLIC_ARCHIVE_2029;
     const introduction = `<h1>${esc(title)}</h1><p>${esc(description)}</p>`;

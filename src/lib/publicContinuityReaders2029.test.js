@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   loadPublicOrGeulaCollection2029, loadPublicOrGeulaOccurrence2029, publicOrGeulaItem2029,
-  loadPublicPeopleContinuation2029, loadPublicForumContinuation2029,
+  loadPublicPeopleContinuation2029, loadPublicForumContinuation2029, loadPublicForumIndexPage2029,
   loadPublicCommentPostContinuation2029, publicContinuityHttpStatus2029,
   publicContinuityPlaybackTime2029, publicOrGeulaOccurrenceHref2029,
   publicContinuityPage2029,
@@ -121,18 +121,48 @@ test("invalid, duplicate and out-of-range collection pages never become page one
   assert.equal(f.calls.length, 0);
 });
 
-test("forum preserves its existing gate and reads no thread body or private account fields", async () => {
-  const f = fixture([{ id: ID, status: "approved", body: "not projected" }]);
+const approvedForum = (overrides = {}) => ({ id: ID, status: "approved", origin: "forum", deleted_at: null,
+  thread_hidden_at: null, parent_id: null, target_type: null, target_id: null, title: "דיון", body: "תוכן", ...overrides });
+
+test("public Forum detail and directory re-admit exact ID, retain full text and redact contact details", async () => {
+  const body = "טקסט מלא ".repeat(300) + " contact@example.org סוף";
+  const f = fixture([approvedForum({ body })]);
   const result = await loadPublicForumContinuation2029(ID, { readRows: f.readRows });
-  assert.deepEqual(result, { status: "gated", exists: true });
-  assert.deepEqual(f.calls[0].params, { select: "id,status", id: `eq.${ID}`, status: "eq.approved", limit: "1" });
-  assert.equal(f.calls[0].table, "research_contributions");
+  assert.equal(result.status, "ready"); assert.equal(result.item.id, ID); assert.equal(result.item.href, `/forum/${ID}`);
+  assert.ok(result.item.body.length > 2000); assert.match(result.item.body, /סוף$/); assert.doesNotMatch(result.item.body, /contact@example/);
+  assert.equal(f.calls.length, 2);
+  assert.doesNotMatch(f.calls[0].params.select, /body|title|author/); assert.match(f.calls[1].params.select, /body/);
+  assert.ok(f.calls.every(c => c.params.origin === "eq.forum" && c.params.status === "eq.approved" && c.params.deleted_at === "is.null" && c.params.thread_hidden_at === "is.null"));
+  const collection = fixture([approvedForum()]);
+  const index = await loadPublicForumIndexPage2029(1, { readRows: collection.readRows });
+  assert.deepEqual(index.items, [{id:ID, title:"דיון", href:`/forum/${ID}`}]);
+  assert.ok(collection.calls.every(c => !/body|author/.test(c.params.select)));
   const root = fixture([]);
   assert.deepEqual(await loadPublicForumContinuation2029(null, { readRows: root.readRows }), { status: "gated", exists: null });
   assert.equal(root.calls.length, 0);
-  for (const rows of [[], [{ id: OTHER, status: "approved" }], [{ id: ID, status: "pending" }], [{ id: ID, status: "published" }]]) {
-    assert.equal((await loadPublicForumContinuation2029(ID, { readRows: fixture(rows).readRows })).status, "not-found");
+});
+
+test("unpublished, deleted, moderated, different-source or orphaned Forum occurrences cannot expose bodies", async () => {
+  for (const r of [approvedForum({id:OTHER}), approvedForum({origin:"openweb"}), approvedForum({status:"pending"}),
+    approvedForum({deleted_at:"2026-01-01"}),approvedForum({thread_hidden_at:"2026-01-01"}),approvedForum({parent_id:OTHER}),
+    approvedForum({parent_id:ID}),approvedForum({target_type:"private"}),approvedForum({target_type:"els",target_id:"private"})]) {
+    const f = fixture([r]); assert.equal((await loadPublicForumContinuation2029(ID, { readRows:f.readRows })).status,"not-found");
+    assert.ok(f.calls.every(c => !c.params.select.includes("body")));
   }
+});
+
+test("a Forum reply requires its approved visible parent and its exact public ELS source", async () => {
+  const leaf = approvedForum({parent_id:OTHER,target_type:"els",target_id:"published-cipher"});
+  let bodyReads=0; let publicCipher=true; let parentHidden=false;
+  const readRows=async (table,params) => {
+    if(table==="els_records") return publicCipher ? [{id:"cipher",slug:"published-cipher",status:"published",visibility:"public"}] : [];
+    if(params.id===`eq.${OTHER}`) return [approvedForum({id:OTHER,origin:"els",target_type:"els",target_id:"published-cipher",thread_hidden_at:parentHidden?"now":null})];
+    if(params.select.includes("body")) bodyReads++;
+    return [leaf];
+  };
+  assert.equal((await loadPublicForumContinuation2029(ID,{readRows})).status,"ready"); assert.equal(bodyReads,1);
+  publicCipher=false;assert.equal((await loadPublicForumContinuation2029(ID,{readRows})).status,"not-found");
+  publicCipher=true;parentHidden=true;assert.equal((await loadPublicForumContinuation2029(ID,{readRows})).status,"not-found");assert.equal(bodyReads,1);
 });
 
 test("comment continuation re-admits its exact parent post and links to the canonical comments", async () => {

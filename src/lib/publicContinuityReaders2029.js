@@ -99,13 +99,19 @@ export function publicContinuityHttpStatus2029(result) {
 // No session client, writes, RPCs, subscriptions or auth operation is used here.
 export async function readPublicContinuityRows2029(table, params, { signal } = {}) {
   canceled(signal);
-  if (!["channel_updates", "research_contributions", "posts"].includes(table)) throw new Error("unsupported_public_continuation_table");
+  if (!["channel_updates", "research_contributions", "posts", "els_records"].includes(table)) throw new Error("unsupported_public_continuation_table");
   const { getPublicResearchClient } = await import("./research/researchViewMode.js");
   canceled(signal);
   let query = getPublicResearchClient().from(table).select(params.select);
   for (const [key, value] of Object.entries(params)) {
     if (["select", "limit", "offset", "order"].includes(key)) continue;
     if (key === "or") query = query.or(String(value).slice(1, -1));
+    else if (value === "is.null") query = query.is(key, null);
+    else if (key === "id" && /^in\.\([0-9a-f,-]+\)$/i.test(value)) {
+      const ids = value.slice(4, -1).split(",");
+      if (!ids.every(id => UUID.test(id))) throw new Error("invalid_public_continuation_id");
+      query = query.in("id", ids);
+    }
     else if (String(value).startsWith("eq.")) {
       const raw = String(value).slice(3);
       query = query.eq(key, raw === "true" ? true : raw === "false" ? false : raw);
@@ -188,16 +194,100 @@ export async function loadPublicPeopleContinuation2029({ peopleReader, signal } 
   return { status: index.people.length ? "ready" : "empty", people: index.people, total: index.total };
 }
 
-// ForumPage's existing account gate remains in force. Existence is checked only
-// through anonymous approved admission; no contribution body or user ID is read.
+const forumMembershipFields = "id,parent_id,origin,status,deleted_at,thread_hidden_at,target_type,target_id";
+const forumFilters = { status: "eq.approved", deleted_at: "is.null", thread_hidden_at: "is.null" };
+
+function admittedForumNode(row, id) {
+  return row?.id === id && row.status === "approved" && row.deleted_at === null && row.thread_hidden_at === null;
+}
+
+async function forumTargetPublic(row, options) {
+  if (row.target_type == null) return row.target_id == null;
+  const target = clean(row.target_id);
+  if (!target || target.length > 250 || /[\/\\?#\u0000-\u001f]/.test(target)) return false;
+  if (row.target_type === "phrase" || row.target_type === "number") return true;
+  if (row.target_type !== "els") return false;
+  const column = UUID.test(target) ? "id" : "slug";
+  const rows = await read("els_records", { select: "id,slug,status,visibility", [column]: `eq.${target}`,
+    status: "eq.published", visibility: "eq.public", limit: "1" }, options);
+  return rows.some(r => r[column] === target && r.status === "published" && r.visibility === "public");
+}
+
+// Recheck the actual discussion and its ancestry before selecting any user-written text.
+async function forumAncestryPublic(row, options) {
+  const checked = new Set();
+  const targets = new Set();
+  while (row && UUID.test(row.id) && !checked.has(row.id)) {
+    checked.add(row.id);
+    const key = JSON.stringify([row.target_type, row.target_id]);
+    if (!targets.has(key) && !await forumTargetPublic(row, options)) return false;
+    targets.add(key);
+    if (row.parent_id === null) return true;
+    const id = row.parent_id;
+    if (!UUID.test(id) || checked.size >= 32) return false;
+    const parents = await read("research_contributions", { select: forumMembershipFields,
+      id: `eq.${id}`, ...forumFilters, limit: "1" }, options);
+    row = parents.find(parent => admittedForumNode(parent, id));
+  }
+  return false;
+}
+
+function samePublicForumMember(row, admitted) {
+  return admittedForumNode(row, admitted.id) && row.origin === "forum" && row.parent_id === admitted.parent_id
+    && row.target_type === admitted.target_type && row.target_id === admitted.target_id;
+}
+function forumItemLink(row) {
+  return { id: row.id, href: `/forum/${row.id}`,
+    title: publicText(row.title) || (row.parent_id ? "תגובה בפורום המחקר" : "דיון בפורום המחקר") };
+}
+
 export async function loadPublicForumContinuation2029(id = null, { readRows = readPublicContinuityRows2029, signal } = {}) {
   canceled(signal);
-  if (id == null) return { status: "gated", exists: null };
-  if (!UUID.test(clean(id))) return { status: "not-found", exists: false };
+  if (id === null) return { status: "gated", exists: null };
+  const missing = { status: "not-found", exists: false };
+  if (!UUID.test(clean(id))) return missing;
   const occurrenceId = clean(id).toLowerCase();
-  const rows = await read("research_contributions", { select: "id,status", id: `eq.${occurrenceId}`, status: "eq.approved", limit: "1" }, { readRows, signal });
-  const exists = rows.some(row => clean(row?.id).toLowerCase() === occurrenceId && row.status === "approved");
-  return { status: exists ? "gated" : "not-found", exists };
+  const options = { readRows, signal };
+  const filter = { id: `eq.${occurrenceId}`, origin: "eq.forum", ...forumFilters, limit: "1" };
+  const members = await read("research_contributions", { ...filter, select: forumMembershipFields }, options);
+  const member = members.find(row => admittedForumNode(row, occurrenceId) && row.origin === "forum");
+  if (!member || !await forumAncestryPublic(member, options)) return missing;
+  const rows = await read("research_contributions", { ...filter, select: forumMembershipFields + ",title,body,image_url" }, options);
+  const row = rows.find(r => samePublicForumMember(r, member));
+  if (!row) return missing;
+
+  const body = redactGroupText(row.body, { maxLength: Infinity });
+  const thumbnail = /^https:\/\/i\.ytimg\.com\/vi\/[a-zA-Z0-9_-]{11}\/(?:hqdefault|mqdefault|default|maxresdefault)\.jpg$/.test(row.image_url) ? row.image_url : null;
+  const image = publicNowMediaHref(row.image_url) || thumbnail;
+  if (!body && !image && !clean(row.title)) return missing;
+  return { status: "ready", exists: true, item: { ...forumItemLink(row), body, image } };
+}
+
+const FORUM_INDEX_PAGE_SIZE = 8;
+
+export async function loadPublicForumIndexPage2029(page = 1, { readRows = readPublicContinuityRows2029, signal } = {}) {
+  const number = publicContinuityPage2029(page);
+  if (!number) return { items: [], hasMore: false };
+  const options = { readRows, signal };
+  const rows = await read("research_contributions", { select: forumMembershipFields, origin: "eq.forum", ...forumFilters,
+    limit: String(FORUM_INDEX_PAGE_SIZE + 1), offset: String((number - 1) * FORUM_INDEX_PAGE_SIZE), order: "created_at.desc,id.desc" }, options);
+  const visible = rows.slice(0, FORUM_INDEX_PAGE_SIZE).filter(row => UUID.test(row.id) && admittedForumNode(row, row.id) && row.origin === "forum");
+  const admitted = [];
+  for (let i = 0; i < visible.length; i += 3) {
+    const batch = visible.slice(i, i + 3);
+    const allowed = await Promise.all(batch.map(row => forumAncestryPublic(row, options)));
+    admitted.push(...batch.filter((row, index) => allowed[index]));
+  }
+  const items = [];
+  if (admitted.length) {
+    const titles = await read("research_contributions", { select: forumMembershipFields + ",title", origin: "eq.forum",
+      ...forumFilters, id: `in.(${admitted.map(row => row.id).join(",")})`, limit: String(admitted.length) }, options);
+    for (const member of admitted) {
+      const current = titles.find(row => samePublicForumMember(row, member));
+      if (current) items.push(forumItemLink(current));
+    }
+  }
+  return { items, hasMore: rows.length > FORUM_INDEX_PAGE_SIZE };
 }
 
 // User-approved continuation to the existing chat, not a claim that a Forum

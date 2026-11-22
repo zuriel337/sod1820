@@ -134,7 +134,7 @@ function publicLinkOrNull(raw) {
 }
 const DATE_TOKEN = /(?<![\d./]|\d-)(?:(?:0?[1-9]|[12]\d|3[01])[./-](?:0?[1-9]|1[0-2])[./-](?:19|20)\d{2}|(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])|(?:0?[1-9]|[12]\d|3[01])[./](?:0?[1-9]|1[0-2])(?![\d./-]))(?![\d])/g;
 
-export function redactGroupText(text) {
+export function redactGroupText(text, { maxLength = 1200 } = {}) {
   const keep = [];
   const hold = (value) => { keep.push(value); return `\u0000${keep.length - 1}\u0000`; };
   return clean(text)
@@ -143,7 +143,7 @@ export function redactGroupText(text) {
     .replace(DATE_TOKEN, hold)
     .replace(/\+?\d[\d\s().-]{7,}\d/g, "[מספר]")
     .replace(/\u0000(\d+)\u0000/g, (_, index) => keep[Number(index)])
-    .slice(0, 1200);
+    .slice(0, maxLength);
 }
 
 export function groupRowToWorldUpdate(row) {
