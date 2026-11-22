@@ -33,6 +33,23 @@ const modern = { id: 2, wp_id: 36936, slug: "new-post", title: "Native", source:
 const encoded = { ...legacy, id: 3, slug: "%d7%a9%d7%9c%d7%95%d7%9d", title: "שלום" };
 const assetId = "b".repeat(32);
 
+test("only the clean public gallery receives its existing heading and lead in the first document", async () => {
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true,
+    readDocument: async () => read("public-reading-deploy/.generated/2029.html") });
+  const listing = response();
+  await handler(req("/gallery"), listing);
+  assert.equal(listing.code, 200);
+  assert.equal(listing.headers.get("x-sod-first-words"), "served");
+  assert.match(listing.body, /<h1>גלריות רמזי הגאולה<\/h1>/);
+  assert.match(listing.body, /האוספים ההיסטוריים/);
+  for (const search of ["?gallery=87", "?q=test", "?image=selected", "?source=private"]) {
+    const result = response();
+    await handler(req("/gallery" + search), result);
+    assert.doesNotMatch(result.body, /data-first-words="gallery"/);
+    assert.equal(result.headers.get("x-robots-tag"), "noindex, follow");
+  }
+});
+
 test("dormant default cannot be activated by environment, forged request or production branch name", async () => {
   assert.equal(PUBLIC_READING_DEPLOYMENT_AUTHORIZATION.state, "dormant"); assert.equal(deploymentAuthorized(), false);
   let reads = 0;

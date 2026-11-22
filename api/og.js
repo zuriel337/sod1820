@@ -455,6 +455,7 @@ export default async function handler(req, res) {
     title = 'גלריות ומקורות · ' + SITE_NAME;
     desc = 'תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820.';
     canonical = SITE + '/gallery'; type = 'website';
+    if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'gallery' });
     image = cardUrl({ w: 'גלריות ומקורות', sub: 'תמונות · מקורות · ממצאים' });
     if (['gallery', 'image', 'q', 'source'].some(key => continuityParams.has(key))) robots = 'noindex, follow';
   } else if (productionReading && decodedKey === '/verified') {
