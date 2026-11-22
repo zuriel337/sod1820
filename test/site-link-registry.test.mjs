@@ -66,7 +66,7 @@ test("Legacy navigation is carried over, each Legacy path resolves to exactly on
 test("registry state never disagrees with the 2029 route router (production artifact profile)", async () => {
   const router = await productionRouter();
   for (const item of SITE_LINKS.filter((link) => !link.external)) {
-    const state = router.publicReadingPath(item.href.split("#")[0]);
+    const state = router.publicReadingLinkState2029(item.href);
     const expected = { public: ["public"], closed: ["closed"], account: ["continuation", "account"], service: ["service-closed", "public"] }[item.defaultState];
     assert.ok(expected.includes(state), `${item.id} ${item.href}: registry says ${item.defaultState}, router says ${state}`);
   }
@@ -114,6 +114,8 @@ test("personal links point at the account routes; /profile still continues to th
   assert.equal(byId.profile.href, "/2029/me/profile");
   assert.equal(byId.notifications.href, "/2029/me/notifications");
   assert.equal(publicReadingContinuation("/profile", ""), byId.profile.href);
+  assert.equal(byId["my-research"].href, "/2029/me/research");
+  assert.equal(byId["my-research"].defaultState, "account");
   assert.equal(byId.profile.defaultState, "account");
   assert.equal(byId.notifications.defaultState, "account");
 });

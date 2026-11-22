@@ -84,7 +84,8 @@ test("the web adapter's live route state agrees with every registry entry", () =
   for (const id of ["heichal", "posts", "or-geula", "community", "privacy", "number", "map", "els", "whatsapp", "instagram", "updates"]) {
     assert.equal(razielSiteLinkState(siteLinkById(id)), "open", id);
   }
-  for (const id of ["archive", "start", "my-research"]) {
+  assert.equal(razielSiteLinkState(siteLinkById("my-research")), "open");
+  for (const id of ["archive", "start", "research-tools"]) {
     assert.equal(razielSiteLinkState(siteLinkById(id)), "closed", id);
   }
 });

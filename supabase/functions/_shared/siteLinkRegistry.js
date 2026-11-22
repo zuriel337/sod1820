@@ -52,7 +52,7 @@ export const SITE_LINKS = Object.freeze([
   entry({ id: "archive", label: "ארכיון", href: "/archive", defaultState: "closed", aliases: ["ארכיון", "הארכיון"],
     closed: { message: "הארכיון ההיסטורי בתהליך התאמה. הגלריות והתוכן שפורסם זמינים בנפרד.", alt: "gallery" }, footer: { group: "discover", order: 5 } }),
   // ── לחקור ──
-  entry({ id: "heichal", label: "היכל", href: "/heichal", defaultState: "public", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל"],
+  entry({ id: "heichal", label: "היכל", href: "/heichal", defaultState: "public", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל", "/research"],
     closed: { message: "ההיכל נמצא בבנייה ואינו פתוח לציבור עדיין. אפשר להמשיך לספרים ולמקורות.", alt: "books" }, footer: { group: "research", order: 1 } }),
   // raziel:false — owner decision: "/world" opens from Raziel only through the existing explicit "open the world" grammar,
   // never from a "where is" question, so the site-link answers do not index this entry.
@@ -73,8 +73,9 @@ export const SITE_LINKS = Object.freeze([
   // ZURIEL 18.11.2026 (indexing review): the personal links point at the existing account routes directly. /profile still continues to
   // /2029/me/profile; /profile#notifications used to land on the profile module, not on the follow centre at /2029/me/notifications.
   entry({ id: "profile", label: "האזור שלי", href: "/2029/me/profile", defaultState: "account", aliases: ["האזור שלי", "אזור אישי", "האזור האישי", "הפרופיל שלי", "פרופיל"], footer: { group: "personal", order: 1 } }),
-  entry({ id: "my-research", label: "המחקר שלי", href: "/research", defaultState: "closed", aliases: ["המחקר שלי"],
-    closed: { message: "המחקר האישי נמצא בבנייה. אפשר להמשיך למחשבון הגימטריה.", alt: "gematria" }, footer: { group: "personal", order: 2 } }),
+  entry({ id: "my-research", label: "המחקר שלי", href: "/2029/me/research", defaultState: "account", aliases: ["המחקר שלי"], footer: { group: "personal", order: 2 } }),
+  entry({ id: "research-tools", label: "כלי המחקר", href: "/research?mode=research", defaultState: "closed", raziel: false,
+    closed: { message: "כלי המחקר אינם זמינים לציבור. הממצאים שפורסמו פתוחים לקריאה בהיכל.", alt: "heichal" }, footer: { group: "research", order: 7 } }),
   entry({ id: "notifications", label: "העדכונים שלי", href: "/2029/me/notifications", defaultState: "account", aliases: ["העדכונים שלי", "ההתראות שלי", "התראות"], footer: { group: "personal", order: 3 } }),
   // ── מידע ──
   entry({ id: "start", label: "כאן מתחילים", href: "/start", defaultState: "closed", aliases: ["כאן מתחילים", "מתחילים כאן", "איפה מתחילים"],

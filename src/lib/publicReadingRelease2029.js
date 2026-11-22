@@ -262,6 +262,15 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   return /^\/[^/]+$/.test(path) ? "post-lookup" : "missing";
 }
 
+// Registry links may name a particular operation. Resolve that exact mode, not
+// the public reader at its unparameterized pathname.
+export function publicReadingLinkState2029(href, { isAdmin = false } = {}) {
+  const address = String(href || "").split("#")[0];
+  const i = address.indexOf("?");
+  return i < 0 ? publicReadingPath(address, { isAdmin })
+    : publicReadingPath(address.slice(0, i), { isAdmin, search: address.slice(i + 1) });
+}
+
 export const PUBLIC_READING_OPEN_ROUTES = Object.freeze(["/", "/world", "/post", "/number", "/gematria", "/gallery", "/map", "/privacy"]);
 
 // Readable content first (ZURIEL 16.11.2026: "התוכן הקריא ... יהיו במקום ראשון לפני כל פעולות המחקר רזיאל או כל פעולה שיש פעולות מדידה
