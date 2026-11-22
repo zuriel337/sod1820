@@ -51,7 +51,7 @@ test('public reading routes preserve engine/action gates and exact source identi
   for (const path of ['/community','/community/chat','/community/calculator','/tag/סוד-החשמל','/category/אסונות%2Fתופעות-טבע',
     '/number/1820','/number/אחת%20ארבע','/books','/book/ahavat-torah','/codes','/codes/מחקר','/or-geula','/contact']) assert.equal(publicReadingPath(path),'public',path);
   assert.equal(publicReadingPath('/code'),'public'); assert.equal(publicReadingPath('/els'),'continuation');
-  for (const path of ['/journey','/raziel','/2029/me/unknown']) assert.equal(publicReadingPath(path),'closed',path);
+  for (const path of ['/journey','/raziel','/heichal','/2029/me/unknown']) assert.equal(publicReadingPath(path),'closed',path);
   assert.equal(publicReadingPath('/2029/me/profile'),'account');
   assert.equal(publicReadingPath('/community/researcher/me'),'account');
   assert.equal(publicReadingContinuation('/me','?tab=messages&dm=owned&returnTo=%2Fworld','#thread'),'/2029/me/messages?tab=messages&dm=owned&returnTo=%2Fworld#thread');
