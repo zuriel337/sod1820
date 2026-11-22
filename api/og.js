@@ -1,5 +1,5 @@
 import { HEICHAL_PUBLIC_READING } from "../src/lib/heichalPublicReading2029.js";
-import { PUBLIC_REALITY_STREAM_2029, publicResearchCategory2029, PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_REALITY_STREAM_2029, isPublicResearchReading2029, publicResearchCategory2029, PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
   loadPublicForumContinuation2029, loadPublicCommentPostContinuation2029,
@@ -437,7 +437,8 @@ export default async function handler(req, res) {
   }
   if (productionReading && ["closed", "missing", "service-closed"].includes(productionRouteState)) {
     // A feature area that is only closed until it reopens in a few days stays in the index (the document is answered 503 + Retry-After).
-    robots = productionRouteState === "closed" && publicTemporarilyClosed(key, continuitySearch) && !continuityParams.size ? 'index, follow' : 'noindex, nofollow';
+    const researchRequest = continuityParams.size > 0 && isPublicResearchReading2029(key);
+    robots = productionRouteState === "closed" && publicTemporarilyClosed(key, continuitySearch) && !researchRequest ? 'index, follow' : 'noindex, nofollow';
     documentStatus = productionRouteState === "missing" ? 404 : 200;
     title = `${documentStatus === 404 ? 'העמוד לא נמצא' : 'האזור ייפתח בהמשך'} · ${SITE_NAME}`;
     desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
