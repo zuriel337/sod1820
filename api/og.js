@@ -1,3 +1,4 @@
+import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
@@ -449,6 +450,14 @@ export default async function handler(req, res) {
     desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
     const capability = publicReadingCapability(key);
     if (capability) { title = `${capability.title} · ${SITE_NAME}`; desc = capability.description; image = cardUrl({ w: capability.title, sub: 'בבנייה' }); }
+  } else if (productionReading && decodedKey === '/findings') {
+    title = PUBLISHED_FINDINGS_READING.title + ' · ' + SITE_NAME;
+    desc = PUBLISHED_FINDINGS_READING.description;
+    canonical = SITE + '/findings';
+    type = 'website';
+    robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
+    image = cardUrl({ w: PUBLISHED_FINDINGS_READING.title, sub: 'ממצאים ומקורות' });
+    if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'findings' });
   } else if (productionReading && decodedKey === '/gallery') {
     // This admitted collection is not a Post slug. Selected images still pass
     // through the existing public gallery reader; no query becomes metadata.

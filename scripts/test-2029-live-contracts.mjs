@@ -46,9 +46,8 @@ test("2029 surfaces do not link to the unopened Heichal entry; context actions n
     assert.equal(source.includes('go?.("/heichal"'), false, `${name} must not navigate to unopened Heichal 2029`);
   }
   // Number b2531763 explicitly wired the existing Heichal action, alongside distinct saved-ELS and new-ELS destinations.
-  assert.match(number, /onOpenHeichal=\{\(\) => shell\.go\("\/heichal"\)\}/);
-  assert.match(number, /focus\?\.kind === "els_saved_from_number" \? "\/els\?library=public"/);
-  assert.match(number, /focus\?\.kind === "els_new_from_number" \? "\/els" : "\/heichal"/);
+  assert.match(number, /onOpenHeichal=\{PUBLIC_READING_RELEASE \? undefined : \(\) => shell\.go\("\/heichal"\)/);
+  assert.match(number, /kind === "els_saved_from_number" \? "\/els\?library=public" : "\/els"/);
   assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), true, "2029 Global Chrome must expose canonical Heichal navigation");
   assert.equal(contextual.includes('label: "◇ העמק בהיכל"'), false, "context actions must not expose Heichal");
   assert.equal(contextual.includes("deepenTool()"), false, "context tools must not generate Heichal deepen entries");

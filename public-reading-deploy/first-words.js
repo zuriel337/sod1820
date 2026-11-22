@@ -12,6 +12,7 @@
 //    other visitors' searches (Traffic Intelligence). While the reader is not available, the block is simply absent. No second source.
 //  - Never throws and never delays the document beyond its small deadline: on any failure the answer is today's document.
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
+import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
 import { publicPostHref } from "../src/lib/publicPostUrls.js";
 import { COMMUNITY_CALCULATOR_SEO, COMMUNITY_CALCULATOR_EXPLAINER, COMMUNITY_CALCULATOR_FAQ } from "../src/lib/research/communityCalculatorSeo2029.js";
 import { CALCULATOR_PRO_PATH, CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
@@ -207,6 +208,10 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "findings") {
+    const { title, description } = PUBLISHED_FINDINGS_READING;
+    return `<h1>${esc(title)}</h1><p>${esc(description)}</p><p><a href="/books">ספרים ומקורות</a> · <a href="/codes/מחקר">צפני מחקר שפורסמו</a></p>`;
+  }
   if (facts.kind === "home") {
     const words = HOME_FIRST_WORDS;
     // Exact wording; the series line and the start line are links to destinations that exist today. The start items are inline

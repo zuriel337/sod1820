@@ -86,7 +86,9 @@ export default function ResearchProvider({ children }) {
 
 function PrincipalResearchProvider({ children, userId, disabled, personalLocked, isAdmin }) {
   const { pathname, search, hash } = useLocation();
-  const workspaceActive = isResearchWorkspace2029(pathname);
+  const workspaceActive = isResearchWorkspace2029(pathname, {
+    heichalResearch: !PUBLIC_READING_RELEASE,
+  });
   const workspace = useRef(workspaceActive);
   workspace.current = workspaceActive;
   const [personalDemand, setPersonalDemand] = useState(false);

@@ -452,6 +452,7 @@ function CalculatorExperience() {
   };
 
   const openHeichal = () => {
+    if (PUBLIC_READING_RELEASE) return;
     if (!selection) return;
     updateSelectionContext(selection, { focusOrigin: "calculator-2029" });
     research.updateResearchContext?.({ lens: "heichal" });
@@ -573,7 +574,7 @@ function CalculatorExperience() {
           {showMore ? (
             <div className="sod29-calc2029-actions is-more">
               <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-              <button type="button" disabled={actionsLocked} onClick={openHeichal}>חקור בהיכל</button>
+              <button type="button" disabled={actionsLocked || PUBLIC_READING_RELEASE} onClick={openHeichal}>{PUBLIC_READING_RELEASE ? "מחקר בהיכל · בעתיד" : "חקור בהיכל"}</button>
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
                 {showCompare ? "סגור השוואה" : "השווה"}
               </button>
