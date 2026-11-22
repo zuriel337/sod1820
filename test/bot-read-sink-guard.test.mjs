@@ -79,10 +79,12 @@ assert.ok(!/sideEffectAllowed/.test(visits),
 assert.ok(/p_is_bot:\s*isBot\(\)/.test(events),
   "emit()/events must keep passing p_is_bot — ingest_event already drops bot rows server-side");
 
-// ── 5. GA4 stays with the analytics owner and is untouched by this slice.
+// GA4 owns its public numeric page view. The reviewed exception uses the shared
+// verdict for that one family at both entry points; other families keep their GA policy.
 const analytics = read("src/lib/analytics.js");
-assert.ok(!/sideEffectAllowed|botVerdict/.test(analytics),
-  "analytics.js (GA4) is the analytics owner's surface and must not be gated here");
+assert.match(analytics, /return readingTelemetryPath\(path\) === "\/number\/:value" && !sideEffectAllowed\("ga4_number_view"\)/);
+assert.equal((analytics.match(/sideEffectAllowed\("/g) || []).length, 1);
+assert.equal((analytics.match(/\|\| numberViewSuppressed\(path\)/g) || []).length, 2);
 
 // ── 6. The share production path is the SHARE workstream's. A share is a CLICK,
 //      not a read, so this slice must not have reached into it.

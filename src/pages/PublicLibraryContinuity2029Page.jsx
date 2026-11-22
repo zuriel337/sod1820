@@ -1,3 +1,4 @@
+import SectionPulseSlot2029 from "../components/experience2029/SectionPulseSlot2029.jsx";
 import { recordSiteActivity } from "../lib/siteActivity2029.js";
 import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
@@ -176,6 +177,7 @@ export default function PublicLibraryContinuity2029Page({ kind = "codes", collec
     <main className="public-library29" dir="rtl" data-experience-capability={kind === "books" ? "public-book-library" : "public-cipher-library"}>
 
       {kind === "codes" && !slug ? <nav className="public-library29-breadcrumb" aria-label="אוספי צפנים"><Link to={researchCollection ? "/codes" : RESEARCH_PATH}>{researchCollection ? "כל הצפנים שפורסמו" : "פרסומי מחקר בצפנים"}</Link></nav> : null}
+      {kind === "codes" ? <SectionPulseSlot2029 section="els" /> : null}
       {slug ? <nav className="public-library29-breadcrumb" aria-label="חזרה לספרייה"><Link to={returnHref(kind, item?.sourceCollection || selectedCollection, location)}>→ חזרה ל{title}</Link></nav> : <form className="public-library29-search" onSubmit={event => { event.preventDefault(); if (draft.trim()) recordSiteActivity("search"); const next = new URLSearchParams(params); if (draft.trim()) next.set("q", draft.trim()); else next.delete("q"); next.delete("page"); setParams(next); }}><label htmlFor="public-library29-query">חיפוש ב{title}<input id="public-library29-query" type="search" value={draft} maxLength={120} onChange={event => setDraft(event.target.value)} placeholder={kind === "books" ? "שם הספר" : "מילה או שם הצופן"} /></label><button className="sod29-action" type="submit"><NavigationIcon2029 name="search" /> חיפוש</button></form>}
       {data.status === "loading" ? <FrameState kind="loading" title={slug ? "פותח את המקור" : "טוען את הספרייה"} progress={{ onCancel: data.cancel }}>בודק זמינות לקריאה ציבורית.</FrameState>
         : data.status === "failed" ? <FrameState kind="error" title="הטעינה לא הושלמה"><p>המקור לא נטען. אפשר לנסות שוב.</p><button className="sod29-action" type="button" onClick={data.retry}>ניסיון טעינה נוסף</button></FrameState>
