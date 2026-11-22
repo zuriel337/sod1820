@@ -193,3 +193,14 @@ Do not expand ELS into a parallel general Research Workspace. New shared capabil
 At approval time, `SOD1820_MASTER_ROADMAP.md` v5.1 has `LAST_RECONCILED=2026-08-22` while verified main/work_log activity is newer (#185/#186/#188). Per its own freshness law it is STALE for this workstream — a `v5.2` candidate section already exists on this branch, updated by this reconciliation pass to match §0–§12 above.
 
 This branch records the approved, reconciled contract; `SOD1820_MASTER_STATE.md`/`SOD1820_MASTER_ROADMAP.md` should be kept in sync with it before the architecture is treated as fully reflected by canonical docs. No existing historical work is deleted; prior plans remain provenance and are marked superseded/absorbed only where a direct approved replacement exists.
+
+### טעינה לפי כוונת הגולש · Human Gate ZURIEL · 22.11.2026
+
+| רמה | טריגר | תוכן ופעולות |
+| --- | --- | --- |
+| L0 — קריאה | כניסה לכתובת ציבורית | כותרת, תוכן מרכזי, מקורות וקישורים |
+| L1 — גילוי | התקרבות לרכיב או גלילה | קשרים שפורסמו, תוכן קשור והרחבות קלות |
+| L2 — מחקר | בחירה מפורשת בכלי או קישור ישיר לכלי | חישוב, הצלבה וסריקה בגבולות ההרשאה |
+| L3 — עומק | בקשת עומק והרשאה מתאימה | רזיאל, מודלים, גרפים עמוקים ותלת־ממד |
+
+כל הרמות נשענות על אותם מקורות ועל אותו Research Context. כניסה ישירה לכלי משחזרת את ההקשר שעמו נפתח הקישור. קריאת פריט אינה מפעילה סריקה. אמת מחקרית, זכאות, פרטיות וסמכות הפרסום נקבעות בידי בעליהן הקיימים.
