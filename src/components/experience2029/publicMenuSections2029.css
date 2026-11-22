@@ -1,0 +1,9 @@
+.sod29-menu-sections{display:grid;align-content:start;min-width:0;gap:.16rem}
+.sod29-menu-sections .sod29-nav-group{margin:0}
+.sod29-menu-section{border-bottom:1px solid color-mix(in srgb,currentColor 13%,transparent)}
+.sod29-menu-section>summary,.sod29-menu-section-link{box-sizing:border-box;min-height:44px;padding:.65rem .55rem;color:inherit}
+.sod29-menu-section>summary{cursor:pointer;font-weight:650}
+.sod29-menu-section>div{padding-inline-start:.4rem;padding-block-end:.35rem}
+.sod29-menu-section-link{display:flex;align-items:center;text-decoration:none;overflow-wrap:anywhere}
+.sod29-menu-section-link:hover,.sod29-menu-section-link[aria-current=page]{text-decoration:underline}
+.sod29-menu-section>:focus-visible,.sod29-menu-section-link:focus-visible{outline:2px solid currentColor;outline-offset:-2px}
