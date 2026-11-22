@@ -81,7 +81,10 @@ const DECISIONS = {
   "/2029/journey": { kind: "closed" },
   "/2029/control": { kind: "closed" },
   "/2029/me/:module": { kind: "closed" },
-  "/research": { kind: "closed503", note: "#1236: closed only until it reopens soon: 503 + Retry-After, kept indexable" },
+  "/research": { kind: "index", canonical: "/heichal" },
+  "/reality": { kind: "index" },
+  "/cross": { kind: "item" },
+  "/languages": { kind: "item" },
   "/heichal": { kind: "index" },
   "/היכל": { kind: "index", canonical: "/heichal" },
 

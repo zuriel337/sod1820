@@ -14,7 +14,10 @@ export function productionApp2029Source(source) {
     'new Foundation routes require explicit scope review');
   let result=source.replace(block,'');
   for (const [route,component,guard] of [['/posts','Posts2029Page','import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true"'],
-    ['/research','GematriaEntry2029','(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE)']]) {
+    ['/reality','RealityPublicReading2029Page','PUBLIC_READING_RELEASE'],
+    ['/cross','PostsTaxonomy2029Page','PUBLIC_READING_RELEASE'],
+    ['/languages','PostsTaxonomy2029Page','PUBLIC_READING_RELEASE'],
+    ['/research','ResearchEntry2029','(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE)']]) {
     const guarded=`{${guard} && <Route path="${route}" element={<${component} />} />}`;
     assert.ok(result.includes(guarded),`${route} must retain its explicit accepted build guard`);
     result=result.replace(guarded,'');

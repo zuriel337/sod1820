@@ -268,11 +268,11 @@ export default function Posts2029Page(props = {}) {
   return media.active ? <PostsMediaLibrary2029 media={media} /> : <PostsCatalogPage2029 {...props} />;
 }
 
-function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, verifiedOnly = false } = {}) {
+function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, verifiedOnly = false, researchCategory = null } = {}) {
   const location = useLocation();
   // Match the server taxonomy document and sitemap. Keep the visited route,
   // query and anchor for navigation; only the canonical metadata uses hyphens.
-  const taxonomyCanonicalPath = taxonomyScope ? location.pathname.replace(/%20| /gi, "-") : null;
+  const taxonomyCanonicalPath = taxonomyScope ? (researchCategory?.path || location.pathname).replace(/%20| /gi, "-") : null;
   const navigationType = useNavigationType();
   const currentHref = `${location.pathname}${location.search}${location.hash}`;
   const arrivedAtSavedViewport = useMemo(() =>
@@ -448,6 +448,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
             <h1>{title}</h1>
             {scope.kind === "all" ? <p className="sod29-posts-library-intro">סיפורים, רמזים וחיבורים שמעוררים התבוננות</p> : null}
             {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-library-intro">{scope.kind === "tag" ? "לקרוא ולגלות דרך הפוסטים עם התגית הזו" : "הפוסטים שנאספו תחת הסיווג הזה"}</p> : null}
+            {researchCategory && <p>{researchCategory.toolNotice}</p>}
             {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
             {scope.sourceLink ? <p><Link className="sod29-posts-library-back" to={scope.sourceLink.href}>{scope.sourceLink.label} ←</Link></p> : null}
             {scope.mediaLinks ? <nav className="sod29-posts-media-switch" aria-label="סוג המדיה">{scope.mediaLinks.map(link => <Link key={link.href} to={link.href}>{link.label} ←</Link>)}</nav> : null}

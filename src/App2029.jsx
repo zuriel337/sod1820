@@ -19,7 +19,7 @@ import ErrorBoundary2029 from "./components/experience2029/ErrorBoundary2029.jsx
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/experience2029/FeatureClosedNotice2029.jsx";
-import { requestedHeichalResearch, PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
+import { isPublicResearchReading2029, requestedHeichalResearch, PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS, afterReadableContent2029 } from "./lib/publicReadingRelease2029.js";
 
 // The first Post's code is prepared by the Home itself, after its own top is readable (Home2029Page.jsx; ZURIEL 17.11.2026). It still starts
 // before a click, without starting any Post data read.
@@ -33,8 +33,16 @@ const BeitMidrash2029Page = lazy(
 );
 const Books2029Page = lazy(() => import("./pages/Books2029Page.jsx"));
 const Els2029Page = lazy(() => import("./pages/Els2029Page.jsx"));
+const RealityPublicReading2029Page = lazy(() => import("./pages/RealityPublicReading2029Page.jsx"));
 const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
 const HeichalPublicReading2029Page = lazy(() => import("./pages/HeichalPublicReading2029Page.jsx"));
+
+function ResearchEntry2029() {
+  const { search, pathname } = useLocation();
+  return PUBLIC_READING_RELEASE && isPublicResearchReading2029(pathname, search)
+    ? <HeichalPublicReading2029Page />
+    : <GematriaEntry2029 />;
+}
 
 function HeichalEntry2029() {
   const { isAdmin } = useAuth();
@@ -387,7 +395,7 @@ function PublicReadingBoundary({ children }) {
   const continuation = PUBLIC_READING_RELEASE ? publicReadingContinuation(location.pathname, location.search, location.hash) : null;
   const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname, { isAdmin: !loading && isAdmin, search: location.search }) : null;
   if (continuation) return <Navigate replace to={continuation} />;
-  const capability = PUBLIC_READING_RELEASE ? publicReadingCapability(location.pathname) : null;
+  const capability = PUBLIC_READING_RELEASE ? publicReadingCapability(location.pathname, location.search) : null;
   if (state === "closed" && capability) return <PublicContinuity2029Page kind="status" {...capability}
     links={capability.links.map(([href, label]) => [href === '/login' ? `/login?returnTo=${encodeURIComponent(location.pathname + location.search + location.hash)}` : href, label])} />;
   if (state === "closed") return <>
@@ -465,7 +473,10 @@ export default function App2029() {
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
               {import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" && <Route path="/posts" element={<Posts2029Page />} />}
-              {(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE) && <Route path="/research" element={<GematriaEntry2029 />} />}
+              {(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE) && <Route path="/research" element={<ResearchEntry2029 />} />}
+              {PUBLIC_READING_RELEASE && <Route path="/reality" element={<RealityPublicReading2029Page />} />}
+              {PUBLIC_READING_RELEASE && <Route path="/cross" element={<PostsTaxonomy2029Page />} />}
+              {PUBLIC_READING_RELEASE && <Route path="/languages" element={<PostsTaxonomy2029Page />} />}
               <Route path="/login" element={<AuthPage />} />
               <Route path="/auth/callback" element={<OAuthCallback2029 />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />

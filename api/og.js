@@ -1,5 +1,5 @@
 import { HEICHAL_PUBLIC_READING } from "../src/lib/heichalPublicReading2029.js";
-import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_REALITY_STREAM_2029, publicResearchCategory2029, PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
   loadPublicForumContinuation2029, loadPublicCommentPostContinuation2029,
@@ -427,7 +427,8 @@ export default async function handler(req, res) {
     return rows;
   };
   const productionRouteState = productionReading ? decodedKey === "/unsubscribe" ? "public" : publicReadingPath(key, { search: continuitySearch }) : null;
-  let taxonomy = productionReading ? postsTaxonomyRoute2029(key, continuitySearch) : null;
+  const researchCategory = productionReading && productionRouteState === "public" ? publicResearchCategory2029(key) : null;
+  let taxonomy = productionReading ? postsTaxonomyRoute2029(researchCategory?.path || key, continuitySearch) : null;
   const catalogTaxonomy = productionReading && ['/post', '/2029/posts'].includes(key)
     && (continuityParams.has('tag') || continuityParams.has('category'));
   if (catalogTaxonomy) {
@@ -436,11 +437,11 @@ export default async function handler(req, res) {
   }
   if (productionReading && ["closed", "missing", "service-closed"].includes(productionRouteState)) {
     // A feature area that is only closed until it reopens in a few days stays in the index (the document is answered 503 + Retry-After).
-    robots = productionRouteState === "closed" && publicTemporarilyClosed(key) ? 'index, follow' : 'noindex, nofollow';
+    robots = productionRouteState === "closed" && publicTemporarilyClosed(key, continuitySearch) && !continuityParams.size ? 'index, follow' : 'noindex, nofollow';
     documentStatus = productionRouteState === "missing" ? 404 : 200;
     title = `${documentStatus === 404 ? 'העמוד לא נמצא' : 'האזור ייפתח בהמשך'} · ${SITE_NAME}`;
     desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
-    const capability = publicReadingCapability(key);
+    const capability = publicReadingCapability(key, continuitySearch);
     if (capability) { title = `${capability.title} · ${SITE_NAME}`; desc = capability.description; image = cardUrl({ w: capability.title, sub: 'בבנייה' }); }
   } else if (productionReading && decodedKey === '/map') {
     title = 'מפת האתר · ' + SITE_NAME;
@@ -448,7 +449,7 @@ export default async function handler(req, res) {
     canonical = SITE + '/map';
     robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
     if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'map' });
-  } else if (productionReading && ['/heichal', '/היכל'].includes(decodedKey)) {
+  } else if (productionReading && ['/heichal', '/היכל', '/research'].includes(decodedKey)) {
     title = HEICHAL_PUBLIC_READING.title + ' · ' + SITE_NAME;
     desc = HEICHAL_PUBLIC_READING.description;
     canonical = SITE + '/heichal';
@@ -456,6 +457,13 @@ export default async function handler(req, res) {
     robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
     image = cardUrl({ w: HEICHAL_PUBLIC_READING.title, sub: 'ממצאים ומקורות' });
     if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'heichal' });
+  } else if (productionReading && decodedKey === '/reality') {
+    title = PUBLIC_REALITY_STREAM_2029.title + ' · ' + SITE_NAME;
+    desc = PUBLIC_REALITY_STREAM_2029.description;
+    canonical = SITE + '/reality';
+    type = 'website';
+    robots = continuityParams.size ? 'noindex, follow' : 'index, follow';
+    if (!continuityParams.size) req.publicReadingFirstWords?.({ kind: 'reality' });
   } else if (productionReading && decodedKey === '/gallery') {
     // This admitted collection is not a Post slug. Selected images still pass
     // through the existing public gallery reader; no query becomes metadata.
@@ -493,7 +501,7 @@ export default async function handler(req, res) {
     if (catalogTaxonomy && selection) canonicalParams.set(selection.kind, selection.key);
     // One address per label: the route convention maps hyphens to spaces (postsTaxonomyRoute2029), so the spaced address and the hyphen address are the same
     // page. The sitemap lists the hyphen form; declare it as the canonical of both (the spaced form kept 31 Search Console clicks as a duplicate).
-    canonical = SITE + key.replace(/%20| /gi, '-') + (canonicalParams.size ? `?${canonicalParams}` : '');
+    canonical = SITE + (researchCategory ? encodeURI(researchCategory.path) : key.replace(/%20| /gi, '-')) + (canonicalParams.size ? `?${canonicalParams}` : '');
     if (!selection || page === null) { documentStatus = 404; robots = 'noindex, follow'; }
     else if (term.length > 120 || /[\u0000-\u001f\u007f]/.test(term)) { documentStatus = 400; robots = 'noindex, follow'; }
     else try {
@@ -523,7 +531,7 @@ export default async function handler(req, res) {
         documentStatus = evidence.status;
         if (documentStatus !== 200 || term || page > 1) robots = 'noindex, follow';
         // First words (public-reading-deploy/first-words.js): the first page of an existing collection hands its own admitted rows to the document.
-        if (documentStatus === 200 && !term && page === 1 && typeof req.publicReadingFirstWords === 'function') req.publicReadingFirstWords({ kind: 'taxonomy', taxonomyKind: taxonomy.kind, label: taxonomy.label, posts: rows });
+        if (documentStatus === 200 && !term && page === 1 && typeof req.publicReadingFirstWords === 'function') req.publicReadingFirstWords({ kind: 'taxonomy', taxonomyKind: taxonomy.kind, label: taxonomy.label, toolNotice: researchCategory?.toolNotice, posts: rows });
         image = documentStatus === 200 && (rows[0]?.thumb_url || rows[0]?.image_url)
           ? waSafeImage(rows[0].thumb_url || rows[0].image_url) : cardUrl({ w: taxonomy.label, sub: 'פרסומים ומקורות' });
       }
