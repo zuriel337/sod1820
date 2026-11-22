@@ -35,7 +35,7 @@ import {
   parseCalculatorShareState,
   pickVerifiedShareDiscovery,
 } from "../lib/research/calculator2029Viral.js";
-import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
+import { HEICHAL_RESEARCH_ENTRY, PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import { CALCULATOR_PRO_SEO } from "../lib/research/calculatorProSeo2029.js";
@@ -455,7 +455,7 @@ function CalculatorExperience() {
     if (!selection) return;
     updateSelectionContext(selection, { focusOrigin: "calculator-2029" });
     research.updateResearchContext?.({ lens: "heichal" });
-    navigate("/heichal?mode=research");
+    navigate(HEICHAL_RESEARCH_ENTRY);
   };
 
   const openRaziel = () => {

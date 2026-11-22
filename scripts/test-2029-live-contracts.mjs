@@ -43,9 +43,9 @@ test("public Heichal navigation is readable and only explicit research actions e
     assert.equal(source.includes('/heichal?mode=research'), false, `${name} must not automatically enter the Heichal workspace`);
   }
   // Number b2531763 explicitly wired the existing Heichal action, alongside distinct saved-ELS and new-ELS destinations.
-  assert.match(number, /onOpenHeichal=\{\(\) => shell\.go\("\/heichal\?mode=research"\)\}/);
+  assert.match(number, /onOpenHeichal=\{\(\) => shell\.go\(HEICHAL_RESEARCH_ENTRY\)\}/);
   assert.match(number, /focus\?\.kind === "els_saved_from_number" \? "\/els\?library=public"/);
-  assert.match(number, /focus\?\.kind === "els_new_from_number" \? "\/els" : "\/heichal\?mode=research"/);
+  assert.match(number, /focus\?\.kind === "els_new_from_number" \? "\/els" : HEICHAL_RESEARCH_ENTRY/);
   assert.equal(frame.includes('{ to: "/heichal", label: "היכל"'), true, "2029 Global Chrome must expose canonical Heichal navigation");
   assert.equal(contextual.includes('label: "◇ העמק בהיכל"'), false, "context actions must not expose Heichal");
   assert.equal(contextual.includes("deepenTool()"), false, "context tools must not generate Heichal deepen entries");

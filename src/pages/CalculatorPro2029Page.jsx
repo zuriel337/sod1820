@@ -1,3 +1,4 @@
+import { HEICHAL_RESEARCH_ENTRY } from "../lib/publicReadingRelease2029.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
@@ -354,7 +355,7 @@ function ProExperience() {
     if (!canonicalSelection) return;
     research.updateResearchContext?.(buildCalculatorResearchContext(canonicalSelection, { focusOrigin: "calculator-pro-2029" }));
     research.updateResearchContext?.({ lens: "heichal" });
-    navigate("/heichal?mode=research");
+    navigate(HEICHAL_RESEARCH_ENTRY);
   };
 
   const openRaziel = () => {
