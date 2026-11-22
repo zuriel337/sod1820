@@ -26,6 +26,6 @@ test('the approved responsive picture is in the first document, outside the Reac
 test('royal picture uses a lower desktop crop without changing mobile or the crown seam', () => {
  const css=fs.readFileSync('src/components/experience2029/royalBackdrop2029.css','utf8');
  assert.match(css, /\.r29-connected-art\{[^}]*top:63px;/);
- assert.match(css, /\.r29-connected-art img\{[^}]*object-position:center 18%/);
+ assert.match(css, /\.r29-connected-art img\{[^}]*object-position:center 12%/);
  assert.match(css, /@media\(max-width:650px\)\{\.r29-connected-art\{height:340px\}\.r29-connected-art img\{object-position:center 22%\}\}/);
 });
