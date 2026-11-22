@@ -9,7 +9,7 @@ import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { publicReadingExternalSourceHref, publicTemporarilyClosed } from "../lib/publicReadingRelease2029.js";
 import {
   loadPublicOrGeulaCollection2029, loadPublicOrGeulaOccurrence2029,
-  loadPublicPeopleContinuation2029, loadPublicForumContinuation2029,
+  loadPublicPeopleContinuation2029, loadPublicForumContinuation2029, publicPeopleSlice2029, WRITERS_DIRECTORY_2029,
   loadPublicCommentPostContinuation2029, publicContinuityPage2029,
   publicOrGeulaOccurrenceHref2029, publicContinuityPlaybackTime2029,
   publicForumChatHref2029,
@@ -39,14 +39,15 @@ function usePublicRead(reader) {
   return [state.reader === reader ? state : { status: "loading" }, () => setAttempt(value => value + 1)];
 }
 
-function ContentPlane({ kind, title, description, path, state = "ready", children }) {
+function ContentPlane({ kind, title, description, path, state = "ready", noindex = false, children }) {
   const location = useLocation();
   const canonicalPath = path || location.pathname;
   // A feature area closed only until it reopens soon stays indexable (the server answers it 503 + Retry-After).
   const reopeningSoon = state === "gated" && publicTemporarilyClosed(location.pathname);
   useEffect(() => {
-    applySeo({ title, description, path: canonicalPath, noindex: !(["ready", "empty"].includes(state) || reopeningSoon) });
-  }, [title, description, canonicalPath, state, reopeningSoon]);
+    if (kind === "people" && state === "loading") return;
+    applySeo({ title, description, path: canonicalPath, follow: kind === "people" && state !== "not-found", noindex: noindex || !(["ready", "empty"].includes(state) || reopeningSoon) });
+  }, [kind, title, description, canonicalPath, state, noindex, reopeningSoon]);
   return <section className="public-continuity-2029" dir="rtl" data-continuity-kind={kind} data-read-state={state} data-state={state}>
     <header className="continuity-heading">
       <span className="continuity-eyebrow">סוד 1820</span>
@@ -181,16 +182,14 @@ function PeopleContent() {
   const query = params.get("q") || "";
   const [draft, setDraft] = useState(query);
   useEffect(() => setDraft(query), [query]);
-  const page = publicContinuityPage2029(params.has("page") ? params.getAll("page") : null), size = 20;
+  const page = publicContinuityPage2029(params.has("page") ? params.getAll("page") : null);
   const invalidPage = page === null;
   const reader = useCallback(signal => invalidPage ? Promise.resolve({ status: "not-found" }) : loadPublicPeopleContinuation2029({ signal }), [invalidPage]);
   const [state, retry] = usePublicRead(reader);
-  const term = query.trim().toLocaleLowerCase("he");
-  const people = (state.people || []).filter(person => !term || `${person.displayName} ${person.role}`.toLocaleLowerCase("he").includes(term));
-  const visible = people.slice((page - 1) * size, page * size);
+  const { visible, hasMore } = publicPeopleSlice2029(state.people || [], page, query);
   const currentState = state.status === "ready" && page > 1 && !visible.length ? { ...state, status: "not-found" } : state;
-  return <ContentPlane kind="people" title="הכתבים והחוקרים" path="/community/researchers" state={currentState.status}
-    description="האנשים שמאחורי המקורות והפרסומים. היכנסו לדף הציבורי של כל כתב או חוקר.">
+  return <ContentPlane kind="people" title={WRITERS_DIRECTORY_2029.title} path={WRITERS_DIRECTORY_2029.href + (page > 1 && !query.trim() ? `?page=${page}` : "")} state={currentState.status}
+    noindex={Boolean(query.trim()) || page > 1} description={WRITERS_DIRECTORY_2029.description}>
     <form className="continuity-search" role="search" onSubmit={event => {
       event.preventDefault(); const next = new URLSearchParams(params); next.delete("page");
       if (draft.trim()) next.set("q", draft.trim()); else next.delete("q");
@@ -208,7 +207,7 @@ function PeopleContent() {
           <div><h2>{person.displayName}</h2><p>{person.role}</p><span className="continuity-card-open">לדף הציבורי ←</span></div>
         </Link>
       </li>)}</ul> : <StatePanel title="לא נמצאה התאמה"><p>אפשר לנסות שם אחר או להסיר את החיפוש.</p><Link className="continuity-action" to="/community/researchers">לכל הכתבים והחוקרים</Link></StatePanel>}
-      <Pager page={page} hasMore={people.length > page * size} location={location} />
+      <Pager page={page} hasMore={hasMore} location={location} />
     </ReadBoundary>
   </ContentPlane>;
 }

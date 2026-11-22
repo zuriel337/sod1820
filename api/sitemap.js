@@ -1,3 +1,4 @@
+import { automaticContributorSlug2029 } from "../src/lib/research/contributorProfileAddress2029.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingContinuation, PUBLIC_HISTORICAL_LECTURE_PATHS } from "../src/lib/publicReadingRelease2029.js";
 import { projectPublicBook2029, fetchPublicLibraryItem2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { postsTaxonomyRoute2029, postMatchesTaxonomy2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
@@ -473,7 +474,7 @@ export default async function handler(req, res) {
       const code = String(c.code ?? '').trim(), ownSlug = String(c.slug ?? '').trim();
       const slug = /^\d+$/.test(code) ? code : (ownSlug || code);
       // דילוג על פרופילים אוטומטיים (r-<hash>) — לא דפי-כתב אצורים, לא לאינדקס
-      if (!slug || seen.has(slug) || /^r-[0-9a-f]{16,}$/i.test(slug)) continue;
+      if (!slug || seen.has(slug) || automaticContributorSlug2029(ownSlug || slug)) continue;
       seen.add(slug);
       urls.push({ loc: '/community/researcher/' + encodeURIComponent(slug), changefreq: 'weekly', priority: '0.6' });
     }
