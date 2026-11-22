@@ -49,8 +49,8 @@ export const SITE_LINKS = Object.freeze([
   entry({ id: "dimension-five", label: "מימד חמש", href: "/category/מימד-חמש", defaultState: "public", aliases: ["מימד חמש", "מימד 5", "המימד החמישי"], footer: { group: "discover", order: 2 } }),
   entry({ id: "or-geula", label: "אור הגאולה", href: "/community/chat", defaultState: "public", aliases: ["אור הגאולה", "צאט", "צ׳אט", "צ'אט", "הצאט", "הצ׳אט", "הצ'אט", "צ׳אט הקהילה", "הצ׳אט הקהילתי", "שיחת הקהילה"], legacyHrefs: ["/community/chat", "/chat", "/דף-צאט-ראשי"], footer: { group: "discover", order: 3 } }),
   entry({ id: "electricity", label: "סוד החשמל", href: "/category/סוד-החשמל", defaultState: "public", aliases: ["סוד החשמל"], footer: { group: "discover", order: 4 } }),
-  entry({ id: "archive", label: "ארכיון", href: "/archive", defaultState: "closed", aliases: ["ארכיון", "הארכיון"],
-    closed: { message: "הארכיון ההיסטורי בתהליך התאמה. הגלריות והתוכן שפורסם זמינים בנפרד.", alt: "gallery" }, footer: { group: "discover", order: 5 } }),
+  entry({ id: "archive", label: "ארכיון", href: "/archive", defaultState: "public", aliases: ["ארכיון", "הארכיון"],
+    footer: { group: "discover", order: 5 } }),
   // ── לחקור ──
   entry({ id: "heichal", label: "היכל", href: "/heichal", defaultState: "closed", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל"],
     closed: { message: "סביבת העבודה בהיכל טרם נבנתה. אפשר לקרוא את הממצאים שפורסמו.", alt: "findings" }, footer: { group: "research", order: 1 } }),

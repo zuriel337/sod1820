@@ -12,6 +12,7 @@
 //    other visitors' searches (Traffic Intelligence). While the reader is not available, the block is simply absent. No second source.
 //  - Never throws and never delays the document beyond its small deadline: on any failure the answer is today's document.
 //  - Free text typed by a visitor never creates words here: a phrase page gets words only when the phrase is a verified, published row.
+import { PUBLIC_ARCHIVE_2029 } from "../src/lib/research/publicArchive2029.js";
 import { PUBLIC_REALITY_STREAM_2029 } from "../src/lib/publicReadingRelease2029.js";
 import { publicMapLinks2029 } from "../src/lib/publicMap2029.js";
 import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
@@ -210,6 +211,21 @@ const phraseLinks = (rows, withValue = false) => rows.map(row => ({ href: number
 const postLinks = rows => rows.map(row => ({ href: publicPostHref(row), label: text(row.title), note: day(row.date) })).filter(item => item.href && item.label);
 
 function body(facts) {
+  if (facts.kind === "archive") {
+    const { title, description } = PUBLIC_ARCHIVE_2029;
+    const introduction = `<h1>${esc(title)}</h1><p>${esc(description)}</p>`;
+    const destinations = '<p><a href="/gallery">גלריות ותמונות</a> · <a href="/post">פוסטים</a></p>';
+    const notice = facts.selectionNotice ? `<p>${esc(facts.selectionNotice)}</p>` : "";
+    const sections = facts.collections.map(collection => links(
+      collection.items.slice(0, 3).map(item => ({ href: item.href, label: item.title })), collection.title, true
+    ));
+    let html = introduction + notice + destinations;
+    for (const section of sections) {
+      if (Buffer.byteLength(html + section + STYLE + FIRST_WORDS_KEEPER, "utf8") > FIRST_WORDS_MAX_BYTES - 200) break;
+      html += section;
+    }
+    return html;
+  }
   if (facts.kind === "reality") {
     const { title, description } = PUBLIC_REALITY_STREAM_2029;
     return `<h1>${esc(title)}</h1><p>${esc(description)}</p><p><a href="/gallery">גלריות ומקורות</a></p>`;

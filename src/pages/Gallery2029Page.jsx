@@ -15,11 +15,12 @@ import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.j
 import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { gatePublicMethodRows, gateSourcePresentation, gateSourceSelectionIsCurrent } from "../lib/research/revelation1237Gate2029.js";
-import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, loadPublicGalleryReading2029, galleryReadingHref2029, gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection, loadPublicRealityStream2029 } from "../lib/research/topicSourceContext.js";
+import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, loadPublicGalleryReading2029, galleryReadingHref2029, gallerySourceHref2029, galleryItemSourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection, loadPublicRealityStream2029 } from "../lib/research/topicSourceContext.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { publicMediaCaption, publicMediaTitle } from "../lib/presentation/contentTitle.js";
 import { publicStorageMedia } from "../lib/mediaEgressGuard.js";
 import { applySeo } from "../lib/seo.js";
+import { galleryImageFragment2029 } from "../lib/publicReadingRelease2029.js";
 import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import "./gallery2029.css";
 
@@ -245,7 +246,7 @@ function GalleryImageCard({ item, index, selected, opening, error, onRemember, o
   </section>;
 }
 
-function GalleryBody() {
+function GalleryBody({ sourceGallery = null }) {
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
@@ -256,7 +257,7 @@ function GalleryBody() {
   const [opening, setOpening] = useState(null);
   const [error, setError] = useState(null);
   const params = new URLSearchParams(location.search);
-  const galleryId = params.get("gallery");
+  const galleryId = params.get("gallery") ?? sourceGallery;
   const flow=params.get('flow')==='1';
   const reading=useGalleryReading(location.search,retry,flow);
   const takeText=params.get('take')||'12', take=/^\d+$/.test(takeText)?Number(takeText):NaN;
@@ -265,10 +266,11 @@ function GalleryBody() {
   const [passed,setPassed]=useState([]);
   useEffect(()=>{setPassed([]);},[progressScope]);
   const wpGalleryId = /^[1-9]\d*$/.test(galleryId || "") ? Number(galleryId) : null;
-  const imageId = params.get("image");
+  // An in-gallery anchor is the reader’s last explicit position, including older pool links.
+  const imageId = galleryImageFragment2029(location.hash) ?? params.get("image");
   const offsetText = params.get("offset") || "0";
   const offset = /^\d+$/.test(offsetText) ? Number(offsetText) : NaN;
-  const routeKey = `${galleryId}:${location.search}`;
+  const routeKey = `${galleryId}:${location.search}:${imageId || ""}`;
 
   useEffect(() => {
     let alive = true;
@@ -278,7 +280,7 @@ function GalleryBody() {
     if(flow&&reading.status==='loading')return()=>{alive=false;};
     const resultPromise=flow?(reading.status==='failed'?Promise.reject(Error('overview unavailable')):selectedGallery
       ?loadPublicGalleryReading2029({gallery:selectedGallery,take,imageId,fetchSourceContext:fetchGallerySourceContext})
-      :Promise.resolve({status:'empty_window',page:null,selected:null})):readWindow({ wpGalleryId, imageId, offset });
+      :Promise.resolve({status:imageId?'unavailable':'empty_window',page:null,selected:null})):readWindow({ wpGalleryId, imageId, offset });
     resultPromise.then((result) => {
       if (alive) setState({ ...result, routeKey,progressScope,take });
     }).catch(() => { if (alive) setState({ status: "failed", routeKey }); });
@@ -321,11 +323,11 @@ function GalleryBody() {
     if (!item || !slotKey) return;
     const previous = restoredRouteRef.current;
     restoredRouteRef.current = routeKey;
-    if (!location.hash && (flow||!previous || previous === routeKey)) return;
+    if (!imageId && !location.hash && (flow || !previous || previous === routeKey)) return;
     const frame = requestAnimationFrame(() => {
-      const hashId=location.hash.startsWith('#gallery-source-')?location.hash.slice('#gallery-source-'.length):null;
-      const target=flow&&hashId&&resolvePublicGallerySelection(current.page,hashId).status==='ready'?'gallery-source-'+hashId:slotKey;
-      const element = document.getElementById(location.hash ? target : "gallery-top");
+      // A shared image can be deep in a bounded page even when the URL has no fragment.
+      const target = galleryImageFragment2029(location.hash) ? slotKey : location.hash.slice(1) || (imageId ? slotKey : "gallery-top");
+      const element = document.getElementById(target);
       element?.scrollIntoView({ block: "start", behavior: "instant" });
       element?.focus({ preventScroll: true });
     });
@@ -465,6 +467,30 @@ function GalleryBody() {
   </article>;
 }
 
+// A legacy pool link may name only an occurrence. Resolve that exact published
+// placement before asking the same gallery reader to open its source window.
+function GalleryImageLocation({ imageId }) {
+  const [result, setResult] = useState({ status: "loading" });
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    let active = true;
+    setResult({ status: "loading" });
+    fetchGallerySourceContext({ imageIds: [imageId] }).then(({ items }) => {
+      if (!active) return;
+      const positions = new Set(items.flatMap(item => {
+        const href = galleryItemSourceHref2029(item, imageId);
+        return href ? [new URL(href, window.location.origin).searchParams.get("gallery")] : [];
+      }));
+      setResult(positions.size === 1 ? { status: "ready", gallery: [...positions][0] } : { status: "unavailable" });
+    }).catch(() => { if (active) setResult({ status: "failed" }); });
+    return () => { active = false; };
+  }, [imageId, retry]);
+  if (result.status === "ready") return <GalleryBody sourceGallery={result.gallery} />;
+  if (result.status === "failed") return <FrameState kind="error" title="לא הצלחנו לטעון את התמונה"><button onClick={() => setRetry(n => n + 1)}>בדיקה מחדש</button></FrameState>;
+  if (result.status === "unavailable") return <FrameState kind="empty" title="התמונה המבוקשת אינה זמינה כאן כרגע"><Link to="/gallery">לגלריות</Link></FrameState>;
+  return <FrameState kind="loading" title="טוען את התמונה" />;
+}
+
 export default function Gallery2029Page() {
   const location = useLocation();
   // The gallery applies its own title and canonical, the same the server sends for /gallery (api/og.js): without it the previous page's
@@ -474,5 +500,8 @@ export default function Gallery2029Page() {
     applySeo({ title: "גלריות ומקורות", description: "תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820.", path: "/gallery",
       noindex: ["gallery", "image", "q", "source"].some((key) => new URLSearchParams(location.search).has(key)), follow: true });
   }, [location.pathname, location.search]);
-  return <Sod2029Shell surface="world" title="גלריות" introVariant="none">{new URLSearchParams(location.search).has('gallery') ? <GalleryBody /> : <GalleryCatalogBody />}</Sod2029Shell>;
+  const params = new URLSearchParams(location.search);
+  const image = galleryImageFragment2029(location.hash) ?? params.get("image");
+  return <Sod2029Shell surface="world" title="גלריות" introVariant="none">{params.has("gallery") ? <GalleryBody />
+    : image ? <GalleryImageLocation key={image} imageId={image} /> : <GalleryCatalogBody />}</Sod2029Shell>;
 }

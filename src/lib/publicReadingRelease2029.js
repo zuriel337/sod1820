@@ -75,6 +75,11 @@ export function canonicalNumberPagePath(pathname) {
   return `/number/${segment}`;
 }
 
+// Gallery source sections have used both IDs in links saved by visitors.
+export function galleryImageFragment2029(hash) {
+  return /^#(?:gallery-source|pool)-([a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12})$/i.exec(hash || "")?.[1].toLowerCase() || null;
+}
+
 export function publicReadingContinuation(pathname, search = "", hash = "") {
   const path = addressPath(pathname);
   if (!path) return null;
@@ -99,6 +104,34 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
     "/gematria-3d": "/spatial-gematria", "/גימטריה-תלת-ממדית": "/spatial-gematria", "/גימטריה-מרחבית": "/spatial-gematria",
     "/gallery-updates": "/archive", "/מסע": "/journey", "/journey-beta": "/journey",
   })[path];
+  if (path === "/archive" || path === "/gallery-updates") {
+    const tab = query.get("tab");
+    if (query.has("gal") || query.has("gallery") || query.has("image") || tab === "galleries" || galleryImageFragment2029(hash)) {
+      target = "/gallery";
+      // Translate only the retired gallery selector. Keep the source, offset, other query bytes and fragment.
+      search = search.replace(/^\?/, "").split("&").flatMap(field => {
+        const part = new URLSearchParams(field);
+        if (part.get("tab") === "galleries") return [];
+        return [part.has("gal") && !query.has("gallery") ? field.replace(/^[^=]*/, "gallery") : field];
+      }).join("&");
+    } else if (!query.has("set") && !query.has("sets")) {
+      const numbers = tab === "pool" ? query.get("nums") || query.get("num")
+        : (!tab || tab === "reality") && /^\d+$/.test(query.get("q") || "") ? query.get("q") : null;
+      if (numbers && /^(?:[1-9]\d*)(?:[,\s]+[1-9]\d*){0,11}$/.test(numbers) && numbers.split(/[,\s]+/).every(n => Number.isSafeInteger(Number(n)))) {
+        target = "/gallery";
+        query.set("tab", tab || "reality");
+        query.set("nums", numbers);
+        query.delete(tab === "pool" ? "num" : "q");
+        search = query.toString();
+      } else if (tab === "reality") {
+        query.delete("tab");
+        if (isPublicResearchReading2029("/reality", query.toString())) {
+          target = "/reality";
+          search = query.toString();
+        }
+      }
+    }
+  }
   if (path === "/" && query.getAll("p").length === 1 && query.get("p") === "36971") target = "/community/chat";
   if (path === "/") {
     const sourceId = query.getAll("p").length === 1 && !query.has("page_id") ? query.get("p")
@@ -165,7 +198,7 @@ export function publicReadingExternalSourceHref(value) {
 // private screens are NOT in this list and stay out of the index.
 export const PUBLIC_TEMPORARILY_CLOSED_PATHS = Object.freeze([
   "/research", "/heichal", "/היכל", "/name", "/name-lab", "/spatial-gematria", "/verse-gematria", "/languages", "/cross",
-  "/archive", "/reality", "/timeline", "/broadcasts",
+  "/reality", "/timeline", "/broadcasts",
 ]);
 export const PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER = 2592000; // 30 days, in seconds: under construction (ZURIEL 18.11.2026)
 export const PUBLIC_REALITY_STREAM_2029 = Object.freeze({
@@ -231,7 +264,6 @@ export function publicReadingCapability(pathname, search = "") {
     "/buy": ["קרדיטים ותשלומים", "רכישה ובדיקת עסקאות אינן פעילות בגרסה זו. כתובת חזרה מתשלום אינה אישור שבוצע חיוב. פרטי החשבון הקיימים נשמרים.", "/contact", "יצירת קשר"],
     "/join": ["הרשמה ועדכוני האתר", "הרשמה לעדכונים אינה פעילה בגרסה זו עדיין. כניסה לחשבון קיים זמינה בנפרד, ללא הרשמה אוטומטית לדיוור.", "/login", "כניסה לחשבון קיים"],
     "/welcome": ["ברוכים הבאים", "אפשר להתחיל לקרוא בבית, למצוא חומר בעולם או להיכנס לחשבון קיים. עמוד זה אינו מאשר הרשמה או תשלום.", "/", "לבית"],
-    "/archive": ["ארכיון", "הארכיון ההיסטורי נמצא בבנייה. בגלריות אפשר לפתוח את התיעוד והתמונות שפורסמו. זרם המציאות מציג מבחר מהתמונות.", "/gallery", "לגלריות", ["/reality", "למבחר מזרם המציאות"]],
     "/reality": ["זרם המציאות", "תצוגת הזרם ההיסטורית נמצאת בבנייה. תיעוד האירועים שפורסם נשמר בפוסטים ובגלריות.", "/post", "לתיעוד שפורסם"],
     "/timeline": ["ציר הזמן", "ציר הזמן נמצא בבנייה. אפשר לעיין בפוסטים ובנושאים מתוארכים שפורסמו, ובהם הציר ההודי.", "/post", "לפוסטים", ["/topic/india-axis", "לנושא שפורסם · הציר ההודי"]],
     "/broadcasts": ["מרכז השידורים", "מרכז השידורים נמצא בבנייה. באור הגאולה אפשר לפתוח את העדכונים והסרטונים שפורסמו בערוץ.", "/or-geula", "לאור הגאולה"],
@@ -257,7 +289,7 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   if (path === "/unsubscribe" && PUBLIC_READING_PRODUCTION_ARTIFACT) return "public";
   if (["/updates", "/unsubscribe"].includes(path)) return "service-closed";
   if (PUBLIC_HISTORICAL_LECTURE_PATHS.some(href => href.replace(/\/+$/, "") === path)) return "public";
-  if (["/", "/world", "/verified", "/post", "/posts", "/number", "/gematria", "/code", "/findings", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/beit-midrash", "/stats", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
+  if (["/", "/world", "/verified", "/post", "/posts", "/number", "/gematria", "/code", "/findings", "/gallery", "/archive", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/beit-midrash", "/stats", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
   if (/^\/(?:post|number|topic|researcher|video|tag|category|book|codes|forum)\/[^/]+\/?$/.test(pathname) || /^\/or-geula\/video\/[^/]+$/.test(path) || /^\/2029\/number\/[^/]+$/.test(path) || /^\/community\/researcher\/[^/]+$/.test(path) || /^\/beit-midrash\/[^/]+$/.test(path)) return "public";
   // A historical single-segment Post remains subject to the canonical public
   // Post lookup/boundary. This does not declare an unknown/draft slug published.

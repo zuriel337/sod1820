@@ -33,6 +33,7 @@ const BeitMidrash2029Page = lazy(
 );
 const Books2029Page = lazy(() => import("./pages/Books2029Page.jsx"));
 const Els2029Page = lazy(() => import("./pages/Els2029Page.jsx"));
+const PublicArchive2029Page = lazy(() => import("./pages/PublicArchive2029Page.jsx"));
 const RealityPublicReading2029Page = lazy(() => import("./pages/RealityPublicReading2029Page.jsx"));
 const PublishedFindings2029Page = lazy(() => import("./pages/PublishedFindings2029Page.jsx"));
 const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
@@ -457,6 +458,7 @@ export default function App2029() {
               <Route path="/2029/posts" element={<Posts2029Page />} />
               {import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" && <Route path="/posts" element={<Posts2029Page />} />}
               {(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE) && <Route path="/research" element={<GematriaEntry2029 />} />}
+              {PUBLIC_READING_RELEASE && <Route path="/archive" element={<PublicArchive2029Page />} />}
               {PUBLIC_READING_RELEASE && <Route path="/reality" element={<RealityPublicReading2029Page />} />}
               {PUBLIC_READING_RELEASE && <Route path="/cross" element={<PostsTaxonomy2029Page />} />}
               {PUBLIC_READING_RELEASE && <Route path="/languages" element={<PostsTaxonomy2029Page />} />}

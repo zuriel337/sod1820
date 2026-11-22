@@ -137,12 +137,33 @@ test("bare research routes read admitted publications and keep their exact canon
   });
 });
 
+test("archive serves dated collections and original source links in the first document", async () => {
+  const template = '<html><head><title>static</title></head><body><div id="root"><div><div><span class="sod29-opening-status" role="status">פותח</span></div></div></div></body></html>';
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: () => true, readDocument: async () => template });
+  await withFetch(async url => {
+    const topics = [{ slug: "test-event", title: "אירוע מתועד", occurred_at: "2019-04-30", status: "approved" }];
+    const posts = [{ id: 50, slug: "published-report", source: "ai", title: "דיווח שפורסם", date: "2025-05-09" }];
+    return new Response(JSON.stringify(String(url).includes("/topic_cards_public?") ? topics : posts));
+  }, async () => {
+    const res = response();
+    await handler(req("/archive"), res);
+    assert.equal(res.code, 200);
+    assert.equal(res.headers.get("x-sod-first-words"), "served");
+    assert.equal(res.headers.get("x-robots-tag"), "index, follow");
+    assert.ok(res.body.includes('rel="canonical" href="' + SITE + '/archive"'));
+    assert.match(res.body, /data-first-words="archive"><h1>[^<]+<\/h1>/);
+    assert.match(res.body, /<h2>2019<\/h2>/);
+    assert.match(res.body, /href="\/topic\/test-event"/);
+    assert.match(res.body, /href="\/post\/published-report"/);
+  });
+});
+
 // ZURIEL 5.11: feature areas that are closed only until they reopen in a few days keep their address in the index. The standard
 // way to say "temporarily unavailable" is 503 + Retry-After; they are never noindex. Personal, payment and private screens stay out.
 test("temporarily closed feature areas answer 503 with Retry-After and stay indexable; the rest stay noindex", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
     const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
-    for (const path of ["/research?finding=unknown", "/archive", "/reality?mode=research", "/timeline", "/name", "/languages?mode=research", "/cross?mode=research"]) {
+    for (const path of ["/research?finding=unknown", "/reality?mode=research", "/timeline", "/name", "/languages?mode=research", "/cross?mode=research"]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 503, path);
       assert.equal(res.headers.get("retry-after"), "2592000", path);

@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { KNOWN_SINGLE_SEGMENT_ROUTES } from "../route-legitimacy.js";
-import { publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
+import { publicReadingCapability, publicReadingContinuation, publicReadingPath, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
 
 const sulamot = [...KNOWN_SINGLE_SEGMENT_ROUTES].filter((p) => /^\/sulamot/.test(p));
 
@@ -16,9 +16,12 @@ test("every /sulamot* path is answered by the experimental-preview notice, not b
   }
 });
 
-test("/archive is never classified as legacy: it is the new archive, closed while it is completed", () => {
+test("the public archive owns its address and the old gallery-update alias", () => {
   assert.equal(sulamot.includes("/archive"), false);
-  assert.equal(publicTemporarilyClosed("/archive"), true, "closed temporarily, not retired");
+  assert.equal(publicTemporarilyClosed("/archive"), false);
+  assert.equal(publicReadingPath("/archive"), "public");
+  assert.equal(publicReadingCapability("/archive"), null);
+  assert.equal(publicReadingContinuation("/gallery-updates"), "/archive");
 });
 
 test("/heichal stays closed (no accidental opening)", () => {
@@ -28,7 +31,6 @@ test("/heichal stays closed (no accidental opening)", () => {
 
 test("historical notices offer direct reading from the corresponding public sources", () => {
   const expected = {
-    "/archive": ["/gallery", "/reality"],
     "/timeline": ["/post", "/topic/india-axis"],
     "/broadcasts": ["/or-geula"],
   };

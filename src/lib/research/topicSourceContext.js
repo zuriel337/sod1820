@@ -205,6 +205,7 @@ export function galleryReadingFilters2029(search = '') {
   const p = new URLSearchParams(search);
   const day = key => { const d=p.get(key)||'';return /^\d{4}-\d{2}-\d{2}$/.test(d)&&formatGregorianDate(d)?.split('.').reverse().join('-')===d?d:null; };
   return { q:(p.get('q')||'').slice(0,200).trim(), from:day('from'), to:day('to'),
+    archiveTab:['reality','pool'].includes(p.get('tab')) ? p.get('tab') : null,
     year:/^\d{4}$/.test(p.get('year')||'')?p.get('year'):null,
     nums:[...new Set((p.get('nums')||'').split(/[,\s]+/).filter(s=>/^\d+$/.test(s)).map(Number).filter(Number.isSafeInteger))].slice(0,12),
     mode:p.get('mode')==='and'?'and':'or', primary:p.get('primary')==='1',
@@ -223,7 +224,10 @@ export function projectGalleryReading2029(catalog, filters, { ocrIds = [], ocrPa
   const items=(catalog?.items||[]).flatMap(g=>{
     let entries=g.entries.filter(row=>{
       const date=galleryEditorialUpdate2029(row.name)?.dateTime;
-      const ns=[row.primary_value,...(Array.isArray(row.all_values)?row.all_values:[]),...(Array.isArray(row.related_values)?row.related_values:[])].filter(Number.isSafeInteger);
+      // Both legacy filters matched primary_value + all_values. Only the stream was limited to authored updates.
+      if (f.archiveTab === 'reality' && row.source !== 'update') return false;
+      const related = !f.archiveTab && Array.isArray(row.related_values) ? row.related_values : [];
+      const ns=[row.primary_value,...(Array.isArray(row.all_values)?row.all_values:[]),...related].filter(Number.isSafeInteger);
       const text=`${g.originalName} ${row.name||''} ${row.description||''}`.normalize('NFC').toLocaleLowerCase('he');
       return (!needle||text.includes(needle)||(f.ocr&&ocr.has(row.id)))
         && (!f.kind||row.image_type===f.kind)
@@ -270,6 +274,7 @@ export async function loadPublicGalleryReading2029({ gallery, take=12, imageId=n
 export function galleryReadingHref2029(search='', { galleryId=null, imageId=null, take=null }={}) {
   const current=new URLSearchParams(search), p=new URLSearchParams({view:'gallery',flow:'1'});
   for(const key of ['q','sort','from','to','year','nums','mode','primary','kind','ocr','layout'])if(current.get(key))p.set(key,current.get(key));
+  if (['pool', 'reality'].includes(current.get('tab'))) p.set('tab',current.get('tab'));
   if(galleryId!=null){if(!gallerySourceHref2029(galleryId,imageId))return null;p.set('gallery',String(galleryId));}
   if(take)p.set('take',String(take));
   if(imageId)p.set('image',imageId);

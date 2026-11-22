@@ -17,7 +17,7 @@ test("the public never gets the admin list; an admin gets every closed destinati
     assert.equal(publicReadingLinkState2029(item.href, { isAdmin: true }), "admin-view", `${item.label} is open for the administrator`);
   }
   assert.equal(new Set(list.map((item) => item.href)).size, list.length, "no duplicate destinations");
-  assert.ok(!list.some((item) => ["/archive", "/start"].includes(item.href)), "routes that stay closed even for admins are not offered");
+  assert.ok(!list.some((item) => item.href === "/start"), "routes that stay closed even for admins are not offered");
 });
 
 test("the עוד panel renders the admin list only through the helper and closes the panel before navigating", () => {
