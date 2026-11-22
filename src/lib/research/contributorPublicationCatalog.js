@@ -1,7 +1,7 @@
 // Existing public source identities; metadata only, anonymous client, no per-card queries.
 import { fetchContributorAuthorAttribution } from "./contributorAuthorAttribution.js";
 import { fetchContributorSourcePassages } from "./contributorSourcePassages.js";
-import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
+import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
 export const CONTRIBUTOR_PUBLICATION_FAMILIES = Object.freeze(["posts", "ciphers", "insights", "events", "topics", "contributions"]);
 const PAGE_SIZE = 100;
 const MAX_PAGES = 100;
@@ -31,7 +31,14 @@ export function sortContributorPublicationRows(rows = []) {
   });
 }
 
-async function pages(read) {
+async function pages(read, previewLimit, signal) {
+  if (previewLimit) {
+    const query = read(0, previewLimit);
+    const { data, error } = await (signal ? query.abortSignal(signal) : query);
+    if (error) throw error;
+    if (!Array.isArray(data)) throw new Error("invalid_public_catalogue_page");
+    return { rows: data, complete: data.length < previewLimit };
+  }
   const rows = [];
   for (let page = 0; page < MAX_PAGES; page += 1) {
     const { data, error } = await read(page * PAGE_SIZE, PAGE_SIZE);
@@ -50,12 +57,15 @@ export function isOwnSubmittedCipher(row, userId) {
 }
 
 export async function fetchContributorPublicationCatalog(identity, { client, attributionReader = fetchContributorAuthorAttribution,
-  families = CONTRIBUTOR_PUBLICATION_FAMILIES, includeDossierSubmissions = false } = {}) {
+  families = CONTRIBUTOR_PUBLICATION_FAMILIES, includeDossierSubmissions = false, previewLimit, signal } = {}) {
   if (!client || !identity?.id) throw new Error("anonymous_catalogue_identity_required");
   // One shared, bounded inventory resolves registered aliases and collisions for
   // every name-based family, including callers from World that only carry an ID.
+  if (previewLimit !== undefined && (!Number.isInteger(previewLimit) || previewLimit < 1 || previewLimit > 10)) {
+    throw new Error("invalid_writer_preview_size");
+  }
   let attributionPromise;
-  const attribution = () => attributionPromise ||= attributionReader(identity, { client });
+  const attribution = () => attributionPromise ||= attributionReader(identity, { client, signal });
   const requests = {
     signedPassages: () => fetchContributorSourcePassages(identity, { client }),
     posts: async () => {
@@ -64,8 +74,9 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
       const result = await pages((offset, size) => client.from("posts")
       .select("id,slug,title,date,modified,created_at,image_url,thumb_url,author,authors,source,wp_id,link,tags")
       .or(names.flatMap((name) => [`author.eq.${quoted(name)}`, `authors.cs.{${quoted(name)}}`]).join(","))
+      .or(publicPostOnlyFilter())
       .order("date", { ascending: false }).order("id", { ascending: false })
-      .range(offset, offset + size - 1));
+      .range(offset, offset + size - 1), previewLimit, signal);
       return { ...result, rows: sortContributorPublicationRows(result.rows.filter(row => !hasSuppressedPublicPostTag(row))) };
     },
     ciphers: async () => {
@@ -80,7 +91,7 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
           ? base.or(`and(status.eq.published,visibility.eq.public,or(${filters.join(",")})),and(owner_user_id.eq.${quoted(canonical.user_id)},source.eq.community,status.eq.pending,visibility.eq.private,self_published.eq.true)`)
           : base.or(filters.join(",")).eq("status", "published").eq("visibility", "public");
         return scoped.order("created_at", { ascending: false }).order("id", { ascending: false }).range(offset, offset + size - 1);
-      });
+      }, previewLimit, signal);
       return { ...result, rows: result.rows.filter((row) => names.includes(row.author_name?.trim())
         || Boolean(canonical.user_id && row.owner_user_id === canonical.user_id))
         .map((row) => ({ ...row, attributionBasis: names.includes(row.author_name?.trim()) ? "source_author_credit"
@@ -93,7 +104,7 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
       .select("id,title,created_at,is_active,space")
       .in("panel_data->>author", names).eq("is_active", true)
       .order("created_at", { ascending: false }).order("id", { ascending: false })
-      .range(offset, offset + size - 1));
+      .range(offset, offset + size - 1), previewLimit, signal);
     },
     events: () => pages((offset, size) => client.from("nodes")
       .select("id,label,created_at")
@@ -107,11 +118,11 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
       .select("slug,title,subtitle,status,approved_at,created_by")
       .in("created_by", names)
       .eq("status", "approved").order("approved_at", { ascending: false }).order("slug", { ascending: false })
-      .range(offset, offset + size - 1));
+      .range(offset, offset + size - 1), previewLimit, signal);
     },
     contributions: () => pages((offset, size) => client.rpc("writer_public_contributions_page_v1", {
       p_contributor_id: identity.id, p_limit: size, p_offset: offset,
-    }, { get: true })), // Existing STABLE public reader; no Preview write exemption.
+    }, { get: true }), previewLimit, signal), // Existing STABLE public reader; no Preview write exemption.
   };
   const entries = await Promise.all(Object.entries(requests).filter(([key]) => families.includes(key)).map(async ([key, read]) => {
     try { return [key, { ...await read(), availability: "ok" }]; }

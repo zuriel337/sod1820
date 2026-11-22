@@ -1,4 +1,6 @@
 // Page-local presentation over the canonical readers. No persistence or attribution inference.
+import { automaticContributorSlug2029 } from "../../lib/research/contributorProfileAddress2029.js";
+import { publicPostHref } from "../../lib/publicPostUrls.js";
 import { normalizeWorldAllResearchRow } from "../../lib/research/worldAllResearchProjection.js";
 import { orderResearchByPublicStatusTier, researchPublicStatusPresentation } from "../../lib/research/researchObjectPresentation.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
@@ -19,9 +21,6 @@ const finite = (v) => v !== null && v !== "" && v !== undefined && Number.isFini
 const blocked = new Set(["private", "person_only", "public_candidate", "draft", "triage", "rejected", "pending"]);
 const published = new Set(["approved", "published", "public", "live"]);
 const list = (v) => Array.isArray(v) ? v : [];
-// Preserve Legacy's automatic-contributor discovery policy even when its public
-// canonical URL uses a numeric code rather than the generated slug.
-const AUTO_PROFILE_RE = /^r-[0-9a-f]{16,}$/i;
 
 export function publicContributorAvatar(identity) {
   const choice = identity?.public_avatar;
@@ -136,7 +135,7 @@ export function buildPublicContributorView(projection, identity) {
   }
   const unique = [...new Map(items.map((item) => [item.id, item])).values()];
   return {
-    noindex: AUTO_PROFILE_RE.test(text(identity.slug)),
+    noindex: automaticContributorSlug2029(identity.slug),
     profile: { name: text(identity.display_name) || "כותב", bio: text(identity.bio),
       avatar: publicContributorAvatar(identity), role: ({ researcher: "חוקר", writer: "כותב", rabbi: "רב" })[identity.role]
         || (/[א-ת]/.test(text(identity.role)) && !/בעל האתר|מנהל|triage|admin|@/i.test(identity.role) ? text(identity.role) : "") },
@@ -188,7 +187,7 @@ export function appendContributorPublicationCatalog(view, catalogue, identity) {
     const mediaUrl = safePublicUrl(row.thumb_url || row.image_url);
     put({ id: `post:${row.id}`, sourceRef: `posts:${row.id}`, type: "writings", title: humanContentTitle(row.title, { max: 0 }),
       date: contributorPublicationRecordTime(row), dateKind: contributorPublicationRecordTimeKind(row),
-      href: safePublicUrl(`/${row.slug}`), media: Boolean(mediaUrl), mediaUrl,
+      href: safePublicUrl(publicPostHref(row)), media: Boolean(mediaUrl), mediaUrl,
       reason: row.author === identity.display_name ? "מאמר שהמערכת מייחסת לכותב." : "מאמר בהשתתפות הכותב." });
   }
   for (const row of catalogue.signedPassages?.rows || []) {

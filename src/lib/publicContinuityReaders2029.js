@@ -184,6 +184,16 @@ export async function loadPublicOrGeulaCollection2029({ page = 1, readRows = rea
     hasMore: currentPage < 1000 && rows.length > OR_GEULA_CONTINUITY_PAGE_SIZE };
 }
 
+export const WRITERS_DIRECTORY_2029 = Object.freeze({
+  href: "/community/researchers", title: "הכתבים והחוקרים",
+  description: "האנשים שמאחורי המקורות והפרסומים. היכנסו לדף הציבורי של כל כתב או חוקר.",
+});
+export function publicPeopleSlice2029(people, page, query) {
+  const term = String(query || "").trim().toLocaleLowerCase("he");
+  const filtered = people.filter(person => !term || `${person.displayName} ${person.role}`.toLocaleLowerCase("he").includes(term));
+  return { visible: filtered.slice((page - 1) * 20, page * 20), hasMore: filtered.length > page * 20 };
+}
+
 export async function loadPublicPeopleContinuation2029({ peopleReader, signal } = {}) {
   canceled(signal);
   const reader = peopleReader || (await import("./research/worldPublicPeopleIndex.js")).fetchWorldPublicPeopleIndex;

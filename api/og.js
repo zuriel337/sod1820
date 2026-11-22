@@ -1,4 +1,5 @@
 import { requestedPublicInsight2029, readPublicInsight2029 } from "../src/lib/publicInsightReading2029.js";
+import { automaticContributorSlug2029, writerProfileSchema2029 } from "../src/lib/research/contributorProfileAddress2029.js";
 import { PUBLIC_HISTORY_READING, readPublicHistory2029 } from "../src/lib/publicHistoryReading2029.js";
 import { PUBLIC_ARCHIVE_2029, readPublicArchive2029 } from "../src/lib/research/publicArchive2029.js";
 import { PUBLISHED_FINDINGS_READING } from "../src/lib/publishedFindingsReading2029.js";
@@ -6,7 +7,7 @@ import { PUBLIC_REALITY_STREAM_2029, isPublicResearchReading2029, publicResearch
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
   loadPublicForumContinuation2029, loadPublicCommentPostContinuation2029,
-  loadPublicPeopleContinuation2029, publicContinuityPage2029, publicContinuityHttpStatus2029,
+  loadPublicPeopleContinuation2029, publicPeopleSlice2029, WRITERS_DIRECTORY_2029, publicContinuityPage2029, publicContinuityHttpStatus2029,
   publicForumChatHref2029, publicHistoricalLecturePage2029 } from "../src/lib/publicContinuityReaders2029.js";
 import { fetchPublicLibrary2029, fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
@@ -272,6 +273,7 @@ export default async function handler(req, res) {
   let image = cardUrl(STATIC['/'].card);
   let type = 'website';
   let robots = 'index, follow';
+  let writerProfile = null;
   let convergenceLd = null;
   let documentStatus = 200;
   let postLookupFailed = false;
@@ -672,8 +674,8 @@ export default async function handler(req, res) {
   } else if (productionReading && ['/community', '/community/researchers', '/members', '/contact', '/early-access', '/melech-hamisparim/718'].includes(decodedKey)) {
     const info = {
       '/community': ['הקהילה', 'שיחות ציבוריות, אנשים ומחשבון הקהילה.'],
-      '/community/researchers': ['אנשים בקהילה', 'דפי האנשים הציבוריים וכתביהם.'],
-      '/members': ['אנשים בקהילה', 'דפי האנשים הציבוריים וכתביהם.'],
+      '/community/researchers': [WRITERS_DIRECTORY_2029.title, WRITERS_DIRECTORY_2029.description],
+      '/members': [WRITERS_DIRECTORY_2029.title, WRITERS_DIRECTORY_2029.description],
       '/contact': ['דיווח או הצעה', 'טופס הקשר הקיים: דיווח על תקלה, רעיון או פנייה לצוות.'],
       '/early-access': ['גישה מוקדמת', 'עמוד הגישה המוקדמת של סוד 1820. ההרשמה אינה מופעלת בכניסה לדף.'],
       '/melech-hamisparim/718': ['מלך המספרים · 718', 'העמוד והפרסומים של מלך המספרים בסוד 1820.'],
@@ -683,16 +685,17 @@ export default async function handler(req, res) {
     if (decodedKey === '/community') canonical = SITE + '/community/chat';
     if (!['/community', '/community/researchers', '/members'].includes(decodedKey)) robots = 'noindex, follow';
     if (['/community/researchers', '/members'].includes(decodedKey)) {
+      canonical = SITE + WRITERS_DIRECTORY_2029.href;
       const page = publicContinuityPage2029(continuityParams.has('page') ? continuityParams.getAll('page') : null);
       if (page === null) { documentStatus = 404; robots = 'noindex, follow'; }
-      else if (page > 1) try {
-        // Reuse the canonical anonymous public-people reader, including its
-        // exact visibility filter and deduplication, for overflow evidence.
+      else try {
+        const query = (continuityParams.get('q') || '').trim();
+        if (page > 1 || query) robots = 'noindex, follow';
+        if (page > 1 && !query) canonical += '?page=' + page;
         const result = await loadPublicPeopleContinuation2029();
-        const term = (continuityParams.get('q') || '').trim().toLocaleLowerCase('he');
-        const total = result.people.filter(person => !term || `${person.displayName} ${person.role}`.toLocaleLowerCase('he').includes(term)).length;
-        if (total <= (page - 1) * 20) documentStatus = 404;
-        robots = 'noindex, follow';
+        const { visible, hasMore } = publicPeopleSlice2029(result.people, page, query);
+        if (page > 1 && !visible.length) { documentStatus = 404; robots = 'noindex, follow'; }
+        else if (!query) req.publicReadingFirstWords?.({ kind: 'writers', people: visible, page, hasMore });
       } catch { documentStatus = 503; robots = 'noindex, follow'; }
     }
   } else if (productionReading && (/^\/book\/[^/]+$/.test(decodedKey) || /^\/codes\/[^/]+$/.test(decodedKey) && decodedKey !== '/codes/מחקר')) {
@@ -1222,7 +1225,7 @@ export default async function handler(req, res) {
       try {
         const publicIdentity = productionReading ? '&active=eq.true&locked=not.is.true&building=not.is.true&or=(dossier_settings->>visibility.is.null,dossier_settings->>visibility.eq.public)' : '';
         const identityFilter = productionReading ? `${/^\d+$/.test(slug) ? 'code' : 'slug'}=eq.${encodeURIComponent(slug)}` : `or=(code.eq.${encodeURIComponent(slug)},slug.eq.${encodeURIComponent(slug)})`;
-        const r = await fetch(`${SUPABASE_URL}/rest/v1/contributors?${identityFilter}${publicIdentity}&select=display_name,role,avatar_url,media,code,slug&limit=1`, { headers: ogHeaders });
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/contributors?${identityFilter}${publicIdentity}&select=id,display_name,bio,role,avatar_url,media,code,slug,public_avatar:dossier_settings->public_avatar&limit=1`, { headers: ogHeaders });
         if (productionReading && !r.ok) throw new Error('writer-source-unavailable');
         const rows = await r.json();
         if (productionReading && !Array.isArray(rows)) throw new Error('writer-source-invalid');
@@ -1234,7 +1237,23 @@ export default async function handler(req, res) {
           title = `${nm} — דף חוקר · ${SITE_NAME}`;
           desc = cleanDesc(`הגילויים, האוצרות והרמזים של ${nm} · ${roleTxt} · סוד 1820`, 180) || DEFAULT_DESC;
           type = 'profile';
-          const firstImg = c.avatar_url || (Array.isArray(c.media) ? (c.media.find(e => e && e.url) || {}).url : null);
+          if (productionReading) {
+            const { contributorHref } = await import("../src/lib/supabase.js");
+            canonical = SITE + encodeURI(contributorHref(c));
+            title = `${nm} — דף כותב · ${SITE_NAME}`;
+            const bio = stripHtml(c.bio || '');
+            desc = cleanDesc(bio || `הכתבים, המקורות והממצאים הציבוריים של ${nm}.`, 180);
+            if (automaticContributorSlug2029(c.slug)) robots = 'noindex, nofollow';
+            if (documentStatus === 200 && typeof req.publicReadingFirstWords === 'function') {
+              const { writerFirstWorks2029 } = await import('../src/lib/research/writerFirstWorks2029.js');
+              const { FIRST_WORDS_DATA_PAGE_GRACE_MS } = await import('../public-reading-deploy/first-words.js');
+              const works = await writerFirstWorks2029(c, { signal: AbortSignal.timeout(FIRST_WORDS_DATA_PAGE_GRACE_MS) });
+              req.publicReadingFirstWords({ kind: 'writer', name: nm, bio: bio.slice(0, 720), works });
+            }
+            if (!automaticContributorSlug2029(c.slug)) writerProfile = writerProfileSchema2029(nm, canonical);
+          }
+          const firstImg = productionReading && c.public_avatar?.enabled === false ? null
+            : productionReading && c.public_avatar?.enabled === true ? c.public_avatar.url : c.avatar_url || (Array.isArray(c.media) ? (c.media.find(e => e && e.url) || {}).url : null);
           image = firstImg ? waSafeImage(firstImg)
             : `${SITE}/api/card?w=${encodeURIComponent(nm)}&sub=${encodeURIComponent('דף חוקר · סוד 1820')}`;
         }
@@ -1306,6 +1325,8 @@ export default async function handler(req, res) {
     if (post.date) ld.datePublished = post.date;
     ld.dateModified = post.modified || post.date || undefined;
     jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+  } else if (writerProfile && documentStatus === 200) {
+    jsonLd = `<script type="application/ld+json" id="sod-writer-profile-ld">${JSON.stringify(writerProfile).replace(/</g, '\\u003c')}</script>`;
   } else if (convergenceLd) {
     const about = [...new Set((convergenceLd.numbers || []).map(Number).filter(Number.isFinite))]
       .slice(0, 20)

@@ -229,6 +229,17 @@ function body(facts) {
   if (facts.kind === "insight") {
     return `<h1 id="comm-${esc(facts.id)}">${esc(facts.title)}</h1><p>${esc(facts.body.slice(0, 1900))}</p><p><a href="/findings">לממצאים שפורסמו</a></p>`;
   }
+  if (facts.kind === "writers") {
+    const base = "/community/researchers";
+    return '<h1>הכתבים והחוקרים</h1>'
+      + links(facts.people.map(person => ({ label: person.displayName, href: person.href })), "דפי הכותבים")
+      + (facts.page > 1 ? `<a rel="prev" href="${base}${facts.page > 2 ? `?page=${facts.page - 1}` : ""}">לעמוד הקודם</a> ` : "")
+      + (facts.hasMore ? `<a rel="next" href="${base}?page=${facts.page + 1}">לעמוד הבא</a>` : "");
+  }
+  if (facts.kind === "writer") return `<h1>${esc(facts.name)}</h1>`
+    + (facts.bio ? `<p>${esc(facts.bio)}</p>` : "")
+    + links(facts.works, "פרסומים ומקורות", true)
+    + '<p><a href="/community/researchers">כל הכתבים והחוקרים</a></p>';
   if (facts.kind === "timeline" || facts.kind === "broadcasts") {
     let html = `<h1>${esc(facts.title)}</h1><p>${esc(facts.description)}</p>`;
     if (facts.notice) html += `<p>${esc(facts.notice)}</p>`;
