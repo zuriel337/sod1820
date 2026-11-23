@@ -28,6 +28,6 @@ test("Siboni source reader accounts for every PDF page once, including the speci
 
 test("book identity and numeric provenance stay authored and unpromoted", () => {
   const m = getBookReaderManifest(slug);
-  assert.ok(m.readingKeys.some(key => key.includes("שיטת הגימטריה")));
+  assert.deepEqual(m.readingKeys, [], "public source-mode does not pre-load guide prose");
   assert.equal(m.experience ?? null, null);
 });
