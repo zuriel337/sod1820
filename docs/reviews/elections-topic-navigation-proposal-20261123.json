@@ -1,0 +1,47 @@
+{
+  "kind": "topic_navigation_proposal",
+  "status": "branch_only_not_published",
+  "title": "בחירות — מפת הרמזים",
+  "slug": "elections-reality-map",
+  "canonical_url_after_publication": "https://sod1820.co.il/topic/elections-reality-map",
+  "governance": {
+    "canonical_public_route": "/topic/:slug",
+    "source_of_truth": "public.topic_cards / public.topic_cards_public",
+    "existing_entity_id": "2bb53dbf-816a-4033-aff2-874c4981cd39",
+    "existing_entity_type": "entity",
+    "convergence_node_id": null,
+    "identity_status": "PENDING_OWNER_APPROVAL",
+    "do_not_change_entity_type": true,
+    "do_not_reuse_entity_as_convergence": true,
+    "publish": false,
+    "do_not_update_sitemap_or_seo": true
+  },
+  "description": "שער מסע ותצוגת מקורות קיימים בנושא הבחירות בעולם SOD1820. הצעה להצגה מקדימה; אינה טענה לממצאים חדשים.",
+  "sources": [
+    {
+      "kind": "post",
+      "id": 5107,
+      "title": "הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר",
+      "slug": "sharshar-elections-redemption-hints-draft"
+    },
+    {
+      "kind": "post",
+      "id": 5128,
+      "title": "בחירות 26 לכנסת ה־26 — היפלא מה׳ דבר",
+      "slug": "elections-26-vayera-hayipale-2710-video-20261029"
+    },
+    {
+      "kind": "post",
+      "id": 906,
+      "title": "פוסט מרכזי רמזי הבחירות והממשלה",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%91%d7%97%d7%99%d7%a8%d7%95%d7%aa-%d7%94%d7%a8%d7%91%d7%99%d7%a2%d7%99%d7%95%d7%aa-%d7%99%d7%90-%d7%a0%d7%99%d7%a1%d7%9f-%d7%99%d7%95%d7%9d-%d7%94%d7%95%d7%9c%d7%93"
+    }
+  ],
+  "next_steps": [
+    "Review owner governance for convergence creation, source permissions and identity",
+    "Resolve relationship existing entity node to convergence without duplicate nodes",
+    "Preview with real links and check links load",
+    "Approve canonical topic publication, then create source record and validate public projection",
+    "Only after approval add sitemap/SEO route without breaking existing URLs"
+  ]
+}
