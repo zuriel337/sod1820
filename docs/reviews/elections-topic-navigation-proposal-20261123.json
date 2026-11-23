@@ -1,6 +1,6 @@
 {
   "kind": "topic_navigation_proposal",
-  "status": "branch_only_not_published",
+  "status": "branch_only_topic_content_ready_for_review",
   "title": "בחירות — מפת הרמזים",
   "slug": "elections-reality-map",
   "canonical_url_after_publication": "https://sod1820.co.il/topic/elections-reality-map",
@@ -43,5 +43,104 @@
     "Preview with real links and check links load",
     "Approve canonical topic publication, then create source record and validate public projection",
     "Only after approval add sitemap/SEO route without breaking existing URLs"
-  ]
+  ],
+  "content_version": "initial-bennett-1400-20261123",
+  "hero": {
+    "title": "בחירות — מפת הרמזים",
+    "subtitle": "מ־1,400 הקולות של בנט ושקד ב־2019 אל צירי המספרים של הבחירות",
+    "intro": "מסע בין מערכות הבחירות בישראל דרך המקורות המתועדים בארכיון SOD1820. נקודת הפתיחה היא דיווח מ־2019 על פער של כ־1,400 קולות למפלגת הימין החדש בראשות בנט ושקד. מכאן עוברים להקמת ממשלת בנט–לפיד, לתפקיד ראש הממשלה ה־14, ולחומר הבחירות המאוחר יותר שבו חוזרים המספרים 14, 140, 631 ו־78. כל תחנה שומרת על הקשר למקור, עם הבחנה בין אירוע היסטורי לבין חיבור מספרי בארכיון."
+  },
+  "sections": [
+    {
+      "id": "bennett-2019-1400",
+      "title": "2019 — בנט, שקד ו־1,400 הקולות",
+      "body": "בבחירות לכנסת ה־21, באפריל 2019, מפלגת הימין החדש בראשות נפתלי בנט ואיילת שקד לא עברה את אחוז החסימה. בדיווחי הביניים לאחר הבחירות הופיע פער של כ־1,400 קולות. פוסט #1097 בארכיון SOD1820 כולל את אותו מספר וגם אזכור מוקדם ל־4,500. מדובר במספרים שדווחו במהלך הספירה ולא בתיאור מדויק של ההפרש הרשמי הסופי.",
+      "sources": [
+        {
+          "type": "post",
+          "id": 1097
+        }
+      ],
+      "numbers": [
+        1400,
+        4500
+      ],
+      "verification": "historical_interim_report_plus_archive"
+    },
+    {
+      "id": "numeric-14-140-1400",
+      "title": "ציר 14 ← 140 ← 1400",
+      "body": "למספרים 14, 140 ו־1400 קיימים צמתים נפרדים וקשרי הכפלה בגרף World. הסדרה הזאת משמשת מעבר ניווט מספרי; היא אינה הופכת כל אזכור של 14 לקשר לבחירות. בפוסט #5107 מופיעים 14 ו־140 בהקשר תיעוד של הסרטון.",
+      "numbers": [
+        14,
+        140,
+        1400
+      ],
+      "verification": "existing_numeric_graph_and_post_5107"
+    },
+    {
+      "id": "government-2021-2022",
+      "title": "2021–2022 — ממשלת בנט–לפיד והמספר 14",
+      "body": "בהמשך ציר הזמן נמצאים הקמת ממשלת בנט–לפיד ביוני 2021 וכניסת יאיר לפיד לתפקיד ראש הממשלה ה־14 ביולי 2022. תחנות אלה מספקות הקשר היסטורי למסע, עם פוסטים מוקדמים על הממשלה.",
+      "sources": [
+        {
+          "type": "post",
+          "id": 1433
+        },
+        {
+          "type": "post",
+          "id": 273
+        }
+      ],
+      "numbers": [
+        14
+      ],
+      "verification": "historic_sequence"
+    },
+    {
+      "id": "elections-2026",
+      "title": "2026 — חיבורים חדשים בבחירות",
+      "body": "הפוסטים #5107 ו־#5113 מספקים צירי חיפוש נוספים: 631 המופיע לצד נפתלי בנט והבחירות, ו־78 בהקשר בנט, מלח וברית מלח. אלה חיבורים המתועדים במקורות SOD1820, לצד המספרים 14 ו־140 בתיעוד הסרטון. המסע מפנה למקורות ולא יוצר קשרי גרף חדשים.",
+      "sources": [
+        {
+          "type": "post",
+          "id": 5107
+        },
+        {
+          "type": "post",
+          "id": 5113
+        },
+        {
+          "type": "post",
+          "id": 5128
+        }
+      ],
+      "numbers": [
+        14,
+        140,
+        631,
+        78
+      ],
+      "verification": "archival_interpretation"
+    }
+  ],
+  "navigation": {
+    "initial_station": "bennett-2019-1400",
+    "stations": [
+      "bennett-2019-1400",
+      "numeric-14-140-1400",
+      "government-2021-2022",
+      "elections-2026"
+    ],
+    "related_numbers": [
+      14,
+      140,
+      1400,
+      631,
+      78,
+      776,
+      1237
+    ],
+    "link_policy": "only verified canonical source links; suggested journey transitions distinct from graph edges"
+  }
 }
