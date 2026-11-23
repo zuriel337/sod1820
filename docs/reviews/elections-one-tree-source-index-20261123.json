@@ -1,0 +1,5177 @@
+{
+  "schema": "one-tree-election-evidence-source-index.v1",
+  "status": "research_candidate_only",
+  "canonical_contract": "sod1820.one-tree-branch.v2",
+  "domain_profile": "sod1820.elections-domain.v3",
+  "owner_graph": "reality_graph_law",
+  "owner_truth": "truth_axes_foundation_law",
+  "owner_ranking": "research_gold_hints_law",
+  "owner_numeric": "project_codex.numeric_rule_family_index",
+  "snapshot_at": "2026-11-23",
+  "source_of_truth": "public.gallery_images",
+  "no_source_payload_copied": true,
+  "does_not_grant_access": true,
+  "summary": {
+    "rows": 234,
+    "public_flag_only": 222,
+    "restricted_or_unknown": 12
+  },
+  "rows": [
+    {
+      "wp_image_id": 127,
+      "canonical_ref": "gallery_images:d998d738-283c-4368-968d-be9a70f8d349",
+      "gallery_wp_id": 9,
+      "occurrence_date_claim": "2015-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "מספרים/גימטריה",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 523,
+      "canonical_ref": "gallery_images:fccfa50f-0db2-4bf1-bc09-c79f5b719d19",
+      "gallery_wp_id": 5,
+      "occurrence_date_claim": "2016-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 579,
+      "canonical_ref": "gallery_images:295bd82f-f4a5-4d7d-b2fb-896f9ccf09e9",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 593,
+      "canonical_ref": "gallery_images:4810be49-ae20-4edc-b876-4941598631a1",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 600,
+      "canonical_ref": "gallery_images:006d5865-590f-48e3-990a-eed306c9d6c6",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 648,
+      "canonical_ref": "gallery_images:c5ec1426-83fd-407f-8c86-0e96fd1647fb",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 651,
+      "canonical_ref": "gallery_images:99e45b74-271e-4fb4-a6f4-14ba7a1d1e47",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 653,
+      "canonical_ref": "gallery_images:603af863-c05e-426a-a9dc-4388cd07dc65",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 655,
+      "canonical_ref": "gallery_images:4c4594cc-d37d-414c-ac5e-87fac2700efe",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 660,
+      "canonical_ref": "gallery_images:9241c01a-1b41-4098-8c13-41f8c994d0d4",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 664,
+      "canonical_ref": "gallery_images:823073de-4780-44fe-9818-45d196a2e41d",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 665,
+      "canonical_ref": "gallery_images:b03f1778-bcc5-45be-9bc6-a2caa0a383d6",
+      "gallery_wp_id": 20,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 667,
+      "canonical_ref": "gallery_images:116b4c12-4f8d-4366-b8ee-4285d9b2d5c4",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            450
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 668,
+      "canonical_ref": "gallery_images:62ffc447-fd91-4027-9fe9-4a19d09679fd",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 675,
+      "canonical_ref": "gallery_images:00edc0d8-b792-45d9-aa86-d04b44600a3f",
+      "gallery_wp_id": 20,
+      "occurrence_date_claim": "2017-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 695,
+      "canonical_ref": "gallery_images:f563354f-f5db-42e8-8ab1-f839fa744e16",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 697,
+      "canonical_ref": "gallery_images:111073f4-a5c6-4da6-b96e-ec25c806f819",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 699,
+      "canonical_ref": "gallery_images:7c3b5780-4cc0-4702-ba39-e81e7a2ad063",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 702,
+      "canonical_ref": "gallery_images:ceace62b-d7ff-413c-82d5-8ea3251972ed",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 706,
+      "canonical_ref": "gallery_images:b437c29b-fa46-4a51-8d42-4d6563fcae61",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 709,
+      "canonical_ref": "gallery_images:10770f45-9bb7-4218-a6f0-77983cb5aeeb",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 711,
+      "canonical_ref": "gallery_images:b068b507-6b81-4cee-bb8b-d6995fdd8297",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 714,
+      "canonical_ref": "gallery_images:9219cb04-bd00-4ff3-9a7b-0980ea27a571",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 716,
+      "canonical_ref": "gallery_images:41ac2a45-53ca-435d-94ff-a82f24acaef9",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 739,
+      "canonical_ref": "gallery_images:c109885c-7ade-455f-a3af-fbd181346ac6",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 746,
+      "canonical_ref": "gallery_images:713c251a-0ddf-49fe-9bb8-0aec561c581c",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 748,
+      "canonical_ref": "gallery_images:272836bc-de98-49ba-98b3-193ff603ccc3",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 753,
+      "canonical_ref": "gallery_images:2440285a-b21e-49d6-8a29-3925c6ca83b8",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            4500
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 765,
+      "canonical_ref": "gallery_images:d73f2982-29d4-4ca0-a21f-ee67e6a80c26",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 782,
+      "canonical_ref": "gallery_images:a741706b-aaaf-4859-a414-be6d4d39cf86",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 783,
+      "canonical_ref": "gallery_images:863ab209-09c0-4fd4-9a47-1ba9c203a870",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 788,
+      "canonical_ref": "gallery_images:006afc6f-f159-4d38-9f18-40c3d4dfac4b",
+      "gallery_wp_id": 25,
+      "occurrence_date_claim": "2017-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 794,
+      "canonical_ref": "gallery_images:66e37515-007d-48c2-9050-b3c7ac013014",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2017-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 801,
+      "canonical_ref": "gallery_images:6b238966-f2b2-44b5-aa2d-537aaa1d977a",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2017-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 803,
+      "canonical_ref": "gallery_images:6c9cf94b-d81d-49c2-9ecd-3fe2a72323c9",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2017-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 813,
+      "canonical_ref": "gallery_images:1af3d2bf-4113-4e9a-9ee9-67dc01efda9f",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 814,
+      "canonical_ref": "gallery_images:32a57a40-001f-439d-9a9a-688178556b49",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2018-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            4500
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 819,
+      "canonical_ref": "gallery_images:97c0ff8c-8bb0-4ca9-aa89-f87f8a2a1db9",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 823,
+      "canonical_ref": "gallery_images:eda79a90-e35a-4d57-907f-599a8a8f5d35",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 824,
+      "canonical_ref": "gallery_images:627d96f3-afd1-42a3-8035-34861dab06a8",
+      "gallery_wp_id": 21,
+      "occurrence_date_claim": "2018-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 843,
+      "canonical_ref": "gallery_images:0d3da7a1-0c57-431e-9284-4525dc7c360f",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 844,
+      "canonical_ref": "gallery_images:85a3200f-ca45-488b-84ff-b46d77028834",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2018-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 846,
+      "canonical_ref": "gallery_images:359a4347-2051-42d4-9c31-5c6afe1e2285",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 853,
+      "canonical_ref": "gallery_images:c5b0bde3-9765-4ba0-9ca7-b82d2fb81ef6",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 876,
+      "canonical_ref": "gallery_images:64e1a47c-ca3f-42c8-9188-2b01c431f050",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 877,
+      "canonical_ref": "gallery_images:e3d2a563-e0ae-4dfb-be7d-08e167624934",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2018-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 884,
+      "canonical_ref": "gallery_images:a5732784-0e30-4272-ac71-e891ce6eb47d",
+      "gallery_wp_id": 27,
+      "occurrence_date_claim": "2018-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 891,
+      "canonical_ref": "gallery_images:e942682d-bdac-4814-8a40-3676f8400fa4",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 940,
+      "canonical_ref": "gallery_images:afa1be5c-6e2f-45d8-b84a-5cc91d542b89",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2018-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 949,
+      "canonical_ref": "gallery_images:2fbe1742-15a6-4892-9d09-36bf6718af98",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2018-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1018,
+      "canonical_ref": "gallery_images:93fc5176-397b-4d1c-9ae5-188d6a31c798",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2018-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1024,
+      "canonical_ref": "gallery_images:a2ce8c09-3a22-45d4-80c5-5976a5e3c18b",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2018-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1031,
+      "canonical_ref": "gallery_images:25057979-1b26-4b20-b2bb-4773516497d1",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2018-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1033,
+      "canonical_ref": "gallery_images:236c6b7c-1e54-4f15-8db9-553c09417021",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2018-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1061,
+      "canonical_ref": "gallery_images:fa6954a3-31cd-4b80-b453-716f71577b9f",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2018-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1072,
+      "canonical_ref": "gallery_images:dfc0b690-29a2-40a3-a55a-15081219d5f6",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2019-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1100,
+      "canonical_ref": "gallery_images:d520f4eb-a4ae-4ae1-8689-c8b2b0e107c5",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2019-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1115,
+      "canonical_ref": "gallery_images:4f5b3a3e-be7f-45ca-ae63-b12386c9b9ae",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2019-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1137,
+      "canonical_ref": "gallery_images:960d1295-1d2a-4729-a878-74b04612f473",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2019-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1145,
+      "canonical_ref": "gallery_images:ceb09a27-3d56-4630-a2b1-02d3d25a12a9",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2019-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "מספרים/גימטריה",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1151,
+      "canonical_ref": "gallery_images:948954ef-5167-4049-9403-e8647b9688b7",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2019-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2019",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1167,
+      "canonical_ref": "gallery_images:ec29ceb2-2983-4338-b92c-db62e740eea7",
+      "gallery_wp_id": 33,
+      "occurrence_date_claim": "2019-04-23",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1193,
+      "canonical_ref": "gallery_images:23109e80-61fa-4486-a3fe-ac6cc4445b72",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2019-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1194,
+      "canonical_ref": "gallery_images:5c913e47-a840-41fb-8acf-60e6252ce9e0",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2019-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2019",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1206,
+      "canonical_ref": "gallery_images:31aa1afe-692f-4968-84d8-6ed78772daae",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2019-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1208,
+      "canonical_ref": "gallery_images:0fb94ba2-527a-4f96-9bb4-6d3593eb0568",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2019-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2019",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1229,
+      "canonical_ref": "gallery_images:34990555-7d6d-477c-afa0-fb79be574520",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2019-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1231,
+      "canonical_ref": "gallery_images:df216705-006f-49e6-a4d5-6b5effb090d1",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2019-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1232,
+      "canonical_ref": "gallery_images:fe6f1442-37ea-4e11-97bd-51a6bfd4eda7",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2019-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1446,
+      "canonical_ref": "gallery_images:73bbdecf-90bb-49b4-b7d5-286595dab76b",
+      "gallery_wp_id": 28,
+      "occurrence_date_claim": "2019-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1458,
+      "canonical_ref": "gallery_images:0dc4600f-9307-4d46-9c3d-f1bda46577c3",
+      "gallery_wp_id": 39,
+      "occurrence_date_claim": "2019-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1464,
+      "canonical_ref": "gallery_images:46987aba-4da8-4b57-bef8-3ed5bef0e48d",
+      "gallery_wp_id": 39,
+      "occurrence_date_claim": "2019-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1501,
+      "canonical_ref": "gallery_images:00172bc7-901c-47ef-9cf0-3c13e6ed29d8",
+      "gallery_wp_id": 33,
+      "occurrence_date_claim": "2019-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            450
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2019",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1536,
+      "canonical_ref": "gallery_images:f805be4b-b96b-43ff-9315-673c484baafe",
+      "gallery_wp_id": 34,
+      "occurrence_date_claim": "2019-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "פוליטיקה רחבה / מיון ידני",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1593,
+      "canonical_ref": "gallery_images:461476f1-599d-454d-b9f5-90f57cbf55ff",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2019-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1692,
+      "canonical_ref": "gallery_images:fe18ac12-341c-416c-beb7-a4f3a6d2b7aa",
+      "gallery_wp_id": 43,
+      "occurrence_date_claim": "2019-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1747,
+      "canonical_ref": "gallery_images:e2093078-a8cb-4192-9469-01c044978f3f",
+      "gallery_wp_id": 33,
+      "occurrence_date_claim": "2019-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2019",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1794,
+      "canonical_ref": "gallery_images:99157819-e6f0-4df5-a5aa-1cf678f0f24f",
+      "gallery_wp_id": 44,
+      "occurrence_date_claim": "2019-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1966,
+      "canonical_ref": "gallery_images:2aab705a-ea4d-4b33-bfa2-df6c38ac8ed9",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2019-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1970,
+      "canonical_ref": "gallery_images:88ccfa56-e7d3-4f6b-a8e9-fc5952f91205",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2019-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1983,
+      "canonical_ref": "gallery_images:b4ba217d-7908-4ff9-9bac-8f64a08d25ff",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2019-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450,
+            4500
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 1998,
+      "canonical_ref": "gallery_images:bfc8823c-015d-40fa-9209-71a703222faa",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2019-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2002,
+      "canonical_ref": "gallery_images:34cb8b7f-cdd8-499b-81ca-e3ce93859d30",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2019-12-06",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2066,
+      "canonical_ref": "gallery_images:9f21fd05-58b7-4854-91fa-cafb2e16af97",
+      "gallery_wp_id": 45,
+      "occurrence_date_claim": "2019-12-15",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2019",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2072,
+      "canonical_ref": "gallery_images:d3e89f12-559a-473e-ad41-6ccb5c8ded6e",
+      "gallery_wp_id": 51,
+      "occurrence_date_claim": "2019-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2073,
+      "canonical_ref": "gallery_images:eaf89240-c6ee-4569-a7fc-5dfc95b880ea",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2019-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2115,
+      "canonical_ref": "gallery_images:72693650-59be-4d5e-bac7-be0769415e31",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2020-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2151,
+      "canonical_ref": "gallery_images:a7ed1263-b8be-41d4-a27b-7ecb31e29e95",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2020-01-27",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2205,
+      "canonical_ref": "gallery_images:5b549b00-6114-49f8-8cd9-3c6ea84ff0c8",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2206,
+      "canonical_ref": "gallery_images:bcaa3463-8172-4988-ae8c-75091d82b7fa",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            4500
+          ]
+        }
+      ],
+      "theme_candidate": "קורונה ומדיניות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2212,
+      "canonical_ref": "gallery_images:d472cb8d-6323-4506-8fed-870a5804f0df",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2020",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2213,
+      "canonical_ref": "gallery_images:ab2666fc-8c42-4b88-b430-f0513364f576",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-02",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2020",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2218,
+      "canonical_ref": "gallery_images:6125c4e9-b363-49f4-89c8-770e911eaf02",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140,
+            1400
+          ]
+        }
+      ],
+      "theme_candidate": "קורונה ומדיניות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2232,
+      "canonical_ref": "gallery_images:d4898f50-7d66-49f0-8025-4d943c834c70",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2268,
+      "canonical_ref": "gallery_images:ce36aac6-94ad-46c7-94b3-ccdf8893cf4d",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2274,
+      "canonical_ref": "gallery_images:f532a507-fa0c-444f-9a4e-6fbf4051cdd0",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-19",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2284,
+      "canonical_ref": "gallery_images:aa5d55c6-c1d3-48dd-97e9-4d82dfefd1b6",
+      "gallery_wp_id": 54,
+      "occurrence_date_claim": "2020-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2327,
+      "canonical_ref": "gallery_images:f00ed271-2281-4517-8fa5-49555e40469a",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-04-07",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2339,
+      "canonical_ref": "gallery_images:33c06db0-97e0-4172-a6e1-e27b1674ab72",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2370,
+      "canonical_ref": "gallery_images:0f0306b5-4d0b-4989-b90d-b3e4cbf1e26e",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2393,
+      "canonical_ref": "gallery_images:acd2187e-cda1-4767-8ae6-9ab5e27a0f7e",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-04-30",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2398,
+      "canonical_ref": "gallery_images:af725f0e-ba03-4a2f-b443-51c416906e49",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-05-06",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2400,
+      "canonical_ref": "gallery_images:7939cca0-059a-4c16-914c-40e0ba66f850",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-05-10",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "קורונה ומדיניות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2401,
+      "canonical_ref": "gallery_images:0ac97cd0-cd2e-401e-9f32-690d7979692c",
+      "gallery_wp_id": 47,
+      "occurrence_date_claim": "2020-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2403,
+      "canonical_ref": "gallery_images:baad6f71-b504-4529-be3b-6b5a7f9f3032",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-05-14",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            4500
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2404,
+      "canonical_ref": "gallery_images:c0e361f9-603e-4a36-b641-4e4a675f565f",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2020-05-19",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2407,
+      "canonical_ref": "gallery_images:467caeeb-85d9-40f8-acc5-3cb25c6ba873",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2020-05-24",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2408,
+      "canonical_ref": "gallery_images:1734929c-5b78-43b4-b7af-13e757f65814",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-05-24",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2413,
+      "canonical_ref": "gallery_images:f44180a4-3796-4056-b1fa-ca65448c83e4",
+      "gallery_wp_id": 57,
+      "occurrence_date_claim": "2020-06-04",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2471,
+      "canonical_ref": "gallery_images:4f7a5ea1-7ff4-4a53-a28f-74f5617f8c68",
+      "gallery_wp_id": 59,
+      "occurrence_date_claim": "2020-07-07",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2480,
+      "canonical_ref": "gallery_images:609a3004-462e-4f25-9a1c-fca259adb257",
+      "gallery_wp_id": 61,
+      "occurrence_date_claim": "2020-07-15",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2504,
+      "canonical_ref": "gallery_images:1ab8cc24-cc46-46ab-b267-f2debb65085c",
+      "gallery_wp_id": 61,
+      "occurrence_date_claim": "2020-08-28",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2530,
+      "canonical_ref": "gallery_images:f2a3ef15-0e58-468e-b8ff-c8f6e99799b7",
+      "gallery_wp_id": 61,
+      "occurrence_date_claim": "2020-09-22",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2531,
+      "canonical_ref": "gallery_images:3a8d5072-f2cf-4bda-b051-c5cfb53f3962",
+      "gallery_wp_id": 62,
+      "occurrence_date_claim": "2020-09-22",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2541,
+      "canonical_ref": "gallery_images:84d4f578-0269-4b96-b0c0-1b1810d6847e",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2020-10-04",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2543,
+      "canonical_ref": "gallery_images:170c9aca-6f53-4e65-b3f2-033835de9623",
+      "gallery_wp_id": 64,
+      "occurrence_date_claim": "2020-10-05",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2553,
+      "canonical_ref": "gallery_images:ed746da2-adca-4707-a489-a90ac08293a1",
+      "gallery_wp_id": 61,
+      "occurrence_date_claim": "2020-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2564,
+      "canonical_ref": "gallery_images:3d548e88-9fc4-43ae-8c3b-b819fe931751",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2020-11-08",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2624,
+      "canonical_ref": "gallery_images:4d01baa6-3d63-41b7-be1b-c31ea66b3498",
+      "gallery_wp_id": 69,
+      "occurrence_date_claim": "2021-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2657,
+      "canonical_ref": "gallery_images:6a0f66b9-b74b-499b-acb5-d30c60857d16",
+      "gallery_wp_id": 69,
+      "occurrence_date_claim": "2021-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140
+          ]
+        }
+      ],
+      "theme_candidate": "קורונה ומדיניות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2659,
+      "canonical_ref": "gallery_images:12e92c68-7577-4638-b460-9820e2287e1e",
+      "gallery_wp_id": 69,
+      "occurrence_date_claim": "2021-03-11",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2662,
+      "canonical_ref": "gallery_images:2ab69212-a407-4d33-9afd-65b6a9e66f1e",
+      "gallery_wp_id": 69,
+      "occurrence_date_claim": "2021-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450,
+            4500
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2021",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2663,
+      "canonical_ref": "gallery_images:466ae014-9677-4c8c-b69f-3600042ddc16",
+      "gallery_wp_id": 69,
+      "occurrence_date_claim": "2021-03-24",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2021",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2664,
+      "canonical_ref": "gallery_images:9734e664-45eb-405a-916f-55c0ade5ada7",
+      "gallery_wp_id": 69,
+      "occurrence_date_claim": "2021-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2665,
+      "canonical_ref": "gallery_images:01e696b2-9e17-4eed-b52a-9c4e4a3e6934",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2021-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2666,
+      "canonical_ref": "gallery_images:98e03007-bee6-4ea6-b502-80cafdf809d2",
+      "gallery_wp_id": 69,
+      "occurrence_date_claim": "2021-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2021",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2669,
+      "canonical_ref": "gallery_images:a954bb54-8781-48c9-8c6f-b0b994c1176e",
+      "gallery_wp_id": 65,
+      "occurrence_date_claim": "2021-04-06",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2682,
+      "canonical_ref": "gallery_images:04ef63f1-a5ff-4867-8ae2-6bfc61921317",
+      "gallery_wp_id": 69,
+      "occurrence_date_claim": "2021-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2702,
+      "canonical_ref": "gallery_images:5f0a1b2b-550d-4ed7-97de-267605983411",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2719,
+      "canonical_ref": "gallery_images:547adbd0-afa0-4bb4-bfbd-c88013392053",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-06-08",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2722,
+      "canonical_ref": "gallery_images:c334a386-ed5c-491f-863a-9f46cc8a3df0",
+      "gallery_wp_id": 65,
+      "occurrence_date_claim": "2021-06-13",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2724,
+      "canonical_ref": "gallery_images:57203c16-ea2b-4b7c-9c4c-640245bd6e9b",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2020-06-13",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "מספרים/גימטריה",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2727,
+      "canonical_ref": "gallery_images:7412d8ef-fc5c-49e7-b369-91df9df2d44a",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2728,
+      "canonical_ref": "gallery_images:ac39eae1-dfd0-4739-ab86-d4c269181e20",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-06-16",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2732,
+      "canonical_ref": "gallery_images:a6c3b637-634e-4694-8cad-fd718acb4e38",
+      "gallery_wp_id": 72,
+      "occurrence_date_claim": "2019-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2733,
+      "canonical_ref": "gallery_images:2ce5c930-867a-4b69-a29a-88a9ba583795",
+      "gallery_wp_id": 72,
+      "occurrence_date_claim": "2020-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2734,
+      "canonical_ref": "gallery_images:fe35742d-b33d-4b2d-bf51-af0b19e0d3a7",
+      "gallery_wp_id": 72,
+      "occurrence_date_claim": "2017-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2739,
+      "canonical_ref": "gallery_images:a72b342e-891c-4812-ae8c-205ccb830991",
+      "gallery_wp_id": 72,
+      "occurrence_date_claim": "2021-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2746,
+      "canonical_ref": "gallery_images:e8c5ed25-36df-43cf-ac6e-367e5a6845da",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-06-21",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2751,
+      "canonical_ref": "gallery_images:93965955-f3c9-4af3-a0ff-8a9fec743fd1",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-06-28",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2753,
+      "canonical_ref": "gallery_images:5c0216cf-fe86-42ac-b1d1-d069b89b8020",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2021-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2757,
+      "canonical_ref": "gallery_images:4716498d-2f46-472a-a2c5-cf3e7c826706",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2761,
+      "canonical_ref": "gallery_images:01d17f7e-6ee8-41ce-9d6a-7c6f8352ce11",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2765,
+      "canonical_ref": "gallery_images:e207986b-3159-4f46-bf5a-c0a32fe313e6",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-07-14",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2766,
+      "canonical_ref": "gallery_images:6f3681bc-243f-4e57-b288-e126b129013e",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2775,
+      "canonical_ref": "gallery_images:ee33c833-da73-4644-a194-95c7d413370a",
+      "gallery_wp_id": 70,
+      "occurrence_date_claim": "2021-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2777,
+      "canonical_ref": "gallery_images:22a413f6-ac6a-40d3-b1e6-2386393c57d8",
+      "gallery_wp_id": 64,
+      "occurrence_date_claim": "2021-08-08",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2810,
+      "canonical_ref": "gallery_images:5db674b1-fd87-403e-8948-98bbea62f2e7",
+      "gallery_wp_id": 73,
+      "occurrence_date_claim": "2021-10-05",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2830,
+      "canonical_ref": "gallery_images:d86c64cc-6016-48f2-9490-fb4cbf36bee5",
+      "gallery_wp_id": 73,
+      "occurrence_date_claim": "2021-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2834,
+      "canonical_ref": "gallery_images:568b6e97-e8ac-4d10-a692-3e13d785eb83",
+      "gallery_wp_id": 73,
+      "occurrence_date_claim": "2021-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "פוליטיקה רחבה / מיון ידני",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2839,
+      "canonical_ref": "gallery_images:0b37205a-4ade-4232-9739-fcc56a1eee68",
+      "gallery_wp_id": 73,
+      "occurrence_date_claim": "2021-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2858,
+      "canonical_ref": "gallery_images:9f8baeef-d72a-4dd2-b275-34d6bc9b160e",
+      "gallery_wp_id": 74,
+      "occurrence_date_claim": "2022-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2859,
+      "canonical_ref": "gallery_images:ee384e73-4b4d-4d95-b05b-bdb2c35f72f5",
+      "gallery_wp_id": 74,
+      "occurrence_date_claim": "2022-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2020",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2865,
+      "canonical_ref": "gallery_images:cd8f7117-cf85-4ad0-ad9d-9d86be0be610",
+      "gallery_wp_id": 76,
+      "occurrence_date_claim": "2022-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2886,
+      "canonical_ref": "gallery_images:03d4be83-9b8e-4605-8bbc-5e57b2978e7f",
+      "gallery_wp_id": 63,
+      "occurrence_date_claim": "2019-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2896,
+      "canonical_ref": "gallery_images:1995a2a7-65c1-4fdb-aa48-36d03eed0a56",
+      "gallery_wp_id": 78,
+      "occurrence_date_claim": "2022-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2901,
+      "canonical_ref": "gallery_images:5e84ac5a-736c-4b7c-9b8c-963aa4d5da11",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2022-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450,
+            4500
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2019",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2911,
+      "canonical_ref": "gallery_images:7ca04cc7-0d32-425e-99f8-c5ec391ce063",
+      "gallery_wp_id": 78,
+      "occurrence_date_claim": "2022-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2924,
+      "canonical_ref": "gallery_images:f261d20e-e511-4ee4-b71d-79f939c687a3",
+      "gallery_wp_id": 79,
+      "occurrence_date_claim": "2022-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2929,
+      "canonical_ref": "gallery_images:b57d09e8-754f-4743-b313-7a7077779de9",
+      "gallery_wp_id": 79,
+      "occurrence_date_claim": "2022-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2930,
+      "canonical_ref": "gallery_images:f1b295b2-db95-44cc-aaa7-d28e0b9b0f00",
+      "gallery_wp_id": 29,
+      "occurrence_date_claim": "2022-09-07",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            1400
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2931,
+      "canonical_ref": "gallery_images:022f547c-27e6-4938-9065-17ae80275afb",
+      "gallery_wp_id": 79,
+      "occurrence_date_claim": "2022-09-08",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2934,
+      "canonical_ref": "gallery_images:c4133d10-d739-4459-94a6-e270fcb741ee",
+      "gallery_wp_id": 79,
+      "occurrence_date_claim": "2022-09-13",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2936,
+      "canonical_ref": "gallery_images:be730aaa-6a38-44e2-94a2-b5eee6683903",
+      "gallery_wp_id": 79,
+      "occurrence_date_claim": "2022-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2949,
+      "canonical_ref": "gallery_images:5f63ef5d-8640-434a-abc9-2e7d1848ec6a",
+      "gallery_wp_id": 80,
+      "occurrence_date_claim": "2022-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            4500
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2953,
+      "canonical_ref": "gallery_images:800af726-d519-4cbd-ba35-861fcf04e817",
+      "gallery_wp_id": 80,
+      "occurrence_date_claim": "2022-10-20",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2958,
+      "canonical_ref": "gallery_images:a5a5ced2-ee2b-4308-bf56-0bccda93377a",
+      "gallery_wp_id": 80,
+      "occurrence_date_claim": "2022-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2959,
+      "canonical_ref": "gallery_images:b5bbf2c6-d7b2-4fd4-8e57-671c9688aa25",
+      "gallery_wp_id": 80,
+      "occurrence_date_claim": "2022-11-02",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2965,
+      "canonical_ref": "gallery_images:35181bb3-ebc0-4cad-a9eb-de3e6324643c",
+      "gallery_wp_id": 80,
+      "occurrence_date_claim": "2022-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "פוליטיקה רחבה / מיון ידני",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2971,
+      "canonical_ref": "gallery_images:b5529cee-0804-4425-9c21-0b80874d27dd",
+      "gallery_wp_id": 80,
+      "occurrence_date_claim": "2022-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "מספרים/גימטריה",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2975,
+      "canonical_ref": "gallery_images:21f93338-8960-4035-a231-2f62c42eb8e6",
+      "gallery_wp_id": 82,
+      "occurrence_date_claim": "2022-02-18",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2977,
+      "canonical_ref": "gallery_images:35225b20-34ed-4273-aac3-17ff9b922475",
+      "gallery_wp_id": 82,
+      "occurrence_date_claim": "2023-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2989,
+      "canonical_ref": "gallery_images:803c85f0-1cd9-4721-a6d2-0a9949aef445",
+      "gallery_wp_id": 82,
+      "occurrence_date_claim": "2023-01-28",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2991,
+      "canonical_ref": "gallery_images:b91b7918-7df2-4578-b693-e7c6e2ef5b10",
+      "gallery_wp_id": 38,
+      "occurrence_date_claim": "2022-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2997,
+      "canonical_ref": "gallery_images:9e43c896-2931-4706-ade1-9cd3d3803b68",
+      "gallery_wp_id": 82,
+      "occurrence_date_claim": "2023-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 2998,
+      "canonical_ref": "gallery_images:5a61f149-b155-4354-92f3-8b75d6d69d58",
+      "gallery_wp_id": 82,
+      "occurrence_date_claim": "2023-02-22",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3008,
+      "canonical_ref": "gallery_images:36805818-9e91-44b3-8fc5-a951ed150164",
+      "gallery_wp_id": 83,
+      "occurrence_date_claim": "2019-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3042,
+      "canonical_ref": "gallery_images:60ddfdc7-b128-4c15-9e4d-6a01cfec0107",
+      "gallery_wp_id": 84,
+      "occurrence_date_claim": "2023-07-24",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3043,
+      "canonical_ref": "gallery_images:de8eb49f-326e-4d1a-b69b-cbbc60585fda",
+      "gallery_wp_id": 84,
+      "occurrence_date_claim": "2023-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3045,
+      "canonical_ref": "gallery_images:4b2516a9-a6d8-4e6e-b237-1d38e081b77e",
+      "gallery_wp_id": 84,
+      "occurrence_date_claim": "2019-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "מספרים/גימטריה",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3050,
+      "canonical_ref": "gallery_images:225e40ce-15e5-4e01-874e-e28d6155e8da",
+      "gallery_wp_id": 84,
+      "occurrence_date_claim": "2023-07-27",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3057,
+      "canonical_ref": "gallery_images:f18e95be-23ae-4f42-b4e6-af2acfbce34c",
+      "gallery_wp_id": 84,
+      "occurrence_date_claim": "2023-08-09",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3060,
+      "canonical_ref": "gallery_images:f26351f5-cc07-46f6-aaf2-5d96655194cb",
+      "gallery_wp_id": 85,
+      "occurrence_date_claim": "2023-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3067,
+      "canonical_ref": "gallery_images:172b3ef8-cdc5-49d0-9775-51fc9feb5f52",
+      "gallery_wp_id": 86,
+      "occurrence_date_claim": "2023-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3068,
+      "canonical_ref": "gallery_images:4041df4b-6c0d-4617-8c0e-6e854fd0c0a8",
+      "gallery_wp_id": 86,
+      "occurrence_date_claim": "2023-08-25",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3071,
+      "canonical_ref": "gallery_images:ee026b7e-8f2d-4c6c-adc8-d00b6195d924",
+      "gallery_wp_id": 86,
+      "occurrence_date_claim": "2021-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3095,
+      "canonical_ref": "gallery_images:789d804f-b699-4375-a0cc-f74643f351a5",
+      "gallery_wp_id": 86,
+      "occurrence_date_claim": "2023-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3096,
+      "canonical_ref": "gallery_images:b8161e97-2abc-41dc-a89a-43c60aee2317",
+      "gallery_wp_id": 86,
+      "occurrence_date_claim": "2023-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3116,
+      "canonical_ref": "gallery_images:a77a9bf3-cdbf-4656-a2f8-8e2a1da1ba87",
+      "gallery_wp_id": 89,
+      "occurrence_date_claim": "2023-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3119,
+      "canonical_ref": "gallery_images:083cbd18-e081-4e61-b0f2-c28097f172ee",
+      "gallery_wp_id": 88,
+      "occurrence_date_claim": "2023-11-12",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            1400
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3143,
+      "canonical_ref": "gallery_images:3b9859ff-fbfd-4cde-92bd-2806c2d8c92a",
+      "gallery_wp_id": 88,
+      "occurrence_date_claim": "2023-11-28",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45,
+            450
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3155,
+      "canonical_ref": "gallery_images:7868fa7b-37fd-48c5-b6e0-fbb862d50c02",
+      "gallery_wp_id": 88,
+      "occurrence_date_claim": "2024-12-21",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "בחירות ישראל 2021",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3158,
+      "canonical_ref": "gallery_images:5c63352c-d316-479a-8cc1-fe418efba543",
+      "gallery_wp_id": 88,
+      "occurrence_date_claim": "2023-12-24",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3204,
+      "canonical_ref": "gallery_images:8d9adb18-59d5-47b3-b604-2293fa170095",
+      "gallery_wp_id": 91,
+      "occurrence_date_claim": "2024-02-10",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3234,
+      "canonical_ref": "gallery_images:a2bff894-5b78-4d43-9612-41b2eaaec2ac",
+      "gallery_wp_id": 89,
+      "occurrence_date_claim": "2024-03-13",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3240,
+      "canonical_ref": "gallery_images:796d5c16-ba67-47fe-958e-7d97cdf26985",
+      "gallery_wp_id": 92,
+      "occurrence_date_claim": "2024-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3241,
+      "canonical_ref": "gallery_images:a7685bf2-eb25-48f2-96b1-2c276c8dcdbb",
+      "gallery_wp_id": 92,
+      "occurrence_date_claim": "2024-03-13",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3244,
+      "canonical_ref": "gallery_images:9e2a32a1-82aa-49d8-9823-e8b7fc2a8c59",
+      "gallery_wp_id": 92,
+      "occurrence_date_claim": "2016-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        },
+        {
+          "root": 1237,
+          "observed_values": [
+            1237
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3279,
+      "canonical_ref": "gallery_images:e02b6378-2522-4ce9-bdb2-ef64e9c6637d",
+      "gallery_wp_id": 91,
+      "occurrence_date_claim": "2024-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3287,
+      "canonical_ref": "gallery_images:f832bfa5-31e8-473a-9634-e3af3df7290a",
+      "gallery_wp_id": 91,
+      "occurrence_date_claim": "2024-03-26",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3292,
+      "canonical_ref": "gallery_images:4cd3323d-ff5b-4604-ae04-a78377e3a3c9",
+      "gallery_wp_id": 91,
+      "occurrence_date_claim": "2024-04-04",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3304,
+      "canonical_ref": "gallery_images:ee2e3698-829a-479f-8845-711890f9c495",
+      "gallery_wp_id": 94,
+      "occurrence_date_claim": "2024-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3312,
+      "canonical_ref": "gallery_images:9267fef1-987f-40c1-aa0d-68d7a51a0d9a",
+      "gallery_wp_id": 95,
+      "occurrence_date_claim": "2024-05-05",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3313,
+      "canonical_ref": "gallery_images:ff996ead-671e-4f40-b1e3-ef702b2a9366",
+      "gallery_wp_id": 95,
+      "occurrence_date_claim": "2024-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "פוליטיקה רחבה / מיון ידני",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3320,
+      "canonical_ref": "gallery_images:8d43e3de-7447-4cb3-b89b-d24f8ca34285",
+      "gallery_wp_id": 95,
+      "occurrence_date_claim": "2024-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "פוליטיקה רחבה / מיון ידני",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3340,
+      "canonical_ref": "gallery_images:909cffe5-72a1-408c-93a6-ac8cbab519c7",
+      "gallery_wp_id": 95,
+      "occurrence_date_claim": "2024-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "פוליטיקה רחבה / מיון ידני",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3341,
+      "canonical_ref": "gallery_images:e7e2ab50-6828-4e15-b087-6cef145c4da4",
+      "gallery_wp_id": 95,
+      "occurrence_date_claim": "2024-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3343,
+      "canonical_ref": "gallery_images:fc45c40a-40f4-4295-b662-e602283d10f6",
+      "gallery_wp_id": 95,
+      "occurrence_date_claim": "2024-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3355,
+      "canonical_ref": "gallery_images:52a1cd60-d8de-416b-aa92-f468d87525a8",
+      "gallery_wp_id": 95,
+      "occurrence_date_claim": "2024-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3357,
+      "canonical_ref": "gallery_images:5761f7e7-a582-47fc-bb00-a5bdc81c1ef9",
+      "gallery_wp_id": 92,
+      "occurrence_date_claim": "2024-07-06",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3364,
+      "canonical_ref": "gallery_images:cc1c0fb7-d78e-4bd4-a3d8-23b2c769ebd5",
+      "gallery_wp_id": 92,
+      "occurrence_date_claim": "2024-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3373,
+      "canonical_ref": "gallery_images:660b149c-0064-4149-9912-268cdc382b44",
+      "gallery_wp_id": 95,
+      "occurrence_date_claim": "2024-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3383,
+      "canonical_ref": "gallery_images:aeef2920-41f0-482e-b4d6-7fa56b7ef77f",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2024-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3384,
+      "canonical_ref": "gallery_images:6dd5c882-3885-4d1f-a643-234f36f60621",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2024-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3385,
+      "canonical_ref": "gallery_images:621f951a-9956-4ce0-b2a4-bac853756610",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2024-07-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3394,
+      "canonical_ref": "gallery_images:1979fa43-8ded-4840-8261-f0fc5355194c",
+      "gallery_wp_id": 96,
+      "occurrence_date_claim": "2024-08-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3402,
+      "canonical_ref": "gallery_images:a3d22711-7e95-4f56-b0af-63a6b436da5b",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2024-08-21",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14,
+            140
+          ]
+        }
+      ],
+      "theme_candidate": "מספרים/גימטריה",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3404,
+      "canonical_ref": "gallery_images:8961864f-28d4-4933-a130-679bf7bed1bc",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2024-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3405,
+      "canonical_ref": "gallery_images:028fa7fc-e730-42a4-b136-dcdd3961b923",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2024-09-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "פוליטיקה רחבה / מיון ידני",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3427,
+      "canonical_ref": "gallery_images:6b03cef8-afac-4ba3-ad1d-31f02de94138",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2024-11-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3429,
+      "canonical_ref": "gallery_images:1f6a3b95-20cc-45a6-9bf9-046838fbdf4d",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2024-12-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3443,
+      "canonical_ref": "gallery_images:df3790a1-4a59-47aa-882c-205086088c6e",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2025-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3444,
+      "canonical_ref": "gallery_images:8ed7e4b2-e8fd-4b90-a00c-bc94572af693",
+      "gallery_wp_id": 99,
+      "occurrence_date_claim": "2025-01-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3449,
+      "canonical_ref": "gallery_images:52e8e62d-987e-4948-950e-d14f65bae894",
+      "gallery_wp_id": 102,
+      "occurrence_date_claim": "2025-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "ממשלות וסקרים",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3452,
+      "canonical_ref": "gallery_images:19129380-c9d8-472f-b5c7-9fbe4a37a246",
+      "gallery_wp_id": 102,
+      "occurrence_date_claim": "2025-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3453,
+      "canonical_ref": "gallery_images:3d557ac5-41c9-4782-9c02-fadd852753cb",
+      "gallery_wp_id": 102,
+      "occurrence_date_claim": "2025-02-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3461,
+      "canonical_ref": "gallery_images:8c461fa9-df52-4b1a-bfaf-79858dba3785",
+      "gallery_wp_id": 94,
+      "occurrence_date_claim": "2025-03-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "source_public_flag_only",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3471,
+      "canonical_ref": "gallery_images:3a6f0c5b-d947-4d37-ae44-e168e502512d",
+      "gallery_wp_id": 102,
+      "occurrence_date_claim": "2025-04-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3498,
+      "canonical_ref": "gallery_images:c43d51b8-9847-4f1f-8374-b9e95a7ba931",
+      "gallery_wp_id": 104,
+      "occurrence_date_claim": "2025-06-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3510,
+      "canonical_ref": "gallery_images:e4d0f4bc-b966-47eb-b6fb-92ae785171b2",
+      "gallery_wp_id": 104,
+      "occurrence_date_claim": "2025-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3511,
+      "canonical_ref": "gallery_images:5eb1d266-1582-4b9d-9476-0f85dcfec275",
+      "gallery_wp_id": 104,
+      "occurrence_date_claim": "2025-10-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3539,
+      "canonical_ref": "gallery_images:055557bc-cc50-477e-a622-96b6c0f791ab",
+      "gallery_wp_id": 105,
+      "occurrence_date_claim": "2026-05-25",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 3540,
+      "canonical_ref": "gallery_images:c67fd614-3dbb-44ef-ac35-ef2c26a74058",
+      "gallery_wp_id": 105,
+      "occurrence_date_claim": "2026-05-01",
+      "occurrence_date_precision": "month_or_unknown",
+      "numeric_matches": [
+        {
+          "root": 14,
+          "observed_values": [
+            14
+          ]
+        },
+        {
+          "root": 45,
+          "observed_values": [
+            45
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "done",
+      "source_verification": "ocr_metadata_candidate"
+    },
+    {
+      "wp_image_id": 10001019,
+      "canonical_ref": "gallery_images:3736dfa0-d4be-4cc7-9900-0f9ce1cbdedb",
+      "gallery_wp_id": 105,
+      "occurrence_date_claim": "2026-08-14",
+      "occurrence_date_precision": "needs_source_check",
+      "numeric_matches": [
+        {
+          "root": 424,
+          "observed_values": [
+            424
+          ]
+        }
+      ],
+      "theme_candidate": "טראמפ/ארה״ב — בחירות",
+      "access_status": "restricted_or_unknown",
+      "ocr_state": "pending",
+      "source_verification": "ocr_metadata_candidate"
+    }
+  ]
+}
