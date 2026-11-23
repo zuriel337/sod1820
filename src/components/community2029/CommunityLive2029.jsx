@@ -400,7 +400,7 @@ export function PublicCommunityActivity2029({ rows = [], count = null, loading =
   </div>;
 }
 
-export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/community/chat" }) {
+export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/community/chat", compactFeed = false, deferFeedUntilVisible = false }) {
   const palette = use2029Palette();
   const { user, profile, isAdmin, canModerateGuests, loading: authLoading, verified: authVerified } = useAuth();
   const actionsLocked = communityActionsLocked(isAdmin);
@@ -453,6 +453,28 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [loading, setLoading] = useState(true);
   const [feedSettled, setFeedSettled] = useState(false);
   const [error, setError] = useState("");
+  const feedPageSize = compactFeed ? 6 : COMMUNITY_PAGE_SIZE;
+  const [nativeFeedVisible, setNativeFeedVisible] = useState(!deferFeedUntilVisible);
+  const immediateNativeEntry = Boolean(memberId || claimId || cardId || hasThreadRequest || params.has("q")
+    || location.hash.startsWith("#message-") || location.hash === "#community-new-chat");
+  const loadNativeFeed = !deferFeedUntilVisible || nativeFeedVisible || immediateNativeEntry;
+  useEffect(() => {
+    if (loadNativeFeed) return undefined;
+    const target = document.getElementById("community-new-chat");
+    if (!target || typeof IntersectionObserver === "undefined") {
+      setNativeFeedVisible(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        setNativeFeedVisible(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: "100px 0px" });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [loadNativeFeed]);
+
   const query = params.get("q") || "";
   const setQuery = value => setParams(current => { const next = new URLSearchParams(current); if (value) next.set("q", value); else next.delete("q"); return next; }, { replace: true });
   const sort = ["newest", "oldest", "liked"].includes(params.get("sort")) ? params.get("sort") : "newest";
@@ -601,7 +623,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     const read = (async () => {
       if (previousRead) await previousRead.catch(() => {});
       if (request !== streamRequestRef.current) return null;
-      return fetchCommunityArchivePage({ offset, limit: COMMUNITY_PAGE_SIZE, sort: fetchSort });
+      return fetchCommunityArchivePage({ offset, limit: feedPageSize, sort: fetchSort });
     })();
     feedReadRef.current = read;
     try {
@@ -621,7 +643,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       if (feedReadRef.current === read) feedReadRef.current = null;
       if (request === streamRequestRef.current) { setLoading(false); setFeedSettled(true); }
     }
-  }, [fetchSort, loadThreadTotals]);
+  }, [fetchSort, feedPageSize, loadThreadTotals]);
 
   useEffect(() => {
     if (!feedSettled || !(window.location.hash === "#legacy-chat" || /spot_?im|openweb/i.test(window.location.search))) return undefined;
@@ -632,11 +654,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [feedSettled]);
 
   useEffect(() => {
-    if (memberId || claimId || hasThreadRequest || loadedFeedSort.current === fetchSort && loadedPublishedFeedRefresh.current === publishedFeedRefresh) return;
+    if (!loadNativeFeed || memberId || claimId || hasThreadRequest || loadedFeedSort.current === fetchSort && loadedPublishedFeedRefresh.current === publishedFeedRefresh) return;
     loadedPublishedFeedRefresh.current = publishedFeedRefresh;
     loadPage(0, true);
     return () => { streamRequestRef.current++; };
-  }, [loadPage, memberId, claimId, fetchSort, hasThreadRequest, publishedFeedRefresh]);
+  }, [loadPage, memberId, claimId, fetchSort, hasThreadRequest, publishedFeedRefresh, loadNativeFeed]);
   useEffect(() => {
     setFocusedThread(null);
     if (!threadFocus) { setFocusedThreadState(hasThreadRequest ? "not_found" : "idle"); return undefined; }
@@ -663,13 +685,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     }
   }, [memberId]);
   useEffect(() => {
-    if (memberId || claimId || cardId || hasThreadRequest) return undefined;
+    if (!loadNativeFeed || memberId || claimId || cardId || hasThreadRequest) return undefined;
     let active = true;
     const stop = startCommunityRefresh({ refresh: async () => {
       const current = feedStateRef.current;
       if (current.loading || current.sending || !current.rows.length || feedReadRef.current) return;
       const request = streamRequestRef.current;
-      const read = fetchCommunityArchivePage({ limit: COMMUNITY_PAGE_SIZE, sort: fetchSort });
+      const read = fetchCommunityArchivePage({ limit: feedPageSize, sort: fetchSort });
       feedReadRef.current = read;
       try {
         const page = await read;
@@ -700,7 +722,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       } finally { if (feedReadRef.current === read) feedReadRef.current = null; }
     }});
     return () => { active = false; stop(); };
-  }, [fetchSort, memberId, claimId, cardId, hasThreadRequest, loadThreadTotals]);
+  }, [fetchSort, memberId, claimId, cardId, hasThreadRequest, loadNativeFeed, feedPageSize, loadThreadTotals]);
   // Same title and description the server sends, so the tab and what a crawler renders match. The bare page was indexed and
   // brings search traffic, so it stays indexable; any query string (thread, member, search...) is a variant and stays out.
   useEffect(() => { applySeo({ title: "הצ'אט החי — קוד המציאות בזמן אמת", description: "שיחות, שאלות וגילויים בקהילת SOD1820.", path: canonicalPath, noindex: location.search !== "" }); }, [canonicalPath, location.search]);
@@ -1004,7 +1026,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   onlinePresenceHolder.current = onlineIds;
   staffIdsHolder.current = staffIds;
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
-    {!memberId ? leadingContent : null}
+    {!memberId && !claimId && !cardId && !hasThreadRequest ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
       {!memberId && !claimId ? <header className="sod29-community-intro"><h1>צ'אט הקהילה {!hasThreadRequest ? <ConversationCount /> : null}</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
@@ -1106,7 +1128,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         </>}
       </section></div>}
       {!memberId && !claimId && trailingContent && !hasThreadRequest ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">
-        <a href="#legacy-chat">לצ׳אט הישן ↓</a>
+        <a href="#legacy-chat">לצ׳אט הוותיק {leadingContent ? "↑" : "↓"}</a>
       </footer> : null}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
