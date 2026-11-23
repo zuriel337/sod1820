@@ -26,5 +26,5 @@ test("SPA transition metric is not mislabeled as hard-navigation RUM",()=>{
 test("no field rows does not imply site is green",()=>{
   const r=fieldMetricTriage([]);
   assert.equal(r.status,"UNKNOWN");
-  assert.match(r.limitations,/missing cohorts/);
+  assert.match(r.limitations,/missing samples/);
 });
