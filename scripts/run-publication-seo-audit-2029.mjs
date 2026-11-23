@@ -3,19 +3,20 @@
 // Run manually or hourly after release; pending / no data are explicitly reported.
 import { parsePublicSitemapEntries2029, selectPublicationSeoCandidates2029, assessPublicationSeoHttp2029, PUBLIC_SEO_ORIGIN_2029 } from "../src/lib/research/publicationSeoAudit2029.js";
 
-const TIMEOUT_MS=12000, MAX_DOC_BYTES=750000;
+const TIMEOUT_MS=12000, MAX_DOC_BYTES=750000, MAX_SITEMAP_BYTES=4000000;
 async function load(url) {
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort("PUBLIC_SEO_HTTP_TIMEOUT"),TIMEOUT_MS);
   try{
     const response=await fetch(url,{method:"GET",signal:controller.signal,headers:{"Accept":"text/html,application/xml;q=0.8","User-Agent":"SOD1820-SEO-PostPublish-Audit/1.0"}});
+    const cap=url.includes("/sitemap.xml?")?MAX_SITEMAP_BYTES:MAX_DOC_BYTES;
     const len=Number(response.headers.get("content-length")||0);
-    if(len>MAX_DOC_BYTES)return {status:response.status,headers:{},body:"",finalUrl:response.url,redirected:response.redirected,error:"DOCUMENT_EXCEEDS_BOUNDED_READ"};
+    if(len>cap)return {status:response.status,headers:{},body:"",finalUrl:response.url,redirected:response.redirected,error:"DOCUMENT_EXCEEDS_BOUNDED_READ"};
     // Avoid reading a whole unbounded stream from any unexpectedly giant response.
     const reader=response.body?.getReader();
     const chunks=[];let total=0,exceeded=false;
-    if(reader){while(true){const {done,value}=await reader.read();if(done)break;total+=value.length;if(total>MAX_DOC_BYTES){exceeded=true;await reader.cancel();break;}chunks.push(value);}}
-    const body=exceeded?"":new TextDecoder().decode(Uint8Array.from(chunks.flatMap(chunk=>Array.from(chunk))));
+    if(reader){while(true){const {done,value}=await reader.read();if(done)break;total+=value.length;if(total>cap){exceeded=true;await reader.cancel();break;}chunks.push(value);}}
+    const body=exceeded?"":await new Blob(chunks).text();
     return {status:response.status,headers:{"x-robots-tag":response.headers.get("x-robots-tag")||""},body,finalUrl:response.url,redirected:response.redirected,...(exceeded?{error:"DOCUMENT_EXCEEDS_BOUNDED_READ"}:{})};
   } finally {clearTimeout(timer);}
 }
@@ -28,7 +29,7 @@ export async function runPublicationSeoAudit2029({fetchPage=load,now=new Date(),
  if(parsed.status!=="OBSERVED"){snapshot.reasons.push(parsed.reason);return snapshot;}
  const selected=selectPublicationSeoCandidates2029(parsed.items,{now,max,perFamily:8});
  snapshot.coverage=selected.coverage;snapshot.reasons=selected.reasons;snapshot.metrics.selected=selected.items.length;
- if(!selected.items.length){snapshot.status="UNKNOWN";snapshot.reasons.push("NO_RECENT_OR_CATALOGUED_PUBLICATIONS");return snapshot;}
+ if(!selected.items.length){snapshot.status=parsed.items.length?"NO_RECENT_PUBLICATION":"UNKNOWN";snapshot.reasons.push(parsed.items.length?"NO_RECENT_PUBLICATIONS_TO_AUDIT":"NO_PUBLIC_ITEMS_IN_SITEMAP");return snapshot;}
  // Three requests at a time; no private tokens, writes, or expensive repeated crawls.
  for(let i=0;i<selected.items.length;i+=3){
   const batch=selected.items.slice(i,i+3);
