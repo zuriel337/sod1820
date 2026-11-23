@@ -5,6 +5,7 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
+import ElsModeHelp2029, { ElsConstructionNotice2029 } from "../components/experience2029/ElsModeHelp2029.jsx";
 import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
 import ElsAdvancedSearch2029 from "../components/experience2029/ElsAdvancedSearch2029.jsx";
 import ElsGuidedDiscovery2029 from "../components/experience2029/ElsGuidedDiscovery2029.jsx";
@@ -441,10 +442,12 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     <div style={{display:"contents"}} onClickCapture={event=>captureElsUi(event,{mode:workspaceMode,isAdmin})} onChangeCapture={event=>captureElsUi(event,{mode:workspaceMode,isAdmin})}>
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
       onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} workspaceMode={workspaceMode} /> : null}
+    {!library ? <ElsConstructionNotice2029 /> : null}
     {!library ? <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
       <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={guidedVisible ? null : [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC]} />
       {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(guidedVisible ? ELS_MATRIX_PROFILE.GUIDED : ELS_MATRIX_PROFILE.RESEARCH);setParams({}); }}>חיפוש חדש</button> : null}
     </nav> : null}
+    {!library ? <ElsModeHelp2029 profile={matrixProfile} /> : null}
     {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור" progress={{ phase: "קורא את פרטי הצופן" }}>הממצאים והגדרות המטריצה נטענים.</FrameState>
       : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
