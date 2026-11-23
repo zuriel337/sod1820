@@ -728,5 +728,19 @@
     "interpretation": "These are counts of gallery_images with OCR number matches and broad political terms in metadata/OCR. They are not audited synchronizations, not all direct election evidence, and totals between families overlap.",
     "candidate_sync_definition": "A synchronization candidate requires at least two independently dated/located sources with explicit numeric and meaningful event context. Verify relation evidence and provenance before displaying as confirmed; image volume alone is never a synchronicity score.",
     "request_scope": "Only documentation. Preserve existing numeric methods engine and zero-scale law; no new scoring law. Do not build UI during mapping."
+  },
+  "independent_events_audit_20261123": {
+    "audit_path": "docs/reviews/elections-image-independent-events-audit-20261123.md",
+    "status": "IMAGE_DEDUP_COMPLETED_EVENT_VERIFICATION_PENDING",
+    "candidate_images": 234,
+    "unique_file_urls": 227,
+    "exact_file_url_duplicate_pairs": 7,
+    "distinct_occurrence_dates": 138,
+    "first_of_month_dates": 173,
+    "gallery_date_candidate_groups": 178,
+    "independent_event_count": null,
+    "verified_synchronization_count": null,
+    "notes": "event-date/gallery grouping alone cannot prove separate events; OCR text overlap is not event independence; compare original sources and specific dates",
+    "no_publication": true
   }
 }
