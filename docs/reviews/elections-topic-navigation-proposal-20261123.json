@@ -783,5 +783,80 @@
     "unique_urls": 227,
     "verified_sync_count": null,
     "notes": "Do not represent 234 OCR-classified as 234 visually verified events; France 2017 and UK 2017 are distinct, peripheral items kept separately, restricted retained in owner mapping but not published."
+  },
+  "news_snapshot_evidence_contract_20261123": {
+    "status": "EXISTING_LAW_REFERENCE_MAPPED",
+    "owner_laws": [
+      {
+        "rule_id": "reality_graph_law",
+        "version": 8,
+        "scope": "source, occurrence, representation and contextual thread; one source can appear in many places"
+      },
+      {
+        "rule_id": "truth_axes_foundation_law",
+        "version": 3,
+        "scope": "claim/observation vs verified calculation vs governance vs publication kept separate"
+      },
+      {
+        "rule_id": "reality_stream_law",
+        "version": 1,
+        "scope": "a source image/screenshot is an evidence representation of a reality signal"
+      },
+      {
+        "rule_id": "research_gold_hints_law",
+        "version": 4,
+        "scope": "rank based on context and independent evidence, not repeated/copied media"
+      },
+      {
+        "rule_id": "zero_scale_law",
+        "version": 1,
+        "scope": "number-family scale changes are derivative connections, not changes to originally published numbers"
+      }
+    ],
+    "contract_documents": [
+      "docs/reviews/one-tree-unified-findings-contract-20261030.md#ו-מקור-נשאר-מקור-כולל-היסטוריה-וגלריות",
+      "docs/reviews/elections-session-decisions-20261029.md"
+    ],
+    "principles": [
+      "NEWS_SNAPSHOT_IS_VALID_HISTORICAL_OCCURRENCE: documented value from a datable publication, live ticker, television screenshot or social post is preserved as it appeared then, even if later counts changed",
+      "PRESERVE_REVISIONS: later official/final number is a separate later observation, never overwrite or erase the earlier snapshot",
+      "OBSERVABLE_NUMBERS_ARE_IN_SCOPE: hours/minutes on captured broadcast, visible likes/comments/shares/view counts, partial vote tallies, poll percentages, interim delegate thresholds, and other incidental visible numbers can be indexed if literal number + provenance and time are recorded",
+      "CONTEXTUAL_CAPTURE_NOT_FINAL_RESULT: the observation is documented if source and observed value are grounded; verification may check capture authenticity without requiring number to stay constant",
+      "REPEAT_DISAMBIGUATION: distinguish independent moments/snapshots, reuse of the same screenshot, distinct news items, and one screenshot containing multiple independent items",
+      "COUNTING_DISCIPLINE: every separate grounded snapshot can be navigated as a documented occurrence; copied appearances cannot inflate independent sources, and a snapshot does not automatically become a separately verified historical event or independent synchronization",
+      "NUMBER_ZERO_LAW: retain 1400,4500,14000 and 450000 exactly as source values while connecting them to root 14 or 45 using existing zero_scale_law; do not silently replace literals",
+      "VISIBILITY: owner mapping may include gated material, but public access remains according to governed authorization"
+    ],
+    "elections_examples": [
+      {
+        "source": "image WP2663",
+        "reported": "14,000 interim votes between Bennett and Saar in 2021",
+        "rule": "historical report remains evidence even though vote count may change"
+      },
+      {
+        "source": "image WP2662",
+        "reported": "about 450,000 special envelopes predicted at 2021 election",
+        "rule": "preserve the forecast and its publication point separately from eventual final count"
+      },
+      {
+        "source": "image WP2901 / post 1097",
+        "reported": "4,500 interim and 1,400 later count for Bennett 2019 in archived retelling",
+        "rule": "both archived milestones retained with wording and provenance; not mislabelled final official vote deficit"
+      },
+      {
+        "source": "image WP668",
+        "reported": "4:24 PM on a television graphic at Western Wall visit",
+        "rule": "capture time is a documented onscreen number, not necessarily independently verified instant of physical contact"
+      },
+      {
+        "source": "post 5107",
+        "reported": "14 logo/battery and 140 comments, 1437 likes, 78 saves, 396 shares",
+        "rule": "engagement and interface counts are documented snapshots and can change later"
+      }
+    ],
+    "editorial_correction": "Replace categorical 'not a true event because interim / random / poll / UI metric' with 'valid contextual reported observation; determine independently whether this represents a distinct event, another reading of the same event, or another capture'. This does not imply all numbers have equal research weight.",
+    "no_new_rule_created": true,
+    "no_database_write": true,
+    "no_site_publish": true
   }
 }
