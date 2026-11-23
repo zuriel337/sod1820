@@ -6,6 +6,8 @@
 -- SELECT set_config('sod1820.contract_repair_approval_ref','work_log:<approved-uuid>',true);
 -- The work_log row must name each of: brand_spelling_law, canonical_colors_law,
 -- logo_integrity_law, sod1820_canonical_identity_law, worlds_color_law, legacy_content_protocol.
+-- The same explicit authorization record must also name the four Codex slugs affected:
+-- gematria_engine, project_overview, data_model_map, raziel_mind_architecture.
 --
 BEGIN;
 
@@ -33,9 +35,9 @@ BEGIN
     SELECT 1 FROM public.work_log w
     WHERE w.id = substring(v_gate from 10)::uuid
       AND (SELECT count(*)
-           FROM unnest(brand_ids || array['legacy_content_protocol']) AS required_id(rule_id)
-           WHERE position(required_id.rule_id in coalesce(w.topic,'') || ' ' || coalesce(w.what_we_did,'')) > 0) = 6
-  ) THEN RAISE EXCEPTION 'APPROVAL_MUST_NAME_EACH_RULE'; END IF;
+           FROM unnest(brand_ids || array['legacy_content_protocol','gematria_engine','project_overview','data_model_map','raziel_mind_architecture']) AS required_id(rule_id)
+           WHERE position(required_id.rule_id in coalesce(w.topic,'') || ' ' || coalesce(w.what_we_did,'')) > 0) = 10
+  ) THEN RAISE EXCEPTION 'APPROVAL_MUST_NAME_EACH_RULE_AND_CODEX_SLUG'; END IF;
 
   SELECT count(*) INTO v_count FROM public.nodes n
   WHERE n.type='rule' AND n.is_active=true
