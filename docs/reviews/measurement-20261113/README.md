@@ -62,6 +62,7 @@ Commits here: `ff87b461e` C1 (#1321 family, byte-identical files + one hunk of `
   "settleMs": 150,
   "actionFamilyUsers": [
     "public-reading-deploy/transport.js",
+    "src/lib/appHealthIncident2029.js",
     "src/lib/events.js",
     "src/lib/publicReadingTelemetry2029.js",
     "src/lib/research/elsTelemetryRuntime2029.js"
@@ -70,7 +71,7 @@ Commits here: `ff87b461e` C1 (#1321 family, byte-identical files + one hunk of `
 -->
 
 The 22 files above (8 source, 1 test helper, 7 test, 6 documents). Per-file source, hunk and decision: [`extraction-map.md`](extraction-map.md).
-The current action-family consumer inventory also includes the ELS-only runtime added by #1426. Its separate implementation, proposed server allowlist and rollout limits are documented in [`TRACKING-IMPLEMENTATION.md`](../els-side-panels-20261119/TRACKING-IMPLEMENTATION.md); this addition does not change the historical measurement package or its budgets.
+The November 23 draft extension adds `src/lib/appHealthIncident2029.js` as a failure-only consumer; its exact `app_health` SQL allowlist is guarded in `supabase/proposed/app-health-incidents-20261123/ingest_event-apply.sql`, not live until a separate DB approval. The source scope block includes it to enforce review.\nThe current action-family consumer inventory also includes the ELS-only runtime added by #1426. Its separate implementation, proposed server allowlist and rollout limits are documented in [`TRACKING-IMPLEMENTATION.md`](../els-side-panels-20261119/TRACKING-IMPLEMENTATION.md); this addition does not change the historical measurement package or its budgets.
 `src/pages/Post2029Page.jsx` is one of the four files that main changed after #1321's base; only its one measurement line was re-applied, on top of main's file.
 
 **Not included, and why:** GA4, Meta Pixel, CAPI and AdSense findings of the audit (out of scope by the brief); Raziel, N14, content, M0-A/B/C/D/E packages and the Edge bundles; CL-13; the capture scripts and result JSON of the audit (they read Google, Meta or the live site); any database change; any report change; the CI workflow (written down in [`ci-wiring.md`](ci-wiring.md)).
