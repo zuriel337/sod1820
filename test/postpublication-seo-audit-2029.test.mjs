@@ -12,7 +12,8 @@ const html=(path,extra="")=>`<!doctype html><html lang="he"><head><title>המס�
 test("sitemap uses exact canonical URL family: no query, off-domain, root aliases or arbitrary dynamic routes",()=>{
  const xml='<?xml version="1.0"?><urlset><url><loc>'+loc("/post/new-post")+'</loc><lastmod>2026-11-23</lastmod></url><url><loc>https://evil.example/post/bad</loc></url><url><loc>'+loc("/post/bad?private=1")+'</loc></url><url><loc>'+loc("/number/337")+'</loc></url><url><loc>'+loc("/legacy-wordpress-slug")+'</loc></url></urlset>';
  const result=parsePublicSitemapEntries2029(xml);
- assert.equal(result.status,"OBSERVED");assert.deepEqual(result.items.map(x=>x.path),["/post/new-post"]);
+ assert.equal(result.status,"OBSERVED");assert.deepEqual(result.items.map(x=>x.path),["/post/new-post","/legacy-wordpress-slug"]);
+ assert.equal(result.items[1].family,"root-candidate");
 });
 test("48-hour date-only publication selection includes post, Book and codes; missing dates never count as full coverage",()=>{
  const rows=[item("/post/a","2026-11-22"),item("/post/old","2026-10-10"),item("/book/b",null),item("/codes/c",null)];
@@ -61,6 +62,17 @@ test("full read-only runner detects a specific actual Post failure without writi
  const r=await runPublicationSeoAudit2029({fetchPage,now:"2026-11-23T10:00:00Z"});
  assert.equal(r.status,"FAIL");assert.equal(r.metrics.fail,1);assert.equal(calls.length,3);
  assert.equal(r.results.find(x=>x.family==="code").issues[0],"CANONICAL_MISMATCH");
+});
+test("a sitemap-listed legacy root Post with lastmod is checked; static root categories stay excluded",()=>{
+ const xml=sitemap([{path:"/legacy-old-post",date:"2026-11-23"},{path:"/privacy",date:"2026-11-23"}]);
+ const parsed=parsePublicSitemapEntries2029(xml);
+ assert.deepEqual(parsed.items.map(x=>x.path),["/legacy-old-post"]);
+ const selected=selectPublicationSeoCandidates2029(parsed.items,{now:"2026-11-23T10:00:00Z"});
+ assert.equal(selected.items.length,1);assert.equal(selected.items[0].family,"root-candidate");
+});
+test("quiet publication day is not a false-positive outage",async()=>{
+ const r=await runPublicationSeoAudit2029({fetchPage:async()=>({status:200,body:sitemap([{path:"/post/old",date:"2026-01-01"}])}),now:"2026-11-23T10:00:00Z"});
+ assert.equal(r.status,"NO_RECENT_PUBLICATION");assert.equal(r.metrics.selected,0);
 });
 test("an unreadable public source never becomes a zero-error pass",async()=>{
  const fetchPage=async url=>url.includes("sitemap.xml")?{status:200,body:sitemap([{path:"/post/abc",date:"2026-11-23"}])}:Promise.reject(Error("timeout"));
