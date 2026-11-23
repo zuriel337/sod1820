@@ -23,6 +23,13 @@ export function track(section, slug = null, eventType = "view", meta = null) {
     if (section === "runtime_error") {
       try { console.warn("SOD1820 runtime incident", sanitizeRoute(slug), eventType,
         buildIncidentMeta(meta?.message, meta || {})); } catch { /* optional console */ }
+      // Only on a real exception: tiny, typed signal via the existing events pipeline.
+      // Never load a diagnostics module or send network traffic on a healthy page.
+      void import("./appHealthIncident2029.js").then(m => m.reportAppHealth(
+        /chunk|loading/i.test(String(meta?.message || "")) ? "load_failed" : "runtime_error",
+        { reason: /chunk|loading/i.test(String(meta?.message || "")) ? "chunk_error" : "render_error",
+          stage: /chunk|loading/i.test(String(meta?.message || "")) ? "load" : "runtime" }
+      )).catch(() => {});
       return;
     }
     return trackPublicReading(section, eventType, meta);
