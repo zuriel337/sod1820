@@ -1,3 +1,4 @@
+import { routeAppIncident } from './appIncidentOwner2029.js';
 // One maintenance view over the existing recommendation engine (system_suggestions_law v7). It reads what the detectors already wrote
 // (admin_suggestions_list); it never writes, dismisses or decides. Repeated rows with the same meaning are shown once, with their count and
 // their first and latest occurrence; a group that has not recurred for STALE_DAYS is marked as possibly outdated, never closed automatically.
@@ -23,7 +24,7 @@ const OWNERS = {
 
 // Lower is more urgent. A capacity row carries its level in the title (ALERT / CAPACITY_WARNING / WATCH).
 function rank(detector, title) {
-  if (detector === "runtime_error_incident") return 1;
+  if (detector === "runtime_error_incident" || detector === "app_health_incident") return 1;
   if (detector === "capacity_growth_guard") return /\bALERT\b/.test(title) ? 2 : /WARNING/.test(title) ? 3 : 4;
   if (detector === "web_vitals_regression" || detector === "post_document_freshness") return 2;
   if (detector === "dependency_upgrade_radar") return 4;
@@ -51,7 +52,11 @@ export function groupSuggestions(rows, now = Date.now()) {
   }
   return [...groups.values()].map(group => {
     const latest = group.latest || group.rows[0];
-    const meta = OWNERS[group.detector] || { owner: group.category || "לא שויך", area: group.category || "לא שויך" };
+    const appOwner = group.detector === 'app_health_incident'
+      ? routeAppIncident(latest?.observed?.event_type) : null;
+    const meta = appOwner
+      ? { owner: appOwner.owner || 'UNKNOWN — דרוש שיוך חוזה', area: appOwner.kind }
+      : OWNERS[group.detector] || { owner: group.category || "לא שויך", area: group.category || "לא שויך" };
     const ageDays = group.newest ? (now - Date.parse(group.newest)) / 86400000 : null;
     return { ...group, title: latest?.title || "", reason: latest?.reason || "", impact: latest?.estimated_impact || "",
       count: group.rows.length, owner: meta.owner, area: meta.area, rank: rank(group.detector, latest?.title || ""),
