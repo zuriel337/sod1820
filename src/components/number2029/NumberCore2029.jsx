@@ -388,6 +388,16 @@ export default function NumberCore2029({
       </button>}
     </header>
 
+    <section className="sod29-number-ai-feature" aria-label="ניתוח AI למספר">
+      <div className="sod29-number-ai-feature-head">
+        <div><strong>◈ ניתוח AI למספר</strong><small>פרשנות על בסיס נתוני הגימטריה המאומתים · בלחיצה בלבד</small></div>
+        <button type="button" className="sod29-number-ai-feature-toggle" aria-expanded={showAiAnalysis} onClick={() => setShowAiAnalysis((value) => !value)}>
+          {showAiAnalysis ? "סגור ניתוח AI" : "◈ פתח ניתוח AI"}
+        </button>
+      </div>
+      {showAiAnalysis ? <NumberAiAnalysis2029 projection={projection} /> : null}
+    </section>
+
     {onResolveQuery ? <form className="sod29-number-v10-search" onSubmit={submitQuery}>
       <input
         value={query}
@@ -723,8 +733,6 @@ export default function NumberCore2029({
           onClose={() => setShowCalculation(false)}
         /> : null}
 
-        {showAiAnalysis ? <NumberAiAnalysis2029 projection={projection} /> : null}
-
         <footer className="sod29-number-v10-stage-actions">
           <button type="button" onClick={() => onRazielAction?.("next_research_step", {
             kind: crossingFocusActive ? "crossing_focus" : "method_result",
@@ -734,7 +742,6 @@ export default function NumberCore2029({
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
           })}>✦ שאל את רזיאל</button>
-          <button type="button" aria-expanded={showAiAnalysis} title="ניתוח AI: פרשנות חד־פעמית של העובדות המאומתות שמוצגות עכשיו. רזיאל: מלווה מחקרי להמשך." onClick={() => setShowAiAnalysis((v) => !v)}>◈ ניתוח AI</button>
           {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
             kind: crossingFocusActive ? "crossing_focus_deep" : "method_result_deep",
             root,
