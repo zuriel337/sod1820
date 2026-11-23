@@ -114,11 +114,11 @@ BEGIN
   -- Mark three old codex documents as historical; prepend a short guard, preserve original bodies.
   -- These do not supersede existing owners and never create a second authority.
   IF NOT EXISTS (SELECT 1 FROM public.project_codex WHERE slug='project_overview'
-                 AND left(body,10)='SOD1820 ה') THEN
+                 AND left(body,9)='SOD1820 ה') THEN
     RAISE EXCEPTION 'CODEX_PROJECT_OVERVIEW_CHANGED';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM public.project_codex WHERE slug='data_model_map'
-                 AND left(body,14)='הטבלאות המרכז') THEN
+                 AND left(body,13)='הטבלאות המרכז') THEN
     RAISE EXCEPTION 'CODEX_DATA_MODEL_MAP_CHANGED';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM public.project_codex WHERE slug='raziel_mind_architecture'
@@ -177,6 +177,9 @@ BEGIN
      OR (slug='data_model_map' AND body LIKE '⚠️ HISTORICAL DATA-MODEL SNAPSHOT ONLY%')
      OR (slug='raziel_mind_architecture' AND body LIKE '⚠️ HISTORICAL RAZIEL IMPLEMENTATION SPEC%');
   IF v_count<>3 THEN RAISE EXCEPTION 'POSTCONDITION_CODEX_OLD_OVERVIEW_NOT_MARKED'; END IF;
+
+  SELECT count(*) INTO v_count FROM public.nodes WHERE type='rule' AND is_active=true;
+  IF v_count<>86 THEN RAISE EXCEPTION 'POSTCONDITION_EXPECTED_86_ACTIVE_RULES_GOT_%',v_count; END IF;
 
   SELECT count(*) INTO v_count FROM (
     SELECT rule_id FROM public.nodes WHERE type='rule' AND is_active=true
