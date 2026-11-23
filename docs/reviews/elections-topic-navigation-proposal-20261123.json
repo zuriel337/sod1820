@@ -858,5 +858,24 @@
     "no_new_rule_created": true,
     "no_database_write": true,
     "no_site_publish": true
+  },
+  "canonical_contract_ownership_handoff_20261123": {
+    "status": "SOURCE_REFERENCES_AND_OWNER_ROUTING_DOCUMENTED__LIVE_INTEGRATION_NOT_DONE",
+    "owner_contract": "sod1820.one-tree-branch.v2",
+    "elections_profile": "sod1820.elections-domain.v3",
+    "source_index": "docs/reviews/elections-one-tree-source-index-20261123.json",
+    "owner_route": "docs/reviews/elections-one-tree-owner-route-20261123.json",
+    "overlap_audit": "docs/reviews/elections-contract-overlap-audit-20261123.md",
+    "counted_source_references": 234,
+    "number_roots": [
+      14,
+      45,
+      424,
+      1237
+    ],
+    "safety": "branch includes pre-existing preview UI changes not approved for mapping-only merge; use research-only cherry-pick or clean PR",
+    "raziel_bounded_context": "specified by research_strategy_layer_law v17; no live integration claimed",
+    "owner_gate": "inter_agent_coordination_law v18",
+    "next_domain": "railway_clues_after_elections_pilot_acceptance"
   }
 }
