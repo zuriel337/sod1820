@@ -110,6 +110,8 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
+      - name: Zion Siboni Gate 50 source, 110-page reader and exact public Book admission
+        run: node --test test/siboni-gate50-reader-manifest.test.mjs test/siboni-gate50-journey.test.mjs src/lib/research/publicLibraryContinuity2029.test.js
       - name: Server document metadata parity (crawler, AI and social documents for public routes, including the Beit Midrash learning area)
         run: node scripts/test-2029-server-seo-ai-parity.mjs
       - name: Beit Midrash strips move only themselves, never the page
