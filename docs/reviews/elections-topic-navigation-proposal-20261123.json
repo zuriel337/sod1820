@@ -600,5 +600,45 @@
     },
     "status": "mapped_for_editorial_review"
   },
-  "updated_mapping_at": "2026-11-23"
+  "updated_mapping_at": "2026-11-23",
+  "gallery_scan_20261123": {
+    "mode": "inventory_only_including_restricted",
+    "inventory_path": "docs/reviews/elections-gallery-scan-including-restricted-20261123.md",
+    "total_images": 2569,
+    "visible_by_simple_flags": 2199,
+    "restricted_or_not_visible_by_flags": 370,
+    "political_text_candidates": 377,
+    "political_candidates_not_visible_by_flags": 23,
+    "restricted_with_number_ocr_candidates": 18,
+    "visual_confirmation": "not_performed; OCR and metadata only",
+    "key_visible_wp_image_ids": [
+      2901,
+      2663,
+      2662,
+      2765,
+      2753,
+      2761,
+      3244,
+      1998,
+      2072,
+      2911,
+      940
+    ],
+    "key_restricted_wp_image_ids": [
+      3449,
+      3452,
+      3453,
+      3471,
+      2151,
+      3510,
+      3511,
+      3530,
+      3539,
+      3540,
+      10001019,
+      1730,
+      2681
+    ],
+    "no_permission_or_publication_changes": true
+  }
 }
