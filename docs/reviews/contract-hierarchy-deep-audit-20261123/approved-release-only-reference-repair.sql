@@ -81,11 +81,12 @@ BEGIN
     IF rec.rule_id='sod1820_canonical_identity_law' THEN
       new_deps := array_replace(rec.depends_on,old_owner,new_owner);
     END IF;
-    new_description := concat(coalesce(rec.description,''),E'\n\n',
-      '[2026-11-23 · owner-pointer-only supersession v',rec.rule_version+1,'] ',
-      'Current visual authority: SOD1820_DESIGN_CONTRACT_V2.md. ',
-      'Earlier V1 mentions are historical decision provenance, not current authority. ',
-      'No changes to substantive branding, truth, access or research semantics.');
+    new_description := concat(
+      '[2026-11-23 CURRENT OWNER] SOD1820_DESIGN_CONTRACT_V2.md. ',
+      'This is an owner-routing-only version v',rec.rule_version+1,
+      '; V1 references below are historical decision provenance, NOT a current authority. ',
+      'No changes to substantive branding, truth, access or research semantics.',
+      E'\n\n--- HISTORICAL RULE BODY PRESERVED ---\n\n',coalesce(rec.description,''));
 
     UPDATE public.nodes SET is_active=false WHERE id=rec.id;
     INSERT INTO public.nodes(
