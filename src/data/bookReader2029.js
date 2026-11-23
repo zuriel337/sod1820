@@ -27,8 +27,6 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     pdfRenderer: "controlled_page",
     pdfSha256: "35261bcc661d6364353482c9f911de9c39f203e503a68aa97b680e4a85c77e2c",
     pdfBytes: 1322143,
-    introduction: "מסע בן שמונה שערים.",
-    readingKeys: ["שיטת הגימטריה"],
     chapters: [
       { id:"opening", title:"פתיחה", from:1, to:7 },
       { id:"first-gate", title:"שער א׳ — בינה מלאכותית", from:8, to:15 },
