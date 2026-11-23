@@ -33,7 +33,7 @@ For every substantive task:
 
 Default read budget: **L1**. Escalate to L2/L3 only when cross-domain, WRITE, security, release or architecture work requires it.
 
-**Active-rule selection:** for live rule authority use `nodes.type='rule' AND nodes.is_active=true` (plus the latest active version per rule family). The legacy `rules_active` view selects the latest version without filtering `is_active`; it is **not** proof that a historical rule remains active. In particular, inactive `agent_onboarding_law v1` is provenance, not a parallel project-entry authority: route agent entry through the current `inter_agent_coordination_law`. Retain the separate live-schema-before-DB-WRITE requirement.
+**Active-rule selection:** for live rule authority use `nodes.type='rule' AND nodes.is_active=true` (plus the latest active version per rule family). The **live `rules_active` view verified on 2026-11-23 DOES filter `is_active=true`**; older audit prose that says otherwise is stale. Authority still requires direct owner/latest-active resolution and live-schema verification, not a cached view description. In particular, inactive `agent_onboarding_law v1` is provenance, not a parallel project-entry authority: route agent entry through the current `inter_agent_coordination_law`. Retain the separate live-schema-before-DB-WRITE requirement.
 
 ## 2. Owner creation gate
 
@@ -51,6 +51,8 @@ New screens, names, examples, product homes, AI personas or implementation compo
 The [deep contract-hierarchy audit](docs/reviews/contract-hierarchy-deep-audit-20261123/README.md) and its [87-active-rule owner crosswalk](docs/reviews/contract-hierarchy-deep-audit-20261123/active-owner-crosswalk.json) are **derived review artifacts only**, not new owners, registries, contract bodies, rollout instructions or live-state proof. Live canonical authority stays with active `nodes.type='rule'`, approved canonical owner documents, live method registry and source-native stores.
 
 **Two different graph meanings — do not merge:** `metadata.owner_routing.canonical_owner` is the parent/authority pointer for a rule. `depends_on` is a usage/dependency pointer and may include mutual relationships and historical references; it must not be traversed as an owner hierarchy. Keep legal/publication/access and source provenance gates before projections. The audit flags superseded V1 design pointers, a pinned Intake v13 dependency and an outdated Method Registry v5 prose pointer for reconciliation; **do not rewrite live references automatically**.
+
+**Legacy retirement and stale overview pointers (2026-11-23 review, branch only):** 2029 is the only operational product. Old WordPress posts/media remain genuine historical sources, not Legacy runtime authority. `project_codex.project_overview` and `project_codex.data_model_map` contain pre-cutover assertions; treat them as historical unless separately verified against `origin/main`, canonical DB and release owner. The exact approved-only repair plan is in [the reference-repair packet](docs/reviews/contract-hierarchy-deep-audit-20261123/reference-repair-manifest-20261123.json); it has **not been applied**.
 
 ## 3. Finite owner-family hierarchy
 
@@ -186,7 +188,7 @@ Privacy/RLS rules are scoped invariants under Person/Foundation owners, not para
 | publishing conventions / Post identity | `project_codex.publishing_conventions` |
 | living authored source section / meaningful update revision, occurrence + provenance | `project_codex.publishing_conventions` (authored representation) + `research_intake_foundation_contract_law` / `research_object_identity_invariant_law` (source-native locus) + `reality_graph_law` (typed relations); Experience owns presentation only |
 | post voice (plural system voice "אנחנו", no first person); applies to authored post text, not to interface strings | `post_system_voice_law` v1 under publishing conventions |
-| legacy WordPress/gallery maintenance adapter | active `legacy_content_protocol` **on demand only** |
+| WordPress/gallery historical source evidence (not a product or standing maintenance path) | `research_intake_foundation_contract_law` and `project_codex.publishing_conventions` under 2029; `legacy_content_protocol v2` is **still active in DB as of 23.11.2026 but scheduled for controlled retirement**, no new Legacy v3. Do not load it for ordinary work; preserve WP/media archival provenance |
 | translation / source-language integrity | `content_translation_law` **v4 ACTIVE** |
 | video transcript identity / source transcript / video-specific transcript representation | `video_transcription_law` **v1 ACTIVE**, child of `content_translation_law`; publishing conventions retains post/video identity and publication/release |
 | contributor/source material | Research Intake + Research OS owners |
