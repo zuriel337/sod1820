@@ -79,3 +79,29 @@ test("an unreadable public source never becomes a zero-error pass",async()=>{
  const r=await runPublicationSeoAudit2029({fetchPage,now:"2026-11-23T10:00:00Z"});
  assert.equal(r.status,"PARTIAL");assert.equal(r.metrics.unknown,1);assert.equal(r.metrics.pass,0);
 });
+
+
+test("a busy publishing day rotates cohorts across hours, covering the whole backlog",()=>{
+ const items=Array.from({length:15},(_,i)=>item("/post/recent-"+String(i).padStart(2,"0"),"2026-11-23"));
+ const selected=new Set();
+ for(let hour=0;hour<6;hour++){
+  const run=selectPublicationSeoCandidates2029(items,{now:new Date(Date.UTC(2026,10,23,hour)),max:8,perFamily:8});
+  assert.equal(run.items.length,8);
+  assert.equal(run.coverage,"PARTIAL");
+  run.items.forEach(x=>selected.add(x.url));
+ }
+ assert.equal(selected.size,15,"all 15 new Posts are audited by rotating bounded samples");
+});
+test("a busy Post family cannot starve books and public codes in the same run",()=>{
+ const items=[
+  ...Array.from({length:16},(_,i)=>item("/post/post-"+i,"2026-11-23")),
+  ...Array.from({length:16},(_,i)=>item("/book/book-"+i,"2026-11-23")),
+  ...Array.from({length:16},(_,i)=>item("/codes/code-"+i,"2026-11-23")),
+  ...Array.from({length:6},(_,i)=>item("/historical-post-"+i,"2026-11-23")),
+ ];
+ const selected=selectPublicationSeoCandidates2029(items,{now:"2026-11-23T10:00:00Z",max:18,perFamily:8});
+ assert.equal(selected.items.length,18);
+ assert.deepEqual([...new Set(selected.items.map(x=>x.family))].sort(),["book","code","post","root-candidate"]);
+ assert.equal(selected.coverage,"PARTIAL");
+ assert.ok(selected.reasons.includes("TOTAL_BOUNDED"));
+});
