@@ -178,6 +178,27 @@ if (isMain) {
     console.log(`baseline lowered and recorded (${path.relative(root, BASELINE)})`);
     process.exit(0);
   }
+  if (failures.length && !importsOnly && failures.some(message => message.startsWith("eagerJsGzip:"))) {
+    // Diagnostic only. Does not change limits or turn a regression into a pass.
+    // Report the actual eager JS members to identify the cost driver.
+    try {
+      const built = JSON.parse(fs.readFileSync(path.resolve(root, distDir, ".vite/manifest.json"), "utf8"));
+      const entryKey = Object.entries(built).find(([key, record]) => key === "2029.html" || record?.isEntry)?.[0];
+      const seen = new Set();
+      const visit = key => {
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        for (const required of built[key]?.imports || []) visit(required);
+      };
+      visit(entryKey);
+      const measured = [...seen].map(key => ({
+        key, file: built[key]?.file,
+        bytes: built[key]?.file?.endsWith(".js") ? gzip(built[key].file) : null,
+      })).filter(row => row.bytes !== null).sort((a, b) => b.bytes - a.bytes);
+      console.log("2029 eager JS detail (gzip bytes; file names only, not a raised budget):");
+      for (const row of measured) console.log(`  ${String(row.bytes).padStart(7)} ${row.file} · ${row.key}`);
+    } catch (error) { console.log(`eager JS diagnostics unavailable: ${String(error?.message || error)}`); }
+  }
   if (failures.length) { console.error("2029 shell budget: FAIL\n  " + failures.join("\n  ")); process.exit(1); }
   console.log(`2029 shell budget: PASS${importsOnly ? " (static imports only)" : ""}`);
 }
