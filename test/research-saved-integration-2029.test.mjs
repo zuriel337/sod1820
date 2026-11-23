@@ -145,6 +145,7 @@ test('reclaim: only passive, unowned journals of this principal are removed; sav
   const journals = () => [...storage.d.keys()].filter(k => k.includes(':pending:'));
   const before = journals().length;
   const live = make({ server, storage, session: new Store() }); await settle();
+  hist(live, 999); // An active tab's journal is never reclaimable.
   const probe = await live.localOnly('reclaim', { now: Date.now() });                       // read-only
   assert.equal(journals().length, before); assert.ok(probe.count >= 5, 'passive journals found');
   const done = await live.localOnly('reclaim', { confirm: true, now: Date.now() });
