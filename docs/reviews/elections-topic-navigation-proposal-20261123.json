@@ -388,5 +388,217 @@
       "No changes to code, UI, schema, source posts, SEO or public site"
     ],
     "status": "mapped_only_unpublished"
-  }
+  },
+  "topic_content_expansion_20261123": {
+    "mode": "mapping_only_no_build_no_publication",
+    "scope": "בחירות — מפת הרמזים: שישה צירי הרחבה מתועדים",
+    "chapters": [
+      {
+        "order": 1,
+        "id": "elections-2026-core",
+        "title": "הבחירות הנוכחיות: 26 · 27.10 · 271",
+        "source_posts": [
+          5107,
+          5128,
+          5131,
+          5126,
+          5101
+        ],
+        "primary_posts": [
+          5107,
+          5128
+        ],
+        "candidate_number_nodes": [
+          26,
+          27,
+          271,
+          631,
+          78,
+          140,
+          14,
+          1437
+        ],
+        "detail": "פוסטים 5107 ו־5128 כוללים את 26, 27.10, 271, תשפ״ז, וחיבורים לפרשת וירא. פוסט 5107 כולל גם נתוני צילום 14 ו־140. פוסט 5101 מתויג טיוטה; אין לקדם אוטומטית למקור ציבורי.",
+        "links_to": [
+          "bennett-2019-1400",
+          "trump-2016-2024",
+          "netanyahu-and-government"
+        ],
+        "verification": "post_sourced_cross_period_pending_review"
+      },
+      {
+        "order": 2,
+        "id": "netanyahu-333-64-67",
+        "title": "נתניהו, בחירות ומלכות: 333 · 64 · 67",
+        "source_posts": [
+          906,
+          1129,
+          1094,
+          242,
+          5107
+        ],
+        "candidate_number_nodes": [
+          333,
+          64,
+          67,
+          14,
+          776
+        ],
+        "detail": "906 ו־1129 הם מאגרי תיעוד ותיקים; 1094 כולל טענה ארכיונית על 333 עדי תביעה; 242 מזכיר 14 מנדטים בבחירות 2022 של רשימה משותפת. 64, 67 ו־46 מופיעים בחומר 5107; לבדוק את הקשר המדויק בתוך כל פוסט ולא לקבוע עובדות בחירות על פי הכותרת בלבד.",
+        "links_to": [
+          "elections-2026-core",
+          "bennett-2019-1400"
+        ],
+        "verification": "archive_documented_claims_numeric_context_pending_item_validation"
+      },
+      {
+        "order": 3,
+        "id": "elections-2019-2022-continuity",
+        "title": "רצף 2019–2022: בחירות, הקמת ממשלה ומשבר פוליטי",
+        "source_posts": [
+          5140,
+          1110,
+          1097,
+          1433,
+          273,
+          906,
+          242
+        ],
+        "candidate_number_nodes": [
+          1400,
+          14,
+          45,
+          64,
+          67
+        ],
+        "detail": "לשייך לכל פוסט תאריך אירוע בנפרד מתאריך הייבוא לאתר; 1097 מתעד דיווח ביניים על כ־1,400 קולות שחסרו לימין החדש; 1110 מתעד פיזור הכנסת ה־21; 1433 ו־273 קשורים לממשלת בנט–לפיד. לשמר טקסט המקור ולתקן בזיהוי חיצוני שמות מפלגות אם צריך.",
+        "links_to": [
+          "bennett-2019-1400",
+          "netanyahu-333-64-67"
+        ],
+        "verification": "historical_timeline_with_archive_review"
+      },
+      {
+        "order": 4,
+        "id": "trump-45-424-1237",
+        "title": "ציר 45 — טראמפ, 424 ו־1237",
+        "source_posts": [
+          1222,
+          1689,
+          972,
+          83,
+          940,
+          988,
+          1182
+        ],
+        "candidate_number_nodes": [
+          45,
+          424,
+          778,
+          1202,
+          1237,
+          255,
+          358
+        ],
+        "existing_topic_slug": "trump",
+        "other_existing_topic_slugs": [
+          "424-mashiach-ben-david",
+          "1237"
+        ],
+        "detail": "להפנות להתכנסות טראמפ המאושרת (24 קשרים). 1237 בסיקור 2016 הוא סף הצירים למועמדות המפלגה הרפובליקנית, לא אלקטורים בבחירות לנשיאות. 45 מסמן גם את מספר נשיאות טראמפ הראשונה, והוא עוגן מספרי נפרד. גימטריות הטופיק מיוחסות לחומר המקורי ואינן מחליפות תיעוד היסטורי.",
+        "links_to": [
+          "elections-2026-core",
+          "netanyahu-333-64-67"
+        ],
+        "verification": "existing_topic_plus_archive_cross_reference"
+      },
+      {
+        "order": 5,
+        "id": "scripture-covenant-kingship",
+        "title": "פסוקים, ברית מלח, דוד ואברהם",
+        "source_posts": [
+          5128,
+          5113,
+          5107,
+          906,
+          1129
+        ],
+        "candidate_number_nodes": [
+          14,
+          26,
+          78,
+          631,
+          776,
+          2701
+        ],
+        "detail": "מפת הפניות לפוסט 5128 (פרשת וירא ואברהם), 5113 (ברית מלח), 5107 (631 נפתלי בנט והבחירות), 906 ו־1129 (דוד/מלכות). לפני הצגת חישוב יש לציין נוסח ושיטת גימטריה המדויקים מהמקור.",
+        "links_to": [
+          "elections-2026-core",
+          "netanyahu-333-64-67"
+        ],
+        "verification": "source_attribution_plus_method_review"
+      },
+      {
+        "order": 6,
+        "id": "historical-images-videos",
+        "title": "גלריית מקורות: תמונות, צילומי מסך וסרטוני בחירות",
+        "source_posts": [
+          5107,
+          5128,
+          5131,
+          5126,
+          83,
+          972,
+          906,
+          1097,
+          1129,
+          242,
+          5140
+        ],
+        "candidate_number_nodes": [
+          14,
+          140,
+          424,
+          1237
+        ],
+        "detail": "במקורות שנסרקו יש סימני מדיה/וידאו/תמונה בתוכן. לא בוצעה עדיין התאמה של כל מדיה למקור קנוני, רישוי ותאריך אירוע; לסמן MEDIA_LOCATOR_PENDING ולא לפרסם העתקי מדיה או לספור סתם מספרי תמונות.",
+        "media_status": "media_markup_seen_locator_audit_pending",
+        "links_to": [
+          "elections-2026-core",
+          "trump-45-424-1237"
+        ],
+        "verification": "presence_only_not_asset_verified"
+      }
+    ],
+    "workflow": {
+      "publish": false,
+      "create_nodes": false,
+      "create_edges": false,
+      "change_code": false,
+      "change_routes": false,
+      "change_source_posts": false,
+      "mapping_review": [
+        "deduplicate post IDs across chapters",
+        "verify each event date and archival fact",
+        "validate exact gematria method before claims",
+        "validate asset IDs before exposing images",
+        "resolve existing canonical topic links only"
+      ],
+      "noted_numeric_graph_counts": {
+        "14": 944,
+        "26": 80,
+        "45": 130,
+        "67": 14,
+        "140": 13,
+        "333": 57,
+        "424": 59,
+        "631": 6,
+        "776": 254,
+        "1237": 135,
+        "1400": 4
+      }
+    },
+    "status": "mapped_for_editorial_review"
+  },
+  "updated_mapping_at": "2026-11-23"
 }
