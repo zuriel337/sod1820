@@ -233,7 +233,7 @@ Examples of routing aliases only:
 - `roadmap_status`, `live_state_check`, `release_gate`
 - `ui_experience_work`, `db_write`
 
-For UI / UX / media / visual work, resolve the current Product Visual Language owner before changing presentation. For legacy post/gallery work, also load `legacy_content_protocol` when relevant.
+For UI / UX / media / visual work, resolve the current Product Visual Language owner before changing presentation. For historical WordPress posts/gallery sources, route through the active `research_intake_foundation_contract_law` and `project_codex.publishing_conventions` (plus current source-fidelity and visual owners). `legacy_content_protocol` is archival provenance only, **not** an active Legacy product or a normal startup rule; its controlled DB retirement is tracked in `docs/reviews/contract-hierarchy-deep-audit-20261123/` (not yet applied). Preserve original source bytes, attribution and image evidence.
 
 For Gematria / numeric verification, use canonical registered engines/functions/method registry. General-model calculation is never authoritative project output.
 
