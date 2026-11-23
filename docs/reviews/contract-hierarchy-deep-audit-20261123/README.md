@@ -72,7 +72,7 @@ SOD1820 MASTER OWNER INDEX (router only, authority lookup)
 | דחיפות | מזהה/מסמך | ממצא נבדק | החלטת טיפול מוצעת |
 |---|---|---|---|
 | P0 | `brand_design` — חמישה חוקים פעילים | `canonical_owner='SOD1820_DESIGN_CONTRACT_V1.md'`, בעוד ראש קובץ V1 ב־main קובע **SUPERSEDED by V2** ו־Master Index קורא ל־V2 סמכות 2029 | לאחד את **הפניות הבעלות** אל V2 לאחר בדיקת תתי־החוקים והאישור המתאים. לא למחוק V1 |
-| P1 | `legacy_content_protocol@v2` | תלות `research_intake_foundation_contract_law@13` כש־v14 פעילה | לקבוע אם `@13` הוא replay/provenance מכוון או תלות חיה; אם חיה, לעדכן ל־v14 |
+| P0 | `legacy_content_protocol@v2` | החוק מסומן פעיל למרות שהמוצר Legacy פרש ב־5.11.2026; לא קיימים חוקים פעילים שתלויים בו; הוא מחזיק תלות היסטורית ל־Intake v13 | **לפרוש את החוק הפעיל בלי ליצור Legacy v3**, לשמר את v2 ואת `@13` כהיסטוריה; לעבור דרך פרוטוקול האישור של המסד |
 | P1 | `project_codex.gematria_engine` | גוף ההסבר אומר `canonical_methods_registry_law current v5`; החוק החי v6 | לתקן **מסמך הפניה** שיצביע לגרסה הפעילה, או לתצורת `latest active` ללא מספר קשיח. אין שינוי חוק/מנוע |
 | P1 | `depends_on` בחוקים פעילים | 20 אזכורי תלות ל־12 מזהי חוקים היסטוריים לא פעילים, והפניה אחת למסמך V1 | לסווג כל הפניה: live dependency / historical provenance / superseded alias / document owner. לא למחוק אוטומטית |
 | P1 | `depends_on` | 3 קבוצות מעגליות, 9 זוגות הדדיים | להבחין בין dependency תפעולי, ownership ו־evidence; לשמור runtime לגיטימי ולנקות רק טענות סמכות לא נכונות |
@@ -111,4 +111,14 @@ SOD1820 MASTER OWNER INDEX (router only, authority lookup)
 ## סיכום הביקורת
 **רמת אמינות:** עומק מבני מלא של 87 החוקים הפעילים + 35 רשומות `project_codex`; דגימת סתירות תוכניות בין בעלים, בדיקת V1/V2 וקישור רגיל/משולש/מסתתר. **אין טענה** שנעשתה השוואה סמנטית משפט־משפט של כל 475 הרשומות ההיסטוריות או של כל המסמכים ארוכי־הטקסט. כל שינוי מחייב בדיקת Owner חי ופירוט ה־drift לפני אישור Human Gate.
 
-ההמלצה: **קודם לתקן שלוש הפניות ברורות (V1→V2, @13→current לפי סטטוס, v5→v6), ואז לסווג את התלויות המעגליות**. לא להגדיל עומק היררכיה בלי צורך; לא לפתוח owner/contract/store/registry חדש.
+ההמלצה המעודכנת: **לתקן את חמש הפניות בעלות Design V1→V2 בגרסאות המשך מאושרות, לפרוש את `legacy_content_protocol` במקום לייצר לו v3, ולתקן את מצביע gematria v5→latest active**. אחר כך לסווג את התלויות המעגליות. זוהי המלצת תיקון ולא הכרזה על שינוי שבוצע במסד. לא להגדיל עומק היררכיה בלי צורך; לא לפתוח owner/contract/store/registry חדש.
+
+## דלתת תיקון אחרי הבהרת הבעלים — Legacy אינו מוצר פעיל
+
+- המשתמש הבהיר ש־Legacy אינו קיים עוד כמוצר. חוקי ה־owner העדכניים מאשרים: Production = 2029 בלבד; Legacy פרש ב־5.11.2026.
+- בסריקה חיה נמצאו **87** חוקים פעילים ורק **חוק אחד ששמו Legacy**: `legacy_content_protocol v2`. אפס חוקים פעילים מפנים אליו ב־`depends_on` או ב־`canonical_owner`. לכן לא נכון ליצור v3 עבורו. המסלול המוצע: **פרישה (is_active=false), ללא מחיקה**.
+- 26 חוקים פעילים מזכירים Legacy או WordPress בגוף הטקסט, ורובם כפרובננס/השוואה/חסימת סמכות ישנה. אין לשכתב את גופי הגרסאות הקנוניים בעקבות חיפוש מחרוזת; שכתוב גורף היה יוצר גרסאות מיותרות ומאבד היסטוריה.
+- `project_codex.project_overview` ו־`project_codex.data_model_map` מתארים עובדות היסטוריות (למשל פריסה אוטומטית של main, מספר שיטות/פוסטים ישן, שימוש ב־WordPress). `project_codex.raziel_mind_architecture` הוא מפרט מימוש היסטורי, ומפנה בחלקו לחוקים שפרשו. מומלץ להוסיף בראשם **אזהרת current-first קצרה**, בלי לשכתב את הגוף.
+- **תיקון סתירה נוסף באינדקס:** `public.rules_active` ב־Supabase *כיום כן מכיל* `is_active=true` בתנאי התצוגה. שורת ה־Master Owner Index שטענה אחרת נבדקה ותוקנה **בענף בלבד**. אין צורך בהחלפת ה־view החי.
+- כתיבה במסד אינה שינוי documentation בלבד: ה־trigger `fn_rule_compaction_integrity_guard_v1` חוסם שינוי `owner_routing.canonical_owner` או `description` במקום; יש לייצר גרסאות חדשות לבעלי־המותג, לפרוש את Legacy ולהשאיר היסטוריה. עבור שינוי בעלים נדרש `SUPERSEDE_EXISTING + human_gate` עם הפניית work_log אמיתית.
+- חבילת SQL ומניפסט: [approved-release-only-reference-repair.sql](./approved-release-only-reference-repair.sql) ו־[reference-repair-manifest-20261123.json](./reference-repair-manifest-20261123.json). **הם לא הופעלו במסד.**
