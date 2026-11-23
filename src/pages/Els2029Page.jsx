@@ -8,6 +8,7 @@ import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfil
 import ElsModeHelp2029, { ElsConstructionNotice2029 } from "../components/experience2029/ElsModeHelp2029.jsx";
 import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
 import ElsAdvancedSearch2029 from "../components/experience2029/ElsAdvancedSearch2029.jsx";
+import ElsRegisteredAdvanced2029 from "../components/experience2029/ElsRegisteredAdvanced2029.jsx";
 import ElsGuidedDiscovery2029 from "../components/experience2029/ElsGuidedDiscovery2029.jsx";
 import "../components/experience2029/els2029-research.css";
 import ElsSavedLibrary2029, { ElsRecentCiphers2029 } from "../components/experience2029/ElsSavedLibrary2029.jsx";
@@ -153,6 +154,8 @@ export default function Els2029Page(props) {
 // ZURIEL 6.11: Classic and Research are open to every visitor; Guided discovery, AI and Raziel stay with the administrator.
 function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false }) {
   const guidedVisible = !publicClassic && import.meta.env?.VITE_ELS_GUIDED_DISCOVERY === "visible";
+  const { user, verified, isAdmin } = useAuth();
+  const registeredAdvanced = Boolean(verified && user?.id && user?.is_anonymous !== true);
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
   const location = useLocation();
@@ -512,7 +515,8 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
           advancedSearchRequestKey={location.state?.elsResearchReturnTaskId && location.state.elsResearchReturnTaskId === research.elsResearchOperation?.task?.id ? location.key : null}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row || loadsDismissed ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           publicClassic={publicClassic} discoveryId={discoveryId}
-          advancedSearch={<ElsAdvancedSearch2029
+          advancedSearch={registeredAdvanced && !isAdmin ? <ElsRegisteredAdvanced2029
+            onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /> : !isAdmin ? null : <ElsAdvancedSearch2029
             researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
             exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary}
             onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />}
