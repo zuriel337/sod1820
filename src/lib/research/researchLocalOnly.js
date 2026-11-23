@@ -86,4 +86,33 @@ export function extras({ storage, key, principal, current }) {
   return out;
 }
 // The only operations the runtime hands out.
-export const api = { list, confirm, extras };
+// Journals of ONE principal that no live tab owns and that hold ONLY passive operations (history_add / context_set).
+// Their effect is already folded into the persisted state key, so removing them loses nothing; anything else
+// (saves, cart, pins, collections, journeys, history_clear, an in-flight batch, a conflict copy, another principal) is never touched.
+const PASSIVE_KINDS = new Set(['history_add', 'context_set']);
+const STALE_MS = 10 * 60 * 1000;
+function passiveJournals({ storage, key, principal, now = Date.now() }) {
+  const out = [];
+  for (let i = 0; i < storage.length; i += 1) {
+    const name = storage.key(i);
+    if (!name?.startsWith(`${key}:pending:`) || name.includes(':conflict:')) continue;
+    let record;
+    try { record = JSON.parse(storage.getItem(name)); } catch { continue; }
+    if (record?.principal !== principal || !Array.isArray(record.queue) || record.inflight) continue;
+    const owner = record.owner;
+    if (!owner || typeof owner !== 'object') continue;
+    if (owner.released !== true && !(Number.isFinite(owner.at) && now - owner.at > STALE_MS)) continue;
+    if (!record.queue.every(batch => Array.isArray(batch?.ops) && batch.ops.every(op => PASSIVE_KINDS.has(op?.kind)))) continue;
+    out.push({ name, bytes: name.length + storage.getItem(name).length });
+  }
+  return out;
+}
+// Read-only unless confirm === true. Returns { count, bytes } of what is (or was) removable.
+export function reclaim({ storage, key, principal, confirm: confirmed, now }) {
+  if (!storage) return { count: 0, bytes: 0 };
+  const rows = passiveJournals({ storage, key, principal, now });
+  const bytes = rows.reduce((n, r) => n + r.bytes, 0);
+  if (confirmed === true) for (const r of rows) storage.removeItem(r.name);
+  return { count: rows.length, bytes };
+}
+export const api = { list, confirm, extras, reclaim };

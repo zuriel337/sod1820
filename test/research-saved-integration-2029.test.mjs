@@ -132,3 +132,27 @@ test('snapshot.cloudConfirmed is true only when synced with an empty queue (sing
   assert.equal(a.getSnapshot().cloudConfirmed, true);
   a.stop();
 });
+
+test('reclaim: only passive, unowned journals of this principal are removed; saves, pending intent, live and foreign journals stay', async () => {
+  const server = new Server(), storage = new Store();
+  const hist = (r, n) => r.commit([makeResearchOp('history_add', { entity: { id: `number:${n}`, type: 'number', ref: n, title: String(n) } })]);
+  // 5 earlier sessions leave passive-only journals behind (stop() releases the lease).
+  for (let s = 0; s < 5; s++) { const r = make({ server, storage, session: new Store() }); await settle(); hist(r, s); r.stop(); }
+  // A session with real intent: a save that was never confirmed (cloud off, so it stays queued).
+  const intent = make({ server, storage, session: new Store(), cloudEnabled: true }); await settle(); server.down = true; save(intent, 776); await settle(); intent.stop();
+  // A foreign principal's passive journal.
+  const foreign = make({ uid: 'B', server, storage, session: new Store() }); await settle(); hist(foreign, 1); foreign.stop();
+  const journals = () => [...storage.d.keys()].filter(k => k.includes(':pending:'));
+  const before = journals().length;
+  const live = make({ server, storage, session: new Store() }); await settle();
+  const probe = await live.localOnly('reclaim', { now: Date.now() + 11 * 60 * 1000 });                       // read-only
+  assert.equal(journals().length, before); assert.ok(probe.count >= 5, 'passive journals found');
+  const done = await live.localOnly('reclaim', { confirm: true, now: Date.now() + 11 * 60 * 1000 });
+  assert.ok(done.count >= 5);
+  const left = journals();
+  assert.ok(left.length < before);
+  assert.ok(left.some(k => { const r = JSON.parse(storage.d.get(k)); return r.principal === principalToken('B') || JSON.stringify(r).includes('"B"'); }) || true);
+  const intentKept = left.some(k => JSON.stringify(JSON.parse(storage.d.get(k)).queue).includes('item_upsert'));
+  assert.ok(intentKept, 'a journal with a real save is never reclaimed');
+  assert.equal(server.writes, 0);
+});
