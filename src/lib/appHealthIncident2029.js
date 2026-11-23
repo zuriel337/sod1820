@@ -5,7 +5,7 @@ import { captureMeasurement, measurementBody, sendMeasurement } from './measurem
 import { readingActionProps, readingTelemetryPath } from './publicReadingTelemetry2029.js';
 
 const KINDS = new Set(['save_started', 'save_confirmed', 'save_failed', 'auth_failed', 'load_failed', 'runtime_error']);
-const REASONS = new Set(['storage_full', 'storage_blocked', 'sync_error', 'sync_conflict', 'no_receipt',
+const REASONS = new Set(['storage_full', 'storage_blocked', 'storage_unavailable', 'sync_error', 'sync_conflict', 'no_receipt',
   'network', 'server_error', 'session_missing', 'refresh_failed', 'chunk_error', 'render_error', 'unknown']);
 const STAGES = new Set(['save', 'auth', 'load', 'runtime']);
 const seen = new Set();
