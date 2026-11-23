@@ -15,6 +15,7 @@ import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 // The notable convergences sit far below the opening screen: their rating marks load with them (ZURIEL 17.11.2026, Speed Law).
 const MapTimeline = import.meta.env.VITE_MAP_READING_RELEASE === "true" ? lazy(() => import("../research/MapUnitTimeline2029.jsx")) : null;
 const HomeStreamVideo2029 = lazy(() => import("./HomeStreamVideo2029.jsx"));
+const SiboniGate50HomeCard2029 = lazy(() => import("../books2029/SiboniGate50HomeCard2029.jsx"));
 const ConvergenceRatings2029 = lazy(() => import("./ConvergenceRatings2029.jsx"));
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
@@ -535,6 +536,7 @@ export default function HomeComposition2029({
   // skeleton must not admit distant readers before the real content arrives.
   const [videosRef, videosAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const [summaryRef, summaryAdmitted] = useApproach2029(!primary.loading);
+  const [siboniRef, siboniAdmitted] = useApproach2029(!primary.loading, { rootMargin: "192px 0px" });
   const [standaloneRef, standaloneAdmitted] = useApproach2029(!primary.loading);
   const [worldRef, worldAdmitted] = useApproach2029(!corePublic && worldOpen && !primary.loading);
   const [storyRef, storyAdmitted] = useApproach2029(!corePublic && worldOpen, {
@@ -619,6 +621,8 @@ export default function HomeComposition2029({
     <HomeEntryBand journeyLocked={journeyLocked} midrashOpen={midrashOpen} />
 
     <HomeOtherSeries state={seriesState} />
+
+    <div ref={siboniRef} data-home-book-release-slot="siboni-gate50">{siboniAdmitted ? <Suspense fallback={null}><SiboniGate50HomeCard2029 /></Suspense> : null}</div>
 
     {(lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic && worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} data-home-primary={data.loading ? "loading" : data.postsError ? "failed" : "empty"} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>תיעוד אירועים ורמזי המערכת</h1>{!data.loading ? <p>{data.postsError ? "העדכונים אינם זמינים כרגע. אפשר לנסות שוב או להמשיך לעולם ולמחשבון." : "אין כרגע עדכונים להצגה. אפשר להמשיך לעולם ולמחשבון."}</p> : null}</div></section>)}
 
