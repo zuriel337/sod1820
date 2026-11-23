@@ -21,7 +21,7 @@ server=ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Files,directory=str
 def install(context,uid=None,preset='dark'):
  if uid:context.add_init_script('localStorage.setItem('+json.dumps(KEY)+','+json.dumps(json.dumps(session(uid)))+');')
  context.add_init_script('localStorage.setItem("sod-theme",'+json.dumps(preset)+');')
- state={'claims':[],'mode':'denied','held':None,'confirmed':True,'unexpected':[],'errors':[]}
+ state={'claims':[],'contacts':[],'mode':'denied','held':None,'confirmed':True,'unexpected':[],'errors':[]}
  def route(h):
   r=h.request;u=urlparse(r.url)
   if u.hostname=='127.0.0.1':h.continue_();return
@@ -33,6 +33,10 @@ def install(context,uid=None,preset='dark'):
   if u.path=='/auth/v1/user':reply({'id':actor,'email':'fixture@example.invalid','email_confirmed_at':'2026-10-31T00:00:00Z' if state['confirmed'] else None},200 if actor else 401);return
   if u.path=='/rest/v1/users':reply({'id':actor,'display_name':'משתמש בדיקה','username':'fixture','role':'user','tier':'member'});return
   name=u.path.rsplit('/',1)[-1];body=r.post_data_json if r.method=='POST' else {}
+  if u.path=='/rest/v1/contact_messages' and r.method=='POST':
+   assert isinstance(body,list) and len(body)==1
+   state['contacts'].append(body[0]);reply([]);return
+  if u.path=='/functions/v1/contact-notify':reply({'accepted':True});return
   if name=='community_feed_page':reply([]);return
   if name=='contributors_claim_legacy':
    assert actor and set(body)=={'p_contributor_id'} and body['p_contributor_id'] in [EM,ES]
@@ -57,6 +61,16 @@ with sync_playwright() as p:
     page.goto(BASE+'/community/chat?sort=liked&sourceSort=oldest');entry=page.get_by_role('button',name='החשבון שלי מהצ׳אט הישן',exact=True);entry.click();modal=page.get_by_role('dialog',name='חיבור החשבון מהצ׳אט הישן');expect(modal).to_be_visible()
     modal.get_by_label('הפרופיל הישן שלי',exact=True).select_option(EM);expect(modal.get_by_label('כתובת מייל',exact=True)).to_be_visible();expect(modal.get_by_role('button',name='אימות וחיבור החשבון הישן')).to_have_count(0)
     assert modal.get_by_label('הפרופיל הישן שלי',exact=True).locator('option').all_text_contents()==['בחירת פרופיל…','אמילי','Esther26']
+    expect(modal.get_by_label('השם שלי בצ׳אט הישן')).to_be_visible()
+    expect(modal.get_by_label('השם שלי באתר החדש')).to_be_visible()
+    if width==390 and preset=='light':
+     modal.get_by_label('השם שלי בצ׳אט הישן').fill('שם ותיק')
+     modal.get_by_label('השם שלי באתר החדש').fill('שם חדש')
+     modal.get_by_label('מייל לחזרה').fill('person@example.invalid')
+     modal.get_by_role('button',name='שליחת בקשה לאישור').click()
+     expect(modal.get_by_role('status')).to_contain_text('הבקשה נשמרה לבדיקה')
+     assert len(state['contacts'])==1 and 'שם ותיק' in state['contacts'][0]['message'] and 'שם חדש' in state['contacts'][0]['message']
+     assert not state['claims'],'manual request never links an identity'
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1');assert not modal.evaluate('e=>e.scrollWidth>e.clientWidth+1')
     buttons=modal.locator('button:visible');assert buttons.evaluate_all('es=>es.every(e=>{const r=e.getBoundingClientRect();return r.width>=44&&r.height>=44})')
     page.keyboard.press('Tab');assert page.evaluate('document.activeElement.closest("dialog")!==null')
