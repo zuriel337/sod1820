@@ -1726,7 +1726,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <button type="button" aria-pressed={crossSearchOpen && !advancedSearchOpen} aria-expanded={crossSearchOpen && !advancedSearchOpen}
           onClick={() => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); }}>הצלבה בין צירים</button>
         {advancedSearch ? <button type="button" aria-pressed={advancedSearchOpen} aria-controls="els29-advanced-search"
-          onClick={() => { setAdvancedSelected(true); setAdvancedOpen(true); requestAnimationFrame(() => document.getElementById("els29-advanced-search")?.scrollIntoView({block:"start",behavior:"smooth"})); }}>חיפוש מתקדם</button> : !user?.id || user?.is_anonymous === true ? <a className="sod29-action" href="/login" aria-label="התחברו או הירשמו לחיפוש מתקדם">🔒 חיפוש מתקדם · לרשומים</a> : null}</> : null}
+          onClick={() => { setAdvancedSelected(true); setAdvancedOpen(true); requestAnimationFrame(() => document.getElementById("els29-advanced-search")?.scrollIntoView({block:"start",behavior:"smooth"})); }}>חיפוש מתקדם</button> : !user?.id || user?.is_anonymous === true ? <a className="sod29-action" href="/login?returnTo=%2Fcode%3Fmode%3Dresearch" aria-label="התחברו או הירשמו לחיפוש מתקדם">🔒 חיפוש מתקדם · לרשומים</a> : null}</> : null}
       </div>
       <form className="els29-native-basic-form" onSubmit={submit} hidden={advancedSearchOpen}>
       <div className="els29-native-query-terms">
