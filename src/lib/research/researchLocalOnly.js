@@ -103,16 +103,41 @@ function passiveJournals({ storage, key, principal, now = Date.now() }) {
     if (!owner || typeof owner !== 'object') continue;
     if (owner.released !== true && !(Number.isFinite(owner.at) && now - owner.at > STALE_MS)) continue;
     if (!record.queue.every(batch => Array.isArray(batch?.ops) && batch.ops.every(op => PASSIVE_KINDS.has(op?.kind)))) continue;
-    out.push({ name, bytes: name.length + storage.getItem(name).length });
+    out.push({ name, bytes: name.length + storage.getItem(name).length, at: Number.isFinite(owner.at) ? owner.at : 0, record });
   }
   return out;
 }
 // Read-only unless confirm === true. Returns { count, bytes } of what is (or was) removable.
+// Before anything is removed, the history entries the journals hold (newest 100, by id) are archived in the recovery record
+// (extras.history, readable through the 'extras' op), because the state key does not hold earlier launches' history. If the archive write
+// fails on a full device, the OLDEST journal is dropped to make room (its entries are the oldest, beyond the history window) and the write is retried.
 export function reclaim({ storage, key, principal, confirm: confirmed, now }) {
-  if (!storage) return { count: 0, bytes: 0 };
+  if (!storage) return { count: 0, bytes: 0, archived: 0 };
   const rows = passiveJournals({ storage, key, principal, now });
   const bytes = rows.reduce((n, r) => n + r.bytes, 0);
-  if (confirmed === true) for (const r of rows) storage.removeItem(r.name);
-  return { count: rows.length, bytes };
+  if (confirmed !== true || !rows.length) return { count: rows.length, bytes, archived: 0 };
+  rows.sort((x, y) => x.at - y.at);
+  const seen = new Map();
+  for (const r of rows) for (const batch of r.record.queue) for (const op of batch.ops) {
+    const id = op.kind === 'history_add' ? idOf(op.entity) : '';
+    if (id) { seen.delete(id); seen.set(id, op.entity); }
+  }
+  const prior = readFull(storage, key, principal);
+  const merged = new Map();
+  for (const x of [...(prior.extras.history || []), ...seen.values()]) { const id = idOf(x); if (id) { merged.delete(id); merged.set(id, x); } }
+  const history = [...merged.values()].slice(-100);
+  const extras = { ...prior.extras, history };
+  const write = () => storage.setItem(recordKey(key), JSON.stringify({ principal, items: prior.items, extras, at: Date.now() }));
+  let removed = 0;
+  const queue = [...rows];
+  for (;;) {
+    try { write(); break; } catch (error) {
+      const oldest = queue.shift();
+      if (!oldest) return { count: removed, bytes: 0, archived: 0, error: String(error?.name || 'write_failed') };
+      storage.removeItem(oldest.name); removed += 1;
+    }
+  }
+  for (const r of queue) { storage.removeItem(r.name); removed += 1; }
+  return { count: removed, bytes, archived: history.length };
 }
 export const api = { list, confirm, extras, reclaim };

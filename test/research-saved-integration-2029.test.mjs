@@ -156,3 +156,21 @@ test('reclaim: only passive, unowned journals of this principal are removed; sav
   assert.ok(intentKept, 'a journal with a real save is never reclaimed');
   assert.equal(server.writes, 0);
 });
+
+test('reclaim archives history before removal, and still succeeds on a full device', async () => {
+  const server = new Server(); const storage = new Store(); const CAP = 60_000;
+  const size = () => [...storage.d].reduce((n, [k, v]) => n + k.length + v.length, 0);
+  const setItem = storage.setItem.bind(storage);
+  storage.setItem = (k, v) => { const old = storage.d.get(k) ?? ''; if (size() - old.length + String(v).length + k.length > CAP) throw new Error('QuotaExceededError'); setItem(k, v); };
+  for (let s = 0; s < 40; s++) { const r = make({ server, storage, session: new Store() }); await settle(); r.commit([makeResearchOp('history_add', { entity: { id: `number:${s}`, type: 'number', ref: s, title: 'x'.repeat(300) } })]); r.stop(); }
+  const live = make({ server, storage, session: new Store() }); await settle();
+  const t = Date.now() + 11 * 60 * 1000;
+  const out = await live.localOnly('reclaim', { confirm: true, now: t });
+  assert.ok(out.count > 0 && !out.error);
+  const ex = await live.localOnly('extras');
+  const ids = new Set((ex.history || []).map(h => h.id));
+  assert.ok(ids.has('number:39'), 'newest history entry archived');
+  assert.ok(ids.size >= 1);
+  assert.ok(![...storage.d.keys()].some(k => k.includes(':pending:')), 'passive journals gone');
+  assert.equal(server.writes, 0);
+});
