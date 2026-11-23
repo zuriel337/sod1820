@@ -9,7 +9,7 @@ import { startFixture } from './helpers/authBrowserFixture.mjs';
 
 // Accepted account links are fixture inputs, not imported from the implementation:
 // changing the production mapping must not silently change the expected outcome.
-// Public reviewed links: Emily / Esther, ZURIEL 8.11; display decision 15.11.
+// Public reviewed links: Emily / Esther, ZURIEL 8.11; staff chip restored 24.11.
 const REVIEWED_EMILY_LINK = {
   accountId: '5516d596-46d3-486d-a9c7-a35b36bc3755',
   contributorId: 'e7581ab5-8c15-4832-b602-f361e41ff373',
@@ -42,7 +42,7 @@ const rows = [
 ];
 
 for (const width of [390, 1280]) for (const viewer of ['guest', 'member', 'admin']) {
-  test(`${width}px ${viewer}: accepted names, history links and Emily's deliberate no-staff label`, {timeout: 90000}, async () => {
+  test(`${width}px ${viewer}: accepted names, history links and Emily's verified staff label`, {timeout: 90000}, async () => {
     let staffMode = 'success', staffReads = 0, feedReads = 0;
     let viewerId;
     const fixture = await startFixture({supabase: async ({url, headers, body}) => {
@@ -111,8 +111,9 @@ for (const width of [390, 1280]) for (const viewer of ['guest', 'member', 'admin
           assert.equal(await control.locator('.sod29-community-staff-chip').count(), mode === 'success' ? 1 : 0,
             'positive control: other staff still display a badge when their data is available');
         }
-        assert.equal(await emily.locator('.sod29-community-staff-chip').count(), 0,
-          'ZURIEL 15.11: Emily stays without the staff label even when a successful RPC lists her as staff');
+        if (mode === 'success') await emily.first().locator('.sod29-community-staff-chip').waitFor();
+        assert.equal(await emily.locator('.sod29-community-staff-chip').count(), mode === 'success' ? 2 : 0,
+          'ZURIEL 24.11: reviewed Emily displays team status on historical and current messages only when confirmed by the staff RPC');
         for (const [links, accountId] of [[emily, REVIEWED_EMILY_LINK.accountId], [esther, REVIEWED_ESTHER_LINK.accountId]]) {
           for (const href of await links.evaluateAll(links => links.map(a => a.href))) {
             assert.equal(new URL(href).searchParams.get('memberCard'), `user:${accountId}`, 'old and new messages open the same reviewed account');
