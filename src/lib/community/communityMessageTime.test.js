@@ -29,8 +29,8 @@ test("Community uses creation time and calendar days in Israel", (t) => {
 
 test("Community handles Jerusalem midnight and DST without UTC-day drift", (t) => {
   t.mock.method(Date, "now", () => Date.parse("2026-11-04T00:10:00Z")); // 02:10 Israel
-  assert.equal(communityMessageTime("2026-11-03T21:59:00Z").label, "לפני 4 שעות");
-  assert.equal(communityMessageTime("2026-11-03T22:01:00Z").label, "לפני 4 שעות");
+  assert.equal(communityMessageTime("2026-11-03T21:59:00Z").label, "לפני שעתיים");
+  assert.equal(communityMessageTime("2026-11-03T22:01:00Z").label, "לפני שעתיים");
 });
 
 test("Community leaves activity-date overrides intact and omits invalid dates", (t) => {
