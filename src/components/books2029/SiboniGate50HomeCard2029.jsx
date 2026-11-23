@@ -6,9 +6,9 @@ import "./siboniGate50HomeCard2029.css";
 // Does not mutate the Post feed or invent an unverified public Book route.
 export default function SiboniGate50HomeCard2029() {
   return <section className="siboni50-home" dir="rtl" aria-label="המסע לשער החמישים — הספר של ציון דוד סיבוני" data-home-book-post="siboni-gate50">
-    <div className="siboni50-home-icon">
-      <img src="/media/books/siboni-gate50-royal-cover.svg" width="180" height="255" decoding="async" fetchPriority="high" alt="כריכת קידום מלכותית של המסע לשער החמישים מאת ציון דוד סיבוני" />
-    </div>
+    <a className="siboni50-home-art" href="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/zion50.pdf" target="_blank" rel="noopener noreferrer" aria-label="פתיחת הספר המסע לשער החמישים של ציון דוד סיבוני">
+      <img src="/media/books/siboni-gate50-golden-gate-home.webp" width="440" height="248" loading="lazy" decoding="async" alt="שער זהב זוהר עם עץ הספירות והכיתוב המסע לשער החמישים — יצירה אמנותית לקידום הספר של ציון דוד סיבוני" />
+    </a>
     <div className="siboni50-home-text">
       <span className="siboni50-home-kicker">ספר חדש · מסע שמונת השערים</span>
       <h2>המסע לשער החמישים</h2>
