@@ -24,7 +24,7 @@ export const publicationFamily2029 = path => {
   // The sitemap is authoritative for public admission; a root URL is only a
   // candidate, not a claim that an arbitrary one-segment path is a Post.
   const staticRoot = new Set(["post","posts","books","book","codes","code","els","gallery","world","map","archive","timeline","gematria","number","community","privacy","login","contact","about","heichal","research","findings","start","member","members","or-geula","broadcasts","beit-midrash","sitemap.xml","robots.txt"]);
-  if(/^\\/[^/]+$/.test(path) && !staticRoot.has(path.slice(1)))return "root-candidate";
+  if(path.startsWith("/") && path.length>1 && path.indexOf("/",1)===-1 && !staticRoot.has(path.slice(1)))return "root-candidate";
   return null;
 };
 export function parsePublicSitemapEntries2029(xml) {
