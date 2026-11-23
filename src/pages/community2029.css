@@ -584,3 +584,90 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
 /* The landing page has no previous thread to return to. Hide only an inert
    global Back control, while keeping every functional return path intact. */
 .sod29-root.surface-community:has(#community-new-chat) .sod29-header-return:disabled{display:none}
+
+/* 24.11 mobile fold correction: the real conversation should begin in the
+   first viewport, not after an oversized Royal-like entrance. This touches
+   only the native Community landing page, never focused threads or SEO. */
+@media(max-width:600px){
+  .sod29-community--full{
+    padding-top:4px;
+  }
+  .sod29-community--full .sod29-community-intro{
+    padding:2px 4px 8px;
+    margin-bottom:8px;
+  }
+  .sod29-community--full .sod29-community-intro-emblem{
+    width:48px;height:48px;margin-bottom:4px;box-shadow:none;
+  }
+  .sod29-community--full .sod29-community-intro-emblem svg{
+    width:26px!important;height:26px!important;
+  }
+  .sod29-community--full .sod29-community-intro h1{
+    font-size:28px;line-height:1.15;margin:0 0 3px;
+  }
+  .sod29-community--full .sod29-community-intro p{
+    font-size:13px;line-height:1.35;
+  }
+  .sod29-community--full .sod29-community-intro-rule{
+    width:62px;height:1px;margin:8px auto 5px;
+  }
+  .sod29-community--full .sod29-community-intro-meta{
+    font-size:12px;line-height:1.35;gap:5px;
+  }
+  .sod29-community--full .sod29-community-intro .sod29-community-reading-tools{
+    margin:6px 0 0;justify-content:center;width:100%;
+  }
+  .sod29-community--full .sod29-community-intro .sod29-community-reading-tools .sod29-community-secondary{
+    display:inline-flex;min-height:44px;max-width:100%;
+    padding:5px 8px;border:0;border-radius:6px;box-shadow:none;
+    background:transparent;color:var(--s29-accent-text);
+    font-size:13px!important;font-weight:500;
+    text-decoration:underline;text-underline-offset:3px;
+  }
+  .sod29-community--full .sod29-community-entry-tools{
+    margin-bottom:6px;gap:4px 10px;
+  }
+  .sod29-community--full .sod29-community-account-row{
+    width:100%;min-height:44px;gap:6px;flex-wrap:nowrap;
+  }
+  .sod29-community--full .sod29-community-account-name{
+    display:inline-flex;flex:1 1 0;min-width:0;width:auto;
+    max-width:none;height:auto;min-height:44px;
+    border:0;border-radius:0;padding:0;background:none;
+    box-shadow:none;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;font-size:15px;
+  }
+  .sod29-community--full .sod29-community-account-replies{
+    flex:none;white-space:nowrap;font-size:13px;
+  }
+  .sod29-community--full .sod29-community-account-actions{
+    gap:0;
+  }
+  .sod29-community--full .sod29-community-composer[data-compact="true"]{
+    margin-bottom:8px;
+  }
+  .sod29-community--full .sod29-community-composer[data-compact="true"] .sod29-community-rich-input{
+    min-height:44px;
+  }
+  .sod29-community--full .sod29-community-typing[data-typing="false"]{
+    display:none;
+  }
+  .sod29-community--full .sod29-community-stream-tools{
+    gap:4px;margin-bottom:8px;padding:0;
+  }
+  .sod29-community--full .sod29-community-stream-tools .sod29-community-search{
+    min-height:44px;
+  }
+  .sod29-community--full .sod29-community-stream-tools .sod29-community-search input{
+    min-height:44px;
+  }
+  .sod29-community--full .sod29-community-stream-tools .sod29-community-feed-controls{
+    margin:0;gap:6px;
+  }
+  .sod29-community--full .sod29-community-stream-sort{
+    margin:0;
+  }
+  .sod29-community--full .sod29-community-stream-tools .sod29-community-sort select{
+    min-height:44px;
+  }
+}
