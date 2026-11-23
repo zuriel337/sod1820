@@ -36,7 +36,7 @@ test('post_visual: existing publication + intake owners, V2 design; historic Wor
   pointsTo('visual language / typography / public naming', 'SOD1820_DESIGN_CONTRACT_V2.md');
   pointsTo('WordPress/gallery historical source evidence (not a product or standing maintenance path)', 'research_intake_foundation_contract_law');
   pointsTo('WordPress/gallery historical source evidence (not a product or standing maintenance path)', 'project_codex.publishing_conventions');
-  assert.match(ownerRow('WordPress/gallery historical source evidence (not a product or standing maintenance path)'), /no new Legacy v3/i);
+  assert.match(ownerRow('WordPress/gallery historical source evidence (not a product or standing maintenance path)'), /never create Legacy v3/i);
 });
 
 test('gematria_research: exact engine / method registry, not model arithmetic', () => {
