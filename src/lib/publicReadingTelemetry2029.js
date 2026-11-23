@@ -113,6 +113,8 @@ export function readingWebVitalBody(body) {
 export function readingActionSpec() {
   const T = "token", B = "bool", I = "int";
   return {
+    // Operational failure signals only. Never send user content, saved values, error strings or account IDs.
+    app_health: { events: ["save_failed", "auth_failed", "load_failed", "runtime_error"], fields: { reason: T, stage: T } },
     activity_2029: { events: ["typing", "search", "compute", "select", "save", "share", "view"],
       fields: { operation_id: T, method: T, number: I, word_id: T, section: T } },
     calculator_2029: { events: ["calculator_view", "result_selected", "first_compute", "new_compute_from_share", "raziel_opened", "method_opened",
