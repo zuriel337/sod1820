@@ -117,7 +117,32 @@
     "legacy_protocol_active": 0,
     "legacy_protocol_retired_v2_preserved": 1,
     "gematria_codex_static_v5": 0,
-    "duplicate_active_versions": 0
+    "duplicate_active_versions": 0,
+    "codex_archival_headers": 3
   },
-  "historical_legacy_retained": true
+  "historical_legacy_retained": true,
+  "additional_codex_historical_headers": [
+    {
+      "slug": "project_overview",
+      "status": "OLD_OPERATIVE_DEPLOY_AND_LEGACY_CLAIMS",
+      "action": "PREPEND_HISTORICAL_WARNING_PRESERVE_BODY"
+    },
+    {
+      "slug": "data_model_map",
+      "status": "OLD_METHOD_COUNTS_AND_WP_DATA_MODEL",
+      "action": "PREPEND_HISTORICAL_WARNING_PRESERVE_BODY"
+    },
+    {
+      "slug": "raziel_mind_architecture",
+      "status": "OLD_IMPLEMENTATION_SPEC_REFERENCES_RETIRED_RULES",
+      "action": "PREPEND_HISTORICAL_WARNING_PRESERVE_BODY_NO_RAZIEL_WIRING"
+    }
+  ],
+  "release_gate": "Human Gate + applicable exact DB SQL authorization per deploy_on_request v4; no live DB writes until approved exact commit/SQL",
+  "scope_classification": {
+    "legacy_product": "RETIRED_AS_OF_2026_11_05",
+    "wordpress_historical_assets": "KEEP_SOURCE_PROVENANCE",
+    "legacy_protocol_active": "RETIRE_NO_SUCCESSOR",
+    "legacy_specific_new_rules": "NONE"
+  }
 }
