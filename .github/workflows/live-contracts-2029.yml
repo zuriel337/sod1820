@@ -192,6 +192,8 @@ jobs:
           test/egress-watch-contract-20261118.test.mjs
           test/measurement-transport-hardening-2029.test.mjs
           test/measurement-package-scope-20261113.test.mjs
+      - name: Application incident signals, owner routing and save receipt regression
+        run: node --test test/app-health-owner-routing-2029.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
       # Public content (Design Contract V2 8.3, ZURIEL 12.11.2026): content visible before entry; a public research finding that has
