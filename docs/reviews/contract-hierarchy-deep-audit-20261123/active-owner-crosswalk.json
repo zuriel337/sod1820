@@ -1,0 +1,2175 @@
+{
+  "kind": "AUDIT_SNAPSHOT_NOT_A_SECOND_REGISTRY",
+  "generated_date": "2026-11-23",
+  "source_of_truth": "public.nodes active rule rows; public.project_codex context; SOD1820_MASTER_OWNER_INDEX.md authoritative owner router",
+  "snapshot_only": true,
+  "not_authority": true,
+  "summary": {
+    "active_rule_count": 87,
+    "domain_count": 25,
+    "master_sections": 13,
+    "project_codex_entries": 35,
+    "owner_types": {
+      "owner_root": 22,
+      "child_rule": 39,
+      "codex_document_owner": 19,
+      "document_owner": 7
+    },
+    "owner_parent_cycles": 0,
+    "dependency_links_to_active_rules": 109,
+    "dependency_scc_count": 3,
+    "dependency_scc_sizes": [
+      12,
+      2,
+      2
+    ],
+    "two_way_dependency_pairs": 9,
+    "unresolved_dependency_mentions": 20,
+    "unresolved_dependency_unique_refs": 13,
+    "explicit_stale_version_pins": [
+      {
+        "from": "legacy_content_protocol",
+        "ref": "research_intake_foundation_contract_law@13",
+        "active_version": 14
+      }
+    ]
+  },
+  "sections": {
+    "A": {
+      "name": "FOUNDATION / GOVERNANCE / RELEASE",
+      "domains": [
+        "foundation_governance",
+        "live_release_governance",
+        "site_availability"
+      ],
+      "rule_ids": [
+        "deploy_on_request",
+        "foundation_closure_protocol_law",
+        "live_state_resolution_law",
+        "live_state_sync_law",
+        "site_flags_lock_law",
+        "work_log_authority_law"
+      ]
+    },
+    "B": {
+      "name": "AGENT COORDINATION",
+      "domains": [
+        "agent_governance"
+      ],
+      "rule_ids": [
+        "inter_agent_coordination_law"
+      ]
+    },
+    "C": {
+      "name": "RESEARCH OS / CONTEXT / JOURNEY",
+      "domains": [
+        "research_os"
+      ],
+      "rule_ids": [
+        "research_object_identity_invariant_law",
+        "research_strategy_layer_law",
+        "research_workspace_law",
+        "workspace_layout_standard"
+      ]
+    },
+    "D": {
+      "name": "RESEARCH INTAKE / SOURCE / REPRESENTATION",
+      "domains": [
+        "research_intake",
+        "representation_taxonomy"
+      ],
+      "rule_ids": [
+        "corpus_admission_foundation_v1",
+        "ktiv_male_haser_repair_law",
+        "raw_vs_curated",
+        "research_intake_foundation_contract_law",
+        "shared_expression_extraction_contract_v1",
+        "source_video_publish_law",
+        "unified_tags_law",
+        "word_approval_required_law",
+        "writer_material_home_law"
+      ]
+    },
+    "E": {
+      "name": "TRUTH / HUMAN GATE / TIME",
+      "domains": [
+        "truth_governance",
+        "time_context"
+      ],
+      "rule_ids": [
+        "golden_entity_law",
+        "israel_time_law",
+        "relative_time_display_law",
+        "signal_vs_curation",
+        "truth_axes_foundation_law",
+        "verify_seal_manual_only"
+      ]
+    },
+    "F": {
+      "name": "REALITY / WORLD / TEMPORAL / RANKING",
+      "domains": [
+        "reality_graph",
+        "reality_world_ranking"
+      ],
+      "rule_ids": [
+        "convergence_blocklist_law",
+        "cross_vs_convergence_criteria",
+        "master_anchor_1820_law",
+        "reality_graph_law",
+        "reality_stream_law",
+        "research_gold_hints_law"
+      ]
+    },
+    "G": {
+      "name": "GEMATRIA / NUMERIC / METHODS",
+      "domains": [
+        "gematria",
+        "numeric_research"
+      ],
+      "rule_ids": [
+        "big_number",
+        "canonical_methods_registry_law",
+        "decimal_point_join_law",
+        "engine_governance_registry_authority_law",
+        "gematria_auto_registry_law",
+        "gematria_db_first_and_enrich_law",
+        "gematria_engine_law",
+        "method_lifecycle",
+        "method_priority",
+        "moment_clock_law",
+        "no_kolel_no_additions",
+        "no_row_without_number_law",
+        "number_page_law",
+        "root_exception",
+        "shitat_haechad_alef_law",
+        "zero_navigation",
+        "zero_scale_law"
+      ]
+    },
+    "H": {
+      "name": "ELS / TEXT CIPHER",
+      "domains": [
+        "els_cipher"
+      ],
+      "rule_ids": [
+        "els_research_layer_law",
+        "els_seed_expansion_law",
+        "els_single_engine_law",
+        "testimony_not_prophecy"
+      ]
+    },
+    "I": {
+      "name": "RAZIEL / RESEARCH INTELLIGENCE",
+      "domains": [
+        "raziel_ai"
+      ],
+      "rule_ids": [
+        "bot_delivery_law",
+        "raziel_companion_layer_law",
+        "raziel_full_answer_and_route_law",
+        "raziel_group_privacy_law",
+        "raziel_response_contract",
+        "raziel_routing_law",
+        "raziel_voice_law",
+        "raziel_whatsapp_access_adapter_law"
+      ]
+    },
+    "J": {
+      "name": "PERSON / PERSONAL / PRIVACY / ACCESS / FOLLOW",
+      "domains": [
+        "person_identity",
+        "security_privacy",
+        "access_product",
+        "subscription_follow"
+      ],
+      "rule_ids": [
+        "cross_reference_is_not_disclosure",
+        "graph_privacy_foundation_law",
+        "identity_architecture_law",
+        "person_foundation_contract_law",
+        "platform_tiers_law",
+        "subscription_funnel_law",
+        "unified_credit_system",
+        "zuriel_surname_privacy_law"
+      ]
+    },
+    "K": {
+      "name": "PUBLICATION / CONTENT / MEDIA / LOCALIZATION",
+      "domains": [
+        "publishing_content",
+        "localization"
+      ],
+      "rule_ids": [
+        "auto_share_uses_live_post_law",
+        "content_translation_law",
+        "legacy_content_protocol",
+        "post_og_image_law",
+        "post_system_voice_law",
+        "preserve_linked_row",
+        "video_transcription_law"
+      ]
+    },
+    "L": {
+      "name": "EXPERIENCE / SYSTEM FRAME / DESIGN",
+      "domains": [
+        "experience_ui",
+        "brand_design"
+      ],
+      "rule_ids": [
+        "brand_spelling_law",
+        "canonical_colors_law",
+        "canonical_ui_components_law",
+        "experience_governance_foundation_v1_law",
+        "logo_integrity_law",
+        "mobile_acceptance_law",
+        "sod1820_canonical_identity_law",
+        "worlds_color_law"
+      ]
+    },
+    "M": {
+      "name": "TRAFFIC / SYSTEM OPERATIONS",
+      "domains": [
+        "traffic_analytics",
+        "system_intelligence"
+      ],
+      "rule_ids": [
+        "ai_analyze_contract",
+        "system_suggestions_law",
+        "traffic_intelligence_law"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "uuid": "3c75ba42-8efd-4af2-a9e0-299a06ab203b",
+      "rule_id": "ai_analyze_contract",
+      "rule_version": 2,
+      "domain": "system_intelligence",
+      "section": "M",
+      "canonical_owner": "system_suggestions_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "never_silent_metatron_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "research_two_pass_law",
+          "status": "historical_or_inactive_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "0bb6b4ad-9f9a-416c-a7e5-188b3519b3fa",
+      "rule_id": "auto_share_uses_live_post_law",
+      "rule_version": 1,
+      "domain": "publishing_content",
+      "section": "K",
+      "canonical_owner": "project_codex.publishing_conventions",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "ac006a45-ed99-4b57-8836-c8090db4e06c",
+      "rule_id": "big_number",
+      "rule_version": 1,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "essence_appendix",
+          "status": "historical_or_inactive_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "02ca2873-6fd0-45c3-b204-deaaec741461",
+      "rule_id": "bot_delivery_law",
+      "rule_version": 1,
+      "domain": "raziel_ai",
+      "section": "I",
+      "canonical_owner": "raziel_companion_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "bf28aabf-5dfb-44a3-8ec0-ce69d76112f0",
+      "rule_id": "brand_spelling_law",
+      "rule_version": 1,
+      "domain": "brand_design",
+      "section": "L",
+      "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+      "owner_type": "document_owner",
+      "owner_ref_resolved": null,
+      "dependencies": []
+    },
+    {
+      "uuid": "a1a65bb3-6d88-4c83-8dbc-39e34daf6efa",
+      "rule_id": "canonical_colors_law",
+      "rule_version": 2,
+      "domain": "brand_design",
+      "section": "L",
+      "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+      "owner_type": "document_owner",
+      "owner_ref_resolved": null,
+      "dependencies": []
+    },
+    {
+      "uuid": "bf80f86a-16d1-445a-b65c-e3d2a598ed88",
+      "rule_id": "canonical_methods_registry_law",
+      "rule_version": 6,
+      "domain": "gematria",
+      "section": "G",
+      "canonical_owner": "canonical_methods_registry_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "0ebef618-58b3-4efa-a73f-0c5a3ea524de",
+      "rule_id": "canonical_ui_components_law",
+      "rule_version": 13,
+      "domain": "experience_ui",
+      "section": "L",
+      "canonical_owner": "experience_governance_foundation_v1_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "canonical_colors_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "content_translation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "site_flags_lock_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "system_suggestions_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "82edad08-6506-4dee-9718-5bde779c4df3",
+      "rule_id": "content_translation_law",
+      "rule_version": 4,
+      "domain": "localization",
+      "section": "K",
+      "canonical_owner": "content_translation_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "site_flags_lock_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "experience_governance_foundation_v1_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "800661d8-7367-49ca-8944-cb69887d17f3",
+      "rule_id": "convergence_blocklist_law",
+      "rule_version": 1,
+      "domain": "reality_graph",
+      "section": "F",
+      "canonical_owner": "reality_graph_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "ca5fdc3b-e936-478c-97b4-39fd6dad90c4",
+      "rule_id": "corpus_admission_foundation_v1",
+      "rule_version": 1,
+      "domain": "research_intake",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "b9d52b1b-ab86-459c-816d-0c21e790532c",
+      "rule_id": "cross_reference_is_not_disclosure",
+      "rule_version": 1,
+      "domain": "security_privacy",
+      "section": "J",
+      "canonical_owner": "person_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "ced6283d-595c-4f07-abfa-1b8518f973e0",
+      "rule_id": "cross_vs_convergence_criteria",
+      "rule_version": 4,
+      "domain": "reality_graph",
+      "section": "F",
+      "canonical_owner": "reality_graph_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "featured_cross_insight_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "convergence_single_trigger",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "unified_graph_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "canonical_methods_registry_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "8ea6bba1-2aea-4015-84a3-ea4374cc3315",
+      "rule_id": "decimal_point_join_law",
+      "rule_version": 1,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "zero_navigation",
+          "status": "active_rule"
+        },
+        {
+          "ref": "zero_scale_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "0092c6c7-18a3-4ec9-9d2c-78a23e3f4185",
+      "rule_id": "deploy_on_request",
+      "rule_version": 4,
+      "domain": "live_release_governance",
+      "section": "A",
+      "canonical_owner": "deploy_on_request",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "cbeb4f61-fe06-4c16-9dc0-d61dfdb83f8d",
+      "rule_id": "els_research_layer_law",
+      "rule_version": 9,
+      "domain": "els_cipher",
+      "section": "H",
+      "canonical_owner": "els_research_layer_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "system_suggestions_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "ai_analyze_contract",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_workspace_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "c57cb667-75f4-49e3-87b3-a558e995664a",
+      "rule_id": "els_seed_expansion_law",
+      "rule_version": 1,
+      "domain": "els_cipher",
+      "section": "H",
+      "canonical_owner": "els_research_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "2c88199e-1e4d-4b50-adb0-37177c22ef6a",
+      "rule_id": "els_single_engine_law",
+      "rule_version": 2,
+      "domain": "els_cipher",
+      "section": "H",
+      "canonical_owner": "els_research_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "els_research_layer_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "ca3796f7-1b12-44ca-a3fd-f1bf3cfabb08",
+      "rule_id": "engine_governance_registry_authority_law",
+      "rule_version": 1,
+      "domain": "gematria",
+      "section": "G",
+      "canonical_owner": "engine_governance_registry_authority_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "canonical_methods_registry_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "gematria_methods_catalog",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "gematria_engine_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "method_lifecycle",
+          "status": "active_rule"
+        },
+        {
+          "ref": "everything_additive_law",
+          "status": "historical_or_inactive_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "b763eb71-e80f-4024-8130-87ea3300476c",
+      "rule_id": "experience_governance_foundation_v1_law",
+      "rule_version": 10,
+      "domain": "experience_ui",
+      "section": "L",
+      "canonical_owner": "experience_governance_foundation_v1_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "sod1820_canonical_identity_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "raziel_voice_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "post_system_voice_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "content_translation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_gold_hints_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "reality_graph_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "26f2537c-cb77-4b01-8804-f123599a57c3",
+      "rule_id": "foundation_closure_protocol_law",
+      "rule_version": 8,
+      "domain": "foundation_governance",
+      "section": "A",
+      "canonical_owner": "foundation_closure_protocol_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "737e53d8-0464-4058-b7f2-9753a2940b22",
+      "rule_id": "gematria_auto_registry_law",
+      "rule_version": 2,
+      "domain": "gematria",
+      "section": "G",
+      "canonical_owner": "project_codex.gematria_engine",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "gematria_engine_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "corpus_admission_foundation_v1",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_intake_foundation_contract_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "unified_graph_law",
+          "status": "historical_or_inactive_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "d99c3d6d-084f-4533-a16d-b6c0a9044560",
+      "rule_id": "gematria_db_first_and_enrich_law",
+      "rule_version": 3,
+      "domain": "gematria",
+      "section": "G",
+      "canonical_owner": "project_codex.gematria_engine",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "bf96d4e2-6724-4fa8-ba77-26a949f7b05a",
+      "rule_id": "gematria_engine_law",
+      "rule_version": 2,
+      "domain": "gematria",
+      "section": "G",
+      "canonical_owner": "project_codex.gematria_engine",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "canonical_methods_registry_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_intake_foundation_contract_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "25f0a07b-b453-45c8-9047-60dce736b301",
+      "rule_id": "golden_entity_law",
+      "rule_version": 4,
+      "domain": "truth_governance",
+      "section": "E",
+      "canonical_owner": "truth_axes_foundation_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "reality_graph_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "162ac7dd-0b22-434e-ac70-10c2ac7bf84b",
+      "rule_id": "graph_privacy_foundation_law",
+      "rule_version": 1,
+      "domain": "security_privacy",
+      "section": "J",
+      "canonical_owner": "person_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "f6ac9dc5-ef9e-4f84-8cc4-c72c10c1d0c6",
+      "rule_id": "identity_architecture_law",
+      "rule_version": 1,
+      "domain": "person_identity",
+      "section": "J",
+      "canonical_owner": "person_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "5c25161d-e575-4673-81dd-d1415c556798",
+      "rule_id": "inter_agent_coordination_law",
+      "rule_version": 18,
+      "domain": "agent_governance",
+      "section": "B",
+      "canonical_owner": "inter_agent_coordination_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "live_state_resolution_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "cd340749-4d78-490a-aacf-a14c8ec515cf",
+      "rule_id": "israel_time_law",
+      "rule_version": 1,
+      "domain": "time_context",
+      "section": "E",
+      "canonical_owner": "truth_axes_foundation_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "8fc64a04-df1d-4def-8d50-d41b88ad5310",
+      "rule_id": "ktiv_male_haser_repair_law",
+      "rule_version": 2,
+      "domain": "representation_taxonomy",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "abcf62d2-24e6-4903-a47e-1128848b68f6",
+      "rule_id": "legacy_content_protocol",
+      "rule_version": 2,
+      "domain": "publishing_content",
+      "section": "K",
+      "canonical_owner": "project_codex.publishing_conventions",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "research_intake_foundation_contract_law@13",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "447569e9-3f27-4f34-a5da-65d221a88bf6",
+      "rule_id": "live_state_resolution_law",
+      "rule_version": 3,
+      "domain": "live_release_governance",
+      "section": "A",
+      "canonical_owner": "live_state_sync_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "4ccbc2e2-0f44-4f66-a023-28397b7ee39a",
+      "rule_id": "live_state_sync_law",
+      "rule_version": 1,
+      "domain": "live_release_governance",
+      "section": "A",
+      "canonical_owner": "live_state_sync_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "64f66776-0368-441e-88ca-dfc5ff75b90a",
+      "rule_id": "logo_integrity_law",
+      "rule_version": 3,
+      "domain": "brand_design",
+      "section": "L",
+      "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+      "owner_type": "document_owner",
+      "owner_ref_resolved": null,
+      "dependencies": [
+        {
+          "ref": "sod1820_canonical_identity_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "brand_spelling_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "canonical_colors_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "a11848c9-e86e-40c4-a705-795bf33dfc84",
+      "rule_id": "master_anchor_1820_law",
+      "rule_version": 1,
+      "domain": "reality_graph",
+      "section": "F",
+      "canonical_owner": "reality_graph_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "9b76b6c9-9fbc-44c3-be2f-66585cc00dd4",
+      "rule_id": "method_lifecycle",
+      "rule_version": 2,
+      "domain": "gematria",
+      "section": "G",
+      "canonical_owner": "canonical_methods_registry_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "607f6270-39c7-4278-8888-0f7a32d8224e",
+      "rule_id": "method_priority",
+      "rule_version": 1,
+      "domain": "gematria",
+      "section": "G",
+      "canonical_owner": "project_codex.gematria_engine",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "c8079c47-e40c-449c-8cde-207feab2a329",
+      "rule_id": "mobile_acceptance_law",
+      "rule_version": 1,
+      "domain": "experience_ui",
+      "section": "L",
+      "canonical_owner": "experience_governance_foundation_v1_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "91139997-e3b3-4b14-8175-068b3da18699",
+      "rule_id": "moment_clock_law",
+      "rule_version": 2,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "research_intake_foundation_contract_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "israel_time_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "canonical_methods_registry_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "engine_governance_registry_authority_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "48872585-31f9-40bd-873b-eb53421ac1de",
+      "rule_id": "no_kolel_no_additions",
+      "rule_version": 1,
+      "domain": "gematria",
+      "section": "G",
+      "canonical_owner": "project_codex.gematria_engine",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "30959747-8461-453b-be29-22894da4e041",
+      "rule_id": "no_row_without_number_law",
+      "rule_version": 1,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "8887eff1-dfe2-4942-9580-8a0d1690a097",
+      "rule_id": "number_page_law",
+      "rule_version": 1,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "8b957f76-437d-4645-ae20-e111a61118ff",
+      "rule_id": "person_foundation_contract_law",
+      "rule_version": 6,
+      "domain": "person_identity",
+      "section": "J",
+      "canonical_owner": "person_foundation_contract_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_workspace_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "f84d94bb-c5f7-4045-9cfc-a2190b2f18cc",
+      "rule_id": "platform_tiers_law",
+      "rule_version": 5,
+      "domain": "access_product",
+      "section": "J",
+      "canonical_owner": "platform_tiers_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "site_flags_lock_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "experience_governance_foundation_v1_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "raziel_companion_layer_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "2fa1a2a9-d51a-437f-ba6a-f8e73195009f",
+      "rule_id": "post_og_image_law",
+      "rule_version": 1,
+      "domain": "publishing_content",
+      "section": "K",
+      "canonical_owner": "project_codex.publishing_conventions",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "1e53cc8c-b1e8-42a9-9998-90c911b3b859",
+      "rule_id": "post_system_voice_law",
+      "rule_version": 1,
+      "domain": "publishing_content",
+      "section": "K",
+      "canonical_owner": "project_codex.publishing_conventions",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "b7978baa-cc13-4aba-8ae9-ab9357f601b2",
+      "rule_id": "preserve_linked_row",
+      "rule_version": 1,
+      "domain": "publishing_content",
+      "section": "K",
+      "canonical_owner": "project_codex.publishing_conventions",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "31bc8773-25cb-4355-b5aa-4fe0b0886cb3",
+      "rule_id": "raw_vs_curated",
+      "rule_version": 1,
+      "domain": "research_intake",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "e7a56c5f-a8e6-4958-9227-4bce46eae001",
+      "rule_id": "raziel_companion_layer_law",
+      "rule_version": 3,
+      "domain": "raziel_ai",
+      "section": "I",
+      "canonical_owner": "raziel_companion_layer_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "experience_governance_foundation_v1_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "platform_tiers_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "f5293a0f-9e7a-41d3-bf1b-c0a4cb2fab8e",
+      "rule_id": "raziel_full_answer_and_route_law",
+      "rule_version": 3,
+      "domain": "raziel_ai",
+      "section": "I",
+      "canonical_owner": "raziel_companion_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "raziel_companion_layer_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "raziel_routing_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "ai_analyze_contract",
+          "status": "active_rule"
+        },
+        {
+          "ref": "ai_quota_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "never_silent_metatron_law",
+          "status": "historical_or_inactive_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "8ab3b939-7b75-4b85-9211-fce237906820",
+      "rule_id": "raziel_group_privacy_law",
+      "rule_version": 1,
+      "domain": "raziel_ai",
+      "section": "I",
+      "canonical_owner": "raziel_companion_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "bdfdba80-5df6-40d2-8264-4be962c1f712",
+      "rule_id": "raziel_response_contract",
+      "rule_version": 1,
+      "domain": "raziel_ai",
+      "section": "I",
+      "canonical_owner": "raziel_companion_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "f83d8b4c-2762-4671-b7ca-fecae70025f8",
+      "rule_id": "raziel_routing_law",
+      "rule_version": 2,
+      "domain": "raziel_ai",
+      "section": "I",
+      "canonical_owner": "raziel_companion_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "ai_analyze_contract",
+          "status": "active_rule"
+        },
+        {
+          "ref": "ai_quota_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "raziel_group_privacy_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "raziel_companion_layer_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "traffic_intelligence_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "system_suggestions_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "107f1f1b-325d-492f-9ea5-6bc939294dc6",
+      "rule_id": "raziel_voice_law",
+      "rule_version": 1,
+      "domain": "raziel_ai",
+      "section": "I",
+      "canonical_owner": "raziel_companion_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "b0504b6c-164b-4ffb-adf0-952372b53b2d",
+      "rule_id": "raziel_whatsapp_access_adapter_law",
+      "rule_version": 1,
+      "domain": "raziel_ai",
+      "section": "I",
+      "canonical_owner": "raziel_companion_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "raziel_companion_layer_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "77ad8c15-a6cb-4349-9e16-e724d3daacbd",
+      "rule_id": "reality_graph_law",
+      "rule_version": 8,
+      "domain": "reality_graph",
+      "section": "F",
+      "canonical_owner": "reality_graph_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "3defdfbc-9870-435e-b954-72eb30f5bbd3",
+      "rule_id": "reality_stream_law",
+      "rule_version": 1,
+      "domain": "reality_graph",
+      "section": "F",
+      "canonical_owner": "reality_graph_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "181abcbc-89d8-40ef-bff5-9403d05125fb",
+      "rule_id": "relative_time_display_law",
+      "rule_version": 4,
+      "domain": "time_context",
+      "section": "E",
+      "canonical_owner": "truth_axes_foundation_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "09d69629-6ee7-4d2f-a8fc-457dbc881fb9",
+      "rule_id": "research_gold_hints_law",
+      "rule_version": 4,
+      "domain": "reality_world_ranking",
+      "section": "F",
+      "canonical_owner": "research_gold_hints_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "signal_vs_curation",
+          "status": "active_rule"
+        },
+        {
+          "ref": "reality_graph_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "cross_vs_convergence_criteria",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "experience_governance_foundation_v1_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "content_translation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "convergence_explanation_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "golden_entity_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "373a91cc-473e-437e-b4fe-9753ff57dedd",
+      "rule_id": "research_intake_foundation_contract_law",
+      "rule_version": 14,
+      "domain": "research_intake",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "reality_graph_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "e9cf65c7-49e4-4f59-b3d2-cc4960456b3e",
+      "rule_id": "research_object_identity_invariant_law",
+      "rule_version": 2,
+      "domain": "research_os",
+      "section": "C",
+      "canonical_owner": "docs/research-studio-v1-contract.md",
+      "owner_type": "document_owner",
+      "owner_ref_resolved": null,
+      "dependencies": [
+        {
+          "ref": "research_intake_foundation_contract_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "unified_graph_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "everything_additive_law",
+          "status": "historical_or_inactive_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "69d88013-d360-41f2-a4c0-e83959d8d1b3",
+      "rule_id": "research_strategy_layer_law",
+      "rule_version": 17,
+      "domain": "research_os",
+      "section": "C",
+      "canonical_owner": "research_strategy_layer_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "research_intake_foundation_contract_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_workspace_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "reality_graph_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "ai_analyze_contract",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "90444d8f-00bb-4699-9462-6552b7c9869c",
+      "rule_id": "research_workspace_law",
+      "rule_version": 5,
+      "domain": "research_os",
+      "section": "C",
+      "canonical_owner": "docs/research-studio-v1-contract.md",
+      "owner_type": "document_owner",
+      "owner_ref_resolved": null,
+      "dependencies": [
+        {
+          "ref": "reality_graph_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "06454596-00ef-4791-bad5-2b2af0d68610",
+      "rule_id": "root_exception",
+      "rule_version": 1,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "method_priority",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "d6b2981e-7838-4ac2-b72d-124fcf3166c4",
+      "rule_id": "shared_expression_extraction_contract_v1",
+      "rule_version": 1,
+      "domain": "research_intake",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "e7d7049a-75f5-453c-9f59-a15f3b14b6b3",
+      "rule_id": "shitat_haechad_alef_law",
+      "rule_version": 1,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "gematria_engine_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "messiah_frequency_in_every_person_law",
+          "status": "historical_or_inactive_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "21b70c56-c0ad-45af-a873-ab22678b1280",
+      "rule_id": "signal_vs_curation",
+      "rule_version": 2,
+      "domain": "truth_governance",
+      "section": "E",
+      "canonical_owner": "truth_axes_foundation_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "678236e4-b561-495e-97c1-7155511dfdc3",
+      "rule_id": "site_flags_lock_law",
+      "rule_version": 3,
+      "domain": "site_availability",
+      "section": "A",
+      "canonical_owner": "site_flags_lock_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "experience_governance_foundation_v1_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "16502511-f625-4a95-b75b-9e14b537d3b0",
+      "rule_id": "sod1820_canonical_identity_law",
+      "rule_version": 5,
+      "domain": "brand_design",
+      "section": "L",
+      "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+      "owner_type": "document_owner",
+      "owner_ref_resolved": null,
+      "dependencies": [
+        {
+          "ref": "canonical_colors_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "SOD1820_DESIGN_CONTRACT_V1.md",
+          "status": "document_pointer"
+        },
+        {
+          "ref": "experience_governance_foundation_v1_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "raziel_voice_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "content_translation_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "06278103-1a82-4580-9471-609e0757d2f9",
+      "rule_id": "source_video_publish_law",
+      "rule_version": 1,
+      "domain": "research_intake",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "08a34366-1311-4210-b84e-f41b405e5b4c",
+      "rule_id": "subscription_funnel_law",
+      "rule_version": 22,
+      "domain": "subscription_follow",
+      "section": "J",
+      "canonical_owner": "subscription_funnel_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "d1016f01-7f73-417d-8b95-3e6561953f39",
+      "rule_id": "system_suggestions_law",
+      "rule_version": 7,
+      "domain": "system_intelligence",
+      "section": "M",
+      "canonical_owner": "system_suggestions_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "ai_analyze_contract",
+          "status": "active_rule"
+        },
+        {
+          "ref": "deploy_on_request",
+          "status": "active_rule"
+        },
+        {
+          "ref": "inter_agent_coordination_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "raziel_routing_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_strategy_layer_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "traffic_intelligence_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "8d8a9a4e-80dd-453b-94bf-f083973884cc",
+      "rule_id": "testimony_not_prophecy",
+      "rule_version": 1,
+      "domain": "els_cipher",
+      "section": "H",
+      "canonical_owner": "els_research_layer_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "da2f6eb0-e410-48e2-bb0c-6cb6d513e946",
+      "rule_id": "traffic_intelligence_law",
+      "rule_version": 11,
+      "domain": "traffic_analytics",
+      "section": "M",
+      "canonical_owner": "traffic_intelligence_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "af98045a-9ec8-4d7b-a1e9-d6ab93cacef1",
+      "rule_id": "truth_axes_foundation_law",
+      "rule_version": 3,
+      "domain": "truth_governance",
+      "section": "E",
+      "canonical_owner": "truth_axes_foundation_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "signal_vs_curation",
+          "status": "active_rule"
+        },
+        {
+          "ref": "unified_graph_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "verify_seal_manual_only",
+          "status": "active_rule"
+        },
+        {
+          "ref": "research_intake_foundation_contract_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "everything_additive_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "content_translation_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "person_foundation_contract_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "fdd1d5b6-0a0a-4e59-9125-9f5685009d8c",
+      "rule_id": "unified_credit_system",
+      "rule_version": 1,
+      "domain": "access_product",
+      "section": "J",
+      "canonical_owner": "platform_tiers_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "9dde92fc-8ae9-4d18-8507-99b42bf316f3",
+      "rule_id": "unified_tags_law",
+      "rule_version": 1,
+      "domain": "representation_taxonomy",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "3b6668aa-e45c-4475-92de-31ef279206b9",
+      "rule_id": "verify_seal_manual_only",
+      "rule_version": 3,
+      "domain": "truth_governance",
+      "section": "E",
+      "canonical_owner": "truth_axes_foundation_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "e7887fe3-d82a-439b-a71c-366bc644d4ab",
+      "rule_id": "video_transcription_law",
+      "rule_version": 1,
+      "domain": "localization",
+      "section": "K",
+      "canonical_owner": "content_translation_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "content_translation_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "1033e041-1cec-4bbf-bebd-968d146c7941",
+      "rule_id": "word_approval_required_law",
+      "rule_version": 1,
+      "domain": "research_intake",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "a716dac5-bfb3-4d0f-8c3e-c3aa9c44bc28",
+      "rule_id": "work_log_authority_law",
+      "rule_version": 2,
+      "domain": "live_release_governance",
+      "section": "A",
+      "canonical_owner": "work_log_authority_law",
+      "owner_type": "owner_root",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "aea3dee1-3c07-4913-a7b9-5dca5af03dd9",
+      "rule_id": "workspace_layout_standard",
+      "rule_version": 2,
+      "domain": "research_os",
+      "section": "C",
+      "canonical_owner": "research_workspace_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "research_workspace_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "2eff53d6-aa95-4bb6-b8b2-846c079feb89",
+      "rule_id": "worlds_color_law",
+      "rule_version": 1,
+      "domain": "brand_design",
+      "section": "L",
+      "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+      "owner_type": "document_owner",
+      "owner_ref_resolved": null,
+      "dependencies": []
+    },
+    {
+      "uuid": "918e5e51-e0ba-4150-8891-bfadfa84aaba",
+      "rule_id": "writer_material_home_law",
+      "rule_version": 6,
+      "domain": "research_intake",
+      "section": "D",
+      "canonical_owner": "research_intake_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": [
+        {
+          "ref": "research_contribution_law",
+          "status": "historical_or_inactive_rule"
+        },
+        {
+          "ref": "research_intake_foundation_contract_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "reality_graph_law",
+          "status": "active_rule"
+        },
+        {
+          "ref": "truth_axes_foundation_law",
+          "status": "active_rule"
+        }
+      ]
+    },
+    {
+      "uuid": "e7f455a9-b592-4c3d-8d46-890906071957",
+      "rule_id": "zero_navigation",
+      "rule_version": 1,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "5a49390c-eb2d-466f-b2e8-9485e90b54cf",
+      "rule_id": "zero_scale_law",
+      "rule_version": 1,
+      "domain": "numeric_research",
+      "section": "G",
+      "canonical_owner": "project_codex.numeric_rule_family_index",
+      "owner_type": "codex_document_owner",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    },
+    {
+      "uuid": "b1621c0e-1a44-42a3-9c42-82d0f60da5d5",
+      "rule_id": "zuriel_surname_privacy_law",
+      "rule_version": 1,
+      "domain": "security_privacy",
+      "section": "J",
+      "canonical_owner": "person_foundation_contract_law",
+      "owner_type": "child_rule",
+      "owner_ref_resolved": true,
+      "dependencies": []
+    }
+  ],
+  "project_codex_catalog": [
+    {
+      "slug": "_index",
+      "category": "meta",
+      "title": "אינדקס הקודקס — קרא אותי ראשון",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "branches_deploy",
+      "category": "overview",
+      "title": "ענפים ופריסה",
+      "priority": 2,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "canonical_logo_v2_asset_pointer",
+      "category": "brand_asset_pointer",
+      "title": "SOD1820 Canonical Logo V2 — Shared Asset Pointer",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "convergence_law",
+      "category": "architecture",
+      "title": "★ חוק העץ האחד — קרא לפני כל עבודה",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "corpus_admission_foundation_v1",
+      "category": "architecture",
+      "title": "Corpus Admission Foundation v1 — Perimeter, Identity, Lifecycle",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "cross_method",
+      "category": "cross",
+      "title": "עמוד /cross — הצלבת שיטות",
+      "priority": 2,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "data_model_map",
+      "category": "data_model",
+      "title": "מפת מודל הנתונים",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "entity_layer",
+      "category": "entities",
+      "title": "שכבת הישויות (ליבת הזהב)",
+      "priority": 2,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "experience_governance_foundation_v1",
+      "category": "architecture",
+      "title": "Experience Governance Foundation v1 — Canonical Ownership, Law Lifecycle, Locale/Identity/Design Crosswalk",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "foundation_closure_protocol_v1",
+      "category": "governance",
+      "title": "Foundation Closure Protocol v1 — Live Stress-Test Before Projection",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "gematria_engine",
+      "category": "gematria",
+      "title": "מנוע הגימטריה — Execution Owner + Registry Pointer",
+      "priority": 2,
+      "is_active_owner_pointer": true
+    },
+    {
+      "slug": "golden_entities",
+      "category": "entities",
+      "title": "ישויות זהב — הדרגה העליונה",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "growth_os_vision",
+      "category": "vision",
+      "title": "Growth OS — מערכת הצמיחה האוטונומית של קוד המציאות",
+      "priority": 5,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "number_page_1820",
+      "category": "cross",
+      "title": "דף המספר 1820 — חזון 3 שכבות",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "numeric_rule_family_index",
+      "category": "architecture_index",
+      "title": "Numeric Research Rule Family Index — Engine Methods vs ZURIEL Laws",
+      "priority": 10,
+      "is_active_owner_pointer": true
+    },
+    {
+      "slug": "people_standing_calibration_v0",
+      "category": "calibration",
+      "title": "People Standing Calibration V0 — Activity, Research Reputation, Rewards",
+      "priority": 3,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "person_foundation_contract",
+      "category": "architecture",
+      "title": "Personal Foundation — Contract (Identity+Roles · Lineage/Reproducibility · Personal Data Processing)",
+      "priority": 6,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "project_overview",
+      "category": "overview",
+      "title": "סקירת הפרויקט",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "public_language_revelation_geula_law",
+      "category": "conventions",
+      "title": "שפת הגילוי והגאולה — חוק ניסוח ציבורי",
+      "priority": 8,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "publishing_conventions",
+      "category": "conventions",
+      "title": "מוסכמות פרסום פוסטים",
+      "priority": 2,
+      "is_active_owner_pointer": true
+    },
+    {
+      "slug": "raziel_mind_architecture",
+      "category": "architecture",
+      "title": "Codex — המוח של רזיאל (מפרט ארכיטקטורה)",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "reality_graph_law",
+      "category": "architecture",
+      "title": "🌳 Reality Graph Law — חוק-העל",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "reality_stream_law",
+      "category": "architecture",
+      "title": "זרם המציאות + דופק המציאות",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "research_intake_foundation_contract",
+      "category": "architecture",
+      "title": "Research Intake — Foundation Contract (5 Extension Points)",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "roadmap_open_threads",
+      "category": "pointer",
+      "title": "מפת דרכים — הועברה · ראה SOD1820_MASTER_ROADMAP.md",
+      "priority": 2,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "session_2026_06_14",
+      "category": "session",
+      "title": "תקציר סשן 2026-06-14",
+      "priority": 3,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "session_2026_10_18_ai_control_reconciliation",
+      "category": "session",
+      "title": "SOD1820 — סיכום סשן 18.10.2026: מרכז AI, תיאום סוכנים, זרם המציאות ואיחוד תוכניות",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "shared_expression_extraction_v1",
+      "category": "architecture",
+      "title": "Shared Expression Extraction v1 — Contract Freeze (36 rules)",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "sod1820_motion_identity_master_v1",
+      "category": "brand_motion_projection",
+      "title": "SOD1820 Motion Identity Master V1 — Projection Contract",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+      "category": "planning_draft",
+      "title": "SOD1820 — זרם המציאות · תוכנית־על תחומית V3 בתוך מפת האתר · DRAFT",
+      "priority": 5,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "sod1820-master-architecture-draft",
+      "category": "architecture",
+      "title": "SOD1820 — Master Architecture · DRAFT",
+      "priority": 5,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "spatial_research_runtime_vision_v1",
+      "category": "architecture_vision",
+      "title": "Spatial Research Runtime / Semantic Scene Compiler — Future Projection Foundation",
+      "priority": 90,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "system_rules_index",
+      "category": "rules",
+      "title": "חוקי המערכת (nodes type=rule)",
+      "priority": 2,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "traffic_intelligence_law",
+      "category": "analytics",
+      "title": "Traffic Intelligence — חוזה הגדרות האנליטיקה",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    },
+    {
+      "slug": "truth_axes_foundation_v1",
+      "category": "architecture",
+      "title": "Truth Axes Foundation v1 — EPISTEMIC TYPE / VERIFICATION / GOVERNANCE / PUBLICATION-ACCESS (Option D, HG-1..HG-5)",
+      "priority": 1,
+      "is_active_owner_pointer": false
+    }
+  ],
+  "dependency_graph_issues": {
+    "cycles": [
+      [
+        "content_translation_law",
+        "cross_vs_convergence_criteria",
+        "experience_governance_foundation_v1_law",
+        "golden_entity_law",
+        "person_foundation_contract_law",
+        "research_gold_hints_law",
+        "research_intake_foundation_contract_law",
+        "research_strategy_layer_law",
+        "research_workspace_law",
+        "site_flags_lock_law",
+        "sod1820_canonical_identity_law",
+        "truth_axes_foundation_law"
+      ],
+      [
+        "platform_tiers_law",
+        "raziel_companion_layer_law"
+      ],
+      [
+        "raziel_routing_law",
+        "system_suggestions_law"
+      ]
+    ],
+    "reciprocal_dependency_pairs": [
+      [
+        "content_translation_law",
+        "experience_governance_foundation_v1_law"
+      ],
+      [
+        "content_translation_law",
+        "truth_axes_foundation_law"
+      ],
+      [
+        "experience_governance_foundation_v1_law",
+        "sod1820_canonical_identity_law"
+      ],
+      [
+        "experience_governance_foundation_v1_law",
+        "research_gold_hints_law"
+      ],
+      [
+        "person_foundation_contract_law",
+        "truth_axes_foundation_law"
+      ],
+      [
+        "platform_tiers_law",
+        "raziel_companion_layer_law"
+      ],
+      [
+        "raziel_routing_law",
+        "system_suggestions_law"
+      ],
+      [
+        "research_intake_foundation_contract_law",
+        "truth_axes_foundation_law"
+      ],
+      [
+        "research_strategy_layer_law",
+        "research_workspace_law"
+      ]
+    ],
+    "unresolved_or_historical_references": [
+      {
+        "from": "ai_analyze_contract",
+        "to": "never_silent_metatron_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "ai_analyze_contract",
+        "to": "research_two_pass_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "big_number",
+        "to": "essence_appendix",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "cross_vs_convergence_criteria",
+        "to": "featured_cross_insight_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "cross_vs_convergence_criteria",
+        "to": "convergence_single_trigger",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "cross_vs_convergence_criteria",
+        "to": "unified_graph_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "engine_governance_registry_authority_law",
+        "to": "gematria_methods_catalog",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "engine_governance_registry_authority_law",
+        "to": "everything_additive_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "gematria_auto_registry_law",
+        "to": "unified_graph_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "raziel_full_answer_and_route_law",
+        "to": "ai_quota_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "raziel_full_answer_and_route_law",
+        "to": "never_silent_metatron_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "raziel_routing_law",
+        "to": "ai_quota_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "research_gold_hints_law",
+        "to": "convergence_explanation_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "research_object_identity_invariant_law",
+        "to": "unified_graph_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "research_object_identity_invariant_law",
+        "to": "everything_additive_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "shitat_haechad_alef_law",
+        "to": "messiah_frequency_in_every_person_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "sod1820_canonical_identity_law",
+        "to": "SOD1820_DESIGN_CONTRACT_V1.md",
+        "status": "document_pointer"
+      },
+      {
+        "from": "truth_axes_foundation_law",
+        "to": "unified_graph_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "truth_axes_foundation_law",
+        "to": "everything_additive_law",
+        "status": "historical_or_inactive_rule"
+      },
+      {
+        "from": "writer_material_home_law",
+        "to": "research_contribution_law",
+        "status": "historical_or_inactive_rule"
+      }
+    ],
+    "stale_version_pins": [
+      {
+        "from": "legacy_content_protocol",
+        "ref": "research_intake_foundation_contract_law@13",
+        "active_version": 14
+      }
+    ]
+  },
+  "interpretation": "owner pointer graph is a hierarchy (0 cycles); depends_on is a different graph and can contain cycles. Historical pointers are not authoritative until reconciled."
+}
