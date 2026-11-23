@@ -1,3 +1,5 @@
+import { timeAgoHe } from "../format.js";
+
 const fullDate = new Intl.DateTimeFormat("he-IL", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jerusalem" });
 const clock = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Asia/Jerusalem" });
 const localDay = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Jerusalem" });
@@ -9,9 +11,9 @@ function dateBucket(value) {
   return Date.UTC(fields.year, fields.month - 1, fields.day) / DAY;
 }
 
-// Community chat: make recent chronology human-readable by Israel calendar
-// dates, not by rounding elapsed 24-hour periods across midnight or DST.
-// Preserve the exact original created_at as the accessible/title timestamp.
+// A live chat prioritizes elapsed time for the first 24 hours, even across
+// Israel midnight. Only later use Israeli calendar-day labels. The original
+// created_at and precise Israel-local date remain in title/accessible text.
 export function communityMessageTime(value, formatDate) {
   const timestamp = value ? new Date(value).getTime() : NaN;
   if (!Number.isFinite(timestamp)) return null;
@@ -24,7 +26,8 @@ export function communityMessageTime(value, formatDate) {
   if (timestamp > now) return { label: full, full, accessible: full };
   const days = dateBucket(new Date(now)) - dateBucket(new Date(timestamp));
   let label;
-  if (days === 0) label = `היום · ${clock.format(new Date(timestamp))}`;
+  if (now - timestamp < DAY) label = timeAgoHe(value);
+  else if (days === 0) label = `היום · ${clock.format(new Date(timestamp))}`;
   else if (days === 1) label = "אתמול";
   else if (days === 2) label = "שלשום";
   else if (days >= 3 && days <= 6) label = `לפני ${days} ימים`;
