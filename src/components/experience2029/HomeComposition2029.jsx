@@ -15,6 +15,7 @@ import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 // The notable convergences sit far below the opening screen: their rating marks load with them (ZURIEL 17.11.2026, Speed Law).
 const MapTimeline = import.meta.env.VITE_MAP_READING_RELEASE === "true" ? lazy(() => import("../research/MapUnitTimeline2029.jsx")) : null;
 const HomeStreamVideo2029 = lazy(() => import("./HomeStreamVideo2029.jsx"));
+const SiboniGate50HomeCard2029 = lazy(() => import("../books2029/SiboniGate50HomeCard2029.jsx"));
 const ConvergenceRatings2029 = lazy(() => import("./ConvergenceRatings2029.jsx"));
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
@@ -596,6 +597,8 @@ export default function HomeComposition2029({
         </Suspense>
       </div>
       <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} editorialHref={homeMapLeadFace2029(homeMapLeadMember2029(primaryItems))?.href || editorial?.lead?.href} />
+      {/* Only a normal book announcement; all existing lead, pins and Now content remain in place. */}
+      <Suspense fallback={<div style={{ minHeight: 220 }} aria-hidden="true" />}><SiboniGate50HomeCard2029 /></Suspense>
     </>}</HomeMapSelection>
     {activity}
 
