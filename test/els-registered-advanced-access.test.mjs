@@ -38,9 +38,11 @@ test("one bounded advanced marker, enforced in worker and Edge, without lifting 
   assert.match(worker, /registeredRange && !uid/);
   assert.match(worker, /body\.skip_max > 500/);
   assert.match(worker, /body\.page_size > 20/);
-  assert.match(edge, /if \(!identity\?\.registered\)/);
-  assert.match(edge, /skipMax > 500/);
-  assert.match(edge, /pageSize > 20/);
+  assert.ok(edge.includes("await resolveUser(req, registeredRange)"));
+  assert.ok(edge.includes("if (registeredOnly && data?.is_anonymous !== false) return null"));
+  assert.ok(edge.includes("if (!userId) return json({ error: \"registered_account_required\" }"));
+  assert.match(edge, /registeredSkipMax > 500/);
+  assert.match(edge, /registeredPageSize > 20/);
   assert.match(page, /registeredAdvanced && !isAdmin/);
   assert.match(advanced, /access_mode: "registered_range_v1"/);
   assert.match(worker, /\["verify", "page", "verify_batch"\]/);
