@@ -132,3 +132,94 @@ test('snapshot.cloudConfirmed is true only when synced with an empty queue (sing
   assert.equal(a.getSnapshot().cloudConfirmed, true);
   a.stop();
 });
+
+test('100 public launches do not accumulate passive-only journals; an explicit save still reaches the server', async () => {
+  const server = new Server(), storage = new Store();
+  for (let i = 0; i < 100; i++) {
+    const tab = make({ server, storage, session: new Store() });
+    await settle();
+    assert.equal(tab.commit([makeResearchOp('history_add', { entity: ent(1000 + i) })]), true);
+    assert.equal(tab.commit([makeResearchOp('context_set', { context: { subject: { type: 'number', id: String(1000 + i) } } })]), true);
+    tab.release(); tab.stop();
+  }
+  const journals = [...storage.d.keys()].filter(k => k.includes(':pending:'));
+  assert.equal(journals.length, 0, 'passive browsing cannot generate a new journal on every launch');
+  assert.equal(server.writes, 0, 'passive browsing does not automatically submit account mutations');
+
+  const next = make({ server, storage, session: new Store() });
+  await settle();
+  assert.equal(save(next, 776), true, 'explicit save remains admitted');
+  await settle();
+  assert.ok(server.st('A').saved.some(x => x.ref === 776), 'saved number reached the server');
+  assert.equal(next.getSnapshot().syncPending, 0);
+  next.release(); next.stop();
+});
+
+// Reproduce journals created by older public builds. New public visits must not
+// create these, so seeding them through the corrected runtime would hide the regression.
+function seedLegacyPassive(storage, { uid = 'A', n, released = true, title = String(n) }) {
+  const principal = principalToken(uid);
+  const name = `${principalStateKey(principal)}:pending:legacy-${uid}-${n}`;
+  storage.setItem(name, JSON.stringify({
+    principal, revision: 0,
+    queue: [{ batch_id: `old-${uid}-${n}`, ops: [makeResearchOp('history_add', {
+      entity: { id: `number:${n}`, type: 'number', ref: n, title }
+    })] }],
+    inflight: null,
+    owner: { id: `old-tab-${n}`, at: released ? Date.now() - 11 * 60 * 1000 : Date.now(), released }
+  }));
+  return name;
+}
+
+test('reclaim: only passive, unowned journals of this principal are removed; saves, pending intent, live and foreign journals stay', async () => {
+  const server = new Server(), storage = new Store();
+  for (let s = 0; s < 5; s++) seedLegacyPassive(storage, { n: s });
+  // A real pending save remains protected even if its tab is gone.
+  const intent = make({ server, storage, session: new Store() });
+  await settle(); server.down = true; save(intent, 776); await settle(); intent.release(); intent.stop();
+  seedLegacyPassive(storage, { uid: 'B', n: 1 });
+  seedLegacyPassive(storage, { n: 999, released: false }); // Another active tab.
+  const journals = () => [...storage.d.keys()].filter(k => k.includes(':pending:'));
+  const before = journals().length;
+  const live = make({ server, storage, session: new Store() }); await settle();
+  const probe = await live.localOnly('reclaim');
+  assert.equal(journals().length, before, 'dry run is strictly read-only');
+  assert.equal(probe.count, 5, 'only released passive same-principal journals are eligible');
+  const done = await live.localOnly('reclaim', { confirm: true });
+  assert.equal(done.count, 5);
+  const left = journals();
+  assert.equal(left.length, before - 5);
+  assert.ok(left.some(k => JSON.parse(storage.d.get(k)).principal === principalToken('B')), 'foreign principal journal survives');
+  assert.ok(left.some(k => k.endsWith(':legacy-A-999')), 'live tab journal survives');
+  assert.ok(left.some(k => JSON.stringify(JSON.parse(storage.d.get(k)).queue).includes('item_upsert')), 'pending save survives');
+  assert.equal(server.writes, 0);
+  live.stop();
+});
+
+test('reclaim archives history before removal, including when storage is full', async () => {
+  const server = new Server(), storage = new Store();
+  for (let s = 0; s < 40; s++) seedLegacyPassive(storage, { n: s, title: 'x'.repeat(300) });
+  const live = make({ server, storage, session: new Store() }); await settle();
+  const size = () => [...storage.d].reduce((n, [k, v]) => n + k.length + v.length, 0);
+  const CAP = size() + 100; // Not enough headroom to archive history without reclaiming older journals.
+  const baseSet = storage.setItem.bind(storage);
+  storage.setItem = (k, v) => {
+    const old = storage.d.get(k) ?? '';
+    const next = String(v);
+    if (size() - old.length + next.length + (storage.d.has(k) ? 0 : k.length) > CAP)
+      throw new Error('QuotaExceededError');
+    baseSet(k, v);
+  };
+  const dry = await live.localOnly('reclaim');
+  assert.equal(dry.count, 40);
+  const out = await live.localOnly('reclaim', { confirm: true });
+  assert.equal(out.error, undefined);
+  assert.equal(out.count, 40);
+  assert.ok(out.bytes > 0, 'only actually deleted bytes are reported');
+  const ex = await live.localOnly('extras');
+  const ids = new Set((ex.history || []).map(h => h.id));
+  assert.ok(ids.has('number:39'), 'newest history entry archived');
+  assert.ok(![...storage.d.keys()].some(k => k.includes(':pending:')), 'legacy passive journals were reclaimed');
+  assert.equal(server.writes, 0);
+  live.stop();
+});

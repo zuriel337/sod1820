@@ -8,7 +8,7 @@ import { entityIdentity } from "../../lib/research/researchSyncState.js";
 import { decideSaveClick, saveLabelState } from "../../lib/research/personalSaveDecision.js";
 
 // The existing library identity. A local commit is not a server receipt.
-const storageProbe=()=>{try{let n=0,top=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'',l=k.length+(localStorage.getItem(k)||'').length;n+=l;top.push([k.split(':')[0].slice(0,24),l]);}top.sort((a,b)=>b[1]-a[1]);let w='ok';try{localStorage.setItem('__sod_probe','x'.repeat(2048));localStorage.removeItem('__sod_probe');}catch(e){w=String(e?.name||'err');}return ' [אחסון: '+Math.round(n/1024)+'KB, כתיבה: '+w+', גדולים: '+top.slice(0,3).map(t=>t[0]+'='+Math.round(t[1]/1024)+'KB').join(' ')+']';}catch(e){return ' [אחסון: '+String(e?.name||'חסום')+']';}};
+const storageProbe=()=>{try{let n=0,top=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'',l=k.length+(localStorage.getItem(k)||'').length;n+=l;top.push([k.split(':')[0].slice(0,24),l]);}top.sort((a,b)=>b[1]-a[1]);let w='ok';try{localStorage.setItem('__sod_probe','x'.repeat(2048));localStorage.removeItem('__sod_probe');}catch(e){w=String(e?.name||'err');}return ' [אחסון: '+Math.round(n/1024)+'KB, כתיבה: '+w+(w==='QuotaExceededError'?' · האחסון מלא: היכנסו ל"המחקר שלי" ולחצו "פנה מקום"':'')+', גדולים: '+top.slice(0,3).map(t=>t[0]+'='+Math.round(t[1]/1024)+'KB').join(' ')+']';}catch(e){return ' [אחסון: '+String(e?.name||'חסום')+']';}};
 export default function PersonalSaveButton2029({ entity, royal = false }) {
   const auth=useAuth(),research=useResearch(),shell=use2029Shell();
   const [notice,setNotice]=useState(""),pending=useRef(false);

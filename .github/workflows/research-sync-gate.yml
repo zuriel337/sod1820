@@ -12,6 +12,7 @@ on:
       - 'supabase/migrations/20260916141000_g3_personal_research_sync_hardening_v1.sql'
       - 'scripts/test-research-sync*'
       - 'test/research-sync-hardening.test.mjs'
+      - 'test/research-saved-integration-2029.test.mjs'
       - '.github/workflows/research-sync-gate.yml'
   workflow_dispatch:
 permissions:
@@ -40,7 +41,7 @@ jobs:
           sudo -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER ROLE postgres WITH PASSWORD 'fixture_only'"
           sudo -u postgres createdb research_sync_fixture
           PGPASSWORD=fixture_only psql -h localhost -U postgres -d research_sync_fixture -v ON_ERROR_STOP=1 -Atqc 'select current_database()'
-      - run: node --test src/lib/research/researchSyncRuntime.test.js src/lib/research/researchSyncRecovery.test.js test/research-sync-hardening.test.mjs
+      - run: node --test src/lib/research/researchSyncRuntime.test.js src/lib/research/researchSyncRecovery.test.js test/research-sync-hardening.test.mjs test/research-saved-integration-2029.test.mjs
       - name: Journal lifecycle, lossless queue bound and real-runtime properties
         run: node --test src/lib/research/researchJournalLifecycle.test.js src/lib/research/researchJournalRuntime.test.js src/lib/research/researchQueueCompaction.test.js
       - name: Execute actual migration and adversarial SQL in disposable PostgreSQL
