@@ -1,0 +1,6459 @@
+{
+  "kind": "elections_ocr_metadata_census",
+  "date": "2026-11-23",
+  "total": 234,
+  "reviewed_prior_sample": 15,
+  "newly_metadata_classified": 219,
+  "verified_independent_events": null,
+  "verified_syncs": null,
+  "stats": {
+    "מספרים/גימטריה": 6,
+    "טראמפ/ארה״ב — בחירות": 95,
+    "ממשלות וסקרים": 108,
+    "בחירות ישראל 2019": 7,
+    "פוליטיקה רחבה / מיון ידני": 7,
+    "קורונה ומדיניות": 4,
+    "בחירות ישראל 2020": 3,
+    "בחירות ישראל 2021": 4
+  },
+  "duplicate_asset_groups": [
+    [
+      660,
+      702
+    ],
+    [
+      1446,
+      1458
+    ],
+    [
+      1501,
+      1692
+    ],
+    [
+      1966,
+      2732
+    ],
+    [
+      2407,
+      2408
+    ],
+    [
+      2530,
+      2531
+    ],
+    [
+      2929,
+      2930
+    ]
+  ],
+  "rows": [
+    {
+      "id": 127,
+      "gallery": 9,
+      "occurred_at": "2015-12-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "מספרים/גימטריה",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 523,
+      "gallery": 5,
+      "occurred_at": "2016-12-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        1237
+      ],
+      "members": {
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 579,
+      "gallery": 25,
+      "occurred_at": "2017-02-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "14.2.2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 593,
+      "gallery": 25,
+      "occurred_at": "2017-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "10.4.16",
+        "14.03.17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 600,
+      "gallery": 25,
+      "occurred_at": "2017-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "20/03/2017"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 648,
+      "gallery": 25,
+      "occurred_at": "2017-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "30.4.2017",
+        "30/04/17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 651,
+      "gallery": 25,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "2/5/2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 653,
+      "gallery": 25,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 655,
+      "gallery": 25,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "8.5.2017"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 660,
+      "gallery": 25,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "10.5.2017"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45,
+        424
+      ],
+      "members": {
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        660,
+        702
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 664,
+      "gallery": 25,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "18/5/2017",
+        "18.05.17",
+        "10.2.07"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45,
+        424
+      ],
+      "members": {
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 665,
+      "gallery": 20,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "20.5.2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 667,
+      "gallery": 25,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "21/5/2017",
+        "21.05.17",
+        "21.05.2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          450
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 668,
+      "gallery": 25,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "23/5/2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 675,
+      "gallery": 20,
+      "occurred_at": "2017-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "4.6.2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 695,
+      "gallery": 27,
+      "occurred_at": "2017-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "20.6.2017"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 697,
+      "gallery": 27,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "8.6.2017",
+        "08.06.17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 699,
+      "gallery": 27,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "8.6.2017",
+        "08.06.17"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 702,
+      "gallery": 27,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "10.5.2017"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45,
+        424
+      ],
+      "members": {
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        660,
+        702
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 706,
+      "gallery": 27,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "4.7.2017"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 709,
+      "gallery": 27,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "17.5.2017",
+        "17.05.17"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 711,
+      "gallery": 27,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "2.7.2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 714,
+      "gallery": 27,
+      "occurred_at": "2017-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "2.7.2017",
+        "02.07.17"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 716,
+      "gallery": 25,
+      "occurred_at": "2017-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "12.6.2017",
+        "07.04.17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 739,
+      "gallery": 25,
+      "occurred_at": "2017-08-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "10.8.17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 746,
+      "gallery": 27,
+      "occurred_at": "2017-08-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "23.8.2017"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 748,
+      "gallery": 27,
+      "occurred_at": "2017-08-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "25.8.2017",
+        "9.10.16"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 753,
+      "gallery": 27,
+      "occurred_at": "2017-08-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "29.8.2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          4500
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 765,
+      "gallery": 25,
+      "occurred_at": "2017-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "24.9.2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 782,
+      "gallery": 25,
+      "occurred_at": "2017-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "11.11.17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 783,
+      "gallery": 27,
+      "occurred_at": "2017-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "11.11.17"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 788,
+      "gallery": 25,
+      "occurred_at": "2017-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "16.11.2017",
+        "16.11.17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 794,
+      "gallery": 27,
+      "occurred_at": "2017-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "28.11.2017"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 801,
+      "gallery": 28,
+      "occurred_at": "2017-12-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "15.12.2017",
+        "18.12.17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 803,
+      "gallery": 28,
+      "occurred_at": "2017-12-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "7.12.2017",
+        "03.12.17"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 813,
+      "gallery": 28,
+      "occurred_at": "2018-01-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "9.1.2018",
+        "07.01.18",
+        "02.01.18"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 814,
+      "gallery": 27,
+      "occurred_at": "2018-01-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "16.1.2018",
+        "15.01.18"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          4500
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 819,
+      "gallery": 28,
+      "occurred_at": "2018-02-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "5.2.2018"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 823,
+      "gallery": 28,
+      "occurred_at": "2018-02-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "26.2.2018"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 824,
+      "gallery": 21,
+      "occurred_at": "2018-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "6.3.2018"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 843,
+      "gallery": 28,
+      "occurred_at": "2018-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "9-4-2018",
+        "09.04.18"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 844,
+      "gallery": 27,
+      "occurred_at": "2018-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "16-4-2018",
+        "16.04.18"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 846,
+      "gallery": 28,
+      "occurred_at": "2018-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "22-4-2018"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 853,
+      "gallery": 28,
+      "occurred_at": "2018-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "13-5-2018"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 876,
+      "gallery": 28,
+      "occurred_at": "2018-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "15.6.2018",
+        "12.06.18"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 877,
+      "gallery": 27,
+      "occurred_at": "2018-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "18.6.18",
+        "11.6.18"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 884,
+      "gallery": 27,
+      "occurred_at": "2018-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "8.7.2018"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 891,
+      "gallery": 28,
+      "occurred_at": "2018-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "29.7.2018",
+        "29.07.18"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 940,
+      "gallery": 29,
+      "occurred_at": "2018-10-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        1237
+      ],
+      "members": {
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 949,
+      "gallery": 28,
+      "occurred_at": "2018-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "17.10.18",
+        "15.10.18",
+        "20.7.14"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1018,
+      "gallery": 34,
+      "occurred_at": "2018-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "3.11.2018",
+        "09.10.18"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1024,
+      "gallery": 34,
+      "occurred_at": "2018-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "23.09.18"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1031,
+      "gallery": 34,
+      "occurred_at": "2018-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "18.11.2018",
+        "16/11/18"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1033,
+      "gallery": 34,
+      "occurred_at": "2018-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "20.11.2018"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1061,
+      "gallery": 34,
+      "occurred_at": "2018-12-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "27.12.2018",
+        "27.12.18"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45,
+        424
+      ],
+      "members": {
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1072,
+      "gallery": 34,
+      "occurred_at": "2019-01-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "8.1.2019",
+        "08/01/2019"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1100,
+      "gallery": 34,
+      "occurred_at": "2019-02-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "17.2.2019"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1115,
+      "gallery": 34,
+      "occurred_at": "2019-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "5.3.2019"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1137,
+      "gallery": 28,
+      "occurred_at": "2019-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "28.3.2019",
+        "27/03/2019"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1145,
+      "gallery": 28,
+      "occurred_at": "2019-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "7.4.2019"
+      ],
+      "theme": "מספרים/גימטריה",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1151,
+      "gallery": 28,
+      "occurred_at": "2019-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "9.4.2019",
+        "2.4.12",
+        "09.04.19"
+      ],
+      "theme": "בחירות ישראל 2019",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1167,
+      "gallery": 33,
+      "occurred_at": "2019-04-23",
+      "dated_to_day": true,
+      "reported_dates": [
+        "23/4/2019",
+        "21.4.19"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45,
+        424
+      ],
+      "members": {
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1193,
+      "gallery": 34,
+      "occurred_at": "2019-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "5/5/2019",
+        "5.5.19",
+        "05/05/2019"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1194,
+      "gallery": 28,
+      "occurred_at": "2019-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "1/5/2019"
+      ],
+      "theme": "בחירות ישראל 2019",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1206,
+      "gallery": 28,
+      "occurred_at": "2019-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "13/5/2019",
+        "12.05.2019"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1208,
+      "gallery": 28,
+      "occurred_at": "2019-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "16/5/2019",
+        "15.05.19"
+      ],
+      "theme": "בחירות ישראל 2019",
+      "families": [
+        45,
+        424
+      ],
+      "members": {
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1229,
+      "gallery": 28,
+      "occurred_at": "2019-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "2/6/2019",
+        "01/06/19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1231,
+      "gallery": 34,
+      "occurred_at": "2019-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "14.4.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1232,
+      "gallery": 34,
+      "occurred_at": "2019-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "4.6.2019",
+        "02.06.2019"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1446,
+      "gallery": 28,
+      "occurred_at": "2019-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "1/7/2019",
+        "30.06.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        1446,
+        1458
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1458,
+      "gallery": 39,
+      "occurred_at": "2019-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "30.06.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        1446,
+        1458
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1464,
+      "gallery": 39,
+      "occurred_at": "2019-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "3/7/2019",
+        "03.06.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1501,
+      "gallery": 33,
+      "occurred_at": "2019-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "25/7/2019"
+      ],
+      "theme": "בחירות ישראל 2019",
+      "families": [
+        45,
+        1237
+      ],
+      "members": {
+        "45": [
+          450
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        1501,
+        1692
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1536,
+      "gallery": 34,
+      "occurred_at": "2019-08-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "7/8/2019",
+        "02.08.2019"
+      ],
+      "theme": "פוליטיקה רחבה / מיון ידני",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1593,
+      "gallery": 29,
+      "occurred_at": "2019-08-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424,
+        1237
+      ],
+      "members": {
+        "424": [
+          424
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1692,
+      "gallery": 43,
+      "occurred_at": "2019-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        1237
+      ],
+      "members": {
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        1501,
+        1692
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1747,
+      "gallery": 33,
+      "occurred_at": "2019-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "20/09/2019"
+      ],
+      "theme": "בחירות ישראל 2019",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1794,
+      "gallery": 44,
+      "occurred_at": "2019-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "28/9/2019",
+        "27/09/2019"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1966,
+      "gallery": 47,
+      "occurred_at": "2019-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "30/10/2019",
+        "29.10.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        1966,
+        2732
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1970,
+      "gallery": 47,
+      "occurred_at": "2019-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "4/11/2019",
+        "03.11.19",
+        "23/10/2019"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1983,
+      "gallery": 47,
+      "occurred_at": "2019-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "8/11/2019",
+        "7.8.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450,
+          4500
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 1998,
+      "gallery": 47,
+      "occurred_at": "2019-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "26/11/2019",
+        "26.11.19",
+        "07.11.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2002,
+      "gallery": 47,
+      "occurred_at": "2019-12-06",
+      "dated_to_day": true,
+      "reported_dates": [
+        "6/12/2019",
+        "05.12.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2066,
+      "gallery": 45,
+      "occurred_at": "2019-12-15",
+      "dated_to_day": true,
+      "reported_dates": [
+        "15/12/2019",
+        "14.12.19"
+      ],
+      "theme": "בחירות ישראל 2019",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2072,
+      "gallery": 51,
+      "occurred_at": "2019-12-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "18/12/2019",
+        "18.12.19"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2073,
+      "gallery": 47,
+      "occurred_at": "2019-12-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "21/12/2019",
+        "18/12/19"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2115,
+      "gallery": 47,
+      "occurred_at": "2020-01-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "5.1.2020",
+        "2.4.12",
+        "05.01.20"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2151,
+      "gallery": 47,
+      "occurred_at": "2020-01-27",
+      "dated_to_day": true,
+      "reported_dates": [
+        "27/01/2020",
+        "27.01.20"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 1,
+      "hidden": true,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2205,
+      "gallery": 54,
+      "occurred_at": "2020-03-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2206,
+      "gallery": 54,
+      "occurred_at": "2020-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "1-03-2020",
+        "01/03/20"
+      ],
+      "theme": "קורונה ומדיניות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14,
+          140
+        ],
+        "45": [
+          45,
+          4500
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2212,
+      "gallery": 54,
+      "occurred_at": "2020-03-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "בחירות ישראל 2020",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2213,
+      "gallery": 54,
+      "occurred_at": "2020-03-02",
+      "dated_to_day": true,
+      "reported_dates": [
+        "02/03/2020"
+      ],
+      "theme": "בחירות ישראל 2020",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          140
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2218,
+      "gallery": 54,
+      "occurred_at": "2020-03-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "קורונה ומדיניות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          140,
+          1400
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2232,
+      "gallery": 54,
+      "occurred_at": "2020-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "08/03/20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2268,
+      "gallery": 54,
+      "occurred_at": "2020-03-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2274,
+      "gallery": 54,
+      "occurred_at": "2020-03-19",
+      "dated_to_day": true,
+      "reported_dates": [
+        "19/3/2020",
+        "19.03.20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          140
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2284,
+      "gallery": 54,
+      "occurred_at": "2020-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "22-3-2020",
+        "22.03.2020",
+        "22/03/20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2327,
+      "gallery": 57,
+      "occurred_at": "2020-04-07",
+      "dated_to_day": true,
+      "reported_dates": [
+        "7/4/2020",
+        "07.04.20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2339,
+      "gallery": 57,
+      "occurred_at": "2020-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "15-4-2020",
+        "14.10.16",
+        "24.3.20"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2370,
+      "gallery": 57,
+      "occurred_at": "2020-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "20.04.20"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45,
+        424,
+        1237
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2393,
+      "gallery": 57,
+      "occurred_at": "2020-04-30",
+      "dated_to_day": true,
+      "reported_dates": [
+        "30/4/2020",
+        "29.04.20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2398,
+      "gallery": 57,
+      "occurred_at": "2020-05-06",
+      "dated_to_day": true,
+      "reported_dates": [
+        "6/5/2020"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2400,
+      "gallery": 57,
+      "occurred_at": "2020-05-10",
+      "dated_to_day": true,
+      "reported_dates": [
+        "10/5/2020",
+        "22.4.08",
+        "10.5.20"
+      ],
+      "theme": "קורונה ומדיניות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2401,
+      "gallery": 47,
+      "occurred_at": "2020-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "11.5.2020"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2403,
+      "gallery": 57,
+      "occurred_at": "2020-05-14",
+      "dated_to_day": true,
+      "reported_dates": [
+        "14/5/2020"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          4500
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2404,
+      "gallery": 29,
+      "occurred_at": "2020-05-19",
+      "dated_to_day": true,
+      "reported_dates": [
+        "19/5/2020",
+        "17/5/2020",
+        "17/05/2020"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        1237
+      ],
+      "members": {
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2407,
+      "gallery": 29,
+      "occurred_at": "2020-05-24",
+      "dated_to_day": true,
+      "reported_dates": [
+        "24/5/2020",
+        "24.05.20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        1237
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        2407,
+        2408
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2408,
+      "gallery": 57,
+      "occurred_at": "2020-05-24",
+      "dated_to_day": true,
+      "reported_dates": [
+        "24/5/2020",
+        "24.05.20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        1237
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        2407,
+        2408
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2413,
+      "gallery": 57,
+      "occurred_at": "2020-06-04",
+      "dated_to_day": true,
+      "reported_dates": [
+        "4/6/2020",
+        "14.5.2020"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2471,
+      "gallery": 59,
+      "occurred_at": "2020-07-07",
+      "dated_to_day": true,
+      "reported_dates": [
+        "7/7/2020",
+        "05.07.20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14,
+          140
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2480,
+      "gallery": 61,
+      "occurred_at": "2020-07-15",
+      "dated_to_day": true,
+      "reported_dates": [
+        "15/7/2020",
+        "15.07.20"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2504,
+      "gallery": 61,
+      "occurred_at": "2020-08-28",
+      "dated_to_day": true,
+      "reported_dates": [
+        "28/8/2020",
+        "31.1.17"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2530,
+      "gallery": 61,
+      "occurred_at": "2020-09-22",
+      "dated_to_day": true,
+      "reported_dates": [
+        "22/9/2020",
+        "22.9.20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        2530,
+        2531
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2531,
+      "gallery": 62,
+      "occurred_at": "2020-09-22",
+      "dated_to_day": true,
+      "reported_dates": [
+        "22/9/2020",
+        "22.9.20"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        2530,
+        2531
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2541,
+      "gallery": 29,
+      "occurred_at": "2020-10-04",
+      "dated_to_day": true,
+      "reported_dates": [
+        "4/10/2020",
+        "02/10/2020"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424,
+        1237
+      ],
+      "members": {
+        "424": [
+          424
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2543,
+      "gallery": 64,
+      "occurred_at": "2020-10-05",
+      "dated_to_day": true,
+      "reported_dates": [
+        "5/10/2020"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2553,
+      "gallery": 61,
+      "occurred_at": "2020-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "14.10.16"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2564,
+      "gallery": 29,
+      "occurred_at": "2020-11-08",
+      "dated_to_day": true,
+      "reported_dates": [
+        "8/11/2020"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        1237
+      ],
+      "members": {
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2624,
+      "gallery": 69,
+      "occurred_at": "2021-01-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "5-1-2021",
+        "18.9.16"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2657,
+      "gallery": 69,
+      "occurred_at": "2021-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "08.03.2021"
+      ],
+      "theme": "קורונה ומדיניות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          140
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2659,
+      "gallery": 69,
+      "occurred_at": "2021-03-11",
+      "dated_to_day": true,
+      "reported_dates": [
+        "11/3/2021",
+        "10.03.21"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2662,
+      "gallery": 69,
+      "occurred_at": "2021-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "23.03.2021"
+      ],
+      "theme": "בחירות ישראל 2021",
+      "families": [
+        14,
+        45,
+        1237
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ],
+        "45": [
+          45,
+          450,
+          4500
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2663,
+      "gallery": 69,
+      "occurred_at": "2021-03-24",
+      "dated_to_day": true,
+      "reported_dates": [
+        "24/3/2021",
+        "12.4.20"
+      ],
+      "theme": "בחירות ישראל 2021",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2664,
+      "gallery": 69,
+      "occurred_at": "2021-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "24.03.21"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2665,
+      "gallery": 29,
+      "occurred_at": "2021-03-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        1237
+      ],
+      "members": {
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2666,
+      "gallery": 69,
+      "occurred_at": "2021-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "1/04/2021"
+      ],
+      "theme": "בחירות ישראל 2021",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2669,
+      "gallery": 65,
+      "occurred_at": "2021-04-06",
+      "dated_to_day": true,
+      "reported_dates": [
+        "6/4/2021"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2682,
+      "gallery": 69,
+      "occurred_at": "2021-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "1/5/2021",
+        "30.04.2021"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2702,
+      "gallery": 70,
+      "occurred_at": "2021-05-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2719,
+      "gallery": 70,
+      "occurred_at": "2021-06-08",
+      "dated_to_day": true,
+      "reported_dates": [
+        "8/6/2021"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2722,
+      "gallery": 65,
+      "occurred_at": "2021-06-13",
+      "dated_to_day": true,
+      "reported_dates": [
+        "13/6/2021"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2724,
+      "gallery": 70,
+      "occurred_at": "2020-06-13",
+      "dated_to_day": true,
+      "reported_dates": [
+        "13/6/20201",
+        "12/06/21"
+      ],
+      "theme": "מספרים/גימטריה",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2727,
+      "gallery": 70,
+      "occurred_at": "2021-06-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2728,
+      "gallery": 70,
+      "occurred_at": "2021-06-16",
+      "dated_to_day": true,
+      "reported_dates": [
+        "16/6/2021"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424,
+        1237
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2732,
+      "gallery": 72,
+      "occurred_at": "2019-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "29.10.19"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        1966,
+        2732
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2733,
+      "gallery": 72,
+      "occurred_at": "2020-02-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2734,
+      "gallery": 72,
+      "occurred_at": "2017-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "4.4.02"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2739,
+      "gallery": 72,
+      "occurred_at": "2021-06-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2746,
+      "gallery": 70,
+      "occurred_at": "2021-06-21",
+      "dated_to_day": true,
+      "reported_dates": [
+        "21/6/2021",
+        "20.6.21"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2751,
+      "gallery": 70,
+      "occurred_at": "2021-06-28",
+      "dated_to_day": true,
+      "reported_dates": [
+        "28/6/2021"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2753,
+      "gallery": 29,
+      "occurred_at": "2021-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45,
+        1237
+      ],
+      "members": {
+        "45": [
+          45
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2757,
+      "gallery": 70,
+      "occurred_at": "2021-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2761,
+      "gallery": 70,
+      "occurred_at": "2021-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        1237
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2765,
+      "gallery": 70,
+      "occurred_at": "2021-07-14",
+      "dated_to_day": true,
+      "reported_dates": [
+        "14/7/2021"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2766,
+      "gallery": 70,
+      "occurred_at": "2021-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2775,
+      "gallery": 70,
+      "occurred_at": "2021-08-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "2.8.2021"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2777,
+      "gallery": 64,
+      "occurred_at": "2021-08-08",
+      "dated_to_day": true,
+      "reported_dates": [
+        "8/8/2021"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 1,
+      "hidden": true,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2810,
+      "gallery": 73,
+      "occurred_at": "2021-10-05",
+      "dated_to_day": true,
+      "reported_dates": [
+        "5/10/2021",
+        "4/10/2021"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45,
+        424,
+        1237
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ],
+        "424": [
+          424
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2830,
+      "gallery": 73,
+      "occurred_at": "2021-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "1-11-2021"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2834,
+      "gallery": 73,
+      "occurred_at": "2021-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "28.11.2021"
+      ],
+      "theme": "פוליטיקה רחבה / מיון ידני",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2839,
+      "gallery": 73,
+      "occurred_at": "2021-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "27-11-2021"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2858,
+      "gallery": 74,
+      "occurred_at": "2022-02-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "13-2-2022"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2859,
+      "gallery": 74,
+      "occurred_at": "2022-02-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "בחירות ישראל 2020",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2865,
+      "gallery": 76,
+      "occurred_at": "2022-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "1/3/2022"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2886,
+      "gallery": 63,
+      "occurred_at": "2019-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "24/6/22"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2896,
+      "gallery": 78,
+      "occurred_at": "2022-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2901,
+      "gallery": 29,
+      "occurred_at": "2022-08-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "בחירות ישראל 2019",
+      "families": [
+        14,
+        45,
+        1237
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ],
+        "45": [
+          45,
+          450,
+          4500
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2911,
+      "gallery": 78,
+      "occurred_at": "2022-08-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "10-8-2022"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45,
+        1237
+      ],
+      "members": {
+        "14": [
+          14,
+          140
+        ],
+        "45": [
+          45
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2924,
+      "gallery": 79,
+      "occurred_at": "2022-08-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "14.8.22",
+        "14.08.22"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2929,
+      "gallery": 79,
+      "occurred_at": "2022-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "28.08.2022"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        1237
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        2929,
+        2930
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2930,
+      "gallery": 29,
+      "occurred_at": "2022-09-07",
+      "dated_to_day": true,
+      "reported_dates": [
+        "7/9/2022",
+        "28.08.2022"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        1237
+      ],
+      "members": {
+        "14": [
+          1400
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [
+        2929,
+        2930
+      ],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2931,
+      "gallery": 79,
+      "occurred_at": "2022-09-08",
+      "dated_to_day": true,
+      "reported_dates": [
+        "8/9/2022"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2934,
+      "gallery": 79,
+      "occurred_at": "2022-09-13",
+      "dated_to_day": true,
+      "reported_dates": [
+        "13/9/2022"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2936,
+      "gallery": 79,
+      "occurred_at": "2022-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "20/09/22"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2949,
+      "gallery": 80,
+      "occurred_at": "2022-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "19/10/2022",
+        "20.10.22"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          4500
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2953,
+      "gallery": 80,
+      "occurred_at": "2022-10-20",
+      "dated_to_day": true,
+      "reported_dates": [
+        "20/10/2022",
+        "20.10.22"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2958,
+      "gallery": 80,
+      "occurred_at": "2022-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "31-10-22",
+        "30/10/2022"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2959,
+      "gallery": 80,
+      "occurred_at": "2022-11-02",
+      "dated_to_day": true,
+      "reported_dates": [
+        "2/11/2022",
+        "31.10.22"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2965,
+      "gallery": 80,
+      "occurred_at": "2022-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "7-11-22",
+        "28.10.22"
+      ],
+      "theme": "פוליטיקה רחבה / מיון ידני",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2971,
+      "gallery": 80,
+      "occurred_at": "2022-12-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "8.12.22"
+      ],
+      "theme": "מספרים/גימטריה",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2975,
+      "gallery": 82,
+      "occurred_at": "2022-02-18",
+      "dated_to_day": true,
+      "reported_dates": [
+        "18/2/2022",
+        "16/12/2022"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2977,
+      "gallery": 82,
+      "occurred_at": "2023-01-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "6.1.2023"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2989,
+      "gallery": 82,
+      "occurred_at": "2023-01-28",
+      "dated_to_day": true,
+      "reported_dates": [
+        "28/1/2023"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2991,
+      "gallery": 38,
+      "occurred_at": "2022-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "2/2/2023"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2997,
+      "gallery": 82,
+      "occurred_at": "2023-02-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "21-2-2023"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 2998,
+      "gallery": 82,
+      "occurred_at": "2023-02-22",
+      "dated_to_day": true,
+      "reported_dates": [
+        "22/2/2023",
+        "30.6.18"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3008,
+      "gallery": 83,
+      "occurred_at": "2019-03-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3042,
+      "gallery": 84,
+      "occurred_at": "2023-07-24",
+      "dated_to_day": true,
+      "reported_dates": [
+        "24/7/2023"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          140
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3043,
+      "gallery": 84,
+      "occurred_at": "2023-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3045,
+      "gallery": 84,
+      "occurred_at": "2019-09-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "מספרים/גימטריה",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3050,
+      "gallery": 84,
+      "occurred_at": "2023-07-27",
+      "dated_to_day": true,
+      "reported_dates": [
+        "27/7/2023",
+        "3.6.21"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3057,
+      "gallery": 84,
+      "occurred_at": "2023-08-09",
+      "dated_to_day": true,
+      "reported_dates": [
+        "09/08/2023"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3060,
+      "gallery": 85,
+      "occurred_at": "2023-08-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3067,
+      "gallery": 86,
+      "occurred_at": "2023-08-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3068,
+      "gallery": 86,
+      "occurred_at": "2023-08-25",
+      "dated_to_day": true,
+      "reported_dates": [
+        "25/8/2023"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3071,
+      "gallery": 86,
+      "occurred_at": "2021-01-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3095,
+      "gallery": 86,
+      "occurred_at": "2023-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "20/10/2023",
+        "20.10.23"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3096,
+      "gallery": 86,
+      "occurred_at": "2023-10-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3116,
+      "gallery": 89,
+      "occurred_at": "2023-11-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3119,
+      "gallery": 88,
+      "occurred_at": "2023-11-12",
+      "dated_to_day": true,
+      "reported_dates": [
+        "12/11/2023",
+        "8/11/2023"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          1400
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3143,
+      "gallery": 88,
+      "occurred_at": "2023-11-28",
+      "dated_to_day": true,
+      "reported_dates": [
+        "28/11/23",
+        "28/11/2023"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45,
+          450
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3155,
+      "gallery": 88,
+      "occurred_at": "2024-12-21",
+      "dated_to_day": true,
+      "reported_dates": [
+        "21/12/24"
+      ],
+      "theme": "בחירות ישראל 2021",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3158,
+      "gallery": 88,
+      "occurred_at": "2023-12-24",
+      "dated_to_day": true,
+      "reported_dates": [
+        "24/12/2023",
+        "21/12/2023"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3204,
+      "gallery": 91,
+      "occurred_at": "2024-02-10",
+      "dated_to_day": true,
+      "reported_dates": [
+        "10/2/2024",
+        "22.8.11"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3234,
+      "gallery": 89,
+      "occurred_at": "2024-03-13",
+      "dated_to_day": true,
+      "reported_dates": [
+        "13/3/2024",
+        "13.03.24"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3240,
+      "gallery": 92,
+      "occurred_at": "2024-03-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3241,
+      "gallery": 92,
+      "occurred_at": "2024-03-13",
+      "dated_to_day": true,
+      "reported_dates": [
+        "13/3/2024"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3244,
+      "gallery": 92,
+      "occurred_at": "2016-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424,
+        1237
+      ],
+      "members": {
+        "424": [
+          424
+        ],
+        "1237": [
+          1237
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": true,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3279,
+      "gallery": 91,
+      "occurred_at": "2024-03-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3287,
+      "gallery": 91,
+      "occurred_at": "2024-03-26",
+      "dated_to_day": true,
+      "reported_dates": [
+        "26/3/2024"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3292,
+      "gallery": 91,
+      "occurred_at": "2024-04-04",
+      "dated_to_day": true,
+      "reported_dates": [
+        "4/4/2024",
+        "04/04/2024"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3304,
+      "gallery": 94,
+      "occurred_at": "2024-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "25.04.24"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3312,
+      "gallery": 95,
+      "occurred_at": "2024-05-05",
+      "dated_to_day": true,
+      "reported_dates": [
+        "05/05/2024"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3313,
+      "gallery": 95,
+      "occurred_at": "2024-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "13-5-24"
+      ],
+      "theme": "פוליטיקה רחבה / מיון ידני",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3320,
+      "gallery": 95,
+      "occurred_at": "2024-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "22.5.24",
+        "20/05/2024"
+      ],
+      "theme": "פוליטיקה רחבה / מיון ידני",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3340,
+      "gallery": 95,
+      "occurred_at": "2024-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "16.06.24"
+      ],
+      "theme": "פוליטיקה רחבה / מיון ידני",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3341,
+      "gallery": 95,
+      "occurred_at": "2024-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "16.6.24",
+        "15.06.24"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3343,
+      "gallery": 95,
+      "occurred_at": "2024-06-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "18-6-24"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3355,
+      "gallery": 95,
+      "occurred_at": "2024-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "02.07.24"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3357,
+      "gallery": 92,
+      "occurred_at": "2024-07-06",
+      "dated_to_day": true,
+      "reported_dates": [
+        "6/7/2024"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3364,
+      "gallery": 92,
+      "occurred_at": "2024-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "14-7-2024"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3373,
+      "gallery": 95,
+      "occurred_at": "2024-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "30.7.24"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3383,
+      "gallery": 99,
+      "occurred_at": "2024-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3384,
+      "gallery": 99,
+      "occurred_at": "2024-07-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "21.07.24"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3385,
+      "gallery": 99,
+      "occurred_at": "2024-07-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3394,
+      "gallery": 96,
+      "occurred_at": "2024-08-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3402,
+      "gallery": 99,
+      "occurred_at": "2024-08-21",
+      "dated_to_day": true,
+      "reported_dates": [
+        "21/8/2024"
+      ],
+      "theme": "מספרים/גימטריה",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14,
+          140
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3404,
+      "gallery": 99,
+      "occurred_at": "2024-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "04.09.24"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3405,
+      "gallery": 99,
+      "occurred_at": "2024-09-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "9-9-2024",
+        "08.09.24"
+      ],
+      "theme": "פוליטיקה רחבה / מיון ידני",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3427,
+      "gallery": 99,
+      "occurred_at": "2024-11-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "7-11-2024"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3429,
+      "gallery": 99,
+      "occurred_at": "2024-12-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "8-12-24"
+      ],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3443,
+      "gallery": 99,
+      "occurred_at": "2025-01-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3444,
+      "gallery": 99,
+      "occurred_at": "2025-01-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "19-1-25",
+        "19.01.25"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3449,
+      "gallery": 102,
+      "occurred_at": "2025-02-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "ממשלות וסקרים",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3452,
+      "gallery": 102,
+      "occurred_at": "2025-02-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3453,
+      "gallery": 102,
+      "occurred_at": "2025-02-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "21.02.25"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3461,
+      "gallery": 94,
+      "occurred_at": "2025-03-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "6.3.2025",
+        "29.11.21",
+        "06.03.25"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "flag_public",
+      "published": 1,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3471,
+      "gallery": 102,
+      "occurred_at": "2025-04-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "07.04.25"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3498,
+      "gallery": 104,
+      "occurred_at": "2025-06-01",
+      "dated_to_day": false,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14
+      ],
+      "members": {
+        "14": [
+          14
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3510,
+      "gallery": 104,
+      "occurred_at": "2025-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "11.10.25"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3511,
+      "gallery": 104,
+      "occurred_at": "2025-10-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "12-10-2025"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        424
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "424": [
+          424
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3539,
+      "gallery": 105,
+      "occurred_at": "2026-05-25",
+      "dated_to_day": true,
+      "reported_dates": [
+        "25/5/2026"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        45
+      ],
+      "members": {
+        "45": [
+          45
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 3540,
+      "gallery": 105,
+      "occurred_at": "2026-05-01",
+      "dated_to_day": false,
+      "reported_dates": [
+        "29.10.17",
+        "27.9.07"
+      ],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        14,
+        45
+      ],
+      "members": {
+        "14": [
+          14
+        ],
+        "45": [
+          45
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": 2,
+      "hidden": false,
+      "ocr_status": "done",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    },
+    {
+      "id": 10001019,
+      "gallery": 105,
+      "occurred_at": "2026-08-14",
+      "dated_to_day": true,
+      "reported_dates": [],
+      "theme": "טראמפ/ארה״ב — בחירות",
+      "families": [
+        424
+      ],
+      "members": {
+        "424": [
+          424
+        ]
+      },
+      "visibility": "restricted_or_unknown",
+      "published": null,
+      "hidden": false,
+      "ocr_status": "pending",
+      "dup_asset_ids": [],
+      "prior_sample": false,
+      "review_state": "METADATA_OCR_CLASSIFIED__EVENT_UNVERIFIED"
+    }
+  ]
+}
