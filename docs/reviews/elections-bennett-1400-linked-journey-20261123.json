@@ -1,0 +1,168 @@
+{
+  "version": "2026-11-23",
+  "artifact_type": "elections_navigation_evidence_proposal",
+  "status": "branch_only_read_only",
+  "topic_slug": "elections-reality-map",
+  "topic_publication": "NOT_PUBLISHED",
+  "existing_elections_entity_node": "2bb53dbf-816a-4033-aff2-874c4981cd39",
+  "focus": "Bennett 2019 1,400 vote shortfall linked to 2021, 2022, 2026 and SOD1820 number 14,140,1400,631,78,776,1237",
+  "stations": [
+    {
+      "id": "bennett-2019-1400",
+      "event_date": "2019-04-09",
+      "label": "בנט ושקד — 1,400 הקולות",
+      "event_fact": "11 April 2019: interim vote count reported approximately 1,400 votes short of threshold for New Right",
+      "historical_status": "reported_interim_not_exact_final",
+      "archive_post_id": 1097,
+      "source_url": "https://www.sod1820.co.il/post/%D7%92%D7%9C%D7%A8%D7%99%D7%AA-%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%A9%D7%A0%D7%AA-%D7%AA%D7%A9%D7%A4-2",
+      "external_sources": [
+        "https://elections.walla.co.il/item/3229865",
+        "https://www.idi.org.il/policy/parties-and-elections/parties/the-new-right/"
+      ],
+      "numbers": [
+        1400,
+        4500
+      ],
+      "provenance": "archive_and_press",
+      "note": "Legacy post calls the party הבית היהודי; correct electoral party was הימין החדש. 4,500 is an earlier report in the archive, not certified final result."
+    },
+    {
+      "id": "bennett-2021",
+      "event_date": "2021-06-13",
+      "label": "ממשלת בנט–לפיד",
+      "archive_post_ids": [
+        1433,
+        273,
+        1450
+      ],
+      "external_source": "https://www.idi.org.il/policy/parties-and-elections/elections/2022-1/",
+      "numbers": [],
+      "provenance": "archival_posts_and_historical_external"
+    },
+    {
+      "id": "lapid-2022-14",
+      "event_date": "2022-07-01",
+      "label": "לפיד נכנס לתפקיד ראש הממשלה ה־14",
+      "archive_post_ids": [
+        273
+      ],
+      "external_source": "https://www.idi.org.il/policy/parties-and-elections/elections/2022-1/",
+      "numbers": [
+        14
+      ],
+      "provenance": "external_factual_number"
+    },
+    {
+      "id": "bennett-2026",
+      "event_date": "2026-10-27",
+      "label": "בחירות הכנסת ה־26 — רשימת ביחד בראשות בנט",
+      "archive_post_ids": [
+        5107,
+        5128,
+        5113
+      ],
+      "external_source": "https://main.knesset.gov.il/mk/elections/pages/electionsresults26.aspx",
+      "result": {
+        "list": "ביחד בראשות נפתלי בנט",
+        "votes": 532018,
+        "seats": 12
+      },
+      "numbers": [
+        631,
+        78,
+        14,
+        140
+      ],
+      "provenance": "official_election_results_and_archived_numbers"
+    }
+  ],
+  "number_nodes": [
+    {
+      "value": 14,
+      "node_id": "0cd071c7-1083-47b3-ad74-85efe2b6316f",
+      "role": "numeric_navigation",
+      "caution": "historical association with 14th PM, 2026 screenshots and other unrelated 14 usages"
+    },
+    {
+      "value": 140,
+      "node_id": "ec6fbbe4-4dce-4fc0-8030-02db6bca180d",
+      "role": "numeric_navigation",
+      "caution": "2026 post 5107 notes 140 comments; don't conflate with 2019 votes"
+    },
+    {
+      "value": 1400,
+      "node_id": "352be869-c863-4a8e-99cf-d0896f490886",
+      "role": "2019_historical_vote_shortfall_and_numeric_navigation"
+    },
+    {
+      "value": 631,
+      "role": "SOD1820_post_5107_election_and_Bennett_gematria",
+      "verification": "source_asserted_gematria_not_historical_fact"
+    },
+    {
+      "value": 78,
+      "role": "SOD1820_post_5113_salt_post_and_5107",
+      "verification": "source_asserted_gematria_not_historical_fact"
+    },
+    {
+      "value": 776,
+      "role": "historical_archive_906_number",
+      "verification": "source_archival_interpretation"
+    },
+    {
+      "value": 1237,
+      "role": "elections_archive_gematria",
+      "verification": "source_archival_interpretation"
+    }
+  ],
+  "edges": [
+    {
+      "from": "bennett-2019-1400",
+      "to": "1400",
+      "kind": "historically_sourced",
+      "provenance": "external_press+SOD1820_1097",
+      "graph_edge_exists": false
+    },
+    {
+      "from": "1400",
+      "to": "140",
+      "kind": "graph_existing",
+      "relation": "scale_x10",
+      "graph_edge_exists": true
+    },
+    {
+      "from": "140",
+      "to": "14",
+      "kind": "graph_existing",
+      "relation": "scale_x10",
+      "graph_edge_exists": true
+    },
+    {
+      "from": "bennett-2019-1400",
+      "to": "bennett-2026",
+      "kind": "proposed_journey_transition",
+      "graph_edge_exists": false
+    },
+    {
+      "from": "bennett-2026",
+      "to": "631",
+      "kind": "archived_numeric_reference_post_5107",
+      "graph_edge_exists": false
+    },
+    {
+      "from": "bennett-2026",
+      "to": "78",
+      "kind": "archived_numeric_reference_post_5113",
+      "graph_edge_exists": false
+    }
+  ],
+  "precautions": [
+    "No change to active DB tables, source posts, or public URLs.",
+    "Do not mislabel reports from April 2019 as final official vote margin.",
+    "Archived statements are attributed to their posts, not presented as objective facts.",
+    "No implied causation between number coincidences and election results.",
+    "Do not create duplicate entity or convergence nodes.",
+    "Validate original post URL alias and RLS before publishing.",
+    "Current election results as of 2026-11-04 are official; link the official Knesset source."
+  ]
+}
