@@ -22,9 +22,10 @@
 - מיזוג ופריסה דורשים אישור מדויק של צוריאל בהתאם ל־`CLAUDE.md` ו־`AGENTS.md`.
 
 ## כתיבה ועבודת סוכנים
-לפי ה־Owner Index החי, **Claude הוא הכותב המחייב של רכיבי תצוגה ומשטחים ב־2029**. התוספת בענף הנוכחי היא נתונים ומבחני חוזה בלבד; המימוש החזותי מתבצע במסלול העיצוב המורשה, אחרי בדיקת writer ownership. משתמשים ב־PR #1519 כבסיס מקור ומונעים PR כפול או דריסה של עבודת Royal מקבילה.
+**עדכון הרשאת בעלים 23.11.2026:** צוריאל הורה במפורש ש־GPT ימשיך גם את העבודה החזותית כי Claude אינו עובד כרגע. לכן בענף זה נוספו רכיבי תצוגה **מבודדים לספר ולכרטיס הבית** בלבד, ולא שונו System Frame/רכיבי Royal משותפים. לפני כל כתיבה נוספת בודקים writer ownership; אין להפעיל כותב נוסף במקביל. משתמשים ב־PR #1519 כבסיס מקור ומונעים PR כפול או דריסה של עבודת Royal מקבילה.
 
 ## מצב נוכחי
-- SOURCE/MANIFEST + JOURNEY DATA: BRANCH-ONLY PR #1519.
-- DB Book identity, public route, Royal Home, Now, browser acceptance, deployment: NOT DONE.
+- SOURCE/MANIFEST + JOURNEY DATA + Royal 8-gate UI + public Book read admission + guarded Home spotlight: BRANCH-ONLY PR #1519.
+- DB Book identity, external PDF GET/SHA readback, Now publication, browser acceptance, deployment: NOT DONE.
+- `NOW-RELEASE.md` prepares one `site-news` row for separate approved release; no DB mutation. `RELEASE-GATE.md` describes a reviewed inactive-to-active Book identity admission plan.
 - CI קודם עבור HEAD `b70a180`: 6/7 workflow success; `2029 Live Contracts` failure in `auth-browser-acceptance-2029`, step `Community dislikes beside likes` (scope unrelated). יש לבדוק ריצה חדשה על HEAD מעודכן.
