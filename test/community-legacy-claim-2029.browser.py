@@ -21,7 +21,7 @@ server=ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Files,directory=str
 def install(context,uid=None,preset='dark'):
  if uid:context.add_init_script('localStorage.setItem('+json.dumps(KEY)+','+json.dumps(json.dumps(session(uid)))+');')
  context.add_init_script('localStorage.setItem("sod-theme",'+json.dumps(preset)+');')
- state={'claims':[],'mode':'denied','held':None,'confirmed':True,'unexpected':[],'errors':[]}
+ state={'claims':[],'contacts':[],'mode':'denied','held':None,'confirmed':True,'unexpected':[],'errors':[]}
  def route(h):
   r=h.request;u=urlparse(r.url)
   if u.hostname=='127.0.0.1':h.continue_();return
@@ -33,6 +33,10 @@ def install(context,uid=None,preset='dark'):
   if u.path=='/auth/v1/user':reply({'id':actor,'email':'fixture@example.invalid','email_confirmed_at':'2026-10-31T00:00:00Z' if state['confirmed'] else None},200 if actor else 401);return
   if u.path=='/rest/v1/users':reply({'id':actor,'display_name':'משתמש בדיקה','username':'fixture','role':'user','tier':'member'});return
   name=u.path.rsplit('/',1)[-1];body=r.post_data_json if r.method=='POST' else {}
+  if u.path=='/rest/v1/contact_messages' and r.method=='POST':
+   assert isinstance(body,list) and len(body)==1
+   state['contacts'].append(body[0]);reply([]);return
+  if u.path=='/functions/v1/contact-notify':reply({'accepted':True});return
   if name=='community_feed_page':reply([]);return
   if name=='contributors_claim_legacy':
    assert actor and set(body)=={'p_contributor_id'} and body['p_contributor_id'] in [EM,ES]
@@ -55,20 +59,30 @@ with sync_playwright() as p:
    for preset in ['light','parchment','dark']:
     context=browser.new_context(viewport={'width':width,'height':900});state=install(context,preset=preset);page=context.new_page();page.set_default_timeout(10000);page.on('pageerror',lambda e:state['errors'].append(str(e)))
     page.goto(BASE+'/community/chat?sort=liked&sourceSort=oldest');entry=page.get_by_role('button',name='החשבון שלי מהצ׳אט הישן',exact=True);entry.click();modal=page.get_by_role('dialog',name='חיבור החשבון מהצ׳אט הישן');expect(modal).to_be_visible()
-    modal.get_by_label('הפרופיל הישן שלי',exact=True).select_option(EM);expect(modal.get_by_label('כתובת מייל',exact=True)).to_be_visible();expect(modal.get_by_role('button',name='אימות וחיבור החשבון הישן')).to_have_count(0)
+    modal.get_by_text('אפשרות נוספת: חיבור באמצעות מייל ישן מאומת',exact=True).click();modal.get_by_label('הפרופיל הישן שלי',exact=True).select_option(EM);expect(modal.get_by_label('כתובת מייל',exact=True)).to_be_visible();expect(modal.get_by_role('button',name='אימות וחיבור החשבון הישן')).to_have_count(0)
     assert modal.get_by_label('הפרופיל הישן שלי',exact=True).locator('option').all_text_contents()==['בחירת פרופיל…','אמילי','Esther26']
+    expect(modal.get_by_label('השם שלי בצ׳אט הישן')).to_be_visible()
+    expect(modal.get_by_label('השם שלי באתר החדש')).to_be_visible()
+    if width==390 and preset=='light':
+     modal.get_by_label('השם שלי בצ׳אט הישן').fill('שם ותיק')
+     modal.get_by_label('השם שלי באתר החדש').fill('שם חדש')
+     modal.get_by_label('מייל לחזרה').fill('person@example.invalid')
+     modal.get_by_role('button',name='שליחת בקשה לאישור').click()
+     expect(modal.get_by_role('status')).to_contain_text('הבקשה נשמרה לבדיקה')
+     assert len(state['contacts'])==1 and 'שם ותיק' in state['contacts'][0]['message'] and 'שם חדש' in state['contacts'][0]['message']
+     assert not state['claims'],'manual request never links an identity'
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1');assert not modal.evaluate('e=>e.scrollWidth>e.clientWidth+1')
     buttons=modal.locator('button:visible');assert buttons.evaluate_all('es=>es.every(e=>{const r=e.getBoundingClientRect();return r.width>=44&&r.height>=44})')
     page.keyboard.press('Tab');assert page.evaluate('document.activeElement.closest("dialog")!==null')
     page.screenshot(path=str(OUT/f'claim-{width}-{preset}.png'));page.keyboard.press('Escape');expect(modal).not_to_be_visible();expect(entry).to_be_focused();assert 'sourceSort=oldest' in page.url
     assert not state['claims'] and not state['unexpected'] and not state['errors'],state;cases.append({'width':width,'preset':preset,'guest_no_claim':True,'keyboard_focus':True,'no_overflow':True});context.close()
   for width in [390,1440]:
-   context=browser.new_context(viewport={'width':width,'height':950});state=install(context,A);page=context.new_page();page.set_default_timeout(15000);page.goto(BASE+'/community/chat?sort=oldest');page.get_by_role('button',name='החשבון שלי מהצ׳אט הישן',exact=True).click();modal=page.get_by_role('dialog');modal.get_by_label('הפרופיל הישן שלי').select_option(EM)
+   context=browser.new_context(viewport={'width':width,'height':950});state=install(context,A);page=context.new_page();page.set_default_timeout(15000);page.goto(BASE+'/community/chat?sort=oldest');page.get_by_role('button',name='החשבון שלי מהצ׳אט הישן',exact=True).click();modal=page.get_by_role('dialog');modal.get_by_text('אפשרות נוספת: חיבור באמצעות מייל ישן מאומת',exact=True).click();modal.get_by_label('הפרופיל הישן שלי').select_option(EM)
    action=modal.get_by_role('button',name='אימות וחיבור החשבון הישן',exact=True);expect(action).to_be_visible();action.click();expect(modal.get_by_role('alert')).to_contain_text('לא ניתן לחבר');assert len(state['claims'])==1
    state['confirmed']=False;action.click();expect(modal.get_by_role('alert')).to_contain_text('יש לאמת את כתובת המייל');assert len(state['claims'])==1
    state['confirmed']=True;state['mode']='success';action.click();expect(modal.get_by_text('החשבון הישן קושר בהצלחה',exact=True)).to_be_visible();assert state['claims'][-1]['actor']==A
    href=modal.get_by_role('link',name='האזור האישי שלי',exact=False).get_attribute('href');assert 'returnTo=' in href and 'sort%3Doldest' in href
-   page.keyboard.press('Escape');page.get_by_role('button',name='החשבון שלי מהצ׳אט הישן',exact=True).click();modal.get_by_label('הפרופיל הישן שלי').select_option(ES);state['mode']='hold';modal.get_by_role('button',name='אימות וחיבור החשבון הישן',exact=True).click()
+   page.keyboard.press('Escape');page.get_by_role('button',name='החשבון שלי מהצ׳אט הישן',exact=True).click();modal.get_by_text('אפשרות נוספת: חיבור באמצעות מייל ישן מאומת',exact=True).click();modal.get_by_label('הפרופיל הישן שלי').select_option(ES);state['mode']='hold';modal.get_by_role('button',name='אימות וחיבור החשבון הישן',exact=True).click()
    for _ in range(100):
     if state['held']:break
     page.wait_for_timeout(20)
@@ -77,7 +91,7 @@ with sync_playwright() as p:
    h,actor,target=state['held'];h.fulfill(status=200,content_type='application/json',body=json.dumps({'claimed':True,'contributor_id':target,'user_id':actor}))
    expect(page.get_by_text('החשבון הישן קושר בהצלחה',exact=True)).to_have_count(0)
    if not modal.is_visible():
-    page.get_by_role('button',name='החשבון שלי מהצ׳אט הישן',exact=True).click();modal.get_by_label('הפרופיל הישן שלי').select_option(ES)
+    page.get_by_role('button',name='החשבון שלי מהצ׳אט הישן',exact=True).click();modal.get_by_text('אפשרות נוספת: חיבור באמצעות מייל ישן מאומת',exact=True).click();modal.get_by_label('הפרופיל הישן שלי').select_option(ES)
    expect(modal.get_by_role('button',name='אימות וחיבור החשבון הישן',exact=True)).to_be_enabled()
    page.keyboard.press('Escape');page.goto(BASE+'/community/chat?claim='+EM);expect(page.get_by_role('heading',name='אימות החשבון הישן',exact=True)).to_be_visible();expect(page.get_by_role('link',name='→ חזרה לקהילה')).to_have_attribute('href','/community/chat')
    assert not state['unexpected'],state['unexpected'];cases.append({'width':width,'denial_retry':True,'unconfirmed_no_rpc':True,'verified_success_fixture':True,'stale_account_result_ignored':True,'direct_claim_return':True});context.close()
