@@ -30,18 +30,17 @@
     {
       "rule_id": "legacy_content_protocol",
       "old_version": 2,
-      "proposed_version": 3,
+      "proposed_version": null,
       "old_owner": "project_codex.publishing_conventions",
-      "new_owner": "project_codex.publishing_conventions",
+      "new_owner": null,
       "old_compaction_owner": "project_codex.publishing_conventions",
-      "new_compaction_owner": "project_codex.publishing_conventions",
+      "new_compaction_owner": null,
       "old_depends_on": [
         "research_intake_foundation_contract_law@13"
       ],
-      "new_depends_on": [
-        "research_intake_foundation_contract_law"
-      ],
-      "edit_policy": "APPEND_NEW_VERSION_AND_RETIRE_OLD_SAME_TRANSACTION"
+      "new_depends_on": null,
+      "edit_policy": "RETIRE_V2_WITHOUT_REPLACEMENT__NO_ACTIVE_DEPENDENTS",
+      "reason": "Legacy product retired 2026-11-05; WordPress and old galleries remain historical evidence, not active product law"
     },
     {
       "rule_id": "logo_integrity_law",
@@ -104,18 +103,21 @@
     "slug": "gematria_engine",
     "old": "canonical_methods_registry_law marked current v5 in 2 places",
     "new": "resolve latest active canonical_methods_registry_law at read time",
-    "node_current_verified_version": 6
+    "node_current_verified_version": 6,
+    "note": "The gematria engine document version refs are current-v5 but live method registry is v6; resolve latest active without hardcoding."
   },
   "protected_historical_refs": "older versions remain intact; past v13 and V1 mentions kept as archival text",
   "not_in_scope": "other inactive depends_on references; dependencies/cycles require separate semantic classification",
   "human_gate_required": "deploy_on_request v4 + node trigger fn_rule_compaction_integrity_guard_v1; no in-place owner/body mutation; referenced work_log row explicitly naming each law",
   "action_sql": "docs/reviews/contract-hierarchy-deep-audit-20261123/approved-release-only-reference-repair.sql",
   "expected_postconditions": {
-    "active_rule_ids": 87,
-    "total_rule_rows_if_applied": 481,
+    "active_rule_ids": 86,
+    "total_rule_rows_if_applied": 480,
     "design_rules_active_owner_v2": 5,
-    "legacy_intake_dep_unpinned": 1,
+    "legacy_protocol_active": 0,
+    "legacy_protocol_retired_v2_preserved": 1,
     "gematria_codex_static_v5": 0,
     "duplicate_active_versions": 0
-  }
+  },
+  "historical_legacy_retained": true
 }
