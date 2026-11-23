@@ -154,8 +154,6 @@ export default function Els2029Page(props) {
 // ZURIEL 6.11: Classic and Research are open to every visitor; Guided discovery, AI and Raziel stay with the administrator.
 function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false }) {
   const guidedVisible = !publicClassic && import.meta.env?.VITE_ELS_GUIDED_DISCOVERY === "visible";
-  const { user, verified, isAdmin } = useAuth();
-  const registeredAdvanced = Boolean(verified && user?.id && user?.is_anonymous !== true);
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
   const location = useLocation();
@@ -165,7 +163,8 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   const [continueIntent] = useState(() => location.state?.sodResearchIntent === "continue");
   const [ownActivity, setOwnActivity] = useState(false);
   const [loadsDismissed, setLoadsDismissed] = useState(false);
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, verified, loading: authLoading } = useAuth();
+  const registeredAdvanced = Boolean(verified && user?.id && user?.is_anonymous !== true);
   const [params, setParams] = useSearchParams();
   const library = params.get("library");
   const [workspaceVisited, setWorkspaceVisited] = useState(!library);
