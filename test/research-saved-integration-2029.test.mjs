@@ -166,7 +166,7 @@ function seedLegacyPassive(storage, { uid = 'A', n, released = true, title = Str
       entity: { id: `number:${n}`, type: 'number', ref: n, title }
     })] }],
     inflight: null,
-    owner: { id: `old-tab-${n}`, at: Date.now() - 11 * 60 * 1000, released }
+    owner: { id: `old-tab-${n}`, at: released ? Date.now() - 11 * 60 * 1000 : Date.now(), released }
   }));
   return name;
 }
