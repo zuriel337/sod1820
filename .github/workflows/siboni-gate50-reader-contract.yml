@@ -1,0 +1,32 @@
+name: Siboni Gate 50 Book Source and Reader Contract
+
+on:
+  pull_request:
+    paths:
+      - 'src/data/bookReader2029.js'
+      - 'src/data/siboniGate50Journey2029.js'
+      - 'src/lib/research/publicLibraryContinuity2029.js'
+      - 'src/pages/PublicLibraryContinuity2029Page.jsx'
+      - 'src/components/books2029/SiboniGate50Journey2029.jsx'
+      - 'test/siboni-gate50-*.test.mjs'
+      - 'src/lib/research/publicLibraryContinuity2029.test.js'
+      - 'scripts/test-2029-isolation.mjs'
+      - '.github/workflows/siboni-gate50-reader-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-source-reader:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check source identity, pages, existing closed-book admission and eight-gate map
+        run: |
+          node --test test/siboni-gate50-reader-manifest.test.mjs test/siboni-gate50-journey.test.mjs src/lib/research/publicLibraryContinuity2029.test.js
+          node scripts/test-2029-isolation.mjs
