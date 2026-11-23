@@ -654,7 +654,7 @@ export default function NumberDrawer2029({
 
     {Number.isSafeInteger(root) && root >= 0 ? <div className="sod29-number-drawer-save" aria-label="שמירת המספר או הביטוי">
       <PersonalSaveButton2029 entity={{
-        ...(clean(expression) && !/^\\d+$/.test(clean(expression))
+        ...(clean(expression) && !/^\d+$/.test(clean(expression))
           ? entityFromPhrase(clean(expression), traceNumber(selectedProfile?.computedValue) ?? root)
           : entityFromNumber(root)),
         link: numberExpressionFocusHref(root, surfaceMode === "focus" ? {
