@@ -58,7 +58,7 @@ function bearerMayIdentifyUser(token: string): boolean {
   }
 }
 
-async function resolveUser(req: Request): Promise<string | null> {
+async function resolveUser(req: Request, registeredOnly = false): Promise<string | null> {
   const authorization = req.headers.get("authorization") || "";
   if (!authorization.startsWith("Bearer ") || !SUPABASE_URL || !SERVICE_KEY) return null;
   if (!bearerMayIdentifyUser(authorization.slice("Bearer ".length).trim())) return null;
@@ -68,6 +68,7 @@ async function resolveUser(req: Request): Promise<string | null> {
     });
     if (!r.ok) return null;
     const data = await r.json();
+    if (registeredOnly && data?.is_anonymous !== false) return null;
     return typeof data?.id === "string" ? data.id : null;
   } catch {
     return null;
@@ -232,7 +233,16 @@ Deno.serve(async (req: Request) => {
   const scope = body?.scope === "tanakh" ? "tanakh" : "torah";
   if (!op || term.length < 2) return json({ error: "invalid_request" }, 400);
 
-  const userId = await resolveUser(req);
+  // Existing resolveUser contract keeps its string/null result for Classic and all other callers.
+  const registeredRange = body?.access_mode === "registered_range_v1";
+  const userId = await resolveUser(req, registeredRange);
+  if (body?.access_mode !== undefined && !registeredRange) return json({ error: "invalid_access_mode" }, 400);
+  if (registeredRange) {
+    if (!userId) return json({ error: "registered_account_required" }, 403);
+    const registeredSkipMin = intOrNull(body?.skip_min), registeredSkipMax = intOrNull(body?.skip_max), registeredPageSize = intOrNull(body?.page_size);
+    if (op !== "page" || term.length > 80 || registeredSkipMin == null || registeredSkipMin < 2 || registeredSkipMax == null || registeredSkipMax < registeredSkipMin || registeredSkipMax > 500
+      || registeredPageSize == null || registeredPageSize < 1 || registeredPageSize > 20) return json({ error: "advanced_budget_exceeded" }, 400);
+  }
   let rate;
   try { rate = await rateLimit(req, userId, op); }
   catch { return json({ error: "rate_limit_backend" }, 503); }
@@ -262,7 +272,7 @@ Deno.serve(async (req: Request) => {
     candidates: batchCandidates.map(c => [c.skip, c.dir, c.start]),
     strategy: batchStrategy,
   } : {
-    op, term, scope,
+    op, term, scope, access_mode: registeredRange ? "registered_range_v1" : null,
     skip_min: body?.skip_min ?? null,
     skip_max: body?.skip_max ?? null,
     page_size: body?.page_size ?? null,

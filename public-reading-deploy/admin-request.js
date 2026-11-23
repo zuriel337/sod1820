@@ -2,7 +2,7 @@
 // Auth server and its own RLS-bound identity row. It never grants a DB role,
 // substitutes credentials, caches a private identity or overrides endpoint policy.
 // Kept self-contained so the exact same verifier is emitted into the worker.
-export async function verifyReadingPrincipal({ token, apiKey, signal, fetchImpl = fetch }) {
+export async function verifyReadingPrincipal({ token, apiKey, signal, fetchImpl = fetch, registeredOnly = false }) {
   try {
     if (signal?.aborted || typeof token !== "string" || token.length > 8192 || !apiKey
       || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) return null;
@@ -17,6 +17,8 @@ export async function verifyReadingPrincipal({ token, apiKey, signal, fetchImpl 
     if (!auth.ok || signal?.aborted) return null;
     const user = await auth.json();
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user?.id || "") || user.id !== claims.sub) return null;
+    // A genuine signed-in account, not a Supabase anonymous-auth user with a real JWT.
+    if (registeredOnly && user.is_anonymous !== false) return null;
     return user.id;
   } catch { return null; }
 }

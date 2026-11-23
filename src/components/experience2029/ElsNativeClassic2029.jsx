@@ -878,7 +878,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
 
 export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, advancedSearch = null, advancedSearchRequestKey = null, researchLoad = null, discoveryId = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onResearchRestore, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult, publicClassic = false }) {
   const palette = use2029Palette("research_lab");
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, verified } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
   // The iframe source stays stable after mount. User-initiated searches travel through native-search,
   // so changing a term/scope never creates a second engine instance or remounts the canonical one.
@@ -1208,11 +1208,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const openedAdvancedRequest = useRef(null);
   useEffect(() => {
-    if (!advancedSearchRequestKey || !researchProfile || guidedProfile || openedAdvancedRequest.current === advancedSearchRequestKey) return;
+    if (!advancedSearch || !advancedSearchRequestKey || !researchProfile || guidedProfile || openedAdvancedRequest.current === advancedSearchRequestKey) return;
     openedAdvancedRequest.current = advancedSearchRequestKey;
     setAdvancedSelected(true); setAdvancedOpen(true);
   }, [advancedSearchRequestKey, researchProfile, guidedProfile]);
-  const advancedSearchOpen = researchProfile && !guidedProfile && advancedOpen;
+  const advancedSearchOpen = Boolean(advancedSearch) && researchProfile && !guidedProfile && advancedOpen;
   const [pairPlannerOpen, setPairPlannerOpen] = useState(false);
   const crossSearchOpen = researchProfile && crossOpen;
   const [crossTerm, setCrossTerm] = useState("");
@@ -1726,7 +1726,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <button type="button" aria-pressed={crossSearchOpen && !advancedSearchOpen} aria-expanded={crossSearchOpen && !advancedSearchOpen}
           onClick={() => { setAdvancedSelected(false); setAdvancedOpen(false); setCrossOpen(true); }}>הצלבה בין צירים</button>
         {advancedSearch ? <button type="button" aria-pressed={advancedSearchOpen} aria-controls="els29-advanced-search"
-          onClick={() => { setAdvancedSelected(true); setAdvancedOpen(true); requestAnimationFrame(() => document.getElementById("els29-advanced-search")?.scrollIntoView({block:"start",behavior:"smooth"})); }}>חיפוש מתקדם</button> : null}</> : null}
+          onClick={() => { setAdvancedSelected(true); setAdvancedOpen(true); requestAnimationFrame(() => document.getElementById("els29-advanced-search")?.scrollIntoView({block:"start",behavior:"smooth"})); }}>חיפוש מתקדם</button> : !verified || !user?.id || user?.is_anonymous === true ? <a className="sod29-action" href="/login?returnTo=%2Fcode%3Fmode%3Dresearch" aria-label="התחברו או הירשמו לחיפוש מתקדם">🔒 חיפוש מתקדם · לרשומים</a> : null}</> : null}
       </div>
       <form className="els29-native-basic-form" onSubmit={submit} hidden={advancedSearchOpen}>
       <div className="els29-native-query-terms">

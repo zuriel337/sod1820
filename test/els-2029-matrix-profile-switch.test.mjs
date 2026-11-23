@@ -60,7 +60,10 @@ test("ELS 2029 public release: Classic and Research are open, Guided, AI scan an
   assert.match(page, /return ELS_MATRIX_PROFILE\.RESEARCH;\n  \}\);/);
   assert.match(page, /<ElsRecentCiphers2029 onOpen=\{openCipher\}/);
   assert.match(page, /const library = params\.get\("library"\)/);
-  assert.match(page, /advancedSearch=\{<ElsAdvancedSearch2029/);
+  // The public mode stays visible, with a registered-only advanced tool and preserved admin tool.
+  assert.ok(page.includes("advancedSearch={registeredAdvanced && !isAdmin ? <ElsRegisteredAdvanced2029"));
+  assert.ok(page.includes(": !isAdmin ? null : <ElsAdvancedSearch2029"));
+  assert.ok(page.includes("const registeredAdvanced = Boolean(verified && user?.id && user?.is_anonymous !== true)"));
   const replayEffect = page.slice(page.indexOf("if (elsState.loading || elsState.blocked || !replayKey)"), page.indexOf("const replayProjection"));
   assert.match(replayEffect, /CONTEXT_REQUIRED/);
   assert.match(page, /hidden=\{!advancedResearchProfile \|\| publicClassic\}/);

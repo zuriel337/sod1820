@@ -40,7 +40,10 @@ export const INDEXING_FIRST_WORDS_PREVIEW_BRANCH = "ccr-62250444-voptzj";
 // Approved by ZURIEL on 20.11.2026 ("מאשר להכין את 1 ו־2 יחד בפריוויו לנייד ב־/community/calculator. פתח ענף נפרד מ־#1463"): ONE protected Preview
 // of the community calculator share card, exact branch below (built on top of #1463). Same rules: Preview target only, never Production.
 export const COMMUNITY_SHARE_PREVIEW_BRANCH = "ccr-62250444-voptzj-community-share";
-export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH, INDEXING_FIRST_WORDS_PREVIEW_BRANCH, COMMUNITY_SHARE_PREVIEW_BRANCH]);
+// ZURIEL, 23.11.2026: explicit acceptance Preview for PR #1522 ahead of coordinated website + ELS Edge production release.
+// Exact branch only, Preview target only, and pinned Vercel SHA/host; never confers Production or domain authority.
+export const ELS_REGISTERED_REVIEW_BRANCH = "gpt/els-onboarding-access-plan-20261123";
+export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH, INDEXING_FIRST_WORDS_PREVIEW_BRANCH, COMMUNITY_SHARE_PREVIEW_BRANCH, ELS_REGISTERED_REVIEW_BRANCH]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
 export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
