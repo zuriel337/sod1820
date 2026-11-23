@@ -129,11 +129,14 @@ export function LegacyAccountClaimEntry({ rows = [], onClaimed }) {
           <button type="submit" className="sod29-action primary" disabled={reviewRequest.state === "pending"}>{reviewRequest.state === "pending" ? "שולחים בקשה…" : "שליחת בקשה לאישור"}</button>
           {reviewRequest.error ? <p role="alert">{reviewRequest.error}</p> : null}
         </form>}
-        <p className="sod29-community-claim-help">יש לכם גישה למייל המאומת מהצ׳אט הישן? ניתן גם לנסות חיבור מאומת דרך הפרופילים הקיימים:</p>
-        <label htmlFor={selectId}>הפרופיל הישן שלי</label>
-        <select id={selectId} value={selected} disabled={claimed === null} onChange={event => setSelected(event.target.value)}><option value="">{claimed === null ? "בודקים אילו פרופילים פנויים…" : offered.length ? "בחירת פרופיל…" : "אין כרגע פרופילים פנויים"}</option>{offered.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>
-        <p className="sod29-community-claim-help">הפרופיל אינו ברשימה? פתחו את שמכם דרך הודעה ישנה ובחרו ״זה החשבון הישן שלי״.</p>
-        {selected ? <LegacyAccountClaim key={selected} contributorId={selected} embedded onClaimed={onClaimed} /> : null}
+        <details className="sod29-community-claim-verified">
+          <summary>אפשרות נוספת: חיבור באמצעות מייל ישן מאומת</summary>
+          <p className="sod29-community-claim-help">אם יש לכם גישה למייל המאומת מהצ׳אט הישן, אפשר לנסות את מנגנון החיבור הקיים.</p>
+          <label htmlFor={selectId}>הפרופיל הישן שלי</label>
+          <select id={selectId} value={selected} disabled={claimed === null} onChange={event => setSelected(event.target.value)}><option value="">{claimed === null ? "בודקים אילו פרופילים פנויים…" : offered.length ? "בחירת פרופיל…" : "אין כרגע פרופילים פנויים"}</option>{offered.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>
+          <p className="sod29-community-claim-help">הפרופיל אינו ברשימה? אפשר לשלוח את הבקשה שמעל לבדיקה ידנית.</p>
+          {selected ? <LegacyAccountClaim key={selected} contributorId={selected} embedded onClaimed={onClaimed} /> : null}
+        </details>
       </div> : null}
     </dialog>
   </>;
