@@ -43,6 +43,17 @@ const KEY = 'sod_auth_diag_v1', MAX = 20;
 function store() { try { return globalThis.sessionStorage || null; } catch { return null; } }
 export function recordAuthEvent(kind, step = '', status = 0, now = Date.now()) {
   const safe = { t: now, kind: AUTH_FAILURE_KINDS.includes(kind) ? kind : 'unknown', step: text(step).replace(/[^a-z_]/g, '').slice(0, 24), status: Number(status) || 0 };
+  // Report only classified failures, never the error text, email, OTP or JWT.
+  // Load this module only after an actual failure; no cost to healthy startup.
+  if (typeof window !== 'undefined' && import.meta.env?.VITE_PUBLIC_READING_RELEASE === 'public-reading-20261101') {
+    const reason = safe.kind === 'storage_unavailable' ? 'storage_blocked'
+      : safe.kind === 'refresh_failed' ? 'refresh_failed'
+      : safe.kind === 'session_missing' ? 'session_missing'
+      : safe.kind === 'network' ? 'network'
+      : safe.kind === 'server_error' ? 'server_error' : 'unknown';
+    void import('./appHealthIncident2029.js').then(m => m.reportAppHealth('auth_failed',
+      { reason, stage: 'auth' })).catch(() => {});
+  }
   const s = store(); if (!s) return safe;
   try { const trail = JSON.parse(s.getItem(KEY) || '[]'); trail.push(safe); s.setItem(KEY, JSON.stringify(trail.slice(-MAX))); } catch { /* diagnostics are best effort */ }
   return safe;
