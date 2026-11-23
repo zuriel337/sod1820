@@ -10,8 +10,7 @@ const STAGES = topic.sections;
 const SOURCE_URL = (id) => sourcePaths[String(id)] ? "/post/" + sourcePaths[String(id)] : null;
 function ElectionsJourneyMap({ selected, onSelect }) {
   const canvasRef = useRef(null);
-  const [angles, setAngles] = useState({ a: 0.3, b: -0.18, zoom: 1 });
-  const angleRef = useRef(angles); angleRef.current = angles;
+  const angleRef = useRef({ a: 0.3, b: -0.18, zoom: 1 });
   useEffect(() => {
     const canvas=canvasRef.current;
     if (!canvas) return undefined;
@@ -51,15 +50,15 @@ function ElectionsJourneyMap({ selected, onSelect }) {
       });
     };
     const down=e=>{dragging={x:e.clientX,y:e.clientY};moved=0;canvas.setPointerCapture(e.pointerId)};
-    const move=e=>{if(!dragging)return;const dx=e.clientX-dragging.x,dy=e.clientY-dragging.y;moved+=Math.abs(dx)+Math.abs(dy);dragging={x:e.clientX,y:e.clientY};setAngles(v=>({ ...v,a:v.a+dx*.008,b:Math.max(-1.1,Math.min(1.1,v.b+dy*.006))}));};
+    const move=e=>{if(!dragging)return;const dx=e.clientX-dragging.x,dy=e.clientY-dragging.y;moved+=Math.abs(dx)+Math.abs(dy);dragging={x:e.clientX,y:e.clientY};angleRef.current={...angleRef.current,a:angleRef.current.a+dx*.008,b:Math.max(-1.1,Math.min(1.1,angleRef.current.b+dy*.006))};draw();};
     const up=e=>{if(!dragging)return;dragging=null;if(moved>8)return;const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;const pick=points.map((p,i)=>({i,dist:Math.hypot(x-p.x,y-p.y),r:p.r})).filter(p=>p.dist<=p.r+10).sort((a,b)=>a.dist-b.dist)[0];if(pick)onSelect(pick.i)};
-    const wheel=e=>{e.preventDefault();setAngles(v=>({...v,zoom:Math.min(1.6,Math.max(.7,v.zoom*(e.deltaY<0?1.08:.92)))}))};
+    const wheel=e=>{e.preventDefault();angleRef.current={...angleRef.current,zoom:Math.min(1.6,Math.max(.7,angleRef.current.zoom*(e.deltaY<0?1.08:.92)))};draw()};
     const ro=new ResizeObserver(draw);
     ro.observe(canvas);
     canvas.addEventListener("pointerdown",down);canvas.addEventListener("pointermove",move);canvas.addEventListener("pointerup",up);canvas.addEventListener("wheel",wheel,{passive:false});
     draw();
     return ()=>{ro.disconnect();canvas.removeEventListener("pointerdown",down);canvas.removeEventListener("pointermove",move);canvas.removeEventListener("pointerup",up);canvas.removeEventListener("wheel",wheel)};
-  },[angles,selected,onSelect]);
+  },[selected,onSelect]);
   return <canvas ref={canvasRef} aria-label="מפת תחנות בחירות — ארבע תחנות" role="img" style={{width:"100%",height:"min(48vh,390px)",minHeight:265,touchAction:"none",display:"block"}}/>;
 }
 
