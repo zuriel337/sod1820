@@ -192,3 +192,41 @@ test("public runtime never imports legacy engine UI or session readers; existing
   assert.match(source, /window\.addEventListener\("popstate"/);
   assert.match(source, /abort\.abort\(\)/);
 });
+
+
+test("Siboni public reader is admitted only with a current exact Book node and valid source check", async () => {
+  const slug = "hamasa-leshaar-hahamishim-zion-siboni";
+  const pdfSha = "35261bcc661d6364353482c9f911de9c39f203e503a68aa97b680e4a85c77e2c";
+  const row = book({
+    label: "המסע לשער החמישים — מהבינה המלאכותית לבינה המלכותית",
+    book_slug: slug,
+    identity_key: `book:${slug}`,
+    source_ref_prefixes: [`book:${slug}`],
+    identity_tiers: { digital_object: {
+      mime: "application/pdf", bucket: "gallery", path: "Book/zion50.pdf", size_bytes: 1322143, sha256: pdfSha,
+    } },
+  });
+  const projected = projectPublicBook2029(row);
+  assert.equal(projected.readerState, "source_bound");
+  assert.equal(projected.sourceRef, `book:${slug}`);
+  assert.equal(projected.manifest.pdfPages, 110);
+  const opened = await fetchPublicLibraryItem2029("books", slug, {
+    readRows: async () => [row], checkBookSource: async () => true,
+  });
+  assert.equal(opened.readerState, "ready");
+  assert.equal(publicLibraryMetadata2029({ kind: "books", item: opened, detail: true }).noindex, false);
+  const absent = await fetchPublicLibraryItem2029("books", slug, { readRows: async () => [] });
+  assert.equal(absent, null);
+  const broken = await fetchPublicLibraryItem2029("books", slug, {
+    readRows: async () => [row], checkBookSource: async () => false,
+  });
+  assert.equal(broken.readerState, "public_source_file_unavailable");
+  assert.equal(broken.manifest, null);
+  assert.equal(publicLibraryMetadata2029({ kind: "books", item: broken, detail: true }).noindex, true);
+  const tampered = projectPublicBook2029({
+    ...row, identity_tiers: { digital_object: {
+      mime: "application/pdf", bucket: "gallery", path: "Book/zion50.pdf", size_bytes: 1322143, sha256: "0".repeat(64),
+    } },
+  });
+  assert.equal(tampered.readerState, "public_source_binding_unavailable");
+});
