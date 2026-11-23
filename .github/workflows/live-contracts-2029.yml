@@ -110,6 +110,8 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
+      - name: Post-publication SEO readback logic (public sitemap, robots, canonical, titles, fail-closed coverage)
+        run: node --test test/postpublication-seo-audit-2029.test.mjs
       - name: Server document metadata parity (crawler, AI and social documents for public routes, including the Beit Midrash learning area)
         run: node scripts/test-2029-server-seo-ai-parity.mjs
       - name: Beit Midrash strips move only themselves, never the page
