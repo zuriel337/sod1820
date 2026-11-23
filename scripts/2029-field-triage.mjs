@@ -7,7 +7,7 @@ export const GOOD_TARGETS = Object.freeze({ lcp_ms:2500, inp_ms:200, cls:0.1 });
 export const MIN_SAMPLES = Object.freeze({ lcp_ms:50, inp_ms:30, cls:50 });
 // Unknown is not a PASS; a metric with tiny sample is not proof of a defect.
 export function fieldMetricTriage(rows = []) {
-  if(!Array.isArray(rows))return {status:"UNKNOWN",issues:[],coverage:[]};
+  if(!Array.isArray(rows)||rows.length===0)return {status:"UNKNOWN",issues:[],coverage:[],limitations:"NO_DATA — missing samples are never a healthy outcome"};
   const issues=[],coverage=[];
   for(const row of rows){
     const identity={build:row.build_label||null,route:row.route||null,device:row.device||null,
