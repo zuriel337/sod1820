@@ -267,9 +267,15 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     const safe = clone(ops);
     if (!safe.length || safe.length > 100) throw new Error('RESEARCH_OPS_BATCH_TOO_LARGE');
     state = applyResearchOps(state, safe);
-    if (userId && cloudEnabled) {
+    // Public reading intentionally does not replay passive queues on the next
+    // launch. Do not create a stranded durable journal for a visit or navigation
+    // event when there is no existing user-initiated write to preserve.
+    // Its local history/context is still persisted in the principal state key.
+    const passiveOnly = safe.every(op => op.kind === 'history_add' || op.kind === 'context_set');
+    const localPassiveOnly = passiveOnly && !resumePendingOnStart && !writeIntent && !queue.length && !inflight;
+    if (userId && cloudEnabled && !localPassiveOnly) {
       queue = compactPassiveQueue([...queue, { batch_id: idFactory(), ops: safe }], { protectedBatchId: inflight?.batch_id ?? null });
-      if (safe.some(op => !['context_set', 'history_add'].includes(op.kind))) writeIntent = true;
+      if (!passiveOnly) writeIntent = true;
       if (!['error', 'conflict', 'local_error'].includes(status)) status = 'pending';
     }
     const ok = persist(); notify();

@@ -86,4 +86,72 @@ export function extras({ storage, key, principal, current }) {
   return out;
 }
 // The only operations the runtime hands out.
-export const api = { list, confirm, extras };
+// Journals of ONE principal that no live tab owns and that hold ONLY passive operations (history_add / context_set).
+// Their recent history is archived before removal (bounded to the last 100 entries); older passive
+// history may be discarded only on an explicit reclaim. Never mistake these for confirmed cloud writes.
+// (saves, cart, pins, collections, journeys, history_clear, an in-flight batch, a conflict copy, another principal) is never touched.
+const PASSIVE_KINDS = new Set(['history_add', 'context_set']);
+const STALE_MS = 10 * 60 * 1000;
+function passiveJournals({ storage, key, principal, now = Date.now() }) {
+  const out = [];
+  for (let i = 0; i < storage.length; i += 1) {
+    const name = storage.key(i);
+    if (!name?.startsWith(`${key}:pending:`) || name.includes(':conflict:')) continue;
+    let record;
+    try { record = JSON.parse(storage.getItem(name)); } catch { continue; }
+    if (record?.principal !== principal || !Array.isArray(record.queue) || record.inflight) continue;
+    const owner = record.owner;
+    if (!owner || typeof owner !== 'object') continue;
+    if (owner.released !== true && !(Number.isFinite(owner.at) && now - owner.at > STALE_MS)) continue;
+    if (!record.queue.every(batch => Array.isArray(batch?.ops) && batch.ops.every(op => PASSIVE_KINDS.has(op?.kind)))) continue;
+    const raw = storage.getItem(name);
+    if (raw == null || JSON.stringify(record) !== raw) continue;
+    out.push({ name, raw, bytes: name.length + raw.length, at: Number.isFinite(owner.at) ? owner.at : 0, record });
+  }
+  return out;
+}
+// Read-only unless confirm === true. Returns { count, bytes } of what is (or was) removable.
+// Before anything is removed, the history entries the journals hold (newest 100, by id) are archived in the recovery record
+// (extras.history, readable through the 'extras' op), because the state key does not hold earlier launches' history. If the archive write
+// fails on a full device, the OLDEST journal is dropped to make room (its entries are the oldest, beyond the history window) and the write is retried.
+export function reclaim({ storage, key, principal, confirm: confirmed, now }) {
+  if (!storage) return { count: 0, bytes: 0, archived: 0 };
+  const rows = passiveJournals({ storage, key, principal, now });
+  const bytes = rows.reduce((n, r) => n + r.bytes, 0);
+  if (confirmed !== true || !rows.length) return { count: rows.length, bytes, archived: 0 };
+  rows.sort((x, y) => x.at - y.at);
+  const seen = new Map();
+  for (const r of rows) for (const batch of r.record.queue) for (const op of batch.ops) {
+    const id = op.kind === 'history_add' ? idOf(op.entity) : '';
+    if (id) { seen.delete(id); seen.set(id, op.entity); }
+  }
+  const prior = readFull(storage, key, principal);
+  const merged = new Map();
+  for (const x of [...(prior.extras.history || []), ...seen.values()]) { const id = idOf(x); if (id) { merged.delete(id); merged.set(id, x); } }
+  const history = [...merged.values()].slice(-100);
+  const extras = { ...prior.extras, history };
+  const write = () => storage.setItem(recordKey(key), JSON.stringify({ principal, items: prior.items, extras, at: Date.now() }));
+  let removed = 0, freedBytes = 0;
+  const queue = [...rows];
+  // A full origin cannot allocate even a recovery record. The user explicitly requested
+  // removal of passive history, not account saves: trim oldest eligible passive journals
+  // first, and preserve the most recent 100 history entries once storage permits writing.
+  for (;;) {
+    try { write(); break; } catch (error) {
+      const oldest = queue.shift();
+      if (!oldest) return { count: removed, bytes: freedBytes, archived: 0, error: String(error?.name || 'write_failed') };
+      // A different tab may have revived or rewritten a lease after the dry run.
+      // Never delete its new version, even if it occupies the same key.
+      if (storage.getItem(oldest.name) !== oldest.raw) continue;
+      storage.removeItem(oldest.name);
+      removed += 1; freedBytes += oldest.bytes;
+    }
+  }
+  for (const r of queue) {
+    if (storage.getItem(r.name) !== r.raw) continue;
+    storage.removeItem(r.name);
+    removed += 1; freedBytes += r.bytes;
+  }
+  return { count: removed, bytes: freedBytes, archived: history.length };
+}
+export const api = { list, confirm, extras, reclaim };
