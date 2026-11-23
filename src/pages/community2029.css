@@ -618,6 +618,14 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
   min-height:44px;justify-self:start;
 }
 .sod29-community-claim-success{color:var(--s29-accent-text)}
+.sod29-community-claim-verified{margin-top:12px}
+.sod29-community-claim-verified>summary{
+  display:flex;align-items:center;min-height:44px;cursor:pointer;
+  color:var(--s29-accent-text);font:500 13px/1.5 var(--s29-font-ui);
+  text-decoration:underline;text-underline-offset:3px;
+}
+.sod29-community-claim-verified>label{display:block;margin:8px 0}
+.sod29-community-claim-verified>select{width:100%;min-height:44px}
 @media(max-width:600px){
   .sod29-community--full{padding-top:4px}
   .native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
