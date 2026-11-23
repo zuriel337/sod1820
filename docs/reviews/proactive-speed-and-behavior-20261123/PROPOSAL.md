@@ -41,3 +41,9 @@ Tests must exercise click→server receipt→reload in a real browser with an au
 Existing owners: Speed Law in CLAUDE.md, `scripts/test-2029-shell-budget.mjs`, release/CI owners, Personal/Research Sync owners for save correctness, and Control Plane/Attention for observability. No global new law, no telemetry duplication, no new baseline, no unauthorized cleanup. The new PR is separate from Siboni Book PR #1519; do not merge cross-scope changes.
 
 **Acceptance:** PR CI green with target tests; browser save→server receipt→reload proof; performance before/after measurements on same conditions; recommendation appears in existing Control Plane, with clear UNKNOWN when inputs absent. **Actual production state remains unchanged until exact release approval.**
+
+
+## Live evidence calibration — read-only on 23.11.2026
+Existing canonical `public.events` recorded **919** `web_vital` events (surface `performance`) and **4** `save` events (surface `activity_2029`) in the previous 48 hours. The saved event samples expose keys such as `operation_id` and `measurement`, but the current read found no separate `save_failed` / `sync_failed` event types. This does not prove no failures; **the lack of server-ack and after-reload stage evidence prevents a reliable detection rate**. Counts are an observation at this check time, not a stable baseline.
+
+`scripts/2029-action-health-regression.mjs` now provides a pure aggregation evaluator for future Control Plane projections: UNKNOWN if events/sample are missing, FAIL if the UI claims success more often than the server confirms, FAIL if after-reload verification loses persisted records, and comparisons that flag failure-rate increases. It consumes only bounded aggregate counts from existing telemetry; it does not log personal data or automatically write to production. The live instrumentation required to feed these counts is **still pending**, so no autonomous post-release alarm is claimed today.
