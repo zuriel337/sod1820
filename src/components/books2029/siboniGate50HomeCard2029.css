@@ -10,9 +10,8 @@
 @media(max-width:800px){.siboni50-home{grid-template-columns:auto 1fr}.siboni50-home-cta{grid-column:1/-1;text-align:center}.siboni50-home-icon{width:68px}.siboni50-home-icon strong{font-size:2rem}}
 @media(max-width:350px){.siboni50-home-icon{display:none}.siboni50-home{grid-template-columns:1fr}}
 
-/* Book cover leads the Home; fixed dimensions prevent layout shift. */
+/* Source-linked regular Book card; cover size is stable for no layout shift. */
 .siboni50-home-icon{width:clamp(92px,14vw,160px);height:auto;aspect-ratio:180/255;border:0;border-radius:.55rem;overflow:hidden}
 .siboni50-home-icon img{display:block;width:100%;height:100%;object-fit:cover}
-.siboni50-home-pin{display:inline-flex;align-items:center;gap:.25rem;white-space:nowrap;padding:.2rem .52rem;margin-inline-end:.45rem;border:1px solid #dab77a;border-radius:999px;background:rgba(209,160,76,.19);color:#ffdfa6;font-size:.76rem;font-weight:700}
 @media(max-width:800px){.siboni50-home-icon{width:88px}}
 @media(max-width:350px){.siboni50-home-icon{display:block;width:64px}.siboni50-home{grid-template-columns:auto minmax(0,1fr)}}
