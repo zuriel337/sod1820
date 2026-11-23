@@ -360,14 +360,15 @@ function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, s
   const time = at && Number.isFinite(new Date(at).getTime()) ? new Date(at) : null;
   // No image to wait for: the images below may start (homeLeadImageGate2029).
   useEffect(() => { if (settled && !image) onImageSettled?.(); }, [settled, image, onImageSettled]);
-  // Both readers answered and neither has a reality-map publication (or both failed): no card, and the Home's content gate is not left waiting.
-  if (settled && !selected && !lead && !member) return pinned ? <section className="h29-pinlead" aria-label="הנעוץ" data-home-pinned-lead="none"><NowPinnedMessage2029 pinned={pinned} onOpen={onNavigateTo} /></section>
-    : <section className="h29-pinlead" data-home-pinned-lead="none" hidden />;
-  // Bennett remains pinned, but occupies only a slim row rather than a large hero.
-  // The existing source feed still owns the Post and keeps its ordinary /post identity.
+  // React hooks must run in the same order on every render, including while
+  // the catalog/feed is empty. Compute this before either early return.
+  // Bennett is displayed as one slim pinned row, not a second full hero.
   const bennettPinned = String(selected?.postId || postIdOf(lead?.id) || member?.id || "") === "5113"
     || /בנט/.test(String(title));
   useEffect(() => { if (bennettPinned && href) onImageSettled?.(); }, [bennettPinned, href, onImageSettled]);
+  // Both readers answered and neither has a reality-map publication (or both failed): no card, and the Home's content gate is not left waiting.
+  if (settled && !selected && !lead && !member) return pinned ? <section className="h29-pinlead" aria-label="הנעוץ" data-home-pinned-lead="none"><NowPinnedMessage2029 pinned={pinned} onOpen={onNavigateTo} /></section>
+    : <section className="h29-pinlead" data-home-pinned-lead="none" hidden />;
   if (bennettPinned && href) {
     return <section className="h29-bennet-pin-strip" aria-label="בנט · מוצמד" data-home-bennet-pin="compact">
       <span className="r29-badge is-pinned">📌 מוצמד</span>
