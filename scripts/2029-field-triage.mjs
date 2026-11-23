@@ -43,6 +43,6 @@ if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href){
     const rows=JSON.parse(readFileSync(process.argv[arg+1],"utf8"));
     const result=fieldMetricTriage(rows);console.log(JSON.stringify(result,null,2));
     if(result.status==="ATTENTION")process.exitCode=1;
-    else if(result.status==="PARTIAL")process.exitCode=2;
+    else if(result.status==="PARTIAL" || result.status==="UNKNOWN")process.exitCode=2;
   }catch(e){console.error(e.message);process.exitCode=2;}
 }
