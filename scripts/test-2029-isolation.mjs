@@ -92,7 +92,7 @@ for (const route of ["/books", "/book/existing", "/books/existing"]) {
 }
 assert.equal(publicReadingFeatureLock("lock_books").enabled, false, "approved public library entry remains open; individual readers require their separate source admission");
 const publicLibrary = read("src/lib/research/publicLibraryContinuity2029.js");
-assert.match(publicLibrary, /kind === "books" && item\.slug !== "ahavat-torah"\) return \{ \.\.\.item, readerState:"preparation_closed", manifest:null \}/, "other unfinished books must remain closed before PDF loading");
+assert.match(publicLibrary, /kind === "books" && item\.slug !== "ahavat-torah" && item\.slug !== "hamasa-leshaar-hahamishim-zion-siboni"\) return \{ \.\.\.item, readerState:"preparation_closed", manifest:null \}/, "other unfinished books must remain closed before PDF loading");
 assert.match(publicLibrary, /publicBookSourceAvailable2029/, "Ahavat reading still requires the current public source check");
 const maintenanceLock = read("src/components/MaintenanceLock.jsx");
 assert.ok(maintenanceLock.includes("isAdmin: !pendingAdmission && !authLoading && isAdmin"), "admin access requires resolved identity and policy through the canonical resolver");
