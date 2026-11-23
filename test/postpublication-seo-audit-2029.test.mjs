@@ -63,6 +63,13 @@ test("full read-only runner detects a specific actual Post failure without writi
  assert.equal(r.status,"FAIL");assert.equal(r.metrics.fail,1);assert.equal(calls.length,3);
  assert.equal(r.results.find(x=>x.family==="code").issues[0],"CANONICAL_MISMATCH");
 });
+test("the public /codes/מחקר research collection is not a saved cipher",()=>{
+ const codeCollection="/codes/"+encodeURIComponent("מחקר");
+ const xml=sitemap([{path:codeCollection,date:"2026-11-23"},{path:"/codes/real-code",date:"2026-11-23"}]);
+ const r=parsePublicSitemapEntries2029(xml);
+ assert.deepEqual(r.items.map(x=>x.path),["/codes/real-code"]);
+ assert.equal(publicationFamily2029(codeCollection),null);
+});
 test("a sitemap-listed legacy root Post with lastmod is checked; static root categories stay excluded",()=>{
  const xml=sitemap([{path:"/legacy-old-post",date:"2026-11-23"},{path:"/privacy",date:"2026-11-23"}]);
  const parsed=parsePublicSitemapEntries2029(xml);
