@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
       - name: Check source identity, pages, existing closed-book admission and eight-gate map
         run: |
           node --test test/siboni-gate50-reader-manifest.test.mjs test/siboni-gate50-journey.test.mjs src/lib/research/publicLibraryContinuity2029.test.js
