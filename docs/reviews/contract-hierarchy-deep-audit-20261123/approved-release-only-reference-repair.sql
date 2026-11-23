@@ -111,6 +111,33 @@ BEGIN
   GET DIAGNOSTICS v_count = ROW_COUNT;
   IF v_count<>1 THEN RAISE EXCEPTION 'LEGACY_RETIREMENT_DID_NOT_RETIRE_ONE'; END IF;
 
+  -- Mark three old codex documents as historical; prepend a short guard, preserve original bodies.
+  -- These do not supersede existing owners and never create a second authority.
+  IF NOT EXISTS (SELECT 1 FROM public.project_codex WHERE slug='project_overview'
+                 AND left(body,10)='SOD1820 ה') THEN
+    RAISE EXCEPTION 'CODEX_PROJECT_OVERVIEW_CHANGED';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.project_codex WHERE slug='data_model_map'
+                 AND left(body,14)='הטבלאות המרכז') THEN
+    RAISE EXCEPTION 'CODEX_DATA_MODEL_MAP_CHANGED';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.project_codex WHERE slug='raziel_mind_architecture'
+                 AND body LIKE '> מפרט מימוש%') THEN
+    RAISE EXCEPTION 'CODEX_RAZIEL_SPEC_CHANGED';
+  END IF;
+  UPDATE public.project_codex SET
+     body='⚠️ HISTORICAL OVERVIEW ONLY (2026-11-23). Legacy is retired as of 2026-11-05. The old deployment and Preview directions below are NOT operative. Resolve current release from deploy_on_request + project_codex.branches_deploy; validate code, Production and DB from live owners. Original historical text follows unchanged.'||E'\n\n---\n\n'||body,
+     updated_at=now()
+   WHERE slug='project_overview';
+  UPDATE public.project_codex SET
+     body='⚠️ HISTORICAL DATA-MODEL SNAPSHOT ONLY (2026-11-23). Old counts, WordPress/Legacy references and 8-method examples are provenance, not the current schema or method Registry. Resolve active schema live and Method Registry through canonical_methods_registry_law.'||E'\n\n---\n\n'||body,
+     updated_at=now()
+   WHERE slug='data_model_map';
+  UPDATE public.project_codex SET
+     body='⚠️ HISTORICAL RAZIEL IMPLEMENTATION SPEC, NOT CURRENT AUTHORITY (2026-11-23). Named rules and hard-coded method counts in this spec may have been superseded; route to the latest active owners before design. No Raziel implementation or new connection is authorized here.'||E'\n\n---\n\n'||body,
+     updated_at=now()
+   WHERE slug='raziel_mind_architecture';
+
   -- Codex is a pointer/contract body, not nodes version history; avoid future static current-vN strings.
   gem_new := replace(gem_old,
     chr(96)||'canonical_methods_registry_law'||chr(96)||' (current v5)',
@@ -144,6 +171,12 @@ BEGIN
     AND rule_version=2 AND is_active=false
     AND depends_on=ARRAY['research_intake_foundation_contract_law@13']::text[];
   IF v_count<>1 THEN RAISE EXCEPTION 'POSTCONDITION_HISTORY_NOT_PRESERVED'; END IF;
+
+  SELECT count(*) INTO v_count FROM public.project_codex
+  WHERE (slug='project_overview' AND body LIKE '⚠️ HISTORICAL OVERVIEW ONLY%')
+     OR (slug='data_model_map' AND body LIKE '⚠️ HISTORICAL DATA-MODEL SNAPSHOT ONLY%')
+     OR (slug='raziel_mind_architecture' AND body LIKE '⚠️ HISTORICAL RAZIEL IMPLEMENTATION SPEC%');
+  IF v_count<>3 THEN RAISE EXCEPTION 'POSTCONDITION_CODEX_OLD_OVERVIEW_NOT_MARKED'; END IF;
 
   SELECT count(*) INTO v_count FROM (
     SELECT rule_id FROM public.nodes WHERE type='rule' AND is_active=true
