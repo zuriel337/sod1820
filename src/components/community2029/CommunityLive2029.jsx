@@ -1011,13 +1011,20 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro">
-        <span className="sod29-community-intro-emblem" aria-hidden="true"><NavigationIcon2029 name="community" size={36} /></span>
-        <h1>הצ'אט החי</h1>
-        <p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
-        <span className="sod29-community-intro-rule" aria-hidden="true" />
-        {!hasThreadRequest ? <div className="sod29-community-intro-meta"><span>הודעות בקהילה ובארכיון</span><ConversationCount /></div> : null}
-        {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
+      {!memberId && !claimId ? <header className="sod29-community-intro sod29-page-intro" data-intro-variant="compact">
+        <div className="sod29-community-heading-row">
+          <span className="sod29-hero-symbol r29-medal" aria-hidden="true"><NavigationIcon2029 name="community" size={28} /></span>
+          <div className="sod29-hero-copy"><h1>הצ'אט החי</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p></div>
+        </div>
+        <div className="sod29-community-head-actions">
+          {!hasThreadRequest ? <div className="sod29-community-intro-meta"><span>הודעות בקהילה ובארכיון</span><ConversationCount /></div> : null}
+          {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact /> : <div className="sod29-community-auth-buttons" role="group" aria-label="כניסה לקהילה">
+            <Link className="sod29-community-auth-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
+            <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
+          </div>}
+            <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /></div> : null}
+          {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
+        </div>
         {reading.error && reading.resume ? <p className="sod29-community-reading-error" role="status">לא ניתן לעדכן כרגע את מספר התגובות החדשות.</p> : null}
       </header> : null}
       {claimId ? null : memberId ? <Suspense fallback={null}>
@@ -1026,12 +1033,6 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           communityOwnProfileHref={!actionsLocked && isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact /> : <div className="sod29-community-auth-buttons" role="group" aria-label="כניסה לקהילה">
-          <Link className="sod29-community-auth-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
-          <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
-        </div>}
-          {/* ZURIEL 11.11: the "my account from the old chat" row is back, visible at the top of the chat (it had moved inside the settings menu). */}
-          <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /></div> : null}
         <CommunityTreeHints2029 hints={treeHints} />
         {canModerateGuests ? <CommunityGuestReviewPanel2029 pending={guestPending} onReview={reviewGuest} /> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
