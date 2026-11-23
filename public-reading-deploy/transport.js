@@ -397,9 +397,17 @@ function installPublicReadingWorker(policy) {
           if (!plainObject(body) || !["verify", "page", "verify_batch"].includes(body.op)
             || typeof body.term !== "string" || body.term.trim().length < 2 || body.term.length > 200
             || body.scope !== undefined && !["torah", "tanakh"].includes(body.scope)) return denied();
+          const registeredRange = body.access_mode === "registered_range_v1";
+          if (body.access_mode !== undefined && !registeredRange) return denied();
+          if (registeredRange && (body.op !== "page"
+            || !Number.isInteger(body.skip_min) || body.skip_min < 2
+            || !Number.isInteger(body.skip_max) || body.skip_max < body.skip_min || body.skip_max > 500
+            || !Number.isInteger(body.page_size) || body.page_size < 1 || body.page_size > 20
+            || body.term.length > 80)) return denied();
           const key = policy.anonKey || req.headers.get("apikey") || "";
           const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
-          const uid = token && token !== key ? await verifyReadingPrincipal({ token, apiKey: key, signal: req.signal }) : null;
+          const uid = token && token !== key ? await verifyReadingPrincipal({ token, apiKey: key, signal: req.signal, registeredOnly: registeredRange }) : null;
+          if (registeredRange && !uid) return denied();
           if (req.signal.aborted) return denied();
           return readFetch(new Request(url.href, { method: "POST", signal: req.signal,
             headers: { apikey: key, Authorization: "Bearer " + (uid ? token : key), "Content-Type": "application/json" }, body: raw }));
