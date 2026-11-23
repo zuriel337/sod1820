@@ -9,3 +9,7 @@
 .siboni50-home-cta{display:inline-block;margin-top:.5rem;padding:.65rem 1rem;border:1px solid #e7bd79;border-radius:99px;background:#e8c080;color:#24180d!important;text-decoration:none!important;font-weight:700;font-size:.86rem;min-height:44px}
 .siboni50-home-cta:hover,.siboni50-home-cta:focus-visible{background:#f6d8a0}
 @media(max-width:700px){.siboni50-home{grid-template-columns:minmax(0,1fr)}.siboni50-home-art{width:100%}.siboni50-home-cta{display:block;text-align:center}}
+
+/* Reserve the near-top book-card area until its code arrives; no layout jump. */
+.siboni50-home-loading{min-height:230px;aspect-ratio:16/6;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel)}
+@media(max-width:700px){.siboni50-home-loading{min-height:320px;aspect-ratio:auto}}
