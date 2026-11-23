@@ -123,7 +123,7 @@ jobs:
             --dump-header "$headers" --output "$pdf" "$url"
           actual_bytes="$(wc -c < "$pdf" | tr -d '[:space:]')"
           test "$actual_bytes" = '1322143' || { echo "Gate 50: PDF size mismatch ($actual_bytes)"; exit 1; }
-          printf '%s  %s\\n' '35261bcc661d6364353482c9f911de9c39f203e503a68aa97b680e4a85c77e2c' "$pdf" | sha256sum -c -
+          echo "35261bcc661d6364353482c9f911de9c39f203e503a68aa97b680e4a85c77e2c  $pdf" | sha256sum -c -
           head -c 5 "$pdf" | grep -aFxq '%PDF-' || { echo "Gate 50: not a PDF header"; exit 1; }
           grep -aiEq '^content-type:[[:space:]]*application/pdf([[:space:]]*;|[[:space:]]*$)' "$headers" || { echo "Gate 50: expected application/pdf content type"; exit 1; }
           echo "Gate 50 anonymous source: VERIFIED (110-page author PDF bytes/hash locked)"
