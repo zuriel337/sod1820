@@ -771,5 +771,17 @@
       }
     ],
     "scope_limited_to_mapping": true
+  },
+  "full_image_inventory_20261123": {
+    "status": "ALL_234_OCR_METADATA_CLASSIFIED__INDEPENDENT_EVENTS_PARTIAL",
+    "full_index_path": "docs/reviews/elections-234-image-classification-20261123.md",
+    "machine_index_path": "docs/reviews/elections-234-image-classification-20261123.json",
+    "deep_group_review_path": "docs/reviews/elections-2017-2024-deep-event-clusters-20261123.md",
+    "records": 234,
+    "additional_metadata_classified": 219,
+    "exact_asset_duplicates": 7,
+    "unique_urls": 227,
+    "verified_sync_count": null,
+    "notes": "Do not represent 234 OCR-classified as 234 visually verified events; France 2017 and UK 2017 are distinct, peripheral items kept separately, restricted retained in owner mapping but not published."
   }
 }
