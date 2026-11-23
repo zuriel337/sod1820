@@ -1,6 +1,7 @@
 // CI runner: run bounded, existing functional tests for risk-mapped changed files.
 // A green targeted test is not a substitute for browser/RUM verification.
 import { execFileSync, spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { impactForChangedFiles } from "./performance-change-impact-2029.mjs";
 
 function arg(key, fallback) { const i=process.argv.indexOf(key); return i>=0 ? process.argv[i+1] : fallback; }
@@ -23,6 +24,18 @@ run("test/2029-field-triage.test.mjs");
 if(impact.categories.some(x=>["personal-save-and-sync","shared-entry","storage-auth-access"].includes(x))){
   run("test/personal-save-decision-2029.test.mjs");
   run("test/research-sync-hardening.test.mjs");
+}
+if(impact.categories.includes("research-local-storage-and-reclaim")){
+  // The integration fixture is introduced by PR #1520. Run it when present;
+  // keep the required browser/actual-quota acceptance explicit either way.
+  run("test/research-sync-hardening.test.mjs");
+  if(existsSync("test/research-saved-integration-2029.test.mjs"))run("test/research-saved-integration-2029.test.mjs");
+  else console.log("::warning title=Quota-reclaim fixture missing::PR 1520 integration fixture is not present on this branch; this does not prove quota recovery.");
+}
+if(impact.categories.includes("els-mode-and-access")){
+  run("test/els-2029-classic-faithful-port.test.mjs");
+  run("test/els-2029-semantic-surface.test.mjs");
+  run("test/els-2029-research-bar.test.mjs");
 }
 if(impact.categories.includes("book-public-source"))run("src/lib/research/publicLibraryContinuity2029.test.js");
 if(impact.browserRequired){
