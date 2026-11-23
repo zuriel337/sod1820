@@ -35,6 +35,84 @@
       "id": 906,
       "title": "פוסט מרכזי רמזי הבחירות והממשלה",
       "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%91%d7%97%d7%99%d7%a8%d7%95%d7%aa-%d7%94%d7%a8%d7%91%d7%99%d7%a2%d7%99%d7%95%d7%aa-%d7%99%d7%90-%d7%a0%d7%99%d7%a1%d7%9f-%d7%99%d7%95%d7%9d-%d7%94%d7%95%d7%9c%d7%93"
+    },
+    {
+      "kind": "post",
+      "id": 1222,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 1689,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 1182,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 1618,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 1579,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 972,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 988,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 83,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 940,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 84,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 1133,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 1129,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
+    },
+    {
+      "kind": "post",
+      "id": 1017,
+      "role": "trump_related_mapping_candidate",
+      "publication": "existing_archive"
     }
   ],
   "next_steps": [
@@ -139,8 +217,176 @@
       631,
       78,
       776,
-      1237
+      1237,
+      424,
+      778,
+      1202,
+      255,
+      358,
+      878
     ],
     "link_policy": "only verified canonical source links; suggested journey transitions distinct from graph edges"
+  },
+  "mapping_mode_only": true,
+  "trump_mapping_20261123": {
+    "title": "דונלד טראמפ — בחירות ארה״ב, 424 ו־1237",
+    "category": "ארצות הברית / מערכות בחירות / צירי מספר",
+    "existing_topic": {
+      "slug": "trump",
+      "title": "דונלד טראמפ — 424 · 1202 · 1237",
+      "node_id": "3de912e7-7d3a-4c2a-aedf-cf6ac6d9a899",
+      "status": "approved",
+      "existing_edges": 24,
+      "public_canonical": "/topic/trump"
+    },
+    "research_sources_count": {
+      "trump_candidates": 67,
+      "with_424_in_content": 37,
+      "with_1237_in_content": 19,
+      "either": 39,
+      "method": "post title or tag טראמפ/דונלד; text content numerical token search; raw candidate counts, not proven connections"
+    },
+    "verified_graph_numbers": [
+      {
+        "value": 424,
+        "node_id": "a0e5ad64-2901-49c0-a113-abc0114be09a",
+        "relationship": "contains"
+      },
+      {
+        "value": 778,
+        "relationship": "contains"
+      },
+      {
+        "value": 1202,
+        "relationship": "contains"
+      },
+      {
+        "value": 1237,
+        "node_id": "56e0f37c-1b43-4dc6-b55d-81fa97afb1ad",
+        "relationship": "contains"
+      },
+      {
+        "value": 255,
+        "relationship": "contains"
+      }
+    ],
+    "paths": [
+      {
+        "id": "us2016",
+        "label": "בחירות ארה״ב 2016",
+        "archive_post_ids": [
+          1222,
+          1689
+        ],
+        "numeric_values": [
+          1237,
+          424,
+          255,
+          778,
+          1202
+        ],
+        "context": "1,237 was Republican delegate threshold for party nomination, not Electoral College votes. On 2016-05-26 AP reported Trump 1,238 committed delegates. Election result separately tracked.",
+        "reference": "https://www.pbs.org/newshour/politics/donald-trump-clinches-gop-presidential-nomination",
+        "connection_kind": "source_plus_approved_topic"
+      },
+      {
+        "id": "trump-israel",
+        "label": "טראמפ — ירושלים וישראל",
+        "archive_post_ids": [
+          1182,
+          1618,
+          1579
+        ],
+        "numeric_values": [
+          424,
+          363
+        ],
+        "context": "2017 visit/photo and Jerusalem recognition are separate dated historic events; archive photo time 4:24 is source claim not independently verified here.",
+        "connection_kind": "archival_number_context"
+      },
+      {
+        "id": "us2020",
+        "label": "בחירות ארה״ב 2020 — ביידן וטראמפ",
+        "archive_post_ids": [
+          972,
+          988
+        ],
+        "numeric_values": [
+          424,
+          45
+        ],
+        "connection_kind": "archived_sources"
+      },
+      {
+        "id": "us2024",
+        "label": "בחירות ארה״ב 2024 — חזרת טראמפ",
+        "archive_post_ids": [
+          83,
+          940,
+          84
+        ],
+        "numeric_values": [
+          424,
+          778,
+          1202,
+          1237,
+          358,
+          878
+        ],
+        "connection_kind": "archived_sources"
+      },
+      {
+        "id": "israel-cross",
+        "label": "טראמפ, נתניהו והקשרים לישראל",
+        "archive_post_ids": [
+          1133,
+          1129,
+          1017
+        ],
+        "numeric_values": [
+          424,
+          1237
+        ],
+        "connection_kind": "cross-topic navigation proposal"
+      }
+    ],
+    "number_notes": [
+      {
+        "value": 424,
+        "detail": "בדף הטופיק המאושר: דונלד טראמפ = 424 רגיל, משיח בן דוד = 424 רגיל. לקשר את החישוב הקיים, ללא שכפול"
+      },
+      {
+        "value": 778,
+        "detail": "דונלד טראמפ באתב״ש לפי המקור הקיים"
+      },
+      {
+        "value": 1202,
+        "detail": "424+778=1202; מוצג בארכיון כגימטריית התגלות משיח"
+      },
+      {
+        "value": 1237,
+        "detail": "התגלות בגימטריה מסתתר (מקור מאושר), וב־2016 סף 1,237 צירי מפלגה למועמדות; לא 1,237 אלקטורים"
+      },
+      {
+        "value": 255,
+        "detail": "הילרי, רודהם, קלינטון והעמלקי — חישובים וטענה פרשנית כפי שמופיעים בארכיון; לא זהות עובדתית"
+      },
+      {
+        "value": 358,
+        "detail": "מופיע בחומר 2024; איננו קשר אוטומטי לבחירות"
+      },
+      {
+        "value": 878,
+        "detail": "מופיע בפרשנות הארכיון; אימות שיוך נקודתי לפני הצגת מסלול"
+      }
+    ],
+    "rules": [
+      "Re-use approved /topic/trump and /topic/424-mashiach-ben-david and /topic/1237 canonical addresses, never mint duplicate topic",
+      "Do not add database edges from shared post mentions alone",
+      "Keep date and claimed context on every historic event",
+      "Historical votes/delegates distinct from gematria",
+      "No changes to code, UI, schema, source posts, SEO or public site"
+    ],
+    "status": "mapped_only_unpublished"
   }
 }
