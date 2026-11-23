@@ -46,6 +46,12 @@ Before creating a new Law / Contract / System / Store / Engine / Registry / Grap
 
 New screens, names, examples, product homes, AI personas or implementation components do not justify new owners.
 
+### Read-only hierarchy audit cross-reference (2026-11-23 · proposed, branch-only)
+
+The [deep contract-hierarchy audit](docs/reviews/contract-hierarchy-deep-audit-20261123/README.md) and its [87-active-rule owner crosswalk](docs/reviews/contract-hierarchy-deep-audit-20261123/active-owner-crosswalk.json) are **derived review artifacts only**, not new owners, registries, contract bodies, rollout instructions or live-state proof. Live canonical authority stays with active `nodes.type='rule'`, approved canonical owner documents, live method registry and source-native stores.
+
+**Two different graph meanings — do not merge:** `metadata.owner_routing.canonical_owner` is the parent/authority pointer for a rule. `depends_on` is a usage/dependency pointer and may include mutual relationships and historical references; it must not be traversed as an owner hierarchy. Keep legal/publication/access and source provenance gates before projections. The audit flags superseded V1 design pointers, a pinned Intake v13 dependency and an outdated Method Registry v5 prose pointer for reconciliation; **do not rewrite live references automatically**.
+
 ## 3. Finite owner-family hierarchy
 
 Owner families below are routing categories only — never umbrella super-laws.
