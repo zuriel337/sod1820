@@ -231,13 +231,15 @@ const byPinnedLast = (a, b) => {
 export const NOW_HIDDEN_GROUPS = Object.freeze(["ki-la-hamelucha-gematria"]);
 const hiddenInNow = model => typeof model?.sourceKey === "string" && model.sourceKey.startsWith("group:") && NOW_HIDDEN_GROUPS.includes(model.sourceKey.slice(6));
 const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.title)
-  .map(nowRowModel).filter(model => !hiddenInNow(model)).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
+  .map(nowRowModel).filter(model => !hiddenInNow(model)).map(model => model.id === BENNETT_UNPINNED_NOW_ID ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
   .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 // ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
 // a dot that BLINKS until THIS viewer enters the update (ZURIEL 16.11.2026) and then stays as a still dot marking the latest update, until a newer reality-map publication
 // replaces it. "Entered" is the existing per-browser seen state (the same one that clears "חדש"): no new store. It is a presentation of the series, not a pin: `pinned` is untouched.
 export const REALITY_MAP_LATEST_KEY = "reality-map";
+// Owner editorial decision: Bennett remains an ordinary publication, not a featured/pinned Now item.
+export const BENNETT_UNPINNED_NOW_ID = "post:5113";
 const postIdOfRowId = id => { const n = Number(/^post:(\d+)$/.exec(String(id || ""))?.[1]); return Number.isSafeInteger(n) ? n : null; };
 // the newest REGISTERED update of the Post (a unit added to its body); 0 when it has none
 const newestRegisteredEntry = id => { const postId = postIdOfRowId(id); const entries = postId == null ? [] : (PROVEN_POST_SOURCE_UPDATES[postId] || []); return entries.reduce((best, entry) => ((Date.parse(entry.updatedAt || "") || 0) > (Date.parse(best?.updatedAt || "") || 0) ? entry : best), null); };
@@ -262,7 +264,7 @@ export function seriesLatestFace2029(member) {
 }
 export const nowModels = (rows, now = Date.now(), seen = {}) => {
   const models = sortedNowModels(rows, now);
-  const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned)
+  const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned && model.id !== BENNETT_UNPINNED_NOW_ID)
     .sort((a, b) => seriesUpdateTime(b) - seriesUpdateTime(a) || String(a.id).localeCompare(String(b.id)))[0];
   if (!latest) return models;
   const rest = models.filter(model => model !== latest);
