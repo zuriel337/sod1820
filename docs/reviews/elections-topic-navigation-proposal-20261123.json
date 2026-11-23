@@ -742,5 +742,34 @@
     "verified_synchronization_count": null,
     "notes": "event-date/gallery grouping alone cannot prove separate events; OCR text overlap is not event independence; compare original sources and specific dates",
     "no_publication": true
+  },
+  "independent_event_sample_20261123": {
+    "status": "15_image_source_review_completed_partial_external_corroboration",
+    "source_path": "docs/reviews/elections-15-image-event-clusters-20261123.md",
+    "sample_size": 15,
+    "verified_scope": "OCR, image metadata and selected independent historical reports; no complete visual validation of all images",
+    "full_population_candidate_images": 234,
+    "full_population_event_count": null,
+    "full_population_verified_synchronizations": null,
+    "independent_confirmation_examples": [
+      "2019-11-26 proposed 45-day election timeline",
+      "2021 pandemic special-poll arrangements broadly"
+    ],
+    "anti_double_count_examples": [
+      {
+        "same_subject": "2020 quarantine voting booths",
+        "wp_image_ids": [
+          2205,
+          2218
+        ],
+        "rule": "summary does not constitute independent new event"
+      },
+      {
+        "source_wp_image_id": 2901,
+        "reference_year": 2019,
+        "rule": "2022 compilation not a 2022 election event"
+      }
+    ],
+    "scope_limited_to_mapping": true
   }
 }
