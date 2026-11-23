@@ -1208,11 +1208,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const openedAdvancedRequest = useRef(null);
   useEffect(() => {
-    if (!advancedSearchRequestKey || !researchProfile || guidedProfile || openedAdvancedRequest.current === advancedSearchRequestKey) return;
+    if (!advancedSearch || !advancedSearchRequestKey || !researchProfile || guidedProfile || openedAdvancedRequest.current === advancedSearchRequestKey) return;
     openedAdvancedRequest.current = advancedSearchRequestKey;
     setAdvancedSelected(true); setAdvancedOpen(true);
   }, [advancedSearchRequestKey, researchProfile, guidedProfile]);
-  const advancedSearchOpen = researchProfile && !guidedProfile && advancedOpen;
+  const advancedSearchOpen = Boolean(advancedSearch) && researchProfile && !guidedProfile && advancedOpen;
   const [pairPlannerOpen, setPairPlannerOpen] = useState(false);
   const crossSearchOpen = researchProfile && crossOpen;
   const [crossTerm, setCrossTerm] = useState("");
