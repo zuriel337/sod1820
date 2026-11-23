@@ -133,6 +133,28 @@ test('snapshot.cloudConfirmed is true only when synced with an empty queue (sing
   a.stop();
 });
 
+test('100 public launches do not accumulate passive-only journals; an explicit save still reaches the server', async () => {
+  const server = new Server(), storage = new Store();
+  for (let i = 0; i < 100; i++) {
+    const tab = make({ server, storage, session: new Store() });
+    await settle();
+    assert.equal(tab.commit([makeResearchOp('history_add', { entity: ent(1000 + i) })]), true);
+    assert.equal(tab.commit([makeResearchOp('context_set', { context: { subject: { type: 'number', id: String(1000 + i) } } })]), true);
+    tab.release(); tab.stop();
+  }
+  const journals = [...storage.d.keys()].filter(k => k.includes(':pending:'));
+  assert.equal(journals.length, 0, 'passive browsing cannot generate a new journal on every launch');
+  assert.equal(server.writes, 0, 'passive browsing does not automatically submit account mutations');
+
+  const next = make({ server, storage, session: new Store() });
+  await settle();
+  assert.equal(save(next, 776), true, 'explicit save remains admitted');
+  await settle();
+  assert.ok(server.st('A').saved.some(x => x.ref === 776), 'saved number reached the server');
+  assert.equal(next.getSnapshot().syncPending, 0);
+  next.release(); next.stop();
+});
+
 test('reclaim: only passive, unowned journals of this principal are removed; saves, pending intent, live and foreign journals stay', async () => {
   const server = new Server(), storage = new Store();
   const hist = (r, n) => r.commit([makeResearchOp('history_add', { entity: { id: `number:${n}`, type: 'number', ref: n, title: String(n) } })]);
