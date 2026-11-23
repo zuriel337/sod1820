@@ -1,4 +1,5 @@
 {
+  "buildCommand": "cd .. && VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]' node scripts/build-public-reading-production.mjs --protected-review --review-source=\"$(git rev-parse HEAD)\"",
   "framework": null,
   "git": { "deploymentEnabled": false },
   "installCommand": "npm ci --prefix .. --no-audit --no-fund",
