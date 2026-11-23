@@ -19,7 +19,12 @@ const normalizedUrl = raw => {
 export const publicationFamily2029 = path => {
   if(/^\/post\/[^/]+$/.test(path))return "post";
   if(/^\/book\/[^/]+$/.test(path))return "book";
-  if(/^\/codes\/[^/]+$/.test(path))return "code";
+  if(/^\\/codes\\/[^/]+$/.test(path)){
+    // /codes/מחקר is the existing research collection, not an individual cipher.
+    try{if(decodeURIComponent(path.slice("/codes/".length))==="מחקר")return null;}
+    catch{return null;}
+    return "code";
+  }
   // Existing imported Wordpress Posts may keep a root-form canonical URL.
   // The sitemap is authoritative for public admission; a root URL is only a
   // candidate, not a claim that an arbitrary one-segment path is a Post.
