@@ -1,0 +1,32 @@
+name: 2029 Proactive Performance and Behavior Impact
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'test/**'
+      - 'supabase/functions/**'
+      - '.github/workflows/proactive-performance-impact-2029.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  proactive-impact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Detect impacted capabilities and exercise targeted functional regressions
+        run: node scripts/run-proactive-regressions-2029.mjs --base origin/main
+      - name: Verify the strict source import boundary remains enforced
+        run: node scripts/test-2029-shell-budget.mjs --imports-only
