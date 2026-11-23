@@ -46,15 +46,18 @@ with sync_playwright() as p:
     context=browser.new_context(viewport={'width':width,'height':950});state=install(context,theme);page=context.new_page();page.on('pageerror',lambda e:state['errors'].append(str(e)));page.goto(BASE+'/community/chat')
     summaries=page.locator('.sod29-community-conversation-count');expect(summaries).to_have_count(1)
     expect(summaries.first).to_have_text('(134.9K)')
-    expect(page.locator('.sod29-community-intro h1')).to_be_visible();expect(page.get_by_role('heading',name='ממשיכים לשוחח',exact=True)).to_be_visible();expect(page.get_by_role('heading',name='הצ׳אט הוותיק',exact=True)).to_have_count(0);expect(page.locator('.sod29-community-feed>.sod29-community-thread-group')).to_have_count(40)
+    expect(page.get_by_role('heading',name="הצ'אט החי",exact=True)).to_be_visible();expect(page.locator('.sod29-community-intro-emblem [data-icon-name="community"]')).to_have_count(1);expect(page.locator('.sod29-community-intro-rule')).to_be_visible();expect(page.get_by_role('heading',name='ממשיכים לשוחח',exact=True)).to_be_visible();expect(page.get_by_role('heading',name='הצ׳אט הוותיק',exact=True)).to_have_count(0);expect(page.locator('.sod29-community-feed>.sod29-community-thread-group')).to_have_count(8)
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1')
-    assert page.locator('.sod29-community-intro').inner_text().split()==['שיחה','(134.9K)']
+    assert "הצ'אט החי" in page.locator('.sod29-community-intro').inner_text()
+    assert 'הודעות בקהילה ובארכיון' in page.locator('.sod29-community-intro').inner_text()
+    assert state['reads'] and all(read.get('p_limit') == 8 for read in state['reads']),state['reads']
     for button in [page.get_by_role('button',name='הצטרפו לשיחה'),page.get_by_role('button',name='הכול',exact=True),page.locator('.sod29-community-stream-sort select')]:assert button.bounding_box()['height']>=44
     expect(summaries.first.locator('button,a,[popover]')).to_have_count(0);expect(summaries.first).to_have_attribute('aria-label','134.9K הודעות, כולל הצ׳אט הישן');expect(summaries.first).to_be_visible();page.screenshot(path=str(OUT/f'public-{width}-{theme}.png'));assert not state['writes'] and not state['errors'],state
     cases.append({'width':width,'theme':theme,'public_heading_only':True,'dated_source_total_including_replies':True,'root_count_not_substituted':True,'no_overflow':True,'touch44':True});context.close()
   for width in [390,1440]:
    context=browser.new_context(viewport={'width':width,'height':950});state=install(context);page=context.new_page();page.goto(BASE+'/community/chat');summaries=page.locator('.sod29-community-conversation-count');expect(summaries.first).to_have_text('(134.9K)')
-   page.get_by_role('button',name='עוד הודעות',exact=False).click();expect(page.locator('.sod29-community-feed>.sod29-community-thread-group')).to_have_count(42)
+   page.get_by_role('button',name='עוד הודעות',exact=False).click();expect(page.locator('.sod29-community-feed>.sod29-community-thread-group')).to_have_count(16)
+   assert state['reads'] and all(read.get('p_limit') == 8 for read in state['reads']),state['reads']
    page.get_by_role('searchbox',name='חיפוש בכל השיחות והתגובות').fill('ייחודית');expect(page.locator('.sod29-community-search-hit')).to_have_count(1)
    expect(summaries.first).to_have_text('(134.9K)')
    expect(page.locator('#community-search-scope')).to_contain_text('נמצאה תוצאה אחת בכל השיחות והתגובות');assert 'ייחודית' in state['searches']
@@ -64,7 +67,7 @@ with sync_playwright() as p:
   for mode in ['zero','unknown','error']:
    context=browser.new_context(viewport={'width':390,'height':950});state=install(context,mode=mode);page=context.new_page();page.goto(BASE+'/community/chat');summaries=page.locator('.sod29-community-conversation-count');expect(summaries).to_have_count(1)
    expect(summaries.first).to_have_text('(134.9K)')
-   if mode=='error':state['mode']='ready';page.get_by_role('button',name='ניסיון נוסף',exact=True).click();expect(page.locator('.sod29-community-feed>.sod29-community-thread-group')).to_have_count(40)
+   if mode=='error':state['mode']='ready';page.get_by_role('button',name='ניסיון נוסף',exact=True).click();expect(page.locator('.sod29-community-feed>.sod29-community-thread-group')).to_have_count(8)
    assert not state['writes'];cases.append({'case':mode,'snapshot_not_loaded_page_count':True});context.close()
  finally:browser.close();server.shutdown()
 (OUT/'results.json').write_text(json.dumps({'cases':cases,'count_kind':'dated_verified_snapshot_not_live','real_product_writes':0},ensure_ascii=False,indent=2));print(json.dumps({'pass':True,'cases':len(cases),'real_product_writes':0}))
