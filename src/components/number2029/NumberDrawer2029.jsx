@@ -1,6 +1,8 @@
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import NumberCore2029 from "./NumberCore2029.jsx";
+import PersonalSaveButton2029 from "../userCenter/PersonalSaveButton2029.jsx";
+import { entityFromNumber, entityFromPhrase } from "../../lib/research/entity.js";
 import EnglishGematriaLane2029 from "../gematria2029/EnglishGematriaLane2029.jsx";
 import { CALCULATOR_INPUT_KIND, classifyCalculatorInput, filterProfileRowsForInput } from "../../lib/research/calculator2029Input.js";
 import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
@@ -649,6 +651,19 @@ export default function NumberDrawer2029({
         onClick={restoreOriginFocus}
       >↩ חזרה ל־{originFocus.expression}</button> : null}
     </div>
+
+    {Number.isSafeInteger(root) && root >= 0 ? <div className="sod29-number-drawer-save" aria-label="שמירת המספר או הביטוי">
+      <PersonalSaveButton2029 entity={{
+        ...(clean(expression) && !/^\\d+$/.test(clean(expression))
+          ? entityFromPhrase(clean(expression), traceNumber(selectedProfile?.computedValue) ?? root)
+          : entityFromNumber(root)),
+        link: numberExpressionFocusHref(root, surfaceMode === "focus" ? {
+          expression: clean(expression),
+          method: selectedProfile?.methodKey || selectedMethodKey,
+        } : {}),
+        metadata: { method: selectedProfile?.methodKey || selectedMethodKey || "רגיל", value: traceNumber(selectedProfile?.computedValue) ?? root },
+      }} />
+    </div> : null}
 
     <form className="sod29-number-drawer-search" onSubmit={commitInput}>
       <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="שם · ביטוי · מספר" aria-label="שם ביטוי או מספר" dir="auto" />
