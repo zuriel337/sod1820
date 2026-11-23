@@ -110,6 +110,23 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
+      # Check anonymous public Storage GET, not the authenticated Storage catalogue.
+      # The exact bytes/hash are pinned to the second 22.11.2026 email, never another edition.
+      - name: Gate 50 anonymous source readback (full PDF, exact SHA256 and MIME)
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/zion50.pdf'
+          pdf="$RUNNER_TEMP/siboni-gate50-original.pdf"
+          headers="$RUNNER_TEMP/siboni-gate50-headers.txt"
+          curl --fail --silent --show-error --location --max-redirs 2 --connect-timeout 12 --max-time 60 --retry 1 \
+            --dump-header "$headers" --output "$pdf" "$url"
+          actual_bytes="$(wc -c < "$pdf" | tr -d '[:space:]')"
+          test "$actual_bytes" = '1322143' || { echo "Gate 50: PDF size mismatch ($actual_bytes)"; exit 1; }
+          printf '%s  %s\\n' '35261bcc661d6364353482c9f911de9c39f203e503a68aa97b680e4a85c77e2c' "$pdf" | sha256sum -c -
+          head -c 5 "$pdf" | grep -aFxq '%PDF-' || { echo "Gate 50: not a PDF header"; exit 1; }
+          grep -aiEq '^content-type:[[:space:]]*application/pdf([[:space:]]*;|[[:space:]]*$)' "$headers" || { echo "Gate 50: expected application/pdf content type"; exit 1; }
+          echo "Gate 50 anonymous source: VERIFIED (110-page author PDF bytes/hash locked)"
       - name: Zion Siboni Gate 50 source, 110-page reader and exact public Book admission
         run: node --test test/siboni-gate50-reader-manifest.test.mjs test/siboni-gate50-journey.test.mjs src/lib/research/publicLibraryContinuity2029.test.js
       - name: Server document metadata parity (crawler, AI and social documents for public routes, including the Beit Midrash learning area)
