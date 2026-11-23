@@ -47,3 +47,20 @@ Existing owners: Speed Law in CLAUDE.md, `scripts/test-2029-shell-budget.mjs`, r
 Existing canonical `public.events` recorded **919** `web_vital` events (surface `performance`) and **4** `save` events (surface `activity_2029`) in the previous 48 hours. The saved event samples expose keys such as `operation_id` and `measurement`, but the current read found no separate `save_failed` / `sync_failed` event types. This does not prove no failures; **the lack of server-ack and after-reload stage evidence prevents a reliable detection rate**. Counts are an observation at this check time, not a stable baseline.
 
 `scripts/2029-action-health-regression.mjs` now provides a pure aggregation evaluator for future Control Plane projections: UNKNOWN if events/sample are missing, FAIL if the UI claims success more often than the server confirms, FAIL if after-reload verification loses persisted records, and comparisons that flag failure-rate increases. It consumes only bounded aggregate counts from existing telemetry; it does not log personal data or automatically write to production. The live instrumentation required to feed these counts is **still pending**, so no autonomous post-release alarm is claimed today.
+
+
+## Release evidence comparator and route-specific anomaly triage — branch extension
+- `scripts/compare-performance-evidence-2029.mjs` accepts existing Control Plane aggregate JSON grouped by exact route, device, measurement scope and cohort, with per-metric sample sizes and p75. A candidate cannot claim faster based solely on LCP if INP/CLS materially regress, or if sample coverage is insufficient. This produces `IMPROVED / REGRESSION / NO_MEASURED_IMPROVEMENT / UNKNOWN`, not a numeric "speed score" made from guesses.
+- `scripts/2029-field-triage.mjs` classifies route- and device-specific p75 values for LCP, INP and CLS against the established good targets, with explicit `UNKNOWN` when fields are missing. It is a pure interpreter, **not live alert delivery**.
+- `docs/reviews/proactive-speed-and-behavior-20261123/field-performance-readonly.sql` uses the existing `public.events` `web_vital` owner to retrieve per-route, per-device, per-build p75 and sample counts. It was executed read-only against the canonical project; no schema change.
+- Test files cover "LCP fast but INP slow", low sample INP, route mismatch and the specific symptom classes below.
+
+### Verified field observations (read-only sample, 23.11.2026)
+**Build label `2029-DI3uq6Xi`** (not a Git SHA; observations are navigations, not SPA transitions):
+- `/community/chat` mobile: 99 total samples, LCP p75 1756ms (n=93), INP p75 288ms (n=37), **CLS p75 0.1345** (n=99), TTFB p75 1211ms. LCP is already good but CLS and INP merit diagnosis.
+- `/post/:item` mobile: 86 samples, LCP p75 **2775ms** (n=80), INP p75 **624ms** (n=24), CLS p75 0 (n=86), TTFB p75 1527ms. INP is a **provisional poor-signal**, since n=24 is below the new minimum of 30 for a firm alert. Do not call it independently confirmed poor at p75; demand more interactions and lab/browser replay.
+- `/community/chat` desktop: 76 samples, LCP p75 1580ms (n=69), INP p75 142ms (n=20), CLS p75 0.0401 (n=76), TTFB p75 1057ms. Desktop INP is likewise below the firm-signal minimum.
+
+These numbers differ from aggregate cross-route averages and illustrate why detection must be **per route and device**, with sample size. They are not causal attribution to any optimization.
+
+Next step: wire this same read-only report into the existing Control Plane's Attention Inbox using its existing telemetry and alert lifecycle after the governed release. Do not auto-rollback or send repetitive notifications without approval.
