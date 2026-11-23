@@ -62,6 +62,37 @@ export function LegacyAccountClaimEntry({ rows = [], onClaimed }) {
   const dialog = useRef(null), trigger = useRef(null);
   const { user } = useAuth();
   const [open, setOpen] = useState(false), [selected, setSelected] = useState("");
+  const [oldName, setOldName] = useState("");
+  const [newName, setNewName] = useState("");
+  const [replyEmail, setReplyEmail] = useState(user?.email || "");
+  const [reviewRequest, setReviewRequest] = useState({ state: "idle", error: "" });
+  useEffect(() => { if (user?.email) setReplyEmail(current => current || user.email); }, [user?.email]);
+  const sendReviewRequest = async event => {
+    event.preventDefault();
+    if (reviewRequest.state === "pending") return;
+    const previous = oldName.trim(), current = newName.trim(), email = replyEmail.trim();
+    if (!previous || !current || !email) return;
+    setReviewRequest({ state: "pending", error: "" });
+    try {
+      // Reuse the existing protected admin contact inbox, not a new identity
+      // store. Contact requests have no authority to link accounts.
+      const { sendContactMessage } = await import("../../lib/supabaseApi2029.js");
+      await sendContactMessage({
+        name: current,
+        email,
+        subject: "בקשת בדיקת שיוך חשבון מהצ׳אט הישן",
+        message: `בקשת בדיקה ידנית בלבד — ללא חיבור אוטומטי.
+שם בצ׳אט הישן: ${previous}
+שם בחשבון החדש: ${current}
+מייל לחזרה: ${email}
+מקור: /community/chat
+יש לבדוק הוכחת בעלות ולקבל אישור בעל האתר לפני כל שיוך חשבונות.`,
+      });
+      setReviewRequest({ state: "sent", error: "" });
+    } catch {
+      setReviewRequest({ state: "error", error: "הבקשה לא נשמרה. בדקו את החיבור ונסו שוב." });
+    }
+  };
   const [claimed, setClaimed] = useState(null);   // null = not checked yet; a Set = contributors that already have an account
   const titleId = useId(), selectId = useId();
   const candidates = new Map(Object.entries(VERIFIED_ARCHIVE_PROFILES).filter(([id, p]) => !id.startsWith("user:") && p.publicBio && p.name).map(([id, p]) => [id, p.name]));
@@ -87,7 +118,18 @@ export function LegacyAccountClaimEntry({ rows = [], onClaimed }) {
     <dialog ref={dialog} className="sod29-community-claim-dialog" aria-labelledby={titleId} onCancel={event => { event.preventDefault(); close(); }}>
       {open ? <div className="sod29-community-claim-dialog-content">
         <header><h2 id={titleId}>חיבור החשבון מהצ׳אט הישן</h2><button type="button" className="sod29-community-secondary" aria-label="סגירת חלון חיבור החשבון הישן" onClick={close}>×</button></header>
-        <p>בחרו את הפרופיל שבו כתבתם בעבר. החיבור דורש את המייל המאומת ששימש אז. ברשימה רק פרופילים שעדיין לא חוברו לחשבון.</p>
+        <p>כתבו את שם המשתמש מהצ׳אט הישן ואת השם שלכם כיום. הבקשה תישמר בתיבת הפניות לאישור בעל האתר; היא לא מחברת חשבונות באופן אוטומטי.</p>
+        {reviewRequest.state === "sent" ? <p role="status" className="sod29-community-claim-success">הבקשה נשמרה לבדיקה. שיוך ההודעות יתבצע רק לאחר אימות בעלות ואישור.</p> : <form className="sod29-community-claim-review-form" onSubmit={sendReviewRequest}>
+          <label htmlFor="community-old-name">השם שלי בצ׳אט הישן</label>
+          <input id="community-old-name" name="oldName" autoComplete="off" required maxLength={80} value={oldName} onChange={e => setOldName(e.target.value)} placeholder="השם שבו פרסמתם בעבר" />
+          <label htmlFor="community-new-name">השם שלי באתר החדש</label>
+          <input id="community-new-name" name="newName" autoComplete="nickname" required maxLength={80} value={newName} onChange={e => setNewName(e.target.value)} placeholder="שם החשבון החדש" />
+          <label htmlFor="community-claim-email">מייל לחזרה</label>
+          <input id="community-claim-email" name="email" type="email" autoComplete="email" required maxLength={200} value={replyEmail} onChange={e => setReplyEmail(e.target.value)} placeholder="כתובת המייל שלכם" />
+          <button type="submit" className="sod29-action primary" disabled={reviewRequest.state === "pending"}>{reviewRequest.state === "pending" ? "שולחים בקשה…" : "שליחת בקשה לאישור"}</button>
+          {reviewRequest.error ? <p role="alert">{reviewRequest.error}</p> : null}
+        </form>}
+        <p className="sod29-community-claim-help">יש לכם גישה למייל המאומת מהצ׳אט הישן? ניתן גם לנסות חיבור מאומת דרך הפרופילים הקיימים:</p>
         <label htmlFor={selectId}>הפרופיל הישן שלי</label>
         <select id={selectId} value={selected} disabled={claimed === null} onChange={event => setSelected(event.target.value)}><option value="">{claimed === null ? "בודקים אילו פרופילים פנויים…" : offered.length ? "בחירת פרופיל…" : "אין כרגע פרופילים פנויים"}</option>{offered.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>
         <p className="sod29-community-claim-help">הפרופיל אינו ברשימה? פתחו את שמכם דרך הודעה ישנה ובחרו ״זה החשבון הישן שלי״.</p>
