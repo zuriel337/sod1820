@@ -640,5 +640,93 @@
       2681
     ],
     "no_permission_or_publication_changes": true
+  },
+  "number_filter_mapping_20261123": {
+    "status": "mapping_only_existing_canonical_law",
+    "existing_rule_id": "zero_scale_law",
+    "verified_existing_label": "שיטת האפס · סדר הגודל",
+    "source_paths": [
+      "src/lib/research/numberSystemMethods.js",
+      "docs/world-source-story-handoff.md"
+    ],
+    "note": "אותו שורש ספרתי בסדר גודל אחר; נגזרת, לא שוויון. No new rule, schema, or ranking.",
+    "default_selection": [
+      424,
+      1237,
+      14,
+      45
+    ],
+    "family_membership": {
+      "14": [
+        14,
+        140,
+        1400
+      ],
+      "45": [
+        45,
+        450,
+        4500
+      ],
+      "424": [
+        424
+      ],
+      "1237": [
+        1237
+      ]
+    },
+    "family_counting": "count distinct gallery_images.id across the whole family; never sum per-member counts or graph links and call that unique media",
+    "two_controls": {
+      "focus": "קבוצת מספרים מועדפת (הצגת המספרים עצמם ומשפחות שיטת האפס שלהם), כולל קבוצות שמורות והוספה/הסרה ידנית",
+      "breadth": "מידת הפתיחה לפי תמונות ייחודיות, מקורות מתוארכים, קשרי סנכרון מתועדים, ולבסוף מועמדים חלשים/ללא אימות. ברירת המחדל מחקרית — חומר מרכזי; הרחבה נדרשת בבחירת משתמש. לא לחשוף hidden/restricted לציבור למרות שהם כלולים באינדקס המחקר."
+    },
+    "family_election_image_ocr_counts": [
+      {
+        "root": 14,
+        "members": [
+          14,
+          140,
+          1400
+        ],
+        "all_images": 660,
+        "election_context_candidates": 156,
+        "visible_candidates": 148,
+        "restricted_candidates": 8
+      },
+      {
+        "root": 45,
+        "members": [
+          45,
+          450,
+          4500
+        ],
+        "all_images": 477,
+        "election_context_candidates": 106,
+        "visible_candidates": 103,
+        "restricted_candidates": 3
+      },
+      {
+        "root": 424,
+        "members": [
+          424
+        ],
+        "all_images": 145,
+        "election_context_candidates": 60,
+        "visible_candidates": 55,
+        "restricted_candidates": 5
+      },
+      {
+        "root": 1237,
+        "members": [
+          1237
+        ],
+        "all_images": 108,
+        "election_context_candidates": 22,
+        "visible_candidates": 22,
+        "restricted_candidates": 0
+      }
+    ],
+    "interpretation": "These are counts of gallery_images with OCR number matches and broad political terms in metadata/OCR. They are not audited synchronizations, not all direct election evidence, and totals between families overlap.",
+    "candidate_sync_definition": "A synchronization candidate requires at least two independently dated/located sources with explicit numeric and meaningful event context. Verify relation evidence and provenance before displaying as confirmed; image volume alone is never a synchronicity score.",
+    "request_scope": "Only documentation. Preserve existing numeric methods engine and zero-scale law; no new scoring law. Do not build UI during mapping."
   }
 }
