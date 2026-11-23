@@ -144,5 +144,23 @@
     "wordpress_historical_assets": "KEEP_SOURCE_PROVENANCE",
     "legacy_protocol_active": "RETIRE_NO_SUCCESSOR",
     "legacy_specific_new_rules": "NONE"
+  },
+  "approval_targets": {
+    "rule_ids": [
+      "brand_spelling_law",
+      "canonical_colors_law",
+      "logo_integrity_law",
+      "sod1820_canonical_identity_law",
+      "worlds_color_law",
+      "legacy_content_protocol"
+    ],
+    "codex_slugs": [
+      "gematria_engine",
+      "project_overview",
+      "data_model_map",
+      "raziel_mind_architecture"
+    ],
+    "approved_sql_ref": "docs/reviews/contract-hierarchy-deep-audit-20261123/approved-release-only-reference-repair.sql",
+    "requires_one_explicit_work_log_row_naming_all_ten": true
   }
 }
