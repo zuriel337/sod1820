@@ -19,12 +19,12 @@ export default function LocalOnlyResearch2029({ research }) {
     if (busy) return;
     setBusy(true);
     Promise.resolve(research.localOnlyResearch?.('reclaim', { confirm: true })).then(
-      r => { setBusy(false); setNotice(r?.count ? `פונו ${Math.round(r.bytes / 1024)}KB. אפשר לנסות לשמור שוב.` : "לא נמצא מה לפנות."); checkSpace(); },
+      r => { setBusy(false); setNotice(r?.error ? `הפינוי נעצר: ${r.count || 0} יומנים פסיביים פונו, אך ארכיון ההתאוששות לא נשמר. אין למחוק נתוני אתר או אפליקציה.` : r?.count ? `פונו כ־${Math.round(r.bytes / 1024)}KB מיומנים פסיביים. אפשר לנסות לשמור שוב.` : "לא נמצא יומן בטוח לפינוי."); checkSpace(); },
       () => { setBusy(false); setNotice("הפינוי לא הושלם. שום דבר לא נמחק."); });
   };
   const spaceBox = space.count ? <section aria-label="פינוי מקום במכשיר" data-reclaim-space="true" style={{ border: "1px solid currentColor", borderRadius: 12, padding: 12, margin: "12px 0", maxWidth: "100%" }}>
     <strong>האחסון במכשיר הזה מתמלא ביומני היסטוריה ישנים ({Math.round(space.bytes / 1024)}KB)</strong>
-    <p style={{ margin: "4px 0 8px" }}>פינוי מסיר רק יומני היסטוריית צפייה ישנים שכבר שמורים במצב הראשי. שמורים, סל, נעיצות, אוספים, מסעות ופריטים שממתינים לאישור לא נוגעים.</p>
+    <p style={{ margin: "4px 0 8px" }}>פינוי ידני של יומנים פסיביים ישנים בלבד. עד 100 פריטי ההיסטוריה האחרונים מועתקים לארכיון התאוששות; היסטוריה ישנה יותר מהיומנים הללו עשויה להצטמצם. שמורים, סל, נעיצות, אוספים, מסעות ופעולות שממתינות לאישור אינם נמחקים.</p>
     <button type="button" disabled={busy} onClick={freeSpace}>פנה מקום</button>
     {notice ? <small role="status" style={{ display: "block", marginTop: 6 }}>{notice}</small> : null}
   </section> : null;
