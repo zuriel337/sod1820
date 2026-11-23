@@ -29,7 +29,7 @@ export default function PersonalSaveButton2029({ entity, royal = false }) {
     if(action==='blocked'){setNotice(research.syncStatus==='conflict'?'יש התנגשות בין המכשיר לחשבון. אפשר לפתור אותה באזור האישי.':'האחסון המקומי של הדפדפן דורש שחזור באזור האישי לפני שמירה נוספת.');return;}
     if(action==='retry'||action==='resave'){
       pending.current=true;setNotice('מנסה לסנכרן את הפריט השמור…');
-      const done=ok=>{if(ok){setNotice('ממתין לאישור שמירה מהשרת…');return;}pending.current=false;setNotice('הפריט נשמר במכשיר בלבד ולא סונכרן: הדפדפן חוסם אחסון מקומי או שאין חיבור לשרת. אפשר לנסות שוב.');};
+      const done=ok=>{if(ok){setNotice('ממתין לאישור שמירה מהשרת…');return;}pending.current=false;setNotice('הפריט נשמר במכשיר בלבד ולא סונכרן: הדפדפן חוסם אחסון מקומי או שאין חיבור לשרת. אפשר לנסות שוב. (קוד: '+research.syncStatus+'/'+research.syncPending+')');};
       try{
         const started=action==='retry'?research.retryResearchSync?.():research.saveItem?.(entity);
         Promise.resolve(started).then(ok=>done(Boolean(ok)),()=>done(false));
@@ -38,7 +38,7 @@ export default function PersonalSaveButton2029({ entity, royal = false }) {
     }
     pending.current=true;
     const ok=research.saveItem?.(entity);
-    if(!ok){pending.current=false;setNotice(['local_error','local_recovery_required'].includes(research.syncStatus)||research.syncPending>0?'הפריט נקלט אך לא נשמר באחסון הדפדפן, ולכן לא סונכרן. בדקו שהדפדפן אינו חוסם אחסון (מצב פרטי) ונסו שוב.':'לא ניתן להתחיל את השמירה כרגע.');}
+    if(!ok){pending.current=false;setNotice(['local_error','local_recovery_required'].includes(research.syncStatus)||research.syncPending>0?'הפריט נקלט אך לא נשמר באחסון הדפדפן, ולכן לא סונכרן. בדקו שהדפדפן אינו חוסם אחסון (מצב פרטי) ונסו שוב.':'לא ניתן להתחיל את השמירה כרגע. (קוד: '+research.syncStatus+'/'+research.syncPending+')');}
     else setNotice('ממתין לאישור שמירה מהשרת…');
   };
   const labelState=saveLabelState({saved,syncStatus:research.syncStatus,syncPending:research.syncPending});
