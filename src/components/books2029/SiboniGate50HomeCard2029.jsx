@@ -10,7 +10,7 @@ export default function SiboniGate50HomeCard2029() {
       <img src="/media/books/siboni-gate50-royal-cover.svg" width="180" height="255" decoding="async" fetchPriority="high" alt="כריכת קידום מלכותית של המסע לשער החמישים מאת ציון דוד סיבוני" />
     </div>
     <div className="siboni50-home-text">
-      <span className="siboni50-home-kicker">ספר חדש · מסע שמונת השערים</span>
+      <span className="siboni50-home-kicker"><span className="siboni50-home-pin" data-home-book-pinned="true" aria-label="ספר מוצמד">📌 מוצמד</span> ספר חדש · מסע שמונת השערים</span>
       <h2>המסע לשער החמישים</h2>
       <p>מהבינה המלאכותית לבינה המלכותית · ציון דוד סיבוני</p>
       <p>110 עמודי מקור · שמונה שערים, שני נספחים ונספח מיוחד על המספר 97</p>
