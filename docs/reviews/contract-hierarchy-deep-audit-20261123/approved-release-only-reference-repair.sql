@@ -70,6 +70,9 @@ BEGIN
     new_metadata := coalesce(rec.metadata,'{}'::jsonb)-'rule_guard';
     new_metadata := jsonb_set(new_metadata,'{owner_routing,canonical_owner}',to_jsonb(new_owner),true);
     new_metadata := jsonb_set(new_metadata,'{compaction_v1,canonical_owner}',to_jsonb(new_owner),true);
+    IF new_metadata->>'canonical_owner'=old_owner THEN
+      new_metadata := jsonb_set(new_metadata,'{canonical_owner}',to_jsonb(new_owner),true);
+    END IF;
     new_metadata := jsonb_set(new_metadata,'{owner_routing,resolution}','"SUPERSEDE_EXISTING"'::jsonb,true);
     new_metadata := jsonb_set(new_metadata,'{owner_routing,human_gate}',to_jsonb(v_gate),true);
     new_metadata := jsonb_set(new_metadata,'{owner_routing,normalized_at}','"2026-11-23"'::jsonb,true);
@@ -138,6 +141,11 @@ BEGIN
     AND metadata#>>'{owner_routing,canonical_owner}'=new_owner
     AND metadata#>>'{compaction_v1,canonical_owner}'=new_owner;
   IF v_count<>5 THEN RAISE EXCEPTION 'POSTCONDITION_DESIGN_OWNER'; END IF;
+
+  SELECT count(*) INTO v_count FROM public.nodes
+  WHERE type='rule' AND is_active=true AND rule_id=ANY(brand_ids)
+    AND metadata->>'canonical_owner'=old_owner;
+  IF v_count<>0 THEN RAISE EXCEPTION 'POSTCONDITION_TOP_LEVEL_OWNER_STALE'; END IF;
 
   SELECT count(*) INTO v_count FROM public.nodes
   WHERE type='rule' AND is_active=true AND rule_id='legacy_content_protocol'
