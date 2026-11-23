@@ -366,8 +366,8 @@ function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, s
   // The existing source feed still owns the Post and keeps its ordinary /post identity.
   const bennettPinned = String(selected?.postId || postIdOf(lead?.id) || member?.id || "") === "5113"
     || /בנט/.test(String(title));
+  useEffect(() => { if (bennettPinned && href) onImageSettled?.(); }, [bennettPinned, href, onImageSettled]);
   if (bennettPinned && href) {
-    onImageSettled?.();
     return <section className="h29-bennet-pin-strip" aria-label="בנט · מוצמד" data-home-bennet-pin="compact">
       <span className="r29-badge is-pinned">📌 מוצמד</span>
       <Link to={href} className="h29-bennet-pin-link">{title || "בנט"} <span aria-hidden="true">←</span></Link>
