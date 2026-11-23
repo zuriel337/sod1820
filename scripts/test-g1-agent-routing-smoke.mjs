@@ -31,11 +31,12 @@ test('WORLD ui_experience_work: current Reality + Experience + V2 visual owner',
   assert.doesNotMatch(ownerRow('visual language / typography / public naming'), /\x60SOD1820_DESIGN_CONTRACT_V1\.md\x60/);
 });
 
-test('post_visual: existing publication owner + V2; legacy adapter remains on demand', () => {
+test('post_visual: existing publication + intake owners, V2 design; historic WordPress source is not Legacy runtime', () => {
   pointsTo('publishing conventions / Post identity', 'project_codex.publishing_conventions');
   pointsTo('visual language / typography / public naming', 'SOD1820_DESIGN_CONTRACT_V2.md');
-  pointsTo('legacy WordPress/gallery maintenance adapter', 'legacy_content_protocol');
-  assert.match(ownerRow('legacy WordPress/gallery maintenance adapter'), /on demand/i);
+  pointsTo('WordPress/gallery historical source evidence (not a product or standing maintenance path)', 'research_intake_foundation_contract_law');
+  pointsTo('WordPress/gallery historical source evidence (not a product or standing maintenance path)', 'project_codex.publishing_conventions');
+  assert.match(ownerRow('WordPress/gallery historical source evidence (not a product or standing maintenance path)'), /no new Legacy v3/i);
 });
 
 test('gematria_research: exact engine / method registry, not model arithmetic', () => {
@@ -640,7 +641,7 @@ test('ROUND 2 · "Legacy" in a domain label does not make an active ownership ro
   assert.match(ownerIndexOwnerViolations(index + '\n| quota | `ai_quota_law` (legacy) |', ctx).join('\n'), /which is a retired law/, '"legacy" is not a status');
   assert.deepEqual(ownerIndexOwnerViolations(index + '\n| quota | `ai_quota_law` — RETIRED, successor `platform_tiers_law` |', ctx), []);
   assert.deepEqual(ownerIndexOwnerViolations(index + '\n| quota | `ai_quota_law` (היסטוריה, לא פעיל) |', ctx), []);
-  assert.deepEqual(ownerIndexOwnerViolations(index + '\n| Legacy WordPress compatibility adapter | `legacy_content_protocol` |', ctx), [], 'an active owner in a Legacy-labelled row is fine');
+  assert.deepEqual(ownerIndexOwnerViolations(index + '\n| Legacy WordPress compatibility adapter | `project_codex.publishing_conventions` |', ctx), [], 'historical wording in a row does not create a Legacy owner or hide a valid current owner');
 });
 
 test('ROUND 2 · SQL: a string is not a comment ("SELECT \'--\'; CREATE TABLE public.g1_probe (id int);"), and OWNER-CHECK counts only in a real comment', () => {
