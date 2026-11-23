@@ -166,7 +166,15 @@ export async function fetchPublicLibraryItem2029(kind, slug, options = {}) {
   // Existing launch decision: the approved Ahavat prototype can be read while
   // incomplete. Other unfinished books keep their identity and preparation
   // card; entering one must not load a closed source reader/PDF in the background.
-  if (kind === "books" && !["ahavat-torah", "hamasa-leshaar-hahamishim-zion-siboni"].includes(item.slug)) return { ...item, readerState:"preparation_closed", manifest:null };
+  if (kind === "books" && item.slug === "hamasa-leshaar-hahamishim-zion-siboni") {
+    if (item.readerState !== "source_bound") return item;
+    let available = false;
+    try { available = await (options.checkBookSource || publicBookSourceAvailable2029)(item.manifest, { signal: options.signal }); }
+    catch { canceled(options.signal); }
+    canceled(options.signal);
+    return { ...item, readerState: available ? "ready" : "public_source_file_unavailable", manifest: available ? item.manifest : null };
+  }
+  if (kind === "books" && item.slug !== "ahavat-torah") return { ...item, readerState:"preparation_closed", manifest:null };
   if (kind === "books" && item.readerState === "source_bound") {
     let available = false;
     try { available = await (options.checkBookSource || publicBookSourceAvailable2029)(item.manifest, { signal: options.signal }); }
