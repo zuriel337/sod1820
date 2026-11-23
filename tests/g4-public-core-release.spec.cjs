@@ -120,18 +120,15 @@ test('chat transition has one frame with the connected new chat above the retain
     await expect(oldChat).toBeAttached();
     await expect(page.locator('.sod29-root')).toHaveCount(1);
     await expect(page.locator('.sod29-surface-context-rail')).toHaveCount(0);
-    expect(await newChat.evaluate((element) => Boolean(element.compareDocumentPosition(document.querySelector('[data-community-chat="legacy"]')) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
-    await oldChat.scrollIntoViewIfNeeded();
-    // ZURIEL (8.11.2026): the old chat feels heavy on the page — closed by default now, one click to load it.
-    await expect(oldChat).toHaveAttribute('data-openweb-loaded', 'false');
-    await oldChat.getByRole('button', { name: 'הצגת הצ׳אט הישן' }).click();
+    expect(await oldChat.evaluate((element) => Boolean(element.compareDocumentPosition(document.querySelector('#community-new-chat')) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+    // The original OpenWeb is first and automatically opens after the initial paint.
     await expect(oldChat).toHaveAttribute('data-openweb-loaded', 'true');
     await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-id', 'POST_ID_GOES_HERE');
     await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-url', 'https://sod1820.co.il/community/chat');
     await expect(page.locator('#spotim-script')).toHaveCount(1);
     await expect(page.locator('.sod29-community-preview-notice, .sod29-community-feed-label')).toHaveCount(0);
     await oldChat.getByRole('heading', { name: 'הצ׳אט הישן', exact: true }).waitFor();
-    await oldChat.getByRole('link', { name: 'בחזרה לשיחה ↑', exact: true }).click();
+    await oldChat.getByRole('link', { name: 'לקהילה החדשה ↓', exact: true }).click();
     await expect(newChat.getByRole('textbox', { name: 'מה תרצו לשתף?' })).toBeVisible();
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/community/chat');
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
