@@ -18,7 +18,6 @@ const HomeStreamVideo2029 = lazy(() => import("./HomeStreamVideo2029.jsx"));
 const SiboniGate50HomeCard2029 = lazy(() => import("../books2029/SiboniGate50HomeCard2029.jsx"));
 const ConvergenceRatings2029 = lazy(() => import("./ConvergenceRatings2029.jsx"));
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
-import SiboniGate50HomeCard2029 from "../books2029/SiboniGate50HomeCard2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
 import SeriesBell2029 from "./SeriesBell2029.jsx";
 import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost2029.jsx";
@@ -602,7 +601,6 @@ export default function HomeComposition2029({
   }}>
     {/* ZURIEL 17.11.2026: the construction note, then the pinned מפת המציאות lead (our own content), then a short "עכשיו" from the same feed. */}
     <HomeBuildingNote />
-    <SiboniGate50HomeCard2029 />
     <HomeMapSelection>{editorial => <>
       <div className="h29-lead-pair">
         <HomePinnedLead editorial={editorial} lead={editorial?.loading ? null : updates.lead} catalogItems={editorial?.loading ? [] : primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!editorial?.loading && !seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />
@@ -610,7 +608,7 @@ export default function HomeComposition2029({
           {leadImageDone ? <HomeStreamVideo2029 /> : <div className="h29-stream-slot" aria-hidden="true" />}
         </Suspense>
       </div>
-      <Suspense fallback={null}><SiboniGate50HomeCard2029 /></Suspense>
+      <Suspense fallback={<div className="siboni50-home-loading" aria-hidden="true" />}><SiboniGate50HomeCard2029 /></Suspense>
       <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} editorialHref={homeMapLeadFace2029(homeMapLeadMember2029(primaryItems))?.href || editorial?.lead?.href} />
     </>}</HomeMapSelection>
     {activity}
