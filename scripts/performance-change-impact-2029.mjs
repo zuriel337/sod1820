@@ -7,7 +7,7 @@ import { pathToFileURL } from "node:url";
 export const IMPACT_RULES = Object.freeze([
   {
     id: "shared-entry",
-    files: /^(src\/(?:main2029\.jsx|App2029\.jsx|components\/experience2029\/(?:Sod2029Shell|SystemFrame2029|HomeComposition2029)\.jsx|lib\/(?:publicReadingRelease2029|authLazy2029|storageLazy2029|realtimeLazy2029)\.js)|vite\.config\.js|scripts\/(?:test-2029-shell-budget\.mjs|2029-shell-budget-baseline\.json))$/,
+    files: /^(?:src\/(?:main2029\.jsx|App2029\.jsx|components\/experience2029\/(?:Sod2029Shell|SystemFrame2029|HomeComposition2029)\.jsx|lib\/(?:publicReadingRelease2029|authLazy2029|storageLazy2029|realtimeLazy2029)\.js)|vite\.config\.js|scripts\/(?:test-2029-shell-budget\.mjs|2029-shell-budget-baseline\.json))$/,
     scope: ["all public routes", "personal-area", "sign-in"],
     risks: ["entry weight / render delay", "lazy load changed user action", "missing authenticated dependency"],
     checks: ["npm run build", "node scripts/test-2029-shell-budget.mjs", "real mobile/desktop browser: guest + authenticated"],
@@ -15,7 +15,7 @@ export const IMPACT_RULES = Object.freeze([
   },
   {
     id: "personal-save-and-sync",
-    files: /^(src\\/components\\/userCenter\\/|src\\/components\\/experience2029\\/PostReadingActions2029\\.jsx|src\\/components\\/community2029\\/CommunityPersonalActions2029\\.jsx|src\\/lib\\/research\\/(?:personalSaveDecision|researchSyncRuntime|researchSyncState|ResearchProvider)\\.(?:js|jsx)|src\\/lib\\/(?:AuthContext\\.jsx|storageLazy2029\\.js)|supabase\\/functions\\/(?:post-save|research-sync)\\/)/,
+    files: /^(src\/components\/userCenter\/|src\/components\/experience2029\/PostReadingActions2029\.jsx|src\/components\/community2029\/CommunityPersonalActions2029\.jsx|src\/lib\/research\/(?:personalSaveDecision|researchSyncRuntime|researchSyncState|ResearchProvider)\.(?:js|jsx)|src\/lib\/(?:AuthContext\.jsx|storageLazy2029\.js)|supabase\/functions\/(?:post-save|research-sync)\/)/,
     scope: ["personal-area", "post save", "number save", "community save"],
     risks: ["local save shown as server-confirmed", "sync queue dropped on lazy boundary", "account-switch or reload loses state"],
     checks: ["node --test test/personal-save-decision-2029.test.mjs", "node --test test/research-sync-hardening.test.mjs", "real signed-in browser: save → receipt → reload → account"],
