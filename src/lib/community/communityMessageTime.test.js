@@ -7,13 +7,9 @@ test("Community uses creation time and calendar days in Israel", (t) => {
   // is yesterday, even if fewer than 24 elapsed hours have passed.
   const now = Date.parse("2026-11-04T18:10:00Z");
   t.mock.method(Date, "now", () => now);
-  const at = age => new Date(now - age).toISOString();
-  for (const [age, label] of [[0,"לפני רגע"], [60_000,"לפני דקה"], [300_000,"לפני 5 דקות"], [3_600_000,"לפני שעה"], [7_200_000,"לפני שעתיים"]]) {
-    const result = communityMessageTime(at(age));
-    assert.equal(result.label, label);
-    assert.ok(result.full.includes("2026"));
-    assert.equal(result.accessible, `${label} · ${result.full}`);
-  }
+  const current = communityMessageTime("2026-11-04T17:00:00Z");
+  assert.match(current.label, /^היום · 19:00$/);
+  assert.equal(current.accessible, `${current.label} · ${current.full}`);
   for (const [time, label] of [
     ["2026-11-03T21:59:00Z","אתמול"],
     ["2026-11-02T20:00:00Z","שלשום"],
@@ -34,7 +30,7 @@ test("Community uses creation time and calendar days in Israel", (t) => {
 test("Community handles Jerusalem midnight and DST without UTC-day drift", (t) => {
   t.mock.method(Date, "now", () => Date.parse("2026-11-04T00:10:00Z")); // 02:10 Israel
   assert.equal(communityMessageTime("2026-11-03T21:59:00Z").label, "אתמול");
-  assert.equal(communityMessageTime("2026-11-03T22:01:00Z").label, "לפני שעתיים");
+  assert.equal(communityMessageTime("2026-11-03T22:01:00Z").label, "היום · 00:01");
 });
 
 test("Community leaves activity-date overrides intact and omits invalid dates", (t) => {
