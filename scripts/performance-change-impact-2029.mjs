@@ -22,6 +22,22 @@ export const IMPACT_RULES = Object.freeze([
     priority: "critical",
   },
   {
+    id: "research-local-storage-and-reclaim",
+    files: /^(?:src\/lib\/research\/(?:researchLocalOnly|researchSyncRuntime|researchSyncState|researchQueueCompaction|researchJournalLifecycle)\.js|src\/components\/userCenter\/(?:LocalOnlyResearch2029|PersonalSaveButton2029)\.jsx|test\/research-saved-integration-2029\.test\.mjs|\.github\/workflows\/research-sync-gate\.yml)/,
+    scope: ["personal-area", "saved research", "local quota recovery", "offline reopen", "account switching"],
+    risks: ["quota cleanup deletes unsynced research", "save falsely reports success", "pending journal never resumes", "stale or foreign account data reappears"],
+    checks: ["node --test test/research-sync-hardening.test.mjs", "node --test test/research-saved-integration-2029.test.mjs", "real signed-in browser: full quota → save → receipt → reload → recovery"],
+    priority: "critical",
+  },
+  {
+    id: "els-mode-and-access",
+    files: /^(?:src\/pages\/Els2029Page\.jsx|src\/components\/experience2029\/(?:ElsModeHelp2029|ElsNativeClassic2029|ElsRotatingMatrixCard2029)\.jsx|src\/lib\/research\/els2029[^/]*\.js|test\/els-2029[^/]*\.test\.mjs)/,
+    scope: ["ELS classic", "ELS research", "ELS registered advanced gate", "Bible code mobile"],
+    risks: ["Classic search becomes inaccessible", "research mode state resets", "advanced mode opens to guests", "help panel blocks matrix controls"],
+    checks: ["node --test test/els-2029-classic-faithful-port.test.mjs", "node --test test/els-2029-semantic-surface.test.mjs", "node --test test/els-2029-research-bar.test.mjs", "real browser: guest Classic + registered advanced gate + mobile overlays"],
+    priority: "critical",
+  },
+  {
     id: "book-public-source",
     files: /^(src\/(?:data\/bookReader2029\.js|pages\/(?:Books2029Page|PublicLibraryContinuity2029Page)\.jsx|components\/books2029\/|lib\/research\/(?:publicLibraryContinuity2029|bookResearchProjection))|public\/book-data\/)/,
     scope: ["books", "public PDF", "book deep links"],
