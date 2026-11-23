@@ -87,7 +87,8 @@ export function extras({ storage, key, principal, current }) {
 }
 // The only operations the runtime hands out.
 // Journals of ONE principal that no live tab owns and that hold ONLY passive operations (history_add / context_set).
-// Their effect is already folded into the persisted state key, so removing them loses nothing; anything else
+// Their recent history is archived before removal (bounded to the last 100 entries); older passive
+// history may be discarded only on an explicit reclaim. Never mistake these for confirmed cloud writes.
 // (saves, cart, pins, collections, journeys, history_clear, an in-flight batch, a conflict copy, another principal) is never touched.
 const PASSIVE_KINDS = new Set(['history_add', 'context_set']);
 const STALE_MS = 10 * 60 * 1000;
@@ -103,7 +104,9 @@ function passiveJournals({ storage, key, principal, now = Date.now() }) {
     if (!owner || typeof owner !== 'object') continue;
     if (owner.released !== true && !(Number.isFinite(owner.at) && now - owner.at > STALE_MS)) continue;
     if (!record.queue.every(batch => Array.isArray(batch?.ops) && batch.ops.every(op => PASSIVE_KINDS.has(op?.kind)))) continue;
-    out.push({ name, bytes: name.length + storage.getItem(name).length, at: Number.isFinite(owner.at) ? owner.at : 0, record });
+    const raw = storage.getItem(name);
+    if (raw == null || JSON.stringify(record) !== raw) continue;
+    out.push({ name, raw, bytes: name.length + raw.length, at: Number.isFinite(owner.at) ? owner.at : 0, record });
   }
   return out;
 }
@@ -128,16 +131,27 @@ export function reclaim({ storage, key, principal, confirm: confirmed, now }) {
   const history = [...merged.values()].slice(-100);
   const extras = { ...prior.extras, history };
   const write = () => storage.setItem(recordKey(key), JSON.stringify({ principal, items: prior.items, extras, at: Date.now() }));
-  let removed = 0;
+  let removed = 0, freedBytes = 0;
   const queue = [...rows];
+  // A full origin cannot allocate even a recovery record. The user explicitly requested
+  // removal of passive history, not account saves: trim oldest eligible passive journals
+  // first, and preserve the most recent 100 history entries once storage permits writing.
   for (;;) {
     try { write(); break; } catch (error) {
       const oldest = queue.shift();
-      if (!oldest) return { count: removed, bytes: 0, archived: 0, error: String(error?.name || 'write_failed') };
-      storage.removeItem(oldest.name); removed += 1;
+      if (!oldest) return { count: removed, bytes: freedBytes, archived: 0, error: String(error?.name || 'write_failed') };
+      // A different tab may have revived or rewritten a lease after the dry run.
+      // Never delete its new version, even if it occupies the same key.
+      if (storage.getItem(oldest.name) !== oldest.raw) continue;
+      storage.removeItem(oldest.name);
+      removed += 1; freedBytes += oldest.bytes;
     }
   }
-  for (const r of queue) { storage.removeItem(r.name); removed += 1; }
-  return { count: removed, bytes, archived: history.length };
+  for (const r of queue) {
+    if (storage.getItem(r.name) !== r.raw) continue;
+    storage.removeItem(r.name);
+    removed += 1; freedBytes += r.bytes;
+  }
+  return { count: removed, bytes: freedBytes, archived: history.length };
 }
 export const api = { list, confirm, extras, reclaim };
