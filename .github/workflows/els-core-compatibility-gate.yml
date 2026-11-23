@@ -112,6 +112,9 @@ jobs:
       - name: Adaptive router + browser truth-authority census
         run: node --test test/els-adaptive-router.test.mjs test/els-browser-truth-census.test.mjs test/els-window-directions.test.mjs test/els-search-parity-repairs.test.mjs
 
+      - name: Registered ELS access security acceptance
+        run: node --test test/els-registered-advanced-access.test.mjs
+
       - name: Exact replay and 2029 projection acceptance
         run: |
           node --test \
