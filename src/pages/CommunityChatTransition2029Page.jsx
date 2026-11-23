@@ -33,6 +33,9 @@ function HistoricalForumDiscussions() {
 export default function CommunityChatTransition2029Page() {
   return <CommunityLive2029
     canonicalPath="/community/chat"
-    trailingContent={<><HistoricalForumDiscussions /><LegacyOpenWebChat2029 /></>}
+    compactFeed
+    deferFeedUntilVisible
+    leadingContent={<LegacyOpenWebChat2029 autoOpen first />}
+    trailingContent={<HistoricalForumDiscussions />}
   />;
 }
