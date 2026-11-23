@@ -7,14 +7,24 @@ test("Community uses creation time and calendar days in Israel", (t) => {
   // is yesterday, even if fewer than 24 elapsed hours have passed.
   const now = Date.parse("2026-11-04T18:10:00Z");
   t.mock.method(Date, "now", () => now);
-  const current = communityMessageTime("2026-11-04T17:00:00Z");
-  assert.match(current.label, /^היום · 19:00$/);
-  assert.equal(current.accessible, `${current.label} · ${current.full}`);
+  const at = age => new Date(now - age).toISOString();
+  for (const [age, expected] of [
+    [0, "לפני רגע"],
+    [60_000, "לפני דקה"],
+    [5*60_000, "לפני 5 דקות"],
+    [60*60_000, "לפני שעה"],
+    [2*60*60_000, "לפני שעתיים"],
+    [23*60*60_000, "לפני 23 שעות"],
+  ]) {
+    const result = communityMessageTime(at(age));
+    assert.equal(result.label, expected);
+    assert.equal(result.accessible, `${expected} · ${result.full}`);
+  }
   for (const [time, label] of [
-    ["2026-11-03T21:59:00Z","אתמול"],
-    ["2026-11-02T20:00:00Z","שלשום"],
-    ["2026-11-01T20:00:00Z","לפני 3 ימים"],
-    ["2026-10-28T20:00:00Z","לפני שבוע"],
+    ["2026-11-03T17:00:00Z","אתמול"],  // 25h 10m
+    ["2026-11-02T16:00:00Z","שלשום"],
+    ["2026-11-01T15:00:00Z","לפני 3 ימים"],
+    ["2026-10-28T15:00:00Z","לפני שבוע"],
   ]) {
     const result = communityMessageTime(time);
     assert.equal(result.label, label);
@@ -27,10 +37,10 @@ test("Community uses creation time and calendar days in Israel", (t) => {
   }
 });
 
-test("Community handles Jerusalem midnight and DST without UTC-day drift", (t) => {
+test("Community uses elapsed time across Jerusalem midnight and DST", (t) => {
   t.mock.method(Date, "now", () => Date.parse("2026-11-04T00:10:00Z")); // 02:10 Israel
-  assert.equal(communityMessageTime("2026-11-03T21:59:00Z").label, "אתמול");
-  assert.equal(communityMessageTime("2026-11-03T22:01:00Z").label, "היום · 00:01");
+  assert.equal(communityMessageTime("2026-11-03T21:59:00Z").label, "לפני שעתיים");
+  assert.equal(communityMessageTime("2026-11-03T22:01:00Z").label, "לפני שעתיים");
 });
 
 test("Community leaves activity-date overrides intact and omits invalid dates", (t) => {
@@ -43,4 +53,12 @@ test("Community leaves activity-date overrides intact and omits invalid dates", 
   assert.equal(result.accessible, "תאריך פעילות");
   assert.ok(result.full);
   for (const date of [null, undefined, "", "broken"]) assert.equal(communityMessageTime(date), null);
+});
+
+// Owner-reported regression: at 00:43 a reply at 23:01 yesterday is 102 minutes old.
+test("Community does not call a reply from 102 minutes ago yesterday", (t) => {
+  t.mock.method(Date, "now", () => Date.parse("2026-11-23T22:43:00Z")); // 24 Nov 00:43 Israel
+  const result = communityMessageTime("2026-11-23T21:01:00Z"); // 23 Nov 23:01 Israel
+  assert.equal(result.label, "לפני שעה");
+  assert.ok(result.full.includes("23:01"));
 });
