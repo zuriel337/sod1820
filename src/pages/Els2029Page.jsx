@@ -514,7 +514,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
           advancedSearchRequestKey={location.state?.elsResearchReturnTaskId && location.state.elsResearchReturnTaskId === research.elsResearchOperation?.task?.id ? location.key : null}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row || loadsDismissed ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           publicClassic={publicClassic} discoveryId={discoveryId}
-          advancedSearch={registeredAdvanced && !isAdmin ? <ElsRegisteredAdvanced2029
+          advancedSearch={registeredAdvanced && !isAdmin ? <ElsRegisteredAdvanced2029 key={user.id}
             onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /> : !isAdmin ? null : <ElsAdvancedSearch2029
             researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
             exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary}
