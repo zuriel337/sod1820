@@ -256,7 +256,12 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
   const allModels = useMemo(() => nowModels(rows, Date.now(), feed?.seen), [rows, feed?.seen]);
   // The pinned central message is shown ONCE, as the card above the list; the same publication is not repeated as a row.
-  const pinned = useMemo(() => nowPinnedMessage(allModels), [allModels]);
+  // Owner editorial pin: Bennett is a compact line, not a large central
+  // message. Reuse the real admitted Post row; do not mint a second feed item.
+  const pinned = useMemo(() => {
+    const bennett = allModels.find(model => model.id === "post:5113" && model.href?.startsWith("/post/"));
+    return bennett ? { model: bennett, central: { postTitle: bennett.postTitle || bennett.title, groups: [] }, href: bennett.href, until: null } : nowPinnedMessage(allModels);
+  }, [allModels]);
   const models = useMemo(() => pinned ? allModels.filter(model => model.id !== pinned.model.id) : allModels, [allModels, pinned]);
   const sourceChoices = useMemo(() => nowSourceChoices(models), [models]);
   const lenses = useMemo(() => availableNowLenses(models), [models]);

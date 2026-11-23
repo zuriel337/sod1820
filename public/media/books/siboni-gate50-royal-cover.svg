@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 510" role="img" aria-labelledby="cover-title cover-desc">
+<title id="cover-title">המסע לשער החמישים — ציון דוד סיבוני</title>
+<desc id="cover-desc">כרטיס שער מהודר בגווני זהב וברונזה עבור ספר המקור מאת ציון דוד סיבוני</desc>
+<defs>
+  <radialGradient id="glow"><stop stop-color="#82603a"/><stop offset=".55" stop-color="#3e291c"/><stop offset="1" stop-color="#160f10"/></radialGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b88a43"/><stop offset=".48" stop-color="#ffebaa"/><stop offset="1" stop-color="#9b6731"/></linearGradient>
+</defs>
+<rect width="360" height="510" rx="10" fill="url(#glow)"/>
+<rect x="11" y="11" width="338" height="488" rx="6" fill="none" stroke="url(#gold)" stroke-width="2"/>
+<rect x="19" y="19" width="322" height="472" rx="4" fill="none" stroke="#e0c58d" stroke-opacity=".35"/>
+<g fill="none" stroke="#e4c58b" stroke-opacity=".5">
+  <path d="M78 128 Q180 94 282 128"/>
+  <path d="M78 391 Q180 425 282 391"/>
+  <path d="M180 48v47M155 72h50"/>
+  <circle cx="180" cy="105" r="7"/>
+  <path d="M112 112h45m46 0h45M128 410h104"/>
+</g>
+<text x="180" y="69" fill="#f3dba5" font-size="13" font-family="serif" text-anchor="middle" direction="rtl">קונטרס עיון, מקורות ורמזים</text>
+<text x="180" y="165" fill="#e9c888" font-size="16" font-family="serif" text-anchor="middle">שער</text>
+<text x="180" y="247" fill="url(#gold)" font-family="serif" font-size="102" font-weight="600" text-anchor="middle">50</text>
+<text x="180" y="294" fill="#fff1cf" font-family="serif" font-weight="bold" font-size="23" text-anchor="middle" direction="rtl">המסע לשער החמישים</text>
+<text x="180" y="323" fill="#f2d9a9" font-family="serif" font-size="16" text-anchor="middle" direction="rtl">מהבינה המלאכותית</text>
+<text x="180" y="346" fill="#f2d9a9" font-family="serif" font-size="16" text-anchor="middle" direction="rtl">לבינה המלכותית</text>
+<text x="180" y="445" fill="#fff0ce" font-family="serif" font-size="19" text-anchor="middle" direction="rtl">ציון דוד סיבוני</text>
+<text x="180" y="474" fill="#cfad72" font-family="serif" font-size="11" text-anchor="middle">SOD1820</text>
+</svg>

@@ -26,6 +26,16 @@ export function NowPinnedMessage2029({ pinned, onOpen }) {
   // The Post's own title from its data source (posts.title); the update's own heading is only a fallback when that is missing.
   const postTitle = central.postTitle || central.title || "";
   const summary = central.lead ? [central.lead, central.leadSub].filter(Boolean).join(". ") : groups.map(group => `${group.phrases.join(" · ")} = ${group.value}`).join(" · ");
+  // Bennett stays pinned in Now, but the pin is a single slim row, not a second
+  // large editorial card. Its full unchanged Post is one click away.
+  if (String(pinned.model.id) === "post:5113" || /בנט/.test(postTitle)) {
+    return <section className="rc29-bennet-pin-strip" aria-label="בנט · מוצמד" data-now-pinned-message={pinned.model.id} data-now-pin-compact="true">
+      <span className="r29-badge is-pinned">📌 מוצמד</span>
+      {href ? <a href={href} onClick={go(href)} className="rc29-bennet-pin-link" data-now-pinned-post="true">{postTitle || "בנט"} <span aria-hidden="true">←</span></a>
+        : <strong>{postTitle || "בנט"}</strong>}
+    </section>;
+  }
+
   return <article className={`rc29-pin r29 r29-hall is-feature${open ? " is-open" : ""}`} data-r29-kind="pinned" aria-label={postTitle || "הפוסט הנעוץ"} data-now-pinned-message={pinned.model.id}>
     <div className="rc29-pin-top">
       <span className="rc29-tag is-pin r29-badge is-pinned" data-now-pin-until={until}><NavigationIcon2029 name="kingdom" size={14} />נעוץ · {nowPinUntilLabel(until)}</span>

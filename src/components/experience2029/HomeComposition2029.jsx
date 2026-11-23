@@ -15,6 +15,7 @@ import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 // The notable convergences sit far below the opening screen: their rating marks load with them (ZURIEL 17.11.2026, Speed Law).
 const MapTimeline = import.meta.env.VITE_MAP_READING_RELEASE === "true" ? lazy(() => import("../research/MapUnitTimeline2029.jsx")) : null;
 const HomeStreamVideo2029 = lazy(() => import("./HomeStreamVideo2029.jsx"));
+const SiboniGate50HomeCard2029 = lazy(() => import("../books2029/SiboniGate50HomeCard2029.jsx"));
 const ConvergenceRatings2029 = lazy(() => import("./ConvergenceRatings2029.jsx"));
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
@@ -348,6 +349,7 @@ function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, s
   const selected = editorial?.lead && ((member && String(editorial.lead.postId) === String(member.id)) || (!member && !lead))
     && (Date.parse(editorial.lead.updatedAt || "") || 0) >= (Date.parse(face?.at || "") || 0)
     ? editorial.lead : null;
+  const bennettUnpinned = String(selected?.postId || member?.id || postIdOf(lead?.id) || "") === "5113";
   const href = selected?.href || face?.href || null;
   const title = selected?.label || face?.title || "";
   const context = selected ? selected.essence : face?.postTitle && face.postTitle !== face.title ? face.postTitle : null;
@@ -358,14 +360,26 @@ function HomePinnedLead({ editorial, lead, catalogItems, pinned, onNavigateTo, s
   const time = at && Number.isFinite(new Date(at).getTime()) ? new Date(at) : null;
   // No image to wait for: the images below may start (homeLeadImageGate2029).
   useEffect(() => { if (settled && !image) onImageSettled?.(); }, [settled, image, onImageSettled]);
+  // React hooks must run in the same order on every render, including while
+  // the catalog/feed is empty. Compute this before either early return.
+  // Bennett is displayed as one slim pinned row, not a second full hero.
+  const bennettPinned = String(selected?.postId || postIdOf(lead?.id) || member?.id || "") === "5113"
+    || /בנט/.test(String(title));
+  useEffect(() => { if (bennettPinned && href) onImageSettled?.(); }, [bennettPinned, href, onImageSettled]);
   // Both readers answered and neither has a reality-map publication (or both failed): no card, and the Home's content gate is not left waiting.
   if (settled && !selected && !lead && !member) return pinned ? <section className="h29-pinlead" aria-label="הנעוץ" data-home-pinned-lead="none"><NowPinnedMessage2029 pinned={pinned} onOpen={onNavigateTo} /></section>
     : <section className="h29-pinlead" data-home-pinned-lead="none" hidden />;
+  if (bennettPinned && href) {
+    return <section className="h29-bennet-pin-strip" aria-label="בנט · מוצמד" data-home-bennet-pin="compact">
+      <span className="r29-badge is-pinned">📌 מוצמד</span>
+      <Link to={href} className="h29-bennet-pin-link">{title || "בנט"} <span aria-hidden="true">←</span></Link>
+    </section>;
+  }
   // One structure whether the Post is known yet or not (same boxes, same heights), so nothing moves when it arrives.
   const body = <>
     <span className="h29-pinlead-media">{image ? <img src={image} srcSet={set || undefined} sizes={set ? PIN_COVER_SIZES : undefined}
       alt="" width="1280" height="720" fetchpriority="high" decoding="async" onLoad={onImageSettled || undefined} onError={onImageSettled || undefined} /> : <span className="h29-pinlead-empty" aria-hidden="true">✦</span>}</span>
-    <span className="h29-pinlead-badge r29-badge is-pinned"><NavigationIcon2029 name="kingdom" size={14} />{selected ? "האירוע המוביל · מפת המציאות" : "העדכון האחרון · מפת המציאות"}</span>
+    <span className={`h29-pinlead-badge r29-badge${bennettUnpinned ? "" : " is-pinned"}`}><NavigationIcon2029 name="kingdom" size={14} />{bennettUnpinned ? "פוסט · מפת המציאות" : selected ? "האירוע המוביל · מפת המציאות" : "העדכון האחרון · מפת המציאות"}</span>
     <strong className="h29-pinlead-title">{href ? title : "טוען את הפרסום האחרון…"}</strong>
     <small className="h29-pinlead-meta">{context ? <span className="h29-pinlead-ctx">{context}</span> : null}
       {!selected && lead?.seriesLatest ? <SeriesLatestMark2029 model={lead} /> : null}
@@ -595,6 +609,7 @@ export default function HomeComposition2029({
           {leadImageDone ? <HomeStreamVideo2029 /> : <div className="h29-stream-slot" aria-hidden="true" />}
         </Suspense>
       </div>
+      <Suspense fallback={<div className="siboni50-home-loading" aria-hidden="true" />}><SiboniGate50HomeCard2029 /></Suspense>
       <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} editorialHref={homeMapLeadFace2029(homeMapLeadMember2029(primaryItems))?.href || editorial?.lead?.href} />
     </>}</HomeMapSelection>
     {activity}
@@ -619,6 +634,7 @@ export default function HomeComposition2029({
     <HomeEntryBand journeyLocked={journeyLocked} midrashOpen={midrashOpen} />
 
     <HomeOtherSeries state={seriesState} />
+
 
     {(lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic && worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} data-home-primary={data.loading ? "loading" : data.postsError ? "failed" : "empty"} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>תיעוד אירועים ורמזי המערכת</h1>{!data.loading ? <p>{data.postsError ? "העדכונים אינם זמינים כרגע. אפשר לנסות שוב או להמשיך לעולם ולמחשבון." : "אין כרגע עדכונים להצגה. אפשר להמשיך לעולם ולמחשבון."}</p> : null}</div></section>)}
 

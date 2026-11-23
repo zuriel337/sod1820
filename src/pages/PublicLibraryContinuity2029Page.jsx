@@ -14,6 +14,7 @@ import "./publicLibraryContinuity2029.css";
 
 const RESEARCH_PATH = `/codes/${encodeURIComponent("מחקר")}`;
 const AhavatTorahSystem2029Page = lazy(() => import("./AhavatTorahSystem2029Page.jsx"));
+const SiboniGate50Journey2029 = lazy(() => import("../components/books2029/SiboniGate50Journey2029.jsx"));
 const rootHref = (kind, collection) => kind === "books" ? "/books" : collection === "research" ? RESEARCH_PATH : "/codes";
 
 function returnHref(kind, collection, location) {
@@ -63,7 +64,7 @@ function LibraryCard({ item, returnTo, preparation }) {
   if (item.kind === "books") return <BookCard
     book={{id:item.id,label:item.title,description:item.description,metadata:{slug:item.slug}}}
     preparation={preparation} returnTo={returnTo} readable={false}
-    readingHref={item.slug === "ahavat-torah" && item.readerState === "source_bound" && item.manifest ? `${item.href}?returnTo=${encodeURIComponent(returnTo)}` : undefined} />;
+    readingHref={["ahavat-torah", "hamasa-leshaar-hahamishim-zion-siboni"].includes(item.slug) && item.readerState === "source_bound" && item.manifest ? `${item.href}?returnTo=${encodeURIComponent(returnTo)}` : undefined} />;
   return <article className="public-library29-card" data-public-source-ref={item.sourceRef || undefined}>
     <Link to={item.href} state={{ publicLibraryReturn: returnTo }}>
       <div className="public-library29-card-art">{item.kind === "books"
@@ -120,6 +121,7 @@ function PublicBook({ item, retry }) {
   </article>;
   return <article className="public-library29-detail" data-public-source-ref={item.sourceRef || undefined}>
     <header className="public-library29-source-head"><span className="public-library29-eyebrow">ספר ומקור</span><h2>{item.title}</h2>{item.description ? <p>{item.description}</p> : null}</header>
+    {item.readerState === "ready" && item.manifest && item.slug === "hamasa-leshaar-hahamishim-zion-siboni" ? <Suspense fallback={null}><SiboniGate50Journey2029 slug={item.slug} sourceReady /></Suspense> : null}
     {item.readerState === "ready" && item.manifest ? <BookSourceReader2029 key={item.id} manifest={item.manifest} publicReadOnly />
       : <section data-experience-capability="public-book-source-reading" data-capability-state={item.readerState}><FrameState kind="unavailable" title="קורא המקור של הספר אינו זמין כרגע">
         <p>{external ? "הספר מפנה לקובץ באתר חיצוני. לא ניתן לבדוק ולהציג אותו בתוך הקורא כרגע; אפשר לפתוח את המקור בחלון נפרד." : item.readerState === "public_source_file_unavailable" ? "קובץ המקור אינו נטען כרגע. אפשר לנסות שוב או לבחור מקור אחר בספרייה." : "פרטי הספר זמינים לציבור, אך אין כרגע חיבור מאומת לקובץ המקור שניתן לקרוא כאן."}</p>

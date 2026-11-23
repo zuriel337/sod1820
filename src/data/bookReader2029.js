@@ -17,6 +17,31 @@ function freezeManifest(manifest) {
 }
 
 const BOOK_READER_MANIFESTS = Object.freeze({
+  "hamasa-leshaar-hahamishim-zion-siboni": freezeManifest({
+    slug: "hamasa-leshaar-hahamishim-zion-siboni",
+    title: "המסע לשער החמישים — מהבינה המלאכותית לבינה המלכותית",
+    author: "ציון דוד סיבוני",
+    language: "עברית",
+    pdfPages: 110,
+    pdfUrl: `${GALLERY_ROOT}/zion50.pdf`,
+    pdfRenderer: "controlled_page",
+    pdfSha256: "35261bcc661d6364353482c9f911de9c39f203e503a68aa97b680e4a85c77e2c",
+    pdfBytes: 1322143,
+    chapters: [
+      { id:"opening", title:"הקדמה", from:1, to:7 },
+      { id:"first-gate", title:"שער א׳", from:8, to:15 },
+      { id:"second-gate", title:"שער ב׳", from:16, to:20 },
+      { id:"third-gate", title:"שער ג׳", from:21, to:27 },
+      { id:"fourth-gate", title:"שער ד׳", from:28, to:35 },
+      { id:"fifth-gate", title:"שער ה׳", from:36, to:52 },
+      { id:"sixth-gate", title:"שער ו׳", from:53, to:66 },
+      { id:"seventh-gate", title:"שער ז׳", from:67, to:77 },
+      { id:"eighth-gate", title:"שער ח׳", from:78, to:93 },
+      { id:"annex-nun", title:"נספח א׳", from:94, to:95 },
+      { id:"annex-32", title:"נספח ב׳", from:96, to:97 },
+      { id:"special-annex-97", title:"נספח 97", from:98, to:110 },
+    ],
+  }),
   "ahavat-torah": freezeManifest({
     slug: "ahavat-torah",
     title: "אהבת תורה",
