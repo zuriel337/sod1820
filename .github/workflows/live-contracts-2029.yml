@@ -126,6 +126,12 @@ jobs:
           echo "35261bcc661d6364353482c9f911de9c39f203e503a68aa97b680e4a85c77e2c  $pdf" | sha256sum -c -
           head -c 5 "$pdf" | grep -aFxq '%PDF-' || { echo "Gate 50: not a PDF header"; exit 1; }
           grep -aiEq '^content-type:[[:space:]]*application/pdf([[:space:]]*;|[[:space:]]*$)' "$headers" || { echo "Gate 50: expected application/pdf content type"; exit 1; }
+          # The existing browser reader probes this source with an anonymous HEAD.
+          # GET success alone is not enough to assert the in-page reader will open.
+          head_headers="$RUNNER_TEMP/siboni-gate50-head.txt"
+          curl --head --fail --silent --show-error --connect-timeout 12 --max-time 30 \
+            --dump-header "$head_headers" --output /dev/null "$url"
+          grep -aiEq '^content-type:[[:space:]]*application/pdf([[:space:]]*;|[[:space:]]*$)' "$head_headers" || { echo "Gate 50: anonymous HEAD has wrong content-type"; exit 1; }
           echo "Gate 50 anonymous source: VERIFIED (110-page author PDF bytes/hash locked)"
       - name: Zion Siboni Gate 50 source, 110-page reader and exact public Book admission
         run: node --test test/siboni-gate50-reader-manifest.test.mjs test/siboni-gate50-journey.test.mjs src/lib/research/publicLibraryContinuity2029.test.js
