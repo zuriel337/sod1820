@@ -1,0 +1,119 @@
+{
+  "kind": "elections_owner_contract_route",
+  "version": "research-mapping-v1",
+  "as_of": "2026-11-23",
+  "state": "branch_only_not_live_raziel_integration",
+  "root_identity": {
+    "ref": "node:2bb53dbf-816a-4033-aff2-874c4981cd39",
+    "type": "entity",
+    "type_change_authorized": false
+  },
+  "ownership": [
+    {
+      "domain": "system_authority",
+      "owner": "SOD1820_MASTER_OWNER_INDEX.md",
+      "role": "routing index only; never store event evidence"
+    },
+    {
+      "domain": "cross_domain_context",
+      "owner": "research_strategy_layer_law@v17",
+      "role": "bounded context compiler for Raziel and other consumers"
+    },
+    {
+      "domain": "source_ingest",
+      "owner": "research_intake_foundation_contract_law@v14",
+      "role": "source intake and preservation"
+    },
+    {
+      "domain": "graph_identity",
+      "owner": "reality_graph_law@v8",
+      "role": "identity, graph and source occurrences"
+    },
+    {
+      "domain": "evidence_truth",
+      "owner": "truth_axes_foundation_law@v3",
+      "role": "distinguish observations, claims, verification and governance"
+    },
+    {
+      "domain": "rank",
+      "owner": "research_gold_hints_law@v4",
+      "role": "explainable contextual selection"
+    },
+    {
+      "domain": "numeric_family",
+      "owner": "zero_scale_law@v1",
+      "role": "number family relation not raw-value rewrite"
+    },
+    {
+      "domain": "pulse",
+      "owner": "reality_stream_law@v1",
+      "role": "signal/time and media as evidence"
+    },
+    {
+      "domain": "branch_envelope",
+      "owner": "src/lib/research/oneTreeBranchContract2029.js@v2",
+      "role": "non-owning branch envelope; draft not DB truth"
+    },
+    {
+      "domain": "elections_domain",
+      "owner": "src/lib/research/electionsDomainContract2029.js@v3",
+      "role": "elections domain adapter of One Tree"
+    }
+  ],
+  "sources": {
+    "candidate_inventory": "docs/reviews/elections-234-image-classification-20261123.json",
+    "canonical_source_refs": "docs/reviews/elections-one-tree-source-index-20261123.json",
+    "published_topic_proposal": "docs/reviews/elections-topic-navigation-proposal-20261123.json",
+    "event_review": "docs/reviews/elections-2017-2024-deep-event-clusters-20261123.md",
+    "existing_generic_branch_contract": "src/lib/research/oneTreeBranchContract2029.js",
+    "existing_domain_profile": "src/lib/research/electionsDomainContract2029.js",
+    "existing_seed": "src/lib/research/electionsIsrael21_26Seed2029.js"
+  },
+  "focus": {
+    "roots": [
+      14,
+      45,
+      424,
+      1237
+    ],
+    "zero_scale_active_rule": "zero_scale_law",
+    "observed_value_preserved": true
+  },
+  "lookup_contract": {
+    "resolver": "owner-first",
+    "order": [
+      "validate access",
+      "resolve root entity",
+      "select domain profile elections",
+      "select requested number family",
+      "query bounded source IDs from canonical data reader",
+      "attach evidence lanes and source occurrences",
+      "group duplicates and dependencies",
+      "explain contextual ranking",
+      "return bounded Raziel context pack"
+    ],
+    "never": "load 234-image raw OCR into prompt; clone sources into rule text; create second graph; override source visibility",
+    "default_per_turn_max_candidate_ids": 24,
+    "counts": {
+      "image_records": 234,
+      "canonical_image_references": 234,
+      "known_exact_duplicate_asset_groups": 7,
+      "source_status_public_flag": 222,
+      "source_status_restricted_or_unknown": 12,
+      "independent_event_count": null,
+      "sync_verified_count": null
+    }
+  },
+  "status": "routing_map_only__not_enabled_as_live_reader",
+  "followup_domains": [
+    "railway_clues",
+    "legacy_topics",
+    "gematria"
+  ],
+  "release_blockers": [
+    "Run canonical compiler tests on branch and resolve writer ownership",
+    "Verify live Raziel strategy context input contract",
+    "Match source actual RLS / public projection rather than published flag alone",
+    "Resolve owner approval for adopting branch and converting candidates into live records"
+  ]
+}
