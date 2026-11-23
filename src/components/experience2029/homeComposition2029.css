@@ -628,3 +628,8 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
   .h29-lead-pair:has(> .h29-pinlead:not([hidden]) + *) { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); }
   .h29-stream-slot, .h29-stream-video { min-block-size: 242px; }
 }
+
+/* Compact Bennett pin: one row, not a competing hero. */
+.h29-bennet-pin-strip{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);min-width:0}
+.h29-bennet-pin-link{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650;font-size:.9rem;color:var(--s29-ink)}
+.h29-bennet-pin-strip .is-pinned{flex:none;white-space:nowrap}
