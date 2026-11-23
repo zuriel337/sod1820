@@ -4,7 +4,7 @@ import { trackConversion } from "./marketing.js";
 import { emit } from "./events.js"; // One event pipeline, including non-public 2029 builds.
 import { getVisitorId } from "./visitorId.js"; // ONE TREE: בעלים יחיד ל-sod_vid (לא יוצרים כאן)
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1
-import { installRuntimeErrorCapture, getSharedCapture, buildIncidentMeta, sanitizeRoute } from "./runtimeErrorCapture.js"; // G3_RELIABILITY_PRECLOSE
+import { installRuntimeErrorCapture, getSharedCapture } from "./runtimeErrorCapture.js"; // G3_RELIABILITY_PRECLOSE
 
 // ===== אנליטיקה פנימית — מעקב מדורים ופעולות =====
 // כל גולש = visitor_id אנונימי ב-localStorage (לא PII).
@@ -21,8 +21,7 @@ export function track(section, slug = null, eventType = "view", meta = null) {
     // Preserve the existing bounded/deduplicated incident observer locally.
     // Neither a normal read nor an error should attempt a denied telemetry write.
     if (section === "runtime_error") {
-      try { console.warn("SOD1820 runtime incident", sanitizeRoute(slug), eventType,
-        buildIncidentMeta(meta?.message, meta || {})); } catch { /* optional console */ }
+      try { console.warn("SOD1820 incident", eventType); } catch {}
       const chunk = /chunk|loading/i.test(meta?.message || "");
       void import("./appHealthIncident2029.js").then(m => m.reportAppHealth(
         chunk ? "load_failed" : "runtime_error",
