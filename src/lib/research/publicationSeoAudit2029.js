@@ -20,7 +20,11 @@ export const publicationFamily2029 = path => {
   if(/^\/post\/[^/]+$/.test(path))return "post";
   if(/^\/book\/[^/]+$/.test(path))return "book";
   if(/^\/codes\/[^/]+$/.test(path))return "code";
-  // Legacy root-form Posts have no unique path family; do not invent ownership.
+  // Existing imported Wordpress Posts may keep a root-form canonical URL.
+  // The sitemap is authoritative for public admission; a root URL is only a
+  // candidate, not a claim that an arbitrary one-segment path is a Post.
+  const staticRoot = new Set(["post","posts","books","book","codes","code","els","gallery","world","map","archive","timeline","gematria","number","community","privacy","login","contact","about","heichal","research","findings","start","member","members","or-geula","broadcasts","beit-midrash","sitemap.xml","robots.txt"]);
+  if(/^\\/[^/]+$/.test(path) && !staticRoot.has(path.slice(1)))return "root-candidate";
   return null;
 };
 export function parsePublicSitemapEntries2029(xml) {
@@ -49,11 +53,11 @@ export function selectPublicationSeoCandidates2029(items,{now=new Date(),max=24,
   const recent=items.filter(item=>item.lastmod&&/^\d{4}-\d\d-\d\d/.test(item.lastmod)&&item.lastmod.slice(0,10)>=oldest);
   const missing=items.filter(item=>!item.lastmod);
   const selected=[],reasons=[];
-  for(const kind of ["post","book","code"]){
+  for(const kind of ["post","book","code","root-candidate"]){
     const byKind=recent.filter(item=>item.family===kind).sort((a,b)=>String(b.lastmod).localeCompare(String(a.lastmod))||a.url.localeCompare(b.url));
     const missingKind=missing.filter(item=>item.family===kind).sort((a,b)=>a.url.localeCompare(b.url));
-    const primary=byKind.slice(0,perFamily);
-    const extra=missingKind.slice(0,kind==="post"?0:Math.max(0,perFamily-primary.length));
+    const primary=byKind.slice(0,kind==="root-candidate"?4:perFamily);
+    const extra=missingKind.slice(0,["post","root-candidate"].includes(kind)?0:Math.max(0,perFamily-primary.length));
     selected.push(...primary,...extra);
     if(byKind.length>primary.length)reasons.push(kind+":RECENT_SAMPLE_LIMIT");
     if(missingKind.length>extra.length)reasons.push(kind+":UNDATED_COVERAGE_PARTIAL");
