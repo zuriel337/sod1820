@@ -18,6 +18,7 @@ const run=(filename)=>{
 };
 run("test/performance-change-impact-2029.test.mjs");
 run("test/2029-action-health-regression.test.mjs");
+run("test/compare-performance-evidence-2029.test.mjs");
 if(impact.categories.some(x=>["personal-save-and-sync","shared-entry","storage-auth-access"].includes(x))){
   run("test/personal-save-decision-2029.test.mjs");
   run("test/research-sync-hardening.test.mjs");
