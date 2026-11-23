@@ -49,23 +49,40 @@ export function selectPublicationSeoCandidates2029(items,{now=new Date(),max=24,
   if(!Array.isArray(items))return {items:[],coverage:"UNKNOWN",reasons:["NO_SITEMAP_EVIDENCE"]};
   const nowDate=new Date(now);if(!Number.isFinite(nowDate.getTime()))return {items:[],coverage:"UNKNOWN",reasons:["INVALID_CLOCK"]};
   const cutoff=new Date(nowDate.getTime()-48*3600*1000);
-  const oldest=cutoff.toISOString().slice(0,10);
+  const oldest=cutoff.toISOString().slice(0,10), hour=Math.floor(nowDate.getTime()/3600000);
   const recent=items.filter(item=>item.lastmod&&/^\d{4}-\d\d-\d\d/.test(item.lastmod)&&item.lastmod.slice(0,10)>=oldest);
   const missing=items.filter(item=>!item.lastmod);
-  const selected=[],reasons=[];
-  for(const kind of ["post","book","code","root-candidate"]){
+  const safeMax=Math.max(1,Math.min(48,Math.trunc(max)||24));
+  const safeFamily=Math.max(1,Math.min(20,Math.trunc(perFamily)||8));
+  // Stateless rotation prevents a busy publishing day from checking the same first N
+  // Posts forever. This is sample coverage across hours, NOT a claim of full census.
+  const rotate=(rows,limit)=>{
+    if(rows.length<=limit)return rows;
+    const start=((hour*limit)%rows.length+rows.length)%rows.length;
+    return Array.from({length:limit},(_,i)=>rows[(start+i)%rows.length]);
+  };
+  const families=["post","book","code","root-candidate"];
+  const byFamily=[], reasons=[];
+  for(const kind of families){
+    const cap=kind==="root-candidate"?Math.min(4,safeFamily):safeFamily;
     const byKind=recent.filter(item=>item.family===kind).sort((a,b)=>String(b.lastmod).localeCompare(String(a.lastmod))||a.url.localeCompare(b.url));
     const missingKind=missing.filter(item=>item.family===kind).sort((a,b)=>a.url.localeCompare(b.url));
-    const primary=byKind.slice(0,kind==="root-candidate"?4:perFamily);
-    const extra=missingKind.slice(0,["post","root-candidate"].includes(kind)?0:Math.max(0,perFamily-primary.length));
-    selected.push(...primary,...extra);
+    const primary=rotate(byKind,cap);
+    // Dated root candidates may be old canonical Posts. Undated single-segment
+    // routes lack Post identity: never auto-classify them as a published Post.
+    const extra=kind==="post"||kind==="root-candidate"?[]:rotate(missingKind,Math.max(0,cap-primary.length));
+    byFamily.push([...primary,...extra]);
     if(byKind.length>primary.length)reasons.push(kind+":RECENT_SAMPLE_LIMIT");
-    if(missingKind.length>extra.length)reasons.push(kind+":UNDATED_COVERAGE_PARTIAL");
+    if(kind!=="root-candidate"&&missingKind.length>extra.length)reasons.push(kind+":UNDATED_COVERAGE_PARTIAL");
   }
-  const bounded=selected.slice(0,max);
-  if(selected.length>bounded.length)reasons.push("TOTAL_BOUNDED");
+  // Round-robin prevents the four families from starving later families at max=18.
+  // Every run is bounded; large publications are rotated through successive hours.
+  const selected=[];
+  for(let i=0;selected.length<safeMax&&byFamily.some(f=>i<f.length);i++)
+    for(const family of byFamily)if(i<family.length&&selected.length<safeMax)selected.push(family[i]);
+  if(byFamily.reduce((n,items)=>n+items.length,0)>selected.length)reasons.push("TOTAL_BOUNDED");
   if(!items.length)reasons.push("NO_PUBLIC_ITEMS_IN_SITEMAP");
-  return {items:bounded,coverage:reasons.length?"PARTIAL":"SELECTED",reasons,inspectedFrom:items.length};
+  return {items:selected,coverage:reasons.length?"PARTIAL":"SELECTED",reasons,inspectedFrom:items.length};
 }
 // This is the *actual* HTTP evidence stage. Sitemap presence alone is never proof.
 export function assessPublicationSeoHttp2029(item,{status,headers={},body="",finalUrl=null,redirected=false}={}){
