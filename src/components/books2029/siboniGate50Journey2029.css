@@ -1,0 +1,40 @@
+/* Scoped Royal reading entrance for Zion Siboni. No global frame or shell changes. */
+.siboni50{--s50-gold:#d5ac65;--s50-ink:#f7e7ca;--s50-line:rgba(226,183,112,.28);margin:1.4rem 0 2.25rem;color:var(--s50-ink);font-family:inherit}
+.siboni50 a{color:inherit}
+.siboni50-hero{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:space-between;gap:2rem;padding:clamp(1.25rem,3.4vw,3rem);overflow:hidden;border:1px solid var(--s50-line);border-radius:1.4rem;background:radial-gradient(ellipse at 20% 80%,rgba(129,86,31,.35),transparent 60%),linear-gradient(120deg,#17100e,#2b211a 65%,#0d0c10);box-shadow:0 18px 42px rgba(10,7,5,.18)}
+.siboni50-hero:before{content:"";position:absolute;inset:12px;border:1px solid rgba(226,183,112,.13);border-radius:.95rem;pointer-events:none}
+.siboni50-hero-copy{max-width:630px;z-index:1}
+.siboni50-eyebrow{display:block;font-size:.78rem;letter-spacing:.04em;color:var(--s50-gold);margin-bottom:.8rem}
+.siboni50 h2{font-size:clamp(1.45rem,3.2vw,2.6rem);line-height:1.3;color:#ffedce;margin:0 0 .4rem}
+.siboni50-subtitle{font-size:clamp(.96rem,1.8vw,1.2rem);color:#efc47b;margin:.25rem 0}
+.siboni50-author{font-size:.92rem;color:#eed8b4;margin:1rem 0}
+.siboni50-description{line-height:1.9;color:#e4d8c8;max-width:60ch}
+.siboni50-primary{display:inline-flex;align-items:center;gap:.6rem;padding:.7rem 1.1rem;border-radius:99px;border:1px solid #d5ac65;background:#e0b977;color:#21170f!important;text-decoration:none!important;font-weight:700;min-height:44px}
+.siboni50-primary:hover{background:#f3d39d}
+.siboni50-emblem{flex:none;display:flex;flex-direction:column;justify-content:center;align-items:center;width:clamp(112px,18vw,205px);aspect-ratio:1;border:1px solid #c59855;border-radius:50%;outline:1px solid rgba(210,168,92,.35);outline-offset:8px;background:radial-gradient(circle,#6b4a24 0%,#2a1d15 62%,#130e0b 100%);box-shadow:inset 0 0 0 8px rgba(220,174,102,.06),0 0 44px rgba(174,116,44,.12)}
+.siboni50-emblem span{font-size:.87rem;color:#efcf93}
+.siboni50-emblem strong{font-size:clamp(3rem,7vw,5.5rem);line-height:1.18;color:#fff1c4;font-weight:500}
+.siboni50-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin:1rem 0 2rem}
+.siboni50-values span{display:flex;align-items:center;justify-content:center;gap:.55rem;min-width:0;padding:.8rem .4rem;border:1px solid var(--s50-line);border-radius:.85rem;background:#241c18;color:#e9d6b7;font-size:.83rem;text-align:center}
+.siboni50-values strong{font-size:1.45rem;color:#f2ce8d;direction:ltr}
+.siboni50-head{margin:1.2rem 0 .9rem;color:inherit}
+.siboni50-head h3{font-size:1.23rem;color:#d5ac65;margin:0 0 .35rem}
+.siboni50-head p{margin:0;color:inherit;opacity:.86;line-height:1.7}
+.siboni50-head-secondary{margin-top:1.75rem}
+.siboni50-gates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;list-style:none;padding:0;margin:0}
+.siboni50-gate{display:flex;align-items:center;gap:1rem;height:100%;min-height:92px;padding:1rem;border-radius:.95rem;border:1px solid var(--s50-line);background:linear-gradient(135deg,#30241b,#17130f);text-decoration:none!important;transition:border-color .15s ease,background .15s ease}
+.siboni50-gate:hover,.siboni50-gate:focus-visible{border-color:#f3ca82;background:linear-gradient(135deg,#443121,#20170f)}
+.siboni50-gate-no{font-variant-numeric:tabular-nums;font-size:1.25rem;color:#e3ba73;flex:none}
+.siboni50-gate-copy{display:flex;flex-direction:column;gap:.35rem;flex:1;min-width:0}
+.siboni50-gate-copy strong{font-size:.95rem;line-height:1.5;color:#fff0d2}
+.siboni50-gate-copy small{font-size:.78rem;color:#d2b990;line-height:1.5}
+.siboni50-gate-arrow{color:#f0c782}
+.siboni50-appendices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem}
+.siboni50-appendices a{display:flex;flex-direction:column;gap:.35rem;padding:1rem;border-radius:.9rem;border:1px solid var(--s50-line);background:#261d17;text-decoration:none!important;min-height:78px}
+.siboni50-appendices a:hover,.siboni50-appendices a:focus-visible{border-color:#f3ca82}
+.siboni50-appendices strong{font-size:.9rem;color:#f2e0c1}
+.siboni50-appendices small{font-size:.77rem;color:#d4b785}
+.siboni50-attribution{color:inherit;opacity:.76;margin:1rem 0 0;font-size:.8rem;line-height:1.8}
+@media(max-width:690px){.siboni50-hero{gap:1rem;padding:1.5rem}.siboni50-emblem{width:90px;outline-offset:4px}.siboni50-emblem strong{font-size:2.9rem}.siboni50-values{gap:.35rem}.siboni50-values span{flex-direction:column;gap:.15rem;font-size:.7rem}.siboni50-values strong{font-size:1.2rem}.siboni50-gates{grid-template-columns:1fr}.siboni50-appendices{grid-template-columns:1fr}}
+@media(max-width:400px){.siboni50-emblem{display:none}.siboni50-hero{padding:1.15rem}}
+@media(prefers-reduced-motion:reduce){.siboni50-gate{transition:none}}
