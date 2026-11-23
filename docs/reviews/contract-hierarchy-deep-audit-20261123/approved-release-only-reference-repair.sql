@@ -99,28 +99,17 @@ BEGIN
     );
   END LOOP;
 
-  -- Legacy protocol stays historical/on-demand; only its LIVE dependency moves to the active family.
-  -- The prior exact @13 snapshot remains in retired v2 and in the new v3 provenance note.
-  SELECT * INTO rec FROM public.nodes
-  WHERE type='rule' AND rule_id='legacy_content_protocol' AND is_active=true FOR UPDATE;
-  new_metadata := coalesce(rec.metadata,'{}'::jsonb)-'rule_guard';
-  new_metadata := jsonb_set(new_metadata,'{owner_routing,resolution}','"SUPERSEDE_EXISTING"'::jsonb,true);
-  new_metadata := jsonb_set(new_metadata,'{owner_routing,human_gate}',to_jsonb(v_gate),true);
-  new_metadata := jsonb_set(new_metadata,'{owner_routing,normalized_at}','"2026-11-23"'::jsonb,true);
-  new_description := concat(coalesce(rec.description,''),E'\n\n',
-    '[2026-11-23 · live dependency pointer supersession v',rec.rule_version+1,'] ',
-    'The historical v2 pin research_intake_foundation_contract_law@13 is preserved in retired v2. ',
-    'Runtime dependency now resolves latest active research_intake_foundation_contract_law ',
-    '(v14 verified 2026-11-23). Legacy remains an on-demand archival adapter only.');
-  UPDATE public.nodes SET is_active=false WHERE id=rec.id;
-  INSERT INTO public.nodes(
-    type,label,description,metadata,is_active,rule_id,rule_version,depends_on,
-    supersedes_version,weight,hebrew_date,axis_theme,gallery_id,identity_key
-  ) VALUES (
-    rec.type,rec.label,new_description,new_metadata,true,rec.rule_id,rec.rule_version+1,
-    ARRAY['research_intake_foundation_contract_law']::text[],
-    rec.rule_version,rec.weight,rec.hebrew_date,rec.axis_theme,rec.gallery_id,rec.identity_key
-  );
+  -- Legacy product retired 2026-11-05; historic WP import/source evidence remains.
+  -- No active rule depends on this legacy protocol. Retire v2; DO NOT create a v3 or remove v2.
+  SELECT count(*) INTO v_count FROM public.nodes n
+  WHERE n.type='rule' AND n.is_active=true
+    AND (n.metadata#>>'{owner_routing,canonical_owner}'='legacy_content_protocol'
+      OR 'legacy_content_protocol'=ANY(coalesce(n.depends_on,ARRAY[]::text[])));
+  IF v_count<>0 THEN RAISE EXCEPTION 'LEGACY_PROTOCOL_STILL_HAS_ACTIVE_DEPENDENTS'; END IF;
+  UPDATE public.nodes SET is_active=false
+  WHERE type='rule' AND rule_id='legacy_content_protocol' AND is_active=true AND rule_version=2;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  IF v_count<>1 THEN RAISE EXCEPTION 'LEGACY_RETIREMENT_DID_NOT_RETIRE_ONE'; END IF;
 
   -- Codex is a pointer/contract body, not nodes version history; avoid future static current-vN strings.
   gem_new := replace(gem_old,
@@ -148,9 +137,13 @@ BEGIN
   IF v_count<>0 THEN RAISE EXCEPTION 'POSTCONDITION_TOP_LEVEL_OWNER_STALE'; END IF;
 
   SELECT count(*) INTO v_count FROM public.nodes
-  WHERE type='rule' AND is_active=true AND rule_id='legacy_content_protocol'
-    AND depends_on=ARRAY['research_intake_foundation_contract_law']::text[];
-  IF v_count<>1 THEN RAISE EXCEPTION 'POSTCONDITION_LEGACY_CURRENT'; END IF;
+  WHERE type='rule' AND rule_id='legacy_content_protocol' AND is_active=true;
+  IF v_count<>0 THEN RAISE EXCEPTION 'POSTCONDITION_LEGACY_STILL_ACTIVE'; END IF;
+  SELECT count(*) INTO v_count FROM public.nodes
+  WHERE type='rule' AND rule_id='legacy_content_protocol'
+    AND rule_version=2 AND is_active=false
+    AND depends_on=ARRAY['research_intake_foundation_contract_law@13']::text[];
+  IF v_count<>1 THEN RAISE EXCEPTION 'POSTCONDITION_HISTORY_NOT_PRESERVED'; END IF;
 
   SELECT count(*) INTO v_count FROM (
     SELECT rule_id FROM public.nodes WHERE type='rule' AND is_active=true
