@@ -20,6 +20,7 @@ import { use2029Palette } from "../../lib/palette2029.js";
 import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, COMMUNITY_SEARCH_MAX_LENGTH, COMMUNITY_SEARCH_MIN_LENGTH, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchCommunityThreadTotals, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage, searchCommunityMessages } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, focusCommunityReplyToggle, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import CommunityMessageContent, { MessageNumbersText } from "./CommunityMessageContent.jsx";
 import CommunityMessageTime2029 from "./CommunityMessageTime2029.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
@@ -51,6 +52,9 @@ import { communityMessageShareUrl } from "../../lib/community/communityMessageSh
 
 const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Jerusalem" });
 const compactMessages = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(publicStats.messages);
+// The public chat shows only eight root threads at a time. Keep the 40-item
+// shared batch constant for author histories and other independent readers.
+const COMMUNITY_FEED_PAGE_SIZE = 8;
 // Plain, non-interactive total. The extra context is for screen readers only
 // (the visible text stays just the number).
 function ConversationCount() {
@@ -601,7 +605,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     const read = (async () => {
       if (previousRead) await previousRead.catch(() => {});
       if (request !== streamRequestRef.current) return null;
-      return fetchCommunityArchivePage({ offset, limit: COMMUNITY_PAGE_SIZE, sort: fetchSort });
+      return fetchCommunityArchivePage({ offset, limit: COMMUNITY_FEED_PAGE_SIZE, sort: fetchSort });
     })();
     feedReadRef.current = read;
     try {
@@ -669,7 +673,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       const current = feedStateRef.current;
       if (current.loading || current.sending || !current.rows.length || feedReadRef.current) return;
       const request = streamRequestRef.current;
-      const read = fetchCommunityArchivePage({ limit: COMMUNITY_PAGE_SIZE, sort: fetchSort });
+      const read = fetchCommunityArchivePage({ limit: COMMUNITY_FEED_PAGE_SIZE, sort: fetchSort });
       feedReadRef.current = read;
       try {
         const page = await read;
@@ -1007,7 +1011,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>צ'אט הקהילה {!hasThreadRequest ? <ConversationCount /> : null}</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
+      {!memberId && !claimId ? <header className="sod29-community-intro">
+        <span className="sod29-community-intro-emblem" aria-hidden="true"><NavigationIcon2029 name="community" size={36} /></span>
+        <h1>הצ'אט החי</h1>
+        <p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
+        <span className="sod29-community-intro-rule" aria-hidden="true" />
+        {!hasThreadRequest ? <div className="sod29-community-intro-meta"><span>הודעות בקהילה ובארכיון</span><ConversationCount /></div> : null}
         {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
         {reading.error && reading.resume ? <p className="sod29-community-reading-error" role="status">לא ניתן לעדכן כרגע את מספר התגובות החדשות.</p> : null}
       </header> : null}
