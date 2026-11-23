@@ -19,7 +19,7 @@ const normalizedUrl = raw => {
 export const publicationFamily2029 = path => {
   if(/^\/post\/[^/]+$/.test(path))return "post";
   if(/^\/book\/[^/]+$/.test(path))return "book";
-  if(/^\\/codes\\/[^/]+$/.test(path)){
+  if(path.startsWith("/codes/") && path.length>"/codes/".length && path.indexOf("/", "/codes/".length)===-1){
     // /codes/מחקר is the existing research collection, not an individual cipher.
     try{if(decodeURIComponent(path.slice("/codes/".length))==="מחקר")return null;}
     catch{return null;}
