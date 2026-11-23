@@ -45,6 +45,8 @@ const PublicContributorFrame2029 = lazy(() => import("./components/experience202
 const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
 const Number2029Page = lazy(() => import("./pages/Number2029Page.jsx"));
 const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
+// Strictly opt-in, branch-only elections journey; never changes the canonical Topic route by default.
+const ElectionsTopicPreview2029 = lazy(() => import("./pages/ElectionsTopicPreview2029.jsx"));
 const Gallery2029Page = lazy(() => import("./pages/Gallery2029Page.jsx"));
 const Posts2029Page = lazy(() => import("./pages/Posts2029Page.jsx"));
 const LifeJourney2029Page = lazy(() => import("./pages/LifeJourney2029Page.jsx"));
@@ -455,6 +457,7 @@ export default function App2029() {
                 element={<BeitMidrash2029Page />}
               />
               <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><WorldEntry2029 /></Locked>} />
+              {import.meta.env.VITE_ELECTIONS_TOPIC_PREVIEW === "true" && <Route path="/topic/elections-reality-map" element={<ElectionsTopicPreview2029 />} />}
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
               {import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" && <Route path="/posts" element={<Posts2029Page />} />}
