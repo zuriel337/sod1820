@@ -122,3 +122,16 @@ SOD1820 MASTER OWNER INDEX (router only, authority lookup)
 - **תיקון סתירה נוסף באינדקס:** `public.rules_active` ב־Supabase *כיום כן מכיל* `is_active=true` בתנאי התצוגה. שורת ה־Master Owner Index שטענה אחרת נבדקה ותוקנה **בענף בלבד**. אין צורך בהחלפת ה־view החי.
 - כתיבה במסד אינה שינוי documentation בלבד: ה־trigger `fn_rule_compaction_integrity_guard_v1` חוסם שינוי `owner_routing.canonical_owner` או `description` במקום; יש לייצר גרסאות חדשות לבעלי־המותג, לפרוש את Legacy ולהשאיר היסטוריה. עבור שינוי בעלים נדרש `SUPERSEDE_EXISTING + human_gate` עם הפניית work_log אמיתית.
 - חבילת SQL ומניפסט: [approved-release-only-reference-repair.sql](./approved-release-only-reference-repair.sql) ו־[reference-repair-manifest-20261123.json](./reference-repair-manifest-20261123.json). **הם לא הופעלו במסד.**
+
+
+## חבילת תיקון Legacy ו־V1/V2 — קוד/תיעוד בענף מול מסד חי
+
+**תוקן ונשמר בענף הזה (בלי DB write):**
+- `SOD1820_MASTER_OWNER_INDEX.md`: הפנית WordPress/גלריה למחקר־מקורות/פרסום ב־2029; `legacy_content_protocol` אינו בעל מוצר פעיל. תוקנה גם קביעה ישנה לגבי `rules_active`: **ה־view החי כן מסנן `is_active=true`**.
+- `CLAUDE.md`: בוטלה הדרישה לטעון `legacy_content_protocol` בעת עבודה על פוסטים/גלריות ישנים; משמרים את המקורות לפי `research_intake_foundation_contract_law` ו־`project_codex.publishing_conventions`.
+- `scripts/test-g1-agent-routing-smoke.mjs`: הותאמו שני מבחנים לחוזים הקיימים ולאמצעי המיפוי של WordPress ההיסטורי; **עדיין לא בוצעה הרצת Node/CI בענף**.
+- SQL מתוחם הוכן ומותנה באישור מדויק לעשר מטרות: חמש גרסאות המשך של חוקי מותג (owner V2), **פרישת `legacy_content_protocol@v2` ללא v3**, תיקון שתי הפניות v5 במסמך `project_codex.gematria_engine`, והקדמת אזהרת ארכיון לשלושה מפרטים מיושנים (`project_overview`, `data_model_map`, `raziel_mind_architecture`). גוף המסמכים הישן נשמר לאחר האזהרה.
+- מונה צפוי **אם וכאשר יאושר ויוחל**: 87→86 חוקים פעילים (פרישת חוק Legacy אחד), 475→480 רשומות היסטוריות (חמש גרסאות מותג חדשות), 0 מחיקות, 0 חוקים חדשים לפי `rule_id`; מקור WordPress נשאר זמין כראיה.
+
+**שינויי DB לא בוצעו.** ה־SQL אינו יוצר מיגרציה ב־main, ודורש הפניית Human Gate ב־work_log שמציינת את שש משפחות החוק וארבע רשומות Codex. `deploy_on_request v4` דורש אישור מפורש לאובייקט המדויק לפני יישום. אימות הגרסאות החיות לאחר החלה עדיין ממתין ליישום מורשה, ואין לטעון שהמסד תוקן.
+
