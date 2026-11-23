@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readingActionSpec, readingActionBody, readingActionProps, readingMeasurementBody } from '../src/lib/publicReadingTelemetry2029.js';
 import { classifyAppIncident, routeAppIncident } from '../src/lib/appIncidentOwner2029.js';
+import { groupSuggestions } from '../src/lib/maintenanceAttention2029.js';
 import { normalizeAppFailure, appFailureAdmission } from '../src/lib/appHealthIncident2029.js';
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
@@ -46,4 +47,26 @@ test('instrumentation remains lazy and does not add a second store, AI, or backg
   assert.match(save,/reportCipherSave\("save_failed"\)/);
   assert.doesNotMatch(incident,/localStorage|sessionStorage|setInterval|setTimeout|fetch\(.*ai|createClient|new WebSocket/);
   assert.match(incident,/sendMeasurement\(/);
+});
+
+test('existing attention view exposes the actual owning law without new store',()=>{
+  const now=Date.now(), rows=[{id:1,category:'performance',detector:'app_health_incident',status:'pending',
+    created_at:new Date(now).toISOString(), title:'save_failed / no_receipt', reason:'regression',
+    observed:{event_type:'save_failed',failure_code:'no_receipt',sessions:3}}];
+  const grouped=groupSuggestions(rows,now);
+  assert.equal(grouped.length,1);
+  assert.equal(grouped[0].owner,'research_workspace_law');
+  assert.equal(grouped[0].rank,1);
+  assert.equal(groupSuggestions([{...rows[0],observed:{event_type:'unknown'}}],now)[0].owner,
+    'UNKNOWN — דרוש שיוך חוזה');
+});
+test('SQL detector is only a guarded proposal on the canonical reliability owner',()=>{
+  const sql=read('supabase/proposed/app-health-incidents-20261123/apply.sql');
+  assert.match(sql,/DO NOT EXECUTE/);
+  assert.match(sql,/md5\(pg_get_functiondef\('public\.fn_reliability_watch\(\)'::regprocedure\)\)/);
+  assert.match(sql,/surface = 'app_health'/);
+  assert.match(sql,/count\(distinct coalesce\(session_id,sod_id\)\) >= 3/);
+  assert.match(sql,/public\.suggest_add\('performance','app_health_incident'/);
+  assert.match(sql,/public\.notify_admin\(/);
+  assert.doesNotMatch(sql,/create\s+table|cron\.schedule|alter\s+table|drop\s+table|truncate\s+/i);
 });
