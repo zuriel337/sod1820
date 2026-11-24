@@ -1,7 +1,7 @@
 -- Traffic Intelligence v11 — implementation fix of fn_human_entrances for measurement v2 (PROPOSAL, NOT APPLIED).
 -- Package: docs/reviews/measurement-root-cause-20261124/README.md. Apply only on an explicit ZURIEL approval of this exact file.
 --
--- Contract: traffic_intelligence_law v11 (nodes, md5 525452c0…), sections 4 (Bounce), 8 (one canonical source),
+-- Contract: traffic_intelligence_law v11 (active rule, md5 525452c0…), sections 4 (Bounce), 8 (one canonical source),
 -- the 7.8 behavioural filter ("raw = net + suspected"), the 7.9 Attribution Decomposition and the 1.9 Clean Traffic note
 -- (v3 rules unchanged). No contract text changes. ingest_event is not touched, so the guard of PR #1545
 -- (ingest_event md5 1b0f1f4b…) is not affected and the order of application against #1545 does not matter.
