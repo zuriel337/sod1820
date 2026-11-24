@@ -42,7 +42,7 @@ const rows = [
 ];
 
 for (const width of [390, 1280]) for (const viewer of ['guest', 'member', 'admin']) {
-  test(`${width}px ${viewer}: accepted names, history links and Emily's deliberate no-staff label`, {timeout: 90000}, async () => {
+  test(`${width}px ${viewer}: accepted names, history links and Emily's verified staff label`, {timeout: 90000}, async () => {
     let staffMode = 'success', staffReads = 0, feedReads = 0;
     let viewerId;
     const fixture = await startFixture({supabase: async ({url, headers, body}) => {
@@ -111,8 +111,8 @@ for (const width of [390, 1280]) for (const viewer of ['guest', 'member', 'admin
           assert.equal(await control.locator('.sod29-community-staff-chip').count(), mode === 'success' ? 1 : 0,
             'positive control: other staff still display a badge when their data is available');
         }
-        assert.equal(await emily.locator('.sod29-community-staff-chip').count(), 0,
-          'ZURIEL 15.11: Emily stays without the staff label even when a successful RPC lists her as staff');
+        assert.equal(await emily.locator('.sod29-community-staff-chip').count(), viewer === 'admin' && mode === 'success' ? 2 : 0,
+          'Emily receives the small staff badge only when the verified staff RPC succeeds; both historical and new messages agree');
         for (const [links, accountId] of [[emily, REVIEWED_EMILY_LINK.accountId], [esther, REVIEWED_ESTHER_LINK.accountId]]) {
           for (const href of await links.evaluateAll(links => links.map(a => a.href))) {
             assert.equal(new URL(href).searchParams.get('memberCard'), `user:${accountId}`, 'old and new messages open the same reviewed account');
