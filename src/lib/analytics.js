@@ -18,12 +18,17 @@ export function publicPageviewFields(path, { doc = globalThis.document, loc = gl
   // Post mounts a noindex loading title before the admitted source is ready.
   // A matching route alone is not a resolved public page identity.
   const ready = title?.dataset?.analyticsRoute === requested && title.dataset.analyticsPublic === "true";
-  // A number page (a number, word or expression) has its own public report identity even while its title is loading.
-  // ZURIEL 24.11.2026: every number page is public and is reported on its own, as before 2029.
+  // A literal number has its public report identity even while its title is loading. A word or expression page gets its own
+  // GA4 identity once the page is admitted to the public catalog (robots "index"); free input stays in the family.
+  // The site's own measurement keeps every number page on its own (readingMeasurementPath, ZURIEL 24.11.2026).
   let pagePath = safe === "/number/:value" ? readingMeasurementPath(requested) || safe : safe;
-  const number = /^\/number\/([^/]+)$/.exec(pagePath);
+  let number = /^\/number\/(\d{1,12})$/.exec(pagePath);
+  if (safe === "/number/:value" && !number) {
+    if (ready && /^index/.test(doc.head.querySelector('meta[name="robots"]')?.content)) number = /^\/number\/(.+)$/.exec(pagePath);
+    else pagePath = safe;
+  }
   let pageTitle = number ? `${number[1]} · דף המספר · SOD1820` : "SOD1820";
-  if (ready) {
+  if (ready && (safe !== "/number/:value" || number)) {
     const canonical = title.dataset.analyticsPath;
     if (typeof canonical === "string" && readingTelemetryPath(canonical)) {
       if (!number) pagePath = new URL(canonical, loc.origin).pathname;

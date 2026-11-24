@@ -9,7 +9,8 @@ function fixture(path='/post/current?utm_source=newsletter&utm_medium=email&utm_
   const location=new URL(path,'https://sod1820.co.il');
   const title={textContent:'Previous page',dataset:{analyticsRoute:'/post/previous',analyticsPath:'/post/previous',analyticsPublic:'true'}};
   const scripts=[],timers=new Map();let nextTimer=0,notify=()=>{},disconnected=false;
-  const doc={title:'Previous page',referrer:'https://example.org/search?q=PRIVATE',head:{querySelector:()=>title,appendChild:e=>scripts.push(e)},createElement:()=>({})};
+  const robots={content:'noindex, follow'};
+  const doc={title:'Previous page',referrer:'https://example.org/search?q=PRIVATE',head:{querySelector:s=>s.startsWith('meta')?robots:title,appendChild:e=>scripts.push(e)},createElement:()=>({})};
   const context={module:{exports:{}},exports:{},URL,window:{location,dataLayer:[]},document:doc,
     setTimeout:fn=>{timers.set(++nextTimer,fn);return nextTimer;},clearTimeout:id=>timers.delete(id),
     MutationObserver:class {constructor(fn){notify=fn;}observe(){}disconnect(){disconnected=true;}}};
@@ -20,8 +21,8 @@ function fixture(path='/post/current?utm_source=newsletter&utm_medium=email&utm_
     defaults:()=>context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='set').map(x=>JSON.parse(JSON.stringify(x[1]))),
     effective:()=>Object.assign({},...context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='set').map(x=>x[1]),...context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='config').map(x=>x[2])),
     views:()=>context.window.dataLayer.map(x=>Array.from(x)).filter(x=>x[0]==='event'&&x[1]==='page_view').map(x=>JSON.parse(JSON.stringify(x[2]))),
-    ready:(canonical=location.pathname,label='Current public article · SOD1820',isPublic=true)=>{
-      title.textContent=label;title.dataset={analyticsRoute:location.pathname,analyticsPath:canonical,analyticsPublic:String(isPublic)};notify();
+    ready:(canonical=location.pathname,label='Current public article · SOD1820',isPublic=true,robotsContent=robots.content)=>{
+      robots.content=robotsContent;title.textContent=label;title.dataset={analyticsRoute:location.pathname,analyticsPath:canonical,analyticsPublic:String(isPublic)};notify();
     }};
 }
 
@@ -60,17 +61,13 @@ test('default context observes cancellation and uses the safe fallback for unres
   const initial=cancelled.defaults();
   const callbacks=[...cancelled.timers.values()];stop();cancelled.ready();callbacks.forEach(fn=>fn());
   assert.deepEqual(cancelled.defaults(),initial);
-  for(const path of ['/post/current']) {
+  for(const path of ['/post/current','/number/private-name']) {
     const f=fixture(path);f.api.trackPageview(path,{publicReading:true});
     [...f.timers.values()].forEach(fn=>fn());
     assert.equal(f.effective().page_title,'SOD1820');
     assert.equal(f.effective().page_location,f.views()[0].page_location);
+    assert.ok(!JSON.stringify(f.defaults()).includes('private-name'));
   }
-  // ZURIEL 24.11.2026: a word number page is public and keeps its own identity even before its title resolves.
-  const word=fixture('/number/private-name');word.api.trackPageview('/number/private-name',{publicReading:true});
-  [...word.timers.values()].forEach(fn=>fn());
-  assert.equal(word.views()[0].page_path,'/number/private-name');
-  assert.equal(word.views()[0].page_title,'private-name · דף המספר · SOD1820');
 });
 test('automatic events while the next route loads cannot inherit the previous article identity',()=>{
   const f=fixture();f.ready();f.api.trackPageview('/post/current',{publicReading:true});
@@ -109,12 +106,12 @@ test('the current route loading title does not finish the page view before publi
   f.api.trackPageview('/post/current',{publicReading:true});assert.equal(f.views().length,0);
   f.ready();assert.equal(f.views()[0].page_title,'Current public article · SOD1820');
 });
-test('every number page keeps its own identity (ZURIEL 24.11.2026) while draft titles remain grouped',()=>{
-  for(const [path,publicTitle,expected] of [['/number/73',true,'/number/73'],['/number/private-name',true,'/number/private-name'],['/post/draft',false,'/post/:item']]){
+test('public numeric identities can be distinguished while free expressions and draft titles remain grouped',()=>{
+  for(const [path,publicTitle,expected] of [['/number/73',true,'/number/73'],['/number/private-name',true,'/number/:value'],['/post/draft',false,'/post/:item']]){
     const f=fixture(path);f.ready(path,'PRIVATE TITLE',publicTitle);f.api.trackPageview(path,{publicReading:true});
     if(!publicTitle)[...f.timers.values()].forEach(fn=>fn());
     assert.equal(f.views()[0].page_path,expected);
-    if(!publicTitle)assert.ok(!JSON.stringify(f.views()).includes('PRIVATE TITLE'));
+    if(expected.endsWith(':value')||!publicTitle)assert.ok(!JSON.stringify(f.views()).includes('PRIVATE TITLE'));
   }
 });
 test('account routes never initialize or send GA, and an external canonical cannot supply page identity',()=>{
@@ -146,10 +143,25 @@ test('two admitted numeric pages keep their exact path and title on fast navigat
   ]);
 });
 
-test('a word number page is counted under its own address even when its canonical names a number', () => {
+test('a numeric-looking canonical cannot expose a free expression or its title', () => {
   const f = fixture('/number/private-name');
   f.ready('/number/533', 'private-name', true);
   f.api.trackPageview('/number/private-name', { publicReading: true });
-  assert.equal(f.views()[0].page_path, '/number/private-name');
-  assert.equal(f.views()[0].page_title, 'private-name');
+  assert.equal(f.views()[0].page_path, '/number/:value');
+  assert.equal(f.views()[0].page_title, 'SOD1820');
+});
+
+// ZURIEL 24.11.2026 (Work 24e4e0d6): every public number page is reported on its own. A word page admitted to the public
+// catalog (robots "index") gets its own GA4 identity; free input that is not admitted stays in the family without its text.
+test('a word page admitted to the public catalog is counted on its own in GA4; free input stays grouped', () => {
+  const admitted = fixture('/number/%D7%A6%D7%A0%D7%99%D7%A3');
+  admitted.ready('/number/%D7%A6%D7%A0%D7%99%D7%A3', 'צניף · דף המספר · SOD1820', true, 'index, follow');
+  admitted.api.trackPageview('/number/%D7%A6%D7%A0%D7%99%D7%A3', { publicReading: true });
+  assert.equal(admitted.views()[0].page_path, '/number/צניף');
+  assert.equal(admitted.views()[0].page_title, 'צניף · דף המספר · SOD1820');
+  const free = fixture('/number/private-name');
+  free.ready('/number/private-name', 'private-name', true, 'noindex, follow');
+  free.api.trackPageview('/number/private-name', { publicReading: true });
+  assert.equal(free.views()[0].page_path, '/number/:value');
+  assert.ok(!JSON.stringify(free.views()).includes('private-name'));
 });

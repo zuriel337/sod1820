@@ -120,7 +120,7 @@ test("actual GA adapter groups public labels and never initializes on a private 
   context.exports=context.module.exports;vm.runInNewContext(source.outputFiles[0].text,context);const a=context.module.exports;
   a.initGA({publicReading:true,path:"/login"});assert.equal(scripts.length,0);
   a.initGA({publicReading:true,path:"/number/PRIVATE"});a.trackPageview("/number/PRIVATE?token=SECRET",{publicReading:true});
-  assert.equal(scripts.length,1);const serialized=JSON.stringify(context.window.dataLayer);assert.ok(!serialized.includes("SECRET"));assert.ok(serialized.includes("/number/PRIVATE"));assert.ok(!serialized.includes("PRIVATE TITLE"));
+  assert.equal(scripts.length,1);const serialized=JSON.stringify(context.window.dataLayer);assert.ok(!serialized.includes("PRIVATE"));assert.ok(!serialized.includes("SECRET"));assert.ok(serialized.includes("/number/:value"));
   const beforePrivate=context.window.dataLayer.length;
   a.trackPageview("/2029/me/research",{publicReading:true});assert.equal(context.window.dataLayer.length,beforePrivate);
 });
