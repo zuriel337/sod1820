@@ -985,3 +985,125 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
    inset-inline-end:0;
  }
 }
+
+
+/* Restore the original Community intro from PR #1531: the exact same emblem,
+   title hierarchy and narrow centered rule. No new color values or imagery.
+   Owner's screenshot is the visual acceptance reference. */
+.native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
+  position:relative;
+  isolation:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  overflow:visible;
+  z-index:20;
+  gap:0;
+  padding:16px 12px 34px;
+  margin:0 0 16px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.sod29-community--full .sod29-community-intro-emblem{
+  display:grid;
+  place-items:center;
+  width:76px;
+  height:76px;
+  flex:none;
+  margin:0 auto 14px;
+  border-radius:50%;
+  border:1px solid var(--s29-line-strong);
+  background:radial-gradient(circle at 50% 22%,color-mix(in srgb,var(--s29-accent) 16%,var(--s29-panel)),var(--s29-panel));
+  box-shadow:0 6px 24px color-mix(in srgb,var(--s29-ink) 8%,transparent);
+  color:var(--s29-accent-text);
+}
+.sod29-community--full .sod29-community-intro h1{
+  display:block;
+  margin:0 0 8px;
+  font-size:clamp(30px,5vw,40px);
+  line-height:1.2;
+  letter-spacing:-.02em;
+  text-align:center;
+  color:var(--s29-ink);
+  font-weight:700;
+}
+.sod29-community--full .sod29-community-intro p{
+  margin:0 auto;
+  max-width:34rem;
+  text-align:center;
+  color:var(--s29-muted);
+  font-size:clamp(14px,2vw,17px);
+  line-height:1.65;
+}
+.sod29-community--full .sod29-community-intro-rule{
+  display:block;
+  width:88px;
+  height:2px;
+  flex:none;
+  margin:16px auto 12px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,var(--s29-accent-text),transparent);
+}
+.sod29-community--full .sod29-community-intro-count{
+  position:static;
+  align-self:flex-start;
+  display:flex;
+  justify-content:flex-start;
+  align-items:center;
+  gap:7px;
+  max-width:100%;
+  padding:0;
+  margin:0;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  color:var(--s29-muted);
+  font:400 13px/1.6 var(--s29-font-ui);
+  text-align:start;
+}
+.sod29-community--full .sod29-community-intro-count .sod29-community-conversation-count{
+  font-size:13px;
+  color:var(--s29-ink);
+  padding:0;
+  background:none;
+  border:0;
+}
+.native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro:has(.sod29-community-head-menu[open]){
+  z-index:400;
+}
+.sod29-community--full .sod29-community-head-menu,
+.sod29-community--full .sod29-community-head-menu[open]{
+  position:absolute;
+  inset-block-start:8px;
+  inset-inline-end:8px;
+  z-index:410;
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-head-actions{
+  position:absolute;
+  inset-block-start:calc(100% + 6px);
+  inset-inline-end:0;
+  z-index:420;
+  max-height:min(70dvh,520px);
+  overflow:auto;
+  background:var(--s29-panel);
+}
+@media(max-width:600px){
+  .native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
+    padding:18px 8px 32px;
+    margin-bottom:12px;
+  }
+  .sod29-community--full .sod29-community-intro-emblem{
+    width:68px;
+    height:68px;
+    margin-bottom:12px;
+  }
+  .sod29-community--full .sod29-community-intro h1{font-size:32px}
+  .sod29-community--full .sod29-community-intro-count{
+    align-self:stretch;
+    font-size:12px;
+    max-width:100%;
+  }
+}
