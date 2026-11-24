@@ -873,3 +873,115 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
     margin-inline:3px;
   }
 }
+
+
+/* Owner refinement: restore the first Heichal-style medallion with gold wings,
+   keep the counter unboxed on the right, and lift the left menu above the feed.
+   Only the Community landing header is affected. */
+.native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
+  isolation:auto;
+  position:relative;
+  z-index:10;
+  overflow:visible;
+  padding-block:12px 36px;
+  border-bottom:0;
+}
+.native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro:has(.sod29-community-head-menu[open]){
+  z-index:250;
+}
+.sod29-community--full .sod29-community-heading-row{
+  position:relative;
+  overflow:visible;
+  isolation:isolate;
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-symbol{
+  position:relative;
+  z-index:1;
+  width:56px;height:56px;
+  border:2px solid color-mix(in srgb,var(--s29-accent-text) 83%,transparent);
+  background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--s29-accent-text) 16%,var(--s29-panel)),var(--s29-panel));
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--s29-accent-text) 10%,transparent);
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-symbol::before,
+.sod29-community--full .sod29-community-heading-row .sod29-hero-symbol::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:clamp(36px,22vw,260px);
+  height:1px;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--s29-accent-text) 75%,transparent));
+  pointer-events:none;
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-symbol::before{
+  right:calc(100% + 12px);
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-symbol::after{
+  left:calc(100% + 12px);
+  transform:rotate(180deg);
+}
+.sod29-community--full .sod29-community-intro-count{
+  position:absolute;
+  inset-inline-start:8px;
+  inset-block-end:7px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:6px;
+  max-width:calc(100% - 60px);
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:none;
+  box-shadow:none;
+  text-align:start;
+  white-space:normal;
+  color:var(--s29-muted);
+  font-size:12px;
+}
+.sod29-community--full .sod29-community-intro-count .sod29-community-conversation-count{
+  background:none;
+  padding:0;
+  border:0;
+  box-shadow:none;
+  color:var(--s29-accent-text);
+  font-weight:700;
+}
+.sod29-community--full .sod29-community-head-menu{
+  position:absolute;
+  inset-inline-end:8px;
+  z-index:260;
+}
+.sod29-community--full .sod29-community-head-menu[open]{
+  z-index:270;
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-head-actions{
+  z-index:280;
+  position:absolute;
+  inset-inline-end:0;
+  inset-block-start:calc(100% + 6px);
+  background:var(--s29-panel);
+  border:1px solid var(--s29-line-strong);
+  box-shadow:0 18px 45px rgba(0,0,0,.42);
+}
+@media(max-width:600px){
+ .native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
+   padding:8px 48px 36px;
+   margin-bottom:10px;
+ }
+ .sod29-community--full .sod29-community-heading-row .sod29-hero-symbol{
+   width:46px;height:46px;
+ }
+ .sod29-community--full .sod29-community-heading-row .sod29-hero-symbol::before,
+ .sod29-community--full .sod29-community-heading-row .sod29-hero-symbol::after{
+   width:clamp(28px,14vw,62px);
+ }
+ .sod29-community--full .sod29-community-intro-count{
+   inset-inline-start:0;
+   inset-block-end:5px;
+   max-width:100%;
+   font-size:11px;
+ }
+ .sod29-community--full .sod29-community-head-menu{
+   inset-inline-end:0;
+ }
+}

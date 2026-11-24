@@ -1016,10 +1016,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <div className="sod29-hero-copy"><h1>הצ'אט החי</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p></div>
           <span className="sod29-hero-symbol r29-medal" aria-hidden="true"><NavigationIcon2029 name="community" size={28} /></span>
         </div>
+        {!hasThreadRequest ? <div className="sod29-community-intro-meta sod29-community-intro-count"><span>הודעות בקהילה ובארכיון</span><ConversationCount /></div> : null}
         <details className="sod29-community-head-menu">
-          <summary aria-label="הודעות בקהילה, חשבון ופעולות" title="הודעות בקהילה, חשבון ופעולות"><NavigationIcon2029 name="menu" size={20} /><span>קהילה וחשבון</span></summary>
+          <summary aria-label="חשבון ופעולות הקהילה" title="חשבון ופעולות הקהילה"><NavigationIcon2029 name="menu" size={20} /><span>קהילה וחשבון</span></summary>
           <div className="sod29-community-head-actions">
-          {!hasThreadRequest ? <div className="sod29-community-intro-meta"><span>הודעות בקהילה ובארכיון</span><ConversationCount /></div> : null}
           {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact /> : <div className="sod29-community-auth-buttons" role="group" aria-label="כניסה לקהילה">
             <Link className="sod29-community-auth-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
             <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
