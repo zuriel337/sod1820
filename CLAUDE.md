@@ -48,34 +48,9 @@
 
 ### 0.5 דוח מסירה חובה בסוף כל משימה
 
-הדוח נמסר לצוריאל בשיחה (ואינו מחליף את שדות ה־handoff ב־§10): מה בוצע ומה לא בוצע · מאגר, ענף ו־SHA (בסיס וראש) · קבצים שהשתנו · קומיטים · בדיקות ותוצאות CI (לפי SHA; הרצה מקומית נפרדת מ־CI) · מצב ה־PR · האם Production שונה (כן/לא, ואם כן — מה) · חסמים, סיכונים והחלטות ממתינות · צעד הבא מומלץ.
+הדוח נמסר לצוריאל בשיחה (ואינו מחליף את שדות ה־handoff ב־§10): החוזה שחל (מזהה · גרסה · סעיף, §1) · מה בוצע ומה לא בוצע · מאגר, ענף ו־SHA (בסיס וראש) · קבצים שהשתנו · קומיטים · בדיקות ותוצאות CI (לפי SHA; הרצה מקומית נפרדת מ־CI) · מצב ה־PR · האם Production שונה (כן/לא, ואם כן — מה) · חסמים, סיכונים והחלטות ממתינות · צעד הבא מומלץ.
 
 אין לכתוב ״הושלם״, ״עבר״, ״מוזג״, ״נפרס״ או ״אומת״ בלי ראיה. מציינים במפורש מה לא בוצע ומה לא נבדק, ומשתמשים בסולם המצבים של §12 (DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED).
-
-## חוק עבודה לפי חוזה (Contract-First Law — ZURIEL, 24.11.2026)
-
-**במערכת 2029 הכול עובר לפי חוזה ולפי חוק, כולל פרסום. סוכן לא בונה, לא משנה ולא מפעיל דבר בלי לבדוק קודם את החוזה שחל עליו.**
-
-1. **לפני כל עבודה מזהים את החוזה.** זה חל על קוד, DB, אוטומציה, מדידה, ממשק ופרסום.
-   - מנתבים דרך `SOD1820_MASTER_OWNER_INDEX.md`.
-   - קוראים את החוק החי ב־Supabase (`rules_active`: ‏`מזהה_חוק` ו־`גרסה`), במלוא הסעיף הרלוונטי.
-   - שם, זיכרון או מסמך ישן אינם תחליף לקריאת החוק החי.
-2. **מצטטים.** כל הצעה, PR ודוח מסירה מציינים את החוזה שחל עליהם: מזהה, גרסה וסעיף. מציינים גם איך העבודה עומדת בו.
-3. **אין חוזה, לא בונים.**
-   - ברירת המחדל היא הרחבה של חוזה קיים (`EXTEND_EXISTING`, §7).
-   - חוזה חדש או סעיף חדש נכנס רק בהחלטה מפורשת של צוריאל (Human Gate).
-   - הצעה אינה אישור, ודוגמה בקוד אינה חוזה.
-4. **סתירה עוצרת.** כשבקשה, קוד קיים או שינוי מוצע סותרים חוזה פעיל, עוצרים ומדווחים לצוריאל (§0.1 סעיף 6). עד להכרעה פועלים לפי הכלל המגביל יותר.
-   - דוגמה (24.11.2026): תמלול אוטומטי מאודיו סותר את `video_transcription_law` §2, ולכן הוצא מהאוטומציה עד להחלטה.
-5. **חוזי פרסום.** כל פרסום ציבורי (פוסט, דף, כותרת, תיאור, sitemap, תמלול, סטורי או סדרה) נבדק מול:
-   - `publishing_conventions` וחוקי הבן שלו (למשל `video_transcription_law`, `content_translation_law`);
-   - חוק אינדוקס פתוח שלמעלה.
-6. **חוזי מדידה.** כל אירוע מדידה עובר דרך `traffic_intelligence_law`, בטבלת `events` ובמשפחת אירועים מוגדרת. משפחת אירועים חדשה נכנסת לחוזה רק באישור. אין מדידה בצד, אין טבלה חדשה ואין מנוע מקביל.
-7. **ממשק.** ממשק חדש נבנה לפי `experience_governance_foundation_v1_law`:
-   - אין ירושה של ממשק Legacy;
-   - קודם תצוגה מקדימה על נתונים אמיתיים, אחר כך החלטת צוריאל, ורק אז חיווט.
-   - הממשק עומד גם ב־`canonical_ui_components_law` (רכיב קנוני אחד) וב־`SOD1820_DESIGN_CONTRACT_V2.md`.
-8. **אוטומציה ו־AI כפופים לחוזה כמו כל כותב.** AI מציע ומחשב דרך מנועים קנוניים. הוא אינו מאשר, אינו מקנן ואינו מפרסם (§11).
 
 ## מצב חי וכללי שחרור — 2029 (יישור ZURIEL, ‏4.11.2026)
 
@@ -188,7 +163,7 @@ The 4.11.2026 approved 2029 cutover replaced this lock, and Legacy itself is ret
 For every substantial task:
 
 1. Parse the natural-language request into intent / capability / domain. Use an existing Task Profile only when it helps routing.
-2. Resolve the **current canonical owner** from `SOD1820_MASTER_OWNER_INDEX.md` and the live owner/rule infrastructure.
+2. Resolve the **current canonical owner** from `SOD1820_MASTER_OWNER_INDEX.md` and the live owner/rule infrastructure: read the governing law live in `rules_active` (`מזהה_חוק`, `גרסה`, the relevant section in full), publication contracts (`publishing_conventions` and its children) and measurement (`traffic_intelligence_law`) included. Every PR and handoff cites it (id · version · section). A missing contract or a conflict is reported before any new mechanism (§7, §0.1 item 6) — ZURIEL 24.11.2026.
 3. Load only that owner plus the **smallest direct dependency set** required by the task.
 4. Read recent **relevant** `work_log` / assignments for the active scope.
 5. Verify against the live source appropriate to the claim: canonical Supabase, `origin/main`, and Production only when UI/live behavior matters.
