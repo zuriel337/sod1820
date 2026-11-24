@@ -707,7 +707,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [fetchSort, memberId, claimId, cardId, hasThreadRequest, loadThreadTotals]);
   // Same title and description the server sends, so the tab and what a crawler renders match. The bare page was indexed and
   // brings search traffic, so it stays indexable; any query string (thread, member, search...) is a variant and stays out.
-  useEffect(() => { applySeo({ title: "הצ'אט החי — קוד המציאות בזמן אמת", description: "שיחות, שאלות וגילויים בקהילת SOD1820.", path: canonicalPath, noindex: location.search !== "" }); }, [canonicalPath, location.search]);
+  useEffect(() => { applySeo({ title: "צ'אט הקהילה — קוד המציאות בזמן אמת", description: "שיחות, שאלות וגילויים בקהילת SOD1820.", path: canonicalPath, noindex: location.search !== "" }); }, [canonicalPath, location.search]);
   // Corpus-wide search: from two characters the query goes to the server, which
   // searches every public message and reply (not only the loaded pages). If the
   // server function is unavailable the page falls back to filtering what is loaded.
