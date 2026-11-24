@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { POST_ICON_PATH_2029 } from "./postIconPath2029.js";
 import { iconPress2029 } from "./iconPress2029.js";
 import "./navigationIcons2029.css";
 import { ALEF_ICON_PATH, ALEF_ICON_TRANSFORM } from "./hebrewIconPaths.js";
@@ -32,7 +33,7 @@ const SHAPES = {
   home: <><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z" /></>,
   world: <><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 7h14M5 17h14"/></>,
   heichal: <><path d="M3 4h18v3H3ZM5 7v13m4-13v13m6-13v13m4-13v13M3 21h8m2 0h8"/></>,
-  posts: <><path d="M5 3h10l4 4v14H5ZM14 3v5h5M8 12h8M8 16h8"/></>,
+  posts: <><path d={POST_ICON_PATH_2029}/></>,
   number: <text x="12" y="16" textAnchor="middle" stroke="none" fill="currentColor" fontSize="12" fontWeight="750" fontFamily="Arial, sans-serif">123</text>,
   books: <><path d="M12 5v16M3 4c4-1 6 0 9 1 3-1 5-2 9-1v16c-4-1-6 0-9 1-3-1-5-2-9-1Z"/></>,
   // Destinations that used to share a picture with another one (calculator = number, Beit Midrash = books, site map = world,

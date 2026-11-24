@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { legacyArchiveContinuation2029 } from "../lib/legacyArchiveContinuation2029.js";
@@ -38,7 +39,7 @@ function ArchiveReader({ search }) {
     return () => controller.abort();
   }, [search, attempt]);
 
-  return <Sod2029Shell surface="world" title={title} introVariant="none">
+  return <Sod2029Shell surface="world" symbol={<NavigationIcon2029 name="journal" />} title={title} introVariant="none">
     <article data-public-archive dir="rtl">
       <header className="sod29-section">
         <h1>{title}</h1>

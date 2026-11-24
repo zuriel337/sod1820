@@ -5,6 +5,7 @@ import { signupAttribution, visitorId } from "../lib/acquisition.js";
 import { SUPABASE_ANON, SUPABASE_URL } from "../lib/supabase.js";
 import { captureAcquisition, captureArrivalSource, track } from "../lib/tracking.js";
 import "./early-access-2029.css";
+import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 
 const CAMPAIGN = "early-access-2029";
@@ -94,18 +95,19 @@ export default function EarlyAccess2029Page() {
     "--c-brand-glow": P.brandGlow,
   };
 
-  return (
-    <main className="sod29-early-access" style={themeVars} dir="rtl">
+  const Content = PUBLIC_READING_RELEASE ? "article" : "main";
+  const landing = (
+    <Content className="sod29-early-access" style={themeVars} dir="rtl">
       <div className="sod29-early-access-ambient" aria-hidden="true" />
 
       <header className="sod29-early-access-brand">
-        <img
+        {!PUBLIC_READING_RELEASE && <img
           src={BRAND_LOCKUP_2029.src}
           width={BRAND_LOCKUP_2029.width}
           height={BRAND_LOCKUP_2029.height}
           alt={BRAND_LOCKUP_2029.alt}
           className="sod29-early-access-lockup"
-        />
+        />}
         <p>המערכת החדשה של סוד 1820</p>
       </header>
 
@@ -224,6 +226,9 @@ export default function EarlyAccess2029Page() {
       <footer className="sod29-early-access-footer">
         <span>SOD1820</span><span>·</span><span>המערכת החדשה נבנית עכשיו</span>
       </footer>
-    </main>
+    </Content>
   );
+  return PUBLIC_READING_RELEASE
+    ? <Sod2029Shell surface="home" title="גישה מוקדמת" introVariant="none">{landing}</Sod2029Shell>
+    : landing;
 }

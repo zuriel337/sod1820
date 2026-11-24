@@ -226,10 +226,14 @@ test("isolation: gate files import no reader of their own and make no writes; CS
   for (const selector of selectors) for (const part of selector.replace(/\([^)]*\)/g, "()").split(",")) assert.match(part.trim(), /\.rv|^:root\[data-theme-2029/, `unscoped selector: ${part}`);
 });
 
-test("hero keeps accessible structure: heading under the shell h1, spoken numeral, no raster dependency", () => {
+test("the topic owns one descriptive h1, with a spoken numeral and no raster dependency", () => {
   const jsx = readFileSync(new URL("../src/components/research/Revelation1237Gate2029.jsx", import.meta.url), "utf8");
-  assert.equal((jsx.match(/<h1[ >]/g) || []).length, 0, "the 2029 shell already owns the page h1");
-  assert.match(jsx, /<h2 className="rv-h">/);
+  const topic = readFileSync(new URL("../src/pages/Topic2029Page.jsx", import.meta.url), "utf8");
+  const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+  assert.match(topic, /<Sod2029Shell[^>]*contentHeading/);
+  assert.match(frame, /title && !contentHeading \? <h1/);
+  assert.equal((jsx.match(/<h1[ >]/g) || []).length, 1, "a topic has its own title");
+  assert.match(jsx, /<h1 className="rv-h">/);
   assert.match(jsx, /aria-label="אלף מאתיים שלושים ושבע"/);
   assert.match(jsx, /className="rv-sky" aria-hidden="true"/);
   const css = readFileSync(new URL("../src/components/research/revelation1237Gate2029.css", import.meta.url), "utf8");

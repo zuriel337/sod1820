@@ -97,3 +97,59 @@ test("[phone] a new Post that names something a left-out first-paint rule depend
     assert.deepEqual(errors, []);
   });
 });
+
+test("the viewport centres the public Post and Community emblems while either desktop rail opens", { timeout: 120000 }, async () => {
+  await withPage("desktop", {}, async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1000 });
+    const medal = ".sod29-page-intro[data-intro-variant=compact] .sod29-hero-visual > .r29-medal";
+    const centred = async (selectors) => {
+      await page.waitForFunction((selectors) => selectors.every(selector => {
+        const element = document.querySelector(selector);
+        if (!element) return false;
+        const { left, right, width, height } = element.getBoundingClientRect();
+        return width > 0 && height > 0 && Math.abs((left + right - window.innerWidth) / 2) <= 1;
+      }), selectors, { timeout: 8000 });
+    };
+    const hydrated = [".sod29-header-crown", "#root " + medal, "#root .sod29-content"];
+    for (const path of [PATH, "/community/chat"]) {
+      if (path === PATH) {
+        // Hold the entry module so the measurement is of the delivered article, before React adopts it.
+        let resume;
+        const hold = new Promise(resolve => { resume = resolve; });
+        const entry = "**/assets/*.js";
+        await page.route(entry, async route => { await hold; await route.continue(); });
+        try {
+          await page.goto("https://sod1820.co.il" + path, { waitUntil: "commit" });
+          await centred([".sod29-opening-crown", "#sod29-ssr-article " + medal, "#sod29-ssr-article .sod29-content"]);
+        } finally {
+          resume();
+          await page.unroute(entry);
+        }
+      } else {
+        await page.goto("https://sod1820.co.il" + path, { waitUntil: "commit" });
+      }
+      await page.locator(path === PATH ? ".sod29-reading-source[data-public-post-id]" : "#community-new-chat").waitFor();
+      const toggle = page.locator(".sod29-logo-toggle");
+      const search = page.getByRole("button", { name: "חיפוש באתר", exact: true });
+      const panel = page.locator('[data-desktop-projection="left-context-sidecar"]');
+      assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+      await centred(hydrated);
+      for (const pinned of [false, true]) {
+        if (pinned) {
+          await toggle.click();
+          await page.mouse.move(960, 120);
+          assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+          await centred(hydrated);
+        }
+        await search.click();
+        await panel.waitFor();
+        await centred(hydrated);
+        await panel.getByRole("button", { name: "סגור", exact: true }).click();
+        await panel.waitFor({ state: "hidden" });
+      }
+      await toggle.click();
+      await page.mouse.move(960, 120);
+      await centred(hydrated);
+    }
+  });
+});

@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
@@ -35,7 +36,7 @@ export default function PublicHistory2029Page({ path }) {
     if (data?.focusedId) focusedItem.current?.scrollIntoView({ block: "center" });
   }, [data]);
 
-  return <Sod2029Shell surface="world" title={title} introVariant="none">
+  return <Sod2029Shell surface="world" symbol={<NavigationIcon2029 name={path === "/timeline" ? "now" : "video"} />} title={title} introVariant="none">
     <article dir="rtl" data-public-history={path.slice(1)}>
       <header className="sod29-section"><h1>{title}</h1><p>{description}</p></header>
       {failed ? <div className="sod29-section" role="alert">

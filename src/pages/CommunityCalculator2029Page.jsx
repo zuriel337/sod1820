@@ -333,7 +333,7 @@ export default function CommunityCalculator2029Page() {
   const location = useLocation();
   const initialState = useMemo(() => parseCommunityCalculatorState(location.search), [location.search]);
   const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
-  return <Sod2029Shell surface="community" title="מחשבון הקהילה" introVariant="none">
+  return <Sod2029Shell surface="community" symbol={<NavigationIcon2029 name="letters" />} title="מחשבון הקהילה" introVariant="none">
     <CommunityCalculatorPage key={location.key} initialState={initialState} passive actionsLocked={actionsLocked} initialShowAll
       renderCalculator={model => <CalculatorExperience model={model} initialState={initialState} location={location} />}
       renderBabyTool={model => <BabyNames model={model} />} />
