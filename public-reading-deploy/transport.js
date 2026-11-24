@@ -75,7 +75,6 @@ function installPublicReadingWorker(policy) {
   // story_2029 has its own count (at most 30 per window per 10 minutes) and never draws on the 60 shared by saves, calculations,
   // shares and the other action families (Traffic Intelligence v12, ZURIEL 24.11.2026). Same counter function, same intake.
   const actionWindows = new Map(), storyWindows = new Map();
-  const actionBudget = body => body.p_surface === "story_2029" ? [storyWindows, 30] : [actionWindows, 60];
   const measurementClient = async event => {
     if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return null;
     const client = await self.clients.get(event.clientId);
@@ -327,8 +326,9 @@ function installPublicReadingWorker(policy) {
           if (!/^Bearer [A-Za-z0-9_.-]{1,8192}$/.test(auth)) return denied();
           const page = body.p_surface === 'page';
           // Separate existing counter budget: events and site_visits are distinct writes for the same view.
-          const [budget, limit] = page ? [engagementWindows, 240] : actionBudget(body);
-          if (!withinWindowBudget(budget, event.clientId, limit)) return denied();
+          const story = body.p_surface === "story_2029";
+          const budget = page ? engagementWindows : story ? storyWindows : actionWindows;
+          if (!withinWindowBudget(budget, event.clientId, page ? 240 : story ? 30 : 60)) return denied();
           return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: auth, "Content-Type": "application/json" } }));
         }
         if (beaconKey && body.p_surface !== "page") return denied();
@@ -343,8 +343,8 @@ function installPublicReadingWorker(policy) {
         // site, anonymous key only, at most 60 per window per 10 minutes.
         if (url.pathname.endsWith("/ingest_event") && readingActionBody(body)) {
           if (!policy.anonKey || !await measurementWindow(event)) return denied();
-          const [budget, limit] = actionBudget(body);
-          return withinWindowBudget(budget, event.clientId, limit) ? anonymous() : denied();
+          if (body.p_surface === "story_2029") return withinWindowBudget(storyWindows, event.clientId, 30) ? anonymous() : denied();
+          return withinWindowBudget(actionWindows, event.clientId, 60) ? anonymous() : denied();
         }
         if (url.pathname.endsWith("/ingest_event")) {
           if (body.p_surface === "performance") {
