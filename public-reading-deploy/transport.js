@@ -20,7 +20,9 @@ export const PUBLIC_READING_READ_RPCS = Object.freeze([
   // tree-hint pins and the online-now list are public by design; this worker's own allowlist
   // had not caught up, so every caller without a verified admin token fell to the admin-only
   // fallback and was denied. community_tree_hint_set (admin marks a hint) stays off this list.
-  "community_tree_hints_list", "community_tree_hints_by_number", "community_presence_online",
+  // Only public staff account UUIDs, already granted to anon/authenticated by the
+  // canonical database RPC. No role writes or private profile fields are exposed.
+  "community_tree_hints_list", "community_tree_hints_by_number", "community_presence_online", "community_staff_user_ids_v1",
 ]);
 export const PUBLIC_READING_GET_RPCS = Object.freeze([
   ...PUBLIC_READING_READ_RPCS, "writer_public_contributions_page_v1", "canonical_follow_subject",

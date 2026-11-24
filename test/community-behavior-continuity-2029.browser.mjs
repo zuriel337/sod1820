@@ -111,8 +111,9 @@ for (const width of [390, 1280]) for (const viewer of ['guest', 'member', 'admin
           assert.equal(await control.locator('.sod29-community-staff-chip').count(), mode === 'success' ? 1 : 0,
             'positive control: other staff still display a badge when their data is available');
         }
-        assert.equal(await emily.locator('.sod29-community-staff-chip').count(), viewer === 'admin' && mode === 'success' ? 2 : 0,
-          'Emily receives the small staff badge only when the verified staff RPC succeeds; both historical and new messages agree');
+        if (mode === 'success') await emily.first().locator('.sod29-community-staff-chip').waitFor({timeout: 10000});
+        assert.equal(await emily.locator('.sod29-community-staff-chip').count(), mode === 'success' ? 2 : 0,
+          'Emily shows verified staff for guest, member and admin; failed or empty RPC stays fail-closed');
         for (const [links, accountId] of [[emily, REVIEWED_EMILY_LINK.accountId], [esther, REVIEWED_ESTHER_LINK.accountId]]) {
           for (const href of await links.evaluateAll(links => links.map(a => a.href))) {
             assert.equal(new URL(href).searchParams.get('memberCard'), `user:${accountId}`, 'old and new messages open the same reviewed account');
