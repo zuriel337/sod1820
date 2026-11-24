@@ -526,6 +526,10 @@ async function mapGroundedVideoText(
   };
 }
 
+// ZURIEL 24.11.2026: the automation titles only items that arrive from now on; the items from before are titled once, by an
+// explicit run ({"backfill_or_geula": true}). The scheduled run never reaches back before this moment.
+const OR_GEULA_AUTO_SINCE = "2026-11-24T17:15:00Z";
+
 // Automatic transcripts per invocation for "אור הגאולה" (Open Index Law); an explicit allow_stt=true is not bounded by it.
 const AUTO_STT_PER_RUN = 2;
 let autoSttBudget = AUTO_STT_PER_RUN;
@@ -713,6 +717,9 @@ Deno.serve(async (req) => {
   const rowId = cleanText(body?.row_id);
   const allowStt = body?.allow_stt === true;
   const allowAi = body?.allow_ai === true;
+  // The or-geula rounds below: from OR_GEULA_AUTO_SINCE on a scheduled run, every item on an explicit backfill run.
+  const since = body?.backfill_or_geula === true ? null : OR_GEULA_AUTO_SINCE;
+  const sinceClause = since ? `,created_at.gte.${since}` : "";
   const limit = Math.max(1, Math.min(10, Number(body?.limit || 4)));
 
   let rows: any[] = [];
@@ -735,7 +742,7 @@ Deno.serve(async (req) => {
       .ilike("image_url", "%.mp4%")
       // Open Index Law: an "אור הגאולה" video waiting for a title (held at intake, or a thumbnail that gave none) is taken up again —
       // once. A transcript that failed (retry_stt/stt) or an AI that found no title (seo_held/ai_unresolved) is not retried here.
-      .or(`enrichment_status.eq.pending,and(channel.eq.or-geula,enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title),and(channel.eq.or-geula,enrichment_status.eq.retry_stt,enrichment_source.eq.thumbnail_unresolved)`)
+      .or(`enrichment_status.eq.pending,and(channel.eq.or-geula,enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title${sinceClause}),and(channel.eq.or-geula,enrichment_status.eq.retry_stt,enrichment_source.eq.thumbnail_unresolved${sinceClause})`)
       .order("created_at", { ascending: false })
       .limit(limit);
     if (error) {
@@ -744,28 +751,28 @@ Deno.serve(async (req) => {
     }
     rows = data || [];
     // "אור הגאולה" images without a title: pending (before the intake titling) or held at intake, with no seo_title yet.
-    const images = await sb.from("channel_updates")
+    let images = sb.from("channel_updates")
       .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
       .eq("channel", "or-geula")
       .eq("status", "live")
       .not("image_url", "is", null)
       .not("image_url", "ilike", "%.mp4%")
       .is("seo_title", null)
-      .or("enrichment_status.eq.pending,and(enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title)")
-      .order("created_at", { ascending: false })
-      .limit(limit);
-    if (!images.error) rows = rows.concat(images.data || []);
+      .or("enrichment_status.eq.pending,and(enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title)");
+    if (since) images = images.gte("created_at", since);
+    const imageRows = await images.order("created_at", { ascending: false }).limit(limit);
+    if (!imageRows.error) rows = rows.concat(imageRows.data || []);
     // "אור הגאולה" YouTube links from before the intake titling: the official YouTube title (oEmbed), as a new item gets it.
-    const youtube = await sb.from("channel_updates")
+    let youtubeQuery = sb.from("channel_updates")
       .select("id,channel,text,image_url,thumb_url,link_url,seo_title,enrichment_status")
       .eq("channel", "or-geula")
       .eq("status", "live")
       .is("image_url", null)
       .is("seo_title", null)
       .eq("enrichment_status", "pending")
-      .or("text.ilike.*youtu.be/*,text.ilike.*youtube.com/*")
-      .order("created_at", { ascending: false })
-      .limit(limit);
+      .or("text.ilike.*youtu.be/*,text.ilike.*youtube.com/*");
+    if (since) youtubeQuery = youtubeQuery.gte("created_at", since);
+    const youtube = await youtubeQuery.order("created_at", { ascending: false }).limit(limit);
     for (const row of youtube.error ? [] : youtube.data || []) {
       if (orGeulaItemKind(row) !== "youtube") continue;
       const seo = await orGeulaIntakeUpdate(row);

@@ -101,11 +101,16 @@ if (FN === "ingest") {
       aiTitleCalls: made.filter(c => c.host === "api.anthropic.com" && !c.vision).length, visionCalls: made.filter(c => c.vision).length,
       sttKeyLookups: made.filter(c => c.path === "/rest/v1/rpc/wa_video_enrich_openai_key").length });
   }
-  patches.length = 0;
-  const batch = await (await post({})).json();
-  out.batchYoutube = { result: (batch.results || []).find((r: any) => r.kind === "youtube") || null,
-    written: patches.filter(p => p.table === "channel_updates" && p.filter.includes(YOUTUBE_ROW.id)).map(p => p.body),
-    batchFilters: calls.filter(c => c.method === "GET" && c.path === "/rest/v1/channel_updates" && !c.search.includes("id=eq.")).map(c => decodeURIComponent(c.search)) };
+  // Scheduled run (cron body {"limit":8}): the or-geula rounds reach only items from OR_GEULA_AUTO_SINCE on.
+  // Explicit backfill run ({"backfill_or_geula":true}): the same rounds over every item.
+  for (const [mode, payload] of [["scheduled", { limit: 8 }], ["backfill", { backfill_or_geula: true, limit: 8 }]] as const) {
+    patches.length = 0; const before = calls.length;
+    const batch = await (await post(payload)).json();
+    const filters = calls.slice(before).filter(c => c.method === "GET" && c.path === "/rest/v1/channel_updates" && !c.search.includes("id=eq.")).map(c => decodeURIComponent(c.search));
+    out[mode] = { youtube: (batch.results || []).find((r: any) => r.kind === "youtube") || null,
+      written: patches.filter(p => p.table === "channel_updates" && p.filter.includes(YOUTUBE_ROW.id)).map(p => p.body),
+      orGeulaRoundsWithCutoff: filters.filter(f => f.includes("or-geula")).map(f => /created_at[=.]gte/.test(f)), filters };
+  }
 }
 out.outsideHosts = [...new Set(calls.map(c => c.host))];
 console.log(JSON.stringify(out, null, 1));

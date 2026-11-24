@@ -31,7 +31,7 @@
      "topics": [],
      "enrichment_status": "enriched",
      "enrichment_source": "source_title",
-     "enriched_at": "2026-11-24T16:55:29.450Z"
+     "enriched_at": "2026-11-24T17:08:59.589Z"
     }
    ],
    "aiTitleCalls": 0,
@@ -95,7 +95,7 @@
      "topics": [],
      "enrichment_status": "enriched",
      "enrichment_source": "caption",
-     "enriched_at": "2026-11-24T16:55:29.458Z"
+     "enriched_at": "2026-11-24T17:08:59.596Z"
     }
    ],
    "aiTitleCalls": 1,
@@ -178,7 +178,7 @@
      ],
      "enrichment_status": "enriched",
      "enrichment_source": "image_vision",
-     "enriched_at": "2026-11-24T16:55:29.463Z"
+     "enriched_at": "2026-11-24T17:08:59.601Z"
     }
    ],
    "aiTitleCalls": 0,
@@ -186,8 +186,8 @@
    "sttKeyLookups": 0
   }
  ],
- "batchYoutube": {
-  "result": {
+ "scheduled": {
+  "youtube": {
    "id": "77777777-7777-4777-8777-777777777777",
    "ok": true,
    "kind": "youtube",
@@ -199,16 +199,47 @@
     "seo_title": "שיעור על סוד הגאולה — הכותרת הרשמית",
     "enrichment_status": "source_title",
     "enrichment_source": "youtube_oembed",
-    "enriched_at": "2026-11-24T16:55:29.465Z",
+    "enriched_at": "2026-11-24T17:08:59.604Z",
     "thumb_url": "https://i.ytimg.com/vi/AbCdEfGhIjK/hqdefault.jpg"
    }
   ],
-  "batchFilters": [
-   "?select=id,text,created_at,credit,source&channel=eq.or-geula&id=neq.22222222-2222-4222-8222-222222222222&created_at=gte.2026-11-24T16:55:09.354Z&created_at=lte.2026-11-24T16:55:49.354Z&order=created_at.asc&limit=12&credit=eq.אור+הגאולה",
-   "?select=id,text,created_at,credit,source&channel=eq.or-geula&id=neq.44444444-4444-4444-8444-444444444444&created_at=gte.2026-11-24T16:55:09.354Z&created_at=lte.2026-11-24T16:55:49.354Z&order=created_at.asc&limit=12&credit=eq.אור+הגאולה",
-   "?select=id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source&channel=in.(or-geula,torat-haremez)&status=eq.live&image_url=ilike.%.mp4%&or=(enrichment_status.eq.pending,and(channel.eq.or-geula,enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title),and(channel.eq.or-geula,enrichment_status.eq.retry_stt,enrichment_source.eq.thumbnail_unresolved))&order=created_at.desc&limit=4",
-   "?select=id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source&channel=eq.or-geula&status=eq.live&image_url=not.is.null&image_url=not.ilike.%.mp4%&seo_title=is.null&or=(enrichment_status.eq.pending,and(enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title))&order=created_at.desc&limit=4",
-   "?select=id,channel,text,image_url,thumb_url,link_url,seo_title,enrichment_status&channel=eq.or-geula&status=eq.live&image_url=is.null&seo_title=is.null&enrichment_status=eq.pending&or=(text.ilike.*youtu.be/*,text.ilike.*youtube.com/*)&order=created_at.desc&limit=4"
+  "orGeulaRoundsWithCutoff": [
+   true,
+   true,
+   true
+  ],
+  "filters": [
+   "?select=id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source&channel=in.(or-geula,torat-haremez)&status=eq.live&image_url=ilike.%.mp4%&or=(enrichment_status.eq.pending,and(channel.eq.or-geula,enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title,created_at.gte.2026-11-24T17:15:00Z),and(channel.eq.or-geula,enrichment_status.eq.retry_stt,enrichment_source.eq.thumbnail_unresolved,created_at.gte.2026-11-24T17:15:00Z))&order=created_at.desc&limit=8",
+   "?select=id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source&channel=eq.or-geula&status=eq.live&image_url=not.is.null&image_url=not.ilike.%.mp4%&seo_title=is.null&or=(enrichment_status.eq.pending,and(enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title))&created_at=gte.2026-11-24T17:15:00Z&order=created_at.desc&limit=8",
+   "?select=id,channel,text,image_url,thumb_url,link_url,seo_title,enrichment_status&channel=eq.or-geula&status=eq.live&image_url=is.null&seo_title=is.null&enrichment_status=eq.pending&or=(text.ilike.*youtu.be/*,text.ilike.*youtube.com/*)&created_at=gte.2026-11-24T17:15:00Z&order=created_at.desc&limit=8"
+  ]
+ },
+ "backfill": {
+  "youtube": {
+   "id": "77777777-7777-4777-8777-777777777777",
+   "ok": true,
+   "kind": "youtube",
+   "enrichment_source": "youtube_oembed",
+   "error": null
+  },
+  "written": [
+   {
+    "seo_title": "שיעור על סוד הגאולה — הכותרת הרשמית",
+    "enrichment_status": "source_title",
+    "enrichment_source": "youtube_oembed",
+    "enriched_at": "2026-11-24T17:08:59.605Z",
+    "thumb_url": "https://i.ytimg.com/vi/AbCdEfGhIjK/hqdefault.jpg"
+   }
+  ],
+  "orGeulaRoundsWithCutoff": [
+   false,
+   false,
+   false
+  ],
+  "filters": [
+   "?select=id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source&channel=in.(or-geula,torat-haremez)&status=eq.live&image_url=ilike.%.mp4%&or=(enrichment_status.eq.pending,and(channel.eq.or-geula,enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title),and(channel.eq.or-geula,enrichment_status.eq.retry_stt,enrichment_source.eq.thumbnail_unresolved))&order=created_at.desc&limit=8",
+   "?select=id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source&channel=eq.or-geula&status=eq.live&image_url=not.is.null&image_url=not.ilike.%.mp4%&seo_title=is.null&or=(enrichment_status.eq.pending,and(enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title))&order=created_at.desc&limit=8",
+   "?select=id,channel,text,image_url,thumb_url,link_url,seo_title,enrichment_status&channel=eq.or-geula&status=eq.live&image_url=is.null&seo_title=is.null&enrichment_status=eq.pending&or=(text.ilike.*youtu.be/*,text.ilike.*youtube.com/*)&order=created_at.desc&limit=8"
   ]
  },
  "outsideHosts": [
