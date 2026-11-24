@@ -744,3 +744,132 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
    max-width:none;
  }
 }
+
+
+/* Owner design review 2026-11-24: open royal heading + compact native chat.
+   Visual-only; community identity, data, paging and actions are unchanged. */
+.native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
+  isolation:isolate;
+  padding:12px 64px 18px;
+  margin-block:0 16px;
+  overflow:visible;
+  border:0;
+  border-bottom:1px solid color-mix(in srgb,var(--s29-accent-text) 38%,transparent);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.sod29-community--full .sod29-community-heading-row{
+  gap:7px;
+  min-height:0;
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-copy{
+  max-width:100%;
+  min-width:0;
+}
+.sod29-community--full .sod29-community-intro h1{
+  color:var(--s29-accent-text);
+  font-size:clamp(26px,3vw,36px);
+  font-weight:750;
+  line-height:1.25;
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-copy p{
+  display:block;
+  font-size:clamp(12px,1.3vw,14px);
+  color:var(--s29-muted);
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-symbol{
+  width:48px;
+  height:48px;
+  border:1px solid color-mix(in srgb,var(--s29-accent-text) 55%,transparent);
+  border-radius:50%;
+  color:var(--s29-accent-text);
+  background:color-mix(in srgb,var(--s29-panel) 78%,transparent);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--s29-accent-text) 6%,transparent);
+}
+.sod29-community--full .sod29-community-head-menu{
+  inset-block-start:8px;
+  inset-inline-end:8px;
+  max-width:min(320px,calc(100vw - 32px));
+}
+.sod29-community--full .sod29-community-head-menu>summary{
+  border-radius:999px;
+  background:var(--s29-panel);
+  border-color:var(--s29-line-strong);
+  box-shadow:none;
+}
+.sod29-community--full .sod29-community-head-menu[open]{z-index:80}
+.sod29-community--full .sod29-community-head-menu .sod29-community-head-actions{
+  position:absolute;
+  inset-inline-end:0;
+  inset-block-start:calc(100% + 6px);
+  width:min(310px,calc(100vw - 32px));
+  max-height:min(70dvh,520px);
+  overflow:auto;
+  align-items:stretch;
+  border-radius:14px;
+  box-shadow:0 12px 32px rgba(0,0,0,.24);
+}
+.sod29-community--full .sod29-community-feed{
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.sod29-community--full .sod29-community-feed>.sod29-community-thread-group{
+  margin:0;
+  border:0;
+  border-bottom:1px solid color-mix(in srgb,var(--s29-line-strong) 75%,transparent);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.sod29-community--full .sod29-community-feed>.sod29-community-thread-group>.sod29-community-thread{
+  padding:17px 14px 9px;
+}
+.sod29-community--full .sod29-community-feed>.sod29-community-thread-group>.sod29-community-replies-toggle{
+  margin-inline:14px;
+}
+.sod29-community--full .sod29-community-feed .sod29-community-thread-group>.sod29-community-replies{
+  border-inline-start:1px solid color-mix(in srgb,var(--s29-accent-text) 34%,transparent);
+}
+.sod29-community--full .sod29-community-feed .sod29-community-replies>.sod29-community-thread-group{
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.sod29-community--full .sod29-community-stream-tools{
+  gap:10px;
+  margin-bottom:12px;
+}
+.sod29-community--full .sod29-community-composer[data-compact="true"]{
+  margin-bottom:12px;
+}
+@media(max-width:600px){
+  .native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
+    padding:8px 50px 12px;
+    margin-bottom:10px;
+  }
+  .sod29-community--full .sod29-community-intro h1{font-size:25px}
+  .sod29-community--full .sod29-community-heading-row .sod29-hero-copy{
+    max-width:100%;
+  }
+  .sod29-community--full .sod29-community-heading-row .sod29-hero-copy p{
+    display:block;
+    font-size:12px;
+    line-height:1.35;
+  }
+  .sod29-community--full .sod29-community-heading-row .sod29-hero-symbol{
+    width:42px;height:42px;
+  }
+  .sod29-community--full .sod29-community-head-menu{
+    inset-block-start:4px;
+    inset-inline-end:0;
+  }
+  .sod29-community--full .sod29-community-feed>.sod29-community-thread-group>.sod29-community-thread{
+    padding:14px 3px 8px;
+  }
+  .sod29-community--full .sod29-community-feed>.sod29-community-thread-group>.sod29-community-replies-toggle{
+    margin-inline:3px;
+  }
+}
