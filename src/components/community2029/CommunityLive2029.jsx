@@ -1013,10 +1013,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
       {!memberId && !claimId ? <header className="sod29-community-intro sod29-page-intro" data-intro-variant="compact">
         <div className="sod29-community-heading-row">
-          <span className="sod29-hero-symbol r29-medal" aria-hidden="true"><NavigationIcon2029 name="community" size={28} /></span>
           <div className="sod29-hero-copy"><h1>הצ'אט החי</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p></div>
+          <span className="sod29-hero-symbol r29-medal" aria-hidden="true"><NavigationIcon2029 name="community" size={28} /></span>
         </div>
-        <div className="sod29-community-head-actions">
+        <details className="sod29-community-head-menu">
+          <summary aria-label="הודעות בקהילה, חשבון ופעולות" title="הודעות בקהילה, חשבון ופעולות"><NavigationIcon2029 name="menu" size={20} /><span>קהילה וחשבון</span></summary>
+          <div className="sod29-community-head-actions">
           {!hasThreadRequest ? <div className="sod29-community-intro-meta"><span>הודעות בקהילה ובארכיון</span><ConversationCount /></div> : null}
           {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact /> : <div className="sod29-community-auth-buttons" role="group" aria-label="כניסה לקהילה">
             <Link className="sod29-community-auth-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
@@ -1024,7 +1026,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           </div>}
             <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /></div> : null}
           {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
-        </div>
+          </div>
+        </details>
         {reading.error && reading.resume ? <p className="sod29-community-reading-error" role="status">לא ניתן לעדכן כרגע את מספר התגובות החדשות.</p> : null}
       </header> : null}
       {claimId ? null : memberId ? <Suspense fallback={null}>

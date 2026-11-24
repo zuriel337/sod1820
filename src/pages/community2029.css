@@ -668,3 +668,79 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
 }
 /* Only an unusable (disabled) return is hidden on the landing page. */
 .sod29-root.surface-community:has(#community-new-chat) .sod29-header-return:disabled{display:none}
+
+/* Community: Heichal-style centered title and medal below, all account
+   and archive actions in one small corner menu; no full-screen hero. */
+.native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
+  position:relative;display:block;min-height:0;padding:4px 8px 10px;
+  margin:0 0 8px;border:0;background:transparent;box-shadow:none;
+}
+.sod29-community--full .sod29-community-heading-row{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;min-height:0;
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-copy{
+  flex:none;text-align:center;max-width:calc(100% - 130px);
+}
+.sod29-community--full .sod29-community-heading-row .sod29-hero-symbol{
+  position:static;display:grid;place-items:center;width:44px;height:44px;
+  margin:0 auto;border-radius:50%;background:var(--s29-panel-soft);
+  box-shadow:none;color:var(--s29-accent-text);
+}
+.sod29-community--full .sod29-community-head-menu{
+  position:absolute;inset-block-start:0;inset-inline-end:0;z-index:12;
+  max-width:min(300px,calc(100vw - 36px));
+}
+.sod29-community--full .sod29-community-head-menu>summary{
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  min-width:44px;min-height:44px;padding:0 8px;cursor:pointer;
+  border:1px solid var(--s29-line-strong);border-radius:10px;
+  background:var(--s29-panel);color:var(--s29-ink);font-size:12px;
+  list-style:none;
+}
+.sod29-community--full .sod29-community-head-menu>summary::-webkit-details-marker{display:none}
+.sod29-community--full .sod29-community-head-menu .sod29-community-head-actions{
+  display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+  gap:4px;width:min(300px,calc(100vw - 36px));padding:8px;
+  border:1px solid var(--s29-line-strong);border-radius:12px;
+  background:var(--s29-panel);box-shadow:0 8px 22px color-mix(in srgb,var(--s29-ink) 12%,transparent);
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-entry-tools{
+  display:flex;flex-direction:column;align-items:stretch;gap:3px;width:100%;margin:0;
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-entry-tools>.sod29-community-sign-in--compact{
+  width:100%;flex:none;
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-account-row{
+  width:100%;flex-wrap:wrap;gap:4px;
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-account-name{
+  flex:1 1 auto;min-width:0;max-width:none;
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-claim-entry{
+  width:100%;max-width:none;justify-content:flex-start;text-align:start;
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-reading-tools{
+  margin:0;justify-content:flex-start;
+}
+.sod29-community--full .sod29-community-head-menu .sod29-community-intro-meta{
+  justify-content:flex-start;flex-wrap:wrap;
+}
+@media(max-width:600px){
+ .native-frame .sod29-community--full .sod29-community-intro.sod29-page-intro{
+   padding:2px 2px 7px;margin-bottom:6px;
+ }
+ .sod29-community--full .sod29-community-heading-row .sod29-hero-copy{
+   max-width:calc(100% - 145px);
+ }
+ .sod29-community--full .sod29-community-head-menu>summary span{display:none}
+ .sod29-community--full .sod29-community-head-menu .sod29-community-entry-tools{
+   width:100%;
+ }
+ .sod29-community--full .sod29-community-head-menu .sod29-community-entry-tools>.sod29-community-sign-in--compact{
+   flex:none;width:100%;
+ }
+ .sod29-community--full .sod29-community-head-menu .sod29-community-claim-entry{
+   max-width:none;
+ }
+}
