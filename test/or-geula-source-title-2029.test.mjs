@@ -143,3 +143,23 @@ test("watch page /video/<id>: a channel video without a source title stays reada
   assert.equal(listed[0].primary_source_type, "channel_update", "the sitemap gate receives the source type");
   assert.equal(listed[0].google_indexable, false);
 });
+
+test("Open Index Law: a titled Or HaGeula image or text item is listed in the sitemap; a held item or a self-hosted video is not", async () => {
+  const { loadPublicOrGeulaCollection2029 } = await import("../src/lib/publicContinuityReaders2029.js");
+  const base = { channel: "or-geula", status: "live", page_only: false, expires_at: null, created_at: "2026-11-20T10:00:00Z", credit: "אור הגאולה", thumb_url: null };
+  const media = name => `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/${name}`;
+  const rows = [
+    { ...base, id: "8a5c3d1e-0b4f-4c2a-9d1e-2f3a4b5c6d71", seo_title: null, text: "תמונה מהכותל בערב שבת", image_url: media("a.jpg") },
+    { ...base, id: "8a5c3d1e-0b4f-4c2a-9d1e-2f3a4b5c6d72", seo_title: null, text: "📷 עדכון", image_url: media("b.jpg") },
+    { ...base, id: "8a5c3d1e-0b4f-4c2a-9d1e-2f3a4b5c6d73", seo_title: "שיעור על סוד הגאולה", text: "🎬 עדכון וידאו", image_url: media("c.mp4") },
+  ];
+  const page = await loadPublicOrGeulaCollection2029({ page: 1, now: Date.parse("2026-11-24T00:00:00Z"), readRows: async () => rows });
+  const listed = page.items.filter(item => !item.seoHeld && item.mediaKind !== "video").map(item => item.href);
+  assert.deepEqual(listed, ["/or-geula/video/8a5c3d1e-0b4f-4c2a-9d1e-2f3a4b5c6d71"]);
+  const { readFileSync } = await import("node:fs");
+  const sitemap = readFileSync(new URL("../api/sitemap.js", import.meta.url), "utf8");
+  assert.match(sitemap, /loadPublicOrGeulaCollection2029\(\{ page, readRows \}\)/);
+  assert.match(sitemap, /if \(item\.seoHeld \|\| item\.mediaKind === 'video'\) continue;/);
+  const law = readFileSync(new URL("../CLAUDE.md", import.meta.url), "utf8");
+  assert.match(law, /## חוק אינדוקס פתוח \(Open Index Law — ZURIEL, 24\.11\.2026\)/);
+});
