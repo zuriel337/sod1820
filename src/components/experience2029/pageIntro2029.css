@@ -32,4 +32,6 @@
 
 /* The application frame already owns the emblem when the preserved article is shown on a read failure. */
 .native-frame .sod29-page-intro[data-intro-symbol-only]{padding-block:4px 8px}
+/* ZURIEL 24.11.2026: no medallion without its word. The page heading is the word, centered under the shared medallion. */
+.sod29-content:has(>[data-intro-symbol-only]) h1{text-align:center}
 .native-frame[data-ssr-standalone="true"] .sod29-page-intro[data-intro-symbol-only]{display:none}
