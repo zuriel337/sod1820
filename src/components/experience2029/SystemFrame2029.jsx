@@ -702,6 +702,8 @@ export default function SystemFrame2029(props) {
 function SystemFrame2029Body({
   title,
   contentHeading = false,
+  // The page draws its own approved emblem (community chat), so the shared symbol-only intro stays out.
+  pageOwnsEmblem = false,
   eyebrow,
   description,
   children,
@@ -1639,7 +1641,7 @@ function SystemFrame2029Body({
           {user?.id ? <React.Suspense fallback={null}><AccountLinkOffer2029 /></React.Suspense> : null}
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
-              {(hasRoyalIntro || PUBLIC_READING_RELEASE) ? (
+              {(hasRoyalIntro || (PUBLIC_READING_RELEASE && !pageOwnsEmblem)) ? (
                 <section className="sod29-page-intro r29 r29-hall" data-intro-variant={hasRoyalIntro ? resolvedIntroVariant : "compact"} data-intro-symbol-only={!hasRoyalIntro || undefined} aria-hidden={!hasRoyalIntro || undefined}>
                   {hasRoyalIntro && (!introHelpOpened ? introHelpTrigger : <React.Suspense fallback={introHelpTrigger}><RoyalIntro2029 key={currentHref} initialOpen surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>)}
                   <div className="sod29-hero-visual" aria-hidden="true"><span className="sod29-hero-symbol r29-medal">{React.isValidElement(symbol) ? symbol : <NavigationIcon2029 name={introIcon || "home"} />}</span></div>

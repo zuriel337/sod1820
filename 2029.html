@@ -67,8 +67,11 @@
       @font-face { font-family:'Sod Hebrew Fallback'; src:local('Arial Bold'),local('Arial-BoldMT'),local('Liberation Sans Bold'),local('LiberationSans-Bold'),local('Arimo Bold'),local('Arimo-Bold'); font-weight:501 1000; unicode-range:U+0020,U+00A0; size-adjust:97.2%; ascent-override:109.9%; descent-override:30.0%; line-gap-override:0%; }
       *, *::before, *::after { box-sizing:border-box; }
       html, body, #root { min-height:100%; margin:0; }
-      /* Reserve matching gutters so the crown stays centered as an article loads. */
-      html { scroll-behavior:smooth; overflow-x:clip; scrollbar-gutter:stable both-edges; }
+      /* Keep the viewport/grid width stable when a short route loader becomes a long article.
+         On desktop, reserve matching gutters so the crown stays centered on the physical window;
+         narrow headers keep the single gutter so their paired rails stay equal. */
+      html { scroll-behavior:smooth; overflow-x:clip; scrollbar-gutter:stable; }
+      @media (min-width:1024px) { html { scrollbar-gutter:stable both-edges; } }
       body { background:#0C0818; color:#f5f0e8; overflow-x:clip; width:100%; font-family:'Noto Sans Hebrew','Sod Hebrew Fallback','Rubik','Sod Rubik Fallback',Arial,sans-serif; }
       #root { overflow-x:clip; max-width:100%; position:relative; }
     </style>
