@@ -7,6 +7,7 @@
 // with the application; the opening bar above (2029.html) already shows the top bar.
 // test/article-first-browser-2029.browser.mjs compares the page's real root (tokens, attributes) and the article's computed geometry before and
 // after adoption, so this copy cannot drift silently from SystemFrame2029.jsx.
+import { POST_ICON_PATH_2029 } from "../../components/experience2029/postIconPath2029.js";
 import { resolve2029Palette } from "../paletteTokens2029.js";
 import { LAYOUT, MOTION, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../designTokens.js";
 
@@ -74,6 +75,10 @@ export function postArticleFrameOpen2029(extraAttributes = {}) {
     + JSON.stringify(palettes).replace(/</g, "\\u003c") + ";if(!p[t])t=\"dark\";var r=false;try{r=matchMedia(\"(prefers-reduced-motion: reduce)\").matches}catch(e){}"
     + "f.setAttribute(\"data-frame-theme-preset\",t);f.setAttribute(\"data-frame-theme-mode\",t===\"dark\"?\"dark\":\"light\");f.setAttribute(\"data-frame-reduced-motion\",String(r));"
     + `f.setAttribute("style",p[t]+" "+(r?${JSON.stringify(postArticleFrameConstantStyle2029({ reducedMotion: true }))}:${JSON.stringify(constant)}))})(document.currentScript.parentNode)</script>`;
-  return `${open}${sync}<div class="sod29-main"><div class="sod29-main-stage has-context-rail"><main class="sod29-content">`;
+  const intro = '<section class="sod29-page-intro r29 r29-hall" data-intro-variant="compact" data-intro-symbol-only="true" aria-hidden="true">'
+    + '<div class="sod29-hero-visual" aria-hidden="true"><span class="sod29-hero-symbol r29-medal">'
+    + `<svg class="sod29-ui-icon sod29-ui-icon--posts" data-icon-shape="posts" data-icon-name="posts" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="${POST_ICON_PATH_2029}"></path></svg>`
+    + '</span></div></section>';
+  return `${open}${sync}<div class="sod29-main"><div class="sod29-main-stage has-context-rail"><main class="sod29-content">${intro}`;
 }
 export const POST_ARTICLE_FRAME_CLOSE = "</main></div></div></div>";

@@ -49,4 +49,5 @@
    viewport, and it jumps out of it when the real content arrives (measured lab CLS 0.66-1.17 -> <= 0.23, same fixture).
    Once real content replaces the placeholder the footer is back at the end of the page exactly as before; the rule is skipped by
    browsers without :has() and then behaves as before. */
-.sod29-root:has(.sod29-main-stage>.sod29-content>.sod-canonical-progress:only-child) .f29{display:none}
+.sod29-root:has(.sod29-main-stage>.sod29-content>.sod-canonical-progress:only-child,
+  .sod29-main-stage>.sod29-content>[data-intro-symbol-only]:first-child+.sod-canonical-progress:last-child) .f29{display:none}

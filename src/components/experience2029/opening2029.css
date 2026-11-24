@@ -8,7 +8,7 @@
    The three public links stay available for keyboard and screen-reader users only: visually hidden until one of them has focus. */
 .sod29-opening{
   --o-bar:64px;--o-crown:100px;--o-top:6px;--o-slot:150px;--o-dip-w:320px;--o-dip-h:62px;--o-reserve:68px;
-  --o-gold:#F9BA3F;--o-glass:rgb(23 18 14 / .72);--o-gap:calc(var(--o-dip-w) - 6px);
+  --o-gold:#F9BA3F;--o-glass:rgb(16 20 29 / .72);--o-gap:calc(var(--o-dip-w) - 6px);
   position:relative;min-height:100vh;direction:rtl;color:#F5F5F0;
   background-color:#0B0907;background-image:radial-gradient(at 92% 0,rgb(249 186 63 / .08),transparent 46%);
   font-family:'Noto Sans Hebrew','Sod Hebrew Fallback',Rubik,'Sod Rubik Fallback',Arial,sans-serif;

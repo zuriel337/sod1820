@@ -701,6 +701,9 @@ export default function SystemFrame2029(props) {
 
 function SystemFrame2029Body({
   title,
+  contentHeading = false,
+  // The page draws its own approved emblem (community chat), so the shared symbol-only intro stays out.
+  pageOwnsEmblem = false,
   eyebrow,
   description,
   children,
@@ -1527,7 +1530,7 @@ function SystemFrame2029Body({
   const resolvedIntroVariant = introVariant === "none" ? "none" : introVariant === "full" ? "full" : "compact";
   const hasRoyalIntro = resolvedIntroVariant !== "none" && Boolean(eyebrow || title || description);
   const introHelpTrigger = <button type="button" className="sod29-action" style={{ position: "absolute", top: 14, insetInlineEnd: 16, zIndex: 5, background: "none", border: 0, boxShadow: "none", padding: "0 6px", fontSize: "var(--s29-type-micro,14px)", minHeight: 44 }} disabled={introHelpOpened} aria-expanded="false" onClick={() => setIntroHelpRoute(location.key)}>{introHelpOpened ? "טוען הסבר…" : "? מה זה?"}</button>;
-  const introIcon = { world: "world", heichal: "heichal", topic: "graph", books: "books", els: "els", calculator: "calculator", journey: "journey", number: "number", control: "tools" }[surface];
+  const introIcon = { post: "posts", topic: "graph", control: "tools", "beit-midrash": "study" }[surface] || surface;
   const frame = (
     <ShellContext.Provider value={shellApi}>
     <SystemFeedContext2029.Provider value={feed}>
@@ -1638,16 +1641,16 @@ function SystemFrame2029Body({
           {user?.id ? <React.Suspense fallback={null}><AccountLinkOffer2029 /></React.Suspense> : null}
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
-              {hasRoyalIntro ? (
-                <section className="sod29-page-intro r29 r29-hall" data-intro-variant={resolvedIntroVariant}>
-                  {!introHelpOpened ? introHelpTrigger : <React.Suspense fallback={introHelpTrigger}><RoyalIntro2029 key={currentHref} initialOpen surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>}
+              {(hasRoyalIntro || (PUBLIC_READING_RELEASE && !pageOwnsEmblem)) ? (
+                <section className="sod29-page-intro r29 r29-hall" data-intro-variant={hasRoyalIntro ? resolvedIntroVariant : "compact"} data-intro-symbol-only={!hasRoyalIntro || undefined} aria-hidden={!hasRoyalIntro || undefined}>
+                  {hasRoyalIntro && (!introHelpOpened ? introHelpTrigger : <React.Suspense fallback={introHelpTrigger}><RoyalIntro2029 key={currentHref} initialOpen surface={surface} title={title} description={description} orientationCopy={orientationCopy} /></React.Suspense>)}
                   <div className="sod29-hero-visual" aria-hidden="true"><span className="sod29-hero-symbol r29-medal">{React.isValidElement(symbol) ? symbol : <NavigationIcon2029 name={introIcon || "home"} />}</span></div>
-                  <div className="sod29-hero-copy">
+                  {hasRoyalIntro && <div className="sod29-hero-copy">
                     {eyebrow && eyebrow !== title ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
-                    {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
+                    {title && !contentHeading ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
                     <IntroResearchContext2029 context={pageContext || {}} currentHref={currentHref} pageTitle={currentLabel} onReturnExact={returnExact} />
-                  </div>
+                  </div>}
                 </section>
               ) : null}
               {surface === "world" ? selectedRoyal("card") : null}

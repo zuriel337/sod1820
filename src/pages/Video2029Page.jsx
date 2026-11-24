@@ -33,14 +33,14 @@ export default function Video2029Page() {
     surface="world"
     symbol={<NavigationIcon2029 name="video" />}
     eyebrow="VIDEO · SOURCE · CONTEXT"
-    title="וידאו · SOD1820"
+    title={asset?.title || "וידאו · SOD1820"}
     description="נכס וידאו אחד, הקשרים רבים — מקור, סדרה, צופן ופוסטים על אותה זהות מדיה."
   >
     <main data-experience-capability="public-video-source" style={{ maxWidth: 980, margin: "0 auto", padding: "24px 16px 100px", minHeight: "70vh", direction: "rtl" }}>
       {loading ? <FrameState kind="loading" title="פותח את הסרטון">בודק את המקור הציבורי.</FrameState>
         : state.error ? <FrameState kind="error" title="לא ניתן לטעון את הסרטון"><p>המקור לא נטען. אפשר לנסות שוב.</p><button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון טעינה נוסף</button></FrameState>
         : !asset ? <FrameState kind="empty" title="הסרטון לא נמצא">המדיה אינה זמינה לציבור בכתובת הזאת.</FrameState>
-        : <article><h1>{asset.title}</h1>
+        : <article>
           <p>{asset.credit ? `מקור: ${asset.credit}` : "מקור ציבורי"}{asset.author ? ` · דובר: ${asset.author}` : ""} · {bilingualDateLabel(asset.first_seen_at, "תאריך לא צוין")}</p>
           <Player key={assetId} asset={asset} poster={asset.thumb_url || "/logo.png"} />
         </article>}

@@ -8,6 +8,7 @@ import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { build } from "esbuild";
+import { resolve2029Palette } from "../src/lib/paletteTokens2029.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = rel => readFileSync(join(ROOT, rel), "utf8");
@@ -103,9 +104,10 @@ test("dimensions equal the real frame's tokens at desktop, <=980px and <=340px",
 
 test("colours are the frame's: page, glass, gold, same arc and line geometry", () => {
   assert.match(css, /background-color:#0B0907/);                                   // --s29-page (dark)
-  assert.match(css, /--o-glass:rgb\(23 18 14 \/ \.72\)/);                          // --s29-panel #17120E at 72%
+  const rgb = resolve2029Palette("dark").frame.slice(1).match(/../g).map(hex => parseInt(hex, 16));
+  assert.ok(css.includes(`--o-glass:rgb(${rgb.join(" ")} / .72)`), "the opening uses the selected night frame glass");
   assert.match(css, /--o-gold:#F9BA3F/);                                           // --s29-brand-gold
-  assert.match(frameCss, /--s29-glass: color-mix\(in srgb, var\(--s29-panel\) 72%, transparent\)/);
+  assert.match(frameCss, /--s29-glass: color-mix\(in srgb, var\(--s29-frame\) 72%, transparent\)/);
   assert.ok(read("src/components/experience2029/SystemFrame2029.jsx").includes('d="M0 0C44 0 70 62 160 62S276 0 320 0"'), "the frame's line path");
   assert.ok(frameCss.includes("M0%200H320C276%200%20250%2062%20160%2062S44%200%200%200Z"), "the frame's arc glass mask path");
   assert.ok(html.includes('d="M0 0C44 0 70 62 160 62S276 0 320 0"'), "the opening draws the same line path");

@@ -1,9 +1,10 @@
 {
- "generated": "2026-11-21T00:02:33.630Z",
- "base": "f2ca9aafc7e765c79df7d7a2da1e55f1578bc72b",
- "fingerprint": "a2d19fff0d4e08fb52bd",
+ "generated": "2026-11-24T12:36:24.339Z",
+ "base": "c4496eeac3f6dfcb3628d661644fdb5e40191847",
+ "fingerprint": "b6787fe265899aaf315b",
  "jsdom": "25.0.1",
  "pipeline": [
+  "src/components/experience2029/postIconPath2029.js",
   "src/lib/designTokens.js",
   "src/lib/format.js",
   "src/lib/img.js",
@@ -72,7 +73,7 @@
   "28": "b80c0760:24813:unspecified",
   "29": "b8329184:14343:unspecified",
   "30": "a2745bf6:562:unspecified",
-  "31": "cc3f6c8f:4489:unspecified",
+  "31": "f3f067d5:13649:unspecified",
   "32": "2e4388a8:562:unspecified",
   "33": "bd26dbda:1626:unspecified",
   "34": "bee22f34:5837:unspecified",

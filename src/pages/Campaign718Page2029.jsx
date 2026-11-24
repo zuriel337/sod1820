@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+// Only the public build wraps this landing in the frame; loading it on demand keeps the default entry graph unchanged.
+const Sod2029Shell = React.lazy(() => import("../components/experience2029/Sod2029Shell.jsx"));
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { Link, useSearchParams } from "react-router-dom";
 import { BRAND_LOCKUP_2029 } from "../lib/brandAssets2029.js";
@@ -174,19 +176,20 @@ export default function Campaign718Page2029() {
   const unlocked = signupState === "unlocked" || signupState === "exists";
   const featuredNumberPageHref = `/number/${FEATURED_NUMBER}`;
 
-  return (
-    <main className="sod29-campaign718" style={themeVars} dir="rtl">
+  const Content = PUBLIC_READING_RELEASE ? "article" : "main";
+  const landing = (
+    <Content className="sod29-campaign718" style={themeVars} dir="rtl">
       <div className="sod29-campaign718-ambient" aria-hidden="true" />
 
       <header className="sod29-campaign718-brand">
         <div className="sod29-campaign718-brand-kicker">מלך המספרים × SOD1820</div>
-        <img
+        {!PUBLIC_READING_RELEASE && <img
           src={BRAND_LOCKUP_2029.src}
           width={BRAND_LOCKUP_2029.width}
           height={BRAND_LOCKUP_2029.height}
           alt={BRAND_LOCKUP_2029.alt}
           className="sod29-campaign718-lockup"
-        />
+        />}
         <p>לגלות את המציאות בשפת המספרים</p>
       </header>
 
@@ -358,6 +361,9 @@ export default function Campaign718Page2029() {
         <span>×</span>
         <span>SOD1820</span>
       </footer>
-    </main>
+    </Content>
   );
+  return PUBLIC_READING_RELEASE
+    ? <Sod2029Shell surface="number" title="מלך המספרים · 718" introVariant="none">{landing}</Sod2029Shell>
+    : landing;
 }
