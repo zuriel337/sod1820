@@ -5,7 +5,8 @@
    "row": "11111111",
    "input": {
     "seo_title": "שיעור מיוחד על סוד הגאולה",
-    "text": "🎬 עדכון וידאו"
+    "text": "🎬 עדכון וידאו",
+    "media": "video"
    },
    "status": 200,
    "result": {
@@ -30,38 +31,46 @@
      "topics": [],
      "enrichment_status": "enriched",
      "enrichment_source": "source_title",
-     "enriched_at": "2026-11-24T15:42:05.057Z"
+     "enriched_at": "2026-11-24T16:55:29.450Z"
     }
    ],
-   "aiCalls": 0
+   "aiTitleCalls": 0,
+   "visionCalls": 0,
+   "sttKeyLookups": 0
   },
   {
    "row": "22222222",
    "input": {
     "seo_title": null,
-    "text": "🎬 עדכון וידאו"
+    "text": "🎬 עדכון וידאו",
+    "media": "video"
    },
    "status": 200,
    "result": {
     "id": "22222222-2222-4222-8222-222222222222",
     "ok": false,
-    "skipped": "seo_held_no_source_title",
+    "retryable": true,
+    "stage": "stt",
+    "error": "openai_key_missing",
     "mark_error": null
    },
    "written": [
     {
      "link_url": "https://sod1820.co.il/or-geula/video/22222222-2222-4222-8222-222222222222",
-     "enrichment_status": "seo_held",
-     "enrichment_source": "no_source_title"
+     "enrichment_status": "retry_stt",
+     "enrichment_source": "stt"
     }
    ],
-   "aiCalls": 0
+   "aiTitleCalls": 0,
+   "visionCalls": 0,
+   "sttKeyLookups": 1
   },
   {
    "row": "33333333",
    "input": {
     "seo_title": null,
-    "text": "רמז מדהים בפרשת השבוע"
+    "text": "רמז מדהים בפרשת השבוע",
+    "media": "video"
    },
    "status": 200,
    "result": {
@@ -86,14 +95,125 @@
      "topics": [],
      "enrichment_status": "enriched",
      "enrichment_source": "caption",
-     "enriched_at": "2026-11-24T15:42:05.067Z"
+     "enriched_at": "2026-11-24T16:55:29.458Z"
     }
    ],
-   "aiCalls": 1
+   "aiTitleCalls": 1,
+   "visionCalls": 0,
+   "sttKeyLookups": 0
+  },
+  {
+   "row": "44444444",
+   "input": {
+    "seo_title": null,
+    "text": "🙏",
+    "media": "video"
+   },
+   "status": 200,
+   "result": {
+    "id": "44444444-4444-4444-8444-444444444444",
+    "ok": false,
+    "retryable": true,
+    "stage": "stt",
+    "error": "openai_key_missing",
+    "mark_error": null
+   },
+   "written": [
+    {
+     "link_url": "https://sod1820.co.il/or-geula/video/44444444-4444-4444-8444-444444444444",
+     "enrichment_status": "retry_stt",
+     "enrichment_source": "stt"
+    }
+   ],
+   "aiTitleCalls": 0,
+   "visionCalls": 0,
+   "sttKeyLookups": 1
+  },
+  {
+   "row": "55555555",
+   "input": {
+    "seo_title": null,
+    "text": "תמונה מהכותל בערב שבת",
+    "media": "image"
+   },
+   "status": 200,
+   "result": {
+    "id": "55555555-5555-4555-8555-555555555555",
+    "ok": true,
+    "kind": "image",
+    "enrichment_source": "caption",
+    "error": null
+   },
+   "written": [
+    {
+     "enrichment_status": "source_title",
+     "enrichment_source": "caption"
+    }
+   ],
+   "aiTitleCalls": 0,
+   "visionCalls": 0,
+   "sttKeyLookups": 0
+  },
+  {
+   "row": "66666666",
+   "input": {
+    "seo_title": null,
+    "text": "📷 עדכון",
+    "media": "image"
+   },
+   "status": 200,
+   "result": {
+    "id": "66666666-6666-4666-8666-666666666666",
+    "ok": true,
+    "kind": "image",
+    "seo_title": "ספר תורה פתוח על הבימה בבית הכנסת",
+    "enrichment_source": "image_vision",
+    "error": null
+   },
+   "written": [
+    {
+     "seo_title": "ספר תורה פתוח על הבימה בבית הכנסת",
+     "topics": [
+      "בית כנסת"
+     ],
+     "enrichment_status": "enriched",
+     "enrichment_source": "image_vision",
+     "enriched_at": "2026-11-24T16:55:29.463Z"
+    }
+   ],
+   "aiTitleCalls": 0,
+   "visionCalls": 1,
+   "sttKeyLookups": 0
   }
  ],
+ "batchYoutube": {
+  "result": {
+   "id": "77777777-7777-4777-8777-777777777777",
+   "ok": true,
+   "kind": "youtube",
+   "enrichment_source": "youtube_oembed",
+   "error": null
+  },
+  "written": [
+   {
+    "seo_title": "שיעור על סוד הגאולה — הכותרת הרשמית",
+    "enrichment_status": "source_title",
+    "enrichment_source": "youtube_oembed",
+    "enriched_at": "2026-11-24T16:55:29.465Z",
+    "thumb_url": "https://i.ytimg.com/vi/AbCdEfGhIjK/hqdefault.jpg"
+   }
+  ],
+  "batchFilters": [
+   "?select=id,text,created_at,credit,source&channel=eq.or-geula&id=neq.22222222-2222-4222-8222-222222222222&created_at=gte.2026-11-24T16:55:09.354Z&created_at=lte.2026-11-24T16:55:49.354Z&order=created_at.asc&limit=12&credit=eq.אור+הגאולה",
+   "?select=id,text,created_at,credit,source&channel=eq.or-geula&id=neq.44444444-4444-4444-8444-444444444444&created_at=gte.2026-11-24T16:55:09.354Z&created_at=lte.2026-11-24T16:55:49.354Z&order=created_at.asc&limit=12&credit=eq.אור+הגאולה",
+   "?select=id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source&channel=in.(or-geula,torat-haremez)&status=eq.live&image_url=ilike.%.mp4%&or=(enrichment_status.eq.pending,and(channel.eq.or-geula,enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title),and(channel.eq.or-geula,enrichment_status.eq.retry_stt,enrichment_source.eq.thumbnail_unresolved))&order=created_at.desc&limit=4",
+   "?select=id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source&channel=eq.or-geula&status=eq.live&image_url=not.is.null&image_url=not.ilike.%.mp4%&seo_title=is.null&or=(enrichment_status.eq.pending,and(enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title))&order=created_at.desc&limit=4",
+   "?select=id,channel,text,image_url,thumb_url,link_url,seo_title,enrichment_status&channel=eq.or-geula&status=eq.live&image_url=is.null&seo_title=is.null&enrichment_status=eq.pending&or=(text.ilike.*youtu.be/*,text.ilike.*youtube.com/*)&order=created_at.desc&limit=4"
+  ]
+ },
  "outsideHosts": [
   "sb.test",
-  "api.anthropic.com"
+  "api.anthropic.com",
+  "www.youtube.com"
  ]
 }

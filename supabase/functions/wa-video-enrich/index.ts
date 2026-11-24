@@ -1,11 +1,13 @@
 // wa-video-enrich — enriches public WhatsApp video channels without changing source truth.
 // Automatic flow: caption -> nearby channel context -> thumbnail vision -> grounded SEO metadata.
-// Full-video STT exists only behind explicit allow_stt=true and NEVER runs from cron.
+// Full-video STT exists only behind explicit allow_stt=true and NEVER runs from cron — except for "אור הגאולה":
+// by the Open Index Law (ZURIEL 24.11.2026) an or-geula item without a source title gets one automatically (thumbnail vision,
+// then transcript), images included, so that it opens to search. The title is presentation metadata only, never a finding.
 // Protected by FB_ADMIN_KEY. OPENAI_API_KEY is retrieved through a service-role-only RPC.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { MAX_STT_BYTES, mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
 import { analyzeVideoSemanticMap, semanticMapRpcArgs } from "../_shared/videoSemanticMap.js";
-import { captionTitle, isMeaningfulTitle } from "../_shared/orGeulaSourceTitle.js";
+import { captionTitle, isMeaningfulTitle, orGeulaIntakeUpdate, orGeulaItemKind } from "../_shared/orGeulaSourceTitle.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
@@ -191,7 +193,7 @@ async function nearbyContext(row: any): Promise<string | null> {
   }
 }
 
-async function thumbnailMetadataTraced(row: any, opTrace: VideoTrace | null = null, parentSpanId: string | null = null): Promise<{ speaker: string | null; title: string | null; topics: string[] } | null> {
+async function thumbnailMetadataTraced(row: any, opTrace: VideoTrace | null = null, parentSpanId: string | null = null, subject = "video thumbnail"): Promise<{ speaker: string | null; title: string | null; topics: string[] } | null> {
   if (!ANTHROPIC_KEY || !row?.thumb_url) return null;
   try {
     const r = await fetch(row.thumb_url);
@@ -201,11 +203,11 @@ async function thumbnailMetadataTraced(row: any, opTrace: VideoTrace | null = nu
 
     const b64 = toBase64(buf);
     const prompt =
-      "Analyze this video thumbnail only. Return strict JSON only: " +
+      `Analyze this ${subject} only. Return strict JSON only: ` +
       '{"speaker":string|null,"title":string|null,"topics":string[]}. ' +
       "Do not identify anyone from their face. speaker may be set only when the exact Hebrew name is visibly written. " +
-      "title must describe only text/scene visibly supported by the thumbnail, in concise Hebrew, 20-90 characters. " +
-      "topics: 0-5 short Hebrew labels visibly supported. No prophecy, hidden meaning, diagnosis, or inference about the unseen video. " +
+      `title must describe only text/scene visibly supported by the ${subject}, in concise Hebrew, 20-90 characters. ` +
+      "topics: 0-5 short Hebrew labels visibly supported. No prophecy, hidden meaning, diagnosis, or inference about anything not shown. " +
       "If there is not enough evidence for a useful title, title=null.";
 
     const modelSpanId = crypto.randomUUID();
@@ -524,7 +526,39 @@ async function mapGroundedVideoText(
   };
 }
 
+// Automatic transcripts per invocation for "אור הגאולה" (Open Index Law); an explicit allow_stt=true is not bounded by it.
+const AUTO_STT_PER_RUN = 2;
+let autoSttBudget = AUTO_STT_PER_RUN;
+
+// Supabase image transformation keeps an "אור הגאולה" image under the vision size limit; the original is the fallback.
+function visionImageUrl(url: string): string {
+  return String(url || "").replace("/storage/v1/object/public/", "/storage/v1/render/image/public/").replace(/(\?.*)?$/, "?width=1024&quality=70");
+}
+
+// An "אור הגאולה" image (not a video) without a source title: the caption decides first (no write of a title, the page reads it);
+// otherwise a vision title from the image itself. A title that is not a title (URL, placeholder) is never written.
+async function enrichOrGeulaImage(row: any, opTrace: VideoTrace | null = null) {
+  if (captionTitle(row.text)) {
+    const { error } = await sb.from("channel_updates").update({ enrichment_status: "source_title", enrichment_source: "caption" }).eq("id", row.id);
+    return { id: row.id, ok: !error, kind: "image", enrichment_source: "caption", error: error?.message || null };
+  }
+  let meta = await thumbnailMetadataTraced({ ...row, thumb_url: visionImageUrl(row.image_url) }, opTrace, null, "image");
+  if (!meta?.title) meta = await thumbnailMetadataTraced({ ...row, thumb_url: row.image_url }, opTrace, null, "image");
+  const title = meta?.title && isMeaningfulTitle(meta.title) ? meta.title : null;
+  const updates = title
+    ? { seo_title: title, topics: meta?.topics || [], enrichment_status: "enriched", enrichment_source: "image_vision", enriched_at: new Date().toISOString() }
+    : { enrichment_status: "seo_held", enrichment_source: "ai_unresolved" };
+  const { error } = await sb.from("channel_updates").update(updates).eq("id", row.id);
+  return { id: row.id, ok: !!title && !error, kind: "image", seo_title: title, enrichment_source: updates.enrichment_source, error: error?.message || null };
+}
+
 async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null = null, itemSpanId: string | null = null, allowAi = false) {
+  // Open Index Law (ZURIEL 24.11.2026): "אור הגאולה" titles itself — AI and transcript are allowed for an item without a source title.
+  const autoTitle = row?.channel === "or-geula";
+  // A transcript is slow: an automatic one is bounded per invocation, the rest waits for the next run (no retry loop).
+  const sttOk = allowStt || (autoTitle && autoSttBudget > 0);
+  const aiOk = allowAi || autoTitle;
+  if (autoTitle && row?.image_url && !VIDEO_RE.test(String(row.image_url))) return await enrichOrGeulaImage(row, opTrace);
   if (!row?.id || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || !VIDEO_RE.test(String(row.image_url || ""))) {
     return { id: row?.id || null, ok: false, skipped: "not_supported_public_video_channel" };
   }
@@ -535,18 +569,22 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
   const updates: Record<string, unknown> = {};
   if (row.channel === "or-geula" && row.link_url !== canonical) updates.link_url = canonical;
 
-  const generic = isGeneric(row.text);
+  // For "אור הגאולה" a caption that is not a title ("🙏", a bare link) counts as generic: the video itself is read instead.
+  const generic = isGeneric(row.text) || (row.channel === "or-geula" && !captionTitle(row.text));
   let basis = cleanText(row.text);
   let transcript: string | null = null;
   let meta: { speaker: string | null; title: string | null; topics: string[] } | null = null;
   let enrichmentSource = "caption";
 
-  // #1448 (ZURIEL 24.11.2026): an "אור הגאולה" title comes from the source. A meaningful title set at intake is kept as is,
-  // and a generic caption is not given an AI title unless the call explicitly allows it; otherwise the item is HELD for search.
+  // #1448 (ZURIEL 24.11.2026): an "אור הגאולה" title comes from the source first. A meaningful title set at intake is kept as is;
+  // the caption comes next; only without either does the AI derive one from the video (Open Index Law, same day).
   if (row.channel === "or-geula" && isMeaningfulTitle(row.seo_title)) {
     meta = { speaker: null, title: String(row.seo_title).trim(), topics: Array.isArray(row.topics) ? row.topics : [] };
     enrichmentSource = "source_title";
-  } else if (row.channel === "or-geula" && generic && !allowAi) {
+  } else if (row.channel === "or-geula" && !generic && captionTitle(row.text)) {
+    meta = { speaker: null, title: captionTitle(row.text), topics: [] };
+    enrichmentSource = "caption";
+  } else if (row.channel === "or-geula" && generic && !aiOk) {
     updates.enrichment_status = "seo_held";
     updates.enrichment_source = "no_source_title";
     const { error: heldError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
@@ -565,8 +603,9 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
         : await thumbnailMetadata(row);
       if (meta?.title) {
         enrichmentSource = "thumbnail_vision";
-      } else if (allowStt) {
+      } else if (sttOk) {
         try {
+          if (!allowStt) autoSttBudget--;
           transcript = await transcribe(row, opTrace, null);
           basis = transcript;
           enrichmentSource = "stt";
@@ -584,6 +623,9 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
             mark_error: markError?.message || null,
           };
         }
+      } else if (autoTitle) {
+        // Out of this run's transcript budget: left as it is (no write), the next run takes it up.
+        return { id: row.id, ok: false, retryable: true, stage: "stt_budget", error: "automatic_transcript_budget_used" };
       } else {
         updates.enrichment_status = "retry_stt";
         updates.enrichment_source = "thumbnail_unresolved";
@@ -600,7 +642,7 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
     }
   }
 
-  if (!meta && row.channel === "or-geula" && !allowAi) {
+  if (!meta && row.channel === "or-geula" && !aiOk) {
     const sourceTitle = captionTitle(row.text);
     if (!sourceTitle) {
       updates.enrichment_status = "seo_held";
@@ -613,6 +655,13 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
   }
   if (!meta) meta = await aiMetadata(basis, opTrace, null);
   const title = meta.title || fallbackTitle(basis);
+  // A URL, a placeholder or an emoji is never written as an "אור הגאולה" title (found live: "https://youtu" from neighbor context).
+  if (row.channel === "or-geula" && !isMeaningfulTitle(title)) {
+    updates.enrichment_status = "seo_held";
+    updates.enrichment_source = "ai_unresolved";
+    const { error: heldError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
+    return { id: row.id, ok: false, skipped: "seo_held_ai_unresolved", mark_error: heldError?.message || null };
+  }
   // Mapping is best-effort and never blocks ordinary video enrichment. It is saved once,
   // private/candidate, through the existing Research Intake home.
   const semanticMap = await mapGroundedVideoText(row, basis, title, enrichmentSource, opTrace, itemSpanId)
@@ -660,12 +709,14 @@ Deno.serve(async (req) => {
   try { body = await req.json(); } catch { /* empty body = backfill */ }
   const opTrace = await beginVideoTrace(body);
 
+  autoSttBudget = AUTO_STT_PER_RUN;
   const rowId = cleanText(body?.row_id);
   const allowStt = body?.allow_stt === true;
   const allowAi = body?.allow_ai === true;
   const limit = Math.max(1, Math.min(10, Number(body?.limit || 4)));
 
   let rows: any[] = [];
+  const youtubeResults: any[] = [];
   if (rowId) {
     const { data, error } = await sb.from("channel_updates")
       .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
@@ -682,7 +733,9 @@ Deno.serve(async (req) => {
       .in("channel", PUBLIC_VIDEO_CHANNELS)
       .eq("status", "live")
       .ilike("image_url", "%.mp4%")
-      .eq("enrichment_status", "pending")
+      // Open Index Law: an "אור הגאולה" video waiting for a title (held at intake, or a thumbnail that gave none) is taken up again —
+      // once. A transcript that failed (retry_stt/stt) or an AI that found no title (seo_held/ai_unresolved) is not retried here.
+      .or(`enrichment_status.eq.pending,and(channel.eq.or-geula,enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title),and(channel.eq.or-geula,enrichment_status.eq.retry_stt,enrichment_source.eq.thumbnail_unresolved)`)
       .order("created_at", { ascending: false })
       .limit(limit);
     if (error) {
@@ -690,9 +743,39 @@ Deno.serve(async (req) => {
       return json({ error: "batch_lookup_failed", detail: error.message }, 500);
     }
     rows = data || [];
+    // "אור הגאולה" images without a title: pending (before the intake titling) or held at intake, with no seo_title yet.
+    const images = await sb.from("channel_updates")
+      .select("id,channel,text,image_url,thumb_url,speaker,link_url,seo_title,topics,enrichment_status,created_at,credit,source")
+      .eq("channel", "or-geula")
+      .eq("status", "live")
+      .not("image_url", "is", null)
+      .not("image_url", "ilike", "%.mp4%")
+      .is("seo_title", null)
+      .or("enrichment_status.eq.pending,and(enrichment_status.eq.seo_held,enrichment_source.eq.no_source_title)")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (!images.error) rows = rows.concat(images.data || []);
+    // "אור הגאולה" YouTube links from before the intake titling: the official YouTube title (oEmbed), as a new item gets it.
+    const youtube = await sb.from("channel_updates")
+      .select("id,channel,text,image_url,thumb_url,link_url,seo_title,enrichment_status")
+      .eq("channel", "or-geula")
+      .eq("status", "live")
+      .is("image_url", null)
+      .is("seo_title", null)
+      .eq("enrichment_status", "pending")
+      .or("text.ilike.*youtu.be/*,text.ilike.*youtube.com/*")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    for (const row of youtube.error ? [] : youtube.data || []) {
+      if (orGeulaItemKind(row) !== "youtube") continue;
+      const seo = await orGeulaIntakeUpdate(row);
+      if (!seo?.update) continue;
+      const { error: ytError } = await sb.from("channel_updates").update(seo.update).eq("id", row.id);
+      youtubeResults.push({ id: row.id, ok: !ytError && !seo.decision.held, kind: "youtube", enrichment_source: seo.update.enrichment_source || null, error: ytError?.message || null });
+    }
   }
 
-  const results = [];
+  const results: any[] = [...youtubeResults];
   for (const row of rows) {
     const itemSpanId = crypto.randomUUID();
     const itemStartedAt = new Date().toISOString();
