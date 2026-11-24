@@ -779,7 +779,7 @@ Deno.serve(async (req) => {
   for (const row of rows) {
     const itemSpanId = crypto.randomUUID();
     const itemStartedAt = new Date().toISOString();
-    const result = await enrichRow(row, allowStt, opTrace, itemSpanId, allowAi);
+    const result: any = await enrichRow(row, allowStt, opTrace, itemSpanId, allowAi);
     const itemEndedAt = new Date().toISOString();
     await recordVideoSpan(opTrace, {
       spanId: itemSpanId,
