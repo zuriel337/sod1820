@@ -18,20 +18,16 @@ export function publicPageviewFields(path, { doc = globalThis.document, loc = gl
   // Post mounts a noindex loading title before the admitted source is ready.
   // A matching route alone is not a resolved public page identity.
   const ready = title?.dataset?.analyticsRoute === requested && title.dataset.analyticsPublic === "true";
-  // A numeric route has its public report identity even while its title is loading.
+  // A number page (a number, word or expression) has its own public report identity even while its title is loading.
+  // ZURIEL 24.11.2026: every number page is public and is reported on its own, as before 2029.
   let pagePath = safe === "/number/:value" ? readingMeasurementPath(requested) || safe : safe;
-  const number = /^\/number\/(\d{1,12})$/.exec(pagePath);
+  const number = /^\/number\/([^/]+)$/.exec(pagePath);
   let pageTitle = number ? `${number[1]} · דף המספר · SOD1820` : "SOD1820";
-  if (ready && (safe !== "/number/:value" || number)) {
+  if (ready) {
     const canonical = title.dataset.analyticsPath;
     if (typeof canonical === "string" && readingTelemetryPath(canonical)) {
-      // Expressions can contain personal text even on an otherwise public
-      // number surface. Only a literal numeric value identifies this GA page.
-      const canonicalNumber = /^\/(?:2029\/)?number\/([^/?#]+)\/?$/.exec(canonical);
-      if (!canonicalNumber || /^\d{1,12}$/.test(canonicalNumber[1])) {
-        pagePath = new URL(canonical, loc.origin).pathname;
-        pageTitle = String(title.textContent || doc.title || "SOD1820").slice(0, 300);
-      }
+      if (!number) pagePath = new URL(canonical, loc.origin).pathname;
+      pageTitle = String(title.textContent || doc.title || "SOD1820").slice(0, 300);
     }
   }
   let referrer = "";

@@ -60,13 +60,17 @@ test('default context observes cancellation and uses the safe fallback for unres
   const initial=cancelled.defaults();
   const callbacks=[...cancelled.timers.values()];stop();cancelled.ready();callbacks.forEach(fn=>fn());
   assert.deepEqual(cancelled.defaults(),initial);
-  for(const path of ['/post/current','/number/private-name']) {
+  for(const path of ['/post/current']) {
     const f=fixture(path);f.api.trackPageview(path,{publicReading:true});
     [...f.timers.values()].forEach(fn=>fn());
     assert.equal(f.effective().page_title,'SOD1820');
     assert.equal(f.effective().page_location,f.views()[0].page_location);
-    assert.ok(!JSON.stringify(f.defaults()).includes('private-name'));
   }
+  // ZURIEL 24.11.2026: a word number page is public and keeps its own identity even before its title resolves.
+  const word=fixture('/number/private-name');word.api.trackPageview('/number/private-name',{publicReading:true});
+  [...word.timers.values()].forEach(fn=>fn());
+  assert.equal(word.views()[0].page_path,'/number/private-name');
+  assert.equal(word.views()[0].page_title,'private-name · דף המספר · SOD1820');
 });
 test('automatic events while the next route loads cannot inherit the previous article identity',()=>{
   const f=fixture();f.ready();f.api.trackPageview('/post/current',{publicReading:true});
@@ -105,12 +109,12 @@ test('the current route loading title does not finish the page view before publi
   f.api.trackPageview('/post/current',{publicReading:true});assert.equal(f.views().length,0);
   f.ready();assert.equal(f.views()[0].page_title,'Current public article · SOD1820');
 });
-test('public numeric identities can be distinguished while free expressions and draft titles remain grouped',()=>{
-  for(const [path,publicTitle,expected] of [['/number/73',true,'/number/73'],['/number/private-name',true,'/number/:value'],['/post/draft',false,'/post/:item']]){
+test('every number page keeps its own identity (ZURIEL 24.11.2026) while draft titles remain grouped',()=>{
+  for(const [path,publicTitle,expected] of [['/number/73',true,'/number/73'],['/number/private-name',true,'/number/private-name'],['/post/draft',false,'/post/:item']]){
     const f=fixture(path);f.ready(path,'PRIVATE TITLE',publicTitle);f.api.trackPageview(path,{publicReading:true});
     if(!publicTitle)[...f.timers.values()].forEach(fn=>fn());
     assert.equal(f.views()[0].page_path,expected);
-    if(expected.endsWith(':value')||!publicTitle)assert.ok(!JSON.stringify(f.views()).includes('PRIVATE TITLE'));
+    if(!publicTitle)assert.ok(!JSON.stringify(f.views()).includes('PRIVATE TITLE'));
   }
 });
 test('account routes never initialize or send GA, and an external canonical cannot supply page identity',()=>{
@@ -142,10 +146,10 @@ test('two admitted numeric pages keep their exact path and title on fast navigat
   ]);
 });
 
-test('a numeric-looking canonical cannot expose a free expression or its title', () => {
+test('a word number page is counted under its own address even when its canonical names a number', () => {
   const f = fixture('/number/private-name');
   f.ready('/number/533', 'private-name', true);
   f.api.trackPageview('/number/private-name', { publicReading: true });
-  assert.equal(f.views()[0].page_path, '/number/:value');
-  assert.equal(f.views()[0].page_title, 'SOD1820');
+  assert.equal(f.views()[0].page_path, '/number/private-name');
+  assert.equal(f.views()[0].page_title, 'private-name');
 });
