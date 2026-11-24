@@ -10,8 +10,6 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 W=$(mktemp -d); D=$(mktemp -d); chmod a+rwx "$D"
 cp "$ROOT/tests/sql/traffic-v12-story-20261124/"*.sql "$W/"
-cp "$ROOT/tests/sql/fixtures/g1_rule_guard_live_base_20261112/fn_and_trigger.sql" "$W/base.sql"
-cp "$ROOT/supabase/proposed/20261112200000_g1_rule_guard_cl16.sql" "$W/cl16.sql"
 cp "$ROOT/supabase/migrations/20261124190000_traffic_intelligence_v12_story_2029.sql" "$W/migration.sql"
 cp "$ROOT/supabase/proposed/ROLLBACK_20261124190000_traffic_intelligence_v12_story_2029.sql" "$W/rollback.sql"
 chmod -R a+rX "$W"

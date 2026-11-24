@@ -1,7 +1,6 @@
 \set ON_ERROR_STOP on
 \i live_rule_v11_20261124.sql
-\i base.sql
-\i cl16.sql
+\i live_rule_guard_20261124.sql
 \i stubs.sql
 \i live_ingest_event_20261124.sql
 \i battery.sql
