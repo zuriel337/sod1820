@@ -27,7 +27,7 @@ export default function PublicServices2029Page({ kind }) {
     if (["privacy", "unsubscribe", "not-found"].includes(kind)) return;
     applySeo({ title: LABELS[kind], path: kind === "number-search" ? "/number" : `/${kind}`, noindex: kind === "updates" });
   }, [kind]);
-  return <Sod2029Shell surface="community" symbol={<NavigationIcon2029 name={icons[kind] || "help"} />} title={LABELS[kind]} introVariant="none">
+  return <Sod2029Shell surface="community" symbol={<NavigationIcon2029 name={icons[kind] || "help"} />} title={LABELS[kind]} introVariant="none" pageOwnsEmblem={kind === "unsubscribe"}>
     {PUBLIC_LAUNCH_READ_ONLY_PREVIEW && !PUBLIC_READING_PRODUCTION_ARTIFACT && (kind === "updates" || kind === "unsubscribe") ? <section className="sod29-section"><h1>{LABELS[kind]}</h1><p>פעולות הדיוור אינן פעילות בגרסה זו. קישורי ההסרה הקיימים באתר הוותיק נשארים ללא שינוי.</p><Link to="/privacy">פרטיות ויצירת קשר</Link></section> : <>
     {kind === "launch-closed" ? <section className="sod29-section"><h1>האזור ייפתח בהמשך</h1><p>גרסת הקריאה הציבורית כוללת בית, עולם, פוסטים, מספרים, ביטויים, מחשבון וגלריות. פעולות חשבון, כתיבה ומודלים עדיין אינן פעילות.</p><Link to="/">חזרה לבית</Link></section> : kind === "privacy" ? <PrivacyPage /> : kind === "unsubscribe" ? <UnsubscribePage /> : kind === "number-search" ? <NumberEntry />
       : kind === "not-found" ? <NotFoundPage /> : kind === "updates" ? <>

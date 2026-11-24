@@ -32,7 +32,7 @@ export default function NumberAddress2029Page() {
   if (numericAddress) return <Number2029Page resolvedAddress={numericAddress} />;
   if (!authLoading && state.readerIdentity === readerIdentity && state.key === key && state.address) return <Number2029Page resolvedAddress={state.address} />;
   const failed = !authLoading && state.readerIdentity === readerIdentity && state.key === key && state.error;
-  return <Sod2029Shell surface="number" title="דף המספר והביטוי" introVariant="none">
+  return <Sod2029Shell surface="number" title="דף המספר והביטוי" introVariant="none" pageOwnsEmblem>
     <FrameState kind={failed ? "error" : "loading"} title={failed ? "הביטוי או השיטה לא נטענו" : "טוען את המספר והביטוי…"}>
       {failed ? "אפשר לנסות שוב. שיטה שלא נמצאה אינה מוחלפת בשיטה אחרת." : "קורא את הנתונים מהמנוע הקיים."}
     </FrameState>

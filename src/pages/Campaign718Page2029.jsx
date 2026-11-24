@@ -364,6 +364,6 @@ export default function Campaign718Page2029() {
     </Content>
   );
   return PUBLIC_READING_RELEASE
-    ? <Sod2029Shell surface="number" title="מלך המספרים · 718" introVariant="none">{landing}</Sod2029Shell>
+    ? <Sod2029Shell surface="number" title="מלך המספרים · 718" introVariant="none" pageOwnsEmblem>{landing}</Sod2029Shell>
     : landing;
 }

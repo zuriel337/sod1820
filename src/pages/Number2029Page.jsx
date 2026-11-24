@@ -1503,6 +1503,7 @@ export default function Number2029Page({ resolvedAddress = null } = {}) {
 
   return <Sod2029Shell
     surface="number"
+    pageOwnsEmblem
     symbol={<NavigationIcon2029 name="number" />}
     status="דף המספר והביטוי"
   >
