@@ -142,14 +142,21 @@ jobs:
           });
           const PATH = '/entity-hub-preview/number/1237';
           const widths = [320, 360, 390, 1440];
-          // No horizontal overflow: the document must never be wider than its viewport. 2029.html reserves a stable
-          // scrollbar gutter (html { scrollbar-gutter: stable }), so scrollWidth may be narrower than clientWidth by at
-          // most one scrollbar width. The strict upper bound (no overflow) is unchanged; the lower bound catches a
-          // layout that collapsed by more than a gutter.
-          const MAX_STABLE_GUTTER_PX = 20;
-          function expectNoHorizontalOverflow(scrollWidth, clientWidth) {
-            expect(scrollWidth, `document scrollWidth ${scrollWidth} exceeds clientWidth ${clientWidth}`).toBeLessThanOrEqual(clientWidth);
-            expect(clientWidth - scrollWidth, `layout is narrower than the viewport by more than the stable scrollbar gutter (${scrollWidth} vs ${clientWidth})`).toBeLessThanOrEqual(MAX_STABLE_GUTTER_PX);
+          // The document may reserve native scrollbar space at both edges to center the crown.
+          // Measure the native gutter in this browser independently of the page's content width.
+          async function expectNoHorizontalOverflow(page, scrollWidth, clientWidth) {
+            const reserved = await page.evaluate(() => {
+              const root = document.documentElement;
+              const probe = document.createElement('div');
+              probe.style.cssText = 'position:fixed;visibility:hidden;inset:0 auto auto 0;width:100px;height:1px;box-sizing:border-box;border:0;padding:0;overflow:auto;scrollbar-gutter:stable';
+              root.appendChild(probe);
+              const gutter = probe.offsetWidth - probe.clientWidth;
+              probe.remove();
+              const sides = getComputedStyle(root).scrollbarGutter.includes('both-edges') ? 2 : 1;
+              return gutter * sides;
+            });
+            expect(scrollWidth, 'the document overflows the viewport').toBeLessThanOrEqual(clientWidth);
+            expect(clientWidth - scrollWidth, 'unused width exceeds native scrollbar reservation').toBeLessThanOrEqual(reserved + 1);
           }
           // Launch gates are runtime configuration read from the live site_flags table. A gate that exercises a
           // launch-gated tool pins that state explicitly instead of depending on what is open or closed today
@@ -213,7 +220,7 @@ jobs:
               await expect(page.getByRole('toolbar', { name: 'מסלול המחקר והפעולות הזמינות עכשיו', exact: true })).toHaveCount(1);
               const widthMetrics = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
               expect(widthMetrics.clientWidth).toBe(width);
-              expectNoHorizontalOverflow(widthMetrics.scrollWidth, widthMetrics.clientWidth);
+              await expectNoHorizontalOverflow(page, widthMetrics.scrollWidth, widthMetrics.clientWidth);
               await page.screenshot({ path: `test-results/release-visual/home-core-opening-${width}.png`, fullPage: false });
             }
           });
@@ -292,7 +299,7 @@ jobs:
               clsSources: window.__sodCls?.sources || [],
             }));
             expect(metrics.bodyText).toBeGreaterThan(100);
-            expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
+            await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
             expect(metrics.cls, `CLS ${metrics.cls.toFixed(4)} exceeded 0.1; latest max-window sources: ${metrics.clsSources.join(', ') || 'unknown'}`).toBeLessThanOrEqual(0.1);
 
             const interactive = page.locator('a, button, [tabindex="0"]');
@@ -404,7 +411,7 @@ jobs:
               clientWidth: document.documentElement.clientWidth,
               scrollWidth: document.documentElement.scrollWidth,
             }));
-            expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
+            await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
 
             await page.screenshot({
               path: `test-results/release-visual/golden-1237-contextual-${width}.png`,
@@ -612,7 +619,7 @@ jobs:
               clientWidth: document.documentElement.clientWidth,
               scrollWidth: document.documentElement.scrollWidth,
             }));
-            expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
+            await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
 
             const panelBox = await sidecar.boundingBox();
             expect(panelBox).not.toBeNull();
@@ -700,7 +707,7 @@ jobs:
               clientWidth: document.documentElement.clientWidth,
               scrollWidth: document.documentElement.scrollWidth,
             }));
-            expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
+            await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
             await expect(page.locator('#sp29-title')).toBeVisible();
           });
 
@@ -731,7 +738,7 @@ jobs:
             expect(result.urlDirection).toBe('ltr');
             expect(result.left).toBeGreaterThanOrEqual(0);
             expect(result.right).toBeLessThanOrEqual(result.viewport + 0.5);
-            expectNoHorizontalOverflow(result.scrollWidth, result.viewport);
+            await expectNoHorizontalOverflow(page, result.scrollWidth, result.viewport);
           });
           test('explicit 2029 Post Preview preserves equality interactions', async ({ page }) => {
             test.setTimeout(90_000);
@@ -796,7 +803,7 @@ jobs:
                 clientWidth: document.documentElement.clientWidth,
                 scrollWidth: document.documentElement.scrollWidth,
               }));
-              expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
+              await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
               await page.screenshot({ path: `test-results/release-visual/native-post-equality-${width}.png`, fullPage: false });
               await sidecar.getByRole('button', { name: 'סגור', exact: true }).click();
               await expect(sidecar).toHaveCount(0);
@@ -912,7 +919,7 @@ jobs:
                 clientWidth: document.documentElement.clientWidth,
                 scrollWidth: document.documentElement.scrollWidth,
               }));
-              expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
+              await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
 
               const badTargets = await page.evaluate(() => Array.from(
                 document.querySelectorAll('.sod29-calc2029 button:not([disabled]), .sod29-calc2029 a[href]')
