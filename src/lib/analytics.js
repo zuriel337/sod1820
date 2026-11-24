@@ -22,11 +22,8 @@ export function publicPageviewFields(path, { doc = globalThis.document, loc = gl
   // GA4 identity once the page is admitted to the public catalog (robots "index"); free input stays in the family.
   // The site's own measurement keeps every number page on its own (readingMeasurementPath, ZURIEL 24.11.2026).
   let pagePath = safe === "/number/:value" ? readingMeasurementPath(requested) || safe : safe;
-  let number = /^\/number\/(\d{1,12})$/.exec(pagePath);
-  if (safe === "/number/:value" && !number) {
-    if (ready && /^index/.test(doc.head.querySelector('meta[name="robots"]')?.content)) number = /^\/number\/(.+)$/.exec(pagePath);
-    else pagePath = safe;
-  }
+  if (!/^\/number\/\d{1,12}$/.test(pagePath) && !(ready && doc.head.querySelector("[name=robots][content^=index]"))) pagePath = safe;
+  const number = /^\/number\/([^:].*)$/.exec(pagePath);
   let pageTitle = number ? `${number[1]} · דף המספר · SOD1820` : "SOD1820";
   if (ready && (safe !== "/number/:value" || number)) {
     const canonical = title.dataset.analyticsPath;

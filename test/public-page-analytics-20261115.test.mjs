@@ -10,7 +10,7 @@ function fixture(path='/post/current?utm_source=newsletter&utm_medium=email&utm_
   const title={textContent:'Previous page',dataset:{analyticsRoute:'/post/previous',analyticsPath:'/post/previous',analyticsPublic:'true'}};
   const scripts=[],timers=new Map();let nextTimer=0,notify=()=>{},disconnected=false;
   const robots={content:'noindex, follow'};
-  const doc={title:'Previous page',referrer:'https://example.org/search?q=PRIVATE',head:{querySelector:s=>s.startsWith('meta')?robots:title,appendChild:e=>scripts.push(e)},createElement:()=>({})};
+  const doc={title:'Previous page',referrer:'https://example.org/search?q=PRIVATE',head:{querySelector:s=>s.includes('robots')?(s.includes('content^=index')&&!robots.content.startsWith('index')?null:robots):title,appendChild:e=>scripts.push(e)},createElement:()=>({})};
   const context={module:{exports:{}},exports:{},URL,window:{location,dataLayer:[]},document:doc,
     setTimeout:fn=>{timers.set(++nextTimer,fn);return nextTimer;},clearTimeout:id=>timers.delete(id),
     MutationObserver:class {constructor(fn){notify=fn;}observe(){}disconnect(){disconnected=true;}}};

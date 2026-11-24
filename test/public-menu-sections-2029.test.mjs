@@ -23,7 +23,7 @@ test("the expanded menu and reader map share unique public sections", () => {
 
 test("community distinguishes the live chat from author pages, and tools from their libraries", () => {
   assert.deepEqual(groups.find(group => group.title === "קהילה").links, [
-    ["/community/chat", "צ׳אט הקהילה"], ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות לפוסטים"],
+    ["/community/chat", "צ'אט הקהילה"], ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות לפוסטים"],
   ]);
   for (const [href, label] of [
     ["/gematria", "מחשבון גימטריה מקצועי"], ["/community/calculator", "מחשבון הקהילה לשמות"],
