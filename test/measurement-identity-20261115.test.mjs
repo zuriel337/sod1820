@@ -74,7 +74,7 @@ test('blocked storage records missing IDs without inventing a persistent browser
 test('public page labels retain public posts/numbers, redact queries and reject private routes',()=>{
  assert.equal(readingMeasurementPath('/post/שלום?utm_source=x#title'),'/post/שלום');
  assert.equal(readingMeasurementPath('/number/73'),'/number/73');
- assert.equal(readingMeasurementPath('/number/private-expression'),'/number/:value');
+ assert.equal(readingMeasurementPath('/number/private-expression'),'/number/private-expression');
  for(const path of ['/admin','/me','/community/whatsapp','/auth/callback'])assert.equal(readingMeasurementPath(path),null);
 });
 

@@ -162,6 +162,7 @@ export default function BeitMidrash2029Page() {
   return <Sod2029Shell
     surface="beit-midrash"
     introVariant="none"
+    pageOwnsEmblem
     symbol={<NavigationIcon2029 name="books" />}
     eyebrow={manifest.identity.eyebrow}
     title={manifest.identity.title}

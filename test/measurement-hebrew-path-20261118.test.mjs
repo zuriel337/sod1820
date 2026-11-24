@@ -17,7 +17,7 @@ function databaseVerdict(pPath, pagePath) {
   let expected = pagePath;
   const article = /^\/(post|tag|category|book|video)\/([\p{L}\p{N}_-]+)$/u.exec(expected);
   if (article && [...article[2]].length <= 256) expected = `/${article[1]}/:item`;
-  else if (/^\/number\/[0-9]{1,12}$/.test(expected)) expected = "/number/:value";
+  else if (/^\/number\/[^/?#\u0000-\u001f\u007f]{1,128}$/u.test(expected)) expected = "/number/:value";
   else if (expected !== pPath) return "invalid measurement page";
   return expected === pPath ? "ok" : "private measurement page";
 }
@@ -57,7 +57,7 @@ test("Hebrew inside /post, /tag, /category and /number keeps the existing famili
   assert.equal(label("/post/שלום"), "/post/:item"); assert.equal(identity("/post/שלום"), "/post/שלום");
   assert.equal(label("/tag/סוד-החשמל"), "/tag/:item"); assert.equal(identity("/tag/סוד-החשמל"), "/tag/סוד-החשמל");
   assert.equal(label("/category/גלריות-גימטריה"), "/category/:item"); assert.equal(identity("/category/גלריות-גימטריה"), "/category/גלריות-גימטריה");
-  assert.equal(label("/number/משה"), "/number/:value"); assert.equal(identity("/number/משה"), "/number/:value");
+  assert.equal(label("/number/משה"), "/number/:value"); assert.equal(identity("/number/משה"), "/number/משה");
   assert.equal(label("/community/researcher/ישראל"), "/community/:item");
 });
 

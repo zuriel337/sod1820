@@ -235,7 +235,7 @@ function PostsMediaLibrary2029({ media }) {
     document.getElementById("posts-catalog")?.scrollIntoView({ block: "start", behavior: "instant" });
   };
   const hasItems = view === "videos" ? state.items.length > 0 : state.posts.length > 0;
-  return <Sod2029Shell surface="post" title={view === "videos" ? "כל הסרטונים" : "פוסטים עם וידאו"} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
+  return <Sod2029Shell surface="post" title={view === "videos" ? "כל הסרטונים" : "פוסטים עם וידאו"} introVariant="none" pageOwnsEmblem symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
     <main className="sod29-posts-library" data-experience-surface="posts-index" data-posts-media={view}>
       <header className="sod29-posts-library-hero">
         <Link className="sod29-posts-library-back" to="/2029/posts">לכל הפוסטים <span aria-hidden="true">←</span></Link>
@@ -315,7 +315,7 @@ function PostsMediaCombinationNotice2029({ media, searchParams, taxonomyScope = 
   useEffect(() => {
     applySeo({ title: `${viewLabel}`, description: "סוג המדיה עדיין אינו משתלב עם בחירה נוספת ברשימת הפוסטים.", path: location.pathname, noindex: true });
   }, [viewLabel, location.pathname]);
-  return <Sod2029Shell surface="post" title={viewLabel} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
+  return <Sod2029Shell surface="post" title={viewLabel} introVariant="none" pageOwnsEmblem symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
     <main className="sod29-posts-library" data-experience-surface="posts-index" data-posts-media={view} data-posts-media-state="unsupported-combination">
       <FrameState kind="empty" title="סוג המדיה עדיין אינו משתלב עם הבחירה הזו">
         <p className="sod29-posts-media-scope">הכתובת מבקשת גם ״{viewLabel}״ וגם {selectionLabels.join(" ו")}. השילוב עדיין אינו נתמך, ולכן לא מוצגת רשימה שאינה מכבדת את שתי הבחירות.</p>
@@ -508,7 +508,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
     updateSearchParams(next);
   };
 
-  return <Sod2029Shell surface="post" title={title} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
+  return <Sod2029Shell surface="post" title={title} introVariant="none" pageOwnsEmblem={Boolean(taxonomyScope || verifiedOnly)} symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
     <main ref={catalogRootRef} className={`sod29-posts-library${isTaxonomy ? " is-taxonomy" : ""}`} data-experience-surface="posts-index"
       data-posts-taxonomy={isTaxonomy ? scope.kind : undefined} data-taxonomy-state={isTaxonomy ? loading ? "loading" : error ? "unavailable" : state.taxonomy?.state : undefined}
       onClickCapture={event => capturePostsCatalogDeparture2029(event, { entryKey: location.key, href: currentHref })}>
