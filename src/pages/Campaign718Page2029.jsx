@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
+// Only the public build wraps this landing in the frame; loading it on demand keeps the default entry graph unchanged.
+const Sod2029Shell = React.lazy(() => import("../components/experience2029/Sod2029Shell.jsx"));
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { Link, useSearchParams } from "react-router-dom";
 import { BRAND_LOCKUP_2029 } from "../lib/brandAssets2029.js";

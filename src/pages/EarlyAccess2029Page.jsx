@@ -5,7 +5,8 @@ import { signupAttribution, visitorId } from "../lib/acquisition.js";
 import { SUPABASE_ANON, SUPABASE_URL } from "../lib/supabase.js";
 import { captureAcquisition, captureArrivalSource, track } from "../lib/tracking.js";
 import "./early-access-2029.css";
-import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
+// Only the public build wraps this landing in the frame; loading it on demand keeps the default entry graph unchanged.
+const Sod2029Shell = React.lazy(() => import("../components/experience2029/Sod2029Shell.jsx"));
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 
 const CAMPAIGN = "early-access-2029";
