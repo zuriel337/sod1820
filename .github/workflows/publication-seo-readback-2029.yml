@@ -1,0 +1,30 @@
+name: 2029 Public Publication SEO Readback
+
+# Read-only diagnostic; same dynamic sitemap and public HTTP document as crawlers.
+# Never sends indexing requests, never writes Supabase, never changes robots/canonical.
+# Scheduled checks are delayed (not a synchronous publication transaction).
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sod1820-publication-seo-readback
+  cancel-in-progress: false
+
+jobs:
+  readback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Verify public sitemap and recent Post/Book/Code HTTP evidence
+        run: node scripts/run-publication-seo-audit-2029.mjs
