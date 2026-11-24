@@ -1,4 +1,4 @@
-import { loadPublicForumIndexPage2029 } from "../src/lib/publicContinuityReaders2029.js";
+import { loadPublicForumIndexPage2029, loadPublicOrGeulaCollection2029 } from "../src/lib/publicContinuityReaders2029.js";
 import { automaticContributorSlug2029 } from "../src/lib/research/contributorProfileAddress2029.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingContinuation, PUBLIC_HISTORICAL_LECTURE_PATHS } from "../src/lib/publicReadingRelease2029.js";
 import { projectPublicBook2029, fetchPublicLibraryItem2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
@@ -409,6 +409,27 @@ export default async function handler(req, res) {
       urls.push({ loc: '/topic/' + encodeURIComponent(t.slug), lastmod, changefreq: 'weekly', priority: '0.7' });
     }
   } catch (e) { if (productionReading) foundationSourceFailed = true; }
+
+  // ── אור הגאולה → /or-geula/video/:id (Open Index Law, ZURIEL 24.11.2026): every titled public item that is not a self-hosted
+  // video (those are listed above through the unified video projection). The same public reader and source-title decision as the
+  // page itself; an item still waiting for its title is listed as soon as the automation gives it one.
+  try {
+    if (productionReading) {
+      const readRows = async (table, params) => {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers: HEADERS });
+        if (!response.ok) throw new Error("or-geula-sitemap-source-unavailable");
+        return response.json();
+      };
+      for (let page = 1, more = true; more && page <= 100; page++) {
+        const index = await loadPublicOrGeulaCollection2029({ page, readRows });
+        for (const item of index.items) {
+          if (item.seoHeld || item.mediaKind === 'video') continue;
+          urls.push({ loc: item.href, lastmod: String(item.at || '').slice(0, 10) || undefined, changefreq: 'monthly', priority: '0.5' });
+        }
+        more = index.hasMore;
+      }
+    }
+  } catch { if (productionReading) foundationSourceFailed = true; }
 
   try {
     if (productionReading) {

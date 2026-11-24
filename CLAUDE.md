@@ -48,7 +48,7 @@
 
 ### 0.5 דוח מסירה חובה בסוף כל משימה
 
-הדוח נמסר לצוריאל בשיחה (ואינו מחליף את שדות ה־handoff ב־§10): מה בוצע ומה לא בוצע · מאגר, ענף ו־SHA (בסיס וראש) · קבצים שהשתנו · קומיטים · בדיקות ותוצאות CI (לפי SHA; הרצה מקומית נפרדת מ־CI) · מצב ה־PR · האם Production שונה (כן/לא, ואם כן — מה) · חסמים, סיכונים והחלטות ממתינות · צעד הבא מומלץ.
+הדוח נמסר לצוריאל בשיחה (ואינו מחליף את שדות ה־handoff ב־§10): החוזה שחל (מזהה · גרסה · סעיף, §1) · מה בוצע ומה לא בוצע · מאגר, ענף ו־SHA (בסיס וראש) · קבצים שהשתנו · קומיטים · בדיקות ותוצאות CI (לפי SHA; הרצה מקומית נפרדת מ־CI) · מצב ה־PR · האם Production שונה (כן/לא, ואם כן — מה) · חסמים, סיכונים והחלטות ממתינות · צעד הבא מומלץ.
 
 אין לכתוב ״הושלם״, ״עבר״, ״מוזג״, ״נפרס״ או ״אומת״ בלי ראיה. מציינים במפורש מה לא בוצע ומה לא נבדק, ומשתמשים בסולם המצבים של §12 (DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED).
 
@@ -108,6 +108,26 @@
 5. שמירה על CLS: מקום קבוע לפני הטעינה נשמר, והפריט שנטען אחרון בשורה (בלי אחים אחריו שיזוזו).
 6. רכיב חדש או שינוי פריסה שמפר את החוק לא נחשב גמור; בודקים צילום מסך ב־1440px לפני מסירה.
 
+## חוק אינדוקס פתוח (Open Index Law — ZURIEL, 24.11.2026)
+
+**כל תוכן ציבורי באתר פתוח לאינדוקס. הדבר הפרטי היחיד הוא מסע החיים.**
+
+1. **התוכן הציבורי פתוח לאינדוקס.** פוסט, דף מספר עם חומר, ביטוי, נושא, כותב, ממצא, צופן, גלריה, סרטון, אור הגאולה וערוצים ציבוריים מקבלים `index`, נכנסים ל־sitemap ומקבלים כותרת ותיאור משלהם.
+2. **כותרת חסרה משלימים, לא סוגרים.** פריט ציבורי בלי כותרת אינו נשאר מחוץ לגוגל. האוטומציה משלימה לו כותרת לפי הסדר:
+   1. כותרת המקור (כותרת קיימת, כותרת YouTube הרשמית, הכיתוב, ‏og:title של קישור).
+   2. בלי מקור: כותרת שה־AI גוזר ממה שהמדיה מראה (תמונה או תמונה ממוזערת). תמלול מאודיו כפוף ל־`video_transcription_law` (§2: המקור מטקסט או מכתוביות, לא מאודיו) ואינו רץ אוטומטית בלי החלטת צוריאל על החוזה.
+
+   `noindex` הוא מצב ביניים עד ההשלמה. פריט שנשאר בו יותר מיום הוא באג.
+   כותרת ותיאור שה־AI גוזר הם מטא־דאטה להצגה בלבד. הם אינם ממצא, טענה או החלטה (§11).
+3. **מה שנשאר סגור, ולמה:**
+   - מסע החיים;
+   - מה שאינו תוכן: כניסה, אזור אישי (`/2029/me/*`), מסוף ניהול (`/2029/control`), כתובות Preview ובדיקה, ותגובות API;
+   - כתובת כפולה שה־canonical שלה פתוח (למשל `/video/<id>` של סרטון שמקורו בפוסט).
+
+   כל סגירה אחרת היא סתירה לחוק, ומדווחים עליה לצוריאל.
+4. **דפי מספר נפתחים רק כשיש בהם חומר** (החלטת צוריאל, 24.11.2026). דף מספר נפתח מעצמו כשנכנס אליו חומר. דף ריק אינו "תוכן ציבורי" לעניין סעיף 1.
+5. **השרשרת נבדקת מקצה לקצה:** קליטה, כותרת, דף, תצוגת שיתוף, sitemap ו־robots. שינוי שסוגר תוכן ציבורי, או משאיר פריט חדש בלי כותרת, אינו נחשב גמור.
+
 ## נוהל פריסה ל־Production מסשן ענן — בלי CLI, בלי טוקן (אומת 6.11.2026, `be9b173` / `dpl_HcoHSTtpq6uv6CYkAkrTda8R2H13`)
 
 מיזוג ל־`main` אינו יוצר פריסה. ב־Vercel (פרויקט `sod1820`) מוגדר Ignored Build Step ישן (`main → exit 0`) שמבטל כל בנייה של `main`: גם redeploy, גם `gitSource` רגיל וגם `forceNew` מתבטלים בתוך שניות (`errorLink: ignored-build-step`). מי שמכריז "פרוס" לפני שבדק `readyState` כמה שניות אחרי היצירה טועה. הנוהל המאושר, באישור מפורש של ZURIEL לקומיט ולפריסה מדויקים:
@@ -143,7 +163,7 @@ The 4.11.2026 approved 2029 cutover replaced this lock, and Legacy itself is ret
 For every substantial task:
 
 1. Parse the natural-language request into intent / capability / domain. Use an existing Task Profile only when it helps routing.
-2. Resolve the **current canonical owner** from `SOD1820_MASTER_OWNER_INDEX.md` and the live owner/rule infrastructure.
+2. Resolve the **current canonical owner** from `SOD1820_MASTER_OWNER_INDEX.md` and the live owner/rule infrastructure: read the governing law live from `nodes` where `type='rule' AND is_active=true` (latest active `rule_version` per `rule_id`, the relevant section in full; `rules_active` alone is not proof a law is active, Owner Index “Active-rule selection”), publication contracts (`publishing_conventions` and its children) and measurement (`traffic_intelligence_law`) included. Every PR and handoff cites it (id · version · section). A missing contract or a conflict is reported before any new mechanism (§7, §0.1 item 6) — ZURIEL 24.11.2026.
 3. Load only that owner plus the **smallest direct dependency set** required by the task.
 4. Read recent **relevant** `work_log` / assignments for the active scope.
 5. Verify against the live source appropriate to the claim: canonical Supabase, `origin/main`, and Production only when UI/live behavior matters.
