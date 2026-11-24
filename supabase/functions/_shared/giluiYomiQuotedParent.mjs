@@ -1,12 +1,13 @@
-// Evidence-only quote pointer for the existing gilui-yomi group proof.
+// Evidence-only quote pointer for the existing group proof (#1514): gilui-yomi and, by ZURIEL 24.11.2026, torat-haremez.
 // Green API's quotedMessage / extendedTextMessageData stanzaId is a WhatsApp
 // message ID. Do not infer a reply from author, text, timestamp, or proximity.
 // This does NOT authorize publication; downstream readers must join source_id,
 // group_chat_id, proof, author eligibility and a published parent.
 const MESSAGE_ID = /^[A-Za-z0-9_-]{16,128}$/;
+export const GROUP_QUOTE_CHANNELS = Object.freeze(new Set(["gilui-yomi", "torat-haremez"]));
 
 export function giluiYomiQuotedParent(message, channel) {
-  if (channel !== "gilui-yomi" || !message || typeof message !== "object") return null;
+  if (!GROUP_QUOTE_CHANNELS.has(channel) || !message || typeof message !== "object") return null;
   const nested = message.quotedMessage;
   const extended = message.extendedTextMessageData || message.extendedTextMessage;
   const ids = [nested?.stanzaId, extended?.stanzaId]
@@ -19,7 +20,7 @@ export function giluiYomiQuotedParent(message, channel) {
 }
 
 export function giluiYomiQuotedText(message, channel) {
-  if (channel !== "gilui-yomi" || message?.typeMessage !== "quotedMessage") return "";
+  if (!GROUP_QUOTE_CHANNELS.has(channel) || message?.typeMessage !== "quotedMessage") return "";
   const value = message?.extendedTextMessageData?.text ?? message?.extendedTextMessage?.text;
   return typeof value === "string" ? value : "";
 }

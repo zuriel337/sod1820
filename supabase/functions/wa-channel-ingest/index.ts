@@ -421,7 +421,7 @@ async function ingestSource(
               .update({ quoted_parent_ext_msg_id: quotedParent })
               .eq("update_id", ins.data.id)
               .eq("source_id", src.id)
-              .eq("channel", "gilui-yomi")
+              .eq("channel", src.channel)
               .eq("ext_msg_id", msgId);
             // A failed proof enrichment does not reclassify a source as public.
             if (quoteError) trace.push({ msgId, step: "group-quote-proof-unavailable", channel: src.channel, reason: String(quoteError.code || "db_error") });

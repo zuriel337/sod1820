@@ -50,3 +50,28 @@ test("verified Zion email is a candidate only with exact user/source binding",()
  assert.equal(evalPlan({source:{...email,senderMatchesContributor:false}}).state,"held");
  assert.equal(evalPlan({source:{...email,verified_webhook:false}}).state,"held");
 });
+
+// torat-haremez (ZURIEL 24.11.2026): the same rules, and only Shimon Haimov and the site owner, proven by phone.
+const SHIMON="c0459430-6ba0-44a9-b1be-b5952344e74d", OWNER="fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf", TZVI="c66f0464-0928-490e-be9b-66d8a87e7fc8";
+const tSrc={...src,channel:"torat-haremez"};
+const tProof=(id)=>({...proof,channel:"torat-haremez",identity_contributor_id:id});
+const tWriter=(id)=>({...writer,id});
+test("torat-haremez: Shimon and the site owner become candidates; any other verified member stays held",()=>{
+  for (const id of [SHIMON,OWNER])
+    assert.deepEqual(plan({source:tSrc,proof:tProof(id),writer:tWriter(id)}),{state:"candidate_root",reason:"source_reviewed",sourceRef:`channel_updates:${S}`,parentRef:null});
+  for (const id of [TZVI,U]) assert.equal(plan({source:tSrc,proof:tProof(id),writer:tWriter(id)}).reason,"writer_not_in_group_allowlist");
+});
+test("torat-haremez: a reply joins only a proven, published parent from the same group",()=>{
+  const source={...tSrc,quoted_parent_ext_msg_id:QUOTED};
+  const parent={group_chat_id:proof.group_chat_id,community_id:ROOT,publiclyAdmitted:true,cycleSafe:true};
+  assert.equal(plan({source,proof:tProof(SHIMON),writer:tWriter(SHIMON)}).reason,"parent_not_proven");
+  assert.deepEqual(plan({source,proof:tProof(SHIMON),writer:tWriter(SHIMON),parent}),{state:"candidate_reply",reason:"parent_proven",sourceRef:`channel_updates:${S}`,parentRef:ROOT});
+  assert.equal(plan({source,proof:tProof(SHIMON),writer:tWriter(SHIMON),parent:{...parent,group_chat_id:"other@g.us"}}).state,"held");
+});
+test("torat-haremez: no unverified identity, no name-only credit, no proof from another group, no email path",()=>{
+  assert.equal(plan({source:tSrc,proof:{...tProof(SHIMON),identity_basis:"unverified",identity_contributor_id:null},writer:tWriter(SHIMON)}).state,"held");
+  assert.equal(plan({source:tSrc,proof:{...tProof(SHIMON),channel:"gilui-yomi"},writer:tWriter(SHIMON)}).reason,"unverified_group_proof");
+  assert.equal(plan({source:tSrc,proof:tProof(SHIMON),writer:tWriter(OWNER)}).reason,"writer_identity_mismatch");
+  const email={source:"resend",channel:"torat-haremez",id:S,inbound_email_id:113,verified_webhook:true,senderMatchesContributor:true,contributor_id:SHIMON,body:"x",safePublicBody:true};
+  assert.equal(plan({source:email,writer:tWriter(SHIMON)}).reason,"unknown_source_type");
+});

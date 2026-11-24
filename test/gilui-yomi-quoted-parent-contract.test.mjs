@@ -11,8 +11,13 @@ test("Green API quotedMessage parent is preserved exactly, never inferred", () =
   const msg={ idMessage: A, typeMessage:"quotedMessage", extendedTextMessageData:{text:"תגובה",stanzaId:B}, quotedMessage:{stanzaId:B,participant:"972555123456@c.us"} };
   assert.equal(giluiYomiQuotedParent(msg,"gilui-yomi"),B);
   assert.equal(giluiYomiQuotedText(msg,"gilui-yomi"),"תגובה");
-  assert.equal(giluiYomiQuotedParent(msg,"torat-haremez"),null);
-  assert.equal(giluiYomiQuotedText(msg,"torat-haremez"),"");
+  // torat-haremez joined the same proof by ZURIEL's decision (24.11.2026); every other group stays closed.
+  assert.equal(giluiYomiQuotedParent(msg,"torat-haremez"),B);
+  assert.equal(giluiYomiQuotedText(msg,"torat-haremez"),"תגובה");
+  for (const channel of ["blaze-888","or-geula","sod-hachashmal",""]) {
+    assert.equal(giluiYomiQuotedParent(msg,channel),null,channel);
+    assert.equal(giluiYomiQuotedText(msg,channel),"",channel);
+  }
 });
 test("quote pointer fails closed for conflicting, malicious, absent, self or wrong source", () => {
   const base={idMessage:A};
@@ -31,7 +36,7 @@ test("ingest adds only private source proof after existing validation, not Commu
   assert.match(ingest,/from\("channel_update_group_proof"\)/);
   assert.match(ingest,/\.eq\("update_id", ins.data.id\)/);
   assert.match(ingest,/\.eq\("source_id", src.id\)/);
-  assert.match(ingest,/\.eq\("channel", "gilui-yomi"\)/);
+  assert.match(ingest,/\.eq\("channel", src\.channel\)/);
   assert.match(ingest,/\.eq\("ext_msg_id", msgId\)/);
   assert.doesNotMatch(ingest,/\.from\("research_contributions"\)/);
   assert.doesNotMatch(ingest,/\.from\("posts"\)/);
