@@ -1,3 +1,4 @@
+import { giluiYomiQuotedParent, giluiYomiQuotedText } from "../_shared/giluiYomiQuotedParent.mjs";
 // 📡 wa-channel-ingest — משקף ערוצי וואטסאפ → channel_updates.
 // use_sender_name → credit=שם הכתב; capture_outgoing → כל הודעה שיוצאת מחשבון הבוט (ידנית או API).
 // outgoing_contributor → זהות המחבר הקנונית להודעה ידנית היוצאת מהחשבון המחובר.
@@ -291,7 +292,7 @@ async function ingestSource(
     const isVid = mediaKind === "video";
     const isAud = mediaKind === "audio";
     const caption = m.caption || m.fileMessageData?.caption || "";
-    const bodyText = m.textMessage || m.extendedTextMessage?.text || caption || "";
+    const bodyText = m.textMessage || m.extendedTextMessage?.text || giluiYomiQuotedText(m, src.channel) || caption || "";
 
     if (isBlockedText(bodyText, blockText)) {
       trace.push({ msgId, step: "blocked-text", channel: src.channel });
@@ -410,6 +411,22 @@ async function ingestSource(
           p_sender_jid: senderId, p_incoming: true, p_type_message: typ,
         });
         if (pr.error || pr.data?.ok !== true) trace.push({ msgId, step: "group-proof-skip", channel: src.channel, reason: String(pr.error?.message || pr.data?.error || "unknown") });
+        else {
+          // Source provenance only. The parent is never made public by this
+          // write and is never guessed when a Green API quote ID is missing.
+          // Apply the reviewed proof-column SQL before deploying this worker.
+          const quotedParent = giluiYomiQuotedParent(m, src.channel);
+          if (quotedParent) {
+            const { error: quoteError } = await sb.from("channel_update_group_proof")
+              .update({ quoted_parent_ext_msg_id: quotedParent })
+              .eq("update_id", ins.data.id)
+              .eq("source_id", src.id)
+              .eq("channel", src.channel)
+              .eq("ext_msg_id", msgId);
+            // A failed proof enrichment does not reclassify a source as public.
+            if (quoteError) trace.push({ msgId, step: "group-quote-proof-unavailable", channel: src.channel, reason: String(quoteError.code || "db_error") });
+          }
+        }
       } else if (route.groupMedia && route.kind && waIsPrivateMediaRef(imageUrl) && keep.media) {
         // Image / video: the same identity rule through the media proof; the public copy only if the server says publishable.
         await waProveAndPublishGroupMedia({ sb, trace, bucket: MEDIA_2029_BUCKET, updateId: ins.data?.id, source: src, msgId, chatId,

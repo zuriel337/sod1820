@@ -72,6 +72,8 @@ jobs:
           fi
       - name: Contracts and enforcement package pins (package scope and counts, CL-16 independence, required-checks definition)
         run: node --test test/contracts-enforcement-package-2029.test.mjs test/required-checks-definition-2029.test.mjs
+      - name: Group quoted-parent source proof and community admission planner, gilui-yomi and torat-haremez (#1514; no network, no DB writes)
+        run: node --test test/gilui-yomi-quoted-parent-contract.test.mjs test/gilui-community-admission-plan.test.mjs test/writer-material-home-v7-proposal.test.mjs
 
   perf-contracts-2029:
     name: perf-contracts-2029
