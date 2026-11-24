@@ -1,0 +1,99 @@
+{
+ "fn": "wa-video-enrich",
+ "results": [
+  {
+   "row": "11111111",
+   "input": {
+    "seo_title": "שיעור מיוחד על סוד הגאולה",
+    "text": "🎬 עדכון וידאו"
+   },
+   "status": 200,
+   "result": {
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ok": true,
+    "canonical": "https://sod1820.co.il/or-geula/video/11111111-1111-4111-8111-111111111111",
+    "generic_before": true,
+    "transcribed": false,
+    "speaker": null,
+    "seo_title": "שיעור מיוחד על סוד הגאולה",
+    "topics": [],
+    "enrichment_source": "source_title",
+    "semantic_map": {
+     "ok": false,
+     "skipped": "no_video_owned_text_for_semantic_map"
+    }
+   },
+   "written": [
+    {
+     "link_url": "https://sod1820.co.il/or-geula/video/11111111-1111-4111-8111-111111111111",
+     "seo_title": "שיעור מיוחד על סוד הגאולה",
+     "topics": [],
+     "enrichment_status": "enriched",
+     "enrichment_source": "source_title",
+     "enriched_at": "2026-11-24T15:42:05.057Z"
+    }
+   ],
+   "aiCalls": 0
+  },
+  {
+   "row": "22222222",
+   "input": {
+    "seo_title": null,
+    "text": "🎬 עדכון וידאו"
+   },
+   "status": 200,
+   "result": {
+    "id": "22222222-2222-4222-8222-222222222222",
+    "ok": false,
+    "skipped": "seo_held_no_source_title",
+    "mark_error": null
+   },
+   "written": [
+    {
+     "link_url": "https://sod1820.co.il/or-geula/video/22222222-2222-4222-8222-222222222222",
+     "enrichment_status": "seo_held",
+     "enrichment_source": "no_source_title"
+    }
+   ],
+   "aiCalls": 0
+  },
+  {
+   "row": "33333333",
+   "input": {
+    "seo_title": null,
+    "text": "רמז מדהים בפרשת השבוע"
+   },
+   "status": 200,
+   "result": {
+    "id": "33333333-3333-4333-8333-333333333333",
+    "ok": true,
+    "canonical": "https://sod1820.co.il/or-geula/video/33333333-3333-4333-8333-333333333333",
+    "generic_before": false,
+    "transcribed": false,
+    "speaker": null,
+    "seo_title": "רמז מדהים בפרשת השבוע",
+    "topics": [],
+    "enrichment_source": "caption",
+    "semantic_map": {
+     "ok": false,
+     "error": "semantic_map_provider_500"
+    }
+   },
+   "written": [
+    {
+     "link_url": "https://sod1820.co.il/or-geula/video/33333333-3333-4333-8333-333333333333",
+     "seo_title": "רמז מדהים בפרשת השבוע",
+     "topics": [],
+     "enrichment_status": "enriched",
+     "enrichment_source": "caption",
+     "enriched_at": "2026-11-24T15:42:05.067Z"
+    }
+   ],
+   "aiCalls": 1
+  }
+ ],
+ "outsideHosts": [
+  "sb.test",
+  "api.anthropic.com"
+ ]
+}

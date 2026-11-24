@@ -411,7 +411,7 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     if (value.includes("/contributors?")) { assert.match(value, /active=eq.true.*visibility.eq.public/); return json([{ slug: "writer", code: "2042" }]); }
     if (value.includes("/els_records?")) { assert.match(value, /status=eq.published.*visibility=eq.public/); assert.doesNotMatch(value, /source.neq.research/); return json([{ slug: 'published-cipher' }, { slug: 'published-research-cipher' }]); }
     if (value.includes("/nodes?")) { assert.match(value, /type=eq.book.*is_active=eq.true/); return json([]); }
-    if (value.includes("/video_media_assets_v1?")) return json([{ public_id: assetId, title: "Video", google_indexable: true,
+    if (value.includes("/video_media_assets_v1?")) return json([{ public_id: assetId, title: "שיעור על סוד הגאולה", google_indexable: true,
       primary_source_type: "channel_update", primary_source_id: "00000000-0000-4000-8000-000000000001",
       media_url: API + "/storage/v1/object/public/gallery/movie.mp4", video_kind: "selfhost", primary_page_url: SITE + "/video/" + assetId }]);
     if (value.includes("/channel_updates?")) {
@@ -419,7 +419,7 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
       assert.equal(params.get("status"), "eq.live"); assert.equal(params.get("page_only"), "eq.false");
       assert.match(params.get("or"), /expires_at.gt/);
       return json([{ id: "00000000-0000-4000-8000-000000000001", status: "live", page_only: false,
-        text: "Video", image_url: API + "/storage/v1/object/public/gallery/movie.mp4", created_at: "2026-01-01", expires_at: null }]);
+        text: "שיעור על סוד הגאולה", image_url: API + "/storage/v1/object/public/gallery/movie.mp4", created_at: "2026-01-01", expires_at: null }]);
     }
     throw Error("unexpected public source " + new URL(value).pathname);
   };

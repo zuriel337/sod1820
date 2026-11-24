@@ -31,7 +31,30 @@
 
   בענף, `fetchPublicVideo2029` לא מקבל `seo_title` כזה ככותרת. במקומו נקרא הכיתוב, ואם גם הכיתוב אינו כותרת, הדף `/video/<id>` נשאר פתוח עם `noindex` ויוצא מה־sitemap. השער חל על כל סרטון שמקורו `channel_update`, כלומר גם על "תורת הרמז", כי שם נמצא הפריט השני.
 
-## 3. אפשרויות להחלטת צוריאל (לא בוצע דבר)
+## 3. השפעת השער על ערוצים אחרים (נמדד 24.11, קריאה בלבד)
+
+- **היקף הבדיקה:** 138 סרטוני ערוץ (`primary_source_type='channel_update'`) פתוחים היום לאינדוקס, מהערוצים `or-geula`, ‏`torat-haremez` ו־`main`.
+- **שיטה:** 12 הכותרות החלשות ביותר (קצרות, עם קישור או בלי אותיות) נבדקו בפונקציה האמיתית `isMeaningfulTitle`. היתר ארוכות ועוברות.
+- **תוצאה:** יוצאים מה־sitemap ומקבלים `noindex` בדיוק שניים, ‏`https://youtu` (אור הגאולה) ו־`🙏` (תורת הרמז). כל השאר נשארים, גם כותרות קצרות כמו "חובה" ו"מצמרר".
+- **מחוץ לשער:** סרטוני פוסטים (771 פתוחים לאינדוקס), ‏`home_video` ו־`story`.
+
+## 4. הרצה מבוקרת של פונקציות ה־Edge
+
+`edge-harness.ts` מריץ את `index.ts` האמיתי של שתי הפונקציות ב־Deno ‏2.9.6. ‏Supabase, ‏Green API, ‏YouTube ו־Anthropic מוחלפים בזיוף שמקליט כל קריאה, ושום קריאה לא יוצאת לרשת. התוצאות שמורות ב־`edge-harness-ingest.json` וב־`edge-harness-enrich.json`.
+
+| פונקציה | מקרה | תוצאה |
+|---|---|---|
+| `wa-channel-ingest` | Shorts עם oEmbed | `seo_title` = הכותרת הרשמית, ‏`youtube_oembed`, ותמונה מ־`i.ytimg.com` |
+| `wa-channel-ingest` | ‏youtu.be שאינו זמין (404) | `seo_held` / `youtube_metadata_unavailable` |
+| `wa-channel-ingest` | כיתוב בגוף ההודעה | `seo_title` מהכיתוב, ‏`caption` |
+| `wa-channel-ingest` | "📷 עדכון" בלבד | `seo_held` / `no_source_title`; הפריט נשמר `live` |
+| `wa-video-enrich` | כותרת מקור קיימת | נשמרת כמו שהיא, ‏`source_title`, בלי AI |
+| `wa-video-enrich` | "🎬 עדכון וידאו" בלי `allow_ai` | `seo_held`, בלי AI |
+| `wa-video-enrich` | כיתוב בלי `seo_title` | כותרת מהכיתוב, בלי AI לכותרת |
+
+**ממצא קיים (לא מהחבילה):** במקרה האחרון יש קריאה אחת ל־Anthropic מ־`mapGroundedVideoText`. זו מפת המחקר הסמנטית הפרטית, שנשמרת כמועמד ב־Research Intake ואינה כותרת. הקריאה זהה ב־`main` ולא שונתה כאן. השארתה או כיבויה היא החלטה נפרדת.
+
+## 5. אפשרויות להחלטת צוריאל (לא בוצע דבר)
 
 | אפשרות | מה קורה | כתיבה ל־DB |
 |---|---|---|
