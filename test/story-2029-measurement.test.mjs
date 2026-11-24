@@ -18,8 +18,8 @@ const withSpec = (fn) => { const before = globalThis.sodSpecs; try { registerSto
 
 test("the story entry is not part of the code every page loads: absent until the story surface registers it", () => {
   assert.equal(readingActionSpec().story_2029, undefined);
-  assert.equal(readingActionProps("story_2029", "view", { item_ref: ITEM }), null, "not measured before the story surface loads");
-  assert.equal(readingActionBody(anonymousBody("view", { item_ref: ITEM })), false);
+  assert.equal(readingActionProps("story_2029", "item_view", { item_ref: ITEM }), null, "not measured before the story surface loads");
+  assert.equal(readingActionBody(anonymousBody("item_view", { item_ref: ITEM })), false);
   withSpec(() => assert.deepEqual(readingActionSpec().story_2029, readingStorySpec().story_2029));
   assert.equal(readingActionSpec().story_2029, undefined, "registration is scoped to the loaded surface");
   for (const family of ["calculator_2029", "entry_2029", "journey_2029", "share", "join", "arrival", "content", "els", "activity_2029"])
@@ -27,14 +27,25 @@ test("the story entry is not part of the code every page loads: absent until the
 });
 
 test("only the bounded story fields leave the browser: no title, caption, text or account", () => withSpec(() => {
-  const props = readingActionProps("story_2029", "view", { content_world: "or_geula", entry_surface: "chat", item_ref: ITEM, index: 2,
+  const props = readingActionProps("story_2029", "item_view", { content_world: "or_geula", entry_surface: "chat", item_ref: ITEM, index: 2,
     dwell_ms: 4200, title: "כותרת", caption: "כיתוב", text: "טקסט", account_id: "x", email: "a@b.c" });
   assert.deepEqual(props, { action_version: 1, content_world: "or_geula", entry_surface: "chat", item_ref: ITEM, index: 2, dwell_ms: 4200 });
   assert.equal(readingActionProps("story_2029", "page_view", {}), null, "an event outside the family is refused");
-  assert.equal(readingActionBody(anonymousBody("view", { item_ref: ITEM, title: "x" })), false, "an extra field is refused");
-  for (const type of ["impression", "open", "view", "next", "prev", "close", "complete"])
+  assert.equal(readingActionBody(anonymousBody("item_view", { item_ref: ITEM, title: "x" })), false, "an extra field is refused");
+  for (const type of ["impression", "viewer_open", "item_view", "next", "prev", "close", "complete"])
     assert.equal(readingActionBody(anonymousBody(type, { entry_surface: "or_geula", item_ref: ITEM })), true, type);
 }));
+
+// Live readers (fn_human_entrances, fn_ti_session_metrics, admin_funnel, admin_growth_center; read 24.11.2026) count event_type
+// 'view' and 'open' on every surface. A story event with one of those names would inflate views and interactions, so none has one.
+const SESSION_READER_EVENT_TYPES = ["view", "open", "search", "cross_search", "use", "save", "journey", "add", "engagement", "source"];
+test("no double count: no story event shares a name that live session readers count on every surface", () => {
+  const events = readingStorySpec().story_2029.events;
+  for (const type of SESSION_READER_EVENT_TYPES) assert.ok(!events.includes(type), type);
+  assert.deepEqual(events, ["impression", "viewer_open", "item_view", "next", "prev", "close", "complete"]);
+  assert.equal(withSpec(() => readingActionBody(anonymousBody("view", { item_ref: ITEM }))), false, "a story event named view is refused");
+  assert.equal(withSpec(() => readingActionBody(anonymousBody("open", { item_ref: ITEM }))), false, "a story event named open is refused");
+});
 
 test("story view != page view: a story event can never pass as surface=page", () => withSpec(() => {
   const page = { ...anonymousBody("view", {}), p_surface: "page" };
@@ -52,7 +63,7 @@ test("one list in three places: page, request worker and ingest_event carry the 
   assert.match(worker, /function registerMeasurementFamilies2029\(/);
   assert.match(worker, /registerMeasurementFamilies2029\(readingStorySpec\(\)\);/);
   assert.doesNotMatch(worker, /globalThis\.sodSpecs = /, "the worker never assigns the map wholesale");
-  const sandbox = { body: anonymousBody("view", { item_ref: ITEM, entry_surface: "chat" }) };
+  const sandbox = { body: anonymousBody("item_view", { item_ref: ITEM, entry_surface: "chat" }) };
   vm.runInNewContext(`${registerMeasurementFamilies2029}\n${readingStorySpec}\nregisterMeasurementFamilies2029(readingStorySpec());\n${readingTelemetryPath}\n${readingActionSpec}\n${readingActionBody}\nresult = readingActionBody(body);`, sandbox);
   assert.equal(sandbox.result, true, "the worker admits the story family from build time");
   const sql = readFileSync(new URL("../supabase/migrations/20261124190000_traffic_intelligence_v12_story_2029.sql", import.meta.url), "utf8");
@@ -92,7 +103,7 @@ const measured = (surface, type, props) => ({ p_sod_id: null, p_session_id: "s12
 for (const [name, make] of [["plain action body", plain], ["measurement envelope", measured]]) {
   test(`worker budget (${name}): 30 story events do not take any of the 60 shared by calculations, saves and shares`, async () => {
     const post = workerHarness();
-    const story = make("story_2029", "view", { entry_surface: "chat", item_ref: ITEM });
+    const story = make("story_2029", "item_view", { entry_surface: "chat", item_ref: ITEM });
     const share = make("share", "share", { platform: "copy" });
     let storyOk = 0, shareOk = 0;
     for (let i = 0; i < 40; i++) if (await post(story) === 200) storyOk++;
@@ -126,7 +137,7 @@ test("page: a conflicting second definition of a family is refused and the first
   assert.deepEqual(registerMeasurementFamilies2029(hostile), ["story_2029"]);
   assert.deepEqual(readingActionSpec().story_2029, readingStorySpec().story_2029);
   assert.equal(registerStorySpec2029(), true, "registering the same definition again is idempotent");
-  assert.equal(readingActionProps("story_2029", "view", { item_ref: ITEM, title: "x" }).title, undefined, "the hostile field never became measurable");
+  assert.equal(readingActionProps("story_2029", "item_view", { item_ref: ITEM, title: "x" }).title, undefined, "the hostile field never became measurable");
 }));
 
 test("page: an on-demand family can never replace a built-in family", () => withScope(() => {

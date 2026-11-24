@@ -4,7 +4,7 @@
 // Self-contained: serialized into the request worker by toString().
 import { registerMeasurementFamilies2029 } from "./measurementFamilies2029.js";
 export function readingStorySpec() {
-  return { story_2029: { events: ["impression", "open", "view", "next", "prev", "close", "complete"],
+  return { story_2029: { events: ["impression", "viewer_open", "item_view", "next", "prev", "close", "complete"],
     fields: { content_world: "token", entry_surface: "token", item_ref: "token", index: "int", dwell_ms: "int" } } };
 }
 
