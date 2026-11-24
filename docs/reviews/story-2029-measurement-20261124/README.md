@@ -46,5 +46,46 @@
   - אירוע story לא יכול לעבור כ־`page`;
   - זהות הרשומה בשלושת המקומות: דף, Service Worker ו־`v_spec` במיגרציה;
   - תוויות הנתיבים זהות.
-- בדיקות המדידה וה־worker הקיימות: 9 כשלים, זהים לחלוטין ל־`main` ‏(`3a6cabe`). אין כשל שקיים רק בענף.
+- בדיקות המדידה וה־worker הקיימות: 9 כשלים, זהים לחלוטין ל־`main` ‏(`3a6cabe`). אין כשל שקיים רק בענף. פירוט בפרק הבא.
 - `npm run build`: עבר, כולל shell budget.
+
+## בדיקת קבלה כוללת של האנליטיקס (24.11.2026, ראש `51e7218`)
+
+**הרצה מקומית:** ‏277 בדיקות, 268 עברו ו־9 נכשלו. הקבצים שהורצו: `test/*measurement*.test.mjs`, `test/public-reading-*.test.mjs`, `test/els-*telemetry*.test.mjs` ו־`test/public-reading-release-*scenarios.cjs`. אותה הרצה על `main` ‏`3a6cabe` נותנת את אותם 9 כשלים, באותם שמות.
+
+**CI על `51e7218`:** ‏12 מתוך 13 בדיקות ירוקות, כולל `perf-contracts-2029`, `live-contracts-2029`, `release-contracts-2029` ו־`security-sql-contracts`. ‏`auth-browser-acceptance-2029` עדיין רץ בזמן הכתיבה.
+
+### תשעת הכשלים הקיימים
+
+אף אחד מהם אינו קשור ל־story_2029. אף אחד מהם אינו מוחלש, מדולג או מוסר בחבילה הזו.
+
+| # | בדיקה | הסיבה | איפה היא נבדקת באמת |
+|---|---|---|---|
+| 1 | `ELS action proposal: exact live baseline, closed fields, privileges, drift, idempotency and rollback` ‏(`test/els-action-telemetry-sql.test.mjs`) | הבדיקה מקימה PostgreSQL מקומי, ו־`initdb` מסרב לרוץ כ־root. מכונת הסשן רצה כ־root | ב־CI, בתוך `live-contracts-2029`, כמשתמש רגיל. ירוק על `51e7218` |
+| 2 | `test/public-reading-release-remote-scenarios.cjs` | זה מפרט Playwright ולא בדיקת `node --test`. כשמריצים אותו דרך `node --test` חסר `@playwright/test` | בהרצת Playwright, לא בהרצה הזו |
+| 3 | `test/public-reading-release-scenarios.cjs` | אותה סיבה כמו #2 | כמו #2 |
+| 4 | `public publication profile mounts the same existing consent form on direct /updates` | ‏`test/public-reading-service-capabilities.test.mjs` מאגד את הקוד עם esbuild בלי נתיב פלט ל־CSS. ‏`NavigationIcon2029.jsx` מייבא `navigationIcons2029.css`, וה־bundle נכשל לפני שהבדיקה מתחילה | הקובץ לא רץ באף workflow. זה פער קיים בבדיקה, ולא כשל של המוצר |
+| 5 | `ordinary readonly Preview still cannot mount newsletter or removal actions` | כמו #4, אותו קובץ | כמו #4 |
+| 6 | `existing signed removal remains admitted in the public artifact only as before` | כמו #4 | כמו #4 |
+| 7 | `full existing profile keeps the original newsletter route` | כמו #4 | כמו #4 |
+| 8 | `privacy and genuine missing pages retain their existing components` | כמו #4 | כמו #4 |
+| 9 | `public system map labels its admitted updates destination as available` | כמו #4 | כמו #4 |
+
+**נשאר פתוח, ולא תוקן בחבילה הזו:** תיקון הבדיקה ב־#4–#9, למשל loader של CSS ב־esbuild. זה תחום אחר (שירותי הפרסום), ולכן ממתין להחלטה. החבילה לא נוגעת בו.
+
+### מגבלת 60 הפעולות של ה־worker
+
+- **מה קיים** (`public-reading-deploy/transport.js`, מוזג ב־12.11.2026):
+  - כל אירוע פעולה שאינו `page` עובר דרך מונה אחד לכל חלון דפדפן (`actionWindows`). המונה מתאפס אחרי 10 דקות.
+  - אחרי 60 אירועים, האירוע הבא נדחה.
+  - המונה משותף לכל המשפחות: `calculator_2029`, `share`, `els`, `journey_2029`, `entry_2029`, `activity_2029`, וכו'. story_2029 ייכנס לאותו מונה.
+  - צפיות בדף (`page`) נספרות במונה נפרד של 240.
+- **מה קורה כשהמגבלה מתמלאת:**
+  - האירוע נדחה בדפדפן ולא מגיע ל־`ingest_event`. התוצאה היא חסר בספירה, ולעולם לא ניפוח.
+  - המחיר נופל על כל המשפחות באותו חלון: אחרי 60 אירועי סטורי, גם שיתוף או חישוב באותו חלון לא יימדדו.
+- **הערכה לרכיב הסטורי:** בצפייה רגילה במסילה של 10 פריטים יש עד כ־25 אירועים: עד 10 impression, ‏open אחד, עד 10 view, ו־close/complete. אלה כ־40% מהמכסה. מי שפותח את הצופה שוב ושוב יכול להגיע ל־60.
+- **מה נדרש לקבלת רכיב הסטורי** (בתוך החוזה ובלי מנגנון חדש):
+  1. ה־dedupe שבנוסח v12 מיושם בדיוק: impression פעם אחת לכל (פריט, משטח, סשן), ו־view פעם אחת לכל (פריט, פתיחה). מעבר אוטומטי נספר כ־view בלבד.
+  2. בדיקת דפדפן: 3 פתיחות מלאות של מסילה בת 10 פריטים בחלון אחד. אחר כך שיתוף וחישוב צריכים עדיין להימדד, כלומר אירוע הסטורי ה־61 לא נשלח לפניהם.
+  3. אם בדיקה 2 נכשלת, זו החלטה של צוריאל: תקרה לסטורי בתוך הרכיב, או מונה נפרד ב־worker. שתי האפשרויות הן שינוי מנגנון, ולכן לא נבחרו כאן.
+- **מצב נוכחי:** רכיב הסטורי עדיין לא נבנה, ולכן אף אירוע `story_2029` לא נשלח. המגבלה לא משפיעה היום.
