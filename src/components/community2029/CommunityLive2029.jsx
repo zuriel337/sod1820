@@ -1013,7 +1013,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
       {!memberId && !claimId ? <header className="sod29-community-intro sod29-page-intro" data-intro-variant="compact">
         <span className="sod29-community-intro-emblem" aria-hidden="true"><NavigationIcon2029 name="community" size={36} /></span>
-        <h1>הצ'אט החי</h1>
+        <h1>צ'אט הקהילה</h1>
         <p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
         <span className="sod29-community-intro-rule" aria-hidden="true" />
         {!hasThreadRequest ? <div className="sod29-community-intro-meta sod29-community-intro-count"><span>הודעות בקהילה ובארכיון</span><ConversationCount /></div> : null}

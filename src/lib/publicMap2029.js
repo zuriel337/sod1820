@@ -37,7 +37,7 @@ export function publicMapGroups2029(production) {
       ["/or-geula", "אור הגאולה"],
     ] },
     { title: "קהילה", links: [
-      registered("or-geula", "הצ׳אט החי"), ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות לפוסטים"],
+      registered("or-geula", "צ׳אט הקהילה"), ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות לפוסטים"],
     ] },
     ...(production ? [{ title: "הרצאות", links: [
       ["/category/הרצאות", "קטלוג ההרצאות"],
