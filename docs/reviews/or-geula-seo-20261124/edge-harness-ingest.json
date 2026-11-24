@@ -1,0 +1,83 @@
+{
+ "fn": "wa-channel-ingest",
+ "results": [
+  {
+   "msg": "M-YT-SHORTS",
+   "status": "live",
+   "update": {
+    "seo_title": "שיעור על סוד הגאולה — הכותרת הרשמית",
+    "enrichment_status": "source_title",
+    "enrichment_source": "youtube_oembed",
+    "enriched_at": "2026-11-24T15:42:04.742Z",
+    "thumb_url": "https://i.ytimg.com/vi/AbCdEfGhIjK/hqdefault.jpg"
+   }
+  },
+  {
+   "msg": "M-YT-MISSING",
+   "status": "live",
+   "update": {
+    "enrichment_status": "seo_held",
+    "enrichment_source": "youtube_metadata_unavailable"
+   }
+  },
+  {
+   "msg": "M-CAPTION",
+   "status": "live",
+   "update": {
+    "seo_title": "סוד המספר 1820 בפרשת השבוע",
+    "enrichment_status": "source_title",
+    "enrichment_source": "caption",
+    "enriched_at": "2026-11-24T15:42:04.805Z"
+   }
+  },
+  {
+   "msg": "M-NO-TITLE",
+   "status": "live",
+   "update": {
+    "enrichment_status": "seo_held",
+    "enrichment_source": "no_source_title"
+   }
+  }
+ ],
+ "status": 200,
+ "ingested": 4,
+ "seoTrace": [
+  {
+   "msgId": "M-YT-SHORTS",
+   "step": "or-geula-seo",
+   "kind": "youtube",
+   "source": "youtube_oembed",
+   "held": false,
+   "error": null
+  },
+  {
+   "msgId": "M-YT-MISSING",
+   "step": "or-geula-seo",
+   "kind": "youtube",
+   "source": null,
+   "held": true,
+   "error": null
+  },
+  {
+   "msgId": "M-CAPTION",
+   "step": "or-geula-seo",
+   "kind": "text",
+   "source": "caption",
+   "held": false,
+   "error": null
+  },
+  {
+   "msgId": "M-NO-TITLE",
+   "step": "or-geula-seo",
+   "kind": "text",
+   "source": null,
+   "held": true,
+   "error": null
+  }
+ ],
+ "outsideHosts": [
+  "sb.test",
+  "green.test",
+  "www.youtube.com"
+ ]
+}

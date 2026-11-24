@@ -7,6 +7,7 @@ import { publicPostHref, publicPostUrl, postAddressSlug } from "../src/lib/publi
 import { publicPostOnlyFilter } from "../src/lib/research/publicPostBoundary.js";
 import { publicVideoSitemapAssets2029 } from "../src/lib/research/publicVideo2029Reading.js";
 import { COMMUNITY_CALCULATOR_LASTMOD } from "../src/lib/research/communityCalculatorSeo2029.js";
+import { orGeulaSitemapAdmits } from "../src/lib/orGeulaSourceTitle2029.js";
 // Vercel Serverless Function — sitemap.xml דינמי (מפת אתר חיה).
 // בונה את מפת האתר ישירות מהגרף ב-Supabase בכל בקשה, כך שכל פוסט/מספר/התכנסות
 // חדשים נכללים במפה; הימצאות במפה אינה הוכחה לאינדוקס — בלי להריץ סקריפט ובלי לדחוף קובץ.
@@ -274,8 +275,8 @@ export default async function handler(req, res) {
   if (catalogOnly) urls.length = 0;
   let foundationSourceFailed = false;
   const readingProfile = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
-  const videoAssetsPath = 'video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at'
-    + (readingProfile ? ',primary_source_type,primary_source_id' : '') + '&google_indexable=eq.true&order=last_seen_at.desc';
+  const videoAssetsPath = 'video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at,primary_source_type'
+    + (readingProfile ? ',primary_source_id' : '') + '&google_indexable=eq.true&order=last_seen_at.desc';
   // Discovery is independent of the post census; admission still waits for it.
   // Capture either outcome immediately, including when the post read fails first.
   // This overlaps two sequential pagers, below the existing three-read bound.
@@ -328,6 +329,8 @@ export default async function handler(req, res) {
     for (const v of assets) {
       if (!v.primary_page_url || !v.media_url) continue;
       const pageUrl = videoPage(v.primary_page_url); if (!pageUrl) continue;
+      // #1448: a channel video (אור הגאולה, תורת הרמז) enters the sitemap only with a source title (no URL, no placeholder).
+      if (!orGeulaSitemapAdmits(pageUrl, v.title, v.primary_source_type)) continue;
       const list = unifiedVideoPages.get(pageUrl) || [];
       list.push(v);
       unifiedVideoPages.set(pageUrl, list);

@@ -630,10 +630,12 @@ export default async function handler(req, res) {
         : await loadPublicOrGeulaCollection2029({ page: continuityParams.has('page') ? continuityParams.getAll('page') : undefined, readRows: readContinuityRows });
       documentStatus = publicContinuityHttpStatus2029(result);
       if (result.item) {
-        title = `${result.item.title} — אור הגאולה · ${SITE_NAME}`;
-        desc = cleanDesc(result.item.text || result.item.title, 180);
+        // #1448: a source title and description; without a source title the item stays readable but is held out of search.
+        title = result.item.seoHeld ? `אור הגאולה · ${SITE_NAME}` : `${result.item.title} — אור הגאולה · ${SITE_NAME}`;
+        desc = cleanDesc(result.item.seoDescription || STATIC['/or-geula'].desc, 180);
         canonical = SITE + result.item.href;
         image = result.item.posterHref || image;
+        if (result.item.seoHeld) robots = 'noindex, follow';
       }
       if (documentStatus === 404) { title = 'הפריט לא נמצא · ' + SITE_NAME; desc = 'הפריט אינו זמין לציבור.'; robots = 'noindex, follow'; }
     } catch { documentStatus = 503; robots = 'noindex, follow'; }

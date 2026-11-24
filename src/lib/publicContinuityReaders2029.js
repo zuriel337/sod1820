@@ -6,6 +6,7 @@ import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./research/pub
 import { publicVideoSourceQuery2029 } from "./research/publicVideo2029Reading.js";
 import { publicChannelToSystemItem, publicNowMediaHref, publicNowMediaKind } from "./research/systemFeedPublicSources2029.js";
 import { redactGroupText } from "./research/worldGroupSource.js";
+import { captionDescription, resolveOrGeulaTitle } from "./orGeulaSourceTitle2029.js";
 import historicalLecturePages from "../data/publicLegacyLecturePages2029.json" with { type: "json" };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -164,8 +165,12 @@ export function publicOrGeulaItem2029(row, { now = Date.now() } = {}) {
   const admitted = publicChannelToSystemItem(row, { now });
   if (!admitted) return null;
   const id = clean(row.id).toLowerCase();
+  // #1448: the page and its search metadata share one source-title decision. Without a source title the item stays
+  // readable under its existing label, and is held out of search (seoHeld) instead of carrying a placeholder title.
+  const seo = resolveOrGeulaTitle({ seoTitle: publicText(row.seo_title), text: admitted.fullText });
   return {
-    id, title: publicText(row.seo_title) || admitted.label,
+    id, title: seo.title || publicText(row.seo_title) || admitted.label,
+    seoHeld: seo.held, seoDescription: captionDescription(admitted.fullText) || seo.title || null,
     text: admitted.fullText, textTruncated: admitted.fullTextTruncated,
     sourceRef: admitted.sourceRef, occurrenceRef: admitted.sourceRef,
     sourceLabel: admitted.sourceLabel, at: admitted.at,

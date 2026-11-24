@@ -15,6 +15,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
+import { orGeulaIntakeUpdate } from "../_shared/orGeulaSourceTitle.js";
 import { WA_MEDIA_MAX_BYTES, waMessageMediaKind, waPublicMediaPath, waSniffMedia, waStableAssetId, waUploadAlreadyExists } from "../_shared/waMediaAsset.js";
 import { waGroupIntakePublic, waGroupMessageRoute, waInspectPublicGroupMedia, waIsPrivateMediaRef, waProveAndPublishGroupMedia, waReadPrivateGroupMedia, waRecoverMissingGroupMessages, waGroupSenderFingerprint } from "../_shared/waGroupMedia.js";
 
@@ -390,6 +391,17 @@ async function ingestSource(
     if (ins.error) trace.push({ msgId, step: "insert-fail", error: String(ins.error.message || ins.error) });
     else {
       n++;
+      // #1448 (ZURIEL 24.11.2026): a new "אור הגאולה" item is titled from its source right away (official YouTube title,
+      // then its caption). No AI here; without a source title the item stays visible and is HELD for search.
+      if (STORY_LIVE_CHANNELS.has(src.channel)) {
+        try {
+          const seo = await orGeulaIntakeUpdate({ channel: src.channel, text, image_url: imageUrl, link_url: null, seo_title: null, thumb_url: null });
+          if (seo?.update) {
+            const { error: seoError } = await sb.from("channel_updates").update(seo.update).eq("id", ins.data?.id);
+            trace.push({ msgId, step: "or-geula-seo", kind: seo.kind, source: seo.decision.source, held: seo.decision.held, error: seoError?.message || null });
+          }
+        } catch (e) { trace.push({ msgId, step: "or-geula-seo", error: String((e as Error)?.message || e) }); }
+      }
       // Positive group provenance (private side table). Identity comes ONLY from senderId (JID) -> contributors.phone,
       // never from senderName/credit. Any failure leaves the row without proof => excluded from public World reads.
       if (route.groupSource && !imageUrl) {

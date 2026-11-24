@@ -4,6 +4,7 @@ import { stripHtml } from "../format.js";
 import { publicPostHref } from "../publicPostUrls.js";
 import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
 import { publicNowMediaHref } from "./systemFeedPublicSources2029.js";
+import { isMeaningfulTitle } from "../orGeulaSourceTitle2029.js";
 
 const clean = value => stripHtml(String(value || "")).trim();
 const validTime = value => Number.isFinite(Date.parse(value || ""));
@@ -90,7 +91,9 @@ export async function fetchPublicVideo2029(assetId, { readRows = readPublicVideo
     source = await readSource();
     if (!source || String(source.id) !== id || source.status !== "live" || source.page_only !== false
       || source.expires_at && (!validTime(source.expires_at) || Date.parse(source.expires_at) <= now)) return null;
-    sourceTitle = source.seo_title || source.text; sourceMedia = source.image_url; sourceTime = source.created_at;
+    // #1448: a URL or placeholder seo_title ("https://youtu", "🙏") is not a title; the caption is read instead.
+    sourceTitle = isMeaningfulTitle(source.seo_title) ? source.seo_title : source.text || source.seo_title;
+    sourceMedia = source.image_url; sourceTime = source.created_at;
     credit = clean(source.credit); author = clean(source.speaker);
   } else if (kind === "home_video") {
     source = await readSource();
@@ -113,7 +116,9 @@ export async function fetchPublicVideo2029(assetId, { readRows = readPublicVideo
     || mediaAddress(asset.media_url) !== media) return null;
   return { public_id: assetId, title, media_url: media, video_kind: asset.video_kind,
     youtube_id: asset.youtube_id, thumb_url: publicNowMediaHref(source.thumb_url || source.poster_url || (kind === "story" ? source.image_url : null)) || publicNowMediaHref(asset.thumb_url || asset.poster_url),
-    first_seen_at: sourceTime, google_indexable: asset.google_indexable === true, credit, author,
+    // A channel video without a source title stays readable, but is not offered for indexing.
+    first_seen_at: sourceTime, google_indexable: asset.google_indexable === true && (kind !== "channel_update" || isMeaningfulTitle(title)),
+    credit, author,
     sourceRef: `${kind}:${id}`, uses_generic_page: true };
 }
 
@@ -151,7 +156,7 @@ export async function publicVideoSitemapAssets2029(assets, { readRows, now = Dat
     result.push({ public_id: item.public_id, title: item.title, media_url: media,
       video_kind: original.video_kind, youtube_id: original.youtube_id,
       thumb_url: item.thumb_url || publicNowMediaHref(original.thumb_url || original.poster_url),
-      first_seen_at: item.first_seen_at,
+      first_seen_at: item.first_seen_at, primary_source_type: original.primary_source_type, google_indexable: item.google_indexable,
       primary_page_url: `https://sod1820.co.il${item.redirectHref || `/video/${item.public_id}`}` });
   }
   return result;
