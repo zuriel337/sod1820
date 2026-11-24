@@ -383,7 +383,10 @@ jobs:
               expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(island.y + 2);
               expect(Math.abs((panelBox.y + panelBox.height) - island.y)).toBeLessThanOrEqual(24);
             } else {
-              expect(panelBox.x).toBeLessThanOrEqual(12);
+              // Same reference as the sheet above: the fixed layer starts after any native gutter the root reserves
+              // (desktop reserves it at both edges to center the crown), so the left Sidecar hugs the layer edge.
+              const layerX = (await page.locator('.sod29-frame-backdrop').first().boundingBox()).x;
+              expect(panelBox.x - layerX).toBeLessThanOrEqual(12);
               expect(panelBox.width).toBeLessThanOrEqual(522);
             }
 
@@ -633,7 +636,10 @@ jobs:
               expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(island.y + 2);
               expect(Math.abs((panelBox.y + panelBox.height) - island.y)).toBeLessThanOrEqual(24);
             } else {
-              expect(panelBox.x).toBeLessThanOrEqual(12);
+              // Same reference as the sheet above: the fixed layer starts after any native gutter the root reserves
+              // (desktop reserves it at both edges to center the crown), so the left Sidecar hugs the layer edge.
+              const layerX = (await page.locator('.sod29-frame-backdrop').first().boundingBox()).x;
+              expect(panelBox.x - layerX).toBeLessThanOrEqual(12);
               expect(panelBox.width).toBeLessThanOrEqual(522);
             }
 
