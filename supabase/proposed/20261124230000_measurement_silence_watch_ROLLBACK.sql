@@ -1,6 +1,6 @@
 -- Rollback of 20261124230000_measurement_silence_watch_PROPOSAL.sql (NOT APPLIED; only after an explicit ZURIEL approval).
 -- Restores the exact fn_reliability_watch read live on 24.11.2026 (md5 3cc04b93669c01d33f513a2c8867f104, checked below).
--- work_log alerts written by the new section stay as provenance.
+-- work_log alerts and the analytics_cache state row written by the new section stay as provenance.
 do $rollback$
 declare
   v_fn constant regprocedure := 'public.fn_reliability_watch()'::regprocedure;

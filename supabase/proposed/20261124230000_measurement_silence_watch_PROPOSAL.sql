@@ -11,6 +11,8 @@
 -- What: (b1) total silence also reads site_visits and waits 240 min Friday 15:00-Saturday 23:00 Israel time (90 otherwise);
 -- (b2) page_view_stopped / page_view_partial / visit_meter_stopped compare page/view, site_visits and RUM over the same
 -- window, two consecutive checks, one alert per incident per 24 h. Thresholds and replay: README.
+-- Control: each check writes its inputs and verdict to analytics_cache 'reliability_watch:measurement_silence'; a failure of
+-- section (b) is recorded there (ok=false, sqlstate, error) and alerted once per 6 hours, never swallowed silently.
 -- Guard: the live definition must be the one read on 24.11.2026 (md5 3cc04b93669c01d33f513a2c8867f104).
 -- Rollback: 20261124230000_measurement_silence_watch_ROLLBACK.sql.
 do $migration$
@@ -39,6 +41,8 @@ declare
   v_found text;
   v_at timestamptz;
   v_pv30 bigint; v_pvs30 bigint; v_pv60 bigint; v_sv30 bigint; v_svv30 bigint; v_sv60 bigint; v_rum30 bigint;
+  v_err text;
+  v_err_state text;
 begin
   -- heartbeat: lets the external canary detect a dead health-watch (pg_cron cannot watch itself).
   begin
@@ -118,6 +122,8 @@ begin
   --      page_view_partial:   >=20 human site_visits in 60 min and page views < 0.35 of them (lowest natural ratio 0.67);
   --      visit_meter_stopped: no human site_visit in 30 min while >=5 sessions have a page view.
   --   One alert per 24 hours while it lasts (page-view stopped and partial count as one); total silence as before (3 h).
+--   Control: every check writes its inputs and verdict to analytics_cache 'reliability_watch:measurement_silence'; a failure of
+--   this section writes ok=false with the error and alerts the admin once per 6 hours (never swallowed silently).
   begin
     v_shabbat := (extract(dow from now() at time zone 'Asia/Jerusalem') = 5 and extract(hour from now() at time zone 'Asia/Jerusalem') >= 15)
               or (extract(dow from now() at time zone 'Asia/Jerusalem') = 6 and extract(hour from now() at time zone 'Asia/Jerusalem') < 23);
@@ -195,7 +201,38 @@ begin
       exception when others then null;
       end;
     end if;
-  exception when others then null;
+
+    -- Observable state: the last evaluation of this section, every check (one row in the existing analytics_cache).
+    insert into public.analytics_cache(cache_key, payload, computed_at)
+    values ('reliability_watch:measurement_silence', jsonb_build_object(
+      'version', 'v2_measurement_silence_20261124', 'ok', true, 'at', now(), 'shabbat', v_shabbat, 'total_silence_limit_min', v_limit,
+      'total_silence_gap_min', round(v_gap), 'kind_now', v_kind, 'page_views_30m', v_pv30, 'page_view_sessions_30m', v_pvs30,
+      'page_views_60m', v_pv60, 'site_visits_30m', v_sv30, 'site_visitors_30m', v_svv30, 'site_visits_60m', v_sv60, 'rum_loads_30m', v_rum30), now())
+    on conflict (cache_key) do update set payload = excluded.payload, computed_at = excluded.computed_at;
+  exception when others then
+    -- A failure of this section is never silent: its state row says so and the admin is told once per 6 hours.
+    get stacked diagnostics v_err = message_text, v_err_state = returned_sqlstate;
+    begin
+      insert into public.analytics_cache(cache_key, payload, computed_at)
+      values ('reliability_watch:measurement_silence', jsonb_build_object(
+        'version', 'v2_measurement_silence_20261124', 'ok', false, 'at', now(), 'sqlstate', v_err_state, 'error', left(v_err, 300)), now())
+      on conflict (cache_key) do update set payload = excluded.payload, computed_at = excluded.computed_at;
+    exception when others then null;
+    end;
+    begin
+      if not exists (
+        select 1 from public.work_log
+        where topic = '🚨 כשל בגלאי המדידה (אוטומטי)' and created_at > now() - interval '6 hours'
+      ) then
+        insert into public.work_log(session_date, topic, what_we_did, status, open_threads)
+        values (current_date, '🚨 כשל בגלאי המדידה (אוטומטי)',
+          format('סעיף (b) של fn_reliability_watch נכשל (%s): %s. בזמן הכשל אין התרעות על הפסקת מדידה. מצב אחרון: analytics_cache reliability_watch:measurement_silence.',
+                 v_err_state, left(v_err, 200)),
+          'alert', 'sqlstate:' || v_err_state);
+        perform public.notify_admin('🚨 סוד1820 — כשל בגלאי המדידה' || chr(10) || v_err_state || ': ' || left(v_err, 200));
+      end if;
+    exception when others then null;
+    end;
   end;
 
   -- G3 B3 owner-native enforcement guard: same existing Reliability/Health tree, no parallel monitor.

@@ -75,6 +75,19 @@ check "$(Q -c "select count(*) from public.work_log where topic='🚨 ניטור
 reset; traffic 200 5 100; Q -c "insert into public.site_visits(ts,path,visitor) values (now()-interval '10 minutes','/','x1')"; watch
 check "$(Q -c "select count(*) from public.work_log where topic='🚨 ניטור ingest אירועים (אוטומטי)'")" 0 "a recent human visit means not total silence"
 
+# Control: every check leaves its inputs and verdict; a failure of the section is recorded and alerted, never swallowed.
+reset; traffic 70 2 0; watch
+check "$(Q -c "select (payload->>'ok')||':'||(payload->>'page_views_30m')||':'||coalesce(payload->>'kind_now','none') from public.analytics_cache where cache_key='reliability_watch:measurement_silence'")" "true:15:none" "state row records the inputs and verdict of the check"
+Q -c "alter table public.site_visits rename to site_visits_hidden"; reset_partial() { Q -c "truncate public.events, public.work_log, public.notices"; }; reset_partial; watch
+check "$(Q -c "select (payload->>'ok')||':'||(payload->>'sqlstate') from public.analytics_cache where cache_key='reliability_watch:measurement_silence'")" "false:42P01" "a failing section writes ok=false with its sqlstate"
+check "$(Q -c "select count(*) from public.work_log where topic='🚨 כשל בגלאי המדידה (אוטומטי)'")" 1 "a failing section alerts"
+check "$(Q -c "select count(*) from public.notices where t like '%כשל בגלאי המדידה%'")" 1 "the admin is notified of the failure"
+watch; watch
+check "$(Q -c "select count(*) from public.work_log where topic='🚨 כשל בגלאי המדידה (אוטומטי)'")" 1 "the failure alert is not repeated within 6 hours"
+check "$(Q -c "select count(*) from public.analytics_cache where cache_key='reliability_heartbeat:health_watch'")" 1 "the heartbeat and the other sections still run"
+Q -c "alter table public.site_visits_hidden rename to site_visits"; reset; traffic 70 2 0; watch
+check "$(Q -c "select payload->>'ok' from public.analytics_cache where cache_key='reliability_watch:measurement_silence'")" true "after recovery the state row is ok again"
+
 if Q -f "$PROPOSAL" 2>/dev/null; then echo "FAIL the proposal ran twice"; exit 1; else pass=$((pass+1)); echo "PASS a second run stops at the definition guard"; fi
 Q -f "$ROLLBACK"
 check "$(Q -c "select md5(pg_get_functiondef('public.fn_reliability_watch()'::regprocedure))")" 3cc04b93669c01d33f513a2c8867f104 "rollback restores the exact live definition"
