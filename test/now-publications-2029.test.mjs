@@ -142,8 +142,12 @@ test("the words of the message are shown (Or HaGeula as text only, ZURIEL 19.11.
   assert.equal(nowExcerpt({ unverified: false, title: "קצר", fullText: "קצר", summary: "" }).excerpt, "");
   const id = "9d4e6b80-f52b-4461-9231-ca30f37f0db9";
   const ch = publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "הגאולה קרובה ויש להתחזק בכל יום", image_url: MP4 });
-  // Or HaGeula is text only in "עכשיו" and on Home (ZURIEL 19.11.2026): no poster, no inline player, no image; the words stay.
-  const [m] = nowModels(rows([ch])); assert.equal(m.previewKind, null); assert.equal(m.thumb, null); assert.equal(m.mediaHref, null);
+  // Or HaGeula in "עכשיו" and on Home: no picture of theirs (ZURIEL 19.11.2026: no poster, no image, no picture preview in the row), and
+  // its own video plays right here on request (ZURIEL 24.11.2026), in the same on-demand player, without a poster.
+  const [m] = nowModels(rows([ch])); assert.equal(m.previewKind, null); assert.equal(m.thumb, null); assert.equal(m.mediaHref, MP4, "the video plays in place");
+  const now = readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8");
+  assert.match(now, /model\.video && model\.mediaHref \? <VideoOnDemand model=\{model\}/, "the existing on-demand player, never autoplay on load");
+  assert.match(now, /poster=\{model\.thumb \|\| undefined\}/, "the poster comes only from thumb, which stays null for Or HaGeula");
   assert.equal(m.video, true, "it is still known as a video"); assert.equal(m.canExpand, true, "its words still open in place");
   assert.equal(m.textOnly, true);
   assert.match(readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8"), /model\.textOnly \? null : externalVideoLinksFromText/, "no YouTube card for a text-only source");

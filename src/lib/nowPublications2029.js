@@ -123,8 +123,9 @@ export function nowRowModel(row) {
   const isDiscussion = item.sourceKind === "community_thread";
   const isGallery = item.sourceKind === "gallery_update", isChannel = item.sourceKind === "channel_update";
   const media = item.mediaHref || item.mediaUrl || item.media?.url || null;
-  // Or HaGeula updates are shown as text only (ZURIEL 19.11.2026: "I don't want to see their pictures"): no image, no video poster or inline
-  // player, in "עכשיו" and on Home (both read this model). A video stays reachable through its own page link; audio is not a picture and stays.
+  // Or HaGeula updates are shown without their pictures (ZURIEL 19.11.2026: "I don't want to see their pictures"): no image and no video
+  // poster, in "עכשיו" and on Home (both read this model). Its own video plays right here, on request (ZURIEL 24.11.2026: "see the video
+  // directly, without entering the Or HaGeula page"): the same on-demand player, without a poster. Audio is not a picture and stays.
   const textOnly = isChannel && item.channel === "or-geula";
   const href = row?.href || null;
   const groupMediaKind = isGroup ? item.media?.kind : null; // a group source declares its own media kind
@@ -203,14 +204,14 @@ export function nowRowModel(row) {
     textOnly,
     thumb: textOnly ? null : [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
-    mediaHref: textOnly && !audio ? null : media, lenses,
+    mediaHref: image && textOnly ? null : media, lenses,
     fullText, summary: summary && summary !== title ? summary : "",
     ...nowExcerpt({ unverified, title, fullText, summary }),
     // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
     previewKind: textOnly || (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
     // Almost every row opens in place (ZURIEL 11.11.2026): its full text when the item carries it, otherwise the approved summary (a Post's excerpt),
     // otherwise its media. A row with nothing to show stays a plain link — never an empty panel, never an invented continuation.
-    canExpand: !isDiscussion && Boolean(fullText || summary || (textOnly && !audio ? null : media)),
+    canExpand: !isDiscussion && Boolean(fullText || summary || (image && textOnly ? null : media)),
     // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
     // A writer pin is not an update of the publication, so it never says "עודכן".
     updated: Boolean(item.sourceUpdate || pinKind === "owner" || postEdited),
