@@ -5,6 +5,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { MAX_STT_BYTES, mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
 import { analyzeVideoSemanticMap, semanticMapRpcArgs } from "../_shared/videoSemanticMap.js";
+import { captionTitle, isMeaningfulTitle } from "../_shared/orGeulaSourceTitle.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
@@ -523,7 +524,7 @@ async function mapGroundedVideoText(
   };
 }
 
-async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null = null, itemSpanId: string | null = null) {
+async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null = null, itemSpanId: string | null = null, allowAi = false) {
   if (!row?.id || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || !VIDEO_RE.test(String(row.image_url || ""))) {
     return { id: row?.id || null, ok: false, skipped: "not_supported_public_video_channel" };
   }
@@ -540,7 +541,19 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
   let meta: { speaker: string | null; title: string | null; topics: string[] } | null = null;
   let enrichmentSource = "caption";
 
-  if (generic) {
+  // #1448 (ZURIEL 24.11.2026): an "אור הגאולה" title comes from the source. A meaningful title set at intake is kept as is,
+  // and a generic caption is not given an AI title unless the call explicitly allows it; otherwise the item is HELD for search.
+  if (row.channel === "or-geula" && isMeaningfulTitle(row.seo_title)) {
+    meta = { speaker: null, title: String(row.seo_title).trim(), topics: Array.isArray(row.topics) ? row.topics : [] };
+    enrichmentSource = "source_title";
+  } else if (row.channel === "or-geula" && generic && !allowAi) {
+    updates.enrichment_status = "seo_held";
+    updates.enrichment_source = "no_source_title";
+    const { error: heldError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
+    return { id: row.id, ok: false, skipped: "seo_held_no_source_title", mark_error: heldError?.message || null };
+  }
+
+  if (generic && !meta) {
     const neighbor = await nearbyContext(row);
     if (neighbor) {
       basis = neighbor;
@@ -587,6 +600,17 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
     }
   }
 
+  if (!meta && row.channel === "or-geula" && !allowAi) {
+    const sourceTitle = captionTitle(row.text);
+    if (!sourceTitle) {
+      updates.enrichment_status = "seo_held";
+      updates.enrichment_source = "no_source_title";
+      const { error: heldError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
+      return { id: row.id, ok: false, skipped: "seo_held_no_source_title", mark_error: heldError?.message || null };
+    }
+    meta = { speaker: null, title: sourceTitle, topics: [] };
+    enrichmentSource = "caption";
+  }
   if (!meta) meta = await aiMetadata(basis, opTrace, null);
   const title = meta.title || fallbackTitle(basis);
   // Mapping is best-effort and never blocks ordinary video enrichment. It is saved once,
@@ -638,6 +662,7 @@ Deno.serve(async (req) => {
 
   const rowId = cleanText(body?.row_id);
   const allowStt = body?.allow_stt === true;
+  const allowAi = body?.allow_ai === true;
   const limit = Math.max(1, Math.min(10, Number(body?.limit || 4)));
 
   let rows: any[] = [];
@@ -671,7 +696,7 @@ Deno.serve(async (req) => {
   for (const row of rows) {
     const itemSpanId = crypto.randomUUID();
     const itemStartedAt = new Date().toISOString();
-    const result = await enrichRow(row, allowStt, opTrace, itemSpanId);
+    const result = await enrichRow(row, allowStt, opTrace, itemSpanId, allowAi);
     const itemEndedAt = new Date().toISOString();
     await recordVideoSpan(opTrace, {
       spanId: itemSpanId,

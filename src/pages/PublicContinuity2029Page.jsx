@@ -46,7 +46,7 @@ function ContentPlane({ kind, title, description, path, state = "ready", noindex
   const reopeningSoon = state === "gated" && publicTemporarilyClosed(location.pathname);
   useEffect(() => {
     if (kind === "people" && state === "loading") return;
-    applySeo({ title, description, path: canonicalPath, follow: kind === "people" && state !== "not-found", noindex: noindex || !(["ready", "empty"].includes(state) || reopeningSoon) });
+    applySeo({ title, description, path: canonicalPath, follow: (kind === "people" && state !== "not-found") || (kind === "or-geula" && state === "ready"), noindex: noindex || !(["ready", "empty"].includes(state) || reopeningSoon) });
   }, [kind, title, description, canonicalPath, state, noindex, reopeningSoon]);
   return <section className="public-continuity-2029" dir="rtl" data-continuity-kind={kind} data-read-state={state} data-state={state}>
     <header className="continuity-heading">
@@ -132,8 +132,9 @@ function OrGeulaContent() {
   const collectionSearch = new URLSearchParams(location.search); collectionSearch.delete("v");
   const collectionHref = `/or-geula${collectionSearch.size ? `?${collectionSearch}` : ""}${location.hash}`;
   const path = item?.href || (occurrenceId === null ? "/or-geula" : location.pathname);
-  return <ContentPlane kind="or-geula" title={item?.title || "אור הגאולה"} path={path} state={state.status}
-    description={occurrenceId === null ? "סרטונים, תמונות ומסרים מתוך ערוץ אור הגאולה, עם המקור והקרדיט שלהם." : "פריט מתוך ערוץ אור הגאולה"}>
+  // #1448: the browser keeps the server's decision. A held item (no source title) stays readable and out of search.
+  return <ContentPlane kind="or-geula" title={item && !item.seoHeld ? item.title : "אור הגאולה"} path={path} state={state.status} noindex={Boolean(item?.seoHeld)}
+    description={occurrenceId === null ? "סרטונים, תמונות ומסרים מתוך ערוץ אור הגאולה, עם המקור והקרדיט שלהם." : item?.seoDescription || "פריט מתוך ערוץ אור הגאולה"}>
     {occurrenceId !== null ? <Link className="continuity-back" to={collectionHref}>לאוסף אור הגאולה</Link> : null}
     <ReadBoundary state={state} retry={retry} missing="הפריט המבוקש אינו זמין לציבור באור הגאולה." empty="אין כרגע פריטים ציבוריים בעמוד הזה של אור הגאולה.">
       {item ? <article className="continuity-source" data-source-ref={item.sourceRef} data-occurrence-ref={item.occurrenceRef}>
