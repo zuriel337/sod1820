@@ -24,3 +24,12 @@ export function giluiYomiQuotedText(message, channel) {
   const value = message?.extendedTextMessageData?.text ?? message?.extendedTextMessage?.text;
   return typeof value === "string" ? value : "";
 }
+
+// A reply in a group that may later join a Community thread (#1514, writer_material_home_law v7 §44.3, §48; ZURIEL 24.11.2026):
+// it is ingested with its proof and its quoted-parent id, then kept off the public group-source reader (the intake marker
+// group_source_intake_public is closed) until the Community admission step decides. Now gets one update per thread, never one
+// per reply. A quotedMessage whose parent id is invalid is still a reply (fail closed).
+export function groupReplyPendingAdmission(message, channel) {
+  if (!GROUP_QUOTE_CHANNELS.has(channel) || !message || typeof message !== "object") return false;
+  return message.typeMessage === "quotedMessage" || giluiYomiQuotedParent(message, channel) !== null;
+}

@@ -47,3 +47,24 @@ test("proof proposal adds nullable field without opening new publication or hist
   assert.match(sql,/CHECK \(quoted_parent_ext_msg_id IS NULL OR/);
   assert.doesNotMatch(sql,/\bGRANT\b|\bCREATE\s+TABLE\b|\bINSERT\s+INTO\b|\bUPDATE\s+public\.|\bDELETE\s+FROM\b/i);
 });
+
+// Option 2 (ZURIEL 24.11.2026): replies are ingested with proof and quoted parent, but stay private until Community admission.
+import { groupReplyPendingAdmission } from "../supabase/functions/_shared/giluiYomiQuotedParent.mjs";
+test("a group reply is recognized for both groups, fail closed; plain messages and other groups are not replies", () => {
+  const reply = { idMessage: A, typeMessage: "quotedMessage", extendedTextMessageData: { text: "תגובה", stanzaId: B } };
+  for (const channel of ["gilui-yomi", "torat-haremez"]) {
+    assert.equal(groupReplyPendingAdmission(reply, channel), true, channel);
+    assert.equal(groupReplyPendingAdmission({ ...reply, extendedTextMessageData: { text: "x", stanzaId: "bad/id" } }, channel), true, "invalid parent id is still a reply");
+    assert.equal(groupReplyPendingAdmission({ idMessage: A, typeMessage: "textMessage", textMessage: "שורש" }, channel), false, "a new message is not a reply");
+  }
+  for (const channel of ["blaze-888", "or-geula", ""]) assert.equal(groupReplyPendingAdmission(reply, channel), false, channel);
+});
+test("ingest closes the intake marker of a text reply only, on its exact row, after the proof step", () => {
+  const block = ingest.slice(ingest.indexOf("if (route.groupSource && !imageUrl) {"), ingest.indexOf("} else if (route.groupMedia"));
+  assert.match(block, /if \(groupReplyPendingAdmission\(m, src\.channel\)\) \{/);
+  const close = block.slice(block.indexOf("groupReplyPendingAdmission(m, src.channel)"));
+  assert.match(close, /\.from\("channel_updates"\)\s*\.update\(\{ group_source_intake_public: false \}\)\s*\.eq\("id", ins\.data\.id\)\s*\.eq\("channel", src\.channel\)\s*\.eq\("ext_msg_id", msgId\)/);
+  assert.ok(block.indexOf("record_channel_update_group_proof_v1") < block.indexOf("groupReplyPendingAdmission(m"), "the proof is recorded first (it needs the open marker)");
+  assert.equal((ingest.match(/group_source_intake_public: false/g) || []).length, 1, "no other row is closed");
+  assert.doesNotMatch(ingest, /group_source_intake_public: true\b(?!,)/, "nothing is opened");
+});

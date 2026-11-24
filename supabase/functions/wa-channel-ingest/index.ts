@@ -1,4 +1,4 @@
-import { giluiYomiQuotedParent, giluiYomiQuotedText } from "../_shared/giluiYomiQuotedParent.mjs";
+import { giluiYomiQuotedParent, giluiYomiQuotedText, groupReplyPendingAdmission } from "../_shared/giluiYomiQuotedParent.mjs";
 // 📡 wa-channel-ingest — משקף ערוצי וואטסאפ → channel_updates.
 // use_sender_name → credit=שם הכתב; capture_outgoing → כל הודעה שיוצאת מחשבון הבוט (ידנית או API).
 // outgoing_contributor → זהות המחבר הקנונית להודעה ידנית היוצאת מהחשבון המחובר.
@@ -426,6 +426,17 @@ async function ingestSource(
             // A failed proof enrichment does not reclassify a source as public.
             if (quoteError) trace.push({ msgId, step: "group-quote-proof-unavailable", channel: src.channel, reason: String(quoteError.code || "db_error") });
           }
+        }
+        // A text reply stays private until the Community admission step (v7 §44.3, §48): its proof and quoted-parent id are kept,
+        // and the intake marker is closed so the public group-source reader never shows it on its own (one Now update per thread).
+        // Closed whether or not the proof succeeded (fail closed). Existing rows and non-reply messages are not touched.
+        if (groupReplyPendingAdmission(m, src.channel)) {
+          const { error: closeError } = await sb.from("channel_updates")
+            .update({ group_source_intake_public: false })
+            .eq("id", ins.data.id)
+            .eq("channel", src.channel)
+            .eq("ext_msg_id", msgId);
+          if (closeError) trace.push({ msgId, step: "group-reply-close-failed", channel: src.channel, reason: String(closeError.code || "db_error") });
         }
       } else if (route.groupMedia && route.kind && waIsPrivateMediaRef(imageUrl) && keep.media) {
         // Image / video: the same identity rule through the media proof; the public copy only if the server says publishable.
