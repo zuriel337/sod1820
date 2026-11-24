@@ -13,6 +13,9 @@ export const TORAT_HAREMEZ_WRITERS=Object.freeze(new Set([
   "c0459430-6ba0-44a9-b1be-b5952344e74d", // שמעון חיימוב
   "fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf", // sod1820 — the site owner
 ]));
+// Only NEW messages: the provider send time (channel_updates.created_at) at or after the first second after ZURIEL's authorization was
+// recorded (work_log 710652f5, 2026-11-24T18:52:38.120Z). The same instant is written in writer_material_home_law v7 §45.
+export const TORAT_HAREMEZ_EFFECTIVE_FROM="2026-11-24T18:52:39Z";
 const GROUPS=new Set(["gilui-yomi","torat-haremez"]);
 export function planGiluiCommunitySource({source, proof, writer, parent, existing}={}) {
   const channel=source?.channel;
@@ -31,6 +34,8 @@ export function planGiluiCommunitySource({source, proof, writer, parent, existin
       return hold("writer_identity_mismatch");
     if (channel==="torat-haremez" && !TORAT_HAREMEZ_WRITERS.has(writer.id))
       return hold("writer_not_in_group_allowlist");
+    if (channel==="torat-haremez" && !(Date.parse(source.created_at||"")>=Date.parse(TORAT_HAREMEZ_EFFECTIVE_FROM)))
+      return hold("before_authorization_window");
     if (writer.active!==true || writer.locked===true || writer.building===true
       || writer.visibility!=="public" || writer.editoriallyApproved!==true)
       return hold("writer_not_approved");
@@ -47,9 +52,11 @@ export function planGiluiCommunitySource({source, proof, writer, parent, existin
   const sourceRef=source.source==="auto" ? `channel_updates:${source.id}` : `inbound_emails:${source.inbound_email_id}`;
   if (!parentId) return Object.freeze({state:"candidate_root",reason:"source_reviewed",sourceRef,parentRef:null});
   if (source.source==="auto" && !WA_ID.test(String(parentId))) return hold("invalid_parent_id");
-  if (!parent || parent.group_chat_id!==proof?.group_chat_id && source.source==="auto"
+  // A reply is never demoted to a new root: a quoted parent that is missing or unproven holds the reply.
+  if (!parent) return hold("reply_parent_missing");
+  if (parent.group_chat_id!==proof?.group_chat_id && source.source==="auto"
       || !UUID.test(String(parent.community_id||"")) || parent.publiclyAdmitted!==true
       || parent.cycleSafe!==true)
-    return hold("parent_not_proven");
+    return hold("reply_parent_not_proven");
   return Object.freeze({state:"candidate_reply",reason:"parent_proven",sourceRef,parentRef:parent.community_id});
 }

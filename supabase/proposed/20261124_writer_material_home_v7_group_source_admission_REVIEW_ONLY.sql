@@ -17,13 +17,15 @@ declare
 44. FIVE SEPARATE STAGES. Each stage can only admit or hold; no stage implies the next.
 (1) INTAKE: the source message is stored as received, with its provider message id (ext_msg_id), group and time. Intake makes nothing public.
 (2) IDENTITY: the author is a canonical Contributor only by server proof, sender JID/phone → exactly one Contributor (identity_basis = verified_phone_unique). Display name, credit, wa_names or message text never establish identity.
-(3) THREAD LINKAGE: a reply is linked only through the provider quoted-message id (channel_update_group_proof.quoted_parent_ext_msg_id, private provenance) to a parent from the same group that is already admitted. Never inferred from author, text, time or proximity.
+(3) THREAD LINKAGE: a reply is linked only through the provider quoted-message id (channel_update_group_proof.quoted_parent_ext_msg_id, private provenance) to a parent from the same group that is already admitted. Never inferred from author, text, time or proximity. A message without a quoted-message id is a new message and may open a root. A message that carries a quoted-message id is a reply: if its parent is missing, not admitted, from another group or would form a cycle, the reply is held; it is never published as a new root.
 (4) PUBLICATION AUTHORIZATION: governed by Human Gate (§10). Automatic admission exists only under an explicit, standing ZURIEL authorization scoped to group + contributor + message window (§45).
 (5) RESEARCH VERIFICATION: admission to a Community thread publishes a source contribution; it does not verify it. Numbers, equalities and claims inside it remain Source claims until canonical engine/source verification (§3, Truth/Human Gate).
 
-45. SCOPED AUTHORIZATION (ZURIEL 24.11.2026). torat-haremez: only NEW messages, whose source time is at or after metadata.group_source_admission_v1.effective_from, of two contributors: Shimon Haimov (contributor c0459430-6ba0-44a9-b1be-b5952344e74d) and the site owner (contributor "sod1820", fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf). Every other member of the group, verified or not, is held. No backfill of earlier messages. gilui-yomi keeps its existing rules unchanged. This is an authorization list read by the one intake, not a mechanism; adding a writer, a group or a time window requires a new explicit ZURIEL decision.
+45. SCOPED AUTHORIZATION (ZURIEL 24.11.2026). torat-haremez: only NEW messages, whose provider send time (channel_updates.created_at) is at or after 2026-11-24T18:52:39Z — the first second after ZURIEL's authorization was recorded (work_log 710652f5) — of two contributors: Shimon Haimov (contributor c0459430-6ba0-44a9-b1be-b5952344e74d) and the site owner (contributor "sod1820", fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf). Every other member of the group, verified or not, is held. No backfill of earlier messages. gilui-yomi keeps its existing rules unchanged. The admission step enforces the instant itself: an earlier, undated or unparsable message is held. This is an authorization list read by the one intake, not a mechanism; adding a writer, a group or a time window requires a new explicit ZURIEL decision. It authorizes the publication of this content only. It authorizes no change to the system — schema, functions, Edge deployment, permissions, merge or release — each of which keeps its own explicit ZURIEL approval (CLAUDE.md 0.4).
 
-46. HOLD BY DEFAULT. Unverified identity, identity mismatch, a writer outside §45, a held or private source, a body not admitted for public display, a missing or unproven parent, a parent from another group, a cycle, or a source already admitted → HELD (private). Never published, never guessed. A held item remains private source material.
+46. EXISTING AND HOLD.
+(a) ALREADY ADMITTED: a source message that was already admitted (one source → at most one contribution) is recognized as existing. No second write, no change of its visibility, no hiding, no re-dating and no re-linking.
+(b) HOLD BY DEFAULT: unverified identity, identity mismatch, a writer outside §45, a message before the §45 instant, a held or private source, a body not admitted for public display, or a reply whose parent is missing or unproven (§44.3) → HELD (private). Never published, never guessed. A held item remains private source material.
 
 47. PRIVACY AND EXISTING CONTRACTS. Phone, JID, e-mail and other personal data never leave the server and never appear in the Community, Now, a page, a share card or search (person_foundation_contract_law; raziel_group_privacy_law for the group/DM boundary). The public body follows the existing public projection and redaction. RLS, grants and isAdmin are unchanged. Publication, visibility and Community display rules are not restated here: they remain with §10 and publishing conventions. The Owner Index has no dedicated Community-publication owner; this was reported to ZURIEL and is not created here.
 
@@ -47,7 +49,8 @@ begin
         'identity_basis', 'verified_phone_unique',
         'authorizations', jsonb_build_array(jsonb_build_object('channel', 'torat-haremez', 'new_messages_only', true, 'backfill', false,
           'contributors', jsonb_build_array('c0459430-6ba0-44a9-b1be-b5952344e74d', 'fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf'))),
-        'effective_from', now(),
+        'effective_from', '2026-11-24T18:52:39Z', 'existing_is_noop', true, 'reply_without_parent', 'held',
+        'authorizes_content_publication_only', true,
         'hold_by_default', true, 'reverse_direction', false, 'new_mechanism', false)),
     true, 'writer_material_home_law', 7, 6, v_old.weight);
 end;

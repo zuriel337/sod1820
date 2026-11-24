@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { TORAT_HAREMEZ_WRITERS } from "../supabase/functions/_shared/giluiCommunityAdmissionPlan.mjs";
+import { TORAT_HAREMEZ_WRITERS, TORAT_HAREMEZ_EFFECTIVE_FROM } from "../supabase/functions/_shared/giluiCommunityAdmissionPlan.mjs";
 
 const sql = readFileSync(new URL("../supabase/proposed/20261124_writer_material_home_v7_group_source_admission_REVIEW_ONLY.sql", import.meta.url), "utf8");
 const text = /\$u\$([\s\S]*?)\$u\$/.exec(sql)[1];
@@ -31,4 +31,17 @@ test("the authorization in the law is exactly the planner's list: Shimon and the
   assert.deepEqual(ids.sort(), [...TORAT_HAREMEZ_WRITERS].sort());
   assert.match(sql, /'channel', 'torat-haremez', 'new_messages_only', true, 'backfill', false/);
   assert.match(text, /Every other member of the group, verified or not, is held/);
+});
+
+test("the exact start instant is the same in the law, its metadata and the admission planner that enforces it", () => {
+  assert.equal(TORAT_HAREMEZ_EFFECTIVE_FROM, "2026-11-24T18:52:39Z");
+  assert.ok(text.includes(`at or after ${TORAT_HAREMEZ_EFFECTIVE_FROM}`), "§45 states the instant");
+  assert.match(sql, new RegExp(`'effective_from', '${TORAT_HAREMEZ_EFFECTIVE_FROM}'`), "metadata carries the same instant, not now()");
+  assert.doesNotMatch(sql, /now\(\)/);
+});
+test("existing is a no-op; a reply with a missing parent is held; content authorization is not system authorization", () => {
+  assert.match(text, /recognized as existing\. No second write, no change of its visibility, no hiding, no re-dating and no re-linking/);
+  assert.match(text, /it is never published as a new root/);
+  assert.match(text, /It authorizes no change to the system/);
+  assert.doesNotMatch(text.split("46. EXISTING AND HOLD.")[1].split("(b)")[1], /already admitted/, "an existing source is not in the hold list");
 });
