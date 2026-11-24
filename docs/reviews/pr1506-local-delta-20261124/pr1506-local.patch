@@ -1,0 +1,154 @@
+diff --git a/.github/workflows/release-visual-gate.yml b/.github/workflows/release-visual-gate.yml
+index 2c1bc929..fc752b20 100644
+--- a/.github/workflows/release-visual-gate.yml
++++ b/.github/workflows/release-visual-gate.yml
+@@ -142,14 +142,21 @@ jobs:
+           });
+           const PATH = '/entity-hub-preview/number/1237';
+           const widths = [320, 360, 390, 1440];
+-          // No horizontal overflow: the document must never be wider than its viewport. 2029.html reserves a stable
+-          // scrollbar gutter (html { scrollbar-gutter: stable }), so scrollWidth may be narrower than clientWidth by at
+-          // most one scrollbar width. The strict upper bound (no overflow) is unchanged; the lower bound catches a
+-          // layout that collapsed by more than a gutter.
+-          const MAX_STABLE_GUTTER_PX = 20;
+-          function expectNoHorizontalOverflow(scrollWidth, clientWidth) {
+-            expect(scrollWidth, `document scrollWidth ${scrollWidth} exceeds clientWidth ${clientWidth}`).toBeLessThanOrEqual(clientWidth);
+-            expect(clientWidth - scrollWidth, `layout is narrower than the viewport by more than the stable scrollbar gutter (${scrollWidth} vs ${clientWidth})`).toBeLessThanOrEqual(MAX_STABLE_GUTTER_PX);
++          // The document may reserve native scrollbar space at both edges to center the crown.
++          // Measure the native gutter in this browser independently of the page's content width.
++          async function expectNoHorizontalOverflow(page, scrollWidth, clientWidth) {
++            const reserved = await page.evaluate(() => {
++              const root = document.documentElement;
++              const probe = document.createElement('div');
++              probe.style.cssText = 'position:fixed;visibility:hidden;inset:0 auto auto 0;width:100px;height:1px;box-sizing:border-box;border:0;padding:0;overflow:auto;scrollbar-gutter:stable';
++              root.appendChild(probe);
++              const gutter = probe.offsetWidth - probe.clientWidth;
++              probe.remove();
++              const sides = getComputedStyle(root).scrollbarGutter.includes('both-edges') ? 2 : 1;
++              return gutter * sides;
++            });
++            expect(scrollWidth, 'the document overflows the viewport').toBeLessThanOrEqual(clientWidth);
++            expect(clientWidth - scrollWidth, 'unused width exceeds native scrollbar reservation').toBeLessThanOrEqual(reserved + 1);
+           }
+           // Launch gates are runtime configuration read from the live site_flags table. A gate that exercises a
+           // launch-gated tool pins that state explicitly instead of depending on what is open or closed today
+@@ -213,7 +220,7 @@ jobs:
+               await expect(page.getByRole('toolbar', { name: 'מסלול המחקר והפעולות הזמינות עכשיו', exact: true })).toHaveCount(1);
+               const widthMetrics = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
+               expect(widthMetrics.clientWidth).toBe(width);
+-              expectNoHorizontalOverflow(widthMetrics.scrollWidth, widthMetrics.clientWidth);
++              await expectNoHorizontalOverflow(page, widthMetrics.scrollWidth, widthMetrics.clientWidth);
+               await page.screenshot({ path: `test-results/release-visual/home-core-opening-${width}.png`, fullPage: false });
+             }
+           });
+@@ -292,7 +299,7 @@ jobs:
+               clsSources: window.__sodCls?.sources || [],
+             }));
+             expect(metrics.bodyText).toBeGreaterThan(100);
+-            expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
++            await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
+             expect(metrics.cls, `CLS ${metrics.cls.toFixed(4)} exceeded 0.1; latest max-window sources: ${metrics.clsSources.join(', ') || 'unknown'}`).toBeLessThanOrEqual(0.1);
+ 
+             const interactive = page.locator('a, button, [tabindex="0"]');
+@@ -404,7 +411,7 @@ jobs:
+               clientWidth: document.documentElement.clientWidth,
+               scrollWidth: document.documentElement.scrollWidth,
+             }));
+-            expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
++            await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
+ 
+             await page.screenshot({
+               path: `test-results/release-visual/golden-1237-contextual-${width}.png`,
+@@ -612,7 +619,7 @@ jobs:
+               clientWidth: document.documentElement.clientWidth,
+               scrollWidth: document.documentElement.scrollWidth,
+             }));
+-            expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
++            await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
+ 
+             const panelBox = await sidecar.boundingBox();
+             expect(panelBox).not.toBeNull();
+@@ -700,7 +707,7 @@ jobs:
+               clientWidth: document.documentElement.clientWidth,
+               scrollWidth: document.documentElement.scrollWidth,
+             }));
+-            expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
++            await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
+             await expect(page.locator('#sp29-title')).toBeVisible();
+           });
+ 
+@@ -731,7 +738,7 @@ jobs:
+             expect(result.urlDirection).toBe('ltr');
+             expect(result.left).toBeGreaterThanOrEqual(0);
+             expect(result.right).toBeLessThanOrEqual(result.viewport + 0.5);
+-            expectNoHorizontalOverflow(result.scrollWidth, result.viewport);
++            await expectNoHorizontalOverflow(page, result.scrollWidth, result.viewport);
+           });
+           test('explicit 2029 Post Preview preserves equality interactions', async ({ page }) => {
+             test.setTimeout(90_000);
+@@ -796,7 +803,7 @@ jobs:
+                 clientWidth: document.documentElement.clientWidth,
+                 scrollWidth: document.documentElement.scrollWidth,
+               }));
+-              expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
++              await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
+               await page.screenshot({ path: `test-results/release-visual/native-post-equality-${width}.png`, fullPage: false });
+               await sidecar.getByRole('button', { name: 'סגור', exact: true }).click();
+               await expect(sidecar).toHaveCount(0);
+@@ -912,7 +919,7 @@ jobs:
+                 clientWidth: document.documentElement.clientWidth,
+                 scrollWidth: document.documentElement.scrollWidth,
+               }));
+-              expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
++              await expectNoHorizontalOverflow(page, metrics.scrollWidth, metrics.clientWidth);
+ 
+               const badTargets = await page.evaluate(() => Array.from(
+                 document.querySelectorAll('.sod29-calc2029 button:not([disabled]), .sod29-calc2029 a[href]')
+diff --git a/src/components/experience2029/systemFrame2029.css b/src/components/experience2029/systemFrame2029.css
+index f4284e5b..149bf733 100644
+--- a/src/components/experience2029/systemFrame2029.css
++++ b/src/components/experience2029/systemFrame2029.css
+@@ -74,7 +74,6 @@
+ /* One transient surface at a time. Keep canonical context above global supplemental hints (PlaneHintSpotlight=1800) and below true full-screen media/lightbox layers (2000+). */
+ .sod29-frame-backdrop{position:fixed;inset:0;z-index:1900;background:color-mix(in srgb,var(--s29-page) 58%,transparent);backdrop-filter:blur(8px);display:flex;align-items:stretch;justify-content:flex-start;padding:10px}
+ .sod29-frame-panel{margin-inline-start:auto;width:min(var(--s29-sidecar-width,520px),100%);height:calc(100vh - 20px);overflow:auto;border:1px solid var(--s29-line-strong);border-radius:26px;background:color-mix(in srgb,var(--s29-panel) 98%,transparent);color:var(--s29-ink);box-shadow:0 36px 120px color-mix(in srgb,var(--s29-page) 62%,transparent);display:flex;flex-direction:column}
+-[dir="ltr"] .sod29-frame-panel{margin-inline-start:0;margin-inline-end:auto}
+ .sod29-frame-panel-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-panel) 96%,transparent);backdrop-filter:blur(16px)}
+ .sod29-frame-panel-title{display:flex;align-items:center;gap:10px;min-width:0}.sod29-frame-panel-title small{display:block;color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:800;letter-spacing:.1em}.sod29-frame-panel-title strong{display:block;margin-top:2px;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sod29-frame-panel-icon{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--s29-line);border-radius:13px;color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent) 7%,transparent);font-weight:900}
+ .sod29-frame-panel-head>button{width:44px;height:44px;border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-ink);cursor:pointer;font-size:22px}
+diff --git a/test/footer-loading-cls-2029.test.mjs b/test/footer-loading-cls-2029.test.mjs
+index 8945ec62..37ea03ab 100644
+--- a/test/footer-loading-cls-2029.test.mjs
++++ b/test/footer-loading-cls-2029.test.mjs
+@@ -1,6 +1,7 @@
+ import test from "node:test";
+ import assert from "node:assert/strict";
+ import { readFileSync } from "node:fs";
++import { JSDOM } from "jsdom";
+ 
+ const css = readFileSync(new URL("../src/components/experience2029/footer2029.css", import.meta.url), "utf8");
+ const footer = readFileSync(new URL("../src/components/experience2029/Footer2029.jsx", import.meta.url), "utf8");
+@@ -15,7 +16,22 @@ const frameCss = readFileSync(new URL("../src/components/experience2029/systemFr
+ test("the footer is hidden only while the route content is just the loading placeholder", () => {
+   const rule = css.match(/\.sod29-root:has\(([^)]*)\)\s*\.f29\s*\{([^}]*)\}/);
+   assert.ok(rule, "footer loading rule is present");
+-  assert.equal(rule[1], ".sod29-main-stage>.sod29-content>.sod-canonical-progress:only-child");
++  assert.deepEqual(rule[1].split(",").map(selector => selector.trim()), [
++    ".sod29-main-stage>.sod29-content>.sod-canonical-progress:only-child",
++    ".sod29-main-stage>.sod29-content>[data-intro-symbol-only]:first-child+.sod-canonical-progress:last-child",
++  ]);
++  const dom = new JSDOM('<div class="sod29-root"><div class="sod29-main-stage"><main class="sod29-content"></main></div><footer class="f29"></footer></div>');
++  const doc = dom.window.document, main = doc.querySelector("main");
++  const loading = '<div class="sod-canonical-progress"></div>';
++  const emblem = '<section data-intro-symbol-only></section>';
++  const article = '<article>Article content</article>';
++  try {
++    for (const [html, hidden] of [[loading, true], [emblem + loading, true], [article, false],
++      [emblem + article, false], [article + loading, false], [emblem + article + loading, false]]) {
++      main.innerHTML = html;
++      assert.equal(doc.querySelector(`.sod29-root:has(${rule[1]}) .f29`) === doc.querySelector("footer"), hidden, html);
++    }
++  } finally { dom.window.close(); }
+   assert.equal(rule[2].trim(), "display:none");
+ });
+ 
