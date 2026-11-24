@@ -125,13 +125,18 @@ test("ingest: the live set of public groups; text proof for text only; images/vi
   // The deployed v33 set (11.11.2026), the same three channels the proof table admits; ki-la stays a separate gated change.
   assert.match(ts, /WORLD_GROUP_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "blaze-888"\]\)/);
   assert.ok(!/WORLD_GROUP_CHANNELS[^;]*or-geula/.test(ts));
-  const at = ts.indexOf('rpc("record_channel_update_group_proof_v1"');
-  const guard = ts.slice(ts.lastIndexOf("if (route.groupSource", at), at);
-  assert.equal(guard.trim(), "if (route.groupSource && !imageUrl) {\n        const pr = await sb.", "the text proof only for a message without media");
-  assert.ok(ts.slice(at, at + 400).includes("p_sender_jid: senderId"));
+  // Both text proofs (v1 for a message, v2 for a reply that is private from insert, #1514) sit inside the one text-only guard.
+  for (const fn of ["record_channel_update_group_proof_v1", "record_channel_update_group_proof_v2"]) {
+    const at = ts.indexOf(`rpc("${fn}"`);
+    assert.ok(at > 0, fn);
+    const guardAt = ts.lastIndexOf("if (route.groupSource", at);
+    assert.ok(ts.slice(guardAt, guardAt + 45).startsWith("if (route.groupSource && !imageUrl) {"), `${fn}: the text proof only for a message without media`);
+    assert.ok(!ts.slice(guardAt, at).includes("} else"), `${fn} is inside that guard`);
+    assert.ok(ts.slice(at, at + 400).includes("p_sender_jid: senderId"));
+  }
   assert.match(ts, /const route = waGroupMessageRoute\(\{ worldGroup: WORLD_GROUP_CHANNELS\.has\(src\.channel\), outgoing, chatId, typeMessage: typ, mediaKind \}\)/);
-  assert.match(ts, /group_source_intake_public: waGroupIntakePublic\(route, imageUrl\),/);
-  assert.match(ts, /\} else if \(route\.groupMedia && route\.kind && waIsPrivateMediaRef\(imageUrl\) && keep\.media\) \{/);
+  assert.match(ts, /group_source_intake_public: groupReply \? false : waGroupIntakePublic\(route, imageUrl\),/);
+  assert.match(ts, /\} else if \(route\.groupMedia && route\.kind && waIsPrivateMediaRef\(imageUrl\) && keep\.media && !groupReply\) \{/);
   // Audio messages are admitted (11.11.2026) on the same private/live rule; a world group never makes them public.
   assert.match(ts, /"audioMessage"/);
   const media = read("supabase/functions/_shared/waGroupMedia.js");

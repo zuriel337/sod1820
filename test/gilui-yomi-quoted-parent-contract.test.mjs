@@ -31,13 +31,8 @@ test("quote pointer fails closed for conflicting, malicious, absent, self or wro
 });
 test("ingest adds only private source proof after existing validation, not Community writes", () => {
   assert.match(ingest,/record_channel_update_group_proof_v1/);
-  assert.match(ingest,/else \{\s*\/\/ Source provenance only/);
+  assert.match(ingest,/record_channel_update_group_proof_v2/, "the reply proof and its parent are one server call (no separate provenance write)");
   assert.match(ingest,/giluiYomiQuotedParent\(m, src.channel\)/);
-  assert.match(ingest,/from\("channel_update_group_proof"\)/);
-  assert.match(ingest,/\.eq\("update_id", ins.data.id\)/);
-  assert.match(ingest,/\.eq\("source_id", src.id\)/);
-  assert.match(ingest,/\.eq\("channel", src\.channel\)/);
-  assert.match(ingest,/\.eq\("ext_msg_id", msgId\)/);
   assert.doesNotMatch(ingest,/\.from\("research_contributions"\)/);
   assert.doesNotMatch(ingest,/\.from\("posts"\)/);
 });
@@ -59,12 +54,17 @@ test("a group reply is recognized for both groups, fail closed; plain messages a
   }
   for (const channel of ["blaze-888", "or-geula", ""]) assert.equal(groupReplyPendingAdmission(reply, channel), false, channel);
 });
-test("ingest closes the intake marker of a text reply only, on its exact row, after the proof step", () => {
+test("a reply is private from its first write: inserted closed, proven in one call, never opened or updated later", () => {
+  // the reply decision is made before the insert, and the insert itself closes the marker for a reply
+  assert.ok(ingest.indexOf("const groupReply = groupReplyPendingAdmission(m, src.channel);") < ingest.indexOf('sb.from("channel_updates").insert('));
+  assert.match(ingest, /group_source_intake_public: groupReply \? false : waGroupIntakePublic\(route, imageUrl\),/);
+  // one server call carries identity proof and quoted parent; no later write to the proof or to the marker
   const block = ingest.slice(ingest.indexOf("if (route.groupSource && !imageUrl) {"), ingest.indexOf("} else if (route.groupMedia"));
-  assert.match(block, /if \(groupReplyPendingAdmission\(m, src\.channel\)\) \{/);
-  const close = block.slice(block.indexOf("groupReplyPendingAdmission(m, src.channel)"));
-  assert.match(close, /\.from\("channel_updates"\)\s*\.update\(\{ group_source_intake_public: false \}\)\s*\.eq\("id", ins\.data\.id\)\s*\.eq\("channel", src\.channel\)\s*\.eq\("ext_msg_id", msgId\)/);
-  assert.ok(block.indexOf("record_channel_update_group_proof_v1") < block.indexOf("groupReplyPendingAdmission(m"), "the proof is recorded first (it needs the open marker)");
-  assert.equal((ingest.match(/group_source_intake_public: false/g) || []).length, 1, "no other row is closed");
-  assert.doesNotMatch(ingest, /group_source_intake_public: true\b(?!,)/, "nothing is opened");
+  assert.match(block, /groupReply\s*\?\s*await sb\.rpc\("record_channel_update_group_proof_v2", \{[\s\S]*?p_quoted_parent_ext_msg_id: giluiYomiQuotedParent\(m, src\.channel\),/);
+  assert.match(block, /:\s*await sb\.rpc\("record_channel_update_group_proof_v1", \{/, "non-replies keep v1");
+  assert.doesNotMatch(ingest, /\.from\("channel_update_group_proof"\)/, "no separate proof write");
+  assert.doesNotMatch(ingest, /\.update\(\{ group_source_intake_public/, "the marker is never changed after insert");
+  // a media reply never reaches the public media path
+  assert.match(ingest, /\} else if \(route\.groupMedia && route\.kind && waIsPrivateMediaRef\(imageUrl\) && keep\.media && !groupReply\) \{/);
+  assert.doesNotMatch(ingest, /group_source_intake_public: true/);
 });

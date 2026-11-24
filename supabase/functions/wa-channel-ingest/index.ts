@@ -291,6 +291,9 @@ async function ingestSource(
     const isImg = mediaKind === "image";
     const isVid = mediaKind === "video";
     const isAud = mediaKind === "audio";
+    // A group reply (#1514 option 2, v7 §44.3/§48) is private from the moment it is ingested: inserted with the intake marker closed,
+    // proven (identity + quoted parent) in one server call, and never shown on its own by the public group-source reader.
+    const groupReply = groupReplyPendingAdmission(m, src.channel);
     const caption = m.caption || m.fileMessageData?.caption || "";
     const bodyText = m.textMessage || m.extendedTextMessage?.text || giluiYomiQuotedText(m, src.channel) || caption || "";
 
@@ -383,7 +386,7 @@ async function ingestSource(
       source,
       credit,
       contributor_id: contributorId,
-      group_source_intake_public: waGroupIntakePublic(route, imageUrl),
+      group_source_intake_public: groupReply ? false : waGroupIntakePublic(route, imageUrl),
       priority: src.priority ?? 50,
       status: channelStatus(src.channel),
       ext_msg_id: msgId,
@@ -406,39 +409,21 @@ async function ingestSource(
       // Positive group provenance (private side table). Identity comes ONLY from senderId (JID) -> contributors.phone,
       // never from senderName/credit. Any failure leaves the row without proof => excluded from public World reads.
       if (route.groupSource && !imageUrl) {
-        const pr = await sb.rpc("record_channel_update_group_proof_v1", {
-          p_update_id: ins.data?.id, p_source_id: src.id, p_ext_msg_id: msgId, p_group_chat_id: chatId,
-          p_sender_jid: senderId, p_incoming: true, p_type_message: typ,
-        });
+        // A reply: identity proof and quoted parent in ONE call (v2), on a row that was inserted private. Any other message: v1, as before.
+        const pr = groupReply
+          ? await sb.rpc("record_channel_update_group_proof_v2", {
+            p_update_id: ins.data?.id, p_source_id: src.id, p_ext_msg_id: msgId, p_group_chat_id: chatId,
+            p_sender_jid: senderId, p_incoming: true, p_type_message: typ,
+            p_quoted_parent_ext_msg_id: giluiYomiQuotedParent(m, src.channel),
+          })
+          : await sb.rpc("record_channel_update_group_proof_v1", {
+            p_update_id: ins.data?.id, p_source_id: src.id, p_ext_msg_id: msgId, p_group_chat_id: chatId,
+            p_sender_jid: senderId, p_incoming: true, p_type_message: typ,
+          });
+        // A failed proof leaves the row without proof => never in public World reads (a reply is private anyway).
         if (pr.error || pr.data?.ok !== true) trace.push({ msgId, step: "group-proof-skip", channel: src.channel, reason: String(pr.error?.message || pr.data?.error || "unknown") });
-        else {
-          // Source provenance only. The parent is never made public by this
-          // write and is never guessed when a Green API quote ID is missing.
-          // Apply the reviewed proof-column SQL before deploying this worker.
-          const quotedParent = giluiYomiQuotedParent(m, src.channel);
-          if (quotedParent) {
-            const { error: quoteError } = await sb.from("channel_update_group_proof")
-              .update({ quoted_parent_ext_msg_id: quotedParent })
-              .eq("update_id", ins.data.id)
-              .eq("source_id", src.id)
-              .eq("channel", src.channel)
-              .eq("ext_msg_id", msgId);
-            // A failed proof enrichment does not reclassify a source as public.
-            if (quoteError) trace.push({ msgId, step: "group-quote-proof-unavailable", channel: src.channel, reason: String(quoteError.code || "db_error") });
-          }
-        }
-        // A text reply stays private until the Community admission step (v7 §44.3, §48): its proof and quoted-parent id are kept,
-        // and the intake marker is closed so the public group-source reader never shows it on its own (one Now update per thread).
-        // Closed whether or not the proof succeeded (fail closed). Existing rows and non-reply messages are not touched.
-        if (groupReplyPendingAdmission(m, src.channel)) {
-          const { error: closeError } = await sb.from("channel_updates")
-            .update({ group_source_intake_public: false })
-            .eq("id", ins.data.id)
-            .eq("channel", src.channel)
-            .eq("ext_msg_id", msgId);
-          if (closeError) trace.push({ msgId, step: "group-reply-close-failed", channel: src.channel, reason: String(closeError.code || "db_error") });
-        }
-      } else if (route.groupMedia && route.kind && waIsPrivateMediaRef(imageUrl) && keep.media) {
+      } else if (route.groupMedia && route.kind && waIsPrivateMediaRef(imageUrl) && keep.media && !groupReply) {
+        // A media reply is not proven or published here: it stays a private source (marker closed) until Community admission.
         // Image / video: the same identity rule through the media proof; the public copy only if the server says publishable.
         await waProveAndPublishGroupMedia({ sb, trace, bucket: MEDIA_2029_BUCKET, updateId: ins.data?.id, source: src, msgId, chatId,
           senderId, typeMessage: typ, kind: route.kind, sourceTs: ts, media: keep.media });
