@@ -64,3 +64,38 @@ test("the projection simplification keeps every route label identical", () => {
     ["/community/calculator", "/community/calculator"], ["/community/other", "/community/:item"], ["/World", "/world"], ["/me", null]])
     assert.equal(readingTelemetryPath(path), label, path);
 });
+
+// The worker budget (ZURIEL 24.11.2026): story_2029 counts on its own (30 per window per 10 minutes) and never draws on the 60 that
+// saves, calculations and shares share. Both worker paths: the plain action body and the measurement-envelope body the emitter sends.
+function workerHarness() {
+  const listeners = {}, calls = [];
+  vm.runInNewContext(buildPublicReadingWorker("a".repeat(40), { anonKey: "synthetic-public-anon-key" }), { self: { location: { origin: "https://sod1820.co.il" },
+    skipWaiting() {}, clients: { claim: () => Promise.resolve(), get: async id => ({ type: "window", url: "https://sod1820.co.il/community/chat", id }) },
+    addEventListener: (name, handler) => { listeners[name] = handler; } },
+    URL, Response, Request, Set, Map, JSON, fetch: async (...args) => { calls.push(args); return new Response("{}", { status: 200 }); } });
+  return async (body, clientId = "window-1") => {
+    let pending;
+    const request = new Request("https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/ingest_event", { method: "POST", body: JSON.stringify(body) });
+    Object.defineProperty(request, "destination", { value: "" });
+    listeners.fetch({ request, clientId, respondWith(value) { pending = value; } });
+    return (await pending).status;
+  };
+}
+const plain = (surface, type, props) => ({ p_sod_id: null, p_session_id: null, p_is_bot: false, p_path: "/community/chat", p_app_context: "chrome",
+  p_surface: surface, p_event_type: type, p_props: { action_version: 1, ...props } });
+const measured = (surface, type, props) => ({ p_sod_id: null, p_session_id: "s1234567", p_is_bot: false, p_path: "/community/chat", p_app_context: "chrome",
+  p_surface: surface, p_event_type: type, p_props: { action_version: 1, ...props, measurement: { version: 2, visitor_id: "v1234567", page_path: "/community/chat" } } });
+
+for (const [name, make] of [["plain action body", plain], ["measurement envelope", measured]]) {
+  test(`worker budget (${name}): 30 story events do not take any of the 60 shared by calculations, saves and shares`, async () => {
+    const post = workerHarness();
+    const story = make("story_2029", "view", { entry_surface: "chat", item_ref: ITEM });
+    const share = make("share", "share", { platform: "copy" });
+    let storyOk = 0, shareOk = 0;
+    for (let i = 0; i < 40; i++) if (await post(story) === 200) storyOk++;
+    assert.equal(storyOk, 30, "story stops at its own 30");
+    for (let i = 0; i < 70; i++) if (await post(share) === 200) shareOk++;
+    assert.equal(shareOk, 60, "the other families keep their full 60 after the story rail");
+    assert.equal(await post(story, "window-2"), 200, "another window has its own story budget");
+  });
+}

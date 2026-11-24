@@ -29,7 +29,7 @@ IMPRESSION != OPEN != VIEW. impression = a rail item at least 50% visible for at
 
 NO DOUBLE COUNT. One emitter: the canonical 2029 story component. Deduplication is client-side by the keys above; the measurement envelope carries the session. Legacy track() / visitor_events story_* is never emitted by 2029.
 
-PERFORMANCE. The story component and its telemetry load lazily with the story surface (chat, Or HaGeula page, Home when approved). The shell budget (scripts/test-2029-shell-budget.mjs) is unchanged; impressions use one IntersectionObserver per rail, no polling.
+PERFORMANCE. The story component and its telemetry load lazily with the story surface (chat, Or HaGeula page, Home when approved). The shell budget (scripts/test-2029-shell-budget.mjs) is unchanged; impressions use one IntersectionObserver per rail, no polling. In the request worker story_2029 has its own count, at most 30 per window per 10 minutes, and never draws on the 60 shared by saves, calculations, shares and the other action families; an event over the count is dropped (undercount, never inflation).
 
 LEGACY SEPARATION. visitor_events section=or-geula story_* (Legacy, until 4.11.2026) is historical provenance: not migrated, not merged, not summed with story_2029. Any comparison names both measurement layers and both windows explicitly.
 
