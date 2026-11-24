@@ -8,6 +8,8 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 HERE="$ROOT/tests/measurement-silence-watch-20261124"
 PROPOSAL="$ROOT/supabase/proposed/20261124230000_measurement_silence_watch_PROPOSAL.sql"
 ROLLBACK="$ROOT/supabase/proposed/20261124230000_measurement_silence_watch_ROLLBACK.sql"
+FOLLOWUP="$ROOT/supabase/proposed/20261124233000_measurement_silence_state_window_PROPOSAL.sql"
+FOLLOWUP_ROLLBACK="$ROOT/supabase/proposed/20261124233000_measurement_silence_state_window_ROLLBACK.sql"
 PG_BIN=${PG_BIN:-/usr/lib/postgresql/16/bin}
 TMP=$(mktemp -d); chmod 755 "$TMP"
 RUN=(); if [ "$(id -u)" = 0 ]; then RUN=(su "${PG_USER:-postgres}" -s /bin/bash -c); fi
@@ -87,6 +89,26 @@ check "$(Q -c "select count(*) from public.work_log where topic='🚨 כשל ב�
 check "$(Q -c "select count(*) from public.analytics_cache where cache_key='reliability_heartbeat:health_watch'")" 1 "the heartbeat and the other sections still run"
 Q -c "alter table public.site_visits_hidden rename to site_visits"; reset; traffic 70 2 0; watch
 check "$(Q -c "select payload->>'ok' from public.analytics_cache where cache_key='reliability_watch:measurement_silence'")" true "after recovery the state row is ok again"
+
+# Follow-up 20261124233000: the state row must describe the window ending at the check, not the one 15 minutes earlier.
+check "$(Q -c "select md5(pg_get_functiondef('public.fn_reliability_watch()'::regprocedure))")" 82cdf8c4f1ee141082f510953b2ac705 "the definition applied live from dc5eaf7 (md5 82cdf8c4)"
+window() { reset; Q -c "insert into public.events(ts,session_id,surface,event_type,path) select now()-make_interval(mins=>m),'w'||m,'page','view','/' from generate_series(0,8,2) m union all select now()-make_interval(mins=>m),'x'||m,'page','view','/' from generate_series(30,40,2) m"; watch; Q -c "select payload->>'page_views_30m' from public.analytics_cache where cache_key='reliability_watch:measurement_silence'"; }
+check "$(window)" 6 "dc5eaf7: the state row shows the earlier window (6), not the current one (5) — the defect seen live"
+Q -f "$FOLLOWUP"
+check "$(window)" 5 "follow-up: the state row shows the window ending at the check"
+check "$(Q -c "select (payload->>'state_window_fix')||':'||(abs(extract(epoch from (payload->>'window_end')::timestamptz - (payload->>'at')::timestamptz)) < 1)::text from public.analytics_cache where cache_key='reliability_watch:measurement_silence'")" "20261124:true" "follow-up: window_end is the check time"
+reset; traffic 70 2 0; Q -c "delete from public.events where surface='page' and ts > now()-interval '50 minutes'"; watch; watch
+check "$(alerts)" "1:kind:page_view_stopped" "follow-up: the alert decision is unchanged (one alert, no duplicate)"
+check "$(Q -c "select payload->>'kind_current_window'||':'||(payload->>'kind_previous_window') from public.analytics_cache where cache_key='reliability_watch:measurement_silence'")" "page_view_stopped:page_view_stopped" "follow-up: both windows are visible in the state row"
+reset; traffic 70 2 0; Q -c "delete from public.events where surface='page' and ts > now()-interval '30 minutes'"; watch
+check "$(alerts)" "0:" "follow-up: a gap seen in the current window only still waits"
+Q -c "alter table public.site_visits rename to site_visits_hidden"; Q -c "truncate public.events, public.work_log, public.notices"; watch
+check "$(Q -c "select (payload->>'ok')||':'||(select count(*) from public.work_log where topic='🚨 כשל בגלאי המדידה (אוטומטי)') from public.analytics_cache where cache_key='reliability_watch:measurement_silence'")" "false:1" "follow-up: a failure is still recorded and alerted"
+Q -c "alter table public.site_visits_hidden rename to site_visits"
+if Q -f "$FOLLOWUP" 2>/dev/null; then echo "FAIL the follow-up ran twice"; exit 1; else pass=$((pass+1)); echo "PASS a second follow-up run stops at its guard"; fi
+Q -f "$FOLLOWUP_ROLLBACK"
+check "$(Q -c "select md5(pg_get_functiondef('public.fn_reliability_watch()'::regprocedure))")" 82cdf8c4f1ee141082f510953b2ac705 "follow-up rollback restores the applied definition"
+Q -f "$FOLLOWUP"
 
 if Q -f "$PROPOSAL" 2>/dev/null; then echo "FAIL the proposal ran twice"; exit 1; else pass=$((pass+1)); echo "PASS a second run stops at the definition guard"; fi
 Q -f "$ROLLBACK"
