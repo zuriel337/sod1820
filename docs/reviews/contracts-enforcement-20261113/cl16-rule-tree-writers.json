@@ -25,6 +25,12 @@
    "access": "WRITES public.nodes: deactivates v7 and reactivates v6 (lines 19-20)",
    "effect_of_cl16": "after CL-16 the reactivation of the retired v6 is refused as a revival (needs owner_routing.resolution and an approval reference); this rollback no longer runs",
    "order_against_cl16": "runs only before CL-16 (or after CL-16 has been rolled back); after CL-16 it needs a new, separately approved revival"
+  },
+  {
+   "file": "supabase/proposed/20261124_writer_material_home_v7_group_source_admission_REVIEW_ONLY.sql",
+   "access": "WRITES public.nodes: refuses unless the active writer_material_home_law is v6 with md5(description) b8be155d…; deactivates v6 and inserts v7 (v6 description + sections 43-49, v6 metadata + nested group_source_admission_v1, supersedes_version 6). Reviewed 24.11.2026 (#1514, PR #1546); REVIEW ONLY, not applied.",
+   "effect_of_cl16": "CL-16 is live (24.11.2026: trg_rule_compaction_integrity_guard_v1 and its TRUNCATE trigger enabled, function md5 90b5917b1412be02f66d1f805241018c = the CL-16 AFTER body). The guard requires an unambiguous immediate predecessor and governed metadata (compaction_v1, owner_routing, g3_disposition_v1), which v7 inherits from v6, and stamps metadata.rule_guard on the retired v6. The file does not re-check v6 metadata after the write, so the stamp does not break it. Verified on a throwaway PostgreSQL 16 with the CL-16 AFTER body and the live v6 metadata: first run OK (v6 inactive and stamped, v7 active, v6 metadata keys kept, update nested); second run refused (Unexpected active writer_material_home_law v7) with nothing changed.",
+   "order_against_cl16": "runs after CL-16 (already live); no rollback file: reverting v7 is a governed supersession of its own under CL-16, with a separate ZURIEL approval"
   }
  ]
 }
