@@ -2,13 +2,14 @@
 // Speed Law: it is not part of the code every page loads. The story surface registers it when it loads (registerStorySpec2029),
 // and the public request worker carries it from build time (public-reading-deploy/transport.js). The same entry is in ingest_event v_spec.
 // Self-contained: serialized into the request worker by toString().
+import { registerMeasurementFamilies2029 } from "./measurementFamilies2029.js";
 export function readingStorySpec() {
   return { story_2029: { events: ["impression", "open", "view", "next", "prev", "close", "complete"],
     fields: { content_world: "token", entry_surface: "token", item_ref: "token", index: "int", dwell_ms: "int" } } };
 }
 
-// Called by the story surface module on load. Idempotent; the page then measures story_2029 through the same emit/validators.
+// Called by the story surface module on load. Idempotent; it joins the one family list without replacing any family
+// (measurementFamilies2029.js). The page then measures story_2029 through the same emit/validators.
 export function registerStorySpec2029(scope = globalThis) {
-  scope.sodSpecs = readingStorySpec;
-  return true;
+  return registerMeasurementFamilies2029(readingStorySpec(), scope).length === 0;
 }
