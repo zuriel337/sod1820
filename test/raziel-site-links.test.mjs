@@ -30,7 +30,7 @@ test("where is the WhatsApp / social links: exact verified external URLs, no mod
 
 test("where are community / Number / privacy / newsletter: exact internal registry hrefs", () => {
   for (const [text, href] of [
-    ["איפה הממצאים שפורסמו", "/findings"], ["איפה הקהילה", "/community"], ["איפה הצ'אט", "/community/chat"], ["איפה אור הגאולה", "/community/chat"], ["איפה דף המספר", "/number"],
+    ["איפה הממצאים שפורסמו", "/findings"], ["איפה הקהילה", "/community"], ["איפה הצ'אט", "/community/chat"], ["איפה אור הגאולה", "/or-geula"], ["איפה דף המספר", "/number"],
     ["איפה הפרטיות", "/privacy"], ["תן לי את הפרטיות", "/privacy"], ["קח אותי לקהילה", "/community"], ["איפה הניוזלטר", "/updates"],
     ["איפה מפת האתר", "/map"], ["איפה הארכיון", "/archive"], ["איפה צור קשר", "/contact"], ["הלינק לפוסטים", "/post"],
   ]) {
