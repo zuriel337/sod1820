@@ -26,7 +26,14 @@ function proposedDbSpec() {
   const { activity_2029, ...unchanged } = siteSpec;
   assert.deepEqual(unchanged, prior, "site activity must preserve every pre-existing family exactly");
   assert.ok(activity_2029, "site activity is an explicit extension of the existing ingest owner");
-  return siteSpec;
+  // New additive operational family is proposed separately. The historical
+  // sitewide SQL is immutable; only this later guarded proposal extends it.
+  const appSql = fs.readFileSync(new URL("../supabase/proposed/app-health-incidents-20261123/ingest_event-apply.sql", import.meta.url), "utf8");
+  const appPart = appSql.match(/v_new text := '([^']+)';/);
+  assert.ok(appPart, "bounded operational schema proposal is required");
+  const addedApp = JSON.parse("{" + appPart[1].replace(/,$/, "") + "}");
+  assert.deepEqual(Object.keys(addedApp), ["app_health"]);
+  return { ...siteSpec, ...addedApp };
 }
 
 test("client and proposed ingest_event spec are identical, family by family", () => {

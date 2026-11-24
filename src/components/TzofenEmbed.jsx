@@ -224,17 +224,27 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   useEffect(() => { if (!savedToast) return; const t = setTimeout(() => setSavedToast(null), 7000); return () => clearTimeout(t); }, [savedToast]);
   const nativeSavedRowRef = useRef(null);
   useEffect(() => { nativeSavedRowRef.current = null; }, [matrix?.id]);
+  // Diagnostic work is loaded only after the user explicitly saves, never on ELS page load.
+  const reportCipherSave = (stage) => {
+    void import("../lib/appHealthIncident2029.js").then(m => m.recordCipherSave(stage)).catch(() => {});
+  };
   const saveToCloud = useCallback(async (d) => {
+    reportCipherSave("save_started");
     const native = d.nativeRequestId != null;
     const savedState = lastStateRef.current;
     if (native && (!experience2029 || d.nativeRequestId !== saveRequest?.seq)) return;
     const completeNative = (result) => onSaveResult?.({ requestId: d.nativeRequestId, ...result });
+    const savedResult = (result) => {
+      if (result?.ok === true) reportCipherSave("save_confirmed");
+      else if (result?.ok === false) reportCipherSave("save_failed");
+      postToTool(result);
+    };
     if (native && (!user || savedState?.axis?.hitId !== saveRequest.axisHitId)) {
-      completeNative({ ok: false, error: user ? "selection_changed" : "auth_required" }); return;
+      reportCipherSave("save_failed"); completeNative({ ok: false, error: user ? "selection_changed" : "auth_required" }); return;
     }
     // G3 one-engine: a governed save needs the tool's last state to carry a canonical MATCH (defense in depth;
     // the tool already refuses to post `save` for an unverified occurrence).
-    if (savedState?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "verification_required" }); return; }
+    if (savedState?.verification?.state !== "MATCH") { savedResult({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "verification_required" }); return; }
     try {
       let contextMatrix = nativeSavedRowRef.current || matrix;
       // Classic edit ids and route props are not proof of current access/visibility.
@@ -296,7 +306,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           p_engine_detail: engineDetail,
         });
         if (!error) {
-          postToTool({ type: "saved", ok: true, status: "updated" });
+          savedResult({ type: "saved", ok: true, status: "updated" });
           if (native) {
             let row = null;
             try { row = await getMatrixById(editId); } catch { /* the update committed; use the verified target */ }
@@ -308,7 +318,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           return;
         }
         // עדכון נכשל: אם המשתמש התכוון *במפורש* לעדכן (editId מהכלי) — לא יוצרים כפילות שקטה, מדווחים כשל.
-        if (d.editId || privateSave) { postToTool({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "update_failed" }); return; }
+        if (d.editId || privateSave) { savedResult({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "update_failed" }); return; }
         // אחרת (re-save היוריסטי לפי מונח/דילוג) → ממשיך לשמירה-חדשה/גרסה למטה
       }
 
@@ -332,12 +342,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
             status: privateNative ? "draft" : null, description: common.note };
           try { row = await getMatrixById(id) || row; } catch { /* retain the committed id if readback is temporarily unavailable */ }
           nativeSavedRowRef.current = row;
-          postToTool({ type: "saved", ok: true, status: row.status || "saved" });
+          savedResult({ type: "saved", ok: true, status: row.status || "saved" });
           completeNative({ ok: true, id, row, status: row.status || "saved" }); return;
         }
         const receipt = privateSave ? null : await getMatrixById(id).catch(() => null);
         const st = privateSave ? "draft" : receipt?.status === "pending" && isReSave ? "variant" : receipt?.status || "saved";
-        postToTool({ type: "saved", ok: true, status: st });
+        savedResult({ type: "saved", ok: true, status: st });
         // 🎉 כניסה 1: אחרי השמירה הראשונה — מודל-חגיגה להכנת-תיק. אחרת: טוסט-שמירה חוזר עם קישור לדף-המחקר.
         let firstTime = false;
         try { firstTime = !localStorage.getItem("sod_dossier_prompted_v1"); if (firstTime) localStorage.setItem("sod_dossier_prompted_v1", "1"); } catch { /* noop */ }
@@ -346,10 +356,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
         await saveMatrixAnon({ ...common, visitorId: getVisitorId(), authorName: d.author || null });
-        postToTool({ type: "saved", ok: true, status: isReSave ? "variant" : "pending" });
+        savedResult({ type: "saved", ok: true, status: isReSave ? "variant" : "pending" });
       }
     } catch {
-      postToTool({ type: "saved", ok: false });
+      savedResult({ type: "saved", ok: false });
       if (native) completeNative({ ok: false, error: "save_failed" });
     }
   }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix, experience2029, saveRequest, onSaveResult]);
