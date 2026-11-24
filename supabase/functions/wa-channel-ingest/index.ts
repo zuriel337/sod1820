@@ -306,7 +306,8 @@ async function ingestSource(
     const route = waGroupMessageRoute({ worldGroup: WORLD_GROUP_CHANNELS.has(src.channel), outgoing, chatId, typeMessage: typ, mediaKind });
     // Targeted recovery of an EXISTING private group image/video (opened for the media path by a reviewed backfill file): re-read the bytes
     // only, the private original already exists. Without the opened intake marker the server refuses the proof and nothing changes.
-    const groupBackfill = !!dup && targeted && route.groupMedia && waIsPrivateMediaRef(dup.image_url);
+    // A reply is never recovered into the public media path (#1514 option 2): it stays private until Community admission.
+    const groupBackfill = !!dup && targeted && route.groupMedia && waIsPrivateMediaRef(dup.image_url) && !groupReply;
     const verifiedBackfill = groupBackfill && verifiedRecovery;
     if (verifiedRecovery && !groupBackfill) { trace.push({ msgId, step: "verified-recovery-not-recoverable" }); continue; }
     if (verifiedBackfill && (m.type !== "incoming" || dup.channel !== src.channel || Date.parse(dup.created_at) !== ts * 1000)) {

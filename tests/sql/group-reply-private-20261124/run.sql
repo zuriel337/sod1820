@@ -76,6 +76,28 @@ do $$ begin assert (public.record_channel_update_group_proof_v2('00000000-0000-4
   '3EB0REPLY0000000000006', 'g1@g.us', '972500000001@c.us', true, 'quotedMessage', '3EB0ROOT00000000000001')->>'error') = 'update_mismatch'; end $$;
 do $$ begin assert not pg_temp.seen('00000000-0000-4000-8000-000000000006'), 'R6'; end $$;
 
+-- R6b the media/recovery path: a media reply with a VALID private original and a verified sender is still refused by the live media
+-- proof, because it was inserted private; and its parent id (missing, malformed or conflicting) does not matter — no proof, never visible.
+insert into storage.objects (id, bucket_id, metadata) values ('11111111-2222-4333-8444-555555555555', 'submission-inbox', '{"mimetype":"image/jpeg"}');
+insert into storage.objects (id, bucket_id, metadata) values ('22222222-2222-4333-8444-555555555555', 'submission-inbox', '{"mimetype":"video/mp4"}');
+insert into public.channel_updates (id, channel, text, image_url, source, contributor_id, group_source_intake_public, ext_msg_id)
+  values ('00000000-0000-4000-8000-000000000016', 'torat-haremez', '🎬', 'storage-object:22222222-2222-4333-8444-555555555555', 'auto',
+          'c0459430-6ba0-44a9-b1be-b5952344e74d', false, '3EB0REPLY0000000000016');
+do $$ begin
+  assert (public.record_channel_update_group_media_proof_v1('00000000-0000-4000-8000-000000000006', 'b447f1c9-7ccb-4950-be5e-b73345617100',
+    '3EB0REPLY0000000000006', 'g1@g.us', '972500000001@c.us', true, 'imageMessage')->>'error') = 'update_mismatch', 'R6b image reply';
+  assert (public.record_channel_update_group_media_proof_v1('00000000-0000-4000-8000-000000000016', 'b447f1c9-7ccb-4950-be5e-b73345617100',
+    '3EB0REPLY0000000000016', 'g1@g.us', '972500000001@c.us', true, 'videoMessage')->>'error') = 'update_mismatch', 'R6b video reply';
+  assert not exists (select 1 from public.channel_update_group_proof where update_id in ('00000000-0000-4000-8000-000000000006','00000000-0000-4000-8000-000000000016')), 'R6b no proof';
+  assert not pg_temp.seen('00000000-0000-4000-8000-000000000006') and not pg_temp.seen('00000000-0000-4000-8000-000000000016'), 'R6b not visible';
+end $$;
+-- control: the same media proof DOES prove an ordinary (non-reply) image with an open marker — so the refusal above is the privacy rule.
+insert into public.channel_updates (id, channel, text, image_url, source, contributor_id, group_source_intake_public, ext_msg_id)
+  values ('00000000-0000-4000-8000-000000000017', 'torat-haremez', '📷', 'storage-object:11111111-2222-4333-8444-555555555555', 'auto',
+          'c0459430-6ba0-44a9-b1be-b5952344e74d', true, '3EB0IMAGE0000000000017');
+do $$ begin assert (public.record_channel_update_group_media_proof_v1('00000000-0000-4000-8000-000000000017', 'b447f1c9-7ccb-4950-be5e-b73345617100',
+  '3EB0IMAGE0000000000017', 'g1@g.us', '972500000001@c.us', true, 'imageMessage')->>'ok')::boolean, 'R6b control'; end $$;
+
 -- R7 replay of the same reply: the first proof stands; still private.
 do $$ begin assert (public.record_channel_update_group_proof_v2('00000000-0000-4000-8000-000000000002', 'b447f1c9-7ccb-4950-be5e-b73345617100',
   '3EB0REPLY0000000000002', 'g1@g.us', '972500000001@c.us', true, 'quotedMessage', '3EB0OTHER0000000000009')->>'ok')::boolean; end $$;
@@ -100,5 +122,5 @@ do $$ begin assert not has_function_privilege('anon', 'public.record_channel_upd
 \i rollback.sql
 do $$ begin assert to_regprocedure('public.record_channel_update_group_proof_v2(uuid,uuid,text,text,text,boolean,text,text)') is null
   and to_regprocedure('public.record_channel_update_group_proof_v1(uuid,uuid,text,text,text,boolean,text)') is not null
-  and (select count(*) from public.channel_update_group_proof) = 3, 'R10: v2 gone, v1 and the three proofs kept (root, reply 2, reply 5)'; end $$;
+  and (select count(*) from public.channel_update_group_proof) = 4, 'R10: v2 gone, v1 and the four proofs kept (root, reply 2, reply 5, control image)'; end $$;
 select 'group_reply_private_v2: PASS' as result;

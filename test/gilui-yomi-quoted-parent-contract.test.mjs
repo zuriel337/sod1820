@@ -68,3 +68,44 @@ test("a reply is private from its first write: inserted closed, proven in one ca
   assert.match(ingest, /\} else if \(route\.groupMedia && route\.kind && waIsPrivateMediaRef\(imageUrl\) && keep\.media && !groupReply\) \{/);
   assert.doesNotMatch(ingest, /group_source_intake_public: true/);
 });
+
+// Media replies (control tower, 24.11.2026): a missing, malformed or conflicting parent id never turns a reply into a non-reply.
+import { groupMessageHasQuoteSignal } from "../supabase/functions/_shared/giluiYomiQuotedParent.mjs";
+test("a media reply stays a reply whatever its parent id: missing, empty, malformed, conflicting, self or nested", () => {
+  const img = (extra) => ({ idMessage: A, typeMessage: "imageMessage", fileMessageData: { caption: "" }, ...extra });
+  const cases = {
+    "quotedMessage without stanzaId": img({ quotedMessage: { participant: "972500000001@c.us" } }),
+    "empty quotedMessage": img({ quotedMessage: {} }),
+    "null stanzaId": img({ quotedMessage: { stanzaId: null } }),
+    "empty stanzaId": img({ quotedMessage: { stanzaId: "" } }),
+    "malformed stanzaId": img({ quotedMessage: { stanzaId: "not_valid/id" } }),
+    "injection stanzaId": img({ quotedMessage: { stanzaId: "3EB0\nDROP TABLE" } }),
+    "self reference": img({ quotedMessage: { stanzaId: A } }),
+    "conflicting ids": img({ quotedMessage: { stanzaId: B }, extendedTextMessageData: { stanzaId: "3EB0FFFFFFFFFFFFFFFF99" } }),
+    "stanzaId on the file payload": img({ fileMessageData: { caption: "", stanzaId: B } }),
+    "contextInfo quote": img({ imageMessage: { contextInfo: { stanzaId: B } } }),
+  };
+  for (const [name, msg] of Object.entries(cases)) {
+    assert.equal(groupMessageHasQuoteSignal(msg), true, name);
+    for (const channel of ["gilui-yomi", "torat-haremez"]) assert.equal(groupReplyPendingAdmission(msg, channel), true, `${name} · ${channel}`);
+  }
+  // only the parent id that can be kept is extracted; the unusable ones give no parent, and the message is still a reply
+  assert.equal(giluiYomiQuotedParent(cases["malformed stanzaId"], "torat-haremez"), null);
+  assert.equal(giluiYomiQuotedParent(cases["conflicting ids"], "torat-haremez"), null);
+  // a plain image or text with no quote signal at all is not a reply (existing behaviour kept)
+  assert.equal(groupReplyPendingAdmission(img({}), "torat-haremez"), false);
+  assert.equal(groupReplyPendingAdmission({ idMessage: A, typeMessage: "textMessage", textMessage: "x" }, "gilui-yomi"), false);
+});
+test("the media recovery path never takes a reply: no backfill, no verified recovery, no public media proof", () => {
+  assert.match(ingest, /const groupBackfill = !!dup && targeted && route\.groupMedia && waIsPrivateMediaRef\(dup\.image_url\) && !groupReply;/);
+  assert.ok(ingest.indexOf("const groupReply = groupReplyPendingAdmission(m, src.channel);") < ingest.indexOf("const groupBackfill ="), "decided before recovery");
+  // verified recovery of anything that is not a groupBackfill stops ("not recoverable")
+  assert.match(ingest, /if \(verifiedRecovery && !groupBackfill\) \{ trace\.push\(\{ msgId, step: "verified-recovery-not-recoverable" \}\); continue; \}/);
+  // every public media proof call is behind groupBackfill (recovery) or the !groupReply insert branch
+  const calls = [...ingest.matchAll(/waProveAndPublishGroupMedia\(\{/g)].map((m) => m.index);
+  assert.equal(calls.length, 2);
+  for (const at of calls) {
+    const before = ingest.slice(Math.max(0, at - 400), at);
+    assert.ok(/groupBackfill && keep\.media && route\.kind\) \{\s*const r = await $/.test(before) || /keep\.media && !groupReply\) \{[\s\S]*await $/.test(before), "guarded call");
+  }
+});

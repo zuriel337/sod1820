@@ -127,7 +127,7 @@ test("ingest order: private original first, the proof after the insert, the publ
   assert.equal((ts.match(/waProveAndPublishGroupMedia\(\{/g) || []).length, 2, "new row and reviewed backfill: the only two callers");
   assert.equal((ts.match(/record_channel_update_group_media_proof_v1|record_group_source_public_media_v1/g) || []).length, 0, "the ingest never calls the media RPCs directly");
   // Reviewed backfill: a targeted duplicate re-reads the bytes only (fetchMedia), never stores a second private copy.
-  assert.match(ts, /const groupBackfill = !!dup && targeted && route\.groupMedia && waIsPrivateMediaRef\(dup\.image_url\);/);
+  assert.match(ts, /const groupBackfill = !!dup && targeted && route\.groupMedia && waIsPrivateMediaRef\(dup\.image_url\) && !groupReply;/, "a reply is never recovered into the public media path");
   assert.match(ts, /if \(!verifiedBackfill && \(isImg \|\| isVid \|\| isAud\) && \(!dup \|\| !dup\.image_url \|\| groupBackfill\)\) \{/);
   assert.match(ts, /waReadPrivateGroupMedia\(\{ sb, updateId: dup\.id, objectRef: dup\.image_url, kind: route\.kind \}\)/);
   assert.match(ts, /verifyCopy: verifiedRecovery/);

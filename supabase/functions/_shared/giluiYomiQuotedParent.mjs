@@ -31,5 +31,19 @@ export function giluiYomiQuotedText(message, channel) {
 // per reply. A quotedMessage whose parent id is invalid is still a reply (fail closed).
 export function groupReplyPendingAdmission(message, channel) {
   if (!GROUP_QUOTE_CHANNELS.has(channel) || !message || typeof message !== "object") return false;
-  return message.typeMessage === "quotedMessage" || giluiYomiQuotedParent(message, channel) !== null;
+  return message.typeMessage === "quotedMessage" || groupMessageHasQuoteSignal(message);
+}
+
+// Fail closed: ANY sign that the provider message quotes another one makes it a reply, whatever the quality of the id — a
+// quotedMessage object (even empty), or a stanzaId field (even empty, malformed, or conflicting), on the text or the media payload.
+// giluiYomiQuotedParent() decides whether a parent id can be KEPT; this decides whether the message is a reply, and must never
+// fall back to "not a reply" because the id is unusable (that would send a media reply down the public media path).
+export function groupMessageHasQuoteSignal(message) {
+  if (!message || typeof message !== "object") return false;
+  const holders = [message, message.extendedTextMessageData, message.extendedTextMessage, message.fileMessageData,
+    message.imageMessage, message.videoMessage, message.audioMessage, message.documentMessage];
+  return holders.some((h) => h && typeof h === "object"
+    && (Object.prototype.hasOwnProperty.call(h, "quotedMessage") || Object.prototype.hasOwnProperty.call(h, "stanzaId")
+      || Object.prototype.hasOwnProperty.call(h, "contextInfo") && h.contextInfo && typeof h.contextInfo === "object"
+        && (Object.prototype.hasOwnProperty.call(h.contextInfo, "stanzaId") || Object.prototype.hasOwnProperty.call(h.contextInfo, "quotedMessage"))));
 }
