@@ -31,7 +31,7 @@
      "topics": [],
      "enrichment_status": "enriched",
      "enrichment_source": "source_title",
-     "enriched_at": "2026-11-24T17:08:59.589Z"
+     "enriched_at": "2026-11-24T17:28:21.857Z"
     }
    ],
    "aiTitleCalls": 0,
@@ -49,21 +49,19 @@
    "result": {
     "id": "22222222-2222-4222-8222-222222222222",
     "ok": false,
-    "retryable": true,
-    "stage": "stt",
-    "error": "openai_key_missing",
+    "skipped": "seo_held_no_visual_title",
     "mark_error": null
    },
    "written": [
     {
      "link_url": "https://sod1820.co.il/or-geula/video/22222222-2222-4222-8222-222222222222",
-     "enrichment_status": "retry_stt",
-     "enrichment_source": "stt"
+     "enrichment_status": "seo_held",
+     "enrichment_source": "ai_unresolved"
     }
    ],
    "aiTitleCalls": 0,
    "visionCalls": 0,
-   "sttKeyLookups": 1
+   "sttKeyLookups": 0
   },
   {
    "row": "33333333",
@@ -95,7 +93,7 @@
      "topics": [],
      "enrichment_status": "enriched",
      "enrichment_source": "caption",
-     "enriched_at": "2026-11-24T17:08:59.596Z"
+     "enriched_at": "2026-11-24T17:28:21.865Z"
     }
    ],
    "aiTitleCalls": 1,
@@ -113,21 +111,19 @@
    "result": {
     "id": "44444444-4444-4444-8444-444444444444",
     "ok": false,
-    "retryable": true,
-    "stage": "stt",
-    "error": "openai_key_missing",
+    "skipped": "seo_held_no_visual_title",
     "mark_error": null
    },
    "written": [
     {
      "link_url": "https://sod1820.co.il/or-geula/video/44444444-4444-4444-8444-444444444444",
-     "enrichment_status": "retry_stt",
-     "enrichment_source": "stt"
+     "enrichment_status": "seo_held",
+     "enrichment_source": "ai_unresolved"
     }
    ],
    "aiTitleCalls": 0,
    "visionCalls": 0,
-   "sttKeyLookups": 1
+   "sttKeyLookups": 0
   },
   {
    "row": "55555555",
@@ -178,7 +174,7 @@
      ],
      "enrichment_status": "enriched",
      "enrichment_source": "image_vision",
-     "enriched_at": "2026-11-24T17:08:59.601Z"
+     "enriched_at": "2026-11-24T17:28:21.870Z"
     }
    ],
    "aiTitleCalls": 0,
@@ -199,7 +195,7 @@
     "seo_title": "שיעור על סוד הגאולה — הכותרת הרשמית",
     "enrichment_status": "source_title",
     "enrichment_source": "youtube_oembed",
-    "enriched_at": "2026-11-24T17:08:59.604Z",
+    "enriched_at": "2026-11-24T17:28:21.873Z",
     "thumb_url": "https://i.ytimg.com/vi/AbCdEfGhIjK/hqdefault.jpg"
    }
   ],
@@ -227,7 +223,7 @@
     "seo_title": "שיעור על סוד הגאולה — הכותרת הרשמית",
     "enrichment_status": "source_title",
     "enrichment_source": "youtube_oembed",
-    "enriched_at": "2026-11-24T17:08:59.605Z",
+    "enriched_at": "2026-11-24T17:28:21.874Z",
     "thumb_url": "https://i.ytimg.com/vi/AbCdEfGhIjK/hqdefault.jpg"
    }
   ],

@@ -1,8 +1,9 @@
 // wa-video-enrich — enriches public WhatsApp video channels without changing source truth.
 // Automatic flow: caption -> nearby channel context -> thumbnail vision -> grounded SEO metadata.
-// Full-video STT exists only behind explicit allow_stt=true and NEVER runs from cron — except for "אור הגאולה":
-// by the Open Index Law (ZURIEL 24.11.2026) an or-geula item without a source title gets one automatically (thumbnail vision,
-// then transcript), images included, so that it opens to search. The title is presentation metadata only, never a finding.
+// Full-video STT exists only behind explicit allow_stt=true and NEVER runs from cron (video_transcription_law v1 §2: the source
+// transcript comes from text/captions, not from audio; an automatic transcript waits for a ZURIEL decision on that contract).
+// By the Open Index Law (ZURIEL 24.11.2026) an "אור הגאולה" item without a source title gets one automatically from what it
+// shows (thumbnail or image vision), so that it opens to search. The title is presentation metadata only, never a finding.
 // Protected by FB_ADMIN_KEY. OPENAI_API_KEY is retrieved through a service-role-only RPC.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { MAX_STT_BYTES, mediaExtension, transcribeBlob } from "../_shared/sttTranscribe.js";
@@ -530,10 +531,6 @@ async function mapGroundedVideoText(
 // explicit run ({"backfill_or_geula": true}). The scheduled run never reaches back before this moment.
 const OR_GEULA_AUTO_SINCE = "2026-11-24T17:15:00Z";
 
-// Automatic transcripts per invocation for "אור הגאולה" (Open Index Law); an explicit allow_stt=true is not bounded by it.
-const AUTO_STT_PER_RUN = 2;
-let autoSttBudget = AUTO_STT_PER_RUN;
-
 // Supabase image transformation keeps an "אור הגאולה" image under the vision size limit; the original is the fallback.
 function visionImageUrl(url: string): string {
   return String(url || "").replace("/storage/v1/object/public/", "/storage/v1/render/image/public/").replace(/(\?.*)?$/, "?width=1024&quality=70");
@@ -557,10 +554,10 @@ async function enrichOrGeulaImage(row: any, opTrace: VideoTrace | null = null) {
 }
 
 async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null = null, itemSpanId: string | null = null, allowAi = false) {
-  // Open Index Law (ZURIEL 24.11.2026): "אור הגאולה" titles itself — AI and transcript are allowed for an item without a source title.
+  // Open Index Law (ZURIEL 24.11.2026): "אור הגאולה" titles itself from what it shows. A transcript only on explicit allow_stt
+  // (video_transcription_law v1 §2), never automatically.
   const autoTitle = row?.channel === "or-geula";
-  // A transcript is slow: an automatic one is bounded per invocation, the rest waits for the next run (no retry loop).
-  const sttOk = allowStt || (autoTitle && autoSttBudget > 0);
+  const sttOk = allowStt;
   const aiOk = allowAi || autoTitle;
   if (autoTitle && row?.image_url && !VIDEO_RE.test(String(row.image_url))) return await enrichOrGeulaImage(row, opTrace);
   if (!row?.id || !PUBLIC_VIDEO_CHANNELS.includes(row.channel) || !VIDEO_RE.test(String(row.image_url || ""))) {
@@ -609,7 +606,6 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
         enrichmentSource = "thumbnail_vision";
       } else if (sttOk) {
         try {
-          if (!allowStt) autoSttBudget--;
           transcript = await transcribe(row, opTrace, null);
           basis = transcript;
           enrichmentSource = "stt";
@@ -628,8 +624,11 @@ async function enrichRow(row: any, allowStt = false, opTrace: VideoTrace | null 
           };
         }
       } else if (autoTitle) {
-        // Out of this run's transcript budget: left as it is (no write), the next run takes it up.
-        return { id: row.id, ok: false, retryable: true, stage: "stt_budget", error: "automatic_transcript_budget_used" };
+        // No title from the thumbnail and no transcript without an explicit request: held once, never retried in a loop.
+        updates.enrichment_status = "seo_held";
+        updates.enrichment_source = "ai_unresolved";
+        const { error: heldError } = await sb.from("channel_updates").update(updates).eq("id", row.id);
+        return { id: row.id, ok: false, skipped: "seo_held_no_visual_title", mark_error: heldError?.message || null };
       } else {
         updates.enrichment_status = "retry_stt";
         updates.enrichment_source = "thumbnail_unresolved";
@@ -713,7 +712,6 @@ Deno.serve(async (req) => {
   try { body = await req.json(); } catch { /* empty body = backfill */ }
   const opTrace = await beginVideoTrace(body);
 
-  autoSttBudget = AUTO_STT_PER_RUN;
   const rowId = cleanText(body?.row_id);
   const allowStt = body?.allow_stt === true;
   const allowAi = body?.allow_ai === true;
