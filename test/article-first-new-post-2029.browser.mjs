@@ -110,8 +110,9 @@ test("the viewport centres the public Post and Community emblems while either de
         return width > 0 && height > 0 && Math.abs((left + right - window.innerWidth) / 2) <= 1;
       }), selectors, { timeout: 8000 });
     };
-    const hydrated = [".sod29-header-crown", "#root " + medal, "#root .sod29-content"];
     for (const path of [PATH, "/community/chat"]) {
+      // The community chat keeps its own approved large emblem as the single emblem (no shared frame medal).
+      const hydrated = [".sod29-header-crown", "#root " + (path === PATH ? medal : ".sod29-community-intro-emblem"), "#root .sod29-content"];
       if (path === PATH) {
         // Hold the entry module so the measurement is of the delivered article, before React adopts it.
         let resume;
