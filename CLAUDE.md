@@ -163,7 +163,7 @@ The 4.11.2026 approved 2029 cutover replaced this lock, and Legacy itself is ret
 For every substantial task:
 
 1. Parse the natural-language request into intent / capability / domain. Use an existing Task Profile only when it helps routing.
-2. Resolve the **current canonical owner** from `SOD1820_MASTER_OWNER_INDEX.md` and the live owner/rule infrastructure: read the governing law live in `rules_active` (`מזהה_חוק`, `גרסה`, the relevant section in full), publication contracts (`publishing_conventions` and its children) and measurement (`traffic_intelligence_law`) included. Every PR and handoff cites it (id · version · section). A missing contract or a conflict is reported before any new mechanism (§7, §0.1 item 6) — ZURIEL 24.11.2026.
+2. Resolve the **current canonical owner** from `SOD1820_MASTER_OWNER_INDEX.md` and the live owner/rule infrastructure: read the governing law live from `nodes` where `type='rule' AND is_active=true` (latest active `rule_version` per `rule_id`, the relevant section in full; `rules_active` alone is not proof a law is active, Owner Index “Active-rule selection”), publication contracts (`publishing_conventions` and its children) and measurement (`traffic_intelligence_law`) included. Every PR and handoff cites it (id · version · section). A missing contract or a conflict is reported before any new mechanism (§7, §0.1 item 6) — ZURIEL 24.11.2026.
 3. Load only that owner plus the **smallest direct dependency set** required by the task.
 4. Read recent **relevant** `work_log` / assignments for the active scope.
 5. Verify against the live source appropriate to the claim: canonical Supabase, `origin/main`, and Production only when UI/live behavior matters.
