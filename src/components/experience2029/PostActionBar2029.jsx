@@ -8,10 +8,11 @@ import { personalActionsLocked } from "../../lib/publicLaunch2029.js";
 import { postActionTarget2029 } from "../../lib/research/postActionTarget2029.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { entityIdentity } from "../../lib/research/researchSyncState.js";
+import { openPostFollow } from "../../lib/research/postFollowOpenStore2029.js";
+import { usePostFollowTargets, usePostFollowing } from "./postFollowShared2029.js";
 import "./royal2029.css";
 import "./postReadingActions2029.css";
 
-const PostFollowBox = React.lazy(() => import("../PostFollowBox.jsx"));   // the follow engine loads only when the bell is pressed
 
 // ONE compact row for every Post (ZURIEL 25.11.2026, the Hall's language): save · share · follow (one bell) · add to research (only where the research workspace is open).
 // The bell opens ONE compact panel with the existing follow composition (PostFollowBox variant 2029 → the one WatchButton and the existing engine): it offers only targets
@@ -20,7 +21,9 @@ export default function PostActionBar2029({ projection }) {
   const auth = useAuth();
   const research = useResearch();
   const shell = use2029Shell();
-  const [note, setNote] = useState(""), [follow, setFollow] = useState(false);
+  const [note, setNote] = useState("");
+  const { ready } = usePostFollowTargets(projection.sourcePost);
+  const following = usePostFollowing(ready.map(item => item.topic));
   const target = postActionTarget2029(projection);
   if (!target) return null;
   const inResearch = (research.cart || []).some(item => entityIdentity(item) === entityIdentity(target.entity));
@@ -36,16 +39,13 @@ export default function PostActionBar2029({ projection }) {
       <button type="button" className="r29-btn is-quiet post-reading-share" aria-haspopup="dialog" aria-label="שיתוף" title="שיתוף" onClick={share}>
         <NavigationIcon2029 name="share" size={18} /> <span>שיתוף</span>
       </button>
-      <button type="button" className="r29-btn is-quiet" aria-expanded={follow} aria-controls="post-follow-panel" aria-label="מעקב" title="מעקב" onClick={() => setFollow(value => !value)}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg> <span>מעקב</span>
+      <button type="button" className="r29-btn is-quiet" aria-haspopup="dialog" aria-pressed={following === true} aria-label={following ? "עוקב — ניהול המעקב" : "מעקב"} title={following ? "עוקב" : "מעקב"} onClick={openPostFollow}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill={following ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg> <span>{following ? "עוקב" : "מעקב"}</span>
       </button>
       {research.researchWorkspaceActive ? <button type="button" className="r29-btn is-quiet" onClick={add} aria-label={researchLabel} title={researchLabel} aria-pressed={inResearch} disabled={inResearch}>
         <NavigationIcon2029 name="research" size={18} /> <span>{researchLabel}</span>
       </button> : null}
     </div>
-    {follow ? <div id="post-follow-panel" className="post-follow-panel"><React.Suspense fallback={<small role="status">טוען…</small>}>
-      <PostFollowBox variant="2029" post={projection.sourcePost} source="post_bell_2029" />
-    </React.Suspense></div> : null}
     {note ? <small role="status">{note}</small> : null}
   </div>;
 }
