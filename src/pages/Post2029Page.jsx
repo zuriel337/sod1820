@@ -1614,6 +1614,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       {bennettTimeline && bennettMediaHost && bennettVideoOpened ? createPortal(<PostEvidenceMedia2029 media={BENNETT_SOURCE_MEDIA_2029} />, bennettMediaHost) : null}
       {bennettTimeline && bennettResearchHost ? createPortal(<>
         {cover}
+        {isAdmin === true ? researchDisclosure : null}
       </>, bennettResearchHost) : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
 
@@ -1626,6 +1627,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         <button type="button" onClick={openPostEngineExploration}>בדיקה חדשה במנוע</button>
       </div> : null}</>, calculationFeedbackHost)
       : <p role="status">{calculationNotice}</p>) : null}
+    {/* Admin only (ZURIEL 25.11.2026): one closed row under the Post that holds the work tools (sources, connections, calculations). Readers never see it. */}
+    {isAdmin === true && !bennettTimeline ? <details className="sod29-post-admin-row"><summary>כלי מנהל</summary>{researchDisclosure}</details> : null}
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
     {!bennettTimeline && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
   </article></>;

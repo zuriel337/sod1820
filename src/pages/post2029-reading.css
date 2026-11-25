@@ -1722,3 +1722,5 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 .sod29-root:has(.sod29-reading-post) .sod29-entry-orientation-slot,
 .sod29-reading-post .sod29-orientation-host{display:none}
 .sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero{width:min(790px,100%);margin-inline:auto}
+.sod29-post-admin-row{width:min(790px,100%);margin:14px auto;border:1px dashed color-mix(in srgb,var(--s29-brand-gold,#b8923a) 55%,transparent);border-radius:12px;padding:0 12px}
+.sod29-post-admin-row>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--s29-muted);font:600 14px/1.4 var(--s29-font-ui)}
