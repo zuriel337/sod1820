@@ -17,6 +17,9 @@ const KEY = /\/storage\/v1\/object\/public\/media\/uploads\/(\d{4}\/\d{2}\/[0-9a
 const ARCHIVE = ["2016/12/d80687f0426ee862.jpg", "2018/08/3319667ce2ad91dd.jpg", "2019/06/e4fe1dcc5b206a43.jpg", "2020/02/3fbe8a2a06067b83.png",
   "2020/02/60c2e6e00bae330f.jpg", "2020/02/a1fb1869dd96ca88.png", "2024/04/d269214193d88cc1.jpg"];
 
+// Images only a draft shows stay closed, under both of their stored names (the hashed copy and the earlier copy under the original name).
+const CLOSED = ["2024/08/1946b8e3a370147e.jpg", "2024/08/2023_11_14_11.24.35-1.jpg"];
+
 const keys = new Set();
 let posts = 0;
 for (let from = 0; ; from += 200) {
@@ -46,5 +49,5 @@ if (process.argv.includes("--check")) {
 
 writeFileSync(new URL("../public-reading-deploy/legacy-upload-public-keys.json", import.meta.url),
   JSON.stringify({ schema: 1, source: "public Posts (anonymous read)", posts, count: sorted.length, keys: sorted,
-    archive: ARCHIVE.filter(key => !keys.has(key)).sort() }) + "\n");
+    archive: ARCHIVE.filter(key => !keys.has(key)).sort(), closed: CLOSED }) + "\n");
 console.log(JSON.stringify({ posts, keys: sorted.length }));

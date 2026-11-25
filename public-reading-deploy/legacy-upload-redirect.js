@@ -4,8 +4,10 @@
 //   uploads/YYYY/MM/<first 16 hex of sha256(decoded original path)>.<lower-case extension>, in the public "media" bucket.
 // Openness (ZURIEL 25.11.2026): the historical public archive is open to the public and to Google, old images included. Redirected: every image
 // a public Post shows (legacy-upload-public-keys.json "keys", built from public Posts by anonymous read) and the public WordPress library
-// images that no Post uses ("archive"). Protected as before, and only these: an image only a draft or forum Post shows; personal data and the
-// life journey are not in this archive. WordPress size variants (<name>-300x200.jpg) lead to their original.
+// images that no Post uses ("archive"), and the rest of the WordPress library from the earlier copy kept in the same bucket under the original
+// file name (about 9,000 images, checked by one HEAD to the public object; a sample of 48 looked at: news and calculator screenshots, Torah
+// texts, archive graphics). Protected as before, and only these: an image only a draft or forum Post shows ("closed", under both of its stored
+// names); personal data and the life journey are not in this archive. WordPress size variants (<name>-300x200.jpg) lead to their original.
 // Future publication changes (ZURIEL 25.11.2026): the list is only a fast first filter. Each redirect is also confirmed at request time against
 // the live public Posts, with the site's one public boundary (publicPostOnlyFilter): a Post hidden, tagged "טיוטה"/"פורום" or deleted after the
 // list was built stops redirecting its images at once. If that read fails, nothing is redirected (fail closed: the old 404 stays). The browser
@@ -43,7 +45,7 @@ export async function legacyUploadKey(pathname) {
 let allowList = null;
 async function publicKeys() {
   if (!allowList) allowList = import("./legacy-upload-public-keys.json", { with: { type: "json" } })
-    .then(module => ({ shown: new Set(module.default.keys), archive: new Set(module.default.archive || []) }))
+    .then(module => ({ shown: new Set(module.default.keys), archive: new Set(module.default.archive || []), closed: new Set(module.default.closed || []) }))
     .catch(error => { allowList = null; throw error; });
   return allowList;
 }
@@ -61,16 +63,29 @@ export async function legacyUploadPublicNow(key, { fetchImpl = globalThis.fetch,
   return Array.isArray(rows) && rows.length > 0;
 }
 
+/** The earlier copy of the WordPress library, kept in the same public bucket under the original (ASCII) file name: the stored address when the
+ * object answers 200 with an image type (one HEAD, no body, no database read), otherwise null. */
+export async function legacyUploadOriginalCopy(rel, { fetchImpl = globalThis.fetch, timeoutMs = 3000 } = {}) {
+  if (typeof rel !== "string" || !/^\d{4}\/\d{2}\/[A-Za-z0-9._-]+\.(?:jpe?g|png|gif|webp)$/i.test(rel)) return null;
+  const url = LEGACY_UPLOAD_STORAGE + rel;
+  const response = await fetchImpl(url, { method: "HEAD", redirect: "manual", signal: AbortSignal.timeout(timeoutMs) });
+  return response?.status === 200 && /^image\//.test(response.headers?.get?.("content-type") || "") ? url : null;
+}
+
 /**
  * The redirect target of an old image address, or null (keep the 404). An image of the public WordPress archive that no Post uses redirects
  * at once; an image a public Post shows redirects while a public Post still shows it (a Post turned into a draft keeps its images closed).
  * `keys` (a Set of shown keys, or { shown, archive }) and `publicNow` are injectable for tests.
  */
-export async function legacyUploadTarget(pathname, { keys = null, publicNow = legacyUploadPublicNow } = {}) {
+export async function legacyUploadTarget(pathname, { keys = null, publicNow = legacyUploadPublicNow, originalCopy = legacyUploadOriginalCopy } = {}) {
   const key = await legacyUploadKey(pathname);
   if (!key) return null;
-  const lists = keys instanceof Set ? { shown: keys, archive: new Set() } : keys || await publicKeys();
+  const lists = keys instanceof Set ? { shown: keys, archive: new Set(), closed: new Set() } : keys || await publicKeys();
+  const rel = decodeURIComponent(pathname.slice(LEGACY_UPLOAD_PREFIX.length));
+  const original = rel.replace(SIZE_VARIANT, "");
+  if (lists.closed.has(key) || lists.closed.has(rel) || lists.closed.has(original)) return null;
   if (lists.archive.has(key)) return LEGACY_UPLOAD_STORAGE + key;
-  if (!lists.shown.has(key)) return null;
-  return await publicNow(key) === true ? LEGACY_UPLOAD_STORAGE + key : null;
+  if (lists.shown.has(key)) return await publicNow(key) === true ? LEGACY_UPLOAD_STORAGE + key : null;
+  // The rest of the public WordPress library: the earlier copy under the original name (the exact size asked for, else its original).
+  return await originalCopy(rel) || (original !== rel ? await originalCopy(original) : null);
 }
