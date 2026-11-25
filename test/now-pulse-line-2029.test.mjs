@@ -1,6 +1,7 @@
 import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
+import fsSync from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
@@ -100,4 +101,12 @@ test("ELS searches this week (ZURIEL 25.11.2026): events of the cipher surface, 
   assert.equal(m.els, 139);
   assert.equal(pulseLineModel({ ...base, activity: [{ events: 6, surface: "els", event_type: "search" }] }).els, null);
   assert.equal(pulseLineModel({ ...base, activity: [] }).els, null);
+});
+
+test("alive (ZURIEL 25.11.2026): the server's own newest event time is carried, only when valid; the Home mounts the line BELOW the updates", () => {
+  assert.equal(pulseLineModel({ ...pulse168(), latest_event: "2026-11-25T14:00:00+00:00" }).latestAt, "2026-11-25T14:00:00+00:00");
+  assert.equal(pulseLineModel({ ...pulse168(), latest_event: "not a time" }).latestAt, null);
+  const home = fsSync.readFileSync("src/components/experience2029/HomeComposition2029.jsx", "utf8");
+  assert.ok(home.indexOf("<HomeLiveUpdates updates=") < home.indexOf("<NowPulseLineSlot2029"), "pulse line after the updates");
+  assert.ok(home.indexOf("<NowPulseLineSlot2029") < home.indexOf('className="h29-lead-pair"'), "and before the flagship pair");
 });

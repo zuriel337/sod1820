@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { readResearchPulse, pulseUsable, PULSE_WINDOWS } from "../../lib/researchPulse2029.js";
 import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
+import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import "./nowPulseLine2029.css";
 
 // «דופק האתר» at the top of "עכשיו" (ZURIEL 25.11.2026, reconnecting the 21.11 line). ONE read of the ONE public reader (research_pulse_2029) for a FIXED
@@ -28,7 +29,9 @@ export function pulseLineModel(d) {
     .reduce((sum, item) => sum + item.events, 0);
   const els = elsEvents >= floor ? elsEvents : null;
   const halfDays = Number.isFinite(d.hours) && d.hours > 0 ? d.hours / 48 : NOW_PULSE_HOURS / 48;
-  return { numbers, trends, els, halfDays };
+  // The server's own newest counted event (real; shown as "לפני X" and ticking), never a client-made time.
+  const latestAt = typeof d.latest_event === "string" && Number.isFinite(Date.parse(d.latest_event)) ? d.latest_event : null;
+  return { numbers, trends, els, latestAt, halfDays };
 }
 
 // Empty state (ZURIEL 25.11.2026: no empty places): REAL fixed entrances, never an invented number or trend.
@@ -43,12 +46,16 @@ export default function NowPulseLine2029({ read = () => readResearchPulse(NOW_PU
     read().then(data => { if (live) setState({ status: "ready", model: pulseLineModel(data) }); }, () => { if (live) setState({ status: "failed", model: null }); });
     return () => { live = false; };
   }, [read]);
+  // "Alive" (ZURIEL 25.11.2026): the time since the last counted event re-reads the clock every 30s; the dot beats; the chips arrive one by one.
+  const [, tick] = useState(0);
+  useEffect(() => { const id = setInterval(() => tick(n => n + 1), 30000); id?.unref?.(); return () => clearInterval(id); }, []);
   const go = href => event => { if (onOpen) { event.preventDefault(); onOpen(href); } };
   const model = state.model;
   const empty = state.status === "ready" && (!model || (!model.numbers.length && !model.trends.length && !model.els));
   if (state.status === "loading") return <div className="nowpulse29 is-loading" aria-hidden="true" />;
   return <nav className="nowpulse29 r29" dir="rtl" aria-label={`דופק האתר · ${NOW_PULSE_WINDOW_LABEL}`} data-now-pulse={empty || state.status === "failed" ? "empty" : "ready"}>
-    <span className="nowpulse29-title"><i aria-hidden="true">◆</i>דופק האתר <small>· {NOW_PULSE_WINDOW_LABEL}</small></span>
+    <span className="nowpulse29-title"><i className="nowpulse29-beat" aria-hidden="true" />דופק האתר <small className="nowpulse29-win">· {NOW_PULSE_WINDOW_LABEL}</small>
+      {!empty && state.status !== "failed" && model?.latestAt ? <small className="nowpulse29-last" data-now-pulse-last={model.latestAt}>· פעילות אחרונה {relativeTimeLabel(model.latestAt)}</small> : null}</span>
     {empty || state.status === "failed"
       ? <><span className="nowpulse29-note">{state.status === "failed" ? "הדופק אינו זמין כרגע" : "אין עדיין נתונים מעל סף הפרטיות"}</span>
         {EMPTY_LINKS.map(l => <a key={l.href} className="nowpulse29-num" href={l.href} onClick={go(l.href)} data-now-pulse-fixed="1">{l.label}</a>)}</>

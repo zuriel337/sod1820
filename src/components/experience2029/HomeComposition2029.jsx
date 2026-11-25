@@ -596,8 +596,8 @@ export default function HomeComposition2029({
   }}>
     {/* ZURIEL 25.11.2026: "עדכונים אחרונים" opens the Home's content (it carries the construction note and sign-up at its foot); the מפת המציאות flagship follows in its own area. */}
     <HomeMapSelection>{editorial => <>
-      <NowPulseLineSlot2029 onOpen={openHref} />
       <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} editorialHref={homeMapLeadFace2029(homeMapLeadMember2029(primaryItems))?.href || editorial?.lead?.href} />
+      <NowPulseLineSlot2029 onOpen={openHref} />
       <div className="h29-lead-pair">
         <HomePinnedLead editorial={editorial} lead={editorial?.loading ? null : updates.lead} catalogItems={editorial?.loading ? [] : primaryItems} pinned={updates.pinned} onNavigateTo={openHref} settled={!editorial?.loading && !seriesState.loading && !updates.loading} onImageSettled={leadImageSettled} />
         <Suspense fallback={<div className="h29-stream-slot" aria-hidden="true" />}>
