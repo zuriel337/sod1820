@@ -65,60 +65,51 @@ test("no pin anywhere else: other writers, other groups, the neutral reader row,
   assert.equal(arrival(9, "yaniv-levi", { group_channel: "or-geula" }), null, "a channel outside the public source groups is dropped, never pinned");
 });
 
-test("order in Now: the owner's pin leads, then writer pins newest first, then everything else by time", () => {
+test("order in Now (D2, ZURIEL 25.11.2026): time only; neither the owner's pin nor a writer pin holds any priority in the public stream", () => {
   const items = [owner, arrival(1, "tzvi-opoc", { channel: "torat-haremez" }), arrival(9, "shachar-kandro"), arrival(5, "yaniv-levi"),
     { id: "post:1", kind: "source", sourceKind: "post", label: "פוסט", at: hours(-2) }];
   const all = models(items);
-  assert.deepEqual(all.map(m => m.id), ["post:5107", `group:${uuid(5)}`, `group:${uuid(9)}`, `group:${uuid(1)}`, "post:1"]);
-  assert.deepEqual(all.map(m => m.pinKind), ["owner", "writer", "writer", null, null]);
-  const levi = all[1];
-  assert.equal(levi.pinned, true);
-  assert.equal(levi.typeLabel, "מקור · טרם נבדק", "a pin keeps the row's source status");
+  assert.deepEqual(all.map(m => m.id), [`group:${uuid(1)}`, "post:1", `group:${uuid(5)}`, `group:${uuid(9)}`, "post:5107"], "newest first, whoever was pinned");
+  assert.ok(all.every(m => m.pinned === false && m.pinKind === null && m.pinUntil === null), "no pin reaches the public stream");
+  const levi = all.find(m => m.id === `group:${uuid(5)}`);
+  assert.equal(levi.typeLabel, "מקור · טרם נבדק", "the row keeps its source status");
   assert.equal(levi.unverified, true);
   assert.ok(levi.byline.includes("הגילוי היומי") && levi.byline.includes("יניב לוי"), "the group is the source, the writer is in the byline");
-  assert.equal(levi.updated, false, "a writer pin is not an update of the publication");
-  assert.equal(levi.central, null);
-  assert.equal(all[0].updated, true, "the owner's pin keeps its meaning");
-  assert.equal(nowPinnedMessage(all, NOW).model.id, "post:5107", "the central pinned message is still only the owner's");
+  assert.equal(levi.updated, false);
+  assert.equal(nowPinnedMessage(all, NOW), null, "no central pinned message is shown from the public stream");
 });
 
-test("a writer pin ends by itself 24 hours after the arrival and the row falls back into the time order", () => {
+test("a writer's arrival is a regular row at its own time, during the old pin window and after it", () => {
   const items = [arrival(2, "shachar-kandro"), arrival(1, "tzvi-opoc", { channel: "torat-haremez" })];
   const during = models(items, NOW);
-  assert.deepEqual(during.map(m => [m.id, m.pinKind]), [[`group:${uuid(2)}`, "writer"], [`group:${uuid(1)}`, null]]);
+  assert.deepEqual(during.map(m => [m.id, m.pinKind]), [[`group:${uuid(1)}`, null], [`group:${uuid(2)}`, null]]);
   const after = NOW + 23 * 3600000;
   assert.deepEqual(models(items, after).map(m => [m.id, m.pinned, m.pinKind]), [[`group:${uuid(1)}`, false, null], [`group:${uuid(2)}`, false, null]]);
 });
 
-test("one pin per writer: his newest arrival holds it; his older arrival in the window is a regular row", () => {
+test("all of a writer's arrivals are regular rows; the source items are not mutated and the writer pin data stays for other domains", () => {
   const items = [arrival(1, "shachar-kandro"), arrival(4, "shachar-kandro"), arrival(2, "yaniv-levi"), arrival(3, "tzvi-opoc", { channel: "torat-haremez" })];
   const rows = feedRows(items, { now: NOW, limit: 160, caps: { group: 40 } });
-  const older = rows.find(r => r.id === `group:${uuid(4)}`);
-  assert.equal(older.item.pinned, false);
-  assert.equal(older.item.pinKind, null);
-  assert.equal(items.find(i => i.id === `group:${uuid(4)}`).pinned, true, "the source item is not mutated");
+  assert.ok(rows.every(r => !r.item.pinned && !r.item.pinKind), "no row of the stream is pinned");
+  assert.equal(items.find(i => i.id === `group:${uuid(4)}`).pinned, true, "the source item is not mutated: the mechanism still produces the pin");
   const all = nowModels(rows, NOW);
-  assert.deepEqual(all.filter(m => m.pinned).map(m => m.id), [`group:${uuid(1)}`, `group:${uuid(2)}`]);
-  assert.deepEqual(all.filter(m => !m.pinned).map(m => m.id), [`group:${uuid(3)}`, `group:${uuid(4)}`]);
+  assert.deepEqual(all.map(m => m.id), [1, 2, 3, 4].map(n => `group:${uuid(n)}`), "time order only");
 });
 
-test("a held pin is never dropped by the group cap or the limit; an ended pin gets no exemption", () => {
+test("no pin exemption: the bucket cap and the limit apply to every row alike", () => {
   const busy = [1, 2, 3, 4, 5, 6].map(n => arrival(n, "tzvi-opoc", { channel: "torat-haremez" }));
   const items = [...busy, arrival(20, "yaniv-levi")];
   const compact = feedRows(items, { now: NOW, limit: 3 });
   assert.equal(compact.length, 3);
-  assert.deepEqual(compact.map(r => r.id), [`group:${uuid(1)}`, `group:${uuid(2)}`, `group:${uuid(20)}`], "kept despite the cap of 4 and the limit; order stays chronological");
-  const later = feedRows(items, { now: NOW - 20 * 3600000 + 25 * 3600000, limit: 3 });
-  assert.equal(later.some(r => r.id === `group:${uuid(20)}`), false);
+  assert.deepEqual(compact.map(r => r.id), [1, 2, 3].map(n => `group:${uuid(n)}`), "the newest three; an old writer arrival gets no exemption");
 });
 
-test("a pinned group row is always its own row, never folded into a collapsed run", () => {
+test("with no pins, a writer's arrival is not kept apart from the other arrivals of its group", () => {
   const items = [arrival(1, "shachar-kandro"), arrival(2, "shimon-haimov"), arrival(3, "shimon-haimov")];
   const entries = buildNowEntries(models(items));
-  assert.equal(entries[0].kind, "row");
-  assert.equal(entries[0].model.id, `group:${uuid(1)}`);
-  assert.equal(entries[1].kind, "run", "the other two arrivals of the same group still collapse");
-  assert.deepEqual(entries[1].models.map(m => m.id), [`group:${uuid(2)}`, `group:${uuid(3)}`]);
+  const ids = entries.flatMap(e => e.kind === "run" ? e.models.map(m => m.id) : [e.model.id]);
+  assert.deepEqual(ids, [1, 2, 3].map(n => `group:${uuid(n)}`), "time order is kept inside the entries");
+  assert.ok(entries.flatMap(e => e.kind === "run" ? e.models : [e.model]).every(m => !m.pinned));
 });
 
 test("a writer pin on anything but a listed, proved group arrival with an end time is ignored", () => {
@@ -166,32 +157,30 @@ test("an editorial extension moves the pin end of ONE proved arrival later, only
   assert.equal(groupWriterPin({ channel: "gilui-yomi", slug: "shachar-kandro", arrivalAt: "2026-11-20T00:00:00Z", id: ID }).pinUntil, "2026-11-21T00:00:00.000Z");
 });
 
-test("Now: the 10.11 picture row is pinned at the top while the extension is ahead, a picture, and unpinned by itself after", () => {
+test("Now: the 10.11 picture row is a regular row at its own time; it keeps its picture and carries no pin", () => {
   const ID = "8d30aba8-e510-443b-9de0-456df8875a22";
   const base = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/11/62e3180b-9c28-5b94-b41d-d39d6de4bc69/original.jpg";
   const item = groupRowToWorldUpdate({ id: ID, body: "כיתוב", created_at: "2026-11-10T22:41:49Z", contributor_slug: "shachar-kandro", contributor_name: "שחר יצחק קנדרו",
     group_proof: true, proof_basis: "verified_phone_unique", group_channel: "gilui-yomi", media_kind: "image", media_url: base, thumb_url: null });
   const other = arrival(9, "tzvi-opoc", { channel: "torat-haremez", at: "2026-11-12T01:00:00Z" });
   const at = Date.parse("2026-11-12T02:00:00Z");
-  const during = nowModels(feedRows([other, item], { now: at, limit: 160, caps: { group: 40 } }), at);
-  assert.equal(during[0].id, `group:${ID}`);
-  assert.equal(during[0].pinKind, "writer");
-  assert.equal(during[0].media, "image");
-  assert.equal(during[0].pinUntil, "2026-11-13T06:00:00.000Z");
-  const after = Date.parse("2026-11-13T06:00:01Z");
-  const later = nowModels(feedRows([other, item], { now: after, limit: 160, caps: { group: 40 } }), after);
-  assert.ok(later.every((model) => !model.pinned), "no pin after its end");
+  const all = nowModels(feedRows([other, item], { now: at, limit: 160, caps: { group: 40 } }), at);
+  assert.deepEqual(all.map(m => m.id), [`group:${uuid(9)}`, `group:${ID}`], "the newer arrival leads; the picture row is not lifted by its writer");
+  const row = all[1];
+  assert.equal(row.pinned, false); assert.equal(row.pinKind, null); assert.equal(row.pinUntil, null);
+  assert.equal(row.media, "image");
 });
 
-test("order (ZURIEL 12.11.2026): whatever was pinned last is on top, whoever pinned it; a standing owner pin without an end stays first", () => {
+test("order (D2, ZURIEL 25.11.2026): no pin of any kind reorders the stream, standing or time-bounded, owner or writer", () => {
   const post1 = { id: "post:1", kind: "source", sourceKind: "post", label: "פוסט", at: hours(-2) };
-  const shortOwner = { ...owner, pinUntil: hours(5) }; // owner pin that ends sooner than a fresh writer pin
+  const shortOwner = { ...owner, pinUntil: hours(5) };
   let all = models([shortOwner, arrival(1, "shachar-kandro"), post1]);
-  assert.deepEqual(all.map(m => m.pinKind), ["writer", "owner", null], "the later pin (ends later) leads even over the owner's pin");
+  assert.deepEqual(all.map(m => m.id), [`group:${uuid(1)}`, "post:1", "post:5107"], "an owner pin does not lead");
+  assert.ok(all.every(m => m.pinKind === null));
   const standing = { ...owner };
   delete standing.pinUntil; standing.central = undefined;
   all = models([standing, arrival(1, "shachar-kandro"), post1]);
-  assert.equal(all[0].id, "post:5107", "a standing owner pin has no end and stays first");
+  assert.equal(all[all.length - 1].id, "post:5107", "a standing owner pin has no end and still holds no priority");
   all = models([arrival(9, "shachar-kandro"), arrival(2, "yaniv-levi")]);
-  assert.deepEqual(all.map(m => m.id), [`group:${uuid(2)}`, `group:${uuid(9)}`], "two writer pins: the newer pin first");
+  assert.deepEqual(all.map(m => m.id), [`group:${uuid(2)}`, `group:${uuid(9)}`], "newest first");
 });

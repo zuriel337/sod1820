@@ -1,0 +1,7 @@
+/* The construction note + sign-up entry (Home and "עכשיו"). Layout only: every colour, ring, button and rule is the existing Royal layer (royal2029.css). */
+.bn29{display:grid;gap:8px;margin-block-start:10px}
+.bn29-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bn29-text{margin:0;flex:1 1 300px;color:var(--s29-muted);font:500 13.5px/1.55 var(--s29-font-body,inherit)}
+.bn29-btn{flex:none}
+.bn29-form{padding-block-start:4px}
+@media (max-width:760px){.bn29-btn{inline-size:100%}}

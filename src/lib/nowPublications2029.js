@@ -123,8 +123,9 @@ export function nowRowModel(row) {
   const isDiscussion = item.sourceKind === "community_thread";
   const isGallery = item.sourceKind === "gallery_update", isChannel = item.sourceKind === "channel_update";
   const media = item.mediaHref || item.mediaUrl || item.media?.url || null;
-  // Or HaGeula updates are shown as text only (ZURIEL 19.11.2026: "I don't want to see their pictures"): no image, no video poster or inline
-  // player, in "עכשיו" and on Home (both read this model). A video stays reachable through its own page link; audio is not a picture and stays.
+  // Or HaGeula updates are shown without their pictures (ZURIEL 19.11.2026: "I don't want to see their pictures"): no image and no video
+  // poster, in "עכשיו" and on Home (both read this model). Its own video plays right here, on request (ZURIEL 24.11.2026: "see the video
+  // directly, without entering the Or HaGeula page"): the same on-demand player, without a poster. Audio is not a picture and stays.
   const textOnly = isChannel && item.channel === "or-geula";
   const href = row?.href || null;
   const groupMediaKind = isGroup ? item.media?.kind : null; // a group source declares its own media kind
@@ -203,36 +204,30 @@ export function nowRowModel(row) {
     textOnly,
     thumb: textOnly ? null : [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
-    mediaHref: textOnly && !audio ? null : media, lenses,
+    mediaHref: image && textOnly ? null : media, lenses,
     fullText, summary: summary && summary !== title ? summary : "",
     ...nowExcerpt({ unverified, title, fullText, summary }),
     // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
     previewKind: textOnly || (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
     // Almost every row opens in place (ZURIEL 11.11.2026): its full text when the item carries it, otherwise the approved summary (a Post's excerpt),
     // otherwise its media. A row with nothing to show stays a plain link — never an empty panel, never an invented continuation.
-    canExpand: !isDiscussion && Boolean(fullText || summary || (textOnly && !audio ? null : media)),
+    canExpand: !isDiscussion && Boolean(fullText || summary || (image && textOnly ? null : media)),
     // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
     // A writer pin is not an update of the publication, so it never says "עודכן".
     updated: Boolean(item.sourceUpdate || pinKind === "owner" || postEdited),
   };
 }
 
-// ZURIEL 12.11.2026: whatever was pinned LAST is on top, whoever pinned it. Every pin is a fixed window ending at pinUntil, so the later end
-// is the later pin (a pin with no end, the owner's standing pin, stays first). Non-pinned rows follow by time. This replaces the 11.11
-// order "owner's pin always above writer pins".
-const pinEnd = model => !model.pinned ? null : model.pinUntil && Number.isFinite(Date.parse(model.pinUntil)) ? Date.parse(model.pinUntil) : Infinity;
-const byPinnedLast = (a, b) => {
-  const ea = pinEnd(a), eb = pinEnd(b);
-  if (ea === null || eb === null) return (eb === null ? 0 : 1) - (ea === null ? 0 : 1);
-  return ea === eb ? 0 : eb > ea ? 1 : -1;
-};
+// ZURIEL 25.11.2026 (D2, approved): the public stream has NO pin priority. The 12.11 "last pin on top" order (and the 11.11 owner-over-writer order
+// before it) is removed from the stream: rows are in time order only. `pinned`/`pinKind`/`pinUntil` stay on a model for the domains that still use
+// them, but nothing here reads them to order or hold a row.
 // Groups hidden from "עכשיו" (ZURIEL 19.11.2026: «כי לה׳ המלוכה — גימטריות»): no source chip and none of its rows here. Presentation only:
 // the group's rows, admission and the world reader stay as they are, and removing the key restores it.
 export const NOW_HIDDEN_GROUPS = Object.freeze(["ki-la-hamelucha-gematria"]);
 const hiddenInNow = model => typeof model?.sourceKey === "string" && model.sourceKey.startsWith("group:") && NOW_HIDDEN_GROUPS.includes(model.sourceKey.slice(6));
 const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.title)
   .map(nowRowModel).filter(model => !hiddenInNow(model)).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
-  .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
+  .sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 // ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
 // a dot that BLINKS until THIS viewer enters the update (ZURIEL 16.11.2026) and then stays as a still dot marking the latest update, until a newer reality-map publication
@@ -265,17 +260,18 @@ export const nowModels = (rows, now = Date.now(), seen = {}) => {
   const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned)
     .sort((a, b) => seriesUpdateTime(b) - seriesUpdateTime(a) || String(a.id).localeCompare(String(b.id)))[0];
   if (!latest) return models;
-  const rest = models.filter(model => model !== latest);
-  const leading = rest.filter(model => model.pinned).length;
   const blinking = !(seen && seen[seriesLatestSeenKey(latest.id)]);
-  // When the newest thing is a REGISTERED UNIT of the Post (newer than the row's own time), the row is shown AS that update: its name, its time, a link straight to it, and the
-  // Post's own title as the context line. Same model for "עכשיו" and the Home strip (one projection, no copy).
+  // ZURIEL 25.11.2026 (D2, approved): the newest reality-map publication NO LONGER leads the stream (the 16.11 priority is removed). It keeps its mark
+  // ("עדכון חדש" while this viewer has not entered it, then "העדכון האחרון") and keeps its face; it sits at its own time like every other row.
+  // When the newest thing is a REGISTERED UNIT of the Post (newer than the row's own time), the row is shown AS that update — its name, its time, a link
+  // straight to it, and the Post's own title as the context line. Same model for "עכשיו" and the Home strip (one projection, no copy).
   const entry = newestRegisteredEntry(latest.id);
   const asUpdate = entry && entry.label && (Date.parse(entry.updatedAt || "") || 0) > (Date.parse(latest.at || "") || 0)
     ? { title: entry.label, postTitle: latest.title, excerpt: entry.summary || (latest.title ? `בפוסט: ${latest.title}` : ""), excerptIsLead: false, at: entry.updatedAt,
         ...(entry.summary ? { fullText: entry.summary, summary: entry.summary } : {}),
         href: registeredUpdateHref(latest.href, entry.targetId) } : {};
-  return [...rest.slice(0, leading), { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
+  return models.map(model => model === latest ? { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking } : model)
+    .sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 };
 
 /** Primary lenses with at least one row; "all" is always available. */
@@ -446,6 +442,47 @@ export function nowSourceChoices(models) {
 }
 
 export const filterNowBySource = (models, sourceKey = "") => list(models).filter(model => !sourceKey || model.sourceKey === sourceKey);
+
+// ── ZURIEL 25.11.2026 (D1–D11, approved on a branch): ONE set of rows, two views. No second reader, no second sort. ──────────────────────────────
+// "The site's own updates": the site's Posts (new ones and substantive updates of an existing Post, which the feed already carries as the Post's
+// own row at the time of its edit), the series Posts, the Biblical code (ELS) findings and the site-news channel. A SOURCE is everything else that is
+// public: the reality stream, Or HaGeula, writers, groups and the other channels.
+export const isSiteSourceKey = key => typeof key === "string"
+  && ((key.startsWith("site:") && key !== "site:reality") || key.startsWith("series:") || key === "channel:site-news");
+// The rows are bounded AND of a fixed count while loading (the skeleton reserves exactly these), so the arrival of the data moves nothing (CLS <= 0.1).
+export const HOME_SITE_LIMIT = 7, HOME_SOURCE_LIMIT = 7, HOME_MERGED_LIMIT = 12;
+
+/**
+ * The Home's "עדכונים אחרונים" from the SAME models "עכשיו" uses (already in time order, no pin, no type priority).
+ *  - site: the site's own updates, newest first;
+ *  - sources: ONE item per public source (its latest), newest first;
+ *  - merged: both, de-duplicated by id and in a single newest-first order, at most HOME_MERGED_LIMIT (the phone's one chronological list).
+ */
+export function homeUpdateColumns(models, { siteLimit = HOME_SITE_LIMIT, sourceLimit = HOME_SOURCE_LIMIT, mergedLimit = HOME_MERGED_LIMIT } = {}) {
+  const byTime = (a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id));
+  const all = list(models).filter(model => model?.id && !hiddenInNow(model));
+  const site = all.filter(model => isSiteSourceKey(model.sourceKey)).sort(byTime).slice(0, siteLimit);
+  const seen = new Set(), sources = [];
+  for (const model of all.filter(model => model.sourceKey && !isSiteSourceKey(model.sourceKey)).sort(byTime)) {
+    if (seen.has(model.sourceKey)) continue;
+    seen.add(model.sourceKey); sources.push(model);
+    if (sources.length >= sourceLimit) break;
+  }
+  const ids = new Set(), merged = [];
+  for (const model of [...site, ...sources].sort(byTime)) if (!ids.has(model.id)) { ids.add(model.id); merged.push(model); }
+  return { site, sources, merged: merged.slice(0, mergedLimit) };
+}
+
+/**
+ * "עכשיו" as threads: one thread per source, the source that was updated most recently first; inside a thread the latest update first.
+ * Only rows already loaded; an older publication is shown when the reader opens the thread (no history is fetched here).
+ */
+export function nowSourceThreads(models) {
+  const byTime = (a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id));
+  const all = list(models).filter(model => model?.id && model.sourceKey);
+  return nowSourceChoices(all).filter(choice => choice.count > 0)
+    .map(choice => ({ ...choice, models: all.filter(model => model.sourceKey === choice.id).sort(byTime) }));
+}
 
 /**
  * The pinned central message (System Frame v2 §10.8 addendum, 11.11.2026): the ONE pinned row that carries an owner message, while its pin

@@ -199,12 +199,14 @@ jobs:
               await expect(home.locator('[data-home-entry-band="true"]')).toHaveCount(1, { timeout: 30_000 });
               await expect(home.locator('[data-home-top-updates="public-closed"]')).toHaveCount(0);
               await expect(home.locator('[data-home-updates-preview="illustration"]')).toHaveCount(0);
-              const buildingNote = home.locator('[data-home-building-note="true"]');
+              // ZURIEL 25.11.2026 (D5/D9, approved): ONE construction note with ONE sign-up button, at the foot of "עדכונים אחרונים"
+              // (BuildingSignupNote2029), replaces the old top note. Exactly one, visible, with the approved text and the existing action.
+              const buildingNote = home.locator('[data-building-note="home"]');
               await expect(buildingNote).toHaveCount(1);
               await expect(buildingNote).toBeVisible();
-              await expect(buildingNote).toContainText('מדורים נוספים בבנייה');
+              await expect(buildingNote).toContainText('האתר נבנה מבפנים');
               await expect(buildingNote).not.toContainText('הדף בבנייה');
-              await expect(buildingNote.getByRole('button', { name: 'לעדכונים במייל ←' })).toBeVisible();
+              await expect(buildingNote.getByRole('button', { name: 'הרשמה לעדכונים' })).toBeVisible();
               await expect(home.getByText('האתר בבנייה', { exact: true })).toHaveCount(0);
               await expect(home.locator('[data-home-public-series="true"]')).toHaveCount(1);
               await expect(home.locator('[data-home-public-series="true"] .h29-series-card:not(.h29-skel)').first()).toBeVisible({ timeout: 30_000 });

@@ -16,10 +16,15 @@ const fixtures = {
   "razielSessionSeam2029.js": "export const publicContextLabel=v=>v||'';export const contextDisplayTitle=()=>'';export const entityTypeNounHe=()=>'';",
   "ContextualInspector2029.jsx": "import React from 'react';export default ({children})=>React.createElement('section',{'data-context-rail':true},children);",
   "entryLearn2029.js": "export const LEARN_LAYER={},LEARN_SCOPE={};export const buildLearnHelpSeed=()=>'',emitEntryLearn=()=>{},getConceptFamiliarity=()=>null,getLearnFragment=()=>null,isEntryLearnSurfaceActive=()=>false,markConceptFamiliarity=()=>null;",
+  // The rail now imports these two named exports (the surface spine's scroll helper and the number page base); the quiet default stub has neither.
+  "SurfaceProgressSpine2029.jsx": "export default function Spine(){return null;}export const revealAndScrollTo=()=>{};",
+  "numberPageAddress.js": "export const NUMBER_PAGE_BASE='/number';",
   "GoldenProjectorModeLayer2029.jsx": "import React from 'react';globalThis.__contextAdmission.moduleLoads++;export default ()=>React.createElement('div',{'data-projector':true},'admitted admin layer');",
 };
 await build({ entryPoints: ["src/components/experience2029/SurfaceContextRail2029.jsx"],
   bundle: true, splitting: true, format: "esm", platform: "node", outdir: output,
+  // the rail reads one build flag (the map reading release); a default build has it unset, which is what this test runs
+  define: { "import.meta.env.VITE_MAP_READING_RELEASE": "undefined" },
   outExtension: { ".js": ".mjs" }, external: ["react", "react/jsx-runtime"],
   plugins: [{ name: "controlled-context-boundaries", setup(b) {
     b.onResolve({ filter: /^\.\.?\// }, args => args.kind === "entry-point" ? undefined : ({ path: args.path.split("/").at(-1), namespace: "fixture" }));
