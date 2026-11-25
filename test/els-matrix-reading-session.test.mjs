@@ -128,7 +128,10 @@ test("the hooks of a long turn are non-enumerable (never in the body), progress 
 
 test("the provider only exposes the reading as an explicit call: nothing renders, mounts or effects its way into a model call", () => {
   const provider = readFileSync(new URL("../src/lib/research/RazielSessionProvider2029.jsx", import.meta.url), "utf8");
-  assert.match(provider, /const submitElsMatrixReading = useCallback\(\(options = \{\}\) => \{[\s\S]*buildElsMatrixReadingSubmission\(options\)[\s\S]*submit\(built\.submission\)/);
+  // S-60 (25.11.2026): the session module loads only when a reading is explicitly started (not with the code every page loads); the explicit call is unchanged.
+  assert.match(provider, /const submitElsMatrixReading = useCallback\(\(options = \{\}\) => loadElsMatrixReadingSession\(\)\.then\(\(\{ buildElsMatrixReadingSubmission \}\) => \{[\s\S]*buildElsMatrixReadingSubmission\(options\)[\s\S]*submit\(built\.submission\)/);
+  assert.doesNotMatch(provider, /^import .*elsMatrixReadingSession/m, "no static import: the module stays out of the entry");
+  assert.match(provider, /request\?\.elsMatrixReadingAction\s*\? \(await loadElsMatrixReadingSession\(\)\)\.attachElsMatrixReadingHooks\(/, "only a request that carries a reading action loads it for the hooks");
   assert.match(provider, /const cancelActiveTurn = useCallback/);
   const effects = [...provider.matchAll(/useEffect\(\(\) => \{[\s\S]*?\}, \[[^\]]*\]\);/g)].map((m) => m[0]).join("\n");
   assert.doesNotMatch(effects, /submitElsMatrixReading|elsMatrixReading|askRaziel|transport/);
