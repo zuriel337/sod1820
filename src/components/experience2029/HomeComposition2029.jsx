@@ -407,7 +407,8 @@ function HomeUpdateItem({ model, updates, onOpenNow, lead = false }) {
     <span className="rc29-rt"><strong>{model.row?.isNew ? <span className="r29-badge is-new rc29-new-badge">חדש</span> : model.updated ? <span className="r29-badge is-updated rc29-new-badge">עודכן</span> : null}{model.title}</strong>
       <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline.length ? ` · ${model.byline.join(" · ")}` : ""}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>
   </>;
-  return <li className={`h29-live-item rc29-row${lead ? " is-lead" : ""}`} data-tone={model.tone} data-home-update-item={model.id}>
+  // ZURIEL 25.11.2026: the Home is brown and gold; every row's edge is the one gold hue (the source's own hue stays in "עכשיו" and elsewhere), so the list is not multi-coloured.
+  return <li className={`h29-live-item rc29-row${lead ? " is-lead" : ""}`} data-tone="gold" data-home-update-item={model.id}>
     {model.href?.startsWith("/") ? <Link className="r29-card" to={model.href} onClick={() => updates.see?.(model.row)}>{body}</Link> : model.href ? <a className="r29-card" href={model.href} onClick={() => updates.see?.(model.row)}>{body}</a>
       : onOpenNow ? <button type="button" className="h29-live-open r29-card" onClick={onOpenNow} data-home-update-opens-now="true">{body}</button> : <div className="r29-card">{body}</div>}
   </li>;
