@@ -4281,9 +4281,12 @@ test('Fable reading uses the shared frame indicator across surfaces, themes, key
   await page.evaluate(()=>window.__readingOwner('b'));
   await page.waitForFunction(()=>!document.querySelector('[data-research-activity]'));
   assert.equal(await page.evaluate(()=>window.__readingCalls),1,'principal replacement does not start or resume a reading');
+  let expectedReadingCalls=1;
   for(const [state,reason,status] of [['INCOMPLETE',null,'PARTIAL'],['FAILED_WITH_REASON','batch_errored','FAILED'],['FAILED_WITH_REASON','batch_canceled','CANCELLED']]){
    await page.getByRole('button',{name:'התחל Fable מדומה',exact:true}).click();
-   await page.waitForFunction(()=>window.__readingSession?.busy);
+   expectedReadingCalls+=1;
+   // The reading code loads when a reading starts (S-60), so the session is busy a moment before the transport runs and installs this call's finish handle.
+   await page.waitForFunction(n=>window.__readingSession?.busy&&window.__readingCalls===n,expectedReadingCalls);
    await page.evaluate(([state,reason])=>window.__readingFinish(state,reason),[state,reason]);
    await page.waitForFunction(status=>document.querySelector('[data-research-activity="'+status+'"]'),status);
    assert.equal(await indicator.getByRole('progressbar').count(),0,'terminal state never advertises continuing work');
