@@ -3017,6 +3017,10 @@
       "destination": "/brand/2029/apple-touch-icon-180-3f8a2a2fdc0a.png"
     },
     {
+      "source": "/media/:path*",
+      "destination": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/:path*"
+    },
+    {
       "source": "/2029.html",
       "destination": "/api/public-document?path=/2029"
     },
@@ -3258,6 +3262,19 @@
         {
           "key": "Service-Worker-Allowed",
           "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/media/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "all"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=86400"
         }
       ]
     }
