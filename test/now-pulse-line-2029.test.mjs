@@ -89,8 +89,8 @@ test("inside the Now window links go through onOpen (the window's own navigation
   assert.equal(prevented.length, 3);
   const css = await readFile("src/components/experience2029/nowPulseLine2029.css", "utf8");
   assert.match(css, /\.nowpulse29-slot\{min-block-size:44px/);
-  assert.match(css, /@media \(max-width:760px\)[\s\S]*\.nowpulse29-slot\{min-block-size:84px\}/);
-  assert.match(css, /@media \(max-width:370px\)[\s\S]*\.nowpulse29-slot\{min-block-size:118px\}/, "a third thin row on very narrow phones, never a scroll");
+  assert.match(css, /@media \(max-width:760px\)[\s\S]*\.nowpulse29-slot\{min-block-size:52px\}/, "one thin row on a phone");
+  assert.doesNotMatch(css, /grid-template-rows/, "no stacked rows on any phone width");
   assert.doesNotMatch(css, /overflow-x\s*:\s*(auto|scroll)/, "no horizontal scroll on a phone");
   assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/, "canonical colour roles only");
 });

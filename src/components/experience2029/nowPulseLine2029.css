@@ -32,24 +32,19 @@
 .nowpulse29-last{color:var(--s29-muted)}
 @media (min-width:761px){.nowpulse29{flex-wrap:nowrap}.nowpulse29-slot{min-block-size:44px}}
 @media (max-width:760px){
-  /* two thin rows, nothing hidden and no horizontal scroll: [title ........ stats] then [hot numbers] [trend] */
-  .nowpulse29-slot{min-block-size:84px}
-  .nowpulse29{display:grid;grid-template-columns:auto 1fr;grid-template-rows:34px 34px;align-items:center;gap:0 12px;min-block-size:76px;padding:4px 12px}
-  .nowpulse29.is-loading{block-size:76px}
-  .nowpulse29-title{grid-column:1;grid-row:1}
-  .nowpulse29-more{grid-column:2;grid-row:1;justify-self:end;margin:0}
-  .nowpulse29-grp[data-now-pulse-part=numbers]{grid-column:1;grid-row:2}
-  .nowpulse29-grp[data-now-pulse-part=trend]{grid-column:2;grid-row:2;justify-self:end}
+  /* ONE thin row (ZURIEL 25.11.2026: fewer rows): [dot title ... hot numbers, ELS searches, trend, entrance]. Nothing wraps, nothing scrolls; the trend gives way
+     below 400px so the row never grows. */
+  .nowpulse29-slot{min-block-size:52px}
+  .nowpulse29{flex-wrap:nowrap;gap:0 8px;min-block-size:44px;padding:4px 10px;overflow:hidden}
+  .nowpulse29.is-loading{block-size:44px}
   .nowpulse29-long{display:none}.nowpulse29-short{display:inline}
-  /* on a phone the window name gives way to the live time of the last counted event (the window stays in the aria-label) */
-  .nowpulse29-win{display:none}
-  .nowpulse29-note{grid-column:1 / -1;grid-row:2}
+  /* the window name and the long "last event" text give way: the beating dot and the short key carry it (the window stays in the aria-label) */
+  .nowpulse29-win,.nowpulse29-last{display:none}
+  .nowpulse29-title small{display:none}
+  .nowpulse29-num{min-inline-size:32px;padding:0 5px}
+  .nowpulse29-more{min-block-size:34px;margin-inline-start:auto}
+  .nowpulse29-note{flex:1 1 auto;min-inline-size:0}
 }
-/* very narrow phones (<= 370px): the same two thin rows plus a third thin row for the trend, so nothing is cut and nothing scrolls */
-@media (max-width:370px){
-  .nowpulse29-slot{min-block-size:118px}
-  .nowpulse29{grid-template-rows:34px 34px 34px;min-block-size:110px}
-  .nowpulse29.is-loading{block-size:110px}
-  .nowpulse29-grp[data-now-pulse-part=trend]{grid-column:1 / -1;grid-row:3;justify-self:start}
-  .nowpulse29-note{grid-row:2}
+@media (max-width:400px){
+  .nowpulse29-grp[data-now-pulse-part=trend]{display:none}
 }
