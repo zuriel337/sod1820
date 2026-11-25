@@ -39,7 +39,10 @@ const EMPTY_LINKS = [{ href: "/gematria", label: "מחשבון גימטריה", 
 const ARROW = { up: "↑", down: "↓", flat: "→" };
 function trendText(t) { return t.dir === "flat" ? "ללא שינוי" : `${ARROW[t.dir]} ${Math.abs(t.pct).toLocaleString("he-IL")}%`; }
 
-export default function NowPulseLine2029({ read = () => readResearchPulse(NOW_PULSE_HOURS), onOpen = null }) {
+// ONE stable default reader. It must NOT be created inside the signature: a new function on every render changes the effect's dependency, so every
+// state change would start the effect again (and, when the read fails, repeat the request without end: found by the Release Visual Gate, 25.11.2026).
+const DEFAULT_READ = () => readResearchPulse(NOW_PULSE_HOURS);
+export default function NowPulseLine2029({ read = DEFAULT_READ, onOpen = null }) {
   const [state, setState] = useState({ status: "loading", model: null });
   useEffect(() => {
     let live = true;

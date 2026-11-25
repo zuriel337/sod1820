@@ -111,3 +111,19 @@ test("alive (ZURIEL 25.11.2026): the server's own newest event time is carried, 
   assert.ok(home.indexOf("<HomeLiveUpdates updates=") < home.indexOf("<NowPulseLineSlot2029"), "pulse line after the updates");
   assert.ok(home.indexOf("<NowPulseLineSlot2029") < home.indexOf('className="h29-lead-pair"'), "and before the flagship pair");
 });
+
+test("the DEFAULT reader is read exactly once, on success and on failure (no render loop; a failing read is never repeated without end)", { timeout: 20000 }, async () => {
+  const realFetch = globalThis.fetch; let calls = 0, mode = "ok";
+  globalThis.fetch = async (url) => { if (!String(url).includes("research_pulse_2029")) return new Response("{}", { status: 200 }); calls += 1;
+    return mode === "ok" ? new Response(JSON.stringify(pulse168()), { status: 200, headers: { "content-type": "application/json" } }) : new Response("{}", { status: 500, headers: { "content-type": "application/json" } }); };
+  try {
+    for (const m of ["ok", "fail"]) {
+      mode = m; calls = 0; let root;
+      // the reader caches a successful read for the page; a failed one is dropped, so the first mode that runs is the one to count
+      await act(async () => { root = Renderer.create(React.createElement(NowPulseLine2029, {})); });
+      for (let i = 0; i < 20; i += 1) await act(async () => { await new Promise(resolve => setTimeout(resolve, 15)); });
+      assert.ok(calls <= 1, `${m}: the reader was asked ${calls} times`);
+      root.unmount();
+    }
+  } finally { globalThis.fetch = realFetch; }
+});
