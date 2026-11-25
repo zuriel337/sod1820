@@ -4342,6 +4342,50 @@
         "open": "Find what grew ~1 KB in the entry since the baseline and move it behind a lazy load; never raise the baseline without ZURIEL. | STAGED PLAN 25.11 — step 3: find the ~1 KB the entry gained since the S-52 baseline (manifest diff of the entry graph main 70b3a29 vs the baseline build) and move it behind an on-demand load; target ≥ 2 KB headroom without raising the baseline. Approval: merge + deploy. | 25.11.2026 ANALYSIS (no change made): eager JS 177,501–177,507 / limit 177,548 (41–47 B); frame CSS 34,355 / 34,362 (7 B). Source-map attribution of the entry: the only movable non-first-paint code outside Raziel, research engines and measurement is FeatureClosedNotice2029 (0.7 KB), but SystemFrame2029 imports it statically, so moving it saves nothing per page. Real headroom needs a ZURIEL decision on one of: (a) split razielNavigationButton out of razielSessionSeam2029.js so supabase/functions/_shared/siteLinkRegistry.js (2.6 KB gzip) leaves the entry — a pure import move in Raziel code (excluded from this package); (b) move the workspace-panel rules of myWorkspace2029.css (2.6 KB gzip, shared with 7 frame classes) into the lazy WorkspaceProjection2029 after a rule-by-rule visual check. The baseline was not raised. | 25.11.2026 RECOMMENDATION (one, for decision): option (a) — move razielNavigationButton and its siteLinkRegistry import out of razielSessionSeam2029.js into its own module imported only by its two callers (RazielPanel2029, razielSavedSession2029). A pure import move with no behaviour change: about 2.6 KB gzip leaves the code every page loads (≈2.6 KB real headroom under the unchanged limit), verifiable by the existing shell budget gate and Raziel tests. Frame CSS (7 B headroom) stays tight; option (b) remains for later. | 25.11.2026 (ZURIEL approved preparing option a) MEASURED: option a (move razielNavigationButton out of the seam) LOWERS the entry by 1,490 B but the footer and admin destinations need the site-link registry, so it moves into the frame: frame JS +2,961 B and a 4th frame file — the gate FAILS and the total is 1,471 B worse. The earlier recommendation was wrong; nothing from it is merged. WHAT WORKS (PR #1553, head de8e8fe, branch claude/s60-els-reading-lazy): RazielSessionProvider2029 loads elsMatrixReadingSession.js (and the shared ELS reading action) with import() when a reading is explicitly started: entry 177,478 -> 175,605 B (-1,873), frame 46,321 -> 46,313, frame CSS unchanged; default baseline lowered to 175,605 (ratchet entry); real margin under the limit 70 B -> 1,024 B. Related tests 44/44 (one failing test, els-guided-discovery, fails on clean main too). Frame CSS stays 7 B from its limit (separate). The public-reading profile baseline (203,216) is 27 KB above the real 175,808 — not lowered (it would affect other sessions' PRs): a separate decision. | 25.11.2026 AFTER DEPLOY (97fc9de): #1553 merged (c02dc65) and deployed. A regression in a test (not product code) was found and fixed in #1555: \"Fable reading uses the shared frame indicator\" failed on clean main after #1553 because the session is busy a moment before the transport runs; the ELS workflow did not run on #1553 (path filter), so it surfaced only on #1555. The test now waits for the call count. Still open: public-reading baseline 203,216 vs 175,808 real (decision); frame CSS 7 B from its limit.",
         "next_owner": "speed session",
         "relates_to_groups": []
+      },
+      {
+        "id": "S-61",
+        "title_he": "תוקן בענף, טרם נפרס: לולאת בקשות ב«דופק האתר» (קורא ברירת מחדל חדש בכל רינדור הפעיל את האפקט מחדש) — נתפס ב־Release Visual Gate לפני שחרור",
+        "problem": "NowPulseLine2029 took its reader as a default parameter written inside the function signature (read = () => readResearchPulse(168)). A new function on every render changed the effect dependency, so every state change restarted the effect: an endless re-render when the read succeeds, and endless repeated research_pulse_2029 requests when it fails. One Home visit made 23,466 requests in the Release Visual Gate (all refused by its egress guard; against the live database they would have been sent). The line is mounted on the Home and in the Now panel, so every visitor would have started the loop. auth-browser-acceptance-2029 also timed out on it.",
+        "surface": "Home and Now (DOM and database reads)",
+        "source": {
+          "task_keys": [
+            "HOME_NOW_UNIFIED_20261125"
+          ],
+          "prs": [
+            1557
+          ],
+          "merged_via_pr": null,
+          "commits": [
+            "680c00d76"
+          ],
+          "author": "claude",
+          "head_branch": "ccr-7ed7f384-d0u3rk"
+        },
+        "code_now": [
+          "src/components/experience2029/NowPulseLine2029.jsx",
+          "test/now-pulse-line-2029.test.mjs"
+        ],
+        "merged": false,
+        "deployed": false,
+        "in_current_production": false,
+        "live_verified": false,
+        "live_evidence": "Never live: found on the PR before any merge. The earlier protected previews dpl_4Wfs9ca7… (5bbbc9bd), dpl_FrrNZh4d… (c7b8f706), dpl_GqgyC1cQ… (7f222bd0) and dpl_AppHW7S2… (10278354) contain the bug and are NOT approved for release (ZURIEL, 25.11.2026: the previous commit and preview are not approved).",
+        "measurement": {
+          "kind": "requests per page load",
+          "before": "research_pulse_2029 x23,466 in one Home visit (Release Visual Gate, 982c6a96)",
+          "after": "x3 for three page loads (one per load), same gate on 680c00d7; auth-browser-acceptance-2029 green",
+          "conditions": "Release Visual Gate, egress guard refusing the telemetry and the pulse read",
+          "source": "GitHub Actions runs 45646806659 (before) and 45648399318 (after)"
+        },
+        "guard": [
+          "test/now-pulse-line-2029.test.mjs: the DEFAULT reader (no injected read) is asked at most once on success and on failure; the test stops (timeout 20s) if the loop returns",
+          "Release Visual Gate counts requests per page and refuses telemetry writes"
+        ],
+        "rule": "A reader, selector or callback used as an effect dependency is created ONCE (module level or a stable hook), never as a default parameter or inline in the component. A test of a component that fetches must mount it WITHOUT injecting the fetcher, count the requests and cover the failing case.",
+        "open": "Merge and deploy need ZURIEL's separate approval for the exact commit; after deploy read the Home request count once in the live Network log.",
+        "next_owner": "home session",
+        "relates_to_groups": []
       }
     ],
     "group_updates": [
