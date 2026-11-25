@@ -20,6 +20,7 @@ h2.pv-h{font-size:13px;color:var(--act);font-weight:500;margin:26px 0 8px;letter
 .live i{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)}
 .more{margin-inline-start:auto;font-size:13px;color:var(--act);background:none;border:0;cursor:pointer;min-height:44px;padding:0 4px}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mob{display:none}
 .col>h4{margin:0 0 6px;font-size:12px;font-weight:500;color:var(--gold);letter-spacing:.04em}
 .row{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;padding:7px 8px;border-radius:10px;border:1px solid transparent;min-height:56px}
 .row+.row{border-top:1px solid rgba(42,53,85,.6);border-radius:0}
@@ -54,7 +55,7 @@ h2.pv-h{font-size:13px;color:var(--act);font-weight:500;margin:26px 0 8px;letter
 .note{font-size:12px;color:var(--txt2);margin:6px 2px}
 @media (max-width:760px){
  .wrap{padding:12px 16px}
- .cols{grid-template-columns:1fr}
+ .desk{display:none}.mob{display:block}
  .now{grid-template-columns:1fr}
  .srcpick{flex-direction:row;overflow-x:auto;padding-bottom:4px}
  .srcpick button{flex:0 0 auto}
@@ -70,13 +71,14 @@ h2.pv-h{font-size:13px;color:var(--act);font-weight:500;margin:26px 0 8px;letter
 <h2 class="pv-h">1 · דף הבית — אזור «עדכונים אחרונים» (ראש תוכן הבית)</h2>
 <section class="region" id="home" aria-label="עדכונים אחרונים">
  <div class="rh"><h3>עדכונים <b>אחרונים</b></h3><span class="live"><i></i>מתעדכן אוטומטית</span><button class="more">לכל העדכונים ב«עכשיו» ←</button></div>
- <div class="cols">
+ <div class="cols desk">
   <div class="col" id="home-site"><h4>עדכוני האתר · לפי זמן</h4></div>
   <div class="col" id="home-src"><h4>האחרון מכל מקור</h4></div>
  </div>
+ <div class="col mob" id="home-one"><h4>הכול · מהחדש לישן</h4></div>
  <div class="build" data-build-note><p>האתר נבנה מבפנים. המערכת מתפתחת ומתחדשת כל הזמן. במהלך הבנייה ייתכנו תקלות זמניות. הצטרפו אלינו וקבלו עדכונים על חידושים ופתיחת אזורים נוספים.</p><button class="cta">הרשמה לעדכונים</button></div>
 </section>
-<p class="note">בבית: זמן יחסי («לפני X») — relative_time_display_law v4. ללא נעיצות, ללא סימון «עדכון חדש» מהבהב כקדימות. פריט אחד לכל מקור.</p>
+<p class="note">בבית: זמן יחסי («לפני X») — relative_time_display_law v4. ללא נעיצות, ללא סימון «עדכון חדש» מהבהב כקדימות. פריט אחד לכל מקור. מחשב: שתי עמודות. נייד: רשימה כרונולוגית אחת (מהחדש לישן) מאותו מערך נתונים.</p>
 
 <h2 class="pv-h">2 · חלונית «עכשיו» — מרכז עדכונים בשרשורים לפי מקור</h2>
 <section class="region" id="now" aria-label="עכשיו">
@@ -116,6 +118,8 @@ const row=(x,t)=>`<div class="row">${th(x)}<div><div class="meta"><span class="s
 // Home: ימין = עדכוני האתר (כרונולוגי), שמאל = אחרון מכל מקור
 document.getElementById("home-site").insertAdjacentHTML("beforeend",D.filter(x=>x.site).sort((a,b)=>b.at.localeCompare(a.at)).map(x=>row(x,rel)).join(""));
 document.getElementById("home-src").insertAdjacentHTML("beforeend",D.filter(x=>!x.site).sort((a,b)=>b.at.localeCompare(a.at)).map(x=>row(x,rel)).join(""));
+// נייד: רשימה אחת מהחדש לישן, אותו מערך נתונים, בלי קדימות לפי סוג. פריט אחד לכל מקור; עדכוני אתר כרונולוגיים משולבים.
+document.getElementById("home-one").insertAdjacentHTML("beforeend",[...D.filter(x=>!x.site),...D.filter(x=>x.site)].sort((a,b)=>b.at.localeCompare(a.at)).map(x=>row(x,rel)).join(""));
 // Now
 const srcs=[["הכול",D.length,1],...D.filter(x=>!x.hide).map(x=>[x.src.split(" · ")[0],1,0])];
 document.getElementById("picker").innerHTML=srcs.slice(0,7).map(([n,c,p])=>`<button aria-pressed="${p?'true':'false'}">${n}<small>${p?'כל המקורות':'עדכון אחרון'}</small></button>`).join("");
