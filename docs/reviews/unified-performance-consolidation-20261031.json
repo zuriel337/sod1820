@@ -1327,17 +1327,18 @@
   ],
   "current_state_20261117": {
     "task": "SPEED_CENTRE_CONTROL_20261117",
-    "checked_at": "2026-11-25T09:30:00Z",
-    "main": "a5cf3d4878d3480892cf4895a97da652248401eb",
+    "checked_at": "2026-11-25T11:05:00Z",
+    "main": "97fc9de6130b16e9e61258d077d409b3ce063a78",
     "production": {
-      "deployment": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv",
-      "sha": "a5cf3d4878d3480892cf4895a97da652248401eb",
+      "deployment": "dpl_HmqYVcNE9j7fTXbjudLe5nqT1Fr4",
+      "sha": "97fc9de6130b16e9e61258d077d409b3ce063a78",
       "aliases": [
         "sod1820.co.il",
         "www.sod1820.co.il",
         "sod1820.vercel.app"
       ],
-      "evidence": "ZURIEL approved merge of #1551 (ac9d0d1) and the Production deploy of a5cf3d4 on 25.11.2026; create_deployment with the exact SHA, READY in ~62 s, assign_alias of the three domains (oldDeploymentId dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw, the rollback point); Post-Deploy Canary run 45584088670 success; live: 308 old-image redirects (no-store), draft image 404, /start 200 index with its own canonical, post gate clean on the second request to a different Post with a HIT."
+      "rollback_point": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv (a5cf3d4)",
+      "evidence": "ZURIEL approved merge of #1555 at 1019885 and the Production deploy of 97fc9de on 25.11.2026 (#1552 /start sitemap, #1553 S-60, #1554 Post 2 image, #1549 code only, #1555 right-hand menu). create_deployment with the exact SHA, READY after one build of 42 s (shell budget PASS), assign_alias of the three domains (old deployment dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv, read before the move; get_alias re-read for sod1820.co.il only). Live: bootstrap sourceSha 97fc9de; /start 200 index, own canonical, in sitemap.xml?part=content; the entry has only the call site of the reading session (lazy); the rail lists in the Sod2029Shell chunk are the 11.11.2026 lists; Post 2 image loads from the exact stored file (200, 447 px) with the authored address kept in data-source-src. Post-Deploy Canary run 45599497946 success (deployment_status at 10:54:59, before the domains moved); next scheduled run 13:17 UTC. NOT measured: field metrics after this deploy; the S-55/S-59 after-measurements are due 26.11.2026 ~09:35 UTC."
     },
     "build_evidence": [
       {
@@ -4298,16 +4299,20 @@
       },
       {
         "id": "S-60",
-        "title_he": "ממצא פתוח: שולי תקציב המעטפת כמעט נגמרו — 25 בתים",
+        "title_he": "תוקן ופרוס: שולי תקציב המעטפת — קוד הקריאה של המטריצה נטען רק בהתחלת קריאה (הכניסה ירדה ב־1,873 בתים, השוליים 1,024 בתים)",
         "problem": "eagerJsGzip measures 177,523 B against a baseline of 176,524 and a tolerance of 1,024 (limit 177,548): any new eager byte above 25 fails the build gate. The baseline was lowered after S-52 while later merges added ~1 KB.",
         "surface": "build",
         "source": {
           "task_keys": [
             "SEO_IMPRESSIONS_AUDIT_20261125"
           ],
-          "prs": [],
-          "merged_via_pr": null,
-          "commits": [],
+          "prs": [
+            1553
+          ],
+          "merged_via_pr": 1553,
+          "commits": [
+            "de8e8fe49"
+          ],
           "author": "claude",
           "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
         },
@@ -4315,15 +4320,15 @@
           "scripts/test-2029-shell-budget.mjs",
           "scripts/2029-shell-budget-baseline.json"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "deployed_in_sha": null,
+        "merged": true,
+        "merge_commit": "c02dc6540",
+        "deployed": true,
+        "deployed_in": "dpl_HmqYVcNE9j7fTXbjudLe5nqT1Fr4",
+        "deployed_in_sha": "97fc9de6130b16e9e61258d077d409b3ce063a78",
         "deployed_in_created": null,
-        "in_current_production": false,
-        "live_verified": "no",
-        "live_evidence": "Not deployed.",
+        "in_current_production": true,
+        "live_verified": "partial",
+        "live_evidence": "Live entry (2029-DJ8voVVY.js) has only the call site ar().then(({buildElsMatrixReadingSubmission})=>...); the definition is not in it. The 1,024 B margin was measured on CI, not on Production.",
         "measurement": {
           "kind": "budget",
           "before": "baseline 176,524 B (after S-52)",
@@ -4334,7 +4339,7 @@
         "guard": [
           "scripts/test-2029-shell-budget.mjs"
         ],
-        "open": "Find what grew ~1 KB in the entry since the baseline and move it behind a lazy load; never raise the baseline without ZURIEL. | STAGED PLAN 25.11 — step 3: find the ~1 KB the entry gained since the S-52 baseline (manifest diff of the entry graph main 70b3a29 vs the baseline build) and move it behind an on-demand load; target ≥ 2 KB headroom without raising the baseline. Approval: merge + deploy. | 25.11.2026 ANALYSIS (no change made): eager JS 177,501–177,507 / limit 177,548 (41–47 B); frame CSS 34,355 / 34,362 (7 B). Source-map attribution of the entry: the only movable non-first-paint code outside Raziel, research engines and measurement is FeatureClosedNotice2029 (0.7 KB), but SystemFrame2029 imports it statically, so moving it saves nothing per page. Real headroom needs a ZURIEL decision on one of: (a) split razielNavigationButton out of razielSessionSeam2029.js so supabase/functions/_shared/siteLinkRegistry.js (2.6 KB gzip) leaves the entry — a pure import move in Raziel code (excluded from this package); (b) move the workspace-panel rules of myWorkspace2029.css (2.6 KB gzip, shared with 7 frame classes) into the lazy WorkspaceProjection2029 after a rule-by-rule visual check. The baseline was not raised. | 25.11.2026 RECOMMENDATION (one, for decision): option (a) — move razielNavigationButton and its siteLinkRegistry import out of razielSessionSeam2029.js into its own module imported only by its two callers (RazielPanel2029, razielSavedSession2029). A pure import move with no behaviour change: about 2.6 KB gzip leaves the code every page loads (≈2.6 KB real headroom under the unchanged limit), verifiable by the existing shell budget gate and Raziel tests. Frame CSS (7 B headroom) stays tight; option (b) remains for later. | 25.11.2026 (ZURIEL approved preparing option a) MEASURED: option a (move razielNavigationButton out of the seam) LOWERS the entry by 1,490 B but the footer and admin destinations need the site-link registry, so it moves into the frame: frame JS +2,961 B and a 4th frame file — the gate FAILS and the total is 1,471 B worse. The earlier recommendation was wrong; nothing from it is merged. WHAT WORKS (PR #1553, head de8e8fe, branch claude/s60-els-reading-lazy): RazielSessionProvider2029 loads elsMatrixReadingSession.js (and the shared ELS reading action) with import() when a reading is explicitly started: entry 177,478 -> 175,605 B (-1,873), frame 46,321 -> 46,313, frame CSS unchanged; default baseline lowered to 175,605 (ratchet entry); real margin under the limit 70 B -> 1,024 B. Related tests 44/44 (one failing test, els-guided-discovery, fails on clean main too). Frame CSS stays 7 B from its limit (separate). The public-reading profile baseline (203,216) is 27 KB above the real 175,808 — not lowered (it would affect other sessions' PRs): a separate decision.",
+        "open": "Find what grew ~1 KB in the entry since the baseline and move it behind a lazy load; never raise the baseline without ZURIEL. | STAGED PLAN 25.11 — step 3: find the ~1 KB the entry gained since the S-52 baseline (manifest diff of the entry graph main 70b3a29 vs the baseline build) and move it behind an on-demand load; target ≥ 2 KB headroom without raising the baseline. Approval: merge + deploy. | 25.11.2026 ANALYSIS (no change made): eager JS 177,501–177,507 / limit 177,548 (41–47 B); frame CSS 34,355 / 34,362 (7 B). Source-map attribution of the entry: the only movable non-first-paint code outside Raziel, research engines and measurement is FeatureClosedNotice2029 (0.7 KB), but SystemFrame2029 imports it statically, so moving it saves nothing per page. Real headroom needs a ZURIEL decision on one of: (a) split razielNavigationButton out of razielSessionSeam2029.js so supabase/functions/_shared/siteLinkRegistry.js (2.6 KB gzip) leaves the entry — a pure import move in Raziel code (excluded from this package); (b) move the workspace-panel rules of myWorkspace2029.css (2.6 KB gzip, shared with 7 frame classes) into the lazy WorkspaceProjection2029 after a rule-by-rule visual check. The baseline was not raised. | 25.11.2026 RECOMMENDATION (one, for decision): option (a) — move razielNavigationButton and its siteLinkRegistry import out of razielSessionSeam2029.js into its own module imported only by its two callers (RazielPanel2029, razielSavedSession2029). A pure import move with no behaviour change: about 2.6 KB gzip leaves the code every page loads (≈2.6 KB real headroom under the unchanged limit), verifiable by the existing shell budget gate and Raziel tests. Frame CSS (7 B headroom) stays tight; option (b) remains for later. | 25.11.2026 (ZURIEL approved preparing option a) MEASURED: option a (move razielNavigationButton out of the seam) LOWERS the entry by 1,490 B but the footer and admin destinations need the site-link registry, so it moves into the frame: frame JS +2,961 B and a 4th frame file — the gate FAILS and the total is 1,471 B worse. The earlier recommendation was wrong; nothing from it is merged. WHAT WORKS (PR #1553, head de8e8fe, branch claude/s60-els-reading-lazy): RazielSessionProvider2029 loads elsMatrixReadingSession.js (and the shared ELS reading action) with import() when a reading is explicitly started: entry 177,478 -> 175,605 B (-1,873), frame 46,321 -> 46,313, frame CSS unchanged; default baseline lowered to 175,605 (ratchet entry); real margin under the limit 70 B -> 1,024 B. Related tests 44/44 (one failing test, els-guided-discovery, fails on clean main too). Frame CSS stays 7 B from its limit (separate). The public-reading profile baseline (203,216) is 27 KB above the real 175,808 — not lowered (it would affect other sessions' PRs): a separate decision. | 25.11.2026 AFTER DEPLOY (97fc9de): #1553 merged (c02dc65) and deployed. A regression in a test (not product code) was found and fixed in #1555: \"Fable reading uses the shared frame indicator\" failed on clean main after #1553 because the session is busy a moment before the transport runs; the ELS workflow did not run on #1553 (path filter), so it surfaced only on #1555. The test now waits for the call count. Still open: public-reading baseline 203,216 vs 175,808 real (decision); frame CSS 7 B from its limit.",
         "next_owner": "speed session",
         "relates_to_groups": []
       }
@@ -4907,6 +4912,26 @@
             "live_verified": "no"
           },
           "S-56_open_len": 938
+        }
+      },
+      {
+        "at": "2026-11-25T11:05:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 25.11: approved merge of #1555 at 1019885 and the Production deploy of 97fc9de; then asked to update the handoff and the speed map)",
+        "what": "Production and main -> 97fc9de (dpl_HmqYVcNE9j7fTXbjudLe5nqT1Fr4). #1552, #1553, #1554, #1549 (code only) and #1555 are in main and live. S-60 closed as merged and deployed. S-56, S-55 and S-59 keep their a5cf3d4 deployment. No measurement was repeated; the after-measurements stay due 26.11.2026.",
+        "previous": {
+          "checked_at": "2026-11-25T09:30:00Z",
+          "main": "a5cf3d4878d3480892cf4895a97da652248401eb",
+          "production": {
+            "deployment": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv",
+            "sha": "a5cf3d4878d3480892cf4895a97da652248401eb",
+            "aliases": [
+              "sod1820.co.il",
+              "www.sod1820.co.il",
+              "sod1820.vercel.app"
+            ],
+            "evidence": "ZURIEL approved merge of #1551 (ac9d0d1) and the Production deploy of a5cf3d4 on 25.11.2026; create_deployment with the exact SHA, READY in ~62 s, assign_alias of the three domains (oldDeploymentId dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw, the rollback point); Post-Deploy Canary run 45584088670 success; live: 308 old-image redirects (no-store), draft image 404, /start 200 index with its own canonical, post gate clean on the second request to a different Post with a HIT."
+          }
         }
       }
     ]
