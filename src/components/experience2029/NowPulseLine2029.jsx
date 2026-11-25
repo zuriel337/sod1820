@@ -22,8 +22,13 @@ export function pulseLineModel(d) {
     const pct = Math.round((item.recent - item.earlier) / item.earlier * 100);
     return { key: item.event_type, label: TREND_LABEL[item.event_type], recent: item.recent, earlier: item.earlier, pct, dir: pct > 0 ? "up" : pct < 0 ? "down" : "flat" };
   }).sort((a, b) => (b.recent + b.earlier) - (a.recent + a.earlier)).slice(0, 1);
+  // ELS searches this week (ZURIEL 25.11.2026): EVENTS of the cipher surface (search + cross_search), shown only at/above the privacy floor; never people.
+  const floor = Number.isSafeInteger(d.threshold?.events) && d.threshold.events > 0 ? d.threshold.events : 10;
+  const elsEvents = (Array.isArray(d.activity) ? d.activity : []).filter(item => item?.surface === "els" && (item.event_type === "search" || item.event_type === "cross_search") && Number.isSafeInteger(item.events) && item.events > 0)
+    .reduce((sum, item) => sum + item.events, 0);
+  const els = elsEvents >= floor ? elsEvents : null;
   const halfDays = Number.isFinite(d.hours) && d.hours > 0 ? d.hours / 48 : NOW_PULSE_HOURS / 48;
-  return { numbers, trends, halfDays };
+  return { numbers, trends, els, halfDays };
 }
 
 // Empty state (ZURIEL 25.11.2026: no empty places): REAL fixed entrances, never an invented number or trend.
@@ -40,7 +45,7 @@ export default function NowPulseLine2029({ read = () => readResearchPulse(NOW_PU
   }, [read]);
   const go = href => event => { if (onOpen) { event.preventDefault(); onOpen(href); } };
   const model = state.model;
-  const empty = state.status === "ready" && (!model || (!model.numbers.length && !model.trends.length));
+  const empty = state.status === "ready" && (!model || (!model.numbers.length && !model.trends.length && !model.els));
   if (state.status === "loading") return <div className="nowpulse29 is-loading" aria-hidden="true" />;
   return <nav className="nowpulse29 r29" dir="rtl" aria-label={`דופק האתר · ${NOW_PULSE_WINDOW_LABEL}`} data-now-pulse={empty || state.status === "failed" ? "empty" : "ready"}>
     <span className="nowpulse29-title"><i aria-hidden="true">◆</i>דופק האתר <small>· {NOW_PULSE_WINDOW_LABEL}</small></span>
@@ -50,6 +55,7 @@ export default function NowPulseLine2029({ read = () => readResearchPulse(NOW_PU
       : <>
         {model.numbers.length ? <span className="nowpulse29-grp" data-now-pulse-part="numbers"><span className="nowpulse29-k"><span className="nowpulse29-long">מספרים חמים</span><span className="nowpulse29-short">חמים</span></span>
           {model.numbers.map(n => { const href = `${NUMBER_PAGE_BASE}/${n}`; return <a key={n} className="nowpulse29-num" href={href} onClick={go(href)}>{n.toLocaleString("he-IL")}</a>; })}</span> : null}
+        {model.els ? <span className="nowpulse29-grp" data-now-pulse-part="els" title={`חיפושי צופן ב${NOW_PULSE_WINDOW_LABEL} (אירועים, לא אנשים)`}><span className="nowpulse29-k"><span className="nowpulse29-long">חיפושי צופן</span><span className="nowpulse29-short">צופן</span></span><b>{count(model.els)}</b></span> : null}
         {model.trends.map(t => <span className={`nowpulse29-grp is-${t.dir}`} key={t.key} data-now-pulse-part="trend"
           title={`${t.label}: ${count(t.recent)} ב־${model.halfDays} הימים האחרונים לעומת ${count(t.earlier)} ב־${model.halfDays} הימים שלפניהם (אירועים, לא אנשים)`}>
           <span className="nowpulse29-k">{t.label}</span><b>{trendText(t)}</b><small className="nowpulse29-long">{count(t.recent)} מול {count(t.earlier)} · חצי שבוע מול קודמו</small><small className="nowpulse29-short">מול הקודם</small></span>)}

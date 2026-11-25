@@ -93,3 +93,11 @@ test("inside the Now window links go through onOpen (the window's own navigation
   assert.doesNotMatch(css, /overflow-x\s*:\s*(auto|scroll)/, "no horizontal scroll on a phone");
   assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/, "canonical colour roles only");
 });
+
+test("ELS searches this week (ZURIEL 25.11.2026): events of the cipher surface, only at/above the privacy floor, never people", () => {
+  const base = { ...pulse168(), threshold: { events: 10, sessions: 5 } };
+  const m = pulseLineModel({ ...base, activity: [{ events: 122, surface: "els", event_type: "search" }, { events: 17, surface: "els", event_type: "cross_search" }, { events: 722, surface: "activity_2029", event_type: "compute" }] });
+  assert.equal(m.els, 139);
+  assert.equal(pulseLineModel({ ...base, activity: [{ events: 6, surface: "els", event_type: "search" }] }).els, null);
+  assert.equal(pulseLineModel({ ...base, activity: [] }).els, null);
+});
