@@ -6,6 +6,7 @@ import { applySeo } from "../lib/seo.js";
 import CanonicalProgress from "../components/CanonicalProgress.jsx";
 import { PULSE_WINDOWS, readAdaptivePulse, readResearchPulse, pulseUsable, pulseCount } from "../lib/researchPulse2029.js";
 import { fetchHomeSystemPulse2029 } from "../lib/research/home2029Projection.js";
+import { behaviourTrends, halfWeekTrends, addedTrends, weeklyTrend, trendText, trendArrow } from "../lib/weeklyTrend2029.js";
 import "./stats2029.css";
 
 // /stats (ZURIEL 21.11.2026): the public statistics page. One reader (research_pulse_2029, TI) plus the existing
@@ -15,10 +16,16 @@ const BOTS = { Googlebot: "Google", Bingbot: "Bing", Applebot: "Apple", Meta: "M
 const BUCKETS = { "/number": "דפי מספר", community: "קהילה", "post/slug": "פוסטים", home: "דף הבית", posts: "רשימת הפוסטים", "/topic": "נושאים", gallery: "גלריה", research: "מחקר", index: "מפת האתר", journey: "מסע", "/cross": "הצלבות" };
 const SECTIONS = { home: "בית", world: "עולם", calculator: "מחשבון", calculator_advanced: "מחשבון מתקדם", calculator_community: "מחשבון הקהילה", els: "צופן תנ״כי", cipher: "צפנים", number: "דפי מספר", posts: "פוסטים", books: "ספרים", videos: "סרטונים", community: "קהילה", now: "עכשיו" };
 
-function Tile({ value, label, note, to }) {
+const TREND_NOTE = { average: "מול ממוצע השבוע בשלושת השבועות שלפניו", exact: "מול השבוע שלפניו" };
+function Trend({ trend }) {
+  if (!trend) return null;
+  return <em className={`stats29-trend is-${trend.dir}`} title={`${trend.recent.toLocaleString("he-IL")} השבוע · ${trend.earlier.toLocaleString("he-IL")} ${trend.basis === "average" ? "בשבוע ממוצע קודם" : "בשבוע שלפניו"}`}>{trendText(trend)}</em>;
+}
+
+function Tile({ value, label, note, to, trend }) {
   const v = typeof value === "number" ? pulseCount(value) : value;
   if (!v) return null;
-  const body = <><b>{v}</b><span>{label}</span>{note ? <small>{note}</small> : null}</>;
+  const body = <><b>{v}</b><span>{label}{trend ? <> <Trend trend={trend} /></> : null}</span>{note ? <small>{note}</small> : null}</>;
   return to ? <Link className="stats29-tile" to={to}>{body}</Link> : <div className="stats29-tile">{body}</div>;
 }
 
@@ -26,6 +33,22 @@ export default function Stats2029Page() {
   const [state, setState] = useState({ loading: true });
   const [corpus, setCorpus] = useState(null);
   const [manual, setManual] = useState(null);
+  // The weekly trend (ZURIEL 25.11.2026): this week against the week before, from the SAME reader and its cache: the 168h payload and the 720h payload
+  // (the average week before = (720h minus 168h) over the number of weeks that is). Independent of the window buttons above; a part without data is left out, never drawn as zero.
+  const [weekly, setWeekly] = useState(null);
+  const [before, setBefore] = useState(null);
+  useEffect(() => {
+    let live = true;
+    Promise.all([readResearchPulse(168), readResearchPulse(720)]).then(([d168, d720]) => {
+      if (live && pulseUsable(d168) && pulseUsable(d720)) {
+        // Week against the average week before it where the measurement is old enough; otherwise the server's own halves of the week (never both for one measure).
+        const weeks = behaviourTrends(d168, d720), have = new Set(weeks.map(t => t.key));
+        setWeekly({ behaviour: [...weeks, ...halfWeekTrends(d168).filter(t => !have.has(t.key))], added: addedTrends(d168, d720) });
+      }
+    }, () => {});
+    import("../lib/research/homeWeekBefore2029.js").then(m => m.fetchHomeWeekBefore2029()).then(v => { if (live) setBefore(v); }, () => {});
+    return () => { live = false; };
+  }, []);
   useEffect(() => {
     applySeo({ title: "סטטיסטיקה · מה קורה עכשיו באתר", description: "מה נחקר, נקרא ונסרק באתר: מספרים, פוסטים, מחשבונים, צפנים, קהילה ומנועי חיפוש. נתונים מצרפיים בלבד.", path: "/stats", noindex: true });
     fetchHomeSystemPulse2029().then(setCorpus, () => setCorpus(null));
@@ -71,6 +94,15 @@ export default function Stats2029Page() {
             <Tile value={crawlers?.served} label="דפים שהוגשו למנועי חיפוש ובינה מלאכותית" note={crawlers?.days > 1 ? `ב־${crawlers.days} הימים האחרונים` : "ביממה האחרונה"} />
           </div>
         </section>
+        {weekly?.behaviour?.length ? <section className="stats29-block" aria-labelledby="stats29-weekly" data-stats-weekly="true">
+          <h2 id="stats29-weekly">מגמה שבועית</h2>
+          <p className="stats29-note">כל שורה אומרת מול מה נמדדה. אירועים, לא אנשים; מוצג רק כשבשני הצדדים יש 10 אירועים לפחות. המדידה צעירה, ולכן חלק מהשורות הן חצי שבוע מול החצי שלפניו.</p>
+          <ul className="stats29-trends">{weekly.behaviour.map(t => <li key={t.key}>
+            {t.href ? <Link to={t.href}>{t.label}</Link> : <span>{t.label}</span>}
+            <b className={`stats29-trend is-${t.dir}`}>{trendArrow(t.dir)} {t.pct != null ? `${Math.abs(t.pct).toLocaleString("he-IL")}%` : ""}</b>
+            <small>{pulseCount(t.recent)} {t.basis === "halves" ? "בחצי השבוע האחרון" : "השבוע"} · {pulseCount(t.earlier)} {t.basis === "halves" ? "בחצי השבוע שלפניו" : "בשבוע ממוצע קודם"}</small>
+          </li>)}</ul>
+        </section> : null}
         {(d.numbers?.length || d.content?.length || d.computed?.length || d.phrases?.length) ? <section className="stats29-block" aria-labelledby="stats29-hot">
           <h2 id="stats29-hot">חם עכשיו</h2>
           {d.numbers?.length ? <><h3>המספרים שנפתחים הכי הרבה</h3><ol className="stats29-chips">{d.numbers.slice(0, 12).map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.events)} פתיחות</small></Link></li>)}</ol></> : null}
@@ -91,11 +123,11 @@ export default function Stats2029Page() {
         <section className="stats29-block" aria-labelledby="stats29-added">
           <h2 id="stats29-added">נוסף לאתר</h2>
           <div className="stats29-grid">
-            <Tile value={added.community_messages} label="הודעות בקהילה" note={r.label} to="/community/chat" />
-            <Tile value={added.contributions} label="תרומות מחקר שאושרו" note={r.label} />
-            <Tile value={added.posts} label="פוסטים חדשים" note={r.label} to="/post" />
-            <Tile value={added.codes} label="צפנים חדשים" note={r.label} to="/codes" />
-            <Tile value={corpus?.corpusAdded7d} label="ביטויים חדשים במאגר" note="השבוע" to="/gematria" />
+            <Tile value={added.community_messages} label="הודעות בקהילה" note={r.label} to="/community/chat" trend={r.hours === 168 ? weekly?.added?.community_messages : null} />
+            <Tile value={added.contributions} label="תרומות מחקר שאושרו" note={r.label} trend={r.hours === 168 ? weekly?.added?.contributions : null} />
+            <Tile value={added.posts} label="פוסטים חדשים" note={r.label} to="/post" trend={r.hours === 168 ? weekly?.added?.posts : null} />
+            <Tile value={added.codes} label="צפנים חדשים" note={r.label} to="/codes" trend={r.hours === 168 ? weekly?.added?.codes : null} />
+            <Tile value={corpus?.corpusAdded7d} label="ביטויים חדשים במאגר" note="השבוע · מול השבוע שלפניו" to="/gematria" trend={weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d) ? { ...weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d), basis: "exact" } : null} />
             <Tile value={corpus?.corpusTotal} label="ביטויים מאומתים במאגר" to="/gematria" />
             <Tile value={d.posts_total} label="פוסטים באתר" to="/post" />
             <Tile value={d.publications?.public_ciphers} label="צפנים שפורסמו" to="/codes" />

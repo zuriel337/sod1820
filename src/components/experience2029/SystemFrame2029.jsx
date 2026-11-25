@@ -42,7 +42,11 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 // when it arrives, hidden while the route shows only its loading placeholder (footer2029.css), as before; drawing it only after the
 // content measured a later largest paint on desktop (its styles and render landed in that window). The account-link offer only for a signed-in account (it was always empty for a visitor and appears only
 // after its own read); the share row with the inspect panel that shows it; the living ribbon (hidden) and its detail when opened.
-const PublicMenuSections2029 = PUBLIC_READING_RELEASE ? React.lazy(() => import("./PublicMenuSections2029.jsx")) : null;
+// ZURIEL 25.11.2026 ("אני רוצה את התפריט שביקשתי להחזיר"): the menu that opens from "פתח ניווט" is the 11.11.2026 one again (the two compact groups
+// built from the rail lists), not the long public-discovery menu added on 22.11.2026 (4acd56782). The sections component, its data (publicMap2029.js, the
+// site map page) and its tests are kept untouched: setting this to true brings that menu back. Nothing else reads this flag.
+export const PUBLIC_EXPANDED_MENU = false;
+const PublicMenuSections2029 = PUBLIC_EXPANDED_MENU && PUBLIC_READING_RELEASE ? React.lazy(() => import("./PublicMenuSections2029.jsx")) : null;
 const RoyalIntro2029 = React.lazy(() => import("./RoyalIntro2029.jsx"));
 const Footer2029 = React.lazy(() => import("./Footer2029.jsx"));
 const AccountLinkOffer2029 = React.lazy(() => import("./AccountLinkOffer2029.jsx"));

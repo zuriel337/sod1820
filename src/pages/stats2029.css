@@ -22,3 +22,11 @@
 .stats29-bars i{display:block;height:10px;border-radius:5px;background:var(--s29-accent-text,#d5b477);opacity:.75}
 .stats29-note{font-size:13px;line-height:20px;color:var(--s29-muted,#b6a995);margin:8px 0}
 .stats29 a:focus-visible,.stats29 button:focus-visible{outline:2px solid var(--s29-accent-text,#d5b477);outline-offset:2px}
+
+/* Weekly trend (ZURIEL 25.11.2026): a thin row per measure, arrow and percentage in the accent colour, a fall in the muted one. Tokens only. */
+.stats29-trends{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.stats29-trends li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:8px 12px;border-radius:12px;background:var(--s29-panel-soft,#2c231b)}
+.stats29-trends li a,.stats29-trends li span{font-size:15px;line-height:22px;color:inherit;text-decoration:none;font-weight:600}
+.stats29-trend{font-style:normal;font-weight:700;color:var(--s29-accent-text,#d5b477);font-variant-numeric:tabular-nums}
+.stats29-trend.is-down{color:var(--s29-muted,#b6a995)}
+.stats29-tile span .stats29-trend{margin-inline-start:4px;font-size:13px}
