@@ -214,11 +214,11 @@ test("the owner's mark is read from channel_updates.priority (above the default 
   assert.match(source, /created_at,link_url,priority"\)/, "the public reader asks for the owner's mark");
 });
 
-test("a pinned item (the Home featured post) stays first in the Now window whatever its time", () => {
+test("a pinned item (the Home featured post) holds no priority in the Now window: time order only (D2, ZURIEL 25.11.2026)", () => {
   const mk = (id, at, pinned) => ({ id, title: "כותרת " + id, at, item: { sourceKind: "post", label: "כותרת " + id, pinned }, href: "/post/" + id });
   const models = nowModels([mk("a", "2026-11-10T10:00:00Z"), mk("b", "2026-11-01T10:00:00Z", true), mk("c", "2026-11-09T10:00:00Z")]);
-  assert.deepEqual(models.map(x => x.id), ["b", "a", "c"]);
-  assert.equal(models[0].pinned, true); assert.equal(models[1].pinned, false);
+  assert.deepEqual(models.map(x => x.id), ["a", "c", "b"]);
+  assert.equal(models[2].pinned, true, "a model keeps its pin flag for the domains that still read it; the order ignores it");
 });
 
 test("an owner-flagged update carries a dot label; rows without the flag carry none", () => {
@@ -261,12 +261,12 @@ test("Now plays public storage audio from the shared media rule; a version key k
 });
 
 // ── "עכשיו · המרכז" (ZURIEL 11.11.2026): one pin of at most 72 hours, one source picker by a stable key ─────────────────────────────
-test("the pin is a window: while open the pinned row stays first and carries the central message; once expired it returns to its place by time", () => {
+test("the pin is a window for the domains that read it (the central message); the stream order ignores it before and after expiry (D2, 25.11.2026)", () => {
   const central = { title: "כותרת המסר", groups: [{ value: 1234, phrases: ["ממשלת משיח בן דוד"], numberOnly: [] }] };
   const mk = (id, at, extra = {}) => ({ id, title: "כותרת " + id, at, item: { sourceKind: "post", label: "כותרת " + id, ...extra }, href: "/post/" + id });
   const pinned = { pinned: true, pinUntil: "2026-11-14T08:00:00.000Z", central, liveDot: "עדכון חדש בפוסט" };
   const open = nowModels([mk("a", "2026-11-10T10:00:00Z"), mk("b", "2026-11-01T10:00:00Z", pinned)], Date.parse("2026-11-12T00:00:00Z"));
-  assert.deepEqual(open.map(x => x.id), ["b", "a"]);
+  assert.deepEqual(open.map(x => x.id), ["a", "b"], "an open pin does not lift the row");
   const message = nowPinnedMessage(open, Date.parse("2026-11-12T00:00:00Z"));
   assert.equal(message.model.id, "b"); assert.equal(message.central.title, "כותרת המסר"); assert.equal(message.href, "/post/b");
   assert.equal(nowPinnedMessage(open, Date.parse("2026-11-14T08:00:00Z")), null, "no pinned card at or after the expiry");

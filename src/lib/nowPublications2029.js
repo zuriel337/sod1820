@@ -217,22 +217,16 @@ export function nowRowModel(row) {
   };
 }
 
-// ZURIEL 12.11.2026: whatever was pinned LAST is on top, whoever pinned it. Every pin is a fixed window ending at pinUntil, so the later end
-// is the later pin (a pin with no end, the owner's standing pin, stays first). Non-pinned rows follow by time. This replaces the 11.11
-// order "owner's pin always above writer pins".
-const pinEnd = model => !model.pinned ? null : model.pinUntil && Number.isFinite(Date.parse(model.pinUntil)) ? Date.parse(model.pinUntil) : Infinity;
-const byPinnedLast = (a, b) => {
-  const ea = pinEnd(a), eb = pinEnd(b);
-  if (ea === null || eb === null) return (eb === null ? 0 : 1) - (ea === null ? 0 : 1);
-  return ea === eb ? 0 : eb > ea ? 1 : -1;
-};
+// ZURIEL 25.11.2026 (D2, approved): the public stream has NO pin priority. The 12.11 "last pin on top" order (and the 11.11 owner-over-writer order
+// before it) is removed from the stream: rows are in time order only. `pinned`/`pinKind`/`pinUntil` stay on a model for the domains that still use
+// them, but nothing here reads them to order or hold a row.
 // Groups hidden from "עכשיו" (ZURIEL 19.11.2026: «כי לה׳ המלוכה — גימטריות»): no source chip and none of its rows here. Presentation only:
 // the group's rows, admission and the world reader stay as they are, and removing the key restores it.
 export const NOW_HIDDEN_GROUPS = Object.freeze(["ki-la-hamelucha-gematria"]);
 const hiddenInNow = model => typeof model?.sourceKey === "string" && model.sourceKey.startsWith("group:") && NOW_HIDDEN_GROUPS.includes(model.sourceKey.slice(6));
 const sortedNowModels = (rows, now) => list(rows).filter(row => row?.id && row.title)
   .map(nowRowModel).filter(model => !hiddenInNow(model)).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
-  .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
+  .sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 // ZURIEL 16.11.2026: the NEWEST publication of the flagship series מפת המציאות always leads the stream (below an explicit, time-bounded owner/writer pin) and shows
 // a dot that BLINKS until THIS viewer enters the update (ZURIEL 16.11.2026) and then stays as a still dot marking the latest update, until a newer reality-map publication
@@ -265,17 +259,18 @@ export const nowModels = (rows, now = Date.now(), seen = {}) => {
   const latest = models.filter(model => model.seriesKey === REALITY_MAP_LATEST_KEY && !model.pinned)
     .sort((a, b) => seriesUpdateTime(b) - seriesUpdateTime(a) || String(a.id).localeCompare(String(b.id)))[0];
   if (!latest) return models;
-  const rest = models.filter(model => model !== latest);
-  const leading = rest.filter(model => model.pinned).length;
   const blinking = !(seen && seen[seriesLatestSeenKey(latest.id)]);
-  // When the newest thing is a REGISTERED UNIT of the Post (newer than the row's own time), the row is shown AS that update: its name, its time, a link straight to it, and the
-  // Post's own title as the context line. Same model for "עכשיו" and the Home strip (one projection, no copy).
+  // ZURIEL 25.11.2026 (D2, approved): the newest reality-map publication NO LONGER leads the stream (the 16.11 priority is removed). It keeps its mark
+  // ("עדכון חדש" while this viewer has not entered it, then "העדכון האחרון") and keeps its face; it sits at its own time like every other row.
+  // When the newest thing is a REGISTERED UNIT of the Post (newer than the row's own time), the row is shown AS that update — its name, its time, a link
+  // straight to it, and the Post's own title as the context line. Same model for "עכשיו" and the Home strip (one projection, no copy).
   const entry = newestRegisteredEntry(latest.id);
   const asUpdate = entry && entry.label && (Date.parse(entry.updatedAt || "") || 0) > (Date.parse(latest.at || "") || 0)
     ? { title: entry.label, postTitle: latest.title, excerpt: entry.summary || (latest.title ? `בפוסט: ${latest.title}` : ""), excerptIsLead: false, at: entry.updatedAt,
         ...(entry.summary ? { fullText: entry.summary, summary: entry.summary } : {}),
         href: registeredUpdateHref(latest.href, entry.targetId) } : {};
-  return [...rest.slice(0, leading), { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking }, ...rest.slice(leading)];
+  return models.map(model => model === latest ? { ...latest, ...asUpdate, seriesLatest: true, seriesLatestBlinking: blinking } : model)
+    .sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 };
 
 /** Primary lenses with at least one row; "all" is always available. */

@@ -35,8 +35,12 @@ export const feedSeenKey = (item) => `feed:${item?.sourceUpdate?.eventKey || ite
 
 /** Rows for the panel: newest authorized activity first, across fair source-type caps. */
 export const FEED_CAPS = Object.freeze({ group: 4, post: 4, convergence: 3, finding: 1 });
+// ZURIEL 25.11.2026 (D2, approved): the PUBLIC stream has no pin priority. A pin (the owner's 72-hour pin, a writer's 24-hour pin) is neither held
+// past a bucket cap nor carried to the rows; order is time only. The pin mechanisms themselves (featuredFeedItem, GROUP_WRITER_PINS_2029,
+// the pin fields of a row) are untouched and still serve other domains: only this stream stops honouring them.
+const withoutPin = (item) => item && (item.pinned || item.pinKind || item.pinUntil) ? { ...item, pinned: false, pinKind: null, pinUntil: null } : item;
 export function feedRows(items = [], { now = Date.now(), seen = {}, strongIds = {}, limit = 8, caps = FEED_CAPS } = {}) {
-  const rows = (Array.isArray(items) ? items : []).filter((item) => item && item.id && item.label).map((item, index) => ({
+  const rows = (Array.isArray(items) ? items : []).map(withoutPin).filter((item) => item && item.id && item.label).map((item, index) => ({
     id: item.id, item, index, kind: item.kind,
     typeLabel: item.sourceUpdate ? "פוסט · עדכון מקור" : feedKindLabel(item),
     title: item.sourceUpdate?.label || item.label,

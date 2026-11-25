@@ -74,8 +74,8 @@ test("removing the tag removes the affiliation in Now without removing the Post"
 test("Now order follows the stream's own rules (newest first), not the reality-map list order", () => {
   const rows = [post(20, { tags: ["מפת המציאות"], date: "2026-10-01T10:00:00Z" }), post(21, { date: "2026-11-03T10:00:00Z" }),
     post(22, { tags: ["מפת המציאות"], date: "2026-10-20T10:00:00Z" }), post(23, { date: "2026-10-10T10:00:00Z" })];
-  // ZURIEL 16.11.2026: only the NEWEST reality-map publication (post:22) leads; every other row keeps the stream's own time order
-  assert.deepEqual(nowFor(rows).models.map(model => model.id), ["post:22", "post:21", "post:23", "post:20"]);
+  // ZURIEL 25.11.2026 (D2, approved): no reality-map publication leads the stream any more (the 16.11 priority is removed); every row is at its own time
+  assert.deepEqual(nowFor(rows).models.map(model => model.id), ["post:21", "post:20", "post:22", "post:23"]); // a row's time is its latest edit (post:20 was modified 2026-11-01)
 });
 
 test("reality-map Posts stay out of the documentation pool and of the standalone area, so no Home source repeats them", () => {
@@ -91,16 +91,17 @@ test("reality-map Posts stay out of the documentation pool and of the standalone
   assert.equal(isHomeDocumentationPost(strong), true);
 });
 
-test("the newest reality-map publication leads the stream with a blinking-dot marker and yields to a newer one; ordinary rows keep their time order", () => {
+test("the newest reality-map publication keeps its blinking-dot marker but no longer leads the stream (D2, 25.11.2026); it yields the mark to a newer one", () => {
   const older = post(21, { tags: ["מפת המציאות"], title: "ישן", modified: "2026-11-01T10:00:00Z", date: "2026-11-01T10:00:00Z", created_at: "2026-11-01T10:00:00Z" });
   const newest = post(22, { tags: ["מפת המציאות"], title: "אחרון", modified: "2026-11-03T10:00:00Z", date: "2026-11-03T10:00:00Z", created_at: "2026-11-03T10:00:00Z" });
   const plainNewer = post(23, { title: "רגיל חדש", modified: "2026-11-05T10:00:00Z", date: "2026-11-05T10:00:00Z", created_at: "2026-11-05T10:00:00Z" });
   const { models } = nowFor([older, newest, plainNewer]);
-  assert.equal(models[0].title, "אחרון", "the newest reality-map publication leads, even above a newer ordinary post");
-  assert.equal(models[0].seriesLatest, true);
+  assert.equal(models[0].title, "רגיל חדש", "a newer ordinary post is first: the reality-map publication has no priority");
+  assert.equal(models[1].title, "אחרון");
+  assert.equal(models[1].seriesLatest, true, "the mark stays on the newest reality-map publication, at its own place");
   assert.equal(models.filter(model => model.seriesLatest).length, 1, "exactly one marked");
   assert.equal(models.find(model => model.title === "ישן").seriesLatest, undefined);
-  assert.deepEqual(models.slice(1).map(model => model.title), ["רגיל חדש", "ישן"]);
+  assert.deepEqual(models.map(model => model.title), ["רגיל חדש", "אחרון", "ישן"], "time order only");
   // a newer one replaces it
   const newer = post(24, { tags: ["מפת המציאות"], title: "חדש יותר", modified: "2026-11-06T10:00:00Z", date: "2026-11-06T10:00:00Z", created_at: "2026-11-06T10:00:00Z" });
   const next = nowFor([older, newest, plainNewer, newer]).models;

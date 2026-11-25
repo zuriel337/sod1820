@@ -158,21 +158,12 @@ const pinnedItem = (untilHours, extra = {}) => ({ ...postRowToWorldUpdate(post(5
   central: { title: "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011", kicker: "תיעוד אירועים", date: "10.11.2026", postTitle: "פוסט 5107",
     groups: [{ value: 1234, phrases: ["ממשלת משיח בן דוד", "התגלות השכינה"], numberOnly: [] }, { value: 1011, phrases: ["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים"], numberOnly: ["10.11.2026 — יום השבעת הכנסת ה־26"] }] }, ...extra });
 
-test("the pinned central message is the card on top (once): never repeated as a row, gone by itself after its pin window", async () => {
+test("no pin priority on the Home (D2, ZURIEL 25.11.2026): a pinned item is no central card on top; it is a regular row at its own time, with no pin badge", async () => {
   let root = await renderTop({ feed: feedOf([pinnedItem(5), postRowToWorldUpdate(post(1, 2))].filter(Boolean)) });
-  const card = root.root.findAll(node => node.props["data-now-pinned-message"]);
-  assert.equal(card.length, 1);
-  assert.equal(card[0].findByType("h3").children.join(""), "פוסט 5107", "the headline is the Post's own title (posts.title), never the update's heading");
-  assert.equal(card[0].findAll(node => node.props["data-now-pinned-update"] === "true").length, 1, "the update is a separate layer under the Post title");
-  assert.deepEqual(card[0].findAll(node => node.props.className === "rc29-num r29-coin").map(node => node.props["aria-label"]), ["פתח את המספר 1234", "פתח את המספר 1011"]);
-  assert.equal(entries(root).some(node => node.props["data-home-update-item"] === "post:5107"), false, "not a second time as a row");
-  const toggle = card[0].findAll(node => node.type === "button" && node.props["aria-expanded"] === false)[0];
-  await act(async () => { toggle.props.onClick(); });
-  const lines = root.root.findAll(node => node.props.className === "rc29-line").map(node => node.findAllByType("span")[0].children.join(""));
-  assert.deepEqual(lines, ["ממשלת משיח בן דוד", "התגלות השכינה", "10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים"], "every line opens before entering the Post");
-  await act(async () => { root.unmount(); });
-  root = await renderTop({ feed: feedOf([pinnedItem(-1), postRowToWorldUpdate(post(1, 2))].filter(Boolean)) });
-  assert.equal(root.root.findAll(node => node.props["data-now-pinned-message"]).length, 0, "an expired pin is no longer pinned");
+  assert.equal(root.root.findAll(node => node.props["data-now-pinned-message"]).length, 0, "no pinned central card from the public stream");
+  const ids = entries(root).map(node => node.props["data-home-update-item"]);
+  assert.deepEqual(ids, ["post:1", "post:5107"], "time order: the newer ordinary post first, the old pinned Post at its own time");
+  assert.equal(root.root.findAll(node => node.props["data-home-update-pinned"] === "true").length, 0, "no pin badge");
   await act(async () => { root.unmount(); });
 });
 
@@ -223,49 +214,25 @@ test("before the shared feed arrives the series catalog's newest member stands i
   await act(async () => { root.unmount(); });
 });
 
-test("the pinned update hierarchy (ZURIEL 11.11.2026, second pass): the Post title stays; '🔔 עדכון חדש בפוסט · date' with a short summary and mini numbers; 'פתיחת העדכון' opens the whole update, 'סגירת העדכון' closes it; 'לפוסט המלא' always separate", async () => {
+test("an owner pin with a central message changes nothing on the Home: no card, no summary layer, and the row is the Post at its own time (D2, 25.11.2026)", async () => {
   const withLead = pinnedItem(5, {});
-  withLead.central = { ...withLead.central, kicker: "עדכון חדש בפוסט", lead: "הבורא פועל בהפוך על הפוך דרך כל המציאות", leadSub: "אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.", fullTitle: "היום 10.11 = 1011",
-    statement: "מה שאנחנו רואים בעיניים הכול פעולות של הבורא, שפועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
-    groups: [...withLead.central.groups].reverse() };
+  withLead.central = { ...withLead.central, kicker: "עדכון חדש בפוסט", lead: "הבורא פועל בהפוך על הפוך דרך כל המציאות" };
   const root = await renderTop({ feed: feedOf([withLead, postRowToWorldUpdate(post(1, 2))].filter(Boolean)) });
-  const card = root.root.findAll(node => node.props["data-now-pinned-message"])[0];
-  assert.equal(card.findByType("h3").children.join(""), "פוסט 5107", "the Post's own title, unchanged by the update");
-  const update = card.findAll(node => node.props["data-now-pinned-update"] === "true")[0];
-  const head = update.findAll(node => node.props.className === "rc29-update-head")[0];
-  assert.equal(head.findByType("b").children.join(""), "עדכון חדש בפוסט"); assert.equal(head.findByType("time").children.join(""), "10.11.2026");
-  assert.equal(update.findAll(node => node.props["data-now-pinned-summary"] === "true")[0].children.join(""),
-    "הבורא פועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.", "a short summary, the owner's words");
-  assert.deepEqual(card.findAll(node => node.props.className === "rc29-num r29-coin").map(node => node.props["aria-label"]), ["פתח את המספר 1011", "פתח את המספר 1234"], "mini numbers, clickable");
-  assert.equal(card.findAll(node => node.props["data-now-pinned-full"] === "true").length, 0, "closed: the full update does not take the screen");
-  assert.equal(card.findAll(node => node.props.className === "rc29-line").length, 0);
-  assert.equal(card.findAll(node => node.props["data-now-pinned-post"] === "true").length, 1, "'לפוסט המלא' always present");
-  const toggle = () => root.root.findAll(node => node.props["data-now-pinned-message"])[0].findAll(node => node.type === "button")[0];
-  assert.equal(toggle().children.join(""), "פתיחת העדכון"); assert.equal(toggle().props["aria-expanded"], false);
-  await act(async () => { toggle().props.onClick(); });
-  const full = root.root.findAll(node => node.props["data-now-pinned-full"] === "true")[0];
-  assert.equal(full.findAll(node => node.props["data-now-pinned-lead"] === "true")[0].findAll(node => node.props.className === "rc29-lead-text")[0].children.join(""), "הבורא פועל בהפוך על הפוך דרך כל המציאות");
-  assert.equal(full.findAll(node => node.props.className === "rc29-full-title")[0].children.join(""), "היום 10.11 = 1011");
-  assert.deepEqual(full.findAll(node => node.props.className === "rc29-line").map(node => node.findAllByType("span")[0].children.join("")),
-    ["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "ממשלת משיח בן דוד", "התגלות השכינה"], "every phrase of every group");
-  assert.match(full.findAll(node => node.props["data-now-pinned-statement"] === "true")[0].children.join(""), /שפועל בהפוך על הפוך/);
-  assert.equal(root.root.findAll(node => node.props["data-now-pinned-summary"] === "true").length, 0);
-  assert.equal(toggle().children.join(""), "סגירת העדכון"); assert.equal(toggle().props["aria-expanded"], true);
-  await act(async () => { toggle().props.onClick(); });
-  assert.equal(root.root.findAll(node => node.props["data-now-pinned-full"] === "true").length, 0, "closes back to the summary");
-  assert.equal(root.root.findAll(node => node.props["data-now-pinned-post"] === "true").length, 1);
+  assert.equal(root.root.findAll(node => node.props["data-now-pinned-message"]).length, 0);
+  assert.equal(root.root.findAll(node => node.props["data-now-pinned-update"] === "true").length, 0);
+  assert.ok(entries(root).some(node => node.props["data-home-update-item"] === "post:5107"), "the Post is still reachable as an ordinary row");
   await act(async () => { root.unmount(); });
 });
 
 // ── ZURIEL 12.11.2026: a pinned writer message shows on Home, newest pin first, and is clickable ──────────────────────────────────────────
 const levi = hours => groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000009", body: "גילוי של יניב", created_at: iso(hours), contributor_slug: "yaniv-levi", contributor_name: "יניב לוי", group_proof: true, proof_basis: "verified_phone_unique", group_channel: "gilui-yomi" });
-test("Home shows a pinned writer message first, with a pin badge and a link to its source message; an unpinned public source follows", async () => {
+test("Home shows a writer's message at its own time, with no pin badge and a link to its source message (D2, 25.11.2026)", async () => {
   const root = await render({ feed: feedOf([postRowToWorldUpdate(post(1, 2)), levi(1), group(3)].filter(Boolean)) });
   const list = entries(root);
   const ids = list.map(node => node.props["data-home-update-item"]);
-  assert.equal(ids[0], "group:20000000-0000-4000-8000-000000000009", "the pinned message leads on Home");
+  assert.equal(ids[0], "group:20000000-0000-4000-8000-000000000009", "newest first (it is the newest, not because it was pinned)");
   assert.ok(ids.includes("group:20000000-0000-4000-8000-000000000001"));
-  assert.equal(list[0].findAll(node => node.props["data-home-update-pinned"] === "true").length, 1, "pin badge");
+  assert.equal(root.root.findAll(node => node.props["data-home-update-pinned"] === "true").length, 0, "no pin badge anywhere");
   const links = list[0].findAll(node => node.type === "a" && String(node.props.href).startsWith("/world#group-source-20000000-0000-4000-8000-000000000009"));
   assert.equal(links.length, 1, "the row is a link to the source message");
   await act(async () => { root.unmount(); });
