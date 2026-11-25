@@ -314,7 +314,7 @@ jobs:
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
-        run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/sitemap-source-reuse-2029.test.mjs test/sitemap-partitions-2029.test.mjs test/public-sitemap-reader-admission-2029.test.mjs test/public-sitemap-cache-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs test/def005-rpc-grants-contract.test.mjs test/def012-page-views-public-build.test.mjs test/api-card-bounded-cacheable-2029.test.mjs test/gallery-river-reserved-height-2029.test.mjs test/release-visual-egress-contract.test.mjs
+        run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/sitemap-source-reuse-2029.test.mjs test/sitemap-partitions-2029.test.mjs test/start-sitemap-2029.test.mjs test/public-sitemap-reader-admission-2029.test.mjs test/public-sitemap-cache-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs test/def005-rpc-grants-contract.test.mjs test/def012-page-views-public-build.test.mjs test/api-card-bounded-cacheable-2029.test.mjs test/gallery-river-reserved-height-2029.test.mjs test/release-visual-egress-contract.test.mjs
 
       - name: Contracts repaired to the approved state (Raziel, World, Posts, Community, Contributors, Research Viewer, WhatsApp, Companion, golden and Preview-integration pins; previously unwired, they had drifted from merged owner-approved changes and were repaired without weakening any assertion)
         run: >
@@ -430,6 +430,8 @@ jobs:
         run: bash scripts/run-def001-sql-test.sh
       - name: Public repeatable Community dislikes (exact SQL, guards, rollback and concurrent increments; isolated DB)
         run: bash scripts/run-community-dislike-sql-test.sh
+      - name: Group reply private from its first write (#1514 option 2; v2 reply proof proposal and rollback, the public reader's exact filter checked after every step; isolated DB)
+        run: bash scripts/run-group-reply-private-sql-test.sh
       - name: Measurement identity (server account attribution, shared-browser boundaries, report and exact rollback; isolated DB)
         run: bash scripts/run-measurement-identity-sql-test.sh
       - name: Provider freshness watch proposal (Search Console and GA4 stopped or stale is reported as missing, never as zero; one high recommendation and one admin notice per state; the high notice reads impact and writes the required e-mail; gsc-daily-sync waits 120 s; drift refuses; second apply no-op; exact rollback; isolated DB)

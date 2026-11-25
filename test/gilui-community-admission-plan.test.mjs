@@ -101,3 +101,11 @@ test("an already admitted source is recognized as existing: no second write, bef
     assert.deepEqual(plan({source:tSrc,proof:proofX,writer:tWriter(SHIMON),existing:{sameSource:true}}),
       {state:"existing",reason:"already_imported",sourceRef:`channel_updates:${S}`,parentRef:null});
 });
+test("a reply kept private by the intake may still be admitted under its proven parent; a closed root may not",()=>{
+  const parent={group_chat_id:proof.group_chat_id,community_id:ROOT,publiclyAdmitted:true,cycleSafe:true};
+  const privReply={...tSrc,group_source_intake_public:false,quoted_parent_ext_msg_id:QUOTED};
+  assert.deepEqual(plan({source:privReply,proof:tProof(SHIMON),writer:tWriter(SHIMON),parent}),{state:"candidate_reply",reason:"parent_proven",sourceRef:`channel_updates:${S}`,parentRef:ROOT});
+  assert.equal(plan({source:privReply,proof:tProof(SHIMON),writer:tWriter(SHIMON)}).reason,"reply_parent_missing");
+  assert.equal(plan({source:{...tSrc,group_source_intake_public:false},proof:tProof(SHIMON),writer:tWriter(SHIMON)}).reason,"unqualified_source","a closed root stays held");
+  assert.equal(plan({source:privReply,proof:{...tProof(SHIMON),held_at:"2026-11-24T21:00:00Z"},writer:tWriter(SHIMON),parent}).reason,"unverified_group_proof","an admin hold still wins");
+});

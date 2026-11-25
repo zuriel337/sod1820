@@ -257,7 +257,8 @@ export default async function handler(req, res) {
   const foundation = req.publicFoundationPreview === true;
   const foundationStatics = new Set(["/", "/world", "/post", "/map", "/privacy", "/number"]);
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) foundationStatics.add("/gematria");
-  if (productionReading) for (const path of ['/books', '/archive', '/timeline', '/broadcasts', '/code', '/codes', '/codes/' + encodeURIComponent('מחקר'), '/or-geula', '/community/researchers']) foundationStatics.add(path);
+  // "/start" (כאן מתחילים) is a public welcome page again (ZURIEL 25.11.2026, Open Index Law): its STATIC row is admitted in the public release.
+  if (productionReading) for (const path of ['/books', '/archive', '/timeline', '/broadcasts', '/code', '/codes', '/codes/' + encodeURIComponent('מחקר'), '/or-geula', '/community/researchers', '/start']) foundationStatics.add(path);
   const urls = foundation ? STATIC.filter(row => foundationStatics.has(row.loc)) : [...STATIC];
   if (foundation && !urls.some(row => row.loc === "/number")) urls.push({ loc: "/number", priority: "0.6", changefreq: "monthly" });
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && !urls.some(row => row.loc === "/gallery")) urls.push({ loc: "/gallery", priority: "0.6", changefreq: "weekly" });

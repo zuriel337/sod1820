@@ -97,6 +97,7 @@ export function scopePostStyleText2029(text, scope = ".sod29-reading-source") {
 
 // Presentation containment over the authored source, not an HTML sanitizer or
 // a source rewrite. Legacy plugin resources never become 2029 global styles.
+const GLUED_SUFFIX_STORAGE_IMAGE = /^(https:\/\/linswmnnkjxvweumprav\.supabase\.co\/storage\/v1\/object\/public\/media\/[^?&#"'\s]+\.(?:jpe?g|png|gif|webp))(?:&(?:#038;|amp;)?|\?)ssl=1$/i;
 export function postReadingHtml2029(html) {
   if (!globalThis.document?.createElement) return String(html || "");
   const template = document.createElement("template"); template.innerHTML = String(html || "");
@@ -109,6 +110,14 @@ export function postReadingHtml2029(html) {
     } catch { /* malformed embeds do not supply identity */ }
   }
   for (const dependency of template.content.querySelectorAll('script,link[rel~="stylesheet"],link[rel="preload"][as="style"]')) dependency.remove();
+  // A stored image whose address carries a glued WordPress/Jetpack suffix ("...x.webp&#038;ssl=1", which the browser reads as "&ssl=1"): the
+  // file exists, the address with the suffix does not (Storage answers 400, a broken image; Post 2, 25.11.2026). The reading copy points at the
+  // exact stored file; the authored address is kept untouched in data-source-src, and the stored Post is not changed. Same markup in the
+  // browser and in the server DOM (attribute writes only).
+  for (const image of template.content.querySelectorAll('img[src*="/storage/v1/object/public/media/"]')) {
+    const stored = GLUED_SUFFIX_STORAGE_IMAGE.exec(image.getAttribute("src") || "");
+    if (stored) { image.setAttribute("data-source-src", image.getAttribute("src")); image.setAttribute("src", stored[1]); }
+  }
   // Comments and <noscript> fallbacks (old gallery plugins) are never shown to a reader of this page, whose scripting is on. They are
   // dropped from the displayed copy, so that every DOM (the browser's, the server's) parses the copy the same way: comments that hold
   // markup and noscript text are where HTML parsers differ. The stored source keeps them (OLD_POST_ARTICLE_FIRST, 16.11.2026).
