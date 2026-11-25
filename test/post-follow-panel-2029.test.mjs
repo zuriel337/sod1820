@@ -5,7 +5,7 @@ import { openPostFollow, closePostFollow, postFollowOpen, subscribePostFollow } 
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 
-test("the bell and the invitation open ONE shared panel state", () => {
+test("the invitation (bottom) opens the shared panel state", () => {
   let calls = 0;
   const off = subscribePostFollow(() => { calls += 1; });
   assert.equal(postFollowOpen(), false);
@@ -23,7 +23,7 @@ test("follow panel (ZURIEL 25.11.2026): one panel, one read of the targets, only
   const dialog = read("../src/components/experience2029/PostFollowDialog2029.jsx");
   const shared = read("../src/components/experience2029/postFollowShared2029.js");
   const page = read("../src/pages/Post2029Page.jsx");
-  assert.match(bar, /onClick=\{openPostFollow\}/);
+  assert.doesNotMatch(bar, /openPostFollow|postFollowShared2029/, "the approved top row is untouched (ZURIEL 25.11.2026)");
   assert.match(invite, /onClick=\{openPostFollow\}/);
   assert.match(invite, /if \(locked \|\| !ready\.length\) return null/, "no invitation where follows are closed or nothing can deliver updates");
   assert.match(shared, /item\.state === "ready"/, "only a verified updates route is offered");
