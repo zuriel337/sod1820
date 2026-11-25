@@ -164,10 +164,11 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     }
     if (path.startsWith(LEGACY_UPLOAD_PREFIX)) {
       // S-56: an old WordPress image address goes to its stored public copy in one permanent hop (legacy-upload-redirect.js). Any other
-      // address continues exactly as before (the same not-found document). The allow list is read only here, never for an ordinary document.
+      // address continues exactly as before (the same not-found document). The allow list is read only here, never for an ordinary document;
+      // each redirect is confirmed against the live public Posts (publication changes apply at once; kept by the CDN for one hour).
       const target = await legacyUploadTarget(path).catch(() => null);
       if (target) {
-        res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=604800");
+        res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600");
         res.setHeader("Location", target);
         return res.status(308).send(req.method === "HEAD" ? "" : "Moved permanently.");
       }
