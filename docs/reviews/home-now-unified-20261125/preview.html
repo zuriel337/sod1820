@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HOME-NOW-UNIFIED · תצוגה מקדימה לעיצוב</title>
+<style>
+/* תצוגה מקדימה לעיצוב בלבד — לא הרכיב הסופי. צבעים לפי Design V2 (Night): רקע #0B0B0C, ספיר #1957D9, זהב #F9BA3F. */
+:root{--bg:#0B0B0C;--surf:#12151f;--raised:#171c2b;--line:#2a3555;--sap:#1957D9;--gold:#F9BA3F;--txt:#F5F5F0;--txt2:#C6C6C1;--act:#A8C7FF;--rad:12px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:400 15px/1.55 "Rubik","Noto Sans Hebrew",system-ui,sans-serif}
+.wrap{max-width:1160px;margin:0 auto;padding:16px}
+.pv-tag{font-size:12px;color:var(--gold);border:1px dashed var(--gold);border-radius:8px;padding:6px 10px;margin:0 0 14px;display:block}
+h2.pv-h{font-size:13px;color:var(--act);font-weight:500;margin:26px 0 8px;letter-spacing:.02em}
+.region{background:linear-gradient(180deg,#101a35 0%,#0c1226 100%);border:1px solid var(--line);border-radius:16px;padding:14px 14px 10px;box-shadow:0 0 0 1px rgba(249,186,63,.06) inset}
+.rh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.rh h3{margin:0;font-size:19px;font-weight:600;letter-spacing:.01em}
+.rh h3 b{color:var(--gold);font-weight:600}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--txt2)}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.more{margin-inline-start:auto;font-size:13px;color:var(--act);background:none;border:0;cursor:pointer;min-height:44px;padding:0 4px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.col>h4{margin:0 0 6px;font-size:12px;font-weight:500;color:var(--gold);letter-spacing:.04em}
+.row{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;padding:7px 8px;border-radius:10px;border:1px solid transparent;min-height:56px}
+.row+.row{border-top:1px solid rgba(42,53,85,.6);border-radius:0}
+.row:hover{background:rgba(25,87,217,.10)}
+.th{width:44px;height:44px;border-radius:9px;background:#1b2440 center/cover no-repeat;border:1px solid var(--line);display:grid;place-items:center;font-size:18px;color:var(--gold)}
+.meta{font-size:12px;color:var(--txt2);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.src{color:var(--act);font-weight:500}
+.tt{font-size:15px;font-weight:500;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.sm{font-size:13px;color:var(--txt2);overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.chip{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:0 7px;color:var(--txt2)}
+.chip.nw{border-color:var(--gold);color:var(--gold)}
+.chip.un{border-color:#5b6a99}
+.build{margin-top:8px;border-top:1px solid var(--line);padding:9px 2px 4px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.build p{margin:0;font-size:13px;color:var(--txt2);flex:1 1 320px;line-height:1.5}
+.cta{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--gold);background:linear-gradient(180deg,#f9ba3f,#d99a1f);color:#1a1200;font:600 14px/1 inherit;cursor:pointer}
+/* Now */
+.now{display:grid;grid-template-columns:260px 1fr;gap:14px;margin-top:8px}
+.srcpick{display:flex;flex-direction:column;gap:4px}
+.srcpick button{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:var(--raised);color:var(--txt);font:inherit;cursor:pointer;text-align:start}
+.srcpick button[aria-pressed=true]{border-color:var(--gold);background:rgba(249,186,63,.08)}
+.srcpick small{margin-inline-start:auto;color:var(--txt2);font-size:11px}
+.view{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-bottom:8px}
+.view span{padding:0 14px;min-height:40px;display:grid;place-items:center;font-size:13px;color:var(--txt2)}
+.view span.on{background:var(--sap);color:#fff}
+.thread{border:1px solid var(--line);border-radius:12px;background:var(--raised);margin-bottom:8px;overflow:hidden}
+.thread .row{border:0}
+.thread .older{border-top:1px dashed var(--line);padding:4px 10px 6px 10px;font-size:12px;color:var(--txt2);display:flex;gap:8px;align-items:center;min-height:36px}
+.thread .older a{color:var(--act);margin-inline-start:auto;min-height:44px;display:inline-flex;align-items:center}
+.thread .prev{padding:2px 10px 4px 10px;font-size:13px;color:var(--txt2);border-top:1px dashed var(--line)}
+.thread .prev div{display:flex;gap:8px;min-height:30px;align-items:center}
+.reply{margin:0 54px 8px 10px;padding:6px 10px;border-inline-start:2px solid var(--gold);font-size:13px;color:var(--txt2)}
+.note{font-size:12px;color:var(--txt2);margin:6px 2px}
+@media (max-width:760px){
+ .wrap{padding:12px 16px}
+ .cols{grid-template-columns:1fr}
+ .now{grid-template-columns:1fr}
+ .srcpick{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+ .srcpick button{flex:0 0 auto}
+ .rh h3{font-size:17px}
+ .build{display:block}.build .cta{margin-top:8px;width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<span class="pv-tag">תצוגה מקדימה לעיצוב (HTML סטטי, לא הרכיב הסופי) · נתוני אמת מ־25.11.2026 · לאישור ZURIEL · אין מיזוג, SQL או פריסה</span>
+
+<h2 class="pv-h">1 · דף הבית — אזור «עדכונים אחרונים» (ראש תוכן הבית)</h2>
+<section class="region" id="home" aria-label="עדכונים אחרונים">
+ <div class="rh"><h3>עדכונים <b>אחרונים</b></h3><span class="live"><i></i>מתעדכן אוטומטית</span><button class="more">לכל העדכונים ב«עכשיו» ←</button></div>
+ <div class="cols">
+  <div class="col" id="home-site"><h4>עדכוני האתר · לפי זמן</h4></div>
+  <div class="col" id="home-src"><h4>האחרון מכל מקור</h4></div>
+ </div>
+ <div class="build" data-build-note><p>האתר נבנה מבפנים. המערכת מתפתחת ומתחדשת כל הזמן. במהלך הבנייה ייתכנו תקלות זמניות. הצטרפו אלינו וקבלו עדכונים על חידושים ופתיחת אזורים נוספים.</p><button class="cta">הרשמה לעדכונים</button></div>
+</section>
+<p class="note">בבית: זמן יחסי («לפני X») — relative_time_display_law v4. ללא נעיצות, ללא סימון «עדכון חדש» מהבהב כקדימות. פריט אחד לכל מקור.</p>
+
+<h2 class="pv-h">2 · חלונית «עכשיו» — מרכז עדכונים בשרשורים לפי מקור</h2>
+<section class="region" id="now" aria-label="עכשיו">
+ <div class="rh"><h3>עכשיו</h3><span class="live"><i></i>מתעדכן אוטומטית</span></div>
+ <div class="now">
+  <div class="srcpick" id="picker"></div>
+  <div>
+   <div class="view"><span class="on">לפי מקורות</span><span>הכול · כרונולוגי</span></div>
+   <div id="threads"></div>
+  </div>
+ </div>
+ <div class="build"><p>האתר נבנה מבפנים. המערכת מתפתחת ומתחדשת כל הזמן. במהלך הבנייה ייתכנו תקלות זמניות. הצטרפו אלינו וקבלו עדכונים על חידושים ופתיחת אזורים נוספים.</p><button class="cta">הרשמה לעדכונים</button></div>
+</section>
+<p class="note">בעכשיו: תאריך עברי ולועזי (חוק זמן v4); המקורות ממוינים לפי זמן העדכון האחרון (מי שעודכן אחרון — למעלה); הודעות/תגובות מאושרות של שרשור מוכח מקובצות תחת השורש. התצוגה בדוגמה היא «לפי מקורות»; מתג «הכול · כרונולוגי» מציג רצף אחד.</p>
+</div>
+<script>
+const NOW=new Date("2026-11-25T12:00:00Z");
+const S="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/agent/2029/image/2026/11/netanyahu-trial-2000-4000-david-24-6414c75227c4/derivatives/thumb.jpg";
+// נתוני אמת (שדות ציבוריים בלבד), נשלפו 25.11.2026
+const D=[
+ {k:"reality",src:"זרם המציאות",icon:"🌊",t:"משפט נתניהו: תיקים 2000 ו־4000 — המציאות מדברת 24",s:"דויד = 24 בגימטריה. דוד המלך קיים ככוח בכל המציאות, בכל דור וכל הזמן.",at:"2026-11-25T11:28:24Z",thumb:S,kind:"תמונה"},
+ {k:"geula",src:"אור הגאולה",icon:"🔥",t:"מטורף!!!",s:"אתם לא מבינים שצריך לבקש את מלכות ה'?",at:"2026-11-25T07:04:50Z",thumb:null,kind:"סרטון · לפי דרישה",nopic:true},
+ {k:"torah",src:"תורת הרמז · צבי (OPOC)",icon:"👤",t:"שש פעמים «כתר» = 3720",s:"מרים דברה במשה ולקתה בצרעת… «מצרעת» = 800 בגימטריה.",at:"2026-11-25T06:58:29Z",unv:true,kind:"קבוצה · מקור טרם נבדק"},
+ {k:"post",src:"פוסטים",icon:"📝",t:"GTA 6 אחרי 50 שעות — נון = 756, ושער החמישים",s:"זיגי סיים את GTA 6 בשידור חי בדיוק כשהשעון עבר 50:00:00. 50 הוא האות נ׳…",at:"2026-11-25T01:18:38Z",site:true,kind:"פוסט"},
+ {k:"sitenews",src:"עדכוני האתר",icon:"📖",t:"חדש בספרייה: המסע לשער החמישים — מאת ציון דוד סיבוני",s:"ספר מקור בן 110 עמודים, עם שמונה שערים ונספחים.",at:"2026-11-23T07:19:58Z",site:true,kind:"עדכון אתר"},
+ {k:"post2",src:"פוסטים",icon:"📝",t:"חייזרים מבטיחים חמש מתנות לאנושות — וכל הסרטון נוצר בבינה מלאכותית",s:"אף פריים בו לא צולם: הכול נוצר בבינה מלאכותית. מימד חמש.",at:"2026-11-20T13:08:30Z",site:true,kind:"פוסט",hide:true},
+ {k:"sitenews2",src:"עדכוני האתר",icon:"🛠️",t:"עודכן הממשק הציבורי: מעטפת הניווט קיבלה עיצוב אחיד",s:"תצוגת קישורי השיתוף לפוסטים ולממצאים שופרה.",at:"2026-11-19T16:11:59Z",site:true,kind:"עדכון אתר",hide:true},
+ {k:"sitenews3",src:"עדכוני האתר",icon:"🔎",t:"הצופן התנ״כי מתרחב: מהחיפוש הראשון ועד לעבודה בתוך המטריצה",s:"אפשר לעקוב בזמן החיפוש אחרי מספר המופעים שנמצאו.",at:"2026-11-19T10:57:04Z",site:true,kind:"עדכון אתר",hide:true},
+ {k:"gilui",src:"הגילוי היומי · ציון סיבוני",icon:"💬",t:"יוסף ה׳ לי בן אחר — לידת בנימין — חודש כסלו הוא החודש של בנימין",s:"שרשור בקהילה",at:"2026-11-21T16:13:20Z",kind:"שרשור בקהילה",thread:true},
+ {k:"rcode",src:"קוד המציאות",icon:"🧩",t:"חודש כסלו טומן בתוכו את חג החנוכה",s:"בשם החודש כסלו מגלים רמזים נפלאים לנס חנוכה, לפך השמן ולאור הנרות.",at:"2026-11-09T16:59:54Z",kind:"ערוץ"},
+ {k:"shmal",src:"סוד החשמל",icon:"⚡",t:"דיבור אל הסלע · אור האמונה",s:"מובא ב'ספר הליקוטים' להאריז״ל שה' אמר למשה לדבר אל הסלע…",at:"2026-07-03T16:03:26Z",kind:"ערוץ"}
+];
+const rel=a=>{const m=Math.round((NOW-new Date(a))/60000);if(m<60)return `לפני ${m} דקות`;const h=Math.round(m/60);if(h<24)return h===1?"לפני שעה":h===2?"לפני שעתיים":`לפני ${h} שעות`;const d=Math.round(h/24);return d===1?"אתמול":d<30?`לפני ${d} ימים`:`לפני ${Math.round(d/30)} חודשים`};
+const he=a=>{const d=new Date(a);return new Intl.DateTimeFormat("he-u-ca-hebrew",{day:"numeric",month:"long"}).format(d)+" · "+new Intl.DateTimeFormat("he-IL",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:"Asia/Jerusalem"}).format(d)};
+const th=x=>`<div class="th" ${x.thumb?`style="background-image:url('${x.thumb}')"`:""}>${x.thumb?"":x.icon}</div>`;
+const row=(x,t)=>`<div class="row">${th(x)}<div><div class="meta"><span class="src">${x.src}</span><span>· ${t(x.at)}</span>${x.unv?'<span class="chip un">מקור · טרם נבדק</span>':''}<span class="chip">${x.kind}</span></div><div class="tt">${x.t}</div><div class="sm">${x.s}</div></div></div>`;
+// Home: ימין = עדכוני האתר (כרונולוגי), שמאל = אחרון מכל מקור
+document.getElementById("home-site").insertAdjacentHTML("beforeend",D.filter(x=>x.site).sort((a,b)=>b.at.localeCompare(a.at)).map(x=>row(x,rel)).join(""));
+document.getElementById("home-src").insertAdjacentHTML("beforeend",D.filter(x=>!x.site).sort((a,b)=>b.at.localeCompare(a.at)).map(x=>row(x,rel)).join(""));
+// Now
+const srcs=[["הכול",D.length,1],...D.filter(x=>!x.hide).map(x=>[x.src.split(" · ")[0],1,0])];
+document.getElementById("picker").innerHTML=srcs.slice(0,7).map(([n,c,p])=>`<button aria-pressed="${p?'true':'false'}">${n}<small>${p?'כל המקורות':'עדכון אחרון'}</small></button>`).join("");
+const prevOf={sitenews:["עודכן הממשק הציבורי · 19.11","הצופן התנ״כי מתרחב · 19.11"],torah:["«איש אמונות» — חידוש על הפסוק · 24.11","«זה פסוק מאד מיוחד, קבל חידוש עליו» · 24.11"],geula:["סרטון קודם · 24.11","סרטון קודם · 23.11"]};
+document.getElementById("threads").innerHTML=D.filter(x=>!x.hide).map(x=>{
+ const pv=prevOf[x.k];
+ return `<div class="thread">${row(x,he)}${x.thread?'<div class="reply">תגובות מאושרות בשרשור: אין כרגע. תגובה תופיע כאן, תחת השורש, רק אחרי אישור ושרשור מוכח.</div>':''}${pv?`<div class="prev">${pv.map(p=>`<div>• ${p}</div>`).join("")}</div>`:''}${pv?`<div class="older">עוד ${pv.length} פרסומים קודמים<a href="#">הרחבה ↓</a></div>`:''}</div>`}).join("");
+</script>
+</body>
+</html>
