@@ -116,7 +116,6 @@ const PostComments2029 = toolOnApproach2029(() => import("../components/experien
 const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
 const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
 const PersonalSaveButton2029 = toolOnOpen2029(() => import("../components/userCenter/PersonalSaveButton2029.jsx"));
-const PostReadingActions2029 = toolOnOpen2029(() => import("../components/experience2029/PostReadingActions2029.jsx"), "טוען פעולות");
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
 const PreviewUnitExtras2029 = toolOnOpen2029(() => import("../components/experience2029/PreviewUnitExtras2029.jsx"));
 const MatrixRain = toolOnOpen2029(() => import("../components/MatrixRain.jsx"));
@@ -1562,26 +1561,12 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
         {/* The numbers box is gone from the opening (ZURIEL 25.11.2026); the numbers stay in the text and open the same check. */}
       </div>
-      {mapReadingLayout && postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml} /> : null}
-      {readingRailContext && MapUnitContext ? <div className="map29-mobile-post-context">
-        <button type="button" className="sod29-action" aria-haspopup="dialog" onClick={() => {
-          postContextDialog.current?.showModal();
-          setPostContextOpen(true);
-        }}>הקשר הפוסט</button>
-        <dialog ref={postContextDialog} className="map29-post-context-sheet" aria-label="הקשר הפוסט" onClose={() => setPostContextOpen(false)}>
-          <button type="button" className="sod29-action" onClick={() => postContextDialog.current?.close()}>סגירה</button>
-          {postContextOpen ? <MapUnitContext context={readingRailContext} onNavigate={event => {
-            if (!event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) postContextDialog.current?.close();
-          }} /> : null}
-        </dialog>
-      </div> : null}
       {worldReturn ? <div className="sod29-actions" aria-label="חזרה למפת המציאות">
         <Link className="sod29-action" to={worldReturn}>חזרה לאותה בחירה בעולם</Link>
       </div> : null}
     </header>
 
     {/* A clean Post (ZURIEL 25.11.2026): no update strip, research panel, follow box, end share or next-links under the text; only the comments remain. */}
-    {mapReadingLayout && !bennettTimeline && (hasResearchContent || researchOpen || researchAnchorRequested) ? researchDisclosure : null}
 
     {!bennettTimeline ? <PostEvidenceMedia2029 media={experience.media} /> : null}
     {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}
@@ -1629,7 +1614,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       {bennettTimeline && bennettMediaHost && bennettVideoOpened ? createPortal(<PostEvidenceMedia2029 media={BENNETT_SOURCE_MEDIA_2029} />, bennettMediaHost) : null}
       {bennettTimeline && bennettResearchHost ? createPortal(<>
         {cover}
-        {researchDisclosure}
       </>, bennettResearchHost) : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
 
@@ -1644,11 +1628,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : <p role="status">{calculationNotice}</p>) : null}
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
     {!bennettTimeline && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
-    {mapReadingLayout ? <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
-      {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}
-      <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
-      <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
-    </nav> : null}
   </article></>;
 }
 
