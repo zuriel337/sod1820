@@ -1,6 +1,2 @@
-/* Layout of the panel only. Every button and choice row is the Royal family (royal2029.css: .r29-btn, .r29-check, .r29-btn-group): no local button look here. */
-.post-follow-sheet-backdrop{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:16px;background:rgba(5,4,10,.62)}
-.post-follow-sheet{box-sizing:border-box;inline-size:min(400px,100%);max-block-size:80vh;overflow:auto;padding:16px;border:1px solid color-mix(in srgb,var(--s29-brand-gold,#b8923a) 55%,var(--s29-line));border-radius:16px;background:var(--s29-panel,#171220);color:var(--s29-ink,#f5f0e8);outline:0;display:grid;gap:12px;text-align:center}
-.post-follow-sheet h2{margin:0;font-size:17px;color:var(--s29-accent-text,var(--s29-accent))}
-.post-follow-sheet p{margin:0;font-size:14px;line-height:1.6;color:var(--s29-muted)}
+/* Layout only. The sheet, the choice rows and the buttons are the Royal family (royal2029.css: .r29-sheet, .r29-check, .r29-btn-group). */
 .post-follow-invite{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 12px;min-block-size:44px;margin-block:12px;font-size:14px;color:var(--s29-muted);text-align:center}

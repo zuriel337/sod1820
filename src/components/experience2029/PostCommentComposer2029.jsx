@@ -24,12 +24,14 @@ export default function PostCommentComposer2029({ postId, onDone, onCancel }) {
       setError(/rate_limited/.test(String(e?.message)) ? "נשלחו כבר כמה תגובות בשעה האחרונה. אפשר לנסות שוב מאוחר יותר." : "לא הצלחנו לשלוח את התגובה. הטקסט נשמר כאן; אפשר לנסות שוב.");
     } finally { sending.current = false; setBusy(false); }
   };
-  return <form className="sod29-post-comment-form" onSubmit={send} aria-label="כתיבת תגובה">
-    {!user ? <input className="sod29-post-comment-name" type="text" value={name} maxLength={60} onChange={event => setName(event.target.value)} placeholder="שם (לא חובה)" autoComplete="nickname" aria-label="שם" /> : null}
-    <textarea className="sod29-post-comment-text" value={text} maxLength={POST_COMMENT_MAX} rows={4} dir="auto" onChange={event => setText(event.target.value)} placeholder="התגובה שלך" aria-label="התגובה שלך" autoFocus />
-    {!user ? <p className="sod29-post-comments-hint">תגובת אורח מתפרסמת אחרי אישור.</p> : null}
-    {error ? <p className="sod29-post-comments-hint" role="alert">{error}</p> : null}
-    <div className="r29-btn-group sod29-post-comment-actions">
+  return <form className="sod29-post-comment-form r29" onSubmit={send} aria-label="כתיבת תגובה" aria-busy={busy || undefined}>
+    {!user ? <div className="r29-field"><label htmlFor="post-comment-name">שם (לא חובה)</label>
+      <input id="post-comment-name" className="r29-input" type="text" value={name} maxLength={60} onChange={event => setName(event.target.value)} autoComplete="nickname" /></div> : null}
+    <div className="r29-field"><label htmlFor="post-comment-text">התגובה שלך</label>
+      <textarea id="post-comment-text" className="r29-input" value={text} maxLength={POST_COMMENT_MAX} rows={4} dir="auto" onChange={event => setText(event.target.value)} aria-invalid={error ? "true" : undefined} autoFocus /></div>
+    {!user ? <p className="r29-hint">תגובת אורח מתפרסמת אחרי אישור.</p> : null}
+    {error ? <p className="r29-status" data-state="error" role="alert">{error}</p> : null}
+    <div className="r29-btn-group">
       <button type="submit" className="r29-btn is-primary" disabled={busy || !body} aria-busy={busy}>{busy ? "שולח…" : "שלח תגובה"}</button>
       <button type="button" className="r29-btn is-quiet" onClick={onCancel} disabled={busy}>ביטול</button>
     </div>

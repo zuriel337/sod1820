@@ -769,6 +769,18 @@ carries. Presentation only — no stored source, wording, claim, calculation or 
 
 **First adopter (on a branch):** the Home "עדכונים אחרונים" area and the "עכשיו" panel (`docs/reviews/home-now-unified-20261125/`), built on the existing Royal components only, without the interior recipe (D), which awaits approval.
 
+### 14.13 Forms, dialogs and action feedback in the one Royal layer · Human Gate ZURIEL · 25.11.2026
+
+**Status.** Extends §14.4 (one button family) to the three families the gap map found without an owner (`docs/reviews/design-language-gap-map-20261125/README.md`, families 5, 9 and 10). No new contract, no parallel library: the components are added to the existing `royal2029.css` and a surface adopts them by class. Branch only; not merged, not deployed. Counts in the gap map are **candidates for review**, not proof that every deviation is a defect; approved dedicated designs (§14.12 C) are not touched.
+
+| Family | Component (royal2029.css) | The rule |
+|---|---|---|
+| Form field | `.r29-field` (label + control + hint), `.r29-input` (input / textarea / select), `.r29-hint` | Label 14px/600, control 16px (no zoom on phones), min height 44px, hairline gold border, logical-start text (§14.3: fields and labels are not centered); invalid = `aria-invalid="true"` (status colour), the message in `.r29-status` below; a typed value is never lost on an error. |
+| Dialog | `.r29-sheet-backdrop` > `.r29-sheet` (`h2` title, helper text, content, one `.r29-btn-group`) | `role="dialog"`, `aria-modal`, `aria-labelledby` the one title; compact (max 400px, 80vh), centered title and group; **closes** on Escape, backdrop press and its one close/primary button; focus moves in and returns to the opener; no second heading repeating the opener's text. |
+| Action feedback | `.r29-status[data-state="loading" \| "success" \| "error"]`, with `aria-busy` on the busy control | Loading: `role="status"` and `aria-busy`, the action disabled meanwhile; success: `role="status"`, short and factual; error: `role="alert"`, says what happened and offers a retry, keeps the user's input. Never an invented percentage (Operation Visibility Law). |
+
+Type, spacing and centering inside these components follow §5 (UI type 14–16px, text never shrunk to fit), §8 and §14.3 (action groups centered, equal widths in a row). A new component **adopts these classes instead of drawing its own**; the warning scan `scripts/report-design-families-2029.mjs` lists candidates (warning only, never fails), and only the button family is a ratchet (`test/button-family-guard-2029.test.mjs`). The static preview of the canonical components in the three presets is `docs/reviews/design-language-gap-map-20261125/canonical-components-preview.html`. **Not decided here:** applying `.r29` to the whole site shell (impact and speed analysis first: `docs/reviews/design-language-gap-map-20261125/README.md`, "r29 ברמת המעטפת"); adopting these classes across the existing surfaces (gradual, each stage approved).
+
 ## Naming / product language law — carried from V1 · 11.11.2026
 
 Carried from `SOD1820_DESIGN_CONTRACT_V1.md` (§ Naming / product language law) so that public naming is owned by the active 2029 contract (Owner Index: «visual language / typography / public naming» → V2). V1 keeps its copy as history; where they differ, this section governs. The bullets are V1's wording; one factual correction is marked inline.

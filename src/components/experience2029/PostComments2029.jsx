@@ -39,8 +39,8 @@ export default function PostComments2029({ postId, postWpId = null, href = "", t
 
   const rows = state.rows;
   return <section id="post-comments" className="sod29-post-comments r29" aria-label="תגובות" data-post-comment-archive={postWpId == null ? undefined : String(postWpId)}>
-    {state.loading ? <p className="sod29-post-comments-status" role="status">טוען תגובות…</p>
-      : state.error ? <p className="sod29-post-comments-status" role="alert">לא הצלחנו לטעון את התגובות. אפשר לרענן ולנסות שוב.</p> : null}
+    {state.loading ? <p className="r29-status" role="status" data-state="loading">טוען תגובות…</p>
+      : state.error ? <p className="r29-status" role="alert" data-state="error">לא הצלחנו לטעון את התגובות. אפשר לרענן ולנסות שוב.</p> : null}
     {rows.length ? <details open>
       <summary>תגובות ({rows.length})</summary>
       <ol className="sod29-post-comment-list">
@@ -58,10 +58,10 @@ export default function PostComments2029({ postId, postWpId = null, href = "", t
       </ol>
     </details> : null}
     <div className="sod29-post-comments-add">
-      {composing ? <Suspense fallback={<p className="sod29-post-comments-status" role="status">טוען…</p>}>
+      {composing ? <Suspense fallback={<p className="r29-status" role="status" data-state="loading">טוען…</p>}>
         <PostCommentComposer postId={postId} onDone={done} onCancel={() => setComposing(false)} />
       </Suspense> : <button type="button" className="r29-btn is-quiet" data-action="write" onClick={() => { setNote(""); setComposing(true); }} aria-describedby="post-comments-add-hint">רשום תגובה</button>}
-      {note ? <p id="post-comments-add-hint" className="sod29-post-comments-hint" role="status">{note}</p> : <span id="post-comments-add-hint" hidden>נפתחת תיבת כתיבה בפוסט.</span>}
+      {note ? <p id="post-comments-add-hint" className="r29-status" role="status" data-state="success">{note}</p> : <span id="post-comments-add-hint" hidden>נפתחת תיבת כתיבה בפוסט.</span>}
     </div>
   </section>;
 }

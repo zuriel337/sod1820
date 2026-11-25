@@ -23,12 +23,12 @@ export default function PostFollowDialog2029({ post }) {
     document.addEventListener("keydown", onKey);
     return () => { document.removeEventListener("keydown", onKey); previous?.focus?.(); };
   }, []);
-  return createPortal(<div className="r29 post-follow-sheet-backdrop" onClick={event => { if (event.target === event.currentTarget) closePostFollow(); }}>
-    <section ref={ref} tabIndex={-1} className="post-follow-sheet" role="dialog" aria-modal="true" aria-labelledby="post-follow-title" data-post-follow-panel>
+  return createPortal(<div className="r29 r29-sheet-backdrop" onClick={event => { if (event.target === event.currentTarget) closePostFollow(); }}>
+    <section ref={ref} tabIndex={-1} className="r29-sheet" role="dialog" aria-modal="true" aria-labelledby="post-follow-title" data-post-follow-panel>
       <h2 id="post-follow-title">מעקב</h2>
       {locked ? <p>המעקבים ייפתחו בהמשך. אפשר להמשיך לקרוא את הסדרות והתכנים הציבוריים.</p>
-        : status === "loading" ? <p role="status">בודק אילו יעדי מעקב זמינים…</p>
-        : status === "error" ? <p role="status">לא הצלחנו לבדוק את יעדי המעקב. אפשר לנסות שוב מאוחר יותר.</p>
+        : status === "loading" ? <p className="r29-status" role="status" data-state="loading">בודק אילו יעדי מעקב זמינים…</p>
+        : status === "error" ? <p className="r29-status" role="alert" data-state="error">לא הצלחנו לבדוק את יעדי המעקב. אפשר לנסות שוב מאוחר יותר.</p>
         : !ready.length ? <p>אין כרגע מעקב עם עדכונים זמינים לפוסט הזה.</p>
         : <><p>עדכון באתר כשמתפרסם פוסט חדש. בלי מייל ובלי התראות דפדפן.</p>
           <div className="r29-check-group" role="group" aria-label="מה לעקוב אחריו">

@@ -11,13 +11,8 @@
 .sod29-post-comment-list p{margin:10px 0 0;font-size:16px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:600px){.sod29-post-comments{padding:14px}.sod29-post-comments summary span{display:block;margin-inline-start:0}.sod29-post-comment-list li.is-reply{margin-inline-start:12px}}
 /* The reader's own addition goes to the community (existing share draft); existing comments above it only when there are some. */
-.sod29-post-comments-status{margin:0 0 12px;font-size:14px;color:var(--s29-muted)}
 .sod29-post-comments details+.sod29-post-comments-add{margin-block-start:18px;padding-block-start:16px;border-block-start:1px solid var(--s29-line)}
 .sod29-post-comments-add{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
 .sod29-post-comments-add>p{flex:1 1 16rem;margin:0;font-size:16px;line-height:1.75}
 .sod29-post-comments-add strong{color:var(--s29-ink)}
-.sod29-post-comments-add .sod29-post-comments-hint{flex-basis:100%;font-size:14px;color:var(--s29-muted)}
-.sod29-post-comment-form{display:grid;gap:10px;inline-size:100%}
-.sod29-post-comment-text,.sod29-post-comment-name{box-sizing:border-box;inline-size:100%;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;font-size:16px;padding:10px 12px}
-.sod29-post-comment-text{min-block-size:110px;resize:vertical;line-height:1.7}
-.sod29-post-comment-pending{margin-inline-start:8px;font-style:normal;font-size:13px;color:var(--s29-accent-text)}
+.sod29-post-comments-add .sod29-post-comment-pending{margin-inline-start:8px;font-style:normal;font-size:13px;color:var(--s29-accent-text)}
