@@ -58,13 +58,15 @@ test('Claude river source/styles and canonical Follow controller/styles are not 
   //  - WatchButton.jsx f0b541f4 (Legacy theme/palette contracts removed) on 71bb7646 (#1191: read-only action lock, thread variant);
   //  - WatchButton.jsx again on the Home follow branch (ZURIEL 18.11.2026 "פתוח לכולם, גם לאורחים": publicFollow opens only the
   //    reality-stream follow and the series bells in the public reading release; every other follow stays closed);
-  //  - WatchControl2029.jsx 42276956 (palette2029); watchControl2029.css unchanged since fba5cf57.
+  //  - WatchControl2029.jsx 42276956 (palette2029); watchControl2029.css unchanged since fba5cf57;
+  //  - WatchControl2029.jsx + watchControl2029.css e46e08be (S-59, ZURIEL 25.11.2026 "טפל בקפיצות התצוגה ... באמצעות תיקון ממוקד"): the live check line
+  //    and the explainer share one slot so the box does not grow 24 px; no colour, type, wording or control change.
   const pins={
     'src/components/research/RealityRiver2029.jsx':'9a496e612666bd986e07eaa86c0de6726b7d31381bd044bc8268ddf9d9d92793',
     'src/components/research/realityRiver2029.css':'951246e810316699eafd7f003978d8c63e29ac8741bfea2ccda7a898b6016d68',
     'src/components/WatchButton.jsx':'72cc88ceea81bd2bd36320f05bd9a6901f63b61ad91c6243e77527eac1cf5588',
-    'src/components/followCenter2029/WatchControl2029.jsx':'c5d0ebd2056e671d38b1798a733bf27e8eaacf1b6c2ca64c44043783d9b9d900',
-    'src/components/followCenter2029/watchControl2029.css':'707cb64bd790e5d0bbfae07326faa39f76b91d028ad4f118c5962401c9814ffc',
+    'src/components/followCenter2029/WatchControl2029.jsx':'eaf32fb6164ae34d83d1c8f169b9656647043d2e532ed344a45cc6c0c8c83a90',
+    'src/components/followCenter2029/watchControl2029.css':'d853f2561507742c810c6d45bf6439e1665d8fe49903d0e22e1aa5033ec67c03',
   };
   for(const [path,sha256] of Object.entries(pins)) {
     assert.equal(createHash('sha256').update(readFileSync(new URL('../'+path,import.meta.url))).digest('hex'),sha256,
