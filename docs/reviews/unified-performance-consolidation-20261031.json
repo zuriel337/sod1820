@@ -4124,7 +4124,7 @@
           "source": "canonical Supabase read 2026-11-25"
         },
         "guard": [],
-        "open": "Options for a decision, none implemented: (a) keep the change list warm at the edge so single reads can use a kept copy; (b) a longer fresh window with the existing purge; (c) move the database read nearer the function region. Each changes Production behaviour and needs ZURIEL approval.",
+        "open": "Options for a decision, none implemented: (a) keep the change list warm at the edge so single reads can use a kept copy; (b) a longer fresh window with the existing purge; (c) move the database read nearer the function region. Each changes Production behaviour and needs ZURIEL approval. | STAGED PLAN 25.11 — step 2: within the existing S-47 layer only (POST_DOCUMENT_CDN_CACHE + post-document-freshness.js + the purge): let a single read use a kept copy when the edge holds a fresh change list, by reading the list on a timer per warm instance instead of only during a burst (same RPC post_document_recent_changes_v1, same 5 s lease, same fail-closed); measure single-read first byte before/after on the same Posts. Option (b), a longer fresh window, only with the existing purge and after (a) is measured. Approval: merge + deploy.",
         "next_owner": "ZURIEL decision",
         "relates_to_groups": []
       },
@@ -4163,7 +4163,7 @@
           "source": "canonical Supabase gsc_metrics read 2026-11-25"
         },
         "guard": [],
-        "open": "Decision needed: a permanent redirect /wp-content/uploads/<path> → the stored copy (mapping exists in posts.content vs content_old), and/or serving images under the site's own domain; alt text from the post title where the alt is a file name. Production/URL change → ZURIEL approval.",
+        "open": "Decision needed: a permanent redirect /wp-content/uploads/<path> → the stored copy (mapping exists in posts.content vs content_old), and/or serving images under the site's own domain; alt text from the post title where the alt is a file name. Production/URL change → ZURIEL approval. | STAGED PLAN 25.11 — step 1 (first priority, ZURIEL 25.11): one branch in the existing document handler (public-reading-deploy/api/public-document.js, which already answers /wp-content/plugins/gallery-images/* with 404) answers /wp-content/uploads/<path> with a permanent redirect to the stored copy, read from a build-time snapshot of the existing table media_migration_queue (4,357 rows status=done with dest_key; 80 missing and 8 giant keep 404), generated the way article-image-facts.json is; WordPress size variants (-WxH) map to their original. No new table, store, service or route. No canonical or page address changes. Approval: merge + deploy.",
         "next_owner": "ZURIEL decision",
         "relates_to_groups": []
       },
@@ -4202,7 +4202,7 @@
           "source": "canonical Supabase gsc_metrics read 2026-11-25"
         },
         "guard": [],
-        "open": "Decision needed: 301 root → /post for these posts, or keep the root address canonical for posts Google already knew (extend REVIEWED_MODERN_ROOT_IDS by evidence). Changes addresses → ZURIEL approval. Not a speed change; listed here at ZURIEL's request (25.11).",
+        "open": "Decision needed: 301 root → /post for these posts, or keep the root address canonical for posts Google already knew (extend REVIEWED_MODERN_ROOT_IDS by evidence). Changes addresses → ZURIEL approval. Not a speed change; listed here at ZURIEL's request (25.11). | STAGED PLAN 25.11 — decision only, no change without a separate ZURIEL decision (canonical): evidence 25.11 — about 90 native posts were known to Google only by their root address (14.10–3.11; e.g. 2603: 981 impressions root / 0 /post; 5006: 149 / 0; 5085: 138 / 0), and since the cutover most lost them while /post gained for a few (2603 /post 44, 5006 /post 100, 5122 /post 43). Option A (preserve what Google knew): extend the existing REVIEWED_MODERN_ROOT_IDS rule in publicPostUrls.js to the native posts with root impressions before 4.11, so the root is canonical again and /post/<slug> points to it — no new mechanism, one list. Option B: permanent redirect root → /post for those posts. Recommendation A. Also /start: since 4.11 a 'closed capability' placeholder (publicReadingRelease2029.js) with noindex, nofollow, noarchive, ~50 characters, not in the sitemap; Google knew it (1.9–5.11: 2,844 impressions, position 3.8, 15 clicks). Not content today, so the Open Index Law §3 allows noindex; but the address had value — options: restore a real 'start here' page (content decision) or a permanent redirect /start → /map (the placeholder's own link). Address change → ZURIEL decision.",
         "next_owner": "ZURIEL decision",
         "relates_to_groups": []
       },
@@ -4241,7 +4241,7 @@
           "source": "session 25.11.2026 lab files (scratchpad)"
         },
         "guard": [],
-        "open": "Analytics are not changed without a ZURIEL decision (Speed Law §8). Reported impact only; options: load the Pixel on interaction/idle-after-interaction, or not on post pages.",
+        "open": "Analytics are not changed without a ZURIEL decision (Speed Law §8). Reported impact only; options: load the Pixel on interaction/idle-after-interaction, or not on post pages. | STAGED PLAN 25.11 — decision only (Speed Law §8, analytics session): options measured in the lab before any change — Pixel after the first interaction or after idle-after-load, Pixel not on post pages, Google Tag unchanged; each option with its measurement loss stated. Nothing changes without a separate ZURIEL decision.",
         "next_owner": "ZURIEL decision (analytics)",
         "relates_to_groups": []
       },
@@ -4323,7 +4323,7 @@
         "guard": [
           "scripts/test-2029-shell-budget.mjs"
         ],
-        "open": "Find what grew ~1 KB in the entry since the baseline and move it behind a lazy load; never raise the baseline without ZURIEL.",
+        "open": "Find what grew ~1 KB in the entry since the baseline and move it behind a lazy load; never raise the baseline without ZURIEL. | STAGED PLAN 25.11 — step 3: find the ~1 KB the entry gained since the S-52 baseline (manifest diff of the entry graph main 70b3a29 vs the baseline build) and move it behind an on-demand load; target ≥ 2 KB headroom without raising the baseline. Approval: merge + deploy.",
         "next_owner": "speed session",
         "relates_to_groups": []
       }
@@ -4859,6 +4859,15 @@
             "live_evidence": "Local lab only (not deployed): main 36c69db02 vs branch 7bd18aebb on the same HTTP/2 lab server; functional check with the real database on the branch merged with claude/sod1820-no-sw-reading-y5ph01 (5f9e1d752); see docs/reviews/slow-net-sw-priority-20261121/README.md."
           },
           "S-47_live_evidence_len": 1037
+        }
+      },
+      {
+        "at": "2026-11-25T00:20:00Z",
+        "task": "SEO_STAGED_PLAN_20261125",
+        "by": "CLAUDE (ZURIEL 25.11: \"הכן תוכנית תיקון מדורגת ... כל שלב יובא לאישור\" + \"סדר העדיפויות הוא תיקון התמונות השבורות, שיפור מטמון הפוסטים ויצירת מרווח בתקציב המהירות\")",
+        "what": "Staged plan written into S-56 (step 1), S-55 (step 2), S-60 (step 3), S-57 (decision: native-post root addresses and /start) and S-58 (decision: pixels). No code change in this revision.",
+        "previous": {
+          "counts_total": 60
         }
       }
     ]
