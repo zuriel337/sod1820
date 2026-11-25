@@ -1714,7 +1714,7 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 @media(max-width:760px){.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid>.sod29-reading-cover,
 .sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid:not(:has(>.sod29-reading-cover))::before{inline-size:76px;block-size:76px;width:76px;height:76px}}
 /* The frame's own ring above a Post is replaced by the medallion inside the opening (one medallion, not two). */
-.sod29-content:has(.sod29-reading-post:not([data-post-design-preview])) .sod29-page-intro .sod29-hero-visual{display:none}
+.sod29-content:has(.sod29-reading-post) .sod29-page-intro .sod29-hero-visual{display:none}
 /* Clean Post (ZURIEL 25.11.2026): no side context column and no "how it works" slot around a Post (the Hall's calm). Elections and Bennett too (ZURIEL 25.11.2026). */
 .sod29-main-stage.has-context-rail:has(.sod29-reading-post){display:contents}
 .sod29-main-stage.has-context-rail:has(.sod29-reading-post)>.sod29-content{width:auto}

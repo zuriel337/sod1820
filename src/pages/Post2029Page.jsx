@@ -109,7 +109,6 @@ function toolOnApproach2029(load, title) {
 }
 // The timeline lives inside "מקורות וקשרים": it loads when that section is opened (as its measures do), or when the address points at it.
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
-const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
 const MapUnitContext = import.meta.env.VITE_MAP_READING_RELEASE === "true"
   ? toolOnOpen2029(() => import("../components/experience2029/MapUnitContext2029.jsx")) : null;
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
@@ -1523,8 +1522,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               {previewTags.length ? <div className="post-design-categories"><strong>תגיות</strong>
                 <div className="post-design-series">{previewTags.map(tag => <Link key={tag} to={`/2029/posts?tag=${encodeURIComponent(tag)}`}>{tag}</Link>)}</div>
               </div> : null}
-              {postActionTarget ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_details_2029" /> : null}
-              {heroNumbers.length ? <p>לחיצה על מספר בתוך הפוסט פותחת את החישוב.</p> : null}
               <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
             </div>
           </details>
@@ -1542,9 +1539,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               {classification.credit ? <p>{classification.credit.prefix}: {classification.credit.name}</p> : null}
               {projection.sourceLine && projection.sourceLine !== visibleSourceLabel && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
               {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
-              <div className="sod29-reading-meta-line">
+              {classification.items.length > 4 ? <div className="sod29-reading-meta-line">
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
-              </div>
+              </div> : null}
               {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <ShareActions
                 type="post" url={publicPostShareUrl(post, location)}
                 title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"

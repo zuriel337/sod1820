@@ -90,7 +90,7 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + `<div class="sod29-post-details-body">`
     + (classification.credit ? `<p>${escapeHtml(classification.credit.prefix)}: ${escapeHtml(classification.credit.name)}</p>` : "")
     + (byline.date ? `<p>תאריך הפוסט: <time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time></p>` : "")
-    + `<div class="sod29-reading-meta-line">${chipsHtml(classification, Infinity)}</div>`
+    + (classification.items.length > 4 ? `<div class="sod29-reading-meta-line">${chipsHtml(classification, Infinity)}</div>` : "")
     + (excerpt ? `<p>${escapeHtml(excerpt)}</p>` : "")
     + `<p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p>`
     + `</div></details></div></div></header>`
