@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import ExternalVideoFacade2029 from "../experience2029/ExternalVideoFacade2029.jsx";
 import CanonicalMediaImage2029 from "../experience2029/CanonicalMediaImage2029.jsx";
-import { GroupMessageText } from "./GroupSourceMeta2029.jsx";
+import { GroupMessageText, GroupSourceMedia } from "./GroupSourceMeta2029.jsx";
 import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import {
@@ -75,7 +75,8 @@ function actionLabel(item) {
 }
 
 function groupSourceAnchor(item) {
-  if (item?.sourceKind !== "group_message" || !item.fullText) return null;
+  // A message with only an image or video (no text) is still a message: it gets the same openable card and anchor (ZURIEL 25.11.2026: a link to such a message opened nothing).
+  if (item?.sourceKind !== "group_message" || (!item.fullText && !item.media)) return null;
   const match = /^\/world#(group-source-[a-z0-9%-]+)$/i.exec(item.href || "");
   return match?.[1] || null;
 }
@@ -137,8 +138,9 @@ export default function WorldPublicUpdates2029({
             onToggle={(event) => { if (event.currentTarget.open) onOpen?.(item, { inline: true }); }}
             open={selectedSourceHash === `#${groupSourceAnchor(item)}` || undefined}>
             <summary>קריאת הודעת המקור</summary>
-            <p><GroupMessageText text={item.fullText} /></p>
-            {item.fullText.length >= 1200 ? <p>ההודעה מוצגת כאן באופן חלקי.</p> : null}
+            <GroupSourceMedia item={item} />
+            {item.fullText ? <p><GroupMessageText text={item.fullText} /></p> : null}
+            {item.fullText && item.fullText.length >= 1200 ? <p>ההודעה מוצגת כאן באופן חלקי.</p> : null}
             {item.occurrenceCount > 1 ? <p>{item.occurrenceCount} הופעות בנוסח המוצג.</p> : null}
             <p>הודעת מקור שטרם נבדקה.</p>
           </details> : <button type="button" onClick={() => onOpen?.(item)}>{actionLabel(item)} ←</button>}
