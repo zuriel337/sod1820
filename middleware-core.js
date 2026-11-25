@@ -298,8 +298,8 @@ async function publicPostSlugExists(path, { fresh = false } = {}) {
 }
 
 // Post document freshness (ZURIEL 17.11.2026): the edge gate of post-document-freshness.js. One list per instance, read in the background
-// directly from the database's public read (as the policies above are), only while this instance serves a burst; never on a reader's
-// critical path.
+// directly from the database's public read (as the policies above are), whenever this instance serves a Post and its list is older than
+// refreshAfterMs (S-55, one read in flight at most); never on a reader's critical path.
 const POST_DOCUMENT_GATE = createPostDocumentGate({
   fetchList: async () => {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${POST_DOCUMENT_FRESHNESS.listRpc}`, {

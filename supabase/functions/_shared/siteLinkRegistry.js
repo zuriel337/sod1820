@@ -79,8 +79,8 @@ export const SITE_LINKS = Object.freeze([
     closed: { message: "פעולות המחקר מתוכננות לשלב עתידי. אפשר לקרוא את הממצאים שכבר פורסמו.", alt: "findings" }, footer: { group: "research", order: 7 } }),
   entry({ id: "notifications", label: "העדכונים שלי", href: "/2029/me/notifications", defaultState: "account", aliases: ["העדכונים שלי", "ההתראות שלי", "התראות"], footer: { group: "personal", order: 3 } }),
   // ── מידע ──
-  entry({ id: "start", label: "כאן מתחילים", href: "/start", defaultState: "closed", aliases: ["כאן מתחילים", "מתחילים כאן", "איפה מתחילים"],
-    closed: { message: "עמוד ההתחלה הישן בתהליך התאמה. מפת האתר מראה מה פתוח עכשיו.", alt: "map" }, footer: { group: "info", order: 1 } }),
+  // "כאן מתחילים" is a public welcome page again (ZURIEL 25.11.2026).
+  entry({ id: "start", label: "כאן מתחילים", href: "/start", defaultState: "public", aliases: ["כאן מתחילים", "מתחילים כאן", "איפה מתחילים"], footer: { group: "info", order: 1 } }),
   entry({ id: "community", label: "קהילה", href: "/community", defaultState: "public", aliases: ["קהילה", "הקהילה", "דף הקהילה"], footer: { group: "info", order: 2 } }),
   entry({ id: "contact", label: "אודות וצור קשר", href: "/contact", defaultState: "public", aliases: ["צור קשר", "יצירת קשר", "אודות", "אודות וצור קשר", "דיווח או הצעה"], footer: { group: "info", order: 3 } }),
   entry({ id: "privacy", label: "מדיניות פרטיות", href: "/privacy", defaultState: "public", aliases: ["פרטיות", "מדיניות פרטיות", "מדיניות הפרטיות"], footer: { group: "info", order: 4 } }),

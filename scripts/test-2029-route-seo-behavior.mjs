@@ -71,6 +71,7 @@ const DECISIONS = {
   "/melech-hamisparim/718": { kind: "noindex" },
   "/forum": { kind: "redirect", to: "/community/chat", then: { kind: "index", canonical: "/community/chat" }, note: "the old forum continues in the community chat (#1236); the chat is indexable (#1234)" },
   "/beit-midrash": { kind: "index", note: "open to search since 20.11.2026 (ZURIEL: the whole site is open to Google)" },
+  "/start": { kind: "index", note: "\"כאן מתחילים\" (ZURIEL 25.11.2026): a public welcome page, open to search under the Open Index Law; server metadata in api/og.js" },
   "/beit-midrash/:method": { kind: "index", canonical: "/beit-midrash", note: "method pages consolidate on the one canonical" },
   "/researcher/:slug": { kind: "noindex", note: "admin corpus projection; never reads the corpus server-side" },
 

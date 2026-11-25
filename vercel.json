@@ -917,6 +917,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/start",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/2029/journey",
       "destination": "/2029.html"
     },

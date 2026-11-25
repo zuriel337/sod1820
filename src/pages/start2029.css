@@ -1,0 +1,27 @@
+/* /start "כאן מתחילים" (ZURIEL 25.11.2026): the frame's own tokens only; loaded with the route. Dense Row Law: the two doors share a row,
+   the three videos share a row on a wide screen; on a phone each is one column. Video boxes keep 16:9 before anything loads (CLS 0). */
+.start29{max-width:1100px;margin:0 auto;padding:12px 16px 48px;color:var(--s29-ink,#f6eddc);box-sizing:border-box}
+.start29 h2{font-size:20px;line-height:28px;margin:0 0 12px;color:var(--s29-accent-text,#d5b477)}
+.start29-block{margin:0 0 20px;padding:16px;border:1px solid var(--s29-line,#574327);border-radius:16px;background:var(--s29-panel,#201b16)}
+.start29-secret{display:grid;gap:16px;align-items:start}
+@media (min-width:860px){.start29-secret{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}.start29-secret h2{grid-column:1/-1;margin:0}}
+.start29 .start29-flagship{max-width:none;margin:0}
+.start29-explain p{margin:0 0 10px;font-size:17px;line-height:1.75}
+.start29-explain b{color:var(--s29-accent-text,#d5b477);font-variant-numeric:tabular-nums}
+.start29-explain q{quotes:"«" "»";font-weight:650}
+.start29-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin:8px 0 0}
+.start29-links a,.start29-more{color:var(--s29-accent-text,#d5b477);min-height:44px;display:inline-flex;align-items:center}
+.start29-doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:0 0 20px}
+.start29-door{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--s29-line,#574327);border-radius:16px;background:var(--s29-panel-soft,#2c231b);color:inherit;text-decoration:none;min-height:44px}
+.start29-door svg{flex:0 0 28px;width:28px;height:28px;color:var(--s29-accent-text,#d5b477)}
+.start29-door span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.start29-door b{font-size:17px;line-height:24px}
+.start29-door small{font-size:14px;line-height:20px;color:var(--s29-muted,#b6a995)}
+.start29-codes{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin:0;padding:0;list-style:none}
+.start29-code{display:flex;flex-direction:column;gap:4px;min-width:0}
+.start29-code .sod29-external-video{margin:0;max-width:none}
+.start29-native-video{margin:0;display:grid;gap:6px}
+.start29-native-video video{width:100%;aspect-ratio:16/9;border-radius:12px;background:#000;object-fit:cover;display:block}
+.start29-native-video figcaption{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.start29-native-video small{opacity:.8}
+.start29 a:focus-visible{outline:2px solid var(--s29-accent-text,#d5b477);outline-offset:2px}

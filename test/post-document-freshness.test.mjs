@@ -37,11 +37,8 @@ test("the gate: fail closed until a list is read, clean after, bypass for a list
   const gate = createPostDocumentGate({ now: c.now, fetchList: async () => { reads++; if (fail) throw new Error("down"); return list; } });
 
   let d = await gate.decide("/post/quiet-post");
-  assert.deepEqual([d.bypass, d.reason, d.refresh], [true, "stale", null], "no list, a lone request: the origin builds it and no read is made for it");
-  c.advance(1000);
-  d = await gate.decide("/post/quiet-post");
-  assert.deepEqual([d.bypass, d.reason], [true, "stale"], "still no list: the origin builds it");
-  assert.equal(typeof d.refresh, "function", "a second request within the lease is a burst: the list is read in the background");
+  assert.deepEqual([d.bypass, d.reason], [true, "stale"], "no list: the origin builds it now, never a kept copy");
+  assert.equal(typeof d.refresh, "function", "S-55: any Post request starts the background read of the list");
   await d.refresh();
   assert.equal(reads, 1);
 
@@ -74,26 +71,47 @@ test("the gate: fail closed until a list is read, clean after, bypass for a list
   assert.equal(validPostDocumentList({ version: 1, keys: [key("a")], all_until: null }), true);
 });
 
-test("no extra call unless the same Post is read again within the lease: quiet instances and crawlers reading many Posts are built fresh, exactly as without a CDN", async () => {
+test("S-55: any Post request keeps the list fresh, with one read in flight and at most one per refreshAfterMs; no Post, no call", async () => {
   const c = clock(1_800_000_000_000);
-  let reads = 0;
-  const gate = createPostDocumentGate({ now: c.now, fetchList: async () => { reads++; return { version: 1, keys: [], all_until: null }; } });
-  for (let i = 0; i < 20; i++) {
-    const d = await gate.decide("/post/quiet-post");
-    assert.deepEqual([d.bypass, d.reason, d.refresh], [true, "stale", null]);
-    c.advance(POST_DOCUMENT_FRESHNESS.leaseMs + 1);
-  }
-  for (let i = 0; i < 300; i++) {   // a crawler: a different Post every 200 ms
-    const d = await gate.decide(`/post/crawled-${i}`);
-    assert.deepEqual([d.bypass, d.reason, d.refresh], [true, "stale", null]);
+  let reads = 0, hold = null;
+  const deferred = () => { let open; const promise = new Promise(r => { open = r; }); return { promise, open }; };
+  const gate = createPostDocumentGate({ now: c.now, fetchList: async () => { reads++; if (hold) await hold.promise; return { version: 1, keys: [key("changed-post")], all_until: null }; } });
+  assert.equal(reads, 0, "an instance that serves no Post makes no call");
+
+  // many readers arriving together while the list is unknown: one read, shared
+  hold = deferred();
+  const first = await Promise.all(Array.from({ length: 25 }, (_, i) => gate.decide(`/post/reader-${i}`)));
+  first.forEach(d => assert.deepEqual([d.bypass, d.reason], [true, "stale"], "nothing kept is used before the list is read"));
+  const flights = first.map(d => d.refresh());
+  for (let i = 0; i < 5; i++) await Promise.resolve();
+  assert.equal(reads, 1, "one read in flight, however many requests ask for it");
+  hold.open(); hold = null; await Promise.all(flights);
+  assert.equal(reads, 1);
+
+  // a crawler: a different Post every 200 ms for 60 s. Reads stay at about one per refreshAfterMs, and its next Posts may use kept copies.
+  let clean = 0, changed = 0;
+  for (let i = 0; i < 300; i++) {
     c.advance(200);
+    const d = await gate.decide(i % 50 === 0 ? "/post/changed-post" : `/post/crawled-${i}`);
+    if (d.reason === "clean") clean++;
+    if (d.reason === "changed") changed++;
+    assert.notEqual(d.reason, "stale", "the list never ages past the lease while Posts keep being read");
+    if (d.refresh) await d.refresh();
   }
-  assert.equal(reads, 0, "no list read, no database call, no function call");
-  // the same Post read again and again on this instance: one read, then a kept copy may be used while the reads keep coming
-  let d = await gate.decide("/post/shared-post"); assert.equal(d.refresh, null);
-  c.advance(500); d = await gate.decide("/post/shared-post"); assert.equal(typeof d.refresh, "function"); await d.refresh();
-  for (let i = 0; i < 10; i++) { c.advance(400); d = await gate.decide("/post/shared-post"); assert.equal(d.reason, "clean"); if (d.refresh) await d.refresh(); }
-  assert.ok(reads >= 1 && reads <= 3, `at most one read per ${POST_DOCUMENT_FRESHNESS.refreshAfterMs} ms during the burst (${reads})`);
+  const budget = Math.ceil(300 * 200 / POST_DOCUMENT_FRESHNESS.refreshAfterMs) + 1;
+  assert.ok(reads - 1 <= budget, `at most one read per ${POST_DOCUMENT_FRESHNESS.refreshAfterMs} ms (${reads - 1} for 60 s; budget ${budget})`);
+  assert.equal(changed, 6, "a Post on the list of recent changes is still always built fresh");
+  assert.equal(clean, 294);
+
+  // the instance goes quiet: no call at all; the next request after the lease is built fresh again and refreshes once
+  const quietReads = reads;
+  c.advance(10 * 60_000);
+  assert.equal(reads, quietReads, "no timer, no call while no Post is served");
+  const d = await gate.decide("/post/after-quiet");
+  assert.deepEqual([d.bypass, d.reason], [true, "stale"], "after a quiet period the first Post is built fresh (fail closed)");
+  await d.refresh();
+  assert.equal(reads, quietReads + 1);
+  assert.equal((await gate.decide("/post/after-quiet-2")).reason, "clean");
 });
 
 test("the test list exists only on the protected Preview of the experiment branch", () => {
@@ -125,12 +143,9 @@ test("the real middleware: rewrites to the reserved address with the never-keep 
     assert.equal(res.headers.get("x-sod-doc-gate"), "stale");
     assert.match(res.headers.get("set-cookie") || "", /vb=browser/, "the existing cookies are kept");
     await Promise.all(e.pending);
-    assert.ok(!e.calls.some(url => url.endsWith("/rpc/" + POST_DOCUMENT_FRESHNESS.listRpc)), "a lone request makes no list read");
-    res = await middleware(browser("/post/quiet-post"), e.context);
-    assert.equal(res.headers.get("x-sod-doc-gate"), "stale", "the second request of a burst is still built fresh");
-    await Promise.all(e.pending);
     assert.ok(e.calls.includes("https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/" + POST_DOCUMENT_FRESHNESS.listRpc),
-      "the burst reads the list in the background, directly from the database's public read");
+      "S-55: the first Post request reads the list in the background, directly from the database's public read");
+    assert.equal(e.calls.filter(url => url.endsWith("/rpc/" + POST_DOCUMENT_FRESHNESS.listRpc)).length, 1, "one read");
     assert.ok(!e.calls.some(url => url.includes("/api/post-document-cache")), "never through a site function");
 
     res = await middleware(browser("/post/quiet-post"), e.context);
