@@ -5,6 +5,8 @@ import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonl
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
 import { publicStorageMedia } from "../src/lib/mediaEgressGuard.js";
 import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody, readingActionSpec, readingActionBody, readingMeasurementPath, readingMeasurementBody } from "../src/lib/publicReadingTelemetry2029.js";
+import { readingStorySpec } from "../src/lib/publicReadingStorySpec2029.js";
+import { registerMeasurementFamilies2029 } from "../src/lib/measurementFamilies2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -71,7 +73,9 @@ function installPublicReadingWorker(policy) {
   const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   const readFetch = req => fetch(new Request(req, { cache: "no-store", credentials: "omit", redirect: "error" }));
   const metricDocuments = new Map();
-  const actionWindows = new Map();
+  // story_2029 has its own count (at most 30 per window per 10 minutes) and never draws on the 60 shared by saves, calculations,
+  // shares and the other action families (Traffic Intelligence v12, ZURIEL 24.11.2026). Same counter function, same intake.
+  const actionWindows = new Map(), storyWindows = new Map();
   const measurementClient = async event => {
     if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return null;
     const client = await self.clients.get(event.clientId);
@@ -323,8 +327,9 @@ function installPublicReadingWorker(policy) {
           if (!/^Bearer [A-Za-z0-9_.-]{1,8192}$/.test(auth)) return denied();
           const page = body.p_surface === 'page';
           // Separate existing counter budget: events and site_visits are distinct writes for the same view.
-          const budget = page ? engagementWindows : actionWindows;
-          if (!withinWindowBudget(budget, event.clientId, page ? 240 : 60)) return denied();
+          const story = body.p_surface === "story_2029";
+          const budget = page ? engagementWindows : story ? storyWindows : actionWindows;
+          if (!withinWindowBudget(budget, event.clientId, page ? 240 : story ? 30 : 60)) return denied();
           return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: auth, "Content-Type": "application/json" } }));
         }
         if (beaconKey && body.p_surface !== "page") return denied();
@@ -339,6 +344,7 @@ function installPublicReadingWorker(policy) {
         // site, anonymous key only, at most 60 per window per 10 minutes.
         if (url.pathname.endsWith("/ingest_event") && readingActionBody(body)) {
           if (!policy.anonKey || !await measurementWindow(event)) return denied();
+          if (body.p_surface === "story_2029") return withinWindowBudget(storyWindows, event.clientId, 30) ? anonymous() : denied();
           return withinWindowBudget(actionWindows, event.clientId, 60) ? anonymous() : denied();
         }
         if (url.pathname.endsWith("/ingest_event")) {
@@ -603,7 +609,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${registerMeasurementFamilies2029.toString()}\n${readingStorySpec.toString()}\nregisterMeasurementFamilies2029(readingStorySpec());\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityFeedFields: COMMUNITY_FEED_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
