@@ -11,7 +11,6 @@ import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029Ex
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { publicPostHref, exactPostReadingHref, publicPostShareUrl } from "../lib/publicPostUrls.js";
-import { entityFromPost } from "../lib/research/entity.js";
 import { publicPostLinkedMedia, legacySourcePath } from "../lib/research/publicPostSourceLinks2029.js";
 import { postActionTarget2029, postActionUnits2029 } from "../lib/research/postActionTarget2029.js";
 import { logView, logActivity } from "../lib/supabase.js";
@@ -43,11 +42,10 @@ const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/ex
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { postClassification2029, postHierarchyContext2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
+import { postTagItems2029 } from "../lib/research/postClassification2029.js";
 import { publicPostCommentArchiveId, publicPostCommentPostId } from "../components/experience2029/postComments2029.js";
 import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
-import { postsTaxonomyScope2029 } from "../lib/research/postsTaxonomy2029Route.js";
-import { canonicalPostCategories } from "../lib/postCategoryIdentity.js";
 import { previewPostMedia2029, previewPostSourceLinks2029 } from "../lib/research/postDesignPreview2029.js";
 import { postReadingClassName } from "./postReadingStyles2029.js";
 
@@ -113,8 +111,7 @@ const MapUnitContext = import.meta.env.VITE_MAP_READING_RELEASE === "true"
   ? toolOnOpen2029(() => import("../components/experience2029/MapUnitContext2029.jsx")) : null;
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
 const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
-const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
-const PersonalSaveButton2029 = toolOnOpen2029(() => import("../components/userCenter/PersonalSaveButton2029.jsx"));
+const PostActionBar2029 = React.lazy(() => import("../components/experience2029/PostActionBar2029.jsx"));
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
 const PreviewUnitExtras2029 = toolOnOpen2029(() => import("../components/experience2029/PreviewUnitExtras2029.jsx"));
 const MatrixRain = toolOnOpen2029(() => import("../components/MatrixRain.jsx"));
@@ -153,7 +150,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const restoredRegionRef = useRef(null);
   const [bennettUnitHosts, setBennettUnitHosts] = useState(null);
   const [bennettVideoOpened, setBennettVideoOpened] = useState(false);
-  const [detailsOpened, setDetailsOpened] = useState(false);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const postVoice = postVoiceFor(state.projection?.post).voice;
   // The flagship series experience (ZURIEL 12.11.2026): exact series tag, or the preview-only acceptance exception for 5107 / 5112.
@@ -1009,9 +1005,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const hasResearchContent = contextualConnections.length > 0 || visibleTimeline.some(item => !item.current)
     || additionalLinks.length > 0 || measureSource.claims.length > 0
     || Boolean(experience.media?.sourceCard?.href || experience.media?.fullSource?.href);
-  const previewCategories = mapReadingLayout ? canonicalPostCategories(projection.sourcePost.categories).filter(name => name !== "וידאו") : [];
-  const previewTags = mapReadingLayout ? [...new Set((projection.sourcePost.tags || [])
-    .map(tag => postsTaxonomyScope2029("tag", tag)).filter(scope => scope.kind === "tag").map(scope => scope.key))] : [];
+  const postTags = postTagItems2029(projection.sourcePost);
   const exactReturnForRegion = (region) => ({
     href: exactPostReadingHref(post, location, `#source-region-${region?.id || projection.defaultRegionId}`),
     label: post.title,
@@ -1498,36 +1492,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         <MatrixRain color={matrixOpening.color} headColor={matrixOpening.headColor} featured={matrixOpening.featured} />
       </div> : null}
       <div className="sod29-reading-hero-grid">
-        {!mapReadingLayout ? cover : null}
+        {cover}
         <div className="sod29-reading-hero-copy">
-          {mapReadingLayout ? <>
-          <div className="post-design-title">
-            <div>
-              {classification.series.length ? <div className="post-design-series" aria-label="סדרות">
-                {classification.series.map(item => <a key={item.key} href={item.href} onClick={event => openConnection(event, item.href)}>סדרה: {item.name}</a>)}
-              </div> : null}
-              <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
-              {heroDate ? <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time> : null}
-            </div>
-            {!bennettTimeline ? cover : null}
-          </div>
-          {projection.excerpt ? <p className="post-design-opening">{projection.excerpt}</p> : null}
-          <details className="sod29-post-details" onToggle={event => { if (event.currentTarget.open) setDetailsOpened(true); }}>
-            <summary><span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span></summary>
-            <div className="sod29-post-details-body">
-              {classification.credit ? <p>קרדיט · {classification.credit.name}</p> : null}
-              {projection.sourceLine && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
-              {previewCategories.length ? <div className="post-design-categories"><strong>קטגוריות</strong>
-                <PostCategories2029 categories={previewCategories} max={Infinity} />
-              </div> : null}
-              {previewTags.length ? <div className="post-design-categories"><strong>תגיות</strong>
-                <div className="post-design-series">{previewTags.map(tag => <Link key={tag} to={`/2029/posts?tag=${encodeURIComponent(tag)}`}>{tag}</Link>)}</div>
-              </div> : null}
-              <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
-            </div>
-          </details>
-          </> : <>
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
+          {post.source !== "wordpress" && heroDate ? <p className="sod29-reading-byline"><time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
           {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
           <PostCategories2029 post={projection.sourcePost} compact max={4} />
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
@@ -1543,18 +1511,13 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
               {classification.items.length > 4 ? <div className="sod29-reading-meta-line">
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
               </div> : null}
-              {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <ShareActions
-                type="post" url={publicPostShareUrl(post, location)}
-                title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"
-              /> : null}
-              {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
-
+              {postTags.length ? <p className="sod29-post-tags">{postTags.map(tag => <Link key={tag.name} to={tag.href}>{tag.name}</Link>)}</p> : null}
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
               {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
             </div>
           </details>
-          </>}
+          <div className="sod29-post-actions-slot">{!projection.draft && !projection.privateStage && !projection.previewSnapshot && postActionTarget ? <React.Suspense fallback={null}><PostActionBar2029 projection={projection} /></React.Suspense> : null}</div>
         </div>
 
         {/* The numbers box is gone from the opening (ZURIEL 25.11.2026); the numbers stay in the text and open the same check. */}
@@ -1611,7 +1574,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <PublishedUnitTraces2029 rootRef={sourceRef} htmlKey={passiveSourceHtml.length} />
       {bennettTimeline && bennettMediaHost && bennettVideoOpened ? createPortal(<PostEvidenceMedia2029 media={BENNETT_SOURCE_MEDIA_2029} />, bennettMediaHost) : null}
       {bennettTimeline && bennettResearchHost ? createPortal(<>
-        {cover}
         {isAdmin === true ? researchDisclosure : null}
       </>, bennettResearchHost) : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}

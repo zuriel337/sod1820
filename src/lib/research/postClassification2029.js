@@ -4,6 +4,7 @@
 import { canonicalPostCategories } from "../postCategoryIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost, seriesShadowedCategories } from "./contentSeries2029Identity.js";
 import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
+import { postsTaxonomyScope2029 } from "./postsTaxonomy2029Route.js";
 
 const categoryHref = name => `/2029/posts?category=${encodeURIComponent(name)}`;
 const seriesHref = key => `/2029/posts?series=${encodeURIComponent(key)}`;
@@ -40,4 +41,11 @@ export function postClassification2029(post) {
   const media = postHasVideoMedia2029(post) ? [{ role: "media-type", name: "וידאו", prefix: "מדיה", href: MEDIA_VIDEO_HREF }] : [];
   return { items: [...series, ...editorial, ...sourceCategories, ...legacyMediaLabels], series, sourceCategories, legacyMediaLabels, media,
     credit: author ? { name: author, prefix: publisher ? "מפרסם" : "ייחוס במקור" } : null };
+}
+
+// The public tags of a Post (the term "תגית"), once, for the details row: only the tags the posts catalogue admits as a tag filter (internal markers never show).
+export function postTagItems2029(post) {
+  if (!post || hasSuppressedPublicPostTag(post)) return [];
+  const names = [...new Set((Array.isArray(post.tags) ? post.tags : []).map(tag => postsTaxonomyScope2029("tag", tag)).filter(scope => scope.kind === "tag").map(scope => scope.key))];
+  return names.map(name => ({ name, href: `/2029/posts?tag=${encodeURIComponent(name)}` }));
 }

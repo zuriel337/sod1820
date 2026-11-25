@@ -7,7 +7,7 @@ import { humanContentTitle } from "../presentation/contentTitle.js";
 import { bilingualDateLabel } from "../relativeTime2029.js";
 import { postBackground2029 } from "./postBackground2029.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./contentSeries2029Identity.js";
-import { postClassification2029 } from "./postClassification2029.js";
+import { postClassification2029, postTagItems2029 } from "./postClassification2029.js";
 import { clean, postPlainText2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
 import { postVoiceFor } from "../postVoice2029.js";
 import { POST_ARTICLE_THEME_SCRIPT, POST_ARTICLE_FRAME_CLOSE, postArticleFrameOpen2029 } from "./postArticleFrame2029.js";
@@ -68,6 +68,7 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
   const background = postBackground2029(post);
   const voice = postVoiceFor(post).voice;
   const classification = postClassification2029(post);
+  const tagItems = postTagItems2029(post);
   const sourceLabel = clean(post.author) || "מקור הפוסט";
   const excerpt = clean(post.excerpt) || postPlainText2029(post.content).slice(0, 220);
   const coverLabel = `פתח את תמונת הפוסט: ${title}`;
@@ -91,9 +92,10 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + (classification.credit ? `<p>${escapeHtml(classification.credit.prefix)}: ${escapeHtml(classification.credit.name)}</p>` : "")
     + (byline.date ? `<p>תאריך הפוסט: <time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time></p>` : "")
     + (classification.items.length > 4 ? `<div class="sod29-reading-meta-line">${chipsHtml(classification, Infinity)}</div>` : "")
+    + (tagItems.length ? `<p class="sod29-post-tags">${tagItems.map(tag => `<a href="${escapeHtml(tag.href)}">${escapeHtml(tag.name)}</a>`).join("")}</p>` : "")
     + (excerpt ? `<p>${escapeHtml(excerpt)}</p>` : "")
     + `<p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p>`
-    + `</div></details></div></div></header>`
+    + `</div></details><div class="sod29-post-actions-slot"></div></div></div></header>`
     + `<div class="sod29-reading-layout"><section class="sod29-reading-source" aria-label="טקסט המקור" data-ssr-body="true">${template.innerHTML}</section></div>`
     + `</article>` + POST_ARTICLE_FRAME_CLOSE;
 }

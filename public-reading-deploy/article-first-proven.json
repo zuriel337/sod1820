@@ -1,7 +1,7 @@
 {
- "generated": "2026-11-25T22:20:12.089Z",
- "base": "6b94fbfcb65f6b031fb3b3cb7c2469832142f71b",
- "fingerprint": "34866d3b824693152ca3",
+ "generated": "2026-11-25T22:49:22.219Z",
+ "base": "bd73ea6814583f28bfc56ca61bb4b415d9baba0a",
+ "fingerprint": "262ce7d6109101512777",
  "jsdom": "25.0.1",
  "pipeline": [
   "src/components/experience2029/postIconPath2029.js",
@@ -30,6 +30,7 @@
   "src/lib/research/postSemanticDesign2029.js",
   "src/lib/research/postSourceUpdates2029.js",
   "src/lib/research/postUnitBody2029.js",
+  "src/lib/research/postsTaxonomy2029Route.js",
   "src/lib/research/publicPostBoundary.js",
   "src/lib/research/realityMap2029.js",
   "src/lib/research/timeline2029.js"
