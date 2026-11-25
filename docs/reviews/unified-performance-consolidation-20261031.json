@@ -1327,17 +1327,17 @@
   ],
   "current_state_20261117": {
     "task": "SPEED_CENTRE_CONTROL_20261117",
-    "checked_at": "2026-11-25T01:30:00Z",
-    "main": "70b3a29fbd50c0b0a42e1f7a02f8316444d0f660",
+    "checked_at": "2026-11-25T01:05:00Z",
+    "main": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
     "production": {
-      "deployment": "dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp",
-      "sha": "3a6cabe8b84835e5a6e7482560ee28b820b298ba",
+      "deployment": "dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw",
+      "sha": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
       "aliases": [
         "sod1820.co.il",
         "www.sod1820.co.il",
         "sod1820.vercel.app"
       ],
-      "evidence": "get_alias sod1820.co.il -> dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp (READY, target production, githubCommitSha 3a6cabe8b, Merge PR #1543), read 2026-11-25; the live document names entry /assets/2029-tEXUp6Oe.js"
+      "evidence": "assign_alias of the three domains to dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw on 2026-11-25 (oldDeploymentId dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp, the rollback point); build log ran the ignore-step for the exact SHA; live entry /assets/2029-B6IVrh0A.js; Post-Deploy Canary success on ae6e52d"
     },
     "build_evidence": [
       {
@@ -4051,8 +4051,10 @@
           "task_keys": [
             "SEO_IMPRESSIONS_AUDIT_20261125"
           ],
-          "prs": [],
-          "merged_via_pr": null,
+          "prs": [
+            1550
+          ],
+          "merged_via_pr": 1550,
           "commits": [
             "f6744d061"
           ],
@@ -4061,31 +4063,31 @@
         },
         "code_now": [
           "src/lib/research/postArticleCore2029.js :: markPostMediaRows2029 (called by postArticleImages2029; branch only)",
-          "src/pages/post2029-reading.css :: [data-post-media-row] centring (branch only)",
-          "public-reading-deploy/article-first-proven.json + article-first-vocabulary.json :: rebuilt (branch only)"
+          "src/pages/post2029-reading.css :: [data-post-media-row] centring",
+          "public-reading-deploy/article-first-proven.json + article-first-vocabulary.json :: rebuilt"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "deployed_in_sha": null,
-        "deployed_in_created": null,
-        "in_current_production": false,
-        "live_verified": "no",
-        "live_evidence": "Not deployed.",
+        "merged": true,
+        "merge_commit": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
+        "deployed": true,
+        "deployed_in": "dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw",
+        "deployed_in_sha": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
+        "deployed_in_created": "2026-11-25T00:29:22Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Released 25.11.2026 (ZURIEL approval of ae6e52d). Live: the post reading chunk carries data-post-media-row; post 1201 at 1440px — the 387px and 399px images centred (offset 0, before 94 / 88 px), phone 0; scroll CLS post 1201 phone 0.000, desktop 0.007 (Playwright, analytics requests blocked).",
         "measurement": {
           "kind": "lab",
           "before": "live Production 3a6cabe, 1440px: post 1201 image centre offsets 94 / 88 px for the 387 / 399 px images (others 0); phone 0 (images fill the column)",
-          "after": "local build of f6744d061, same post: every image offset 0 px at 1440px and 390px; scroll CLS 0.002–0.007 (no shift attributed to media); article-first proofs 1,297/1,297 proven, 0 differ; eagerJsGzip 177,523 ≤ 177,548",
+          "after": "live Production ae6e52d (dpl_GGS7…): offsets 0 at 1440 and phone; scroll CLS 0.000 / 0.007; local build before release: proofs 1,297/1,297, eagerJsGzip 177,514 = main",
           "conditions": "Playwright Chromium, Pixel 5 and 1440×1000, live public data, local vite preview of the public build; not field data",
           "source": "commit f6744d061; test/post-article-images-2029.test.mjs (9/9)"
         },
         "guard": [
-          "test/post-article-images-2029.test.mjs (media row, side-by-side row, words keep alignment, nested block, list item, top-level media, image between words) [branch only]",
+          "test/post-article-images-2029.test.mjs (media row, side-by-side row, words keep alignment, nested block, list item, top-level media, image between words)",
           "test/article-first-proof-fresh.test.mjs"
         ],
-        "open": "Not merged, not deployed. Floated images (alignleft/alignright, 15 posts) intentionally unchanged.",
-        "next_owner": "ZURIEL decision (merge + deploy are separate approvals)",
+        "open": "Floated images (alignleft/alignright, 15 posts) intentionally unchanged.",
+        "next_owner": null,
         "relates_to_groups": []
       },
       {
@@ -4124,18 +4126,19 @@
           "source": "canonical Supabase read 2026-11-25"
         },
         "guard": [],
-        "open": "Options for a decision, none implemented: (a) keep the change list warm at the edge so single reads can use a kept copy; (b) a longer fresh window with the existing purge; (c) move the database read nearer the function region. Each changes Production behaviour and needs ZURIEL approval. | STAGED PLAN 25.11 — step 2: within the existing S-47 layer only (POST_DOCUMENT_CDN_CACHE + post-document-freshness.js + the purge): let a single read use a kept copy when the edge holds a fresh change list, by reading the list on a timer per warm instance instead of only during a burst (same RPC post_document_recent_changes_v1, same 5 s lease, same fail-closed); measure single-read first byte before/after on the same Posts. Option (b), a longer fresh window, only with the existing purge and after (a) is measured. Approval: merge + deploy.",
+        "open": "Options for a decision, none implemented: (a) keep the change list warm at the edge so single reads can use a kept copy; (b) a longer fresh window with the existing purge; (c) move the database read nearer the function region. Each changes Production behaviour and needs ZURIEL approval. | STAGED PLAN 25.11 — step 2: within the existing S-47 layer only (POST_DOCUMENT_CDN_CACHE + post-document-freshness.js + the purge): let a single read use a kept copy when the edge holds a fresh change list, by reading the list on a timer per warm instance instead of only during a burst (same RPC post_document_recent_changes_v1, same 5 s lease, same fail-closed); measure single-read first byte before/after on the same Posts. Option (b), a longer fresh window, only with the existing purge and after (a) is measured. Approval: merge + deploy. | 25.11.2026 after release: sitemap catalog part 9.6 s on a cold read (it now also reads the Or HaGeula collection, 14 pages ≈ 4 s), then kept 1 h; content part 4.4 s cold.",
         "next_owner": "ZURIEL decision",
         "relates_to_groups": []
       },
       {
         "id": "S-56",
-        "title_he": "ממצא פתוח (SEO/תמונות): כתובות התמונות הישנות /wp-content/uploads מחזירות 404; התמונות מוגשות מדומיין Supabase ו־alt הוא שם קובץ",
+        "title_he": "תמונות שבורות: כתובות התמונות הישנות /wp-content/uploads מפנות בקפיצה אחת לעותק השמור (רק תמונות שפוסט ציבורי מציג; ענף, לא מוזג)",
         "problem": "Old WordPress image URLs (e.g. /wp-content/uploads/2016/09/FB_IMG_1461616903968.jpg and the i0.wp.com copy) answer 404 with no redirect; post images are served from linswmnnkjxvweumprav.supabase.co; many alt texts are file names (fb_img_…). Image-only post 1201 (11 images) fell from ~90 impressions/day to 0 after 5.11.",
         "surface": "post",
         "source": {
           "task_keys": [
-            "SEO_IMPRESSIONS_AUDIT_20261125"
+            "SEO_IMPRESSIONS_AUDIT_20261125",
+            "S56_LEGACY_UPLOADS_20261125"
           ],
           "prs": [],
           "merged_via_pr": null,
@@ -4144,7 +4147,10 @@
           "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
         },
         "code_now": [
-          "src/lib/research/postArticleCore2029.js :: postArticleImages2029 (src unchanged = Storage original)"
+          "public-reading-deploy/legacy-upload-redirect.js :: legacyUploadKey / legacyUploadTarget (the migration's own naming rule; lazy allow list) (branch only)",
+          "public-reading-deploy/api/public-document.js :: one branch before any document work: 308 to the stored copy, otherwise unchanged (branch only)",
+          "public-reading-deploy/legacy-upload-public-keys.json :: 3,448 stored image keys that public Posts show (branch only)",
+          "scripts/build-legacy-upload-redirects.mjs :: generator from public Posts (anonymous read) + --check HEAD of every copy without following redirects (branch only)"
         ],
         "merged": false,
         "merge_commit": null,
@@ -4156,15 +4162,18 @@
         "live_verified": "no",
         "live_evidence": "Not deployed.",
         "measurement": {
-          "kind": "field",
-          "before": "GSC page impressions 14.10–3.11: post 1201 1,476 (≈70/day)",
-          "after": "10–21.11: 1 impression",
-          "conditions": "gsc_metrics dimension=page; correlation, not proof of cause",
-          "source": "canonical Supabase gsc_metrics read 2026-11-25"
+          "kind": "lab",
+          "before": "live Production ae6e52d: /wp-content/uploads/2016/09/FB_IMG_1461616903968.jpg (post 1201) → 404; every old upload address 404 (no redirect existed)",
+          "after": "branch: the same address → 308 to https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2016/09/03d475b5ed0008fe.jpg, which answers 200 image/jpeg with no further redirect; size variants (-387x1024) and both percent-encodings of Hebrew names reach the same copy; unknown addresses keep the same 404 document; all 3,448 listed copies HEAD 200 image/* without following redirects; no document, metadata or data work on a redirect; eagerJsGzip 177,514 = main (the list is read only on an old address)",
+          "conditions": "naming rule verified on all 4,357 migrated rows (dest = first 16 hex of sha256(decoded path) + lower-case extension, 4,357/4,357); coverage: every distinct public migrated image key (3,068 in the database) is on the list (per month ≥, June 2015 exact 63/63); unit + handler tests 6/6; public-reading-asset-miss 6/6",
+          "source": "tests test/legacy-upload-redirect-2029.test.mjs, test/public-reading-asset-miss.test.mjs; generator output"
         },
-        "guard": [],
-        "open": "Decision needed: a permanent redirect /wp-content/uploads/<path> → the stored copy (mapping exists in posts.content vs content_old), and/or serving images under the site's own domain; alt text from the post title where the alt is a file name. Production/URL change → ZURIEL approval. | STAGED PLAN 25.11 — step 1 (first priority, ZURIEL 25.11): one branch in the existing document handler (public-reading-deploy/api/public-document.js, which already answers /wp-content/plugins/gallery-images/* with 404) answers /wp-content/uploads/<path> with a permanent redirect to the stored copy, read from a build-time snapshot of the existing table media_migration_queue (4,357 rows status=done with dest_key; 80 missing and 8 giant keep 404), generated the way article-image-facts.json is; WordPress size variants (-WxH) map to their original. No new table, store, service or route. No canonical or page address changes. Approval: merge + deploy.",
-        "next_owner": "ZURIEL decision",
+        "guard": [
+          "test/legacy-upload-redirect-2029.test.mjs [branch only]",
+          "test/public-reading-asset-miss.test.mjs (unknown old addresses keep the 2029 not-found document)"
+        ],
+        "open": "Scope: images only (jpg, jpeg, png, gif, webp), as approved. Not included: old documents/audio/archives (pdf, doc, mp3, rar…) and images that no public Post shows (386 migrated files referenced by no public page stay 404 — no private media exposed). The i0.wp.com copies are WordPress.com's, not ours. Image alt texts that are file names (fb_img_…) are a separate content item. Re-run the generator after posts with old images are published.",
+        "next_owner": "ZURIEL decision (merge + deploy are separate approvals)",
         "relates_to_groups": []
       },
       {
@@ -4202,7 +4211,7 @@
           "source": "canonical Supabase gsc_metrics read 2026-11-25"
         },
         "guard": [],
-        "open": "Decision needed: 301 root → /post for these posts, or keep the root address canonical for posts Google already knew (extend REVIEWED_MODERN_ROOT_IDS by evidence). Changes addresses → ZURIEL approval. Not a speed change; listed here at ZURIEL's request (25.11). | STAGED PLAN 25.11 — decision only, no change without a separate ZURIEL decision (canonical): evidence 25.11 — about 90 native posts were known to Google only by their root address (14.10–3.11; e.g. 2603: 981 impressions root / 0 /post; 5006: 149 / 0; 5085: 138 / 0), and since the cutover most lost them while /post gained for a few (2603 /post 44, 5006 /post 100, 5122 /post 43). Option A (preserve what Google knew): extend the existing REVIEWED_MODERN_ROOT_IDS rule in publicPostUrls.js to the native posts with root impressions before 4.11, so the root is canonical again and /post/<slug> points to it — no new mechanism, one list. Option B: permanent redirect root → /post for those posts. Recommendation A. Also /start: since 4.11 a 'closed capability' placeholder (publicReadingRelease2029.js) with noindex, nofollow, noarchive, ~50 characters, not in the sitemap; Google knew it (1.9–5.11: 2,844 impressions, position 3.8, 15 clicks). Not content today, so the Open Index Law §3 allows noindex; but the address had value — options: restore a real 'start here' page (content decision) or a permanent redirect /start → /map (the placeholder's own link). Address change → ZURIEL decision.",
+        "open": "Decision needed: 301 root → /post for these posts, or keep the root address canonical for posts Google already knew (extend REVIEWED_MODERN_ROOT_IDS by evidence). Changes addresses → ZURIEL approval. Not a speed change; listed here at ZURIEL's request (25.11). | STAGED PLAN 25.11 — decision only, no change without a separate ZURIEL decision (canonical): evidence 25.11 — about 90 native posts were known to Google only by their root address (14.10–3.11; e.g. 2603: 981 impressions root / 0 /post; 5006: 149 / 0; 5085: 138 / 0), and since the cutover most lost them while /post gained for a few (2603 /post 44, 5006 /post 100, 5122 /post 43). Option A (preserve what Google knew): extend the existing REVIEWED_MODERN_ROOT_IDS rule in publicPostUrls.js to the native posts with root impressions before 4.11, so the root is canonical again and /post/<slug> points to it — no new mechanism, one list. Option B: permanent redirect root → /post for those posts. Recommendation A. Also /start: since 4.11 a 'closed capability' placeholder (publicReadingRelease2029.js) with noindex, nofollow, noarchive, ~50 characters, not in the sitemap; Google knew it (1.9–5.11: 2,844 impressions, position 3.8, 15 clicks). Not content today, so the Open Index Law §3 allows noindex; but the address had value — options: restore a real 'start here' page (content decision) or a permanent redirect /start → /map (the placeholder's own link). Address change → ZURIEL decision. | 25.11.2026: /start — ZURIEL chose to restore a public 'כאן מתחילים' page; a local preview (flagship video, Beit Midrash, free sign-up, the three latest צפונות בתורה videos, click-to-load players) awaits a separate design approval; +34 B gzip on the entry for the route line (within the budget, S-60).",
         "next_owner": "ZURIEL decision",
         "relates_to_groups": []
       },
@@ -4281,7 +4290,7 @@
           "source": "canonical Supabase read 2026-11-25"
         },
         "guard": [],
-        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts.",
+        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007.",
         "next_owner": "speed session",
         "relates_to_groups": []
       },
@@ -4689,13 +4698,13 @@
     "summary": {
       "counts": {
         "total": 60,
-        "merged": 53,
-        "deployed_true": 53,
+        "merged": 54,
+        "deployed_true": 54,
         "live_unknown": 25,
-        "live_no": 9,
-        "live_yes": 26,
+        "live_no": 8,
+        "live_yes": 27,
         "branch_only": 1,
-        "open_findings": 6
+        "open_findings": 5
       },
       "by_author": {
         "gpt": 10,
@@ -4868,6 +4877,34 @@
         "what": "Staged plan written into S-56 (step 1), S-55 (step 2), S-60 (step 3), S-57 (decision: native-post root addresses and /start) and S-58 (decision: pixels). No code change in this revision.",
         "previous": {
           "counts_total": 60
+        }
+      },
+      {
+        "at": "2026-11-25T01:05:00Z",
+        "task": "S56_LEGACY_UPLOADS_20261125",
+        "by": "CLAUDE (ZURIEL 25.11: \"אני מאשר להכין את S-56 ... עדכן את מפת המהירות, כולל השלמת S-54 והממצאים שנותרו\")",
+        "what": "Production and main → ae6e52d (dpl_GGS7…). S-54 released and verified live. S-56 implemented on the branch with before/after. Notes added to S-55 (sitemap cold read), S-57 (/start preview), S-59 (Home phone scroll CLS 0.118 after release).",
+        "previous": {
+          "checked_at": "2026-11-25T01:30:00Z",
+          "main": "70b3a29fbd50c0b0a42e1f7a02f8316444d0f660",
+          "production": {
+            "deployment": "dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp",
+            "sha": "3a6cabe8b84835e5a6e7482560ee28b820b298ba",
+            "aliases": [
+              "sod1820.co.il",
+              "www.sod1820.co.il",
+              "sod1820.vercel.app"
+            ],
+            "evidence": "get_alias sod1820.co.il -> dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp (READY, target production, githubCommitSha 3a6cabe8b, Merge PR #1543), read 2026-11-25; the live document names entry /assets/2029-tEXUp6Oe.js"
+          },
+          "S-54": {
+            "merged": false,
+            "merge_commit": null,
+            "deployed": false,
+            "deployed_in": null,
+            "live_verified": "no"
+          },
+          "S-56_open_len": 938
         }
       }
     ]

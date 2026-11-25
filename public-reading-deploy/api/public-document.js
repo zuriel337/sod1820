@@ -2,6 +2,7 @@ import { legacyArchiveContinuation2029 } from "../../src/lib/legacyArchiveContin
 import { readFile } from "node:fs/promises";
 import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
+import { LEGACY_UPLOAD_PREFIX, legacyUploadTarget } from "../legacy-upload-redirect.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } from "../../src/lib/publicReadingRelease2029.js";
 import { withArticleFirst2029 } from "./article-first.js";
 import { withRoutePreloads2029 } from "../route-preload.js";
@@ -160,6 +161,16 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       return res.status(404).send(req.method === "HEAD" ? "" : "Asset not found.");
+    }
+    if (path.startsWith(LEGACY_UPLOAD_PREFIX)) {
+      // S-56: an old WordPress image address goes to its stored public copy in one permanent hop (legacy-upload-redirect.js). Any other
+      // address continues exactly as before (the same not-found document). The allow list is read only here, never for an ordinary document.
+      const target = await legacyUploadTarget(path).catch(() => null);
+      if (target) {
+        res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=604800");
+        res.setHeader("Location", target);
+        return res.status(308).send(req.method === "HEAD" ? "" : "Moved permanently.");
+      }
     }
     if (/^\/(?:audio\/|data\/user\/|wp-content\/plugins\/gallery-images\/style\/)/.test(path)) {
       res.setHeader("Content-Type", "text/plain; charset=utf-8");return res.status(404).send(req.method === "HEAD" ? "" : "Public asset not found.");
