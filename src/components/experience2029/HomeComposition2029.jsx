@@ -26,6 +26,7 @@ import { NowPinnedMessage2029 } from "./NowRoyalCenter2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
 import { nowModels, nowPinnedMessage, homeUpdateColumns, HOME_SITE_LIMIT, HOME_SOURCE_LIMIT, HOME_MERGED_LIMIT, seriesLatestFace2029, seriesLatestMember2029 } from "../../lib/nowPublications2029.js";
 import BuildingSignupNote2029 from "./BuildingSignupNote2029.jsx";
+import { weeklyTrend, trendText } from "../../lib/weeklyTrend2029.js";
 import { pinCoverSet, PIN_COVER_SIZES } from "./homePinnedCover2029.js";
 import { homeMapLeadMember2029, homeMapLeadFace2029 } from "../../lib/research/homeMapLead2029.js";
 import { thumb } from "../../lib/img.js";
@@ -300,6 +301,42 @@ function HomeOtherSeries({ state }) {
 // ZURIEL 25.11.2026 (D1–D11, approved on a branch): the Home's "עדכונים אחרונים" is built from the SAME rows and models as "עכשיו" (one reader, one sort,
 // no pin and no priority by type): the site's own updates in time order, and the latest item of every public source. The same rows feed the desktop's two
 // columns and the phone's one chronological list. The reality-map series is no longer taken out of it; it keeps its dedicated flagship area.
+// The week before, read AFTER the Home has painted and the browser is idle (ZURIEL 25.11.2026: a weekly trend with percentages on the Home line).
+// A separate lazy read (two head counts), so the Home's own read budget is unchanged; if it fails or never arrives, the line shows the week without a trend.
+function useHomeWeekBefore(pulse) {
+  const [before, setBefore] = useState(null);
+  const ready = Boolean(pulse?.corpusTotal);
+  useEffect(() => {
+    if (!ready) return undefined;
+    let live = true; const controller = new AbortController();
+    const run = () => import("../../lib/research/homeWeekBefore2029.js").then(module => module.fetchHomeWeekBefore2029({ signal: controller.signal })).then(value => { if (live) setBefore(value); }, () => {});
+    const idle = typeof requestIdleCallback === "function";
+    const id = idle ? requestIdleCallback(run, { timeout: 4000 }) : setTimeout(run, 2500);
+    return () => { live = false; controller.abort(); if (idle) cancelIdleCallback(id); else clearTimeout(id); };
+  }, [ready]);
+  return before;
+}
+
+function TrendMark({ trend }) {
+  if (!trend) return null;
+  return <b className={`h29-trend is-${trend.dir}`} title="השבוע מול השבוע שלפניו">{trendText(trend)}</b>;
+}
+
+// «כמה יש ומה נוסף השבוע»: the corpus, what became public this week with its trend, the approved contributions with their trend, and how many different
+// people brought them (public contributors, as named on their contributions; never visitors or readers).
+function HomeWeekLine({ pulse, before }) {
+  const added = weeklyTrend(pulse.corpusAdded7d, before?.corpusAddedPrev7d);
+  const brought = weeklyTrend(pulse.contributions7d, before?.contributionsPrev7d);
+  const people = Number.isSafeInteger(pulse.writers7d) && pulse.writers7d > 0 ? pulse.writers7d : null;
+  const n = value => Number(value).toLocaleString("he-IL");
+  return <span className="h29-quiet-line" data-home-week="true">
+    <span>{n(pulse.corpusTotal)} ביטויים במאגר</span>
+    {pulse.corpusAdded7d > 0 ? <span>{n(pulse.corpusAdded7d)} חדשים השבוע <TrendMark trend={added} /></span> : null}
+    {pulse.contributions7d > 0 ? <span>{n(pulse.contributions7d)} תרומות השבוע <TrendMark trend={brought} /></span> : null}
+    {people ? <span>{people === 1 ? "אדם אחד הביא" : `${n(people)} אנשים הביאו`} תרומות</span> : null}
+  </span>;
+}
+
 function useHomeUpdates(feed, { postsOnly, exclude }) {
   const loading = Boolean(feed?.loading || feed?.detailsPending);
   const all = useMemo(() => {
@@ -577,6 +614,7 @@ export default function HomeComposition2029({
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
   const pulse = projection?.systemPulse || null;
+  const weekBefore = useHomeWeekBefore(pulse);
   const lead = data.posts[0] || null;
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
@@ -707,7 +745,7 @@ export default function HomeComposition2029({
     <HomeAvailabilityMap worldOpen={worldOpen} journeyLocked={journeyLocked} />
 
     <section ref={summaryRef} className="h29-quiet" aria-label="דופק ומצב בנייה">
-      <span>{pulse?.corpusTotal ? `${Number(pulse.corpusTotal).toLocaleString("he-IL")} ביטויים במאגר${pulse.contributions7d ? ` · ${pulse.contributions7d} תרומות השבוע` : ""}` : summaryAdmitted && loading ? "בודק מה זז עכשיו…" : "האתר מתחדש. כל אזור נפתח לציבור כשהוא בשל."}</span>
+      {pulse?.corpusTotal ? <HomeWeekLine pulse={pulse} before={weekBefore} /> : <span>{summaryAdmitted && loading ? "בודק מה זז עכשיו…" : "האתר מתחדש. כל אזור נפתח לציבור כשהוא בשל."}</span>}
       {!corePublic ? <a href="/map">מה כבר חי ומה בדרך ←</a> : null}
     </section>
     <section id="home-newsletter" className="h29-launch-card h29-newsletter-end" aria-label="הרשמה לעדכונים במייל" data-home-newsletter="end"><NewsletterSignup2029 /></section>

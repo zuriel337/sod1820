@@ -76,6 +76,10 @@
   border: 1px dashed var(--s29-line); color: var(--s29-muted); font: 400 14px var(--s29-font-ui);
 }
 .h29-quiet a { color: var(--s29-accent-text); font-weight: 500; }
+.h29-quiet-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.h29-quiet-line > span { display: inline-flex; align-items: baseline; gap: 6px; }
+.h29-trend { font-weight: 700; color: var(--s29-accent-text); font-variant-numeric: tabular-nums; }
+.h29-trend.is-down { color: var(--s29-muted); }
 @container h29 (max-width: 620px) { .h29-quiet { min-height: 66px; box-sizing: border-box; align-content: center; } }
 
 /* Reality stream (reference: .hp29-stream in fa0e26f): a restrained block of one-line source rows.
