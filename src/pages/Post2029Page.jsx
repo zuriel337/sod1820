@@ -1706,7 +1706,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     {!mapReadingLayout ? researchDisclosure : null}
     {!mapReadingLayout && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
     {!mapReadingLayout && postActionTarget ? <PostEndShare2029 url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
-    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
+    {commentArchiveId != null ? <PostComments2029 key={post.id} postWpId={commentArchiveId}
+      communityPostId={mapReadingLayout ? readingPostId : null} href={publicPostShareUrl(post, location)} title={post.title} />
+      : mapReadingLayout ? <PostComments2029 key={post.id} communityPostId={readingPostId}
+        href={publicPostShareUrl(post, location)} title={post.title} /> : null}
     {!bennettTimeline && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}
