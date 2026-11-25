@@ -1715,3 +1715,10 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 .sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid:not(:has(>.sod29-reading-cover))::before{inline-size:76px;block-size:76px;width:76px;height:76px}}
 /* The frame's own ring above a Post is replaced by the medallion inside the opening (one medallion, not two). */
 .sod29-content:has(.sod29-reading-post:not([data-post-design-preview])) .sod29-page-intro .sod29-hero-visual{display:none}
+/* Clean Post (ZURIEL 25.11.2026): no side context column and no "how it works" slot around a Post (the Hall's calm). Map-reading Posts keep theirs. */
+.sod29-main-stage.has-context-rail:has(.sod29-reading-post:not([data-post-design-preview])){display:contents}
+.sod29-main-stage.has-context-rail:has(.sod29-reading-post:not([data-post-design-preview]))>.sod29-content{width:auto}
+.sod29-main-stage.has-context-rail:has(.sod29-reading-post:not([data-post-design-preview]))>:not(.sod29-content){display:none}
+.sod29-root:has(.sod29-reading-post:not([data-post-design-preview])) .sod29-entry-orientation-slot,
+.sod29-reading-post:not([data-post-design-preview]) .sod29-orientation-host{display:none}
+.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero{width:min(790px,100%);margin-inline:auto}

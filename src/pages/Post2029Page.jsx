@@ -1580,23 +1580,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </div> : null}
     </header>
 
-    {!mapReadingLayout && sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
-      <span className="sod29-update-strip-kicker">עודכן</span>
-      <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
-        <strong data-update-caption={resolveUnitMessage(post.id, sourceUpdates[0].targetId) ? "main-message" : "label"}>{(realityMap.active && resolveUnitMessage(post.id, sourceUpdates[0].targetId)) || sourceUpdates[0].label}</strong>
-        <small>{sourceUpdates[0].attribution} · {addedDateLabel(sourceUpdates[0]) ? <time dateTime={sourceUpdates[0].updatedAt}>{addedDateLabel(sourceUpdates[0])}</time> : "תאריך ההוספה אינו מוכח"}</small>
-      </button>
-      {sourceUpdates.length > 1 ? <details className="sod29-update-strip-more">
-        <summary>עוד {sourceUpdates.length - 1}</summary>
-        <ul>
-          {sourceUpdates.slice(1, 6).map((entry) => <li key={entry.id}>
-            <button type="button" onClick={() => jumpToSourceUpdate(entry)}>
-              <span>{entry.label}</span><small>{addedDateLabel(entry) ? <time dateTime={entry.updatedAt}>{addedDateLabel(entry)}</time> : null}</small>
-            </button>
-          </li>)}
-        </ul>
-      </details> : null}
-    </aside> : null}
+    {/* A clean Post (ZURIEL 25.11.2026): no update strip, research panel, follow box, end share or next-links under the text; only the comments remain. */}
     {mapReadingLayout && !bennettTimeline && (hasResearchContent || researchOpen || researchAnchorRequested) ? researchDisclosure : null}
 
     {!bennettTimeline ? <PostEvidenceMedia2029 media={experience.media} /> : null}
@@ -1658,16 +1642,13 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         <button type="button" onClick={openPostEngineExploration}>בדיקה חדשה במנוע</button>
       </div> : null}</>, calculationFeedbackHost)
       : <p role="status">{calculationNotice}</p>) : null}
-    {!mapReadingLayout ? researchDisclosure : null}
-    {!mapReadingLayout && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
-    {!mapReadingLayout && postActionTarget ? <PostEndShare2029 url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
     {!bennettTimeline && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
-    <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
+    {mapReadingLayout ? <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
       <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
-    </nav>
+    </nav> : null}
   </article></>;
 }
 
