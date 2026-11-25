@@ -63,3 +63,9 @@ test("while the measurement is younger than two weeks, the server's own halves o
   assert.deepEqual(h.map(x => [x.key, x.basis, x.pct]), [["compute", "halves", 184]]);
   assert.deepEqual(halfWeekTrends({ ...live, version: 2 }), []);
 });
+
+test("no count of people anywhere in the weekly trend surfaces (ZURIEL 25.11.2026: only the number of contributions)", () => {
+  const stats = readFileSync("src/pages/Stats2029Page.jsx", "utf8"), home = readFileSync("src/components/experience2029/HomeComposition2029.jsx", "utf8");
+  assert.doesNotMatch(stats, /writers7d|אנשים שהביאו/); assert.doesNotMatch(home, /writers7d|אנשים הביאו|אדם אחד הביא/);
+  assert.match(home, /תרומות השבוע/);
+});

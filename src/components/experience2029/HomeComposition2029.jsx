@@ -322,18 +322,16 @@ function TrendMark({ trend }) {
   return <b className={`h29-trend is-${trend.dir}`} title="השבוע מול השבוע שלפניו">{trendText(trend)}</b>;
 }
 
-// «כמה יש ומה נוסף השבוע»: the corpus, what became public this week with its trend, the approved contributions with their trend, and how many different
-// people brought them (public contributors, as named on their contributions; never visitors or readers).
+// «כמה יש ומה נוסף השבוע»: the corpus, what became public this week with its trend, and the approved contributions with their trend. No count of people
+// (ZURIEL 25.11.2026: "רק את מספר התרומות").
 function HomeWeekLine({ pulse, before }) {
   const added = weeklyTrend(pulse.corpusAdded7d, before?.corpusAddedPrev7d);
   const brought = weeklyTrend(pulse.contributions7d, before?.contributionsPrev7d);
-  const people = Number.isSafeInteger(pulse.writers7d) && pulse.writers7d > 0 ? pulse.writers7d : null;
   const n = value => Number(value).toLocaleString("he-IL");
   return <span className="h29-quiet-line" data-home-week="true">
     <span>{n(pulse.corpusTotal)} ביטויים במאגר</span>
     {pulse.corpusAdded7d > 0 ? <span>{n(pulse.corpusAdded7d)} חדשים השבוע <TrendMark trend={added} /></span> : null}
     {pulse.contributions7d > 0 ? <span>{n(pulse.contributions7d)} תרומות השבוע <TrendMark trend={brought} /></span> : null}
-    {people ? <span>{people === 1 ? "אדם אחד הביא" : `${n(people)} אנשים הביאו`} תרומות</span> : null}
   </span>;
 }
 

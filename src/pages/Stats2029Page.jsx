@@ -128,7 +128,6 @@ export default function Stats2029Page() {
             <Tile value={added.posts} label="פוסטים חדשים" note={r.label} to="/post" trend={r.hours === 168 ? weekly?.added?.posts : null} />
             <Tile value={added.codes} label="צפנים חדשים" note={r.label} to="/codes" trend={r.hours === 168 ? weekly?.added?.codes : null} />
             <Tile value={corpus?.corpusAdded7d} label="ביטויים חדשים במאגר" note="השבוע · מול השבוע שלפניו" to="/gematria" trend={weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d) ? { ...weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d), basis: "exact" } : null} />
-            <Tile value={corpus?.writers7d} label="אנשים שהביאו תרומות השבוע" note="תורמים בשמם הציבורי, לא גולשים" />
             <Tile value={corpus?.corpusTotal} label="ביטויים מאומתים במאגר" to="/gematria" />
             <Tile value={d.posts_total} label="פוסטים באתר" to="/post" />
             <Tile value={d.publications?.public_ciphers} label="צפנים שפורסמו" to="/codes" />
