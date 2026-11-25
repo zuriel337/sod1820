@@ -1327,17 +1327,17 @@
   ],
   "current_state_20261117": {
     "task": "SPEED_CENTRE_CONTROL_20261117",
-    "checked_at": "2026-11-25T01:05:00Z",
-    "main": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
+    "checked_at": "2026-11-25T09:30:00Z",
+    "main": "a5cf3d4878d3480892cf4895a97da652248401eb",
     "production": {
-      "deployment": "dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw",
-      "sha": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
+      "deployment": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv",
+      "sha": "a5cf3d4878d3480892cf4895a97da652248401eb",
       "aliases": [
         "sod1820.co.il",
         "www.sod1820.co.il",
         "sod1820.vercel.app"
       ],
-      "evidence": "assign_alias of the three domains to dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw on 2026-11-25 (oldDeploymentId dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp, the rollback point); build log ran the ignore-step for the exact SHA; live entry /assets/2029-B6IVrh0A.js; Post-Deploy Canary success on ae6e52d"
+      "evidence": "ZURIEL approved merge of #1551 (ac9d0d1) and the Production deploy of a5cf3d4 on 25.11.2026; create_deployment with the exact SHA, READY in ~62 s, assign_alias of the three domains (oldDeploymentId dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw, the rollback point); Post-Deploy Canary run 45584088670 success; live: 308 old-image redirects (no-store), draft image 404, /start 200 index with its own canonical, post gate clean on the second request to a different Post with a HIT."
     },
     "build_evidence": [
       {
@@ -4108,15 +4108,15 @@
         "code_now": [
           "public-reading-deploy/api/public-document.js :: POST_DOCUMENT_CDN_CACHE",
           "post-document-freshness.js :: burst-only list read",
-          "post-document-freshness.js :: createPostDocumentGate — refresh on any candidate request (S-55 step 2) (branch only)"
+          "post-document-freshness.js :: createPostDocumentGate — refresh on any candidate request (S-55 step 2)"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "deployed_in_sha": null,
+        "merged": true,
+        "merge_commit": "a5cf3d4878d3480892cf4895a97da652248401eb",
+        "deployed": true,
+        "deployed_in": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv",
+        "deployed_in_sha": "a5cf3d4878d3480892cf4895a97da652248401eb",
         "deployed_in_created": null,
-        "in_current_production": false,
+        "in_current_production": true,
         "live_verified": "no",
         "live_evidence": "Finding, read live 2026-11-25: Googlebot-agent single reads 0.88–1.55 s first byte, no x-vercel-cache; a burst of /post/chosen-one 0.42 → 0.11–0.30 s.",
         "measurement": {
@@ -4127,7 +4127,7 @@
           "source": "canonical Supabase read 2026-11-25"
         },
         "guard": [],
-        "open": "Options for a decision, none implemented: (a) keep the change list warm at the edge so single reads can use a kept copy; (b) a longer fresh window with the existing purge; (c) move the database read nearer the function region. Each changes Production behaviour and needs ZURIEL approval. | STAGED PLAN 25.11 — step 2: within the existing S-47 layer only (POST_DOCUMENT_CDN_CACHE + post-document-freshness.js + the purge): let a single read use a kept copy when the edge holds a fresh change list, by reading the list on a timer per warm instance instead of only during a burst (same RPC post_document_recent_changes_v1, same 5 s lease, same fail-closed); measure single-read first byte before/after on the same Posts. Option (b), a longer fresh window, only with the existing purge and after (a) is measured. Approval: merge + deploy. | 25.11.2026 after release: sitemap catalog part 9.6 s on a cold read (it now also reads the Or HaGeula collection, 14 pages ≈ 4 s), then kept 1 h; content part 4.4 s cold. | 25.11.2026 STEP 2 IMPLEMENTED (option א, ZURIEL; branch claude/work-public-discovery-log-read-ryfcnx, PR #1551): the change list is refreshed on any Post request when missing or older than refreshAfterMs (2 s), not only in a burst; one read in flight per instance, at most one per 2 s, no timer, an instance that serves no Post makes no call; lease 5 s, 20-minute list, fail closed and the copy's life (300 s + 60 s) unchanged (no longer life, as instructed). BEFORE (24 h to 25.11 01:30 UTC, Vercel observability + Supabase logs): /api/public-document 28,476 requests — MISS 86.7% / HIT 9.0% / STALE 4.4%; list reads 44/day; one list read = 1.46 ms DB time (pg_stat_statements, n=412); function 8.21 GB-h/day; middleware CPU 505 s/day; Posts field TTFB p75 phone 1,328 / desktop 1,470 ms. Bound: at most one read per Post request (≈28k/day worst case ≈ 41 s DB time/day, vs ≈300k REST requests/day). Live lab: a single read is always 'stale' (MISS); a burst reaches 'clean' then HIT from the 4th request. AFTER: to be measured with the same queries 24 h after deployment (not deployed).",
+        "open": "Options for a decision, none implemented: (a) keep the change list warm at the edge so single reads can use a kept copy; (b) a longer fresh window with the existing purge; (c) move the database read nearer the function region. Each changes Production behaviour and needs ZURIEL approval. | STAGED PLAN 25.11 — step 2: within the existing S-47 layer only (POST_DOCUMENT_CDN_CACHE + post-document-freshness.js + the purge): let a single read use a kept copy when the edge holds a fresh change list, by reading the list on a timer per warm instance instead of only during a burst (same RPC post_document_recent_changes_v1, same 5 s lease, same fail-closed); measure single-read first byte before/after on the same Posts. Option (b), a longer fresh window, only with the existing purge and after (a) is measured. Approval: merge + deploy. | 25.11.2026 after release: sitemap catalog part 9.6 s on a cold read (it now also reads the Or HaGeula collection, 14 pages ≈ 4 s), then kept 1 h; content part 4.4 s cold. | 25.11.2026 STEP 2 IMPLEMENTED (option א, ZURIEL; branch claude/work-public-discovery-log-read-ryfcnx, PR #1551): the change list is refreshed on any Post request when missing or older than refreshAfterMs (2 s), not only in a burst; one read in flight per instance, at most one per 2 s, no timer, an instance that serves no Post makes no call; lease 5 s, 20-minute list, fail closed and the copy's life (300 s + 60 s) unchanged (no longer life, as instructed). BEFORE (24 h to 25.11 01:30 UTC, Vercel observability + Supabase logs): /api/public-document 28,476 requests — MISS 86.7% / HIT 9.0% / STALE 4.4%; list reads 44/day; one list read = 1.46 ms DB time (pg_stat_statements, n=412); function 8.21 GB-h/day; middleware CPU 505 s/day; Posts field TTFB p75 phone 1,328 / desktop 1,470 ms. Bound: at most one read per Post request (≈28k/day worst case ≈ 41 s DB time/day, vs ≈300k REST requests/day). Live lab: a single read is always 'stale' (MISS); a burst reaches 'clean' then HIT from the 4th request. AFTER: to be measured with the same queries 24 h after deployment (not deployed). | 25.11.2026 DEPLOYED (a5cf3d4, 09:18 UTC). Live: the second request to a different Post is already 'clean' and a HIT was seen. AFTER measurement with the same queries is scheduled for 26.11.2026 ≈09:30 UTC.",
         "next_owner": "ZURIEL decision",
         "relates_to_groups": []
       },
@@ -4148,18 +4148,18 @@
           "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
         },
         "code_now": [
-          "public-reading-deploy/legacy-upload-redirect.js :: legacyUploadKey / legacyUploadTarget / legacyUploadPublicNow (the migration's own naming rule; lazy allow list as a fast first filter; every redirect confirmed live against the public Posts with publicPostOnlyFilter, fail closed; browser no-store, CDN 5 min, no stale) + the public WordPress archive images that no Post uses, redirected directly; the earlier original-name copy by one HEAD; 'closed' for draft-only images (branch only)",
-          "public-reading-deploy/api/public-document.js :: one branch before any document work: 308 to the stored copy, otherwise unchanged (branch only)",
-          "public-reading-deploy/legacy-upload-public-keys.json :: 3,448 stored image keys that public Posts show (branch only)",
-          "scripts/build-legacy-upload-redirects.mjs :: generator from public Posts (anonymous read) + --check HEAD of every copy without following redirects (branch only)"
+          "public-reading-deploy/legacy-upload-redirect.js :: legacyUploadKey / legacyUploadTarget / legacyUploadPublicNow (the migration's own naming rule; lazy allow list as a fast first filter; every redirect confirmed live against the public Posts with publicPostOnlyFilter, fail closed; browser no-store, CDN 5 min, no stale) + the public WordPress archive images that no Post uses, redirected directly; the earlier original-name copy by one HEAD; 'closed' for draft-only images",
+          "public-reading-deploy/api/public-document.js :: one branch before any document work: 308 to the stored copy, otherwise unchanged",
+          "public-reading-deploy/legacy-upload-public-keys.json :: 3,448 stored image keys that public Posts show",
+          "scripts/build-legacy-upload-redirects.mjs :: generator from public Posts (anonymous read) + --check HEAD of every copy without following redirects"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "deployed_in_sha": null,
+        "merged": true,
+        "merge_commit": "a5cf3d4878d3480892cf4895a97da652248401eb",
+        "deployed": true,
+        "deployed_in": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv",
+        "deployed_in_sha": "a5cf3d4878d3480892cf4895a97da652248401eb",
         "deployed_in_created": null,
-        "in_current_production": false,
+        "in_current_production": true,
         "live_verified": "no",
         "live_evidence": "Not deployed.",
         "measurement": {
@@ -4174,7 +4174,7 @@
           "test/public-reading-asset-miss.test.mjs (unknown old addresses keep the 2029 not-found document)",
           "test/legacy-upload-redirect-2029.test.mjs: address/encoding tricks (.., %2e, double encoding, case, NFD, %00, size variants) reach only listed hashed keys; a listed image whose Post stops being public is not redirected; a failed check redirects nothing (existing 404). Live 25.11: a hidden-only image (post 103, 2024/08/1946b8e3a370147e.jpg) refused; 41/41 sampled listed keys still public (≈0.45 s each, once per address per CDN hour)."
         ],
-        "open": "Scope: images only (jpg, jpeg, png, gif, webp), as approved. Not included: old documents/audio/archives (pdf, doc, mp3, rar…) and images that no public Post shows (386 migrated files referenced by no public page stay 404 — no private media exposed). The i0.wp.com copies are WordPress.com's, not ours. Image alt texts that are file names (fb_img_…) are a separate content item. Re-run the generator after posts with old images are published. | 25.11.2026 privacy before cache (ZURIEL): the 308 is never kept by the browser (Cache-Control no-store); the CDN keeps it 300 s (Vercel-CDN-Cache-Control, the Post document's fresh window). Separate finding, not changed here: media/uploads is a public bucket — 15,027 objects: 3,945 shown by a public Post, 1 only in a hidden Post (post 103), 11,081 in no Post (10,145 images, likely WordPress size variants/library); all readable at their direct storage address, names derivable from the original path. Changing it is a storage permission decision. | 25.11.2026 openness (ZURIEL: the whole historical public archive is open, old images included; protected only personal data, drafts, the life journey). The earlier '386 excluded' was a count of name spellings: media_migration_queue has 3,857 migrated image rows = 3,454 distinct files (403 rows are a second percent-encoding of the same name). Of the 3,454: 3,446 shown by public Posts (all redirect); 7 library images no Post uses — looked at, public research images — now redirect directly ('archive' in the list, no database read); 1 only in draft post 103 stays closed. 32 images were never migrated (WordPress 404): 20 of them are referenced by 10 public Posts, and 19 of those were never ours (hotlinked through i0.wp.com from ha-zohar.info, zohar-war.com, jdn.co.il, jewsnews.co.il). Separate content findings (not changed): post 2 has one stored image with '&#038;ssl=1' glued to its address (400; the file exists); about 16 external images in 13 public Posts are dead at their source (zohar-war, jdn, jewsnews, har-habait, bhol, hwcdn, trekearth, sodtorah, some twimg/hidabroot). 0 public Posts link to sod1820.co.il/wp-content/uploads, so the redirect serves outside links and Google, not in-page images. media/uploads also holds an earlier copy of the WordPress library under original (transliterated) names — most of the 11,081 objects no Post references; public archive, left as is. | 25.11.2026 restoration completed in code: the earlier copy of the WordPress library in the same bucket (original ASCII names; 11,066 objects, 10,131 images, 9,018 originals the hashed copy does not cover) is now reached by one HEAD to the public object after the lists miss — no list, no database read; a sample of 48 looked at: news and calculator screenshots, Torah texts, archive graphics. 'closed' holds the one draft-only image under both stored names (post 103: hashed copy and original-name copy). No hidden Post references the earlier copy.",
+        "open": "Scope: images only (jpg, jpeg, png, gif, webp), as approved. Not included: old documents/audio/archives (pdf, doc, mp3, rar…) and images that no public Post shows (386 migrated files referenced by no public page stay 404 — no private media exposed). The i0.wp.com copies are WordPress.com's, not ours. Image alt texts that are file names (fb_img_…) are a separate content item. Re-run the generator after posts with old images are published. | 25.11.2026 privacy before cache (ZURIEL): the 308 is never kept by the browser (Cache-Control no-store); the CDN keeps it 300 s (Vercel-CDN-Cache-Control, the Post document's fresh window). Separate finding, not changed here: media/uploads is a public bucket — 15,027 objects: 3,945 shown by a public Post, 1 only in a hidden Post (post 103), 11,081 in no Post (10,145 images, likely WordPress size variants/library); all readable at their direct storage address, names derivable from the original path. Changing it is a storage permission decision. | 25.11.2026 openness (ZURIEL: the whole historical public archive is open, old images included; protected only personal data, drafts, the life journey). The earlier '386 excluded' was a count of name spellings: media_migration_queue has 3,857 migrated image rows = 3,454 distinct files (403 rows are a second percent-encoding of the same name). Of the 3,454: 3,446 shown by public Posts (all redirect); 7 library images no Post uses — looked at, public research images — now redirect directly ('archive' in the list, no database read); 1 only in draft post 103 stays closed. 32 images were never migrated (WordPress 404): 20 of them are referenced by 10 public Posts, and 19 of those were never ours (hotlinked through i0.wp.com from ha-zohar.info, zohar-war.com, jdn.co.il, jewsnews.co.il). Separate content findings (not changed): post 2 has one stored image with '&#038;ssl=1' glued to its address (400; the file exists); about 16 external images in 13 public Posts are dead at their source (zohar-war, jdn, jewsnews, har-habait, bhol, hwcdn, trekearth, sodtorah, some twimg/hidabroot). 0 public Posts link to sod1820.co.il/wp-content/uploads, so the redirect serves outside links and Google, not in-page images. media/uploads also holds an earlier copy of the WordPress library under original (transliterated) names — most of the 11,081 objects no Post references; public archive, left as is. | 25.11.2026 restoration completed in code: the earlier copy of the WordPress library in the same bucket (original ASCII names; 11,066 objects, 10,131 images, 9,018 originals the hashed copy does not cover) is now reached by one HEAD to the public object after the lists miss — no list, no database read; a sample of 48 looked at: news and calculator screenshots, Torah texts, archive graphics. 'closed' holds the one draft-only image under both stored names (post 103: hashed copy and original-name copy). No hidden Post references the earlier copy. | 25.11.2026 DEPLOYED (a5cf3d4) and verified live. FINDING (Google Images): Supabase Storage answers every public object and rendition with 'x-robots-tag: none' (platform default, not a bucket permission), so no stored image is indexable by Google Images at its storage address. Recommended fix (decision, not implemented): serve public media under the site's own domain — one Vercel rewrite /media/(.*) → the public media bucket with an X-Robots-Tag header rule for that path, the S-56 redirects and post image URLs pointing there; verify on a protected Preview that the header is replaced, and measure the Vercel transfer cost first. No storage permission change.",
         "next_owner": "ZURIEL decision (merge + deploy are separate approvals)",
         "relates_to_groups": []
       },
@@ -4196,13 +4196,13 @@
         "code_now": [
           "src/lib/publicPostUrls.js :: publicPostAddress (REVIEWED_MODERN_ROOT_IDS keeps 4 posts at root)"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "deployed_in_sha": null,
+        "merged": true,
+        "merge_commit": "a5cf3d4878d3480892cf4895a97da652248401eb",
+        "deployed": true,
+        "deployed_in": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv",
+        "deployed_in_sha": "a5cf3d4878d3480892cf4895a97da652248401eb",
         "deployed_in_created": null,
-        "in_current_production": false,
+        "in_current_production": true,
         "live_verified": "no",
         "live_evidence": "Not deployed.",
         "measurement": {
@@ -4213,7 +4213,7 @@
           "source": "canonical Supabase gsc_metrics read 2026-11-25"
         },
         "guard": [],
-        "open": "Decision needed: 301 root → /post for these posts, or keep the root address canonical for posts Google already knew (extend REVIEWED_MODERN_ROOT_IDS by evidence). Changes addresses → ZURIEL approval. Not a speed change; listed here at ZURIEL's request (25.11). | STAGED PLAN 25.11 — decision only, no change without a separate ZURIEL decision (canonical): evidence 25.11 — about 90 native posts were known to Google only by their root address (14.10–3.11; e.g. 2603: 981 impressions root / 0 /post; 5006: 149 / 0; 5085: 138 / 0), and since the cutover most lost them while /post gained for a few (2603 /post 44, 5006 /post 100, 5122 /post 43). Option A (preserve what Google knew): extend the existing REVIEWED_MODERN_ROOT_IDS rule in publicPostUrls.js to the native posts with root impressions before 4.11, so the root is canonical again and /post/<slug> points to it — no new mechanism, one list. Option B: permanent redirect root → /post for those posts. Recommendation A. Also /start: since 4.11 a 'closed capability' placeholder (publicReadingRelease2029.js) with noindex, nofollow, noarchive, ~50 characters, not in the sitemap; Google knew it (1.9–5.11: 2,844 impressions, position 3.8, 15 clicks). Not content today, so the Open Index Law §3 allows noindex; but the address had value — options: restore a real 'start here' page (content decision) or a permanent redirect /start → /map (the placeholder's own link). Address change → ZURIEL decision. | 25.11.2026: /start — ZURIEL chose to restore a public 'כאן מתחילים' page; a local preview (flagship video, Beit Midrash, free sign-up, the three latest צפונות בתורה videos, click-to-load players) awaits a separate design approval; +34 B gzip on the entry for the route line (within the budget, S-60). | 25.11.2026 /start 'כאן מתחילים' implemented as its own commit in PR #1551 for ZURIEL's design approval: public, index, server metadata, sitemap, registry/footer link; screenshots in the handoff. Can be dropped before merge if not approved.",
+        "open": "Decision needed: 301 root → /post for these posts, or keep the root address canonical for posts Google already knew (extend REVIEWED_MODERN_ROOT_IDS by evidence). Changes addresses → ZURIEL approval. Not a speed change; listed here at ZURIEL's request (25.11). | STAGED PLAN 25.11 — decision only, no change without a separate ZURIEL decision (canonical): evidence 25.11 — about 90 native posts were known to Google only by their root address (14.10–3.11; e.g. 2603: 981 impressions root / 0 /post; 5006: 149 / 0; 5085: 138 / 0), and since the cutover most lost them while /post gained for a few (2603 /post 44, 5006 /post 100, 5122 /post 43). Option A (preserve what Google knew): extend the existing REVIEWED_MODERN_ROOT_IDS rule in publicPostUrls.js to the native posts with root impressions before 4.11, so the root is canonical again and /post/<slug> points to it — no new mechanism, one list. Option B: permanent redirect root → /post for those posts. Recommendation A. Also /start: since 4.11 a 'closed capability' placeholder (publicReadingRelease2029.js) with noindex, nofollow, noarchive, ~50 characters, not in the sitemap; Google knew it (1.9–5.11: 2,844 impressions, position 3.8, 15 clicks). Not content today, so the Open Index Law §3 allows noindex; but the address had value — options: restore a real 'start here' page (content decision) or a permanent redirect /start → /map (the placeholder's own link). Address change → ZURIEL decision. | 25.11.2026: /start — ZURIEL chose to restore a public 'כאן מתחילים' page; a local preview (flagship video, Beit Midrash, free sign-up, the three latest צפונות בתורה videos, click-to-load players) awaits a separate design approval; +34 B gzip on the entry for the route line (within the budget, S-60). | 25.11.2026 /start 'כאן מתחילים' implemented as its own commit in PR #1551 for ZURIEL's design approval: public, index, server metadata, sitemap, registry/footer link; screenshots in the handoff. Can be dropped before merge if not approved. | 25.11.2026 /start design approved by ZURIEL and DEPLOYED (a5cf3d4); live 200 index. Missing from the production sitemap (foundation allow list) — fix on branch 3e98add, PR for approval.",
         "next_owner": "ZURIEL decision",
         "relates_to_groups": []
       },
@@ -4275,13 +4275,13 @@
           "src/components/experience2029/systemFrame2029.css :: footer reservation (S-12)",
           "/community/chat thread list"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "deployed_in_sha": null,
+        "merged": true,
+        "merge_commit": "a5cf3d4878d3480892cf4895a97da652248401eb",
+        "deployed": true,
+        "deployed_in": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv",
+        "deployed_in_sha": "a5cf3d4878d3480892cf4895a97da652248401eb",
         "deployed_in_created": null,
-        "in_current_production": false,
+        "in_current_production": true,
         "live_verified": "no",
         "live_evidence": "Not deployed.",
         "measurement": {
@@ -4292,7 +4292,7 @@
           "source": "canonical Supabase read 2026-11-25"
         },
         "guard": [],
-        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package.",
+        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package. | 25.11.2026 DEPLOYED (a5cf3d4). AFTER field window (events web_vital, /community/chat and / by device) is scheduled for 26.11.2026 ≈09:30 UTC.",
         "next_owner": "speed session",
         "relates_to_groups": []
       },
@@ -4334,7 +4334,7 @@
         "guard": [
           "scripts/test-2029-shell-budget.mjs"
         ],
-        "open": "Find what grew ~1 KB in the entry since the baseline and move it behind a lazy load; never raise the baseline without ZURIEL. | STAGED PLAN 25.11 — step 3: find the ~1 KB the entry gained since the S-52 baseline (manifest diff of the entry graph main 70b3a29 vs the baseline build) and move it behind an on-demand load; target ≥ 2 KB headroom without raising the baseline. Approval: merge + deploy. | 25.11.2026 ANALYSIS (no change made): eager JS 177,501–177,507 / limit 177,548 (41–47 B); frame CSS 34,355 / 34,362 (7 B). Source-map attribution of the entry: the only movable non-first-paint code outside Raziel, research engines and measurement is FeatureClosedNotice2029 (0.7 KB), but SystemFrame2029 imports it statically, so moving it saves nothing per page. Real headroom needs a ZURIEL decision on one of: (a) split razielNavigationButton out of razielSessionSeam2029.js so supabase/functions/_shared/siteLinkRegistry.js (2.6 KB gzip) leaves the entry — a pure import move in Raziel code (excluded from this package); (b) move the workspace-panel rules of myWorkspace2029.css (2.6 KB gzip, shared with 7 frame classes) into the lazy WorkspaceProjection2029 after a rule-by-rule visual check. The baseline was not raised.",
+        "open": "Find what grew ~1 KB in the entry since the baseline and move it behind a lazy load; never raise the baseline without ZURIEL. | STAGED PLAN 25.11 — step 3: find the ~1 KB the entry gained since the S-52 baseline (manifest diff of the entry graph main 70b3a29 vs the baseline build) and move it behind an on-demand load; target ≥ 2 KB headroom without raising the baseline. Approval: merge + deploy. | 25.11.2026 ANALYSIS (no change made): eager JS 177,501–177,507 / limit 177,548 (41–47 B); frame CSS 34,355 / 34,362 (7 B). Source-map attribution of the entry: the only movable non-first-paint code outside Raziel, research engines and measurement is FeatureClosedNotice2029 (0.7 KB), but SystemFrame2029 imports it statically, so moving it saves nothing per page. Real headroom needs a ZURIEL decision on one of: (a) split razielNavigationButton out of razielSessionSeam2029.js so supabase/functions/_shared/siteLinkRegistry.js (2.6 KB gzip) leaves the entry — a pure import move in Raziel code (excluded from this package); (b) move the workspace-panel rules of myWorkspace2029.css (2.6 KB gzip, shared with 7 frame classes) into the lazy WorkspaceProjection2029 after a rule-by-rule visual check. The baseline was not raised. | 25.11.2026 RECOMMENDATION (one, for decision): option (a) — move razielNavigationButton and its siteLinkRegistry import out of razielSessionSeam2029.js into its own module imported only by its two callers (RazielPanel2029, razielSavedSession2029). A pure import move with no behaviour change: about 2.6 KB gzip leaves the code every page loads (≈2.6 KB real headroom under the unchanged limit), verifiable by the existing shell budget gate and Raziel tests. Frame CSS (7 B headroom) stays tight; option (b) remains for later.",
         "next_owner": "speed session",
         "relates_to_groups": []
       }
