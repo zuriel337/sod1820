@@ -7,12 +7,15 @@
 // shows never becomes reachable by its old name. WordPress size variants (<name>-300x200.jpg) lead to their original.
 // Future publication changes (ZURIEL 25.11.2026): the list is only a fast first filter. Each redirect is also confirmed at request time against
 // the live public Posts, with the site's one public boundary (publicPostOnlyFilter): a Post hidden, tagged "טיוטה"/"פורום" or deleted after the
-// list was built stops redirecting its images at once. If that read fails, nothing is redirected (fail closed: the old 404 stays). The answer is
-// kept by the CDN for one hour only.
+// list was built stops redirecting its images at once. If that read fails, nothing is redirected (fail closed: the old 404 stays). The browser
+// never keeps the redirect (no-store); the platform CDN keeps it LEGACY_UPLOAD_CDN_SECONDS at most, the fresh window of a Post document.
+// Not covered here (a separate decision): the stored copy itself sits in the public "media" bucket, so a hidden Post's image stays readable at
+// its storage address; this redirect never leads to it, but does not remove it either.
 // Nothing here is part of the page code or of an ordinary document request: the list loads and the read runs only for an old address.
 import { publicPostOnlyFilter } from "../src/lib/research/publicPostBoundary.js";
 
 export const LEGACY_UPLOAD_PREFIX = "/wp-content/uploads/";
+export const LEGACY_UPLOAD_CDN_SECONDS = 300;
 export const LEGACY_UPLOAD_STORAGE = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/";
 // The public project address and the public anonymous key, as in the other server readers (first-words.js, api/og.js). The browser module
 // src/lib/supabase.js is not imported: it creates a client, which a server function must not load.

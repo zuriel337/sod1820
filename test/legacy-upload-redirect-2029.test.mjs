@@ -94,7 +94,7 @@ test("the document handler answers the old address before any document work, and
   const source = readFileSync(new URL("../public-reading-deploy/api/public-document.js", import.meta.url), "utf8");
   const branch = source.indexOf("if (path.startsWith(LEGACY_UPLOAD_PREFIX))");
   assert.ok(branch > 0 && branch < source.indexOf("metadataHandler("), "before metadata and article work");
-  assert.match(source.slice(branch, branch + 900), /res\.status\(308\)/);
+  assert.match(source.slice(branch, branch + 1400), /res\.status\(308\)/);
   const module = readFileSync(new URL("../public-reading-deploy/legacy-upload-redirect.js", import.meta.url), "utf8");
   assert.doesNotMatch(module, /^import .*legacy-upload-public-keys/m, "the list is never a static import");
   assert.match(module, /import\("\.\/legacy-upload-public-keys\.json"/);
@@ -121,7 +121,8 @@ test("the document handler: a known old image is one 308 to the stored copy with
         const res = response(); await handler({ method, headers: { host: "sod1820.co.il" }, url, query: {} }, res);
         assert.equal(res.code, 308, url);
         assert.equal(res.headers.get("location"), LEGACY_UPLOAD_STORAGE + "2016/09/03d475b5ed0008fe.jpg", url);
-        assert.equal(res.headers.get("cache-control"), "public, max-age=3600, s-maxage=3600", "a publication change reaches the CDN within an hour");
+        assert.equal(res.headers.get("cache-control"), "no-store", "the browser never keeps the redirect: a later publication change cannot be bypassed");
+        assert.equal(res.headers.get("vercel-cdn-cache-control"), "max-age=300", "only the CDN keeps it, as long as a Post document, with no stale serving");
       }
     }
     assert.deepEqual(calls, { shell: 0, metadata: 0, fetch: 4 }, "no document or metadata work for a redirect; one publication check each");
@@ -132,6 +133,7 @@ test("the document handler: a known old image is one 308 to the stored copy with
       publicNow = state;
       const res = response(); await handler({ method: "GET", headers: { host: "sod1820.co.il" }, url: "/wp-content/uploads/2016/09/FB_IMG_1461616903968.jpg", query: {} }, res);
       assert.equal(res.code, 404, `publication ${state}: the existing not-found document`); assert.equal(res.headers.get("location"), undefined);
+      assert.equal(res.headers.get("vercel-cdn-cache-control"), undefined, "a refusal is never kept by the CDN as a redirect");
     }
   } finally { globalThis.fetch = original; }
 });

@@ -2,7 +2,7 @@ import { legacyArchiveContinuation2029 } from "../../src/lib/legacyArchiveContin
 import { readFile } from "node:fs/promises";
 import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
-import { LEGACY_UPLOAD_PREFIX, legacyUploadTarget } from "../legacy-upload-redirect.js";
+import { LEGACY_UPLOAD_PREFIX, LEGACY_UPLOAD_CDN_SECONDS, legacyUploadTarget } from "../legacy-upload-redirect.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } from "../../src/lib/publicReadingRelease2029.js";
 import { withArticleFirst2029 } from "./article-first.js";
 import { withRoutePreloads2029 } from "../route-preload.js";
@@ -165,10 +165,13 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     if (path.startsWith(LEGACY_UPLOAD_PREFIX)) {
       // S-56: an old WordPress image address goes to its stored public copy in one permanent hop (legacy-upload-redirect.js). Any other
       // address continues exactly as before (the same not-found document). The allow list is read only here, never for an ordinary document;
-      // each redirect is confirmed against the live public Posts (publication changes apply at once; kept by the CDN for one hour).
+      // each redirect is confirmed against the live public Posts. Privacy before cache (ZURIEL 25.11.2026): the browser never keeps the
+      // redirect (no-store, so a later publication change is never bypassed by a remembered 308); only the platform CDN keeps it, for the
+      // same short window as a Post document (LEGACY_UPLOAD_CDN_SECONDS), with no stale serving.
       const target = await legacyUploadTarget(path).catch(() => null);
       if (target) {
-        res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600");
+        res.setHeader("Cache-Control", "no-store");
+        res.setHeader("Vercel-CDN-Cache-Control", `max-age=${LEGACY_UPLOAD_CDN_SECONDS}`);
         res.setHeader("Location", target);
         return res.status(308).send(req.method === "HEAD" ? "" : "Moved permanently.");
       }
