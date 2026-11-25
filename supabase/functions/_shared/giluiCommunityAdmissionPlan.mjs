@@ -23,7 +23,9 @@ export function planGiluiCommunitySource({source, proof, writer, parent, existin
   if (!UUID.test(String(source.id||""))) return hold("missing_source_identity");
   if (existing?.sameSource===true) return Object.freeze({state:"existing",reason:"already_imported",sourceRef:`channel_updates:${source.id}`,parentRef:null});
   if (source.source==="auto") {
-    if (!WA_ID.test(String(source.ext_msg_id||"")) || source.group_source_intake_public!==true)
+    // A reply kept private by the intake (marker closed, v7 §44.3) may still be admitted under its proven parent; a root may not.
+    const privateReply=source.group_source_intake_public===false && Boolean(source.quoted_parent_ext_msg_id);
+    if (!WA_ID.test(String(source.ext_msg_id||"")) || (source.group_source_intake_public!==true && !privateReply))
       return hold("unqualified_source");
     if (!proof || proof.update_id!==source.id || proof.channel!==channel
       || proof.ext_msg_id!==source.ext_msg_id || proof.incoming!==true
