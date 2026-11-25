@@ -43,7 +43,7 @@ const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/ex
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { postClassification2029, postHierarchyContext2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
-import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
+import { publicPostCommentArchiveId, publicPostCommentPostId } from "../components/experience2029/postComments2029.js";
 import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
 import { postsTaxonomyScope2029 } from "../lib/research/postsTaxonomy2029Route.js";
@@ -338,6 +338,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
   const mergedUpdates = !useOutline && regions.length > 1 && outlineUpdates.length > 1;
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
+  const commentPostId = publicPostCommentPostId(state.projection);
   // The in-page tab row (story · sources · comments · next) is gone from every Post (ZURIEL 25.11.2026: one clean opening); the left rail keeps its own outline.
 
   useEffect(() => {
@@ -1626,7 +1627,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : <p role="status">{calculationNotice}</p>) : null}
     {/* Admin only (ZURIEL 25.11.2026): one closed row under the Post that holds the work tools (sources, connections, calculations). Readers never see it. */}
     {isAdmin === true && !bennettTimeline ? <details className="sod29-post-admin-row"><summary>כלי מנהל</summary>{researchDisclosure}</details> : null}
-    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
+    {commentPostId != null ? <PostComments2029 key={commentPostId} postId={commentPostId} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
     {!bennettTimeline && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
   </article></>;
 }
