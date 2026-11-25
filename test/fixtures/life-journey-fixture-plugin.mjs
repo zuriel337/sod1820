@@ -70,6 +70,13 @@ export function createLifeJourneyFixturePlugin() {
       const read=()=>{try{return JSON.parse(localStorage.getItem(ledgerKey())||"null")||blank();}catch{return blank();}};
       const write=value=>localStorage.setItem(ledgerKey(),JSON.stringify(value));
       window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];window.__matrixCalls=window.__matrixCalls||[];window.__sourceCalls=window.__sourceCalls||[];window.__reflectionCalls=window.__reflectionCalls||[];
+      // supabase.js now also exports its public URL and anon key (measurement2029.js imports them); the fixture gives inert values and never reaches a network.
+      export const SUPABASE_URL="https://fixture.invalid",SUPABASE_ANON="fixture-anon-key";
+      // Inert stand-ins for the other readers the real module exports and the page graph imports but this test never exercises (no network, no data).
+      export const beginHomeReadingSource=()=>({read:async()=>[],cancel(){}}),beginPostReadingSource=()=>({read:async()=>null,cancel(){}});
+      export const logActivity=()=>{},logView=()=>{},signalAiBehavior=()=>{};
+      export const getHomeVideos=async()=>[],getLatestPostCards=async()=>[],getTzofonStories=async()=>[],getRealityHints=async()=>[];
+      export const getNotificationPrefs=async()=>null,getPostBySlug=async()=>null,getSiteFlags=async()=>({}),subscribeEmail=async()=>({ok:false});
       export const supabase={functions:{async invoke(name,{body}){
         window.__elsCalls.push({name,body});
         if(body.op==="page")return {data:{result:{contract:"els_search_page_v1",status:"OK",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},selection_protocol:"POST_HOC_EXPLORATORY",hits:[{occurrence_id:"els:fixture-torah:"+body.term+":7:1:120",skip:7,dir:1,start:120,end:150,positions:[120,127,134]}],completion:{executed:true,returned_hits:1,total_hits:1,has_more:false,truncated:false}}}};
@@ -127,6 +134,7 @@ export function createLifeJourneyFixturePlugin() {
       export async function getNameMultiWithoutEls(name){window.__nameCalls.push({kind:"name_lab",name,options:{skip_els:"1"}});return {name_verse:{verses:[{ref:"תהלים 1:1",text:"אשרי האיש אשר לא הלך בעצת רשעים"}]},consensus:[{type:"מילה",target:"אור",consensus:2,families:["גימטריה","שורש"]}],tracks_with_results:2,tracks:[{id:"name_verse",label:"הפסוק שלך",status:"ok",count:1,evidence:"direct",source_fn:"fn_name_verse"},{id:"combo_gem",label:"גימטריית הצירוף",status:"ok",count:2,evidence:"value_match",source_fn:"fn_verses_by_gematria"},{id:"els",status:"skipped",ran:false,count:0,source_fn:"fn_els_search"}]};}
       export async function getNumberLookup(value){window.__sourceCalls.push({kind:"number_lookup",value});return [{bid_id:"fixture-"+value+"-1",phrase:"אור",method:"רגיל",value,method_governed:true},{bid_id:"fixture-"+value+"-2",phrase:"דרך",method:"מילוי",value,method_governed:true}];}
       export async function getAiAnalysis(args){window.__reflectionCalls.push({kind:"ai",args});return "מסר בדיקה מבוסס ממצאים.";}
+          export default supabase;
     `],
     ["virtual:life-journey-family-claim.js", `
       const OWNER_PERSON_ID="11111111-1111-4111-8111-111111111111";

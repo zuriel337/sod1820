@@ -12,15 +12,16 @@ import { publicGalleryToSystemItem } from "../src/lib/research/systemFeedPublicS
 import { groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 
 // The real Home "עדכונים אחרונים" strip (ZURIEL 6.11.2026): a projection of the Frame's shared feed. No network, no second reader.
-// ZURIEL 17.11.2026: the Home's top is the construction note, the pinned מפת המציאות lead and a SHORT "עכשיו" (three rows, no source picker).
+// ZURIEL 25.11.2026 (D1–D11): "עדכונים אחרונים" opens the Home: desktop two columns, phone one chronological list, from the same rows; no pin; the construction note + sign-up at its foot.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const source = await readFile(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
-const components = source.slice(source.indexOf("const HOME_UPDATES_LIMIT"), source.indexOf("// \"פוסטים אחרונים\": the newest public Posts"));
-assert.ok(["function useHomeUpdates", "function HomeLiveUpdates", "function HomePinnedLead", "function HomeBuildingNote"].every(name => components.includes(name)));
+const components = source.slice(source.indexOf("function useHomeUpdates"), source.indexOf("// \"פוסטים אחרונים\": the newest public Posts"));
+assert.ok(["function useHomeUpdates", "function HomeLiveUpdates", "function HomePinnedLead", "function HomeUpdateItem", "function useHomeWide"].every(name => components.includes(name)));
 const outfile = resolve(`.test-home-live-updates-${process.pid}.mjs`);
 await build({ stdin: { contents: `
-  import React, {useEffect, useMemo} from 'react';
-  import {nowModels, buildNowEntries, nowPinnedMessage, REALITY_MAP_LATEST_KEY, seriesLatestFace2029, seriesLatestMember2029} from './src/lib/nowPublications2029.js';
+  import React, {useEffect, useMemo, useState} from 'react';
+  import {nowModels, nowPinnedMessage, homeUpdateColumns, HOME_SITE_LIMIT, HOME_SOURCE_LIMIT, HOME_MERGED_LIMIT, seriesLatestFace2029, seriesLatestMember2029} from './src/lib/nowPublications2029.js';
+  import BuildingSignupNote2029 from './src/components/experience2029/BuildingSignupNote2029.jsx';
   import {homeMapLeadMember2029, homeMapLeadFace2029} from './src/lib/research/homeMapLead2029.js';
   import {pinCoverSet, PIN_COVER_SIZES} from './src/components/experience2029/homePinnedCover2029.js';
   import NavigationIcon2029 from './src/components/experience2029/NavigationIcon2029.jsx';
@@ -31,9 +32,9 @@ await build({ stdin: { contents: `
   const Link = ({to,...props}) => React.createElement('a', {...props,href:to});
   const Media = ({src, className}) => React.createElement('img', {src, alt:'', className});
   ${components}
-  export {HomeLiveUpdates, useHomeUpdates, HomeEntryBand, HomePinnedLead, HomeBuildingNote};
+  export {HomeLiveUpdates, useHomeUpdates, HomeEntryBand, HomePinnedLead, BuildingSignupNote2029};
 `, loader: "jsx", resolveDir: process.cwd() }, bundle: true, platform: "node", format: "esm", outfile, external: ["react"], loader: { ".css": "empty", ".js": "jsx" } });
-const { HomeLiveUpdates, useHomeUpdates, HomeEntryBand, HomePinnedLead, HomeBuildingNote } = await import(pathToFileURL(outfile));
+const { HomeLiveUpdates, useHomeUpdates, HomeEntryBand, HomePinnedLead, BuildingSignupNote2029 } = await import(pathToFileURL(outfile));
 after(async () => { await rm(outfile, { force: true }); });
 
 const NOW = Date.now();
@@ -61,7 +62,8 @@ test("newest first across kinds: a reality-stream image shows as an image with i
   const items = [postRowToWorldUpdate(post(1, 30)), gallery(1, 2), postRowToWorldUpdate(post(2, 10)), group(1)].filter(Boolean);
   const root = await render({ feed: feedOf(items) });
   const list = entries(root);
-  assert.deepEqual(list.map(node => node.props["data-home-update-item"]), ["group:20000000-0000-4000-8000-000000000001", "gallery:10000000-0000-4000-8000-000000000001", "post:2"]);
+  assert.deepEqual(list.map(node => node.props["data-home-update-item"]), ["group:20000000-0000-4000-8000-000000000001", "gallery:10000000-0000-4000-8000-000000000001", "post:2", "post:1"],
+    "phone: ONE chronological list, newest first, with no priority by type");
   const [, first] = list;
   assert.ok(first.findAll(node => node.type === "b").some(node => node.children.join("") === "תמונה"), "type label: an image");
   assert.ok(first.findAllByType("img").some(img => /g1\.jpg/.test(img.props.src)), "the image itself is the thumbnail");
@@ -70,10 +72,10 @@ test("newest first across kinds: a reality-stream image shows as an image with i
   await act(async () => { root.unmount(); });
 });
 
-test("at most three items (a short \"עכשיו\"); posts-only while the world is closed", async () => {
+test("bounded rows: the site's own updates (at most 5) and one item per source (at most 6), never the whole history; posts-only while the world is closed", async () => {
   const items = [1, 2, 3, 4, 5, 6, 7].map(n => postRowToWorldUpdate(post(n, n))).concat([gallery(2, 0.5)]).filter(Boolean);
   let root = await render({ feed: feedOf(items) });
-  assert.equal(entries(root).length, 3);
+  assert.equal(entries(root).length, 6, "five site updates and the one reality-stream source");
   assert.equal(root.root.findAll(node => node.props.className === "rc29-ex").length, 0, "no excerpts in the short strip");
   assert.equal(root.root.findAll(node => node.type === "button" && node.props["data-home-open-now"] === "true").length, 1, "the whole picture is one tap away");
   await act(async () => { root.unmount(); });
@@ -106,9 +108,19 @@ test("an editorial lead keeps a different unit from the shared Now feed and omit
   await act(async () => { root.unmount(); });
 });
 
+test("loading reserves exactly the loaded rows on desktop too (5 + 6) so nothing moves when the data arrives", async () => {
+  globalThis.window = { matchMedia: () => ({ matches: true, addEventListener() {}, removeEventListener() {} }) };
+  try {
+    const root = await render({ feed: { loading: true, expandedRows: [] } });
+    assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 11);
+    assert.equal(root.root.findAll(node => node.props["data-home-updates-loading"] === "true").length > 0, true);
+    await act(async () => { root.unmount(); });
+  } finally { delete globalThis.window; }
+});
+
 test("loading reserves rows; nothing to show or no feed renders nothing: no empty card and no error text", async () => {
   let root = await render({ feed: { loading: true, expandedRows: [] } });
-  assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 3);
+  assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 8, "phone: the skeleton reserves exactly the loaded list's rows (no layout shift when the data arrives)");
   assert.equal(root.root.findAll(node => node.props["data-home-top-updates"] === "live")[0].props["aria-busy"], true);
   assert.match(root.root.findAll(node => node.props.role === "status")[0].children.join(""), /טוען/, "a visible loading line, inside the reserved rows (Operation Visibility Law)");
   await act(async () => { root.unmount(); });
@@ -119,22 +131,25 @@ test("loading reserves rows; nothing to show or no feed renders nothing: no empt
   }
 });
 
-test("Home order (ZURIEL 11.11.2026): 'עכשיו · המרכז' first, then ELS, latest ciphers, flagship region, entrances, other series; the end is statistics then the newsletter", () => {
+test("Home order (ZURIEL 25.11.2026): 'עדכונים אחרונים' first, then the flagship lead, then ELS, latest ciphers, flagship region, entrances, other series; the end is statistics then the newsletter", () => {
   const body = source.slice(source.indexOf(`data-experience-capability="home-composition"`));
-  const order = ["<HomeBuildingNote", "<HomePinnedLead", "<HomeLiveUpdates", "elsEntry ? <Reveal", '<Section label="הצפנים האחרונים בתורה">', "<HomeFlagshipRegion", "<HomeEntryBand", "<HomeOtherSeries", "<HomeFeaturedPost2029", '<Reveal id="story"'].map(marker => body.indexOf(marker));
+  const order = ["<HomeLiveUpdates", "<HomePinnedLead", "elsEntry ? <Reveal", '<Section label="הצפנים האחרונים בתורה">', "<HomeFlagshipRegion", "<HomeEntryBand", "<HomeOtherSeries", "<HomeFeaturedPost2029", '<Reveal id="story"'].map(marker => body.indexOf(marker));
   assert.ok(order.every(index => index > 0) && order.every((index, i) => i === 0 || index > order[i - 1]), order.join(","));
   assert.ok(body.indexOf('data-home-newsletter="end"') > body.indexOf('aria-label="דופק ומצב בנייה"'), "newsletter after the statistics line, last");
   assert.equal((source.match(/<NewsletterSignup2029 \/>/g) || []).length, 1, "one newsletter component, only at the end");
 });
 
-test("entrances: Beit Midrash and the life-journey promo link only while open; a closed gate shows its true state; the construction note is first on the Home and leads to the sign-up", async () => {
-  let root;
-  await act(async () => { root = Renderer.create(React.createElement(HomeBuildingNote)); });
-  const note = root.root.findAll(node => node.props["data-home-building-note"] === "true")[0];
+test("the construction note and its sign-up button are ONE shared component with the exact approved wording; entrances: Beit Midrash and the life-journey promo link only while open; a closed gate shows its true state", async () => {
+  let root, pressed = 0;
+  await act(async () => { root = Renderer.create(React.createElement(BuildingSignupNote2029, { scope: "home", onSignup: () => { pressed += 1; } })); });
+  const note = root.root.findAll(node => node.props["data-building-note"] === "home")[0];
   assert.equal(note.props.role, "note");
-  assert.match(note.findAll(node => node.type === "span").map(node => node.children.filter(child => typeof child === "string").join("")).join(" "), /מדורים נוספים בבנייה/);
-  assert.match(note.findAll(node => node.type === "span").map(node => node.children.filter(child => typeof child === "string").join("")).join(" "), /האתר נפתח בהדרגה/, "it describes the whole site (Design Contract V2)");
-  assert.equal(note.findAllByType("button").length, 1, "a button that goes to the sign-up at the end of the page");
+  const text = note.findAll(node => node.type === "p").map(node => node.children.join("")).join(" ");
+  assert.equal(text, "האתר נבנה מבפנים. המערכת מתפתחת ומתחדשת כל הזמן. במהלך הבנייה ייתכנו תקלות זמניות. הצטרפו אלינו וקבלו עדכונים על חידושים ופתיחת אזורים נוספים.");
+  const button = note.findAllByType("button");
+  assert.equal(button.length, 1); assert.equal(button[0].children.join(""), "הרשמה לעדכונים");
+  await act(async () => { button[0].props.onClick(); });
+  assert.equal(pressed, 1, "on the Home the button leads to the existing sign-up section; this component subscribes nobody and reports no success");
   await act(async () => { root.unmount(); });
   await act(async () => { root = Renderer.create(React.createElement(HomeEntryBand, { journeyLocked: false, midrashOpen: true })); });
   const link = key => root.root.findAll(node => node.props["data-home-entry"] === key && node.type === "a")[0];
@@ -177,7 +192,7 @@ test("no source picker on the Home (it stays in the full \"עכשיו\" sheet); 
 
 // ── ZURIEL 17.11.2026: the pinned מפת המציאות lead ("הדבר הנעוץ למעלה ... זה הבשר של האתר שלנו") ─────────────────────────────────────────────
 const realityMap = (id, hours) => postRowToWorldUpdate(post(id, hours, { tags: ["מפת המציאות"] }));
-test("the pinned lead is the newest מפת המציאות publication: the same model as the first row of \"עכשיו\", shown once (never again as a row), linked to its Post, with no time limit", async () => {
+test("the pinned lead is the newest מפת המציאות publication: the same model as the first row of \"עכשיו\", linked to its Post, with no time limit (it no longer leads the chronological strip)", async () => {
   const items = [realityMap(9, 200), realityMap(8, 300), postRowToWorldUpdate(post(1, 2)), postRowToWorldUpdate(post(2, 3))].filter(Boolean);
   const root = await renderTop({ feed: feedOf(items) });
   const lead = root.root.findAll(node => node.props["data-home-pinned-lead"])[0];
@@ -188,7 +203,7 @@ test("the pinned lead is the newest מפת המציאות publication: the same 
   assert.match(link.findAll(node => node.props.className === "h29-pinlead-title")[0].children.join(""), /פוסט 9/);
   assert.equal(link.findAll(node => node.props["data-now-series-latest"] === "reality-map").length, 1, "the same mark as in \"עכשיו\" (blinks until entered)");
   const rows = entries(root).map(node => node.props["data-home-update-item"]);
-  assert.deepEqual(rows, ["post:1", "post:2"], "both map posts stay in their dedicated area");
+  assert.deepEqual(rows, ["post:1", "post:2", "post:9", "post:8"], "D6 (25.11.2026): the flagship publications also stand in the chronological strip at their own time; the flagship area stays their dedicated place");
   await act(async () => { root.unmount(); });
 });
 
@@ -238,12 +253,13 @@ test("Home shows a writer's message at its own time, with no pin badge and a lin
   await act(async () => { root.unmount(); });
 });
 
-test("a pinned row without any address still opens the Now sheet (never a dead card)", async () => {
+test("a row without any address still opens the Now sheet (never a dead card)", async () => {
   let opened = 0;
   const noAddress = { ...levi(1), href: null, url: null };
   function OpenProbe({ feed }) {
     const updates = useHomeUpdates(feed, { postsOnly: false });
-    updates.models = updates.models.map(entry => entry.model ? { ...entry, model: { ...entry.model, href: null } } : entry);
+    const bare = models => models.map(model => ({ ...model, href: null }));
+    updates.columns = { site: bare(updates.columns.site), sources: bare(updates.columns.sources), merged: bare(updates.columns.merged) };
     return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => { opened += 1; } });
   }
   let root;
@@ -255,14 +271,35 @@ test("a pinned row without any address still opens the Now sheet (never a dead c
   await act(async () => { root.unmount(); });
 });
 
-test("Home groups consecutive public messages from one source and reuses the sheet's source logo even without a thumbnail", async () => {
+test("Home shows ONE item per public source (its latest), keeps the 'מקור · טרם נבדק' label, and reuses the sheet's source logo even without a thumbnail", async () => {
   const first = group(1);
   const next = { ...first, id: "group:20000000-0000-4000-8000-000000000008", at: iso(2) };
   const photo = { ...gallery(1, 4), mediaHref: null };
   const root = await render({ feed: feedOf([first, next, photo]) });
-  const [run, image] = entries(root);
-  assert.equal(run.props["data-home-update-item"], "run:" + first.id);
-  assert.match(run.findByType("small").children.filter(child => typeof child === "string").join(""), /טרם נבדק/);
+  const [one, image] = entries(root);
+  assert.equal(entries(root).length, 2, "the group's two messages are one source: only its latest is shown");
+  assert.equal(one.props["data-home-update-item"], first.id);
+  assert.match(one.findByType("small").children.map(child => typeof child === "string" ? child : child.children?.join("") || "").join(""), /טרם נבדק/);
   assert.ok(image.findAllByType("img").some(img => img.props.className.includes("is-logo")));
   await act(async () => { root.unmount(); });
+});
+
+// ── ZURIEL 25.11.2026: desktop two columns, phone one list, from the SAME rows ───────────────────────────────────────────────────────────────
+test("desktop: two columns (the site's own updates | the latest of each source) from the same rows the phone shows as one chronological list", async () => {
+  const items = [postRowToWorldUpdate(post(1, 30)), postRowToWorldUpdate(post(2, 10)), gallery(1, 2), group(1, 1)].filter(Boolean);
+  const listIds = async () => { const root = await render({ feed: feedOf(items) }); const ids = entries(root).map(node => node.props["data-home-update-item"]); const layout = root.root.findAll(node => node.props["data-home-updates-layout"])[0].props["data-home-updates-layout"]; await act(async () => { root.unmount(); }); return { ids, layout }; };
+  const phone = await listIds();
+  assert.equal(phone.layout, "list");
+  globalThis.window = { matchMedia: () => ({ matches: true, addEventListener() {}, removeEventListener() {} }) };
+  try {
+    const root = await render({ feed: feedOf(items) });
+    assert.equal(root.root.findAll(node => node.props["data-home-updates-layout"])[0].props["data-home-updates-layout"], "columns");
+    const col = key => root.root.findAll(node => node.props["data-home-updates-col"] === key)[0];
+    const colIds = key => col(key).findAll(node => node.type === "li" && node.props["data-home-update-item"]).map(node => node.props["data-home-update-item"]);
+    assert.deepEqual(colIds("site"), ["post:2", "post:1"], "the site's own updates, newest first");
+    assert.deepEqual(colIds("sources"), ["group:20000000-0000-4000-8000-000000000001", "gallery:10000000-0000-4000-8000-000000000001"], "the latest of each public source");
+    assert.deepEqual([...colIds("site"), ...colIds("sources")].sort(), [...phone.ids].sort(), "the same rows as the phone's list, nothing more and nothing less");
+    assert.equal(root.root.findAll(node => node.type === "button" && node.props["data-building-signup"] === "home").length, 1, "the construction note and sign-up button close the region");
+    await act(async () => { root.unmount(); });
+  } finally { delete globalThis.window; }
 });

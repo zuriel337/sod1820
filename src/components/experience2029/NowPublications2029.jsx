@@ -4,8 +4,9 @@ import ExternalVideoFacade2029 from "./ExternalVideoFacade2029.jsx";
 import { GroupMessageText } from "../research/GroupSourceMeta2029.jsx";
 import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowBySource, filterNowModels, nowLensCounts, nowModels, nowPinnedMessage, nowTodayBand, nowSecondaryChoices, nowSeriesHref, nowSourceChoices } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowBySource, filterNowModels, nowLensCounts, nowModels, nowPinnedMessage, nowTodayBand, nowSecondaryChoices, nowSeriesHref, nowSourceChoices, nowSourceThreads } from "../../lib/nowPublications2029.js";
 import { NowPinnedMessage2029, NowSourceEmpty2029, NowSourcePicker2029 } from "./NowRoyalCenter2029.jsx";
+import BuildingSignupNote2029 from "./BuildingSignupNote2029.jsx";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import ShareActions from "../ShareActions.jsx";
 import { SHARE_SITE } from "../../lib/share.js";
@@ -41,7 +42,7 @@ function SiteNewsHistory() {
     {launch && <p>{launch.text}</p>}
     <details><summary>עדכונים היסטוריים · האתר הישן</summary>
       {failed ? <p role="status">טעינת הארכיון נכשלה.</p> : rows === null ? <p role="status">טוען עדכונים…</p> :
-        <ul>{history.map(row => <li key={row.id}><time dateTime={row.created_at}>{new Date(row.created_at).toLocaleDateString("he-IL", { timeZone: "Asia/Jerusalem" })}</time><p>{row.text}</p></li>)}</ul>}
+        <ul>{history.map(row => <li key={row.id}><time dateTime={row.created_at}>{recordTimeLabel(row.created_at, "bilingual", "זמן לא צוין")}</time><p>{row.text}</p></li>)}</ul>}
     </details>
   </section>;
 }
@@ -113,7 +114,31 @@ function VideoOnDemand({ model, autoStart = false }) {
 // address — an old WordPress post at its root address, a native post at /post/<slug>, an updated post with ?unit=#. Any same-site path is shared.
 const postShareUrl = model => !model.unverified && model.item?.sourceKind === "post" && /^\/(?!\/)[^\s]*$/.test(model.href || "") ? `${SHARE_SITE}${model.href}` : null;
 
-function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
+// The approved replies of a PROVEN discussion thread, shown under its root (ZURIEL 25.11.2026): loaded only when the thread is opened, through the existing
+// community reader (community_replies_page returns approved replies only). Nothing private and nothing awaiting approval is ever requested or shown.
+const COMMUNITY_ROOT = /^community:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+function ThreadReplies({ model, opened }) {
+  const root = COMMUNITY_ROOT.exec(String(model.id || ""))?.[1] || null;
+  const [state, setState] = useState({ status: "idle", rows: [] });
+  useEffect(() => {
+    if (!root || !opened || state.status !== "idle") return undefined;
+    let live = true;
+    setState({ status: "loading", rows: [] });
+    import("../../lib/community/communityArchive.js").then(module => module.fetchCommunityReplies(root, { limit: 6 }))
+      .then(result => { if (live) setState({ status: "ready", rows: (result?.rows || []).filter(row => !row.isDeleted && row.body?.trim()) }); })
+      .catch(() => { if (live) setState({ status: "failed", rows: [] }); });
+    return () => { live = false; };
+  }, [root, opened, state.status]);
+  if (!root || !opened) return null;
+  return <div className="sod29-nowpub-replies" data-now-replies={state.status} aria-live="polite">
+    {state.status === "loading" ? <small role="status">טוען תגובות מאושרות…</small> : null}
+    {state.status === "failed" ? <small role="status">התגובות לא נטענו. אפשר לפתוח את הדיון המלא.</small> : null}
+    {state.status === "ready" && !state.rows.length ? <small>אין עדיין תגובות מאושרות בשרשור.</small> : null}
+    {state.rows.map(row => <p className="sod29-nowpub-reply" key={row.id}><b>{row.authorName}</b>{" · "}{row.body.length > 220 ? `${row.body.slice(0, 220)}…` : row.body}</p>)}
+  </div>;
+}
+
+function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null, opened = true }) {
   const seriesHref = nowSeriesHref(model);
   const fullHref = model.href;
   const open = href => () => { feed?.see?.(model.row); onOpen?.(href); };
@@ -131,6 +156,7 @@ function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
     {model.textOnly ? null : externalVideoLinksFromText(model.fullText || model.title).map(link =>
       <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.unverified ? `מקור · טרם נבדק · ${model.sourceName}` : model.sourceName ? `מתוך ${model.sourceName}` : ""} />)}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
+    <ThreadReplies model={model} opened={opened} />
     {model.unverified ? <small className="is-unverified">מקור · טרם נבדק. זו הודעת מקור כפי שנשמרה ולא ממצא מאומת.</small> : null}
     <div className="sod29-nowpub-actions">
       {fullHref ? <button type="button" className="sod29-action primary" onClick={open(fullHref)}>{model.unverified ? "למקור" : "לפרסום המלא"}</button> : <small>אין קישור מדויק לפריט; הוא מוצג כאן במלואו.</small>}
@@ -198,10 +224,11 @@ function BoxGroup({ entry, children }) {
 function Row({ model, onOpen, feed, timeMode, onSource }) {
   // Tapping the ▶ on the picture opens the row AND starts that video (one tap), instead of only expanding it.
   const [playIntent, setPlayIntent] = useState(false);
+  const [opened, setOpened] = useState(false);
   const className = `sod29-nowpub-row r29-card is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
-  if (model.canExpand) return <li><details className={className} data-tone={model.tone} onToggle={event => { if (event.currentTarget.open) feed?.see?.(model.row); }}>
+  if (model.canExpand) return <li><details className={className} data-tone={model.tone} onToggle={event => { if (event.currentTarget.open) { setOpened(true); feed?.see?.(model.row); } }}>
     <summary onClick={event => { if (model.video && event.target.closest?.(".sod29-nowpub-preview")) setPlayIntent(true); }}><RowHead model={model} timeMode={timeMode} /></summary>
-    <RowDetail model={model} onOpen={onOpen} feed={feed} autoPlay={playIntent} onSource={onSource} />
+    <RowDetail model={model} onOpen={onOpen} feed={feed} autoPlay={playIntent} onSource={onSource} opened={opened} />
   </details></li>;
   return <li><button type="button" className={`${className} is-link`} data-tone={model.tone} disabled={!model.href}
     onClick={() => { feed?.see?.(model.row); if (model.href) onOpen?.(model.href); }}>
@@ -243,12 +270,31 @@ function WideDetail({ model, onOpen, feed, timeMode, autoPlay, onSource }) {
   </article>;
 }
 
+// One thread per source (ZURIEL 25.11.2026): the source's latest update on top, its older publications inside the thread, opened on demand. Only rows
+// the window already holds; opening a thread fetches nothing (the approved replies of a discussion are the one exception, loaded when it is opened).
+const THREAD_OLDER_SHOWN = 5;
+function SourceThread({ thread, onOpen, feed, timeMode, onSource }) {
+  const [head, ...older] = thread.models;
+  if (!head) return null;
+  const row = model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} onSource={onSource} />;
+  return <li className="sod29-nowpub-thread" data-now-thread={thread.id}>
+    <ul className="sod29-nowpub-list">{row(head)}</ul>
+    {older.length ? <details className="sod29-nowpub-older">
+      <summary>עוד {older.length} {older.length === 1 ? "פרסום קודם" : "פרסומים קודמים"} · {thread.label}</summary>
+      <ul className="sod29-nowpub-list">{older.slice(0, THREAD_OLDER_SHOWN).map(row)}</ul>
+      {older.length > THREAD_OLDER_SHOWN && onSource ? <button type="button" className="sod29-action" data-now-action="source-all" onClick={() => onSource(thread.id)}>כל העדכונים מ{thread.label} ({thread.count})</button> : null}
+    </details> : null}
+  </li>;
+}
+
 export default function NowPublications2029({ feed, onOpen, timeMode, compact = false }) {
   // The compact pane mounts only when the reader opens the "עכשיו" panel: that open is the domain view (one per mount).
   useSiteActivityView2029('now');
   // ZURIEL 11.11.2026 (approved design): the source picker is the primary control ("הכול" by default); lens, series and media move to "מסננים נוספים".
   const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [sourceKey, setSourceKey] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
+  // ZURIEL 25.11.2026: the window opens as THREADS by source (the most recently updated source first); "הכול" lists every publication in one time order.
+  const [view, setView] = useState("sources");
   // Opened from the bottom bar (ZURIEL 19.11.2026) the window has the bar's width: the single list with inline expansion, as on a phone.
   const wide = useWide(compact ? BAR_WIDE_QUERY : WIDE_QUERY);
   const [selectedId, setSelectedId] = useState(null), [playId, setPlayId] = useState(null);
@@ -292,12 +338,19 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
   const initialLoading = Boolean(feed?.loading && !models.length);
   // Nothing readable AND something failed: say so; never present a failed read as an empty world.
   const hardError = Boolean(!models.length && !initialLoading && !additionalLoading && (feed?.error || additionalUnavailable || partial));
-  const clear = () => { setLens("all"); setSeries(""); setSourceKey(""); setMedia(""); setCount(PAGE); };
+  const clear = () => { setView("all"); setLens("all"); setSeries(""); setSourceKey(""); setMedia(""); setCount(PAGE); };
   const chosenSource = sourceKey ? sourceChoices.find(item => item.id === sourceKey) : null;
+  // Threads only for the plain, unfiltered window; a chosen source, lens, series or media always shows its own flat list.
+  const threadsView = view === "sources" && !sourceKey && !secondaryActive && !media;
+  const threads = useMemo(() => threadsView ? nowSourceThreads(shown) : [], [threadsView, shown]);
 
   return <section className="sod29-nowpub is-royal r29" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
     {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={href => { feed?.see?.(pinned.model.row); onOpen?.(href); }} /> : todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
     <NowSourcePicker2029 choices={sourceChoices} value={sourceKey} onChange={pick(setSourceKey)} total={models.length} />
+    {!sourceKey ? <div className="sod29-nowpub-view r29" role="group" aria-label="תצוגת העדכונים" data-now-view={view}>
+      <button type="button" className="r29-chip" aria-pressed={view === "sources"} onClick={() => setView("sources")}>לפי מקורות</button>
+      <button type="button" className="r29-chip" aria-pressed={view === "all"} onClick={() => setView("all")}>הכול · כרונולוגי</button>
+    </div> : null}
     {sourceKey === "channel:site-news" && <SiteNewsHistory />}
     {lenses.length > 1 || choices.series.length > 0 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
       <summary>מסננים נוספים{secondaryActive ? " · פעיל" : ""}</summary>
@@ -325,7 +378,9 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
       ? <p className="sod29-nowpub-empty" role="status">{models.length ? "אין פרסומים בסינון הזה." : "אין כרגע פרסומים להצגה."}
         {models.length && (activeLens !== "all" || secondaryActive || sourceKey) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
 
-    {wide
+    {threadsView && threads.length
+      ? <ul className="sod29-nowpub-threads" data-now-threads="true">{threads.map(thread => <SourceThread key={thread.id} thread={thread} onOpen={onOpen} feed={feed} timeMode={timeMode} onSource={pick(setSourceKey)} />)}</ul>
+      : wide
       ? <div className="sod29-nowpub-split">
         <ul className="sod29-nowpub-list">{visibleEntries.map(entry => {
           const wideRow = model => <WideRow key={model.id} model={model} selected={selected?.id === model.id} onSelect={select} timeMode={timeMode} />;
@@ -341,7 +396,8 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
             : entry.kind === "box" ? <BoxGroup key={entry.id} entry={entry}>{entry.models.map(row)}</BoxGroup> : row(entry.model);
         })}
       </ul>}
-    {count < entries.length ? <button type="button" className="sod29-action sod29-nowpub-more-btn" onClick={() => setCount(n => n + PAGE)}>עוד · {visibleCount} מתוך {shown.length}</button> : null}
+    {!(threadsView && threads.length) && count < entries.length ? <button type="button" className="sod29-action sod29-nowpub-more-btn" onClick={() => setCount(n => n + PAGE)}>עוד · {visibleCount} מתוך {shown.length}</button> : null}
     <button type="button" className="sod29-action sod29-nowpub-world" onClick={() => onOpen?.("/world")}>לחידושים בעולם ←</button>
+    <BuildingSignupNote2029 scope="now" />
   </section>;
 }

@@ -443,6 +443,47 @@ export function nowSourceChoices(models) {
 
 export const filterNowBySource = (models, sourceKey = "") => list(models).filter(model => !sourceKey || model.sourceKey === sourceKey);
 
+// ── ZURIEL 25.11.2026 (D1–D11, approved on a branch): ONE set of rows, two views. No second reader, no second sort. ──────────────────────────────
+// "The site's own updates": the site's Posts (new ones and substantive updates of an existing Post, which the feed already carries as the Post's
+// own row at the time of its edit), the series Posts, the Biblical code (ELS) findings and the site-news channel. A SOURCE is everything else that is
+// public: the reality stream, Or HaGeula, writers, groups and the other channels.
+export const isSiteSourceKey = key => typeof key === "string"
+  && ((key.startsWith("site:") && key !== "site:reality") || key.startsWith("series:") || key === "channel:site-news");
+// The rows are bounded AND of a fixed count while loading (the skeleton reserves exactly these), so the arrival of the data moves nothing (CLS <= 0.1).
+export const HOME_SITE_LIMIT = 5, HOME_SOURCE_LIMIT = 6, HOME_MERGED_LIMIT = 8;
+
+/**
+ * The Home's "עדכונים אחרונים" from the SAME models "עכשיו" uses (already in time order, no pin, no type priority).
+ *  - site: the site's own updates, newest first;
+ *  - sources: ONE item per public source (its latest), newest first;
+ *  - merged: both, de-duplicated by id and in a single newest-first order, at most HOME_MERGED_LIMIT (the phone's one chronological list).
+ */
+export function homeUpdateColumns(models, { siteLimit = HOME_SITE_LIMIT, sourceLimit = HOME_SOURCE_LIMIT, mergedLimit = HOME_MERGED_LIMIT } = {}) {
+  const byTime = (a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id));
+  const all = list(models).filter(model => model?.id && !hiddenInNow(model));
+  const site = all.filter(model => isSiteSourceKey(model.sourceKey)).sort(byTime).slice(0, siteLimit);
+  const seen = new Set(), sources = [];
+  for (const model of all.filter(model => model.sourceKey && !isSiteSourceKey(model.sourceKey)).sort(byTime)) {
+    if (seen.has(model.sourceKey)) continue;
+    seen.add(model.sourceKey); sources.push(model);
+    if (sources.length >= sourceLimit) break;
+  }
+  const ids = new Set(), merged = [];
+  for (const model of [...site, ...sources].sort(byTime)) if (!ids.has(model.id)) { ids.add(model.id); merged.push(model); }
+  return { site, sources, merged: merged.slice(0, mergedLimit) };
+}
+
+/**
+ * "עכשיו" as threads: one thread per source, the source that was updated most recently first; inside a thread the latest update first.
+ * Only rows already loaded; an older publication is shown when the reader opens the thread (no history is fetched here).
+ */
+export function nowSourceThreads(models) {
+  const byTime = (a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id));
+  const all = list(models).filter(model => model?.id && model.sourceKey);
+  return nowSourceChoices(all).filter(choice => choice.count > 0)
+    .map(choice => ({ ...choice, models: all.filter(model => model.sourceKey === choice.id).sort(byTime) }));
+}
+
 /**
  * The pinned central message (System Frame v2 §10.8 addendum, 11.11.2026): the ONE pinned row that carries an owner message, while its pin
  * window is open (checked again here at render time, so an expired pin never stays on top). Null otherwise.

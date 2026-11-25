@@ -201,7 +201,7 @@ test("Now's shared series-catalog fallback exposes edits without any additional 
   const bennett = post(5113, { tags: ["מפת המציאות"], title: "בנט והמלח",
     date: "2026-09-30T23:57:13Z", modified: "2026-11-21T02:56:15Z" });
   const catalogOnly = nowFor([], [bennett], Date.parse("2026-11-22T08:00:00Z"));
-  assert.equal(catalogOnly.items[0].sourceUpdatedAt, bennett.modified);
+  assert.equal(Date.parse(catalogOnly.items[0].sourceUpdatedAt), Date.parse(bennett.modified), "the same instant (the feed normalises the timestamp to ISO with milliseconds)");
   assert.equal(catalogOnly.models[0].id, "post:5113");
   assert.equal(catalogOnly.models[0].at, "2026-11-21T02:56:15.000Z");
   assert.equal(catalogOnly.models[0].href, "/post/p-5113");
