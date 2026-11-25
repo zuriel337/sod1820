@@ -50,7 +50,7 @@ const LIST_NAMES = ["HOME_NAV", "DIRECT_NAV", "CORE_HOME_NAV", "CORE_DIRECT_NAV"
 
 // Evaluate the production declarations, including the shared groups controlled by the release profile.
 function navigationLists(publicFoundationPreview, publicReadingRelease = false) {
-  const start = frameSource.indexOf("const archiveAndGalleryNav = ");
+  const start = frameSource.indexOf("const HOME_NAV = ");
   const end = frameSource.indexOf("const FOCUSABLE = ", start);
   assert.ok(start >= 0 && end > start, "the frame's navigation declarations exist");
   const declarations = frameSource.slice(start, end);
@@ -103,27 +103,28 @@ test("every navigation destination names a catalogued symbol, none is shared and
   assert.deepEqual(auditRails(rails), []);
 });
 
-test("each public rail offers archive, gallery, cipher library and community calculator once next to its related destination", () => {
-  const publicLists = navigationLists(true, true);
-  const previewLists = navigationLists(true, false);
-  for (const [home, direct] of [["HOME_NAV", "DIRECT_NAV"], ["CORE_HOME_NAV", "CORE_DIRECT_NAV"]]) {
-    const items = [...publicLists[home], ...publicLists[direct]];
-    const preview = [...previewLists[home], ...previewLists[direct]];
-    for (const href of ["/archive", "/gallery", "/codes", "/community/calculator"]) {
-      assert.equal(items.filter(item => item.to === href).length, 1, href);
-      assert.ok(!preview.some(item => item.to === href), href + " release scope");
+// ZURIEL 25.11.2026 ("תחזיר לי רק את התפריט שהיה הימני"): the right-hand rail is the 11.11.2026 rail again. Archive, gallery, cipher library and the
+// community calculator are not rail rows (they stay in the expanded public menu, the site map and the footer); the order and the labels are the
+// 11.11 ones. The site map, email updates and privacy stay out of the rail (ZURIEL 19.11.2026).
+test("the right-hand rail is the 11.11.2026 rail: the same rows, labels and order, with none of the later additions", () => {
+  const labels = (lists, ...names) => names.flatMap(name => lists[name].map(item => item.label));
+  for (const [foundation, release] of [[false, false], [true, false], [true, true]]) {
+    const lists = navigationLists(foundation, release);
+    assert.deepEqual(labels(lists, "HOME_NAV"), ["בית", "העולם", "היכל", "פוסטים", "מסע החיים", "קהילה"]);
+    assert.deepEqual(labels(lists, "DIRECT_NAV"), ["מחשבון גימטריה", "דף המספר", "ספרים ומקורות", "בית המדרש", "ELS · הצופן התנ״כי"]);
+    assert.deepEqual(labels(lists, "CORE_HOME_NAV"), ["בית", "פוסטים", "קהילה", "העולם", "היכל", "מסע החיים"]);
+    assert.deepEqual(labels(lists, "CORE_DIRECT_NAV"), ["ELS · הצופן התנ״כי", "מחשבון גימטריה", "דף המספר", "ספרים ומקורות", "בית המדרש"]);
+    for (const item of Object.values(lists).flat()) {
+      for (const href of ["/archive", "/gallery", "/codes", "/community/calculator", "/map", "/updates", "/privacy"]) assert.notEqual(item.to, href, href);
+      assert.equal(item.building, undefined, `${item.label}: no "building" mark in the list`);
     }
-    const posts = items.findIndex(item => item.symbol === "posts");
-    assert.deepEqual(items.slice(posts + 1, posts + 3).map(item => item.to), ["/archive", "/gallery"]);
-    assert.equal(items[items.findIndex(item => item.symbol === "els") - 1].to, "/codes");
-    assert.equal(items[items.findIndex(item => item.to === "/gematria") + 1].to, "/community/calculator");
   }
 });
 
 test("the destinations that used to look alike each have their own picture", () => {
   const { HOME_NAV, DIRECT_NAV } = navigationLists(true);
   const symbolOf = (label) => [...HOME_NAV, ...DIRECT_NAV].find((item) => item.label === label)?.symbol;
-  assert.notEqual(symbolOf("מחשבון גימטריה מקצועי"), symbolOf("דף המספר"), "calculator and Number page");
+  assert.notEqual(symbolOf("מחשבון גימטריה"), symbolOf("דף המספר"), "calculator and Number page");
   assert.notEqual(symbolOf("ספרים ומקורות"), symbolOf("בית המדרש"), "Books and Beit Midrash");
   // Site map, email updates and privacy left the rail for the footer (ZURIEL 19.11.2026).
   for (const label of ["מפת האתר", "עדכונים במייל", "פרטיות"]) assert.equal(symbolOf(label), undefined, `${label} is not a rail row`);

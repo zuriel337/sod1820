@@ -161,47 +161,32 @@ export function framePublicShareHref(location, canonicalHref = null) {
 }
 
 const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101");
+// Restored to the 11.11.2026 right-hand menu (ZURIEL 25.11.2026: "תחזיר לי רק את התפריט שהיה הימני"): the four lists below are the 11.11 lists, unchanged.
 // Every destination names its own picture from the NavigationIcon2029 catalogue in `symbol`. The old text glyph (`icon`) no longer
 // picks it: "123" was shared by the calculator and the Number page, "▤" by Books and Beit Midrash, "◌" by the World and the site map,
 // and "◉" / "✉" / "◇" fell back to the generic tools grid. test/navigation-symbols-distinct-2029.test.mjs reads these four lists
 // from this file, renders each item through the real component and fails on a missing, uncatalogued, shared or fallback symbol.
-// Only the public-reading router serves all four destinations. Both rail variants use the same entries.
-const archiveAndGalleryNav = PUBLIC_READING_RELEASE ? [
-  { to: "/archive", label: "ארכיון לפי שנה ונושא", symbol: "journal" },
-  { to: "/gallery", label: "גלריות ותמונות", symbol: "gallery" },
-] : [];
-const cipherLibraryNav = PUBLIC_READING_RELEASE ? [
-  { to: "/codes", label: "ספריית הצפנים", symbol: "layers" },
-] : [];
-const communityCalculatorNav = PUBLIC_READING_RELEASE ? [
-  { to: "/community/calculator", label: "מחשבון הקהילה לשמות", symbol: "letters" },
-] : [];
-
 const HOME_NAV = [
   { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
-  { to: "/world", label: "העולם", symbol: "world", building: true },
+  { to: "/world", label: "העולם", symbol: "world" },
   { to: "/heichal", label: "היכל", symbol: "heichal" },
   { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
-  ...archiveAndGalleryNav,
   { to: "/2029/journey", label: "מסע החיים", symbol: "journey" },
   { to: "/community/chat", label: "קהילה", symbol: "community" },
 ];
 
 const DIRECT_NAV = [
-  { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
-  ...communityCalculatorNav,
+  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
-  ...cipherLibraryNav,
-  { to: "/els", label: "כלי הצופן התנ״כי", symbol: "els", building: true },
-  // The expanded public menu groups service pages separately from these compact shortcuts.
+  { to: "/els", label: "ELS · הצופן התנ״כי", symbol: "els" },
+  // Site map, email updates and privacy stay in the footer, not in this rail (ZURIEL 19.11.2026), as after that decision.
 ];
 
 const CORE_HOME_NAV = [
   { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
   { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
-  ...archiveAndGalleryNav,
   { to: "/community/chat", label: "קהילה", symbol: "community" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", symbol: "heichal" },
@@ -209,10 +194,8 @@ const CORE_HOME_NAV = [
 ];
 
 const CORE_DIRECT_NAV = [
-  ...cipherLibraryNav,
-  { to: "/code", label: "כלי הצופן התנ״כי", symbol: "els", building: true },
-  { to: "/gematria", label: "מחשבון גימטריה מקצועי", symbol: "calculator" },
-  ...communityCalculatorNav,
+  { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els" },
+  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
   { action: "number-search", label: "דף המספר", symbol: "number" },
   { to: "/books", label: "ספרים ומקורות", symbol: "books" },
   { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
