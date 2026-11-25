@@ -1,6 +1,6 @@
 {
  "note": "Button looks outside the Royal family (royal2029.css). A ratchet: counts may only go down; a new file or a higher count fails test/button-family-guard-2029.test.mjs. Raising it is a ZURIEL decision.",
- "total": 319,
+ "total": 318,
  "files": {
   "src/components/number2029/numberCore2029.css": 24,
   "src/pages/bentovFindingsProduct2029.css": 22,
@@ -74,7 +74,6 @@
   "src/components/experience2029/life-journey-resume-2029.css": 1,
   "src/components/experience2029/life-journey-tree-2029.css": 1,
   "src/components/experience2029/myWorkspace2029.css": 1,
-  "src/components/experience2029/postComments2029.css": 1,
   "src/components/experience2029/postConvergenceMeasures2029.css": 1,
   "src/components/experience2029/previewVisualCalibration2029.css": 1,
   "src/components/experience2029/searchWall2029.css": 1,

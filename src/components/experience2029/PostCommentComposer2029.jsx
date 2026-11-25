@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { addContribution } from "../../lib/contributions.js";
+import "./royal2029.css";
 import { POST_COMMENT_MAX, POST_COMMENT_ORIGIN } from "./postComments2029.js";
 
 // The writing tool of a Post (ZURIEL 25.11.2026): loaded only when «רשום תגובה» is pressed. It writes ONE contribution through the existing add_contribution
@@ -28,9 +29,9 @@ export default function PostCommentComposer2029({ postId, onDone, onCancel }) {
     <textarea className="sod29-post-comment-text" value={text} maxLength={POST_COMMENT_MAX} rows={4} dir="auto" onChange={event => setText(event.target.value)} placeholder="התגובה שלך" aria-label="התגובה שלך" autoFocus />
     {!user ? <p className="sod29-post-comments-hint">תגובת אורח מתפרסמת אחרי אישור.</p> : null}
     {error ? <p className="sod29-post-comments-hint" role="alert">{error}</p> : null}
-    <div className="sod29-post-comment-actions">
-      <button type="submit" className="sod29-post-comments-button" disabled={busy || !body} aria-busy={busy}>{busy ? "שולח…" : "שלח תגובה"}</button>
-      <button type="button" className="sod29-post-comments-quiet" onClick={onCancel} disabled={busy}>ביטול</button>
+    <div className="r29-btn-group sod29-post-comment-actions">
+      <button type="submit" className="r29-btn is-primary" disabled={busy || !body} aria-busy={busy}>{busy ? "שולח…" : "שלח תגובה"}</button>
+      <button type="button" className="r29-btn is-quiet" onClick={onCancel} disabled={busy}>ביטול</button>
     </div>
   </form>;
 }
