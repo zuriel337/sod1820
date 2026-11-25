@@ -259,7 +259,7 @@ test("temporarily closed feature areas answer 503 with Retry-After and stay inde
       assert.match(res.body, /rel="canonical" href="https:\/\/sod1820\.co\.il\/code"/);
       assert.match(res.body, /חיפוש דילוגי אותיות/); assert.doesNotMatch(res.body, /בטא — נפתח בקרוב/); }
     { const res = response(); await handler(req("/els"), res); assert.equal(res.code, 308); assert.equal(res.headers.get("location"), "/code"); }
-    for (const path of ["/login", "/journey", "/raziel", "/credits", "/buy", "/join", "/start", "/2029/control", "/updates"]) {
+    for (const path of ["/login", "/journey", "/raziel", "/credits", "/buy", "/join", "/2029/control", "/updates"]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 200, path); assert.equal(res.headers.get("retry-after"), undefined, path);
       assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
@@ -273,7 +273,7 @@ test("closed, private and unknown routes remain noindex without product lookups;
     // Fragments are kept by the browser across redirects, never sent in HTTP.
     const alias=response();await handler(req('/2029/me?returnTo=%2Fworld'),alias);
     assert.equal(alias.code,308);assert.equal(alias.headers.get('location'),'/2029/me/research?returnTo=%2Fworld');assert.match(alias.headers.get('x-robots-tag'),/noindex/);
-    for (const path of ["/login", "/2029/me/research?returnTo=%2Fworld#private", "/community/researcher/me", "/journey", "/raziel", "/credits", "/start", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
+    for (const path of ["/login", "/2029/me/research?returnTo=%2Fworld#private", "/community/researcher/me", "/journey", "/raziel", "/credits", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
       const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req(path), res);
       assert.equal(res.code, 200, path); assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
       assert.ok(!res.body.includes("e=synthetic"));

@@ -54,6 +54,7 @@ const ControlPlane2029Page = lazy(() => import("./pages/ControlPlane2029Page.jsx
 const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx"));
 const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
+const Start2029Page = lazy(() => import("./pages/Start2029Page.jsx"));
 const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
 const AuthPage = lazy(() => import("./pages/Auth2029Page.jsx"));
@@ -446,6 +447,7 @@ export default function App2029() {
               <Route path="/2029/gematria/viral" element={<Calculator2029Page />} />
               <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
               <Route path="/stats" element={<Stats2029Page />} />
+              <Route path="/start" element={<Start2029Page />} />
               <Route
                 path="/beit-midrash"
                 element={<BeitMidrash2029Page />}
