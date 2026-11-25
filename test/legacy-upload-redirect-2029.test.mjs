@@ -81,11 +81,28 @@ test("future publication changes apply at once: a listed image whose Post is no 
   assert.equal(seen.length, 1);
 });
 
+test("the public WordPress archive is open: a library image no Post uses redirects at once; an image only a draft shows stays closed", async () => {
+  const never = async () => { throw new Error("no live read for an archive image"); };
+  // real rows of media_migration_queue: uploads/2016/12/חנוכה.jpg (no Post uses it) and the draft-only image of post 103
+  assert.equal(await legacyUploadKey("/wp-content/uploads/2016/12/%D7%97%D7%A0%D7%95%D7%9B%D7%94.jpg"), "2016/12/d80687f0426ee862.jpg");
+  assert.equal(await legacyUploadTarget("/wp-content/uploads/2016/12/%D7%97%D7%A0%D7%95%D7%9B%D7%94.jpg", { publicNow: never }),
+    LEGACY_UPLOAD_STORAGE + "2016/12/d80687f0426ee862.jpg", "the real list: archive image, one hop, no database read");
+  assert.equal(await legacyUploadTarget("/wp-content/uploads/2016/12/%D7%97%D7%A0%D7%95%D7%9B%D7%94-300x200.jpg", { publicNow: never }),
+    LEGACY_UPLOAD_STORAGE + "2016/12/d80687f0426ee862.jpg", "its WordPress size variant too");
+  assert.equal(await legacyUploadKey("/wp-content/uploads/2024/08/2023_11_14_11.24.35-1.jpg"), "2024/08/1946b8e3a370147e.jpg");
+  assert.equal(await legacyUploadTarget("/wp-content/uploads/2024/08/2023_11_14_11.24.35-1.jpg", { publicNow: async () => true }), null,
+    "only a draft shows it: not on either list, the existing 404");
+  assert.ok(!allow.keys.includes("2024/08/1946b8e3a370147e.jpg") && !allow.archive.includes("2024/08/1946b8e3a370147e.jpg"));
+});
+
 test("the allow list is sorted, unique, hashed copies only, and holds the real examples", async () => {
   assert.equal(allow.schema, 1);
   assert.equal(allow.count, allow.keys.length);
   assert.deepEqual(allow.keys, [...new Set(allow.keys)].sort());
-  for (const key of allow.keys) assert.match(key, /^\d{4}\/\d{2}\/[0-9a-f]{16}\.(?:jpe?g|png|gif|webp)$/, key);
+  for (const key of [...allow.keys, ...allow.archive]) assert.match(key, /^\d{4}\/\d{2}\/[0-9a-f]{16}\.(?:jpe?g|png|gif|webp)$/, key);
+  assert.deepEqual(allow.archive, [...new Set(allow.archive)].sort());
+  assert.ok(allow.archive.every(key => !allow.keys.includes(key)), "an archive image is one no Post shows");
+  assert.equal(allow.archive.length, 7);
   assert.ok(allow.keys.includes("2016/09/03d475b5ed0008fe.jpg"), "post 1201 image");
   assert.equal(await legacyUploadTarget("/wp-content/uploads/2016/09/FB_IMG_1461616903968.jpg", { publicNow: shownNow }), LEGACY_UPLOAD_STORAGE + "2016/09/03d475b5ed0008fe.jpg", "the real list loads lazily");
 });

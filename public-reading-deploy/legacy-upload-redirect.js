@@ -2,9 +2,10 @@
 // stored public copy, instead of a 404. No new store or table: the copy's name is a fixed function of the original path, the one the media
 // migration used for every file (media_migration_queue, verified 25.11.2026 on all 4,357 migrated files):
 //   uploads/YYYY/MM/<first 16 hex of sha256(decoded original path)>.<lower-case extension>, in the public "media" bucket.
-// Privacy: only images that a public Post already shows are redirected — the allow list (legacy-upload-public-keys.json) is built from public
-// Post content only (scripts/build-legacy-upload-redirects.mjs, anonymous read). Any other address keeps its 404, so a file that no public page
-// shows never becomes reachable by its old name. WordPress size variants (<name>-300x200.jpg) lead to their original.
+// Openness (ZURIEL 25.11.2026): the historical public archive is open to the public and to Google, old images included. Redirected: every image
+// a public Post shows (legacy-upload-public-keys.json "keys", built from public Posts by anonymous read) and the public WordPress library
+// images that no Post uses ("archive"). Protected as before, and only these: an image only a draft or forum Post shows; personal data and the
+// life journey are not in this archive. WordPress size variants (<name>-300x200.jpg) lead to their original.
 // Future publication changes (ZURIEL 25.11.2026): the list is only a fast first filter. Each redirect is also confirmed at request time against
 // the live public Posts, with the site's one public boundary (publicPostOnlyFilter): a Post hidden, tagged "טיוטה"/"פורום" or deleted after the
 // list was built stops redirecting its images at once. If that read fails, nothing is redirected (fail closed: the old 404 stays). The browser
@@ -42,7 +43,8 @@ export async function legacyUploadKey(pathname) {
 let allowList = null;
 async function publicKeys() {
   if (!allowList) allowList = import("./legacy-upload-public-keys.json", { with: { type: "json" } })
-    .then(module => new Set(module.default.keys)).catch(error => { allowList = null; throw error; });
+    .then(module => ({ shown: new Set(module.default.keys), archive: new Set(module.default.archive || []) }))
+    .catch(error => { allowList = null; throw error; });
   return allowList;
 }
 
@@ -59,11 +61,16 @@ export async function legacyUploadPublicNow(key, { fetchImpl = globalThis.fetch,
   return Array.isArray(rows) && rows.length > 0;
 }
 
-/** The redirect target of an old image address, or null (keep the 404). `keys` and `publicNow` are injectable for tests. */
+/**
+ * The redirect target of an old image address, or null (keep the 404). An image of the public WordPress archive that no Post uses redirects
+ * at once; an image a public Post shows redirects while a public Post still shows it (a Post turned into a draft keeps its images closed).
+ * `keys` (a Set of shown keys, or { shown, archive }) and `publicNow` are injectable for tests.
+ */
 export async function legacyUploadTarget(pathname, { keys = null, publicNow = legacyUploadPublicNow } = {}) {
   const key = await legacyUploadKey(pathname);
   if (!key) return null;
-  const allowed = keys || await publicKeys();
-  if (!allowed.has(key)) return null;
+  const lists = keys instanceof Set ? { shown: keys, archive: new Set() } : keys || await publicKeys();
+  if (lists.archive.has(key)) return LEGACY_UPLOAD_STORAGE + key;
+  if (!lists.shown.has(key)) return null;
   return await publicNow(key) === true ? LEGACY_UPLOAD_STORAGE + key : null;
 }
