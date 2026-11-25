@@ -624,6 +624,8 @@ a variant prop (one component, props select the presentation), with the platform
   the link stays available in both cases.
 - Share options sit in a centered grid of equal buttons; an odd last option is centered on its own row.
 
+**Amendment · 25.11.2026 · Human Gate ZURIEL: one family for the whole site, enforced.** The family is `royal2029.css` and nothing else: `.r29-btn` (`is-primary` royal blue; `is-quiet` gold hairline), `.r29-btn-group` (a centered group, equal widths in a row), `.r29-btn.is-icon` (one 44px square) and, for a multiple choice, `.r29-check` rows inside `.r29-check-group` (a checkbox, never a large button; `WatchButton` renders it through `variant="check2029"`). Height at least 44px, type 14–16px, no repeated headings or texts, no local colour, size or shadow. A page stylesheet or an inline `style` that draws its own button is a deviation: `test/button-family-guard-2029.test.mjs` fails a new one and lets the existing ones (`scripts/button-family-baseline-2029.json`, 319 rules in 101 files on 25.11.2026) only go down; a gradual migration plan is in `docs/reviews/button-family-20261125/README.md`. The approved dedicated designs of §14.12 C (Raziel, Heichal, research areas) are not changed by this amendment. First adopter: the Post's follow panel.
+
 ### 14.5 One bar that expands upward
 
 The bottom Command Island is one bar with the entries **כאן · שיתוף · רזיאל · עכשיו · עוד**.

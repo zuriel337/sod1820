@@ -3,6 +3,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { publicReadingActionsLocked } from "../../lib/publicReadingRelease2029.js";
 import { openPostFollow } from "../../lib/research/postFollowOpenStore2029.js";
 import { usePostFollowTargets, usePostFollowing } from "./postFollowShared2029.js";
+import "./royal2029.css";
 import "./postFollowDialog2029.css";
 
 // The gentle invitation at the end of the content, before the comments (ZURIEL 25.11.2026): ONE line, shown only when a follow can really deliver updates and only

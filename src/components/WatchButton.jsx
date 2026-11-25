@@ -149,6 +149,20 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
       identitySlot={<EmailVerify variant="2029" source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} />} />;
   }
 
+  // ☑ variant "check2029" (ZURIEL 25.11.2026, Design V2 §14.4): ONE multiple-choice row of the Royal family (.r29-check, royal2029.css): a checkbox, not a large button.
+  // The same engine, state and requests as every other variant (props select the presentation); the identity step and the retry reuse the shared pieces.
+  if (variant === "check2029") {
+    return <>
+      <button type="button" className="r29-check" role="checkbox" aria-checked={following} disabled={locked && !loadFailed} aria-busy={(!known && !loadFailed) || busy || undefined}
+        onClick={toggle} title={toggleError || undefined}>
+        <span className="r29-check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        <span>{label}</span>
+      </button>
+      {unknownMsg ? <p className="r29-check-note" role="alert">{unknownMsg} {(loadFailed || toggleError) && !busy ? <button type="button" className="r29-btn is-quiet" onClick={() => load(true)}>נסו שוב</button> : null}</p> : null}
+      {showReg ? <EmailVerify variant="2029" source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} /> : null}
+    </>;
+  }
+
   // ✓ וריאנט mini — «וי קטן» עדין למשטחי-מדיה כהים (למשל בתוך נגן-הShorts). כמעט-שקוף כשלא-עוקב,
   //   מתמלא בסגול כשעוקב. אותו מנוע-מעקב קנוני (watchToggle/getNotificationPrefs), רק תצוגה זעירה.
   if (variant === "mini") {

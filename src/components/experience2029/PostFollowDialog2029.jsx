@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import WatchButton from "../WatchButton.jsx";
-import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { publicReadingActionsLocked } from "../../lib/publicReadingRelease2029.js";
 import { closePostFollow } from "../../lib/research/postFollowOpenStore2029.js";
@@ -25,18 +24,18 @@ export default function PostFollowDialog2029({ post }) {
     return () => { document.removeEventListener("keydown", onKey); previous?.focus?.(); };
   }, []);
   return createPortal(<div className="r29 post-follow-sheet-backdrop" onClick={event => { if (event.target === event.currentTarget) closePostFollow(); }}>
-    <section ref={ref} tabIndex={-1} className="post-follow-sheet" role="dialog" aria-modal="true" aria-label="מעקב אחרי הפוסט" data-post-follow-panel>
-      <header><h2><NavigationIcon2029 name="signal" size={18} /> מעקב</h2><button type="button" className="r29-btn is-quiet" onClick={closePostFollow} aria-label="סגירה">×</button></header>
+    <section ref={ref} tabIndex={-1} className="post-follow-sheet" role="dialog" aria-modal="true" aria-labelledby="post-follow-title" data-post-follow-panel>
+      <h2 id="post-follow-title">מעקב</h2>
       {locked ? <p>המעקבים ייפתחו בהמשך. אפשר להמשיך לקרוא את הסדרות והתכנים הציבוריים.</p>
         : status === "loading" ? <p role="status">בודק אילו יעדי מעקב זמינים…</p>
         : status === "error" ? <p role="status">לא הצלחנו לבדוק את יעדי המעקב. אפשר לנסות שוב מאוחר יותר.</p>
         : !ready.length ? <p>אין כרגע מעקב עם עדכונים זמינים לפוסט הזה.</p>
         : <><p>עדכון באתר כשמתפרסם פוסט חדש. בלי מייל ובלי התראות דפדפן.</p>
-          {ready.map(item => <div key={item.topic} className="post-follow-sheet-target" data-follow-target={item.topic}>
-            <span>{item.kind}: {item.label}</span>
-            <WatchButton variant="2029" topic={item.topic} source="post_follow_panel_2029" noPush followIO={sharedFollowIO}
-              label={`מעקב אחרי ${item.label}`} followLabel={`עוקב אחרי ${item.label}`} explainer="" />
-          </div>)}</>}
+          <div className="r29-check-group" role="group" aria-label="מה לעקוב אחריו">
+            {ready.map(item => <WatchButton key={item.topic} variant="check2029" topic={item.topic} source="post_follow_panel_2029" noPush followIO={sharedFollowIO}
+              label={`${item.kind}: ${item.label}`} />)}
+          </div></>}
+      <div className="r29-btn-group"><button type="button" className="r29-btn is-primary" onClick={closePostFollow}>סגירה</button></div>
     </section>
   </div>, document.querySelector(".sod29-root") || document.body);
 }
