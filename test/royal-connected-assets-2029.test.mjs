@@ -32,8 +32,12 @@ test('connected palace derivatives are document-owned, fingerprinted, responsive
 });
 
 test('approved number and cipher strips remain available while other pages keep their layout',()=>{
- const callers=['src/pages/Calculator2029Page.jsx','src/pages/CalculatorPro2029Page.jsx','src/pages/CommunityCalculator2029Page.jsx','src/components/experience2029/NowPublications2029.jsx'];
+ // The calculator pages keep NO pulse strip. «עכשיו» is the one reconnected place (ZURIEL 25.11.2026): «דופק האתר», mounted exactly once, nothing else of the pulse family.
+ const callers=['src/pages/Calculator2029Page.jsx','src/pages/CalculatorPro2029Page.jsx','src/pages/CommunityCalculator2029Page.jsx'];
  for(const file of callers) assert.doesNotMatch(fs.readFileSync(file,'utf8'),/SectionPulseSlot2029|NowPulseLineSlot2029|CalculatorPulseLineSlot2029/);
+ const now=fs.readFileSync('src/components/experience2029/NowPublications2029.jsx','utf8');
+ assert.doesNotMatch(now,/SectionPulseSlot2029|CalculatorPulseLineSlot2029/);
+ assert.equal((now.match(/<NowPulseLineSlot2029\b/g)||[]).length,1,'the Now pulse line is mounted once');
  for(const [file, mount] of [
    ['Number2029Page', '<SectionPulseSlot2029 inline section="number" value={root} />'],
    ['Els2029Page', '<SectionPulseSlot2029 section="els" />'],

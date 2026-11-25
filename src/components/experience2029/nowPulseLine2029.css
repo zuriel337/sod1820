@@ -1,6 +1,46 @@
-.nowpulse29{display:inline-flex;max-width:100%;align-items:center;gap:10px;height:36px;box-sizing:border-box;padding:0 10px;margin:0 0 8px;border:1px solid var(--s29-line,#574327);border-radius:10px;background:var(--s29-panel,#201b16);color:var(--s29-ink,#f6eddc);font-size:13px;line-height:18px;min-width:0;overflow:hidden}
-.nowpulse29-items{flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--s29-muted,#b6a995)}
+/* «דופק האתר» in "עכשיו" (ZURIEL 25.11.2026). Restrained Royal in the personal area's language: a thin gold hairline over a quiet sapphire wash, the number chips are
+   the gold coin ring. Every colour is a canonical --s29-* role (the Royal layer, royal2029.css, already loaded by this window). Layout only below.
+   Fixed heights, before and after the data arrives: a wide window is one 44px line; a phone is two thin 34px rows (no horizontal scroll, nothing hidden). */
+.nowpulse29-slot{min-block-size:44px;margin:0 0 8px}
+.nowpulse29,.nowpulse29.is-loading{box-sizing:border-box;margin:0;border:1px solid color-mix(in srgb,var(--s29-brand-gold) 30%,var(--s29-line));border-radius:14px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--s29-brand-sapphire) 14%,var(--s29-panel)),var(--s29-panel))}
+.nowpulse29{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;min-block-size:44px;padding:5px 12px;color:var(--s29-muted);font:500 13px/1.3 var(--s29-font-ui)}
+.nowpulse29.is-loading{block-size:44px}
 .nowpulse29 a{color:inherit;text-decoration:none}
-.nowpulse29-items a{color:var(--s29-ink,#f6eddc)}
-.nowpulse29-more{flex:0 0 auto;color:var(--s29-accent-text,#d5b477)!important;min-height:32px;display:inline-flex;align-items:center}
-.nowpulse29 a:focus-visible{outline:2px solid var(--s29-accent-text,#d5b477);outline-offset:2px}
+.nowpulse29-title{display:inline-flex;align-items:center;gap:6px;color:var(--s29-brand-gold);font-weight:600;white-space:nowrap}
+.nowpulse29-title i{font-style:normal;font-size:9px}
+.nowpulse29-title small{font:500 12px/1 var(--s29-font-ui);color:var(--s29-muted)}
+.nowpulse29-grp{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.nowpulse29-k{color:var(--s29-muted)}
+.nowpulse29-num{display:inline-grid;place-items:center;min-inline-size:36px;min-block-size:28px;padding:0 7px;border-radius:999px;border:1px solid color-mix(in srgb,var(--s29-brand-gold) 62%,transparent);
+  color:var(--r29-gold-ink,var(--s29-brand-gold));font:700 13px/1 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;
+  background:color-mix(in srgb,var(--s29-brand-gold) 8%,transparent)}
+.nowpulse29-num:hover{background:color-mix(in srgb,var(--s29-brand-gold) 16%,transparent)}
+.nowpulse29-grp b{font-weight:700;color:var(--s29-accent-text)}
+.nowpulse29-grp.is-down b{color:var(--s29-muted)}
+.nowpulse29-grp small{font:500 12px/1 var(--s29-font-ui);color:var(--s29-muted)}
+.nowpulse29-note{flex:1 1 auto;color:var(--s29-muted)}
+.nowpulse29-more{margin-inline-start:auto;display:inline-flex;align-items:center;min-block-size:34px;color:var(--s29-accent-text)!important;white-space:nowrap}
+.nowpulse29 a:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:2px}
+.nowpulse29-short{display:none}
+@media (min-width:761px){.nowpulse29{flex-wrap:nowrap}.nowpulse29-slot{min-block-size:44px}}
+@media (max-width:760px){
+  /* two thin rows, nothing hidden and no horizontal scroll: [title ........ stats] then [hot numbers] [trend] */
+  .nowpulse29-slot{min-block-size:84px}
+  .nowpulse29{display:grid;grid-template-columns:auto 1fr;grid-template-rows:34px 34px;align-items:center;gap:0 12px;min-block-size:76px;padding:4px 12px}
+  .nowpulse29.is-loading{block-size:76px}
+  .nowpulse29-title{grid-column:1;grid-row:1}
+  .nowpulse29-more{grid-column:2;grid-row:1;justify-self:end;margin:0}
+  .nowpulse29-grp[data-now-pulse-part=numbers]{grid-column:1;grid-row:2}
+  .nowpulse29-grp[data-now-pulse-part=trend]{grid-column:2;grid-row:2;justify-self:end}
+  .nowpulse29-long{display:none}.nowpulse29-short{display:inline}
+  .nowpulse29-note{grid-column:1 / -1;grid-row:2}
+}
+/* very narrow phones (<= 370px): the same two thin rows plus a third thin row for the trend, so nothing is cut and nothing scrolls */
+@media (max-width:370px){
+  .nowpulse29-slot{min-block-size:118px}
+  .nowpulse29{grid-template-rows:34px 34px 34px;min-block-size:110px}
+  .nowpulse29.is-loading{block-size:110px}
+  .nowpulse29-grp[data-now-pulse-part=trend]{grid-column:1 / -1;grid-row:3;justify-self:start}
+  .nowpulse29-note{grid-row:2}
+}

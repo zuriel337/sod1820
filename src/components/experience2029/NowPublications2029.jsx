@@ -7,6 +7,7 @@ import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowBySource, filterNowModels, nowLensCounts, nowModels, nowPinnedMessage, nowTodayBand, nowSecondaryChoices, nowSeriesHref, nowSourceChoices, nowSourceThreads } from "../../lib/nowPublications2029.js";
 import { NowPinnedMessage2029, NowSourceEmpty2029, NowSourcePicker2029 } from "./NowRoyalCenter2029.jsx";
 import BuildingSignupNote2029 from "./BuildingSignupNote2029.jsx";
+import NowPulseLineSlot2029 from "./NowPulseLineSlot2029.jsx";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import ShareActions from "../ShareActions.jsx";
 import { SHARE_SITE } from "../../lib/share.js";
@@ -345,6 +346,8 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
   const threads = useMemo(() => threadsView ? nowSourceThreads(shown) : [], [threadsView, shown]);
 
   return <section className="sod29-nowpub is-royal r29" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
+    {/* ZURIEL 25.11.2026: «דופק האתר» (one fixed 168h read of the one public reader), above everything else in the window. */}
+    <NowPulseLineSlot2029 onOpen={onOpen} />
     {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={href => { feed?.see?.(pinned.model.row); onOpen?.(href); }} /> : todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
     <NowSourcePicker2029 choices={sourceChoices} value={sourceKey} onChange={pick(setSourceKey)} total={models.length} />
     {!sourceKey ? <div className="sod29-nowpub-view r29" role="group" aria-label="תצוגת העדכונים" data-now-view={view}>
