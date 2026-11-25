@@ -93,12 +93,12 @@ test("/code keeps the existing cipher inside the canonical framed feature gate",
 test("integration is one optional slot and one callsite; hero, posts and stream are untouched", () => {
   assert.equal((composition.match(/elsEntry/g) || []).length, 3); // prop name, truthiness check, rendered child
   assert.match(composition, /\{elsEntry \? <Reveal id="els-entry">\{elsEntry\}<\/Reveal> : null\}/);
-  // ZURIEL 17.11.2026: the pinned reality-map lead and live updates precede ELS.
+  // ZURIEL 17.11.2026: the pinned reality-map lead and live updates precede ELS. ZURIEL 25.11.2026 (D1-D11): the live updates now OPEN the Home, before the lead.
   const els = composition.indexOf("elsEntry ? <Reveal");
   const ciphers = composition.indexOf('<Section label="הצפנים האחרונים בתורה">');
   const lead = composition.indexOf("<HomePinnedLead");
   const updates = composition.indexOf("<HomeLiveUpdates");
-  assert.ok(lead > composition.indexOf(`data-experience-capability="home-composition"`) && lead < updates && updates < els && els < ciphers);
+  assert.ok(updates > composition.indexOf(`data-experience-capability="home-composition"`) && updates < lead && lead < els && els < ciphers);
   assert.ok(ciphers < composition.indexOf("<HomeFlagshipRegion"));
   assert.ok(composition.indexOf("<HomeFlagshipRegion") < composition.indexOf("<HomeOtherSeries"));
   assert.ok(composition.indexOf("<HomeOtherSeries") < composition.indexOf("<HomeFeaturedPost2029"));
