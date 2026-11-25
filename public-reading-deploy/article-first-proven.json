@@ -1,7 +1,7 @@
 {
- "generated": "2026-11-24T23:50:14.565Z",
- "base": "70b3a29fbd50c0b0a42e1f7a02f8316444d0f660",
- "fingerprint": "fa4b24b609f0a6b6ad4b",
+ "generated": "2026-11-25T09:44:41.434Z",
+ "base": "a5cf3d4878d3480892cf4895a97da652248401eb",
+ "fingerprint": "52f415f44c37ca04ff07",
  "jsdom": "25.0.1",
  "pipeline": [
   "src/components/experience2029/postIconPath2029.js",
@@ -36,9 +36,9 @@
  ],
  "note": "Posts (imported or written on the site) whose exact stored source (and voice) was proven to give the browser's article on the server (scripts/build-article-first-proofs.mjs). Keyed by post id; the value is the proof key (postArticleProofKey2029). Valid only for the pipeline code and server DOM of `fingerprint` (scripts/lib/article-first-fingerprint.mjs).",
  "counts": {
-  "read": 1320,
-  "candidates": 1297,
-  "proven": 1297,
+  "read": 1321,
+  "candidates": 1298,
+  "proven": 1298,
   "differ": 0
  },
  "differ": [],
@@ -1339,6 +1339,7 @@
   "5139": "38701d9a:47427:unspecified",
   "5140": "93cdaf41:2840:unspecified",
   "5141": "43584326:1670:unspecified",
-  "5142": "6114e2f3:5586:unspecified"
+  "5142": "6114e2f3:5586:unspecified",
+  "5143": "99d402b9:1832:unspecified"
  }
 }
