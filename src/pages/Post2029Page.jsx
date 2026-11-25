@@ -1497,7 +1497,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
           {post.source !== "wordpress" && heroDate ? (() => { const byline = postArticleByline2029(post); return <p className="sod29-reading-byline"><time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time>{byline.modified ? <time className="sod29-reading-modified" dateTime={byline.modified}>עודכן: {byline.modifiedLabel}</time> : null}</p>; })() : null}
           {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}{byline.modified ? <time className="sod29-reading-modified" dateTime={byline.modified}>עודכן: {byline.modifiedLabel}</time> : null}</p> : null; })() : null}
-          <PostCategories2029 post={projection.sourcePost} compact max={4} />
+          <PostCategories2029 post={projection.sourcePost} compact max={Infinity} />
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
           <details className="sod29-post-details">
             <summary>
@@ -1507,14 +1507,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
             <div className="sod29-post-details-body">
               {classification.credit ? <p>{classification.credit.prefix}: {classification.credit.name}</p> : null}
               {projection.sourceLine && projection.sourceLine !== visibleSourceLabel && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
-              {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
-              {classification.items.length > 4 ? <div className="sod29-reading-meta-line">
-                <PostCategories2029 post={projection.sourcePost} max={Infinity} />
-              </div> : null}
               {postTags.length ? <p className="sod29-post-tags">{postTags.map(tag => <Link key={tag.name} to={tag.href}>{tag.name}</Link>)}</p> : null}
-              {projection.excerpt ? <p>{projection.excerpt}</p> : null}
-              {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
-              {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
             </div>
           </details>
           <div className="sod29-post-actions-slot">{!projection.draft && !projection.privateStage && !projection.previewSnapshot && postActionTarget ? <React.Suspense fallback={null}><PostActionBar2029 projection={projection} /></React.Suspense> : null}</div>

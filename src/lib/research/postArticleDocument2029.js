@@ -74,7 +74,6 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
   const classification = postClassification2029(post);
   const tagItems = postTagItems2029(post);
   const sourceLabel = clean(post.author) || "מקור הפוסט";
-  const excerpt = clean(post.excerpt) || postPlainText2029(post.content).slice(0, 220);
   const coverLabel = `פתח את תמונת הפוסט: ${title}`;
   const coverSet = postImageRenditionSet2029(cover, imageFacts);   // the page's cover offers the same smaller copies (Post2029Page)
   const frame = postArticleFrameOpen2029({ id: POST_ARTICLE_DOCUMENT_ID, "data-ssr-post": String(post.id), "data-ssr-source": postArticleSourceKey2029(post.content), "data-ssr-path": path,
@@ -89,16 +88,12 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
     + `<div class="sod29-reading-hero-copy"><h1>${escapeHtml(title)}</h1>`
     + (byline.credit || byline.date ? `<p class="sod29-reading-byline">${byline.credit ? `<span>${escapeHtml(byline.credit)}</span>` : ""}${byline.date ? `<time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time>` : ""}${byline.modified ? `<time class="sod29-reading-modified" datetime="${escapeHtml(byline.modified)}">עודכן: ${escapeHtml(byline.modifiedLabel)}</time>` : ""}</p>` : "")
-    + chipsHtml(classification, 4)
+    + chipsHtml(classification, Infinity)
     + `<span class="sod29-orientation-host">${ORIENTATION_MARK}</span>`
     + `<details class="sod29-post-details"><summary><span class="sod29-reading-source-badge">${escapeHtml(sourceLabel)}</span><span class="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span></summary>`
     + `<div class="sod29-post-details-body">`
     + (classification.credit ? `<p>${escapeHtml(classification.credit.prefix)}: ${escapeHtml(classification.credit.name)}</p>` : "")
-    + (byline.date ? `<p>תאריך הפוסט: <time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time></p>` : "")
-    + (classification.items.length > 4 ? `<div class="sod29-reading-meta-line">${chipsHtml(classification, Infinity)}</div>` : "")
     + (tagItems.length ? `<p class="sod29-post-tags">${tagItems.map(tag => `<a href="${escapeHtml(tag.href)}">${escapeHtml(tag.name)}</a>`).join("")}</p>` : "")
-    + (excerpt ? `<p>${escapeHtml(excerpt)}</p>` : "")
-    + `<p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p>`
     + `</div></details><div class="sod29-post-actions-slot"></div></div></div></header>`
     + `<div class="sod29-reading-layout"><section class="sod29-reading-source" aria-label="טקסט המקור" data-ssr-body="true">${template.innerHTML}</section></div>`
     + `</article>` + POST_ARTICLE_FRAME_CLOSE;

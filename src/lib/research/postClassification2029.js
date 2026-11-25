@@ -46,6 +46,6 @@ export function postClassification2029(post) {
 // The public tags of a Post (the term "תגית"), once, for the details row: only the tags the posts catalogue admits as a tag filter (internal markers never show).
 export function postTagItems2029(post) {
   if (!post || hasSuppressedPublicPostTag(post)) return [];
-  const names = [...new Set((Array.isArray(post.tags) ? post.tags : []).map(tag => postsTaxonomyScope2029("tag", tag)).filter(scope => scope.kind === "tag").map(scope => scope.key))];
+  const names = [...new Set((Array.isArray(post.tags) ? post.tags : []).map(tag => postsTaxonomyScope2029("tag", tag)).filter(scope => scope.kind === "tag").map(scope => scope.key).filter(name => !/(golden|^2029-|-2029$|^draft$)/i.test(name)))];
   return names.map(name => ({ name, href: `/2029/posts?tag=${encodeURIComponent(name)}` }));
 }
