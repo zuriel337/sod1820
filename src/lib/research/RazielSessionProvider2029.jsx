@@ -4,7 +4,9 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 const askRaziel = (...args) => import("../supabaseApi2029.js").then(module => module.askRaziel(...args));
 import { useResearch } from "./ResearchProvider.jsx";
 import { loadRazielSessionRequestBuilder2029 } from "./razielSessionRequestLoader2029.js";
-import { attachElsMatrixReadingHooks, buildElsMatrixReadingSubmission } from "./elsMatrixReadingSession.js";
+// S-60 (25.11.2026): the matrix-reading session code (and the shared ELS reading action it validates with) loads only when a reading is explicitly
+// started, not with the code every page loads. The same module instance serves both call sites.
+const loadElsMatrixReadingSession = () => import("./elsMatrixReadingSession.js");
 import {
   createInitialRazielSessionState,
   normalizeRazielQuestion,
@@ -134,7 +136,10 @@ export function RazielSessionProvider2029({
         configurable: true,
       });
       // A reading takes minutes: progress flows back into the same session state, and the person can cancel explicitly (unmounting only stops the polling).
-      const readingHooks = attachElsMatrixReadingHooks(request, { turnId: turn.id, dispatch, isMounted: () => mountedRef.current });
+      // attachElsMatrixReadingHooks answers null for any request without a matrix-reading action, so only such a request loads the module.
+      const readingHooks = request?.elsMatrixReadingAction
+        ? (await loadElsMatrixReadingSession()).attachElsMatrixReadingHooks(request, { turnId: turn.id, dispatch, isMounted: () => mountedRef.current })
+        : null;
       if (readingHooks) activeCancelRef.current = readingHooks;
       const rawResponse = await transport(request);
       if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
@@ -201,10 +206,10 @@ export function RazielSessionProvider2029({
   // selected occurrence, and the canonical ELS engine verifies every proposal. The returned promise settles when the reading is no longer running (minutes);
   // progress is in `currentTurn.progress`, and cancelActiveTurn() asks the provider to cancel. op: "start" (default, spends: the acknowledged upper bound is sent),
   // "preview" (no model, no spend) or, with jobToken, "status" (resume) / "cancel".
-  const submitElsMatrixReading = useCallback((options = {}) => {
+  const submitElsMatrixReading = useCallback((options = {}) => loadElsMatrixReadingSession().then(({ buildElsMatrixReadingSubmission }) => {
     const built = buildElsMatrixReadingSubmission(options);
-    return built.ok ? submit(built.submission) : Promise.resolve(built);
-  }, [submit]);
+    return built.ok ? submit(built.submission) : built;
+  }), [submit]);
 
   // Explicit cancel of a running matrix reading. Returns false when no reading is running (an ordinary turn has nothing to cancel).
   const cancelActiveTurn = useCallback(() => {
