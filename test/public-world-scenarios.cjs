@@ -64,8 +64,8 @@ async function riverGallery(page,width,info,origin){
 
 async function postNumberReturn(page,width,info,origin){
  page.setDefaultTimeout(30000);await page.setViewportSize({width,height:900});
- const address='/post/flydubai-fz1073-363-14000-remzei-geula?source=reading&part=2&part=7#post-gematria';await page.goto(origin+address);await expect(page.locator('.sod29-reading-source')).toBeVisible({timeout:60000});
- const signal=page.locator('.sod29-reading-number-signal').first();await expect(signal).toBeVisible();const root=Number((await signal.locator('strong').textContent()).replace(/,/g,''));await signal.click();
+ const address='/post/flydubai-fz1073-363-14000-remzei-geula?source=reading&part=2&part=7';await page.goto(origin+address);await expect(page.locator('.sod29-reading-source')).toBeVisible({timeout:60000});
+ const signal=page.locator('.sod29-reading-source [data-gem]').filter({hasText:/^\s*[\d,]+\s*$/}).first();await expect(signal).toBeVisible();const root=Number((await signal.textContent()).replace(/,/g,''));await signal.click();
  const drawer=page.getByRole('dialog',{name:'מספר / ביטוי',exact:true});await expect(drawer.locator('[data-number-core-root="'+root+'"]')).toBeVisible({timeout:60000});await drawer.getByRole('button',{name:'פתח דף מלא ↗',exact:true}).click();
  await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root',String(root),{timeout:60000});
  const context=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')||'null')),target=context?.returnTo?.href;expect(target).toBeTruthy();const expected=new URL(target,origin);expect(expected.pathname).toBe(new URL(address,origin).pathname);expect(expected.search).toBe('?source=reading&part=2&part=7');expect(expected.hash).toMatch(/^#(?:source-region-|post-)/);

@@ -1699,3 +1699,19 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
     padding: 2px;
   }
 }
+
+/* ONE opening for every Post (ZURIEL 25.11.2026): the Post's own image is a round medallion with a fine gold line above the title; without an image
+   the same gold ring carries a document mark. Document and page draw the same box (no jump). The image stays the only media: it is not repeated below. */
+.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid>.sod29-reading-cover,
+.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid:not(:has(>.sod29-reading-cover))::before{
+  box-sizing:border-box;inline-size:88px;block-size:88px;width:88px;height:88px;max-height:none;aspect-ratio:1;margin:0 auto 4px;border-radius:50%;overflow:hidden;
+  border:1.5px solid color-mix(in srgb,var(--s29-brand-gold,#b8923a) 80%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--s29-brand-gold,#b8923a) 14%,transparent);
+  flex:none;align-self:center}
+.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid:not(:has(>.sod29-reading-cover))::before{
+  content:"";background:color-mix(in srgb,var(--s29-brand-gold,#b8923a) 8%,transparent) center/34px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b8923a' stroke-width='1.6'%3E%3Cpath d='M7 3h7l4 4v14H7z'/%3E%3Cpath d='M14 3v4h4M9.5 12h5M9.5 16h5'/%3E%3C/svg%3E")}
+.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid>.sod29-reading-cover .sod29-canonical-media-figure{height:100%;width:100%;border-radius:50%}
+.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid>.sod29-reading-cover .sod29-canonical-media-image.is-primary{height:100%!important;width:100%!important;object-fit:cover!important;border-radius:50%}
+@media(max-width:760px){.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid>.sod29-reading-cover,
+.sod29-reading-post:not([data-post-design-preview]) .sod29-reading-hero-grid:not(:has(>.sod29-reading-cover))::before{inline-size:76px;block-size:76px;width:76px;height:76px}}
+/* The frame's own ring above a Post is replaced by the medallion inside the opening (one medallion, not two). */
+.sod29-content:has(.sod29-reading-post:not([data-post-design-preview])) .sod29-page-intro .sod29-hero-visual{display:none}

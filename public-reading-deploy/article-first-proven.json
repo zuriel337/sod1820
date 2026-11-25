@@ -1,7 +1,7 @@
 {
- "generated": "2026-11-25T19:22:11.774Z",
- "base": "463bdc177716f8d451bd8633c10a0e8f82bc1a87",
- "fingerprint": "7918dd8cd0be7aaa6421",
+ "generated": "2026-11-25T21:02:01.665Z",
+ "base": "6402aea9f4329fc23a3e3386afdf1131d102d7fc",
+ "fingerprint": "b8cd3065a931758ef3af",
  "jsdom": "25.0.1",
  "pipeline": [
   "src/components/experience2029/postIconPath2029.js",

@@ -76,6 +76,7 @@ test("the media type is read from the media itself: a post with a playable video
   const none = { ...withVideo, content: "<p>no media</p>" };
   const legacyOnly = { ...none, categories: ["וידאו"] };
   assert.deepEqual(postClassification2029(withVideo).media, [{ role: "media-type", name: "וידאו", prefix: "מדיה", href: "/2029/posts?media=video" }]);
+  assert.equal(postClassification2029(withVideo).items.some(item => item.role === "media-type"), false);   // no "מדיה: וידאו" chip (ZURIEL 25.11.2026)
   assert.equal(postClassification2029(selfHosted).media.length, 1);
   assert.equal(postClassification2029(none).media.length, 0);
   assert.equal(postClassification2029(legacyOnly).media.length, 0, "the legacy category alone is not a media type");

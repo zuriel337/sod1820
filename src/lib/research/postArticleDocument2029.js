@@ -80,7 +80,9 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + `<article class="sod29-reading-post" data-golden="false" data-experience-surface="post-reading" data-experience-capability="post-master-reading-stage" data-post-slug="${escapeHtml(post.slug)}"`
     + ` data-post-character="plain" data-post-voice="${escapeHtml(voice)}" data-prefs-tick="0" data-post-background="${escapeHtml(background.key)}"`
     + ` style="--post-background-desktop: url(&quot;${escapeHtml(background.desktop)}&quot;); --post-background-mobile: url(&quot;${escapeHtml(background.mobile)}&quot;);">`
-    + `<header id="post-story" class="sod29-reading-hero" data-experience-capability="post-master-hero"><div class="sod29-reading-hero-grid"><div class="sod29-reading-hero-copy"><h1>${escapeHtml(title)}</h1>`
+    + `<header id="post-story" class="sod29-reading-hero" data-experience-capability="post-master-hero"><div class="sod29-reading-hero-grid">`
+    + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
+    + `<div class="sod29-reading-hero-copy"><h1>${escapeHtml(title)}</h1>`
     + (byline.credit || byline.date ? `<p class="sod29-reading-byline">${byline.credit ? `<span>${escapeHtml(byline.credit)}</span>` : ""}${byline.date ? `<time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time>` : ""}</p>` : "")
     + chipsHtml(classification, 4)
     + `<span class="sod29-orientation-host">${ORIENTATION_MARK}</span>`
@@ -92,7 +94,6 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + (excerpt ? `<p>${escapeHtml(excerpt)}</p>` : "")
     + `<p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p>`
     + `</div></details></div></div></header>`
-    + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
     + `<div class="sod29-reading-layout"><section class="sod29-reading-source" aria-label="טקסט המקור" data-ssr-body="true">${template.innerHTML}</section></div>`
     + `</article>` + POST_ARTICLE_FRAME_CLOSE;
 }

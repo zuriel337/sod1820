@@ -1499,6 +1499,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         <MatrixRain color={matrixOpening.color} headColor={matrixOpening.headColor} featured={matrixOpening.featured} />
       </div> : null}
       <div className="sod29-reading-hero-grid">
+        {!mapReadingLayout ? cover : null}
         <div className="sod29-reading-hero-copy">
           {mapReadingLayout ? <>
           <div className="post-design-title">
@@ -1559,23 +1560,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           </>}
         </div>
 
-        {!mapReadingLayout && heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
-          <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
-          <div className="sod29-reading-number-constellation">
-            {heroNumbers.map((number, index) => <button
-              key={number}
-              type="button"
-              className={"sod29-reading-number-signal signal-" + (index + 1)}
-              data-orientation-target="post-number"
-              onClick={() => openHeroNumber(number)}
-              aria-label={"בדוק את מספר " + number}
-            >
-              <strong>{number}</strong>
-              <small>{isBennettMaster || isFz1073Master || isElectionsMaster ? "פתח" : "בדיקה מהירה"}</small>
-            </button>)}
-          </div>
-          <p>{isBennettMaster || isFz1073Master || isElectionsMaster ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת בחלון צד ושומרת את הפוסט והדרך חזרה."}</p>
-        </div> : null}
+        {/* The numbers box is gone from the opening (ZURIEL 25.11.2026); the numbers stay in the text and open the same check. */}
       </div>
       {mapReadingLayout && postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml} /> : null}
       {readingRailContext && MapUnitContext ? <div className="map29-mobile-post-context">
@@ -1612,7 +1597,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         </ul>
       </details> : null}
     </aside> : null}
-    {!mapReadingLayout ? cover : null}
     {mapReadingLayout && !bennettTimeline && (hasResearchContent || researchOpen || researchAnchorRequested) ? researchDisclosure : null}
 
     {!bennettTimeline ? <PostEvidenceMedia2029 media={experience.media} /> : null}

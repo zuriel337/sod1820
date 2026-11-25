@@ -38,6 +38,6 @@ export function postClassification2029(post) {
   const author = typeof post.author === "string" ? post.author.trim() : "";
   const publisher = series.some(item => contentSeriesByKey(item.key).publisherLabel === post.author);
   const media = postHasVideoMedia2029(post) ? [{ role: "media-type", name: "וידאו", prefix: "מדיה", href: MEDIA_VIDEO_HREF }] : [];
-  return { items: [...series, ...editorial, ...media, ...sourceCategories, ...legacyMediaLabels], series, sourceCategories, legacyMediaLabels, media,
+  return { items: [...series, ...editorial, ...sourceCategories, ...legacyMediaLabels], series, sourceCategories, legacyMediaLabels, media,
     credit: author ? { name: author, prefix: publisher ? "מפרסם" : "ייחוס במקור" } : null };
 }
