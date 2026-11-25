@@ -24,7 +24,11 @@ export function postArticleByline2029(post) {
   const author = typeof post?.author === "string" ? post.author.trim() : "";
   const publisher = author && contentSeriesKeysForPost(post).some(key => contentSeriesByKey(key)?.publisherLabel === post.author);
   const date = String(post?.date || post?.modified || "").slice(0, 10);
-  return { credit: author ? `${publisher ? "מפרסם" : "ייחוס במקור"}: ${author}` : "", date, dateLabel: date ? bilingualDateLabel(date, date) : "" };
+  // The edit date (ZURIEL 25.11.2026): shown only when the Post was really edited AFTER its publication day (the stored `modified`), never invented.
+  const modifiedRaw = String(post?.modified || "").slice(0, 10);
+  const modified = /^\d{4}-\d{2}-\d{2}$/.test(modifiedRaw) && /^\d{4}-\d{2}-\d{2}$/.test(date) && modifiedRaw > date ? modifiedRaw : "";
+  return { credit: author ? `${publisher ? "מפרסם" : "ייחוס במקור"}: ${author}` : "", date, dateLabel: date ? bilingualDateLabel(date, date) : "",
+    modified, modifiedLabel: modified ? bilingualDateLabel(modified, modified) : "" };
 }
 
 // The page's duplicate-cover rule (Post2029Page effect), applied to the same body.
@@ -84,7 +88,7 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + `<header id="post-story" class="sod29-reading-hero" data-experience-capability="post-master-hero"><div class="sod29-reading-hero-grid">`
     + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
     + `<div class="sod29-reading-hero-copy"><h1>${escapeHtml(title)}</h1>`
-    + (byline.credit || byline.date ? `<p class="sod29-reading-byline">${byline.credit ? `<span>${escapeHtml(byline.credit)}</span>` : ""}${byline.date ? `<time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time>` : ""}</p>` : "")
+    + (byline.credit || byline.date ? `<p class="sod29-reading-byline">${byline.credit ? `<span>${escapeHtml(byline.credit)}</span>` : ""}${byline.date ? `<time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time>` : ""}${byline.modified ? `<time class="sod29-reading-modified" datetime="${escapeHtml(byline.modified)}">עודכן: ${escapeHtml(byline.modifiedLabel)}</time>` : ""}</p>` : "")
     + chipsHtml(classification, 4)
     + `<span class="sod29-orientation-host">${ORIENTATION_MARK}</span>`
     + `<details class="sod29-post-details"><summary><span class="sod29-reading-source-badge">${escapeHtml(sourceLabel)}</span><span class="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span></summary>`

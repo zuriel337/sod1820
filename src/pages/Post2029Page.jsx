@@ -1495,8 +1495,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         {cover}
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
-          {post.source !== "wordpress" && heroDate ? <p className="sod29-reading-byline"><time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
-          {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
+          {post.source !== "wordpress" && heroDate ? (() => { const byline = postArticleByline2029(post); return <p className="sod29-reading-byline"><time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time>{byline.modified ? <time className="sod29-reading-modified" dateTime={byline.modified}>עודכן: {byline.modifiedLabel}</time> : null}</p>; })() : null}
+          {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}{byline.modified ? <time className="sod29-reading-modified" dateTime={byline.modified}>עודכן: {byline.modifiedLabel}</time> : null}</p> : null; })() : null}
           <PostCategories2029 post={projection.sourcePost} compact max={4} />
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
           <details className="sod29-post-details">

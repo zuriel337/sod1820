@@ -1758,3 +1758,5 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 .sod29-reading-post .sod29-reading-hero-copy>.sod29-post-actions-slot{order:6;inline-size:100%}
 .sod29-reading-post .sod29-reading-hero-copy>.sod29-learn-mark-disclosure,.sod29-reading-post .sod29-learn-mark-disclosure{grid-column:auto;max-width:520px;text-align:start}
 .sod29-reading-post .sod29-reading-hero-copy>.sod29-reading-byline{justify-content:center;text-align:center;margin:0}
+.sod29-reading-post .sod29-reading-byline{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 12px}
+.sod29-reading-post .sod29-reading-modified{color:var(--s29-muted)}

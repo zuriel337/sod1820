@@ -101,3 +101,13 @@ test("comments (ZURIEL 25.11.2026): the comments with their number when there ar
   assert.match(component, /\{rows\.length \? <details open>/);
   assert.match(component, /<div className="sod29-post-comments-add">/);
 });
+
+test("the edit date (ZURIEL 25.11.2026) appears only for a real edit after the publication day", async () => {
+  const { postArticleByline2029 } = await import("../src/lib/research/postArticleDocument2029.js");
+  const edited = postArticleByline2029({ date: "2026-02-05T08:00:00Z", modified: "2026-03-01T10:00:00Z", author: "" });
+  assert.equal(edited.modified, "2026-03-01");
+  assert.match(edited.modifiedLabel, /2026/);
+  for (const post of [{ date: "2026-02-05T08:00:00Z", modified: "2026-02-05T23:00:00Z" }, { date: "2026-02-05T08:00:00Z", modified: null }, { date: "2026-02-05T08:00:00Z", modified: "garbage" }, { date: "2026-02-05T08:00:00Z", modified: "2025-01-01T00:00:00Z" }]) {
+    assert.equal(postArticleByline2029(post).modified, "", "same day, missing, malformed or earlier: no edit date");
+  }
+});
