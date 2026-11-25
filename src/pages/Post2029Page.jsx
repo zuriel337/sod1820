@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { createPortal } from "react-dom";
 import { Link, useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -27,7 +26,6 @@ import { postArticleByline2029 } from "../lib/research/postArticleDocument2029.j
 import { POST_ARTICLE_DOCUMENT_ID, documentArticleFor, documentImageFactsFor, documentArticleBodyMatches, readingPlace2029, samePlaceInPage2029, keepReaderInPlace2029, suspendScrollAnchoring2029 } from "../lib/research/postArticleAdoption2029.js";
 import { resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
-import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import { usePostOutline2029 } from "../lib/research/postOutlineDom2029.js";
 import { markSeen } from "../lib/homeMotion2029.js";
 import { seriesLatestSeenKey } from "../lib/nowPublications2029.js";
@@ -342,24 +340,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
   const mergedUpdates = !useOutline && regions.length > 1 && outlineUpdates.length > 1;
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
-  // Flagship "מפת המציאות" experience: exactly FOUR semantic entries that fit one line (message · context · connections · sources), each mapped to
-  // real content of this Post. Every other Post keeps the existing list unchanged.
-  const flagshipNav = protoOn && realityMap.active;
-  const [activeNavId, setActiveNavId] = useState(null);
-  const sectionItems = useMemo(() => flagshipNav ? [
-    { id: "nav-message", label: "מסר", targetId: "post-story", targetIds: [...previewUnitIdsFor(state.projection?.post?.id), "post-story"] },
-    { id: "nav-context", label: "הקשר", targetId: "post-research", targetIds: ["post-research", "post-measures", "post-story"] },
-    { id: "nav-connections", label: "חיבורים", targetId: state.projection?.experience?.connections?.some((item) => item.href) ? "post-connections" : "post-classification", targetIds: ["post-connections", "post-classification", "post-measures"] },
-    { id: "nav-sources", label: "מקורות", targetId: "post-sources", targetIds: ["post-sources"] },
-  ] : [
-    { id: "post-story", label: "הסיפור", targetId: "post-story" },
-    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
-    ...(state.projection?.experience?.connections?.some((item) => item.href)
-      ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
-    { id: "post-sources", label: "מקורות", targetId: "post-sources" },
-    ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
-    { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions, state.projection, commentArchiveId, flagshipNav]);
+  // The in-page tab row (story · sources · comments · next) is gone from every Post (ZURIEL 25.11.2026: one clean opening); the left rail keeps its own outline.
 
   useEffect(() => {
     const root = sourceRef.current;
@@ -417,19 +398,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       const target = targetId ? document.getElementById(targetId) : null;
       if (target && researchRef.current?.contains(target)) revealReadingAnchor(target);
     };
-    const onMapClick = event => {
-      const button = event.target?.closest?.(".sod29-surface-tabs button");
-      if (!button) return;
-      const item = sectionItems.find(entry => entry.label === (button.textContent || "").trim());
-      if (item) reveal(item.targetId || item.id);
-    };
     let targetId = "";
     try { targetId = decodeURIComponent((location.hash || "").replace(/^#/, "")); } catch { /* A malformed URL fragment has no target. */ }
     reveal(targetId);
-    if (mapReadingLayout) return undefined;
-    document.addEventListener("click", onMapClick, true);
-    return () => document.removeEventListener("click", onMapClick, true);
-  }, [location.hash, state.projection, bennettResearchHost, mapReadingLayout, sectionItems]);
+    return undefined;
+  }, [location.hash, state.projection, bennettResearchHost, mapReadingLayout]);
 
   // Entering a reality-map Post settles the "latest update" dot in "עכשיו" for this viewer (the existing per-browser seen state; a newer registered unit makes it blink again).
   useEffect(() => {
@@ -1639,9 +1612,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         </ul>
       </details> : null}
     </aside> : null}
-    {!mapReadingLayout && protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
     {!mapReadingLayout ? cover : null}
-    {!mapReadingLayout ? <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" activeId={flagshipNav ? activeNavId : null} onSelect={flagshipNav ? (item) => setActiveNavId(item.id) : null} /> : null}
     {mapReadingLayout && !bennettTimeline && (hasResearchContent || researchOpen || researchAnchorRequested) ? researchDisclosure : null}
 
     {!bennettTimeline ? <PostEvidenceMedia2029 media={experience.media} /> : null}

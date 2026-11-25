@@ -8,7 +8,6 @@ import { bilingualDateLabel } from "../relativeTime2029.js";
 import { postBackground2029 } from "./postBackground2029.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./contentSeries2029Identity.js";
 import { postClassification2029 } from "./postClassification2029.js";
-import { SEMANTIC_LEGEND } from "./postSemanticDesign2029.js";
 import { clean, postPlainText2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
 import { postVoiceFor } from "../postVoice2029.js";
 import { POST_ARTICLE_THEME_SCRIPT, POST_ARTICLE_FRAME_CLOSE, postArticleFrameOpen2029 } from "./postArticleFrame2029.js";
@@ -55,14 +54,6 @@ const ORIENTATION_MARK = '<span class="sod29-entry-orientation-slot is-in-header
   + '<button type="button" class="sod29-learn-mark-trigger" aria-expanded="false" aria-disabled="true" aria-label="איך זה עובד? — חדש כאן? מה עושים בפוסט הזה?"><span class="sod29-learn-mark-symbol" aria-hidden="true">?</span>'
   + '<span class="sod29-learn-mark-label">איך זה עובד?</span></button></div></span>';
 
-// The page's section navigation for an ordinary imported Post before its context arrives (Post2029Page sectionItems): the story, the sources,
-// the comment archive when the Post has one, and what comes next. A "connections" tab is added by the page when its connections resolve.
-function sectionNavHtml(post) {
-  const comments = /^[1-9]\d*$/.test(clean(post.wp_id)) && Number.isSafeInteger(Number(post.wp_id));
-  const labels = ["הסיפור", "מקורות", ...(comments ? ["תגובות"] : []), "המשך"];
-  return `<nav class="sod29-surface-tabs" aria-label="בתוך הפוסט" data-experience-capability="surface-section-nav">${labels.map(label => `<button type="button" class="" aria-disabled="true">${label}</button>`).join("")}</nav>`;
-}
-
 // facts: the real widths of the originals (public-reading-deploy/article-image-facts.json); the document carries exactly this Post's ones, so the page
 // offers exactly the same copies (documentImageFactsFor in postArticleAdoption2029.js).
 export function postArticleDocumentHtml2029(post, { document = globalThis.document, path = "", facts = null } = {}) {
@@ -101,9 +92,7 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + (excerpt ? `<p>${escapeHtml(excerpt)}</p>` : "")
     + `<p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p>`
     + `</div></details></div></div></header>`
-    + (voice !== "original" ? `<details class="sod29-semantic-legend" data-experience-capability="post-semantic-legend"><summary>מקרא הסמלים בפוסט</summary><dl>${SEMANTIC_LEGEND.map(item => `<dt><span aria-hidden="true">${escapeHtml(item.symbol)}</span> ${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.detail)}</dd>`).join("")}</dl></details>` : "")
     + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
-    + sectionNavHtml(post)
     + `<div class="sod29-reading-layout"><section class="sod29-reading-source" aria-label="טקסט המקור" data-ssr-body="true">${template.innerHTML}</section></div>`
     + `</article>` + POST_ARTICLE_FRAME_CLOSE;
 }

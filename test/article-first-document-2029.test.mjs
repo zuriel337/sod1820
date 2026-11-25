@@ -283,3 +283,10 @@ test("with the originals' real widths, the cover and the article offer only smal
   assert.equal(plainDoc.getElementById("sod29-ssr-article").hasAttribute("data-ssr-image-facts"), false);
   assert.deepEqual(widths(plainDoc.querySelector("[data-ssr-cover] img").getAttribute("srcset")), ["480w", "768w", "1080w", "1600w"]);
 });
+
+// ZURIEL 25.11.2026: the first document carries no in-page tab row, no symbol legend and none of the words סיווג במקור / סיווג ישן, exactly like the page.
+test("the first document has no in-page tab row, no symbol legend and no classification captions", async () => {
+  const source = readFileSync(new URL("../src/lib/research/postArticleDocument2029.js", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /sod29-surface-tabs|sod29-semantic-legend|sectionNavHtml|SEMANTIC_LEGEND/);
+  assert.doesNotMatch(source, /סיווג במקור|סיווג ישן|סיווג לא במקור/);
+});

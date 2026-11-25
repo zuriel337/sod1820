@@ -74,7 +74,7 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
     const key = KIND_ORDER.includes(label.kind) ? label.kind : "";
     const href = key === "כתב" ? safeInternal(links[container]) : safeInternal(label.link);
     const entry = { topic: container, topics: [topic], icon: KIND_ICON[key], label: label.label, href,
-      note: legacySeries && container === topic ? "מעקב שנשמר לפי הסיווג הישן; הוא לא הומר למעקב סדרה." : null };
+      note: legacySeries && container === topic ? "מעקב שנשמר לפי הקטגוריה; הוא לא הומר למעקב סדרה." : null };
     entries.set(container, entry);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(entry);
@@ -82,7 +82,7 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
   for (const entry of entries.values()) {
     entry.change = entry.topics.some(topic => pending[topic] === "pending") ? "pending"
       : entry.topics.some(topic => pending[topic] === "failed") ? "failed" : "idle";
-    if (entry.topics.length > 1) entry.note = "נשמר גם מעקב בסיווג הישן. ביטול כאן יפסיק את שני המעקבים.";
+    if (entry.topics.length > 1) entry.note = "נשמר גם מעקב בקטגוריה. ביטול כאן יפסיק את שני המעקבים.";
   }
   const followGroups = KIND_ORDER.filter((key) => groups.has(key)).map((key) => ({ key, heading: KIND_HEADINGS[key], items: groups.get(key) }));
   const followCount = fState === "ready" ? followGroups.reduce((sum, group) => sum + group.items.length, 0) : null;

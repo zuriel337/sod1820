@@ -54,7 +54,12 @@ test("historical video and series URLs preserve their original result sets and d
       assert.doesNotMatch(scope.compatibilityNote, /סיווג ישן|תחזוקה/);
       assert.doesNotMatch(scope.compatibilityNote, /כל הסרטונים/);
       assert.deepEqual(scope.mediaLinks.map(link => link.href), ["/2029/posts?media=video", "/2029/posts?media=video&view=videos"], "the way to the real media views");
-    } else assert.match(scope.label, /סיווג/);
+    } else {
+      // ZURIEL 25.11.2026: the public terms are a series, a category and a tag; the captions "סיווג במקור" / "סיווג ישן" are not shown anywhere.
+      assert.equal(scope.label, category);
+      assert.match(scope.compatibilityNote, /קטגוריה/);
+    }
+    assert.doesNotMatch(`${scope.label} ${scope.compatibilityNote}`, /סיווג/);
     const calls = [];
     const query = { then: yes => Promise.resolve({ data: [], error: null, count: 0 }).then(yes) };
     for (const method of ["select", "or", "overlaps", "eq", "order", "range"]) query[method] = (...args) => { calls.push([method, ...args]); return query; };
@@ -75,4 +80,11 @@ test("the media type is read from the media itself: a post with a playable video
   assert.equal(postClassification2029(none).media.length, 0);
   assert.equal(postClassification2029(legacyOnly).media.length, 0, "the legacy category alone is not a media type");
   assert.equal(postClassification2029({ ...withVideo, tags: ["טיוטה"] }).media, undefined, "a suppressed post classifies nothing");
+});
+
+test("no Post chip, title or first-document caption carries the words סיווג במקור / סיווג לא במקור / סיווג ישן (ZURIEL 25.11.2026)", () => {
+  const post = { id: 1, title: "x", categories: ["מצגות", "רמזים חזקים", "תיעוד אירועים", "וידאו"], tags: [], content: "https://youtu.be/AAAAAAAAAAA" };
+  const result = postClassification2029(post);
+  for (const item of result.items) assert.doesNotMatch(`${item.prefix} ${item.name}`, /סיווג/, item.role);
+  assert.deepEqual([...new Set(result.items.filter(item => item.role !== "series" && item.role !== "media-type").map(item => item.prefix))], ["קטגוריה"]);
 });

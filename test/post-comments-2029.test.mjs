@@ -60,3 +60,14 @@ test("the native post mounts the archive behind its public projection and uses t
   assert.match(page, /publicPostCommentArchiveId\(state\.projection\)/);
   assert.match(page, /commentArchiveId != null \? <PostComments2029/);
 });
+
+test("comments (ZURIEL 25.11.2026): the comments with their number when there are some, ONLY the action «רשום תגובה» when there are none, and no source or old/new labels", () => {
+  const component = readFileSync(new URL("../src/components/experience2029/PostComments2029.jsx", import.meta.url), "utf8").split("\n").filter(line => !/^\s*\/\//.test(line)).join("\n");   // code only, not comments
+  assert.match(component, /<summary>תגובות \(\{rows\.length\}\)<\/summary>/, "the number of comments");
+  assert.match(component, /"רשום תגובה"/, "the one action");
+  assert.doesNotMatch(component, /רוצים להוסיף משהו|להוסיף בקהילה/, "no extra invitation text and no second wording for the action");
+  assert.doesNotMatch(component, /ורדפרס|וורדפרס|WordPress|תגובות ישנות|תגובות חדשות/i, "no source or old/new labels");
+  // With no rows nothing but the action is drawn: the list block is conditional on rows, the action block on the href only.
+  assert.match(component, /\{rows\.length \? <details open>/);
+  assert.match(component, /\{href \? <div className="sod29-post-comments-add">/);
+});

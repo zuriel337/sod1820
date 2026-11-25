@@ -519,7 +519,7 @@ function PostsCatalogPage2029({ taxonomyScope = null, onSearchParams = null, ver
             {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-taxonomy-label"><NavigationIcon2029 name="layers" size={20} />{taxonomyLabel}</p> : null}
             <h1>{title}</h1>
             {scope.kind === "all" ? <p className="sod29-posts-library-intro">סיפורים, רמזים וחיבורים שמעוררים התבוננות</p> : null}
-            {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-library-intro">{lectureCatalog ? "קטלוג ההרצאות מתוך הפוסטים שבקטגוריה: תכנים, סרטונים ומקורות כפי שפורסמו, עם חיפוש ועיון לפי עדכון." : scope.kind === "tag" ? "לקרוא ולגלות דרך הפוסטים עם התגית הזו" : "הפוסטים שנאספו תחת הסיווג הזה"}</p> : null}
+            {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-library-intro">{lectureCatalog ? "קטלוג ההרצאות מתוך הפוסטים שבקטגוריה: תכנים, סרטונים ומקורות כפי שפורסמו, עם חיפוש ועיון לפי עדכון." : scope.kind === "tag" ? "לקרוא ולגלות דרך הפוסטים עם התגית הזו" : "הפוסטים שנאספו תחת הקטגוריה הזו"}</p> : null}
             {researchCategory && <p>{researchCategory.toolNotice}</p>}
             {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
             {scope.sourceLink ? <p><Link className="sod29-posts-library-back" to={scope.sourceLink.href}>{scope.sourceLink.label} ←</Link></p> : null}

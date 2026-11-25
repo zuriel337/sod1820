@@ -509,7 +509,7 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       const alignment=await hero.evaluate(node=>{const parent=node.parentElement.getBoundingClientRect(),box=node.getBoundingClientRect();return Math.abs((box.x+box.width/2)-(parent.x+parent.width/2));});
       assert.ok(alignment<2,'Post classifications share the centered title axis');
       assert.equal(await hero.locator('[data-post-classification="legacy-media-label"]').count(),0);
-      assert.ok(await hero.getByRole('link',{name:'סיווג במקור: שבילי שפה',exact:true}).isVisible());
+      assert.ok(await hero.getByRole('link',{name:'קטגוריה: שבילי שפה',exact:true}).isVisible());
       const geometry=await series.evaluate(node=>({height:node.getBoundingClientRect().height,size:getComputedStyle(node).fontSize}));
       assert.ok(geometry.height>=44);assert.equal(geometry.size,'14px');
       await series.focus();assert.equal(await series.evaluate(node=>document.activeElement===node),true);

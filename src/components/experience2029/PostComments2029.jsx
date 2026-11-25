@@ -9,10 +9,10 @@ const dateFormat = new Intl.DateTimeFormat("he-IL", {
   day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
 });
 
-// The end of a Post (ZURIEL 20.11.2026): comments that already exist for this Post are shown; when there are none, nothing about them is
-// shown (no empty archive and no "previous site" wording). A reader who wants to add something writes it in the community: the button
-// uses the EXISTING «שתפו בקהילה» path (communityShareDraft → the person's own community draft → the existing composer), so the reader's
-// own words are required and nothing is sent from here.
+// The end of a Post (ZURIEL 20.11.2026, restated 25.11.2026): the public comments that already exist for this Post are shown, one way for every Post, with their
+// number; when there are none, ONLY the action "רשום תגובה" is shown (no empty archive, no "previous site" or "WordPress" wording, no old/new labels). The action
+// uses the EXISTING «שתפו בקהילה» path (communityShareDraft → the person's own community draft → the existing composer): the reader's own words are required and
+// nothing is sent from here. New comments live in the community; they are not part of this archive projection.
 export default function PostComments2029({ postWpId, href = "", title = "" }) {
   const navigate = useNavigate();
   const auth = useAuth();
@@ -59,9 +59,8 @@ export default function PostComments2029({ postWpId, href = "", title = "" }) {
       </ol>
     </details> : null}
     {href ? <div className="sod29-post-comments-add">
-      <p><strong>רוצים להוסיף משהו?</strong> כתבו כמה מילים משלכם, והן יעלו לקהילה יחד עם הקישור לפוסט.</p>
       <button type="button" className="sod29-post-comments-button" data-action="community" onClick={toCommunity} aria-busy={opening} aria-describedby="post-comments-add-hint">
-        {opening ? "פותחים את הקהילה…" : "להוסיף בקהילה"}
+        {opening ? "פותחים את הקהילה…" : "רשום תגובה"}
       </button>
       {note ? <p id="post-comments-add-hint" className="sod29-post-comments-hint" role="status">{note}</p> : <span id="post-comments-add-hint" hidden>נפתח חלון כתיבה בקהילה עם הקישור לפוסט</span>}
     </div> : null}

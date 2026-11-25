@@ -120,7 +120,7 @@ export function postFollowCandidates2029({ post = null, scope = null } = {}) {
     : scope?.kind === "category" && scope.key !== "וידאו" ? [scope.key] : [];
   // The modern entry offers one series target. Old category choices stay
   // readable/cancellable in the center; they are never silently converted.
-  for (const name of [...new Set(categories)].filter(name => !CONTENT_SERIES_2029.some(spec => seriesShadowedCategories(spec).includes(name))).slice(0, 16)) candidates.push({ entityType: "category", stableId: name, topic: `cat:${name}`, label: name, kind: "סיווג במקור", icon: "layers" });
+  for (const name of [...new Set(categories)].filter(name => !CONTENT_SERIES_2029.some(spec => seriesShadowedCategories(spec).includes(name))).slice(0, 16)) candidates.push({ entityType: "category", stableId: name, topic: `cat:${name}`, label: name, kind: "קטגוריה", icon: "layers" });
   const author = typeof post?.author === "string" ? post.author : "";
   const publisher = series.some(item => contentSeriesByKey(item.key)?.publisherLabel === author);
   if (author && author === author.trim() && author !== "המערכת" && !publisher) candidates.push({ entityType: "author", stableId: author, topic: `author:${author}`, label: author, kind: "ייחוס במקור", icon: "posts" });
