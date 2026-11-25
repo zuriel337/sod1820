@@ -1,0 +1,394 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HOME-NOW · Royal 2029 preview (light)</title>
+<style>/* ROYAL 2029 — the shared Royal design layer of SOD1820 (ZURIEL 11.11.2026). Prototype surface: "עכשיו · המרכז".
+   Opt-in: only an element carrying .r29 (and its subtree) uses it, so no other surface changes until it is adopted on purpose.
+
+   NO parallel palette. Every colour below is a role of the canonical 2029 palette (paletteTokens2029.js → SystemFrame2029 shellStyle → --s29-*),
+   resolved per preset (Day / Parchment / Night) by the frame itself:
+     gold      ← --s29-brand-gold          (crown gold; the identity)
+     violet    ← --s29-accent-secondary    (Design V2 "violet depth")
+     sapphire  ← --s29-brand-sapphire      (royal blue)
+     azure     ← --s29-accent-text         (readable royal blue on the surface)
+     teal      ← --s29-discovery           (discovery / turquoise)
+     amber     ← --s29-warm-accent         (warm gold)
+   Surfaces, ink, lines, focus, type and motion are the canonical --s29-* tokens. Intensity is the only thing tuned per preset
+   (deep glow at Night, a lighter wash in Day and Parchment) so the same component reads richly and legibly in all three.
+
+   Components:  .r29-hall (a royal surface with layered light and a double hairline frame) · .r29-medal (medallion) · .r29-coin (a number)
+                .r29-badge (new / updated / pinned / kind) · .r29-chip (a choice with a medallion) · .r29-btn (primary / gold / quiet)
+                .r29-card (a row in a hue, open = deeper) · .r29-rule (an ornamental divider)
+   Hue per kind: [data-r29-kind] or the existing [data-tone] → --r29-hue. */
+
+.r29{
+  --r29-gold:var(--s29-brand-gold);
+  --r29-gold-ink:color-mix(in oklab,var(--s29-brand-gold) 82%,var(--s29-ink));
+  --r29-violet:var(--s29-accent-secondary);
+  --r29-violet-deep:color-mix(in oklab,var(--s29-accent-secondary) 58%,var(--s29-brand-sapphire));  /* royal purple: violet depth × sapphire */
+  --r29-sapphire:var(--s29-brand-sapphire);
+  --r29-azure:var(--s29-accent-text);
+  --r29-teal:var(--s29-discovery);
+  --r29-amber:var(--s29-warm-accent);
+  --r29-rose:color-mix(in oklab,var(--s29-accent-secondary) 62%,var(--s29-brand-gold));
+  /* intensity (Night) */
+  --r29-wash:10%;--r29-wash-open:18%;--r29-glow:34%;--r29-frame:46%;--r29-hair:26%;
+  --r29-shadow:0 18px 44px -18px color-mix(in srgb,var(--s29-page) 85%,transparent),0 2px 0 0 color-mix(in srgb,var(--s29-ink) 4%,transparent) inset;
+  --r29-radius:20px;--r29-radius-sm:14px;
+  --r29-shine:white;  /* neutral specular light (not a hue) */
+  --r29-hue:var(--r29-gold);
+}
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .r29{
+  --r29-wash:6%;--r29-wash-open:12%;--r29-glow:16%;--r29-frame:48%;--r29-hair:30%;
+  --r29-shadow:0 14px 34px -20px color-mix(in srgb,var(--s29-ink) 40%,transparent),0 1px 0 0 color-mix(in srgb,var(--r29-shine) 70%,transparent) inset;
+}
+
+/* Hue by kind — one mapping for the whole site. */
+.r29 :is([data-r29-kind="post"],[data-r29-kind="site"],[data-tone="sky"]){--r29-hue:var(--r29-azure)}
+.r29 :is([data-r29-kind="channel"],[data-r29-kind="all"],[data-tone="gold"]){--r29-hue:var(--r29-gold)}
+.r29 :is([data-r29-kind="group"],[data-tone="teal"]){--r29-hue:var(--r29-teal)}
+.r29 :is([data-r29-kind="series"],[data-tone="violet"]){--r29-hue:var(--r29-violet)}
+.r29[data-r29-kind="pinned"],.r29 [data-r29-kind="pinned"]{--r29-hue:var(--r29-violet-deep)}
+.r29 :is([data-r29-kind="hint"],[data-tone="rose"]){--r29-hue:var(--r29-rose)}
+.r29 [data-r29-kind="update"]{--r29-hue:var(--r29-gold)}
+.r29 [data-tone="ember"]{--r29-hue:var(--r29-amber)}
+/* the older Now tones resolve to the same canonical roles inside a Royal surface */
+.r29 [data-tone]{--tone:var(--r29-hue)}
+
+/* Hall: layered royal light (gold crown light from above, violet depth, sapphire floor), a double hairline frame and a top sheen. */
+.r29-hall{position:relative;isolation:isolate;border-radius:var(--r29-radius);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-hue) var(--r29-frame),var(--s29-line));
+  background:
+    radial-gradient(90% 60% at 50% -12%,color-mix(in srgb,var(--r29-gold) var(--r29-glow),transparent),transparent 70%),
+    radial-gradient(70% 70% at 100% 10%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
+    radial-gradient(80% 60% at 0% 110%,color-mix(in srgb,var(--r29-sapphire) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+  box-shadow:var(--r29-shadow),inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-hue) var(--r29-hair),transparent)}
+.r29-hall.is-feature{--r29-wash:calc(var(--r29-wash-open) * 1.6)}  /* a featured hall (the pinned Post): the deep hue carries the surface */
+.r29-hall::before{content:"";position:absolute;z-index:-1;inset-inline:18%;inset-block-start:-1px;block-size:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 90%,var(--r29-shine)),transparent)}
+
+/* Medallion: a gold-ringed disc holding an approved icon or logo. */
+.r29-medal{display:grid;place-items:center;flex:none;inline-size:var(--r29-medal,40px);block-size:var(--r29-medal,40px);border-radius:50%;overflow:hidden;
+  color:color-mix(in srgb,var(--r29-hue) 85%,var(--s29-ink));
+  background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--r29-hue) 30%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel)) 72%);
+  box-shadow:0 0 0 1.5px color-mix(in srgb,var(--r29-gold) 70%,transparent),0 0 0 3.5px color-mix(in srgb,var(--s29-panel) 80%,transparent),0 0 0 4.5px color-mix(in srgb,var(--r29-hue) 40%,transparent),
+    0 6px 14px -6px color-mix(in srgb,var(--r29-hue) 60%,transparent)}
+.r29-medal :is(img){inline-size:100%;block-size:100%;object-fit:cover}
+.r29-medal svg{inline-size:55%;block-size:55%}
+
+/* Coin: a number, struck in gold. */
+.r29-coin{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-block-size:44px;padding:2px 14px;border-radius:999px;text-decoration:none;color:var(--r29-gold-ink);
+  border:1px solid color-mix(in srgb,var(--r29-gold) 70%,transparent);
+  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 30%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 10%,var(--s29-panel)) 70%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 22%,transparent),inset 0 -2px 0 color-mix(in srgb,var(--s29-page) 30%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 70%,transparent)}
+.r29-coin b{font:800 1em/1.1 var(--s29-font-numeric,var(--s29-font-ui,inherit));letter-spacing:.03em;font-variant-numeric:tabular-nums;color:inherit}
+
+/* Badge: new (gold, finite pulse) · updated (violet) · pinned (violet, static) · kind (its hue, quiet). */
+.r29-badge{display:inline-flex;align-items:center;gap:5px;padding:0 9px;min-block-size:22px;border-radius:999px;font:750 12.5px/1 var(--s29-font-ui,inherit);white-space:nowrap;
+  color:color-mix(in srgb,var(--r29-hue) 78%,var(--s29-ink));border:1px solid color-mix(in srgb,var(--r29-hue) 45%,transparent);background:color-mix(in srgb,var(--r29-hue) 16%,var(--s29-panel))}
+.r29-badge.is-new{--r29-hue:var(--r29-gold);color:var(--s29-page);border-color:transparent;background:var(--r29-gold);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 35%,transparent);
+  animation:r29-pulse 1.4s ease-out 3}
+.r29-badge.is-updated,.r29-badge.is-pinned{--r29-hue:var(--r29-violet)}
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .r29 .r29-badge.is-new{background:color-mix(in oklab,var(--r29-gold) 78%,var(--s29-ink))}
+@keyframes r29-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--r29-hue) 60%,transparent)}100%{box-shadow:0 0 0 7px transparent}}
+
+/* Chip: a choice with its medallion; pressed = lit in its hue. */
+.r29-chip{display:inline-flex;align-items:center;gap:8px;min-block-size:46px;padding:4px 14px 4px 8px;border-radius:999px;cursor:pointer;font:inherit;color:var(--s29-ink);text-align:start;white-space:nowrap;
+  border:1px solid color-mix(in srgb,var(--r29-hue) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel));
+  transition:background-color var(--s29-motion,180ms) ease,border-color var(--s29-motion,180ms) ease,box-shadow var(--s29-motion,180ms) ease}
+.r29-chip .r29-medal{--r29-medal:30px}
+.r29-chip[aria-pressed="true"]{border-color:color-mix(in srgb,var(--r29-hue) 85%,transparent);
+  background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--r29-hue) 34%,var(--s29-panel)),color-mix(in srgb,var(--r29-hue) 16%,var(--s29-panel)));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-hue) 40%,transparent),0 6px 18px -8px color-mix(in srgb,var(--r29-hue) 80%,transparent)}
+
+/* Buttons. */
+.r29-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-block-size:44px;padding:0 16px;border-radius:999px;cursor:pointer;text-decoration:none;
+  font:700 15px/1 var(--s29-font-ui,inherit);color:var(--s29-ink);border:1px solid color-mix(in srgb,var(--r29-hue) 50%,var(--s29-line));background:color-mix(in srgb,var(--r29-hue) 12%,var(--s29-panel))}
+/* Primary = royal blue (Design V2 §14.2, ZURIEL 19.11.2026; formerly violet depth): the palette's accent button fill with onAccent text,
+   a thin gold hairline as the brand ornament. Exact tones are pending the preview (§14.7). */
+.r29-btn.is-primary{--r29-hue:var(--s29-accent);color:var(--s29-on-accent);border-color:color-mix(in srgb,var(--r29-gold) 38%,transparent);
+  background:var(--s29-accent-btn,var(--s29-accent));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent),0 8px 20px -10px color-mix(in srgb,var(--s29-accent) 85%,transparent)}
+/* One button family (§14.4): one height, a full-width block form, a platform mark, and the same press/disabled/busy states everywhere. */
+.r29-btn.is-block{inline-size:100%;min-block-size:48px;font-size:16px}
+.r29-btn .r29-btn-icon{display:inline-grid;place-items:center;flex:none}
+.r29-btn .r29-btn-icon svg{inline-size:20px;block-size:20px}
+.r29-btn .r29-mark{display:inline-grid;place-items:center;flex:none;inline-size:24px;block-size:24px;border-radius:50%;color:var(--r29-shine)}
+.r29-btn .r29-mark svg{inline-size:14px;block-size:14px}
+.r29-btn{transition:transform var(--s29-motion,180ms) ease,filter var(--s29-motion,180ms) ease,background-color var(--s29-motion,180ms) ease}
+@media (hover:hover){.r29-btn:not(:disabled):hover{filter:brightness(1.06)}}
+.r29-btn:not(:disabled):active{transform:scale(.97)}
+.r29-btn:disabled,.r29-btn[aria-busy="true"]{cursor:default;opacity:.6;transform:none}
+.r29-btn[data-state="success"]{border-color:color-mix(in srgb,var(--action-success,var(--s29-accent)) 70%,transparent)}
+.r29-btn.is-gold{--r29-hue:var(--r29-gold)}
+.r29-btn.is-quiet{background:transparent;border-color:color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line))}
+
+/* Card: a thin row in its hue — a lit edge, a soft wash; open = a deeper wash and a full hue frame. */
+.r29-card{position:relative;border-radius:var(--r29-radius-sm);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-hue) var(--r29-hair),var(--s29-line));
+  background:linear-gradient(90deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),color-mix(in srgb,var(--s29-panel) 92%,transparent))}
+.r29-card::before{content:"";position:absolute;inset-block:10px;inset-inline-start:-1px;inline-size:3px;border-radius:3px;background:var(--r29-hue);
+  box-shadow:0 0 10px color-mix(in srgb,var(--r29-hue) 70%,transparent)}
+.r29-card:is([open],.is-open,.is-selected){border-color:color-mix(in srgb,var(--r29-hue) var(--r29-frame),var(--s29-line));
+  background:radial-gradient(120% 70% at 100% 0%,color-mix(in srgb,var(--r29-hue) var(--r29-wash-open),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+  box-shadow:var(--r29-shadow)}
+.r29-card:is([open],.is-open,.is-selected)::before{inset-block:0}
+
+/* Ornamental rule: a gold line with a diamond. */
+.r29-rule{display:flex;align-items:center;gap:10px;color:var(--r29-gold);font-size:10px}
+.r29-rule::before,.r29-rule::after{content:"";flex:1;block-size:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 60%,transparent))}
+.r29-rule::after{transform:scaleX(-1)}
+
+.r29 :is(.r29-btn,.r29-chip,.r29-coin):focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.r29 .r29-badge.is-new{animation:none}.r29 :is(.r29-chip,.r29-btn){transition:none}.r29 .r29-btn:active{transform:none}}
+@media (forced-colors:active){.r29 :is(.r29-hall,.r29-card,.r29-chip,.r29-btn,.r29-coin,.r29-badge){border:1px solid CanvasText;background:Canvas;box-shadow:none}.r29-card::before{background:Highlight}}
+
+/* Share (Design V2 §14.2/§14.4): one royal-blue main action, then the channels as equal quiet buttons in a centered 2-column grid. */
+.r29-share{display:grid;gap:10px;justify-items:center;inline-size:100%}
+.r29-share-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;inline-size:100%}
+.r29-share-grid .r29-btn{inline-size:100%;min-block-size:46px;padding-inline:12px}
+.r29-share .sod-action-announcement:empty{display:none}
+.r29-share-grid>:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;inline-size:min(100%,calc(50% - 4px))}
+/* «שתפו בקהילה» and QR inside the one share window (ZURIEL 19.11.2026): the same quiet buttons as the channels, one row of two. */
+.r29-share-more{display:grid;gap:8px;inline-size:100%;padding-block-start:10px;border-block-start:1px solid color-mix(in srgb,var(--r29-gold) 16%,var(--s29-line))}
+.r29-share-more-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.r29-share-more-row .r29-btn{inline-size:100%;min-block-size:46px;padding-inline:12px}
+.r29-qr-glyph{font-size:18px;line-height:1}
+.r29-share-hint{margin:0;text-align:center;font-size:14px;line-height:1.5;color:var(--s29-muted)}
+.r29-share-qr{display:grid;justify-items:center;gap:8px;margin:4px 0 0}
+/* the QR drawing carries its own white quiet zone (uqr, border 2 modules), so the layer adds no colour of its own */
+.r29-share-qr-code{inline-size:min(208px,70vw);aspect-ratio:1;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 30%,transparent)}
+.r29-share-qr-code svg{display:block;inline-size:100%;block-size:100%}
+.r29-share-qr figcaption,.r29-share-qr p{margin:0;text-align:center;font-size:14px;color:var(--s29-muted)}
+
+/* "האזור האישי שלי" in the Royal 2029 language of "עכשיו" and "עוד" (ZURIEL 11.11.2026). LAYOUT + the personal accent only.
+   Every colour is a canonical --s29-* role through royal2029.css (.r29-*), resolved per preset (Day / Parchment / Night):
+   sapphire is the personal area's own hue (the whole area), gold marks the one main action and the numbers (coins).
+   No parallel palette. The long lists (research, follows, Raziel) keep their existing markup and old classes inside a disclosure. */
+
+.pa29{display:grid;gap:14px;inline-size:100%;max-inline-size:100%;min-inline-size:0;box-sizing:border-box;color:var(--s29-ink);text-align:start;overflow-x:clip}
+.pa29 *,.pa29 *::before,.pa29 *::after{box-sizing:border-box}
+/* Nothing in the panel may be wider than the panel: long names, e-mails and Hebrew phrases wrap or truncate, never push the layout. */
+.pa29 :where(div,section,span,strong,small,b,p,li,button,summary,a,ul){min-inline-size:0}
+.pa29 :where(strong,small,b,p,li,span){overflow-wrap:anywhere}
+
+/* The personal hue is sapphire everywhere inside the area. */
+.pa29 [data-r29-kind],.pa29[data-personal-area]{--r29-hue:var(--r29-sapphire)}
+
+/* ── The hall: the account first ───────────────────────────────────────────────────────────────────────────────────────────── */
+.pa29-hall{display:grid;gap:12px;padding:16px 14px 14px}
+.pa29-id{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px}
+.pa29-avatar{--r29-medal:54px;color:var(--r29-gold-ink)}
+.pa29-avatar .sod29-user-avatar{inline-size:100%;block-size:100%;border:0;border-radius:50%;background:none;box-shadow:none;display:grid;place-items:center}
+.pa29-avatar .sod29-user-avatar :is(img,b){inline-size:100%;block-size:100%;object-fit:cover;border-radius:50%;display:grid;place-items:center;font:800 22px/1 var(--s29-font-ui,inherit)}
+.pa29-id-text{display:grid;gap:2px}
+.pa29-id-text strong{font:800 19px/1.25 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+.pa29-id-text small{font-size:14px;color:var(--s29-muted);direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+.pa29-badge[data-pa29-badge="out"]{--r29-hue:var(--r29-amber)}
+.pa29-coins{display:flex;flex-wrap:wrap;gap:8px}
+.pa29-coin{min-block-size:38px;padding:2px 14px;gap:7px;font-size:17px}
+.pa29-coin small{font:600 12.5px/1 var(--s29-font-ui,inherit);color:var(--s29-muted)}
+.pa29-actions{display:grid}
+/* The ONE main action: royal blue (Design V2 §14.2, ZURIEL 19.11.2026; formerly gold), onAccent text in every preset. */
+.pa29-primary{min-block-size:48px;inline-size:100%;padding:0 18px;border-radius:999px;cursor:pointer;font:800 16px/1.2 var(--s29-font-ui,inherit);text-align:center;
+  color:var(--s29-on-accent);border:1px solid color-mix(in srgb,var(--r29-gold) 38%,transparent);background:var(--s29-accent-btn,var(--s29-accent));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent),0 10px 22px -12px color-mix(in srgb,var(--s29-accent) 85%,transparent)}
+.pa29-primary:hover{filter:brightness(1.05)}
+.pa29-primary:focus-visible,.pa29 :is(.pa29-card,.pa29-more-head):focus-visible,.pa29 summary:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
+
+/* The existing account entry (AccountEntry2029) sits inside the hall without its own card; when signed in it shows only its actions. */
+.pa29-account{display:grid;gap:8px}
+.pa29-account :is(.sod29-workspace-account,.sod29-auth-card){margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+.pa29-account .sod29-account-entry{inline-size:100%;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+.pa29-account .sod29-account-entry[data-auth-state="signed-in"]>:is(h2,.sod29-auth-eyebrow,p:not([role]),small,a.sod29-auth-primary,a.sod29-auth-secondary){display:none}
+.pa29-account .sod29-account-entry[data-auth-state="signed-in"]{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pa29-account .sod29-account-entry[data-auth-state="signed-in"]>:is(button,.sod29-auth-link),.pa29-account .sod29-account-entry[data-auth-state="signed-in"] .sod29-auth-set-password>button{min-block-size:44px;padding:0 14px;border-radius:999px;font:700 14.5px/1.1 var(--s29-font-ui,inherit);text-decoration:none;
+  color:var(--s29-ink);border:1px solid color-mix(in srgb,var(--r29-sapphire) 50%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));cursor:pointer}
+.pa29-account .sod29-account-entry[data-auth-state="signed-in"] .sod29-auth-set-password,.pa29-account .sod29-account-entry[data-auth-state="signed-in"] .sod29-auth-set-password>*{inline-size:100%}
+.pa29-account .sod29-account-entry h2{margin:0 0 6px;font:750 18px/1.25 var(--s29-font-ui,inherit)}
+
+/* ── Groups and compact cards ─────────────────────────────────────────────────────────────────────────────────────────────── */
+.pa29-group{display:grid;gap:8px}
+.pa29-h{display:flex;align-items:center;gap:8px;margin:0 2px;font:750 15px/1.2 var(--s29-font-ui,inherit);color:var(--r29-gold-ink);letter-spacing:.01em}
+.pa29-h .r29-rule{display:inline-flex;flex:none;inline-size:auto;color:var(--r29-gold);font-size:9px}
+.pa29-h .r29-rule::before,.pa29-h .r29-rule::after{display:none}
+.pa29-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,232px),1fr));gap:8px}
+.pa29-card,.pa29-more-head{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:10px;inline-size:100%;min-block-size:58px;padding:8px 12px 8px 10px;margin:0;
+  font:inherit;text-align:start;color:var(--s29-ink);-webkit-tap-highlight-color:transparent}
+button.pa29-card,.pa29-more-head{cursor:pointer}
+.pa29-more-head{background:none;border:0;border-radius:inherit}
+.pa29-medal{--r29-medal:40px}
+.pa29-medal svg{inline-size:52%;block-size:52%}
+.pa29-card-text{display:grid;gap:2px;min-inline-size:0}
+.pa29-card-text strong{font:700 15.5px/1.25 var(--s29-font-ui,inherit)}
+.pa29-card-text small{font:500 13.5px/1.35 var(--s29-font-body,var(--s29-font-ui,inherit));color:var(--s29-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pa29-chev{inline-size:9px;block-size:9px;flex:none;border-inline-end:2px solid color-mix(in srgb,var(--r29-hue) 80%,var(--s29-ink));border-block-end:2px solid color-mix(in srgb,var(--r29-hue) 80%,var(--s29-ink));transform:rotate(45deg);margin-inline-end:4px}
+/* A card opens a destination: the chevron points forward (left in RTL). A disclosure points down, and up when open. */
+.pa29-more-head .pa29-chev,.pa29-guest-list>summary .pa29-chev{transform:rotate(-45deg)}
+.pa29-more-head[aria-expanded="true"] .pa29-chev{transform:rotate(135deg)}
+.pa29-card.is-closed{cursor:default;border-style:dashed;opacity:.86}
+.pa29-card.is-closed::before{opacity:.45}
+.pa29-state{flex:none}
+.pa29-card.is-closed .pa29-state[data-pa29-state="building"]{--r29-hue:var(--r29-amber)}
+@media (hover:hover){button.pa29-card:hover,.pa29-more-head:hover{background:color-mix(in srgb,var(--r29-hue) 9%,transparent)}}
+
+/* Raziel's presence card, now inside a list: no card of its own, one column, the actions under the text. */
+.pa29 .sod29-workspace-raziel-presence{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:0;border:0;background:none;box-shadow:none}
+.pa29 .sod29-workspace-raziel-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
+.pa29 .sod29-workspace-raziel-copy{display:grid;gap:4px;min-inline-size:0}
+
+/* ── Lists that open on demand ───────────────────────────────────────────────────────────────────────────────────────────── */
+.pa29-lists{gap:8px}
+.pa29-more{padding:0;overflow:hidden}
+/* An open list takes the whole row of the card grid. */
+.pa29-cards>.pa29-more.is-open{grid-column:1/-1}
+.pa29-more-body{display:grid;gap:12px;padding:6px 12px 14px;min-inline-size:0}
+.pa29-more-body :where(img,video,table){max-inline-size:100%}
+.pa29-more-body .sod29-actions{display:flex;flex-wrap:wrap;gap:8px}
+.pa29-guest-list>summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;list-style:none;cursor:pointer;min-block-size:58px;padding:8px 12px}
+.pa29-guest-list>summary::-webkit-details-marker{display:none}
+.pa29-guest-list[open]>summary .pa29-chev{transform:rotate(135deg)}
+.pa29-guest-ul{list-style:none;margin:0;padding:0 12px 12px;display:grid;gap:6px}
+.pa29-guest-ul li{display:grid;gap:1px}
+.pa29-guest-ul b{font:700 15px/1.3 var(--s29-font-ui,inherit)}
+.pa29-guest-ul small{font-size:13.5px;color:var(--s29-muted)}
+
+@media (max-width:520px){
+  .pa29{gap:12px}
+  .pa29-hall{padding:14px 12px 12px}
+  .pa29-avatar{--r29-medal:48px}
+  .pa29-cards{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){.pa29 *{transition:none!important}}
+@media (forced-colors:active){.pa29-primary{border:2px solid ButtonText;background:ButtonFace;color:ButtonText}.pa29-chev{border-color:ButtonText}}
+
+/* ── Royal sign-in inside the hall (ZURIEL 11.11): gold-ink headings, lit fields, ONE gold action, providers side by side with their real marks,
+   then the quiet links. Order of a guest's form: email → main action → "או" → Google | Facebook → notes → links. ─────────────────────── */
+.pa29-account .sod29-account-entry[data-auth-state="guest"]{display:grid;gap:10px;text-align:center;justify-items:stretch}
+.pa29-account .sod29-account-entry[data-auth-state="guest"] h2{font:800 21px/1.3 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);margin:0}
+.pa29-account .sod29-account-entry[data-auth-state="guest"]>p{margin:0;font-size:15px;line-height:1.55;color:var(--s29-muted)}
+.pa29-account .sod29-account-entry [data-signup-updates-policy]{margin:0;padding:10px 12px;border-radius:var(--r29-radius-sm);text-align:start;
+  border:1px solid color-mix(in srgb,var(--r29-sapphire) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 10%,var(--s29-panel))}
+.pa29-account .sod29-account-entry [data-signup-updates-policy] strong{font-size:14px;color:var(--r29-gold-ink)}
+.pa29-account .sod29-account-entry [data-signup-updates-policy] p{margin:4px 0 0;font-size:13px;line-height:1.5;color:var(--s29-muted)}
+.pa29-account .sod29-account-entry form{display:grid;gap:8px;text-align:start}
+.pa29-account .sod29-account-entry label{font:750 14px/1.2 var(--s29-font-ui,inherit);color:var(--r29-gold-ink)}
+.pa29-account .sod29-account-entry input{min-block-size:50px;border-radius:var(--r29-radius-sm);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-gold) 45%,var(--s29-line));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 12%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 40%,var(--s29-panel)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 10%,transparent)}
+.pa29-account .sod29-account-entry input:focus-visible{outline:2px solid var(--s29-focus-ring,var(--r29-gold));outline-offset:2px;border-color:var(--r29-gold)}
+.pa29-account .sod29-account-entry input::placeholder{color:color-mix(in srgb,var(--s29-muted) 80%,transparent)}
+/* the main action of the form: gold, like the hall's */
+/* The sign-in action is the hall's one primary action: royal blue (Design V2 §14.2, ZURIEL 19.11.2026; formerly gold). */
+.pa29-account .sod29-account-entry button.sod29-auth-primary[type="submit"]{min-block-size:50px;margin-top:2px;border-radius:999px;font:800 16px/1.2 var(--s29-font-ui,inherit);
+  color:var(--s29-on-accent);border:1px solid color-mix(in srgb,var(--r29-gold) 38%,transparent);background:var(--s29-accent-btn,var(--s29-accent));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent),0 10px 22px -12px color-mix(in srgb,var(--s29-accent) 85%,transparent)}
+.pa29-account .sod29-account-entry button.sod29-auth-primary[type="submit"]:disabled{opacity:.6}
+/* alternatives: "או" rule, the providers in two columns, then the links */
+.pa29-account .sod29-auth-alternatives{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:2px}
+.pa29-account .sod29-auth-alternatives::before{content:"◆  או  ◆";grid-column:1/-1;order:0;display:block;text-align:center;font:700 12.5px/1 var(--s29-font-ui,inherit);letter-spacing:.08em;color:var(--r29-gold);padding:2px 0}
+.pa29-account .sod29-auth-alternatives>[data-auth-provider]{order:1;margin:0;min-block-size:50px;gap:9px;border-radius:999px;padding:0 10px;font:750 14.5px/1.1 var(--s29-font-ui,inherit);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-gold) 50%,var(--s29-line));background:linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 16%,var(--s29-panel)),color-mix(in srgb,var(--r29-sapphire) 6%,var(--s29-panel)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 12%,transparent),0 6px 16px -10px color-mix(in srgb,var(--r29-sapphire) 80%,transparent)}
+.pa29-account .sod29-auth-alternatives>[data-auth-provider]:disabled{opacity:.62}
+@media (hover:hover){.pa29-account .sod29-auth-alternatives>[data-auth-provider]:not(:disabled):hover{border-color:var(--r29-gold);filter:brightness(1.08)}}
+.pa29-account .sod29-auth-alternatives>.sod29-auth-method-note{order:2;grid-column:1/-1;margin:0;text-align:center;font-size:13px;line-height:1.5;color:var(--s29-muted)}
+.pa29-account .sod29-auth-alternatives>:is(.sod29-auth-link,.sod29-auth-secondary:not([data-auth-provider])){order:3;grid-column:1/-1;margin:0;min-block-size:42px;color:var(--r29-gold-ink);font-size:14.5px;font-weight:700}
+.sod29-provider-mark{flex:none;inline-size:22px;block-size:22px;display:block}
+.pa29-account .sod29-auth-alternatives>[data-auth-provider] span{min-inline-size:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:360px){.pa29-account .sod29-auth-alternatives{grid-template-columns:minmax(0,1fr)}}
+
+/* ── The build notice: what is closed, and where to report a fault ─────────────────────────────────────────────────────────── */
+.pa29-build{--r29-hue:var(--r29-amber);display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;padding:10px 14px 10px 12px}
+.pa29-build-badge{--r29-hue:var(--r29-amber)}
+.pa29-build p{margin:0;font-size:14px;line-height:1.5;color:var(--s29-ink)}
+.pa29-build p strong{color:var(--r29-gold-ink)}
+.pa29-report{grid-column:1/-1;justify-self:start;min-block-size:44px;padding:0 6px;border:0;background:none;cursor:pointer;font:750 14.5px/1.2 var(--s29-font-ui,inherit);color:var(--r29-gold-ink);text-decoration:underline;text-underline-offset:4px}
+.pa29-report:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px;border-radius:8px}
+.pa29-account .sod29-auth-provider-lead{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.pa29-account .sod29-auth-alternatives>[data-auth-provider]{position:relative}
+.pa29-note{padding:10px 14px;text-align:start}
+.pa29-note :is(h2,h3,h4,strong){margin:0;font:750 15px/1.3 var(--s29-font-ui,inherit);color:var(--r29-gold-ink)}
+.pa29-note :is(p,div,span){margin:2px 0 0;font:500 13.5px/1.5 var(--s29-font-body,var(--s29-font-ui,inherit));color:var(--s29-muted)}
+.pa29-note :is(svg,.sod29-frame-state-icon){display:none}
+
+/* A centered section heading (Design V2 §14.3): the diamond rule on both sides. */
+.pa29-h.is-centered{justify-content:center;text-align:center}
+.pa29-h.is-centered::before,.pa29-h.is-centered::after{content:"";flex:1;max-inline-size:96px;block-size:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 55%,transparent))}
+.pa29-h.is-centered::after{transform:scaleX(-1)}
+
+/* Desktop (ZURIEL 19.11.2026): while the personal area (or "עכשיו") is open from the bar, the bar and its window widen together (up to 980px),
+   still one joined bar; phones keep the bar width. Loaded with the personal area only (frame CSS untouched; same rule in nowPublications2029.css). */
+@media (min-width:981px){.sod29-root.native-frame:has(.sod29-frame-panel[data-bar-expansion="now"]){--s29-bar-w:min(980px,calc(100vw - 48px))}}
+</style>
+<style>
+/* פריסה בלבד (grid / רווחים). כל הצבעים, המסגרות, הכפתורים והמדליונים מגיעים מ-royal2029.css ומ-personalArea2029.css בלי שינוי. */
+body{margin:0;background:#F4F7FC;color:#172B46;font:400 15px/1.5 var(--s29-font-body)}
+.wrap{max-width:1160px;margin:0 auto;padding:16px;display:grid;gap:18px}
+.tag{font:600 12px/1.4 var(--s29-font-ui);color:var(--s29-brand-gold);border:1px dashed currentColor;border-radius:10px;padding:6px 10px}
+h2{margin:0;font:600 13px/1.4 var(--s29-font-ui);color:var(--s29-accent-text)}
+.hall{padding:14px}
+.hd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.hd h3{margin:0;font:700 20px/1.2 var(--s29-font-ui)}
+.hd .grow{margin-inline-start:auto}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.col>h4{margin:0 0 6px;font:600 12px/1.3 var(--s29-font-ui);color:var(--r29-gold)}
+.list{display:grid;gap:6px}
+.mob{display:none}
+.pa29-card{text-align:start}
+.pa29-medal img{inline-size:100%;block-size:100%;object-fit:cover;border-radius:50%}
+.build{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.build p{margin:0;flex:1 1 320px;color:var(--s29-muted);font-size:13.5px}
+.now{display:grid;grid-template-columns:240px 1fr;gap:12px}
+.picker{display:grid;gap:6px;align-content:start}
+.thread{display:grid;gap:4px;margin-bottom:8px}
+.older{display:grid;gap:4px;padding-inline:10px}.older .o{font-size:13px;color:var(--s29-muted);display:flex;gap:6px;min-block-size:30px;align-items:center}
+.frame{background:var(--s29-frame);border-radius:20px;padding:12px}
+.note{font-size:12px;color:var(--s29-muted);margin:0}
+@media(max-width:760px){.cols{display:none}.mob{display:block}.now{grid-template-columns:1fr}.picker{display:flex;overflow-x:auto}.wrap{padding:12px 16px}.build .r29-btn{inline-size:100%}}
+</style></head>
+<body><div class="sod29-root" data-frame-theme-preset="light" style="--s29-page:#F4F7FC;--s29-panel:#FFFFFF;--s29-panel-soft:#EAF0F9;--s29-panel-grad:linear-gradient(145deg, #FFFFFF, #EAF0F9);--s29-frame:#FFFFFF;--s29-frame-soft:#EAF0F9;--s29-line:rgba(42,62,87,0.18);--s29-line-strong:rgba(42,62,87,0.34);--s29-accent:#315DD5;--s29-accent-text:#2454B8;--s29-accent-secondary:#7249A5;--s29-discovery:#086C70;--s29-focus-ring:#086C70;--s29-warm-accent:#80601D;--s29-brand-sapphire:#1957D9;--s29-brand-gold:#875E13;--s29-brand-glow:rgba(25,87,217,0.12);--s29-ink:#172B46;--s29-muted:#526580;--s29-glow:rgba(49,93,213,0.10);--s29-on-accent:#FFFFFF;--s29-accent-btn:linear-gradient(135deg, #315DD5, #2454B8);--s29-font-ui:'Rubik','Noto Sans Hebrew',Arial,sans-serif;--s29-font-body:'Noto Sans Hebrew','Rubik',Arial,sans-serif;--s29-font-numeric:'Rubik',monospace;--s29-motion:180ms"><div class="wrap r29">
+<div class="tag">תצוגה מקדימה לעיצוב · רכיבי Royal 2029 הקיימים בלבד (royal2029.css + personalArea2029.css) · ערכת light · נתוני אמת 25.11.2026 · לאישור ZURIEL</div>
+<h2>1 · חזית: דף הבית — «עדכונים אחרונים» (רויאל כחול וזהב)</h2>
+<section class="r29-hall hall" data-tone="sky" aria-label="עדכונים אחרונים">
+ <div class="hd"><h3>עדכונים אחרונים</h3><span class="r29-badge is-new">חי</span><button class="r29-btn is-quiet grow" type="button">לכל העדכונים ב«עכשיו» ←</button></div>
+ <div class="cols"><div class="col"><h4>עדכוני האתר · לפי זמן</h4><div class="list" id="site"></div></div><div class="col"><h4>האחרון מכל מקור</h4><div class="list" id="src"></div></div></div>
+ <div class="col mob"><h4>הכול · מהחדש לישן</h4><div class="list" id="one"></div></div>
+ <div class="r29-rule" aria-hidden="true" style="margin-top:12px">◆</div>
+ <div class="build"><p>האתר נבנה מבפנים. המערכת מתפתחת ומתחדשת כל הזמן. במהלך הבנייה ייתכנו תקלות זמניות. הצטרפו אלינו וקבלו עדכונים על חידושים ופתיחת אזורים נוספים.</p><button class="r29-btn is-primary" type="button">הרשמה לעדכונים</button></div>
+</section>
+<h2>2 · «עכשיו» — פאנל מסגרת (זהות הסרגלים והפאנלים נשמרת: משטח הכרטיס)</h2>
+<section class="frame"><div class="r29-hall hall" data-tone="sky"><div class="hd"><h3>עכשיו</h3><span class="r29-badge is-new">חי</span></div>
+ <div class="now"><div class="picker" id="picker"></div><div id="threads"></div></div>
+ <div class="r29-rule" aria-hidden="true">◆</div>
+ <div class="build"><p>האתר נבנה מבפנים. המערכת מתפתחת ומתחדשת כל הזמן. במהלך הבנייה ייתכנו תקלות זמניות. הצטרפו אלינו וקבלו עדכונים על חידושים ופתיחת אזורים נוספים.</p><button class="r29-btn is-primary" type="button">הרשמה לעדכונים</button></div></div></section>
+<h2>3 · פנים: דוגמה לאזור תוכן (רויאל חום וזהב) — מקורב עם גוון הזהב הקיים (data-tone="gold") על המשטח החם; מתכון הפנים המדויק יוגדר במימוש</h2>
+<section class="r29-hall hall" data-tone="gold"><div class="hd"><h3>סדרות ופוסטים אחרונים</h3></div><div class="list" id="inner"></div></section>
+<p class="note">בבית: זמן יחסי. ב«עכשיו»: תאריך עברי ולועזי. ללא נעיצות וללא קדימות לפי סוג.</p>
+</div></div>
+<script>
+const NOW=new Date("2026-11-25T12:00:00Z"),S="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/agent/2029/image/2026/11/netanyahu-trial-2000-4000-david-24-6414c75227c4/derivatives/thumb.jpg";
+const D=[
+{src:"זרם המציאות",i:"🌊",t:"משפט נתניהו: תיקים 2000 ו־4000 — המציאות מדברת 24",s:"דויד = 24 בגימטריה. דוד המלך קיים ככוח בכל המציאות.",at:"2026-11-25T11:28:24Z",th:S,k:"תמונה"},
+{src:"אור הגאולה",i:"🔥",t:"מטורף!!!",s:"אתם לא מבינים שצריך לבקש את מלכות ה'?",at:"2026-11-25T07:04:50Z",k:"סרטון · לפי דרישה"},
+{src:"תורת הרמז · צבי (OPOC)",i:"👤",t:"שש פעמים «כתר» = 3720",s:"מרים דברה במשה ולקתה בצרעת… «מצרעת» = 800 בגימטריה.",at:"2026-11-25T06:58:29Z",k:"קבוצה · מקור טרם נבדק",unv:1},
+{src:"פוסטים",i:"📝",t:"GTA 6 אחרי 50 שעות — נון = 756, ושער החמישים",s:"זיגי סיים את GTA 6 בשידור חי בדיוק כשהשעון עבר 50:00:00.",at:"2026-11-25T01:18:38Z",k:"פוסט",site:1},
+{src:"עדכוני האתר",i:"📖",t:"חדש בספרייה: המסע לשער החמישים — ציון דוד סיבוני",s:"ספר מקור בן 110 עמודים, עם שמונה שערים ונספחים.",at:"2026-11-23T07:19:58Z",k:"עדכון אתר",site:1},
+{src:"הגילוי היומי · ציון סיבוני",i:"💬",t:"יוסף ה׳ לי בן אחר — לידת בנימין — חודש כסלו הוא החודש של בנימין",s:"שרשור בקהילה",at:"2026-11-21T16:13:20Z",k:"שרשור בקהילה"},
+{src:"פוסטים",i:"📝",t:"חייזרים מבטיחים חמש מתנות לאנושות — כל הסרטון נוצר בבינה מלאכותית",s:"מימד חמש.",at:"2026-11-20T13:08:30Z",k:"פוסט",site:1},
+{src:"עדכוני האתר",i:"🛠️",t:"עודכן הממשק הציבורי: מעטפת הניווט קיבלה עיצוב אחיד",s:"תצוגת קישורי השיתוף שופרה.",at:"2026-11-19T16:11:59Z",k:"עדכון אתר",site:1},
+{src:"קוד המציאות",i:"🧩",t:"חודש כסלו טומן בתוכו את חג החנוכה",s:"בשם החודש כסלו מגלים רמזים נפלאים לנס חנוכה.",at:"2026-11-09T16:59:54Z",k:"ערוץ"},
+{src:"סוד החשמל",i:"⚡",t:"דיבור אל הסלע · אור האמונה",s:"מובא ב'ספר הליקוטים' להאריז״ל שה' אמר למשה לדבר אל הסלע.",at:"2026-07-03T16:03:26Z",k:"ערוץ"}];
+const rel=a=>{const m=Math.round((NOW-new Date(a))/6e4);if(m<60)return "לפני "+m+" דקות";const h=Math.round(m/60);if(h<24)return h==1?"לפני שעה":h==2?"לפני שעתיים":"לפני "+h+" שעות";const d=Math.round(h/24);return d==1?"אתמול":d<30?"לפני "+d+" ימים":"לפני "+Math.round(d/30)+" חודשים"};
+const he=a=>{const d=new Date(a);return new Intl.DateTimeFormat("he-u-ca-hebrew",{day:"numeric",month:"long"}).format(d)+" · "+new Intl.DateTimeFormat("he-IL",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:"Asia/Jerusalem"}).format(d)};
+const card=(x,t,tone)=>'<button type="button" class="pa29-card r29-card" '+(tone?'data-tone="'+tone+'"':'data-r29-kind="'+(x.site?"site":"channel")+'"')+'><span class="pa29-medal r29-medal">'+(x.th?'<img alt="" src="'+x.th+'">':x.i)+'</span><span class="pa29-card-text"><strong>'+x.t+'</strong><small>'+x.src+' · '+t(x.at)+(x.unv?' · מקור טרם נבדק':'')+' · '+x.k+' — '+x.s+'</small></span><span class="pa29-chev"></span></button>';
+const byT=(a,b)=>b.at.localeCompare(a.at);
+const first=new Map();D.slice().sort(byT).forEach(x=>{const k=x.src;if(!first.has(k))first.set(k,x)});
+document.getElementById("site").innerHTML=D.filter(x=>x.site).sort(byT).slice(0,5).map(x=>card(x,rel)).join("");
+document.getElementById("src").innerHTML=D.filter(x=>!x.site).sort(byT).map(x=>card(x,rel)).join("");
+document.getElementById("one").innerHTML=D.slice().sort(byT).map(x=>card(x,rel)).join("");
+document.getElementById("inner").innerHTML=D.filter(x=>x.site).sort(byT).slice(0,3).map(x=>card(x,rel,"gold")).join("");
+document.getElementById("picker").innerHTML=["הכול"].concat([...first.keys()].slice(0,6)).map((n,i)=>'<button type="button" class="r29-chip" aria-pressed="'+(i==0)+'">'+n+'</button>').join("");
+const prev={"עדכוני האתר":["עודכן הממשק הציבורי · 19.11","הצופן התנ״כי מתרחב · 19.11"],"אור הגאולה":["סרטון קודם · 24.11","סרטון קודם · 23.11"]};
+document.getElementById("threads").innerHTML=[...first.values()].sort(byT).map(x=>'<div class="thread">'+card(x,he)+(prev[x.src]?'<div class="older">'+prev[x.src].map(p=>'<div class="o">• '+p+'</div>').join("")+'<button class="r29-btn is-quiet" type="button">עוד '+prev[x.src].length+' פרסומים קודמים ↓</button></div>':'')+'</div>').join("");
+</script></body></html>
