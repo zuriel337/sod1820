@@ -26,6 +26,8 @@ export function pulseLineModel(d) {
   return { numbers, trends, halfDays };
 }
 
+// Empty state (ZURIEL 25.11.2026: no empty places): REAL fixed entrances, never an invented number or trend.
+const EMPTY_LINKS = [{ href: "/gematria", label: "מחשבון גימטריה" }, { href: "/research", label: "מחקר" }];
 const ARROW = { up: "↑", down: "↓", flat: "→" };
 function trendText(t) { return t.dir === "flat" ? "ללא שינוי" : `${ARROW[t.dir]} ${Math.abs(t.pct).toLocaleString("he-IL")}%`; }
 
@@ -43,7 +45,8 @@ export default function NowPulseLine2029({ read = () => readResearchPulse(NOW_PU
   return <nav className="nowpulse29 r29" dir="rtl" aria-label={`דופק האתר · ${NOW_PULSE_WINDOW_LABEL}`} data-now-pulse={empty || state.status === "failed" ? "empty" : "ready"}>
     <span className="nowpulse29-title"><i aria-hidden="true">◆</i>דופק האתר <small>· {NOW_PULSE_WINDOW_LABEL}</small></span>
     {empty || state.status === "failed"
-      ? <span className="nowpulse29-note">{state.status === "failed" ? "הדופק אינו זמין כרגע" : "אין עדיין נתונים מעל סף הפרטיות"}</span>
+      ? <><span className="nowpulse29-note">{state.status === "failed" ? "הדופק אינו זמין כרגע" : "אין עדיין נתונים מעל סף הפרטיות"}</span>
+        {EMPTY_LINKS.map(l => <a key={l.href} className="nowpulse29-num" href={l.href} onClick={go(l.href)} data-now-pulse-fixed="1">{l.label}</a>)}</>
       : <>
         {model.numbers.length ? <span className="nowpulse29-grp" data-now-pulse-part="numbers"><span className="nowpulse29-k"><span className="nowpulse29-long">מספרים חמים</span><span className="nowpulse29-short">חמים</span></span>
           {model.numbers.map(n => { const href = `${NUMBER_PAGE_BASE}/${n}`; return <a key={n} className="nowpulse29-num" href={href} onClick={go(href)}>{n.toLocaleString("he-IL")}</a>; })}</span> : null}
