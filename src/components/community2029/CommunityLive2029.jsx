@@ -404,6 +404,11 @@ export function PublicCommunityActivity2029({ rows = [], count = null, loading =
   </div>;
 }
 
+// Whether this browser saw pinned tree hints on its last visit (a per-viewer convenience only; any storage failure means "no").
+const TREE_PINS_SEEN_KEY = "sod29.community.treePinsSeen";
+function treePinsLastSeen() { try { return globalThis.localStorage?.getItem(TREE_PINS_SEEN_KEY) === "1"; } catch { return false; } }
+function rememberTreePins(seen) { try { if (seen) globalThis.localStorage?.setItem(TREE_PINS_SEEN_KEY, "1"); else globalThis.localStorage?.removeItem(TREE_PINS_SEEN_KEY); } catch { /* private mode */ } }
+
 export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/community/chat" }) {
   const palette = use2029Palette();
   const { user, profile, isAdmin, canModerateGuests, loading: authLoading, verified: authVerified } = useAuth();
@@ -481,11 +486,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [guestPending, setGuestPending] = useState(() => []);
   const guestUnreviewedIds = useMemo(() => new Set(guestPending.map(item => item.id)), [guestPending]);
   const guestReviewRead = useRef(0);
-  const [treeHints, setTreeHints] = useState(null); // null = the pinned strip is still loading (its place is kept)
+  // null = the pinned strip is still loading and its place is kept. S-59 (25.11.2026): the place is kept only when this browser last saw pins;
+  // with no pins (the usual case: none exist) the reserved strip collapsed on every visit and the composer and the feed jumped 58 px.
+  const [treeHints, setTreeHints] = useState(() => treePinsLastSeen() ? null : []);
   const [treeHintRefresh, setTreeHintRefresh] = useState(0);
   useEffect(() => {
     let live = true;
-    fetchTreeHints({ limit: 20, href: window.location.href }).then(items => { if (live) setTreeHints(items || []); }).catch(() => { if (live) setTreeHints([]); /* the pinned strip is optional */ });
+    const settle = items => { if (!live) return; rememberTreePins(items.length > 0); setTreeHints(items); };
+    fetchTreeHints({ limit: 20, href: window.location.href }).then(items => settle(items || [])).catch(() => settle([]) /* the pinned strip is optional */);
     return () => { live = false; };
   }, [treeHintRefresh]);
   const toggleTreeHint = useCallback(async (id, action) => {
