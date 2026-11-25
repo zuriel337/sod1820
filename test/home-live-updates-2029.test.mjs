@@ -72,10 +72,10 @@ test("newest first across kinds: a reality-stream image shows as an image with i
   await act(async () => { root.unmount(); });
 });
 
-test("bounded rows: the site's own updates (at most 5) and one item per source (at most 6), never the whole history; posts-only while the world is closed", async () => {
+test("bounded rows: the site's own updates (at most 7) and one item per source (at most 7), never the whole history; posts-only while the world is closed", async () => {
   const items = [1, 2, 3, 4, 5, 6, 7].map(n => postRowToWorldUpdate(post(n, n))).concat([gallery(2, 0.5)]).filter(Boolean);
   let root = await render({ feed: feedOf(items) });
-  assert.equal(entries(root).length, 6, "five site updates and the one reality-stream source");
+  assert.equal(entries(root).length, 8, "seven site updates and the one reality-stream source");
   assert.equal(root.root.findAll(node => node.props.className === "rc29-ex").length, 0, "no excerpts in the short strip");
   assert.equal(root.root.findAll(node => node.type === "button" && node.props["data-home-open-now"] === "true").length, 1, "the whole picture is one tap away");
   await act(async () => { root.unmount(); });
@@ -108,11 +108,11 @@ test("an editorial lead keeps a different unit from the shared Now feed and omit
   await act(async () => { root.unmount(); });
 });
 
-test("loading reserves exactly the loaded rows on desktop too (5 + 6) so nothing moves when the data arrives", async () => {
+test("loading reserves exactly the loaded rows on desktop too (7 + 7) so nothing moves when the data arrives", async () => {
   globalThis.window = { matchMedia: () => ({ matches: true, addEventListener() {}, removeEventListener() {} }) };
   try {
     const root = await render({ feed: { loading: true, expandedRows: [] } });
-    assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 11);
+    assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 14);
     assert.equal(root.root.findAll(node => node.props["data-home-updates-loading"] === "true").length > 0, true);
     await act(async () => { root.unmount(); });
   } finally { delete globalThis.window; }
@@ -120,7 +120,7 @@ test("loading reserves exactly the loaded rows on desktop too (5 + 6) so nothing
 
 test("loading reserves rows; nothing to show or no feed renders nothing: no empty card and no error text", async () => {
   let root = await render({ feed: { loading: true, expandedRows: [] } });
-  assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 8, "phone: the skeleton reserves exactly the loaded list's rows (no layout shift when the data arrives)");
+  assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 12, "phone: the skeleton reserves exactly the loaded list's rows (no layout shift when the data arrives)");
   assert.equal(root.root.findAll(node => node.props["data-home-top-updates"] === "live")[0].props["aria-busy"], true);
   assert.match(root.root.findAll(node => node.props.role === "status")[0].children.join(""), /טוען/, "a visible loading line, inside the reserved rows (Operation Visibility Law)");
   await act(async () => { root.unmount(); });

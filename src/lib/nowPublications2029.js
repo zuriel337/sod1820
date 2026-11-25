@@ -450,7 +450,7 @@ export const filterNowBySource = (models, sourceKey = "") => list(models).filter
 export const isSiteSourceKey = key => typeof key === "string"
   && ((key.startsWith("site:") && key !== "site:reality") || key.startsWith("series:") || key === "channel:site-news");
 // The rows are bounded AND of a fixed count while loading (the skeleton reserves exactly these), so the arrival of the data moves nothing (CLS <= 0.1).
-export const HOME_SITE_LIMIT = 5, HOME_SOURCE_LIMIT = 6, HOME_MERGED_LIMIT = 8;
+export const HOME_SITE_LIMIT = 7, HOME_SOURCE_LIMIT = 7, HOME_MERGED_LIMIT = 12;
 
 /**
  * The Home's "עדכונים אחרונים" from the SAME models "עכשיו" uses (already in time order, no pin, no type priority).

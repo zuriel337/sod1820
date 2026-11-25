@@ -58,10 +58,10 @@ test("no pin and no series priority anywhere in the Home views: a pinned item an
   assert.ok(merged.every(model => !model.pinned));
 });
 
-test("both views are bounded: at most five site updates and six sources, never the whole history", () => {
+test("both views are bounded: at most seven site updates and seven sources, never the whole history", () => {
   const items = [...Array.from({ length: 12 }, (_, i) => postRowToWorldUpdate(post(i + 1, i + 1))), ...Array.from({ length: 9 }, (_, i) => group(i + 1, i + 0.5, `writer-${i}`, `chan-${i}`))];
   const { site, sources } = homeUpdateColumns(modelsOf(items));
-  assert.ok(site.length <= 5 && sources.length <= 6);
+  assert.ok(site.length <= 7 && sources.length <= 7);
 });
 
 test("'עכשיו' threads: one thread per source, the most recently updated source first, each thread's latest update on top; the same models as the Home", () => {
