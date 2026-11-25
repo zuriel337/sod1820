@@ -38,6 +38,8 @@ test('approved number and cipher strips remain available while other pages keep 
  const now=fs.readFileSync('src/components/experience2029/NowPublications2029.jsx','utf8');
  assert.doesNotMatch(now,/SectionPulseSlot2029|CalculatorPulseLineSlot2029/);
  assert.equal((now.match(/<NowPulseLineSlot2029\b/g)||[]).length,1,'the Now pulse line is mounted once');
+ // ZURIEL 25.11.2026 (no empty places on the Home either): the same line, mounted once on the Home, lazily.
+ assert.equal((fs.readFileSync('src/components/experience2029/HomeComposition2029.jsx','utf8').match(/<NowPulseLineSlot2029\b/g)||[]).length,1,'the Home mounts the pulse line once');
  for(const [file, mount] of [
    ['Number2029Page', '<SectionPulseSlot2029 inline section="number" value={root} />'],
    ['Els2029Page', '<SectionPulseSlot2029 section="els" />'],
